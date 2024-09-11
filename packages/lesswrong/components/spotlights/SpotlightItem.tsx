@@ -427,6 +427,9 @@ export const SpotlightItem = ({
     WrappedSmartForm, SpotlightEditorStyles, SpotlightStartOrContinueReading,
     Typography, LWTooltip, ForumIcon,
   } = Components
+
+  const subtitleComponent = spotlight.subtitleUrl ? <Link to={spotlight.subtitleUrl}>{spotlight.customSubtitle}</Link> : spotlight.customSubtitle
+
   return <AnalyticsTracker eventType="spotlightItem" captureOnMount captureOnClick={false}>
     <div
       id={spotlight._id}
@@ -448,7 +451,7 @@ export const SpotlightItem = ({
             </span>
           </div>
           {spotlight.customSubtitle && showSubtitle && <div className={classes.subtitle}>
-            {spotlight.customSubtitle}
+            {subtitleComponent}
           </div>}
           {(spotlight.description?.html || isBookUI) && <div className={classes.description}>
             {editDescription ? 

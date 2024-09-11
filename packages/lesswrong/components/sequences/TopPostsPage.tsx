@@ -453,7 +453,7 @@ const styles = (theme: ThemeType) => ({
       ...theme.typography.headerStyle
     }
   },
-  topicTitle: {
+  categoryTitle: {
     textTransform: 'capitalize',
   },
   year: {
@@ -462,7 +462,7 @@ const styles = (theme: ThemeType) => ({
     marginTop: 12,
     color: theme.palette.grey[600],
   },
-  topic: {
+  category: {
     ...theme.typography.display1,
     fontSize: '1.6rem',
     marginTop: 12,
@@ -471,11 +471,11 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[600],
     marginBottom: 24
   },
-  postsByYearTopic: {
+  postsByYearCategory: {
     display: 'flex',
     marginBottom: 12
   },
-  yearTopicSectionTitle: {
+  yearCategorySectionTitle: {
     ...theme.typography.display2,
     ...theme.typography.headerStyle,
     marginBottom: 12,
@@ -484,14 +484,20 @@ const styles = (theme: ThemeType) => ({
   yearSelector: {
     display: 'flex',
     flexDirection: 'row',
-    gap: '12px',
+    gap: '16px',
     marginBottom: '12px'
   },
-  topicSelector: {
+  categorySelector: {
     display: 'flex',
     flexDirection: 'row',
-    gap: '12px',
+    gap: '16px',
     marginBottom: '12px'
+  },
+  disabledCategory: {
+    color: '#aaa'
+  },
+  spotlightItem: {
+    marginBottom: 20
   }
 });
 
@@ -727,7 +733,7 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   );
 }
 
-function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinnersWithPosts}:{
+function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinnersWithPosts }: {
   classes: ClassesType<typeof styles>,
   yearGroupsInfo: Record<ReviewWinnerYear, ReviewYearGroupInfo>,
   sectionsInfo: Record<ReviewWinnerSectionName, ReviewSectionInfo>,
@@ -739,16 +745,14 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
   const { query } = location;
 
   const years = Object.keys(yearGroupsInfo || {}).sort((a, b) => parseInt(b) - parseInt(a)).map((year) => parseInt(year)) as ReviewWinnerYear[]
-  const topics = Object.keys(sectionsInfo || {}).sort((a, b) => b.localeCompare(a)) as ReviewWinnerSectionName[]
-
-  const navigate = useNavigate();
+  const categories = Object.keys(sectionsInfo || {}).sort((a, b) => b.localeCompare(a)) as ReviewWinnerSectionName[]
 
   const [year, setYear] = useState<ReviewWinnerYear|null>(query.year && reviewWinnerYearSet.has(parseInt(query.year)) ? parseInt(query.year) as ReviewWinnerYear : 2022)
-  const [topic, setTopic] = useState<ReviewWinnerSectionName|null>(query.topic && reviewWinnerSectionNamesSet.has(query.topic) ? query.topic as ReviewWinnerSectionName : "rationality")
+  const [category, setCategory] = useState<ReviewWinnerSectionName|null>(query.category && reviewWinnerSectionNamesSet.has(query.category) ? query.category as ReviewWinnerSectionName : "rationality")
 
   useEffect(() => {
     if (query.year) {
-      const element = document.getElementById('year-topic-section');
+      const element = document.getElementById('year-category-section');
       if (element) {
         element.scrollIntoView({ });
       }
@@ -760,66 +764,62 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
     fragmentName: 'SpotlightDisplay',
     terms: {
       view: "spotlightsBySubtitle",
-      subtitle: `Best of LessWrong ${year}`,
+      subtitle: { $regex: "Best of LessWrong", $options: "i" },
       limit: 50
     },
     enableTotal: false
   });
 
   const filteredSpotlights = spotlights.filter(spotlight => {
-      if (topic) {
+      if (category) {
         return reviewWinnersWithPosts.some(post => 
           post._id === spotlight.documentId && 
-        post.reviewWinner?.category === topic) 
+        post.reviewWinner?.category === category) 
       } else {
         return spotlights
       }
     }
   );
 
-  const topicTitle = topic ? sectionsInfo[topic].title : ""
+  const categoryTitle = category ? sectionsInfo[category].title : ""
 
   const handleSetYear = (y: ReviewWinnerYear|null) => {
-    const currentScrollPosition = window.scrollY;
     setYear(y);
-    navigate({
-      search: `?${qs.stringify({year: y, topic})}`,
-    }, {replace: true});
-    setTimeout(() => window.scrollTo(0, currentScrollPosition), 0);
+    const newSearch = qs.stringify({year: y, category});
+    history.replaceState(null, '', `${location.pathname}?${newSearch}`);
+  }
+  
+  const handleSetCategory = (t: ReviewWinnerSectionName|null) => {
+    setCategory(t);
+    const newSearch = qs.stringify({year, category: t});
+    history.replaceState(null, '', `${location.pathname}?${newSearch}`);
   }
 
-  const handleSetTopic = (t: ReviewWinnerSectionName|null) => {
-    setTopic(t);
-    const currentScrollPosition = window.scrollY;
-    navigate({search: `?${qs.stringify({year, topic: t})}`}, {replace: true});
-    setTimeout(() => window.scrollTo(0, currentScrollPosition), 0);
-  }
-
-  return <div className={classes.postsByYearSectionCentered} id="year-topic-section">
-      <h1 className={classes.yearTopicSectionTitle}>Best of <span className={classes.topicTitle}>{topicTitle}</span> {year}</h1>
+  return <div className={classes.postsByYearSectionCentered} id="year-category-section">
+      <h1 className={classes.yearCategorySectionTitle}>Best of <span className={classes.categoryTitle}>{categoryTitle}</span> {year}</h1>
       <div className={classes.yearSelector}>
         {years.map((y) => {
           const postsCount = reviewWinnersWithPosts.filter(post => {
             return post.reviewWinner?.reviewYear === y
           }).length
-          return <LWTooltip title={`${postsCount} posts`} placement="top"><a onClick={() => handleSetYear(y)} className={classes.year} key={y} style={{color: y === year ? '#000' : '#888'}}>{y}</a></LWTooltip>
+          return <LWTooltip key={y} title={`${postsCount} posts`} placement="top"><a onClick={() => handleSetYear(y)} className={classes.year} key={y} style={{color: y === year ? '#000' : '#888'}}>{y}</a></LWTooltip>
         })}
       </div>
-      <div className={classes.topicSelector}>
-        {topics.map((t) => {
+      <div className={classes.categorySelector}>
+        {categories.map((t) => {
           const postsCount = reviewWinnersWithPosts.filter(post => post.reviewWinner?.reviewYear === year && post.reviewWinner?.category === t).length
           return <LWTooltip key={t} title={`${postsCount} posts`} inlineBlock={false}>
-            <a onClick={() => handleSetTopic(t)} className={classes.topic} style={{color: t === topic ? '#000' : '#888'}}>{t}</a>
+            <a onClick={() => handleSetCategory(t)} className={classNames(classes.category, !postsCount && classes.disabledCategory)} style={{color: t === category ? '#000' : '#888'}}>{sectionsInfo[t].title}</a>
           </LWTooltip>
         })}
         <LWTooltip key="all" title={`${reviewWinnersWithPosts.filter(post => post.reviewWinner?.reviewYear === year).length} posts`} inlineBlock={false}>
-          <a onClick={() => handleSetTopic(null)} className={classes.topic} style={{color: topic === null ? '#000' : '#888'}}>
+          <a onClick={() => handleSetCategory(null)} className={classes.category} style={{color: category === null ? '#000' : '#888'}}>
             All
           </a>
         </LWTooltip>
       </div>
       <div style={{ maxWidth: SECTION_WIDTH, paddingBottom: 1000 }}>
-        {filteredSpotlights.map((spotlight) => <SpotlightItem spotlight={spotlight} key={spotlight._id} showSubtitle={false} />)}
+        {filteredSpotlights.map((spotlight) => <span className={classes.spotlightItem}><SpotlightItem spotlight={spotlight} key={spotlight._id} showSubtitle={false} /></span>)}
       </div>
     </div>
 }
