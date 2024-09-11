@@ -755,11 +755,6 @@
     "timestamp": "2024-09-04T20:55:02.000Z"
   },
   {
-    "acceptsSchemaHash": "4784387869832318e26709e0e54682c8",
-    "acceptedByMigration": "20240904T224642.create_DoppelComments_and_DoppelCommentVotes_tables.ts",
-    "timestamp": "2024-09-04T22:46:42.000Z"
-  },
-  {
     "acceptsSchemaHash": "4478fe67319e5ebbe8327768fc26f5f4",
     "acceptedByMigration": "20240906T192038.lwevents_ip_index.ts",
     "timestamp": "2024-09-06T19:20:38.000Z"
@@ -771,7 +766,7 @@
   },
   {
     "acceptsSchemaHash": "218b88dd1bf697da99eb6b8823ff6931",
-    "acceptedByMigration": "20240911T212541.update_DoppelCommentVote_indices.ts",
-    "timestamp": "2024-09-11T21:25:41.000Z"
+    "acceptedByMigration": "20240911T212929.create_DoppelComments_and_DoppelCommentVotes_tables.ts.ts",
+    "timestamp": "2024-09-11T21:29:29.000Z"
   }
 ]

@@ -54,7 +54,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 export type PotentialCommentsData = {
-  potentialComments: {content: string, doppelId: string|null}[],
+  potentialComments: {content: string|null, doppelId: string|null}[],
   activePotentialComment: number,
   setActivePotentialComment: React.Dispatch<SetStateAction<number>>,
   doppelCommentVote: React.ReactNode,

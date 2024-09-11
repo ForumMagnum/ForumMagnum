@@ -19,11 +19,8 @@ import { isFriendlyUI } from '../../../themes/forumTheme';
 import type { ContentItemBody } from '../../common/ContentItemBody';
 import Button from '@material-ui/core/Button';
 import { useCreate } from '@/lib/crud/withCreate';
-import { isLWorAF } from '@/lib/instanceSettings';
 import { useMessages } from '@/components/common/withMessages';
 import shuffle from 'lodash/shuffle';
-import { userIsAdmin } from '@/lib/vulcan-users';
-import { PotentialCommentsData } from './CommentBody';
 import { userHasDoppelComments } from '@/lib/betas';
 
 export const highlightSelectorClassName = "highlighted-substring";
@@ -180,7 +177,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-type PotentialCommentBody = { content: string, doppelId: string|null }
+type PotentialCommentBody = { content: string|null, doppelId: string|null }
 
 const DoppelCommentVote = ({ className, comment, createDoppelVote, potentialCommentBodies, activePotentialComment }:
   {
