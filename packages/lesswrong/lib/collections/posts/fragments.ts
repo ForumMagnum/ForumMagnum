@@ -48,6 +48,9 @@ registerFragment(`
     reviewWinner {
       ...ReviewWinnerTopPostsPage
     }
+    spotlight {
+      ...SpotlightReviewWinner
+    }
   }
 `);
 

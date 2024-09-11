@@ -78,6 +78,11 @@ class ReviewWinnersRepo extends AbstractRepo<"ReviewWinners"> {
       FROM "ReviewWinners" rw
       JOIN "Posts" p
       ON rw."postId" = p._id
+      JOIN "Spotlights" s
+      ON s."documentId" = p._id
+      WHERE 
+        s."draft" = false
+        AND s."deletedDraft" = false
     `);
 
     // We need to do this annoying munging in code because `TO_JSONB` causes date fields to be returned without being serialized into JS Date objects

@@ -1200,6 +1200,35 @@ const schema: SchemaType<"Posts"> = {
     })
   }),
 
+  spotlight: resolverOnlyField({
+    type: "Spotlight",
+    graphQLtype: "Spotlight",
+    canRead: ['guests'],
+    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+      const { currentUser, Spotlights } = context;
+      const spotlight = await getWithLoader(context, Spotlights,
+        "postSpotlight",
+        {
+          documentId: post._id,
+          draft: false,
+          deletedDraft: false
+        },
+        "documentId", post._id
+      );
+      return accessFilterSingle(currentUser, Spotlights, spotlight[0], context);
+    },
+    sqlResolver: ({field, join}) => join({
+      table: "Spotlights",
+      type: "left",
+      on: {
+        documentId: field("_id"),
+        draft: "false",
+        deletedDraft: "false"
+      },
+      resolver: (spotlightsField) => spotlightsField("*"),
+    })
+  }),
+
   votingSystem: {
     type: String,
     optional: true,

@@ -13,10 +13,9 @@ import classNames from 'classnames';
 import range from 'lodash/range';
 import { CoordinateInfo, ReviewSectionInfo, ReviewWinnerSectionName, ReviewWinnerYear, ReviewYearGroupInfo, reviewWinnerSectionNamesSet, reviewWinnerSectionsInfo, reviewWinnerYearGroupsInfo, reviewWinnerYearSet } from '../../lib/publicSettings';
 import { useCurrentUser } from '../common/withUser';
-import { useMulti } from '@/lib/crud/withMulti';
 import qs from "qs";
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
-import ReviewWinners from '@/lib/collections/reviewWinners/collection';
+import { filterNonnull, filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
 
 /** In theory, we can get back posts which don't have review winner info, but given we're explicitly querying for review winners... */
 type GetAllReviewWinnersQueryResult = (PostsTopItemInfo & { reviewWinner: Exclude<PostsTopItemInfo['reviewWinner'], null> })[]
@@ -759,27 +758,14 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
     }
   }, [query.year]);
 
-  const { results: spotlights = [] } = useMulti({
-    collectionName: 'Spotlights',
-    fragmentName: 'SpotlightDisplay',
-    terms: {
-      view: "spotlightsBySubtitle",
-      subtitle: { $regex: "Best of LessWrong", $options: "i" },
-      limit: 50
-    },
-    enableTotal: false
-  });
+  const filteredReviewWinnersForSpotlights = reviewWinnersWithPosts.filter(post => {
+    return post.reviewWinner?.reviewYear === year && post.reviewWinner?.category === category
+  })
 
-  const filteredSpotlights = spotlights.filter(spotlight => {
-      if (category) {
-        return reviewWinnersWithPosts.some(post => 
-          post._id === spotlight.documentId && 
-        post.reviewWinner?.category === category) 
-      } else {
-        return spotlights
-      }
-    }
-  );
+  const filteredSpotlights = filterWhereFieldsNotNull(filteredReviewWinnersForSpotlights, 'spotlight').map(post => ({
+    ...post.spotlight,
+    document: post
+  }))
 
   const categoryTitle = category ? sectionsInfo[category].title : ""
 
@@ -819,7 +805,7 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
         </LWTooltip>
       </div>
       <div style={{ maxWidth: SECTION_WIDTH, paddingBottom: 1000 }}>
-        {filteredSpotlights.map((spotlight) => <span className={classes.spotlightItem}><SpotlightItem spotlight={spotlight} key={spotlight._id} showSubtitle={false} /></span>)}
+        {filteredSpotlights.map((spotlight) => <span key={spotlight._id} className={classes.spotlightItem}><SpotlightItem spotlight={spotlight}  showSubtitle={false} /></span>)}
       </div>
     </div>
 }

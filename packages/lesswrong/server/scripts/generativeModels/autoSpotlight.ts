@@ -197,6 +197,7 @@ const updateSpotlightUrlsAndPostCustomHighlights = async () => {
   const currentUser = createAdminContext().currentUser
 
   for (const [i, spotlight] of spotlights.entries()) {
+    // eslint-disable-next-line no-console
     console.log(spotlight._id, i)
     const reviewWinner = reviewWinners.find(reviewWinner => reviewWinner._id === spotlight.documentId);
     const category = reviewWinner?.reviewWinner.category

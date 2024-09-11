@@ -3,8 +3,7 @@ import Spotlights from "./collection";
 
 declare global {
   interface SpotlightsViewTerms extends ViewTermsBase {
-    sequenceId?: string;
-    subtitle?: string;
+    documentIds?: string[];
   }
 }
 
@@ -53,10 +52,10 @@ Spotlights.addView("spotlightsPageDraft", function (terms: SpotlightsViewTerms) 
   }
 });
 
-Spotlights.addView("spotlightForSequence", (terms: SpotlightsViewTerms) => {
+Spotlights.addView("spotlightsByDocumentIds", (terms: SpotlightsViewTerms) => {
   return {
     selector: {
-      documentId: terms.sequenceId,
+      documentId: { $in: terms.documentIds },
       draft: false,
       deletedDraft: false
     },
@@ -66,16 +65,3 @@ Spotlights.addView("spotlightForSequence", (terms: SpotlightsViewTerms) => {
   }
 });
 
-
-Spotlights.addView("spotlightsBySubtitle", (terms: SpotlightsViewTerms) => {
-  return {
-    selector: {
-      customSubtitle: terms.subtitle,
-      draft: false,
-      deletedDraft: false
-    },
-    options: {
-      sort: { position: 1 }
-    }
-  }
-});
