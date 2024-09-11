@@ -123,11 +123,6 @@ export const eaForumTheme: SiteThemeSpecification = {
       fontFamily: serifStack
     }
     return {
-      zIndexes: {
-        searchResults: 1450,
-        intercomButton: 1400,
-        blurredBackgroundModal: 1350,
-      },
       spacing: {
         mainLayoutPaddingTop: 20
       },
