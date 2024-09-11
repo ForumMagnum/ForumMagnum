@@ -124,9 +124,9 @@ augmentFieldsDict(Comments, {
         if (!userHasDoppelComments(currentUser)) return []
         // This should always be a single user
         const [user] = await getWithLoader(context, Users, "usersByIdsForDoppelComments", {}, "_id", dbComment.userId, {karma: 1})
+        if (!user) return []
+        if (user.karma < 10_000) return []
         const doppelComments = await getWithCustomLoader(context, "doppelCommentsForComment", dbComment._id, async (commentIds: string[]) => {
-          if (!user) return []
-          if (user.karma < 10_000) return []
           const doppelComments = await DoppelComments.find({commentId: {$in: commentIds}}).fetch()
           const doppelsByComment = groupBy(doppelComments, 'commentId')
           return commentIds.map(commentId => doppelsByComment[commentId] ?? [])
