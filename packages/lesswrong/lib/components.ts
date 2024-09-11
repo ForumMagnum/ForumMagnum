@@ -435,6 +435,7 @@ importComponent("RecombeePostsList", () => require('../components/posts/Recombee
 importComponent("RecombeePostsListSettings", () => require('../components/posts/RecombeePostsListSettings'));
 importComponent("AttributionInViewTracker", () => require('../components/common/AttributionInViewTracker'));
 importComponent("VertexPostsList", () => require('../components/posts/VertexPostsList'));
+importComponent("EmbeddingPostList", () => require('../components/posts/EmbeddingPostList'));
 importComponent("PostsListSettings", () => require('../components/posts/PostsListSettings'));
 importComponent("BookmarkButton", () => require('../components/posts/BookmarkButton'));
 importComponent("SharePostButton", () => require('../components/posts/SharePostButton'));

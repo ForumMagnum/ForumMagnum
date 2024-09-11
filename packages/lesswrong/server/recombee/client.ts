@@ -159,7 +159,7 @@ const ALL_RECOMBEE_POST_FIELDS = [
   'curated', 'frontpage', 'draft', 'lastCommentedAt', 'shortform'
 ] as const;
 
-const helpers = {
+export const helpers = {
   createRecommendationsForUserRequest(recombeeUser: RecombeeUser, count: number, lwAlgoSettings: RecombeeRecommendationArgs) {
     const { userId: overrideUserId, rotationTime, lwRationalityOnly, onlyUnread, loadMore, ...settings } = lwAlgoSettings;
 
