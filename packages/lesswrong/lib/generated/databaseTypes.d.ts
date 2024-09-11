@@ -1130,7 +1130,7 @@ interface DbRevision extends DbObject {
     data: string,
   } | null
   html: string | null
-  wordCount: number | null
+  wordCount: number
   changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/
   googleDocMetadata: any /*{"definitions":[{"blackbox":true}]}*/
   createdAt: Date
