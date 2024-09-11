@@ -7,7 +7,7 @@ const schema: SchemaType<"DoppelComments"> = {
       collectionName: "Comments",
       resolverName: "mimickedComment",
       type: "Comment",
-      nullable: false,
+      nullable: true,
     }),
     optional: false,
     canRead: ["guests"],
@@ -17,7 +17,7 @@ const schema: SchemaType<"DoppelComments"> = {
   content: {
     type: String,
     optional: false,
-    nullable: false,
+    nullable: true,
     canRead: ["guests"],
     canCreate: ["admins"],
     canUpdate: ["admins"],

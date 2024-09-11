@@ -888,7 +888,7 @@ const schema: SchemaType<"Comments"> = {
   },
 
   'doppelComments.$': {
-    type: String,
+    type: Object,
   },
 
   ownDoppelCommentVote: resolverOnlyField({
@@ -896,21 +896,38 @@ const schema: SchemaType<"Comments"> = {
     graphQLtype: 'DoppelCommentVote',
     canRead: ['guests'],
     resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
-      const { DoppelCommentVotes } = context;
-      return await DoppelCommentVotes.findOne({commentId: comment._id, userId: context.currentUser?._id});
+      const { DoppelCommentVotes, currentUser } = context;
+      if (!currentUser) return null;
+      return await DoppelCommentVotes.findOne({commentId: comment._id, userId: currentUser._id});
     },
+    sqlResolver: ({field, join, currentUserField}) => join({
+      table: "DoppelCommentVotes",
+      on: {commentId: field("_id"), userId: currentUserField("_id")},
+      resolver: (doppelCommentVoteFields) => doppelCommentVoteFields("*"),
+    })
   }),
-
-  doppelCommentVotes: resolverOnlyField({
-    type: 'DoppelCommentVote[]',
-    graphQLtype: '[DoppelCommentVote]',
+  doppelCommentVoteChoices: resolverOnlyField({
+    type: Array,
+    graphQLtype: '[String]',
     canRead: ['guests'],
     resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
       const { DoppelCommentVotes } = context;
-      const dcvs = await DoppelCommentVotes.find({commentId: comment._id}).fetch();
-      return await accessFilterMultiple(context.currentUser, DoppelCommentVotes, dcvs.filter(dcv => !!dcv), context);
+      const doppelCommentVotes = await DoppelCommentVotes.find({commentId: comment._id, type: 'vote'}).fetch();
+      return doppelCommentVotes.map(vote => vote.doppelCommentChoiceId);
     },
+    sqlResolver: ({field}) => `(
+      SELECT ARRAY_AGG(dc."doppelCommentChoiceId")
+      FROM "DoppelCommentVotes" dc
+      WHERE dc."commentId" = ${field("_id")} AND dc."type" = 'vote'
+      GROUP BY dc."commentId"
+      LIMIT 1
+    )` // rjmk: no one was able to explain why this format is right, but we need the ARRAY_AGG and the LIMIT 1
   }),
+  "doppelCommentVoteChoices.$": {
+    type: String,
+    optional: true,
+    nullable: true,
+  },
 };
 
 export default schema;

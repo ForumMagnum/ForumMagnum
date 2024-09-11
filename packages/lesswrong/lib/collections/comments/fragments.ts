@@ -80,11 +80,7 @@ registerFragment(`
     ownDoppelCommentVote {
       ...DoppelCommentVotesFragment
     }
-    doppelCommentVotes {
-      type
-      doppelCommentChoiceId
-      userId
-    }
+    doppelCommentVoteChoices
   }
 `);
 

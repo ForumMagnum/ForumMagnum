@@ -1790,7 +1790,7 @@ interface CommentsList { // fragment on Comments
   readonly originalDialogueId: string | null,
   readonly doppelComments: Array<DoppelCommentsFragment>,
   readonly ownDoppelCommentVote: DoppelCommentVotesFragment|null,
-  readonly doppelCommentVotes: Array<CommentsList_doppelCommentVotes>,
+  readonly doppelCommentVoteChoices: Array<string|null>,
 }
 
 interface CommentsList_tag { // fragment on Tags
@@ -1802,12 +1802,6 @@ interface CommentsList_contents { // fragment on Revisions
   readonly html: string,
   readonly plaintextMainText: string,
   readonly wordCount: number | null,
-}
-
-interface CommentsList_doppelCommentVotes { // fragment on DoppelCommentVotes
-  readonly type: "vote" | "skip",
-  readonly doppelCommentChoiceId: string,
-  readonly userId: string,
 }
 
 interface CommentsListWithTopLevelComment extends CommentsList { // fragment on Comments

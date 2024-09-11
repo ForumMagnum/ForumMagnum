@@ -151,7 +151,7 @@ export const CommentsItemMeta = ({
   toggleCollapse,
   setShowEdit,
   rightSectionElements,
-  doppelCommentVotes,
+  doppelCommentFraction,
   classes,
 }: {
   treeOptions: CommentTreeOptions,
@@ -168,7 +168,7 @@ export const CommentsItemMeta = ({
   toggleCollapse?: () => void,
   setShowEdit: () => void,
   rightSectionElements?: React.ReactNode,
-  doppelCommentVotes?: Pick<DbDoppelCommentVote, 'type'|'doppelCommentChoiceId'>[],
+  doppelCommentFraction?: {numerator: number, denominator: number},
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -225,11 +225,6 @@ export const CommentsItemMeta = ({
   if (!showMoreClicked) {
     shouldDisplayLoadMore = relevantTagsTruncated.length > 1 && !showMoreClicked;
     relevantTagsTruncated = relevantTagsTruncated.slice(0, 1);
-  }
-
-  const nonSkipVotes = doppelCommentVotes && {
-    nonSkipDoppelCommentVotes: doppelCommentVotes?.filter(dcv => dcv.type === 'vote'),
-    doppelCommentVotesForComment: doppelCommentVotes?.filter(dcv => dcv.type === 'vote' && dcv.doppelCommentChoiceId === null),
   }
 
   const {
@@ -298,10 +293,10 @@ export const CommentsItemMeta = ({
         collectionName="Comments"
         hideKarma={post?.hideCommentKarma}
       />}
-      {nonSkipVotes?.nonSkipDoppelCommentVotes.length
+      {doppelCommentFraction?.denominator
         ? <LWTooltip title={"How many times did this (real) comment pass the Turing Test?"}>
           <div className={classes.doppelCommentVoteDisplay}>
-            {`${nonSkipVotes.doppelCommentVotesForComment!.length} / ${nonSkipVotes.nonSkipDoppelCommentVotes.length}`}
+            {`${doppelCommentFraction.numerator} / ${doppelCommentFraction.denominator}`}
           </div>
         </LWTooltip>
         : null

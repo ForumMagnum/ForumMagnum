@@ -20,6 +20,9 @@ import { getAnthropicPromptCachingClientOrThrow } from '../languageModels/anthro
 import { markdownToHtmlSimple } from '@/lib/editor/utils';
 import { captureException, captureMessage } from '@sentry/core';
 import { Severity } from '@sentry/types';
+import { userHasDoppelComments } from '@/lib/betas';
+import { getWithCustomLoader, getWithLoader } from '@/lib/loaders';
+import groupBy from 'lodash/groupBy';
 
 const specificResolvers = {
   Mutation: {
@@ -204,16 +207,17 @@ augmentFieldsDict(Comments, {
     resolveAs: {
       type: '[DoppelComment]',
       resolver: async (dbComment, context: ResolverContext) => {
-        const user = await Users.findOne({ _id: dbComment.userId });
-        if (!user) return []
-        if (user.karma < 1e4) return []
-        const doppelComments = await runFragmentQuery({
-          fragmentName: 'DoppelCommentsFragment',
-          terms: { view: 'doppelCommentsForComment', commentId: dbComment._id },
-          collectionName: 'DoppelComments',
+        const {DoppelComments, currentUser} = context
+        if (!userHasDoppelComments(currentUser)) return []
+        // This should always be a single user
+        const [user] = await getWithLoader(context, Users, "usersByIdsForDoppelComments", {}, "_id", dbComment.userId, {karma: 1})
+        const doppelComments = await getWithCustomLoader(context, "doppelCommentsForComment", dbComment._id, async (commentIds: string[]) => {
+          if (!user) return []
+          if (user.karma < 10_000) return []
+          const doppelComments = await DoppelComments.find({commentId: {$in: commentIds}}).fetch()
+          const doppelsByComment = groupBy(doppelComments, 'commentId')
+          return commentIds.map(commentId => doppelsByComment[commentId] ?? [])
         })
-
-
         if (doppelComments.length < 2) {
           // We'll make 'em for next time
           void [createDoppelComment(dbComment, user), createDoppelComment(dbComment, user)]
