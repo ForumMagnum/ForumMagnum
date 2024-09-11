@@ -223,6 +223,7 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
       {term: {draft: false}},
       {term: {rejected: false}},
       {term: {authorIsUnreviewed: false}},
+      {term: {unlisted: false}},
       {term: {status: postStatuses.STATUS_APPROVED}},
       ...(isEAForum ? [] : [{range: {baseScore: {gte: 0}}}]),
     ],
@@ -240,6 +241,7 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
     },
     privateFields: [
       "authorIsUnreviewed",
+      "unlisted",
       "draft",
       "isFuture",
       "legacy",

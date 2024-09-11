@@ -365,7 +365,7 @@ type DoppelCommentsCollection = CollectionBase<"DoppelComments">;
 interface DbDoppelComment extends DbObject {
   __collectionName?: "DoppelComments"
   commentId: string | null
-  content: string
+  content: string | null
   deleted: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -1154,7 +1154,7 @@ interface DbRevision extends DbObject {
     data: string,
   } | null
   html: string | null
-  wordCount: number | null
+  wordCount: number
   changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/
   googleDocMetadata: any /*{"definitions":[{"blackbox":true}]}*/
   createdAt: Date
