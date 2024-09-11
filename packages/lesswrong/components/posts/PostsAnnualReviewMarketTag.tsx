@@ -5,6 +5,8 @@ import { useHover } from '../common/withHover';
 import { highlightReviewWinnerThresholdSetting } from '@/lib/instanceSettings';
 import { tagStyle } from '../tagging/FooterTag';
 import { isFriendlyUI } from '@/themes/forumTheme';
+import Card from '@material-ui/core/Card';
+import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
 
 const styles = (theme: ThemeType) => ({
   expectedWinner: {
@@ -46,6 +48,18 @@ const styles = (theme: ThemeType) => ({
   preview: {
     maxWidth: 400,
   },
+  card: {
+    padding: 16,
+    ...(isFriendlyUI
+      ? {
+        paddingTop: 12,
+        width: FRIENDLY_HOVER_OVER_WIDTH,
+      }
+      : {
+        width: 450,
+        paddingTop: 8,
+      }),
+  },
 });
 
 const PostsAnnualReviewMarketTag = ({ post, annualReviewMarketInfo, classes }: {
@@ -54,37 +68,37 @@ const PostsAnnualReviewMarketTag = ({ post, annualReviewMarketInfo, classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
 
-  const { CommentsNode, LWPopper } = Components;
+  const { HoverOver, ContentStyles, ContentItemBody } = Components;
   const { anchorEl, hover, eventHandlers } = useHover();
 
   const { annualReviewMarketComment } = post;
 
+  const year = annualReviewMarketInfo.year
+  // const marketUrl = post.manifoldReviewMarketUrl
+  const marketUrl = 'https://manifold.markets/LessWrong/will-transformers-represent-belief'
+
   const golden = (annualReviewMarketInfo.probability >= highlightReviewWinnerThresholdSetting.get()) ? "expectedWinner" : "expectedLoser"
+  const tooltipBody = `<p>The <a href="https://www.lesswrong.com/bestoflesswrong">LessWrong Review</a> runs every year to select the posts that have most stood the test of time. This post is not yet eligible for review, but will be at the end of ${year+1}. The top fifty or so posts are featured prominently on the site throughout the year.</p><p>Hopefully, the review is better than karma at judging enduring value. If we have accurate prediction markets on the review results, maybe we can have better incentives on LessWrong today. <a href="${marketUrl}">Will this post make the top fifty?</a></p>
+  `
 
   const decimalPlaces = 0;
   return <span>
     <div className={classes[golden]} {...eventHandlers}>
-      {annualReviewMarketInfo.year} Top Fifty: {parseFloat((annualReviewMarketInfo.probability * 100).toFixed(decimalPlaces))}%
-      {!!annualReviewMarketComment &&
-        <LWPopper
-          open={hover}
-          anchorEl={anchorEl}
-          placement="bottom-end"
+      {<HoverOver
+          title={
+            <Card className={classes.card}>
+              <ContentStyles contentType="comment">
+                <ContentItemBody dangerouslySetInnerHTML={{ __html: tooltipBody }} />
+              </ContentStyles>
+            </Card>
+          }
+          tooltip={false}
           clickable={true}
         >
-          <div className={classes.preview}>
-            <CommentsNode
-              truncated
-              nestingLevel={1}
-              comment={annualReviewMarketComment}
-              treeOptions={{
-                post: post,
-                forceNotSingleLine: true,
-              }}
-              hoverPreview
-            />
-          </div>
-        </LWPopper>
+        <div className={classes.preview}>
+          {annualReviewMarketInfo.year} Top Fifty: {parseFloat((annualReviewMarketInfo.probability * 100).toFixed(decimalPlaces))}%
+        </div>
+      </HoverOver>
       }
     </div>
   </span>

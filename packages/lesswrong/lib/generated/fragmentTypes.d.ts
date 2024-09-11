@@ -619,6 +619,7 @@ interface ManifoldProbabilitiesCachesDefaultFragment { // fragment on ManifoldPr
   readonly isResolved: boolean,
   readonly year: number,
   readonly lastUpdated: Date,
+  readonly url: string,
 }
 
 interface NotificationsDefaultFragment { // fragment on Notifications
@@ -715,6 +716,56 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly googleDocMetadata: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
+interface LWEventsDefaultFragment { // fragment on LWEvents
+  readonly userId: string,
+  readonly name: string,
+  readonly documentId: string,
+  readonly important: boolean,
+  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly intercom: boolean,
+}
+
+interface newEventFragment { // fragment on LWEvents
+  readonly _id: string,
+  readonly createdAt: Date,
+  readonly userId: string,
+  readonly name: string,
+  readonly important: boolean,
+  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly intercom: boolean,
+}
+
+interface lastEventFragment { // fragment on LWEvents
+  readonly _id: string,
+  readonly createdAt: Date,
+  readonly documentId: string,
+  readonly userId: string,
+  readonly name: string,
+  readonly important: boolean,
+  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly intercom: boolean,
+}
+
+interface lwEventsAdminPageFragment { // fragment on LWEvents
+  readonly _id: string,
+  readonly createdAt: Date,
+  readonly userId: string,
+  readonly user: UsersMinimumInfo|null,
+  readonly name: string,
+  readonly documentId: string,
+  readonly important: boolean,
+  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly intercom: boolean,
+}
+
+interface emailHistoryFragment { // fragment on LWEvents
+  readonly _id: string,
+  readonly createdAt: Date,
+  readonly userId: string,
+  readonly name: string,
+  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
+}
+
 interface PostEmbeddingsDefaultFragment { // fragment on PostEmbeddings
   readonly postId: string,
   readonly postHash: string,
@@ -770,6 +821,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly reviewVoteCount: number,
   readonly positiveReviewVoteCount: number,
   readonly manifoldReviewMarketId: string | null,
+  readonly manifoldReviewMarketUrl: string | null,
   readonly annualReviewMarketCommentId: string | null,
   readonly reviewVoteScoreAF: number,
   readonly reviewVotesAF: Array<number>,
@@ -1012,56 +1064,6 @@ interface VotesDefaultFragment { // fragment on Votes
   readonly silenceNotification: boolean,
 }
 
-interface LWEventsDefaultFragment { // fragment on LWEvents
-  readonly userId: string,
-  readonly name: string,
-  readonly documentId: string,
-  readonly important: boolean,
-  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly intercom: boolean,
-}
-
-interface newEventFragment { // fragment on LWEvents
-  readonly _id: string,
-  readonly createdAt: Date,
-  readonly userId: string,
-  readonly name: string,
-  readonly important: boolean,
-  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly intercom: boolean,
-}
-
-interface lastEventFragment { // fragment on LWEvents
-  readonly _id: string,
-  readonly createdAt: Date,
-  readonly documentId: string,
-  readonly userId: string,
-  readonly name: string,
-  readonly important: boolean,
-  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly intercom: boolean,
-}
-
-interface lwEventsAdminPageFragment { // fragment on LWEvents
-  readonly _id: string,
-  readonly createdAt: Date,
-  readonly userId: string,
-  readonly user: UsersMinimumInfo|null,
-  readonly name: string,
-  readonly documentId: string,
-  readonly important: boolean,
-  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly intercom: boolean,
-}
-
-interface emailHistoryFragment { // fragment on LWEvents
-  readonly _id: string,
-  readonly createdAt: Date,
-  readonly userId: string,
-  readonly name: string,
-  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
-}
-
 interface GoogleServiceAccountSessionsDefaultFragment { // fragment on GoogleServiceAccountSessions
   readonly email: string,
   readonly refreshToken: string,
@@ -1210,6 +1212,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly annualReviewMarketProbability: number|null,
   readonly annualReviewMarketIsResolved: boolean|null,
   readonly annualReviewMarketYear: number|null,
+  readonly annualReviewMarketUrl: string|null,
   readonly group: PostsBase_group|null,
   readonly podcastEpisodeId: string | null,
   readonly forceAllowType3Audio: boolean,
@@ -4192,6 +4195,11 @@ interface FragmentTypes {
   SequencesDefaultFragment: SequencesDefaultFragment
   SideCommentCachesDefaultFragment: SideCommentCachesDefaultFragment
   RevisionsDefaultFragment: RevisionsDefaultFragment
+  LWEventsDefaultFragment: LWEventsDefaultFragment
+  newEventFragment: newEventFragment
+  lastEventFragment: lastEventFragment
+  lwEventsAdminPageFragment: lwEventsAdminPageFragment
+  emailHistoryFragment: emailHistoryFragment
   PostEmbeddingsDefaultFragment: PostEmbeddingsDefaultFragment
   PostRecommendationsDefaultFragment: PostRecommendationsDefaultFragment
   PostsDefaultFragment: PostsDefaultFragment
@@ -4204,11 +4212,6 @@ interface FragmentTypes {
   TypingIndicatorsDefaultFragment: TypingIndicatorsDefaultFragment
   CronHistoriesDefaultFragment: CronHistoriesDefaultFragment
   VotesDefaultFragment: VotesDefaultFragment
-  LWEventsDefaultFragment: LWEventsDefaultFragment
-  newEventFragment: newEventFragment
-  lastEventFragment: lastEventFragment
-  lwEventsAdminPageFragment: lwEventsAdminPageFragment
-  emailHistoryFragment: emailHistoryFragment
   GoogleServiceAccountSessionsDefaultFragment: GoogleServiceAccountSessionsDefaultFragment
   SessionsDefaultFragment: SessionsDefaultFragment
   PostsMinimumInfo: PostsMinimumInfo
@@ -4472,6 +4475,7 @@ interface FragmentTypesByCollection {
   Sequences: "SequencesDefaultFragment"|"SequencesPageTitleFragment"|"SequencesPageFragment"|"SequenceContinueReadingFragment"|"SequencesPageWithChaptersFragment"|"SequencesEdit"
   SideCommentCaches: "SideCommentCachesDefaultFragment"|"SideCommentCacheMinimumInfo"
   Revisions: "RevisionsDefaultFragment"|"RevisionDisplay"|"RevisionHTML"|"RevisionEdit"|"RevisionMetadata"|"RevisionMetadataWithChangeMetrics"|"RevisionHistoryEntry"|"RevisionTagFragment"|"RecentDiscussionRevisionTagFragment"|"WithVoteRevision"
+  LWEvents: "LWEventsDefaultFragment"|"newEventFragment"|"lastEventFragment"|"lwEventsAdminPageFragment"|"emailHistoryFragment"
   PostEmbeddings: "PostEmbeddingsDefaultFragment"
   PostRecommendations: "PostRecommendationsDefaultFragment"
   Posts: "PostsDefaultFragment"|"PostsMinimumInfo"|"PostsTopItemInfo"|"PostsBase"|"PostsWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsReviewVotingList"|"PostsModerationGuidelines"|"PostsAuthors"|"PostsListBase"|"PostsList"|"PostsListTag"|"PostsListTagWithVotes"|"PostsDetails"|"PostsExpandedHighlight"|"PostsPlaintextDescription"|"PostsRevision"|"PostsRevisionEdit"|"PostsWithNavigationAndRevision"|"PostsWithNavigation"|"PostSequenceNavigation"|"PostsPage"|"PostsEdit"|"PostsEditQueryFragment"|"PostsEditMutationFragment"|"PostsRevisionsList"|"PostsRecentDiscussion"|"ShortformRecentDiscussion"|"UsersBannedFromPostsModerationLog"|"SunshinePostsList"|"WithVotePost"|"HighlightWithHash"|"PostWithDialogueMessage"|"PostSideComments"|"PostWithGeneratedSummary"|"PostsEditCriticismTips"|"PostsBestOfList"|"PostsRSSFeed"|"PostsOriginalContents"|"PostsHTML"|"PostsForAutocomplete"|"SuggestAlignmentPost"
@@ -4484,7 +4488,6 @@ interface FragmentTypesByCollection {
   TypingIndicators: "TypingIndicatorsDefaultFragment"|"TypingIndicatorInfo"
   CronHistories: "CronHistoriesDefaultFragment"
   Votes: "VotesDefaultFragment"|"TagRelVotes"|"TagVotingActivity"|"UserVotes"|"UserVotesWithDocument"
-  LWEvents: "LWEventsDefaultFragment"|"newEventFragment"|"lastEventFragment"|"lwEventsAdminPageFragment"|"emailHistoryFragment"
   GoogleServiceAccountSessions: "GoogleServiceAccountSessionsDefaultFragment"|"GoogleServiceAccountSessionInfo"|"GoogleServiceAccountSessionAdminInfo"
   Sessions: "SessionsDefaultFragment"
   Messages: "MessagesDefaultFragment"|"messageListFragment"
@@ -4546,6 +4549,11 @@ interface CollectionNamesByFragmentName {
   SequencesDefaultFragment: "Sequences"
   SideCommentCachesDefaultFragment: "SideCommentCaches"
   RevisionsDefaultFragment: "Revisions"
+  LWEventsDefaultFragment: "LWEvents"
+  newEventFragment: "LWEvents"
+  lastEventFragment: "LWEvents"
+  lwEventsAdminPageFragment: "LWEvents"
+  emailHistoryFragment: "LWEvents"
   PostEmbeddingsDefaultFragment: "PostEmbeddings"
   PostRecommendationsDefaultFragment: "PostRecommendations"
   PostsDefaultFragment: "Posts"
@@ -4558,11 +4566,6 @@ interface CollectionNamesByFragmentName {
   TypingIndicatorsDefaultFragment: "TypingIndicators"
   CronHistoriesDefaultFragment: "CronHistories"
   VotesDefaultFragment: "Votes"
-  LWEventsDefaultFragment: "LWEvents"
-  newEventFragment: "LWEvents"
-  lastEventFragment: "LWEvents"
-  lwEventsAdminPageFragment: "LWEvents"
-  emailHistoryFragment: "LWEvents"
   GoogleServiceAccountSessionsDefaultFragment: "GoogleServiceAccountSessions"
   SessionsDefaultFragment: "Sessions"
   PostsMinimumInfo: "Posts"

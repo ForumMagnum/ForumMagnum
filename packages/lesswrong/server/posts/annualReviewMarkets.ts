@@ -144,7 +144,7 @@ export const getPostMarketInfo = async (post: DbPost): Promise<AnnualReviewMarke
     void refreshMarketInfoInCache(post);
   }
 
-  return { probability: cacheItem.probability, isResolved: cacheItem.isResolved, year: cacheItem.year };
+  return { probability: cacheItem.probability, isResolved: cacheItem.isResolved, year: cacheItem.year, url: cacheItem.url };
 }
 
 /**

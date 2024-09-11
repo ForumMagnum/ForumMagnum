@@ -158,6 +158,7 @@ registerFragment(`
     annualReviewMarketProbability
     annualReviewMarketIsResolved
     annualReviewMarketYear
+    annualReviewMarketUrl
 
     group {
       _id

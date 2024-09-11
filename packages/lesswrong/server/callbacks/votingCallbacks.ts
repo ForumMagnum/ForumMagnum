@@ -265,35 +265,7 @@ async function maybeCreateReviewMarket({newDocument, vote}: VoteDocTuple, collec
   // Return if market creation fails
   if (!liteMarket) return;
 
-  const [comment] = await Promise.all([
-    makeMarketComment(post._id, year, liteMarket.url, botUser),
-    Posts.rawUpdateOne(post._id, {$set: {manifoldReviewMarketId: liteMarket.id}}),
-  ])
-
-  await Posts.rawUpdateOne(post._id, {$set: {annualReviewMarketCommentId: comment._id}})
-}
-
-const makeMarketComment = async (postId: string, year: number, marketUrl: string, botUser: DbUser) => {
-
-  const commentString = `<p>The <a href="https://www.lesswrong.com/bestoflesswrong">LessWrong Review</a> runs every year to select the posts that have most stood the test of time. This post is not yet eligible for review, but will be at the end of ${year+1}. The top fifty or so posts are featured prominently on the site throughout the year.</p><p>Hopefully, the review is better than karma at judging enduring value. If we have accurate prediction markets on the review results, maybe we can have better incentives on LessWrong today. <a href="${marketUrl}">Will this post make the top fifty?</a></p>
-  `
-
-  const result = await createMutator({
-    collection: Comments,
-    document: {
-      postId: postId,
-      userId: botUser._id,
-      contents: {originalContents: {
-        type: "html",
-        data: commentString
-      }}
-    },
-    currentUser: botUser,
-    context: createAdminContext()
-  })
-
-
-  return result.data
+  await Posts.rawUpdateOne(post._id, {$set: {manifoldReviewMarketUrl: liteMarket.url}})
 }
 
 async function maybeCreateModeratorAlertsAfterVote({ newDocument, vote }: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext) {

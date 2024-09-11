@@ -40,6 +40,7 @@ import { isFriendlyUI } from '../../../themes/forumTheme';
 import { getPostReviewWinnerInfo } from '../reviewWinners/cache';
 import { stableSortTags } from '../tags/helpers';
 import { getLatestContentsRevision } from '../revisions/helpers';
+import { marketInfoLoader } from '@/server/posts/annualReviewMarkets';
 
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
@@ -795,6 +796,18 @@ const schema: SchemaType<"Posts"> = {
     group: formGroups.adminOptions,
   },
 
+  manifoldReviewMarketUrl: {
+    type: String,
+    nullable: true,
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['admins'],
+    canUpdate: ['admins'],
+    hidden: !isLWorAF,
+    group: formGroups.adminOptions,
+  },
+
+  // This is deprecated, and will be deleted soon.
   annualReviewMarketCommentId: {
     ...foreignKeyField({
       idFieldName: 'annualReviewMarketCommentId',
@@ -942,6 +955,24 @@ const schema: SchemaType<"Posts"> = {
     canRead: ['guests'],
     hidden: !isLWorAF
     // Implementation in postResolvers.ts
+  },
+
+  annualReviewMarketUrl: {
+    type: String,
+    resolveAs: {
+      type: 'String',
+      resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+        if (!isLWorAF) {
+          return 0;
+        }
+        const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, marketInfoLoader(context))
+        return market?.url
+      }
+    },
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    hidden: !isLWorAF
   },
 
   lastCommentPromotedAt: {
