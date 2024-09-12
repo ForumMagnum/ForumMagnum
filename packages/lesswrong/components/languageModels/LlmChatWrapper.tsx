@@ -13,6 +13,7 @@ import markdownItContainer from "markdown-it-container";
 import markdownItFootnote from "markdown-it-footnote";
 import markdownItSub from "markdown-it-sub";
 import markdownItSup from "markdown-it-sup";
+import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
 
 const mdi = markdownIt({ linkify: true });
 // mdi.use(markdownItMathjax()) // for performance, don't render mathjax
@@ -21,6 +22,9 @@ mdi.use(markdownItFootnote);
 mdi.use(markdownItSub);
 mdi.use(markdownItSup);
 
+export const RAG_MODE_SET = ['Auto', 'None', 'Recommendation', 'CurrentPost', 'Search'] as const;
+export type RagModeType = typeof RAG_MODE_SET[number];
+
 const ClientMessageSchema = z.object({
   conversationId: z.string().nullable(),
   userId: z.string(),
@@ -28,6 +32,7 @@ const ClientMessageSchema = z.object({
 });
 
 const PromptContextOptionsSchema = z.object({
+  ragMode: z.enum(RAG_MODE_SET),
   postId: z.string().optional(),
   includeComments: z.boolean().optional(),
 });
@@ -118,7 +123,7 @@ interface LlmChatContextType {
   orderedConversations: LlmConversation[];
   currentConversation?: LlmConversation;
   currentConversationLoading: boolean;
-  submitMessage: (query: string, currentPostId?: string) => void;
+  submitMessage: (query: string, ragMode: RagModeType, currentPostId?: string) => void;
   setCurrentConversation: (conversationId?: string) => void;
   archiveConversation: (conversationId: string) => void;
 }
@@ -442,7 +447,7 @@ const LlmChatWrapper = ({children}: {
   }, [handleClaudeResponseMesage, handleLlmStreamError]);
 
   // TODO: Ensure code is sanitized against injection attacks
-  const submitMessage = useCallback(async (query: string, currentPostId?: string) => {
+  const submitMessage = useCallback(async (query: string, ragMode: RagModeType, currentPostId?: string) => {
     if (!currentUser) {
       return;
     }
@@ -486,7 +491,7 @@ const LlmChatWrapper = ({children}: {
       setCurrentConversationId(newConversationChannelId);
     }
 
-    const promptContextOptions: PromptContextOptions = { postId: currentPostId, includeComments: true /* TODO: this currently doesn't do anything; it's hardcoded on the server */ };
+    const promptContextOptions: PromptContextOptions = { ragMode,postId: currentPostId, includeComments: true /* TODO: this currently doesn't do anything; it's hardcoded on the server */ };
 
     void sendClaudeMessage({
       newMessage: {

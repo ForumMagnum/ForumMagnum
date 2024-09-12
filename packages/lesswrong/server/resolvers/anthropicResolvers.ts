@@ -3,12 +3,12 @@ import uniqBy from "lodash/uniqBy";
 import { getAnthropicClientOrThrow, getAnthropicPromptCachingClientOrThrow } from "../languageModels/anthropicClient";
 import { getEmbeddingsFromApi } from "../embeddings";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
-import { generateContextSelectionPrompt, CLAUDE_CHAT_SYSTEM_PROMPT, generateTitleGenerationPrompt, generateAssistantContextMessage, CONTEXT_SELECTION_SYSTEM_PROMPT, contextSelectionResponseFormat } from "../languageModels/promptUtils";
+import { generateContextSelectionPrompt, CLAUDE_CHAT_SYSTEM_PROMPT, generateTitleGenerationPrompt, generateAssistantContextMessage, CONTEXT_SELECTION_SYSTEM_PROMPT, contextSelectionResponseFormat, generateAssistantRecommendationContextMessage, RECOMMENDATION_SYSTEM_PROMPT } from "../languageModels/promptUtils";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { userHasLlmChat } from "@/lib/betas";
 import { PromptCachingBetaMessageParam, PromptCachingBetaTextBlockParam } from "@anthropic-ai/sdk/resources/beta/prompt-caching/messages";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
-import { ClaudeMessageRequestSchema, ClientMessage, LlmCreateConversationMessage, LlmStreamChunkMessage, LlmStreamContentMessage, LlmStreamEndMessage, LlmStreamErrorMessage, LlmStreamMessage } from "@/components/languageModels/LlmChatWrapper";
+import { ClaudeMessageRequestSchema, ClientMessage, LlmCreateConversationMessage, LlmStreamChunkMessage, LlmStreamContentMessage, LlmStreamEndMessage, LlmStreamErrorMessage, LlmStreamMessage, RagModeType } from "@/components/languageModels/LlmChatWrapper";
 import { createMutator, getContextFromReqAndRes, runFragmentQuery } from "../vulcan-lib";
 import { LlmVisibleMessageRole, UserVisibleMessageRole, llmVisibleMessageRoles } from "@/lib/collections/llmMessages/schema";
 import { asyncMapSequential } from "@/lib/utils/asyncUtils";
@@ -16,6 +16,7 @@ import { markdownToHtml, htmlToMarkdown } from "../editor/conversionUtils";
 import { getOpenAI } from "../languageModels/languageModelIntegration";
 import express, { Express } from "express";
 import { captureException } from "@sentry/core";
+import { FilterSettings, getDefaultFilterSettings } from "@/lib/filterSettings";
 
 interface InitializeConversationArgs {
   newMessage: ClientMessage;
@@ -24,6 +25,7 @@ interface InitializeConversationArgs {
   currentUser: DbUser;
   context: ResolverContext;
   currentPostId?: string;
+  ragMode: RagModeType;
 }
 
 interface CreateNewConversationArgs {
@@ -65,7 +67,7 @@ interface SendMessagesToClaudeArgs {
 }
 
 // a type for kind of context to use that's a value of "query-based", "post-based", or "both"
-type RagContextType = "query-based" | "current-post-based" | "both" | "none" | "error"
+type RagContextType = "query-based" | "current-post-only" | "current-post-and-search" | "both" | "none" | "error"
 
 function getConversationContext(newConversationChannelId: string | undefined, newMessage: ClientMessage): ConversationContext {
   return newConversationChannelId ? {
@@ -105,10 +107,25 @@ async function getQueryContextDecision(query: string, currentPost: PostsPage | n
 }
 
 // TODO: come back and refactor the query context decision to actually use the embedding distance results (including the post titles)
-async function getContextualPosts(query: string, currentPost: PostsPage | null, context: ResolverContext): Promise<PostsPage[]> {
-  const contextSelectionCode = await getQueryContextDecision(query, currentPost);
+async function getContextualPosts(query: string, ragMode: RagModeType, currentPost: PostsPage | null, context: ResolverContext): Promise<PostsPage[]> {
+
+  const ragModeMapping = {
+    'CurrentPost': 'current-post-only',
+    'Search': 'both',
+    'None': 'none',
+    'Recommendation': 'recommendation',
+  }
+
+  const contextSelectionCode = (ragMode === 'Auto')
+    ? await getQueryContextDecision(query, currentPost)
+    : ragModeMapping[ragMode];
+
+  console.log({ ragMode,contextSelectionCode })
+  
   const useQueryEmbeddings = ['query-based', 'both'].includes(contextSelectionCode);
-  const useCurrentPostEmbeddings = ['current-post-based', 'both'].includes(contextSelectionCode);
+  const useCurrentPost = ['current-post-only', 'current-post-and-search', 'both'].includes(contextSelectionCode);
+  const useCurrentPostSearchEmbeddings = ['current-post-and-search', 'both'].includes(contextSelectionCode);
+
 
   const { embeddings: queryEmbeddings } = await getEmbeddingsFromApi(query);
 
@@ -116,7 +133,7 @@ async function getContextualPosts(query: string, currentPost: PostsPage | null, 
     ? context.repos.postEmbeddings.getNearestPostIdsWeightedByQuality(queryEmbeddings, contextSelectionCode==='query-based' ? 20 : 5)
     : Promise.resolve([]);
 
-  const currentPostSearchPromise = useCurrentPostEmbeddings && currentPost
+  const currentPostSearchPromise = useCurrentPostSearchEmbeddings && currentPost
     ? context.repos.postEmbeddings.getNearestPostIdsWeightedByQualityByPostId(currentPost._id, 20)
     : Promise.resolve([]);
 
@@ -127,8 +144,56 @@ async function getContextualPosts(query: string, currentPost: PostsPage | null, 
 
   const deduplicatedSearchResultIds = uniq([...querySearchIds, ...currentPostSearchIds]);
 
-  return getPostsWithContents(deduplicatedSearchResultIds, context);
+  // TODO: Clean up somehow. This is kind of ugly but this is where the decision is being made about whether or not to use the current post in the context window.
+  const posts = await getPostsWithContents(deduplicatedSearchResultIds, context);
+  if (useCurrentPost && currentPost && !deduplicatedSearchResultIds.includes(currentPost._id)) {
+    posts.unshift(currentPost);
+  }
+  return posts;
 };
+
+async function getRecommendationContextData(userId: string, context: ResolverContext) {
+
+  const filterSettings: FilterSettings = context.currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings();
+
+  const homeLatestPosts = await runFragmentQuery({
+    collectionName: "Posts",
+    fragmentName: "PostsPage",
+    terms: {
+      view: "magic",
+      forum: true,
+      limit: 40,
+      filterSettings
+    },
+    context,
+  })
+
+  const userRecentVotes = await runFragmentQuery({
+    collectionName: "Votes",
+    fragmentName: "UserVotesWithFullDocument",
+    terms: { 
+      view: "userVotes",
+      collectionNames: ["Posts"],
+      limit: 40,
+    },
+    context
+  });
+
+  const userUpvotedPosts = filterNonnull(userRecentVotes.filter(vote => ['bigUpvote', 'smallUpvote'].includes(vote.voteType)).map(vote => vote.post));
+
+  const homeLatestNotAlreadyReadPosts = homeLatestPosts.filter(post => !post.isRead)
+
+  console.log({
+    userRecentVotes,
+    homeLatestPostsTitles: homeLatestNotAlreadyReadPosts.map(post => post.title),
+    userUpvotedPostsTitles: userUpvotedPosts.map(post => post.title)
+  })
+
+  return {
+    homeLatestPosts: homeLatestNotAlreadyReadPosts,
+    userUpvotedPosts,
+  }
+}
 
 async function getConversationTitle({ query, currentPost }: Pick<CreateNewConversationArgs, 'query' | 'currentPost'>) {
   const titleGenerationPrompt = generateTitleGenerationPrompt(query, currentPost)
@@ -165,20 +230,16 @@ async function createNewConversation({ query, systemPrompt, model, currentUser, 
   return newConversation.data;
 };
 
-function getPostContextMessage(postsLoadedIntoContext: PostsPage[], currentPost: PostsPage | null): string {
-  // get the combined list of current post and posts loaded into context that handles the possibility they are empty or null
-  const allLoadedPosts = filterNonnull([currentPost, ...postsLoadedIntoContext ?? []]);
-  // Current post might be one of the posts returned from the query-based embedding search
-  const deduplicatedPosts = uniqBy(allLoadedPosts, post => post._id);
+function getPostContextMessage(postsLoadedIntoContext: PostsPage[]): string {
 
-  const deduplicatedPostsList = deduplicatedPosts.map((post) => {
+  const postsList = postsLoadedIntoContext.map((post) => {
     const author = userGetDisplayName(post.user)
     return  `- *[${post?.title}](${postGetPageUrl(post)}) by ${author}*`}
   ).join("\n");
 
   const message = [
     `*Based on your query, the following posts were loaded into the LLM's context window*:`,
-    deduplicatedPostsList,
+    postsList,
     `\n*(This message and similar messages are not sent to the LLM.)*`
   ].join("\n");
 
@@ -357,36 +418,64 @@ async function getPostsWithContents(postIds: string[], context: ResolverContext)
   });
 }
 
-async function getContextMessages(content: string, currentPost: PostsPage | null, context: ResolverContext) {
-  const contextualPosts = await getContextualPosts(content, currentPost, context);
-  // TODO: refactor this to avoid returning a context message if there were no posts loaded into the context window.  (And make sure it depends on what's actually in the context window, not just on whether the user's on a current post.)
-  const userContextMessage = getPostContextMessage(contextualPosts, currentPost);
-  const assistantContextMessage = await generateAssistantContextMessage(content, currentPost, contextualPosts, true, context);
+async function getContextMessages(query: string, ragMode: RagModeType, currentPost: PostsPage | null, context: ResolverContext) {
+  
+  if (['None', 'Recommendation'].includes(ragMode)) {
+    return {
+      userContextMessage: '',
+      assistantContextMessage: '',
+      contextualPosts: [],
+    };
+  }
+
+  const contextualPosts = await getContextualPosts(query, ragMode, currentPost, context);
+  const userContextMessage = getPostContextMessage(contextualPosts);
+  const assistantContextMessage = await generateAssistantContextMessage(query, currentPost, contextualPosts, true, context);
 
   return { userContextMessage, assistantContextMessage, contextualPosts };
 }
 
-async function createConversationWithMessages({ newMessage, systemPrompt, model, currentPostId, currentUser, context }: InitializeConversationArgs) {
-  const { content, userId } = newMessage;
+async function createConversationWithMessages({ newMessage, systemPrompt, model, currentPostId, ragMode, currentUser, context }: InitializeConversationArgs) {
+  const { content: query, userId } = newMessage;
 
-  const currentPost = await (currentPostId
+  const currentPost = await (currentPostId && ragMode !== 'None'
     ? getPostWithContents(currentPostId, context)
     : Promise.resolve(null)
   );
 
   const [conversation, { userContextMessage, assistantContextMessage, contextualPosts }] = await Promise.all([
     createNewConversation({
-      query: content,
+      query,
       systemPrompt,
       model,
       currentUser,
       context,
       currentPost,
     }),
-    getContextMessages(content, currentPost, context)
+    getContextMessages(query, ragMode, currentPost, context)
   ]);
 
   const conversationId = conversation._id;
+
+  if (ragMode === 'Recommendation') {
+    return createRecommendationsConversationWithMessages({ newMessage, systemPrompt, model, currentPostId, currentUser, context });
+  }
+
+  // The user's actual message
+  const newUserMessageRecord = {
+    userId,
+    content: query,
+    role: 'user',
+    conversationId,
+  } as const;
+
+
+  if (ragMode === 'None') {
+    return {
+      conversation,
+      newMessageRecords: [newUserMessageRecord]
+    };
+  }
 
   // The message sent to Claude with all of the loaded context
   const newAssistantContextMessageRecord = {
@@ -406,13 +495,6 @@ async function createConversationWithMessages({ newMessage, systemPrompt, model,
     conversationId,
   } as const;
 
-  // The user's actual message
-  const newUserMessageRecord = {
-    userId,
-    content,
-    role: 'user',
-    conversationId,
-  } as const;
 
   // The "message" we show to the user with a summary of the loaded context, but isn't sent to Claude
   const newUserContextMessageRecord = {
@@ -432,6 +514,44 @@ async function createConversationWithMessages({ newMessage, systemPrompt, model,
     conversation,
     newMessageRecords
   };
+}
+
+
+
+// TODO: Cleanup, this is for testing
+async function createRecommendationsConversationWithMessages({ newMessage, systemPrompt, model, currentUser, context }: Omit<InitializeConversationArgs, 'ragMode'>) {
+  const { content, userId } = newMessage;
+  
+  const conversation = await createNewConversation({
+    query: content,
+    systemPrompt,
+    model,
+    currentUser,
+    context,
+    currentPost: null
+  });
+
+
+  const recommendationContextData = await getRecommendationContextData(userId, context);
+  const recommendationContextPrompt = await generateAssistantRecommendationContextMessage(recommendationContextData, context);
+
+  const newAssistantContextMesssageRecord = {
+    userId,
+    content: recommendationContextPrompt,
+    role: 'assistant-context',
+    conversationId: conversation._id,
+  } as const;
+
+  const newMessageRecords: NewLlmMessage[] = [newAssistantContextMesssageRecord];
+
+  return {
+    conversation,
+    newMessageRecords
+  };
+}
+
+async function createConversationWithoutContext({ newMessage, systemPrompt, model, currentUser, context }: Omit<InitializeConversationArgs, 'ragMode'>) {
+
 }
 
 async function prepareMessagesForConversation({ newMessage, conversationId, context }: {
@@ -469,7 +589,7 @@ export function addLlmChatEndpoint(app: Express) {
     }
 
     const { newMessage, promptContextOptions, newConversationChannelId } = parsedBody.data;    
-    const { postId: currentPostId } = promptContextOptions
+    const { postId: currentPostId, ragMode } = promptContextOptions
     
     if (!newConversationChannelId && !newMessage.conversationId) {
       return res.status(400).send('Message must either be part of an existing conversation, or a new conversation channel id needs to be provided');
@@ -504,14 +624,21 @@ export function addLlmChatEndpoint(app: Express) {
       }
     }
 
-    // TODO: if we allow user-configured system prompts, this is where we'll change it
-    const systemPrompt = CLAUDE_CHAT_SYSTEM_PROMPT;
     const model = 'claude-3-5-sonnet-20240620';
+    // TODO: Probably should be output by new conversation function
+    const systemPrompt = (() => {
+      switch (ragMode) {
+        case 'Recommendation':
+          return RECOMMENDATION_SYSTEM_PROMPT;
+        default:
+          return CLAUDE_CHAT_SYSTEM_PROMPT;
+      }
+    })();
 
     // TODO: also figure out if we want prevent users from creating new conversations with multiple pre-filled messages
 
     const { conversation, newMessageRecords } = conversationContext.type === 'new'
-      ? await createConversationWithMessages({ newMessage, systemPrompt, model, currentPostId, currentUser, context })
+      ? await createConversationWithMessages({ newMessage, systemPrompt, model, currentPostId, ragMode, currentUser, context })
       : await prepareMessagesForConversation({ newMessage, conversationId: conversationContext.conversationId, context });
 
     const conversationId = conversation._id;

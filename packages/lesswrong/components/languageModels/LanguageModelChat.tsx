@@ -7,7 +7,7 @@ import { useMessages } from '../common/withMessages';
 import Select from '@material-ui/core/Select';
 import CloseIcon from '@material-ui/icons/Close';
 import { useLocation } from "../../lib/routeUtil";
-import { NewLlmMessage, useLlmChat } from './LlmChatWrapper';
+import { NewLlmMessage, RAG_MODE_SET, RagModeType, useLlmChat } from './LlmChatWrapper';
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import CKEditor from '@/lib/vendor/ckeditor5-react/ckeditor';
 import { getCkCommentEditor } from '@/lib/wrapCkEditor';
@@ -403,6 +403,19 @@ export const ChatInterface = ({classes}: {
       </MenuItem>
     </Select>;
 
+    const ragModeSelect = <Select 
+      onChange={(e) => setRagMode(e.target.value as RagModeType)}
+      value={ragMode}
+      disableUnderline
+      className={classes.ragModeSelect}
+    >
+      {RAG_MODE_SET.map((ragMode) => (
+        <MenuItem key={ragMode} value={ragMode}>
+          {ragMode}
+        </MenuItem>
+      ))}
+    </Select>
+
 
   const options = <div className={classes.options}>
     <Button onClick={() => setCurrentConversation()}>
@@ -412,11 +425,12 @@ export const ChatInterface = ({classes}: {
       Export
     </Button>
     {conversationSelect}
+    {ragModeSelect}
   </div>  
 
   const handleSubmit = useCallback((message: string) => {
-    submitMessage(message, currentPostId);
-  }, [currentPostId, submitMessage]);
+    submitMessage(message, ragMode, currentPostId);
+  }, [currentPostId, submitMessage, ragMode]);
 
   return <div className={classes.subRoot}>
     {messagesForDisplay}
