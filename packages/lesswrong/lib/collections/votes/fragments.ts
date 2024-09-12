@@ -50,3 +50,15 @@ registerFragment(`
     }
   }
 `);
+
+registerFragment(`
+  fragment UserVotesWithFullDocument on Vote {
+    ...UserVotes
+    comment {
+      ...CommentsListWithParentMetadata
+    }
+    post {
+      ...PostsPage
+    }
+  }
+`);

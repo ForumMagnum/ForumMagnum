@@ -279,7 +279,7 @@ export const ChatInterface = ({classes}: {
   const { currentConversation, setCurrentConversation, archiveConversation, orderedConversations, submitMessage, currentConversationLoading } = useLlmChat();
 
 
-  const [ragMode, setRagMode] = useState<RagModeType>('Auto');
+  const [ragMode, setRagMode] = useState<RagModeType>('Recommendation'); // TODO: make this auto
   const { flash } = useMessages();
 
   // TODO: come back and refactor this to use currentRoute & matchPath to get the url parameter instead

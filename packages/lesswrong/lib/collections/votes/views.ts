@@ -81,3 +81,22 @@ Votes.addView("userVotes", function ({collectionNames,}, _, context?: ResolverCo
   }
 })
 ensureIndex(Votes, {collectionName: 1, userId: 1, cancelled: 1, isUnvote: 1, voteType: 1, extendedVoteType: 1, votedAt: 1})
+
+Votes.addView("userUpvotes", function ({collectionNames,}, _, context?: ResolverContext) {
+  const currentUserId = context?.currentUser?._id;
+  return {
+    selector: {
+      collectionName: {$in: collectionNames},
+      userId: currentUserId,
+      ...(currentUserId ? {authorIds: {$not: currentUserId}} : {}),
+      cancelled: {$ne: true},
+      isUnvote: {$ne: true},
+      voteType: {$in: ["smallUpvote", "bigUpvote"]}
+    },
+    options: {
+      sort: {
+        votedAt: -1
+      }
+    }
+  }
+})
