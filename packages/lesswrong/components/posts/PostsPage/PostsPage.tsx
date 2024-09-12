@@ -543,7 +543,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     PostBottomRecommendations, NotifyMeDropdownItem, Row, AnalyticsInViewTracker,
     PostsPageQuestionContent, AFUnreviewedCommentCount, CommentsListSection, CommentsTableOfContents,
     StickyDigestAd, PostsPageSplashHeader, PostsAudioPlayerWrapper, AttributionInViewTracker,
-    ForumEventPostPagePollSection, NotifyMeButton, LWTooltip, PostsPageDate
+    ForumEventPostPagePollSection, NotifyMeButton, LWTooltip, PostsPageDate, PostFixedPositionToCHeading
   } = Components
 
   useEffect(() => {
@@ -663,7 +663,15 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
   // rewrite crossposting.
   const hasTableOfContents = !!sectionData && !isCrosspostedQuestion;
   const tableOfContents = hasTableOfContents
-    ? <TableOfContents sectionData={sectionData} title={post.title} fixedPositionToc={isLWorAF} commentCount={commentCount} answerCount={answerCount} />
+    ? (isLWorAF
+        ? <TableOfContents
+            sectionData={sectionData}
+            title={post.title}
+            heading={<PostFixedPositionToCHeading post={post}/>}
+            fixedPositionToc={true}
+          />
+        : <TableOfContents sectionData={sectionData} title={post.title} fixedPositionToc={false} />
+      )
     : null;
 
 
