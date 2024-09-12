@@ -60,6 +60,10 @@ export const lessWrongTheme: SiteThemeSpecification = {
     },
   }),
   make: (palette: ThemePalette) => ({
+    zIndexes: {
+      searchResults: 1100,
+      intercomButton: 1030,
+    },
     typography: {
       fontFamily: sansSerifStack,
       postStyle: {

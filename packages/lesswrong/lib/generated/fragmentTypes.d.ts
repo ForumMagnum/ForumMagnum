@@ -705,7 +705,7 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly markdown: string|null,
   readonly draftJS: any /*JSON*/,
   readonly ckEditorMarkup: string|null,
-  readonly wordCount: number | null,
+  readonly wordCount: number,
   readonly htmlHighlight: string,
   readonly htmlHighlightStartingAtHash: string,
   readonly plaintextDescription: string,
@@ -1116,7 +1116,7 @@ interface PostsTopItemInfo extends PostsMinimumInfo, PostsAuthors { // fragment 
 interface PostsTopItemInfo_contents { // fragment on Revisions
   readonly _id: string,
   readonly htmlHighlight: string,
-  readonly wordCount: number | null,
+  readonly wordCount: number,
   readonly version: string,
 }
 
@@ -1337,7 +1337,7 @@ interface PostsList_contents { // fragment on Revisions
   readonly _id: string,
   readonly htmlHighlight: string,
   readonly plaintextDescription: string,
-  readonly wordCount: number | null,
+  readonly wordCount: number,
   readonly version: string,
 }
 
@@ -1599,7 +1599,7 @@ interface SunshinePostsList_contents { // fragment on Revisions
   readonly _id: string,
   readonly html: string,
   readonly htmlHighlight: string,
-  readonly wordCount: number | null,
+  readonly wordCount: number,
   readonly version: string,
 }
 
@@ -1798,7 +1798,7 @@ interface CommentsList_contents { // fragment on Revisions
   readonly _id: string,
   readonly html: string,
   readonly plaintextMainText: string,
-  readonly wordCount: number | null,
+  readonly wordCount: number,
 }
 
 interface CommentsListWithTopLevelComment extends CommentsList { // fragment on Comments
@@ -1949,7 +1949,7 @@ interface RevisionDisplay { // fragment on Revisions
   readonly userId: string,
   readonly html: string,
   readonly commitMessage: string,
-  readonly wordCount: number | null,
+  readonly wordCount: number,
   readonly htmlHighlight: string,
   readonly plaintextDescription: string,
 }
@@ -1970,7 +1970,7 @@ interface RevisionEdit { // fragment on Revisions
   readonly markdown: string|null,
   readonly draftJS: any /*JSON*/,
   readonly ckEditorMarkup: string|null,
-  readonly wordCount: number | null,
+  readonly wordCount: number,
   readonly htmlHighlight: string,
   readonly plaintextDescription: string,
 }

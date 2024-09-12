@@ -328,7 +328,7 @@ type VoteableCollectionName = "Posts"|"Comments"|"TagRels"|"Revisions"|"Election
 
 interface EditableFieldContents {
   html: string
-  wordCount: number | null
+  wordCount: number
   originalContents: DbRevision["originalContents"]
   editedAt: Date
   userId: string
