@@ -493,10 +493,14 @@ const styles = (theme: ThemeType) => ({
     marginBottom: '12px'
   },
   disabledCategory: {
-    color: '#aaa'
+    opacity: .5,
+    cursor: 'default'
   },
   spotlightItem: {
     marginBottom: 20
+  },
+  spotlightIsNotRead: {
+    filter: 'saturate(0) opacity(0.8)',
   }
 });
 
@@ -756,7 +760,10 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
   }, [query.year]);
 
   const filteredReviewWinnersForSpotlights = reviewWinnersWithPosts.filter(post => {
-    return post.reviewWinner?.reviewYear === year && post.reviewWinner?.category === category
+    if (year || category) {
+      return post.reviewWinner?.reviewYear === year && post.reviewWinner?.category === category
+    }
+    return true
   })
 
   const filteredSpotlights = filterWhereFieldsNotNull(filteredReviewWinnersForSpotlights, 'spotlight').map(post => ({
@@ -802,7 +809,7 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
         </LWTooltip>
       </div>
       <div style={{ maxWidth: SECTION_WIDTH, paddingBottom: 1000 }}>
-        {filteredSpotlights.map((spotlight) => <span key={spotlight._id} className={classes.spotlightItem}><SpotlightItem spotlight={spotlight}  showSubtitle={false} /></span>)}
+        {filteredSpotlights.map((spotlight) => <span key={spotlight._id} className={classNames(classes.spotlightItem, !spotlight.document?.isRead && classes.spotlightIsNotRead )}><SpotlightItem spotlight={spotlight}  showSubtitle={false} /></span>)}
       </div>
     </div>
 }
