@@ -53,11 +53,25 @@ export async function getWithLoader<N extends CollectionNameString>(
  * If you don't do this, you'll be returning field info with objects it doesn't belong to. 
  */
 export async function getWithCustomLoader<T, ID>(context: ResolverContext, loaderName: string, id: ID, idsToResults: (ids: Array<ID>) => Promise<T[]>): Promise<T> {
-  if (!context.extraLoaders[loaderName]) {
-    context.extraLoaders[loaderName] = new DataLoader(idsToResults, { cache: true });
-  }
+  const loader = getOrCreateCustomLoader(context, loaderName, idsToResults);
+  return loader.load(id);
+}
 
-  return await context.extraLoaders[loaderName].load(id);
+export async function getManyWithCustomLoader<T, ID>(
+  context: ResolverContext,
+  loaderName: string,
+  ids: ID[],
+  idsToResults: (ids: ID[]) => Promise<T[]>
+): Promise<T[]> {
+  const loader = getOrCreateCustomLoader(context, loaderName, idsToResults);
+  const results = await loader.loadMany(ids);
+  // Follow the error handling pattern of `loadByIds` below
+  for (let result of results) {
+    if (result instanceof Error) {
+      throw result;
+    }
+  }
+  return results as T[];
 }
 
 /**
@@ -90,4 +104,11 @@ export async function loadByIds<N extends CollectionNameString>(context: Resolve
 
   // Downcast to remove Error from the possible results, and return
   return results as Array<ObjectsByCollectionName[N]|null>;
+}
+
+function getOrCreateCustomLoader<T, ID>(context: ResolverContext, loaderName: string, idsToResults: (ids: Array<ID>) => Promise<T[]>): DataLoader<ID, T> {
+  if (!context.extraLoaders[loaderName]) {
+    context.extraLoaders[loaderName] = new DataLoader(idsToResults, { cache: true });
+  }
+  return context.extraLoaders[loaderName];
 }

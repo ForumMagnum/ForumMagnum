@@ -10,7 +10,7 @@ import { pipeline } from 'stream/promises'
 import { hyperbolicApiKey } from "@/lib/instanceSettings";
 import { runFragmentQuery } from "./vulcan-lib/query";
 import Users from "@/lib/vulcan-users";
-import { getWithCustomLoader } from "@/lib/loaders";
+import { getManyWithCustomLoader } from "@/lib/loaders";
 
 
 
@@ -74,31 +74,34 @@ export async function constructMessageHistory(
 ): Promise<PromptCachingBetaMessageParam[]> {
   const messages: PromptCachingBetaMessageParam[] = [];
 
-  const posts = await getWithCustomLoader(context, "postsHistoryForLLM", postIds, async (postIdss: string[][]) => {
+  const posts = await getManyWithCustomLoader(context, "postsHistoryForLLM", postIds, async (postIds: string[]) => {
     const posts = await runFragmentQuery({
       collectionName: "Posts",
       fragmentName: "PostsForAutocomplete",
-      terms: { postIds: postIdss.flat() },
+      terms: { postIds },
       context,
     });
-    return postIdss.map(postIds => posts.filter(post => postIds.includes(post._id)));
-  })
+    return postIds.map(postId => posts.find(post => post._id === postId));
+  });
 
-  const comments = await getWithCustomLoader(context, "commentsHistoryForLLM", commentIds, async (commentIdss: string[][]) => {
+  const comments = await getManyWithCustomLoader(context, "commentsHistoryForLLM", commentIds, async (commentIds: string[]) => {
     const comments = await runFragmentQuery({
       collectionName: "Comments",
       fragmentName: "CommentsForAutocomplete",
-      terms: { commentIds: commentIdss.flat() },
+      terms: { commentIds },
       context,
     });
-    return commentIdss.map(commentIds => comments.filter(comment => commentIds.includes(comment._id)));
-  })
+    return commentIds.map(commentId => comments.find(comment => comment._id === commentId));
+  });
 
   // eslint-disable-next-line no-console
   console.log(`Converting ${posts.length} posts and ${comments.length} comments to messages`);
 
   // Add fetched posts and comments to message history
   for (const post of posts) {
+    if (post === undefined) {
+      throw new Error("Post not found in `constructMessageHistory`");
+    }
     messages.push({
       role: "user",
       content: [{ type: "text", text: `<cmd>cat lw/${post._id}.txt</cmd>` }],
@@ -116,6 +119,9 @@ export async function constructMessageHistory(
   }
 
   for (const comment of comments) {
+    if (comment === undefined) {
+      throw new Error("Comment not found in `constructMessageHistory`");
+    }
     messages.push({
       role: "user",
       content: [{ type: "text", text: `<cmd>cat lw/${comment._id}.txt</cmd>` }],
