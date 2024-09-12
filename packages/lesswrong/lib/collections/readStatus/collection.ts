@@ -1,7 +1,8 @@
 import { createCollection } from '../../vulcan-lib';
-import { addUniversalFields } from '../../collectionUtils';
+import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils';
 import { ensureCustomPgIndex, ensureIndex } from '../../collectionIndexUtils'
 import { foreignKeyField } from '../../utils/schemaUtils'
+import { userIsAdmin, userOwns } from '@/lib/vulcan-users';
 
 const schema: SchemaType<"ReadStatuses"> = {
   postId: {
@@ -12,6 +13,7 @@ const schema: SchemaType<"ReadStatuses"> = {
       type: "Post",
       nullable: true,
     }),
+    canRead: [userOwns, 'admins'],
   },
   tagId: {
     ...foreignKeyField({
@@ -21,6 +23,7 @@ const schema: SchemaType<"ReadStatuses"> = {
       type: "Tag",
       nullable: true,
     }),
+    canRead: [userOwns, 'admins'],
   },
   userId: {
     ...foreignKeyField({
@@ -31,14 +34,17 @@ const schema: SchemaType<"ReadStatuses"> = {
       nullable: false,
     }),
     nullable: false,
+    canRead: [userOwns, 'admins'],
   },
   isRead: {
     type: Boolean,
     nullable: false,
+    canRead: [userOwns, 'admins'],
   },
   lastUpdated: {
     type: Date,
     nullable: false,
+    canRead: [userOwns, 'admins'],
   },
 };
 
@@ -47,6 +53,7 @@ export const ReadStatuses: ReadStatusesCollection = createCollection({
   typeName: "ReadStatus",
   schema,
   logChanges: false,
+  resolvers: getDefaultResolvers('ReadStatuses'),
 });
 
 addUniversalFields({collection: ReadStatuses});
@@ -58,5 +65,9 @@ void ensureCustomPgIndex(`
 `);
 ensureIndex(ReadStatuses, {userId:1, postId:1, isRead:1, lastUpdated:1})
 ensureIndex(ReadStatuses, {userId:1, tagId:1, isRead:1, lastUpdated:1})
+
+ReadStatuses.checkAccess = async (user, readStatus) => {
+  return userIsAdmin(user) || userOwns(user, readStatus);
+};
 
 export default ReadStatuses;
