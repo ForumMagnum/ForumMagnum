@@ -20,8 +20,8 @@ import type { ContentItemBody } from '../../common/ContentItemBody';
 import Button from '@material-ui/core/Button';
 import { useCreate } from '@/lib/crud/withCreate';
 import { useMessages } from '@/components/common/withMessages';
-import shuffle from 'lodash/shuffle';
 import { userHasDoppelComments } from '@/lib/betas';
+import { seededShuffle } from '@/lib/random';
 
 export const highlightSelectorClassName = "highlighted-substring";
 export const dimHighlightClassName = "dim-highlighted-substring";
@@ -281,15 +281,13 @@ export const CommentsItem = ({
   const [showEditState, setShowEditState] = useState(false);
   const [showParentState, setShowParentState] = useState(showParentDefault);
   const [activePotentialComment, setActivePotentialComment] = React.useState<0|1|2>(0)
-  const potentialCommentBodies = useMemo(
-    () => shuffle(([...(comment.doppelComments ?? []), comment])
-      .map(possiblyDoppelComment => {
-        const isDoppel = 'commentId' in possiblyDoppelComment
-        const content = isDoppel ? possiblyDoppelComment.content : (possiblyDoppelComment.contents?.html ?? "")
-        const doppelId = isDoppel ? possiblyDoppelComment.commentId : null
-        return { content, doppelId }
-      })),
-    [comment])
+  const potentialCommentBodies = seededShuffle([...(comment.doppelComments ?? []).slice(0, 2), comment], comment._id)
+    .map(possiblyDoppelComment => {
+      const isDoppel = 'commentId' in possiblyDoppelComment
+      const content = isDoppel ? possiblyDoppelComment.content : (possiblyDoppelComment.contents?.html ?? "")
+      const doppelId = isDoppel ? possiblyDoppelComment.commentId : null
+      return { content, doppelId }
+    })
   const isMinimalist = treeOptions.formStyle === "minimalist"
   const currentUser = useCurrentUser();
 
