@@ -18,6 +18,7 @@ import { captureException } from "@sentry/core";
 import { FilterSettings, getDefaultFilterSettings } from "@/lib/filterSettings";
 import { fetchFragment } from "../fetchFragment";
 import sampleSize from "lodash/sampleSize";
+import moment from "moment";
 
 interface InitializeConversationArgs {
   newMessage: ClientMessage;
@@ -505,14 +506,10 @@ async function getRecommendationContextDataV2(query: string, userId: string, con
     collectionName: "Votes",
     fragmentName: "UserVotesWithFullDocument",
     terms: {
-      selector: { 
-        collectionName: 'Posts',
-        userId, 
-        power: {$gt: 0}, 
-        votedAt: {$gt: new Date(Date.now() - (1000 * 60 * 60 * 24 * 365))},
-        isUnvote: {$ne: true},
-        cancelled: {$ne: true},
-    }},
+      view: "userUpvotes",
+      collectionNames: ["Posts"],
+      after: moment(Date.now() - (1000 * 60 * 60 * 24 * 365)).toISOString(),
+    },
     currentUser: context.currentUser,
     context,
     options: {
@@ -526,6 +523,7 @@ async function getRecommendationContextDataV2(query: string, userId: string, con
   const userRecentViewsPromise = runFragmentQuery({
     collectionName: "ReadStatuses",
     fragmentName: "ReadStatusWithPostPage",
+    terms: 
     selector: { userId },
     currentUser: context.currentUser,
     context,
