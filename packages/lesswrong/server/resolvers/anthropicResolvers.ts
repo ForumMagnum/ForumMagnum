@@ -1,9 +1,8 @@
 import uniq from "lodash/uniq";
-import uniqBy from "lodash/uniqBy";
 import { getAnthropicClientOrThrow, getAnthropicPromptCachingClientOrThrow } from "../languageModels/anthropicClient";
 import { getEmbeddingsFromApi } from "../embeddings";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
-import { generateContextSelectionPrompt, CLAUDE_CHAT_SYSTEM_PROMPT, generateTitleGenerationPrompt, generateAssistantContextMessage, CONTEXT_SELECTION_SYSTEM_PROMPT, contextSelectionResponseFormat, generateAssistantRecommendationContextMessage as generateAssistantRecommendationContextMessageV0, RECOMMENDATION_SYSTEM_PROMPT } from "../languageModels/promptUtils";
+import { generateContextSelectionPrompt, CLAUDE_CHAT_SYSTEM_PROMPT, generateTitleGenerationPrompt, generateAssistantContextMessage, CONTEXT_SELECTION_SYSTEM_PROMPT, contextSelectionResponseFormat, RECOMMENDATION_SYSTEM_PROMPT } from "../languageModels/promptUtils";
 import { filterNonnull, filterWhereFieldsNotNull } from "@/lib/utils/typeGuardUtils";
 import { userHasLlmChat } from "@/lib/betas";
 import { PromptCachingBetaMessageParam, PromptCachingBetaTextBlockParam } from "@anthropic-ai/sdk/resources/beta/prompt-caching/messages";
@@ -19,6 +18,7 @@ import { captureException } from "@sentry/core";
 import { FilterSettings, getDefaultFilterSettings } from "@/lib/filterSettings";
 import { fetchFragment } from "../fetchFragment";
 import { Tool } from "@anthropic-ai/sdk/resources";
+import sampleSize from "lodash/sampleSize";
 
 interface InitializeConversationArgs {
   newMessage: ClientMessage;
@@ -417,7 +417,7 @@ async function createConversationWithMessages({ newMessage, systemPrompt, model,
   const conversationId = conversation._id;
 
   if (ragMode === 'Recommendation') {
-    return createRecommendationsConversationWithMessages({ newMessage, systemPrompt, model, currentPostId, currentUser, context });
+    return createRecommendationsConversationWithMessages({ conversation, newMessage, systemPrompt, model, currentPostId, currentUser, context });
   }
 
   // The user's actual message
@@ -478,8 +478,15 @@ async function createConversationWithMessages({ newMessage, systemPrompt, model,
 
 
 
+async function getUserEmbeddingRecommendations(userId: string, numRecommendationPosts: number, oversamplingFactor=10, context: ResolverContext): Promise<PostsPage[]> {
+  const embeddingRecommendationPostsIds = await context.repos.postEmbeddings.getEmbeddingRecommendationsForUser(userId, numRecommendationPosts * oversamplingFactor);
+  const randomSampleEmbeddingRecommendationPostsIds = sampleSize(embeddingRecommendationPostsIds, numRecommendationPosts)
+  const userEmbeddingRecommendationPosts = getPostsWithContents(randomSampleEmbeddingRecommendationPostsIds, context);
 
-async function getRecommendationContextDataV0(query: string, userId: string, context: ResolverContext) {
+  return userEmbeddingRecommendationPosts
+}
+
+async function getRecommendationContextDataV2(query: string, userId: string, context: ResolverContext) {
 
   const filterSettings: FilterSettings = context.currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings();
 
@@ -489,16 +496,24 @@ async function getRecommendationContextDataV0(query: string, userId: string, con
     terms: {
       view: "magic",
       forum: true,
-      limit: 40,
+      limit: 50,
       filterSettings
     },
     context,
   });
 
-  const userRecentUpvotesPromise = fetchFragment({
+  const userRecentUpvotesPromise = runFragmentQuery({
     collectionName: "Votes",
     fragmentName: "UserVotesWithFullDocument",
-    selector: { userId, power: {$gt: 0}, votedAt: {$gt: new Date(Date.now() - (1000 * 60 * 60 * 24 * 90))} },
+    terms: {
+      selector: { 
+        collectionName: 'Posts',
+        userId, 
+        power: {$gt: 0}, 
+        votedAt: {$gt: new Date(Date.now() - (1000 * 60 * 60 * 24 * 365))},
+        isUnvote: {$ne: true},
+        cancelled: {$ne: true},
+    }},
     currentUser: context.currentUser,
     context,
     options: {
@@ -509,7 +524,7 @@ async function getRecommendationContextDataV0(query: string, userId: string, con
     }
   });
 
-  const userRecentViewsPromise = fetchFragment({
+  const userRecentViewsPromise = runFragmentQuery({
     collectionName: "ReadStatuses",
     fragmentName: "ReadStatusWithPostPage",
     selector: { userId },
@@ -524,47 +539,52 @@ async function getRecommendationContextDataV0(query: string, userId: string, con
     skipFiltering: true,
   });
 
-  const [homeLatestPosts, userRecentUpvotes, userRecentViews] = await Promise.all([
-    homeLatestPostsPromise,
+
+  const [userRecentUpvotes, userRecentViews, homeLatestPosts, userEmbeddingRecommendationPosts] = await Promise.all([
     userRecentUpvotesPromise,
-    userRecentViewsPromise
+    userRecentViewsPromise,
+    homeLatestPostsPromise,
+    getUserEmbeddingRecommendations(userId, 20, 10, context)
   ]);
 
   const userUpvotedPosts = filterNonnull(userRecentUpvotes.map(vote => vote.post));
-  const userRecentlyViewedPosts = filterNonnull(userRecentViews.map(view => view.post).slice(0, 40 - userUpvotedPosts.length));
+  const userRecentlyViewedPosts = filterNonnull(userRecentViews.map(view => view.post))
+    .filter(post => !userUpvotedPosts.some(upvotedPost => upvotedPost._id === post._id))
+    .slice(0, 40 - userUpvotedPosts.length);
 
   const homeLatestNotAlreadyReadPosts = homeLatestPosts.filter(post => !post.isRead)
 
   console.log({
-    userRecentViews,
-    homeLatestPostsTitles: homeLatestNotAlreadyReadPosts.map(post => post.title),
-    userUpvotedPostsTitles: userUpvotedPosts.map(post => post.title),
-    userRecentlyViewedPostsTitles: userRecentlyViewedPosts.map(post => post.title)
+    userRecentUpvotes,
+    userUpvotedPosts,
+    userUpvotedPostsTitles: userUpvotedPosts.map(post => ({ title: post.title, html: post.contents?.html.slice(0,200) })),
+    userRecentlyViewedPostsTitles: userRecentlyViewedPosts.map(post => ({ title: post.title, id: post._id })),
+    // homeLatestPostsTitles: homeLatestNotAlreadyReadPosts.map(post => post.title),
+    // userEmbeddingRecommendationPostsTitles: userEmbeddingRecommendationPosts.map(post => post.title)
   })
 
   return {
     homeLatestPosts: homeLatestNotAlreadyReadPosts,
     userUpvotedPosts,
+    userRecentlyViewedPosts,
+    userEmbeddingRecommendationPosts,
   }
 }
 
 
 // TODO: Cleanup, this is for testing
-async function createRecommendationsConversationWithMessages({ newMessage, systemPrompt, model, currentUser, context }: Omit<InitializeConversationArgs, 'ragMode'>) {
+async function createRecommendationsConversationWithMessages({ conversation, newMessage, systemPrompt, model, currentUser, context }: Omit<InitializeConversationArgs, 'ragMode'> & { conversation: DbLlmConversation }) {
   const { content: query, userId } = newMessage;
   
-  const conversation = await createNewConversation({
-    query,
-    systemPrompt,
-    model,
-    currentUser,
-    context,
-    currentPost: null
-  });
+  const recommendationContextData = await getRecommendationContextDataV2(query, userId, context);
+  const recommendationContextPrompt = await generateAssistantRecommendationContextMessageV2(query, recommendationContextData, context);
 
-
-  const recommendationContextData = await getRecommendationContextDataV0(query, userId, context);
-  const recommendationContextPrompt = await generateAssistantRecommendationContextMessageV0(query, recommendationContextData, context);
+  const newUserMessageRecord = {
+    userId,
+    content: query,
+    role: 'user',
+    conversationId: conversation._id,
+  } as const;
 
   const newAssistantContextMesssageRecord = {
     userId,
@@ -573,7 +593,7 @@ async function createRecommendationsConversationWithMessages({ newMessage, syste
     conversationId: conversation._id,
   } as const;
 
-  const newMessageRecords: NewLlmMessage[] = [newAssistantContextMesssageRecord];
+  const newMessageRecords: NewLlmMessage[] = [newUserMessageRecord, newAssistantContextMesssageRecord];
 
   return {
     conversation,
