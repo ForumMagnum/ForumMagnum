@@ -48,7 +48,6 @@ export const EmbeddingPostList = ({ algorithm, settings, limit = 15, classes }: 
   const currentUser = useCurrentUser();
 
   const embeddingSettings = { ...settings, scenario: algorithm };
-  console.log({embeddingSettings})
 
   const query = getEmbeddingPostsQuery();
   const { data, loading, fetchMore, networkStatus } = useQuery(query, {

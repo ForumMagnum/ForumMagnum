@@ -577,8 +577,6 @@ const LWHomePosts = ({ children, classes }: {
     </div>
   );
 
-  console.log(selectedTab)
-
   let settings = null;
   if (selectedTab === 'forum-classic') { 
     settings = filterSettingsElement;
@@ -589,7 +587,6 @@ const LWHomePosts = ({ children, classes }: {
   } else if (selectedTab.includes('recombee')) {
     settings = recombeeSettingsElement;
   } else if (selectedTab === 'embeddings-hybrid') {
-    console.log("hitting branch")
     settings = recombeeSettingsElement;
   }
 
