@@ -45,7 +45,9 @@ const AddInlineReactionButton = ({voteProps, classes, quote, disabled}: {
   const { getCurrentUserReactionVote, toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
   
   const handleOpen = (e: React.MouseEvent) => {
-    !disabled && setOpen(true)
+    if (!disabled) {
+      setOpen(true)
+    }
   }
 
   const handleToggleReaction = (reaction: string, quote: QuoteLocator) => {
@@ -63,7 +65,11 @@ const AddInlineReactionButton = ({voteProps, classes, quote, disabled}: {
     <span
       ref={buttonRef}
     >
-      {!open && <ForumIcon icon="AddReaction" onClick={handleOpen} className={classNames(classes.icon, { [classes.disabled]: disabled })}/>}
+      {/* This needs to trigger on mouse down, not on click, because in Safari
+        * (specifically), clicking outside of a text selection deselects on
+        * press, which makes the button disappear.
+        */}
+      {!open && <ForumIcon icon="AddReaction" onMouseDown={handleOpen} className={classNames(classes.icon, { [classes.disabled]: disabled })}/>}
       {open && <div className={classes.palette}>
         <ReactionsPalette
           getCurrentUserReactionVote={getCurrentUserReactionVote}
