@@ -74,15 +74,19 @@ class ReviewWinnersRepo extends AbstractRepo<"ReviewWinners"> {
           ORDER BY sac."createdAt" DESC
           LIMIT 1    
         ) AS "reviewWinnerArt",
+        (
+          SELECT TO_JSONB(s.*)
+          FROM "Spotlights" s
+          WHERE s."documentId" = p._id
+          AND s."draft" IS false
+          AND s."deletedDraft" IS false
+          ORDER BY s."createdAt" DESC
+          LIMIT 1
+        ) AS "spotlight",
         p.*
       FROM "ReviewWinners" rw
       JOIN "Posts" p
       ON rw."postId" = p._id
-      JOIN "Spotlights" s
-      ON s."documentId" = p._id
-      WHERE 
-        s."draft" = false
-        AND s."deletedDraft" = false
     `);
 
     // We need to do this annoying munging in code because `TO_JSONB` causes date fields to be returned without being serialized into JS Date objects
