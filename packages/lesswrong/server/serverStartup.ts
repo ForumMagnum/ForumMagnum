@@ -25,6 +25,7 @@ const numCPUs = cpus().length;
  */
 export const clusterSetting = new PublicInstanceSetting<boolean>('cluster.enabled', false, 'optional')
 export const numWorkersSetting = new PublicInstanceSetting<number>('cluster.numWorkers', numCPUs, 'optional')
+const processRestartDelay = 5000;
 
 // Do this here to avoid a dependency cycle
 Globals.dropAndCreatePg = dropAndCreatePg;
@@ -144,6 +145,7 @@ export const serverStartup = async () => {
 
     cluster.on('exit', (worker, _code, _signal) => {
       console.log(`Worker ${worker.process.pid} died`);
+      setTimeout(() => cluster.fork(), processRestartDelay);
     });
   } else {
     if (clusterRole !== "standalone") {
