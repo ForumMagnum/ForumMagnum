@@ -766,7 +766,7 @@
   },
   {
     "acceptsSchemaHash": "218b88dd1bf697da99eb6b8823ff6931",
-    "acceptedByMigration": "20240911T212929.create_DoppelComments_and_DoppelCommentVotes_tables.ts.ts",
+    "acceptedByMigration": "20240911T212929.create_DoppelComments_and_DoppelCommentVotes_tables.ts",
     "timestamp": "2024-09-11T21:29:29.000Z"
   }
 ]

@@ -892,19 +892,19 @@ const schema: SchemaType<"Comments"> = {
   },
 
   ownDoppelCommentVote: resolverOnlyField({
-    type: 'DoppelCommentVote',
+    type: Object,
     graphQLtype: 'DoppelCommentVote',
     canRead: ['guests'],
     resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
       const { DoppelCommentVotes, currentUser } = context;
       if (!currentUser) return null;
-      return await DoppelCommentVotes.findOne({commentId: comment._id, userId: currentUser._id});
+      return DoppelCommentVotes.findOne({commentId: comment._id, userId: currentUser._id}) ?? null;
     },
-    sqlResolver: ({field, join, currentUserField}) => join({
-      table: "DoppelCommentVotes",
-      on: {commentId: field("_id"), userId: currentUserField("_id")},
-      resolver: (doppelCommentVoteFields) => doppelCommentVoteFields("*"),
-    })
+    sqlResolver: ({field, currentUserField}) => `(
+      SELECT ARRAY_AGG(dc.*)
+      FROM "DoppelCommentVotes" dc
+      WHERE dc."commentId" = ${field("_id")} AND dc."userId" = ${currentUserField("_id")}
+    )`
   }),
   doppelCommentVoteChoices: resolverOnlyField({
     type: Array,

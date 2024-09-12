@@ -4,7 +4,7 @@
 --
 -- Overall schema hash: 218b88dd1bf697da99eb6b8823ff6931
 
--- Accepted on 2024-09-11T21:29:29.000Z by 20240911T212929.create_DoppelComments_and_DoppelCommentVotes_tables.ts.ts
+-- Accepted on 2024-09-11T21:29:29.000Z by 20240911T212929.create_DoppelComments_and_DoppelCommentVotes_tables.ts
 
 -- Extension "btree_gin", hash 7b207eefbb36f8109cca31911e6ab886
 CREATE EXTENSION IF NOT EXISTS "btree_gin" CASCADE;
