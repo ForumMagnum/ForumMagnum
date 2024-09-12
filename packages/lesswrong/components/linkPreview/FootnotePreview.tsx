@@ -197,7 +197,7 @@ const FootnotePreview = ({classes, href, id, rel, children}: {
       });
       ev.preventDefault();
     }
-  }, [href, footnoteHTML, openDialog, theme]);
+  }, [href, footnoteHTML, openDialog]);
   
   const postPageContext = usePostsPageContext();
   const post = postPageContext?.fullPost ?? postPageContext?.postPreload;
