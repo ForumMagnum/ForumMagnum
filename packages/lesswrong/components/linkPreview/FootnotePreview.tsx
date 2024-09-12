@@ -55,6 +55,17 @@ const footnotePreviewStyles = (theme: ThemeType) => ({
     },
   },
 
+  footnoteMobileIndicator: {
+    display: "none",
+    [sidenotesHiddenBreakpoint(theme)]: {
+      display: "inline-block",
+    },
+  },
+  
+  lineColor: {
+    background: theme.palette.sideItemIndicator.footnote,
+  },
+
   sidenoteWithIndex: {
     display: "flex",
   },
@@ -114,13 +125,13 @@ const footnotePreviewStyles = (theme: ThemeType) => ({
 })
 
 const FootnotePreview = ({classes, href, id, rel, children}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof footnotePreviewStyles>,
   href: string,
   id?: string,
   rel?: string,
   children: React.ReactNode,
 }) => {
-  const { ContentStyles, SideItem, LWPopper } = Components
+  const { ContentStyles, SideItem, SideItemLine, LWPopper } = Components
   const { openDialog } = useDialog();
   const [disableHover, setDisableHover] = useState(false);
   const theme = useTheme();
@@ -210,21 +221,26 @@ const FootnotePreview = ({classes, href, id, rel, children}: {
         </Card>
       </LWPopper>}
       
-      {hasSidenotes && !sidenotesDisabledOnPost && footnoteContentsNonempty && <SideItem options={{offsetTop: -6}}>
-        <div
-          {...sidenoteEventHandlers}
-          className={classNames(
-            classes.sidenote,
-            eitherHovered && classes.sidenoteHover
-          )}
-        >
-          <SidenoteDisplay
-            footnoteHref={href}
-            footnoteHTML={footnoteHTML}
-            classes={classes}
-          />
-        </div>
-      </SideItem>}
+      {hasSidenotes && !sidenotesDisabledOnPost && footnoteContentsNonempty &&
+        <SideItem options={{offsetTop: -6}}>
+          <div
+            {...sidenoteEventHandlers}
+            className={classNames(
+              classes.sidenote,
+              eitherHovered && classes.sidenoteHover
+            )}
+          >
+            <SidenoteDisplay
+              footnoteHref={href}
+              footnoteHTML={footnoteHTML}
+              classes={classes}
+            />
+          </div>
+          <span className={classes.footnoteMobileIndicator} onClick={onClick}>
+            <SideItemLine colorClass={classes.lineColor}/>
+          </span>
+        </SideItem>
+      }
 
       <a
         {...anchorEventHandlers}
