@@ -10,7 +10,6 @@ import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { isLWorAF } from '../../lib/instanceSettings';
 import { fetchFragmentSingle } from '../fetchFragment';
 import DoppelComments from '@/lib/collections/doppelComments/collection';
-import Users from '@/lib/collections/users/collection';
 import { constructMessageHistory } from '../autocompleteEndpoint';
 import { Posts } from '@/lib/collections/posts';
 import { getAnthropicPromptCachingClientOrThrow } from '../languageModels/anthropicClient';
@@ -119,8 +118,8 @@ augmentFieldsDict(Comments, {
   doppelComments: {
     resolveAs: {
       type: '[DoppelComment]',
-      resolver: async (dbComment, context: ResolverContext) => {
-        const {DoppelComments, currentUser} = context
+      resolver: async (dbComment, args, context: ResolverContext) => {
+        const {DoppelComments, Users, currentUser} = context
         if (!userHasDoppelComments(currentUser)) return []
         // This should always be a single user
         const [user] = await getWithLoader(context, Users, "usersByIdsForDoppelComments", {}, "_id", dbComment.userId, {karma: 1})

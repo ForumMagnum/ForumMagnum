@@ -10,6 +10,7 @@ import { pipeline } from 'stream/promises'
 import { hyperbolicApiKey } from "@/lib/instanceSettings";
 import { runFragmentQuery } from "./vulcan-lib/query";
 import Users from "@/lib/vulcan-users";
+import { getWithCustomLoader } from "@/lib/loaders";
 
 
 
@@ -73,21 +74,25 @@ export async function constructMessageHistory(
 ): Promise<PromptCachingBetaMessageParam[]> {
   const messages: PromptCachingBetaMessageParam[] = [];
 
-  // Make the fetches parallel to save time
-  const [posts, comments] = await Promise.all([
-    runFragmentQuery({
+  const posts = await getWithCustomLoader(context, "postsHistoryForLLM", postIds, async (postIdss: string[][]) => {
+    const posts = await runFragmentQuery({
       collectionName: "Posts",
       fragmentName: "PostsForAutocomplete",
-      terms: { postIds },
+      terms: { postIds: postIdss.flat() },
       context,
-    }),
-    runFragmentQuery({
+    });
+    return postIdss.map(postIds => posts.filter(post => postIds.includes(post._id)));
+  })
+
+  const comments = await getWithCustomLoader(context, "commentsHistoryForLLM", commentIds, async (commentIdss: string[][]) => {
+    const comments = await runFragmentQuery({
       collectionName: "Comments",
       fragmentName: "CommentsForAutocomplete",
-      terms: { commentIds },
+      terms: { commentIds: commentIdss.flat() },
       context,
-    }),
-  ]);
+    });
+    return commentIdss.map(commentIds => comments.filter(comment => commentIds.includes(comment._id)));
+  })
 
   // eslint-disable-next-line no-console
   console.log(`Converting ${posts.length} posts and ${comments.length} comments to messages`);

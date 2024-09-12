@@ -901,7 +901,7 @@ const schema: SchemaType<"Comments"> = {
       return DoppelCommentVotes.findOne({commentId: comment._id, userId: currentUser._id}) ?? null;
     },
     sqlResolver: ({field, currentUserField}) => `(
-      SELECT ARRAY_AGG(dc.*)
+      SELECT ROW_TO_JSON(dc.*)
       FROM "DoppelCommentVotes" dc
       WHERE dc."commentId" = ${field("_id")} AND dc."userId" = ${currentUserField("_id")}
     )`
@@ -920,8 +920,7 @@ const schema: SchemaType<"Comments"> = {
       FROM "DoppelCommentVotes" dc
       WHERE dc."commentId" = ${field("_id")} AND dc."type" = 'vote'
       GROUP BY dc."commentId"
-      LIMIT 1
-    )` // rjmk: no one was able to explain why this format is right, but we need the ARRAY_AGG and the LIMIT 1
+    )`
   }),
   "doppelCommentVoteChoices.$": {
     type: String,
