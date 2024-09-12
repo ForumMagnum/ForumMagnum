@@ -129,6 +129,8 @@ const styles = (theme: ThemeType) => ({
     // TODO: maybe really the styling of the options section should be flex display and flex grow stuff
     maxWidth: 250,
   },
+  ragModeSelect: {
+  },
   menuItem: {
     zIndex: theme.zIndexes.languageModelChat + 10,
     display: "flex",
@@ -277,6 +279,7 @@ export const ChatInterface = ({classes}: {
   const { currentConversation, setCurrentConversation, archiveConversation, orderedConversations, submitMessage, currentConversationLoading } = useLlmChat();
 
 
+  const [ragMode, setRagMode] = useState<RagModeType>('Auto');
   const { flash } = useMessages();
 
   // TODO: come back and refactor this to use currentRoute & matchPath to get the url parameter instead

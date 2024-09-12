@@ -13,7 +13,6 @@ import markdownItContainer from "markdown-it-container";
 import markdownItFootnote from "markdown-it-footnote";
 import markdownItSub from "markdown-it-sub";
 import markdownItSup from "markdown-it-sup";
-import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
 
 const mdi = markdownIt({ linkify: true });
 // mdi.use(markdownItMathjax()) // for performance, don't render mathjax
