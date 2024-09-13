@@ -820,7 +820,7 @@ const schema: SchemaType<"Posts"> = {
     nullable: true,
     canRead: ['guests'],
     hidden: !isLWorAF
-    // Implementation in postResolvers.ts
+    // Implementation in postResolvers.ts TODO: migrate this and other annual review market resolvers into the schema, for nicer developer experience
   },
   annualReviewMarketIsResolved: {
     type: Boolean,
