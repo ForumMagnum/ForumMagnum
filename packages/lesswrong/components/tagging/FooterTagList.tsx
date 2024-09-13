@@ -371,8 +371,6 @@ const FooterTagList = ({
     </>
   );
 
-  console.log("annualReviewMarketInfo", annualReviewMarketInfo)
-
   return <>
     <span
       ref={rootRef}

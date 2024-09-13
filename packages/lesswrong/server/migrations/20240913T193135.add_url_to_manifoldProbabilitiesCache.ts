@@ -61,6 +61,7 @@ export const up = async ({db}: MigrationContext) => {
   ));
 
   if (filteredUpdateMarketInfo.length === updatedMarketInfo.length) {
+    // eslint-disable-next-line no-console
     console.log("All markets have a url, proceeding with the update");
   } else {
     // eslint-disable-next-line no-console
