@@ -76,7 +76,7 @@ const QuickTakesSection = ({classes}: {
   const titleText = preferredHeadingCase("Quick Takes");
   const titleTooltip = (
     <div>
-      A feed of quick takes by other users, sorted by recency.
+      A feed of quick takes by other users, sorted by recency and karma.
     </div>
   );
   const title = isFriendlyUI
