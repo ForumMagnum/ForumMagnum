@@ -41,10 +41,7 @@ import { createAdminContext } from "../vulcan-lib";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 
 export const up = async ({db}: MigrationContext) => {
-  // TODO
-
   // Get all of the posts with markets in our database
-
   const postsWithMarkets = await db.any<DbPost>(`
     SELECT p.*
     FROM "Posts" p
@@ -61,18 +58,29 @@ export const up = async ({db}: MigrationContext) => {
     marketInfo ? { marketId, marketInfo } : null
   ));
 
-  const batchUpdates = filteredUpdateMarketInfo.map(({ marketId, marketInfo }) => {
-    return {
-      updateOne: {
-        filter: { marketId },
-        update: { $set: { url: marketInfo.url } }
-      }
-    };
-  });
+  if (filteredUpdateMarketInfo.length === updatedMarketInfo.length) {
+    console.log("All markets have a url, proceeding with the update");
+  } else {
+    console.log("Some markets do not have a url, aborting");
+    return;
+  }
 
   await db.none(`ALTER TABLE "ManifoldProbabilitiesCaches" ADD COLUMN IF NOT EXISTS "url" TEXT`);
 
-  await ManifoldProbabilitiesCaches.rawCollection().bulkWrite(batchUpdates);
+  // Use a single SQL query to update all rows
+  const updateQuery = `
+    UPDATE "ManifoldProbabilitiesCaches"
+    SET "url" = data.url
+    FROM (
+      SELECT unnest($1::text[]) as "marketId", unnest($2::text[]) as url
+    ) as data
+    WHERE "ManifoldProbabilitiesCaches"."marketId" = data."marketId"
+  `;
+
+  const marketIds = filteredUpdateMarketInfo.map(info => info.marketId);
+  const urls = filteredUpdateMarketInfo.map(info => info.marketInfo.url);
+
+  await db.none(updateQuery, [marketIds, urls]);
 
   await db.none(`ALTER TABLE "ManifoldProbabilitiesCaches" ALTER COLUMN "url" SET NOT NULL`);
 
