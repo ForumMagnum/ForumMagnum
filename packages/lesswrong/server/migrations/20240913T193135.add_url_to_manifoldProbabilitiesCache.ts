@@ -1,11 +1,11 @@
 /**
- * Generated on 2024-09-12T00:42:23.157Z by `yarn makemigrations`
+ * Generated on 2024-09-13T19:31:35.749Z by `yarn makemigrations`
  * The following schema changes were detected:
  * -------------------------------------------
- * diff --git a/Users/benpace/Documents/LessWrongCode/ForumMagnum/schema/accepted_schema.sql b/Users/benpace/Documents/LessWrongCode/ForumMagnum/schema/schema_to_accept.sql
+ * diff --git a/Users/raymondarnold/Documents/LessWrongSuite/ForumMagnum/schema/accepted_schema.sql b/Users/raymondarnold/Documents/LessWrongSuite/ForumMagnum/schema/schema_to_accept.sql
  * index b7eefce3b9..ee037d3073 100644
- * --- a/Users/benpace/Documents/LessWrongCode/ForumMagnum/schema/accepted_schema.sql
- * +++ b/Users/benpace/Documents/LessWrongCode/ForumMagnum/schema/schema_to_accept.sql
+ * --- a/Users/raymondarnold/Documents/LessWrongSuite/ForumMagnum/schema/accepted_schema.sql
+ * +++ b/Users/raymondarnold/Documents/LessWrongSuite/ForumMagnum/schema/schema_to_accept.sql
  * @@ -4,5 +4,3 @@
  *  --
  * --- Overall schema hash: 8c84a413224b6139788e7a51da3bc113
@@ -54,37 +54,24 @@ export const up = async ({db}: MigrationContext) => {
     return { marketId: post.manifoldReviewMarketId, marketInfo };
   });
 
+  const context = createAdminContext();
+
   const filteredUpdateMarketInfo = filterNonnull(updatedMarketInfo.map(({ marketId, marketInfo }) => 
-    marketInfo ? { marketId, marketInfo } : null
+    marketInfo && marketId ? { marketId, marketInfo } : null
   ));
 
   if (filteredUpdateMarketInfo.length === updatedMarketInfo.length) {
     console.log("All markets have a url, proceeding with the update");
   } else {
     console.log("Some markets do not have a url, aborting");
-    return;
+    throw new Error("Some markets do not have a url, aborting");
   }
 
-  await db.none(`ALTER TABLE "ManifoldProbabilitiesCaches" ADD COLUMN IF NOT EXISTS "url" TEXT`);
-
-  // Use a single SQL query to update all rows
-  const updateQuery = `
-    UPDATE "ManifoldProbabilitiesCaches"
-    SET "url" = data.url
-    FROM (
-      SELECT unnest($1::text[]) as "marketId", unnest($2::text[]) as url
-    ) as data
-    WHERE "ManifoldProbabilitiesCaches"."marketId" = data."marketId"
-  `;
-
-  const marketIds = filteredUpdateMarketInfo.map(info => info.marketId);
-  const urls = filteredUpdateMarketInfo.map(info => info.marketInfo.url);
-
-  await db.none(updateQuery, [marketIds, urls]);
-
-  await db.none(`ALTER TABLE "ManifoldProbabilitiesCaches" ALTER COLUMN "url" SET NOT NULL`);
-
   await addField(db, ManifoldProbabilitiesCaches, "url");
+
+  for (const { marketId, marketInfo } of filteredUpdateMarketInfo) {
+    await context.repos.manifoldProbabilitiesCachesRepo.upsertMarketInfoInCache(marketId, marketInfo);
+  }
 }
 
 export const down = async ({db}: MigrationContext) => {
