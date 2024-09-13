@@ -15,7 +15,7 @@ import { isLWorAF, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import stringify from 'json-stringify-deterministic';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
-import { AnnualReviewMarketInfo, highlightMarket } from '../../lib/annualReviewMarkets';
+import { AnnualReviewMarketInfo, highlightMarket } from '../../lib/collections/posts/annualReviewMarkets';
 import { stableSortTags } from '../../lib/collections/tags/helpers';
 
 const styles = (theme: ThemeType) => ({
@@ -317,8 +317,8 @@ const FooterTagList = ({
   // `
 
 
-  const percentage = post.annualReviewMarketProbability ? (post.annualReviewMarketProbability * 100).toFixed(0) : undefined
-  const reviewMarketTag = post.manifoldReviewMarketId ? <PostTypeTag label={`Best of Year: ${percentage}%`} tooltipBody={"This is tooltip body"} neverCoreStyling={neverCoreStyling}/> : null
+  // const percentage = post.annualReviewMarketProbability ? (post.annualReviewMarketProbability * 100).toFixed(0) : undefined
+  // const reviewMarketTag = post.manifoldReviewMarketId ? <PostTypeTag label={`Best of Year: ${percentage}%`} tooltipBody={"This is tooltip body"} neverCoreStyling={neverCoreStyling}/> : null
 
   const eventTag = contentTypeInfo.event && post.isEvent ? <MaybeLink to={contentTypeInfo.event.linkTarget} className={classes.postTypeLink}>
     <PostTypeTag label="Event" tooltipBody={contentTypeInfo.event.tooltipBody} neverCoreStyling={neverCoreStyling}/>
@@ -370,6 +370,8 @@ const FooterTagList = ({
       {isAwaiting && <Loading />}
     </>
   );
+
+  console.log("annualReviewMarketInfo", annualReviewMarketInfo)
 
   return <>
     <span

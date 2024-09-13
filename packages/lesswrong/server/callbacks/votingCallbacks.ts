@@ -15,7 +15,7 @@ import { createAdminContext } from '../vulcan-lib/query';
 import Tags from '../../lib/collections/tags/collection';
 import { isProduction } from '../../lib/executionEnvironment';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { createManifoldMarket } from '../posts/annualReviewMarkets';
+import { createManifoldMarket } from '../../lib/collections/posts/annualReviewMarkets';
 import { RECEIVED_SENIOR_DOWNVOTES_ALERT } from '../../lib/collections/moderatorActions/schema';
 import { cancelAlignmentKarmaServerCallback, cancelAlignmentUserKarmaServer, updateAlignmentKarmaServerCallback, updateAlignmentUserServerCallback } from './alignment-forum/callbacks';
 import { recomputeContributorScoresFor, voteUpdatePostDenormalizedTags } from '../tagging/tagCallbacks';

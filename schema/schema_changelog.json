@@ -763,5 +763,10 @@
     "acceptsSchemaHash": "8c84a413224b6139788e7a51da3bc113",
     "acceptedByMigration": "20240910T144757.revisions_word_count_not_null.ts",
     "timestamp": "2024-09-10T14:47:57.000Z"
+  },
+  {
+    "acceptsSchemaHash": "daef9f83fd77670b6fe1ee98ffff75f1",
+    "acceptedByMigration": "20240912T004223.add_market_url_field.ts",
+    "timestamp": "2024-09-12T00:42:23.000Z"
   }
 ]

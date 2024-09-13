@@ -1,4 +1,4 @@
-import { AnnualReviewMarketInfo } from '../../lib/annualReviewMarkets';
+import { AnnualReviewMarketInfo, highlightMarket } from '../../lib/collections/posts/annualReviewMarkets';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { useHover } from '../common/withHover';
@@ -71,13 +71,10 @@ const PostsAnnualReviewMarketTag = ({ post, annualReviewMarketInfo, classes }: {
   const { HoverOver, ContentStyles, ContentItemBody } = Components;
   const { anchorEl, hover, eventHandlers } = useHover();
 
-  const { annualReviewMarketComment } = post;
-
   const year = annualReviewMarketInfo.year
-  // const marketUrl = post.manifoldReviewMarketUrl
-  const marketUrl = 'https://manifold.markets/LessWrong/will-transformers-represent-belief'
+  const marketUrl = annualReviewMarketInfo.url
 
-  const golden = (annualReviewMarketInfo.probability >= highlightReviewWinnerThresholdSetting.get()) ? "expectedWinner" : "expectedLoser"
+  const golden = (highlightMarket(annualReviewMarketInfo)) ? "expectedWinner" : "expectedLoser"
   const tooltipBody = `<p>The <a href="https://www.lesswrong.com/bestoflesswrong">LessWrong Review</a> runs every year to select the posts that have most stood the test of time. This post is not yet eligible for review, but will be at the end of ${year+1}. The top fifty or so posts are featured prominently on the site throughout the year.</p><p>Hopefully, the review is better than karma at judging enduring value. If we have accurate prediction markets on the review results, maybe we can have better incentives on LessWrong today. <a href="${marketUrl}">Will this post make the top fifty?</a></p>
   `
 
