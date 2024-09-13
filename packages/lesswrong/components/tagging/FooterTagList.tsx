@@ -313,13 +313,6 @@ const FooterTagList = ({
       )
     )
 
-  // const commentString = `<p>The <a href="https://www.lesswrong.com/bestoflesswrong">LessWrong Review</a> runs every year to select the posts that have most stood the test of time. This post is not yet eligible for review, but will be at the end of ${2023+1}. The top fifty or so posts are featured prominently on the site throughout the year.</p><p>Hopefully, the review is better than karma at judging enduring value. If we have accurate prediction markets on the review results, maybe we can have better incentives on LessWrong today. <a href="${marketUrl}">Will this post make the top fifty?</a></p>
-  // `
-
-
-  // const percentage = post.annualReviewMarketProbability ? (post.annualReviewMarketProbability * 100).toFixed(0) : undefined
-  // const reviewMarketTag = post.manifoldReviewMarketId ? <PostTypeTag label={`Best of Year: ${percentage}%`} tooltipBody={"This is tooltip body"} neverCoreStyling={neverCoreStyling}/> : null
-
   const eventTag = contentTypeInfo.event && post.isEvent ? <MaybeLink to={contentTypeInfo.event.linkTarget} className={classes.postTypeLink}>
     <PostTypeTag label="Event" tooltipBody={contentTypeInfo.event.tooltipBody} neverCoreStyling={neverCoreStyling}/>
   </MaybeLink> : null
