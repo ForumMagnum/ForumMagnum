@@ -2,7 +2,7 @@ import moment from 'moment';
 import Notifications from '../../lib/collections/notifications/collection';
 import { Posts } from '../../lib/collections/posts/collection';
 import Users from '../../lib/collections/users/collection';
-import { isLWorAF, reviewMarketCreationMinimumKarmaSetting, reviewUserBotSetting } from '../../lib/instanceSettings';
+import { isLWorAF, reviewMarketCreationMinimumKarmaSetting } from '../../lib/instanceSettings';
 import type { VoteDocTuple } from '../../lib/voting/vote';
 import { userSmallVotePower } from '../../lib/voting/voteTypes';
 import { createNotification } from '../notificationCallbacksHelpers';
@@ -192,8 +192,6 @@ export async function updateScoreOnPostPublish(publishedPost: DbPost, context: R
 // When a vote is cast, if its new karma is above review_market_threshold, create a Manifold
 // on it making top 50 in the review, and create a comment linking to the market.
 
-const reviewUserBot = reviewUserBotSetting.get()
-
 async function addTagToPost(postId: string, tagSlug: string, botUser: DbUser, context: ResolverContext) {
   const tag = await Tags.findOne({slug: tagSlug})
   const { addOrUpvoteTag } = require('../tagging/tagsGraphQL');
@@ -229,11 +227,6 @@ async function maybeCreateReviewMarket({newDocument, vote}: VoteDocTuple, collec
 
   // Forum gate
   if (!isLWorAF) return;
-  if (!reviewUserBot) {
-    //eslint-disable-next-line no-console
-    console.error("Review bot user not configured"); 
-    return;
-  }
 
   if (collection.collectionName !== "Posts") return;
   if (vote.power <= 0 || vote.cancelled) return; // In principle it would be fine to make a market here, but it should never be first created here
@@ -242,13 +235,6 @@ async function maybeCreateReviewMarket({newDocument, vote}: VoteDocTuple, collec
   if (!post) return;
   if (post.postedAt.getFullYear() < (new Date()).getFullYear() - 1) return; // only make markets for posts that haven't had a chance to be reviewed
   if (post.manifoldReviewMarketId) return;
-  
-  const botUser = await context.Users.findOne({_id: reviewUserBot})
-  if (!botUser) {
-    //eslint-disable-next-line no-console
-    console.error("Bot user not found"); 
-    return
-  }
 
   const annualReviewLink = 'https://www.lesswrong.com/tag/lesswrong-review'
   const postLink = postGetPageUrl(post, true)
@@ -264,8 +250,7 @@ async function maybeCreateReviewMarket({newDocument, vote}: VoteDocTuple, collec
 
   // Return if market creation fails
   if (!liteMarket) return;
-
-  await Posts.rawUpdateOne(post._id, {$set: {manifoldReviewMarketUrl: liteMarket.url}})
+  Posts.rawUpdateOne(post._id, {$set: {manifoldReviewMarketId: liteMarket.id}})
 }
 
 async function maybeCreateModeratorAlertsAfterVote({ newDocument, vote }: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext) {

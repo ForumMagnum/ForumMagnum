@@ -796,23 +796,23 @@ const schema: SchemaType<"Posts"> = {
     group: formGroups.adminOptions,
   },
 
-  // This is deprecated, and will be deleted soon.
-  annualReviewMarketCommentId: {
-    ...foreignKeyField({
-      idFieldName: 'annualReviewMarketCommentId',
-      resolverName: 'annualReviewMarketComment',
-      collectionName: 'Comments',
-      type: 'Comment',
-      nullable: true
-    }),
-    optional: true,
-    nullable: true,
-    canRead: ['guests'],
-    canCreate: ['admins'],
-    canUpdate: ['admins'],
-    hidden: !isLWorAF,
-    group: formGroups.adminOptions,
-  },
+  // // This is deprecated, and if you're reading this in the future, delete it
+  // annualReviewMarketCommentId: {
+  //   ...foreignKeyField({
+  //     idFieldName: 'annualReviewMarketCommentId',
+  //     resolverName: 'annualReviewMarketComment',
+  //     collectionName: 'Comments',
+  //     type: 'Comment',
+  //     nullable: true
+  //   }),
+  //   optional: true,
+  //   nullable: true,
+  //   canRead: ['guests'],
+  //   canCreate: ['admins'],
+  //   canUpdate: ['admins'],
+  //   hidden: !isLWorAF,
+  //   group: formGroups.adminOptions,
+  // },
 
   annualReviewMarketProbability: {
     type: Number,
