@@ -2,8 +2,8 @@ import uniq from "lodash/uniq";
 import { getAnthropicClientOrThrow, getAnthropicPromptCachingClientOrThrow } from "../languageModels/anthropicClient";
 import { getEmbeddingsFromApi } from "../embeddings";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
-import { generateContextSelectionPrompt, CLAUDE_CHAT_SYSTEM_PROMPT, generateTitleGenerationPrompt, generateAssistantContextMessage, CONTEXT_SELECTION_SYSTEM_PROMPT, contextSelectionResponseFormat, RECOMMENDATION_SYSTEM_PROMPT } from "../languageModels/promptUtils";
-import { filterNonnull, filterWhereFieldsNotNull } from "@/lib/utils/typeGuardUtils";
+import { generateContextSelectionPrompt, CLAUDE_CHAT_SYSTEM_PROMPT, generateTitleGenerationPrompt, generateAssistantContextMessage, CONTEXT_SELECTION_SYSTEM_PROMPT, contextSelectionResponseFormat, RECOMMENDATION_SYSTEM_PROMPT, generateAssistantRecommendationContextMessageV2, postRecommendationsResponseFormat } from "../languageModels/promptUtils";
+import { FieldsNotNull, filterNonnull, filterWhereFieldsNotNull } from "@/lib/utils/typeGuardUtils";
 import { userHasLlmChat } from "@/lib/betas";
 import { PromptCachingBetaMessageParam, PromptCachingBetaTextBlockParam } from "@anthropic-ai/sdk/resources/beta/prompt-caching/messages";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
@@ -19,6 +19,7 @@ import { FilterSettings, getDefaultFilterSettings } from "@/lib/filterSettings";
 import { fetchFragment } from "../fetchFragment";
 import { Tool } from "@anthropic-ai/sdk/resources";
 import sampleSize from "lodash/sampleSize";
+import keyBy from "lodash/keyBy";
 
 interface InitializeConversationArgs {
   newMessage: ClientMessage;
@@ -773,28 +774,14 @@ function isString(value: unknown) {
   return typeof value === 'string';
 }
 
-export async function getLlmRecommendationsForUser(
-  user: DbUser,
-  limit: number,
-  // settings: HybridRecombeeConfiguration,
-  context: ResolverContext
-) {
-  const client = getAnthropicPromptCachingClientOrThrow();
+function getPostRecommendationsPrompt(user: DbUser, lastReadPosts: Array<FieldsNotNull<ReadStatusWithPostPage, "post">>, unreadPostTitles: Array<{ _id: string, title: string }>) {
+  const availablePostTitlesString = sampleSize(unreadPostTitles, 500).map(({ title }) => title).join('\n');
 
-  const lastReadStatuses = await runFragmentQuery({
-    collectionName: "ReadStatuses",
-    fragmentName: "ReadStatusWithPostPage",
-    terms: { view: 'userReadStatuses', userId: user._id },
-    context,
-  });
-
-  const lastReadPosts = filterWhereFieldsNotNull(lastReadStatuses, 'post');
-
-  const prompt = `LessWrong user ${userGetDisplayName(user)} has most recently read the following posts:
-${lastReadPosts.map(({ post, lastUpdated }) => {
-  const contentPreview = htmlToMarkdown(post.contents?.html ?? '').slice(0, 1000);
-
-  return `Title: ${post.title}
+  return `LessWrong user ${userGetDisplayName(user)} has most recently read the following posts:
+  ${lastReadPosts.map(({ post, lastUpdated }) => {
+    const contentPreview = htmlToMarkdown(post.contents?.html ?? '').slice(0, 500);
+  
+    return `Title: ${post.title}
 Author: ${userGetDisplayName(post.user)}
 Publish Date: ${post.postedAt}
 Read Date: ${lastUpdated}
@@ -802,11 +789,42 @@ Score: ${post.baseScore}
 Content Preview: ${contentPreview}`;
 })}
 
-Please recommend the next ten LessWrong posts they should read.  Do not recommend posts in the read history above.`;
+Out of the following list of available posts, please recommend the next ten LessWrong posts they should read.  Do not recommend posts from the read history above.\n\n<AvailablePosts>${availablePostTitlesString}</AvailablePosts>`;
+}
+
+async function getGptPostRecommendations(user: DbUser, lastReadPosts: Array<FieldsNotNull<ReadStatusWithPostPage, "post">>, unreadPostTitles: Array<{ _id: string, title: string }>): Promise<string[]> {
+  const openai = await getOpenAI();
+  if (!openai) {
+    throw new Error('Missing openai client!');
+  }
+
+  const prompt = getPostRecommendationsPrompt(user, lastReadPosts, unreadPostTitles);
+  
+  // TODO: come back to this when haiku 3.5 is out to replace it, maybe
+  const toolUseResponse = await openai.beta.chat.completions.parse({
+    model: 'gpt-4o-mini-2024-07-18',
+    messages: [{ role: 'user', content: prompt }],
+    response_format: postRecommendationsResponseFormat
+  });
+
+  const parsedResponse = toolUseResponse.choices[0].message.parsed;
+  if (!parsedResponse) {
+    // eslint-disable-next-line no-console
+    console.log('Post recommendations response seems to be missing tool use arguments', { toolUseResponse: JSON.stringify(toolUseResponse, null, 2) });
+    throw new Error('Post recommendations response seems to be missing tool use arguments');
+  }
+
+  return parsedResponse.titles;
+}
+
+async function getClaudePostRecommendations(user: DbUser, lastReadPosts: Array<FieldsNotNull<ReadStatusWithPostPage, "post">>, unreadPostTitles: Array<{ _id: string, title: string }>) {
+  const client = getAnthropicPromptCachingClientOrThrow();
+
+  const prompt = getPostRecommendationsPrompt(user, lastReadPosts, unreadPostTitles);
 
   const tool: Tool = {
     name: 'recommend_post_titles',
-    description: 'Recommends posts with the provided titles to the user, based on their reading history.',
+    description: 'Recommends posts with the provided titles to the user, based on what posts they might enjoy reading next, given their reading history.',
     input_schema: {
       type: 'object',
       properties: {
@@ -822,9 +840,10 @@ Please recommend the next ten LessWrong posts they should read.  Do not recommen
   };
 
   const response = await client.messages.create({
-    model: 'claude-3-5-sonnet-20240620',
+    // model: 'claude-3-5-sonnet-20240620',
+    model: 'claude-3-haiku-20240307',
     max_tokens: 1028,
-    messages: [{ role: 'user', content: [{ type: 'text', text: prompt, cache_control: { type: 'ephemeral' } }] }],
+    messages: [{ role: 'user', content: [{ type: 'text', text: prompt, /*cache_control: { type: 'ephemeral' }*/ }] }],
     tools: [tool],
     tool_choice: { type: 'tool', name: 'recommend_post_titles' } 
   });
@@ -836,18 +855,47 @@ Please recommend the next ten LessWrong posts they should read.  Do not recommen
   }
 
   const toolUseResponse = responseContent.input;
-  if (('titles' in toolUseResponse) && Array.isArray(toolUseResponse.titles) && toolUseResponse.titles.every(isString)) {
+  if (toolUseResponse && typeof toolUseResponse === 'object' && ('titles' in toolUseResponse) && Array.isArray(toolUseResponse.titles) && toolUseResponse.titles.every(isString)) {
     console.log({ titles: toolUseResponse.titles });
-    const recommendedPosts = await context.Posts.find({ title: { $in: toolUseResponse.titles } }).fetch();
-    return recommendedPosts.map((post) => ({
-      post,
-      curated: false,
-      stickied: false,
-    }));
+    return toolUseResponse.titles;
   }
 
   console.log('Invalid tool_use response data format', { toolUseResponse });
   throw new Error('Invalid tool_use response data format');
+}
+
+export async function getLlmRecommendationsForUser(
+  user: DbUser,
+  limit: number,
+  context: ResolverContext
+) {
+  const [lastReadStatuses, unreadPostTitles] = await Promise.all([
+    runFragmentQuery({
+      collectionName: "ReadStatuses",
+      fragmentName: "ReadStatusWithPostPage",
+      terms: { view: 'userReadStatuses', userId: user._id },
+      context,
+    }),
+    context.repos.posts.getUnreadPostTitles(user._id)
+  ]);
+
+  const unreadPostMap = keyBy(unreadPostTitles, ({ title }) => title);
+
+  const lastReadPosts = filterWhereFieldsNotNull(lastReadStatuses, 'post');
+
+  console.log(`${unreadPostTitles.length} available posts, sampling 500`);
+
+  const titles = await getGptPostRecommendations(user, lastReadPosts, unreadPostTitles);
+  // const titles = await getClaudePostRecommendations(user, lastReadPosts, unreadPostTitles);
+
+  const postIds = filterNonnull(titles.map(title => unreadPostMap[title]?._id));
+  const recommendedPosts = await context.Posts.find({ _id: { $in: postIds } }).fetch();
+
+  return recommendedPosts.map((post) => ({
+    post,
+    curated: false,
+    stickied: false,
+  }));
 }
 
 

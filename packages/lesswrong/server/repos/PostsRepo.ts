@@ -918,6 +918,22 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       postId
     });
   }
+
+  async getUnreadPostTitles(userId: string) {
+    return this.getRawDb().any<{ _id: string, title: string }>(`
+      SELECT p._id, p.title
+      FROM "Posts" p
+      WHERE (
+        SELECT COUNT(*)
+        FROM "ReadStatuses" rs
+        WHERE rs."userId" = $(userId)
+        AND rs."postId" = p._id
+        AND rs."isRead" IS TRUE
+      ) = 0
+      AND ${getViewablePostsSelector('p')}
+      AND p."baseScore" > 10
+    `, { userId });
+  }
 }
 
 recordPerfMetrics(PostsRepo);

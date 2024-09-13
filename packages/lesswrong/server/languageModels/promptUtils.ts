@@ -196,6 +196,7 @@ const ContextSelectionParameters = z.object({
 });
 
 export const contextSelectionResponseFormat = zodResponseFormat(ContextSelectionParameters, 'contextLoadingStrategy');
+export const postRecommendationsResponseFormat = zodResponseFormat(z.object({ titles: z.array(z.string()) }), 'postRecommendations')
 
 export const generateContextSelectionPrompt = (query: string, currentPost: PostsPage | null): string => {
   const postTitle = currentPost?.title
