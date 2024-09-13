@@ -796,7 +796,7 @@ const schema: SchemaType<"Posts"> = {
     group: formGroups.adminOptions,
   },
 
-  // // This is deprecated, and if you're reading this in the future, delete it
+  // // This is deprecated, and if you're reading this in the future, you can probably delete it
   // annualReviewMarketCommentId: {
   //   ...foreignKeyField({
   //     idFieldName: 'annualReviewMarketCommentId',
