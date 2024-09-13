@@ -753,15 +753,24 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
   useEffect(() => {
     if (query.year) {
       const element = document.getElementById('year-category-section');
-      if (element) {
-        element.scrollIntoView({ });
+      if (element) {          
+        window.scrollTo({
+          top: element.getBoundingClientRect().top + window.pageYOffset - 400
+        });
       }
     }
   }, [query.year]);
 
   const filteredReviewWinnersForSpotlights = reviewWinnersWithPosts.filter(post => {
-    if (year || category) {
+    console.log(year, category)
+    if (year && category) {
       return post.reviewWinner?.reviewYear === year && post.reviewWinner?.category === category
+    }
+    if (year) {
+      return post.reviewWinner?.reviewYear === year
+    }
+    if (category) {
+      return post.reviewWinner?.category === category
     }
     return true
   })
