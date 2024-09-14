@@ -35,6 +35,7 @@ import { HybridRecombeeConfiguration, RecombeeRecommendationArgs } from '../../l
 import { googleVertexApi } from '../google-vertex/client';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { getEmbeddingRecommendationsForUser } from '../recommendations/embeddingRecommendations';
+import { getLlmRecommendationsForUser } from './anthropicResolvers';
 
 augmentFieldsDict(Posts, {
   // Compute a denormalized start/end time for events, accounting for the
@@ -710,13 +711,19 @@ createPaginatedResolver({
   callback: async (
     context: ResolverContext,
     limit: number,
-    args: { settings: any }
+    args: { settings: HybridRecombeeConfiguration }
   ): Promise<RecommendedPost[]> => {
     const { currentUser } = context;
 
     if (!currentUser) {
       throw new Error(`You must be logged in to use embedding-based recommendations right now`);
     }
+
+    const recUser = args.settings.userId
+      ? await context.loaders.Users.load(args.settings.userId)
+      : currentUser;
+
+    // return await getLlmRecommendationsForUser(recUser, limit, context);
 
     return await getEmbeddingRecommendationsForUser(currentUser._id, limit, args.settings, context);
   }
