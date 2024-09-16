@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 // eslint-disable-next-line no-restricted-imports
 import type { LinkProps } from 'react-router-dom';
 import { useNavigate } from '@/lib/routeUtil';
+import { useActivateOnPress } from '../hooks/useActivateOnPress';
 
 type ScrollFunction = ((el: HTMLElement) => void);
 
@@ -70,6 +71,7 @@ function hashLinkScroll() {
 
 export function HashLink(props: HashLinkProps) {
   const navigate = useNavigate();
+  const { activateOnPress } = useActivateOnPress();
   const allowDefaultOnClick = useRef(false);
 
   function handleClick(e: React.MouseEvent<HTMLAnchorElement>) {
@@ -90,7 +92,7 @@ export function HashLink(props: HashLinkProps) {
     }
   }
   const { scroll, smooth, children, doOnDown, to, ...filteredProps } = props;
-  if (doOnDown && !filteredProps.target) {
+  if (doOnDown && activateOnPress && !filteredProps.target) {
     return <a
       {...filteredProps}
       href={to}

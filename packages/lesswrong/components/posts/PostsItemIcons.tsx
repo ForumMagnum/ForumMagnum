@@ -126,7 +126,7 @@ const RecommendedPostIcon = ({post, hover, classes}: {
   return <span className={classes.postIcon}>
     <LWTooltip title="Hide this recommendation and show fewer like it" placement="right"> 
       {hover 
-        ? <ForumIcon icon="NotInterested" onClick={notInterestedClick} className={classNames(classes.icon, classes.recommendationIcon)} />
+        ? <ForumIcon icon="NotInterested" onActivate={notInterestedClick} className={classNames(classes.icon, classes.recommendationIcon)} />
         : <ForumIcon icon="Sparkle" className={classNames(classes.icon, classes.recommendationIcon)} />
       }
     </LWTooltip>

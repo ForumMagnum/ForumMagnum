@@ -319,7 +319,7 @@ const SurveyPostsItemInternal = ({
         }
       </div>
       <LWTooltip title="Dismiss">
-        <ForumIcon icon="Close" onClick={onDismiss} className={classes.dismiss} />
+        <ForumIcon icon="Close" onActivate={onDismiss} className={classes.dismiss} />
       </LWTooltip>
       <div ref={anchorEl}>
         <MoreVertIcon

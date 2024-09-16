@@ -479,7 +479,7 @@ const EditDigest = ({classes}: {classes: ClassesType}) => {
             <ForumIcon
               icon="ClipboardDocumentList"
               className={classes.copyDigestIcon}
-              onClick={() => copyDigestToClipboard()} />
+              onActivate={() => copyDigestToClipboard()} />
           </LWTooltip>
           <EditDigestActionButtons digest={digest} />
         </div>

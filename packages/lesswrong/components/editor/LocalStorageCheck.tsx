@@ -97,7 +97,7 @@ const LocalStorageCheck = ({getLocalStorageHandlers, onRestore, classes}: {
         }
       }}>Restore</a>
     </div>
-    <Components.ForumIcon icon="Close" className={classes.closeIcon} onClick={() => setRestorableState(null)}/>
+    <Components.ForumIcon icon="Close" className={classes.closeIcon} onActivate={() => setRestorableState(null)}/>
   </div>
 }
 

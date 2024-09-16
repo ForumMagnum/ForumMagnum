@@ -62,7 +62,7 @@ const SettingsButton = ({classes, className, onClick, showIcon=true, label="", u
       <span className={classNames(classes.label, {[classes.textShadow]: textShadow}, labelClassName)}>{ label }</span>
     </span>
   }
-  return <ForumIcon icon={iconType} className={classNames(classes.icon, className, {[classes.rotate180]: useArrow==='up'})} onClick={onClick}/>
+  return <ForumIcon icon={iconType} className={classNames(classes.icon, className, {[classes.rotate180]: useArrow==='up'})} onActivate={onClick}/>
 }
 
 const SettingsButtonComponent = registerComponent('SettingsButton', SettingsButton, {

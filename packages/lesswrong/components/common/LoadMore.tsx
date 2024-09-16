@@ -7,6 +7,7 @@ import { LoadMoreCallback } from '../../lib/crud/withMulti';
 import { useIsFirstRender } from "../hooks/useFirstRender";
 
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { useActivateOnPress } from '../hooks/useActivateOnPress';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -92,6 +93,7 @@ const LoadMore = ({
   message?: string,
 }) => {
   const { captureEvent } = useTracking()
+  const { onActivateEventHandlers } = useActivateOnPress();
 
   // Don't show the loading animation on the initial render
   const isFirstRender = useIsFirstRender();
@@ -117,8 +119,7 @@ const LoadMore = ({
         [classes.afterPostsListMarginTop]: afterPostsListMarginTop,
       })}
       href="#"
-      onMouseDown={handleClickLoadMore}
-      onClick={ev => ev.preventDefault()}
+      {...onActivateEventHandlers(handleClickLoadMore)}
     >
       {totalCount ? `${message} (${count}/${totalCount})` : `${message}`}
     </a>

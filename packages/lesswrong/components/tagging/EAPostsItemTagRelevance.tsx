@@ -86,7 +86,7 @@ const EAPostsItemTagRelevance = ({tagRel, classes}: {
     <div className={classes.root}>
       <ForumIcon
         icon="MinusSmall"
-        onClick={onVote("smallDownvote", isDownvoted)}
+        onActivate={onVote("smallDownvote", isDownvoted)}
         className={classNames(
           classes.button,
           classes.downvote,
@@ -104,7 +104,7 @@ const EAPostsItemTagRelevance = ({tagRel, classes}: {
       </LWTooltip>
       <ForumIcon
         icon="PlusSmall"
-        onClick={onVote("smallUpvote", isUpvoted)}
+        onActivate={onVote("smallUpvote", isUpvoted)}
         className={classNames(
           classes.button,
           classes.upvote,

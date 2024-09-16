@@ -182,7 +182,7 @@ const EAGBanner = ({classes}: {classes: ClassesType}) => {
             </div>
             <ForumIcon
               icon="Close"
-              onClick={onDismissBanner}
+              onActivate={onDismissBanner}
               className={classes.close}
             />
           </SingleColumnSection>

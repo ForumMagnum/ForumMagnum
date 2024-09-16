@@ -78,7 +78,7 @@ const SunshineCuratedSuggestionsList = ({ terms, belowFold, classes, setCuration
           <ForumIcon
             icon="VolumeUp"
             className={classNames(classes.audioIcon, {[classes.audioOnly]: audioOnly})}
-            onClick={() => setAudioOnly(!audioOnly)}
+            onActivate={() => setAudioOnly(!audioOnly)}
           />
         </LWTooltip>
       </SunshineListTitle>

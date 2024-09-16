@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { fullHeightToCEnabled } from '../../../lib/betas';
 import { Link } from '@/lib/reactRouterWrapper';
+import { useActivateOnPress } from '@/components/hooks/useActivateOnPress';
 
 const sectionOffsetStyling = (fullHeightToCEnabled ? {
   display: 'flex',
@@ -119,12 +120,12 @@ const levelToClassName = (level: number, classes: ClassesType<typeof styles>) =>
 }
 
 const TableOfContentsRow = ({
-  indentLevel=0, highlighted=false, href, onMouseDown, children, classes, title, divider, answer, dense, scale, fullHeight, commentToC
+  indentLevel=0, highlighted=false, href, onActivate, children, classes, title, divider, answer, dense, scale, fullHeight, commentToC
 }: {
   indentLevel?: number,
   highlighted?: boolean,
   href: string,
-  onMouseDown?: (ev: any) => void,
+  onActivate?: (ev: React.MouseEvent) => void,
   children?: React.ReactNode,
   classes: ClassesType<typeof styles>,
   title?: boolean,
@@ -137,6 +138,7 @@ const TableOfContentsRow = ({
   commentToC?: boolean
 }) => {
   const fullHeightTitle = !!(title && fullHeight);
+  const { onActivateEventHandlers } = useActivateOnPress();
 
   const scaleStyling = scale !== undefined ? { flex: scale } : undefined;
 
@@ -153,11 +155,16 @@ const TableOfContentsRow = ({
     )}
     style={scaleStyling}
   >
-    <Link doOnDown to={href} onMouseDown={onMouseDown} className={classNames(classes.link, {
-      [classes.title]: title,
-      [classes.highlightDot]: !answer,
-      [classes.dense]: dense
-    })}>
+    <Link
+      doOnDown
+      to={href}
+      {...onActivateEventHandlers(onActivate)}
+      className={classNames(classes.link, {
+        [classes.title]: title,
+        [classes.highlightDot]: !answer,
+        [classes.dense]: dense
+      })}
+    >
       {children}
     </Link>
   </div>

@@ -147,7 +147,7 @@ const EditProfileForm = ({classes}: {
           </span>
           <ForumIcon
             icon="Close"
-            onClick={dismissEAGImport}
+            onActivate={dismissEAGImport}
             className={classes.dismissImport}
           />
         </div>

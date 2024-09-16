@@ -153,6 +153,7 @@ import { CheckSmallIcon } from "../icons/CheckSmallIcon";
 import { FilterBarsIcon } from "../icons/FilterBarsIcon";
 import { EAEnvelopeIcon } from "../icons/EAEnvelopeIcon";
 import { RobotIcon } from '../icons/RobotIcon';
+import { useActivateOnPress } from "../hooks/useActivateOnPress";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -518,13 +519,14 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   },
 };
 
-export type IconProps = {
+type IconProps = {
   className: string,
+  style?: CSSProperties,
   onClick: MouseEventHandler<SVGElement>,
   onMouseDown: MouseEventHandler<SVGElement>,
 }
 
-export type IconComponent = ComponentType<Partial<IconProps>>;
+type IconComponent = ComponentType<Partial<IconProps>>;
 
 const styles = (_: ThemeType) => ({
   root: {
@@ -554,21 +556,24 @@ const CUSTOM_CLASSES: ForumOptions<Partial<Record<ForumIconName, IconClassName>>
   },
 };
 
-export type ForumIconProps = Partial<IconProps> & {
-  icon: ForumIconName,
-  noDefaultStyles?: boolean,
-  style?: CSSProperties,
-};
-
 const ForumIcon = ({
   icon,
   noDefaultStyles,
+  style,
+  onActivate,
   className,
   classes,
-  ...props
-}: ForumIconProps & {classes: ClassesType<typeof styles>}) => {
+}: {
+  icon: ForumIconName,
+  noDefaultStyles?: boolean,
+  style?: CSSProperties,
+  onActivate?: (ev: React.MouseEvent) => void,
+  className?: string,
+  classes: ClassesType<typeof styles>
+}) => {
   const icons = forumSelect(ICONS);
   const Icon = icons[icon] ?? ICONS.default[icon];
+  const { onActivateEventHandlers } = useActivateOnPress();
   if (!Icon) {
     // eslint-disable-next-line no-console
     console.error(`Invalid ForumIcon name: ${icon}`);
@@ -582,7 +587,11 @@ const ForumIcon = ({
     [customClass as AnyBecauseHard]: !noDefaultStyles && customClass,
   });
 
-  return <Icon className={fullClassName} {...props} />;
+  return <Icon
+    className={fullClassName}
+    style={style}
+    {...(onActivate ? onActivateEventHandlers(onActivate) : null)}
+  />;
 }
 
 const ForumIconComponent = registerComponent("ForumIcon", memo(ForumIcon), {

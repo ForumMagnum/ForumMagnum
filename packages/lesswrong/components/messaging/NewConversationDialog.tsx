@@ -207,7 +207,7 @@ const NewConversationDialog = ({
         <div className={classes.root}>
           <div className={classes.titleRow}>
             <div>New conversation</div>
-            <ForumIcon icon="Close" className={classes.closeIcon} onClick={onClose} />
+            <ForumIcon icon="Close" className={classes.closeIcon} onActivate={onClose} />
           </div>
           <InstantSearch
             indexName={getElasticIndexNameWithSorting("Users", "relevance")}

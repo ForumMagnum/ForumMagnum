@@ -307,7 +307,7 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
             scale={0}
             fullHeight
             highlighted={currentSection === "above"}
-            onMouseDown={ev => {
+            onActivate={ev => {
               if (isRegularClick(ev)) {
                 void handleClick(ev, () => {
                   navigate("#");
@@ -337,7 +337,7 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
         href={"#"+section.anchor}
         scale={section.scale}
         highlighted={section.anchor === currentSection}
-        onMouseDown={(ev) => {
+        onActivate={(ev) => {
           if (isRegularClick(ev)) {
             void handleClick(ev, () => {
               jumpToAnchor(section.anchor)

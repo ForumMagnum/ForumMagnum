@@ -467,7 +467,7 @@ export const SpotlightItem = ({
             ? (
               <ForumIcon
                 icon="Close"
-                onClick={hideBanner}
+                onActivate={hideBanner}
                 className={classes.hideButton}
               />
             )

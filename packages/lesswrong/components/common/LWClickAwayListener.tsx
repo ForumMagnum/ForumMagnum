@@ -1,6 +1,7 @@
 import React, { ChangeEvent } from 'react';
 import ClickAwayListener, { ClickAwayEvent } from '../../lib/vendor/react-click-away-listener';
 import { registerComponent } from '../../lib/vulcan-lib/components';
+import { useActivateOnPress } from '../hooks/useActivateOnPress';
 
 /**
  * Wrapped to ensure that "onClick" is the default mouse event.
@@ -20,12 +21,14 @@ const LWClickAwayListener = ({onClickAway, doOnDown=false, children}: {
 
   children: React.ReactElement,
 }) => {
+  const { activateOnPress } = useActivateOnPress();
+
   return (
     <ClickAwayListener
       onClickAway={ev => {
         onClickAway(ev);
       }}
-      {...(doOnDown && {
+      {...((doOnDown && activateOnPress) && {
         mouseEvent: "mousedown",
         touchEvent: "touchstart",
       })}
