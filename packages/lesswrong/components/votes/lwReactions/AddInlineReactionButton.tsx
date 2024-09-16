@@ -63,7 +63,7 @@ const AddInlineReactionButton = ({voteProps, classes, quote, disabled}: {
     <span
       ref={buttonRef}
     >
-      {!open && <ForumIcon icon="AddReaction" onClick={handleOpen} className={classNames(classes.icon, { [classes.disabled]: disabled })}/>}
+      {!open && <ForumIcon icon="AddReaction" onActivate={handleOpen} className={classNames(classes.icon, { [classes.disabled]: disabled })}/>}
       {open && <div className={classes.palette}>
         <ReactionsPalette
           getCurrentUserReactionVote={getCurrentUserReactionVote}

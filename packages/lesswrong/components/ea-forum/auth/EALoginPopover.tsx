@@ -362,7 +362,7 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
       <AnalyticsContext pageElementContext="loginPopover">
         <ForumIcon
           icon="Close"
-          onClick={onClose}
+          onActivate={onClose}
           className={classes.close}
         />
         <div className={classes.lightbulb}>{lightbulbIcon}</div>
@@ -394,7 +394,7 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
                 />
                 <ForumIcon
                   icon={showPassword ? "EyeSlash" : "Eye"}
-                  onClick={toggleShowPassword}
+                  onActivate={toggleShowPassword}
                   className={classes.showPasswordButton}
                 />
               </div>

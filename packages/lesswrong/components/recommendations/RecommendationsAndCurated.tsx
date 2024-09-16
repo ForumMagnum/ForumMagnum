@@ -197,7 +197,7 @@ const RecommendationsAndCurated = ({
                 <LWTooltip title={expanded ? "Collapse" : "Expand"} hideOnTouchScreens>
                   <ForumIcon
                     icon={expanded ? "ThickChevronDown" : "ThickChevronRight"}
-                    onClick={toggleExpanded}
+                    onActivate={toggleExpanded}
                     className={classes.expandIcon}
                   />
                 </LWTooltip>

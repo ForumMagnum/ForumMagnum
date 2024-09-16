@@ -64,7 +64,7 @@ const PeopleDirectoryHeading = ({column, classes}: {
       {column.sortField &&
         <ForumIcon
           icon="ChevronUpDown"
-          onClick={onToggleSort}
+          onActivate={onToggleSort}
           className={classes.icon}
         />
       }

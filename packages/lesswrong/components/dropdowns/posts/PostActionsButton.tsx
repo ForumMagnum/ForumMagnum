@@ -8,6 +8,7 @@ import { PopperPlacementType } from '@material-ui/core/Popper';
 import { useIsAboveBreakpoint } from '../../hooks/useScreenWidth';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import classNames from 'classnames';
+import { useActivateOnPress } from '@/components/hooks/useActivateOnPress';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -38,6 +39,7 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeB
   const [isOpen, setIsOpen] = useState(false);
   const {captureEvent} = useTracking();
   const currentUser = useCurrentUser();
+  const { onActivateEventHandlers } = useActivateOnPress();
 
   // This is fine with SSR because the popper will only be rendered after use
   // interaction
@@ -68,7 +70,10 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeB
 
   return <div className={classNames(classes.root, className)}>
     <div ref={anchorEl}>
-      <Icon className={classes.icon} onClick={(ev) => handleSetOpen(!isOpen)}/>
+      <Icon
+        className={classes.icon}
+        {...onActivateEventHandlers((ev) => handleSetOpen(!isOpen))}
+      />
     </div>
     <PopperCard
       open={isOpen}
@@ -79,13 +84,15 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeB
       style={gapStyle}
     >
       {/*FIXME: ClickAwayListener doesn't handle portals correctly, which winds up making submenus inoperable. But we do still need clickaway to close.*/}
-      <LWClickAwayListener onClickAway={() => handleSetOpen(false)}>
+      <LWClickAwayListener
+        onClickAway={() => handleSetOpen(false)}
+        doOnDown
+      >
         <PostActions post={post} closeMenu={() => handleSetOpen(false)} includeBookmark={includeBookmark} />
       </LWClickAwayListener>
     </PopperCard>
   </div>
 }
-
 
 const PostActionsButtonComponent = registerComponent('PostActionsButton', PostActionsButton, {styles});
 

@@ -143,7 +143,7 @@ const SidebarDigestAd = ({className, classes}: {
       <div className={classNames(classes.root, className)}>
         <div className={classes.headingRow}>
           <h2 className={classes.heading}>{DIGEST_AD_HEADLINE_TEXT}</h2>
-          <ForumIcon icon="Close" className={classes.close} onClick={handleClose} />
+          <ForumIcon icon="Close" className={classes.close} onActivate={handleClose} />
         </div>
         <div className={classes.body}>
           {DIGEST_AD_BODY_TEXT}

@@ -279,7 +279,7 @@ const FriendlyInbox = ({
         >
           <div className={classes.columnHeader}>
             <div className={classes.headerText}>All messages</div>
-            <ForumIcon onClick={openNewConversationDialog} icon="PencilSquare" className={classes.actionIcon} />
+            <ForumIcon onActivate={openNewConversationDialog} icon="PencilSquare" className={classes.actionIcon} />
           </div>
           <div className={classes.navigation}>
             <FriendlyInboxNavigation
@@ -299,7 +299,7 @@ const FriendlyInbox = ({
             <>
               <div className={classes.columnHeader}>
                 <div className={classes.headerText}>{title}</div>
-                <ForumIcon onClick={openConversationOptions} icon="EllipsisVertical" className={classes.actionIcon} />
+                <ForumIcon onActivate={openConversationOptions} icon="EllipsisVertical" className={classes.actionIcon} />
               </div>
               <div className={classes.conversation} ref={selectedConversationRef}>
                 <Link to="/inbox" className={classes.backButton}>

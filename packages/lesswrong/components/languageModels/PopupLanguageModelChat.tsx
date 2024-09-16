@@ -114,7 +114,7 @@ const PopupLanguageModelChat = ({onClose, classes}: {
           </LWTooltip>
         </div>
         <div className={classes.icons}>
-          <ForumIcon icon={expanded ? "FullscreenExit" : "Fullscreen"} className={classes.icon} onClick={toggleExpanded} />
+          <ForumIcon icon={expanded ? "FullscreenExit" : "Fullscreen"} className={classes.icon} onActivate={toggleExpanded} />
           <CloseIcon className={classes.icon} onClick={handleClose} />
         </div>
       </div>

@@ -18,6 +18,7 @@ import { useLocation } from '../../lib/routeUtil';
 import { useCurrentForumEvent } from '../hooks/useCurrentForumEvent';
 import { makeCloudinaryImageUrl } from './CloudinaryImage2';
 import { hasForumEvents } from '@/lib/betas';
+import { useActivateOnPress } from '../hooks/useActivateOnPress';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
@@ -249,6 +250,7 @@ const Header = ({
   const { notificationsOpened } = useUnreadNotifications();
   const { currentRoute, pathname, hash } = useLocation();
   const {currentForumEvent} = useCurrentForumEvent();
+  const { onActivateEventHandlers } = useActivateOnPress();
 
   const {
     SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
@@ -328,7 +330,7 @@ const Header = ({
                 )}
                 color="inherit"
                 aria-label="Menu"
-                onClick={()=>setNavigationOpen(true)}
+                {...onActivateEventHandlers(()=>setNavigationOpen(true))}
               >
                 <ForumIcon icon="Menu" />
               </IconButton>
@@ -341,7 +343,7 @@ const Header = ({
                 )}
                 color="inherit"
                 aria-label="Menu"
-                onClick={()=>setNavigationOpen(true)}
+                {...onActivateEventHandlers(()=>setNavigationOpen(true))}
               >
                 <TocIcon />
               </IconButton>
@@ -354,7 +356,7 @@ const Header = ({
             )}
             color="inherit"
             aria-label="Menu"
-            onClick={()=>setNavigationOpen(true)}
+            {...onActivateEventHandlers(()=>setNavigationOpen(true))}
           >
             <ForumIcon icon="Menu" />
           </IconButton>
@@ -366,7 +368,7 @@ const Header = ({
         )}
         color="inherit"
         aria-label="Menu"
-        onClick={toggleStandaloneNavigation}
+        {...onActivateEventHandlers(toggleStandaloneNavigation)}
       >
         {(isFriendlyUI && !sidebarHidden) ? <ForumIcon icon="CloseMenu" /> : <ForumIcon icon="Menu" />}
       </IconButton>}
@@ -468,7 +470,7 @@ const Header = ({
               <Typography className={classes.title} variant="title">
                 <div className={classes.hideSmDown}>
                   <div className={classes.titleSubtitleContainer}>
-                    <Link to="/" className={classes.titleLink}>
+                    <Link to="/" className={classes.titleLink} doOnDown>
                       {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaWhite={useWhiteText}/></div>}
                       {forumHeaderTitleSetting.get()}
                     </Link>

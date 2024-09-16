@@ -57,7 +57,7 @@ const SharePostButton = ({
         <ForumIcon
           icon="Share"
           className={classNames(classes.icon, className)}
-          onClick={shareClicked}
+          onActivate={shareClicked}
         />
       </LWTooltip>
     </div>

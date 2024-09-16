@@ -211,11 +211,12 @@ const TabNavigationItem = ({tab, onClick, className, classes}: TabNavigationItem
     className={classes.tooltip}
   >
     <MenuItemLink
-      onClick={handleClick}
+      onMouseDown={handleClick}
       // We tried making this [the 'component' of the underlying material-UI
       // MenuItem component] a function that return an a tag once. It made the
       // entire sidebar fail on iOS. True story.
       to={tab.link}
+      doOnDown
       disableGutters
       rootClass={classNames(classes.menuItem, className, {
         [classes.navButton]: !tab.subItem,

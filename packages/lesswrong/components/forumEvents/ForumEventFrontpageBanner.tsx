@@ -264,7 +264,7 @@ const ForumEventFrontpageBannerBasic = ({classes}: {
             className={classNames(classes.image, classes.imageWithGradient)}
           />
         }
-        <ForumIcon icon="Close" onClick={dismiss} className={classes.hideButton} />
+        <ForumIcon icon="Close" onActivate={dismiss} className={classes.hideButton} />
       </div>
     </AnalyticsContext>
   );

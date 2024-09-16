@@ -250,7 +250,7 @@ const Heart: FC<{
         placement="bottom"
         popperClassName={classes.gsHeartTooltip}
       >
-        <ForumIcon icon="VoteBallot" onClick={onClick}/>
+        <ForumIcon icon="VoteBallot" onActivate={onClick}/>
         {disabled && <div className={classes.gsDisabledHeartTooltip}>
           {!currentUser && "Log in to vote in the review (with an account created before 2022)"}
           {currentUser && !eligibleToNominate(currentUser) && "You need to have joined before 2022 to vote in the review"}

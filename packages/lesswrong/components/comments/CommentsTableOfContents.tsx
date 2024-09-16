@@ -180,7 +180,7 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highli
       highlighted={highlightedCommentId===comment._id}
       dense
       href={"#"+comment._id}
-      onClick={ev => {
+      onActivate={ev => {
         const commentTop = getLandmarkY(commentIdToLandmark(comment._id));
         if (commentTop) {
           // Add window.scrollY because window.scrollTo takes a relative scroll distance

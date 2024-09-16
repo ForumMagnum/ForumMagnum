@@ -239,7 +239,7 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
 
     <td className={classes.postTitleCol}>
       <LWTooltip title="Click to copy post link" placement="bottom" className={classes.copyLink}>
-        <ForumIcon icon="ClipboardDocument" className={classes.copyIcon} onClick={() => copyPostToClipboard(post)} />
+        <ForumIcon icon="ClipboardDocument" className={classes.copyIcon} onActivate={() => copyPostToClipboard(post)} />
       </LWTooltip>
       <div>
         <div>

@@ -22,14 +22,16 @@ const MenuItem = ({value, disabled, disableRipple, dense, onClick, className, ch
   </MuiMenuItem>;
 }
 
-const MenuItemLink = ({to, className, rootClass, disabled, disableGutters, disableTouchRipple, onClick, children}: {
+const MenuItemLink = ({to, doOnDown=false, className, rootClass, disabled, disableGutters, disableTouchRipple, onClick, onMouseDown, children}: {
   to: string,
+  doOnDown?: boolean,
   className?: string,
   rootClass?: string,
   disabled?: boolean,
   disableGutters?: boolean,
   disableTouchRipple?: boolean,
   onClick?: (event: React.MouseEvent) => void,
+  onMouseDown?: (event: React.MouseEvent) => void,
   children: React.ReactNode,
 }) => {
   // MenuItem takes a component and passes unrecognized props to that component,
@@ -40,12 +42,14 @@ const MenuItemLink = ({to, className, rootClass, disabled, disableGutters, disab
   return <MuiMenuItemUntyped
     component={Link}
     to={to}
+    doOnDown={doOnDown}
     className={className}
     classes={{root: rootClass}}
     disabled={disabled}
     disableGutters={disableGutters}
     disableTouchRipple={disableTouchRipple}
     onClick={onClick}
+    onMouseDown={onMouseDown}
   >
     {children}
   </MuiMenuItemUntyped>

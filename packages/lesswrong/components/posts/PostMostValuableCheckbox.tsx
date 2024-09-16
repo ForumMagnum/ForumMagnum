@@ -75,7 +75,7 @@ export const PostMostValuableCheckbox = ({post, classes}: {
   if (!currentUser || loading || !results) return null
   
   return <Components.ForumIcon
-    onClick={toggleChecked}
+    onActivate={toggleChecked}
     icon={checked ? "Heart" : "HeartOutline"}
     className={classes.root}
   />

@@ -109,7 +109,7 @@ const EASurveyBanner = ({classes}: {classes: ClassesType}) => {
         </Link>
         <ForumIcon
           icon="Close"
-          onClick={onDismissBanner}
+          onActivate={onDismissBanner}
           className={classes.close}
         />
       </div>

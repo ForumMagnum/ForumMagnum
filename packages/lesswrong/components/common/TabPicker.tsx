@@ -294,7 +294,7 @@ const TabPicker = <T extends TabRecord[]>(
   return (
     <SingleColumnSection className={classes.tabsSection}>
       <div className={classes.tabsRow}>
-        {leftArrowVisible && <div onClick={scrollLeft} className={classNames(classes.arrow, classes.leftArrow)}>
+        {leftArrowVisible && <div onMouseDown={scrollLeft} className={classNames(classes.arrow, classes.leftArrow)}>
           <ForumIcon icon="ThickChevronLeft" className={classes.arrowIcon}/>
         </div>}
         <div className={classNames(classes.tabsWindowContainer, {
@@ -313,7 +313,7 @@ const TabPicker = <T extends TabRecord[]>(
                 hideOnTouchScreens
               >
                 <button
-                  onClick={() => updateActiveTab(tab.name)}
+                  onMouseDown={() => updateActiveTab(tab.name)}
                   className={classNames(classes.tab, { [classes.activeTab]: isActive, [classes.inactiveTab]: !isActive })}
                 >
                   {tab.label}
@@ -324,7 +324,7 @@ const TabPicker = <T extends TabRecord[]>(
             })}
           </div>
         </div>
-        {rightArrowVisible && <div onClick={scrollRight} className={classNames(classes.arrow, classes.rightArrow)}>
+        {rightArrowVisible && <div onMouseDown={scrollRight} className={classNames(classes.arrow, classes.rightArrow)}>
           <ForumIcon icon="ThickChevronRight" className={classes.arrowIcon}/>
         </div>}
       </div>

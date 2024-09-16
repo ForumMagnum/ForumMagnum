@@ -124,7 +124,7 @@ const ForumEventPostSelectionDialog = ({ tag, voteData, onClose, classes }: {
     >
       <h2 className={classes.title}>
         Which posts changed your mind?
-        <ForumIcon icon="Close" className={classes.closeIcon} onClick={handleDone} />
+        <ForumIcon icon="Close" className={classes.closeIcon} onActivate={handleDone} />
       </h2>
       <div className={classes.description}>
         Selecting a post in this list will assign it points for changing your mind.

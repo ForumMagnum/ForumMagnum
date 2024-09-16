@@ -74,12 +74,7 @@ type TabNavigationFooterItemProps = {
 const TabNavigationFooterItem = ({tab, classes}: TabNavigationFooterItemProps) => {
   const { TabNavigationSubItem } = Components
   const { pathname } = useLocation()
-  // React router links don't handle external URLs, so use a
-  // normal HTML a tag if the URL is external
   const externalLink = /https?:\/\//.test(tab.link);
-  const Element = externalLink ?
-    ({to, ...rest}: { to: string, className: string }) => <a href={to} target="_blank" rel="noopener noreferrer" {...rest} />
-    : Link;
 
   const isSelected = pathname === tab.link;
   const hasIcon = tab.icon || tab.iconComponent || tab.selectedIconComponent;
@@ -88,10 +83,15 @@ const TabNavigationFooterItem = ({tab, classes}: TabNavigationFooterItemProps) =
     : tab.iconComponent;
 
   return <Tooltip placement='top' title={tab.tooltip || ''}>
-    <Element
+    <Link
       to={tab.link}
       className={classNames(classes.navButton, {
         [classes.selected]: isSelected,
+      })}
+      doOnDown
+      {...(externalLink && {
+        target: "_blank",
+        rel: "noopener noreferrer"
       })}
     >
       {hasIcon && <span
@@ -108,7 +108,7 @@ const TabNavigationFooterItem = ({tab, classes}: TabNavigationFooterItemProps) =
           { tab.mobileTitle || tab.title }
         </span>
       }
-    </Element>
+    </Link>
   </Tooltip>
 }
 
