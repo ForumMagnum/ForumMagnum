@@ -51,6 +51,8 @@ const standaloneNavMenuRouteNames: ForumOptions<string[]> = {
   'default': ['home', 'allPosts', 'questions', 'Community', 'Shortform',],
 }
 
+const noLLMChatRouteNames = ["crosspostLogin"];
+
 /**
  * When a new user signs up, their profile is 'incomplete' (ie; without a display name)
  * and we require them to fill this in using the onboarding flow before continuing.
@@ -479,7 +481,7 @@ const Layout = ({currentUser, children, classes}: {
       // a property on routes themselves.
       standaloneNavigation: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute.name),
       renderSunshineSidebar: !!currentRoute?.sunshineSidebar && !!(userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins')) && !currentUser?.hideSunshineSidebar,
-      renderLanguageModelChatLauncher: !!currentUser && userHasLlmChat(currentUser),
+      renderLanguageModelChatLauncher: !!currentUser && userHasLlmChat(currentUser) && !noLLMChatRouteNames.includes(currentRoute?.name ?? ""),
       shouldUseGridLayout: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute.name),
       unspacedGridLayout: !!currentRoute?.unspacedGrid,
     }
