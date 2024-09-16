@@ -1,5 +1,5 @@
-import type { PartialDeep } from 'type-fest'
 import { defaultShadePalette, defaultComponentPalette } from './defaultPalette';
+import { defaultZIndexes } from "./zIndexes";
 
 const monoStack = [
   '"Liberation Mono"',
@@ -14,61 +14,6 @@ const monoStack = [
 // = 16 (see header and divider) + the ~4 pixel distance from the bottom
 // of the secondaryInfo text to the bottom of the associated div
 const titleDividerSpacing = 20
-
-export const zIndexes = {
-  splashHeaderImageOptions: 2000,
-  frontpageBooks: 0,
-  frontpageSplashImage: 0,
-  sequenceBanner: 0,
-  modTopBar: 1, 
-  spotlightItem: 1,
-  editorPresenceList: 1,
-  postsPageSplashHeader: 1,
-  singleColumnSection: 2,
-  spotlightItemCloseButton: 2,
-  commentsMenu: 2,
-  sequencesPageContent: 2,
-  sequencesImageScrim: 2,
-  linkCard: 2,
-  editSequenceTitleInput: 3,
-  postsVote: 2,
-  postItemAuthor: 2,
-  singleLineCommentMeta: 3,
-  postItemTitle: 3,
-  sidebarHoverOver: 3,
-  sidebarActionMenu: 3,
-  commentPermalinkIcon: 3,
-  reviewVotingMenu: 4,
-  singleLineCommentHover: 4,
-  questionPageWhitescreen: 4,
-  footerNav: 4,
-  textbox: 5,
-  styledMapPopup: 6,
-  nextUnread: 999,
-  sunshineSidebar: 1000,
-  reactionsFooter: 1001,
-  intercomButton: 1030,
-  languageModelChatButton: 1030,
-  sideCommentBox: 1040,
-  languageModelChat: 1041,
-  postItemMenu: 1050,
-  searchResults: 1100,
-  tabNavigation: 1101,
-  hideTableOfContentsButton: 1200,
-  header: 1300,
-  karmaChangeNotifier: 1400,
-  notificationsMenu: 1500,
-  gatherTownIframe: 9999, // 1000001 higher than everything except intercom
-  afNonMemberPopup: 9999,
-  lwPopper: 10000,
-  lwPopperTooltip: 10001,
-  loginDialog: 10002,
-  searchBar: 100000,
-  commentBoxPopup: 10000000001, // has to be higher than Intercom,
-  // ckEditorToolbar: 10000000002, // has to be higher than commentBoxPopup, (note: the css had to be applied in an scss file, "_editor.scss", but the position is listed here for ease of reference)
-  petrovDayButton: 6,
-  petrovDayLoss: 1000000
-}
 
 export const baseTheme: BaseThemeSpecification = {
   shadePalette: defaultShadePalette(),
@@ -260,7 +205,7 @@ export const baseTheme: BaseThemeSpecification = {
         },
       },
       zIndexes: {
-        ...zIndexes
+        ...defaultZIndexes
       },
       postImageStyles: {},
       voting: {
