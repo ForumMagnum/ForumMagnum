@@ -139,7 +139,7 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
     view: "magic",
     forum: true,
     limit:limit
-  }
+  } as const;
   
   const changeShowTagFilterSettingsDesktop = () => {
     setFilterSettingsVisibleDesktop(!filterSettingsVisibleDesktop)
