@@ -355,7 +355,7 @@ const FooterTagList = ({
       )}
       {!hidePostTypeTag && postType}
       {eventTag}
-      {annualReviewMarketInfo && (
+      {isLWorAF && annualReviewMarketInfo && (
         <PostsAnnualReviewMarketTag post={post} annualReviewMarketInfo={annualReviewMarketInfo} />
       )}
       {tagRight && currentUser && !hideAddTag && addTagButton}
