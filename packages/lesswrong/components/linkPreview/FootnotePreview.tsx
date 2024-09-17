@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import Card from '@material-ui/core/Card';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useHover } from '../common/withHover';
@@ -10,6 +10,10 @@ import { usePostsPageContext } from '../posts/PostsPage/PostsPageContext';
 import { RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, sidenotesHiddenBreakpoint } from '../posts/PostsPage/PostsPage';
 import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
 import { useHasSideItemsSidebar } from '../contents/SideItems';
+import { useDialog } from '../common/withDialog';
+import { isRegularClick } from "@/components/posts/TableOfContents/TableOfContentsList";
+import { useTheme } from '../themes/useTheme';
+import { isMobile } from '@/lib/utils/isMobile';
 
 const footnotePreviewStyles = (theme: ThemeType) => ({
   hovercard: {
@@ -49,6 +53,17 @@ const footnotePreviewStyles = (theme: ThemeType) => ({
       width: "auto !important",
       maxWidth: "100%",
     },
+  },
+
+  footnoteMobileIndicator: {
+    display: "none",
+    [sidenotesHiddenBreakpoint(theme)]: {
+      display: "inline-block",
+    },
+  },
+  
+  lineColor: {
+    background: theme.palette.sideItemIndicator.footnote,
   },
 
   sidenoteWithIndex: {
@@ -110,14 +125,16 @@ const footnotePreviewStyles = (theme: ThemeType) => ({
 })
 
 const FootnotePreview = ({classes, href, id, rel, children}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof footnotePreviewStyles>,
   href: string,
   id?: string,
   rel?: string,
   children: React.ReactNode,
 }) => {
-  const { ContentStyles, SideItem, LWPopper } = Components
-  
+  const { ContentStyles, SideItem, SideItemLine, LWPopper } = Components
+  const { openDialog } = useDialog();
+  const [disableHover, setDisableHover] = useState(false);
+  const theme = useTheme();
   const { eventHandlers: anchorEventHandlers, hover: anchorHovered, anchorEl } = useHover({
     eventProps: {
       pageElementContext: "linkPreview",
@@ -167,9 +184,20 @@ const FootnotePreview = ({classes, href, id, rel, children}: {
   // it could be anything with a content-editable field in it, and that
   // information isn't wired to pass through the hover-preview system.
 
-  const onClick = useCallback(() => {
+  const onClick = useCallback((ev: React.MouseEvent) => {
     window.dispatchEvent(new CustomEvent(EXPAND_FOOTNOTES_EVENT, {detail: href}));
-  }, [href]);
+    
+    if (isRegularClick(ev) && isMobile()) {
+      setDisableHover(true);
+      openDialog({
+        componentName: "FootnoteDialog",
+        componentProps: {
+          footnoteHTML: footnoteHTML,
+        },
+      });
+      ev.preventDefault();
+    }
+  }, [href, footnoteHTML, openDialog]);
   
   const postPageContext = usePostsPageContext();
   const post = postPageContext?.fullPost ?? postPageContext?.postPreload;
@@ -180,7 +208,7 @@ const FootnotePreview = ({classes, href, id, rel, children}: {
 
   return (
     <span>
-      {footnoteContentsNonempty && <LWPopper
+      {footnoteContentsNonempty && !disableHover && <LWPopper
         open={anchorHovered && !sidenoteIsVisible}
         anchorEl={anchorEl}
         placement="bottom-start"
@@ -193,21 +221,26 @@ const FootnotePreview = ({classes, href, id, rel, children}: {
         </Card>
       </LWPopper>}
       
-      {hasSidenotes && !sidenotesDisabledOnPost && footnoteContentsNonempty && <SideItem options={{offsetTop: -6}}>
-        <div
-          {...sidenoteEventHandlers}
-          className={classNames(
-            classes.sidenote,
-            eitherHovered && classes.sidenoteHover
-          )}
-        >
-          <SidenoteDisplay
-            footnoteHref={href}
-            footnoteHTML={footnoteHTML}
-            classes={classes}
-          />
-        </div>
-      </SideItem>}
+      {hasSidenotes && !sidenotesDisabledOnPost && footnoteContentsNonempty &&
+        <SideItem options={{offsetTop: -6}}>
+          <div
+            {...sidenoteEventHandlers}
+            className={classNames(
+              classes.sidenote,
+              eitherHovered && classes.sidenoteHover
+            )}
+          >
+            <SidenoteDisplay
+              footnoteHref={href}
+              footnoteHTML={footnoteHTML}
+              classes={classes}
+            />
+          </div>
+          <span className={classes.footnoteMobileIndicator} onClick={onClick}>
+            <SideItemLine colorClass={classes.lineColor}/>
+          </span>
+        </SideItem>
+      }
 
       <a
         {...anchorEventHandlers}
@@ -291,11 +324,11 @@ function getFootnoteIndex(href: string, html: string): string|null {
       let numPrecedingLiElements = 0;
       for (let i=0; i<parentElement.children.length; i++) {
         const elem = parentElement.children.item(i);
-        if (elem?.tagName === 'LI') {
-          numPrecedingLiElements++;
-        }
         if (elem === footnoteElement) {
           break;
+        }
+        if (elem?.tagName === 'LI') {
+          numPrecedingLiElements++;
         }
       }
       return ""+(numPrecedingLiElements+olStart);

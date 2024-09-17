@@ -619,6 +619,7 @@ interface ManifoldProbabilitiesCachesDefaultFragment { // fragment on ManifoldPr
   readonly isResolved: boolean,
   readonly year: number,
   readonly lastUpdated: Date,
+  readonly url: string,
 }
 
 interface NotificationsDefaultFragment { // fragment on Notifications
@@ -705,7 +706,7 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly markdown: string|null,
   readonly draftJS: any /*JSON*/,
   readonly ckEditorMarkup: string|null,
-  readonly wordCount: number | null,
+  readonly wordCount: number,
   readonly htmlHighlight: string,
   readonly htmlHighlightStartingAtHash: string,
   readonly plaintextDescription: string,
@@ -771,6 +772,9 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly positiveReviewVoteCount: number,
   readonly manifoldReviewMarketId: string | null,
   readonly annualReviewMarketCommentId: string | null,
+  readonly annualReviewMarketProbability: number|null,
+  readonly annualReviewMarketIsResolved: boolean|null,
+  readonly annualReviewMarketYear: number|null,
   readonly reviewVoteScoreAF: number,
   readonly reviewVotesAF: Array<number>,
   readonly reviewVoteScoreHighKarma: number,
@@ -783,9 +787,6 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly finalReviewVotesAllKarma: Array<number>,
   readonly finalReviewVoteScoreAF: number,
   readonly finalReviewVotesAF: Array<number>,
-  readonly annualReviewMarketProbability: number|null,
-  readonly annualReviewMarketIsResolved: boolean|null,
-  readonly annualReviewMarketYear: number|null,
   readonly lastCommentPromotedAt: Date,
   readonly tagRelevance: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly noIndex: boolean,
@@ -1115,7 +1116,7 @@ interface PostsTopItemInfo extends PostsMinimumInfo, PostsAuthors { // fragment 
 interface PostsTopItemInfo_contents { // fragment on Revisions
   readonly _id: string,
   readonly htmlHighlight: string,
-  readonly wordCount: number | null,
+  readonly wordCount: number,
   readonly version: string,
 }
 
@@ -1205,11 +1206,10 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly reviewVoteCount: number,
   readonly positiveReviewVoteCount: number,
   readonly manifoldReviewMarketId: string | null,
-  readonly annualReviewMarketCommentId: string | null,
-  readonly annualReviewMarketComment: CommentsListWithParentMetadata|null,
   readonly annualReviewMarketProbability: number|null,
   readonly annualReviewMarketIsResolved: boolean|null,
   readonly annualReviewMarketYear: number|null,
+  readonly annualReviewMarketUrl: string|null,
   readonly group: PostsBase_group|null,
   readonly podcastEpisodeId: string | null,
   readonly forceAllowType3Audio: boolean,
@@ -1336,7 +1336,7 @@ interface PostsList_contents { // fragment on Revisions
   readonly _id: string,
   readonly htmlHighlight: string,
   readonly plaintextDescription: string,
-  readonly wordCount: number | null,
+  readonly wordCount: number,
   readonly version: string,
 }
 
@@ -1598,7 +1598,7 @@ interface SunshinePostsList_contents { // fragment on Revisions
   readonly _id: string,
   readonly html: string,
   readonly htmlHighlight: string,
-  readonly wordCount: number | null,
+  readonly wordCount: number,
   readonly version: string,
 }
 
@@ -1797,7 +1797,7 @@ interface CommentsList_contents { // fragment on Revisions
   readonly _id: string,
   readonly html: string,
   readonly plaintextMainText: string,
-  readonly wordCount: number | null,
+  readonly wordCount: number,
 }
 
 interface CommentsListWithTopLevelComment extends CommentsList { // fragment on Comments
@@ -1948,7 +1948,7 @@ interface RevisionDisplay { // fragment on Revisions
   readonly userId: string,
   readonly html: string,
   readonly commitMessage: string,
-  readonly wordCount: number | null,
+  readonly wordCount: number,
   readonly htmlHighlight: string,
   readonly plaintextDescription: string,
 }
@@ -1969,7 +1969,7 @@ interface RevisionEdit { // fragment on Revisions
   readonly markdown: string|null,
   readonly draftJS: any /*JSON*/,
   readonly ckEditorMarkup: string|null,
-  readonly wordCount: number | null,
+  readonly wordCount: number,
   readonly htmlHighlight: string,
   readonly plaintextDescription: string,
 }

@@ -10,6 +10,7 @@ import classNames from 'classnames';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import Visibility from '@material-ui/icons/Visibility';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
+import isEqual from 'lodash/isEqual';
 
 
 const styles = (theme: ThemeType) => ({
@@ -107,7 +108,10 @@ export const ActiveDialogues = ({classes}: {
   useOnServerSentEvent('activeDialoguePartners', currentUser, (message) => {
     if (currentUser?._id && message.data) {  
       const otherActiveDialogues = message.data.filter((dialogue) => !location.pathname.includes(dialogue.postId) && !(location.query.postId === dialogue.postId)) // don't show a dialogue as active on its own page
-      setActiveDialogues(otherActiveDialogues);
+      setActiveDialogues((activeDialogues) =>
+        isEqual(activeDialogues, otherActiveDialogues)
+          ? activeDialogues : otherActiveDialogues
+      );
     }
   });
 

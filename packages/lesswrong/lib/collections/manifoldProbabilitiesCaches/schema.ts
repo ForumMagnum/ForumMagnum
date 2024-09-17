@@ -34,6 +34,13 @@ const schema: SchemaType<"ManifoldProbabilitiesCaches"> = {
     canRead: ['guests'],
     canCreate: ['admins'],
   },
+  url: {
+    type: String,
+    optional: false,
+    nullable: true,
+    canRead: ['guests'],
+    canCreate: ['admins'],
+  }
 }
 
 export default schema
