@@ -146,7 +146,6 @@ export const addV2CrosspostHandlers = (app: Application) => {
         postId,
         ...postData
       } = await createCrosspostToken.verify(token);
-      console.log("POST DATA CREATE", postData);
 
       const user = await context.Users.findOne({_id: foreignUserId});
       if (!user || user.fmCrosspostUserId !== localUserId) {
@@ -195,7 +194,6 @@ export const addV2CrosspostHandlers = (app: Application) => {
         throw new InvalidUserError();
       }
 
-      console.log("POST DATA UPDATE", postData);
       await updateMutator({
         collection: Posts,
         documentId: postId,
