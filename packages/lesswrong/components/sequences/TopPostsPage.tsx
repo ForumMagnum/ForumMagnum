@@ -16,6 +16,7 @@ import { useCurrentUser } from '../common/withUser';
 import qs from "qs";
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { filterNonnull, filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
+import { getSpotlightUrl } from '@/lib/collections/spotlights/helpers';
 
 /** In theory, we can get back posts which don't have review winner info, but given we're explicitly querying for review winners... */
 type GetAllReviewWinnersQueryResult = (PostsTopItemInfo & { reviewWinner: Exclude<PostsTopItemInfo['reviewWinner'], null> })[]
@@ -443,6 +444,7 @@ const styles = (theme: ThemeType) => ({
     }
   },
   postsByYearSectionCentered: {
+    marginTop: 60,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -501,6 +503,31 @@ const styles = (theme: ThemeType) => ({
   },
   spotlightIsNotRead: {
     filter: 'saturate(0) opacity(0.8)',
+    '&:hover': {
+      filter: 'saturate(1) opacity(1)',
+    }
+  },
+  spotlightCheckmarkRow: {
+    marginTop: 8,
+    marginBottom: 52,
+    textWrap: 'balance',
+    textAlign: 'center',
+    maxWidth: SECTION_WIDTH
+  },
+  spotlightCheckmark: {
+    display: 'inline-block',
+    width: 14,
+    height: 14,
+    borderRadius: 3,
+    border: `solid 1px ${theme.palette.grey[400]}`,
+    backgroundColor: theme.palette.grey[200],
+    margin: 2
+  },
+  spotlightCheckmarkIsRead: {
+    backgroundColor: theme.palette.lwTertiary.main,
+    borderColor: theme.palette.grey[700],
+    backgroundOpacity: .2,
+    opacity: .7
   }
 });
 
@@ -721,7 +748,6 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
               {currentSortOrder === 'curated' ? sectionGrid : yearGrid}
             </div>
           </div>
-          <Divider margin={100}/>
           <TopSpotlightsSection classes={classes} 
             yearGroupsInfo={yearGroupsInfo} 
             sectionsInfo={sectionsInfo} 
@@ -747,8 +773,9 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
   const years = Object.keys(yearGroupsInfo || {}).sort((a, b) => parseInt(b) - parseInt(a)).map((year) => parseInt(year)) as ReviewWinnerYear[]
   const categories = Object.keys(sectionsInfo || {}).sort((a, b) => b.localeCompare(a)) as ReviewWinnerSectionName[]
 
-  const [year, setYear] = useState<ReviewWinnerYear|null>(query.year && reviewWinnerYearSet.has(parseInt(query.year)) ? parseInt(query.year) as ReviewWinnerYear : 2022)
-  const [category, setCategory] = useState<ReviewWinnerSectionName|null>(query.category && reviewWinnerSectionNamesSet.has(query.category) ? query.category as ReviewWinnerSectionName : "rationality")
+  console.log(query)
+  const [year, setYear] = useState<ReviewWinnerYear|null>(query.year && query.year !== '' && reviewWinnerYearSet.has(parseInt(query.year)) ? parseInt(query.year) as ReviewWinnerYear : (query.year === '' ? null : 2022))
+  const [category, setCategory] = useState<ReviewWinnerSectionName|null>(query.category && query.category !== '' && reviewWinnerSectionNamesSet.has(query.category) ? query.category as ReviewWinnerSectionName : (query.category === '' ? null : "rationality"))
 
   useEffect(() => {
     if (query.year) {
@@ -761,41 +788,49 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
     }
   }, [query.year]);
 
-  const filteredReviewWinnersForSpotlights = reviewWinnersWithPosts.filter(post => {
-    console.log(year, category)
-    if (year && category) {
-      return post.reviewWinner?.reviewYear === year && post.reviewWinner?.category === category
-    }
-    if (year) {
-      return post.reviewWinner?.reviewYear === year
-    }
-    if (category) {
-      return post.reviewWinner?.category === category
-    }
-    return true
-  })
+  console.log(reviewWinnersWithPosts.length)
+
+  let filteredReviewWinnersForSpotlights: PostsTopItemInfo[] = []
+  console.log(year, category)
+
+  filteredReviewWinnersForSpotlights = reviewWinnersWithPosts.filter(post => post.reviewWinner?.reviewYear === year && post.reviewWinner?.category === category)
+
+  // useEffect(() => {
+  if (year && query.category === '') {
+    console.log("1")
+    filteredReviewWinnersForSpotlights = reviewWinnersWithPosts.filter(post => post.reviewWinner?.reviewYear === year)
+  } else if (category && query.year === '') {
+    console.log("2")
+    filteredReviewWinnersForSpotlights = reviewWinnersWithPosts.filter(post => post.reviewWinner?.category === category)
+  } else if (query.year === '' && query.category === '') {
+    console.log("4")
+    filteredReviewWinnersForSpotlights = reviewWinnersWithPosts
+  } else {
+    console.log("3")
+    filteredReviewWinnersForSpotlights = reviewWinnersWithPosts.filter(post => post.reviewWinner?.reviewYear === year && post.reviewWinner?.category === category)
+  }
+  // }, [query.category, query.year]);
 
   const filteredSpotlights = filterWhereFieldsNotNull(filteredReviewWinnersForSpotlights, 'spotlight').map(post => ({
     ...post.spotlight,
     document: post
   }))
 
-  const categoryTitle = category ? sectionsInfo[category].title : ""
+  console.log(filteredReviewWinnersForSpotlights.length)
 
   const handleSetYear = (y: ReviewWinnerYear|null) => {
-    setYear(y);
     const newSearch = qs.stringify({year: y, category});
     history.replaceState(null, '', `${location.pathname}?${newSearch}`);
+    setYear(y);
   }
   
   const handleSetCategory = (t: ReviewWinnerSectionName|null) => {
-    setCategory(t);
     const newSearch = qs.stringify({year, category: t});
     history.replaceState(null, '', `${location.pathname}?${newSearch}`);
+    setCategory(t);
   }
 
   return <div className={classes.postsByYearSectionCentered} id="year-category-section">
-      <h1 className={classes.yearCategorySectionTitle}>Best of <span className={classes.categoryTitle}>{categoryTitle}</span> {year}</h1>
       <div className={classes.yearSelector}>
         {years.map((y) => {
           const postsCount = reviewWinnersWithPosts.filter(post => {
@@ -816,6 +851,11 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
             All
           </a>
         </LWTooltip>
+      </div>
+      <div className={classes.spotlightCheckmarkRow}>
+        {filteredSpotlights.map((spotlight) => <LWTooltip key={spotlight._id} title={spotlight.document?.title}>
+          <Link key={spotlight._id} to={getSpotlightUrl(spotlight)} className={classNames(classes.spotlightCheckmark, spotlight.document?.isRead && classes.spotlightCheckmarkIsRead)}></Link>
+        </LWTooltip>)}
       </div>
       <div style={{ maxWidth: SECTION_WIDTH, paddingBottom: 1000 }}>
         {filteredSpotlights.map((spotlight) => <span key={spotlight._id} className={classNames(classes.spotlightItem, !spotlight.document?.isRead && classes.spotlightIsNotRead )}><SpotlightItem spotlight={spotlight}  showSubtitle={false} /></span>)}
