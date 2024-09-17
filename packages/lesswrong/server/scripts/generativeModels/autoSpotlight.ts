@@ -171,7 +171,7 @@ async function createSpotlights() {
 }
 
 
-const updateOldSpotlights = async () => {
+const updateOldSpotlightsWithSubtitle = async () => {
   const reviewWinners = REVIEW_WINNER_CACHE.reviewWinners
   const postIds = reviewWinners.map(winner => winner._id);
   const spotlights = await Spotlights.find({ documentId: { $in: postIds }, customSubtitle: null, draft: false, deletedDraft: false }).fetch();
@@ -182,6 +182,8 @@ const updateOldSpotlights = async () => {
   }));
 }
 
+// This updates the spotlights so that subtitleUrl leads to the best of LW page for that year and category
+// and changes the corresponding Post customHighlight to the spotlight description
 const updateSpotlightUrlsAndPostCustomHighlights = async () => {
   const reviewWinners = REVIEW_WINNER_CACHE.reviewWinners
   const postIds = reviewWinners.map(winner => winner._id);
@@ -223,8 +225,4 @@ const updateSpotlightUrlsAndPostCustomHighlights = async () => {
 
 Globals.updateSpotlightUrlsAndPostCustomHighlights = updateSpotlightUrlsAndPostCustomHighlights;
 Globals.createSpotlights = createSpotlights;
-Globals.updateOldSpotlights = updateOldSpotlights;
-
-
-
-
+Globals.updateOldSpotlightsWithSubtitle = updateOldSpotlightsWithSubtitle;

@@ -1,8 +1,6 @@
 import { userCanDo } from "@/lib/vulcan-users";
-import { updateMutator } from "../vulcan-lib/mutators";
-import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import Spotlights from "@/lib/collections/spotlights/collection";
-import { addGraphQLMutation, addGraphQLResolvers, encodeIntlError } from "../vulcan-lib";
+import { addGraphQLMutation, addGraphQLResolvers } from "../vulcan-lib";
 
 const specificResolvers = {
   Mutation: {
@@ -13,8 +11,7 @@ const specificResolvers = {
       const spotlight = await context.Spotlights.findOne(spotlightId)
       if (!spotlight) throw new Error("Invalid spotlightId");
       
-      if (currentUser && userCanDo(currentUser, 'spotlights.edit.all'))
-      {
+      if (currentUser && userCanDo(currentUser, 'spotlights.edit.all')) {
         await Spotlights.rawUpdateMany({documentId: spotlight.documentId}, {
           $set: {
             deletedDraft: true
