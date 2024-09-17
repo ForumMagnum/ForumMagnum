@@ -8,6 +8,7 @@ import classNames from 'classnames';
 import { isServer } from '../../../lib/executionEnvironment';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import type { AnnualReviewMarketInfo } from '../../../lib/annualReviewMarkets';
+import { captureException } from '@sentry/core';
 
 const SECONDARY_SPACING = 20;
 
@@ -162,6 +163,24 @@ export function getHostname(url: string): string {
   var parser = document.createElement('a');
   parser.href = url;
   return parser.hostname;
+}
+
+export function parseUnsafeUrl(url: string) {
+  const urlWithProtocol = url.slice(0, 4) === 'http'
+    ? url
+    : `https://${url}`;
+
+  try {
+    const parsedUrl = new URLClass(urlWithProtocol);
+    const protocol = getProtocol(urlWithProtocol);
+    const hostname = getHostname(urlWithProtocol);
+  
+    return { protocol, hostname, parsedUrl };
+  } catch (err) {
+    captureException(`Tried to parse url ${url} as ${urlWithProtocol} and failed`);
+  }
+
+  return {};
 }
 
 export const CommentsLink: FC<{
