@@ -354,7 +354,6 @@ const FooterTagList = ({
           )
       )}
       {!hidePostTypeTag && postType}
-      {/* {post.manifoldReviewMarketId &&reviewMarketTag} */}
       {eventTag}
       {annualReviewMarketInfo && (
         <PostsAnnualReviewMarketTag post={post} annualReviewMarketInfo={annualReviewMarketInfo} />

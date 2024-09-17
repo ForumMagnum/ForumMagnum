@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { getVotingSystemByName } from '@/lib/voting/votingSystems';
 import classNames from 'classnames';
-import { AnnualReviewMarketInfo } from '@/lib/collections/posts/annualReviewMarkets';
+import type { AnnualReviewMarketInfo } from '@/lib/collections/posts/annualReviewMarkets';
 
 const styles = (theme: ThemeType) => ({
   root: {

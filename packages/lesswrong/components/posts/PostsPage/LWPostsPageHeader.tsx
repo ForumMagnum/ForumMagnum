@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import { getHostname, getProtocol } from './PostsPagePostHeader';
 import { postGetLink, postGetLinkTarget } from '@/lib/collections/posts/helpers';
 import { BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from './PostBodyPrefix';
-import { AnnualReviewMarketInfo } from '@/lib/collections/posts/annualReviewMarkets';
+import type { AnnualReviewMarketInfo } from '@/lib/collections/posts/annualReviewMarkets';
 
 export const LW_POST_PAGE_PADDING = 110;
 
