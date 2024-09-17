@@ -6,17 +6,22 @@ import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers } from "../../
 import { ApiError, UnauthorizedError } from "./errors";
 import { validateCrosspostingKarmaThreshold } from "./helpers";
 import { makeApiUrl, PostRequestTypes, PostResponseTypes, ValidatedPostRouteName, validatedPostRoutes, ValidatedPostRoutes } from "./routes";
-import { signToken } from "./tokens";
-import { ConnectCrossposterArgs, GetCrosspostRequest, UnlinkCrossposterPayload } from "./types";
+import { ConnectCrossposterArgs, GetCrosspostRequest } from "./types";
 import { DatabaseServerSetting } from "../databaseSettings";
 import stringify from "json-stringify-deterministic";
 import LRU from "lru-cache";
 import { isE2E } from "@/lib/executionEnvironment";
+import { connectCrossposterToken } from "../crossposting/tokens";
+// import { makeV2CrossSiteRequest } from "../crossposting/crossSiteRequest";
+// import {
+//   connectCrossposterRoute,
+//   unlinkCrossposterRoute,
+// } from "@/lib/fmCrosspost/routes";
 
-const fmCrosspostTimeoutMsSetting = new DatabaseServerSetting<number>('fmCrosspostTimeoutMs', 15000)
+export const fmCrosspostTimeoutMsSetting = new DatabaseServerSetting<number>('fmCrosspostTimeoutMs', 15000)
 
 export const TOS_NOT_ACCEPTED_ERROR = 'You must accept the terms of use before you can publish this post';
-const TOS_NOT_ACCEPTED_REMOTE_ERROR = 'You must read and accept the Terms of Use on the EA Forum in order to crosspost.  To do so, go to https://forum.effectivealtruism.org/newPost and accept the Terms of Use presented above the draft post.';
+export const TOS_NOT_ACCEPTED_REMOTE_ERROR = 'You must read and accept the Terms of Use on the EA Forum in order to crosspost.  To do so, go to https://forum.effectivealtruism.org/newPost and accept the Terms of Use presented above the draft post.';
 
 const getUserId = (req?: Request) => {
   const userId = req?.user?._id;
@@ -106,6 +111,12 @@ const crosspostResolvers = {
         {token, localUserId},
         "Failed to connect accounts for crossposting",
       );
+      // TODO: Switch to this when V2 is deployed to both sites
+      // const {foreignUserId} = await makeV2CrossSiteRequest(
+      //   connectCrossposterRoute,
+      //   {token, localUserId},
+      //   "Failed to connect accounts for crossposting",
+      // );
       await Users.rawUpdateOne({_id: localUserId}, {
         $set: {fmCrosspostUserId: foreignUserId},
       });
@@ -115,12 +126,20 @@ const crosspostResolvers = {
       const localUserId = getUserId(req);
       const foreignUserId = req?.user?.fmCrosspostUserId;
       if (foreignUserId) {
-        const token = await signToken<UnlinkCrossposterPayload>({userId: foreignUserId});
+        const token = await connectCrossposterToken.create({
+          userId: foreignUserId,
+        });
         await makeCrossSiteRequest(
           'unlinkCrossposter',
           {token},
           "Failed to unlink crossposting accounts",
         );
+        // TODO: Switch to this when V2 is deployed to both sites
+        // await makeV2CrossSiteRequest(
+        //   unlinkCrossposterRoute,
+        //   {token},
+        //   "Failed to unlink crossposting accounts",
+        // );
         await Users.rawUpdateOne({_id: localUserId}, {
           $unset: {fmCrosspostUserId: ""},
         });
