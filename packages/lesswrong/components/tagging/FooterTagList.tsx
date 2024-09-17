@@ -15,7 +15,7 @@ import { isLWorAF, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import stringify from 'json-stringify-deterministic';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
-import { AnnualReviewMarketInfo, highlightMarket } from '../../lib/annualReviewMarkets';
+import { AnnualReviewMarketInfo, highlightMarket } from '../../lib/collections/posts/annualReviewMarkets';
 import { stableSortTags } from '../../lib/collections/tags/helpers';
 
 const styles = (theme: ThemeType) => ({
@@ -354,8 +354,9 @@ const FooterTagList = ({
           )
       )}
       {!hidePostTypeTag && postType}
+      {/* {post.manifoldReviewMarketId &&reviewMarketTag} */}
       {eventTag}
-      {annualReviewMarketInfo && highlightMarket(annualReviewMarketInfo) && (
+      {annualReviewMarketInfo && (
         <PostsAnnualReviewMarketTag post={post} annualReviewMarketInfo={annualReviewMarketInfo} />
       )}
       {tagRight && currentUser && !hideAddTag && addTagButton}

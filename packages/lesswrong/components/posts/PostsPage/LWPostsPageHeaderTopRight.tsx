@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { getVotingSystemByName } from '@/lib/voting/votingSystems';
 import classNames from 'classnames';
+import { AnnualReviewMarketInfo } from '@/lib/collections/posts/annualReviewMarkets';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -48,12 +49,13 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const LWPostsPageHeaderTopRight = ({classes, post, toggleEmbeddedPlayer, showEmbeddedPlayer, higherContrast}: {
+export const LWPostsPageHeaderTopRight = ({classes, post, toggleEmbeddedPlayer, showEmbeddedPlayer, higherContrast, annualReviewMarketInfo}: {
   classes: ClassesType<typeof styles>,
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   toggleEmbeddedPlayer?: () => void,
   showEmbeddedPlayer?: boolean,
-  higherContrast?: boolean
+  higherContrast?: boolean,
+  annualReviewMarketInfo?: AnnualReviewMarketInfo
 }) => {
   const { FooterTagList, LWPostsPageTopHeaderVote, AudioToggle, PostActionsButton } = Components;
 
@@ -62,7 +64,7 @@ export const LWPostsPageHeaderTopRight = ({classes, post, toggleEmbeddedPlayer, 
   return <div className={classes.root}>
       {!post.shortform && <AnalyticsContext pageSectionContext="tagHeader">
         <div className={classNames(classes.tagList, higherContrast && classes.darkerOpacity)}>
-          <FooterTagList post={post} hideScore useAltAddTagButton align="right" noBackground neverCoreStyling tagRight={false} />
+          <FooterTagList post={post} hideScore useAltAddTagButton align="right" noBackground neverCoreStyling tagRight={false} annualReviewMarketInfo={annualReviewMarketInfo}/>
         </div>
       </AnalyticsContext>}
       {!post.shortform && <div className={classNames(classes.audioToggle, higherContrast && classes.darkerOpacity)}>

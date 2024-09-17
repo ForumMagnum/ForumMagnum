@@ -4,16 +4,19 @@ export type AnnualReviewMarketInfo = {
   probability: number;
   isResolved: boolean;
   year: number;
+  url: string;
 }
 
 export const getMarketInfo = (post: PostsBase): AnnualReviewMarketInfo | undefined => {
   if (typeof post.annualReviewMarketProbability !== 'number') return undefined
   if (typeof post.annualReviewMarketIsResolved !== 'boolean') return undefined
   if (typeof post.annualReviewMarketYear !== 'number') return undefined
+  if (typeof post.annualReviewMarketUrl !== 'string') return undefined
   return {
     probability: post.annualReviewMarketProbability,
     isResolved: post.annualReviewMarketIsResolved,
-    year: post.annualReviewMarketYear
+    year: post.annualReviewMarketYear,
+    url: post.annualReviewMarketUrl,
   }
 }
 
