@@ -9,11 +9,11 @@ import { isFriendlyUI } from "../../themes/forumTheme";
 import { PostsItemConfig } from "./usePostsItem";
 import { PostsListViewType, usePostsListView } from "../hooks/usePostsListView";
 
-export type PostsListConfig<TagId extends string | undefined = undefined> = {
+export type PostsListConfig = {
   /** Child elements will be put in a footer section */
   children?: React.ReactNode,
   /** The search terms used to select the posts that will be shown. */
-  terms?: TagId extends string ? PostsViewTerms & { tagId?: never } : PostsViewTerms,
+  terms?: PostsViewTerms,
   /**
    * Apply a style that grays out the list while it's in a loading state
    * (default false)
@@ -44,7 +44,7 @@ export type PostsListConfig<TagId extends string | undefined = undefined> = {
   showNominationCount?: boolean,
   showReviewCount?: boolean,
   showDraftTag?: boolean,
-  tagId?: TagId,
+  tagId?: string,
   dense?: boolean,
   defaultToShowUnreadComments?: boolean,
   itemsPerPage?: number,
@@ -117,7 +117,7 @@ export const usePostsList = <TagId extends string | undefined = undefined>({
   viewType: configuredViewType = "list",
   showPlacement = false,
   order,
-}: PostsListConfig<TagId>) => {
+}: PostsListConfig) => {
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
 
   const tagVariables = tagId

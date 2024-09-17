@@ -114,6 +114,12 @@ const buildEditableResolver = <N extends CollectionNameString>(
       sqlResolver: ({field, resolverArg, join}) => join({
         table: "Revisions",
         type: "left",
+        /**
+         * WARNING: we manually interpolate `fieldName` into the SQL query below.
+         * In this case it's safe because we control the value of `fieldName` (though we need to take care not to allow the creation of an editable field name with e.g. any escape characters),
+         * and it'd be pretty annoying to pass it in as an argument given how the dynamic sql construction works.
+         * But you should not do this kind of thing elsewhere, as a rule.
+         */
         on: (revisionField) => `CASE WHEN ${resolverArg("version")} IS NULL
           THEN
             ${field(`${fieldName}_latest` as FieldName<N>)} = ${revisionField("_id")}
@@ -221,6 +227,13 @@ export const makeEditable = <N extends CollectionNameString>({
     normalized = false,
     //revisionsHaveCommitMessages, //unused in this function (but used elsewhere)
   } = options
+
+  // We don't want to allow random stuff like escape characters in editable field names, since:
+  // 1. why would you do that
+  // 2. we manually interpolate editable field names into a SQL string in one place
+  if (!/^[a-zA-Z]+$/.test(fieldName)) {
+    throw new Error(`Invalid characters in ${fieldName}; only a-z & A-Z are allowed.`);
+  }
 
   const collectionName = collection.options.collectionName;
   const getLocalStorageId = options.getLocalStorageId || ((doc: any, name: string): {id: string, verify: boolean} => {
