@@ -51,6 +51,7 @@ export async function onPostPublished(post: DbPost, context: ResolverContext) {
 
 if (isEAForum) {
   const checkTosAccepted = <T extends Partial<DbPost>>(currentUser: DbUser | null, post: T): T => {
+    console.log("CHECKING TOS", process.env.PORT);
     if (post.draft === false && !post.shortform && !currentUser?.acceptedTos) {
       throw new Error(TOS_NOT_ACCEPTED_ERROR);
     }

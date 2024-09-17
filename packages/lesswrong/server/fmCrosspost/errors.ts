@@ -25,6 +25,12 @@ export class MissingParametersError extends ApiError {
   }
 }
 
+export class InvalidPostError extends ApiError {
+  constructor() {
+    super(400, "Invalid post");
+  }
+}
+
 export class InvalidUserError extends ApiError {
   constructor() {
     super(400, "Invalid user");

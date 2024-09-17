@@ -62,7 +62,9 @@ export async function performCrosspost(post: DbPost): Promise<DbPost> {
     foreignUserId: user.fmCrosspostUserId,
     postId: post._id,
     ...extractDenormalizedData(post),
-    originalContents: revision?.originalContents,
+    contents: {
+      originalContents: revision?.originalContents,
+    },
   });
 
   const {postId} = await makeV2CrossSiteRequest(
@@ -76,19 +78,26 @@ export async function performCrosspost(post: DbPost): Promise<DbPost> {
   return post;
 }
 
-const updateCrosspost = async (postId: string, denormalizedData: DenormalizedCrosspostData) => {
+const updateCrosspost = async (
+  localPostId: string,
+  foreignPostId: string,
+  denormalizedData: DenormalizedCrosspostData,
+) => {
   const postOriginalContents = await fetchFragmentSingle({
     collectionName: "Posts",
     fragmentName: "PostsOriginalContents",
     currentUser: null,
-    selector: postId,
+    selector: localPostId,
     skipFiltering: true,
+    skipCodeResolvers: true,
   });
 
   const token = await updateCrosspostToken.create({
     ...denormalizedData,
-    postId,
-    originalContents: postOriginalContents?.contents?.originalContents,
+    postId: foreignPostId,
+    contents: {
+      originalContents: postOriginalContents?.contents?.originalContents,
+    },
   });
   await makeV2CrossSiteRequest(
     updateCrosspostRoute,
@@ -107,7 +116,7 @@ const removeCrosspost = async <T extends Crosspost>(post: T) => {
     console.warn("Cannot remove crosspost that doesn't exist");
     return;
   }
-  await updateCrosspost(post.fmCrosspost.foreignPostId, {
+  await updateCrosspost(post._id, post.fmCrosspost.foreignPostId, {
     ...extractDenormalizedData(post),
     draft: true,
   });
@@ -119,7 +128,7 @@ export async function handleCrosspostUpdate(
 ): Promise<Partial<DbPost>> {
   const logger = loggerConstructor('callbacks-posts')
   logger('handleCrosspostUpdate()')
-  const {userId, fmCrosspost} = newDocument;
+  const {_id, userId, fmCrosspost} = newDocument;
   const shouldRemoveCrosspost =
     (oldDocument.fmCrosspost && data.fmCrosspost === null) ||
     (oldDocument.fmCrosspost?.isCrosspost && data.fmCrosspost?.isCrosspost === false)
@@ -131,11 +140,16 @@ export async function handleCrosspostUpdate(
     logger('post is not a crosspost, returning')
     return data;
   }
+  if (!fmCrosspost?.hostedHere) {
+    logger('post is not a hosted here, returning')
+    return data;
+  }
   if (
-    denormalizedFieldKeys.some(
-      (key) => data[key] !== undefined && data[key] !== oldDocument[key]
-    ) &&
-    fmCrosspost.foreignPostId
+    fmCrosspost.foreignPostId && (
+      denormalizedFieldKeys.some(
+        (key) => data[key] !== undefined && data[key] !== oldDocument[key]
+      ) || true
+    )
   ) {
     if (newDocument.isEvent) {
       logger('post is an event, throwing')
@@ -157,7 +171,7 @@ export async function handleCrosspostUpdate(
       denormalizedData.deletedDraft = oldDocument.deletedDraft;
     }
     logger('denormalizedData:', denormalizedData)
-    await updateCrosspost(fmCrosspost.foreignPostId, denormalizedData);
+    await updateCrosspost(_id, fmCrosspost.foreignPostId, denormalizedData);
     logger('crosspost updated successfully')
     // TODO-HACK: Drafts are very bad news for crossposts, so we will unlink in
     // such cases. See sad message to users in ForeignCrosspostEditForm.tsx.

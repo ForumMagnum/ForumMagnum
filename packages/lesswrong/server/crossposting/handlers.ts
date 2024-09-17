@@ -5,6 +5,7 @@ import { getContextFromReqAndRes } from "../vulcan-lib/apollo-server/context";
 import { validateCrosspostingKarmaThreshold } from "@/server/fmCrosspost/helpers";
 import {
   ApiError,
+  InvalidPostError,
   InvalidUserError,
   UnauthorizedError,
 } from "@/server/fmCrosspost/errors";
@@ -21,6 +22,9 @@ import {
   createCrosspostRoute,
   updateCrosspostRoute,
 } from "@/lib/fmCrosspost/routes";
+import { updateMutator } from "../vulcan-lib";
+import { Posts } from "@/lib/collections/posts";
+import Users from "@/lib/collections/users/collection";
 
 const onRequestError = (
   req: Request,
@@ -56,7 +60,7 @@ const addHandler = <
   ) => Promise<ResponseData>,
 ) => {
   const path = route.getPath();
-  app.use(path, json({ limit: "1mb" }));
+  app.use(path, json({ limit: "20mb" }));
   app.post(path, async (req: Request, res: Response) => {
     const parsedResult = route.getRequestSchema().safeParse(req.body);
     if (!parsedResult.success) {
@@ -142,6 +146,7 @@ export const addV2CrosspostHandlers = (app: Application) => {
         postId,
         ...postData
       } = await createCrosspostToken.verify(token);
+      console.log("POST DATA CREATE", postData);
 
       const user = await context.Users.findOne({_id: foreignUserId});
       if (!user || user.fmCrosspostUserId !== localUserId) {
@@ -179,7 +184,26 @@ export const addV2CrosspostHandlers = (app: Application) => {
     updateCrosspostRoute,
     async function updateCrosspostHandler(context, {token}) {
       const {postId, ...postData} = await updateCrosspostToken.verify(token);
-      await context.Posts.rawUpdateOne({_id: postId}, {$set: postData});
+
+      const post = await Posts.findOne({_id: postId});
+      if (!post) {
+        throw new InvalidPostError();
+      }
+
+      const currentUser = await Users.findOne({_id: post.userId});
+      if (!currentUser) {
+        throw new InvalidUserError();
+      }
+
+      console.log("POST DATA UPDATE", postData);
+      await updateMutator({
+        collection: Posts,
+        documentId: postId,
+        set: postData,
+        currentUser,
+        validate: false,
+        context,
+      });
       return {status: "updated" as const};
     },
   );
