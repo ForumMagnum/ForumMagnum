@@ -250,7 +250,7 @@ async function maybeCreateReviewMarket({newDocument, vote}: VoteDocTuple, collec
 
   // Return if market creation fails
   if (!liteMarket) return;
-  void Posts.rawUpdateOne(post._id, {$set: {manifoldReviewMarketId: liteMarket.id}})
+  await Posts.rawUpdateOne(post._id, {$set: {manifoldReviewMarketId: liteMarket.id}})
 }
 
 async function maybeCreateModeratorAlertsAfterVote({ newDocument, vote }: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext) {
