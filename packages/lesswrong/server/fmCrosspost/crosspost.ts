@@ -18,6 +18,20 @@ import {
 // } from "@/lib/fmCrosspost/routes";
 // import { makeV2CrossSiteRequest } from "@/server/crossposting/crossSiteRequest";
 
+const assertPostIsCrosspostable = (
+  post: DbPost,
+  logger: ReturnType<typeof loggerConstructor>,
+) => {
+  if (post.isEvent) {
+    logger('post is an event, throwing')
+    throw new Error("Events cannot be crossposted");
+  }
+  if (post.shortform) {
+    loggerConstructor('post is a shortform, throwing')
+    throw new Error("Quick takes cannot be crossposted");
+  }
+}
+
 export async function performCrosspost(post: DbPost): Promise<DbPost> {
   const logger = loggerConstructor('callbacks-posts')
   logger('performCrosspost()')
@@ -34,14 +48,7 @@ export async function performCrosspost(post: DbPost): Promise<DbPost> {
     return post;
   }
 
-  if (post.isEvent) {
-    logger ('post is an event, throwing')
-    throw new Error("Events cannot be crossposted");
-  }
-  if (post.shortform) {
-    logger ('post is a shortform, throwing')
-    throw new Error("Quick takes cannot be crossposted");
-  }
+  assertPostIsCrosspostable(post, logger);
 
   const user = await Users.findOne({_id: post.userId});
   if (!user || !user.fmCrosspostUserId) {
@@ -154,11 +161,8 @@ export async function handleCrosspostUpdate(
     ) &&
     fmCrosspost.foreignPostId
   ) {
-    if (newDocument.isEvent) {
-      logger('post is an event, throwing')
-      throw new Error("Events cannot be crossposted");
-    }
-    
+    assertPostIsCrosspostable(newDocument, logger);
+
     logger('denormalized fields changed, updating crosspost')
     const denormalizedData = extractDenormalizedData(newDocument);
     // Hack to deal with site admins moving posts to draft
