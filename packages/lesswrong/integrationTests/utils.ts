@@ -371,6 +371,7 @@ export const createDummyRevision = async (user: DbUser, data?: Partial<DbRevisio
     inactive: false,
     editedAt: new Date(Date.now()),
     version: "1.0.0",
+    wordCount: 0,
     changeMetrics: {} // not nullable field
   };
   const revisionData = {...defaultData, ...data};

@@ -200,7 +200,13 @@ export const HIDE_LLM_CHAT_GUIDE_COOKIE = registerCookie({
   name: "llm_chat_guide_open",
   type: "functional",
   description: "Whether the LLM chat guide is open",
-});
+})
+
+export const LLM_CHAT_EXPANDED = registerCookie({
+  name: "llm_chat_expanded",
+  type: "functional",
+  description: "Whether the LLM chat has expanded size",
+})
 
 
 // Third party cookies

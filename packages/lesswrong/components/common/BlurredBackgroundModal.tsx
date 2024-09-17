@@ -21,7 +21,7 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    zIndex: 50000,
+    zIndex: theme.zIndexes.blurredBackgroundModal,
     [theme.breakpoints.down("xs")]: {
       "& .MuiPopover-paper": {
         maxWidth: "unset !important",

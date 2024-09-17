@@ -608,6 +608,7 @@ interface DbManifoldProbabilitiesCache extends DbObject {
   isResolved: boolean
   year: number
   lastUpdated: Date
+  url: string
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -1130,7 +1131,7 @@ interface DbRevision extends DbObject {
     data: string,
   } | null
   html: string | null
-  wordCount: number | null
+  wordCount: number
   changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/
   googleDocMetadata: any /*{"definitions":[{"blackbox":true}]}*/
   createdAt: Date

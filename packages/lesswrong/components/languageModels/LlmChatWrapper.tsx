@@ -164,7 +164,7 @@ const LlmChatWrapper = ({children}: {
     return sortBy(llmConversationsList, (conversation) => conversation.lastUpdatedAt ?? conversation.createdAt);
   }, [conversations]);
 
-  const [currentConversationId, setCurrentConversationId] = useState<string | undefined>(sortedConversations.slice(-1)[0]?._id);
+  const [currentConversationId, setCurrentConversationId] = useState<string>();
 
   const { document: currentConversationWithMessages } = useSingle({
     collectionName: "LlmConversations",
