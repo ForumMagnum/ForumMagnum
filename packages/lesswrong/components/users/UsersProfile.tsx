@@ -233,9 +233,9 @@ const UsersProfileFn = ({terms, slug, classes}: {
       }
     }
 
-    const unlistedTerms: Omit<PostsViewTerms, 'tagId'> = {view: "unlisted", userId: user._id, limit: 20}
-    const afSubmissionTerms: Omit<PostsViewTerms, 'tagId'> = {view: "userAFSubmissions", userId: user._id, limit: 4}
-    const terms: Omit<PostsViewTerms, 'tagId'> = {view: "userPosts", ...query, userId: user._id, authorIsUnreviewed: null};
+    const unlistedTerms: PostsViewTerms = {view: "unlisted", userId: user._id, limit: 20}
+    const afSubmissionTerms: PostsViewTerms = {view: "userAFSubmissions", userId: user._id, limit: 4}
+    const terms: PostsViewTerms = {view: "userPosts", ...query, userId: user._id, authorIsUnreviewed: null};
     const sequenceTerms: SequencesViewTerms = {view: "userProfile", userId: user._id, limit:9}
     const sequenceAllTerms: SequencesViewTerms = {view: "userProfileAll", userId: user._id, limit:9}
 
