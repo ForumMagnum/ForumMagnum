@@ -361,8 +361,6 @@ const Layout = ({currentUser, children, classes}: {
   const theme = useTheme();
   const {currentRoute, pathname} = useLocation();
   const layoutOptionsState = React.useContext(LayoutOptionsContext);
-  const { explicitConsentGiven: cookieConsentGiven, explicitConsentRequired: cookieConsentRequired } = useCookiePreferences();
-  const showCookieBanner = cookieConsentRequired === true && !cookieConsentGiven;
   const {headerVisible, headerAtTop} = useHeaderVisible();
 
   // enable during ACX Everywhere
@@ -445,9 +443,7 @@ const Layout = ({currentUser, children, classes}: {
       BasicOnboardingFlow,
       CommentOnSelectionPageWrapper,
       SidebarsWrapper,
-      IntercomWrapper,
       HomepageCommunityMap,
-      CookieBanner,
       AdminToggle,
       SunshineSidebar,
       EAHomeRightHandSide,
@@ -529,7 +525,7 @@ const Layout = ({currentUser, children, classes}: {
               <GlobalHotkeys/>
               {/* Only show intercom after they have accepted cookies */}
               <DeferRender ssr={false}>
-                {showCookieBanner ? <CookieBanner /> : <IntercomWrapper/>}
+                <MaybeCookieBanner />
               </DeferRender>
 
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
@@ -636,6 +632,14 @@ const Layout = ({currentUser, children, classes}: {
     )
   };
   return render();
+}
+
+function MaybeCookieBanner() {
+  const { IntercomWrapper, CookieBanner } = Components;
+  const { explicitConsentGiven: cookieConsentGiven, explicitConsentRequired: cookieConsentRequired } = useCookiePreferences();
+  const showCookieBanner = cookieConsentRequired === true && !cookieConsentGiven;
+
+  return showCookieBanner ? <CookieBanner /> : <IntercomWrapper/>;
 }
 
 const LayoutComponent = registerComponent('Layout', Layout, {styles});
