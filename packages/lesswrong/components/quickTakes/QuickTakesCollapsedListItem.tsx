@@ -198,7 +198,7 @@ const QuickTakesCollapsedListItem = ({quickTake, setExpanded, classes}: {
         </div>
       </div>
       <div {...eventHandlers} className={classes.body}>
-        {htmlToTextDefault(quickTake.contents?.html)}
+        {quickTake.contents?.plaintextMainText}
       </div>
       <LWPopper
         open={displayHoverOver}
