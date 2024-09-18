@@ -51,13 +51,14 @@ export async function postIsCriticism(post: PostIsCriticismRequest, currentUserI
     return false
   }
   
-  const userText = `${post.title}\n\n${sanitizeHtml(post.body, sanitizeHtmlOptions)}`
+  const postBody = post.contentType === 'markdown' ? post.body : sanitizeHtml(post.body, sanitizeHtmlOptions)
+  const userText = `${post.title}\n\n${postBody}`
   
   const analyticsData = {
     userId: currentUserId,
     postId: post._id,
     postTitle: post.title,
-    postBody: post.body,
+    postBody,
     fullMessage: userText,
   }
 
