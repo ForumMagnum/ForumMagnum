@@ -134,67 +134,68 @@ const runCallbacks = function <N extends CollectionNameString> (this: any, optio
   
   let inProgressCallbackKey = markCallbackStarted(hook);
   
-  if (typeof callbacks !== 'undefined' && !!callbacks.length) { // if the hook exists, and contains callbacks to run
-
-    const runCallback = (accumulator: AnyBecauseTodo, callback: AnyBecauseTodo) => {
-      logger(`\x1b[32m[${hook}] [${callback.name || 'noname callback'}]\x1b[0m`);
-      try {
-        const result = callback.apply(this, [accumulator].concat(args));
-
-        if (typeof result === 'undefined') {
-          // if result of current iteration is undefined, don't pass it on
-          // logger(`// Warning: Sync callback [${callback.name}] in hook [${hook}] didn't return a result!`)
+  try {
+    if (typeof callbacks !== 'undefined' && !!callbacks.length) { // if the hook exists, and contains callbacks to run
+      const runCallback = (accumulator: AnyBecauseTodo, callback: AnyBecauseTodo) => {
+        logger(`\x1b[32m[${hook}] [${callback.name || 'noname callback'}]\x1b[0m`);
+        try {
+          const result = callback.apply(this, [accumulator].concat(args));
+  
+          if (typeof result === 'undefined') {
+            // if result of current iteration is undefined, don't pass it on
+            // logger(`// Warning: Sync callback [${callback.name}] in hook [${hook}] didn't return a result!`)
+            return accumulator;
+          } else {
+            return result;
+          }
+  
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(`\x1b[31m// error at callback [${callback.name}] in hook [${hook}]\x1b[0m`);
+          // eslint-disable-next-line no-console
+          console.log(error);
+          if (error.break || (error.data && error.data.break) || !ignoreExceptions) {
+            throw error;
+          }
+          // pass the unchanged accumulator to the next iteration of the loop
           return accumulator;
+        }
+      };
+  
+      const result = callbacks.reduce(function (accumulator: AnyBecauseTodo, callback: AnyBecauseTodo, index: AnyBecauseTodo) {
+        if (isPromise(accumulator)) {
+          if (!asyncContext) {
+            logger(`\x1b[32m[${hook}] Started async context for [${callbacks[index-1] && callbacks[index-1].name}]\x1b[0m`);
+            asyncContext = true;
+          }
+          return new Promise((resolve, reject) => {
+            accumulator
+              .then(result => {
+                if (result === undefined) {
+                  // eslint-disable-next-line no-console
+                  console.error('Async before callbacks should not return undefined. Please return the document/data instead')
+                }
+                try {
+                  // run this callback once we have the previous value
+                  resolve(runCallback(result, callback));
+                } catch (error) {
+                  // error will be thrown only for breaking errors, so throw it up in the promise chain
+                  reject(error);
+                }
+              })
+              .catch(reject);
+          });
         } else {
-          return result;
+          return runCallback(accumulator, callback);
         }
-
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.log(`\x1b[31m// error at callback [${callback.name}] in hook [${hook}]\x1b[0m`);
-        // eslint-disable-next-line no-console
-        console.log(error);
-        if (error.break || (error.data && error.data.break) || !ignoreExceptions) {
-          throw error;
-        }
-        // pass the unchanged accumulator to the next iteration of the loop
-        return accumulator;
-      }
-    };
-
-    const result = callbacks.reduce(function (accumulator: AnyBecauseTodo, callback: AnyBecauseTodo, index: AnyBecauseTodo) {
-      if (isPromise(accumulator)) {
-        if (!asyncContext) {
-          logger(`\x1b[32m[${hook}] Started async context for [${callbacks[index-1] && callbacks[index-1].name}]\x1b[0m`);
-          asyncContext = true;
-        }
-        return new Promise((resolve, reject) => {
-          accumulator
-            .then(result => {
-              if (result === undefined) {
-                // eslint-disable-next-line no-console
-                console.error('Async before callbacks should not return undefined. Please return the document/data instead')
-              }
-              try {
-                // run this callback once we have the previous value
-                resolve(runCallback(result, callback));
-              } catch (error) {
-                // error will be thrown only for breaking errors, so throw it up in the promise chain
-                reject(error);
-              }
-            })
-            .catch(reject);
-        });
-      } else {
-        return runCallback(accumulator, callback);
-      }
-    }, item);
-    
+      }, item);
+      
+      return result;
+    } else { // else, just return the item unchanged
+      return item;
+    }
+  } finally {
     markCallbackFinished(inProgressCallbackKey, hook);
-    return result;
-  } else { // else, just return the item unchanged
-    markCallbackFinished(inProgressCallbackKey, hook);
-    return item;
   }
 };
 
