@@ -67,6 +67,7 @@ export async function postIsCriticism(post: PostIsCriticismRequest, currentUserI
     const topResult = response.choices[0].message?.content
     if (!topResult) return false
     
+    // We ask it to explain the decision, but the frontend only cares about the final decision
     const finalWord = topResult.trim().toLowerCase().split(/[\n\s]+/).pop()
     
     captureEvent("criticismTipsBotResponse", {
