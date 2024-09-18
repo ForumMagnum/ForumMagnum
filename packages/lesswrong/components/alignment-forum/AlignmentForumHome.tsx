@@ -21,7 +21,7 @@ const AlignmentForumHome = ({classes}: {
   const { SingleColumnSection, SectionTitle, FrontpageReviewWidget, PostsList2, SectionButton, RecentDiscussionThreadsList, CuratedSequences, EAPopularCommentsSection, QuickTakesSection } = Components
   const currentUser = useCurrentUser();
 
-  let recentPostsTerms = {view: 'new', limit: 10, forum: true, af: true}
+  let recentPostsTerms = {view: 'new', limit: 10, forum: true, af: true} as const;
 
   return (
     <div className="alignment-forum-home">

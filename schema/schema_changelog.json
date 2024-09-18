@@ -763,5 +763,15 @@
     "acceptsSchemaHash": "8c84a413224b6139788e7a51da3bc113",
     "acceptedByMigration": "20240910T144757.revisions_word_count_not_null.ts",
     "timestamp": "2024-09-10T14:47:57.000Z"
+  },
+  {
+    "acceptsSchemaHash": "daef9f83fd77670b6fe1ee98ffff75f1",
+    "acceptedByMigration": "20240913T193135.add_url_to_manifoldProbabilitiesCache.ts",
+    "timestamp": "2024-09-13T19:31:35.000Z"
+  },
+  {
+    "acceptsSchemaHash": "1184dfb713785c6ceabde629903f40dc",
+    "acceptedByMigration": "20240913T200359.remove_review_comment_id_from_posts.ts",
+    "timestamp": "2024-09-13T20:03:59.000Z"
   }
 ]

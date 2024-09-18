@@ -181,7 +181,7 @@ const SideCommentIconDesktop = ({commentIds, post, classes}: {
   const onClickAway = (ev: ClickAwayEvent) => {
     const isClickOnIcon = some(
       ev.composedPath(),
-      (element: Element) => element.classList.contains(classes.sideCommentIcon)
+      (element: Element) => element.classList?.contains(classes.sideCommentIcon)
     );
     if (!isClickOnIcon) {
       setPinned("auto");

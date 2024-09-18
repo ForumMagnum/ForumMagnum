@@ -29,7 +29,7 @@ import { unflattenComments } from '../../../lib/utils/unflatten';
 import { useNavigate } from '../../../lib/reactRouterWrapper';
 import { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
 import { ImageProvider } from './ImageContext';
-import { getMarketInfo, highlightMarket } from '../../../lib/annualReviewMarkets';
+import { getMarketInfo, highlightMarket } from '../../../lib/collections/posts/annualReviewMarkets';
 import isEqual from 'lodash/isEqual';
 import { usePostReadProgress } from '../usePostReadProgress';
 import { useDynamicTableOfContents } from '../../hooks/useDynamicTableOfContents';
@@ -736,6 +736,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
             dialogueResponses={debateResponses}
             answerCount={answerCount}
             toggleEmbeddedPlayer={toggleEmbeddedPlayer}
+            annualReviewMarketInfo={marketInfo}
             />}
           {!showSplashPageHeader && !isBookUI && <PostsPagePostHeader
             post={post}

@@ -1,10 +1,6 @@
-import { AnnualReviewMarketInfo } from "../../lib/annualReviewMarkets";
-import ManifoldProbabilitiesCaches from "../../lib/collections/manifoldProbabilitiesCaches/collection";
-import Posts from "../../lib/collections/posts/collection";
-import { manifoldAPIKeySetting } from "../../lib/instanceSettings";
-import { loadByIds } from "../../lib/loaders";
-import { filterNonnull } from "../../lib/utils/typeGuardUtils";
-import { createAdminContext } from "../vulcan-lib";
+import { manifoldAPIKeySetting, highlightReviewWinnerThresholdSetting } from "../../instanceSettings";
+import { loadByIds } from "../../loaders";
+import { filterNonnull } from "../../utils/typeGuardUtils";
 
 // Information about a market, but without bets or comments
 type LiteMarket = {
@@ -53,9 +49,33 @@ type LiteMarket = {
   lastBetTime?: number
 }
 
+export type AnnualReviewMarketInfo = {
+  probability: number;
+  isResolved: boolean;
+  year: number;
+  url: string;
+}
+
+export const getMarketInfo = (post: PostsBase): AnnualReviewMarketInfo | undefined => {
+  if (typeof post.annualReviewMarketProbability !== 'number') return undefined
+  if (typeof post.annualReviewMarketIsResolved !== 'boolean') return undefined
+  if (typeof post.annualReviewMarketYear !== 'number') return undefined
+  if (typeof post.annualReviewMarketUrl !== 'string') return undefined
+  return {
+    probability: post.annualReviewMarketProbability,
+    isResolved: post.annualReviewMarketIsResolved,
+    year: post.annualReviewMarketYear,
+    url: post.annualReviewMarketUrl,
+  }
+}
+
+export const highlightMarket = (info: AnnualReviewMarketInfo | undefined): boolean =>
+  !!info && !info.isResolved && info.probability > highlightReviewWinnerThresholdSetting.get()
+
+
 const manifoldAPIKey = manifoldAPIKeySetting.get()
 
-const postGetMarketInfoFromManifold = async (post: DbPost): Promise<AnnualReviewMarketInfo | null > => {
+export const postGetMarketInfoFromManifold = async (post: DbPost): Promise<AnnualReviewMarketInfo | null > => {
   if (!post.manifoldReviewMarketId) return null;
 
   const result = await fetch(`https://api.manifold.markets./v0/market/${post.manifoldReviewMarketId}`, {
@@ -73,7 +93,7 @@ const postGetMarketInfoFromManifold = async (post: DbPost): Promise<AnnualReview
 
   const fullMarket = await result.json()
   
-  return { probability: fullMarket.probability, isResolved: fullMarket.isResolved, year: post.postedAt.getFullYear() }
+  return { probability: fullMarket.probability, isResolved: fullMarket.isResolved, year: post.postedAt.getFullYear(), url: fullMarket.url }
 }
 
 export const createManifoldMarket = async (question: string, descriptionMarkdown: string, closeTime: Date, visibility: string, initialProb: number): Promise<LiteMarket | undefined> => {
@@ -115,36 +135,34 @@ export const createManifoldMarket = async (question: string, descriptionMarkdown
 
 
 
-async function refreshMarketInfoInCache(post: DbPost) {
+async function refreshMarketInfoInCache(post: DbPost, context: ResolverContext) {
   const marketInfo = await postGetMarketInfoFromManifold(post);
   if (!marketInfo || !post.manifoldReviewMarketId) return null;
-
-  const context = createAdminContext();
 
   await context.repos.manifoldProbabilitiesCachesRepo.upsertMarketInfoInCache(post.manifoldReviewMarketId, marketInfo);
 }
 
-export const getPostMarketInfo = async (post: DbPost): Promise<AnnualReviewMarketInfo | undefined>  => {
+export const getPostMarketInfo = async (post: DbPost, context: ResolverContext): Promise<AnnualReviewMarketInfo | undefined>  => {
   if (!post.manifoldReviewMarketId) {
     return undefined;
   }
   
-  const cacheItem = await ManifoldProbabilitiesCaches.findOne({
+  const cacheItem = await context.ManifoldProbabilitiesCaches.findOne({
     marketId: post.manifoldReviewMarketId
   });
 
   if (!cacheItem) {
-    void refreshMarketInfoInCache(post)
+    void refreshMarketInfoInCache(post, context)
     return undefined;
   }
 
   const timeDifference = new Date().getTime() - cacheItem.lastUpdated.getTime();
 
   if (timeDifference >= 10_000) {
-    void refreshMarketInfoInCache(post);
+    void refreshMarketInfoInCache(post, context);
   }
 
-  return { probability: cacheItem.probability, isResolved: cacheItem.isResolved, year: cacheItem.year };
+  return { probability: cacheItem.probability, isResolved: cacheItem.isResolved, year: cacheItem.year, url: cacheItem.url };
 }
 
 /**
@@ -154,7 +172,7 @@ export const marketInfoLoader = (context: ResolverContext) => async (postIds: st
   const posts = filterNonnull(await loadByIds(context, 'Posts', postIds));
   const postMarketInfoPairs = await Promise.all(posts.map(async (post) => ([
     post._id,
-    await getPostMarketInfo(post)
+    await getPostMarketInfo(post, context)
   ] as const)));
 
   // Custom loaders are sensitive to the order of ids > entries, and postgres doesn't return things in any guaranteed order

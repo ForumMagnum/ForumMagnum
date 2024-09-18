@@ -7,7 +7,7 @@ import { getUrlClass } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { isServer } from '../../../lib/executionEnvironment';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
-import type { AnnualReviewMarketInfo } from '../../../lib/annualReviewMarkets';
+import type { AnnualReviewMarketInfo } from '../../../lib/collections/posts/annualReviewMarkets';
 
 const SECONDARY_SPACING = 20;
 
