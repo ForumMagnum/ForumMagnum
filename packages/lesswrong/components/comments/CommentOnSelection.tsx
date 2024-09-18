@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import CommentIcon from '@material-ui/icons/ModeComment';
 import { useCurrentUser } from '../common/withUser';
@@ -60,6 +60,11 @@ const CommentOnSelectionPageWrapper = ({children}: {
 }) => {
   const { SelectedTextToolbar } = Components;
   const [toolbarState,setToolbarState] = useState<SelectedTextToolbarState>({open: false});
+  
+  const closeToolbar = useCallback(() => {
+    // When changing toolbarState, do it in a way where if this is {open: false}, we reuse the previous value to avoid triggering a rerender.
+    setToolbarState((prevState) => prevState.open ? {open: false} : prevState);
+  }, []);
  
   useEffect(() => {
     const selectionChangedHandler = () => {
@@ -68,7 +73,7 @@ const CommentOnSelectionPageWrapper = ({children}: {
       
       // Is this selection non-empty?
       if (!selection || !selectionText?.length) {
-        setToolbarState({open: false});
+        closeToolbar();
         return;
       }
       
@@ -89,7 +94,7 @@ const CommentOnSelectionPageWrapper = ({children}: {
       }
       
       if (!commonWrapper || !hasCommonWrapper) {
-        setToolbarState({open: false});
+        closeToolbar();
         return;
       }
       
@@ -109,10 +114,10 @@ const CommentOnSelectionPageWrapper = ({children}: {
     return () => {
       document.removeEventListener('selectionchange', selectionChangedHandler);
     };
-  }, []);
+  }, [closeToolbar]);
   
   useOnNavigate(() => {
-    setToolbarState({open: false});
+    closeToolbar();
   });
   
   const onClickComment = () => {

@@ -6,6 +6,7 @@ import classNames from 'classnames';
 import { getHostname, getProtocol, parseUnsafeUrl } from './PostsPagePostHeader';
 import { postGetLink, postGetLinkTarget } from '@/lib/collections/posts/helpers';
 import { BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from './PostBodyPrefix';
+import type { AnnualReviewMarketInfo } from '@/lib/collections/posts/annualReviewMarkets';
 
 export const LW_POST_PAGE_PADDING = 110;
 
@@ -117,13 +118,14 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 /// LWPostsPageHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
-const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, classes, dialogueResponses, answerCount}: {
+const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, classes, dialogueResponses, answerCount, annualReviewMarketInfo}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   showEmbeddedPlayer?: boolean,
   toggleEmbeddedPlayer?: () => void,
   classes: ClassesType<typeof styles>,
   dialogueResponses: CommentsList[],
   answerCount?: number,
+  annualReviewMarketInfo?: AnnualReviewMarketInfo
 }) => {
   const { PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon, PostsGroupDetails, PostsTopSequencesNav, PostsPageEventData, AddToCalendarButton, GroupLinks, LWPostsPageHeaderTopRight, PostsAudioPlayerWrapper, PostsVote, AudioToggle, PostActionsButton, AlignmentCrosspostLink, ReadTime, LWCommentCount } = Components;
 
@@ -165,7 +167,7 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
       </AnalyticsContext>
       <div>
         <span className={classes.topRight}>
-          <LWPostsPageHeaderTopRight post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer}/>
+          <LWPostsPageHeaderTopRight post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} annualReviewMarketInfo={annualReviewMarketInfo} />
         </span>
         {post && <span className={classes.audioPlayerWrapper}>
           <PostsAudioPlayerWrapper showEmbeddedPlayer={!!showEmbeddedPlayer} post={post}/>

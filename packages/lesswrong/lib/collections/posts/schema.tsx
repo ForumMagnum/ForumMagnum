@@ -40,6 +40,7 @@ import { isFriendlyUI } from '../../../themes/forumTheme';
 import { getPostReviewWinnerInfo } from '../reviewWinners/cache';
 import { stableSortTags } from '../tags/helpers';
 import { getLatestContentsRevision } from '../revisions/helpers';
+import { marketInfoLoader } from './annualReviewMarkets';
 
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
@@ -795,21 +796,47 @@ const schema: SchemaType<"Posts"> = {
     group: formGroups.adminOptions,
   },
 
-  annualReviewMarketCommentId: {
-    ...foreignKeyField({
-      idFieldName: 'annualReviewMarketCommentId',
-      resolverName: 'annualReviewMarketComment',
-      collectionName: 'Comments',
-      type: 'Comment',
-      nullable: true
-    }),
+  annualReviewMarketProbability: {
+    type: Number,
     optional: true,
     nullable: true,
     canRead: ['guests'],
-    canCreate: ['admins'],
-    canUpdate: ['admins'],
-    hidden: !isLWorAF,
-    group: formGroups.adminOptions,
+    hidden: !isLWorAF
+    // Implementation in postResolvers.ts TODO: migrate this and other annual review market resolvers into the schema, for nicer developer experience
+  },
+  annualReviewMarketIsResolved: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    hidden: !isLWorAF
+    // Implementation in postResolvers.ts
+  },
+  annualReviewMarketYear: {
+    type: Number,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    hidden: !isLWorAF
+    // Implementation in postResolvers.ts
+  },
+
+  annualReviewMarketUrl: {
+    type: String,
+    resolveAs: {
+      type: 'String',
+      resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+        if (!isLWorAF) {
+          return 0;
+        }
+        const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, marketInfoLoader(context))
+        return market?.url
+      }
+    },
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    hidden: !isLWorAF
   },
 
   // The various reviewVoteScore and reviewVotes fields are for caching the results of the updateQuadraticVotes migration (which calculates the score of posts during the LessWrong Review)
@@ -916,32 +943,6 @@ const schema: SchemaType<"Posts"> = {
   'finalReviewVotesAF.$': {
     type: Number,
     optional: true,
-  },
-
-
-  annualReviewMarketProbability: {
-    type: Number,
-    optional: true,
-    nullable: true,
-    canRead: ['guests'],
-    hidden: !isLWorAF
-    // Implementation in postResolvers.ts
-  },
-  annualReviewMarketIsResolved: {
-    type: Boolean,
-    optional: true,
-    nullable: true,
-    canRead: ['guests'],
-    hidden: !isLWorAF
-    // Implementation in postResolvers.ts
-  },
-  annualReviewMarketYear: {
-    type: Number,
-    optional: true,
-    nullable: true,
-    canRead: ['guests'],
-    hidden: !isLWorAF
-    // Implementation in postResolvers.ts
   },
 
   lastCommentPromotedAt: {
