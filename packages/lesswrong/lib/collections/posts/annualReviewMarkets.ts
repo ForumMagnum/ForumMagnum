@@ -162,7 +162,7 @@ export const getPostMarketInfo = async (post: DbPost, context: ResolverContext):
     void refreshMarketInfoInCache(post, context);
   }
 
-  return { probability: cacheItem.probability, isResolved: cacheItem.isResolved, year: cacheItem.year, url: cacheItem.url ?? null };
+  return { probability: cacheItem.probability, isResolved: cacheItem.isResolved, year: cacheItem.year, url: cacheItem.url };
 }
 
 /**
