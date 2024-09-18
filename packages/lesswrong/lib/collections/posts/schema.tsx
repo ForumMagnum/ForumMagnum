@@ -857,6 +857,15 @@ const schema: SchemaType<"Posts"> = {
     hidden: !isLWorAF
   },
 
+  jargonTerms: {
+    type: Object,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    hidden: !isLWorAF
+    // Implementation in postResolvers.ts
+  },
+
   // The various reviewVoteScore and reviewVotes fields are for caching the results of the updateQuadraticVotes migration (which calculates the score of posts during the LessWrong Review)
   reviewVoteScoreAF: {
     type: Number, 

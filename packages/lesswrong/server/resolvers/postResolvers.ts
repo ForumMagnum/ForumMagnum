@@ -34,6 +34,8 @@ import { RecommendedPost, recombeeApi, recombeeRequestHelpers } from '../recombe
 import { HybridRecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
 import { googleVertexApi } from '../google-vertex/client';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
+import { PromptCachingBetaMessageParam } from '@anthropic-ai/sdk/resources/beta/prompt-caching/messages';
+import { getAnthropicPromptCachingClientOrThrow } from '../languageModels/anthropicClient';
 
 augmentFieldsDict(Posts, {
   // Compute a denormalized start/end time for events, accounting for the
@@ -350,7 +352,46 @@ augmentFieldsDict(Posts, {
       },
     },
   },
+
+  
+  jargonTerms: {
+    resolveAs: {
+      type: GraphQLJSON,
+      resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+
+          async function queryClaudeJailbreak(prompt: PromptCachingBetaMessageParam[], maxTokens: number) {
+            const client = getAnthropicPromptCachingClientOrThrow()
+            return await client.messages.create({
+              system: "You are trying to write good explanations for jargon terms, for a hoverover tooltip in an essay. You should provide explanations of each term that are accessible to a layperson (but not too wordy). Use your general knowledge as well as the post's specific explanations or definitions of the terms to find a good definition of each term.",
+              model: "claude-3-5-sonnet-20240620",
+              max_tokens: maxTokens,
+              messages: prompt
+            })
+          }
+        
+          const contents = await getLatestContentsRevision(post);
+          const html = contents?.html ?? ""
+        
+          console.log("Beginning Claude Query The First")
+        
+          const response = await Promise.all([queryClaudeJailbreak([
+            {
+              role: "user",
+              content: [{
+                type: "text",
+                text: `Please provide a succinct glossary of terms in the text. The glossary should contain the term and a short definition. The glossary should be in JSON format, with one entry per line, e.g. {"term": "definition"}. The text is: ${html}`
+              }]
+            }, 
+          ], 5000), 
+          ])
+          console.log(response)
+          return response
+      },
+    },
+  },
 })
+
+
 
 
 export type PostIsCriticismRequest = {
