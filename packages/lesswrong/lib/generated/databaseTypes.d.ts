@@ -632,6 +632,7 @@ interface DbManifoldProbabilitiesCache extends DbObject {
   isResolved: boolean
   year: number
   lastUpdated: Date
+  url: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -878,7 +879,6 @@ interface DbPost extends DbObject {
   reviewVoteCount: number
   positiveReviewVoteCount: number
   manifoldReviewMarketId: string | null
-  annualReviewMarketCommentId: string | null
   reviewVoteScoreAF: number
   reviewVotesAF: Array<number>
   reviewVoteScoreHighKarma: number

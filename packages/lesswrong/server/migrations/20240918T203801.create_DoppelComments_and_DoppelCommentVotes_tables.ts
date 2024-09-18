@@ -1,4 +1,4 @@
-export const acceptsSchemaHash = "218b88dd1bf697da99eb6b8823ff6931";
+export const acceptsSchemaHash = "0af380ba7653c0b38ee38230eee77fb9";
 
 import { createTable, dropTable, updateIndexes } from "./meta/utils";
 import DoppelComments from "@/lib/collections/doppelComments/collection";

@@ -429,13 +429,6 @@ const styles = (theme: ThemeType) => ({
     overflow: "hidden",
   },
   expandIcon: {},
-  '@global': {
-    '@property --top-posts-page-scrim-opacity': {
-      syntax: '"<percentage>"',
-      inherits: false,
-      initialValue: '36%',
-    }
-  }
 });
 
 function sortReviewWinners(reviewWinners: GetAllReviewWinnersQueryResult, sortOrder: LWReviewWinnerSortOrder) {

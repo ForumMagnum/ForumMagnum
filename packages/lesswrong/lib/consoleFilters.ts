@@ -17,7 +17,7 @@ export const filterConsoleLogSpam = () => {
   // produces a separate warning for every unit test.
   const oldWarn = console.warn; //eslint-disable-line no-console
   console.warn = (...message: any[]) => { //eslint-disable-line no-console
-    if (message[0]?.indexOf("React.createFactory() is deprecated") >= 0) {
+    if (message[0]?.indexOf?.("React.createFactory() is deprecated") >= 0) {
       return;
     }
     oldWarn(...message);

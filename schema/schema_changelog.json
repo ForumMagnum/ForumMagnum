@@ -765,8 +765,18 @@
     "timestamp": "2024-09-10T14:47:57.000Z"
   },
   {
-    "acceptsSchemaHash": "218b88dd1bf697da99eb6b8823ff6931",
-    "acceptedByMigration": "20240911T212929.create_DoppelComments_and_DoppelCommentVotes_tables.ts",
-    "timestamp": "2024-09-11T21:29:29.000Z"
+    "acceptsSchemaHash": "daef9f83fd77670b6fe1ee98ffff75f1",
+    "acceptedByMigration": "20240913T193135.add_url_to_manifoldProbabilitiesCache.ts",
+    "timestamp": "2024-09-13T19:31:35.000Z"
+  },
+  {
+    "acceptsSchemaHash": "1184dfb713785c6ceabde629903f40dc",
+    "acceptedByMigration": "20240913T200359.remove_review_comment_id_from_posts.ts",
+    "timestamp": "2024-09-13T20:03:59.000Z"
+  },
+  {
+    "acceptsSchemaHash": "0af380ba7653c0b38ee38230eee77fb9",
+    "acceptedByMigration": "20240918T203801.create_DoppelComments_and_DoppelCommentVotes_tables.ts",
+    "timestamp": "2024-09-18T20:38:01.000Z"
   }
 ]
