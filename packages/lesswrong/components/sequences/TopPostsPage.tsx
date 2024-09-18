@@ -520,7 +520,7 @@ const styles = (theme: ThemeType) => ({
     height: 14,
     borderRadius: 3,
     border: `solid 1px ${theme.palette.grey[400]}`,
-    backgroundColor: theme.palette.grey[200],
+    backgroundColor: theme.palette.grey[100],
     margin: 2
   },
   spotlightCheckmarkIsRead: {
@@ -773,9 +773,8 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
   const years = Object.keys(yearGroupsInfo || {}).sort((a, b) => parseInt(b) - parseInt(a)).map((year) => parseInt(year)) as ReviewWinnerYear[]
   const categories = Object.keys(sectionsInfo || {}).sort((a, b) => b.localeCompare(a)) as ReviewWinnerSectionName[]
 
-  console.log(query)
-  const [year, setYear] = useState<ReviewWinnerYear|null>(query.year && query.year !== '' && reviewWinnerYearSet.has(parseInt(query.year)) ? parseInt(query.year) as ReviewWinnerYear : (query.year === '' ? null : 2022))
-  const [category, setCategory] = useState<ReviewWinnerSectionName|null>(query.category && query.category !== '' && reviewWinnerSectionNamesSet.has(query.category) ? query.category as ReviewWinnerSectionName : (query.category === '' ? null : "rationality"))
+  const [year, setYear] = useState<ReviewWinnerYear|"all">(query.year && reviewWinnerYearSet.has(parseInt(query.year)) ? parseInt(query.year) as ReviewWinnerYear : (query.year === 'all' ? 'all' : 2022))
+  const [category, setCategory] = useState<ReviewWinnerSectionName|'all'>(query.category && reviewWinnerSectionNamesSet.has(query.category) ? query.category as ReviewWinnerSectionName : (query.category === 'all' ? 'all' : "rationality"))
 
   useEffect(() => {
     if (query.year) {
@@ -788,43 +787,43 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
     }
   }, [query.year]);
 
-  console.log(reviewWinnersWithPosts.length)
-
   let filteredReviewWinnersForSpotlights: PostsTopItemInfo[] = []
-  console.log(year, category)
 
   filteredReviewWinnersForSpotlights = reviewWinnersWithPosts.filter(post => post.reviewWinner?.reviewYear === year && post.reviewWinner?.category === category)
 
-  // useEffect(() => {
-  if (year && query.category === '') {
-    console.log("1")
-    filteredReviewWinnersForSpotlights = reviewWinnersWithPosts.filter(post => post.reviewWinner?.reviewYear === year)
-  } else if (category && query.year === '') {
-    console.log("2")
-    filteredReviewWinnersForSpotlights = reviewWinnersWithPosts.filter(post => post.reviewWinner?.category === category)
-  } else if (query.year === '' && query.category === '') {
-    console.log("4")
+
+  if (year === 'all' && category === 'all') {
     filteredReviewWinnersForSpotlights = reviewWinnersWithPosts
+  } else if (year === 'all') {
+    filteredReviewWinnersForSpotlights = reviewWinnersWithPosts.filter(post => post.reviewWinner?.category === category)
+  } else if (category === 'all') {
+    filteredReviewWinnersForSpotlights = reviewWinnersWithPosts.filter(post => post.reviewWinner?.reviewYear === year)
   } else {
-    console.log("3")
     filteredReviewWinnersForSpotlights = reviewWinnersWithPosts.filter(post => post.reviewWinner?.reviewYear === year && post.reviewWinner?.category === category)
   }
-  // }, [query.category, query.year]);
 
   const filteredSpotlights = filterWhereFieldsNotNull(filteredReviewWinnersForSpotlights, 'spotlight').map(post => ({
     ...post.spotlight,
     document: post
-  }))
+  })).sort((a, b) => {
+    const reviewWinnerA = reviewWinnersWithPosts.find(post => post._id === a.document?._id)
+    const reviewWinnerB = reviewWinnersWithPosts.find(post => post._id === b.document?._id)
+    if (reviewWinnerA?.reviewWinner?.reviewYear !== reviewWinnerB?.reviewWinner?.reviewYear) {  
+      return (reviewWinnerB?.reviewWinner?.reviewYear ?? 0) - (reviewWinnerA?.reviewWinner?.reviewYear ?? 0)
+    } else if (reviewWinnerA?.reviewWinner?.category !== reviewWinnerB?.reviewWinner?.category) {
+      return (reviewWinnerB?.reviewWinner?.category ?? '').localeCompare(reviewWinnerA?.reviewWinner?.category ?? '')
+    } else {
+      return (reviewWinnerB?.reviewWinner?.reviewRanking ?? 0) - (reviewWinnerA?.reviewWinner?.reviewRanking ?? 0)
+    }
+  })
 
-  console.log(filteredReviewWinnersForSpotlights.length)
-
-  const handleSetYear = (y: ReviewWinnerYear|null) => {
+  const handleSetYear = (y: ReviewWinnerYear|'all') => {
     const newSearch = qs.stringify({year: y, category});
     history.replaceState(null, '', `${location.pathname}?${newSearch}`);
     setYear(y);
   }
   
-  const handleSetCategory = (t: ReviewWinnerSectionName|null) => {
+  const handleSetCategory = (t: ReviewWinnerSectionName|'all') => {
     const newSearch = qs.stringify({year, category: t});
     history.replaceState(null, '', `${location.pathname}?${newSearch}`);
     setCategory(t);
@@ -838,27 +837,45 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
           }).length
           return <LWTooltip key={y} title={`${postsCount} posts`} placement="top"><a onClick={() => handleSetYear(y)} className={classes.year} key={y} style={{color: y === year ? '#000' : '#888'}}>{y}</a></LWTooltip>
         })}
+        <LWTooltip key="all" title={`${reviewWinnersWithPosts.length} posts`} inlineBlock={false}>
+          <a onClick={() => handleSetYear('all')} className={classes.year} style={{color: year === 'all' ? '#000' : '#888', fontVariant: 'all-small-caps'}}>
+            All
+          </a>
+        </LWTooltip>
       </div>
       <div className={classes.categorySelector}>
         {categories.map((t) => {
-          const postsCount = reviewWinnersWithPosts.filter(post => post.reviewWinner?.reviewYear === year && post.reviewWinner?.category === t).length
+          const postsCount = year === 'all' ? reviewWinnersWithPosts.filter(post => post.reviewWinner?.category === t).length : reviewWinnersWithPosts.filter(post => post.reviewWinner?.reviewYear === year && post.reviewWinner?.category === t).length
           return <LWTooltip key={t} title={`${postsCount} posts`} inlineBlock={false}>
             <a onClick={() => handleSetCategory(t)} className={classNames(classes.category, !postsCount && classes.disabledCategory)} style={{color: t === category ? '#000' : '#888'}}>{sectionsInfo[t].title}</a>
           </LWTooltip>
         })}
-        <LWTooltip key="all" title={`${reviewWinnersWithPosts.filter(post => post.reviewWinner?.reviewYear === year).length} posts`} inlineBlock={false}>
-          <a onClick={() => handleSetCategory(null)} className={classes.category} style={{color: category === null ? '#000' : '#888'}}>
+        <LWTooltip key="all" title={`${reviewWinnersWithPosts.filter(post => {
+          if (year === 'all') return true
+          return post.reviewWinner?.reviewYear === year
+        }).length} posts`} inlineBlock={false}>
+          <a onClick={() => handleSetCategory('all')} className={classes.category} style={{color: category === 'all' ? '#000' : '#888'}}>
             All
           </a>
         </LWTooltip>
       </div>
       <div className={classes.spotlightCheckmarkRow}>
-        {filteredSpotlights.map((spotlight) => <LWTooltip key={spotlight._id} title={spotlight.document?.title}>
-          <Link key={spotlight._id} to={getSpotlightUrl(spotlight)} className={classNames(classes.spotlightCheckmark, spotlight.document?.isRead && classes.spotlightCheckmarkIsRead)}></Link>
-        </LWTooltip>)}
+        {filteredSpotlights.map((spotlight) => {
+          const post = reviewWinnersWithPosts.find(post => post._id === spotlight.document?._id)
+          const postYear = ((category !== 'all' && year !== 'all') || year === 'all') ? post?.reviewWinner?.reviewYear : ''
+          const postCategory = ((year !== 'all' && category !== 'all') || category === 'all') ? post?.reviewWinner?.category : ''
+          const postAuthor = post?.user?.displayName
+          const tooltip = <><div>{spotlight.document?.title}</div>
+          <div><em>by {postAuthor}</em></div>
+          {(postYear || postCategory) && <div><em>{postYear} <span style={{textTransform: 'capitalize'}}>{postCategory}</span></em></div>}</>
+
+          return <LWTooltip key={spotlight._id} title={tooltip}>
+            <Link key={spotlight._id} to={getSpotlightUrl(spotlight)} className={classNames(classes.spotlightCheckmark, spotlight.document?.isRead && classes.spotlightCheckmarkIsRead)}></Link>
+          </LWTooltip>
+        })}
       </div>
       <div style={{ maxWidth: SECTION_WIDTH, paddingBottom: 1000 }}>
-        {filteredSpotlights.map((spotlight) => <span key={spotlight._id} className={classNames(classes.spotlightItem, !spotlight.document?.isRead && classes.spotlightIsNotRead )}><SpotlightItem spotlight={spotlight}  showSubtitle={false} /></span>)}
+        {filteredSpotlights.map((spotlight) => <span key={spotlight._id} className={classNames(classes.spotlightItem, !spotlight.document?.isRead && classes.spotlightIsNotRead )}><SpotlightItem spotlight={spotlight} /></span>)}
       </div>
     </div>
 }

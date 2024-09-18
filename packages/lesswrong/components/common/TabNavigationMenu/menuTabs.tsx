@@ -138,9 +138,9 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnCompressed: true,
     // next 3 are subItems
     }, {
-      id: 'leastwrong',
+      id: 'bestoflesswrong',
       title: 'Best of LessWrong',
-      link: '/leastwrong',
+      link: '/bestoflesswrong',
       tooltip: "Top posts from the Annual Review (2018 through " + REVIEW_YEAR + ")",
       subItem: true,
     }, {
