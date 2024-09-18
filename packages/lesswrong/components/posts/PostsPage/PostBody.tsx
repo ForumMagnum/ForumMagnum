@@ -44,43 +44,7 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
     highlights = votingSystem.getPostHighlights({post, voteProps});
   }
   
-  const glossary: Record<string, ContentReplacedSubstringComponentInfo> = {
-    "AI": {
-      componentName: "JargonTooltip",
-      props: {
-        term: "AI",
-        definition: "Artificial Intelligence: The simulation of human intelligence processes by machines, especially computer systems.",
-      },
-    },
-    "ML": {
-      componentName: "JargonTooltip",
-      props: {
-        term: "ML",
-        definition: "Machine Learning: A subset of AI that enables systems to learn and improve from experience without being explicitly programmed.",
-      },
-    }, 
-    "DL": {
-      componentName: "JargonTooltip",
-      props: {
-        term: "DL",
-        definition: "Deep Learning: A subset of ML based on artificial neural networks with multiple layers that progressively extract higher-level features from raw input.",
-      },
-    },
-    "NLP": {
-      componentName: "JargonTooltip",
-      props: {
-        term: "NLP",
-        definition: "Natural Language Processing: A branch of AI that focuses on the interaction between computers and humans using natural language.",
-      },
-    },
-    "RNN": {
-      componentName: "JargonTooltip",
-      props: {
-        term: "RNN",
-        definition: "Recurrent Neural Network: A type of neural network designed to recognize patterns in sequences of data, such as text, genomes, handwriting, or numerical time series data.",
-      },
-    },
-  }
+  
 
   // result[quote] = {
   //   componentName: 'InlineReactHoverableHighlight',
@@ -97,6 +61,9 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
       : document.sideComments.commentsByBlock;
     const sideCommentsMap = mapValues(sideComments, commentIds => <SideCommentIcon post={post} commentIds={commentIds}/>)
 
+    console.log("This is the first level in", post.jargonTerms[0])
+    console.log("This is the whole thing", post.jargonTerms)
+
     content = <ContentItemBody
       dangerouslySetInnerHTML={{__html: htmlWithIDs}}
       ref={contentRef}
@@ -105,7 +72,7 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
       nofollow={nofollow}
       replacedSubstrings={highlights}
       idInsertions={sideCommentsMap}
-      glossary={glossary}
+      glossary={post.jargonTerms}
     />
   } else {
     content = <ContentItemBody
@@ -114,7 +81,7 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
       description={`post ${post._id}`}
       nofollow={nofollow}
       replacedSubstrings={highlights}
-      glossary={glossary}
+      glossary={post.jargonTerms}
     />
   }
   

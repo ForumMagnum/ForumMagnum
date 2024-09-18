@@ -126,6 +126,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
   }
   
   applyLocalModifications() {
+    console.log("this is the applyLocalModifications function", this.bodyRef.current)
     const element = this.bodyRef.current;
     if (element) {
       this.applyLocalModificationsTo(element);
@@ -134,10 +135,12 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
   }
 
   applyLocalModificationsTo(element: HTMLElement) {
+    console.log("this is applyLocalModificationsTo")
     try {
       // Replace substrings (for inline reacts) goes first, because it can split
       // elements that other substitutions work on (in particular it can split
       // an <a> tag into two).
+      console.log("it is at least trying")
       this.props.replacedSubstrings && this.replaceSubstrings(element, this.props.replacedSubstrings);
 
       this.props.glossary && this.replaceSubstrings(element, this.props.glossary, true);
@@ -197,6 +200,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
       />
       {
         this.replacedElements.map(replaced => {
+          console.log("this is the replaced element", replaced.replacementElement)
           return ReactDOM.createPortal(
             replaced.replacementElement,
             replaced.container
@@ -433,10 +437,13 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
     replacedSubstrings: Record<string, ContentReplacedSubstringComponentInfo>,
     replaceAll = false
   ) => {
+    console.log("this is replaceSubstrings", replacedSubstrings)
     if (replacedSubstrings) {
       for (let str of Object.keys(replacedSubstrings)) {
         const replacement = replacedSubstrings[str]!;
+        console.log('replacement', replacement)
         const ReplacementComponent = Components[replacement.componentName];
+        console.log('replacementComponent', ReplacementComponent)
         const replacementComponentProps = replacement.props;
         const searchString = str.trim();
         let occurrenceCount = 0; // Track occurrences

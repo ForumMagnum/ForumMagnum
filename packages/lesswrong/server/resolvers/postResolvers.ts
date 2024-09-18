@@ -36,6 +36,7 @@ import { googleVertexApi } from '../google-vertex/client';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { PromptCachingBetaMessageParam } from '@anthropic-ai/sdk/resources/beta/prompt-caching/messages';
 import { getAnthropicPromptCachingClientOrThrow } from '../languageModels/anthropicClient';
+import { exampleJargonGlossary, exampleJargonPost } from './exampleJargonPost';
 
 augmentFieldsDict(Posts, {
   // Compute a denormalized start/end time for events, accounting for the
@@ -362,7 +363,8 @@ augmentFieldsDict(Posts, {
           async function queryClaudeJailbreak(prompt: PromptCachingBetaMessageParam[], maxTokens: number) {
             const client = getAnthropicPromptCachingClientOrThrow()
             return await client.messages.create({
-              system: "You are trying to write good explanations for jargon terms, for a hoverover tooltip in an essay. You should provide explanations of each term that are accessible to a layperson (but not too wordy). Use your general knowledge as well as the post's specific explanations or definitions of the terms to find a good definition of each term. Always return a JSON object with the term as the key and the definition as the value, and nothing else.",
+              system: `You’re a Glossary AI. Analyze this post and output in a JSON array of objects with keys: term: "term” (string), definition: “definition” (string). The output should look like [{term: "term1", definition: "definition1"}, {term: "term2", definition: "definition2"}]. Do not return anything else.`,
+              // system: "You are trying to write good explanations for jargon terms, for a hoverover tooltip in an essay. You should provide explanations of each term that are accessible to a layperson (but not too wordy). Use your general knowledge as well as the post's specific explanations or definitions of the terms to find a good definition of each term. Always return a JSON object with the term as the key and the definition as the value, and nothing else.",
               model: "claude-3-5-sonnet-20240620",
               max_tokens: maxTokens,
               messages: prompt
@@ -376,18 +378,43 @@ augmentFieldsDict(Posts, {
         
           const response = await Promise.all([queryClaudeJailbreak([
             {
+              role: "user", 
+              content: [{
+                type: "text", 
+                text: `Please provide a succinct glossary of terms in the text. The glossary should contain the term and a short definition. Analyze this post and output in a JSON array of objects with keys: term: "term” (string), definition: “definition” (string). The output should look like [{term: "term1", definition: "definition1"}, {term: "term2", definition: "definition2"}]. Do not return anything else. The text is: ${exampleJargonPost}`}]
+            },
+            { role: "assistant", 
+              content: [{
+                type: "text", 
+                text: exampleJargonGlossary}]},
+            {
               role: "user",
               content: [{
                 type: "text",
-                text: `Please provide a succinct glossary of terms in the text. The glossary should contain the term and a short definition. The glossary should be in JSON format, with one entry per line, e.g. {"term": "definition"}. The text is: ${html}`
+                text: `Please provide a succinct glossary of terms in the text. The glossary should contain the term and a short definition. Analyze this post and output in a JSON array of objects with keys: term: "term” (string), definition: “definition” (string). The output should look like [{term: "term1", definition: "definition1"}, {term: "term2", definition: "definition2"}]. Do not return anything else. The text is: ${html}`
               }]
             }, 
           ], 5000), 
           ])
           if (response[0].content[0].type === "text") {
-            console.log(response[0].content[0].text)
+            console.log("This is before JSON.parse", response[0].content[0].text)
+            
+            const jargonTerms = JSON.parse(response[0].content[0].text)
+
+            const glossary = jargonTerms.map((term: { term: string, definition: string }) => ({
+              [term.term]: {
+                componentName: "JargonTooltip",
+                props: {
+                  term: term.term,
+                  definition: term.definition,
+                },
+              },
+            }));
+            return glossary
+          } else {
+            console.log("Claude didn't return text")
+            return null
           }
-          return response
       },
     },
   },

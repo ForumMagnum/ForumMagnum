@@ -1234,6 +1234,7 @@ interface PostsListWithVotes extends PostsList { // fragment on Posts
   readonly currentUserVote: string|null,
   readonly currentUserExtendedVote: any,
   readonly podcastEpisode: PostsListWithVotes_podcastEpisode|null,
+  readonly jargonTerms: any,
 }
 
 interface PostsListWithVotes_podcastEpisode { // fragment on PodcastEpisodes
