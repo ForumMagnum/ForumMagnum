@@ -362,7 +362,7 @@ augmentFieldsDict(Posts, {
           async function queryClaudeJailbreak(prompt: PromptCachingBetaMessageParam[], maxTokens: number) {
             const client = getAnthropicPromptCachingClientOrThrow()
             return await client.messages.create({
-              system: "You are trying to write good explanations for jargon terms, for a hoverover tooltip in an essay. You should provide explanations of each term that are accessible to a layperson (but not too wordy). Use your general knowledge as well as the post's specific explanations or definitions of the terms to find a good definition of each term.",
+              system: "You are trying to write good explanations for jargon terms, for a hoverover tooltip in an essay. You should provide explanations of each term that are accessible to a layperson (but not too wordy). Use your general knowledge as well as the post's specific explanations or definitions of the terms to find a good definition of each term. Always return a JSON object with the term as the key and the definition as the value, and nothing else.",
               model: "claude-3-5-sonnet-20240620",
               max_tokens: maxTokens,
               messages: prompt
@@ -384,7 +384,9 @@ augmentFieldsDict(Posts, {
             }, 
           ], 5000), 
           ])
-          console.log(response)
+          if (response[0].content[0].type === "text") {
+            console.log(response[0].content[0].text)
+          }
           return response
       },
     },
