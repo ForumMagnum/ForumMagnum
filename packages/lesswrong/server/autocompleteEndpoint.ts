@@ -10,7 +10,7 @@ import { pipeline } from 'stream/promises'
 import { hyperbolicApiKey } from "@/lib/instanceSettings";
 import { runFragmentQuery } from "./vulcan-lib/query";
 import Users from "@/lib/vulcan-users";
-import { getManyWithCustomLoader } from "@/lib/loaders";
+import { getManyWithCustomLoader, getWithCustomLoader } from "@/lib/loaders";
 
 
 
@@ -74,7 +74,7 @@ export async function constructMessageHistory(
 ): Promise<PromptCachingBetaMessageParam[]> {
   const messages: PromptCachingBetaMessageParam[] = [];
 
-  const posts = await getManyWithCustomLoader(context, "postsHistoryForLLM", postIds, async (postIds: string[]) => {
+  const posts = await getManyWithCustomLoader(context, "postExamplesForLLM", postIds, async (postIds: string[]) => {
     const posts = await runFragmentQuery({
       collectionName: "Posts",
       fragmentName: "PostsForAutocomplete",
@@ -84,7 +84,7 @@ export async function constructMessageHistory(
     return postIds.map(postId => posts.find(post => post._id === postId));
   });
 
-  const comments = await getManyWithCustomLoader(context, "commentsHistoryForLLM", commentIds, async (commentIds: string[]) => {
+  const comments = await getManyWithCustomLoader(context, "commentExamplesForLLM", commentIds, async (commentIds: string[]) => {
     const comments = await runFragmentQuery({
       collectionName: "Comments",
       fragmentName: "CommentsForAutocomplete",
@@ -141,12 +141,22 @@ export async function constructMessageHistory(
 
   if (replyingCommentId) {
     // Fetch the comment we're replying to
-    const replyingToCommentResponse = await runFragmentQuery({
-      collectionName: "Comments",
-      fragmentName: "CommentsForAutocompleteWithParents",
-      terms: { commentIds: [replyingCommentId] },
-      context,
-    })
+    const replyingToCommentResponse = await getWithCustomLoader(context, "commentsWithParentsForLLM", replyingCommentId, async (commentIds: string[]) => {
+      const comments = await runFragmentQuery({
+        collectionName: "Comments",
+        fragmentName: "CommentsForAutocompleteWithParents",
+        terms: { commentIds: commentIds },
+        context,
+      })
+      const upwardCommentClosure = (commentId: string): CommentsForAutocompleteWithParents[] => {
+        const comment = comments.find(comment => comment._id === commentId)
+        if (comment?.parentComment) {
+          return [comment, ...upwardCommentClosure(comment.parentComment._id)]
+        }
+        return comment === undefined ? [] : [comment]
+      }
+      return commentIds.map(commentId => upwardCommentClosure(commentId));
+    });
     if (!replyingToCommentResponse || replyingToCommentResponse.length === 0) {
       throw new Error("Comment not found");
     }

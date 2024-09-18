@@ -106,9 +106,9 @@ export async function loadByIds<N extends CollectionNameString>(context: Resolve
   return results as Array<ObjectsByCollectionName[N]|null>;
 }
 
-function getOrCreateCustomLoader<T, ID>(context: ResolverContext, loaderName: string, idsToResults: (ids: Array<ID>) => Promise<T[]>): DataLoader<ID, T> {
+export function getOrCreateCustomLoader<T, ID>(context: ResolverContext, loaderName: string, idsToResults: (ids: Array<ID>) => Promise<T[]>, options?: DataLoader.Options<ID, T>): DataLoader<ID, T> {
   if (!context.extraLoaders[loaderName]) {
-    context.extraLoaders[loaderName] = new DataLoader(idsToResults, { cache: true });
+    context.extraLoaders[loaderName] = new DataLoader(idsToResults, { ...options, cache: true });
   }
   return context.extraLoaders[loaderName];
 }
