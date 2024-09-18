@@ -63,7 +63,7 @@ export interface UseMultiOptions<
   FragmentTypeName extends keyof FragmentTypes,
   CollectionName extends CollectionNameString
 > {
-  terms: ViewTermsByCollectionName[CollectionName],
+  terms?: ViewTermsByCollectionName[CollectionName],
   extraVariablesValues?: any,
   pollInterval?: number,
   enableTotal?: boolean,
@@ -163,6 +163,7 @@ export function useMulti<
   const graphQLVariables = useMemo(() => ({
     input: {
       terms: { ...terms, limit: defaultLimit },
+      resolverArgs: extraVariablesValues,
       enableCache, enableTotal, createIfMissing
     },
     ...extraVariablesValues

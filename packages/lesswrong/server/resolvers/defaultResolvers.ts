@@ -8,6 +8,8 @@ import { describeTerms, viewTermsToQuery } from "@/lib/utils/viewUtils";
 import { DefaultResolverOptions, defaultResolverOptions } from "@/lib/vulcan-core/default_resolvers";
 import SelectFragmentQuery from "@/server/sql/SelectFragmentQuery";
 import type { FieldNode, FragmentSpreadNode, GraphQLResolveInfo } from "graphql";
+import { captureException } from "@sentry/core";
+import isEqual from "lodash/isEqual";
 
 const defaultOptions: DefaultResolverOptions = {
   cacheMaxAge: 300,
@@ -56,22 +58,53 @@ const addDefaultResolvers = <N extends CollectionNameString>(
     resolvers.multi.resolver = async (
       root: void,
       args: {
-        input: {
+        input?: {
           terms: ViewTermsBase & Record<string, unknown>,
           enableCache?: boolean,
           enableTotal?: boolean,
           createIfMissing?: Partial<T>,
+          resolverArgs?: Record<string, unknown>
         },
+        [resolverArgKeys: string]: unknown
       },
       context: ResolverContext,
       info: GraphQLResolveInfo,
     ) => {
       // const startResolve = Date.now()
-      const input = args?.input || {};
-      const { terms={}, enableCache = false, enableTotal = false } = input;
+      const { input } = args ?? { input: {} };
+      const { terms = {}, enableCache = false, enableTotal = false, createIfMissing, resolverArgs = {} } = input ?? {};
       const logger = loggerConstructor(`views-${collectionName.toLowerCase()}-${terms.view?.toLowerCase() ?? 'default'}`)
       logger('multi resolver()')
       logger('multi terms', terms)
+
+      // Terms and resolverArgs are both passed into the `SelectFragmentQuery` in the same place,
+      // so if we have any overlapping keys, they need to have the same value or we're probably doing something wrong by having one clobber the other.
+      //
+      // Historically I don't think this was technically required, since resolverArgs were just the extraVariableValues
+      // that got passed down to various resolver field variable arguments, and you could imagine constructing some situation
+      // where e.g. you might have a tagId in the terms which could sensibly have a different value from a `tagId` resolver argument
+      // (say, if we had some feature that did something with the relationship between two tags).
+      //
+      // In practice, resolver field variable args are rarely used and there's pretty much always going to be a way to avoid conflict (i.e. renaming them).
+      //
+      // We continue to permit overlapping keys as long as they have the same value because there's a few tag-related pieces of code that do that
+      // and it'd be a headache to refactor them right now.  But we probably ought to clean that up at some point.
+      const termKeys = Object.keys(terms);
+      const conflictingKeys = Object.keys(resolverArgs).filter(termKey => {
+        if (!termKeys.includes(termKey)) {
+          return false;
+        }
+
+        return !isEqual(terms[termKey], resolverArgs[termKey]);
+      });
+
+      if (conflictingKeys.length) {
+        captureException(`Got a ${collectionName} multi request with conflicting term and resolverArg keys: ${conflictingKeys.join(', ')}`);
+        Utils.throwError({
+          id: 'app.conflicting_term_and_resolver_arg_keys',
+          data: { terms, resolverArgs, collectionName },
+        });
+      }
 
       // Don't allow API requests with an arbitrarily large offset. This
       // prevents some extremely-slow queries.
@@ -108,7 +141,7 @@ const addDefaultResolvers = <N extends CollectionNameString>(
         const query = new SelectFragmentQuery(
           fragmentName as FragmentName,
           currentUser,
-          terms,
+          {...resolverArgs, ...terms},
           parameters.selector,
           parameters.syntheticFields,
           parameters.options,
@@ -126,8 +159,8 @@ const addDefaultResolvers = <N extends CollectionNameString>(
       let docs = await fetchDocs();
 
       // Create a doc if none exist, using the actual create mutation to ensure permission checks are run correctly
-      if (input.createIfMissing && docs.length === 0) {
-        await collection.options.mutations.create.mutation(root, {data: input.createIfMissing}, context)
+      if (createIfMissing && docs.length === 0) {
+        await collection.options.mutations.create.mutation(root, {data: createIfMissing}, context)
         docs = await fetchDocs();
       }
 
@@ -174,7 +207,7 @@ const addDefaultResolvers = <N extends CollectionNameString>(
       info: GraphQLResolveInfo,
     ) => {
       // const startResolve = Date.now();
-      const {enableCache = false, allowNull = false, terms} = input;
+      const {enableCache = false, allowNull = false, resolverArgs} = input;
       // In this context (for reasons I don't fully understand) selector is an object with a null prototype, i.e.
       // it has none of the methods you would usually associate with objects like `toString`. This causes various problems
       // down the line. See https://stackoverflow.com/questions/56298481/how-to-fix-object-null-prototype-title-product
@@ -214,7 +247,7 @@ const addDefaultResolvers = <N extends CollectionNameString>(
         const query = new SelectFragmentQuery(
           fragmentName as FragmentName,
           currentUser,
-          terms,
+          resolverArgs,
           selector,
           undefined,
           {limit: 1},

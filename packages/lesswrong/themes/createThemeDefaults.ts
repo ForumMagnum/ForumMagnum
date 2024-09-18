@@ -284,12 +284,10 @@ export const baseTheme: BaseThemeSpecification = {
         }
       },
       rawCSS: [
-        `@global: {
-          @property --top-posts-page-scrim-opacity: {
-            syntax: "<percentage>";
-            inherits: false;
-            initial-value: 36%;
-          }
+        `@property --top-posts-page-scrim-opacity {
+          syntax: "<percentage>";
+          inherits: false;
+          initial-value: 36%;
         }`
       ],
     }

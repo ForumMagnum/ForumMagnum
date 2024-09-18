@@ -49,7 +49,7 @@ const EAHomeCommunityPosts = ({classes}: {classes: ClassesType}) => {
     },
     after: dateCutoff,
     limit: 5,
-  };
+  } as const;
 
   const {ExpandableSection, PostsList2, SectionFooter} = Components;
   return (

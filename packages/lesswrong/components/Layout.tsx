@@ -38,19 +38,6 @@ import { userHasLlmChat } from '@/lib/betas';
 
 const STICKY_SECTION_TOP_MARGIN = 20;
 
-// These routes will have the standalone TabNavigationMenu (aka sidebar)
-//
-// Refer to routes.js for the route names. Or console log in the route you'd
-// like to include
-const standaloneNavMenuRouteNames: ForumOptions<string[]> = {
-  'LessWrong': [
-    'home', 'allPosts', 'questions', 'library', 'Shortform', 'Sequences', 'collections', 'nominations', 'reviews',
-  ],
-  'AlignmentForum': ['alignment.home', 'library', 'allPosts', 'questions', 'Shortform'],
-  'EAForum': ['home', 'allPosts', 'questions', 'Shortform', 'eaLibrary', 'tagsSubforum'],
-  'default': ['home', 'allPosts', 'questions', 'Community', 'Shortform',],
-}
-
 /**
  * When a new user signs up, their profile is 'incomplete' (ie; without a display name)
  * and we require them to fill this in using the onboarding flow before continuing.
@@ -374,8 +361,6 @@ const Layout = ({currentUser, children, classes}: {
   const theme = useTheme();
   const {currentRoute, pathname} = useLocation();
   const layoutOptionsState = React.useContext(LayoutOptionsContext);
-  const { explicitConsentGiven: cookieConsentGiven, explicitConsentRequired: cookieConsentRequired } = useCookiePreferences();
-  const showCookieBanner = cookieConsentRequired === true && !cookieConsentGiven;
   const {headerVisible, headerAtTop} = useHeaderVisible();
 
   // enable during ACX Everywhere
@@ -458,9 +443,7 @@ const Layout = ({currentUser, children, classes}: {
       BasicOnboardingFlow,
       CommentOnSelectionPageWrapper,
       SidebarsWrapper,
-      IntercomWrapper,
       HomepageCommunityMap,
-      CookieBanner,
       AdminToggle,
       SunshineSidebar,
       EAHomeRightHandSide,
@@ -468,7 +451,9 @@ const Layout = ({currentUser, children, classes}: {
       ForumEventBanner,
       GlobalHotkeys,
       LanguageModelLauncherButton,
-      LlmChatWrapper
+      LlmChatWrapper,
+      TabNavigationMenuFooter
+      
     } = Components;
 
     const baseLayoutOptions: LayoutOptions = {
@@ -477,10 +462,10 @@ const Layout = ({currentUser, children, classes}: {
       // then it should.
       // FIXME: This is using route names, but it would be better if this was
       // a property on routes themselves.
-      standaloneNavigation: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute.name),
+      standaloneNavigation: !currentRoute || !!currentRoute.hasLeftNavigationColumn,
       renderSunshineSidebar: !!currentRoute?.sunshineSidebar && !!(userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins')) && !currentUser?.hideSunshineSidebar,
       renderLanguageModelChatLauncher: !!currentUser && userHasLlmChat(currentUser),
-      shouldUseGridLayout: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute.name),
+      shouldUseGridLayout: !currentRoute || !!currentRoute.hasLeftNavigationColumn,
       unspacedGridLayout: !!currentRoute?.unspacedGrid,
     }
 
@@ -491,6 +476,7 @@ const Layout = ({currentUser, children, classes}: {
     const renderLanguageModelChatLauncher = overrideLayoutOptions.renderLanguageModelChatLauncher ?? baseLayoutOptions.renderLanguageModelChatLauncher
     const shouldUseGridLayout = overrideLayoutOptions.shouldUseGridLayout ?? baseLayoutOptions.shouldUseGridLayout
     const unspacedGridLayout = overrideLayoutOptions.unspacedGridLayout ?? baseLayoutOptions.unspacedGridLayout
+    const navigationFooterBar = !currentRoute || currentRoute.navigationFooterBar;
     // The friendly home page has a unique grid layout, to account for the right hand side column.
     const friendlyHomeLayout = isFriendlyUI && currentRoute?.name === 'home'
 
@@ -539,7 +525,7 @@ const Layout = ({currentUser, children, classes}: {
               <GlobalHotkeys/>
               {/* Only show intercom after they have accepted cookies */}
               <DeferRender ssr={false}>
-                {showCookieBanner ? <CookieBanner /> : <IntercomWrapper/>}
+                <MaybeCookieBanner />
               </DeferRender>
 
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
@@ -583,6 +569,7 @@ const Layout = ({currentUser, children, classes}: {
                     </DeferRender>
                   </StickyWrapper>
                 }
+                {isLWorAF && navigationFooterBar && <TabNavigationMenuFooter />}
                 <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
                 <div className={classNames(classes.main, {
                   [classes.whiteBackground]: useWhiteBackground,
@@ -645,6 +632,14 @@ const Layout = ({currentUser, children, classes}: {
     )
   };
   return render();
+}
+
+function MaybeCookieBanner() {
+  const { IntercomWrapper, CookieBanner } = Components;
+  const { explicitConsentGiven: cookieConsentGiven, explicitConsentRequired: cookieConsentRequired } = useCookiePreferences();
+  const showCookieBanner = cookieConsentRequired === true && !cookieConsentGiven;
+
+  return showCookieBanner ? <CookieBanner /> : <IntercomWrapper/>;
 }
 
 const LayoutComponent = registerComponent('Layout', Layout, {styles});
