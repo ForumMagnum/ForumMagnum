@@ -4,22 +4,29 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentUser } from '../common/withUser'
 import AddBoxIcon from '@material-ui/icons/AddBox'
+import { TupleSet } from '@/lib/utils/typeGuardUtils';
+
+const includeRelatedQuestionsParam = new TupleSet(['true', 'false'] as const);
 
 const QuestionsPage = () => {
   const currentUser = useCurrentUser();
   const { query } = useLocation();
   const { SingleColumnSection, SectionTitle,  PostsList2, SectionButton, LWTooltip } = Components
 
+  const includeRelatedQuestions = includeRelatedQuestionsParam.has(query.includeRelatedQuestions)
+    ? query.includeRelatedQuestions
+    : 'false';
+
   const topQuestionsTerms = {
     view: 'topQuestions',
     limit: 5,
-  };
+  } as const;
 
   const recentActivityTerms = {
     view: 'recentQuestionActivity',
     limit: 12,
-    includeRelatedQuestions: query.includeRelatedQuestions
-  };
+    includeRelatedQuestions
+  } as const;
 
   return (
     <div>

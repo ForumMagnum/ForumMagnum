@@ -2,14 +2,37 @@ import pick from 'lodash/pick'
 import Users from "../../lib/collections/users/collection";
 import { randomId } from "../../lib/random";
 import { loggerConstructor } from "../../lib/utils/logging";
-import { UpdateCallbackProperties } from "../mutationCallbacks";
 import { denormalizedFieldKeys, extractDenormalizedData } from "./denormalizedFields";
 import { makeCrossSiteRequest } from "./resolvers";
-import { signToken } from "./tokens";
-import type { Crosspost, CrosspostPayload, UpdateCrosspostPayload } from "./types";
-import { DenormalizedCrosspostData } from "./types";
+import type { UpdateCallbackProperties } from "../mutationCallbacks";
+import type { Crosspost, DenormalizedCrosspostData } from "./types";
+import {
+  createCrosspostToken,
+  updateCrosspostToken,
+} from "@/server/crossposting/tokens";
+// import { getLatestContentsRevision } from '@/lib/collections/revisions/helpers';
+// import { fetchFragmentSingle } from '../fetchFragment';
+// import {
+//   createCrosspostRoute,
+//   updateCrosspostRoute,
+// } from "@/lib/fmCrosspost/routes";
+// import { makeV2CrossSiteRequest } from "@/server/crossposting/crossSiteRequest";
 
-export async function performCrosspost<T extends Crosspost>(post: T): Promise<T> {
+const assertPostIsCrosspostable = (
+  post: DbPost,
+  logger: ReturnType<typeof loggerConstructor>,
+) => {
+  if (post.isEvent) {
+    logger('post is an event, throwing')
+    throw new Error("Events cannot be crossposted");
+  }
+  if (post.shortform) {
+    loggerConstructor('post is a shortform, throwing')
+    throw new Error("Quick takes cannot be crossposted");
+  }
+}
+
+export async function performCrosspost(post: DbPost): Promise<DbPost> {
   const logger = loggerConstructor('callbacks-posts')
   logger('performCrosspost()')
   logger('post info:', pick(post, ['title', 'fmCrosspost']))
@@ -25,10 +48,7 @@ export async function performCrosspost<T extends Crosspost>(post: T): Promise<T>
     return post;
   }
 
-  if (post.isEvent) {
-    logger ('post is an event, throwing')
-    throw new Error("Events cannot be crossposted");
-  }
+  assertPostIsCrosspostable(post, logger);
 
   const user = await Users.findOne({_id: post.userId});
   if (!user || !user.fmCrosspostUserId) {
@@ -42,11 +62,17 @@ export async function performCrosspost<T extends Crosspost>(post: T): Promise<T>
     post._id = randomId();
   }
 
-  const token = await signToken<CrosspostPayload>({
+  // Grab the normalized contents from the revision
+  // TODO: Enable to this when V2 is deployed to both sites
+  // const revision = await getLatestContentsRevision(post);
+
+  const token = await createCrosspostToken.create({
     localUserId: post.userId,
     foreignUserId: user.fmCrosspostUserId,
     postId: post._id,
     ...extractDenormalizedData(post),
+    // TODO: Enable to this when V2 is deployed to both sites
+    // originalContents: revision?.originalContents,
   });
 
   const { postId } = await makeCrossSiteRequest(
@@ -54,6 +80,12 @@ export async function performCrosspost<T extends Crosspost>(post: T): Promise<T>
     { token },
     'Failed to create crosspost'
   );
+  // TODO: Switch to this when V2 is deployed to both sites
+  // const {postId} = await makeV2CrossSiteRequest(
+  //   createCrosspostRoute,
+  //   {token},
+  //   "Failed to create crosspost",
+  // );
 
   logger('crosspost successful, setting foreignPostId:', postId)
   post.fmCrosspost.foreignPostId = postId;
@@ -61,16 +93,34 @@ export async function performCrosspost<T extends Crosspost>(post: T): Promise<T>
 }
 
 const updateCrosspost = async (postId: string, denormalizedData: DenormalizedCrosspostData) => {
-  const token = await signToken<UpdateCrosspostPayload>({
+  // TODO: Enable to this when V2 is deployed to both sites
+  // const postOriginalContents = await fetchFragmentSingle({
+  //   collectionName: "Posts",
+  //   fragmentName: "PostsOriginalContents",
+  //   currentUser: null,
+  //   selector: postId,
+  //   skipFiltering: true,
+  // })
+
+  const token = await updateCrosspostToken.create({
     ...denormalizedData,
     postId,
+    // TODO: Enable to this when V2 is deployed to both sites
+    // originalContents: postOriginalContents?.contents?.originalContents,
   });
   await makeCrossSiteRequest(
     'updateCrosspost',
     { token },
     "Failed to update crosspost draft status",
   );
+  // TODO: Switch to this when V2 is deployed to both sites
+  // await makeV2CrossSiteRequest(
+  //   updateCrosspostRoute,
+  //   {token},
+  //   "Failed to update crosspost",
+  // );
 }
+
 /**
  * TODO-HACK: We will kick the can down the road on actually removing the
  * crosspost data from the foreign server -- set it as a draft.
@@ -93,7 +143,7 @@ export async function handleCrosspostUpdate(
 ): Promise<Partial<DbPost>> {
   const logger = loggerConstructor('callbacks-posts')
   logger('handleCrosspostUpdate()')
-  const {_id, userId, fmCrosspost } = newDocument;
+  const {userId, fmCrosspost} = newDocument;
   const shouldRemoveCrosspost =
     (oldDocument.fmCrosspost && data.fmCrosspost === null) ||
     (oldDocument.fmCrosspost?.isCrosspost && data.fmCrosspost?.isCrosspost === false)
@@ -101,7 +151,7 @@ export async function handleCrosspostUpdate(
     logger('crosspost should be removed, removing')
     await removeCrosspost(newDocument);
   }
-  if (!fmCrosspost) {
+  if (!fmCrosspost?.isCrosspost) {
     logger('post is not a crosspost, returning')
     return data;
   }
@@ -111,11 +161,8 @@ export async function handleCrosspostUpdate(
     ) &&
     fmCrosspost.foreignPostId
   ) {
-    if (newDocument.isEvent) {
-      logger('post is an event, throwing')
-      throw new Error("Events cannot be crossposted");
-    }
-    
+    assertPostIsCrosspostable(newDocument, logger);
+
     logger('denormalized fields changed, updating crosspost')
     const denormalizedData = extractDenormalizedData(newDocument);
     // Hack to deal with site admins moving posts to draft
@@ -148,15 +195,5 @@ export async function handleCrosspostUpdate(
     return data;
   }
 
-  /**
-   * TODO: Null is made legal value for fields but database types are incorrectly generated without null. 
-   * Hacky fix for now. Search 84b2 to find all instances of this casting.
-   */
-  return performCrosspost({
-    _id,
-    userId,
-    fmCrosspost,
-    ...extractDenormalizedData(newDocument),
-    ...data,
-  }) as Partial<DbPost>; 
+  return performCrosspost(newDocument);
 }
