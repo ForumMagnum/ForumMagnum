@@ -35,7 +35,7 @@ export function isCollaborative(post: Pick<DbPost, '_id' | 'shareWithUsers' | 's
   if (post.sharingSettings?.anyoneWithLinkCan && post.sharingSettings.anyoneWithLinkCan !== "none")
     return true;
   if (post.collabEditorDialogue) return true;
-  return false;  
+  return false;
 }
 
 const getPostPlaceholder = (post: PostsBase) => {
@@ -176,6 +176,9 @@ export const EditorFormComponent = ({
     }}})
   }, [
     collectionName,
+    updatedFormType,
+    cookies,
+    document._id,
     document.isEvent,
     document.debate,
     document.shortform,
