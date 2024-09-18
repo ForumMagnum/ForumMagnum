@@ -1,15 +1,14 @@
 import { getOpenAI } from './languageModelIntegration';
 import { isAnyTest, isProduction } from '../../lib/executionEnvironment';
-import { sanitizeAllowedTags } from '../../lib/vulcan-lib/utils';
 import sanitizeHtml from 'sanitize-html';
 import { isEAForum } from '../../lib/instanceSettings';
 import OpenAI from 'openai';
 import { captureEvent } from '../../lib/analyticsEvents';
-import difference from 'lodash/difference';
 import type { PostIsCriticismRequest } from '../resolvers/postResolvers';
+import { sanitizeHtmlOptions } from './modGPT';
 
 
-export const criticismTipsBotPrompt = `
+const criticismTipsBotPrompt = `
   You are an assistant for the Effective Altruism Forum.
   Decide if the given post should be tagged as "Criticism of work in effective altruism". This tag applies to posts critically examining the work, projects, or methodologies of specific individuals, organizations, or initiatives affiliated with the effective altruism (EA) movement or community.
   Give your reasoning, referring to the above criteria. Then end your response with "yes" or "no" (one word, no quotes) indicating your overall judgement on whether the post should be tagged.
@@ -23,11 +22,6 @@ const checkIsCriticism = async (api: OpenAI, text: string) => {
       {role: 'user', content: text},
     ],
   })
-}
-
-export const sanitizeHtmlOptions = {
-  allowedTags: difference(sanitizeAllowedTags, ['img', 'iframe', 'audio', 'figure']),
-  nonTextTags: [ 'style', 'script', 'textarea', 'option', 'img', 'figure' ]
 }
 
 /**
