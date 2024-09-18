@@ -3,7 +3,6 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import type { CommentTreeOptions } from './commentTree';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { HEADER_HEIGHT } from '../common/Header';
 
 export const HIGHLIGHT_DURATION = 3
 
@@ -11,7 +10,6 @@ export const CONDENSED_MARGIN_BOTTOM = 4
 
 const styles = (theme: ThemeType): JssStyles => ({
   node: {
-    scrollMarginTop: HEADER_HEIGHT + 12,
     border: theme.palette.border.commentBorder,
     borderRadius: isFriendlyUI ? theme.borderRadius.small : undefined,
     cursor: "default",

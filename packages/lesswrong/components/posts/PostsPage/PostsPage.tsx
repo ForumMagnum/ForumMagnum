@@ -403,16 +403,6 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   const votingSystem = getVotingSystemByName(post.votingSystem || 'default');
   const voteProps = useVote(post, 'Posts', votingSystem);
 
-  // const [blockHeight, setBlockHeight] = useState(Math.floor(Math.random() * 1000))
-
-  // useEffect(() => {
-  //   // const intervalId = setInterval(() => {
-  //   //   setBlockHeight(Math.floor(Math.random() * 1000))
-  //   // }, 500)
-
-  //   // return () => clearInterval(intervalId);
-  // }, [])
-
   const showEmbeddedPlayerCookie = cookies[SHOW_PODCAST_PLAYER_COOKIE] === "true";
 
   // Show the podcast player if the user opened it on another post, hide it if they closed it (and by default)
@@ -960,7 +950,6 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
           header={header}
           rightColumnChildren={rightColumnChildren}
         >
-          {/* <div style={{height: blockHeight}} ></div> */}
           {postBodySection}
           {betweenPostAndCommentsSection}
           {commentsSection}

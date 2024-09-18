@@ -33,7 +33,6 @@ export async function commentGetPageUrlFromDB(comment: DbComment, context: Resol
 
 export function commentGetPageUrl(comment: CommentsListWithParentMetadata, isAbsolute = false): string {
   if (comment.post) {
-    // TODO 1
     return `${postGetPageUrl(comment.post, isAbsolute)}?commentId=${comment._id}`;
   } else if (comment.tag) {
     return tagGetCommentLink({tagSlug: comment.tag.slug, commentId: comment._id, tagCommentType: comment.tagCommentType, isAbsolute});
@@ -43,7 +42,7 @@ export function commentGetPageUrl(comment: CommentsListWithParentMetadata, isAbs
 }
 
 // TODO there are several functions which do this, some of them should be combined
-export function commentGetPageUrlFromIds({postId, postSlug, tagSlug, tagCommentType, commentId, permalink, isAbsolute=false}: {
+export function commentGetPageUrlFromIds({postId, postSlug, tagSlug, tagCommentType, commentId, permalink=true, isAbsolute=false}: {
   postId?: string | null,
   postSlug?: string,
   tagSlug?: string,
@@ -53,11 +52,6 @@ export function commentGetPageUrlFromIds({postId, postSlug, tagSlug, tagCommentT
   isAbsolute?: boolean,
 }): string {
   const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
-
-  permalink = permalink ?? commentPermalinkStyleSetting.get() === 'top';
-  if (commentPermalinkStyleSetting.get() === 'in-context') {
-    permalink = true;
-  }
 
   if (postId) {
     if (permalink) {
