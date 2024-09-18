@@ -201,6 +201,7 @@ registerFragment(`
     subforumPreferredLayout
     
     hideJobAdUntil
+    criticismTipsDismissed
     
     allowDatadogSessionReplay
     hideFrontpageBook2020Ad

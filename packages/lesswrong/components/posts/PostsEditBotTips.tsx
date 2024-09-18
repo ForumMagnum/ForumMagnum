@@ -7,16 +7,13 @@ import { useTracking } from "../../lib/analyticsEvents";
 const styles = (theme: ThemeType) => ({
   root: {
     position: 'absolute',
-    right: -390,
+    right: -345,
     top: -100,
     height: '120%',
-    '@media (max-width: 1500px)': {
-      right: -335,
+    '@media (max-width: 1670px)': {
+      right: -275,
     },
-    '@media (max-width: 1360px)': {
-      right: -268,
-    },
-    '@media (max-width: 1234px)': {
+    '@media (max-width: 1535px)': {
       position: 'static',
       marginTop: 16
     },
@@ -32,11 +29,11 @@ const styles = (theme: ThemeType) => ({
     borderRadius: theme.borderRadius.default,
     transition: 'opacity 0.4s ease',
     opacity: 0,
-    '@media (max-width: 1360px)': {
+    '@media (max-width: 1670px)': {
       width: 242,
       padding: 12
     },
-    '@media (max-width: 1234px)': {
+    '@media (max-width: 1535px)': {
       position: 'static',
       width: '100%'
     },
@@ -51,11 +48,11 @@ const styles = (theme: ThemeType) => ({
     fontSize: 16,
     lineHeight: '21px',
     margin: 0,
-    '@media (max-width: 1360px)': {
+    '@media (max-width: 1670px)': {
       fontSize: 13,
       lineHeight: '20px',
     },
-    '@media (max-width: 1234px)': {
+    '@media (max-width: 1535px)': {
       fontSize: 14,
     },
   },
@@ -76,7 +73,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: 14,
     lineHeight: '21px',
     marginTop: 12,
-    '@media (max-width: 1360px)': {
+    '@media (max-width: 1670px)': {
       fontSize: 13,
       lineHeight: '20px',
     },
