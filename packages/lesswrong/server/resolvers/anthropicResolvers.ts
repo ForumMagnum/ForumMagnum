@@ -2,12 +2,14 @@ import uniq from "lodash/uniq";
 import { getAnthropicClientOrThrow, getAnthropicPromptCachingClientOrThrow } from "../languageModels/anthropicClient";
 import { getEmbeddingsFromApi } from "../embeddings";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
-import { generateContextSelectionPrompt, CLAUDE_CHAT_SYSTEM_PROMPT, generateTitleGenerationPrompt, generateAssistantContextMessage, CONTEXT_SELECTION_SYSTEM_PROMPT, contextSelectionResponseFormat, RECOMMENDATION_SYSTEM_PROMPT } from "../languageModels/promptUtils";
+import { generateContextSelectionPrompt, CLAUDE_CHAT_SYSTEM_PROMPT, generateTitleGenerationPrompt, generateAssistantContextMessage, 
+  CONTEXT_SELECTION_SYSTEM_PROMPT, contextSelectionResponseFormat, RECOMMENDATION_SYSTEM_PROMPT, generateAssistantRecommendationContextMessage } from "../languageModels/promptUtils";
 import { filterNonnull, filterWhereFieldsNotNull } from "@/lib/utils/typeGuardUtils";
 import { userHasLlmChat } from "@/lib/betas";
 import { PromptCachingBetaMessageParam, PromptCachingBetaTextBlockParam } from "@anthropic-ai/sdk/resources/beta/prompt-caching/messages";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
-import { ClaudeMessageRequestSchema, ClientMessage, LlmCreateConversationMessage, LlmStreamChunkMessage, LlmStreamContentMessage, LlmStreamEndMessage, LlmStreamErrorMessage, LlmStreamMessage, RagModeType } from "@/components/languageModels/LlmChatWrapper";
+import { ClaudeMessageRequestSchema, ClientMessage, LlmCreateConversationMessage, LlmStreamChunkMessage, LlmStreamContentMessage, 
+  LlmStreamEndMessage, LlmStreamErrorMessage, LlmStreamMessage, RagModeType } from "@/components/languageModels/LlmChatWrapper";
 import { createMutator, getContextFromReqAndRes, runFragmentQuery } from "../vulcan-lib";
 import { LlmVisibleMessageRole, UserVisibleMessageRole, llmVisibleMessageRoles } from "@/lib/collections/llmMessages/schema";
 import { asyncMapSequential } from "@/lib/utils/asyncUtils";
@@ -487,7 +489,7 @@ async function getUserEmbeddingRecommendations(userId: string, numRecommendation
   return userEmbeddingRecommendationPosts
 }
 
-async function getRecommendationContextDataV2(query: string, userId: string, context: ResolverContext) {
+async function getRecommendationContextData(query: string, userId: string, context: ResolverContext) {
 
   const filterSettings: FilterSettings = context.currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings();
 
@@ -510,53 +512,36 @@ async function getRecommendationContextDataV2(query: string, userId: string, con
       view: "userUpvotes",
       collectionNames: ["Posts"],
       after: moment(Date.now() - (1000 * 60 * 60 * 24 * 365)).toISOString(),
+      limit: 50, //TODO: fix up these limits after testing
     },
-    currentUser: context.currentUser,
     context,
-    options: {
-      sort: {
-        votedAt: -1,
-      },
-      limit: 30, //40,
-    }
   });
 
   const userRecentViewsPromise = runFragmentQuery({
     collectionName: "ReadStatuses",
     fragmentName: "ReadStatusWithPostPage",
-    terms: 
-    selector: { userId },
-    currentUser: context.currentUser,
+    terms: { view: "userReadStatuses", userId, limit: 30, },
     context,
-    options: {
-      sort: {
-        lastUpdated: -1,
-      },
-      limit: 40
-    },
-    skipFiltering: true,
   });
-
 
   const [userRecentUpvotes, userRecentViews, homeLatestPosts, userEmbeddingRecommendationPosts] = await Promise.all([
     userRecentUpvotesPromise,
     userRecentViewsPromise,
     homeLatestPostsPromise,
-    getUserEmbeddingRecommendations(userId, 20, 10, context)
+    getUserEmbeddingRecommendations(userId, 100, 2, context)
   ]);
 
   const userUpvotedPosts = filterNonnull(userRecentUpvotes.map(vote => vote.post));
   const userRecentlyViewedPosts = filterNonnull(userRecentViews.map(view => view.post))
     .filter(post => !userUpvotedPosts.some(upvotedPost => upvotedPost._id === post._id))
-    .slice(0, 40 - userUpvotedPosts.length);
 
   const homeLatestNotAlreadyReadPosts = homeLatestPosts.filter(post => !post.isRead)
 
   console.log({
-    userRecentUpvotes,
-    userUpvotedPosts,
-    userUpvotedPostsTitles: userUpvotedPosts.map(post => ({ title: post.title, html: post.contents?.html.slice(0,200) })),
-    userRecentlyViewedPostsTitles: userRecentlyViewedPosts.map(post => ({ title: post.title, id: post._id })),
+    userRecentViews,
+    userRecentViewsPosts: userRecentViews.map(view => view.post),
+    // recentlyUpvotedPostsTitles: userUpvotedPosts.map(post => post.title),
+    userRecentlyViewedPostsTitles: userRecentlyViewedPosts.map(post => post.title),
     // homeLatestPostsTitles: homeLatestNotAlreadyReadPosts.map(post => post.title),
     // userEmbeddingRecommendationPostsTitles: userEmbeddingRecommendationPosts.map(post => post.title)
   })
@@ -574,15 +559,15 @@ async function getRecommendationContextDataV2(query: string, userId: string, con
 async function createRecommendationsConversationWithMessages({ conversation, newMessage, systemPrompt, model, currentUser, context }: Omit<InitializeConversationArgs, 'ragMode'> & { conversation: DbLlmConversation }) {
   const { content: query, userId } = newMessage;
   
-  const recommendationContextData = await getRecommendationContextDataV2(query, userId, context);
-  const recommendationContextPrompt = await generateAssistantRecommendationContextMessageV2(query, recommendationContextData, context);
+  const recommendationContextData = await getRecommendationContextData(query, userId, context);
+  const recommendationContextPrompt = await generateAssistantRecommendationContextMessage(query, recommendationContextData, context);
 
-  const newUserMessageRecord = {
-    userId,
-    content: query,
-    role: 'user',
-    conversationId: conversation._id,
-  } as const;
+  // const newUserMessageRecord = {
+  //   userId,
+  //   content: query,
+  //   role: 'user',
+  //   conversationId: conversation._id,
+  // } as const;
 
   const newAssistantContextMesssageRecord = {
     userId,
@@ -591,7 +576,7 @@ async function createRecommendationsConversationWithMessages({ conversation, new
     conversationId: conversation._id,
   } as const;
 
-  const newMessageRecords: NewLlmMessage[] = [newUserMessageRecord, newAssistantContextMesssageRecord];
+  const newMessageRecords: NewLlmMessage[] = [newAssistantContextMesssageRecord];
 
   return {
     conversation,
@@ -771,82 +756,82 @@ function isString(value: unknown) {
   return typeof value === 'string';
 }
 
-export async function getLlmRecommendationsForUser(
-  user: DbUser,
-  limit: number,
-  // settings: HybridRecombeeConfiguration,
-  context: ResolverContext
-) {
-  const client = getAnthropicPromptCachingClientOrThrow();
+// export async function getLlmRecommendationsForUser(
+//   user: DbUser,
+//   limit: number,
+//   // settings: HybridRecombeeConfiguration,
+//   context: ResolverContext
+// ) {
+//   const client = getAnthropicPromptCachingClientOrThrow();
 
-  const lastReadStatuses = await runFragmentQuery({
-    collectionName: "ReadStatuses",
-    fragmentName: "ReadStatusWithPostPage",
-    terms: { view: 'userReadStatuses', userId: user._id },
-    context,
-  });
+//   const lastReadStatuses = await runFragmentQuery({
+//     collectionName: "ReadStatuses",
+//     fragmentName: "ReadStatusWithPostPage",
+//     terms: { view: 'userReadStatuses', userId: user._id, limit },
+//     context,
+//   });
 
-  const lastReadPosts = filterWhereFieldsNotNull(lastReadStatuses, 'post');
+//   const lastReadPosts = filterWhereFieldsNotNull(lastReadStatuses, 'post');
 
-  const prompt = `LessWrong user ${userGetDisplayName(user)} has most recently read the following posts:
-${lastReadPosts.map(({ post, lastUpdated }) => {
-  const contentPreview = htmlToMarkdown(post.contents?.html ?? '').slice(0, 1000);
+//   const prompt = `LessWrong user ${userGetDisplayName(user)} has most recently read the following posts:
+// ${lastReadPosts.map(({ post, lastUpdated }) => {
+//   const contentPreview = htmlToMarkdown(post.contents?.html ?? '').slice(0, 1000);
 
-  return `Title: ${post.title}
-Author: ${userGetDisplayName(post.user)}
-Publish Date: ${post.postedAt}
-Read Date: ${lastUpdated}
-Score: ${post.baseScore}
-Content Preview: ${contentPreview}`;
-})}
+//   return `Title: ${post.title}
+// Author: ${userGetDisplayName(post.user)}
+// Publish Date: ${post.postedAt}
+// Read Date: ${lastUpdated}
+// Score: ${post.baseScore}
+// Content Preview: ${contentPreview}`;
+// })}
 
-Please recommend the next ten LessWrong posts they should read.  Do not recommend posts in the read history above.`;
+// Please recommend the next ten LessWrong posts they should read.  Do not recommend posts in the read history above.`;
 
-  const tool: Tool = {
-    name: 'recommend_post_titles',
-    description: 'Recommends posts with the provided titles to the user, based on their reading history.',
-    input_schema: {
-      type: 'object',
-      properties: {
-        titles: {
-          type: 'array',
-          items: {
-            type: 'string'
-          },
-          description: 'The titles of the posts to serve to the user as recommendations.'
-        }
-      }
-    }
-  };
+//   const tool: Tool = {
+//     name: 'recommend_post_titles',
+//     description: 'Recommends posts with the provided titles to the user, based on their reading history.',
+//     input_schema: {
+//       type: 'object',
+//       properties: {
+//         titles: {
+//           type: 'array',
+//           items: {
+//             type: 'string'
+//           },
+//           description: 'The titles of the posts to serve to the user as recommendations.'
+//         }
+//       }
+//     }
+//   };
 
-  const response = await client.messages.create({
-    model: 'claude-3-5-sonnet-20240620',
-    max_tokens: 1028,
-    messages: [{ role: 'user', content: [{ type: 'text', text: prompt, cache_control: { type: 'ephemeral' } }] }],
-    tools: [tool],
-    tool_choice: { type: 'tool', name: 'recommend_post_titles' } 
-  });
+//   const response = await client.messages.create({
+//     model: 'claude-3-5-sonnet-20240620',
+//     max_tokens: 1028,
+//     messages: [{ role: 'user', content: [{ type: 'text', text: prompt, cache_control: { type: 'ephemeral' } }] }],
+//     tools: [tool],
+//     tool_choice: { type: 'tool', name: 'recommend_post_titles' } 
+//   });
 
-  const [responseContent] = response.content;
-  if (responseContent.type === 'text') {
-    console.log({ text: responseContent.text });
-    throw new Error('Got text response!');
-  }
+//   const [responseContent] = response.content;
+//   if (responseContent.type === 'text') {
+//     console.log({ text: responseContent.text });
+//     throw new Error('Got text response!');
+//   }
 
-  const toolUseResponse = responseContent.input;
-  if (('titles' in toolUseResponse) && Array.isArray(toolUseResponse.titles) && toolUseResponse.titles.every(isString)) {
-    console.log({ titles: toolUseResponse.titles });
-    const recommendedPosts = await context.Posts.find({ title: { $in: toolUseResponse.titles } }).fetch();
-    return recommendedPosts.map((post) => ({
-      post,
-      curated: false,
-      stickied: false,
-    }));
-  }
+//   const toolUseResponse = responseContent.input;
+//   if (('titles' in toolUseResponse) && Array.isArray(toolUseResponse.titles) && toolUseResponse.titles.every(isString)) {
+//     console.log({ titles: toolUseResponse.titles });
+//     const recommendedPosts = await context.Posts.find({ title: { $in: toolUseResponse.titles } }).fetch();
+//     return recommendedPosts.map((post) => ({
+//       post,
+//       curated: false,
+//       stickied: false,
+//     }));
+//   }
 
-  console.log('Invalid tool_use response data format', { toolUseResponse });
-  throw new Error('Invalid tool_use response data format');
-}
+//   console.log('Invalid tool_use response data format', { toolUseResponse });
+//   throw new Error('Invalid tool_use response data format');
+// }
 
 
 // defineMutation({
