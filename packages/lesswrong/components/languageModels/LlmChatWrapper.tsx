@@ -150,7 +150,7 @@ const LlmChatWrapper = ({children}: {
   const { results: userLlmConversations } = useMulti({
     collectionName: "LlmConversations",
     fragmentName: "LlmConversationsFragment",
-    terms: { view: "llmConversationsWithUser", userId: currentUser?._id },
+    terms: { view: "llmConversationsWithUser", userId: currentUser?._id, limit: 50 }, //TODO: Figure out what to do when people have many conversations
     skip: !currentUser,
     enableTotal: false,
   });
