@@ -368,13 +368,13 @@ augmentFieldsDict(Posts, {
             const client = getAnthropicPromptCachingClientOrThrow()
             return await client.messages.create({
               system: 
-`You’re a Glossary AI. You are trying to write good explanations for jargon terms, for a hoverover tooltip in an essay on LessWrong.com. Please analyze the given text and identify the most important or frequently used jargon terms or concepts. For each term, provide:
+`You’re a Glossary AI. You are trying to write good explanations for unfamiliar terms, for a hoverover tooltip in an essay on LessWrong.com. Please analyze the given text and identify the most important or frequently used jargon terms or concepts. Assume your audience is a smart and widely read layperson, so only needs rare words and concepts defined, and it's fine to return very few terms. For each term, provide:
 
-The term itself (wrapped in a strong tag), followed by a concise one-line definition. Then, on a separate paragraph, explain how the term is used in this context.
+The term itself (wrapped in a strong tag), followed by a concise one-line definition. Then, on a separate paragraph, explain how the term is used in this context. Include where the term is originally from (whether it's established from an academic field, new to LessWrong or this particular post, or something else. Note what year it was first used in this context if possible).
 
-Ensure that your explanations are clear and accessible to someone who may not be familiar with the subject matter. If the text doesn't contain 10 distinct jargon terms, it's okay to return fewer.
+Ensure that your explanations are clear and accessible to someone who may not be familiar with the subject matter (follow Strunk and White guidelines). If the text doesn't contain 10 distinct jargon terms, it's okay to return fewer.
 
-You should provide explanations of each term that are accessible to a layperson (but not too wordy). Use your general knowledge as well as the post's specific explanations or definitions of the terms to find a good definition of each term. Assume your audience is a smart and widely read layperson, so only needs rare words and concepts defined, and it's fine to return very few terms.
+Use your general knowledge as well as the post's specific explanations or definitions of the terms to find a good definition of each term. 
 
 Output a JSON array of objects with keys: term: "term” (string), text: "text" (string). The output should look like [{term: "term1", text: "text1"}, {term: "term2", text: "text2"}]. Do not return anything else.`,
               model: "claude-3-5-sonnet-20240620",
