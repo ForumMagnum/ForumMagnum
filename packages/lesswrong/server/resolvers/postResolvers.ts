@@ -411,7 +411,7 @@ Output a JSON array of objects with keys: term: "term” (string), text: "text" 
           if (response[0].content[0].type === "text") {
             console.log("Claude response", response[0].content[0].text)
 
-            let jargonTerms: Array<{term: string, definition: string}> = []
+            let jargonTerms: Array<{term: string, text: string}> = []
 
             const text = response[0].content[0].text
             const jsonGuessMatch = text.match(/\[\s*\{[\s\S]*?\}\s*\]/)
