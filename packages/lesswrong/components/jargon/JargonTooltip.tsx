@@ -14,7 +14,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[700]
   },
   jargonWord: {
-    color: theme.palette.grey[500],
+    color: theme.palette.grey[600],
   }
 });
 

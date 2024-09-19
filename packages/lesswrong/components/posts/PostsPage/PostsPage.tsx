@@ -760,6 +760,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
   );
 
   const jargonTerms = fullPost &&'jargonTerms' in fullPost && fullPost.jargonTerms ? Object.values(fullPost.jargonTerms) as ContentReplacedSubstringComponentInfo[] : [] as ContentReplacedSubstringComponentInfo[]; 
+  // const jargonTermsToShow = jargonTerms.filter(glossaryItem => !glossaryItem.props.isAltTerm)
 
   const rightColumnChildren = (welcomeBox || hasSidenotes || (showRecommendations && recommendationsPosition === "right")) && <>
     {welcomeBox}
