@@ -753,7 +753,8 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
   const rightColumnChildren = (welcomeBox || hasSidenotes || (showRecommendations && recommendationsPosition === "right")) && <>
     {welcomeBox}
     {showRecommendations && recommendationsPosition === "right" && fullPost && <PostSideRecommendations post={fullPost} />}
-    {jargonTerms.map(glossaryItem => <JargonTooltip key={glossaryItem.props.term} definition={glossaryItem.props.definition}><div key={glossaryItem.props.term}>{glossaryItem.props.term}</div> </JargonTooltip>)}
+    <h3>Glossary of Jargon</h3>
+    {jargonTerms.map(glossaryItem => <div key={glossaryItem.props.term}><JargonTooltip definition={glossaryItem.props.definition}><div>{glossaryItem.props.term}</div> </JargonTooltip></div>)}
     {hasSidenotes && <>
       <div className={classes.reserveSpaceForSidenotes}/>
       <Components.SideItemsSidebar/>

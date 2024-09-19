@@ -410,6 +410,8 @@ augmentFieldsDict(Posts, {
                 },
               }
             }
+            // eslint-disable-next-line no-console
+            console.log("glossary", glossary)
             return glossary
           } else {
             // eslint-disable-next-line no-console
