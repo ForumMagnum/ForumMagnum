@@ -162,7 +162,12 @@ export const getPostMarketInfo = async (post: DbPost, context: ResolverContext):
     void refreshMarketInfoInCache(post, context);
   }
 
-  return { probability: cacheItem.probability, isResolved: cacheItem.isResolved, year: cacheItem.year, url: cacheItem.url ?? ""}; // TODO: this started throwing an error in this PR and I don't know why it wasn't already doing that - Ray
+  return {
+    probability: cacheItem.probability,
+    isResolved: cacheItem.isResolved,
+    year: cacheItem.year,
+    url: cacheItem.url ?? ""
+  }; // TODO: this started throwing an error in this PR and I don't know why it wasn't already doing that (this is Ray)
 }
 
 /**

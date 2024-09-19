@@ -61,9 +61,6 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
       : document.sideComments.commentsByBlock;
     const sideCommentsMap = mapValues(sideComments, commentIds => <SideCommentIcon post={post} commentIds={commentIds}/>)
 
-    console.log("This is the first level in", post.jargonTerms[0])
-    console.log("This is the whole thing", post.jargonTerms)
-
     content = <ContentItemBody
       dangerouslySetInnerHTML={{__html: htmlWithIDs}}
       ref={contentRef}

@@ -37,6 +37,7 @@ import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { PromptCachingBetaMessageParam } from '@anthropic-ai/sdk/resources/beta/prompt-caching/messages';
 import { getAnthropicPromptCachingClientOrThrow } from '../languageModels/anthropicClient';
 import { exampleJargonGlossary, exampleJargonPost } from './exampleJargonPost';
+import { ContentReplacedSubstringComponentInfo } from '@/components/common/ContentItemBody';
 
 augmentFieldsDict(Posts, {
   // Compute a denormalized start/end time for events, accounting for the
@@ -374,8 +375,6 @@ augmentFieldsDict(Posts, {
           const contents = await getLatestContentsRevision(post);
           const html = contents?.html ?? ""
         
-          console.log("Beginning Claude Query The First")
-        
           const response = await Promise.all([queryClaudeJailbreak([
             {
               role: "user", 
@@ -397,21 +396,23 @@ augmentFieldsDict(Posts, {
           ], 5000), 
           ])
           if (response[0].content[0].type === "text") {
-            console.log("This is before JSON.parse", response[0].content[0].text)
             
             const jargonTerms = JSON.parse(response[0].content[0].text)
 
-            const glossary = jargonTerms.map((term: { term: string, definition: string }) => ({
-              [term.term]: {
+            let glossary: Record<string,ContentReplacedSubstringComponentInfo> = {}
+
+            for (const term of jargonTerms) {
+              glossary[term.term] = {
                 componentName: "JargonTooltip",
                 props: {
                   term: term.term,
                   definition: term.definition,
                 },
-              },
-            }));
+              }
+            }
             return glossary
           } else {
+            // eslint-disable-next-line no-console
             console.log("Claude didn't return text")
             return null
           }
