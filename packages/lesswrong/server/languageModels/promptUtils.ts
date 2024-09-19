@@ -1,6 +1,6 @@
 import { userGetDisplayName } from "@/lib/collections/users/helpers"
 import { htmlToMarkdown } from "../editor/conversionUtils";
-import { CommentTreeNode, unflattenComments } from "@/lib/utils/unflatten";
+import { CommentTreeNode, flattenCommentBranch, unflattenComments } from "@/lib/utils/unflatten";
 import { z } from "zod";
 import { zodResponseFormat } from "openai/helpers/zod";
 
@@ -76,7 +76,7 @@ const filterCommentTrees = (trees: CommentTreeNode<NestedComment>[], tokenCounte
 
   while (queue.length > 0) {
     const node = queue.shift()!;
-    const nodeTokens = (node.item.contents ?? '').length / CHARS_PER_TOKEN;
+    const nodeTokens = JSON.stringify(node).length / CHARS_PER_TOKEN;
 
     if (tokenCounter.tokenCount + nodeTokens > tokenThreshold) {
       // We've reached the token limit, truncate remaining trees
@@ -106,7 +106,7 @@ const createCommentTree = (comments: DbComment[]): CommentTreeNode<NestedComment
 }
 
 const formatCommentsForPost = async (post: PostsMinimumInfo, tokenCounter: TokenCounter, context: ResolverContext): Promise<string> => {
-    const comments = await context.Comments.find({postId: post._id}).fetch()
+    const comments = await context.Comments.find({postId: post._id}, undefined, { contents: 1, baseScore: 1, author: 1, _id: 1, postId: 1, parentCommentId: 1, topLevelCommentId: 1 }).fetch()
     if (!comments.length) {
       return ""
     }
@@ -307,7 +307,7 @@ export const RECOMMENDATION_SYSTEM_PROMPT = [
   `You're able to discern not just broad interests (like "AI"), but note more specific subtopics like "decision theory", "infrabayesianism", "mechanistic interpretability", etc.`
 ].join('\n');
 
-export const generateAssistantRecommendationContextMessageV2 = async (query: string, recommendationContextData: RecommendationContextData, context: ResolverContext): Promise<string> => {
+export const generateAssistantRecommendationContextMessage = async (query: string, recommendationContextData: RecommendationContextData, context: ResolverContext): Promise<string> => {
 
   const { homeLatestPosts, userUpvotedPosts, userRecentlyViewedPosts, userEmbeddingRecommendationPosts } = recommendationContextData;
 
@@ -316,15 +316,16 @@ export const generateAssistantRecommendationContextMessageV2 = async (query: str
   const prompt = [
     `You are an expert recommendation system that provides recommended posts to users on LessWrong.com`,
     `You are asked to provide a list of ten recommendations. The following information will help you select the best recommendations.`,
-    `These are the posts that the user recently upvoted post, showing the first 3000 characters of each post: <UserUpvotedPosts>\n${formatAdditionalPostsForPrompt(userUpvotedPosts, tokenCounter, 60_000,'User Upvoted', 3000)}\n</UserUpvotedPosts>`,
-    `These are posts that the user recently viewed (even if they didn't upvoted them), showing the first 3000 characters of each post: <UserViewedPosts>\n${formatAdditionalPostsForPrompt(userRecentlyViewedPosts, tokenCounter, 60_000,'User Viewed', 3000)}\n</UserViewedPosts>`,
+    `These are the posts that the user recently upvoted post, showing the first 15000 characters of each post: <UserUpvotedPosts>\n${formatAdditionalPostsForPrompt(userUpvotedPosts, tokenCounter, 60_000,'User Upvoted', 15000)}\n</UserUpvotedPosts>`,
+    `These are posts that the user recently viewed (even if they didn't upvoted them), showing the first 15000 characters of each post: <UserViewedPosts>\n${formatAdditionalPostsForPrompt(userRecentlyViewedPosts, tokenCounter, 60_000,'User Viewed', 15000)}\n</UserViewedPosts>`,
     `Please make recommendations from among the following posts:`,
-    `Posts recently published to LessWrong: <RecentlyPublishedPosts>\n${formatAdditionalPostsForPrompt(homeLatestPosts, tokenCounter, 120_000, 'Recently Published', 3000)}\n</RecentlyPublishedPosts>`,
-    `Posts recommended for this user based on similarity to their upvoted posts (these posts are from all time): <EmbeddingRecommendations>\n${formatAdditionalPostsForPrompt(userEmbeddingRecommendationPosts, tokenCounter, 150_000, 'Embedding Recommendations', 3000)}\n</EmbeddingRecommendations>`,
+    `Posts recently published to LessWrong: <RecentlyPublishedPosts>\n${formatAdditionalPostsForPrompt(homeLatestPosts, tokenCounter, 120_000, 'Recently Published', 15000)}\n</RecentlyPublishedPosts>`,
+    `Posts recommended for this user based on similarity to their upvoted posts (these posts are from all time): <EmbeddingRecommendations>\n${formatAdditionalPostsForPrompt(userEmbeddingRecommendationPosts, tokenCounter, 150_000, 'Embedding Recommendations', 15000)}\n</EmbeddingRecommendations>`,
 
-    `For your first set of recommendations, please should 5 from recently published and 5 from the embedding recommendations.`,
+    `For your first set of recommendations, please show 5 from recently published and 5 from the embedding recommendations.`,
     `Note that "score" is how upvoted a post is, and should influence your recommendation a little bit`,
-    `Format each recommendation as: <score> | <[title](https://lesswrong.com/posts/<postId>)> | <author> | <publish date>`,
+    `Format each recommendation as: <score> | <[title](https://lesswrong.com/posts/<postId>)> | <author> | <time since publication> and insert a blank line between each recommendation`,
+    `Time since publication should be formatted something like 1d (for one day ago), 2mo (for 2 months), 3y and so on. Round appropriately.`,
     `Following your recommendation, give a 2-3 sentence explanation of why you recommended the posts that you did.`,
 
   ].join('\n');
