@@ -361,11 +361,15 @@ augmentFieldsDict(Posts, {
       type: GraphQLJSON,
       resolver: async (post: DbPost, args: void, context: ResolverContext) => {
 
+          const formatPrompt = `Please provide a succinct glossary of terms in the text. The glossary should contain the term and a short definition. Analyze this post and output in a JSON array of objects with keys: term: "term” (string), definition: “definition” (string). The output should look like [{term: "term1", definition: "definition1"}, {term: "term2", definition: "definition2"}]. Do not return anything else.`
+
           async function queryClaudeJailbreak(prompt: PromptCachingBetaMessageParam[], maxTokens: number) {
             const client = getAnthropicPromptCachingClientOrThrow()
             return await client.messages.create({
-              system: `You’re a Glossary AI. Analyze this post and output in a JSON array of objects with keys: term: "term” (string), definition: “definition” (string). The output should look like [{term: "term1", definition: "definition1"}, {term: "term2", definition: "definition2"}]. Do not return anything else.`,
-              // system: "You are trying to write good explanations for jargon terms, for a hoverover tooltip in an essay. You should provide explanations of each term that are accessible to a layperson (but not too wordy). Use your general knowledge as well as the post's specific explanations or definitions of the terms to find a good definition of each term. Always return a JSON object with the term as the key and the definition as the value, and nothing else.",
+              system: 
+`You’re a Glossary AI. You are trying to write good explanations for jargon terms, for a hoverover tooltip in an essay. You should provide explanations of each term that are accessible to a layperson (but not too wordy). Use your general knowledge as well as the post's specific explanations or definitions of the terms to find a good definition of each term. Assume your audience is a smart and widely read layperson, so only needs rare words and concepts defined. This is the website LessWrong.com.
+
+Analyze this post and output in a JSON array of objects with keys: term: "term” (string), definition: “definition” (string). The output should look like [{term: "term1", definition: "definition1"}, {term: "term2", definition: "definition2"}]. Do not return anything else. `,
               model: "claude-3-5-sonnet-20240620",
               max_tokens: maxTokens,
               messages: prompt
@@ -380,7 +384,7 @@ augmentFieldsDict(Posts, {
               role: "user", 
               content: [{
                 type: "text", 
-                text: `Please provide a succinct glossary of terms in the text. The glossary should contain the term and a short definition. Analyze this post and output in a JSON array of objects with keys: term: "term” (string), definition: “definition” (string). The output should look like [{term: "term1", definition: "definition1"}, {term: "term2", definition: "definition2"}]. Do not return anything else. The text is: ${exampleJargonPost}`}]
+                text: `${formatPrompt} The text is: ${exampleJargonPost}`}]
             },
             { role: "assistant", 
               content: [{
@@ -390,7 +394,7 @@ augmentFieldsDict(Posts, {
               role: "user",
               content: [{
                 type: "text",
-                text: `Please provide a succinct glossary of terms in the text. The glossary should contain the term and a short definition. Analyze this post and output in a JSON array of objects with keys: term: "term” (string), definition: “definition” (string). The output should look like [{term: "term1", definition: "definition1"}, {term: "term2", definition: "definition2"}]. Do not return anything else. The text is: ${html}`
+                text: `${formatPrompt} The text is: ${html}`
               }]
             }, 
           ], 5000), 
