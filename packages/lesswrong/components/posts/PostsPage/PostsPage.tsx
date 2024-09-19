@@ -357,6 +357,17 @@ export const styles = (theme: ThemeType) => ({
     color: theme.palette.text.dim3,
     fontSize: isFriendlyUI ? undefined : theme.typography.body2.fontSize,
     cursor: 'default'
+  },
+  glossary: {
+    paddingTop: 198,
+  },
+  jargonTerm: {
+    paddingTop: 2,
+    ...theme.typography.body2,
+    ...theme.typography.postStyle,
+    fontSize: "1.1rem",
+    color: theme.palette.grey[800],
+    cursor: 'pointer'
   }
 })
 
@@ -753,8 +764,8 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
   const rightColumnChildren = (welcomeBox || hasSidenotes || (showRecommendations && recommendationsPosition === "right")) && <>
     {welcomeBox}
     {showRecommendations && recommendationsPosition === "right" && fullPost && <PostSideRecommendations post={fullPost} />}
-    <h3>Glossary of Jargon</h3>
-    {jargonTerms.map(glossaryItem => <div key={glossaryItem.props.term}><JargonTooltip text={glossaryItem.props.text}><div>{glossaryItem.props.term}</div> </JargonTooltip></div>)}
+    <h3 className={classes.glossary}>Glossary of Jargon</h3>
+    {jargonTerms.map(glossaryItem => <div key={glossaryItem.props.term}><JargonTooltip text={glossaryItem.props.text}><div className={classes.jargonTerm}>{glossaryItem.props.term}</div> </JargonTooltip></div>)}
     {hasSidenotes && <>
       <div className={classes.reserveSpaceForSidenotes}/>
       <Components.SideItemsSidebar/>

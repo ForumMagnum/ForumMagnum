@@ -7,10 +7,11 @@ import { commentBodyStyles } from '@/themes/stylePiping';
 
 const styles = (theme: ThemeType) => ({
   card: {
-    padding: theme.spacing.unit,
+    padding: 16,
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
     maxWidth: "350px",
     ...commentBodyStyles(theme),
+    color: theme.palette.grey[700]
   },
   jargonWord: {
     color: theme.palette.grey[500],
