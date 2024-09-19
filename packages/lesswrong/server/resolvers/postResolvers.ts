@@ -398,7 +398,9 @@ Output a JSON array of objects with keys: term: "term” (string), text: "text" 
             { role: "assistant", 
               content: [{
                 type: "text", 
-                text: `[${exampleJargonGlossary2}]`}]},
+                text: `${exampleJargonGlossary2}`
+              }]
+            },
             {
               role: "user",
               content: [{
