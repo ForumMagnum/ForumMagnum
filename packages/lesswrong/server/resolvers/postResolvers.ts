@@ -362,17 +362,15 @@ augmentFieldsDict(Posts, {
       type: GraphQLJSON,
       resolver: async (post: DbPost, args: void, context: ResolverContext) => {
 
-          const formatPrompt = `Please provide a glossary of any jargon terms in the text. The glossary should contain the term and some text explaining it. Analyze this post and output in a JSON array of objects with keys: term: "term” (string), text: text (string). The output should look like [{term: "term1", text: "text1"}, {term: "term2", text: "text2"}]. Do not return anything else.`
+          const formatPrompt = `Please provide a glossary of any jargon terms in the text. The glossary should contain the term and some text explaining it. Analyze this post and output in a JSON array of objects with keys: term: "term” (string), text: text (html string). The output should look like [{term: "term1", text: "text1"}, {term: "term2", text: "text2"}]. Do not return anything else.`
 
           async function queryClaudeJailbreak(prompt: PromptCachingBetaMessageParam[], maxTokens: number) {
             const client = getAnthropicPromptCachingClientOrThrow()
             return await client.messages.create({
               system: 
-`You’re a Glossary AI. You are trying to write good explanations for jargon terms, for a hoverover tooltip in an essay on LessWrong.com. Please analyze the given text and identify the top 10 most important or frequently used jargon terms or concepts. For each term, provide:
+`You’re a Glossary AI. You are trying to write good explanations for jargon terms, for a hoverover tooltip in an essay on LessWrong.com. Please analyze the given text and identify the most important or frequently used jargon terms or concepts. For each term, provide:
 
-The term itself
-A concise one-line definition
-A more detailed explanation in 2-4 sentences
+The term itself (wrapped in a strong tag), followed by a concise one-line definition. Then, on a separate paragraph, explain how the term is used in this context.
 
 Ensure that your explanations are clear and accessible to someone who may not be familiar with the subject matter. If the text doesn't contain 10 distinct jargon terms, it's okay to return fewer.
 

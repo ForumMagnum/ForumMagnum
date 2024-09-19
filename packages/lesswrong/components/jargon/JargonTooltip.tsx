@@ -23,11 +23,15 @@ export const JargonTooltip = ({classes, children, text, isFirstOccurrence = fals
   text: string,
   isFirstOccurrence?: boolean
 }) => {
-  const { LWTooltip } = Components;
-  const tooltip = <Card className={classes.card}>{text}</Card>  
+  const { LWTooltip, ContentItemBody } = Components;
+  const tooltip = <Card className={classes.card}>
+    <ContentItemBody dangerouslySetInnerHTML={{ __html: text }} />
+  </Card>  
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
   return <LWTooltip title={tooltip} tooltip={false}>
-    <span className={ isFirstOccurrence ? classes.jargonWord : undefined}>{children}</span>
+    <span className={ isFirstOccurrence ? classes.jargonWord : undefined}>
+      {children}
+    </span>
   </LWTooltip>;
 }
 
