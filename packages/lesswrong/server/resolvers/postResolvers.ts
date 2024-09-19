@@ -409,11 +409,20 @@ Output a JSON array of objects with keys: term: "term” (string), text: "text" 
           ], 5000), 
           ])
           if (response[0].content[0].type === "text") {
+            console.log("Claude response", response[0].content[0].text)
 
-            console.log("response", response[0].content[0].text)
+            let jargonTerms: Array<{term: string, definition: string}> = []
+
+            const text = response[0].content[0].text
+            const jsonGuessMatch = text.match(/\[\s*\{[\s\S]*?\}\s*\]/)
+            console.log("jsonGuess", jsonGuessMatch)
+            if (jsonGuessMatch) {
+              jargonTerms = JSON.parse(jsonGuessMatch[0])
+              console.log("jargonTerms", jargonTerms)
+            } else {
+              jargonTerms = []
+            }
             
-            const jargonTerms = JSON.parse(response[0].content[0].text)
-
             let glossary: Record<string,ContentReplacedSubstringComponentInfo> = {}
 
             for (const term of jargonTerms) {
@@ -425,6 +434,7 @@ Output a JSON array of objects with keys: term: "term” (string), text: "text" 
                 },
               }
             }
+            console.log("glossary", glossary)
             return glossary
           } else {
             // eslint-disable-next-line no-console
