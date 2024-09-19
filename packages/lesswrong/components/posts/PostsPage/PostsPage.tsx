@@ -754,7 +754,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     {welcomeBox}
     {showRecommendations && recommendationsPosition === "right" && fullPost && <PostSideRecommendations post={fullPost} />}
     <h3>Glossary of Jargon</h3>
-    {jargonTerms.map(glossaryItem => <div key={glossaryItem.props.term}><JargonTooltip definition={glossaryItem.props.definition}><div>{glossaryItem.props.term}</div> </JargonTooltip></div>)}
+    {jargonTerms.map(glossaryItem => <div key={glossaryItem.props.term}><JargonTooltip text={glossaryItem.props.text}><div>{glossaryItem.props.term}</div> </JargonTooltip></div>)}
     {hasSidenotes && <>
       <div className={classes.reserveSpaceForSidenotes}/>
       <Components.SideItemsSidebar/>

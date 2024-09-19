@@ -17,14 +17,14 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const JargonTooltip = ({classes, children, definition, isFirstOccurrence = false}: {
+export const JargonTooltip = ({classes, children, text, isFirstOccurrence = false}: {
   classes: ClassesType<typeof styles>,
   children: React.ReactNode,
-  definition: string,
+  text: string,
   isFirstOccurrence?: boolean
 }) => {
   const { LWTooltip } = Components;
-  const tooltip = <Card className={classes.card}>{definition}</Card>  
+  const tooltip = <Card className={classes.card}>{text}</Card>  
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
   return <LWTooltip title={tooltip} tooltip={false}>
     <span className={ isFirstOccurrence ? classes.jargonWord : undefined}>{children}</span>

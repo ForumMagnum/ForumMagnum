@@ -36,8 +36,9 @@ import { googleVertexApi } from '../google-vertex/client';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { PromptCachingBetaMessageParam } from '@anthropic-ai/sdk/resources/beta/prompt-caching/messages';
 import { getAnthropicPromptCachingClientOrThrow } from '../languageModels/anthropicClient';
-import { exampleJargonGlossary, exampleJargonPost } from './exampleJargonPost';
+import { exampleJargonGlossary2, exampleJargonPost2 } from './exampleJargonPost';
 import { ContentReplacedSubstringComponentInfo } from '@/components/common/ContentItemBody';
+import { text } from 'stream/consumers';
 
 augmentFieldsDict(Posts, {
   // Compute a denormalized start/end time for events, accounting for the
@@ -361,7 +362,7 @@ augmentFieldsDict(Posts, {
       type: GraphQLJSON,
       resolver: async (post: DbPost, args: void, context: ResolverContext) => {
 
-          const formatPrompt = `Please provide a glossary of any jargon terms in the text. The glossary should contain the term and a definition. Analyze this post and output in a JSON array of objects with keys: term: "term” (string), definition: “definition” (string). The output should look like [{term: "term1", definition: "definition1"}, {term: "term2", definition: "definition2"}]. Do not return anything else.`
+          const formatPrompt = `Please provide a glossary of any jargon terms in the text. The glossary should contain the term and some text explaining it. Analyze this post and output in a JSON array of objects with keys: term: "term” (string), text: text (string). The output should look like [{term: "term1", text: "text1"}, {term: "term2", text: "text2"}]. Do not return anything else.`
 
           async function queryClaudeJailbreak(prompt: PromptCachingBetaMessageParam[], maxTokens: number) {
             const client = getAnthropicPromptCachingClientOrThrow()
@@ -377,7 +378,7 @@ Ensure that your explanations are clear and accessible to someone who may not be
 
 You should provide explanations of each term that are accessible to a layperson (but not too wordy). Use your general knowledge as well as the post's specific explanations or definitions of the terms to find a good definition of each term. Assume your audience is a smart and widely read layperson, so only needs rare words and concepts defined, and it's fine to return very few terms.
 
-Output a JSON array of objects with keys: term: "term” (string), definition: “definition” (string). The output should look like [{term: "term1", definition: "definition1"}, {term: "term2", definition: "definition2"}]. Do not return anything else.`,
+Output a JSON array of objects with keys: term: "term” (string), text: "text" (string). The output should look like [{term: "term1", text: "text1"}, {term: "term2", text: "text2"}]. Do not return anything else.`,
               model: "claude-3-5-sonnet-20240620",
               max_tokens: maxTokens,
               messages: prompt
@@ -392,12 +393,12 @@ Output a JSON array of objects with keys: term: "term” (string), definition: �
               role: "user", 
               content: [{
                 type: "text", 
-                text: `${formatPrompt} The text is: ${exampleJargonPost}`}]
+                text: `${formatPrompt} The text is: ${exampleJargonPost2}`}]
             },
             { role: "assistant", 
               content: [{
                 type: "text", 
-                text: exampleJargonGlossary}]},
+                text: `[${exampleJargonGlossary2}]`}]},
             {
               role: "user",
               content: [{
@@ -420,7 +421,7 @@ Output a JSON array of objects with keys: term: "term” (string), definition: �
                 componentName: "JargonTooltip",
                 props: {
                   term: term.term,
-                  definition: term.definition,
+                  text: term.text,
                 },
               }
             }
