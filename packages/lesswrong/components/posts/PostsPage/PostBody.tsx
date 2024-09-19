@@ -54,6 +54,8 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
   //   }
   // };
 
+  const glossaryProp = 'jargonTerms' in post && post.jargonTerms ? { glossary: post.jargonTerms } : {};
+
   if (includeSideComments && document?.sideComments) {
     const htmlWithIDs = document.sideComments.html;
     const sideComments = sideCommentMode==="highKarma"
@@ -69,7 +71,7 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
       nofollow={nofollow}
       replacedSubstrings={highlights}
       idInsertions={sideCommentsMap}
-      glossary={post.jargonTerms}
+      {...glossaryProp}
     />
   } else {
     content = <ContentItemBody
@@ -78,7 +80,7 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
       description={`post ${post._id}`}
       nofollow={nofollow}
       replacedSubstrings={highlights}
-      glossary={post.jargonTerms}
+      {...glossaryProp}
     />
   }
   

@@ -17,11 +17,11 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const JargonTooltip = ({classes, children, definition, isFirstOccurrence}: {
+export const JargonTooltip = ({classes, children, definition, isFirstOccurrence = false}: {
   classes: ClassesType<typeof styles>,
   children: React.ReactNode,
   definition: string,
-  isFirstOccurrence: boolean
+  isFirstOccurrence?: boolean
 }) => {
   const { LWTooltip } = Components;
   const tooltip = <Card className={classes.card}>{definition}</Card>  

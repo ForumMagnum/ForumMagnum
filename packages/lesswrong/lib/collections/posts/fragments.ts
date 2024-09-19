@@ -200,7 +200,6 @@ registerFragment(`
       episodeLink
       externalEpisodeId
     }
-    jargonTerms
   }
 `)
 

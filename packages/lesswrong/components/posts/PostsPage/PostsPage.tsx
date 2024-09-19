@@ -41,6 +41,7 @@ import { getVotingSystemByName } from '@/lib/voting/votingSystems';
 import DeferRender from '@/components/common/DeferRender';
 import { SideItemVisibilityContextProvider } from '@/components/dropdowns/posts/SetSideItemVisibility';
 import { LW_POST_PAGE_PADDING } from './LWPostsPageHeader';
+import { ContentReplacedSubstringComponentInfo } from '@/components/common/ContentItemBody';
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
 export const MAX_COLUMN_WIDTH = 720
@@ -543,7 +544,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     PostBottomRecommendations, NotifyMeDropdownItem, Row, AnalyticsInViewTracker,
     PostsPageQuestionContent, AFUnreviewedCommentCount, CommentsListSection, CommentsTableOfContents,
     StickyDigestAd, PostsPageSplashHeader, PostsAudioPlayerWrapper, AttributionInViewTracker,
-    ForumEventPostPagePollSection, NotifyMeButton, LWTooltip, PostsPageDate
+    ForumEventPostPagePollSection, NotifyMeButton, LWTooltip, PostsPageDate, JargonTooltip
   } = Components
 
   useEffect(() => {
@@ -746,10 +747,13 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
       </div>
     </DeferRender>
   );
-  
+
+  const jargonTerms = fullPost &&'jargonTerms' in fullPost && fullPost.jargonTerms ? Object.values(fullPost.jargonTerms) as ContentReplacedSubstringComponentInfo[] : [] as ContentReplacedSubstringComponentInfo[]; 
+
   const rightColumnChildren = (welcomeBox || hasSidenotes || (showRecommendations && recommendationsPosition === "right")) && <>
     {welcomeBox}
     {showRecommendations && recommendationsPosition === "right" && fullPost && <PostSideRecommendations post={fullPost} />}
+    {jargonTerms.map(glossaryItem => <JargonTooltip key={glossaryItem.props.term} definition={glossaryItem.props.definition}><div key={glossaryItem.props.term}>{glossaryItem.props.term}</div> </JargonTooltip>)}
     {hasSidenotes && <>
       <div className={classes.reserveSpaceForSidenotes}/>
       <Components.SideItemsSidebar/>
