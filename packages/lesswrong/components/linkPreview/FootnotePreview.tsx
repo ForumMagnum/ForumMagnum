@@ -42,7 +42,7 @@ const footnotePreviewStyles = (theme: ThemeType) => ({
     [sidenotesHiddenBreakpoint(theme)]: {
       display: "none",
     },
-    "& .footnote-back-link": {
+    "& .footnote-back-link, & a[href^=\"#fnref\"]": {
       display: "none",
     },
 
@@ -261,7 +261,7 @@ const SidenoteDisplay = ({footnoteHref, footnoteHTML, classes}: {
   footnoteHTML: string,
   classes: ClassesType,
 }) => {
-  const { ContentStyles } = Components;
+  const { ContentItemBody, ContentStyles } = Components;
   const footnoteIndex = getFootnoteIndex(footnoteHref, footnoteHTML);
 
   return (
@@ -271,7 +271,7 @@ const SidenoteDisplay = ({footnoteHref, footnoteHTML, classes}: {
           {footnoteIndex}{"."}
         </span>}
         <div className={classes.sidenoteContent}>
-          <div dangerouslySetInnerHTML={{__html: footnoteHTML}} />
+          <ContentItemBody dangerouslySetInnerHTML={{__html: footnoteHTML}} />
           <div className={classes.overflowFade} />
         </div>
       </span>

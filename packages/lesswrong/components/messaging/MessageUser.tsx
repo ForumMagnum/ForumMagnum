@@ -63,7 +63,7 @@ const MessageUser = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   if (user._id === currentUser._id) {
     return (
       <SingleColumnSection className={classes.error}>
-        Failed to create conversation: You cannot create a converstaion with yourself.
+        Failed to create conversation: You cannot create a conversation with yourself.
       </SingleColumnSection>
     );
   }

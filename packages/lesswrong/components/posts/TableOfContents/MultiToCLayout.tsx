@@ -160,9 +160,6 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]: {
       display: 'none',
     },
-    '&:hover $commentsLabel': {
-      opacity: 1
-    }
   }
 });
 

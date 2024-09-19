@@ -55,7 +55,6 @@ export async function runServerOnStartupFunctions() {
   serverInitSentry();
   startMemoryUsageMonitor();
   initSyncedCron();
-  startSyncedCron();
   initLegacyRoutes();
   await startupSanityChecks();
   addAllEditableCallbacks();
@@ -71,6 +70,8 @@ export async function runServerOnStartupFunctions() {
   createVoteableUnionType();
   initGraphQL();
   registerElasticCallbacks();
+
+  startSyncedCron();
 }
 
 
