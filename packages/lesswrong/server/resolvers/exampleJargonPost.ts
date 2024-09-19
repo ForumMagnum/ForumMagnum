@@ -1582,7 +1582,7 @@ export const exampleJargonGlossary = `[{"term": "Alpha Fold", "text": "DeepMind'
 {"term": "p(doom)", "text": "Probability of existential catastrophe from AI"},
 {"term": "p(heaven)", "text": "Probability of extremely positive outcomes from AI"}]`
 
-export const exampleJargonPost2 = `<p><font size="1"><i>[Content note: Visions! omens! hallucinations! miracles! ecstasies! dreams! adorations! illuminations! religions!]</i></font></p>
+export const exampleJargonPost2 = `<div><h1>Meditations on Moloch</h1><h3>by Scott Alexander</h3><p><font size="1"><i>[Content note: Visions! omens! hallucinations! miracles! ecstasies! dreams! adorations! illuminations! religions!]</i></font></p>
 <p><b>I.</b></p>
 <p>Allan Ginsberg&#8217;s famous poem, <i>Moloch</i>:</p>
 <blockquote><p>What sphinx of cement and aluminum bashed open their skulls and ate up their brains and imagination?</p>
@@ -1766,38 +1766,77 @@ export const exampleJargonPost2 = `<p><font size="1"><i>[Content note: Visions! 
 <p>It&#8217;s a clever strategy, but I can think of one thing that will save us: judging by how many ex-Quiverfull blogs I found when searching for those statistics, their retention rates even within a single generation are pretty grim. Their article admits that 80% of very religious children leave the church as adults (although of course they expect their own movement to do better). And this is not a symmetrical process &#8211; 80% of children who grow up in atheist families aren&#8217;t becoming Quiverfull.</p>
 <p>It looks a lot like even though they are outbreeding us, we are outmeme-ing them, and that gives us a decisive advantage.</p>
 <p>But we should also be kind of scared of this process. Memes optimize for making people want to accept them and pass them on &#8211; so like capitalism and democracy, they&#8217;re optimizing for a <i>proxy</i> of making us happy, but that proxy can easily get uncoupled from the original goal.</p>
-`
+</div>`
 
 export const exampleJargonGlossary2 = `[
-{ 
-  "term": "Moloch", 
-  "text": "<p><b>Moloch:</b> A metaphorical entity representing destructive systems and incentives in society. Moloch symbolizes the collective forces that lead to negative outcomes despite no individual wanting them. It represents the idea that competition and unaligned incentives can compel individuals or groups to act in ways that ultimately harm everyone, sacrificing important values for survival or power.</p>"
-}, 
-{
-  "term": "Multipolar trap", 
-  "text": "<p><b>Multipolar trap:</b> A situation where competing agents are forced into destructive behavior despite negative collective outcomes. This concept describes scenarios where individual rational actions lead to collectively suboptimal results. It often occurs in situations with multiple competing parties, where the incentives to defect or exploit are strong, even though cooperation would benefit everyone more in the long run.</p>"}, 
-{
-  "term": "Race to the bottom", "text": "<p><b>Race to the bottom:</b> A competitive situation where standards are continuously lowered to gain advantage. This phenomenon occurs when competitors progressively reduce costs, wages, safety standards, or other factors to gain a market advantage. The end result is often a degradation of conditions for all involved, as the competition forces everyone to adopt the lowest standards to remain competitive.</p>"}, 
-{
-  "term": "Gnon", "text": "<p><b>Gnon:</b> Short for "Nature and Nature's God," representing amoral natural laws and forces. Gnon is used to describe the harsh realities of nature, evolution, and the universe that operate without regard for human values or desires. It represents the idea that there are fundamental, unchangeable laws of reality that humans must contend with, often in conflict with our moral intuitions.</p>"
-}, 
-{
-  "term": "Orthogonality thesis",
-  "text": "<p><b>Orthogonality thesis:</b> The idea that an AI's intelligence level is independent of its goals or values. This concept suggests that a highly intelligent AI could have any set of goals, not necessarily ones aligned with human values. It's crucial in discussions about AI safety, as it implies that creating a superintelligent AI doesn't automatically ensure it will have benevolent or human-friendly goals.</p>"
-}, 
-{
-  "term": "Singleton", 
-  "text": "<p><b>Singleton:</b> A hypothetical single decision-making agency at the highest level of global power. A singleton refers to a scenario where one entity (such as an AI, world government, or corporation) has the ability to make and enforce decisions on a global scale. This could potentially solve many coordination problems but also poses significant risks if the singleton's goals are not aligned with human welfare.</p>"
-}, 
-{
-  "term": "Utility maximization", "text": "<p><b>Utility maximization:</b> The process of making decisions to achieve the best possible outcome according to specific values or preferences. In decision theory and AI, utility maximization refers to the idea that agents act to maximize some utility function. This concept is central to understanding how AIs might make decisions, and the challenges in ensuring those decisions align with human values.</p>"
-}, 
-{
-  "term": "Coordination problem", "text": "<p><b>Coordination problem:</b> A situation where multiple agents fail to cooperate despite potential mutual benefits. Coordination problems arise when individuals or groups could achieve better outcomes by working together, but fail to do so due to conflicting incentives, lack of trust, or communication difficulties. These problems are common in many areas of human society and are a key focus in game theory and economics.</p>"
-}, 
-{
-  "term": "Existential risk", "text": "<p><b>Existential risk:</b> A threat that could cause human extinction or permanently cripple human civilization. Existential risks are potential future events that could either annihilate humanity or permanently and severely curtail its potential. These include risks from advanced technologies (like misaligned AI), natural disasters (like asteroid impacts), or human-caused catastrophes (like nuclear war or extreme climate change).</p>"
-}, 
-{
-  "term": "Superintelligence", "text": "<p><b>Superintelligence:</b> An intellect far surpassing human cognitive abilities across virtually all domains. Superintelligence refers to a hypothetical future AI that would exceed human intelligence not just in specific areas, but in nearly all cognitive tasks. The development of superintelligence is seen as a potential transformative event for humanity, bringing both immense opportunities and significant risks.</p>"
-}]`
+  { 
+    "term": "Moloch", 
+    "text": "<div>
+      <p><b>Moloch:</b> A metaphorical entity representing destructive systems and incentives in society.</p>
+      <p>Here, Scott uses Moloch to symbolize the collective forces that lead to negative outcomes despite no individual wanting them. It represents the idea that competition and unaligned incentives can compel individuals or groups to act in ways that ultimately harm everyone, sacrificing important values for survival or power.</p>
+    </div>"
+  }, 
+  {
+    "term": "Multipolar trap", 
+    "text": "<div>
+      <p><b>Multipolar trap:</b> A situation where competing agents are forced into destructive behavior despite negative collective outcomes.</p>
+      <p>This concept describes scenarios where individual rational actions lead to collectively suboptimal results. It often occurs in situations with multiple competing parties, where the incentives to defect or exploit are strong, even though cooperation would benefit everyone more in the long run.</p>
+    </div>"
+  }, 
+  {
+    "term": "Race to the bottom", 
+    "text": "<div>
+      <p><b>Race to the bottom:</b> A competitive situation where standards are continuously lowered to gain advantage.</p>
+      <p>This phenomenon occurs when competitors progressively reduce costs, wages, safety standards, or other factors to gain a market advantage. The end result is often a degradation of conditions for all involved, as the competition forces everyone to adopt the lowest standards to remain competitive.</p>
+    </div>"
+  },
+  {
+    "term": "Gnon", 
+    "text": "<div>
+      <p><b>Gnon:</b> Short for "Nature and Nature's God," representing amoral natural laws and forces.</p>
+      <p>Gnon is used to describe the harsh realities of nature, evolution, and the universe that operate without regard for human values or desires. It represents the idea that there are fundamental, unchangeable laws of reality that humans must contend with, often in conflict with our moral intuitions.</p>
+    </div>"
+  }, 
+  {
+    "term": "Orthogonality thesis",
+    "text": "<div>
+      <p><b>Orthogonality thesis:</b> The idea that an AI's intelligence level is independent of its goals or values.</p>
+      <p>This concept suggests that a highly intelligent AI could have any set of goals, not necessarily ones aligned with human values. It's crucial in discussions about AI safety, as it implies that creating a superintelligent AI doesn't automatically ensure it will have benevolent or human-friendly goals.</p>
+    </div>"
+  }, 
+  {
+    "term": "Singleton", 
+    "text": "<div>
+      <p><b>Singleton:</b> A hypothetical single decision-making agency at the highest level of global power.</p>
+      <p>A singleton refers to a scenario where one entity (such as an AI, world government, or corporation) has the ability to make and enforce decisions on a global scale. This could potentially solve many coordination problems but also poses significant risks if the singleton's goals are not aligned with human welfare.</p>
+    </div>"
+  }, 
+  {
+    "term": "Utility maximization", 
+    "text": "<div>
+      <p><b>Utility maximization:</b> The process of making decisions to achieve the best possible outcome according to specific values or preferences.</p>
+      <p>In decision theory and AI, utility maximization refers to the idea that agents act to maximize some utility function. This concept is central to understanding how AIs might make decisions, and the challenges in ensuring those decisions align with human values.</p>
+    </div>"
+  }, 
+  {
+    "term": "Coordination problem", 
+    "text": "<div>
+      <p><b>Coordination problem:</b> A situation where multiple agents fail to cooperate despite potential mutual benefits.</p>
+      <p>Coordination problems arise when individuals or groups could achieve better outcomes by working together, but fail to do so due to conflicting incentives, lack of trust, or communication difficulties. These problems are common in many areas of human society and are a key focus in game theory and economics.</p>
+    </div>"
+  }, 
+  {
+    "term": "Existential risk", 
+    "text": "<div>
+      <p><b>Existential risk:</b> A threat that could cause human extinction or permanently cripple human civilization.</p>
+      <p>Existential risks are potential future events that could either annihilate humanity or permanently and severely curtail its potential. These include risks from advanced technologies (like misaligned AI), natural disasters (like asteroid impacts), or human-caused catastrophes (like nuclear war or extreme climate change).</p>
+    </div>"
+  }, 
+  {
+    "term": "Superintelligence", 
+    "text": "<div>
+      <p><b>Superintelligence:</b> An intelligence (typically an AI) far surpassing human cognitive abilities across virtually all domains.</p>
+      <p>Superintelligence refers to a hypothetical future AI that would exceed human intelligence not just in specific areas, but in nearly all cognitive tasks. The development of superintelligence is seen as a potential transformative event for humanity, bringing both immense opportunities and significant risks.</p>
+    </div>"
+  }
+]`
