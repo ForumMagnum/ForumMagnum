@@ -20,7 +20,7 @@ import { AnalyticsContext } from '@/lib/analyticsEvents';
 
 const styles = (theme: ThemeType) => ({
   root: {
-    height: "calc(100vh - 160px)"
+    height: "calc(100vh - 190px)"
   },
   subRoot: {
     display: "flex",
@@ -279,7 +279,7 @@ export const ChatInterface = ({classes}: {
   const { currentConversation, setCurrentConversation, archiveConversation, orderedConversations, submitMessage, currentConversationLoading } = useLlmChat();
 
 
-  const [ragMode, setRagMode] = useState<RagModeType>('Recommendation'); // TODO: make this auto
+  const [ragMode, setRagMode] = useState<RagModeType>('Auto'); // TODO: make this auto
   const { flash } = useMessages();
 
   // TODO: come back and refactor this to use currentRoute & matchPath to get the url parameter instead
