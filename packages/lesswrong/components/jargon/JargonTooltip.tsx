@@ -4,6 +4,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
 import Card from '@material-ui/core/Card';
 import { commentBodyStyles } from '@/themes/stylePiping';
+import { ContentReplacedSubstringComponentInfo } from '../common/ContentItemBody';
 
 const styles = (theme: ThemeType) => ({
   card: {
@@ -11,25 +12,46 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
     maxWidth: "350px",
     ...commentBodyStyles(theme),
-    color: theme.palette.grey[700]
+    color: theme.palette.grey[700],
+    marginTop: 0,
+    marginBottom: 0,
   },
   jargonWord: {
     color: theme.palette.grey[600],
+  },
+  altTerms: {
+    marginTop: 8,
+  },
+  altTerm: {
+    color: theme.palette.grey[600],
+    fontSize: "0.8em",
+    marginRight: 8,
   }
 });
 
-export const JargonTooltip = ({classes, children, text, isFirstOccurrence = false}: {
+export const JargonTooltip = ({classes, children, term, replacedSubstrings, isFirstOccurrence = false, placement="bottom-start"}: {
   classes: ClassesType<typeof styles>,
   children: React.ReactNode,
-  text: string,
-  isFirstOccurrence?: boolean
+  term: string,
+  replacedSubstrings: Record<string, ContentReplacedSubstringComponentInfo>,
+  isFirstOccurrence?: boolean,
+  placement?: "bottom-start" | "bottom-end" | "top-start" | "top-end" | "left-start" | "left-end" | "right-start" | "right-end"
 }) => {
   const { LWTooltip, ContentItemBody } = Components;
+  const termInfo = replacedSubstrings[term];
+  const glossaryWithoutTermOrAltTerms = Object.fromEntries(
+    Object.entries(replacedSubstrings).filter(([key]) => key !== term && !termInfo.props.altTerms.includes(key))
+  );
   const tooltip = <Card className={classes.card}>
-    <ContentItemBody dangerouslySetInnerHTML={{ __html: text }} />
+    <ContentItemBody dangerouslySetInnerHTML={{ __html: termInfo.props.text }} glossary={glossaryWithoutTermOrAltTerms} />
+    <div className={classes.altTerms}>
+      {termInfo.props.altTerms.map((term: string) => (
+        <span className={classes.altTerm} key={term}>{term}</span>
+      ))}
+    </div>
   </Card>  
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
-  return <LWTooltip title={tooltip} tooltip={false}>
+  return <LWTooltip title={tooltip} tooltip={false} placement={placement} clickable={true}>
     <span className={ isFirstOccurrence ? classes.jargonWord : undefined}>
       {children}
     </span>

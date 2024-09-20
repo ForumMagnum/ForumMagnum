@@ -362,7 +362,7 @@ augmentFieldsDict(Posts, {
       type: GraphQLJSON,
       resolver: async (post: DbPost, args: void, context: ResolverContext) => {
 
-          const formatPrompt = `Please provide a glossary of any jargon terms in the text. The glossary should contain the term and some text explaining it. Analyze this post and output in a JSON array of objects with keys: term: "term” (string), altTerms: string[], text: text (html string). The output should look like [{term: "term1", altTerms: ["term1s", "Term1"], text: "Term 1 explanation text"}, {term: "term2", altTerms: ["term2s", "Term2"], text: "term2 explanation text"}]. Do not return anything else.`
+          const formatPrompt = `Please provide a glossary of any technical terms or acronyms in the text. The glossary should contain the term and some text explaining it. Analyze this post and output in a JSON array of objects with keys: term: "term” (string), altTerms: string[], text: text (html string). The output should look like [{term: "term1", altTerms: ["term1s", "Term1"], text: "Term 1 explanation text"}, {term: "term2", altTerms: ["term2s", "Term2"], text: "term2 explanation text"}]. Do not return anything else.`
 
           async function queryClaudeJailbreak(prompt: PromptCachingBetaMessageParam[], maxTokens: number) {
             const client = getAnthropicPromptCachingClientOrThrow()
@@ -377,6 +377,8 @@ Ensure that your explanations are clear and accessible to someone who may not be
 Use your general knowledge as well as the post's specific explanations or definitions of the terms to find a good definition of each term. 
 
 Include a set of altTerms that are slight variations of the term, such as plurals or different capitalizations that appear in the text. Make sure to include all variations that appear in the text.
+
+Make sure to include all technical terms, all acronyms and abbreviations that appear in the text.
 
 Output a JSON array of objects with keys: term: "term” (string), altTerms: string[], text: text (html string). The output should look like [{term: "term1", altTerms: ["term1s", "Term1"], text: "Term 1 explanation text"}, {term: "term2", altTerms: ["term2s", "Term2"], text: "term2 explanation text"}]. Do not return anything else.`,
               model: "claude-3-5-sonnet-20240620",
@@ -431,11 +433,13 @@ Output a JSON array of objects with keys: term: "term” (string), altTerms: str
                   props: {
                     term: t,
                     text: term.text,
+                    altTerms: [term.term, ...(term.altTerms ?? [])],
                     isAltTerm: term.altTerms.includes(t),
                   },
                 }
               }
             }
+            console.log("glossary", glossary)
             return glossary
           } else {
             // eslint-disable-next-line no-console
