@@ -580,7 +580,6 @@ registerFragment(`
       imageId
       text
     }
-    criticismTipsDismissed
     user {
       ...UsersMinimumInfo
     }
@@ -758,13 +757,6 @@ registerFragment(`
   fragment PostWithGeneratedSummary on Post {
     _id
     languageModelSummary
-  }
-`);
-
-registerFragment(`
-  fragment PostsEditCriticismTips on Post {
-    _id
-    criticismTipsDismissed
   }
 `);
 
