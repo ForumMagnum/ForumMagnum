@@ -110,7 +110,7 @@ async function getQueryContextDecision(query: string, currentPost: PostsPage | n
 }
 
 async function getProvidedPosts(query: string, context: ResolverContext): Promise<PostsPage[]> {
-  const postIdRegex = /\/([a-zA-Z0-9]{17})(?=[\/#?&)]|$)/g;
+  const postIdRegex = /\/([a-zA-Z0-9]{17})(?=[/#?&)]|$)/g;
   const postIdMatches = [];
   let match;
   while ((match = postIdRegex.exec(query)) !== null) {
