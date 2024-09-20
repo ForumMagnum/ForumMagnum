@@ -4,19 +4,22 @@ import { isEAForum } from "../../lib/instanceSettings";
 import classNames from "classnames";
 import { useTracking } from "../../lib/analyticsEvents";
 
+// For large screens, we show the card on the right-hand side of the editor.
+const MIN_WIDTH_RHS_CARD = '1670px'
+// For slightly smaller screens, we reduce the size of fonts/whitespace.
+const MIN_WIDTH_RHS_CARD_SMALL = '1535px'
+// For all smaller screens, we show the card under the editor instead of to the side.
+
 const styles = (theme: ThemeType) => ({
   root: {
     position: 'absolute',
-    right: -390,
+    right: -345,
     top: -100,
     height: '120%',
-    '@media (max-width: 1500px)': {
-      right: -335,
+    [`@media (max-width: ${MIN_WIDTH_RHS_CARD})`]: {
+      right: -275,
     },
-    '@media (max-width: 1360px)': {
-      right: -268,
-    },
-    '@media (max-width: 1234px)': {
+    [`@media (max-width: ${MIN_WIDTH_RHS_CARD_SMALL})`]: {
       position: 'static',
       marginTop: 16
     },
@@ -32,11 +35,11 @@ const styles = (theme: ThemeType) => ({
     borderRadius: theme.borderRadius.default,
     transition: 'opacity 0.4s ease',
     opacity: 0,
-    '@media (max-width: 1360px)': {
+    [`@media (max-width: ${MIN_WIDTH_RHS_CARD})`]: {
       width: 242,
       padding: 12
     },
-    '@media (max-width: 1234px)': {
+    [`@media (max-width: ${MIN_WIDTH_RHS_CARD_SMALL})`]: {
       position: 'static',
       width: '100%'
     },
@@ -51,11 +54,11 @@ const styles = (theme: ThemeType) => ({
     fontSize: 16,
     lineHeight: '21px',
     margin: 0,
-    '@media (max-width: 1360px)': {
+    [`@media (max-width: ${MIN_WIDTH_RHS_CARD})`]: {
       fontSize: 13,
       lineHeight: '20px',
     },
-    '@media (max-width: 1234px)': {
+    [`@media (max-width: ${MIN_WIDTH_RHS_CARD_SMALL})`]: {
       fontSize: 14,
     },
   },
@@ -76,7 +79,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: 14,
     lineHeight: '21px',
     marginTop: 12,
-    '@media (max-width: 1360px)': {
+    [`@media (max-width: ${MIN_WIDTH_RHS_CARD})`]: {
       fontSize: 13,
       lineHeight: '20px',
     },
