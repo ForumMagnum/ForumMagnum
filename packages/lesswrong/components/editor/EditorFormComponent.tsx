@@ -456,7 +456,6 @@ export const EditorFormComponent = ({
       onRestore={onRestoreLocalStorage}
     />}
     <Components.Editor
-      key={placeholderKey.current}
       ref={editorRef}
       _classes={classes}
       currentUser={currentUser}

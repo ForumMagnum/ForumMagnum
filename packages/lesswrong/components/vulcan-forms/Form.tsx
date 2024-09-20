@@ -608,7 +608,19 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
         ) {
           continue;
         }
-        this.setState(getInitialStateFromProps(nextProps));
+        if (prop === "prefilledProps") {
+          const updates: Record<string, AnyBecauseTodo> = {};
+          const keys = new Set([...Object.keys(next), ...Object.keys(prev)]);
+          for (const key of keys) {
+            if (next[key] !== prev[key]) {
+              updates[key] = next[key];
+            }
+          }
+          console.log("updates", updates);
+          void this.updateCurrentValues(updates);
+        } else {
+          this.setState(getInitialStateFromProps(nextProps));
+        }
         break;
       }
     }

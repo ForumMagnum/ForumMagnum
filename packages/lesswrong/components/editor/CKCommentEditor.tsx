@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { ckEditorBundleVersion, getCkCommentEditor } from '../../lib/wrapCkEditor';
 import { generateTokenRequest } from '../../lib/ckEditorUtils';
@@ -59,10 +59,21 @@ const CKCommentEditor = ({
     ...cloudinaryConfig,
   };
 
+  const [actualEditor, setActualEditor] = useState<Editor | null>(null);
+
+  const actualPlaceholder = placeholder ?? defaultEditorPlaceholder;
+  useEffect(() => {
+    const root = actualEditor?.editing.view.document.getRoot('main');
+    if (root) {
+      root.placeholder = actualPlaceholder;
+    }
+  }, [actualEditor, actualPlaceholder]);
+
   return <div>
     <CKEditor
       editor={CommentEditor}
       onReady={(editor: Editor) => {
+        setActualEditor(editor);
         // Uncomment the line below and the import above to activate the debugger
         // CKEditorInspector.attach(editor)
         onReady(editor)

@@ -430,7 +430,8 @@ const CKPostEditor = ({
 
   const hasEverDialoguedBefore = !!anyDialogue && anyDialogue.length > 1;
 
-  const [_, setEditor] = useContext(EditorContext);
+  const [editor, setEditor] = useContext(EditorContext);
+  const [actualEditor, setActualEditor] = useState<Editor | null>(null);
   
   const applyCollabModeToCkEditor = (editor: Editor, mode: CollaborationMode) => {
     const trackChanges = editor.commands.get('trackChanges')!;
@@ -497,11 +498,18 @@ const CKPostEditor = ({
       container: hiddenPresenceListRef.current
     },
     initialData: initData,
-    placeholder: placeholder ?? defaultEditorPlaceholder,
     mention: mentionPluginConfiguration,
     dialogues: dialogueConfiguration,
     ...cloudinaryConfig,
   };
+
+  const actualPlaceholder = placeholder ?? defaultEditorPlaceholder;
+  useEffect(() => {
+    const root = actualEditor?.editing.view.document.getRoot('main');
+    if (root) {
+      root.placeholder = actualPlaceholder;
+    }
+  }, [actualEditor, actualPlaceholder]);
 
   return <div>
     {isBlockOwnershipMode && <>
@@ -542,6 +550,8 @@ const CKPostEditor = ({
       data={data}
       isCollaborative={!!isCollaborative}
       onReady={(editor: Editor) => {
+        setActualEditor(editor);
+
         if (isCollaborative) {
           // Uncomment this line and the import above to activate the CKEditor debugger
           // CKEditorInspector.attach(editor)
