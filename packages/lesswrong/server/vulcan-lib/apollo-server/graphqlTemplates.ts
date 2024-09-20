@@ -165,6 +165,7 @@ type SingleMovieInput {
 export const singleInputTemplate = ({ typeName }: {typeName: string}) => (
 `input Single${typeName}Input {
   selector: ${typeName}SelectorUniqueInput
+  resolverArgs: JSON
   # Whether to enable caching for this query
   enableCache: Boolean
   # Return null instead of throwing MissingDocumentError
@@ -188,6 +189,7 @@ export const multiInputTemplate = ({ typeName }: {typeName: string}) => (
 `input Multi${typeName}Input {
   # A JSON object that contains the query terms used to fetch data
   terms: JSON,
+  resolverArgs: JSON
   # How much to offset the results by
   offset: Int,
   # A limit for the query

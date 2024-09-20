@@ -18,7 +18,7 @@ import { getDefaultPostLocationFields, getDialogueResponseIds, getDialogueMessag
 import { buildRevision } from '../editor/make_editable_callbacks';
 import { cheerioParse } from '../utils/htmlUtil';
 import { isDialogueParticipant } from '../../components/posts/PostsPage/PostsPage';
-import { marketInfoLoader } from '../posts/annualReviewMarkets';
+import { marketInfoLoader } from '../../lib/collections/posts/annualReviewMarkets';
 import { getWithCustomLoader } from '../../lib/loaders';
 import { isLWorAF, isAF } from '../../lib/instanceSettings';
 import { hasSideComments } from '../../lib/betas';

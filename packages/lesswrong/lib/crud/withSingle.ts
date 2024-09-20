@@ -51,7 +51,7 @@ export function getGraphQLQueryFromOptions({ extraVariables, collectionName, fra
   if (extraVariables) {
     extraVariablesString = Object.keys(extraVariables).map(k => `$${k}: ${extraVariables[k]}`).join(', ')
   }
-  
+
   const query = gql`
     ${singleClientTemplate({ typeName, fragmentName, extraVariablesString })}
     ${fragment}
@@ -142,9 +142,10 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
     variables: {
       input: {
         selector: { documentId, slug },
+        resolverArgs: extraVariablesValues,
         ...(allowNull && {allowNull: true})
       },
-      ...extraVariablesValues
+      ...extraVariablesValues,
     },
     fetchPolicy,
     nextFetchPolicy,

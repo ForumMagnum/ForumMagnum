@@ -38,6 +38,7 @@ import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
 import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles';
 import { addTestingRoutes } from './testingSqlClient';
 import { addCrosspostRoutes } from './fmCrosspost/routes';
+import { addV2CrosspostHandlers } from './crossposting/handlers';
 import { getUserEmail } from "../lib/collections/users/helpers";
 import { inspect } from "util";
 import { renderJssSheetPreloads } from './utils/renderJssSheetImports';
@@ -348,6 +349,7 @@ export function startWebserver() {
   })
 
   addCrosspostRoutes(app);
+  addV2CrosspostHandlers(app);
   addTestingRoutes(app);
   addLlmChatEndpoint(app);
 
