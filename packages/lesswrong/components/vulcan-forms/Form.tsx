@@ -36,8 +36,7 @@ type FormFieldUnfinished<N extends CollectionNameString> = Partial<FormField<N>>
 // props that should trigger a form reset
 const RESET_PROPS = [
   'collection', 'collectionName', 'typeName', 'document', 'schema', 'currentUser',
-  'fields', 'removeFields',
-  'prefilledProps' // TODO: prefilledProps should be merged instead?
+  'fields', 'removeFields', 'prefilledProps'
 ] as const;
 
 const compactParent = (object: AnyBecauseTodo, path: AnyBecauseTodo) => {
@@ -616,7 +615,6 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
               updates[key] = next[key];
             }
           }
-          console.log("updates", updates);
           void this.updateCurrentValues(updates);
         } else {
           this.setState(getInitialStateFromProps(nextProps));

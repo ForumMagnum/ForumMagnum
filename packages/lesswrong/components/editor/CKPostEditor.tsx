@@ -430,7 +430,7 @@ const CKPostEditor = ({
 
   const hasEverDialoguedBefore = !!anyDialogue && anyDialogue.length > 1;
 
-  const [editor, setEditor] = useContext(EditorContext);
+  const [_, setEditor] = useContext(EditorContext);
   const [actualEditor, setActualEditor] = useState<Editor | null>(null);
   
   const applyCollabModeToCkEditor = (editor: Editor, mode: CollaborationMode) => {
@@ -498,6 +498,7 @@ const CKPostEditor = ({
       container: hiddenPresenceListRef.current
     },
     initialData: initData,
+    placeholder: placeholder ?? defaultEditorPlaceholder,
     mention: mentionPluginConfiguration,
     dialogues: dialogueConfiguration,
     ...cloudinaryConfig,

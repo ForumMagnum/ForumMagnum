@@ -429,15 +429,6 @@ export const EditorFormComponent = ({
 
   const actualPlaceholder = ((collectionName === "Posts" && getPostPlaceholder(document)) || editorHintText || hintText || placeholder);
 
-  // The logic here is to make sure that the placeholder is updated when it changes in the props.
-  // CKEditor can't change the placeholder after it's been initialized, so we need to change the key
-  // to force it to unmount and remount the whole component. Only do this where there are no contents,
-  // as this is the only time the placeholder is visible.
-  const placeholderKey = useRef(actualPlaceholder);
-  if (placeholderKey.current !== actualPlaceholder && !contents?.value) {
-    placeholderKey.current = actualPlaceholder;
-  }
-
   // document isn't necessarily defined. TODO: clean up rest of file
   // to not rely on document
   if (!document) return null;

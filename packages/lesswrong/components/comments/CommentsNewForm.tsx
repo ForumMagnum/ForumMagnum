@@ -491,14 +491,11 @@ const CommentsNewForm = ({
               mutationFragment={getFragment(fragment)}
               successCallback={wrappedSuccessCallback}
               cancelCallback={wrappedCancelCallback}
-              submitCallback={(data: Partial<CommentsList>) => {
+              submitCallback={(data: unknown) => {
                 setLoading(true);
                 commentSubmitStartTimeRef.current = Date.now()
                 captureEvent("wrappedSubmitCallbackStarted")
-                return {
-                  ...data,
-                  answer: isAnswer,
-                };
+                return data
               }}
               errorCallback={() => setLoading(false)}
               prefilledProps={prefilledProps}
