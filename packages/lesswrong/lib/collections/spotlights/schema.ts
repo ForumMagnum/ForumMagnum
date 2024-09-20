@@ -45,10 +45,16 @@ const schema: SchemaType<"Spotlights"> = {
       type: 'Post!',
       // TODO: make a sql resolver and loader and stuff
       resolver: async (spotlight: DbSpotlight, args: void, context: ResolverContext): Promise<Partial<DbPost | DbSequence | DbCollection> | null> => {
-        const collectionName = graphqlTypeToCollectionName(spotlight.documentType) as "Posts"|"Sequences";
-        const collection = context[collectionName];
-        const document = await collection.findOne(spotlight.documentId);
-        return accessFilterSingle(context.currentUser, collection, document, context);
+        switch(spotlight.documentType) {
+          case "Post": {
+            const document = await context.loaders.Posts.load(spotlight.documentId);
+            return accessFilterSingle(context.currentUser, context.Posts, document, context);
+          }
+          case "Sequence": {
+            const document = await context.loaders.Sequences.load(spotlight.documentId);
+            return accessFilterSingle(context.currentUser, context.Sequences, document, context);
+          }
+        }
       }
     },
   },
