@@ -18,8 +18,6 @@ import { getOpenAI } from "../languageModels/languageModelIntegration";
 import express, { Express } from "express";
 import { captureException } from "@sentry/core";
 import { FilterSettings, getDefaultFilterSettings } from "@/lib/filterSettings";
-import { fetchFragment } from "../fetchFragment";
-import { Tool } from "@anthropic-ai/sdk/resources";
 import sampleSize from "lodash/sampleSize";
 import moment from "moment";
 
@@ -111,6 +109,21 @@ async function getQueryContextDecision(query: string, currentPost: PostsPage | n
   return parsedResponse.strategy_choice;
 }
 
+async function getProvidedPosts(query: string, context: ResolverContext): Promise<PostsPage[]> {
+  const postIdRegex = /\/([a-zA-Z0-9]{17})(?=[\/#?&)]|$)/g;
+  const postIdMatches = [];
+  let match;
+  while ((match = postIdRegex.exec(query)) !== null) {
+    postIdMatches.push(match[1]);
+  }
+
+  const postIds = uniq(postIdMatches);
+  const posts = await getPostsWithContents(postIds, context);
+  console.log('analyzing for provided posts', {query, postIds, postTitles: posts?.map(post => post.title)})
+
+  return posts;
+}
+
 // TODO: come back and refactor the query context decision to actually use the embedding distance results (including the post titles)
 async function getContextualPosts(query: string, ragMode: RagModeType, currentPost: PostsPage | null, context: ResolverContext): Promise<PostsPage[]> {
 
@@ -119,6 +132,8 @@ async function getContextualPosts(query: string, ragMode: RagModeType, currentPo
     'Search': 'both',
     'None': 'none',
     'Recommendation': 'recommendation',
+    'Provided': 'provided',
+    'Rationality Tutor': 'rationality-tutor',
   }
 
   const contextSelectionCode = (ragMode === 'Auto')
@@ -135,11 +150,11 @@ async function getContextualPosts(query: string, ragMode: RagModeType, currentPo
   const { embeddings: queryEmbeddings } = await getEmbeddingsFromApi(query);
 
   const querySearchPromise = useQueryEmbeddings
-    ? context.repos.postEmbeddings.getNearestPostIdsWeightedByQuality(queryEmbeddings, contextSelectionCode==='query-based' ? 20 : 5)
+    ? context.repos.postEmbeddings.getNearestPostIdsWeightedByQuality(queryEmbeddings, contextSelectionCode==='query-based' ? 10 : 3)
     : Promise.resolve([]);
 
   const currentPostSearchPromise = useCurrentPostSearchEmbeddings && currentPost
-    ? context.repos.postEmbeddings.getNearestPostIdsWeightedByQualityByPostId(currentPost._id, 20)
+    ? context.repos.postEmbeddings.getNearestPostIdsWeightedByQualityByPostId(currentPost._id, 10)
     : Promise.resolve([]);
 
   const [querySearchIds, currentPostSearchIds] = await Promise.all([
@@ -387,14 +402,16 @@ async function getContextMessages(query: string, ragMode: RagModeType, currentPo
       userContextMessage: '',
       assistantContextMessage: '',
       contextualPosts: [],
+      providedPosts: [],
     };
   }
 
+  const providedPosts = await getProvidedPosts(query, context);
   const contextualPosts = await getContextualPosts(query, ragMode, currentPost, context);
-  const userContextMessage = getPostContextMessage(contextualPosts);
-  const assistantContextMessage = await generateAssistantContextMessage(query, currentPost, contextualPosts, true, context);
+  const userContextMessage = getPostContextMessage([...providedPosts, ...contextualPosts]);
+  const assistantContextMessage = await generateAssistantContextMessage({query, currentPost, providedPosts, contextualPosts, includeComments: true, context});
 
-  return { userContextMessage, assistantContextMessage, contextualPosts };
+  return { userContextMessage, assistantContextMessage, providedPosts, contextualPosts };
 }
 
 async function createConversationWithMessages({ newMessage, systemPrompt, model, currentPostId, ragMode, currentUser, context }: InitializeConversationArgs) {
@@ -405,7 +422,7 @@ async function createConversationWithMessages({ newMessage, systemPrompt, model,
     : Promise.resolve(null)
   );
 
-  const [conversation, { userContextMessage, assistantContextMessage, contextualPosts }] = await Promise.all([
+  const [conversation, { userContextMessage, assistantContextMessage, contextualPosts, providedPosts }] = await Promise.all([
     createNewConversation({
       query,
       systemPrompt,
@@ -468,7 +485,7 @@ async function createConversationWithMessages({ newMessage, systemPrompt, model,
 
   const newMessageRecords: NewLlmMessage[] = [newAssistantContextMessageRecord, newAssistantAckMessageRecord, newUserMessageRecord]
 
-  if (contextualPosts.length > 0) {
+  if (contextualPosts.length > 0 || providedPosts.length > 0) {
     newMessageRecords.push(newUserContextMessageRecord);
   }
 
@@ -477,8 +494,6 @@ async function createConversationWithMessages({ newMessage, systemPrompt, model,
     newMessageRecords
   };
 }
-
-
 
 
 async function getUserEmbeddingRecommendations(userId: string, numRecommendationPosts: number, oversamplingFactor=10, context: ResolverContext): Promise<PostsPage[]> {

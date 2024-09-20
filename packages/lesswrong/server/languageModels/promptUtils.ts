@@ -23,6 +23,15 @@ interface TokenCounter {
   tokenCount: number;
 }
 
+interface GenerateAssistantContextMessageArgs {
+  query: string;
+  currentPost: PostsPage | null;
+  providedPosts: PostsPage[];
+  contextualPosts: PostsPage[];
+  includeComments: boolean;
+  context: ResolverContext;
+}
+
 // Trying to be conservative, since we have a bunch of additional tokens coming from e.g. JSON.stringify
 const CHARS_PER_TOKEN = 3.5;
 
@@ -235,9 +244,14 @@ export const CLAUDE_CHAT_SYSTEM_PROMPT = [
 ].join('\n');
 
 
-
-
-export const generateAssistantContextMessage = async (query: string, currentPost: PostsPage | null, contextualPosts: PostsPage[], includeComments: boolean, context: ResolverContext): Promise<string> => {
+export const generateAssistantContextMessage = async ({
+  query,
+  currentPost,
+  providedPosts,
+  contextualPosts,
+  includeComments,
+  context
+}: GenerateAssistantContextMessageArgs): Promise<string> => {
   const contextIsProvided = !!currentPost || contextualPosts.length > 0;
   const additionalPosts = contextualPosts.filter(post => post._id !== currentPost?._id);
 
@@ -287,10 +301,14 @@ The postId and commentIds (the _id in each comment) are given in the search resu
 <CurrentPostComments>\n${await formatCommentsForPost(currentPost, tokenCounter, context)}\n</CurrentPostComments>\n\n`
     : '';
 
+  const providedPostsBlock = providedPosts.length > 0
+    ? `The user mentioned the following posts in their query. They are presumed to be EXTREMELY RELEVANT to answering the users query. Other posts might be relevant too, but these are the ones the user mentioned first, so they are likely very important: <UserProvidedPosts>\n${formatAdditionalPostsForPrompt(providedPosts, tokenCounter)}\n</UserProvidedPosts>\n\n`
+    : '';
+
   const contextBlock = contextIsProvided
     ? `The following context is provided to help you answer the user's question. Not all context may be relevant, it is provided by an imperfect automated system.
 <Context>    
-${currentPostLine}${additionalPostsBlock}${currentPostContentBlock}${commentsOnPostBlock}
+${currentPostLine}${additionalPostsBlock}${currentPostContentBlock}${commentsOnPostBlock}${providedPostsBlock}
 </Context>`
     : '';
 
