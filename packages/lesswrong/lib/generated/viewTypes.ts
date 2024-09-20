@@ -18,6 +18,8 @@ type DialogueChecksViewName = "userDialogueChecks"|"userTargetDialogueChecks";
 type DialogueMatchPreferencesViewName = "dialogueMatchPreferences";
 type DigestPostsViewName = never
 type DigestsViewName = "findByNum"|"all";
+type DoppelCommentVotesViewName = never
+type DoppelCommentsViewName = "doppelCommentsForComment";
 type ElectionCandidatesViewName = never
 type ElectionVotesViewName = "allSubmittedVotes";
 type ElicitQuestionPredictionsViewName = never
@@ -102,6 +104,8 @@ interface ViewTermsByCollectionName {
   DialogueMatchPreferences: DialogueMatchPreferencesViewTerms
   DigestPosts: ViewTermsBase
   Digests: DigestsViewTerms
+  DoppelCommentVotes: ViewTermsBase
+  DoppelComments: DoppelCommentsViewTerms
   ElectionCandidates: ElectionCandidatesViewTerms
   ElectionVotes: ElectionVotesViewTerms
   ElicitQuestionPredictions: ViewTermsBase
@@ -167,4 +171,4 @@ interface ViewTermsByCollectionName {
 }
 
 
-type NameOfCollectionWithViews = "AdvisorRequests"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationNotices"|"DialogueChecks"|"DialogueMatchPreferences"|"Digests"|"ElectionVotes"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"LWEvents"|"LlmConversations"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type NameOfCollectionWithViews = "AdvisorRequests"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationNotices"|"DialogueChecks"|"DialogueMatchPreferences"|"Digests"|"DoppelComments"|"ElectionVotes"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"LWEvents"|"LlmConversations"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"

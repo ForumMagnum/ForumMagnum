@@ -53,7 +53,7 @@ export type AnnualReviewMarketInfo = {
   probability: number;
   isResolved: boolean;
   year: number;
-  url: string;
+  url: string | null;
 }
 
 export const getMarketInfo = (post: PostsBase): AnnualReviewMarketInfo | undefined => {

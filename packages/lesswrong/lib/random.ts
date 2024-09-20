@@ -67,3 +67,10 @@ export const randomSecret = () => {
     throw new Error("No CSPRNG available on the client");
   }
 }
+
+export const seededShuffle = <T>(arr: T[], seed: string): T[] => {
+  const rng = seedrandom(seed);
+  const withRandoms = arr.map((item) => ({ item, random: rng() }));
+  const sorted = withRandoms.sort((a, b) => a.random - b.random);
+  return sorted.map(({ item }) => item);
+}

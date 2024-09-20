@@ -773,5 +773,10 @@
     "acceptsSchemaHash": "1184dfb713785c6ceabde629903f40dc",
     "acceptedByMigration": "20240913T200359.remove_review_comment_id_from_posts.ts",
     "timestamp": "2024-09-13T20:03:59.000Z"
+  },
+  {
+    "acceptsSchemaHash": "0af380ba7653c0b38ee38230eee77fb9",
+    "acceptedByMigration": "20240918T203801.create_DoppelComments_and_DoppelCommentVotes_tables.ts",
+    "timestamp": "2024-09-18T20:38:01.000Z"
   }
 ]

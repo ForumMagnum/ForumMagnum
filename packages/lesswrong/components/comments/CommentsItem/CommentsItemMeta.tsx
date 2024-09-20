@@ -120,6 +120,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     top: 1,
   },
+  doppelCommentVoteDisplay: {
+    fontSize: 14,
+    outline: theme.palette.border.commentBorder,
+    padding: theme.spacing.unit / 2,
+    marginLeft: theme.spacing.unit,
+    borderRadius: 2,
+  },
   menu: isFriendlyUI
     ? {
       color: theme.palette.icon.dim,
@@ -144,6 +151,7 @@ export const CommentsItemMeta = ({
   toggleCollapse,
   setShowEdit,
   rightSectionElements,
+  doppelCommentFraction,
   classes,
 }: {
   treeOptions: CommentTreeOptions,
@@ -160,6 +168,7 @@ export const CommentsItemMeta = ({
   toggleCollapse?: () => void,
   setShowEdit: () => void,
   rightSectionElements?: React.ReactNode,
+  doppelCommentFraction?: {numerator: number, denominator: number},
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -218,12 +227,10 @@ export const CommentsItemMeta = ({
     relevantTagsTruncated = relevantTagsTruncated.slice(0, 1);
   }
 
-
-
   const {
     CommentShortformIcon, CommentDiscussionIcon, ShowParentComment, CommentUserName,
     CommentsItemDate, SmallSideVote, CommentOutdatedWarning, FooterTag, LoadMore,
-    ForumIcon, CommentsMenu, UserCommentMarkers
+    ForumIcon, CommentsMenu, UserCommentMarkers, LWTooltip
   } = Components;
 
   return (
@@ -286,6 +293,14 @@ export const CommentsItemMeta = ({
         collectionName="Comments"
         hideKarma={post?.hideCommentKarma}
       />}
+      {doppelCommentFraction?.denominator
+        ? <LWTooltip title={"How many times did this (real) comment pass the Turing Test?"}>
+          <div className={classes.doppelCommentVoteDisplay}>
+            {`${doppelCommentFraction.numerator} / ${doppelCommentFraction.denominator}`}
+          </div>
+        </LWTooltip>
+        : null
+      }
 
       {post && <CommentOutdatedWarning comment={comment} post={post}/>}
 

@@ -1,5 +1,5 @@
 import { documentIsNotDeleted, userOwns } from '../../vulcan-users/permissions';
-import { arrayOfForeignKeysField, foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, schemaDefaultValue } from '../../utils/schemaUtils';
+import { arrayOfForeignKeysField, foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, schemaDefaultValue, accessFilterMultiple } from '../../utils/schemaUtils';
 import { mongoFindOne } from '../../mongoQueries';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { Utils } from '../../vulcan-lib';
@@ -875,7 +875,58 @@ const schema: SchemaType<"Comments"> = {
     canRead: ['guests'],
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['members', 'sunshineRegiment', 'admins'],
-  } 
+  },
+
+  doppelComments: {
+    // Resolved by doppelComments resolver
+    type: Array,
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['admins'],
+    canUpdate: ['admins'],
+    hidden: true,
+  },
+
+  'doppelComments.$': {
+    type: Object,
+  },
+
+  ownDoppelCommentVote: resolverOnlyField({
+    type: Object,
+    graphQLtype: 'DoppelCommentVote',
+    canRead: ['guests'],
+    resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
+      const { DoppelCommentVotes, currentUser } = context;
+      if (!currentUser) return null;
+      return DoppelCommentVotes.findOne({commentId: comment._id, userId: currentUser._id}) ?? null;
+    },
+    sqlResolver: ({field, currentUserField}) => `(
+      SELECT ROW_TO_JSON(dc.*)
+      FROM "DoppelCommentVotes" dc
+      WHERE dc."commentId" = ${field("_id")} AND dc."userId" = ${currentUserField("_id")}
+    )`
+  }),
+  doppelCommentVoteChoices: resolverOnlyField({
+    type: Array,
+    graphQLtype: '[String]',
+    canRead: ['guests'],
+    resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
+      const { DoppelCommentVotes } = context;
+      const doppelCommentVotes = await DoppelCommentVotes.find({commentId: comment._id, type: 'vote'}).fetch();
+      return doppelCommentVotes.map(vote => vote.doppelCommentChoiceId);
+    },
+    sqlResolver: ({field}) => `(
+      SELECT ARRAY_AGG(dc."doppelCommentChoiceId")
+      FROM "DoppelCommentVotes" dc
+      WHERE dc."commentId" = ${field("_id")} AND dc."type" = 'vote'
+      GROUP BY dc."commentId"
+    )`
+  }),
+  "doppelCommentVoteChoices.$": {
+    type: String,
+    optional: true,
+    nullable: true,
+  },
 };
 
 export default schema;

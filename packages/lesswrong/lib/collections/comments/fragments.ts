@@ -74,6 +74,13 @@ registerFragment(`
     rejectedReason
     modGPTRecommendation
     originalDialogueId
+    doppelComments {
+      ...DoppelCommentsFragment
+    }
+    ownDoppelCommentVote {
+      ...DoppelCommentVotesFragment
+    }
+    doppelCommentVoteChoices
   }
 `);
 

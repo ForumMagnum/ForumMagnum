@@ -10,6 +10,7 @@ import { pipeline } from 'stream/promises'
 import { hyperbolicApiKey } from "@/lib/instanceSettings";
 import { runFragmentQuery } from "./vulcan-lib/query";
 import Users from "@/lib/vulcan-users";
+import { getManyWithCustomLoader, getWithCustomLoader } from "@/lib/loaders";
 
 
 
@@ -62,7 +63,7 @@ ${currentUser.displayName} 1h ${Math.floor(20 + (Math.random() * 75))} ${Math.fl
 ${prefix}`.trim();
 }
 
-async function constructMessageHistory(
+export async function constructMessageHistory(
   prefix: string,
   commentIds: string[],
   postIds: string[],
@@ -73,27 +74,34 @@ async function constructMessageHistory(
 ): Promise<PromptCachingBetaMessageParam[]> {
   const messages: PromptCachingBetaMessageParam[] = [];
 
-  // Make the fetches parallel to save time
-  const [posts, comments] = await Promise.all([
-    runFragmentQuery({
+  const posts = await getManyWithCustomLoader(context, "postExamplesForLLM", postIds, async (postIds: string[]) => {
+    const posts = await runFragmentQuery({
       collectionName: "Posts",
       fragmentName: "PostsForAutocomplete",
       terms: { postIds },
       context,
-    }),
-    runFragmentQuery({
+    });
+    return postIds.map(postId => posts.find(post => post._id === postId));
+  });
+
+  const comments = await getManyWithCustomLoader(context, "commentExamplesForLLM", commentIds, async (commentIds: string[]) => {
+    const comments = await runFragmentQuery({
       collectionName: "Comments",
       fragmentName: "CommentsForAutocomplete",
       terms: { commentIds },
       context,
-    }),
-  ]);
+    });
+    return commentIds.map(commentId => comments.find(comment => comment._id === commentId));
+  });
 
   // eslint-disable-next-line no-console
   console.log(`Converting ${posts.length} posts and ${comments.length} comments to messages`);
 
   // Add fetched posts and comments to message history
   for (const post of posts) {
+    if (post === undefined) {
+      throw new Error("Post not found in `constructMessageHistory`");
+    }
     messages.push({
       role: "user",
       content: [{ type: "text", text: `<cmd>cat lw/${post._id}.txt</cmd>` }],
@@ -111,6 +119,9 @@ async function constructMessageHistory(
   }
 
   for (const comment of comments) {
+    if (comment === undefined) {
+      throw new Error("Comment not found in `constructMessageHistory`");
+    }
     messages.push({
       role: "user",
       content: [{ type: "text", text: `<cmd>cat lw/${comment._id}.txt</cmd>` }],
@@ -130,12 +141,22 @@ async function constructMessageHistory(
 
   if (replyingCommentId) {
     // Fetch the comment we're replying to
-    const replyingToCommentResponse = await runFragmentQuery({
-      collectionName: "Comments",
-      fragmentName: "CommentsForAutocompleteWithParents",
-      terms: { commentIds: [replyingCommentId] },
-      context,
-    })
+    const replyingToCommentResponse = await getWithCustomLoader(context, "commentsWithParentsForLLM", replyingCommentId, async (commentIds: string[]) => {
+      const comments = await runFragmentQuery({
+        collectionName: "Comments",
+        fragmentName: "CommentsForAutocompleteWithParents",
+        terms: { commentIds: commentIds },
+        context,
+      })
+      const upwardCommentClosure = (commentId: string): CommentsForAutocompleteWithParents[] => {
+        const comment = comments.find(comment => comment._id === commentId)
+        if (comment?.parentComment) {
+          return [comment, ...upwardCommentClosure(comment.parentComment._id)]
+        }
+        return comment === undefined ? [] : [comment]
+      }
+      return commentIds.map(commentId => upwardCommentClosure(commentId));
+    });
     if (!replyingToCommentResponse || replyingToCommentResponse.length === 0) {
       throw new Error("Comment not found");
     }
@@ -299,7 +320,7 @@ export function addAutocompleteEndpoint(app: Express) {
           context,
           replyingCommentId,
           postId
-        ),
+        )
       });
 
       loadingMessagesStream.on("text", (delta, snapshot) => {

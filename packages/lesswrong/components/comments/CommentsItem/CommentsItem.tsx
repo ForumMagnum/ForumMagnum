@@ -1,5 +1,5 @@
-import React, { useRef, useState } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Components, registerComponent, useStyles } from '../../../lib/vulcan-lib';
 import classNames from 'classnames';
 import withErrorBoundary from '../../common/withErrorBoundary';
 import { useCurrentUser } from '../../common/withUser';
@@ -17,6 +17,11 @@ import { useVote } from '../../votes/withVote';
 import { VotingProps } from '../../votes/votingProps';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import type { ContentItemBody } from '../../common/ContentItemBody';
+import Button from '@material-ui/core/Button';
+import { useCreate } from '@/lib/crud/withCreate';
+import { useMessages } from '@/components/common/withMessages';
+import { userHasDoppelComments } from '@/lib/betas';
+import { seededShuffle } from '@/lib/random';
 
 export const highlightSelectorClassName = "highlighted-substring";
 export const dimHighlightClassName = "dim-highlighted-substring";
@@ -148,7 +153,82 @@ const styles = (theme: ThemeType): JssStyles => ({
   excerpt: {
     marginBottom: 8,
   },
+  doppelCommentsButton: {
+    "&.MuiButton-root": {
+      backgroundColor: theme.palette.greyAlpha(0.1),
+      padding: theme.spacing.unit,
+      paddingLeft: theme.spacing.unit*3,
+      paddingRight: theme.spacing.unit*3,
+      borderRadius: theme.borderRadius.small,
+      textTransform: "none",
+      fontVariant: "small-caps",
+      fontColor: theme.palette.text.primary,
+      marginRight: theme.spacing.unit,
+      fontSize: theme.baseFontSize,
+    }
+  },
+  doppelCommentsOptOutButton: {
+    "&&": {
+      backgroundColor: theme.palette.greyAlpha(0),
+    }
+  },
+  adminTriedToOptOutMessage: {
+    color: theme.palette.error.main,
+  }
 });
+
+type PotentialCommentBody = { content: string|null, doppelId: string|null }
+
+const DoppelCommentVote = ({ className, comment, createDoppelVote, potentialCommentBodies, activePotentialComment }:
+  {
+    className: string,
+    comment: CommentsList,
+    createDoppelVote: WithCreateFunction<"DoppelCommentVotes">,
+    potentialCommentBodies: PotentialCommentBody[],
+    activePotentialComment: 0|1|2,
+  }) => {
+  const [adminTriedToOptOut, setAdminTriedToOptOut] = React.useState<string | null>(null)
+  const { LWTooltip } = Components
+  const classes = useStyles(styles, "CommentBody")
+  const currentUser = useCurrentUser()
+  const { flash } = useMessages()
+
+  const voteForThisDoppel = (type: "skip" | "vote", doppelCommentChoiceId?: string) => {
+    if (!currentUser) return
+    void createDoppelVote({
+      data: {
+        userId: currentUser._id,
+        commentId: comment._id,
+        type,
+        doppelCommentChoiceId,
+      },
+    })
+    if (type === "vote") {
+      const message = doppelCommentChoiceId === null ? "You were correct" : "You were incorrect"
+      flash(message)
+    }
+  }
+  return <>
+    <div className={className}>
+      <LWTooltip title="Do you think the current comment was really written by the user, rather than an LLM?">
+        <Button className={classes.doppelCommentsButton} onClick={_ => voteForThisDoppel("vote", potentialCommentBodies[activePotentialComment].doppelId ?? undefined)}>
+          Pick current
+        </Button>
+      </LWTooltip>
+      <LWTooltip title="Reveal the true comment without voting">
+        <Button className={classes.doppelCommentsButton} onClick={_ => voteForThisDoppel("skip")}>
+          Skip
+        </Button>
+      </LWTooltip>
+      <LWTooltip title="Don't see these Turing tests on any comments">
+        <Button className={classNames(classes.doppelCommentsButton, classes.doppelCommentsOptOutButton)} onClick={_ => setAdminTriedToOptOut(comment._id)}>
+          Opt out of this feature
+        </Button>
+      </LWTooltip>
+    </div>
+    {adminTriedToOptOut === comment._id && <div className={classes.adminTriedToOptOutMessage}>Admins can't opt out of this "feature"</div>}
+  </>
+}
 
 /**
  * CommentsItem: A single comment, not including any recursion for child comments
@@ -200,6 +280,14 @@ export const CommentsItem = ({
   const [replyFormIsOpen, setReplyFormIsOpen] = useState(false);
   const [showEditState, setShowEditState] = useState(false);
   const [showParentState, setShowParentState] = useState(showParentDefault);
+  const [activePotentialComment, setActivePotentialComment] = React.useState<0|1|2>(0)
+  const potentialCommentBodies = seededShuffle([...(comment.doppelComments ?? []).slice(0, 2), comment], comment._id)
+    .map(possiblyDoppelComment => {
+      const isDoppel = 'commentId' in possiblyDoppelComment
+      const content = isDoppel ? possiblyDoppelComment.content : (possiblyDoppelComment.contents?.html ?? "")
+      const doppelId = isDoppel ? possiblyDoppelComment.commentId : null
+      return { content, doppelId }
+    })
   const isMinimalist = treeOptions.formStyle === "minimalist"
   const currentUser = useCurrentUser();
 
@@ -266,6 +354,7 @@ export const CommentsItem = ({
         comment={comment}
         postPage={postPage}
         voteProps={voteProps}
+        potentialCommentsData={potentialCommentsData}
       />
     }
   }
@@ -311,6 +400,45 @@ export const CommentsItem = ({
 
   const voteProps = useVote(comment, "Comments", votingSystem);
   const showInlineCancel = replyFormIsOpen && isMinimalist
+  const { create: createDoppelVote, data: newDoppelCommentVote } = useCreate({
+    collectionName: "DoppelCommentVotes",
+    fragmentName: "DoppelCommentVotesFragment",
+  })
+
+  const shouldWeDoppel = userHasDoppelComments(currentUser) // is LW/AF & is admin
+    && comment.doppelComments.length >= 2 // are there doppel comments to show?
+    && !(comment.ownDoppelCommentVote || newDoppelCommentVote) // has user already voted?
+
+  const potentialCommentsData = shouldWeDoppel
+    ? { potentialComments: potentialCommentBodies,
+        setActivePotentialComment, activePotentialComment,
+        doppelCommentVote: <DoppelCommentVote
+          className=''
+          comment={comment}
+          createDoppelVote={createDoppelVote}
+          potentialCommentBodies={potentialCommentBodies}
+          activePotentialComment={activePotentialComment}
+        />
+      }
+    : undefined
+  const replaceReplyButtonsWith = potentialCommentsData ? {
+    replaceReplyButtonsWith: (comment: CommentsList) => <DoppelCommentVote
+      className={classes.replyLink}
+      comment={comment}
+      createDoppelVote={createDoppelVote}
+      potentialCommentBodies={potentialCommentBodies}
+      activePotentialComment={activePotentialComment}
+    />
+  } : {}
+
+  const makeDoppelCommentFraction = (choices: (String | null)[]): {numerator: number, denominator: number} => ({
+    numerator: choices.filter(c => c === null).length,
+    denominator: choices.length
+  }) 
+
+  const doppelCommentFraction = comment.ownDoppelCommentVote
+    ? makeDoppelCommentFraction(comment.doppelCommentVoteChoices)
+    : undefined
 
   return (
     <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
@@ -377,6 +505,7 @@ export const CommentsItem = ({
               collapsed,
               toggleCollapse,
               setShowEdit,
+              doppelCommentFraction,
             }}
           />
           {comment.promoted && comment.promotedByUser && <div className={classes.metaNotice}>
@@ -392,7 +521,7 @@ export const CommentsItem = ({
             voteProps={voteProps}
             commentBodyRef={commentBodyRef}
             replyButton={
-              treeOptions?.replaceReplyButtonsWith?.(comment) || <a
+              ({...treeOptions, ...replaceReplyButtonsWith}).replaceReplyButtonsWith?.(comment) || <a
                 className={classNames("comments-item-reply-link", classes.replyLink)}
                 onClick={showInlineCancel ? closeReplyForm : openReplyForm}
               >
