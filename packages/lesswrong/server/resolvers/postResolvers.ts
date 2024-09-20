@@ -33,7 +33,7 @@ import { GoogleDocMetadata, getLatestContentsRevision } from '../../lib/collecti
 import { RecommendedPost, recombeeApi, recombeeRequestHelpers } from '../recombee/client';
 import { HybridRecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
 import { googleVertexApi } from '../google-vertex/client';
-import { userCanDo } from '../../lib/vulcan-users/permissions';
+import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { PromptCachingBetaMessageParam } from '@anthropic-ai/sdk/resources/beta/prompt-caching/messages';
 import { getAnthropicPromptCachingClientOrThrow } from '../languageModels/anthropicClient';
 import { exampleJargonGlossary2, exampleJargonPost2 } from './exampleJargonPost';
@@ -361,6 +361,9 @@ augmentFieldsDict(Posts, {
     resolveAs: {
       type: GraphQLJSON,
       resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+          if (!userIsAdmin(context.currentUser)) {
+            return null;
+          }
 
           const formatPrompt = `Please provide a glossary of any technical terms or acronyms in the text. The glossary should contain the term and some text explaining it. Analyze this post and output in a JSON array of objects with keys: term: "term” (string), altTerms: string[], text: text (html string). The output should look like [{term: "term1", altTerms: ["term1s", "Term1"], text: "Term 1 explanation text"}, {term: "term2", altTerms: ["term2s", "Term2"], text: "term2 explanation text"}]. Do not return anything else.`
 
