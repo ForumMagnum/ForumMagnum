@@ -778,5 +778,10 @@
     "acceptsSchemaHash": "e766c875e6c9911dcdd77f9a20a3c9c8",
     "acceptedByMigration": "20240918T045729.add_criticismTipsDismissed_to_Users.ts",
     "timestamp": "2024-09-18T04:57:29.000Z"
+  },
+  {
+    "acceptsSchemaHash": "16016945b35edcc8c5df47e292005a22",
+    "acceptedByMigration": "20240921T202611.ensure_Manifold_url_column_is_nullable.ts",
+    "timestamp": "2024-09-21T20:26:11.000Z"
   }
 ]
