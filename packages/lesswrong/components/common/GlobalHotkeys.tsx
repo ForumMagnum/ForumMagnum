@@ -6,12 +6,14 @@ import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from './withUser';
 import { userIsAdminOrMod } from '../../lib/vulcan-users';
 import { userHasDarkModeHotkey } from '../../lib/betas';
+import { useReplaceTextContent } from '../hooks/useReplaceTextContent';
 
 export const GlobalHotkeys = () => {
   const currentThemeOptions = useConcreteThemeOptions();
   const setTheme = useSetTheme();
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
+  const replaceText = useReplaceTextContent();
 
   useGlobalKeydown((e) => {
     // Toggle Dark Mode
@@ -31,6 +33,10 @@ export const GlobalHotkeys = () => {
       void updateCurrentUser({
         hideSunshineSidebar: !currentUser?.hideSunshineSidebar
       });
+    }
+
+    if (userIsAdminOrMod(currentUser) && e.altKey && e.shiftKey && !e.ctrlKey && !e.metaKey && e.keyCode === 85) {
+      replaceText();
     }
   });
 
