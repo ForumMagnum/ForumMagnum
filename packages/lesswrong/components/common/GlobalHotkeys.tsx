@@ -7,6 +7,7 @@ import { useCurrentUser } from './withUser';
 import { userIsAdminOrMod } from '../../lib/vulcan-users';
 import { userHasDarkModeHotkey } from '../../lib/betas';
 import { useReplaceTextContent } from '../hooks/useReplaceTextContent';
+import { isLW } from '@/lib/instanceSettings';
 
 export const GlobalHotkeys = () => {
   const currentThemeOptions = useConcreteThemeOptions();
@@ -35,7 +36,7 @@ export const GlobalHotkeys = () => {
       });
     }
 
-    if (userIsAdminOrMod(currentUser) && e.altKey && e.shiftKey && !e.ctrlKey && !e.metaKey && e.keyCode === 85) {
+    if (isLW && userIsAdminOrMod(currentUser) && e.altKey && e.shiftKey && !e.ctrlKey && !e.metaKey && e.keyCode === 85) {
       replaceText();
     }
   });
