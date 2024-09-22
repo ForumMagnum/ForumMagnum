@@ -5,6 +5,7 @@ import { useTracking } from "../../lib/analyticsEvents";
 import Card from '@material-ui/core/Card';
 import { commentBodyStyles } from '@/themes/stylePiping';
 import { ContentReplacedSubstringComponentInfo } from '../common/ContentItemBody';
+import { PopperPlacementType } from '@material-ui/core/Popper';
 
 const styles = (theme: ThemeType) => ({
   card: {
@@ -35,7 +36,7 @@ export const JargonTooltip = ({classes, children, term, replacedSubstrings, isFi
   term: string,
   replacedSubstrings: Record<string, ContentReplacedSubstringComponentInfo>,
   isFirstOccurrence?: boolean,
-  placement?: "bottom-start" | "bottom-end" | "top-start" | "top-end" | "left-start" | "left-end" | "right-start" | "right-end"
+  placement?: PopperPlacementType
 }) => {
   const { LWTooltip, ContentItemBody } = Components;
   const termInfo = replacedSubstrings[term];

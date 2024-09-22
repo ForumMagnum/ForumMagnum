@@ -2,12 +2,12 @@ import { anthropicApiKey } from "@/lib/instanceSettings";
 import '@anthropic-ai/sdk/shims/node';
 import Anthropic from "@anthropic-ai/sdk";
 
-export const getAnthropicClientOrThrow = (() => {
+export const getAnthropicClientOrThrow = ((customApiKey?: string) => {
   let client: Anthropic;
 
-  return () => {
+  return (customApiKey?: string) => {
     if (!client) {
-      const apiKey = anthropicApiKey.get()
+      const apiKey = customApiKey ?? anthropicApiKey.get()
 
       if (!apiKey) {
         throw new Error('Missing api key when initializing Anthropic client!');
@@ -21,7 +21,7 @@ export const getAnthropicClientOrThrow = (() => {
   };
 })();
 
-export const getAnthropicPromptCachingClientOrThrow = () => {
-  const baseClient = getAnthropicClientOrThrow();
+export const getAnthropicPromptCachingClientOrThrow = (customApiKey?: string) => {
+  const baseClient = getAnthropicClientOrThrow(customApiKey);
   return new Anthropic.Beta.PromptCaching(baseClient);
 };
