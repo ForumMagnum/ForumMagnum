@@ -1,16 +1,14 @@
 import { LanguageModelTemplate, getOpenAI, wikiSlugToTemplate, substituteIntoTemplate } from './languageModelIntegration';
-import { CreateCallbackProperties, getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
-import { truncate } from '../../lib/editor/ellipsize';
-import { dataToMarkdown, htmlToMarkdown } from '../editor/conversionUtils';
+import { getCollectionHooks } from '../mutationCallbacks';
+import { dataToMarkdown } from '../editor/conversionUtils';
 import type OpenAI from "openai";
 import { Tags } from '../../lib/collections/tags/collection';
 import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
 import { DatabaseServerSetting } from '../databaseSettings';
 import { Users } from '../../lib/collections/users/collection';
 import { cheerioParse } from '../utils/htmlUtil';
-import { isAnyTest, isE2E, isProduction } from '../../lib/executionEnvironment';
-import { eaFrontpageDateDefault, isEAForum, requireReviewToFrontpagePostsSetting } from '../../lib/instanceSettings';
-import type { PostIsCriticismRequest } from '../resolvers/postResolvers';
+import { isAnyTest, isE2E } from '../../lib/executionEnvironment';
+import { eaFrontpageDateDefault, requireReviewToFrontpagePostsSetting } from '../../lib/instanceSettings';
 import { FetchedFragment, fetchFragmentSingle } from '../fetchFragment';
 import { updateMutator } from '../vulcan-lib';
 import { Posts } from '@/lib/collections/posts';
@@ -133,25 +131,16 @@ function preprocessHtml(html: string): string {
   return $.html();
 }
 
-export async function postToPrompt({template, post, promptSuffix, postBodyCache, markdownBody}: {
+export async function postToPrompt({template, post, promptSuffix, postBodyCache}: {
   template: LanguageModelTemplate,
-  post: FetchedFragment<"PostsHTML">|PostIsCriticismRequest,
+  post: FetchedFragment<"PostsHTML">,
   promptSuffix: string
   // Optional mapping from post ID to markdown body, to avoid redoing the html-to-markdown conversions
   postBodyCache?: PostBodyCache,
-  // Optionally pass in the post body as markdown
-  markdownBody?: string
 }): Promise<string> {
   const {header, body} = template;
   
-  const preprocessedBody = '_id' in post ? postBodyCache?.preprocessedBody?.[post._id] : null
-  const htmlPostBody = (('body' in post && post.body) ? post.body : null)
-    ?? (('contents' in post && post.contents)
-        ? post.contents?.html
-        : null)
-    ?? ''
-  const markdownPostBody = markdownBody ?? preprocessedBody ?? preprocessPostHtml(htmlPostBody);
-  
+  const markdownPostBody = postBodyCache?.preprocessedBody?.[post._id] ?? preprocessPostHtml(post.contents?.html ?? '');
   const linkpostMeta = ('url' in post && post.url) ? `\nThis is a linkpost for ${post.url}` : '';
   
   const withTemplate = substituteIntoTemplate({
@@ -403,54 +392,6 @@ async function autoReview(post: DbPost, context: ResolverContext): Promise<void>
       context,
     });
   }
-}
-
-/**
- * On the EA Forum, we're using some of the auto-tagging system to check if posts
- * could be categorized as "criticism of work in effective altruism". We check while
- * the editor is open, because if this returns true, then we want to show the author
- * a little card with tips on how to make it more likely to go well
- * (see PostsEditBotTips).
- *
- * The fine-tuned model is not super accurate, but that's partly because our dataset
- * does not cleanly represent the behavior we want from it. The "criticism of work in EA"
- * tag has a wider variety of posts than would benefit from the tips in the card, such as
- * posts announcing criticism contests and posts criticizing EA orgs broadly.
- *
- * So it will miss ~half of posts that a human would categorize as "criticism"
- * (i.e. it has a high false negative rate), but it has a low false positive rate (~2%).
- */
-export async function postIsCriticism(post: PostIsCriticismRequest): Promise<boolean> {
-  // Only run this on the EA Forum on production, since it costs money.
-  // (In particular, this model will only work if run with EA Forum prod credentials.)
-  if (!isEAForum || !isProduction) return false
-  
-  const api = await getOpenAI()
-  if (!api) {
-    if (!isAnyTest) {
-      //eslint-disable-next-line no-console
-      console.log("Skipping checking if the post is criticism (API not configured)")
-    }
-    return false
-  }
-  
-  const template = await wikiSlugToTemplate("lm-config-autotag")
-  const promptSuffix = 'Is this post critically examining the work, projects, or methodologies of specific individuals, organizations, or initiatives affiliated with the effective altruism (EA) movement or community?'
-  // This model was trained on ~2500 posts, generated using generateCandidateSetsForTagClassification
-  // (posts published from Nov 1 2022 - Nov 1 2023 combined with *all* posts tagged with "criticism of work in effective altruism").
-  // Since it's not super accurate, we may want to fine-tune a new version in the future.
-  const languageModelResult = await api.completions.create({
-    model: 'ft:davinci-002:centre-for-effective-altruism::8PxrFevH',
-    prompt: await postToPrompt({
-      template,
-      post,
-      promptSuffix,
-      ...(post.contentType === 'markdown' ? {markdownBody: post.body} : {})
-    }),
-    max_tokens: 1,
-  })
-  const completion = languageModelResult.choices[0].text!
-  return (completion.trim().toLowerCase() === "yes")
 }
 
 getCollectionHooks("Posts").updateAsync.add(async ({oldDocument, newDocument, context}) => {
