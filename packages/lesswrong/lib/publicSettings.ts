@@ -190,5 +190,3 @@ export const vertexEnabledSetting = new DatabasePublicSetting<boolean>('googleVe
 export const commentPermalinkStyleSetting = new DatabasePublicSetting<'top' | 'in-context'>('commentPermalinkStyle', isEAForum ? 'in-context' : 'top');
 
 export const userIdsWithAccessToLlmChat = new DatabasePublicSetting<string[]>('llmChat.userIds', []);
-
-export const textReplacementsSetting = new DatabasePublicSetting<Record<string, string>>('textReplacements', {});
