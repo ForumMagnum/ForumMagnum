@@ -27,14 +27,15 @@ function walkNodeTree(root: Node, options: WalkNodeTreeOptions) {
     NodeFilter.SHOW_ALL,
     {
       acceptNode: function(node) {
-        if(!inspect(node)) { return NodeFilter.FILTER_REJECT; }
-        if(!collect(node)) { return NodeFilter.FILTER_SKIP; }
+        if (!inspect(node)) return NodeFilter.FILTER_REJECT;
+        if (!collect(node)) return NodeFilter.FILTER_SKIP;
         return NodeFilter.FILTER_ACCEPT;
       }
     }
   );
 
-  const nodes = []; let n;
+  const nodes = [];
+  let n;
   // eslint-disable-next-line no-cond-assign
   while (n = walker.nextNode()) {
     // callback?.(n);
@@ -53,11 +54,18 @@ function textNodesUnder(el: Node) {
 }
 
 function matchCaseFormat(original: string, replacement: string) {
-  if (original === original.toUpperCase()) return replacement.toUpperCase();
-  if (original === original.toLowerCase()) return replacement.toLowerCase();
+  if (original === original.toUpperCase()) {
+    return replacement.toUpperCase();
+  }
+
+  if (original === original.toLowerCase()) {
+    return replacement.toLowerCase();
+  }
+
   if (original[0] === original[0].toUpperCase()) {
     return replacement.charAt(0).toUpperCase() + replacement.slice(1).toLowerCase();
   }
+
   return replacement.toLowerCase();
 }
 
@@ -78,13 +86,13 @@ function replaceText(node: Node, replacements: ReplacementTuple[]) {
     text = text.replace(regex, (match, ...args) => {
       modified = true;
       const capturedWords = args.slice(0, -3);  // Exclude the last two items (offset and original string)
-      const trailingWhitespace = args[args.length - 3] || '';  // Get trailing whitespace
+      const trailingWhitespace = args[args.length - 3] ?? '';  // Get trailing whitespace
 
       // Determine if original had spaces between words
       const hadSpaces = match.trim() !== match.replace(/\s+/g, '');
 
       const replacedPhrase = replaceWords.map((word, index) => 
-        matchCaseFormat(capturedWords[index] || '', word)
+        matchCaseFormat(capturedWords[index] ?? '', word)
       ).join(hadSpaces ? ' ' : '');
 
       return replacedPhrase + trailingWhitespace;
