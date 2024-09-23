@@ -637,7 +637,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     post.fmCrosspost?.isCrosspost &&
     !post.fmCrosspost?.hostedHere;
 
-  const noIndex = fullPost?.noIndex || post.rejected;
+  const noIndex = fullPost?.noIndex || post.rejected || post.baseScore <= 0;
 
   const marketInfo = getMarketInfo(post)
 
