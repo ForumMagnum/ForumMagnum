@@ -586,11 +586,18 @@ const Layout = ({currentUser, children, classes}: {
                   </ErrorBoundary>
                   {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
                 </div>
-                {isLW && <>
-                  {standaloneNavigation && <div className={classes.imageColumn}>
-                    <CloudinaryImage2 className={classes.backgroundImage} publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413" darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}/>
-                  </div>}
-                </>}
+                {isLW && standaloneNavigation && <div className={classes.imageColumn}>
+                  {/* Background image shown in the top-right corner of LW. The
+                    * loading="lazy" prevents downloading the image if the
+                    * screen-size is such that the image will be hidden by a
+                    * breakpoint. */}
+                  <CloudinaryImage2
+                    loading="lazy"
+                    className={classes.backgroundImage}
+                    publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413"
+                    darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}
+                  />
+                </div>}
                 {!renderSunshineSidebar &&
                   friendlyHomeLayout &&
                   <StickyWrapper
