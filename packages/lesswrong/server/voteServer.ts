@@ -178,6 +178,7 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
       cancelled: true,
       isUnvote: true,
       power: -vote.power,
+      afPower: -vote.afPower,
       votedAt: new Date(),
       silenceNotification,
     };

@@ -23,7 +23,7 @@ async function updateAlignmentKarmaServer (newDocument: DbVoteableType, vote: Db
   if (!voter) throw Error(`Can't find voter to update Alignment Karma for vote: ${vote}`)
 
   if (userCanDo(voter, "votes.alignment")) {
-    const votePower = calculateVotePower(voter.afKarma, vote.voteType)
+    const votePower = calculateVotePower(voter.afKarma, vote.voteType) * (vote.isUnvote ? -1 : 1);
 
     await Votes.rawUpdateOne({_id:vote._id, documentId: newDocument._id}, {$set:{afPower: votePower}})
     const newAFBaseScore = await recalculateAFBaseScore(newDocument)
@@ -62,7 +62,7 @@ async function updateAlignmentUserServer (newDocument: DbVoteableType, vote: DbV
     const newAfKarma = (documentUser.afKarma || 0) + karmaUpdate;
     if (newAfKarma > 0) {
       await Users.rawUpdateOne({_id:newDocument.userId}, {
-        $set: {afKarma: newAfKarma },
+        $inc: {afKarma: karmaUpdate},
         $addToSet: {groups: 'alignmentVoters'}
       })
     } else {
