@@ -26,7 +26,8 @@ import {Posts} from '../lib/collections/posts';
 import { VotesRepo } from './repos';
 import { isLWorAF } from '../lib/instanceSettings';
 import { swrInvalidatePostRoute } from './cache/swr';
-import { onCastVoteAsync, onCastVoteSync, onVoteCancel } from './callbacks/votingCallbacks';
+import { onCastVoteAsync, onVoteCancel } from './callbacks/votingCallbacks';
+import { getVoteAFPower } from './callbacks/alignment-forum/callbacks';
 
 // Test if a user has voted on the server
 const getExistingVote = async ({ document, user }: {
@@ -109,6 +110,7 @@ export const createVote = ({ document, collectionName, voteType, extendedVote, u
     voteType: voteType,
     extendedVoteType: extendedVote,
     power: getVotePower({user, voteType, document}),
+    afPower: getVoteAFPower({user, voteType, document}),
     votedAt: new Date(),
     authorIds,
     cancelled: false,
@@ -294,7 +296,6 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
     }
 
     let voteDocTuple: VoteDocTuple = await addVoteServer({document, user, collection, voteType, extendedVote, voteId, context});
-    voteDocTuple = await onCastVoteSync(voteDocTuple, collection, user);
 
     document = voteDocTuple.newDocument;
     document = await clearVotesServer({
