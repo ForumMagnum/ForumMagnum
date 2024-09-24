@@ -88,6 +88,17 @@ module.exports = {
     "react/no-unescaped-entities": 0,
     "react/display-name": 0,
     "react/jsx-no-comment-textnodes": 1,
+
+    // Warn if defining a component inside a function, which results in the
+    // component's subtree and its state being destroyed on every render
+    "react/no-unstable-nested-components": [1, {
+      // Allow it if the component is passed directly as a prop. This is still
+      // potentially a bug, but components passed directly as props are often
+      // leaf-nodes with no state, like icons, so it's annoying to have to
+      // handle them properly and these are lower-priority to fix than the ones
+      // that aren't.
+      allowAsProps: true,
+    }],
     "react/no-unknown-property": ["error", {ignore: ["test-id"]}],
 
     // Differs from no-mixed-operators default only in that "??" is added to the first group

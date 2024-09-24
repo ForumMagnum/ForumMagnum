@@ -252,6 +252,8 @@ const FooterTagList = ({
     }
   }, [setIsAwaiting, mutate, refetch, post._id, captureEvent, flash]);
 
+  // FIXME: Unstable component will lose state on rerender
+  // eslint-disable-next-line react/no-unstable-nested-components
   const MaybeLink = ({to, children, className}: {
     to: string|null,
     children: React.ReactNode,
