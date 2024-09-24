@@ -82,6 +82,12 @@ export const useCommentLink = ({
   return Wrapper;
 }
 
+/**
+ * Retrieve the ids of the currently permalinked comment, and the comment that should be scrolled to.
+ * If using 'in-context' links then these will both generally be the `?commentId=id` comment.
+ * If using 'top' links then the permalinked comment will be the `?commentId=id` one and the scrollToCommentId
+ * will be taken from the `#id` part of the URL if present.
+ */
 export const useCommentLinkState = () => {
   const { query, hash } = useSubscribedLocation();
   const { matchSSR } = useContext(EnvironmentOverrideContext);

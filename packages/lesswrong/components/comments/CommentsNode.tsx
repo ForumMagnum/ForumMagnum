@@ -174,16 +174,6 @@ const CommentsNode = ({
 
   const [highlighted, setHighlighted] = useState(false);
 
-  // The comment hash isn't sent to the server, so `shouldUncollapseForAutoScroll` may be different from the first render pass
-  useEffect(() => {
-    if (!collapsed) return;
-
-    if (shouldUncollapseForAutoScroll()) {
-      setCollapsed(false);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scrollToCommentId])
-
   const isInViewport = (): boolean => {
     if (!scrollTargetRef) return false;
     const top = scrollTargetRef.current?.getBoundingClientRect().top;
@@ -231,6 +221,11 @@ const CommentsNode = ({
   }, [linkedCommentId]);
 
   useEffect(() => {
+    // The comment hash isn't sent to the server, so `shouldUncollapseForAutoScroll` may be different from the first render pass
+    if (collapsed && shouldUncollapseForAutoScroll()) {
+      setCollapsed(false);
+    }
+
     if (shouldExpandAndScrollTo) {
       handleExpand({scroll: true})
     }

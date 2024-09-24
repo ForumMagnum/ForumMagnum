@@ -174,7 +174,7 @@ export function scrollFocusOnElement({ id, options = {} }: { id: string; options
 }
 
 /**
- * Simplified version of `scrollFocusOnQueryComment` to run as a standalone script as soon
+ * Simplified version of `scrollFocusOnElement` to run as a standalone script as soon
  * as the page loads, to speed up interactivity.
  */
 export const preloadScrollToCommentScript = `<script>
