@@ -1,6 +1,6 @@
 import { schemaDefaultValue, arrayOfForeignKeysField, denormalizedCountOfReferences, foreignKeyField, resolverOnlyField, accessFilterMultiple } from '../../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema';
-import { Utils, slugify } from '../../vulcan-lib/utils';
+import { slugify } from '../../vulcan-lib/utils';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 import { getWithLoader } from '../../loaders';
 import moment from 'moment';
@@ -13,6 +13,7 @@ import { getDefaultViewSelector } from '../../utils/viewUtils';
 import { permissionGroups } from '../../permissions';
 import type { TagCommentType } from '../comments/types';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
+import { getUnusedSlugByCollectionName, slugIsUsed } from '@/lib/helpers';
 
 addGraphQLSchema(`
   type TagContributor {
@@ -69,16 +70,16 @@ const schema: SchemaType<"Tags"> = {
     group: formGroups.advancedOptions,
     onInsert: async (tag) => {
       const basicSlug = slugify(tag.name);
-      return await Utils.getUnusedSlugByCollectionName('Tags', basicSlug, true);
+      return await getUnusedSlugByCollectionName('Tags', basicSlug, true);
     },
     onUpdate: async ({data, oldDocument}) => {
       if (data.slug && data.slug !== oldDocument.slug) {
-        const slugIsUsed = await Utils.slugIsUsed("Tags", data.slug)
-        if (slugIsUsed) {
+        const isUsed = await slugIsUsed("Tags", data.slug)
+        if (isUsed) {
           throw Error(`Specified slug is already used: ${data.slug}`)
         }
       } else if (data.name && data.name !== oldDocument.name) {
-        return await Utils.getUnusedSlugByCollectionName("Tags", slugify(data.name), true, oldDocument._id)
+        return await getUnusedSlugByCollectionName("Tags", slugify(data.name), true, oldDocument._id)
       }
     }
   },

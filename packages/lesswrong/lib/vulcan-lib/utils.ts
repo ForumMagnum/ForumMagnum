@@ -17,11 +17,6 @@ import { containsKana, fromKana } from "hepburn";
 export const logoUrlSetting = new DatabasePublicSetting<string | null>('logoUrl', null)
 
 interface UtilsType {
-  // In lib/helpers.ts
-  getUnusedSlug: (collection: CollectionBase<CollectionNameWithSlug>, slug: string, useOldSlugs?: boolean, documentId?: string) => Promise<string>
-  getUnusedSlugByCollectionName: (collectionName: CollectionNameWithSlug, slug: string, useOldSlugs?: boolean, documentId?: string) => Promise<string>
-  slugIsUsed: (collectionName: CollectionNameWithSlug, slug: string) => Promise<boolean>
-  
   // In server/vulcan-lib/mutators.ts
   createMutator: CreateMutator
   updateMutator: UpdateMutator
