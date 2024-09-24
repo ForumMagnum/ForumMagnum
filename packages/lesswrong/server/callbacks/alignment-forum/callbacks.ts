@@ -50,7 +50,7 @@ export async function grantUserAFKarmaForVote ({newDocument, vote}: VoteDocTuple
   await updateUserAFKarmaForVote(newDocument, vote, 1)
 }
 
-export async function revoteUserAFKarmaForCancelledVote ({newDocument, vote}: VoteDocTuple) {
+export async function revokeUserAFKarmaForCancelledVote ({newDocument, vote}: VoteDocTuple) {
   await updateUserAFKarmaForVote(newDocument, vote, -1)
 
 }
