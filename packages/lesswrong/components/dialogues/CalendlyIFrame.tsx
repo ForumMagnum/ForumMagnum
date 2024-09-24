@@ -3,7 +3,6 @@ import { registerComponent } from '../../lib/vulcan-lib'
 import { calendlyPreviewStyles } from '../../themes/stylePiping'
 
 const styles = (theme: ThemeType) => ({
-  ...calendlyPreviewStyles(theme),
   calendlyEmbed: {
     ...calendlyPreviewStyles(theme)["& div.calendly-preview"]
   }
