@@ -286,39 +286,17 @@ const ForumEventFrontpageBannerWithPoll = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {currentForumEvent} = useCurrentForumEvent();
-  const [expanded, setExpanded] = useState(false)
-  
-  // Calculate how many points each post got, to find the 4 most influential posts
-  const influentialPosts = useMemo(() => {
-    if (!currentForumEvent?.publicData) return []
-
-    // Track the total number of points each post got, {postId: points}
-    const scores: Record<string, number> = {}
-    Object.values(currentForumEvent?.publicData).forEach((vote: AnyBecauseTodo) => {
-      if (vote.points) {
-        Object.keys(vote.points).forEach((postId: string) => {
-          if (postId in scores) {
-            scores[postId] += vote.points[postId]
-          } else {
-            scores[postId] = vote.points[postId]
-          }
-        })
-      }
-    })
-    const postIdScorePairs = toPairs(scores)
-    return orderBy(postIdScorePairs, p => p[1], 'desc').map(p => p[0]).slice(0, 4)
-  }, [currentForumEvent])
   
   if (!currentForumEvent) {
     return null;
   }
 
-  const {title, bannerImageId, tag, frontpageDescription, frontpageDescriptionMobile, darkColor, contrastColor} = currentForumEvent;
+  const {title, bannerImageId, frontpageDescription, frontpageDescriptionMobile, darkColor, contrastColor} = currentForumEvent;
   const date = formatDate(currentForumEvent);
   const mobileDescription = frontpageDescriptionMobile?.html ?? frontpageDescription?.html
   
   const {
-    CloudinaryImage2, ForumEventPoll, ForumIcon, LWTooltip, PostsList2, ContentStyles, ContentItemBody
+    CloudinaryImage2, ForumEventPoll, ContentStyles, ContentItemBody
   } = Components;
   
   // Define colors with CSS variables to be accessed in the styles
@@ -331,60 +309,6 @@ const ForumEventFrontpageBannerWithPoll = ({classes}: {
     <AnalyticsContext pageSectionContext="forumEventFrontpageBannerWithPoll">
       <div className={classes.root} style={style}>
         <ForumEventPoll />
-        <div className={classes.expandToggleRow}>
-          <button className={classes.expandToggleButton} onClick={() => setExpanded(!expanded)}>
-            <ForumIcon
-              icon={expanded ? "ThickChevronDown" : "ThickChevronRight"}
-              className={classes.expandToggleIcon}
-            />
-            {expanded ? 'Collapse' : `Most influential posts`}
-          </button>
-        </div>
-        {expanded && <div className={classes.contentWithPoll}>
-          <div className={classes.postsHeading}>
-            Most influential posts so far
-            <LWTooltip
-              title="
-                The most influential posts are those that are responsible for the
-                most opinion change, based on the posts cited when you change your
-                mind on the banner.
-              "
-            >
-              <ForumIcon icon="QuestionMarkCircleFilled" className={classes.postsHeadingIcon} />
-            </LWTooltip>
-          </div>
-          <div className={classes.postsAndBody}>
-            <div className={classes.posts}>
-              <PostsList2
-                terms={{postIds: influentialPosts, limit: 4}}
-                order={influentialPosts}
-                showLoadMore={false}
-                placeholderCount={4}
-                showKarma={false}
-                hideTag
-                showNoResults={false}
-                showPlacement
-              />
-              {tag && <div className={classes.postsSeeAll}>
-                See all eligible posts <Link to={tagGetUrl(tag)}>here</Link>
-              </div>}
-            </div>
-            <div className={classes.contentWithPollBody}>
-              <div className={classes.titleWithPoll}>{title}</div>
-              <div className={classes.dateWithPoll}>{date}</div>
-              <div className={classes.descriptionWithPoll}>
-                {frontpageDescription?.html &&
-                  <ContentStyles contentType="comment">
-                    <ContentItemBody
-                      dangerouslySetInnerHTML={{__html: frontpageDescription.html}}
-                      className={classes.description}
-                    />
-                  </ContentStyles>
-                }
-              </div>
-            </div>
-          </div>
-        </div>}
         <div className={classes.contentWithPollMobile}>
           <div className={classes.titleWithPollMobile}>{title}</div>
           <div className={classes.dateWithPoll}>{date}</div>
