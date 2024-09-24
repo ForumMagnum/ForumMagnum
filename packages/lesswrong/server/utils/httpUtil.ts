@@ -1,3 +1,4 @@
+import { isProduction } from '@/lib/executionEnvironment';
 import type { Request, Response } from 'express';
 import type { IncomingMessage } from 'http';
 import Cookies from 'universal-cookie';
@@ -84,4 +85,23 @@ export function getAllCookiesFromReq(req: Request) {
   else {
     return new Cookies(untypedReq.cookies); // req.universalCookies;
   }
+}
+
+/**
+ * Try to set the response status, but log an error if the headers have already been sent.
+ */
+export const trySetResponseStatus = ({ response, status }: { response: Response, status: number; }) => {
+  if (!response.headersSent) {
+    response.status(status);
+  } else if (response.statusCode !== status) {
+    const message = `Tried to set status to ${status} but headers have already been sent with status ${response.statusCode}. This may be due to enableResourcePrefetch wrongly being set to true.`;
+    if (isProduction) {
+      // eslint-disable-next-line no-console
+      console.error(message);
+    } else {
+      throw new Error(message);
+    }
+  }
+
+  return response;
 }
