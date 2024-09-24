@@ -36,7 +36,7 @@ export async function getWithLoader<N extends CollectionNameString>(
         ...baseQuery,
         [groupByField]: {$in: docIDs}
       };
-      const queryResults: ObjectsByCollectionName[N][] = await Utils.Connectors.find(collection, query, projection);
+      const queryResults: ObjectsByCollectionName[N][] = await collection.find(query, projection).fetch();
       const sortedResults = _.groupBy(queryResults, r=>r[groupByField]);
       return docIDs.map(id => sortedResults[id] || []);
     }, {

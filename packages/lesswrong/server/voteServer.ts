@@ -1,4 +1,3 @@
-import { Connectors } from './vulcan-lib/connectors';
 import { createMutator } from './vulcan-lib/mutators';
 import Votes from '../lib/collections/votes/collection';
 import { userCanDo } from '../lib/vulcan-users/permissions';
@@ -33,12 +32,11 @@ const getExistingVote = async ({ document, user }: {
   document: DbVoteableType,
   user: DbUser,
 }) => {
-  const vote = await Connectors.get(Votes, {
+  return await Votes.findOne({
     documentId: document._id,
     userId: user._id,
     cancelled: false,
-  }, {}, true);
-  return vote;
+  });
 }
 
 // Add a vote of a specific type on the server
@@ -134,11 +132,11 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
   let newDocument = _.clone(document);
   
   // Fetch existing, uncancelled votes
-  const votes = await Connectors.find(Votes, {
+  const votes = await Votes.find({
     documentId: document._id,
     userId: user._id,
     cancelled: false,
-  });
+  }).fetch();
   if (!votes.length) {
     return newDocument;
   }
@@ -228,7 +226,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
     context = createAnonymousContext();
 
   const collectionName = collection.options.collectionName;
-  document = document || await Connectors.get(collection, documentId);
+  document = document || await collection.findOne({_id: documentId});
 
   if (!document) throw new Error("Error casting vote: Document not found.");
   

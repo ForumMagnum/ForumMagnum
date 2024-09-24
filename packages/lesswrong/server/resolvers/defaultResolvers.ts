@@ -1,4 +1,4 @@
-import { Utils, collectionNameToGraphQLType, getAllCollections, getCollection } from "@/server/vulcan-lib";
+import { collectionNameToGraphQLType, getAllCollections, getCollection, convertDocumentIdToIdInSelector } from "@/server/vulcan-lib";
 import { throwError } from "@/server/vulcan-lib/errors";
 import { logGroupConstructor, loggerConstructor } from "@/lib/utils/logging";
 import { maxAllowedApiSkip } from "@/lib/instanceSettings";
@@ -185,8 +185,7 @@ const addDefaultResolvers = <N extends CollectionNameString>(
         // get total count of documents matching the selector
         // TODO: Make this handle synthetic fields
         if (saturated) {
-          const { hint } = parameters.options;
-          data.totalCount = await Utils.Connectors.count(collection, parameters.selector, { hint });
+          data.totalCount = await collection.find(parameters.selector).count();
         } else {
           data.totalCount = viewableDocs.length;
         }
@@ -257,7 +256,7 @@ const addDefaultResolvers = <N extends CollectionNameString>(
         const db = getSqlClientOrThrow();
         doc = await db.oneOrNone(compiledQuery.sql, compiledQuery.args);
       } else {
-        doc = await Utils.Connectors.get(collection, selector);
+        doc = await collection.findOne(convertDocumentIdToIdInSelector(selector));
       }
 
       if (!doc) {

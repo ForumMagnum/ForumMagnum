@@ -22,9 +22,6 @@ interface UtilsType {
   getUnusedSlugByCollectionName: (collectionName: CollectionNameWithSlug, slug: string, useOldSlugs?: boolean, documentId?: string) => Promise<string>
   slugIsUsed: (collectionName: CollectionNameWithSlug, slug: string) => Promise<boolean>
   
-  // In server/vulcan-lib/connectors.ts
-  Connectors: any
-  
   // In server/vulcan-lib/mutators.ts
   createMutator: CreateMutator
   updateMutator: UpdateMutator
@@ -270,6 +267,33 @@ export const removeProperty = (obj: any, propertyName: string): void => {
       removeProperty(obj[prop], propertyName);
     }
   }
+};
+
+/**
+ * Given a mongodb-style selector, if it contains `documentId`, replace that
+ * with `_id`. This is a silly thing to do and a terrible hack; it's
+ * particularly terrible since `documentId` is an actual field name on some
+ * collections, corresponding to a foreign-key relation, eg on Votes it's the
+ * voted-on object. The reason this is here is because Vulcan did it (in
+ * `Connectors`, under the function name `convertUniqueSelector`), in a place
+ * where it leaks into the external API, where it might be used by GreaterWrong
+ * and other API users. So in order to remove this feature safely we need to
+ * remove it in two steps, first logging if any selectors are actually
+ * converted this way.
+ *
+ * If the change that got rid of `Connectors` has been deployed for awhile,
+ * and the console-log warning from this function isn't appearing in logs, then
+ * this function is a no-op and is safe to remove.
+ */
+export const convertDocumentIdToIdInSelector = (selector: any) => {
+  if (selector.documentId) {
+    //eslint-disable-next-line no-console
+    console.log("Warning: Performed documentId-to-_id replacement");
+    const result = {...selector, _id: selector.documentId};
+    delete result.documentId;
+    return result;
+  }
+  return selector;
 };
 
 /**
