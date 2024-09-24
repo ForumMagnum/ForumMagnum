@@ -7,7 +7,7 @@ import { useMessages } from '../common/withMessages';
 import Select from '@material-ui/core/Select';
 import CloseIcon from '@material-ui/icons/Close';
 import { useLocation } from "../../lib/routeUtil";
-import { NewLlmMessage, useLlmChat } from './LlmChatWrapper';
+import { NewLlmMessage, RAG_MODE_SET, RagModeType, useLlmChat } from './LlmChatWrapper';
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import CKEditor from '@/lib/vendor/ckeditor5-react/ckeditor';
 import { getCkCommentEditor } from '@/lib/wrapCkEditor';
@@ -128,6 +128,8 @@ const styles = (theme: ThemeType) => ({
   select: {
     // TODO: maybe really the styling of the options section should be flex display and flex grow stuff
     maxWidth: 250,
+  },
+  ragModeSelect: {
   },
   menuItem: {
     zIndex: theme.zIndexes.languageModelChat + 10,
@@ -277,6 +279,7 @@ export const ChatInterface = ({classes}: {
   const { currentConversation, setCurrentConversation, archiveConversation, orderedConversations, submitMessage, currentConversationLoading } = useLlmChat();
 
 
+  const [ragMode, setRagMode] = useState<RagModeType>('Recommendation'); // TODO: make this auto
   const { flash } = useMessages();
 
   // TODO: come back and refactor this to use currentRoute & matchPath to get the url parameter instead
@@ -403,6 +406,19 @@ export const ChatInterface = ({classes}: {
       </MenuItem>
     </Select>;
 
+    const ragModeSelect = <Select 
+      onChange={(e) => setRagMode(e.target.value as RagModeType)}
+      value={ragMode}
+      disableUnderline
+      className={classes.ragModeSelect}
+    >
+      {RAG_MODE_SET.map((ragMode) => (
+        <MenuItem key={ragMode} value={ragMode}>
+          {ragMode}
+        </MenuItem>
+      ))}
+    </Select>
+
 
   const options = <div className={classes.options}>
     <Button onClick={() => setCurrentConversation()}>
@@ -412,11 +428,12 @@ export const ChatInterface = ({classes}: {
       Export
     </Button>
     {conversationSelect}
+    {ragModeSelect}
   </div>  
 
   const handleSubmit = useCallback((message: string) => {
-    submitMessage(message, currentPostId);
-  }, [currentPostId, submitMessage]);
+    submitMessage(message, ragMode, currentPostId);
+  }, [currentPostId, submitMessage, ragMode]);
 
   return <div className={classes.subRoot}>
     {messagesForDisplay}

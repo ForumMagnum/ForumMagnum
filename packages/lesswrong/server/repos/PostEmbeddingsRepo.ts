@@ -95,12 +95,45 @@ class PostEmbeddingsRepo extends AbstractRepo<"PostEmbeddings"> {
           pe."postId", 
           pe.embeddings <#> (SELECT embeddings FROM source_embedding) AS distance
         FROM public."PostEmbeddings" pe
+        LEFT JOIN "Posts" p ON p._id = pe."postId"
         WHERE pe."postId" != $(postId)
         ORDER BY distance
         LIMIT 200 
       )
       ${this.postIdsByEmbeddingDistanceSelector}
     `, { postId, limit });
+
+    return results.map(({ _id }) => _id);
+  }
+
+  async getEmbeddingRecommendationsForUser(
+    userId: string,
+    limit: number,
+  ): Promise<string[]> {
+    const results = await this.getRawDb().any<PostEmbeddingDistanceInfo>(`
+      -- PostEmbeddingsRepo.getEmbeddingRecommendationsForUser
+      WITH user_profile_embedding AS (
+        SELECT AVG(embeddings) AS average_embedding
+        FROM "ReadStatuses" rs
+        JOIN "PostEmbeddings" pe ON rs."postId" = pe."postId"
+        WHERE rs."userId" = $(userId) AND rs."isRead" IS TRUE
+      ),
+      embedding_distances AS (
+        SELECT
+          pe."postId",
+          pe.embeddings <#> (SELECT average_embedding FROM user_profile_embedding) AS distance,
+          rs."isRead"
+        FROM public."PostEmbeddings" pe
+        JOIN "Posts" p ON p._id = pe."postId"
+        LEFT JOIN "ReadStatuses" rs ON rs."postId" = pe."postId" AND rs."userId" = $(userId)
+        WHERE (rs."isRead" IS NOT TRUE OR rs."isRead" IS NULL)
+        AND ${getViewablePostsSelector('p')}
+        AND p."baseScore" >= 20
+        ORDER BY distance
+        LIMIT 200
+      )
+      ${this.postIdsByEmbeddingDistanceSelector}
+    `, { userId, limit });
 
     return results.map(({ _id }) => _id);
   }

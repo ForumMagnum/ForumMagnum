@@ -20,7 +20,7 @@ interface RecombeeRecommendedPost {
   stickied?: never,
 }
 
-type RecommendedPost = RecombeeRecommendedPost | {
+export type RecommendedPost = RecombeeRecommendedPost | {
   post: PostsListWithVotes,
   scenario?: never,
   recommId?: never,

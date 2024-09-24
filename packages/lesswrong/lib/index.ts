@@ -78,6 +78,8 @@ import './collections/debouncerEvents/collection';
 
 // ReadStatuses
 import './collections/readStatus/collection';
+import './collections/readStatus/fragments';
+import './collections/readStatus/views';
 // Bans
 import './collections/bans/index'
 // Chapters

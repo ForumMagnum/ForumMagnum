@@ -4,6 +4,13 @@ import { CommentTreeNode, unflattenComments } from "@/lib/utils/unflatten";
 import { z } from "zod";
 import { zodResponseFormat } from "openai/helpers/zod";
 
+export interface RecommendationContextData {
+  homeLatestPosts: PostsPage[];
+  userUpvotedPosts: PostsPage[];
+  userRecentlyViewedPosts: PostsPage[];
+  userEmbeddingRecommendationPosts: PostsPage[];
+}
+
 interface NestedComment {
   _id: string;
   postId: string | null;
@@ -113,7 +120,7 @@ const formatCommentsForPost = async (post: PostsMinimumInfo, tokenCounter: Token
 <comments>${formattedComments}</comments>`;
   }
 
-const formatPostForPrompt = (post: PostsPage): string => {
+const formatPostForPrompt = (post: PostsPage, truncation?: number): string => {
   const authorName = userGetDisplayName(post.user)
   const markdown = documentToMarkdown(post)
 
@@ -122,22 +129,22 @@ Title: ${post.title}
 Author: ${authorName}
 Publish Date: ${post.postedAt}
 Score: ${post.baseScore}
-Content: ${markdown}`;
+Content: ${markdown?.slice(0, truncation)}`;
 }
 
-const formatAdditionalPostsForPrompt = (posts: PostsPage[], tokenCounter: TokenCounter): string => {
-  const formattedPosts = posts.map(post => formatPostForPrompt(post));
+const formatAdditionalPostsForPrompt = (posts: PostsPage[], tokenCounter: TokenCounter, limit=120_000, prefix="Supplementary Post", truncation?: number): string => {
+  const formattedPosts = posts.map(post => formatPostForPrompt(post, truncation ? Math.floor(truncation/CHARS_PER_TOKEN): undefined));
   const includedPosts: string[] = [];
 
   for (let [idx, formattedPost] of Object.entries(formattedPosts)) {
     const approximatePostTokenCount = formattedPost.length / CHARS_PER_TOKEN;
     const postInclusionTokenCount = tokenCounter.tokenCount + approximatePostTokenCount;
     // Include at least one additional post, unless that takes us over the higher threshold
-    if (idx !== '0' && postInclusionTokenCount > 120_000) {
+    if (idx !== '0' && postInclusionTokenCount > limit) {
       break;
     }
 
-    if (idx === '0' && postInclusionTokenCount > 140_000) {
+    if (idx === '0' && postInclusionTokenCount > limit + 20_000) {
       break;
     }
 
@@ -145,7 +152,7 @@ const formatAdditionalPostsForPrompt = (posts: PostsPage[], tokenCounter: TokenC
     tokenCounter.tokenCount += approximatePostTokenCount;
   }
 
-  return includedPosts.map((post, index) => `Supplementary Post #${index}:\n${post}`).join('\n')
+  return includedPosts.map((post, index) => `${prefix} #${index}:\n${post}`).join('\n')
 }
 
 export const generateLoadingMessagePrompt = (query: string, postTitle?: string): string => {
@@ -175,18 +182,21 @@ export const CONTEXT_SELECTION_SYSTEM_PROMPT = [
 
 const contextSelectionChoiceDescriptions = `(0) none - No further context seems necessary to respond to the user's query because Claude already has the knowledge to respond appropriately, e.g. the user asked "What is Jacobian of a matrix?"or "Proofread the following text." Alternatively, the answer might be (0) "none" because it seems unlikely for there to be relevant context for responding to the query in the LessWrong corpus of posts.
 
-(1) query-based - Load LessWrong posts based on their vector similarity to the user's query, and ignore the post the user is reading.This is correct choice if the query seems unrelated to the post the user is currently viewing, but it seems likely that there are LessWrong posts concerning the topic.(If it is a very general question, the correct choice might be (0) "none").
+(1) query-based - Load LessWrong posts based on their vector similarity to the user's query, and ignore the post the user is reading. This is correct choice if the query seems unrelated to the post the user is currently viewing, but it seems likely that there are LessWrong posts concerning the topic.(If it is a very general question, the correct choice might be (0) "none").
 
-(2) current-post-based - Load LessWrong posts based on their vector similarity to the post the user is reading, but not the query.This is the correct choice if the query seems to be about the post the user is currently viewing, and pulling up other LessWrong posts related to the user's query would either be redundant with a search based on the current post, or would return irrelevant results.Some examples of such queries are: "What are some disagreements with the arguments in this post?", "Explain <topic in the post> to me.", and "Provide a summary of this post."
+(2) current-post-only - Load the current LessWrong post into context but nothing else. This is the correct choice if the query seems to be about the post the user is currently viewing and further context is unnecesary. For example, if the user asks for a summary or explanation of the current post.
 
-(3) both - Load LessWrong posts based on their vector similarity to both the user's query and the post the user is reading.This is the correct choice if the question seems to be related to the post the user is currently viewing, but also contains keywords or information where relevant LessWrong posts would be beneficial context for a response, and those LessWrong posts would not likely be returned in a vector similarity search based on the post the user is currently viewing.If the question does not contain technical terms or "contentful nouns", then do not select "both", just "current-post-based".`;
+(3) current-post-and-search - Load the currently review LessWrong post and similar posts based on vector similarity to the post the user is reading (but posts based on vector similarity to the query). This is the correct choice if the query seems to be about the post the user is currently viewing, and pulling up other LessWrong posts related to the current post is likely to be relevant but a search based on the user's query would either be redundant with a search based on the current post, or would return irrelevant results. Some examples of such queries that should get current-post-and-search are: "What are some disagreements with the arguments in this post?", "Explain <topic in the post> to me."
+
+(4) both - Load LessWrong posts based on their vector similarity to both the user's query and the post the user is reading. This is the correct choice if the question seems to be related to the post the user is currently viewing, but also contains keywords or information where relevant LessWrong posts would be beneficial context for a response, and those LessWrong posts would not likely be returned in a vector similarity search based on the post the user is currently viewing.If the question does not contain technical terms or "contentful nouns", then do not select "both", just select on of "current-post-only" or "current-post-and-search".`;
 
 const ContextSelectionParameters = z.object({
   reasoning: z.string().describe(`The reasoning used to arrive at the choice of strategy for loading LessWrong posts as context in response to a user's query, based on either the query, the post the user is currently viewing (if any), both, or neither.`),
-  strategy_choice: z.union([z.literal('none'), z.literal('query-based'), z.literal('current-post-based'), z.literal('both')]).describe(contextSelectionChoiceDescriptions)
+  strategy_choice: z.union([z.literal('none'), z.literal('query-based'), z.literal('current-post-only'), z.literal('current-post-and-search'), z.literal('both')]).describe(contextSelectionChoiceDescriptions)
 });
 
 export const contextSelectionResponseFormat = zodResponseFormat(ContextSelectionParameters, 'contextLoadingStrategy');
+export const postRecommendationsResponseFormat = zodResponseFormat(z.object({ titles: z.array(z.string()) }), 'postRecommendations')
 
 export const generateContextSelectionPrompt = (query: string, currentPost: PostsPage | null): string => {
   const postTitle = currentPost?.title
@@ -228,8 +238,9 @@ export const CLAUDE_CHAT_SYSTEM_PROMPT = [
 
 
 
-export const generateAssistantContextMessage = async (query: string, currentPost: PostsPage | null, additionalPosts: PostsPage[], includeComments: boolean, context: ResolverContext): Promise<string> => {
-  const contextIsProvided = !!currentPost || additionalPosts.length > 0;
+export const generateAssistantContextMessage = async (query: string, currentPost: PostsPage | null, contextualPosts: PostsPage[], includeComments: boolean, context: ResolverContext): Promise<string> => {
+  const contextIsProvided = !!currentPost || contextualPosts.length > 0;
+  const additionalPosts = contextualPosts.filter(post => post._id !== currentPost?._id);
 
   const currentPostLine = currentPost
     ? `The user is currently viewing the post titled "${currentPost.title}" with postId "${currentPost._id}".\n\n`
@@ -288,4 +299,36 @@ ${currentPostLine}${additionalPostsBlock}${currentPostContentBlock}${commentsOnP
 ${contextBlock}
 
 ${additionalInstructions}${repeatedPostTitleLine}`;
+}
+
+export const RECOMMENDATION_SYSTEM_PROMPT = [
+  `You are an expert system that provides recommendations of which latest content to read to users on LessWrong.com.`,
+  `To provide the best recommendations, you are provided with information about the user's interest and a selection of posts that are likely of interest.`,
+  `You share user's dislike of clickbait and instead elect to recommend posts that are likely to be of interest to the user based the nuances and details of what they read.`,
+  `You're able to discern not just broad interests (like "AI"), but note more specific subtopics like "decision theory", "infrabayesianism", "mechanistic interpretability", etc.`
+].join('\n');
+
+export const generateAssistantRecommendationContextMessageV2 = async (query: string, recommendationContextData: RecommendationContextData, context: ResolverContext): Promise<string> => {
+
+  const { homeLatestPosts, userUpvotedPosts, userRecentlyViewedPosts, userEmbeddingRecommendationPosts } = recommendationContextData;
+
+  const tokenCounter = { tokenCount: 0 };
+
+  const prompt = [
+    `You are an expert recommendation system that provides recommended posts to users on LessWrong.com`,
+    `You are asked to provide a list of ten recommendations. The following information will help you select the best recommendations.`,
+    `These are the posts that the user recently upvoted post, showing the first 3000 characters of each post: <UserUpvotedPosts>\n${formatAdditionalPostsForPrompt(userUpvotedPosts, tokenCounter, 60_000,'User Upvoted', 3000)}\n</UserUpvotedPosts>`,
+    `These are posts that the user recently viewed (even if they didn't upvoted them), showing the first 3000 characters of each post: <UserViewedPosts>\n${formatAdditionalPostsForPrompt(userRecentlyViewedPosts, tokenCounter, 60_000,'User Viewed', 3000)}\n</UserViewedPosts>`,
+    `Please make recommendations from among the following posts:`,
+    `Posts recently published to LessWrong: <RecentlyPublishedPosts>\n${formatAdditionalPostsForPrompt(homeLatestPosts, tokenCounter, 120_000, 'Recently Published', 3000)}\n</RecentlyPublishedPosts>`,
+    `Posts recommended for this user based on similarity to their upvoted posts (these posts are from all time): <EmbeddingRecommendations>\n${formatAdditionalPostsForPrompt(userEmbeddingRecommendationPosts, tokenCounter, 150_000, 'Embedding Recommendations', 3000)}\n</EmbeddingRecommendations>`,
+
+    `For your first set of recommendations, please should 5 from recently published and 5 from the embedding recommendations.`,
+    `Note that "score" is how upvoted a post is, and should influence your recommendation a little bit`,
+    `Format each recommendation as: <score> | <[title](https://lesswrong.com/posts/<postId>)> | <author> | <publish date>`,
+    `Following your recommendation, give a 2-3 sentence explanation of why you recommended the posts that you did.`,
+
+  ].join('\n');
+
+  return prompt;
 }

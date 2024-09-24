@@ -403,7 +403,7 @@ const LWHomePosts = ({ children, classes }: {
   classes: ClassesType<typeof styles>}
 ) => {
   const { SingleColumnSection, PostsList2, TagFilterSettings, RecombeePostsList, CuratedPostsList,
-    RecombeePostsListSettings, TabPicker, BookmarksList, ContinueReadingList,
+    RecombeePostsListSettings, TabPicker, BookmarksList, ContinueReadingList, EmbeddingPostList,
     VertexPostsList, WelcomePostItem, MixedTypeFeed, SuggestedFeedSubscriptions, PostsItem } = Components;
 
   const { captureEvent } = useTracking();
@@ -506,7 +506,8 @@ const LWHomePosts = ({ children, classes }: {
     selectedTab === 'forum-classic' ||
     selectedTab === 'forum-subscribed-authors' ||
     selectedTab === 'recombee-hybrid' ||
-    (userIsAdmin(currentUser) && selectedTab.includes('recombee'))
+    (userIsAdmin(currentUser) && selectedTab.includes('recombee')) ||
+    (userIsAdmin(currentUser) && selectedTab.includes('embeddings'))
   );
 
   const mobileSettingsButtonLabel = mobileSettingsVisible ? 'Hide' : 'Customize'
@@ -585,6 +586,8 @@ const LWHomePosts = ({ children, classes }: {
     settings = filterSettingsElement;
   } else if (selectedTab.includes('recombee')) {
     settings = recombeeSettingsElement;
+  } else if (selectedTab === 'embeddings-hybrid') {
+    settings = recombeeSettingsElement;
   }
 
   const limit = parseInt(query.limit) || defaultLimit;
@@ -656,10 +659,17 @@ const LWHomePosts = ({ children, classes }: {
                 />
               </AnalyticsContext>}
 
+              {/* EMBEDDING ENRICHED LATEST */}
+              {selectedTab === 'embeddings-hybrid' && <AnalyticsContext feedType={selectedTab}>
+                <EmbeddingPostList algorithm={'embeddings-hybrid'} settings={scenarioConfig} />
+              </AnalyticsContext>}
+
+
               {/* JUST RECOMMENDATIONS */}
               {selectedTab === 'recombee-lesswrong-custom' && <AnalyticsContext feedType={selectedTab}>
                 <RecombeePostsList algorithm={'recombee-lesswrong-custom'} settings={scenarioConfig} />
               </AnalyticsContext>}
+
 
               {/* VERTEX RECOMMENDATIONS */}
               {selectedTab.startsWith('vertex-') && <AnalyticsContext feedType={selectedTab}>

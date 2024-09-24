@@ -1,14 +1,13 @@
 import uniq from "lodash/uniq";
-import uniqBy from "lodash/uniqBy";
 import { getAnthropicClientOrThrow, getAnthropicPromptCachingClientOrThrow } from "../languageModels/anthropicClient";
 import { getEmbeddingsFromApi } from "../embeddings";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
-import { generateContextSelectionPrompt, CLAUDE_CHAT_SYSTEM_PROMPT, generateTitleGenerationPrompt, generateAssistantContextMessage, CONTEXT_SELECTION_SYSTEM_PROMPT, contextSelectionResponseFormat } from "../languageModels/promptUtils";
-import { filterNonnull } from "@/lib/utils/typeGuardUtils";
+import { generateContextSelectionPrompt, CLAUDE_CHAT_SYSTEM_PROMPT, generateTitleGenerationPrompt, generateAssistantContextMessage, CONTEXT_SELECTION_SYSTEM_PROMPT, contextSelectionResponseFormat, RECOMMENDATION_SYSTEM_PROMPT, generateAssistantRecommendationContextMessageV2, postRecommendationsResponseFormat } from "../languageModels/promptUtils";
+import { FieldsNotNull, filterNonnull, filterWhereFieldsNotNull } from "@/lib/utils/typeGuardUtils";
 import { userHasLlmChat } from "@/lib/betas";
 import { PromptCachingBetaMessageParam, PromptCachingBetaTextBlockParam } from "@anthropic-ai/sdk/resources/beta/prompt-caching/messages";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
-import { ClaudeMessageRequestSchema, ClientMessage, LlmCreateConversationMessage, LlmStreamChunkMessage, LlmStreamContentMessage, LlmStreamEndMessage, LlmStreamErrorMessage, LlmStreamMessage } from "@/components/languageModels/LlmChatWrapper";
+import { ClaudeMessageRequestSchema, ClientMessage, LlmCreateConversationMessage, LlmStreamChunkMessage, LlmStreamContentMessage, LlmStreamEndMessage, LlmStreamErrorMessage, LlmStreamMessage, RagModeType } from "@/components/languageModels/LlmChatWrapper";
 import { createMutator, getContextFromReqAndRes, runFragmentQuery } from "../vulcan-lib";
 import { LlmVisibleMessageRole, UserVisibleMessageRole, llmVisibleMessageRoles } from "@/lib/collections/llmMessages/schema";
 import { asyncMapSequential } from "@/lib/utils/asyncUtils";
@@ -16,6 +15,12 @@ import { markdownToHtml, htmlToMarkdown } from "../editor/conversionUtils";
 import { getOpenAI } from "../languageModels/languageModelIntegration";
 import express, { Express } from "express";
 import { captureException } from "@sentry/core";
+import { FilterSettings, getDefaultFilterSettings } from "@/lib/filterSettings";
+import { fetchFragment } from "../fetchFragment";
+import { Tool } from "@anthropic-ai/sdk/resources";
+import sampleSize from "lodash/sampleSize";
+import keyBy from "lodash/keyBy";
+import moment from "moment";
 
 interface InitializeConversationArgs {
   newMessage: ClientMessage;
@@ -24,6 +29,7 @@ interface InitializeConversationArgs {
   currentUser: DbUser;
   context: ResolverContext;
   currentPostId?: string;
+  ragMode: RagModeType;
 }
 
 interface CreateNewConversationArgs {
@@ -65,7 +71,7 @@ interface SendMessagesToClaudeArgs {
 }
 
 // a type for kind of context to use that's a value of "query-based", "post-based", or "both"
-type RagContextType = "query-based" | "current-post-based" | "both" | "none" | "error"
+type RagContextType = "query-based" | "current-post-only" | "current-post-and-search" | "both" | "none" | "error"
 
 function getConversationContext(newConversationChannelId: string | undefined, newMessage: ClientMessage): ConversationContext {
   return newConversationChannelId ? {
@@ -105,10 +111,25 @@ async function getQueryContextDecision(query: string, currentPost: PostsPage | n
 }
 
 // TODO: come back and refactor the query context decision to actually use the embedding distance results (including the post titles)
-async function getContextualPosts(query: string, currentPost: PostsPage | null, context: ResolverContext): Promise<PostsPage[]> {
-  const contextSelectionCode = await getQueryContextDecision(query, currentPost);
+async function getContextualPosts(query: string, ragMode: RagModeType, currentPost: PostsPage | null, context: ResolverContext): Promise<PostsPage[]> {
+
+  const ragModeMapping = {
+    'CurrentPost': 'current-post-only',
+    'Search': 'both',
+    'None': 'none',
+    'Recommendation': 'recommendation',
+  }
+
+  const contextSelectionCode = (ragMode === 'Auto')
+    ? await getQueryContextDecision(query, currentPost)
+    : ragModeMapping[ragMode];
+
+  console.log({ ragMode,contextSelectionCode })
+  
   const useQueryEmbeddings = ['query-based', 'both'].includes(contextSelectionCode);
-  const useCurrentPostEmbeddings = ['current-post-based', 'both'].includes(contextSelectionCode);
+  const useCurrentPost = ['current-post-only', 'current-post-and-search', 'both'].includes(contextSelectionCode);
+  const useCurrentPostSearchEmbeddings = ['current-post-and-search', 'both'].includes(contextSelectionCode);
+
 
   const { embeddings: queryEmbeddings } = await getEmbeddingsFromApi(query);
 
@@ -116,7 +137,7 @@ async function getContextualPosts(query: string, currentPost: PostsPage | null, 
     ? context.repos.postEmbeddings.getNearestPostIdsWeightedByQuality(queryEmbeddings, contextSelectionCode==='query-based' ? 20 : 5)
     : Promise.resolve([]);
 
-  const currentPostSearchPromise = useCurrentPostEmbeddings && currentPost
+  const currentPostSearchPromise = useCurrentPostSearchEmbeddings && currentPost
     ? context.repos.postEmbeddings.getNearestPostIdsWeightedByQualityByPostId(currentPost._id, 20)
     : Promise.resolve([]);
 
@@ -127,7 +148,12 @@ async function getContextualPosts(query: string, currentPost: PostsPage | null, 
 
   const deduplicatedSearchResultIds = uniq([...querySearchIds, ...currentPostSearchIds]);
 
-  return getPostsWithContents(deduplicatedSearchResultIds, context);
+  // TODO: Clean up somehow. This is kind of ugly but this is where the decision is being made about whether or not to use the current post in the context window.
+  const posts = await getPostsWithContents(deduplicatedSearchResultIds, context);
+  if (useCurrentPost && currentPost && !deduplicatedSearchResultIds.includes(currentPost._id)) {
+    posts.unshift(currentPost);
+  }
+  return posts;
 };
 
 async function getConversationTitle({ query, currentPost }: Pick<CreateNewConversationArgs, 'query' | 'currentPost'>) {
@@ -165,20 +191,16 @@ async function createNewConversation({ query, systemPrompt, model, currentUser, 
   return newConversation.data;
 };
 
-function getPostContextMessage(postsLoadedIntoContext: PostsPage[], currentPost: PostsPage | null): string {
-  // get the combined list of current post and posts loaded into context that handles the possibility they are empty or null
-  const allLoadedPosts = filterNonnull([currentPost, ...postsLoadedIntoContext ?? []]);
-  // Current post might be one of the posts returned from the query-based embedding search
-  const deduplicatedPosts = uniqBy(allLoadedPosts, post => post._id);
+function getPostContextMessage(postsLoadedIntoContext: PostsPage[]): string {
 
-  const deduplicatedPostsList = deduplicatedPosts.map((post) => {
+  const postsList = postsLoadedIntoContext.map((post) => {
     const author = userGetDisplayName(post.user)
     return  `- *[${post?.title}](${postGetPageUrl(post)}) by ${author}*`}
   ).join("\n");
 
   const message = [
     `*Based on your query, the following posts were loaded into the LLM's context window*:`,
-    deduplicatedPostsList,
+    postsList,
     `\n*(This message and similar messages are not sent to the LLM.)*`
   ].join("\n");
 
@@ -357,36 +379,64 @@ async function getPostsWithContents(postIds: string[], context: ResolverContext)
   });
 }
 
-async function getContextMessages(content: string, currentPost: PostsPage | null, context: ResolverContext) {
-  const contextualPosts = await getContextualPosts(content, currentPost, context);
-  // TODO: refactor this to avoid returning a context message if there were no posts loaded into the context window.  (And make sure it depends on what's actually in the context window, not just on whether the user's on a current post.)
-  const userContextMessage = getPostContextMessage(contextualPosts, currentPost);
-  const assistantContextMessage = await generateAssistantContextMessage(content, currentPost, contextualPosts, true, context);
+async function getContextMessages(query: string, ragMode: RagModeType, currentPost: PostsPage | null, context: ResolverContext) {
+  
+  if (['None', 'Recommendation'].includes(ragMode)) {
+    return {
+      userContextMessage: '',
+      assistantContextMessage: '',
+      contextualPosts: [],
+    };
+  }
+
+  const contextualPosts = await getContextualPosts(query, ragMode, currentPost, context);
+  const userContextMessage = getPostContextMessage(contextualPosts);
+  const assistantContextMessage = await generateAssistantContextMessage(query, currentPost, contextualPosts, true, context);
 
   return { userContextMessage, assistantContextMessage, contextualPosts };
 }
 
-async function createConversationWithMessages({ newMessage, systemPrompt, model, currentPostId, currentUser, context }: InitializeConversationArgs) {
-  const { content, userId } = newMessage;
+async function createConversationWithMessages({ newMessage, systemPrompt, model, currentPostId, ragMode, currentUser, context }: InitializeConversationArgs) {
+  const { content: query, userId } = newMessage;
 
-  const currentPost = await (currentPostId
+  const currentPost = await (currentPostId && ragMode !== 'None'
     ? getPostWithContents(currentPostId, context)
     : Promise.resolve(null)
   );
 
   const [conversation, { userContextMessage, assistantContextMessage, contextualPosts }] = await Promise.all([
     createNewConversation({
-      query: content,
+      query,
       systemPrompt,
       model,
       currentUser,
       context,
       currentPost,
     }),
-    getContextMessages(content, currentPost, context)
+    getContextMessages(query, ragMode, currentPost, context)
   ]);
 
   const conversationId = conversation._id;
+
+  if (ragMode === 'Recommendation') {
+    return createRecommendationsConversationWithMessages({ conversation, newMessage, systemPrompt, model, currentPostId, currentUser, context });
+  }
+
+  // The user's actual message
+  const newUserMessageRecord = {
+    userId,
+    content: query,
+    role: 'user',
+    conversationId,
+  } as const;
+
+
+  if (ragMode === 'None') {
+    return {
+      conversation,
+      newMessageRecords: [newUserMessageRecord]
+    };
+  }
 
   // The message sent to Claude with all of the loaded context
   const newAssistantContextMessageRecord = {
@@ -406,13 +456,6 @@ async function createConversationWithMessages({ newMessage, systemPrompt, model,
     conversationId,
   } as const;
 
-  // The user's actual message
-  const newUserMessageRecord = {
-    userId,
-    content,
-    role: 'user',
-    conversationId,
-  } as const;
 
   // The "message" we show to the user with a summary of the loaded context, but isn't sent to Claude
   const newUserContextMessageRecord = {
@@ -427,6 +470,128 @@ async function createConversationWithMessages({ newMessage, systemPrompt, model,
   if (contextualPosts.length > 0) {
     newMessageRecords.push(newUserContextMessageRecord);
   }
+
+  return {
+    conversation,
+    newMessageRecords
+  };
+}
+
+
+
+
+async function getUserEmbeddingRecommendations(userId: string, numRecommendationPosts: number, oversamplingFactor=10, context: ResolverContext): Promise<PostsPage[]> {
+  const embeddingRecommendationPostsIds = await context.repos.postEmbeddings.getEmbeddingRecommendationsForUser(userId, numRecommendationPosts * oversamplingFactor);
+  const randomSampleEmbeddingRecommendationPostsIds = sampleSize(embeddingRecommendationPostsIds, numRecommendationPosts)
+  const userEmbeddingRecommendationPosts = getPostsWithContents(randomSampleEmbeddingRecommendationPostsIds, context);
+
+  return userEmbeddingRecommendationPosts
+}
+
+async function getRecommendationContextDataV2(query: string, userId: string, context: ResolverContext) {
+
+  const filterSettings: FilterSettings = context.currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings();
+
+  const homeLatestPostsPromise = runFragmentQuery({
+    collectionName: "Posts",
+    fragmentName: "PostsPage",
+    terms: {
+      view: "magic",
+      forum: true,
+      limit: 50,
+      filterSettings
+    },
+    context,
+  });
+
+  const userRecentUpvotesPromise = runFragmentQuery({
+    collectionName: "Votes",
+    fragmentName: "UserVotesWithFullDocument",
+    terms: {
+      view: "userUpvotes",
+      collectionNames: ["Posts"],
+      after: moment(Date.now() - (1000 * 60 * 60 * 24 * 365)).toISOString(),
+    },
+    currentUser: context.currentUser,
+    context,
+    options: {
+      sort: {
+        votedAt: -1,
+      },
+      limit: 30, //40,
+    }
+  });
+
+  const userRecentViewsPromise = runFragmentQuery({
+    collectionName: "ReadStatuses",
+    fragmentName: "ReadStatusWithPostPage",
+    selector: { userId },
+    currentUser: context.currentUser,
+    context,
+    options: {
+      sort: {
+        lastUpdated: -1,
+      },
+      limit: 40
+    },
+    skipFiltering: true,
+  });
+
+
+  const [userRecentUpvotes, userRecentViews, homeLatestPosts, userEmbeddingRecommendationPosts] = await Promise.all([
+    userRecentUpvotesPromise,
+    userRecentViewsPromise,
+    homeLatestPostsPromise,
+    getUserEmbeddingRecommendations(userId, 20, 10, context)
+  ]);
+
+  const userUpvotedPosts = filterNonnull(userRecentUpvotes.map(vote => vote.post));
+  const userRecentlyViewedPosts = filterNonnull(userRecentViews.map(view => view.post))
+    .filter(post => !userUpvotedPosts.some(upvotedPost => upvotedPost._id === post._id))
+    .slice(0, 40 - userUpvotedPosts.length);
+
+  const homeLatestNotAlreadyReadPosts = homeLatestPosts.filter(post => !post.isRead)
+
+  console.log({
+    userRecentUpvotes,
+    userUpvotedPosts,
+    userUpvotedPostsTitles: userUpvotedPosts.map(post => ({ title: post.title, html: post.contents?.html.slice(0,200) })),
+    userRecentlyViewedPostsTitles: userRecentlyViewedPosts.map(post => ({ title: post.title, id: post._id })),
+    // homeLatestPostsTitles: homeLatestNotAlreadyReadPosts.map(post => post.title),
+    // userEmbeddingRecommendationPostsTitles: userEmbeddingRecommendationPosts.map(post => post.title)
+  })
+
+  return {
+    homeLatestPosts: homeLatestNotAlreadyReadPosts,
+    userUpvotedPosts,
+    userRecentlyViewedPosts,
+    userEmbeddingRecommendationPosts,
+  }
+}
+
+
+// TODO: Cleanup, this is for testing
+async function createRecommendationsConversationWithMessages({ conversation, newMessage, systemPrompt, model, currentUser, context }: Omit<InitializeConversationArgs, 'ragMode'> & { conversation: DbLlmConversation }) {
+  const { content: query, userId } = newMessage;
+  
+  const recommendationContextData = await getRecommendationContextDataV2(query, userId, context);
+  const recommendationContextPrompt = await generateAssistantRecommendationContextMessageV2(query, recommendationContextData, context);
+
+  const newUserMessageRecord = {
+    userId,
+    content: query,
+    role: 'user',
+    conversationId: conversation._id,
+  } as const;
+
+  const newAssistantContextMesssageRecord = {
+    userId,
+    content: recommendationContextPrompt,
+    role: 'assistant-context',
+    conversationId: conversation._id,
+  } as const;
+
+  const newMessageRecords: NewLlmMessage[] = [newUserMessageRecord, newAssistantContextMesssageRecord];
 
   return {
     conversation,
@@ -469,7 +634,7 @@ export function addLlmChatEndpoint(app: Express) {
     }
 
     const { newMessage, promptContextOptions, newConversationChannelId } = parsedBody.data;    
-    const { postId: currentPostId } = promptContextOptions
+    const { postId: currentPostId, ragMode } = promptContextOptions
     
     if (!newConversationChannelId && !newMessage.conversationId) {
       return res.status(400).send('Message must either be part of an existing conversation, or a new conversation channel id needs to be provided');
@@ -504,14 +669,21 @@ export function addLlmChatEndpoint(app: Express) {
       }
     }
 
-    // TODO: if we allow user-configured system prompts, this is where we'll change it
-    const systemPrompt = CLAUDE_CHAT_SYSTEM_PROMPT;
     const model = 'claude-3-5-sonnet-20240620';
+    // TODO: Probably should be output by new conversation function
+    const systemPrompt = (() => {
+      switch (ragMode) {
+        case 'Recommendation':
+          return RECOMMENDATION_SYSTEM_PROMPT;
+        default:
+          return CLAUDE_CHAT_SYSTEM_PROMPT;
+      }
+    })();
 
     // TODO: also figure out if we want prevent users from creating new conversations with multiple pre-filled messages
 
     const { conversation, newMessageRecords } = conversationContext.type === 'new'
-      ? await createConversationWithMessages({ newMessage, systemPrompt, model, currentPostId, currentUser, context })
+      ? await createConversationWithMessages({ newMessage, systemPrompt, model, currentPostId, ragMode, currentUser, context })
       : await prepareMessagesForConversation({ newMessage, conversationId: conversationContext.conversationId, context });
 
     const conversationId = conversation._id;
@@ -593,6 +765,134 @@ export function addLlmChatEndpoint(app: Express) {
 
     res.end();
   });
+}
+
+function isString(value: unknown) {
+  return typeof value === 'string';
+}
+
+function getPostRecommendationsPrompt(user: DbUser, lastReadPosts: Array<FieldsNotNull<ReadStatusWithPostPage, "post">>, unreadPostTitles: Array<{ _id: string, title: string }>) {
+  const availablePostTitlesString = sampleSize(unreadPostTitles, 500).map(({ title }) => title).join('\n');
+
+  return `LessWrong user ${userGetDisplayName(user)} has most recently read the following posts:
+  ${lastReadPosts.map(({ post, lastUpdated }) => {
+    const contentPreview = htmlToMarkdown(post.contents?.html ?? '').slice(0, 500);
+  
+    return `Title: ${post.title}
+Author: ${userGetDisplayName(post.user)}
+Publish Date: ${post.postedAt}
+Read Date: ${lastUpdated}
+Score: ${post.baseScore}
+Content Preview: ${contentPreview}`;
+})}
+
+Out of the following list of available posts, please recommend the next ten LessWrong posts they should read.  Do not recommend posts from the read history above.\n\n<AvailablePosts>${availablePostTitlesString}</AvailablePosts>`;
+}
+
+async function getGptPostRecommendations(user: DbUser, lastReadPosts: Array<FieldsNotNull<ReadStatusWithPostPage, "post">>, unreadPostTitles: Array<{ _id: string, title: string }>): Promise<string[]> {
+  const openai = await getOpenAI();
+  if (!openai) {
+    throw new Error('Missing openai client!');
+  }
+
+  const prompt = getPostRecommendationsPrompt(user, lastReadPosts, unreadPostTitles);
+  
+  // TODO: come back to this when haiku 3.5 is out to replace it, maybe
+  const toolUseResponse = await openai.beta.chat.completions.parse({
+    model: 'gpt-4o-mini-2024-07-18',
+    messages: [{ role: 'user', content: prompt }],
+    response_format: postRecommendationsResponseFormat
+  });
+
+  const parsedResponse = toolUseResponse.choices[0].message.parsed;
+  if (!parsedResponse) {
+    // eslint-disable-next-line no-console
+    console.log('Post recommendations response seems to be missing tool use arguments', { toolUseResponse: JSON.stringify(toolUseResponse, null, 2) });
+    throw new Error('Post recommendations response seems to be missing tool use arguments');
+  }
+
+  return parsedResponse.titles;
+}
+
+async function getClaudePostRecommendations(user: DbUser, lastReadPosts: Array<FieldsNotNull<ReadStatusWithPostPage, "post">>, unreadPostTitles: Array<{ _id: string, title: string }>) {
+  const client = getAnthropicPromptCachingClientOrThrow();
+
+  const prompt = getPostRecommendationsPrompt(user, lastReadPosts, unreadPostTitles);
+
+  const tool: Tool = {
+    name: 'recommend_post_titles',
+    description: 'Recommends posts with the provided titles to the user, based on what posts they might enjoy reading next, given their reading history.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        titles: {
+          type: 'array',
+          items: {
+            type: 'string'
+          },
+          description: 'The titles of the posts to serve to the user as recommendations.'
+        }
+      }
+    }
+  };
+
+  const response = await client.messages.create({
+    // model: 'claude-3-5-sonnet-20240620',
+    model: 'claude-3-haiku-20240307',
+    max_tokens: 1028,
+    messages: [{ role: 'user', content: [{ type: 'text', text: prompt, /*cache_control: { type: 'ephemeral' }*/ }] }],
+    tools: [tool],
+    tool_choice: { type: 'tool', name: 'recommend_post_titles' } 
+  });
+
+  const [responseContent] = response.content;
+  if (responseContent.type === 'text') {
+    console.log({ text: responseContent.text });
+    throw new Error('Got text response!');
+  }
+
+  const toolUseResponse = responseContent.input;
+  if (toolUseResponse && typeof toolUseResponse === 'object' && ('titles' in toolUseResponse) && Array.isArray(toolUseResponse.titles) && toolUseResponse.titles.every(isString)) {
+    console.log({ titles: toolUseResponse.titles });
+    return toolUseResponse.titles;
+  }
+
+  console.log('Invalid tool_use response data format', { toolUseResponse });
+  throw new Error('Invalid tool_use response data format');
+}
+
+export async function getLlmRecommendationsForUser(
+  user: DbUser,
+  limit: number,
+  context: ResolverContext
+) {
+  const [lastReadStatuses, unreadPostTitles] = await Promise.all([
+    runFragmentQuery({
+      collectionName: "ReadStatuses",
+      fragmentName: "ReadStatusWithPostPage",
+      terms: { view: 'userReadStatuses', userId: user._id },
+      context,
+    }),
+    context.repos.posts.getUnreadPostTitles(user._id)
+  ]);
+
+  const unreadPostMap = keyBy(unreadPostTitles, ({ title }) => title);
+
+  const lastReadPosts = filterWhereFieldsNotNull(lastReadStatuses, 'post');
+
+  console.log(`${unreadPostTitles.length} available posts, sampling 500`);
+
+  const titles = await getGptPostRecommendations(user, lastReadPosts, unreadPostTitles);
+  // const titles = await getClaudePostRecommendations(user, lastReadPosts, unreadPostTitles);
+
+  const postIds = filterNonnull(titles.map(title => unreadPostMap[title]?._id));
+  const recommendedPosts = await context.Posts.find({ _id: { $in: postIds } }).fetch();
+
+  return recommendedPosts.map((post) => ({
+    post,
+    curated: false,
+    stickied: false,
+  }));
 }
 
 
