@@ -46,11 +46,7 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
           return await check(user, document);
         }
         // check if they can perform "foo.new" operation (e.g. "movie.new")
-        // OpenCRUD backwards compatibility
-        return userCanDo(user, [
-          `${typeName.toLowerCase()}.create`,
-          `${collectionName.toLowerCase()}.new`,
-        ]);
+        return userCanDo(user, `${collectionName.toLowerCase()}.new`);
       },
 
       async mutation(root: void, { data }: AnyBecauseTodo, context: ResolverContext) {
@@ -109,16 +105,9 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
         // check if user owns the document being edited.
         // if they do, check if they can perform "foo.edit.own" action
         // if they don't, check if they can perform "foo.edit.all" action
-        // OpenCRUD backwards compatibility
         return userOwns(user, document as HasUserIdType)
-          ? userCanDo(user, [
-            `${typeName.toLowerCase()}.update.own`,
-            `${collectionName.toLowerCase()}.edit.own`,
-          ])
-          : userCanDo(user, [
-            `${typeName.toLowerCase()}.update.all`,
-            `${collectionName.toLowerCase()}.edit.all`,
-          ]);
+          ? userCanDo(user, `${collectionName.toLowerCase()}.edit.own`)
+          : userCanDo(user, `${collectionName.toLowerCase()}.edit.all`);
       },
 
       async mutation(root: void, { selector, data }: AnyBecauseTodo, context: ResolverContext) {
@@ -213,14 +202,8 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
         if (!user || !document) return false;
         // OpenCRUD backwards compatibility
         return userOwns(user, document as HasUserIdType)
-          ? userCanDo(user, [
-            `${typeName.toLowerCase()}.delete.own`,
-            `${collectionName.toLowerCase()}.remove.own`,
-          ])
-          : userCanDo(user, [
-            `${typeName.toLowerCase()}.delete.all`,
-            `${collectionName.toLowerCase()}.remove.all`,
-          ]);
+          ? userCanDo(user, `${collectionName.toLowerCase()}.remove.own`)
+          : userCanDo(user, `${collectionName.toLowerCase()}.remove.all`);
       },
 
       async mutation(root: void, { selector }: AnyBecauseTodo, context: ResolverContext) {
