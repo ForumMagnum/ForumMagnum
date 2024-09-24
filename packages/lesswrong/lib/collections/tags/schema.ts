@@ -3,9 +3,7 @@ import SimpleSchema from 'simpl-schema';
 import { Utils, slugify } from '../../vulcan-lib/utils';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 import { getWithLoader } from '../../loaders';
-import GraphQLJSON from 'graphql-type-json';
 import moment from 'moment';
-import { captureException } from '@sentry/core';
 import { isEAForum, taggingNamePluralSetting, taggingNameSetting } from '../../instanceSettings';
 import { SORT_ORDER_OPTIONS, SettingsOption } from '../posts/dropdownOptions';
 import { formGroups } from './formGroups';
@@ -430,20 +428,10 @@ const schema: SchemaType<"Tags"> = {
     }),
   }),
 
-  tableOfContents: resolverOnlyField({
+  tableOfContents: {
     type: Object,
     canRead: ['guests'],
-    graphQLtype: GraphQLJSON,
-    graphqlArguments: 'version: String',
-    resolver: async (document: DbTag, args: {version: string}, context: ResolverContext) => {
-      try {
-        return await Utils.getToCforTag({document, version: args.version||null, context});
-      } catch(e) {
-        captureException(e);
-        return null;
-      }
-    }
-  }),
+  },
   
   htmlWithContributorAnnotations: {
     type: String,

@@ -1,4 +1,5 @@
 import { Utils, collectionNameToGraphQLType, getAllCollections, getCollection } from "@/server/vulcan-lib";
+import { throwError } from "@/server/vulcan-lib/errors";
 import { logGroupConstructor, loggerConstructor } from "@/lib/utils/logging";
 import { maxAllowedApiSkip } from "@/lib/instanceSettings";
 import { restrictViewableFieldsMultiple, restrictViewableFieldsSingle } from "@/lib/vulcan-users";
@@ -100,7 +101,7 @@ const addDefaultResolvers = <N extends CollectionNameString>(
 
       if (conflictingKeys.length) {
         captureException(`Got a ${collectionName} multi request with conflicting term and resolverArg keys: ${conflictingKeys.join(', ')}`);
-        Utils.throwError({
+        throwError({
           id: 'app.conflicting_term_and_resolver_arg_keys',
           data: { terms, resolverArgs, collectionName },
         });
@@ -263,7 +264,7 @@ const addDefaultResolvers = <N extends CollectionNameString>(
         if (allowNull) {
           return { result: null };
         } else {
-          Utils.throwError({
+          throwError({
             id: 'app.missing_document',
             data: { documentId, selector, collectionName: collection.collectionName },
           });
@@ -277,11 +278,11 @@ const addDefaultResolvers = <N extends CollectionNameString>(
         const canAccess = await collection.checkAccess(currentUser, doc, context, reasonDenied)
         if (!canAccess) {
           if (reasonDenied.reason) {
-            Utils.throwError({
+            throwError({
               id: reasonDenied.reason,
             });
           } else {
-            Utils.throwError({
+            throwError({
               id: 'app.operation_not_allowed',
               data: {documentId, operationName: `${typeName}.read.single`}
             });

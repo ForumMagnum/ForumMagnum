@@ -25,10 +25,6 @@ interface UtilsType {
   // In server/vulcan-lib/connectors.ts
   Connectors: any
   
-  // In server/tableOfContents.ts
-  getToCforPost: ({document, version, context}: { document: DbPost, version: string|null, context: ResolverContext }) => Promise<ToCData|null>
-  getToCforTag: ({document, version, context}: { document: DbTag, version: string|null, context: ResolverContext }) => Promise<ToCData|null>
-  
   // In server/vulcan-lib/mutators.ts
   createMutator: CreateMutator
   updateMutator: UpdateMutator
@@ -36,9 +32,6 @@ interface UtilsType {
   
   // In server/vulcan-lib/utils.ts
   performCheck: <T extends DbObject>(operation: (user: DbUser|null, obj: T, context: any) => Promise<boolean>, user: DbUser|null, checkedObject: T, context: any, documentId: string, operationName: string, collectionName: CollectionNameString) => Promise<void>
-  
-  // In server/vulcan-lib/errors.ts
-  throwError: (error: { id: string; data?: Record<string, AnyBecauseTodo> }) => never,
 }
 
 export const Utils: UtilsType = ({} as UtilsType);
