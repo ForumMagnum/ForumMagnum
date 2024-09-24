@@ -1,6 +1,6 @@
 import { userCanDo } from '../vulcan-users/permissions';
 import { recalculateScore } from '../scoring';
-import { voteTypes, calculateVotePower } from './voteTypes';
+import { calculateVotePower, isValidVoteType } from './voteTypes';
 import type { VotingSystem } from './votingSystems';
 import { collectionNameToTypeName } from '../vulcan-lib';
 
@@ -108,8 +108,8 @@ export const getVotePower = ({ user, voteType, document }: {
   voteType: string,
   document: VoteableType,
 }) => {
-  const power = (voteTypes[voteType]?.power) || 1;
-  return typeof power === 'function' ? power(user, document) : power;
+  const userKarma = user.karma;
+  return calculateVotePower(userKarma, voteType);
 };
 
 // Optimistic response for votes
@@ -121,7 +121,7 @@ export const setVoteClient = async ({ document, collectionName, voteType = 'neut
   user: UsersCurrent,
   votingSystem: VotingSystem,
 }): Promise<VoteableTypeClient> => {
-  if (voteType && !voteTypes[voteType]) throw new Error(`Invalid vote type in setVoteClient: ${voteType}`);
+  if (voteType && !isValidVoteType(voteType)) throw new Error(`Invalid vote type in setVoteClient: ${voteType}`);
 
   // make sure item and user are defined
   if (!document || !user || (!extendedVote && voteType && voteType !== "neutral" && !userCanDo(user, `${collectionName.toLowerCase()}.${voteType}`))) {
