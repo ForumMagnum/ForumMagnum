@@ -93,6 +93,8 @@ let currentScrollFocus: {
  * @param id The `id` attribute of the element
  */
 export function scrollFocusOnElement({ id, options = {} }: { id: string; options?: ScrollToOptions }) {
+  window.killPreloadScroll?.();
+
   const element = document.getElementById(id);
 
   if (!element) {
@@ -105,10 +107,12 @@ export function scrollFocusOnElement({ id, options = {} }: { id: string; options
     currentScrollFocus = null;
   }
 
+  let targetScrollTop = calculateCommentScrollTop(element);
+
   // Initial scroll
   // Note: Currently this is calibrated for comments, although the default offset for comments is a good
   // first guess for any element
-  window.scrollTo({ top: calculateCommentScrollTop(element), ...options });
+  window.scrollTo({ top: targetScrollTop, ...options });
 
   // Local ref required because functions using cleanup need to
   // be defined before cleanup is instantiated
@@ -123,7 +127,16 @@ export function scrollFocusOnElement({ id, options = {} }: { id: string; options
       return;
     }
 
-    window.scrollTo({ top: calculateCommentScrollTop(element), ...options });
+    const newScrollTop = calculateCommentScrollTop(element);
+
+    if (Math.abs(newScrollTop - targetScrollTop) <= 40) {
+      return;
+    }
+
+    targetScrollTop = newScrollTop;
+
+    // Override initial behaviour and just scroll instantly if re-scrolling, to avoid intertia resetting
+    window.scrollTo({ top: targetScrollTop, ...options, behavior: "auto"});
   });
 
   observer.observe(document.body, {

@@ -115,6 +115,8 @@ const CommentsNode = ({
   const { captureEvent } = useTracking()
   const scrollTargetRef = useRef<HTMLDivElement|null>(null);
 
+  const hasInContextLinks = commentPermalinkStyleSetting.get() === 'in-context';
+
   const { linkedCommentId, scrollToCommentId } = useCommentLinkState();
 
   const { lastCommentId, condensed, postPage, post, highlightDate, scrollOnExpand, forceSingleLine, forceNotSingleLine, expandOnlyCommentIds, noDOMId, onToggleCollapsed } = treeOptions;
@@ -190,14 +192,14 @@ const CommentsNode = ({
   }
 
   const scrollIntoView = useCallback((behavior: "auto"|"smooth"="smooth") => {
-    if (!isInViewport()) {
+    if (!isInViewport() || hasInContextLinks) {
       scrollFocusOnElement({ id: comment._id, options: { behavior } });
     }
     setHighlighted(true);
     setTimeout(() => { //setTimeout make sure we execute this after the element has properly rendered
       setHighlighted(false);
     }, HIGHLIGHT_DURATION*1000);
-  }, [comment._id]);
+  }, [comment._id, hasInContextLinks]);
 
   const handleExpand = ({
     event,
@@ -222,7 +224,7 @@ const CommentsNode = ({
 
   // If not using in-context comments, scroll to top when the `commentId` query changes
   useEffect(() => {
-    if (commentPermalinkStyleSetting.get() === 'top' && !noAutoScroll && comment && linkedCommentId === comment._id) {
+    if (!hasInContextLinks && !noAutoScroll && comment && linkedCommentId === comment._id) {
       window.scrollTo({top: 0})
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
