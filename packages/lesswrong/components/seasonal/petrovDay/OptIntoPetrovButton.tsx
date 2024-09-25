@@ -162,10 +162,8 @@ const OptIntoPetrovButton = ({classes, refetch, alreadyLaunched }: {
   })
     
   const optedIn = !!petrovDayActions?.length
-
-  const { flash } = useMessages();
   
-  const { LWTooltip, LoginPopupButton, Typography } = Components
+  const { LWTooltip, LoginPopupButton } = Components
 
   const updateCurrentUser = useUpdateCurrentUser();
 
