@@ -40,9 +40,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: theme.spacing.unit*3,
     paddingRight: theme.spacing.unit*3,
     paddingBottom: theme.spacing.unit*2,
-    borderRadius: "100px",
+    borderRadius: "120px",
     marginBottom: 50,
     boxShadow: `0 0 10px ${theme.palette.grey[300]}`,
+    [theme.breakpoints.up('md')]: {
+      width: "calc(100% + 50px)",
+      marginLeft: -25,
+    },
   },
   karmaThreshold: {
     marginTop: theme.spacing.unit,
@@ -138,6 +142,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: theme.spacing.unit*1.5,
     color: theme.palette.primary.main
   },
+  error: {
+    color: theme.palette.error.main,
+    marginTop: theme.spacing.unit*2,
+    textAlign: "center"
+  }
 })
 
 const OptIntoPetrovButton = ({classes, refetch, alreadyLaunched }: {
@@ -149,19 +158,23 @@ const OptIntoPetrovButton = ({classes, refetch, alreadyLaunched }: {
   const { petrovPressedButtonDate } = (currentUser || {}) as any;
   const [pressed, setPressed] = useState(false) //petrovPressedButtonDate)
   const [confirmationCode, setConfirmationCode] = useState('')
+  const [error, setError] = useState('')
+  const [displayOptedIn, setDisplayOptedIn] = useState(false)
 
-  const { results: petrovDayActions } = useMulti({
+  const { results: petrovDayActions, refetch: refetchPetrovDayActions } = useMulti({
     collectionName: 'PetrovDayActions',
     fragmentName: 'PetrovDayActionInfo',
     terms: {
       view: 'getAction',
-      userId: currentUser?._id,
       actionType: 'optIn',
-      limit: 1
-    }
+      limit: 1000
+    },
+    skip: !currentUser
   })
-    
-  const optedIn = !!petrovDayActions?.length
+  const currentUserOptedIn = !!petrovDayActions?.find(action => action.userId === currentUser?._id)
+  const uniqueOptedInUsers = [...new Set(petrovDayActions?.map(action => action.userId))]
+  console.log("uniqueOptedInUsers", uniqueOptedInUsers)
+  const optedIn = currentUserOptedIn || displayOptedIn
   
   const { LWTooltip, LoginPopupButton } = Components
 
@@ -169,7 +182,7 @@ const OptIntoPetrovButton = ({classes, refetch, alreadyLaunched }: {
 
   const { create: createPetrovDayAction } = useCreate({
     collectionName: 'PetrovDayActions',
-    fragmentName: 'PetrovDayActionInfo',
+    fragmentName: 'PetrovDayActionInfo'
   })
   
   const pressButton = () => {
@@ -186,21 +199,34 @@ const OptIntoPetrovButton = ({classes, refetch, alreadyLaunched }: {
   }
 
   const updateOptIn = async () => {
-    if (!currentUser) return
-    void createPetrovDayAction({  
-      data: {
-        userId: currentUser._id,
-        actionType: 'optIn',
-      }
-    })
+    if (!currentUser) {
+      setError('You must log in to opt in')
+      return
+    }
+    if (confirmationCode === currentUser.displayName) {
+      void createPetrovDayAction({  
+        data: {
+          userId: currentUser._id,
+          actionType: 'optIn',
+        }
+      }) 
+      setDisplayOptedIn(true)
+      await refetchPetrovDayActions()
+    } else {
+      setError('Username does not match')
+    }
   }
 
   const renderButtonAsPressed = !!petrovPressedButtonDate || pressed
     
   const beforePressMessage = <div>
     <div className={classes.title}>Opt into Petrov Day</div>
+    {uniqueOptedInUsers.length > 0 && <div className={classes.info}>{uniqueOptedInUsers.length} people have opted in</div>}
   </div>
-  const afterPressMessage = <p>Type your username and click "confirm" to register interest in the Petrov Day social deception game. A small number of people will be chosen as lead participants, the rest will be citizens.</p>
+  const afterPressMessage = <div>
+    <p>Type your username and click "confirm" to register interest in the Petrov Day social deception game.</p>
+    <p>A small number of people will be chosen as lead participants, the rest will be citizens.</p>
+  </div>
 
 
   return <div className={classes.root}>
@@ -230,18 +256,23 @@ const OptIntoPetrovButton = ({classes, refetch, alreadyLaunched }: {
             </div>
           }
           {optedIn ? 
-            <div>You have opted in</div> 
+            <div style={{marginLeft:"auto", marginRight:"auto"}}>
+              You {uniqueOptedInUsers.length > 1 && `and ${uniqueOptedInUsers.length - 1} others `} have opted in
+            </div> 
             : 
             <div className={classes.inputSection}>
               {renderButtonAsPressed && <TextField
                 onChange={updateConfirmationCode}
+                value={confirmationCode}
                 placeholder={`Type your username`}
                 margin="normal"
                 variant="outlined"
               />}
               {!renderButtonAsPressed ? beforePressMessage : <div className={classes.info}>
                 {afterPressMessage}
+                {uniqueOptedInUsers.length > 0 && <div>{uniqueOptedInUsers.length} people have opted in</div>}
               </div>}
+              {error && <div className={classes.error}>{error}</div>}
               {renderButtonAsPressed && <Button onClick={updateOptIn} className={classes.launchButton}>
                 Confirm
               </Button>}
