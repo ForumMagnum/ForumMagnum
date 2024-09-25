@@ -178,9 +178,7 @@ const OptIntoPetrovButton = ({classes }: {
   }
 
   const updateConfirmationCode = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    if (!alreadyLaunched) {
-      setConfirmationCode(event.target.value)
-    }
+    setConfirmationCode(event.target.value)
   }
 
   const updateOptIn = async () => {

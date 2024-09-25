@@ -3,7 +3,6 @@ import React from 'react';
 import { registerComponent } from '@/lib/vulcan-lib';
 import { useTracking } from '@/lib/analyticsEvents';
 import { Components } from '@/lib/vulcan-lib';
-import { hour } from 'later';
 
 const styles = (theme: ThemeType) => ({
   root: {

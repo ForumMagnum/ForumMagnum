@@ -47,6 +47,6 @@ const PetrovGameWrapperComponent = registerComponent('PetrovGameWrapper', Petrov
 
 declare global {
   interface ComponentTypes {
-    PetrovGameWrapper: typeof PetrovGameWrapper
+    PetrovGameWrapper: typeof PetrovGameWrapperComponent
   }
 }
