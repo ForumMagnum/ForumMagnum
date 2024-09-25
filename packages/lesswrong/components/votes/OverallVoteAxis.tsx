@@ -109,7 +109,7 @@ const OverallVoteAxis = ({
 
   const af = (document as any).af;
   const afDate = (document as any).afDate;
-  const afBaseScore = (document as any).afBaseScore;
+  const afBaseScore = voteProps.document.afBaseScore;
 
   const moveToAfInfo = userIsAdmin(currentUser) && !!moveToAlignnmentUserId && (
     <div className={classes.tooltipHelp}>
