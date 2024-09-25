@@ -29,6 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('xs')]: {
       width: "100%",
       flexDirection: "column",
+      textWrap: "balance"
     },
   },
   karmaThreshold: {
