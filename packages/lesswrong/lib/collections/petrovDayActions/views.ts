@@ -1,3 +1,4 @@
+import { ensureIndex } from "@/lib/collectionIndexUtils";
 import { PetrovDayActions } from "./collection"
 
 declare global {
@@ -20,3 +21,4 @@ PetrovDayActions.addView("getAction", (terms: PetrovDayActionsViewTerms) => {
     }
   };
 });
+ensureIndex(PetrovDayActions, {userId: 1, actionType: 1});
