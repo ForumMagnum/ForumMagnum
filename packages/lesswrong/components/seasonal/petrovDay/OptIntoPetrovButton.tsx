@@ -26,6 +26,11 @@ const styles = (theme: ThemeType): JssStyles => ({
       width: "calc(100% + 50px)",
       marginLeft: -25,
     },
+    [theme.breakpoints.down('xs')]: {
+      width: "100%",
+      flexDirection: "column",
+      textWrap: "balance"
+    },
   },
   karmaThreshold: {
     marginTop: theme.spacing.unit,
@@ -109,7 +114,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: "1.1rem",
     marginTop: theme.spacing.unit*2,
     marginBottom: theme.spacing.unit*2,
-    width: 300
+    maxWidth: 300
   },
   optedIn: {
     marginLeft: "auto",
@@ -117,7 +122,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   title: {
     textAlign: "center",
-    lineHeight: "2.8em",
     color: theme.palette.grey[600],
     fontSize: "2.5rem",
   },
