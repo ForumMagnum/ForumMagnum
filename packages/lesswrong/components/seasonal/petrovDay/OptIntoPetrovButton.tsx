@@ -26,7 +26,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       width: "calc(100% + 50px)",
       marginLeft: -25,
     },
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('xs')]: {
       width: "100%",
       flexDirection: "column",
     },
