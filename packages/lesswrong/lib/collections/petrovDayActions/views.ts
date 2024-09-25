@@ -11,7 +11,7 @@ declare global {
 
 //Messages for a specific conversation
 PetrovDayActions.addView("getAction", (terms: PetrovDayActionsViewTerms) => {
-  const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const oneWeekAgo = new Date(Date.now() - (7 * 24 * 60 * 60 * 1000));
   return {
     selector: {
       userId: terms.userId,
