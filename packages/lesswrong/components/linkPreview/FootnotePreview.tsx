@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import Card from '@material-ui/core/Card';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useHover } from '../common/withHover';
@@ -9,6 +9,11 @@ import { parseDocumentFromString } from '@/lib/domParser';
 import { usePostsPageContext } from '../posts/PostsPage/PostsPageContext';
 import { RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, sidenotesHiddenBreakpoint } from '../posts/PostsPage/PostsPage';
 import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
+import { useHasSideItemsSidebar } from '../contents/SideItems';
+import { useDialog } from '../common/withDialog';
+import { isRegularClick } from "@/components/posts/TableOfContents/TableOfContentsList";
+import { useTheme } from '../themes/useTheme';
+import { isMobile } from '@/lib/utils/isMobile';
 
 const footnotePreviewStyles = (theme: ThemeType) => ({
   hovercard: {
@@ -37,7 +42,7 @@ const footnotePreviewStyles = (theme: ThemeType) => ({
     [sidenotesHiddenBreakpoint(theme)]: {
       display: "none",
     },
-    "& .footnote-back-link": {
+    "& .footnote-back-link, & a[href^=\"#fnref\"]": {
       display: "none",
     },
 
@@ -48,6 +53,17 @@ const footnotePreviewStyles = (theme: ThemeType) => ({
       width: "auto !important",
       maxWidth: "100%",
     },
+  },
+
+  footnoteMobileIndicator: {
+    display: "none",
+    [sidenotesHiddenBreakpoint(theme)]: {
+      display: "inline-block",
+    },
+  },
+  
+  lineColor: {
+    background: theme.palette.sideItemIndicator.footnote,
   },
 
   sidenoteWithIndex: {
@@ -82,6 +98,10 @@ const footnotePreviewStyles = (theme: ThemeType) => ({
     "$sidenoteHover &": {
       color: theme.palette.text.normal,
     },
+    "& li": {
+      fontSize: "0.9em",
+      lineHeight: "1.4em",
+    },
   },
   
   overflowFade: {
@@ -105,14 +125,16 @@ const footnotePreviewStyles = (theme: ThemeType) => ({
 })
 
 const FootnotePreview = ({classes, href, id, rel, children}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof footnotePreviewStyles>,
   href: string,
   id?: string,
   rel?: string,
   children: React.ReactNode,
 }) => {
-  const { ContentStyles, SideItem, LWPopper } = Components
-  
+  const { ContentStyles, SideItem, SideItemLine, LWPopper } = Components
+  const { openDialog } = useDialog();
+  const [disableHover, setDisableHover] = useState(false);
+  const theme = useTheme();
   const { eventHandlers: anchorEventHandlers, hover: anchorHovered, anchorEl } = useHover({
     eventProps: {
       pageElementContext: "linkPreview",
@@ -132,10 +154,25 @@ const FootnotePreview = ({classes, href, id, rel, children}: {
   // links to anchors like "#fn:1" which will crash this because it has a ':' in
   // it.
   try {
-    // Grab contents of linked footnote if it exists
-    footnoteHTML = document.querySelector(href)?.innerHTML || "";
-    // Check whether the footnotehas nonempty contents
-    footnoteContentsNonempty = !!Array.from(document.querySelectorAll(`${href} p`)).reduce((acc, p) => acc + p.textContent, "").trim();
+    // `href` is (probably) an anchor link, of the form `#fn1234`. Since it starts
+    // with a hash it can also be used as a CSS selector, which finds its contents
+    // in the footer.
+    const footnoteContentsElement = document.querySelector(href);
+    footnoteHTML = footnoteContentsElement?.innerHTML || "";
+    
+    // Decide whether the footnote is nonempty. This is tricky because while there
+    // are consistently formatted footnotes created by our editor plugins, there
+    // are also wacky irregular footnotes present in imported HTML and similar
+    // things. Eg https://www.lesswrong.com/posts/ACGeaAk6KButv2xwQ/the-halo-effect
+    // We can't just condition on the footnote containing non-whitespace text,
+    // because footnotes sometimes have their number and backlink in a place that
+    // would be mistaken for their body. Our current heuristic is that a footnote
+    // is nonempty if it contains at least one <p> which contains non-whitespace
+    // text, which might false-negative on rare cases like an image-only footnote
+    // but which seems to work in practice.
+    footnoteContentsNonempty = !!footnoteContentsElement
+      && !!Array.from(footnoteContentsElement.querySelectorAll("p"))
+        .reduce((acc, p) => acc + p.textContent, "").trim();
   // eslint-disable-next-line no-empty
   } catch(e) { }
   
@@ -147,19 +184,31 @@ const FootnotePreview = ({classes, href, id, rel, children}: {
   // it could be anything with a content-editable field in it, and that
   // information isn't wired to pass through the hover-preview system.
 
-  const onClick = useCallback(() => {
+  const onClick = useCallback((ev: React.MouseEvent) => {
     window.dispatchEvent(new CustomEvent(EXPAND_FOOTNOTES_EVENT, {detail: href}));
-  }, [href]);
+    
+    if (isRegularClick(ev) && isMobile()) {
+      setDisableHover(true);
+      openDialog({
+        componentName: "FootnoteDialog",
+        componentProps: {
+          footnoteHTML: footnoteHTML,
+        },
+      });
+      ev.preventDefault();
+    }
+  }, [href, footnoteHTML, openDialog]);
   
   const postPageContext = usePostsPageContext();
   const post = postPageContext?.fullPost ?? postPageContext?.postPreload;
   const sidenotesDisabledOnPost = post?.disableSidenotes;
-  const screenIsWideEnoughForSidenotes = useIsAboveBreakpoint("md");
-  const sidenoteIsVisible = hasSidenotes && !sidenotesDisabledOnPost && screenIsWideEnoughForSidenotes;
+  const screenIsWideEnoughForSidenotes = useIsAboveBreakpoint("lg");
+  const hasSideItemsSidebar = useHasSideItemsSidebar();
+  const sidenoteIsVisible = hasSidenotes && hasSideItemsSidebar && !sidenotesDisabledOnPost && screenIsWideEnoughForSidenotes;
 
   return (
     <span>
-      {footnoteContentsNonempty && <LWPopper
+      {footnoteContentsNonempty && !disableHover && <LWPopper
         open={anchorHovered && !sidenoteIsVisible}
         anchorEl={anchorEl}
         placement="bottom-start"
@@ -172,21 +221,26 @@ const FootnotePreview = ({classes, href, id, rel, children}: {
         </Card>
       </LWPopper>}
       
-      {hasSidenotes && !sidenotesDisabledOnPost && <SideItem options={{offsetTop: -6}}>
-        <div
-          {...sidenoteEventHandlers}
-          className={classNames(
-            classes.sidenote,
-            eitherHovered && classes.sidenoteHover
-          )}
-        >
-          <SidenoteDisplay
-            footnoteHref={href}
-            footnoteHTML={footnoteHTML}
-            classes={classes}
-          />
-        </div>
-      </SideItem>}
+      {hasSidenotes && !sidenotesDisabledOnPost && footnoteContentsNonempty &&
+        <SideItem options={{offsetTop: -6}}>
+          <div
+            {...sidenoteEventHandlers}
+            className={classNames(
+              classes.sidenote,
+              eitherHovered && classes.sidenoteHover
+            )}
+          >
+            <SidenoteDisplay
+              footnoteHref={href}
+              footnoteHTML={footnoteHTML}
+              classes={classes}
+            />
+          </div>
+          <span className={classes.footnoteMobileIndicator} onClick={onClick}>
+            <SideItemLine colorClass={classes.lineColor}/>
+          </span>
+        </SideItem>
+      }
 
       <a
         {...anchorEventHandlers}
@@ -207,7 +261,7 @@ const SidenoteDisplay = ({footnoteHref, footnoteHTML, classes}: {
   footnoteHTML: string,
   classes: ClassesType,
 }) => {
-  const { ContentStyles } = Components;
+  const { ContentItemBody, ContentStyles } = Components;
   const footnoteIndex = getFootnoteIndex(footnoteHref, footnoteHTML);
 
   return (
@@ -217,7 +271,7 @@ const SidenoteDisplay = ({footnoteHref, footnoteHTML, classes}: {
           {footnoteIndex}{"."}
         </span>}
         <div className={classes.sidenoteContent}>
-          <div dangerouslySetInnerHTML={{__html: footnoteHTML}} />
+          <ContentItemBody dangerouslySetInnerHTML={{__html: footnoteHTML}} />
           <div className={classes.overflowFade} />
         </div>
       </span>
@@ -267,11 +321,17 @@ function getFootnoteIndex(href: string, html: string): string|null {
       const olStartAttr = parentElement.getAttribute("start");
       const olStart = olStartAttr ? parseInt(olStartAttr) : 1;
 
+      let numPrecedingLiElements = 0;
       for (let i=0; i<parentElement.children.length; i++) {
-        if (parentElement.children.item(i) === footnoteElement) {
-          return ""+(i+olStart);
+        const elem = parentElement.children.item(i);
+        if (elem === footnoteElement) {
+          break;
+        }
+        if (elem?.tagName === 'LI') {
+          numPrecedingLiElements++;
         }
       }
+      return ""+(numPrecedingLiElements+olStart);
     }
   }
   

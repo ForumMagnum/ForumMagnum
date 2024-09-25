@@ -4,6 +4,7 @@ import orderBy from 'lodash/orderBy';
 import { createPortal } from 'react-dom';
 import { useHover } from '@/components/common/withHover';
 import { registerComponent } from '@/lib/vulcan-lib';
+import { getOffsetChainTop } from '@/lib/utils/domUtil';
 
 type SideItemOptions = {
   format: "block"|"icon"
@@ -31,7 +32,7 @@ type SideItemsState = {
 type SideItemsPlacementContextType = {
   addSideItem: (anchorEl: HTMLElement, options: SideItemOptions) => HTMLDivElement
   removeSideItem: (anchorEl: HTMLElement) => void
-  resizeItem: (anchorEl: HTMLElement) => void
+  resizeItem: (anchorEl: HTMLElement, newHeight: number) => void
 }
 type SideItemsDisplayContextType = {
   sideItems: SideItem[]
@@ -92,9 +93,17 @@ const SideItemsContainer = ({classes, children}: {
     }
   }, [rerender]);
   
-  const resizeItem = useCallback((anchorEl: HTMLElement) => {
-    state.current.sideItems = [...state.current.sideItems];
-    rerender();
+  const resizeItem = useCallback((anchorEl: HTMLElement, newHeight: number) => {
+    // Find the corresponding sideItem
+    const sideItem = state.current.sideItems.find(s => s.container === anchorEl);
+    
+    // Compare height reported by the ResizeObserver to the last known height.
+    // Round down, becauses the ResizeObserver may report a non-integer size,
+    // but when we measure it with `Element.clientHeight`, it gets rounded.
+    if (sideItem && sideItem.sideItemHeight && Math.abs(sideItem.sideItemHeight - newHeight) >= 1.0) {
+      state.current.sideItems = [...state.current.sideItems];
+      rerender();
+    }
   }, [rerender]);
   
   const sideItemsPlacementContext: SideItemsPlacementContextType = useMemo(() => ({
@@ -192,7 +201,7 @@ const SideItemsSidebar = ({classes}: {
     const resizeObserver = new ResizeObserver((entries) => {
       if (placementContext) {
         for (let entry of entries) {
-          placementContext.resizeItem(entry.target as HTMLElement);
+          placementContext.resizeItem(entry.target as HTMLElement, entry.contentRect.height);
         }
       }
     });
@@ -208,18 +217,6 @@ const SideItemsSidebar = ({classes}: {
     className={classes.sidebar}
     ref={sideItemColumnRef}
   />, [classes]);
-}
-
-function getOffsetChainTop(element: HTMLElement) {
-  let y=0;
-  let pos: AnyBecauseHard = element;
-  while (pos) {
-    if (pos.offsetTop) {
-      y += pos.offsetTop;
-    }
-    pos = pos.offsetParent;
-  }
-  return y;
 }
 
 const SideItem = ({options, children}: {
@@ -251,6 +248,10 @@ const SideItem = ({options, children}: {
   return <span ref={anchorRef}>
     {portalContainer && createPortal(children, portalContainer)}
   </span>
+}
+
+export const useHasSideItemsSidebar = (): boolean => {
+  return !!useContext(SideItemsPlacementContext);
 }
 
 const SideItemsContainerComponent = registerComponent('SideItemsContainer', SideItemsContainer, {styles});

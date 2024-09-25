@@ -7,7 +7,8 @@ import { getUrlClass } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { isServer } from '../../../lib/executionEnvironment';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
-import type { AnnualReviewMarketInfo } from '../../../lib/annualReviewMarkets';
+import { captureException } from '@sentry/core';
+import type { AnnualReviewMarketInfo } from '../../../lib/collections/posts/annualReviewMarkets';
 
 const SECONDARY_SPACING = 20;
 
@@ -164,6 +165,29 @@ export function getHostname(url: string): string {
   return parser.hostname;
 }
 
+/**
+ * Intended to be used when you have a url-like string that might be missing the protocol (http(s)://) prefix
+ * Trying to parse those with `new URL()`/`new URLClass()` blows up, so this tries to correctly handle them
+ * We default to logging an error to sentry and returning nothing if even that fails, but not confident we shouldn't just continue to throw in a visible way
+ */
+export function parseUnsafeUrl(url: string) {
+  const urlWithProtocol = url.slice(0, 4) === 'http'
+    ? url
+    : `https://${url}`;
+
+  try {
+    const parsedUrl = new URLClass(urlWithProtocol);
+    const protocol = getProtocol(urlWithProtocol);
+    const hostname = getHostname(urlWithProtocol);
+  
+    return { protocol, hostname, parsedUrl };
+  } catch (err) {
+    captureException(`Tried to parse url ${url} as ${urlWithProtocol} and failed`);
+  }
+
+  return {};
+}
+
 export const CommentsLink: FC<{
   anchor: string,
   children: React.ReactNode,
@@ -205,11 +229,15 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
     PostsPageEventData, FooterTagList, AddToCalendarButton, BookmarkButton, 
     ForumIcon, GroupLinks, SharePostButton, AudioToggle, ReadTime } = Components;
 
-  const rssFeedSource = ('feed' in post) ? post.feed : null;
-  const feedLinkDescription = rssFeedSource?.url && getHostname(rssFeedSource.url)
-  const feedLink = rssFeedSource?.url && `${getProtocol(rssFeedSource.url)}//${getHostname(rssFeedSource.url)}`;
   const hasMajorRevision = ('version' in post) && extractVersionsFromSemver(post.version).major > 1
-
+  const rssFeedSource = ('feed' in post) ? post.feed : null;
+  let feedLinkDomain;
+  let feedLink;
+  if (rssFeedSource?.url) {
+    let feedLinkProtocol;
+    ({ hostname: feedLinkDomain, protocol: feedLinkProtocol } = parseUnsafeUrl(rssFeedSource.url));
+    feedLink = `${feedLinkProtocol}//${feedLinkDomain}`;
+  }
   const crosspostNode = post.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere &&
     <CrosspostHeaderIcon post={post} />
 
@@ -227,9 +255,6 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
         {postGetAnswerCountStr(answerCount)}
       </CommentsLink>
     );
-
-
-
 
   const addToCalendarNode = post.startTime && <div className={classes.secondaryInfoLink}>
     <AddToCalendarButton post={post} label="Add to calendar" hideTooltip />
@@ -288,7 +313,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
               <PostsAuthors post={post} pageSectionContext="post_header" />
             </div>
             {rssFeedSource && rssFeedSource.user &&
-              <LWTooltip title={`Crossposted from ${feedLinkDescription}`} className={classes.feedName}>
+              <LWTooltip title={`Crossposted from ${feedLinkDomain}`} className={classes.feedName}>
                 <a href={feedLink}>{rssFeedSource.nickname}</a>
               </LWTooltip>
             }

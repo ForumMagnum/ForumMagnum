@@ -7,6 +7,7 @@ import sumBy from 'lodash/sumBy';
 import { useHover } from '@/components/common/withHover';
 import type { VotingProps } from '../votingProps';
 import { useCurrentUser } from '@/components/common/withUser';
+import { defaultInlineReactsMode, SideItemVisibilityContext } from '@/components/dropdowns/posts/SetSideItemVisibility';
 
 const styles = (theme: ThemeType) => ({
   reactionTypeHovered: {
@@ -15,12 +16,13 @@ const styles = (theme: ThemeType) => ({
 
   sidebarInlineReactIcons: {
     display: "none",
-    width: "100%",
     opacity: 0.5,
-    paddingLeft: 8,
+    marginLeft: 4,
+    paddingLeft: 4,
+    paddingRight: 4,
     
     [theme.breakpoints.up('sm')]: {
-      display: "block",
+      display: "inline-block",
     },
   },
   inlineReactSidebarLine: {
@@ -29,19 +31,6 @@ const styles = (theme: ThemeType) => ({
   
   // Keeping this empty class around is necessary for the following @global style to work properly
   highlight: {},
-
-  // Comment hovered (post uses side-icons instead)
-  "@global": {
-    [
-      ".CommentsItem-body:hover .InlineReactHoverableHighlight-highlight"
-      +", .Answer-answer:hover .InlineReactHoverableHighlight-highlight"
-    ]: {
-      textDecorationLine: 'underline',
-      textDecorationStyle: 'dashed',
-      textDecorationColor: theme.palette.text.dim4,
-      textUnderlineOffset: '3px'
-    },
-  }
 })
 
 const InlineReactHoverableHighlight = ({quote, reactions, isSplitContinuation=false, children, classes}: {
@@ -54,7 +43,7 @@ const InlineReactHoverableHighlight = ({quote, reactions, isSplitContinuation=fa
   const { InlineReactHoverInfo, SideItem, LWTooltip } = Components;
 
   const hoveredReactions = useContext(HoveredReactionListContext);
-  const voteProps = useContext(InlineReactVoteContext)!;
+  const voteProps = useContext(InlineReactVoteContext);
 
   const isHovered = hoveredReactions
     && Object.keys(reactions).some(reaction =>
@@ -83,11 +72,23 @@ const InlineReactHoverableHighlight = ({quote, reactions, isSplitContinuation=fa
   
   // (reactions is already filtered by quote, we don't have to filter it again for this)
   const anyPositive = atLeastOneQuoteReactHasPositiveScore(reactions);
+
+  const visibilityMode = useContext(SideItemVisibilityContext)?.inlineReactsMode ?? defaultInlineReactsMode;
+  let sideItemIsVisible = false
+  switch(visibilityMode) {
+    case "hidden":      sideItemIsVisible = false; break;
+    case "netPositive": sideItemIsVisible = anyPositive; break;
+    case "all":         sideItemIsVisible = true; break;
+  }
   
   // We underline any given inline react if either:
   // 1) the quote itself is hovered over, or
   // 2) if the post/comment is hovered over, and the react has net-positive agreement across all users
   const shouldUnderline = isHovered || anyPositive;
+
+  if (!voteProps) {
+    return null;
+  }
 
   return <LWTooltip
     title={<InlineReactHoverInfo
@@ -105,7 +106,7 @@ const InlineReactHoverableHighlight = ({quote, reactions, isSplitContinuation=fa
       [classes.highlight]: shouldUnderline,
       [classes.reactionTypeHovered]: isHovered
     })}>
-      {!isSplitContinuation && <SideItem options={{format: "icon"}}>
+      {!isSplitContinuation && sideItemIsVisible && <SideItem options={{format: "icon"}}>
         <SidebarInlineReact quote={quote} reactions={reactions} voteProps={voteProps} classes={classes} />
       </SideItem>}
       {children}

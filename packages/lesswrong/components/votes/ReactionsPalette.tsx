@@ -210,8 +210,8 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote, cl
   ].map(r => getReactionFromName(r)).filter(r => r);
   
   const gridSectionB = [
-    'crux',       'hitsTheMark', 'locallyValid',   'scout',     'facilitation',             'concrete',  'yeswhatimean', 'clear', 'verified',
-    'notacrux',   'miss',        'locallyInvalid', 'soldier',   'unnecessarily-combative','examples',  'strawman',     'muddled', 'verifiedFalse',
+    'crux',       'hitsTheMark', 'locallyValid',   'scout',     'facilitation',             'concrete',  'yeswhatimean', 'clear', 'betTrue',
+    'notacrux',   'miss',        'locallyInvalid', 'soldier',   'unnecessarily-combative','examples',  'strawman',     'muddled', 'betFalse',
   ].map(r => getReactionFromName(r)).filter(r => r);
 
   const gridSectionC = [
@@ -237,7 +237,7 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote, cl
     'yeswhatimean', 'strawman',
     'concrete',     'examples',
     'clear',        'muddled',
-    'verified',     'verifiedFalse',
+    'betTrue',     'betFalse',
     'scout',        'soldier',
   ].map(r => getReactionFromName(r)).filter(r => r);
 

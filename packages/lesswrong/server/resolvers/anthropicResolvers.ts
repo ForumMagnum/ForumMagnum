@@ -115,11 +115,11 @@ async function getContextualPosts({ content: query, currentPost, postContext, co
   const { embeddings: queryEmbeddings } = await getEmbeddingsFromApi(query);
 
   const querySearchPromise = useQueryEmbeddings
-    ? context.repos.postEmbeddings.getNearestPostIdsWeightedByQuality(queryEmbeddings, contextSelectionCode==='query-based' ? 10 : 3)
+    ? context.repos.postEmbeddings.getNearestPostIdsWeightedByQuality(queryEmbeddings, contextSelectionCode==='query-based' ? 20 : 5)
     : Promise.resolve([]);
 
   const currentPostSearchPromise = useCurrentPostEmbeddings && currentPost
-    ? context.repos.postEmbeddings.getNearestPostIdsWeightedByQualityByPostId(currentPost._id)
+    ? context.repos.postEmbeddings.getNearestPostIdsWeightedByQualityByPostId(currentPost._id, 20)
     : Promise.resolve([]);
 
   const [querySearchIds, currentPostSearchIds] = await Promise.all([
@@ -289,7 +289,6 @@ function isClaudeAllowableMessage<T extends { role: DbLlmMessage['role'], conten
 async function sendMessagesToClaude({ previousMessages, newMessages, conversationId, model, currentUser, sendEventToClient }: SendMessagesToClaudeArgs & {
   sendEventToClient: (event: LlmStreamMessage) => Promise<void>
 }) {
-  const client = getAnthropicClientOrThrow();
   const promptCachingClient = getAnthropicPromptCachingClientOrThrow();
 
   const conversationMessages = [...previousMessages, ...newMessages];

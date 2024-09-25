@@ -3,12 +3,16 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { extractVersionsFromSemver } from '../../../lib/editor/utils';
 import classNames from 'classnames';
-import { getHostname, getProtocol } from './PostsPagePostHeader';
+import { getHostname, getProtocol, parseUnsafeUrl } from './PostsPagePostHeader';
 import { postGetLink, postGetLinkTarget } from '@/lib/collections/posts/helpers';
+import { BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from './PostBodyPrefix';
+import type { AnnualReviewMarketInfo } from '@/lib/collections/posts/annualReviewMarkets';
+
+export const LW_POST_PAGE_PADDING = 110;
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    paddingTop: 110,
+    paddingTop: LW_POST_PAGE_PADDING,
     marginBottom: 96,
     [theme.breakpoints.down('xs')]: {
       paddingTop: 16,
@@ -20,7 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   authorAndSecondaryInfo: {
     display: 'flex',
-    alignItems: 'center',
+    alignItems: 'baseline',
     columnGap: 20,
     ...theme.typography.commentStyle,
     flexWrap: 'wrap',
@@ -114,21 +118,26 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 /// LWPostsPageHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
-const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, classes, dialogueResponses, answerCount}: {
+const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, classes, dialogueResponses, answerCount, annualReviewMarketInfo}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   showEmbeddedPlayer?: boolean,
   toggleEmbeddedPlayer?: () => void,
   classes: ClassesType<typeof styles>,
   dialogueResponses: CommentsList[],
   answerCount?: number,
+  annualReviewMarketInfo?: AnnualReviewMarketInfo
 }) => {
   const { PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon, PostsGroupDetails, PostsTopSequencesNav, PostsPageEventData, AddToCalendarButton, GroupLinks, LWPostsPageHeaderTopRight, PostsAudioPlayerWrapper, PostsVote, AudioToggle, PostActionsButton, AlignmentCrosspostLink, ReadTime, LWCommentCount } = Components;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
 
   const rssFeedSource = ('feed' in post) ? post.feed : null;
-  const feedLinkDescription = rssFeedSource?.url && getHostname(rssFeedSource.url)
-  const feedLink = rssFeedSource?.url && `${getProtocol(rssFeedSource.url)}//${getHostname(rssFeedSource.url)}`;
-  const feedDomain = feedLink && new URL(feedLink).hostname;
+  let feedLinkDomain;
+  let feedLink;
+  if (rssFeedSource?.url) {
+    let feedLinkProtocol;
+    ({ hostname: feedLinkDomain, protocol: feedLinkProtocol } = parseUnsafeUrl(rssFeedSource.url));
+    feedLink = `${feedLinkProtocol}//${feedLinkDomain}`;
+  }
+
   const hasMajorRevision = ('version' in post) && extractVersionsFromSemver(post.version).major > 1
 
   const crosspostNode = post.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere &&
@@ -137,11 +146,15 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
   // TODO: If we are not the primary author of this post, but it was shared with
   // us as a draft, display a notice and a link to the collaborative editor.
 
-  const linkpostDomain = post.url && new URL(post.url).hostname;
-  const linkpostTooltip = <div>This is a linkpost:<br/>{post.url}</div>;
-  const linkpostNode = post.url && feedDomain !== linkpostDomain ? <LWTooltip title={linkpostTooltip}>
+  const { hostname: linkpostDomain } = post.url
+    ? parseUnsafeUrl(post.url)
+    : { hostname: undefined };
+
+  const linkpostTooltip = <div>View the original at:<br/>{post.url}</div>;
+  const displayLinkpost = post.url && feedLinkDomain !== linkpostDomain && (post.contents?.wordCount ?? 0) >= BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD;
+  const linkpostNode = displayLinkpost ? <LWTooltip title={linkpostTooltip}>
     <a href={postGetLink(post)} target={postGetLinkTarget(post)}>
-      {linkpostDomain}
+      Linkpost from {linkpostDomain}
     </a>
   </LWTooltip> : null;
 
@@ -154,7 +167,7 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
       </AnalyticsContext>
       <div>
         <span className={classes.topRight}>
-          <LWPostsPageHeaderTopRight post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer}/>
+          <LWPostsPageHeaderTopRight post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} annualReviewMarketInfo={annualReviewMarketInfo} />
         </span>
         {post && <span className={classes.audioPlayerWrapper}>
           <PostsAudioPlayerWrapper showEmbeddedPlayer={!!showEmbeddedPlayer} post={post}/>
@@ -172,7 +185,7 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
               <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />
             </div>}
             {rssFeedSource && rssFeedSource.user &&
-              <LWTooltip title={`Crossposted from ${feedLinkDescription}`} className={classes.feedName}>
+              <LWTooltip title={`Crossposted from ${feedLinkDomain}`} className={classes.feedName}>
                 <a href={feedLink}>{rssFeedSource.nickname}</a>
               </LWTooltip>
             }

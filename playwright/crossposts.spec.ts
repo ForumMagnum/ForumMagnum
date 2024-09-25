@@ -82,3 +82,41 @@ test("connect crossposting account and create post", async ({browser}) => {
   await pages[1].waitForTimeout(1000);
   await expect(pages[1].getByText(newTitle)).not.toBeVisible();
 });
+
+test("unlink crossposting account", async ({browser}) => {
+  const {pages, users} = await createCrosspostContexts(browser);
+
+  // Create a post with a title and body
+  await pages[0].goto("/newPost");
+  const title = `Test crosspost title ${Math.random()}`;
+  const body = `Test crosspost body ${Math.random()}`;
+  await setPostContent(pages[0], {title, body});
+
+  // Connect the crossposting account
+  await pages[0].getByText("Options").click();
+  await pages[0].getByText("Crosspost to").click();
+  await pages[0].getByText("enable crossposting").click();
+
+  // Open the authenticate account popup and copy the URL
+  const popup = await pages[0].waitForEvent("popup");
+  const authenticateUrl = popup.url();
+  await popup.close();
+
+  // Copy the popup url to pages[1] since we're already logged in there and
+  // then connect the accounts for crossposting
+  await pages[1].goto(authenticateUrl);
+  await expect(pages[1].getByText(`Logged in as ${users[1].displayName}`)).toBeVisible();
+  await pages[1].getByText("Click to connect your account").click();
+  await pages[1].waitForTimeout(1000);
+
+  // Check that the first site has been updated with the crossposting user
+  await pages[0].dispatchEvent("body", "focus");
+  await pages[0].waitForTimeout(1000);
+  await expect(pages[0].getByText(users[1].displayName)).toBeVisible();
+
+  // Click to unlink the account
+  await pages[0].getByText("Unlink this account").click();
+
+  // Check the button to re-connect accounts appears
+  await expect(pages[0].getByText("enable crossposting")).toBeVisible();
+});

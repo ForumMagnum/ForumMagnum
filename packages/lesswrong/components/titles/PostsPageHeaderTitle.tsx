@@ -13,7 +13,6 @@ const PostsPageHeaderTitle = ({siteName}: {
     documentId: _id || postId,
     collectionName: "Posts",
     fragmentName: "PostsBase",
-    fetchPolicy: 'cache-only',
   });
 
   if (!post || loading) return null;

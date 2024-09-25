@@ -153,7 +153,7 @@ importComponent("CommentSubscriptionsDropdownItem", () => require('../components
 // Post dropdown items
 importComponent("PostActions", () => require('../components/dropdowns/posts/PostActions'));
 importComponent("PostActionsButton", () => require('../components/dropdowns/posts/PostActionsButton'));
-importComponent("SetSideCommentVisibility", () => require('../components/dropdowns/posts/SetSideCommentVisibility'));
+importComponent("SetSideItemVisibility", () => require('../components/dropdowns/posts/SetSideItemVisibility'));
 importComponent("SuggestCuratedDropdownItem", () => require('../components/dropdowns/posts/SuggestCuratedDropdownItem'));
 importComponent("DeleteDraftDropdownItem", () => require('../components/dropdowns/posts/DeleteDraftDropdownItem'));
 importComponent("MoveToDraftDropdownItem", () => require('../components/dropdowns/posts/MoveToDraftDropdownItem'));
@@ -343,6 +343,7 @@ importComponent("SubscribeDialog", () => require('../components/common/Subscribe
 
 importComponent("HoverPreviewLink", () => require('../components/linkPreview/HoverPreviewLink'));
 importComponent(["PostLinkPreview", "PostLinkCommentPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "CommentLinkPreviewLegacy", "PostLinkPreviewWithPost", "PostCommentLinkPreviewGreaterWrong", "DefaultPreview", "MozillaHubPreview", "OWIDPreview", "MetaculusPreview", "ManifoldPreview", "NeuronpediaPreview", "MetaforecastPreview", "ArbitalPreview", "SequencePreview", "EstimakerPreview", "ViewpointsPreview"], () => require('../components/linkPreview/PostLinkPreview'));
+importComponent("FootnoteDialog", () => require('../components/linkPreview/FootnoteDialog'));
 importComponent("FootnotePreview", () => require('../components/linkPreview/FootnotePreview'));
 importComponent("LinkToPost", () => require('../components/linkPreview/LinkToPost'));
 
@@ -759,6 +760,8 @@ importComponent("SunshineCommentsItemOverview", () => require('../components/sun
 importComponent("AFSuggestCommentsItem", () => require('../components/sunshineDashboard/AFSuggestCommentsItem'));
 importComponent("AFSuggestCommentsList", () => require('../components/sunshineDashboard/AFSuggestCommentsList'));
 importComponent("AFSuggestCommentsList", () => require('../components/sunshineDashboard/AFSuggestCommentsList'));
+importComponent("CurationPage", () => require('../components/admin/CurationPage'));
+importComponent("CurationNoticesItem", () => require('../components/admin/CurationNoticesItem'));
 
 importComponent("AdminForumEventsPage", () => require('../components/forumEvents/AdminForumEventsPage'));
 importComponent("EditForumEventPage", () => require('../components/forumEvents/EditForumEventPage'));

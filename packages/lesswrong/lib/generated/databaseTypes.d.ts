@@ -247,6 +247,20 @@ interface DbCurationEmail extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+type CurationNoticesCollection = CollectionBase<"CurationNotices">;
+
+interface DbCurationNotice extends DbObject {
+  __collectionName?: "CurationNotices"
+  userId: string
+  commentId: string | null
+  postId: string | null
+  deleted: boolean
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  contents: EditableFieldContents | null
+  contents_latest: string | null
+}
+
 type DatabaseMetadataCollection = CollectionBase<"DatabaseMetadata">;
 
 interface DbDatabaseMetadata extends DbObject {
@@ -594,6 +608,7 @@ interface DbManifoldProbabilitiesCache extends DbObject {
   isResolved: boolean
   year: number
   lastUpdated: Date
+  url: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -840,7 +855,6 @@ interface DbPost extends DbObject {
   reviewVoteCount: number
   positiveReviewVoteCount: number
   manifoldReviewMarketId: string | null
-  annualReviewMarketCommentId: string | null
   reviewVoteScoreAF: number
   reviewVotesAF: Array<number>
   reviewVoteScoreHighKarma: number
@@ -960,7 +974,6 @@ interface DbPost extends DbObject {
   hideCommentKarma: boolean
   commentCount: number
   topLevelCommentCount: number
-  criticismTipsDismissed: boolean | null
   debate: boolean
   collabEditorDialogue: boolean
   mostRecentPublishedDialogueResponseDate: Date | null
@@ -1116,7 +1129,7 @@ interface DbRevision extends DbObject {
     data: string,
   } | null
   html: string | null
-  wordCount: number | null
+  wordCount: number
   changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/
   googleDocMetadata: any /*{"definitions":[{"blackbox":true}]}*/
   createdAt: Date
@@ -1861,6 +1874,7 @@ interface DbUser extends DbObject {
   acknowledgedNewUserGuidelines: boolean | null
   subforumPreferredLayout: "card" | "list" | null
   hideJobAdUntil: Date | null
+  criticismTipsDismissed: boolean
   hideFromPeopleDirectory: boolean
   allowDatadogSessionReplay: boolean
   afPostCount: number
@@ -1952,6 +1966,7 @@ interface CollectionsByName {
   Conversations: ConversationsCollection
   CronHistories: CronHistoriesCollection
   CurationEmails: CurationEmailsCollection
+  CurationNotices: CurationNoticesCollection
   DatabaseMetadata: DatabaseMetadataCollection
   DebouncerEvents: DebouncerEventsCollection
   DialogueChecks: DialogueChecksCollection
@@ -2036,6 +2051,7 @@ interface ObjectsByCollectionName {
   Conversations: DbConversation
   CronHistories: DbCronHistory
   CurationEmails: DbCurationEmail
+  CurationNotices: DbCurationNotice
   DatabaseMetadata: DbDatabaseMetadata
   DebouncerEvents: DbDebouncerEvents
   DialogueChecks: DbDialogueCheck
@@ -2120,6 +2136,7 @@ interface ObjectsByTypeName {
   Conversation: DbConversation
   CronHistory: DbCronHistory
   CurationEmail: DbCurationEmail
+  CurationNotice: DbCurationNotice
   DatabaseMetadata: DbDatabaseMetadata
   DebouncerEvents: DbDebouncerEvents
   DialogueCheck: DbDialogueCheck

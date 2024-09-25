@@ -34,7 +34,7 @@ const styles = (theme: ThemeType) => ({
   clickToPinMessage: {
     position: "absolute",
     display: "inline-block",
-    top: -2, left: 28,
+    top: -2, left: 36,
     fontSize: 13,
     color: theme.palette.text.dim45,
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -181,7 +181,7 @@ const SideCommentIconDesktop = ({commentIds, post, classes}: {
   const onClickAway = (ev: ClickAwayEvent) => {
     const isClickOnIcon = some(
       ev.composedPath(),
-      (element: Element) => element.classList.contains(classes.sideCommentIcon)
+      (element: Element) => element.classList?.contains(classes.sideCommentIcon)
     );
     if (!isClickOnIcon) {
       setPinned("auto");

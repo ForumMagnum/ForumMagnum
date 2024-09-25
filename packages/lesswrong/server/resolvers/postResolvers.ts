@@ -12,13 +12,13 @@ import { getDefaultViewSelector } from '../../lib/utils/viewUtils';
 import keyBy from 'lodash/keyBy';
 import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema, createMutator } from '../vulcan-lib';
-import { postIsCriticism } from '../languageModels/autoTagCallbacks';
+import { postIsCriticism } from '../languageModels/criticismTipsBot';
 import { createPaginatedResolver } from './paginatedResolver';
 import { getDefaultPostLocationFields, getDialogueResponseIds, getDialogueMessageTimestamps, getPostHTML } from "../posts/utils";
 import { buildRevision } from '../editor/make_editable_callbacks';
 import { cheerioParse } from '../utils/htmlUtil';
 import { isDialogueParticipant } from '../../components/posts/PostsPage/PostsPage';
-import { marketInfoLoader } from '../posts/annualReviewMarkets';
+import { marketInfoLoader } from '../../lib/collections/posts/annualReviewMarkets';
 import { getWithCustomLoader } from '../../lib/loaders';
 import { isLWorAF, isAF } from '../../lib/instanceSettings';
 import { hasSideComments } from '../../lib/betas';
@@ -354,6 +354,7 @@ augmentFieldsDict(Posts, {
 
 
 export type PostIsCriticismRequest = {
+  _id?: string,
   title: string,
   contentType: string,
   body: string
@@ -379,7 +380,7 @@ addGraphQLResolvers({
         throw new Error('Must be logged in to check post')
       }
 
-      return await postIsCriticism(args)
+      return await postIsCriticism(args, currentUser._id)
     },
     async DigestPosts(root: void, {num}: {num: number}, context: ResolverContext) {
       const { repos } = context

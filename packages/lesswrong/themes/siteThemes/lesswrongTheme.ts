@@ -56,10 +56,14 @@ export const lessWrongTheme: SiteThemeSpecification = {
     },
     link: {
       color: "#327E09",
-      visited: "#957950",
+      visited: "#798754"
     },
   }),
   make: (palette: ThemePalette) => ({
+    zIndexes: {
+      searchResults: 1100,
+      intercomButton: 1030,
+    },
     typography: {
       fontFamily: sansSerifStack,
       postStyle: {

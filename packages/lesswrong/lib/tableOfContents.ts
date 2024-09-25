@@ -26,11 +26,26 @@ export interface ToCSection {
   anchor: string,
   level: number,
   divider?: boolean,
+  
+  /**
+   * The y-position of the anchor that corresponds to this ToC entry, relative
+   * to the top of the page. Used to determine which heading is highlighted.
+   */
   offset?: number,
+  
+  /**
+   * If a variable-height ToC is in use, the relative vertical size of this
+   * section
+   */
+  scale?: number,
 }
 
 export interface ToCSectionWithOffset extends ToCSection {
   offset: number,
+}
+
+export interface ToCSectionWithOffsetAndScale extends ToCSectionWithOffset {
+  scale: number,
 }
 
 export interface ToCData {

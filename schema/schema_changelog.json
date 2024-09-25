@@ -748,5 +748,40 @@
     "acceptsSchemaHash": "17afacac40e75c7380478219e9b4f751",
     "acceptedByMigration": "20240830T022436.add_subtitleUrl.ts",
     "timestamp": "2024-08-30T02:24:36.000Z"
+  },
+  {
+    "acceptsSchemaHash": "f857f474b5a374350cc1797a5d9240fa",
+    "acceptedByMigration": "20240904T205502.create_curation_notices_table.ts",
+    "timestamp": "2024-09-04T20:55:02.000Z"
+  },
+  {
+    "acceptsSchemaHash": "4478fe67319e5ebbe8327768fc26f5f4",
+    "acceptedByMigration": "20240906T192038.lwevents_ip_index.ts",
+    "timestamp": "2024-09-06T19:20:38.000Z"
+  },
+  {
+    "acceptsSchemaHash": "8c84a413224b6139788e7a51da3bc113",
+    "acceptedByMigration": "20240910T144757.revisions_word_count_not_null.ts",
+    "timestamp": "2024-09-10T14:47:57.000Z"
+  },
+  {
+    "acceptsSchemaHash": "daef9f83fd77670b6fe1ee98ffff75f1",
+    "acceptedByMigration": "20240913T193135.add_url_to_manifoldProbabilitiesCache.ts",
+    "timestamp": "2024-09-13T19:31:35.000Z"
+  },
+  {
+    "acceptsSchemaHash": "1184dfb713785c6ceabde629903f40dc",
+    "acceptedByMigration": "20240913T200359.remove_review_comment_id_from_posts.ts",
+    "timestamp": "2024-09-13T20:03:59.000Z"
+  },
+  {
+    "acceptsSchemaHash": "e766c875e6c9911dcdd77f9a20a3c9c8",
+    "acceptedByMigration": "20240918T045729.add_criticismTipsDismissed_to_Users.ts",
+    "timestamp": "2024-09-18T04:57:29.000Z"
+  },
+  {
+    "acceptsSchemaHash": "16016945b35edcc8c5df47e292005a22",
+    "acceptedByMigration": "20240921T202611.ensure_Manifold_url_column_is_nullable.ts",
+    "timestamp": "2024-09-21T20:26:11.000Z"
   }
 ]

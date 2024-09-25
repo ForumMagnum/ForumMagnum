@@ -9,11 +9,15 @@ import { extractDenormalizedData } from "./denormalizedFields";
 import { InvalidUserError, UnauthorizedError } from "./errors";
 import { validateCrosspostingKarmaThreshold } from "./helpers";
 import type { GetRouteOf, PostRouteOf } from "./routes";
-import { signToken, verifyToken } from "./tokens";
+import { verifyToken } from "./tokens";
 import { getAllRepos } from "@/server/repos";
 import {
-  ConnectCrossposterPayload, ConnectCrossposterPayloadValidator, CrosspostPayloadValidator, UnlinkCrossposterPayloadValidator, UpdateCrosspostPayloadValidator
+  ConnectCrossposterPayloadValidator,
+  CrosspostPayloadValidator,
+  UnlinkCrossposterPayloadValidator,
+  UpdateCrosspostPayloadValidator,
 } from "./types";
+import { connectCrossposterToken } from "../crossposting/tokens";
 
 export const onCrosspostTokenRequest: GetRouteOf<'crosspostToken'> = async (req: Request) => {
   const {user} = req;
@@ -24,7 +28,7 @@ export const onCrosspostTokenRequest: GetRouteOf<'crosspostToken'> = async (req:
   // Throws an error if user doesn't have enough karma on the source forum (which is the current execution environment)
   validateCrosspostingKarmaThreshold(user);
 
-  const token = await signToken<ConnectCrossposterPayload>({ userId: user._id });
+  const token = await connectCrossposterToken.create({userId: user._id});
   return {token};
 };
 

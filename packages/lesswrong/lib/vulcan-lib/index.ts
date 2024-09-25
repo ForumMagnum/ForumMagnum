@@ -1,7 +1,6 @@
 export * from './config';
 export * from './components';
 export * from './collections';
-export * from './callbacks';
 export * from './graphql';
 export * from './routes';
 export * from './utils';

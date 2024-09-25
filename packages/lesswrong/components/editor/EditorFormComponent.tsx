@@ -11,7 +11,6 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import PropTypes from 'prop-types';
 import * as _ from 'underscore';
 import { gql, useLazyQuery, useMutation } from '@apollo/client';
-import { useUpdate } from "../../lib/crud/withUpdate";
 import { isEAForum } from '../../lib/instanceSettings';
 import Transition from 'react-transition-group/Transition';
 import { useTracking } from '../../lib/analyticsEvents';
@@ -21,6 +20,9 @@ import isEqual from 'lodash/isEqual';
 import { useDebouncedCallback, useStabilizedCallback } from '../hooks/useDebouncedCallback';
 import { useMessages } from '../common/withMessages';
 import { editableCollectionsFieldOptions } from '@/lib/editor/makeEditableOptions';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE } from '@/lib/cookies/cookies';
 
 const autosaveInterval = 3000; //milliseconds
 const remoteAutosaveInterval = 1000 * 60 * 5; // 5 minutes in milliseconds
@@ -51,7 +53,7 @@ export function isCollaborative(post: Pick<DbPost, '_id' | 'shareWithUsers' | 's
   if (post.sharingSettings?.anyoneWithLinkCan && post.sharingSettings.anyoneWithLinkCan !== "none")
     return true;
   if (post.collabEditorDialogue) return true;
-  return false;  
+  return false;
 }
 
 const getPostPlaceholder = (post: PostsBase) => {
@@ -133,26 +135,17 @@ export const EditorFormComponent = ({
   // On the EA Forum, our bot checks if posts are potential criticism,
   // and if so we show a little card with tips on how to make it more likely to go well.
   const [postFlaggedAsCriticism, setPostFlaggedAsCriticism] = useState<boolean>(false)
-  const [criticismTipsDismissed, setCriticismTipsDismissed] = useState<boolean>(document.criticismTipsDismissed)
-
-  const { mutate: updatePostCriticismTips } = useUpdate({
-    collectionName: "Posts",
-    fragmentName: "PostsEditCriticismTips",
-  })
+  const [criticismTipsDismissed, setCriticismTipsDismissed] = useState<boolean>(!!currentUser?.criticismTipsDismissed)
+  const updateCurrentUser = useUpdateCurrentUser()
+  
   const handleDismissCriticismTips = () => {
     // hide the card
     setCriticismTipsDismissed(true)
     captureEvent('criticismTipsDismissed', {postId: document._id})
-    // make sure not to show the card for this post ever again
-    updateCurrentValues({criticismTipsDismissed: true})
-    if (updatedFormType !== 'new' && document._id) {
-      void updatePostCriticismTips({
-        selector: {_id: document._id},
-        data: {
-          criticismTipsDismissed: true
-        }
-      })
-    }
+    // make sure not to show the card for this user ever again
+    void updateCurrentUser({
+      criticismTipsDismissed: true
+    })
   }
   
   const [checkPostIsCriticism] = useLazyQuery(gql`
@@ -161,23 +154,32 @@ export const EditorFormComponent = ({
     }
     `, {
       onCompleted: (data) => {
-        const isCriticism = !!data.PostIsCriticism
-        setPostFlaggedAsCriticism(isCriticism)
-        if (isCriticism && !postFlaggedAsCriticism) {
-          captureEvent('criticismTipsShown', {postId: document._id})
-        }
+        // SC 2024-09-18: We are temporarily hiding the user-facing card,
+        // as we are testing using gpt-4o-mini directly instead of a fine-tuned model.
+        
+        // const isCriticism = !!data.PostIsCriticism
+        // setPostFlaggedAsCriticism(isCriticism)
+        // if (isCriticism && !postFlaggedAsCriticism) {
+        //   captureEvent('criticismTipsShown', {postId: document._id})
+        // }
       }
     }
   )
   
   // On the EA Forum, our bot checks if posts are potential criticism,
   // and if so we show a little card with tips on how to make it more likely to go well.
+  const [cookies] = useCookiesWithConsent([HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE])
   const checkIsCriticism = useCallback((contents: EditorContents) => {
-    // we're currently skipping linkposts, since the linked post's author is
-    // not always the same person posting it on the forum
+    // The "Useful links" card appears on the "new post" form by default,
+    // in the same area as the criticism tips card. If the user hasn't dismissed it,
+    // then we don't bother to show the criticism tips card.
+    const conflictingCardVisible = updatedFormType === 'new' && cookies[HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE] !== 'true'
+    // We're currently skipping linkposts, since the linked post's author is
+    // not always the same person posting it on the forum.
     if (
       !isEAForum ||
       collectionName !== 'Posts' ||
+      conflictingCardVisible ||
       document.isEvent ||
       document.debate ||
       document.shortform ||
@@ -186,12 +188,16 @@ export const EditorFormComponent = ({
     ) return
 
     checkPostIsCriticism({variables: { args: {
+      _id: document._id,
       title: document.title ?? '',
       contentType: contents.type,
       body: contents.value
     }}})
   }, [
     collectionName,
+    updatedFormType,
+    cookies,
+    document._id,
     document.isEvent,
     document.debate,
     document.shortform,

@@ -3,8 +3,8 @@ import { createMutator } from './vulcan-lib/mutators';
 import Votes from '../lib/collections/votes/collection';
 import { userCanDo } from '../lib/vulcan-users/permissions';
 import { recalculateScore } from '../lib/scoring';
-import { voteTypes } from '../lib/voting/voteTypes';
-import { voteCallbacks, VoteDocTuple, getVotePower } from '../lib/voting/vote';
+import { isValidVoteType } from '../lib/voting/voteTypes';
+import { VoteDocTuple, getVotePower } from '../lib/voting/vote';
 import { getVotingSystemForDocument, VotingSystem } from '../lib/voting/votingSystems';
 import { createAnonymousContext } from './vulcan-lib/query';
 import { randomId } from '../lib/random';
@@ -26,6 +26,8 @@ import {Posts} from '../lib/collections/posts';
 import { VotesRepo } from './repos';
 import { isLWorAF } from '../lib/instanceSettings';
 import { swrInvalidatePostRoute } from './cache/swr';
+import { onCastVoteAsync, onVoteCancel } from './callbacks/votingCallbacks';
+import { getVoteAFPower } from './callbacks/alignment-forum/callbacks';
 
 // Test if a user has voted on the server
 const getExistingVote = async ({ document, user }: {
@@ -108,6 +110,7 @@ export const createVote = ({ document, collectionName, voteType, extendedVote, u
     voteType: voteType,
     extendedVoteType: extendedVote,
     power: getVotePower({user, voteType, document}),
+    afPower: getVoteAFPower({user, voteType, document}),
     votedAt: new Date(),
     authorIds,
     cancelled: false,
@@ -177,6 +180,7 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
       cancelled: true,
       isUnvote: true,
       power: -vote.power,
+      afPower: -vote.afPower,
       votedAt: new Date(),
       silenceNotification,
     };
@@ -186,13 +190,7 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
       validate: false,
     });
 
-    await voteCallbacks.cancelSync.runCallbacks({
-      iterator: {newDocument, vote},
-      properties: [collection, user]
-    });
-    await voteCallbacks.cancelAsync.runCallbacksAsync(
-      [{newDocument, vote}, collection, user]
-    );
+    await onVoteCancel(newDocument, vote, collection, user);
   }
   const newScores = await recalculateDocumentScores(document, context);
   await collection.rawUpdateOne(
@@ -250,7 +248,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   if (!extendedVote && voteType && voteType !== "neutral" && !userCanDo(user, collectionVoteType)) {
     throw new Error(`Error casting vote: User can't cast votes of type ${collectionVoteType}.`);
   }
-  if (!voteTypes[voteType]) throw new Error(`Invalid vote type in performVoteServer: ${voteType}`);
+  if (!isValidVoteType(voteType)) throw new Error(`Invalid vote type in performVoteServer: ${voteType}`);
 
   if (!selfVote && collectionName === "Comments" && (document as DbComment).debateResponse) {
     const post = await Posts.findOne({_id: (document as DbComment).postId});
@@ -298,12 +296,8 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
     }
 
     let voteDocTuple: VoteDocTuple = await addVoteServer({document, user, collection, voteType, extendedVote, voteId, context});
-    voteDocTuple = await voteCallbacks.castVoteSync.runCallbacks({
-      iterator: voteDocTuple,
-      properties: [collection, user]
-    });
+
     document = voteDocTuple.newDocument;
-    
     document = await clearVotesServer({
       document, user, collection,
       excludeLatest: true,
@@ -312,9 +306,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
 
     voteDocTuple.newDocument = document
     
-    void voteCallbacks.castVoteAsync.runCallbacksAsync(
-      [voteDocTuple, collection, user, context]
-    );
+    void onCastVoteAsync(voteDocTuple, collection, user, context);
   }
 
   (document as any).__typename = collection.options.typeName;

@@ -410,6 +410,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         COALESCE(p."isEvent", FALSE) AS "isEvent",
         COALESCE(p."rejected", FALSE) AS "rejected",
         COALESCE(p."authorIsUnreviewed", FALSE) AS "authorIsUnreviewed",
+        COALESCE(p."unlisted", FALSE) AS "unlisted",
         COALESCE(p."viewCount", 0) AS "viewCount",
         p."lastCommentedAt",
         COALESCE(p."draft", FALSE) AS "draft",
