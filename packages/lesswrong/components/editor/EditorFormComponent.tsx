@@ -11,7 +11,7 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import PropTypes from 'prop-types';
 import * as _ from 'underscore';
 import { gql, useLazyQuery, useMutation } from '@apollo/client';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import Transition from 'react-transition-group/Transition';
 import { useTracking } from '../../lib/analyticsEvents';
 import { PostCategory } from '../../lib/collections/posts/helpers';
@@ -262,7 +262,7 @@ export const EditorFormComponent = ({
     // Afterwards, check whatever revision was loaded for display
     // This may or may not be the most recent one) against current content
     // If different, save a new revision
-    if (collectionName === 'Posts' && !isEqual(autosaveContentsRef.current, newContents)) {
+    if (isLWorAF && collectionName === 'Posts' && !isEqual(autosaveContentsRef.current, newContents)) {
       // In order to avoid recreating this function (which is throttled) each time the contents change,
       // we need to use a ref rather than using the `contents` directly.  We also need to update it here,
       // rather than e.g. in `wrappedSetContents`, since updating it there would result in the `isEqual` always returning true
