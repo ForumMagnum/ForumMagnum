@@ -216,6 +216,10 @@ import './collections/comments'
 
 import './collections/petrovDayLaunchs'
 
+import './collections/petrovDayActions/collection'
+import './collections/petrovDayActions/fragments'
+import './collections/petrovDayActions/views'
+
 import './collections/featuredResources/collection'
 import './collections/featuredResources/views'
 import './collections/featuredResources/fragments'
