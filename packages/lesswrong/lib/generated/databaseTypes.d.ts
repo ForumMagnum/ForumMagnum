@@ -717,8 +717,8 @@ type PetrovDayActionsCollection = CollectionBase<"PetrovDayActions">;
 
 interface DbPetrovDayAction extends DbObject {
   __collectionName?: "PetrovDayActions"
-  action: string
-  data: string | null
+  actionType: string
+  data: any /*{"definitions":[{}]}*/
   userId: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/

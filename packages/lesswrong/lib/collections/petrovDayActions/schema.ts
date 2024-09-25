@@ -1,6 +1,7 @@
 
 const schema: SchemaType<"PetrovDayActions"> = {
-  action: {
+  // NOTE: this whole schema is bad, sorry Robert
+  actionType: {
     type: String,
     optional: true,
     nullable: false,
@@ -9,7 +10,8 @@ const schema: SchemaType<"PetrovDayActions"> = {
     canUpdate: ['members'],
   },
   data: {
-    type: String,
+    type: Object,
+    nullable: true,
     optional: true,
     canRead: ['guests'],
     canCreate: ['members'],
@@ -17,7 +19,6 @@ const schema: SchemaType<"PetrovDayActions"> = {
   },
   userId: {
     type: String,
-    optional: true,
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members'],

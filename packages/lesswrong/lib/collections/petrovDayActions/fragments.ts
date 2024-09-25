@@ -5,7 +5,7 @@ registerFragment(`
     _id
     createdAt
     userId
-    action
+    actionType
     data
   }
 `);

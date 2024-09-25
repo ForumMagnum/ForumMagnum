@@ -18,6 +18,7 @@ import { Helmet } from '../../../lib/utils/componentsWithChildren';
 import { useMapStyle } from '../../hooks/useMapStyle';
 import { petrovPostIdSetting, petrovDayLaunchCode, petrovGamePostIdSetting } from '../PetrovDayButton';
 import { useCreate } from '@/lib/crud/withCreate';
+import { useMulti } from '@/lib/crud/withMulti';
 
 // export const petrovPostIdSetting = new DatabasePublicSetting<string>('petrov.petrovPostId', '')
 // const petrovGamePostIdSetting = new DatabasePublicSetting<string>('petrov.petrovGamePostId', '')
@@ -149,16 +150,19 @@ const OptIntoPetrovButton = ({classes, refetch, alreadyLaunched }: {
   const [pressed, setPressed] = useState(false) //petrovPressedButtonDate)
   const [confirmationCode, setConfirmationCode] = useState('')
 
-
-  const [ mutate ] = useMutation(gql`
-    mutation petrovDayLaunchResolvers($launchCode: String) {
-      PetrovDayLaunchMissile(launchCode: $launchCode) {
-        launchCode
-      }
+  const { results: petrovDayActions } = useMulti({
+    collectionName: 'PetrovDayActions',
+    fragmentName: 'PetrovDayActionInfo',
+    terms: {
+      view: 'getAction',
+      userId: currentUser?._id,
+      actionType: 'optIn',
+      limit: 1
     }
-  `
-  );
-  
+  })
+    
+  const optedIn = !!petrovDayActions?.length
+
   const { flash } = useMessages();
   
   const { LWTooltip, LoginPopupButton, Typography } = Components
@@ -183,22 +187,15 @@ const OptIntoPetrovButton = ({classes, refetch, alreadyLaunched }: {
     }
   }
 
-  const optIn = async () => {
+  const updateOptIn = async () => {
     if (!currentUser) return
-    void mutate({ variables: { launchCode: confirmationCode } })
+    void createPetrovDayAction({  
+      data: {
+        userId: currentUser._id,
+        actionType: 'optIn',
+      }
+    })
   }
-
-  const launch = async () => {
-    if (!currentUser) return
-    void mutate({ variables: { launchCode: confirmationCode } })
-    
-    if (confirmationCode !== petrovDayLaunchCode) {
-      flash({ messageString: "incorrect code, missile launch aborted", type: 'failure'});
-    } else {
-      flash({ messageString: "missiles launched!! i hope you made good choices...", type: 'success'});
-    }
-  }
-
 
   const renderButtonAsPressed = !!petrovPressedButtonDate || pressed
     
@@ -234,27 +231,24 @@ const OptIntoPetrovButton = ({classes, refetch, alreadyLaunched }: {
               </LoginPopupButton>
             </div>
           }
-  
-          <div className={classes.inputSection}>
-            {renderButtonAsPressed && <TextField
-              onChange={updateConfirmationCode}
-              placeholder={`Type your username`}
-              margin="normal"
-              variant="outlined"
-            />}
-            {!renderButtonAsPressed ? beforePressMessage : <div className={classes.info}>
-              {afterPressMessage}
-            </div>}
-            {renderButtonAsPressed && <Button onClick={launch} className={classes.launchButton}>
-              Confirm
-            </Button>}
-            {/* <div className={classes.info}>
-              {renderButtonAsPressed ? "You are registered for the lottery. Winners will be announced on 9/28." : "You can opt in for the lottery by entering your username above. Winners will be announced on 9/28."}
-            </div> */}
-            {/* <Link to={"/posts/" + petrovGamePostIdSetting.get()} className={classes.link}>
-              Learn More
-            </Link> */}
-          </div>
+          {optedIn ? 
+            <div>You have opted in</div> 
+            : 
+            <div className={classes.inputSection}>
+              {renderButtonAsPressed && <TextField
+                onChange={updateConfirmationCode}
+                placeholder={`Type your username`}
+                margin="normal"
+                variant="outlined"
+              />}
+              {!renderButtonAsPressed ? beforePressMessage : <div className={classes.info}>
+                {afterPressMessage}
+              </div>}
+              {renderButtonAsPressed && <Button onClick={updateOptIn} className={classes.launchButton}>
+                Confirm
+              </Button>}
+            </div>
+          }
       </div>
 }
 

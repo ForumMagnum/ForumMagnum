@@ -3575,8 +3575,8 @@ interface PetrovDayLaunchInfo { // fragment on PetrovDayLaunchs
 }
 
 interface PetrovDayActionsDefaultFragment { // fragment on PetrovDayActions
-  readonly action: string,
-  readonly data: string,
+  readonly actionType: string,
+  readonly data: any /*{"definitions":[{}]}*/,
   readonly userId: string,
 }
 
@@ -3584,8 +3584,8 @@ interface PetrovDayActionInfo { // fragment on PetrovDayActions
   readonly _id: string,
   readonly createdAt: Date,
   readonly userId: string,
-  readonly action: string,
-  readonly data: string,
+  readonly actionType: string,
+  readonly data: any /*{"definitions":[{}]}*/,
 }
 
 interface FeaturedResourcesDefaultFragment { // fragment on FeaturedResources
