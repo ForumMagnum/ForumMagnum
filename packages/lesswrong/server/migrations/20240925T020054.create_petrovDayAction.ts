@@ -45,10 +45,11 @@
 export const acceptsSchemaHash = "4176699fcd50a096b6fd2437aec71b01";
 
 import { PetrovDayActions } from "../../lib/collections/petrovDayActions/collection"
-import { createTable, dropTable } from "./meta/utils"
+import { createTable, dropTable, updateIndexes } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {
   await createTable(db, PetrovDayActions)
+  await updateIndexes(PetrovDayActions);
 }
 
 export const down = async ({db}: MigrationContext) => {

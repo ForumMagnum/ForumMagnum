@@ -1,32 +1,11 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
-import React, { useState } from 'react';
-import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button';
-import { Link } from '../../../lib/reactRouterWrapper';
-import { useCurrentUser } from '../../common/withUser';
-import ReactMapGL from 'react-map-gl';
-import { DatabasePublicSetting, mapboxAPIKeySetting } from '../../../lib/publicSettings';
-import { useMutation, gql } from '@apollo/client';
-import { useMessages } from "../../common/withMessages";
-import {
-  getPetrovDayKarmaThreshold,
-  userCanLaunchPetrovMissile,
-  usersAboveKarmaThresholdHardcoded20220922
-} from "../../../lib/petrovHelpers";
-import { Helmet } from '../../../lib/utils/componentsWithChildren';
-import { useMapStyle } from '../../hooks/useMapStyle';
-import { petrovPostIdSetting, petrovDayLaunchCode, petrovGamePostIdSetting } from '../PetrovDayButton';
 import { useCreate } from '@/lib/crud/withCreate';
 import { useMulti } from '@/lib/crud/withMulti';
-
-// export const petrovPostIdSetting = new DatabasePublicSetting<string>('petrov.petrovPostId', '')
-// const petrovGamePostIdSetting = new DatabasePublicSetting<string>('petrov.petrovGamePostId', '')
-// export const petrovDayLaunchCode = 'whatwouldpetrovdo?'
-
-// This component is (most likely) going to be used once-a-year on Petrov Day (sept 26th)
-// see this post:
-// https://www.lesswrong.com/posts/vvzfFcbmKgEsDBRHh/honoring-petrov-day-on-lesswrong-in-2019
+import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
+import React, { useState } from 'react';
+import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { useCurrentUser } from '../../common/withUser';
+import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -155,7 +134,7 @@ const OptIntoPetrovButton = ({classes, refetch, alreadyLaunched }: {
   alreadyLaunched?: boolean,
 }) => {
   const currentUser = useCurrentUser()
-  const { petrovPressedButtonDate } = (currentUser || {}) as any;
+  const petrovPressedButtonDate = currentUser?.petrovPressedButtonDate
   const [pressed, setPressed] = useState(false) //petrovPressedButtonDate)
   const [confirmationCode, setConfirmationCode] = useState('')
   const [error, setError] = useState('')
@@ -166,14 +145,14 @@ const OptIntoPetrovButton = ({classes, refetch, alreadyLaunched }: {
     fragmentName: 'PetrovDayActionInfo',
     terms: {
       view: 'getAction',
+      userId: currentUser?._id,
       actionType: 'optIn',
-      limit: 1000
+      limit: 1
     },
     skip: !currentUser
   })
-  const currentUserOptedIn = !!petrovDayActions?.find(action => action.userId === currentUser?._id)
-  const uniqueOptedInUsers = [...new Set(petrovDayActions?.map(action => action.userId))]
-  console.log("uniqueOptedInUsers", uniqueOptedInUsers)
+  const currentUserOptedIn = !!petrovDayActions?.length
+
   const optedIn = currentUserOptedIn || displayOptedIn
   
   const { LWTooltip, LoginPopupButton } = Components
@@ -217,12 +196,12 @@ const OptIntoPetrovButton = ({classes, refetch, alreadyLaunched }: {
     }
   }
 
-  const renderButtonAsPressed = !!petrovPressedButtonDate || pressed
+  const buttonPressedInLastWeek = (!!petrovPressedButtonDate && new Date().getTime() - new Date(petrovPressedButtonDate).getTime() < 7 * 24 * 60 * 60 * 1000)
+
+  const renderButtonAsPressed = buttonPressedInLastWeek || pressed
     
-  const beforePressMessage = <div>
-    <div className={classes.title}>Opt into Petrov Day</div>
-    {uniqueOptedInUsers.length > 0 && <div className={classes.info}>{uniqueOptedInUsers.length} people have opted in</div>}
-  </div>
+  const beforePressMessage = <div className={classes.title}>Opt into Petrov Day</div>
+  
   const afterPressMessage = <div>
     <p>Type your username and click "confirm" to register interest in the Petrov Day social deception game.</p>
     <p>A small number of people will be chosen as lead participants, the rest will be citizens.</p>
@@ -257,7 +236,7 @@ const OptIntoPetrovButton = ({classes, refetch, alreadyLaunched }: {
           }
           {optedIn ? 
             <div style={{marginLeft:"auto", marginRight:"auto"}}>
-              You {uniqueOptedInUsers.length > 1 && `and ${uniqueOptedInUsers.length - 1} others `} have opted in
+              You have opted in
             </div> 
             : 
             <div className={classes.inputSection}>
@@ -270,7 +249,6 @@ const OptIntoPetrovButton = ({classes, refetch, alreadyLaunched }: {
               />}
               {!renderButtonAsPressed ? beforePressMessage : <div className={classes.info}>
                 {afterPressMessage}
-                {uniqueOptedInUsers.length > 0 && <div>{uniqueOptedInUsers.length} people have opted in</div>}
               </div>}
               {error && <div className={classes.error}>{error}</div>}
               {renderButtonAsPressed && <Button onClick={updateOptIn} className={classes.launchButton}>
