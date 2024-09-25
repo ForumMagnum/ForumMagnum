@@ -28,6 +28,7 @@ const LWHome = () => {
           <SingleColumnSection>
             <OptIntoPetrovButton/>
           </SingleColumnSection>
+          {/* TODO: Uncomment this after Petrov Day */}
           {/* <SingleColumnSection>
             <DismissibleSpotlightItem current/>
           </SingleColumnSection> */}
