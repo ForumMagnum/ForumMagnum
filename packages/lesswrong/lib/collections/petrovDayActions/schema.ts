@@ -3,7 +3,6 @@ const schema: SchemaType<"PetrovDayActions"> = {
   // NOTE: this whole schema is bad, sorry Robert
   actionType: {
     type: String,
-    optional: true,
     nullable: false,
     canRead: ['guests'],
     canCreate: ['members'],
