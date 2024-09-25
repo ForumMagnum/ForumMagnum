@@ -111,6 +111,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: theme.spacing.unit*2,
     width: 300
   },
+  optedIn: {
+    marginLeft: "auto",
+    marginRight: "auto",
+  },
   title: {
     textAlign: "center",
     lineHeight: "2.8em",
@@ -235,8 +239,8 @@ const OptIntoPetrovButton = ({classes, refetch, alreadyLaunched }: {
             </div>
           }
           {optedIn ? 
-            <div style={{marginLeft:"auto", marginRight:"auto"}}>
-              You have opted in
+            <div className={classes.optedIn}>
+              You have opted into Petrov Day
             </div> 
             : 
             <div className={classes.inputSection}>
