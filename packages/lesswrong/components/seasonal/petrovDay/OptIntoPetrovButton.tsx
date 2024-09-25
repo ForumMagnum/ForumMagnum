@@ -136,10 +136,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const OptIntoPetrovButton = ({classes, refetch, alreadyLaunched }: {
-  classes: ClassesType,
-  refetch?: any,
-  alreadyLaunched?: boolean,
+const OptIntoPetrovButton = ({classes }: {
+  classes: ClassesType
 }) => {
   const currentUser = useCurrentUser()
   const petrovPressedButtonDate = currentUser?.petrovPressedButtonDate
