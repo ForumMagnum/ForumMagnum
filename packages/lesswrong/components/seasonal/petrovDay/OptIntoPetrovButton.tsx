@@ -198,7 +198,7 @@ const OptIntoPetrovButton = ({classes }: {
       setDisplayOptedIn(true)
       await refetchPetrovDayActions()
     } else {
-      setError('Username does not match')
+      setError('Display name does not match')
     }
   }
 
@@ -209,7 +209,7 @@ const OptIntoPetrovButton = ({classes }: {
   const beforePressMessage = <div className={classes.title}>Opt into Petrov Day</div>
   
   const afterPressMessage = <div>
-    <p>Type your username and click "confirm" to register interest in the Petrov Day social deception game.</p>
+    <p>Type your display name and click "confirm" to register interest in the Petrov Day social deception game.</p>
     <p>A small number of people will be chosen as lead participants, the rest will be citizens.</p>
   </div>
 
@@ -249,7 +249,7 @@ const OptIntoPetrovButton = ({classes }: {
               {renderButtonAsPressed && <TextField
                 onChange={updateConfirmationCode}
                 value={confirmationCode}
-                placeholder={`Type your username`}
+                placeholder={`Type your display name`}
                 margin="normal"
                 variant="outlined"
               />}
