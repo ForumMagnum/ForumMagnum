@@ -21,13 +21,13 @@ const PetrovDayWrapper = () => {
   });
   
   
-  if (internalData?.PetrovDayCheckIfIncoming.launched) {
-    return <Components.PetrovDayLossScreen/>
-  } else {
-    return <Components.PetrovDayButton
+  // if (internalData?.PetrovDayCheckIfIncoming.launched) {
+    // return <Components.PetrovDayLossScreen/>
+  // } else {
+    return <Components.OptIntoPetrovButton
       alreadyLaunched={internalData?.PetrovDayCheckIfIncoming?.launched}
     />
-  }
+  // }
 }
 
 const PetrovDayWrapperComponent = registerComponent('PetrovDayWrapper', PetrovDayWrapper);

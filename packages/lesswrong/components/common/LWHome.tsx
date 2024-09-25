@@ -9,7 +9,7 @@ import moment from 'moment';
 import { visitorGetsDynamicFrontpage } from '../../lib/betas';
 
 const LWHome = () => {
-  const { DismissibleSpotlightItem, RecentDiscussionFeed, AnalyticsInViewTracker, FrontpageReviewWidget,
+  const { OptIntoPetrovButton, RecentDiscussionFeed, AnalyticsInViewTracker, FrontpageReviewWidget,
     SingleColumnSection, FrontpageBestOfLWWidget, EAPopularCommentsSection,
     QuickTakesSection, LWHomePosts
   } = Components;
@@ -26,8 +26,11 @@ const LWHome = () => {
             <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
           </SingleColumnSection>}
           <SingleColumnSection>
-            <DismissibleSpotlightItem current/>
+            <OptIntoPetrovButton/>
           </SingleColumnSection>
+          {/* <SingleColumnSection>
+            <DismissibleSpotlightItem current/>
+          </SingleColumnSection> */}
           <AnalyticsInViewTracker
             eventProps={{inViewType: "homePosts"}}
             observerProps={{threshold:[0, 0.5, 1]}}

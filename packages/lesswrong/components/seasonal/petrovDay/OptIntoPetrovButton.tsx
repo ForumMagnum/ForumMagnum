@@ -1,25 +1,27 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
+import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
 import React, { useState } from 'react';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
-import { Link } from '../../lib/reactRouterWrapper';
-import { useCurrentUser } from '../common/withUser';
+import { Link } from '../../../lib/reactRouterWrapper';
+import { useCurrentUser } from '../../common/withUser';
 import ReactMapGL from 'react-map-gl';
-import { DatabasePublicSetting, mapboxAPIKeySetting } from '../../lib/publicSettings';
+import { DatabasePublicSetting, mapboxAPIKeySetting } from '../../../lib/publicSettings';
 import { useMutation, gql } from '@apollo/client';
-import { useMessages } from "../common/withMessages";
+import { useMessages } from "../../common/withMessages";
 import {
   getPetrovDayKarmaThreshold,
   userCanLaunchPetrovMissile,
   usersAboveKarmaThresholdHardcoded20220922
-} from "../../lib/petrovHelpers";
-import { Helmet } from '../../lib/utils/componentsWithChildren';
-import { useMapStyle } from '../hooks/useMapStyle';
+} from "../../../lib/petrovHelpers";
+import { Helmet } from '../../../lib/utils/componentsWithChildren';
+import { useMapStyle } from '../../hooks/useMapStyle';
+import { petrovPostIdSetting, petrovDayLaunchCode, petrovGamePostIdSetting } from '../PetrovDayButton';
+import { useCreate } from '@/lib/crud/withCreate';
 
-export const petrovPostIdSetting = new DatabasePublicSetting<string>('petrov.petrovPostId', '')
-export const petrovGamePostIdSetting = new DatabasePublicSetting<string>('petrov.petrovGamePostId', '')
-export const petrovDayLaunchCode = 'whatwouldpetrovdo?'
+// export const petrovPostIdSetting = new DatabasePublicSetting<string>('petrov.petrovPostId', '')
+// const petrovGamePostIdSetting = new DatabasePublicSetting<string>('petrov.petrovGamePostId', '')
+// export const petrovDayLaunchCode = 'whatwouldpetrovdo?'
 
 // This component is (most likely) going to be used once-a-year on Petrov Day (sept 26th)
 // see this post:
@@ -28,36 +30,18 @@ export const petrovDayLaunchCode = 'whatwouldpetrovdo?'
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.commentStyle,
-    zIndex: theme.zIndexes.petrovDayButton,
-    position:"relative",
-    height: 520,
-  },
-  panelBacking: {
-    position: "absolute",
-    top: 0,
-    left: 0,
     width: "100%",
-    height: 520,
     display: "flex",
     alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: theme.palette.panelBackground.darken40,
-  },
-  panel: {
+    justifyContent: "space-between",
     backgroundColor: theme.palette.grey[100],
     paddingTop: theme.spacing.unit*2,
     paddingLeft: theme.spacing.unit*3,
     paddingRight: theme.spacing.unit*3,
     paddingBottom: theme.spacing.unit*2,
-    borderRadius: 5,
-    boxShadow: `0 0 10px ${theme.palette.grey[800]}`,
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center"
-  },
-  title: {
-    marginTop: theme.spacing.unit,
-    marginBottom: theme.spacing.unit*2
+    borderRadius: "100px",
+    marginBottom: 50,
+    boxShadow: `0 0 10px ${theme.palette.grey[300]}`,
   },
   karmaThreshold: {
     marginTop: theme.spacing.unit,
@@ -84,8 +68,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 10
   },
   button: {
-    height: 189,
-    width: 189,
+    height: 180,
+    width: 180,
+    '& img': {
+      marginTop: 15,
+      marginLeft: 15,
+      width: 150,
+      height: 150,
+    },
     '&:hover': {
       '& $buttonHover': {
         display: "inline-block"
@@ -108,7 +98,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   inputSection: {
     display: "flex",
     flexDirection: "column",
-    alignItems: "center"
+    alignItems: "center",
+    marginLeft: "auto",
+    marginRight: "auto",
   },
   keyCode: {
     marginTop: theme.spacing.unit*2,
@@ -127,20 +119,27 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[500]
   },
   info: {
-    marginTop: theme.spacing.unit*1.5,
-    width: 255,
     textAlign: "center",
-    lineHeight: "1.4em",
+    lineHeight: "1.1em",
     color: theme.palette.grey[600],
-    fontSize: "1.4rem"
+    fontSize: "1.1rem",
+    marginTop: theme.spacing.unit*2,
+    marginBottom: theme.spacing.unit*2,
+    width: 300
+  },
+  title: {
+    textAlign: "center",
+    lineHeight: "2.8em",
+    color: theme.palette.grey[600],
+    fontSize: "2.5rem",
   },
   link: {
     marginTop: theme.spacing.unit*1.5,
     color: theme.palette.primary.main
-  }
+  },
 })
 
-const PetrovDayButton = ({classes, refetch, alreadyLaunched }: {
+const OptIntoPetrovButton = ({classes, refetch, alreadyLaunched }: {
   classes: ClassesType,
   refetch?: any,
   alreadyLaunched?: boolean,
@@ -148,7 +147,7 @@ const PetrovDayButton = ({classes, refetch, alreadyLaunched }: {
   const currentUser = useCurrentUser()
   const { petrovPressedButtonDate } = (currentUser || {}) as any;
   const [pressed, setPressed] = useState(false) //petrovPressedButtonDate)
-  const [launchCode, setLaunchCode] = useState('')
+  const [confirmationCode, setConfirmationCode] = useState('')
 
 
   const [ mutate ] = useMutation(gql`
@@ -165,6 +164,11 @@ const PetrovDayButton = ({classes, refetch, alreadyLaunched }: {
   const { LWTooltip, LoginPopupButton, Typography } = Components
 
   const updateCurrentUser = useUpdateCurrentUser();
+
+  const { create: createPetrovDayAction } = useCreate({
+    collectionName: 'PetrovDayActions',
+    fragmentName: 'PetrovDayActionInfo',
+  })
   
   const pressButton = () => {
     setPressed(true)
@@ -173,58 +177,38 @@ const PetrovDayButton = ({classes, refetch, alreadyLaunched }: {
     });
   }
 
-  const updateLaunchCode = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const updateConfirmationCode = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     if (!alreadyLaunched) {
-      setLaunchCode(event.target.value)
+      setConfirmationCode(event.target.value)
     }
+  }
+
+  const optIn = async () => {
+    if (!currentUser) return
+    void mutate({ variables: { launchCode: confirmationCode } })
   }
 
   const launch = async () => {
     if (!currentUser) return
-    void mutate({ variables: { launchCode } })
+    void mutate({ variables: { launchCode: confirmationCode } })
     
-    if (launchCode !== petrovDayLaunchCode) {
+    if (confirmationCode !== petrovDayLaunchCode) {
       flash({ messageString: "incorrect code, missile launch aborted", type: 'failure'});
     } else {
       flash({ messageString: "missiles launched!! i hope you made good choices...", type: 'success'});
     }
-    
   }
 
+
   const renderButtonAsPressed = !!petrovPressedButtonDate || pressed
-  const renderLaunchButton = (launchCode?.length >= 8)
-  
-  const currentKarmaThreshold = getPetrovDayKarmaThreshold()
-  const disableLaunchButton = !userCanLaunchPetrovMissile(currentUser) 
-  
-  const beforePressMessage = <p>press button to initiate missile launch procedure</p>
-  const afterPressMessage = disableLaunchButton ? <p>You are not authorized to initiate a missile strike at this time. Try again later.</p> : <p>enter launch code to initiate missile strike</p>
+    
+  const beforePressMessage = <div>
+    <div className={classes.title}>Opt into Petrov Day</div>
+  </div>
+  const afterPressMessage = <p>Type your username and click "confirm" to register interest in the Petrov Day social deception game. A small number of people will be chosen as lead participants, the rest will be citizens.</p>
 
-  const mapStyle = useMapStyle();
 
-  return (
-    <div className={classes.root}>
-      <Helmet> 
-        <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.1/mapbox-gl.css' rel='stylesheet' />
-      </Helmet>
-      <ReactMapGL
-        zoom={2}
-        width="100%"
-        height="100%"
-        mapStyle={mapStyle}
-        mapboxApiAccessToken={mapboxAPIKeySetting.get() || undefined}
-      />
-      <div className={classes.panelBacking}>
-        
-        
-        {<div className={classes.panel}>
-          <Typography variant="display1" className={classes.karmaThreshold}>
-            <Link className={classes.karmaThreshold} to={"/posts/" + petrovPostIdSetting.get()}>
-              <div>{`Karma Threshold: ${currentKarmaThreshold}`}</div>
-              <div className={classes.usersAboveThreshold}>{`Users above threshold: ${usersAboveKarmaThresholdHardcoded20220922[currentKarmaThreshold]}`}</div>
-              {!!currentUser && <div className={classes.yourKarma}>{`Your Karma: ${currentUser.karma}`}</div>}
-            </Link>
-          </Typography>
+  return <div className={classes.root}>
           {currentUser ? 
               <div className={classes.button}>
                 {renderButtonAsPressed ? 
@@ -253,35 +237,32 @@ const PetrovDayButton = ({classes, refetch, alreadyLaunched }: {
   
           <div className={classes.inputSection}>
             {renderButtonAsPressed && <TextField
-              onChange={updateLaunchCode}
-              placeholder={"Enter The Launch Code"}
+              onChange={updateConfirmationCode}
+              placeholder={`Type your username`}
               margin="normal"
               variant="outlined"
             />}
-            {(renderLaunchButton) && 
-              <Button onClick={launch} className={classes.launchButton} disabled={disableLaunchButton}>
-                Launch
-              </Button>
-            }
-            <div className={classes.info}>
-              { renderButtonAsPressed ? afterPressMessage : beforePressMessage }
-            </div>
-          </div>
-          
-            <Link to={"/posts/" + petrovGamePostIdSetting.get()} className={classes.link}>
+            {!renderButtonAsPressed ? beforePressMessage : <div className={classes.info}>
+              {afterPressMessage}
+            </div>}
+            {renderButtonAsPressed && <Button onClick={launch} className={classes.launchButton}>
+              Confirm
+            </Button>}
+            {/* <div className={classes.info}>
+              {renderButtonAsPressed ? "You are registered for the lottery. Winners will be announced on 9/28." : "You can opt in for the lottery by entering your username above. Winners will be announced on 9/28."}
+            </div> */}
+            {/* <Link to={"/posts/" + petrovGamePostIdSetting.get()} className={classes.link}>
               Learn More
-            </Link>
-          </div>}
-        </div>
-    </div>
-  )
+            </Link> */}
+          </div>
+      </div>
 }
 
-const PetrovDayButtonComponent = registerComponent('PetrovDayButton', PetrovDayButton, {styles});
+const OptIntoPetrovButtonComponent = registerComponent('OptIntoPetrovButton', OptIntoPetrovButton, {styles});
 
 declare global {
   interface ComponentTypes {
-    PetrovDayButton: typeof PetrovDayButtonComponent
+    OptIntoPetrovButton: typeof OptIntoPetrovButtonComponent
   }
 }
 
