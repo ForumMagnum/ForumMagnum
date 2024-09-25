@@ -159,11 +159,6 @@ const LlmConversationSelector = ({currentConversationId, setCurrentConversationI
     limit: 200,
   });
 
-  console.log({
-    numResults: results?.length,
-    numDeleted: results?.filter((conversation) => conversation.deleted).length,
-  })
-
   const filteredResults = results?.filter((conversation) => {
     if (!showAdmin && userIsAdmin(conversation.user)) {
       return false;
