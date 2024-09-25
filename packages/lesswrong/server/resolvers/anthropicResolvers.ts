@@ -66,6 +66,19 @@ interface SendMessagesToClaudeArgs {
   currentUser: DbUser;
 }
 
+interface GetPostWithContentsArgs {
+  postId: string;
+  postContext?: PromptContextOptions['postContext'];
+  context: ResolverContext;
+}
+
+interface GetContextMessageArgs {
+  content: string;
+  currentPost: CurrentPost;
+  postContext?: PromptContextOptions['postContext'];
+  context: ResolverContext;
+}
+
 // a type for kind of context to use that's a value of "query-based", "post-based", or "both"
 type RagContextType = "query-based" | "current-post-based" | "both" | "none" | "error"
 
@@ -339,12 +352,6 @@ async function sendMessagesToClaude({ previousMessages, newMessages, conversatio
   });
 }
 
-interface GetPostWithContentsArgs {
-  postId: string;
-  postContext?: PromptContextOptions['postContext'];
-  context: ResolverContext;
-}
-
 async function getPostWithContents({ postId, postContext, context }: GetPostWithContentsArgs): Promise<CurrentPost> {
   const resolverArgs = postContext === 'post-editor'
     ? { extraVariables: { version: 'String' }, extraVariablesValues: { version: 'draft' } } as const
@@ -372,13 +379,6 @@ async function getPostsWithContents(postIds: string[], context: ResolverContext)
     terms: { postIds },
     context,
   });
-}
-
-interface GetContextMessageArgs {
-  content: string;
-  currentPost: CurrentPost;
-  postContext?: PromptContextOptions['postContext'];
-  context: ResolverContext;
 }
 
 async function getContextMessages({ content, currentPost, postContext, context }: GetContextMessageArgs) {

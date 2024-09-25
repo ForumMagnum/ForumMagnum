@@ -4,7 +4,7 @@ import { extractFragmentInfo } from '../vulcan-lib/handleOptions';
 import { collectionNameToTypeName } from '../vulcan-lib/getCollection';
 import { camelCaseify } from '../vulcan-lib/utils';
 import { apolloSSRFlag } from '../helpers';
-import { PrimitiveGraphQLType } from './types';
+import type { PrimitiveGraphQLType } from './types';
 
 // Template of a GraphQL query for useSingle. A sample query might look
 // like:

@@ -464,7 +464,7 @@ export const EditorFormComponent = ({
   }
 
   useEffect(() => {
-    if (!isCollabEditor && fieldName === 'contents') {
+    if (!isCollabEditor && collectionName === 'Posts' && fieldName === 'contents') {
       setAutosaveEditorState((_) => () => new Promise((resolve, reject) => {
         if (editorRef.current && shouldSubmitContents(editorRef.current)) {
           void editorRef.current?.submitData()
@@ -479,7 +479,7 @@ export const EditorFormComponent = ({
     return () => {
       setAutosaveEditorState(null);
     }
-  }, [isCollabEditor, fieldName, saveRemoteBackup, setAutosaveEditorState]);
+  }, [isCollabEditor, collectionName, fieldName, saveRemoteBackup, setAutosaveEditorState]);
 
   // document isn't necessarily defined. TODO: clean up rest of file
   // to not rely on document
