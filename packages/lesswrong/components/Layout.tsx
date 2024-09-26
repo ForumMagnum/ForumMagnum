@@ -596,7 +596,7 @@ const Layout = ({currentUser, children, classes}: {
                 </div>
                 {isLW && <>
                   {standaloneNavigation && <div className={classes.imageColumn}>
-                    <CloudinaryImage2 className={classes.backgroundImage} publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413" darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}/>
+                    <CloudinaryImage2 className={classes.backgroundImage} publicId="ohabryka_httpss.mj.runBkrf46MPWyo_httpss.mj.runXinKWYpaKSQ_Aqua_2a5060ad-b51a-4fd3-a81a-a65b8e5a77f8_kxfias" darkPublicId={"ohabryka_httpss.mj.runBkrf46MPWyo_httpss.mj.runXinKWYpaKSQ_Aqua_2a5060ad-b51a-4fd3-a81a-a65b8e5a77f8_crn05d"}/>
                   </div>}
                 </>}
                 {!renderSunshineSidebar &&
