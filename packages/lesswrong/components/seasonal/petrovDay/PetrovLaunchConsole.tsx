@@ -25,16 +25,16 @@ const styles = (theme: ThemeType) => ({
     marginTop: 20,
     marginBottom: 20,
     cursor: 'pointer',
-    border: '1px solid #000',
+    border: `1px solid  ${theme.palette.grey[900]}`,
     padding: 25,
     borderRadius: 50,
     color: theme.palette.background.pageActiveAreaBackground,
     textAlign: 'center',
     fontSize: '1.5rem',
     verticalAlign: 'middle',
-    background: 'linear-gradient(45deg, #ff0000, #990000)',
+    background: `linear-gradient(45deg, ${theme.palette.petrov.red}, ${theme.palette.petrov.darkRed})`,
     '&:hover': {
-      background: 'linear-gradient(45deg, #cc0000, #770000)',
+      background: `linear-gradient(45deg, ${theme.palette.petrov.red2}, ${theme.palette.petrov.darkRed2})`,
     },
   },
   reportsContainer: {
@@ -46,9 +46,9 @@ const styles = (theme: ThemeType) => ({
     }
   },
   disabledLaunchButton: {
-    background: 'linear-gradient(45deg, #aa8080, #404040)',
+    background: `linear-gradient(45deg, ${theme.palette.petrov.color1}, ${theme.palette.petrov.color2})`,
     '&:hover': {
-      background: 'linear-gradient(45deg, #998080, #504040)',
+      background: `linear-gradient(45deg, ${theme.palette.petrov.color3}, ${theme.palette.petrov.color4})`,
     },
     cursor: 'not-allowed'
   },
