@@ -5,6 +5,7 @@ import PetrovDayActions from "@/lib/collections/petrovDayActions/collection";
 import { petrovBeforeTime } from "@/components/Layout";
 import { DatabaseServerSetting } from "../databaseSettings";
 import sample from "lodash/sample";
+import { inWarningWindow } from "@/components/seasonal/petrovDay/PetrovWarningConsole";
 
 const petrovFalseAlarmMissileCount = new DatabaseServerSetting<number[]>('petrovFalseAlarmMissileCount', [])
 const petrovRealAttackMissileCount = new DatabaseServerSetting<number[]>('petrovRealAttackMissileCount', [])
@@ -32,6 +33,10 @@ const petrovDay2024Resolvers = {
     async PetrovDay2024CheckNumberOfIncoming(root: void, args: void, context: ResolverContext) {
       const startTime = new Date(petrovBeforeTime.get())
       const actions = await PetrovDayActions.find({createdAt: {$gte: startTime}, actionType: {$ne: 'optIn'}}, {limit: 100}).fetch()
+
+      if (!inWarningWindow(new Date().getMinutes())) {
+        return { count: 0 }
+      }
 
       const userRole = actions.filter(action => action.actionType === 'hasRole' && action.userId === context.currentUser?._id)?.[0]?.data?.role
 

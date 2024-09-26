@@ -26,6 +26,12 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
+const STARTING_MINUTE = 50
+
+export const inWarningWindow = (currentMinute: number) => {
+  return currentMinute >= STARTING_MINUTE && currentMinute < 60
+}
+
 export const PetrovWarningConsole = ({classes, currentUser, side}: {
   classes: ClassesType<typeof styles>,
   currentUser: UsersCurrent,
@@ -53,8 +59,7 @@ export const PetrovWarningConsole = ({classes, currentUser, side}: {
   const canSendNewReport = lastReported ? false : (new Date().getTime() - new Date(latestWarning).getTime()) > 1000 * 60 * 50
 
   const currentMinute = new Date().getMinutes();
-  console.log({currentMinute})
-  const reportWindow = currentMinute >= STARTING_MINUTE && currentMinute < 60
+  const reportWindow = inWarningWindow(currentMinute)
   const minutesRemaining = Math.abs(currentMinute - STARTING_MINUTE)
 
   const { data, refetch: refetchCount } = useQuery(gql`
