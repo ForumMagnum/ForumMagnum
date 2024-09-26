@@ -491,14 +491,6 @@ const Layout = ({currentUser, children, classes}: {
         && beforeTime < currentTime
         && currentTime < afterTime
     }
-    const now = new Date()
-    const twoDaysFromNow = new Date(now.getTime() + (2 * 24 * 60 * 60 * 1000))
-
-    console.log({
-      now, twoDaysFromNow,
-      nowMilliseconds: now.getTime(),
-      twoDaysFromNowMilliseconds: twoDaysFromNow.getTime()
-    });
     
     return (
       <AnalyticsContext path={pathname}>

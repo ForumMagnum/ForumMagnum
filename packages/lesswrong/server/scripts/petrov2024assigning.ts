@@ -301,8 +301,6 @@ const assignPetrov2024Roles = async () => {
     currentUser: currentAdmin,
   })))
 
-
-
   // const westGenerals = usersWithInfo.filter((user, i) => users[i].role === "westGeneral")
   // const eastGenerals = usersWithInfo.filter((user, i) => users[i].role === "eastGeneral")
   // const allGenerals = westGenerals.concat(eastGenerals)

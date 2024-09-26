@@ -19,7 +19,6 @@ const getIncomingCount = (incoming: boolean, role: 'eastPetrov' | 'westPetrov') 
   const missileCountArray = incoming ? petrovRealAttackMissileCount.get() : petrovFalseAlarmMissileCount.get();
 
   const result = seed % missileCountArray.length
-  console.log({currentHour, roleSeed, incoming, seed, result})
   return missileCountArray[result];
 }
 
@@ -66,7 +65,7 @@ addGraphQLQuery('PetrovDay2024CheckNumberOfIncoming: PetrovDay2024CheckNumberOfI
 defineQuery({
   name: "petrov2024checkIfNuked",
   resultType: "Boolean",
-  fn: async (_, { }, context: ResolverContext): Promise<Boolean> => {
+  fn: async (_, args, context: ResolverContext): Promise<Boolean> => {
     if (!context.currentUser) return false
     const actions = await PetrovDayActions.find({}).fetch()
     const userSide = actions.find(({actionType, userId}) => userId === context.currentUser?._id && actionType === 'hasSide')?.data.side

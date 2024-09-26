@@ -6,6 +6,7 @@ import { useCreate } from '@/lib/crud/withCreate';
 import { useMulti } from '@/lib/crud/withMulti';
 import classNames from 'classnames';
 import TextField from '@material-ui/core/TextField';
+import { PetrovDayActionType } from '@/lib/collections/petrovDayActions/schema';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -85,8 +86,8 @@ export const PetrovLaunchConsole = ({classes, side, currentUser}: {
     },
     skip: !currentUser
   })
-  const petrovReportActionType = side === 'east' ? 'eastPetrov' : 'westPetrov'
-  const petrovReports = petrovDayActions.filter((action) => action.actionType === petrovReportActionType)
+  const petrovReportActionTypes: PetrovDayActionType[] = side === 'east' ? ['eastPetrovAllClear', 'eastPetrovNukesIncoming'] : ['westPetrovAllClear', 'westPetrovNukesIncoming']
+  const petrovReports = petrovDayActions.filter((action) => petrovReportActionTypes.includes(action.actionType))
 
   const launchActionType = side === 'east' ? 'nukeTheWest' : 'nukeTheEast'
   const launchAction = petrovDayActions.find((action) => action.actionType === launchActionType) || launched
