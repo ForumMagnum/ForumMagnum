@@ -52,8 +52,6 @@ export const PetrovGameWrapper = ({classes}: {
     },
     skip: !currentUser
   });
-  console.log({petrovDayUserActions})
-
 
   const { data, refetch: refetchCheckIfNuked } = useQuery(gql`
     query petrov2024checkIfNuked {
@@ -65,7 +63,6 @@ export const PetrovGameWrapper = ({classes}: {
 
   const currentUserRole = petrovDayUserActions?.find(({actionType}) => actionType === "hasRole")?.data?.role
   const currentUserSide = petrovDayUserActions?.find(({actionType}) => actionType === "hasSide")?.data?.side
-  console.log({currentUserRole, currentUserSide})
 
   const currentUserOptedIn = !!petrovDayUserActions?.length
 
