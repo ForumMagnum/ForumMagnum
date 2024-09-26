@@ -77,7 +77,7 @@ defineQuery({
       return false;
     }
 
-    const ninetyMinutesAgo = new Date(new Date().getTime() - (1 * 60 * 1000));
+    const ninetyMinutesAgo = new Date(new Date().getTime() - (90 * 60 * 1000));
     const nukeActions = await PetrovDayActions.find({ actionType: { $in: ['nukeTheEast', 'nukeTheWest'] }, createdAt: { $lte: ninetyMinutesAgo } }).fetch();
 
     const userSide = currentUserSideAction.data.side;
