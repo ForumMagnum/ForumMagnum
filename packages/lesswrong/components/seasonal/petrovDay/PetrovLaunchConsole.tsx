@@ -17,6 +17,7 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'center',
     justifyContent: 'center',
     height: '100%',
+    overflowY: 'scroll',
     '& h3': {
       fontSize: '1.35rem',
       opacity: .6,
@@ -24,6 +25,8 @@ const styles = (theme: ThemeType) => ({
     }
   },
   launchButton: {
+    marginTop: 20,
+    marginBottom: 20,
     cursor: 'pointer',
     border: '1px solid #000',
     padding: 25,
@@ -51,6 +54,16 @@ const styles = (theme: ThemeType) => ({
       background: 'linear-gradient(45deg, #998080, #504040)',
     },
     cursor: 'not-allowed'
+  },
+  launchCodeInput: {
+    '& input': {
+      fontSize: "2rem",
+      width: 80,
+      textAlign: 'center'
+    }
+  },
+  unreadyLaunchButton: {
+    opacity: .5
   }
 });
 
@@ -87,7 +100,7 @@ export const PetrovLaunchConsole = ({classes, side, currentUser}: {
   })
 
   const handleLaunch = () => {
-    if (launchAction) return
+    if (launchAction || launchCode !== "000000") return
     const attackActionType = side === 'east' ? 'nukeTheWest' : 'nukeTheEast'
     void createPetrovDayAction({  
       data: {
@@ -116,16 +129,17 @@ export const PetrovLaunchConsole = ({classes, side, currentUser}: {
   return <PetrovWorldmapWrapper>
     <div className={classes.root}>
       <h3>{side === 'east' ? 'East' : 'West'} Wrongia General's Console</h3>
-      <div className={classNames(classes.launchButton, !!launchAction && classes.disabledLaunchButton)} onClick={() => setOpenCodes(true)}>
-        {launchButtonText} 
-      </div>
-      {openCodes && <TextField
+      <TextField
         onChange={updateLaunchCode}
+        className={classes.launchCodeInput}
         value={launchCode}
         placeholder={"Enter The Launch Code"}
         margin="normal"
         variant="outlined"
-      />}
+      />
+      <div className={classNames(classes.launchButton, !!launchAction && classes.disabledLaunchButton, launchCode !== "000000" && classes.unreadyLaunchButton)} onClick={() => setOpenCodes(true)}>
+        {launchButtonText} 
+      </div>
       <PastWarnings petrovDayActions={petrovDayActions} side={side} general/>
     </div>
   </PetrovWorldmapWrapper>
