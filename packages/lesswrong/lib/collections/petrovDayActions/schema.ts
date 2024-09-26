@@ -7,8 +7,10 @@ const ACTION_TYPES = [
   'hasRole',
   'nukeTheWest',
   'nukeTheEast',
-  'eastPetrovReport',
-  'westPetrovReport'
+  'eastPetrovAllClear',
+  'eastPetrovNukesIncoming',
+  'westPetrovAllClear',
+  'westPetrovNukesIncoming'
 ] as const
 
 const ACTION_TYPES_SET = new TupleSet(ACTION_TYPES)

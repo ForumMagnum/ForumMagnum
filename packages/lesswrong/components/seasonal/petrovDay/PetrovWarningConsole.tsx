@@ -12,6 +12,34 @@ const styles = (theme: ThemeType) => ({
   minutesRemaining: {
     fontSize: '.9rem',
     color: 'gray'
+  },
+  reportButton: {
+    border: theme.palette.border.answerBorder,
+    borderRadius: 6,
+    margin: 10,
+    padding: '10px 20px',
+    fontSize: '1rem',
+    cursor: 'pointer',
+    '&:hover': {
+      backgroundColor: theme.palette.grey[200]
+    }
+  },
+  pastWarnings: {
+    borderTop: theme.palette.border.commentBorder,
+    marginTop: 16,
+    paddingTop: 16,
+    textAlign: 'center',
+    color: theme.palette.grey[700],
+  },
+  report: {
+    marginTop: 8,
+    fontSize: '1rem',
+    color: theme.palette.grey[600],
+    '& em': {
+      color: theme.palette.grey[500],
+      fontSize: '.8rem',
+      marginLeft: 8
+    }
   }
 });
 
@@ -33,7 +61,18 @@ export const PetrovWarningConsole = ({classes, currentUser, side}: {
     skip: !currentUser
   })
   const [lastReported, setLastReported] = useState<string | null>(null)
-  const canSendNewReport = lastReported ? Math.abs(new Date().getMinutes() - new Date(lastReported).getMinutes()) > 50 : true
+
+  const pastWarnings = side === 'east' ? petrovDayActions.filter(action => action.actionType === 'eastPetrovReport') : petrovDayActions.filter(action => action.actionType === 'westPetrovReport')
+  const latestWarning = pastWarnings.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]?.createdAt || lastReported
+
+
+  const STARTING_MINUTE = 13
+  const canSendNewReport = lastReported ? false : (new Date().getTime() - new Date(latestWarning).getTime()) > 1000 * 60 * 50
+
+  const currentMinute = new Date().getMinutes();
+  console.log({currentMinute})
+  const reportWindow = currentMinute >= STARTING_MINUTE && currentMinute < 60
+  const minutesRemaining = Math.abs(currentMinute - STARTING_MINUTE)
 
   const { data, refetch } = useQuery(gql`
     query petrovDay2024Resolvers {
@@ -49,27 +88,21 @@ export const PetrovWarningConsole = ({classes, currentUser, side}: {
   });
   const count = data?.PetrovDay2024CheckNumberOfIncoming?.count
 
-  const currentMinute = new Date().getMinutes();
-  const reportWindow = currentMinute >= 50 && currentMinute < 60
-  const minutesRemaining = Math.abs(currentMinute - 50)
-
   const { create: createPetrovDayAction } = useCreate({
     collectionName: 'PetrovDayActions',
     fragmentName: 'PetrovDayActionInfo'
   })
 
-  const handleReport = (message: string) => {
+  const handleReport = (incoming: boolean) => {
     if (!canSendNewReport || !reportWindow) return
-    const attackActionType = side === 'east' ? 'nukeTheWest' : 'nukeTheEast'
+    const reportActionType = incoming ? (side === 'east' ? 'eastPetrovNukesIncoming' : 'westPetrovNukesIncoming') : (side === 'east' ? 'eastPetrovAllClear' : 'westPetrovAllClear')
     void createPetrovDayAction({  
       data: {
         userId: currentUser._id,
-        actionType: attackActionType,
-        data: {
-          message
-        }
+        actionType: reportActionType,
       }
     }) 
+    setLastReported(new Date().toISOString())
   }
 
   useEffect(() => {
@@ -79,16 +112,26 @@ export const PetrovWarningConsole = ({classes, currentUser, side}: {
     return () => clearInterval(interval);
   }, [refetch]);
 
-  if (currentMinute >= 50 && currentMinute < 60) {
+  const pastReportNode = petrovDayActions.length > 0 ? <div className={classes.pastWarnings}>
+    <h3>Past Warnings</h3>
+    {petrovDayActions.map(action => <div key={action._id} className={classes.report}>
+      {action.actionType === 'eastPetrovAllClear' || action.actionType === 'westPetrovAllClear' ? 'All Clear' : 'Nukes Incoming'} <em>{new Date(action.createdAt).toLocaleTimeString()}</em></div>)}
+  </div> : null
+
+  if (currentMinute >= STARTING_MINUTE && currentMinute < 60) {
     return <PetrovWorldmapWrapper>
       <h1>{count} detected missiles</h1>
-      <button onClick={() => handleReport('All Clear')}>Report "All Clear"</button>
-      <button onClick={() => handleReport('INCOMING NUKES')}>Report INCOMING NUKES</button>
+      {canSendNewReport && <div>
+        <button className={classes.reportButton} onClick={() => handleReport(false)}>Report "All Clear"</button>
+        <button className={classes.reportButton} onClick={() => handleReport(true)}>Report INCOMING NUKES</button>
+      </div>}
+      {pastReportNode}
     </PetrovWorldmapWrapper>;
   } else {
     return <PetrovWorldmapWrapper>
       <h2>Scanning...</h2>
       <div className={classes.minutesRemaining}>{minutesRemaining} minutes until next scan complete</div>
+      {pastReportNode}
     </PetrovWorldmapWrapper>;
   }
 }

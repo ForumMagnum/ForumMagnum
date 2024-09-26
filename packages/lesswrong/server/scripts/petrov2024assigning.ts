@@ -2,6 +2,8 @@ import { emailBodyStyles } from "@/themes/stylePiping";
 import { createAdminContext, createMutator, Globals, runQuery } from "../vulcan-lib";
 import PetrovDayActions from "@/lib/collections/petrovDayActions/collection";
 import Users from "@/lib/vulcan-users";
+import Conversations from "@/lib/collections/conversations/collection";
+import { Posts } from "@/lib/collections/posts";
 
 const context = createAdminContext()
 
@@ -128,7 +130,7 @@ const assignPetrov2024Roles = async () => {
     },
     {
       email: "raemon+west-general-2@lesswrong.com",
-      username: "GeneralBaker",
+      username: "GeneralBrookes",
       password: passwords[8],
       role: "westGeneral",
     },
@@ -183,6 +185,44 @@ const assignPetrov2024Roles = async () => {
       validate: false,
     })
   }
+
+  // const westGenerals = usersWithInfo.filter((user, i) => users[i].role === "westGeneral")
+  // const eastGenerals = usersWithInfo.filter((user, i) => users[i].role === "eastGeneral")
+  // const allGenerals = westGenerals.concat(eastGenerals)
+
+  // const citizens = Users.
+
+  // await createMutator({
+  //   collection: Posts,
+  //   document: {
+  //     title: "West Generals Meeting",
+  //     draft: true,
+  //     collabEditorDialogue: true,
+  //     coauthorStatuses: westGenerals.map(user => ({userId: user._id, confirmed: true, requested: false})),
+  //     shareWithUsers: participants,
+  //     sharingSettings: {
+  //       anyoneWithLinkCan: "none",
+  //       explicitlySharedUsersCan: "edit",
+  //     },
+  //     createdAt: new Date(),
+  //   },
+  // })
+  // await createMutator({
+  //   collection: Posts,
+  //   document: {
+  //     title: "East Generals Meeting",
+  //     coauthorStatuses: eastGenerals.map(user => ({userId: user._id, confirmed: true, requested: false})),
+  //     createdAt: new Date(),
+  //   },
+  // })
+  // await createMutator({
+  //   collection: Posts,
+  //   document: {
+  //     title: "All Generals Meeting",
+  //     coauthorStatuses: allGenerals.map(user => ({userId: user._id, confirmed: true, requested: false})),
+  //     createdAt: new Date(),
+  //   },
+  // })
 
   // eslint-disable-next-line no-console
   console.log(usersWithInfo)

@@ -30,7 +30,7 @@ ensureIndex(PetrovDayActions, {userId: 1, actionType: 1});
 PetrovDayActions.addView("launchDashboard", (terms: PetrovDayActionsViewTerms) => {
   const oneWeekAgo = new Date(Date.now() - (7 * 24 * 60 * 60 * 1000));
 
-  const actionTypes: PetrovDayActionType[] = terms.side === 'east' ? ['nukeTheWest', 'eastPetrovReport'] : ['nukeTheEast', 'westPetrovReport']
+  const actionTypes: PetrovDayActionType[] = terms.side === 'east' ? ['nukeTheWest', 'eastPetrovAllClear', 'eastPetrovNukesIncoming'] : ['nukeTheEast', 'westPetrovAllClear', 'westPetrovNukesIncoming']
   return {
     selector: {
       createdAt: {$gte: oneWeekAgo},
@@ -48,6 +48,18 @@ PetrovDayActions.addView("adminConsole", (terms: PetrovDayActionsViewTerms) => {
     },
     options: {
       sort: {createdAt: -1}
+    }
+  };
+});
+
+PetrovDayActions.addView("warningConsole", (terms: PetrovDayActionsViewTerms) => {
+  const oneWeekAgo = new Date(Date.now() - (7 * 24 * 60 * 60 * 1000));
+
+  const actionTypes: PetrovDayActionType[] = terms.side === 'east' ? ['eastPetrovAllClear', 'eastPetrovNukesIncoming'] : ['westPetrovAllClear', 'westPetrovNukesIncoming']
+  return {
+    selector: {
+      createdAt: {$gte: oneWeekAgo},
+      actionType: {$in: actionTypes},
     }
   };
 });

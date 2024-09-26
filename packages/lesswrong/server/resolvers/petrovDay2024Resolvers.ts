@@ -10,11 +10,12 @@ const petrovFalseAlarmMissileCount = new DatabaseServerSetting<number[]>('petrov
 const petrovRealAttackMissileCount = new DatabaseServerSetting<number[]>('petrovRealAttackMissileCount', [])
 
 const getIncomingCount = (incoming: boolean) => {
-  if (incoming) {
-    return sample(petrovRealAttackMissileCount.get())
-  } else {
-    return sample(petrovFalseAlarmMissileCount.get())
-  }
+  const currentHour = new Date().getHours();
+  const seed = currentHour + (incoming ? 24 : 0); // Different seed for each hour and incoming state
+
+  const missileCountArray = incoming ? petrovRealAttackMissileCount.get() : petrovFalseAlarmMissileCount.get();
+
+  return missileCountArray[seed % missileCountArray.length];
 }
 
 const PetrovDay2024CheckNumberOfIncomingData = `type PetrovDay2024CheckNumberOfIncomingData {
@@ -25,23 +26,21 @@ addGraphQLSchema(PetrovDay2024CheckNumberOfIncomingData);
 
 const petrovDay2024Resolvers = {
   Query: {
-    async PetrovDay2024CheckNumberOfIncoming(root: void, context: ResolverContext) {
-      console.log({context})
+    async PetrovDay2024CheckNumberOfIncoming(root: void, args: void, context: ResolverContext) {
       const startTime = new Date(petrovBeforeTime.get())
       const actions = await PetrovDayActions.find({createdAt: {$gte: startTime}, actionType: {$ne: 'optIn'}}, {limit: 100}).fetch()
 
-      const userRole = actions.filter(action => action.actionType === 'hasRole' && action.userId === context.currentUser?._id)
+      const userRole = actions.filter(action => action.actionType === 'hasRole' && action.userId === context.currentUser?._id)?.[0]?.data?.role
 
-
-      // console.log({currentUser: context.currentUser?._id, userRole: userRole.map(action => action.data)})
-      // if (userRole?.data?.role === 'eastPetrov') {
-      //   const incoming = !!(actions.filter(action => action.data?.role === 'nukeTheEast')?.length > 0)
-      //   return { count: getIncomingCount(incoming) }
-      // }
-      // if (userRole?.data?.role === 'westPetrov') {
-      //   const incoming = !!(actions.filter(action => action.data?.role === 'nukeTheWest')?.length > 0)
-      //   return { count: getIncomingCount(incoming) }
-      // }
+      if (userRole === 'eastPetrov') {
+        const incoming = !!(actions.filter(action => action.data?.role === 'nukeTheEast')?.length > 0)
+        sample(petrovRealAttackMissileCount.get())
+        return { count: getIncomingCount(incoming) }
+      }
+      if (userRole === 'westPetrov') {
+        const incoming = !!(actions.filter(action => action.data?.role === 'nukeTheWest')?.length > 0)
+        return { count: getIncomingCount(incoming) }
+      }
       return { count: 0 }
     }
   },
