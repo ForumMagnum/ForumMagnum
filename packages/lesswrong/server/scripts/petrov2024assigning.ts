@@ -225,10 +225,10 @@ const assignPetrov2024Roles = async () => {
   const userIdsOfWestLeaders = ['X9jdpCokhLjCMZEc3',
     'gQqkEPTcMX48JPsew',
     'oxqFdPeNG7DuSmYGD',
-    'p5TQv5CM2koCkbF2m',
-    'p5TQv5CM2koCkbF2m',
+    'sdY3wMWoMtc5WdSra',
+    'Sfj7wYBmHeZyLbzRu',
     'NHMSJPMdExqDxPsY3']
-    
+
   const remainingCitizens = citizenFiltered.filter(citizen => !userIdsOfEastLeaders.includes(citizen.userId) && !userIdsOfWestLeaders.includes(citizen.userId))
 
   const firstHalfOfCitizens = remainingCitizens.slice(0, Math.floor(remainingCitizens.length / 2))
@@ -352,7 +352,7 @@ const assignPetrov2024Roles = async () => {
   // })petrovSocialDeception
 
   // eslint-disable-next-line no-console
-  // console.log(usersWithInfo)
+  console.log(usersWithInfo)
   // eslint-disable-next-line no-console
   console.log("done")
 }

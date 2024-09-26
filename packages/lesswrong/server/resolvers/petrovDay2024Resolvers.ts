@@ -66,20 +66,32 @@ defineQuery({
   name: "petrov2024checkIfNuked",
   resultType: "Boolean",
   fn: async (_, args, context: ResolverContext): Promise<Boolean> => {
-    if (!context.currentUser) return false
-    const actions = await PetrovDayActions.find({}).fetch()
-    const userSide = actions.find(({actionType, userId}) => userId === context.currentUser?._id && actionType === 'hasSide')?.data.side
-    
-    const ninetyMinutesAgo = new Date(new Date().getTime() - (90 * 60 * 1000))
+    const { currentUser } = context;
+    if (!currentUser) {
+      return false;
+    }
+
+    const currentUserSideAction = await PetrovDayActions.findOne({ userId: currentUser._id, actionType: 'hasSide' });
+
+    if (!currentUserSideAction) {
+      return false;
+    }
+
+    const ninetyMinutesAgo = new Date(new Date().getTime() - (1 * 60 * 1000));
+    const nukeActions = await PetrovDayActions.find({ actionType: { $in: ['nukeTheEast', 'nukeTheWest'] }, createdAt: { $lte: ninetyMinutesAgo } }).fetch();
+
+    const userSide = currentUserSideAction.data.side;
 
     if (userSide === 'east') {
-      const eastIsNuked = actions.find(({actionType, createdAt}) => actionType === 'nukeTheEast' && createdAt > ninetyMinutesAgo)
-      return !!eastIsNuked
+      const eastIsNuked = nukeActions.find(({actionType}) => actionType === 'nukeTheEast')
+      return !!eastIsNuked;
     }
+
     if (userSide === 'west') {
-      const westIsNuked = actions.find(({actionType, createdAt}) => actionType === 'nukeTheWest' && createdAt > ninetyMinutesAgo)
-      return !!westIsNuked
+      const westIsNuked = nukeActions.find(({actionType}) => actionType === 'nukeTheWest')
+      return !!westIsNuked;
     }
-    return false
+
+    return false;
   }
 })
