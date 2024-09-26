@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { registerComponent, Components } from '@/lib/vulcan-lib';
 import { useCurrentUser } from '@/components/common/withUser';
 import { useMulti } from '@/lib/crud/withMulti';
 import { DatabasePublicSetting } from '@/lib/publicSettings';
 import { DismissibleSpotlightItem } from '@/components/spotlights/DismissibleSpotlightItem';
 import { useSingle } from '@/lib/crud/withSingle';
+import { gql, useQuery } from '@apollo/client';
+import { userIsAdmin } from '@/lib/vulcan-users';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -15,11 +17,11 @@ const styles = (theme: ThemeType) => ({
 export const PetrovGameWrapper = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { PetrovAdminConsole, PetrovWarningConsole, PetrovLaunchConsole, PetrovWorldmapWrapper } = Components;
+  const { PetrovAdminConsole, PetrovWarningConsole, PetrovLaunchConsole, PetrovWorldmapWrapper, PetrovDayLossScreen } = Components;
 
   const currentUser = useCurrentUser()
 
-  const { results: petrovDayActions, refetch: refetchPetrovDayActions } = useMulti({
+  const { results: petrovDayRoleActions } = useMulti({
     collectionName: 'PetrovDayActions',
     fragmentName: 'PetrovDayActionInfo',
     terms: {
@@ -29,13 +31,36 @@ export const PetrovGameWrapper = ({classes}: {
       limit: 1
     },
     skip: !currentUser
-  })
+  });
 
-  const currentUserRole = petrovDayActions?.[0]?.data?.role
-  const currentUserOptedIn = !!petrovDayActions?.length
-  if (currentUser?.isAdmin) return <PetrovAdminConsole currentUser={currentUser} />
 
+  const { data, refetch: refetchCheckIfNuked } = useQuery(gql`
+    query petrov2024checkIfNuked {
+      petrov2024checkIfNuked
+    }
+  `, {
+    ssr: true,
+  });
+
+  const currentUserRole = petrovDayRoleActions?.[0]?.data?.role
+  const currentUserOptedIn = !!petrovDayRoleActions?.length
+
+  const nuked = data?.petrov2024checkIfNuked;
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      void refetchCheckIfNuked();
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [refetchCheckIfNuked]);
+  
   if (!currentUser) return null
+
+  if (userIsAdmin(currentUser)) return <PetrovAdminConsole currentUser={currentUser} />
+
+  if (nuked) {
+    return <PetrovDayLossScreen />;
+  }
 
   if (currentUserRole === 'eastPetrov') {
     return <PetrovWarningConsole currentUser={currentUser} side="east"/>

@@ -113,7 +113,7 @@ export const PetrovLaunchConsole = ({classes, side, currentUser}: {
   useEffect(() => {
     const interval = setInterval(() => {
       refetchPetrovDayActions();
-    }, 1000);
+    }, 5000);
     return () => clearInterval(interval);
   }, [refetchPetrovDayActions]);
 
