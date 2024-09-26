@@ -9,8 +9,30 @@ import { gql, useQuery } from '@apollo/client';
 import { userIsAdmin } from '@/lib/vulcan-users';
 
 const styles = (theme: ThemeType) => ({
-  root: {
-
+  citizenEast: {
+    width: 400,
+    height: 300,
+    background: "url('https://i.imgur.com/OD8ld1E.jpeg')",
+    backgroundSize: 'cover !important',
+    backgroundPosition: 'center !important',
+    margin: "-16px -24px",
+    borderRadius: 6,
+    padding: 24
+  },
+  citizenWest: {
+    width: 400,
+    height: 300,
+    background: "url('https://i.imgur.com/kQuHCCA.jpeg')",
+    backgroundSize: 'cover !important',
+    backgroundPosition: 'center !important',
+    margin: "-16px -24px",
+    borderRadius: 6,
+    padding: 24
+  },
+  citizenTitle: {
+    ...theme.typography.headerStyle,
+    fontSize: '2.5rem',
+    textShadow: `0px 0px 3px ${theme.palette.background.pageActiveAreaBackground}, 0px 0px 3px ${theme.palette.background.pageActiveAreaBackground}`,
   }
 });
 
@@ -21,18 +43,15 @@ export const PetrovGameWrapper = ({classes}: {
 
   const currentUser = useCurrentUser()
 
-  const { results: petrovDayRoleActions } = useMulti({
+  const { results: petrovDayUserActions } = useMulti({
     collectionName: 'PetrovDayActions',
     fragmentName: 'PetrovDayActionInfo',
     terms: {
       view: 'getAction',
       userId: currentUser?._id,
-      actionType: 'hasRole',
-      limit: 1
     },
     skip: !currentUser
   });
-
 
   const { data, refetch: refetchCheckIfNuked } = useQuery(gql`
     query petrov2024checkIfNuked {
@@ -42,8 +61,10 @@ export const PetrovGameWrapper = ({classes}: {
     ssr: true,
   });
 
-  const currentUserRole = petrovDayRoleActions?.[0]?.data?.role
-  const currentUserOptedIn = !!petrovDayRoleActions?.length
+  const currentUserRole = petrovDayUserActions?.find(({actionType}) => actionType === "hasRole")?.data?.role
+  const currentUserSide = petrovDayUserActions?.find(({actionType}) => actionType === "hasSide")?.data?.side
+
+  const currentUserOptedIn = !!petrovDayUserActions?.length
 
   const nuked = data?.petrov2024checkIfNuked;
 
@@ -77,7 +98,11 @@ export const PetrovGameWrapper = ({classes}: {
     return <PetrovLaunchConsole currentUser={currentUser} side="west" />
   } 
   if (currentUserOptedIn) {
-    return <PetrovWorldmapWrapper>Hello citizen</PetrovWorldmapWrapper>
+    return <PetrovWorldmapWrapper>
+      <div className={currentUserSide === 'east' ? classes.citizenEast : classes.citizenWest}>
+        <div className={classes.citizenTitle}>{currentUserSide === 'east' ? 'Citizen of East Wrong' : 'Citizen of West Wrong'}</div>
+      </div>
+    </PetrovWorldmapWrapper>
   }
   return null
   // return <DismissibleSpotlightItem spotlight={spotlight}/>
