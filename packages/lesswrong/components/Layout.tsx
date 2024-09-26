@@ -138,6 +138,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       right: '0px',
     }
   },
+  petrovPlacement: {
+    top: 500
+  },
   frontpageImage: {
     right: -50,
     height: '82vh',
@@ -588,7 +591,7 @@ const Layout = ({currentUser, children, classes}: {
                 </div>
                 {isLW && <>
                   {standaloneNavigation && <div className={classes.imageColumn}>
-                    <CloudinaryImage2 className={classes.backgroundImage} publicId="ohabryka_httpss.mj.runBkrf46MPWyo_httpss.mj.runXinKWYpaKSQ_Aqua_2a5060ad-b51a-4fd3-a81a-a65b8e5a77f8_kxfias" darkPublicId={"ohabryka_httpss.mj.runBkrf46MPWyo_httpss.mj.runXinKWYpaKSQ_Aqua_2a5060ad-b51a-4fd3-a81a-a65b8e5a77f8_crn05d"}/>
+                    <CloudinaryImage2 className={classNames(classes.backgroundImage, renderPetrovDay() && classes.petrovPlacement)} publicId="ohabryka_httpss.mj.runBkrf46MPWyo_httpss.mj.runXinKWYpaKSQ_Aqua_2a5060ad-b51a-4fd3-a81a-a65b8e5a77f8_kxfias" darkPublicId={"ohabryka_httpss.mj.runBkrf46MPWyo_httpss.mj.runXinKWYpaKSQ_Aqua_2a5060ad-b51a-4fd3-a81a-a65b8e5a77f8_crn05d"}/>
                   </div>}
                 </>}
                 {!renderSunshineSidebar &&
