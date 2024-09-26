@@ -55,7 +55,7 @@ const styles = (theme: ThemeType) => ({
   launchCodeInput: {
     '& input': {
       fontSize: "2rem",
-      width: 100,
+      width: 130,
       textAlign: 'center'
     }
   },
