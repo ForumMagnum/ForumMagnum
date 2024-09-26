@@ -49,10 +49,12 @@ export const PetrovGameWrapper = ({classes}: {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      void refetchCheckIfNuked();
+      if (currentUser) {
+        void refetchCheckIfNuked();
+      }
     }, 30000);
     return () => clearInterval(interval);
-  }, [refetchCheckIfNuked]);
+  }, [refetchCheckIfNuked, currentUser]);
   
   if (!currentUser) return null
 
