@@ -93,6 +93,7 @@ export const PetrovLaunchConsole = ({classes, side, currentUser}: {
         actionType: attackActionType,
       }
     }) 
+    setLaunched(true)
   }
 
   const launchButtonText = launchAction ? 'LAUNCHED' : 'LAUNCH'
