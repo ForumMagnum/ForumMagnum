@@ -1,5 +1,5 @@
 // TODO: Import component in components.ts
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { registerComponent } from '@/lib/vulcan-lib';
 import { useTracking } from '@/lib/analyticsEvents';
 import { Components } from '@/lib/vulcan-lib';
@@ -8,6 +8,7 @@ import { useCurrentUser } from '@/components/common/withUser';
 import { useCreate } from '@/lib/crud/withCreate';
 import { useMulti } from '@/lib/crud/withMulti';
 import classNames from 'classnames';
+import TextField from '@material-ui/core/TextField';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -18,7 +19,7 @@ const styles = (theme: ThemeType) => ({
     height: '100%',
     '& h3': {
       fontSize: '1.35rem',
-      fontWeight: 'bold',
+      opacity: .6,
       marginBottom: 20
     }
   },
@@ -30,7 +31,6 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.background.pageActiveAreaBackground,
     textAlign: 'center',
     fontSize: '1.5rem',
-    fontWeight: 'bold',
     verticalAlign: 'middle',
     background: 'linear-gradient(45deg, #ff0000, #990000)',
     '&:hover': {
@@ -60,8 +60,10 @@ export const PetrovLaunchConsole = ({classes, side, currentUser}: {
   currentUser: UsersCurrent
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
-  const { PetrovWorldmapWrapper } = Components;
+  const { PetrovWorldmapWrapper, PastWarnings } = Components;
   const [launched, setLaunched] = useState(false)
+  const [openCodes, setOpenCodes] = useState(false)
+  const [launchCode, setLaunchCode] = useState('')
 
   const { results: petrovDayActions = [], refetch: refetchPetrovDayActions } = useMulti({
     collectionName: 'PetrovDayActions',
@@ -98,16 +100,33 @@ export const PetrovLaunchConsole = ({classes, side, currentUser}: {
 
   const launchButtonText = launchAction ? 'LAUNCHED' : 'LAUNCH'
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refetchPetrovDayActions();
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [refetchPetrovDayActions]);
+
+  const updateLaunchCode = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    if (!launchAction) {
+      setLaunchCode(event.target.value)
+    }
+  }
+
   return <PetrovWorldmapWrapper>
     <div className={classes.root}>
       <h3>{side === 'east' ? 'East' : 'West'} Wrongia General's Console</h3>
-      <div className={classes.reportsContainer}>
-        <h4>Reports</h4>
-        {petrovReports.length === 0 ? <em>None</em> : petrovReports?.map((action) => <div key={action._id}>{action.data.warning}</div>)}
-      </div>
-      <div className={classNames(classes.launchButton, !!launchAction && classes.disabledLaunchButton)} onClick={handleLaunch}>
+      <div className={classNames(classes.launchButton, !!launchAction && classes.disabledLaunchButton)} onClick={() => setOpenCodes(true)}>
         {launchButtonText} 
       </div>
+      {openCodes && <TextField
+        onChange={updateLaunchCode}
+        value={launchCode}
+        placeholder={"Enter The Launch Code"}
+        margin="normal"
+        variant="outlined"
+      />}
+      <PastWarnings petrovDayActions={petrovDayActions} side={side} general/>
     </div>
   </PetrovWorldmapWrapper>
 }

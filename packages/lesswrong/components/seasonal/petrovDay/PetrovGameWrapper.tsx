@@ -4,6 +4,8 @@ import { registerComponent, Components } from '@/lib/vulcan-lib';
 import { useCurrentUser } from '@/components/common/withUser';
 import { useMulti } from '@/lib/crud/withMulti';
 import { DatabasePublicSetting } from '@/lib/publicSettings';
+import { DismissibleSpotlightItem } from '@/components/spotlights/DismissibleSpotlightItem';
+import { useSingle } from '@/lib/crud/withSingle';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -30,6 +32,12 @@ export const PetrovGameWrapper = ({classes}: {
     skip: !currentUser
   })
 
+  // const { document: spotlight, data, loading, error } = useSingle({
+  //   documentId: 'petrovDay2024OptIn',
+  //   collectionName: "Spotlights",
+  //   fragmentName: 'SpotlightDisplay',
+  // });
+
   const currentUserRole = petrovDayActions?.[0]?.data?.role
   const currentUserOptedIn = !!petrovDayActions?.length
   if (currentUser?.isAdmin) return <PetrovAdminConsole currentUser={currentUser} />
@@ -52,6 +60,7 @@ export const PetrovGameWrapper = ({classes}: {
     return <PetrovWorldmapWrapper>Hello citizen</PetrovWorldmapWrapper>
   }
   return null
+  // return <DismissibleSpotlightItem spotlight={spotlight}/>
 }
 
 const PetrovGameWrapperComponent = registerComponent('PetrovGameWrapper', PetrovGameWrapper, {styles});

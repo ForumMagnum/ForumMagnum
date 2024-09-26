@@ -1038,6 +1038,7 @@ importComponent("PetrovDayButton", () => require('../components/seasonal/PetrovD
 importComponent("PetrovDayLossScreen", () => require('../components/seasonal/PetrovDayLossScreen'));
 importComponent("PetrovDayPoll", () => require('../components/seasonal/petrovDay/PetrovDayPoll'));
 importComponent("OptIntoPetrovButton", () => require('../components/seasonal/petrovDay/OptIntoPetrovButton'));
+importComponent("PastWarnings", () => require('../components/seasonal/petrovDay/PastWarnings'));
 importComponent("PetrovGameWrapper", () => require('../components/seasonal/petrovDay/PetrovGameWrapper'));
 importComponent("PetrovWarningConsole", () => require('../components/seasonal/petrovDay/PetrovWarningConsole'));
 importComponent("PetrovAdminConsole", () => require('../components/seasonal/petrovDay/PetrovAdminConsole'));

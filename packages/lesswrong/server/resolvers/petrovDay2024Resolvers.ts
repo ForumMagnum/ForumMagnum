@@ -9,13 +9,16 @@ import sample from "lodash/sample";
 const petrovFalseAlarmMissileCount = new DatabaseServerSetting<number[]>('petrovFalseAlarmMissileCount', [])
 const petrovRealAttackMissileCount = new DatabaseServerSetting<number[]>('petrovRealAttackMissileCount', [])
 
-const getIncomingCount = (incoming: boolean) => {
+const getIncomingCount = (incoming: boolean, role: 'eastPetrov' | 'westPetrov') => {
   const currentHour = new Date().getHours();
-  const seed = currentHour + (incoming ? 24 : 0); // Different seed for each hour and incoming state
+  const roleSeed = role === 'eastPetrov' ? 0 : 13;
+  const seed = currentHour + roleSeed + (incoming ? 17 : 0); // Different seed for each hour, role, and incoming state
 
   const missileCountArray = incoming ? petrovRealAttackMissileCount.get() : petrovFalseAlarmMissileCount.get();
 
-  return missileCountArray[seed % missileCountArray.length];
+  const result = seed % missileCountArray.length
+  console.log({currentHour, roleSeed, incoming, seed, result})
+  return missileCountArray[result];
 }
 
 const PetrovDay2024CheckNumberOfIncomingData = `type PetrovDay2024CheckNumberOfIncomingData {
@@ -32,14 +35,15 @@ const petrovDay2024Resolvers = {
 
       const userRole = actions.filter(action => action.actionType === 'hasRole' && action.userId === context.currentUser?._id)?.[0]?.data?.role
 
-      if (userRole === 'eastPetrov') {
-        const incoming = !!(actions.filter(action => action.data?.role === 'nukeTheEast')?.length > 0)
-        sample(petrovRealAttackMissileCount.get())
-        return { count: getIncomingCount(incoming) }
+      if (userRole === 'eastPetrov') {  
+        const nukeTheEastActions = actions.filter(action => action.actionType === 'nukeTheEast')
+        const incoming = !!(nukeTheEastActions?.length > 0)
+        return { count: getIncomingCount(incoming, 'eastPetrov') }
       }
       if (userRole === 'westPetrov') {
-        const incoming = !!(actions.filter(action => action.data?.role === 'nukeTheWest')?.length > 0)
-        return { count: getIncomingCount(incoming) }
+        const nukeTheWestActions = actions.filter(action => action.actionType === 'nukeTheWest')
+        const incoming = !!(nukeTheWestActions?.length > 0)
+        return { count: getIncomingCount(incoming, 'westPetrov') }
       }
       return { count: 0 }
     }

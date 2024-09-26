@@ -23,23 +23,6 @@ const styles = (theme: ThemeType) => ({
     '&:hover': {
       backgroundColor: theme.palette.grey[200]
     }
-  },
-  pastWarnings: {
-    borderTop: theme.palette.border.commentBorder,
-    marginTop: 16,
-    paddingTop: 16,
-    textAlign: 'center',
-    color: theme.palette.grey[700],
-  },
-  report: {
-    marginTop: 8,
-    fontSize: '1rem',
-    color: theme.palette.grey[600],
-    '& em': {
-      color: theme.palette.grey[500],
-      fontSize: '.8rem',
-      marginLeft: 8
-    }
   }
 });
 
@@ -48,7 +31,7 @@ export const PetrovWarningConsole = ({classes, currentUser, side}: {
   currentUser: UsersCurrent,
   side: 'east' | 'west'
 }) => {
-  const { PetrovWorldmapWrapper } = Components;
+  const { PetrovWorldmapWrapper, PastWarnings } = Components;
 
   const { results: petrovDayActions = [], refetch: refetchPetrovDayActions } = useMulti({
     collectionName: 'PetrovDayActions',
@@ -66,7 +49,7 @@ export const PetrovWarningConsole = ({classes, currentUser, side}: {
   const latestWarning = pastWarnings.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]?.createdAt || lastReported
 
 
-  const STARTING_MINUTE = 13
+  const STARTING_MINUTE = 0
   const canSendNewReport = lastReported ? false : (new Date().getTime() - new Date(latestWarning).getTime()) > 1000 * 60 * 50
 
   const currentMinute = new Date().getMinutes();
@@ -74,7 +57,7 @@ export const PetrovWarningConsole = ({classes, currentUser, side}: {
   const reportWindow = currentMinute >= STARTING_MINUTE && currentMinute < 60
   const minutesRemaining = Math.abs(currentMinute - STARTING_MINUTE)
 
-  const { data, refetch } = useQuery(gql`
+  const { data, refetch: refetchCount } = useQuery(gql`
     query petrovDay2024Resolvers {
       PetrovDay2024CheckNumberOfIncoming {
         count
@@ -86,7 +69,7 @@ export const PetrovWarningConsole = ({classes, currentUser, side}: {
       side
     }
   });
-  const count = data?.PetrovDay2024CheckNumberOfIncoming?.count
+  const count = data?.PetrovDay2024CheckNumberOfIncoming?.count?.toLocaleString()
 
   const { create: createPetrovDayAction } = useCreate({
     collectionName: 'PetrovDayActions',
@@ -105,18 +88,13 @@ export const PetrovWarningConsole = ({classes, currentUser, side}: {
     setLastReported(new Date().toISOString())
   }
 
-  useEffect(() => {
+  useEffect(() => {count
     const interval = setInterval(() => {
-      refetch();
+      refetchCount();
+      refetchPetrovDayActions();
     }, 1000);
     return () => clearInterval(interval);
-  }, [refetch]);
-
-  const pastReportNode = petrovDayActions.length > 0 ? <div className={classes.pastWarnings}>
-    <h3>Past Warnings</h3>
-    {petrovDayActions.map(action => <div key={action._id} className={classes.report}>
-      {action.actionType === 'eastPetrovAllClear' || action.actionType === 'westPetrovAllClear' ? 'All Clear' : 'Nukes Incoming'} <em>{new Date(action.createdAt).toLocaleTimeString()}</em></div>)}
-  </div> : null
+  }, [refetchCount, refetchPetrovDayActions]);
 
   if (currentMinute >= STARTING_MINUTE && currentMinute < 60) {
     return <PetrovWorldmapWrapper>
@@ -125,13 +103,13 @@ export const PetrovWarningConsole = ({classes, currentUser, side}: {
         <button className={classes.reportButton} onClick={() => handleReport(false)}>Report "All Clear"</button>
         <button className={classes.reportButton} onClick={() => handleReport(true)}>Report INCOMING NUKES</button>
       </div>}
-      {pastReportNode}
+      <PastWarnings petrovDayActions={petrovDayActions} side={side} />
     </PetrovWorldmapWrapper>;
   } else {
     return <PetrovWorldmapWrapper>
       <h2>Scanning...</h2>
       <div className={classes.minutesRemaining}>{minutesRemaining} minutes until next scan complete</div>
-      {pastReportNode}
+      <PastWarnings petrovDayActions={petrovDayActions} side={side} />
     </PetrovWorldmapWrapper>;
   }
 }
