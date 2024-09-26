@@ -92,7 +92,7 @@ export const CurationNoticesItem = ({curationNotice, mostRecentCuratedPost, clas
 
   const [edit, setEdit] = useState<boolean>(false)
 
-  const isMostRecentCuratedPostTooNew = false //mostRecentCuratedPost && new Date(mostRecentCuratedPost.curatedDate).getTime() + (2 * 24 * 60 * 60 * 1000) > Date.now()
+  const isMostRecentCuratedPostTooNew = mostRecentCuratedPost && new Date(mostRecentCuratedPost.curatedDate).getTime() + (2 * 24 * 60 * 60 * 1000) > Date.now()
 
   const { create } = useCreate({
     collectionName: "Comments",
