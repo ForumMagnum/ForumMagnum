@@ -134,7 +134,7 @@ export const PetrovLaunchConsole = ({classes, side, currentUser}: {
         margin="normal"
         variant="outlined"
       />
-      <div className={classNames(classes.launchButton, !!launchAction && classes.disabledLaunchButton, launchCode !== "000000" && classes.unreadyLaunchButton)} onClick={() => setOpenCodes(true)}>
+      <div className={classNames(classes.launchButton, !!launchAction && classes.disabledLaunchButton, launchCode !== "000000" && classes.unreadyLaunchButton)} onClick={handleLaunch}>
         {launchButtonText} 
       </div>
       <PastWarnings petrovDayActions={petrovDayActions} side={side} general/>
