@@ -53,8 +53,6 @@ export const PetrovWarningConsole = ({classes, currentUser, side}: {
   const pastWarnings = side === 'east' ? petrovDayActions.filter(action => action.actionType === 'eastPetrovReport') : petrovDayActions.filter(action => action.actionType === 'westPetrovReport')
   const latestWarning = pastWarnings.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]?.createdAt || lastReported
 
-
-  const STARTING_MINUTE = 0
   const canSendNewReport = lastReported ? false : (new Date().getTime() - new Date(latestWarning).getTime()) > 1000 * 60 * 50
 
   const currentMinute = new Date().getMinutes();
