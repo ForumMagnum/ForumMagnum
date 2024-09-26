@@ -96,11 +96,13 @@ export const PetrovWarningConsole = ({classes, currentUser, side}: {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      void refetchCount();
-      void refetchPetrovDayActions();
+      if (currentUser) {
+        void refetchCount();
+        void refetchPetrovDayActions();
+      }
     }, 30000);
     return () => clearInterval(interval);
-  }, [refetchCount, refetchPetrovDayActions]);
+  }, [refetchCount, refetchPetrovDayActions, currentUser]);
 
   if (currentMinute >= STARTING_MINUTE && currentMinute < 60) {
     return <PetrovWorldmapWrapper>
