@@ -90,10 +90,10 @@ export const PetrovWarningConsole = ({classes, currentUser, side}: {
     setLastReported(new Date().toISOString())
   }
 
-  useEffect(() => {count
+  useEffect(() => {
     const interval = setInterval(() => {
-      refetchCount();
-      refetchPetrovDayActions();
+      void refetchCount();
+      void refetchPetrovDayActions();
     }, 1000);
     return () => clearInterval(interval);
   }, [refetchCount, refetchPetrovDayActions]);

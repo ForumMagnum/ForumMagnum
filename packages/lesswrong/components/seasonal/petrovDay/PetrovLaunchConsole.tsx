@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { registerComponent } from '@/lib/vulcan-lib';
+import { registerComponent, Components } from '@/lib/vulcan-lib';
 import { useTracking } from '@/lib/analyticsEvents';
-import { Components } from '@/lib/vulcan-lib';
 import { useCreate } from '@/lib/crud/withCreate';
 import { useMulti } from '@/lib/crud/withMulti';
 import classNames from 'classnames';
