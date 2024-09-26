@@ -1,9 +1,7 @@
-// TODO: Import component in components.ts
 import React from 'react';
 import { registerComponent } from '@/lib/vulcan-lib';
-import { useTracking } from '@/lib/analyticsEvents';
 import ReactMapGL from 'react-map-gl';
-import { DatabasePublicSetting, mapboxAPIKeySetting } from '@/lib/publicSettings';
+import { mapboxAPIKeySetting } from '@/lib/publicSettings';
 import { Helmet } from '@/lib/utils/componentsWithChildren';
 import { useMapStyle } from '@/components/hooks/useMapStyle';
 
@@ -43,7 +41,6 @@ export const PetrovWorldmapWrapper = ({classes, children}: {
   classes: ClassesType<typeof styles>,
   children: React.ReactNode
 }) => {
-  const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
 
   const mapStyle = useMapStyle()
   return <div className={classes.root}>
