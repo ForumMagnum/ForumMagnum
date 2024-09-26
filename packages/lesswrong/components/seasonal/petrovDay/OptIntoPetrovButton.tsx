@@ -136,10 +136,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const OptIntoPetrovButton = ({classes, refetch, alreadyLaunched }: {
-  classes: ClassesType,
-  refetch?: any,
-  alreadyLaunched?: boolean,
+const OptIntoPetrovButton = ({classes }: {
+  classes: ClassesType
 }) => {
   const currentUser = useCurrentUser()
   const petrovPressedButtonDate = currentUser?.petrovPressedButtonDate
@@ -180,9 +178,7 @@ const OptIntoPetrovButton = ({classes, refetch, alreadyLaunched }: {
   }
 
   const updateConfirmationCode = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    if (!alreadyLaunched) {
-      setConfirmationCode(event.target.value)
-    }
+    setConfirmationCode(event.target.value)
   }
 
   const updateOptIn = async () => {

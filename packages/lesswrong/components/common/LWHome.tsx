@@ -25,9 +25,9 @@ const LWHome = () => {
           {reviewIsActive() && getReviewPhase() !== "RESULTS" && showReviewOnFrontPageIfActive.get() && <SingleColumnSection>
             <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
           </SingleColumnSection>}
-          <SingleColumnSection>
+          {/* <SingleColumnSection>
             <OptIntoPetrovButton/>
-          </SingleColumnSection>
+          </SingleColumnSection> */}
           {/* TODO: Uncomment this after Petrov Day */}
           {/* <SingleColumnSection>
             <DismissibleSpotlightItem current/>

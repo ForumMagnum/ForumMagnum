@@ -4,8 +4,32 @@ import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 
 const options: MutationOptions<DbPetrovDayAction> = {
-  newCheck: (user: DbUser|null) => {
-    return true
+  newCheck: async (user: DbUser|null, document: DbPetrovDayAction|null) => {
+    if (!user || !document) return false
+    
+    const userRoleInfo = await PetrovDayActions.findOne({userId: user?._id, actionType: "hasRole"})
+    const userRole = userRoleInfo?.data?.role
+
+    if (userRole === "westGeneral" && document?.actionType === "nukeTheEast") {
+      return true
+    }
+    if (userRole === "eastGeneral" && document?.actionType === "nukeTheWest") {
+      return true
+    }
+    if (userRole === "eastPetrov" && document?.actionType === "eastPetrovAllClear") {
+      return true
+    }
+    if (userRole === "eastPetrov" && document?.actionType === "eastPetrovNukesIncoming") {
+      return true
+    }
+    if (userRole === "westPetrov" && document?.actionType === "westPetrovAllClear") {
+      return true
+    }
+    if (userRole === "westPetrov" && document?.actionType === "westPetrovNukesIncoming") {
+      return true
+    }
+    
+    return false
   },
 
   editCheck: async (user: DbUser|null, document: DbPetrovDayAction|null) => {
