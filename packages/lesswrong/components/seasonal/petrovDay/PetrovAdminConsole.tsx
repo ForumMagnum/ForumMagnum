@@ -48,7 +48,7 @@ export const PetrovAdminConsole = ({classes, currentUser}: {
         {petrovDayActions.map((action) => (
           <div className={classes.consoleRow} key={action._id}>
             <h3>{action.actionType}</h3>
-            <div>{new Date(action.createdAt).toLocaleDateString()} {action.userId}
+            <div>{new Date(action.createdAt).toLocaleTimeString()} {action.userId}
               <div>{JSON.stringify(action.data, null, 2)}</div>
             </div>
           </div>

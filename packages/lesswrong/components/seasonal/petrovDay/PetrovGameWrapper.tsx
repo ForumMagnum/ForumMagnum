@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => ({
   citizenWest: {
     width: 400,
     height: 300,
-    background: "url('https://i.imgur.com/kQuHCCA.jpeg')",
+    background: "url('https://i.imgur.com/4ITjoT2.jpeg')",
     backgroundSize: 'cover !important',
     backgroundPosition: 'center !important',
     margin: "-16px -24px",

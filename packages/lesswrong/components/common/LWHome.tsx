@@ -7,12 +7,19 @@ import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../lib/cookies/cookies';
 import moment from 'moment';
 import { visitorGetsDynamicFrontpage } from '../../lib/betas';
+import { useSingle } from '@/lib/crud/withSingle';
 
 const LWHome = () => {
-  const { OptIntoPetrovButton, RecentDiscussionFeed, AnalyticsInViewTracker, FrontpageReviewWidget,
+  const { DismissibleSpotlightItem, RecentDiscussionFeed, AnalyticsInViewTracker, FrontpageReviewWidget,
     SingleColumnSection, FrontpageBestOfLWWidget, EAPopularCommentsSection,
     QuickTakesSection, LWHomePosts
   } = Components;
+
+  const { document } = useSingle({
+    collectionName: 'Spotlights',
+    documentId: 'ezMAfa72gSy8HDHfX',
+    fragmentName: "SpotlightDisplay",
+  });
 
   return (
       <AnalyticsContext pageContext="homePage">
@@ -25,13 +32,10 @@ const LWHome = () => {
           {reviewIsActive() && getReviewPhase() !== "RESULTS" && showReviewOnFrontPageIfActive.get() && <SingleColumnSection>
             <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
           </SingleColumnSection>}
-          {/* <SingleColumnSection>
-            <OptIntoPetrovButton/>
-          </SingleColumnSection> */}
-          {/* TODO: Uncomment this after Petrov Day */}
-          {/* <SingleColumnSection>
-            <DismissibleSpotlightItem current/>
-          </SingleColumnSection> */}
+          <SingleColumnSection>
+            {/* change this to "current" after Petrov Day period */}
+            <DismissibleSpotlightItem spotlight={document}/>
+          </SingleColumnSection> 
           <AnalyticsInViewTracker
             eventProps={{inViewType: "homePosts"}}
             observerProps={{threshold:[0, 0.5, 1]}}
