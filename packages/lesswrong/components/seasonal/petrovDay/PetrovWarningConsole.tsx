@@ -98,7 +98,7 @@ export const PetrovWarningConsole = ({classes, currentUser, side}: {
     const interval = setInterval(() => {
       void refetchCount();
       void refetchPetrovDayActions();
-    }, 5000);
+    }, 30000);
     return () => clearInterval(interval);
   }, [refetchCount, refetchPetrovDayActions]);
 
