@@ -30,7 +30,7 @@ import { requireCssVar } from '../themes/cssVars';
 import { UnreadNotificationsContextProvider } from './hooks/useUnreadNotifications';
 import { CurrentForumEventProvider } from './hooks/useCurrentForumEvent';
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
-const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
+export const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
 
 import { LoginPopoverContextProvider } from './hooks/useLoginPopoverContext';
 import DeferRender from './common/DeferRender';
@@ -491,6 +491,13 @@ const Layout = ({currentUser, children, classes}: {
         && beforeTime < currentTime
         && currentTime < afterTime
     }
+    const now = new Date()
+    const twoDaysFromNow = new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000)
+    console.log({
+      now, twoDaysFromNow,
+      nowMilliseconds: now.getTime(),
+      twoDaysFromNowMilliseconds: twoDaysFromNow.getTime()
+    });
     
     return (
       <AnalyticsContext path={pathname}>

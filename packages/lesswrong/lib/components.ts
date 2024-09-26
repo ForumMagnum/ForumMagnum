@@ -1040,7 +1040,9 @@ importComponent("PetrovDayPoll", () => require('../components/seasonal/petrovDay
 importComponent("OptIntoPetrovButton", () => require('../components/seasonal/petrovDay/OptIntoPetrovButton'));
 importComponent("PetrovGameWrapper", () => require('../components/seasonal/petrovDay/PetrovGameWrapper'));
 importComponent("PetrovWarningConsole", () => require('../components/seasonal/petrovDay/PetrovWarningConsole'));
+importComponent("PetrovAdminConsole", () => require('../components/seasonal/petrovDay/PetrovAdminConsole'));
 importComponent("PetrovLaunchConsole", () => require('../components/seasonal/petrovDay/PetrovLaunchConsole'));
+importComponent("PetrovWorldmapWrapper", () => require('../components/seasonal/petrovDay/PetrovWorldmapWrapper'));
 importComponent("CoronavirusFrontpageWidget", () => require('../components/seasonal/CoronavirusFrontpageWidget'));
 // importComponent("AprilFools2022", () => require('../components/seasonal/AprilFools2022'));
 
