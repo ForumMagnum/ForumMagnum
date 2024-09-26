@@ -1,9 +1,7 @@
 // TODO: Import component in components.ts
 import React from 'react';
-import { getFragment, registerComponent } from '@/lib/vulcan-lib';
+import { registerComponent, Components } from '@/lib/vulcan-lib';
 import { useTracking } from '@/lib/analyticsEvents';
-import { Components } from '@/lib/vulcan-lib';
-import { hour } from 'later';
 import { useMulti } from '@/lib/crud/withMulti';
 
 const styles = (theme: ThemeType) => ({

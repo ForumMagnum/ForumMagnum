@@ -102,7 +102,7 @@ export const PetrovLaunchConsole = ({classes, side, currentUser}: {
       <h3>{side === 'east' ? 'East' : 'West'} Wrongia General's Console</h3>
       <div className={classes.reportsContainer}>
         <h4>Reports</h4>
-        {petrovReports.length === 0 ? <em>None</em> : petrovReports?.map((action) => <div>{action.data.warning}</div>)}
+        {petrovReports.length === 0 ? <em>None</em> : petrovReports?.map((action) => <div key={action._id}>{action.data.warning}</div>)}
       </div>
       <div className={classNames(classes.launchButton, !!launchAction && classes.disabledLaunchButton)} onClick={handleLaunch}>
         {launchButtonText} 

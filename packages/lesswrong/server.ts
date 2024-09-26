@@ -179,6 +179,7 @@ import './server/resolvers/recentDiscussionFeed';
 import './server/resolvers/elicitPredictions';
 import './server/resolvers/reviewVoteResolvers';
 import './server/resolvers/petrovDayResolvers';
+import './server/resolvers/petrovDay2024Resolvers';
 import './server/resolvers/analyticsResolvers';
 import './server/resolvers/adminResolvers';
 import './server/resolvers/surveyResolvers';

@@ -6,8 +6,9 @@ import Users from "@/lib/vulcan-users";
 const context = createAdminContext()
 
 const assignPetrov2024Roles = async () => {
-
+  // eslint-disable-next-line no-console
   console.log("Assigning Petrov 2024 roles")
+  
   const signupMutation = async (variables: {
     email: string;
     username: string;
@@ -43,6 +44,7 @@ const assignPetrov2024Roles = async () => {
     );
 
     if (errors) {
+      // eslint-disable-next-line no-console
       console.error('Signup mutation errors:', errors);
     }
 
@@ -182,7 +184,9 @@ const assignPetrov2024Roles = async () => {
     })
   }
 
+  // eslint-disable-next-line no-console
   console.log(usersWithInfo)
+  // eslint-disable-next-line no-console
   console.log("done")
 }
 
