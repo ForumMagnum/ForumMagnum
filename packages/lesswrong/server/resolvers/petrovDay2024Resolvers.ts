@@ -32,7 +32,7 @@ const startTime = new Date(petrovBeforeTime.get())
 const petrovDay2024Resolvers = {
   Query: {
     async PetrovDay2024CheckNumberOfIncoming(root: void, args: void, context: ResolverContext) {
-      const actions = await PetrovDayActions.find({createdAt: {$gte: startTime}, actionType: {$ne: 'optIn'}}, {limit: 100}).fetch()
+      const actions = await PetrovDayActions.find({createdAt: {$gte: startTime}, actionType: {$ne: 'optIn'}}).fetch()
 
       if (!inWarningWindow(new Date().getMinutes()) || !context.currentUser) {
         return { count: 0 }
