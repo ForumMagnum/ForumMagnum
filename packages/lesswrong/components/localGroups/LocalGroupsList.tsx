@@ -24,6 +24,8 @@ const LocalGroupsList = ({terms, children, classes, showNoResults=true, heading}
   });
   const { LocalGroupsItem, Loading, PostsNoResults, SectionFooter, LoadMore, SingleColumnSection, SectionTitle } = Components
 
+  // FIXME: Unstable component will lose state on rerender
+  // eslint-disable-next-line react/no-unstable-nested-components
   const MaybeTitleWrapper = ({children}: { children: ReactNode }) => heading ?
     <SingleColumnSection>
       <SectionTitle title={heading} />
