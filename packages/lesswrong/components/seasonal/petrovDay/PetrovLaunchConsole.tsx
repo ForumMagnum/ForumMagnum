@@ -25,7 +25,7 @@ const styles = (theme: ThemeType) => ({
     marginTop: 20,
     marginBottom: 20,
     cursor: 'pointer',
-    border: '1px solid #000',
+    border: `1px solid  ${theme.palette.grey[900]}`,
     padding: 25,
     borderRadius: 50,
     color: theme.palette.background.pageActiveAreaBackground,
