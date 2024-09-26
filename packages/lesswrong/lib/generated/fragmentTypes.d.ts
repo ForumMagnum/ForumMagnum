@@ -3575,7 +3575,7 @@ interface PetrovDayLaunchInfo { // fragment on PetrovDayLaunchs
 }
 
 interface PetrovDayActionsDefaultFragment { // fragment on PetrovDayActions
-  readonly actionType: string,
+  readonly actionType: "optIn" | "hasRole" | "hasSide" | "nukeTheWest" | "nukeTheEast" | "eastPetrovAllClear" | "eastPetrovNukesIncoming" | "westPetrovAllClear" | "westPetrovNukesIncoming",
   readonly data: any /*{"definitions":[{}]}*/,
   readonly userId: string,
 }
@@ -3584,7 +3584,7 @@ interface PetrovDayActionInfo { // fragment on PetrovDayActions
   readonly _id: string,
   readonly createdAt: Date,
   readonly userId: string,
-  readonly actionType: string,
+  readonly actionType: "optIn" | "hasRole" | "hasSide" | "nukeTheWest" | "nukeTheEast" | "eastPetrovAllClear" | "eastPetrovNukesIncoming" | "westPetrovAllClear" | "westPetrovNukesIncoming",
   readonly data: any /*{"definitions":[{}]}*/,
 }
 
