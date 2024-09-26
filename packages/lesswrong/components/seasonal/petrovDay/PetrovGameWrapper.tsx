@@ -31,12 +31,6 @@ export const PetrovGameWrapper = ({classes}: {
     skip: !currentUser
   })
 
-  // const { document: spotlight, data, loading, error } = useSingle({
-  //   documentId: 'petrovDay2024OptIn',
-  //   collectionName: "Spotlights",
-  //   fragmentName: 'SpotlightDisplay',
-  // });
-
   const currentUserRole = petrovDayActions?.[0]?.data?.role
   const currentUserOptedIn = !!petrovDayActions?.length
   if (currentUser?.isAdmin) return <PetrovAdminConsole currentUser={currentUser} />

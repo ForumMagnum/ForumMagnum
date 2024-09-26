@@ -4,6 +4,8 @@ import PetrovDayActions from "@/lib/collections/petrovDayActions/collection";
 import Users from "@/lib/vulcan-users";
 import Conversations from "@/lib/collections/conversations/collection";
 import { Posts } from "@/lib/collections/posts";
+import { filterWhereFieldsNotNull } from "@/lib/utils/typeGuardUtils";
+import { create } from "underscore";
 
 const context = createAdminContext()
 
@@ -79,82 +81,94 @@ const assignPetrov2024Roles = async () => {
     generatePassword()
   ]
 
-  const users = [
+  const characterInfo = [
     {
       email: "raemon+east-petrov-1@lesswrong.com",
       username: "StanislavPetrov",
       password: passwords[0],
       role: "eastPetrov",
+      side: "east",
     },
     {
       email: "raemon+east-general-1@lesswrong.com",
       username: "GeneralAndropov",
       password: passwords[1],
       role: "eastGeneral",
+      side: "east",
     },
     {
       email: "raemon+east-general-2@lesswrong.com",
       username: "GeneralBelov",
       password: passwords[2],
       role: "eastGeneral",
+      side: "east",
     },
     {
       email: "raemon+east-general-3@lesswrong.com",
       username: "GeneralChernenko",
       password: passwords[3],
       role: "eastGeneral",
+      side: "east",
     },
     {
       email: "raemon+east-general-4@lesswrong.com",
       username: "GeneralDonskoy",
       password: passwords[4],
       role: "eastGeneral",
+      side: "east",
     },
     {
       email: "raemon+east-general-5@lesswrong.com",
       username: "GeneralEgorov",
       password: passwords[5],
       role: "eastGeneral",
+      side: "east",
     },
     {
       email: "raemon+west-petrov-1@lesswrong.com",
       username: "StanleyPeterson",
       password: passwords[6],
       role: "westPetrov",
+      side: "west",
     },
     {
       email: "raemon+west-general-1@lesswrong.com",
       username: "GeneralAnderson",
       password: passwords[7],
       role: "westGeneral",
+      side: "west",
     },
     {
       email: "raemon+west-general-2@lesswrong.com",
       username: "GeneralBrookes",
       password: passwords[8],
       role: "westGeneral",
+      side: "west",
     },
     {
       email: "raemon+west-general-3@lesswrong.com",
       username: "GeneralCarter",
       password: passwords[9],
       role: "westGeneral",
+      side: "west",
     },
     {
       email: "raemon+west-general-4@lesswrong.com",
       username: "GeneralDawson",
       password: passwords[10],
       role: "westGeneral",
+      side: "west",
     },
     {
       email: "raemon+west-general-5@lesswrong.com",
       username: "GeneralEvans",
       password: passwords[11],
       role: "westGeneral",
+      side: "west",
     },
   ]
 
-  for (const [i, user] of users.entries()) {
+  for (const [i, user] of characterInfo.entries()) {
     const newUser = await signupMutation({
       email: user.email,
       username: user.username,
@@ -165,26 +179,129 @@ const assignPetrov2024Roles = async () => {
     })
   } 
 
-  const usersWithPasswords = await Users.find({createdAt: {$gte: new Date("2024-09-25")}, username: {$in: users.map(user => user.username)}}).fetch()
+  const usersWithPasswords = await Users.find({createdAt: {$gte: new Date("2024-09-25")}, username: {$in: characterInfo.map(user => user.username)}}).fetch()
   
-  const usersWithInfo = usersWithPasswords.map((user, i) => ({_id: user._id, username: user.username, displayName: user.displayName, password: users[i].password}))
-
-  
-  for (const [i, user] of usersWithPasswords.entries()) {
-    await createMutator({
+  const usersWithInfo = usersWithPasswords.map((user, i) => ({_id: user._id, username: user.username, displayName: user.displayName, password: characterInfo[i].password}))
+    
+  const results = await Promise.all([...usersWithPasswords.flatMap((user, i) =>
+    [createMutator({
       collection: PetrovDayActions,
       document: {
         userId: user._id,
         actionType: "hasRole",
         data: {
-          role: users[i].role,
-        },
-        createdAt: new Date(),
+          role: characterInfo[i].role,
+        }
       },
       currentUser: user,
       validate: false,
-    })
-  }
+    }), 
+    createMutator({
+      collection: PetrovDayActions,
+      document: {
+        userId: user._id,
+        actionType: "hasSide",
+        data: {
+          side: characterInfo[i].side,
+        }
+      },
+      currentUser: user,
+      validate: false,
+    })]
+  )])
+
+  const currentAdmin = createAdminContext().currentUser
+
+
+  const citizenOptIns = await PetrovDayActions.find({actionType: "optIn"}).fetch()
+  const citizenFiltered = filterWhereFieldsNotNull(citizenOptIns, 'userId')
+  const userIdsOfEastLeaders = ['asdf']
+  const userIdsOfWestLeaders = ['asdf']
+  const remainingCitizens = citizenFiltered.filter(citizen => !userIdsOfEastLeaders.includes(citizen.userId) && !userIdsOfWestLeaders.includes(citizen.userId))
+
+  const firstHalfOfCitizens = remainingCitizens.slice(0, Math.floor(remainingCitizens.length / 2))
+  const offsetLength = firstHalfOfCitizens.length
+  const secondHalfOfCitizens = remainingCitizens.slice(offsetLength)
+
+  await Promise.all(firstHalfOfCitizens.map((citizen, i) => createMutator({
+    collection: PetrovDayActions,
+    document: {
+      userId: citizen.userId,
+      actionType: "hasSide",
+      data: {
+        side: "east",
+      }
+    },
+    validate: false,
+    currentUser: currentAdmin,
+  })))
+
+  await Promise.all(firstHalfOfCitizens.map((citizen, i) => createMutator({
+    collection: PetrovDayActions,
+    document: {
+      userId: citizen.userId,
+      actionType: "hasRole",
+      data: {
+        role: "citizen",
+      }
+    },
+    validate: false,
+    currentUser: currentAdmin,
+  })))
+  
+  await Promise.all(secondHalfOfCitizens.map((citizen, i) => createMutator({
+    collection: PetrovDayActions,
+    document: {
+      userId: citizen.userId,
+      actionType: "hasSide",
+      data: {
+        side: "west",
+      }
+    },
+    validate: false,
+    currentUser: currentAdmin,
+  })))
+
+  await Promise.all(secondHalfOfCitizens.map((citizen, i) => createMutator({
+    collection: PetrovDayActions,
+    document: {
+      userId: citizen.userId,
+      actionType: "hasRole",
+      data: {
+        role: "citizen",
+      }
+    },
+    validate: false,
+    currentUser: currentAdmin,
+  })))
+
+  await Promise.all(userIdsOfEastLeaders.map((userId, i) => createMutator({
+    collection: PetrovDayActions,
+    document: {
+      userId: userId,
+      actionType: "hasSide",
+      data: {
+        side: "east",
+      }
+    },
+    validate: false,
+    currentUser: currentAdmin,
+  })))
+
+  await Promise.all(userIdsOfWestLeaders.map((userId, i) => createMutator({
+    collection: PetrovDayActions,
+    document: {
+      userId: userId,
+      actionType: "hasSide",
+      data: {
+        side: "west",
+      }
+    },
+    validate: false,
+    currentUser: currentAdmin,
+  })))
+
+
 
   // const westGenerals = usersWithInfo.filter((user, i) => users[i].role === "westGeneral")
   // const eastGenerals = usersWithInfo.filter((user, i) => users[i].role === "eastGeneral")
@@ -225,7 +342,7 @@ const assignPetrov2024Roles = async () => {
   // })petrovSocialDeception
 
   // eslint-disable-next-line no-console
-  console.log(usersWithInfo)
+  // console.log(usersWithInfo)
   // eslint-disable-next-line no-console
   console.log("done")
 }

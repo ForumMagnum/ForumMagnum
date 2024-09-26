@@ -6,6 +6,7 @@ import { petrovBeforeTime } from "@/components/Layout";
 import { DatabaseServerSetting } from "../databaseSettings";
 import sample from "lodash/sample";
 import { inWarningWindow } from "@/components/seasonal/petrovDay/PetrovWarningConsole";
+import { defineQuery } from "../utils/serverGraphqlUtil";
 
 const petrovFalseAlarmMissileCount = new DatabaseServerSetting<number[]>('petrovFalseAlarmMissileCount', [])
 const petrovRealAttackMissileCount = new DatabaseServerSetting<number[]>('petrovRealAttackMissileCount', [])
@@ -60,21 +61,26 @@ addGraphQLResolvers(petrovDay2024Resolvers);
 addGraphQLQuery('PetrovDay2024CheckNumberOfIncoming: PetrovDay2024CheckNumberOfIncomingData');
 
 
-const petrovDay2024NukeCheckResolvers = {
-  Query: {
-    async Petrov2024CheckIfNuked(root: void, args: void, context: ResolverContext) {
-      
-      const actions = await PetrovDayActions.find({createdAt: {$gte: startTime}, actionType: {$ne: 'optIn'}}, {limit: 100}).fetch()
+
+
+defineQuery({
+  name: "petrov2024checkIfNuked",
+  resultType: "Boolean",
+  fn: async (_, { }, context: ResolverContext): Promise<Boolean> => {
+    if (!context.currentUser) return false
+    const actions = await PetrovDayActions.find({}).fetch()
+    const userSide = actions.find(({actionType, userId}) => userId === context.currentUser?._id && actionType === 'hasSide')?.data.side
+    
+    const ninetyMinutesAgo = new Date(new Date().getTime() - (90 * 60 * 1000))
+
+    if (userSide === 'east') {
+      const eastIsNuked = actions.find(({actionType, createdAt}) => actionType === 'nukeTheEast' && createdAt > ninetyMinutesAgo)
+      return !!eastIsNuked
     }
-  },
-};
-
-const Petrov2024CheckIfNukedData = `type Petrov2024CheckIfNukedData {
-  nuked: Boolean
-}`
-
-addGraphQLSchema(Petrov2024CheckIfNukedData);
-
-addGraphQLResolvers(petrovDay2024NukeCheckResolvers);
-
-addGraphQLQuery('Petrov2024CheckIfNuked: Petrov2024CheckIfNukedData');
+    if (userSide === 'west') {
+      const westIsNuked = actions.find(({actionType, createdAt}) => actionType === 'nukeTheWest' && createdAt > ninetyMinutesAgo)
+      return !!westIsNuked
+    }
+    return false
+  }
+})

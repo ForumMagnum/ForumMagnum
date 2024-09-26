@@ -5,6 +5,7 @@ import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
 const ACTION_TYPES = [
   'optIn',
   'hasRole',
+  'hasSide',
   'nukeTheWest',
   'nukeTheEast',
   'eastPetrovAllClear',
