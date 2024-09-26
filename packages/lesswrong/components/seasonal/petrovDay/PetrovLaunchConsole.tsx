@@ -55,7 +55,7 @@ const styles = (theme: ThemeType) => ({
   launchCodeInput: {
     '& input': {
       fontSize: "2rem",
-      width: 80,
+      width: 100,
       textAlign: 'center'
     }
   },
@@ -130,7 +130,7 @@ export const PetrovLaunchConsole = ({classes, side, currentUser}: {
         onChange={updateLaunchCode}
         className={classes.launchCodeInput}
         value={launchCode}
-        placeholder={"Enter The Launch Code"}
+        placeholder={"Enter Code"}
         margin="normal"
         variant="outlined"
       />
