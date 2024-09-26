@@ -615,4 +615,15 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   warning: {
     main: "#ff9800",
   },
+  petrov: {
+    launchButtonBorder: "#000",
+    red: "#ff0000",
+    darkRed: "#990000",
+    red2: "#cc0000",
+    darkRed2: "#770000",
+    color1: "#aa8080",
+    color2: "#404040",
+    color3: "#998080",
+    color4: "#504040",
+  }
 })
