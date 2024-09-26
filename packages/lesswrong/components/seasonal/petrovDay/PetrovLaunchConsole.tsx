@@ -112,10 +112,12 @@ export const PetrovLaunchConsole = ({classes, side, currentUser}: {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      refetchPetrovDayActions();
+      if (currentUser) {
+        refetchPetrovDayActions();
+      }
     }, 30000);
     return () => clearInterval(interval);
-  }, [refetchPetrovDayActions]);
+  }, [refetchPetrovDayActions, currentUser]);
 
   const updateLaunchCode = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     if (!launchAction) {
