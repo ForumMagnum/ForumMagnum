@@ -27,11 +27,11 @@ const PetrovDay2024CheckNumberOfIncomingData = `type PetrovDay2024CheckNumberOfI
 }`
 
 addGraphQLSchema(PetrovDay2024CheckNumberOfIncomingData);
+const startTime = new Date(petrovBeforeTime.get())
 
 const petrovDay2024Resolvers = {
   Query: {
     async PetrovDay2024CheckNumberOfIncoming(root: void, args: void, context: ResolverContext) {
-      const startTime = new Date(petrovBeforeTime.get())
       const actions = await PetrovDayActions.find({createdAt: {$gte: startTime}, actionType: {$ne: 'optIn'}}, {limit: 100}).fetch()
 
       if (!inWarningWindow(new Date().getMinutes())) {
@@ -58,3 +58,23 @@ const petrovDay2024Resolvers = {
 addGraphQLResolvers(petrovDay2024Resolvers);
 
 addGraphQLQuery('PetrovDay2024CheckNumberOfIncoming: PetrovDay2024CheckNumberOfIncomingData');
+
+
+const petrovDay2024NukeCheckResolvers = {
+  Query: {
+    async Petrov2024CheckIfNuked(root: void, args: void, context: ResolverContext) {
+      
+      const actions = await PetrovDayActions.find({createdAt: {$gte: startTime}, actionType: {$ne: 'optIn'}}, {limit: 100}).fetch()
+    }
+  },
+};
+
+const Petrov2024CheckIfNukedData = `type Petrov2024CheckIfNukedData {
+  nuked: Boolean
+}`
+
+addGraphQLSchema(Petrov2024CheckIfNukedData);
+
+addGraphQLResolvers(petrovDay2024NukeCheckResolvers);
+
+addGraphQLQuery('Petrov2024CheckIfNuked: Petrov2024CheckIfNukedData');
