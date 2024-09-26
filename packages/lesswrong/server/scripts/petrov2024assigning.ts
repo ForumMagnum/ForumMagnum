@@ -215,8 +215,20 @@ const assignPetrov2024Roles = async () => {
 
   const citizenOptIns = await PetrovDayActions.find({actionType: "optIn"}).fetch()
   const citizenFiltered = filterWhereFieldsNotNull(citizenOptIns, 'userId')
-  const userIdsOfEastLeaders = ['asdf']
-  const userIdsOfWestLeaders = ['asdf']
+  const userIdsOfEastLeaders = ['x5S2Kuj6TfQTGuo63',
+    '4QFiQcHgf6hvtiLqF',
+    '6c2KCEXTGogBZ9KoE',
+    'mHfRYusxhhJhE5drc',
+    'sJv7yzCp5xfWBAPvG',
+    'YFiFbXgjBpDKZT93g']
+
+  const userIdsOfWestLeaders = ['X9jdpCokhLjCMZEc3',
+    'gQqkEPTcMX48JPsew',
+    'oxqFdPeNG7DuSmYGD',
+    'p5TQv5CM2koCkbF2m',
+    'p5TQv5CM2koCkbF2m',
+    'NHMSJPMdExqDxPsY3']
+    
   const remainingCitizens = citizenFiltered.filter(citizen => !userIdsOfEastLeaders.includes(citizen.userId) && !userIdsOfWestLeaders.includes(citizen.userId))
 
   const firstHalfOfCitizens = remainingCitizens.slice(0, Math.floor(remainingCitizens.length / 2))
