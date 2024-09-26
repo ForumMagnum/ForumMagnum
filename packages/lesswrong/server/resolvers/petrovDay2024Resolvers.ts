@@ -26,18 +26,22 @@ addGraphQLSchema(PetrovDay2024CheckNumberOfIncomingData);
 const petrovDay2024Resolvers = {
   Query: {
     async PetrovDay2024CheckNumberOfIncoming(root: void, context: ResolverContext) {
+      console.log({context})
       const startTime = new Date(petrovBeforeTime.get())
       const actions = await PetrovDayActions.find({createdAt: {$gte: startTime}, actionType: {$ne: 'optIn'}}, {limit: 100}).fetch()
-      const userRole = actions.find(action => action.userId === context.currentUser?._id)?.data?.role
 
-      if (userRole === 'eastPetrov') {
-        const incoming = !!(actions.filter(action => action.data?.role === 'nukeTheEast')?.length > 0)
-        return { count: getIncomingCount(incoming) }
-      }
-      if (userRole === 'westPetrov') {
-        const incoming = !!(actions.filter(action => action.data?.role === 'nukeTheWest')?.length > 0)
-        return { count: getIncomingCount(incoming) }
-      }
+      const userRole = actions.filter(action => action.actionType === 'hasRole' && action.userId === context.currentUser?._id)
+
+
+      // console.log({currentUser: context.currentUser?._id, userRole: userRole.map(action => action.data)})
+      // if (userRole?.data?.role === 'eastPetrov') {
+      //   const incoming = !!(actions.filter(action => action.data?.role === 'nukeTheEast')?.length > 0)
+      //   return { count: getIncomingCount(incoming) }
+      // }
+      // if (userRole?.data?.role === 'westPetrov') {
+      //   const incoming = !!(actions.filter(action => action.data?.role === 'nukeTheWest')?.length > 0)
+      //   return { count: getIncomingCount(incoming) }
+      // }
       return { count: 0 }
     }
   },

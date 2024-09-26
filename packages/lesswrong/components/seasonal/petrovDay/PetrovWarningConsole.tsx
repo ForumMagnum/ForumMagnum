@@ -1,7 +1,9 @@
 // TODO: Import component in components.ts
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { registerComponent, Components } from '@/lib/vulcan-lib';
 import { gql, useQuery } from '@apollo/client';
+import { useMulti } from '@/lib/crud/withMulti';
+import { useCreate } from '@/lib/crud/withCreate';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -20,7 +22,20 @@ export const PetrovWarningConsole = ({classes, currentUser, side}: {
 }) => {
   const { PetrovWorldmapWrapper } = Components;
 
-  const { data } = useQuery(gql`
+  const { results: petrovDayActions = [], refetch: refetchPetrovDayActions } = useMulti({
+    collectionName: 'PetrovDayActions',
+    fragmentName: 'PetrovDayActionInfo',
+    terms: {
+      view: 'warningConsole',
+      side: side,
+      limit: 200
+    },
+    skip: !currentUser
+  })
+  const [lastReported, setLastReported] = useState<string | null>(null)
+  const canSendNewReport = lastReported ? Math.abs(new Date().getMinutes() - new Date(lastReported).getMinutes()) > 50 : true
+
+  const { data, refetch } = useQuery(gql`
     query petrovDay2024Resolvers {
       PetrovDay2024CheckNumberOfIncoming {
         count
@@ -35,12 +50,40 @@ export const PetrovWarningConsole = ({classes, currentUser, side}: {
   const count = data?.PetrovDay2024CheckNumberOfIncoming?.count
 
   const currentMinute = new Date().getMinutes();
+  const reportWindow = currentMinute >= 50 && currentMinute < 60
   const minutesRemaining = Math.abs(currentMinute - 50)
-  console.log({currentMinute, minutesRemaining})
-  
+
+  const { create: createPetrovDayAction } = useCreate({
+    collectionName: 'PetrovDayActions',
+    fragmentName: 'PetrovDayActionInfo'
+  })
+
+  const handleReport = (message: string) => {
+    if (!canSendNewReport || !reportWindow) return
+    const attackActionType = side === 'east' ? 'nukeTheWest' : 'nukeTheEast'
+    void createPetrovDayAction({  
+      data: {
+        userId: currentUser._id,
+        actionType: attackActionType,
+        data: {
+          message
+        }
+      }
+    }) 
+  }
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refetch();
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [refetch]);
+
   if (currentMinute >= 50 && currentMinute < 60) {
     return <PetrovWorldmapWrapper>
       <h1>{count} detected missiles</h1>
+      <button onClick={() => handleReport('All Clear')}>Report "All Clear"</button>
+      <button onClick={() => handleReport('INCOMING NUKES')}>Report INCOMING NUKES</button>
     </PetrovWorldmapWrapper>;
   } else {
     return <PetrovWorldmapWrapper>

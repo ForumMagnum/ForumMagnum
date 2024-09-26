@@ -27,7 +27,6 @@ PetrovDayActions.addView("getAction", (terms: PetrovDayActionsViewTerms) => {
 ensureIndex(PetrovDayActions, {userId: 1, actionType: 1});
 
 
-//Messages for a specific conversation
 PetrovDayActions.addView("launchDashboard", (terms: PetrovDayActionsViewTerms) => {
   const oneWeekAgo = new Date(Date.now() - (7 * 24 * 60 * 60 * 1000));
 
@@ -40,7 +39,6 @@ PetrovDayActions.addView("launchDashboard", (terms: PetrovDayActionsViewTerms) =
   };
 });
 
-//Messages for a specific conversation
 PetrovDayActions.addView("adminConsole", (terms: PetrovDayActionsViewTerms) => {
   const oneWeekAgo = new Date(Date.now() - (7 * 24 * 60 * 60 * 1000));
 
