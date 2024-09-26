@@ -25,7 +25,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const STARTING_MINUTE = 36
+const STARTING_MINUTE = 50
 
 export const inWarningWindow = (currentMinute: number) => {
   return currentMinute >= STARTING_MINUTE && currentMinute < 60
