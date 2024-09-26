@@ -543,7 +543,7 @@ const Layout = ({currentUser, children, classes}: {
               <ForumEventBanner />
               {/* enable during ACX Everywhere */}
               {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>}
-              {/* {renderPetrovDay() && <PetrovGameWrapper/>} */}
+              {renderPetrovDay() && <PetrovGameWrapper/>}
 
               <div className={classNames(classes.standaloneNavFlex, {
                 [classes.spacedGridActivated]: shouldUseGridLayout && !unspacedGridLayout,

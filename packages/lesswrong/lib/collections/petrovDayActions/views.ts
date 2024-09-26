@@ -11,18 +11,19 @@ declare global {
   }
 }
 
-
 //Messages for a specific conversation
 PetrovDayActions.addView("getAction", (terms: PetrovDayActionsViewTerms) => {
   const oneWeekAgo = new Date(Date.now() - (7 * 24 * 60 * 60 * 1000));
   const userId = terms.userId ? {userId: terms.userId} : {}
-  return {
+  const actionType = terms.actionType ? {actionType: terms.actionType} : {}
+  const selector = {
     selector: {
       ...userId,
-      createdAt: {$gte: oneWeekAgo},
-      actionType: terms.actionType,
+      ...actionType,
+      createdAt: {$gte: oneWeekAgo}
     }
-  };
+  }
+  return selector
 });
 ensureIndex(PetrovDayActions, {userId: 1, actionType: 1});
 
