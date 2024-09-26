@@ -5,6 +5,7 @@ import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_
 
 const options: MutationOptions<DbPetrovDayAction> = {
   newCheck: async (user: DbUser|null, document: DbPetrovDayAction|null) => {
+    if (!user || !document) return false
     const userRoleInfo = await PetrovDayActions.findOne({userId: user?._id, actionType: "hasRole"})
     const userRole = userRoleInfo?.data?.role
 
