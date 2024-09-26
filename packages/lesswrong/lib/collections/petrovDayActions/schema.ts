@@ -11,9 +11,11 @@ const ACTION_TYPES = [
   'eastPetrovNukesIncoming',
   'westPetrovAllClear',
   'westPetrovNukesIncoming'
-] as const
+]
 
-const ACTION_TYPES_SET = new TupleSet(ACTION_TYPES)
+const ACTION_TYPE_TUPLESET = [...ACTION_TYPES] as const
+
+const ACTION_TYPES_SET = new TupleSet(ACTION_TYPE_TUPLESET)
 export type PetrovDayActionType = UnionOf<typeof ACTION_TYPES_SET>
 
 
@@ -24,6 +26,7 @@ const schema: SchemaType<"PetrovDayActions"> = {
     nullable: false,
     canRead: ['guests'],
     canCreate: ['members'],
+    allowedValues: ACTION_TYPES,
     form: {
       options: () => [...ACTION_TYPES].map(key => ({ label: key, value: key }))
     },

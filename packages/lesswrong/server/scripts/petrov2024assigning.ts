@@ -222,7 +222,7 @@ const assignPetrov2024Roles = async () => {
   //     coauthorStatuses: allGenerals.map(user => ({userId: user._id, confirmed: true, requested: false})),
   //     createdAt: new Date(),
   //   },
-  // })
+  // })petrovSocialDeception
 
   // eslint-disable-next-line no-console
   console.log(usersWithInfo)
