@@ -50,7 +50,10 @@ export const PetrovWarningConsole = ({classes, currentUser, side}: {
   })
   const [lastReported, setLastReported] = useState<string | null>(null)
 
-  const pastWarnings = side === 'east' ? petrovDayActions.filter(({actionType}) => actionType === 'eastPetrovAllClear' || actionType === 'eastPetrovNukesIncoming') : petrovDayActions.filter(({actionType}) => actionType === 'westPetrovAllClear' || actionType === 'westPetrovNukesIncoming')
+  const pastWarnings = side === 'east'
+    ? petrovDayActions.filter(({actionType}) => actionType === 'eastPetrovAllClear' || actionType === 'eastPetrovNukesIncoming')
+    : petrovDayActions.filter(({actionType}) => actionType === 'westPetrovAllClear' || actionType === 'westPetrovNukesIncoming');
+
   const latestWarning = pastWarnings.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]?.createdAt || lastReported
 
   const canSendNewReport = lastReported ? false : (new Date().getTime() - new Date(latestWarning).getTime()) > 1000 * 60 * 50
@@ -71,6 +74,7 @@ export const PetrovWarningConsole = ({classes, currentUser, side}: {
       side
     }
   });
+
   const count = data?.PetrovDay2024CheckNumberOfIncoming?.count?.toLocaleString()
 
   const { create: createPetrovDayAction } = useCreate({
@@ -94,7 +98,7 @@ export const PetrovWarningConsole = ({classes, currentUser, side}: {
     const interval = setInterval(() => {
       void refetchCount();
       void refetchPetrovDayActions();
-    }, 1000);
+    }, 30000);
     return () => clearInterval(interval);
   }, [refetchCount, refetchPetrovDayActions]);
 
