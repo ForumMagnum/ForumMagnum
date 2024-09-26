@@ -391,6 +391,8 @@ const EAPostsItem = ({
   // normally requiring the user to press back twice to get to where they
   // started so we need to wrap that whole thing in an `InteractionWrapper`
   // too.
+  // FIXME: Unstable component will lose state on rerender
+  // eslint-disable-next-line react/no-unstable-nested-components
   const TitleWrapper: FC<PropsWithChildren<{}>> = ({children}) => (
     <PostsItemTooltipWrapper post={post} placement={tooltipPlacement} As="span" disabled={viewType === 'card'}>
       <InteractionWrapper className={classes.titleWrapper}>

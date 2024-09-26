@@ -717,7 +717,7 @@ type PetrovDayActionsCollection = CollectionBase<"PetrovDayActions">;
 
 interface DbPetrovDayAction extends DbObject {
   __collectionName?: "PetrovDayActions"
-  actionType: string
+  actionType: "optIn" | "hasRole" | "hasSide" | "nukeTheWest" | "nukeTheEast" | "eastPetrovAllClear" | "eastPetrovNukesIncoming" | "westPetrovAllClear" | "westPetrovNukesIncoming"
   data: any /*{"definitions":[{}]}*/
   userId: string | null
   createdAt: Date
