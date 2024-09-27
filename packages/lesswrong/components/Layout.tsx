@@ -130,8 +130,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: 'absolute',
     width: '57vw',
     maxWidth: '1000px',
-    top: '-57px',
-    right: '-334px',
+    top: '-237px',
+    right: '-214px',
     '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 55%, transparent 70%)`,
     
     [theme.breakpoints.up(2000)]: {
@@ -481,16 +481,6 @@ const Layout = ({currentUser, children, classes}: {
     const friendlyHomeLayout = isFriendlyUI && currentRoute?.name === 'home'
 
     const isIncompletePath = allowedIncompletePaths.includes(currentRoute?.name ?? "404");
-
-    const renderPetrovDay = () => {
-      const currentTime = (new Date()).valueOf()
-      const beforeTime = petrovBeforeTime.get()
-      const afterTime = petrovAfterTime.get()
-    
-      return currentRoute?.name === "home" && isLW
-        && beforeTime < currentTime
-        && currentTime < afterTime
-    }
     
     return (
       <AnalyticsContext path={pathname}>
@@ -543,7 +533,6 @@ const Layout = ({currentUser, children, classes}: {
               <ForumEventBanner />
               {/* enable during ACX Everywhere */}
               {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>}
-              {renderPetrovDay() && <PetrovGameWrapper/>}
 
               <div className={classNames(classes.standaloneNavFlex, {
                 [classes.spacedGridActivated]: shouldUseGridLayout && !unspacedGridLayout,
@@ -588,7 +577,7 @@ const Layout = ({currentUser, children, classes}: {
                 </div>
                 {isLW && <>
                   {standaloneNavigation && <div className={classes.imageColumn}>
-                    <CloudinaryImage2 className={classes.backgroundImage} publicId="ohabryka_httpss.mj.runBkrf46MPWyo_httpss.mj.runXinKWYpaKSQ_Aqua_2a5060ad-b51a-4fd3-a81a-a65b8e5a77f8_kxfias" darkPublicId={"ohabryka_httpss.mj.runBkrf46MPWyo_httpss.mj.runXinKWYpaKSQ_Aqua_2a5060ad-b51a-4fd3-a81a-a65b8e5a77f8_crn05d"}/>
+                    <CloudinaryImage2 className={classes.backgroundImage} publicId="0_0_2_blku4q.webp" darkPublicId={"0_0_2_invert_ohhotc.webp"}/>
                   </div>}
                 </>}
                 {!renderSunshineSidebar &&
