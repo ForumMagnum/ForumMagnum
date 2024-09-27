@@ -10,7 +10,7 @@ const styles = (theme: ThemeType) => ({
   },
   minutesRemaining: {
     fontSize: '.9rem',
-    color: theme.palette.grey[600]
+    color: 'gray'
   },
   reportButton: {
     border: theme.palette.border.answerBorder,
@@ -28,7 +28,7 @@ const styles = (theme: ThemeType) => ({
 const STARTING_MINUTE = 50
 
 export const inWarningWindow = (currentMinute: number) => {
-  return currentMinute >= STARTING_MINUTE && currentMinute < 60
+  return currentMinute >= STARTING_MINUTE || currentMinute < 17
 }
 
 export const PetrovWarningConsole = ({classes, currentUser, side}: {
@@ -56,7 +56,7 @@ export const PetrovWarningConsole = ({classes, currentUser, side}: {
 
   const latestWarning = pastWarnings.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]?.createdAt || lastReported
 
-  const canSendNewReport = lastReported ? false : (new Date().getTime() - new Date(latestWarning).getTime()) > 1000 * 60 * 50
+  const canSendNewReport = true
 
   const currentMinute = new Date().getMinutes();
   const reportWindow = inWarningWindow(currentMinute)
