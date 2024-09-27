@@ -637,7 +637,8 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     post.fmCrosspost?.isCrosspost &&
     !post.fmCrosspost?.hostedHere;
 
-  const noIndex = fullPost?.noIndex || post.rejected;
+  const shouldLowKarmaNoIndex = isEAForum && post.baseScore <= 0;
+  const noIndex = fullPost?.noIndex || post.rejected || shouldLowKarmaNoIndex;
 
   const marketInfo = getMarketInfo(post)
 
