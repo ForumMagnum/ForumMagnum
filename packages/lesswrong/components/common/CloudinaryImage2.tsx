@@ -138,7 +138,7 @@ const CloudinaryImage2 = ({
       media="(prefers-color-scheme: dark)"
     />}
     <img
-      loading="lazy"
+      loading={loading}
       src={basicImageUrl}
       style={imageStyle}
       className={className}
