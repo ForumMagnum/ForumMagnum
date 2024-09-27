@@ -10,7 +10,7 @@ const styles = (theme: ThemeType) => ({
   },
   minutesRemaining: {
     fontSize: '.9rem',
-    color: 'gray'
+    color: theme.palette.grey[600]
   },
   reportButton: {
     border: theme.palette.border.answerBorder,
