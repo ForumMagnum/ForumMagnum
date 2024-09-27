@@ -28,6 +28,7 @@ const styles = (theme: ThemeType) => ({
 const STARTING_MINUTE = 50
 
 export const inWarningWindow = (currentMinute: number) => {
+  return true
   return currentMinute >= STARTING_MINUTE || currentMinute < 17
 }
 
@@ -77,20 +78,21 @@ export const PetrovWarningConsole = ({classes, currentUser, side}: {
 
   const count = data?.PetrovDay2024CheckNumberOfIncoming?.count?.toLocaleString()
 
-  const { create: createPetrovDayAction } = useCreate({
+  const { create: createPetrovDayAction, loading: createPetrovDayActionLoading } = useCreate({
     collectionName: 'PetrovDayActions',
     fragmentName: 'PetrovDayActionInfo'
   })
 
-  const handleReport = (incoming: boolean) => {
+  const handleReport = async (incoming: boolean) => {
     if (!canSendNewReport || !reportWindow) return
     const reportActionType = incoming ? (side === 'east' ? 'eastPetrovNukesIncoming' : 'westPetrovNukesIncoming') : (side === 'east' ? 'eastPetrovAllClear' : 'westPetrovAllClear')
-    void createPetrovDayAction({  
+    await createPetrovDayAction({  
       data: {
         userId: currentUser._id,
         actionType: reportActionType,
       }
     }) 
+    refetchPetrovDayActions()
     setLastReported(new Date().toISOString())
   }
 
@@ -104,10 +106,11 @@ export const PetrovWarningConsole = ({classes, currentUser, side}: {
     return () => clearInterval(interval);
   }, [refetchCount, refetchPetrovDayActions, currentUser]);
 
-  if (currentMinute >= STARTING_MINUTE && currentMinute < 60) {
+  if (inWarningWindow(currentMinute)) {
     return <PetrovWorldmapWrapper>
       <h1>{count} detected missiles</h1>
-      {canSendNewReport && <div>
+      {createPetrovDayActionLoading && <div>Loading...</div>}
+      {canSendNewReport && !createPetrovDayActionLoading && <div>
         <button className={classes.reportButton} onClick={() => handleReport(false)}>Report "All Clear"</button>
         <button className={classes.reportButton} onClick={() => handleReport(true)}>Report INCOMING NUKES</button>
       </div>}
