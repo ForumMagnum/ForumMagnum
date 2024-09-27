@@ -261,12 +261,18 @@ const CommunityMapFilter = ({
     flash({messageString: "Hid map from Frontpage", action: undoAction})
   }, [currentUser, flash, setShowMap, updateCurrentUser]);
 
+  // FIXME: Unstable component will lose state on rerender
+  // eslint-disable-next-line react/no-unstable-nested-components
   const GroupIcon = () => isEAForum
     ? <StarIcon className={classes.eaButtonIcon}/>
     : <GroupIconSVG className={classes.buttonIcon}/>;
+  // FIXME: Unstable component will lose state on rerender
+  // eslint-disable-next-line react/no-unstable-nested-components
   const EventIcon = () => isEAForum
     ? <RoomIcon className={classes.eaButtonIcon}/>
     : <ArrowSVG className={classes.buttonIcon}/>;
+  // FIXME: Unstable component will lose state on rerender
+  // eslint-disable-next-line react/no-unstable-nested-components
   const PersonIcon = () => isEAForum
     ? <PersonPinIcon className={classes.eaButtonIcon}/>
     : <PersonSVG className={classes.buttonIcon}/>;

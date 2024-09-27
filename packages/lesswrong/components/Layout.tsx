@@ -30,7 +30,7 @@ import { requireCssVar } from '../themes/cssVars';
 import { UnreadNotificationsContextProvider } from './hooks/useUnreadNotifications';
 import { CurrentForumEventProvider } from './hooks/useCurrentForumEvent';
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
-const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
+export const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
 
 import { LoginPopoverContextProvider } from './hooks/useLoginPopoverContext';
 import DeferRender from './common/DeferRender';
@@ -130,8 +130,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: 'absolute',
     width: '57vw',
     maxWidth: '1000px',
-    top: '-57px',
-    right: '-334px',
+    top: '-237px',
+    right: '-214px',
     '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 55%, transparent 70%)`,
     
     [theme.breakpoints.up(2000)]: {
@@ -438,7 +438,7 @@ const Layout = ({currentUser, children, classes}: {
       AnalyticsClient,
       AnalyticsPageInitializer,
       NavigationEventSender,
-      PetrovDayWrapper,
+      PetrovGameWrapper,
       EAOnboardingFlow,
       BasicOnboardingFlow,
       CommentOnSelectionPageWrapper,
@@ -481,16 +481,6 @@ const Layout = ({currentUser, children, classes}: {
     const friendlyHomeLayout = isFriendlyUI && currentRoute?.name === 'home'
 
     const isIncompletePath = allowedIncompletePaths.includes(currentRoute?.name ?? "404");
-
-    const renderPetrovDay = () => {
-      const currentTime = (new Date()).valueOf()
-      const beforeTime = petrovBeforeTime.get()
-      const afterTime = petrovAfterTime.get()
-    
-      return currentRoute?.name === "home" && isLW
-        && beforeTime < currentTime
-        && currentTime < afterTime
-    }
     
     return (
       <AnalyticsContext path={pathname}>
@@ -543,7 +533,6 @@ const Layout = ({currentUser, children, classes}: {
               <ForumEventBanner />
               {/* enable during ACX Everywhere */}
               {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>}
-              {renderPetrovDay() && <PetrovDayWrapper/>}
 
               <div className={classNames(classes.standaloneNavFlex, {
                 [classes.spacedGridActivated]: shouldUseGridLayout && !unspacedGridLayout,
@@ -588,7 +577,7 @@ const Layout = ({currentUser, children, classes}: {
                 </div>
                 {isLW && <>
                   {standaloneNavigation && <div className={classes.imageColumn}>
-                    <CloudinaryImage2 className={classes.backgroundImage} publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413" darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}/>
+                    <CloudinaryImage2 className={classes.backgroundImage} publicId="0_0_2_blku4q.webp" darkPublicId={"0_0_2_invert_ohhotc.webp"}/>
                   </div>}
                 </>}
                 {!renderSunshineSidebar &&
