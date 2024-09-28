@@ -8,7 +8,13 @@ const createKarmaAwardForUser = async (userId: string, karmaAmount: 100|1000, re
   const user = await Users.findOne({_id: userId});
   if (!user) return
 
-  const karmaAwardGivingUser = karmaAmount === 100 ? await Users.findOne({_id: karmaRewarderId100.get()}) : await Users.findOne({_id: karmaRewarderId1000.get()})
+  let karmaAwardGivingUser: DbUser|null = null;
+  if (karmaAmount === 100) {
+    karmaAwardGivingUser = await Users.findOne({_id: karmaRewarderId100.get()})
+  }
+  if (karmaAmount === 1000) {
+    karmaAwardGivingUser = await Users.findOne({_id: karmaRewarderId1000.get()})
+  }
 
   if (!karmaAwardGivingUser) return
 
