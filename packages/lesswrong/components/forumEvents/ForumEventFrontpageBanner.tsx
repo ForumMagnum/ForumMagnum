@@ -1,4 +1,4 @@
-import React, { CSSProperties, useMemo, useState } from "react";
+import React, { CSSProperties } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
 import moment from "moment";
@@ -6,10 +6,6 @@ import { HIDE_FORUM_EVENT_BANNER_PREFIX } from "../../lib/cookies/cookies";
 import { useDismissable } from "../hooks/useDismissable";
 import classNames from "classnames";
 import { HEADER_HEIGHT } from "../common/Header";
-import { Link } from "@/lib/reactRouterWrapper";
-import orderBy from "lodash/orderBy";
-import toPairs from "lodash/toPairs";
-import { tagGetUrl } from "@/lib/collections/tags/helpers";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { POLL_MAX_WIDTH } from "./ForumEventPoll";
 
