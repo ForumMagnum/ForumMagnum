@@ -52,6 +52,8 @@ const NewAnswerForm = ({post, classes}: {
     fragmentName: 'CommentsList',
   });
   
+  // FIXME: Unstable component will lose state on rerender
+  // eslint-disable-next-line react/no-unstable-nested-components
   const SubmitComponent = ({submitLabel = "Submit"}) => {
     const submitBtnProps: BtnProps = isFriendlyUI ? {variant: 'contained', color: 'primary'} : {}
     return <div className={classes.submit}>

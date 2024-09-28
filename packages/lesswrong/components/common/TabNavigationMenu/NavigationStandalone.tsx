@@ -19,6 +19,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   sidebarWrapper: {
     minWidth: 100,
     zIndex: theme.zIndexes.footerNav,
+    "@media print": {
+      display: "none"
+    },
     [`@media(max-width: ${HOME_RHS_MAX_SCREEN_WIDTH}px)`]: {
       minWidth: 0,
     },
@@ -34,9 +37,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   navSidebarTransparent: {
     zIndex: 10,
-  },
-  "@media print": {
-    display: "none"
   },
   background: {
     background: theme.palette.panelBackground.translucent3,
