@@ -7,19 +7,12 @@ import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../lib/cookies/cookies';
 import moment from 'moment';
 import { visitorGetsDynamicFrontpage } from '../../lib/betas';
-import { useSingle } from '@/lib/crud/withSingle';
 
 const LWHome = () => {
   const { DismissibleSpotlightItem, RecentDiscussionFeed, AnalyticsInViewTracker, FrontpageReviewWidget,
     SingleColumnSection, FrontpageBestOfLWWidget, EAPopularCommentsSection,
     QuickTakesSection, LWHomePosts
   } = Components;
-
-  const { document } = useSingle({
-    collectionName: 'Spotlights',
-    documentId: 'ezMAfa72gSy8HDHfX',
-    fragmentName: "SpotlightDisplay",
-  });
 
   return (
       <AnalyticsContext pageContext="homePage">
@@ -33,8 +26,7 @@ const LWHome = () => {
             <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
           </SingleColumnSection>}
           <SingleColumnSection>
-            {/* change this to "current" after Petrov Day period */}
-            <DismissibleSpotlightItem spotlight={document}/>
+            <DismissibleSpotlightItem current/>
           </SingleColumnSection> 
           <AnalyticsInViewTracker
             eventProps={{inViewType: "homePosts"}}
