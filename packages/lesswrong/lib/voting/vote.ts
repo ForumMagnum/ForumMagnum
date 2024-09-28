@@ -3,10 +3,10 @@ import { recalculateScore } from '../scoring';
 import { calculateVotePower, isValidVoteType } from './voteTypes';
 import type { VotingSystem } from './votingSystems';
 import { collectionNameToTypeName } from '../vulcan-lib';
-import { DatabaseServerSetting } from '@/server/databaseSettings';
+import { DatabasePublicSetting } from '../publicSettings';
 
-const karmaRewarderId100 = new DatabaseServerSetting<string | null>('karmaRewarderId100', null)
-const karmaRewarderId1000 = new DatabaseServerSetting<string | null>('karmaRewarderId1000', null)
+const karmaRewarderId100 = new DatabasePublicSetting<string | null>('karmaRewarderId100', null)
+const karmaRewarderId1000 = new DatabasePublicSetting<string | null>('karmaRewarderId1000', null)
 
 
 export interface VoteDocTuple {
