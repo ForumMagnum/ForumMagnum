@@ -26,7 +26,7 @@ const createKarmaAwardForUser = async (userId: string, karmaAmount: 100|1000, re
     return
   }
   const postInfo = `${karmaAmount} karma award for ${reason}`
-  const contents = {originalContents: { data: postInfo, type: "ckEditorMarkup" }} as EditableFieldContents
+  const contents = {originalContents: { data: postInfo, type: "ckEditorMarkup" }}
 
   const post = await createMutator({
     collection: Posts,
