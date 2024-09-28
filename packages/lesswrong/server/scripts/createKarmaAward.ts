@@ -28,7 +28,7 @@ const createKarmaAwardForUser = async (userId: string, karmaAmount: 100|1000, re
   performVoteServer({documentId: post.data._id, voteType: "upvote", user: karmaAwardGivingUser, collection: Posts, skipRateLimits: true});
 }
 
-const createKarmaAwards = async (userIds: string[], karmaAmount: 100|1000, reason: string) {
+const createKarmaAwards = async (userIds: string[], karmaAmount: 100|1000, reason: string) => {
   for (const userId of userIds) {
     createKarmaAwardForUser(userId, karmaAmount, reason);
   }
