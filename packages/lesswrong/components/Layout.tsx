@@ -130,8 +130,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: 'absolute',
     width: '57vw',
     maxWidth: '1000px',
-    top: '-237px',
-    right: '-214px',
+    top: '-57px',
+    right: '-334px',
     '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 55%, transparent 70%)`,
     
     [theme.breakpoints.up(2000)]: {
@@ -577,7 +577,7 @@ const Layout = ({currentUser, children, classes}: {
                 </div>
                 {isLW && <>
                   {standaloneNavigation && <div className={classes.imageColumn}>
-                    <CloudinaryImage2 className={classes.backgroundImage} publicId="0_0_2_blku4q.webp" darkPublicId={"0_0_2_invert_ohhotc.webp"}/>
+                    <CloudinaryImage2 className={classes.backgroundImage} publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413" darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}/>
                   </div>}
                 </>}
                 {!renderSunshineSidebar &&

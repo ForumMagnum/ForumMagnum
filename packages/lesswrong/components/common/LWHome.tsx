@@ -33,8 +33,7 @@ const LWHome = () => {
             <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
           </SingleColumnSection>}
           <SingleColumnSection>
-            {/* change this to "current" after Petrov Day period */}
-            <DismissibleSpotlightItem spotlight={document}/>
+            <DismissibleSpotlightItem current/>
           </SingleColumnSection> 
           <AnalyticsInViewTracker
             eventProps={{inViewType: "homePosts"}}
