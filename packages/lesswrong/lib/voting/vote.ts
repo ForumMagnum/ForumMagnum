@@ -5,8 +5,8 @@ import type { VotingSystem } from './votingSystems';
 import { collectionNameToTypeName } from '../vulcan-lib';
 import { DatabasePublicSetting } from '../publicSettings';
 
-const karmaRewarderId100 = new DatabasePublicSetting<string | null>('karmaRewarderId100', null)
-const karmaRewarderId1000 = new DatabasePublicSetting<string | null>('karmaRewarderId1000', null)
+export const karmaRewarderId100 = new DatabasePublicSetting<string | null>('karmaRewarderId100', null)
+export const karmaRewarderId1000 = new DatabasePublicSetting<string | null>('karmaRewarderId1000', null)
 
 
 export interface VoteDocTuple {
