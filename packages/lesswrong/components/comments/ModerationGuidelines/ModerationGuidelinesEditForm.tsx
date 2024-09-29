@@ -27,6 +27,8 @@ const ModerationGuidelinesEditForm = ({ commentType = "post", documentId, onClos
   classes: ClassesType,
 }) => {
   const isPost = commentType === "post"
+  // FIXME: Unstable component will lose state on rerender
+  // eslint-disable-next-line react/no-unstable-nested-components
   const SubmitComponent = ({submitLabel = "Submit"}) => {
     return <div className="form-submit">
       <Button

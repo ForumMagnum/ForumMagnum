@@ -38,6 +38,8 @@ export const ReviewPhaseInformation = ({classes, reviewYear, reviewPhase}: {
   const { UserReviewsProgressBar, ContentStyles, LWTooltip, ReviewVotingProgressBar } = Components
 
 
+  // FIXME: Unstable component will lose state on rerender
+  // eslint-disable-next-line react/no-unstable-nested-components
   const FaqCard = ({linkText, children}: {
     linkText: React.ReactNode,
     children: React.ReactNode,

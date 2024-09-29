@@ -4,7 +4,6 @@ import classNames from "classnames";
 import { useCurrentUser } from "../common/withUser";
 import { useEventListener } from "../hooks/useEventListener";
 import { gql, useMutation } from "@apollo/client";
-import { useDialog } from "../common/withDialog";
 import { useMulti } from "@/lib/crud/withMulti";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
@@ -25,7 +24,7 @@ const styles = (theme: ThemeType) => ({
     textAlign: 'center',
     color: theme.palette.text.alwaysWhite,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    padding: '10px 30px 30px',
+    padding: '10px 30px 40px 30px',
     margin: '0 auto',
     [`@media (max-width: ${POLL_MAX_WIDTH}px)`]: {
       display: 'none',
@@ -296,7 +295,6 @@ export const ForumEventPoll = ({ postId, hideViewResults, classes }: {
 }) => {
   const { currentForumEvent: event, refetch } = useCurrentForumEvent();
   const { onSignup } = useLoginPopoverContext();
-  const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
 
   const initialUserVotePos: number | null = getForumEventVoteForUser(event, currentUser);
@@ -384,22 +382,13 @@ export const ForumEventPoll = ({ postId, hideViewResults, classes }: {
       }
       const delta = votePos - (currentUserVote ?? defaultVotePos);
       if (delta) {
-        voteData.delta = delta;
-        setCurrentUserVote(votePos);
-        if (postId) {
-          await addVote({
-            variables: {
-              ...voteData,
-              postIds: [postId]
-            }
-          });
-          refetch?.();
-        } else if (event.tag) {
-          openDialog({
-            componentName: "ForumEventPostSelectionDialog",
-            componentProps: { tag: event.tag, voteData }
-          });
-        }
+        voteData.delta = delta
+        setCurrentUserVote(votePos)
+        await addVote({variables: {
+          ...voteData,
+          ...(postId && {postIds: [postId]}),
+        }})
+        refetch?.()
       }
     }
     else {
@@ -417,7 +406,6 @@ export const ForumEventPoll = ({ postId, hideViewResults, classes }: {
     currentUserVote,
     postId,
     setCurrentUserVote,
-    openDialog,
     onSignup,
     clearVote,
     refetch

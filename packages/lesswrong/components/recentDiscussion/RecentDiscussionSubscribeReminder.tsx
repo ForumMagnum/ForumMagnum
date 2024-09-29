@@ -215,6 +215,8 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
     setLoading(false);
   }
   
+  // FIXME: Unstable component will lose state on rerender
+  // eslint-disable-next-line react/no-unstable-nested-components
   const AnalyticsWrapper = ({children, branch}: {children: React.ReactNode, branch: string}) => {
     return <AnalyticsContext pageElementContext="subscribeReminder" branch={branch}>
       <AnalyticsInViewTracker eventProps={{inViewType: "subscribeReminder"}}>

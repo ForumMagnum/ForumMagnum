@@ -38,6 +38,8 @@ const LocalGroupMarker = ({ group, handleMarkerClick, handleInfoWindowClose, inf
   const { StyledMapPopup, GroupLinks } = Components
   const htmlBody = {__html: html};
 
+  // FIXME: Unstable component will lose state on rerender
+  // eslint-disable-next-line react/no-unstable-nested-components
   const GroupIcon = () => forumTypeSetting.get() === 'EAForum'
     ? <Components.ForumIcon icon="Star" className={classes.eaIcon}/>
     : <GroupIconSVG className={classes.icon}/>;
