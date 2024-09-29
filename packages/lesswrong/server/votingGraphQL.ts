@@ -38,7 +38,7 @@ const voteResolver = {
     // compatibility.
     //
     // Returns the document that was voted upon, with its score updated.
-    async vote(root: void, args: {documentId: string, voteType: string, collectionName: CollectionNameString, voteId?: string}, context: ResolverContext) {
+    async vote(root: void, args: {documentId: string, voteType: DbVote['voteType'], collectionName: CollectionNameString, voteId?: string}, context: ResolverContext) {
       const {documentId, voteType, collectionName} = args;
       const { currentUser } = context;
       const collection = getCollection(collectionName);
@@ -82,7 +82,7 @@ function addVoteMutations(collection: CollectionBase<VoteableCollectionName>) {
     }
   `);
   
-  const performVoteMutation = async (args: {documentId: string, voteType: string|null, extendedVote?: any}, context: ResolverContext) => {
+  const performVoteMutation = async (args: {documentId: string, voteType: DbVote['voteType']|null, extendedVote?: any}, context: ResolverContext) => {
     const {documentId, voteType, extendedVote} = args;
     const {currentUser} = context;
     const document = await collection.findOne({_id: documentId});
@@ -111,11 +111,11 @@ function addVoteMutations(collection: CollectionBase<VoteableCollectionName>) {
   }
   addGraphQLResolvers({
     Mutation: {
-      [backCompatMutationName]: async (root: void, args: {documentId: string, voteType: string|null, extendedVote?: any}, context: ResolverContext) => {
+      [backCompatMutationName]: async (root: void, args: {documentId: string, voteType: DbVote['voteType']|null, extendedVote?: any}, context: ResolverContext) => {
         const {modifiedDocument, showVotingPatternWarning} = await performVoteMutation(args, context);
         return modifiedDocument;
       },
-      [mutationName]: async (root: void, args: {documentId: string, voteType: string|null, extendedVote?: any}, context: ResolverContext) => {
+      [mutationName]: async (root: void, args: {documentId: string, voteType: DbVote['voteType']|null, extendedVote?: any}, context: ResolverContext) => {
         const {modifiedDocument, showVotingPatternWarning} = await performVoteMutation(args, context);
         return {
           document: modifiedDocument,

@@ -46,7 +46,7 @@ const getExistingVote = async ({ document, user }: {
 const addVoteServer = async ({ document, collection, voteType, extendedVote, user, voteId, context }: {
   document: DbVoteableType,
   collection: CollectionBase<VoteableCollectionName>,
-  voteType: string,
+  voteType: DbVote['voteType'],
   extendedVote: any,
   user: DbUser,
   voteId: string,
@@ -91,7 +91,7 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
 export const createVote = ({ document, collectionName, voteType, extendedVote, user, voteId }: {
   document: DbVoteableType,
   collectionName: CollectionNameString,
-  voteType: string,
+  voteType: DbVote['voteType'],
   extendedVote: any,
   user: DbUser|UsersCurrent,
   voteId?: string,
@@ -214,7 +214,7 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
 export const performVoteServer = async ({ documentId, document, voteType, extendedVote, collection, voteId = randomId(), user, toggleIfAlreadyVoted = true, skipRateLimits, context, selfVote = false }: {
   documentId?: string,
   document?: DbVoteableType|null,
-  voteType: string,
+  voteType: DbVote['voteType'],
   extendedVote?: any,
   collection: CollectionBase<VoteableCollectionName>,
   voteId?: string,
