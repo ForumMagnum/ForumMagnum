@@ -119,6 +119,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     gap: "10px",
     userSelect: "none",
     cursor: "pointer",
+    zIndex: theme.zIndexes.hideTableOfContentsButton,
     [theme.breakpoints.down("sm")]: {
       display: "none",
     },

@@ -121,32 +121,37 @@ const CommunityHome = ({classes}: {
       lng: currentUserLocation.lng,
       limit: 5,
       filters: filters,
-    } : {
+    } as const : {
       view: 'events',
       limit: 5,
       filters: filters,
       globalEvent: false,
-    }
+    } as const;
+
     const globalEventsListTerms = {
       view: 'globalEvents',
       limit: 10
-    }
+    } as const;
+
     const onlineGroupsListTerms: LocalgroupsViewTerms = {
       view: 'online',
       limit: 5,
       filters: filters
-    }
+    };
+
     const groupsListTerms: LocalgroupsViewTerms = {
       view: 'nearby',
       lat: currentUserLocation.lat,
       lng: currentUserLocation.lng,
       limit: 4,
       filters: filters,
-    }
+    };
+
     const mapEventTerms: PostsViewTerms = {
       view: 'events',
       filters: filters,
-    }
+    };
+
     const title = forumTypeSetting.get() === 'EAForum' ? 'Community' : 'Welcome to the Community Section';
     const WelcomeText = () => (isEAForum ?
     <Typography variant="body2" className={classes.welcomeText}>

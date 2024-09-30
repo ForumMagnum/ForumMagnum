@@ -10,7 +10,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const PeopleDirectoryNumberCell = ({user, fieldName, classes}: {
+const PeopleDirectoryNumberCell = ({user, fieldName, classes}: {
   user: SearchUser,
   fieldName: keyof SearchUser,
   classes: ClassesType<typeof styles>,

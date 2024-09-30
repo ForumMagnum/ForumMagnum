@@ -8,7 +8,7 @@ import { useApolloClient } from '@apollo/client/react';
 import truncateTagDescription from "../../../lib/utils/truncateTagDescription";
 import { taggingNamePluralSetting } from '../../../lib/instanceSettings';
 import { truncate } from '../../../lib/editor/ellipsize';
-import { tagPageHeaderStyles, tagPostTerms } from '../TagPage';
+import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from '../TagPage';
 import { useOnSearchHotkey } from '../../common/withGlobalKeydown';
 import { MAX_COLUMN_WIDTH } from '../../posts/PostsPage/PostsPage';
 import { tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../../lib/collections/tags/helpers';
@@ -130,7 +130,9 @@ const SubforumWikiTab = ({tag, revision, truncated, setTruncated, classes}: {
             <SectionTitle title={`Posts tagged ${tag.name}`} />
             <div className={classes.postListMeta}>
               <PostsListSortDropdown value={query.sortedBy || "relevance"} />
-              <div className={classes.relevance}>Relevance</div>
+              <div className={classes.relevance}>
+                <RelevanceLabel />
+              </div>
             </div>
             <PostsList2 terms={terms} enableTotal tagId={tag._id} itemsPerPage={200}>
               <AddPostsToTag tag={tag} />

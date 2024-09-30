@@ -63,7 +63,7 @@ const FILTERS_ALL: ForumOptions<Partial<Record<Filters, SettingsOption>>> = {
     },
     curated: {
       label: "Curated",
-      tooltip: "Posts chosen by the moderation team to be well written and important (approximately 3 per week)"
+      tooltip: "Posts chosen by the moderation team to be well written and important (approximately weekly)"
     },
     questions: {
       label: "Questions",

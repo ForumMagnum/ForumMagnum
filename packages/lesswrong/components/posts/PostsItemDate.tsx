@@ -5,9 +5,11 @@ import moment from '../../lib/moment-timezone';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import classNames from 'classnames';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
+import { formatRelative } from '@/lib/utils/timeFormat';
 
 export const POSTED_AT_WIDTH = 38
 export const START_TIME_WIDTH = 72
+const HOUR_IN_MS = 60*60*1000;
 
 const customStyles = (theme: ThemeType) => isFriendlyUI
   ? {}
@@ -106,12 +108,12 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfN
   const dateToDisplay = useCuratedDate
     ? post.curatedDate || post.postedAt
     : post.postedAt;
-  const timeFromNow = moment(new Date(dateToDisplay)).fromNow();
+  const timeFromNow = formatRelative(new Date(dateToDisplay), now);
   const ago = includeAgo && timeFromNow !== "now"
     ? <span className={classes.xsHide}>&nbsp;ago</span>
     : null;
 
-  const isEmphasized = emphasizeIfNew && moment(now).diff(post.postedAt, 'hours') < 48;
+  const isEmphasized = emphasizeIfNew && Math.abs(new Date(post.postedAt).getTime() - now.getTime()) < 48*HOUR_IN_MS
 
   const dateElement = (
     <PostsItem2MetaInfo className={classNames(classes.postedAt, {[classes.isNew]: isEmphasized})}>

@@ -12,7 +12,7 @@ import {
 } from "../../lib/collections/posts/helpers";
 import qs from "qs";
 import type { PopperPlacementType } from "@material-ui/core/Popper"
-import { AnnualReviewMarketInfo, getMarketInfo, highlightMarket } from "../../lib/annualReviewMarkets";
+import { AnnualReviewMarketInfo, getMarketInfo, highlightMarket } from "../../lib/collections/posts/annualReviewMarkets";
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
 import { RECOMBEE_RECOMM_ID_QUERY_PARAM, VERTEX_ATTRIBUTION_ID_QUERY_PARAM } from "./PostsPage/PostsPage";
@@ -87,7 +87,6 @@ export type PostsItemConfig = {
   isVoteable?: boolean,
   recombeeRecommId?: string,
   vertexAttributionId?: string,
-  showRecommendationIcon?: boolean,
   /** Whether or not to make new post items have bold post item dates */
   emphasizeIfNew?: boolean,
   className?: string,
@@ -137,7 +136,6 @@ export const usePostsItem = ({
   isVoteable = false,
   recombeeRecommId,
   vertexAttributionId,
-  showRecommendationIcon = false,
   emphasizeIfNew = false,
   className,
 }: PostsItemConfig) => {
@@ -221,15 +219,6 @@ export const usePostsItem = ({
 
   const annualReviewMarketInfo = getMarketInfo(post)
 
-  const annualReviewMarketComment = post.annualReviewMarketComment
-
-  const highlightMarketForLinking = !!annualReviewMarketInfo && highlightMarket(annualReviewMarketInfo) && !!annualReviewMarketComment
-
-  const marketLink = highlightMarketForLinking && annualReviewMarketComment &&
-    <Link to={commentGetPageUrl(annualReviewMarketComment)}>
-      <span>{annualReviewMarketInfo.year} Top Fifty: {parseFloat((annualReviewMarketInfo.probability*100).toFixed(0))}%</span>
-    </Link>
-
   const isRecommendation = !!recombeeRecommId || !!vertexAttributionId;
 
   return {
@@ -255,8 +244,8 @@ export const usePostsItem = ({
     showIcons,
     showKarma,
     useCuratedDate,
+    hideTag,
     annualReviewMarketInfo,
-    marketLink,
     showReadCheckbox,
     showDraftTag,
     showPersonalIcon,
@@ -280,7 +269,6 @@ export const usePostsItem = ({
     bookmark,
     isVoteable,
     isRecommendation,
-    showRecommendationIcon,
     emphasizeIfNew,
     className,
   };

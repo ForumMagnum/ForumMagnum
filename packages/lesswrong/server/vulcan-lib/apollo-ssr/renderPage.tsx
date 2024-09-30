@@ -27,14 +27,15 @@ import type { Request, Response } from 'express';
 import { DEFAULT_TIMEZONE } from '../../../lib/utils/timeUtil';
 import { getIpFromRequest } from '../../datadog/datadogMiddleware';
 import { addStartRenderTimeToPerfMetric, asyncLocalStorage, closePerfMetric, closeRequestPerfMetric, openPerfMetric, setAsyncStoreValue } from '../../perfMetrics';
-import { maxRenderQueueSize } from '../../../lib/publicSettings';
+import { commentPermalinkStyleSetting, maxRenderQueueSize } from '../../../lib/publicSettings';
 import { performanceMetricLoggingEnabled } from '../../../lib/instanceSettings';
-import { getForwardedWhitelist } from '../../forwarded_whitelist';
+import { getClientIP } from '@/server/utils/getClientIP';
 import PriorityBucketQueue, { RequestData } from '../../../lib/requestPriorityQueue';
 import { isAnyTest, isProduction } from '../../../lib/executionEnvironment';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../../lib/cookies/cookies';
 import { visitorGetsDynamicFrontpage } from '../../../lib/betas';
 import { responseIsCacheable } from '../../cacheControlMiddleware';
+import { preloadScrollToCommentScript } from '@/lib/scrollUtils';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 
@@ -119,7 +120,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
         op_name: "skipCache",
         client_path: req.originalUrl,
         //we compute ip via two different methods in the codebase, using this one to be consistent with other perf_metrics
-        ip: getForwardedWhitelist().getClientIP(req),
+        ip: getClientIP(req),
         user_agent: userAgent,
         user_id: user?._id
       }, startTime);
@@ -165,7 +166,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
         op_name: "unknown",
         client_path: req.originalUrl,
         //we compute ip via two different methods in the codebase, using this one to be consistent with other perf_metrics
-        ip: getForwardedWhitelist().getClientIP(req),
+        ip: getClientIP(req),
         user_agent: userAgent
       }, startTime);
 
@@ -231,7 +232,7 @@ const requestPriorityQueue = new PriorityBucketQueue<RenderPriorityQueueSlot>();
 function queueRenderRequest(params: RenderRequestParams): Promise<RenderResult> {
   return new Promise((resolve) => {
     requestPriorityQueue.enqueue({
-      ip: getForwardedWhitelist().getClientIP(params.req),
+      ip: getClientIP(params.req) ?? "unknown",
       userAgent: params.userAgent ?? 'sus-missing-user-agent',
       userId: params.user?._id,
       callback: async () => {
@@ -334,16 +335,17 @@ const buildSSRBody = (htmlContent: string, userAgent?: string) => {
   // first child of <body> which forces the browser to load the CSS before rendering.
   // See https://bugzilla.mozilla.org/show_bug.cgi?id=1404468
   const prefix = userAgent?.match(/.*firefox.*/i) ? "<script>0</script>" : "";
+  const suffix = commentPermalinkStyleSetting.get() === 'in-context' ? preloadScrollToCommentScript : '';
   // TODO: there should be a cleaner way to set this wrapper
   // id must always match the client side start.jsx file
-  return `${prefix}<div id="react-app">${htmlContent}</div>`;
+  return `${prefix}<div id="react-app">${htmlContent}</div>${suffix}`;
 }
 
 const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: RenderRequestParams): Promise<RenderResult> => {
   const cacheFriendly = responseIsCacheable(res);
   const timezone = getCookieFromReq(req, "timezone") ?? DEFAULT_TIMEZONE;
 
-  const requestContext = await computeContextFromUser(user, req, res);
+  const requestContext = await computeContextFromUser({user, req, res, isSSR: true});
   if (req.closed) {
     // eslint-disable-next-line no-console
     console.log(`Request for ${req.url} from ${user?._id ?? getIpFromRequest(req)} was closed before render started`);

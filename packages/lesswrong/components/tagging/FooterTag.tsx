@@ -5,7 +5,6 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import classNames from 'classnames';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
-import { RobotIcon } from '../icons/RobotIcon';
 import { useCurrentUser } from '../common/withUser';
 import { coreTagIconMap } from './CoreTagIcon';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
@@ -13,7 +12,7 @@ import type { TagsTooltipPreviewWrapper } from './TagsTooltip';
 
 const useExperimentalTagStyleSetting = new DatabasePublicSetting<boolean>('useExperimentalTagStyle', false)
 
-export const tagStyle = (theme: ThemeType): JssStyles => ({
+export const tagStyle = (theme: ThemeType) => ({
   marginRight: isFriendlyUI ? 3 : undefined,
   padding: 5,
   paddingLeft: 6,
@@ -29,7 +28,7 @@ export const tagStyle = (theme: ThemeType): JssStyles => ({
   whiteSpace: isFriendlyUI ? "nowrap": undefined,
 })
 
-const newTagStyle = (theme: ThemeType): JssStyles => ({
+const newTagStyle = (theme: ThemeType) => ({
   marginRight: 4,
   padding: 5,
   paddingLeft: 8,
@@ -41,7 +40,7 @@ const newTagStyle = (theme: ThemeType): JssStyles => ({
   fontSize: 15
 })
 
-export const smallTagTextStyle = (theme: ThemeType): JssStyles => ({
+export const smallTagTextStyle = (theme: ThemeType) => ({
   fontSize: 12,
   paddingTop: 1,
   paddingBottom: 2,
@@ -49,7 +48,7 @@ export const smallTagTextStyle = (theme: ThemeType): JssStyles => ({
   marginBottom: 0
 });
 
-export const coreTagStyle = (theme: ThemeType): JssStyles => ({
+export const coreTagStyle = (theme: ThemeType) => ({
   backgroundColor: theme.palette.tag.coreTagBackground,
   border: theme.palette.tag.coreTagBorder,
   color: theme.palette.tag.coreTagText,
@@ -59,7 +58,7 @@ export const coreTagStyle = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "inline-block",
     cursor: "pointer",
@@ -111,6 +110,12 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginLeft: 4,
     },
   },
+  noBackground: {
+    backgroundColor: "transparent",
+    border: 'none',
+    paddingTop: 3,
+    paddingBottom: 3,
+  }
 });
 
 const FooterTag = ({
@@ -126,6 +131,7 @@ const FooterTag = ({
   hideRelatedTags,
   className,
   classes,
+  noBackground = false, 
 }: {
   tag: TagPreviewFragment | TagSectionPreviewFragment | TagRecentDiscussion,
   tagRel?: TagRelMinimumFragment,
@@ -138,7 +144,8 @@ const FooterTag = ({
   neverCoreStyling?: boolean,
   hideRelatedTags?: boolean,
   className?: string,
-  classes: ClassesType,
+  noBackground?: boolean
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
 
@@ -150,7 +157,7 @@ const FooterTag = ({
     ? tag.shortName || tag.name
     : tag.name;
 
-  const {TagsTooltip, CoreTagIcon} = Components;
+  const {TagsTooltip, CoreTagIcon, ForumIcon} = Components;
   const renderedTag = <>
     {showIcon && <span className={classes.coreIcon}><CoreTagIcon tag={tag} /></span>}
     <span className={classes.name}>{tagName}</span>
@@ -169,10 +176,11 @@ const FooterTag = ({
         <span className={classNames(classes.root, className, {
           [classes.core]: !neverCoreStyling && tag.core,
           [classes.smallText]: smallText,
+          [classes.noBackground]: noBackground,
         })}>
           {link ? <Link to={tagGetUrl(tag)}>
             {renderedTag}
-            {highlightAsAutoApplied && <span className={classes.robotIcon}><RobotIcon/></span>}
+            {highlightAsAutoApplied && <span className={classes.robotIcon}><ForumIcon icon="Robot" /></span>}
           </Link> : renderedTag}
         </span>
       </TagsTooltip>

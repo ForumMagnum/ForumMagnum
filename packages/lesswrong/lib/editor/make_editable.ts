@@ -5,6 +5,7 @@ import { accessFilterMultiple, addFieldsDict } from '../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema'
 import { getWithLoader } from '../loaders';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { EditableFieldName, MakeEditableOptions, editableCollectionsFieldOptions } from './makeEditableOptions';
 
 export const RevisionStorageType = new SimpleSchema({
   originalContents: {type: ContentType, optional: true},
@@ -20,38 +21,6 @@ export const RevisionStorageType = new SimpleSchema({
   // information.
   dataWithDiscardedSuggestions: {type: String, optional: true, nullable: true}
 })
-
-type EditableFieldName<N extends CollectionNameString> =
-  keyof ObjectsByCollectionName[N] & string;
-
-type MakeEditableOptionsFieldName<N extends CollectionNameString> = {
-  fieldName?: EditableFieldName<N>,
-  normalized?: false,
-} | {
-  fieldName?: string,
-  normalized: true,
-};
-
-export type MakeEditableOptions<N extends CollectionNameString> = {
-  commentEditor?: boolean,
-  commentStyles?: boolean,
-  commentLocalStorage?: boolean,
-  getLocalStorageId?: null | ((doc: any, name: string) => {id: string, verify: boolean}),
-  formGroup?: any,
-  permissions?: {
-    canRead?: any,
-    canUpdate?: any,
-    canCreate?: any,
-  },
-  label?: string,
-  order?: number,
-  hideControls?: boolean,
-  hintText?: string,
-  pingbacks?: boolean,
-  revisionsHaveCommitMessages?: boolean,
-  hidden?: boolean,
-  hasToc?: boolean,
-} & MakeEditableOptionsFieldName<N>;
 
 export const defaultEditorPlaceholder = isFriendlyUI ?
 `Highlight text to format it. Type # to reference a post, @ to mention someone.` :  
@@ -103,7 +72,6 @@ const defaultOptions: MakeEditableOptions<CollectionNameString> = {
 
 export const editableCollections = new Set<CollectionNameString>()
 export const editableCollectionsFields: Record<CollectionNameString,Array<string>> = {} as any;
-export const editableCollectionsFieldOptions: Record<CollectionNameString, Record<string, MakeEditableOptions<CollectionNameString>>> = {} as any;
 let editableFieldsSealed = false;
 export function sealEditableFields() { editableFieldsSealed=true }
 
@@ -118,24 +86,50 @@ const buildEditableResolver = <N extends CollectionNameString>(
       arguments: "version: String",
       resolver: async (
         doc: ObjectsByCollectionName[N],
-        _args: {version?: string},
+        args: {version?: string},
         context: ResolverContext,
       ): Promise<DbRevision|null> => {
         const {currentUser, Revisions} = context;
         const {checkAccess} = Revisions;
-        const revision = await Revisions.findOne({
-          _id: doc[`${fieldName}_latest` as keyof ObjectsByCollectionName[N]],
-        });
-        return revision && await checkAccess(currentUser, revision, context)
+
+        let revision: DbRevision|null;
+        if (args.version) {
+          revision = await Revisions.findOne({
+            documentId: doc._id,
+            version: args.version,
+            fieldName,
+          });
+        } else {
+          const revisionId = doc[`${fieldName}_latest` as keyof ObjectsByCollectionName[N]] as string;
+          if (revisionId) {
+            revision = await context.loaders.Revisions.load(revisionId);
+          } else {
+            revision = null;
+          }
+        }
+        return (revision && await checkAccess(currentUser, revision, context))
           ? revision
           : null;
       },
       sqlResolver: ({field, resolverArg, join}) => join({
         table: "Revisions",
         type: "left",
-        on: {
-          _id: `COALESCE(${resolverArg("version")}, ${field(`${fieldName}_latest` as FieldName<N>)})`,
-        },
+        /**
+         * WARNING: we manually interpolate `fieldName` into the SQL query below.
+         * In this case it's safe because we control the value of `fieldName` (though we need to take care not to allow the creation of an editable field name with e.g. any escape characters),
+         * and it'd be pretty annoying to pass it in as an argument given how the dynamic sql construction works.
+         * But you should not do this kind of thing elsewhere, as a rule.
+         */
+        on: (revisionField) => `CASE WHEN ${resolverArg("version")} IS NULL
+          THEN
+            ${field(`${fieldName}_latest` as FieldName<N>)} = ${revisionField("_id")}
+          WHEN ${resolverArg("version")} = 'draft' THEN
+            ${revisionField("_id")} = (SELECT _id FROM "Revisions" WHERE "documentId" = ${field("_id")} AND "fieldName" = '${fieldName}' ORDER BY "editedAt" DESC LIMIT 1)
+          ELSE
+            ${resolverArg("version")} = ${revisionField("version")} AND
+            ${field("_id")} = ${revisionField("documentId")}
+          END
+        `,
         resolver: (revisionField) => revisionField("*"),
       }),
     };
@@ -224,6 +218,7 @@ export const makeEditable = <N extends CollectionNameString>({
     permissions,
     fieldName = "contents" as EditableFieldName<N>,
     label,
+    formVariant,
     hintText,
     order,
     hidden = false,
@@ -232,6 +227,13 @@ export const makeEditable = <N extends CollectionNameString>({
     normalized = false,
     //revisionsHaveCommitMessages, //unused in this function (but used elsewhere)
   } = options
+
+  // We don't want to allow random stuff like escape characters in editable field names, since:
+  // 1. why would you do that
+  // 2. we manually interpolate editable field names into a SQL string in one place
+  if (!/^[a-zA-Z]+$/.test(fieldName)) {
+    throw new Error(`Invalid characters in ${fieldName}; only a-z & A-Z are allowed.`);
+  }
 
   const collectionName = collection.options.collectionName;
   const getLocalStorageId = options.getLocalStorageId || ((doc: any, name: string): {id: string, verify: boolean} => {
@@ -273,6 +275,7 @@ export const makeEditable = <N extends CollectionNameString>({
       resolveAs: buildEditableResolver(collection, fieldName, normalized),
       form: {
         label,
+        formVariant,
         hintText,
         fieldName,
         collectionName,

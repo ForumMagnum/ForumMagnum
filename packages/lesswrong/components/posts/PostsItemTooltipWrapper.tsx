@@ -11,12 +11,14 @@ const PostsItemTooltipWrapper = ({
   post,
   placement="bottom-end",
   As="div",
+  disabled,
   className,
 }: {
   children?: React.ReactNode,
   post: PostsList,
   placement?: PopperPlacementType,
   As?: keyof JSX.IntrinsicElements,
+  disabled?: boolean,
   className?: string,
 }) => {
   const {PostsTooltip} = Components;
@@ -29,6 +31,7 @@ const PostsItemTooltipWrapper = ({
       As={As}
       className={className}
       inlineBlock={false}
+      disabled={disabled}
     >
       {children}
     </PostsTooltip>

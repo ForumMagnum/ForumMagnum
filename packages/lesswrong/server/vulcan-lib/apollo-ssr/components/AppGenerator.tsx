@@ -10,7 +10,7 @@ import { CookiesProvider } from 'react-cookie';
 import { ABTestGroupsUsedContext, RelevantTestGroupAllocation } from '../../../../lib/abTestImpl';
 import { ServerRequestStatusContextType } from '../../../../lib/vulcan-core/appContext';
 import { getAllCookiesFromReq } from '../../../utils/httpUtil';
-import type { SSRMetadata } from '../../../../lib/utils/timeUtil';
+import { SSRMetadata, EnvironmentOverrideContext } from '../../../../lib/utils/timeUtil';
 import { LayoutOptionsContextProvider } from '../../../../components/hooks/useLayoutOptions';
 
 // Server-side wrapper around the app. There's another AppGenerator which is
@@ -32,14 +32,15 @@ const AppGenerator = ({ req, apolloClient, foreignApolloClient, serverRequestSta
           <CookiesProvider cookies={getAllCookiesFromReq(req)}>
             <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>
               <LayoutOptionsContextProvider>
-                <Components.App
-                  apolloClient={apolloClient}
-                  serverRequestStatus={serverRequestStatus}
-                  timeOverride={{
-                    currentTime: new Date(ssrMetadata.renderedAt),
-                    ...ssrMetadata
-                  }}
-                />
+                <EnvironmentOverrideContext.Provider value={{
+                  ...ssrMetadata,
+                  matchSSR: true
+                }}>
+                  <Components.App
+                    apolloClient={apolloClient}
+                    serverRequestStatus={serverRequestStatus}
+                  />
+                </EnvironmentOverrideContext.Provider>
               </LayoutOptionsContextProvider>
             </ABTestGroupsUsedContext.Provider>
           </CookiesProvider>

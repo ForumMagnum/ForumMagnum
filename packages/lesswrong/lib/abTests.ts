@@ -153,24 +153,6 @@ const showTopicsInReciprocity = new ABTest({
   },
 });
 
-// Does non-SSR rendering of the DialogueMatchingPage help with anything?
-export const dialogueMatchingPageNoSSRABTest = new ABTest({
-  name: "dialogueMatchingPageNoSSR",
-  active: true,
-  affectsLoggedOut: false,
-  description: "Different rendering of the DialogueMatchingPage",
-  groups: {
-    control: {
-      description: "Control version",
-      weight: 1,
-    },
-    noSSR: {
-      description: "Non-SSR version",
-      weight: 1,
-    },
-  },
-});
-
 // Does showing people recommended content in the form increase conversion ratio?
 export const showRecommendedContentInMatchForm = new ABTest({
   name: "showRecommendedContentInMatchForm",
@@ -209,23 +191,6 @@ export const checkNotificationMessageContent = new ABTest({
     },
     v4: {
       description: "Wording version 4",
-      weight: 1,
-    },
-  },
-});
-
-export const offerToAddCalendlyLink = new ABTest({
-  name: "offerToAddCalendlyLink",
-  active: true,
-  affectsLoggedOut: false,
-  description: "Offer to add a Calendly link on dialogue match",
-  groups: {
-    show: {
-      description: "Show field",
-      weight: 2,
-    },
-    noShow: {
-      description: "Don't show field",
       weight: 1,
     },
   },

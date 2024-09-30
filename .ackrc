@@ -1,5 +1,6 @@
 --ignore-dir=.git
 --ignore-dir=build
+--ignore-dir=obj
 --ignore-dir=.circleci
 --ignore-dir=.github
 --ignore-dir=.meteor
@@ -10,3 +11,5 @@
 --ignore-file=is:.eslintcache
 --ignore-dir=webpack/src
 --ignore-dir=express/src
+--ignore-file=is:client_stats.html
+--ignore-file=is:client_meta.json

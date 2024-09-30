@@ -1,6 +1,6 @@
 import bowser from 'bowser';
 import { isClient, isServer } from '../../executionEnvironment';
-import {assumeUserEmailVerifiedSetting, forumTypeSetting, isEAForum} from '../../instanceSettings'
+import {forumTypeSetting, isEAForum, verifyEmailsSetting} from '../../instanceSettings'
 import { combineUrls, getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissions';
 import React, { useEffect, useState } from 'react';
@@ -12,6 +12,8 @@ import { DatabasePublicSetting } from '../../publicSettings';
 import { hasAuthorModeration } from '../../betas';
 
 const newUserIconKarmaThresholdSetting = new DatabasePublicSetting<number|null>('newUserIconKarmaThreshold', null)
+
+export const ACCOUNT_DELETION_COOLING_OFF_DAYS = 14;
 
 export type UserDisplayNameInfo = { username: string | null, fullName?: string | null, displayName: string | null };
 
@@ -296,9 +298,10 @@ export const userBlockedCommentingReason = (user: UsersCurrent|DbUser|null, post
 // Return true if the user's account has at least one verified email address.
 export const userEmailAddressIsVerified = (user: UsersCurrent|DbUser|null): boolean => {
   // Some forums don't do their own email verification
-  if (assumeUserEmailVerifiedSetting.get()) {
+  if (!verifyEmailsSetting.get()) {
     return true
   }
+
   if (!user || !user.emails)
     return false;
   for (let email of user.emails) {
@@ -475,7 +478,8 @@ export const useUserLocation = (currentUser: UsersCurrent|DbUser|null, dontAsk?:
       const ls = getBrowserLocalStorage()
       if (!currentUser && ls) {
         try {
-          const lsLocation = JSON.parse(ls.getItem('userlocation'))
+          const storedUserLocation = ls.getItem('userlocation')
+          const lsLocation = storedUserLocation ? JSON.parse(storedUserLocation) : null
           if (lsLocation) {
             return {...lsLocation, loading: false}
           }
@@ -548,12 +552,16 @@ export const isMod = (user: UsersProfile|DbUser): boolean => {
   return (user.isAdmin || user.groups?.includes('sunshineRegiment')) ?? false
 }
 
-// TODO: I (JP) think this should be configurable in the function parameters
-/** Warning! Only returns *auth0*-provided auth0 Ids. If a user has an ID that
- * we get from auth0 but is ultimately from google this function will throw. */
+/**
+ * @returns "auth0" | "google-oauth2" | "facebook" | null
+ */
+export const getAuth0Provider = (user: DbUser): string | null => {
+  return user.services?.auth0?.provider;
+}
+
 export const getAuth0Id = (user: DbUser) => {
   const auth0 = user.services?.auth0;
-  if (auth0 && auth0.provider === "auth0") {
+  if (auth0) {
     const id = auth0.id ?? auth0.user_id;
     if (id) {
       return id;
@@ -624,3 +632,8 @@ export const socialMediaSiteNameToHref = (
 ) => siteName === "website"
   ? `https://${userUrl}`
   : profileFieldToSocialMediaHref(`${siteName}ProfileURL`, userUrl);
+
+export const userShortformPostTitle = (user: Pick<DbUser, "displayName">) => {
+  const shortformName = isEAForum ? "Quick takes" : "Shortform";
+  return `${user.displayName}'s ${shortformName}`;
+}

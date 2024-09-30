@@ -8,13 +8,13 @@ import { Comments } from '../../lib/collections/comments'
 import { bellNotifyEmailVerificationRequired } from '../notificationCallbacks';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import { getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
-import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
+import { VoteDocTuple } from '../../lib/voting/vote';
 import { encodeIntlError } from '../../lib/vulcan-lib/utils';
 import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authentication";
-import { isEAForum, isLW, verifyEmailsSetting } from "../../lib/instanceSettings";
+import { isEAForum, isLW, isLWorAF, verifyEmailsSetting } from "../../lib/instanceSettings";
 import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting, recombeeEnabledSetting } from "../../lib/publicSettings";
 import { mailchimpAPIKeySetting } from "../../server/serverSettings";
-import {userGetLocation, getUserEmail} from "../../lib/collections/users/helpers";
+import {userGetLocation, getUserEmail, userShortformPostTitle} from "../../lib/collections/users/helpers";
 import { captureException } from "@sentry/core";
 import { getAdminTeamAccount } from './commentCallbacks';
 import { wrapAndSendEmail } from '../emails/renderEmail';
@@ -25,19 +25,19 @@ import { Conversations } from '../../lib/collections/conversations/collection';
 import { Messages } from '../../lib/collections/messages/collection';
 import { getAuth0Profile, updateAuth0Email } from '../authentication/auth0';
 import { triggerReviewIfNeeded } from './sunshineCallbackUtils';
-import { FilterSettings, FilterTag, getDefaultFilterSettings } from '../../lib/filterSettings';
-import Tags from '../../lib/collections/tags/collection';
-import keyBy from 'lodash/keyBy';
 import isEqual from 'lodash/isEqual';
 import {userFindOneByEmail} from "../commonQueries";
 import { hasDigests } from '../../lib/betas';
 import { recombeeApi } from '../recombee/client';
 import { editableUserProfileFields, simpleUserProfileFields } from '../userProfileUpdates';
+import { fetchFragmentSingle } from '../fetchFragment';
+import { hasAuth0 } from '../authenticationMiddlewares';
+import { hasType3ApiAccess, regenerateAllType3AudioForUser } from '../type3';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
 
-voteCallbacks.castVoteAsync.add(async function updateTrustedStatus ({newDocument, vote}: VoteDocTuple) {
+export async function updateTrustedStatus ({newDocument, vote}: VoteDocTuple) {
   const user = await Users.findOne(newDocument.userId)
   if (user && (user?.karma) >= TRUSTLEVEL1_THRESHOLD && (!userGetGroups(user).includes('trustLevel1'))) {
     await Users.rawUpdateOne(user._id, {$push: {groups: 'trustLevel1'}});
@@ -45,9 +45,9 @@ voteCallbacks.castVoteAsync.add(async function updateTrustedStatus ({newDocument
     //eslint-disable-next-line no-console
     console.info("User gained trusted status", updatedUser?.username, updatedUser?._id, updatedUser?.karma, updatedUser?.groups)
   }
-});
+}
 
-voteCallbacks.castVoteAsync.add(async function updateModerateOwnPersonal({newDocument, vote}: VoteDocTuple) {
+export async function updateModerateOwnPersonal({newDocument, vote}: VoteDocTuple) {
   const user = await Users.findOne(newDocument.userId)
   if (!user) throw Error("Couldn't find user")
   if ((user.karma) >= MODERATE_OWN_PERSONAL_THRESHOLD && (!userGetGroups(user).includes('canModeratePersonal'))) {
@@ -57,22 +57,7 @@ voteCallbacks.castVoteAsync.add(async function updateModerateOwnPersonal({newDoc
     //eslint-disable-next-line no-console
     console.info("User gained trusted status", updatedUser.username, updatedUser._id, updatedUser.karma, updatedUser.groups)
   }
-});
-
-getCollectionHooks("Users").editBefore.add(async function UpdateAuth0Email(modifier: MongoModifier<DbUser>, user: DbUser) {
-  const newEmail = modifier.$set?.email;
-  const oldEmail = user.email;
-  if (newEmail && newEmail !== oldEmail && isEAForum) {
-    await updateAuth0Email(user, newEmail);
-    /*
-     * Be careful here: DbUser does NOT includes services, so overwriting
-     * modifier.$set.services is both very easy and very bad (amongst other
-     * things, it will invalidate the user's session)
-     */
-    modifier.$set["services.auth0"] = await getAuth0Profile(user);
-  }
-  return modifier;
-});
+}
 
 getCollectionHooks("Users").editSync.add(function maybeSendVerificationEmail (modifier, user: DbUser)
 {
@@ -80,49 +65,9 @@ getCollectionHooks("Users").editSync.add(function maybeSendVerificationEmail (mo
       && (!user.whenConfirmationEmailSent
           || user.whenConfirmationEmailSent.getTime() !== modifier.$set.whenConfirmationEmailSent.getTime()))
   {
-    void sendVerificationEmail(user);
+    void sendVerificationEmailConditional(user);
   }
 });
-
-getCollectionHooks("Users").updateBefore.add(async function updateProfileTagsSubscribesUser(data, {oldDocument, newDocument}: UpdateCallbackProperties<"Users">) {
-  // check if the user added any tags to their profile
-  const tagIdsAdded = newDocument.profileTagIds?.filter(tagId => !oldDocument.profileTagIds?.includes(tagId)) || []
-  
-  // if so, then we want to subscribe them to the newly added tags
-  if (tagIdsAdded.length > 0) {
-    const tagsAdded = await Tags.find({_id: {$in: tagIdsAdded}}).fetch()
-    const tagsById = keyBy(tagsAdded, tag => tag._id)
-    
-    let newFrontpageFilterSettings: FilterSettings = newDocument.frontpageFilterSettings ?? getDefaultFilterSettings()
-    for (let addedTag of tagIdsAdded) {
-      const newTagFilter: FilterTag = {tagId: addedTag, tagName: tagsById[addedTag].name, filterMode: 'Subscribed'}
-      const existingFilter = newFrontpageFilterSettings.tags.find(tag => tag.tagId === addedTag)
-      // if the user already had a filter for this tag, see if we should update it or leave it alone
-      if (existingFilter) {
-        if ([0, 'Default', 'TagDefault'].includes(existingFilter.filterMode)) {
-          newFrontpageFilterSettings = {
-            ...newFrontpageFilterSettings,
-            tags: [
-              ...newFrontpageFilterSettings.tags.filter(tag => tag.tagId !== addedTag),
-              newTagFilter
-            ]
-          }
-        }
-      } else {
-        // otherwise, subscribe them to this tag
-        newFrontpageFilterSettings = {
-          ...newFrontpageFilterSettings,
-          tags: [
-            ...newFrontpageFilterSettings.tags,
-            newTagFilter
-          ]
-        }
-      }
-    }
-    return {...data, frontpageFilterSettings: newFrontpageFilterSettings}
-  }
-  return data
-})
 
 getCollectionHooks("Users").editAsync.add(async function approveUnreviewedSubmissions (newUser: DbUser, oldUser: DbUser)
 {
@@ -196,13 +141,7 @@ getCollectionHooks("Users").editSync.add(function clearKarmaChangeBatchOnSetting
 });
 
 getCollectionHooks("Users").newAsync.add(async function subscribeOnSignup (user: DbUser) {
-  // Regardless of the config setting, try to confirm the user's email address
-  // (But not in unit-test contexts, where this function is unavailable and sending
-  // emails doesn't make sense.)
-  if (!isAnyTest && verifyEmailsSetting.get()) {
-    void sendVerificationEmail(user);
-    await bellNotifyEmailVerificationRequired(user);
-  }
+  await sendVerificationEmailConditional(user);
 });
 
 getCollectionHooks("Users").editAsync.add(async function handleSetShortformPost (newUser: DbUser, oldUser: DbUser) {
@@ -257,7 +196,7 @@ const sendVerificationEmailConditional = async  (user: DbUser) => {
 
 getCollectionHooks("Users").editSync.add(async function usersEditCheckEmail (modifier, user: DbUser) {
   // if email is being modified, update user.emails too
-  if (modifier.$set && modifier.$set.email) {
+  if (modifier.$set && modifier.$set.email && modifier.$set.email !== user.email) {
 
     const newEmail = modifier.$set.email;
 
@@ -279,61 +218,82 @@ getCollectionHooks("Users").editSync.add(async function usersEditCheckEmail (mod
       modifier.$set.emails = [{address: newEmail, verified: false}];
       await sendVerificationEmailConditional(user)
     }
+
+    if (hasAuth0()) {
+      await updateAuth0Email(user, newEmail);
+      /*
+       * Be careful here: DbUser does NOT includes services, so overwriting
+       * modifier.$set.services is both very easy and very bad (amongst other
+       * things, it will invalidate the user's session)
+       */
+      modifier.$set["services.auth0"] = await getAuth0Profile(user);
+    }
   }
   return modifier;
 });
 
 /**
- * When a user explicitly unsubscribes from all emails, we also want to unsubscribe them from digest emails.
- * They can then explicitly re-subscribe to the digest while keeping "unsubscribeFromAll" checked while still being
- * unsubscribed from all other emails, if they want.
- *
- * Also unsubscribe them from the digest if they deactivate their account.
+ * Handle subscribing/unsubscribing in mailchimp when `subscribedToDigest` is changed, including cases where this
+ * happens implicitly due to changing another field
  */
-getCollectionHooks("Users").updateBefore.add(async function unsubscribeFromDigest(data: DbUser, {oldDocument}) {
+getCollectionHooks("Users").updateBefore.add(async function updateDigestSubscription(data: DbUser, {oldDocument}) {
+  // Handle cases which force you to unsubscribe from the digest:
+  // - When a user explicitly unsubscribes from all emails. If they want they can then explicitly re-subscribe
+  // to the digest while keeping "unsubscribeFromAll" checked
+  // - When a user deactivates their account
   const unsubscribedFromAll = data.unsubscribeFromAll && !oldDocument.unsubscribeFromAll
   const deactivatedAccount = data.deleted && !oldDocument.deleted
   if (hasDigests && (unsubscribedFromAll || deactivatedAccount)) {
     data.subscribedToDigest = false
   }
-  return data;
-});
 
-getCollectionHooks("Users").editAsync.add(async function subscribeToForumDigest (newUser: DbUser, oldUser: DbUser) {
+  const handleErrorCase = (errorMessage: string) => {
+    // If the user is deactivating their account, allow the update to continue. Otherwise,
+    // the user is explicitly trying to update their subscription, so throw and block the update
+    const err = new Error(errorMessage)
+    captureException(err)
+    if (!deactivatedAccount) {
+      throw err
+    }
+    data.subscribedToDigest = false
+    return data;
+  }
+
   if (
     isAnyTest ||
     !hasDigests ||
-    newUser.subscribedToDigest === oldUser.subscribedToDigest
+    data.subscribedToDigest === undefined || // When a mutation doesn't reference subscribedToDigest
+    data.subscribedToDigest === oldDocument.subscribedToDigest
   ) {
-    return;
+    return data;
   }
 
   const mailchimpAPIKey = mailchimpAPIKeySetting.get();
   const mailchimpForumDigestListId = mailchimpForumDigestListIdSetting.get();
   if (!mailchimpAPIKey || !mailchimpForumDigestListId) {
-    return;
+    return handleErrorCase("Error updating digest subscription: Mailchimp not configured")
   }
-  if (!newUser.email) {
-    captureException(new Error(`Forum digest subscription failed: no email for user ${newUser.displayName}`))
-    return;
+
+  const email = getUserEmail(data)
+  if (!email) {
+    return handleErrorCase(`Error updating digest subscription: no email for user ${data.displayName}`)
   }
-  const { lat: latitude, lng: longitude, known } = userGetLocation(newUser);
-  const status = newUser.subscribedToDigest ? 'subscribed' : 'unsubscribed';
-  
-  const email = getUserEmail(newUser)
+
+  const { lat: latitude, lng: longitude, known } = userGetLocation(data);
+  const status = data.subscribedToDigest ? 'subscribed' : 'unsubscribed';
   const emailHash = md5(email!.toLowerCase());
 
-  void fetch(`https://us8.api.mailchimp.com/3.0/lists/${mailchimpForumDigestListId}/members/${emailHash}`, {
+  const res = await fetch(`https://us8.api.mailchimp.com/3.0/lists/${mailchimpForumDigestListId}/members/${emailHash}`, {
     method: 'PUT',
     body: JSON.stringify({
-      email_address: newUser.email,
+      email_address: email,
       email_type: 'html', 
       ...(known && {location: {
         latitude,
         longitude,
       }}),
       merge_fields: {
-        FNAME: newUser.displayName,
+        FNAME: data.displayName,
       },
       status,
     }),
@@ -341,11 +301,14 @@ getCollectionHooks("Users").editAsync.add(async function subscribeToForumDigest 
       'Content-Type': 'application/json',
       Authorization: `API_KEY ${mailchimpAPIKey}`,
     },
-  }).catch(e => {
-    captureException(e);
-    // eslint-disable-next-line no-console
-    console.log(e);
   });
+
+  if (res?.status === 200) {
+    return data;
+  }
+
+  const json = await res.json()
+  return handleErrorCase(`Error updating digest subscription: ${json.detail || res?.statusText || 'Unknown error'}`)
 });
 
 /**
@@ -420,7 +383,12 @@ async function sendWelcomeMessageTo(userId: string) {
     console.log("Not sending welcome email, welcomeEmailPostId setting is not configured");
     return;
   }
-  const welcomePost = await Posts.findOne({_id: postId});
+  const welcomePost = await fetchFragmentSingle({
+    collectionName: "Posts",
+    fragmentName: "PostsHTML",
+    selector: {_id: postId},
+    currentUser: null,
+  });
   if (!welcomePost) {
     // eslint-disable-next-line no-console
     console.error(`Not sending welcome email, welcomeEmailPostId of ${postId} does not match any post`);
@@ -492,6 +460,14 @@ getCollectionHooks("Users").updateBefore.add(async function UpdateDisplayName(da
     if (await Users.findOne({displayName: data.displayName})) {
       throw new Error("This display name is already taken");
     }
+    if (data.shortformFeedId && !isLWorAF) {
+      void updateMutator({
+        collection: Posts,
+        documentId: data.shortformFeedId,
+        set: {title: userShortformPostTitle(data)},
+        validate: false,
+      });
+    }
   }
   return data;
 });
@@ -521,4 +497,15 @@ getCollectionHooks("Users").editSync.add(function syncProfileUpdatedAt(modifier,
     }
   }
   return modifier;
+});
+
+getCollectionHooks("Users").editAsync.add(async function updatingPostAudio(newUser: DbUser, oldUser: DbUser) {
+  if (!hasType3ApiAccess()) {
+    return;
+  }
+  const deletedChanged = newUser.deleted !== oldUser.deleted;
+  const nameChanged = newUser.displayName !== oldUser.displayName;
+  if (nameChanged || deletedChanged) {
+    await regenerateAllType3AudioForUser(newUser._id);
+  }
 });

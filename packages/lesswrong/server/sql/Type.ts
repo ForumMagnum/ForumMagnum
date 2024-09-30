@@ -4,6 +4,7 @@ import SimpleSchema from "simpl-schema";
 import { ID_LENGTH } from "@/lib/random";
 import { DeferredForumSelect } from "@/lib/forumTypeUtils";
 import { ForumTypeString } from "@/lib/instanceSettings";
+import { editableFieldIsNormalized } from "@/lib/editor/makeEditableOptions";
 
 const forceNonResolverFields = [
   "contents",
@@ -16,6 +17,7 @@ const forceNonResolverFields = [
   "howICanHelpOthers",
   "biography",
   "frontpageDescription",
+  "frontpageDescriptionMobile",
   "postPageDescription",
 ];
 
@@ -24,7 +26,7 @@ export const isResolverOnly = <N extends CollectionNameString>(
   fieldName: string,
   schema: CollectionFieldSpecification<N>,
 ) => {
-  if (collection.collectionName === "Posts" && fieldName === "moderationGuidelines") {
+  if (editableFieldIsNormalized(collection.collectionName, fieldName)) {
     return true;
   }
   return schema.resolveAs && !schema.resolveAs.addOriginalField && forceNonResolverFields.indexOf(fieldName) < 0;

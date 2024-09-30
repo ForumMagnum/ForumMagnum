@@ -13,7 +13,7 @@ export type PostsListConfig = {
   /** Child elements will be put in a footer section */
   children?: React.ReactNode,
   /** The search terms used to select the posts that will be shown. */
-  terms?: any,
+  terms?: PostsViewTerms,
   /**
    * Apply a style that grays out the list while it's in a loading state
    * (default false)
@@ -49,6 +49,7 @@ export type PostsListConfig = {
   defaultToShowUnreadComments?: boolean,
   itemsPerPage?: number,
   placeholderCount?: number,
+  showKarma?: boolean,
   hideAuthor?: boolean,
   hideTag?: boolean,
   hideTrailingButtons?: boolean,
@@ -66,13 +67,22 @@ export type PostsListConfig = {
    * if there is no provider).
    */
   viewType?: PostsListViewType | "fromContext",
+  /**
+   * If true, then display the number corresponding to the post
+   * item's placement in the list (i.e. index + 1) to the left of the row.
+   */
+  showPlacement?: boolean,
+  /**
+   * An array of postIds. If provided, we reorder the results to match this order.
+   */
+  order?: string[],
 }
 
 const defaultTooltipPlacement = isFriendlyUI
   ? "bottom-start"
   : "bottom-end";
 
-export const usePostsList = ({
+export const usePostsList = <TagId extends string | undefined = undefined>({
   children,
   terms,
   dimWhenLoading = false,
@@ -92,6 +102,7 @@ export const usePostsList = ({
   defaultToShowUnreadComments,
   itemsPerPage = 25,
   placeholderCount,
+  showKarma = true,
   hideAuthor = false,
   hideTag = false,
   hideTrailingButtons = false,
@@ -104,6 +115,8 @@ export const usePostsList = ({
   hideShortform = false,
   loadMoreMessage,
   viewType: configuredViewType = "list",
+  showPlacement = false,
+  order,
 }: PostsListConfig) => {
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
 
@@ -184,7 +197,7 @@ export const usePostsList = ({
   const maybeMorePosts = !!(results?.length && (results.length >= limit)) ||
     alwaysShowLoadMore;
 
-  let orderedResults = results;
+  let orderedResults = (order && results) ? sortBy(results, post => order.indexOf(post._id)) : results;
   if (defaultToShowUnreadComments && results) {
     orderedResults = sortBy(results, (post) => {
       const postLastCommentedAt = postGetLastCommentedAt(post)
@@ -228,6 +241,7 @@ export const usePostsList = ({
     showReviewCount,
     showDraftTag,
     dense,
+    showKarma,
     hideAuthor,
     hideTag,
     hideTrailingButtons,
@@ -269,5 +283,6 @@ export const usePostsList = ({
     showFinalBottomBorder,
     placeholderCount,
     viewType,
+    showPlacement,
   };
 }

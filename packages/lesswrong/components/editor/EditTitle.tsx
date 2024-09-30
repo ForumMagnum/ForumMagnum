@@ -7,20 +7,25 @@ import { useUpdate } from '../../lib/crud/withUpdate';
 import { PostCategory } from '../../lib/collections/posts/helpers';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { isE2E } from '../../lib/executionEnvironment';
+import { LW_POST_TITLE_FONT_SIZE } from '../posts/PostsPage/PostsPageTitle';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.display3,
     ...theme.typography.headerStyle,
-    ...(isFriendlyUI && {
+    ...(isFriendlyUI ? {
       fontWeight: 700,
       fontSize: "3rem",
       marginBottom: 12,
+      marginTop: 0,
+    }: {
+      fontSize: LW_POST_TITLE_FONT_SIZE,
+      marginTop: 34,
+      marginBottom: 64,
     }),
     width: "100%",
     resize: "none",
     textAlign: "left",
-    marginTop: 0,
     "& textarea": {
       overflowY: "hidden",
     },

@@ -20,8 +20,10 @@ declare global {
     missingMainStylesheet?: boolean,
     
     googleMapsFinishedLoading?: () => void,
+    killPreloadScroll?: () => void,
     Intercom: any,
     grecaptcha?: any,
     google?: any,
+    isReturningVisitor?: boolean,
   }
 }

@@ -1,7 +1,7 @@
 import { registerFragment } from '../../vulcan-lib';
 
 registerFragment(`
-  fragment PetrovDayLaunch on PetrovDayLaunch {
+  fragment PetrovDayLaunchInfo on PetrovDayLaunch {
     _id
     createdAt
     launchCode

@@ -37,20 +37,21 @@ const multiClientTemplate = ({ typeName, fragmentName, extraVariablesString }: {
   }
 }`;
 
-function getGraphQLQueryFromOptions({collectionName, typeName, fragmentName, fragment, extraVariables}: {
+interface GetGraphQLQueryFromOptionsArgs {
   collectionName: CollectionNameString,
   typeName: string,
   fragmentName: FragmentName,
   fragment: any,
   extraVariables: any,
-}) {
+}
+
+export function getGraphQLQueryFromOptions({collectionName, typeName, fragmentName, fragment, extraVariables}: GetGraphQLQueryFromOptionsArgs) {
   ({ fragmentName, fragment } = extractFragmentInfo({ fragmentName, fragment }, collectionName));
 
   let extraVariablesString = ''
   if (extraVariables) {
     extraVariablesString = Object.keys(extraVariables).map(k => `$${k}: ${extraVariables[k]}`).join(', ')
   }
-  
   // build graphql query from options
   return gql`
     ${multiClientTemplate({ typeName, fragmentName, extraVariablesString })}
@@ -62,7 +63,7 @@ export interface UseMultiOptions<
   FragmentTypeName extends keyof FragmentTypes,
   CollectionName extends CollectionNameString
 > {
-  terms: ViewTermsByCollectionName[CollectionName],
+  terms?: ViewTermsByCollectionName[CollectionName],
   extraVariablesValues?: any,
   pollInterval?: number,
   enableTotal?: boolean,
@@ -162,6 +163,7 @@ export function useMulti<
   const graphQLVariables = useMemo(() => ({
     input: {
       terms: { ...terms, limit: defaultLimit },
+      resolverArgs: extraVariablesValues,
       enableCache, enableTotal, createIfMissing
     },
     ...extraVariablesValues

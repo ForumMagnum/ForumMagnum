@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ReactNode, useCallback } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import type { MultiSelectResult } from "../hooks/useMultiSelect";
 
@@ -6,37 +6,51 @@ const styles = (_theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "column",
-    gap: "12px",
-    padding: 16,
+    padding: 4,
+  },
+  clearAll: {
+    padding: 6,
   },
 });
 
-export const PeopleDirectoryStaticFilter = ({
+const PeopleDirectoryStaticFilter = ({
   filter: {state, selectedValues, clear, summary},
+  justContent,
   classes,
 }: {
   filter: MultiSelectResult,
+  justContent?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {
-    PeopleDirectoryFilterDropdown, PeopleDirectorySelectOption,
-    PeopleDirectoryClearAll,
-  } = Components;
+  const Wrapper = useCallback(({children}: {children: ReactNode}) => {
+    if (justContent) {
+      return (
+        <>{children}</>
+      );
+    }
+    return (
+      <Components.PeopleDirectoryFilterDropdown
+        title={summary}
+        active={selectedValues.length > 0}
+        className={classes.root}
+      >
+        {children}
+      </Components.PeopleDirectoryFilterDropdown>
+    );
+  }, [justContent, summary, selectedValues.length, classes]);
+
+  const {PeopleDirectorySelectOption, PeopleDirectoryClearAll} = Components;
   return (
-    <PeopleDirectoryFilterDropdown
-      title={summary}
-      active={selectedValues.length > 0}
-      className={classes.root}
-    >
+    <Wrapper>
       {state.map((item) => (
         <PeopleDirectorySelectOption state={item} key={item.value} />
       ))}
       {selectedValues.length > 1 &&
-        <div>
+        <div className={classes.clearAll}>
           <PeopleDirectoryClearAll onClear={clear} />
         </div>
       }
-    </PeopleDirectoryFilterDropdown>
+    </Wrapper>
   );
 }
 

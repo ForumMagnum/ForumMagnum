@@ -12,7 +12,7 @@ const LWHome = () => {
   const { DismissibleSpotlightItem, RecentDiscussionFeed, AnalyticsInViewTracker, FrontpageReviewWidget,
     SingleColumnSection, FrontpageBestOfLWWidget, EAPopularCommentsSection,
     QuickTakesSection, LWHomePosts
-  } = Components
+  } = Components;
 
   return (
       <AnalyticsContext pageContext="homePage">
@@ -27,7 +27,7 @@ const LWHome = () => {
           </SingleColumnSection>}
           <SingleColumnSection>
             <DismissibleSpotlightItem current/>
-          </SingleColumnSection>
+          </SingleColumnSection> 
           <AnalyticsInViewTracker
             eventProps={{inViewType: "homePosts"}}
             observerProps={{threshold:[0, 0.5, 1]}}

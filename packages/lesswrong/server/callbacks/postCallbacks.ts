@@ -2,14 +2,12 @@ import { createAdminContext, createMutator, updateMutator } from '../vulcan-lib'
 import { Posts } from '../../lib/collections/posts/collection';
 import { Comments } from '../../lib/collections/comments/collection';
 import Users from '../../lib/collections/users/collection';
-import { clearVotesServer, performVoteServer } from '../voteServer';
-import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
+import type { VoteDocTuple } from '../../lib/voting/vote';
 import Localgroups from '../../lib/collections/localgroups/collection';
 import { PostRelations } from '../../lib/collections/postRelations/index';
 import { getDefaultPostLocationFields } from '../posts/utils'
 import { cheerioParse } from '../utils/htmlUtil'
 import { CreateCallbackProperties, getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
-import { postPublishedCallback } from '../notificationCallbacks';
 import moment from 'moment';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import { performCrosspost, handleCrosspostUpdate } from "../fmCrosspost/crosspost";
@@ -25,7 +23,6 @@ import Conversations from '../../lib/collections/conversations/collection';
 import Messages from '../../lib/collections/messages/collection';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import { getAdminTeamAccount, getRejectionMessage } from './commentCallbacks';
-import { DatabaseServerSetting } from '../databaseSettings';
 import { postStatuses } from '../../lib/collections/posts/constants';
 import { HAS_EMBEDDINGS_FOR_RECOMMENDATIONS, updatePostEmbeddings } from '../embeddings';
 import { moveImageToCloudinary } from '../scripts/convertImagesToCloudinary';
@@ -34,11 +31,23 @@ import DialogueMatchPreferences from '../../lib/collections/dialogueMatchPrefere
 import { recombeeApi } from '../recombee/client';
 import { recombeeEnabledSetting, vertexEnabledSetting } from '../../lib/publicSettings';
 import { googleVertexApi } from '../google-vertex/client';
+import { postsNewNotifications } from '../notificationCallbacks';
+import { getLatestContentsRevision } from '../../lib/collections/revisions/helpers';
+import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
-const type3ClientIdSetting = new DatabaseServerSetting<string | null>('type3.clientId', null)
-const type3WebhookSecretSetting = new DatabaseServerSetting<string | null>('type3.webhookSecret', null)
+// Callback for a post being published. This is distinct from being created in
+// that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
+// moderator approval because they're a user's first post (but does fire when
+// they're approved).
+export async function onPostPublished(post: DbPost, context: ResolverContext) {
+  updateRecombeeWithPublishedPost(post, context);
+  await postsNewNotifications(post);
+  const { updateScoreOnPostPublish } = require("./votingCallbacks");
+  await updateScoreOnPostPublish(post, context);
+  await ensureNonzeroRevisionVersionsAfterUndraft(post, context);
+}
 
 if (isEAForum) {
   const checkTosAccepted = <T extends Partial<DbPost>>(currentUser: DbUser | null, post: T): T => {
@@ -65,7 +74,7 @@ if (isEAForum) {
 
 if (HAS_EMBEDDINGS_FOR_RECOMMENDATIONS) {
   const updateEmbeddings = async (newPost: DbPost, oldPost?: DbPost) => {
-    const hasChanged = !oldPost || oldPost.contents?.html !== newPost.contents?.html;
+    const hasChanged = !oldPost || oldPost.contents_latest !== newPost.contents_latest;
     if (hasChanged &&
       !newPost.draft &&
       !newPost.deletedDraft &&
@@ -114,7 +123,7 @@ getCollectionHooks("Posts").updateBefore.add(function PostsEditRunPostUndraftedS
   return data;
 });
 
-voteCallbacks.castVoteAsync.add(async function increaseMaxBaseScore ({newDocument, vote}: VoteDocTuple) {
+export async function increaseMaxBaseScore ({newDocument, vote}: VoteDocTuple) {
   if (vote.collectionName === "Posts") {
     const post = newDocument as DbPost;
     if (post.baseScore > (post.maxBaseScore || 0)) {
@@ -140,7 +149,7 @@ voteCallbacks.castVoteAsync.add(async function increaseMaxBaseScore ({newDocumen
       await Posts.rawUpdateOne({_id: post._id}, {$set: {maxBaseScore: post.baseScore, ...thresholdTimestamp}})
     }
   }
-});
+}
 
 getCollectionHooks("Posts").newSync.add(async function PostsNewDefaultLocation(post: DbPost): Promise<DbPost> {
   return {...post, ...(await getDefaultPostLocationFields(post))}
@@ -160,6 +169,7 @@ getCollectionHooks("Posts").newSync.add(async function PostsNewDefaultTypes(post
 getCollectionHooks("Posts").newAfter.add(async function LWPostsNewUpvoteOwnPost(post: DbPost): Promise<DbPost> {
  var postAuthor = await Users.findOne(post.userId);
  if (!postAuthor) throw new Error(`Could not find user: ${post.userId}`);
+ const { performVoteServer } = require("../voteServer");
  const {modifiedDocument: votedPost} = await performVoteServer({
    document: post,
    voteType: 'bigUpvote',
@@ -173,7 +183,7 @@ getCollectionHooks("Posts").newAfter.add(async function LWPostsNewUpvoteOwnPost(
 
 getCollectionHooks("Posts").createAfter.add((post: DbPost, { context }) => {
   if (!post.authorIsUnreviewed && !post.draft) {
-    void postPublishedCallback.runCallbacksAsync([post, context]);
+    void onPostPublished(post, context);
   }
 });
 
@@ -262,9 +272,16 @@ getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTrigg
   // or the post author is getting approved,
   // then we consider this "publishing" the post
   if ((oldDocument.draft && !document.authorIsUnreviewed) || (oldDocument.authorIsUnreviewed && !document.authorIsUnreviewed)) {
-    await postPublishedCallback.runCallbacksAsync([document, context]);
+    await onPostPublished(document, context);
   }
 });
+
+async function ensureNonzeroRevisionVersionsAfterUndraft (post: DbPost, context: ResolverContext) {
+  // When a post is published, ensure that the version number of its contents
+  // revision does not have `draft` set or an 0.x version number (which would
+  // affect permissions).
+  await context.repos.posts.ensurePostHasNonDraftContents(post._id);
+}
 
 interface SendPostRejectionPMParams {
   messageContents: string,
@@ -376,14 +393,19 @@ async function extractSocialPreviewImage (post: DbPost) {
   // socialPreviewImageId is set manually, and will override this
   if (post.socialPreviewImageId) return post
 
+  const contents = await getLatestContentsRevision(post);
+  if (!contents) {
+    return post;
+  }
+
   let socialPreviewImageAutoUrl = ''
-  if (post.contents?.html) {
-    const $ = cheerioParse(post.contents?.html)
+  if (contents?.html) {
+    const $ = cheerioParse(contents?.html)
     const firstImg = $('img').first()
     const firstImgSrc = firstImg?.attr('src')
     if (firstImg && firstImgSrc) {
       try {
-        socialPreviewImageAutoUrl = await moveImageToCloudinary(firstImgSrc, post._id) ?? firstImgSrc
+        socialPreviewImageAutoUrl = await moveImageToCloudinary({oldUrl: firstImgSrc, originDocumentId: post._id}) ?? firstImgSrc
       } catch (e) {
         captureException(e);
         socialPreviewImageAutoUrl = firstImgSrc
@@ -517,6 +539,7 @@ async function bulkApplyPostTags ({postId, tagsToApply, currentUser, context}: {
 async function bulkRemovePostTags ({tagRels, currentUser, context}: {tagRels: DbTagRel[], currentUser: DbUser, context: ResolverContext}) {
   const clearOneTag = async (tagRel: DbTagRel) => {
     try {
+      const { clearVotesServer } = require("../voteServer");
       await clearVotesServer({ document: tagRel, collection: TagRels, user: currentUser, context})
     } catch(e) {
       captureException(e)
@@ -604,17 +627,8 @@ getCollectionHooks("Posts").updateAfter.add(async (post: DbPost, props: UpdateCa
 
 /* Recombee callbacks */
 
-function isNonRecommendablePost(post: DbPost): boolean {
-  // We explicitly don't check `isFuture` here, because the cron job that "publishes" those posts does a raw update
-  // So it won't trigger any of the callbacks, and if we exclude those posts they'll never get recommended
-  // `Posts.checkAccess` already filters out posts with `isFuture` unless you're a mod or otherwise own the post
-  // So we're not really in any danger of showing those posts to regular users
-  // TODO: figure out how to handle this more gracefully
-  return post.shortform || post.unlisted || post.rejected || post.isEvent || !!post.groupId || post.disableRecommendation || post.status !== 2;
-}
-
-postPublishedCallback.add((post, context) => {
-  if (isNonRecommendablePost(post)) return;
+function updateRecombeeWithPublishedPost(post: DbPost, context: ResolverContext) {
+  if (!isRecombeeRecommendablePost(post)) return;
 
   if (recombeeEnabledSetting.get()) {
     void recombeeApi.upsertPost(post, context)
@@ -627,14 +641,14 @@ postPublishedCallback.add((post, context) => {
       // eslint-disable-next-line no-console
       .catch(e => console.log('Error when sending published post to google vertex', { e }));
   }
-});
+}
 
 getCollectionHooks("Posts").updateAsync.add(async ({ newDocument, oldDocument, context }) => {
   // newDocument is only a "preview" and does not reliably have full post data, e.g. is missing contents.html
   // This does seem likely to be a bug in a the mutator logic
   const post = await context.loaders.Posts.load(newDocument._id);
   const redrafted = post.draft && !oldDocument.draft
-  if ((post.draft && !redrafted) || isNonRecommendablePost(post)) return;
+  if ((post.draft && !redrafted) || !isRecombeeRecommendablePost(post)) return;
 
   if (recombeeEnabledSetting.get()) {
     void recombeeApi.upsertPost(post, context)
@@ -649,8 +663,8 @@ getCollectionHooks("Posts").updateAsync.add(async ({ newDocument, oldDocument, c
   }
 });
 
-voteCallbacks.castVoteAsync.add(({ newDocument, vote }, collection, user, context) => {
-  if (vote.collectionName !== 'Posts' || newDocument.userId === vote.userId || isNonRecommendablePost(newDocument as DbPost)) return;
+export function updateRecombeeVote({ newDocument, vote }: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext) {
+  if (vote.collectionName !== 'Posts' || newDocument.userId === vote.userId || !isRecombeeRecommendablePost(newDocument as DbPost)) return;
 
   if (recombeeEnabledSetting.get()) {
     void recombeeApi.upsertPost(newDocument as DbPost, context)
@@ -659,7 +673,7 @@ voteCallbacks.castVoteAsync.add(({ newDocument, vote }, collection, user, contex
   }
   
   // Vertex doesn't track any sort of "rating" or "score" (i.e. karma) for documents, so no point in pushing updates to it when posts are voted on
-});
+}
 
 getCollectionHooks("Posts").editSync.add(async function removeFrontpageDate(
   modifier: MongoModifier<DbPost>,

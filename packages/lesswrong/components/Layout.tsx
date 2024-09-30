@@ -29,28 +29,14 @@ import { isFriendlyUI } from '../themes/forumTheme';
 import { requireCssVar } from '../themes/cssVars';
 import { UnreadNotificationsContextProvider } from './hooks/useUnreadNotifications';
 import { CurrentForumEventProvider } from './hooks/useCurrentForumEvent';
-import ForumNoSSR from './common/ForumNoSSR';
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
-const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
-import moment from 'moment';
+export const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
 
-import { Link } from '../lib/reactRouterWrapper';
 import { LoginPopoverContextProvider } from './hooks/useLoginPopoverContext';
+import DeferRender from './common/DeferRender';
+import { userHasLlmChat } from '@/lib/betas';
 
 const STICKY_SECTION_TOP_MARGIN = 20;
-
-// These routes will have the standalone TabNavigationMenu (aka sidebar)
-//
-// Refer to routes.js for the route names. Or console log in the route you'd
-// like to include
-const standaloneNavMenuRouteNames: ForumOptions<string[]> = {
-  'LessWrong': [
-    'home', 'allPosts', 'questions', 'library', 'Shortform', 'Sequences', 'collections', 'nominations', 'reviews',
-  ],
-  'AlignmentForum': ['alignment.home', 'library', 'allPosts', 'questions', 'Shortform'],
-  'EAForum': ['home', 'allPosts', 'questions', 'Shortform', 'eaLibrary', 'tagsSubforum'],
-  'default': ['home', 'allPosts', 'questions', 'Community', 'Shortform',],
-}
 
 /**
  * When a new user signs up, their profile is 'incomplete' (ie; without a display name)
@@ -70,6 +56,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     // but almost all pages are bigger than this anyway so it's not that important
     minHeight: `calc(100vh - ${HEADER_HEIGHT}px)`,
     gridArea: 'main',
+    [theme.breakpoints.down('md')]: {
+      paddingTop: isFriendlyUI ? 0 : theme.spacing.mainLayoutPaddingTop,
+    },
     [theme.breakpoints.down('sm')]: {
       paddingTop: isFriendlyUI ? 0 : 10,
       paddingLeft: 8,
@@ -283,6 +272,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   sunshine: {
     gridArea: 'sunshine'
   },
+  languageModelLauncher: {
+    position: 'absolute',
+    top: '-57px',
+    right: '-334px',
+    [theme.breakpoints.down('lg')]: {
+      display: 'none',
+    }
+  },
   whiteBackground: {
     background: theme.palette.background.pageActiveAreaBackground,
   },
@@ -294,11 +291,16 @@ const styles = (theme: ThemeType): JssStyles => ({
       zIndex: theme.zIndexes.styledMapPopup
     },
     // Font fallback to ensure that all greek letters just directly render as Arial
-    '@font-face': {
-      fontFamily: "GreekFallback",
-      src: "local('Arial')",
-      unicodeRange: 'U+0370-03FF, U+1F00-1FFF' // Unicode range for greek characters
-    },
+    '@font-face': [{
+        fontFamily: "GreekFallback",
+        src: "local('Arial')",
+        unicodeRange: 'U+0370-03FF, U+1F00-1FFF' // Unicode range for greek characters
+      },
+      {
+        fontFamily: "ETBookRoman",
+        src: "url('https://res.cloudinary.com/lesswrong-2-0/raw/upload/v1723063815/et-book-roman-line-figures_tvofzs.woff') format('woff')",  
+      },
+    ],
     // Hide the CKEditor table alignment menu
     '.ck-table-properties-form__alignment-row': {
       display: "none !important"
@@ -359,8 +361,6 @@ const Layout = ({currentUser, children, classes}: {
   const theme = useTheme();
   const {currentRoute, pathname} = useLocation();
   const layoutOptionsState = React.useContext(LayoutOptionsContext);
-  const { explicitConsentGiven: cookieConsentGiven, explicitConsentRequired: cookieConsentRequired } = useCookiePreferences();
-  const showCookieBanner = cookieConsentRequired === true && !cookieConsentGiven;
   const {headerVisible, headerAtTop} = useHeaderVisible();
 
   // enable during ACX Everywhere
@@ -438,20 +438,22 @@ const Layout = ({currentUser, children, classes}: {
       AnalyticsClient,
       AnalyticsPageInitializer,
       NavigationEventSender,
-      PetrovDayWrapper,
+      PetrovGameWrapper,
       EAOnboardingFlow,
       BasicOnboardingFlow,
       CommentOnSelectionPageWrapper,
       SidebarsWrapper,
-      IntercomWrapper,
       HomepageCommunityMap,
-      CookieBanner,
       AdminToggle,
       SunshineSidebar,
       EAHomeRightHandSide,
       CloudinaryImage2,
       ForumEventBanner,
       GlobalHotkeys,
+      LanguageModelLauncherButton,
+      LlmChatWrapper,
+      TabNavigationMenuFooter
+      
     } = Components;
 
     const baseLayoutOptions: LayoutOptions = {
@@ -460,9 +462,10 @@ const Layout = ({currentUser, children, classes}: {
       // then it should.
       // FIXME: This is using route names, but it would be better if this was
       // a property on routes themselves.
-      standaloneNavigation: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute.name),
+      standaloneNavigation: !currentRoute || !!currentRoute.hasLeftNavigationColumn,
       renderSunshineSidebar: !!currentRoute?.sunshineSidebar && !!(userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins')) && !currentUser?.hideSunshineSidebar,
-      shouldUseGridLayout: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute.name),
+      renderLanguageModelChatLauncher: !!currentUser && userHasLlmChat(currentUser),
+      shouldUseGridLayout: !currentRoute || !!currentRoute.hasLeftNavigationColumn,
       unspacedGridLayout: !!currentRoute?.unspacedGrid,
     }
 
@@ -470,22 +473,14 @@ const Layout = ({currentUser, children, classes}: {
 
     const standaloneNavigation = overrideLayoutOptions.standaloneNavigation ?? baseLayoutOptions.standaloneNavigation
     const renderSunshineSidebar = overrideLayoutOptions.renderSunshineSidebar ?? baseLayoutOptions.renderSunshineSidebar
+    const renderLanguageModelChatLauncher = overrideLayoutOptions.renderLanguageModelChatLauncher ?? baseLayoutOptions.renderLanguageModelChatLauncher
     const shouldUseGridLayout = overrideLayoutOptions.shouldUseGridLayout ?? baseLayoutOptions.shouldUseGridLayout
     const unspacedGridLayout = overrideLayoutOptions.unspacedGridLayout ?? baseLayoutOptions.unspacedGridLayout
+    const navigationFooterBar = !currentRoute || currentRoute.navigationFooterBar;
     // The friendly home page has a unique grid layout, to account for the right hand side column.
     const friendlyHomeLayout = isFriendlyUI && currentRoute?.name === 'home'
 
     const isIncompletePath = allowedIncompletePaths.includes(currentRoute?.name ?? "404");
-
-    const renderPetrovDay = () => {
-      const currentTime = (new Date()).valueOf()
-      const beforeTime = petrovBeforeTime.get()
-      const afterTime = petrovAfterTime.get()
-    
-      return currentRoute?.name === "home" && isLW
-        && beforeTime < currentTime
-        && currentTime < afterTime
-    }
     
     return (
       <AnalyticsContext path={pathname}>
@@ -495,6 +490,7 @@ const Layout = ({currentUser, children, classes}: {
       <ItemsReadContextWrapper>
       <LoginPopoverContextProvider>
       <SidebarsWrapper>
+      <LlmChatWrapper>
       <DisableNoKibitzContext.Provider value={noKibitzContext}>
       <CommentOnSelectionPageWrapper>
       <CurrentForumEventProvider>
@@ -518,9 +514,9 @@ const Layout = ({currentUser, children, classes}: {
               <NavigationEventSender/>
               <GlobalHotkeys/>
               {/* Only show intercom after they have accepted cookies */}
-              <ForumNoSSR>
-                {showCookieBanner ? <CookieBanner /> : <IntercomWrapper/>}
-              </ForumNoSSR>
+              <DeferRender ssr={false}>
+                <MaybeCookieBanner />
+              </DeferRender>
 
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
               {/* Google Tag Manager i-frame fallback */}
@@ -537,7 +533,6 @@ const Layout = ({currentUser, children, classes}: {
               <ForumEventBanner />
               {/* enable during ACX Everywhere */}
               {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>}
-              {renderPetrovDay() && <PetrovDayWrapper/>}
 
               <div className={classNames(classes.standaloneNavFlex, {
                 [classes.spacedGridActivated]: shouldUseGridLayout && !unspacedGridLayout,
@@ -554,13 +549,16 @@ const Layout = ({currentUser, children, classes}: {
                     headerAtTop={headerAtTop}
                     classes={classes}
                   >
-                    <NavigationStandalone
-                      sidebarHidden={hideNavigationSidebar}
-                      unspacedGridLayout={unspacedGridLayout}
-                      noTopMargin={friendlyHomeLayout}
-                    />
+                    <DeferRender ssr={true} clientTiming='mobile-aware'>
+                      <NavigationStandalone
+                        sidebarHidden={hideNavigationSidebar}
+                        unspacedGridLayout={unspacedGridLayout}
+                        noTopMargin={friendlyHomeLayout}
+                      />
+                    </DeferRender>
                   </StickyWrapper>
                 }
+                {isLWorAF && navigationFooterBar && <TabNavigationMenuFooter />}
                 <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
                 <div className={classNames(classes.main, {
                   [classes.whiteBackground]: useWhiteBackground,
@@ -590,13 +588,20 @@ const Layout = ({currentUser, children, classes}: {
                     headerAtTop={headerAtTop}
                     classes={classes}
                   >
-                    <EAHomeRightHandSide />
+                    <DeferRender ssr={true} clientTiming='mobile-aware'>
+                      <EAHomeRightHandSide />
+                    </DeferRender>
                   </StickyWrapper>
                 }
                 {renderSunshineSidebar && <div className={classes.sunshine}>
-                  <ForumNoSSR>
+                  <DeferRender ssr={false}>
                     <SunshineSidebar/>
-                  </ForumNoSSR>
+                  </DeferRender>
+                </div>}
+                {renderLanguageModelChatLauncher && <div className={classes.languageModelChatLauncher}>
+                  <DeferRender ssr={false}>
+                    <LanguageModelLauncherButton/>
+                  </DeferRender>
                 </div>}
               </div>
             </CommentBoxManager>
@@ -605,6 +610,7 @@ const Layout = ({currentUser, children, classes}: {
       </CurrentForumEventProvider>
       </CommentOnSelectionPageWrapper>
       </DisableNoKibitzContext.Provider>
+      </LlmChatWrapper>
       </SidebarsWrapper>
       </LoginPopoverContextProvider>
       </ItemsReadContextWrapper>
@@ -615,6 +621,14 @@ const Layout = ({currentUser, children, classes}: {
     )
   };
   return render();
+}
+
+function MaybeCookieBanner() {
+  const { IntercomWrapper, CookieBanner } = Components;
+  const { explicitConsentGiven: cookieConsentGiven, explicitConsentRequired: cookieConsentRequired } = useCookiePreferences();
+  const showCookieBanner = cookieConsentRequired === true && !cookieConsentGiven;
+
+  return showCookieBanner ? <CookieBanner /> : <IntercomWrapper/>;
 }
 
 const LayoutComponent = registerComponent('Layout', Layout, {styles});

@@ -33,7 +33,7 @@ type SqlJoinType = "inner" | "full" | "left" | "right";
 type SqlJoinBase<N extends CollectionNameString> = {
   table: N,
   type?: SqlJoinType,
-  on: Partial<Record<FieldName<N>, string>>,
+  on: Partial<Record<FieldName<N>, string>> | ((field: SqlFieldFunction<N>) => string),
 }
 
 type SqlResolverJoin<N extends CollectionNameString> = SqlJoinBase<N> & {
@@ -53,7 +53,7 @@ type SqlResolverJoin<N extends CollectionNameString> = SqlJoinBase<N> & {
 type SqlNonCollectionJoinBase = {
   table: string,
   type?: SqlJoinType,
-  on: Record<string, string>,
+  on: Record<string, string> | ((field: (fieldName: string) => string) => string),
 }
 
 type SqlNonCollectionJoin = SqlNonCollectionJoinBase & {
@@ -94,7 +94,7 @@ type CollectionFieldResolveAs<N extends CollectionNameString> = {
   fieldName?: string,
   addOriginalField?: boolean,
   arguments?: string|null,
-  resolver: (root: ObjectsByCollectionName[N], args: any, context: ResolverContext, info?: any) => any,
+  resolver: (root: ObjectsByCollectionName[N], args: any, context: ResolverContext) => any,
   sqlResolver?: SqlResolver<N>,
   /**
    * `sqlPostProcess` is run on the result of the database call, in addition
@@ -193,6 +193,13 @@ interface CollectionFieldSpecification<N extends CollectionNameString> extends C
   onEdit?: (modifier: any, oldDocument: ObjectsByCollectionName[N], currentUser: DbUser|null, newDocument: ObjectsByCollectionName[N]) => any,
   onUpdate?: (args: {data: Partial<ObjectsByCollectionName[N]>, oldDocument: ObjectsByCollectionName[N], newDocument: ObjectsByCollectionName[N], document: ObjectsByCollectionName[N], currentUser: DbUser|null, collection: CollectionBase<N>, context: ResolverContext, schema: SchemaType<N>, fieldName: string}) => any,
   onDelete?: (args: {document: ObjectsByCollectionName[N], currentUser: DbUser|null, collection: CollectionBase<N>, context: ResolverContext, schema: SchemaType<N>}) => Promise<void>,
+  
+  countOfReferences?: {
+    foreignCollectionName: CollectionNameString
+    foreignFieldName: string
+    filterFn?: (obj: AnyBecauseHard) => boolean
+    resyncElastic: boolean
+  }
 }
 
 /** Field specification for a Form field, created from the collection schema */

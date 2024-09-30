@@ -201,6 +201,7 @@ registerFragment(`
     subforumPreferredLayout
     
     hideJobAdUntil
+    criticismTipsDismissed
     
     allowDatadogSessionReplay
     hideFrontpageBook2020Ad
@@ -218,6 +219,7 @@ registerFragment(`
     hideActiveDialogueUsers
 
     hideSunshineSidebar
+    optedOutOfSurveys
   }
 `);
 
@@ -509,6 +511,7 @@ registerFragment(`
     hideFrontpageBook2020Ad
 
     deleted
+    permanentDeletionRequestedAt
   }
 `)
 
@@ -539,6 +542,7 @@ registerFragment(`
   fragment UsersProfileEdit on User {
     _id
     slug
+    displayName
     jobTitle
     organization
     careerStage

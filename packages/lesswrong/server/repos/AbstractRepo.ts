@@ -6,7 +6,7 @@ import PgCollection from "@/server/sql/PgCollection";
  * repositories are descended. Any common properties or functions
  * should be added here.
  *
- * To make the repo available in GraphQL resolvers, add it to `getAllRepos`
+ * To make the repo available in GraphQL resolvers, add it to `allRepos`
  * in index.ts
  */
 export default abstract class AbstractRepo<N extends CollectionNameString> {

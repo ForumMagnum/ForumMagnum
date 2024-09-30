@@ -10,8 +10,8 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { getCityName } from '../localGroups/TabNavigationEventsList';
 import { userHasEAHomeRHS } from '../../lib/betas';
 import { useRecentOpportunities } from '../hooks/useRecentOpportunities';
-import ForumNoSSR from '../common/ForumNoSSR';
 import { useEAVirtualPrograms } from '../hooks/useEAVirtualPrograms';
+import DeferRender from '../common/DeferRender';
 
 /**
  * The max screen width where the Home RHS is visible
@@ -148,7 +148,7 @@ const UpcomingEventsSection = ({classes}: {
         <SectionTitle
           title="Upcoming events"
           href="/events"
-          className={classes.sectionTitle}
+          titleClassName={classes.sectionTitle}
           noTopMargin
           noBottomPadding
         />
@@ -232,8 +232,8 @@ export const EAHomeRightHandSide = ({classes}: {
   let digestAdNode = <SidebarDigestAd className={classes.digestAd} />
   let upcomingEventsNode = <UpcomingEventsSection classes={classes} />
   if (!currentUser) {
-    digestAdNode = <ForumNoSSR>{digestAdNode}</ForumNoSSR>
-    upcomingEventsNode = <ForumNoSSR>{upcomingEventsNode}</ForumNoSSR>
+    digestAdNode = <DeferRender ssr={false}>{digestAdNode}</DeferRender>
+    upcomingEventsNode = <DeferRender ssr={false}>{upcomingEventsNode}</DeferRender>
   }
 
   return <AnalyticsContext pageSectionContext="homeRhs">
@@ -251,7 +251,7 @@ export const EAHomeRightHandSide = ({classes}: {
             <SectionTitle
               title="Opportunities"
               href="/topics/opportunities-to-take-action?sortedBy=magic"
-              className={classes.sectionTitle}
+              titleClassName={classes.sectionTitle}
               noTopMargin
               noBottomPadding
             />
@@ -283,7 +283,7 @@ export const EAHomeRightHandSide = ({classes}: {
             <SectionTitle
               title="Online courses"
               href="https://www.effectivealtruism.org/virtual-programs?utm_source=ea_forum&utm_medium=rhs&utm_campaign=home_page"
-              className={classes.sectionTitle}
+              titleClassName={classes.sectionTitle}
               noTopMargin
               noBottomPadding
             />

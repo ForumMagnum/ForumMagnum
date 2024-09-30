@@ -37,6 +37,7 @@ import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
 import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles';
 import { addTestingRoutes } from './testingSqlClient';
 import { addCrosspostRoutes } from './fmCrosspost/routes';
+import { addV2CrosspostHandlers } from './crossposting/handlers';
 import { getUserEmail } from "../lib/collections/users/helpers";
 import { inspect } from "util";
 import { renderJssSheetPreloads } from './utils/renderJssSheetImports';
@@ -56,6 +57,11 @@ import { randomId } from '../lib/random';
 import { addCacheControlMiddleware, responseIsCacheable } from './cacheControlMiddleware';
 import { SSRMetadata } from '../lib/utils/timeUtil';
 import type { RouterLocation } from '../lib/vulcan-lib/routes';
+import { getCookieFromReq } from './utils/httpUtil';
+import { LAST_VISITED_FRONTPAGE_COOKIE } from '@/lib/cookies/cookies';
+import { addAutocompleteEndpoint } from './autocompleteEndpoint';
+import { getSqlClientOrThrow } from './sql/sqlClient';
+import { addLlmChatEndpoint } from './resolvers/anthropicResolvers';
 
 /**
  * End-to-end tests automate interactions with the page. If we try to, for
@@ -247,7 +253,7 @@ export function startWebserver() {
     tracing: false,
     cacheControl: true,
     context: async ({ req, res }: { req: express.Request, res: express.Response }) => {
-      const context = await getContextFromReqAndRes(req, res);
+      const context = await getContextFromReqAndRes({req, res, isSSR: false});
       configureSentryScope(context);
       setAsyncStoreValue('resolverContext', context);
       return context;
@@ -342,7 +348,9 @@ export function startWebserver() {
   })
 
   addCrosspostRoutes(app);
+  addV2CrosspostHandlers(app);
   addTestingRoutes(app);
+  addLlmChatEndpoint(app);
 
   if (testServerSetting.get()) {
     app.post('/api/quit', (_req, res) => {
@@ -352,6 +360,7 @@ export function startWebserver() {
   }
 
   addServerSentEventsEndpoint(app);
+  addAutocompleteEndpoint(app);
 
   app.get('/node_modules/*', (req, res) => {
     // Under some circumstances (I'm not sure exactly what the trigger is), the
@@ -361,6 +370,18 @@ export function startWebserver() {
     // disruptive. So instead just serve a minimal 404.
     res.status(404);
     res.end("");
+  });
+
+  app.get('/api/health', async (request, response) => {
+    try {
+      const db = getSqlClientOrThrow();
+      await db.one('SELECT 1');
+      response.status(200);
+      response.end("");
+    } catch (err) {
+      response.status(500);
+      response.end("");
+    }
   });
 
   app.get('*', async (request, response) => {
@@ -395,6 +416,8 @@ export function startWebserver() {
     // by multiple tabs), this is generated in `clientStartup.ts` instead.
     const tabId = responseIsCacheable(response) ? null : randomId();
     
+    const isReturningVisitor = !!getCookieFromReq(request, LAST_VISITED_FRONTPAGE_COOKIE);
+
     // The part of the header which can be sent before the page is rendered.
     // This includes an open tag for <html> and <head> but not the matching
     // close tags, since there's stuff inside that depends on what actually
@@ -412,6 +435,7 @@ export function startWebserver() {
         // Embedded script tags that must precede the client bundle
         + publicSettingsHeader
         + embedAsGlobalVar("tabId", tabId)
+        + embedAsGlobalVar("isReturningVisitor", isReturningVisitor)
         // The client bundle. Because this uses <script async>, its load order
         // relative to any scripts that come later than this is undetermined and
         // varies based on timings and the browser cache.

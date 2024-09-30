@@ -13,7 +13,7 @@ import type { PartialDeep } from 'type-fest'
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
 import Localgroups from '../lib/collections/localgroups/collection';
 import { UserRateLimits } from '../lib/collections/userRateLimits';
-import { callbacksArePending } from "@/lib/vulcan-lib/callbacks";
+import { callbacksArePending } from '@/server/utils/callbackHooks';
 import { isAnyQueryPending as isAnyPostgresQueryPending } from "@/server/sql/PgCollection";
 
 // Hooks Vulcan's runGraphQL to handle errors differently. By default, Vulcan
@@ -164,15 +164,32 @@ export const createDefaultUser = async() => {
 }
 
 // Posts can be created pretty flexibly
-type TestPost = Omit<PartialDeep<DbPost>, 'postedAt'> & {postedAt?: Date | number}
+type TestPost = Omit<PartialDeep<DbPost>, 'postedAt'> & {
+  postedAt?: Date | number,
+  contents?: Partial<EditableFieldContents> | null,
+}
 
 export const createDummyPost = async (user?: AtLeast<DbUser, '_id'> | null, data?: TestPost) => {
-  let user_ = user || await createDefaultUser()
-  const defaultData = {
+  user ||= await createDefaultUser()
+  const postId = data?._id ?? randomId();
+  const revision = await createDummyRevision(user as DbUser, {
     _id: randomId(),
-    userId: user_._id,
+    collectionName: "Posts",
+    documentId: postId,
+    fieldName: "contents",
+    editedAt: new Date(),
+    updateType: "initial",
+    version: "1.0.0",
+    commitMessage: "",
+    userId: user!._id,
+    draft: false,
+    ...data?.contents,
+  });
+  const defaultData = {
+    _id: postId,
+    userId: user!._id,
     title: randomId(),
-    "contents_latest": randomId(),
+    "contents_latest": revision._id,
     fmCrosspost: {isCrosspost: false},
     createdAt: new Date(),
   }
@@ -183,7 +200,7 @@ export const createDummyPost = async (user?: AtLeast<DbUser, '_id'> | null, data
     // it accepts, as long as validate is false
     document: postData as DbPost,
     // As long as user has a _id it should be fine
-    currentUser: user_ as DbUser,
+    currentUser: user as DbUser,
     validate: false,
   });
   return newPostResponse.data
@@ -354,6 +371,7 @@ export const createDummyRevision = async (user: DbUser, data?: Partial<DbRevisio
     inactive: false,
     editedAt: new Date(Date.now()),
     version: "1.0.0",
+    wordCount: 0,
     changeMetrics: {} // not nullable field
   };
   const revisionData = {...defaultData, ...data};

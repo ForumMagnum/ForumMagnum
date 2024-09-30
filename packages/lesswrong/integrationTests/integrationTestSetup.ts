@@ -10,6 +10,7 @@ import {
 import { Collections } from '../lib/vulcan-lib';
 import PgCollection from '../server/sql/PgCollection';
 import { waitUntilCallbacksFinished } from './utils';
+import "@/lib"
 import { runServerOnStartupFunctions } from '@/server/serverMain';
 
 // Work around an incompatibility between Jest and iconv-lite (which is used

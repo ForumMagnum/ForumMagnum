@@ -47,7 +47,7 @@ export const useDigestAd = () => {
     if (currentUser) {
       void updateCurrentUser({hideSubscribePoke: true})
     } else {
-      ls.setItem('hideHomeDigestAd', true)
+      ls?.setItem('hideHomeDigestAd', 'true')
     }
   }, [setIsHidden, captureEvent, currentUser, updateCurrentUser, ls])
   
@@ -67,11 +67,12 @@ export const useDigestAd = () => {
           subscribedToDigest: true
         })
       } catch(e) {
+        setSubscribeClicked(false)
         flash('There was a problem subscribing you to the digest. Please try again later.')
       }
     }
     if (showForm && emailRef.current?.value) {
-      ls.setItem('hideHomeDigestAd', true)
+      ls?.setItem('hideHomeDigestAd', 'true')
     }
     
     setLoading(false)

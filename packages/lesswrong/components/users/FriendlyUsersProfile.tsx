@@ -194,13 +194,22 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
   });
   const user = getUserFromResults(results)
 
-  const { query } = useLocation()
+  const {query, hash} = useLocation();
+
+  useEffect(() => {
+    if (user && hash) {
+      const element = document.querySelector(hash);
+      setTimeout(() => element?.scrollIntoView(true), 0);
+    }
+  }, [user, hash]);
+
   // track profile views in local storage
   useEffect(() => {
     const ls = getBrowserLocalStorage()
     if (currentUser && user && currentUser._id !== user._id && ls) {
       let from = query.from
-      let profiles: any[] = JSON.parse(ls.getItem('lastViewedProfiles')) || []
+      const storedLastViewedProfiles = ls.getItem('lastViewedProfiles')
+      let profiles: any[] = storedLastViewedProfiles ? JSON.parse(storedLastViewedProfiles) : []
       // if the profile user is already in the list, then remove them before re-adding them at the end
       const profileUserIndex = profiles?.findIndex(profile => profile.userId === user._id)
       if (profiles && profileUserIndex !== -1) {
@@ -258,7 +267,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
     Typography, ContentStyles, EAUsersProfileTabbedSection, PostsListSettings,
     RecentComments, SectionButton, SequencesGridWrapper, ReportUserButton, DraftsList,
     ProfileShortform, EAUsersProfileImage, EAUsersMetaInfo, EAUsersProfileLinks,
-    UserNotifyDropdown, FooterTag,
+    UserNotifyDropdown, FooterTag, DisplayNameWithMarkers
   } = Components
 
   if (loading) {
@@ -303,8 +312,8 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
   postTerms.excludeEvents = !currentIncludeEvents && currentFilter !== 'events'
   postTerms.hideCommunity = currentHideCommunity
 
-  const username = userGetDisplayName(user)
-  const metaDescription = `${username}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`
+  const displayName = userGetDisplayName(user)
+  const metaDescription = `${displayName}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`
   const userKarma = user.karma || 0
 
   const privateSectionTabs: Array<UserProfileTabType> = [{
@@ -431,7 +440,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
       count: user.commentCount,
       body: <AnalyticsContext pageSectionContext="commentsSection">
         <RecentComments
-          terms={{view: 'profileRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}}
+          terms={{view: 'profileComments', sortBy: "new", authorIsUnreviewed: null, limit: 10, userId: user._id}}
           showPinnedOnProfile
         />
       </AnalyticsContext>
@@ -472,7 +481,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
           }
           <EAUsersProfileImage user={user} />
           <Typography variant="headline" className={classNames(classes.username, {[classes.deletedUsername]: user.deleted})}>
-            {username}{user.deleted && <span className={classes.accountDeletedText}>(account deleted)</span>}
+            <DisplayNameWithMarkers name={displayName} />{user.deleted && <span className={classes.accountDeletedText}>(account deleted)</span>}
           </Typography>
           {(user.jobTitle || user.organization) && <ContentStyles contentType="comment" className={classes.roleAndOrg}>
             {user.jobTitle} {user.organization ? `@ ${user.organization}` : ''}
@@ -507,7 +516,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
         </div>}
 
         {(ownPage || currentUser?.isAdmin) && (draftsSectionExpanded ?
-          <EAUsersProfileTabbedSection tabs={privateSectionTabs} /> :
+          <EAUsersProfileTabbedSection tabs={privateSectionTabs} id="drafts" /> :
           <Button color="primary"
             onClick={() => setDraftsSectionExpanded(true)}
             className={classes.showSectionBtn}
@@ -516,9 +525,9 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
           </Button>
         )}
 
-        <EAUsersProfileTabbedSection tabs={bioSectionTabs} />
+        <EAUsersProfileTabbedSection tabs={bioSectionTabs} id="bio" />
 
-        {!!(userPostsCount || user.postCount) && <div className={classes.section}>
+        {!!(userPostsCount || user.postCount) && <div className={classes.section} id="posts">
           <div className={classes.sectionHeadingRow}>
             <Typography variant="headline" className={classes.sectionHeading}>
               Posts <div className={classes.sectionHeadingCount}>{(userPostsCount || user.postCount)}</div>
@@ -540,7 +549,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
           </AnalyticsContext>
         </div>}
 
-        {!!user.sequenceCount && <div className={classes.section}>
+        {!!user.sequenceCount && <div className={classes.section} id="sequences">
           <div className={classes.sectionHeadingRow}>
             <Typography variant="headline" className={classes.sectionHeading}>
               Sequences <div className={classes.sectionHeadingCount}>{user.sequenceCount}</div>
@@ -549,7 +558,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
           <SequencesGridWrapper terms={{view: "userProfile", userId: user._id, limit: 9}} showLoadMore={true} />
         </div>}
 
-        <EAUsersProfileTabbedSection tabs={commentsSectionTabs} />
+        <EAUsersProfileTabbedSection tabs={commentsSectionTabs} id="contributions" />
       </SingleColumnSection>
 
       <ReportUserButton user={user}/>
