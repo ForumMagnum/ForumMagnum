@@ -197,6 +197,8 @@ const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locatio
 
   const { NewConversationButton, SearchResultsMap, ContentStyles, ForumIcon } = Components
   
+  // FIXME: Unstable component will lose state on rerender
+  // eslint-disable-next-line react/no-unstable-nested-components
   const SearchBox: React.FunctionComponent<SearchBoxProvided> = ({currentRefinement, refine}) => {
     return <div className={classes.keywordSearch}>
       <OutlinedInput
@@ -220,6 +222,8 @@ const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locatio
   }
   const CustomSearchBox = connectSearchBox(SearchBox)
   
+  // FIXME: Unstable component will lose state on rerender
+  // eslint-disable-next-line react/no-unstable-nested-components
   const StateResults: React.FunctionComponent<StateResultsProvided<BasicDoc>> = ({ searchResults }) => {
     return (!searchResults || !searchResults.nbHits) ? <div className={classes.noResults}>
       <div className={classes.noResultsText}>No public profiles matching your search</div>
@@ -227,6 +231,8 @@ const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locatio
   }
   const CustomStateResults = connectStateResults(StateResults)
   
+  // FIXME: Unstable component will lose state on rerender
+  // eslint-disable-next-line react/no-unstable-nested-components
   const CommunityMember = ({hit}: {
     hit: SearchUser,
   }) => {

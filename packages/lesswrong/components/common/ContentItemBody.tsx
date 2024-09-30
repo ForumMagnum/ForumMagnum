@@ -250,7 +250,18 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
       const block = allTopLevelBlocks[i];
       if (block.nodeType === Node.ELEMENT_NODE) {
         const blockAsElement = block as HTMLElement;
-        if (blockAsElement.scrollWidth > this.bodyRef.current!.clientWidth+1) {
+        
+        // Check whether this block is wider than the content-block it's inside
+        // of, and if so, wrap it in a horizontal scroller. This makes wide
+        // LaTeX formulas and tables functional on mobile.
+        // We also need to check that this element has nonzero width, because of
+        // an odd bug in Firefox where, when you open a tab in the background,
+        // it runs JS but doesn't do page layout (or does page layout as-if the
+        // page was zero width?) Without this check, you would sometimes get a
+        // spurious horizontal scroller on every paragraph-block.
+        if (blockAsElement.scrollWidth > this.bodyRef.current!.clientWidth+1
+          && this.bodyRef.current!.clientWidth > 0)
+        {
           this.addHorizontalScrollIndicators(blockAsElement);
         }
       }
@@ -504,7 +515,6 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
 const addNofollowToHTML = (html: string): string => {
   return html.replace(/<a /g, '<a rel="nofollow" ')
 }
-
 
 const ContentItemBodyComponent = registerComponent<ExternalProps>("ContentItemBody", ContentItemBody, {
   hocs: [withTracking],

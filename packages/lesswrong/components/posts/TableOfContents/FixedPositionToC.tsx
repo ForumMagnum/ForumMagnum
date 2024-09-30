@@ -8,7 +8,7 @@ import qs from 'qs'
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import filter from 'lodash/filter';
-import { ScrollHighlightLandmark, useScrollHighlight } from '../../hooks/useScrollHighlight';
+import { useScrollHighlight } from '../../hooks/useScrollHighlight';
 import { useNavigate } from '../../../lib/reactRouterWrapper';
 import { usePostReadProgress } from '../usePostReadProgress';
 import { usePostsPageContext } from '../PostsPage/PostsPageContext';
@@ -16,6 +16,8 @@ import classNames from 'classnames';
 import { ToCDisplayOptions, adjustHeadingText, getAnchorY, isRegularClick, jumpToY } from './TableOfContentsList';
 import { HOVER_CLASSNAME } from './MultiToCLayout';
 import { getOffsetChainTop } from '@/lib/utils/domUtil';
+import { scrollFocusOnElement, ScrollHighlightLandmark } from '@/lib/scrollUtils';
+import { isLWorAF } from '@/lib/instanceSettings';
 
 
 function normalizeToCScale({containerPosition, sections}: {
@@ -237,7 +239,13 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
         hash: `#${anchor}`,
       });
       let sectionYdocumentSpace = anchorY + window.scrollY;
-      jumpToY(sectionYdocumentSpace);
+
+      // This is forum-gating of a fairly subtle change in scroll behaviour, LW may want to adopt scrollFocusOnElement
+      if (!isLWorAF) {
+        scrollFocusOnElement({ id: anchor, options: {behavior: "smooth"}})
+      } else {
+        jumpToY(sectionYdocumentSpace);
+      }
     }
   }
 
