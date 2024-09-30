@@ -16,7 +16,7 @@ export const POLL_MAX_WIDTH = 730;
 const SLIDER_MAX_WIDTH = 1100;
 const USER_IMAGE_SIZE = 28;
 const MAX_STACK_IMAGES = 20;
-const NUM_CLUSTERS = 33;
+const NUM_TICKS = 33;
 const GAP = 8;
 
 const styles = (theme: ThemeType) => ({
@@ -53,14 +53,14 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     justifyContent: "space-between",
     gap: `${GAP}px`,
-    marginBottom: (USER_IMAGE_SIZE / 2) + 4,
+    marginBottom: USER_IMAGE_SIZE / 2 + 8,
     maxWidth: "100%",
   },
   voteCluster: {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    flex: "1",
+    flex: 1,
     justifyContent: "flex-end",
   },
   voteCircle: {
@@ -85,9 +85,9 @@ const styles = (theme: ThemeType) => ({
     width: "calc(100% + 4px)",
     aspectRatio: "1 / 1",
     overflow: "hidden",
-    position: "relative"
+    position: "relative",
   },
-  // Inner element needed so that extraVotesCircle can't can't expand horizontally
+  // Inner element needed so that extraVotesCircle can't can't expand horizontal
   extraVotesText: {
     position: "absolute",
     top: "50%",
@@ -107,17 +107,62 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: theme.palette.text.alwaysWhite,
     marginBottom: "16px",
   },
+  sliderLineHoverArea: {
+    position: "relative",
+    width: "100%",
+    height: USER_IMAGE_SIZE,
+    '&:hover $tick': {
+      opacity: 1,
+    },
+  },
+  ticksContainer: {
+    position: "absolute",
+    top: -6,
+    left: 0,
+    right: 0,
+    height: 12,
+    display: "flex",
+    gap: `${GAP}px`
+  },
+  tick: {
+    flex: 1,
+    position: "relative",
+    '&::before': {
+      content: '""',
+      position: "absolute",
+      top: 0,
+      bottom: 0,
+      left: "50%",
+      width: 2,
+      backgroundColor: theme.palette.text.alwaysWhite,
+      opacity: 0.3,
+      transform: "translateX(-50%)",
+    },
+    opacity: 0,
+    transition: "opacity 0.2s",
+  },
+  centralTick: {
+    opacity: 0.3,
+    '&::before': {
+      height: "150%",
+      top: "-25%",
+      bottom: "-25%",
+      backgroundColor: theme.palette.text.alwaysWhite,
+      opacity: 1,
+    },
+  },
   sliderArrow: {
     stroke: theme.palette.text.alwaysWhite,
     position: "absolute",
+    top: -11,
   },
   sliderArrowLeft: {
-    transform: "translateY(-11px) translateX(-8px)",
-    left: "0%",
+    transform: "translateX(-8px)",
+    left: 0,
   },
   sliderArrowRight: {
-    left: "100%",
-    transform: "translateY(-11px) translateX(-15px)",
+    transform: "translateX(8px)",
+    right: 0,
   },
   voteTooltipHeading: {
     fontSize: 14,
@@ -136,7 +181,6 @@ const styles = (theme: ThemeType) => ({
   userResultsImage: {
     width: "100% !important",
     height: "unset !important",
-    aspectRatio: "auto"
   },
   userImageBoxShadow: {
     boxShadow: theme.palette.boxShadow.eaCard,
@@ -200,11 +244,11 @@ const styles = (theme: ThemeType) => ({
       opacity: 1,
     },
   },
-  currentUserVotePlaceholder: {
-    top: -(USER_IMAGE_SIZE / 2) - 5,
-  },
   currentUserVoteDragging: {
     cursor: "grabbing",
+  },
+  currentUserVotePlaceholder: {
+    top: -(USER_IMAGE_SIZE / 2) - 5,
   },
   currentUserVoteActive: {
     opacity: 1,
@@ -242,8 +286,7 @@ const removeForumEventVoteQuery = gql`
   }
 `;
 
-const maxVotePos = (SLIDER_MAX_WIDTH - USER_IMAGE_SIZE) / SLIDER_MAX_WIDTH;
-const defaultVotePos = maxVotePos / 2;
+const defaultVoteIndex = Math.floor(NUM_TICKS / 2);
 
 export const getForumEventVoteForUser = (
   event?: ForumEventsDisplay | null,
@@ -263,7 +306,7 @@ type ForumEventVoteDisplay = {
 
 const clusterForumEventVotes = (
   voters?: UserOnboardingAuthor[],
-  event?: ForumEventsDisplay | null,
+  event?: ForumEventsDisplay | null
 ): ForumEventVoteDisplayCluster[] => {
   if (!voters || !event || !event.publicData) return [];
 
@@ -276,18 +319,15 @@ const clusterForumEventVotes = (
   });
   votes = sortBy(votes, "x");
 
-  const clusterWidth = maxVotePos / NUM_CLUSTERS;
-  const clusters: ForumEventVoteDisplayCluster[] = range(0, NUM_CLUSTERS).map(
+  const clusters: ForumEventVoteDisplayCluster[] = range(0, NUM_TICKS).map(
     (i) => ({
-      center: (i + 0.5) * clusterWidth,
+      center: i / (NUM_TICKS - 1),
       votes: [],
     })
   );
   votes.forEach((vote) => {
-    const clusterIndex = Math.min(
-      Math.floor(vote.x / clusterWidth),
-      NUM_CLUSTERS - 1
-    );
+    const adjustedX = Math.min(vote.x, 0.999999);
+    const clusterIndex = Math.floor(adjustedX * NUM_TICKS);
     clusters[clusterIndex].votes.push(vote);
   });
   return clusters;
@@ -357,16 +397,21 @@ export const ForumEventPoll = ({
     event,
     currentUser
   );
-  const [votePos, setVotePos] = useState<number>(
-    initialUserVotePos ?? defaultVotePos
+  const initialBucketIndex =
+    initialUserVotePos !== null
+      ? Math.round(initialUserVotePos * (NUM_TICKS - 1))
+      : defaultVoteIndex;
+  const [currentBucketIndex, setCurrentBucketIndex] = useState<number>(
+    initialBucketIndex
   );
   const [currentUserVote, setCurrentUserVote] = useState<number | null>(
     initialUserVotePos
   );
   const hasVoted = currentUserVote !== null;
+  const isDragging = useRef(false);
 
   const sliderRef = useRef<HTMLDivElement | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
+  const tickRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const [resultsVisible, setResultsVisible] = useState(false);
   const [voteCount, setVoteCount] = useState(event?.voteCount ?? 0);
@@ -397,7 +442,7 @@ export const ForumEventPoll = ({
   const clearVote = useCallback(
     async (e?: React.PointerEvent) => {
       e?.stopPropagation();
-      setVotePos(defaultVotePos);
+      setCurrentBucketIndex(defaultVoteIndex);
       setCurrentUserVote(null);
       if (currentUser && event) {
         setVoteCount((count) => count - 1);
@@ -405,59 +450,72 @@ export const ForumEventPoll = ({
         refetch?.();
       }
     },
-    [setVotePos, setCurrentUserVote, currentUser, removeVote, event, refetch]
+    [
+      setCurrentBucketIndex,
+      setCurrentUserVote,
+      currentUser,
+      removeVote,
+      event,
+      refetch,
+    ]
   );
 
   const startDragVote = useCallback(
     (e: React.PointerEvent) => {
       e.preventDefault();
-      setIsDragging(true);
+      isDragging.current = true;
     },
-    [setIsDragging]
+    []
   );
 
   const updateVotePos = useCallback(
     (e: PointerEvent) => {
-      if (!isDragging || !sliderRef.current) return;
+      if (!isDragging.current || !sliderRef.current) return;
 
       const sliderRect = sliderRef.current.getBoundingClientRect();
       const sliderWidth = sliderRect.right - sliderRect.left;
       if (e.clientX < sliderRect.left) {
-        setVotePos(0);
+        setCurrentBucketIndex(0);
         return;
       } else if (e.clientX > sliderRect.right) {
-        setVotePos(maxVotePos);
+        setCurrentBucketIndex(NUM_TICKS - 1);
         return;
       }
 
-      const newVotePos =
-        (e.clientX - sliderRect.left - (USER_IMAGE_SIZE / 2)) / sliderWidth;
-      setVotePos(Math.min(Math.max(newVotePos, 0), maxVotePos));
+      const rawVotePos = (e.clientX - sliderRect.left) / sliderWidth;
+      const bucketIndex = Math.round(
+        rawVotePos * (NUM_TICKS - 1)
+      );
+      setCurrentBucketIndex(bucketIndex);
     },
-    [isDragging, setVotePos]
+    []
   );
   useEventListener("pointermove", updateVotePos);
 
   const saveVotePos = useCallback(async () => {
-    if (!isDragging || !event) return;
+    if (!isDragging.current || !event) return;
 
-    setIsDragging(false);
+    isDragging.current = false;
+    const newVotePos = currentBucketIndex / (NUM_TICKS - 1);
+
     if (currentUser) {
       const voteData: ForumEventVoteData = {
         forumEventId: event._id,
-        x: votePos,
+        x: newVotePos,
       };
       if (!hasVoted) {
         setVoteCount((count) => count + 1);
-        setCurrentUserVote(votePos);
+        setCurrentUserVote(newVotePos);
         await addVote({ variables: voteData });
         refetch?.();
         return;
       }
-      const delta = votePos - (currentUserVote ?? defaultVotePos);
+      const delta =
+        newVotePos -
+        (currentUserVote ?? defaultVoteIndex / (NUM_TICKS - 1));
       if (delta) {
         voteData.delta = delta;
-        setCurrentUserVote(votePos);
+        setCurrentUserVote(newVotePos);
         await addVote({
           variables: {
             ...voteData,
@@ -471,25 +529,53 @@ export const ForumEventPoll = ({
       void clearVote();
     }
   }, [
-    isDragging,
-    setIsDragging,
-    hasVoted,
+    currentBucketIndex,
     currentUser,
     addVote,
     event,
-    votePos,
     currentUserVote,
     postId,
     setCurrentUserVote,
     onSignup,
     clearVote,
     refetch,
+    hasVoted,
   ]);
   useEventListener("pointerup", saveVotePos);
 
   const { ForumIcon, LWTooltip, UsersProfileImage } = Components;
 
-  const containerRef = useRef<HTMLDivElement | null>(null);
+  const ticks = Array.from({ length: NUM_TICKS }, (_, i) => i);
+
+  // Calculate user vote position
+  const tickPositions = useRef<number[]>([]);
+  const [votePos, setVotePos] = useState(
+    (currentBucketIndex / (NUM_TICKS - 1)) * 100 // Initial naive calculation
+  );
+
+  useEffect(() => {
+    if (sliderRef.current) {
+      const sliderRect = sliderRef.current.getBoundingClientRect();
+      tickPositions.current = tickRefs.current.map((tick) => {
+        if (tick) {
+          const tickRect = tick.getBoundingClientRect();
+          return (
+            ((tickRect.left + tickRect.width / 2 - sliderRect.left) /
+              sliderRect.width) *
+            100
+          );
+        }
+        return 0;
+      });
+      setVotePos(tickPositions.current[currentBucketIndex]);
+    }
+  }, [currentBucketIndex]);
+
+  useEffect(() => {
+    if (tickPositions.current.length && tickPositions.current[currentBucketIndex] !== undefined) {
+      setVotePos(tickPositions.current[currentBucketIndex]);
+    }
+  }, [currentBucketIndex]);
 
   if (!event) return null;
 
@@ -501,12 +587,9 @@ export const ForumEventPoll = ({
         <div className={classes.sliderRow}>
           <div className={classes.sliderLineCol}>
             {resultsVisible && (
-              <div className={classes.sliderLineResults} ref={containerRef}>
+              <div className={classes.sliderLineResults}>
                 {voteClusters.map((cluster) => (
-                  <div
-                    key={cluster.center}
-                    className={classes.voteCluster}
-                  >
+                  <div key={cluster.center} className={classes.voteCluster}>
                     {cluster.votes.length > MAX_STACK_IMAGES && (
                       <div className={classes.extraVotesCircle}>
                         <span className={classes.extraVotesText}>
@@ -545,6 +628,79 @@ export const ForumEventPoll = ({
               </div>
             )}
             <div className={classes.sliderLine} ref={sliderRef}>
+              {/* Ticks */}
+              <div className={classes.sliderLineHoverArea}>
+                <div className={classes.ticksContainer}>
+                  {ticks.map((tickIndex) => (
+                    <div
+                      key={tickIndex}
+                      ref={(el) => (tickRefs.current[tickIndex] = el)}
+                      className={classNames(
+                        classes.tick,
+                        tickIndex === Math.floor(NUM_TICKS / 2) &&
+                          classes.centralTick
+                      )}
+                    />
+                  ))}
+                </div>
+                {/* User Vote */}
+                <div
+                  className={classNames(
+                    classes.userVote,
+                    classes.currentUserVote,
+                    !currentUser && classes.currentUserVotePlaceholder,
+                    isDragging.current && classes.currentUserVoteDragging,
+                    hasVoted && classes.currentUserVoteActive
+                  )}
+                  onPointerDown={startDragVote}
+                  style={{
+                    left: `${votePos}%`,
+                    transform: "translateX(-50%)",
+                  }}
+                >
+                  <LWTooltip
+                    title={
+                      hasVoted ? (
+                        <div className={classes.voteTooltipBody}>
+                          Drag to move
+                        </div>
+                      ) : (
+                        <>
+                          <div className={classes.voteTooltipHeading}>
+                            Click and drag to vote
+                          </div>
+                          <div className={classes.voteTooltipBody}>
+                            Votes are non-anonymous and can be changed at any time
+                          </div>
+                        </>
+                      )
+                    }
+                  >
+                    {currentUser ? (
+                      <UsersProfileImage
+                        user={currentUser}
+                        size={USER_IMAGE_SIZE}
+                        className={classes.userImage}
+                      />
+                    ) : (
+                      <ForumIcon
+                        icon="UserCircle"
+                        className={classes.placeholderUserIcon}
+                      />
+                    )}
+                    <div
+                      className={classes.clearVote}
+                      onPointerDown={clearVote}
+                    >
+                      <ForumIcon
+                        icon="Close"
+                        className={classes.clearVoteIcon}
+                      />
+                    </div>
+                  </LWTooltip>
+                </div>
+              </div>
+              {/* Arrows */}
               <ForumIcon
                 icon="ChevronLeft"
                 className={classNames(
@@ -552,58 +708,6 @@ export const ForumEventPoll = ({
                   classes.sliderArrowLeft
                 )}
               />
-              <div
-                className={classNames(
-                  classes.userVote,
-                  classes.currentUserVote,
-                  !currentUser && classes.currentUserVotePlaceholder,
-                  isDragging && classes.currentUserVoteDragging,
-                  hasVoted && classes.currentUserVoteActive
-                )}
-                onPointerDown={startDragVote}
-                style={{ left: `${votePos * 100}%` }}
-              >
-                <LWTooltip
-                  title={
-                    hasVoted ? (
-                      <div className={classes.voteTooltipBody}>
-                        Drag to move
-                      </div>
-                    ) : (
-                      <>
-                        <div className={classes.voteTooltipHeading}>
-                          Click and drag to vote
-                        </div>
-                        <div className={classes.voteTooltipBody}>
-                          Votes are non-anonymous and can be changed at any time
-                        </div>
-                      </>
-                    )
-                  }
-                >
-                  {currentUser ? (
-                    <UsersProfileImage
-                      user={currentUser}
-                      size={USER_IMAGE_SIZE}
-                      className={classes.userImage}
-                    />
-                  ) : (
-                    <ForumIcon
-                      icon="UserCircle"
-                      className={classes.placeholderUserIcon}
-                    />
-                  )}
-                  <div
-                    className={classes.clearVote}
-                    onPointerDown={clearVote}
-                  >
-                    <ForumIcon
-                      icon="Close"
-                      className={classes.clearVoteIcon}
-                    />
-                  </div>
-                </LWTooltip>
-              </div>
               <ForumIcon
                 icon="ChevronRight"
                 className={classNames(
