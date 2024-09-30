@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState, useEffect } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import classNames from "classnames";
 import { useCurrentUser } from "../common/withUser";
@@ -13,104 +13,130 @@ import sortBy from "lodash/sortBy";
 import DeferRender from "../common/DeferRender";
 
 export const POLL_MAX_WIDTH = 730;
-const SLIDER_MAX_WIDTH = 1000;
-// TODO set this dynamically on resize with js
-const USER_IMAGE_SIZE = 24;
+const SLIDER_MAX_WIDTH = 1100;
+const USER_IMAGE_SIZE = 28;
 const MAX_STACK_IMAGES = 20;
-const GAP = 4; // Gap between images and clusters
+const NUM_CLUSTERS = 33;
+const GAP = 8;
 
 const styles = (theme: ThemeType) => ({
   root: {
-    textAlign: 'center',
+    textAlign: "center",
     color: theme.palette.text.alwaysWhite,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    padding: '10px 30px 40px 30px',
-    margin: '0 auto',
+    padding: "10px 30px 40px 30px",
+    margin: "0 auto",
+    maxWidth: "100%",
     [`@media (max-width: ${POLL_MAX_WIDTH}px)`]: {
-      display: 'none',
+      display: "none",
     },
   },
   question: {
     fontSize: 32,
-    lineHeight: '110%',
+    lineHeight: "110%",
     fontWeight: 700,
     marginBottom: 36, // Adjusted to provide space for clusters
   },
   questionFootnote: {
     fontSize: 20,
-    verticalAlign: 'super',
+    verticalAlign: "super",
   },
   sliderRow: {
-    display: 'flex',
-    justifyContent: 'center',
+    display: "flex",
+    justifyContent: "center",
   },
   sliderLineCol: {
     flexGrow: 1,
-    maxWidth: SLIDER_MAX_WIDTH,
+    maxWidth: `min(${SLIDER_MAX_WIDTH}px, 100%)`,
   },
   sliderLineResults: {
-    display: 'flex',
-    justifyContent: 'space-between',
+    display: "flex",
+    justifyContent: "space-between",
     gap: `${GAP}px`,
-    marginBottom: '16px',
+    marginBottom: (USER_IMAGE_SIZE / 2) + 4,
+    maxWidth: "100%",
   },
   voteCluster: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: `${GAP}px`,
-    flex: '1',
-    justifyContent: 'flex-end'
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    flex: "1",
+    justifyContent: "flex-end",
   },
   voteCircle: {
-    height: USER_IMAGE_SIZE * (2/3),
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'flex-end'
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "flex-end",
+    width: "100%",
+    marginTop: -5,
+    zIndex: 1,
+    [theme.breakpoints.down('sm')]: {
+      marginTop: -3,
+    },
   },
   extraVotesCircle: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
     backgroundColor: theme.palette.text.alwaysWhite,
     color: theme.palette.text.alwaysBlack,
-    borderRadius: '50%',
-    fontWeight: 'bold',
-    width: `${USER_IMAGE_SIZE}px`,
-    height: `${USER_IMAGE_SIZE}px`,
+    borderRadius: "50%",
+    fontWeight: "bold",
+    width: "calc(100% + 4px)",
+    aspectRatio: "1 / 1",
+    overflow: "hidden",
+    position: "relative"
+  },
+  // Inner element needed so that extraVotesCircle can't can't expand horizontally
+  extraVotesText: {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-54%, -54%)",
+    fontSize: 14,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    [theme.breakpoints.down('sm')]: {
+      fontSize: 10,
+    },
   },
   sliderLine: {
-    position: 'relative',
-    width: '100%',
+    position: "relative",
+    width: "100%",
     height: 2,
     backgroundColor: theme.palette.text.alwaysWhite,
-    marginBottom: '16px',
+    marginBottom: "16px",
   },
   sliderArrow: {
     stroke: theme.palette.text.alwaysWhite,
-    position: 'absolute'
+    position: "absolute",
   },
   sliderArrowLeft: {
-    transform: 'translateY(-11px) translateX(-8px)',
-    left: '0%'
+    transform: "translateY(-11px) translateX(-8px)",
+    left: "0%",
   },
   sliderArrowRight: {
-    left: '100%',
-    transform: 'translateY(-11px) translateX(0px)',
+    left: "100%",
+    transform: "translateY(-11px) translateX(-15px)",
   },
   voteTooltipHeading: {
     fontSize: 14,
     fontWeight: 700,
-    lineHeight: '140%',
+    lineHeight: "140%",
     marginBottom: 4,
   },
   voteTooltipBody: {
     fontSize: 14,
     fontWeight: 500,
-    lineHeight: '140%',
+    lineHeight: "140%",
   },
   userImage: {
     outline: `2px solid ${theme.palette.text.alwaysWhite}`,
+  },
+  userResultsImage: {
+    width: "100% !important",
+    height: "unset !important",
+    aspectRatio: "auto"
   },
   userImageBoxShadow: {
     boxShadow: theme.palette.boxShadow.eaCard,
@@ -119,85 +145,95 @@ const styles = (theme: ThemeType) => ({
     background: `radial-gradient(${theme.palette.text.alwaysBlack} 50%, transparent 50%)`,
     color: theme.palette.text.alwaysWhite,
     fontSize: 34,
-    borderRadius: '50%',
+    borderRadius: "50%",
     marginLeft: -5,
   },
   clearVote: {
-    display: 'none',
-    position: 'absolute',
+    display: "none",
+    position: "absolute",
     top: -5,
     right: -5,
     backgroundColor: `color-mix(in oklab, ${theme.palette.text.alwaysBlack} 65%, ${theme.palette.text.alwaysWhite} 35%)`,
     padding: 2,
-    borderRadius: '50%',
-    cursor: 'pointer',
-    '&:hover': {
+    borderRadius: "50%",
+    cursor: "pointer",
+    "&:hover": {
       backgroundColor: theme.palette.text.alwaysBlack,
-    }
+    },
   },
   clearVoteIcon: {
     fontSize: 10,
   },
   sliderLabels: {
-    display: 'flex',
-    justifyContent: 'space-between',
+    display: "flex",
+    justifyContent: "space-between",
     fontSize: 14,
     fontWeight: 500,
-    lineHeight: 'normal',
+    lineHeight: "normal",
     marginTop: 22,
   },
   viewResultsButton: {
-    background: 'none',
+    background: "none",
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 14,
     fontWeight: 500,
-    lineHeight: 'normal',
+    lineHeight: "normal",
     color: theme.palette.text.alwaysWhite,
-    textDecoration: 'underline',
-    textUnderlineOffset: '3px',
+    textDecoration: "underline",
+    textUnderlineOffset: "3px",
     padding: 0,
-    '&:hover': {
-      opacity: 0.7
-    }
+    "&:hover": {
+      opacity: 0.7,
+    },
   },
   userVote: {
-    position: 'absolute',
+    position: "absolute",
     top: -USER_IMAGE_SIZE / 2,
     zIndex: 10,
   },
   currentUserVote: {
     opacity: 0.6,
-    cursor: 'grab',
+    cursor: "grab",
     zIndex: 15,
-    touchAction: 'none',
-    '&:hover': {
+    touchAction: "none",
+    "&:hover": {
       opacity: 1,
-    }
+    },
   },
   currentUserVotePlaceholder: {
     top: -(USER_IMAGE_SIZE / 2) - 5,
   },
   currentUserVoteDragging: {
-    cursor: 'grabbing',
+    cursor: "grabbing",
   },
   currentUserVoteActive: {
     opacity: 1,
-    '&:hover .ForumEventPoll-clearVote': {
-      display: 'flex',
-    }
+    "&:hover .ForumEventPoll-clearVote": {
+      display: "flex",
+    },
   },
 });
 
 export type ForumEventVoteData = {
-  forumEventId: string,
-  x: number,
-  delta?: number,
-  postIds?: string[]
-}
+  forumEventId: string;
+  x: number;
+  delta?: number;
+  postIds?: string[];
+};
 
 export const addForumEventVoteQuery = gql`
-  mutation AddForumEventVote($forumEventId: String!, $x: Float!, $delta: Float, $postIds: [String]) {
-    AddForumEventVote(forumEventId: $forumEventId, x: $x, delta: $delta, postIds: $postIds)
+  mutation AddForumEventVote(
+    $forumEventId: String!
+    $x: Float!
+    $delta: Float
+    $postIds: [String]
+  ) {
+    AddForumEventVote(
+      forumEventId: $forumEventId
+      x: $x
+      delta: $delta
+      postIds: $postIds
+    )
   }
 `;
 const removeForumEventVoteQuery = gql`
@@ -213,93 +249,120 @@ export const getForumEventVoteForUser = (
   event?: ForumEventsDisplay | null,
   user?: UsersMinimumInfo | null
 ): number | null => {
-  return user ? (event?.publicData?.[user._id]?.x ?? null) : null;
-}
+  return user ? event?.publicData?.[user._id]?.x ?? null : null;
+};
 
 type ForumEventVoteDisplayCluster = {
-  center: number,
-  votes: ForumEventVoteDisplay[]
-}
+  center: number;
+  votes: ForumEventVoteDisplay[];
+};
 type ForumEventVoteDisplay = {
-  x: number,
-  user: UserOnboardingAuthor,
-}
+  x: number;
+  user: UserOnboardingAuthor;
+};
 
 const clusterForumEventVotes = (
   voters?: UserOnboardingAuthor[],
   event?: ForumEventsDisplay | null,
-  numClusters = 27
 ): ForumEventVoteDisplayCluster[] => {
-  if (!voters || !event || !event.publicData) return []
-  
-  let votes = voters.map(voter => {
-    const vote = event.publicData[voter._id].x
+  if (!voters || !event || !event.publicData) return [];
+
+  let votes = voters.map((voter) => {
+    const vote = event.publicData[voter._id].x;
     return {
       x: vote,
       user: voter,
-    }
-  })
-  votes = sortBy(votes, 'x')
-  
-  const clusterWidth = maxVotePos / numClusters;
-  const clusters: ForumEventVoteDisplayCluster[] = range(0, numClusters).map(i => ({
-    center: (i + 0.5) * clusterWidth,
-    votes: [],
-  }));
-  votes.forEach(vote => {
-    const clusterIndex = Math.min(Math.floor(vote.x / clusterWidth), numClusters - 1);
+    };
+  });
+  votes = sortBy(votes, "x");
+
+  const clusterWidth = maxVotePos / NUM_CLUSTERS;
+  const clusters: ForumEventVoteDisplayCluster[] = range(0, NUM_CLUSTERS).map(
+    (i) => ({
+      center: (i + 0.5) * clusterWidth,
+      votes: [],
+    })
+  );
+  votes.forEach((vote) => {
+    const clusterIndex = Math.min(
+      Math.floor(vote.x / clusterWidth),
+      NUM_CLUSTERS - 1
+    );
     clusters[clusterIndex].votes.push(vote);
   });
   return clusters;
-}
+};
 
-const PollQuestion = ({ event, classes }: {
-  event: ForumEventsDisplay,
-  classes: ClassesType<typeof styles>,
+const PollQuestion = ({
+  event,
+  classes,
+}: {
+  event: ForumEventsDisplay;
+  classes: ClassesType<typeof styles>;
 }) => {
   const { LWTooltip } = Components;
 
-  return <div className={classes.question}>
-    “AI welfare
-    <LWTooltip
-      title="
-        By “AI welfare”, we mean the potential wellbeing (pain,
-        pleasure, but also frustration, satisfaction etc...) of
-        future artificial intelligence systems.
-      "
-    >
-      <span className={classes.questionFootnote} style={{ color: event.contrastColor ?? event.darkColor }}>
-        1
-      </span>
-    </LWTooltip>{" "}
-    should be an EA priority
-    <LWTooltip
-      title="
-        By “EA priority” we mean that 5% of (unrestricted, i.e.
-        open to EA-style cause prioritisation) talent and 5% of
-        (unrestricted, i.e. open to EA-style cause prioritisation)
-        funding should be allocated to this cause.
-      "
-    >
-      <span className={classes.questionFootnote} style={{ color: event.contrastColor ?? event.darkColor }}>
-        2
-      </span>
-    </LWTooltip>”
-  </div>
-}
+  return (
+    <div className={classes.question}>
+      “AI welfare
+      <LWTooltip
+        title="
+            By “AI welfare”, we mean the potential wellbeing (pain,
+            pleasure, but also frustration, satisfaction etc...) of
+            future artificial intelligence systems.
+          "
+      >
+        <span
+          className={classes.questionFootnote}
+          style={{ color: event.contrastColor ?? event.darkColor }}
+        >
+          1
+        </span>
+      </LWTooltip>{" "}
+      should be an EA priority
+      <LWTooltip
+        title="
+            By “EA priority” we mean that 5% of (unrestricted, i.e.
+            open to EA-style cause prioritisation) talent and 5% of
+            (unrestricted, i.e. open to EA-style cause prioritisation)
+            funding should be allocated to this cause.
+          "
+      >
+        <span
+          className={classes.questionFootnote}
+          style={{ color: event.contrastColor ?? event.darkColor }}
+        >
+          2
+        </span>
+      </LWTooltip>
+      ”
+    </div>
+  );
+};
 
-export const ForumEventPoll = ({ postId, hideViewResults, classes }: {
-  postId?: string,
-  hideViewResults?: boolean,
-  classes: ClassesType<typeof styles>,
+export const ForumEventPoll = ({
+  postId,
+  hideViewResults,
+  classes,
+}: {
+  postId?: string;
+  hideViewResults?: boolean;
+  classes: ClassesType<typeof styles>;
 }) => {
   const { currentForumEvent: event, refetch } = useCurrentForumEvent();
   const { onSignup } = useLoginPopoverContext();
   const currentUser = useCurrentUser();
 
-  const initialUserVotePos: number | null = getForumEventVoteForUser(event, currentUser);
-  const [votePos, setVotePos] = useState<number>(initialUserVotePos ?? defaultVotePos);
-  const [currentUserVote, setCurrentUserVote] = useState<number | null>(initialUserVotePos);
+  const initialUserVotePos: number | null = getForumEventVoteForUser(
+    event,
+    currentUser
+  );
+  const [votePos, setVotePos] = useState<number>(
+    initialUserVotePos ?? defaultVotePos
+  );
+  const [currentUserVote, setCurrentUserVote] = useState<number | null>(
+    initialUserVotePos
+  );
   const hasVoted = currentUserVote !== null;
 
   const sliderRef = useRef<HTMLDivElement | null>(null);
@@ -310,58 +373,69 @@ export const ForumEventPoll = ({ postId, hideViewResults, classes }: {
 
   const { results: voters } = useMulti({
     terms: {
-      view: 'usersByUserIds',
-      userIds: event?.publicData ?
-        Object.keys(event?.publicData).filter(userId => userId !== currentUser?._id) :
-        [],
+      view: "usersByUserIds",
+      userIds: event?.publicData
+        ? Object.keys(event?.publicData).filter(
+            (userId) => userId !== currentUser?._id
+          )
+        : [],
       limit: 500,
     },
     collectionName: "Users",
-    fragmentName: 'UserOnboardingAuthor',
+    fragmentName: "UserOnboardingAuthor",
     enableTotal: false,
     skip: !event?.publicData,
   });
-  const voteClusters = useMemo(() => clusterForumEventVotes(voters, event), [voters, event]);
+  const voteClusters = useMemo(
+    () => clusterForumEventVotes(voters, event),
+    [voters, event]
+  );
 
-  const [addVote] = useMutation(
-    addForumEventVoteQuery,
-  )
-  const [removeVote] = useMutation(
-    removeForumEventVoteQuery,
-  )
+  const [addVote] = useMutation(addForumEventVoteQuery);
+  const [removeVote] = useMutation(removeForumEventVoteQuery);
 
-  const clearVote = useCallback(async (e?: React.PointerEvent) => {
-    e?.stopPropagation();
-    setVotePos(defaultVotePos);
-    setCurrentUserVote(null);
-    if (currentUser && event) {
-      setVoteCount(count => count - 1);
-      await removeVote({ variables: { forumEventId: event._id } });
-      refetch?.();
-    }
-  }, [setVotePos, setCurrentUserVote, currentUser, removeVote, event, refetch]);
+  const clearVote = useCallback(
+    async (e?: React.PointerEvent) => {
+      e?.stopPropagation();
+      setVotePos(defaultVotePos);
+      setCurrentUserVote(null);
+      if (currentUser && event) {
+        setVoteCount((count) => count - 1);
+        await removeVote({ variables: { forumEventId: event._id } });
+        refetch?.();
+      }
+    },
+    [setVotePos, setCurrentUserVote, currentUser, removeVote, event, refetch]
+  );
 
-  const startDragVote = useCallback((e: React.PointerEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  }, [setIsDragging]);
+  const startDragVote = useCallback(
+    (e: React.PointerEvent) => {
+      e.preventDefault();
+      setIsDragging(true);
+    },
+    [setIsDragging]
+  );
 
-  const updateVotePos = useCallback((e: PointerEvent) => {
-    if (!isDragging || !sliderRef.current) return;
+  const updateVotePos = useCallback(
+    (e: PointerEvent) => {
+      if (!isDragging || !sliderRef.current) return;
 
-    const sliderRect = sliderRef.current.getBoundingClientRect();
-    const sliderWidth = sliderRect.right - sliderRect.left;
-    if (e.clientX < sliderRect.left) {
-      setVotePos(0);
-      return;
-    } else if (e.clientX > sliderRect.right) {
-      setVotePos(maxVotePos);
-      return;
-    }
+      const sliderRect = sliderRef.current.getBoundingClientRect();
+      const sliderWidth = sliderRect.right - sliderRect.left;
+      if (e.clientX < sliderRect.left) {
+        setVotePos(0);
+        return;
+      } else if (e.clientX > sliderRect.right) {
+        setVotePos(maxVotePos);
+        return;
+      }
 
-    const newVotePos = (e.clientX - sliderRect.left - (USER_IMAGE_SIZE / 2)) / sliderWidth;
-    setVotePos(Math.min(Math.max(newVotePos, 0), maxVotePos));
-  }, [isDragging, setVotePos]);
+      const newVotePos =
+        (e.clientX - sliderRect.left - (USER_IMAGE_SIZE / 2)) / sliderWidth;
+      setVotePos(Math.min(Math.max(newVotePos, 0), maxVotePos));
+    },
+    [isDragging, setVotePos]
+  );
   useEventListener("pointermove", updateVotePos);
 
   const saveVotePos = useCallback(async () => {
@@ -374,7 +448,7 @@ export const ForumEventPoll = ({ postId, hideViewResults, classes }: {
         x: votePos,
       };
       if (!hasVoted) {
-        setVoteCount(count => count + 1);
+        setVoteCount((count) => count + 1);
         setCurrentUserVote(votePos);
         await addVote({ variables: voteData });
         refetch?.();
@@ -382,16 +456,17 @@ export const ForumEventPoll = ({ postId, hideViewResults, classes }: {
       }
       const delta = votePos - (currentUserVote ?? defaultVotePos);
       if (delta) {
-        voteData.delta = delta
-        setCurrentUserVote(votePos)
-        await addVote({variables: {
-          ...voteData,
-          ...(postId && {postIds: [postId]}),
-        }})
-        refetch?.()
+        voteData.delta = delta;
+        setCurrentUserVote(votePos);
+        await addVote({
+          variables: {
+            ...voteData,
+            ...(postId && { postIds: [postId] }),
+          },
+        });
+        refetch?.();
       }
-    }
-    else {
+    } else {
       onSignup();
       void clearVote();
     }
@@ -408,11 +483,13 @@ export const ForumEventPoll = ({ postId, hideViewResults, classes }: {
     setCurrentUserVote,
     onSignup,
     clearVote,
-    refetch
+    refetch,
   ]);
   useEventListener("pointerup", saveVotePos);
 
   const { ForumIcon, LWTooltip, UsersProfileImage } = Components;
+
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   if (!event) return null;
 
@@ -424,33 +501,57 @@ export const ForumEventPoll = ({ postId, hideViewResults, classes }: {
         <div className={classes.sliderRow}>
           <div className={classes.sliderLineCol}>
             {resultsVisible && (
-              <div className={classes.sliderLineResults}>
+              <div className={classes.sliderLineResults} ref={containerRef}>
                 {voteClusters.map((cluster) => (
-                  <div key={cluster.center} className={classes.voteCluster}>
+                  <div
+                    key={cluster.center}
+                    className={classes.voteCluster}
+                  >
                     {cluster.votes.length > MAX_STACK_IMAGES && (
                       <div className={classes.extraVotesCircle}>
-                        +{cluster.votes.length - MAX_STACK_IMAGES}
+                        <span className={classes.extraVotesText}>
+                          +{cluster.votes.length - MAX_STACK_IMAGES}
+                        </span>
                       </div>
                     )}
-                    {cluster.votes.slice(0, MAX_STACK_IMAGES).map((vote) => (
-                      <div key={vote.user._id} className={classes.voteCircle}>
-                        <LWTooltip
-                          title={<div className={classes.voteTooltipBody}>{vote.user.displayName}</div>}
+                    {cluster.votes
+                      .slice(0, MAX_STACK_IMAGES)
+                      .map((vote) => (
+                        <div
+                          key={vote.user._id}
+                          className={classes.voteCircle}
                         >
-                          <UsersProfileImage
-                            user={vote.user}
-                            size={USER_IMAGE_SIZE}
-                            className={classNames(classes.userImage, classes.userImageBoxShadow)}
-                          />
-                        </LWTooltip>
-                      </div>
-                    ))}
+                          <LWTooltip
+                            title={
+                              <div className={classes.voteTooltipBody}>
+                                {vote.user.displayName}
+                              </div>
+                            }
+                          >
+                            <UsersProfileImage
+                              user={vote.user}
+                              size={USER_IMAGE_SIZE}
+                              className={classNames(
+                                classes.userImage,
+                                classes.userResultsImage,
+                                classes.userImageBoxShadow
+                              )}
+                            />
+                          </LWTooltip>
+                        </div>
+                      ))}
                   </div>
                 ))}
               </div>
             )}
             <div className={classes.sliderLine} ref={sliderRef}>
-              <ForumIcon icon="ChevronLeft" className={classNames(classes.sliderArrow, classes.sliderArrowLeft)} />
+              <ForumIcon
+                icon="ChevronLeft"
+                className={classNames(
+                  classes.sliderArrow,
+                  classes.sliderArrowLeft
+                )}
+              />
               <div
                 className={classNames(
                   classes.userVote,
@@ -462,51 +563,91 @@ export const ForumEventPoll = ({ postId, hideViewResults, classes }: {
                 onPointerDown={startDragVote}
                 style={{ left: `${votePos * 100}%` }}
               >
-                <LWTooltip title={hasVoted ? <div className={classes.voteTooltipBody}>Drag to move</div> : <>
-                  <div className={classes.voteTooltipHeading}>Click and drag to vote</div>
-                  <div className={classes.voteTooltipBody}>Votes are non-anonymous and can be changed at any time</div>
-                </>}
-                >
-                  {currentUser ?
-                    <UsersProfileImage user={currentUser} size={USER_IMAGE_SIZE} className={classes.userImage} /> :
-                    <ForumIcon icon="UserCircle" className={classes.placeholderUserIcon} />
+                <LWTooltip
+                  title={
+                    hasVoted ? (
+                      <div className={classes.voteTooltipBody}>
+                        Drag to move
+                      </div>
+                    ) : (
+                      <>
+                        <div className={classes.voteTooltipHeading}>
+                          Click and drag to vote
+                        </div>
+                        <div className={classes.voteTooltipBody}>
+                          Votes are non-anonymous and can be changed at any time
+                        </div>
+                      </>
+                    )
                   }
-                  <div className={classes.clearVote} onPointerDown={clearVote}>
-                    <ForumIcon icon="Close" className={classes.clearVoteIcon} />
+                >
+                  {currentUser ? (
+                    <UsersProfileImage
+                      user={currentUser}
+                      size={USER_IMAGE_SIZE}
+                      className={classes.userImage}
+                    />
+                  ) : (
+                    <ForumIcon
+                      icon="UserCircle"
+                      className={classes.placeholderUserIcon}
+                    />
+                  )}
+                  <div
+                    className={classes.clearVote}
+                    onPointerDown={clearVote}
+                  >
+                    <ForumIcon
+                      icon="Close"
+                      className={classes.clearVoteIcon}
+                    />
                   </div>
                 </LWTooltip>
               </div>
-              <ForumIcon icon="ChevronRight" className={classNames(classes.sliderArrow, classes.sliderArrowRight)} />
+              <ForumIcon
+                icon="ChevronRight"
+                className={classNames(
+                  classes.sliderArrow,
+                  classes.sliderArrowRight
+                )}
+              />
             </div>
             <div className={classes.sliderLabels}>
               <div>Disagree</div>
               <DeferRender ssr={false}>
-                {!hideViewResults && !resultsVisible && <div>
-                  {(voteCount > 0) && `${voteCount} vote${voteCount === 1 ? '' : 's'} so far. `}
-                  {hasVoted ? 'Click and drag your avatar to change your vote, or ' : 'Place your vote or '}
-                  <button className={classes.viewResultsButton} onClick={() => setResultsVisible(true)}>
-                    view results
-                  </button>
-                </div>}
+                {!hideViewResults && !resultsVisible && (
+                  <div>
+                    {voteCount > 0 &&
+                      `${voteCount} vote${voteCount === 1 ? "" : "s"} so far. `}
+                    {hasVoted
+                      ? "Click and drag your avatar to change your vote, or "
+                      : "Place your vote or "}
+                    <button
+                      className={classes.viewResultsButton}
+                      onClick={() => setResultsVisible(true)}
+                    >
+                      view results
+                    </button>
+                  </div>
+                )}
               </DeferRender>
               <div>Agree</div>
             </div>
           </div>
         </div>
-
       </div>
     </AnalyticsContext>
   );
-}
+};
 
 const ForumEventPollComponent = registerComponent(
   "ForumEventPoll",
   ForumEventPoll,
-  { styles },
+  { styles }
 );
 
 declare global {
   interface ComponentTypes {
-    ForumEventPoll: typeof ForumEventPollComponent
+    ForumEventPoll: typeof ForumEventPollComponent;
   }
 }
