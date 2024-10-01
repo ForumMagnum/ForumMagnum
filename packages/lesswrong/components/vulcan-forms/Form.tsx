@@ -36,7 +36,11 @@ type FormFieldUnfinished<N extends CollectionNameString> = Partial<FormField<N>>
 // props that should trigger a form reset
 const RESET_PROPS = [
   'collection', 'collectionName', 'typeName', 'document', 'schema', 'currentUser',
-  'fields', 'removeFields', 'prefilledProps'
+  'fields', 'removeFields',
+  // `prefilledProps` is handled slightly differently - all the other props
+  // trigger a full reset of the form, but changed to `prefilledProps` are
+  // merged into the current document with `updateCurrentValues`.
+  'prefilledProps'
 ] as const;
 
 const compactParent = (object: AnyBecauseTodo, path: AnyBecauseTodo) => {
