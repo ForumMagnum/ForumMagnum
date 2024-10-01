@@ -5,10 +5,10 @@ import Revisions from "@/lib/collections/revisions/collection";
 import { getNextVersion } from "../editor/utils";
 
 interface PostRevisionInfo {
-  post_id: string; // Assuming _id is a string, adjust if it's a different type
+  post_id: string;
   post_draft_status: boolean;
   post_created_at: Date;
-  contents_latest_revision_id: string; // Assuming it's a string, adjust if needed
+  contents_latest_revision_id: string;
   contents_latest_revision_version: string;
   contents_latest_revision_edited_at: Date;
   contents_latest_revision_draft: boolean;
