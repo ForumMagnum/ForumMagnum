@@ -37,6 +37,7 @@ import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { PromptCachingBetaMessageParam } from '@anthropic-ai/sdk/resources/beta/prompt-caching/messages';
 import { getAnthropicPromptCachingClientOrThrow } from '../languageModels/anthropicClient';
 import { exampleJargonGlossary2, exampleJargonPost2 } from './exampleJargonPost';
+import { exampleMathGlossary, exampleMathPost } from './exampleMathPost';
 import { ContentReplacedSubstringComponentInfo } from '@/components/common/ContentItemBody';
 
 const claudeKey = jargonBotClaudeKey.get()
@@ -375,9 +376,9 @@ augmentFieldsDict(Posts, {
             return null;
           }
 
-          const initialGlossaryPrompt = ``
-
-          const formatPrompt = `` 
+          const initialGlossaryPrompt = `Please provide a list of all the LaTeX terms in the text. It should include each overall equation, as well as each major section of an equation. The output should be a simple list of terms, with no other text. It should be comprehensive, covering every term.`
+          
+          const formatPrompt = `You’re a Math Glossary AI. Your goal is to write good explanations for math (LaTeX) terms and equations. You are trying to produce a useful hoverover tooltip in an essay on LessWrong.com, accessible to a layman. The glossary should contain the term and some text explaining it. Analyze this post and output in a JSON array of objects with keys: term: "term” (string), altTerms: string[], text: text (html string). The output should look like [{term: "term1", altTerms: ["term1s", "Term1"], text: "Term 1 explanation text"}, {term: "term2", altTerms: ["term2s", "Term2"], text: "term2 explanation text"}]. Do not return anything else.` 
 
           const glossarySystemPrompt = ``
 
@@ -397,31 +398,22 @@ the jargon terms are:`
             }
           ], 5000, "You return a list of terms, with no other text.")
 
-          console.log("termsResponse", termsResponse)
-
           if (!(termsResponse.content[0].type === "text")) return null
         
           const response = await queryClaudeJailbreak([
             {
               role: "user", 
-              content: [{
-                type: "text", 
-                text: `${formatPrompt} The text is: ${exampleMathPost}`}]
+              content: [{type: "text", text: `${formatPrompt} The text is: ${exampleMathPost}`}]
             },
             { role: "assistant", 
-              content: [{
-                type: "text", 
-                text: `${exampleMathGlossary}`
+              content: [{type: "text", text: `${exampleMathGlossary}`
               }]
             },
-            {
-              role: "user",
-              content: [{
-                type: "text",
-                text: `${formatPrompt} The text is: ${html}. The math terms are: ${termsResponse.content[0].text}`
-              }]
+            { role: "user",
+              content: [{ type: "text", text: `${formatPrompt} The text is: ${html}. The math terms are: ${termsResponse.content[0].text}`}]
             }, 
           ], 5000, glossarySystemPrompt)
+
           if (!(response.content[0].type === "text")) return null
 
           let jargonTerms: Array<{ term: string, altTerms: string[], text: string }> = []
