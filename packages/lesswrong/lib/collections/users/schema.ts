@@ -2910,6 +2910,17 @@ const schema: SchemaType<"Users"> = {
     canUpdate: [userOwns, 'admins'],
     hidden: true,
   },
+  
+  // used by the EA Forum to track if a user has dismissed the post page criticism tips card
+  criticismTipsDismissed: {
+    type: Boolean,
+    canCreate: ['members'],
+    canRead: [userOwns, 'admins'],
+    canUpdate: [userOwns, 'admins'],
+    optional: true,
+    hidden: true,
+    ...schemaDefaultValue(false),
+  },
 
   /* Privacy settings */
   hideFromPeopleDirectory: {

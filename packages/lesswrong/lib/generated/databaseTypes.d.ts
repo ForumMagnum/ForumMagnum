@@ -608,7 +608,7 @@ interface DbManifoldProbabilitiesCache extends DbObject {
   isResolved: boolean
   year: number
   lastUpdated: Date
-  url: string
+  url: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -709,6 +709,17 @@ interface DbPageCacheEntry extends DbObject {
     timezone: string,
     timings: any /*{"definitions":[{"blackbox":true}]}*/,
   }
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
+type PetrovDayActionsCollection = CollectionBase<"PetrovDayActions">;
+
+interface DbPetrovDayAction extends DbObject {
+  __collectionName?: "PetrovDayActions"
+  actionType: "optIn" | "hasRole" | "hasSide" | "nukeTheWest" | "nukeTheEast" | "eastPetrovAllClear" | "eastPetrovNukesIncoming" | "westPetrovAllClear" | "westPetrovNukesIncoming"
+  data: any /*{"definitions":[{}]}*/
+  userId: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -855,7 +866,6 @@ interface DbPost extends DbObject {
   reviewVoteCount: number
   positiveReviewVoteCount: number
   manifoldReviewMarketId: string | null
-  annualReviewMarketCommentId: string | null
   reviewVoteScoreAF: number
   reviewVotesAF: Array<number>
   reviewVoteScoreHighKarma: number
@@ -975,7 +985,6 @@ interface DbPost extends DbObject {
   hideCommentKarma: boolean
   commentCount: number
   topLevelCommentCount: number
-  criticismTipsDismissed: boolean | null
   debate: boolean
   collabEditorDialogue: boolean
   mostRecentPublishedDialogueResponseDate: Date | null
@@ -1876,6 +1885,7 @@ interface DbUser extends DbObject {
   acknowledgedNewUserGuidelines: boolean | null
   subforumPreferredLayout: "card" | "list" | null
   hideJobAdUntil: Date | null
+  criticismTipsDismissed: boolean
   hideFromPeopleDirectory: boolean
   allowDatadogSessionReplay: boolean
   afPostCount: number
@@ -1996,6 +2006,7 @@ interface CollectionsByName {
   ModeratorActions: ModeratorActionsCollection
   Notifications: NotificationsCollection
   PageCache: PageCacheCollection
+  PetrovDayActions: PetrovDayActionsCollection
   PetrovDayLaunchs: PetrovDayLaunchsCollection
   PodcastEpisodes: PodcastEpisodesCollection
   Podcasts: PodcastsCollection
@@ -2081,6 +2092,7 @@ interface ObjectsByCollectionName {
   ModeratorActions: DbModeratorAction
   Notifications: DbNotification
   PageCache: DbPageCacheEntry
+  PetrovDayActions: DbPetrovDayAction
   PetrovDayLaunchs: DbPetrovDayLaunch
   PodcastEpisodes: DbPodcastEpisode
   Podcasts: DbPodcast
@@ -2166,6 +2178,7 @@ interface ObjectsByTypeName {
   ModeratorAction: DbModeratorAction
   Notification: DbNotification
   PageCacheEntry: DbPageCacheEntry
+  PetrovDayAction: DbPetrovDayAction
   PetrovDayLaunch: DbPetrovDayLaunch
   PodcastEpisode: DbPodcastEpisode
   Podcast: DbPodcast
