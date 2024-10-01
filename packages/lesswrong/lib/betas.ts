@@ -85,6 +85,8 @@ export const userHasLlmChat = (currentUser: UsersCurrent|DbUser|null): currentUs
 
 export const userHasDarkModeHotkey = isEAForum ? adminOnly : shippedFeature;
 
+export const userHasPostAutosave = isLWorAF ? adminOnly : disabled;
+
 // Non-user-specific features
 export const dialoguesEnabled = hasDialoguesSetting.get();
 export const ckEditorUserSessionsEnabled = isLWorAF;

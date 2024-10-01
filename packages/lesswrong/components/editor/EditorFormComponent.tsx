@@ -2,7 +2,7 @@ import React, { useState, useCallback, useRef, useEffect, useContext } from 'rea
 import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
 import { debateEditorPlaceholder, defaultEditorPlaceholder, linkpostEditorPlaceholder, questionEditorPlaceholder } from '../../lib/editor/make_editable';
 import { getLSHandlers, getLSKeyPrefix } from './localStorageHandlers'
-import { userCanCreateCommitMessages } from '../../lib/betas';
+import { userCanCreateCommitMessages, userHasPostAutosave } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { Editor, EditorChangeEvent, getUserDefaultEditor, getInitialEditorContents,
   getBlankEditorContents, EditorContents, isBlank, serializeEditorContents,
@@ -262,7 +262,7 @@ export const EditorFormComponent = ({
     // Afterwards, check whatever revision was loaded for display
     // This may or may not be the most recent one) against current content
     // If different, save a new revision
-    if (isLWorAF && collectionName === 'Posts' && !isEqual(autosaveContentsRef.current, newContents)) {
+    if (userHasPostAutosave(currentUser) && collectionName === 'Posts' && !isEqual(autosaveContentsRef.current, newContents)) {
       // In order to avoid recreating this function (which is throttled) each time the contents change,
       // we need to use a ref rather than using the `contents` directly.  We also need to update it here,
       // rather than e.g. in `wrappedSetContents`, since updating it there would result in the `isEqual` always returning true
@@ -279,7 +279,7 @@ export const EditorFormComponent = ({
         });
       }
     }
-  }, [collectionName, updatedFormType, updateCurrentValues, submitForm, autosaveRevision, document._id, document.title]);
+  }, [currentUser, collectionName, updatedFormType, document.title, document._id, updateCurrentValues, submitForm, autosaveRevision]);
 
   /**
    * Update the edited field (e.g. "contents") so that other form components can access the updated value. The direct motivation for this
