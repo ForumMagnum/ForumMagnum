@@ -520,6 +520,21 @@ interface DbImages extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+type JargonTermsCollection = CollectionBase<"JargonTerms">;
+
+interface DbJargonTerm extends DbObject {
+  __collectionName?: "JargonTerms"
+  postId: string
+  term: string
+  humansAndOrAIEdited: string
+  forLaTeX: boolean
+  rejected: boolean
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  contents: EditableFieldContents | null
+  contents_latest: string | null
+}
+
 type LWEventsCollection = CollectionBase<"LWEvents">;
 
 interface DbLWEvent extends DbObject {
@@ -1994,6 +2009,7 @@ interface CollectionsByName {
   GardenCodes: GardenCodesCollection
   GoogleServiceAccountSessions: GoogleServiceAccountSessionsCollection
   Images: ImagesCollection
+  JargonTerms: JargonTermsCollection
   LWEvents: LWEventsCollection
   LegacyData: LegacyDataCollection
   LlmConversations: LlmConversationsCollection
@@ -2080,6 +2096,7 @@ interface ObjectsByCollectionName {
   GardenCodes: DbGardenCode
   GoogleServiceAccountSessions: DbGoogleServiceAccountSession
   Images: DbImages
+  JargonTerms: DbJargonTerm
   LWEvents: DbLWEvent
   LegacyData: DbLegacyData
   LlmConversations: DbLlmConversation
@@ -2166,6 +2183,7 @@ interface ObjectsByTypeName {
   GardenCode: DbGardenCode
   GoogleServiceAccountSession: DbGoogleServiceAccountSession
   Images: DbImages
+  JargonTerm: DbJargonTerm
   LWEvent: DbLWEvent
   LegacyData: DbLegacyData
   LlmConversation: DbLlmConversation

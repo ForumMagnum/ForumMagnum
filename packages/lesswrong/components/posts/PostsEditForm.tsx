@@ -188,7 +188,7 @@ const PostsEditForm = ({ documentId, version, classes }: {
         <div onClick={() => setShowGlossaryEditForm(true)}>
             <h1>Glossary</h1>
         </div>
-        {<Components.GlossaryEditFormWrapper postId={documentId} />}
+        {<Components.GlossaryEditFormWrapper post={document} />}
       </div>
     </DynamicTableOfContents>
   );

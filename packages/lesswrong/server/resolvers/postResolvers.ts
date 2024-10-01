@@ -368,88 +368,88 @@ augmentFieldsDict(Posts, {
     },
   },
 
-  jargonTerms: {
-    resolveAs: {
-      type: GraphQLJSON,
-      resolver: async (post: DbPost, args: void, context: ResolverContext) => {
-          if (!userIsAdmin(context.currentUser)) {
-            return null;
-          }
+//   jargonTermsMath: {
+//     resolveAs: {
+//       type: GraphQLJSON,
+//       resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+//           if (!userIsAdmin(context.currentUser)) {
+//             return null;
+//           }
 
-          const initialGlossaryPrompt = `Please provide a list of all the LaTeX terms in the text. It should include each overall equation, as well as each major section of an equation. The output should be a simple list of terms, with no other text. It should be comprehensive, covering every term.`
+//           const initialGlossaryPrompt = `Please provide a list of all the LaTeX terms in the text. It should include each overall equation, as well as each major section of an equation. The output should be a simple list of terms, with no other text. It should be comprehensive, covering every term.`
           
-          const formatPrompt = `You’re a Math Glossary AI. Your goal is to write good explanations for math (LaTeX) terms and equations. You are trying to produce a useful hoverover tooltip in an essay on LessWrong.com, accessible to a layman. The glossary should contain the term and some text explaining it. Analyze this post and output in a JSON array of objects with keys: term: "term” (string), altTerms: string[], text: text (html string). The output should look like [{term: "term1", altTerms: ["term1s", "Term1"], text: "Term 1 explanation text"}, {term: "term2", altTerms: ["term2s", "Term2"], text: "term2 explanation text"}]. Do not return anything else.` 
+//           const formatPrompt = `You’re a Math Glossary AI. Your goal is to write good explanations for math (LaTeX) terms and equations. You are trying to produce a useful hoverover tooltip in an essay on LessWrong.com, accessible to a layman. The glossary should contain the term and some text explaining it. Analyze this post and output in a JSON array of objects with keys: term: "term” (string), altTerms: string[], text: text (html string). The output should look like [{term: "term1", altTerms: ["term1s", "Term1"], text: "Term 1 explanation text"}, {term: "term2", altTerms: ["term2s", "Term2"], text: "term2 explanation text"}]. Do not return anything else.` 
 
-          const glossarySystemPrompt = ``
+//           const glossarySystemPrompt = ``
 
-          const contents = await getLatestContentsRevision(post);
-          const originalHtml = contents?.html ?? ""
-          const html = (originalHtml.length < 200 * 1000) ? originalHtml : originalHtml.slice(0, 200 * 1000)
+//           const contents = await getLatestContentsRevision(post);
+//           const originalHtml = contents?.html ?? ""
+//           const html = (originalHtml.length < 200 * 1000) ? originalHtml : originalHtml.slice(0, 200 * 1000)
 
-          const termsResponse = await queryClaudeJailbreak([
-            {
-              role: "user", 
-              content: [{
-                type: "text", 
-                text: `${initialGlossaryPrompt} The text is: ${html}.
+//           const termsResponse = await queryClaudeJailbreak([
+//             {
+//               role: "user", 
+//               content: [{
+//                 type: "text", 
+//                 text: `${initialGlossaryPrompt} The text is: ${html}.
                 
-the jargon terms are:`
-              }]
-            }
-          ], 5000, "You return a list of terms, with no other text.")
+// the jargon terms are:`
+//               }]
+//             }
+//           ], 5000, "You return a list of terms, with no other text.")
 
-          if (!(termsResponse.content[0].type === "text")) return null
+//           if (!(termsResponse.content[0].type === "text")) return null
         
-          const response = await queryClaudeJailbreak([
-            {
-              role: "user", 
-              content: [{type: "text", text: `${formatPrompt} The text is: ${exampleMathPost}`}]
-            },
-            { role: "assistant", 
-              content: [{type: "text", text: `${exampleMathGlossary}`
-              }]
-            },
-            { role: "user",
-              content: [{ type: "text", text: `${formatPrompt} The text is: ${html}. The math terms are: ${termsResponse.content[0].text}`}]
-            }, 
-          ], 5000, glossarySystemPrompt)
+//           const response = await queryClaudeJailbreak([
+//             {
+//               role: "user", 
+//               content: [{type: "text", text: `${formatPrompt} The text is: ${exampleMathPost}`}]
+//             },
+//             { role: "assistant", 
+//               content: [{type: "text", text: `${exampleMathGlossary}`
+//               }]
+//             },
+//             { role: "user",
+//               content: [{ type: "text", text: `${formatPrompt} The text is: ${html}. The math terms are: ${termsResponse.content[0].text}`}]
+//             }, 
+//           ], 5000, glossarySystemPrompt)
 
-          if (!(response.content[0].type === "text")) return null
+//           if (!(response.content[0].type === "text")) return null
 
-          let jargonTerms: Array<{ term: string, altTerms: string[], text: string }> = []
+//           let jargonTerms: Array<{ term: string, altTerms: string[], text: string }> = []
 
-          const text = response.content[0].text
-          const jsonGuessMatch = text.match(/\[\s*\{[\s\S]*?\}\s*\]/)
-          if (jsonGuessMatch) {
-            jargonTerms = JSON.parse(jsonGuessMatch[0])
-          } else {
-            jargonTerms = []
-          }
+//           const text = response.content[0].text
+//           const jsonGuessMatch = text.match(/\[\s*\{[\s\S]*?\}\s*\]/)
+//           if (jsonGuessMatch) {
+//             jargonTerms = JSON.parse(jsonGuessMatch[0])
+//           } else {
+//             jargonTerms = []
+//           }
           
-          let glossary: Record<string, ContentReplacedSubstringComponentInfo> = {}
+//           let glossary: Record<string, ContentReplacedSubstringComponentInfo> = {}
 
-          for (const term of jargonTerms) {
-            const allTerms = [term.term, ...(term.altTerms ?? [])]
-            for (const t of allTerms) {
-              glossary[t] = {
-                componentName: "JargonTooltip",
-                props: {
-                  term: t,
-                  text: term.text,
-                  altTerms: [term.term, ...(term.altTerms ?? [])],
-                  isAltTerm: term.altTerms.includes(t),
-                },
-              }
-            }
-          }
-          console.log("glossary", glossary)
-          return glossary
+//           for (const term of jargonTerms) {
+//             const allTerms = [term.term, ...(term.altTerms ?? [])]
+//             for (const t of allTerms) {
+//               glossary[t] = {
+//                 componentName: "JargonTooltip",
+//                 props: {
+//                   term: t,
+//                   text: term.text,
+//                   altTerms: [term.term, ...(term.altTerms ?? [])],
+//                   isAltTerm: term.altTerms.includes(t),
+//                 },
+//               }
+//             }
+//           }
+//           console.log("glossary", glossary)
+//           return glossary
 
-        }
-    }
-  },
+//         }
+//     }
+//   },
 
-  jargonTermsOld: {
+  jargonTerms: {
     resolveAs: {
       type: GraphQLJSON,
       resolver: async (post: DbPost, args: void, context: ResolverContext) => {
