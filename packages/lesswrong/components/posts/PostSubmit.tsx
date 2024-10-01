@@ -5,7 +5,7 @@ import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
 import { useTracking } from "../../lib/analyticsEvents";
-import {forumTitleSetting, isEAForum, isLW } from "../../lib/instanceSettings";
+import {forumTitleSetting, isEAForum, isLW, isLWorAF } from "../../lib/instanceSettings";
 import { isFriendlyUI } from '../../themes/forumTheme';
 import {requestFeedbackKarmaLevelSetting} from '../../lib/publicSettings.ts'
 
@@ -87,6 +87,9 @@ const PostSubmit = ({
 
   const onSubmitClick = requireConfirmation ? submitWithConfirmation : submitWithoutConfirmation;
   const requestFeedbackKarmaLevel = requestFeedbackKarmaLevelSetting.get()
+  // EA Forum title is Effective Altruism Forum, which is unecessarily long
+  const eaOrOtherFeedbackTitle = isEAForum ? 'the EA Forum team' : `the ${forumTitleSetting.get()} team`
+  const feedbackTitle = `Request feedback from ${isLWorAF ? 'our editor' : eaOrOtherFeedbackTitle}`
 
   return (
     <React.Fragment>
@@ -105,8 +108,7 @@ const PostSubmit = ({
       }
       <div className={classes.submitButtons}>
         {requestFeedbackKarmaLevel !== null && currentUser.karma >= requestFeedbackKarmaLevel && document.draft!==false && <LWTooltip
-          // EA Forum title is Effective Altruism Forum, which is unecessarily long
-          title={isEAForum ? 'Request feedback from the EA Forum team' : 'Request feedback from our editor'}
+          title={feedbackTitle}
         >
           <Button type="submit"//treat as draft when draft is null
             className={classNames(classes.formButton, classes.secondaryButton, classes.feedback)}
