@@ -42,6 +42,7 @@ import './server/scripts/generateInflationAdjustedKarmaReport';
 import './server/scripts/voteMigration';
 import './server/scripts/slugDeduplication';
 import './server/scripts/debuggingScripts';
+import './server/scripts/createKarmaAward'
 import './server/scripts/rerunAFvotes';
 import './server/scripts/nullifyVotes';
 import './server/scripts/fillUserEmail';

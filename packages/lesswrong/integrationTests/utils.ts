@@ -303,7 +303,7 @@ const generateDummyVoteData = (user: DbUser, data?: Partial<DbVote>): DbVote => 
     _id: randomId(),
     documentId: randomId(),
     collectionName: "Posts" as const,
-    voteType: "smallUpvote",
+    voteType: "smallUpvote" as const,
     userId: user._id,
     authorIds: [],
     power: 1,
