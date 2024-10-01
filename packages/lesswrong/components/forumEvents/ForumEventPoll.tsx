@@ -12,12 +12,12 @@ import range from "lodash/range";
 import sortBy from "lodash/sortBy";
 import DeferRender from "../common/DeferRender";
 
-export const POLL_MAX_WIDTH = 730;
-const SLIDER_MAX_WIDTH = 1100;
-const USER_IMAGE_SIZE = 28;
+export const POLL_MAX_WIDTH = 800;
+const SLIDER_MAX_WIDTH = 1106;
+const USER_IMAGE_SIZE = 34;
 const MAX_STACK_IMAGES = 20;
-const NUM_TICKS = 33;
-const GAP = 8;
+const NUM_TICKS = 29;
+const GAP = "calc(0.6% + 4px)" // Gap that scales with screen size and accounts for 2px ouline
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -35,7 +35,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: 32,
     lineHeight: "110%",
     fontWeight: 700,
-    marginBottom: 36, // Adjusted to provide space for clusters
+    marginBottom: 36,
   },
   questionFootnote: {
     fontSize: 20,
@@ -48,20 +48,32 @@ const styles = (theme: ThemeType) => ({
   sliderLineCol: {
     flexGrow: 1,
     maxWidth: `min(${SLIDER_MAX_WIDTH}px, 100%)`,
+    position: "relative",
+    padding: 3,
+    overflow: "hidden"
   },
   sliderLineResults: {
     display: "flex",
     justifyContent: "space-between",
-    gap: `${GAP}px`,
-    marginBottom: USER_IMAGE_SIZE / 2 + 8,
+    gap: GAP,
+    marginBottom: (USER_IMAGE_SIZE / 2) + 12,
     maxWidth: "100%",
+    position: "relative",
+    transition: "max-height 0.5s ease-in-out, opacity 0.5s ease-in-out",
+    maxHeight: 0,
+    opacity: 0
+  },
+  sliderLineResultsVisible: {
+    maxHeight: "600px",
+    opacity: 1,
   },
   voteCluster: {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
     flex: 1,
-    justifyContent: "flex-end",
+    justifyContent: "flex-end", // Stack votes from bottom to top
+    position: "relative",
   },
   voteCircle: {
     display: "flex",
@@ -70,8 +82,11 @@ const styles = (theme: ThemeType) => ({
     width: "100%",
     marginTop: -5,
     zIndex: 1,
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       marginTop: -3,
+    },
+    [theme.breakpoints.down('sm')]: {
+      marginTop: -1,
     },
   },
   extraVotesCircle: {
@@ -106,6 +121,7 @@ const styles = (theme: ThemeType) => ({
     height: 2,
     backgroundColor: theme.palette.text.alwaysWhite,
     marginBottom: "16px",
+    transition: "transform 0.5s ease-in-out",
   },
   sliderLineHoverArea: {
     position: "relative",
@@ -117,12 +133,17 @@ const styles = (theme: ThemeType) => ({
   },
   ticksContainer: {
     position: "absolute",
-    top: -6,
+    top: -(USER_IMAGE_SIZE / 2),
     left: 0,
     right: 0,
-    height: 12,
+    height: USER_IMAGE_SIZE,
+    paddingTop: (USER_IMAGE_SIZE - 12) / 2,
+    paddingBottom: (USER_IMAGE_SIZE - 12) / 2,
     display: "flex",
-    gap: `${GAP}px`
+    gap: GAP,
+    '&:hover $tick': {
+      opacity: 1,
+    },
   },
   tick: {
     flex: 1,
@@ -141,13 +162,18 @@ const styles = (theme: ThemeType) => ({
     opacity: 0,
     transition: "opacity 0.2s",
   },
+  tickDragging: {
+    opacity: 1,
+  },
   centralTick: {
     opacity: 0.3,
     '&::before': {
-      height: "150%",
-      top: "-25%",
-      bottom: "-25%",
+      height: "125%",
+      top: "-5%",
       backgroundColor: theme.palette.text.alwaysWhite,
+      opacity: 1,
+    },
+    '&$tickDragging': {
       opacity: 1,
     },
   },
@@ -181,9 +207,6 @@ const styles = (theme: ThemeType) => ({
   userResultsImage: {
     width: "100% !important",
     height: "unset !important",
-  },
-  userImageBoxShadow: {
-    boxShadow: theme.palette.boxShadow.eaCard,
   },
   placeholderUserIcon: {
     background: `radial-gradient(${theme.palette.text.alwaysBlack} 50%, transparent 50%)`,
@@ -232,7 +255,7 @@ const styles = (theme: ThemeType) => ({
   },
   userVote: {
     position: "absolute",
-    top: -USER_IMAGE_SIZE / 2,
+    top: 0,
     zIndex: 10,
   },
   currentUserVote: {
@@ -248,7 +271,7 @@ const styles = (theme: ThemeType) => ({
     cursor: "grabbing",
   },
   currentUserVotePlaceholder: {
-    top: -(USER_IMAGE_SIZE / 2) - 5,
+    top: -(USER_IMAGE_SIZE / 2) - 5
   },
   currentUserVoteActive: {
     opacity: 1,
@@ -304,14 +327,19 @@ type ForumEventVoteDisplay = {
   user: UserOnboardingAuthor;
 };
 
-const clusterForumEventVotes = (
-  voters?: UserOnboardingAuthor[],
-  event?: ForumEventsDisplay | null
-): ForumEventVoteDisplayCluster[] => {
+const clusterForumEventVotes = ({
+  voters,
+  event,
+  currentUser,
+}: {
+  voters?: UserOnboardingAuthor[];
+  event?: ForumEventsDisplay | null;
+  currentUser?: UsersCurrent | null;
+} = {}): ForumEventVoteDisplayCluster[] => {
   if (!voters || !event || !event.publicData) return [];
 
   let votes = voters.map((voter) => {
-    const vote = event.publicData[voter._id].x;
+    const vote = event.publicData[voter._id].x as number;
     return {
       x: vote,
       user: voter,
@@ -319,17 +347,28 @@ const clusterForumEventVotes = (
   });
   votes = sortBy(votes, "x");
 
-  const clusters: ForumEventVoteDisplayCluster[] = range(0, NUM_TICKS).map(
-    (i) => ({
-      center: i / (NUM_TICKS - 1),
-      votes: [],
-    })
-  );
+  const clusters: ForumEventVoteDisplayCluster[] = range(0, NUM_TICKS).map((i) => ({
+    center: i / (NUM_TICKS - 1),
+    votes: [],
+  }));
   votes.forEach((vote) => {
     const adjustedX = Math.min(vote.x, 0.999999);
     const clusterIndex = Math.floor(adjustedX * NUM_TICKS);
     clusters[clusterIndex].votes.push(vote);
   });
+
+  for (const cluster of clusters) {
+    cluster.votes.sort((a, b) => {
+      // Current user should always appear at the bottom
+      if (a.user._id === currentUser?._id) return 1;
+      if (b.user._id === currentUser?._id) return -1;
+
+      // TODO votes with comments should appear closer to the bottom
+
+      return a.user.displayName.toLowerCase().localeCompare(b.user.displayName.toLowerCase()); // Alphabetically by name
+    });
+  }
+
   return clusters;
 };
 
@@ -347,10 +386,10 @@ const PollQuestion = ({
       “AI welfare
       <LWTooltip
         title="
-            By “AI welfare”, we mean the potential wellbeing (pain,
-            pleasure, but also frustration, satisfaction etc...) of
-            future artificial intelligence systems.
-          "
+                By “AI welfare”, we mean the potential wellbeing (pain,
+                pleasure, but also frustration, satisfaction etc...) of
+                future artificial intelligence systems.
+              "
       >
         <span
           className={classes.questionFootnote}
@@ -362,11 +401,11 @@ const PollQuestion = ({
       should be an EA priority
       <LWTooltip
         title="
-            By “EA priority” we mean that 5% of (unrestricted, i.e.
-            open to EA-style cause prioritisation) talent and 5% of
-            (unrestricted, i.e. open to EA-style cause prioritisation)
-            funding should be allocated to this cause.
-          "
+                By “EA priority” we mean that 5% of (unrestricted, i.e.
+                open to EA-style cause prioritisation) talent and 5% of
+                (unrestricted, i.e. open to EA-style cause prioritisation)
+                funding should be allocated to this cause.
+              "
       >
         <span
           className={classes.questionFootnote}
@@ -420,9 +459,7 @@ export const ForumEventPoll = ({
     terms: {
       view: "usersByUserIds",
       userIds: event?.publicData
-        ? Object.keys(event?.publicData).filter(
-            (userId) => userId !== currentUser?._id
-          )
+        ? Object.keys(event?.publicData)
         : [],
       limit: 500,
     },
@@ -432,8 +469,8 @@ export const ForumEventPoll = ({
     skip: !event?.publicData,
   });
   const voteClusters = useMemo(
-    () => clusterForumEventVotes(voters, event),
-    [voters, event]
+    () => clusterForumEventVotes({ voters, event, currentUser }),
+    [voters, event, currentUser]
   );
 
   const [addVote] = useMutation(addForumEventVoteQuery);
@@ -483,9 +520,7 @@ export const ForumEventPoll = ({
       }
 
       const rawVotePos = (e.clientX - sliderRect.left) / sliderWidth;
-      const bucketIndex = Math.round(
-        rawVotePos * (NUM_TICKS - 1)
-      );
+      const bucketIndex = Math.round(rawVotePos * (NUM_TICKS - 1));
       setCurrentBucketIndex(bucketIndex);
     },
     []
@@ -508,11 +543,11 @@ export const ForumEventPoll = ({
         setCurrentUserVote(newVotePos);
         await addVote({ variables: voteData });
         refetch?.();
+        setResultsVisible(true); // Show results after first vote
         return;
       }
       const delta =
-        newVotePos -
-        (currentUserVote ?? defaultVoteIndex / (NUM_TICKS - 1));
+        newVotePos - (currentUserVote ?? (defaultVoteIndex / (NUM_TICKS - 1)));
       if (delta) {
         voteData.delta = delta;
         setCurrentUserVote(newVotePos);
@@ -547,10 +582,11 @@ export const ForumEventPoll = ({
 
   const ticks = Array.from({ length: NUM_TICKS }, (_, i) => i);
 
-  // Calculate user vote position
   const tickPositions = useRef<number[]>([]);
   const [votePos, setVotePos] = useState(
-    (currentBucketIndex / (NUM_TICKS - 1)) * 100 // Initial naive calculation
+    // Initial naive calculation which doesn't exactly line up with the ticks, so
+    // there isn't a large jump
+    (currentBucketIndex / (NUM_TICKS - 1)) * 100
   );
 
   useEffect(() => {
@@ -560,7 +596,7 @@ export const ForumEventPoll = ({
         if (tick) {
           const tickRect = tick.getBoundingClientRect();
           return (
-            ((tickRect.left + tickRect.width / 2 - sliderRect.left) /
+            ((tickRect.left + (tickRect.width / 2) - sliderRect.left) /
               sliderRect.width) *
             100
           );
@@ -572,7 +608,10 @@ export const ForumEventPoll = ({
   }, [currentBucketIndex]);
 
   useEffect(() => {
-    if (tickPositions.current.length && tickPositions.current[currentBucketIndex] !== undefined) {
+    if (
+      tickPositions.current.length &&
+      tickPositions.current[currentBucketIndex] !== undefined
+    ) {
       setVotePos(tickPositions.current[currentBucketIndex]);
     }
   }, [currentBucketIndex]);
@@ -586,63 +625,69 @@ export const ForumEventPoll = ({
 
         <div className={classes.sliderRow}>
           <div className={classes.sliderLineCol}>
-            {resultsVisible && (
-              <div className={classes.sliderLineResults}>
-                {voteClusters.map((cluster) => (
-                  <div key={cluster.center} className={classes.voteCluster}>
-                    {cluster.votes.length > MAX_STACK_IMAGES && (
-                      <div className={classes.extraVotesCircle}>
-                        <span className={classes.extraVotesText}>
-                          +{cluster.votes.length - MAX_STACK_IMAGES}
-                        </span>
-                      </div>
-                    )}
-                    {cluster.votes
-                      .slice(0, MAX_STACK_IMAGES)
-                      .map((vote) => (
-                        <div
-                          key={vote.user._id}
-                          className={classes.voteCircle}
+            <div
+              className={classNames(
+                classes.sliderLineResults,
+                resultsVisible && classes.sliderLineResultsVisible
+              )}
+            >
+              {voteClusters.map((cluster) => (
+                <div key={cluster.center} className={classes.voteCluster}>
+                  {cluster.votes.length > MAX_STACK_IMAGES && (
+                    <div className={classes.extraVotesCircle}>
+                      <span className={classes.extraVotesText}>
+                        +{cluster.votes.length - MAX_STACK_IMAGES}
+                      </span>
+                    </div>
+                  )}
+                  {cluster.votes
+                    .slice(-MAX_STACK_IMAGES)
+                    .map((vote) => (
+                      <div
+                        key={vote.user._id}
+                        className={classes.voteCircle}
+                      >
+                        <LWTooltip
+                          title={
+                            <div className={classes.voteTooltipBody}>
+                              {vote.user.displayName}
+                            </div>
+                          }
                         >
-                          <LWTooltip
-                            title={
-                              <div className={classes.voteTooltipBody}>
-                                {vote.user.displayName}
-                              </div>
-                            }
-                          >
-                            <UsersProfileImage
-                              user={vote.user}
-                              size={USER_IMAGE_SIZE}
-                              className={classNames(
-                                classes.userImage,
-                                classes.userResultsImage,
-                                classes.userImageBoxShadow
-                              )}
-                            />
-                          </LWTooltip>
-                        </div>
-                      ))}
-                  </div>
-                ))}
-              </div>
-            )}
-            <div className={classes.sliderLine} ref={sliderRef}>
-              {/* Ticks */}
-              <div className={classes.sliderLineHoverArea}>
-                <div className={classes.ticksContainer}>
-                  {ticks.map((tickIndex) => (
-                    <div
-                      key={tickIndex}
-                      ref={(el) => (tickRefs.current[tickIndex] = el)}
-                      className={classNames(
-                        classes.tick,
-                        tickIndex === Math.floor(NUM_TICKS / 2) &&
-                          classes.centralTick
-                      )}
-                    />
-                  ))}
+                          <UsersProfileImage
+                            user={vote.user}
+                            // The actual size gets overridden by the styles above. This
+                            // is still needed to get the right resolution from Cloudinary
+                            size={USER_IMAGE_SIZE}
+                            className={classNames(
+                              classes.userImage,
+                              classes.userResultsImage
+                            )}
+                          />
+                        </LWTooltip>
+                      </div>
+                    ))}
                 </div>
+              ))}
+            </div>
+            <div
+              className={classes.sliderLine}
+              ref={sliderRef}
+            >
+              {/* Ticks */}
+              <div className={classes.ticksContainer}>
+                {ticks.map((tickIndex) => (
+                  <div
+                    key={tickIndex}
+                    ref={(el) => (tickRefs.current[tickIndex] = el)}
+                    className={classNames(
+                      classes.tick,
+                      isDragging.current && classes.tickDragging,
+                      tickIndex === Math.floor(NUM_TICKS / 2) &&
+                        classes.centralTick
+                    )}
+                  />
+                ))}
                 {/* User Vote */}
                 <div
                   className={classNames(
