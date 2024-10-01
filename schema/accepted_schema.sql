@@ -4,7 +4,7 @@
 --
 -- Overall schema hash: 4176699fcd50a096b6fd2437aec71b01
 
--- Accepted on 2024-09-25T02:00:54.000Z by 20240925T020054.create_petrovDayAction.ts
+-- Accepted on 2024-09-30T21:52:49.000Z by 20240930T215249.drop_criticismTipsDismissed_from_Posts.ts
 
 -- Extension "btree_gin", hash 7b207eefbb36f8109cca31911e6ab886
 CREATE EXTENSION IF NOT EXISTS "btree_gin" CASCADE;
