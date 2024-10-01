@@ -13,9 +13,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
-    ...(isBookUI && {
+    ...(isBookUI ? {
       marginTop: 64
-    })
+    } : {}),
   },
   dividerMargins: {
     marginTop: 150,
