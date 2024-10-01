@@ -185,6 +185,7 @@ const styles = (theme: ThemeType) => ({
     top: -HEADER_HEIGHT,
     right: 0,
     width: '100%',
+    height: "calc(100% + 66px)"
   },
   imageWithGradient: {
     right: "-10%",

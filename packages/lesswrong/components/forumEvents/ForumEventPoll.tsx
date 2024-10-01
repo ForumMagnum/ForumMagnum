@@ -24,7 +24,7 @@ const styles = (theme: ThemeType) => ({
     textAlign: "center",
     color: theme.palette.text.alwaysWhite,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    padding: "10px 30px 40px 30px",
+    padding: "0px 30px 15px 30px",
     margin: "0 auto",
     maxWidth: "100%",
     [`@media (max-width: ${POLL_MAX_WIDTH}px)`]: {
@@ -35,7 +35,10 @@ const styles = (theme: ThemeType) => ({
     fontSize: 32,
     lineHeight: "110%",
     fontWeight: 700,
-    marginBottom: 36,
+    maxWidth: 700,
+    marginBottom: 13,
+    marginLeft: "auto",
+    marginRight: "auto"
   },
   questionFootnote: {
     fontSize: 20,
@@ -49,7 +52,7 @@ const styles = (theme: ThemeType) => ({
     flexGrow: 1,
     maxWidth: `min(${SLIDER_MAX_WIDTH}px, 100%)`,
     position: "relative",
-    padding: 3,
+    padding: "8px 3px 0px 3px",
     overflow: "hidden"
   },
   sliderLineResults: {
@@ -231,6 +234,15 @@ const styles = (theme: ThemeType) => ({
   clearVoteIcon: {
     fontSize: 10,
   },
+  votePromptWrapper: {
+    minHeight: 17,
+    marginBottom: 22 // TODO flag greater spacing is to give room for "Hide results"
+  },
+  votePrompt: {
+    fontSize: 14,
+    fontWeight: 500,
+    lineHeight: "normal",
+  },
   sliderLabels: {
     display: "flex",
     justifyContent: "space-between",
@@ -238,6 +250,13 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 500,
     lineHeight: "normal",
     marginTop: 22,
+    marginBottom: 6
+  },
+  hideResultsWrapper: {
+    minHeight: 21,
+    display: "block",
+    marginRight: "auto",
+    width: "fit-content"
   },
   viewResultsButton: {
     background: "none",
@@ -269,9 +288,6 @@ const styles = (theme: ThemeType) => ({
   },
   currentUserVoteDragging: {
     cursor: "grabbing",
-  },
-  currentUserVotePlaceholder: {
-    top: -(USER_IMAGE_SIZE / 2) - 5
   },
   currentUserVoteActive: {
     opacity: 1,
@@ -381,40 +397,16 @@ const PollQuestion = ({
 }) => {
   const { LWTooltip } = Components;
 
+  // TODO flag in PR about decision to punt
   return (
     <div className={classes.question}>
-      “AI welfare
-      <LWTooltip
-        title="
-                By “AI welfare”, we mean the potential wellbeing (pain,
-                pleasure, but also frustration, satisfaction etc...) of
-                future artificial intelligence systems.
-              "
-      >
-        <span
-          className={classes.questionFootnote}
-          style={{ color: event.contrastColor ?? event.darkColor }}
-        >
+      “It would be better to spend an extra $100m
+      <LWTooltip title="In total. You can imagine this is a trust that could be spent down today, or over any time period.">
+        <span className={classes.questionFootnote} style={{ color: event.contrastColor ?? event.darkColor }}>
           1
         </span>
       </LWTooltip>{" "}
-      should be an EA priority
-      <LWTooltip
-        title="
-                By “EA priority” we mean that 5% of (unrestricted, i.e.
-                open to EA-style cause prioritisation) talent and 5% of
-                (unrestricted, i.e. open to EA-style cause prioritisation)
-                funding should be allocated to this cause.
-              "
-      >
-        <span
-          className={classes.questionFootnote}
-          style={{ color: event.contrastColor ?? event.darkColor }}
-        >
-          2
-        </span>
-      </LWTooltip>
-      ”
+      on animal welfare than on global health”
     </div>
   );
 };
@@ -455,6 +447,7 @@ export const ForumEventPoll = ({
   const [resultsVisible, setResultsVisible] = useState(false);
   const [voteCount, setVoteCount] = useState(event?.voteCount ?? 0);
 
+  const votersRef = useRef<UserOnboardingAuthor[]>([])
   const { results: voters } = useMulti({
     terms: {
       view: "usersByUserIds",
@@ -468,9 +461,15 @@ export const ForumEventPoll = ({
     enableTotal: false,
     skip: !event?.publicData,
   });
+
+  if (voters !== undefined) {
+    votersRef.current = voters
+  }
+
   const voteClusters = useMemo(
-    () => clusterForumEventVotes({ voters, event, currentUser }),
-    [voters, event, currentUser]
+    () => clusterForumEventVotes({ voters: votersRef.current, event, currentUser }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [votersRef.current, event, currentUser]
   );
 
   const [addVote] = useMutation(addForumEventVoteQuery);
@@ -543,7 +542,7 @@ export const ForumEventPoll = ({
         setCurrentUserVote(newVotePos);
         await addVote({ variables: voteData });
         refetch?.();
-        setResultsVisible(true); // Show results after first vote
+        // TODO flag decision about not opening immediately
         return;
       }
       const delta =
@@ -622,7 +621,25 @@ export const ForumEventPoll = ({
     <AnalyticsContext pageElementContext="forumEventPoll">
       <div className={classes.root}>
         <PollQuestion event={event} classes={classes} />
-
+        <div className={classes.votePromptWrapper}>
+          <DeferRender ssr={false}>
+            {!hideViewResults && !resultsVisible && (
+              <div className={classes.votePrompt}>
+                {voteCount > 0 &&
+                  `${voteCount} vote${voteCount === 1 ? "" : "s"} so far. `}
+                {hasVoted
+                  ? "Click and drag your avatar to change your vote, or "
+                  : "Place your vote or "}
+                <button
+                  className={classes.viewResultsButton}
+                  onClick={() => setResultsVisible(true)}
+                >
+                  view results
+                </button>
+              </div>
+            )}
+          </DeferRender>
+        </div>
         <div className={classes.sliderRow}>
           <div className={classes.sliderLineCol}>
             <div
@@ -693,7 +710,6 @@ export const ForumEventPoll = ({
                   className={classNames(
                     classes.userVote,
                     classes.currentUserVote,
-                    !currentUser && classes.currentUserVotePlaceholder,
                     isDragging.current && classes.currentUserVoteDragging,
                     hasVoted && classes.currentUserVoteActive
                   )}
@@ -763,24 +779,16 @@ export const ForumEventPoll = ({
             </div>
             <div className={classes.sliderLabels}>
               <div>Disagree</div>
-              <DeferRender ssr={false}>
-                {!hideViewResults && !resultsVisible && (
-                  <div>
-                    {voteCount > 0 &&
-                      `${voteCount} vote${voteCount === 1 ? "" : "s"} so far. `}
-                    {hasVoted
-                      ? "Click and drag your avatar to change your vote, or "
-                      : "Place your vote or "}
-                    <button
-                      className={classes.viewResultsButton}
-                      onClick={() => setResultsVisible(true)}
-                    >
-                      view results
-                    </button>
-                  </div>
-                )}
-              </DeferRender>
               <div>Agree</div>
+            </div>
+            {/* TODO styling etc on this (and making is disappear in line with the animation) */}
+            <div className={classes.hideResultsWrapper}>
+            {resultsVisible && <button
+                className={classes.viewResultsButton}
+                onClick={() => setResultsVisible(false)}
+              >
+              Hide results
+            </button>}
             </div>
           </div>
         </div>
