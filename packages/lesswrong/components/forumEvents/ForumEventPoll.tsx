@@ -309,6 +309,7 @@ export type ForumEventVoteData = {
 export const addForumEventVoteQuery = gql`
   mutation AddForumEventVote($forumEventId: String!, $x: Float!, $delta: Float, $postIds: [String]) {
     AddForumEventVote(forumEventId: $forumEventId, x: $x, delta: $delta, postIds: $postIds)
+  }
 `;
 const removeForumEventVoteQuery = gql`
   mutation RemoveForumEventVote($forumEventId: String!) {
