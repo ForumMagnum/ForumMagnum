@@ -8,14 +8,6 @@ const styles = (theme: ThemeType) => ({
   root: {
 
   },
-  jargonRow: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    ...commentBodyStyles(theme),
-    marginBottom: 12,
-  }
 });
 
 export const GlossaryEditFormWrapper = ({classes, postId}: {
@@ -24,7 +16,7 @@ export const GlossaryEditFormWrapper = ({classes, postId}: {
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
 
-  const { GlossaryEditForm, ToggleSwitch } = Components;
+  const { GlossaryEditForm, JargonEditorRow, ToggleSwitch } = Components;
 
   const [glossary, setGlossary] = React.useState(() => {
     const savedGlossary = localStorage.getItem(`glossary-${postId}`);
@@ -37,16 +29,23 @@ export const GlossaryEditFormWrapper = ({classes, postId}: {
     }
   }, [glossary, postId]);
 
-  console.log(glossary);
-  console.log(Object.keys(glossary));
+  const handleTextChange = (key: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    setGlossary((prevGlossary: any) => ({
+      ...prevGlossary,
+    [key]: {
+      ...prevGlossary[key],
+      props: {
+        ...prevGlossary[key].props,
+        text: event.target.value,
+      },
+    },
+    }));
+  };
 
   return <div className={classes.root}>
     {!glossary && <GlossaryEditForm postId={postId} />}
     {!!glossary && <>{Object.keys(glossary).map((item: any) => !glossary[item].props.isAltTerm &&
-      <div className={classes.jargonRow} key={item}>
-        <div dangerouslySetInnerHTML={{__html: glossary[item].props.text}} />
-        <ToggleSwitch value={false}/>
-      </div>
+      <JargonEditorRow key={item} glossaryProps={glossary[item].props}/>
     )}
     </>
     }

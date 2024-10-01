@@ -186,7 +186,7 @@ const PostsEditForm = ({ documentId, version, classes }: {
           </EditorContext.Provider>
         </DeferRender>
         <div onClick={() => setShowGlossaryEditForm(true)}>
-            Create Glossary
+            <h1>Glossary</h1>
         </div>
         {<Components.GlossaryEditFormWrapper postId={documentId} />}
       </div>
