@@ -17,13 +17,12 @@ getCollectionHooks("LWEvents").newAsync.add(async function sendIntercomEvent (ev
       documentId: event.documentId,
     }
     let currentTime = new Date();
-    let intercomEvent = {
-      event_name: event.name ?? undefined,
-      created_at: Math.floor((currentTime.getTime()/1000)),
-      user_id: user._id,
+    await intercomClient.events.create({
+      eventName: event.name ?? "",
+      createdAt: Math.floor((currentTime.getTime()/1000)),
+      userId: user._id,
       metadata: event.properties
-    };
-    await intercomClient.events.create(intercomEvent);
+    });
   } catch(e) {
     // `intercomClient.events.create` involves a request to Intercom's servers,
     // which can fail. We had an issue where the request to Intercom's server
