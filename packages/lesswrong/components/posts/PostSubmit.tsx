@@ -106,7 +106,7 @@ const PostSubmit = ({
       <div className={classes.submitButtons}>
         {requestFeedbackKarmaLevel !== null && currentUser.karma >= requestFeedbackKarmaLevel && document.draft!==false && <LWTooltip
           // EA Forum title is Effective Altruism Forum, which is unecessarily long
-          title={`Request feedback from the ${isEAForum ? "EA Forum" : forumTitleSetting.get()} team.`}
+          title={isEAForum ? 'Request feedback from the EA Forum team' : 'Request feedback from our editor'}
         >
           <Button type="submit"//treat as draft when draft is null
             className={classNames(classes.formButton, classes.secondaryButton, classes.feedback)}
