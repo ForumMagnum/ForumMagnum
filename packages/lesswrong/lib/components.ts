@@ -772,7 +772,6 @@ importComponent("ForumEventFrontpageBanner", () => require('../components/forumE
 importComponent("ForumEventPostPageBanner", () => require('../components/forumEvents/ForumEventPostPageBanner'));
 importComponent("ForumEventPostPagePollSection", () => require('../components/forumEvents/ForumEventPostPagePollSection'));
 importComponent("ForumEventPoll", () => require('../components/forumEvents/ForumEventPoll'));
-importComponent("ForumEventPostSelectionDialog", () => require('../components/forumEvents/ForumEventPostSelectionDialog'));
 
 importComponent("UserReviewMetadata", () => require('../components/sunshineDashboard/ModeratorUserInfo/UserReviewMetadata'));
 importComponent("UserReviewStatus", () => require('../components/sunshineDashboard/ModeratorUserInfo/UserReviewStatus'));
@@ -1037,6 +1036,13 @@ importComponent("PetrovDayWrapper", () => require('../components/seasonal/Petrov
 importComponent("PetrovDayButton", () => require('../components/seasonal/PetrovDayButton'));
 importComponent("PetrovDayLossScreen", () => require('../components/seasonal/PetrovDayLossScreen'));
 importComponent("PetrovDayPoll", () => require('../components/seasonal/petrovDay/PetrovDayPoll'));
+importComponent("OptIntoPetrovButton", () => require('../components/seasonal/petrovDay/OptIntoPetrovButton'));
+importComponent("PastWarnings", () => require('../components/seasonal/petrovDay/PastWarnings'));
+importComponent("PetrovGameWrapper", () => require('../components/seasonal/petrovDay/PetrovGameWrapper'));
+importComponent("PetrovWarningConsole", () => require('../components/seasonal/petrovDay/PetrovWarningConsole'));
+importComponent("PetrovAdminConsole", () => require('../components/seasonal/petrovDay/PetrovAdminConsole'));
+importComponent("PetrovLaunchConsole", () => require('../components/seasonal/petrovDay/PetrovLaunchConsole'));
+importComponent("PetrovWorldmapWrapper", () => require('../components/seasonal/petrovDay/PetrovWorldmapWrapper'));
 importComponent("CoronavirusFrontpageWidget", () => require('../components/seasonal/CoronavirusFrontpageWidget'));
 // importComponent("AprilFools2022", () => require('../components/seasonal/AprilFools2022'));
 
@@ -1047,7 +1053,6 @@ importComponent("AFNonMemberSuccessPopup", () => require('../components/alignmen
 importComponent("AFUnreviewedCommentCount", () => require('../components/alignment-forum/AFUnreviewedCommentCount'));
 importComponent("AlignmentPendingApprovalMessage", () => require('../components/alignment-forum/AlignmentPendingApprovalMessage'));
 
-importComponent("NewAnswerForm", () => require('../components/questions/NewAnswerForm'));
 importComponent("PostsPageQuestionContent", () => require('../components/questions/PostsPageQuestionContent'));
 importComponent("NewAnswerCommentQuestionForm", () => require('../components/questions/NewAnswerCommentQuestionForm'));
 importComponent("AnswerCommentsList", () => require('../components/questions/AnswerCommentsList'));

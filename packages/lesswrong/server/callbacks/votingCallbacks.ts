@@ -17,18 +17,17 @@ import { isProduction } from '../../lib/executionEnvironment';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { createManifoldMarket } from '../../lib/collections/posts/annualReviewMarkets';
 import { RECEIVED_SENIOR_DOWNVOTES_ALERT } from '../../lib/collections/moderatorActions/schema';
-import { cancelAlignmentKarmaServerCallback, cancelAlignmentUserKarmaServer, updateAlignmentKarmaServerCallback, updateAlignmentUserServerCallback } from './alignment-forum/callbacks';
+import { revokeUserAFKarmaForCancelledVote, grantUserAFKarmaForVote } from './alignment-forum/callbacks';
 import { recomputeContributorScoresFor, voteUpdatePostDenormalizedTags } from '../tagging/tagCallbacks';
 import { updateModerateOwnPersonal, updateTrustedStatus } from './userCallbacks';
 import { increaseMaxBaseScore } from './postCallbacks';
 import { captureException } from '@sentry/core';
 
 export async function onVoteCancel(newDocument: DbVoteableType, vote: DbVote, collection: CollectionBase<VoteableCollectionName>, user: DbUser): Promise<void> {
-  cancelAlignmentKarmaServerCallback({newDocument, vote});
   voteUpdatePostDenormalizedTags({newDocument});
   cancelVoteKarma({newDocument, vote}, collection, user);
   void cancelVoteCount({newDocument, vote});
-  void cancelAlignmentUserKarmaServer({newDocument, vote});
+  void revokeUserAFKarmaForCancelledVote({newDocument, vote});
   
   
   if (vote.collectionName === "Revisions") {
@@ -38,11 +37,8 @@ export async function onVoteCancel(newDocument: DbVoteableType, vote: DbVote, co
     }
   }
 }
-export async function onCastVoteSync(voteDocTuple: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser): Promise<VoteDocTuple> {
-  return await updateAlignmentKarmaServerCallback(voteDocTuple);
-}
 export async function onCastVoteAsync(voteDocTuple: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext): Promise<void> {
-  void updateAlignmentUserServerCallback(voteDocTuple);
+  void grantUserAFKarmaForVote(voteDocTuple);
   void updateTrustedStatus(voteDocTuple);
   void updateModerateOwnPersonal(voteDocTuple);
   void increaseMaxBaseScore(voteDocTuple);

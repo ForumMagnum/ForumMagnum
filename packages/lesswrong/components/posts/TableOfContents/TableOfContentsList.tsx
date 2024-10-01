@@ -7,8 +7,10 @@ import type { ToCData, ToCSection } from '../../../lib/tableOfContents';
 import qs from 'qs'
 import isEmpty from 'lodash/isEmpty';
 import filter from 'lodash/filter';
-import { getCurrentSectionMark, ScrollHighlightLandmark, useScrollHighlight } from '../../hooks/useScrollHighlight';
+import { useScrollHighlight } from '../../hooks/useScrollHighlight';
 import { useNavigate } from '../../../lib/reactRouterWrapper';
+import { getCurrentSectionMark, scrollFocusOnElement, ScrollHighlightLandmark } from '@/lib/scrollUtils';
+import { isLWorAF } from '@/lib/instanceSettings';
 
 export interface ToCDisplayOptions {
   /**
@@ -54,8 +56,14 @@ const TableOfContentsList = ({tocSections, title, onClickSection, displayOptions
         search: isEmpty(query) ? '' : `?${qs.stringify(query)}`,
         hash: `#${anchor}`,
       });
-      let sectionYdocumentSpace = anchorY + window.scrollY;
-      jumpToY(sectionYdocumentSpace);
+
+      // This is forum-gating of a fairly subtle change in scroll behaviour, LW may want to adopt scrollFocusOnElement
+      if (!isLWorAF) {
+        scrollFocusOnElement({ id: anchor, options: {behavior: "smooth"}})
+      } else {
+        let sectionYdocumentSpace = anchorY + window.scrollY;
+        jumpToY(sectionYdocumentSpace);
+      }
     }
   }
 

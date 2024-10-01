@@ -40,6 +40,8 @@ const LocalEventMarker = ({ event, handleMarkerClick, handleInfoWindowClose, inf
   
   const htmlBody = {__html: htmlHighlight};
 
+  // FIXME: Unstable component will lose state on rerender
+  // eslint-disable-next-line react/no-unstable-nested-components
   const EventIcon = () => forumTypeSetting.get() === 'EAForum' ? 
     <RoomIcon className={classes.eaIcon}/> : 
     <ArrowSVG className={classes.icon}/>;

@@ -187,9 +187,9 @@ select.form-control{
   right: 5px;
   color: #ddd;
   font-size: 80%;
-  &.danger{
-    color: #EF1642;
-  }
+}
+.form-control-limit.danger{
+  color: #EF1642;
 }
 
 /* //////////////////////////////////////////////////////////////////////// */

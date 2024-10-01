@@ -42,17 +42,16 @@ export function commentGetPageUrl(comment: CommentsListWithParentMetadata, isAbs
 }
 
 // TODO there are several functions which do this, some of them should be combined
-export function commentGetPageUrlFromIds({postId, postSlug, tagSlug, tagCommentType, commentId, permalink, isAbsolute=false}: {
+export function commentGetPageUrlFromIds({postId, postSlug, tagSlug, tagCommentType, commentId, permalink=true, isAbsolute=false}: {
   postId?: string | null,
   postSlug?: string,
   tagSlug?: string,
   tagCommentType?: TagCommentType,
   commentId: string,
-  permalink?: boolean, isAbsolute?: boolean,
+  permalink?: boolean,
+  isAbsolute?: boolean,
 }): string {
   const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
-
-  permalink = permalink ?? commentPermalinkStyleSetting.get() === 'top';
 
   if (postId) {
     if (permalink) {

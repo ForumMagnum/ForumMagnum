@@ -27,7 +27,7 @@ const LWHome = () => {
           </SingleColumnSection>}
           <SingleColumnSection>
             <DismissibleSpotlightItem current/>
-          </SingleColumnSection>
+          </SingleColumnSection> 
           <AnalyticsInViewTracker
             eventProps={{inViewType: "homePosts"}}
             observerProps={{threshold:[0, 0.5, 1]}}

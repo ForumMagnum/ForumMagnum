@@ -37,7 +37,10 @@ type FormFieldUnfinished<N extends CollectionNameString> = Partial<FormField<N>>
 const RESET_PROPS = [
   'collection', 'collectionName', 'typeName', 'document', 'schema', 'currentUser',
   'fields', 'removeFields',
-  'prefilledProps' // TODO: prefilledProps should be merged instead?
+  // `prefilledProps` is handled slightly differently - all the other props
+  // trigger a full reset of the form, but changed to `prefilledProps` are
+  // merged into the current document with `updateCurrentValues`.
+  'prefilledProps'
 ] as const;
 
 const compactParent = (object: AnyBecauseTodo, path: AnyBecauseTodo) => {
@@ -608,7 +611,18 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
         ) {
           continue;
         }
-        this.setState(getInitialStateFromProps(nextProps));
+        if (prop === "prefilledProps") {
+          const updates: Record<string, AnyBecauseTodo> = {};
+          const keys = new Set([...Object.keys(next), ...Object.keys(prev)]);
+          for (const key of keys) {
+            if (next[key] !== prev[key]) {
+              updates[key] = next[key];
+            }
+          }
+          void this.updateCurrentValues(updates);
+        } else {
+          this.setState(getInitialStateFromProps(nextProps));
+        }
         break;
       }
     }
