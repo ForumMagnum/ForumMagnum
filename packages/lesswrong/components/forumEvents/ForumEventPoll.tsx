@@ -17,23 +17,23 @@ const SLIDER_MAX_WIDTH = 1106;
 const USER_IMAGE_SIZE = 34;
 const MAX_STACK_IMAGES = 20;
 const NUM_TICKS = 29;
-const GAP = "calc(0.6% + 4px)" // Gap that scales with screen size and accounts for 2px ouline
+const GAP = "calc(0.6% + 4px)" // Accounts for 2px outline
 
 const styles = (theme: ThemeType) => ({
   root: {
-    textAlign: "center",
+    textAlign: 'center',
     color: theme.palette.text.alwaysWhite,
     fontFamily: theme.palette.fonts.sansSerifStack,
     padding: "0px 30px 15px 30px",
     margin: "0 auto",
     maxWidth: "100%",
     [`@media (max-width: ${POLL_MAX_WIDTH}px)`]: {
-      display: "none",
+      display: 'none',
     },
   },
   question: {
     fontSize: 32,
-    lineHeight: "110%",
+    lineHeight: '110%',
     fontWeight: 700,
     maxWidth: 700,
     marginBottom: 13,
@@ -42,7 +42,7 @@ const styles = (theme: ThemeType) => ({
   },
   questionFootnote: {
     fontSize: 20,
-    verticalAlign: "super",
+    verticalAlign: 'super',
   },
   sliderRow: {
     display: "flex",
@@ -105,7 +105,7 @@ const styles = (theme: ThemeType) => ({
     overflow: "hidden",
     position: "relative",
   },
-  // Inner element needed so that extraVotesCircle can't can't expand horizontal
+  // Inner element needed so that extraVotesCircle can't expand horizontally
   extraVotesText: {
     position: "absolute",
     top: "50%",
@@ -196,13 +196,13 @@ const styles = (theme: ThemeType) => ({
   voteTooltipHeading: {
     fontSize: 14,
     fontWeight: 700,
-    lineHeight: "140%",
+    lineHeight: '140%',
     marginBottom: 4,
   },
   voteTooltipBody: {
     fontSize: 14,
     fontWeight: 500,
-    lineHeight: "140%",
+    lineHeight: '140%',
   },
   userImage: {
     outline: `2px solid ${theme.palette.text.alwaysWhite}`,
@@ -212,21 +212,23 @@ const styles = (theme: ThemeType) => ({
     height: "unset !important",
   },
   placeholderUserIcon: {
+    // add a black background to the placeholder user circle icon
     background: `radial-gradient(${theme.palette.text.alwaysBlack} 50%, transparent 50%)`,
     color: theme.palette.text.alwaysWhite,
     fontSize: 34,
-    borderRadius: "50%",
+    borderRadius: '50%',
+    // offset the additional 5px on the left added by the larger font size
     marginLeft: -5,
   },
   clearVote: {
-    display: "none",
-    position: "absolute",
+    display: 'none',
+    position: 'absolute',
     top: -5,
     right: -5,
     backgroundColor: `color-mix(in oklab, ${theme.palette.text.alwaysBlack} 65%, ${theme.palette.text.alwaysWhite} 35%)`,
     padding: 2,
-    borderRadius: "50%",
-    cursor: "pointer",
+    borderRadius: '50%',
+    cursor: 'pointer',
     "&:hover": {
       backgroundColor: theme.palette.text.alwaysBlack,
     },
@@ -236,7 +238,7 @@ const styles = (theme: ThemeType) => ({
   },
   votePromptWrapper: {
     minHeight: 17,
-    marginBottom: 22 // TODO flag greater spacing is to give room for "Hide results"
+    marginBottom: 22
   },
   votePrompt: {
     fontSize: 14,
@@ -244,11 +246,11 @@ const styles = (theme: ThemeType) => ({
     lineHeight: "normal",
   },
   sliderLabels: {
-    display: "flex",
-    justifyContent: "space-between",
+    display: 'flex',
+    justifyContent: 'space-between',
     fontSize: 14,
     fontWeight: 500,
-    lineHeight: "normal",
+    lineHeight: 'normal',
     marginTop: 22,
     marginBottom: 6
   },
@@ -259,17 +261,17 @@ const styles = (theme: ThemeType) => ({
     width: "fit-content"
   },
   viewResultsButton: {
-    background: "none",
+    background: 'none',
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 14,
     fontWeight: 500,
-    lineHeight: "normal",
+    lineHeight: 'normal',
     color: theme.palette.text.alwaysWhite,
-    textDecoration: "underline",
-    textUnderlineOffset: "3px",
+    textDecoration: 'underline',
+    textUnderlineOffset: '3px',
     padding: 0,
-    "&:hover": {
-      opacity: 0.7,
+    '&:hover': {
+      opacity: 0.7
     },
   },
   userVote: {
@@ -298,26 +300,15 @@ const styles = (theme: ThemeType) => ({
 });
 
 export type ForumEventVoteData = {
-  forumEventId: string;
-  x: number;
-  delta?: number;
-  postIds?: string[];
-};
+  forumEventId: string,
+  x: number,
+  delta?: number,
+  postIds?: string[]
+}
 
 export const addForumEventVoteQuery = gql`
-  mutation AddForumEventVote(
-    $forumEventId: String!
-    $x: Float!
-    $delta: Float
-    $postIds: [String]
-  ) {
-    AddForumEventVote(
-      forumEventId: $forumEventId
-      x: $x
-      delta: $delta
-      postIds: $postIds
-    )
-  }
+  mutation AddForumEventVote($forumEventId: String!, $x: Float!, $delta: Float, $postIds: [String]) {
+    AddForumEventVote(forumEventId: $forumEventId, x: $x, delta: $delta, postIds: $postIds)
 `;
 const removeForumEventVoteQuery = gql`
   mutation RemoveForumEventVote($forumEventId: String!) {
@@ -325,23 +316,26 @@ const removeForumEventVoteQuery = gql`
   }
 `;
 
-const defaultVoteIndex = Math.floor(NUM_TICKS / 2);
+const DEFAULT_VOTE_INDEX = Math.floor(NUM_TICKS / 2);
 
+/**
+ * Pull out the given user's vote in the forum event. Note that 0 is a valid vote.
+ */
 export const getForumEventVoteForUser = (
-  event?: ForumEventsDisplay | null,
-  user?: UsersMinimumInfo | null
-): number | null => {
-  return user ? event?.publicData?.[user._id]?.x ?? null : null;
-};
+  event?: ForumEventsDisplay|null,
+  user?: UsersMinimumInfo|null
+): number|null => {
+  return user ? (event?.publicData?.[user._id]?.x ?? null) : null
+}
 
 type ForumEventVoteDisplayCluster = {
-  center: number;
-  votes: ForumEventVoteDisplay[];
-};
+  center: number,
+  votes: ForumEventVoteDisplay[]
+}
 type ForumEventVoteDisplay = {
-  x: number;
-  user: UserOnboardingAuthor;
-};
+  x: number,
+  user: UserOnboardingAuthor,
+}
 
 const clusterForumEventVotes = ({
   voters,
@@ -397,7 +391,6 @@ const PollQuestion = ({
 }) => {
   const { LWTooltip } = Components;
 
-  // TODO flag in PR about decision to punt
   return (
     <div className={classes.question}>
       “It would be better to spend an extra $100m
@@ -411,6 +404,15 @@ const PollQuestion = ({
   );
 };
 
+/**
+ * This component is for forum events that have a poll.
+ * Displays the question, a slider where the user can vote on a scale from "Disagree" to "Agree",
+ * and lets the user view the poll results (votes are public).
+ *
+ * When a user updates their vote, we award points to posts that changed the user's mind.
+ * If a postId is provided, we just give points to that post (ex. when on a post page).
+ * Otherwise, we open a modal.
+ */
 export const ForumEventPoll = ({
   postId,
   hideViewResults,
@@ -431,7 +433,7 @@ export const ForumEventPoll = ({
   const initialBucketIndex =
     initialUserVotePos !== null
       ? Math.round(initialUserVotePos * (NUM_TICKS - 1))
-      : defaultVoteIndex;
+      : DEFAULT_VOTE_INDEX;
   const [currentBucketIndex, setCurrentBucketIndex] = useState<number>(
     initialBucketIndex
   );
@@ -450,14 +452,14 @@ export const ForumEventPoll = ({
   const votersRef = useRef<UserOnboardingAuthor[]>([])
   const { results: voters } = useMulti({
     terms: {
-      view: "usersByUserIds",
+      view: 'usersByUserIds',
       userIds: event?.publicData
         ? Object.keys(event?.publicData)
         : [],
       limit: 500,
     },
     collectionName: "Users",
-    fragmentName: "UserOnboardingAuthor",
+    fragmentName: 'UserOnboardingAuthor',
     enableTotal: false,
     skip: !event?.publicData,
   });
@@ -478,7 +480,7 @@ export const ForumEventPoll = ({
   const clearVote = useCallback(
     async (e?: React.PointerEvent) => {
       e?.stopPropagation();
-      setCurrentBucketIndex(defaultVoteIndex);
+      setCurrentBucketIndex(DEFAULT_VOTE_INDEX);
       setCurrentUserVote(null);
       if (currentUser && event) {
         setVoteCount((count) => count - 1);
@@ -526,6 +528,13 @@ export const ForumEventPoll = ({
   );
   useEventListener("pointermove", updateVotePos);
 
+  /**
+   * When the user is done dragging their vote:
+   * - If the user is logged out, reset their vote and open the login modal
+   * - If this is the user's initial vote, save the vote
+   * - If we have a postId (because we're on the post page), save the vote
+   * - Otherwise (we're on the home page), open the post selection modal
+   */
   const saveVotePos = useCallback(async () => {
     if (!isDragging.current || !event) return;
 
@@ -542,11 +551,10 @@ export const ForumEventPoll = ({
         setCurrentUserVote(newVotePos);
         await addVote({ variables: voteData });
         refetch?.();
-        // TODO flag decision about not opening immediately
         return;
       }
       const delta =
-        newVotePos - (currentUserVote ?? (defaultVoteIndex / (NUM_TICKS - 1)));
+        newVotePos - (currentUserVote ?? (DEFAULT_VOTE_INDEX / (NUM_TICKS - 1)));
       if (delta) {
         voteData.delta = delta;
         setCurrentUserVote(newVotePos);
@@ -559,8 +567,8 @@ export const ForumEventPoll = ({
         refetch?.();
       }
     } else {
-      onSignup();
-      void clearVote();
+      onSignup()
+      void clearVote()
     }
   }, [
     currentBucketIndex,
@@ -781,7 +789,6 @@ export const ForumEventPoll = ({
               <div>Disagree</div>
               <div>Agree</div>
             </div>
-            {/* TODO styling etc on this (and making is disappear in line with the animation) */}
             <div className={classes.hideResultsWrapper}>
             {resultsVisible && <button
                 className={classes.viewResultsButton}
@@ -795,16 +802,16 @@ export const ForumEventPoll = ({
       </div>
     </AnalyticsContext>
   );
-};
+}
 
 const ForumEventPollComponent = registerComponent(
   "ForumEventPoll",
   ForumEventPoll,
-  { styles }
+  {styles}
 );
 
 declare global {
   interface ComponentTypes {
-    ForumEventPoll: typeof ForumEventPollComponent;
+    ForumEventPoll: typeof ForumEventPollComponent
   }
 }
