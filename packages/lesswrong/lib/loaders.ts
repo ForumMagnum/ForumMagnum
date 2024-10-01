@@ -27,7 +27,6 @@ export async function getWithLoader<N extends CollectionNameString>(
   id: string,
   options: MongoFindOptions<ObjectsByCollectionName[N]> | undefined = undefined,
 ): Promise<ObjectsByCollectionName[N][]> {
-  const projection = undefined;
   if (!context.extraLoaders) {
     context.extraLoaders = {};
   }
@@ -37,7 +36,7 @@ export async function getWithLoader<N extends CollectionNameString>(
         ...baseQuery,
         [groupByField]: {$in: docIDs}
       };
-      const queryResults: ObjectsByCollectionName[N][] = await Utils.Connectors.find(collection, query, options);
+      const queryResults: ObjectsByCollectionName[N][] = await collection.find(query, options).fetch();
       const sortedResults = _.groupBy(queryResults, r=>r[groupByField]);
       return docIDs.map(id => sortedResults[id] || []);
     }, {
