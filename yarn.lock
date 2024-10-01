@@ -4586,10 +4586,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/intercom-client@^2.11.10":
-  version "2.11.10"
-  resolved "https://registry.yarnpkg.com/@types/intercom-client/-/intercom-client-2.11.10.tgz#fb68310c68c7e471d92d7ed35404ab893236739d"
-  integrity sha512-FvETNb7T9FLFRATBrJ3ssGSnATtOmY2NtIeDOqaq/vaU+jmnpd+kTydpAtwezWXz0cSHc85vpcVAOPHghsJRcw==
+"@types/intercom-client@^2.11.19":
+  version "2.11.19"
+  resolved "https://registry.yarnpkg.com/@types/intercom-client/-/intercom-client-2.11.19.tgz#6a7f64b374ba04f6587d1cd0bb45fd1a248fc339"
+  integrity sha512-bgc/O64950aCdKqj21s4whOZmQ7R05/ESgIIvmdwglPwzOapAQK+InnwO+rwl9H95nkHsvbyf6cA/nv4SBdc2A==
   dependencies:
     "@types/node" "*"
     "@types/request" "*"
@@ -6366,6 +6366,15 @@ axios@^0.26.1:
   dependencies:
     follow-redirects "^1.14.8"
 
+axios@^1.6.0:
+  version "1.7.7"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-1.7.7.tgz#2f554296f9892a72ac8d8e4c5b79c14a91d0a47f"
+  integrity sha512-S4kL7XrjgBmvdGut0sN3yJxqYzrDOnivkBiN0OFs6hLiUam3UPvswUo0kqGyhqUZGEOytHyumEdXsAkgCOUf3Q==
+  dependencies:
+    follow-redirects "^1.15.6"
+    form-data "^4.0.0"
+    proxy-from-env "^1.1.0"
+
 babel-code-frame@^6.26.0:
   version "6.26.0"
   resolved "https://registry.yarnpkg.com/babel-code-frame/-/babel-code-frame-6.26.0.tgz"
@@ -6635,7 +6644,7 @@ bindings@^1.5.0:
   dependencies:
     file-uri-to-path "1.0.0"
 
-bluebird@^3.1.1, bluebird@^3.3.4, bluebird@^3.7.2:
+bluebird@^3.1.1, bluebird@^3.7.2:
   version "3.7.2"
   resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.7.2.tgz"
   integrity sha512-XpNj6GDQzdfW+r2Wnn7xiSAd7TM3jzkxGXBGTtWKuSXv1xUV+azxAm8jdWZN06QTQk+2N2XB9jRDkvbmQmcRtg==
@@ -10057,6 +10066,11 @@ follow-redirects@^1.14.0, follow-redirects@^1.14.8:
   resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.15.1.tgz#0ca6a452306c9b276e4d3127483e29575e207ad5"
   integrity sha512-yLAMQs+k0b2m7cVxpS1VKJVvoz7SS9Td1zss3XRwXj+ZDH00RJgnuLx7E44wx02kQLrdM3aOOy+FpzS7+8OizA==
 
+follow-redirects@^1.15.6:
+  version "1.15.9"
+  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.15.9.tgz#a604fa10e443bf98ca94228d9eebcc2e8a2c8ee1"
+  integrity sha512-gew4GsXizNgdoRyqmyfMHyAmXsZDk6mHkSxZFCzW9gwlbtOW44CDtYavM+y+72qD/Vq2l550kMF52DT8fOLJqQ==
+
 for-each@^0.3.3:
   version "0.3.3"
   resolved "https://registry.yarnpkg.com/for-each/-/for-each-0.3.3.tgz#69b447e88a0a5d32c3e7084f3f1710034b21376e"
@@ -10106,6 +10120,15 @@ form-data@^3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/form-data/-/form-data-3.0.1.tgz#ebd53791b78356a99af9a300d4282c4d5eb9755f"
   integrity sha512-RHkBKtLWUVwd7SqRIvCZMEvAMoGUp0XU+seQiZejj0COz3RI3hWP4sCv3gZWWLjJTd7rGwcsF5eKZGii0r/hbg==
+  dependencies:
+    asynckit "^0.4.0"
+    combined-stream "^1.0.8"
+    mime-types "^2.1.12"
+
+form-data@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/form-data/-/form-data-4.0.0.tgz#93919daeaf361ee529584b9b31664dc12c9fa452"
+  integrity sha512-ETEklSGi5t0QMZuiXoA/Q6vcnxcLQP5vdugSpuAyi6SVGi2clPPp+xgEhuMaHC+zGgn31Kd235W35f7Hykkaww==
   dependencies:
     asynckit "^0.4.0"
     combined-stream "^1.0.8"
@@ -11331,15 +11354,14 @@ inquirer@^7.3.3:
     strip-ansi "^6.0.0"
     through "^2.3.6"
 
-intercom-client@^2.10.2:
-  version "2.11.0"
-  resolved "https://registry.yarnpkg.com/intercom-client/-/intercom-client-2.11.0.tgz"
-  integrity sha512-TmCOQiuLMEosVafEZsleN33j5yJ9/rq3RvfdLTJPLuASEuLFWD8va2FnaAtVXjE1QJSDZ7kU1oStTIBDMcnrNQ==
+intercom-client@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/intercom-client/-/intercom-client-5.0.0.tgz#116c5a1aa009e1a88a03e3d73972eed4fd8fdc60"
+  integrity sha512-fEzM9w+apUwK6roDyZPvfXqmI9mrdM5Nz0QmCeDTM/8G2I0464SzJDfLTDRvz+ZkY6EIeTHEaQnK09DmYgqRhA==
   dependencies:
-    bluebird "^3.3.4"
+    axios "^1.6.0"
     htmlencode "^0.0.4"
-    lodash "^4.17.15"
-    request "^2.88.0"
+    lodash "^4.17.21"
 
 internal-slot@^1.0.3:
   version "1.0.3"
