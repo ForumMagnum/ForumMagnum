@@ -71,7 +71,7 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
       nofollow={nofollow}
       replacedSubstrings={highlights}
       idInsertions={sideCommentsMap}
-      {...glossaryProp}
+      // {...glossaryProp}
     />
   } else {
     content = <ContentItemBody
@@ -80,7 +80,7 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
       description={`post ${post._id}`}
       nofollow={nofollow}
       replacedSubstrings={highlights}
-      {...glossaryProp}
+      // {...glossaryProp}
     />
   }
   

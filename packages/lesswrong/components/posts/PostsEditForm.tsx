@@ -69,6 +69,8 @@ const PostsEditForm = ({ documentId, version, classes }: {
     extraVariablesValues: { eventForm: document?.isEvent }
   });
   const rateLimitNextAbleToPost = userWithRateLimit?.rateLimitNextAbleToPost
+
+  const [showGlossaryEditForm, setShowGlossaryEditForm] = useState(false);
   
   if (!document && loading) {
     return <Components.Loading/>
@@ -183,6 +185,10 @@ const PostsEditForm = ({ documentId, version, classes }: {
             />
           </EditorContext.Provider>
         </DeferRender>
+        <div onClick={() => setShowGlossaryEditForm(true)}>
+            Create Glossary
+        </div>
+        {<Components.GlossaryEditFormWrapper postId={documentId} />}
       </div>
     </DynamicTableOfContents>
   );

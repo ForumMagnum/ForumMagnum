@@ -427,10 +427,15 @@ registerFragment(`
     # Crossposting
     fmCrosspost
 
-    # Jargon
-    jargonTerms
   }
 `);
+
+registerFragment(`
+  fragment PostsJargonTerms on Post {
+    _id
+    jargonTerms
+  }
+`)
 
 registerFragment(`
   fragment PostsExpandedHighlight on Post {
