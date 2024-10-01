@@ -4,7 +4,6 @@ import { unflattenComments, addGapIndicators } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { CommentsNodeProps } from './CommentsNode';
-import { useLocation } from '../../lib/routeUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({
   showChildren: {
@@ -38,12 +37,6 @@ const CommentWithReplies = ({
   className,
   classes,
 }: CommentWithRepliesProps) => {
-  const { hash: focusCommentId } = useLocation();
-
-  const commentId = focusCommentId.slice(1) || null;
-
-  startExpanded ??= comment.latestChildren.some(c => c._id === commentId);
-
   const [maxChildren, setMaxChildren] = useState(startExpanded ? 500 : initialMaxChildren);
 
   if (!comment) return null;
@@ -56,7 +49,7 @@ const CommentWithReplies = ({
     condensed: true,
     showPostTitle: true,
     post: post ?? comment.post ?? undefined,
-    noHash: true,
+    noDOMId: true,
     ...(commentNodeProps?.treeOptions || {}),
   };
 
