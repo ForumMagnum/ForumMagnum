@@ -94,7 +94,10 @@ export default {
   // ],
 
   // A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
-  // moduleNameMapper: {},
+  moduleNameMapper: {
+    // An indication found at https://github.com/axios/axios/issues/5101
+    '^axios$': require.resolve('axios'),
+  },
 
   // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
   // modulePathIgnorePatterns: [],
@@ -213,7 +216,7 @@ export default {
   // changes. If we've done *that* upgrade, this block might no longer be
   // necessary.
   transformIgnorePatterns: [
-    "/node_modules/(?!(react-instantsearch|intercom-client))",
+    "/node_modules/(?!react-instantsearch)",
   ],
 
   // An array of regexp pattern strings that are matched against all modules before the module loader will automatically return a mock for them
