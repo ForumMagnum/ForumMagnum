@@ -80,29 +80,7 @@ The jargon terms are:`
     } else {
       jargonTerms = []
     }
-
-    let glossary: Array<{ term: string, contents: string, altTerms: string[], }> = []
-
-    for (const term of jargonTerms) {
-      const altTerms = term.altTerms ?? []; // Default to empty array
-
-      glossary.push({
-        term: term.term,
-        contents: term.text,
-        altTerms: altTerms,
-      });
-
-      // Add alt terms to glossary if any
-      for (const altTerm of altTerms) {
-        glossary.push({
-          term: altTerm,
-          contents: term.text,
-          altTerms: altTerms,
-        });
-      }
-    }
-    console.log("glossary", glossary)
-    return glossary
+    return jargonTerms
   }
 
 defineMutation({
