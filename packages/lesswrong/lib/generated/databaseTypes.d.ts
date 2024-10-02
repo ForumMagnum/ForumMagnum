@@ -529,6 +529,8 @@ interface DbJargonTerm extends DbObject {
   humansAndOrAIEdited: string
   forLaTeX: boolean
   rejected: boolean
+  altTerms: Array<string>
+  isAltTerm: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   contents: EditableFieldContents | null

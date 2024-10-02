@@ -4190,6 +4190,8 @@ interface JargonTermsDefaultFragment { // fragment on JargonTerms
   readonly humansAndOrAIEdited: string,
   readonly forLaTeX: boolean,
   readonly rejected: boolean,
+  readonly altTerms: Array<string>,
+  readonly isAltTerm: boolean,
 }
 
 interface JargonTermsFragment { // fragment on non-collection type
