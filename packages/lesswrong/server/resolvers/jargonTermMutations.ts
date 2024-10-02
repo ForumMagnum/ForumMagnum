@@ -158,3 +158,31 @@ defineMutation({
 
     }
   });
+
+  
+  function identifyLatexAriaLabels(htmlContent: string): string[] {
+    // Create a temporary DOM parser
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlContent, 'text/html');
+    
+    // Find all elements with aria-label attribute
+    const elementsWithAriaLabel = doc.querySelectorAll('[aria-label]');
+    
+    // Array to store results
+    const results: string[] = [];
+    
+    // Regular expression to match common LaTeX patterns
+    const latexPattern = /\\[a-zA-Z]+|[_^{}]|\$/;
+    
+    elementsWithAriaLabel.forEach((element) => {
+      const ariaLabel = element.getAttribute('aria-label');
+      if (ariaLabel) {
+        const isLatex = latexPattern.test(ariaLabel);
+        if (isLatex) {
+          results.push(ariaLabel);
+        }
+      }
+    });
+    
+    return results
+  }
