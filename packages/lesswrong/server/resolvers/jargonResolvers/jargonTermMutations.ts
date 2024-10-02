@@ -1,13 +1,13 @@
 import { jargonBotClaudeKey } from '@/lib/instanceSettings';
-import { defineMutation } from '../utils/serverGraphqlUtil';
-import { getAnthropicPromptCachingClientOrThrow } from '../languageModels/anthropicClient';
+import { defineMutation } from '../../utils/serverGraphqlUtil';
+import { getAnthropicPromptCachingClientOrThrow } from '../../languageModels/anthropicClient';
 import { exampleJargonGlossary2, exampleJargonPost2 } from './exampleJargonPost';
 import { ContentReplacedSubstringComponentInfo } from '@/components/common/ContentItemBody';
 import { userIsAdmin } from '@/lib/vulcan-users';
 import { PromptCachingBetaMessageParam } from '@anthropic-ai/sdk/resources/beta/prompt-caching/messages';
 import { Posts } from '@/lib/collections/posts';
 import JargonTerms from '@/lib/collections/jargonTerms/collection';
-import { createMutator } from '../vulcan-lib';
+import { createMutator } from '../../vulcan-lib';
 import { initialGlossaryPrompt, formatPrompt, glossarySystemPrompt } from './jargonPrompts';
 import { fetchFragmentSingle } from '@/server/fetchFragment';
 
@@ -23,7 +23,7 @@ return await client.messages.create({
 })
 }
 
-const getNewJargonTerms = async (post: PostsPage, user: DbUser, currentJargonTerms: DbJargonTerm[]) => {
+async function getNewJargonTerms(post: PostsPage, user: DbUser, currentJargonTerms: DbJargonTerm[]) {
     if (!userIsAdmin(user)) {
       return null;
     }
@@ -71,7 +71,7 @@ The jargon terms are:`
     ], 5000, glossarySystemPrompt)
     if (!(response.content[0].type === "text")) return null
 
-    let jargonTerms: Array<{ term: string, altTerms: string[], text: string }> = []
+    let jargonTerms: Array<{ term: string, altTerms?: string[], text: string }> = []
 
     const text = response.content[0].text
     const jsonGuessMatch = text.match(/\[\s*\{[\s\S]*?\}\s*\]/)
@@ -80,21 +80,25 @@ The jargon terms are:`
     } else {
       jargonTerms = []
     }
-    
-    let glossary: Record<string, ContentReplacedSubstringComponentInfo> = {}
+
+    let glossary: Array<{ term: string, contents: string, altTerms: string[], }> = []
 
     for (const term of jargonTerms) {
-      const allTerms = [term.term, ...(term.altTerms ?? [])]
-      for (const t of allTerms) {
-        glossary[t] = {
-          componentName: "JargonTooltip",
-          props: {
-            term: t,
-            text: term.text,
-            altTerms: [term.term, ...(term.altTerms ?? [])],
-            isAltTerm: term.altTerms.includes(t),
-          },
-        }
+      const altTerms = term.altTerms ?? []; // Default to empty array
+
+      glossary.push({
+        term: term.term,
+        contents: term.text,
+        altTerms: altTerms,
+      });
+
+      // Add alt terms to glossary if any
+      for (const altTerm of altTerms) {
+        glossary.push({
+          term: altTerm,
+          contents: term.text,
+          altTerms: altTerms,
+        });
       }
     }
     console.log("glossary", glossary)
@@ -132,14 +136,15 @@ defineMutation({
         return []
       }
 
+
+
       const newJargonTerms = await Promise.all(newTerms.map(term => createMutator({
         collection: JargonTerms,
         document: {
           postId: postId,
           term: term.term,
-          contents: term.text,
+          contents: term.contents,
           altTerms: term.altTerms,
-          isAltTerm: term.isAltTerm,
         },
         validate: false,
       })))
