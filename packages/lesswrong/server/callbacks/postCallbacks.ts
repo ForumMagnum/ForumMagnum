@@ -691,3 +691,7 @@ getCollectionHooks("Posts").editSync.add(async function removeFrontpageDate(
   }
   return modifier;
 });
+
+getCollectionHooks("Posts").updateAsync.add(async function createJargonTerms ({document, oldDocument, context}: UpdateCallbackProperties<"Posts">) {
+  
+})
