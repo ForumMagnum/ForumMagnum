@@ -430,12 +430,12 @@ registerFragment(`
   }
 `);
 
-registerFragment(`
-  fragment PostsJargonTerms on Post {
-    _id
-    jargonTerms
-  }
-`)
+// registerFragment(`
+//   fragment PostsJargonTerms on Post {
+//     _id
+//     jargonTerms
+//   }
+// `)
 
 registerFragment(`
   fragment PostsExpandedHighlight on Post {

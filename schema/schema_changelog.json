@@ -788,5 +788,10 @@
     "acceptsSchemaHash": "4176699fcd50a096b6fd2437aec71b01",
     "acceptedByMigration": "20240925T020054.create_petrovDayAction.ts",
     "timestamp": "2024-09-25T02:00:54.000Z"
+  },
+  {
+    "acceptsSchemaHash": "d11b00f184d38bc2861f3b41fb43acfa",
+    "acceptedByMigration": "20241002T232010.add_jargon_terms_table.ts",
+    "timestamp": "2024-10-02T23:20:10.000Z"
   }
 ]

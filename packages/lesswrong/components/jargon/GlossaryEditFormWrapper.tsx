@@ -39,9 +39,9 @@ export const GlossaryEditFormWrapper = ({classes, post}: {
   console.log({glossary});
 
   // Define the mutation at the top level of your component
-  const [makeNewJargonTerms, { data, loading: mutationLoading, error }] = useMutation(gql`
-    mutation makeNewJargonTerms($postId: String!) {
-      makeNewJargonTerms(postId: $postId) {
+  const [getNewJargonTerms, { data, loading: mutationLoading, error }] = useMutation(gql`
+    mutation getNewJargonTerms($postId: String!) {
+      getNewJargonTerms(postId: $postId) {
         term
         contents
         altTerms
@@ -52,7 +52,7 @@ export const GlossaryEditFormWrapper = ({classes, post}: {
   // Event handler function
   const addNewJargonTerms = async () => {
     try {
-      const response = await makeNewJargonTerms({
+      const response = await getNewJargonTerms({
         variables: {
           postId: post._id,
         },

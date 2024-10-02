@@ -106,17 +106,15 @@ The jargon terms are:`
   }
 
 defineMutation({
-    name: 'generateJargonTerms',
+    name: 'getNewJargonTerms',
     argTypes: '(postId: String!)',
-    resultType: 'JargonTerm[]',
+    resultType: 'DbJargonTerms[]',
     fn: async (_, { postId }: { postId: string }, context) => {
-      const { currentUser, repos } = context;
-  
+      const { currentUser } = context;
+
       if (!currentUser) {
         throw new Error('You need to be logged in to generate jargon terms');
       }
-
-      // const post = await Posts.findOne({_id: postId});
 
       const post = await fetchFragmentSingle({
         collectionName: 'Posts',
@@ -124,40 +122,44 @@ defineMutation({
         currentUser,
         selector: { _id: postId },
         context,
-      })
+      });
 
       if (!post) {
         throw new Error('Post not found');
       }
 
-      const newTerms = await getNewJargonTerms(post, currentUser)
+      const newTerms = await getNewJargonTerms(post, currentUser);
 
       if (newTerms === null) {
-        return []
+        return [];
       }
 
-
-
-      const newJargonTerms = await Promise.all(newTerms.map(term => createMutator({
-        collection: JargonTerms,
-        document: {
-          postId: postId,
-          term: term.term,
-          contents: {
-            originalContents: {
-              data: term.contents,
-              type: 'ckEditorMarkup',
+      const newJargonTerms = await Promise.all(
+        newTerms.map(term =>
+          createMutator({
+            collection: JargonTerms,
+            document: {
+              postId: postId,
+              term: term.term,
+              contents: {
+                originalContents: {
+                  data: term.contents,
+                  type: 'ckEditorMarkup',
+                },
+              },
+              altTerms: term.altTerms,
             },
-          },
-          altTerms: term.altTerms,
-        },
-        validate: false,
-      })))
+            validate: false,
+          })
+        )
+      );
 
-      return newJargonTerms
+      // Extract the data property from each result
+      const jargonTermsData = newJargonTerms.map(result => result.data);
 
-    }
-  });
+      return jargonTermsData;
+    },
+});
 
   
 export function identifyLatexAriaLabels(htmlContent: string): string[] {

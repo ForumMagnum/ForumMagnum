@@ -16,25 +16,25 @@ export const GlossaryEditForm = ({classes, postId}: {
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
 
-  console.log("I'm about to do a useSingle");
+  // console.log("I'm about to do a useSingle");
 
-  const {document: post, error} = useSingle({
-    documentId: postId,
-    collectionName: "Posts",
-    fragmentName: "PostsJargonTerms",
-  });
+  // const {document: post, error} = useSingle({
+  //   documentId: postId,
+  //   collectionName: "Posts",
+  //   fragmentName: "PostsJargonTerms",
+  // });
 
-  console.log(post);
+  // console.log(post);
 
-  React.useEffect(() => {
-    if (post?.jargonTerms) {
-      localStorage.setItem(`glossary-${postId}`, JSON.stringify(post.jargonTerms));
-    }
-  }, [post, postId]);
+  // React.useEffect(() => {
+  //   if (post?.jargonTerms) {
+  //     localStorage.setItem(`glossary-${postId}`, JSON.stringify(post.jargonTerms));
+  //   }
+  // }, [post, postId]);
 
-  if (error) {
-    return <div>Error loading post: {error.message}</div>;
-  }
+  // if (error) {
+  //   return <div>Error loading post: {error.message}</div>;
+  // }
 
   return null;
 }
