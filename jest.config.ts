@@ -93,12 +93,6 @@ export default {
   //   "node"
   // ],
 
-  // A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
-  moduleNameMapper: {
-    // An indication found at https://github.com/axios/axios/issues/5101
-    '^axios$': require.resolve('axios'),
-  },
-
   // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
   // modulePathIgnorePatterns: [],
 
@@ -196,9 +190,11 @@ export default {
     ],
   },
 
-  // Should match "paths" in tsconfig.json
   moduleNameMapper: {
+    // Should match "paths" in tsconfig.json
     "@/(.*)": "<rootDir>/packages/lesswrong/$1",
+    // An incantation found at https://github.com/axios/axios/issues/5101
+    '^axios$': require.resolve('axios'),
   },
 
   // react-instantsearch contains a file (connectors.js) that requires
