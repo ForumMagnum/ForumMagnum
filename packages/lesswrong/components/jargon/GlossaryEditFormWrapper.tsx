@@ -10,6 +10,8 @@ import { getAnthropicPromptCachingClientOrThrow } from '@/server/languageModels/
 import { jargonBotClaudeKey } from '@/lib/instanceSettings';
 import { exampleJargonPost2, exampleJargonGlossary2 } from '@/server/resolvers/exampleJargonPost';
 import { ContentReplacedSubstringComponentInfo } from '../common/ContentItemBody';
+import { gql, useQuery } from '@apollo/client';
+import { useMulti } from '@/lib/crud/withMulti';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -26,10 +28,42 @@ export const GlossaryEditFormWrapper = ({classes, post}: {
 
   const { GlossaryEditForm, JargonEditorRow, ToggleSwitch } = Components;
 
-  const [glossary, setGlossary] = React.useState(() => {
-    const savedGlossary = localStorage.getItem(`glossary-${post._id}`);
-    return savedGlossary ? JSON.parse(savedGlossary) : null;
-  });
+  // const [glossary, setGlossary] = React.useState(() => {
+  //   const savedGlossary = localStorage.getItem(`glossary-${post._id}`);
+  //   return savedGlossary ? JSON.parse(savedGlossary) : null;
+  // });
+
+  const { results: glossary = [], loading } = useMulti({
+    terms: {
+      view: "jargonTerms",
+      postId: post._id,
+      rejected: false,
+      forLaTeX: false,
+    },
+    collectionName: "JargonTerms",
+    fragmentName: 'JargonTermsFragment',
+  })
+
+  const addNewJargonTerms = () => {
+    const { data, refetch: refetchCount } = useQuery(gql`
+      mutation GetNewJargonTerms {
+        getNewJargonTerms(postId: "${post._id}") {
+          term
+          contents
+          altTerms
+          isAltTerm
+        }
+      }
+    `, {
+      ssr: true,
+      variables: {
+        postId: post._id,
+        currentJargonTerms: glossary,
+      }
+    });
+
+
+  
 
   React.useEffect(() => {
     if (glossary) {
@@ -59,9 +93,9 @@ export const GlossaryEditFormWrapper = ({classes, post}: {
     )}
     </>
     }
-    <div onClick={newJargonTerms}>Generate new terms</div>
+    <div onClick={addNewJargonTerms}>Generate new terms</div>
   </div>;
-}
+}}
 
 const GlossaryEditFormWrapperComponent = registerComponent('GlossaryEditFormWrapper', GlossaryEditFormWrapper, {styles});
 

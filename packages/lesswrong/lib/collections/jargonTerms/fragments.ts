@@ -1,7 +1,7 @@
 import { registerFragment } from '../../vulcan-lib';
 
 registerFragment(`
-  fragment JargonTermsFragment on JargonTerms {
+  fragment JargonTermsFragment on JargonTerm {
     _id
     postId
     term
