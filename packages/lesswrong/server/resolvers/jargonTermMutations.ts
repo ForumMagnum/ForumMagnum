@@ -186,3 +186,7 @@ export function identifyLatexAriaLabels(htmlContent: string): string[] {
   
   return results
 }
+
+export function getLaTeXExplanations(terms: string[], markdown: string) {
+  
+}
