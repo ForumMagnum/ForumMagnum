@@ -54,13 +54,6 @@ const schema: SchemaType<"JargonTerms"> = {
     canUpdate: ['members'],
     nullable: false,
   },
-  isAltTerm: {
-    type: Boolean,
-    canRead: ['guests'],
-    canCreate: ['members'],
-    canUpdate: ['members'],
-    nullable: false,
-  },
 };
 
 export default schema;
