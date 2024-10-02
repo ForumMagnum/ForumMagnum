@@ -143,7 +143,12 @@ defineMutation({
         document: {
           postId: postId,
           term: term.term,
-          contents: term.contents,
+          contents: {
+            originalContents: {
+              data: term.contents,
+              type: 'ckEditorMarkup',
+            },
+          },
           altTerms: term.altTerms,
         },
         validate: false,
