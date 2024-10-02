@@ -121,7 +121,7 @@ The jargon terms are:`
 
 defineMutation({
     name: 'generateJargonTerms',
-    argTypes: '(postId: String!)',
+    argTypes: '(postId: String!, currentJargonTerms: DbJargonTerm[])',
     resultType: 'JargonTerm[]',
     fn: async (_, { postId, currentJargonTerms }: { postId: string, currentJargonTerms: DbJargonTerm[] }, context) => {
       const { currentUser, repos } = context;
@@ -136,7 +136,7 @@ defineMutation({
         throw new Error('Post not found');
       }
 
-      const newTerms = await getNewJargonTerms(post, currentUser)
+      const newTerms = await getNewJargonTerms(post, currentUser, currentJargonTerms)
 
       if (newTerms === null) {
         return []
