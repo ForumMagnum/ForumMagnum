@@ -44,6 +44,8 @@ export const GlossaryEditFormWrapper = ({classes, post}: {
     fragmentName: 'JargonTermsFragment',
   })
 
+  console.log({glossary});
+
   const addNewJargonTerms = () => {
     const { data, refetch: refetchCount } = useQuery(gql`
       mutation GetNewJargonTerms {
@@ -60,42 +62,37 @@ export const GlossaryEditFormWrapper = ({classes, post}: {
         postId: post._id,
         currentJargonTerms: glossary,
       }
-    });
-
-
-  
-
-  React.useEffect(() => {
-    if (glossary) {
-      localStorage.setItem(`glossary-${post._id}`, JSON.stringify(glossary));
-    }
-  }, [glossary, post._id]);
-
-  const handleTextChange = (key: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    setGlossary((prevGlossary: any) => ({
-      ...prevGlossary,
-    [key]: {
-      ...prevGlossary[key],
-      props: {
-        ...prevGlossary[key].props,
-        text: event.target.value,
-      },
-    },
-    }));
+    })
   };
+
+  // React.useEffect(() => {
+  //   if (glossary) {
+  //     localStorage.setItem(`glossary-${post._id}`, JSON.stringify(glossary));
+  //   }
+  // }, [glossary, post._id]);
+
+  // const handleTextChange = (key: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   setGlossary((prevGlossary: any) => ({
+  //     ...prevGlossary,
+  //   [key]: {
+  //     ...prevGlossary[key],
+  //     props: {
+  //       ...prevGlossary[key].props,
+  //       text: event.target.value,
+  //     },
+  //   },
+  //   }));
+  // };
 
  
 
   return <div className={classes.root}>
     {!glossary && <GlossaryEditForm postId={post._id} />}
-    {!!glossary && <>{Object.keys(glossary).map((item: any) => !glossary[item].props.isAltTerm &&
-      <JargonEditorRow key={item} glossaryProps={glossary[item].props}/>
-    )}
-    </>
+    {!!glossary && <>{glossary.map((item: any) => !item.isAltTerm && <JargonEditorRow key={item} glossaryProps={item.props}/>)}</>
     }
     <div onClick={addNewJargonTerms}>Generate new terms</div>
   </div>;
-}}
+}
 
 const GlossaryEditFormWrapperComponent = registerComponent('GlossaryEditFormWrapper', GlossaryEditFormWrapper, {styles});
 
