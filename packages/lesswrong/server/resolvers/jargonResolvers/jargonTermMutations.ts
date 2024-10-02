@@ -108,7 +108,7 @@ The jargon terms are:`
 defineMutation({
     name: 'getNewJargonTerms',
     argTypes: '(postId: String!)',
-    resultType: 'DbJargonTerms[]',
+    resultType: '[JargonTerm]',
     fn: async (_, { postId }: { postId: string }, context) => {
       const { currentUser } = context;
 

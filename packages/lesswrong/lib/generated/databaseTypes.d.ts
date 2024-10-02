@@ -530,7 +530,6 @@ interface DbJargonTerm extends DbObject {
   forLaTeX: boolean
   rejected: boolean
   altTerms: Array<string>
-  isAltTerm: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   contents: EditableFieldContents | null
@@ -883,6 +882,7 @@ interface DbPost extends DbObject {
   reviewVoteCount: number
   positiveReviewVoteCount: number
   manifoldReviewMarketId: string | null
+  jargonTerms: any /*{"definitions":[{}]}*/
   reviewVoteScoreAF: number
   reviewVotesAF: Array<number>
   reviewVoteScoreHighKarma: number
