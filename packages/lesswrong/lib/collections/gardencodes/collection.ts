@@ -1,5 +1,5 @@
 import { createCollection } from '../../vulcan-lib';
-import { Utils, slugify } from '../../vulcan-lib/utils';
+import { slugify } from '../../vulcan-lib/utils';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
 import { foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils';
 import './fragments';
@@ -7,6 +7,7 @@ import './permissions';
 import { userOwns } from '../../vulcan-users/permissions';
 import moment from 'moment'
 import { makeEditable } from '../../editor/make_editable';
+import { getUnusedSlugByCollectionName } from '@/lib/helpers';
 
 function generateCode(length: number) {
   let result = '';
@@ -75,7 +76,7 @@ const schema: SchemaType<"GardenCodes"> = {
     canRead: ['guests'],
     nullable: false,
     onInsert: async (gardenCode) => {
-      return await Utils.getUnusedSlugByCollectionName("GardenCodes", slugify(gardenCode.title))
+      return await getUnusedSlugByCollectionName("GardenCodes", slugify(gardenCode.title))
     },
   },
   startTime: {
