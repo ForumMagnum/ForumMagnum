@@ -23,7 +23,7 @@ return await client.messages.create({
 })
 }
 
-async function getNewJargonTerms(post: PostsPage, user: DbUser, currentJargonTerms: DbJargonTerm[]) {
+async function getNewJargonTerms(post: PostsPage, user: DbUser ) {
     if (!userIsAdmin(user)) {
       return null;
     }
@@ -107,9 +107,9 @@ The jargon terms are:`
 
 defineMutation({
     name: 'generateJargonTerms',
-    argTypes: '(postId: String!, currentJargonTerms: DbJargonTerm[])',
+    argTypes: '(postId: String!)',
     resultType: 'JargonTerm[]',
-    fn: async (_, { postId, currentJargonTerms }: { postId: string, currentJargonTerms: DbJargonTerm[] }, context) => {
+    fn: async (_, { postId }: { postId: string }, context) => {
       const { currentUser, repos } = context;
   
       if (!currentUser) {
@@ -130,7 +130,7 @@ defineMutation({
         throw new Error('Post not found');
       }
 
-      const newTerms = await getNewJargonTerms(post, currentUser, currentJargonTerms)
+      const newTerms = await getNewJargonTerms(post, currentUser)
 
       if (newTerms === null) {
         return []

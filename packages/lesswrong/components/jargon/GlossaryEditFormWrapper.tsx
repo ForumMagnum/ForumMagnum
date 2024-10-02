@@ -2,12 +2,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
-import { commentBodyStyles } from '@/themes/stylePiping';
-import { userIsAdmin } from '@/lib/vulcan-users';
-import { getLatestContentsRevision } from '@/lib/collections/revisions/helpers';
-import { PromptCachingBetaMessageParam } from '@anthropic-ai/sdk/resources/beta/prompt-caching/messages';
-import { ContentReplacedSubstringComponentInfo } from '../common/ContentItemBody';
-import { gql, useQuery } from '@apollo/client';
+import { useMutation, gql } from '@apollo/client';
 import { useMulti } from '@/lib/crud/withMulti';
 
 const styles = (theme: ThemeType) => ({
@@ -43,23 +38,31 @@ export const GlossaryEditFormWrapper = ({classes, post}: {
 
   console.log({glossary});
 
-  const addNewJargonTerms = () => {
-    const { data, refetch: refetchCount } = useQuery(gql`
-      mutation GetNewJargonTerms {
-        getNewJargonTerms(postId: "${post._id}") {
-          term
-          contents
-          altTerms
-          isAltTerm
-        }
+  // Define the mutation at the top level of your component
+  const [makeNewJargonTerms, { data, loading: mutationLoading, error }] = useMutation(gql`
+    mutation makeNewJargonTerms($postId: String!) {
+      makeNewJargonTerms(postId: $postId) {
+        term
+        contents
+        altTerms
       }
-    `, {
-      ssr: true,
-      variables: {
-        postId: post._id,
-        currentJargonTerms: glossary,
-      }
-    })
+    }
+  `);
+
+  // Event handler function
+  const addNewJargonTerms = async () => {
+    try {
+      const response = await makeNewJargonTerms({
+        variables: {
+          postId: post._id,
+        },
+      });
+      // Handle the response data as needed
+      console.log(response.data);
+    } catch (err) {
+      // Handle the error as needed
+      console.error(err);
+    }
   };
 
   // React.useEffect(() => {
@@ -85,8 +88,7 @@ export const GlossaryEditFormWrapper = ({classes, post}: {
 
   return <div className={classes.root}>
     {!glossary && <GlossaryEditForm postId={post._id} />}
-    {!!glossary && <>{glossary.map((item: any) => !item.isAltTerm && <JargonEditorRow key={item} glossaryProps={item.props}/>)}</>
-    }
+    {!!glossary && <>{glossary.map((item: any) => !item.isAltTerm && <JargonEditorRow key={item} glossaryProps={item.props}/>)}</>}
     <div onClick={addNewJargonTerms}>Generate new terms</div>
   </div>;
 }
