@@ -121,7 +121,7 @@ defineMutation({
               term: term.term,
               contents: {
                 originalContents: {
-                  data: term.contents,
+                  data: term.text,
                   type: 'ckEditorMarkup',
                 },
               },
