@@ -765,6 +765,17 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
   // const jargonTerms = glossary ? Object.values(fullPost.jargonTerms) as ContentReplacedSubstringComponentInfo[] : [] as ContentReplacedSubstringComponentInfo[]; 
   // const jargonTermsToShow = jargonTerms.filter(glossaryItem => !glossaryItem.props.isAltTerm)
 
+  const glossary: Record<string, ContentReplacedSubstringComponentInfo> = {}
+
+  fullPost?.jargonTerms?.forEach((jargonTerm: JargonTermsFragment) => {
+    glossary[jargonTerm.term] = {
+      componentName: "JargonTooltip",
+      props: {
+        ...jargonTerm
+      }
+    }
+  })  
+
   const rightColumnChildren = (welcomeBox || hasSidenotes || (showRecommendations && recommendationsPosition === "right")) && <>
     {welcomeBox}
     {showRecommendations && recommendationsPosition === "right" && fullPost && <PostSideRecommendations post={fullPost} />}
@@ -772,10 +783,10 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     {fullPost && fullPost.jargonTerms.length > 0 && <div>
       <h3 className={classes.glossary}>Glossary of Jargon</h3>
 
-      {fullPost.jargonTerms.map((jargonTerm: JargonTermsFragment) => 
-      <div key={jargonTerm.term}>
-        <JargonTooltip replacedSubstrings={jargonTerm.contents} term={jargonTerm.term} placement="left-start"><div className={classes.jargonTerm}>{jargonTerm.term}</div> </JargonTooltip>
-      </div>)
+      {fullPost?.jargonTerms?.map((jargonTerm: JargonTermsFragment) => 
+        <div key={jargonTerm.term}>
+          <JargonTooltip replacedSubstrings={glossary} term={jargonTerm.term} placement="left-start"><div className={classes.jargonTerm}>{jargonTerm.term}</div> </JargonTooltip>
+        </div>)
       }
 
       {/* jargonTermsToShow.map(glossaryItem => 

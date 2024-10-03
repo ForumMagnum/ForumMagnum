@@ -373,7 +373,7 @@ augmentFieldsDict(Posts, {
     resolveAs: {
       type: GraphQLJSON,
       resolver: async (post: DbPost, args: void, context: ResolverContext) => {
-        const jargonTerms = await JargonTerms.find({postId: post._id, rejected: false}).fetch();
+        const jargonTerms = await context.JargonTerms.find({postId: post._id, rejected: false}).fetch();
         return jargonTerms
       }
     }
