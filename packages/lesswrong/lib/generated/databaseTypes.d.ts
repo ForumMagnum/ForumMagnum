@@ -526,7 +526,7 @@ interface DbJargonTerm extends DbObject {
   __collectionName?: "JargonTerms"
   postId: string
   term: string
-  humansAndOrAIEdited: string
+  humansAndOrAIEdited: "humans" | "AI" | "humansAndAI"
   forLaTeX: boolean
   rejected: boolean
   altTerms: Array<string>
@@ -882,7 +882,6 @@ interface DbPost extends DbObject {
   reviewVoteCount: number
   positiveReviewVoteCount: number
   manifoldReviewMarketId: string | null
-  jargonTerms: any /*{"definitions":[{}]}*/
   reviewVoteScoreAF: number
   reviewVotesAF: Array<number>
   reviewVoteScoreHighKarma: number

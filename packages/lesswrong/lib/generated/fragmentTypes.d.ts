@@ -775,7 +775,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly annualReviewMarketProbability: number|null,
   readonly annualReviewMarketIsResolved: boolean|null,
   readonly annualReviewMarketYear: number|null,
-  readonly jargonTerms: any /*{"definitions":[{}]}*/,
+  readonly jargonTerms: any,
   readonly reviewVoteScoreAF: number,
   readonly reviewVotesAF: Array<number>,
   readonly reviewVoteScoreHighKarma: number,
@@ -1387,6 +1387,7 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
     hostedHere: boolean | null,
     foreignPostId: string | null,
   },
+  readonly jargonTerms: any,
 }
 
 interface PostsDetails_canonicalSequence { // fragment on Sequences
@@ -4182,7 +4183,7 @@ interface SubscribedPostAndCommentsFeed { // fragment on non-collection type
 interface JargonTermsDefaultFragment { // fragment on JargonTerms
   readonly postId: string,
   readonly term: string,
-  readonly humansAndOrAIEdited: string,
+  readonly humansAndOrAIEdited: "humans" | "AI" | "humansAndAI",
   readonly forLaTeX: boolean,
   readonly rejected: boolean,
   readonly altTerms: Array<string>,
@@ -4193,9 +4194,10 @@ interface JargonTermsFragment { // fragment on JargonTerms
   readonly postId: string,
   readonly term: string,
   readonly contents: RevisionEdit|null,
-  readonly humansAndOrAIEdited: string,
+  readonly humansAndOrAIEdited: "humans" | "AI" | "humansAndAI",
   readonly forLaTeX: boolean,
   readonly rejected: boolean,
+  readonly altTerms: Array<string>,
 }
 
 interface FragmentTypes {

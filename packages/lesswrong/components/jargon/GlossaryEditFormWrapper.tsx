@@ -36,6 +36,7 @@ export const GlossaryEditFormWrapper = ({classes, post}: {
     },
     collectionName: "JargonTerms",
     fragmentName: 'JargonTermsFragment',
+    ssr: true,
   })
 
   console.log({glossary});

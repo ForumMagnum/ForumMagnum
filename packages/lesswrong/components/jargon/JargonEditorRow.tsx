@@ -1,9 +1,10 @@
 // TODO: Import component in components.ts
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
 import { commentBodyStyles } from '@/themes/stylePiping';
 import classNames from 'classnames';
+import { useUpdate } from '@/lib/crud/withUpdate';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -24,24 +25,58 @@ const styles = (theme: ThemeType) => ({
   },
   toggleSwitch: {
     marginRight: 8,
+  },
+  edit: {
+    textWrap: 'nowrap',
   }
 });
 
 export const JargonEditorRow = ({classes, jargonTerm}: {
   classes: ClassesType<typeof styles>,
-  jargonTerm: DbJargonTerm,
+  jargonTerm: JargonTermsFragment,
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
 
-  const { ToggleSwitch } = Components;
+  const { ToggleSwitch, WrappedSmartForm, ContentItemBody } = Components;
 
   const [isActive, setIsActive] = React.useState(false);
+  const [edit, setEdit] = React.useState(false);
+
+  const {mutate: updateJargonTerm} = useUpdate({
+    collectionName: "JargonTerms",
+    fragmentName: 'JargonTermsFragment',
+  });
+
+  const handleActiveChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    updateJargonTerm({
+      selector: { _id: jargonTerm._id },
+      data: {
+          rejected: !event.target.checked,
+      },
+      },
+    )
+    setIsActive(!event.target.checked);
+  }
 
   return <div className={classNames(classes.root, isActive && classes.isActive)}>
     <ToggleSwitch value={isActive} className={classes.toggleSwitch} setValue={setIsActive}/>
     {!isActive && <div contentEditable={true} dangerouslySetInnerHTML={{__html: jargonTerm.term}} />}
-    {isActive && <div contentEditable={true} dangerouslySetInnerHTML={{__html: jargonTerm?.contents?.originalContents?.data ?? ''}} />}
-  </div>;
+    {isActive && (
+      edit ? 
+        (<WrappedSmartForm
+          collectionName="JargonTerms"
+          documentId={jargonTerm._id}
+          mutationFragment={getFragment('JargonTermsFragment')}
+          queryFragment={getFragment('JargonTermsFragment')}
+          successCallback={() => setEdit(false)}
+        />) : 
+        (<>
+          <ContentItemBody dangerouslySetInnerHTML={{__html: jargonTerm?.contents?.originalContents?.data ?? ''}}/>
+          <a className={classes.edit} onClick={() => setEdit(!edit)}>Edit</a>
+        </>)
+        )
+    }
+    </div>;
 }
 
 const JargonEditorRowComponent = registerComponent('JargonEditorRow', JargonEditorRow, {styles});

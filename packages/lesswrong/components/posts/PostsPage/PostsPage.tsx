@@ -761,15 +761,30 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     </DeferRender>
   );
 
-  const glossary = fullPost &&'jargonTerms' in fullPost && fullPost.jargonTerms
+  // const glossary = fullPost && 'jargonTerms' in fullPost && fullPost.jargonTerms
   // const jargonTerms = glossary ? Object.values(fullPost.jargonTerms) as ContentReplacedSubstringComponentInfo[] : [] as ContentReplacedSubstringComponentInfo[]; 
   // const jargonTermsToShow = jargonTerms.filter(glossaryItem => !glossaryItem.props.isAltTerm)
 
   const rightColumnChildren = (welcomeBox || hasSidenotes || (showRecommendations && recommendationsPosition === "right")) && <>
     {welcomeBox}
     {showRecommendations && recommendationsPosition === "right" && fullPost && <PostSideRecommendations post={fullPost} />}
-    <h3 className={classes.glossary}>Glossary of Jargon</h3>
-    {/* {glossary && jargonTermsToShow.map(glossaryItem => <div key={glossaryItem.props.term}><JargonTooltip replacedSubstrings={glossary} term={glossaryItem.props.term} placement="left-start"><div className={classes.jargonTerm}>{glossaryItem.props.term}</div> </JargonTooltip></div>)} */}
+
+    {fullPost && fullPost.jargonTerms.length > 0 && <div>
+      <h3 className={classes.glossary}>Glossary of Jargon</h3>
+
+      {fullPost.jargonTerms.map((jargonTerm: JargonTermsFragment) => 
+      <div key={jargonTerm.term}>
+        <JargonTooltip replacedSubstrings={jargonTerm.contents} term={jargonTerm.term} placement="left-start"><div className={classes.jargonTerm}>{jargonTerm.term}</div> </JargonTooltip>
+      </div>)
+      }
+
+      {/* jargonTermsToShow.map(glossaryItem => 
+        <div key={glossaryItem.props.term}>
+          <JargonTooltip replacedSubstrings={glossary} term={glossaryItem.props.term} placement="left-start"><div className={classes.jargonTerm}>{glossaryItem.props.term}</div> </JargonTooltip>
+        </div>
+      ) */}
+    </div>}
+
     {hasSidenotes && <>
       <div className={classes.reserveSpaceForSidenotes}/>
       <Components.SideItemsSidebar/>

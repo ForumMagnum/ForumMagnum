@@ -187,6 +187,7 @@ const PostsEditForm = ({ documentId, version, classes }: {
         </DeferRender>
         <div onClick={() => setShowGlossaryEditForm(true)}>
             <h1>Glossary</h1>
+            <span>Beta feature! Select/edit terms below and readers of your post will be able to hover over them to read an explanation of the term.</span>
         </div>
         {<Components.GlossaryEditFormWrapper post={document} />}
       </div>

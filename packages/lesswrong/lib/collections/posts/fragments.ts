@@ -427,6 +427,10 @@ registerFragment(`
     # Crossposting
     fmCrosspost
 
+    # Jargon Terms
+    jargonTerms {
+      ...JargonTermsFragment
+    }
   }
 `);
 
