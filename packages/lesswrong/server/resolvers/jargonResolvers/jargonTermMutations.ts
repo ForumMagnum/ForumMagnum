@@ -12,6 +12,7 @@ import { initialGlossaryPrompt, formatPrompt, glossarySystemPrompt, mathFormatPr
 import { fetchFragmentSingle } from '@/server/fetchFragment';
 import { htmlToMarkdown } from '@/server/editor/conversionUtils';
 import { exampleMathGlossary } from './exampleMathOutput';
+import { readFile } from 'fs/promises';
 
 const claudeKey = jargonBotClaudeKey.get()
 
@@ -122,18 +123,60 @@ export function identifyLatexTerms(htmlContent: string): string {
 }
 
 
+const getMathExample = (() => {
+  let examplePostContents: string;
 
-export function getLaTeXExplanations(post: PostsPage) {
-  const contents = post.contents;
-  const originalHtml = contents?.html ?? ""
+  return async () => {
+    if (!examplePostContents) {
+      const pathName = './public/exampleMathPost.md'
+      examplePostContents = (await readFile(pathName)).toString()
+    }
+
+    return examplePostContents;
+  };
+})();
+
+
+export async function getLaTeXExplanations(post: PostsPage) {
+  const originalHtml = post.contents?.html ?? ""
   const originalMarkdown = htmlToMarkdown(originalHtml)
   const markdown = (originalMarkdown.length < 200 * 1000) ? originalMarkdown : originalMarkdown.slice(0, 200 * 1000)
 
   const terms = identifyLatexTerms(originalHtml)
+  const exampleMathPost = await getMathExample();
 
-  return queryClaudeForJargonExplanations({markdown, terms, formatPrompt: mathFormatPrompt, examplePost: exampleJargonPost2, exampleExplanations: exampleMathGlossary})
+  return queryClaudeForJargonExplanations({markdown, terms, formatPrompt: mathFormatPrompt, examplePost: exampleMathPost, exampleExplanations: exampleMathGlossary})
 }
 
+export async function createEnglishExplanations(post: PostsPage) {
+  const originalHtml = post.contents?.html ?? ""
+  const originalMarkdown = htmlToMarkdown(originalHtml)
+  const markdown = (originalMarkdown.length < 200 * 1000) ? originalMarkdown : originalMarkdown.slice(0, 200 * 1000)
+
+  const terms = await queryClaudeForTerms(markdown)
+  if (!terms) return null
+
+  return queryClaudeForJargonExplanations({markdown, terms, formatPrompt, examplePost: exampleJargonPost2, exampleExplanations: exampleJargonGlossary2})
+}
+
+export const createNewJargonTerms = async (postId: string, currentUser: DbUser) => {
+  const post = await fetchFragmentSingle({
+    collectionName: 'Posts',
+    fragmentName: 'PostsPage',
+    currentUser,
+    selector: { _id: postId },
+  });
+  if (!post) {
+    throw new Error('Post not found');
+  }
+  const newMathJargon = await getLaTeXExplanations(post);
+
+  const newEnglishTerms = await createEnglishExplanations(post);
+
+  if (newEnglishTerms === null && newMathJargon === null) {
+    return [];
+  }
+}
 
 
 defineMutation({
@@ -141,37 +184,15 @@ defineMutation({
     argTypes: '(postId: String!)',
     resultType: '[JargonTerm]',
     fn: async (_, { postId }: { postId: string }, { currentUser }: ResolverContext) => {
-
-      console.log(`The mutation is being called!`)
-
       if (!currentUser) {
         throw new Error('You need to be logged in to generate jargon terms');
       }
 
-      console.log(`Fetching post...`)
 
-      const post = await fetchFragmentSingle({
-        collectionName: 'Posts',
-        fragmentName: 'PostsPage',
-        currentUser,
-        selector: { _id: postId },
-      });
+      await createNewJargonTerms(postId, currentUser);
 
-      console.log(`Post fetched!`)
 
-      if (!post) {
-        throw new Error('Post not found');
-      }
 
-      console.log(`Getting new terms...`)
-
-      const newTerms = await getNewJargonTerms(post, currentUser);
-
-      if (newTerms === null) {
-        return [];
-      }
-
-      console.log(`New terms: ${newTerms}`)
 
       const newJargonTerms = await Promise.all(
         newTerms.map(term =>
@@ -200,10 +221,6 @@ defineMutation({
       console.log(`New jargon terms: ${newJargonTerms}`)
 
       // Extract the data property from each result
-      const jargonTermsData = newJargonTerms.map(result => result.data);
-
-      console.log(`Jargon terms data: ${jargonTermsData}`)
-
-      return jargonTermsData;
+      return newJargonTerms.map(result => result.data);
     },
 });

@@ -36,7 +36,7 @@ import { getLatestContentsRevision } from '../../lib/collections/revisions/helpe
 import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
 import { getAnthropicPromptCachingClientOrThrow } from '../languageModels/anthropicClient';
 import { PromptCachingBetaMessageParam } from '@anthropic-ai/sdk/resources/beta/prompt-caching/messages';
-import { identifyLatexTerms } from '../resolvers/jargonResolvers/jargonTermMutations';
+import { getLaTeXExplanations } from '../resolvers/jargonResolvers/jargonTermMutations';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -694,6 +694,9 @@ getCollectionHooks("Posts").editSync.add(async function removeFrontpageDate(
 });
 
 getCollectionHooks("Posts").updateAsync.add(async function createJargonTerms ({document, oldDocument, context}: UpdateCallbackProperties<"Posts">) {
+  console.log("starting callback")
   const revision = await getLatestContentsRevision(document);
-  console.log(identifyLatexTerms(revision?.html ?? ""))
+  if (!revision) return;
+  console.log("starting math")
+  console.log(await getLaTeXExplanations(revision))
 })
