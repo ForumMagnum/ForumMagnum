@@ -117,6 +117,21 @@ export const dropIndex = async <N extends CollectionNameString>(
   await db.none(sql, args);
 }
 
+export const dropIndexByName = async <N extends CollectionNameString>(
+  db: SqlClientOrTx,
+  collection: CollectionBase<N>,
+  indexName: string
+): Promise<void> => {
+  const indexes = collection.getTable().getIndexes();
+  const indexesToDrop = indexes.filter(index => index.getName() === indexName);
+  if (!indexesToDrop.length) {
+    console.warn(`Couldn't find index to drop: ${indexName}`);
+  }
+  for (const index of indexesToDrop) {
+    dropIndex(db, collection, index);
+  }
+}
+
 export const createIndex = async <N extends CollectionNameString>(
   db: SqlClientOrTx,
   collection: CollectionBase<N>,
