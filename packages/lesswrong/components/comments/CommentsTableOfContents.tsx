@@ -197,7 +197,10 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highli
       })}>
         <span className={classes.commentKarma}>{score}</span>
         <span className={classes.commentAuthor}>
-          <UsersNameDisplay user={comment.user} simple/>
+          {comment.deleted
+            ? <span>[comment deleted]</span>
+            : <UsersNameDisplay user={comment.user} simple/>
+          }
         </span>
       </span>
     </TableOfContentsRow>

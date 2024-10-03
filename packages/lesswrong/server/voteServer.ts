@@ -1,4 +1,3 @@
-import { Connectors } from './vulcan-lib/connectors';
 import { createMutator } from './vulcan-lib/mutators';
 import Votes from '../lib/collections/votes/collection';
 import { userCanDo } from '../lib/vulcan-users/permissions';
@@ -34,19 +33,18 @@ const getExistingVote = async ({ document, user }: {
   document: DbVoteableType,
   user: DbUser,
 }) => {
-  const vote = await Connectors.get(Votes, {
+  return await Votes.findOne({
     documentId: document._id,
     userId: user._id,
     cancelled: false,
-  }, {}, true);
-  return vote;
+  });
 }
 
 // Add a vote of a specific type on the server
 const addVoteServer = async ({ document, collection, voteType, extendedVote, user, voteId, context }: {
   document: DbVoteableType,
   collection: CollectionBase<VoteableCollectionName>,
-  voteType: string,
+  voteType: DbVote['voteType'],
   extendedVote: any,
   user: DbUser,
   voteId: string,
@@ -91,7 +89,7 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
 export const createVote = ({ document, collectionName, voteType, extendedVote, user, voteId }: {
   document: DbVoteableType,
   collectionName: CollectionNameString,
-  voteType: string,
+  voteType: DbVote['voteType'],
   extendedVote: any,
   user: DbUser|UsersCurrent,
   voteId?: string,
@@ -136,11 +134,11 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
   let newDocument = _.clone(document);
   
   // Fetch existing, uncancelled votes
-  const votes = await Connectors.find(Votes, {
+  const votes = await Votes.find({
     documentId: document._id,
     userId: user._id,
     cancelled: false,
-  });
+  }).fetch();
   if (!votes.length) {
     return newDocument;
   }
@@ -214,7 +212,7 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
 export const performVoteServer = async ({ documentId, document, voteType, extendedVote, collection, voteId = randomId(), user, toggleIfAlreadyVoted = true, skipRateLimits, context, selfVote = false }: {
   documentId?: string,
   document?: DbVoteableType|null,
-  voteType: string,
+  voteType: DbVote['voteType'],
   extendedVote?: any,
   collection: CollectionBase<VoteableCollectionName>,
   voteId?: string,
@@ -231,7 +229,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
     context = createAnonymousContext();
 
   const collectionName = collection.options.collectionName;
-  document = document || await Connectors.get(collection, documentId);
+  document = document || await collection.findOne({_id: documentId});
 
   if (!document) throw new Error("Error casting vote: Document not found.");
   

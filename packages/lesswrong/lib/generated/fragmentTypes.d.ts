@@ -1001,7 +1001,7 @@ interface VotesDefaultFragment { // fragment on Votes
   readonly collectionName: string,
   readonly userId: string,
   readonly authorIds: Array<string>,
-  readonly voteType: string,
+  readonly voteType: "bigDownvote" | "bigUpvote" | "neutral" | "smallDownvote" | "smallUpvote",
   readonly extendedVoteType: any /*{"definitions":[{"type":"JSON"}]}*/,
   readonly power: number,
   readonly afPower: number,
@@ -1870,7 +1870,7 @@ interface CommentsListWithModerationMetadata extends CommentWithRepliesFragment 
 }
 
 interface CommentsListWithModerationMetadata_allVotes { // fragment on Votes
-  readonly voteType: string,
+  readonly voteType: "bigDownvote" | "bigUpvote" | "neutral" | "smallDownvote" | "smallUpvote",
 }
 
 interface CommentsListWithModGPTAnalysis extends CommentsList { // fragment on Comments
@@ -3608,7 +3608,7 @@ interface FeaturedResourcesFragment { // fragment on FeaturedResources
 interface TagRelVotes { // fragment on Votes
   readonly _id: string,
   readonly userId: string,
-  readonly voteType: string,
+  readonly voteType: "bigDownvote" | "bigUpvote" | "neutral" | "smallDownvote" | "smallUpvote",
   readonly power: number,
   readonly documentId: string,
   readonly votedAt: Date,
@@ -3623,7 +3623,7 @@ interface TagVotingActivity extends TagRelVotes { // fragment on Votes
 interface UserVotes { // fragment on Votes
   readonly _id: string,
   readonly userId: string,
-  readonly voteType: string,
+  readonly voteType: "bigDownvote" | "bigUpvote" | "neutral" | "smallDownvote" | "smallUpvote",
   readonly power: number,
   readonly cancelled: boolean,
   readonly documentId: string,

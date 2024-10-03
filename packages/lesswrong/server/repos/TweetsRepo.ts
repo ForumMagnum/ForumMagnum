@@ -44,6 +44,7 @@ class TweetsRepo extends AbstractRepo<"Tweets"> {
             AND "votedAt" > $2
             AND ${getViewablePostsSelector("p")}
             AND t._id IS NULL
+            AND p."frontpageDate" IS NOT NULL
           ORDER BY
             "votedAt" DESC) q
       )
