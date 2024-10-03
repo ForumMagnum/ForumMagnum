@@ -769,6 +769,7 @@ importComponent("ForumEventsList", () => require('../components/forumEvents/Foru
 importComponent("ForumEventForm", () => require('../components/forumEvents/ForumEventForm'));
 importComponent("ForumEventBanner", () => require('../components/forumEvents/ForumEventBanner'));
 importComponent("ForumEventFrontpageBanner", () => require('../components/forumEvents/ForumEventFrontpageBanner'));
+importComponent("ForumEventNewComment", () => require('../components/forumEvents/ForumEventNewComment'));
 importComponent("ForumEventPostPageBanner", () => require('../components/forumEvents/ForumEventPostPageBanner'));
 importComponent("ForumEventPostPagePollSection", () => require('../components/forumEvents/ForumEventPostPagePollSection'));
 importComponent("ForumEventPoll", () => require('../components/forumEvents/ForumEventPoll'));

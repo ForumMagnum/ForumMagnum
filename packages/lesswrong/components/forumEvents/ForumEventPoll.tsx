@@ -297,6 +297,9 @@ const styles = (theme: ThemeType) => ({
       display: "flex",
     },
   },
+  popperPlaceholder: {
+    background: "white"
+  }
 });
 
 export type ForumEventVoteData = {
@@ -454,11 +457,14 @@ export const ForumEventPoll = ({
 
   const sliderRef = useRef<HTMLDivElement | null>(null);
   const tickRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const userVoteRef = useRef<HTMLDivElement | null>(null);
 
   // Whether or not the poll results (i.e. other users' votes) are visible.
   // They are hidden until the user clicks on "view results".
   const [resultsVisible, setResultsVisible] = useState(false);
   const [voteCount, setVoteCount] = useState(event?.voteCount ?? 0);
+
+  const [userCommentOpen, setUserCommentOpen] = useState(false);
 
   // Get profile image and display name for all other users who voted, to display on the slider.
   // The `useRef` is to handle `voters` being briefly undefined when refetching, which causes flickering
@@ -546,6 +552,7 @@ export const ForumEventPoll = ({
       const rawVotePos = (e.clientX - sliderRect.left) / sliderWidth;
       const bucketIndex = Math.round(rawVotePos * (NUM_TICKS - 1));
       setCurrentBucketIndex(bucketIndex);
+      setUserCommentOpen(true)
     },
     []
   );
@@ -610,7 +617,7 @@ export const ForumEventPoll = ({
   ]);
   useEventListener("pointerup", saveVotePos);
 
-  const { ForumIcon, LWTooltip, UsersProfileImage } = Components;
+  const { ForumIcon, LWTooltip, UsersProfileImage, LWPopper, ForumEventNewComment } = Components;
 
   const ticks = Array.from({ length: NUM_TICKS }, (_, i) => i);
 
@@ -741,10 +748,12 @@ export const ForumEventPoll = ({
                     hasVoted && classes.currentUserVoteActive
                   )}
                   onPointerDown={startDragVote}
+                  // onClick={() => setUserCommentOpen(!userCommentOpen)}
                   style={{
                     left: `${votePos}%`,
                     transform: "translateX(-50%)",
                   }}
+                  ref={userVoteRef}
                 >
                   <LWTooltip
                     title={
@@ -818,6 +827,12 @@ export const ForumEventPoll = ({
             </div>
           </div>
         </div>
+        {/* TODO handle repositioning when the vote moves */}
+        <ForumEventNewComment 
+          open={userCommentOpen}
+          anchorEl={userVoteRef.current}
+          onClose={() => {}}
+        />
       </div>
     </AnalyticsContext>
   );
