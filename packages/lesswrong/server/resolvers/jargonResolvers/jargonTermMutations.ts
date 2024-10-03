@@ -8,7 +8,7 @@ import { PromptCachingBetaMessageParam } from '@anthropic-ai/sdk/resources/beta/
 import { Posts } from '@/lib/collections/posts';
 import JargonTerms from '@/lib/collections/jargonTerms/collection';
 import { createMutator } from '../../vulcan-lib';
-import { initialGlossaryPrompt, formatPrompt, glossarySystemPrompt } from './jargonPrompts';
+import { initialGlossaryPrompt, formatPrompt, glossarySystemPrompt, mathFormatPrompt } from './jargonPrompts';
 import { fetchFragmentSingle } from '@/server/fetchFragment';
 import { htmlToMarkdown } from '@/server/editor/conversionUtils';
 
