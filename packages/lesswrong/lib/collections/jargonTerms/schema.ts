@@ -5,7 +5,6 @@ const schema: SchemaType<"JargonTerms"> = {
     type: String,
     canRead: ['guests'],
     canCreate: ['members'],
-    canUpdate: ['members'],
     nullable: false,
   },
   term: {
@@ -17,11 +16,11 @@ const schema: SchemaType<"JargonTerms"> = {
   },
   humansAndOrAIEdited: {
     type: String,
+    allowedValues: ['humans', 'AI', 'humansAndAI'],
     canRead: ['guests'],
-    canCreate: ['members'],
-    canUpdate: ['members'],
     optional: false,
     nullable: false,
+    ...schemaDefaultValue('humans'),
   },
   forLaTeX: {
     type: Boolean,
@@ -29,6 +28,8 @@ const schema: SchemaType<"JargonTerms"> = {
     canCreate: ['members'],
     canUpdate: ['members'],
     nullable: false,
+    // This is here while we're developing, but it might want to be something the user can change later
+    hidden: true,
     ...schemaDefaultValue(false),
   },
   rejected: {
@@ -37,6 +38,7 @@ const schema: SchemaType<"JargonTerms"> = {
     canCreate: ['members'],
     canUpdate: ['members'],
     nullable: false,
+    hidden: true,
     ...schemaDefaultValue(false),
   },
   altTerms: {
@@ -49,10 +51,6 @@ const schema: SchemaType<"JargonTerms"> = {
   },
   'altTerms.$': {
     type: String,
-    canRead: ['guests'],
-    canCreate: ['members'],
-    canUpdate: ['members'],
-    nullable: false,
   },
 };
 
