@@ -24,22 +24,13 @@ return await client.messages.create({
 })
 }
 
-async function getNewJargonTerms(post: PostsPage, user: DbUser ) {
-  if (!userIsAdmin(user)) {
-    return null;
-  }
-
-  const contents = post.contents;
-  const originalHtml = contents?.html ?? ""
-  const markdown = htmlToMarkdown(originalHtml)
-  const clippedMarkdown = (markdown.length < 200 * 1000) ? markdown : markdown.slice(0, 200 * 1000)
-
+export const queryClaudeForTerms = async (markdown: string) => {
   const termsResponse = await queryClaudeJailbreak([
     {
       role: "user", 
       content: [{
         type: "text", 
-        text: `${initialGlossaryPrompt} The text is: ${clippedMarkdown}.
+        text: `${initialGlossaryPrompt} The text is: ${markdown}.
         
 The jargon terms are:`
         }]
@@ -47,22 +38,21 @@ The jargon terms are:`
   ], 5000, "You return a list of terms, with no other text.")
 
   if (!(termsResponse.content[0].type === "text")) return null
-  
-  return queryClaudeForJargon(clippedMarkdown, termsResponse.content[0].text)
+  return termsResponse.content[0].text
 }
 
-export const queryClaudeForJargon = async (markdown: string, terms: string) => {
+export const queryClaudeForJargonExplanations = async ({ markdown, terms, formatPrompt, examplePost, exampleExplanations } : {  markdown: string, terms: string, formatPrompt: string, examplePost: string, exampleExplanations: string }) => {
   const response = await queryClaudeJailbreak([
     {
       role: "user", 
       content: [{
         type: "text", 
-        text: `${formatPrompt} The text is: ${exampleJargonPost2}`}]
+        text: `${formatPrompt} The text is: ${formatPrompt}`}]
     },
     { role: "assistant", 
       content: [{
         type: "text", 
-        text: `${exampleJargonGlossary2}`
+        text: `${exampleExplanations}`
       }]
     },
     {
@@ -86,6 +76,59 @@ export const queryClaudeForJargon = async (markdown: string, terms: string) => {
   }
   return jargonTerms
 }
+
+async function getNewJargonTerms(post: PostsPage, user: DbUser ) {
+  if (!userIsAdmin(user)) {
+    return null;
+  }
+
+  const contents = post.contents;
+  const originalHtml = contents?.html ?? ""
+  const originalMarkdown = htmlToMarkdown(originalHtml)
+  const markdown = (originalMarkdown.length < 200 * 1000) ? originalMarkdown : originalMarkdown.slice(0, 200 * 1000)
+
+  const terms = await queryClaudeForTerms(markdown)
+  if (!terms) return null
+  
+  return queryClaudeForJargonExplanations({markdown, terms, formatPrompt, examplePost: exampleJargonPost2, exampleExplanations: exampleJargonGlossary2})
+}
+
+// these functions are used to create jargonTerms explaining LaTeX terms from a post
+
+export function identifyLatexTerms(htmlContent: string): string[] {
+  // Regular expression to match aria-label attributes
+  const ariaLabelRegex = /aria-label="([^"]*)"/g;
+  
+  // Regular expression to match common LaTeX patterns
+  const latexPattern = /\\[a-zA-Z]+|[_^{}]|\$/;
+  
+  // Array to store results
+  const results: string[] = [];
+  
+  let match;
+  while ((match = ariaLabelRegex.exec(htmlContent)) !== null) {
+    const ariaLabel = match[1];
+    if (latexPattern.test(ariaLabel)) {
+      results.push(ariaLabel);
+    }
+  }
+  
+  return results;
+}
+
+export function getLaTeXExplanations(post: PostsPage) {
+  const contents = post.contents;
+  const originalHtml = contents?.html ?? ""
+  const markdown = htmlToMarkdown(originalHtml)
+  const clippedMarkdown = (markdown.length < 200 * 1000) ? markdown : markdown.slice(0, 200 * 1000)
+
+  const terms = identifyLatexTerms(originalHtml)
+
+  
+  
+}
+
+
 
 defineMutation({
     name: 'getNewJargonTerms',
@@ -142,29 +185,3 @@ defineMutation({
       return jargonTermsData;
     },
 });
-
-  
-export function identifyLatexAriaLabels(htmlContent: string): string[] {
-  // Regular expression to match aria-label attributes
-  const ariaLabelRegex = /aria-label="([^"]*)"/g;
-  
-  // Regular expression to match common LaTeX patterns
-  const latexPattern = /\\[a-zA-Z]+|[_^{}]|\$/;
-  
-  // Array to store results
-  const results: string[] = [];
-  
-  let match;
-  while ((match = ariaLabelRegex.exec(htmlContent)) !== null) {
-    const ariaLabel = match[1];
-    if (latexPattern.test(ariaLabel)) {
-      results.push(ariaLabel);
-    }
-  }
-  
-  return results;
-}
-
-export function getLaTeXExplanations(terms: string[], markdown: string) {
-  
-}
