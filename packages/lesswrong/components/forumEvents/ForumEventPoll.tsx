@@ -460,7 +460,8 @@ export const ForumEventPoll = ({
   const [resultsVisible, setResultsVisible] = useState(false);
   const [voteCount, setVoteCount] = useState(event?.voteCount ?? 0);
 
-  // Get profile image and display name for all other users who voted, to display on the slider
+  // Get profile image and display name for all other users who voted, to display on the slider.
+  // The `useRef` is to handle `voters` being briefly undefined when refetching, which causes flickering
   const votersRef = useRef<UserOnboardingAuthor[]>([])
   const { results: voters } = useMulti({
     terms: {
