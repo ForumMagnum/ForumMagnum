@@ -10,6 +10,7 @@ import JargonTerms from '@/lib/collections/jargonTerms/collection';
 import { createMutator } from '../../vulcan-lib';
 import { initialGlossaryPrompt, formatPrompt, glossarySystemPrompt } from './jargonPrompts';
 import { fetchFragmentSingle } from '@/server/fetchFragment';
+import { htmlToMarkdown } from '@/server/editor/conversionUtils';
 
 const claudeKey = jargonBotClaudeKey.get()
 
@@ -30,24 +31,27 @@ async function getNewJargonTerms(post: PostsPage, user: DbUser ) {
 
   const contents = post.contents;
   const originalHtml = contents?.html ?? ""
-  const html = (originalHtml.length < 200 * 1000) ? originalHtml : originalHtml.slice(0, 200 * 1000)
+  const markdown = htmlToMarkdown(originalHtml)
+  const clippedMarkdown = (markdown.length < 200 * 1000) ? markdown : markdown.slice(0, 200 * 1000)
 
   const termsResponse = await queryClaudeJailbreak([
     {
       role: "user", 
       content: [{
         type: "text", 
-        text: `${initialGlossaryPrompt} The text is: ${html}.
+        text: `${initialGlossaryPrompt} The text is: ${clippedMarkdown}.
         
 The jargon terms are:`
         }]
       }
   ], 5000, "You return a list of terms, with no other text.")
 
-  console.log("termsResponse", termsResponse)
-
   if (!(termsResponse.content[0].type === "text")) return null
   
+  return queryClaudeForJargon(clippedMarkdown, termsResponse.content[0].text)
+}
+
+export const queryClaudeForJargon = async (markdown: string, terms: string) => {
   const response = await queryClaudeJailbreak([
     {
       role: "user", 
@@ -65,7 +69,7 @@ The jargon terms are:`
       role: "user",
       content: [{
         type: "text",
-        text: `${formatPrompt} The text is: ${html}. The jargon and math terms are: ${termsResponse.content[0].text}`
+        text: `${formatPrompt} The text is: ${markdown}. The jargon and math terms are: ${terms}`
       }]
     }, 
   ], 5000, glossarySystemPrompt)
