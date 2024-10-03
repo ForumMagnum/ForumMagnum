@@ -25,6 +25,7 @@ return await client.messages.create({
 }
 
 export const queryClaudeForTerms = async (markdown: string) => {
+  console.log(`I'm pinging Claude for terms!`)
   const termsResponse = await queryClaudeJailbreak([
     {
       role: "user", 
@@ -38,10 +39,12 @@ The jargon terms are:`
   ], 5000, "You return a list of terms, with no other text.")
 
   if (!(termsResponse.content[0].type === "text")) return null
+  console.log(`Claude responded with: ${termsResponse.content[0].text}`)
   return termsResponse.content[0].text
 }
 
 export const queryClaudeForJargonExplanations = async ({ markdown, terms, formatPrompt, examplePost, exampleExplanations } : {  markdown: string, terms: string, formatPrompt: string, examplePost: string, exampleExplanations: string }) => {
+  console.log(`I'm pinging Claude for jargon explanations!`)
   const response = await queryClaudeJailbreak([
     {
       role: "user", 
@@ -74,6 +77,7 @@ export const queryClaudeForJargonExplanations = async ({ markdown, terms, format
   } else {
     jargonTerms = []
   }
+  console.log(`Claude responded with: ${jargonTerms}`)
   return jargonTerms
 }
 
@@ -137,9 +141,13 @@ defineMutation({
     fn: async (_, { postId }: { postId: string }, context) => {
       const { currentUser } = context;
 
+      console.log(`The mutation is being called!`)
+
       if (!currentUser) {
         throw new Error('You need to be logged in to generate jargon terms');
       }
+
+      console.log(`Fetching post...`)
 
       const post = await fetchFragmentSingle({
         collectionName: 'Posts',
@@ -149,15 +157,21 @@ defineMutation({
         context,
       });
 
+      console.log(`Post fetched!`)
+
       if (!post) {
         throw new Error('Post not found');
       }
+
+      console.log(`Getting new terms...`)
 
       const newTerms = await getNewJargonTerms(post, currentUser);
 
       if (newTerms === null) {
         return [];
       }
+
+      console.log(`New terms: ${newTerms}`)
 
       const newJargonTerms = await Promise.all(
         newTerms.map(term =>
@@ -179,8 +193,12 @@ defineMutation({
         )
       );
 
+      console.log(`New jargon terms: ${newJargonTerms}`)
+
       // Extract the data property from each result
       const jargonTermsData = newJargonTerms.map(result => result.data);
+
+      console.log(`Jargon terms data: ${jargonTermsData}`)
 
       return jargonTermsData;
     },

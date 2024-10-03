@@ -16,6 +16,7 @@ export const GlossaryEditFormWrapper = ({classes, post}: {
   post: PostsPage,
 }) => {
 
+  console.log(`GlossaryEditFormWrapper is rendering!`)
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
 
   const { GlossaryEditForm, JargonEditorRow, ToggleSwitch } = Components;
@@ -25,6 +26,7 @@ export const GlossaryEditFormWrapper = ({classes, post}: {
   //   return savedGlossary ? JSON.parse(savedGlossary) : null;
   // });
 
+  console.log(`I'm using useMulti to get jargon terms!`)
   const { results: glossary = [], loading } = useMulti({
     terms: {
       view: "jargonTerms",
@@ -50,7 +52,8 @@ export const GlossaryEditFormWrapper = ({classes, post}: {
   `);
 
   // Event handler function
-  const addNewJargonTerms = async () => {
+  const addNewJargonTerms = async () => { 
+    console.log(`I'm using useMutation to get new jargon terms!`)
     try {
       const response = await getNewJargonTerms({
         variables: {
@@ -65,30 +68,9 @@ export const GlossaryEditFormWrapper = ({classes, post}: {
     }
   };
 
-  // React.useEffect(() => {
-  //   if (glossary) {
-  //     localStorage.setItem(`glossary-${post._id}`, JSON.stringify(glossary));
-  //   }
-  // }, [glossary, post._id]);
-
-  // const handleTextChange = (key: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   setGlossary((prevGlossary: any) => ({
-  //     ...prevGlossary,
-  //   [key]: {
-  //     ...prevGlossary[key],
-  //     props: {
-  //       ...prevGlossary[key].props,
-  //       text: event.target.value,
-  //     },
-  //   },
-  //   }));
-  // };
-
- 
-
   return <div className={classes.root}>
-    {!glossary && <GlossaryEditForm postId={post._id} />}
-    {!!glossary && <>{glossary.map((item: any) => !item.isAltTerm && <JargonEditorRow key={item} glossaryProps={item.props}/>)}</>}
+    {/* {!glossary && <GlossaryEditForm postId={post._id} />} */}
+    {/* {!!glossary && <>{glossary.map((item: any) => !item.isAltTerm && <JargonEditorRow key={item} glossaryProps={item.props}/>)}</>} */}
     <div onClick={addNewJargonTerms}>Generate new terms</div>
   </div>;
 }
