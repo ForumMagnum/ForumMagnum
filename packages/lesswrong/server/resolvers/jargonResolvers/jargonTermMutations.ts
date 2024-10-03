@@ -169,13 +169,57 @@ export const createNewJargonTerms = async (postId: string, currentUser: DbUser) 
   if (!post) {
     throw new Error('Post not found');
   }
-  const newMathJargon = await getLaTeXExplanations(post);
+  const newMathJargon = await getLaTeXExplanations(post) || []
 
-  const newEnglishTerms = await createEnglishExplanations(post);
+  const newEnglishJargon = await createEnglishExplanations(post) || []
 
-  if (newEnglishTerms === null && newMathJargon === null) {
-    return [];
-  }
+
+  const newJargonTerms = await Promise.all([
+    ...newEnglishJargon.map(term =>
+      createMutator({
+        collection: JargonTerms,
+        document: {
+          postId: postId,
+          term: term.term,
+          humansAndOrAIEdited: "AI",
+          forLaTeX: false,
+          rejected: true,
+          contents: {
+            originalContents: {
+              data: term.text,
+              type: 'ckEditorMarkup',
+            },
+          },
+          altTerms: term.altTerms,
+        },
+        currentUser: currentUser,
+        validate: false,
+      })
+    ),
+    ...newMathJargon.map(term =>
+      createMutator({
+        collection: JargonTerms,
+        document: {
+          postId: postId,
+          term: term.term,
+          humansAndOrAIEdited: "AI",
+          forLaTeX: true,
+          rejected: true,
+          contents: {
+            originalContents: {
+              data: term.text,
+              type: 'ckEditorMarkup',
+            },
+          },
+          altTerms: term.altTerms,
+        },
+        currentUser: currentUser,
+        validate: false,
+      })
+    ),
+  ]);
+  console.log(newJargonTerms)
+  return newJargonTerms.map(result => result.data);
 }
 
 
@@ -189,38 +233,7 @@ defineMutation({
       }
 
 
-      await createNewJargonTerms(postId, currentUser);
-
-
-
-
-      const newJargonTerms = await Promise.all(
-        newTerms.map(term =>
-          createMutator({
-            collection: JargonTerms,
-            document: {
-              postId: postId,
-              term: term.term,
-              humansAndOrAIEdited: "AI",
-              forLaTeX: false,
-              rejected: false,
-              contents: {
-                originalContents: {
-                  data: term.text,
-                  type: 'ckEditorMarkup',
-                },
-              },
-              altTerms: term.altTerms,
-            },
-            currentUser: currentUser,
-            validate: false,
-          })
-        )
-      );
-
-      console.log(`New jargon terms: ${newJargonTerms}`)
-
-      // Extract the data property from each result
-      return newJargonTerms.map(result => result.data);
+    return await createNewJargonTerms(postId, currentUser);
+      
     },
 });

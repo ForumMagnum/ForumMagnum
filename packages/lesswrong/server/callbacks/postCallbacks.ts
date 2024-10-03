@@ -34,9 +34,7 @@ import { googleVertexApi } from '../google-vertex/client';
 import { postsNewNotifications } from '../notificationCallbacks';
 import { getLatestContentsRevision } from '../../lib/collections/revisions/helpers';
 import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
-import { getAnthropicPromptCachingClientOrThrow } from '../languageModels/anthropicClient';
-import { PromptCachingBetaMessageParam } from '@anthropic-ai/sdk/resources/beta/prompt-caching/messages';
-import { getLaTeXExplanations } from '../resolvers/jargonResolvers/jargonTermMutations';
+import { createNewJargonTerms } from '../resolvers/jargonResolvers/jargonTermMutations';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -693,10 +691,8 @@ getCollectionHooks("Posts").editSync.add(async function removeFrontpageDate(
   return modifier;
 });
 
-getCollectionHooks("Posts").updateAsync.add(async function createJargonTerms ({document, oldDocument, context}: UpdateCallbackProperties<"Posts">) {
-  console.log("starting callback")
-  const revision = await getLatestContentsRevision(document);
-  if (!revision) return;
-  console.log("starting math")
-  console.log(await getLaTeXExplanations(revision))
+getCollectionHooks("Posts").updateAsync.add(async function createJargonTermsCallback ({document, oldDocument, context}: UpdateCallbackProperties<"Posts">) {
+  const currentUser = context.currentUser
+  if (!currentUser) return
+  await createNewJargonTerms(document._id, currentUser)
 })
