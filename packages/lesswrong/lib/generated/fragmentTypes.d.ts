@@ -775,7 +775,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly annualReviewMarketProbability: number|null,
   readonly annualReviewMarketIsResolved: boolean|null,
   readonly annualReviewMarketYear: number|null,
-  readonly jargonTerms: any,
+  readonly jargonTerms: Array<JargonTerm|null>,
   readonly reviewVoteScoreAF: number,
   readonly reviewVotesAF: Array<number>,
   readonly reviewVoteScoreHighKarma: number,
@@ -1387,7 +1387,7 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
     hostedHere: boolean | null,
     foreignPostId: string | null,
   },
-  readonly jargonTerms: any,
+  readonly jargonTerms: Array<JargonTermsPostFragment>,
 }
 
 interface PostsDetails_canonicalSequence { // fragment on Sequences
@@ -4200,6 +4200,15 @@ interface JargonTermsFragment { // fragment on JargonTerms
   readonly altTerms: Array<string>,
 }
 
+interface JargonTermsPostFragment { // fragment on JargonTerms
+  readonly _id: string,
+  readonly term: string,
+  readonly humansAndOrAIEdited: "humans" | "AI" | "humansAndAI",
+  readonly forLaTeX: boolean,
+  readonly altTerms: Array<string>,
+  readonly contents: RevisionDisplay|null,
+}
+
 interface FragmentTypes {
   CollectionsDefaultFragment: CollectionsDefaultFragment
   ClientIdsDefaultFragment: ClientIdsDefaultFragment
@@ -4482,6 +4491,7 @@ interface FragmentTypes {
   SubscribedPostAndCommentsFeed: SubscribedPostAndCommentsFeed
   JargonTermsDefaultFragment: JargonTermsDefaultFragment
   JargonTermsFragment: JargonTermsFragment
+  JargonTermsPostFragment: JargonTermsPostFragment
 }
 
 interface FragmentTypesByCollection {
@@ -4556,7 +4566,7 @@ interface FragmentTypesByCollection {
   LlmConversations: "LlmConversationsDefaultFragment"|"LlmConversationsFragment"|"LlmConversationsViewingPageFragment"|"LlmConversationsWithMessagesFragment"
   LlmMessages: "LlmMessagesDefaultFragment"|"LlmMessagesFragment"
   SubscribedPostAndCommentses: "SubscribedPostAndCommentsFeed"
-  JargonTerms: "JargonTermsDefaultFragment"|"JargonTermsFragment"
+  JargonTerms: "JargonTermsDefaultFragment"|"JargonTermsFragment"|"JargonTermsPostFragment"
 }
 
 interface CollectionNamesByFragmentName {
@@ -4841,6 +4851,7 @@ interface CollectionNamesByFragmentName {
   SubscribedPostAndCommentsFeed: never
   JargonTermsDefaultFragment: "JargonTerms"
   JargonTermsFragment: "JargonTerms"
+  JargonTermsPostFragment: "JargonTerms"
 }
 
 type CollectionNameString = "AdvisorRequests"|"ArbitalCaches"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"JargonTerms"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayActions"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Sessions"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"SurveyQuestions"|"SurveyResponses"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"

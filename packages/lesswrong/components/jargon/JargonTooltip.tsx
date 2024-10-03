@@ -40,6 +40,7 @@ export const JargonTooltip = ({classes, children, term, replacedSubstrings, isFi
 }) => {
   const { LWTooltip, ContentItemBody } = Components;
   const termInfo = replacedSubstrings[term];
+  console.log({termInfo})
   const glossaryWithoutTermOrAltTerms = Object.fromEntries(
     Object.entries(replacedSubstrings).filter(([key]) => key !== term && !termInfo.props.altTerms.includes(key))
   );

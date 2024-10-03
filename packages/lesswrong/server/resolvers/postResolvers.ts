@@ -39,7 +39,6 @@ import { getAnthropicPromptCachingClientOrThrow } from '../languageModels/anthro
 import { exampleJargonGlossary2, exampleJargonPost2 } from './jargonResolvers/exampleJargonPost';
 // import { exampleMathGlossary, exampleMathPost } from './exampleMathPost';
 import { ContentReplacedSubstringComponentInfo } from '@/components/common/ContentItemBody';
-import { JargonTerms } from '@/lib/collections/jargonTerms/collection';
 
 const claudeKey = jargonBotClaudeKey.get()
 
@@ -371,7 +370,7 @@ augmentFieldsDict(Posts, {
 
   jargonTerms: {
     resolveAs: {
-      type: GraphQLJSON,
+      type: '[JargonTerm]',
       resolver: async (post: DbPost, args: void, context: ResolverContext) => {
         const jargonTerms = await context.JargonTerms.find({postId: post._id, rejected: false}).fetch();
         return jargonTerms

@@ -16,7 +16,7 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment PostJargonTermsFragment on Post {
+  fragment JargonTermsPostFragment on JargonTerm {
     _id
     term
     humansAndOrAIEdited

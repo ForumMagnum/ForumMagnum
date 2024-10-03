@@ -767,7 +767,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
 
   const glossary: Record<string, ContentReplacedSubstringComponentInfo> = {}
 
-  fullPost?.jargonTerms?.forEach((jargonTerm: JargonTermsFragment) => {
+  fullPost?.jargonTerms?.forEach((jargonTerm: JargonTermsPostFragment) => {
     glossary[jargonTerm.term] = {
       componentName: "JargonTooltip",
       props: {
@@ -783,7 +783,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     {fullPost && fullPost.jargonTerms.length > 0 && <div>
       <h3 className={classes.glossary}>Glossary of Jargon</h3>
 
-      {fullPost?.jargonTerms?.map((jargonTerm: JargonTermsFragment) => 
+      {fullPost?.jargonTerms?.map((jargonTerm: JargonTermsPostFragment) => 
         <div key={jargonTerm.term}>
           <JargonTooltip replacedSubstrings={glossary} term={jargonTerm.term} placement="left-start"><div className={classes.jargonTerm}>{jargonTerm.term}</div> </JargonTooltip>
         </div>)
