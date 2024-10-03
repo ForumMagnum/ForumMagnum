@@ -95,7 +95,7 @@ async function getNewJargonTerms(post: PostsPage, user: DbUser ) {
 
 // these functions are used to create jargonTerms explaining LaTeX terms from a post
 
-export function identifyLatexTerms(htmlContent: string): string[] {
+export function identifyLatexTerms(htmlContent: string): string {
   // Regular expression to match aria-label attributes
   const ariaLabelRegex = /aria-label="([^"]*)"/g;
   
@@ -113,19 +113,20 @@ export function identifyLatexTerms(htmlContent: string): string[] {
     }
   }
   
-  return results;
+  return results.join(",");
 }
+
+
 
 export function getLaTeXExplanations(post: PostsPage) {
   const contents = post.contents;
   const originalHtml = contents?.html ?? ""
-  const markdown = htmlToMarkdown(originalHtml)
-  const clippedMarkdown = (markdown.length < 200 * 1000) ? markdown : markdown.slice(0, 200 * 1000)
+  const originalMarkdown = htmlToMarkdown(originalHtml)
+  const markdown = (originalMarkdown.length < 200 * 1000) ? originalMarkdown : originalMarkdown.slice(0, 200 * 1000)
 
   const terms = identifyLatexTerms(originalHtml)
 
-  
-  
+  return queryClaudeForJargonExplanations({markdown, terms, formatPrompt, examplePost: exampleJargonPost2, exampleExplanations: exampleJargonGlossary2})
 }
 
 
