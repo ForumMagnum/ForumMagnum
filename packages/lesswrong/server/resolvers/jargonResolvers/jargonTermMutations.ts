@@ -24,64 +24,64 @@ return await client.messages.create({
 }
 
 async function getNewJargonTerms(post: PostsPage, user: DbUser ) {
-    if (!userIsAdmin(user)) {
-      return null;
-    }
-
-    const contents = post.contents;
-    const originalHtml = contents?.html ?? ""
-    const html = (originalHtml.length < 200 * 1000) ? originalHtml : originalHtml.slice(0, 200 * 1000)
-
-    const termsResponse = await queryClaudeJailbreak([
-      {
-        role: "user", 
-        content: [{
-          type: "text", 
-          text: `${initialGlossaryPrompt} The text is: ${html}.
-          
-The jargon terms are:`
-          }]
-        }
-    ], 5000, "You return a list of terms, with no other text.")
-
-    console.log("termsResponse", termsResponse)
-
-    if (!(termsResponse.content[0].type === "text")) return null
-    
-    const response = await queryClaudeJailbreak([
-      {
-        role: "user", 
-        content: [{
-          type: "text", 
-          text: `${formatPrompt} The text is: ${exampleJargonPost2}`}]
-      },
-      { role: "assistant", 
-        content: [{
-          type: "text", 
-          text: `${exampleJargonGlossary2}`
-        }]
-      },
-      {
-        role: "user",
-        content: [{
-          type: "text",
-          text: `${formatPrompt} The text is: ${html}. The jargon and math terms are: ${termsResponse.content[0].text}`
-        }]
-      }, 
-    ], 5000, glossarySystemPrompt)
-    if (!(response.content[0].type === "text")) return null
-
-    let jargonTerms: Array<{ term: string, altTerms?: string[], text: string }> = []
-
-    const text = response.content[0].text
-    const jsonGuessMatch = text.match(/\[\s*\{[\s\S]*?\}\s*\]/)
-    if (jsonGuessMatch) {
-      jargonTerms = JSON.parse(jsonGuessMatch[0])
-    } else {
-      jargonTerms = []
-    }
-    return jargonTerms
+  if (!userIsAdmin(user)) {
+    return null;
   }
+
+  const contents = post.contents;
+  const originalHtml = contents?.html ?? ""
+  const html = (originalHtml.length < 200 * 1000) ? originalHtml : originalHtml.slice(0, 200 * 1000)
+
+  const termsResponse = await queryClaudeJailbreak([
+    {
+      role: "user", 
+      content: [{
+        type: "text", 
+        text: `${initialGlossaryPrompt} The text is: ${html}.
+        
+The jargon terms are:`
+        }]
+      }
+  ], 5000, "You return a list of terms, with no other text.")
+
+  console.log("termsResponse", termsResponse)
+
+  if (!(termsResponse.content[0].type === "text")) return null
+  
+  const response = await queryClaudeJailbreak([
+    {
+      role: "user", 
+      content: [{
+        type: "text", 
+        text: `${formatPrompt} The text is: ${exampleJargonPost2}`}]
+    },
+    { role: "assistant", 
+      content: [{
+        type: "text", 
+        text: `${exampleJargonGlossary2}`
+      }]
+    },
+    {
+      role: "user",
+      content: [{
+        type: "text",
+        text: `${formatPrompt} The text is: ${html}. The jargon and math terms are: ${termsResponse.content[0].text}`
+      }]
+    }, 
+  ], 5000, glossarySystemPrompt)
+  if (!(response.content[0].type === "text")) return null
+
+  let jargonTerms: Array<{ term: string, altTerms?: string[], text: string }> = []
+
+  const text = response.content[0].text
+  const jsonGuessMatch = text.match(/\[\s*\{[\s\S]*?\}\s*\]/)
+  if (jsonGuessMatch) {
+    jargonTerms = JSON.parse(jsonGuessMatch[0])
+  } else {
+    jargonTerms = []
+  }
+  return jargonTerms
+}
 
 defineMutation({
     name: 'getNewJargonTerms',
