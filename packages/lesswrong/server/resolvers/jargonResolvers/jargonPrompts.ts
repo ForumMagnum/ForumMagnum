@@ -1,3 +1,4 @@
+import { exampleMathGlossary } from "./exampleMathOutput"
 
 
 
@@ -22,3 +23,19 @@ Include a set of altTerms that are slight variations of the term, such as plural
 
 Make sure to to include all technical terms, followed by all math terms.`
 
+
+
+
+export const mathFormatPrompt = `Your job is to write math glossaries that are helpful for both laymen and mathematicians. 
+
+Read this post, and then return JSON which describes each LaTeX term in the post, with
+
+- an explanation of what the term means in this particular context, accessible to both mathmaticians and educated laymen.
+
+- a concrete example that would fit the term, in the context of it's equation.
+
+- tie the example back to the overall point of the post, explaining why it's useful, relevant, and/or interesting
+
+- if applicable, an explanation of what the term commonly is used for in math/LaTeX, such as a sum, function, accessible to people who do not already know math.
+
+It should be formatted like this:${exampleMathGlossary}`

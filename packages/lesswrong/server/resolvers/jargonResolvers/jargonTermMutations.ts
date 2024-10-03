@@ -130,7 +130,7 @@ export function getLaTeXExplanations(post: PostsPage) {
 
   const terms = identifyLatexTerms(originalHtml)
 
-  return queryClaudeForJargonExplanations({markdown, terms, formatPrompt, examplePost: exampleJargonPost2, exampleExplanations: exampleJargonGlossary2})
+  return queryClaudeForJargonExplanations({markdown, terms, formatPrompt: mathFormatPrompt, examplePost: exampleJargonPost2, exampleExplanations: })
 }
 
 
