@@ -10,6 +10,7 @@ registerFragment(`
     lightColor
     contrastColor
     tagId
+    postId
     bannerImageId
     includesPoll
   }

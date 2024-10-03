@@ -3,6 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 
 const styles = (theme: ThemeType) => ({
   popperContent: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
     padding: theme.spacing.unit * 2,
     maxWidth: 400,
     backgroundColor: theme.palette.background.paper,
@@ -15,24 +16,28 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const ForumEventNewComment = ({ open, anchorEl, onClose, classes }: {
+const ForumEventNewComment = ({ open, anchorEl, onClose, onClickAway, classes }: {
   open: boolean,
   anchorEl: HTMLElement | null,
   onClose: () => void,
+  onClickAway: () => void,
   classes: ClassesType,
 }) => {
-  const { LWPopper, CommentsNewForm } = Components;
+  const { LWPopper, LWClickAwayListener, CommentsNewForm } = Components;
 
   return (
     <LWPopper open={open} anchorEl={anchorEl} placement="bottom-start">
-      <div className={classes.popperContent}>
-        <div>What made you vote this way?</div>
-        <div>Your response will appear as a comment on the Debate week post, and show next to your avatar on this banner.</div>
-        <CommentsNewForm
-          type='reply'
-          enableGuidelines={false}
-        />
-      </div>
+      <LWClickAwayListener onClickAway={onClickAway}>
+        <div className={classes.popperContent}>
+          <div>What made you vote this way?</div>
+          <div>Your response will appear as a comment on the Debate week post, and show next to your avatar on this banner.</div>
+          <CommentsNewForm
+            type='reply'
+            enableGuidelines={false}
+            cancelCallback={onClose}
+          />
+        </div>
+      </LWClickAwayListener>
     </LWPopper>
   );
 };

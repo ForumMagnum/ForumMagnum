@@ -11,6 +11,7 @@ import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
 import range from "lodash/range";
 import sortBy from "lodash/sortBy";
 import DeferRender from "../common/DeferRender";
+import { ProvidedRequiredArgumentsOnDirectives } from "graphql/validation/rules/ProvidedRequiredArguments";
 
 export const POLL_MAX_WIDTH = 800;
 const SLIDER_MAX_WIDTH = 1110;
@@ -578,6 +579,7 @@ export const ForumEventPoll = ({
         x: newVotePos,
       };
       if (!hasVoted) {
+        setUserCommentOpen(true);
         setVoteCount((count) => count + 1);
         setCurrentUserVote(newVotePos);
         await addVote({ variables: voteData });
@@ -615,7 +617,7 @@ export const ForumEventPoll = ({
     refetch,
     hasVoted,
   ]);
-  useEventListener("pointerup", saveVotePos);
+  // useEventListener("pointerup", saveVotePos);
 
   const { ForumIcon, LWTooltip, UsersProfileImage, LWPopper, ForumEventNewComment } = Components;
 
@@ -648,6 +650,14 @@ export const ForumEventPoll = ({
       ? tickPositions.current[currentBucketIndex]
       // Fall back to naive approximate calculation so there isn't a big jump after the first render
       : (currentBucketIndex / (NUM_TICKS - 1)) * 100;
+
+  const onCloseComment = useCallback(() => setUserCommentOpen(false), []);
+  const onClickAwayComment = useCallback(() => {
+    console.log("click away", isDragging.current);
+    if (!isDragging.current) {
+      onCloseComment();
+    }
+  }, [onCloseComment]);
 
   if (!event) return null;
 
@@ -748,6 +758,10 @@ export const ForumEventPoll = ({
                     hasVoted && classes.currentUserVoteActive
                   )}
                   onPointerDown={startDragVote}
+                  onClick={(ev) => {
+                    ev.stopPropagation();
+                    saveVotePos();
+                  }}
                   // onClick={() => setUserCommentOpen(!userCommentOpen)}
                   style={{
                     left: `${votePos}%`,
@@ -831,7 +845,8 @@ export const ForumEventPoll = ({
         <ForumEventNewComment 
           open={userCommentOpen}
           anchorEl={userVoteRef.current}
-          onClose={() => {}}
+          onClose={onCloseComment}
+          onClickAway={onClickAwayComment}
         />
       </div>
     </AnalyticsContext>

@@ -788,5 +788,10 @@
     "acceptsSchemaHash": "4176699fcd50a096b6fd2437aec71b01",
     "acceptedByMigration": "20240925T020054.create_petrovDayAction.ts",
     "timestamp": "2024-09-25T02:00:54.000Z"
+  },
+  {
+    "acceptsSchemaHash": "906a49c8f757615b2e527a1f3250c93a",
+    "acceptedByMigration": "20241003T152617.add_postId_to_ForumEvents.ts",
+    "timestamp": "2024-10-03T15:26:17.000Z"
   }
 ]

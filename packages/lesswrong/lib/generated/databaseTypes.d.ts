@@ -460,6 +460,7 @@ interface DbForumEvent extends DbObject {
   lightColor: string
   contrastColor: string | null
   tagId: string
+  postId: string | null
   bannerImageId: string | null
   includesPoll: boolean
   publicData: any /*{"definitions":[{"blackbox":true}]}*/

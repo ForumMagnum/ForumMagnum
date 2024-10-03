@@ -609,6 +609,7 @@ interface ForumEventsDefaultFragment { // fragment on ForumEvents
   readonly lightColor: string,
   readonly contrastColor: string | null,
   readonly tagId: string,
+  readonly postId: string | null,
   readonly bannerImageId: string | null,
   readonly includesPoll: boolean,
   readonly publicData: any /*{"definitions":[{"blackbox":true}]}*/,
@@ -2876,6 +2877,7 @@ interface ForumEventsMinimumInfo { // fragment on ForumEvents
   readonly lightColor: string,
   readonly contrastColor: string | null,
   readonly tagId: string,
+  readonly postId: string | null,
   readonly bannerImageId: string | null,
   readonly includesPoll: boolean,
 }
