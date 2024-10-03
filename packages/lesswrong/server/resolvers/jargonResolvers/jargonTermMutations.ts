@@ -11,6 +11,7 @@ import { createMutator } from '../../vulcan-lib';
 import { initialGlossaryPrompt, formatPrompt, glossarySystemPrompt, mathFormatPrompt } from './jargonPrompts';
 import { fetchFragmentSingle } from '@/server/fetchFragment';
 import { htmlToMarkdown } from '@/server/editor/conversionUtils';
+import { exampleMathGlossary } from './exampleMathOutput';
 
 const claudeKey = jargonBotClaudeKey.get()
 
@@ -130,7 +131,7 @@ export function getLaTeXExplanations(post: PostsPage) {
 
   const terms = identifyLatexTerms(originalHtml)
 
-  return queryClaudeForJargonExplanations({markdown, terms, formatPrompt: mathFormatPrompt, examplePost: exampleJargonPost2, exampleExplanations: })
+  return queryClaudeForJargonExplanations({markdown, terms, formatPrompt: mathFormatPrompt, examplePost: exampleJargonPost2, exampleExplanations: exampleMathGlossary})
 }
 
 
