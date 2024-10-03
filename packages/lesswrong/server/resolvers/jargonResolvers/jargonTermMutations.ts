@@ -138,8 +138,7 @@ defineMutation({
     name: 'getNewJargonTerms',
     argTypes: '(postId: String!)',
     resultType: '[JargonTerm]',
-    fn: async (_, { postId }: { postId: string }, context) => {
-      const { currentUser } = context;
+    fn: async (_, { postId }: { postId: string }, { currentUser }: ResolverContext) => {
 
       console.log(`The mutation is being called!`)
 
@@ -154,7 +153,6 @@ defineMutation({
         fragmentName: 'PostsPage',
         currentUser,
         selector: { _id: postId },
-        context,
       });
 
       console.log(`Post fetched!`)
@@ -180,6 +178,9 @@ defineMutation({
             document: {
               postId: postId,
               term: term.term,
+              humansAndOrAIEdited: "AI",
+              forLaTeX: false,
+              rejected: false,
               contents: {
                 originalContents: {
                   data: term.text,
@@ -188,6 +189,7 @@ defineMutation({
               },
               altTerms: term.altTerms,
             },
+            currentUser: currentUser,
             validate: false,
           })
         )

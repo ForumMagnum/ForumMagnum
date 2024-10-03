@@ -45,7 +45,12 @@ export const GlossaryEditFormWrapper = ({classes, post}: {
     mutation getNewJargonTerms($postId: String!) {
       getNewJargonTerms(postId: $postId) {
         term
-        contents
+        contents {
+          originalContents {
+            data
+            type
+          }
+        }
         altTerms
       }
     }
@@ -70,7 +75,7 @@ export const GlossaryEditFormWrapper = ({classes, post}: {
 
   return <div className={classes.root}>
     {/* {!glossary && <GlossaryEditForm postId={post._id} />} */}
-    {/* {!!glossary && <>{glossary.map((item: any) => !item.isAltTerm && <JargonEditorRow key={item} glossaryProps={item.props}/>)}</>} */}
+    {!!glossary && <>{glossary.map((item: any) => !item.isAltTerm && <JargonEditorRow key={item} jargonTerm={item}/>)}</>}
     <div onClick={addNewJargonTerms}>Generate new terms</div>
   </div>;
 }

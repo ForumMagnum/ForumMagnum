@@ -27,9 +27,9 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const JargonEditorRow = ({classes, glossaryProps}: {
+export const JargonEditorRow = ({classes, jargonTerm}: {
   classes: ClassesType<typeof styles>,
-  glossaryProps: any,
+  jargonTerm: DbJargonTerm,
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
 
@@ -39,8 +39,8 @@ export const JargonEditorRow = ({classes, glossaryProps}: {
 
   return <div className={classNames(classes.root, isActive && classes.isActive)}>
     <ToggleSwitch value={isActive} className={classes.toggleSwitch} setValue={setIsActive}/>
-    {!isActive && <div contentEditable={true} dangerouslySetInnerHTML={{__html: glossaryProps.term}} />}
-    {isActive && <div contentEditable={true} dangerouslySetInnerHTML={{__html: glossaryProps.text}} />}
+    {!isActive && <div contentEditable={true} dangerouslySetInnerHTML={{__html: jargonTerm.term}} />}
+    {isActive && <div contentEditable={true} dangerouslySetInnerHTML={{__html: jargonTerm?.contents?.originalContents?.data ?? ''}} />}
   </div>;
 }
 
