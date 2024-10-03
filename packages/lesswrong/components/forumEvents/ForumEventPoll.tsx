@@ -13,7 +13,7 @@ import sortBy from "lodash/sortBy";
 import DeferRender from "../common/DeferRender";
 
 export const POLL_MAX_WIDTH = 800;
-const SLIDER_MAX_WIDTH = 1106;
+const SLIDER_MAX_WIDTH = 1110;
 const USER_IMAGE_SIZE = 34;
 const MAX_STACK_IMAGES = 20;
 const NUM_TICKS = 29;
@@ -52,7 +52,7 @@ const styles = (theme: ThemeType) => ({
     flexGrow: 1,
     maxWidth: `min(${SLIDER_MAX_WIDTH}px, 100%)`,
     position: "relative",
-    padding: "8px 3px 0px 3px",
+    padding: "8px 5px 0px 3px",
     overflow: "hidden"
   },
   sliderLineResults: {
@@ -215,10 +215,10 @@ const styles = (theme: ThemeType) => ({
     // add a black background to the placeholder user circle icon
     background: `radial-gradient(${theme.palette.text.alwaysBlack} 50%, transparent 50%)`,
     color: theme.palette.text.alwaysWhite,
-    fontSize: 34,
+    fontSize: 44,
     borderRadius: '50%',
-    // offset the additional 5px on the left added by the larger font size
     marginLeft: -5,
+    marginTop: -4
   },
   clearVote: {
     display: 'none',
@@ -338,6 +338,9 @@ type ForumEventVoteDisplay = {
   user: UserOnboardingAuthor,
 }
 
+/**
+ * Groups the given forum event votes into NUM_TICKS equal-width clusters
+ */
 const clusterForumEventVotes = ({
   voters,
   event,
@@ -349,24 +352,26 @@ const clusterForumEventVotes = ({
 } = {}): ForumEventVoteDisplayCluster[] => {
   if (!voters || !event || !event.publicData) return [];
 
-  let votes = voters.map((voter) => {
-    const vote = event.publicData[voter._id].x as number;
-    return {
-      x: vote,
-      user: voter,
-    };
-  });
-  votes = sortBy(votes, "x");
+  const votes = sortBy(voters
+    .filter((voter) => event.publicData[voter._id]?.x !== null && event.publicData[voter._id]?.x !== undefined)
+    .map((voter) => {
+      const vote = event.publicData[voter._id].x as number;
+      return {
+        x: vote,
+        user: voter,
+      };
+    }), "x");
 
   const clusters: ForumEventVoteDisplayCluster[] = range(0, NUM_TICKS).map((i) => ({
     center: i / (NUM_TICKS - 1),
     votes: [],
   }));
-  votes.forEach((vote) => {
+
+  for (const vote of votes) {
     const adjustedX = Math.min(vote.x, 0.999999);
     const clusterIndex = Math.floor(adjustedX * NUM_TICKS);
     clusters[clusterIndex].votes.push(vote);
-  });
+  }
 
   for (const cluster of clusters) {
     cluster.votes.sort((a, b) => {
@@ -408,11 +413,10 @@ const PollQuestion = ({
 /**
  * This component is for forum events that have a poll.
  * Displays the question, a slider where the user can vote on a scale from "Disagree" to "Agree",
- * and lets the user view the poll results (votes are public).
+ * and lets the user view the poll results as a histogram (votes are public).
  *
- * When a user updates their vote, we award points to posts that changed the user's mind.
- * If a postId is provided, we just give points to that post (ex. when on a post page).
- * Otherwise, we open a modal.
+ * If a postId is provided (because we are on the post page), we record the postId as part of the vote,
+ * currently this isn't used for anything directly.
  */
 export const ForumEventPoll = ({
   postId,
@@ -435,21 +439,28 @@ export const ForumEventPoll = ({
     initialUserVotePos !== null
       ? Math.round(initialUserVotePos * (NUM_TICKS - 1))
       : DEFAULT_VOTE_INDEX;
+
+  // The bucket that the current user's vote is in (including if the vote is currently being dragged)
   const [currentBucketIndex, setCurrentBucketIndex] = useState<number>(
     initialBucketIndex
   );
+  // The logical x-position of the current vote (equal to `currentBucketIndex / (NUM_TICKS - 1)`)
   const [currentUserVote, setCurrentUserVote] = useState<number | null>(
     initialUserVotePos
   );
   const hasVoted = currentUserVote !== null;
+  // Whether or not the user is currently dragging their vote
   const isDragging = useRef(false);
 
   const sliderRef = useRef<HTMLDivElement | null>(null);
   const tickRefs = useRef<(HTMLDivElement | null)[]>([]);
 
+  // Whether or not the poll results (i.e. other users' votes) are visible.
+  // They are hidden until the user clicks on "view results".
   const [resultsVisible, setResultsVisible] = useState(false);
   const [voteCount, setVoteCount] = useState(event?.voteCount ?? 0);
 
+  // Get profile image and display name for all other users who voted, to display on the slider
   const votersRef = useRef<UserOnboardingAuthor[]>([])
   const { results: voters } = useMulti({
     terms: {
@@ -478,6 +489,10 @@ export const ForumEventPoll = ({
   const [addVote] = useMutation(addForumEventVoteQuery);
   const [removeVote] = useMutation(removeForumEventVoteQuery);
 
+  /**
+   * When the user clicks the "x" icon, or when a logged out user tries to vote,
+   * delete their vote data
+   */
   const clearVote = useCallback(
     async (e?: React.PointerEvent) => {
       e?.stopPropagation();
@@ -499,6 +514,9 @@ export const ForumEventPoll = ({
     ]
   );
 
+  /**
+   * When the user pointerdowns on their vote circle, start dragging it
+   */
   const startDragVote = useCallback(
     (e: React.PointerEvent) => {
       e.preventDefault();
@@ -507,6 +525,9 @@ export const ForumEventPoll = ({
     []
   );
 
+  /**
+   * When the user drags their vote, update its x position
+   */
   const updateVotePos = useCallback(
     (e: PointerEvent) => {
       if (!isDragging.current || !sliderRef.current) return;
@@ -542,6 +563,7 @@ export const ForumEventPoll = ({
     isDragging.current = false;
     const newVotePos = currentBucketIndex / (NUM_TICKS - 1);
 
+    // When a logged-in user is done dragging their vote, attempt to save i
     if (currentUser) {
       const voteData: ForumEventVoteData = {
         forumEventId: event._id,
@@ -567,6 +589,7 @@ export const ForumEventPoll = ({
         });
         refetch?.();
       }
+    // When a logged-out user tries to vote, just show the login modal
     } else {
       onSignup()
       void clearVote()
@@ -591,12 +614,9 @@ export const ForumEventPoll = ({
   const ticks = Array.from({ length: NUM_TICKS }, (_, i) => i);
 
   const tickPositions = useRef<number[]>([]);
-  const [votePos, setVotePos] = useState(
-    // Initial naive calculation which doesn't exactly line up with the ticks, so
-    // there isn't a large jump
-    (currentBucketIndex / (NUM_TICKS - 1)) * 100
-  );
 
+  // Get the exact positions of the ticks on the slider after they have rendered, in order
+  // to place the user vote without having to account for spacing etc
   useEffect(() => {
     if (sliderRef.current) {
       const sliderRect = sliderRef.current.getBoundingClientRect();
@@ -611,18 +631,15 @@ export const ForumEventPoll = ({
         }
         return 0;
       });
-      setVotePos(tickPositions.current[currentBucketIndex]);
     }
   }, [currentBucketIndex]);
 
-  useEffect(() => {
-    if (
-      tickPositions.current.length &&
-      tickPositions.current[currentBucketIndex] !== undefined
-    ) {
-      setVotePos(tickPositions.current[currentBucketIndex]);
-    }
-  }, [currentBucketIndex]);
+  // The screen-space x-position of the current vote
+  const votePos =
+    tickPositions.current.length && tickPositions.current[currentBucketIndex] !== undefined
+      ? tickPositions.current[currentBucketIndex]
+      // Fall back to naive approximate calculation so there isn't a big jump after the first render
+      : (currentBucketIndex / (NUM_TICKS - 1)) * 100;
 
   if (!event) return null;
 
