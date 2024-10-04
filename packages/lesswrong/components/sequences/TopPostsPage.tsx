@@ -464,6 +464,11 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.headerStyle,
     margin: 12,
     color: theme.palette.grey[600],
+    [theme.breakpoints.down('sm')]: {
+      fontSize: '1.4rem',
+      marginLeft: 6,
+      marginRight: 6,
+    }
   },
   category: {
     ...theme.typography.display1,
@@ -472,7 +477,12 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.headerStyle,
     fontVariantCaps: 'all-small-caps',
     color: theme.palette.grey[600],
-    marginBottom: 24
+    marginBottom: 24,
+    [theme.breakpoints.down('sm')]: {
+      fontSize: '1.4rem',
+      marginLeft: 6,
+      marginRight: 6,
+    }
   },
   postsByYearCategory: {
     display: 'flex',
@@ -487,12 +497,12 @@ const styles = (theme: ThemeType) => ({
   yearSelector: {
     textWrap: 'balance',
     marginBottom: '12px',
-    textAlign: "center"
+    textAlign: "center",
   },
   categorySelector: {
     textWrap: 'balance',
     marginBottom: '12px',
-    textAlign: "center"
+    textAlign: "center",
   },
   disabledCategory: {
     opacity: .5,
@@ -875,7 +885,7 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
         })}
       </div>
       <div style={{ maxWidth: SECTION_WIDTH, paddingBottom: 1000 }}>
-        {filteredSpotlights.map((spotlight) => <span key={spotlight._id} className={classNames(classes.spotlightItem, !spotlight.document?.isRead && classes.spotlightIsNotRead )}><SpotlightItem spotlight={spotlight} /></span>)}
+        {filteredSpotlights.map((spotlight) => <span key={spotlight._id} className={classNames(classes.spotlightItem, !spotlight.document?.isRead && classes.spotlightIsNotRead )}><SpotlightItem spotlight={spotlight} showSubtitle={false}/></span>)}
       </div>
     </div>
 }
