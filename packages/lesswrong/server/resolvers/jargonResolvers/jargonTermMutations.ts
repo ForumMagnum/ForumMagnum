@@ -169,11 +169,12 @@ export const createNewJargonTerms = async (postId: string, currentUser: DbUser) 
   if (!post) {
     throw new Error('Post not found');
   }
+  console.log("creatingLatexTerms")
   const newMathJargon = await getLaTeXExplanations(post) || []
-
+  console.log("creatingEnglishTerms")
   const newEnglishJargon = await createEnglishExplanations(post) || []
 
-
+  console.log("creating jargonTerms")
   const newJargonTerms = await Promise.all([
     ...newEnglishJargon.map(term =>
       createMutator({
