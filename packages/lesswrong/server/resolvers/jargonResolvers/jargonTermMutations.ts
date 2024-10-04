@@ -180,8 +180,8 @@ export const createNewJargonTerms = async (postId: string, currentUser: DbUser) 
   if (!post) {
     throw new Error('Post not found');
   }
-  const results = await Promise.all([getLaTeXExplanations(post), createEnglishExplanations(post)]);
-  const newMathJargon = await getLaTeXExplanations(post) || []
+  // console.log("creatingLatexTerms")
+  // const newMathJargon = await getLaTeXExplanations(post) || []
   const newEnglishJargon = await createEnglishExplanations(post) || []
 
   console.log("creating jargonTerms")
@@ -207,27 +207,27 @@ export const createNewJargonTerms = async (postId: string, currentUser: DbUser) 
         validate: false,
       })
     ),
-    ...newMathJargon.map(term =>
-      createMutator({
-        collection: JargonTerms,
-        document: {
-          postId: postId,
-          term: term.term,
-          humansAndOrAIEdited: "AI",
-          forLaTeX: true,
-          rejected: true,
-          contents: {
-            originalContents: {
-              data: term.text,
-              type: 'ckEditorMarkup',
-            },
-          },
-          altTerms: term.altTerms,
-        },
-        currentUser: currentUser,
-        validate: false,
-      })
-    ),
+    // ...newMathJargon.map(term =>
+    //   createMutator({
+    //     collection: JargonTerms,
+    //     document: {
+    //       postId: postId,
+    //       term: term.term,
+    //       humansAndOrAIEdited: "AI",
+    //       forLaTeX: true,
+    //       rejected: true,
+    //       contents: {
+    //         originalContents: {
+    //           data: term.text,
+    //           type: 'ckEditorMarkup',
+    //         },
+    //       },
+    //       altTerms: term.altTerms,
+    //     },
+    //     currentUser: currentUser,
+    //     validate: false,
+    //   })
+    // ),
   ]);
   console.log(newJargonTerms)
   return newJargonTerms.map(result => result.data);

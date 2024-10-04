@@ -63,7 +63,7 @@ export const GlossaryEditFormWrapper = ({classes, post}: {
 
   return <div className={classes.root}>
     {/* {!glossary && <GlossaryEditForm postId={post._id} />} */}
-    {!!glossary && <>{glossary.map((item: any) => !item.isAltTerm && <JargonEditorRow key={item} jargonTerm={item}/>)}</>}
+    {!!glossary && <>{glossary.map((item: any) => !item.isAltTerm && <JargonEditorRow key={item._id} jargonTerm={item}/>)}</>}
     <LoadMore {...loadMoreProps} />
     <div onClick={addNewJargonTerms}>Generate new terms</div>
   </div>;
