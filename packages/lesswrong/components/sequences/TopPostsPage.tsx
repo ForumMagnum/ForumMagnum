@@ -137,6 +137,8 @@ const styles = (theme: ThemeType) => ({
     position: "relative",
     display: "flex",
     transition: 'height 0.5s ease-in-out',
+    marginRight: "auto",
+    marginLeft: "auto",
     '&:hover $imageGridHeader': {
       background: theme.palette.leastwrong.imageGridHeader
     },
@@ -460,13 +462,13 @@ const styles = (theme: ThemeType) => ({
   year: {
     ...theme.typography.display1,
     ...theme.typography.headerStyle,
-    marginTop: 12,
+    margin: 12,
     color: theme.palette.grey[600],
   },
   category: {
     ...theme.typography.display1,
     fontSize: '1.6rem',
-    marginTop: 12,
+    margin: 12,
     ...theme.typography.headerStyle,
     fontVariantCaps: 'all-small-caps',
     color: theme.palette.grey[600],
@@ -483,16 +485,14 @@ const styles = (theme: ThemeType) => ({
 
   },
   yearSelector: {
-    display: 'flex',
-    flexDirection: 'row',
-    gap: '16px',
-    marginBottom: '12px'
+    textWrap: 'balance',
+    marginBottom: '12px',
+    textAlign: "center"
   },
   categorySelector: {
-    display: 'flex',
-    flexDirection: 'row',
-    gap: '16px',
-    marginBottom: '12px'
+    textWrap: 'balance',
+    marginBottom: '12px',
+    textAlign: "center"
   },
   disabledCategory: {
     opacity: .5,
