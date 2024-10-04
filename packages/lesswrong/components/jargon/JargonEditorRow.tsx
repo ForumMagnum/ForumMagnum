@@ -48,7 +48,7 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
   });
 
   const handleActiveChange = (value: boolean) => {
-    setIsActive(!value);
+    setIsActive(value);
     void updateJargonTerm({
       selector: { _id: jargonTerm._id },
       data: {

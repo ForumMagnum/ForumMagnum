@@ -843,7 +843,11 @@ const schema: SchemaType<"Posts"> = {
     type: Object,
     optional: true,
     nullable: true,
+    blackbox: true,
     canRead: ['guests'],
+    control: "GlossaryEditFormWrapper",
+    group: formGroups.glossary,
+    canUpdate: [userOwns, 'admins'],
     hidden: !isLWorAF
     // Implementation in postResolvers.ts
   },

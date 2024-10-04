@@ -243,7 +243,6 @@ defineMutation({
         throw new Error('You need to be logged in to generate jargon terms');
       }
 
-
     return await createNewJargonTerms(postId, currentUser);
       
     },

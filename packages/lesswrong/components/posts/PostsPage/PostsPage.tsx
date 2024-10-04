@@ -369,6 +369,11 @@ export const styles = (theme: ThemeType) => ({
     fontSize: "1.1rem",
     color: theme.palette.grey[800],
     cursor: 'pointer'
+  },
+  glossaryContainer: {
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
   }
 })
 
@@ -761,26 +766,11 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     </DeferRender>
   );
 
-  // const glossary = fullPost && 'jargonTerms' in fullPost && fullPost.jargonTerms
-  // const jargonTerms = glossary ? Object.values(fullPost.jargonTerms) as ContentReplacedSubstringComponentInfo[] : [] as ContentReplacedSubstringComponentInfo[]; 
-  // const jargonTermsToShow = jargonTerms.filter(glossaryItem => !glossaryItem.props.isAltTerm)
-
-  // const glossary: Record<string, ContentReplacedSubstringComponentInfo> = {}
-
-  // fullPost?.jargonTerms?.forEach((jargonTerm: JargonTermsPostFragment) => {
-  //   glossary[jargonTerm.term] = {
-  //     componentName: "JargonTooltip",
-  //     props: {
-  //       ...jargonTerm
-  //     }
-  //   }
-  // })  
-
   const rightColumnChildren = (welcomeBox || hasSidenotes || (showRecommendations && recommendationsPosition === "right")) && <>
     {welcomeBox}
     {showRecommendations && recommendationsPosition === "right" && fullPost && <PostSideRecommendations post={fullPost} />}
 
-    {fullPost && (Object.keys(fullPost.glossary).length > 0) && <div>
+    {fullPost && (Object.keys(fullPost.glossary).length > 0) && <div className={classes.glossaryContainer}>
       <h3 className={classes.glossary}>Glossary of Jargon</h3>
 
       {Object.keys(fullPost?.glossary).map((jargonTerm: string) => 
@@ -788,12 +778,6 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
           <JargonTooltip replacedSubstrings={fullPost.glossary} term={jargonTerm} placement="left-start"><div className={classes.jargonTerm}>{jargonTerm}</div> </JargonTooltip>
         </div>)
       }
-
-      {/* jargonTermsToShow.map(glossaryItem => 
-        <div key={glossaryItem.props.term}>
-          <JargonTooltip replacedSubstrings={glossary} term={glossaryItem.props.term} placement="left-start"><div className={classes.jargonTerm}>{glossaryItem.props.term}</div> </JargonTooltip>
-        </div>
-      ) */}
     </div>}
 
     {hasSidenotes && <>
