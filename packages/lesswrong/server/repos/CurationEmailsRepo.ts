@@ -21,6 +21,6 @@ class CurationEmailsRepo extends AbstractRepo<"CurationEmails"> {
   }
 }
 
-recordPerfMetrics(CurationEmailsRepo);
+recordPerfMetrics(CurationEmailsRepo, { excludeMethods: ['removeFromQueue'] });
 
 export default CurationEmailsRepo;

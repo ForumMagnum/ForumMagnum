@@ -122,6 +122,7 @@ class PageCacheRepo extends AbstractRepo<"PageCache"> {
   }
 }
 
-recordPerfMetrics(PageCacheRepo);
+// Those two methods are both very high volume and not particularly interesting, performance-wise
+recordPerfMetrics(PageCacheRepo, { excludeMethods: ['lookupCacheEntry', 'upsertPageCacheEntry'] });
 
 export default PageCacheRepo;
