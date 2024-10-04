@@ -74,6 +74,15 @@ class ReviewWinnersRepo extends AbstractRepo<"ReviewWinners"> {
           ORDER BY sac."createdAt" DESC
           LIMIT 1    
         ) AS "reviewWinnerArt",
+        (
+          SELECT TO_JSONB(s.*)
+          FROM "Spotlights" s
+          WHERE s."documentId" = p._id
+          AND s."draft" IS false
+          AND s."deletedDraft" IS false
+          ORDER BY s."createdAt" DESC
+          LIMIT 1
+        ) AS "spotlight",
         p.*
       FROM "ReviewWinners" rw
       JOIN "Posts" p

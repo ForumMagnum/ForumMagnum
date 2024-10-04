@@ -1110,6 +1110,7 @@ interface PostsTopItemInfo extends PostsMinimumInfo, PostsAuthors { // fragment 
   readonly customHighlight: PostsTopItemInfo_customHighlight|null,
   readonly tags: Array<TagPreviewFragment>,
   readonly reviewWinner: ReviewWinnerTopPostsPage|null,
+  readonly spotlight: SpotlightDisplay|null,
 }
 
 interface PostsTopItemInfo_contents { // fragment on Revisions
