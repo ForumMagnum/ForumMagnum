@@ -54,7 +54,7 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
   //   }
   // };
 
-  const glossaryProp = 'jargonTerms' in post && post.jargonTerms ? { glossary: post.jargonTerms } : {};
+  const glossaryProp = 'glossary' in post && post.glossary ? { glossary: post.glossary } : {};
 
   if (includeSideComments && document?.sideComments) {
     const htmlWithIDs = document.sideComments.html;

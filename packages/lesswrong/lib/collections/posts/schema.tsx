@@ -839,7 +839,7 @@ const schema: SchemaType<"Posts"> = {
     hidden: !isLWorAF
   },
 
-  jargonTerms: {
+  glossary: {
     type: Object,
     optional: true,
     nullable: true,

@@ -775,7 +775,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly annualReviewMarketProbability: number|null,
   readonly annualReviewMarketIsResolved: boolean|null,
   readonly annualReviewMarketYear: number|null,
-  readonly jargonTerms: Array<JargonTerm|null>,
+  readonly glossary: any,
   readonly reviewVoteScoreAF: number,
   readonly reviewVotesAF: Array<number>,
   readonly reviewVoteScoreHighKarma: number,
@@ -1387,7 +1387,7 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
     hostedHere: boolean | null,
     foreignPostId: string | null,
   },
-  readonly jargonTerms: Array<JargonTermsPostFragment>,
+  readonly glossary: any,
 }
 
 interface PostsDetails_canonicalSequence { // fragment on Sequences

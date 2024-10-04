@@ -40,11 +40,11 @@ export const JargonTooltip = ({classes, children, term, replacedSubstrings, isFi
 }) => {
   const { LWTooltip, ContentItemBody } = Components;
   const termInfo = replacedSubstrings[term];
-  const glossaryWithoutTermOrAltTerms = Object.fromEntries(
+  const replacedSubstringsWithoutTermOrAltTerms = Object.fromEntries(
     Object.entries(replacedSubstrings).filter(([key]) => key !== term && !termInfo.props.altTerms.includes(key))
   );
   const tooltip = <Card className={classes.card}>
-    <ContentItemBody dangerouslySetInnerHTML={{ __html: termInfo.props.contents.html }} glossary={glossaryWithoutTermOrAltTerms} />
+    <ContentItemBody dangerouslySetInnerHTML={{ __html: termInfo.props.contents.html }} replacedSubstrings={replacedSubstringsWithoutTermOrAltTerms} />
     <div className={classes.altTerms}>
       {termInfo.props.altTerms.map((term: string) => (
         <span className={classes.altTerm} key={term}>{term}</span>
