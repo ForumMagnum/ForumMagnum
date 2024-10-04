@@ -30,9 +30,9 @@ export const mathFormatPrompt = `Your job is to write math glossaries that are h
 
 Read this post, and then return JSON which describes each LaTeX term in the post, with
 
-- an explanation of what the term means in this particular context, accessible to both mathmaticians and educated laymen.
+- an explanation of what the LaTeX means in this particular context, accessible to both mathmaticians and educated laymen. If it's an equation, it should specify what each term in the equation means.
 
-- a concrete example that would fit the term, in the context of it's equation.
+- a concrete example that the term or equation represents.
 
 - tie the example back to the overall point of the post, explaining why it's useful, relevant, and/or interesting
 

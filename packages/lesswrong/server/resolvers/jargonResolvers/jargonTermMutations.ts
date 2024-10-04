@@ -70,7 +70,7 @@ export const queryClaudeForJargonExplanations = async ({ markdown, terms, format
   ], 5000, glossarySystemPrompt)
   if (!(response.content[0].type === "text")) return null
 
-  let jargonTerms: Array<{ term: string, altTerms?: string[], text: string }> = []
+  let jargonTerms: Array<{ term: string, altTerms?: string[], text: string, concreteExample?: string, whyItMatters?: string, mathBasics?: string }> = []
 
   const text = response.content[0].text
   const jsonGuessMatch = text.match(/\[\s*\{[\s\S]*?\}\s*\]/)
@@ -145,7 +145,18 @@ export async function getLaTeXExplanations(post: PostsPage) {
   const terms = identifyLatexTerms(originalHtml)
   const exampleMathPost = await getMathExample();
 
-  return queryClaudeForJargonExplanations({markdown, terms, formatPrompt: mathFormatPrompt, examplePost: exampleMathPost, exampleExplanations: exampleMathGlossary})
+  const response = (await queryClaudeForJargonExplanations({markdown, terms, formatPrompt: mathFormatPrompt, examplePost: exampleMathPost, exampleExplanations: exampleMathGlossary})) || []
+
+  return response?.map(jargon => ({
+    term: jargon.term,
+    text: `<div>
+      <p>${jargon.text}</p>
+      <p><strong>Concrete Example:</strong> ${jargon.concreteExample}</p>
+      <p><strong>Why It Matters:</strong> ${jargon.whyItMatters}</p>
+      <p><em>Math Basics: ${jargon.mathBasics}</em></p>
+    </div>`,
+    altTerms: jargon.altTerms,
+  }))
 }
 
 export async function createEnglishExplanations(post: PostsPage) {
@@ -154,7 +165,7 @@ export async function createEnglishExplanations(post: PostsPage) {
   const markdown = (originalMarkdown.length < 200 * 1000) ? originalMarkdown : originalMarkdown.slice(0, 200 * 1000)
 
   const terms = await queryClaudeForTerms(markdown)
-  if (!terms) return null
+  if (!terms) return []
 
   return queryClaudeForJargonExplanations({markdown, terms, formatPrompt, examplePost: exampleJargonPost2, exampleExplanations: exampleJargonGlossary2})
 }
@@ -169,9 +180,8 @@ export const createNewJargonTerms = async (postId: string, currentUser: DbUser) 
   if (!post) {
     throw new Error('Post not found');
   }
-  console.log("creatingLatexTerms")
+  const results = await Promise.all([getLaTeXExplanations(post), createEnglishExplanations(post)]);
   const newMathJargon = await getLaTeXExplanations(post) || []
-  console.log("creatingEnglishTerms")
   const newEnglishJargon = await createEnglishExplanations(post) || []
 
   console.log("creating jargonTerms")
