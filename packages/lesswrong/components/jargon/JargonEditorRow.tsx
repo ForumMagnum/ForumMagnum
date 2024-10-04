@@ -39,7 +39,7 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
 
   const { ToggleSwitch, WrappedSmartForm, ContentItemBody } = Components;
 
-  const [isActive, setIsActive] = React.useState(false);
+  const [isActive, setIsActive] = React.useState(!jargonTerm.rejected);
   const [edit, setEdit] = React.useState(false);
 
   const {mutate: updateJargonTerm} = useUpdate({
@@ -47,19 +47,19 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
     fragmentName: 'JargonTermsFragment',
   });
 
-  const handleActiveChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    updateJargonTerm({
+  const handleActiveChange = (value: boolean) => {
+    setIsActive(!value);
+    void updateJargonTerm({
       selector: { _id: jargonTerm._id },
       data: {
-          rejected: !event.target.checked,
+          rejected: !value
       },
       },
     )
-    setIsActive(!event.target.checked);
   }
 
   return <div className={classNames(classes.root, isActive && classes.isActive)}>
-    <ToggleSwitch value={isActive} className={classes.toggleSwitch} setValue={setIsActive}/>
+    <ToggleSwitch value={isActive} className={classes.toggleSwitch} setValue={handleActiveChange}/>
     {!isActive && <div contentEditable={true} dangerouslySetInnerHTML={{__html: jargonTerm.term}} />}
     {isActive && (
       edit ? 

@@ -31,6 +31,7 @@ export const GlossaryEditFormWrapper = ({classes, post}: {
     terms: {
       view: "jargonTerms",
       postId: post._id,
+      limit: 100,
     },
     collectionName: "JargonTerms",
     fragmentName: 'JargonTermsFragment',
@@ -74,7 +75,7 @@ export const GlossaryEditFormWrapper = ({classes, post}: {
 
   return <div className={classes.root}>
     {/* {!glossary && <GlossaryEditForm postId={post._id} />} */}
-    {!!glossary && <>{glossary.map((item: any) => !item.isAltTerm && <JargonEditorRow key={item} jargonTerm={item}/>)}</>}
+    {!!glossary && <>{glossary.map((item: any) => !item.isAltTerm && <JargonEditorRow key={item._id} jargonTerm={item}/>)}</>}
     <div onClick={addNewJargonTerms}>Generate new terms</div>
   </div>;
 }
