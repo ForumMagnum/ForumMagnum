@@ -11,8 +11,8 @@ declare global {
 }
 
 JargonTerms.addView("jargonTerms", function (terms: JargonTermsViewTerms) {
-    return {
-      selector: { postId: terms.postId },
-      options: { sort: { createdAt: 1 } }
-    };
-  });
+  return {
+    selector: { postId: terms.postId },
+    options: { sort: { createdAt: 1 } }
+  };
+});

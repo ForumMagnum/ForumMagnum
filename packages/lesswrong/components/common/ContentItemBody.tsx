@@ -397,7 +397,6 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
     replacedSubstrings: Record<string, ContentReplacedSubstringComponentInfo>,
     replaceAll = false,
   ) => {
-    console.log("replacedSubstrings", replacedSubstrings);
     if (replacedSubstrings) {
       // Sort substrings by length descending to handle overlapping substrings
       const sortedSubstrings = Object.keys(replacedSubstrings).sort((a, b) => b.length - a.length);
@@ -440,7 +439,6 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
               const span = wrapRangeWithSpan(range);
               if (span) {
                 const WrappedSpan = rawExtractElementChildrenToReactComponent(span);
-                console.log("replacementComponentProps", replacementComponentProps);
                 const replacementNode = (
                   <ReplacementComponent
                     {...replacementComponentProps}

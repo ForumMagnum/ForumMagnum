@@ -16,28 +16,18 @@ export const GlossaryEditFormWrapper = ({classes, post}: {
   post: PostsPage,
 }) => {
 
-  console.log(`GlossaryEditFormWrapper is rendering!`)
-  const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
+  const { JargonEditorRow, LoadMore } = Components;
 
-  const { GlossaryEditForm, JargonEditorRow, ToggleSwitch } = Components;
-
-  // const [glossary, setGlossary] = React.useState(() => {
-  //   const savedGlossary = localStorage.getItem(`glossary-${post._id}`);
-  //   return savedGlossary ? JSON.parse(savedGlossary) : null;
-  // });
-
-  console.log(`I'm using useMulti to get jargon terms!`)
-  const { results: glossary = [], loading } = useMulti({
+  const { results: glossary = [], loadMoreProps } = useMulti({
     terms: {
       view: "jargonTerms",
       postId: post._id,
+      limit: 100
     },
     collectionName: "JargonTerms",
     fragmentName: 'JargonTermsFragment',
     ssr: true,
   })
-
-  console.log({glossary});
 
   // Define the mutation at the top level of your component
   const [getNewJargonTerms, { data, loading: mutationLoading, error }] = useMutation(gql`
@@ -57,7 +47,6 @@ export const GlossaryEditFormWrapper = ({classes, post}: {
 
   // Event handler function
   const addNewJargonTerms = async () => { 
-    console.log(`I'm using useMutation to get new jargon terms!`)
     try {
       const response = await getNewJargonTerms({
         variables: {
@@ -65,9 +54,9 @@ export const GlossaryEditFormWrapper = ({classes, post}: {
         },
       });
       // Handle the response data as needed
-      console.log(response.data);
     } catch (err) {
       // Handle the error as needed
+      // eslint-disable-next-line no-console
       console.error(err);
     }
   };
@@ -75,6 +64,7 @@ export const GlossaryEditFormWrapper = ({classes, post}: {
   return <div className={classes.root}>
     {/* {!glossary && <GlossaryEditForm postId={post._id} />} */}
     {!!glossary && <>{glossary.map((item: any) => !item.isAltTerm && <JargonEditorRow key={item} jargonTerm={item}/>)}</>}
+    <LoadMore {...loadMoreProps} />
     <div onClick={addNewJargonTerms}>Generate new terms</div>
   </div>;
 }

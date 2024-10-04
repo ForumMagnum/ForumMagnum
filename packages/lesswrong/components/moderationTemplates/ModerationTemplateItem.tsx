@@ -28,8 +28,6 @@ export const ModerationTemplateItem = ({classes, template}: {
   const [edit, setEdit] = useState<boolean>(false)
 
   const {hash} = useLocation()
-
-  console.log(getFragment('ModerationTemplateFragment'))
   
   return <DeferRender ssr={false}><div className={classNames(classes.root, {[classes.deleted]: template.deleted, [classes.highlighted]: hash === `#${template._id}`})}>
     <Row>

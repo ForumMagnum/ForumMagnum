@@ -45,7 +45,7 @@ The jargon terms are:`
   return termsResponse.content[0].text
 }
 
-export const queryClaudeForJargonExplanations = async ({ markdown, terms, formatPrompt, examplePost, exampleExplanations } : {  markdown: string, terms: string, formatPrompt: string, examplePost: string, exampleExplanations: string }) => {
+export const queryClaudeForJargonExplanations = async ({ markdown, terms, formatPrompt, examplePost, exampleExplanations }:{  markdown: string, terms: string, formatPrompt: string, examplePost: string, exampleExplanations: string }) => {
   console.log(`I'm pinging Claude for jargon explanations!`)
   const response = await queryClaudeJailbreak([
     {
