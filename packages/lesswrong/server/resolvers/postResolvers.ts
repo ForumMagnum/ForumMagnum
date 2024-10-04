@@ -368,12 +368,24 @@ augmentFieldsDict(Posts, {
     },
   },
 
-  jargonTerms: {
+  glossary: {
     resolveAs: {
-      type: '[JargonTerm]',
+      type: 'GraphQLJSON',
       resolver: async (post: DbPost, args: void, context: ResolverContext) => {
         const jargonTerms = await context.JargonTerms.find({postId: post._id, rejected: false}).fetch();
-        return jargonTerms
+
+        const glossary: Record<string, ContentReplacedSubstringComponentInfo> = {}
+
+        jargonTerms.forEach((jargonTerm: DbJargonTerm) => {
+          glossary[jargonTerm.term] = {
+            componentName: "JargonTooltip",
+            props: {
+              ...jargonTerm
+            }
+          }
+        })  
+
+        return glossary
       }
     }
   }
