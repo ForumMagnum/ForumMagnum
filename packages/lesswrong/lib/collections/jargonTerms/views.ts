@@ -12,7 +12,7 @@ declare global {
 
 JargonTerms.addView("jargonTerms", function (terms: JargonTermsViewTerms) {
     return {
-      selector: {postId: terms.postId, rejected: terms.rejected, forLaTeX: terms.forLaTeX},
-      options: {sort: {createdAt: 1}}
+      selector: { postId: terms.postId },
+      options: { sort: { createdAt: 1 } }
     };
   });

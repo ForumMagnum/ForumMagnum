@@ -31,8 +31,6 @@ export const GlossaryEditFormWrapper = ({classes, post}: {
     terms: {
       view: "jargonTerms",
       postId: post._id,
-      rejected: false,
-      forLaTeX: false,
     },
     collectionName: "JargonTerms",
     fragmentName: 'JargonTermsFragment',
