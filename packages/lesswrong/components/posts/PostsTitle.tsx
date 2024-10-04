@@ -119,7 +119,7 @@ const styles = (theme: ThemeType) => ({
     height: 20,
     border: "none",
     // TODO after event: revert this back
-    background: 'linear-gradient(270deg, rgba(154, 176, 137, 0.30) 0%, rgba(65, 131, 161, 0.30) 100%)',
+    background: `linear-gradient(270deg, ${theme.palette.tag.eventLightGreen} 0%, ${theme.palette.tag.eventLightBlue} 100%)`,
     color: theme.palette.grey[1000],
     // backgroundColor: theme.themeOptions.name === "dark"
     //   ? "var(--post-title-tag-foreground)"

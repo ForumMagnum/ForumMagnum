@@ -496,6 +496,10 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     onboardingBackground: "rgba(0, 0, 0, 0.4)",
     onboardingBackgroundHover: "rgba(0, 0, 0, 0.2)",
     onboardingBackgroundSelected: "rgba(0, 0, 0, 0.5)",
+    eventLightGreen: 'rgba(154, 176, 137, 0.30)',
+    eventDarkGreen: 'rgba(154, 176, 137, 0.60)',
+    eventLightBlue: 'rgba(65, 131, 161, 0.30)',
+    eventDarkBlue: 'rgba(65, 131, 161, 0.60)',
   },
   tab: {
     inactive: {
