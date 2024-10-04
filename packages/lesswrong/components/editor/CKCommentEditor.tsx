@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { ckEditorBundleVersion, getCkCommentEditor } from '../../lib/wrapCkEditor';
 import { generateTokenRequest } from '../../lib/ckEditorUtils';
@@ -9,6 +9,7 @@ import { mentionPluginConfiguration } from "../../lib/editor/mentionsConfig";
 import { cloudinaryConfig } from '../../lib/editor/cloudinaryConfig'
 import CKEditor from '../../lib/vendor/ckeditor5-react/ckeditor';
 import type { Editor } from '@ckeditor/ckeditor5-core';
+import { useSyncCkEditorPlaceholder } from '../hooks/useSyncCkEditorPlaceholder';
 
 // Uncomment the import and the line below to activate the debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -35,7 +36,11 @@ const CKCommentEditor = ({
   const webSocketUrl = ckEditorWebsocketUrlOverrideSetting.get() || ckEditorWebsocketUrlSetting.get();
   const ckEditorCloudConfigured = !!webSocketUrl;
   const CommentEditor = getCkCommentEditor(forumTypeSetting.get());
-  
+
+  const [editorObject, setEditorObject] = useState<Editor | null>(null);
+
+  const actualPlaceholder = placeholder ?? defaultEditorPlaceholder;
+
   const editorConfig = {
     cloudServices: ckEditorCloudConfigured ? {
       // A tokenUrl token is needed here in order for image upload to work.
@@ -54,15 +59,18 @@ const CKCommentEditor = ({
       }
     },
     initialData: data || "",
-    placeholder: placeholder ?? defaultEditorPlaceholder,
+    placeholder: actualPlaceholder,
     mention: mentionPluginConfiguration,
     ...cloudinaryConfig,
   };
+
+  useSyncCkEditorPlaceholder(editorObject, actualPlaceholder);
 
   return <div>
     <CKEditor
       editor={CommentEditor}
       onReady={(editor: Editor) => {
+        setEditorObject(editor);
         // Uncomment the line below and the import above to activate the debugger
         // CKEditorInspector.attach(editor)
         onReady(editor)

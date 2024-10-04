@@ -3,6 +3,11 @@ import { recalculateScore } from '../scoring';
 import { calculateVotePower, isValidVoteType } from './voteTypes';
 import type { VotingSystem } from './votingSystems';
 import { collectionNameToTypeName } from '../vulcan-lib';
+import { DatabasePublicSetting } from '../publicSettings';
+
+export const karmaRewarderId100 = new DatabasePublicSetting<string | null>('karmaRewarderId100', null)
+export const karmaRewarderId1000 = new DatabasePublicSetting<string | null>('karmaRewarderId1000', null)
+
 
 export interface VoteDocTuple {
   newDocument: DbVoteableType
@@ -100,7 +105,6 @@ const cancelVoteClient = ({document, collectionName, user, votingSystem}: {
   return newDocument;
 }
 
-
 // Determine a user's voting power for a given operation.
 // If power is a function, call it on user
 export const getVotePower = ({ user, voteType, document }: {
@@ -109,6 +113,8 @@ export const getVotePower = ({ user, voteType, document }: {
   document: VoteableType,
 }) => {
   const userKarma = user.karma;
+  if (user._id === karmaRewarderId100.get()) return 100;
+  if (user._id === karmaRewarderId1000.get()) return 1000;
   return calculateVotePower(userKarma, voteType);
 };
 

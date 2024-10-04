@@ -713,6 +713,17 @@ interface DbPageCacheEntry extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+type PetrovDayActionsCollection = CollectionBase<"PetrovDayActions">;
+
+interface DbPetrovDayAction extends DbObject {
+  __collectionName?: "PetrovDayActions"
+  actionType: "optIn" | "hasRole" | "hasSide" | "nukeTheWest" | "nukeTheEast" | "eastPetrovAllClear" | "eastPetrovNukesIncoming" | "westPetrovAllClear" | "westPetrovNukesIncoming"
+  data: any /*{"definitions":[{}]}*/
+  userId: string | null
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 type PetrovDayLaunchsCollection = CollectionBase<"PetrovDayLaunchs">;
 
 interface DbPetrovDayLaunch extends DbObject {
@@ -1939,7 +1950,7 @@ interface DbVote extends DbObject {
   collectionName: CollectionNameString
   userId: string
   authorIds: Array<string> | null
-  voteType: string
+  voteType: "bigDownvote" | "bigUpvote" | "neutral" | "smallDownvote" | "smallUpvote"
   extendedVoteType: any /*{"definitions":[{"type":"JSON"}]}*/
   power: number
   afPower: number | null
@@ -1995,6 +2006,7 @@ interface CollectionsByName {
   ModeratorActions: ModeratorActionsCollection
   Notifications: NotificationsCollection
   PageCache: PageCacheCollection
+  PetrovDayActions: PetrovDayActionsCollection
   PetrovDayLaunchs: PetrovDayLaunchsCollection
   PodcastEpisodes: PodcastEpisodesCollection
   Podcasts: PodcastsCollection
@@ -2080,6 +2092,7 @@ interface ObjectsByCollectionName {
   ModeratorActions: DbModeratorAction
   Notifications: DbNotification
   PageCache: DbPageCacheEntry
+  PetrovDayActions: DbPetrovDayAction
   PetrovDayLaunchs: DbPetrovDayLaunch
   PodcastEpisodes: DbPodcastEpisode
   Podcasts: DbPodcast
@@ -2165,6 +2178,7 @@ interface ObjectsByTypeName {
   ModeratorAction: DbModeratorAction
   Notification: DbNotification
   PageCacheEntry: DbPageCacheEntry
+  PetrovDayAction: DbPetrovDayAction
   PetrovDayLaunch: DbPetrovDayLaunch
   PodcastEpisode: DbPodcastEpisode
   Podcast: DbPodcast

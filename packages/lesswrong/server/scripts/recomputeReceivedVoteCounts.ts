@@ -70,6 +70,8 @@ async function recalculateReceivedVoteCounts() {
             case 'bigDownvote':
               voteCounts.bigDownvoteReceivedCount++;
               break;
+            case 'neutral': // We weren't previously counting neutral votes when I added this to fix types. I don't think we need to start, but, flagging the inconsistency.
+              break;
           }
           voteCounts.voteReceivedCount++;
 

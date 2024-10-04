@@ -783,5 +783,15 @@
     "acceptsSchemaHash": "16016945b35edcc8c5df47e292005a22",
     "acceptedByMigration": "20240921T202611.ensure_Manifold_url_column_is_nullable.ts",
     "timestamp": "2024-09-21T20:26:11.000Z"
+  },
+  {
+    "acceptsSchemaHash": "4176699fcd50a096b6fd2437aec71b01",
+    "acceptedByMigration": "20240925T020054.create_petrovDayAction.ts",
+    "timestamp": "2024-09-25T02:00:54.000Z"
+  },
+  {
+    "acceptsSchemaHash": "4176699fcd50a096b6fd2437aec71b01",
+    "acceptedByMigration": "20240930T215249.drop_criticismTipsDismissed_from_Posts.ts",
+    "timestamp": "2024-09-30T21:52:49.000Z"
   }
 ]

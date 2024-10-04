@@ -262,7 +262,7 @@ export const EditorFormComponent = ({
     // Afterwards, check whatever revision was loaded for display
     // This may or may not be the most recent one) against current content
     // If different, save a new revision
-    if (userHasPostAutosave(currentUser) && collectionName === 'Posts' && !isEqual(autosaveContentsRef.current, newContents)) {
+    if (userHasPostAutosave(currentUser) && collectionName === 'Posts' && fieldName === 'contents' && !isEqual(autosaveContentsRef.current, newContents)) {
       // In order to avoid recreating this function (which is throttled) each time the contents change,
       // we need to use a ref rather than using the `contents` directly.  We also need to update it here,
       // rather than e.g. in `wrappedSetContents`, since updating it there would result in the `isEqual` always returning true
@@ -279,7 +279,7 @@ export const EditorFormComponent = ({
         });
       }
     }
-  }, [currentUser, collectionName, updatedFormType, document.title, document._id, updateCurrentValues, submitForm, autosaveRevision]);
+  }, [currentUser, collectionName, fieldName, updatedFormType, document.title, document._id, updateCurrentValues, submitForm, autosaveRevision]);
 
   /**
    * Update the edited field (e.g. "contents") so that other form components can access the updated value. The direct motivation for this
@@ -454,15 +454,6 @@ export const EditorFormComponent = ({
 
   const actualPlaceholder = ((collectionName === "Posts" && getPostPlaceholder(document)) || editorHintText || hintText || placeholder);
 
-  // The logic here is to make sure that the placeholder is updated when it changes in the props.
-  // CKEditor can't change the placeholder after it's been initialized, so we need to change the key
-  // to force it to unmount and remount the whole component. Only do this where there are no contents,
-  // as this is the only time the placeholder is visible.
-  const placeholderKey = useRef(actualPlaceholder);
-  if (placeholderKey.current !== actualPlaceholder && !contents?.value) {
-    placeholderKey.current = actualPlaceholder;
-  }
-
   useEffect(() => {
     if (!isCollabEditor && collectionName === 'Posts' && fieldName === 'contents') {
       setAutosaveEditorState((_) => () => new Promise((resolve, reject) => {
@@ -499,7 +490,6 @@ export const EditorFormComponent = ({
       onRestore={onRestoreLocalStorage}
     />}
     <Components.Editor
-      key={placeholderKey.current}
       ref={editorRef}
       _classes={classes}
       currentUser={currentUser}

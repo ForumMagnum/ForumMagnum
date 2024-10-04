@@ -88,6 +88,8 @@ const CommentUserName = ({
       </span>
     );
   } else if (isFriendlyUI) {
+    // FIXME: Unstable component will lose state on rerender
+    // eslint-disable-next-line react/no-unstable-nested-components
     const Wrapper = ({children}: {children: ReactNode}) => simple
       ? (
         <div className={classes.mainWrapper}>
