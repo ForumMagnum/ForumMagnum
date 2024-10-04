@@ -48,7 +48,7 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
   });
 
   const handleActiveChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    updateJargonTerm({
+    void updateJargonTerm({
       selector: { _id: jargonTerm._id },
       data: {
           rejected: !event.target.checked,

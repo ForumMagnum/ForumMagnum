@@ -13,6 +13,6 @@ declare global {
 JargonTerms.addView("jargonTerms", function (terms: JargonTermsViewTerms) {
   return {
     selector: { postId: terms.postId },
-    options: { sort: { createdAt: 1 } }
+    options: { sort: { forLaTeX: -1, term: 1, createdAt: 1 } }
   };
 });
