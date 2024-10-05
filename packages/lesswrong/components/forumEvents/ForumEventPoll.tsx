@@ -285,6 +285,7 @@ const styles = (theme: ThemeType) => ({
     cursor: "grab",
     zIndex: 15,
     touchAction: "none",
+    transform: "translateX(-50%)",
     "&:hover": {
       opacity: 1,
     },
@@ -509,6 +510,7 @@ export const ForumEventPoll = ({
       if (currentUser && event) {
         setVoteCount((count) => count - 1);
         await removeVote({ variables: { forumEventId: event._id } });
+        setUserCommentOpen(false);
         refetch?.();
       }
     },
@@ -553,7 +555,6 @@ export const ForumEventPoll = ({
       const rawVotePos = (e.clientX - sliderRect.left) / sliderWidth;
       const bucketIndex = Math.round(rawVotePos * (NUM_TICKS - 1));
       setCurrentBucketIndex(bucketIndex);
-      setUserCommentOpen(true)
     },
     []
   );
@@ -566,7 +567,7 @@ export const ForumEventPoll = ({
    * - If we have a postId (because we're on the post page), save the vote
    * - Otherwise (we're on the home page), open the post selection modal
    */
-  const saveVotePos = useCallback(async () => {
+  const saveVotePos = useCallback(async (ev: PointerEvent) => {
     if (!isDragging.current || !event) return;
 
     isDragging.current = false;
@@ -617,9 +618,9 @@ export const ForumEventPoll = ({
     refetch,
     hasVoted,
   ]);
-  // useEventListener("pointerup", saveVotePos);
+  useEventListener("pointerup", saveVotePos);
 
-  const { ForumIcon, LWTooltip, UsersProfileImage, LWPopper, ForumEventNewComment } = Components;
+  const { ForumIcon, LWTooltip, UsersProfileImage, ForumEventNewComment } = Components;
 
   const ticks = Array.from({ length: NUM_TICKS }, (_, i) => i);
 
@@ -644,20 +645,12 @@ export const ForumEventPoll = ({
     }
   }, [currentBucketIndex]);
 
-  // The screen-space x-position of the current vote
+  // The position of the current vote as a percentage along the slider
   const votePos =
     tickPositions.current.length && tickPositions.current[currentBucketIndex] !== undefined
       ? tickPositions.current[currentBucketIndex]
       // Fall back to naive approximate calculation so there isn't a big jump after the first render
       : (currentBucketIndex / (NUM_TICKS - 1)) * 100;
-
-  const onCloseComment = useCallback(() => setUserCommentOpen(false), []);
-  const onClickAwayComment = useCallback(() => {
-    console.log("click away", isDragging.current);
-    if (!isDragging.current) {
-      onCloseComment();
-    }
-  }, [onCloseComment]);
 
   if (!event) return null;
 
@@ -714,6 +707,7 @@ export const ForumEventPoll = ({
                               {vote.user.displayName}
                             </div>
                           }
+                          disabled={!resultsVisible}
                         >
                           <UsersProfileImage
                             user={vote.user}
@@ -751,6 +745,7 @@ export const ForumEventPoll = ({
                 ))}
                 {/* User Vote */}
                 <div
+                  ref={userVoteRef}
                   className={classNames(
                     classes.userVote,
                     classes.currentUserVote,
@@ -758,16 +753,9 @@ export const ForumEventPoll = ({
                     hasVoted && classes.currentUserVoteActive
                   )}
                   onPointerDown={startDragVote}
-                  onClick={(ev) => {
-                    ev.stopPropagation();
-                    saveVotePos();
-                  }}
-                  // onClick={() => setUserCommentOpen(!userCommentOpen)}
                   style={{
                     left: `${votePos}%`,
-                    transform: "translateX(-50%)",
                   }}
-                  ref={userVoteRef}
                 >
                   <LWTooltip
                     title={
@@ -786,6 +774,7 @@ export const ForumEventPoll = ({
                         </>
                       )
                     }
+                    disabled={userCommentOpen}
                   >
                     {currentUser ? (
                       <UsersProfileImage
@@ -841,13 +830,13 @@ export const ForumEventPoll = ({
             </div>
           </div>
         </div>
-        {/* TODO handle repositioning when the vote moves */}
-        <ForumEventNewComment 
+        {event.post && <ForumEventNewComment
           open={userCommentOpen}
-          anchorEl={userVoteRef.current}
-          onClose={onCloseComment}
-          onClickAway={onClickAwayComment}
-        />
+          forumEventId={event._id}
+          onClose={() => setUserCommentOpen(false)}
+          followElement={userVoteRef.current}
+          post={event.post}
+        />}
       </div>
     </AnalyticsContext>
   );

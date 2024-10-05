@@ -448,6 +448,7 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly author: string,
   readonly postId: string,
   readonly tagId: string,
+  readonly forumEventId: string,
   readonly tagCommentType: "SUBFORUM" | "DISCUSSION",
   readonly subforumStickyPriority: number | null,
   readonly userId: string,
@@ -2885,6 +2886,7 @@ interface ForumEventsMinimumInfo { // fragment on ForumEvents
 interface ForumEventsDisplay extends ForumEventsMinimumInfo { // fragment on ForumEvents
   readonly publicData: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly voteCount: number,
+  readonly post: PostsMinimumInfo|null,
   readonly tag: TagBasicInfo|null,
   readonly frontpageDescription: ForumEventsDisplay_frontpageDescription|null,
   readonly frontpageDescriptionMobile: ForumEventsDisplay_frontpageDescriptionMobile|null,

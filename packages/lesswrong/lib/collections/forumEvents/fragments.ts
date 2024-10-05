@@ -22,6 +22,9 @@ registerFragment(`
     publicData
     voteCount
 
+    post {
+      ...PostsMinimumInfo
+    }
     tag {
       ...TagBasicInfo
     }
