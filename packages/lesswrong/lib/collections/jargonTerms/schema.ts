@@ -41,6 +41,15 @@ const schema: SchemaType<"JargonTerms"> = {
     hidden: true,
     ...schemaDefaultValue(false),
   },
+  deleted: {
+    type: Boolean,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: ['members'],
+    nullable: false,
+    hidden: true,
+    ...schemaDefaultValue(false),
+  },
   altTerms: {
     type: Array,
     canRead: ['guests'],

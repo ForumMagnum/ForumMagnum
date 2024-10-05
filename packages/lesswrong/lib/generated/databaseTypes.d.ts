@@ -529,6 +529,7 @@ interface DbJargonTerm extends DbObject {
   humansAndOrAIEdited: "humans" | "AI" | "humansAndAI"
   forLaTeX: boolean
   rejected: boolean
+  deleted: boolean
   altTerms: Array<string>
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/

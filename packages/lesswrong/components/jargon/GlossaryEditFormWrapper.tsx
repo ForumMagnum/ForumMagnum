@@ -1,6 +1,6 @@
 // TODO: Import component in components.ts
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
 import { useMutation, gql } from '@apollo/client';
 import { useMulti } from '@/lib/crud/withMulti';
@@ -39,19 +39,21 @@ export const GlossaryEditFormWrapper = (props: {
     ssr: true,
   })
 
+  const sortedGlossary = [...glossary].sort((a, b) => {
+    const termA = a.term.toLowerCase();
+    const termB = b.term.toLowerCase();
+    if (termA < termB) return -1;
+    if (termA > termB) return 1;
+    return 0;
+  });
+
   // Define the mutation at the top level of your component
   const [getNewJargonTerms, { data, loading: mutationLoading, error }] = useMutation(gql`
     mutation getNewJargonTerms($postId: String!) {
       getNewJargonTerms(postId: $postId) {
-        term
-        contents {
-          originalContents {
-            data
-            type
-          }
-        }
-        altTerms
+        ...JargonTermsFragment
       }
+      ${getFragment("JargonTermsFragment")}
     }
   `);
 
@@ -78,7 +80,7 @@ export const GlossaryEditFormWrapper = (props: {
       <h1>Glossary</h1>
       <span>Beta feature! Select/edit terms below and readers of your post will be able to hover over them to read an explanation of the term.</span>
     </div>
-    {!!glossary && <>{glossary.map((item: any) => !item.isAltTerm && <JargonEditorRow key={item._id} jargonTerm={item}/>)}</>}
+    {!!sortedGlossary && <>{sortedGlossary.map((item: any) => !item.isAltTerm && <JargonEditorRow key={item._id} jargonTerm={item}/>)}</>}
     <LoadMore {...loadMoreProps} />
     <Button onClick={addNewJargonTerms} className={classes.generateButton}>Generate new terms</Button>
     {mutationLoading && <Loading/>}

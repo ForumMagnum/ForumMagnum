@@ -10,6 +10,12 @@ declare global {
   }
 }
 
+JargonTerms.addDefaultView((terms: JargonTermsViewTerms) => {
+  return {
+    selector: { deleted: false },
+  };
+});
+
 JargonTerms.addView("jargonTerms", function (terms: JargonTermsViewTerms) {
   return {
     selector: { postId: terms.postId },

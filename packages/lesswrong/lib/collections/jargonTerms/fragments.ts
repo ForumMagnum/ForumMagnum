@@ -11,6 +11,7 @@ registerFragment(`
     humansAndOrAIEdited
     forLaTeX
     rejected
+    deleted
     altTerms
   }
 `);

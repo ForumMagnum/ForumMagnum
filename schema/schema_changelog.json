@@ -793,5 +793,10 @@
     "acceptsSchemaHash": "d11b00f184d38bc2861f3b41fb43acfa",
     "acceptedByMigration": "20241002T232010.add_jargon_terms_table.ts",
     "timestamp": "2024-10-02T23:20:10.000Z"
+  },
+  {
+    "acceptsSchemaHash": "d9b155bfb158cc8e10c958d4da548d5b",
+    "acceptedByMigration": "20241004T231211.jargonTerms_add_deleted.ts",
+    "timestamp": "2024-10-04T23:12:11.000Z"
   }
 ]

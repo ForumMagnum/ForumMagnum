@@ -5,9 +5,13 @@ import { useTracking } from "../../lib/analyticsEvents";
 import { commentBodyStyles } from '@/themes/stylePiping';
 import classNames from 'classnames';
 import { useUpdate } from '@/lib/crud/withUpdate';
+import Button from '@material-ui/core/Button';
 
 const styles = (theme: ThemeType) => ({
   root: {
+    width: '100%',
+  },
+  flex: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
@@ -28,7 +32,14 @@ const styles = (theme: ThemeType) => ({
   },
   edit: {
     textWrap: 'nowrap',
-  }
+  },
+  deleteButton: {
+    opacity: 0,
+    '$root:hover &': {
+      opacity: 1
+    },
+    minHeight: "auto !important"
+  },
 });
 
 export const JargonEditorRow = ({classes, jargonTerm}: {
@@ -41,6 +52,7 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
 
   const [isActive, setIsActive] = React.useState(!jargonTerm.rejected);
   const [edit, setEdit] = React.useState(false);
+  const [hidden, setHidden] = React.useState(false);
 
   const {mutate: updateJargonTerm} = useUpdate({
     collectionName: "JargonTerms",
@@ -52,31 +64,45 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
     void updateJargonTerm({
       selector: { _id: jargonTerm._id },
       data: {
-          rejected: !value
+        rejected: !value
       },
-      },
-    )
+    })
   }
 
-  return <div className={classNames(classes.root, isActive && classes.isActive)}>
-    <ToggleSwitch value={isActive} className={classes.toggleSwitch} setValue={handleActiveChange}/>
-    {!isActive && <div contentEditable={true} dangerouslySetInnerHTML={{__html: jargonTerm.term}} />}
-    {isActive && (
-      edit ? 
-        (<WrappedSmartForm
-          collectionName="JargonTerms"
-          documentId={jargonTerm._id}
-          mutationFragment={getFragment('JargonTermsFragment')}
-          queryFragment={getFragment('JargonTermsFragment')}
-          successCallback={() => setEdit(false)}
-        />) : 
-        (<>
-          <ContentItemBody dangerouslySetInnerHTML={{__html: jargonTerm?.contents?.originalContents?.data ?? ''}}/>
-          <a className={classes.edit} onClick={() => setEdit(!edit)}>Edit</a>
-        </>)
-        )
-    }
-    </div>;
+  const handleDelete = () => {
+    setHidden(true);
+    void updateJargonTerm({
+      selector: { _id: jargonTerm._id },
+      data: {
+        deleted: true
+      },
+    })
+  }
+
+  if (hidden) return null;
+
+  return <div className={classes.root}>
+    <div className={classNames(classes.flex, isActive && classes.isActive)}>
+      <ToggleSwitch value={isActive} className={classes.toggleSwitch} setValue={handleActiveChange}/>
+      {!isActive && <div contentEditable={true} dangerouslySetInnerHTML={{__html: jargonTerm.term}} />}
+      {isActive && (
+        edit ? 
+          (<WrappedSmartForm
+            collectionName="JargonTerms"
+            documentId={jargonTerm._id}
+            mutationFragment={getFragment('JargonTermsFragment')}
+            queryFragment={getFragment('JargonTermsFragment')}
+            successCallback={() => setEdit(false)}
+          />) : 
+          (<>
+            <ContentItemBody dangerouslySetInnerHTML={{__html: jargonTerm?.contents?.originalContents?.data ?? ''}}/>
+            <a className={classes.edit} onClick={() => setEdit(!edit)}>Edit</a>
+          </>)
+          )
+      }
+      <Button onClick={() => handleDelete()} className={classes.deleteButton}>X</Button>
+    </div>
+  </div>
 }
 
 const JargonEditorRowComponent = registerComponent('JargonEditorRow', JargonEditorRow, {styles});

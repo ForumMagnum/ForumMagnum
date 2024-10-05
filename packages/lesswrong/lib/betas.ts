@@ -111,6 +111,8 @@ export const hasSidenotes = isLW;
 // test the moderation features.
 export const hasAuthorModeration = !isEAForum || isAnyTest;
 
+export const userHasJargonTerms = (user: UsersCurrent|DbUser|null) => isLW && !!user && user.karma > 1000;
+
 // Shipped Features
 export const userCanManageTags = shippedFeature;
 export const userCanCreateTags = shippedFeature;
@@ -118,3 +120,4 @@ export const userCanUseTags = shippedFeature;
 export const userCanViewRevisionHistory = shippedFeature;
 export const userHasPingbacks = shippedFeature;
 export const userHasElasticsearch = shippedFeature;
+

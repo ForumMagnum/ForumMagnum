@@ -35,7 +35,7 @@ import { getDefaultViewSelector } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 import SideCommentCaches from '../sideCommentCaches/collection';
-import { hasSideComments, hasSidenotes } from '../../betas';
+import { hasSideComments, hasSidenotes, userHasJargonTerms } from '../../betas';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { getPostReviewWinnerInfo } from '../reviewWinners/cache';
 import { stableSortTags } from '../tags/helpers';
@@ -848,7 +848,7 @@ const schema: SchemaType<"Posts"> = {
     control: "GlossaryEditFormWrapper",
     group: formGroups.glossary,
     canUpdate: [userOwns, 'admins'],
-    hidden: !isLWorAF
+    hidden: ({currentUser}) => !userHasJargonTerms(currentUser)
     // Implementation in postResolvers.ts
   },
 
