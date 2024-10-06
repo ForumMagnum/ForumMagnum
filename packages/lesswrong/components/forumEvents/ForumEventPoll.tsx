@@ -5,7 +5,7 @@ import { useCurrentUser } from "../common/withUser";
 import { useEventListener } from "../hooks/useEventListener";
 import { gql, useMutation } from "@apollo/client";
 import { useMulti } from "@/lib/crud/withMulti";
-import { AnalyticsContext } from "@/lib/analyticsEvents";
+import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
 import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
 import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
 import range from "lodash/range";
@@ -437,6 +437,8 @@ export const ForumEventPoll = ({
   const { onSignup } = useLoginPopoverContext();
   const currentUser = useCurrentUser();
 
+  const { captureEvent } = useTracking();
+
   const initialUserVotePos: number | null = getForumEventVoteForUser(
     event,
     currentUser
@@ -468,6 +470,12 @@ export const ForumEventPoll = ({
   const [voteCount, setVoteCount] = useState(event?.voteCount ?? 0);
 
   const [commentFormOpen, setCommentFormOpen] = useState(false);
+
+  const toggleCommentFormOpen = useCallback(() => {
+    const newState = !commentFormOpen;
+    captureEvent("forumEventCommentFormToggled", { newState });
+    setCommentFormOpen(newState);
+  }, [captureEvent, commentFormOpen])
 
   // Get profile image and display name for all other users who voted, to display on the slider.
   // The `useRef` is to handle `voters` being briefly undefined when refetching, which causes flickering
@@ -597,14 +605,15 @@ export const ForumEventPoll = ({
         x: newVotePos,
       };
       if (!hasVoted) {
+        if (event.post) {
+          setCommentFormOpen(true);
+        }
+
         setVoteCount((count) => count + 1);
         setCurrentUserVote(newVotePos);
         await addVote({ variables: voteData });
         refetch?.();
 
-        if (!event.post) return;
-
-        setCommentFormOpen(true);
         return;
       }
       const delta =
@@ -723,63 +732,68 @@ export const ForumEventPoll = ({
                   />
                 ))}
                 {/* User Vote */}
-                <div
-                  ref={userVoteRef}
-                  className={classNames(
-                    classes.userVote,
-                    classes.currentUserVote,
-                    isDragging.current && classes.currentUserVoteDragging,
-                    hasVoted && classes.currentUserVoteActive
-                  )}
-                  onPointerDown={startDragVote}
-                  style={{
-                    left: `${votePos}%`,
-                  }}
+                <AnalyticsContext
+                  pageElementContext="forumEventUserIcon"
+                  forumEventId={event?._id}
                 >
-                  <LWTooltip
-                    title={
-                      !hasVoted && (
-                        <>
-                          <div className={classes.voteTooltipHeading}>Click and drag to vote</div>
-                          <div className={classes.voteTooltipBody}>
-                            Votes are non-anonymous and can be changed at any time
-                          </div>
-                        </>
-                      )
-                    }
-                    disabled={commentFormOpen}
-                  >
-                    {currentUser ? (
-                      <UsersProfileImage user={currentUser} size={USER_IMAGE_SIZE} className={classes.userImage} />
-                    ) : (
-                      <ForumIcon icon="UserCircle" className={classes.placeholderUserIcon} />
+                  <div
+                    ref={userVoteRef}
+                    className={classNames(
+                      classes.userVote,
+                      classes.currentUserVote,
+                      isDragging.current && classes.currentUserVoteDragging,
+                      hasVoted && classes.currentUserVoteActive
                     )}
-                    <div
-                      className={classNames(classes.iconButton, classes.clearVote)}
-                      onPointerDown={clearVote}
+                    onPointerDown={startDragVote}
+                    style={{
+                      left: `${votePos}%`,
+                    }}
+                  >
+                    <LWTooltip
+                      title={
+                        !hasVoted && (
+                          <>
+                            <div className={classes.voteTooltipHeading}>Click and drag to vote</div>
+                            <div className={classes.voteTooltipBody}>
+                              Votes are non-anonymous and can be changed at any time
+                            </div>
+                          </>
+                        )
+                      }
+                      disabled={commentFormOpen}
                     >
-                      <ForumIcon icon="Close" />
-                    </div>
-                    {event.post && <div
-                      className={classNames(classes.iconButton, classes.toggleCommentForm)}
-                      onClick={() => setCommentFormOpen(!commentFormOpen)}
-                    >
-                      <ForumIcon icon="Comment" />
-                    </div>}
-                  </LWTooltip>
-                </div>
-                {/* Popper containing the form for creating a comment */}
-                {event.post && (
-                  <ForumEventCommentForm
-                    open={commentFormOpen}
-                    comment={currentUserComment}
-                    forumEventId={event._id}
-                    onClose={() => setCommentFormOpen(false)}
-                    refetch={refetchComments}
-                    anchorEl={userVoteRef.current}
-                    post={event.post}
-                  />
-                )}
+                      {currentUser ? (
+                        <UsersProfileImage user={currentUser} size={USER_IMAGE_SIZE} className={classes.userImage} />
+                      ) : (
+                        <ForumIcon icon="UserCircle" className={classes.placeholderUserIcon} />
+                      )}
+                      <div
+                        className={classNames(classes.iconButton, classes.clearVote)}
+                        onPointerDown={clearVote}
+                      >
+                        <ForumIcon icon="Close" />
+                      </div>
+                      {event.post && <div
+                        className={classNames(classes.iconButton, classes.toggleCommentForm)}
+                        onClick={toggleCommentFormOpen}
+                      >
+                        <ForumIcon icon="Comment" />
+                      </div>}
+                    </LWTooltip>
+                  </div>
+                  {/* Popper containing the form for creating a comment */}
+                  {event.post && (
+                    <ForumEventCommentForm
+                      open={commentFormOpen}
+                      comment={currentUserComment}
+                      forumEventId={event._id}
+                      onClose={() => setCommentFormOpen(false)}
+                      refetch={refetchComments}
+                      anchorEl={userVoteRef.current}
+                      post={event.post}
+                    />
+                  )}
+                </AnalyticsContext>
               </div>
               {/* Arrows */}
               <ForumIcon icon="ChevronLeft" className={classNames(classes.sliderArrow, classes.sliderArrowLeft)} />

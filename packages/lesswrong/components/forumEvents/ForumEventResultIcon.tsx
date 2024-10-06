@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { useHover } from '../common/withHover';
@@ -7,6 +7,8 @@ import { Link } from '@/lib/reactRouterWrapper';
 import { commentGetPageUrlFromIds } from '@/lib/collections/comments/helpers';
 import { userGetProfileUrl } from '@/lib/collections/users/helpers';
 import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
+import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
+import { useCurrentForumEvent } from '../hooks/useCurrentForumEvent';
 
 const styles = (theme: ThemeType) => ({
   voteCircle: {
@@ -140,6 +142,8 @@ const ForumEventResultIcon = ({
     Components;
 
   const isDesktop = useIsAboveBreakpoint("md")
+  const { captureEvent } = useTracking();
+  const { currentForumEvent } = useCurrentForumEvent();
 
   const [replyFormOpen, setReplyFormOpen] = useState(false);
 
@@ -154,6 +158,12 @@ const ForumEventResultIcon = ({
   // than refetching
   const [newRepliesCount, setNewRepliesCount] = useState(0);
 
+  const replySuccessCallback = useCallback(() => {
+    captureEvent("replyFromBanner")
+    setNewRepliesCount((prev) => prev + 1);
+    setReplyFormOpen(false);
+  }, [captureEvent])
+
   const repliesCount = (comment?.descendentCount ?? 0) + newRepliesCount;
 
   const popperOpen = hover || isPinned
@@ -165,86 +175,89 @@ const ForumEventResultIcon = ({
   if (!isDesktop) return null;
 
   return (
-    <div key={vote.user._id} className={classes.voteCircle} {...eventHandlers}>
-      <LWTooltip
-        title={<div className={classes.voteTooltipBody}>{vote.user.displayName}</div>}
-        disabled={!!vote.comment}
-      >
-        <UsersProfileImage
-          user={vote.user}
-          // The actual size gets overridden by the styles above. This
-          // is still needed to get the right resolution from Cloudinary
-          size={34}
-          className={classes.userResultsImage}
-        />
-      </LWTooltip>
-      {comment && (
-        <LWPopper
-          open={popperOpen}
-          anchorEl={anchorEl}
-          clickable={true}
-          allowOverflow={false}
-          placement={"right-start"}
+    <AnalyticsContext
+      pageElementContext="forumEventResultIcon"
+      forumEventId={currentForumEvent?._id}
+      userIdDisplayed={vote.user._id}
+    >
+      <div key={vote.user._id} className={classes.voteCircle} {...eventHandlers}>
+        <LWTooltip
+          title={<div className={classes.voteTooltipBody}>{vote.user.displayName}</div>}
+          disabled={!!vote.comment}
         >
-          <LWClickAwayListener onClickAway={() => setIsPinned(false)}>
-            <div className={classes.popperContent}>
-              <div className={classes.userInfo}>
-                <UsersProfileImage user={user} size={40} className={classes.profileImage} />
-                <div className={classes.headerInfo}>
-                  <div className={classes.displayNameRow}>
-                    <Link
-                      className={classes.displayName}
-                      to={userGetProfileUrl(user)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {user.displayName}
-                    </Link>
-                    <ForumIcon
-                      icon="Pin"
-                      onClick={() => setIsPinned(!isPinned)}
-                      className={classNames(classes.pinIcon, { [classes.pinIconPinned]: isPinned })}
-                    />
+          <UsersProfileImage
+            user={vote.user}
+            // The actual size gets overridden by the styles above. This
+            // is still needed to get the right resolution from Cloudinary
+            size={34}
+            className={classes.userResultsImage}
+          />
+        </LWTooltip>
+        {comment && (
+          <LWPopper
+            open={popperOpen}
+            anchorEl={anchorEl}
+            clickable={true}
+            allowOverflow={false}
+            placement={"right-start"}
+          >
+            <LWClickAwayListener onClickAway={() => setIsPinned(false)}>
+              <div className={classes.popperContent}>
+                <div className={classes.userInfo}>
+                  <UsersProfileImage user={user} size={40} className={classes.profileImage} />
+                  <div className={classes.headerInfo}>
+                    <div className={classes.displayNameRow}>
+                      <Link
+                        className={classes.displayName}
+                        to={userGetProfileUrl(user)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {user.displayName}
+                      </Link>
+                      <ForumIcon
+                        icon="Pin"
+                        onClick={() => setIsPinned(!isPinned)}
+                        className={classNames(classes.pinIcon, { [classes.pinIconPinned]: isPinned })}
+                      />
+                    </div>
+                    <div>{role}</div>
                   </div>
-                  <div>{role}</div>
                 </div>
-              </div>
-              <CommentBody comment={comment} />
-              <div
-                className={classes.replyButtonRow}
-                onClick={() => {
-                  setReplyFormOpen(true);
-                  // Pin even after the comment is submitted so they can see the result
-                  setIsPinned(true);
-                }}
-              >
-                <div className={classes.replyButton}>Reply</div>
-                <Link
-                  to={commentGetPageUrlFromIds({ postId: comment.postId, commentId: comment._id })}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Go to thread {replyString}
-                </Link>
-              </div>
-              {replyFormOpen && (
-                <CommentsNewForm
-                  type="reply"
-                  post={comment.post ?? undefined}
-                  parentComment={comment}
-                  cancelCallback={() => setReplyFormOpen(false)}
-                  successCallback={() => {
-                    setNewRepliesCount((prev) => prev + 1);
-                    setReplyFormOpen(false);
+                <CommentBody comment={comment} />
+                <div
+                  className={classes.replyButtonRow}
+                  onClick={() => {
+                    setReplyFormOpen(true);
+                    // Pin even after the comment is submitted so they can see the result
+                    setIsPinned(true);
                   }}
-                  className={classes.replyForm}
-                />
-              )}
-            </div>
-          </LWClickAwayListener>
-        </LWPopper>
-      )}
-    </div>
+                >
+                  <div className={classes.replyButton}>Reply</div>
+                  <Link
+                    to={commentGetPageUrlFromIds({ postId: comment.postId, commentId: comment._id })}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Go to thread {replyString}
+                  </Link>
+                </div>
+                {replyFormOpen && (
+                  <CommentsNewForm
+                    type="reply"
+                    post={comment.post ?? undefined}
+                    parentComment={comment}
+                    cancelCallback={() => setReplyFormOpen(false)}
+                    successCallback={replySuccessCallback}
+                    className={classes.replyForm}
+                  />
+                )}
+              </div>
+            </LWClickAwayListener>
+          </LWPopper>
+        )}
+      </div>
+    </AnalyticsContext>
   );
 };
 

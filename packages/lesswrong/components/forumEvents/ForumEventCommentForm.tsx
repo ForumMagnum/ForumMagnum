@@ -130,9 +130,12 @@ const ForumEventCommentForm = ({
       void updatePopperRef.current?.();
     };
 
+    // Backup to prevent it from sticking in the wrong place forever
     const intervalId = setInterval(() => {
       updatePopperPos();
     }, 3000);
+
+    document.addEventListener('pointerup', updatePopperPos);
 
     return () => {
       clearInterval(intervalId);
