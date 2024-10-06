@@ -1952,7 +1952,7 @@ interface DbVote extends DbObject {
   collectionName: CollectionNameString
   userId: string
   authorIds: Array<string> | null
-  voteType: string
+  voteType: "bigDownvote" | "bigUpvote" | "neutral" | "smallDownvote" | "smallUpvote"
   extendedVoteType: any /*{"definitions":[{"type":"JSON"}]}*/
   power: number
   afPower: number | null

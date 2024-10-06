@@ -1,5 +1,6 @@
+import { getUnusedSlugByCollectionName } from "@/lib/helpers";
 import { Profile } from "passport-auth0";
-import { slugify, Utils } from "../../lib/vulcan-lib/utils";
+import { slugify } from "../../lib/vulcan-lib/utils";
 
 export const auth0ProfilePath = "services.auth0";
 
@@ -22,7 +23,7 @@ export async function userFromAuth0Profile(profile: Profile): Promise<Partial<Db
     services: {
       auth0: profile
     },
-    username: await Utils.getUnusedSlugByCollectionName("Users", slugify(displayName)),
+    username: await getUnusedSlugByCollectionName("Users", slugify(displayName)),
     displayName: displayName,
     usernameUnset: true
   }

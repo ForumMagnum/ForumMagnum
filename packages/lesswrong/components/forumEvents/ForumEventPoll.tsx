@@ -229,12 +229,14 @@ const styles = (theme: ThemeType) => ({
   },
   votePromptWrapper: {
     minHeight: 17,
-    marginBottom: 22
+    marginBottom: 14
   },
   votePrompt: {
     fontSize: 14,
     fontWeight: 500,
     lineHeight: "normal",
+    maxWidth: SLIDER_MAX_WIDTH,
+    margin: "auto"
   },
   sliderLabels: {
     display: 'flex',
@@ -244,12 +246,6 @@ const styles = (theme: ThemeType) => ({
     lineHeight: 'normal',
     marginTop: 22,
     marginBottom: 6
-  },
-  hideResultsWrapper: {
-    minHeight: 21,
-    display: "block",
-    marginRight: "auto",
-    width: "fit-content"
   },
   viewResultsButton: {
     background: 'none',
@@ -264,6 +260,11 @@ const styles = (theme: ThemeType) => ({
     '&:hover': {
       opacity: 0.7
     },
+  },
+  hideResultsButton: {
+    display: "block",
+    marginLeft: "auto",
+    marginRight: 12
   },
   userVote: {
     position: "absolute",
@@ -678,13 +679,20 @@ export const ForumEventPoll = ({
         <PollQuestion event={event} classes={classes} />
         <div className={classes.votePromptWrapper}>
           <DeferRender ssr={false}>
-            {!hideViewResults && !resultsVisible && (
+            {!hideViewResults && (
               <div className={classes.votePrompt}>
-                {voteCount > 0 && `${voteCount} vote${voteCount === 1 ? "" : "s"} so far. `}
+                {!resultsVisible ? <>
+                  {voteCount > 0 && `${voteCount} vote${voteCount === 1 ? "" : "s"} so far. `}
                 {hasVoted ? "Click and drag your avatar to change your vote, or " : "Place your vote or "}
                 <button className={classes.viewResultsButton} onClick={() => setResultsVisible(true)}>
                   view results.
                 </button>
+                </> : <button
+                  className={classNames(classes.viewResultsButton, classes.hideResultsButton)}
+                  onClick={() => setResultsVisible(false)}
+                >
+                  Hide results
+                </button>}
               </div>
             )}
           </DeferRender>
@@ -692,19 +700,18 @@ export const ForumEventPoll = ({
         <div className={classes.sliderRow}>
           <div className={classes.sliderLineCol}>
             <div className={classNames(classes.sliderLineResults, resultsVisible && classes.sliderLineResultsVisible)}>
-              {resultsVisible &&
-                voteClusters.map((cluster) => (
-                  <div key={cluster.center} className={classes.voteCluster}>
-                    {cluster.votes.length > MAX_STACK_IMAGES && (
-                      <div className={classes.extraVotesCircle}>
-                        <span className={classes.extraVotesText}>+{cluster.votes.length - MAX_STACK_IMAGES}</span>
-                      </div>
-                    )}
-                    {cluster.votes.slice(-MAX_STACK_IMAGES).map((vote) => (
-                      <ForumEventResultIcon key={vote.user._id} vote={vote} />
-                    ))}
-                  </div>
-                ))}
+              {voteClusters.map((cluster) => (
+                <div key={cluster.center} className={classes.voteCluster}>
+                  {cluster.votes.length > MAX_STACK_IMAGES && (
+                    <div className={classes.extraVotesCircle}>
+                      <span className={classes.extraVotesText}>+{cluster.votes.length - MAX_STACK_IMAGES}</span>
+                    </div>
+                  )}
+                  {cluster.votes.slice(-MAX_STACK_IMAGES).map((vote) => (
+                    <ForumEventResultIcon key={vote.user._id} vote={vote} tooltipDisabled={!resultsVisible} />
+                  ))}
+                </div>
+              ))}
             </div>
             <div className={classes.sliderLine} ref={sliderRef}>
               {/* Ticks */}
@@ -791,13 +798,6 @@ export const ForumEventPoll = ({
             <div className={classes.sliderLabels}>
               <div>Disagree</div>
               <div>Agree</div>
-            </div>
-            <div className={classes.hideResultsWrapper}>
-              {resultsVisible && (
-                <button className={classes.viewResultsButton} onClick={() => setResultsVisible(false)}>
-                  Hide results
-                </button>
-              )}
             </div>
           </div>
         </div>

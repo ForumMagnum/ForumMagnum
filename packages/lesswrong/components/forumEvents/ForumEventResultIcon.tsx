@@ -130,9 +130,11 @@ export type ForumEventVoteDisplay = {
 
 const ForumEventResultIcon = ({
   vote,
+  tooltipDisabled,
   classes,
 }: {
   vote: ForumEventVoteDisplay;
+  tooltipDisabled: boolean;
   classes: ClassesType<typeof styles>;
 }) => {
   const { LWTooltip, UsersProfileImage, LWPopper, ForumIcon, CommentBody, LWClickAwayListener, CommentsNewForm } =
@@ -190,7 +192,7 @@ const ForumEventResultIcon = ({
             className={classes.userResultsImage}
           />
         </LWTooltip>
-        {comment && (
+        {!tooltipDisabled && comment && (
           <LWPopper
             open={popperOpen}
             anchorEl={anchorEl}
