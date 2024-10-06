@@ -53,10 +53,6 @@ const styles = (theme: ThemeType) => ({
     flexDirection: 'column',
     gap: "10px",
   },
-  header: {
-    display: "flex",
-    justifyContent: "space-between"
-  },
   pinIcon: {
     width: 12,
     height: 12,
@@ -76,11 +72,6 @@ const styles = (theme: ThemeType) => ({
     display: "-webkit-box",
     "-webkit-box-orient": "vertical",
     "-webkit-line-clamp": 25,
-  },
-  linkIcon: {
-    width: 14,
-    height: 14,
-    transform: "translateY(2px)"
   },
   // User profile header, some of these styles are borrowed from EAUserTooltipContent
   userInfo: {

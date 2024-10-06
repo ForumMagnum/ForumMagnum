@@ -113,14 +113,6 @@ const styles = (theme: ThemeType) => ({
     marginBottom: "16px",
     transition: "transform 0.5s ease-in-out",
   },
-  sliderLineHoverArea: {
-    position: "relative",
-    width: "100%",
-    height: USER_IMAGE_SIZE,
-    '&:hover $tick': {
-      opacity: 1,
-    },
-  },
   ticksContainer: {
     position: "absolute",
     top: -(USER_IMAGE_SIZE / 2),
@@ -297,9 +289,6 @@ const styles = (theme: ThemeType) => ({
       display: "flex",
     },
   },
-  popperPlaceholder: {
-    background: "white"
-  }
 });
 
 export type ForumEventVoteData = {
@@ -592,7 +581,7 @@ export const ForumEventPoll = ({
    * - If we have a postId (because we're on the post page), save the vote
    * - Otherwise (we're on the home page), open the post selection modal
    */
-  const saveVotePos = useCallback(async (ev: PointerEvent) => {
+  const saveVotePos = useCallback(async () => {
     if (!isDragging.current || !event) return;
 
     isDragging.current = false;

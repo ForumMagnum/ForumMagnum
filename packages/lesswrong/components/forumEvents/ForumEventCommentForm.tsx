@@ -172,7 +172,6 @@ const ForumEventCommentForm = ({
             prefilledProps={{
               forumEventId,
             }}
-            // TODO change submit styling (actually punt, but note in PR)
             className={classes.commentForm}
           />
         )}
@@ -192,7 +191,6 @@ const ForumEventCommentForm = ({
               await refetch();
               setEditFormOpen(false);
             }}
-            // TODO change submit styling
             className={classes.commentForm}
           />
         )}

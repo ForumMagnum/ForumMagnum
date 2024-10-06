@@ -7,11 +7,9 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
  * Without it, this would be a "onMouseUp" event, which happens BEFORE "onClick",
  * and resulted in some annoying behavior. Also MUI v5 defaults this to "onClick".
  */
-const LWClickAwayListener = ({onClickAway, children, style, className}: {
+const LWClickAwayListener = ({onClickAway, children}: {
   onClickAway: (ev: ClickAwayEvent) => void,
   children: React.ReactElement,
-  style?: React.CSSProperties,
-  className?: string,
 }) => {
   return (
     <ClickAwayListener
@@ -19,7 +17,7 @@ const LWClickAwayListener = ({onClickAway, children, style, className}: {
         onClickAway(ev);
       }}
     >
-      <span style={style} className={className}>
+      <span>
         {children}
       </span>
     </ClickAwayListener>
