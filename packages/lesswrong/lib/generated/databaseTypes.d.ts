@@ -142,6 +142,7 @@ interface DbComment extends DbObject {
   author: string | null
   postId: string | null
   tagId: string | null
+  forumEventId: string | null
   tagCommentType: "SUBFORUM" | "DISCUSSION"
   subforumStickyPriority: number | null
   userId: string
@@ -460,6 +461,7 @@ interface DbForumEvent extends DbObject {
   lightColor: string
   contrastColor: string | null
   tagId: string
+  postId: string | null
   bannerImageId: string | null
   includesPoll: boolean
   publicData: any /*{"definitions":[{"blackbox":true}]}*/

@@ -124,6 +124,7 @@ export type AnalyticsProps = {
   chapter?: string,
   documentSlug?: string,
   postId?: string,
+  forumEventId?: string,
   sequenceId?: string,
   commentId?: string,
   tagId?: string,
