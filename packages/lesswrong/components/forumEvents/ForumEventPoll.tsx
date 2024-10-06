@@ -11,10 +11,10 @@ import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
 import range from "lodash/range";
 import sortBy from "lodash/sortBy";
 import DeferRender from "../common/DeferRender";
-import { ProvidedRequiredArgumentsOnDirectives } from "graphql/validation/rules/ProvidedRequiredArguments";
+import type { ForumEventVoteDisplay } from "./ForumEventUserIcon";
 
 export const POLL_MAX_WIDTH = 800;
-const SLIDER_MAX_WIDTH = 1110;
+const SLIDER_MAX_WIDTH = 1120;
 const USER_IMAGE_SIZE = 34;
 const MAX_STACK_IMAGES = 20;
 const NUM_TICKS = 29;
@@ -53,7 +53,7 @@ const styles = (theme: ThemeType) => ({
     flexGrow: 1,
     maxWidth: `min(${SLIDER_MAX_WIDTH}px, 100%)`,
     position: "relative",
-    padding: "8px 5px 0px 3px",
+    padding: "8px 10px 0px 10px",
     overflow: "hidden"
   },
   sliderLineResults: {
@@ -78,20 +78,6 @@ const styles = (theme: ThemeType) => ({
     flex: 1,
     justifyContent: "flex-end", // Stack votes from bottom to top
     position: "relative",
-  },
-  voteCircle: {
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "flex-end",
-    width: "100%",
-    marginTop: -5,
-    zIndex: 1,
-    [theme.breakpoints.down('md')]: {
-      marginTop: -3,
-    },
-    [theme.breakpoints.down('sm')]: {
-      marginTop: -1,
-    },
   },
   extraVotesCircle: {
     display: "flex",
@@ -208,10 +194,6 @@ const styles = (theme: ThemeType) => ({
   userImage: {
     outline: `2px solid ${theme.palette.text.alwaysWhite}`,
   },
-  userResultsImage: {
-    width: "100% !important",
-    height: "unset !important",
-  },
   placeholderUserIcon: {
     // add a black background to the placeholder user circle icon
     background: `radial-gradient(${theme.palette.text.alwaysBlack} 50%, transparent 50%)`,
@@ -221,7 +203,7 @@ const styles = (theme: ThemeType) => ({
     marginLeft: -5,
     marginTop: -4
   },
-  clearVote: {
+  iconButton: {
     display: 'none',
     position: 'absolute',
     top: -5,
@@ -230,12 +212,28 @@ const styles = (theme: ThemeType) => ({
     padding: 2,
     borderRadius: '50%',
     cursor: 'pointer',
+    width: 15,
+    height: 15,
     "&:hover": {
       backgroundColor: theme.palette.text.alwaysBlack,
     },
   },
-  clearVoteIcon: {
-    fontSize: 10,
+  clearVote: {
+    top: -5,
+    right: -5,
+    '& svg': {
+      fontSize: 11
+
+    }
+  },
+  toggleCommentForm: {
+    top: 22,
+    right: -5,
+    '& svg': {
+      fontSize: 9,
+      marginTop: 1,
+      marginLeft: 1
+    }
   },
   votePromptWrapper: {
     minHeight: 17,
@@ -295,7 +293,7 @@ const styles = (theme: ThemeType) => ({
   },
   currentUserVoteActive: {
     opacity: 1,
-    "&:hover .ForumEventPoll-clearVote": {
+    "&:hover .ForumEventPoll-iconButton": {
       display: "flex",
     },
   },
@@ -338,23 +336,21 @@ type ForumEventVoteDisplayCluster = {
   center: number,
   votes: ForumEventVoteDisplay[]
 }
-type ForumEventVoteDisplay = {
-  x: number,
-  user: UserOnboardingAuthor,
-}
 
 /**
  * Groups the given forum event votes into NUM_TICKS equal-width clusters
  */
 const clusterForumEventVotes = ({
   voters,
+  comments,
   event,
   currentUser,
 }: {
-  voters?: UserOnboardingAuthor[];
-  event?: ForumEventsDisplay | null;
-  currentUser?: UsersCurrent | null;
-} = {}): ForumEventVoteDisplayCluster[] => {
+  voters: UsersMinimumInfo[];
+  comments: ShortformComments[] | undefined;
+  event: ForumEventsDisplay | null;
+  currentUser: UsersCurrent | null;
+}): ForumEventVoteDisplayCluster[] => {
   if (!voters || !event || !event.publicData) return [];
 
   const votes = sortBy(voters
@@ -364,6 +360,8 @@ const clusterForumEventVotes = ({
       return {
         x: vote,
         user: voter,
+        // O(n^2), but unlikely to be a problem given the numbers involved
+        comment: comments?.find(comment => comment.userId === voter._id) || null
       };
     }), "x");
 
@@ -378,15 +376,18 @@ const clusterForumEventVotes = ({
     clusters[clusterIndex].votes.push(vote);
   }
 
-  for (const cluster of clusters) {
+    for (const cluster of clusters) {
     cluster.votes.sort((a, b) => {
       // Current user should always appear at the bottom
       if (a.user._id === currentUser?._id) return 1;
       if (b.user._id === currentUser?._id) return -1;
 
-      // TODO votes with comments should appear closer to the bottom
+      // Votes with comments should appear closer to the bottom
+      if (a.comment && !b.comment) return 1;
+      if (!a.comment && b.comment) return -1;
 
-      return a.user.displayName.toLowerCase().localeCompare(b.user.displayName.toLowerCase()); // Alphabetically by name
+      // Alphabetically by name
+      return a.user.displayName.toLowerCase().localeCompare(b.user.displayName.toLowerCase());
     });
   }
 
@@ -466,34 +467,52 @@ export const ForumEventPoll = ({
   const [resultsVisible, setResultsVisible] = useState(false);
   const [voteCount, setVoteCount] = useState(event?.voteCount ?? 0);
 
-  const [userCommentOpen, setUserCommentOpen] = useState(false);
+  const [commentFormOpen, setCommentFormOpen] = useState(false);
 
   // Get profile image and display name for all other users who voted, to display on the slider.
   // The `useRef` is to handle `voters` being briefly undefined when refetching, which causes flickering
-  const votersRef = useRef<UserOnboardingAuthor[]>([])
+  const votersRef = useRef<UsersMinimumInfo[]>([])
   const { results: voters } = useMulti({
     terms: {
       view: 'usersByUserIds',
       userIds: event?.publicData
         ? Object.keys(event?.publicData)
         : [],
-      limit: 500,
+      limit: 1000,
     },
     collectionName: "Users",
-    fragmentName: 'UserOnboardingAuthor',
+    fragmentName: 'UsersMinimumInfo',
     enableTotal: false,
     skip: !event?.publicData,
   });
+  const { results: comments, refetch: refetchComments } = useMulti({
+    terms: {
+      view: 'forumEventComments',
+      forumEventId: event?._id,
+      limit: 1000,
+    },
+    collectionName: "Comments",
+    fragmentName: 'ShortformComments',
+    enableTotal: false,
+    // Don't run on the first pass, to prioritise loading the user images
+    skip: !event?._id || !voters,
+  });
 
   if (voters !== undefined) {
-    votersRef.current = voters
+    votersRef.current = voters;
   }
 
   const voteClusters = useMemo(
-    () => clusterForumEventVotes({ voters: votersRef.current, event, currentUser }),
+    () => clusterForumEventVotes({ voters: votersRef.current, comments, event, currentUser }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [votersRef.current, event, currentUser]
   );
+
+  const currentUserComment = useMemo(() => {
+    return comments?.find(comment => comment.userId === currentUser?._id) || null;
+  }, [comments, currentUser]);
+
+  console.log({currentUserComment, comments})
 
   const [addVote] = useMutation(addForumEventVoteQuery);
   const [removeVote] = useMutation(removeForumEventVoteQuery);
@@ -510,7 +529,7 @@ export const ForumEventPoll = ({
       if (currentUser && event) {
         setVoteCount((count) => count - 1);
         await removeVote({ variables: { forumEventId: event._id } });
-        setUserCommentOpen(false);
+        setCommentFormOpen(false);
         refetch?.();
       }
     },
@@ -580,7 +599,7 @@ export const ForumEventPoll = ({
         x: newVotePos,
       };
       if (!hasVoted) {
-        setUserCommentOpen(true);
+        setCommentFormOpen(true);
         setVoteCount((count) => count + 1);
         setCurrentUserVote(newVotePos);
         await addVote({ variables: voteData });
@@ -620,7 +639,7 @@ export const ForumEventPoll = ({
   ]);
   useEventListener("pointerup", saveVotePos);
 
-  const { ForumIcon, LWTooltip, UsersProfileImage, ForumEventNewComment } = Components;
+  const { ForumIcon, LWTooltip, UsersProfileImage, ForumEventCommentForm, ForumEventUserIcon } = Components;
 
   const ticks = Array.from({ length: NUM_TICKS }, (_, i) => i);
 
@@ -662,16 +681,10 @@ export const ForumEventPoll = ({
           <DeferRender ssr={false}>
             {!hideViewResults && !resultsVisible && (
               <div className={classes.votePrompt}>
-                {voteCount > 0 &&
-                  `${voteCount} vote${voteCount === 1 ? "" : "s"} so far. `}
-                {hasVoted
-                  ? "Click and drag your avatar to change your vote, or "
-                  : "Place your vote or "}
-                <button
-                  className={classes.viewResultsButton}
-                  onClick={() => setResultsVisible(true)}
-                >
-                  view results
+                {voteCount > 0 && `${voteCount} vote${voteCount === 1 ? "" : "s"} so far. `}
+                {hasVoted ? "Click and drag your avatar to change your vote, or " : "Place your vote or "}
+                <button className={classes.viewResultsButton} onClick={() => setResultsVisible(true)}>
+                  view results.
                 </button>
               </div>
             )}
@@ -679,56 +692,22 @@ export const ForumEventPoll = ({
         </div>
         <div className={classes.sliderRow}>
           <div className={classes.sliderLineCol}>
-            <div
-              className={classNames(
-                classes.sliderLineResults,
-                resultsVisible && classes.sliderLineResultsVisible
-              )}
-            >
-              {voteClusters.map((cluster) => (
-                <div key={cluster.center} className={classes.voteCluster}>
-                  {cluster.votes.length > MAX_STACK_IMAGES && (
-                    <div className={classes.extraVotesCircle}>
-                      <span className={classes.extraVotesText}>
-                        +{cluster.votes.length - MAX_STACK_IMAGES}
-                      </span>
-                    </div>
-                  )}
-                  {cluster.votes
-                    .slice(-MAX_STACK_IMAGES)
-                    .map((vote) => (
-                      <div
-                        key={vote.user._id}
-                        className={classes.voteCircle}
-                      >
-                        <LWTooltip
-                          title={
-                            <div className={classes.voteTooltipBody}>
-                              {vote.user.displayName}
-                            </div>
-                          }
-                          disabled={!resultsVisible}
-                        >
-                          <UsersProfileImage
-                            user={vote.user}
-                            // The actual size gets overridden by the styles above. This
-                            // is still needed to get the right resolution from Cloudinary
-                            size={USER_IMAGE_SIZE}
-                            className={classNames(
-                              classes.userImage,
-                              classes.userResultsImage
-                            )}
-                          />
-                        </LWTooltip>
+            <div className={classNames(classes.sliderLineResults, resultsVisible && classes.sliderLineResultsVisible)}>
+              {resultsVisible &&
+                voteClusters.map((cluster) => (
+                  <div key={cluster.center} className={classes.voteCluster}>
+                    {cluster.votes.length > MAX_STACK_IMAGES && (
+                      <div className={classes.extraVotesCircle}>
+                        <span className={classes.extraVotesText}>+{cluster.votes.length - MAX_STACK_IMAGES}</span>
                       </div>
+                    )}
+                    {cluster.votes.slice(-MAX_STACK_IMAGES).map((vote) => (
+                      <ForumEventUserIcon key={vote.user._id} vote={vote} />
                     ))}
-                </div>
-              ))}
+                  </div>
+                ))}
             </div>
-            <div
-              className={classes.sliderLine}
-              ref={sliderRef}
-            >
+            <div className={classes.sliderLine} ref={sliderRef}>
               {/* Ticks */}
               <div className={classes.ticksContainer}>
                 {ticks.map((tickIndex) => (
@@ -738,8 +717,7 @@ export const ForumEventPoll = ({
                     className={classNames(
                       classes.tick,
                       isDragging.current && classes.tickDragging,
-                      tickIndex === Math.floor(NUM_TICKS / 2) &&
-                        classes.centralTick
+                      tickIndex === Math.floor(NUM_TICKS / 2) && classes.centralTick
                     )}
                   />
                 ))}
@@ -759,84 +737,66 @@ export const ForumEventPoll = ({
                 >
                   <LWTooltip
                     title={
-                      hasVoted ? (
-                        <div className={classes.voteTooltipBody}>
-                          Drag to move
-                        </div>
-                      ) : (
+                      !hasVoted && (
                         <>
-                          <div className={classes.voteTooltipHeading}>
-                            Click and drag to vote
-                          </div>
+                          <div className={classes.voteTooltipHeading}>Click and drag to vote</div>
                           <div className={classes.voteTooltipBody}>
                             Votes are non-anonymous and can be changed at any time
                           </div>
                         </>
                       )
                     }
-                    disabled={userCommentOpen}
+                    disabled={commentFormOpen}
                   >
                     {currentUser ? (
-                      <UsersProfileImage
-                        user={currentUser}
-                        size={USER_IMAGE_SIZE}
-                        className={classes.userImage}
-                      />
+                      <UsersProfileImage user={currentUser} size={USER_IMAGE_SIZE} className={classes.userImage} />
                     ) : (
-                      <ForumIcon
-                        icon="UserCircle"
-                        className={classes.placeholderUserIcon}
-                      />
+                      <ForumIcon icon="UserCircle" className={classes.placeholderUserIcon} />
                     )}
                     <div
-                      className={classes.clearVote}
+                      className={classNames(classes.iconButton, classes.clearVote)}
                       onPointerDown={clearVote}
                     >
-                      <ForumIcon
-                        icon="Close"
-                        className={classes.clearVoteIcon}
-                      />
+                      <ForumIcon icon="Close" />
+                    </div>
+                    <div
+                      className={classNames(classes.iconButton, classes.toggleCommentForm)}
+                      onClick={() => setCommentFormOpen(!commentFormOpen)}
+                    >
+                      <ForumIcon icon="Comment" />
                     </div>
                   </LWTooltip>
                 </div>
+                {/* Popper containing the form for creating a comment */}
+                {event.post && (
+                  <ForumEventCommentForm
+                    open={commentFormOpen}
+                    comment={currentUserComment}
+                    forumEventId={event._id}
+                    onClose={() => setCommentFormOpen(false)}
+                    refetch={refetchComments}
+                    followElement={userVoteRef.current}
+                    post={event.post}
+                  />
+                )}
               </div>
               {/* Arrows */}
-              <ForumIcon
-                icon="ChevronLeft"
-                className={classNames(
-                  classes.sliderArrow,
-                  classes.sliderArrowLeft
-                )}
-              />
-              <ForumIcon
-                icon="ChevronRight"
-                className={classNames(
-                  classes.sliderArrow,
-                  classes.sliderArrowRight
-                )}
-              />
+              <ForumIcon icon="ChevronLeft" className={classNames(classes.sliderArrow, classes.sliderArrowLeft)} />
+              <ForumIcon icon="ChevronRight" className={classNames(classes.sliderArrow, classes.sliderArrowRight)} />
             </div>
             <div className={classes.sliderLabels}>
               <div>Disagree</div>
               <div>Agree</div>
             </div>
             <div className={classes.hideResultsWrapper}>
-            {resultsVisible && <button
-                className={classes.viewResultsButton}
-                onClick={() => setResultsVisible(false)}
-              >
-              Hide results
-            </button>}
+              {resultsVisible && (
+                <button className={classes.viewResultsButton} onClick={() => setResultsVisible(false)}>
+                  Hide results
+                </button>
+              )}
             </div>
           </div>
         </div>
-        {event.post && <ForumEventNewComment
-          open={userCommentOpen}
-          forumEventId={event._id}
-          onClose={() => setUserCommentOpen(false)}
-          followElement={userVoteRef.current}
-          post={event.post}
-        />}
       </div>
     </AnalyticsContext>
   );

@@ -771,6 +771,7 @@ Comments.addView('forumEventComments', (terms: CommentsViewTerms) => {
     selector: {
       forumEventId: terms.forumEventId,
       ...(terms.userId && { userId: terms.userId }),
+      deleted: false,
     },
     options: {
       sort: { postedAt: -1 },
