@@ -238,7 +238,7 @@ const styles = (theme: ThemeType) => ({
   },
   votePromptWrapper: {
     minHeight: 17,
-    marginBottom: 22
+    marginBottom: 14
   },
   votePrompt: {
     fontSize: 14,
@@ -254,12 +254,6 @@ const styles = (theme: ThemeType) => ({
     marginTop: 22,
     marginBottom: 6
   },
-  hideResultsWrapper: {
-    minHeight: 21,
-    display: "block",
-    marginRight: "auto",
-    width: "fit-content"
-  },
   viewResultsButton: {
     background: 'none',
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -273,6 +267,11 @@ const styles = (theme: ThemeType) => ({
     '&:hover': {
       opacity: 0.7
     },
+  },
+  hideResultsButton: {
+    display: "block",
+    marginLeft: "auto",
+    marginRight: 12
   },
   userVote: {
     position: "absolute",
@@ -650,9 +649,10 @@ export const ForumEventPoll = ({
         <PollQuestion event={event} classes={classes} />
         <div className={classes.votePromptWrapper}>
           <DeferRender ssr={false}>
-            {!hideViewResults && !resultsVisible && (
+            {!hideViewResults && (
               <div className={classes.votePrompt}>
-                {voteCount > 0 &&
+                {!resultsVisible ? <>
+                  {voteCount > 0 &&
                   `${voteCount} vote${voteCount === 1 ? "" : "s"} so far. `}
                 {hasVoted
                   ? "Click and drag your avatar to change your vote, or "
@@ -663,6 +663,12 @@ export const ForumEventPoll = ({
                 >
                   view results
                 </button>
+                </> : <button
+                  className={classNames(classes.viewResultsButton, classes.hideResultsButton)}
+                  onClick={() => setResultsVisible(false)}
+                >
+                  Hide results
+                </button>}
               </div>
             )}
           </DeferRender>
@@ -807,14 +813,6 @@ export const ForumEventPoll = ({
             <div className={classes.sliderLabels}>
               <div>Disagree</div>
               <div>Agree</div>
-            </div>
-            <div className={classes.hideResultsWrapper}>
-            {resultsVisible && <button
-                className={classes.viewResultsButton}
-                onClick={() => setResultsVisible(false)}
-              >
-              Hide results
-            </button>}
             </div>
           </div>
         </div>
