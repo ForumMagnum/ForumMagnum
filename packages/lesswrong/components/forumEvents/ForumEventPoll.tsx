@@ -503,7 +503,7 @@ export const ForumEventPoll = ({
   const voteClusters = useMemo(
     () => clusterForumEventVotes({ voters: votersRef.current, comments, event, currentUser }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [votersRef.current, event, currentUser]
+    [votersRef.current, event, currentUser, comments]
   );
 
   const currentUserComment = useMemo(() => {
