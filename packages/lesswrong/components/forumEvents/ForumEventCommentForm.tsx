@@ -133,7 +133,7 @@ const ForumEventCommentForm = ({
     // Backup to prevent it from sticking in the wrong place forever
     const intervalId = setInterval(() => {
       updatePopperPos();
-    }, 3000);
+    }, 1000);
 
     document.addEventListener('pointerup', updatePopperPos);
 
