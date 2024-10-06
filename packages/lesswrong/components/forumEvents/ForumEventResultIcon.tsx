@@ -6,6 +6,7 @@ import { formatRole } from '../users/EAUserTooltipContent';
 import { Link } from '@/lib/reactRouterWrapper';
 import { commentGetPageUrlFromIds } from '@/lib/collections/comments/helpers';
 import { userGetProfileUrl } from '@/lib/collections/users/helpers';
+import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
 
 const styles = (theme: ThemeType) => ({
   voteCircle: {
@@ -40,12 +41,10 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 500,
     lineHeight: '140%',
     padding: 16,
-    maxWidth: 380,
-    minWidth: 280,
+    width: 380,
     color: theme.palette.grey[600],
     backgroundColor: theme.palette.background.paper,
     borderRadius: theme.borderRadius.default,
-    width: 'max-content',
     boxShadow: theme.palette.boxShadow.eaCard,
     display: 'flex',
     flexDirection: 'column',
@@ -130,7 +129,7 @@ export type ForumEventVoteDisplay = {
   comment: ShortformComments | null
 }
 
-const ForumEventUserIcon = ({
+const ForumEventResultIcon = ({
   vote,
   classes,
 }: {
@@ -139,6 +138,8 @@ const ForumEventUserIcon = ({
 }) => {
   const { LWTooltip, UsersProfileImage, LWPopper, ForumIcon, CommentBody, LWClickAwayListener, CommentsNewForm } =
     Components;
+
+  const isDesktop = useIsAboveBreakpoint("md")
 
   const [replyFormOpen, setReplyFormOpen] = useState(false);
 
@@ -161,6 +162,8 @@ const ForumEventUserIcon = ({
     ? `(${repliesCount} ${repliesCount === 1 ? "reply" : "replies"})`
     : "";
 
+  if (!isDesktop) return null;
+
   return (
     <div key={vote.user._id} className={classes.voteCircle} {...eventHandlers}>
       <LWTooltip
@@ -172,11 +175,10 @@ const ForumEventUserIcon = ({
           // The actual size gets overridden by the styles above. This
           // is still needed to get the right resolution from Cloudinary
           size={34}
-          // TODO combine with styles up a level
           className={classes.userResultsImage}
         />
       </LWTooltip>
-      {comment && popperOpen && (
+      {comment && (
         <LWPopper
           open={popperOpen}
           anchorEl={anchorEl}
@@ -246,14 +248,14 @@ const ForumEventUserIcon = ({
   );
 };
 
-const ForumEventUserIconComponent = registerComponent(
-  'ForumEventUserIcon',
-  ForumEventUserIcon,
+const ForumEventResultIconComponent = registerComponent(
+  'ForumEventResultIcon',
+  ForumEventResultIcon,
   { styles }
 );
 
 declare global {
   interface ComponentTypes {
-    ForumEventUserIcon: typeof ForumEventUserIconComponent;
+    ForumEventResultIcon: typeof ForumEventResultIconComponent;
   }
 }

@@ -11,7 +11,7 @@ import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
 import range from "lodash/range";
 import sortBy from "lodash/sortBy";
 import DeferRender from "../common/DeferRender";
-import type { ForumEventVoteDisplay } from "./ForumEventUserIcon";
+import type { ForumEventVoteDisplay } from "./ForumEventResultIcon";
 
 export const POLL_MAX_WIDTH = 800;
 const SLIDER_MAX_WIDTH = 1120;
@@ -512,8 +512,6 @@ export const ForumEventPoll = ({
     return comments?.find(comment => comment.userId === currentUser?._id) || null;
   }, [comments, currentUser]);
 
-  console.log({currentUserComment, comments})
-
   const [addVote] = useMutation(addForumEventVoteQuery);
   const [removeVote] = useMutation(removeForumEventVoteQuery);
 
@@ -592,18 +590,21 @@ export const ForumEventPoll = ({
     isDragging.current = false;
     const newVotePos = currentBucketIndex / (NUM_TICKS - 1);
 
-    // When a logged-in user is done dragging their vote, attempt to save i
+    // When a logged-in user is done dragging their vote, attempt to save it
     if (currentUser) {
       const voteData: ForumEventVoteData = {
         forumEventId: event._id,
         x: newVotePos,
       };
       if (!hasVoted) {
-        setCommentFormOpen(true);
         setVoteCount((count) => count + 1);
         setCurrentUserVote(newVotePos);
         await addVote({ variables: voteData });
         refetch?.();
+
+        if (!event.post) return;
+
+        setCommentFormOpen(true);
         return;
       }
       const delta =
@@ -639,7 +640,7 @@ export const ForumEventPoll = ({
   ]);
   useEventListener("pointerup", saveVotePos);
 
-  const { ForumIcon, LWTooltip, UsersProfileImage, ForumEventCommentForm, ForumEventUserIcon } = Components;
+  const { ForumIcon, LWTooltip, UsersProfileImage, ForumEventCommentForm, ForumEventResultIcon } = Components;
 
   const ticks = Array.from({ length: NUM_TICKS }, (_, i) => i);
 
@@ -702,7 +703,7 @@ export const ForumEventPoll = ({
                       </div>
                     )}
                     {cluster.votes.slice(-MAX_STACK_IMAGES).map((vote) => (
-                      <ForumEventUserIcon key={vote.user._id} vote={vote} />
+                      <ForumEventResultIcon key={vote.user._id} vote={vote} />
                     ))}
                   </div>
                 ))}
@@ -759,12 +760,12 @@ export const ForumEventPoll = ({
                     >
                       <ForumIcon icon="Close" />
                     </div>
-                    <div
+                    {event.post && <div
                       className={classNames(classes.iconButton, classes.toggleCommentForm)}
                       onClick={() => setCommentFormOpen(!commentFormOpen)}
                     >
                       <ForumIcon icon="Comment" />
-                    </div>
+                    </div>}
                   </LWTooltip>
                 </div>
                 {/* Popper containing the form for creating a comment */}
@@ -775,7 +776,7 @@ export const ForumEventPoll = ({
                     forumEventId={event._id}
                     onClose={() => setCommentFormOpen(false)}
                     refetch={refetchComments}
-                    followElement={userVoteRef.current}
+                    anchorEl={userVoteRef.current}
                     post={event.post}
                   />
                 )}

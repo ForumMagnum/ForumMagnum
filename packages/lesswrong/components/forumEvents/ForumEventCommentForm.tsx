@@ -5,6 +5,7 @@ import { Link } from '@/lib/reactRouterWrapper';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import { commentGetPageUrlFromIds } from '@/lib/collections/comments/helpers';
 import { State } from '@popperjs/core/lib/types';
+import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
 
 const WIDTH = 350;
 
@@ -98,19 +99,21 @@ const ForumEventCommentForm = ({
   post,
   refetch,
   onClose,
-  followElement,
+  anchorEl,
   classes,
 }: {
   open: boolean;
   comment: ShortformComments | null;
   forumEventId: string;
-  followElement: HTMLElement | null;
+  anchorEl: HTMLElement | null;
   post: PostsMinimumInfo;
   onClose: () => void;
   refetch: () => Promise<void>;
   classes: ClassesType<typeof styles>;
 }) => {
   const { CommentsNewForm, LWPopper, ForumIcon, CommentsEditForm, CommentBody } = Components;
+
+  const isDesktop = useIsAboveBreakpoint("md")
 
   const [editFormOpen, setEditFormOpen] = useState(false);
   const { flash } = useMessages();
@@ -137,14 +140,14 @@ const ForumEventCommentForm = ({
     };
   }, []);
 
-  if (!open || !followElement?.isConnected) {
+  if (!open || !anchorEl?.isConnected || !isDesktop) {
     return null;
   }
 
   const debateWeekLink = comment ? commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id}) : postGetPageUrl(post)
 
   return (
-    <LWPopper open={open} anchorEl={followElement} placement="bottom" allowOverflow={false} updateRef={updatePopperRef}>
+    <LWPopper open={open} anchorEl={anchorEl} placement="bottom" allowOverflow={false} updateRef={updatePopperRef}>
       <div className={classes.popperContent}>
         <div className={classes.triangle}></div>
         <ForumIcon icon="Close" className={classes.closeIcon} onClick={onClose} />
