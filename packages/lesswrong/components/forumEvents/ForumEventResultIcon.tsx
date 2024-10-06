@@ -44,6 +44,7 @@ const styles = (theme: ThemeType) => ({
     lineHeight: '140%',
     padding: 16,
     width: 380,
+    maxHeight: 1000,
     color: theme.palette.grey[600],
     backgroundColor: theme.palette.background.paper,
     borderRadius: theme.borderRadius.default,
@@ -70,6 +71,11 @@ const styles = (theme: ThemeType) => ({
   pinIconPinned: {
     transform: "rotate(45deg)",
     color: theme.palette.grey[1000],
+  },
+  commentBody: {
+    display: "-webkit-box",
+    "-webkit-box-orient": "vertical",
+    "-webkit-line-clamp": 25,
   },
   linkIcon: {
     width: 14,
@@ -224,7 +230,7 @@ const ForumEventResultIcon = ({
                     <div>{role}</div>
                   </div>
                 </div>
-                <CommentBody comment={comment} />
+                <CommentBody comment={comment} className={classes.commentBody} />
                 <div
                   className={classes.replyButtonRow}
                   onClick={() => {
