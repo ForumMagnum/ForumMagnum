@@ -123,14 +123,17 @@ const ForumEventCommentForm = ({
   }, [flash, onClose, refetch])
 
   useEffect(() => {
-    const handlePointerUp = () => {
+    const updatePopperPos = () => {
       void updatePopperRef.current?.();
     };
 
-    document.addEventListener('pointerup', handlePointerUp);
+    const intervalId = setInterval(() => {
+      updatePopperPos();
+    }, 3000);
 
     return () => {
-      document.removeEventListener('pointerup', handlePointerUp);
+      clearInterval(intervalId);
+      document.removeEventListener('pointerup', updatePopperPos);
     };
   }, []);
 
