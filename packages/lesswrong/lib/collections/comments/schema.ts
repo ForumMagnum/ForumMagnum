@@ -110,6 +110,20 @@ const schema: SchemaType<"Comments"> = {
     canCreate: ['members'],
     hidden: true,
   },
+  // If this comment is associated with a forum event, the _id of the forumEvent.
+  forumEventId: {
+    ...foreignKeyField({
+      idFieldName: "forumEventId",
+      resolverName: "forumEvent",
+      collectionName: "ForumEvents",
+      type: "ForumEvent",
+      nullable: true,
+    }),
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    hidden: true,
+  },
   // Whether the comment is in the discussion section or subforum
   tagCommentType: {
     type: String,

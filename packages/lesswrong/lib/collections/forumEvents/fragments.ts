@@ -10,6 +10,7 @@ registerFragment(`
     lightColor
     contrastColor
     tagId
+    postId
     bannerImageId
     includesPoll
   }
@@ -21,6 +22,9 @@ registerFragment(`
     publicData
     voteCount
 
+    post {
+      ...PostsMinimumInfo
+    }
     tag {
       ...TagBasicInfo
     }
