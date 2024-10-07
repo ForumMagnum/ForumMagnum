@@ -11,8 +11,8 @@ import type { Request, Response } from 'express';
 export const tagMinimumKarmaPermissions = forumSelect({
   // Topic spampocalypse defense
   EAForum: {
-    new: 10,
-    edit: 10,
+    new: 1,
+    edit: 1,
   },
   LessWrong: {
     new: 1,
