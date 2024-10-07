@@ -69,32 +69,21 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const NewAnswerCommentQuestionForm = ({post, refetch, classes}: {
+const NewAnswerCommentQuestionForm = ({post, classes}: {
   post: PostsDetails,
-  refetch: () => void,
   classes: ClassesType,
 }) => {
   const [selection, setSelection] = useState("answer");
   const [formFocus, setFormFocus] = useState(false);
   const currentUser = useCurrentUser()
   const { openDialog } = useDialog()
-  const { NewAnswerForm, CommentsNewForm } = Components
+  const {CommentsNewForm} = Components;
 
   const toggleFormFocus = () => {
     setFormFocus(!formFocus);
   }
 
-  const getNewForm = () => {
-    switch(selection) {
-      case "answer":
-        return <NewAnswerForm post={post} />
-      case "comment":
-        return <CommentsNewForm
-          post={post}
-          type="comment"
-        />
-    }
-  }
+  const isAnswer = selection === "answer";
 
   return <div className={classes.root} onFocus={() => afNonMemberDisplayInitialPopup(currentUser, openDialog)}>
     <div className={classNames(classes.whitescreen, {[classes.displayWhitescreen]: formFocus})}/>
@@ -126,7 +115,11 @@ const NewAnswerCommentQuestionForm = ({post, refetch, classes}: {
         </div>
       </div>
       <div className={classes.responseForm}>
-        {getNewForm()}
+        <CommentsNewForm
+          post={post}
+          type="comment"
+          isAnswer={isAnswer}
+        />
       </div>
     </div>
   </div>
@@ -139,4 +132,3 @@ declare global {
     NewAnswerCommentQuestionForm: typeof NewAnswerCommentQuestionFormComponent
   }
 }
-

@@ -157,7 +157,7 @@ const styles = (theme: ThemeType) => ({
     justifyContent: 'space-evenly',
     '--scrollAmount': '0%',
     marginRight: -4,
-    marginBottom: 20,
+    marginBottom: 0,
     width: 1,
     background: theme.palette.grey[400],
     overflowY: 'clip',

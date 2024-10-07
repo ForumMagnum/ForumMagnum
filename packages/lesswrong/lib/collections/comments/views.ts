@@ -19,6 +19,7 @@ declare global {
     postId?: string,
     userId?: string,
     tagId?: string,
+    forumEventId?: string,
     relevantTagId?: string,
     maxAgeDays?: number,
     parentCommentId?: string,
@@ -764,6 +765,21 @@ Comments.addView("recentDebateResponses", (terms: CommentsViewTerms) => {
     options: {sort: {postedAt: -1}, limit: terms.limit || 7},
   };
 });
+
+Comments.addView('forumEventComments', (terms: CommentsViewTerms) => {
+  return {
+    selector: {
+      forumEventId: terms.forumEventId,
+      ...(terms.userId && { userId: terms.userId }),
+      deleted: false,
+    },
+    options: {
+      sort: { postedAt: -1 },
+    },
+  };
+});
+
+ensureIndex(Comments, augmentForDefaultView({ forumEventId: 1, userId: 1, postedAt: -1 }));
 
 
 // For allowing `CommentsRepo.getPromotedCommentsOnPosts` to use an index-only scan, which is much faster than an index scan followed by pulling each comment from disk to get its "promotedAt".

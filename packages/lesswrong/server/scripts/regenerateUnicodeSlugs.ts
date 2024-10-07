@@ -1,5 +1,6 @@
+import { getUnusedSlugByCollectionName } from "@/lib/helpers";
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
-import { Globals, Utils, slugify } from "../vulcan-lib";
+import { Globals, slugify } from "../vulcan-lib";
 
 Globals.regenerateUnicodeSlugs = async () => {
   const db = getSqlClientOrThrow();
@@ -12,7 +13,7 @@ Globals.regenerateUnicodeSlugs = async () => {
   for (const {_id, title, slug} of posts) {
     const newSlug = slugify(title);
     if (newSlug !== "unicode" && slug !== newSlug) {
-      const uniqueSlug = await Utils.getUnusedSlugByCollectionName(
+      const uniqueSlug = await getUnusedSlugByCollectionName(
         "Posts",
         newSlug,
       );
