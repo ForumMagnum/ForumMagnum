@@ -2,7 +2,7 @@ import { addStaticRoute } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts';
 import { ensureIndex } from '../../lib/collectionIndexUtils';
 import { createClient } from '../vulcan-lib/apollo-ssr/apolloClient';
-import { getGraphQLQueryFromOptions } from '../../lib/crud/withSingle';
+import { getGraphQLSingleQueryFromOptions } from '../../lib/crud/withSingle';
 import type { ServerResponse } from 'http';
 
 const redirect = (res: ServerResponse, url: string, post: DbPost | null) => {
@@ -24,7 +24,7 @@ addStaticRoute('/out', async ({ query }, _req, res, _next) => {
       if (foreignId) {
         const client = await createClient(null, true);
         const result = await client.query({
-          query: getGraphQLQueryFromOptions({
+          query: getGraphQLSingleQueryFromOptions({
             collectionName: "Posts",
             fragmentName: "PostsBase",
             fragment: undefined,

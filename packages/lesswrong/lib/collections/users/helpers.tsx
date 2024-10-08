@@ -635,5 +635,8 @@ export const socialMediaSiteNameToHref = (
 
 export const userShortformPostTitle = (user: Pick<DbUser, "displayName">) => {
   const shortformName = isEAForum ? "Quick takes" : "Shortform";
-  return `${user.displayName}'s ${shortformName}`;
+
+  // Emoji's aren't allowed in post titles, see `assertPostTitleHasNoEmojis`
+  const displayNameWithoutEmojis = user.displayName?.replace(/\p{Extended_Pictographic}/gu, '');
+  return `${displayNameWithoutEmojis}'s ${shortformName}`;
 }

@@ -1,9 +1,10 @@
 import { registerComponent } from '../../lib/vulcan-lib';
-import React, {ReactNode, useState} from 'react';
+import React, {MutableRefObject, ReactNode, useState} from 'react';
 import type { PopperPlacementType } from '@material-ui/core/Popper'
 import classNames from 'classnames';
 import { usePopper } from 'react-popper';
 import { createPortal } from 'react-dom';
+import type { State } from '@popperjs/core/lib/types';
 
 const styles = (theme: ThemeType): JssStyles => ({
   popper: {
@@ -50,6 +51,7 @@ const LWPopper = ({
   placement,
   clickable = true,
   hideOnTouchScreens,
+  updateRef
 }: {
   classes: ClassesType,
   children: ReactNode,
@@ -63,6 +65,7 @@ const LWPopper = ({
   className?: string,
   clickable?: boolean,
   hideOnTouchScreens?: boolean,
+  updateRef?: MutableRefObject<(() => Promise<Partial<State>>) | null | undefined>
 }) => {
   const [popperElement, setPopperElement] = useState<HTMLElement | null>(null);
 
@@ -81,7 +84,7 @@ const LWPopper = ({
     }
   ];
 
-  const { styles, attributes } = usePopper(anchorEl, popperElement, {
+  const { styles, attributes, update } = usePopper(anchorEl, popperElement, {
     placement,
     modifiers: [
       {
@@ -94,6 +97,10 @@ const LWPopper = ({
       ...preventOverflowModifier
     ],
   });
+
+  if (updateRef && update) {
+    updateRef.current = update
+  }
 
   if (!open)
     return null;

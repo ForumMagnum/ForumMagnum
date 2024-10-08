@@ -432,6 +432,7 @@ const schema: SchemaType<"Tags"> = {
   tableOfContents: {
     type: Object,
     canRead: ['guests'],
+    optional: true,
   },
   
   htmlWithContributorAnnotations: {
