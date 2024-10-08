@@ -42,6 +42,7 @@ import './server/scripts/generateInflationAdjustedKarmaReport';
 import './server/scripts/voteMigration';
 import './server/scripts/slugDeduplication';
 import './server/scripts/debuggingScripts';
+import './server/scripts/createKarmaAward'
 import './server/scripts/rerunAFvotes';
 import './server/scripts/nullifyVotes';
 import './server/scripts/fillUserEmail';
@@ -81,6 +82,7 @@ import "./server/scripts/generativeModels/coverImage";
 import "./server/scripts/addManualReviewArt";
 import "./server/scripts/backfillRecombee";
 import "./server/scripts/backfillGoogleVertex";
+import "./server/scripts/exportAEStudiosData";
 // doesn't pass unit tests but works fine. Leaving commented out for now
 import './server/scripts/generativeModels/autoSpotlight';
 import "./server/scripts/mongoQueryToSQL";

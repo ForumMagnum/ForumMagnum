@@ -30,6 +30,7 @@ const ClientMessageSchema = z.object({
 const PromptContextOptionsSchema = z.object({
   postId: z.string().optional(),
   includeComments: z.boolean().optional(),
+  postContext: z.optional(z.union([z.literal('post-page'), z.literal('post-editor')])),
 });
 
 export const ClaudeMessageRequestSchema = z.object({
@@ -114,11 +115,17 @@ type LlmConversationWithPartialMessages = LlmConversationsFragment & {
 type LlmConversation = NewLlmConversation | LlmConversationWithPartialMessages;
 type LlmConversationsDict = Record<string, LlmConversation>;
 
+interface SubmitMessageArgs {
+  query: string;
+  currentPostId?: string;
+  postContext?: PromptContextOptions['postContext']
+}
+
 interface LlmChatContextType {
   orderedConversations: LlmConversation[];
   currentConversation?: LlmConversation;
   currentConversationLoading: boolean;
-  submitMessage: (query: string, currentPostId?: string) => void;
+  submitMessage: (args: SubmitMessageArgs) => void;
   setCurrentConversation: (conversationId?: string) => void;
   archiveConversation: (conversationId: string) => void;
 }
@@ -442,7 +449,7 @@ const LlmChatWrapper = ({children}: {
   }, [handleClaudeResponseMesage, handleLlmStreamError]);
 
   // TODO: Ensure code is sanitized against injection attacks
-  const submitMessage = useCallback(async (query: string, currentPostId?: string) => {
+  const submitMessage = useCallback(async ({ query, currentPostId, postContext }: SubmitMessageArgs) => {
     if (!currentUser) {
       return;
     }
@@ -486,7 +493,12 @@ const LlmChatWrapper = ({children}: {
       setCurrentConversationId(newConversationChannelId);
     }
 
-    const promptContextOptions: PromptContextOptions = { postId: currentPostId, includeComments: true /* TODO: this currently doesn't do anything; it's hardcoded on the server */ };
+    const promptContextOptions: PromptContextOptions = {
+      postId: currentPostId,
+      /* TODO: this currently doesn't do anything; it's hardcoded on the server */
+      includeComments: true,
+      postContext,
+    };
 
     void sendClaudeMessage({
       newMessage: {

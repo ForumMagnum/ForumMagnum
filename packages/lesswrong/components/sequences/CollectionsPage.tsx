@@ -7,6 +7,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
+import { isFriendlyUI } from '@/themes/forumTheme';
 
 const PADDING = 36
 const COLLECTION_WIDTH = SECTION_WIDTH + (PADDING * 2)
@@ -49,7 +50,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   title: {
     ...theme.typography.headerStyle,
     fontWeight: "bold",
-    textTransform: "uppercase",
+    textTransform: isFriendlyUI ? undefined : "uppercase",
     borderTopStyle: "solid",
     borderTopWidth: 4,
     paddingTop: 10,
@@ -58,7 +59,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   description: {
     marginTop: 30,
-    marginBottom: 25,
+    marginBottom: isFriendlyUI ? 0 : 25,
     lineHeight: 1.25,
     maxWidth: 700,
   },

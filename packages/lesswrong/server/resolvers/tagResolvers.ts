@@ -36,6 +36,9 @@ import difference from 'lodash/difference';
 import { updatePostDenormalizedTags } from '../tagging/helpers';
 import union from 'lodash/fp/union';
 import { updateMutator } from '../vulcan-lib';
+import { captureException } from '@sentry/core';
+import GraphQLJSON from 'graphql-type-json';
+import { getToCforTag } from '../tableOfContents';
 
 type SubforumFeedSort = {
   posts: SubquerySortField<DbPost, keyof DbPost>,
@@ -449,6 +452,20 @@ augmentFieldsDict(Tags, {
         }
       }
     }
+  },
+  tableOfContents: {
+    resolveAs: {
+      arguments: 'version: String',
+      type: GraphQLJSON,
+      resolver: async (document: DbTag, args: {version: string}, context: ResolverContext) => {
+        try {
+          return await getToCforTag({document, version: args.version||null, context});
+        } catch(e) {
+          captureException(e);
+          return null;
+        }
+      }
+    },
   },
 });
 

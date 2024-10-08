@@ -1,11 +1,12 @@
 import { registerMigration } from './migrationUtils';
 import Users from '../../lib/collections/users/collection';
-import { createMutator, Utils } from '../vulcan-lib';
+import { createMutator } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts';
 import { mapsAPIKeySetting } from '../../components/form-components/LocationFormComponent';
 import { getLocalTime } from '../mapsUtils';
 import {userFindOneByEmail} from "../commonQueries";
 import { writeFile } from 'fs/promises';
+import { getUnusedSlugByCollectionName } from '@/lib/helpers';
 
 async function coordinatesToGoogleLocation({ lat, lng }: { lat: string, lng: string }) {
   const requestOptions: any = {
@@ -41,7 +42,7 @@ registerMigration({
       if (existingUser) {
         eventOrganizer = existingUser
       } else {
-        const username = await Utils.getUnusedSlugByCollectionName("Users", row["Name"].toLowerCase());
+        const username = await getUnusedSlugByCollectionName("Users", row["Name"].toLowerCase());
         try {
           const { data: newUser } = await createMutator({
             collection: Users,
