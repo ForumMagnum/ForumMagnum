@@ -195,5 +195,5 @@ export async function handleCrosspostUpdate(
     return data;
   }
 
-  return performCrosspost(newDocument);
+  return performCrosspost({ ...newDocument, ...data });
 }

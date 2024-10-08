@@ -99,7 +99,7 @@ const postBatchQuery = `
   )
   SELECT
     p.*,
-    ROW_TO_JSON(r.*) AS "contents"
+    ROW_TO_JSON(r.*) AS "contents",
     CASE WHEN COUNT(t.*) = 0
       THEN '{}'::JSONB[]
       ELSE ARRAY_AGG(JSONB_BUILD_ARRAY(t._id, t.name, t.core))
