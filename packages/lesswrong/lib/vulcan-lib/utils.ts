@@ -111,14 +111,12 @@ export const validateUrl = (url: string) => {
 /**
  * @summary The global namespace for Vulcan utils.
  * @param {String} url - the URL to redirect
- * @param {String} foreignId - the optional ID of the foreign crosspost where this link is defined
  */
-export const getOutgoingUrl = function (url: string, foreignId?: string): string {
+export const getOutgoingUrl = function (url: string): string {
   // If no protocol is specified, guess that it is https://
   const cleanedUrl = validateUrl(url);
 
-  const result = getSiteUrl() + 'out?url=' + encodeURIComponent(cleanedUrl);
-  return foreignId ? `${result}&foreignId=${encodeURIComponent(foreignId)}` : result;
+  return getSiteUrl() + 'out?url=' + encodeURIComponent(cleanedUrl);
 };
 
 export const slugify = function (s: string): string {
