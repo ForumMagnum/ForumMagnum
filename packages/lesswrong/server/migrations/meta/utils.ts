@@ -125,10 +125,11 @@ export const dropIndexByName = async <N extends CollectionNameString>(
   const indexes = collection.getTable().getIndexes();
   const indexesToDrop = indexes.filter(index => index.getName() === indexName);
   if (!indexesToDrop.length) {
+    // eslint-disable-next-line no-console
     console.warn(`Couldn't find index to drop: ${indexName}`);
   }
   for (const index of indexesToDrop) {
-    dropIndex(db, collection, index);
+    await dropIndex(db, collection, index);
   }
 }
 
