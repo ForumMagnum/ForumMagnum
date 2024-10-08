@@ -4,7 +4,7 @@ import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'
-import { OpenDialogContextType, useDialog } from '../common/withDialog';
+import { useDialog } from '../common/withDialog';
 import { useSingle } from '../../lib/crud/withSingle';
 import { hideUnreviewedAuthorCommentsSettings } from '../../lib/publicSettings';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
@@ -170,7 +170,10 @@ const shouldOpenNewUserGuidelinesDialog = (
   return !!user && requireNewUserGuidelinesAck(user) && !!post;
 };
 
-const getSubmitLabel = (isQuickTake: boolean) => {
+const getSubmitLabel = (isQuickTake: boolean, isAnswer?: boolean) => {
+  if (isAnswer) {
+    return isFriendlyUI ? 'Add answer' : 'Submit';
+  }
   if (!isFriendlyUI) return 'Submit'
   return isQuickTake ? 'Publish' : 'Comment'
 }
@@ -264,6 +267,7 @@ export type CommentsNewFormProps = {
   formStyle?: FormDisplayMode,
   overrideHintText?: string,
   quickTakesSubmitButtonAtBottom?: boolean,
+  isAnswer?: boolean,
   className?: string,
   classes: ClassesType<typeof styles>,
 }
@@ -285,6 +289,7 @@ const CommentsNewForm = ({
   formStyle="default",
   overrideHintText,
   quickTakesSubmitButtonAtBottom,
+  isAnswer,
   className,
   classes,
 }: CommentsNewFormProps) => {
@@ -397,6 +402,11 @@ const CommentsNewForm = ({
     };
   }
 
+  prefilledProps = {
+    ...prefilledProps,
+    answer: !!isAnswer,
+  };
+
   const SubmitComponent = useCallback(
     (formSubmitProps: ComponentProps<ComponentTypes['FormSubmit']>) => (
       <CommentSubmit
@@ -424,6 +434,9 @@ const CommentsNewForm = ({
     ...(isMinimalist ? {commentMinimalistStyle: true, editorHintText: "Reply..."} : {}),
     ...(overrideHintText ? {editorHintText: overrideHintText} : {})
   }
+  const answerFormProps = isAnswer
+    ? {editorHintText: isFriendlyUI && isAnswer ? 'Write a new answer...' : undefined}
+    : {};
   const parentDocumentId = post?._id || tag?._id
 
   useEffect(() => {
@@ -500,8 +513,9 @@ const CommentsNewForm = ({
                 formClassName: isQuickTake ? classes.quickTakesForm : '',
                 ...extraFormProps,
                 ...formProps,
+                ...answerFormProps,
               }}
-              submitLabel={getSubmitLabel(isQuickTake)}
+              submitLabel={getSubmitLabel(isQuickTake, isAnswer)}
             />
           </div>
         </div>

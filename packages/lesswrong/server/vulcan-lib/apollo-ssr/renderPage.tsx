@@ -27,7 +27,7 @@ import type { Request, Response } from 'express';
 import { DEFAULT_TIMEZONE } from '../../../lib/utils/timeUtil';
 import { getIpFromRequest } from '../../datadog/datadogMiddleware';
 import { addStartRenderTimeToPerfMetric, asyncLocalStorage, closePerfMetric, closeRequestPerfMetric, openPerfMetric, setAsyncStoreValue } from '../../perfMetrics';
-import { maxRenderQueueSize } from '../../../lib/publicSettings';
+import { commentPermalinkStyleSetting, maxRenderQueueSize } from '../../../lib/publicSettings';
 import { performanceMetricLoggingEnabled } from '../../../lib/instanceSettings';
 import { getClientIP } from '@/server/utils/getClientIP';
 import PriorityBucketQueue, { RequestData } from '../../../lib/requestPriorityQueue';
@@ -35,6 +35,7 @@ import { isAnyTest, isProduction } from '../../../lib/executionEnvironment';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../../lib/cookies/cookies';
 import { visitorGetsDynamicFrontpage } from '../../../lib/betas';
 import { responseIsCacheable } from '../../cacheControlMiddleware';
+import { preloadScrollToCommentScript } from '@/lib/scrollUtils';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 
@@ -334,9 +335,10 @@ const buildSSRBody = (htmlContent: string, userAgent?: string) => {
   // first child of <body> which forces the browser to load the CSS before rendering.
   // See https://bugzilla.mozilla.org/show_bug.cgi?id=1404468
   const prefix = userAgent?.match(/.*firefox.*/i) ? "<script>0</script>" : "";
+  const suffix = commentPermalinkStyleSetting.get() === 'in-context' ? preloadScrollToCommentScript : '';
   // TODO: there should be a cleaner way to set this wrapper
   // id must always match the client side start.jsx file
-  return `${prefix}<div id="react-app">${htmlContent}</div>`;
+  return `${prefix}<div id="react-app">${htmlContent}</div>${suffix}`;
 }
 
 const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: RenderRequestParams): Promise<RenderResult> => {

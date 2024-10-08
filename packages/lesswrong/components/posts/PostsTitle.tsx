@@ -104,24 +104,29 @@ const styles = (theme: ThemeType) => ({
   strikethroughTitle: {
     textDecoration: "line-through"
   },
+  eventTagLink: {
+    '&:hover': {
+      opacity: 0.8
+    }
+  },
   eventTag: {
     ...tagStyle(theme),
     ...smallTagTextStyle(theme),
-    display: "inline-flex",
+    display: "flex",
     alignItems: "center",
     marginLeft: 10,
     padding: "0 6px",
     height: 20,
     border: "none",
-    backgroundColor: theme.themeOptions.name === "dark"
-      ? "var(--post-title-tag-foreground)"
-      : "var(--post-title-tag-background)",
-    color: theme.themeOptions.name === "dark"
-      ? "var(--post-title-tag-background)"
-      : "var(--post-title-tag-foreground)",
-    "&:hover": {
-      opacity: 0.9,
-    },
+    // TODO after event: revert this back
+    background: `linear-gradient(270deg, ${theme.palette.tag.eventLightGreen} 0%, ${theme.palette.tag.eventLightBlue} 100%)`,
+    color: theme.palette.grey[1000],
+    // backgroundColor: theme.themeOptions.name === "dark"
+    //   ? "var(--post-title-tag-foreground)"
+    //   : "var(--post-title-tag-background)",
+    // color: theme.themeOptions.name === "dark"
+    //   ? "var(--post-title-tag-background)"
+    //   : "var(--post-title-tag-foreground)",
   },
   highlightedTagTooltip: {
     marginTop: -2,
@@ -244,7 +249,7 @@ const PostsTitle = ({
             tagSlug={currentForumEvent.tag.slug}
             className={classes.highlightedTagTooltip}
           >
-            <Link doOnDown={true} to={tagGetUrl(currentForumEvent.tag)}>
+            <Link doOnDown={true} to={tagGetUrl(currentForumEvent.tag)} className={classes.eventTagLink}>
               <span
                 className={classes.eventTag}
                 style={{
@@ -252,7 +257,7 @@ const PostsTitle = ({
                   "--post-title-tag-foreground": currentForumEvent.darkColor,
                 } as CSSProperties}
               >
-                {currentForumEvent.tag.name}
+                {currentForumEvent.tag.shortName || currentForumEvent.tag.name}
               </span>
             </Link>
           </TagsTooltip>

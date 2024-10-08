@@ -4,6 +4,7 @@ import { extractFragmentInfo } from '../vulcan-lib/handleOptions';
 import { collectionNameToTypeName } from '../vulcan-lib/getCollection';
 import { camelCaseify } from '../vulcan-lib/utils';
 import { apolloSSRFlag } from '../helpers';
+import type { PrimitiveGraphQLType } from './types';
 
 // Template of a GraphQL query for useSingle. A sample query might look
 // like:
@@ -37,11 +38,11 @@ const singleClientTemplate = ({ typeName, fragmentName, extraVariablesString }: 
  * for use in crossposting-related integrations. You probably don't want to use
  * this directly; in most cases you should use the useSingle hook instead.
  */
-export function getGraphQLQueryFromOptions({ extraVariables, collectionName, fragment, fragmentName }: {
-  extraVariables: any,
+export function getGraphQLSingleQueryFromOptions({ collectionName, fragment, fragmentName, extraVariables }: {
   collectionName: CollectionNameString,
   fragment: any,
   fragmentName: FragmentName|undefined,
+  extraVariables?: Record<string, PrimitiveGraphQLType>,
 }) {
   ({ fragmentName, fragment } = extractFragmentInfo({ fragment, fragmentName }, collectionName));
   const typeName = collectionNameToTypeName(collectionName);
@@ -135,7 +136,7 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
   ssr=true,
   apolloClient,
 }: UseSingleProps<FragmentTypeName>): TReturn<FragmentTypeName> {
-  const query = getGraphQLQueryFromOptions({ extraVariables, collectionName, fragment, fragmentName })
+  const query = getGraphQLSingleQueryFromOptions({ extraVariables, collectionName, fragment, fragmentName })
   const resolverName = getResolverNameFromOptions(collectionName)
   // TODO: Properly type this generic query
   const { data, error, ...rest } = useQuery(query, {

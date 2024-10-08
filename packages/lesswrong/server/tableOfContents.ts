@@ -78,7 +78,7 @@ export const getToCforPost = async ({document, version, context}: {
   return null;
 }
 
-const getToCforTag = async ({document, version, context}: {
+export const getToCforTag = async ({document, version, context}: {
   document: DbTag,
   version: string|null,
   context: ResolverContext,
@@ -122,9 +122,6 @@ const getToCforTag = async ({document, version, context}: {
     sections: tocSections,
   }
 }
-
-Utils.getToCforPost = getToCforPost;
-Utils.getToCforTag = getToCforTag;
 
 /** @deprecated Use extractTableOfContents directly on the client instead. TODO delete after 2024-04-14 */
 defineQuery({

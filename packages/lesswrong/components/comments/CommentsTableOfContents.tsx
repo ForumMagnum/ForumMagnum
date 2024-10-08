@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { CommentTreeNode } from '../../lib/utils/unflatten';
-import { getCurrentSectionMark, getLandmarkY, ScrollHighlightLandmark, useScrollHighlight } from '../hooks/useScrollHighlight';
+import { useScrollHighlight } from '../hooks/useScrollHighlight';
 import { useLocation } from '../../lib/routeUtil';
 import isEmpty from 'lodash/isEmpty';
 import qs from 'qs'
@@ -9,6 +9,7 @@ import { commentsTableOfContentsEnabled } from '../../lib/betas';
 import { useNavigate } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { forumTypeSetting } from '@/lib/instanceSettings';
+import { commentIdToLandmark, getCurrentSectionMark, getLandmarkY } from '@/lib/scrollUtils';
 
 const COMMENTS_TITLE_CLASS_NAME = 'CommentsTableOfContentsTitle';
 
@@ -148,15 +149,6 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
   </div>
 }
 
-export function commentIdToLandmark(commentId: string): ScrollHighlightLandmark {
-  return {
-    landmarkName: commentId,
-    elementId: commentId,
-    position: "topOfElement",
-    offset: 25, //approximate distance from top-border of a comment to the center of the metadata line
-  }
-}
-
 const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highlightDate, classes}: {
   commentTree: CommentTreeNode<CommentsList>,
   indentLevel: number,
@@ -205,7 +197,10 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highli
       })}>
         <span className={classes.commentKarma}>{score}</span>
         <span className={classes.commentAuthor}>
-          <UsersNameDisplay user={comment.user} simple/>
+          {comment.deleted
+            ? <span>[comment deleted]</span>
+            : <UsersNameDisplay user={comment.user} simple/>
+          }
         </span>
       </span>
     </TableOfContentsRow>

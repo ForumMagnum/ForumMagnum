@@ -63,6 +63,8 @@ export const GardenCodeWidget = ({classes, type}: {classes: ClassesType, type: s
     }
   });
 
+  // FIXME: Unstable component will lose state on rerender
+  // eslint-disable-next-line react/no-unstable-nested-components
   const SubmitComponent = () => <div className={classNames("form-submit", classes.formSubmitRow)}>
       <Button onClick={()=>setOpen(false)}>
         Cancel

@@ -107,6 +107,17 @@ declare global {
     },
     warning: {
       main: ColorString,
+    },
+    petrov: {
+      launchButtonBorder: ColorString,
+      red: ColorString,
+      darkRed: ColorString,
+      red2: ColorString,
+      darkRed2: ColorString,
+      color1: ColorString,
+      color2: ColorString,
+      color3: ColorString,
+      color4: ColorString,
     }
     text: {
       primary: ColorString,
@@ -419,6 +430,10 @@ declare global {
       onboardingBackground: ColorString,
       onboardingBackgroundHover: ColorString,
       onboardingBackgroundSelected: ColorString,
+      eventLightGreen: ColorString,
+      eventDarkGreen: ColorString,
+      eventLightBlue: ColorString,
+      eventDarkBlue: ColorString,
     },
     tab: {
       inactive: {

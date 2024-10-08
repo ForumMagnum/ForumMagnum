@@ -39,6 +39,7 @@ const CloudinaryImage2 = ({
   fullWidthHeader,
   className,
   wrapperClassName,
+  loading,
 }: {
   /** Overridden if fullWidthHeader is true */
   width?: number|string,
@@ -51,6 +52,7 @@ const CloudinaryImage2 = ({
   fullWidthHeader?: boolean,
   className?: string,
   wrapperClassName?: string,
+  loading?: "lazy"|"eager",
 }) => {
   const themeOptions = useThemeOptions() // Danger, Will Robinson! (It'll be ok, see below.)
 
@@ -136,6 +138,7 @@ const CloudinaryImage2 = ({
       media="(prefers-color-scheme: dark)"
     />}
     <img
+      loading={loading}
       src={basicImageUrl}
       style={imageStyle}
       className={className}

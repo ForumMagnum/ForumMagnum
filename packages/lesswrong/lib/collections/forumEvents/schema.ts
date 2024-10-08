@@ -1,8 +1,8 @@
 import { foreignKeyField, resolverOnlyField, schemaDefaultValue } from "../../utils/schemaUtils";
 
-const defaultProps = (): CollectionFieldSpecification<"ForumEvents"> => ({
-  optional: false,
-  nullable: false,
+const defaultProps = (nullable = false): CollectionFieldSpecification<"ForumEvents"> => ({
+  optional: nullable,
+  nullable,
   canRead: ["guests"],
   canUpdate: ["admins"],
   canCreate: ["admins"],
@@ -59,6 +59,17 @@ const schema: SchemaType<"ForumEvents"> = {
     }),
     control: "TagSelect",
     label: "Choose tag",
+  },
+  postId: {
+    ...defaultProps(true),
+    ...foreignKeyField({
+      idFieldName: "postId",
+      resolverName: "post",
+      collectionName: "Posts",
+      type: "Post",
+      nullable: true,
+    }),
+    label: "Choose post ID",
   },
   bannerImageId: {
     ...defaultProps(),

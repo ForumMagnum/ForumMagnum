@@ -1,11 +1,12 @@
 import { createCollection } from '../../vulcan-lib';
-import { Utils, slugify } from '../../vulcan-lib/utils';
+import { slugify } from '../../vulcan-lib/utils';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { schemaDefaultValue } from '../../utils/schemaUtils';
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 import { makeEditable } from '../../editor/make_editable';
 import './fragments'
 import { adminsGroup, userCanDo } from '../../vulcan-users/permissions';
+import { getUnusedSlugByCollectionName } from '@/lib/helpers';
 
 const schema: SchemaType<"TagFlags"> = {
   name: {
@@ -32,11 +33,11 @@ const schema: SchemaType<"TagFlags"> = {
     nullable: false,
     canRead: ['guests'],
     onInsert: async (tagFlag) => {
-      return await Utils.getUnusedSlugByCollectionName("TagFlags", slugify(tagFlag.name))
+      return await getUnusedSlugByCollectionName("TagFlags", slugify(tagFlag.name))
     },
     onEdit: async (modifier, tagFlag) => {
       if (modifier.$set.name) {
-        return await Utils.getUnusedSlugByCollectionName("TagFlags", slugify(modifier.$set.name), false, tagFlag._id)
+        return await getUnusedSlugByCollectionName("TagFlags", slugify(modifier.$set.name), false, tagFlag._id)
       }
     }
   },
