@@ -800,7 +800,7 @@
     "timestamp": "2024-10-03T15:26:17.000Z"
   },
   {
-    "acceptsSchemaHash": "061c49894f51ba693c8441dcf221d3bf",
+    "acceptsSchemaHash": "2632feebddfb9dab3164c82e2f77bdb8",
     "acceptedByMigration": "20241003T172302.dropBrokenExtendedVoteTypeIndex.ts",
     "timestamp": "2024-10-03T17:23:02.000Z"
   }
