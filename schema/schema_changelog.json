@@ -798,5 +798,10 @@
     "acceptsSchemaHash": "845ab447f6646ba141b9aee88cc3a619",
     "acceptedByMigration": "20241003T152617.add_postId_to_ForumEvents.ts",
     "timestamp": "2024-10-03T15:26:17.000Z"
+  },
+  {
+    "acceptsSchemaHash": "2632feebddfb9dab3164c82e2f77bdb8",
+    "acceptedByMigration": "20241008T232715.dropBrokenExtendedVoteTypeIndex.ts",
+    "timestamp": "2024-10-08T23:27:15.000Z"
   }
 ]
