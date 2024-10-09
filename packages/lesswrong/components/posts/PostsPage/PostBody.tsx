@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 import { useSingle } from '../../../lib/crud/withSingle';
 import mapValues from 'lodash/mapValues';
-import { SideCommentMode, SideItemVisibilityContext } from '../../dropdowns/posts/SetSideItemVisibility';
+import { SideItemVisibilityContext } from '../../dropdowns/posts/SetSideItemVisibility';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 import type { ContentItemBody, ContentReplacedSubstringComponentInfo } from '../../common/ContentItemBody';
 import { hasSideComments, inlineReactsHoverEnabled } from '../../../lib/betas';
@@ -44,16 +44,6 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
     highlights = votingSystem.getPostHighlights({post, voteProps});
   }
   
-  
-
-  // result[quote] = {
-  //   componentName: 'InlineReactHoverableHighlight',
-  //   props: {
-  //     quote,
-  //     reactions: reactionsByQuote[quote],
-  //   }
-  // };
-
   const glossaryProp = 'glossary' in post && post.glossary ? { glossary: post.glossary } : {};
 
   if (includeSideComments && document?.sideComments) {

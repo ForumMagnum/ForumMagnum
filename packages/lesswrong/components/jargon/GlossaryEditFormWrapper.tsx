@@ -1,7 +1,5 @@
-// TODO: Import component in components.ts
 import React from 'react';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
-import { useTracking } from "../../lib/analyticsEvents";
 import { useMutation, gql } from '@apollo/client';
 import { useMulti } from '@/lib/crud/withMulti';
 import Button from '@material-ui/core/Button';
@@ -47,7 +45,6 @@ export const GlossaryEditFormWrapper = (props: {
     return 0;
   });
 
-  // Define the mutation at the top level of your component
   const [getNewJargonTerms, { data, loading: mutationLoading, error }] = useMutation(gql`
     mutation getNewJargonTerms($postId: String!) {
       getNewJargonTerms(postId: $postId) {
@@ -57,7 +54,6 @@ export const GlossaryEditFormWrapper = (props: {
     }
   `);
 
-  // Event handler function
   const addNewJargonTerms = async () => { 
     try {
       const response = await getNewJargonTerms({
@@ -66,16 +62,13 @@ export const GlossaryEditFormWrapper = (props: {
         },
       });
       refetch();
-      // Handle the response data as needed
     } catch (err) {
-      // Handle the error as needed
       // eslint-disable-next-line no-console
       console.error(err);
     }
   };
 
   return <div className={classes.root}>
-    {/* {!glossary && <GlossaryEditForm postId={document._id} />} */}
     <div>
       <h1>Glossary</h1>
       <span>Beta feature! Select/edit terms below and readers of your post will be able to hover over them to read an explanation of the term.</span>

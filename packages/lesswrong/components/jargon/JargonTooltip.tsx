@@ -1,7 +1,5 @@
-// TODO: Import component in components.ts
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useTracking } from "../../lib/analyticsEvents";
 import Card from '@material-ui/core/Card';
 import { commentBodyStyles } from '@/themes/stylePiping';
 import { ContentReplacedSubstringComponentInfo } from '../common/ContentItemBody';
@@ -11,7 +9,7 @@ const styles = (theme: ThemeType) => ({
   card: {
     padding: 16,
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
-    maxWidth: "350px",
+    maxWidth: 350,
     ...commentBodyStyles(theme),
     color: theme.palette.grey[700],
     marginTop: 0,
@@ -50,8 +48,8 @@ export const JargonTooltip = ({classes, children, term, replacedSubstrings, isFi
         <span className={classes.altTerm} key={term}>{term}</span>
       ))}
     </div>
-  </Card>  
-  const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
+  </Card>
+
   return <LWTooltip title={tooltip} tooltip={false} placement={placement} clickable={true}>
     <span className={ isFirstOccurrence ? classes.jargonWord : undefined}>
       {children}

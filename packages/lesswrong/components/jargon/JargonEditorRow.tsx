@@ -1,7 +1,5 @@
-// TODO: Import component in components.ts
 import React from 'react';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
-import { useTracking } from "../../lib/analyticsEvents";
 import { commentBodyStyles } from '@/themes/stylePiping';
 import classNames from 'classnames';
 import { useUpdate } from '@/lib/crud/withUpdate';
@@ -46,8 +44,6 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
   classes: ClassesType<typeof styles>,
   jargonTerm: JargonTermsFragment,
 }) => {
-  const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
-
   const { ToggleSwitch, WrappedSmartForm, ContentItemBody } = Components;
 
   const [isActive, setIsActive] = React.useState(!jargonTerm.rejected);

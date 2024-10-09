@@ -2,10 +2,8 @@ import { jargonBotClaudeKey } from '@/lib/instanceSettings';
 import { defineMutation } from '../../utils/serverGraphqlUtil';
 import { getAnthropicPromptCachingClientOrThrow } from '../../languageModels/anthropicClient';
 import { exampleJargonGlossary2, exampleJargonPost2 } from './exampleJargonPost';
-import { ContentReplacedSubstringComponentInfo } from '@/components/common/ContentItemBody';
 import { userIsAdmin } from '@/lib/vulcan-users';
 import { PromptCachingBetaMessageParam } from '@anthropic-ai/sdk/resources/beta/prompt-caching/messages';
-import { Posts } from '@/lib/collections/posts';
 import JargonTerms from '@/lib/collections/jargonTerms/collection';
 import { createMutator } from '../../vulcan-lib';
 import { initialGlossaryPrompt, formatPrompt, glossarySystemPrompt, mathFormatPrompt } from './jargonPrompts';
@@ -243,7 +241,6 @@ defineMutation({
         throw new Error('You need to be logged in to generate jargon terms');
       }
 
-    return await createNewJargonTerms(postId, currentUser);
-      
+      return await createNewJargonTerms(postId, currentUser);
     },
 });
