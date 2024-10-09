@@ -37,6 +37,17 @@ export const CurationPage = ({classes}: {
     }
   });
 
+  const { results: curatedPosts } = useMulti({
+    collectionName: 'Posts',
+    fragmentName: 'PostsBase',
+    terms: {
+      view: "curated",
+      limit: 1
+    }
+  });
+
+  const mostRecentCuratedPost = curatedPosts?.[0]
+
   const curationNoticesList = curationNotices.filter(notice => !notice.comment);
   const curationCommentsList = filterWhereFieldsNotNull(curationNotices, 'comment', 'post')
   const curationCommentsAndPostsList = curationCommentsList.map(({comment, post}) => ({comment: unflattenComments([comment]), post}));
@@ -60,7 +71,11 @@ export const CurationPage = ({classes}: {
               </BasicFormStyles>
             }
             <h2>Draft Curation Notices</h2>
-            {curationNoticesList?.map((curationNotice) => <CurationNoticesItem curationNotice={curationNotice} key={curationNotice._id}/>)}
+            {curationNoticesList?.map((curationNotice) => <CurationNoticesItem 
+              curationNotice={curationNotice} 
+              key={curationNotice._id}
+              mostRecentCuratedPost={mostRecentCuratedPost}
+            />)}
             <h2>Published Curation Notices</h2>
             {curationCommentsAndPostsList.map(({comment, post}) => (
               <CommentsList
