@@ -145,8 +145,6 @@ const settingsFileName = (mode: string, forumType: string) => {
     args.settingsFileName = settingsFilePath(settingsFileName(mode, forumType), forumType);
     if (command !== "create") {
       process.argv = process.argv.slice(0, 3).concat(process.argv.slice(forumTypeIsSpecified ? 5 : 4));
-    } else if (forumTypeIsSpecified) {
-      process.argv.pop();
     }
   } else if (args.postgresUrl && args.settingsFileName) {
     console.log('Using PG_URL and SETTINGS_FILE from environment');
@@ -173,11 +171,21 @@ const settingsFileName = (mode: string, forumType: string) => {
       setSqlClient(db, "noTransaction");
       const { createMigrator }  = require("./packages/lesswrong/server/migrations/meta/umzug");
       const migrator = await createMigrator(transaction, db);
-      const result = await migrator.runAsCLI();
-      if (!result) {
-        // If the migration throws an error it will have already been reported,
-        // but we need to manually propagate it to the exitCode
-        exitCode = 1;
+
+      if (command === "create") {
+        const name = process.argv[3];
+        if (!name) {
+          throw new Error("No name provided for new migration");
+        }
+        console.log(`Creating new migration with name "${name}"`);
+        await migrator.create({name});
+      } else {
+        const result = await migrator.runAsCLI();
+        if (!result) {
+          // If the migration throws an error it will have already been reported,
+          // but we need to manually propagate it to the exitCode
+          exitCode = 1;
+        }
       }
     });
   } catch (e) {
