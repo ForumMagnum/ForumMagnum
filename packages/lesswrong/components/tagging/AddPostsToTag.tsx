@@ -125,7 +125,8 @@ const AddPostsToTag = ({classes, tag}: {
         }
         ${getFragment("TagRelCreationFragment")}
       `,
-      update: (cache, { data: {addOrUpvoteTag: TagRel}}) => {
+      update: (cache, result) => {
+        const TagRel = result?.data?.addOrUpvoteTag?.TagRel;
         updateEachQueryResultOfType({ func: handleUpdateMutation, store: cache, typeName: "Post",  document: TagRel.post })
       },
       variables: {

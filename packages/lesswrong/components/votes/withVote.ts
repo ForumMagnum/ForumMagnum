@@ -80,7 +80,7 @@ export const useVote = <T extends VoteableTypeClient>(document: T, collectionNam
     }
     
     const mutationName = `performVote${typeName}`;
-    if (result?.[mutationName]?.showVotingPatternWarning) {
+    if (result.data?.[mutationName]?.showVotingPatternWarning) {
       showVotingPatternWarningPopup();
     }
   }, [mutate, collectionName, typeName, votingSystemOrDefault, showVotingPatternWarningPopup]);

@@ -21,7 +21,9 @@ const EmailTokenPage = () => {
         variables: {token},
         errorHandling: "flashMessageAndReturn",
       });
-      setUseTokenResult(mutationResult.result.useEmailToken);
+      if (!mutationResult.error) {
+        setUseTokenResult(mutationResult.result.data?.useEmailToken);
+      }
     })();
   }, [mutate, token])
   

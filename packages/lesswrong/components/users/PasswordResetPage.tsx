@@ -51,7 +51,9 @@ const PasswordResetPage = ({classes}: {
       },
       errorHandling: "flashMessageAndReturn",
     })
-    setUseTokenResult(result.result?.useEmailToken)
+    if (!result.error) {
+      setUseTokenResult(result.result?.data?.useEmailToken)
+    }
   }
   const { SingleColumnSection, Loading } = Components;
   

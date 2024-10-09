@@ -1,15 +1,15 @@
-import { ApolloError, MutationOptions as ApolloMutationOptions, useApolloClient } from "@apollo/client";
+import { ApolloError, FetchResult, MutationOptions as ApolloMutationOptions, useApolloClient } from "@apollo/client";
 import { captureException } from "@sentry/core";
 import { useCallback, useState } from "react";
 import { useMessages } from "../common/withMessages";
 
-type MutateOptions = ApolloMutationOptions & {
+type MutateOptions<T> = ApolloMutationOptions<T> & {
   errorHandling: "flashMessageAndReturn"|"handledManuallyWithReturnValue"|"loggedAndSilent"|"unloggedAndSilent"
 }
-type MutateResult =
-  { result: AnyBecauseHard, error: null }
+type MutateResult<T> =
+  { result: FetchResult<T>, error: null }
   | { result: null, error: ApolloError }
-type MutateFn = (options: MutateOptions) => Promise<MutateResult>
+type MutateFn<T> = (options: MutateOptions<T>) => Promise<MutateResult<T>>
 
 /**
  * Hook to get a function for performing graphql mutations. This is similar to
@@ -42,15 +42,15 @@ type MutateFn = (options: MutateOptions) => Promise<MutateResult>
  * The hook returns a `loading` flag which is true if at least one request is
  * pending.
  */
-export function useMutate(): {
-  mutate: MutateFn,
+export function useMutate<T=any>(): {
+  mutate: MutateFn<T>,
   loading: boolean
 } {
   const apolloClient = useApolloClient();
   const {flash} = useMessages();
   const [numLoading,setNumLoading] = useState(0);
   
-  const mutate =  useCallback(async (options: MutateOptions): Promise<MutateResult> => {
+  const mutate =  useCallback(async <T>(options: MutateOptions<T>): Promise<MutateResult<T>> => {
     try {
       setNumLoading(n => n+1);
       const result = await apolloClient.mutate(options);
