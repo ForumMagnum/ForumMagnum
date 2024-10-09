@@ -265,7 +265,7 @@ const schema: SchemaType<"Posts"> = {
   },
   // Count of how many times the post's page was viewed
   viewCount: {
-    type: Number,
+    type: String,
     optional: true,
     nullable: false,
     canRead: ['admins'],

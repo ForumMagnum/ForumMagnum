@@ -1529,6 +1529,10 @@ ensureIndex(Posts,
   augmentForDefaultView({ positiveReviewVoteCount: 1, reviewCount: 1, createdAt: 1 }),
   { name: "posts.positiveReviewVoteCountReviewCount", }
 );
+ensureIndex(Posts,
+  augmentForDefaultView({ positiveReviewVoteCount: 1, reviewCount: 1, createdAt: 1 }),
+  { name: "posts.positiveReviewVoteCountReviewCount-tmptest", }
+);
 
 Posts.addView("myBookmarkedPosts", (terms: PostsViewTerms, _, context?: ResolverContext) => {
   // Get list of bookmarked posts from the user object. This is ordered by when
