@@ -4,8 +4,6 @@ import { Umzug } from "@centreforeffectivealtruism/umzug";
 import { readFileSync } from "fs";
 import { createHash } from "crypto";
 import { resolve } from "path";
-import { rename } from "node:fs/promises";
-import * as readline from "node:readline/promises";
 import PgStorage from "./PgStorage";
 import { safeRun } from "../../manualMigrations/migrationUtils"
 
@@ -46,41 +44,6 @@ const getLastMigration = async (storage: PgStorage, context: MigrationContext): 
   // Make sure timers and hashes aren't written to here
   const executed = (await storage.executed({ context: { ...context, timers: {}, hashes: {} } })) ?? [];
   return executed[0];
-}
-
-const reportOutOfOrderRun = async (lastMigrationName: string, currentMigrationName: string) => {
-  if (process.env.FORUM_MAGNUM_MIGRATE_CI) {
-    throw new Error("Aborting due to out-of-order migration run");
-  }
-
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  console.log("\nWarning: Out-of-order migrations detected");
-  console.log(`Trying to run '${currentMigrationName}' after '${lastMigrationName}'`);
-
-  try {
-    const response = await rl.question("\nDo you want to automatically update the migration date? [n] [y] [force]: ");
-    const strategy = response.toLowerCase();
-    if (["y", "yes"].includes(strategy)) {
-      const tokens = currentMigrationName.split(".");
-      tokens[0] = createMigrationPrefix();
-      const newName = tokens.join(".");
-      const oldPath = resolve(root, currentMigrationName);
-      const newPath = resolve(root, newName);
-      await rename(oldPath, newPath);
-      console.log(`\nMigration renamed to '${newName}' - rerun your last command to try again`);
-      process.exit(0);
-    } else if (strategy === "force") {
-      // Do nothing - let the migration run continue
-    } else { // Default to 'no'
-      throw new Error("Aborting due to out-of-order migration run");
-    }
-  } finally {
-    rl.close();
-  }
 }
 
 export const createMigrator = async (dbInTransaction: SqlClient, dbOutsideTransaction: SqlClient) => {
@@ -145,7 +108,7 @@ export const createMigrator = async (dbInTransaction: SqlClient, dbOutsideTransa
     migrator.on("migrating", async ({name}) => {
       const time = migrationNameToTime(name);
       if (time < lastMigrationTime) {
-        await reportOutOfOrderRun(lastMigration, name);
+        console.warn(`Warning: Out-of-order migrations detected ("${name}" after "${lastMigration}") - continuing...`);
       }
     });
   }
