@@ -5,9 +5,11 @@
  * and SETTINGS_FILE
  */
 
+import { existsSync } from "node:fs";
+import type { ITask } from "pg-promise";
+
 // @ts-ignore This is a javascript file without a .d.ts
 import { getDatabaseConfig, startSshTunnel } from "./scripts/startup/buildUtil";
-import type { ITask } from "pg-promise";
 
 const initGlobals = (args: Record<string, unknown>, isProd: boolean) => {
   Object.assign(global, {
@@ -35,8 +37,16 @@ const fetchImports = (args: Record<string, unknown>, isProd: boolean) => {
 
 type ForumType = "lw" | "ea" | "none";
 
-const getForumType = (forumType: string): ForumType =>
-  forumType === "lw" || forumType === "ea" ? forumType : "none";
+const detectForumType = async (): Promise<ForumType> => {
+  const base = process.env.GITHUB_WORKSPACE ?? "..";
+  if (existsSync(`${base}/LessWrong-Credentials`)) {
+    return "lw";
+  }
+  if (existsSync(`${base}/ForumCredentials`)) {
+    return "ea";
+  }
+  return "none";
+}
 
 const credentialsPath = (forumType: ForumType) => {
   const memorizedBases = {
@@ -114,8 +124,9 @@ const settingsFileName = (mode: string, forumType: string) => {
     mode = "dev";
   }
 
-  const forumType = getForumType(process.argv[4]);
+  const forumType = await detectForumType();
   const forumTypeIsSpecified = forumType !== "none";
+  console.log(`Running with forum type "${forumType}"`);
 
   const dbConf = databaseConfig(mode, forumType);
   if (dbConf.postgresUrl) {
