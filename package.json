@@ -8,7 +8,7 @@
     "tsc": "tsc --noEmit --skipLibCheck",
     "eslint": "eslint --max-warnings 0 --cache --ext .jsx,js,tsx,ts packages",
     "build": "./build.js",
-    "migrate": "node -r tsconfig-paths/register migrate",
+    "migrate": "ts-node -r tsconfig-paths/register ./migrate.ts",
     "upload-ckeditor-bundle": "node -r tsconfig-paths/register deployCkEditorBundle",
     "branchdb": "ts-node -r tsconfig-paths/register scripts/branchDb.ts",
     "start": "yarn start-local-db",
