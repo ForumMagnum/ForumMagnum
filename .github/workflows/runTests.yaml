@@ -26,6 +26,20 @@ jobs:
       uses: ./.github/actions/setupEnvironment
     - run: yarn run tsc
 
+  checkCodeGeneration:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Setup Environment
+      uses: ./.github/actions/setupEnvironment
+    - name: Start the server
+      run: yarn ea-start &
+    - name: Run code generation
+      run: yarn ea-command-dev generate
+    - name: Check if there are changes
+      run: git add . && git diff --quiet && git diff --cached --quiet
+
   runPlaywrightTests:
     runs-on: ubuntu-latest
     strategy:
