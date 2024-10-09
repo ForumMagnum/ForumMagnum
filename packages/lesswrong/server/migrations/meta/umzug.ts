@@ -7,7 +7,6 @@ import { resolve } from "path";
 import { rename } from "node:fs/promises";
 import * as readline from "node:readline/promises";
 import PgStorage from "./PgStorage";
-import { migrationNameToTime } from "../../scripts/acceptMigrations";
 import { safeRun } from "../../manualMigrations/migrationUtils"
 
 declare global {
@@ -25,6 +24,21 @@ declare global {
 }
 
 const root = "./packages/lesswrong/server/migrations";
+
+const migrationNameToDate = (name: string): Date => {
+  const s = name.split(".")[0];
+  if (s.length !== 15 || s[8] !== "T") {
+    throw new Error(`Invalid migration name: '${s}'`);
+  }
+  if (name.match(/^.*\.auto\.ts$/)) {
+    throw new Error(`You must rename the migration from 'auto' to something more recognizable: ${name}`);
+  }
+  const stamp = `${s.slice(0, 4)}-${s.slice(4, 6)}-${s.slice(6, 11)}:${s.slice(11, 13)}:${s.slice(13, 15)}.000Z`;
+  return new Date(stamp);
+}
+
+const migrationNameToTime = (name: string): number =>
+  migrationNameToDate(name).getTime();
 
 const createMigrationPrefix = () => new Date().toISOString().replace(/[-:]/g, "").split(".")[0];
 
