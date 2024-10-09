@@ -29,11 +29,10 @@ Finally, *after* the operation is performed, we execute any async callbacks.
 
 */
 
-import { Utils } from '../../lib/vulcan-lib/utils';
+import { convertDocumentIdToIdInSelector, Utils } from '../../lib/vulcan-lib/utils';
 import { validateDocument, validateData, dataToModifier, modifierToData, } from './validation';
 import { getSchema } from '../../lib/utils/getSchema';
 import { throwError } from './errors';
-import { Connectors } from './connectors';
 import { getCollectionHooks, CollectionMutationCallbacks, CreateCallbackProperties, UpdateCallbackProperties, DeleteCallbackProperties } from '../mutationCallbacks';
 import { logFieldChanges } from '../fieldChanges';
 import { createAnonymousContext } from './query';
@@ -236,7 +235,7 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
 
   */
   logger('inserting into database');
-  (document as any)._id = await Connectors.create(collection, document as ObjectsByCollectionName[N]);
+  (document as any)._id = await collection.rawInsert(document as ObjectsByCollectionName[N]);
 
   /*
 
@@ -259,7 +258,7 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
 
   // note: query for document to get fresh document with collection-hooks effects applied
   let completedDocument = document as ObjectsByCollectionName[N];
-  const queryResult = await Connectors.get(collection, document._id);
+  const queryResult = await collection.findOne(document._id);
   if (queryResult)
     completedDocument = queryResult;
 
@@ -330,7 +329,7 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
   }
 
   // get original document from database or arguments
-  oldDocument = oldDocument || (await Connectors.get(collection, selector));
+  oldDocument = oldDocument || (await collection.findOne(convertDocumentIdToIdInSelector(selector)));
 
   if (!oldDocument) {
     throw new Error(`Could not find document to update for selector: ${JSON.stringify(selector)}`);
@@ -472,10 +471,10 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
   if (!isEmpty(modifier)) {
     // update document
     logger('updating document')
-    await Connectors.updateOne(collection, selector, modifier, { removeEmptyStrings: false });
+    await collection.rawUpdateOne(convertDocumentIdToIdInSelector(selector), modifier);
 
     // get fresh copy of document from db
-    const fetched = await Connectors.get(collection, selector);
+    const fetched = await collection.findOne(convertDocumentIdToIdInSelector(selector));
     if (!fetched)
       throw new Error("Could not find updated document after applying update");
     document = fetched;
@@ -562,7 +561,7 @@ export const deleteMutator: DeleteMutator = async <N extends CollectionNameStrin
     throw new Error('Selector cannot be empty');
   }
 
-  document = document || (await Connectors.get(collection, selector));
+  document = document || (await collection.findOne(convertDocumentIdToIdInSelector(selector)));
 
   if (!document) {
     throw new Error(`Could not find document to delete for selector: ${JSON.stringify(selector)}`);
@@ -637,7 +636,7 @@ export const deleteMutator: DeleteMutator = async <N extends CollectionNameStrin
   DB Operation
 
   */
-  await Connectors.delete(collection, selector);
+  await collection.rawRemove(convertDocumentIdToIdInSelector(selector));
 
   // TODO: add support for caching by other indexes to Dataloader
   // clear cache if needed

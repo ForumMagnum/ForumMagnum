@@ -448,6 +448,7 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly author: string,
   readonly postId: string,
   readonly tagId: string,
+  readonly forumEventId: string,
   readonly tagCommentType: "SUBFORUM" | "DISCUSSION",
   readonly subforumStickyPriority: number | null,
   readonly userId: string,
@@ -609,6 +610,7 @@ interface ForumEventsDefaultFragment { // fragment on ForumEvents
   readonly lightColor: string,
   readonly contrastColor: string | null,
   readonly tagId: string,
+  readonly postId: string | null,
   readonly bannerImageId: string | null,
   readonly includesPoll: boolean,
   readonly publicData: any /*{"definitions":[{"blackbox":true}]}*/,
@@ -1002,7 +1004,7 @@ interface VotesDefaultFragment { // fragment on Votes
   readonly collectionName: string,
   readonly userId: string,
   readonly authorIds: Array<string>,
-  readonly voteType: string,
+  readonly voteType: "bigDownvote" | "bigUpvote" | "neutral" | "smallDownvote" | "smallUpvote",
   readonly extendedVoteType: any /*{"definitions":[{"type":"JSON"}]}*/,
   readonly power: number,
   readonly afPower: number,
@@ -1872,7 +1874,7 @@ interface CommentsListWithModerationMetadata extends CommentWithRepliesFragment 
 }
 
 interface CommentsListWithModerationMetadata_allVotes { // fragment on Votes
-  readonly voteType: string,
+  readonly voteType: "bigDownvote" | "bigUpvote" | "neutral" | "smallDownvote" | "smallUpvote",
 }
 
 interface CommentsListWithModGPTAnalysis extends CommentsList { // fragment on Comments
@@ -2878,6 +2880,7 @@ interface ForumEventsMinimumInfo { // fragment on ForumEvents
   readonly lightColor: string,
   readonly contrastColor: string | null,
   readonly tagId: string,
+  readonly postId: string | null,
   readonly bannerImageId: string | null,
   readonly includesPoll: boolean,
 }
@@ -2885,6 +2888,7 @@ interface ForumEventsMinimumInfo { // fragment on ForumEvents
 interface ForumEventsDisplay extends ForumEventsMinimumInfo { // fragment on ForumEvents
   readonly publicData: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly voteCount: number,
+  readonly post: PostsMinimumInfo|null,
   readonly tag: TagBasicInfo|null,
   readonly frontpageDescription: ForumEventsDisplay_frontpageDescription|null,
   readonly frontpageDescriptionMobile: ForumEventsDisplay_frontpageDescriptionMobile|null,
@@ -3610,7 +3614,7 @@ interface FeaturedResourcesFragment { // fragment on FeaturedResources
 interface TagRelVotes { // fragment on Votes
   readonly _id: string,
   readonly userId: string,
-  readonly voteType: string,
+  readonly voteType: "bigDownvote" | "bigUpvote" | "neutral" | "smallDownvote" | "smallUpvote",
   readonly power: number,
   readonly documentId: string,
   readonly votedAt: Date,
@@ -3625,7 +3629,7 @@ interface TagVotingActivity extends TagRelVotes { // fragment on Votes
 interface UserVotes { // fragment on Votes
   readonly _id: string,
   readonly userId: string,
-  readonly voteType: string,
+  readonly voteType: "bigDownvote" | "bigUpvote" | "neutral" | "smallDownvote" | "smallUpvote",
   readonly power: number,
   readonly cancelled: boolean,
   readonly documentId: string,

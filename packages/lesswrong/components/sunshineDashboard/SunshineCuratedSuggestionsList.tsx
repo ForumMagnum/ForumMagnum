@@ -4,6 +4,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import { isEAForum } from '../../lib/instanceSettings';
+import { Link } from '@/lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   loadMorePadding: {
@@ -70,7 +71,7 @@ const SunshineCuratedSuggestionsList = ({ terms, belowFold, classes, setCuration
   return (
     <div className={classes.root}>
       <SunshineListTitle>
-        Suggestions for Curated
+        <Link to={`/admin/curation`}>Suggestions for Curated</Link>
         <MetaInfo>
           <FormatDate date={curatedDate}/>
         </MetaInfo>

@@ -109,6 +109,9 @@ const styles = (theme: ThemeType) => ({
     '& $rowOpacity': {
       opacity: 1,
     },
+    '& $headingOpacity': {
+      opacity: 1,
+    },
     '& $tocTitle': {
       opacity: 1,
     }
@@ -120,6 +123,10 @@ const styles = (theme: ThemeType) => ({
     flexDirection: "column",
   },
   rowOpacity: {
+    transition: '.25s',
+    opacity: 0,
+  },
+  headingOpacity: {
     transition: '.25s',
     opacity: 0,
   },
@@ -157,7 +164,7 @@ const styles = (theme: ThemeType) => ({
     justifyContent: 'space-evenly',
     '--scrollAmount': '0%',
     marginRight: -4,
-    marginBottom: 20,
+    marginBottom: 0,
     width: 1,
     background: theme.palette.grey[400],
     overflowY: 'clip',
@@ -199,15 +206,14 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, classes, hover, commentCount, answerCount}: {
+const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayOptions, classes, hover}: {
   tocSections: ToCSection[],
   title: string|null,
+  heading?: React.ReactNode,
   onClickSection?: () => void,
   displayOptions?: ToCDisplayOptions,
   classes: ClassesType<typeof styles>,
   hover?: boolean,
-  commentCount?: number,
-  answerCount?: number,
 }) => {
   const { TableOfContentsRow, AnswerTocRow } = Components;
 
@@ -385,6 +391,9 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
       </div>
       <div className={classes.rows}>
         {titleRow}
+        <div className={classNames(HOVER_CLASSNAME, classes.headingOpacity)}>
+          {heading}
+        </div>
         {rows}
       </div>
     </div>

@@ -798,5 +798,20 @@
     "acceptsSchemaHash": "d9b155bfb158cc8e10c958d4da548d5b",
     "acceptedByMigration": "20241004T231211.jargonTerms_add_deleted.ts",
     "timestamp": "2024-10-04T23:12:11.000Z"
+  },
+  {
+    "acceptsSchemaHash": "4176699fcd50a096b6fd2437aec71b01",
+    "acceptedByMigration": "20240930T215249.drop_criticismTipsDismissed_from_Posts.ts",
+    "timestamp": "2024-09-30T21:52:49.000Z"
+  },
+  {
+    "acceptsSchemaHash": "845ab447f6646ba141b9aee88cc3a619",
+    "acceptedByMigration": "20241003T152617.add_postId_to_ForumEvents.ts",
+    "timestamp": "2024-10-03T15:26:17.000Z"
+  },
+  {
+    "acceptsSchemaHash": "2632feebddfb9dab3164c82e2f77bdb8",
+    "acceptedByMigration": "20241008T232715.dropBrokenExtendedVoteTypeIndex.ts",
+    "timestamp": "2024-10-08T23:27:15.000Z"
   }
 ]

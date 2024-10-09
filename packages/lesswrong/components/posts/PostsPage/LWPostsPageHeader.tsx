@@ -19,6 +19,14 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginBottom: 38
     },
   },
+  rootWithAudioPlayer: {
+    [theme.breakpoints.down('sm')]: {
+      paddingTop: LW_POST_PAGE_PADDING - 48,
+    },
+    [theme.breakpoints.down('xs')]: {
+      paddingTop: 16,
+    },
+  },
   eventHeader: {
     marginBottom: 0,
   },
@@ -65,9 +73,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     top: 15,
     display: 'flex',
     [theme.breakpoints.down('sm')]: {
-      top: 8,
-      right: 8
-    }
+      position: 'relative',
+      justifyContent: 'flex-end',
+      marginLeft: 8,
+      marginRight: -64,
+    },
+    [theme.breakpoints.down('xs')]: {
+      justifyContent: 'flex-start',
+    },
   },
   sequenceNav: {
     marginBottom: 8,
@@ -158,7 +171,7 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
     </a>
   </LWTooltip> : null;
 
-  return <div className={classNames(classes.root, {[classes.eventHeader]: post.isEvent})}>
+  return <div className={classNames(classes.root, {[classes.eventHeader]: post.isEvent, [classes.rootWithAudioPlayer]: !!showEmbeddedPlayer})}>
       {post.group && <PostsGroupDetails post={post} documentId={post.group._id} />}
       <AnalyticsContext pageSectionContext="topSequenceNavigation">
         {('sequence' in post) && !!post.sequence && <div className={classes.sequenceNav}>
