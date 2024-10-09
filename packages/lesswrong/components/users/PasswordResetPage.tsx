@@ -4,6 +4,7 @@ import { useMutate } from '../hooks/useMutate';
 import { gql } from "@apollo/client";
 import { useLocation } from '../../lib/routeUtil';
 import Button from '@material-ui/core/Button';
+import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -39,11 +40,12 @@ const PasswordResetPage = ({classes}: {
   const [useTokenResult, setUseTokenResult] = useState<any>(null)
   const { params: { token } } = useLocation()
   const [ password, setPassword ] = useState("")
+
   const submitFunction = async () => {
     const result = await mutate({
       mutation: gql`
-        mutation useEmailToken($token: String) {
-          useEmailToken(token: $token)
+        mutation useEmailToken($token: String, $args: JSON) {
+          useEmailToken(token: $token, args: $args)
         }
       `,
       variables: {
@@ -59,10 +61,19 @@ const PasswordResetPage = ({classes}: {
   
   const ResultComponent = useTokenResult?.componentName && Components[useTokenResult.componentName as keyof ComponentTypes]
   return <SingleColumnSection className={classes.root}>
-    {!useTokenResult && <> 
-      <input value={password} type="password" name="password" placeholder="new password" className={classes.input} onChange={event => setPassword(event.target.value)}/>
+    {!useTokenResult && <form
+      onSubmit={(ev) => {
+        ev.preventDefault();
+        submitFunction()
+      }}
+    >
+      <input
+        value={password} type="password" name="password"
+        placeholder="new password" className={classes.input}
+        onChange={event => setPassword(event.target.value)}
+      />
       <Button onClick={submitFunction} className={classes.submit}>Set New Password</Button>
-    </>}
+    </form>}
     {useTokenResult && ResultComponent && <ResultComponent {...useTokenResult.props}/>}
     {loading && <Loading/>}
   </SingleColumnSection>
