@@ -55,6 +55,7 @@
     "ea-start-staging-db": "./build.js -run --watch --lint --settings ../ForumCredentials/settings-local-dev-staging-db.json --postgresUrlFile ../ForumCredentials/staging-pg-conn.txt",
     "ea-start-prod-db": "./build.js -run --watch --lint --settings ../ForumCredentials/settings-local-dev-prod-db.json --postgresUrlFile ../ForumCredentials/prod-pg-conn.txt",
     "ea-start-testing-db": "./build.js -run --watch --e2e --settings ./settings-test.json --postgresUrl ${PG_URL:=$(cat ../ForumCredentials/testing-pg-conn.txt)}",
+    "start-ci": "./build.js -run --settings ./settings-test.json --postgresUrl postgres://postgres:password@localhost:5433/postgres",
     "ea-pg": "psql $(< ../ForumCredentials/dev-pg-conn.txt)",
     "ea-pg-xpost-dev": "psql $(< ../ForumCredentials/xpost-pg-conn.txt)",
     "ea-pg-staging": "psql $(< ../ForumCredentials/staging-pg-conn.txt)",

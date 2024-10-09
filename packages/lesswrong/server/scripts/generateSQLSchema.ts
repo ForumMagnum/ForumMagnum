@@ -3,7 +3,7 @@ import { Globals } from "../vulcan-lib";
 import { getAllCollections, isValidCollectionName } from "../../lib/vulcan-lib/getCollection";
 import Table from "@/server/sql/Table";
 import CreateTableQuery from "@/server/sql/CreateTableQuery";
-import { writeFile } from 'node:fs/promises'
+import { writeFileSync } from 'node:fs'
 import path from 'path';
 import { PostgresFunction, postgresFunctions } from '../postgresFunctions';
 import { PostgresExtension, postgresExtensions } from '../postgresExtensions';
@@ -285,9 +285,9 @@ const buildSchemaSQL = () => {
   return schemaFileHeaderTemplate + schemaFileContents + "\n";
 }
 
-export const generateSQLSchema = async (rootPath = ROOT_PATH) => {
+export const generateSQLSchema = (rootPath = ROOT_PATH) => {
   const sqlSchema = buildSchemaSQL();
-  await writeFile(acceptedSchemePath(rootPath), sqlSchema);
+  writeFileSync(acceptedSchemePath(rootPath), sqlSchema);
 }
 
 Globals.generateSQLSchema = generateSQLSchema;
