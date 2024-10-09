@@ -50,11 +50,8 @@ registerFragment(`
       ...TagPreviewFragment
     }
     post {
-      ...PostsList
+      ...PostsListTagWithVotes
       tagRelevance
-      tagRel(tagId: $tagId) {
-        ...WithVoteTagRel
-      }
     }
     currentUserVote
     currentUserExtendedVote
