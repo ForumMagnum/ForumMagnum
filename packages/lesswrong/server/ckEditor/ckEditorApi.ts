@@ -476,7 +476,7 @@ const ckEditorApiHelpers = {
   // (This is used when reverting through the revision-history UI.)
   async pushRevisionToCkEditor(postId: string, html: string) {
     // eslint-disable-next-line no-console
-    console.log(`Pushing to CkEditor cloud: postId=${postId}, html=${html}`);
+    console.log(`Pushing to CkEditor cloud: postId=${postId}, html=${html.slice(0, 100)}`);
     const ckEditorId = documentHelpers.postIdToCkEditorDocumentId(postId);
     
     // Check for unsaved changes and save them first
@@ -529,19 +529,22 @@ Globals.cke = {
 // Also generate serverShellCommands that log the output of every function here, rather than just running them.
 // In general this is only useful for GET calls, since ckEditor doesn't often return anything for POST/DELETE/etc operations.
 // This isn't guaranteed to produce sane results in every single case, but seems fine for the things I've tested.
-Globals.cke.log = Object.fromEntries(Object.entries(Globals.cke).map(([key, val]) => {
-  if (typeof val !== 'function') {
-    return [key, val];
-  }
+Globals.cke.log = Object.fromEntries(
+  Object.entries(Globals.cke).map(([key, val]) => {
+    if (typeof val !== 'function') {
+      return [key, val];
+    }
 
-  const withLoggedOutput = async (...args: any[]) => {
-    const result = await val(...args);
-    // eslint-disable-next-line no-console
-    console.log({ result });
-    return result;
-  };
+    // Bind the original function to Globals.cke to preserve 'this'
+    const withLoggedOutput = async function (...args: any[]) {
+      const result = await val.apply(Globals.cke, args);
+      // eslint-disable-next-line no-console
+      console.log({ result });
+      return result;
+    };
 
-  return [key, withLoggedOutput];
-}));
+    return [key, withLoggedOutput];
+  })
+);
 
 export { ckEditorApi, ckEditorApiHelpers, documentHelpers };
