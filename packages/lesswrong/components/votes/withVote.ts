@@ -31,9 +31,9 @@ export const useVote = <T extends VoteableTypeClient>(document: T, collectionNam
   const typeName = collectionNameToTypeName(collectionName);
   const votingSystemOrDefault = votingSystem || getDefaultVotingSystem();
   const {openDialog} = useDialog();
-  const mutate = useMutate();
+  const {mutate} = useMutate();
   
-  const showVotingPatternWarningPopup= useCallback(() => {
+  const showVotingPatternWarningPopup = useCallback(() => {
     openDialog({
       componentName: "VotingPatternsWarningPopup",
       componentProps: {},

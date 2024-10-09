@@ -1,9 +1,10 @@
 import { ApolloError, MutationOptions as ApolloMutationOptions, useApolloClient } from "@apollo/client";
-import { useCallback } from "react";
+import { captureException } from "@sentry/core";
+import { useCallback, useState } from "react";
 import { useMessages } from "../common/withMessages";
 
 type MutateOptions = ApolloMutationOptions & {
-  errorHandling: "flashMessageAndReturn"|"errorInReturnValue"
+  errorHandling: "flashMessageAndReturn"|"handledManuallyWithReturnValue"|"loggedAndSilent"|"unloggedAndSilent"
 }
 type MutateResult =
   { result: AnyBecauseHard, error: null }
@@ -22,19 +23,36 @@ type MutateFn = (options: MutateOptions) => Promise<MutateResult>
  *
  * In addition to ApolloMutationOptions, the options passed to the callback
  * include a mandatory field `errorHandling`, which is either:
+ *
  *   flashMessageAndReturn: If the mutation fails, show it to the user and
  *     return {result: null, error: ...}. This is the easiest option and
  *     probably the one you want.
- *   errorInReturnValue: If the mutation fails, it is included in the return
- *     value, but not shown to the user. Use this if you want to customize
- *     how the error is displayed.
+ *   handledManuallyWithReturnValue: If the mutation fails, it is included in
+ *     the return value, and the caller represents that they're doing something
+ *     to handle it. Use this if you want to customize how the error is
+ *     displayed.
+ *   loggedAndSilent: If the mutation fails, it will be logged to stderr and
+ *     Sentry, and returned, but the caller represents that they will ignore
+ *     the return value.
+ *   unloggedAndSilent: If the mutation fails, it will be returned as in
+ *     handleManuallyWithReturnValue, but the caller represents they're not
+ *     doing anything with it. Use sparingly, only for mutations that are
+ *     definitely expendable.
+ *
+ * The hook returns a `loading` flag which is true if at least one request is
+ * pending.
  */
-export function useMutate(): MutateFn {
+export function useMutate(): {
+  mutate: MutateFn,
+  loading: boolean
+} {
   const apolloClient = useApolloClient();
-  const messages = useMessages();
+  const {flash} = useMessages();
+  const [numLoading,setNumLoading] = useState(0);
   
-  return useCallback(async (options: MutateOptions): Promise<MutateResult> => {
+  const mutate =  useCallback(async (options: MutateOptions): Promise<MutateResult> => {
     try {
+      setNumLoading(n => n+1);
       const result = await apolloClient.mutate(options);
       return {
         result,
@@ -46,17 +64,33 @@ export function useMutate(): MutateFn {
 
       switch (options.errorHandling) {
         case "flashMessageAndReturn":
-          messages.flash(error.message);
+          flash(error.message);
           return {
             result: null,
             error: error,
           };
-        case "errorInReturnValue":
+        case "loggedAndSilent":
+          // eslint-disable-next-line no-console
+          console.error(error);
+          captureException(error);
+          return {
+            result: null,
+            error: error,
+          };
+        case "unloggedAndSilent":
+        case "handledManuallyWithReturnValue":
           return {
             result: null,
             error: error,
           };
       }
+    } finally {
+      setNumLoading(n => n-1);
     }
-  }, [apolloClient, messages]);
+  }, [apolloClient, flash]);
+  
+  return {
+    mutate,
+    loading: numLoading > 0,
+  };
 }

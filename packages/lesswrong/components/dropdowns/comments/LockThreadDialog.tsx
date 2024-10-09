@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { useMutation, gql } from '@apollo/client';
+import { gql } from '@apollo/client';
+import { useMutate } from '@/components/hooks/useMutate';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -21,24 +22,28 @@ const LockThreadDialog = ({commentId, onClose, classes}: {
 }) => {
   const farFuture: Date = moment().add(1000,'years').toDate();
   const [until,setUntil] = useState<Date>(farFuture);
+  const {mutate} = useMutate();
 
-  const [lockThread] = useMutation(gql`
-    mutation lockThread($commentId: String!, $until: String) {
-      lockThread(commentId: $commentId, until: $until)
-    }
-  `);
   const handleLockThread = async () => {
-    await lockThread({
+    const result = await mutate({
+      mutation: gql`
+        mutation unlockThread($commentId: String!) {
+          unlockThread(commentId: $commentId)
+        }
+      `,
       variables: {
-        commentId,
-        until: until
-      }
+        commentId: commentId
+      },
+      errorHandling: "flashMessageAndReturn",
     });
-    onClose();
-
-    // HACK: The cient-side cache doesn't update to reflect this change, so
-    // hard-refresh the page
-    window.location.reload();
+    
+    if (!result.error) {
+      onClose();
+  
+      // HACK: The cient-side cache doesn't update to reflect this change, so
+      // hard-refresh the page
+      window.location.reload();
+    }
   }
 
   const {LWDialog, DatePicker} = Components;

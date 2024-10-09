@@ -1,20 +1,29 @@
 import React, { useEffect, useState} from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useNamedMutation } from '../../lib/crud/withMutation';
+import { useMutate } from '../hooks/useMutate';
+import { gql } from "@apollo/client";
 import { useLocation } from '../../lib/routeUtil';
 
 const EmailTokenPage = () => {
   const { Loading, SingleColumnSection } = Components
   const [useTokenResult, setUseTokenResult] = useState<any>(null)
   const { params: { token } } = useLocation()
-  const { mutate: emailTokenMutation, loading: emailTokenLoading } = useNamedMutation({name: "useEmailToken", graphqlArgs: {token: "String"}})
+  const { mutate, loading: emailTokenLoading } = useMutate();
 
   useEffect(() => {
-    void emailTokenMutation({token}).then(mutationResult => {
-      setUseTokenResult(mutationResult.data.useEmailToken)
-    })
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    void (async () => {
+      const mutationResult = await mutate({
+        mutation: gql`
+          mutation emailTokenMutation($token: String) {
+            useEmailToken(token: $token)
+          }
+        `,
+        variables: {token},
+        errorHandling: "flashMessageAndReturn",
+      });
+      setUseTokenResult(mutationResult.result.useEmailToken);
+    })();
+  }, [mutate, token])
   
   const ResultComponent = useTokenResult?.componentName && Components[useTokenResult.componentName as keyof ComponentTypes]
   return <SingleColumnSection>

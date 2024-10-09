@@ -1,6 +1,7 @@
 import React, { useState} from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useNamedMutation } from '../../lib/crud/withMutation';
+import { useMutate } from '../hooks/useMutate';
+import { gql } from "@apollo/client";
 import { useLocation } from '../../lib/routeUtil';
 import Button from '@material-ui/core/Button';
 
@@ -34,15 +35,25 @@ const styles = (theme: ThemeType): JssStyles => ({
 const PasswordResetPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { mutate: emailTokenMutation } = useNamedMutation({name: "useEmailToken", graphqlArgs: {token: "String", args: "JSON"}})
+  const { mutate, loading } = useMutate();
   const [useTokenResult, setUseTokenResult] = useState<any>(null)
   const { params: { token } } = useLocation()
   const [ password, setPassword ] = useState("")
   const submitFunction = async () => {
-    const result = await emailTokenMutation({token, args: { password }})
-    setUseTokenResult(result?.data?.useEmailToken)
+    const result = await mutate({
+      mutation: gql`
+        mutation useEmailToken($token: String) {
+          useEmailToken(token: $token)
+        }
+      `,
+      variables: {
+        token, args: { password }
+      },
+      errorHandling: "flashMessageAndReturn",
+    })
+    setUseTokenResult(result.result?.useEmailToken)
   }
-  const { SingleColumnSection } = Components;
+  const { SingleColumnSection, Loading } = Components;
   
   const ResultComponent = useTokenResult?.componentName && Components[useTokenResult.componentName as keyof ComponentTypes]
   return <SingleColumnSection className={classes.root}>
@@ -51,6 +62,7 @@ const PasswordResetPage = ({classes}: {
       <Button onClick={submitFunction} className={classes.submit}>Set New Password</Button>
     </>}
     {useTokenResult && ResultComponent && <ResultComponent {...useTokenResult.props}/>}
+    {loading && <Loading/>}
   </SingleColumnSection>
 }
 

@@ -21,7 +21,8 @@ import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS, LAST_VISITED_FRONTPAGE_COOKIE, RECOMBEE_SETTINGS_COOKIE, SELECTED_FRONTPAGE_TAB_COOKIE } from '../../lib/cookies/cookies';
 import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
 import { PostFeedDetails, homepagePostFeedsSetting } from '../../lib/instanceSettings';
-import { ObservableQuery, gql, useMutation } from '@apollo/client';
+import { ObservableQuery, gql } from '@apollo/client';
+import { useMutate } from '../hooks/useMutate';
 import { vertexEnabledSetting } from '../../lib/publicSettings';
 import { userHasSubscribeTabFeed } from '@/lib/betas';
 import { useSingle } from '@/lib/crud/withSingle';
@@ -412,14 +413,7 @@ const LWHomePosts = ({ children, classes }: {
   const { query } = useLocation();
   const now = useCurrentTime();
   const { continueReading } = useContinueReading();
-
-  const [sendVertexViewHomePageEvent] = useMutation(gql`
-    mutation sendVertexViewHomePageEventMutation {
-      sendVertexViewHomePageEvent
-    }
-  `, {
-    ignoreResults: true
-  });
+  const { mutate } = useMutate();
 
   const availableTabs: PostFeedDetails[] = homepagePostFeedsSetting.get()
   const enabledTabs = availableTabs.filter(tab => isTabEnabled(tab, currentUser, query, continueReading));
@@ -601,7 +595,14 @@ const LWHomePosts = ({ children, classes }: {
 
   useEffect(() => {
     if (currentUser && vertexEnabledSetting.get()) {
-      void sendVertexViewHomePageEvent();
+      void mutate({
+        mutation: gql`
+          mutation sendVertexViewHomePageEventMutation {
+            sendVertexViewHomePageEvent
+          }
+        `,
+        errorHandling: "loggedAndSilent",
+      });
     }
     // We explicitly only want to send it once on page load, no matter what changes
     // eslint-disable-next-line react-hooks/exhaustive-deps

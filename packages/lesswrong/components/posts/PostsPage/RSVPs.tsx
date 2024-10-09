@@ -9,7 +9,8 @@ import { responseToText, RsvpResponse } from './RSVPForm';
 import CheckCircleOutlineIcon from '@material-ui/icons/CheckCircleOutline';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import HighlightOffIcon from '@material-ui/icons/HighlightOff';
-import { gql, useMutation } from '@apollo/client';
+import { gql } from '@apollo/client';
+import { useMutate } from '@/components/hooks/useMutate';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import groupBy from "lodash/groupBy";
 import mapValues from "lodash/mapValues";
@@ -134,15 +135,21 @@ const RSVPs = ({post, classes}: {
       openRSVPForm("yes")
     }
   })
-  const [cancelMutation] = useMutation(gql`
-    mutation CancelRSVPToEvent($postId: String, $name: String, $userId: String) {
-        CancelRSVPToEvent(postId: $postId, name: $name, userId: $userId) {
-        ...PostsDetails
+  const {mutate} = useMutate();
+  const cancelRSVP = async (rsvp: RSVPType) => {
+    await mutate({
+      mutation: gql`
+        mutation CancelRSVPToEvent($postId: String, $name: String, $userId: String) {
+            CancelRSVPToEvent(postId: $postId, name: $name, userId: $userId) {
+            ...PostsDetails
+            }
         }
-    }
-    ${getFragment("PostsDetails")}
-  `)
-  const cancelRSVP = async (rsvp: RSVPType) => await cancelMutation({variables: {postId: post._id, name: rsvp.name, userId: rsvp.userId}})
+        ${getFragment("PostsDetails")}
+      `,
+      variables: {postId: post._id, name: rsvp.name, userId: rsvp.userId},
+      errorHandling: "flashMessageAndReturn",
+    })
+  }
 
   const rsvpCounts: Partial<Record<RsvpResponse,number>> = mapValues(groupBy(post.rsvps, rsvp => rsvp.response), rsvps=>rsvps.length);
 

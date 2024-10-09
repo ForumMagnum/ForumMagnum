@@ -3,7 +3,8 @@ import React, { useState } from 'react';
 import times from 'lodash/times';
 import groupBy from 'lodash/groupBy';
 import maxBy from 'lodash/maxBy';
-import { useMutation, useQuery, gql } from '@apollo/client';
+import { useQuery, gql } from '@apollo/client';
+import { useMutate } from '../hooks/useMutate';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import { randomId } from '../../lib/random';
@@ -192,14 +193,7 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
   const {openDialog} = useDialog();
   const { UsersName, ContentStyles } = Components;
   const { data, loading } = useQuery(elicitQuery, { ssr: true, variables: { questionId } })
-  const [makeElicitPrediction] = useMutation(gql`
-    mutation ElicitPrediction($questionId:String, $prediction: Int) {
-      MakeElicitPrediction(questionId:$questionId, prediction: $prediction) {
-        ${elicitDataFragment}
-      }
-    }
-    ${getFragment("UsersMinimumInfo")}  
-  `);
+  const { mutate } = useMutate();
   const sortedPredictions = sortBy(data?.ElicitBlockData?.predictions || [], ({prediction}) => prediction)
   const roughlyGroupedData = groupBy(sortedPredictions, ({prediction}) => Math.floor(prediction / 10) * 10)
   const finelyGroupedData = groupBy(sortedPredictions, ({prediction}) => Math.floor(prediction))
@@ -241,7 +235,15 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
 
                 setRevealed(true);
 
-                void makeElicitPrediction({
+                void mutate({
+                  mutation: gql`
+                    mutation ElicitPrediction($questionId:String, $prediction: Int) {
+                      MakeElicitPrediction(questionId:$questionId, prediction: $prediction) {
+                        ${elicitDataFragment}
+                      }
+                    }
+                    ${getFragment("UsersMinimumInfo")}  
+                  `,
                   variables: { questionId, prediction: !isCurrentUserSlice ? prob : null },
                   optimisticResponse: {
                     __typename: "Mutation",
@@ -250,7 +252,8 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
                       __typename: "ElicitBlockData",
                       predictions: newPredictions
                     }
-                  }
+                  },
+                  errorHandling: "flashMessageAndReturn",
                 })
               } else {
                 openDialog({

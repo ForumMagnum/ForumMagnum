@@ -5,7 +5,8 @@ import { useNotifyMe } from '../hooks/useNotifyMe';
 import { useOptimisticToggle } from '../hooks/useOptimisticToggle';
 import classNames from 'classnames';
 import { userGetDisplayName } from '@/lib/collections/users/helpers';
-import { gql, useMutation } from '@apollo/client';
+import { gql } from '@apollo/client';
+import { useMutate } from '../hooks/useMutate';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -25,6 +26,7 @@ export const FollowUserButton = ({user, classes}: {
 
   const { LWTooltip } = Components;
   const { captureEvent } = useTracking();
+  const { mutate } = useMutate();
 
   const { isSubscribed, onSubscribe, disabled } = useNotifyMe({
     document: user,
@@ -36,21 +38,21 @@ export const FollowUserButton = ({user, classes}: {
     const onSubscribeNullSafe = onSubscribe ?? (() => Promise.resolve())
 
     await onSubscribeNullSafe(ev);
-    return await sendNewFollowDM({ variables: { eventType: "newFollowSubscription" } });
+    return await mutate({
+      mutation: gql`
+        mutation sendEventTriggeredDM($eventType: String!) {
+          sendEventTriggeredDM(eventType: $eventType)
+        }
+      `,
+      variables: { eventType: "newFollowSubscription" },
+      errorHandling: "flashMessageAndReturn",
+    });
   }
 
   const [subscribed, toggleSubscribed] = useOptimisticToggle(
     isSubscribed ?? false,
     onSubscribeWithDM
   );
-
-  const [sendNewFollowDM] = useMutation(gql`
-    mutation sendEventTriggeredDM($eventType: String!) {
-      sendEventTriggeredDM(eventType: $eventType)
-    }
-  `, {
-    ignoreResults: true
-  });
 
   const handleSubscribe = (ev: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     void toggleSubscribed(ev);
