@@ -19,7 +19,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const GlossaryEditFormWrapper = (props: {
+export const GlossaryEditForm = (props: {
   classes: ClassesType<typeof styles>,
   document: PostsPage,
 }) => {
@@ -80,10 +80,10 @@ export const GlossaryEditFormWrapper = (props: {
   </div>;
 }
 
-const GlossaryEditFormWrapperComponent = registerComponent('GlossaryEditFormWrapper', GlossaryEditFormWrapper, {styles});
+const GlossaryEditFormComponent = registerComponent('GlossaryEditForm', GlossaryEditForm, {styles});
 
 declare global {
   interface ComponentTypes {
-    GlossaryEditFormWrapper: typeof GlossaryEditFormWrapperComponent
+    GlossaryEditForm: typeof GlossaryEditFormComponent
   }
 }

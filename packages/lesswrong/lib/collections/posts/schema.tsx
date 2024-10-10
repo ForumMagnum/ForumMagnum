@@ -847,7 +847,7 @@ const schema: SchemaType<"Posts"> = {
     nullable: true,
     blackbox: true,
     canRead: ['guests'],
-    control: "GlossaryEditFormWrapper",
+    control: "GlossaryEditForm",
     group: formGroups.glossary,
     canUpdate: [userOwns, 'admins'],
     hidden: ({currentUser}) => !userCanCreateAndEditJargonTerms(currentUser)
