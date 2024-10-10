@@ -1,9 +1,11 @@
 import React from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import { jargonTermsToTextReplacements } from './JargonTooltip';
+import { useCurrentUser } from '../common/withUser';
+import { userCanViewJargonTerms } from '@/lib/betas';
 
 const styles = (theme: ThemeType) => ({
-  glossary: {
+  title: {
     paddingTop: 198,
   },
   jargonTerm: {
@@ -18,33 +20,43 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]: {
       display: 'none',
     },
+    paddingBottom: 20,
   }
 })
 
 const GlossarySidebar = ({post, classes}: {
-  post: PostsDetails,
+  post: PostsDetails|PostsListWithVotes,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { JargonTooltip } = Components;
-  if (!post.glossary.length) return null;
+  const currentUser = useCurrentUser();
+  const { SideItem, JargonTooltip } = Components;
 
-  return <div className={classes.glossaryContainer}>
-    <h3 className={classes.glossary}>Glossary of Jargon</h3>
+  if (!post || !('glossary' in post) || !post.glossary?.length) {
+    return null;
+  }
+  if (!userCanViewJargonTerms(currentUser)) {
+    return null;
+  }
 
-    {post?.glossary.map((jargonTerm: GlossaryTerm) =>
-      <div key={jargonTerm.term}>
-        <JargonTooltip
-          term={jargonTerm.term}
-          definitionHTML={jargonTerm.html}
-          altTerms={jargonTerm.altTerms}
-          replacedSubstrings={jargonTermsToTextReplacements(post.glossary)}
-          placement="left-start"
-        >
-          <div className={classes.jargonTerm}>{jargonTerm.term}</div>
-        </JargonTooltip>
-      </div>)
-    }
-  </div>
+  return <SideItem>
+    <div className={classes.glossaryContainer}>
+      <h3 className={classes.title}>Glossary of Jargon</h3>
+  
+      {post.glossary.map((jargonTerm: GlossaryTerm) =>
+        <div key={jargonTerm.term}>
+          <JargonTooltip
+            term={jargonTerm.term}
+            definitionHTML={jargonTerm.html}
+            altTerms={jargonTerm.altTerms}
+            replacedSubstrings={jargonTermsToTextReplacements(post.glossary)}
+            placement="left-start"
+          >
+            <div className={classes.jargonTerm}>{jargonTerm.term}</div>
+          </JargonTooltip>
+        </div>)
+      }
+    </div>
+  </SideItem>
 }
 
 const GlossarySidebarComponent = registerComponent('GlossarySidebar', GlossarySidebar, {styles});
