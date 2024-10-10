@@ -26,4 +26,8 @@ import { DatabaseServerSetting } from "../databaseSettings";
   }
 }
 
+/**
+ * Timeout for cross-site requests to prevent crosspost requests from hanging
+ * the site
+ */
 export const fmCrosspostTimeoutMsSetting = new DatabaseServerSetting<number>('fmCrosspostTimeoutMs', 15000)
