@@ -11,7 +11,7 @@ import { getToCforPost } from '../tableOfContents';
 import { getDefaultViewSelector } from '../../lib/utils/viewUtils';
 import keyBy from 'lodash/keyBy';
 import GraphQLJSON from 'graphql-type-json';
-import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema, createMutator } from '../vulcan-lib';
+import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema, createMutator, sanitize } from '../vulcan-lib';
 import { postIsCriticism } from '../languageModels/criticismTipsBot';
 import { createPaginatedResolver } from './paginatedResolver';
 import { getDefaultPostLocationFields, getDialogueResponseIds, getDialogueMessageTimestamps, getPostHTML } from "../posts/utils";
@@ -20,8 +20,8 @@ import { cheerioParse } from '../utils/htmlUtil';
 import { isDialogueParticipant } from '../../components/posts/PostsPage/PostsPage';
 import { marketInfoLoader } from '../../lib/collections/posts/annualReviewMarkets';
 import { getWithCustomLoader } from '../../lib/loaders';
-import { isLWorAF, isAF } from '../../lib/instanceSettings';
-import { hasSideComments } from '../../lib/betas';
+import { isLWorAF, isAF, jargonBotClaudeKey } from '../../lib/instanceSettings';
+import { hasSideComments, userCanViewJargonTerms } from '../../lib/betas';
 import SideCommentCaches from '../../lib/collections/sideCommentCaches/collection';
 import { drive } from "@googleapis/drive";
 import { convertImportedGoogleDoc } from '../editor/conversionUtils';
@@ -33,7 +33,24 @@ import { GoogleDocMetadata, getLatestContentsRevision } from '../../lib/collecti
 import { RecommendedPost, recombeeApi, recombeeRequestHelpers } from '../recombee/client';
 import { HybridRecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
 import { googleVertexApi } from '../google-vertex/client';
-import { userCanDo } from '../../lib/vulcan-users/permissions';
+import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
+import { PromptCachingBetaMessageParam } from '@anthropic-ai/sdk/resources/beta/prompt-caching/messages';
+import { getAnthropicPromptCachingClientOrThrow } from '../languageModels/anthropicClient';
+import { exampleJargonGlossary2, exampleJargonPost2 } from './jargonResolvers/exampleJargonPost';
+// import { exampleMathGlossary, exampleMathPost } from './exampleMathPost';
+import { ContentReplacedSubstringComponentInfo } from '@/components/common/ContentItemBody';
+
+const claudeKey = jargonBotClaudeKey.get()
+
+async function queryClaudeJailbreak(prompt: PromptCachingBetaMessageParam[], maxTokens: number, systemPrompt: string) {
+  const client = getAnthropicPromptCachingClientOrThrow(claudeKey)
+  return await client.messages.create({
+    system: systemPrompt,
+    model: "claude-3-5-sonnet-20240620",
+    max_tokens: maxTokens,
+    messages: prompt
+  })
+}
 
 augmentFieldsDict(Posts, {
   // Compute a denormalized start/end time for events, accounting for the
@@ -350,8 +367,37 @@ augmentFieldsDict(Posts, {
       },
     },
   },
+
+  glossary: {
+    resolveAs: {
+      type: GraphQLJSON,
+      resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+        // Forum-gating/beta-gating is done here, rather than just client side,
+        // so that users don't have to download the glossary if it isn't going
+        // to be displayed.
+        if (!userCanViewJargonTerms(context.currentUser)) {
+          return;
+        }
+        const jargonTerms = await context.JargonTerms.find({postId: post._id, rejected: false, deleted: false}).fetch();
+
+        return jargonTerms.map((jargonTerm: DbJargonTerm) => ({
+          term: jargonTerm.term,
+          altTerms: jargonTerm.altTerms,
+          html: sanitize(jargonTerm.contents?.html ?? ""),
+        }));
+      }
+    }
+  }
 })
 
+
+declare global {
+  type GlossaryTerm = {
+    term: string
+    altTerms: string[]
+    html: string
+  }
+}
 
 export type PostIsCriticismRequest = {
   _id?: string,

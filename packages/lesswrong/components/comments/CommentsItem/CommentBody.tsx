@@ -82,7 +82,7 @@ const CommentBody = ({
   }
   
   const votingSystem = getVotingSystemByName(comment.votingSystem);
-  let highlights: Record<string,ContentReplacedSubstringComponentInfo>|undefined = undefined;
+  let highlights: ContentReplacedSubstringComponentInfo[]|undefined = undefined;
   if (voteProps && votingSystem.getCommentHighlights) {
     highlights = votingSystem.getCommentHighlights({comment, voteProps});
   }

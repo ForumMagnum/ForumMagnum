@@ -56,11 +56,14 @@ interface ExternalProps {
    * Substrings to replace with an element. Used for highlighting inline
    * reactions.
    */
-  replacedSubstrings?: Record<string, ContentReplacedSubstringComponentInfo>
+  replacedSubstrings?: ContentReplacedSubstringComponentInfo[]
 }
 
 export type ContentReplacedSubstringComponentInfo = {
+  replacedString: string
   componentName: keyof ComponentTypes,
+  replace: "first"|"all",
+  caseInsensitive?: boolean,
   props: AnyBecauseHard
 };
 
@@ -130,10 +133,11 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
 
   applyLocalModificationsTo(element: HTMLElement) {
     try {
-      // Replace substrings (for inline reacts) goes first, because it can split
-      // elements that other substitutions work on (in particular it can split
-      // an <a> tag into two).
-      this.replaceSubstrings(element);
+      // Replace substrings (for inline reacts and glossary) goes first,
+      // because it can split elements that other substitutions work on (in
+      // particular it can split an <a> tag into two).
+      this.props.replacedSubstrings && this.replaceSubstrings(element, this.props.replacedSubstrings);
+
       this.addCTAButtonEventListeners(element);
 
       this.markScrollableBlocks(element);
@@ -382,55 +386,75 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
       })
     }
   }
-
-  replaceSubstrings = (element: HTMLElement) => {
-    if(this.props.replacedSubstrings) {
-      for (let str of Object.keys(this.props.replacedSubstrings)) {
-        const replacement: ContentReplacedSubstringComponentInfo = this.props.replacedSubstrings[str]!;
+  
+  replaceSubstrings = (
+    element: HTMLElement,
+    replacedSubstrings: ContentReplacedSubstringComponentInfo[],
+  ) => {
+    if (replacedSubstrings) {
+      // Sort substrings by length descending to handle overlapping substrings
+      const sortedSubstrings = replacedSubstrings.sort((a, b) => b.replacedString.length - a.replacedString.length);
+  
+      for (let replacement of sortedSubstrings) {
         const ReplacementComponent = Components[replacement.componentName];
         const replacementComponentProps = replacement.props;
-
+        const searchString = replacement.replacedString.trim();
+        
         try {
-          // Find (the first instance of) the string to replace. This should be
-          // an HTML text node plus an offset into that node.
-          //
-          // We're using the dom-anchor-text-quote library for this search,
-          // which is a thin wrapper around diff-match-patch, which is a diffing
-          // library with a full suite of fuzzy matching heuristics.
-          const range: Range|null = toRange(
-            element,
-            { exact: str.trim() },
-            { hint: 0 }, //TODO: store offsets with text, make use for resolving match ambiguity
-          );
-          // Do surgery on the DOM
-          if (range) {
-            const subRanges = splitRangeIntoReplaceableSubRanges(range);
-            let first=true;
-            for (let subRange of subRanges) {
-              const reducedRange = reduceRangeToText(subRange);
-              if (reducedRange) {
-                const span = wrapRangeWithSpan(reducedRange)
-                if (span) {
-                  const InlineReactedSpan = rawExtractElementChildrenToReactComponent(span);
-                  const replacementNode = (
-                    <ReplacementComponent {...replacementComponentProps} isSplitContinuation={!first}>
-                      <InlineReactedSpan/>
-                    </ReplacementComponent>
-                  );
-                  this.replaceElement(span, replacementNode);
-                }
+          // Collect all ranges to replace in document order
+          const rangesToReplace: { range: Range; isFirst: boolean }[] = [];
+          let isFirst = true;
+  
+          const collectRanges = (node: Node) => {
+            if (node.nodeType === Node.TEXT_NODE) {
+              let textContent = node.textContent || "";
+              let index = replacement.caseInsensitive
+                ? textContent.toLowerCase().indexOf(searchString.toLowerCase())
+                : textContent.indexOf(searchString);
+              while (index !== -1) {
+                const range = document.createRange();
+                range.setStart(node, index);
+                range.setEnd(node, index + searchString.length);
+                rangesToReplace.push({ range, isFirst });
+                if (isFirst) isFirst = false;
+                index = textContent.indexOf(searchString, index + searchString.length);
+                if (replacement.replace === 'first' && !isFirst) break;
               }
-              first=false;
+            } else if (node.nodeType === Node.ELEMENT_NODE) {
+              node.childNodes.forEach(child => collectRanges(child));
             }
-          }
-        } catch {
+          };
+  
+          collectRanges(element);
+  
+          // Replace from the end to avoid index shifting
+          rangesToReplace
+            .reverse()
+            .forEach(({ range, isFirst }) => {
+              const span = wrapRangeWithSpan(range);
+              if (span) {
+                const WrappedSpan = rawExtractElementChildrenToReactComponent(span);
+                const replacementNode = (
+                  <ReplacementComponent
+                    {...replacementComponentProps}
+                    replacedSubstrings={replacedSubstrings}
+                    isFirstOccurrence={isFirst}
+                  >
+                    <WrappedSpan />
+                  </ReplacementComponent>
+                );
+                this.replaceElement(span, replacementNode);
+              }
+            });
+  
+        } catch (e) {
           // eslint-disable-next-line no-console
-          console.error(`Error highlighting string ${str} in ${this.props.description ?? "content block"}`);
+          console.error(`Error highlighting string ${replacement.replacedString} in ${this.props.description ?? "content block"}`, e);
         }
       }
     }
   }
-  
+
   applyIdInsertions = (element: HTMLElement) => {
     if (!this.props.idInsertions) return;
     for (let id of Object.keys(this.props.idInsertions)) {

@@ -169,10 +169,10 @@ registerVotingSystem<NamesAttachedReactionsVote, NamesAttachedReactionsScore>({
   }
 });
 
-function getDocumentHighlights(voteProps: VotingProps<VoteableTypeClient>): Record<string, ContentReplacedSubstringComponentInfo> {
+function getDocumentHighlights(voteProps: VotingProps<VoteableTypeClient>): ContentReplacedSubstringComponentInfo[] {
   const normalizedReactionsScore = getNormalizedReactionsListFromVoteProps(voteProps);
   if (!normalizedReactionsScore?.reacts) {
-    return {};
+    return [];
   }
   const reactionsByQuote: Record<string,NamesAttachedReactionsList> = {};
   
@@ -196,15 +196,17 @@ function getDocumentHighlights(voteProps: VotingProps<VoteableTypeClient>): Reco
     }
   }
   
-  const result: Record<string, ContentReplacedSubstringComponentInfo> = {};
+  const result: ContentReplacedSubstringComponentInfo[] = [];
   for (let quote of Object.keys(reactionsByQuote)) {
-    result[quote] = {
+    result.push({
+      replacedString: quote,
       componentName: 'InlineReactHoverableHighlight',
+      replace: "first",
       props: {
         quote,
         reactions: reactionsByQuote[quote],
       }
-    };
+    });
   }
   return result;
 }
