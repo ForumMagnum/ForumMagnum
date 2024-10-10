@@ -921,6 +921,6 @@ class PostsRepo extends AbstractRepo<"Posts"> {
   }
 }
 
-recordPerfMetrics(PostsRepo);
+recordPerfMetrics(PostsRepo, { excludeMethods: ['postRouteWillDefinitelyReturn200'] });
 
 export default PostsRepo;
