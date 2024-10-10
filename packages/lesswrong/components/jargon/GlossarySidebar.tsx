@@ -5,8 +5,17 @@ import { useCurrentUser } from '../common/withUser';
 import { userCanViewJargonTerms } from '@/lib/betas';
 
 const styles = (theme: ThemeType) => ({
+  glossaryAnchor: {
+    // HACK: If there is a footnote on the first line, because the footnote
+    // anchor is in superscripted text, its position, for purposes of sidenote
+    // ordering, will be above the top of the post body; but we want the
+    // glossary side-item to be above the footnote side-item in this case.
+    // So put the anchor for the glossary sidebar higher than the supercript
+    // would be, and cancel it out with marginTop on glossaryContainer.
+    position: "relative",
+    top: -30,
+  },
   title: {
-    paddingTop: 198,
   },
   jargonTerm: {
     paddingTop: 2,
@@ -20,7 +29,13 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]: {
       display: 'none',
     },
-    paddingBottom: 20,
+
+    padding: 12,
+    "&:hover": {
+      background: theme.palette.background.glossaryBackground,
+    },
+    marginTop: 30,
+    marginBottom: 20,
   }
 })
 
@@ -38,7 +53,7 @@ const GlossarySidebar = ({post, classes}: {
     return null;
   }
 
-  return <SideItem>
+  return <div className={classes.glossaryAnchor}><SideItem>
     <div className={classes.glossaryContainer}>
       <h3 className={classes.title}>Glossary of Jargon</h3>
   
@@ -56,7 +71,7 @@ const GlossarySidebar = ({post, classes}: {
         </div>)
       }
     </div>
-  </SideItem>
+  </SideItem></div>
 }
 
 const GlossarySidebarComponent = registerComponent('GlossarySidebar', GlossarySidebar, {styles});

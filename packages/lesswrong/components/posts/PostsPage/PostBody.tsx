@@ -47,6 +47,7 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
     ? jargonTermsToTextReplacements(post.glossary)
     : [];
   const replacedSubstrings = [...highlights, ...glossaryItems];
+  const glossarySidebar = <Components.GlossarySidebar post={post}/>
 
   if (includeSideComments && document?.sideComments) {
     const htmlWithIDs = document.sideComments.html;
@@ -80,10 +81,14 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
       voteProps={voteProps}
       styling="post"
     >
+      {glossarySidebar}
       {content}
     </InlineReactSelectionWrapper>
   } else {
-    return <>{content}</>;
+    return <>
+      {glossarySidebar}
+      {content}
+    </>;
   }
 }
 
