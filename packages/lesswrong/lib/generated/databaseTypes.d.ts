@@ -142,6 +142,7 @@ interface DbComment extends DbObject {
   author: string | null
   postId: string | null
   tagId: string | null
+  forumEventId: string | null
   tagCommentType: "SUBFORUM" | "DISCUSSION"
   subforumStickyPriority: number | null
   userId: string
@@ -460,6 +461,7 @@ interface DbForumEvent extends DbObject {
   lightColor: string
   contrastColor: string | null
   tagId: string
+  postId: string | null
   bannerImageId: string | null
   includesPoll: boolean
   publicData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -608,7 +610,7 @@ interface DbManifoldProbabilitiesCache extends DbObject {
   isResolved: boolean
   year: number
   lastUpdated: Date
-  url: string
+  url: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -709,6 +711,17 @@ interface DbPageCacheEntry extends DbObject {
     timezone: string,
     timings: any /*{"definitions":[{"blackbox":true}]}*/,
   }
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
+type PetrovDayActionsCollection = CollectionBase<"PetrovDayActions">;
+
+interface DbPetrovDayAction extends DbObject {
+  __collectionName?: "PetrovDayActions"
+  actionType: "optIn" | "hasRole" | "hasSide" | "nukeTheWest" | "nukeTheEast" | "eastPetrovAllClear" | "eastPetrovNukesIncoming" | "westPetrovAllClear" | "westPetrovNukesIncoming"
+  data: any /*{"definitions":[{}]}*/
+  userId: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -855,7 +868,6 @@ interface DbPost extends DbObject {
   reviewVoteCount: number
   positiveReviewVoteCount: number
   manifoldReviewMarketId: string | null
-  annualReviewMarketCommentId: string | null
   reviewVoteScoreAF: number
   reviewVotesAF: Array<number>
   reviewVoteScoreHighKarma: number
@@ -975,7 +987,6 @@ interface DbPost extends DbObject {
   hideCommentKarma: boolean
   commentCount: number
   topLevelCommentCount: number
-  criticismTipsDismissed: boolean | null
   debate: boolean
   collabEditorDialogue: boolean
   mostRecentPublishedDialogueResponseDate: Date | null
@@ -1876,6 +1887,7 @@ interface DbUser extends DbObject {
   acknowledgedNewUserGuidelines: boolean | null
   subforumPreferredLayout: "card" | "list" | null
   hideJobAdUntil: Date | null
+  criticismTipsDismissed: boolean
   hideFromPeopleDirectory: boolean
   allowDatadogSessionReplay: boolean
   afPostCount: number
@@ -1940,7 +1952,7 @@ interface DbVote extends DbObject {
   collectionName: CollectionNameString
   userId: string
   authorIds: Array<string> | null
-  voteType: string
+  voteType: "bigDownvote" | "bigUpvote" | "neutral" | "smallDownvote" | "smallUpvote"
   extendedVoteType: any /*{"definitions":[{"type":"JSON"}]}*/
   power: number
   afPower: number | null
@@ -1996,6 +2008,7 @@ interface CollectionsByName {
   ModeratorActions: ModeratorActionsCollection
   Notifications: NotificationsCollection
   PageCache: PageCacheCollection
+  PetrovDayActions: PetrovDayActionsCollection
   PetrovDayLaunchs: PetrovDayLaunchsCollection
   PodcastEpisodes: PodcastEpisodesCollection
   Podcasts: PodcastsCollection
@@ -2081,6 +2094,7 @@ interface ObjectsByCollectionName {
   ModeratorActions: DbModeratorAction
   Notifications: DbNotification
   PageCache: DbPageCacheEntry
+  PetrovDayActions: DbPetrovDayAction
   PetrovDayLaunchs: DbPetrovDayLaunch
   PodcastEpisodes: DbPodcastEpisode
   Podcasts: DbPodcast
@@ -2166,6 +2180,7 @@ interface ObjectsByTypeName {
   ModeratorAction: DbModeratorAction
   Notification: DbNotification
   PageCacheEntry: DbPageCacheEntry
+  PetrovDayAction: DbPetrovDayAction
   PetrovDayLaunch: DbPetrovDayLaunch
   PodcastEpisode: DbPodcastEpisode
   Podcast: DbPodcast

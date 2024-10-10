@@ -773,5 +773,35 @@
     "acceptsSchemaHash": "1184dfb713785c6ceabde629903f40dc",
     "acceptedByMigration": "20240913T200359.remove_review_comment_id_from_posts.ts",
     "timestamp": "2024-09-13T20:03:59.000Z"
+  },
+  {
+    "acceptsSchemaHash": "e766c875e6c9911dcdd77f9a20a3c9c8",
+    "acceptedByMigration": "20240918T045729.add_criticismTipsDismissed_to_Users.ts",
+    "timestamp": "2024-09-18T04:57:29.000Z"
+  },
+  {
+    "acceptsSchemaHash": "16016945b35edcc8c5df47e292005a22",
+    "acceptedByMigration": "20240921T202611.ensure_Manifold_url_column_is_nullable.ts",
+    "timestamp": "2024-09-21T20:26:11.000Z"
+  },
+  {
+    "acceptsSchemaHash": "4176699fcd50a096b6fd2437aec71b01",
+    "acceptedByMigration": "20240925T020054.create_petrovDayAction.ts",
+    "timestamp": "2024-09-25T02:00:54.000Z"
+  },
+  {
+    "acceptsSchemaHash": "4176699fcd50a096b6fd2437aec71b01",
+    "acceptedByMigration": "20240930T215249.drop_criticismTipsDismissed_from_Posts.ts",
+    "timestamp": "2024-09-30T21:52:49.000Z"
+  },
+  {
+    "acceptsSchemaHash": "845ab447f6646ba141b9aee88cc3a619",
+    "acceptedByMigration": "20241003T152617.add_postId_to_ForumEvents.ts",
+    "timestamp": "2024-10-03T15:26:17.000Z"
+  },
+  {
+    "acceptsSchemaHash": "2632feebddfb9dab3164c82e2f77bdb8",
+    "acceptedByMigration": "20241008T232715.dropBrokenExtendedVoteTypeIndex.ts",
+    "timestamp": "2024-10-08T23:27:15.000Z"
   }
 ]

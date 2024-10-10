@@ -1,5 +1,5 @@
 import SimpleSchema from 'simpl-schema';
-import { Utils, slugify, getNestedProperty } from '../../vulcan-lib';
+import { slugify, getNestedProperty } from '../../vulcan-lib';
 import {userGetProfileUrl, getUserEmail, userOwnsAndInGroup, SOCIAL_MEDIA_PROFILE_FIELDS, getAuth0Provider } from "./helpers";
 import { userGetEditUrl } from '../../vulcan-users/helpers';
 import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../vulcan-users/permissions';
@@ -20,6 +20,7 @@ import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import { randomId } from '../../random';
 import { getUserABTestKey } from '../../abTestImpl';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { getUnusedSlugByCollectionName, slugIsUsed } from '@/lib/helpers';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -484,20 +485,20 @@ const schema: SchemaType<"Users"> = {
       // create a basic slug from display name and then modify it if this slugs already exists;
       const displayName = createDisplayName(user);
       const basicSlug = slugify(displayName);
-      return await Utils.getUnusedSlugByCollectionName('Users', basicSlug);
+      return await getUnusedSlugByCollectionName('Users', basicSlug);
     },
     onUpdate: async ({data, oldDocument}) => {
       if (data.slug && data.slug !== oldDocument.slug) {
         const slugLower = data.slug.toLowerCase();
-        const slugIsUsed = !oldDocument.oldSlugs?.includes(slugLower) && await Utils.slugIsUsed("Users", slugLower)
-        if (slugIsUsed) {
+        const isUsed = !oldDocument.oldSlugs?.includes(slugLower) && await slugIsUsed("Users", slugLower)
+        if (isUsed) {
           throw Error(`Specified slug is already used: ${slugLower}`)
         }
         return slugLower;
       }
       if (data.displayName && data.displayName !== oldDocument.displayName) {
         const slugForNewName = slugify(data.displayName);
-        if (oldDocument.oldSlugs?.includes(slugForNewName) || !await Utils.slugIsUsed("Users", slugForNewName)) {
+        if (oldDocument.oldSlugs?.includes(slugForNewName) || !await slugIsUsed("Users", slugForNewName)) {
           return slugForNewName;
         }
       }
@@ -2325,7 +2326,7 @@ const schema: SchemaType<"Users"> = {
       // The next three lines are copy-pasted from slug.onUpdate
       if (data.displayName && data.displayName !== oldDocument.displayName) {
         const slugForNewName = slugify(data.displayName);
-        if (oldDocument.oldSlugs?.includes(slugForNewName) || !await Utils.slugIsUsed("Users", slugForNewName)) {
+        if (oldDocument.oldSlugs?.includes(slugForNewName) || !await slugIsUsed("Users", slugForNewName)) {
           // if they are changing back to an old slug, remove it from the array to avoid infinite redirects
           return [...new Set([...(oldDocument.oldSlugs?.filter(s => s !== slugForNewName) || []), oldDocument.slug])];
         }
@@ -2909,6 +2910,17 @@ const schema: SchemaType<"Users"> = {
     canRead: [userOwns, 'admins'],
     canUpdate: [userOwns, 'admins'],
     hidden: true,
+  },
+  
+  // used by the EA Forum to track if a user has dismissed the post page criticism tips card
+  criticismTipsDismissed: {
+    type: Boolean,
+    canCreate: ['members'],
+    canRead: [userOwns, 'admins'],
+    canUpdate: [userOwns, 'admins'],
+    optional: true,
+    hidden: true,
+    ...schemaDefaultValue(false),
   },
 
   /* Privacy settings */

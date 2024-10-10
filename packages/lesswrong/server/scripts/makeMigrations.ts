@@ -360,7 +360,7 @@ export const makeMigrations = async ({
   graph.addNodes(postgresExtensions.map((e) => new ExtensionNode(e)));
   graph.addNodes(getAllCollections().flatMap((collection) => {
     const table = Table.fromCollection(collection, forumType);
-    const indexes: Node[] = table.getIndexes().map((i) => new IndexNode(table, i));
+    const indexes: Node[] = table.getRequestedIndexes().map((i) => new IndexNode(table, i));
     return indexes.concat(new TableNode(table));
   }));
   graph.addNodes(expectedCustomPgIndexes.map((i) => new CustomIndexNode(i)));

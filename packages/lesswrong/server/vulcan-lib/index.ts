@@ -1,6 +1,5 @@
 import './site';
 
-export * from './connectors';
 export * from './query';
 export * from '../../lib/vulcan-lib/index';
 export * from './mutators';

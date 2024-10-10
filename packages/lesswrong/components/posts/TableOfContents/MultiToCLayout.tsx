@@ -85,6 +85,13 @@ const styles = (theme: ThemeType) => ({
     // And unfortunately we need !important because otherwise this style gets overriden by the `top: 0` in `stickyBlockScroller`
     top: '-1px !important'
   },
+  '@global': {
+    // Hard-coding this class name as a workaround for one of the JSS plugins being incapable of parsing a self-reference ($titleContainer) while inside @global
+    [`body:has(.headroom--pinned) .${STICKY_BLOCK_SCROLLER_CLASS_NAME}, body:has(.headroom--unfixed) .${STICKY_BLOCK_SCROLLER_CLASS_NAME}`]: {
+      top: HEADER_HEIGHT,
+      height: `calc(100vh - ${HEADER_HEIGHT}px - ${FIXED_TOC_COMMENT_COUNT_HEIGHT}px)`
+    }
+  },
   stickyBlockScroller: {
     position: "sticky",
     fontSize: 12,
@@ -106,15 +113,6 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]:{
       display:'none'
     },
-  },
-  '@global': {
-    // Hard-coding this class name as a workaround for one of the JSS plugins being incapable of parsing a self-reference ($titleContainer) while inside @global
-    [`body:has(.headroom--pinned) .${STICKY_BLOCK_SCROLLER_CLASS_NAME}, body:has(.headroom--unfixed) .${STICKY_BLOCK_SCROLLER_CLASS_NAME}`]: {
-      '&&': {
-        top: HEADER_HEIGHT,
-        height: `calc(100vh - ${HEADER_HEIGHT}px - ${FIXED_TOC_COMMENT_COUNT_HEIGHT}px)`
-      }
-    }
   },
   stickyBlock: {
     // Cancels the direction:rtl in stickyBlockScroller
@@ -160,9 +158,6 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]: {
       display: 'none',
     },
-    '&:hover $commentsLabel': {
-      opacity: 1
-    }
   }
 });
 

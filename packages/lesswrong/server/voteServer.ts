@@ -1,9 +1,8 @@
-import { Connectors } from './vulcan-lib/connectors';
 import { createMutator } from './vulcan-lib/mutators';
 import Votes from '../lib/collections/votes/collection';
 import { userCanDo } from '../lib/vulcan-users/permissions';
 import { recalculateScore } from '../lib/scoring';
-import { voteTypes } from '../lib/voting/voteTypes';
+import { isValidVoteType } from '../lib/voting/voteTypes';
 import { VoteDocTuple, getVotePower } from '../lib/voting/vote';
 import { getVotingSystemForDocument, VotingSystem } from '../lib/voting/votingSystems';
 import { createAnonymousContext } from './vulcan-lib/query';
@@ -26,26 +25,26 @@ import {Posts} from '../lib/collections/posts';
 import { VotesRepo } from './repos';
 import { isLWorAF } from '../lib/instanceSettings';
 import { swrInvalidatePostRoute } from './cache/swr';
-import { onCastVoteAsync, onCastVoteSync, onVoteCancel } from './callbacks/votingCallbacks';
+import { onCastVoteAsync, onVoteCancel } from './callbacks/votingCallbacks';
+import { getVoteAFPower } from './callbacks/alignment-forum/callbacks';
 
 // Test if a user has voted on the server
 const getExistingVote = async ({ document, user }: {
   document: DbVoteableType,
   user: DbUser,
 }) => {
-  const vote = await Connectors.get(Votes, {
+  return await Votes.findOne({
     documentId: document._id,
     userId: user._id,
     cancelled: false,
-  }, {}, true);
-  return vote;
+  });
 }
 
 // Add a vote of a specific type on the server
 const addVoteServer = async ({ document, collection, voteType, extendedVote, user, voteId, context }: {
   document: DbVoteableType,
   collection: CollectionBase<VoteableCollectionName>,
-  voteType: string,
+  voteType: DbVote['voteType'],
   extendedVote: any,
   user: DbUser,
   voteId: string,
@@ -90,7 +89,7 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
 export const createVote = ({ document, collectionName, voteType, extendedVote, user, voteId }: {
   document: DbVoteableType,
   collectionName: CollectionNameString,
-  voteType: string,
+  voteType: DbVote['voteType'],
   extendedVote: any,
   user: DbUser|UsersCurrent,
   voteId?: string,
@@ -109,6 +108,7 @@ export const createVote = ({ document, collectionName, voteType, extendedVote, u
     voteType: voteType,
     extendedVoteType: extendedVote,
     power: getVotePower({user, voteType, document}),
+    afPower: getVoteAFPower({user, voteType, document}),
     votedAt: new Date(),
     authorIds,
     cancelled: false,
@@ -134,11 +134,11 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
   let newDocument = _.clone(document);
   
   // Fetch existing, uncancelled votes
-  const votes = await Connectors.find(Votes, {
+  const votes = await Votes.find({
     documentId: document._id,
     userId: user._id,
     cancelled: false,
-  });
+  }).fetch();
   if (!votes.length) {
     return newDocument;
   }
@@ -178,6 +178,7 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
       cancelled: true,
       isUnvote: true,
       power: -vote.power,
+      afPower: -vote.afPower,
       votedAt: new Date(),
       silenceNotification,
     };
@@ -211,7 +212,7 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
 export const performVoteServer = async ({ documentId, document, voteType, extendedVote, collection, voteId = randomId(), user, toggleIfAlreadyVoted = true, skipRateLimits, context, selfVote = false }: {
   documentId?: string,
   document?: DbVoteableType|null,
-  voteType: string,
+  voteType: DbVote['voteType'],
   extendedVote?: any,
   collection: CollectionBase<VoteableCollectionName>,
   voteId?: string,
@@ -228,7 +229,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
     context = createAnonymousContext();
 
   const collectionName = collection.options.collectionName;
-  document = document || await Connectors.get(collection, documentId);
+  document = document || await collection.findOne({_id: documentId});
 
   if (!document) throw new Error("Error casting vote: Document not found.");
   
@@ -245,7 +246,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   if (!extendedVote && voteType && voteType !== "neutral" && !userCanDo(user, collectionVoteType)) {
     throw new Error(`Error casting vote: User can't cast votes of type ${collectionVoteType}.`);
   }
-  if (!voteTypes[voteType]) throw new Error(`Invalid vote type in performVoteServer: ${voteType}`);
+  if (!isValidVoteType(voteType)) throw new Error(`Invalid vote type in performVoteServer: ${voteType}`);
 
   if (!selfVote && collectionName === "Comments" && (document as DbComment).debateResponse) {
     const post = await Posts.findOne({_id: (document as DbComment).postId});
@@ -293,7 +294,6 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
     }
 
     let voteDocTuple: VoteDocTuple = await addVoteServer({document, user, collection, voteType, extendedVote, voteId, context});
-    voteDocTuple = await onCastVoteSync(voteDocTuple, collection, user);
 
     document = voteDocTuple.newDocument;
     document = await clearVotesServer({

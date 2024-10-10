@@ -8,7 +8,7 @@ import qs from 'qs'
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import filter from 'lodash/filter';
-import { ScrollHighlightLandmark, useScrollHighlight } from '../../hooks/useScrollHighlight';
+import { useScrollHighlight } from '../../hooks/useScrollHighlight';
 import { useNavigate } from '../../../lib/reactRouterWrapper';
 import { usePostReadProgress } from '../usePostReadProgress';
 import { usePostsPageContext } from '../PostsPage/PostsPageContext';
@@ -16,6 +16,8 @@ import classNames from 'classnames';
 import { ToCDisplayOptions, adjustHeadingText, getAnchorY, isRegularClick, jumpToY } from './TableOfContentsList';
 import { HOVER_CLASSNAME } from './MultiToCLayout';
 import { getOffsetChainTop } from '@/lib/utils/domUtil';
+import { scrollFocusOnElement, ScrollHighlightLandmark } from '@/lib/scrollUtils';
+import { isLWorAF } from '@/lib/instanceSettings';
 
 
 function normalizeToCScale({containerPosition, sections}: {
@@ -107,6 +109,9 @@ const styles = (theme: ThemeType) => ({
     '& $rowOpacity': {
       opacity: 1,
     },
+    '& $headingOpacity': {
+      opacity: 1,
+    },
     '& $tocTitle': {
       opacity: 1,
     }
@@ -118,6 +123,10 @@ const styles = (theme: ThemeType) => ({
     flexDirection: "column",
   },
   rowOpacity: {
+    transition: '.25s',
+    opacity: 0,
+  },
+  headingOpacity: {
     transition: '.25s',
     opacity: 0,
   },
@@ -155,7 +164,7 @@ const styles = (theme: ThemeType) => ({
     justifyContent: 'space-evenly',
     '--scrollAmount': '0%',
     marginRight: -4,
-    marginBottom: 20,
+    marginBottom: 0,
     width: 1,
     background: theme.palette.grey[400],
     overflowY: 'clip',
@@ -197,15 +206,14 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, classes, hover, commentCount, answerCount}: {
+const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayOptions, classes, hover}: {
   tocSections: ToCSection[],
   title: string|null,
+  heading?: React.ReactNode,
   onClickSection?: () => void,
   displayOptions?: ToCDisplayOptions,
   classes: ClassesType<typeof styles>,
   hover?: boolean,
-  commentCount?: number,
-  answerCount?: number,
 }) => {
   const { TableOfContentsRow, AnswerTocRow } = Components;
 
@@ -237,7 +245,13 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
         hash: `#${anchor}`,
       });
       let sectionYdocumentSpace = anchorY + window.scrollY;
-      jumpToY(sectionYdocumentSpace);
+
+      // This is forum-gating of a fairly subtle change in scroll behaviour, LW may want to adopt scrollFocusOnElement
+      if (!isLWorAF) {
+        scrollFocusOnElement({ id: anchor, options: {behavior: "smooth"}})
+      } else {
+        jumpToY(sectionYdocumentSpace);
+      }
     }
   }
 
@@ -377,6 +391,9 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
       </div>
       <div className={classes.rows}>
         {titleRow}
+        <div className={classNames(HOVER_CLASSNAME, classes.headingOpacity)}>
+          {heading}
+        </div>
         {rows}
       </div>
     </div>

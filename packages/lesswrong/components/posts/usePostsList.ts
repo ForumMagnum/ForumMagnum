@@ -13,7 +13,7 @@ export type PostsListConfig = {
   /** Child elements will be put in a footer section */
   children?: React.ReactNode,
   /** The search terms used to select the posts that will be shown. */
-  terms?: any,
+  terms?: PostsViewTerms,
   /**
    * Apply a style that grays out the list while it's in a loading state
    * (default false)
@@ -82,7 +82,7 @@ const defaultTooltipPlacement = isFriendlyUI
   ? "bottom-start"
   : "bottom-end";
 
-export const usePostsList = ({
+export const usePostsList = <TagId extends string | undefined = undefined>({
   children,
   terms,
   dimWhenLoading = false,
@@ -126,7 +126,7 @@ export const usePostsList = ({
         tagId: "String"
       },
       extraVariablesValues: { tagId }
-    }
+    } as const
     : {};
 
   const {results, loading, error, loadMore, loadMoreProps, limit} = useMulti({

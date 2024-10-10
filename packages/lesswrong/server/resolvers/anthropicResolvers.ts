@@ -3,13 +3,13 @@ import uniqBy from "lodash/uniqBy";
 import { getAnthropicClientOrThrow, getAnthropicPromptCachingClientOrThrow } from "../languageModels/anthropicClient";
 import { getEmbeddingsFromApi } from "../embeddings";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
-import { generateContextSelectionPrompt, CLAUDE_CHAT_SYSTEM_PROMPT, generateTitleGenerationPrompt, generateAssistantContextMessage, CONTEXT_SELECTION_SYSTEM_PROMPT, contextSelectionResponseFormat } from "../languageModels/promptUtils";
+import { generateContextSelectionPrompt, CLAUDE_CHAT_SYSTEM_PROMPT, generateTitleGenerationPrompt, generateAssistantContextMessage, CONTEXT_SELECTION_SYSTEM_PROMPT, contextSelectionResponseFormat, CurrentPost, BasePromptArgs } from "../languageModels/promptUtils";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { userHasLlmChat } from "@/lib/betas";
 import { PromptCachingBetaMessageParam, PromptCachingBetaTextBlockParam } from "@anthropic-ai/sdk/resources/beta/prompt-caching/messages";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
-import { ClaudeMessageRequestSchema, ClientMessage, LlmCreateConversationMessage, LlmStreamChunkMessage, LlmStreamContentMessage, LlmStreamEndMessage, LlmStreamErrorMessage, LlmStreamMessage } from "@/components/languageModels/LlmChatWrapper";
-import { createMutator, getContextFromReqAndRes, runFragmentQuery } from "../vulcan-lib";
+import { ClaudeMessageRequestSchema, ClientMessage, LlmCreateConversationMessage, LlmStreamChunkMessage, LlmStreamContentMessage, LlmStreamEndMessage, LlmStreamErrorMessage, LlmStreamMessage, PromptContextOptions } from "@/components/languageModels/LlmChatWrapper";
+import { createMutator, getContextFromReqAndRes, runFragmentMultiQuery, runFragmentSingleQuery } from "../vulcan-lib";
 import { LlmVisibleMessageRole, UserVisibleMessageRole, llmVisibleMessageRoles } from "@/lib/collections/llmMessages/schema";
 import { asyncMapSequential } from "@/lib/utils/asyncUtils";
 import { markdownToHtml, htmlToMarkdown } from "../editor/conversionUtils";
@@ -24,6 +24,7 @@ interface InitializeConversationArgs {
   currentUser: DbUser;
   context: ResolverContext;
   currentPostId?: string;
+  postContext?: PromptContextOptions['postContext']
 }
 
 interface CreateNewConversationArgs {
@@ -31,8 +32,9 @@ interface CreateNewConversationArgs {
   systemPrompt: string;
   model: string;
   currentUser: DbUser;
+  currentPost: CurrentPost;
+  postContext?: PromptContextOptions['postContext']
   context: ResolverContext;
-  currentPost: PostsPage | null;
 }
 
 type ConversationContext = {
@@ -64,6 +66,19 @@ interface SendMessagesToClaudeArgs {
   currentUser: DbUser;
 }
 
+interface GetPostWithContentsArgs {
+  postId: string;
+  postContext?: PromptContextOptions['postContext'];
+  context: ResolverContext;
+}
+
+interface GetContextMessageArgs {
+  content: string;
+  currentPost: CurrentPost;
+  postContext?: PromptContextOptions['postContext'];
+  context: ResolverContext;
+}
+
 // a type for kind of context to use that's a value of "query-based", "post-based", or "both"
 type RagContextType = "query-based" | "current-post-based" | "both" | "none" | "error"
 
@@ -77,7 +92,7 @@ function getConversationContext(newConversationChannelId: string | undefined, ne
   };
 }
 
-async function getQueryContextDecision(query: string, currentPost: PostsPage | null): Promise<RagContextType> {
+async function getQueryContextDecision(args: BasePromptArgs): Promise<RagContextType> {
   const openai = await getOpenAI();
   if (!openai) {
     return 'error';
@@ -88,7 +103,7 @@ async function getQueryContextDecision(query: string, currentPost: PostsPage | n
     model: 'gpt-4o-mini-2024-07-18',
     messages: [
       { role: 'system', content: CONTEXT_SELECTION_SYSTEM_PROMPT },
-      { role: 'user', content: generateContextSelectionPrompt(query, currentPost) }
+      { role: 'user', content: generateContextSelectionPrompt(args) }
     ],
     // tools: [contextSelectionTool],
     response_format: contextSelectionResponseFormat
@@ -105,8 +120,8 @@ async function getQueryContextDecision(query: string, currentPost: PostsPage | n
 }
 
 // TODO: come back and refactor the query context decision to actually use the embedding distance results (including the post titles)
-async function getContextualPosts(query: string, currentPost: PostsPage | null, context: ResolverContext): Promise<PostsPage[]> {
-  const contextSelectionCode = await getQueryContextDecision(query, currentPost);
+async function getContextualPosts({ content: query, currentPost, postContext, context }: GetContextMessageArgs): Promise<PostsPage[]> {
+  const contextSelectionCode = await getQueryContextDecision({ query, postContext, currentPost });
   const useQueryEmbeddings = ['query-based', 'both'].includes(contextSelectionCode);
   const useCurrentPostEmbeddings = ['current-post-based', 'both'].includes(contextSelectionCode);
 
@@ -130,8 +145,8 @@ async function getContextualPosts(query: string, currentPost: PostsPage | null, 
   return getPostsWithContents(deduplicatedSearchResultIds, context);
 };
 
-async function getConversationTitle({ query, currentPost }: Pick<CreateNewConversationArgs, 'query' | 'currentPost'>) {
-  const titleGenerationPrompt = generateTitleGenerationPrompt(query, currentPost)
+async function getConversationTitle(args: BasePromptArgs) {
+  const titleGenerationPrompt = generateTitleGenerationPrompt(args);
 
   const client = getAnthropicClientOrThrow()
   const titleResult = await client.messages.create({
@@ -148,7 +163,7 @@ async function getConversationTitle({ query, currentPost }: Pick<CreateNewConver
   return titleResponse.text
 }
 
-async function createNewConversation({ query, systemPrompt, model, currentUser, context, currentPost }: CreateNewConversationArgs): Promise<DbLlmConversation> {
+async function createNewConversation({ query, systemPrompt, model, currentUser, context, postContext, currentPost }: CreateNewConversationArgs): Promise<DbLlmConversation> {
   const title = await getConversationTitle({ query, currentPost });
   const newConversation = await createMutator({
     collection: context.LlmConversations,
@@ -165,7 +180,7 @@ async function createNewConversation({ query, systemPrompt, model, currentUser, 
   return newConversation.data;
 };
 
-function getPostContextMessage(postsLoadedIntoContext: PostsPage[], currentPost: PostsPage | null): string {
+function getPostContextMessage(postsLoadedIntoContext: PostsPage[], currentPost: CurrentPost): string {
   // get the combined list of current post and posts loaded into context that handles the possibility they are empty or null
   const allLoadedPosts = filterNonnull([currentPost, ...postsLoadedIntoContext ?? []]);
   // Current post might be one of the posts returned from the query-based embedding search
@@ -337,19 +352,28 @@ async function sendMessagesToClaude({ previousMessages, newMessages, conversatio
   });
 }
 
-async function getPostWithContents(postId: string, context: ResolverContext): Promise<PostsPage | null> {
-  const [post] = await runFragmentQuery({
+async function getPostWithContents({ postId, postContext, context }: GetPostWithContentsArgs): Promise<CurrentPost> {
+  const resolverArgs = postContext === 'post-editor'
+    ? { extraVariables: { version: 'String' }, extraVariablesValues: { version: 'draft' } } as const
+    : {};
+
+  const fragmentName: FragmentTypesByCollection['Posts'] = postContext === 'post-editor'
+    ? 'PostsEditQueryFragment'
+    : 'PostsPage';
+
+  const post = await runFragmentSingleQuery({
     collectionName: 'Posts',
-    fragmentName: 'PostsPage',
-    terms: { postIds: [postId] },
+    fragmentName,
+    documentId: postId,
     context,
+    ...resolverArgs
   });
 
   return post ?? null;
 }
 
 async function getPostsWithContents(postIds: string[], context: ResolverContext) {
-  return runFragmentQuery({
+  return runFragmentMultiQuery({
     collectionName: 'Posts',
     fragmentName: 'PostsPage',
     terms: { postIds },
@@ -357,20 +381,20 @@ async function getPostsWithContents(postIds: string[], context: ResolverContext)
   });
 }
 
-async function getContextMessages(content: string, currentPost: PostsPage | null, context: ResolverContext) {
-  const contextualPosts = await getContextualPosts(content, currentPost, context);
+async function getContextMessages({ content, currentPost, postContext, context }: GetContextMessageArgs) {
+  const contextualPosts = await getContextualPosts({ content, currentPost, postContext, context });
   // TODO: refactor this to avoid returning a context message if there were no posts loaded into the context window.  (And make sure it depends on what's actually in the context window, not just on whether the user's on a current post.)
   const userContextMessage = getPostContextMessage(contextualPosts, currentPost);
-  const assistantContextMessage = await generateAssistantContextMessage(content, currentPost, contextualPosts, true, context);
+  const assistantContextMessage = await generateAssistantContextMessage({ query: content, currentPost, additionalPosts: contextualPosts, includeComments: true, postContext, context });
 
   return { userContextMessage, assistantContextMessage, contextualPosts };
 }
 
-async function createConversationWithMessages({ newMessage, systemPrompt, model, currentPostId, currentUser, context }: InitializeConversationArgs) {
+async function createConversationWithMessages({ newMessage, systemPrompt, model, currentPostId, postContext, currentUser, context }: InitializeConversationArgs) {
   const { content, userId } = newMessage;
 
   const currentPost = await (currentPostId
-    ? getPostWithContents(currentPostId, context)
+    ? getPostWithContents({ postId: currentPostId, postContext, context })
     : Promise.resolve(null)
   );
 
@@ -383,7 +407,7 @@ async function createConversationWithMessages({ newMessage, systemPrompt, model,
       context,
       currentPost,
     }),
-    getContextMessages(content, currentPost, context)
+    getContextMessages({ content, currentPost, context })
   ]);
 
   const conversationId = conversation._id;
@@ -469,7 +493,7 @@ export function addLlmChatEndpoint(app: Express) {
     }
 
     const { newMessage, promptContextOptions, newConversationChannelId } = parsedBody.data;    
-    const { postId: currentPostId } = promptContextOptions
+    const { postId: currentPostId, postContext } = promptContextOptions;
     
     if (!newConversationChannelId && !newMessage.conversationId) {
       return res.status(400).send('Message must either be part of an existing conversation, or a new conversation channel id needs to be provided');
@@ -511,7 +535,7 @@ export function addLlmChatEndpoint(app: Express) {
     // TODO: also figure out if we want prevent users from creating new conversations with multiple pre-filled messages
 
     const { conversation, newMessageRecords } = conversationContext.type === 'new'
-      ? await createConversationWithMessages({ newMessage, systemPrompt, model, currentPostId, currentUser, context })
+      ? await createConversationWithMessages({ newMessage, systemPrompt, model, currentPostId, postContext, currentUser, context })
       : await prepareMessagesForConversation({ newMessage, conversationId: conversationContext.conversationId, context });
 
     const conversationId = conversation._id;

@@ -8,7 +8,7 @@ import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import {forumTitleSetting, isAF, isEAForum, isLWorAF} from '../../../lib/instanceSettings';
-import { cloudinaryCloudNameSetting, commentPermalinkStyleSetting, recombeeEnabledSetting, vertexEnabledSetting } from '../../../lib/publicSettings';
+import { cloudinaryCloudNameSetting, recombeeEnabledSetting, vertexEnabledSetting } from '../../../lib/publicSettings';
 import classNames from 'classnames';
 import { hasPostRecommendations, commentsTableOfContentsEnabled, hasDigests, hasSidenotes } from '../../../lib/betas';
 import { useDialog } from '../../common/withDialog';
@@ -41,6 +41,7 @@ import { getVotingSystemByName } from '@/lib/voting/votingSystems';
 import DeferRender from '@/components/common/DeferRender';
 import { SideItemVisibilityContextProvider } from '@/components/dropdowns/posts/SetSideItemVisibility';
 import { LW_POST_PAGE_PADDING } from './LWPostsPageHeader';
+import { useCommentLinkState } from '@/components/comments/CommentsItem/useCommentLink';
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
 export const MAX_COLUMN_WIDTH = 720
@@ -543,7 +544,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     PostBottomRecommendations, NotifyMeDropdownItem, Row, AnalyticsInViewTracker,
     PostsPageQuestionContent, AFUnreviewedCommentCount, CommentsListSection, CommentsTableOfContents,
     StickyDigestAd, PostsPageSplashHeader, PostsAudioPlayerWrapper, AttributionInViewTracker,
-    ForumEventPostPagePollSection, NotifyMeButton, LWTooltip, PostsPageDate
+    ForumEventPostPagePollSection, NotifyMeButton, LWTooltip, PostsPageDate, PostFixedPositionToCHeading
   } = Components
 
   useEffect(() => {
@@ -600,7 +601,8 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     (post.contents?.wordCount ?? 0) >= 500;
   const recommendationsPosition = getRecommendationsPosition();
 
-  const queryCommentId = query.commentId || params.commentId
+  const { linkedCommentId: globalLinkedCommentId } = useCommentLinkState();
+  const linkedCommentId = globalLinkedCommentId || params.commentId
 
   const description = fullPost ? getPostDescription(fullPost) : null
   const ogUrl = postGetPageUrl(post, true) // open graph
@@ -614,15 +616,15 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
   const debateResponseIds = new Set((debateResponses ?? []).map(response => response._id));
   const debateResponseReplies = debateReplies?.filter(comment => debateResponseIds.has(comment.topLevelCommentId));
 
-  const isDebateResponseLink = queryCommentId && debateResponseIds.has(queryCommentId);
+  const isDebateResponseLink = linkedCommentId && debateResponseIds.has(linkedCommentId);
   
   useEffect(() => {
     if (isDebateResponseLink) {
-      navigate({ ...location.location, hash: `#debate-comment-${queryCommentId}` }, {replace: true});
+      navigate({ ...location.location, hash: `#debate-comment-${linkedCommentId}` }, {replace: true});
     }
     // No exhaustive deps to avoid any infinite loops with links to comments
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isDebateResponseLink, queryCommentId]);
+  }, [isDebateResponseLink, linkedCommentId]);
 
   const onClickCommentOnSelection = useCallback((html: string) => {
     openDialog({
@@ -637,7 +639,8 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     post.fmCrosspost?.isCrosspost &&
     !post.fmCrosspost?.hostedHere;
 
-  const noIndex = fullPost?.noIndex || post.rejected;
+  const shouldLowKarmaNoIndex = isEAForum && post.baseScore <= 0;
+  const noIndex = fullPost?.noIndex || post.rejected || shouldLowKarmaNoIndex;
 
   const marketInfo = getMarketInfo(post)
 
@@ -663,33 +666,40 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
   // rewrite crossposting.
   const hasTableOfContents = !!sectionData && !isCrosspostedQuestion;
   const tableOfContents = hasTableOfContents
-    ? <TableOfContents sectionData={sectionData} title={post.title} fixedPositionToc={isLWorAF} commentCount={commentCount} answerCount={answerCount} />
+    ? (isLWorAF
+        ? <TableOfContents
+            sectionData={sectionData}
+            title={post.title}
+            heading={<PostFixedPositionToCHeading post={post}/>}
+            fixedPositionToc={true}
+          />
+        : <TableOfContents sectionData={sectionData} title={post.title} fixedPositionToc={false} />
+      )
     : null;
-
 
   const hashCommentId = location.hash.length >= 1 ? location.hash.slice(1) : null;
   // If the comment reference in the hash doesn't appear in the page, try and load it separately as a permalinked comment
   const showHashCommentFallback = useMemo(() => (
-    hashCommentId && !loading && results && !results.map(({ _id }) => _id).includes(hashCommentId)
-  ), [hashCommentId, loading, results]);
+    hashCommentId && !loading && ![...(results ?? []), ...(answersAndReplies ?? [])].map(({ _id }) => _id).includes(hashCommentId)
+  ), [answersAndReplies, hashCommentId, loading, results]);
 
-  const [permalinkedCommentId, setPermalinkedCommentId] = useState(fullPost && !isDebateResponseLink ? queryCommentId : null)
+  const [permalinkedCommentId, setPermalinkedCommentId] = useState(fullPost && !isDebateResponseLink ? linkedCommentId : null)
   // Don't show loading state if we are are getting the id from the hash, because it might be a hash referencing a non-comment id in the page
   const silentLoadingPermalink = permalinkedCommentId === hashCommentId;
   useEffect(() => { // useEffect required because `location.hash` isn't sent to the server
     if (fullPost && !isDebateResponseLink) {
-      if (queryCommentId) {
-        setPermalinkedCommentId(queryCommentId)
+      if (linkedCommentId) {
+        setPermalinkedCommentId(linkedCommentId)
       } else if (showHashCommentFallback) {
         setPermalinkedCommentId(hashCommentId)
       } else {
         setPermalinkedCommentId(null)
       }
     }
-  }, [fullPost, hashCommentId, isDebateResponseLink, queryCommentId, showHashCommentFallback])
+  }, [fullPost, hashCommentId, isDebateResponseLink, linkedCommentId, showHashCommentFallback])
 
   const header = <>
-    {fullPost && !queryCommentId && <>
+    {fullPost && !linkedCommentId && <>
       <HeadTags
         ogUrl={ogUrl} canonicalUrl={canonicalUrl} image={socialPreviewImageUrl}
         title={post.title}
@@ -760,22 +770,6 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
   if (isAF && !post.af) {
     const lwURL = "https://www.lesswrong.com" + location.url;
     return <PermanentRedirect url={lwURL}/>
-  }
-
-  // Redirect from ?commentId=... to #... if we should always show comments in context
-  if (queryCommentId && commentPermalinkStyleSetting.get() === 'in-context') {
-    const urlSearchParams = new URLSearchParams(location.query);
-    urlSearchParams.delete('commentId');
-    const otherQueryParams = urlSearchParams.toString();
-    const hashVersion = `#${queryCommentId}`;
-    const redirectUrl = `${location.pathname}${otherQueryParams ? `?${otherQueryParams}` : ''}${hashVersion}`;
-
-    if (isServer) {
-      return <PermanentRedirect url={redirectUrl} status={302} />
-    } else {
-      // navigate doesn't result in the whole page unmounting momentarily
-      navigate(redirectUrl, { replace: true });
-    }
   }
 
   const userIsDialogueParticipant = currentUser && isDialogueParticipant(currentUser._id, post);

@@ -8,6 +8,7 @@ import { invalidateQuery } from './cacheUpdates';
 import { useNavigate } from '../reactRouterWrapper';
 import { apolloSSRFlag } from '../helpers';
 import { getMultiResolverName } from './utils';
+import type { PrimitiveGraphQLType } from './types';
 
 // Template of a GraphQL query for useMulti. A sample query might look
 // like:
@@ -37,15 +38,15 @@ const multiClientTemplate = ({ typeName, fragmentName, extraVariablesString }: {
   }
 }`;
 
-interface GetGraphQLQueryFromOptionsArgs {
+interface GetGraphQLMultiQueryFromOptionsArgs {
   collectionName: CollectionNameString,
   typeName: string,
   fragmentName: FragmentName,
   fragment: any,
-  extraVariables: any,
+  extraVariables?: Record<string, PrimitiveGraphQLType>,
 }
 
-export function getGraphQLQueryFromOptions({collectionName, typeName, fragmentName, fragment, extraVariables}: GetGraphQLQueryFromOptionsArgs) {
+export function getGraphQLMultiQueryFromOptions({collectionName, typeName, fragmentName, fragment, extraVariables}: GetGraphQLMultiQueryFromOptionsArgs) {
   ({ fragmentName, fragment } = extractFragmentInfo({ fragmentName, fragment }, collectionName));
 
   let extraVariablesString = ''
@@ -63,12 +64,12 @@ export interface UseMultiOptions<
   FragmentTypeName extends keyof FragmentTypes,
   CollectionName extends CollectionNameString
 > {
-  terms: ViewTermsByCollectionName[CollectionName],
+  terms?: ViewTermsByCollectionName[CollectionName],
   extraVariablesValues?: any,
   pollInterval?: number,
   enableTotal?: boolean,
   enableCache?: boolean,
-  extraVariables?: any,
+  extraVariables?: Record<string, PrimitiveGraphQLType>,
   fetchPolicy?: WatchQueryFetchPolicy,
   nextFetchPolicy?: WatchQueryFetchPolicy,
   collectionName: CollectionNameString,
@@ -157,12 +158,13 @@ export function useMulti<
   const typeName = collectionNameToTypeName(collectionName);
   const fragment = getFragment(fragmentName);
   
-  const query = getGraphQLQueryFromOptions({ collectionName, typeName, fragmentName, fragment, extraVariables });
+  const query = getGraphQLMultiQueryFromOptions({ collectionName, typeName, fragmentName, fragment, extraVariables });
   const resolverName = getMultiResolverName(typeName);
 
   const graphQLVariables = useMemo(() => ({
     input: {
       terms: { ...terms, limit: defaultLimit },
+      resolverArgs: extraVariablesValues,
       enableCache, enableTotal, createIfMissing
     },
     ...extraVariablesValues
