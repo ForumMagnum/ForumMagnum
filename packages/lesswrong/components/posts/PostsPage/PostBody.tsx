@@ -8,6 +8,7 @@ import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 import type { ContentItemBody, ContentReplacedSubstringComponentInfo } from '../../common/ContentItemBody';
 import { hasSideComments, inlineReactsHoverEnabled } from '../../../lib/betas';
 import { VotingProps } from '@/components/votes/votingProps';
+import { jargonTermsToTextReplacements } from '@/components/jargon/JargonTooltip';
 
 const enableInlineReactsOnPosts = inlineReactsHoverEnabled;
 
@@ -39,12 +40,13 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
   const contentRef = useRef<ContentItemBody>(null);
   let content: React.ReactNode
   
-  let highlights: Record<string,ContentReplacedSubstringComponentInfo>|undefined = undefined;
-  if (votingSystem.getPostHighlights) {
-    highlights = votingSystem.getPostHighlights({post, voteProps});
-  }
-  
-  const glossaryProp = 'glossary' in post && post.glossary ? { glossary: post.glossary } : {};
+  const highlights = votingSystem.getPostHighlights
+    ? votingSystem.getPostHighlights({post, voteProps})
+    : []
+  const glossaryItems: ContentReplacedSubstringComponentInfo[] = ('glossary' in post)
+    ? jargonTermsToTextReplacements(post.glossary)
+    : [];
+  const replacedSubstrings = [...highlights, ...glossaryItems];
 
   if (includeSideComments && document?.sideComments) {
     const htmlWithIDs = document.sideComments.html;
@@ -59,9 +61,8 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
       key={`${post._id}_${sideCommentMode}`}
       description={`post ${post._id}`}
       nofollow={nofollow}
-      replacedSubstrings={highlights}
+      replacedSubstrings={replacedSubstrings}
       idInsertions={sideCommentsMap}
-      {...glossaryProp}
     />
   } else {
     content = <ContentItemBody
@@ -69,8 +70,7 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
       ref={contentRef}
       description={`post ${post._id}`}
       nofollow={nofollow}
-      replacedSubstrings={highlights}
-      {...glossaryProp}
+      replacedSubstrings={replacedSubstrings}
     />
   }
   

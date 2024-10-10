@@ -782,9 +782,17 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     {fullPost && (Object.keys(fullPost.glossary).length > 0) && <div className={classes.glossaryContainer}>
       <h3 className={classes.glossary}>Glossary of Jargon</h3>
 
-      {Object.keys(fullPost?.glossary).map((jargonTerm: string) => 
-        <div key={jargonTerm}>
-          <JargonTooltip replacedSubstrings={fullPost.glossary} term={jargonTerm} placement="left-start"><div className={classes.jargonTerm}>{jargonTerm}</div> </JargonTooltip>
+      {fullPost?.glossary.map((jargonTerm: GlossaryTerm) =>
+        <div key={jargonTerm.term}>
+          <JargonTooltip
+            term={jargonTerm.term}
+            definitionHTML={jargonTerm.html}
+            altTerms={jargonTerm.altTerms}
+            replacedSubstrings={fullPost.glossary}
+            placement="left-start"
+          >
+            <div className={classes.jargonTerm}>{jargonTerm.term}</div>
+          </JargonTooltip>
         </div>)
       }
     </div>}

@@ -28,23 +28,28 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const JargonTooltip = ({classes, children, term, replacedSubstrings, isFirstOccurrence = false, placement="bottom-start"}: {
-  classes: ClassesType<typeof styles>,
-  children: React.ReactNode,
+export const JargonTooltip = ({term, definitionHTML, altTerms, replacedSubstrings, isFirstOccurrence = false, placement="bottom-start", children, classes}: {
   term: string,
-  replacedSubstrings: Record<string, ContentReplacedSubstringComponentInfo>,
+  definitionHTML: string,
+  altTerms: string[],
+  replacedSubstrings: ContentReplacedSubstringComponentInfo[],
   isFirstOccurrence?: boolean,
   placement?: PopperPlacementType
+  children: React.ReactNode,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { LWTooltip, ContentItemBody } = Components;
-  const termInfo = replacedSubstrings[term];
-  const replacedSubstringsWithoutTermOrAltTerms = Object.fromEntries(
-    Object.entries(replacedSubstrings).filter(([key]) => key !== term && !termInfo.props.altTerms.includes(key))
-  );
+  const replacedSubstringsWithoutTermOrAltTerms = replacedSubstrings.filter(s => s.replacedString !== term && !altTerms.includes(term));
+  /*const replacedSubstringsWithoutTermOrAltTerms = Object.fromEntries(
+    Object.entries(replacedSubstrings).filter(([key]) => key !== term && !altTerms.includes(key))
+  );*/
   const tooltip = <Card className={classes.card}>
-    <ContentItemBody dangerouslySetInnerHTML={{ __html: termInfo.props.contents.html }} replacedSubstrings={replacedSubstringsWithoutTermOrAltTerms} />
+    <ContentItemBody
+      dangerouslySetInnerHTML={{ __html: definitionHTML }}
+      replacedSubstrings={replacedSubstringsWithoutTermOrAltTerms}
+    />
     <div className={classes.altTerms}>
-      {termInfo.props.altTerms.map((term: string) => (
+      {altTerms.map((term: string) => (
         <span className={classes.altTerm} key={term}>{term}</span>
       ))}
     </div>
@@ -55,6 +60,20 @@ export const JargonTooltip = ({classes, children, term, replacedSubstrings, isFi
       {children}
     </span>
   </LWTooltip>;
+}
+
+export function jargonTermsToTextReplacements(terms: GlossaryTerm[]): ContentReplacedSubstringComponentInfo[] {
+  return terms.map((glossaryItem: GlossaryTerm) => ({
+    replacedString: glossaryItem.term,
+    componentName: "JargonTooltip",
+    replace: "all",
+    caseInsensitive: true,
+    props: {
+      term: glossaryItem.term,
+      definitionHTML: glossaryItem.html,
+      altTerms: glossaryItem.altTerms,
+    },
+  }));
 }
 
 const JargonTooltipComponent = registerComponent('JargonTooltip', JargonTooltip, {styles});

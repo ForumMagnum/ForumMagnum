@@ -543,6 +543,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly lesswrongWikiImportRevision: string,
   readonly lesswrongWikiImportSlug: string,
   readonly lesswrongWikiImportCompleted: boolean,
+  readonly tableOfContents: any,
   readonly htmlWithContributorAnnotations: string,
   readonly contributors: any /*TagContributorsList*/,
   readonly contributionStats: any /*{"definitions":[{"blackbox":true}]}*/,
@@ -4202,6 +4203,7 @@ interface JargonTermsFragment { // fragment on JargonTerms
   readonly humansAndOrAIEdited: "humans" | "AI" | "humansAndAI",
   readonly forLaTeX: boolean,
   readonly rejected: boolean,
+  readonly deleted: boolean,
   readonly altTerms: Array<string>,
 }
 

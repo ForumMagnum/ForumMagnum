@@ -56,16 +56,14 @@ interface ExternalProps {
    * Substrings to replace with an element. Used for highlighting inline
    * reactions.
    */
-  replacedSubstrings?: Record<string, ContentReplacedSubstringComponentInfo>
-  
-  /**
-   * Glossary to display in a tooltip when hovering over a term.
-   */
-  glossary?: Record<string, ContentReplacedSubstringComponentInfo>
+  replacedSubstrings?: ContentReplacedSubstringComponentInfo[]
 }
 
 export type ContentReplacedSubstringComponentInfo = {
+  replacedString: string
   componentName: keyof ComponentTypes,
+  replace: "first"|"all",
+  caseInsensitive?: boolean,
   props: AnyBecauseHard
 };
 
@@ -135,13 +133,10 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
 
   applyLocalModificationsTo(element: HTMLElement) {
     try {
-      // Replace substrings (for inline reacts) goes first, because it can split
-      // elements that other substitutions work on (in particular it can split
-      // an <a> tag into two).
-
+      // Replace substrings (for inline reacts and glossary) goes first,
+      // because it can split elements that other substitutions work on (in
+      // particular it can split an <a> tag into two).
       this.props.replacedSubstrings && this.replaceSubstrings(element, this.props.replacedSubstrings);
-
-      this.props.glossary && this.replaceSubstrings(element, this.props.glossary, true);
 
       this.addCTAButtonEventListeners(element);
 
@@ -394,18 +389,16 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
   
   replaceSubstrings = (
     element: HTMLElement,
-    replacedSubstrings: Record<string, ContentReplacedSubstringComponentInfo>,
-    replaceAll = false,
+    replacedSubstrings: ContentReplacedSubstringComponentInfo[],
   ) => {
     if (replacedSubstrings) {
       // Sort substrings by length descending to handle overlapping substrings
-      const sortedSubstrings = Object.keys(replacedSubstrings).sort((a, b) => b.length - a.length);
+      const sortedSubstrings = replacedSubstrings.sort((a, b) => b.replacedString.length - a.replacedString.length);
   
-      for (let str of sortedSubstrings) {
-        const replacement = replacedSubstrings[str]!;
+      for (let replacement of sortedSubstrings) {
         const ReplacementComponent = Components[replacement.componentName];
         const replacementComponentProps = replacement.props;
-        const searchString = str.trim();
+        const searchString = replacement.replacedString.trim();
         
         try {
           // Collect all ranges to replace in document order
@@ -415,7 +408,9 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
           const collectRanges = (node: Node) => {
             if (node.nodeType === Node.TEXT_NODE) {
               let textContent = node.textContent || "";
-              let index = textContent.indexOf(searchString);
+              let index = replacement.caseInsensitive
+                ? textContent.toLowerCase().indexOf(searchString.toLowerCase())
+                : textContent.indexOf(searchString);
               while (index !== -1) {
                 const range = document.createRange();
                 range.setStart(node, index);
@@ -423,7 +418,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
                 rangesToReplace.push({ range, isFirst });
                 if (isFirst) isFirst = false;
                 index = textContent.indexOf(searchString, index + searchString.length);
-                if (!replaceAll && isFirst === false) break;
+                if (replacement.replace === 'first' && !isFirst) break;
               }
             } else if (node.nodeType === Node.ELEMENT_NODE) {
               node.childNodes.forEach(child => collectRanges(child));
@@ -454,7 +449,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
   
         } catch (e) {
           // eslint-disable-next-line no-console
-          console.error(`Error highlighting string ${str} in ${this.props.description ?? "content block"}`, e);
+          console.error(`Error highlighting string ${replacement.replacedString} in ${this.props.description ?? "content block"}`, e);
         }
       }
     }

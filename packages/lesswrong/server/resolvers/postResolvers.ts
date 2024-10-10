@@ -11,7 +11,7 @@ import { getToCforPost } from '../tableOfContents';
 import { getDefaultViewSelector } from '../../lib/utils/viewUtils';
 import keyBy from 'lodash/keyBy';
 import GraphQLJSON from 'graphql-type-json';
-import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema, createMutator } from '../vulcan-lib';
+import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema, createMutator, sanitize } from '../vulcan-lib';
 import { postIsCriticism } from '../languageModels/criticismTipsBot';
 import { createPaginatedResolver } from './paginatedResolver';
 import { getDefaultPostLocationFields, getDialogueResponseIds, getDialogueMessageTimestamps, getPostHTML } from "../posts/utils";
@@ -374,25 +374,24 @@ augmentFieldsDict(Posts, {
       resolver: async (post: DbPost, args: void, context: ResolverContext) => {
         const jargonTerms = await context.JargonTerms.find({postId: post._id, rejected: false, deleted: false}).fetch();
 
-        const glossary: Record<string, ContentReplacedSubstringComponentInfo> = {}
-
-        jargonTerms.forEach((jargonTerm: DbJargonTerm) => {
-          glossary[jargonTerm.term] = {
-            componentName: "JargonTooltip",
-            props: {
-              ...jargonTerm
-            }
-          }
-        })  
-
-        return glossary
+        return jargonTerms.map((jargonTerm: DbJargonTerm) => ({
+          term: jargonTerm.term,
+          altTerms: jargonTerm.altTerms,
+          html: sanitize(jargonTerm.contents?.html ?? ""),
+        }));
       }
     }
   }
 })
 
 
-
+declare global {
+  type GlossaryTerm = {
+    term: string
+    altTerms: string[]
+    html: string
+  }
+}
 
 export type PostIsCriticismRequest = {
   _id?: string,

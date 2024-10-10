@@ -841,7 +841,8 @@ const schema: SchemaType<"Posts"> = {
   },
 
   glossary: {
-    type: Object,
+    type: Array,
+    typescriptType: "GlossaryTerm[]",
     optional: true,
     nullable: true,
     blackbox: true,
@@ -851,6 +852,11 @@ const schema: SchemaType<"Posts"> = {
     canUpdate: [userOwns, 'admins'],
     hidden: ({currentUser}) => !userHasJargonTerms(currentUser)
     // Implementation in postResolvers.ts
+  },
+  
+  'glossary.$': {
+    type: Object,
+    optional: true,
   },
 
   // The various reviewVoteScore and reviewVotes fields are for caching the results of the updateQuadraticVotes migration (which calculates the score of posts during the LessWrong Review)
