@@ -4,7 +4,6 @@ import { useMutate } from '../hooks/useMutate';
 import { gql } from "@apollo/client";
 import { useLocation } from '../../lib/routeUtil';
 import Button from '@material-ui/core/Button';
-import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -64,7 +63,7 @@ const PasswordResetPage = ({classes}: {
     {!useTokenResult && <form
       onSubmit={(ev) => {
         ev.preventDefault();
-        submitFunction()
+        void submitFunction()
       }}
     >
       <input
