@@ -1,7 +1,8 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useDialog } from '../../common/withDialog';
-import { useMutation, gql } from '@apollo/client';
+import { gql } from '@apollo/client';
+import { useMutate } from '@/components/hooks/useMutate';
 import { userIsAdminOrMod } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
@@ -11,11 +12,7 @@ const LockThreadDropdownItem = ({comment}: {comment: CommentsList}) => {
   const currentUser = useCurrentUser();
   const {openDialog} = useDialog();
 
-  const [unlockThread] = useMutation(gql`
-    mutation unlockThread($commentId: String!) {
-      unlockThread(commentId: $commentId)
-    }
-  `);
+  const {mutate} = useMutate();
 
   if (!userIsAdminOrMod(currentUser)) {
     return null;
@@ -29,14 +26,22 @@ const LockThreadDropdownItem = ({comment}: {comment: CommentsList}) => {
   }
 
   const handleUnlockThread = async () => {
-    await unlockThread({
+    const result = await mutate({
+      mutation: gql`
+        mutation unlockThread($commentId: String!) {
+          unlockThread(commentId: $commentId)
+        }
+      `,
       variables: {
         commentId: comment._id
-      }
+      },
+      errorHandling: "flashMessageAndReturn",
     });
-    // HACK: The cient-side cache doesn't update to reflect this change, so
-    // hard-refresh the page
-    window.location.reload();
+    if (!result.error) {
+      // HACK: The cient-side cache doesn't update to reflect this change, so
+      // hard-refresh the page
+      window.location.reload();
+    }
   }
 
   const {DropdownItem} = Components;

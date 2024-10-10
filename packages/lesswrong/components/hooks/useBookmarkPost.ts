@@ -3,10 +3,11 @@ import { useDialog } from "../common/withDialog";
 import { useCurrentUser } from "../common/withUser";
 import { pluck } from "underscore";
 import { useTracking } from "../../lib/analyticsEvents";
-import { gql, useMutation } from "@apollo/client";
+import { gql } from "@apollo/client";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib";
 import type { ForumIconName } from "../common/ForumIcon";
 import { isFriendlyUI } from "../../themes/forumTheme";
+import { useMutate } from "./useMutate";
 
 export type BookmarkPost = {
   icon: ForumIconName,
@@ -34,20 +35,21 @@ export const useBookmarkPost = (post: PostsBase): BookmarkPost => {
   const {openDialog} = useDialog();
   const [bookmarked, setBookmarkedState] = useState(pluck((currentUser?.bookmarkedPostsMetadata || []), 'postId')?.includes(post._id));
   const {captureEvent} = useTracking();
-
-  const [setIsBookmarkedMutation] = useMutation(gql`
-    mutation setIsBookmarked($postId: String!, $isBookmarked: Boolean!) {
-      setIsBookmarked(postId: $postId, isBookmarked: $isBookmarked) {
-        ...UsersCurrent
-      }
-    }
-    ${fragmentTextForQuery("UsersCurrent")}
-  `);
+  const { mutate } = useMutate();
 
   const setBookmarked = (isBookmarked: boolean) => {
     setBookmarkedState(isBookmarked)
-    void setIsBookmarkedMutation({
+    void mutate({
+      mutation: gql`
+        mutation setIsBookmarked($postId: String!, $isBookmarked: Boolean!) {
+          setIsBookmarked(postId: $postId, isBookmarked: $isBookmarked) {
+            ...UsersCurrent
+          }
+        }
+        ${fragmentTextForQuery("UsersCurrent")}
+      `,
       variables: {postId: post._id, isBookmarked},
+      errorHandling: "flashMessageAndReturn",
     });
   };
 

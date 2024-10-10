@@ -89,31 +89,20 @@ addGraphQLQuery('getTokenParams(token: String): JSON');
 addGraphQLResolvers({
   Mutation: {
     async useEmailToken(root: void, {token, args}: {token: string, args: any}, context: ResolverContext) {
-      try {
-        const { tokenObj, tokenType } = await getAndValidateToken(token)
+      const { tokenObj, tokenType } = await getAndValidateToken(token)
 
-        const resultProps = await tokenType.handleToken(tokenObj, args);
-        await updateMutator({
-          collection: EmailTokens,
-          documentId: tokenObj._id,
-          set: {
-            usedAt: new Date()
-          },
-          unset: {},
-          validate: false
-        });
-        
-        return resultProps;
-      } catch(e) {
-        //eslint-disable-next-line no-console
-        console.error(`error when using email token: `, e);
-        return {
-          componentName: "EmailTokenResult",
-          props: {
-            message: e.message,
-          }
-        };
-      }
+      const resultProps = await tokenType.handleToken(tokenObj, args);
+      await updateMutator({
+        collection: EmailTokens,
+        documentId: tokenObj._id,
+        set: {
+          usedAt: new Date()
+        },
+        unset: {},
+        validate: false
+      });
+      
+      return resultProps;
     }
   }
 });
