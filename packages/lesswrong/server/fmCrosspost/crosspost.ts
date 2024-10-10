@@ -152,10 +152,9 @@ export async function handleCrosspostUpdate(
     return data;
   }
   if (
-    fmCrosspost.foreignPostId && (
-      denormalizedFieldKeys.some(
-        (key) => data[key] !== undefined && data[key] !== oldDocument[key]
-      ) || true
+    fmCrosspost.foreignPostId &&
+    denormalizedFieldKeys.some(
+      (key) => data[key] !== undefined && data[key] !== oldDocument[key]
     )
   ) {
     assertPostIsCrosspostable(newDocument, logger);
