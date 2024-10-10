@@ -21,7 +21,7 @@ import { isDialogueParticipant } from '../../components/posts/PostsPage/PostsPag
 import { marketInfoLoader } from '../../lib/collections/posts/annualReviewMarkets';
 import { getWithCustomLoader } from '../../lib/loaders';
 import { isLWorAF, isAF, jargonBotClaudeKey } from '../../lib/instanceSettings';
-import { hasSideComments } from '../../lib/betas';
+import { hasSideComments, userCanViewJargonTerms } from '../../lib/betas';
 import SideCommentCaches from '../../lib/collections/sideCommentCaches/collection';
 import { drive } from "@googleapis/drive";
 import { convertImportedGoogleDoc } from '../editor/conversionUtils';
@@ -372,6 +372,12 @@ augmentFieldsDict(Posts, {
     resolveAs: {
       type: GraphQLJSON,
       resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+        // Forum-gating/beta-gating is done here, rather than just client side,
+        // so that users don't have to download the glossary if it isn't going
+        // to be displayed.
+        if (!userCanViewJargonTerms(context.currentUser)) {
+          return;
+        }
         const jargonTerms = await context.JargonTerms.find({postId: post._id, rejected: false, deleted: false}).fetch();
 
         return jargonTerms.map((jargonTerm: DbJargonTerm) => ({
