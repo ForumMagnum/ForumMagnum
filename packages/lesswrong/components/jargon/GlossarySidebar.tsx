@@ -1,5 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import { jargonTermsToTextReplacements } from './JargonTooltip';
 
 const styles = (theme: ThemeType) => ({
   glossary: {
@@ -25,25 +26,25 @@ const GlossarySidebar = ({post, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { JargonTooltip } = Components;
-  return <>
-    {(Object.keys(post.glossary).length > 0) && <div className={classes.glossaryContainer}>
-      <h3 className={classes.glossary}>Glossary of Jargon</h3>
+  if (!post.glossary.length) return null;
 
-      {post?.glossary.map((jargonTerm: GlossaryTerm) =>
-        <div key={jargonTerm.term}>
-          <JargonTooltip
-            term={jargonTerm.term}
-            definitionHTML={jargonTerm.html}
-            altTerms={jargonTerm.altTerms}
-            replacedSubstrings={post.glossary}
-            placement="left-start"
-          >
-            <div className={classes.jargonTerm}>{jargonTerm.term}</div>
-          </JargonTooltip>
-        </div>)
-      }
-    </div>}
-  </>
+  return <div className={classes.glossaryContainer}>
+    <h3 className={classes.glossary}>Glossary of Jargon</h3>
+
+    {post?.glossary.map((jargonTerm: GlossaryTerm) =>
+      <div key={jargonTerm.term}>
+        <JargonTooltip
+          term={jargonTerm.term}
+          definitionHTML={jargonTerm.html}
+          altTerms={jargonTerm.altTerms}
+          replacedSubstrings={jargonTermsToTextReplacements(post.glossary)}
+          placement="left-start"
+        >
+          <div className={classes.jargonTerm}>{jargonTerm.term}</div>
+        </JargonTooltip>
+      </div>)
+    }
+  </div>
 }
 
 const GlossarySidebarComponent = registerComponent('GlossarySidebar', GlossarySidebar, {styles});

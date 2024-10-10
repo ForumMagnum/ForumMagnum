@@ -190,8 +190,12 @@ function getFragmentFieldType(fragmentName: string, parsedFragmentField: AnyBeca
   for (let schemaFieldName of Object.keys(schema)) {
     const fieldWithResolver = schema[schemaFieldName];
     if (fieldWithResolver?.resolveAs?.fieldName === fieldName) {
-      assert(!!fieldWithResolver.resolveAs.type);
-      fieldType = graphqlTypeToTypescript(fieldWithResolver.resolveAs.type);
+      if (fieldWithResolver.typescriptType) {
+        fieldType = fieldWithResolver.typescriptType;
+      } else {
+        assert(!!fieldWithResolver.resolveAs.type);
+        fieldType = graphqlTypeToTypescript(fieldWithResolver.resolveAs.type);
+      }
       break;
     }
   }
@@ -201,7 +205,9 @@ function getFragmentFieldType(fragmentName: string, parsedFragmentField: AnyBeca
     if (fieldName in schema) {
       const fieldSchema = schema[fieldName];
       assert(fieldSchema?.type);
-      if (fieldSchema?.resolveAs?.type && !fieldSchema?.resolveAs?.fieldName) {
+      if (fieldSchema?.typescriptType && fieldSchema?.blackbox) {
+        fieldType = fieldSchema.typescriptType;
+      } else if (fieldSchema?.resolveAs?.type && !fieldSchema?.resolveAs?.fieldName) {
         fieldType = graphqlTypeToTypescript(fieldSchema.resolveAs.type);
       } else {
         fieldType = simplSchemaTypeToTypescript(schema, fieldName, schema[fieldName].type);
