@@ -1217,5 +1217,5 @@ importComponent("LlmConversationsViewingPage", () => require('../components/lang
 
 importComponent("JargonTooltip", () => require('../components/jargon/JargonTooltip'));
 importComponent("GlossarySidebar", () => require('../components/jargon/GlossarySidebar'));
-importComponent("GlossaryEditFormWrapper", () => require('../components/jargon/GlossaryEditFormWrapper'));
+importComponent("GlossaryEditForm", () => require('../components/jargon/GlossaryEditForm'));
 importComponent("JargonEditorRow", () => require('../components/jargon/JargonEditorRow'));
