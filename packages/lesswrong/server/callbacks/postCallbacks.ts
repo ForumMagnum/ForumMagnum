@@ -698,7 +698,7 @@ getCollectionHooks("Posts").editSync.add(async function removeFrontpageDate(
 getCollectionHooks("Posts").updateAfter.add(async function createJargonTermsCallback (_post, {newDocument, oldDocument, context}: UpdateCallbackProperties<"Posts">) {
   const currentUser = context.currentUser
   if (!currentUser) return _post
-  if (currentUser._id != newDocument.userId) return _post
+  if (currentUser._id !== newDocument.userId) return _post
   if (!userHasJargonTerms(currentUser)) return _post
 
   const newContents = await Revisions.findOne({_id: newDocument.contents_latest})
@@ -709,7 +709,7 @@ getCollectionHooks("Posts").updateAfter.add(async function createJargonTermsCall
   const changeMetrics = newContents.changeMetrics
 
   if (changeMetrics.added > 1000 || !existingJargon.length) {
-    await createNewJargonTerms(newDocument._id, currentUser)
+    void createNewJargonTerms(newDocument._id, currentUser)
   }
   return _post
 })
