@@ -779,6 +779,13 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       noFooter: true,
     },
     {
+      name: 'Twitter tools',
+      path: '/admin/twitter',
+      componentName: 'TwitterAdmin',
+      title: 'Twitter tools',
+      isAdmin: true,
+    },
+    {
       name: 'Digests',
       path: '/admin/digests',
       componentName: 'Digests',
