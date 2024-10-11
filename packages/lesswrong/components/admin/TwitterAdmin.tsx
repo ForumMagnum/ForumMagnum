@@ -213,7 +213,7 @@ const TwitterAdmin = ({ classes }: { classes: ClassesType }) => {
           {results.map((post) => (
             <tr key={post._id}>
               <td>
-                <Link to={postGetPageUrl(post)} className={classes.link}>
+                <Link to={postGetPageUrl(post)} target="_blank" rel="noopener noreferrer"  className={classes.link}>
                   {post.title}
                 </Link>
               </td>
