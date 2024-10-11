@@ -8,27 +8,32 @@ import Button from '@material-ui/core/Button';
 const styles = (theme: ThemeType) => ({
   root: {
     width: '100%',
+    display: 'flex',
   },
   flex: {
     display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    ...commentBodyStyles(theme),
-  },
-  isActive: {
-    marginBottom: 12,
-    border: '1px solid #e0e0e0',
+    flexGrow: 1,
+    border: '1px solid transparent',
     borderRadius: 4,
     padding: 8,
+    flexDirection: 'row',
+    alignItems: 'top',
+    ...commentBodyStyles(theme),
+    marginBottom: 0,
+  },
+  toggleAndEdit: {
+    marginRight: 8,
+  },
+  isActive: {
+    border: `1px solid ${theme.palette.greyAlpha(0.5)}`,
   },
   input: {
     flexGrow: 1,
     marginRight: 8,
   },
   toggleSwitch: {
-    marginRight: 8,
   },
-  edit: {
+  editButton: {
     textWrap: 'nowrap',
   },
   deleteButton: {
@@ -36,7 +41,13 @@ const styles = (theme: ThemeType) => ({
     '$root:hover &': {
       opacity: 1
     },
-    minHeight: "auto !important"
+    minHeight: "auto !important",
+    minWidth: "auto !important",
+    height: 24,
+    marginTop: 8,
+    width: 16,
+    marginRight: -8,
+    marginLeft: 4,
   },
 });
 
@@ -79,25 +90,25 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
 
   return <div className={classes.root}>
     <div className={classNames(classes.flex, isActive && classes.isActive)}>
-      <ToggleSwitch value={isActive} className={classes.toggleSwitch} setValue={handleActiveChange}/>
-      {!isActive && <div contentEditable={true} dangerouslySetInnerHTML={{__html: jargonTerm.term}} />}
-      {isActive && (
-        edit ? 
-          (<WrappedSmartForm
+      <div className={classes.toggleAndEdit}>
+        <ToggleSwitch value={isActive} className={classes.toggleSwitch} setValue={handleActiveChange}/>
+        {isActive && <a className={classes.editButton} onClick={() => setEdit(!edit)}>Edit</a>}
+      </div>
+      {!isActive && <div dangerouslySetInnerHTML={{__html: jargonTerm.term}} />}
+      {isActive && (edit
+        ? <WrappedSmartForm
             collectionName="JargonTerms"
             documentId={jargonTerm._id}
             mutationFragment={getFragment('JargonTermsFragment')}
             queryFragment={getFragment('JargonTermsFragment')}
             successCallback={() => setEdit(false)}
-          />) : 
-          (<>
-            <ContentItemBody dangerouslySetInnerHTML={{__html: jargonTerm?.contents?.originalContents?.data ?? ''}}/>
-            <a className={classes.edit} onClick={() => setEdit(!edit)}>Edit</a>
-          </>)
-          )
-      }
-      <Button onClick={() => handleDelete()} className={classes.deleteButton}>X</Button>
+          />
+        : <ContentItemBody
+            dangerouslySetInnerHTML={{__html: jargonTerm?.contents?.originalContents?.data ?? ''}}
+          />
+      )}
     </div>
+    <Button onClick={() => handleDelete()} className={classes.deleteButton}>X</Button>
   </div>
 }
 
