@@ -3,7 +3,7 @@ import Spotlights from "./collection";
 
 declare global {
   interface SpotlightsViewTerms extends ViewTermsBase {
-    sequenceId?: string;
+    documentIds?: string[];
   }
 }
 
@@ -46,16 +46,16 @@ Spotlights.addView("spotlightsPageDraft", function (terms: SpotlightsViewTerms) 
       draft: true
     },
     options: {
-      sort: { documentId: 1, position: 1, createdAt: 1 },
+      sort: { documentId: 1, _id: 1 },
       ...limit
     }
   }
 });
 
-Spotlights.addView("spotlightForSequence", (terms: SpotlightsViewTerms) => {
+Spotlights.addView("spotlightsByDocumentIds", (terms: SpotlightsViewTerms) => {
   return {
     selector: {
-      documentId: terms.sequenceId,
+      documentId: { $in: terms.documentIds },
       draft: false,
       deletedDraft: false
     },
@@ -64,3 +64,4 @@ Spotlights.addView("spotlightForSequence", (terms: SpotlightsViewTerms) => {
     }
   }
 });
+
