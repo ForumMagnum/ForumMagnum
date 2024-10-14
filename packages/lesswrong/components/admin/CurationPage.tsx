@@ -8,6 +8,13 @@ import { filterNonnull, filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUt
 import { unflattenComments } from '@/lib/utils/unflatten';
 
 const styles = (theme: ThemeType) => ({
+  root: {
+    background: theme.palette.background.pageActiveAreaBackground,
+    padding: 16,
+    borderRadius: 4,
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle
+  },
   curated: {
     position: "absolute",
     right: 0,
@@ -49,7 +56,7 @@ export const CurationPage = ({classes}: {
     <SingleColumnSection>
       <SectionTitle title={'New Curation Notice'} />
           <div>
-            {post &&
+            {post && <div className={classes.root}>
               <BasicFormStyles>
                 {post.title}
                 <WrappedSmartForm
@@ -58,7 +65,7 @@ export const CurationPage = ({classes}: {
                   prefilledProps={{userId: currentUser._id, postId: post._id}}
                 />
               </BasicFormStyles>
-            }
+            </div>}
             <h2>Draft Curation Notices</h2>
             {curationNoticesList?.map((curationNotice) => <CurationNoticesItem curationNotice={curationNotice} key={curationNotice._id}/>)}
             <h2>Published Curation Notices</h2>
