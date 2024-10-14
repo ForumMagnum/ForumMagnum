@@ -13,6 +13,7 @@ import { POLL_MAX_WIDTH } from './ForumEventPoll';
 
 const styles = (theme: ThemeType) => ({
   voteCircle: {
+    animation: 'results-fade-in 2s ease',
     position: "relative",
     display: "flex",
     flexDirection: "column",
@@ -26,6 +27,17 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]: {
       marginTop: -1,
     },
+  },
+  '@keyframes results-fade-in': {
+    '0%': {
+      pointerEvents: "none",
+    },
+    '99%': {
+      pointerEvents: "none",
+    },
+    '100%': {
+      pointerEvents: "auto",
+    }
   },
   voteTooltipBody: {
     fontSize: 14,

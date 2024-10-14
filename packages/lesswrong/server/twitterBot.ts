@@ -8,10 +8,8 @@ import { TwitterApi } from 'twitter-api-v2';
 import { getConfirmedCoauthorIds, postGetPageUrl } from "@/lib/collections/posts/helpers";
 import Users from "@/lib/vulcan-users";
 import { dogstatsd } from "./datadog/tracer";
-import { PublicInstanceSetting } from "@/lib/instanceSettings";
+import { PublicInstanceSetting, twitterBotEnabledSetting, twitterBotKarmaThresholdSetting } from "@/lib/instanceSettings";
 
-const enabledSetting = new PublicInstanceSetting<boolean>("twitterBot.enabled", false, "optional");
-const karmaThresholdSetting = new PublicInstanceSetting<number>("twitterBot.karmaTreshold", 40, "optional");
 const apiKeySetting = new PublicInstanceSetting<string | null>("twitterBot.apiKey", null, "optional");
 const apiKeySecretSetting = new PublicInstanceSetting<string | null>("twitterBot.apiKeySecret", null, "optional");
 const accessTokenSetting = new PublicInstanceSetting<string | null>("twitterBot.accessToken", null, "optional");
@@ -86,7 +84,7 @@ async function postTweet(content: string) {
 }
 
 async function runTwitterBot() {
-  if (!enabledSetting.get()) return;
+  if (!twitterBotEnabledSetting.get()) return;
 
   const repo = new TweetsRepo();
   const logger = loggerConstructor("twitter-bot");
@@ -94,7 +92,7 @@ async function runTwitterBot() {
   // Get posts that have crossed `twitterBotKarmaThresholdSetting` in the last
   // 7 days, and haven't already been tweeted. Then tweet the top one.
   const since = new Date(Date.now() - (7 * 24 * 60 * 60 * 1000));
-  const threshold = karmaThresholdSetting.get();
+  const threshold = twitterBotKarmaThresholdSetting.get();
 
   logger(`Checking for posts newly crossing ${threshold} karma`);
   const postIds = await repo.getUntweetedPostsCrossingKarmaThreshold({ since, threshold });
