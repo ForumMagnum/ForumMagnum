@@ -11,7 +11,7 @@ import { getToCforPost } from '../tableOfContents';
 import { getDefaultViewSelector } from '../../lib/utils/viewUtils';
 import keyBy from 'lodash/keyBy';
 import GraphQLJSON from 'graphql-type-json';
-import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema, createMutator } from '../vulcan-lib';
+import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema, createMutator, sanitize } from '../vulcan-lib';
 import { postIsCriticism } from '../languageModels/criticismTipsBot';
 import { createPaginatedResolver } from './paginatedResolver';
 import { getDefaultPostLocationFields, getDialogueResponseIds, getDialogueMessageTimestamps, getPostHTML } from "../posts/utils";
@@ -21,7 +21,7 @@ import { isDialogueParticipant } from '../../components/posts/PostsPage/PostsPag
 import { marketInfoLoader } from '../../lib/collections/posts/annualReviewMarkets';
 import { getWithCustomLoader } from '../../lib/loaders';
 import { isLWorAF, isAF, jargonBotClaudeKey, twitterBotKarmaThresholdSetting } from '../../lib/instanceSettings';
-import { hasSideComments } from '../../lib/betas';
+import { hasSideComments, userCanViewJargonTerms } from '../../lib/betas';
 import SideCommentCaches from '../../lib/collections/sideCommentCaches/collection';
 import { drive } from "@googleapis/drive";
 import { convertImportedGoogleDoc } from '../editor/conversionUtils';
@@ -372,27 +372,32 @@ augmentFieldsDict(Posts, {
     resolveAs: {
       type: GraphQLJSON,
       resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+        // Forum-gating/beta-gating is done here, rather than just client side,
+        // so that users don't have to download the glossary if it isn't going
+        // to be displayed.
+        if (!userCanViewJargonTerms(context.currentUser)) {
+          return;
+        }
         const jargonTerms = await context.JargonTerms.find({postId: post._id, rejected: false, deleted: false}).fetch();
 
-        const glossary: Record<string, ContentReplacedSubstringComponentInfo> = {}
-
-        jargonTerms.forEach((jargonTerm: DbJargonTerm) => {
-          glossary[jargonTerm.term] = {
-            componentName: "JargonTooltip",
-            props: {
-              ...jargonTerm
-            }
-          }
-        })  
-
-        return glossary
+        return jargonTerms.map((jargonTerm: DbJargonTerm) => ({
+          term: jargonTerm.term,
+          altTerms: jargonTerm.altTerms,
+          html: sanitize(jargonTerm.contents?.html ?? ""),
+        }));
       }
     }
   }
 })
 
 
-
+declare global {
+  type GlossaryTerm = {
+    term: string
+    altTerms: string[]
+    html: string
+  }
+}
 
 export type PostIsCriticismRequest = {
   _id?: string,

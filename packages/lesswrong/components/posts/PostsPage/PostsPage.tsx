@@ -41,7 +41,6 @@ import { getVotingSystemByName } from '@/lib/voting/votingSystems';
 import DeferRender from '@/components/common/DeferRender';
 import { SideItemVisibilityContextProvider } from '@/components/dropdowns/posts/SetSideItemVisibility';
 import { LW_POST_PAGE_PADDING } from './LWPostsPageHeader';
-import { ContentReplacedSubstringComponentInfo } from '@/components/common/ContentItemBody';
 import { useCommentLinkState } from '@/components/comments/CommentsItem/useCommentLink';
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
@@ -359,22 +358,6 @@ export const styles = (theme: ThemeType) => ({
     fontSize: isFriendlyUI ? undefined : theme.typography.body2.fontSize,
     cursor: 'default'
   },
-  glossary: {
-    paddingTop: 198,
-  },
-  jargonTerm: {
-    paddingTop: 2,
-    ...theme.typography.body2,
-    ...theme.typography.postStyle,
-    fontSize: "1.1rem",
-    color: theme.palette.grey[800],
-    cursor: 'pointer'
-  },
-  glossaryContainer: {
-    [theme.breakpoints.down('sm')]: {
-      display: 'none',
-    },
-  }
 })
 
 const getDebateResponseBlocks = (responses: CommentsList[], replies: CommentsList[]) => responses.map(debateResponse => ({
@@ -561,7 +544,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     PostBottomRecommendations, NotifyMeDropdownItem, Row, AnalyticsInViewTracker,
     PostsPageQuestionContent, AFUnreviewedCommentCount, CommentsListSection, CommentsTableOfContents,
     StickyDigestAd, PostsPageSplashHeader, PostsAudioPlayerWrapper, AttributionInViewTracker,
-    ForumEventPostPagePollSection, NotifyMeButton, LWTooltip, PostsPageDate, JargonTooltip,
+    ForumEventPostPagePollSection, NotifyMeButton, LWTooltip, PostsPageDate,
     PostFixedPositionToCHeading
   } = Components
 
@@ -778,17 +761,6 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
   const rightColumnChildren = (welcomeBox || hasSidenotes || (showRecommendations && recommendationsPosition === "right")) && <>
     {welcomeBox}
     {showRecommendations && recommendationsPosition === "right" && fullPost && <PostSideRecommendations post={fullPost} />}
-
-    {fullPost && (Object.keys(fullPost.glossary).length > 0) && <div className={classes.glossaryContainer}>
-      <h3 className={classes.glossary}>Glossary of Jargon</h3>
-
-      {Object.keys(fullPost?.glossary).map((jargonTerm: string) => 
-        <div key={jargonTerm}>
-          <JargonTooltip replacedSubstrings={fullPost.glossary} term={jargonTerm} placement="left-start"><div className={classes.jargonTerm}>{jargonTerm}</div> </JargonTooltip>
-        </div>)
-      }
-    </div>}
-
     {hasSidenotes && <>
       <div className={classes.reserveSpaceForSidenotes}/>
       <Components.SideItemsSidebar/>

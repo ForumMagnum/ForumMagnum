@@ -11,6 +11,7 @@ import { fetchFragmentSingle } from '@/server/fetchFragment';
 import { htmlToMarkdown } from '@/server/editor/conversionUtils';
 import { exampleMathGlossary } from './exampleMathOutput';
 import { readFile } from 'fs/promises';
+import { userCanCreateAndEditJargonTerms } from '@/lib/betas';
 
 const claudeKey = jargonBotClaudeKey.get()
 
@@ -43,7 +44,13 @@ The jargon terms are:`
   return termsResponse.content[0].text
 }
 
-export const queryClaudeForJargonExplanations = async ({ markdown, terms, formatPrompt, examplePost, exampleExplanations }:{  markdown: string, terms: string, formatPrompt: string, examplePost: string, exampleExplanations: string }) => {
+export const queryClaudeForJargonExplanations = async ({ markdown, terms, formatPrompt, examplePost, exampleExplanations }: {
+  markdown: string,
+  terms: string,
+  formatPrompt: string,
+  examplePost: string,
+  exampleExplanations: string
+}) => {
   console.log(`I'm pinging Claude for jargon explanations!`)
   const response = await queryClaudeJailbreak([
     {
@@ -239,6 +246,9 @@ defineMutation({
     fn: async (_, { postId }: { postId: string }, { currentUser }: ResolverContext) => {
       if (!currentUser) {
         throw new Error('You need to be logged in to generate jargon terms');
+      }
+      if (!userCanCreateAndEditJargonTerms(currentUser)) {
+        throw new Error('This is a prototype feature that is not yet available to all users');
       }
 
       return await createNewJargonTerms(postId, currentUser);

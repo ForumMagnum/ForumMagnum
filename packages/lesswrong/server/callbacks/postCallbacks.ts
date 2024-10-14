@@ -35,9 +35,8 @@ import { postsNewNotifications } from '../notificationCallbacks';
 import { getLatestContentsRevision } from '../../lib/collections/revisions/helpers';
 import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
 import { createNewJargonTerms } from '../resolvers/jargonResolvers/jargonTermMutations';
-import { userHasJargonTerms } from '@/lib/betas';
+import { userCanCreateAndEditJargonTerms } from '@/lib/betas';
 import JargonTerms from '@/lib/collections/jargonTerms/collection';
-import { htmlToChangeMetrics } from '../editor/utils';
 import Revisions from '@/lib/collections/revisions/collection';
 
 const MINIMUM_APPROVAL_KARMA = 5
@@ -698,8 +697,8 @@ getCollectionHooks("Posts").editSync.add(async function removeFrontpageDate(
 getCollectionHooks("Posts").updateAfter.add(async function createJargonTermsCallback (_post, {newDocument, oldDocument, context}: UpdateCallbackProperties<"Posts">) {
   const currentUser = context.currentUser
   if (!currentUser) return _post
-  if (currentUser._id != newDocument.userId) return _post
-  if (!userHasJargonTerms(currentUser)) return _post
+  if (currentUser._id !== newDocument.userId) return _post
+  if (!userCanCreateAndEditJargonTerms(currentUser)) return _post
 
   const newContents = await Revisions.findOne({_id: newDocument.contents_latest})
   if (!newContents?.html) {
@@ -709,7 +708,7 @@ getCollectionHooks("Posts").updateAfter.add(async function createJargonTermsCall
   const changeMetrics = newContents.changeMetrics
 
   if (changeMetrics.added > 1000 || !existingJargon.length) {
-    await createNewJargonTerms(newDocument._id, currentUser)
+    void createNewJargonTerms(newDocument._id, currentUser)
   }
   return _post
 })

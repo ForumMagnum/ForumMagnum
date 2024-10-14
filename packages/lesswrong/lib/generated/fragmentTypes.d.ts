@@ -543,6 +543,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly lesswrongWikiImportRevision: string,
   readonly lesswrongWikiImportSlug: string,
   readonly lesswrongWikiImportCompleted: boolean,
+  readonly tableOfContents: any,
   readonly htmlWithContributorAnnotations: string,
   readonly contributors: any /*TagContributorsList*/,
   readonly contributionStats: any /*{"definitions":[{"blackbox":true}]}*/,
@@ -696,7 +697,7 @@ interface SideCommentCachesDefaultFragment { // fragment on SideCommentCaches
 
 interface RevisionsDefaultFragment { // fragment on Revisions
   readonly documentId: string,
-  readonly collectionName: string,
+  readonly collectionName: CollectionNameString,
   readonly fieldName: string,
   readonly editedAt: Date,
   readonly updateType: "initial" | "patch" | "minor" | "major",
@@ -777,7 +778,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly annualReviewMarketProbability: number|null,
   readonly annualReviewMarketIsResolved: boolean|null,
   readonly annualReviewMarketYear: number|null,
-  readonly glossary: any,
+  readonly glossary: GlossaryTerm[],
   readonly reviewVoteScoreAF: number,
   readonly reviewVotesAF: Array<number>,
   readonly reviewVoteScoreHighKarma: number,
@@ -1001,7 +1002,7 @@ interface CronHistoriesDefaultFragment { // fragment on CronHistories
 
 interface VotesDefaultFragment { // fragment on Votes
   readonly documentId: string,
-  readonly collectionName: string,
+  readonly collectionName: CollectionNameString,
   readonly userId: string,
   readonly authorIds: Array<string>,
   readonly voteType: "bigDownvote" | "bigUpvote" | "neutral" | "smallDownvote" | "smallUpvote",
@@ -1389,7 +1390,7 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
     hostedHere: boolean | null,
     foreignPostId: string | null,
   },
-  readonly glossary: any,
+  readonly glossary: GlossaryTerm[],
 }
 
 interface PostsDetails_canonicalSequence { // fragment on Sequences
@@ -2920,7 +2921,7 @@ interface SubscriptionsDefaultFragment { // fragment on Subscriptions
   readonly userId: string,
   readonly state: "subscribed" | "suppressed",
   readonly documentId: string,
-  readonly collectionName: string,
+  readonly collectionName: CollectionNameString,
   readonly deleted: boolean,
   readonly type: "newComments" | "newUserComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newSequencePosts" | "newDebateComments" | "newDialogueMessages" | "newPublishedDialogueMessages" | "newActivityForFeed",
 }
@@ -2931,7 +2932,7 @@ interface SubscriptionState { // fragment on Subscriptions
   readonly createdAt: Date,
   readonly state: "subscribed" | "suppressed",
   readonly documentId: string,
-  readonly collectionName: string,
+  readonly collectionName: CollectionNameString,
   readonly deleted: boolean,
   readonly type: "newComments" | "newUserComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newSequencePosts" | "newDebateComments" | "newDialogueMessages" | "newPublishedDialogueMessages" | "newActivityForFeed",
 }
@@ -3635,7 +3636,7 @@ interface UserVotes { // fragment on Votes
   readonly documentId: string,
   readonly votedAt: Date,
   readonly isUnvote: boolean,
-  readonly collectionName: string,
+  readonly collectionName: CollectionNameString,
 }
 
 interface UserVotesWithDocument extends UserVotes { // fragment on Votes
@@ -3645,7 +3646,7 @@ interface UserVotesWithDocument extends UserVotes { // fragment on Votes
 
 interface SpotlightsDefaultFragment { // fragment on Spotlights
   readonly documentId: string,
-  readonly documentType: "Sequence" | "Post",
+  readonly documentType: SpotlightDocumentType,
   readonly position: number,
   readonly duration: number,
   readonly customTitle: string | null,
@@ -3668,7 +3669,7 @@ interface SpotlightsDefaultFragment { // fragment on Spotlights
 interface SpotlightMinimumInfo { // fragment on Spotlights
   readonly _id: string,
   readonly documentId: string,
-  readonly documentType: "Sequence" | "Post",
+  readonly documentType: SpotlightDocumentType,
   readonly spotlightImageId: string | null,
   readonly spotlightDarkImageId: string | null,
   readonly spotlightSplashImageUrl: string | null,
@@ -4202,6 +4203,7 @@ interface JargonTermsFragment { // fragment on JargonTerms
   readonly humansAndOrAIEdited: "humans" | "AI" | "humansAndAI",
   readonly forLaTeX: boolean,
   readonly rejected: boolean,
+  readonly deleted: boolean,
   readonly altTerms: Array<string>,
 }
 

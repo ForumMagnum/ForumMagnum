@@ -35,7 +35,7 @@ import { getDefaultViewSelector } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 import SideCommentCaches from '../sideCommentCaches/collection';
-import { hasSideComments, hasSidenotes, userHasJargonTerms } from '../../betas';
+import { hasSideComments, hasSidenotes, userCanCreateAndEditJargonTerms } from '../../betas';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { getPostReviewWinnerInfo } from '../reviewWinners/cache';
 import { stableSortTags } from '../tags/helpers';
@@ -841,16 +841,22 @@ const schema: SchemaType<"Posts"> = {
   },
 
   glossary: {
-    type: Object,
+    type: Array,
+    typescriptType: "GlossaryTerm[]",
     optional: true,
     nullable: true,
     blackbox: true,
     canRead: ['guests'],
-    control: "GlossaryEditFormWrapper",
+    control: "GlossaryEditForm",
     group: formGroups.glossary,
     canUpdate: [userOwns, 'admins'],
-    hidden: ({currentUser}) => !userHasJargonTerms(currentUser)
+    hidden: ({currentUser}) => !userCanCreateAndEditJargonTerms(currentUser)
     // Implementation in postResolvers.ts
+  },
+  
+  'glossary.$': {
+    type: Object,
+    optional: true,
   },
 
   // The various reviewVoteScore and reviewVotes fields are for caching the results of the updateQuadraticVotes migration (which calculates the score of posts during the LessWrong Review)
