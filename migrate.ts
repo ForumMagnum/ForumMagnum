@@ -35,33 +35,38 @@ const fetchImports = (args: Record<string, unknown>, isProd: boolean) => {
   return { getSqlClientOrThrow, setSqlClient, createSqlConnection };
 }
 
-type ForumType = "lw" | "ea" | "none";
+const forumTypes = ["lw", "ea", "none"] as const;
 
-const detectForumType = async (): Promise<ForumType> => {
-  const base = process.env.GITHUB_WORKSPACE ?? "..";
-  if (existsSync(`${base}/LessWrong-Credentials`)) {
-    return "lw";
-  }
-  if (existsSync(`${base}/ForumCredentials`)) {
-    return "ea";
-  }
-  return "none";
-}
+type ForumType = typeof forumTypes[number];
 
-const credentialsPath = (forumType: ForumType) => {
-  const memorizedBases = {
+const getCredentialsBase = (forumType: ForumType): string => {
+  const memorizedBases: Record<ForumType, string> = {
     lw: "..",
     ea: "..",
     none: ".",
   };
-  const base = process.env.GITHUB_WORKSPACE ?? memorizedBases[forumType];
-  const memorizedRepoNames = {
+  return process.env.GITHUB_WORKSPACE ?? memorizedBases[forumType];
+}
+
+const credentialsPath = (forumType: ForumType) => {
+  const base = getCredentialsBase(forumType);
+  const memorizedRepoNames: Record<ForumType, string> = {
     lw: '/LessWrong-Credentials',
     ea: '/ForumCredentials',
     none: "",
   };
   const repoName = memorizedRepoNames[forumType];
   return `${base}${repoName}`;
+}
+
+const detectForumType = async (): Promise<ForumType> => {
+  const siteForumTypes = forumTypes.filter((forumType) => forumType !== "none");
+  for (const forumType of siteForumTypes) {
+    if (existsSync(credentialsPath(forumType))) {
+      return forumType;
+    }
+  }
+  return "none";
 }
 
 const settingsFilePath = (fileName: string, forumType: ForumType) => {
@@ -77,7 +82,7 @@ const databaseConfig = (mode: string, forumType: ForumType): DatabaseConfig => {
   if (!mode) {
     return {};
   }
-  const memorizedConfigPaths = {
+  const memorizedConfigPaths: Record<ForumType, unknown> = {
     lw: {
       db: `${credentialsPath(forumType)}/connectionConfigs/${mode}.json`,
     },
@@ -92,7 +97,7 @@ const databaseConfig = (mode: string, forumType: ForumType): DatabaseConfig => {
   return getDatabaseConfig(configPath) as DatabaseConfig;
 };
 
-const settingsFileName = (mode: string, forumType: string) => {
+const settingsFileName = (mode: string, forumType: ForumType) => {
   if (!mode) {
     // With the state of the code when this comment was written, this indicates
     // an error condition, but it will be handled later, around L60
