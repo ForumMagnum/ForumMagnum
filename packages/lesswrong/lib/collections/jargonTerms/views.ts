@@ -18,7 +18,7 @@ JargonTerms.addDefaultView((terms: JargonTermsViewTerms) => {
 
 JargonTerms.addView("jargonTerms", function (terms: JargonTermsViewTerms) {
   return {
-    selector: { postId: terms.postId },
+    selector: { postId: terms.postId, deleted: null },
     options: { sort: { forLaTeX: -1, term: 1, createdAt: 1 } }
   };
 });

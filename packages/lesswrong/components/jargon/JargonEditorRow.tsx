@@ -12,20 +12,28 @@ const styles = (theme: ThemeType) => ({
   },
   flex: {
     display: 'flex',
-    flexGrow: 1,
-    border: '1px solid transparent',
-    borderRadius: 4,
-    padding: 8,
-    flexDirection: 'row',
-    alignItems: 'top',
-    ...commentBodyStyles(theme),
-    marginBottom: 0,
+    flexGrow: 1
   },
   toggleAndEdit: {
     marginRight: 8,
   },
   isActive: {
-    border: `1px solid ${theme.palette.greyAlpha(0.5)}`,
+    display: 'flex',
+    flexGrow: 1,
+    border: '1px solid transparent',
+    paddingTop: 10,
+    paddingBottom: 10,
+    flexDirection: 'row',
+    alignItems: 'top',
+    ...commentBodyStyles(theme),
+    fontSize: '1.1rem',
+    marginBottom: 0,
+    marginTop: 0,
+    borderTop: theme.palette.border.commentBorder,
+    borderBottom: theme.palette.border.commentBorder,
+    '&:last-child': {
+      borderBottom: 'none',
+    }
   },
   input: {
     flexGrow: 1,
@@ -34,6 +42,11 @@ const styles = (theme: ThemeType) => ({
   toggleSwitch: {
   },
   editButton: {
+    position: 'absolute',
+    right: 8,
+    bottom: 8,
+    fontSize: '1rem',
+    color: theme.palette.grey[500],
     textWrap: 'nowrap',
   },
   deleteButton: {
@@ -49,13 +62,24 @@ const styles = (theme: ThemeType) => ({
     marginRight: -8,
     marginLeft: 4,
   },
+  active: {
+    cursor: 'pointer',
+    opacity: 1,
+  },
+  inactive: {
+    opacity: .5,
+    cursor: 'pointer',
+    '&:hover': {
+      opacity: 1,
+    }
+  }
 });
 
 export const JargonEditorRow = ({classes, jargonTerm}: {
   classes: ClassesType<typeof styles>,
   jargonTerm: JargonTermsFragment,
 }) => {
-  const { ToggleSwitch, WrappedSmartForm, ContentItemBody } = Components;
+  const { LWTooltip, WrappedSmartForm, ContentItemBody } = Components;
 
   const [isActive, setIsActive] = React.useState(!jargonTerm.rejected);
   const [edit, setEdit] = React.useState(false);
@@ -88,13 +112,19 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
 
   if (hidden) return null;
 
+  const handleDoubleClick = () => {
+    if (isActive) {
+      setEdit(true);
+    }
+  };
+
   return <div className={classes.root}>
-    <div className={classNames(classes.flex, isActive && classes.isActive)}>
-      <div className={classes.toggleAndEdit}>
+    <div className={classNames(classes.flex, isActive && classes.isActive)} onDoubleClick={() => isActive && setEdit(true)}>
+      {/* <div className={classes.toggleAndEdit}>
         <ToggleSwitch value={isActive} className={classes.toggleSwitch} setValue={handleActiveChange}/>
         {isActive && <a className={classes.editButton} onClick={() => setEdit(!edit)}>Edit</a>}
-      </div>
-      {!isActive && <div dangerouslySetInnerHTML={{__html: jargonTerm.term}} />}
+      </div> */}
+      {!isActive && <div dangerouslySetInnerHTML={{__html: jargonTerm.term}} onClick={() => handleActiveChange(!isActive)} className={isActive ? classes.active : classes.inactive} />}
       {isActive && (edit
         ? <WrappedSmartForm
             collectionName="JargonTerms"
@@ -102,13 +132,19 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
             mutationFragment={getFragment('JargonTermsFragment')}
             queryFragment={getFragment('JargonTermsFragment')}
             successCallback={() => setEdit(false)}
+            cancelCallback={() => setEdit(false)}
           />
         : <ContentItemBody
             dangerouslySetInnerHTML={{__html: jargonTerm?.contents?.originalContents?.data ?? ''}}
           />
       )}
     </div>
-    <Button onClick={() => handleDelete()} className={classes.deleteButton}>X</Button>
+    <div>
+      <LWTooltip title="Hide this term (you can get it back later)">
+        <Button onClick={() => handleDelete()} className={classes.deleteButton}>X</Button>
+      </LWTooltip>
+    </div>
+    {isActive && <div className={classes.editButton}>Doubleclick to edit</div>}
   </div>
 }
 

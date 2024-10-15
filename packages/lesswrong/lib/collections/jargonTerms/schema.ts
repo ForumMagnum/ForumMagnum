@@ -13,6 +13,7 @@ const schema: SchemaType<"JargonTerms"> = {
     canCreate: ['members'],
     canUpdate: ['members'],
     nullable: false,
+    order: 10
   },
   humansAndOrAIEdited: {
     type: String,
@@ -56,6 +57,9 @@ const schema: SchemaType<"JargonTerms"> = {
     canCreate: ['members'],
     canUpdate: ['members'],
     nullable: false,
+    label: "Alternative Terms",
+    order: 30,
+    tooltip: "Comma-separated, no spaces",
     ...schemaDefaultValue([]),
   },
   'altTerms.$': {

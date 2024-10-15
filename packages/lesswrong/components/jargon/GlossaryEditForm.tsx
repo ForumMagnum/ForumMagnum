@@ -45,6 +45,8 @@ export const GlossaryEditForm = (props: {
     return 0;
   });
 
+  const hiddenTerms = sortedGlossary.filter((item: any) => item.deleted);
+
   const [getNewJargonTerms, { data, loading: mutationLoading, error }] = useMutation(gql`
     mutation getNewJargonTerms($postId: String!) {
       getNewJargonTerms(postId: $postId) {
@@ -69,10 +71,9 @@ export const GlossaryEditForm = (props: {
   };
 
   return <div className={classes.root}>
-    <div>
-      <h1>Glossary</h1>
-      <span>Beta feature! Select/edit terms below and readers of your post will be able to hover over them to read an explanation of the term.</span>
-    </div>
+    <p>
+      Beta feature! Select/edit terms below, and readers will be able to hover over and read the explanation.
+    </p>
     {!!sortedGlossary && <>{sortedGlossary.map((item: any) => !item.isAltTerm && <JargonEditorRow key={item._id} jargonTerm={item}/>)}</>}
     <LoadMore {...loadMoreProps} />
     <Button onClick={addNewJargonTerms} className={classes.generateButton}>Generate new terms</Button>
