@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
+import { Components, fragmentTextForQuery, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { useMutation, gql } from '@apollo/client';
 import { useMulti } from '@/lib/crud/withMulti';
 import Button from '@material-ui/core/Button';
@@ -52,8 +52,8 @@ export const GlossaryEditForm = (props: {
       getNewJargonTerms(postId: $postId) {
         ...JargonTermsFragment
       }
-      ${getFragment("JargonTermsFragment")}
     }
+    ${fragmentTextForQuery("JargonTermsFragment")}
   `);
 
   const addNewJargonTerms = async () => { 

@@ -694,21 +694,34 @@ getCollectionHooks("Posts").editSync.add(async function removeFrontpageDate(
   return modifier;
 });
 
-getCollectionHooks("Posts").updateAfter.add(async function createJargonTermsCallback (_post, {newDocument, oldDocument, context}: UpdateCallbackProperties<"Posts">) {
-  const currentUser = context.currentUser
-  if (!currentUser) return _post
-  if (currentUser._id !== newDocument.userId) return _post
-  if (!userCanCreateAndEditJargonTerms(currentUser)) return _post
+async function createNewJargonTermsCallback(post: DbPost, callbackProperties: CreateCallbackProperties<"Posts">) {
+  const { newDocument, context: { currentUser, loaders } } = callbackProperties;
 
-  const newContents = await Revisions.findOne({_id: newDocument.contents_latest})
+  if (!currentUser) return post;
+  if (currentUser._id !== newDocument.userId) return post;
+  if (!newDocument.contents_latest) return post;
+  if (!userCanCreateAndEditJargonTerms(currentUser)) return post;
+
+  // TODO: refactor this so that createNewJargonTerms handles the case where we might be creating duplicate terms
+  const [existingJargon, newContents] = await Promise.all([
+    JargonTerms.find({postId: newDocument._id}).fetch(),
+    loaders.Revisions.load(newDocument.contents_latest)
+  ]);
+
   if (!newContents?.html) {
-    return _post;
+    return post;
   }
-  const existingJargon = await JargonTerms.find({postId: newDocument._id}).fetch()
-  const changeMetrics = newContents.changeMetrics
+  
+  const { changeMetrics } = newContents;
 
+  // TODO: do we want different behavior for new vs updated posts?
   if (changeMetrics.added > 1000 || !existingJargon.length) {
     void createNewJargonTerms(newDocument._id, currentUser)
   }
-  return _post
-})
+
+  return post;
+}
+
+getCollectionHooks("Posts").createAfter.add(createNewJargonTermsCallback);
+
+getCollectionHooks("Posts").updateAfter.add(createNewJargonTermsCallback);

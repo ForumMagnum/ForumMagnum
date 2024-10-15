@@ -21,14 +21,13 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     flexGrow: 1,
     border: '1px solid transparent',
-    paddingTop: 10,
-    paddingBottom: 10,
+    padding: 10,
     flexDirection: 'row',
-    alignItems: 'top',
     ...commentBodyStyles(theme),
     fontSize: '1.1rem',
     marginBottom: 0,
     marginTop: 0,
+    // TODO: figure out how to manage border separators between active and inactive terms
     borderTop: theme.palette.border.commentBorder,
     borderBottom: theme.palette.border.commentBorder,
     '&:last-child': {
@@ -69,6 +68,7 @@ const styles = (theme: ThemeType) => ({
   inactive: {
     opacity: .5,
     cursor: 'pointer',
+    paddingLeft: 10,
     '&:hover': {
       opacity: 1,
     }
@@ -118,13 +118,18 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
     }
   };
 
+  const termContentElement = <ContentItemBody dangerouslySetInnerHTML={{__html: jargonTerm?.contents?.originalContents?.data ?? ''}}/>;
+
   return <div className={classes.root}>
     <div className={classNames(classes.flex, isActive && classes.isActive)} onDoubleClick={() => isActive && setEdit(true)}>
       {/* <div className={classes.toggleAndEdit}>
         <ToggleSwitch value={isActive} className={classes.toggleSwitch} setValue={handleActiveChange}/>
         {isActive && <a className={classes.editButton} onClick={() => setEdit(!edit)}>Edit</a>}
       </div> */}
-      {!isActive && <div dangerouslySetInnerHTML={{__html: jargonTerm.term}} onClick={() => handleActiveChange(!isActive)} className={isActive ? classes.active : classes.inactive} />}
+      {!isActive && <LWTooltip title={termContentElement} placement='left-start'>
+        <div dangerouslySetInnerHTML={{__html: jargonTerm.term}} onClick={() => handleActiveChange(!isActive)} className={classes.inactive} />
+      </LWTooltip>}
+      {/** TODO: do we need to use the .active classname anywhere? */}
       {isActive && (edit
         ? <WrappedSmartForm
             collectionName="JargonTerms"
@@ -134,9 +139,7 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
             successCallback={() => setEdit(false)}
             cancelCallback={() => setEdit(false)}
           />
-        : <ContentItemBody
-            dangerouslySetInnerHTML={{__html: jargonTerm?.contents?.originalContents?.data ?? ''}}
-          />
+        : termContentElement
       )}
     </div>
     <div>
