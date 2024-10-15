@@ -1,7 +1,6 @@
 import React, { ReactNode } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
-import { Link } from "../../../lib/reactRouterWrapper";
 import type {
   CommentKarmaChange,
   EAReactionChanges,
@@ -17,6 +16,7 @@ import {
 } from "../../../lib/voting/eaEmojiPalette";
 import { captureException } from "@sentry/core";
 import { userGetProfileUrlFromSlug } from "../../../lib/collections/users/helpers";
+import { NotifPopoverLink } from "../useNotificationsPopoverContext";
 
 const logAndCaptureError = (error: Error) => {
   // eslint-disable-next-line no-console
@@ -54,7 +54,7 @@ type AddedReactions = {
 }
 
 const userLink = (user: {displayName: string, slug: string}) => (
-  <Link to={userGetProfileUrlFromSlug(user.slug)}>{user.displayName}</Link>
+  <NotifPopoverLink to={userGetProfileUrlFromSlug(user.slug)}>{user.displayName}</NotifPopoverLink>
 );
 
 const formatUsers = (users: {displayName: string, slug: string}[], max = 3) => {
@@ -144,9 +144,9 @@ export const NotificationsPageKarmaChange = ({
     reactions = getAddedReactions(postKarmaChange.eaAddedReacts);
     display = (
       <PostsTooltip postId={postKarmaChange._id}>
-        <Link to={postGetPageUrl(postKarmaChange)} className={classes.link}>
+        <NotifPopoverLink to={postGetPageUrl(postKarmaChange)} className={classes.link}>
           {postKarmaChange.title}
-        </Link>
+        </NotifPopoverLink>
       </PostsTooltip>
     );
   } else if (commentKarmaChange) {
@@ -160,7 +160,7 @@ export const NotificationsPageKarmaChange = ({
             postId={commentKarmaChange.postId}
             commentId={commentKarmaChange._id}
           >
-            <Link
+            <NotifPopoverLink
               to={commentGetPageUrlFromIds({
                 ...commentKarmaChange,
                 commentId: commentKarmaChange._id,
@@ -168,23 +168,23 @@ export const NotificationsPageKarmaChange = ({
               className={classes.link}
             >
               comment
-            </Link>
+            </NotifPopoverLink>
           </PostsTooltip>
           {" "}on{" "}
           <PostsTooltip postId={commentKarmaChange.postId}>
-            <Link
+            <NotifPopoverLink
               to={postGetPageUrl({_id: postId, slug: postSlug})}
               className={classes.link}
             >
               {postTitle}
-            </Link>
+            </NotifPopoverLink>
           </PostsTooltip>
         </>
       );
     } else if (tagSlug) {
       display = (
         <>
-          <Link
+          <NotifPopoverLink
             to={commentGetPageUrlFromIds({
               ...commentKarmaChange,
               commentId: commentKarmaChange._id,
@@ -192,13 +192,13 @@ export const NotificationsPageKarmaChange = ({
             className={classes.link}
           >
             comment
-          </Link> on{" "}
-          <Link
+          </NotifPopoverLink> on{" "}
+          <NotifPopoverLink
             to={tagGetUrl({slug: tagSlug})}
             className={classes.link}
           >
             {tagName}
-          </Link>
+          </NotifPopoverLink>
         </>
       );
     } else {
@@ -212,12 +212,12 @@ export const NotificationsPageKarmaChange = ({
     }
     karmaChange = tagRevisionKarmaChange.scoreChange;
     display = (
-      <Link
+      <NotifPopoverLink
         to={tagGetUrl({slug: tagRevisionKarmaChange.tagSlug})}
         className={classes.link}
       >
         {tagRevisionKarmaChange.tagName}
-      </Link>
+      </NotifPopoverLink>
     );
   } else {
     logAndCaptureError(new Error(`Invalid karma change: ${JSON.stringify({postKarmaChange, commentKarmaChange, tagRevisionKarmaChange})}`));
