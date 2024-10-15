@@ -10,7 +10,6 @@ import { cheerioParse } from '../utils/htmlUtil'
 import { CreateCallbackProperties, getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
 import moment from 'moment';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
-import { performCrosspost, handleCrosspostUpdate } from "../fmCrosspost/crosspost";
 import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
 import { userIsAdmin } from '../../lib/vulcan-users';
 import { MOVED_POST_TO_DRAFT, REJECTED_POST } from '../../lib/collections/moderatorActions/schema';
@@ -508,9 +507,6 @@ getCollectionHooks("Posts").updateBefore.add((post: DbPost, {oldDocument: oldPos
   }
   return post;
 });
-
-getCollectionHooks("Posts").newSync.add(performCrosspost);
-getCollectionHooks("Posts").updateBefore.add(handleCrosspostUpdate);
 
 async function bulkApplyPostTags ({postId, tagsToApply, currentUser, context}: {postId: string, tagsToApply: string[], currentUser: DbUser, context: ResolverContext}) {
   const applyOneTag = async (tagId: string) => {

@@ -114,5 +114,4 @@ makeEditable({
   }
 })
 
-
 export default Posts;

@@ -2,20 +2,20 @@ import pick from 'lodash/pick'
 import Users from "../../lib/collections/users/collection";
 import { randomId } from "../../lib/random";
 import { loggerConstructor } from "../../lib/utils/logging";
-import { denormalizedFieldKeys, extractDenormalizedData } from "./denormalizedFields";
-import type { UpdateCallbackProperties } from "../mutationCallbacks";
+import { extractDenormalizedData } from "./denormalizedFields";
+import { UpdateCallbackProperties, getCollectionHooks } from "../mutationCallbacks";
 import type { Crosspost, DenormalizedCrosspostData } from "./types";
 import {
   createCrosspostToken,
   updateCrosspostToken,
 } from "@/server/crossposting/tokens";
 import { getLatestContentsRevision } from '@/lib/collections/revisions/helpers';
-import { fetchFragmentSingle } from '../fetchFragment';
 import {
   createCrosspostRoute,
   updateCrosspostRoute,
 } from "@/lib/fmCrosspost/routes";
 import { makeV2CrossSiteRequest } from "@/server/crossposting/crossSiteRequest";
+import Revisions from '@/lib/collections/revisions/collection';
 
 const assertPostIsCrosspostable = (
   post: DbPost,
@@ -86,24 +86,18 @@ export async function performCrosspost(post: DbPost): Promise<DbPost> {
 }
 
 const updateCrosspost = async (
-  localPostId: string,
   foreignPostId: string,
+  latestRevisionId: string | null,
   denormalizedData: DenormalizedCrosspostData,
 ) => {
-  const postOriginalContents = await fetchFragmentSingle({
-    collectionName: "Posts",
-    fragmentName: "PostsOriginalContents",
-    currentUser: null,
-    selector: localPostId,
-    skipFiltering: true,
-    skipCodeResolvers: true,
-  });
-
+  const revision = latestRevisionId
+    ? await Revisions.findOne({_id: latestRevisionId})
+    : null;
   const token = await updateCrosspostToken.create({
     ...denormalizedData,
     postId: foreignPostId,
     contents: {
-      originalContents: postOriginalContents?.contents?.originalContents,
+      originalContents: revision?.originalContents,
     },
   });
   await makeV2CrossSiteRequest(
@@ -123,7 +117,7 @@ const removeCrosspost = async <T extends Crosspost>(post: T) => {
     console.warn("Cannot remove crosspost that doesn't exist");
     return;
   }
-  await updateCrosspost(post._id, post.fmCrosspost.foreignPostId, {
+  await updateCrosspost(post.fmCrosspost.foreignPostId, post.contents_latest, {
     ...extractDenormalizedData(post),
     draft: true,
   });
@@ -135,7 +129,7 @@ export async function handleCrosspostUpdate(
 ): Promise<Partial<DbPost>> {
   const logger = loggerConstructor('callbacks-posts')
   logger('handleCrosspostUpdate()')
-  const {_id, userId, fmCrosspost} = newDocument;
+  const {userId, fmCrosspost} = newDocument;
   const shouldRemoveCrosspost =
     (oldDocument.fmCrosspost && data.fmCrosspost === null) ||
     (oldDocument.fmCrosspost?.isCrosspost && data.fmCrosspost?.isCrosspost === false)
@@ -151,12 +145,8 @@ export async function handleCrosspostUpdate(
     logger('post is not a hosted here, returning')
     return data;
   }
-  if (
-    fmCrosspost.foreignPostId &&
-    denormalizedFieldKeys.some(
-      (key) => data[key] !== undefined && data[key] !== oldDocument[key]
-    )
-  ) {
+
+  if (fmCrosspost.foreignPostId) {
     assertPostIsCrosspostable(newDocument, logger);
 
     logger('denormalized fields changed, updating crosspost')
@@ -174,7 +164,11 @@ export async function handleCrosspostUpdate(
       denormalizedData.deletedDraft = oldDocument.deletedDraft;
     }
     logger('denormalizedData:', denormalizedData)
-    await updateCrosspost(_id, fmCrosspost.foreignPostId, denormalizedData);
+    const latestRevisionId =
+      data.contents_latest ??
+      newDocument.contents_latest ??
+      oldDocument.contents_latest;
+    await updateCrosspost(fmCrosspost.foreignPostId, latestRevisionId, denormalizedData);
     logger('crosspost updated successfully')
     // TODO-HACK: Drafts are very bad news for crossposts, so we will unlink in
     // such cases. See sad message to users in ForeignCrosspostEditForm.tsx.
@@ -192,4 +186,9 @@ export async function handleCrosspostUpdate(
   }
 
   return performCrosspost({ ...newDocument, ...data });
+}
+
+export const addCrosspostingCallbacks = () => {
+  getCollectionHooks("Posts").newSync.add(performCrosspost);
+  getCollectionHooks("Posts").updateBefore.add(handleCrosspostUpdate);
 }
