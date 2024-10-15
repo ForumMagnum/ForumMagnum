@@ -120,7 +120,7 @@ export const hasSidenotes = isLWorAF;
 export const hasAuthorModeration = !isEAForum || isAnyTest;
 
 export const userCanCreateAndEditJargonTerms = (user: UsersCurrent|DbUser|null) => isLW && !!user && user.karma > 1000;
-export const userCanViewJargonTerms = (user: UsersCurrent|DbUser|null) => isLW && !!user && user.karma > 1000;
+export const userCanViewJargonTerms = (user: UsersCurrent|DbUser|null) => !isEAForum;
 
 // Shipped Features
 export const userCanManageTags = shippedFeature;

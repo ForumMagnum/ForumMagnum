@@ -190,6 +190,7 @@ export const createNewJargonTerms = async (postId: string, currentUser: DbUser) 
   const newEnglishJargon = await createEnglishExplanations(post) || []
 
   console.log("creating jargonTerms")
+  const botAccount = await getAdminTeamAccount()
   const newJargonTerms = await Promise.all([
     ...newEnglishJargon.map(term =>
       createMutator({
@@ -208,7 +209,7 @@ export const createNewJargonTerms = async (postId: string, currentUser: DbUser) 
           },
           altTerms: term.altTerms,
         },
-        currentUser: currentUser,
+        currentUser: botAccount,
         validate: false,
       })
     ),

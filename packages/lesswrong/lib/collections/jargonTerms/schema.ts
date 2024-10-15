@@ -1,4 +1,6 @@
+import { getAdminTeamAccount } from '@/server/callbacks/commentCallbacks';
 import { schemaDefaultValue } from '../../utils/schemaUtils';
+import { Revisions } from '../revisions/collection';
 
 const schema: SchemaType<"JargonTerms"> = {
   postId: {
@@ -17,8 +19,29 @@ const schema: SchemaType<"JargonTerms"> = {
   },
   humansAndOrAIEdited: {
     type: String,
-    allowedValues: ['humans', 'AI', 'humansAndAI'],
-    canRead: ['guests'],
+    resolveAs: {
+      type: 'String',
+      resolver: async (post: DbJargonTerm, args: void, context: ResolverContext) => {
+        const botAccount = await getAdminTeamAccount()
+        const earliestRevision = await Revisions.findOne(
+          { documentId: post.postId, documentType: 'jargonTerm' },
+          { sort: { createdAt: 1 } }
+        );
+        const latestRevision = await Revisions.findOne(
+          { documentId: post.postId, documentType: 'jargonTerm' },
+          { sort: { createdAt: -1 } }
+        );
+        const madeByAI = earliestRevision?.userId == botAccount?._id
+        const editedByHumans = latestRevision?.userId != botAccount?._id
+        if (madeByAI && editedByHumans) {
+          return 'humansAndAI'
+        } else if (!madeByAI && editedByHumans) {
+          return 'humans'
+        } else {
+          return 'AI'
+        }
+      }
+    },
     optional: false,
     nullable: false,
     ...schemaDefaultValue('humans'),
