@@ -1,6 +1,5 @@
 import React from 'react';
 import { Components, registerComponent, RouterLocation } from '../../lib/vulcan-lib';
-import { useHover } from '../common/withHover';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useTagPreview } from './useTag';
 import { linkStyle } from '../linkPreview/PostLinkPreview';

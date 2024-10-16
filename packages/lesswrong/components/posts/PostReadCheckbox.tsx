@@ -3,7 +3,8 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import CheckBoxTwoToneIcon from '@material-ui/icons/CheckBoxTwoTone';
 import { useItemsRead } from '../hooks/useRecordPostView';
-import { useNamedMutation } from '../../lib/crud/withMutation';
+import { useMutate } from '../hooks/useMutate';
+import { gql } from '@apollo/client';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
@@ -32,17 +33,20 @@ export const PostReadCheckbox = ({classes, post, width=12}: {
 
   const isRead = post && ((post._id in postsRead) ? postsRead[post._id] : post.isRead)
 
-  const {mutate: markAsReadOrUnread} = useNamedMutation<{
-    postId: string, isRead: boolean,
-  }>({
-    name: 'markAsReadOrUnread',
-    graphqlArgs: {postId: 'String', isRead: 'Boolean'},
-  });
+  const { mutate } = useMutate();
   
   const handleSetIsRead = (isRead: boolean) => {
-    void markAsReadOrUnread({
-      postId: post._id,
-      isRead: isRead,
+    void mutate({
+      mutation: gql`
+        mutation markAsReadOrUnread($postId: String, isRead: Boolean) {
+          markAsReadOrUnread(postId: $postId, isRead: $isRead)
+        }
+      `,
+      variables: {
+        postId: post._id,
+        isRead: isRead,
+      },
+      errorHandling: "flashMessageAndReturn",
     });
     setPostRead(post._id, isRead);
   }

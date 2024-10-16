@@ -3,9 +3,10 @@ import { fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
 import {useOnServerSentEvent} from '../hooks/useUnreadNotifications';
 import {useCurrentUser} from '../common/withUser';
 import {useGlobalKeydown} from '../common/withGlobalKeydown';
-import {gql, useMutation} from '@apollo/client';
+import {gql} from '@apollo/client';
 import throttle from 'lodash/throttle';
 import { isDialogueParticipant } from '../posts/PostsPage/PostsPage';
+import { useMutate } from '../hooks/useMutate';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -23,15 +24,7 @@ export const DebateTypingIndicator = ({classes, post}: {
 
   const [typingIndicators, setTypingIndicators] = useState<TypingIndicatorInfo[]>([]);
   const currentUser = useCurrentUser();
-
-  const [upsertTypingIndicator] = useMutation(gql`
-    mutation upsertUserTypingIndicator($documentId: String!) {
-      upsertUserTypingIndicator(documentId: $documentId) {
-        ...TypingIndicatorsDefaultFragment
-      }
-    }
-    ${fragmentTextForQuery("TypingIndicatorsDefaultFragment")}
-  `)
+  const { mutate } = useMutate()
 
   useGlobalKeydown(throttle(() => {
     // Note, ideally we'd have a more specific trigger for the typing indicator
@@ -41,7 +34,18 @@ export const DebateTypingIndicator = ({classes, post}: {
     // If we continue to use this in more places or update it, we may want to 
     // make it more specific 
     if (currentUser && isDialogueParticipant(currentUser._id, post)) {
-      void upsertTypingIndicator({variables: {documentId: post._id}})
+      void mutate({
+        mutation: gql`
+          mutation upsertUserTypingIndicator($documentId: String!) {
+            upsertUserTypingIndicator(documentId: $documentId) {
+              ...TypingIndicatorsDefaultFragment
+            }
+          }
+          ${fragmentTextForQuery("TypingIndicatorsDefaultFragment")}
+        `,
+        variables: {documentId: post._id},
+        errorHandling: "loggedAndSilent",
+      });
     }
   }, INCIDATOR_UPDATE_PERIOD));
 
