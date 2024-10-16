@@ -5,7 +5,8 @@ import { Link } from '@/lib/reactRouterWrapper';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import { commentGetPageUrlFromIds } from '@/lib/collections/comments/helpers';
 import { State } from '@popperjs/core/lib/types';
-import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
+import { useIsAboveScreenWidth } from '../hooks/useScreenWidth';
+import { POLL_MAX_WIDTH } from './ForumEventPoll';
 
 const WIDTH = 350;
 
@@ -113,7 +114,7 @@ const ForumEventCommentForm = ({
 }) => {
   const { CommentsNewForm, LWPopper, ForumIcon, CommentsEditForm, CommentBody } = Components;
 
-  const isDesktop = useIsAboveBreakpoint("md")
+  const isDesktop = useIsAboveScreenWidth(POLL_MAX_WIDTH);
 
   const [editFormOpen, setEditFormOpen] = useState(false);
   const { flash } = useMessages();

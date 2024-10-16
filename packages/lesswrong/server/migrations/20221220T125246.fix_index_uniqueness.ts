@@ -4,7 +4,7 @@ import { createIndex, dropIndex } from "./meta/utils";
 export const up = async ({db}: MigrationContext) => {
   for (const collection of getAllCollections()) {
     const table = collection.getTable();
-    for (const index of table.getIndexes()) {
+    for (const index of table.getRequestedIndexes()) {
       if (index.isUnique() || index.getPartialFilterExpression()) {
         try {
           await dropIndex(db, collection, index);

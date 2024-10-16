@@ -15,8 +15,9 @@ import type { ForumEventVoteDisplay } from "./ForumEventResultIcon";
 
 export const POLL_MAX_WIDTH = 800;
 const SLIDER_MAX_WIDTH = 1120;
+const RESULT_ICON_MAX_HEIGHT = 27;
 const USER_IMAGE_SIZE = 34;
-const MAX_STACK_IMAGES = 20;
+const DEFAULT_STACK_IMAGES = 20;
 const NUM_TICKS = 29;
 const GAP = "calc(0.6% + 4px)" // Accounts for 2px outline
 
@@ -65,11 +66,6 @@ const styles = (theme: ThemeType) => ({
     position: "relative",
     transition: "max-height 0.5s ease-in-out, opacity 0.5s ease-in-out",
     maxHeight: 0,
-    opacity: 0
-  },
-  sliderLineResultsVisible: {
-    maxHeight: "600px",
-    opacity: 1,
   },
   voteCluster: {
     display: "flex",
@@ -81,6 +77,7 @@ const styles = (theme: ThemeType) => ({
   },
   extraVotesCircle: {
     display: "flex",
+    cursor: "pointer",
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: theme.palette.text.alwaysWhite,
@@ -438,6 +435,8 @@ export const ForumEventPoll = ({
       ? Math.round(initialUserVotePos * (NUM_TICKS - 1))
       : DEFAULT_VOTE_INDEX;
 
+  const [maxStackSize, setMaxStackSize] = useState(DEFAULT_STACK_IMAGES)
+
   // The bucket that the current user's vote is in (including if the vote is currently being dragged)
   const [currentBucketIndex, setCurrentBucketIndex] = useState<number>(
     initialBucketIndex
@@ -699,16 +698,23 @@ export const ForumEventPoll = ({
         </div>
         <div className={classes.sliderRow}>
           <div className={classes.sliderLineCol}>
-            <div className={classNames(classes.sliderLineResults, resultsVisible && classes.sliderLineResultsVisible)}>
+            <div
+              className={classes.sliderLineResults}
+              style={{ maxHeight: resultsVisible ? maxStackSize * RESULT_ICON_MAX_HEIGHT : 0, opacity: resultsVisible ? 1 : 0 }}
+            >
               {voteClusters.map((cluster) => (
                 <div key={cluster.center} className={classes.voteCluster}>
-                  {cluster.votes.length > MAX_STACK_IMAGES && (
-                    <div className={classes.extraVotesCircle}>
-                      <span className={classes.extraVotesText}>+{cluster.votes.length - MAX_STACK_IMAGES}</span>
+                  {cluster.votes.length > maxStackSize && (
+                    <div className={classes.extraVotesCircle} onClick={() => setMaxStackSize((prev) => prev + 10)}>
+                      <span className={classes.extraVotesText}>+{cluster.votes.length - maxStackSize}</span>
                     </div>
                   )}
-                  {cluster.votes.slice(-MAX_STACK_IMAGES).map((vote) => (
-                    <ForumEventResultIcon key={vote.user._id} vote={vote} tooltipDisabled={!resultsVisible} />
+                  {cluster.votes.slice(-maxStackSize).map((vote) => (
+                    <ForumEventResultIcon
+                      key={vote.user._id}
+                      vote={vote}
+                      tooltipDisabled={!resultsVisible}
+                    />
                   ))}
                 </div>
               ))}

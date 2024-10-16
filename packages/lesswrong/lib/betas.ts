@@ -97,6 +97,12 @@ export const allowSubscribeToSequencePosts = isFriendlyUI;
 export const hasPostRecommendations = isEAForum;
 /** Some Forums, notably the EA Forum, have a weekly digest that users can sign up to receive */
 export const hasDigests = isEAForum;
+/**
+ * Whether the instance should have any features for integrating with twitter.
+ * This is different to `twitterBot.enabled`, as there are features to help
+ * with manual posting too.
+ */
+export const hasTwitterFeatures = isEAForum;
 export const hasAccountDeletionFlow = isEAForum;
 export const hasSideComments = hasSideCommentsSetting.get();
 export const useElicitApi = false;

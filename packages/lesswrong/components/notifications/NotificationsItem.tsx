@@ -172,7 +172,9 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
               {children}
             </PostsTooltip>
           )
-          : null;
+          : <>
+            {children}
+          </>
       case "message":
         return (
           <TooltipWrapper
