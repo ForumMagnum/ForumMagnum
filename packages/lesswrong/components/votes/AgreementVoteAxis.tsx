@@ -17,7 +17,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: 24,
     minWidth: 60,
     paddingTop: 2,
-    outline: theme.palette.border.commentBorder,
     borderRadius: isFriendlyUI ? theme.borderRadius.small : 2,
     textAlign: 'center',
     whiteSpace: "nowrap",

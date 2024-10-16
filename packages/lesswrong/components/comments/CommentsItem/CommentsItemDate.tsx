@@ -76,7 +76,6 @@ const CommentsItemDate = ({comment, preventDateFormatting, classes, ...rest}: Co
       date={comment.postedAt}
       format={dateFormat}
     />
-    {isBookUI && <ForumIcon icon="Link" className={classes.icon} />}
   </>);
   
   return (
