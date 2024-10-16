@@ -13,7 +13,7 @@ const styles = (theme: ThemeType) => ({
     ...commentBodyStyles(theme),
     marginBottom: 0,
     marginTop: 0,
-    alignItems: 'center',
+    alignItems: 'flex-start',
 
   },
   flex: {
@@ -23,16 +23,27 @@ const styles = (theme: ThemeType) => ({
   toggleAndEdit: {
     marginRight: 8,
   },
-  isActive: {
+  unapproved: {
+    opacity: .5,
+    cursor: 'pointer',
+    paddingLeft: 34,
+    paddingTop: 4,
+    paddingBottom: 4,
+    '&:hover': {
+      opacity: 1,
+    }
+  },
+  approved: {
     display: 'flex',
     flexGrow: 1,
     border: '1px solid transparent',
     padding: 10,
+    paddingBottom: 6,
     flexDirection: 'row',
     ...commentBodyStyles(theme),
     fontSize: '1.1rem',
     marginBottom: 0,
-    marginTop: 0,
+    marginTop: 6,
     // TODO: figure out how to manage border separators between active and inactive terms
     borderTop: theme.palette.border.commentBorder,
     borderBottom: theme.palette.border.commentBorder,
@@ -54,31 +65,25 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
+    justifyContent: 'flex-start',
+    paddingTop: 20,
   },
   leftButton: {
     opacity: 0,
+    transition: 'opacity 0.1s',
     '$root:hover &': {
-      opacity: 1
+      opacity: .3
+    },
+    '&:hover': {
+      opacity: .7
     },
     minHeight: "auto !important",
     minWidth: "auto !important",
     cursor: 'pointer',
     height: 24,
-    marginTop: 8,
-    width: 16,
-    marginRight: -8,
-    marginLeft: 4,
+    padding: 4,
+    width: 24,
   },
-  inactive: {
-    opacity: .5,
-    cursor: 'pointer',
-    paddingLeft: 10,
-    paddingTop: 4,
-    paddingBottom: 4,
-    '&:hover': {
-      opacity: 1,
-    }
-  }
 });
 
 export const JargonEditorRow = ({classes, jargonTerm}: {
@@ -87,8 +92,9 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
 }) => {
   const { LWTooltip, WrappedSmartForm, ContentItemBody } = Components;
 
-  const [isActive, setIsActive] = useState(jargonTerm.approved);
+  // const [isActive, setIsActive] = useState(jargonTerm.approved);
   const [edit, setEdit] = useState(false);
+  // TODO: make the hidden state conditional on whether any terms are approved at all, and then hide the unapproved terms.  (But maybe put them in a collapsed section instead?)
   const [hidden, setHidden] = useState(false);
 
   const {mutate: updateJargonTerm} = useUpdate({
@@ -97,7 +103,7 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
   });
 
   const handleActiveChange = (value: boolean) => {
-    setIsActive(value);
+    // setIsActive(value);
     void updateJargonTerm({
       selector: { _id: jargonTerm._id },
       data: {
@@ -120,7 +126,7 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
   if (hidden) return null;
 
   const handleDoubleClickhandleDoubleClick = () => {
-    if (isActive) {
+    if (jargonTerm.approved) {
       setEdit(true);
     }
   };
@@ -128,21 +134,23 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
   const termContentElement = <ContentItemBody dangerouslySetInnerHTML={{__html: jargonTerm?.contents?.originalContents?.data ?? ''}}/>;
 
   return <div className={classes.root}>
-    {isActive &&<div className={classes.leftButtons}>
-      <LWTooltip title="Hide this term (you can get it back later)">
+    {jargonTerm.approved &&<div className={classes.leftButtons}>
+      <LWTooltip title={<div><div>Hide term</div><div>You can get it back later</div></div>} placement="left">
         <span onClick={() => handleDelete()}>
           <CloseIcon className={classes.leftButton} />
         </span>
       </LWTooltip>
-       <span onClick={() => setEdit(true)}>
-        <EditIcon className={classes.leftButton} />
-      </span>
+      <LWTooltip title="Edit term/definition" placement="left">
+        <span onClick={() => setEdit(true)}>
+          <EditIcon className={classes.leftButton} />
+        </span>
+      </LWTooltip>
     </div>}
-    <div className={classNames(classes.flex, isActive && classes.isActive)}>
-      {!isActive && <LWTooltip title={<div><p><em>Click to enable jargon hoverover</em></p>{termContentElement}</div>}>
-        <div dangerouslySetInnerHTML={{__html: jargonTerm.term}} onClick={() => handleActiveChange(!isActive)} className={classes.inactive} />
+    <div className={classNames(classes.flex, jargonTerm.approved && classes.approved)}>
+      {!jargonTerm.approved && <LWTooltip title={<div><p><em>Click to enable jargon hoverover</em></p>{termContentElement}</div>}>
+        <div dangerouslySetInnerHTML={{__html: jargonTerm.term}} onClick={() => handleActiveChange(!jargonTerm.approved)} className={classes.unapproved} />
       </LWTooltip>}
-      {isActive && (edit
+      {jargonTerm.approved && (edit
         ? <WrappedSmartForm
             collectionName="JargonTerms"
             documentId={jargonTerm._id}

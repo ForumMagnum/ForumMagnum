@@ -27,13 +27,12 @@ export const GlossaryEditForm = ({ classes, document }: {
 
   const { results: glossary = [], loadMoreProps, refetch } = useMulti({
     terms: {
-      view: "jargonTerms",
+      view: "postJargonTerms",
       postId: document._id,
       limit: 100
     },
     collectionName: "JargonTerms",
     fragmentName: 'JargonTermsFragment',
-    ssr: true,
   })
 
   const sortedGlossary = [...glossary].sort((a, b) => {
@@ -43,8 +42,6 @@ export const GlossaryEditForm = ({ classes, document }: {
     if (termA > termB) return 1;
     return 0;
   });
-
-  const hiddenTerms = sortedGlossary.filter((item: any) => item.deleted);
 
   const [getNewJargonTerms, { data, loading: mutationLoading, error }] = useMutation(gql`
     mutation getNewJargonTerms($postId: String!) {
@@ -73,7 +70,8 @@ export const GlossaryEditForm = ({ classes, document }: {
     <p>
       Beta feature! Select/edit terms below, and readers will be able to hover over and read the explanation.
     </p>
-    {!!sortedGlossary && <>{sortedGlossary.map((item: any) => !item.isAltTerm && <JargonEditorRow key={item._id} jargonTerm={item}/>)}</>}
+    {/** The filter condition previously was checking item.isAltTerm, but that doesn't exist on JargonTermsFragment.  Not sure it was doing anything meaningful, or was just llm-generated. */}
+    {!!sortedGlossary && <>{sortedGlossary.map((item) => <JargonEditorRow key={item._id} jargonTerm={item}/>)}</>}
     <LoadMore {...loadMoreProps} />
     <Button onClick={addNewJargonTerms} className={classes.generateButton}>Generate new terms</Button>
     {mutationLoading && <Loading/>}
