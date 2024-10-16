@@ -19,32 +19,9 @@ const schema: SchemaType<"JargonTerms"> = {
   },
   humansAndOrAIEdited: {
     type: String,
-    resolveAs: {
-      type: 'String',
-      resolver: async (post: DbJargonTerm, args: void, context: ResolverContext) => {
-        const botAccount = await getAdminTeamAccount()
-        const earliestRevision = await Revisions.findOne(
-          { documentId: post.postId, documentType: 'jargonTerm' },
-          { sort: { createdAt: 1 } }
-        );
-        const latestRevision = await Revisions.findOne(
-          { documentId: post.postId, documentType: 'jargonTerm' },
-          { sort: { createdAt: -1 } }
-        );
-        const madeByAI = earliestRevision?.userId == botAccount?._id
-        const editedByHumans = latestRevision?.userId != botAccount?._id
-        if (madeByAI && editedByHumans) {
-          return 'humansAndAI'
-        } else if (!madeByAI && editedByHumans) {
-          return 'humans'
-        } else {
-          return 'AI'
-        }
-      }
-    },
     optional: false,
     nullable: false,
-    ...schemaDefaultValue('humans'),
+    // Implementation in postResolvers.ts
   },
   forLaTeX: {
     type: Boolean,
