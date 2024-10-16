@@ -5,11 +5,16 @@ import classNames from 'classnames';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import Button from '@material-ui/core/Button';
 import EditIcon from '@material-ui/icons/Edit';
-
+import CloseIcon from '@material-ui/icons/Close';
 const styles = (theme: ThemeType) => ({
   root: {
     width: '100%',
     display: 'flex',
+    ...commentBodyStyles(theme),
+    marginBottom: 0,
+    marginTop: 0,
+    alignItems: 'center',
+
   },
   flex: {
     display: 'flex',
@@ -45,27 +50,31 @@ const styles = (theme: ThemeType) => ({
     cursor: 'pointer',
     fontSize: '1rem',
   },
-  deleteButton: {
+  leftButtons: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  leftButton: {
     opacity: 0,
     '$root:hover &': {
       opacity: 1
     },
     minHeight: "auto !important",
     minWidth: "auto !important",
+    cursor: 'pointer',
     height: 24,
     marginTop: 8,
     width: 16,
     marginRight: -8,
     marginLeft: 4,
   },
-  active: {
-    cursor: 'pointer',
-    opacity: 1,
-  },
   inactive: {
     opacity: .5,
     cursor: 'pointer',
     paddingLeft: 10,
+    paddingTop: 4,
+    paddingBottom: 4,
     '&:hover': {
       opacity: 1,
     }
@@ -119,21 +128,20 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
   const termContentElement = <ContentItemBody dangerouslySetInnerHTML={{__html: jargonTerm?.contents?.originalContents?.data ?? ''}}/>;
 
   return <div className={classes.root}>
-    <div>
+    {isActive &&<div className={classes.leftButtons}>
       <LWTooltip title="Hide this term (you can get it back later)">
-        <Button onClick={() => handleDelete()} className={classes.deleteButton}>X</Button>
+        <span onClick={() => handleDelete()}>
+          <CloseIcon className={classes.leftButton} />
+        </span>
       </LWTooltip>
-      {isActive && <EditIcon className={classes.editButton} onClick={() => setEdit(true)}/>}
-    </div>
-    <div className={classNames(classes.flex, isActive && classes.isActive)} onDoubleClick={() => isActive && setEdit(true)}>
-      {/* <div className={classes.toggleAndEdit}>
-        <ToggleSwitch value={isActive} className={classes.toggleSwitch} setValue={handleActiveChange}/>
-        {isActive && <a className={classes.editButton} onClick={() => setEdit(!edit)}>Edit</a>}
-      </div> */}
-      {!isActive && <LWTooltip title={termContentElement} placement='left-start'>
+       <span onClick={() => setEdit(true)}>
+        <EditIcon className={classes.leftButton} />
+      </span>
+    </div>}
+    <div className={classNames(classes.flex, isActive && classes.isActive)}>
+      {!isActive && <LWTooltip title={<div><p><em>Click to enable jargon hoverover</em></p>{termContentElement}</div>}>
         <div dangerouslySetInnerHTML={{__html: jargonTerm.term}} onClick={() => handleActiveChange(!isActive)} className={classes.inactive} />
       </LWTooltip>}
-      {/** TODO: do we need to use the .active classname anywhere? */}
       {isActive && (edit
         ? <WrappedSmartForm
             collectionName="JargonTerms"
