@@ -4,6 +4,7 @@ import { commentBodyStyles } from '@/themes/stylePiping';
 import classNames from 'classnames';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import Button from '@material-ui/core/Button';
+import EditIcon from '@material-ui/icons/Edit';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -41,12 +42,8 @@ const styles = (theme: ThemeType) => ({
   toggleSwitch: {
   },
   editButton: {
-    position: 'absolute',
-    right: 8,
-    bottom: 8,
+    cursor: 'pointer',
     fontSize: '1rem',
-    color: theme.palette.grey[500],
-    textWrap: 'nowrap',
   },
   deleteButton: {
     opacity: 0,
@@ -112,7 +109,7 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
 
   if (hidden) return null;
 
-  const handleDoubleClick = () => {
+  const handleDoubleClickhandleDoubleClick = () => {
     if (isActive) {
       setEdit(true);
     }
@@ -121,6 +118,12 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
   const termContentElement = <ContentItemBody dangerouslySetInnerHTML={{__html: jargonTerm?.contents?.originalContents?.data ?? ''}}/>;
 
   return <div className={classes.root}>
+    <div>
+      <LWTooltip title="Hide this term (you can get it back later)">
+        <Button onClick={() => handleDelete()} className={classes.deleteButton}>X</Button>
+      </LWTooltip>
+      {isActive && <EditIcon className={classes.editButton} onClick={() => setEdit(true)}/>}
+    </div>
     <div className={classNames(classes.flex, isActive && classes.isActive)} onDoubleClick={() => isActive && setEdit(true)}>
       {/* <div className={classes.toggleAndEdit}>
         <ToggleSwitch value={isActive} className={classes.toggleSwitch} setValue={handleActiveChange}/>
@@ -142,12 +145,6 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
         : termContentElement
       )}
     </div>
-    <div>
-      <LWTooltip title="Hide this term (you can get it back later)">
-        <Button onClick={() => handleDelete()} className={classes.deleteButton}>X</Button>
-      </LWTooltip>
-    </div>
-    {isActive && <div className={classes.editButton}>Doubleclick to edit</div>}
   </div>
 }
 
