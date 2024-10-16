@@ -10,8 +10,7 @@ registerFragment(`
     }
     humansAndOrAIEdited
     forLaTeX
-    rejected
-    deleted
+    approved
     altTerms
   }
 `);

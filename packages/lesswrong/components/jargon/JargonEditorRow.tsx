@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { commentBodyStyles } from '@/themes/stylePiping';
 import classNames from 'classnames';
@@ -81,9 +81,9 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
 }) => {
   const { LWTooltip, WrappedSmartForm, ContentItemBody } = Components;
 
-  const [isActive, setIsActive] = React.useState(!jargonTerm.rejected);
-  const [edit, setEdit] = React.useState(false);
-  const [hidden, setHidden] = React.useState(false);
+  const [isActive, setIsActive] = useState(jargonTerm.approved);
+  const [edit, setEdit] = useState(false);
+  const [hidden, setHidden] = useState(false);
 
   const {mutate: updateJargonTerm} = useUpdate({
     collectionName: "JargonTerms",
@@ -95,19 +95,20 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
     void updateJargonTerm({
       selector: { _id: jargonTerm._id },
       data: {
-        rejected: !value
+        approved: value
       },
     })
   }
 
+  // TODO: remove this functionality
   const handleDelete = () => {
     setHidden(true);
-    void updateJargonTerm({
-      selector: { _id: jargonTerm._id },
-      data: {
-        deleted: true
-      },
-    })
+    // void updateJargonTerm({
+    //   selector: { _id: jargonTerm._id },
+    //   data: {
+    //     deleted: true
+    //   },
+    // })
   }
 
   if (hidden) return null;
