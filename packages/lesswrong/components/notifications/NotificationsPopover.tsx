@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
-import { Link } from "@/lib/reactRouterWrapper";
 import { HEADER_HEIGHT } from "../common/Header";
 import { useCurrentUser } from "../common/withUser";
 import { styles as popoverStyles } from "../common/FriendlyHoverOver";
@@ -10,6 +9,7 @@ import type { NotificationDisplay } from "@/lib/notificationTypes";
 import type { KarmaChanges } from "@/lib/collections/users/karmaChangesGraphQL";
 import type { KarmaChangeUpdateFrequency } from "@/lib/collections/users/schema";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
+import { NotificationsPopoverContext, NotifPopoverLink } from "./useNotificationsPopoverContext";
 
 const notificationsSettingsLink = "/account?highlightField=auto_subscribe_to_my_posts";
 
@@ -105,7 +105,7 @@ const NotificationsPopover = ({karmaChanges, markAllAsRead, closePopover, classe
 
   const closeMenu = useCallback(() => setIsOpen(false), []);
 
-  const closeAll = useCallback(() => {
+  const closeNotifications = useCallback(() => {
     closeMenu();
     closePopover?.();
   }, [closePopover, closeMenu]);
@@ -142,87 +142,87 @@ const NotificationsPopover = ({karmaChanges, markAllAsRead, closePopover, classe
   } = Components;
   return (
     <AnalyticsContext pageSectionContext="notificationsPopover">
-      <div className={classes.root}>
-        <div className={classes.title}>Notifications</div>
-        <div className={classes.menuContainer}>
-          <div className={classes.menu} onClick={toggleMenu} ref={anchorEl}>
-            <ForumIcon icon="EllipsisVertical" />
-          </div>
-          <PopperCard
-            open={isOpen}
-            anchorEl={anchorEl.current}
-            placement="bottom-end"
-          >
-            <LWClickAwayListener onClickAway={closeMenu}>
-              <DropdownMenu>
-                <DropdownItem
-                  title="Mark all as read"
-                  onClick={markAllAsRead}
-                />
-                <DropdownItem
-                  title="Notification settings"
-                  to={notificationsSettingsLink}
-                  onClick={closeAll}
-                />
-              </DropdownMenu>
-            </LWClickAwayListener>
-          </PopperCard>
-        </div>
-        {showNotifications
-          ? (
-            <>
-              <SectionTitle
-                title="Karma & reacts"
-                titleClassName={classes.sectionTitle}
-              />
-              {cachedKarmaChanges &&
-                <NotificationsPageKarmaChangeList
-                  karmaChanges={cachedKarmaChanges}
-                />
-              }
-              {!cachedKarmaChanges &&
-                <div className={classes.noKarma}>
-                  No new karma or reacts{getKarmaFrequency(updateFrequency)}.{" "}
-                  <Link
-                    to={karmaSettingsLink}
-                    onClick={closeAll}
-                    className={classes.link}
-                  >
-                    Change settings
-                  </Link>
-                </div>
-              }
-              <SectionTitle
-                title="Posts & comments"
-                titleClassName={classes.sectionTitle}
-              />
-              <div className={classes.notifications}>
-                {notifs.current.map((notification) =>
-                  <NotificationsPopoverNotification
-                    key={notification._id}
-                    notification={notification}
-                    onClick={closeAll}
+      <NotificationsPopoverContext.Provider value={{ closeNotifications }}>
+        <div className={classes.root}>
+          <div className={classes.title}>Notifications</div>
+          <div className={classes.menuContainer}>
+            <div className={classes.menu} onClick={toggleMenu} ref={anchorEl}>
+              <ForumIcon icon="EllipsisVertical" />
+            </div>
+            <PopperCard
+              open={isOpen}
+              anchorEl={anchorEl.current}
+              placement="bottom-end"
+            >
+              <LWClickAwayListener onClickAway={closeMenu}>
+                <DropdownMenu>
+                  <DropdownItem
+                    title="Mark all as read"
+                    onClick={markAllAsRead}
                   />
-                )}
-                <LoadMore
-                  loadMore={loadMore}
-                  loading={notificationsLoading}
-                  loadingClassName={classes.loading}
-                />
-              </div>
-            </>
-          )
-          : notificationsLoading
+                  <DropdownItem
+                    title="Notification settings"
+                    to={notificationsSettingsLink}
+                    onClick={closeNotifications}
+                  />
+                </DropdownMenu>
+              </LWClickAwayListener>
+            </PopperCard>
+          </div>
+          {showNotifications
             ? (
-              <Loading className={classes.mainLoading} />
+              <>
+                <SectionTitle
+                  title="Karma & reacts"
+                  titleClassName={classes.sectionTitle}
+                />
+                {cachedKarmaChanges &&
+                  <NotificationsPageKarmaChangeList
+                    karmaChanges={cachedKarmaChanges}
+                  />
+                }
+                {!cachedKarmaChanges &&
+                  <div className={classes.noKarma}>
+                    No new karma or reacts{getKarmaFrequency(updateFrequency)}.{" "}
+                    <NotifPopoverLink
+                      to={karmaSettingsLink}
+                      className={classes.link}
+                    >
+                      Change settings
+                    </NotifPopoverLink>
+                  </div>
+                }
+                <SectionTitle
+                  title="Posts & comments"
+                  titleClassName={classes.sectionTitle}
+                />
+                <div className={classes.notifications}>
+                  {notifs.current.map((notification) =>
+                    <NotificationsPopoverNotification
+                      key={notification._id}
+                      notification={notification}
+                    />
+                  )}
+                  <LoadMore
+                    loadMore={loadMore}
+                    loading={notificationsLoading}
+                    loadingClassName={classes.loading}
+                  />
+                </div>
+              </>
             )
-            : (
-              <NoNotificationsPlaceholder
-                subscribedToDigest={subscribedToDigest}
-              />
-            )
-        }
-      </div>
+            : notificationsLoading
+              ? (
+                <Loading className={classes.mainLoading} />
+              )
+              : (
+                <NoNotificationsPlaceholder
+                  subscribedToDigest={subscribedToDigest}
+                />
+              )
+          }
+        </div>
+      </NotificationsPopoverContext.Provider>
     </AnalyticsContext>
   );
 }

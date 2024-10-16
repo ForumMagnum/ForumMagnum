@@ -20,7 +20,7 @@ import { cheerioParse } from '../utils/htmlUtil';
 import { isDialogueParticipant } from '../../components/posts/PostsPage/PostsPage';
 import { marketInfoLoader } from '../../lib/collections/posts/annualReviewMarkets';
 import { getWithCustomLoader } from '../../lib/loaders';
-import { isLWorAF, isAF } from '../../lib/instanceSettings';
+import { isLWorAF, isAF, twitterBotKarmaThresholdSetting } from '../../lib/instanceSettings';
 import { hasSideComments } from '../../lib/betas';
 import SideCommentCaches from '../../lib/collections/sideCommentCaches/collection';
 import { drive } from "@googleapis/drive";
@@ -33,7 +33,7 @@ import { GoogleDocMetadata, getLatestContentsRevision } from '../../lib/collecti
 import { RecommendedPost, recombeeApi, recombeeRequestHelpers } from '../recombee/client';
 import { HybridRecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
 import { googleVertexApi } from '../google-vertex/client';
-import { userCanDo } from '../../lib/vulcan-users/permissions';
+import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
 
 augmentFieldsDict(Posts, {
   // Compute a denormalized start/end time for events, accounting for the
@@ -747,4 +747,29 @@ createPaginatedResolver({
 
     return await googleVertexApi.getRecommendations(limit, context);
   }
+});
+
+createPaginatedResolver({
+  name: "CrossedKarmaThreshold",
+  graphQLType: "Post",
+  callback: async (
+    context: ResolverContext,
+    limit: number // This limit is not actually respected
+  ): Promise<DbPost[]> => {
+      const {repos, currentUser} = context
+
+      if (!currentUser) return []
+      if (!userIsAdmin(currentUser)) {
+        throw new Error("You must be an admin to use this resolver")
+      }
+
+      // 8 days ago
+      const since = new Date(Date.now() - (8 * 24 * 60 * 60 * 1000));
+      // Slightly below the threshold we're aiming for to make it easier to queue up tweets
+      const threshold = twitterBotKarmaThresholdSetting.get() - 5;
+
+      const postIds = await repos.tweets.getUntweetedPostsCrossingKarmaThreshold({ since, threshold });
+      return await Posts.find({ _id: { $in: postIds } }, { sort: { postedAt: -1 } }).fetch();
+    },
+  cacheMaxAgeMs: 0
 });

@@ -4,24 +4,30 @@
  * If no environment is specified, you can use the environment variables PG_URL
  * and SETTINGS_FILE
  */
-require("ts-node/register");
-const { getDatabaseConfig, startSshTunnel } = require("./scripts/startup/buildUtil");
 
-const initGlobals = (args, isProd) => {
-  global.bundleIsServer = true;
-  global.bundleIsTest = false;
-  global.bundleIsE2E = false;
-  global.bundleIsProduction = isProd;
-  global.bundleIsMigrations = true;
-  global.defaultSiteAbsoluteUrl = "";
-  global.serverPort = 5001;
-  global.estrellaPid = -1;
+import { existsSync } from "node:fs";
+import type { ITask } from "pg-promise";
+
+// @ts-ignore This is a javascript file without a .d.ts
+import { getDatabaseConfig, startSshTunnel } from "./scripts/startup/buildUtil";
+
+const initGlobals = (args: Record<string, unknown>, isProd: boolean) => {
+  Object.assign(global, {
+    bundleIsServer: true,
+    bundleIsTest: false,
+    bundleIsE2E: false,
+    bundleIsProduction: isProd,
+    bundleIsMigrations: true,
+    defaultSiteAbsoluteUrl: "",
+    serverPort: 5001,
+    estrellaPid: -1,
+  });
 
   const { getInstanceSettings } = require("./packages/lesswrong/lib/executionEnvironment");
   getInstanceSettings(args); // These args will be cached for later
 }
 
-const fetchImports = (args, isProd) => {
+const fetchImports = (args: Record<string, unknown>, isProd: boolean) => {
   initGlobals(args, isProd);
 
   const { getSqlClientOrThrow, setSqlClient } = require("./packages/lesswrong/server/sql/sqlClient");
@@ -29,46 +35,69 @@ const fetchImports = (args, isProd) => {
   return { getSqlClientOrThrow, setSqlClient, createSqlConnection };
 }
 
-const credentialsPath = (forumType) => {
-  const memorizedBases = {
+const forumTypes = ["lw", "ea", "none"] as const;
+
+type ForumType = typeof forumTypes[number];
+
+const getCredentialsBase = (forumType: ForumType): string => {
+  const memorizedBases: Record<ForumType, string> = {
     lw: "..",
     ea: "..",
+    none: ".",
   };
-  const base = process.env.GITHUB_WORKSPACE ?? memorizedBases[forumType] ?? ".";
-  const memorizedRepoNames = {
-    lw: 'LessWrong-Credentials',
-    ea: 'ForumCredentials',
-  };
-  const repoName = memorizedRepoNames[forumType];
-  if (!repoName) {
-    return base;
-  }
-  return `${base}/${repoName}`;
+  return process.env.GITHUB_WORKSPACE ?? memorizedBases[forumType];
 }
 
-const settingsFilePath = (fileName, forumType) => {
+const credentialsPath = (forumType: ForumType) => {
+  const base = getCredentialsBase(forumType);
+  const memorizedRepoNames: Record<ForumType, string> = {
+    lw: '/LessWrong-Credentials',
+    ea: '/ForumCredentials',
+    none: "",
+  };
+  const repoName = memorizedRepoNames[forumType];
+  return `${base}${repoName}`;
+}
+
+const detectForumType = async (): Promise<ForumType> => {
+  const siteForumTypes = forumTypes.filter((forumType) => forumType !== "none");
+  for (const forumType of siteForumTypes) {
+    if (existsSync(credentialsPath(forumType))) {
+      return forumType;
+    }
+  }
+  return "none";
+}
+
+const settingsFilePath = (fileName: string, forumType: ForumType) => {
   return `${credentialsPath(forumType)}/${fileName}`;
 }
 
-const databaseConfig = (mode, forumType) => {
+type DatabaseConfig = {
+  postgresUrl?: string,
+  sshTunnelCommand?: string[],
+}
+
+const databaseConfig = (mode: string, forumType: ForumType): DatabaseConfig => {
   if (!mode) {
     return {};
   }
-  const memorizedConfigPaths = {
+  const memorizedConfigPaths: Record<ForumType, unknown> = {
     lw: {
       db: `${credentialsPath(forumType)}/connectionConfigs/${mode}.json`,
     },
     ea: {
       postgresUrlFile: `${credentialsPath(forumType)}/${mode}-pg-conn.txt`,
     },
+    none: {
+      postgresUrlFile: `${credentialsPath(forumType)}/${mode}-pg-conn.txt`,
+    },
   };
-  const configPath = memorizedConfigPaths[forumType] || {
-    postgresUrlFile: `${credentialsPath(forumType)}/${mode}-pg-conn.txt`,
-  };
-  return getDatabaseConfig(configPath);
+  const configPath = memorizedConfigPaths[forumType];
+  return getDatabaseConfig(configPath) as DatabaseConfig;
 };
 
-const settingsFileName = (mode, forumType) => {
+const settingsFileName = (mode: string, forumType: ForumType) => {
   if (!mode) {
     // With the state of the code when this comment was written, this indicates
     // an error condition, but it will be handled later, around L60
@@ -100,8 +129,9 @@ const settingsFileName = (mode, forumType) => {
     mode = "dev";
   }
 
-  const forumType = process.argv[4];
-  const forumTypeIsSpecified = ['lw', 'ea'].includes(forumType)
+  const forumType = await detectForumType();
+  const forumTypeIsSpecified = forumType !== "none";
+  console.log(`Running with forum type "${forumType}"`);
 
   const dbConf = databaseConfig(mode, forumType);
   if (dbConf.postgresUrl) {
@@ -112,7 +142,7 @@ const settingsFileName = (mode, forumType) => {
     settingsFileName: process.env.SETTINGS_FILE || settingsFileName(mode, forumType),
     shellMode: false,
   };
-  
+
   await startSshTunnel(databaseConfig(mode, forumType).sshTunnelCommand);
 
   if (["dev", "staging", "prod", "xpost"].includes(mode)) {
@@ -120,8 +150,6 @@ const settingsFileName = (mode, forumType) => {
     args.settingsFileName = settingsFilePath(settingsFileName(mode, forumType), forumType);
     if (command !== "create") {
       process.argv = process.argv.slice(0, 3).concat(process.argv.slice(forumTypeIsSpecified ? 5 : 4));
-    } else if (forumTypeIsSpecified) {
-      process.argv.pop();
     }
   } else if (args.postgresUrl && args.settingsFileName) {
     console.log('Using PG_URL and SETTINGS_FILE from environment');
@@ -143,16 +171,26 @@ const settingsFileName = (mode, forumType) => {
     : await createSqlConnection(args.postgresUrl);
 
   try {
-    await db.tx(async (transaction) => {
+    await db.tx(async (transaction: ITask<{}>) => {
       setSqlClient(transaction);
       setSqlClient(db, "noTransaction");
       const { createMigrator }  = require("./packages/lesswrong/server/migrations/meta/umzug");
       const migrator = await createMigrator(transaction, db);
-      const result = await migrator.runAsCLI();
-      if (!result) {
-        // If the migration throws an error it will have already been reported,
-        // but we need to manually propagate it to the exitCode
-        exitCode = 1;
+
+      if (command === "create") {
+        const name = process.argv[3];
+        if (!name) {
+          throw new Error("No name provided for new migration");
+        }
+        console.log(`Creating new migration with name "${name}"`);
+        await migrator.create({name});
+      } else {
+        const result = await migrator.runAsCLI();
+        if (!result) {
+          // If the migration throws an error it will have already been reported,
+          // but we need to manually propagate it to the exitCode
+          exitCode = 1;
+        }
       }
     });
   } catch (e) {
