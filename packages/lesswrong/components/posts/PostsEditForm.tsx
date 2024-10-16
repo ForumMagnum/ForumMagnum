@@ -195,7 +195,7 @@ const PostsEditForm = ({ documentId, version, classes }: {
               editFormFetchPolicy={editFormFetchPolicy}
             />
           </EditorContext.Provider>
-          <GlossaryEditForm document={document} />
+          {/* <GlossaryEditForm document={document} /> */}
         </DeferRender>
       </div>
     </DynamicTableOfContents>

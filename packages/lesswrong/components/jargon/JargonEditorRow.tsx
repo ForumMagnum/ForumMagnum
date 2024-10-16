@@ -72,6 +72,38 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
+const submitStyles = (theme: ThemeType) => ({
+  root: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    marginTop: 20,
+    justifyContent: 'end',
+    height: 36,
+  },
+  submitButton: {
+    color: theme.palette.secondary.main
+  },
+  cancelButton: {},
+});
+
+const JargonSubmitButton = ({ submitForm, cancelCallback, classes }: FormButtonProps & { classes: ClassesType<typeof submitStyles> }) => {
+  const { Loading } = Components;
+
+  const [loading, setLoading] = useState(false);
+
+  const wrappedSubmitForm = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    setLoading(true);
+    await submitForm(e);
+    setLoading(false);
+  }
+
+  return <div className={classes.root}>
+    {!loading && <Button onClick={cancelCallback} className={classes.cancelButton}>Cancel</Button>}
+    {!loading && <Button onClick={wrappedSubmitForm} className={classes.submitButton}>Submit</Button>}
+    {loading && <Loading />}
+  </div>
+};
+
 export const JargonEditorRow = ({classes, jargonTerm}: {
   classes: ClassesType<typeof styles>,
   jargonTerm: JargonTermsFragment,
@@ -144,6 +176,9 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
             queryFragment={getFragment('JargonTermsFragment')}
             successCallback={() => setEdit(false)}
             cancelCallback={() => setEdit(false)}
+            formComponents={{ FormSubmit: Components.JargonSubmitButton }}
+            // TODO: check whether this works after we fix the glossary resolver field to return an array of JargonTerms and then resolve it with the right fragment
+            editFormFetchPolicy='cache-first'
           />
         : termContentElement
       )}
@@ -151,10 +186,12 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
   </div>
 }
 
+const JargonSubmitButtonComponent = registerComponent('JargonSubmitButton', JargonSubmitButton, {styles: submitStyles});
 const JargonEditorRowComponent = registerComponent('JargonEditorRow', JargonEditorRow, {styles});
 
 declare global {
   interface ComponentTypes {
+    JargonSubmitButton: typeof JargonSubmitButtonComponent,
     JargonEditorRow: typeof JargonEditorRowComponent
   }
 }
