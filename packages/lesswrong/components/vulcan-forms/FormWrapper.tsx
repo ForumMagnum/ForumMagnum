@@ -189,6 +189,8 @@ const FormWrapperEdit = <N extends CollectionNameString>(props: WrappedSmartForm
     fragment: mutationFragment,
   });
 
+  console.log({ document, loading, editFormFetchPolicy });
+
   if (loading) {
     return <Components.Loading/>
   }

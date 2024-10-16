@@ -27,7 +27,7 @@ augmentFieldsDict(JargonTerms, {
         const madeByAI = earliestRevision.userId === botAccount._id;
         const editedByHumans = latestRevision.userId !== botAccount._id;
 
-        console.log({ latestRevision, earliestRevision, madeByAI, editedByHumans });
+        // console.log({ latestRevision, earliestRevision, madeByAI, editedByHumans });
         if (madeByAI && editedByHumans) {
           return 'humansAndAI';
         } else if (!madeByAI && editedByHumans) {
