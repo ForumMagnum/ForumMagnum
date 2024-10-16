@@ -528,10 +528,8 @@ interface DbJargonTerm extends DbObject {
   __collectionName?: "JargonTerms"
   postId: string
   term: string
-  humansAndOrAIEdited: "humans" | "AI" | "humansAndAI"
   forLaTeX: boolean
-  rejected: boolean
-  deleted: boolean
+  approved: boolean
   altTerms: Array<string>
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/

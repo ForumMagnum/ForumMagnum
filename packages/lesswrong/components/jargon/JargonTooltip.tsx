@@ -4,6 +4,7 @@ import Card from '@material-ui/core/Card';
 import { commentBodyStyles } from '@/themes/stylePiping';
 import { ContentReplacedSubstringComponentInfo } from '../common/ContentItemBody';
 import { PopperPlacementType } from '@material-ui/core/Popper';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType) => ({
   card: {
@@ -28,10 +29,11 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const JargonTooltip = ({term, definitionHTML, altTerms, replacedSubstrings, isFirstOccurrence = false, placement="bottom-start", children, classes}: {
+export const JargonTooltip = ({term, definitionHTML, altTerms, humansAndOrAIEdited, replacedSubstrings, isFirstOccurrence = false, placement="bottom-start", children, classes}: {
   term: string,
   definitionHTML: string,
   altTerms: string[],
+  humansAndOrAIEdited: JargonTermsDefaultFragment['humansAndOrAIEdited'],
   replacedSubstrings: ContentReplacedSubstringComponentInfo[],
   isFirstOccurrence?: boolean,
   placement?: PopperPlacementType
@@ -52,11 +54,12 @@ export const JargonTooltip = ({term, definitionHTML, altTerms, replacedSubstring
       {altTerms.map((term: string) => (
         <span className={classes.altTerm} key={term}>{term}</span>
       ))}
+      {humansAndOrAIEdited && <span>{humansAndOrAIEdited}</span>}
     </div>
   </Card>
 
   return <LWTooltip title={tooltip} tooltip={false} placement={placement} clickable={true}>
-    <span className={ isFirstOccurrence ? classes.jargonWord : undefined}>
+    <span className={classNames(isFirstOccurrence && classes.jargonWord)}>
       {children}
     </span>
   </LWTooltip>;
@@ -72,6 +75,7 @@ export function jargonTermsToTextReplacements(terms: GlossaryTerm[]): ContentRep
       term: glossaryItem.term,
       definitionHTML: glossaryItem.html,
       altTerms: glossaryItem.altTerms,
+      humansAndOrAIEdited: glossaryItem.humansAndOrAIEdited,
     },
   }));
 }

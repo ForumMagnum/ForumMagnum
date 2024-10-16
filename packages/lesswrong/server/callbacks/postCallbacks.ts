@@ -695,17 +695,16 @@ getCollectionHooks("Posts").editSync.add(async function removeFrontpageDate(
 });
 
 async function createNewJargonTermsCallback(post: DbPost, callbackProperties: CreateCallbackProperties<"Posts">) {
-  const { newDocument, context: { currentUser, loaders } } = callbackProperties;
+  const { context: { currentUser, loaders } } = callbackProperties;
 
   if (!currentUser) return post;
-  if (currentUser._id !== newDocument.userId) return post;
-  if (!newDocument.contents_latest) return post;
+  if (currentUser._id !== post.userId) return post;
+  if (!post.contents_latest) return post;
   if (!userCanCreateAndEditJargonTerms(currentUser)) return post;
-
   // TODO: refactor this so that createNewJargonTerms handles the case where we might be creating duplicate terms
   const [existingJargon, newContents] = await Promise.all([
-    JargonTerms.find({postId: newDocument._id}).fetch(),
-    loaders.Revisions.load(newDocument.contents_latest)
+    JargonTerms.find({postId: post._id}).fetch(),
+    loaders.Revisions.load(post.contents_latest)
   ]);
 
   if (!newContents?.html) {
@@ -716,7 +715,7 @@ async function createNewJargonTermsCallback(post: DbPost, callbackProperties: Cr
 
   // TODO: do we want different behavior for new vs updated posts?
   if (changeMetrics.added > 1000 || !existingJargon.length) {
-    void createNewJargonTerms(newDocument._id, currentUser)
+    void createNewJargonTerms(post._id, currentUser)
   }
 
   return post;

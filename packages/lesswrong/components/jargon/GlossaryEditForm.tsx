@@ -19,11 +19,10 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const GlossaryEditForm = (props: {
+export const GlossaryEditForm = ({ classes, document }: {
   classes: ClassesType<typeof styles>,
   document: PostsPage,
 }) => {
-  const { classes, document } = props;
   const { JargonEditorRow, LoadMore, Loading } = Components;
 
   const { results: glossary = [], loadMoreProps, refetch } = useMulti({

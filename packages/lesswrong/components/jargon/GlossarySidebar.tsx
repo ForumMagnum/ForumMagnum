@@ -63,6 +63,7 @@ const GlossarySidebar = ({post, classes}: {
             term={jargonTerm.term}
             definitionHTML={jargonTerm.html}
             altTerms={jargonTerm.altTerms}
+            humansAndOrAIEdited={jargonTerm.humansAndOrAIEdited}
             replacedSubstrings={jargonTermsToTextReplacements(post.glossary)}
             placement="left-start"
           >

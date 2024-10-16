@@ -1,6 +1,4 @@
-import { getAdminTeamAccount } from '@/server/callbacks/commentCallbacks';
 import { schemaDefaultValue } from '../../utils/schemaUtils';
-import { Revisions } from '../revisions/collection';
 
 const schema: SchemaType<"JargonTerms"> = {
   postId: {
@@ -19,35 +17,24 @@ const schema: SchemaType<"JargonTerms"> = {
   },
   humansAndOrAIEdited: {
     type: String,
-    optional: false,
-    nullable: false,
-    // Implementation in postResolvers.ts
+    optional: true,
+    canRead: ['guests'],
+    // Implementation in jargonTermResolvers.ts
   },
   forLaTeX: {
     type: Boolean,
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members'],
-    nullable: false,
     // This is here while we're developing, but it might want to be something the user can change later
     hidden: true,
     ...schemaDefaultValue(false),
   },
-  rejected: {
+  approved: {
     type: Boolean,
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members'],
-    nullable: false,
-    hidden: true,
-    ...schemaDefaultValue(false),
-  },
-  deleted: {
-    type: Boolean,
-    canRead: ['guests'],
-    canCreate: ['members'],
-    canUpdate: ['members'],
-    nullable: false,
     hidden: true,
     ...schemaDefaultValue(false),
   },
@@ -56,7 +43,6 @@ const schema: SchemaType<"JargonTerms"> = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members'],
-    nullable: false,
     label: "Alternative Terms",
     order: 30,
     tooltip: "Comma-separated, no spaces",

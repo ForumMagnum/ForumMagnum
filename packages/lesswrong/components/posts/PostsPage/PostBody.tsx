@@ -35,7 +35,7 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
   const votingSystemName = post.votingSystem || "default";
   const votingSystem = getVotingSystemByName(votingSystemName);
   
-  const { ContentItemBody, SideCommentIcon, InlineReactSelectionWrapper } = Components;
+  const { ContentItemBody, SideCommentIcon, InlineReactSelectionWrapper, GlossarySidebar } = Components;
   const nofollow = (post.user?.karma || 0) < nofollowKarmaThreshold.get();
   const contentRef = useRef<ContentItemBody>(null);
   let content: React.ReactNode
@@ -47,7 +47,7 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
     ? jargonTermsToTextReplacements(post.glossary)
     : [];
   const replacedSubstrings = [...highlights, ...glossaryItems];
-  const glossarySidebar = <Components.GlossarySidebar post={post}/>
+  const glossarySidebar = <GlossarySidebar post={post}/>
 
   if (includeSideComments && document?.sideComments) {
     const htmlWithIDs = document.sideComments.html;

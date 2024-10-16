@@ -12,6 +12,7 @@ import { htmlToMarkdown } from '@/server/editor/conversionUtils';
 import { exampleMathGlossary } from './exampleMathOutput';
 import { readFile } from 'fs/promises';
 import { userCanCreateAndEditJargonTerms } from '@/lib/betas';
+import { getAdminTeamAccount } from '@/server/callbacks/commentCallbacks';
 
 const claudeKey = jargonBotClaudeKey.get()
 
@@ -198,9 +199,8 @@ export const createNewJargonTerms = async (postId: string, currentUser: DbUser) 
         document: {
           postId: postId,
           term: term.term,
-          humansAndOrAIEdited: "AI",
           forLaTeX: false,
-          rejected: true,
+          approved: false,
           contents: {
             originalContents: {
               data: term.text,

@@ -991,26 +991,6 @@ CREATE INDEX IF NOT EXISTS "idx_Images_identifier" ON "Images" USING btree ("ide
 -- Index "idx_Images_cdnHostedUrl", hash 0ee56f026b18f07817fccfb5f1395698
 CREATE INDEX IF NOT EXISTS "idx_Images_cdnHostedUrl" ON "Images" USING btree ("cdnHostedUrl");
 
--- Table "JargonTerms", hash ff0b57e756e83853a2a0d419262e9929
-CREATE TABLE "JargonTerms" (
-  _id VARCHAR(27) PRIMARY KEY,
-  "postId" TEXT NOT NULL,
-  "term" TEXT NOT NULL,
-  "humansAndOrAIEdited" TEXT NOT NULL DEFAULT 'humans',
-  "forLaTeX" BOOL NOT NULL DEFAULT FALSE,
-  "rejected" BOOL NOT NULL DEFAULT FALSE,
-  "deleted" BOOL NOT NULL DEFAULT FALSE,
-  "altTerms" TEXT[] NOT NULL DEFAULT '{}',
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
-  "contents" JSONB,
-  "contents_latest" TEXT
-);
-
--- Index "idx_JargonTerms_schemaVersion", hash 3dc15f8e1aa954b5790cf26d2425615c
-CREATE INDEX IF NOT EXISTS "idx_JargonTerms_schemaVersion" ON "JargonTerms" USING btree ("schemaVersion");
-
 -- Table "LWEvents", hash d2758469185cd83bd1feb55c069a1a4f
 CREATE TABLE "LWEvents" (
   _id VARCHAR(27) PRIMARY KEY,

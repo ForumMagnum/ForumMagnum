@@ -378,11 +378,12 @@ augmentFieldsDict(Posts, {
         if (!userCanViewJargonTerms(context.currentUser)) {
           return;
         }
-        const jargonTerms = await context.JargonTerms.find({postId: post._id, rejected: false, deleted: false}).fetch();
+        const jargonTerms = await context.JargonTerms.find({ postId: post._id, approved: true }).fetch();
 
         return jargonTerms.map((jargonTerm: DbJargonTerm) => ({
           term: jargonTerm.term,
           altTerms: jargonTerm.altTerms,
+          // humansAndOrAIEdited: jargonTerm.humansAndOrAIEdited,
           html: sanitize(jargonTerm.contents?.html ?? ""),
         }));
       }
@@ -395,6 +396,7 @@ declare global {
   type GlossaryTerm = {
     term: string
     altTerms: string[]
+    humansAndOrAIEdited: JargonTermsDefaultFragment['humansAndOrAIEdited']
     html: string
   }
 }
