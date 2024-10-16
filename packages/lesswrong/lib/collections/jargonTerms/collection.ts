@@ -3,16 +3,42 @@ import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 import { makeEditable } from "../../editor/make_editable";
-import { userCanDo, userOwns } from '@/lib/vulcan-users/permissions';
+import { userOwns } from '@/lib/vulcan-users/permissions';
 import { Posts } from '../posts';
+import { userCanCreateAndEditJargonTerms } from '@/lib/betas';
+import { userIsPostCoauthor } from '../posts/helpers';
 
-const options: MutationOptions<DbJargonTerm> = {  
-  editCheck: async (user: DbUser|null, document: DbJargonTerm|null) => {
-    if (!user || !document) return false;
-    const post = await Posts.findOne({_id: document?.postId})
+function userHasJargonTermPostPermission(user: DbUser | null, post: DbPost) {
+  return userOwns(user, post) || userIsPostCoauthor(user, post);
+}
 
-    if (!post) return false;
-    return userOwns(user, post);
+// TODO: come back to this to see if there are any other posts which can't have jargon terms
+function postCanHaveJargonTerms(post: DbPost) {
+  return !post.isEvent;
+}
+
+async function userCanCreateJargonTermForPost(user: DbUser | null, jargonTerm: DbJargonTerm | null) {
+  if (!jargonTerm || !userCanCreateAndEditJargonTerms(user)) {
+    return false;
+  }
+
+  const post = await Posts.findOne({ _id: jargonTerm.postId });
+  if (!post || !postCanHaveJargonTerms(post)) {
+    return false;
+  }
+
+  return userHasJargonTermPostPermission(user, post);
+}
+
+const options: MutationOptions<DbJargonTerm> = {
+  newCheck: (user, jargonTerm) => {
+    return userCanCreateJargonTermForPost(user, jargonTerm);
+  },
+  editCheck: (user, jargonTerm) => {
+    return userCanCreateJargonTermForPost(user, jargonTerm);
+  },
+  removeCheck: () => {
+    return false;
   },
 }
 
@@ -35,6 +61,20 @@ makeEditable({
     hideControls: true,
     order: 20
   }
-})
+});
+
+JargonTerms.checkAccess = async (user: DbUser | null, jargonTerm: DbJargonTerm, context: ResolverContext) => {
+  const post = await context.loaders.Posts.load(jargonTerm.postId);
+  if (!post) {
+    return false;
+  }
+
+  // If the post is a draft or archived, only allow read access if the user has permission to create or edit jargon terms for that post
+  if (post.draft || post.deletedDraft) {
+    return userHasJargonTermPostPermission(user, post);
+  }
+
+  return true;
+};
 
 export default JargonTerms;

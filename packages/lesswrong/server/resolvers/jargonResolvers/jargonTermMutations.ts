@@ -5,7 +5,7 @@ import { exampleJargonGlossary2, exampleJargonPost2 } from './exampleJargonPost'
 import { userIsAdmin } from '@/lib/vulcan-users';
 import { PromptCachingBetaMessageParam } from '@anthropic-ai/sdk/resources/beta/prompt-caching/messages';
 import JargonTerms from '@/lib/collections/jargonTerms/collection';
-import { createMutator } from '../../vulcan-lib';
+import { createMutator, sanitize } from '../../vulcan-lib';
 import { initialGlossaryPrompt, formatPrompt, glossarySystemPrompt, mathFormatPrompt } from './jargonPrompts';
 import { fetchFragmentSingle } from '@/server/fetchFragment';
 import { htmlToMarkdown } from '@/server/editor/conversionUtils';
@@ -76,12 +76,18 @@ export const queryClaudeForJargonExplanations = async ({ markdown, terms, format
   ], 5000, glossarySystemPrompt)
   if (!(response.content[0].type === "text")) return null
 
-  let jargonTerms: Array<{ term: string, altTerms?: string[], text: string, concreteExample?: string, whyItMatters?: string, mathBasics?: string }> = []
+  let jargonTerms: Array<{ term: string, altTerms?: string[], htmlContent: string, concreteExample?: string, whyItMatters?: string, mathBasics?: string }> = []
 
-  const text = response.content[0].text
-  const jsonGuessMatch = text.match(/\[\s*\{[\s\S]*?\}\s*\]/)
+  const text = response.content[0].text;
+  const jsonGuessMatch = text.match(/\[\s*\{[\s\S]*?\}\s*\]/);
   if (jsonGuessMatch) {
-    jargonTerms = JSON.parse(jsonGuessMatch[0])
+    // TODO: parse this using zod instead of regex, also run `sanitize` on the text
+    jargonTerms = JSON.parse(jsonGuessMatch[0]);
+    for (const jargonTerm of jargonTerms) {
+      // In the case where the term is LaTeX, it's probably represented as HTML, so also needs to be sanitized
+      jargonTerm.term = sanitize(jargonTerm.term);
+      jargonTerm.htmlContent = sanitize(jargonTerm.htmlContent);
+    }
   } else {
     jargonTerms = []
   }
@@ -97,7 +103,7 @@ async function getNewJargonTerms(post: PostsPage, user: DbUser ) {
   const contents = post.contents;
   const originalHtml = contents?.html ?? ""
   const originalMarkdown = htmlToMarkdown(originalHtml)
-  const markdown = (originalMarkdown.length < 200 * 1000) ? originalMarkdown : originalMarkdown.slice(0, 200 * 1000)
+  const markdown = (originalMarkdown.length < 200_000) ? originalMarkdown : originalMarkdown.slice(0, 200_000)
 
   const terms = await queryClaudeForTerms(markdown)
   if (!terms) return null
@@ -156,7 +162,7 @@ export async function getLaTeXExplanations(post: PostsPage) {
   return response?.map(jargon => ({
     term: jargon.term,
     text: `<div>
-      <p>${jargon.text}</p>
+      <p>${jargon.htmlContent}</p>
       <p><strong>Concrete Example:</strong> ${jargon.concreteExample}</p>
       <p><strong>Why It Matters:</strong> ${jargon.whyItMatters}</p>
       <p><em>Math Basics: ${jargon.mathBasics}</em></p>
@@ -203,7 +209,7 @@ export const createNewJargonTerms = async (postId: string, currentUser: DbUser) 
           approved: false,
           contents: {
             originalContents: {
-              data: term.text,
+              data: term.htmlContent,
               type: 'ckEditorMarkup',
             },
           },

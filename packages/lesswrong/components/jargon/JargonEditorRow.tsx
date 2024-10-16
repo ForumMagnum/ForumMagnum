@@ -78,8 +78,9 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
 }) => {
   const { LWTooltip, WrappedSmartForm, ContentItemBody } = Components;
 
-  const [isActive, setIsActive] = useState(jargonTerm.approved);
+  // const [isActive, setIsActive] = useState(jargonTerm.approved);
   const [edit, setEdit] = useState(false);
+  // TODO: make the hidden state conditional on whether any terms are approved at all, and then hide the unapproved terms.  (But maybe put them in a collapsed section instead?)
   const [hidden, setHidden] = useState(false);
 
   const {mutate: updateJargonTerm} = useUpdate({
@@ -88,7 +89,7 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
   });
 
   const handleActiveChange = (value: boolean) => {
-    setIsActive(value);
+    // setIsActive(value);
     void updateJargonTerm({
       selector: { _id: jargonTerm._id },
       data: {
@@ -111,7 +112,7 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
   if (hidden) return null;
 
   const handleDoubleClickhandleDoubleClick = () => {
-    if (isActive) {
+    if (jargonTerm.approved) {
       setEdit(true);
     }
   };
@@ -123,18 +124,19 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
       <LWTooltip title="Hide this term (you can get it back later)">
         <Button onClick={() => handleDelete()} className={classes.deleteButton}>X</Button>
       </LWTooltip>
-      {isActive && <EditIcon className={classes.editButton} onClick={() => setEdit(true)}/>}
+      {jargonTerm.approved && <EditIcon className={classes.editButton} onClick={() => setEdit(true)}/>}
     </div>
-    <div className={classNames(classes.flex, isActive && classes.isActive)} onDoubleClick={() => isActive && setEdit(true)}>
+    <div className={classNames(classes.flex, jargonTerm.approved && classes.isActive)} onDoubleClick={() => jargonTerm.approved && setEdit(true)}>
       {/* <div className={classes.toggleAndEdit}>
         <ToggleSwitch value={isActive} className={classes.toggleSwitch} setValue={handleActiveChange}/>
         {isActive && <a className={classes.editButton} onClick={() => setEdit(!edit)}>Edit</a>}
       </div> */}
-      {!isActive && <LWTooltip title={termContentElement} placement='left-start'>
-        <div dangerouslySetInnerHTML={{__html: jargonTerm.term}} onClick={() => handleActiveChange(!isActive)} className={classes.inactive} />
+      {!jargonTerm.approved && <LWTooltip title={termContentElement} placement='left-start'>
+        {/** TODO: sanitize `.term` on insertion */}
+        <div dangerouslySetInnerHTML={{__html: jargonTerm.term}} onClick={() => handleActiveChange(!jargonTerm.approved)} className={classes.inactive} />
       </LWTooltip>}
       {/** TODO: do we need to use the .active classname anywhere? */}
-      {isActive && (edit
+      {jargonTerm.approved && (edit
         ? <WrappedSmartForm
             collectionName="JargonTerms"
             documentId={jargonTerm._id}

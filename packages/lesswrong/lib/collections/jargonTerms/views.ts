@@ -1,24 +1,23 @@
+import { ensureIndex } from "@/lib/collectionIndexUtils";
 import JargonTerms from "./collection"
-import { ensureIndex } from '../../collectionIndexUtils';
 
 declare global {
-  interface JargonTermsViewTerms extends ViewTermsBase {
-    view?: JargonTermsViewName
-    postId?: string
-    rejected?: boolean
-    forLaTeX?: boolean
+  interface PostJargonTermsViewTerms {
+    view: 'postJargonTerms',
+    postId: string
   }
+
+  type JargonTermsViewTerms = Omit<ViewTermsBase, 'view'> & (PostJargonTermsViewTerms | {
+    view?: undefined,
+    postId?: string,
+  })
 }
 
-JargonTerms.addDefaultView((terms: JargonTermsViewTerms) => {
-  return {
-    selector: { deleted: false },
-  };
-});
+ensureIndex(JargonTerms, { postId: 1, term: 1, createdAt: 1 });
 
-JargonTerms.addView("jargonTerms", function (terms: JargonTermsViewTerms) {
+JargonTerms.addView("postJargonTerms", function (terms: PostJargonTermsViewTerms) {
   return {
-    selector: { postId: terms.postId, deleted: null },
-    options: { sort: { forLaTeX: -1, term: 1, createdAt: 1 } }
+    selector: { postId: terms.postId },
+    options: { sort: { term: 1, createdAt: 1 } }
   };
 });

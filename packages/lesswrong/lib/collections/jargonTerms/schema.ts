@@ -18,14 +18,15 @@ const schema: SchemaType<"JargonTerms"> = {
   humansAndOrAIEdited: {
     type: String,
     optional: true,
+    nullable: true,
     canRead: ['guests'],
     // Implementation in jargonTermResolvers.ts
   },
   forLaTeX: {
     type: Boolean,
     canRead: ['guests'],
-    canCreate: ['members'],
-    canUpdate: ['members'],
+    canCreate: ['admins'],
+    canUpdate: ['admins'],
     // This is here while we're developing, but it might want to be something the user can change later
     hidden: true,
     ...schemaDefaultValue(false),

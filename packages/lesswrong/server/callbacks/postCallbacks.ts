@@ -36,8 +36,6 @@ import { getLatestContentsRevision } from '../../lib/collections/revisions/helpe
 import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
 import { createNewJargonTerms } from '../resolvers/jargonResolvers/jargonTermMutations';
 import { userCanCreateAndEditJargonTerms } from '@/lib/betas';
-import JargonTerms from '@/lib/collections/jargonTerms/collection';
-import Revisions from '@/lib/collections/revisions/collection';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -695,7 +693,7 @@ getCollectionHooks("Posts").editSync.add(async function removeFrontpageDate(
 });
 
 async function createNewJargonTermsCallback(post: DbPost, callbackProperties: CreateCallbackProperties<"Posts">) {
-  const { context: { currentUser, loaders } } = callbackProperties;
+  const { context: { currentUser, loaders, JargonTerms } } = callbackProperties;
 
   if (!currentUser) return post;
   if (currentUser._id !== post.userId) return post;
@@ -715,7 +713,8 @@ async function createNewJargonTermsCallback(post: DbPost, callbackProperties: Cr
 
   // TODO: do we want different behavior for new vs updated posts?
   if (changeMetrics.added > 1000 || !existingJargon.length) {
-    void createNewJargonTerms(post._id, currentUser)
+    // TODO: do we want to exclude existing jargon terms from being added again for posts which had a large diff but already had some jargon terms?
+    void createNewJargonTerms(post._id, currentUser);
   }
 
   return post;
