@@ -5,7 +5,9 @@ import { exampleMathGlossary } from "./exampleMathOutput"
 export const initialGlossaryPrompt = `please provide a list of all the jargon terms in the text (technical terms, acronyms, words used unusually in this context) that are not common knowledge. The output should be a simple list of terms, with no other text. It should be extensive, covering all terms that might be difficult for an educated layman.
             
 Separate the english terms from math terms.
-            `
+
+
+`
 
 
 export const formatPrompt = `You’re a Glossary AI. Your goal is to make good explanations for both technical jargon terms. You are trying to produce a useful hoverover tooltip in an essay on LessWrong.com, accessible to a layman. The glossary should contain the term and some text explaining it. Analyze this post and output in a JSON array of objects with keys: term: string, altTerms: string[], htmlContent: string (html string). The output should look like [{term: "term1", altTerms: ["term1s", "Term1"], htmlContent: "Term 1 explanation text"}, {term: "term2", altTerms: ["term2s", "Term2"], htmlContent: "term2 explanation text"}]. Do not return anything else.`
@@ -18,9 +20,11 @@ Ensure that your explanations are clear and accessible to someone who may not be
 
 Use your general knowledge as well as the post's specific explanations or definitions of the terms to find a good definition of each term. 
 
-Include a set of altTerms that are slight variations of the term, such as plurals, different capitalizations that appear in the text, or alternate spellings. Make sure to include all variations that appear in the text.
+Include a set of altTerms that are slight variations of the term, such as plurals, abbreviations or acryonyms, or alternate spellings that appear in the text. Make sure to include all variations that appear in the text.
 
-Make sure to to include all technical terms, followed by all math terms.`
+Do NOT emphasize that the term is important, but DO explain how it's used in this context. Make sure to put the "contextual explanation" in a separate paragraph from the opening term definition. Make sure to make the term definition a short sentence.
+
+Make sure to to include all technical terms.`
 
 
 

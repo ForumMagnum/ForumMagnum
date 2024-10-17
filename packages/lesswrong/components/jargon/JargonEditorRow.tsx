@@ -20,6 +20,10 @@ const styles = (theme: ThemeType) => ({
     '&:last-child $approved': {
       borderBottom: 'none',
     },
+    '&:first-child $approved': {
+      paddingTop: 0,
+    },
+
   },
 
   flex: {
@@ -44,7 +48,6 @@ const styles = (theme: ThemeType) => ({
     flexGrow: 1,
     border: '1px solid transparent',
     padding: APPROVED_PADDING,
-    paddingBottom: 6,
     flexDirection: 'row',
     ...commentBodyStyles(theme),
     fontSize: '1.1rem',
@@ -67,7 +70,7 @@ const styles = (theme: ThemeType) => ({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'flex-start',
-    paddingTop: APPROVED_PADDING,
+    paddingTop: APPROVED_PADDING + 6,
     marginLeft: 6
   },
   leftButton: {
@@ -137,12 +140,12 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
     fragmentName: 'JargonTermsFragment',
   });
 
-  const handleActiveChange = (value: boolean) => {
+  const handleActiveChange = () => {
     // setIsActive(value);
     void updateJargonTerm({
       selector: { _id: jargonTerm._id },
       data: {
-        approved: value
+        approved: !jargonTerm.approved
       },
     })
   }
@@ -165,7 +168,7 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
   return <div className={classes.root}>
     {jargonTerm.approved &&<div className={classes.leftButtons}>
       <LWTooltip title={<div><div>Hide term</div><div>You can get it back later</div></div>} placement="left">
-        <span onClick={() => handleDelete()}>
+        <span onClick={() => handleActiveChange()}>
           <CloseIcon className={classes.leftButton} />
         </span>
       </LWTooltip>
@@ -176,8 +179,8 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
       </LWTooltip>
     </div>}
     <div className={classNames(classes.flex, jargonTerm.approved && classes.approved)}>
-      {!jargonTerm.approved && <LWTooltip title={<div><p><em>Click to enable jargon hoverover</em></p>{termContentElement}</div>}>
-        <div dangerouslySetInnerHTML={{__html: jargonTerm.term}} onClick={() => handleActiveChange(!jargonTerm.approved)} className={classes.unapproved} />
+      {!jargonTerm.approved && <LWTooltip title={<div><p><em>Click to enable jargon hoverover</em></p>{termContentElement}</div>} placement='left'>
+        <div dangerouslySetInnerHTML={{__html: jargonTerm.term}} onClick={() => handleActiveChange()} className={classes.unapproved} />
       </LWTooltip>}
       {jargonTerm.approved && (edit
         ? <WrappedSmartForm
