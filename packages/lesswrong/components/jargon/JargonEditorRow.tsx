@@ -159,8 +159,6 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
 
   const termContentElement = <ContentItemBody dangerouslySetInnerHTML={{__html: jargonTerm?.contents?.originalContents?.data ?? ''}}/>;
 
-  console.log({ description: jargonTerm?.contents?.originalContents?.data });
-
   return <div className={classes.root}>
     {jargonTerm.approved &&<div className={classes.leftButtons}>
       <LWTooltip title={<div><div>Hide term</div><div>You can get it back later</div></div>} placement="left">
