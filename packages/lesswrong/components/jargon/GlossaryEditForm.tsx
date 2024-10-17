@@ -5,9 +5,18 @@ import { useMulti } from '@/lib/crud/withMulti';
 import Button from '@material-ui/core/Button';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import classNames from 'classnames';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 
 const styles = (theme: ThemeType) => ({
   root: {
+    ...theme.typography.commentStyle,
+  },
+  window: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: 10,
     maxHeight: '60vh',
     overflow: 'scroll',
   },
@@ -23,12 +32,24 @@ const styles = (theme: ThemeType) => ({
     fontSize: "14px",
     fontFamily: "Roboto, sans-serif",
   },
-  toggleAll: {
+  button: {
     cursor: 'pointer',
     paddingBottom: 10,
-    ...theme.typography.commentStyle,
-    fontWeight: 'bold',
     fontSize: '1.1rem',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 4,
+    opacity: 0.6,
+    '&:hover': {
+      opacity: 0.8
+    }
+  },
+  footer: {
+    display: 'flex',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    paddingTop: 16,
+    borderTop: theme.palette.border.faint,
   }
 });
 
@@ -102,25 +123,27 @@ export const GlossaryEditForm = ({ classes, document }: {
   }
 
 
-  return <div className={classNames(classes.root, expanded ? classes.expanded : '')}>
+  return <div className={classes.root}>
     <p>
       Beta feature! Select/edit terms below, and readers will be able to hover over and read the explanation.
     </p>
     {/** The filter condition previously was checking item.isAltTerm, but that doesn't exist on JargonTermsFragment.  Not sure it was doing anything meaningful, or was just llm-generated. */}
-    <Row justifyContent="space-between" alignItems="flex-start">
+    <div className={classNames(classes.window, expanded ? classes.expanded : '')}>
       {sortedUnapprovedTerms.length > 0 && <div>
-        <div className={classes.toggleAll} onClick={() => handleSetApproveAll(true)}>Approve all</div>
+        <div className={classes.button} onClick={() => handleSetApproveAll(true)}>Approve all</div>
         {sortedUnapprovedTerms.map((item) => <JargonEditorRow key={item._id} jargonTerm={item}/>)}
       </div>}
       {sortedApprovedTerms.length > 0 && <div>
-        <div className={classes.toggleAll} onClick={() => handleSetApproveAll(false)}>Unapprove all</div>
+        <div className={classes.button} onClick={() => handleSetApproveAll(false)}>Unapprove all</div>
         {sortedApprovedTerms.map((item) => <JargonEditorRow key={item._id} jargonTerm={item} />)}
       </div>}
-    </Row>
+    </div>
     <LoadMore {...loadMoreProps} />
-    <Button onClick={addNewJargonTerms} className={classes.generateButton}>Generate new terms</Button>
+    <div className={classes.footer}>
+      <Button onClick={addNewJargonTerms} className={classes.generateButton}>Generate new terms</Button>
+      <div className={classes.button} onClick={() => setExpanded(!expanded)}>{expanded ? <div>Collapse<ExpandMoreIcon/></div> : <div>Expand<ExpandLessIcon/></div>}</div>
+    </div>
     {mutationLoading && <Loading/>}
-    <div className={classes.expand}>{expanded ? 'Collapse' : 'Expand'}</div>
   </div>;
 }
 

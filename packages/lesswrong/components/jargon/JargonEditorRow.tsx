@@ -6,6 +6,8 @@ import { useUpdate } from '@/lib/crud/withUpdate';
 import Button from '@material-ui/core/Button';
 import EditIcon from '@material-ui/icons/Edit';
 import CloseIcon from '@material-ui/icons/Close';
+import ArrowLeftIcon from '@material-ui/icons/ArrowLeft';
+import ArrowRightIcon from '@material-ui/icons/ArrowRight';
 
 const APPROVED_PADDING = 10;
 
@@ -23,9 +25,7 @@ const styles = (theme: ThemeType) => ({
     '&:first-child $approved': {
       paddingTop: 0,
     },
-
   },
-
   flex: {
     display: 'flex',
     flexGrow: 1
@@ -41,6 +41,9 @@ const styles = (theme: ThemeType) => ({
     paddingBottom: 4,
     '&:hover': {
       opacity: 1,
+      '& $arrowRightButton': {
+        opacity: 1
+      }
     }
   },
   approved: {
@@ -90,6 +93,14 @@ const styles = (theme: ThemeType) => ({
     paddingLeft: 4,
     width: 24,
   },
+  arrowRightButton: {
+    cursor: 'pointer',
+    color: theme.palette.primary.main,
+    height: 16,
+    padding: 4,
+    width: 16,
+    opacity: 0
+  }
 });
 
 const submitStyles = (theme: ThemeType) => ({
@@ -169,7 +180,7 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
     {jargonTerm.approved &&<div className={classes.leftButtons}>
       <LWTooltip title={<div><div>Hide term</div><div>You can get it back later</div></div>} placement="left">
         <span onClick={() => handleActiveChange()}>
-          <CloseIcon className={classes.leftButton} />
+          <ArrowLeftIcon className={classes.leftButton} />
         </span>
       </LWTooltip>
       <LWTooltip title="Edit term/definition" placement="left">
@@ -180,7 +191,7 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
     </div>}
     <div className={classNames(classes.flex, jargonTerm.approved && classes.approved)}>
       {!jargonTerm.approved && <LWTooltip title={<div><p><em>Click to enable jargon hoverover</em></p>{termContentElement}</div>} placement='left'>
-        <div dangerouslySetInnerHTML={{__html: jargonTerm.term}} onClick={() => handleActiveChange()} className={classes.unapproved} />
+        <div dangerouslySetInnerHTML={{__html: jargonTerm.term}} onClick={() => handleActiveChange()} className={classes.unapproved} /><ArrowRightIcon className={classes.arrowRightButton} onClick={() => handleActiveChange()} />
       </LWTooltip>}
       {jargonTerm.approved && (edit
         ? <WrappedSmartForm
