@@ -2,10 +2,9 @@ import { exampleMathGlossary } from "./exampleMathOutput"
 
 
 
-export const initialGlossaryPrompt = `please provide a list of all the jargon terms in the text (technical terms, acronyms, words used unusually in this context) that are not common knowledge. The output should be a simple list of terms, with no other text. It should be extensive, covering all terms that might be difficult for an educated layman.
-            
-Separate the english terms from math terms.
+export const initialGlossaryPrompt = `please provide a list of all the jargon terms in the text (technical terms, acronyms, words used unusually in this context) that are not common knowledge. The output should be a simple list of terms, with no other text. It should be extensive, covering all terms that might be difficult for an educated layman, including terms unique to the communities of LessWrong, AI Alignment, or Effective Altruism.
 
+Avoid including terms that are 3+ word phrases unless it is a complete noun-phrase where all the words are an important part of the term.
 
 `
 
