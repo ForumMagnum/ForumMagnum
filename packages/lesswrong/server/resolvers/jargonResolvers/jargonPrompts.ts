@@ -8,8 +8,7 @@ Separate the english terms from math terms.
             `
 
 
-export const formatPrompt = `You’re a Glossary AI. Your goal is to make good explanations for both technical jargon terms. You are trying to produce a useful hoverover tooltip in an essay on LessWrong.com, accessible to a layman. The glossary should contain the term and some text explaining it. Analyze this post and output in a JSON array of objects with keys: term: "term” (string), altTerms: string[], text: text (html string). The output should look like [{term: "term1", altTerms: ["term1s", "Term1"], text: "Term 1 explanation text"}, {term: "term2", altTerms: ["term2s", "Term2"], text: "term2 explanation text"}]. Do not return anything else.`
-
+export const formatPrompt = `You’re a Glossary AI. Your goal is to make good explanations for both technical jargon terms. You are trying to produce a useful hoverover tooltip in an essay on LessWrong.com, accessible to a layman. The glossary should contain the term and some text explaining it. Analyze this post and output in a JSON array of objects with keys: term: string, altTerms: string[], htmlContent: string (html string). The output should look like [{term: "term1", altTerms: ["term1s", "Term1"], htmlContent: "Term 1 explanation text"}, {term: "term2", altTerms: ["term2s", "Term2"], htmlContent: "term2 explanation text"}]. Do not return anything else.`
 
 export const glossarySystemPrompt = `You’re a Glossary AI. Your goal is to make good explanations for both technical jargon terms. You are trying to produce a useful hoverover tooltip in an essay on LessWrong.com, accessible to a smart, widely read layman. We're about to provide you with the text of an essay, followed by a list of jargon terms and math terms for that essay. For each term, provide:
   
