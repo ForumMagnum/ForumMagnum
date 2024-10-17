@@ -6,6 +6,9 @@ import { useUpdate } from '@/lib/crud/withUpdate';
 import Button from '@material-ui/core/Button';
 import EditIcon from '@material-ui/icons/Edit';
 import CloseIcon from '@material-ui/icons/Close';
+
+const APPROVED_PADDING = 10;
+
 const styles = (theme: ThemeType) => ({
   root: {
     width: '100%',
@@ -14,8 +17,11 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 0,
     marginTop: 0,
     alignItems: 'flex-start',
-
+    '&:last-child $approved': {
+      borderBottom: 'none',
+    },
   },
+
   flex: {
     display: 'flex',
     flexGrow: 1
@@ -26,7 +32,7 @@ const styles = (theme: ThemeType) => ({
   unapproved: {
     opacity: .5,
     cursor: 'pointer',
-    paddingLeft: 34,
+    whiteSpace: 'pre',
     paddingTop: 4,
     paddingBottom: 4,
     '&:hover': {
@@ -37,19 +43,14 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     flexGrow: 1,
     border: '1px solid transparent',
-    padding: 10,
+    padding: APPROVED_PADDING,
     paddingBottom: 6,
     flexDirection: 'row',
     ...commentBodyStyles(theme),
     fontSize: '1.1rem',
     marginBottom: 0,
     marginTop: 6,
-    // TODO: figure out how to manage border separators between active and inactive terms
-    borderTop: theme.palette.border.commentBorder,
     borderBottom: theme.palette.border.commentBorder,
-    '&:last-child': {
-      borderBottom: 'none',
-    }
   },
   input: {
     flexGrow: 1,
@@ -66,7 +67,8 @@ const styles = (theme: ThemeType) => ({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'flex-start',
-    paddingTop: 20,
+    paddingTop: APPROVED_PADDING,
+    marginLeft: 6
   },
   leftButton: {
     opacity: 0,
@@ -82,6 +84,7 @@ const styles = (theme: ThemeType) => ({
     cursor: 'pointer',
     height: 24,
     padding: 4,
+    paddingLeft: 4,
     width: 24,
   },
 });

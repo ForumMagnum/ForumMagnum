@@ -23,7 +23,7 @@ export const GlossaryEditForm = ({ classes, document }: {
   classes: ClassesType<typeof styles>,
   document: PostsPage,
 }) => {
-  const { JargonEditorRow, LoadMore, Loading } = Components;
+  const { JargonEditorRow, LoadMore, Loading, Row } = Components;
 
   const { results: glossary = [], loadMoreProps, refetch } = useMulti({
     terms: {
@@ -44,6 +44,9 @@ export const GlossaryEditForm = ({ classes, document }: {
     if (termA > termB) return 1;
     return 0;
   });
+
+  const sortedApprovedTerms = sortedGlossary.filter((item) => item.approved)
+  const sortedUnapprovedTerms = sortedGlossary.filter((item) => !item.approved)
 
   const [getNewJargonTerms, { data, loading: mutationLoading, error }] = useMutation(gql`
     mutation getNewJargonTerms($postId: String!) {
@@ -73,7 +76,14 @@ export const GlossaryEditForm = ({ classes, document }: {
       Beta feature! Select/edit terms below, and readers will be able to hover over and read the explanation.
     </p>
     {/** The filter condition previously was checking item.isAltTerm, but that doesn't exist on JargonTermsFragment.  Not sure it was doing anything meaningful, or was just llm-generated. */}
-    {!!sortedGlossary && <>{sortedGlossary.map((item) => <JargonEditorRow key={item._id} jargonTerm={item}/>)}</>}
+    <Row justifyContent="space-between">
+      {sortedUnapprovedTerms.length > 0 && <div>
+        {sortedUnapprovedTerms.map((item) => <JargonEditorRow key={item._id} jargonTerm={item}/>)}
+      </div>}
+      {sortedApprovedTerms.length > 0 && <div>
+        {sortedApprovedTerms.map((item) => <JargonEditorRow key={item._id} jargonTerm={item} />)}
+      </div>}
+    </Row>
     <LoadMore {...loadMoreProps} />
     <Button onClick={addNewJargonTerms} className={classes.generateButton}>Generate new terms</Button>
     {mutationLoading && <Loading/>}

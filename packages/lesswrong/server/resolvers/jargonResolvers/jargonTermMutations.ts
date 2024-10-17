@@ -82,7 +82,7 @@ export const queryClaudeForJargonExplanations = async ({ markdown, terms, format
       role: "user",
       content: [{
         type: "text",
-        text: `${formatPrompt} The text is: ${markdown}. The jargon and math terms are: ${terms}`
+        text: `${formatPrompt} The text is: ${markdown}. The jargon terms are: ${terms}`
       }]
     }, 
   ], 5000, glossarySystemPrompt)
@@ -107,6 +107,7 @@ export const queryClaudeForJargonExplanations = async ({ markdown, terms, format
       jargonTerm.htmlContent = sanitize(jargonTerm.htmlContent);
     }
   } else {
+    console.log(`No jargon terms found in Claude's response: ${text}`)
     jargonTerms = []
   }
   console.log(`Claude responded with: ${jargonTerms}`)
