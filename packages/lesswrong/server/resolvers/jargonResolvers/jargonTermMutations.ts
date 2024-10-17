@@ -13,6 +13,18 @@ import { exampleMathGlossary } from './exampleMathOutput';
 import { readFile } from 'fs/promises';
 import { userCanCreateAndEditJargonTerms } from '@/lib/betas';
 import { getAdminTeamAccount } from '@/server/callbacks/commentCallbacks';
+import { z } from 'zod';
+
+const jargonTermSchema = z.object({
+  term: z.string(),
+  altTerms: z.array(z.string()).optional(),
+  htmlContent: z.string(),
+  concreteExample: z.string().optional(),
+  whyItMatters: z.string().optional(),
+  mathBasics: z.string().optional()
+});
+
+type LLMGeneratedJargonTerm = z.infer<typeof jargonTermSchema>;
 
 const claudeKey = jargonBotClaudeKey.get()
 
@@ -76,13 +88,19 @@ export const queryClaudeForJargonExplanations = async ({ markdown, terms, format
   ], 5000, glossarySystemPrompt)
   if (!(response.content[0].type === "text")) return null
 
-  let jargonTerms: Array<{ term: string, altTerms?: string[], htmlContent: string, concreteExample?: string, whyItMatters?: string, mathBasics?: string }> = []
+  let jargonTerms: LLMGeneratedJargonTerm[] = []
 
   const text = response.content[0].text;
   const jsonGuessMatch = text.match(/\[\s*\{[\s\S]*?\}\s*\]/);
   if (jsonGuessMatch) {
     // TODO: parse this using zod instead of regex, also run `sanitize` on the text
     jargonTerms = JSON.parse(jsonGuessMatch[0]);
+    const validatedTerms = jargonTermSchema.array().safeParse(jargonTerms);
+    if (!validatedTerms.success) {
+      console.error('Invalid jargon terms:', validatedTerms.error);
+      return [];
+    }
+    jargonTerms = validatedTerms.data;
     for (const jargonTerm of jargonTerms) {
       // In the case where the term is LaTeX, it's probably represented as HTML, so also needs to be sanitized
       jargonTerm.term = sanitize(jargonTerm.term);
