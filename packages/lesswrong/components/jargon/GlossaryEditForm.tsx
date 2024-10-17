@@ -35,6 +35,8 @@ export const GlossaryEditForm = ({ classes, document }: {
     fragmentName: 'JargonTermsFragment',
   })
 
+  console.log({ glossary });
+
   const sortedGlossary = [...glossary].sort((a, b) => {
     const termA = a.term.toLowerCase();
     const termB = b.term.toLowerCase();
