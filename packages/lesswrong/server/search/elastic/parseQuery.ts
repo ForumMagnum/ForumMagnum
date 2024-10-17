@@ -1,7 +1,7 @@
 import trim from "lodash/trim";
 
 export type QueryToken = {
-  type: "should" | "must" | "not" | "user",
+  type: "should" | "must" | "not" | "user" | "tag",
   token: string,
 }
 
@@ -39,11 +39,14 @@ export const parseQuery = (query: string): QueryParserResult => {
     } else if (prefix === "user:") {
       type = "user";
       isAdvanced = true;
+    } else if (prefix === "tag:") {
+      type = "tag";
+      isAdvanced = true;
     }
 
     // Replace dashes and underscores with spaces, and remove anything else that
     // isn't whitespace or a word
-    if (type !== "user") {
+    if (type !== "user" && type !== "tag") {
       token = token.replace(/[-_]/g, " ").replace(/[^\w\s]/g, "");
     }
 

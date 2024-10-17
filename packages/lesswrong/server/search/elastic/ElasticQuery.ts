@@ -216,31 +216,23 @@ class ElasticQuery {
     }
 
     const userFilters: QueryDslQueryContainer[] = [];
+    const tagFilters: QueryDslQueryContainer[] = [];
     for (const {type, token} of tokens) {
       if (type === "user") {
-        userFilters.push({
-          term: {
-            "authorSlug.sort": token,
-          },
-        });
-        userFilters.push({
-          term: {
-            "authorDisplayName.sort": token,
-          },
-        });
-        userFilters.push({
-          term: {
-            "userId": token,
-          },
-        });
+        userFilters.push(
+          {term: {"authorSlug.sort": token}},
+          {term: {"authorDisplayName.sort": token}},
+          {term: {userId: token}},
+        );
+      } else if (type === "tag") {
+        tagFilters.push({term: {tags: token}});
       }
     }
     if (userFilters.length) {
-      terms.push({
-        bool: {
-          should: userFilters,
-        },
-      });
+      terms.push({bool: {should: userFilters}});
+    }
+    if (tagFilters.length) {
+      terms.push({bool: {should: tagFilters}});
     }
 
     return terms.length ? terms : undefined;
@@ -371,7 +363,8 @@ class ElasticQuery {
         should.push(this.getDefaultQuery(token, fields));
         break;
       case "user":
-        // Do nothing - this is handled by compileFilters
+      case "tag":
+        // Do nothing - this is handled by `this.compileFilters`
         break;
       }
     }
