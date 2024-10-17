@@ -143,12 +143,6 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
 
   if (hidden) return null;
 
-  const handleDoubleClickhandleDoubleClick = () => {
-    if (jargonTerm.approved) {
-      setEdit(true);
-    }
-  };
-
   const termContentElement = <ContentItemBody dangerouslySetInnerHTML={{__html: jargonTerm?.contents?.originalContents?.data ?? ''}}/>;
 
   return <div className={classes.root}>
@@ -177,8 +171,7 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
             successCallback={() => setEdit(false)}
             cancelCallback={() => setEdit(false)}
             formComponents={{ FormSubmit: Components.JargonSubmitButton }}
-            // TODO: check whether this works after we fix the glossary resolver field to return an array of JargonTerms and then resolve it with the right fragment
-            editFormFetchPolicy='cache-first'
+            prefetchedDocument={jargonTerm}
           />
         : termContentElement
       )}
