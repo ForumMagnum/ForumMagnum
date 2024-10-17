@@ -387,7 +387,7 @@ augmentFieldsDict(Posts, {
         FROM "JargonTerms" jt
         WHERE jt."postId" = ${field('_id')}
         AND jt."approved" IS TRUE
-        GROUP BY jt."postId"
+        GROUP BY jt."postId", jt."term"
         ORDER BY jt."term" ASC
         LIMIT 1
       )`
