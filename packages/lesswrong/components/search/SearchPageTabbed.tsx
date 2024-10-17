@@ -387,7 +387,7 @@ const SearchPageTabbed = ({classes}: {
             </div>
           </div>
           <LWTooltip
-            title={`"Quotes" and -minus signs are supported.`}
+            title={`"Quotes" and -minus signs are supported. Use "user:username" or "tag:tagname" to filter by user or tag.`}
             className={classes.searchHelp}
           >
             <InfoIcon className={classes.infoIcon}/>
