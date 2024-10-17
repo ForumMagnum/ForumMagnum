@@ -4,13 +4,10 @@ import { useTheme } from '../themes/useTheme';
 import classNames from 'classnames';
 import UpArrowIcon from '@material-ui/icons/KeyboardArrowUp';
 import CheckIcon from '@material-ui/icons/Check';
-import ClearIcon from '@material-ui/icons/Clear';
 import IconButton from '@material-ui/core/IconButton';
 import Transition from 'react-transition-group/Transition';
 import { useVoteColors } from './useVoteColors';
 import type { VoteColor } from './voteColors';
-import { CrossReactionIcon } from '../icons/reactions/CrossReactionIcon';
-import { TickReactionIcon } from '../icons/reactions/TickReactionIcon';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -93,18 +90,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: '50%',
     opacity: 0.6,
     position: 'absolute',
-    top: -1,
-    left: 4,
-    height: 14
+    height: 14,
+    transform: 'translate(-8px, -2px)'
   },
   smallArrowBigVoted: {
-    fontSize: '47%',
     opacity: 0.6,
-    transform: 'rotate(-90deg)',
     position: 'absolute',
     height: 14,
-    top: 3,
-    left: 17
+    scale: 1.2,
+    transform: 'translate(-3.5px, 2.3px)'
   },
   // Classes for the animation transitions of the bigArrow. See Transition component
   entering: {
@@ -171,7 +165,7 @@ const VoteAgreementIcon = ({
   const primaryIcon =  (upOrDown === "Downvote") ? "CrossReaction" : "TickReaction"
   const primaryIconStyling = (upOrDown === "Downvote") ? classes.clear : classes.check
   
-  const BigVoteAccentIcon = (upOrDown === "Downvote") ? UpArrowIcon: CheckIcon
+  const bigVoteAccentIcon = (upOrDown === "Downvote") ? "CrossReactionCap" : "TickReaction"
   const bigVoteAccentStyling = (upOrDown === "Downvote") ? classes.smallArrowBigVoted : classes.smallCheckBigVoted
   const bigVoteCompletedStyling = (upOrDown === "Downvote") ? classes.bigClearCompleted : classes.bigCheckCompleted
   const bigVoteStyling = (upOrDown === "Downvote") ? classes.bigClear : classes.bigCheck
@@ -196,27 +190,28 @@ const VoteAgreementIcon = ({
           icon={primaryIcon}  
           className={classNames(primaryIconStyling, classes.noClickCatch, {[classes.hideIcon]: bigVotingTransition || bigVoted})}
           style={{color: voted || alwaysColored ? mainColor : "inherit"}}
-          // viewBox='6 6 12 12'
         />
-        {/* <Transition in={(bigVotingTransition || bigVoted)} timeout={theme.voting.strongVoteDelay}>
+        <Transition in={(bigVotingTransition || bigVoted)} timeout={theme.voting.strongVoteDelay}>
           {(state) => (
             <>
-              <BigVoteAccentIcon
+              <Components.ForumIcon
+                icon={bigVoteAccentIcon}
                 className={classNames(bigVoteAccentStyling, classes.noClickCatch, {[classes.hideIcon]: !bigVoted})}
                 style={bigVoteCompleted || bigVoted ? {color: lightColor} : undefined}
-                viewBox='6 6 12 12'
+                // viewBox='6 6 12 12'
               />
-              <PrimaryIcon
+              <Components.ForumIcon
+                icon={primaryIcon}
                 style={bigVoteCompleted || bigVoted ? {color: lightColor} : undefined}
                 className={classNames(bigVoteStyling, classes.noClickCatch, {
                   [bigVoteCompletedStyling]: bigVoteCompleted,
                   // [classes.bigCheckCompleted]: bigVoteCompleted,
                   [classes.bigCheckSolid]: solidArrow
                 }, classes[state])}
-                viewBox='6 6 12 12'
+                // viewBox='6 6 12 12'
               />
             </>)}
-        </Transition> */}
+        </Transition>
       </span>
     </IconButton>
   )
