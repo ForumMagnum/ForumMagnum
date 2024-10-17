@@ -378,7 +378,7 @@ augmentFieldsDict(Posts, {
         if (!userCanViewJargonTerms(context.currentUser)) {
           return;
         }
-        const jargonTerms = await context.JargonTerms.find({ postId: post._id, approved: true }).fetch();
+        const jargonTerms = await context.JargonTerms.find({ postId: post._id, approved: true }, {sort: {term: 1}}).fetch();
 
         return jargonTerms.map((jargonTerm: DbJargonTerm) => ({
           term: jargonTerm.term,
