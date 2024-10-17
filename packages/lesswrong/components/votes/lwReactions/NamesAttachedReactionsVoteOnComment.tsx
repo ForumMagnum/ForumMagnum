@@ -290,7 +290,7 @@ const NamesAttachedReactionsVoteOnComment = ({document, hideKarma=false, collect
       document={document}
       hideKarma={hideKarma}
       voteProps={voteProps}
-      showBox={true}
+      verticalArrows
     />
     <AgreementVoteAxis
       document={document}

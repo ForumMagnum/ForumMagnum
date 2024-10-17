@@ -153,7 +153,9 @@ import { CheckSmallIcon } from "../icons/CheckSmallIcon";
 import { FilterBarsIcon } from "../icons/FilterBarsIcon";
 import { EAEnvelopeIcon } from "../icons/EAEnvelopeIcon";
 import { RobotIcon } from '../icons/RobotIcon';
-
+import { TickReactionIcon } from "../icons/reactions/TickReactionIcon";
+import { CrossReactionIcon } from "../icons/reactions/CrossReactionIcon";
+import { CrossReactionCapIcon } from "../icons/CrossReactionCapIcon";
 /**
  * This exists to allow us to easily use different icon sets on different
  * forums. To add a new icon, add its name to `ForumIconName` and add an
@@ -276,8 +278,10 @@ export type ForumIconName =
   "Undo" |
   "Clear" |
   "Fullscreen" |
-  "FullscreenExit"
-  ;
+  "FullscreenExit" |
+  "TickReaction" |
+  "CrossReaction" |
+  "CrossReactionCap";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   LWAF: {
@@ -396,7 +400,10 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Undo: UndoIcon,
     Clear: ClearIcon,
     Fullscreen: FullscreenIcon,
-    FullscreenExit: FullscreenExitIcon
+    FullscreenExit: FullscreenExitIcon,
+    TickReaction: TickReactionIcon,
+    CrossReaction: CrossReactionIcon,
+    CrossReactionCap: CrossReactionCapIcon
   },
   default: {
     VolumeUp: SpeakerWaveIcon,
@@ -514,7 +521,10 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Undo: UndoIcon,
     Clear: ClearIcon,
     Fullscreen: FullscreenIcon,
-    FullscreenExit: FullscreenExitIcon
+    FullscreenExit: FullscreenExitIcon,
+    TickReaction: TickReactionIcon,
+    CrossReaction: CrossReactionIcon,
+    CrossReactionCap: CrossReactionCapIcon
   },
 };
 

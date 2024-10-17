@@ -14,7 +14,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   overallSection: {
     display: 'inline-block',
     height: 24,
-    paddingTop: 2
+    paddingTop: 2,
+    marginLeft: 12,
   },
   overallSectionBox: {
     marginLeft: 8,
@@ -31,8 +32,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   voteScore: {
     fontSize: '1.1rem',
-    marginLeft: 4,
-    marginRight: 4,
+    marginLeft: 3,
+    marginRight: 3,
     lineHeight: 1,
   },
   secondarySymbol: {
@@ -70,13 +71,15 @@ const OverallVoteAxis = ({
   voteProps,
   classes,
   showBox=false,
+  verticalArrows=false,
   className,
 }: {
   document: VoteableTypeClient,
   hideKarma?: boolean,
   voteProps: VotingProps<VoteableTypeClient>,
   classes: ClassesType,
-  showBox?: boolean
+  showBox?: boolean,
+  verticalArrows?: boolean,
   className?: string,
 }) => {
   const currentUser = useCurrentUser();
@@ -145,8 +148,6 @@ const OverallVoteAxis = ({
   const tooltipPlacement = isFriendlyUI ? "top" : "bottom";
 
   const buttonProps: Partial<OverallVoteButtonProps<VoteableTypeClient>> = {};
-  // TODO: In the fullness of time
-  const verticalArrows = false;
   if (verticalArrows) {
     buttonProps.solidArrow = true;
   }
