@@ -29,13 +29,13 @@ type LLMGeneratedJargonTerm = z.infer<typeof jargonTermSchema>;
 const claudeKey = jargonBotClaudeKey.get()
 
 async function queryClaudeJailbreak(prompt: PromptCachingBetaMessageParam[], maxTokens: number, systemPrompt: string) {
-const client = getAnthropicPromptCachingClientOrThrow(claudeKey)
-return await client.messages.create({
+  const client = getAnthropicPromptCachingClientOrThrow(claudeKey)
+  return await client.messages.create({
     system: systemPrompt,
     model: "claude-3-5-sonnet-20240620",
     max_tokens: maxTokens,
     messages: prompt
-})
+  });
 }
 
 export const queryClaudeForTerms = async (markdown: string) => {

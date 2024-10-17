@@ -370,36 +370,30 @@ augmentFieldsDict(Posts, {
 
   glossary: {
     resolveAs: {
-      type: GraphQLJSON,
-      resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+      type: '[JargonTerm!]!',
+      resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<Partial<DbJargonTerm>[]> => {
         // Forum-gating/beta-gating is done here, rather than just client side,
         // so that users don't have to download the glossary if it isn't going
         // to be displayed.
         if (!userCanViewJargonTerms(context.currentUser)) {
-          return;
+          return [];
         }
-        const jargonTerms = await context.JargonTerms.find({ postId: post._id, approved: true }, {sort: {term: 1}}).fetch();
+        const jargonTerms = await context.JargonTerms.find({ postId: post._id, approved: true }, { sort: { term: 1 }}).fetch();
 
-        return jargonTerms.map((jargonTerm: DbJargonTerm) => ({
-          term: jargonTerm.term,
-          altTerms: jargonTerm.altTerms,
-          // humansAndOrAIEdited: jargonTerm.humansAndOrAIEdited,
-          html: sanitize(jargonTerm.contents?.html ?? ""),
-        }));
-      }
+        return await accessFilterMultiple(context.currentUser, context.JargonTerms, jargonTerms, context);
+      },
+      sqlResolver: ({ field }) => `(
+        SELECT ARRAY_AGG(ROW_TO_JSON(jt.*))
+        FROM "JargonTerms" jt
+        WHERE jt."postId" = ${field('_id')}
+        AND jt."approved" IS TRUE
+        GROUP BY jt."postId", jt."term"
+        ORDER BY jt."term" ASC
+        LIMIT 1
+      )`
     }
   }
 })
-
-
-declare global {
-  type GlossaryTerm = {
-    term: string
-    altTerms: string[]
-    humansAndOrAIEdited: JargonTermsDefaultFragment['humansAndOrAIEdited']
-    html: string
-  }
-}
 
 export type PostIsCriticismRequest = {
   _id?: string,

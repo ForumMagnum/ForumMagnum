@@ -57,11 +57,11 @@ const GlossarySidebar = ({post, classes}: {
     <div className={classes.glossaryContainer}>
       <h3 className={classes.title}>Glossary of Jargon</h3>
   
-      {post.glossary.map((jargonTerm: GlossaryTerm) =>
+      {post.glossary.map((jargonTerm: JargonTermsPostFragment) =>
         <div key={jargonTerm.term}>
           <JargonTooltip
             term={jargonTerm.term}
-            definitionHTML={jargonTerm.html}
+            definitionHTML={jargonTerm.contents?.html ?? ''}
             altTerms={jargonTerm.altTerms}
             humansAndOrAIEdited={jargonTerm.humansAndOrAIEdited}
             replacedSubstrings={jargonTermsToTextReplacements(post.glossary)}
