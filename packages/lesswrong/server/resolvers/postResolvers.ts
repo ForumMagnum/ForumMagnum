@@ -395,16 +395,6 @@ augmentFieldsDict(Posts, {
   }
 })
 
-
-declare global {
-  type GlossaryTerm = {
-    term: string
-    altTerms: string[]
-    humansAndOrAIEdited: JargonTermsDefaultFragment['humansAndOrAIEdited']
-    html: string
-  }
-}
-
 export type PostIsCriticismRequest = {
   _id?: string,
   title: string,
