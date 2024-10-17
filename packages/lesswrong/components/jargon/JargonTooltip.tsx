@@ -65,15 +65,15 @@ export const JargonTooltip = ({term, definitionHTML, altTerms, humansAndOrAIEdit
   </LWTooltip>;
 }
 
-export function jargonTermsToTextReplacements(terms: GlossaryTerm[]): ContentReplacedSubstringComponentInfo[] {
-  return terms.map((glossaryItem: GlossaryTerm) => ({
+export function jargonTermsToTextReplacements(terms: JargonTermsPostFragment[]): ContentReplacedSubstringComponentInfo[] {
+  return terms.map((glossaryItem: JargonTermsPostFragment) => ({
     replacedString: glossaryItem.term,
     componentName: "JargonTooltip",
     replace: "all",
     caseInsensitive: true,
     props: {
       term: glossaryItem.term,
-      definitionHTML: glossaryItem.html,
+      definitionHTML: glossaryItem.contents?.html ?? '',
       altTerms: glossaryItem.altTerms,
       humansAndOrAIEdited: glossaryItem.humansAndOrAIEdited,
     },

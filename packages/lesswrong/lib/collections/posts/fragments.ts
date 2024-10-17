@@ -428,7 +428,9 @@ registerFragment(`
     fmCrosspost
 
     # Jargon Terms
-    glossary
+    glossary {
+      ...JargonTermsPostFragment
+    }
   }
 `);
 
