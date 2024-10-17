@@ -4189,8 +4189,8 @@ interface JargonTermsDefaultFragment { // fragment on JargonTerms
   readonly postId: string,
   readonly term: string,
   readonly humansAndOrAIEdited: string|null,
-  readonly forLaTeX: boolean,
   readonly approved: boolean,
+  readonly deleted: boolean,
   readonly altTerms: Array<string>,
 }
 
@@ -4200,8 +4200,8 @@ interface JargonTermsFragment { // fragment on JargonTerms
   readonly term: string,
   readonly contents: RevisionEdit|null,
   readonly humansAndOrAIEdited: string|null,
-  readonly forLaTeX: boolean,
   readonly approved: boolean,
+  readonly deleted: boolean,
   readonly altTerms: Array<string>,
 }
 
@@ -4209,7 +4209,6 @@ interface JargonTermsPostFragment { // fragment on JargonTerms
   readonly _id: string,
   readonly term: string,
   readonly humansAndOrAIEdited: string|null,
-  readonly forLaTeX: boolean,
   readonly altTerms: Array<string>,
   readonly contents: RevisionDisplay|null,
 }

@@ -90,14 +90,17 @@ export const GlossaryEditForm = ({ classes, document }: {
   });
 
   const handleSetApproveAll = (approve: boolean) => {
-    // setIsActive(value);
     for (const jargonTerm of sortedGlossary) {
       void updateJargonTerm({
         selector: { _id: jargonTerm._id },
         data: {
           approved: approve
         },
-      })
+        optimisticResponse: {
+          ...jargonTerm,
+          approved: !jargonTerm.approved,
+        }
+      });
     }
   }
 

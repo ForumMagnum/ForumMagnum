@@ -23,9 +23,7 @@ const styles = (theme: ThemeType) => ({
     '&:first-child $approved': {
       paddingTop: 0,
     },
-
   },
-
   flex: {
     display: 'flex',
     flexGrow: 1

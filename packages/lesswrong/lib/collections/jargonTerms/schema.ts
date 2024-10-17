@@ -23,16 +23,15 @@ const schema: SchemaType<"JargonTerms"> = {
     canRead: ['guests'],
     // Implementation in jargonTermResolvers.ts
   },
-  forLaTeX: {
+  approved: {
     type: Boolean,
     canRead: ['guests'],
-    canCreate: ['admins'],
-    canUpdate: ['admins'],
-    // This is here while we're developing, but it might want to be something the user can change later
+    canCreate: ['members'],
+    canUpdate: ['members'],
     hidden: true,
     ...schemaDefaultValue(false),
   },
-  approved: {
+  deleted: {
     type: Boolean,
     canRead: ['guests'],
     canCreate: ['members'],
