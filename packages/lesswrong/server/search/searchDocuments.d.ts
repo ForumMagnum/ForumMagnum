@@ -91,7 +91,7 @@ interface SearchPost extends SearchBase {
   lastCommentedAt: string | null,
   draft: boolean,
   af: boolean,
-  tags: Array<string>,
+  tags: {_id: string, slug: string, name: string}[] | null,
   authorSlug?: string | null,
   authorDisplayName?: string | null,
   authorFullName?: string | null,
