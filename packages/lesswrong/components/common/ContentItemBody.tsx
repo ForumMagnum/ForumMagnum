@@ -391,11 +391,13 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
     element: HTMLElement,
     replacedSubstrings: ContentReplacedSubstringComponentInfo[],
   ) => {
-    if (replacedSubstrings) {
-      // Sort substrings by length descending to handle overlapping substrings
-      const sortedSubstrings = replacedSubstrings.sort((a, b) => b.replacedString.length - a.replacedString.length);
-  
-      for (let replacement of sortedSubstrings) {
+    if (!replacedSubstrings) return;
+
+    // Sort substrings by length descending to handle overlapping substrings
+    const sortedSubstrings = replacedSubstrings.sort((a, b) => b.replacedString.length - a.replacedString.length);
+
+    for (let replacement of sortedSubstrings) {
+      if (replacement.replace === "all") {
         const ReplacementComponent = Components[replacement.componentName];
         const replacementComponentProps = replacement.props;
         const searchString = replacement.replacedString.trim();
@@ -450,6 +452,48 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
         } catch (e) {
           // eslint-disable-next-line no-console
           console.error(`Error highlighting string ${replacement.replacedString} in ${this.props.description ?? "content block"}`, e);
+        }
+      } else {
+        const ReplacementComponent = Components[replacement.componentName];
+        const replacementComponentProps = replacement.props;
+        const str = replacement.replacedString;
+  
+        try {
+          // Find (the first instance of) the string to replace. This should be
+          // an HTML text node plus an offset into that node.
+          //
+          // We're using the dom-anchor-text-quote library for this search,
+          // which is a thin wrapper around diff-match-patch, which is a diffing
+          // library with a full suite of fuzzy matching heuristics.
+          const range: Range|null = toRange(
+            element,
+            { exact: str.trim() },
+            { hint: 0 }, //TODO: store offsets with text, make use for resolving match ambiguity
+          );
+          // Do surgery on the DOM
+          if (range) {
+            const subRanges = splitRangeIntoReplaceableSubRanges(range);
+            let first=true;
+            for (let subRange of subRanges) {
+              const reducedRange = reduceRangeToText(subRange);
+              if (reducedRange) {
+                const span = wrapRangeWithSpan(reducedRange)
+                if (span) {
+                  const InlineReactedSpan = rawExtractElementChildrenToReactComponent(span);
+                  const replacementNode = (
+                    <ReplacementComponent {...replacementComponentProps} isSplitContinuation={!first}>
+                      <InlineReactedSpan/>
+                    </ReplacementComponent>
+                  );
+                  this.replaceElement(span, replacementNode);
+                }
+              }
+              first=false;
+            }
+          }
+        } catch {
+          // eslint-disable-next-line no-console
+          console.error(`Error highlighting string ${str} in ${this.props.description ?? "content block"}`);
         }
       }
     }
