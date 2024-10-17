@@ -4,7 +4,7 @@ import { QuoteLocator, NamesAttachedReactionsList, getNormalizedReactionsListFro
 import classNames from 'classnames';
 import { HoveredReactionListContext, InlineReactVoteContext, SetHoveredReactionContext } from './HoveredReactionContextProvider';
 import sumBy from 'lodash/sumBy';
-import { useHover } from '@/components/common/withHover';
+import { useHover, UseHoverEventHandlers } from '@/components/common/withHover';
 import type { VotingProps } from '../votingProps';
 import { useCurrentUser } from '@/components/common/withUser';
 import { defaultInlineReactsMode, SideItemVisibilityContext } from '@/components/dropdowns/posts/SetSideItemVisibility';
@@ -90,37 +90,30 @@ const InlineReactHoverableHighlight = ({quote, reactions, isSplitContinuation=fa
     return null;
   }
 
-  return <LWTooltip
-    title={<InlineReactHoverInfo
-      quote={quote}
-      reactions={reactions}
-      voteProps={voteProps}
-    />}
-    placement="top-start"
-    tooltip={false}
-    flip={false}
-    inlineBlock={false}
-    clickable={true}
-  >
-    <span {...eventHandlers} className={classNames({
+  return (
+    <span className={classNames({
       [classes.highlight]: shouldUnderline,
       [classes.reactionTypeHovered]: isHovered
     })}>
       {!isSplitContinuation && sideItemIsVisible && <SideItem options={{format: "icon"}}>
-        <SidebarInlineReact quote={quote} reactions={reactions} voteProps={voteProps} classes={classes} />
+        <SidebarInlineReact
+          hoverEventHandlers={eventHandlers}
+          quote={quote} reactions={reactions} voteProps={voteProps} classes={classes}
+        />
       </SideItem>}
       {children}
     </span>
-  </LWTooltip>
+  );
 }
 
-const SidebarInlineReact = ({quote,reactions, voteProps, classes}: {
+const SidebarInlineReact = ({quote,reactions, voteProps, hoverEventHandlers, classes}: {
   quote: QuoteLocator,
   reactions: NamesAttachedReactionsList,
   voteProps: VotingProps<VoteableTypeClient>,
+  hoverEventHandlers: UseHoverEventHandlers,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { SideItemLine } = Components;
+  const { SideItemLine, LWTooltip, InlineReactHoverInfo } = Components;
   const currentUser = useCurrentUser();
   const normalizedReactions = getNormalizedReactionsListFromVoteProps(voteProps)?.reacts ?? {};
   const reactionsUsed = Object.keys(normalizedReactions).filter(react =>
@@ -129,9 +122,22 @@ const SidebarInlineReact = ({quote,reactions, voteProps, classes}: {
   
   return <>
     <SideItemLine colorClass={classes.inlineReactSidebarLine}/>
-    <span className={classes.sidebarInlineReactIcons}>
+    <span {...hoverEventHandlers} className={classes.sidebarInlineReactIcons}>
       {reactionsUsed.map(r => <span key={r}>
-        <Components.ReactionIcon react={r}/>
+        <LWTooltip
+          title={<InlineReactHoverInfo
+            quote={quote}
+            reactions={reactions}
+            voteProps={voteProps}
+          />}
+          placement="bottom-start"
+          tooltip={false}
+          flip={true}
+          inlineBlock={false}
+          clickable={true}
+        >
+          <Components.ReactionIcon react={r}/>
+        </LWTooltip>
       </span>)}
     </span>
   </>

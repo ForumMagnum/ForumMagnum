@@ -12,7 +12,18 @@ type UseHoverProps = {
   onLeave?: () => void,
 }
 
-export const useHover = ({eventProps, onEnter, onLeave}: UseHoverProps = {}) => {
+export type UseHoverEventHandlers = {
+  onMouseOver: (ev: React.MouseEvent) => void,
+  onMouseLeave: (ev: React.MouseEvent) => void,
+}
+
+export const useHover = ({eventProps, onEnter, onLeave}: UseHoverProps = {}): {
+  eventHandlers: UseHoverEventHandlers,
+  hover: boolean,
+  everHovered: boolean,
+  anchorEl: any,
+  forceUnHover: () => void,
+} => {
   const [hover, setHover] = useState(false)
   const [everHovered, setEverHovered] = useState(false)
   const [anchorEl, setAnchorEl] = useState<any>(null)
