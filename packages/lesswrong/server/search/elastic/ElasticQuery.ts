@@ -225,7 +225,11 @@ class ElasticQuery {
           {term: {userId: token}},
         );
       } else if (type === "tag") {
-        tagFilters.push({term: {tags: token}});
+        tagFilters.push(
+          {term: {"tags._id": token}},
+          {term: {"tags.slug": token}},
+          {term: {"tags.name": token}},
+        );
       }
     }
     if (userFilters.length) {
