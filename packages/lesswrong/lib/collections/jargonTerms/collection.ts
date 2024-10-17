@@ -64,7 +64,6 @@ makeEditable({
 });
 
 JargonTerms.checkAccess = async (user: DbUser | null, jargonTerm: DbJargonTerm, context: ResolverContext) => {
-  console.log({jargonTerm});
   const post = await context.loaders.Posts.load(jargonTerm.postId);
   if (!post) {
     return false;
