@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useTheme } from '../themes/useTheme';
 import classNames from 'classnames';
 import UpArrowIcon from '@material-ui/icons/KeyboardArrowUp';
@@ -9,6 +9,8 @@ import IconButton from '@material-ui/core/IconButton';
 import Transition from 'react-transition-group/Transition';
 import { useVoteColors } from './useVoteColors';
 import type { VoteColor } from './voteColors';
+import { CrossReactionIcon } from '../icons/reactions/CrossReactionIcon';
+import { TickReactionIcon } from '../icons/reactions/TickReactionIcon';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -17,6 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: 'initial',
     height: 'initial',
     padding: 0,
+    bottom: 2,
     '&:hover': {
       backgroundColor: 'transparent',
     }
@@ -76,8 +79,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     opacity: 0.6,
     height: 15,
     position: 'absolute',
-    top: 2,
-    left: 3
+    top: 3,
+    left: 2,
   },
   clear: {
     fontSize: '45%',
@@ -165,7 +168,7 @@ const VoteAgreementIcon = ({
   const theme = useTheme();
   const upOrDown = orientation === "left" ? "Downvote" : "Upvote"
   
-  const PrimaryIcon =  (upOrDown === "Downvote") ? ClearIcon : CheckIcon
+  const primaryIcon =  (upOrDown === "Downvote") ? "CrossReaction" : "TickReaction"
   const primaryIconStyling = (upOrDown === "Downvote") ? classes.clear : classes.check
   
   const BigVoteAccentIcon = (upOrDown === "Downvote") ? UpArrowIcon: CheckIcon
@@ -189,12 +192,13 @@ const VoteAgreementIcon = ({
       disableRipple
     >
       <span className={classes.iconsContainer}>
-        <PrimaryIcon
+        <Components.ForumIcon
+          icon={primaryIcon}  
           className={classNames(primaryIconStyling, classes.noClickCatch, {[classes.hideIcon]: bigVotingTransition || bigVoted})}
           style={{color: voted || alwaysColored ? mainColor : "inherit"}}
-          viewBox='6 6 12 12'
+          // viewBox='6 6 12 12'
         />
-        <Transition in={(bigVotingTransition || bigVoted)} timeout={theme.voting.strongVoteDelay}>
+        {/* <Transition in={(bigVotingTransition || bigVoted)} timeout={theme.voting.strongVoteDelay}>
           {(state) => (
             <>
               <BigVoteAccentIcon
@@ -212,7 +216,7 @@ const VoteAgreementIcon = ({
                 viewBox='6 6 12 12'
               />
             </>)}
-        </Transition>
+        </Transition> */}
       </span>
     </IconButton>
   )

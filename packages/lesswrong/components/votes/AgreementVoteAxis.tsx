@@ -12,7 +12,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   agreementSection: {
     display: "inline-block",
     fontSize: 25,
-    marginLeft: 10,
+    marginLeft: 4,
     lineHeight: 0.6,
     height: 24,
     minWidth: 60,
@@ -23,9 +23,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   agreementScore: {
     fontSize: "1.1rem",
-    marginLeft: 4,
+    marginLeft: 3,
     lineHeight: 1,
-    marginRight: 4,
+    marginRight: 3,
   },
   tooltip: {
     transform: isFriendlyUI ? "translateY(-10px)" : undefined,

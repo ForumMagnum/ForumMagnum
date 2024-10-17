@@ -32,8 +32,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   voteScore: {
     fontSize: '1.1rem',
-    marginLeft: 4,
-    marginRight: 4,
+    marginLeft: 3,
+    marginRight: 3,
     lineHeight: 1,
   },
   secondarySymbol: {

@@ -153,6 +153,8 @@ import { CheckSmallIcon } from "../icons/CheckSmallIcon";
 import { FilterBarsIcon } from "../icons/FilterBarsIcon";
 import { EAEnvelopeIcon } from "../icons/EAEnvelopeIcon";
 import { RobotIcon } from '../icons/RobotIcon';
+import { TickReactionIcon } from "../icons/reactions/TickReactionIcon";
+import { CrossReactionIcon } from "../icons/reactions/CrossReactionIcon";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -276,7 +278,9 @@ export type ForumIconName =
   "Undo" |
   "Clear" |
   "Fullscreen" |
-  "FullscreenExit"
+  "FullscreenExit" |
+  "TickReaction" |
+  "CrossReaction"
   ;
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
@@ -396,7 +400,9 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Undo: UndoIcon,
     Clear: ClearIcon,
     Fullscreen: FullscreenIcon,
-    FullscreenExit: FullscreenExitIcon
+    FullscreenExit: FullscreenExitIcon,
+    TickReaction: TickReactionIcon,
+    CrossReaction: CrossReactionIcon
   },
   default: {
     VolumeUp: SpeakerWaveIcon,
@@ -514,7 +520,9 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Undo: UndoIcon,
     Clear: ClearIcon,
     Fullscreen: FullscreenIcon,
-    FullscreenExit: FullscreenExitIcon
+    FullscreenExit: FullscreenExitIcon,
+    TickReaction: TickReactionIcon,
+    CrossReaction: CrossReactionIcon
   },
 };
 
