@@ -224,7 +224,6 @@ export const createNewJargonTerms = async (postId: string, currentUser: DbUser) 
         document: {
           postId: postId,
           term: term.term,
-          forLaTeX: false,
           approved: false,
           contents: {
             originalContents: {

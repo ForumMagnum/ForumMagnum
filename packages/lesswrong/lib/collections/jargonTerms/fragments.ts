@@ -9,8 +9,8 @@ registerFragment(`
       ...RevisionEdit
     }
     humansAndOrAIEdited
-    forLaTeX
     approved
+    deleted
     altTerms
   }
 `);
@@ -20,7 +20,6 @@ registerFragment(`
     _id
     term
     humansAndOrAIEdited
-    forLaTeX
     altTerms
     contents {
       ...RevisionDisplay

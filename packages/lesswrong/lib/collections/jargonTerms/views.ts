@@ -10,7 +10,7 @@ declare global {
   type JargonTermsViewTerms = Omit<ViewTermsBase, 'view'> & (PostJargonTermsViewTerms | {
     view?: undefined,
     postId?: string,
-  })
+  });
 }
 
 ensureIndex(JargonTerms, { postId: 1, term: 1, createdAt: 1 });

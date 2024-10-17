@@ -141,7 +141,6 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
 }) => {
   const { LWTooltip, WrappedSmartForm, ContentItemBody } = Components;
 
-  // const [isActive, setIsActive] = useState(jargonTerm.approved);
   const [edit, setEdit] = useState(false);
   // TODO: make the hidden state conditional on whether any terms are approved at all, and then hide the unapproved terms.  (But maybe put them in a collapsed section instead?)
   const [hidden, setHidden] = useState(false);
@@ -152,12 +151,15 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
   });
 
   const handleActiveChange = () => {
-    // setIsActive(value);
     void updateJargonTerm({
       selector: { _id: jargonTerm._id },
       data: {
         approved: !jargonTerm.approved
       },
+      optimisticResponse: {
+        ...jargonTerm,
+        approved: !jargonTerm.approved,
+      }
     })
   }
 
