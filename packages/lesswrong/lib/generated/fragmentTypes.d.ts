@@ -543,6 +543,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly lesswrongWikiImportRevision: string,
   readonly lesswrongWikiImportSlug: string,
   readonly lesswrongWikiImportCompleted: boolean,
+  readonly tableOfContents: any,
   readonly htmlWithContributorAnnotations: string,
   readonly contributors: any /*TagContributorsList*/,
   readonly contributionStats: any /*{"definitions":[{"blackbox":true}]}*/,
@@ -2630,6 +2631,7 @@ interface TagRevisionFragment_description { // fragment on Revisions
 }
 
 interface TagPreviewFragment extends TagBasicInfo { // fragment on Tags
+  readonly isRead: boolean|null,
   readonly parentTag: TagBasicInfo|null,
   readonly subTags: Array<TagBasicInfo>,
   readonly description: TagPreviewFragment_description|null,
@@ -2642,6 +2644,7 @@ interface TagPreviewFragment_description { // fragment on Revisions
 }
 
 interface TagSectionPreviewFragment extends TagBasicInfo { // fragment on Tags
+  readonly isRead: boolean|null,
   readonly parentTag: TagBasicInfo|null,
   readonly subTags: Array<TagBasicInfo>,
   readonly description: TagSectionPreviewFragment_description|null,
