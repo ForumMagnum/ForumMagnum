@@ -1,3 +1,4 @@
+import { taggingNameSetting } from "@/lib/instanceSettings";
 import trim from "lodash/trim";
 
 export type QueryToken = {
@@ -39,7 +40,7 @@ export const parseQuery = (query: string): QueryParserResult => {
     } else if (prefix === "user:") {
       type = "user";
       isAdvanced = true;
-    } else if (prefix === "tag:") {
+    } else if (prefix === `${taggingNameSetting.get()}:`) {
       type = "tag";
       isAdvanced = true;
     }

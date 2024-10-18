@@ -5,7 +5,7 @@ import type { SearchState } from 'react-instantsearch/connectors';
 import { Hits, Configure, SearchBox, Pagination, connectStats, connectScrollTo } from 'react-instantsearch-dom';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { useLocation } from '../../lib/routeUtil';
-import { isEAForum, taggingNameIsSet, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
+import { isEAForum, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import InfoIcon from '@material-ui/icons/Info';
@@ -387,7 +387,7 @@ const SearchPageTabbed = ({classes}: {
             </div>
           </div>
           <LWTooltip
-            title={`"Quotes" and -minus signs are supported. Use "user:username" or "tag:tagname" to filter by user or tag.`}
+            title={`"Quotes" and -minus signs are supported. Use user:"Jane Doe" or ${taggingNameSetting.get()}:"Expected value" to filter by user or ${taggingNameSetting.get()}.`}
             className={classes.searchHelp}
           >
             <InfoIcon className={classes.infoIcon}/>
