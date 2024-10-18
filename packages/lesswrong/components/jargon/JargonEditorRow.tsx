@@ -25,7 +25,7 @@ const styles = (theme: ThemeType) => ({
     '&:first-child $approved': {
       paddingTop: 0,
     },
-    '&:hover $arrowRightButton, &:hover $hideIcon': {
+    '&:hover $arrowRightButton, &:hover $hideIcon, &:hover $leftButton': {
       opacity: .5
     }
   },
@@ -95,18 +95,22 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[500],
     height: 16,
     width: 16,
-    paddingLeft: 8,
-    paddingRight: 8,
-    opacity: 1
+    marginRight: 8,
+    opacity: 0,
+    '&:hover': {
+      opacity: 1
+    }
   },
   arrowRightButton: {
-    paddingLeft: 8,
-    paddingRight: 8,
+    marginLeft: 8,
     cursor: 'pointer',
     color: theme.palette.grey[500],
     height: 18,
     width: 18,
-    opacity: 1
+    opacity: 0,
+    '&:hover': {
+      opacity: 1
+    }
   }
 });
 
@@ -146,7 +150,7 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
   classes: ClassesType<typeof styles>,
   jargonTerm: JargonTermsFragment,
 }) => {
-  const { LWTooltip, WrappedSmartForm, ContentItemBody, Row } = Components;
+  const { LWTooltip, WrappedSmartForm, ContentItemBody, ForumIcon, Row } = Components;
 
   const [edit, setEdit] = useState(false);
 
@@ -184,12 +188,12 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
       <div className={classes.leftButtons}>
         <LWTooltip title={<div><div>Hide term</div><div>You can get it back later</div></div>} placement="left">
           <span onClick={() => handleActiveChange()}>
-            <ArrowBackIcon className={classes.leftButton} />
+            <ForumIcon className={classes.leftButton} icon="ArrowLeft"/>
           </span>
         </LWTooltip>
         <LWTooltip title="Edit term/definition" placement="left">
           <span onClick={() => setEdit(true)}>
-            <EditIcon className={classes.leftButton} />
+            <ForumIcon className={classes.leftButton} icon="Edit"/>
           </span>
         </LWTooltip>
       </div>
@@ -211,11 +215,11 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
     return <div className={classes.root}>
       <div className={classes.flex}>
         <LWTooltip title={<div><p><em>Click to enable jargon hoverover</em></p>{termContentElement}</div>} placement='left'>
-          <>
-            <ClearIcon className={classes.hideIcon} onClick={() => handleDelete()} />
+          <Row>
+            <ForumIcon className={classes.hideIcon} icon="Clear" onClick={() => handleDelete()}/>
             <div className={classes.unapproved} dangerouslySetInnerHTML={{__html: jargonTerm.term}} onClick={() => handleActiveChange()}  />
-            <ArrowForwardIcon className={classes.arrowRightButton} onClick={() => handleActiveChange()} />
-          </>
+            <ForumIcon className={classes.arrowRightButton} icon="ArrowRight" onClick={() => handleActiveChange()}/>
+          </Row>
         </LWTooltip>
       </div>
     </div>
