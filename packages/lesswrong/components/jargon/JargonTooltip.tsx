@@ -65,8 +65,15 @@ export const JargonTooltip = ({term, definitionHTML, altTerms, humansAndOrAIEdit
   </LWTooltip>;
 }
 
-export function jargonTermsToTextReplacements(terms: JargonTermsPostFragment[]): ContentReplacedSubstringComponentInfo[] {
-  return terms.map((glossaryItem: JargonTermsPostFragment) => ({
+function expandJargonAltTerms(glossaryItem: JargonTermsPostFragment): JargonTermsPostFragment[] {
+  return [glossaryItem, ...glossaryItem.altTerms.map(altTerm => ({
+    ...glossaryItem,
+    term: altTerm,
+  }))];
+}
+
+function convertGlossaryItemToTextReplacement(glossaryItem: JargonTermsPostFragment): ContentReplacedSubstringComponentInfo {
+  return {
     replacedString: glossaryItem.term,
     componentName: "JargonTooltip",
     replace: "all",
@@ -77,7 +84,13 @@ export function jargonTermsToTextReplacements(terms: JargonTermsPostFragment[]):
       altTerms: glossaryItem.altTerms,
       humansAndOrAIEdited: glossaryItem.humansAndOrAIEdited,
     },
-  }));
+  };
+}
+
+export function jargonTermsToTextReplacements(terms: JargonTermsPostFragment[]): ContentReplacedSubstringComponentInfo[] {
+  return terms
+    .flatMap((glossaryItem) => expandJargonAltTerms(glossaryItem))
+    .map(convertGlossaryItemToTextReplacement);
 }
 
 const JargonTooltipComponent = registerComponent('JargonTooltip', JargonTooltip, {styles});
