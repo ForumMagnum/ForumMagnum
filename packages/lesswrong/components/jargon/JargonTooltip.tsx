@@ -69,6 +69,7 @@ function expandJargonAltTerms(glossaryItem: JargonTermsPostFragment): JargonTerm
   return [glossaryItem, ...glossaryItem.altTerms.map(altTerm => ({
     ...glossaryItem,
     term: altTerm,
+    // I considered replacing the alt term in the altTerms list with the original term, but decided that'd be confusing to users
   }))];
 }
 

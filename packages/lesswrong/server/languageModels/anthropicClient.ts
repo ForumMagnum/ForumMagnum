@@ -1,20 +1,23 @@
 import { anthropicApiKey } from "@/lib/instanceSettings";
 import '@anthropic-ai/sdk/shims/node';
 import Anthropic from "@anthropic-ai/sdk";
+import { createHash } from 'crypto';
 
-export const getAnthropicClientOrThrow = ((customApiKey?: string) => {
-  let client: Anthropic;
+export const getAnthropicClientOrThrow = (() => {
+  let keyClientMap = new Map<string, Anthropic>();
 
   return (customApiKey?: string) => {
-    if (!client) {
-      const apiKey = customApiKey ?? anthropicApiKey.get()
+    const apiKey = customApiKey ?? anthropicApiKey.get();
+    if (!apiKey) {
+      throw new Error('Missing api key when initializing Anthropic client!');
+    }
 
-      if (!apiKey) {
-        throw new Error('Missing api key when initializing Anthropic client!');
-      }
-      
-      // TODO - pull out client options like region to db settings?
-      client = new Anthropic({apiKey})
+    // Hash the key to avoid exposing the actual key in logs, if that ever happens by accident
+    const hashedKey = createHash('sha256').update(apiKey).digest('hex');
+    let client = keyClientMap.get(hashedKey);
+    if (!client) {
+      client = new Anthropic({ apiKey });
+      keyClientMap.set(hashedKey, client);
     }
 
     return client;
