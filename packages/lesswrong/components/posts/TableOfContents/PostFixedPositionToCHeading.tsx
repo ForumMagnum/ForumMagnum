@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 
 const styles = (theme: ThemeType) => ({
-  wordCount: {
+  readTime: {
     marginLeft: 12,
     marginBottom: 12,
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -14,8 +14,7 @@ const PostFixedPositionToCHeading = ({post, classes}: {
   post: PostsListWithVotes
   classes: ClassesType,
 }) => {
-  const wordCount = post.contents?.wordCount
-  return <div className={classes.wordCount}>{wordCount} words</div>
+  return <div className={classes.readTime}>{post.readTimeMinutes} min read</div>
 }
 
 const FixedPositionToCHeadingComponent = registerComponent('PostFixedPositionToCHeading', PostFixedPositionToCHeading, {styles});

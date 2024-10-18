@@ -2,8 +2,8 @@ import { Vulcan } from '../../lib/vulcan-lib';
 import { generateFragmentTypes } from './generateFragmentTypes';
 import { generateDbTypes } from './generateDbTypes';
 import { generateViewTypes } from './generateViewTypes';
+import { generateSQLSchema } from '../scripts/generateSQLSchema';
 import fs from 'fs';
-
 
 export function generateTypes(repoRoot?: string) {
   function writeIfChanged(contents: string, path: string) {
@@ -33,4 +33,12 @@ export function generateTypes(repoRoot?: string) {
   }
 }
 
+// After running this you still need to run:
+//   yarn graphql-codegen --config codegen.yml
+const generateTypesAndSQLSchema = (rootDir?: string) => {
+  generateSQLSchema(rootDir);
+  generateTypes(rootDir);
+}
+
 Vulcan.generateTypes = generateTypes;
+Vulcan.generateTypesAndSQLSchema = generateTypesAndSQLSchema;
