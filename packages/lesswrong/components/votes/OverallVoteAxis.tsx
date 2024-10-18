@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'inline-block',
     height: 24,
     paddingTop: 2,
-    marginLeft: 12,
+    marginLeft: isFriendlyUI ? 0 : 12,
   },
   overallSectionBox: {
     marginLeft: 8,
@@ -32,8 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   voteScore: {
     fontSize: '1.1rem',
-    marginLeft: 3,
-    marginRight: 3,
+    margin: '0 4px',
     lineHeight: 1,
   },
   secondarySymbol: {
@@ -71,7 +70,7 @@ const OverallVoteAxis = ({
   voteProps,
   classes,
   showBox=false,
-  verticalArrows=false,
+  verticalArrows,
   className,
 }: {
   document: VoteableTypeClient,

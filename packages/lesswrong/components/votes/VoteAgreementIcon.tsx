@@ -2,12 +2,10 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useTheme } from '../themes/useTheme';
 import classNames from 'classnames';
-import UpArrowIcon from '@material-ui/icons/KeyboardArrowUp';
-import CheckIcon from '@material-ui/icons/Check';
 import IconButton from '@material-ui/core/IconButton';
 import Transition from 'react-transition-group/Transition';
 import { useVoteColors } from './useVoteColors';
-import type { VoteColor } from './voteColors';
+import { BaseVoteArrowIconProps } from './VoteArrowIcon';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -45,9 +43,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     top: "-45%"
   },
   bigCheckCompleted: {
-    // fontSize: '90%',
-    // top: '-75%',
-    // left: 0
   },
   bigClear: {
     position: 'absolute',
@@ -125,27 +120,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-export interface VoteArrowIconProps {
-  solidArrow?: boolean,
-  strongVoteDelay: number,
-  orientation: "up"|"down"|"left"|"right",
-  enabled?: boolean,
-  color: VoteColor,
-  voted: boolean,
-  eventHandlers: {
-    handleMouseDown?: () => void,
-    handleMouseUp?: () => void,
-    handleClick?: () => void,
-    clearState?: () => void,
-  },
-  bigVotingTransition: boolean,
-  bigVoted: boolean,
-  bigVoteCompleted: boolean,
-  alwaysColored: boolean,
-}
-
 const VoteAgreementIcon = ({
-  solidArrow,
   orientation,
   enabled = true,
   color,
@@ -156,7 +131,7 @@ const VoteAgreementIcon = ({
   bigVoteCompleted,
   alwaysColored,
   classes,
-}: VoteArrowIconProps & {
+}: BaseVoteArrowIconProps & {
   classes: ClassesType
 }) => {
   const theme = useTheme();
@@ -176,6 +151,8 @@ const VoteAgreementIcon = ({
 
   const {mainColor, lightColor} = useVoteColors(color);
 
+  const { ForumIcon } = Components;
+
   return (
     <IconButton
       className={classNames(classes.root, {[classes.disabled]: !enabled})}
@@ -186,7 +163,7 @@ const VoteAgreementIcon = ({
       disableRipple
     >
       <span className={classes.iconsContainer}>
-        <Components.ForumIcon
+        <ForumIcon
           icon={primaryIcon}  
           className={classNames(primaryIconStyling, classes.noClickCatch, {[classes.hideIcon]: bigVotingTransition || bigVoted})}
           style={{color: voted || alwaysColored ? mainColor : "inherit"}}
@@ -194,21 +171,18 @@ const VoteAgreementIcon = ({
         <Transition in={(bigVotingTransition || bigVoted)} timeout={theme.voting.strongVoteDelay}>
           {(state) => (
             <>
-              <Components.ForumIcon
+              <ForumIcon
                 icon={bigVoteAccentIcon}
                 className={classNames(bigVoteAccentStyling, classes.noClickCatch, {[classes.hideIcon]: !bigVoted})}
                 style={bigVoteCompleted || bigVoted ? {color: lightColor} : undefined}
-                // viewBox='6 6 12 12'
               />
-              <Components.ForumIcon
+              <ForumIcon
                 icon={primaryIcon}
                 style={bigVoteCompleted || bigVoted ? {color: lightColor} : undefined}
                 className={classNames(bigVoteStyling, classes.noClickCatch, {
                   [bigVoteCompletedStyling]: bigVoteCompleted,
                   // [classes.bigCheckCompleted]: bigVoteCompleted,
-                  [classes.bigCheckSolid]: solidArrow
                 }, classes[state])}
-                // viewBox='6 6 12 12'
               />
             </>)}
         </Transition>

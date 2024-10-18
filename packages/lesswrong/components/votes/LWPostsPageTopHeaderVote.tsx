@@ -18,15 +18,15 @@ const styles = (theme: ThemeType) => ({
   },
   upvoteHorizontal: {
     fontSize: 18,
-    marginBottom: isLW ? -1 : -3, // -1 for LW, -3 for AF
-    '& .VoteArrowIcon-root': {
+    marginBottom: isLW ? -3 : -3, // -1 for LW, -3 for AF
+    '& .VoteArrowIconSolid-root': {
       color: theme.palette.grey[800]
     },
   },
   downvoteHorizontal: {
     fontSize: 18,
-    marginTop: isLW ? -4 : -3, // -4 for LW, -3 for AF
-    '& .VoteArrowIcon-root': {
+    marginTop: isLW ? -3 : -3, // -4 for LW, -3 for AF
+    '& .VoteArrowIconSolid-root': {
       color: theme.palette.grey[800]
     },
   },
@@ -88,6 +88,7 @@ const LWPostsPageTopHeaderVote = ({
             color="secondary"
             upOrDown="Upvote"
             enabled={canVote}
+            solidArrow
             {...voteProps}
           />
         </div>
@@ -121,6 +122,7 @@ const LWPostsPageTopHeaderVote = ({
             color="error"
             upOrDown="Downvote"
             enabled={canVote}
+            solidArrow
             {...voteProps}
           />
         </div>
