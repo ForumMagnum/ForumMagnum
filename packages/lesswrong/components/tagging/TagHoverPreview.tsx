@@ -5,15 +5,10 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { useTagPreview } from './useTag';
 import { linkStyle } from '../linkPreview/PostLinkPreview';
 import { removeUrlParameters } from '../../lib/routeUtil';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  link: {
-    ...linkStyle(theme),
-  },
-  linkWithoutDegreeSymbol: {
-    ...linkStyle(theme),
-    '&:after': {}
-  },
+  ...linkStyle(theme),
   count: {
     color: theme.palette.secondary.main, // grey[500],
     fontSize: ".9em",
@@ -40,7 +35,7 @@ const TagHoverPreview = ({
   postCount?: number,
   noPrefetch?: boolean,
   children: React.ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { params: {slug}, hash } = targetLocation;
   // Slice the hash to remove the leading # (which won't be a part of the
@@ -56,6 +51,7 @@ const TagHoverPreview = ({
   const linkTarget = normalizeTagLink(href);
 
   const {TagsTooltip} = Components;
+  const isRead = tag?.isRead;
   return (
     <TagsTooltip
       tagSlug={slug}
@@ -65,7 +61,10 @@ const TagHoverPreview = ({
       noPrefetch={noPrefetch}
     >
       <Link
-        className={showPostCount ? classes.linkWithoutDegreeSymbol : classes.link}
+        className={classNames(
+          !showPostCount && classes.link,
+          isRead && classes.visited,
+        )}
         to={linkTarget}
       >
         {tagName ?? children}
