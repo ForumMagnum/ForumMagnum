@@ -536,6 +536,8 @@ importComponent("ShortformListItem", () => require('../components/shortform/Shor
 importComponent("ProfileShortform", () => require('../components/shortform/ProfileShortform'));
 
 importComponent("VoteArrowIcon", () => require('../components/votes/VoteArrowIcon'));
+importComponent("VoteArrowIconSolid", () => require('../components/votes/VoteArrowIconSolid'));
+importComponent("VoteArrowIconHollow", () => require('../components/votes/VoteArrowIconHollow'));
 importComponent("VoteAgreementIcon", () => require('../components/votes/VoteAgreementIcon'));
 importComponent("VoteButton", () => require('../components/votes/VoteButton'));
 importComponent("OverallVoteButton", () => require('../components/votes/OverallVoteButton'));
