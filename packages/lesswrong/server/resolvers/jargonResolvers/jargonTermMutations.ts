@@ -17,6 +17,14 @@ import { z } from 'zod';
 import { getSqlClientOrThrow } from '@/server/sql/sqlClient';
 import { cyrb53Rand } from '@/server/perfMetrics';
 
+interface JargonTermsExplanationQueryParams {
+  markdown: string;
+  terms: string;
+  formatPrompt: string;
+  examplePost: string;
+  exampleExplanations: string;
+}
+
 const jargonTermSchema = z.object({
   term: z.string(),
   altTerms: z.array(z.string()).optional(),
@@ -84,6 +92,14 @@ async function executeWithLock<T>(rawLockId: string, callback: () => Promise<T>)
   });
 }
 
+function sanitizeJargonTerms(jargonTerms: LLMGeneratedJargonTerm[]) {
+  return jargonTerms.map(jargonTerm => ({
+    ...jargonTerm,
+    // In the case where the term is LaTeX, it's probably represented as HTML, so also needs to be sanitized
+    term: sanitize(jargonTerm.term),
+    htmlContent: sanitize(jargonTerm.htmlContent)
+  }));
+}
 
 async function queryClaudeJailbreak(prompt: PromptCachingBetaMessageParam[], maxTokens: number, systemPrompt: string) {
   const client = getAnthropicPromptCachingClientOrThrow(claudeKey)
@@ -114,13 +130,7 @@ The jargon terms are:`
   return termsResponse.content[0].text
 }
 
-export const queryClaudeForJargonExplanations = async ({ markdown, terms, formatPrompt, examplePost, exampleExplanations }: {
-  markdown: string,
-  terms: string,
-  formatPrompt: string,
-  examplePost: string,
-  exampleExplanations: string
-}) => {
+export const queryClaudeForJargonExplanations = async ({ markdown, terms, formatPrompt, examplePost, exampleExplanations }: JargonTermsExplanationQueryParams): Promise<LLMGeneratedJargonTerm[]> => {
   console.log(`I'm pinging Claude for jargon explanations!`)
   const response = await queryClaudeJailbreak([
     {
@@ -142,33 +152,27 @@ export const queryClaudeForJargonExplanations = async ({ markdown, terms, format
         text: `${formatPrompt} The text is: ${markdown}. The jargon terms are: ${terms}`
       }]
     }, 
-  ], 5000, glossarySystemPrompt)
-  if (!(response.content[0].type === "text")) return null
+  ], 5000, glossarySystemPrompt);
 
-  let jargonTerms: LLMGeneratedJargonTerm[] = []
+  if (!(response.content[0].type === "text")) {
+    return [];
+  }
 
   const text = response.content[0].text;
   const jsonGuessMatch = text.match(/\[\s*\{[\s\S]*?\}\s*\]/);
   if (jsonGuessMatch) {
-    // TODO: parse this using zod instead of regex, also run `sanitize` on the text
-    jargonTerms = JSON.parse(jsonGuessMatch[0]);
-    const validatedTerms = jargonTermSchema.array().safeParse(jargonTerms);
+    const unsanitizedJargonTerms = JSON.parse(jsonGuessMatch[0]);
+    const validatedTerms = jargonTermSchema.array().safeParse(unsanitizedJargonTerms);
     if (!validatedTerms.success) {
       console.error('Invalid jargon terms:', validatedTerms.error);
       return [];
     }
-    jargonTerms = validatedTerms.data;
-    for (const jargonTerm of jargonTerms) {
-      // In the case where the term is LaTeX, it's probably represented as HTML, so also needs to be sanitized
-      jargonTerm.term = sanitize(jargonTerm.term);
-      jargonTerm.htmlContent = sanitize(jargonTerm.htmlContent);
-    }
+    const parsedJargonTerms = validatedTerms.data;
+    return sanitizeJargonTerms(parsedJargonTerms);
   } else {
     console.log(`No jargon terms found in Claude's response: ${text}`)
-    jargonTerms = []
+    return [];
   }
-  console.log(`Claude responded with: ${jargonTerms}`)
-  return jargonTerms
 }
 
 async function getNewJargonTerms(post: PostsPage, user: DbUser ) {
@@ -233,7 +237,7 @@ export async function getLaTeXExplanations(post: PostsPage) {
   const terms = identifyLatexTerms(originalHtml)
   const exampleMathPost = await getMathExample();
 
-  const response = (await queryClaudeForJargonExplanations({markdown, terms, formatPrompt: mathFormatPrompt, examplePost: exampleMathPost, exampleExplanations: exampleMathGlossary})) || []
+  const response = await queryClaudeForJargonExplanations({markdown, terms, formatPrompt: mathFormatPrompt, examplePost: exampleMathPost, exampleExplanations: exampleMathGlossary});
 
   return response?.map(jargon => ({
     term: jargon.term,
@@ -247,7 +251,7 @@ export async function getLaTeXExplanations(post: PostsPage) {
   }))
 }
 
-export async function createEnglishExplanations(post: PostsPage) {
+export async function createEnglishExplanations(post: PostsPage): Promise<LLMGeneratedJargonTerm[]> {
   const originalHtml = post.contents?.html ?? ""
   const originalMarkdown = htmlToMarkdown(originalHtml)
   const markdown = (originalMarkdown.length < 200 * 1000) ? originalMarkdown : originalMarkdown.slice(0, 200 * 1000)
@@ -276,7 +280,7 @@ export const createNewJargonTerms = async (postId: string, currentUser: DbUser) 
     // Test lock by sleeping for 10 seconds
 
     newJargonTerms = await executeWithLock(rawLockId, async () => {
-      const newEnglishJargon = (await createEnglishExplanations(post)) || [];
+      const newEnglishJargon = await createEnglishExplanations(post);
 
       console.log("creating jargonTerms");
       const botAccount = await getAdminTeamAccount();
@@ -288,6 +292,7 @@ export const createNewJargonTerms = async (postId: string, currentUser: DbUser) 
               postId: postId,
               term: term.term,
               approved: false,
+              deleted: false,
               contents: {
                 originalContents: {
                   data: term.htmlContent,
@@ -315,17 +320,17 @@ export const createNewJargonTerms = async (postId: string, currentUser: DbUser) 
 
 
 defineMutation({
-    name: 'getNewJargonTerms',
-    argTypes: '(postId: String!)',
-    resultType: '[JargonTerm]',
-    fn: async (_, { postId }: { postId: string }, { currentUser }: ResolverContext) => {
-      if (!currentUser) {
-        throw new Error('You need to be logged in to generate jargon terms');
-      }
-      if (!userCanCreateAndEditJargonTerms(currentUser)) {
-        throw new Error('This is a prototype feature that is not yet available to all users');
-      }
+  name: 'getNewJargonTerms',
+  argTypes: '(postId: String!)',
+  resultType: '[JargonTerm]',
+  fn: async (_, { postId }: { postId: string }, { currentUser }: ResolverContext) => {
+    if (!currentUser) {
+      throw new Error('You need to be logged in to generate jargon terms');
+    }
+    if (!userCanCreateAndEditJargonTerms(currentUser)) {
+      throw new Error('This is a prototype feature that is not yet available to all users');
+    }
 
-      return await createNewJargonTerms(postId, currentUser);
-    },
+    return await createNewJargonTerms(postId, currentUser);
+  },
 });
