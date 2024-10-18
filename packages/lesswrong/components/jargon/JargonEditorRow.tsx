@@ -5,9 +5,9 @@ import classNames from 'classnames';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import Button from '@material-ui/core/Button';
 import EditIcon from '@material-ui/icons/Edit';
-import CloseIcon from '@material-ui/icons/Close';
-import ArrowLeftIcon from '@material-ui/icons/ArrowLeft';
-import ArrowRightIcon from '@material-ui/icons/ArrowRight';
+import ClearIcon from '@material-ui/icons/Clear';
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
 
 const APPROVED_PADDING = 10;
 
@@ -25,6 +25,9 @@ const styles = (theme: ThemeType) => ({
     '&:first-child $approved': {
       paddingTop: 0,
     },
+    '&:hover $arrowRightButton, &:hover $hideIcon': {
+      opacity: .5
+    }
   },
   flex: {
     display: 'flex',
@@ -41,9 +44,6 @@ const styles = (theme: ThemeType) => ({
     paddingBottom: 4,
     '&:hover': {
       opacity: 1,
-      '& $arrowRightButton': {
-        opacity: 1
-      }
     }
   },
   approved: {
@@ -79,27 +79,34 @@ const styles = (theme: ThemeType) => ({
   leftButton: {
     opacity: 0,
     transition: 'opacity 0.1s',
-    '$root:hover &': {
-      opacity: .3
-    },
     '&:hover': {
       opacity: .7
     },
     minHeight: "auto !important",
     minWidth: "auto !important",
     cursor: 'pointer',
-    height: 24,
+    height: 26,
     padding: 4,
     paddingLeft: 4,
-    width: 24,
+    width: 26,
+  },
+  hideIcon: {
+    cursor: 'pointer',
+    color: theme.palette.grey[500],
+    height: 16,
+    width: 16,
+    paddingLeft: 8,
+    paddingRight: 8,
+    opacity: 1
   },
   arrowRightButton: {
+    paddingLeft: 8,
+    paddingRight: 8,
     cursor: 'pointer',
-    color: theme.palette.primary.main,
-    height: 16,
-    padding: 4,
-    width: 16,
-    opacity: 0
+    color: theme.palette.grey[500],
+    height: 18,
+    width: 18,
+    opacity: 1
   }
 });
 
@@ -139,11 +146,9 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
   classes: ClassesType<typeof styles>,
   jargonTerm: JargonTermsFragment,
 }) => {
-  const { LWTooltip, WrappedSmartForm, ContentItemBody } = Components;
+  const { LWTooltip, WrappedSmartForm, ContentItemBody, Row } = Components;
 
   const [edit, setEdit] = useState(false);
-  // TODO: make the hidden state conditional on whether any terms are approved at all, and then hide the unapproved terms.  (But maybe put them in a collapsed section instead?)
-  const [hidden, setHidden] = useState(false);
 
   const {mutate: updateJargonTerm} = useUpdate({
     collectionName: "JargonTerms",
@@ -163,40 +168,33 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
     })
   }
 
-  // TODO: remove this functionality
   const handleDelete = () => {
-    setHidden(true);
-    // void updateJargonTerm({
-    //   selector: { _id: jargonTerm._id },
-    //   data: {
-    //     deleted: true
-    //   },
-    // })
+    void updateJargonTerm({
+      selector: { _id: jargonTerm._id },
+      data: {
+        deleted: true
+      },
+    })
   }
-
-  if (hidden) return null;
 
   const termContentElement = <ContentItemBody dangerouslySetInnerHTML={{__html: jargonTerm?.contents?.originalContents?.data ?? ''}}/>;
 
-  return <div className={classes.root}>
-    {jargonTerm.approved &&<div className={classes.leftButtons}>
-      <LWTooltip title={<div><div>Hide term</div><div>You can get it back later</div></div>} placement="left">
-        <span onClick={() => handleActiveChange()}>
-          <ArrowLeftIcon className={classes.leftButton} />
-        </span>
-      </LWTooltip>
-      <LWTooltip title="Edit term/definition" placement="left">
-        <span onClick={() => setEdit(true)}>
-          <EditIcon className={classes.leftButton} />
-        </span>
-      </LWTooltip>
-    </div>}
-    <div className={classNames(classes.flex, jargonTerm.approved && classes.approved)}>
-      {!jargonTerm.approved && <LWTooltip title={<div><p><em>Click to enable jargon hoverover</em></p>{termContentElement}</div>} placement='left'>
-        <div dangerouslySetInnerHTML={{__html: jargonTerm.term}} onClick={() => handleActiveChange()} className={classes.unapproved} /><ArrowRightIcon className={classes.arrowRightButton} onClick={() => handleActiveChange()} />
-      </LWTooltip>}
-      {jargonTerm.approved && (edit
-        ? <WrappedSmartForm
+  if (jargonTerm.approved) {
+    return <div className={classes.root}>
+      <div className={classes.leftButtons}>
+        <LWTooltip title={<div><div>Hide term</div><div>You can get it back later</div></div>} placement="left">
+          <span onClick={() => handleActiveChange()}>
+            <ArrowBackIcon className={classes.leftButton} />
+          </span>
+        </LWTooltip>
+        <LWTooltip title="Edit term/definition" placement="left">
+          <span onClick={() => setEdit(true)}>
+            <EditIcon className={classes.leftButton} />
+          </span>
+        </LWTooltip>
+      </div>
+      <div className={classNames(classes.flex, classes.approved)}>
+        {edit ? <WrappedSmartForm
             collectionName="JargonTerms"
             documentId={jargonTerm._id}
             mutationFragment={getFragment('JargonTermsFragment')}
@@ -206,10 +204,22 @@ export const JargonEditorRow = ({classes, jargonTerm}: {
             formComponents={{ FormSubmit: Components.JargonSubmitButton }}
             prefetchedDocument={jargonTerm}
           />
-        : termContentElement
-      )}
+        : termContentElement}
+      </div>
     </div>
-  </div>
+  } else {
+    return <div className={classes.root}>
+      <div className={classes.flex}>
+        <LWTooltip title={<div><p><em>Click to enable jargon hoverover</em></p>{termContentElement}</div>} placement='left'>
+          <>
+            <ClearIcon className={classes.hideIcon} onClick={() => handleDelete()} />
+            <div className={classes.unapproved} dangerouslySetInnerHTML={{__html: jargonTerm.term}} onClick={() => handleActiveChange()}  />
+            <ArrowForwardIcon className={classes.arrowRightButton} onClick={() => handleActiveChange()} />
+          </>
+        </LWTooltip>
+      </div>
+    </div>
+  }
 }
 
 const JargonSubmitButtonComponent = registerComponent('JargonSubmitButton', JargonSubmitButton, {styles: submitStyles});

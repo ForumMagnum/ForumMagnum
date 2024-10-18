@@ -32,13 +32,26 @@ const styles = (theme: ThemeType) => ({
     fontSize: "14px",
     fontFamily: "Roboto, sans-serif",
   },
-  button: {
+  approveAllButton: {
     cursor: 'pointer',
-    paddingBottom: 10,
+    padding: 10,
     fontSize: '1.1rem',
     display: 'flex',
     alignItems: 'center',
-    gap: 4,
+    justifyContent: 'center',
+    gap: '8px',
+    opacity: 0.6,
+    '&:hover': {
+      opacity: 0.8  
+    }
+  },
+  button: {
+    cursor: 'pointer',
+    padding: 10,
+    fontSize: '1.1rem',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
     opacity: 0.6,
     '&:hover': {
       opacity: 0.8
@@ -50,7 +63,10 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'center',
     paddingTop: 16,
     borderTop: theme.palette.border.faint,
-  }
+  },
+  icon: {
+    color: theme.palette.grey[500],
+  } 
 });
 
 export const GlossaryEditForm = ({ classes, document }: {
@@ -133,20 +149,21 @@ export const GlossaryEditForm = ({ classes, document }: {
     {/** The filter condition previously was checking item.isAltTerm, but that doesn't exist on JargonTermsFragment.  Not sure it was doing anything meaningful, or was just llm-generated. */}
     <div className={classNames(classes.window, expanded ? classes.expanded : '')}>
       {sortedUnapprovedTerms.length > 0 && <div>
-        <div className={classes.button} onClick={() => handleSetApproveAll(true)}>Approve all</div>
+        <div className={classes.approveAllButton} onClick={() => handleSetApproveAll(true)}>Approve all</div>
         {sortedUnapprovedTerms.map((item) => <JargonEditorRow key={item._id} jargonTerm={item}/>)}
       </div>}
       {sortedApprovedTerms.length > 0 && <div>
-        <div className={classes.button} onClick={() => handleSetApproveAll(false)}>Unapprove all</div>
+        <div className={classes.approveAllButton} onClick={() => handleSetApproveAll(false)}>Unapprove all</div>
         {sortedApprovedTerms.map((item) => <JargonEditorRow key={item._id} jargonTerm={item} />)}
       </div>}
     </div>
     <LoadMore {...loadMoreProps} />
     <div className={classes.footer}>
       <Button onClick={addNewJargonTerms} className={classes.generateButton}>Generate new terms</Button>
-      <div className={classes.button} onClick={() => setExpanded(!expanded)}>{expanded ? <div>Collapse<ExpandMoreIcon/></div> : <div>Expand<ExpandLessIcon/></div>}</div>
+      <div className={classes.button} onClick={() => setExpanded(!expanded)}>{expanded ? <>Collapse<ExpandMoreIcon className={classes.icon}/></> : <>Expand<ExpandLessIcon className={classes.icon}/></>}</div>
     </div>
     {mutationLoading && <Loading/>}
+    {mutationLoading && <div>(Loading... warning, this will take 30-60 seconds)</div>}
   </div>;
 }
 
