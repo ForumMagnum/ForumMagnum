@@ -239,6 +239,7 @@ export const darkModeTheme: UserThemeSpecification = {
       warningTranslucent: "rgba(255,173,8,0.3)",
       transparent: 'transparent',
       digestAdBannerInput: shadePalette.grey[300],
+      glossarBackground: "rgba(180,160,160,.1)",
       sidenoteBackground: "rgba(180,160,160,.1)",
     },
     border: {

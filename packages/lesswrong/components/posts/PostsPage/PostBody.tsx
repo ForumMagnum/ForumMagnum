@@ -3,11 +3,12 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 import { useSingle } from '../../../lib/crud/withSingle';
 import mapValues from 'lodash/mapValues';
-import { SideCommentMode, SideItemVisibilityContext } from '../../dropdowns/posts/SetSideItemVisibility';
+import { SideItemVisibilityContext } from '../../dropdowns/posts/SetSideItemVisibility';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 import type { ContentItemBody, ContentReplacedSubstringComponentInfo } from '../../common/ContentItemBody';
 import { hasSideComments, inlineReactsHoverEnabled } from '../../../lib/betas';
 import { VotingProps } from '@/components/votes/votingProps';
+import { jargonTermsToTextReplacements } from '@/components/jargon/JargonTooltip';
 
 const enableInlineReactsOnPosts = inlineReactsHoverEnabled;
 
@@ -34,15 +35,19 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
   const votingSystemName = post.votingSystem || "default";
   const votingSystem = getVotingSystemByName(votingSystemName);
   
-  const { ContentItemBody, SideCommentIcon, InlineReactSelectionWrapper } = Components;
+  const { ContentItemBody, SideCommentIcon, InlineReactSelectionWrapper, GlossarySidebar } = Components;
   const nofollow = (post.user?.karma || 0) < nofollowKarmaThreshold.get();
   const contentRef = useRef<ContentItemBody>(null);
   let content: React.ReactNode
   
-  let highlights: Record<string,ContentReplacedSubstringComponentInfo>|undefined = undefined;
-  if (votingSystem.getPostHighlights) {
-    highlights = votingSystem.getPostHighlights({post, voteProps});
-  }
+  const highlights = votingSystem.getPostHighlights
+    ? votingSystem.getPostHighlights({post, voteProps})
+    : []
+  const glossaryItems: ContentReplacedSubstringComponentInfo[] = ('glossary' in post)
+    ? jargonTermsToTextReplacements(post.glossary)
+    : [];
+  const replacedSubstrings = [...highlights, ...glossaryItems];
+  const glossarySidebar = <GlossarySidebar post={post}/>
 
   if (includeSideComments && document?.sideComments) {
     const htmlWithIDs = document.sideComments.html;
@@ -57,7 +62,7 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
       key={`${post._id}_${sideCommentMode}`}
       description={`post ${post._id}`}
       nofollow={nofollow}
-      replacedSubstrings={highlights}
+      replacedSubstrings={replacedSubstrings}
       idInsertions={sideCommentsMap}
     />
   } else {
@@ -66,7 +71,7 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
       ref={contentRef}
       description={`post ${post._id}`}
       nofollow={nofollow}
-      replacedSubstrings={highlights}
+      replacedSubstrings={replacedSubstrings}
     />
   }
   
@@ -76,10 +81,14 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
       voteProps={voteProps}
       styling="post"
     >
+      {glossarySidebar}
       {content}
     </InlineReactSelectionWrapper>
   } else {
-    return <>{content}</>;
+    return <>
+      {glossarySidebar}
+      {content}
+    </>;
   }
 }
 

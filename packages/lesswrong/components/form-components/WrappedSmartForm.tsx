@@ -50,6 +50,6 @@ const WrappedSmartFormComponent = registerComponent("WrappedSmartForm", WrappedS
 
 declare global {
   interface ComponentTypes {
-    WrappedSmartForm: typeof WrappedSmartFormComponent
+    WrappedSmartForm: typeof WrappedSmartForm
   }
 }

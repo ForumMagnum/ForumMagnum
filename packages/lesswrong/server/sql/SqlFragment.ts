@@ -32,20 +32,25 @@ type SqlFragmentEntry = SqlFragmentField | SqlFragmentPick;
 
 type SqlFragmentEntryMap = Record<string, SqlFragmentEntry>;
 
-const getResolverCollection = (
+export const getResolverCollection = (
   resolver: CustomResolver,
 ): CollectionBase<CollectionNameString> => {
   if (typeof resolver.type !== "string") {
     throw new Error(`Resolver "${resolver.fieldName}" has a scalar type`);
   }
   let type = resolver.type;
-  const exclam = type.indexOf("!");
-  if (exclam >= 0) {
-    type = type.substring(0, exclam);
+  
+  // Remove non-null indicator from the whole type
+  type = type.replace(/!$/, '');
+  
+  // Handle array types
+  if (type.startsWith('[') && type.endsWith(']')) {
+    type = type.slice(1, -1);
   }
-  while (type[0] === "[") {
-    type = type.substring(1, type.length - 1);
-  }
+  
+  // Remove non-null indicator from the base type
+  type = type.replace(/!$/, '');
+
   return getCollectionByTypeName(type);
 }
 

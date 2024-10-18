@@ -490,6 +490,7 @@ declare global {
       transparent: ColorString,
       imageOverlay: ColorString,
       digestAdBannerInput: ColorString,
+      glossaryBackground: ColorString,
       sidenoteBackground: ColorString,
     },
     header: {
