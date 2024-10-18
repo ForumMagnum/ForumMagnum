@@ -14,7 +14,7 @@ const schema: SchemaType<"JargonTerms"> = {
     canCreate: ['members'],
     canUpdate: ['members'],
     nullable: false,
-    order: 10
+    order: 20
   },
   humansAndOrAIEdited: {
     type: String,

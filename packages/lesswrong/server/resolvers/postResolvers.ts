@@ -378,7 +378,7 @@ augmentFieldsDict(Posts, {
         if (!userCanViewJargonTerms(context.currentUser)) {
           return [];
         }
-        const jargonTerms = await context.JargonTerms.find({ postId: post._id, approved: true }, { sort: { term: 1 }}).fetch();
+        const jargonTerms = await context.JargonTerms.find({ postId: post._id, approved: true, deleted: false }, { sort: { term: 1 }}).fetch();
 
         return await accessFilterMultiple(context.currentUser, context.JargonTerms, jargonTerms, context);
       },
@@ -387,6 +387,7 @@ augmentFieldsDict(Posts, {
         FROM "JargonTerms" jt
         WHERE jt."postId" = ${field('_id')}
         AND jt."approved" IS TRUE
+        AND jt."deleted" IS NOT TRUE
         GROUP BY jt."postId", jt."term"
         ORDER BY jt."term" ASC
         LIMIT 1

@@ -7,6 +7,7 @@ import { useUpdate } from '@/lib/crud/withUpdate';
 import classNames from 'classnames';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
+import { JargonTocItem } from './JargonTocItem';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -66,20 +67,37 @@ const styles = (theme: ThemeType) => ({
   },
   icon: {
     color: theme.palette.grey[500],
-  } 
+  },
+  termsList: {
+    marginRight: 16,
+  },
+  termsListTerm: {
+    cursor: 'pointer',
+    ...theme.typography.commentStyle,
+    fontSize: '1.1rem',
+    marginBottom: 10,
+    color: theme.palette.grey[500],
+    width: 150,
+    '&:hover': {
+      opacity: 0.8
+    }
+  },
+  approved: {
+    color: theme.palette.grey[800],
+  }
 });
 
 export const GlossaryEditForm = ({ classes, document }: {
   classes: ClassesType<typeof styles>,
   document: PostsPage,
 }) => {
-  const { JargonEditorRow, LoadMore, Loading, Row } = Components;
+  const { JargonEditorRow, LoadMore, Loading, JargonTocItem } = Components;
 
   const [expanded, setExpanded] = useState(false);
-
+  const [showDeletedTerms, setShowDeletedTerms] = useState(false);
   const { results: glossary = [], loadMoreProps, refetch } = useMulti({
     terms: {
-      view: "postJargonTerms",
+      view: "postEditorJargonTerms",
       postId: document._id,
       limit: 100
     },
@@ -95,8 +113,10 @@ export const GlossaryEditForm = ({ classes, document }: {
     return 0;
   });
 
-  const sortedApprovedTerms = sortedGlossary.filter((item) => item.approved)
-  const sortedUnapprovedTerms = sortedGlossary.filter((item) => !item.approved)
+  const deletedTerms = sortedGlossary.filter((item) => item.deleted);
+  const nonDeletedTerms = sortedGlossary.filter((item) => !item.deleted);
+  const sortedApprovedTerms = nonDeletedTerms.filter((item) => item.approved);
+  const sortedUnapprovedTerms = nonDeletedTerms.filter((item) => !item.approved);
 
   const [getNewJargonTerms, { data, loading: mutationLoading, error }] = useMutation(gql`
     mutation getNewJargonTerms($postId: String!) {
@@ -127,7 +147,8 @@ export const GlossaryEditForm = ({ classes, document }: {
   });
 
   const handleSetApproveAll = (approve: boolean) => {
-    for (const jargonTerm of sortedGlossary) {
+    const termsToUpdate = approve ? sortedUnapprovedTerms : sortedApprovedTerms;
+    for (const jargonTerm of termsToUpdate) {
       void updateJargonTerm({
         selector: { _id: jargonTerm._id },
         data: {
@@ -135,12 +156,11 @@ export const GlossaryEditForm = ({ classes, document }: {
         },
         optimisticResponse: {
           ...jargonTerm,
-          approved: !jargonTerm.approved,
+          approved: approve,
         }
       });
     }
   }
-
 
   return <div className={classes.root}>
     <p>
@@ -148,14 +168,19 @@ export const GlossaryEditForm = ({ classes, document }: {
     </p>
     {/** The filter condition previously was checking item.isAltTerm, but that doesn't exist on JargonTermsFragment.  Not sure it was doing anything meaningful, or was just llm-generated. */}
     <div className={classNames(classes.window, expanded ? classes.expanded : '')}>
-      {sortedUnapprovedTerms.length > 0 && <div>
-        <div className={classes.approveAllButton} onClick={() => handleSetApproveAll(true)}>Approve all</div>
-        {sortedUnapprovedTerms.map((item) => <JargonEditorRow key={item._id} jargonTerm={item}/>)}
-      </div>}
-      {sortedApprovedTerms.length > 0 && <div>
-        <div className={classes.approveAllButton} onClick={() => handleSetApproveAll(false)}>Unapprove all</div>
-        {sortedApprovedTerms.map((item) => <JargonEditorRow key={item._id} jargonTerm={item} />)}
-      </div>}
+      <div className={classes.termsList}>
+        {nonDeletedTerms.map((item) => <JargonTocItem key={item._id} jargonTerm={item}/>)}
+        {deletedTerms.length > 0 && !showDeletedTerms && <div className={classes.approveAllButton} onClick={() => setShowDeletedTerms(true)}>
+          Show hidden ({deletedTerms.length})
+        </div>}
+        {deletedTerms.length > 0 && showDeletedTerms && <div className={classes.approveAllButton} onClick={() => setShowDeletedTerms(false)}>
+          Hide hidden terms
+        </div>}
+        {showDeletedTerms && deletedTerms.map((item) => <JargonTocItem key={item._id} jargonTerm={item}/>)}
+      </div>
+      <div>
+        {nonDeletedTerms.map((item) => <JargonEditorRow key={item._id} jargonTerm={item}/>)}
+      </div>
     </div>
     <LoadMore {...loadMoreProps} />
     <div className={classes.footer}>

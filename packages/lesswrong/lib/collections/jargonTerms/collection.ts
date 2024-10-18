@@ -59,7 +59,7 @@ makeEditable({
     commentEditor: true,
     commentStyles: true,
     hideControls: true,
-    order: 20
+    order: 10
   }
 });
 
