@@ -388,19 +388,21 @@ class ElasticQuery {
       };
     }
 
+    const highlightQueryString = tokens.filter(
+      ({type}) => type !== "user" && type !== "tag",
+    ).map(({token}) => token).join(" ");
+    const highlightQuery = this.getDefaultQuery(
+      highlightQueryString,
+      this.config.fields,
+    );
+
     return {
       tokens,
       searchQuery,
       snippetName: snippet,
-      snippetQuery: this.getDefaultQuery(
-        this.queryData.search,
-        this.config.fields,
-      ),
+      snippetQuery: highlightQuery,
       highlightName: highlight,
-      highlightQuery: this.getDefaultQuery(
-        this.queryData.search,
-        this.config.fields,
-      ),
+      highlightQuery,
     };
   }
 
