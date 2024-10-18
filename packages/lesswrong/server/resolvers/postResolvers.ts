@@ -36,7 +36,7 @@ import { googleVertexApi } from '../google-vertex/client';
 import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { PromptCachingBetaMessageParam } from '@anthropic-ai/sdk/resources/beta/prompt-caching/messages';
 import { getAnthropicPromptCachingClientOrThrow } from '../languageModels/anthropicClient';
-import { exampleJargonGlossary2, exampleJargonPost2 } from './jargonResolvers/exampleJargonPost';
+import { serializedExampleJargonGlossary2, exampleJargonPost2 } from './jargonResolvers/exampleJargonPost';
 // import { exampleMathGlossary, exampleMathPost } from './exampleMathPost';
 import { ContentReplacedSubstringComponentInfo } from '@/components/common/ContentItemBody';
 

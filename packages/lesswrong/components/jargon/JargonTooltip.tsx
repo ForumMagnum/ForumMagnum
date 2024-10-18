@@ -65,12 +65,20 @@ export const JargonTooltip = ({term, definitionHTML, altTerms, humansAndOrAIEdit
   </LWTooltip>;
 }
 
-function expandJargonAltTerms(glossaryItem: JargonTermsPostFragment): JargonTermsPostFragment[] {
-  return [glossaryItem, ...glossaryItem.altTerms.map(altTerm => ({
+type MinimumExpandableJargonTerm = Pick<JargonTermsPostFragment, '_id' | 'term' | 'altTerms'>;
+
+export function expandJargonAltTerms<T extends MinimumExpandableJargonTerm>(glossaryItem: T, includeOriginalTerm = true): T[] {
+  const expandedTerms = [...glossaryItem.altTerms.map(altTerm => ({
     ...glossaryItem,
     term: altTerm,
     // I considered replacing the alt term in the altTerms list with the original term, but decided that'd be confusing to users
   }))];
+
+  if (includeOriginalTerm) {
+    expandedTerms.unshift(glossaryItem);
+  }
+  
+  return expandedTerms;
 }
 
 function convertGlossaryItemToTextReplacement(glossaryItem: JargonTermsPostFragment): ContentReplacedSubstringComponentInfo {
