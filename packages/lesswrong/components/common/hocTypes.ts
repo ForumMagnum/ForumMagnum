@@ -62,9 +62,10 @@ type DbObjectForCollectionBase<C> = C extends CollectionBase<infer T> ? T : neve
 
 type NullablePartial<T> = { [K in keyof T]?: T[K]|null|undefined }
 
-type WithUpdateFunction<N extends CollectionNameString> = (args: {
+type WithUpdateFunction<N extends CollectionNameString, F extends FragmentName = FragmentName> = (args: {
   selector: MongoSelector<ObjectsByCollectionName[N]>,
   data: NullablePartial<ObjectsByCollectionName[N]>,
+  optimisticResponse?: FragmentTypes[F],
   extraVariables?: any,
 }) => Promise<FetchResult>;
 

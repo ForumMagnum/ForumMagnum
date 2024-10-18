@@ -376,3 +376,8 @@ import './rateLimits/constants';
 import './rateLimits/types';
 
 import './subscribedUsersFeed';
+
+import './collections/jargonTerms/collection';
+import './collections/jargonTerms/views';
+import './collections/jargonTerms/fragments';
+import './collections/jargonTerms/schema';
