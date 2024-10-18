@@ -383,12 +383,10 @@ augmentFieldsDict(Posts, {
         return await accessFilterMultiple(context.currentUser, context.JargonTerms, jargonTerms, context);
       },
       sqlResolver: ({ field }) => `(
-        SELECT ARRAY_AGG(ROW_TO_JSON(jt.*))
+        SELECT ARRAY_AGG(ROW_TO_JSON(jt.*) ORDER BY jt."term" ASC)
         FROM "JargonTerms" jt
         WHERE jt."postId" = ${field('_id')}
         AND jt."approved" IS TRUE
-        GROUP BY jt."postId", jt."term"
-        ORDER BY jt."term" ASC
         LIMIT 1
       )`
     }
