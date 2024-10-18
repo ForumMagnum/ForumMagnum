@@ -14,6 +14,8 @@ import { readFile } from 'fs/promises';
 import { userCanCreateAndEditJargonTerms } from '@/lib/betas';
 import { getAdminTeamAccount } from '@/server/callbacks/commentCallbacks';
 import { z } from 'zod';
+import { getSqlClientOrThrow } from '@/server/sql/sqlClient';
+import { cyrb53Rand } from '@/server/perfMetrics';
 
 const jargonTermSchema = z.object({
   term: z.string(),
@@ -27,6 +29,61 @@ const jargonTermSchema = z.object({
 type LLMGeneratedJargonTerm = z.infer<typeof jargonTermSchema>;
 
 const claudeKey = jargonBotClaudeKey.get()
+
+class LockError extends Error {}
+
+/**
+ * Attempts to acquire an advisory lock and execute a callback.
+ * 
+ * @param rawLockId - A unique identifier for the lock, such that attempting to run the "same" operation as determined by the ID will fail if another such operation is already running.
+ * @param callback - The async function to be executed if the lock is acquired.
+ * @returns The result of the callback function.
+ * @throws {LockError} If the lock cannot be acquired.
+ * @throws {Error} If the callback throws an error (after releasing the lock).
+ * 
+ * @remarks
+ * - If the lock is not acquired, it throws a LockError.
+ * - If the lock is acquired but the callback throws an error, the lock is released and the error is thrown.
+ * - If the lock is acquired and the callback completes successfully, the lock is released and the callback's return value is returned.
+ */
+async function executeWithLock<T>(rawLockId: string, callback: () => Promise<T>): Promise<T> {
+  const db = getSqlClientOrThrow();
+  // We need to convert the lockId to a number because the advisory lock is a 64-bit integer
+  // cyrb53Rand returns a double between 0 and 1, so multiplying by 1e15 gives us a number between 0 and 1e15
+  const lockId = Math.floor(cyrb53Rand(rawLockId) * 1e15);
+
+  return await db.task(async (task) => {  
+    let lockAcquired = false;
+    let lockResult;
+    try {
+      // Attempt to acquire the advisory lock
+      lockResult = await task.any<{ pg_try_advisory_lock: boolean }>('SELECT pg_try_advisory_lock($1)', [lockId]);
+    } catch (err) {
+      // Worst-case scenario, we assume that we acquired the lock but ran into some other error
+      // In this case, we release the lock and throw the error
+      // This is not ideal, since we might release someone else's lock, but it's better than leaving the lock in place
+      await task.any('SELECT pg_advisory_unlock($1)', [lockId]);
+      throw err;
+    }
+    
+    try {
+      if (lockResult[0].pg_try_advisory_lock) {
+        lockAcquired = true;
+        // Lock acquired, execute the callback
+        return await callback();
+      }
+    } finally {
+      // Only release the lock if we acquired it, since we don't want to release someone else's lock
+      if (lockAcquired) {
+        await task.any('SELECT pg_advisory_unlock($1)', [lockId]);
+      }
+    }
+
+    // If we get here, the lock was not acquired
+    throw new LockError(`Lock could not be acquired for lockId: ${rawLockId}`);
+  });
+}
+
 
 async function queryClaudeJailbreak(prompt: PromptCachingBetaMessageParam[], maxTokens: number, systemPrompt: string) {
   const client = getAnthropicPromptCachingClientOrThrow(claudeKey)
@@ -208,58 +265,51 @@ export const createNewJargonTerms = async (postId: string, currentUser: DbUser) 
     currentUser,
     selector: { _id: postId },
   });
+
   if (!post) {
     throw new Error('Post not found');
   }
-  // console.log("creatingLatexTerms")
-  // const newMathJargon = await getLaTeXExplanations(post) || []
-  const newEnglishJargon = await createEnglishExplanations(post) || []
 
-  console.log("creating jargonTerms")
-  const botAccount = await getAdminTeamAccount()
-  const newJargonTerms = await Promise.all([
-    ...newEnglishJargon.map(term =>
-      createMutator({
-        collection: JargonTerms,
-        document: {
-          postId: postId,
-          term: term.term,
-          approved: false,
-          contents: {
-            originalContents: {
-              data: term.htmlContent,
-              type: 'ckEditorMarkup',
+  let newJargonTerms;
+  try {
+    const rawLockId = `jargonTermsLock:${postId}`;
+    // Test lock by sleeping for 10 seconds
+
+    newJargonTerms = await executeWithLock(rawLockId, async () => {
+      const newEnglishJargon = (await createEnglishExplanations(post)) || [];
+
+      console.log("creating jargonTerms");
+      const botAccount = await getAdminTeamAccount();
+      return await Promise.all([
+        ...newEnglishJargon.map((term) =>
+          createMutator({
+            collection: JargonTerms,
+            document: {
+              postId: postId,
+              term: term.term,
+              approved: false,
+              contents: {
+                originalContents: {
+                  data: term.htmlContent,
+                  type: "ckEditorMarkup",
+                },
+              },
+              altTerms: term.altTerms,
             },
-          },
-          altTerms: term.altTerms,
-        },
-        currentUser: botAccount,
-        validate: false,
-      })
-    ),
-    // ...newMathJargon.map(term =>
-    //   createMutator({
-    //     collection: JargonTerms,
-    //     document: {
-    //       postId: postId,
-    //       term: term.term,
-    //       humansAndOrAIEdited: "AI",
-    //       forLaTeX: true,
-    //       rejected: true,
-    //       contents: {
-    //         originalContents: {
-    //           data: term.text,
-    //           type: 'ckEditorMarkup',
-    //         },
-    //       },
-    //       altTerms: term.altTerms,
-    //     },
-    //     currentUser: currentUser,
-    //     validate: false,
-    //   })
-    // ),
-  ]);
-  console.log(newJargonTerms)
+            currentUser: botAccount,
+            validate: false,
+          })
+        ),
+      ]);
+    });
+  } catch (err) {
+    if (err instanceof LockError) {
+      throw new Error('Already in the process of creating jargon terms for this post, please refresh in a minute', { cause: err });
+    }
+
+    throw err;
+  }
+
   return newJargonTerms.map(result => result.data);
 }
 
