@@ -36,7 +36,7 @@ import { googleVertexApi } from '../google-vertex/client';
 import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { PromptCachingBetaMessageParam } from '@anthropic-ai/sdk/resources/beta/prompt-caching/messages';
 import { getAnthropicPromptCachingClientOrThrow } from '../languageModels/anthropicClient';
-import { exampleJargonGlossary2, exampleJargonPost2 } from './jargonResolvers/exampleJargonPost';
+import { serializedExampleJargonGlossary2, exampleJargonPost2 } from './jargonResolvers/exampleJargonPost';
 // import { exampleMathGlossary, exampleMathPost } from './exampleMathPost';
 import { ContentReplacedSubstringComponentInfo } from '@/components/common/ContentItemBody';
 
@@ -383,13 +383,11 @@ augmentFieldsDict(Posts, {
         return await accessFilterMultiple(context.currentUser, context.JargonTerms, jargonTerms, context);
       },
       sqlResolver: ({ field }) => `(
-        SELECT ARRAY_AGG(ROW_TO_JSON(jt.*))
+        SELECT ARRAY_AGG(ROW_TO_JSON(jt.*) ORDER BY jt."term" ASC)
         FROM "JargonTerms" jt
         WHERE jt."postId" = ${field('_id')}
         AND jt."approved" IS TRUE
         AND jt."deleted" IS NOT TRUE
-        GROUP BY jt."postId", jt."term"
-        ORDER BY jt."term" ASC
         LIMIT 1
       )`
     }

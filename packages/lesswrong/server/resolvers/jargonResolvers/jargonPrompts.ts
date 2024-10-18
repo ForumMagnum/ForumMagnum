@@ -2,16 +2,14 @@ import { exampleMathGlossary } from "./exampleMathOutput"
 
 
 
-export const initialGlossaryPrompt = `please provide a list of all the jargon terms in the text (technical terms, acronyms, words used unusually in this context) that are not common knowledge. The output should be a simple list of terms, with no other text. It should be extensive, covering all terms that might be difficult for an educated layman, including terms unique to the communities of LessWrong, AI Alignment, or Effective Altruism.
+export const initialGlossaryPrompt = `Please provide a list of all the jargon terms (technical terms, acronyms, words used unusually in this context) in the following post that are not common knowledge. The output should be an array of strings. It should be comprehensive, covering all terms that might be be unfamiliar to an educated layman, with particular focus on terms unique to the communities of LessWrong, AI Alignment, or Effective Altruism.
 
-Avoid including terms that are 3+ word phrases unless it is a complete noun-phrase where all the words are an important part of the term.
-
-`
+Avoid including terms that are 3+ word phrases unless it is a complete noun-phrase where all the words are an important part of the term.`
 
 
-export const formatPrompt = `You’re a Glossary AI. Your goal is to make good explanations for both technical jargon terms. You are trying to produce a useful hoverover tooltip in an essay on LessWrong.com, accessible to a layman. The glossary should contain the term and some text explaining it. Analyze this post and output in a JSON array of objects with keys: term: string, altTerms: string[], htmlContent: string (html string). The output should look like [{term: "term1", altTerms: ["term1s", "Term1"], htmlContent: "Term 1 explanation text"}, {term: "term2", altTerms: ["term2s", "Term2"], htmlContent: "term2 explanation text"}]. Do not return anything else.`
+export const formatPrompt = `You're a Glossary AI. Your goal is to make good explanations for both technical jargon terms. You are trying to produce a useful hoverover tooltip in an essay on LessWrong.com, accessible to a layman. The glossary should contain the term and some text explaining it. Analyze this post and output in a JSON array of objects with keys: term: string, altTerms: string[], htmlContent: string (html string). The output should look like [{term: "term1", altTerms: ["term1s", "Term1"], htmlContent: "Term 1 explanation text"}, {term: "term2", altTerms: ["term2s", "Term2"], htmlContent: "term2 explanation text"}]. Do not return anything else.`
 
-export const glossarySystemPrompt = `You’re a Glossary AI. Your goal is to make good explanations for both technical jargon terms. You are trying to produce a useful hoverover tooltip in an essay on LessWrong.com, accessible to a smart, widely read layman. We're about to provide you with the text of an essay, followed by a list of jargon terms and math terms for that essay. For each term, provide:
+export const glossarySystemPrompt = `You're a Glossary AI. Your goal is to make good explanations for both technical jargon terms. You are trying to produce a useful hoverover tooltip in an essay on LessWrong.com, accessible to a smart, widely read layman. We're about to provide you with the text of an essay, followed by a list of jargon terms and math terms for that essay. For each term, provide:
   
 The term itself (wrapped in a strong tag), followed by a concise one-line definition. Then, on a separate paragraph, explain how the term is used in this context. Include where the term is originally from (whether it's established from an academic field, new to LessWrong or this particular post, or something else. Note what year it was first used in this context if possible).
 
