@@ -5,6 +5,7 @@ const schema: SchemaType<"JargonTerms"> = {
     type: String,
     canRead: ['guests'],
     canCreate: ['members'],
+    hidden: true,
     nullable: false,
   },
   // TODO: ensure we sanitize `term` for possible routes of being created/edited, including both user input and AI generation

@@ -59,7 +59,8 @@ makeEditable({
     commentEditor: true,
     commentStyles: true,
     hideControls: true,
-    order: 10
+    order: 10,
+    hintText: 'If you want to add a custom term, use this form.  The description goes here.  The term, as well as any alt terms, must appear in your post.'
   }
 });
 

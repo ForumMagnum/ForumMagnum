@@ -183,7 +183,7 @@ export const GlossaryEditForm = ({ classes, document }: {
     }
   }
   
-  const { JargonEditorRow, LoadMore, Loading, JargonTocItem, Row } = Components;
+  const { JargonEditorRow, LoadMore, Loading, JargonTocItem, Row, WrappedSmartForm } = Components;
 
   return <div className={classes.root}>
     <p>
@@ -207,7 +207,14 @@ export const GlossaryEditForm = ({ classes, document }: {
         {showDeletedTerms && deletedTerms.map((item) => <JargonTocItem key={item._id} jargonTerm={item}/>)}
       </div>
       <div>
-        {nonDeletedTerms.map((item) => <JargonEditorRow key={item._id} jargonTerm={item}/>)}
+        {/* <WrappedSmartForm
+          collectionName="JargonTerms"
+          mutationFragment={getFragment('JargonTermsFragment')}
+          queryFragment={getFragment('JargonTermsFragment')}
+          formComponents={{ FormSubmit: Components.JargonSubmitButton }}
+        /> */}
+        <JargonEditorRow key={'newJargonTermForm'} postId={document._id} />
+        {nonDeletedTerms.map((item) => <JargonEditorRow key={item._id} postId={document._id} jargonTerm={item}/>)}
       </div>
     </div>
     <LoadMore {...loadMoreProps} />

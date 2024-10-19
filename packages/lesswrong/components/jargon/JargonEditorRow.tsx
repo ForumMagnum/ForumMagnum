@@ -114,6 +114,7 @@ const styles = (theme: ThemeType) => ({
     },
     '& .form-component-EditorFormComponent': {
       marginBottom: 0,
+      width: '100%',
     },
     '& .form-component-default, & .MuiTextField-textField': {
       marginBottom: 0,
@@ -165,12 +166,12 @@ const JargonSubmitButton = ({ submitForm, cancelCallback, classes }: FormButtonP
 
 // Jargon editor row
 
-export const JargonEditorRow = ({classes, jargonTerm, deleted}: {
+export const JargonEditorRow = ({classes, postId, jargonTerm}: {
   classes: ClassesType<typeof styles>,
-  jargonTerm: JargonTermsFragment,
-  deleted?: boolean,
+  postId: string,
+  jargonTerm?: JargonTermsFragment,
 }) => {
-  const { LWTooltip, WrappedSmartForm, ContentItemBody, ForumIcon, Row, ContentItemTruncated } = Components;
+  const { LWTooltip, WrappedSmartForm, ContentItemBody } = Components;
 
   const [edit, setEdit] = useState(false);
 
@@ -180,6 +181,10 @@ export const JargonEditorRow = ({classes, jargonTerm, deleted}: {
   });
 
   const handleActiveChange = () => {
+    if (!jargonTerm) {
+      return;
+    }
+
     void updateJargonTerm({
       selector: { _id: jargonTerm._id },
       data: {
@@ -193,6 +198,10 @@ export const JargonEditorRow = ({classes, jargonTerm, deleted}: {
   }
 
   const handleDelete = () => {
+    if (!jargonTerm) {
+      return;
+    }
+
     void updateJargonTerm({
       selector: { _id: jargonTerm._id },
       data: {
@@ -206,6 +215,22 @@ export const JargonEditorRow = ({classes, jargonTerm, deleted}: {
   }
 
   const jargonDefinition = jargonTerm?.contents?.originalContents?.data ?? '';
+
+  if (!jargonTerm) {
+    // TODO: implement validation for new terms; they should be present in the post, and not already exist as a term on the post.
+    // That should probably be in a validation callback, but can do client-side validation as well.
+    return <div className={classes.root}>
+      <div className={classes.formStyles}>
+        <WrappedSmartForm
+          collectionName="JargonTerms"
+          mutationFragment={getFragment('JargonTermsFragment')}
+          queryFragment={getFragment('JargonTermsFragment')}
+          formComponents={{ FormSubmit: Components.JargonSubmitButton }}
+          prefilledProps={{ postId }}
+        />
+      </div>
+    </div>;
+  }
 
   return <div className={classes.root}>
       {edit ? <div className={classes.formStyles}>
