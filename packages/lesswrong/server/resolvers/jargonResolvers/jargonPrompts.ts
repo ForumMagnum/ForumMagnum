@@ -7,7 +7,7 @@ export const initialGlossaryPrompt = `Please provide a list of all the jargon te
 Avoid including terms that are 3+ word phrases unless it is a complete noun-phrase where all the words are an important part of the term.`
 
 
-export const formatPrompt = `You're a Glossary AI. Your goal is to make good explanations for both technical jargon terms. You are trying to produce a useful hoverover tooltip in an essay on LessWrong.com, accessible to a layman. The glossary should contain the term and some text explaining it. Analyze this post and output in a JSON array of objects with keys: term: string, altTerms: string[], htmlContent: string (html string). The output should look like [{term: "term1", altTerms: ["term1s", "Term1"], htmlContent: "Term 1 explanation text"}, {term: "term2", altTerms: ["term2s", "Term2"], htmlContent: "term2 explanation text"}]. Do not return anything else.`
+export const formatPrompt = `Your goal is to make good explanations for technical jargon terms. You are trying to produce a useful hoverover tooltip in a post on LessWrong.com, accessible to a layman. The glossary item should contain the term and some text explaining it. Analyze this post and output in a JSON array of objects with keys: term: string, altTerms: string[], htmlContent: string (html string). The output should look like [{term: "term1", altTerms: ["term1s", "Term1"], htmlContent: "Term 1 explanation text"}, {term: "term2", altTerms: ["term2s", "Term2"], htmlContent: "term2 explanation text"}]. Do not return anything else.`
 
 export const glossarySystemPrompt = `You're a Glossary AI. Your goal is to make good explanations for both technical jargon terms. You are trying to produce a useful hoverover tooltip in an essay on LessWrong.com, accessible to a smart, widely read layman. We're about to provide you with the text of an essay, followed by a list of jargon terms and math terms for that essay. For each term, provide:
   
@@ -19,9 +19,7 @@ Use your general knowledge as well as the post's specific explanations or defini
 
 Include a set of altTerms that are slight variations of the term, such as plurals, abbreviations or acryonyms, or alternate spellings that appear in the text. Make sure to include all variations that appear in the text.
 
-Do NOT emphasize that the term is important, but DO explain how it's used in this context. Make sure to put the "contextual explanation" in a separate paragraph from the opening term definition. Make sure to make the term definition a short sentence.
-
-Make sure to to include all technical terms.`
+Do NOT emphasize that the term is important, but DO explain how it's used in this context. Make sure to put the "contextual explanation" in a separate paragraph from the opening term definition. Make sure to make the term definition a short sentence.`
 
 
 
