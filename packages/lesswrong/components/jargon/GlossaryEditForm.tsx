@@ -192,7 +192,7 @@ export const GlossaryEditForm = ({ classes, document }: {
     {/** The filter condition previously was checking item.isAltTerm, but that doesn't exist on JargonTermsFragment.  Not sure it was doing anything meaningful, or was just llm-generated. */}
     <Row justifyContent="space-around">
       <div className={classes.approveAllButton} onClick={() => handleSetApproveAll(true)}>Approve All</div>
-      <div className={classes.approveAllButton} onClick={() => handleSetApproveAll(false)}>Unapproved All</div>
+      <div className={classes.approveAllButton} onClick={() => handleSetApproveAll(false)}>Unapprove All</div>
       {sortedUnapprovedTerms.length > 0 && <div className={classes.approveAllButton} onClick={handleDeleteUnused}>Hide Unapproved</div>}
     </Row>
     <div className={classNames(classes.window, expanded ? classes.expanded : '')}>

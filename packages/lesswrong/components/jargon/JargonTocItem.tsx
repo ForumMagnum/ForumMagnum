@@ -70,11 +70,13 @@ export const JargonTocItem = ({classes, jargonTerm}: {
     void updateJargonTerm({
       selector: { _id: jargonTerm._id },
       data: {
-        deleted: true
+        deleted: true,
+        approved: false,
       },
       optimisticResponse: {
         ...jargonTerm,
         deleted: true,
+        approved: false,
       }
     })
   }
