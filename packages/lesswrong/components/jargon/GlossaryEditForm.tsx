@@ -20,6 +20,7 @@ const styles = (theme: ThemeType) => ({
     gap: 10,
     maxHeight: '60vh',
     overflow: 'scroll',
+    position: 'relative',
   },
   expanded: {
     maxHeight: 'unset',
@@ -68,6 +69,8 @@ const styles = (theme: ThemeType) => ({
   },
   termsList: {
     marginRight: 16,
+    position: 'sticky',
+    top: 0,
     [theme.breakpoints.down('sm')]: {
       display: 'none'
     }
