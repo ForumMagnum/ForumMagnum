@@ -33,7 +33,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[500],
     paddingTop: 6,
     paddingBottom: 6,
-    paddingRight: 10,
+    paddingLeft: 10,
     cursor: 'pointer',
     '&:hover': {
       color: theme.palette.grey[800],
@@ -82,10 +82,10 @@ export const JargonTocItem = ({classes, jargonTerm}: {
   const { LWTooltip } = Components;
 
   return <div className={classNames(classes.root, jargonTerm.approved && classes.approved)}>
-    {/* <LWTooltip title="Delete" placement="left">
-      <div className={classes.delete} onClick={handleDelete}>x</div>
-    </LWTooltip> */}
     <div className={classes.term} onClick={handleActiveChange}>{jargonTerm.term}</div>
+    <LWTooltip title="Delete" placement="right">
+      <div className={classes.delete} onClick={handleDelete}>x</div>
+    </LWTooltip> 
   </div>;
 }
 
