@@ -213,8 +213,8 @@ export const GlossaryEditForm = ({ classes, document }: {
           queryFragment={getFragment('JargonTermsFragment')}
           formComponents={{ FormSubmit: Components.JargonSubmitButton }}
         /> */}
-        <JargonEditorRow key={'newJargonTermForm'} />
-        {nonDeletedTerms.map((item) => <JargonEditorRow key={item._id} jargonTerm={item}/>)}
+        <JargonEditorRow key={'newJargonTermForm'} postId={document._id} />
+        {nonDeletedTerms.map((item) => <JargonEditorRow key={item._id} postId={document._id} jargonTerm={item}/>)}
       </div>
     </div>
     <LoadMore {...loadMoreProps} />
