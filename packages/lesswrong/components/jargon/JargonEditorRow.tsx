@@ -100,41 +100,39 @@ const styles = (theme: ThemeType) => ({
     cursor: 'pointer',
     padding: '6px 12px',
     borderRadius: 4,
+    fontSize: '1rem',
     opacity: .1,
     '&:hover': {
+      backgroundColor: theme.palette.grey[100],
       opacity: 1
     }
   },
   formStyles: {
+    '& .form-section-default > div': {
+      display: "flex",
+      flexWrap: "wrap",
+    },
     '& .form-component-EditorFormComponent': {
       marginBottom: 0,
     },
-    '& .form-component-default': {
+    '& .form-component-default, & .MuiTextField-textField': {
       marginBottom: 0,
       marginTop: 0,
-      width: 150
+      width: 150,
+      marginRight: 20
     },
+  },
+  explanationContainer: {
+    cursor: 'pointer',
   }
-  // altTerms: {
-  //   fontSize: '1rem',
-  //   marginTop: 8,
-  // },
-  // altTerm: {
-  //   color: theme.palette.grey[500],
-  //   '&:after': {
-  //     content: '","',
-  //   },
-  //   '&:last-child::after': {
-  //     content: '""',
-  //   }
-  // }
 });
 
 const submitStyles = (theme: ThemeType) => ({
   root: {
     display: 'flex',
     flexWrap: 'wrap',
-    marginTop: 20,
+    marginTop: 4,
+    marginBottom: -6,
     justifyContent: 'end',
     height: 36,
   },
@@ -222,7 +220,9 @@ export const JargonEditorRow = ({classes, jargonTerm, deleted}: {
             prefetchedDocument={jargonTerm}
           />
         </div>
-      : <ContentItemBody dangerouslySetInnerHTML={{__html: jargonDefinition}} className={classNames(classes.explanation, !jargonTerm.approved && classes.unapproved)}/>}
+      : <div className={classes.explanationContainer} onClick={() => handleActiveChange()}>
+         <ContentItemBody dangerouslySetInnerHTML={{__html: jargonDefinition}} className={classNames(classes.explanation, !jargonTerm.approved && classes.unapproved)}/>
+        </div>}
       {/* <div className={classes.altTerms}>
         {jargonTerm.altTerms?.map((altTerm) => <div key={altTerm}>{altTerm}</div>)}
       </div> */}

@@ -35,15 +35,13 @@ const styles = (theme: ThemeType) => ({
   },
   approveAllButton: {
     cursor: 'pointer',
-    padding: 10,
+    paddingTop: 10,
+    paddingBottom: 10,
     fontSize: '1.1rem',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
+    color: theme.palette.primary.main,
     gap: '8px',
-    opacity: 0.6,
     '&:hover': {
-      opacity: 0.8  
+      opacity: 0.65  
     }
   },
   button: {
@@ -70,6 +68,9 @@ const styles = (theme: ThemeType) => ({
   },
   termsList: {
     marginRight: 16,
+    [theme.breakpoints.down('sm')]: {
+      display: 'none'
+    }
   },
   termsListTerm: {
     cursor: 'pointer',
@@ -91,7 +92,6 @@ export const GlossaryEditForm = ({ classes, document }: {
   classes: ClassesType<typeof styles>,
   document: PostsPage,
 }) => {
-  const { JargonEditorRow, LoadMore, Loading, JargonTocItem } = Components;
 
   const [expanded, setExpanded] = useState(false);
   const [showDeletedTerms, setShowDeletedTerms] = useState(false);
@@ -162,11 +162,36 @@ export const GlossaryEditForm = ({ classes, document }: {
     }
   }
 
+  const handleDeleteUnused = () => {
+    const termsToUpdate = sortedUnapprovedTerms;
+    for (const jargonTerm of termsToUpdate) {
+      void updateJargonTerm({
+        selector: { _id: jargonTerm._id },
+        data: {
+          approved: false,
+          deleted: true,
+        },
+        optimisticResponse: {
+          ...jargonTerm,
+          approved: false,
+          deleted: true,
+        }
+      });
+    }
+  }
+  
+  const { JargonEditorRow, LoadMore, Loading, JargonTocItem, Row } = Components;
+
   return <div className={classes.root}>
     <p>
       Beta feature! Select/edit terms below, and readers will be able to hover over and read the explanation.
     </p>
     {/** The filter condition previously was checking item.isAltTerm, but that doesn't exist on JargonTermsFragment.  Not sure it was doing anything meaningful, or was just llm-generated. */}
+    <Row justifyContent="space-around">
+      <div className={classes.approveAllButton} onClick={() => handleSetApproveAll(true)}>Approve All</div>
+      <div className={classes.approveAllButton} onClick={() => handleSetApproveAll(false)}>Unapproved All</div>
+      {sortedUnapprovedTerms.length > 0 && <div className={classes.approveAllButton} onClick={handleDeleteUnused}>Hide Unapproved</div>}
+    </Row>
     <div className={classNames(classes.window, expanded ? classes.expanded : '')}>
       <div className={classes.termsList}>
         {nonDeletedTerms.map((item) => <JargonTocItem key={item._id} jargonTerm={item}/>)}
