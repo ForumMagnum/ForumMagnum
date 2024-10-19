@@ -1,32 +1,26 @@
 import { jargonBotClaudeKey } from '@/lib/instanceSettings';
 import { defineMutation } from '../../utils/serverGraphqlUtil';
 import { getAnthropicPromptCachingClientOrThrow } from '../../languageModels/anthropicClient';
-import { serializedExampleJargonGlossary2, exampleJargonPost2, ExampleJargonGlossaryEntry, exampleJargonGlossary2 } from './exampleJargonPost';
-import { userIsAdmin } from '@/lib/vulcan-users';
+import { exampleJargonPost2, exampleJargonGlossary2 } from './exampleJargonPost';
 import { PromptCachingBetaMessageParam } from '@anthropic-ai/sdk/resources/beta/prompt-caching/messages';
 import JargonTerms from '@/lib/collections/jargonTerms/collection';
 import { createMutator, sanitize } from '../../vulcan-lib';
-import { initialGlossaryPrompt, formatPrompt, glossarySystemPrompt, mathFormatPrompt } from './jargonPrompts';
+import { initialGlossaryPrompt, glossarySystemPrompt } from './jargonPrompts';
 import { fetchFragmentSingle } from '@/server/fetchFragment';
 import { htmlToMarkdown } from '@/server/editor/conversionUtils';
-import { exampleMathGlossary } from './exampleMathOutput';
-import { readFile } from 'fs/promises';
 import { userCanCreateAndEditJargonTerms } from '@/lib/betas';
 import { getAdminTeamAccount } from '@/server/callbacks/commentCallbacks';
 import { z } from 'zod';
 import { getSqlClientOrThrow } from '@/server/sql/sqlClient';
 import { cyrb53Rand } from '@/server/perfMetrics';
 import JargonTermsRepo from '@/server/repos/JargonTermsRepo';
-import { expandJargonAltTerms } from '@/components/jargon/JargonTooltip';
 import keyBy from 'lodash/keyBy';
 import { Tool } from '@anthropic-ai/sdk/resources';
+import { randomId } from '@/lib/random';
 
 interface JargonTermsExplanationQueryParams {
   markdown: string;
   terms: string[];
-  // formatPrompt: string;
-  // examplePost: string;
-  // exampleExplanations: ExampleJargonGlossaryEntry[];
 }
 
 const jargonTermListResponseSchema = z.object({
@@ -37,16 +31,47 @@ const jargonTermSchema = z.object({
   term: z.string(),
   altTerms: z.array(z.string()).optional(),
   htmlContent: z.string(),
-  concreteExample: z.string().optional(),
-  whyItMatters: z.string().optional(),
-  mathBasics: z.string().optional()
 });
 
 type LLMGeneratedJargonTerm = z.infer<typeof jargonTermSchema>;
 
-const claudeKey = jargonBotClaudeKey.get()
+const jargonGlossarySchema = z.object({
+  glossaryItems: z.array(jargonTermSchema)
+});
 
-class LockError extends Error {}
+const returnJargonTermsTool: Tool = {
+  name: "return_jargon_terms",
+  description: "A tool that allows Claude to return a list of jargon terms extracted from a post.",
+  input_schema: {
+    type: "object",
+    properties: {
+      jargonTerms: { type: "array", items: { type: "string" } }
+    }
+  }
+};
+
+const generateJargonGlossaryTool: Tool = {
+  name: "generate_jargon_glossary",
+  description: "A tool that generates a jargon glossary for a given post.  It should be provided with a list of glossary items, which include a term (the identifier), altTerms (alternate spellings or forms of the term), and htmlContent (the explanation of the term).",
+  input_schema: {
+    type: "object",
+    properties: {
+      glossaryItems: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            term: { type: "string" },
+            altTerms: { type: "array", items: { type: "string" } },
+            htmlContent: { type: "string" }
+          }
+        }
+      }
+    }
+  }
+};
+
+class AdvisoryLockError extends Error {}
 
 /**
  * Attempts to acquire an advisory lock and execute a callback.
@@ -54,7 +79,7 @@ class LockError extends Error {}
  * @param rawLockId - A unique identifier for the lock, such that attempting to run the "same" operation as determined by the ID will fail if another such operation is already running.
  * @param callback - The async function to be executed if the lock is acquired.
  * @returns The result of the callback function.
- * @throws {LockError} If the lock cannot be acquired.
+ * @throws {AdvisoryLockError} If the lock cannot be acquired.
  * @throws {Error} If the callback throws an error (after releasing the lock).
  * 
  * @remarks
@@ -72,20 +97,24 @@ async function executeWithLock<T>(rawLockId: string, callback: () => Promise<T>)
     let lockAcquired = false;
     let lockResult;
     try {
-      // Attempt to acquire the advisory lock
+      // Attempt to acquire the advisory lock.  Four possible outcomes:
+      // 1. The lock is acquired
+      // 2. The lock is not acquired
+      // 3. The lock is acquired, but the query throws an error
+      // 4. The lock is not acquired, and the query throws an error
       lockResult = await task.any<{ pg_try_advisory_lock: boolean }>('SELECT pg_try_advisory_lock($1)', [lockId]);
     } catch (err) {
-      // Worst-case scenario, we assume that we acquired the lock but ran into some other error
-      // In this case, we release the lock and throw the error
-      // This is not ideal, since we might release someone else's lock, but it's better than leaving the lock in place
+      // This deals with cases 3 and 4 (query threw an error, lock may or may not be acquired)
+      // Case 4 is unfortunate, since we might release someone else's lock, but it's better than leaving the lock in place
       await task.any('SELECT pg_advisory_unlock($1)', [lockId]);
       throw err;
     }
     
     try {
+      // If case 1, we note that the lock was acquired and run the callback
+      // Case 2 falls through to the error throw below
       if (lockResult[0].pg_try_advisory_lock) {
         lockAcquired = true;
-        // Lock acquired, execute the callback
         return await callback();
       }
     } finally {
@@ -95,8 +124,9 @@ async function executeWithLock<T>(rawLockId: string, callback: () => Promise<T>)
       }
     }
 
-    // If we get here, the lock was not acquired
-    throw new LockError(`Lock could not be acquired for lockId: ${rawLockId}`);
+    // Case 2: Lock not acquired.  This is the only case where we don't release the lock, since we don't want to release someone else's lock.
+    // We throw an error so the caller knows they tried to run an operation that required the lock, but it was already locked by someone else.
+    throw new AdvisoryLockError(`Lock could not be acquired for lockId: ${rawLockId}`);
   });
 }
 
@@ -109,20 +139,19 @@ function sanitizeJargonTerms(jargonTerms: LLMGeneratedJargonTerm[]) {
   }));
 }
 
-async function queryClaudeJailbreak(prompt: PromptCachingBetaMessageParam[], maxTokens: number, systemPrompt: string, tools?: Tool[]) {
-  const client = getAnthropicPromptCachingClientOrThrow(claudeKey)
+async function queryClaudeJailbreak(prompt: PromptCachingBetaMessageParam[], maxTokens: number, systemPrompt: string) {
+  const client = getAnthropicPromptCachingClientOrThrow(jargonBotClaudeKey.get())
   return await client.messages.create({
     system: systemPrompt,
     model: "claude-3-5-sonnet-20240620",
     max_tokens: maxTokens,
-    messages: prompt,
-    tools: tools
+    messages: prompt
   });
 }
 
 export const queryClaudeForTerms = async (markdown: string) => {
   console.log(`I'm pinging Claude for terms!`)
-  const client = getAnthropicPromptCachingClientOrThrow(claudeKey);
+  const client = getAnthropicPromptCachingClientOrThrow(jargonBotClaudeKey.get());
   const messages: PromptCachingBetaMessageParam[] = [{
     role: "user", 
     content: [{
@@ -137,19 +166,9 @@ The jargon terms are:`
     model: "claude-3-5-sonnet-20240620",
     max_tokens: 5000,
     messages,
-    tools: [{
-      name: "jargon_terms_callback",
-      description: "A callback function that processes the list of jargon terms returned by Claude.  Claude should use it to return a list of jargon terms when asked for them.",
-      input_schema: {
-        type: "object",
-        properties: {
-          jargonTerms: { type: "array", items: { type: "string" } }
-        }
-      }
-    }],
-    tool_choice: { type: "tool", name: "jargon_terms_callback" }
+    tools: [returnJargonTermsTool],
+    tool_choice: { type: "tool", name: "return_jargon_terms" }
   });
-
 
   if (termsResponse.content[0].type === "text") {
     console.error(`Claude responded with text, but we expected a tool use.`)
@@ -166,52 +185,65 @@ The jargon terms are:`
   return parsedResponse.data.jargonTerms;
 }
 
+function createExplanationMessagesWithExample(postMarkdown: string, extractedTerms: string[]): PromptCachingBetaMessageParam[] {
+  const exampleTerms = exampleJargonGlossary2.glossaryItems.map(explanation => explanation.term);
+
+  const toolUseId = randomId();
+
+  return [{
+    role: "user",
+    content: [{
+      type: "text",
+      text: `${glossarySystemPrompt}\n\nThe post is: <Post>${exampleJargonPost2}</Post>.  The jargon terms are: <Terms>${exampleTerms}</Terms>`
+    }]
+  },
+  {
+    role: "assistant",
+    content: [{
+      type: "tool_use",
+      id: toolUseId,
+      name: "generate_jargon_glossary",
+      input: exampleJargonGlossary2,
+    }]
+  },
+  {
+    role: "user",
+    content: [{
+      type: "tool_result",
+      tool_use_id: toolUseId,
+    }, {
+      type: "text",
+      text: `Thanks!  Now can you do the following post? <Post>${postMarkdown}</Post>.  The jargon terms are: <Terms>${extractedTerms}</Terms>`
+    }]
+  }];
+}
+
 export const queryClaudeForJargonExplanations = async ({ markdown, terms }: JargonTermsExplanationQueryParams): Promise<LLMGeneratedJargonTerm[]> => {
   console.log(`I'm pinging Claude for jargon explanations!`)
-  const exampleTerms = exampleJargonGlossary2.map(explanation => explanation.term);
+  const client = getAnthropicPromptCachingClientOrThrow(jargonBotClaudeKey.get());
+  const messages: PromptCachingBetaMessageParam[] = createExplanationMessagesWithExample(markdown, terms);
 
-  const response = await queryClaudeJailbreak([
-    {
-      role: "user", 
-      content: [{
-        type: "text", 
-        text: `${formatPrompt}\n\nThe post is: <Post>${exampleJargonPost2}</Post>.  The jargon terms are: ${exampleTerms}`
-      }]
-    },
-    { role: "assistant", 
-      content: [{
-        type: "text", 
-        text: `${serializedExampleJargonGlossary2}`
-      }]
-    },
-    {
-      role: "user",
-      content: [{
-        type: "text",
-        text: `${formatPrompt} The text is: ${markdown}. The jargon terms are: ${terms}`
-      }]
-    }, 
-  ], 5000, glossarySystemPrompt);
+  const response = await client.messages.create({
+    model: "claude-3-5-sonnet-20240620",
+    max_tokens: 5000,
+    messages,
+    tools: [generateJargonGlossaryTool],
+    tool_choice: { type: "tool", name: "generate_jargon_glossary" }
+  });
 
-  if (!(response.content[0].type === "text")) {
+  if (response.content[0].type === "text") {
+    console.error(`Claude responded with text, but we expected a tool use.`)
     return [];
   }
 
-  const text = response.content[0].text;
-  const jsonGuessMatch = text.match(/\[\s*\{[\s\S]*?\}\s*\]/);
-  if (jsonGuessMatch) {
-    const unsanitizedJargonTerms = JSON.parse(jsonGuessMatch[0]);
-    const validatedTerms = jargonTermSchema.array().safeParse(unsanitizedJargonTerms);
-    if (!validatedTerms.success) {
-      console.error('Invalid jargon terms:', validatedTerms.error);
-      return [];
-    }
-    const parsedJargonTerms = validatedTerms.data;
-    return sanitizeJargonTerms(parsedJargonTerms);
-  } else {
-    console.log(`No jargon terms found in Claude's response: ${text}`)
+  const responseContent = response.content[0]?.input;
+  const validatedTerms = jargonGlossarySchema.safeParse(responseContent);
+  if (!validatedTerms.success) {
+    console.error('Invalid jargon terms:', validatedTerms.error);
     return [];
   }
+  const parsedJargonTerms = validatedTerms.data.glossaryItems;
+  return sanitizeJargonTerms(parsedJargonTerms);
 }
 
 // async function getNewJargonTerms(post: PostsPage, user: DbUser ) {
@@ -232,40 +264,40 @@ export const queryClaudeForJargonExplanations = async ({ markdown, terms }: Jarg
 
 // these functions are used to create jargonTerms explaining LaTeX terms from a post
 
-export function identifyLatexTerms(htmlContent: string): string {
-  // Regular expression to match aria-label attributes
-  const ariaLabelRegex = /aria-label="([^"]*)"/g;
+// export function identifyLatexTerms(htmlContent: string): string {
+//   // Regular expression to match aria-label attributes
+//   const ariaLabelRegex = /aria-label="([^"]*)"/g;
   
-  // Regular expression to match common LaTeX patterns
-  const latexPattern = /\\[a-zA-Z]+|[_^{}]|\$/;
+//   // Regular expression to match common LaTeX patterns
+//   const latexPattern = /\\[a-zA-Z]+|[_^{}]|\$/;
   
-  // Array to store results
-  const results: string[] = [];
+//   // Array to store results
+//   const results: string[] = [];
   
-  let match;
-  while ((match = ariaLabelRegex.exec(htmlContent)) !== null) {
-    const ariaLabel = match[1];
-    if (latexPattern.test(ariaLabel)) {
-      results.push(ariaLabel);
-    }
-  }
+//   let match;
+//   while ((match = ariaLabelRegex.exec(htmlContent)) !== null) {
+//     const ariaLabel = match[1];
+//     if (latexPattern.test(ariaLabel)) {
+//       results.push(ariaLabel);
+//     }
+//   }
   
-  return results.join(",");
-}
+//   return results.join(",");
+// }
 
 
-const getMathExample = (() => {
-  let examplePostContents: string;
+// const getMathExample = (() => {
+//   let examplePostContents: string;
 
-  return async () => {
-    if (!examplePostContents) {
-      const pathName = './public/exampleMathPost.md'
-      examplePostContents = (await readFile(pathName)).toString()
-    }
+//   return async () => {
+//     if (!examplePostContents) {
+//       const pathName = './public/exampleMathPost.md'
+//       examplePostContents = (await readFile(pathName)).toString()
+//     }
 
-    return examplePostContents;
-  };
-})();
+//     return examplePostContents;
+//   };
+// })();
 
 
 // export async function getLaTeXExplanations(post: PostsPage) {
@@ -382,7 +414,7 @@ export const createNewJargonTerms = async (postId: string, currentUser: DbUser) 
       ]);
     });
   } catch (err) {
-    if (err instanceof LockError) {
+    if (err instanceof AdvisoryLockError) {
       throw new Error('Already in the process of creating jargon terms for this post, please refresh in a minute', { cause: err });
     }
 
