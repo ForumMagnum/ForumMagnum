@@ -114,6 +114,7 @@ const styles = (theme: ThemeType) => ({
     },
     '& .form-component-EditorFormComponent': {
       marginBottom: 0,
+      width: '100%',
     },
     '& .form-component-default, & .MuiTextField-textField': {
       marginBottom: 0,
@@ -167,7 +168,7 @@ const JargonSubmitButton = ({ submitForm, cancelCallback, classes }: FormButtonP
 
 export const JargonEditorRow = ({classes, jargonTerm, deleted}: {
   classes: ClassesType<typeof styles>,
-  jargonTerm: JargonTermsFragment,
+  jargonTerm?: JargonTermsFragment,
   deleted?: boolean,
 }) => {
   const { LWTooltip, WrappedSmartForm, ContentItemBody, ForumIcon, Row, ContentItemTruncated } = Components;
@@ -180,6 +181,10 @@ export const JargonEditorRow = ({classes, jargonTerm, deleted}: {
   });
 
   const handleActiveChange = () => {
+    if (!jargonTerm) {
+      return;
+    }
+
     void updateJargonTerm({
       selector: { _id: jargonTerm._id },
       data: {
@@ -193,6 +198,10 @@ export const JargonEditorRow = ({classes, jargonTerm, deleted}: {
   }
 
   const handleDelete = () => {
+    if (!jargonTerm) {
+      return;
+    }
+
     void updateJargonTerm({
       selector: { _id: jargonTerm._id },
       data: {
@@ -206,6 +215,19 @@ export const JargonEditorRow = ({classes, jargonTerm, deleted}: {
   }
 
   const jargonDefinition = jargonTerm?.contents?.originalContents?.data ?? '';
+
+  if (!jargonTerm) {
+    return <div className={classes.root}>
+      <div className={classes.formStyles}>
+        <WrappedSmartForm
+          collectionName="JargonTerms"
+          mutationFragment={getFragment('JargonTermsFragment')}
+          queryFragment={getFragment('JargonTermsFragment')}
+          formComponents={{ FormSubmit: Components.JargonSubmitButton }}
+        />
+      </div>
+    </div>;
+  }
 
   return <div className={classes.root}>
       {edit ? <div className={classes.formStyles}>
