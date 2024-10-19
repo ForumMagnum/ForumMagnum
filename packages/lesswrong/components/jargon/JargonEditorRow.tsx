@@ -238,7 +238,7 @@ export const JargonEditorRow = ({classes, jargonTerm, deleted}: {
         </span>
       </LWTooltip>}
       {!jargonTerm.approved && <LWTooltip title="Show this tooltip on your post" placement="bottom">
-        <span onClick={() => setEdit(true)} className={classes.bottomButton}>
+        <span onClick={() => handleActiveChange()} className={classes.bottomButton}>
           APPROVE
         </span>
       </LWTooltip>}

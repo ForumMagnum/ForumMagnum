@@ -1858,3 +1858,17 @@ export const exampleJargonGlossary2: { glossaryItems: ExampleJargonGlossaryEntry
     }
   ]
 };
+
+
+export const exampleJargonLatentsGlossary: { glossaryItems: ExampleJargonGlossaryEntry[] } = {
+  glossaryItems: [
+    { 
+      "term": "Moloch", 
+      "altTerms": [],
+      "text": `<div>
+        <p><b>Data distribution:</b> The distribution which an agent models data points as being drawn from.</p>
+        <p>Importantly distinct from an agent's whole world model, which may include many other "latent" variables in addition to variables representing the data.</p>
+      </div>`
+    },
+  ]
+};

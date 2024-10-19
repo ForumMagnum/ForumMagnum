@@ -17,6 +17,7 @@ import JargonTermsRepo from '@/server/repos/JargonTermsRepo';
 import keyBy from 'lodash/keyBy';
 import { Tool } from '@anthropic-ai/sdk/resources';
 import { randomId } from '@/lib/random';
+import { readFile } from 'fs/promises';
 
 interface JargonTermsExplanationQueryParams {
   markdown: string;
@@ -185,16 +186,19 @@ The jargon terms are:`
   return parsedResponse.data.jargonTerms;
 }
 
-function createExplanationMessagesWithExample(postMarkdown: string, extractedTerms: string[]): PromptCachingBetaMessageParam[] {
+async function createExplanationMessagesWithExample(postMarkdown: string, extractedTerms: string[]): Promise<PromptCachingBetaMessageParam[]> {
   const exampleTerms = exampleJargonGlossary2.glossaryItems.map(explanation => explanation.term);
 
   const toolUseId = randomId();
+
+  const examplePost = await getExamplePost("exampleJargonPost2.md");
+  console.log(`examplePost: ${examplePost}`)
 
   return [{
     role: "user",
     content: [{
       type: "text",
-      text: `${glossarySystemPrompt}\n\nThe post is: <Post>${exampleJargonPost2}</Post>.  The jargon terms are: <Terms>${exampleTerms}</Terms>`
+      text: `${glossarySystemPrompt}\n\nThe post is: <Post>${examplePost}</Post>.  The jargon terms are: <Terms>${exampleTerms}</Terms>`
     }]
   },
   {
@@ -245,6 +249,20 @@ export const queryClaudeForJargonExplanations = async ({ markdown, terms }: Jarg
   const parsedJargonTerms = validatedTerms.data.glossaryItems;
   return sanitizeJargonTerms(parsedJargonTerms);
 }
+
+const getExamplePost = (() => {
+  let examplePostContents: string;
+
+  return async (documentTitle: string) => {
+    if (!examplePostContents) {
+      const pathName = `./public/${documentTitle}`
+      examplePostContents = (await readFile(pathName)).toString()
+    }
+
+    return examplePostContents;
+  };
+})();
+
 
 // async function getNewJargonTerms(post: PostsPage, user: DbUser ) {
 //   if (!userIsAdmin(user)) {
