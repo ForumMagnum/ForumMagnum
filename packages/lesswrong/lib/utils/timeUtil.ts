@@ -1,10 +1,20 @@
 import React, { useContext } from 'react';
 import moment from '../moment-timezone';
 
-export interface TimeOverride {
-  currentTime: Date|null;
+export const DEFAULT_TIMEZONE = "GMT";
+
+export type SSRMetadata = {
+  /** ISO timestamp */
+  renderedAt: string;
+  cacheFriendly: boolean;
+  /** The timezone used on the server. This may differ from the client's timezone if this is a cached render */
+  timezone: string;
 }
-export const TimeContext = React.createContext<TimeOverride>({currentTime: null});
+
+export type EnvironmentOverride = Partial<SSRMetadata> & {
+  matchSSR: boolean;
+}
+export const EnvironmentOverrideContext = React.createContext<EnvironmentOverride>({matchSSR: true});
 
 // useCurrentTime: If we're rehydrating a server-side render, returns the
 // time the SSR was prepared. If we're preparing an SSR, returns the time the
@@ -19,9 +29,9 @@ export const TimeContext = React.createContext<TimeOverride>({currentTime: null}
 // (This isn't necessary inside of event handlers or in any context that
 // isn't a component or used by components.)
 export function useCurrentTime(): Date {
-  const time = useContext(TimeContext);
-  if (time?.currentTime) {
-    return time.currentTime;
+  const { renderedAt } = useContext(EnvironmentOverrideContext);
+  if (renderedAt) {
+    return new Date(renderedAt);
   } else {
     return new Date();
   }
@@ -29,9 +39,9 @@ export function useCurrentTime(): Date {
 
 export const useSsrRenderedAt = () => {
   const currentTime = useCurrentTime();
-  return typeof window === "undefined"
+  return typeof window === "undefined" || !window.ssrMetadata
     ? currentTime
-    : new Date(window.ssrRenderedAt);
+    : new Date(window.ssrMetadata.renderedAt);
 }
 
 // Given a time of day (number of hours, 0-24), a day of the week (string or
@@ -79,4 +89,29 @@ export function relativeTimeToLongFormat(time: string): string {
       default:
           return time;
   }
+}
+
+/**
+ * Check whether it's after 5pm UK time on Friday and before 9am ET on Monday
+ */
+export function isWeekend(): boolean {
+  const nowUK = moment().tz("Europe/London");
+  const nowET = moment().tz("America/New_York");
+
+  const dayOfWeekUK = nowUK.day();
+  const hourOfDayUK = nowUK.hour();
+  const dayOfWeekET = nowET.day();
+  const hourOfDayET = nowET.hour();
+
+  if (dayOfWeekUK === 5 && hourOfDayUK >= 17) {
+    return true;
+  }
+  if (dayOfWeekUK === 6 || dayOfWeekUK === 0) {
+    return true;
+  }
+  if (dayOfWeekET === 1 && hourOfDayET < 9) {
+    return true;
+  }
+
+  return false;
 }

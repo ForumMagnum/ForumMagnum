@@ -724,6 +724,59 @@ const ManifoldPreview = ({classes, href, id, children}: {
 
 const ManifoldPreviewComponent = registerComponent('ManifoldPreview', ManifoldPreview, { styles: manifoldStyles })
 
+const neuronpediaStyles = (theme: ThemeType): JssStyles => ({
+  iframeStyling: {
+    width: 580,
+    height: 240,
+    border: "none",
+    maxWidth: 639,
+  },
+  link: linkStyle(theme),
+});
+
+const NeuronpediaPreview = ({classes, href, id, children}: {
+  classes: ClassesType;
+  href: string;
+  id?: string;
+  children: ReactNode,
+}) => {
+  const { AnalyticsTracker, LWPopper } = Components;
+  const { anchorEl, hover, eventHandlers } = useHover();
+
+  // test if it's already an embed url https://[www.]neuronpedia.org/[model]/[layer]/[index]?embed=true[...]
+  const isEmbed = /https:\/\/(www\.)?neuronpedia\.org\/[a-zA-Z0-9-]+\/[a-zA-Z0-9-]+\/\d+\?embed=true/.test(href);
+
+  // if it's not an embed link, match it as https://[www.]neuronpedia.org/[model]/[layer]/[index] make the embed url
+  const results = href.match(/^https?:\/\/(www\.)?neuronpedia\.org\/([a-zA-Z0-9-/]+).*/) || [];
+  if (!isEmbed && (!results || results.length === 0)) {
+    return (
+      <a href={href}>
+        {children}
+      </a>
+    );
+  }
+  const slug = results[results.length - 1]
+  
+  // if it's an embed just use that url, otherwise add the embed query
+  const url = isEmbed ? href : `https://neuronpedia.org/${slug}?embed=true&embedexplanation=true&embedplots=true`;
+
+  return (
+    <AnalyticsTracker eventType="link" eventProps={{ to: href }}>
+      <span {...eventHandlers}>
+        <a className={classes.link} href={href} id={id}>
+          {children}
+        </a>
+
+        <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
+          <iframe className={classes.iframeStyling} src={url} />
+        </LWPopper>
+      </span>
+    </AnalyticsTracker>
+  );
+};
+
+const NeuronpediaPreviewComponent = registerComponent('NeuronpediaPreview', NeuronpediaPreview, { styles: neuronpediaStyles })
+
 const metaforecastStyles = (theme: ThemeType): JssStyles => ({
   iframeStyling: {
     width: 560,
@@ -1001,6 +1054,7 @@ declare global {
     FatebookPreview: typeof FatebookPreviewComponent,
     MetaculusPreview: typeof MetaculusPreviewComponent,
     ManifoldPreview: typeof ManifoldPreviewComponent,
+    NeuronpediaPreview: typeof NeuronpediaPreviewComponent,
     MetaforecastPreview: typeof MetaforecastPreviewComponent,
     OWIDPreview: typeof OWIDPreviewComponent,
     ArbitalPreview: typeof ArbitalPreviewComponent,

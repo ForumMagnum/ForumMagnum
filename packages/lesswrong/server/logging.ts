@@ -1,9 +1,8 @@
 import { captureException } from '@sentry/core';
 import { captureEvent } from '../lib/analyticsEvents';
-import { onStartup, isAnyTest } from '../lib/executionEnvironment';
+import { isAnyTest } from '../lib/executionEnvironment';
 import { DatabaseServerSetting } from './databaseSettings';
 import { printInFlightRequests, checkForMemoryLeaks } from './vulcan-lib/apollo-ssr/pageCache';
-import { printInProgressCallbacks } from '../lib/vulcan-lib/callbacks';
 import { Globals } from '../lib/vulcan-lib/config';
 
 import * as Sentry from '@sentry/node';
@@ -11,6 +10,7 @@ import * as SentryIntegrations from '@sentry/integrations';
 import { sentryUrlSetting, sentryEnvironmentSetting, sentryReleaseSetting } from '../lib/instanceSettings';
 import * as _ from 'underscore';
 import fs from 'fs';
+import { printInProgressCallbacks } from './utils/callbackHooks';
 import type { AddMiddlewareType } from './apolloServer';
 
 // Log unhandled promise rejections, eg exceptions escaping from async
@@ -33,7 +33,7 @@ process.on("unhandledRejection", (r: any) => {
 captureEvent("serverStarted", {});
 
 
-onStartup(() => {
+export function serverInitSentry() {
   const sentryUrl = sentryUrlSetting.get()
   const sentryEnvironment = sentryEnvironmentSetting.get()
   const sentryRelease = sentryReleaseSetting.get()
@@ -56,7 +56,7 @@ onStartup(() => {
   }
   
   checkForCoreDumps();
-});
+}
 
 export const addSentryMiddlewares = (addConnectHandler: AddMiddlewareType) => {
   addConnectHandler(Sentry.Handlers.requestHandler());
@@ -68,7 +68,7 @@ const consoleLogMemoryUsageThreshold = new DatabaseServerSetting<number>("consol
 const sentryErrorMemoryUsageThreshold = new DatabaseServerSetting<number>("sentryErrorMemoryUsage", 2.1*gigabytes);
 const memoryUsageCheckInterval = new DatabaseServerSetting<number>("memoryUsageCheckInterval", 2000);
 
-onStartup(() => {
+export function startMemoryUsageMonitor() {
   if (!isAnyTest) {
     setInterval(() => {
       const memoryUsage = process.memoryUsage()?.heapTotal;
@@ -84,7 +84,7 @@ onStartup(() => {
       }
     }, memoryUsageCheckInterval.get());
   }
-});
+}
 
 function checkForCoreDumps() {
   const files = fs.readdirSync(".");

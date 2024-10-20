@@ -202,6 +202,8 @@ const ReviewVoteTableRow = ({ post, dispatch, costTotal, classes, expandedPostId
     case 'Showing votes from Alignment Forum members':
       displayedVotes = afVotes;
       break;
+    case 'Showing all votes':
+      break;
   }
 
   let positiveVoteCountText = "0"

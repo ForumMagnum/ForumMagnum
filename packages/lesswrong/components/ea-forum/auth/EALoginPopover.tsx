@@ -7,6 +7,8 @@ import { FacebookIcon } from "../../icons/FacebookIcon";
 import classNames from "classnames";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useRefetchCurrentUser } from "../../common/withUser";
+import {forumTitleSetting, siteNameWithArticleSetting} from '../../../lib/instanceSettings'
+import { LoginAction, useLoginPopoverContext } from "../../hooks/useLoginPopoverContext";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -211,17 +213,24 @@ const PasswordPolicy: FC<{
 
 const links = {
   googleLogo: "/googleLogo.png",
-  eaOrg: "https://effectivealtruism.org",
   terms: "/termsOfUse",
-  privacy: "https://ev.org/ops/about/privacy-policy",
+  privacy: "/privacyPolicy",
 } as const;
 
-export const EALoginPopover = ({open, setAction, isSignup, classes}: {
-  open: boolean,
-  setAction: (action: "login" | "signup" | null) => void,
-  isSignup: boolean,
+export const EALoginPopover = ({action: action_, setAction: setAction_, facebookEnabled = true, googleEnabled = true, classes}: {
+  action?: LoginAction | null,
+  setAction?: (action: LoginAction | null) => void,
+  facebookEnabled?: boolean,
+  googleEnabled?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
+  const {loginAction, setLoginAction} = useLoginPopoverContext();
+  const action = action_ ?? loginAction;
+  const setAction = setAction_ ?? setLoginAction;
+
+  const open = !!action;
+  const isSignup = action === "signup";
+
   const client = useAuth0Client();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -342,7 +351,7 @@ export const EALoginPopover = ({open, setAction, isSignup, classes}: {
   }, [open]);
 
   const title = isSignup
-    ? "Sign up to get more from the EA Forum"
+    ? `Sign up to get more from ${siteNameWithArticleSetting.get() || "forum"}`
     : "Welcome back";
 
   const canSubmit = !!email && (!!password || isResettingPassword) && !loading;
@@ -368,6 +377,7 @@ export const EALoginPopover = ({open, setAction, isSignup, classes}: {
                 placeholder="Email"
                 value={email}
                 onChange={onChangeEmail}
+                data-testid="login-email-input"
                 className={classes.input}
                 autoFocus
               />
@@ -379,6 +389,7 @@ export const EALoginPopover = ({open, setAction, isSignup, classes}: {
                   placeholder="Password"
                   value={password}
                   onChange={onChangePassword}
+                  data-testid="login-password-input"
                   className={classes.input}
                 />
                 <ForumIcon
@@ -408,6 +419,7 @@ export const EALoginPopover = ({open, setAction, isSignup, classes}: {
               type="submit"
               style="primary"
               disabled={!canSubmit}
+              data-testid="login-submit"
               className={classes.button}
             >
               {loading
@@ -424,22 +436,22 @@ export const EALoginPopover = ({open, setAction, isSignup, classes}: {
             <span className={classes.orHr} />OR<span className={classes.orHr} />
           </div>
           <div className={classes.socialContainer}>
-            <EAButton
+            {googleEnabled && <EAButton
               style="grey"
               variant="outlined"
               onClick={onClickGoogle}
               className={classNames(classes.button, classes.socialButton)}
             >
               <img src={links.googleLogo} /> Continue with Google
-            </EAButton>
-            <EAButton
+            </EAButton>}
+            {facebookEnabled && <EAButton
               style="grey"
               variant="outlined"
               onClick={onClickFacebook}
               className={classNames(classes.button, classes.socialButton)}
             >
               <FacebookIcon /> Continue with Facebook
-            </EAButton>
+            </EAButton>}
           </div>
           {isSignup
             ? (
@@ -466,19 +478,15 @@ export const EALoginPopover = ({open, setAction, isSignup, classes}: {
             )
           }
         </div>
-        <div className={classes.finePrint}>
-          By creating an{" "}
-          <Link to={links.eaOrg} target="_blank" rel="noopener noreferrer">
-            EffectiveAltruism.org
-          </Link>{" "}
-          account, you agree to the{" "}
+        {isSignup && <div className={classes.finePrint}>
+          By creating an{" " + forumTitleSetting.get() + " "}account, you agree to the{" "}
           <Link to={links.terms} target="_blank" rel="noopener noreferrer">
             Terms of Use
           </Link> and{" "}
           <Link to={links.privacy} target="_blank" rel="noopener noreferrer">
             Privacy Policy
           </Link>.
-        </div>
+        </div>}
       </AnalyticsContext>
     </BlurredBackgroundModal>
   );

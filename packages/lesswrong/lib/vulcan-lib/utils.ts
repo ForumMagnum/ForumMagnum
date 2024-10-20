@@ -17,18 +17,6 @@ import { containsKana, fromKana } from "hepburn";
 export const logoUrlSetting = new DatabasePublicSetting<string | null>('logoUrl', null)
 
 interface UtilsType {
-  // In lib/helpers.ts
-  getUnusedSlug: (collection: CollectionBase<CollectionNameWithSlug>, slug: string, useOldSlugs?: boolean, documentId?: string) => Promise<string>
-  getUnusedSlugByCollectionName: (collectionName: CollectionNameWithSlug, slug: string, useOldSlugs?: boolean, documentId?: string) => Promise<string>
-  slugIsUsed: (collectionName: CollectionNameWithSlug, slug: string) => Promise<boolean>
-  
-  // In server/vulcan-lib/connectors.ts
-  Connectors: any
-  
-  // In server/tableOfContents.ts
-  getToCforPost: ({document, version, context}: { document: DbPost, version: string|null, context: ResolverContext }) => Promise<ToCData|null>
-  getToCforTag: ({document, version, context}: { document: DbTag, version: string|null, context: ResolverContext }) => Promise<ToCData|null>
-  
   // In server/vulcan-lib/mutators.ts
   createMutator: CreateMutator
   updateMutator: UpdateMutator
@@ -36,9 +24,6 @@ interface UtilsType {
   
   // In server/vulcan-lib/utils.ts
   performCheck: <T extends DbObject>(operation: (user: DbUser|null, obj: T, context: any) => Promise<boolean>, user: DbUser|null, checkedObject: T, context: any, documentId: string, operationName: string, collectionName: CollectionNameString) => Promise<void>
-  
-  // In server/vulcan-lib/errors.ts
-  throwError: (error: { id: string; data?: Record<string, AnyBecauseTodo> }) => never,
 }
 
 export const Utils: UtilsType = ({} as UtilsType);
@@ -126,14 +111,12 @@ export const validateUrl = (url: string) => {
 /**
  * @summary The global namespace for Vulcan utils.
  * @param {String} url - the URL to redirect
- * @param {String} foreignId - the optional ID of the foreign crosspost where this link is defined
  */
-export const getOutgoingUrl = function (url: string, foreignId?: string): string {
+export const getOutgoingUrl = function (url: string): string {
   // If no protocol is specified, guess that it is https://
   const cleanedUrl = validateUrl(url);
 
-  const result = getSiteUrl() + 'out?url=' + encodeURIComponent(cleanedUrl);
-  return foreignId ? `${result}&foreignId=${encodeURIComponent(foreignId)}` : result;
+  return getSiteUrl() + 'out?url=' + encodeURIComponent(cleanedUrl);
 };
 
 export const slugify = function (s: string): string {
@@ -280,6 +263,33 @@ export const removeProperty = (obj: any, propertyName: string): void => {
 };
 
 /**
+ * Given a mongodb-style selector, if it contains `documentId`, replace that
+ * with `_id`. This is a silly thing to do and a terrible hack; it's
+ * particularly terrible since `documentId` is an actual field name on some
+ * collections, corresponding to a foreign-key relation, eg on Votes it's the
+ * voted-on object. The reason this is here is because Vulcan did it (in
+ * `Connectors`, under the function name `convertUniqueSelector`), in a place
+ * where it leaks into the external API, where it might be used by GreaterWrong
+ * and other API users. So in order to remove this feature safely we need to
+ * remove it in two steps, first logging if any selectors are actually
+ * converted this way.
+ *
+ * If the change that got rid of `Connectors` has been deployed for awhile,
+ * and the console-log warning from this function isn't appearing in logs, then
+ * this function is a no-op and is safe to remove.
+ */
+export const convertDocumentIdToIdInSelector = (selector: any) => {
+  if (selector.documentId) {
+    //eslint-disable-next-line no-console
+    console.log("Warning: Performed documentId-to-_id replacement");
+    const result = {...selector, _id: selector.documentId};
+    delete result.documentId;
+    return result;
+  }
+  return selector;
+};
+
+/**
  * Sanitizing html
  */
 export const sanitizeAllowedTags = [
@@ -288,6 +298,7 @@ export const sanitizeAllowedTags = [
   'code', 'hr', 'br', 'div', 'table', 'thead', 'caption',
   'tbody', 'tr', 'th', 'td', 'pre', 'img', 'figure', 'figcaption',
   'section', 'span', 'sub', 'sup', 'ins', 'del', 'iframe', 'audio',
+  'details', 'summary',
   
   //MathML elements (https://developer.mozilla.org/en-US/docs/Web/MathML/Element)
   "math", "mi", "mn", "mo", "ms", "mspace", "mtext", "merror",
@@ -350,6 +361,10 @@ export const sanitize = function(s: string): string {
       // Attributes for dialogues
       section: ['class', 'message-id', 'user-id', 'user-order', 'submitted-date', 'display-name'],
       
+      // Attributes for collapsible sections
+      details: ['class'],
+      summary: ['class'],
+      
       // Attributes for MathML elements
       math: [...allowedMathMLGlobalAttributes, 'display'],
       mi: allowedMathMLGlobalAttributes,
@@ -389,10 +404,11 @@ export const sanitize = function(s: string): string {
       'strawpoll.com',
       'estimaker.app',
       'viewpoints.xyz',
-      'calendly.com'
+      'calendly.com',
+      'neuronpedia.org'
     ],
     allowedClasses: {
-      span: [ 'footnote-reference', 'footnote-label', 'footnote-back-link' ],
+      span: [ 'footnote-reference', 'footnote-label', 'footnote-back-link', "math-tex" ],
       div: [
         'spoilers',
         'footnote-content',
@@ -401,6 +417,7 @@ export const sanitize = function(s: string): string {
         'footnote-reference',
         'metaculus-preview',
         'manifold-preview',
+        'neuronpedia-preview',
         'metaforecast-preview',
         'owid-preview',
         'elicit-binary-prediction',
@@ -409,11 +426,15 @@ export const sanitize = function(s: string): string {
         'estimaker-preview',
         'viewpoints-preview',
         'ck-cta-button',
-        'ck-cta-button-centered'
+        'ck-cta-button-centered',
+        'detailsBlockContent',
+        'calendly-preview',
       ],
       iframe: [ 'thoughtSaverFrame' ],
       ol: [ 'footnotes', 'footnote-section' ],
       li: [ 'footnote-item' ],
+      details: ['detailsBlock'],
+      summary: ['detailsBlockTitle'],
     },
     allowedStyles: {
       figure: {

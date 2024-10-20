@@ -1,4 +1,4 @@
-import React, { FC, PropsWithChildren } from "react";
+import React, { FC, PropsWithChildren, useCallback } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { usePostsItem, PostsItemConfig } from "./usePostsItem";
@@ -9,8 +9,11 @@ import classNames from "classnames";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
 import { cloudinaryCloudNameSetting } from "../../lib/publicSettings";
 import { usePostContents } from "../hooks/useForeignCrosspost";
+import { usePostsListView } from "../hooks/usePostsListView";
 
 const KARMA_WIDTH = 50;
+const CARD_IMG_HEIGHT = 80;
+const CARD_IMG_WIDTH = 160;
 
 export const styles = (theme: ThemeType) => ({
   root: {
@@ -70,6 +73,9 @@ export const styles = (theme: ThemeType) => ({
   containerCardWithImage: {
     paddingBottom: 0,
   },
+  containerNoKarma: {
+    paddingLeft: 20
+  },
   postsVote: {
     position: "relative",
     fontSize: 30,
@@ -103,6 +109,19 @@ export const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down("xs")]: {
       display: "-webkit-box",
       "-webkit-box-orient": "vertical",
+      "-webkit-line-clamp": 3,
+    },
+  },
+  titleCardView: {
+    // When card view is active, *all* post items change font weight,
+    // even those that are not a card, so that all titles are consistent.
+    fontWeight: 700,
+  },
+  titleCard: {
+    display: "-webkit-box",
+    "-webkit-box-orient": "vertical",
+    "-webkit-line-clamp": 2,
+    [theme.breakpoints.down("xs")]: {
       "-webkit-line-clamp": 3,
     },
   },
@@ -181,10 +200,13 @@ export const styles = (theme: ThemeType) => ({
     cursor: "pointer",
     display: "flex",
     alignItems: "flex-end",
-    gap: "70px",
+    gap: "47px",
     [theme.breakpoints.down("xs")]: {
       gap: "12px",
     },
+  },
+  cardNoKarma: {
+    paddingLeft: 20
   },
   cardText: {
     display: "-webkit-box",
@@ -196,7 +218,7 @@ export const styles = (theme: ThemeType) => ({
     fontSize: 13,
     lineHeight: "150%",
     color: theme.palette.grey[600],
-    maxHeight: 70,
+    maxHeight: CARD_IMG_HEIGHT,
     [theme.breakpoints.down("xs")]: {
       "-webkit-line-clamp": 4,
       lineHeight: "140%",
@@ -206,34 +228,42 @@ export const styles = (theme: ThemeType) => ({
     marginTop: 12,
   },
   cardTextNoImage: {
-    marginRight: 30,
+    maxWidth: 509,
   },
   cardImage: {
     borderRadius: theme.borderRadius.small,
-    width: 124,
-    minWidth: 124,
-    height: 70,
-    minHeight: 70,
+    width: CARD_IMG_WIDTH,
+    minWidth: CARD_IMG_WIDTH,
+    height: CARD_IMG_HEIGHT,
+    minHeight: CARD_IMG_HEIGHT,
     objectFit: "cover",
+    marginTop: -9,
     [theme.breakpoints.down("xs")]: {
       width: 100,
       minWidth: 100,
     },
+  },
+  cardMeta: {
+    maxWidth: `calc(100% - ${CARD_IMG_WIDTH}px)`,
   },
 });
 
 const cloudinaryBase = `${cloudinaryCloudNameSetting.get()}/image/upload/`;
 
 const formatImageUrl = (url: string) =>
-  url.replace(cloudinaryBase, `${cloudinaryBase}c_fill,w_124,h_70,dpr_2,`);
+  url.replace(cloudinaryBase, `${cloudinaryBase}c_fill,w_${CARD_IMG_WIDTH},h_${CARD_IMG_HEIGHT},dpr_2,`);
 
 export type EAPostsItemProps = PostsItemConfig & {
+  openInNewTab?: boolean,
   hideSecondaryInfo?: boolean,
+  secondaryInfoNode?: React.ReactNode,
   classes: ClassesType<typeof styles>,
 };
 
 const EAPostsItem = ({
+  openInNewTab,
   hideSecondaryInfo,
+  secondaryInfoNode,
   classes,
   ...props
 }: EAPostsItemProps) => {
@@ -266,20 +296,22 @@ const EAPostsItem = ({
     analyticsProps,
     viewType,
     isVoteable,
+    showKarma,
     useCuratedDate,
+    hideTag,
     className,
   } = usePostsItem(props);
-  const {onClick} = useClickableCell({href: postLink});
+  const {onClick} = useClickableCell({href: postLink, openInNewTab});
   const cardView = viewType === "card";
+  // When card view is active, *all* post items change font weight,
+  // even those that are not a card, so that all titles are consistent.
+  const {view} = usePostsListView()
+
   const {postContents} = usePostContents({
     post,
     fragmentName: "PostsList",
     skip: !cardView,
   });
-
-  if (isRepeated) {
-    return null;
-  }
 
   const {
     PostsTitle, ForumIcon, PostActionsButton, EAKarmaDisplay, EAPostMeta,
@@ -288,32 +320,70 @@ const EAPostsItem = ({
     PostMostValuableCheckbox,
   } = Components;
 
-  const SecondaryInfo = () => (hideSecondaryInfo || showMostValuableCheckbox) ? null : (
-    <>
-      <InteractionWrapper className={classes.interactionWrapper}>
-        <a onClick={toggleComments} className={classNames(
-          classes.comments,
-          cardView && classes.commentsCard,
-          hasUnreadComments && classes.newComments,
-        )}>
-          <ForumIcon icon="Comment" />
-          {commentCount}
-        </a>
+  const SecondaryInfo = useCallback(() => {
+    if (secondaryInfoNode) {
+      return <InteractionWrapper className={classes.interactionWrapper}>
+        {secondaryInfoNode}
       </InteractionWrapper>
-      <div className={classes.postActions}>
+    }
+    return (hideSecondaryInfo || showMostValuableCheckbox) ? null : (
+      <>
         <InteractionWrapper className={classes.interactionWrapper}>
-          <PostActionsButton post={post} popperGap={16} autoPlace vertical />
+          <a onClick={toggleComments} className={classNames(
+            classes.comments,
+            cardView && classes.commentsCard,
+            hasUnreadComments && classes.newComments,
+          )}>
+            <ForumIcon icon="Comment" />
+            {commentCount}
+          </a>
         </InteractionWrapper>
-      </div>
-      {tagRel &&
-        <div className={classes.tagRelWrapper}>
+        <div className={classes.postActions}>
           <InteractionWrapper className={classes.interactionWrapper}>
-            <PostsItemTagRelevance tagRel={tagRel} />
+            <PostActionsButton post={post} popperGap={16} autoPlace vertical />
           </InteractionWrapper>
         </div>
-      }
-    </>
-  );
+        {tagRel &&
+          <div className={classes.tagRelWrapper}>
+            <InteractionWrapper className={classes.interactionWrapper}>
+              <PostsItemTagRelevance tagRel={tagRel} />
+            </InteractionWrapper>
+          </div>
+        }
+      </>
+    )
+  }, [
+    secondaryInfoNode,
+    hideSecondaryInfo,
+    showMostValuableCheckbox,
+    cardView,
+    hasUnreadComments,
+    commentCount,
+    post,
+    tagRel,
+    toggleComments,
+    ForumIcon,
+    PostActionsButton,
+    PostsItemTagRelevance,
+    classes
+  ]);
+  
+  if (isRepeated) {
+    return null;
+  }
+  
+  const karmaNode = isVoteable
+    ? (
+      <InteractionWrapper className={classNames(
+        classes.interactionWrapper,
+        classes.postsVote,
+      )}>
+        <PostsVote post={post} />
+      </InteractionWrapper>
+    )
+    : (
+      <EAKarmaDisplay post={post} className={classes.karmaDisplay} />
+    )
 
   // The nesting here gets a little messy: we need to add the extra `Link`
   // around the title to make it right-clickable/cmd+clickable. However,
@@ -321,8 +391,10 @@ const EAPostsItem = ({
   // normally requiring the user to press back twice to get to where they
   // started so we need to wrap that whole thing in an `InteractionWrapper`
   // too.
+  // FIXME: Unstable component will lose state on rerender
+  // eslint-disable-next-line react/no-unstable-nested-components
   const TitleWrapper: FC<PropsWithChildren<{}>> = ({children}) => (
-    <PostsItemTooltipWrapper post={post} placement={tooltipPlacement} As="span">
+    <PostsItemTooltipWrapper post={post} placement={tooltipPlacement} As="span" disabled={viewType === 'card'}>
       <InteractionWrapper className={classes.titleWrapper}>
         <Link to={postLink}>{children}</Link>
       </InteractionWrapper>
@@ -330,6 +402,7 @@ const EAPostsItem = ({
   );
 
   const body =
+    post.customHighlight?.plaintextDescription ||
     postContents?.plaintextDescription ||
     post.contents?.plaintextDescription ||
     "";
@@ -353,20 +426,9 @@ const EAPostsItem = ({
             classes.container,
             cardView && classes.containerCard,
             cardView && post.socialPreviewData.imageUrl && classes.containerCardWithImage,
+            !showKarma && classes.containerNoKarma,
           )}>
-            {isVoteable
-              ? (
-                <InteractionWrapper className={classNames(
-                  classes.interactionWrapper,
-                  classes.postsVote,
-                )}>
-                  <PostsVote post={post} />
-                </InteractionWrapper>
-              )
-              : (
-                <EAKarmaDisplay post={post} className={classes.karmaDisplay} />
-              )
-            }
+            {showKarma && karmaNode}
             <div className={classes.details}>
               <PostsTitle
                 {...{
@@ -378,14 +440,23 @@ const EAPostsItem = ({
                   curatedIconLeft,
                   showIcons,
                 }}
+                wrap={cardView}
                 Wrapper={TitleWrapper}
                 read={isRead && !showReadCheckbox}
                 isLink={false}
-                showEventTag
-                className={classes.title}
+                showEventTag={!hideTag}
+                className={classNames(
+                  classes.title,
+                  view === 'card' && classes.titleCardView,
+                  cardView && classes.titleCard
+                )}
               />
               <div className={classes.meta}>
-                <EAPostMeta post={post} useCuratedDate={useCuratedDate} />
+                <EAPostMeta
+                  post={post}
+                  useCuratedDate={useCuratedDate}
+                  className={cardView && hasImage ? classes.cardMeta : undefined}
+                />
                 <div className={classNames(
                   classes.secondaryContainer,
                   classes.onlyMobile,
@@ -422,7 +493,7 @@ const EAPostsItem = ({
             </InteractionWrapper>
           </div>
           {cardView && (hasBody || hasImage) &&
-            <div className={classes.card} onClick={onClick}>
+            <div className={classNames(classes.card, !showKarma && classes.cardNoKarma)} onClick={onClick}>
               <div className={classNames(
                 classes.cardText,
                 hasImage && classes.cardTextWithImage,

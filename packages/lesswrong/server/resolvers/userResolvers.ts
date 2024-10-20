@@ -1,7 +1,7 @@
 import { markdownToHtml, dataToMarkdown } from '../editor/conversionUtils';
 import Users from '../../lib/collections/users/collection';
 import { accessFilterMultiple, augmentFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
-import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema, slugify, updateMutator, Utils } from '../vulcan-lib';
+import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema, slugify, updateMutator } from '../vulcan-lib';
 import pick from 'lodash/pick';
 import SimpleSchema from 'simpl-schema';
 import {getUserEmail, userCanEditUser, userGetDisplayName} from "../../lib/collections/users/helpers";
@@ -13,8 +13,8 @@ import { RateLimitInfo, RecentKarmaInfo } from '../../lib/rateLimits/types';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { UsersRepo } from '../repos';
 import { defineQuery } from '../utils/serverGraphqlUtil';
-import { UserDialogueUsefulData } from "../../components/users/DialogueMatchingPage";
-
+import { createPaginatedResolver } from './paginatedResolver';
+import { getUnusedSlugByCollectionName } from '@/lib/helpers';
 
 addGraphQLSchema(`
   type CommentCountTag {
@@ -178,7 +178,7 @@ addGraphQLResolvers({
           usernameUnset: false,
           username,
           displayName: username,
-          slug: await Utils.getUnusedSlugByCollectionName("Users", slugify(username)),
+          slug: await getUnusedSlugByCollectionName("Users", slugify(username)),
           ...(email ? {email} : {}),
           subscribedToDigest: subscribeToDigest,
           acceptedTos,
@@ -267,64 +267,6 @@ addGraphQLQuery('UserReadsPerCoreTag(userId: String!): [UserCoreTagReads]')
 addGraphQLQuery('GetRandomUser(userIsAuthor: String!): User')
 
 defineQuery({
-  name: "GetUserDialogueUsefulData",
-  resultType: "UserDialogueUsefulData",
-  fn: async (root: void, _: any, context: ResolverContext) => {
-    const { currentUser } = context
-    if (!currentUser) {
-      throw new Error('User must be logged in to get top upvoted users');
-    }
-
-    const [dialogueUsers, topUsers, activeDialogueMatchSeekers] = await Promise.all([
-      new UsersRepo().getUsersWhoHaveMadeDialogues(),
-      new UsersRepo().getUsersTopUpvotedUsers(currentUser),
-      new UsersRepo().getActiveDialogueMatchSeekers(100),
-    ]);
-
-    const results: UserDialogueUsefulData = {
-      dialogueUsers: dialogueUsers.map(user => ({ ...user, displayName: userGetDisplayName(user) })),
-      topUsers: topUsers,
-      activeDialogueMatchSeekers: activeDialogueMatchSeekers.map(user => ({ ...user, displayName: userGetDisplayName(user) })),
-    }
-    return results
-  }
-});
-
-defineQuery({
-  name: "GetDialogueMatchedUsers",
-  resultType: "[User]!",
-  fn: async (root, _, context) => {
-    const { currentUser } = context
-    if (!currentUser) {
-      throw new Error('User must be logged in to get matched users');
-    }
-
-    const matchedUsers = await new UsersRepo().getDialogueMatchedUsers(currentUser._id);
-    return accessFilterMultiple(currentUser, Users, matchedUsers, context);
-  }
-});
-
-defineQuery({
-  name: "GetDialogueRecommendedUsers",
-  resultType: "[User]!",
-  fn: async (root, _, context) => {
-    const { currentUser } = context
-    if (!currentUser) {
-      throw new Error('User must be logged in to get recommended users');
-    }
-
-    const upvotedUsers = await context.repos.users.getUsersTopUpvotedUsers(currentUser, 35, 30)
-    const recommendedUsers = await context.repos.users.getDialogueRecommendedUsers(currentUser._id, upvotedUsers);
-
-    // Shuffle and limit the list to 2 users
-    const shuffled = recommendedUsers.sort(() => 0.5 - Math.random());
-    const sampleSize = 2;
-
-    return accessFilterMultiple(currentUser, Users, shuffled.slice(0, sampleSize), context);
-  }
-}); 
-
-defineQuery({
   name: "IsDisplayNameTaken",
   argTypes: "(displayName: String!)",
   resultType: "Boolean!",
@@ -337,7 +279,25 @@ defineQuery({
     if (!currentUser) {
       throw new Error("You must be logged in to do this");
     }
-    const isTaken = await context.repos.users.isDisplayNameTaken(displayName);
+    const isTaken = await context.repos.users.isDisplayNameTaken({ displayName, currentUserId: currentUser._id });
     return isTaken;
+  }
+});
+
+
+createPaginatedResolver({
+  name: "SuggestedFeedSubscriptionUsers",
+  graphQLType: "User",
+  callback: async (
+    context: ResolverContext,
+    limit: number,
+  ): Promise<DbUser[]> => {
+    const {currentUser} = context;
+
+    if (!currentUser) {
+      throw new Error("You must be logged to get suggsted users to subscribe to.");
+    }
+
+    return await context.repos.users.getSubscriptionFeedSuggestedUsers(currentUser._id, limit);
   }
 });

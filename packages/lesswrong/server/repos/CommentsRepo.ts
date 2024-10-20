@@ -1,6 +1,6 @@
 import Comments from "../../lib/collections/comments/collection";
 import AbstractRepo from "./AbstractRepo";
-import SelectQuery from "../../lib/sql/SelectQuery";
+import SelectQuery from "@/server/sql/SelectQuery";
 import keyBy from 'lodash/keyBy';
 import groupBy from 'lodash/groupBy';
 import orderBy from 'lodash/orderBy';
@@ -102,48 +102,6 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     `, [limit, pollCommentId]);
   }
 
-  async getPopularPollCommentsWithUserVotes (userId: string, limit: number, pollCommentId: string): Promise<(ExtendedCommentWithReactions)[]> {
-    return await this.getRawDb().manyOrNone(`
-    -- CommentsRepo.getPopularPollCommentsWithUserVotes
-    SELECT c.*, v."extendedVoteType"->'reacts'->0->>'react' AS "yourVote"
-    FROM public."Comments" AS c
-    INNER JOIN public."Votes" AS v ON c._id = v."documentId"
-    WHERE
-      c."parentCommentId" = $3
-      AND v."userId" = $1
-      AND v."extendedVoteType"->'reacts'->0->>'vote' = 'created'
-      AND v.cancelled IS NOT TRUE
-      AND v."isUnvote" IS NOT TRUE
-    ORDER BY c."baseScore" DESC
-    LIMIT $2
-    `, [userId, limit, pollCommentId]);
-  }
-
-  async getPopularPollCommentsWithTwoUserVotes (userId: string, targetUserId: string, limit: number, pollCommentId: string): Promise<(ExtendedCommentWithReactions)[]> {
-    return await this.getRawDb().manyOrNone(`
-    -- CommentsRepo.getPopularPollCommentsWithTwoUserVotes
-    SELECT c.*, 
-        v1."extendedVoteType"->'reacts'->0->>'react' AS "yourVote", 
-        v2."extendedVoteType"->'reacts'->0->>'react' AS "theirVote"
-    FROM public."Comments" AS c
-    LEFT JOIN public."Votes" AS v1 ON c._id = v1."documentId"
-    LEFT JOIN public."Votes" AS v2 ON c._id = v2."documentId"
-    WHERE
-      c."parentCommentId" = $4
-      AND v1."userId" = $1
-      AND v1."extendedVoteType"->'reacts'->0->>'vote' = 'created'
-      AND v1.cancelled IS NOT TRUE
-      AND v1."isUnvote" IS NOT TRUE
-      AND v2."userId" = $2
-      AND v2."extendedVoteType"->'reacts'->0->>'vote' = 'created'
-      AND v2.cancelled IS NOT TRUE
-      AND v2."isUnvote" IS NOT TRUE
-      AND v1."extendedVoteType"->'reacts'->0->>'react' != v2."extendedVoteType"->'reacts'->0->>'react'
-    ORDER BY c."baseScore" DESC
-    LIMIT $3
-    `, [userId, targetUserId, limit, pollCommentId]);
-  }
-
   async getPopularComments({
     minScore = 15,
     offset = 0,
@@ -171,7 +129,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
 
     const lookbackPeriod = isAF ? '1 month' : '1 week';
     const afCommentsFilter = isAF ? 'AND "af" IS TRUE' : '';
-    
+
     return this.any(`
       -- CommentsRepo.getPopularComments
       SELECT c.*
@@ -193,6 +151,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       JOIN "Posts" p ON c."postId" = p."_id"
       WHERE
         p."hideFromPopularComments" IS NOT TRUE
+        AND p."frontpageDate" IS NOT NULL
         AND ${getViewablePostsSelector('p')}
         ${excludedTagIdCondition}
       ORDER BY c."baseScore" * EXP((EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - c."postedAt") + $(recencyBias)) / -$(recencyFactor)) DESC
@@ -306,23 +265,6 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       ORDER BY
         window_start_key;
     `, [postIds, startDate, endDate]);
-  }
-
-  async getUsersRecommendedCommentsOfTargetUser(userId: string, targetUserId: string, limit = 20): Promise<DbComment[]> {
-    return this.any(`
-      -- CommentsRepo.getUsersRecommendedCommentsOfTargetUser
-      SELECT c.*
-      FROM "ReadStatuses" AS rs
-      INNER JOIN "Posts" AS p ON rs."postId" = p._id
-      INNER JOIN "Comments" AS c ON c."postId" = p._id
-      WHERE
-          rs."userId" = $1
-          AND c."userId" = $2
-          AND rs."isRead" IS TRUE
-          AND c."baseScore" > 7
-      ORDER BY rs."lastUpdated" DESC
-      LIMIT $3
-    `, [userId, targetUserId, limit]);
   }
 
   async getCommentsWithElicitData(): Promise<DbComment[]> {

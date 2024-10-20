@@ -46,6 +46,10 @@ export const Posts = createCollection({
   resolvers: getDefaultResolvers('Posts'),
   mutations: getDefaultMutations('Posts', options),
   logChanges: true,
+  dependencies: [
+    {type: "extension", name: "btree_gin"},
+    {type: "extension", name: "earthdistance"},
+  ],
 });
 
 const userHasModerationGuidelines = (currentUser: DbUser|null): boolean => {
@@ -73,6 +77,7 @@ makeEditable({
       canCreate: ['members']
     },
     hasToc: true,
+    normalized: true,
   }
 })
 
@@ -92,6 +97,7 @@ makeEditable({
       canUpdate: ['members', 'sunshineRegiment', 'admins'],
       canCreate: [userHasModerationGuidelines]
     },
+    normalized: true,
   }
 })
 

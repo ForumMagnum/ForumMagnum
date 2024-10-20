@@ -1,5 +1,5 @@
-import { testTable, runTestCases } from "../../lib/sql/tests/testHelpers";
-import Pipeline from "../../lib/sql/Pipeline";
+import { testTable, runTestCases } from "@/server/sql/tests/testHelpers";
+import Pipeline from "@/server/sql/Pipeline";
 
 describe("Pipeline", () => {
   runTestCases([

@@ -33,7 +33,9 @@ Revisions.checkAccess = async (user: DbUser|null, revision: DbRevision, context:
   // not sure why some revisions have no collectionName,
   // but this will cause an error below so just exclude them
   if (!revision.collectionName) return false
+
   const collectionName = revision.collectionName;
+  if (collectionName === "CurationNotices") return false
   
   // Get the document that this revision is a field of, and check for access to
   // it. This is necessary for correctly handling things like posts' draft

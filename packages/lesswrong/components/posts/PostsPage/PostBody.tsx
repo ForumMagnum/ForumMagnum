@@ -1,21 +1,24 @@
-import React, { useRef } from 'react';
+import React, { useContext, useRef } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 import { useSingle } from '../../../lib/crud/withSingle';
 import mapValues from 'lodash/mapValues';
-import type { SideCommentMode } from '../../dropdowns/posts/SetSideCommentVisibility';
-import { useVote } from '../../votes/withVote';
+import { SideCommentMode, SideItemVisibilityContext } from '../../dropdowns/posts/SetSideItemVisibility';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
-import type { ContentItemBody, ContentReplacedSubstringComponent } from '../../common/ContentItemBody';
+import type { ContentItemBody, ContentReplacedSubstringComponentInfo } from '../../common/ContentItemBody';
 import { hasSideComments, inlineReactsHoverEnabled } from '../../../lib/betas';
+import { VotingProps } from '@/components/votes/votingProps';
 
 const enableInlineReactsOnPosts = inlineReactsHoverEnabled;
 
-const PostBody = ({post, html, sideCommentMode}: {
+const PostBody = ({post, html, isOldVersion, voteProps}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   html: string,
-  sideCommentMode?: SideCommentMode
+  isOldVersion: boolean
+  voteProps: VotingProps<PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes>
 }) => {
+  const sideItemVisibilityContext = useContext(SideItemVisibilityContext);
+  const sideCommentMode= isOldVersion ? "hidden" : (sideItemVisibilityContext?.sideCommentMode ?? "hidden")
   const includeSideComments =
     hasSideComments &&
     sideCommentMode &&
@@ -30,14 +33,13 @@ const PostBody = ({post, html, sideCommentMode}: {
   
   const votingSystemName = post.votingSystem || "default";
   const votingSystem = getVotingSystemByName(votingSystemName);
-  const voteProps = useVote(post, "Posts", votingSystem);
   
   const { ContentItemBody, SideCommentIcon, InlineReactSelectionWrapper } = Components;
   const nofollow = (post.user?.karma || 0) < nofollowKarmaThreshold.get();
   const contentRef = useRef<ContentItemBody>(null);
   let content: React.ReactNode
   
-  let highlights: Record<string,ContentReplacedSubstringComponent>|undefined = undefined;
+  let highlights: Record<string,ContentReplacedSubstringComponentInfo>|undefined = undefined;
   if (votingSystem.getPostHighlights) {
     highlights = votingSystem.getPostHighlights({post, voteProps});
   }

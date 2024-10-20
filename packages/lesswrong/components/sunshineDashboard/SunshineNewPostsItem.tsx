@@ -12,7 +12,6 @@ import PersonIcon from '@material-ui/icons/Person'
 import HomeIcon from '@material-ui/icons/Home';
 import ClearIcon from '@material-ui/icons/Clear';
 import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
-import { Posts } from '../../lib/collections/posts';
 import { useCreate } from '../../lib/crud/withCreate';
 import { MANUAL_FLAG_ALERT } from '../../lib/collections/moderatorActions/schema';
 import { isFriendlyUI } from '../../themes/forumTheme';
@@ -21,6 +20,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   icon: {
     width: 14,
     marginRight: 4
+  },
+  robotIcon: {
+    width: 14,
+    marginLeft: 4,
   },
   buttonRow: {
     ...theme.typography.commentStyle
@@ -114,11 +117,25 @@ const SunshineNewPostsItem = ({post, refetch, classes}: {
     refetch();
   }
 
-  const { MetaInfo, LinkPostMessage, ContentItemBody, SunshineListItem, SidebarHoverOver, SidebarInfo, FormatDate, FooterTagList, Typography, ContentStyles, SmallSideVote } = Components
+  const {
+    MetaInfo,
+    LinkPostMessage,
+    ContentItemBody,
+    SunshineListItem,
+    SidebarHoverOver,
+    SidebarInfo,
+    FormatDate,
+    FooterTagList,
+    Typography,
+    ContentStyles,
+    SmallSideVote,
+    ForumIcon
+  } = Components;
   const { html: modGuidelinesHtml = "" } = post.moderationGuidelines || {}
   const { html: userGuidelinesHtml = "" } = post.user?.moderationGuidelines || {}
 
   const moderationSection = post.moderationStyle || post.user?.moderationStyle || modGuidelinesHtml || userGuidelinesHtml
+  const autoFrontpage = post.autoFrontpage
 
   return (
     <span {...eventHandlers}>
@@ -127,10 +144,10 @@ const SunshineNewPostsItem = ({post, refetch, classes}: {
           <FooterTagList post={post} showCoreTags highlightAutoApplied />
           <div className={classes.buttonRow}>
             <Button onClick={handlePersonal}>
-              <PersonIcon className={classes.icon} /> Personal
+              <PersonIcon className={classes.icon} /> Personal {autoFrontpage === "hide" && <span className={classes.robotIcon}><ForumIcon icon="Robot" /></span>}
             </Button>
             {post.submitToFrontpage && <Button onClick={handlePromote}>
-              <HomeIcon className={classes.icon} /> Frontpage
+              <HomeIcon className={classes.icon} /> Frontpage {autoFrontpage === "show" && <span className={classes.robotIcon}><ForumIcon icon="Robot" /></span>}
             </Button>}
             <Button onClick={handleDelete}>
               <ClearIcon className={classes.icon} /> Draft
@@ -146,7 +163,7 @@ const SunshineNewPostsItem = ({post, refetch, classes}: {
           </Typography>
           <div className={classes.metaInfoRow}>
             <span className={classes.vote}>
-              <SmallSideVote document={post} collection={Posts}/>
+              <SmallSideVote document={post} collectionName="Posts"/>
             </span>
             <MetaInfo>
               <FormatDate date={post.postedAt}/>

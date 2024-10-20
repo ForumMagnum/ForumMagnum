@@ -1,10 +1,13 @@
-import PgCollection from '../sql/PgCollection';
 import { getDefaultFragmentText, registerFragment } from './fragments';
 import { registerCollection } from './getCollection';
 import { addGraphQLCollection } from './graphql';
-import { camelCaseify } from './utils';
 import { pluralize } from './pluralize';
 export * from './getCollection';
+
+const Collection = bundleIsServer
+  // eslint-disable-next-line import/no-restricted-paths
+  ? require("@/server/sql/PgCollection").default
+  : require("./ClientCollection").default;
 
 // When used in a view, set the query so that it returns rows where a field is
 // null or is missing. Equivalent to a search with mongo's `field:null`, except
@@ -18,14 +21,14 @@ export const viewFieldNullOrMissing = {nullOrMissing:true};
 export const viewFieldAllowAny = {allowAny:true};
 
 // TODO: find more reliable way to get collection name from type name?
-export const getCollectionName = (typeName: string): CollectionNameString => pluralize(typeName) as CollectionNameString;
+export const graphqlTypeToCollectionName = (typeName: string): CollectionNameString => pluralize(typeName) as CollectionNameString;
 
 // TODO: find more reliable way to get type name from collection name?
-export const getTypeName = (collectionName: CollectionNameString) => collectionName.slice(0, -1);
+export const collectionNameToGraphQLType = (collectionName: CollectionNameString) => collectionName.slice(0, -1);
 
 type CreateCollectionOptions <N extends CollectionNameString> = Omit<
   CollectionOptions<N>,
-  "singleResolverName" | "multiResolverName" | "interfaces" | "description"
+  "interfaces" | "description"
 >;
 
 export const createCollection = <N extends CollectionNameString>(
@@ -40,13 +43,9 @@ export const createCollection = <N extends CollectionNameString>(
   } = options;
 
   // initialize new collection
-  const collection = new PgCollection<N>(
+  const collection: CollectionBase<N> = new Collection(
     dbCollectionName ?? collectionName.toLowerCase(),
-    {
-      ...options,
-      singleResolverName: camelCaseify(typeName),
-      multiResolverName: camelCaseify(pluralize(typeName)),
-    },
+    options,
   );
 
   // add typeName if missing

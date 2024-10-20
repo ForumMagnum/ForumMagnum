@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { fragmentTextForQuery, registerComponent, Components } from '../../lib/vulcan-lib';
-import { useQuery, gql } from '@apollo/client';
+import { useQuery, gql, ObservableQuery, QueryHookOptions, WatchQueryFetchPolicy } from '@apollo/client';
 import { useOnPageScroll } from './withOnPageScroll';
 import { isClient } from '../../lib/executionEnvironment';
 import * as _ from 'underscore';
@@ -104,9 +104,13 @@ const MixedTypeFeed = (args: {
   // Ref that will be populated with a function that makes this feed refetch
   // (refetching everything, shrinking it to one page, and potentially scrolling
   // up by a bunch.)
-  refetchRef?: {current: null|(() => void)},
+  refetchRef?: {current: null|ObservableQuery['refetch']},
+
+  // By default, MixedTypeFeed preserves the order of elements that persist across refetches.  If you don't want that, pass in true.
+  reorderOnRefetch?: boolean,
+  
 }) => {
-  const { resolverName, resolverArgs=null, resolverArgsValues=null, fragmentArgs=null, fragmentArgsValues=null, sortKeyType, renderers, firstPageSize=20, pageSize=20, refetchRef } = args;
+  const { resolverName, resolverArgs=null, resolverArgsValues=null, fragmentArgs=null, fragmentArgsValues=null, sortKeyType, renderers, firstPageSize=20, pageSize=20, refetchRef, reorderOnRefetch=false } = args;
   
   // Reference to a bottom-marker used for checking scroll position.
   const bottomRef = useRef<HTMLDivElement|null>(null);
@@ -170,13 +174,14 @@ const MixedTypeFeed = (args: {
             // Deduplicate by removing repeated results from the newly fetched page. Ideally we
             // would use cursor-based pagination to avoid this
             const prevKeys = new Set(prev[resolverName].results.map(keyFunc));
-            const deduplicatedResults = fetchMoreResult[resolverName].results.filter((result: any) => !prevKeys.has(keyFunc(result)));
-
+            const newResults = fetchMoreResult[resolverName].results;
+            const deduplicatedResults = newResults.filter((result: any) => !prevKeys.has(keyFunc(result)));
+            
             return {
               [resolverName]: {
                 __typename: fetchMoreResult[resolverName].__typename,
                 cutoff: fetchMoreResult[resolverName].cutoff,
-                endOffset: data[resolverName].endOffset,
+                endOffset: fetchMoreResult[resolverName].endOffset,
                 results: [...prev[resolverName].results, ...deduplicatedResults],
               }
             };
@@ -186,7 +191,6 @@ const MixedTypeFeed = (args: {
     }
   }
 
-  
   // Load-more triggers. Check (1) after render, and (2) when the page is scrolled.
   // We *don't* check inside handleLoadFinished, because that's before the results
   // have been attached to the DOM, so we can''t test whether they reach the bottom.
@@ -194,7 +198,8 @@ const MixedTypeFeed = (args: {
   useOnPageScroll(maybeStartLoadingMore);
   
   const results = (data && data[resolverName]?.results) || [];
-  const orderedResults = useOrderPreservingArray(results, keyFunc);
+  const orderPolicy = reorderOnRefetch ? 'no-reorder' : undefined;
+  const orderedResults = useOrderPreservingArray(results, keyFunc, orderPolicy);
   return <div>
     {orderedResults.map((result) =>
       <div key={keyFunc(result)}>

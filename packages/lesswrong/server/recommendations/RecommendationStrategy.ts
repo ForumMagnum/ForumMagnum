@@ -1,5 +1,5 @@
 import { StrategySettings, StrategySpecification } from "../../lib/collections/users/recommendationSettings";
-import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
+import { getSqlClientOrThrow } from "../sql/sqlClient";
 import { postStatuses } from "../../lib/collections/posts/constants";
 import {
   EA_FORUM_COMMUNITY_TOPIC_ID,

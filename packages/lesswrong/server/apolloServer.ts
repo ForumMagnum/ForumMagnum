@@ -1,7 +1,7 @@
 import { ApolloServer } from 'apollo-server-express';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 
-import { isDevelopment, getInstanceSettings, getServerPort, isProduction } from '../lib/executionEnvironment';
+import { isDevelopment, getInstanceSettings, getServerPort, isProduction, isE2E } from '../lib/executionEnvironment';
 import { renderWithCache, getThemeOptionsFromReq } from './vulcan-lib/apollo-ssr/renderPage';
 
 import { pickerMiddleware, addStaticRoute } from './vulcan-lib/staticRoutes';
@@ -35,8 +35,9 @@ import { getEAGApplicationData } from './zohoUtils';
 import { faviconUrlSetting, isEAForum, testServerSetting, performanceMetricLoggingEnabled, isDatadogEnabled } from '../lib/instanceSettings';
 import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
 import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles';
-import { addCypressRoutes } from './testingSqlClient';
+import { addTestingRoutes } from './testingSqlClient';
 import { addCrosspostRoutes } from './fmCrosspost/routes';
+import { addV2CrosspostHandlers } from './crossposting/handlers';
 import { getUserEmail } from "../lib/collections/users/helpers";
 import { inspect } from "util";
 import { renderJssSheetPreloads } from './utils/renderJssSheetImports';
@@ -52,8 +53,34 @@ import type { ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener 
 import { asyncLocalStorage, closePerfMetric, openPerfMetric, perfMetricMiddleware, setAsyncStoreValue } from './perfMetrics';
 import { addAdminRoutesMiddleware } from './adminRoutesMiddleware'
 import { createAnonymousContext } from './vulcan-lib/query';
-import { DatabaseServerSetting } from './databaseSettings';
 import { randomId } from '../lib/random';
+import { addCacheControlMiddleware, responseIsCacheable } from './cacheControlMiddleware';
+import { SSRMetadata } from '../lib/utils/timeUtil';
+import type { RouterLocation } from '../lib/vulcan-lib/routes';
+import { getCookieFromReq } from './utils/httpUtil';
+import { LAST_VISITED_FRONTPAGE_COOKIE } from '@/lib/cookies/cookies';
+import { addAutocompleteEndpoint } from './autocompleteEndpoint';
+import { getSqlClientOrThrow } from './sql/sqlClient';
+import { addLlmChatEndpoint } from './resolvers/anthropicResolvers';
+
+/**
+ * End-to-end tests automate interactions with the page. If we try to, for
+ * instance, click on a button before the page has been hydrated then the "click"
+ * will occur but nothing will happen as the event listener won't be attached
+ * yet which leads to flaky tests. To avoid this we add some static styles to
+ * the top of the SSR'd page which are then manually deleted _after_ React
+ * hydration has finished. Be careful editing this - it would ve very bad for
+ * this to end up in production builds.
+ */
+const ssrInteractionDisable = isE2E
+  ? `
+    <style id="ssr-interaction-disable">
+      #react-app * {
+        display: none;
+      }
+    </style>
+  `
+  : "";
 
 /**
  * Try to set the response status, but log an error if the headers have already been sent.
@@ -74,45 +101,25 @@ const trySetResponseStatus = ({ response, status }: { response: express.Response
   return response;
 }
 
-const cloudfrontExperimentEnabledSetting = new DatabaseServerSetting<boolean>('cloudfrontExperiment.enabled', false);
-const cloudfrontExperimentLoggedOutCacheControlSetting = new DatabaseServerSetting<string>('cloudfrontExperiment.loggedOutCacheControl', "s-max-age=1, stale-while-revalidate=86400");
-const cloudfrontCachingExperimentLoggedInCacheControlSetting = new DatabaseServerSetting<string>('cloudfrontCachingExperiment.loggedInCacheControl', "no-cache, no-store, must-revalidate, max-age=0");
-/**
- * For experimenting on staging to find out how CloudFront handles different cache-control headers set by the origin. The crux
- * is to figure out whether setting origin headers is sufficient to make it so responses are never cached for logged in users, but are cached
- * for logged out
- */
-const cloudfrontCachingExperiment = ({ response, user }: { response: express.Response, user: DbUser | null; }) => {
-  // TODO remove before this, the hard cutoff is just in case we forget
-  if (!cloudfrontExperimentEnabledSetting.get() || new Date() > new Date('2024-05-07')) return;
-
-  const loggedInCacheControl = cloudfrontCachingExperimentLoggedInCacheControlSetting.get();
-  const loggedOutCacheControl = cloudfrontExperimentLoggedOutCacheControlSetting.get();
-
-  if (user) {
-    response.setHeader("Cache-Control", loggedInCacheControl);
-  } else {
-    response.setHeader("Cache-Control", loggedOutCacheControl);
-  }
-}
-
 /**
  * If allowed, write the prefetchPrefix to the response so the client can start downloading resources
  */
 const maybePrefetchResources = async ({
   request,
   response,
-  enableResourcePrefetch,
+  parsedRoute,
   prefetchPrefix
 }: {
   request: express.Request;
   response: express.Response;
-  enableResourcePrefetch?: boolean | ((req: express.Request, res: express.Response, context: ResolverContext) => Promise<boolean>);
+  parsedRoute: RouterLocation,
   prefetchPrefix: string;
 }) => {
+
+  const enableResourcePrefetch = parsedRoute.currentRoute?.enableResourcePrefetch;
   const prefetchResources =
     typeof enableResourcePrefetch === "function"
-      ? await enableResourcePrefetch(request, response, createAnonymousContext())
+      ? await enableResourcePrefetch(request, response, parsedRoute, createAnonymousContext())
       : enableResourcePrefetch;
 
   if (prefetchResources) {
@@ -215,6 +222,7 @@ export function startWebserver() {
   addAdminRoutesMiddleware(addMiddleware);
   addForumSpecificMiddleware(addMiddleware);
   addSentryMiddlewares(addMiddleware);
+  addCacheControlMiddleware(addMiddleware);
   addClientIdMiddleware(addMiddleware);
   if (isDatadogEnabled) {
     app.use(datadogMiddleware);
@@ -245,7 +253,7 @@ export function startWebserver() {
     tracing: false,
     cacheControl: true,
     context: async ({ req, res }: { req: express.Request, res: express.Response }) => {
-      const context = await getContextFromReqAndRes(req, res);
+      const context = await getContextFromReqAndRes({req, res, isSSR: false});
       configureSentryScope(context);
       setAsyncStoreValue('resolverContext', context);
       return context;
@@ -259,7 +267,7 @@ export function startWebserver() {
   apolloServer.applyMiddleware({ app })
 
   addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {
-    const {bundleHash, bundleBuffer, bundleBrotliBuffer} = getClientBundle();
+    const {hash: bundleHash, content: bundleBuffer, brotli: bundleBrotliBuffer} = getClientBundle().resource;
     let headers: Record<string,string> = {}
     const acceptBrotli = req.headers['accept-encoding'] && req.headers['accept-encoding'].includes('br')
 
@@ -324,7 +332,7 @@ export function startWebserver() {
       return
     }
     
-    const currentUser = await getUserFromReq(req)
+    const currentUser = getUserFromReq(req)
     if (!currentUser) {
       res.status(403).send("Not logged in")
       return
@@ -340,7 +348,9 @@ export function startWebserver() {
   })
 
   addCrosspostRoutes(app);
-  addCypressRoutes(app);
+  addV2CrosspostHandlers(app);
+  addTestingRoutes(app);
+  addLlmChatEndpoint(app);
 
   if (testServerSetting.get()) {
     app.post('/api/quit', (_req, res) => {
@@ -350,6 +360,7 @@ export function startWebserver() {
   }
 
   addServerSentEventsEndpoint(app);
+  addAutocompleteEndpoint(app);
 
   app.get('/node_modules/*', (req, res) => {
     // Under some circumstances (I'm not sure exactly what the trigger is), the
@@ -361,13 +372,25 @@ export function startWebserver() {
     res.end("");
   });
 
+  app.get('/api/health', async (request, response) => {
+    try {
+      const db = getSqlClientOrThrow();
+      await db.one('SELECT 1');
+      response.status(200);
+      response.end("");
+    } catch (err) {
+      response.status(500);
+      response.end("");
+    }
+  });
+
   app.get('*', async (request, response) => {
     response.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression
 
     if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
     const publicSettingsHeader = embedAsGlobalVar("publicSettings", getPublicSettings())
 
-    const {bundleHash} = getClientBundle();
+    const bundleHash = getClientBundle().resource.hash;
     const clientScript = `<script async src="/js/bundle.js?hash=${bundleHash}"></script>`
     const instanceSettingsHeader = embedAsGlobalVar("publicInstanceSettings", getInstanceSettings().public);
 
@@ -379,23 +402,22 @@ export function startWebserver() {
       location: parsePath(request.url)
     });
     
-    const user = await getUserFromReq(request);
+    const user = getUserFromReq(request);
     const themeOptions = getThemeOptionsFromReq(request, user);
     const jssStylePreload = renderJssSheetPreloads(themeOptions);
     const externalStylesPreload = globalExternalStylesheets.map(url =>
       `<link rel="stylesheet" type="text/css" href="${url}">`
     ).join("");
-
-    // TODO remove and replace with a permanent version
-    cloudfrontCachingExperiment({ user, response })
     
     const faviconHeader = `<link rel="shortcut icon" href="${faviconUrlSetting.get()}"/>`;
 
     // Inject a tab ID into the page, by injecting a script fragment that puts
-    // it into a global variable.
-    const tabId = randomId();
-    const tabIdHeader = `<script>var tabId = "${tabId}"</script>`;
+    // it into a global variable. If the response is cacheable (same html may be used
+    // by multiple tabs), this is generated in `clientStartup.ts` instead.
+    const tabId = responseIsCacheable(response) ? null : randomId();
     
+    const isReturningVisitor = !!getCookieFromReq(request, LAST_VISITED_FRONTPAGE_COOKIE);
+
     // The part of the header which can be sent before the page is rendered.
     // This includes an open tag for <html> and <head> but not the matching
     // close tags, since there's stuff inside that depends on what actually
@@ -407,11 +429,13 @@ export function startWebserver() {
       + '<head>\n'
         + jssStylePreload
         + externalStylesPreload
+        + ssrInteractionDisable
         + instanceSettingsHeader
         + faviconHeader
         // Embedded script tags that must precede the client bundle
         + publicSettingsHeader
-        + tabIdHeader
+        + embedAsGlobalVar("tabId", tabId)
+        + embedAsGlobalVar("isReturningVisitor", isReturningVisitor)
         // The client bundle. Because this uses <script async>, its load order
         // relative to any scripts that come later than this is undetermined and
         // varies based on timings and the browser cache.
@@ -419,12 +443,7 @@ export function startWebserver() {
     );
 
     // Note: this may write to the response
-    const prefetchResourcesPromise = maybePrefetchResources({
-      request,
-      response,
-      enableResourcePrefetch: parsedRoute.currentRoute?.enableResourcePrefetch,
-      prefetchPrefix
-    });
+    const prefetchResourcesPromise = maybePrefetchResources({ request, response, parsedRoute, prefetchPrefix });
 
     const renderResultPromise = performanceMetricLoggingEnabled.get()
       ? asyncLocalStorage.run({}, () => renderWithCache(request, response, user, tabId))
@@ -447,6 +466,8 @@ export function startWebserver() {
       status,
       redirectUrl,
       renderedAt,
+      timezone,
+      cacheFriendly,
       allAbTestGroups,
     } = renderResult;
     
@@ -460,6 +481,11 @@ export function startWebserver() {
       trySetResponseStatus({ response, status: status || 301 }).redirect(redirectUrl);
     } else {
       trySetResponseStatus({ response, status: status || 200 });
+      const ssrMetadata: SSRMetadata = {
+        renderedAt: renderedAt.toISOString(),
+        cacheFriendly,
+        timezone
+      }
 
       response.write(
         (prefetchingResources ? '' : prefetchPrefix)
@@ -470,7 +496,8 @@ export function startWebserver() {
         + '<body class="'+classesForAbTestGroups(allAbTestGroups)+'">\n'
           + ssrBody + '\n'
         + '</body>\n'
-        + embedAsGlobalVar("ssrRenderedAt", renderedAt) + '\n'
+        + embedAsGlobalVar("ssrRenderedAt", renderedAt) + '\n' // TODO Remove after 2024-05-14, here for backwards compatibility
+        + embedAsGlobalVar("ssrMetadata", ssrMetadata) + '\n'
         + serializedApolloState + '\n'
         + serializedForeignApolloState + '\n'
         + '</html>\n')

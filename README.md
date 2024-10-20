@@ -35,7 +35,7 @@ Forum Magnum is built on top of a number major open-source libraries.
     * see `.nvmrc` for the required node version
     * You can use [Node Version Manager](https://github.com/creationix/nvm) to install the appropriate version of Node
     * Starting from a fresh MacOS system, try: `brew install nvm` to install nvm, then `nvm install` in the ForumMagnum directory
-  * Curl, Perl are optional, but needed to run some scripts and tests
+  * Curl is optional, but needed to run some scripts and tests
 
 ### Installation
 
@@ -78,10 +78,8 @@ psql forummagnum -f ./schema/accepted_schema.sql
 TODOs:
 
 * You won't have any database settings yet. TODO: add instructions.
-  * Start server and run it for ~30 sec which would create DB indexes 😅
-  * Then run `yarn ea-load-dev-db <settings file>` to load the database settings from the file. (TODO: example of the file)
-* You won't be able to run migrations yet. TODO: fix migrations so they can be
-  run on a new db (NB: goal is still to have the db have the accepted_schema).
+  * Then run `yarn ea-load-dev-db <settings file>` to load the database settings
+    from the file. (TODO: example of the file)
 
 ### Creating branch-specific development databases
 
@@ -139,6 +137,10 @@ Some relevant pieces of documentation that will help you understand aspects of t
 
 You can also see auto-generated documentation of our GraphQL API endpoints and try out queries using [GraphiQL](https://www.lesswrong.com/graphiql) on our server or on a development server.
 
+### Caching in CloudFront (CDN)
+
+You can set up CloudFront to cache pages for logged out users. See [this README](./packages/lesswrong/server/cache/README.md) for detailed instruction.
+
 ### Understanding the codebase
 
 Eventually, it’ll be helpful to have a good understanding of each of those technologies (both to develop new features and fix many kinds of bugs). But for now, the most useful things to know are:
@@ -152,7 +154,7 @@ Eventually, it’ll be helpful to have a good understanding of each of those tec
   There are [multiple ways of creating a ReactJS component](https://themeteorchef.com/blog/understanding-react-component-types). New components should be functional components, using hooks and ideally minimizing usage of higher-order components. Ideally, each component does one (relatively) simple thing and does it well, with smart components and dumb components separated out. In practice, we haven’t done a great job with this. (Scope creep turns what were once simple components into increasingly complex monstrosities that we should really refactor but haven’t gotten around to it).
 
   We use Vulcan’s `registerComponent` function to add them as children to a central “Components” table.
-  
+
 * **Smart Forms** - Vulcan also allows us to automatically generate simple forms to create and edit Documents (in the Mongo sense of the word Document, any instance of a Collection). This functionality is called Smart Forms.
 
   You can create an `EditFoo` page, which renders `WrappedSmartForm`, which then automagically creates a form for you. We use this to edit just about every Document in the codebase. How does it know what type of input you want though? This is the interesting part. You define the way you want to edit fields in the collection schema. So in Posts you have (selected examples):
@@ -163,7 +165,7 @@ Eventually, it’ll be helpful to have a good understanding of each of those tec
       - It's grouped among admin options, so it appears with the other admin options
   - Title
       - It's control is `'EditTitle'`, which means the Smart Form will look in Components for an EditTitle component, and then use that as the UI for modifying the Title.
-      
+
 * **useFoo (React Hooks)** - We make heavy use of [React hooks](https://reactjs.org/docs/hooks-intro.html) for querying data, managing state, and accessing shared data like the current user.
 
 * **withFoo (Higher Order Components)** – Higher-order components exist as alternatives for most hooks, and are sometimes used because class-components cannot use hooks. However, these are deprecated and we are migrating towards only using hooks.
@@ -196,8 +198,10 @@ monorepo codebase at a non-megacorp is that we can get good results just by
 searching for `hiddenRelatedQuestion` to find exactly how that database field is
 used.
 
-You might want to set `SLOW_QUERY_REPORT_CUTOFF_MS` to something other than the default (2000 ms),
-it can give a lot of false positives when you are running against a remote database.
+**Environment variables**
+
+- `SLOW_QUERY_REPORT_CUTOFF_MS`: You might want to set this to something other than the default (2000 ms), it can give a lot of false positives when you are running against a remote database.
+- `FM_WATCH`: Set this to `true` or `false` to override the `--watch` CLI flag for the build process. It can sometimes be annoying for the project to rebuild on every save.
 
 ### Debugging
 
@@ -215,38 +219,25 @@ All migrations should be designed to be idempotent and should represent a
 one-off operation (such as updating a table schema). Operations that need to be
 run multiple times should instead be implemented as a server script.
 
+After making any change that alters the database schema (eg; adding tables,
+adding fields, adding indexes, adding postgres functions, etc.) you must run
+`yarn generate` to update the current SQL schema and Typescript types, and
+commit the results to the Git repo.
+
 * Run pending migrations with `yarn migrate up [dev|staging|prod]`
 * Revert migrations with `yarn migrate down [dev|staging|prod]`, but note that we treat down migrations as optionally so this may or may not work as expected
-* Create a new migration with `yarn migrate create --name=my-new-migration`, although usually you will want to do `yarn makemigrations` instead (see below)
+* Create a new migration with `yarn migrate create my_new_migration`
 * View pending migrations with `yarn migrate pending [dev|staging|prod]`
 * View executed migrations with `yarn migrate executed [dev|staging|prod]`
 
-Instead of using \[dev|staging|prod\] above, you can also manually pass in a postgres connection string through a `PG_URL` environment variable. Use that option if you are not using the \[EA\] ForumCredentials repo.
-
-### Schema changing migrations
-
-Many (most) migrations will just be to update the database schema to be in line with what the code expects. For these we have
-scripts to autogenerate a migration template, and assert that the new schema has been "accepted" (i.e. you have remembered to write a migration).
-For these the development process will be like this:
-
-* Make some changes which add or alter fields in one of the `schema.ts` files
-* Run `yarn makemigrations`, to check the schema and generate a new migration file if there are changes
-* Fill out the migration file, and uncomment the `acceptsSchemaHash = ...` line when you are done
-* Run `yarn acceptmigrations` to accept the changes (this updates two files which should be committed, `accepted_schema.sql` and `schema_changelog.json`)
-
-#### Migrations and git conflicts
-* When you created a new migration, but then someone else merged a PR that also created a migration, you will get a git conflict.
-* To resolve it you basically need to re-run migration process:
-  * merge/rebase on top of new changes accepting their versions of schema files (i.e. `accepted_schema.sql` and `schema_changelog.json`)
-  * run `yarn makemigrations` again, to generate new hashes for the schema
-  * copy the logic from the migration file you've crated previously, but keep new `acceptedSchemaHash` value and timestamp in the file name
-  * delete your old migration file (and reference to it in `schema_changelog.json` if it's still there)
-  * run `yarn acceptmigrations`
-  * finish merge/rebase
+Instead of using \[dev|staging|prod\] above, you can also manually pass in a
+postgres connection string through a `PG_URL` environment variable. Use that
+option if you are not using the \[EA\] ForumCredentials repo or the LessWrong
+credentials repo.
 
 ## Testing
 
-We use [Jest](https://jestjs.io/) for unit and integration testing, and [Cypress](https://www.cypress.io/) for end-to-end testing.
+We use [Jest](https://jestjs.io/) for unit and integration testing, and [Playwright](https://playwright.dev/) for end-to-end testing.
 
 ### Jest
 
@@ -255,14 +246,31 @@ We use [Jest](https://jestjs.io/) for unit and integration testing, and [Cypress
 
 Both commands support a `-watch` suffix to watch the file system, and a `-coverage` suffix to generate a code coverage report. After generating both code coverage reports they can be combined into a single report with `yarn combine-coverage`.
 
-### Cypress
+### Playwright
 
-* To run Cypress tests locally, first run `yarn ea-start-testing-db`, then in a separate terminal run either `yarn ea-cypress-run` for a CLI version, or `yarn ea-cypress-open` for a GUI version. To run specific tests in the CLI, you can use the `-s <glob-file-pattern>` option.
-* Test database instance settings for Cypress are stored under `./settings-test.json`.
-* For the basics of writing Cypress tests, see [Writing your first test](https://docs.cypress.io/guides/getting-started/writing-your-first-test#Step-2-Query-for-an-element). Primarily you'll use `cy.get()` to find elements via CSS selectors, `cy.contains()` to find elements via text contents, `cy.click()` and `cy.type()` for input, and `cy.should()` for assertions. Feel free to steal from existing tests in `./cypress/integration/`.
-* Add custom commands under `./cypress/support/commands.js`, and access them via `cy.commandName()`.
-* Seed data for tests is stored under `./cypress/fixtures`, and can be accessed using `cy.fixture('<filepath>')`. See [here](https://docs.cypress.io/api/commands/fixture) for more.
-* To execute code in a node context, you can create a [task](https://docs.cypress.io/api/commands/task#Syntax) under `./cypress/plugins/index.js`. Tasks are executed using `cy.task('<task-name>', args)`.
+There is some one-time setup before you can run the playwright tests:
+ * Install `docker` (`brew install --cask docker` on OSX) and start the daemon
+ * Download the Postgres `docker` image with `yarn playwright-db` (you can Ctrl+C to exit the container once it has successfully downloaded and started)
+ * Install the browsers with `yarn playwright install`
+
+You can then run the tests with `yarn playwright test` - you can run specific tests with the `-g` flag.
+
+You can also open the Playwright UI with `yarn playwright test --ui`, but note that unlike in CLI mode this won't automatically start the database and server so you'll also need to run `yarn playwright-db` and `yarn start-playwright` in 2 separate terminals.
+
+For information on how to create Playwright tests see [their documentation](https://playwright.dev/docs/writing-tests) and the existing tests in the `playwright` directory.
+
+The server can be accessed at `localhost:3456` for debugging.
+
+You can open the tests in a normal browser (for instance, to access the DOM
+inspector or debugger) with `PWDEBUG=console yarn playwright test`. It's strongly
+recommended to use the `-g` to only run a single test, as each test will open
+in a separate browser window.
+
+Warning: The current playwright implementation is new and there are still some
+teething problems with starting the server correctly. If the tests routinely
+fail to start, remove the `webservers` section from `playwright.config.ts` and
+instead run `yarn playwright-db` and `yarn start-playwright` in separate
+terminals while running the tests.
 
 ### Where to branch off of
 

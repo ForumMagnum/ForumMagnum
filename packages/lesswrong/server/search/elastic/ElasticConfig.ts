@@ -5,6 +5,7 @@ import type {
 import { SearchIndexCollectionName } from "../../../lib/search/searchUtil";
 import { postStatuses } from "../../../lib/collections/posts/constants";
 import { isEAForum } from "../../../lib/instanceSettings";
+import { isFriendlyUI } from "@/themes/forumTheme";
 
 export type Ranking = {
   field: string,
@@ -143,11 +144,15 @@ const keywordMapping: MappingProperty = {
   type: "keyword",
 };
 
+const objectMapping = (
+  properties: Record<string, MappingProperty>,
+): MappingProperty => ({properties});
+
 const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
   Comments: {
     fields: [
       "body",
-      "authorDisplayName",
+      "authorDisplayName^11",
     ],
     snippet: "body",
     highlight: "authorDisplayName",
@@ -157,6 +162,12 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
         order: "desc",
         weight: 0.5,
         scoring: {type: "numeric", pivot: 20},
+      },
+      {
+        field: "baseScore",
+        order: "desc",
+        weight: 1.5,
+        scoring: {type: "numeric", pivot: 50, min: 50},
       },
     ],
     tiebreaker: "publicDateMs",
@@ -212,6 +223,7 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
       {term: {draft: false}},
       {term: {rejected: false}},
       {term: {authorIsUnreviewed: false}},
+      {term: {unlisted: false}},
       {term: {status: postStatuses.STATUS_APPROVED}},
       ...(isEAForum ? [] : [{range: {baseScore: {gte: 0}}}]),
     ],
@@ -229,6 +241,7 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
     },
     privateFields: [
       "authorIsUnreviewed",
+      "unlisted",
       "draft",
       "isFuture",
       "legacy",
@@ -246,6 +259,12 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
       "organization",
       "howICanHelpOthers",
       "howOthersCanHelpMe",
+      ...(isFriendlyUI
+        ? [
+          "tags.name",
+          "posts.title",
+        ]
+        : []),
     ],
     snippet: "bio",
     ranking: [
@@ -292,7 +311,16 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
       slug: shingleTextMapping,
       website: keywordMapping,
       profileImageId: keywordMapping,
-      tags: keywordMapping,
+      tags: objectMapping({
+        _id: keywordMapping,
+        slug: keywordMapping,
+        name: keywordMapping,
+      }),
+      posts: objectMapping({
+        _id: keywordMapping,
+        slug: keywordMapping,
+        title: fullTextMapping,
+      }),
       _geoloc: geopointMapping,
     },
     privateFields: [

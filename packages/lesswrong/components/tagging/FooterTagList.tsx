@@ -15,7 +15,7 @@ import { isLWorAF, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import stringify from 'json-stringify-deterministic';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
-import { AnnualReviewMarketInfo, highlightMarket } from '../../lib/annualReviewMarkets';
+import { AnnualReviewMarketInfo, highlightMarket } from '../../lib/collections/posts/annualReviewMarkets';
 import { stableSortTags } from '../../lib/collections/tags/helpers';
 
 const styles = (theme: ThemeType) => ({
@@ -30,7 +30,7 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'center',
   },
   alignRight: {
-    justifyContent: 'flex-end',
+    justifyContent: 'flex-end'
   },
   allowTruncate: {
     display: isFriendlyUI ? "block" : "inline-flex",
@@ -66,6 +66,15 @@ const styles = (theme: ThemeType) => ({
       }),
     border: theme.palette.tag.hollowTagBorder,
     color: theme.palette.text.dim3,
+  },
+  neverCoreStyling: {
+    color: theme.palette.tag.text,
+  },
+  noBackground: {
+    '&&&': {
+      backgroundColor: 'transparent',
+      border: 'none',
+    }
   },
   card: {
     padding: 16,
@@ -121,7 +130,10 @@ const FooterTagList = ({
   appendElement,
   annualReviewMarketInfo,
   classes,
-  align = "left"
+  align = "left",
+  noBackground = false,
+  neverCoreStyling = false,
+  tagRight = true,
 }: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList | SunshinePostsList,
   hideScore?: boolean,
@@ -130,7 +142,7 @@ const FooterTagList = ({
   showCoreTags?: boolean
   hidePostTypeTag?: boolean,
   smallText?: boolean,
-  link?: boolean
+  link?: boolean,
   highlightAutoApplied?: boolean,
   allowTruncate?: boolean,
   overrideMargins?: boolean,
@@ -138,6 +150,9 @@ const FooterTagList = ({
   annualReviewMarketInfo?: AnnualReviewMarketInfo,
   align?: "left" | "right",
   classes: ClassesType<typeof styles>,
+  noBackground?: boolean,
+  neverCoreStyling?: boolean,
+  tagRight?: boolean,
 }) => {
   const [isAwaiting, setIsAwaiting] = useState(false);
   const rootRef = useRef<HTMLSpanElement>(null);
@@ -237,6 +252,8 @@ const FooterTagList = ({
     }
   }, [setIsAwaiting, mutate, refetch, post._id, captureEvent, flash]);
 
+  // FIXME: Unstable component will lose state on rerender
+  // eslint-disable-next-line react/no-unstable-nested-components
   const MaybeLink = ({to, children, className}: {
     to: string|null,
     children: React.ReactNode,
@@ -251,9 +268,10 @@ const FooterTagList = ({
 
   const contentTypeInfo = forumSelect(contentTypes);
 
-  const PostTypeTag = useCallback(({tooltipBody, label}: {
+  const PostTypeTag = useCallback(({tooltipBody, label, neverCoreStyling}: {
     tooltipBody: ReactNode,
     label: string,
+    neverCoreStyling?: boolean
   }) => {
     const {HoverOver, ContentStyles} = Components;
     return (
@@ -269,31 +287,37 @@ const FooterTagList = ({
       >
         <div className={classNames(classes.frontpageOrPersonal, {
           [classes.smallText]: smallText,
+          [classes.noBackground]: noBackground,
+          [classes.neverCoreStyling]: neverCoreStyling,
         })}>
           {label}
         </div>
       </HoverOver>
     );
-  }, [classes, smallText]);
+  }, [classes, smallText, noBackground]);
 
   // Post type is either Curated, Frontpage, Personal, or uncategorized (in which case
   // we don't show any indicator). It's uncategorized if it's not frontpaged and doesn't
   // have reviewedByUserId set to anything.
   let postType = post.curatedDate
     ? <Link to={contentTypeInfo.curated.linkTarget} className={classes.postTypeLink}>
-        <PostTypeTag label="Curated" tooltipBody={contentTypeInfo.curated.tooltipBody}/>
+        <PostTypeTag label="Curated" tooltipBody={contentTypeInfo.curated.tooltipBody} neverCoreStyling={neverCoreStyling}/>
       </Link>
     : (post.frontpageDate
       ? <MaybeLink to={contentTypeInfo.frontpage.linkTarget} className={classes.postTypeLink}>
-          <PostTypeTag label="Frontpage" tooltipBody={contentTypeInfo.frontpage.tooltipBody}/>
+          <PostTypeTag label="Frontpage" tooltipBody={contentTypeInfo.frontpage.tooltipBody} neverCoreStyling={neverCoreStyling}/>
         </MaybeLink>
       : (post.reviewedByUserId
         ? <MaybeLink to={contentTypeInfo.personal.linkTarget} className={classes.postTypeLink}>
-          <PostTypeTag label="Personal Blog" tooltipBody={contentTypeInfo.personal.tooltipBody}/>
+            <PostTypeTag label="Personal Blog" tooltipBody={contentTypeInfo.personal.tooltipBody} neverCoreStyling={neverCoreStyling}/>
           </MaybeLink>
         : null
       )
     )
+
+  const eventTag = contentTypeInfo.event && post.isEvent ? <MaybeLink to={contentTypeInfo.event.linkTarget} className={classes.postTypeLink}>
+    <PostTypeTag label="Event" tooltipBody={contentTypeInfo.event.tooltipBody} neverCoreStyling={neverCoreStyling}/>
+  </MaybeLink> : null
 
   const sortedTagInfo = results
     ? stableSortTags(results.filter((tagRel) => !!tagRel?.tag).map((tr) => ({ tag: tr.tag!, tagRel: tr })))
@@ -303,8 +327,13 @@ const FooterTagList = ({
 
   const tooltipPlacement = useAltAddTagButton ? "bottom-end" : undefined;
 
+  const addTagButton = <AddTagButton onTagSelected={onTagSelected} isVotingContext tooltipPlacement={tooltipPlacement}>
+    {useAltAddTagButton && <span className={classNames(classes.altAddTagButton, noBackground && classes.noBackground)}>+</span>}
+  </AddTagButton>
+
   const innerContent = (
     <>
+      {!tagRight && currentUser && !hideAddTag && addTagButton}
       {showCoreTags && (
         <div>
           <CoreTagsChecklist existingTagIds={tagIds} onTagSelected={onTagSelected} />
@@ -321,18 +350,17 @@ const FooterTagList = ({
               smallText={smallText}
               highlightAsAutoApplied={highlightAutoApplied && tagRel?.autoApplied}
               link={link}
+              noBackground={noBackground}
+              neverCoreStyling={neverCoreStyling}
             />
           )
       )}
       {!hidePostTypeTag && postType}
-      {annualReviewMarketInfo && highlightMarket(annualReviewMarketInfo) && (
+      {eventTag}
+      {isLWorAF && annualReviewMarketInfo && (
         <PostsAnnualReviewMarketTag post={post} annualReviewMarketInfo={annualReviewMarketInfo} />
       )}
-      {currentUser && !hideAddTag && (
-        <AddTagButton onTagSelected={onTagSelected} isVotingContext tooltipPlacement={tooltipPlacement}>
-          {useAltAddTagButton && <span className={classes.altAddTagButton}>+</span>}
-        </AddTagButton>
-      )}
+      {tagRight && currentUser && !hideAddTag && addTagButton}
       {isAwaiting && <Loading />}
     </>
   );

@@ -104,24 +104,29 @@ const styles = (theme: ThemeType) => ({
   strikethroughTitle: {
     textDecoration: "line-through"
   },
+  eventTagLink: {
+    '&:hover': {
+      opacity: 0.8
+    }
+  },
   eventTag: {
     ...tagStyle(theme),
     ...smallTagTextStyle(theme),
-    display: "inline-flex",
+    display: "flex",
     alignItems: "center",
     marginLeft: 10,
     padding: "0 6px",
     height: 20,
     border: "none",
-    backgroundColor: theme.themeOptions.name === "dark"
-      ? "var(--post-title-tag-foreground)"
-      : "var(--post-title-tag-background)",
-    color: theme.themeOptions.name === "dark"
-      ? "var(--post-title-tag-background)"
-      : "var(--post-title-tag-foreground)",
-    "&:hover": {
-      opacity: 0.9,
-    },
+    // TODO after event: revert this back
+    background: `linear-gradient(270deg, ${theme.palette.tag.eventLightGreen} 0%, ${theme.palette.tag.eventLightBlue} 100%)`,
+    color: theme.palette.grey[1000],
+    // backgroundColor: theme.themeOptions.name === "dark"
+    //   ? "var(--post-title-tag-foreground)"
+    //   : "var(--post-title-tag-background)",
+    // color: theme.themeOptions.name === "dark"
+    //   ? "var(--post-title-tag-background)"
+    //   : "var(--post-title-tag-foreground)",
   },
   highlightedTagTooltip: {
     marginTop: -2,
@@ -161,6 +166,7 @@ const PostsTitle = ({
   Wrapper=DefaultWrapper,
   showEventTag,
   linkEventProps,
+  postItemHovered,
   className,
   classes,
 }: {
@@ -178,6 +184,7 @@ const PostsTitle = ({
   Wrapper?: FC<PropsWithChildren<{}>>,
   showEventTag?: boolean,
   linkEventProps?: Record<string, string>,
+  postItemHovered?: boolean,
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -224,11 +231,16 @@ const PostsTitle = ({
         </InteractionWrapper>
       </span>}
       <span className={!wrap ? classes.eaTitleDesktopEllipsis : undefined}>
-        {isLink ? <Link to={url} eventProps={linkEventProps}>{title}</Link> : title }
+        {isLink ? <Link to={url} doOnDown={true} eventProps={linkEventProps}>{title}</Link> : title }
       </span>
       {showIcons && <span className={classes.hideXsDown}>
         <InteractionWrapper className={classes.interactionWrapper}>
-          <PostsItemIcons post={post} hideCuratedIcon={curatedIconLeft} hidePersonalIcon={!showPersonalIcon}/>
+          <PostsItemIcons 
+            post={post} 
+            hideCuratedIcon={curatedIconLeft} 
+            hidePersonalIcon={!showPersonalIcon}
+            hover={postItemHovered}
+          />
         </InteractionWrapper>
       </span>}
       {showEventTag && currentForumEvent?.tag && isEventPost(post) &&
@@ -237,7 +249,7 @@ const PostsTitle = ({
             tagSlug={currentForumEvent.tag.slug}
             className={classes.highlightedTagTooltip}
           >
-            <Link to={tagGetUrl(currentForumEvent.tag)}>
+            <Link doOnDown={true} to={tagGetUrl(currentForumEvent.tag)} className={classes.eventTagLink}>
               <span
                 className={classes.eventTag}
                 style={{
@@ -245,7 +257,7 @@ const PostsTitle = ({
                   "--post-title-tag-foreground": currentForumEvent.darkColor,
                 } as CSSProperties}
               >
-                {currentForumEvent.tag.name}
+                {currentForumEvent.tag.shortName || currentForumEvent.tag.name}
               </span>
             </Link>
           </TagsTooltip>

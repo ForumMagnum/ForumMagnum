@@ -109,7 +109,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 0,
     marginBottom: 8,
     display: "block",
-    fontSize: "1.75rem",
+    fontSize: "2rem",
     ...(isFriendlyUI ? {
       fontSize: 22,
       fontWeight: 600,

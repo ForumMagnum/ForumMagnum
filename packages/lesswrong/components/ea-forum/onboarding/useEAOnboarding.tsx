@@ -4,31 +4,10 @@ import { useCurrentUser, useRefetchCurrentUser } from "../../common/withUser";
 import { UpdateCurrentUserFunction, useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 import { useTracking } from "../../../lib/analyticsEvents";
 
-/**
- * Ordered list of all onboarding stages.
- * After saving a display name in the "user" the onboarding flow will not be
- * shown again after a refresh, so the easiest way to debug specific stages is
- * to create a new account and _not_ set the display name, then comment out all
- * of the preceding stages in this list.
- */
-const onboardingStages = [
-  "user",
-  "subscribe",
-  "work",
-  "thankyou",
-] as const;
-
-export type OnboardingStage = typeof onboardingStages[number];
-
-export const getFirstStage = (): OnboardingStage => onboardingStages[0];
-
-const getNextStage = (
-  currentStage: OnboardingStage,
-): OnboardingStage | undefined =>
-  onboardingStages[onboardingStages.indexOf(currentStage) + 1];
+export type OnboardingStage = string
 
 type EAOnboardingContext = {
-  currentStage: OnboardingStage,
+  currentStage?: OnboardingStage,
   goToNextStage: () => Promise<void>,
   goToNextStageAfter: <T>(promise: Promise<T>) => Promise<void>,
   nextStageIsLoading: boolean,
@@ -40,7 +19,6 @@ type EAOnboardingContext = {
 }
 
 const eaOnboardingContext = createContext<EAOnboardingContext>({
-  currentStage: onboardingStages[0],
   goToNextStage: async () => {},
   goToNextStageAfter: async () => {},
   nextStageIsLoading: false,
@@ -51,11 +29,12 @@ const eaOnboardingContext = createContext<EAOnboardingContext>({
 });
 
 export const EAOnboardingContextProvider: FC<{
+  stages: Record<string, ReactNode>,
   onOnboardingComplete?: () => void,
   viewAsAdmin?: boolean,
-  children: ReactNode,
-}> = ({onOnboardingComplete, viewAsAdmin, children}) => {
-  const [stage, setStage] = useState<OnboardingStage>(onboardingStages[0]);
+}> = ({stages, onOnboardingComplete, viewAsAdmin}) => {
+  const stageNames = Object.keys(stages)
+  const [stage, setStage] = useState<OnboardingStage>(stageNames[0]);
   const [loading, setLoading] = useState(false);
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
@@ -63,6 +42,9 @@ export const EAOnboardingContextProvider: FC<{
   const {captureEvent} = useTracking();
 
   const goToNextStage = useCallback(async () => {
+    const getNextStage = (currentStage: OnboardingStage): OnboardingStage | undefined =>
+      stageNames[stageNames.indexOf(currentStage) + 1]
+
     setLoading(true);
     await refetchCurrentUser();
     setLoading(false);
@@ -72,7 +54,7 @@ export const EAOnboardingContextProvider: FC<{
     } else {
       onOnboardingComplete?.();
     }
-  }, [stage, onOnboardingComplete, refetchCurrentUser]);
+  }, [stage, onOnboardingComplete, refetchCurrentUser, stageNames]);
 
   const goToNextStageAfter = useCallback(async function<T>(promise: Promise<T>) {
     setLoading(true);
@@ -106,7 +88,7 @@ export const EAOnboardingContextProvider: FC<{
       captureOnboardingEvent,
       viewAsAdmin,
     }}>
-      {children}
+      {...Object.values(stages)}
     </eaOnboardingContext.Provider>
   );
 }

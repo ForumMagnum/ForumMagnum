@@ -75,6 +75,7 @@ const schema: SchemaType<"Votes"> = {
   // neutral if it doesn't.
   voteType: {
     type: String,
+    allowedValues: ['bigDownvote', 'bigUpvote', 'neutral', 'smallDownvote', 'smallUpvote'], 
     nullable: false,
     canRead: ['guests'],
   },

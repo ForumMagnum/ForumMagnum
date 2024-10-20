@@ -190,8 +190,7 @@ const schema: SchemaType<"Revisions"> = {
     type: Number,
     canRead: ['guests'],
     optional: true,
-    nullable: true, //not really used, EA Forum has missing values
-    // resolveAs defined in resolvers.js //does not actually exist
+    nullable: false,
   },
   htmlHighlight: {
     type: String, 
@@ -213,6 +212,12 @@ const schema: SchemaType<"Revisions"> = {
     canRead: ['guests']
     // resolveAs defined in resolvers.js
   },
+  hasFootnotes: {
+    type: Boolean,
+    canRead: ['guests']
+    // resolveAs defined in revisionResolvers.ts
+  },
+
   changeMetrics: {
     type: Object,
     nullable: false,

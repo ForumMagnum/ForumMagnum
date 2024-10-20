@@ -68,7 +68,7 @@ const HoverPreviewLink = ({ href, contentSourceDescription, id, rel, noPrefetch,
 
   // Within-page relative link?
   if (href.startsWith("#")) {
-    if (locationHashIsFootnote(href) && !isMobile()){
+    if (locationHashIsFootnote(href)){
       return <Components.FootnotePreview href={href} id={id} rel={rel}>
         {children}
       </Components.FootnotePreview>
@@ -119,10 +119,16 @@ const HoverPreviewLink = ({ href, contentSourceDescription, id, rel, noPrefetch,
           {children}
         </Components.ManifoldPreview>
       }
+
       if (linkTargetAbsolute.host === "fatebook.io" || linkTargetAbsolute.host === "www.fatebook.io") {
         return <Components.FatebookPreview href={href} id={id}>
           {children}
         </Components.FatebookPreview>
+      }
+      if (linkTargetAbsolute.host === "neuronpedia.org" || linkTargetAbsolute.host === "www.neuronpedia.org") {
+        return <Components.NeuronpediaPreview href={href} id={id}>
+          {children}
+        </Components.NeuronpediaPreview>
       }
       if (linkTargetAbsolute.host === "metaforecast.org" || linkTargetAbsolute.host === "www.metaforecast.org") {
         return <Components.MetaforecastPreview href={href} id={id}>

@@ -2,25 +2,69 @@ import moment from 'moment';
 import Notifications from '../../lib/collections/notifications/collection';
 import { Posts } from '../../lib/collections/posts/collection';
 import Users from '../../lib/collections/users/collection';
-import { isLWorAF, reviewMarketCreationMinimumKarmaSetting, reviewUserBotSetting } from '../../lib/instanceSettings';
-import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
+import { isLWorAF, reviewMarketCreationMinimumKarmaSetting } from '../../lib/instanceSettings';
+import type { VoteDocTuple } from '../../lib/voting/vote';
 import { userSmallVotePower } from '../../lib/voting/voteTypes';
-import { postPublishedCallback } from '../notificationCallbacks';
 import { createNotification } from '../notificationCallbacksHelpers';
 import { checkForStricterRateLimits } from '../rateLimitUtils';
 import { batchUpdateScore } from '../updateScores';
 import { triggerCommentAutomodIfNeeded } from "./sunshineCallbackUtils";
 import { createMutator } from '../vulcan-lib/mutators';
 import { Comments } from '../../lib/collections/comments';
-import { createAdminContext } from '../vulcan-lib';
-import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
+import { createAdminContext } from '../vulcan-lib/query';
 import Tags from '../../lib/collections/tags/collection';
 import { isProduction } from '../../lib/executionEnvironment';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { createManifoldMarket } from '../posts/annualReviewMarkets';
+import { createManifoldMarket } from '../../lib/collections/posts/annualReviewMarkets';
 import { RECEIVED_SENIOR_DOWNVOTES_ALERT } from '../../lib/collections/moderatorActions/schema';
+import { revokeUserAFKarmaForCancelledVote, grantUserAFKarmaForVote } from './alignment-forum/callbacks';
+import { recomputeContributorScoresFor, voteUpdatePostDenormalizedTags } from '../tagging/tagCallbacks';
+import { updateModerateOwnPersonal, updateTrustedStatus } from './userCallbacks';
+import { increaseMaxBaseScore } from './postCallbacks';
+import { captureException } from '@sentry/core';
+
+export async function onVoteCancel(newDocument: DbVoteableType, vote: DbVote, collection: CollectionBase<VoteableCollectionName>, user: DbUser): Promise<void> {
+  voteUpdatePostDenormalizedTags({newDocument});
+  cancelVoteKarma({newDocument, vote}, collection, user);
+  void cancelVoteCount({newDocument, vote});
+  void revokeUserAFKarmaForCancelledVote({newDocument, vote});
+  
+  
+  if (vote.collectionName === "Revisions") {
+    const rev = (newDocument as DbRevision);
+    if (rev.collectionName === "Tags") {
+      await recomputeContributorScoresFor(newDocument as DbRevision, vote);
+    }
+  }
+}
+export async function onCastVoteAsync(voteDocTuple: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext): Promise<void> {
+  void grantUserAFKarmaForVote(voteDocTuple);
+  void updateTrustedStatus(voteDocTuple);
+  void updateModerateOwnPersonal(voteDocTuple);
+  void increaseMaxBaseScore(voteDocTuple);
+  void voteUpdatePostDenormalizedTags(voteDocTuple);
+
+  const { vote, newDocument } = voteDocTuple;
+  if (vote.collectionName === "Revisions") {
+    const rev = (newDocument as DbRevision);
+    if (rev.collectionName === "Tags") {
+      await recomputeContributorScoresFor(newDocument as DbRevision, vote);
+    }
+  }
+
+  void updateKarma(voteDocTuple, collection, user, context);
+  void incVoteCount(voteDocTuple);
+  void checkAutomod(voteDocTuple, collection, user, context);
+  await maybeCreateReviewMarket(voteDocTuple, collection, user, context);
+  await maybeCreateModeratorAlertsAfterVote(voteDocTuple, collection, user, context);
+}
 
 export const collectionsThatAffectKarma = ["Posts", "Comments", "Revisions"]
+
+function votesCanTriggerReview(content: DbPost | DbComment) {
+  const sixMonthsAgo = moment().subtract(6, 'months');
+  return moment(content.postedAt).isAfter(sixMonthsAgo);
+}
 
 /**
  * @summary Update the karma of the item's owner
@@ -29,7 +73,7 @@ export const collectionsThatAffectKarma = ["Posts", "Comments", "Revisions"]
  * @param {object} collection - The collection the item belongs to
  * @param {string} operation - The operation being performed
  */
-voteCallbacks.castVoteAsync.add(async function updateKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context) {
+async function updateKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext) {
   // Only update user karma if the operation isn't done by one of the item's current authors.
   // We don't want to let any of the authors give themselves or another author karma for this item.
   // We need to await it so that the subsequent check for whether any stricter rate limits apply can do a proper comparison between old and new karma
@@ -47,10 +91,11 @@ voteCallbacks.castVoteAsync.add(async function updateKarma({newDocument, vote}: 
     }
   }
 
-  if (!!newDocument.userId && isLWorAF && ['Posts', 'Comments'].includes(vote.collectionName)) {
+  
+  if (!!newDocument.userId && isLWorAF && ['Posts', 'Comments'].includes(vote.collectionName) && votesCanTriggerReview(newDocument as DbPost | DbComment)) {
     void checkForStricterRateLimits(newDocument.userId, context);
   }
-});
+}
 
 async function userKarmaChangedFrom(userId: string, oldKarma: number, newKarma: number, context: ResolverContext) {
   if (userSmallVotePower(oldKarma, 1) < userSmallVotePower(newKarma, 1)) {
@@ -68,16 +113,16 @@ async function userKarmaChangedFrom(userId: string, oldKarma: number, newKarma: 
   }
 };
 
-voteCallbacks.cancelAsync.add(function cancelVoteKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser) {
+function cancelVoteKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser) {
   // Only update user karma if the operation isn't done by one of the item's authors at the time of the original vote.
   // We expect vote.authorIds here to be the same as the authorIds of the original vote.
   if (vote.authorIds && !vote.authorIds.includes(vote.userId) && collectionsThatAffectKarma.includes(vote.collectionName)) {
     void Users.rawUpdateMany({_id: {$in: vote.authorIds}}, {$inc: {karma: -vote.power}});
   }
-});
+}
 
 
-voteCallbacks.castVoteAsync.add(async function incVoteCount ({newDocument, vote}: VoteDocTuple) {
+async function incVoteCount ({newDocument, vote}: VoteDocTuple) {
   if (vote.voteType === "neutral") {
     return;
   }
@@ -96,9 +141,9 @@ voteCallbacks.castVoteAsync.add(async function incVoteCount ({newDocument, vote}
     // update all users in vote.authorIds
     void Users.rawUpdateMany({_id: {$in: vote.authorIds}}, {$inc: {[receiverField]: 1, voteReceivedCount: 1}});
   }
-});
+}
 
-voteCallbacks.cancelAsync.add(async function cancelVoteCount ({newDocument, vote}: VoteDocTuple) {
+async function cancelVoteCount ({newDocument, vote}: VoteDocTuple) {
   if (vote.voteType === "neutral") {
     return;
   }
@@ -116,16 +161,16 @@ voteCallbacks.cancelAsync.add(async function cancelVoteCount ({newDocument, vote
     // update all users in vote.authorIds
     void Users.rawUpdateMany({_id: {$in: vote.authorIds}}, {$inc: {[receiverField]: -1, voteReceivedCount: -1}});
   }
-});
+}
 
-voteCallbacks.castVoteAsync.add(async function checkAutomod ({newDocument, vote}: VoteDocTuple, collection, user, context) {
+async function checkAutomod ({newDocument, vote}: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext) {
   if (vote.collectionName === 'Comments') {
     void triggerCommentAutomodIfNeeded(newDocument, vote);
   }
-});
+}
 
 
-postPublishedCallback.add(async (publishedPost: DbPost) => {
+export async function updateScoreOnPostPublish(publishedPost: DbPost, context: ResolverContext) {
   // When a post is published (undrafted), update its score. (That is, recompute
   // the time-decaying score used for sorting, since the time that's computed
   // relative to has just changed).
@@ -138,15 +183,14 @@ postPublishedCallback.add(async (publishedPost: DbPost) => {
   }
   
   await batchUpdateScore({collection: Posts});
-});
+}
 
 // When a vote is cast, if its new karma is above review_market_threshold, create a Manifold
 // on it making top 50 in the review, and create a comment linking to the market.
 
-const reviewUserBot = reviewUserBotSetting.get()
-
 async function addTagToPost(postId: string, tagSlug: string, botUser: DbUser, context: ResolverContext) {
   const tag = await Tags.findOne({slug: tagSlug})
+  const { addOrUpvoteTag } = require('../tagging/tagsGraphQL');
   if (!tag) {
     const name = tagSlug.split('-').map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
     const tagData = {
@@ -175,30 +219,18 @@ async function addTagToPost(postId: string, tagSlug: string, botUser: DbUser, co
 
 // AFAIU the flow, this has a race condition. If a post is voted on twice in quick succession, it will create two markets.
 // This is probably fine, but it's worth noting. We can deal with it if it comes up.
-voteCallbacks.castVoteAsync.add(async ({newDocument, vote}: VoteDocTuple, collection, user, context) => {
+async function maybeCreateReviewMarket({newDocument, vote}: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext) {
 
   // Forum gate
   if (!isLWorAF) return;
-  if (!reviewUserBot) {
-    //eslint-disable-next-line no-console
-    console.error("Review bot user not configured"); 
-    return;
-  }
 
   if (collection.collectionName !== "Posts") return;
   if (vote.power <= 0 || vote.cancelled) return; // In principle it would be fine to make a market here, but it should never be first created here
   if (newDocument.baseScore < reviewMarketCreationMinimumKarmaSetting.get()) return;
   const post = await Posts.findOne({_id: newDocument._id})
-  if (!post) return;
+  if (!post || post.draft || post.deletedDraft) return;
   if (post.postedAt.getFullYear() < (new Date()).getFullYear() - 1) return; // only make markets for posts that haven't had a chance to be reviewed
   if (post.manifoldReviewMarketId) return;
-  
-  const botUser = await context.Users.findOne({_id: reviewUserBot})
-  if (!botUser) {
-    //eslint-disable-next-line no-console
-    console.error("Bot user not found"); 
-    return
-  }
 
   const annualReviewLink = 'https://www.lesswrong.com/tag/lesswrong-review'
   const postLink = postGetPageUrl(post, true)
@@ -214,43 +246,10 @@ voteCallbacks.castVoteAsync.add(async ({newDocument, vote}: VoteDocTuple, collec
 
   // Return if market creation fails
   if (!liteMarket) return;
-
-  const [comment] = await Promise.all([
-    makeMarketComment(post._id, year, liteMarket.url, botUser),
-    Posts.rawUpdateOne(post._id, {$set: {manifoldReviewMarketId: liteMarket.id}}),
-  ])
-
-  await Posts.rawUpdateOne(post._id, {$set: {annualReviewMarketCommentId: comment._id}})
-})
-
-const makeMarketComment = async (postId: string, year: number, marketUrl: string, botUser: DbUser) => {
-
-  const commentString = `<p>The <a href="https://www.lesswrong.com/bestoflesswrong">LessWrong Review</a> runs every year to select the posts that have most stood the test of time. This post is not yet eligible for review, but will be at the end of ${year+1}. The top fifty or so posts are featured prominently on the site throughout the year. Will this post make the top fifty?</p><figure class="media"><div data-oembed-url="${marketUrl}">
-        <div class="manifold-preview">
-          <iframe src=${marketUrl}>
-        </iframe></div>
-      </div></figure>
-  `
-
-  const result = await createMutator({
-    collection: Comments,
-    document: {
-      postId: postId,
-      userId: botUser._id,
-      contents: {originalContents: {
-        type: "html",
-        data: commentString
-      }}
-    },
-    currentUser: botUser,
-    context: createAdminContext()
-  })
-
-
-  return result.data
+  await Posts.rawUpdateOne(post._id, {$set: {manifoldReviewMarketId: liteMarket.id}})
 }
 
-voteCallbacks.castVoteAsync.add(async ({ newDocument, vote }, collection, user, context) => {
+async function maybeCreateModeratorAlertsAfterVote({ newDocument, vote }: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext) {
   if (!isLWorAF || vote.collectionName !== 'Comments' || !newDocument.userId) {
     return;
   }
@@ -259,32 +258,41 @@ voteCallbacks.castVoteAsync.add(async ({ newDocument, vote }, collection, user, 
 
   const { userId } = newDocument;
 
-  const [longtermDownvoteScore, previousAlert] = await Promise.all([
-    context.repos.votes.getLongtermDownvoteScore(userId),
-    context.ModeratorActions.findOne({ userId, type: RECEIVED_SENIOR_DOWNVOTES_ALERT }, { sort: { createdAt: -1 } })
-  ]);
-
-  // If the user has already been flagged with this moderator action in the last month, no need to apply it again
-  if (previousAlert && moment(previousAlert.createdAt).isAfter(moment().subtract(1, 'month'))) {
-    return;
+  try {
+    const [longtermDownvoteScore, previousAlert] = await Promise.all([
+      context.repos.votes.getLongtermDownvoteScore(userId),
+      context.ModeratorActions.findOne({ userId, type: RECEIVED_SENIOR_DOWNVOTES_ALERT }, { sort: { createdAt: -1 } })
+    ]);
+  
+    // This seems to happen for new users or users who haven't been voted on at all by longterm senior users
+    if (!longtermDownvoteScore) {
+      return;
+    }
+  
+    // If the user has already been flagged with this moderator action in the last month, no need to apply it again
+    if (previousAlert && moment(previousAlert.createdAt).isAfter(moment().subtract(1, 'month'))) {
+      return;
+    }
+  
+    const {
+      commentCount,
+      longtermScore,
+      longtermSeniorDownvoterCount
+    } = longtermDownvoteScore;
+  
+    if (commentCount > 20 && longtermSeniorDownvoterCount >= 3 && longtermScore < 0) {
+      void createMutator({
+        collection: context.ModeratorActions,
+        document: {
+          type: RECEIVED_SENIOR_DOWNVOTES_ALERT,
+          userId: userId,
+          endedAt: new Date()
+        },
+        context: adminContext,
+        currentUser: adminContext.currentUser,
+      });
+    }
+  } catch (err) {
+    captureException(err);
   }
-
-  const {
-    commentCount,
-    longtermScore,
-    longtermSeniorDownvoterCount
-  } = longtermDownvoteScore;
-
-  if (commentCount > 20 && longtermSeniorDownvoterCount >= 3 && longtermScore < 0) {
-    void createMutator({
-      collection: context.ModeratorActions,
-      document: {
-        type: RECEIVED_SENIOR_DOWNVOTES_ALERT,
-        userId: userId,
-        endedAt: new Date()
-      },
-      context: adminContext,
-      currentUser: adminContext.currentUser,
-    });
-  }
-});
+}

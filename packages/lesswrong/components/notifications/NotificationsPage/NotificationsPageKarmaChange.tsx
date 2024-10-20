@@ -1,7 +1,6 @@
 import React, { ReactNode } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
-import { Link } from "../../../lib/reactRouterWrapper";
 import type {
   CommentKarmaChange,
   EAReactionChanges,
@@ -16,6 +15,8 @@ import {
   getEAPublicEmojiByName,
 } from "../../../lib/voting/eaEmojiPalette";
 import { captureException } from "@sentry/core";
+import { userGetProfileUrlFromSlug } from "../../../lib/collections/users/helpers";
+import { NotifPopoverLink } from "../useNotificationsPopoverContext";
 
 const logAndCaptureError = (error: Error) => {
   // eslint-disable-next-line no-console
@@ -38,7 +39,7 @@ const styles = (theme: ThemeType) => ({
 
 type ReactionUsers = {
   emoji: EmojiOption,
-  users: string[],
+  users: {displayName: string, slug: string}[],
   userCount?: never,
 } | {
   emoji: EmojiOption,
@@ -48,20 +49,32 @@ type ReactionUsers = {
 
 type AddedReactions = {
   emoji: EmojiOption,
-  users: string,
+  users: ReactNode,
   tooltip?: string,
 }
 
-const formatUsersText = (names: string[], max = 3) => {
-  if (names.length < 2) {
-    return names[0];
+const userLink = (user: {displayName: string, slug: string}) => (
+  <NotifPopoverLink to={userGetProfileUrlFromSlug(user.slug)}>{user.displayName}</NotifPopoverLink>
+);
+
+const formatUsers = (users: {displayName: string, slug: string}[], max = 3) => {
+  const userLinks = users.map(user => userLink(user));
+
+  if (userLinks.length < 2) {
+    return userLinks[0];
   }
-  if (names.length <= max) {
-    return names.slice(0, -1).join(", ") + " and " + names[names.length - 1];
-  }
-  const shownNames = names.slice(0, max).join(", ");
-  const remainder = names.length - max;
-  return `${shownNames} and ${remainder} more`;
+
+  // Join all but the last with commas, and add "and" before the last user or "and X more" if over 'max'
+  const displayedUserLinks = userLinks.slice(0, Math.min(max, userLinks.length - 1));
+  const lastUserOrCount = userLinks.length <= max ? userLinks[userLinks.length - 1] : `${userLinks.length - max} more`;
+
+  return (
+    <>
+      {displayedUserLinks.reduce((acc, elem) => (acc === null ? [elem] : [...acc, ', ', elem]), null)}
+      {' and '}
+      {lastUserOrCount}
+    </>
+  );
 }
 
 const getAddedReactions = (addedReactions?: EAReactionChanges): AddedReactions[] => {
@@ -87,7 +100,7 @@ const getAddedReactions = (addedReactions?: EAReactionChanges): AddedReactions[]
       if (emoji) {
         emojis[reactionType] = {
           emoji,
-          users: change.map(({displayName}) => displayName),
+          users: change.map(({displayName, slug}) => ({ displayName, slug })),
         };
       } else {
         // eslint-disable-next-line no-console
@@ -98,12 +111,14 @@ const getAddedReactions = (addedReactions?: EAReactionChanges): AddedReactions[]
   return Object.values(emojis).map(({emoji, users = [], userCount}) => {
     return {
       emoji,
-      users: users.length
-        ? formatUsersText(users)
-        : `${userCount} ${userCount === 1 ? "person" : "people"}`,
-      tooltip: users.length > 1
-        ? `${users.slice(0, -1).join(", ")} and ${users[users.length - 1]}`
-        : users[0],
+      users: users.length ? formatUsers(users) : `${userCount} ${userCount === 1 ? "person" : "people"}`,
+      tooltip:
+        users.length > 1
+          ? `${users
+              .slice(0, -1)
+              .map(({ displayName }) => displayName)
+              .join(", ")} and ${users[users.length - 1].displayName}`
+          : users[0]?.displayName,
     };
   });
 }
@@ -129,9 +144,9 @@ export const NotificationsPageKarmaChange = ({
     reactions = getAddedReactions(postKarmaChange.eaAddedReacts);
     display = (
       <PostsTooltip postId={postKarmaChange._id}>
-        <Link to={postGetPageUrl(postKarmaChange)} className={classes.link}>
+        <NotifPopoverLink to={postGetPageUrl(postKarmaChange)} className={classes.link}>
           {postKarmaChange.title}
-        </Link>
+        </NotifPopoverLink>
       </PostsTooltip>
     );
   } else if (commentKarmaChange) {
@@ -145,7 +160,7 @@ export const NotificationsPageKarmaChange = ({
             postId={commentKarmaChange.postId}
             commentId={commentKarmaChange._id}
           >
-            <Link
+            <NotifPopoverLink
               to={commentGetPageUrlFromIds({
                 ...commentKarmaChange,
                 commentId: commentKarmaChange._id,
@@ -153,23 +168,23 @@ export const NotificationsPageKarmaChange = ({
               className={classes.link}
             >
               comment
-            </Link>
+            </NotifPopoverLink>
           </PostsTooltip>
           {" "}on{" "}
           <PostsTooltip postId={commentKarmaChange.postId}>
-            <Link
+            <NotifPopoverLink
               to={postGetPageUrl({_id: postId, slug: postSlug})}
               className={classes.link}
             >
               {postTitle}
-            </Link>
+            </NotifPopoverLink>
           </PostsTooltip>
         </>
       );
     } else if (tagSlug) {
       display = (
         <>
-          <Link
+          <NotifPopoverLink
             to={commentGetPageUrlFromIds({
               ...commentKarmaChange,
               commentId: commentKarmaChange._id,
@@ -177,13 +192,13 @@ export const NotificationsPageKarmaChange = ({
             className={classes.link}
           >
             comment
-          </Link> on{" "}
-          <Link
+          </NotifPopoverLink> on{" "}
+          <NotifPopoverLink
             to={tagGetUrl({slug: tagSlug})}
             className={classes.link}
           >
             {tagName}
-          </Link>
+          </NotifPopoverLink>
         </>
       );
     } else {
@@ -197,12 +212,12 @@ export const NotificationsPageKarmaChange = ({
     }
     karmaChange = tagRevisionKarmaChange.scoreChange;
     display = (
-      <Link
+      <NotifPopoverLink
         to={tagGetUrl({slug: tagRevisionKarmaChange.tagSlug})}
         className={classes.link}
       >
         {tagRevisionKarmaChange.tagName}
-      </Link>
+      </NotifPopoverLink>
     );
   } else {
     logAndCaptureError(new Error(`Invalid karma change: ${JSON.stringify({postKarmaChange, commentKarmaChange, tagRevisionKarmaChange})}`));

@@ -1,4 +1,3 @@
-import { onStartup } from '../../lib/executionEnvironment';
 import { DatabaseMetadata } from "../../lib/collections/databaseMetadata/collection";
 import { nullKarmaInflationSeries, setKarmaInflationSeries, TimeSeries } from '../../lib/collections/posts/karmaInflation';
 import { addCronJob } from '../cronUtil';
@@ -61,10 +60,6 @@ export async function refreshKarmaInflationCache() {
   const karmaInflationSeries = await DatabaseMetadata.findOne({ name: "karmaInflationSeries" });
   setKarmaInflationSeries(karmaInflationSeries?.value || nullKarmaInflationSeries);
 }
-
-onStartup(async () => {
-  await refreshKarmaInflationCache();
-});
 
 addCronJob({
   name: 'refreshKarmaInflationCron',

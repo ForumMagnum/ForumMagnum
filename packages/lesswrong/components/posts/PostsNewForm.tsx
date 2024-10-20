@@ -16,7 +16,7 @@ import type { PostSubmitProps } from './PostSubmit';
 import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/PostsPage';
 import { Link, useNavigate } from '../../lib/reactRouterWrapper';
 import { QuestionIcon } from '../icons/questionIcon';
-import ForumNoSSR from '../common/ForumNoSSR';
+import DeferRender from '../common/DeferRender';
 
 // Also used by PostsEditForm
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -190,20 +190,79 @@ export const getPostEditorGuide = (classes: ClassesType) => {
   return undefined;
 }
 
+function getPostCategory(query: Record<string, string>, questionInQuery: boolean) {
+  return isPostCategory(query.category)
+    ? query.category
+    : questionInQuery
+      ? ("question" as const)
+      : postDefaultCategory;
+}
+
+/**
+ * This is to pre-hydrate the apollo cache for when we redirect to PostsEditForm after doing an autosave.
+ * If we don't do that, the user will experience an unfortunate loading state.
+ * The transition still isn't totally seamless because ckEditor needs to remount, but if you blink you can miss it.
+ * We also use userWithRateLimit (UsersCurrentPostRateLimit) on both pages, but that's less critical.
+ * 
+ * We don't rely on fetching the document with the initial `useSingle`, but only on the refetch - this is basically a hacky way to imperatively run a query on demand
+ */
+function usePrefetchForAutosaveRedirect() {
+  const { refetch: fetchAutosavedPostForEditPage } = useSingle({
+    documentId: undefined,
+    collectionName: "Posts",
+    fragmentName: 'PostsPage',
+    skip: true,
+  });
+
+  const extraVariablesValues = { version: 'draft' };
+
+  const { refetch: fetchAutosavedPostForEditForm } = useSingle({
+    documentId: undefined,
+    collectionName: "Posts",
+    fragmentName: 'PostsEditQueryFragment',
+    extraVariables: { version: 'String' },
+    extraVariablesValues,
+    fetchPolicy: 'network-only',
+    skip: true,
+  });
+
+  const prefetchPostFragmentsForRedirect = (postId: string) => {
+    return Promise.all([
+      fetchAutosavedPostForEditPage({ input: { selector: { documentId: postId } } }),
+      fetchAutosavedPostForEditForm({ input: { selector: { documentId: postId }, resolverArgs: extraVariablesValues }, ...extraVariablesValues })
+    ]);
+  };
+
+  return prefetchPostFragmentsForRedirect;
+}
+
 const PostsNewForm = ({classes}: {
   classes: ClassesType,
 }) => {
+  const {
+    PostSubmit, WrappedSmartForm, LoginForm, SubmitToFrontpageCheckbox,
+    RecaptchaWarning, SingleColumnSection, Typography, Loading, PostsAcceptTos,
+    NewPostModerationWarning, RateLimitWarning, DynamicTableOfContents,
+  } = Components;
+
   const { query } = useLocation();
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
   const { openDialog } = useDialog();
-  const { mutate: updatePost } = useUpdate({
-    collectionName: "Posts",
-    fragmentName: 'SuggestAlignmentPost',
-  })
+
+  const prefetchPostFragmentsForRedirect = usePrefetchForAutosaveRedirect();
+
   const templateId = query && query.templateId;
+  const debateForm = !!(query && query.debate);
+  const questionInQuery = query && !!query.question;
+  const eventForm = query && query.eventForm
+
+  const postCategory = getPostCategory(query, questionInQuery);
   
+  // on LW, show a moderation message to users who haven't been approved yet
+  const postWillBeHidden = isLW && !currentUser?.reviewedByUserId
+
   // if we are trying to create an event in a group,
   // we want to prefill the "onlineEvent" checkbox if the group is online
   const { document: groupData } = useSingle({
@@ -212,12 +271,14 @@ const PostsNewForm = ({classes}: {
     documentId: query && query.groupId,
     skip: !query || !query.groupId
   });
+
   const { document: templateDocument, loading: templateLoading } = useSingle({
     documentId: templateId,
     collectionName: "Posts",
     fragmentName: 'PostsEdit',
     skip: !templateId,
   });
+
   // `UsersCurrent` doesn't have the editable field with their originalContents for performance reasons, so we need to fetch them explicitly
   const { document: currentUserWithModerationGuidelines } = useSingle({
     documentId: currentUser?._id,
@@ -226,20 +287,17 @@ const PostsNewForm = ({classes}: {
     skip: !currentUser,
   });
 
-  const {
-    PostSubmit, WrappedSmartForm, LoginForm, SubmitToFrontpageCheckbox,
-    RecaptchaWarning, SingleColumnSection, Typography, Loading, PostsAcceptTos,
-    NewPostModerationWarning, RateLimitWarning, DynamicTableOfContents,
-  } = Components;
+  const { document: userWithRateLimit } = useSingle({
+    documentId: currentUser?._id,
+    collectionName: "Users",
+    fragmentName: "UsersCurrentPostRateLimit",
+    fetchPolicy: "cache-and-network",
+    skip: !currentUser,
+    extraVariables: { eventForm: 'Boolean' },
+    extraVariablesValues: { eventForm: !!eventForm }
+  });
 
-  const debateForm = !!(query && query.debate);
-
-  const questionInQuery = query && !!query.question
-  const postCategory = isPostCategory(query.category)
-    ? query.category
-    : questionInQuery
-    ? ("question" as const)
-    : postDefaultCategory;
+  const rateLimitNextAbleToPost = userWithRateLimit?.rateLimitNextAbleToPost;
 
   let prefilledProps = templateDocument ? prefillFromTemplate(templateDocument) : {
     isEvent: query && !!query.eventForm,
@@ -256,7 +314,6 @@ const PostsNewForm = ({classes}: {
     debate: debateForm,
     postCategory
   }
-  const eventForm = query && query.eventForm
 
   if (query?.subforumTagId) {
     prefilledProps = {
@@ -266,19 +323,16 @@ const PostsNewForm = ({classes}: {
     }
   }
 
-  const {document: userWithRateLimit} = useSingle({
-    documentId: currentUser?._id,
-    collectionName: "Users",
-    fragmentName: "UsersCurrentPostRateLimit",
-    fetchPolicy: "cache-and-network",
-    skip: !currentUser,
-    extraVariables: { eventForm: 'Boolean' },
-    extraVariablesValues: { eventForm: !!eventForm }
+  const { mutate: updatePost } = useUpdate({
+    collectionName: "Posts",
+    fragmentName: 'SuggestAlignmentPost',
   });
-  const rateLimitNextAbleToPost = userWithRateLimit?.rateLimitNextAbleToPost
 
   if (!currentUser) {
     return (<LoginForm />);
+  }
+  if (!currentUserWithModerationGuidelines) {
+    return <Loading/>
   }
 
   if (!userCanPost(currentUser)) {
@@ -293,15 +347,14 @@ const PostsNewForm = ({classes}: {
     return <Loading />
   }
 
+  // FIXME: Unstable component will lose state on rerender
+  // eslint-disable-next-line react/no-unstable-nested-components
   const NewPostsSubmit = (props: SubmitToFrontpageCheckboxProps & PostSubmitProps) => {
     return <div className={classes.formSubmit}>
       {!eventForm && <SubmitToFrontpageCheckbox {...props} />}
       <PostSubmit {...props} />
     </div>
   }
-
-  // on LW, show a moderation message to users who haven't been approved yet
-  const postWillBeHidden = isLW && !currentUser.reviewedByUserId
 
   return (
     <DynamicTableOfContents rightColumnChildren={getPostEditorGuide(classes)}>
@@ -310,7 +363,7 @@ const PostsNewForm = ({classes}: {
           <PostsAcceptTos currentUser={currentUser} />
           {postWillBeHidden && <NewPostModerationWarning />}
           {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
-          <ForumNoSSR>
+          <DeferRender ssr={false}>
               <WrappedSmartForm
                 collectionName="Posts"
                 mutationFragment={getFragment('PostsPage')}
@@ -318,7 +371,11 @@ const PostsNewForm = ({classes}: {
                 successCallback={(post: any, options: any) => {
                   if (!post.draft) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost});
                   if (options?.submitOptions?.noReload) {
-                    navigate(postGetEditUrl(post._id, true), { replace: true });
+                    // First prefetch the relevant post fragments to hydrate the apollo cache, then do the navigation after that's done
+                    void prefetchPostFragmentsForRedirect(post._id).then(() => {
+                      const editPostUrl = `${postGetEditUrl(post._id, false, post.linkSharingKey)}&autosaveRedirect=true`;
+                      navigate(editPostUrl, { replace: true });
+                    });
                   } else if (options?.submitOptions?.redirectToEditor) {
                     navigate(postGetEditUrl(post._id));
                   } else {
@@ -342,7 +399,7 @@ const PostsNewForm = ({classes}: {
                   FormSubmit: NewPostsSubmit
                 }}
               />
-          </ForumNoSSR>
+          </DeferRender>
         </RecaptchaWarning>
       </div>
     </DynamicTableOfContents>

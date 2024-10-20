@@ -1,4 +1,5 @@
 import type { ComponentProps } from "react";
+import { taggingNameCapitalSetting } from "@/lib/instanceSettings";
 
 const cellComponents = [
   "PeopleDirectoryUserCell",
@@ -9,6 +10,9 @@ const cellComponents = [
   "PeopleDirectoryCareerStageCell",
   "PeopleDirectorySkeletonUserCell",
   "PeopleDirectorySkeletonTextCell",
+  "PeopleDirectoryTopicsCell",
+  "PeopleDirectoryCommentCountCell",
+  "PeopleDirectoryPostsCell",
 ] as const;
 
 type CellComponentName = typeof cellComponents[number];
@@ -39,7 +43,7 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
   {
     label: "Name",
     sortField: "displayName.sort",
-    columnWidth: "220px",
+    columnWidth: "200px",
     componentName: "PeopleDirectoryUserCell",
     skeletonComponentName: "PeopleDirectorySkeletonUserCell",
     hideable: false,
@@ -80,15 +84,22 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
   },
   {
     label: "Social media",
-    columnWidth: "100px",
+    columnWidth: "140px",
     componentName: "PeopleDirectorySocialMediaCell",
     hideable: true,
     hidden: false,
   },
   {
     label: "Career stage",
-    columnWidth: "auto",
+    columnWidth: "175px",
     componentName: "PeopleDirectoryCareerStageCell",
+    hideable: true,
+    hidden: false,
+  },
+  {
+    label: `${taggingNameCapitalSetting.get()} interests`,
+    columnWidth: "1.5fr",
+    componentName: "PeopleDirectoryTopicsCell",
     hideable: true,
     hidden: false,
   },
@@ -101,6 +112,22 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
     props: {
       fieldName: "karma",
     },
+    hideable: true,
+    hidden: false,
+  },
+  {
+    label: "Comments",
+    sortField: "commentCount",
+    defaultSort: "desc",
+    columnWidth: "auto",
+    componentName: "PeopleDirectoryCommentCountCell",
+    hideable: true,
+    hidden: false,
+  },
+  {
+    label: "Top post",
+    columnWidth: "200px",
+    componentName: "PeopleDirectoryPostsCell",
     hideable: true,
     hidden: false,
   },
@@ -126,6 +153,6 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
       format: "MMM YYYY",
     },
     hideable: true,
-    hidden: false,
+    hidden: true,
   },
 ];

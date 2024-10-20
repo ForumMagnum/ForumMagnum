@@ -117,6 +117,7 @@ export const EAOnboardingStage = ({
   thin,
   children,
   className,
+  icon = lightbulbIcon,
   classes,
 }: {
   stageName: OnboardingStage,
@@ -131,6 +132,7 @@ export const EAOnboardingStage = ({
   thin?: boolean,
   children?: ReactNode,
   className?: string,
+  icon?: ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
   const {currentStage, goToNextStage, nextStageIsLoading, captureOnboardingEvent} = useEAOnboarding();
@@ -163,7 +165,7 @@ export const EAOnboardingStage = ({
         <div className={classes.scrollable}>
           {!hideHeader &&
             <div className={classes.header}>
-              <div className={classes.lightbulb}>{lightbulbIcon}</div>
+              {icon && <div className={classes.lightbulb}>{icon}</div>}
               {title}
             </div>
           }
@@ -180,7 +182,7 @@ export const EAOnboardingStage = ({
               <a
                 onClick={onSkip}
                 className={classes.skip}
-                test-id={`ea-onboarding-skip-${stageName}`}
+                data-testid={`onboarding-skip-${stageName}`}
               >
                 Skip for now
               </a>
@@ -189,6 +191,7 @@ export const EAOnboardingStage = ({
               <EAButton
                 onClick={wrappedOnContinue}
                 disabled={!canContinue || nextStageIsLoading}
+                data-testid={`onboarding-continue-${stageName}`}
                 className={classes.continue}
               >
                 {nextStageIsLoading

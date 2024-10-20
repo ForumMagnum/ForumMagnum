@@ -3,7 +3,6 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
-import { useTimezone } from './withTimezone';
 import { AnalyticsContext, useOnMountTracking } from '../../lib/analyticsEvents';
 import { FilterSettings, useFilterSettings } from '../../lib/filterSettings';
 import moment from '../../lib/moment-timezone';
@@ -19,6 +18,7 @@ import { forumSelect } from '../../lib/forumTypeUtils';
 import { frontpageDaysAgoCutoffSetting } from '../../lib/scoring';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { EA_FORUM_TRANSLATION_TOPIC_ID } from '../../lib/collections/tags/collection';
+import { useCurrentFrontpageSurvey } from '../hooks/useCurrentFrontpageSurvey';
 
 const titleWrapper = isLWorAF ? {
   marginBottom: 8
@@ -112,7 +112,6 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
   // (except that on the EA Forum/FriendlyUI it always starts out hidden)
   const [filterSettingsVisibleDesktop, setFilterSettingsVisibleDesktop] = useState(isFriendlyUI ? false : !currentUser?.hideFrontpageFilterSettingsDesktop);
   const [filterSettingsVisibleMobile, setFilterSettingsVisibleMobile] = useState(false);
-  const { timezone } = useTimezone();
   const { captureEvent } = useOnMountTracking({
     eventType:"frontpageFilterSettings",
     eventProps: {
@@ -126,11 +125,12 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
   const {
     SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton,
     CuratedPostsList, SectionTitle, StickiedPosts, PostsListViewToggle,
+    SurveyPostsItem,
   } = Components
   const limit = parseInt(query.limit) || defaultLimit;
 
   const now = useCurrentTime();
-  const dateCutoff = moment(now).tz(timezone).subtract(frontpageDaysAgoCutoffSetting.get(), 'days').format("YYYY-MM-DD");
+  const dateCutoff = moment(now).subtract(frontpageDaysAgoCutoffSetting.get()*24, 'hours').startOf('hour').toISOString()
 
   const recentPostsTerms = {
     ...query,
@@ -139,7 +139,7 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
     view: "magic",
     forum: true,
     limit:limit
-  }
+  } as const;
   
   const changeShowTagFilterSettingsDesktop = () => {
     setFilterSettingsVisibleDesktop(!filterSettingsVisibleDesktop)
@@ -154,6 +154,8 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
   }
 
   const showCurated = isFriendlyUI || (isLW && reviewIsActive())
+
+  const {survey, refetch: refetchSurvey} = useCurrentFrontpageSurvey();
 
   return (
     <AnalyticsContext pageSectionContext="latestPosts">
@@ -205,6 +207,13 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
         {isFriendlyUI && <StickiedPosts />}
         <HideRepeatedPostsProvider>
           {showCurated && <CuratedPostsList />}
+          {survey &&
+            <SurveyPostsItem
+              survey={survey.survey}
+              surveyScheduleId={survey._id}
+              refetchSurvey={refetchSurvey}
+            />
+          }
           <AnalyticsContext listContext={"latestPosts"}>
             {/* Allow hiding posts from the front page*/}
             <AllowHidingFrontPagePostsContext.Provider value={true}>

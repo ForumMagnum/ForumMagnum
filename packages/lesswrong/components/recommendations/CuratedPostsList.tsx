@@ -4,12 +4,13 @@ import { useCurrentCuratedPostCount } from "../hooks/useCurrentCuratedPostCount"
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { isEAForum } from "../../lib/instanceSettings";
 import moment from "moment";
-import { useTimezone } from "../common/withTimezone";
+import { useCurrentTime } from "../../lib/utils/timeUtil";
 
 const CuratedPostsList = ({overrideLimit}: {overrideLimit?: number}) => {
   const currentCuratedPostCount = useCurrentCuratedPostCount();
-  const { timezone } = useTimezone()
-  const fiveDaysAgo = moment().tz(timezone).subtract(5, 'days').format("YYYY-MM-DD")
+  const now = useCurrentTime();
+
+  const fiveDaysAgo = moment(now).subtract(5*24, 'hours').startOf("hour").toISOString();
 
   return (
     <AnalyticsContext listContext="curatedPosts" pageSubSectionContext="curatedPosts">

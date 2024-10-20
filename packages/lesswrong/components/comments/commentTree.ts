@@ -119,6 +119,12 @@ export interface CommentTreeOptions {
    * If passed, never start comments collapsed to single line.
    */
   forceNotSingleLine?: boolean,
+
+  /**
+   * If passed, expand all comments in the tree whose IDs are in the set (and only those comments).
+   * This takes precedence over both `forceSingleLine` and `forceNotSingleLine`.
+   */
+  expandOnlyCommentIds?: Set<string>,
   
   /**
    * By default, every comment has its comment ID added to the DOM as an
@@ -126,7 +132,7 @@ export interface CommentTreeOptions {
    * IDs (eg because the same comment would appear in the page more than
    * once and this isn't the one you want to link to.)
    */
-  noHash?: boolean,
+  noDOMId?: boolean,
   
   /**
    * "default" | "minimalist" . If "minimalist", overrides the style of the reply button
@@ -175,4 +181,9 @@ export interface CommentTreeOptions {
    * background.
    */
   switchAlternatingHighlights?: boolean,
+
+  /**
+   * Apply styling to deemphasize comments written by users with any userId not in the provided set
+   */
+  deemphasizeCommentsExcludingUserIds?: Set<string>,
 }

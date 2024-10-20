@@ -21,7 +21,15 @@ export const MessageContextProvider = ({children}: {
   const [messages,setMessages] = useState<AnyBecauseTodo[]>([]);
   
   const flash = useCallback((message: AnyBecauseTodo) => {
-    setMessages([...messages, message]);
+    if (!messages.length) {
+      setMessages([message])
+    } else {
+      // Show the transition for clearing the old message, then pop up the new one
+      setMessages(messages.map((message: AnyBecauseTodo) => ({...message, hide:true})));
+      setTimeout(() => {
+        setMessages([message]);
+      }, 500);
+    }
   }, [messages]);
 
   const clear = useCallback(() => {
@@ -78,6 +86,15 @@ const FlashMessages = ({classes}: {
         message={messageObject && messageObject.message}
         autoHideDuration={6000}
         onClose={clear}
+        ClickAwayListenerProps={{
+          // Don't close flash messages on click
+          // This breaks some unit tests in Playwright, since a click that was
+          // supposed to go to a button instead gets eaten by the clickaway. And
+          // it's not actually a good UI interaction, since the message is going
+          // to close soon anyways and it's easy to dismiss by accident when you
+          // wanted to read it by clicking something unrelated.
+          mouseEvent: false
+        }}
         action={
           messageObject?.action &&
           <Button

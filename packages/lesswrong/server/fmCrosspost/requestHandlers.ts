@@ -1,18 +1,23 @@
 import type { Request } from "express";
 import Posts from "../../lib/collections/posts/collection";
 import Users from "../../lib/collections/users/collection";
-import { getGraphQLQueryFromOptions, getResolverNameFromOptions } from "../../lib/crud/withSingle";
-import { getCollection, Utils } from "../../lib/vulcan-lib";
+import { getGraphQLSingleQueryFromOptions, getResolverNameFromOptions } from "../../lib/crud/withSingle";
+import { Utils } from "../../lib/vulcan-lib";
 import { createClient } from "../vulcan-lib/apollo-ssr/apolloClient";
 import { createAnonymousContext } from "../vulcan-lib/query";
 import { extractDenormalizedData } from "./denormalizedFields";
 import { InvalidUserError, UnauthorizedError } from "./errors";
 import { validateCrosspostingKarmaThreshold } from "./helpers";
 import type { GetRouteOf, PostRouteOf } from "./routes";
-import { signToken, verifyToken } from "./tokens";
+import { verifyToken } from "./tokens";
+import { getAllRepos } from "@/server/repos";
 import {
-  ConnectCrossposterPayload, ConnectCrossposterPayloadValidator, CrosspostPayloadValidator, UnlinkCrossposterPayloadValidator, UpdateCrosspostPayloadValidator
+  ConnectCrossposterPayloadValidator,
+  CrosspostPayloadValidator,
+  UnlinkCrossposterPayloadValidator,
+  UpdateCrosspostPayloadValidator,
 } from "./types";
+import { connectCrossposterToken } from "../crossposting/tokens";
 
 export const onCrosspostTokenRequest: GetRouteOf<'crosspostToken'> = async (req: Request) => {
   const {user} = req;
@@ -23,7 +28,7 @@ export const onCrosspostTokenRequest: GetRouteOf<'crosspostToken'> = async (req:
   // Throws an error if user doesn't have enough karma on the source forum (which is the current execution environment)
   validateCrosspostingKarmaThreshold(user);
 
-  const token = await signToken<ConnectCrossposterPayload>({ userId: user._id });
+  const token = await connectCrossposterToken.create({userId: user._id});
   return {token};
 };
 
@@ -87,6 +92,7 @@ export const onCrosspostRequest: PostRouteOf<'crosspost'> = async (req) => {
       currentUser: user,
       isFMCrosspostRequest: true,
       Users,
+      repos: getAllRepos(),
     } as Partial<ResolverContext> as  ResolverContext,
   });
 
@@ -108,14 +114,13 @@ export const onUpdateCrosspostRequest: PostRouteOf<'updateCrosspost'> = async (r
 export const onGetCrosspostRequest: PostRouteOf<'getCrosspost'> = async (req) => {
   const { collectionName, extraVariables, extraVariablesValues, fragmentName, documentId } = req;
   const apolloClient = await createClient(createAnonymousContext());
-  const collection = getCollection(collectionName);
-  const query = getGraphQLQueryFromOptions({
+  const query = getGraphQLSingleQueryFromOptions({
     extraVariables,
-    collection,
+    collectionName,
     fragmentName,
     fragment: undefined,
   });
-  const resolverName = getResolverNameFromOptions(collection);
+  const resolverName = getResolverNameFromOptions(collectionName);
 
   const { data } = await apolloClient.query({
     query,

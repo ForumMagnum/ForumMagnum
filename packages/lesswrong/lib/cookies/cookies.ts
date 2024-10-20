@@ -152,6 +152,63 @@ export const POSTS_LIST_VIEW_TYPE_COOKIE = registerCookie({
   description: "Whether to display post lists as list items or card items"
 });
 
+export const HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS = registerCookie({
+  name: "hide_subscribed_feed_suggested_users",
+  type: "necessary",
+  description: "Whether to hide the suggested users section on the subscribed tab feed"
+});
+
+export const HIDE_SURVEY_SCHEDULE_IDS = registerCookie({
+  name: "hide_survey_schedule_ids",
+  type: "necessary",
+  description: "Stores the ids of survey schedules that the user has hidden"
+});
+
+export const SELECTED_FRONTPAGE_TAB_COOKIE = registerCookie({
+  name: "selected_frontpage_tab",
+  type: "functional",
+  description: "Stores the selected tab for logged out users"
+});
+
+export const HIDE_EAG_BANNER_COOKIE = registerCookie({
+  name: "hide_eag_banner",
+  type: "necessary",
+  description: "Don't show any EAG(x) banners",
+});
+
+export const HIDE_EA_FORUM_SURVEY_BANNER_COOKIE = registerCookie({
+  name: "hide_ea_forum_survey_banner",
+  type: "necessary",
+  description: "Don't show the EA Forum survey banner",
+});
+
+export const NAV_MENU_FLAG_COOKIE_PREFIX = "nav_menu_flag_";
+registerCookie({
+  name: `${NAV_MENU_FLAG_COOKIE_PREFIX}[*]`,
+  matches: (name: string) => name.startsWith(NAV_MENU_FLAG_COOKIE_PREFIX),
+  type: "necessary",
+  description: "Whether or not to show particular flags in the main navigation menu",
+});
+
+export const SHOW_LLM_CHAT_COOKIE = registerCookie({
+  name: "llm_chat_conversation_open",
+  type: "functional",
+  description: "Whether the LLM chat conversation UI is open",
+});
+
+export const HIDE_LLM_CHAT_GUIDE_COOKIE = registerCookie({
+  name: "llm_chat_guide_open",
+  type: "functional",
+  description: "Whether the LLM chat guide is open",
+})
+
+export const LLM_CHAT_EXPANDED = registerCookie({
+  name: "llm_chat_expanded",
+  type: "functional",
+  description: "Whether the LLM chat has expanded size",
+})
+
+
 // Third party cookies
 
 // Intercom

@@ -1,5 +1,5 @@
 import { htmlToTextDefault } from "../../lib/htmlToText";
-import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
+import { getSqlClientOrThrow } from "../sql/sqlClient";
 import { filterNonnull } from "../../lib/utils/typeGuardUtils";
 import { Globals } from "../vulcan-lib";
 import ReadStatuses from "../../lib/collections/readStatus/collection";
@@ -7,17 +7,6 @@ import { readFile, writeFile } from "fs/promises";
 import groupBy from "lodash/groupBy";
 import { googleVertexApi, helpers as googleVertexHelpers } from "../google-vertex/client";
 import type { ReadStatusWithPostId } from "../google-vertex/types";
-
-interface CreateAEPostRecordArgs {
-  post: DbPost;
-  tags: {
-    _id: string;
-    name: string;
-    core: boolean;
-  }[];
-  authors?: string[];
-  upvoteCount?: number;
-}
 
 interface FrontpageView {
   userId: string;
@@ -72,6 +61,7 @@ const postBatchQuery = `
   ))
   SELECT
     p.*,
+    r.* AS "contents",
     CASE WHEN COUNT(t.*) = 0
       THEN '{}'::JSONB[]
       ELSE ARRAY_AGG(JSONB_BUILD_ARRAY(t._id, t.name, t.core))
@@ -86,6 +76,8 @@ const postBatchQuery = `
   ON authorships._id = tr."postId"
   LEFT JOIN "Tags" AS t
   ON tr."tagId" = t._id
+  LEFT JOIN "Revisions" AS r
+  ON p."contents_latest" = r."_id"
   GROUP BY p._id
   ORDER BY p."createdAt" ASC
 `;
@@ -93,26 +85,13 @@ const postBatchQuery = `
 function getPostBatch(offsetDate: Date) {
   const db = getSqlClientOrThrow();
   const limit = 5000;
-  return db.any<DbPost & { tags: [tagId: string, tagName: string, core: boolean][], authors: string[], authorIds: string[], upvoteCount: number }>(postBatchQuery, [offsetDate, limit]);
-}
-
-function createAEPostRecord({ post, tags, authors, upvoteCount }: CreateAEPostRecordArgs) {
-  const tagNames = filterNonnull(tags.map(tag => tag.name));
-  const postText = htmlToTextDefault(post.contents?.html);
-
-  return {
-    _id: post._id,
-    title: post.title,
-    authors,
-    score: post.score,
-    karma: post.baseScore,
-    body: postText,
-    postedAt: post.postedAt,
-    tags: tagNames,
-    commentCount: post.commentCount,
-    upvoteCount,
-    url: `https://www.lesswrong.com/posts/${post._id}/${post.slug}`
-  };
+  return db.any<DbPost & {
+    tags: [tagId: string, tagName: string, core: boolean][],
+    authors: string[],
+    authorIds: string[],
+    upvoteCount: number,
+    contents: EditableFieldContents | null,
+  }>(postBatchQuery, [offsetDate, limit]);
 }
 
 interface InViewEvent {
@@ -224,48 +203,5 @@ async function backfillFrontpageViews(frontpageLoadsFilepath: string) {
   await googleVertexApi.importUserEvents(userHomePageEvents);
 }
 
-async function exportAEPostRecords(offsetDate?: Date) {
-  const db = getSqlClientOrThrow();
-
-  if (!offsetDate) {
-    ({ offsetDate } = await db.one<{ offsetDate: Date }>('SELECT MIN("createdAt") AS "offsetDate" FROM "Posts"'));
-  }
-
-  // eslint-disable-next-line no-console
-  console.log(`Initial post batch offset date: ${offsetDate.toISOString()}`);
-
-  let batch = await getPostBatch(offsetDate);
-
-  try {
-    while (batch.length) {
-      // eslint-disable-next-line no-console
-      console.log(`Post batch size: ${batch.length}.`);
-
-      const postsWithMetadata = batch.map(({ tags, authors, authorIds, upvoteCount, ...post }) => ({
-        post,
-        tags: filterNonnull(tags.map(([_id, name, core]) => ({ _id, name, core }))),
-        authors,
-        authorIds,
-        upvoteCount,
-      }));
-
-      const postRecords = postsWithMetadata.map(createAEPostRecord);
-
-      await writeFile(`./aestudios/lw_posts_${offsetDate.toISOString()}.json`, JSON.stringify(postRecords));
-
-      const nextOffsetDate: Date | undefined = getNextOffsetDate(offsetDate, batch);
-      if (!nextOffsetDate) {
-        return;
-      }
-      offsetDate = nextOffsetDate;
-      batch = await getPostBatch(offsetDate);
-    }
-  } catch (err) {
-    // eslint-disable-next-line no-console
-    console.log(`Error when exporting AE Studio post records.  Last offset date: ${offsetDate.toISOString()}`, { err });
-  }
-}
-
 Globals.backfillVertexPosts = backfillVertexPosts;
 Globals.backfillVertexFrontpageViews = backfillFrontpageViews;
-Globals.exportAEPosts = exportAEPostRecords;

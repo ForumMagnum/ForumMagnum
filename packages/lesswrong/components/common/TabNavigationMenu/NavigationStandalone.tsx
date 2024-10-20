@@ -19,6 +19,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   sidebarWrapper: {
     minWidth: 100,
     zIndex: theme.zIndexes.footerNav,
+    "@media print": {
+      display: "none"
+    },
     [`@media(max-width: ${HOME_RHS_MAX_SCREEN_WIDTH}px)`]: {
       minWidth: 0,
     },
@@ -35,20 +38,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   navSidebarTransparent: {
     zIndex: 10,
   },
-  footerBar: {
-    [theme.breakpoints.up('lg')]: {
-      display: "none"
-    },
-    position: "fixed",
-    bottom: 0,
-    left: 0,
-    backgroundColor: theme.palette.grey[300],
-    width: "100%",
-    zIndex: theme.zIndexes.footerNav
-  },
-  "@media print": {
-    display: "none"
-  },
   background: {
     background: theme.palette.panelBackground.translucent3,
   }
@@ -58,16 +47,14 @@ const NavigationStandalone = ({
   sidebarHidden,
   unspacedGridLayout,
   noTopMargin,
-  className,
   classes,
 }: {
   sidebarHidden: boolean,
   unspacedGridLayout?: boolean,
   noTopMargin?: boolean,
-  className?: string,
   classes: ClassesType,
 }) => {
-  const { TabNavigationMenu, TabNavigationMenuFooter } = Components
+  const { TabNavigationMenu } = Components
   const { location } = useLocation();
 
   const background = location.pathname === communityPath;
@@ -81,7 +68,7 @@ const NavigationStandalone = ({
         mountOnEnter
         unmountOnExit
       >
-        <div className={classNames(classes.sidebar, className, {[classes.background]: background, [classes.navSidebarTransparent]: unspacedGridLayout})}>
+        <div className={classNames(classes.sidebar, {[classes.background]: background, [classes.navSidebarTransparent]: unspacedGridLayout})}>
           {/* In the unspaced grid layout the sidebar can appear on top of other componenents, so make the background transparent */}
           <TabNavigationMenu
             transparentBackground={unspacedGridLayout}
@@ -90,9 +77,6 @@ const NavigationStandalone = ({
         </div>
       </Slide>
     </div>
-    {isLWorAF && <div className={classNames(classes.footerBar, className)}>
-      <TabNavigationMenuFooter />
-    </div>}
   </>
 }
 

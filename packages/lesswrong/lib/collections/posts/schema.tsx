@@ -1,4 +1,4 @@
-import { Utils, slugify, getDomain, getOutgoingUrl } from '../../vulcan-lib/utils';
+import { slugify, getDomain, getOutgoingUrl } from '../../vulcan-lib/utils';
 import moment from 'moment';
 import { schemaDefaultValue, arrayOfForeignKeysField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle } from '../../utils/schemaUtils'
 import { PostRelations } from "../postRelations/collection"
@@ -13,6 +13,7 @@ import { DEFAULT_QUALITATIVE_VOTE } from '../reviewVotes/schema';
 import { getCollaborativeEditorAccess } from './collabEditingPermissions';
 import { getVotingSystems } from '../../voting/votingSystems';
 import {
+  eaFrontpageDateDefault,
   fmCrosspostBaseUrlSetting,
   fmCrosspostSiteNameSetting,
   forumTypeSetting,
@@ -34,10 +35,13 @@ import { getDefaultViewSelector } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 import SideCommentCaches from '../sideCommentCaches/collection';
-import { hasSideComments } from '../../betas';
+import { hasSideComments, hasSidenotes } from '../../betas';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { getPostReviewWinnerInfo } from '../reviewWinners/cache';
 import { stableSortTags } from '../tags/helpers';
+import { getLatestContentsRevision } from '../revisions/helpers';
+import { marketInfoLoader } from './annualReviewMarkets';
+import { getUnusedSlugByCollectionName } from '@/lib/helpers';
 
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
@@ -129,17 +133,6 @@ export async function getLastReadStatus(post: DbPost, context: ResolverContext) 
   );
   if (!readStatus.length) return null;
   return readStatus[0];
-}
-
-const eaFrontpageDateDefault = (
-  isEvent?: boolean,
-  submitToFrontpage?: boolean,
-  draft?: boolean,
-) => {
-  if (isEvent || !submitToFrontpage || draft) {
-    return null;
-  }
-  return new Date();
 }
 
 export const sideCommentCacheVersion = 1;
@@ -262,11 +255,11 @@ const schema: SchemaType<"Posts"> = {
     nullable: false,
     canRead: ['guests'],
     onInsert: async (post) => {
-      return await Utils.getUnusedSlugByCollectionName("Posts", slugify(post.title))
+      return await getUnusedSlugByCollectionName("Posts", slugify(post.title))
     },
     onEdit: async (modifier, post) => {
       if (modifier.$set.title) {
-        return await Utils.getUnusedSlugByCollectionName("Posts", slugify(modifier.$set.title), false, post._id)
+        return await getUnusedSlugByCollectionName("Posts", slugify(modifier.$set.title), false, post._id)
       }
     }
   },
@@ -554,38 +547,57 @@ const schema: SchemaType<"Posts"> = {
     graphQLtype: 'Int!',
     type: Number,
     canRead: ['guests'],
-    resolver: ({readTimeMinutesOverride, contents}: DbPost): number =>
-      Math.max(
-        1,
-        Math.round(typeof readTimeMinutesOverride === "number"
-          ? readTimeMinutesOverride
-          : (contents?.wordCount ?? 0) / READ_WORDS_PER_MINUTE)
-      ),
-    sqlResolver: ({field}) => `GREATEST(1, ROUND(COALESCE(
-      ${field("readTimeMinutesOverride")},
-      (${field("contents")}->'wordCount')::INTEGER
-    ) / ${READ_WORDS_PER_MINUTE}))`,
+    resolver: async (post: DbPost, _args: void, context: ResolverContext) => {
+      const normalizeValue = (value: number): number =>
+        Math.max(1, Math.round(value));
+      if (typeof post.readTimeMinutesOverride === "number") {
+        return normalizeValue(post.readTimeMinutesOverride);
+      }
+      const revision = await getLatestContentsRevision(post, context);
+      return revision?.wordCount
+        ? normalizeValue(revision.wordCount / READ_WORDS_PER_MINUTE)
+        : 1;
+    },
+    sqlResolver: ({field, join}) => join({
+      table: "Revisions",
+      type: "left",
+      on: {_id: field("contents_latest")},
+      resolver: (revisionsField) => `GREATEST(1, ROUND(COALESCE(
+        ${field("readTimeMinutesOverride")},
+        ${revisionsField("wordCount")}
+      ) / ${READ_WORDS_PER_MINUTE}))`,
+    }),
   }),
 
   // DEPRECATED field for GreaterWrong backwards compatibility
   wordCount: resolverOnlyField({
     type: Number,
     canRead: ['guests'],
-    resolver: (post: DbPost, args: void, { Posts }: ResolverContext) => {
-      const contents = post.contents;
-      if (!contents) return 0;
-      return contents.wordCount;
-    }
+    resolver: async (post: DbPost, _args: void, context: ResolverContext) => {
+      const revision = await getLatestContentsRevision(post, context);
+      return revision?.wordCount ?? 0;
+    },
+    sqlResolver: ({field, join}) => join({
+      table: "Revisions",
+      type: "left",
+      on: {_id: field("contents_latest")},
+      resolver: (revisionsField) => revisionsField("wordCount"),
+    }),
   }),
   // DEPRECATED field for GreaterWrong backwards compatibility
   htmlBody: resolverOnlyField({
     type: String,
     canRead: [documentIsNotDeleted],
-    resolver: (post: DbPost, args: void, { Posts }: ResolverContext) => {
-      const contents = post.contents;
-      if (!contents) return "";
-      return contents.html;
-    }
+    resolver: async (post: DbPost, _args: void, context: ResolverContext) => {
+      const revision = await getLatestContentsRevision(post, context);
+      return revision?.html;
+    },
+    sqlResolver: ({field, join}) => join({
+      table: "Revisions",
+      type: "left",
+      on: {_id: field("contents_latest")},
+      resolver: (revisionsField) => revisionsField("html"),
+    }),
   }),
 
   submitToFrontpage: {
@@ -785,21 +797,47 @@ const schema: SchemaType<"Posts"> = {
     group: formGroups.adminOptions,
   },
 
-  annualReviewMarketCommentId: {
-    ...foreignKeyField({
-      idFieldName: 'annualReviewMarketCommentId',
-      resolverName: 'annualReviewMarketComment',
-      collectionName: 'Comments',
-      type: 'Comment',
-      nullable: true
-    }),
+  annualReviewMarketProbability: {
+    type: Number,
     optional: true,
     nullable: true,
     canRead: ['guests'],
-    canCreate: ['admins'],
-    canUpdate: ['admins'],
-    hidden: !isLWorAF,
-    group: formGroups.adminOptions,
+    hidden: !isLWorAF
+    // Implementation in postResolvers.ts TODO: migrate this and other annual review market resolvers into the schema, for nicer developer experience
+  },
+  annualReviewMarketIsResolved: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    hidden: !isLWorAF
+    // Implementation in postResolvers.ts
+  },
+  annualReviewMarketYear: {
+    type: Number,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    hidden: !isLWorAF
+    // Implementation in postResolvers.ts
+  },
+
+  annualReviewMarketUrl: {
+    type: String,
+    resolveAs: {
+      type: 'String',
+      resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+        if (!isLWorAF) {
+          return 0;
+        }
+        const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, marketInfoLoader(context))
+        return market?.url
+      }
+    },
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    hidden: !isLWorAF
   },
 
   // The various reviewVoteScore and reviewVotes fields are for caching the results of the updateQuadraticVotes migration (which calculates the score of posts during the LessWrong Review)
@@ -906,32 +944,6 @@ const schema: SchemaType<"Posts"> = {
   'finalReviewVotesAF.$': {
     type: Number,
     optional: true,
-  },
-
-
-  annualReviewMarketProbability: {
-    type: Number,
-    optional: true,
-    nullable: true,
-    canRead: ['guests'],
-    hidden: !isLWorAF
-    // Implementation in postResolvers.ts
-  },
-  annualReviewMarketIsResolved: {
-    type: Boolean,
-    optional: true,
-    nullable: true,
-    canRead: ['guests'],
-    hidden: !isLWorAF
-    // Implementation in postResolvers.ts
-  },
-  annualReviewMarketYear: {
-    type: Number,
-    optional: true,
-    nullable: true,
-    canRead: ['guests'],
-    hidden: !isLWorAF
-    // Implementation in postResolvers.ts
   },
 
   lastCommentPromotedAt: {
@@ -1463,6 +1475,17 @@ const schema: SchemaType<"Posts"> = {
         return data.frontpageDate === undefined ? oldDocument.frontpageDate : data.frontpageDate;
       },
     }),
+  },
+
+  autoFrontpage: {
+    type: String,
+    allowedValues: ["show", "hide"],
+    canRead: ['sunshineRegiment', 'admins'],
+    canUpdate: ['admins'],
+    canCreate: ['admins'],
+    hidden: true,
+    optional: true,
+    nullable: true,
   },
 
   collectionTitle: {
@@ -2411,7 +2434,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     control: "PostSharingSettings",
     label: "Sharing Settings",
-    group: isFriendlyUI ? formGroups.category : formGroups.title,
+    group: formGroups.category,
     blackbox: true,
     hidden: (props) => !!props.debateForm
   },
@@ -2568,41 +2591,21 @@ const schema: SchemaType<"Posts"> = {
       }
     },
   },
-
-  // GraphQL only field that resolves based on whether the current user has closed
-  // this posts author's moderation guidelines in the past
-  showModerationGuidelines: {
+  
+  /**
+   * Author-controlled option to disable sidenotes (display of footnotes in the
+   * right margin).
+   */
+  disableSidenotes: {
     type: Boolean,
     optional: true,
+    group: formGroups.advancedOptions,
     canRead: ['guests'],
-    hidden: ({document}) => !!document?.collabEditorDialogue,
-    resolveAs: {
-      type: 'Boolean!',
-      resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<boolean> => {
-        if (isFriendlyUI) {
-          return false;
-        }
-        const { LWEvents, currentUser } = context;
-        if(currentUser){
-          const query = {
-            name:'toggled-user-moderation-guidelines',
-            documentId: post.userId,
-            userId: currentUser._id
-          }
-          const sort = {sort:{createdAt:-1}}
-          const event = await LWEvents.findOne(query, sort);
-          const author = await context.loaders.Users.load(post.userId);
-          if (event) {
-            return !!(event.properties && event.properties.targetState)
-          } else {
-            return !!(author?.collapseModerationGuidelines ? false : ((post.moderationGuidelines && post.moderationGuidelines.html) || post.moderationStyle))
-          }
-        } else {
-          return false
-        }
-      },
-      addOriginalField: false
-    }
+    // HACK: canCreate is more restrictive than canUpdate so that it's hidden on the new-post page, for clutter-reduction reasons, while leaving it still visible on the edit-post page
+    canCreate: ['sunshineRegiment'],
+    canUpdate: ['members'],
+    hidden: !hasSidenotes,
+    ...schemaDefaultValue(false),
   },
 
   moderationStyle: {
@@ -2714,15 +2717,6 @@ const schema: SchemaType<"Posts"> = {
   'recentComments.$': {
     type: Object,
     foreignKey: 'Comments',
-  },
-  
-  criticismTipsDismissed: {
-    type: Boolean,
-    canRead: ['members'],
-    canUpdate: ['members'],
-    canCreate: ['members'],
-    optional: true,
-    hidden: true,
   },
   
   languageModelSummary: {
@@ -3029,6 +3023,21 @@ const schema: SchemaType<"Posts"> = {
     canCreate: ['admins'],
     canUpdate: [userOwns, 'admins'],
   },
+
+  /**
+   * @deprecated Remove after 2024-06-14
+   */
+  swrCachingEnabled: {
+    type: Boolean,
+    optional: true,
+    nullable: false,
+    canRead: ['admins'],
+    canCreate: ['admins'],
+    canUpdate: ['admins'],
+    label: "stale-while-revalidate caching enabled",
+    group: formGroups.adminOptions,
+    ...schemaDefaultValue(false),
+  }
 };
 
 export default schema;

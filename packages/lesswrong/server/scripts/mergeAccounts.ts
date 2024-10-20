@@ -1,5 +1,5 @@
 import Users from '../../lib/collections/users/collection';
-import { Vulcan, updateMutator, getCollection, Utils } from '../vulcan-lib';
+import { Vulcan, updateMutator, getCollection } from '../vulcan-lib';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { editableCollectionsFields } from '../../lib/editor/make_editable'
 import ReadStatuses from '../../lib/collections/readStatus/collection';
@@ -8,9 +8,10 @@ import { Conversations } from '../../lib/collections/conversations/collection'
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import sumBy from 'lodash/sumBy';
 import { ConversationsRepo, LocalgroupsRepo, PostsRepo, VotesRepo } from '../repos';
-import Localgroups from '../../lib/collections/localgroups/collection';
 import { collectionsThatAffectKarma } from '../callbacks/votingCallbacks';
 import { filterNonnull, filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
+import { editableFieldIsNormalized } from '@/lib/editor/makeEditableOptions';
+import { getUnusedSlug } from '@/lib/helpers';
 
 const transferOwnership = async ({documentId, targetUserId, collection, fieldName = "userId"}: {
   documentId: string
@@ -93,14 +94,16 @@ const transferEditableField = async ({documentId, sourceUserId, targetUserId, co
   collection: CollectionBase<CollectionNameString>,
   fieldName: string
 }) => {
-  // Update the denormalized revision on the document
-  await updateMutator({
-    collection,
-    documentId,
-    set: {[`${fieldName}.userId`]: targetUserId},
-    unset: {},
-    validate: false
-  })
+  if (!editableFieldIsNormalized(collection.collectionName, fieldName)) {
+    // Update the denormalized revision on the document
+    await updateMutator({
+      collection,
+      documentId,
+      set: {[`${fieldName}.userId`]: targetUserId},
+      unset: {},
+      validate: false
+    });
+  }
   // Update the revisions themselves
   await Revisions.rawUpdateMany({ documentId, userId: sourceUserId, fieldName }, {$set: {userId: targetUserId}}, { multi: true })
 }
@@ -344,7 +347,7 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}: {
       await Users.rawUpdateOne(
         {_id: sourceUserId},
         {$set: {
-          slug: await Utils.getUnusedSlug(Users, `${sourceUser.slug}-old`, true)
+          slug: await getUnusedSlug(Users, `${sourceUser.slug}-old`, true)
         }}
       );
     

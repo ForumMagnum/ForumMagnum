@@ -1,18 +1,19 @@
-import { getSqlClientOrThrow } from "../lib/sql/sqlClient";
+import { getSqlClientOrThrow } from "./sql/sqlClient";
 import { queryWithLock } from "./queryWithLock";
-import type { CronJobSpec } from "./cronUtil";
+import { addCronJob, CronJobSpec } from "./cronUtil";
 
 type PostgresViewRefreshSpec = {
   interval: string,
   query: string,
 }
 
-class PostgresView {
+export class PostgresView {
   constructor(
     private name: string,
     private createViewQuery: string,
     private createIndexQueries: string[] = [],
     private refreshSpec?: PostgresViewRefreshSpec,
+    private dependencies?: SchemaDependency[],
     private queryTimeout = 60,
   ) {}
 
@@ -24,14 +25,12 @@ class PostgresView {
     return this.createViewQuery;
   }
 
-  async createView(db: SqlClient) {
-    await queryWithLock(db, this.createViewQuery, this.queryTimeout);
+  getCreateIndexQueries() {
+    return this.createIndexQueries;
   }
 
-  async createIndexes(db: SqlClient) {
-    await Promise.all(this.createIndexQueries.map((index) =>
-      queryWithLock(db, index, this.queryTimeout),
-    ));
+  getDependencies() {
+    return this.dependencies;
   }
 
   async refresh(db: SqlClient) {
@@ -40,7 +39,7 @@ class PostgresView {
     }
   }
 
-  registerCronJob(addCronJob: (options: CronJobSpec) => void) {
+  registerCronJob() {
     if (this.refreshSpec) {
       addCronJob({
         name: `refreshPostgresView-${this.name}`,
@@ -58,6 +57,7 @@ export const createPostgresView = (
   createViewQuery: string,
   createIndexQueries: string[] = [],
   refreshSpec?: PostgresViewRefreshSpec,
+  dependencies?: SchemaDependency[],
 ) => {
   for (const view of postgresViews) {
     if (view.getCreateViewQuery() === createViewQuery) {
@@ -69,22 +69,9 @@ export const createPostgresView = (
     createViewQuery,
     createIndexQueries,
     refreshSpec,
+    dependencies,
   );
   postgresViews.push(view);
-}
-
-export const ensurePostgresViewsExist = async (
-  db = getSqlClientOrThrow(),
-  /** Dependency injected to avoid cycle. Should always be passed in unless in testing. */
-  addCronJob?: (options: CronJobSpec) => void,
-) => {
-  await Promise.all(postgresViews.map((view) => view.createView(db)));
-  await Promise.all(postgresViews.map((view) => view.createIndexes(db)));
-  if (addCronJob) {
-    for (const view of postgresViews) {
-      view.registerCronJob(addCronJob);
-    }
-  }
 }
 
 export const getPostgresViewByName = (name: string): PostgresView => {
@@ -93,4 +80,18 @@ export const getPostgresViewByName = (name: string): PostgresView => {
     throw new Error(`Postgres view not found: ${name}`);
   }
   return view;
+}
+
+export const getAllPostgresViews = (): PostgresView[] => postgresViews;
+
+
+export function registerViewCronJobs() {
+  try {
+    for (const view of getAllPostgresViews()) {
+      view.registerCronJob();
+    }
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error("Failed to ensure Postgres views exist:", e);
+  }
 }

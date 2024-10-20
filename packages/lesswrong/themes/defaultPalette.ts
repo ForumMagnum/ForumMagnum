@@ -259,6 +259,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     dim4: shades.grey[500],
     dim5: shades.greyAlpha(.3),
     dim6: shades.greyAlpha(.2),
+    dim05: shades.greyAlpha(.08),
     dim55: shades.greyAlpha(.55),
     dim600: shades.grey[600],
     dim700: shades.grey[700],
@@ -340,6 +341,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     transparent: shades.inverseGreyAlpha(0),
     imageOverlay: 'rgba(0,0,0,0.4)',
     digestAdBannerInput: shades.grey[0],
+    sidenoteBackground: "rgba(190,120,80,.05)",
   },
   panelBackground: {
     default: shades.grey[0],
@@ -378,6 +380,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     recentDiscussionThread: shades.grey[20],
     tooltipBackground: "rgba(75,75,75,.94)",
     tooltipBackground2: "#373737",
+    mapboxTooltip: "#fff",
     modalBackground: "#fff",
     loginInput: "#efefef",
     loginInputHovered: "#e4e4e4",
@@ -429,7 +432,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     eaCard: `0 4px 8px ${shades.boxShadowColor(0.12)}`,
     searchResults: `0 0 20px ${shades.boxShadowColor(.2)}`,
     recentDiscussionMeetupsPoke: `5px 5px 5px ${shades.boxShadowColor(.2)}`,
-    graphTooltip: `0 0 10px ${shades.boxShadowColor(.75)}`,
+    graphTooltip: `0 4px 8px ${shades.boxShadowColor(0.12)}`,
     lwTagHoverOver: `0 1px 3px 0 ${shades.boxShadowColor(0.2)},0 1px 1px 0 ${shades.boxShadowColor(0.14)},0 2px 1px -1px ${shades.boxShadowColor(0.12)}`,
   },
   buttons: {
@@ -474,6 +477,11 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       hoverBackground: shades.grey[800],
     },
   },
+  sideItemIndicator: {
+    sideComment: '#5f9b65',
+    inlineReaction: 'lch(68 34.48 85.39 / 76%)',
+    footnote: shades.greyAlpha(0.4),
+  },
   tag: {
     text: shades.greyAlpha(.9),
     background: shades.grey[200],
@@ -488,6 +496,10 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     onboardingBackground: "rgba(0, 0, 0, 0.4)",
     onboardingBackgroundHover: "rgba(0, 0, 0, 0.2)",
     onboardingBackgroundSelected: "rgba(0, 0, 0, 0.5)",
+    eventLightGreen: 'rgba(154, 176, 137, 0.30)',
+    eventDarkGreen: 'rgba(154, 176, 137, 0.60)',
+    eventLightBlue: 'rgba(65, 131, 161, 0.30)',
+    eventDarkBlue: 'rgba(65, 131, 161, 0.60)',
   },
   tab: {
     inactive: {
@@ -574,12 +586,6 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     panelBackgroundDark: "rgba(255, 255, 255, 0.05)",
     postScoreArrow: '#BCBCBC',
   },
-  dialogueMatching: {
-    checkedNotMatched: "#ADD8E6",
-    checkedMatched: "#00000038",
-    optIn: "#9a9a9a",
-    warning: "yellow",
-  },
   namesAttachedReactions: {
     selectedAnti: "rgb(255, 189, 189, .23)",
   },
@@ -613,4 +619,15 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   warning: {
     main: "#ff9800",
   },
+  petrov: {
+    launchButtonBorder: "#000",
+    red: "#ff0000",
+    darkRed: "#990000",
+    red2: "#cc0000",
+    darkRed2: "#770000",
+    color1: "#aa8080",
+    color2: "#404040",
+    color3: "#998080",
+    color4: "#504040",
+  }
 })

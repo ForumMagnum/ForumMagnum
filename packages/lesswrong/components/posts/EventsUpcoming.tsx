@@ -4,7 +4,7 @@ import { preferredHeadingCase } from '../../themes/forumTheme';
 
 const EventsUpcoming = () => {
   const { SingleColumnSection, SectionTitle, PostsList2 } = Components
-  const terms = { view: 'upcomingEvents', limit: 20 }
+  const terms = { view: 'upcomingEvents', limit: 20 } as const;
 
   return (
     <SingleColumnSection>

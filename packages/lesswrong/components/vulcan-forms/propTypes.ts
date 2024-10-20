@@ -1,4 +1,5 @@
 /** PropTypes for documentation purpose (not tested yet) */
+import { WatchQueryFetchPolicy } from '@apollo/client';
 import PropTypes from 'prop-types';
 
 export const fieldProps = {
@@ -100,6 +101,12 @@ export interface WrappedSmartFormProps<T extends CollectionNameString> extends S
   extraVariables?: any
   extraVariablesValues?: any
   excludeHiddenFields?: boolean
+
+  /**
+   * Passed from PostsEditForm in cases like being redirected to the edit form after an autosave on PostsNewForm.
+   * Used to provide a smoother rerender without loading states when the redirect happens, since we prefetch the relevant fragment and we know it'll be up to date when we get here
+   */
+  editFormFetchPolicy?: WatchQueryFetchPolicy
 }
 
 export interface SmartFormProps<T extends CollectionNameString> extends WrappedSmartFormProps<T> {
@@ -142,6 +149,7 @@ declare global {
     formProps: any
     formType: "new"|"edit"
     setFooterContent?: any
+    hideClear?: boolean
   }
   interface FormComponentProps<T> extends FormComponentWrapperProps<T>{
     value: T

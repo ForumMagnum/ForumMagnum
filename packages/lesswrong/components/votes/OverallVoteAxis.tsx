@@ -1,13 +1,10 @@
-import { Components, registerComponent, getCollection } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import moment from '../../lib/moment-timezone';
 import { useCurrentUser } from '../common/withUser';
 import { isAF } from '../../lib/instanceSettings';
-import { Comments } from '../../lib/collections/comments/collection';
 import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
-import { Posts } from '../../lib/collections/posts/collection';
-import { Revisions } from '../../lib/collections/revisions/collection';
 import type { VotingProps } from './votingProps';
 import type { OverallVoteButtonProps } from './OverallVoteButton';
 import classNames from 'classnames';
@@ -88,7 +85,7 @@ const OverallVoteAxis = ({
 
   const { OverallVoteButton, LWTooltip } = Components
 
-  const collection = getCollection(voteProps.collectionName);
+  const collectionName = voteProps.collectionName;
   const extendedScore = voteProps.document?.extendedScore
   const voteCount = extendedScore && ("approvalVoteCount" in extendedScore)
     ? extendedScore.approvalVoteCount
@@ -99,20 +96,20 @@ const OverallVoteAxis = ({
 
   let moveToAlignnmentUserId = ""
   let documentTypeName = "comment";
-  if (collection === Comments) {
+  if (collectionName === "Comments") {
     const comment = document as CommentsList
     moveToAlignnmentUserId = comment.moveToAlignmentUserId
   }
-  if (collection === Posts) {
+  if (collectionName === "Posts") {
     documentTypeName = "post";
   }
-  if (collection === Revisions) {
+  if (collectionName === "Revisions") {
     documentTypeName = "revision";
   }
 
   const af = (document as any).af;
   const afDate = (document as any).afDate;
-  const afBaseScore = (document as any).afBaseScore;
+  const afBaseScore = voteProps.document.afBaseScore;
 
   const moveToAfInfo = userIsAdmin(currentUser) && !!moveToAlignnmentUserId && (
     <div className={classes.tooltipHelp}>

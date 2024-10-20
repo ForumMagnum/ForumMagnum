@@ -6,7 +6,7 @@ import { userCanDo } from '../../vulcan-users/permissions';
 import { userGetDisplayName } from "../users/helpers";
 import { tagGetCommentLink } from '../tags/helpers';
 import { TagCommentType } from './types';
-import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
+import { commentPermalinkStyleSetting, hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
 import { forumSelect } from '../../forumTypeUtils';
 
 // Get a comment author's name
@@ -48,7 +48,8 @@ export function commentGetPageUrlFromIds({postId, postSlug, tagSlug, tagCommentT
   tagSlug?: string,
   tagCommentType?: TagCommentType,
   commentId: string,
-  permalink?: boolean, isAbsolute?: boolean,
+  permalink?: boolean,
+  isAbsolute?: boolean,
 }): string {
   const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
 

@@ -1,4 +1,5 @@
-import { Utils, getTypeName } from '../vulcan-lib';
+import { convertDocumentIdToIdInSelector, Utils } from '../vulcan-lib/utils';
+import { collectionNameToGraphQLType } from '../vulcan-lib';
 import { userCanDo, userOwns } from '../vulcan-users/permissions';
 import isEmpty from 'lodash/isEmpty';
 import { loggerConstructor } from '../utils/logging';
@@ -22,7 +23,7 @@ const getUpsertMutationName = (typeName: string): string => `upsert${typeName}`;
 
 export function getDefaultMutations<N extends CollectionNameString>(collectionName: N, options?: MutationOptions<ObjectsByCollectionName[N]>) {
   type T = ObjectsByCollectionName[N];
-  const typeName = getTypeName(collectionName);
+  const typeName = collectionNameToGraphQLType(collectionName);
   const mutationOptions: MutationOptions<T> = {...defaultOptions, ...options};
   const logger = loggerConstructor(`mutations-${collectionName.toLowerCase()}`)
 
@@ -122,14 +123,14 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
 
       async mutation(root: void, { selector, data }: AnyBecauseTodo, context: ResolverContext) {
         logger('update mutation()')
-        const collection = context[collectionName];
+        const collection = context[collectionName] as CollectionBase<N>;
 
         if (isEmpty(selector)) {
           throw new Error('Selector cannot be empty');
         }
 
         // get entire unmodified document from database
-        const document = await Utils.Connectors.get(collection, selector);
+        const document = await collection.findOne(convertDocumentIdToIdInSelector(selector));
 
         if (!document) {
           throw new Error(
@@ -138,7 +139,7 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
         }
 
         // check if user can perform operation; if not throw error
-        await Utils.performCheck(
+        await Utils.performCheck<T>(
           this.check,
           context.currentUser,
           document,
@@ -149,10 +150,6 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
           collectionName
         );
 
-        // call updateMutator boilerplate function
-        // TODO: A problem with updateMutator types means that it demands a
-        // documentId instead of a selector
-        // @ts-ignore
         return await Utils.updateMutator({
           collection,
           selector,
@@ -181,7 +178,7 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
         const collection = context[collectionName];
 
         // check if document exists already
-        const existingDocument = await Utils.Connectors.get(collection, selector, {
+        const existingDocument = await collection.findOne(convertDocumentIdToIdInSelector(selector), {
           fields: { _id: 1 },
         });
 
@@ -228,13 +225,13 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
 
       async mutation(root: void, { selector }: AnyBecauseTodo, context: ResolverContext) {
         logger('delete mutation()')
-        const collection = context[collectionName];
+        const collection = context[collectionName] as CollectionBase<N>;
 
         if (isEmpty(selector)) {
           throw new Error('Selector cannot be empty');
         }
 
-        const document = await Utils.Connectors.get(collection, selector);
+        const document = await collection.findOne(convertDocumentIdToIdInSelector(selector));
 
         if (!document) {
           throw new Error(
@@ -242,7 +239,7 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
           );
         }
 
-        await Utils.performCheck(
+        await Utils.performCheck<T>(
           this.check,
           context.currentUser,
           document,

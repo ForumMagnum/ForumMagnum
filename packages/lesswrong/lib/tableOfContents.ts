@@ -4,6 +4,7 @@ import { answerTocExcerptFromHTML, truncate } from "./editor/ellipsize";
 import { htmlToTextDefault } from "./htmlToText";
 import type { WindowType } from "./domParser";
 import { PostWithCommentCounts, postGetCommentCountStr } from "./collections/posts/helpers";
+import { isLWorAF } from "./instanceSettings";
 
 export interface ToCAnswer {
   baseScore: number,
@@ -25,11 +26,26 @@ export interface ToCSection {
   anchor: string,
   level: number,
   divider?: boolean,
+  
+  /**
+   * The y-position of the anchor that corresponds to this ToC entry, relative
+   * to the top of the page. Used to determine which heading is highlighted.
+   */
   offset?: number,
+  
+  /**
+   * If a variable-height ToC is in use, the relative vertical size of this
+   * section
+   */
+  scale?: number,
 }
 
 export interface ToCSectionWithOffset extends ToCSection {
   offset: number,
+}
+
+export interface ToCSectionWithOffsetAndScale extends ToCSectionWithOffset {
+  scale: number,
 }
 
 export interface ToCData {
@@ -221,7 +237,8 @@ export function shouldShowTableOfContents({
   sections: ToCSection[];
   post?: { question: boolean } | null;
 }): boolean {
-  // Always show the ToC for questions, to avoid layout shift when the answers load
+  
+  if (isLWorAF) return true;
   return sections.length > MIN_HEADINGS_FOR_TOC || (post?.question ?? false);
 }
 

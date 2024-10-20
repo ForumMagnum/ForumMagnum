@@ -2,7 +2,6 @@
 const { build, cliopts } = require("estrella");
 const fs = require('fs');
 const process = require('process');
-const { zlib } = require("mz");
 const { getDatabaseConfig, startSshTunnel, getOutputDir, setOutputDir } = require("./scripts/startup/buildUtil");
 const { setClientRebuildInProgress, setServerRebuildInProgress, generateBuildId, startAutoRefreshServer, initiateRefresh, startLint } = require("./scripts/startup/autoRefreshServer");
 /**
@@ -13,7 +12,7 @@ process.on("SIGQUIT", () => process.exit(0));
 
 const [opts, args] = cliopts.parse(
   ["production", "Run in production mode"],
-  ["cypress", "Run in end-to-end testing mode"],
+  ["e2e", "Run in end-to-end testing mode"],
   ["settings", "A JSON config file for the server", "<file>"],
   ["db", "A path to a database connection config file", "<file>"],
   ["postgresUrl", "A postgresql connection connection string", "<url>"],
@@ -44,8 +43,14 @@ setOutputDir(`./build${serverPort === defaultServerPort ? "" : serverPort}`);
 //  * Provide a websocket server for signaling autorefresh
 
 const isProduction = !!opts.production;
-const isCypress = !!opts.cypress;
+const isE2E = !!opts.e2e;
 const settingsFile = opts.settings || "settings.json"
+
+// Allow FM_WATCH to override the --watch CLI flag that is passed in
+const watchEnvVar = process.env.FM_WATCH?.toLowerCase();
+if (watchEnvVar === 'true' || watchEnvVar === 'false') {
+  cliopts.watch = watchEnvVar === 'true';
+}
 
 const databaseConfig = getDatabaseConfig(opts);
 process.env.PG_URL = databaseConfig.postgresUrl;
@@ -74,7 +79,7 @@ const bundleDefinitions = {
   "process.env.NODE_ENV": isProduction ? "\"production\"" : "\"development\"",
   "bundleIsProduction": isProduction,
   "bundleIsTest": false,
-  "bundleIsCypress": isCypress,
+  "bundleIsE2E": isE2E,
   "bundleIsMigrations": false,
   "defaultSiteAbsoluteUrl": `\"${process.env.ROOT_URL || ""}\"`,
   "buildId": `"${latestCompletedBuildId}"`,
@@ -105,6 +110,7 @@ build({
   banner: {
     js: clientBundleBanner,
   },
+  tslint: !isProduction,
   run: false,
   onStart: (config, changedFiles, ctx) => {
     setClientRebuildInProgress(true);
@@ -119,16 +125,6 @@ build({
     if (buildResult?.errors?.length > 0) {
       console.log("Skipping browser refresh notification because there were build errors");
     } else {
-      // Creating brotli compressed version of bundle.js to save on client download size:
-      const brotliOutfilePath = `${clientOutfilePath}.br`;
-      // Always delete compressed version if it exists, to avoid stale files
-      if (fs.existsSync(brotliOutfilePath)) {
-        fs.unlinkSync(brotliOutfilePath);
-      }
-      if (isProduction) {
-        fs.writeFileSync(brotliOutfilePath, zlib.brotliCompressSync(fs.readFileSync(clientOutfilePath, 'utf8')));
-      }
-
       latestCompletedBuildId = inProgressBuildId;
       if (cliopts.watch) {
         initiateRefresh({serverPort});
@@ -171,6 +167,7 @@ build({
   sourcemap: true,
   sourcesContent: true,
   minify: false,
+  tslint: !isProduction,
   run: cliopts.run && serverCli,
   onStart: (config, changedFiles, ctx) => {
     setServerRebuildInProgress(true);
@@ -195,10 +192,10 @@ build({
     "bcrypt", "node-pre-gyp", "intercom-client", "node:*",
     "fsevents", "chokidar", "auth0", "dd-trace", "pg-formatter",
     "gpt-3-encoder", "@elastic/elasticsearch", "zod", "node-abort-controller",
-    "cheerio",
+    "cheerio"
   ],
 })
 
-if (cliopts.watch && cliopts.run && !isProduction) {
+if (cliopts.watch && cliopts.run && !isProduction && !process.env.CI) {
   startAutoRefreshServer({serverPort, websocketPort});
 }

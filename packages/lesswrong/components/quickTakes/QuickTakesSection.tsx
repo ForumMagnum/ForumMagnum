@@ -76,7 +76,7 @@ const QuickTakesSection = ({classes}: {
   const titleText = preferredHeadingCase("Quick Takes");
   const titleTooltip = (
     <div>
-      A feed of quick takes by other users, sorted by recency.
+      A feed of quick takes by other users, sorted by recency and karma.
     </div>
   );
   const title = isFriendlyUI
@@ -112,27 +112,23 @@ const QuickTakesSection = ({classes}: {
       title={title}
       afterTitleTo={afterTitleTo}
       AfterTitleComponent={AfterTitleComponent}
-      Content={() => (
-        <>
-          {userCanComment(currentUser) &&
-            <QuickTakesEntry currentUser={currentUser} />
-          }
-          
-          <QuickTakesList
-            showCommunity={showCommunity}
-            className={classes.list}
-          />
-        </>
-      )}
-    />
+    >
+      {userCanComment(currentUser) &&
+        <QuickTakesEntry currentUser={currentUser} />
+      }
+      
+      <QuickTakesList
+        showCommunity={showCommunity}
+        className={classes.list}
+      />
+    </ExpandableSection>
   );
 }
 
-const QuickTakesSectionComponent = registerComponent(
-  "QuickTakesSection",
-  QuickTakesSection,
-  {styles},
-);
+const QuickTakesSectionComponent = registerComponent("QuickTakesSection", QuickTakesSection, {
+  styles,
+  areEqual: "auto"
+});
 
 declare global {
   interface ComponentTypes {

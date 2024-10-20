@@ -17,7 +17,7 @@ const sansSerifStack = [
   'sans-serif'
 ].join(',')
 
-const serifStack = [
+const serifStackBody = [
   'warnock-pro',
   'Palatino',
   '"Palatino Linotype"',
@@ -25,7 +25,10 @@ const serifStack = [
   '"Book Antiqua"',
   'Georgia',
   'serif'
-].join(',')
+]
+
+const serifStack = serifStackBody.join(',')
+const headerStack = ["ETBookRoman", ...serifStackBody].join(',')
 
 export const lessWrongTheme: SiteThemeSpecification = {
   shadePalette: {
@@ -50,16 +53,24 @@ export const lessWrongTheme: SiteThemeSpecification = {
     },
     background: {
       default: '#f8f4ee'
-    }
+    },
+    link: {
+      color: "#327E09",
+      visited: "#798754"
+    },
   }),
   make: (palette: ThemePalette) => ({
+    zIndexes: {
+      searchResults: 1100,
+      intercomButton: 1030,
+    },
     typography: {
       fontFamily: sansSerifStack,
       postStyle: {
         fontFamily: serifStack,
       },
       headerStyle: {
-        fontFamily: serifStack,
+        fontFamily: headerStack,
       },
       caption: {
         // captions should be relative to their surrounding content, so they are unopinionated about fontFamily and use ems instead of rems
@@ -67,7 +78,7 @@ export const lessWrongTheme: SiteThemeSpecification = {
         fontSize: '.85em'
       },
       body2: {
-        fontSize: "1.16rem"
+        fontSize: 15.08
       },
       commentStyle: {
         fontFamily: sansSerifStack,
@@ -86,7 +97,7 @@ export const lessWrongTheme: SiteThemeSpecification = {
         fontFamily: serifStack,
       },
       title: {
-        fontFamily: serifStack,
+        fontFamily: headerStack,
         fontWeight: 500,
       },
       uiSecondary: {
@@ -101,15 +112,15 @@ export const lessWrongTheme: SiteThemeSpecification = {
       },
       MuiTooltip: {
         tooltip: {
-          fontSize: "1rem",
-          padding: ".7rem",
+          fontSize: 13,
+          padding: "9.1px",
           zIndex: 10000000
         }
       },
       MuiDialogContent: {
         root: {
           fontFamily: sansSerifStack,
-          fontSize: "1.16rem",
+          fontSize: 15.08,
           lineHeight: "1.5em"
         }
       },
@@ -117,7 +128,7 @@ export const lessWrongTheme: SiteThemeSpecification = {
         root: {
           fontFamily: sansSerifStack,
           color: palette.grey[800],
-          fontSize: "1.1rem",
+          fontSize: 14.3,
           lineHeight: "1.1em"
         }
       },
