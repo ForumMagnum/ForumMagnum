@@ -112,5 +112,6 @@ export const formGroups: Record<string, FormGroupType<"Posts">> = {
     name: "glossary",
     label: "Glossary",
     startCollapsed: false,
+    hideHeader: true,
   }
 };

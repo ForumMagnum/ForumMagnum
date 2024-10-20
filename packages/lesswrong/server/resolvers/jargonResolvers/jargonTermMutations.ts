@@ -1,7 +1,7 @@
 import { jargonBotClaudeKey } from '@/lib/instanceSettings';
 import { defineMutation } from '../../utils/serverGraphqlUtil';
 import { getAnthropicPromptCachingClientOrThrow } from '../../languageModels/anthropicClient';
-import { exampleJargonPost2, exampleJargonGlossary2 } from './exampleJargonPost';
+import { exampleJargonPost2, exampleJargonGlossary2, exampleJargonLatentsGlossary, exampleJargonLatentsTerms } from './exampleJargonPost';
 import { PromptCachingBetaMessageParam } from '@anthropic-ai/sdk/resources/beta/prompt-caching/messages';
 import JargonTerms from '@/lib/collections/jargonTerms/collection';
 import { createMutator, sanitize } from '../../vulcan-lib';
@@ -187,18 +187,19 @@ The jargon terms are:`
 }
 
 async function createExplanationMessagesWithExample(postMarkdown: string, extractedTerms: string[]): Promise<PromptCachingBetaMessageParam[]> {
-  const exampleTerms = exampleJargonGlossary2.glossaryItems.map(explanation => explanation.term);
+  const oldExampleTerms = exampleJargonGlossary2.glossaryItems.map(explanation => explanation.term);
+  console.log(`exampleTerms: ${oldExampleTerms}`)
 
   const toolUseId = randomId();
 
-  const examplePost = await getExamplePost("exampleJargonPost2.md");
+  const examplePost = await getExamplePost("exampleJargonLatents.md");
   console.log(`examplePost: ${examplePost}`)
 
   return [{
     role: "user",
     content: [{
       type: "text",
-      text: `${glossarySystemPrompt}\n\nThe post is: <Post>${examplePost}</Post>.  The jargon terms are: <Terms>${exampleTerms}</Terms>`
+      text: `${glossarySystemPrompt}\n\nThe post is: <Post>${examplePost}</Post>.  The jargon terms are: <Terms>${exampleJargonLatentsTerms}</Terms>`
     }]
   },
   {
@@ -207,7 +208,7 @@ async function createExplanationMessagesWithExample(postMarkdown: string, extrac
       type: "tool_use",
       id: toolUseId,
       name: "generate_jargon_glossary",
-      input: exampleJargonGlossary2,
+      input: exampleJargonLatentsGlossary,
     }]
   },
   {
@@ -225,7 +226,7 @@ async function createExplanationMessagesWithExample(postMarkdown: string, extrac
 export const queryClaudeForJargonExplanations = async ({ markdown, terms }: JargonTermsExplanationQueryParams): Promise<LLMGeneratedJargonTerm[]> => {
   console.log(`I'm pinging Claude for jargon explanations!`)
   const client = getAnthropicPromptCachingClientOrThrow(jargonBotClaudeKey.get());
-  const messages: PromptCachingBetaMessageParam[] = createExplanationMessagesWithExample(markdown, terms);
+  const messages: PromptCachingBetaMessageParam[] = await createExplanationMessagesWithExample(markdown, terms);
 
   const response = await client.messages.create({
     model: "claude-3-5-sonnet-20240620",
@@ -350,7 +351,8 @@ export async function createEnglishExplanations(post: PostsPage, excludeTerms: s
     return [];
   }
 
-  const newTerms = terms.filter(term => !excludeTerms.includes(term));
+  const newTerms = terms.filter(term => !excludeTerms.includes(term) && post.contents?.html?.includes(term));
+  console.log(`newTerms: ${newTerms}`)
 
   return queryClaudeForJargonExplanations({ markdown, terms: newTerms });
 }

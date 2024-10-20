@@ -29,7 +29,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const JargonTooltip = ({term, definitionHTML, altTerms, humansAndOrAIEdited, replacedSubstrings, isFirstOccurrence = false, placement="bottom-start", children, classes}: {
+export const JargonTooltip = ({term, definitionHTML, altTerms, humansAndOrAIEdited, replacedSubstrings, isFirstOccurrence = false, placement="top-start", children, classes, clickable=true}: {
   term: string,
   definitionHTML: string,
   altTerms: string[],
@@ -39,6 +39,7 @@ export const JargonTooltip = ({term, definitionHTML, altTerms, humansAndOrAIEdit
   placement?: PopperPlacementType
   children: React.ReactNode,
   classes: ClassesType<typeof styles>,
+  clickable?: boolean,
 }) => {
   const { LWTooltip, ContentItemBody } = Components;
   const replacedSubstringsWithoutTermOrAltTerms = replacedSubstrings.filter(s => s.replacedString !== term && !altTerms.includes(term));
@@ -58,7 +59,7 @@ export const JargonTooltip = ({term, definitionHTML, altTerms, humansAndOrAIEdit
     </div>
   </Card>
 
-  return <LWTooltip title={tooltip} tooltip={false} placement={placement} clickable={true}>
+  return <LWTooltip title={tooltip} tooltip={false} placement={placement} clickable={clickable}>
     <span className={classNames(isFirstOccurrence && classes.jargonWord)}>
       {children}
     </span>

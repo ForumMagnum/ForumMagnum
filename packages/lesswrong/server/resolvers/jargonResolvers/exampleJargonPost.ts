@@ -1863,12 +1863,99 @@ export const exampleJargonGlossary2: { glossaryItems: ExampleJargonGlossaryEntry
 export const exampleJargonLatentsGlossary: { glossaryItems: ExampleJargonGlossaryEntry[] } = {
   glossaryItems: [
     { 
-      "term": "Moloch", 
-      "altTerms": [],
+      "term": "Data distribution", 
+      "altTerms": ['data distributions'],
       "text": `<div>
         <p><b>Data distribution:</b> The distribution which an agent models data points as being drawn from.</p>
         <p>Importantly distinct from an agent's whole world model, which may include many other "latent" variables in addition to variables representing the data.</p>
       </div>`
     },
+    {
+      "term": "Latent variables",
+      "altTerms": ['latents'],
+      "text": `<div>
+        <p><b>Latent variables:</b> Variables which an agent's world model includes but which are not directly observed.</p>
+        <p>These variables are not part of the data distribution, but can help explain the data distribution.</p>
+      </div>`
+    },
+    {
+      "term": "Graphical structure",
+      "altTerms": ['graphical structures'],
+      "text": `<div>
+        <p><b>Graphical structure:</b> In probabilistic modeling, graphical structures (like Bayes networks) use nodes to represent variables and edges to represent dependencies between variables. They provide a compact way to represent complex probability distributions.</p>
+      </div>`
+    },
+    {
+      "term": "Fundamental Theorem of Natural Latents",
+      "altTerms": ['entropy'],
+      "text": `<div>
+        <p><b>Fundamental Theorem of Natural Latents:</b> Every mediator contains every redund.</p>
+        <p>A mediator between two observables has to carry all information shared by the two.  A redund between two observables is redundantly shared across the two. So, any mediator must contain every redund.  The Fundamental Theorem of Natural Latents formalizes this intuition and handles approximations.</p>
+      </div>`
+    },
+    {
+      "term": "Entropy",
+      "altTerms": ['entropy'],
+      "text": `<div>
+        <p><b>Entropy:</b> A measure of uncertainty or randomness in a system.</p>
+        <p>In information theory, entropy quantifies the average number of bits needed to represent a value of a random variable. Lower entropy indicates more predictability, while higher entropy suggests more uncertainty or randomness.</p>
+      </div>`
+    },
+    {
+      "term": "Generative model",
+      "altTerms": ['generative models'],
+      "text": `<div>
+        <p><b>Generative model:</b> A statistical model which hypothesizes how data is generated.</p>
+        <p>In machine learning and statistics, a generative model attempts to explain the underlying process that produces observed data. It can be used to generate new, synthetic data points that are similar to the observed data.</p>
+      </div>`
+    },
+    {
+      "term": "IID samples",
+      "altTerms": ['IID sample', 'Independent and Identically Distributed'],
+      "text": `<div>
+        <p><b>IID samples:</b> Independent and Identically Distributed.
+        In statistics, IID samples are observations that are both Independent of each other and drawn from the same (Identical) probability Distribution.</p>
+      </div>`
+    },
+    {
+      "term": "KL-divergence",
+      "altTerms": ['kl-divergence'],
+      "text": `<div>
+        <p><b>KL-divergence:</b> Kullback-Leibler divergence, a measure of difference between probability distributions.</p>
+        <p>In information theory, KL-divergence quantifies the minimum number of bits of evidence required to update from one distribution to another. It's can also be used as a unified foundation to define many other standard information-theoretic quantities.</p>
+      </div>`
+    },
+    {
+      "term": "Mediation",
+      "altTerms": ['mediator'],
+      "text": `<div>
+        <p><b>Mediation:</b> A variable Y "mediates" between X and Z iff X and Z are independent given Y. Intuitively, this means that X and Z can only interact through Y.</p>
+      </div>`
+    },
+    {
+      "term": "Redundancy",
+      "altTerms": ['redundancy'],
+      "text": `<div>
+        <p><b>Redundancy:</b> The state of having duplicate or overlapping information.</p>
+        <p>In information theory and the context of this post, redundancy refers to the property where information about a latent variable is represented multiple times across observed variables.</p>
+      </div>`
+    },
+    {
+      "term": "Stochastic function",
+      "altTerms": ['stochastic functions'],
+      "text": `<div>
+        <p><b>Stochastic function:</b> A function that involves randomness in its output. In particular, the randomness must be independent of any randomness in the function's inputs.</p>
+      </div>`
+    },
+    {
+      "term": "Tiny mixtures problem",
+      "altTerms": [],
+      "text": `<div>
+        <p><b>Tiny mixtures problem:</b> A situation where small differences in observable distributions can lead to large failures in natural latent guarantees.</p>
+        <p>This problem arises in certain statistical scenarios where seemingly negligible differences between distributions can cause significant issues in the application of theoretical results.</p>
+      </div>`
+    }
   ]
 };
+
+export const exampleJargonLatentsTerms = ['Data Distribution', 'Latent Variables', 'Graphical structure', 'Fundamental Theorem of Natural Latents', 'Entropy', 'Generative model', 'IID samples', 'KL-divergence', 'Mediation', 'Redundancy', 'Stochastic function', 'Tiny mixtures problem']

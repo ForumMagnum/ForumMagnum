@@ -4,6 +4,7 @@ import { commentBodyStyles } from '@/themes/stylePiping';
 import classNames from 'classnames';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import Button from '@material-ui/core/Button';
+import Checkbox from '@material-ui/core/Checkbox';
 
 const APPROVED_PADDING = 10;
 
@@ -13,9 +14,10 @@ const styles = (theme: ThemeType) => ({
     ...commentBodyStyles(theme),
     pointerEvents: 'undefined',
     marginTop: 0,
-    alignItems: 'flex-start',
     padding: 10,
     borderBottom: theme.palette.border.commentBorder,
+    display: 'flex',
+    alignItems: 'center',
     '&:last-child': {
       borderBottom: 'none',
     },
@@ -112,6 +114,9 @@ const styles = (theme: ThemeType) => ({
       display: "flex",
       flexWrap: "wrap",
     },
+    '& .ContentStyles-commentBody': {
+      fontSize: '1.1rem',
+    },
     '& .form-component-EditorFormComponent': {
       marginBottom: 0,
       width: '100%',
@@ -125,6 +130,12 @@ const styles = (theme: ThemeType) => ({
   },
   explanationContainer: {
     cursor: 'pointer',
+  },
+  checkbox: {
+    width: 30,
+    height: 30,
+    paddingRight: 50,
+    paddingLeft: 25,
   }
 });
 
@@ -233,6 +244,9 @@ export const JargonEditorRow = ({classes, postId, jargonTerm}: {
   }
 
   return <div className={classes.root}>
+      <div onClick={handleActiveChange}>
+        <Checkbox checked={jargonTerm.approved} className={classes.checkbox} />
+      </div>
       {edit ? <div className={classes.formStyles}>
           <WrappedSmartForm
             collectionName="JargonTerms"
@@ -245,13 +259,13 @@ export const JargonEditorRow = ({classes, postId, jargonTerm}: {
             prefetchedDocument={jargonTerm}
           />
         </div>
-      : <div className={classes.explanationContainer} onClick={() => handleActiveChange()}>
+      : <div className={classes.explanationContainer} onClick={() => setEdit(true)}>
          <ContentItemBody dangerouslySetInnerHTML={{__html: jargonDefinition}} className={classNames(classes.explanation, !jargonTerm.approved && classes.unapproved)}/>
         </div>}
       {/* <div className={classes.altTerms}>
         {jargonTerm.altTerms?.map((altTerm) => <div key={altTerm}>{altTerm}</div>)}
       </div> */}
-    {!edit && <div className={classes.bottomButtons}>
+    {/* {!edit && <div className={classes.bottomButtons}>
       <LWTooltip title={<div>Remove from list</div>} placement="bottom">
         <span onClick={() => handleDelete()} className={classes.bottomButton}>
           HIDE
@@ -272,7 +286,7 @@ export const JargonEditorRow = ({classes, postId, jargonTerm}: {
           EDIT
         </span>
       </LWTooltip>
-    </div>}
+    </div>} */}
   </div>
 }
 

@@ -4,29 +4,41 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
 import classNames from 'classnames';
 import { useUpdate } from '@/lib/crud/withUpdate';
+import Checkbox from '@material-ui/core/Checkbox';
+import { JargonTooltip } from './JargonTooltip';
 
 const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
-    width: 150,
+    whiteSpace: 'pre',
     cursor: 'pointer',
-    opacity: .5,
-    display: 'flex',
+    display: 'inline-flex',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    border: theme.palette.border.faint,
+    borderRadius: 4,
+    padding: '4px 8px',
+    opacity: .5,
     '&:hover': {
-      opacity: .8
+      opacity: .6
     },
     '&:hover $delete': {
-      opacity: 1
+      opacity: .7
+    }
+  },
+  checkbox: {
+    padding: 8,
+    '& .MuiSvgIcon-root': {
+      height: 16,
+      width: 16,
     }
   },
   term: {
-    paddingTop: 6,
-    paddingBottom: 6,
     textTransform: 'capitalize',
   },
   approved: {
-    opacity: .9,
+    opacity: 1,
+    borderColor: theme.palette.grey[800],
   },
   delete: {
     opacity: 0,
@@ -81,14 +93,17 @@ export const JargonTocItem = ({classes, jargonTerm}: {
     })
   }
 
-  const { LWTooltip } = Components;
+  const { LWTooltip, JargonTooltip } = Components;
 
-  return <div className={classNames(classes.root, jargonTerm.approved && classes.approved)}>
-    <div className={classes.term} onClick={handleActiveChange}>{jargonTerm.term}</div>
+  return <span className={classNames(classes.root, jargonTerm.approved && classes.approved)} onClick={handleActiveChange}>
+    <JargonTooltip term={jargonTerm.term} definitionHTML={jargonTerm.contents?.html ?? ''} altTerms={jargonTerm.altTerms ?? []} humansAndOrAIEdited={jargonTerm.humansAndOrAIEdited} replacedSubstrings={[]} clickable={false}>
+      <span className={classes.term}>{jargonTerm.term}</span>
+    </JargonTooltip>
+    
     <LWTooltip title="Delete" placement="right">
-      <div className={classes.delete} onClick={handleDelete}>x</div>
+      <span className={classes.delete} onClick={handleDelete}>x</span>
     </LWTooltip> 
-  </div>;
+  </span>;
 }
 
 const JargonTocItemComponent = registerComponent('JargonTocItem', JargonTocItem, {styles});
