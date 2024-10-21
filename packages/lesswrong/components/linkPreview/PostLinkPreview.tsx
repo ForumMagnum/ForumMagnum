@@ -635,6 +635,7 @@ const fatebookStyles = (theme: ThemeType): JssStyles => ({
     height: 405,
     border: "none",
     maxWidth: "100vw",
+    backgroundColor: theme.palette.panelBackground.default,
   },
   link: linkStyle(theme),
 })
