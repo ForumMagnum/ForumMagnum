@@ -123,7 +123,9 @@ async function executeWithLock<T>(rawLockId: string, callback: () => Promise<T>)
       // 2. The lock is not acquired
       // 3. The lock is acquired, but the query throws an error
       // 4. The lock is not acquired, and the query throws an error
+      console.time('acquire lock');
       lockResult = await task.any<{ pg_try_advisory_lock: boolean }>('SELECT pg_try_advisory_lock($1)', [lockId]);
+      console.timeEnd('acquire lock');
     } catch (err) {
       // This deals with cases 3 and 4 (query threw an error, lock may or may not be acquired)
       // Case 4 is unfortunate, since we might release someone else's lock, but it's better than leaving the lock in place
@@ -310,7 +312,8 @@ export const queryClaudeForJargonExplanations = async ({ markdown, terms }: Jarg
 }
 
 const queryClaudeForSingleJargonExplanation = async ({ markdown, term, toolUseId }: SingleJargonTermExplanationQueryParams): Promise<LLMGeneratedJargonTerm | null> => {
-  console.log(`I'm pinging Claude for jargon explanation for term ${term}!`)
+  console.log(`I'm pinging Claude for jargon explanation for term ${term}!`);
+  console.time(`Generating term ${term}`);
   const client = getAnthropicPromptCachingClientOrThrow(jargonBotClaudeKey.get());
   const messages: PromptCachingBetaMessageParam[] = await createSingleExplanationMessageWithExample(markdown, term, toolUseId);
 
@@ -321,6 +324,7 @@ const queryClaudeForSingleJargonExplanation = async ({ markdown, term, toolUseId
     tools: [generateSingleJargonGlossaryItemTool],
     tool_choice: { type: "tool", name: "generate_jargon_glossary_item" }
   });
+  console.timeEnd(`Generating term ${term}`);
 
   if (response.content[0].type === "text") {
     console.error(`Claude responded with text, but we expected a tool use.`)
@@ -432,7 +436,9 @@ export async function createEnglishExplanations(post: PostsPage, excludeTerms: s
   const originalMarkdown = htmlToMarkdown(originalHtml);
   const markdown = (originalMarkdown.length < 200_000) ? originalMarkdown : originalMarkdown.slice(0, 200_000);
 
+  console.time('queryClaudeForTerms');
   const terms = await queryClaudeForTerms(markdown);
+  console.timeEnd('queryClaudeForTerms');
   if (!terms.length) {
     return [];
   }
@@ -442,22 +448,29 @@ export async function createEnglishExplanations(post: PostsPage, excludeTerms: s
 
   // return queryClaudeForJargonExplanations({ markdown, terms: newTerms });
   const toolUseId = randomId();
-  return filterNonnull(await Promise.all(terms.map((term) => queryClaudeForSingleJargonExplanation({ markdown, term, toolUseId }))));
+  console.time('query Claude for all explanations');
+  const explanations = await Promise.all(terms.map((term) => queryClaudeForSingleJargonExplanation({ markdown, term, toolUseId })));
+  console.timeEnd('query Claude for all explanations');
+  return filterNonnull(explanations);
 }
 
 export const createNewJargonTerms = async (postId: string, currentUser: DbUser) => {
+  console.time('fetchPostFragment');
   const post = await fetchFragmentSingle({
     collectionName: 'Posts',
     fragmentName: 'PostsPage',
     currentUser,
     selector: { _id: postId },
   });
+  console.timeEnd('fetchPostFragment');
 
   if (!post) {
     throw new Error('Post not found');
   }
 
+  console.time('getAuthorsOtherJargonTerms');
   const authorsOtherJargonTerms = await (new JargonTermsRepo().getAuthorsOtherJargonTerms(currentUser._id, postId));
+  console.timeEnd('getAuthorsOtherJargonTerms');
   const existingJargonTermsById = keyBy(authorsOtherJargonTerms, '_id');
   const presentTerms = authorsOtherJargonTerms.filter(jargonTerm => post.contents?.html?.includes(jargonTerm.term));
   
@@ -482,8 +495,12 @@ export const createNewJargonTerms = async (postId: string, currentUser: DbUser) 
       const newEnglishJargon = await createEnglishExplanations(post, termsToExclude);
 
       console.log("creating jargonTerms");
+      console.time('getAdminTeamAccount');
       const botAccount = await getAdminTeamAccount();
-      return await Promise.all([
+      console.timeEnd('getAdminTeamAccount');
+      
+      console.time('term createMutators');
+      const createdTerms = await Promise.all([
         ...newEnglishJargon.map((term) =>
           createMutator({
             collection: JargonTerms,
@@ -520,6 +537,8 @@ export const createNewJargonTerms = async (postId: string, currentUser: DbUser) 
           })
         ),
       ]);
+      console.timeEnd('term createMutators');
+      return createdTerms;
     });
   } catch (err) {
     if (err instanceof AdvisoryLockError) {
