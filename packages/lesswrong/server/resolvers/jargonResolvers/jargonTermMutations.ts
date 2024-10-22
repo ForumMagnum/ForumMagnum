@@ -314,7 +314,8 @@ export const queryClaudeForJargonExplanations = async ({ markdown, terms }: Jarg
 }
 
 const queryClaudeForSingleJargonExplanation = async ({ markdown, term, toolUseId }: SingleJargonTermExplanationQueryParams): Promise<LLMGeneratedJargonTerm | null> => {
-  console.log(`I'm pinging Claude for jargon explanation for term ${term}!`)
+  console.log(`I'm pinging Claude for jargon explanation for term ${term}!`);
+  console.time(`Generating term ${term}`);
   const client = getAnthropicPromptCachingClientOrThrow(jargonBotClaudeKey.get());
   const messages: PromptCachingBetaMessageParam[] = await createSingleExplanationMessageWithExample(markdown, term, toolUseId);
 
@@ -325,6 +326,7 @@ const queryClaudeForSingleJargonExplanation = async ({ markdown, term, toolUseId
     tools: [generateSingleJargonGlossaryItemTool],
     tool_choice: { type: "tool", name: "generate_jargon_glossary_item" }
   });
+  console.timeEnd(`Generating term ${term}`);
 
   if (response.content[0].type === "text") {
     console.error(`Claude responded with text, but we expected a tool use.`)
@@ -436,7 +438,9 @@ export async function createEnglishExplanations(post: PostsPage, excludeTerms: s
   const originalMarkdown = htmlToMarkdown(originalHtml);
   const markdown = (originalMarkdown.length < 200_000) ? originalMarkdown : originalMarkdown.slice(0, 200_000);
 
+  console.time('queryClaudeForTerms');
   const terms = await queryClaudeForTerms(markdown);
+  console.timeEnd('queryClaudeForTerms');
   if (!terms.length) {
     return [];
   }
@@ -446,7 +450,10 @@ export async function createEnglishExplanations(post: PostsPage, excludeTerms: s
 
   // return queryClaudeForJargonExplanations({ markdown, terms: newTerms });
   const toolUseId = randomId();
-  return filterNonnull(await Promise.all(terms.map((term) => queryClaudeForSingleJargonExplanation({ markdown, term, toolUseId }))));
+  console.time('query Claude for all explanations');
+  const explanations = await Promise.all(terms.map((term) => queryClaudeForSingleJargonExplanation({ markdown, term, toolUseId })));
+  console.timeEnd('query Claude for all explanations');
+  return filterNonnull(explanations);
 }
 
 export const createNewJargonTerms = async (postId: string, currentUser: DbUser) => {
