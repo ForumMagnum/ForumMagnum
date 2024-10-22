@@ -659,7 +659,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
 
   // If the user has just posted a comment, and they are sorting by magic, put it at the top of the list for them
   const results = useMemo(() => {
-    if (!rawResults || commentTerms.view !== "postCommentsMagic") return rawResults;
+    if (!isEAForum || !rawResults || commentTerms.view !== "postCommentsMagic") return rawResults;
 
     const recentUserComments = rawResults
       .filter((c) => c.userId === currentUser?._id && now.getTime() - new Date(c.postedAt).getTime() < 60000)
