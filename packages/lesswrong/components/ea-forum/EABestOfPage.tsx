@@ -189,7 +189,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
 
   const {
     HeadTags, EASequenceCard, EACollectionCard, EAPostsItem, PostsAudioCard,
-    PostsVideoCard,
+    PostsVideoCard, T3AudioPlayer
   } = Components;
   return (
     <>
@@ -291,7 +291,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
                 <h2 className={classes.heading}>Featured audio</h2>
                 <div className={classNames(classes.listSection, classes.listGap)}>
                   {featuredAudioPosts.map((post) => (
-                    <PostsAudioCard key={post._id} post={post} />
+                    <T3AudioPlayer key={post._id} postId={post._id} showEmbeddedPlayer />
                   ))}
                 </div>
               </div>
