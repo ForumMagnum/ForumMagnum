@@ -3,7 +3,7 @@ concurrency: deploy-ea-beta
 on:
   workflow_dispatch:
   push:
-    branches: [audio-play-from-heading-fixes]
+    branches: [wh-best-of-t3-player-2024-10]
 jobs:
   deploy:
     runs-on: ubuntu-latest
