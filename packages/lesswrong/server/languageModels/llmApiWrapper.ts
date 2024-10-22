@@ -30,7 +30,7 @@ export interface SendAnthropicMessages {
 export type SendLLMMessagesArgs = SendOpenAIMessages | SendAnthropicMessages;
 
 function convertAnthropicToolsToOpenAI(tools: Exclude<AnthropicSendMessagesParams['tools'], undefined>): OpenAISendMessagesParams['tools'] {
-  return tools?.map(tool => {
+  return tools.map(tool => {
     return {
       type: 'function',
       function: {
@@ -44,7 +44,7 @@ function convertAnthropicToolsToOpenAI(tools: Exclude<AnthropicSendMessagesParam
 }
 
 function convertAnthropicToolChoiceToOpenAI(toolChoice: Exclude<AnthropicSendMessagesParams['tool_choice'], undefined>): OpenAISendMessagesParams['tool_choice'] {
-  if (toolChoice?.type !== 'tool') {
+  if (toolChoice.type !== 'tool') {
     throw new Error('Only supports forced tool-choice for OpenAI tool_choice!');
   }
 
