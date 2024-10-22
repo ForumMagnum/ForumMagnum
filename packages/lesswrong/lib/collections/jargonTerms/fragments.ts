@@ -29,7 +29,7 @@ registerFragment(`
 
 registerFragment(`
   fragment JargonTermsWithPostInfo on JargonTerm {
-    ...JargonTermsPost
+    ...JargonTerms
     post {
       ...PostsMinimumInfo
     }

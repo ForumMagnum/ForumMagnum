@@ -4213,7 +4213,7 @@ interface JargonTermsPost { // fragment on JargonTerms
   readonly contents: RevisionDisplay|null,
 }
 
-interface JargonTermsWithPostInfo extends JargonTermsPost { // fragment on JargonTerms
+interface JargonTermsWithPostInfo extends JargonTerms { // fragment on JargonTerms
   readonly post: PostsMinimumInfo|null,
 }
 
