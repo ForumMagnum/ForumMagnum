@@ -14,8 +14,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   overallSection: {
     display: 'inline-block',
     height: 24,
-    paddingTop: 2,
-    marginLeft: isFriendlyUI ? 0 : 12,
+    paddingTop: isFriendlyUI ? 2 : 0, // TODO: Does EA Forum still need this padding?
+    marginLeft: 12,
   },
   overallSectionBox: {
     marginLeft: 8,
@@ -55,10 +55,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   verticalArrows: {
     "& .LWTooltip-root": {
-      transform: "translateY(1px)",
     },
     "& $voteScore": {
-      transform: "translateY(-2px)",
       display: "block",
     },
   },
@@ -71,6 +69,7 @@ const OverallVoteAxis = ({
   classes,
   showBox=false,
   verticalArrows,
+  largeArrows,
   className,
 }: {
   document: VoteableTypeClient,
@@ -79,6 +78,7 @@ const OverallVoteAxis = ({
   classes: ClassesType,
   showBox?: boolean,
   verticalArrows?: boolean,
+  largeArrows?: boolean,
   className?: string,
 }) => {
   const currentUser = useCurrentUser();
@@ -146,7 +146,7 @@ const OverallVoteAxis = ({
 
   const tooltipPlacement = isFriendlyUI ? "top" : "bottom";
 
-  const buttonProps: Partial<OverallVoteButtonProps<VoteableTypeClient>> = {};
+  const buttonProps: Partial<OverallVoteButtonProps<VoteableTypeClient>> = {largeArrow: largeArrows};
   if (verticalArrows) {
     buttonProps.solidArrow = true;
   }

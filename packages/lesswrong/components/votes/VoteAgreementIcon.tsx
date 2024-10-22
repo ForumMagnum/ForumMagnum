@@ -78,7 +78,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: '45%',
     opacity: 0.6,
     position: 'absolute',
-    top: 5,
+    top: 6,
     left: 11
   },
   smallCheckBigVoted: {

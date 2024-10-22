@@ -17,22 +17,20 @@ const styles = (theme: ThemeType) => ({
     borderRadius: 4,
   },
   upvoteHorizontal: {
-    fontSize: 18,
-    marginBottom: isLW ? -3 : -3, // -1 for LW, -3 for AF
+    marginBottom: 2,
     '& .VoteArrowIconSolid-root': {
       color: theme.palette.grey[800]
     },
   },
   downvoteHorizontal: {
-    fontSize: 18,
-    marginTop: isLW ? -3 : -3, // -4 for LW, -3 for AF
     '& .VoteArrowIconSolid-root': {
       color: theme.palette.grey[800]
     },
   },
   voteScoresHorizontal: {
-    marginLeft: 8,
-    marginRight: 8,
+    // TODO: Habryka to check on whether same or different spacing for LW vs AF
+    // marginBottom: isLW ? -3 : -3, // -1 for LW, -3 for AF
+    margin: '-2px 8px'
   },
   voteScore: {
     color: theme.palette.grey[600],

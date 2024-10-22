@@ -32,18 +32,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     opacity: isEAForum ? 0.7 : 0.6,
   },
   up: {
-    bottom: isFriendlyUI ? 'unset' : '2px',
   },
   upLarge: {
-    bottom: isFriendlyUI ? 'unset' : '4px',
   },
   down: {
     transform: 'rotate(-180deg)',
-    top: isFriendlyUI ? 'unset' : '-1px',
+    top: 1
   },
   downLarge: {
     transform: 'rotate(-180deg)',
-    top: isFriendlyUI ? 'unset' : '-2px',
+    top: 1
   },
   right: {
     transform: 'rotate(-270deg)',
@@ -86,7 +84,7 @@ const styles = (theme: ThemeType): JssStyles => ({
         top: '-60%',
       }
     : {
-        top: '-45%',
+        top: '-30%',
         transform: 'scale(1.6)',
       },
   bigArrowCompleted: {

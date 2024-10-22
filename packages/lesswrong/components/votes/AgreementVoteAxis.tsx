@@ -16,7 +16,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     lineHeight: 0.6,
     height: 24,
     minWidth: 60,
-    paddingTop: 2,
     borderRadius: isFriendlyUI ? theme.borderRadius.small : 2,
     textAlign: 'center',
     whiteSpace: "nowrap",
