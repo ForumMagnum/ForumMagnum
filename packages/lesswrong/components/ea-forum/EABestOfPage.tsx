@@ -12,7 +12,7 @@ import classNames from "classnames";
 const MAX_WIDTH = 1500;
 const MD_WIDTH = 1000;
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "row",
@@ -95,6 +95,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   postsItem: {
     maxWidth: "unset",
   },
+  audioPlayer: {
+    marginBottom: 12
+  }
 });
 
 const featuredCollectionsCollectionIds = [
@@ -138,7 +141,7 @@ const allCollectionIds = [...featuredCollectionsCollectionIds];
 
 export const digestLink = "https://effectivealtruism.us8.list-manage.com/subscribe?u=52b028e7f799cca137ef74763&id=7457c7ff3e";
 
-const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
+const EABestOfPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const currentCuratedPostCount = useCurrentCuratedPostCount();
 
   const { results: posts, loading } = useMulti({
@@ -291,7 +294,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
                 <h2 className={classes.heading}>Featured audio</h2>
                 <div className={classNames(classes.listSection, classes.listGap)}>
                   {featuredAudioPosts.map((post) => (
-                    <T3AudioPlayer key={post._id} postId={post._id} showEmbeddedPlayer />
+                    <T3AudioPlayer key={post._id} postId={post._id} showEmbeddedPlayer className={classes.audioPlayer} />
                   ))}
                 </div>
               </div>
