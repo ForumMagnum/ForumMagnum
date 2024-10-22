@@ -429,7 +429,7 @@ registerFragment(`
 
     # Jargon Terms
     glossary {
-      ...JargonTermsPostFragment
+      ...JargonTermsPost
     }
   }
 `);

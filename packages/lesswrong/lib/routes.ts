@@ -1715,6 +1715,13 @@ addRoute(
   }
 );
 
+//jargon routes
+addRoute({
+  name: 'postsWithJargon',
+  path: '/allPostsWithJargon',
+  componentName: 'PostsWithJargonPage',
+})
+
 if (hasSurveys) {
   addRoute(
     {

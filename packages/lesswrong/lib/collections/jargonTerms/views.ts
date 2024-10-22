@@ -4,7 +4,7 @@ import JargonTerms from "./collection"
 declare global {
   interface PostJargonTermsViewTerms {
     view: 'postEditorJargonTerms',
-    postId: string
+    postId?: string
   }
 
   type JargonTermsViewTerms = Omit<ViewTermsBase, 'view'> & (PostJargonTermsViewTerms | {
@@ -16,8 +16,14 @@ declare global {
 ensureIndex(JargonTerms, { postId: 1, term: 1, createdAt: 1 });
 
 JargonTerms.addView("postEditorJargonTerms", function (terms: PostJargonTermsViewTerms) {
+  if (terms.postId) {
+    return {
+      selector: { postId: terms.postId },
+      options: { sort: { term: 1, createdAt: 1 } }
+    };
+  }
   return {
-    selector: { postId: terms.postId },
+    selector: {},
     options: { sort: { term: 1, createdAt: 1 } }
   };
 });

@@ -55,12 +55,12 @@ const styles = (theme: ThemeType) => ({
 
 export const JargonTocItem = ({classes, jargonTerm}: {
   classes: ClassesType<typeof styles>,
-  jargonTerm: JargonTermsFragment,
+  jargonTerm: JargonTerms,
 }) => {
   
   const {mutate: updateJargonTerm} = useUpdate({
     collectionName: "JargonTerms",
-    fragmentName: 'JargonTermsFragment',
+    fragmentName: 'JargonTerms',
   });
 
   const handleActiveChange = () => {

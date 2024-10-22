@@ -180,7 +180,7 @@ const JargonSubmitButton = ({ submitForm, cancelCallback, classes }: FormButtonP
 export const JargonEditorRow = ({classes, postId, jargonTerm}: {
   classes: ClassesType<typeof styles>,
   postId: string,
-  jargonTerm?: JargonTermsFragment,
+  jargonTerm?: JargonTerms,
 }) => {
   const { LWTooltip, WrappedSmartForm, ContentItemBody } = Components;
 
@@ -188,7 +188,7 @@ export const JargonEditorRow = ({classes, postId, jargonTerm}: {
 
   const {mutate: updateJargonTerm} = useUpdate({
     collectionName: "JargonTerms",
-    fragmentName: 'JargonTermsFragment',
+    fragmentName: 'JargonTerms',
   });
 
   const handleActiveChange = () => {
@@ -234,8 +234,8 @@ export const JargonEditorRow = ({classes, postId, jargonTerm}: {
       <div className={classes.formStyles}>
         <WrappedSmartForm
           collectionName="JargonTerms"
-          mutationFragment={getFragment('JargonTermsFragment')}
-          queryFragment={getFragment('JargonTermsFragment')}
+          mutationFragment={getFragment('JargonTerms')}
+          queryFragment={getFragment('JargonTerms')}
           formComponents={{ FormSubmit: Components.JargonSubmitButton }}
           prefilledProps={{ postId }}
         />
@@ -251,8 +251,8 @@ export const JargonEditorRow = ({classes, postId, jargonTerm}: {
           <WrappedSmartForm
             collectionName="JargonTerms"
             documentId={jargonTerm._id}
-            mutationFragment={getFragment('JargonTermsFragment')}
-            queryFragment={getFragment('JargonTermsFragment')}
+            mutationFragment={getFragment('JargonTerms')}
+            queryFragment={getFragment('JargonTerms')}
             successCallback={() => setEdit(false)}
             cancelCallback={() => setEdit(false)}
             formComponents={{ FormSubmit: Components.JargonSubmitButton }}

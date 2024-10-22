@@ -95,7 +95,7 @@ export const GlossaryEditForm = ({ classes, document }: {
       limit: 100
     },
     collectionName: "JargonTerms",
-    fragmentName: 'JargonTermsFragment',
+    fragmentName: 'JargonTerms',
   })
 
   const sortedGlossary = [...glossary].sort((a, b) => {
@@ -115,10 +115,10 @@ export const GlossaryEditForm = ({ classes, document }: {
   const [getNewJargonTerms, { data, loading: mutationLoading, error }] = useMutation(gql`
     mutation getNewJargonTerms($postId: String!) {
       getNewJargonTerms(postId: $postId) {
-        ...JargonTermsFragment
+        ...JargonTerms
       }
     }
-    ${fragmentTextForQuery("JargonTermsFragment")}
+    ${fragmentTextForQuery("JargonTerms")}
   `);
 
   const addNewJargonTerms = async () => { 
@@ -137,7 +137,7 @@ export const GlossaryEditForm = ({ classes, document }: {
 
   const {mutate: updateJargonTerm} = useUpdate({
     collectionName: "JargonTerms",
-    fragmentName: 'JargonTermsFragment',
+    fragmentName: 'JargonTerms',
   });
 
   const handleSetApproveAll = (approve: boolean) => {

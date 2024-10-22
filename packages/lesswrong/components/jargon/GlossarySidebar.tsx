@@ -57,7 +57,7 @@ const GlossarySidebar = ({post, classes}: {
     <div className={classes.glossaryContainer}>
       <h3 className={classes.title}>Glossary of Jargon</h3>
   
-      {post.glossary.map((jargonTerm: JargonTermsPostFragment) =>
+      {post.glossary.map((jargonTerm: JargonTermsPost) =>
         <div key={jargonTerm.term}>
           <JargonTooltip
             term={jargonTerm.term}

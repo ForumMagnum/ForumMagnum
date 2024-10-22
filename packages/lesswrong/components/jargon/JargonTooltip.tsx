@@ -66,7 +66,7 @@ export const JargonTooltip = ({term, definitionHTML, altTerms, humansAndOrAIEdit
   </LWTooltip>;
 }
 
-type MinimumExpandableJargonTerm = Pick<JargonTermsPostFragment, '_id' | 'term' | 'altTerms'>;
+type MinimumExpandableJargonTerm = Pick<JargonTermsPost, '_id' | 'term' | 'altTerms'>;
 
 export function expandJargonAltTerms<T extends MinimumExpandableJargonTerm>(glossaryItem: T, includeOriginalTerm = true): T[] {
   const expandedTerms = [...glossaryItem.altTerms.map(altTerm => ({
@@ -82,7 +82,7 @@ export function expandJargonAltTerms<T extends MinimumExpandableJargonTerm>(glos
   return expandedTerms;
 }
 
-function convertGlossaryItemToTextReplacement(glossaryItem: JargonTermsPostFragment): ContentReplacedSubstringComponentInfo {
+function convertGlossaryItemToTextReplacement(glossaryItem: JargonTermsPost): ContentReplacedSubstringComponentInfo {
   return {
     replacedString: glossaryItem.term,
     componentName: "JargonTooltip",
@@ -97,7 +97,7 @@ function convertGlossaryItemToTextReplacement(glossaryItem: JargonTermsPostFragm
   };
 }
 
-export function jargonTermsToTextReplacements(terms: JargonTermsPostFragment[]): ContentReplacedSubstringComponentInfo[] {
+export function jargonTermsToTextReplacements(terms: JargonTermsPost[]): ContentReplacedSubstringComponentInfo[] {
   return terms
     .flatMap((glossaryItem) => expandJargonAltTerms(glossaryItem))
     .map(convertGlossaryItemToTextReplacement);

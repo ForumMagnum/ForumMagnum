@@ -1,7 +1,7 @@
 import { registerFragment } from '../../vulcan-lib';
 
 registerFragment(`
-  fragment JargonTermsFragment on JargonTerm {
+  fragment JargonTerms on JargonTerm {
     _id
     postId
     term
@@ -16,13 +16,22 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment JargonTermsPostFragment on JargonTerm {
+  fragment JargonTermsPost on JargonTerm {
     _id
     term
     humansAndOrAIEdited
     altTerms
     contents {
       ...RevisionDisplay
+    }
+  }
+`);
+
+registerFragment(`
+  fragment JargonTermsWithPostInfo on JargonTerm {
+    ...JargonTermsPost
+    post {
+      ...PostsMinimumInfo
     }
   }
 `);
