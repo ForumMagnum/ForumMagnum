@@ -26,6 +26,11 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[600],
     fontSize: "0.8em",
     marginRight: 8,
+  },
+  tooltip: {
+    display: 'flex',
+    flexGrow: 1,
+    width: '100%',
   }
 });
 
@@ -59,7 +64,7 @@ export const JargonTooltip = ({term, definitionHTML, altTerms, humansAndOrAIEdit
     </div>
   </Card>
 
-  return <LWTooltip title={tooltip} tooltip={false} placement={placement} clickable={clickable}>
+  return <LWTooltip title={tooltip} tooltip={false} placement={placement} clickable={clickable} className={classes.tooltip}>
     <span className={classNames(isFirstOccurrence && classes.jargonWord)}>
       {children}
     </span>
