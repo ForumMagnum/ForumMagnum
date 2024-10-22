@@ -8,6 +8,24 @@ import classNames from 'classnames';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import { JargonTocItem } from './JargonTocItem';
+import TextField from '@material-ui/core/TextField';
+
+export const initialPrompt = `You're a Glossary AI. Your goal is to make good explanations for technical jargon terms. You are trying to produce a useful hoverover tooltip in an essay on LessWrong.com, accessible to a smart, widely read layman. 
+
+We're about to provide you with the text of an essay, followed by a list of jargon terms for that essay. 
+
+For each term, provide:
+  
+The term itself (wrapped in a strong tag), followed by a concise one-line definition. Then, on a separate paragraph, explain how the term is used in this context. Include where the term is originally from (whether it's established from an academic field, new to LessWrong or this particular post, or something else. Note what year it was first used in this context if possible).
+
+Ensure that your explanations are clear and accessible to someone who may not be familiar with the subject matter. Follow Strunk and White guidelines. 
+
+Use your general knowledge as well as the post's specific explanations or definitions of the terms to find a good definition of each term. 
+
+Include a set of altTerms that are slight variations of the term, such as plurals, abbreviations or acryonyms, or alternate spellings that appear in the text. Make sure to include all variations that appear in the text.
+
+Do NOT emphasize that the term is important, but DO explain how it's used in this context. Make sure to put the "contextual explanation" in a separate paragraph from the opening term definition. Make sure to make the term definition a short sentence.
+`
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -50,9 +68,9 @@ const styles = (theme: ThemeType) => ({
       opacity: 0.8
     }
   },
-  footer: {
+  buttonRow: {
     display: 'flex',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
     alignItems: 'center',
     paddingTop: 16
   },
@@ -81,16 +99,30 @@ const styles = (theme: ThemeType) => ({
   },
   approved: {
     color: theme.palette.grey[800],
+  },
+  disabled: {
+    opacity: 0.3,
+    cursor: 'not-allowed',
+  },
+  promptTextField: {
+    marginTop: 16,
+    marginBottom: 16,
   }
 });
 
-export const GlossaryEditForm = ({ classes, document }: {
+export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   classes: ClassesType<typeof styles>,
   document: PostsPage,
+  showTitle?: boolean,
 }) => {
 
   const [expanded, setExpanded] = useState(false);
   const [showDeletedTerms, setShowDeletedTerms] = useState(false);
+  const [examplePost, setExamplePost] = useState<PostsPage | undefined>(undefined);
+  const [prompt, setPrompt] = useState<string | undefined>(initialPrompt);
+  const [showNewJargonTermForm, setShowNewJargonTermForm] = useState(false);
+  const [editingPrompt, setEditingPrompt] = useState(false);
+  
   const { results: glossary = [], loadMoreProps, refetch } = useMulti({
     terms: {
       view: "postEditorJargonTerms",
@@ -116,19 +148,21 @@ export const GlossaryEditForm = ({ classes, document }: {
   const sortedUnapprovedTerms = nonDeletedTerms.filter((item) => !item.approved);
 
   const [getNewJargonTerms, { data, loading: mutationLoading, error }] = useMutation(gql`
-    mutation getNewJargonTerms($postId: String!) {
-      getNewJargonTerms(postId: $postId) {
+    mutation getNewJargonTerms($postId: String!, $prompt: String!) {
+      getNewJargonTerms(postId: $postId, prompt: $prompt) {
         ...JargonTerms
       }
     }
     ${fragmentTextForQuery("JargonTerms")}
   `);
 
-  const addNewJargonTerms = async () => { 
+  const addNewJargonTerms = async ({prompt}: {examplePost?: PostsPage, prompt?: string}) => { 
+    if (!prompt) return;
     try {
       const response = await getNewJargonTerms({
         variables: {
           postId: document._id,
+          prompt,
         },
       });
       refetch();
@@ -176,11 +210,52 @@ export const GlossaryEditForm = ({ classes, document }: {
       });
     }
   }
+
+  const handleUnhideAll = () => {
+    for (const jargonTerm of deletedTerms) {
+      void updateJargonTerm({
+        selector: { _id: jargonTerm._id }, 
+        data: { deleted: false },
+        optimisticResponse: {
+          ...jargonTerm,
+          deleted: false,
+        }
+      });
+    }
+  }
   
   const { JargonEditorRow, LoadMore, Loading, LWTooltip, JargonTocItem, Row, WrappedSmartForm } = Components;
 
   return <div className={classes.root}>
-    <h2>Glossary [Beta]<LWTooltip title="Beta feature! Select/edit terms below, and readers will be able to hover over and read the explanation.">  </LWTooltip></h2>
+    {showTitle && <h2>Glossary [Beta]<LWTooltip title="Beta feature! Select/edit terms below, and readers will be able to hover over and read the explanation.">  </LWTooltip></h2>}
+    {/* {!showTitle && <br/>} */}
+
+    <LoadMore {...loadMoreProps} />
+    <div className={classes.buttonRow}>
+      <Button onClick={() => addNewJargonTerms({examplePost, prompt})} className={classes.generateButton}>Generate new terms</Button>
+      <div className={classes.approveAllButton}>
+        <LWTooltip title={<div><p>Current Prompt:</p><p>{prompt}</p></div>}>
+          <div className={classes.approveAllButton} onClick={() => setEditingPrompt(!editingPrompt)}>{editingPrompt ? "SAVE PROMPT" : "EDIT PROMPT"}</div>
+        </LWTooltip>
+      </div>
+      {mutationLoading && <Loading/>}
+      {mutationLoading && <div>(Loading... warning, this will take 30-60 seconds)</div>}
+    </div>
+    {editingPrompt && <div>
+      <TextField
+        label="Prompt"
+        value={prompt}
+        onChange={(e) => setPrompt(e.target.value)}
+        multiline
+        fullWidth
+        variant="outlined"
+        className={classes.promptTextField}
+        InputProps={{
+          style: { minHeight: '120px', resize: 'vertical' }
+        }}
+      />
+    </div>}
+
 
     <div className={classNames(classes.termsList, expanded && classes.expandedTermsList)}>
       {nonDeletedTerms.map((item) => {
@@ -191,26 +266,33 @@ export const GlossaryEditForm = ({ classes, document }: {
     </div>
 
     {expanded && <div>
-      <Row justifyContent="space-around">
-        <div className={classes.approveAllButton} onClick={() => handleSetApproveAll(true)}>Enable All</div>
-        <div className={classes.approveAllButton} onClick={() => handleSetApproveAll(false)}>Disable All</div>
-        {sortedUnapprovedTerms.length > 0 && <div className={classes.approveAllButton} onClick={handleDeleteUnused}>Hide Disabled Terms</div>}
-      </Row>
-      <JargonEditorRow key={'newJargonTermForm'} postId={document._id} />
+      {showNewJargonTermForm && <JargonEditorRow key={'newJargonTermForm'} postId={document._id} />}
       {nonDeletedTerms.map((item) => <JargonEditorRow key={item._id} postId={document._id} jargonTerm={item}/>)}
     </div>}
 
-    <LoadMore {...loadMoreProps} />
-    <div className={classes.footer}>
-      <Button onClick={addNewJargonTerms} className={classes.generateButton}>Generate new terms</Button>
-      <div className={classes.button} onClick={() => setExpanded(!expanded)}>
-        {expanded 
+    <div className={classes.buttonRow}>
+      <LWTooltip title="Enable all glossary hoverovers for readers of this post">
+        <div className={classes.approveAllButton} onClick={() => handleSetApproveAll(true)}>ENABLE ALL</div>
+      </LWTooltip>
+      <LWTooltip title="Disable all glossary hoverovers for readers of this post">
+        <div className={classes.approveAllButton} onClick={() => handleSetApproveAll(false)}>DISABLE ALL</div>
+      </LWTooltip>
+      <LWTooltip title={<div><p>Hide all terms that aren't currently enabled (you can unhide them later)</p><p>{sortedUnapprovedTerms.map((item) => item.term).join(", ")}</p></div>}>
+        <div className={classNames(classes.approveAllButton, sortedUnapprovedTerms.length === 0 && classes.disabled)} onClick={handleDeleteUnused}>HIDE DISABLED TERMS</div>
+      </LWTooltip>
+      {deletedTerms.length > 0 && <LWTooltip title="Unhide all deleted terms">
+        <div className={classes.approveAllButton} onClick={handleUnhideAll}>
+          UNHIDE ALL ({deletedTerms.length})
+        </div>
+      </LWTooltip>}
+      <LWTooltip title={expanded ? "Cancel editing the glossary" : "Edit the glossary definitions"}>
+        <div className={classes.button} onClick={() => setExpanded(!expanded)}>
+          {expanded 
           ? "CANCEL"
           : "EDIT GLOSSARY"
         }
-      </div>
-      {mutationLoading && <Loading/>}
-      {mutationLoading && <div>(Loading... warning, this will take 30-60 seconds)</div>}
+        </div>
+      </LWTooltip>
     </div>
   </div>;
 }

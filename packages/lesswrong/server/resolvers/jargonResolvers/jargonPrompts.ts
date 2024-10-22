@@ -9,7 +9,11 @@ Avoid including terms that are 3+ word phrases unless it is a complete noun-phra
 
 export const formatPrompt = `Your goal is to make good explanations for technical jargon terms. You are trying to produce a useful hoverover tooltip in a post on LessWrong.com, accessible to a layman. The glossary item should contain the term and some text explaining it. Analyze this post and output in a JSON array of objects with keys: term: string, altTerms: string[], htmlContent: string (html string). The output should look like [{term: "term1", altTerms: ["term1s", "Term1"], htmlContent: "Term 1 explanation text"}, {term: "term2", altTerms: ["term2s", "Term2"], htmlContent: "term2 explanation text"}]. Do not return anything else.`
 
-export const glossarySystemPrompt = `You're a Glossary AI. Your goal is to make good explanations for both technical jargon terms. You are trying to produce a useful hoverover tooltip in an essay on LessWrong.com, accessible to a smart, widely read layman. We're about to provide you with the text of an essay, followed by a list of jargon terms and math terms for that essay. For each term, provide:
+export const glossarySystemPrompt = `You're a Glossary AI. Your goal is to make good explanations for technical jargon terms. You are trying to produce a useful hoverover tooltip in an essay on LessWrong.com, accessible to a smart, widely read layman. 
+
+We're about to provide you with the text of an essay, followed by a list of jargon terms for that essay. 
+
+For each term, provide:
   
 The term itself (wrapped in a strong tag), followed by a concise one-line definition. Then, on a separate paragraph, explain how the term is used in this context. Include where the term is originally from (whether it's established from an academic field, new to LessWrong or this particular post, or something else. Note what year it was first used in this context if possible).
 

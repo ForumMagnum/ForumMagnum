@@ -4,6 +4,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
 import { useMulti } from '@/lib/crud/withMulti';
 import groupBy from 'lodash/groupBy';
+import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -19,29 +20,33 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const PostsWithJargonPage = ({classes}: {
+export const JargonPromptTestingPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-
+  const currentUser = useCurrentUser();
   const { results: posts = [], loadMoreProps, refetch } = useMulti({
     terms: {
       view: "new",
+      userId: currentUser?._id,
       limit: 5
     },
     itemsPerPage: 50,
     collectionName: "Posts",
     fragmentName: 'PostsPage',
   })
+  if (!currentUser) {
+    return <div>You must be logged in to view this page.</div>;
+  }
 
-  const { GlossaryEditForm, SingleColumnSection, PostsItem, LoadMore } = Components
+  const { GlossaryEditForm, SingleColumnSection, PostsTitle, LoadMore } = Components
 
 
   return <div className={classes.root}>
     <SingleColumnSection>
       {posts.map(post => <div key={post._id} className={classes.post}>
-        <PostsItem post={post} />
+        <PostsTitle post={post} showIcons={false}/>
         <div className={classes.glossary}>
-          <GlossaryEditForm document={post} />
+          <GlossaryEditForm document={post} showTitle={false}/>
         </div>
       </div>)}
       <LoadMore {...loadMoreProps} />
@@ -49,10 +54,10 @@ export const PostsWithJargonPage = ({classes}: {
   </div>;
 }
 
-const PostsWithJargonPageComponent = registerComponent('PostsWithJargonPage', PostsWithJargonPage, {styles});
+const JargonPromptTestingPageComponent = registerComponent('JargonPromptTestingPage', JargonPromptTestingPage, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostsWithJargonPage: typeof PostsWithJargonPageComponent
+    JargonPromptTestingPage: typeof JargonPromptTestingPageComponent
   }
 }

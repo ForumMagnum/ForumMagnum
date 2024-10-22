@@ -1717,9 +1717,9 @@ addRoute(
 
 //jargon routes
 addRoute({
-  name: 'postsWithJargon',
-  path: '/allPostsWithJargon',
-  componentName: 'PostsWithJargonPage',
+  name: 'jargonPromptTesting',
+  path: '/jargonPromptTesting',
+  componentName: 'JargonPromptTestingPage',
 })
 
 if (hasSurveys) {
