@@ -78,7 +78,9 @@ export const JargonTocItem = ({classes, jargonTerm}: {
     })
   }
 
-  const handleDelete = () => {
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    
     void updateJargonTerm({
       selector: { _id: jargonTerm._id },
       data: {

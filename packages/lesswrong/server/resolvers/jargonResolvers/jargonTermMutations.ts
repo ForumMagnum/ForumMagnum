@@ -18,10 +18,17 @@ import keyBy from 'lodash/keyBy';
 import { Tool } from '@anthropic-ai/sdk/resources';
 import { randomId } from '@/lib/random';
 import { readFile } from 'fs/promises';
+import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 
 interface JargonTermsExplanationQueryParams {
   markdown: string;
   terms: string[];
+}
+
+interface SingleJargonTermExplanationQueryParams {
+  markdown: string;
+  term: string;
+  toolUseId: string;
 }
 
 const jargonTermListResponseSchema = z.object({
@@ -68,6 +75,19 @@ const generateJargonGlossaryTool: Tool = {
           }
         }
       }
+    }
+  }
+};
+
+const generateSingleJargonGlossaryItemTool: Tool = {
+  name: "generate_jargon_glossary_item",
+  description: "A tool that generates a jargon glossary item for a given post.  It should be provided with a glossary item, which include the term (the identifier), altTerms (alternate spellings or forms of the term), and htmlContent (the explanation of the term).",
+  input_schema: {
+    type: "object",
+    properties: {
+      term: { type: "string" },
+      altTerms: { type: "array", items: { type: "string" } },
+      htmlContent: { type: "string" }
     }
   }
 };
@@ -223,6 +243,48 @@ async function createExplanationMessagesWithExample(postMarkdown: string, extrac
   }];
 }
 
+async function createSingleExplanationMessageWithExample(postMarkdown: string, extractedTerm: string, toolUseId: string): Promise<PromptCachingBetaMessageParam[]> {
+  const oldExampleTerms = exampleJargonGlossary2.glossaryItems.map(explanation => explanation.term);
+  // console.log(`exampleTerms: ${oldExampleTerms}`)
+
+  const examplePost = await getExamplePost("exampleJargonLatents.md");
+  // console.log(`examplePost: ${examplePost}`)
+
+  return [{
+    role: "user",
+    content: [{
+      type: "text",
+      text: `${glossarySystemPrompt}\n\nThe post is: <Post>${examplePost}</Post>.  The jargon terms are: <Terms>${exampleJargonLatentsTerms}</Terms>`
+    }]
+  },
+  {
+    role: "assistant",
+    content: [{
+      type: "tool_use",
+      id: toolUseId,
+      name: "generate_jargon_glossary",
+      input: exampleJargonLatentsGlossary,
+    }]
+  },
+  {
+    role: "user",
+    content: [{
+      type: "tool_result",
+      tool_use_id: toolUseId,
+    }, {
+      type: "text",
+      text: `Thanks!  Now can you do the following post?  This time, you'll only need to do one term. <Post>${postMarkdown}</Post>.`,
+      cache_control: { type: 'ephemeral' }
+    }]
+  }, {
+    role: "user",
+    content: [{
+      type: "text",
+      text: `  The jargon term is: <Term>${extractedTerm}</Term>`
+    }]
+  }];
+}
+
 export const queryClaudeForJargonExplanations = async ({ markdown, terms }: JargonTermsExplanationQueryParams): Promise<LLMGeneratedJargonTerm[]> => {
   console.log(`I'm pinging Claude for jargon explanations!`)
   const client = getAnthropicPromptCachingClientOrThrow(jargonBotClaudeKey.get());
@@ -249,6 +311,34 @@ export const queryClaudeForJargonExplanations = async ({ markdown, terms }: Jarg
   }
   const parsedJargonTerms = validatedTerms.data.glossaryItems;
   return sanitizeJargonTerms(parsedJargonTerms);
+}
+
+const queryClaudeForSingleJargonExplanation = async ({ markdown, term, toolUseId }: SingleJargonTermExplanationQueryParams): Promise<LLMGeneratedJargonTerm | null> => {
+  console.log(`I'm pinging Claude for jargon explanation for term ${term}!`)
+  const client = getAnthropicPromptCachingClientOrThrow(jargonBotClaudeKey.get());
+  const messages: PromptCachingBetaMessageParam[] = await createSingleExplanationMessageWithExample(markdown, term, toolUseId);
+
+  const response = await client.messages.create({
+    model: "claude-3-5-sonnet-20240620",
+    max_tokens: 5000,
+    messages,
+    tools: [generateSingleJargonGlossaryItemTool],
+    tool_choice: { type: "tool", name: "generate_jargon_glossary_item" }
+  });
+
+  if (response.content[0].type === "text") {
+    console.error(`Claude responded with text, but we expected a tool use.`)
+    return null;
+  }
+
+  const responseContent = response.content[0]?.input;
+  const validatedTerm = jargonTermSchema.safeParse(responseContent);
+  if (!validatedTerm.success) {
+    console.error('Invalid jargon term:', validatedTerm.error);
+    return null;
+  }
+  const parsedJargonTerm = validatedTerm.data;
+  return sanitizeJargonTerms([parsedJargonTerm])[0];
 }
 
 const getExamplePost = (() => {
@@ -354,7 +444,9 @@ export async function createEnglishExplanations(post: PostsPage, excludeTerms: s
   const newTerms = terms.filter(term => !excludeTerms.includes(term) && post.contents?.html?.includes(term));
   console.log(`newTerms: ${newTerms}`)
 
-  return queryClaudeForJargonExplanations({ markdown, terms: newTerms });
+  // return queryClaudeForJargonExplanations({ markdown, terms: newTerms });
+  const toolUseId = randomId();
+  return filterNonnull(await Promise.all(terms.map((term) => queryClaudeForSingleJargonExplanation({ markdown, term, toolUseId }))));
 }
 
 export const createNewJargonTerms = async (postId: string, currentUser: DbUser) => {
