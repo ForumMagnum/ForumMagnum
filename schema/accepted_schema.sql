@@ -990,7 +990,7 @@ CREATE INDEX IF NOT EXISTS "idx_Images_cdnHostedUrl" ON "Images" USING btree ("c
 -- Table "JargonTerms"
 CREATE TABLE "JargonTerms" (
   _id VARCHAR(27) PRIMARY KEY,
-  "postId" TEXT NOT NULL,
+  "postId" VARCHAR(27) NOT NULL,
   "term" TEXT NOT NULL,
   "approved" BOOL NOT NULL DEFAULT FALSE,
   "deleted" BOOL NOT NULL DEFAULT FALSE,

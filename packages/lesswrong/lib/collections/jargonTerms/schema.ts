@@ -1,12 +1,18 @@
-import { schemaDefaultValue } from '../../utils/schemaUtils';
+import { foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils';
 
 const schema: SchemaType<"JargonTerms"> = {
   postId: {
-    type: String,
     canRead: ['guests'],
     canCreate: ['members'],
     hidden: true,
     nullable: false,
+    ...foreignKeyField({
+      idFieldName: "postId",
+      resolverName: "post",
+      collectionName: "Posts",
+      type: "Post",
+      nullable: true,
+    }),
   },
   // TODO: ensure we sanitize `term` for possible routes of being created/edited, including both user input and AI generation
   term: {
