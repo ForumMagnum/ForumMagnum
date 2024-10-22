@@ -262,13 +262,26 @@ async function createSingleExplanationMessageWithExample(postMarkdown: string, e
   const exampleJargonTerms = examplePost?.glossary?.filter((item: any) => item.approved) ?? [];
   if (!exampleJargonTerms.length) throw new Error(`No approved jargon terms found for example post ${examplePost?.title, examplePost?._id}`)
 
+  const finalPrompt = prompt ?? glossarySystemPrompt
+  console.log({finalPrompt})
+  console.log({examplePostContents})
+  console.log({exampleJargonTerms: exampleJargonTerms.map(item => `${item.term} ${item.contents?.html}`)})
+
   // console.log(`examplePost: ${examplePost}`)
+
+  const exampleGlossary = {
+    glossaryItems: exampleJargonTerms.map(item => ({
+      term: item.term,
+      altTerms: item.altTerms,
+      htmlContent: item.contents?.html
+    }))
+  }
 
   return [{
     role: "user",
     content: [{
       type: "text",
-      text: `${prompt ?? glossarySystemPrompt}\n\nThe post is: <Post>${examplePostContents}</Post>.  The jargon terms are: <Terms>${exampleJargonTerms.map(item => `<Term>${item.term}</Term>`)}</Terms>`
+      text: `${finalPrompt}\n\nThe post is: <Post>${examplePostContents}</Post>.  The jargon terms are: <Terms>${exampleJargonTerms.map(item => `<Term>${item.term}</Term>`)}</Terms>`
     }]
   },
   {
@@ -277,7 +290,7 @@ async function createSingleExplanationMessageWithExample(postMarkdown: string, e
       type: "tool_use",
       id: toolUseId,
       name: "generate_jargon_glossary",
-      input: exampleJargonTerms.toString(),
+      input: exampleGlossary
     }]
   },
   {
