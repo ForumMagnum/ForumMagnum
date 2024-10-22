@@ -19,6 +19,7 @@ import { Tool } from '@anthropic-ai/sdk/resources';
 import { randomId } from '@/lib/random';
 import { readFile } from 'fs/promises';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
+import { SendAnthropicMessages, SendLLMMessagesArgs, SendOpenAIMessages, sendMessagesToLlm } from '@/server/languageModels/llmApiWrapper';
 
 interface JargonTermsExplanationQueryParams {
   markdown: string;
@@ -175,10 +176,10 @@ async function queryClaudeJailbreak(prompt: PromptCachingBetaMessageParam[], max
 export const queryClaudeForTerms = async (markdown: string) => {
   console.log(`I'm pinging Claude for terms!`)
   const client = getAnthropicPromptCachingClientOrThrow(jargonBotClaudeKey.get());
-  const messages: PromptCachingBetaMessageParam[] = [{
-    role: "user", 
+  const messages = [{
+    role: "user" as const, 
     content: [{
-      type: "text", 
+      type: "text" as const,
       text: `${initialGlossaryPrompt} The post is: <Post>${markdown}</Post>.
       
 The jargon terms are:`
