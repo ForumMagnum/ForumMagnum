@@ -129,7 +129,7 @@ const styles = (theme: ThemeType) => ({
     },
   },
   explanationContainer: {
-    cursor: 'pointer',
+    cursor: 'text',
   },
   checkbox: {
     width: 30,

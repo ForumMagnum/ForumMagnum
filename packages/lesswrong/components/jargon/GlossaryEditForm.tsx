@@ -60,21 +60,28 @@ const styles = (theme: ThemeType) => ({
   icon: {
     color: theme.palette.grey[500],
   },
+  expandedTermsList: {
+    position: 'sticky',
+    top: 0,
+    background: theme.palette.background.pageActiveAreaBackground,
+    marginLeft: -16,
+    marginRight: -16,
+    padding: 16,
+    zIndex: 1,
+  },
   termsList: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
-    gridAutoFlow: 'dense',
-    gap: 4,
-    '& > *': {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      padding: '0 8px', // Add padding to accommodate the "x" button
-      gridColumn: 'span 1',
-      '&[data-long="true"]': {
-        gridColumn: 'span 2',
-      },
-    },
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '4px'
+  },
+  smallTerm: {
+    width: "calc(12.5% - 8px)",
+  },
+  mediumTerm: {
+    width: "calc(25% - 8px)",
+  },
+  largeTerm: {
+    width: "calc(50% - 8px)",
   },
   approved: {
     color: theme.palette.grey[800],
@@ -177,33 +184,36 @@ export const GlossaryEditForm = ({ classes, document }: {
   const { JargonEditorRow, LoadMore, Loading, LWTooltip, JargonTocItem, Row, WrappedSmartForm } = Components;
 
   return <div className={classes.root}>
-    <Row>
-      <h2>Glossary [Beta]<LWTooltip title="Beta feature! Select/edit terms below, and readers will be able to hover over and read the explanation.">  </LWTooltip></h2>
-      <div className={classes.button} onClick={() => setExpanded(!expanded)}>
-        {expanded 
-          ? <>Collapse<ExpandMoreIcon className={classes.icon}/></> 
-          : <>Expand<ExpandLessIcon className={classes.icon}/></>
-        }
-      </div>
-    </Row>
+    <h2>Glossary [Beta]<LWTooltip title="Beta feature! Select/edit terms below, and readers will be able to hover over and read the explanation.">  </LWTooltip></h2>
 
+    <div className={classNames(classes.termsList, expanded && classes.expandedTermsList)}>
+      {nonDeletedTerms.map((item) => {
+        let sizeClass = classes.smallTerm;
+        if (item.term.length > 5) sizeClass = classes.mediumTerm;
+        if (item.term.length > 15) sizeClass = classes.largeTerm;
+        return <div key={item._id} className={sizeClass}><JargonTocItem jargonTerm={item}/></div>
+      })}
+    </div>
 
     {expanded && <div>
       <Row justifyContent="space-around">
-        <div className={classes.approveAllButton} onClick={() => handleSetApproveAll(true)}>Approve All</div>
-        <div className={classes.approveAllButton} onClick={() => handleSetApproveAll(false)}>Unapprove All</div>
-        {sortedUnapprovedTerms.length > 0 && <div className={classes.approveAllButton} onClick={handleDeleteUnused}>Hide Unapproved</div>}
+        <div className={classes.approveAllButton} onClick={() => handleSetApproveAll(true)}>Enable All</div>
+        <div className={classes.approveAllButton} onClick={() => handleSetApproveAll(false)}>Disable All</div>
+        {sortedUnapprovedTerms.length > 0 && <div className={classes.approveAllButton} onClick={handleDeleteUnused}>Hide Disabled Terms</div>}
       </Row>
       <JargonEditorRow key={'newJargonTermForm'} postId={document._id} />
       {nonDeletedTerms.map((item) => <JargonEditorRow key={item._id} postId={document._id} jargonTerm={item}/>)}
     </div>}
 
-    {!expanded && <div className={classes.termsList}>
-      {nonDeletedTerms.map((item) => <JargonTocItem key={item._id} jargonTerm={item}/>)}
-    </div>}
+    <LoadMore {...loadMoreProps} />
     <div className={classes.footer}>
       <Button onClick={addNewJargonTerms} className={classes.generateButton}>Generate new terms</Button>
-      <LoadMore {...loadMoreProps} />
+      <div className={classes.button} onClick={() => setExpanded(!expanded)}>
+        {expanded 
+          ? "CANCEL"
+          : "EDIT GLOSSARY"
+        }
+      </div>
       {mutationLoading && <Loading/>}
       {mutationLoading && <div>(Loading... warning, this will take 30-60 seconds)</div>}
     </div>
