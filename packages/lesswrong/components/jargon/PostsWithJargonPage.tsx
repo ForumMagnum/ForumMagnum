@@ -1,13 +1,15 @@
 // TODO: Import component in components.ts
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
 import { useMulti } from '@/lib/crud/withMulti';
 import groupBy from 'lodash/groupBy';
 
 const styles = (theme: ThemeType) => ({
-  root: {
-
+  post: {
+    marginBottom: theme.spacing.unit * 2,
+    background: theme.palette.background.pageActiveAreaBackground,
+    padding: theme.spacing.unit * 2,
   }
 });
 
@@ -15,22 +17,25 @@ export const PostsWithJargonPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
 
-  const { results: jargonTerms = [], loadMoreProps, refetch } = useMulti({
+  const { results: posts = [], loadMoreProps, refetch } = useMulti({
     terms: {
-      view: "postEditorJargonTerms",
-      limit: 1000
+      view: "new",
+      limit: 5
     },
-    collectionName: "JargonTerms",
-    fragmentName: 'JargonTermsWithPostInfo',
+    collectionName: "Posts",
+    fragmentName: 'PostsPage',
   })
 
-  const posts = jargonTerms.map(term => ({
-    ...term.post,
-    jargon: jargonTerms.filter(t => t.postId === term.postId)
-  }))
+  const { GlossaryEditForm, SingleColumnSection } = Components
 
 
   return <div className={classes.root}>
+    <SingleColumnSection>
+      {posts.map(post => <div key={post._id} className={classes.post}>
+        <h2>{post.title}</h2>
+        <GlossaryEditForm document={post} />
+      </div>)}
+    </SingleColumnSection>
   </div>;
 }
 
