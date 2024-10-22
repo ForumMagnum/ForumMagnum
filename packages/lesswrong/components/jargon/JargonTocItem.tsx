@@ -17,6 +17,7 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'center',
     border: theme.palette.border.faint,
     borderRadius: 4,
+    width: '100%',
     padding: '4px 8px',
     opacity: .5,
     '&:hover': {
