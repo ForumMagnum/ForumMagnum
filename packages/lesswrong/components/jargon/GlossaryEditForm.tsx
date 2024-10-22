@@ -54,8 +54,7 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     justifyContent: 'space-around',
     alignItems: 'center',
-    paddingTop: 16,
-    borderTop: theme.palette.border.faint,
+    paddingTop: 16
   },
   icon: {
     color: theme.palette.grey[500],
@@ -75,13 +74,10 @@ const styles = (theme: ThemeType) => ({
     gap: '4px'
   },
   smallTerm: {
-    width: "calc(12.5% - 8px)",
+    width: "calc(25% - 4px)",
   },
   mediumTerm: {
-    width: "calc(25% - 8px)",
-  },
-  largeTerm: {
-    width: "calc(50% - 8px)",
+    width: "calc(50% - 4px)",
   },
   approved: {
     color: theme.palette.grey[800],
@@ -189,8 +185,7 @@ export const GlossaryEditForm = ({ classes, document }: {
     <div className={classNames(classes.termsList, expanded && classes.expandedTermsList)}>
       {nonDeletedTerms.map((item) => {
         let sizeClass = classes.smallTerm;
-        if (item.term.length > 5) sizeClass = classes.mediumTerm;
-        if (item.term.length > 15) sizeClass = classes.largeTerm;
+        if (item.term.length > 20) sizeClass = classes.mediumTerm;
         return <div key={item._id} className={sizeClass}><JargonTocItem jargonTerm={item}/></div>
       })}
     </div>
