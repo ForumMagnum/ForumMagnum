@@ -1,11 +1,11 @@
-import React, { useContext, useRef } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 import { useSingle } from '../../../lib/crud/withSingle';
 import mapValues from 'lodash/mapValues';
 import { SideItemVisibilityContext } from '../../dropdowns/posts/SetSideItemVisibility';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
-import type { ContentItemBody, ContentReplacedSubstringComponentInfo } from '../../common/ContentItemBody';
+import type { ContentItemBody, ContentReplacedSubstringComponentInfo, ContentReplacementMode } from '../../common/ContentItemBody';
 import { hasSideComments, inlineReactsHoverEnabled } from '../../../lib/betas';
 import { VotingProps } from '@/components/votes/votingProps';
 import { jargonTermsToTextReplacements } from '@/components/jargon/JargonTooltip';
@@ -18,6 +18,9 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
   isOldVersion: boolean
   voteProps: VotingProps<PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes>
 }) => {
+  const [replaceAllJargon, setReplaceAllJargon] = useState(false);
+  const jargonReplacementMode: ContentReplacementMode = replaceAllJargon ? 'all' : 'first';
+
   const sideItemVisibilityContext = useContext(SideItemVisibilityContext);
   const sideCommentMode= isOldVersion ? "hidden" : (sideItemVisibilityContext?.sideCommentMode ?? "hidden")
   const includeSideComments =
@@ -44,10 +47,10 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
     ? votingSystem.getPostHighlights({post, voteProps})
     : []
   const glossaryItems: ContentReplacedSubstringComponentInfo[] = ('glossary' in post)
-    ? jargonTermsToTextReplacements(post.glossary)
+    ? jargonTermsToTextReplacements(post.glossary, jargonReplacementMode)
     : [];
   const replacedSubstrings = [...highlights, ...glossaryItems];
-  const glossarySidebar = <GlossarySidebar post={post}/>
+  const glossarySidebar = <GlossarySidebar post={post} replaceAllJargon={replaceAllJargon} setReplaceAllJargon={setReplaceAllJargon} />
 
   if (includeSideComments && document?.sideComments) {
     const htmlWithIDs = document.sideComments.html;

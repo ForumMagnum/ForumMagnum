@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import Card from '@material-ui/core/Card';
 import { commentBodyStyles } from '@/themes/stylePiping';
-import { ContentReplacedSubstringComponentInfo } from '../common/ContentItemBody';
+import { ContentReplacedSubstringComponentInfo, ContentReplacementMode } from '../common/ContentItemBody';
 import { PopperPlacementType } from '@material-ui/core/Popper';
 import classNames from 'classnames';
 
@@ -60,7 +60,7 @@ export const JargonTooltip = ({term, definitionHTML, altTerms, humansAndOrAIEdit
   </Card>
 
   return <LWTooltip title={tooltip} tooltip={false} placement={placement} clickable={clickable}>
-    <span className={classNames(isFirstOccurrence && classes.jargonWord)}>
+    <span className={classes.jargonWord}>
       {children}
     </span>
   </LWTooltip>;
@@ -82,11 +82,11 @@ export function expandJargonAltTerms<T extends MinimumExpandableJargonTerm>(glos
   return expandedTerms;
 }
 
-function convertGlossaryItemToTextReplacement(glossaryItem: JargonTermsPost): ContentReplacedSubstringComponentInfo {
+function convertGlossaryItemToTextReplacement(glossaryItem: JargonTermsPost, replacementMode: ContentReplacementMode): ContentReplacedSubstringComponentInfo {
   return {
     replacedString: glossaryItem.term,
     componentName: "JargonTooltip",
-    replace: "all",
+    replace: replacementMode,
     caseInsensitive: true,
     props: {
       term: glossaryItem.term,
@@ -97,10 +97,10 @@ function convertGlossaryItemToTextReplacement(glossaryItem: JargonTermsPost): Co
   };
 }
 
-export function jargonTermsToTextReplacements(terms: JargonTermsPost[]): ContentReplacedSubstringComponentInfo[] {
+export function jargonTermsToTextReplacements(terms: JargonTermsPost[], replacementMode: ContentReplacementMode): ContentReplacedSubstringComponentInfo[] {
   return terms
     .flatMap((glossaryItem) => expandJargonAltTerms(glossaryItem))
-    .map(convertGlossaryItemToTextReplacement);
+    .map((glossaryItem) => convertGlossaryItemToTextReplacement(glossaryItem, replacementMode));
 }
 
 const JargonTooltipComponent = registerComponent('JargonTooltip', JargonTooltip, {styles});

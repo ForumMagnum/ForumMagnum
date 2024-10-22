@@ -59,10 +59,12 @@ interface ExternalProps {
   replacedSubstrings?: ContentReplacedSubstringComponentInfo[]
 }
 
+export type ContentReplacementMode = 'first' | 'all';
+
 export type ContentReplacedSubstringComponentInfo = {
   replacedString: string
   componentName: keyof ComponentTypes,
-  replace: "first"|"all",
+  replace: ContentReplacementMode,
   caseInsensitive?: boolean,
   props: AnyBecauseHard
 };
@@ -481,7 +483,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
                 if (span) {
                   const InlineReactedSpan = rawExtractElementChildrenToReactComponent(span);
                   const replacementNode = (
-                    <ReplacementComponent {...replacementComponentProps} isSplitContinuation={!first}>
+                    <ReplacementComponent {...replacementComponentProps} replacedSubstrings={replacedSubstrings} isSplitContinuation={!first}>
                       <InlineReactedSpan/>
                     </ReplacementComponent>
                   );
