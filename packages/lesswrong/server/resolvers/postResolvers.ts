@@ -765,8 +765,7 @@ createPaginatedResolver({
 
       // 8 days ago
       const since = new Date(Date.now() - (8 * 24 * 60 * 60 * 1000));
-      // Slightly below the threshold we're aiming for to make it easier to queue up tweets
-      const threshold = twitterBotKarmaThresholdSetting.get() - 5;
+      const threshold = twitterBotKarmaThresholdSetting.get();
 
       const postIds = await repos.tweets.getUntweetedPostsCrossingKarmaThreshold({ since, threshold });
       return await Posts.find({ _id: { $in: postIds } }, { sort: { postedAt: -1 } }).fetch();
