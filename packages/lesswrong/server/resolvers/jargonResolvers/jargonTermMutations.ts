@@ -188,12 +188,10 @@ The jargon terms are:`
 
 async function createExplanationMessagesWithExample(postMarkdown: string, extractedTerms: string[]): Promise<PromptCachingBetaMessageParam[]> {
   const oldExampleTerms = exampleJargonGlossary2.glossaryItems.map(explanation => explanation.term);
-  console.log(`exampleTerms: ${oldExampleTerms}`)
 
   const toolUseId = randomId();
 
   const examplePost = await getExamplePost("exampleJargonLatents.md");
-  console.log(`examplePost: ${examplePost}`)
 
   return [{
     role: "user",
