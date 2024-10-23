@@ -16,9 +16,10 @@ export type MakeEditableOptions<N extends CollectionNameString> = {
   getLocalStorageId?: null | ((doc: any, name: string) => {id: string, verify: boolean}),
   formGroup?: any,
   permissions?: {
-    canRead?: any,
-    canUpdate?: any,
-    canCreate?: any,
+    canRead?: FieldPermissions,
+    canUpdate?: FieldPermissions,
+    // TODO: This should be FieldCreatePermissions, but there are some collections where we were passing in functions that relied on the existing object, which is a bit nonsensical
+    canCreate?: AnyBecauseTodo,
   },
   label?: string,
   formVariant?: "default" | "grey",

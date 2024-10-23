@@ -3,13 +3,14 @@ import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 import { makeEditable } from "../../editor/make_editable";
-import { userOwns } from '@/lib/vulcan-users/permissions';
+import { userIsAdmin, userOwns } from '@/lib/vulcan-users/permissions';
 import { Posts } from '../posts';
 import { userCanCreateAndEditJargonTerms } from '@/lib/betas';
 import { userIsPostCoauthor } from '../posts/helpers';
+import { postCheckAccess } from '../posts/checkAccess';
 
 function userHasJargonTermPostPermission(user: DbUser | null, post: DbPost) {
-  return userOwns(user, post) || userIsPostCoauthor(user, post);
+  return userIsAdmin(user) || userOwns(user, post) || userIsPostCoauthor(user, post);
 }
 
 // TODO: come back to this to see if there are any other posts which can't have jargon terms
@@ -60,22 +61,26 @@ makeEditable({
     commentStyles: true,
     hideControls: true,
     order: 10,
-    hintText: 'If you want to add a custom term, use this form.  The description goes here.  The term, as well as any alt terms, must appear in your post.'
-  }
+    hintText: 'If you want to add a custom term, use this form.  The description goes here.  The term, as well as any alt terms, must appear in your post.',
+    permissions: {
+      canRead: ['guests'],
+      canUpdate: ['members'],
+      canCreate: ['members'],
+    }
+  },
 });
 
-JargonTerms.checkAccess = async (user: DbUser | null, jargonTerm: DbJargonTerm, context: ResolverContext) => {
-  const post = await context.loaders.Posts.load(jargonTerm.postId);
+JargonTerms.checkAccess = async (user: DbUser | null, jargonTerm: DbJargonTerm, context: ResolverContext | null) => {
+  const post = context
+    ? await context.loaders.Posts.load(jargonTerm.postId)
+    : await Posts.findOne(jargonTerm.postId);
+
   if (!post) {
     return false;
   }
 
-  // If the post is a draft or archived, only allow read access if the user has permission to create or edit jargon terms for that post
-  if (post.draft || post.deletedDraft) {
-    return userHasJargonTermPostPermission(user, post);
-  }
-
-  return true;
+  // If a user has read access to the post, they have read access to any jargon terms for that post
+  return await postCheckAccess(user, post, context);
 };
 
 export default JargonTerms;
