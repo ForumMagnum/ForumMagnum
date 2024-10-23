@@ -11,6 +11,7 @@ import { useHover } from '../common/withHover';
 import { usePostByLegacyId, usePostBySlug } from '../posts/usePost';
 import { isClient } from '../../lib/executionEnvironment';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import classNames from 'classnames';
 
 let missingLinkPreviewsLogged = new Set<string>();
 
@@ -210,16 +211,35 @@ const PostLinkPreviewVariantCheck = ({ href, post, targetLocation, comment, comm
 const PostLinkPreviewVariantCheckComponent = registerComponent('PostLinkPreviewVariantCheck', PostLinkPreviewVariantCheck);
 
 export const linkStyle = (theme: ThemeType) => ({
-  '&:after': {
-    content: '"°"',
-    marginLeft: 1,
+  link: {
+    '&:after': {
+      content: '""',
+      top: -7,
+      position: "relative",
+      marginLeft: 2,
+      marginRight: 0,
+      width: 4,
+      height: 4,
+      display: "inline-block",
+      background: "transparent",
+      border: `1.2px solid ${theme.palette.link.color ?? theme.palette.primary.main}`,
+      borderRadius: "50%",
+    },
+    // `visited` is a string-classname rather than something that gets
+    // prefixed, because some broadly-applied styles in `stylePiping` also use
+    // it. The .visited class is often the same as the :visited pseudo-
+    // selector, but it will also be set when a post/tag/etc is marked as read
+    // for the logged in user in the DB, independent of their local browser
+    // history.
+    "&:visited:after, &.visited:after": {
+      background: theme.palette.link.visited ?? theme.palette.primary.main,
+      border: `1.2px solid ${theme.palette.link.visited ?? theme.palette.primary.main}`,
+    },
   }
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
-  link: {
-    ...linkStyle(theme)
-  }
+const styles = (theme: ThemeType) => ({
+  ...linkStyle(theme)
 })
 
 const PostLinkCommentPreview = ({href, commentId, post, id, children}: {
@@ -258,7 +278,7 @@ const PostLinkPreviewWithPost = ({href, post, id, children, classes}: {
   id: string,
   error: any,
   children: ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   if (!post) {
     return <span>
@@ -270,6 +290,7 @@ const PostLinkPreviewWithPost = ({href, post, id, children, classes}: {
 
   const hash = (href.indexOf("#") >= 0) ? (href.split("#")[1]) : undefined;
   const {PostsTooltip} = Components;
+  const visited = post?.isRead;
   return (
     <PostsTooltip
       post={post}
@@ -278,7 +299,7 @@ const PostLinkPreviewWithPost = ({href, post, id, children, classes}: {
       clickable={!isFriendlyUI}
       As="span"
     >
-      <Link className={classes.link} to={href} id={id} smooth>
+      <Link className={classNames(classes.link, visited && "visited")} to={href} id={id} smooth>
         {children}
       </Link>
     </PostsTooltip>
@@ -289,7 +310,7 @@ const PostLinkPreviewWithPostComponent = registerComponent('PostLinkPreviewWithP
 });
 
 const CommentLinkPreviewWithComment = ({classes, href, comment, post, id, children}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   href: string,
   comment: any,
   post: PostsList|null,
@@ -325,7 +346,7 @@ const CommentLinkPreviewWithCommentComponent = registerComponent('CommentLinkPre
 });
 
 const SequencePreview = ({classes, targetLocation, href, children}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   targetLocation: any,
   href: string,
   children: ReactNode,
@@ -362,7 +383,7 @@ const SequencePreviewComponent = registerComponent('SequencePreview', SequencePr
   styles,
 });
 
-const defaultPreviewStyles = (theme: ThemeType): JssStyles => ({
+const defaultPreviewStyles = (theme: ThemeType) => ({
   hovercard: {
     padding: theme.spacing.unit,
     paddingLeft: theme.spacing.unit*1.5,
@@ -379,7 +400,7 @@ const defaultPreviewStyles = (theme: ThemeType): JssStyles => ({
 })
 
 const DefaultPreview = ({classes, href, onsite=false, id, rel, children}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof defaultPreviewStyles>,
   href: string,
   onsite?: boolean,
   id?: string,
@@ -419,7 +440,7 @@ const DefaultPreviewComponent = registerComponent('DefaultPreview', DefaultPrevi
   styles: defaultPreviewStyles,
 });
 
-const mozillaHubStyles = (theme: ThemeType): JssStyles => ({
+const mozillaHubStyles = (theme: ThemeType) => ({
   users: {
     marginLeft: 3,
     fontSize: "1.2rem",
@@ -459,7 +480,7 @@ const mozillaHubStyles = (theme: ThemeType): JssStyles => ({
 })
 
 const MozillaHubPreview = ({classes, href, id, children}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof mozillaHubStyles>,
   href: string,
   id?: string,
   children: ReactNode,
@@ -522,20 +543,19 @@ const MozillaHubPreviewComponent = registerComponent('MozillaHubPreview', Mozill
   styles: mozillaHubStyles
 })
 
-const owidStyles = (theme: ThemeType): JssStyles => ({
+const owidStyles = (theme: ThemeType) => ({
   iframeStyling: {
     width: 600,
     height: 375,
     border: "none",
     maxWidth: "100vw",
   },
-  link: {
-    ...linkStyle(theme)
-  }
+  background: {},
+  ...linkStyle(theme)
 })
 
 const OWIDPreview = ({classes, href, id, children}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof owidStyles>,
   href: string,
   id?: string,
   children: ReactNode,
@@ -569,7 +589,7 @@ const OWIDPreviewComponent = registerComponent('OWIDPreview', OWIDPreview, {
   styles: owidStyles
 })
 
-const metaculusStyles = (theme: ThemeType): JssStyles => ({
+const metaculusStyles = (theme: ThemeType) => ({
   background: {
     backgroundColor: theme.palette.panelBackground.metaculusBackground,
   },
@@ -579,13 +599,11 @@ const metaculusStyles = (theme: ThemeType): JssStyles => ({
     border: "none",
     maxWidth: "100vw"
   },
-  link: {
-    ...linkStyle(theme)
-  }
+  ...linkStyle(theme)
 })
 
 const MetaculusPreview = ({classes, href, id, children}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof metaculusStyles>,
   href: string,
   id?: string,
   children: ReactNode,
@@ -619,14 +637,14 @@ const MetaculusPreviewComponent = registerComponent('MetaculusPreview', Metaculu
   styles: metaculusStyles
 })
 
-const manifoldStyles = (theme: ThemeType): JssStyles => ({
+const manifoldStyles = (theme: ThemeType) => ({
   iframeStyling: {
     width: 560,
     height: 405,
     border: "none",
     maxWidth: "100vw",
   },
-  link: linkStyle(theme),
+  ...linkStyle(theme),
 });
 
 const ManifoldPreview = ({classes, href, id, children}: {
@@ -671,14 +689,14 @@ const ManifoldPreview = ({classes, href, id, children}: {
 
 const ManifoldPreviewComponent = registerComponent('ManifoldPreview', ManifoldPreview, { styles: manifoldStyles })
 
-const neuronpediaStyles = (theme: ThemeType): JssStyles => ({
+const neuronpediaStyles = (theme: ThemeType) => ({
   iframeStyling: {
     width: 580,
     height: 240,
     border: "none",
     maxWidth: 639,
   },
-  link: linkStyle(theme),
+  ...linkStyle(theme),
 });
 
 const NeuronpediaPreview = ({classes, href, id, children}: {
@@ -724,14 +742,14 @@ const NeuronpediaPreview = ({classes, href, id, children}: {
 
 const NeuronpediaPreviewComponent = registerComponent('NeuronpediaPreview', NeuronpediaPreview, { styles: neuronpediaStyles })
 
-const metaforecastStyles = (theme: ThemeType): JssStyles => ({
+const metaforecastStyles = (theme: ThemeType) => ({
   iframeStyling: {
     width: 560,
     height: 405,
     border: "none",
     maxWidth: "100vw",
   },
-  link: linkStyle(theme),
+  ...linkStyle(theme),
 });
 
 const MetaforecastPreview = ({classes, href, id, children}: {
@@ -802,7 +820,7 @@ const ArbitalLogo = () => <svg x="0px" y="0px" height="100%" viewBox="0 0 27.5 2
   </g>
 </svg>
 
-const arbitalStyles = (theme: ThemeType): JssStyles => ({
+const arbitalStyles = (theme: ThemeType) => ({
   hovercard: {
     padding: theme.spacing.unit,
     paddingLeft: theme.spacing.unit*1.5,
@@ -826,16 +844,14 @@ const arbitalStyles = (theme: ThemeType): JssStyles => ({
     fill: theme.palette.icon.dim2,
     marginTop: -5
   },
-  link: {
-    ...linkStyle(theme)
-  }
+  ...linkStyle(theme)
 })
 
 
 
 
 const ArbitalPreview = ({classes, href, id, children}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof arbitalStyles>,
   href: string,
   id?: string,
   children: ReactNode,
@@ -887,18 +903,18 @@ const ArbitalPreviewComponent = registerComponent('ArbitalPreview', ArbitalPrevi
   styles: arbitalStyles
 })
 
-const estimakerStyles = (theme: ThemeType): JssStyles => ({
+const estimakerStyles = (theme: ThemeType) => ({
   iframeStyling: {
     width: 560,
     height: 405,
     border: "none",
     maxWidth: "100vw",
   },
-  link: linkStyle(theme),
+  ...linkStyle(theme),
 });
 
 const EstimakerPreview = ({classes, href, id, children}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof estimakerStyles>,
   href: string,
   id?: string,
   children: ReactNode,
@@ -934,18 +950,18 @@ const EstimakerPreview = ({classes, href, id, children}: {
 const EstimakerPreviewComponent = registerComponent('EstimakerPreview', EstimakerPreview, { styles: estimakerStyles })
 
 
-const viewpointsStyles = (theme: ThemeType): JssStyles => ({
+const viewpointsStyles = (theme: ThemeType) => ({
   iframeStyling: {
     width: 560,
     height: 300,
     border: "none",
     maxWidth: "100vw",
   },
-  link: linkStyle(theme),
+  ...linkStyle(theme),
 });
 
 const ViewpointsPreview = ({classes, href, id, children}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof viewpointsStyles>,
   href: string,
   id?: string,
   children: ReactNode,
