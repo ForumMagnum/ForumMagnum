@@ -3,11 +3,7 @@ import { registerCollection } from './getCollection';
 import { addGraphQLCollection } from './graphql';
 import { pluralize } from './pluralize';
 export * from './getCollection';
-
-const Collection = bundleIsServer
-  // eslint-disable-next-line import/no-restricted-paths
-  ? require("@/server/sql/PgCollection").default
-  : require("./ClientCollection").default;
+import Collection from './ClientCollection';
 
 // When used in a view, set the query so that it returns rows where a field is
 // null or is missing. Equivalent to a search with mongo's `field:null`, except

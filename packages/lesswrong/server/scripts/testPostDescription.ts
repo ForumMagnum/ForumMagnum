@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { getLatestContentsRevision } from "@/lib/collections/revisions/helpers";
-import { getPostDescription } from "../../components/posts/PostsPage/PostsPage";
+import { getPostDescription } from '@/components/posts/PostsPage/getPostDescription';
 import { Posts } from "../../lib/collections/posts";
 import Revisions from "../../lib/collections/revisions/collection";
 import { Vulcan } from "../vulcan-lib";

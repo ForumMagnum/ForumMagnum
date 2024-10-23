@@ -1,5 +1,5 @@
 import '../client/publicSettings' // Must come first
-
+import './styles.css'
 // Imports required for this file:
 import { filterConsoleLogSpam } from '../lib/consoleFilters';
 import { DeferredComponentsTable, prepareComponent } from '../lib/vulcan-lib';
@@ -39,7 +39,7 @@ async function clientStartup() {
   startupCalled = true;
 
   filterConsoleLogSpam();
-  require('../deferred-client-scripts.js');
+  // require('../deferred-client-scripts.js');
 
   initAutoRefresh();
   rememberScrollPositionOnPageReload();
@@ -105,10 +105,6 @@ function importAllComponents() {
 
 // Generally speaking, on fast internet connections the former condition will be true (bundle is fully
 // downloaded before the page is ready), on slow connections the latter will be true
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', startupAfterRendering);
-} else {
-  void startupAfterRendering();
-}
-
 importAllComponents();
+startupAfterRendering();
+

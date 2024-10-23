@@ -102,6 +102,7 @@ build({
   entryPoints: ['./packages/lesswrong/client/clientStartup.ts'],
   bundle: true,
   target: "es6",
+  incremental: true,
   sourcemap: true,
   metafile: true,
   sourcesContent: true,

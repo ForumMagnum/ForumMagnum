@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { CommentVotingComponentProps, EmojiReaction, emojiReactions } from '../../lib/voting/votingSystems';
+import { CommentVotingComponentProps, EmojiReaction as EmojiReactionType, emojiReactions } from '../../lib/voting/votingSystems';
 import { useVote } from './withVote';
 import { useHover } from '../common/withHover';
 import { useDialog } from '../common/withDialog';
@@ -71,7 +71,7 @@ interface EmojiReactionVoteOnCommentProps extends CommentVotingComponentProps {
 }
 
 const EmojiReaction = ({reaction, voteProps, classes}: {
-  reaction: EmojiReaction,
+  reaction: EmojiReactionType,
   voteProps: VotingProps<VoteableTypeClient>,
   classes: ClassesType,
 }) => {
@@ -85,7 +85,7 @@ const EmojiReaction = ({reaction, voteProps, classes}: {
 }
 
 const BallotEmojiReaction = ({reaction, voteProps, classes}: {
-  reaction: EmojiReaction,
+  reaction: EmojiReactionType,
   voteProps: VotingProps<VoteableTypeClient>,
   classes: ClassesType,
 }) => {

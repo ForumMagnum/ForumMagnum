@@ -262,8 +262,6 @@ import './i18n-en-us/en_US';
 import './helpers'
 import './routes';
 
-import './components';
-
 // PostRelation
 import './collections/postRelations';
 
@@ -376,3 +374,5 @@ import './rateLimits/constants';
 import './rateLimits/types';
 
 import './subscribedUsersFeed';
+
+import './components';

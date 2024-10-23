@@ -140,9 +140,9 @@ export function registerComponent<PropType>(name: string, rawComponent: React.Co
   
   rawComponent.displayName = name;
   
-  if (name in ComponentsTable && ComponentsTable[name].rawComponent !== rawComponent) {
-    throw new Error(`Two components with the same name: ${name}`);
-  }
+  // if (name in ComponentsTable && ComponentsTable[name].rawComponent !== rawComponent) {
+  //   throw new Error(`Two components with the same name: ${name}`);
+  // }
   
   // store the component in the table
   ComponentsTable[name] = {
@@ -151,12 +151,16 @@ export function registerComponent<PropType>(name: string, rawComponent: React.Co
     hocs,
     options,
   };
+
+  const component = getComponent(name);
+
+  Components[name] = component;
   
   // The Omit is a hacky way of ensuring that hocs props are omitted from the
   // ones required to be passed in by parent components. It doesn't work for
   // hocs that share prop names that overlap with actually passed-in props, like
   // `location`.
-  return (null as any as React.ComponentType<Omit<PropType,"classes">>);
+  return (component as any as React.ComponentType<Omit<PropType,"classes">>);
 }
 
 // If true, `importComponent` imports immediately (rather than deferring until
@@ -195,7 +199,7 @@ export function prepareComponent(componentName: string): any
     return prepareComponent(componentName);
   } else {
     // eslint-disable-next-line no-console
-    console.error(`Missing component: ${componentName}`);
+    // console.error(`Missing component: ${componentName}`);
     return null;
   }
 }

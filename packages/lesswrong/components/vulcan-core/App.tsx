@@ -37,21 +37,21 @@ const App = ({serverRequestStatus, history}: ExternalProps & {
 
   const locale = localeSetting.get();
 
-  useEffect(() => {
-    if (!bundleIsServer) {
-      const { onUserChanged } = require('@/client/logging');
-      onUserChanged(currentUser);
-    }
-    moment.locale(locale);
-  }, [currentUser, locale]);
+  // useEffect(() => {
+  //   if (!bundleIsServer) {
+  //     const { onUserChanged } = require('@/client/logging');
+  //     onUserChanged(currentUser);
+  //   }
+  //   moment.locale(locale);
+  // }, [currentUser, locale]);
 
-  useEffect(() => {
-    if (!bundleIsServer) {
-      const { onUserChanged } = require('@/client/logging');
-      onUserChanged(currentUser);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser?._id]);
+  // useEffect(() => {
+  //   if (!bundleIsServer) {
+  //     const { onUserChanged } = require('@/client/logging');
+  //     onUserChanged(currentUser);
+  //   }
+  // // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [currentUser?._id]);
 
   // Parse the location into a route/params/query/etc.
   const location = checkUserRouteAccess(currentUser, parseRoute({location: reactDomLocation}));

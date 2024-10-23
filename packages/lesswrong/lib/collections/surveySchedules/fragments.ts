@@ -1,5 +1,7 @@
 import { registerFragment } from "@/lib/vulcan-lib";
 
+console.log("surveySchedules fragments");
+
 registerFragment(`
   fragment SurveyScheduleMinimumInfo on SurveySchedule {
     _id
