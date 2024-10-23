@@ -27,7 +27,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 3,
   },
   tooltip: {
-    transform: isFriendlyUI ? "translateY(-10px)" : undefined,
+    transform: "translateY(-10px)",
   },
 });
 
@@ -60,7 +60,7 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
     ? 'This post has disabled karma visibility'
     : <div>This {documentTypeName} has {karma} <b>agreement</b> karma ({voteCount} {voteCount === 1 ? "Vote" : "Votes"})</div>
 
-  const TooltipIfDisabled = (canVote
+  const TooltipIfDisabled = React.useMemo(() => canVote
     ? ({children}: {children: React.ReactNode}) => <>{children}</>
     : ({children}: {children: React.ReactNode}) => <LWTooltip
       placement="top"
@@ -72,16 +72,16 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
     >
       {children}
     </LWTooltip>
-  )
-  const TooltipIfEnabled = (canVote
+  , [canVote])
+  const TooltipIfEnabled = React.useMemo(() => canVote
     ? ({children, ...props}: React.ComponentProps<typeof LWTooltip>) =>
       <LWTooltip {...props} popperClassName={classes.tooltip}>
         {children}
       </LWTooltip>
     : ({children}: {children: React.ReactNode}) => <>{children}</>
-  );
+  , [canVote])
 
-  const tooltipPlacement = isFriendlyUI ? "top" : "bottom";
+  const tooltipPlacement = "top";
 
   return <TooltipIfDisabled>
     <span className={classes.agreementSection}>

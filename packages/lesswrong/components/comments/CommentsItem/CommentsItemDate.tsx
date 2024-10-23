@@ -8,9 +8,12 @@ import DeferRender from '@/components/common/DeferRender';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    ...(isFriendlyUI && {
+    ...(isFriendlyUI ? {
       marginLeft: 2,
       marginRight: 7,
+    } : {
+      marginLeft: 2,
+      marginRight: 16,
     }),
 
     "& a:hover, & a:active": {

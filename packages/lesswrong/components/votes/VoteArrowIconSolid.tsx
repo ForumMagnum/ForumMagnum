@@ -1,13 +1,11 @@
 import React from 'react';
 import classNames from 'classnames';
 import IconButton from '@material-ui/core/IconButton';
-import Transition from 'react-transition-group/Transition';
 import { SoftUpArrowIcon } from '../icons/softUpArrowIcon';
 import { SoftUpArrowIconCap } from '../icons/softUpArrowIconCap';
 import { useVoteColors } from './useVoteColors';
 import { registerComponent } from '@/lib/vulcan-lib';
 import { isEAForum } from '../../lib/instanceSettings';
-import { isFriendlyUI } from '@/themes/forumTheme';
 import type { BaseVoteArrowIconProps } from './VoteArrowIcon';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -27,9 +25,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   smallArrow: {
     opacity: isEAForum ? 0.7 : 0.6,
+    pointerEvents: 'none',
   },
   smallArrowLarge: {
     opacity: isEAForum ? 0.7 : 0.6,
+    pointerEvents: 'none',
   },
   up: {
   },
@@ -56,54 +56,40 @@ const styles = (theme: ThemeType): JssStyles => ({
     transform: 'rotate(-90deg)',
   },
   bigArrow: {
+    pointerEvents: 'none',
     position: 'absolute',
     top: '-70%',
     fontSize: '82%',
     opacity: 0,
-    transition: `opacity ${theme.voting.strongVoteDelay}ms cubic-bezier(0.74, -0.01, 1, 1) 0ms`,
   },
   bigArrowLarge: {
+    pointerEvents: 'none',
     position: 'absolute',
     top: '-90%',
     fontSize: '100%',
     opacity: 0,
-    transition: `opacity ${theme.voting.strongVoteDelay}ms cubic-bezier(0.74, -0.01, 1, 1) 0ms`,
   },
-  bigArrowSolid: isFriendlyUI
-    ? {
-        fontSize: '65%',
-        top: '-45%',
-      }
-    : {
-        top: '-35%',
-        transform: 'scale(1.4)',
-      },
-  bigArrowSolidLarge: isFriendlyUI
-    ? {
-        fontSize: '85%',
-        top: '-60%',
-      }
-    : {
-        top: '-30%',
-        transform: 'scale(1.6)',
-      },
+  bigArrowSolid: {
+    top: '-35%',
+    transform: 'scale(1.4)',
+  },
+  bigArrowSolidLarge: {
+    top: '-30%',
+    transform: 'scale(1.6)',
+  },
   bigArrowCompleted: {
     fontSize: '90%',
-    top: '-75%',
+    top: '-35%',
+    opacity: 1
   },
   bigArrowCompletedLarge: {
     fontSize: '110%',
-    top: '-95%',
+    top: '-35%',
+    opacity: 1
   },
   entering: {
-    opacity: 1,
-  },
-  entered: {
-    opacity: 1,
-  },
-  exiting: {
-    transition: 'opacity 150ms cubic-bezier(0.74, -0.01, 1, 1) 0ms',
-  },
+    transition: `opacity ${theme.voting.strongVoteDelay}ms cubic-bezier(0.74, -0.01, 1, 1) 0ms`,
+  }
 });
 
 const VoteArrowIconSolid = ({
@@ -140,29 +126,6 @@ const VoteArrowIconSolid = ({
     />
   );
 
-  const getTransitionIcon = (state: string) => (
-    <SoftUpArrowIconCap
-      style={
-        bigVoteCompleted || bigVoted
-          ? { color: lightColor, height: iconSize, width: iconSize }
-          : { height: iconSize, width: iconSize }
-      }
-      className={classNames(
-        largeArrow ? classes.bigArrowLarge : classes.bigArrow,
-        bigVoteCompleted &&
-          (largeArrow ? classes.bigArrowCompletedLarge : classes.bigArrowCompleted),
-        isFriendlyUI
-          ? largeArrow
-            ? classes.bigArrowSolidLarge
-            : classes.bigArrowSolid
-          : largeArrow
-          ? classes.bigArrowSolidLarge
-          : classes.bigArrowSolid,
-        classes[state]
-      )}
-    />
-  );
-
   const handlers = enabled ? eventHandlers : {};
 
   return (
@@ -180,9 +143,22 @@ const VoteArrowIconSolid = ({
       disableRipple
     >
       {Icon}
-      <Transition in={!!(bigVotingTransition || bigVoted)} timeout={strongVoteDelay}>
-        {(state) => getTransitionIcon(state)}
-      </Transition>
+      <SoftUpArrowIconCap
+        style={
+          bigVoteCompleted || bigVoted
+            ? { color: lightColor, height: iconSize, width: iconSize }
+            : { height: iconSize, width: iconSize }
+        }
+        className={classNames(
+          bigVotingTransition && classes.entering,
+          largeArrow ? classes.bigArrowLarge : classes.bigArrow,
+          (bigVotingTransition || bigVoteCompleted || bigVoted) &&
+            (largeArrow ? classes.bigArrowCompletedLarge : classes.bigArrowCompleted),
+          largeArrow
+              ? classes.bigArrowSolidLarge
+              : classes.bigArrowSolid
+        )}
+      />
     </IconButton>
   );
 };

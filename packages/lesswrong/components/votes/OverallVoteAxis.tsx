@@ -15,7 +15,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'inline-block',
     height: 24,
     paddingTop: isFriendlyUI ? 2 : 0, // TODO: Does EA Forum still need this padding?
-    marginLeft: 12,
   },
   overallSectionBox: {
     marginLeft: 8,
@@ -28,7 +27,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 25,
     lineHeight: 0.6,
     whiteSpace: "nowrap",
-    display: "inline-block"
+    display: "inline-block",
   },
   voteScore: {
     fontSize: '1.1rem',
@@ -51,7 +50,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontStyle: "italic"
   },
   tooltip: {
-    transform: isFriendlyUI ? "translateY(-10px)" : undefined,
+    transform: "translateY(-10px)",
   },
   verticalArrows: {
     "& .LWTooltip-root": {
@@ -123,7 +122,7 @@ const OverallVoteAxis = ({
     ? 'This post has disabled karma visibility'
     : <div>This {documentTypeName} has {karma} <b>overall</b> karma ({voteCount} {voteCount === 1 ? "Vote" : "Votes"})</div>
 
-  const TooltipIfDisabled = (canVote
+  const TooltipIfDisabled = React.useMemo(() => canVote
     ? ({children}: {children: React.ReactNode}) => <>{children}</>
     : ({children}: {children: React.ReactNode}) => <LWTooltip
       placement="top"
@@ -135,16 +134,16 @@ const OverallVoteAxis = ({
     >
       {children}
     </LWTooltip>
-  )
-  const TooltipIfEnabled = (canVote
+  , [canVote])
+  const TooltipIfEnabled = React.useMemo(() => canVote
     ? ({children, ...props}: React.ComponentProps<typeof LWTooltip>) =>
       <LWTooltip {...props} popperClassName={classes.tooltip}>
         {children}
       </LWTooltip>
     : ({children}: {children: React.ReactNode}) => <>{children}</>
-  );
+  , [canVote])
 
-  const tooltipPlacement = isFriendlyUI ? "top" : "bottom";
+  const tooltipPlacement = "top"
 
   const buttonProps: Partial<OverallVoteButtonProps<VoteableTypeClient>> = {largeArrow: largeArrows};
   if (verticalArrows) {
