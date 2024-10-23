@@ -59,7 +59,7 @@ export const defaultExampleGlossary: { glossaryItems: ExampleJargonGlossaryEntry
 const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
-    marginTop: -16,
+    marginTop: -8,
     marginBottom: -16,
   },
   window: {
@@ -118,6 +118,7 @@ const styles = (theme: ThemeType) => ({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 12,
+    paddingTop: 8,
     paddingBottom: 8,
     borderBottom: theme.palette.border.faint,
     marginBottom: 4,
