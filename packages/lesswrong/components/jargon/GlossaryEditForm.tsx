@@ -156,6 +156,7 @@ const styles = (theme: ThemeType) => ({
   },
   disabled: {
     opacity: 0.3,
+    color: theme.palette.grey[500],
     cursor: 'not-allowed',
   },
   promptTextField: {
@@ -349,33 +350,41 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     />
   </div>
 
+  const header = <div className={classes.header}>
+    <LWTooltip title="Enable all glossary hoverovers for readers of this post">
+      <div className={classNames(classes.approveAllButton, sortedApprovedTerms.length !== 0 && classes.disabled)} 
+        onClick={() => handleSetApproveAll(true)}>
+        ENABLE ALL
+      </div>
+    </LWTooltip>
+    <LWTooltip title="Disable all glossary hoverovers for readers of this post">
+      <div className={classNames(classes.approveAllButton, sortedUnapprovedTerms.length !== 0 && classes.disabled)} 
+        onClick={() => handleSetApproveAll(false)}>
+        DISABLE ALL
+      </div>
+    </LWTooltip>
+    <LWTooltip title={<div><p>Hide all terms that aren't currently enabled (you can unhide them later)</p><p>{sortedUnapprovedTerms.map((item) => item.term).join(", ")}</p></div>}>
+      <div className={classNames(classes.approveAllButton, sortedUnapprovedTerms.length === 0 && classes.disabled)} onClick={handleDeleteUnused}>HIDE DISABLED TERMS</div>
+    </LWTooltip>
+    {deletedTerms.length > 0 && <LWTooltip title="Unhide all deleted terms">
+      <div className={classes.approveAllButton} onClick={handleUnhideAll}>
+        UNHIDE ALL ({deletedTerms.length})
+      </div>
+    </LWTooltip>}
+    <div className={classes.button} onClick={() => setExpanded(!expanded)}>
+      {expanded 
+      ? "COLLAPSE"
+      : "EXPAND"
+    }
+    </div>
+  </div>
+
   return <div className={classes.root}>
     {showTitle && <h2>Glossary [Beta]<LWTooltip title="Beta feature! Select/edit terms below, and readers will be able to hover over and read the explanation.">  </LWTooltip></h2>}
     {/* {!showTitle && <br/>} */}
 
     <LoadMore {...loadMoreProps} />
-    <div className={classes.header}>
-      <LWTooltip title="Enable all glossary hoverovers for readers of this post">
-        <div className={classes.approveAllButton} onClick={() => handleSetApproveAll(true)}>ENABLE ALL</div>
-      </LWTooltip>
-      <LWTooltip title="Disable all glossary hoverovers for readers of this post">
-        <div className={classes.approveAllButton} onClick={() => handleSetApproveAll(false)}>DISABLE ALL</div>
-      </LWTooltip>
-      <LWTooltip title={<div><p>Hide all terms that aren't currently enabled (you can unhide them later)</p><p>{sortedUnapprovedTerms.map((item) => item.term).join(", ")}</p></div>}>
-        <div className={classNames(classes.approveAllButton, sortedUnapprovedTerms.length === 0 && classes.disabled)} onClick={handleDeleteUnused}>HIDE DISABLED TERMS</div>
-      </LWTooltip>
-      {deletedTerms.length > 0 && <LWTooltip title="Unhide all deleted terms">
-        <div className={classes.approveAllButton} onClick={handleUnhideAll}>
-          UNHIDE ALL ({deletedTerms.length})
-        </div>
-      </LWTooltip>}
-      <div className={classes.button} onClick={() => setExpanded(!expanded)}>
-        {expanded 
-        ? "COLLAPSE"
-        : "EXPAND"
-      }
-      </div>
-    </div>
+    {header}
 
     {/* <div> */}
     <div className={classNames(classes.window, expanded && classes.expanded)}>
