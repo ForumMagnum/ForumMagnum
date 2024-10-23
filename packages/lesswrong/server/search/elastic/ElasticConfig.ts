@@ -235,7 +235,11 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
       body: fullTextMapping,
       feedLink: keywordMapping,
       slug: keywordMapping,
-      tags: keywordMapping,
+      tags: objectMapping({
+        _id: keywordMapping,
+        slug: keywordMapping,
+        name: keywordMapping,
+      }),
       url: keywordMapping,
       userId: keywordMapping,
     },

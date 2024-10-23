@@ -415,7 +415,14 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         p."lastCommentedAt",
         COALESCE(p."draft", FALSE) AS "draft",
         COALESCE(p."af", FALSE) AS "af",
-        fm_post_tag_ids(p."_id") AS "tags",
+        (SELECT JSONB_AGG(JSONB_BUILD_OBJECT(
+          '_id', t."_id",
+          'slug', t."slug",
+          'name', t."name"
+        )) FROM "Tags" t WHERE
+          t."_id" = ANY(fm_post_tag_ids(p."_id")) AND
+          t."deleted" IS NOT TRUE
+        ) AS "tags",
         CASE
           WHEN author."deleted" THEN NULL
           ELSE author."slug"
