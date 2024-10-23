@@ -3,11 +3,10 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useTheme } from '../themes/useTheme';
 import classNames from 'classnames';
 import IconButton from '@material-ui/core/IconButton';
-import Transition from 'react-transition-group/Transition';
 import { useVoteColors } from './useVoteColors';
 import { BaseVoteArrowIconProps } from './VoteArrowIcon';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     color: theme.palette.grey[400],
     fontSize: 'inherit',
@@ -19,53 +18,6 @@ const styles = (theme: ThemeType): JssStyles => ({
       backgroundColor: 'transparent',
     }
   },
-  up: {},
-  right: {
-    transform: 'rotate(-270deg)',
-  },
-  down: {
-    transform: 'rotate(-180deg)',
-  },
-  left: {
-    transform: 'rotate(-90deg)',
-  },
-  bigCheck: {
-    position: 'absolute',
-    top: -3,
-    left: 2,
-    fontSize: '82%',
-    opacity: 0,
-    transition: `opacity ${theme.voting.strongVoteDelay}ms cubic-bezier(0.74, -0.01, 1, 1) 0ms`,
-    height: 23
-  },
-  bigCheckSolid: {
-    fontSize: '65%',
-    top: "-45%"
-  },
-  bigCheckCompleted: {
-  },
-  bigClear: {
-    position: 'absolute',
-    top: 1,
-    left: 5,
-    fontSize: '70%',
-    opacity: 0,
-    transition: `opacity ${theme.voting.strongVoteDelay}ms cubic-bezier(0.74, -0.01, 1, 1) 0ms`,
-  },
-  bigClearSolid: {
-    fontSize: '65%',
-    position: 'relative',
-    top: "-45%"
-  },
-  bigClearCompleted: {
-    fontSize: '80%',
-    position: 'absolute',
-    left: 4,
-    top: 0,
-  },
-  hideIcon: {
-    display: 'none'
-  },
   check: {
     fontSize: '50%',
     opacity: 0.6,
@@ -74,12 +26,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     top: 3,
     left: 2,
   },
-  clear: {
-    fontSize: '45%',
-    opacity: 0.6,
+  bigCheck: {
+    opacity: 0,
     position: 'absolute',
-    top: 6,
-    left: 11
+    top: -3,
+    left: 2,
+    fontSize: '82%',
+    height: 23,
+    pointerEvents: 'none'
+  },
+  bigCheckCompleted: {
+    opacity: 1,
   },
   smallCheckBigVoted: {
     fontSize: '50%',
@@ -88,36 +45,49 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: 14,
     transform: 'translate(-8px, -2px)'
   },
+  clear: {
+    fontSize: '45%',
+    opacity: 0.6,
+    position: 'absolute',
+    top: 6,
+    left: 11
+  },
+  bigClear: {
+    opacity: 0,
+    position: 'absolute',
+    top: 1,
+    left: 5,
+    fontSize: '70%',
+    pointerEvents: 'none',
+  },
+  bigClearCompleted: {
+    opacity: 1,
+    fontSize: '80%',
+    position: 'absolute',
+    left: 4,
+    top: 0,
+  },
   smallArrowBigVoted: {
     opacity: 0.6,
     position: 'absolute',
     height: 14,
     scale: 1.2,
-    transform: 'translate(-3.5px, 2.3px)'
+    transform: 'translate(-3.5px, 2.6px)'
   },
-  // Classes for the animation transitions of the bigArrow. See Transition component
-  entering: {
-    opacity: 1
-  },
-  entered: {
-    opacity: 1
-  },
-  exiting: {
-    transition: 'opacity 150ms cubic-bezier(0.74, -0.01, 1, 1) 0ms',
+  hideIcon: {
+    opacity: 0
   },
   iconsContainer: {
     position: 'relative',
     width: 25,
     height: 18
   },
-  noClickCatch: {
-    /* pointerEvents: none prevents elements under the IconButton from interfering with mouse
-       events during a bigVote transition. */
-    pointerEvents: 'none'
-  },
   disabled: {
     cursor: 'not-allowed',
   },
+  entering: {
+    transition: `opacity ${theme.voting.strongVoteDelay}ms cubic-bezier(0.74, -0.01, 1, 1) 0ms`,
+  }
 })
 
 const VoteAgreementIcon = ({
@@ -132,43 +102,84 @@ const VoteAgreementIcon = ({
   alwaysColored,
   classes,
 }: BaseVoteArrowIconProps & {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
-  const theme = useTheme();
   const upOrDown = orientation === "left" ? "Downvote" : "Upvote"
   
   const primaryIcon =  (upOrDown === "Downvote") ? "CrossReaction" : "TickReaction"
-  const primaryIconStyling = (upOrDown === "Downvote") ? classes.clear : classes.check
-  
   const bigVoteAccentIcon = (upOrDown === "Downvote") ? "CrossReactionCap" : "TickReaction"
-  const bigVoteAccentStyling = (upOrDown === "Downvote") ? classes.smallArrowBigVoted : classes.smallCheckBigVoted
-  const bigVoteCompletedStyling = (upOrDown === "Downvote") ? classes.bigClearCompleted : classes.bigCheckCompleted
-  const bigVoteStyling = (upOrDown === "Downvote") ? classes.bigClear : classes.bigCheck
 
-  if (!enabled) {
-    eventHandlers = {};
-  }
+  const handlers = enabled ? eventHandlers : {};
 
   const {mainColor, lightColor} = useVoteColors(color);
 
   const { ForumIcon } = Components;
 
+  const strongVoteLargeIconClasses = (upOrDown === "Downvote")
+    ? classNames(
+      bigVotingTransition && classes.entering,
+      classes.bigClear,
+      (bigVotingTransition || bigVoteCompleted || bigVoted) && classes.bigClearCompleted,
+    )
+    : classNames(
+      bigVotingTransition && classes.entering,
+      classes.bigCheck,
+      (bigVotingTransition || bigVoteCompleted || bigVoted) && classes.bigCheckCompleted,
+    )
+
+  const strongVoteAccentIconClasses = (upOrDown === "Downvote")
+    ? classNames(
+      bigVotingTransition && classes.entering,
+      classes.smallArrowBigVoted,
+      (bigVotingTransition || bigVoteCompleted || bigVoted) && classes.smallArrowBigVoted,
+      {[classes.hideIcon]: !bigVoted}
+    )
+    : classNames(
+      bigVotingTransition && classes.entering,
+      classes.smallCheckBigVoted,
+      (bigVotingTransition || bigVoteCompleted || bigVoted) && classes.smallCheckBigVoted,
+      {[classes.hideIcon]: !bigVoted}
+    )
+
+  
+  
   return (
     <IconButton
       className={classNames(classes.root, {[classes.disabled]: !enabled})}
-      onMouseDown={eventHandlers.handleMouseDown}
-      onMouseUp={eventHandlers.handleMouseUp}
-      onMouseOut={eventHandlers.clearState}
-      onClick={eventHandlers.handleClick}
+      onMouseDown={handlers.handleMouseDown}
+      onMouseUp={handlers.handleMouseUp}
+      onMouseOut={handlers.clearState}
+      onClick={handlers.handleClick}
       disableRipple
     >
       <span className={classes.iconsContainer}>
         <ForumIcon
           icon={primaryIcon}  
-          className={classNames(primaryIconStyling, classes.noClickCatch, {[classes.hideIcon]: bigVotingTransition || bigVoted})}
+          className={classNames(
+            (upOrDown === "Downvote") ? classes.clear : classes.check,
+            (bigVotingTransition || bigVoteCompleted || bigVoted) && classes.hideIcon
+          )}
           style={{color: voted || alwaysColored ? mainColor : "inherit"}}
         />
-        <Transition in={(bigVotingTransition || bigVoted)} timeout={theme.voting.strongVoteDelay}>
+
+        {/* Strong vote icons */}
+        <ForumIcon
+          icon={primaryIcon}
+          style={bigVoteCompleted || bigVoted ? {color: lightColor} : {}}
+          className={strongVoteLargeIconClasses}
+        />
+        <ForumIcon
+          icon={bigVoteAccentIcon}
+          style={bigVoteCompleted || bigVoted ? {color: lightColor} : undefined}
+          className={strongVoteAccentIconClasses}
+        />
+
+
+
+
+
+
+        {/* <Transition in={(bigVotingTransition || bigVoted)} timeout={theme.voting.strongVoteDelay}>
           {(state) => (
             <>
               <ForumIcon
@@ -185,7 +196,7 @@ const VoteAgreementIcon = ({
                 }, classes[state])}
               />
             </>)}
-        </Transition>
+        </Transition> */}
       </span>
     </IconButton>
   )

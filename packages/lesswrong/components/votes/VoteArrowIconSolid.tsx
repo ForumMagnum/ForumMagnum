@@ -56,6 +56,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     transform: 'rotate(-90deg)',
   },
   bigArrow: {
+    height: 10,
+    width: 10,
     pointerEvents: 'none',
     position: 'absolute',
     top: '-70%',
@@ -63,6 +65,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     opacity: 0,
   },
   bigArrowLarge: {
+    height: 14,
+    width: 14,
     pointerEvents: 'none',
     position: 'absolute',
     top: '-90%',
@@ -120,13 +124,25 @@ const VoteArrowIconSolid = ({
         height: iconSize,
         width: iconSize,
       }}
-      className={classNames(
-        largeArrow ? classes.smallArrowLarge : classes.smallArrow
-      )}
+      className={classNames(largeArrow ? classes.smallArrowLarge : classes.smallArrow)}
     />
   );
 
   const handlers = enabled ? eventHandlers : {};
+
+  const accentIconClasses = largeArrow
+    ? classNames(
+        bigVotingTransition && classes.entering,
+        classes.bigArrowLarge,
+        (bigVotingTransition || bigVoteCompleted || bigVoted) && classes.bigArrowCompletedLarge,
+        classes.bigArrowSolidLarge
+      )
+    : classNames(
+        bigVotingTransition && classes.entering,
+        classes.bigArrow,
+        (bigVotingTransition || bigVoteCompleted || bigVoted) && classes.bigArrowCompleted,
+        classes.bigArrowSolid
+    );
 
   return (
     <IconButton
@@ -144,20 +160,8 @@ const VoteArrowIconSolid = ({
     >
       {Icon}
       <SoftUpArrowIconCap
-        style={
-          bigVoteCompleted || bigVoted
-            ? { color: lightColor, height: iconSize, width: iconSize }
-            : { height: iconSize, width: iconSize }
-        }
-        className={classNames(
-          bigVotingTransition && classes.entering,
-          largeArrow ? classes.bigArrowLarge : classes.bigArrow,
-          (bigVotingTransition || bigVoteCompleted || bigVoted) &&
-            (largeArrow ? classes.bigArrowCompletedLarge : classes.bigArrowCompleted),
-          largeArrow
-              ? classes.bigArrowSolidLarge
-              : classes.bigArrowSolid
-        )}
+        style={bigVoteCompleted || bigVoted ? { color: lightColor } : {}}
+        className={accentIconClasses}
       />
     </IconButton>
   );
