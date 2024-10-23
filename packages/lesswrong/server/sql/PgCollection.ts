@@ -329,7 +329,7 @@ class PgCollection<
       await this.executeWriteQuery(dropIndex, {indexName, options})
     },
     indexes: (_options: never) => {
-      return Promise.resolve(this.getTable().getIndexes().map((index) => index.getDetails()));
+      return Promise.resolve(this.getTable().getRequestedIndexes().map((index) => index.getDetails()));
     },
     updateOne: async (
       selector: string | MongoSelector<ObjectsByCollectionName[N]>,

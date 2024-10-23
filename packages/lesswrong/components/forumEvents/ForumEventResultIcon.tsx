@@ -6,12 +6,14 @@ import { formatRole } from '../users/EAUserTooltipContent';
 import { Link } from '@/lib/reactRouterWrapper';
 import { commentGetPageUrlFromIds } from '@/lib/collections/comments/helpers';
 import { userGetProfileUrl } from '@/lib/collections/users/helpers';
-import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
+import { useIsAboveScreenWidth } from '../hooks/useScreenWidth';
 import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
 import { useCurrentForumEvent } from '../hooks/useCurrentForumEvent';
+import { POLL_MAX_WIDTH } from './ForumEventPoll';
 
 const styles = (theme: ThemeType) => ({
   voteCircle: {
+    animation: 'results-fade-in 2s ease',
     position: "relative",
     display: "flex",
     flexDirection: "column",
@@ -25,6 +27,17 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]: {
       marginTop: -1,
     },
+  },
+  '@keyframes results-fade-in': {
+    '0%': {
+      pointerEvents: "none",
+    },
+    '99%': {
+      pointerEvents: "none",
+    },
+    '100%': {
+      pointerEvents: "auto",
+    }
   },
   voteTooltipBody: {
     fontSize: 14,
@@ -128,6 +141,120 @@ export type ForumEventVoteDisplay = {
   comment: ShortformComments | null
 }
 
+const ForumEventResultPopper = ({
+  anchorEl,
+  user,
+  comment,
+  captureEvent,
+  setIsPinned,
+  isPinned,
+  newRepliesCount,
+  setNewRepliesCount,
+  classes,
+}: {
+  anchorEl: any,
+  user: UsersMinimumInfo;
+  comment: ShortformComments;
+  captureEvent: Function;
+  setIsPinned: React.Dispatch<React.SetStateAction<boolean>>;
+  isPinned: boolean;
+  newRepliesCount: number;
+  setNewRepliesCount: React.Dispatch<React.SetStateAction<number>>;
+  classes: ClassesType<typeof styles>;
+}) => {
+  const {
+    LWPopper,
+    LWClickAwayListener,
+    ForumIcon,
+    CommentBody,
+    CommentsNewForm,
+    UsersProfileImage
+  } = Components;
+
+  const [replyFormOpen, setReplyFormOpen] = useState(false);
+
+  const replySuccessCallback = useCallback(() => {
+    captureEvent("replyFromBanner")
+    // We only need to show the count, so just track comments the user submits rather than refetching
+    setNewRepliesCount((prev) => prev + 1);
+    setReplyFormOpen(false);
+  }, [captureEvent, setNewRepliesCount])
+
+  const repliesCount = (comment?.descendentCount ?? 0) + newRepliesCount;
+
+  const replyString = repliesCount
+    ? `(${repliesCount} ${repliesCount === 1 ? "reply" : "replies"})`
+    : "";
+
+  const role = formatRole(user.jobTitle, user.organization);
+
+  return (
+    <LWPopper
+      open={true}
+      anchorEl={anchorEl}
+      clickable={true}
+      allowOverflow={false}
+      placement={"right-start"}
+    >
+      <LWClickAwayListener onClickAway={() => setIsPinned(false)}>
+        <div className={classes.popperContent}>
+          <div className={classes.userInfo}>
+            <UsersProfileImage user={user} size={40} className={classes.profileImage} />
+            <div className={classes.headerInfo}>
+              <div className={classes.displayNameRow}>
+                <Link
+                  className={classes.displayName}
+                  to={userGetProfileUrl(user)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {user.displayName}
+                </Link>
+                <ForumIcon
+                  icon="Pin"
+                  onClick={() => setIsPinned(!isPinned)}
+                  className={classNames(classes.pinIcon, { [classes.pinIconPinned]: isPinned })}
+                />
+              </div>
+              <div>{role}</div>
+            </div>
+          </div>
+          <CommentBody comment={comment} className={classes.commentBody} />
+          <div className={classes.replyButtonRow}>
+            <div
+              className={classes.replyButton}
+              onClick={() => {
+                setReplyFormOpen(true);
+                // Pin even after the comment is submitted so they can see the result
+                setIsPinned(true);
+              }}
+            >
+              Reply
+            </div>
+            <Link
+              to={commentGetPageUrlFromIds({ postId: comment.postId, commentId: comment._id })}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Go to thread {replyString}
+            </Link>
+          </div>
+          {replyFormOpen && (
+            <CommentsNewForm
+              type="reply"
+              post={comment.post ?? undefined}
+              parentComment={comment}
+              cancelCallback={() => setReplyFormOpen(false)}
+              successCallback={replySuccessCallback}
+              className={classes.replyForm}
+            />
+          )}
+        </div>
+      </LWClickAwayListener>
+    </LWPopper>
+  );
+};
+
 const ForumEventResultIcon = ({
   vote,
   tooltipDisabled,
@@ -137,39 +264,21 @@ const ForumEventResultIcon = ({
   tooltipDisabled: boolean;
   classes: ClassesType<typeof styles>;
 }) => {
-  const { LWTooltip, UsersProfileImage, LWPopper, ForumIcon, CommentBody, LWClickAwayListener, CommentsNewForm } =
-    Components;
+  const { LWTooltip, UsersProfileImage } = Components;
 
-  const isDesktop = useIsAboveBreakpoint("md")
+  const isDesktop = useIsAboveScreenWidth(POLL_MAX_WIDTH);
+
   const { captureEvent } = useTracking();
   const { currentForumEvent } = useCurrentForumEvent();
 
-  const [replyFormOpen, setReplyFormOpen] = useState(false);
-
   const { user, comment } = vote;
 
-  const role = formatRole(user.jobTitle, user.organization)
+  const { eventHandlers, hover, anchorEl } = useHover();
 
-  const {eventHandlers, hover, anchorEl} = useHover();
-
-  const [isPinned, setIsPinned] = useState(false)
-  // We only need to show the count, so just track comments the user submits rather
-  // than refetching
+  const [isPinned, setIsPinned] = useState(false);
   const [newRepliesCount, setNewRepliesCount] = useState(0);
 
-  const replySuccessCallback = useCallback(() => {
-    captureEvent("replyFromBanner")
-    setNewRepliesCount((prev) => prev + 1);
-    setReplyFormOpen(false);
-  }, [captureEvent])
-
-  const repliesCount = (comment?.descendentCount ?? 0) + newRepliesCount;
-
-  const popperOpen = hover || isPinned
-
-  const replyString = repliesCount
-    ? `(${repliesCount} ${repliesCount === 1 ? "reply" : "replies"})`
-    : "";
+  const popperOpen = hover || isPinned;
 
   if (!isDesktop) return null;
 
@@ -192,68 +301,22 @@ const ForumEventResultIcon = ({
             className={classes.userResultsImage}
           />
         </LWTooltip>
-        {!tooltipDisabled && comment && (
-          <LWPopper
-            open={popperOpen}
+        {/*
+          * Controlling whether the popper is open is done outside the component so that it fully
+          * unmounts and clears all the state when closed
+          */}
+        {!tooltipDisabled && comment && popperOpen && (
+          <ForumEventResultPopper
             anchorEl={anchorEl}
-            clickable={true}
-            allowOverflow={false}
-            placement={"right-start"}
-          >
-            <LWClickAwayListener onClickAway={() => setIsPinned(false)}>
-              <div className={classes.popperContent}>
-                <div className={classes.userInfo}>
-                  <UsersProfileImage user={user} size={40} className={classes.profileImage} />
-                  <div className={classes.headerInfo}>
-                    <div className={classes.displayNameRow}>
-                      <Link
-                        className={classes.displayName}
-                        to={userGetProfileUrl(user)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {user.displayName}
-                      </Link>
-                      <ForumIcon
-                        icon="Pin"
-                        onClick={() => setIsPinned(!isPinned)}
-                        className={classNames(classes.pinIcon, { [classes.pinIconPinned]: isPinned })}
-                      />
-                    </div>
-                    <div>{role}</div>
-                  </div>
-                </div>
-                <CommentBody comment={comment} className={classes.commentBody} />
-                <div
-                  className={classes.replyButtonRow}
-                  onClick={() => {
-                    setReplyFormOpen(true);
-                    // Pin even after the comment is submitted so they can see the result
-                    setIsPinned(true);
-                  }}
-                >
-                  <div className={classes.replyButton}>Reply</div>
-                  <Link
-                    to={commentGetPageUrlFromIds({ postId: comment.postId, commentId: comment._id })}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Go to thread {replyString}
-                  </Link>
-                </div>
-                {replyFormOpen && (
-                  <CommentsNewForm
-                    type="reply"
-                    post={comment.post ?? undefined}
-                    parentComment={comment}
-                    cancelCallback={() => setReplyFormOpen(false)}
-                    successCallback={replySuccessCallback}
-                    className={classes.replyForm}
-                  />
-                )}
-              </div>
-            </LWClickAwayListener>
-          </LWPopper>
+            user={user}
+            comment={comment}
+            classes={classes}
+            captureEvent={captureEvent}
+            setIsPinned={setIsPinned}
+            isPinned={isPinned}
+            newRepliesCount={newRepliesCount}
+            setNewRepliesCount={setNewRepliesCount}
+          />
         )}
       </div>
     </AnalyticsContext>

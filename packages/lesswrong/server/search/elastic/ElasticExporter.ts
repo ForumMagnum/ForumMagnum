@@ -281,9 +281,6 @@ class ElasticExporter {
                     "lowercase",
                     "decimal_digit",
                   ],
-                  char_filter: [
-                    "fm_punctuation_filter",
-                  ],
                 },
                 fm_synonym_analyzer: {
                   type: "custom",
@@ -502,5 +499,10 @@ Globals.elasticDeleteIndexByName = (indexName: string) =>
 
 Globals.elasticDeleteOrphanedIndexes = () =>
   new ElasticExporter().deleteOrphanedIndexes();
+
+Globals.elasticExportDocument = (
+  collectionName: SearchIndexCollectionName,
+  documentId: string,
+) => new ElasticExporter().updateDocument(collectionName, documentId);
 
 export default ElasticExporter;

@@ -9,7 +9,7 @@ import { classifyHost, getUrlClass } from './routeUtil';
 import { parseQuery } from './vulcan-core/appContext'
 import qs from 'qs'
 
-type LinkProps = {
+export type LinkProps = {
   to?: HashLinkProps['to']|null
   doOnDown?: boolean
   onMouseDown?: HashLinkProps['onMouseDown']

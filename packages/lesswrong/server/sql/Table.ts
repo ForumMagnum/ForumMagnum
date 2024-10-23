@@ -63,7 +63,13 @@ class Table<T extends DbObject> {
     return this.indexes.find((index) => index.equals(fields, options));
   }
 
-  getIndexes() {
+  /**
+   * Returns the set of indexes that this table has _as specified in code_ (ie,
+   * in `ensureIndex` calls). If there are extra indexes in the DB due to
+   * manual DB operations, or a migration not having been run, they will not
+   * be included.
+   */
+  getRequestedIndexes() {
     return this.indexes;
   }
 

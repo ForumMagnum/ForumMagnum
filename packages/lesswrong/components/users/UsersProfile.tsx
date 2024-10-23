@@ -6,7 +6,7 @@ import { useLocation } from '../../lib/routeUtil';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { userCanEditUser, userGetDisplayName, userGetProfileUrl, userGetProfileUrlFromSlug } from "../../lib/collections/users/helpers";
 import { userGetEditUrl } from '../../lib/vulcan-users/helpers';
-import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
+import { DEFAULT_LOW_KARMA_THRESHOLD, POST_SORTING_MODES } from '../../lib/collections/posts/views'
 import StarIcon from '@material-ui/icons/Star'
 import DescriptionIcon from '@material-ui/icons/Description'
 import MessageIcon from '@material-ui/icons/Message'
@@ -240,7 +240,10 @@ const UsersProfileFn = ({terms, slug, classes}: {
     const sequenceAllTerms: SequencesViewTerms = {view: "userProfileAll", userId: user._id, limit:9}
 
     // maintain backward compatibility with bookmarks
-    const currentSorting = (query.sortedBy || query.view ||  "new") as PostSortingMode
+    const postQueryMode = (query.sortedBy || query.view ||  "new")
+    const currentPostSortingMode = POST_SORTING_MODES.has(postQueryMode) ? postQueryMode : "new"
+    terms.sortedBy = currentPostSortingMode
+    
     const currentFilter = query.filter ||  "all"
     
     const commentQueryName = "commentsSortBy"
@@ -357,12 +360,12 @@ const UsersProfileFn = ({terms, slug, classes}: {
           <SingleColumnSection>
             <div className={classes.postsTitle} onClick={() => setShowSettings(!showSettings)}>
               <SectionTitle title={"Posts"}>
-                <SettingsButton label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`}/>
+                <SettingsButton label={`Sorted by ${ SORT_ORDER_OPTIONS[currentPostSortingMode].label }`}/>
               </SectionTitle>
             </div>
             {showSettings && <PostsListSettings
               hidden={false}
-              currentSorting={currentSorting}
+              currentSorting={currentPostSortingMode}
               currentFilter={currentFilter}
               currentShowLowKarma={currentShowLowKarma}
               currentIncludeEvents={currentIncludeEvents}
