@@ -12,19 +12,18 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.body2,
     whiteSpace: 'pre',
     cursor: 'pointer',
-    display: 'inline-flex',
-    justifyContent: 'space-between',
+    display: 'flex', 
+    justifyContent: 'flex-start',
     alignItems: 'center',
     border: theme.palette.border.faint,
     borderRadius: 4,
     width: '100%',
-    padding: '4px 8px',
-    opacity: .5,
+    opacity: 0.5,
     '&:hover': {
-      opacity: .6
+      opacity: 0.6,
     },
     '&:hover $delete': {
-      opacity: .7
+      opacity: 0.7,
     }
   },
   checkbox: {
@@ -36,6 +35,10 @@ const styles = (theme: ThemeType) => ({
   },
   term: {
     textTransform: 'capitalize',
+    padding: '4px 8px',
+    flexGrow: 1,
+    display: 'flex',
+    alignItems: 'center'
   },
   approved: {
     opacity: 1,
@@ -47,10 +50,17 @@ const styles = (theme: ThemeType) => ({
     paddingTop: 6,
     paddingBottom: 6,
     paddingLeft: 10,
+    paddingRight: 10,
     cursor: 'pointer',
+    marginLeft: 'auto', // New property to align to the right
     '&:hover': {
       color: theme.palette.grey[800],
     }
+  },
+  tooltip: {
+    display: 'flex',
+    flexGrow: 1,
+    width: '100%',
   }
 });
 
@@ -98,15 +108,16 @@ export const JargonTocItem = ({classes, jargonTerm}: {
 
   const { LWTooltip, JargonTooltip } = Components;
 
-  return <span className={classNames(classes.root, jargonTerm.approved && classes.approved)} onClick={handleActiveChange}>
-    <JargonTooltip term={jargonTerm.term} definitionHTML={jargonTerm.contents?.html ?? ''} altTerms={jargonTerm.altTerms ?? []} humansAndOrAIEdited={jargonTerm.humansAndOrAIEdited} replacedSubstrings={[]} clickable={false}>
-      <span className={classes.term}>{jargonTerm.term}</span>
-    </JargonTooltip>
-    
-    <LWTooltip title="Delete" placement="right">
-      <span className={classes.delete} onClick={handleDelete}>x</span>
-    </LWTooltip> 
-  </span>;
+  return (
+    <div className={classNames(classes.root, jargonTerm.approved && classes.approved)} onClick={handleActiveChange}>
+      <JargonTooltip tooltipClassName={classes.tooltip} term={jargonTerm.term} definitionHTML={jargonTerm.contents?.html ?? ''} altTerms={jargonTerm.altTerms ?? []} humansAndOrAIEdited={jargonTerm.humansAndOrAIEdited} replacedSubstrings={[]} clickable={false}>
+        <span className={classes.term}>{jargonTerm.term}</span>
+      </JargonTooltip>
+      <LWTooltip title="Delete" placement="right">
+        <span className={classes.delete} onClick={handleDelete}>x</span>
+      </LWTooltip> 
+    </div>
+  );
 }
 
 const JargonTocItemComponent = registerComponent('JargonTocItem', JargonTocItem, {styles});

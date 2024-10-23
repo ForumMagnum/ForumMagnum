@@ -1717,9 +1717,10 @@ addRoute(
 
 //jargon routes
 addRoute({
-  name: 'jargonPromptTesting',
-  path: '/jargonPromptTesting',
-  componentName: 'JargonPromptTestingPage',
+  title: "Glossary Editor",
+  name: 'glossaryEditor',
+  path: '/glossaryEditor',
+  componentName: 'GlossaryEditorPage',
 })
 
 if (hasSurveys) {
