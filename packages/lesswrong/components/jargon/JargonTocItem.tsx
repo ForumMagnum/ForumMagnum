@@ -56,6 +56,11 @@ const styles = (theme: ThemeType) => ({
     '&:hover': {
       color: theme.palette.grey[800],
     }
+  },
+  tooltip: {
+    display: 'flex',
+    flexGrow: 1,
+    width: '100%',
   }
 });
 
@@ -105,7 +110,7 @@ export const JargonTocItem = ({classes, jargonTerm}: {
 
   return (
     <div className={classNames(classes.root, jargonTerm.approved && classes.approved)} onClick={handleActiveChange}>
-      <JargonTooltip term={jargonTerm.term} definitionHTML={jargonTerm.contents?.html ?? ''} altTerms={jargonTerm.altTerms ?? []} humansAndOrAIEdited={jargonTerm.humansAndOrAIEdited} replacedSubstrings={[]} clickable={false}>
+      <JargonTooltip tooltipClassName={classes.tooltip} term={jargonTerm.term} definitionHTML={jargonTerm.contents?.html ?? ''} altTerms={jargonTerm.altTerms ?? []} humansAndOrAIEdited={jargonTerm.humansAndOrAIEdited} replacedSubstrings={[]} clickable={false}>
         <span className={classes.term}>{jargonTerm.term}</span>
       </JargonTooltip>
       <LWTooltip title="Delete" placement="right">

@@ -10,7 +10,7 @@ import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import { JargonTocItem } from './JargonTocItem';
 import TextField from '@material-ui/core/TextField';
 
-export const initialPrompt = `You're a Glossary AI. Your goal is to make good explanations for technical jargon terms. You are trying to produce a useful hoverover tooltip in an essay on LessWrong.com, accessible to a smart, widely read layman. 
+export const defaultGlossaryPrompt = `You're a Glossary AI. Your goal is to make good explanations for technical jargon terms. You are trying to produce a useful hoverover tooltip in an essay on LessWrong.com, accessible to a smart, widely read layman. 
 
 We're about to provide you with the text of an essay, followed by a list of jargon terms for that essay. 
 
@@ -26,6 +26,35 @@ Include a set of altTerms that are slight variations of the term, such as plural
 
 Do NOT emphasize that the term is important, but DO explain how it's used in this context. Make sure to put the "contextual explanation" in a separate paragraph from the opening term definition. Make sure to make the term definition a short sentence.
 `
+
+export const defaultExamplePost = `Suppose two Bayesian agents are presented with the same spreadsheet - IID samples of data in each row, a feature in each column. Each agent develops a generative model of the data distribution. We'll assume the two converge to the same predictive distribution, but may have different generative models containing different latent variables. We'll also assume that the two agents develop their models independently, i.e. their models and latents don't have anything to do with each other informationally except via the data. Under what conditions can a latent variable in one agent's model be faithfully expressed in terms of the other agent's latents?`
+
+export const defaultExampleLateX = `Now for the question: under what conditions on agent 1's latent(s) (Lambda^1) can we *guarantee* that (Lambda^1) is expressible in terms of (Lambda^2), no matter what generative model agent 2 uses (so long as the agents agree on the predictive distribution (P[X]))? In particular, let's require that (Lambda^1) be a function of (Lambda^2). (Note that we'll weaken this later.) So, when is (Lambda^1) *guaranteed* to be a function of (Lambda^2), for *any* generative model (M_2) which agrees on the predictive distribution (P[X])? Or, worded in terms of latents: when is (Lambda^1) *guaranteed* to be a function of (Lambda^2), for *any* latent(s) (Lambda^2) which account for all interactions between features in the predictive distribution (P[X])?
+`
+
+export interface ExampleJargonGlossaryEntry {
+  term: string;
+  altTerms: string[];
+  text: string;
+}
+
+export const defaultExampleTerm = 'latent variables'
+export const defaultExampleAltTerm = 'latents'
+export const defaultExampleDefinition = `<div>
+  <p><b>Latent variables:</b> Variables which an agent's world model includes but which are not directly observed.</p>
+  <p>These variables are not part of the data distribution, but can help explain the data distribution.</p>
+</div>`
+
+export const defaultExampleGlossary: { glossaryItems: ExampleJargonGlossaryEntry[] } = {
+  glossaryItems: [
+    {
+      "term": defaultExampleTerm,
+      "altTerms": [defaultExampleAltTerm],
+      "text": defaultExampleDefinition
+    },
+  ]
+};
+
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -105,8 +134,8 @@ const styles = (theme: ThemeType) => ({
     cursor: 'not-allowed',
   },
   promptTextField: {
-    marginTop: 16,
-    marginBottom: 16,
+    marginTop: 12,
+    marginBottom: 12,
   }
 });
 
@@ -118,8 +147,15 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
 
   const [expanded, setExpanded] = useState(false);
   const [showDeletedTerms, setShowDeletedTerms] = useState(false);
-  const [examplePost, setExamplePost] = useState<PostsPage | undefined>(undefined);
-  const [prompt, setPrompt] = useState<string | undefined>(initialPrompt);
+
+  const [glossaryPrompt, setGlossaryPrompt] = useState<string | undefined>(defaultGlossaryPrompt);
+  const [examplePost, setExamplePost] = useState<string | undefined>(defaultExamplePost);
+  const [exampleTerm, setExampleTerm] = useState<string | undefined>(defaultExampleTerm);
+  const [exampleAltTerm, setExampleAltTerm] = useState<string | undefined>(defaultExampleAltTerm);
+  const [exampleDefinition, setExampleDefinition] = useState<string | undefined>(defaultExampleDefinition);
+
+
+
   const [showNewJargonTermForm, setShowNewJargonTermForm] = useState(false);
   const [editingPrompt, setEditingPrompt] = useState(false);
   
@@ -148,21 +184,31 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   const sortedUnapprovedTerms = nonDeletedTerms.filter((item) => !item.approved);
 
   const [getNewJargonTerms, { data, loading: mutationLoading, error }] = useMutation(gql`
-    mutation getNewJargonTerms($postId: String!, $prompt: String!) {
-      getNewJargonTerms(postId: $postId, prompt: $prompt) {
+    mutation getNewJargonTerms($postId: String!, $glossaryPrompt: String, $examplePost: String, $exampleTerm: String, $exampleAltTerm: String, $exampleDefinition: String) {
+      getNewJargonTerms(postId: $postId, glossaryPrompt: $glossaryPrompt, examplePost: $examplePost, exampleTerm: $exampleTerm, exampleAltTerm: $exampleAltTerm, exampleDefinition: $exampleDefinition) {
         ...JargonTerms
       }
     }
     ${fragmentTextForQuery("JargonTerms")}
   `);
 
-  const addNewJargonTerms = async ({prompt}: {examplePost?: PostsPage, prompt?: string}) => { 
-    if (!prompt) return;
+  const addNewJargonTerms = async ({glossaryPrompt, examplePost, exampleTerm, exampleAltTerm, exampleDefinition}: {
+    glossaryPrompt?: string, 
+    examplePost?: string, 
+    exampleTerm?: string, 
+    exampleAltTerm?: string, 
+    exampleDefinition?: string
+  }) => { 
+    if (!glossaryPrompt) return;
     try {
       const response = await getNewJargonTerms({
         variables: {
           postId: document._id,
-          prompt,
+          glossaryPrompt,
+          examplePost,
+          exampleTerm,
+          exampleAltTerm,
+          exampleDefinition,
         },
       });
       refetch();
@@ -232,9 +278,9 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
 
     <LoadMore {...loadMoreProps} />
     <div className={classes.buttonRow}>
-      <Button onClick={() => addNewJargonTerms({examplePost, prompt})} className={classes.generateButton}>Generate new terms</Button>
+      <Button onClick={() => addNewJargonTerms({glossaryPrompt, examplePost, exampleTerm, exampleAltTerm, exampleDefinition})} className={classes.generateButton}>Generate new terms</Button>
       <div className={classes.approveAllButton}>
-        <LWTooltip title={<div><p>Current Prompt:</p><p>{prompt}</p></div>}>
+        <LWTooltip title={<div><p>Current Prompt:</p><p>{glossaryPrompt}</p></div>}>
           <div className={classes.approveAllButton} onClick={() => setEditingPrompt(!editingPrompt)}>{editingPrompt ? "SAVE PROMPT" : "EDIT PROMPT"}</div>
         </LWTooltip>
       </div>
@@ -244,8 +290,8 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     {editingPrompt && <div>
       <TextField
         label="Prompt"
-        value={prompt}
-        onChange={(e) => setPrompt(e.target.value)}
+        value={glossaryPrompt}
+        onChange={(e) => setGlossaryPrompt(e.target.value)}
         multiline
         fullWidth
         variant="outlined"
@@ -253,6 +299,43 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
         InputProps={{
           style: { minHeight: '120px', resize: 'vertical' }
         }}
+      />
+      <TextField
+        label="Example Post"
+        value={examplePost}
+        onChange={(e) => setExamplePost(e.target.value)}
+        multiline
+        fullWidth
+        variant="outlined"
+        className={classes.promptTextField}
+        InputProps={{
+          style: { minHeight: '100px', resize: 'vertical' }
+        }}
+      />
+      <TextField
+        label="Example Term"
+        value={exampleTerm}
+        onChange={(e) => setExampleTerm(e.target.value)}
+        fullWidth
+        className={classes.promptTextField}
+        variant="outlined"
+      />
+      <TextField
+        label="Example Alt Term"
+        value={exampleAltTerm}
+        onChange={(e) => setExampleAltTerm(e.target.value)}
+        fullWidth
+        className={classes.promptTextField}
+        variant="outlined"
+      />
+      <TextField
+        label="Example Definition"
+        value={exampleDefinition}
+        className={classes.promptTextField}
+        onChange={(e) => setExampleDefinition(e.target.value)}
+        multiline
+        fullWidth
+        variant="outlined"
       />
     </div>}
 

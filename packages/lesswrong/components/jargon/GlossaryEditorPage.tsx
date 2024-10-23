@@ -6,6 +6,7 @@ import { useMulti } from '@/lib/crud/withMulti';
 import groupBy from 'lodash/groupBy';
 import { useCurrentUser } from '../common/withUser';
 import { ContentItemBody } from '../common/ContentItemBody';
+import { userCanCreateAndEditJargonTerms } from '@/lib/betas';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -27,8 +28,7 @@ export const GlossaryEditorPage = ({classes}: {
   const currentUser = useCurrentUser();
   const { results: posts = [], loadMoreProps, refetch } = useMulti({
     terms: {
-      view: "new",
-      userId: currentUser?._id,
+      view: "glossaryEditorPosts",
       limit: 5
     },
     itemsPerPage: 50,
@@ -37,6 +37,11 @@ export const GlossaryEditorPage = ({classes}: {
   })
   if (!currentUser) {
     return <div>You must be logged in to view this page.</div>;
+  }
+  if (!userCanCreateAndEditJargonTerms(currentUser)) {
+    return <div>
+      Currently, the Glossary Editor is only available to users with over 1000 karma.
+    </div>;
   }
 
   const { GlossaryEditForm, SingleColumnSection, PostsTitle, LoadMore, SectionTitle, ContentStyles } = Components

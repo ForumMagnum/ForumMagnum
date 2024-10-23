@@ -1,3 +1,5 @@
+import { ExampleJargonGlossaryEntry } from "@/components/jargon/GlossaryEditForm";
+
 export const exampleJargonPost = `<p>Following up on Alpha Fold, DeepMind has moved on to Alpha Proteo. We also got a rather simple prompt that can create a remarkably not-bad superforecaster for at least some classes of medium term events.</p>
 
 
@@ -1767,12 +1769,6 @@ export const exampleJargonPost2 = `<div><h1>Meditations on Moloch</h1><h3>by Sco
 <p>It looks a lot like even though they are outbreeding us, we are outmeme-ing them, and that gives us a decisive advantage.</p>
 <p>But we should also be kind of scared of this process. Memes optimize for making people want to accept them and pass them on &#8211; so like capitalism and democracy, they&#8217;re optimizing for a <i>proxy</i> of making us happy, but that proxy can easily get uncoupled from the original goal.</p>
 </div>`
-
-interface ExampleJargonGlossaryEntry {
-  term: string;
-  altTerms: string[];
-  text: string;
-}
 
 export const exampleJargonGlossary2: { glossaryItems: ExampleJargonGlossaryEntry[] } = {
   glossaryItems: [

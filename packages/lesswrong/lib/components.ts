@@ -1221,4 +1221,4 @@ importComponent("GlossarySidebar", () => require('../components/jargon/GlossaryS
 importComponent("GlossaryEditForm", () => require('../components/jargon/GlossaryEditForm'));
 importComponent("JargonEditorRow", () => require('../components/jargon/JargonEditorRow'));
 importComponent("JargonTocItem", () => require('../components/jargon/JargonTocItem'));
-importComponent("GlossaryEditorPage", () => require('../components/jargon/GlossaryEditorPage'));  
+importComponent("GlossaryEditorPage", () => require('../components/jargon/GlossaryEditorPage'));

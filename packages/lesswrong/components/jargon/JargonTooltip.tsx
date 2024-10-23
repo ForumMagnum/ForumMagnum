@@ -26,15 +26,10 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[600],
     fontSize: "0.8em",
     marginRight: 8,
-  },
-  tooltip: {
-    display: 'flex',
-    flexGrow: 1,
-    width: '100%',
   }
 });
 
-export const JargonTooltip = ({term, definitionHTML, altTerms, humansAndOrAIEdited, replacedSubstrings, isFirstOccurrence = false, placement="top-start", children, classes, clickable=true}: {
+export const JargonTooltip = ({term, definitionHTML, altTerms, humansAndOrAIEdited, replacedSubstrings, isFirstOccurrence = false, placement="top-start", children, classes, clickable=true, tooltipClassName}: {
   term: string,
   definitionHTML: string,
   altTerms: string[],
@@ -45,6 +40,7 @@ export const JargonTooltip = ({term, definitionHTML, altTerms, humansAndOrAIEdit
   children: React.ReactNode,
   classes: ClassesType<typeof styles>,
   clickable?: boolean,
+  tooltipClassName?: string,
 }) => {
   const { LWTooltip, ContentItemBody } = Components;
   const replacedSubstringsWithoutTermOrAltTerms = replacedSubstrings.filter(s => s.replacedString !== term && !altTerms.includes(term));
@@ -64,7 +60,7 @@ export const JargonTooltip = ({term, definitionHTML, altTerms, humansAndOrAIEdit
     </div>
   </Card>
 
-  return <LWTooltip title={tooltip} tooltip={false} placement={placement} clickable={clickable} className={classes.tooltip}>
+  return <LWTooltip title={tooltip} tooltip={false} placement={placement} clickable={clickable} className={tooltipClassName}>
     <span className={classNames(isFirstOccurrence && classes.jargonWord)}>
       {children}
     </span>
