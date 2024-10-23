@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { createNewPost, loginNewUser, logout, setPostContent } from "./playwrightUtils";
+import { forumSelect } from "@/lib/forumTypeUtils";
 
 test("create and edit post", async ({page, context}) => {
   await loginNewUser(context);
@@ -67,7 +68,13 @@ test("voting on a post gives karma", async ({page, context}) => {
   await expect(karma).toContainText("0");
 
   // Click the upvote button and give time for the page to update
-  await page.locator(".VoteArrowIcon-up").click();
+  const voteButtonSelector = forumSelect({
+    LessWrong: ".VoteArrowIconSolid-up",
+    AlignmentForum: ".VoteArrowIconSolid-up",
+    EAForum: ".VoteArrowIconHollow-up",
+    default: ".VoteArrowIconSolid-up",
+  });
+  await page.locator(voteButtonSelector).click();
   await page.waitForTimeout(1000);
 
   // Post should now have 2 karma
