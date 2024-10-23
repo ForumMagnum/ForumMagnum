@@ -1,11 +1,10 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useRef } from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import { jargonTermsToTextReplacements } from './JargonTooltip';
 import { useCurrentUser } from '../common/withUser';
 import { userCanViewJargonTerms } from '@/lib/betas';
 import { ContentReplacementMode } from '../common/ContentItemBody';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
-import type { SideItemOptions } from '../contents/SideItems';
 import classNames from 'classnames';
 
 const styles = (theme: ThemeType) => ({
@@ -81,14 +80,6 @@ const GlossarySidebar = ({post, replaceAllJargon, setReplaceAllJargon, classes}:
 
   const jargonReplacementMode: ContentReplacementMode = replaceAllJargon ? 'all' : 'first';
 
-  // const sideItemOptions: SideItemOptions = useMemo<SideItemOptions>(() => {
-  //   if (replaceAllJargon) {
-  //     return { format: 'block', offsetTop: 0, measuredElement: glossaryContainerRef };
-  //   }
-
-  //   return { format: 'block', offsetTop: 0 };
-  // }, [replaceAllJargon]);
-
   useGlobalKeydown((e) => {
     const J_KeyCode = 74;
     if (e.altKey && e.shiftKey && e.keyCode === J_KeyCode) {
@@ -103,39 +94,38 @@ const GlossarySidebar = ({post, replaceAllJargon, setReplaceAllJargon, classes}:
     return null;
   }
 
-  const tooltip = (<div>
-    {/* <p>Click to toggle the glossary's pinned state.  When the glossary is pinned, every instance of each term in the post is highlighted and has a tooltip.  (By default, only the first instance of each term is highlighted and has a tooltip.)</p> */}
-    <p>Toggle to pin or unpin the glossary.  (Option/Alt + Shift + J)</p>
-  </div>);
+  const glossaryItems = post.glossary.map((jargonTerm: JargonTermsPost) => {
+    const replacedSubstrings = jargonTermsToTextReplacements(post.glossary, jargonReplacementMode);
+    return (<div key={jargonTerm.term}>
+      <JargonTooltip
+        term={jargonTerm.term}
+        definitionHTML={jargonTerm.contents?.html ?? ''}
+        altTerms={jargonTerm.altTerms}
+        humansAndOrAIEdited={jargonTerm.humansAndOrAIEdited}
+        replacedSubstrings={replacedSubstrings}
+        placement="left-start"
+      >
+        <div className={classes.jargonTerm}>{jargonTerm.term}</div>
+      </JargonTooltip>
+    </div>);
+  });
+
+  const tooltip = <div><p>Toggle to pin or unpin the glossary.  (Opt/Alt + Shift + J)</p></div>;
+  const pinControl = (<LWTooltip title={tooltip} inlineBlock={false}>
+    <div className={classes.pinControlRow}>
+      <ForumIcon icon='Pin' className={classes.pinIcon} />
+      <ToggleSwitch value={replaceAllJargon} />
+    </div>
+  </LWTooltip>);
 
   return <div className={classes.glossaryAnchor}><SideItem options={{ format: 'block', offsetTop: 0, measuredElement: glossaryContainerRef }}>
     <div className={classNames(replaceAllJargon && classes.outerContainer)}>
       <div className={classNames(replaceAllJargon && classes.innerContainer)}>
         <div className={classNames(classes.displayedHeightGlossaryContainer, replaceAllJargon && classes.pinnedGlossaryContainer)} ref={glossaryContainerRef}>
-          <div className={classNames(classes.glossaryContainer)} onClick={() => setReplaceAllJargon(!replaceAllJargon)}>
+          <div className={classes.glossaryContainer} onClick={() => setReplaceAllJargon(!replaceAllJargon)}>
             <h3 className={classes.title}>Glossary of Jargon</h3>
-        
-            {post.glossary.map((jargonTerm: JargonTermsPost) => {
-              const replacedSubstrings = jargonTermsToTextReplacements(post.glossary, jargonReplacementMode);
-              return <div key={jargonTerm.term}>
-                <JargonTooltip
-                  term={jargonTerm.term}
-                  definitionHTML={jargonTerm.contents?.html ?? ''}
-                  altTerms={jargonTerm.altTerms}
-                  humansAndOrAIEdited={jargonTerm.humansAndOrAIEdited}
-                  replacedSubstrings={replacedSubstrings}
-                  placement="left-start"
-                >
-                  <div className={classes.jargonTerm}>{jargonTerm.term}</div>
-                </JargonTooltip>
-              </div>;
-            })}
-            <LWTooltip title={tooltip} inlineBlock={false}>
-              <div className={classes.pinControlRow}>
-                <ForumIcon icon='Pin' className={classes.pinIcon} />
-                <ToggleSwitch value={replaceAllJargon} />
-              </div>
-            </LWTooltip>
+            {glossaryItems}
+            {pinControl}
           </div>
         </div>
       </div>
