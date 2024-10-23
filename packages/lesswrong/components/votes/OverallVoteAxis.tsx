@@ -14,7 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   overallSection: {
     display: 'inline-block',
     height: 24,
-    paddingTop: isFriendlyUI ? 2 : 0, // TODO: Does EA Forum still need this padding?
+    paddingTop: isFriendlyUI ? 2.5 : 0
   },
   overallSectionBox: {
     marginLeft: 8,

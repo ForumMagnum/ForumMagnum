@@ -28,9 +28,7 @@ const styles = (theme: ThemeType) => ({
     },
   },
   voteScoresHorizontal: {
-    // TODO: Habryka to check on whether same or different spacing for LW vs AF
-    // marginBottom: isLW ? -3 : -3, // -1 for LW, -3 for AF
-    margin: '-2px 8px'
+    margin: isLW ? '-2px 8px' : '-4px 8px'
   },
   voteScore: {
     color: theme.palette.grey[600],
