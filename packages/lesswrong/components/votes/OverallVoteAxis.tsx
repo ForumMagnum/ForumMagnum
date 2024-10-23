@@ -82,7 +82,6 @@ const OverallVoteAxis = ({
 }) => {
   const currentUser = useCurrentUser();
 
-  if (!document) return null;
 
   const { OverallVoteButton, LWTooltip } = Components
 
@@ -118,9 +117,10 @@ const OverallVoteAxis = ({
     </div>
   )
 
-  const karmaTooltipTitle = hideKarma
+  const karmaTooltipTitle = React.useMemo(() =>  hideKarma
     ? 'This post has disabled karma visibility'
     : <div>This {documentTypeName} has {karma} <b>overall</b> karma ({voteCount} {voteCount === 1 ? "Vote" : "Votes"})</div>
+  , [hideKarma, documentTypeName, karma, voteCount])
 
   const TooltipIfDisabled = React.useMemo(() => canVote
     ? ({children}: {children: React.ReactNode}) => <>{children}</>
@@ -134,14 +134,19 @@ const OverallVoteAxis = ({
     >
       {children}
     </LWTooltip>
-  , [canVote])
+  , [canVote, karmaTooltipTitle, whyYouCantVote, classes.tooltip, LWTooltip])
+  
   const TooltipIfEnabled = React.useMemo(() => canVote
     ? ({children, ...props}: React.ComponentProps<typeof LWTooltip>) =>
       <LWTooltip {...props} popperClassName={classes.tooltip}>
         {children}
       </LWTooltip>
     : ({children}: {children: React.ReactNode}) => <>{children}</>
-  , [canVote])
+  , [canVote, LWTooltip, classes.tooltip])
+
+
+  // Moved down here to allow for useMemo hooks
+  if (!document) return null;
 
   const tooltipPlacement = "top"
 
