@@ -500,4 +500,9 @@ Globals.elasticDeleteIndexByName = (indexName: string) =>
 Globals.elasticDeleteOrphanedIndexes = () =>
   new ElasticExporter().deleteOrphanedIndexes();
 
+Globals.elasticExportDocument = (
+  collectionName: SearchIndexCollectionName,
+  documentId: string,
+) => new ElasticExporter().updateDocument(collectionName, documentId);
+
 export default ElasticExporter;
