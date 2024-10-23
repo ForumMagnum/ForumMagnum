@@ -195,17 +195,17 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     fragmentName: 'JargonTerms',
   })
 
-
-
-  const deletedTerms = glossary.filter((item) => item.deleted);
-  const nonDeletedTerms = glossary.filter((item) => !item.deleted).map((item) => {
+  const glossaryWithInstanceCounts = glossary.map((item) => {
     const jargonVariants = [item.term.toLowerCase(), ...(item.altTerms ?? []).map(altTerm => altTerm.toLowerCase())];
     const instancesOfJargonCount = document.contents?.html?.toLowerCase().match(new RegExp(jargonVariants.join('|'), 'g'))?.length ?? 0;
     return { ...item, instancesOfJargonCount };
-  });
-  const sortedNonDeletedTerms = [...nonDeletedTerms].sort((a, b) => {
+  }).sort((a, b) => {
     return b.instancesOfJargonCount - a.instancesOfJargonCount;
   });
+
+
+  const deletedTerms = glossaryWithInstanceCounts.filter((item) => item.deleted);
+  const nonDeletedTerms = glossaryWithInstanceCounts.filter((item) => !item.deleted);
   const sortedApprovedTerms = nonDeletedTerms.filter((item) => item.approved);
   const sortedUnapprovedTerms = nonDeletedTerms.filter((item) => !item.approved);
 
@@ -399,9 +399,16 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     <div className={classNames(classes.window, expanded && classes.expanded)}>
       <div>
         {showNewJargonTermForm && <JargonEditorRow key={'newJargonTermForm'} postId={document._id} />}
-        {sortedNonDeletedTerms.map((item) => {
+        {nonDeletedTerms.map((item) => {
           return <JargonEditorRow key={item._id} postId={document._id} jargonTerm={item} instancesOfJargonCount={item.instancesOfJargonCount}/>
         })}
+        {deletedTerms.length > 0 && <div className={classes.button} onClick={() => setShowDeletedTerms(!showDeletedTerms)}>
+          {showDeletedTerms ? "Hide deleted terms" : `Show deleted terms (${deletedTerms.length})`}
+        </div>}
+        {deletedTerms.length > 0 && showDeletedTerms && deletedTerms.map((item) => {
+          return <JargonEditorRow key={item._id} postId={document._id} jargonTerm={item} instancesOfJargonCount={item.instancesOfJargonCount}/>
+        })}
+
       </div>
       <LoadMore {...loadMoreProps} />
     </div>
