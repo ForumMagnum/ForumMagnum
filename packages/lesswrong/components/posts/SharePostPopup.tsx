@@ -8,7 +8,7 @@ import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useMessages } from "../common/withMessages";
 import { forumTitleSetting } from "../../lib/instanceSettings";
-import { getPostDescription } from "./PostsPage/PostsPage";
+import { getPostDescription } from './PostsPage/getPostDescription';
 import { siteImageSetting } from "../vulcan-core/App";
 import classNames from "classnames";
 

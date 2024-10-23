@@ -3,7 +3,7 @@ import { Components, getSiteUrl, registerComponent, sanitize } from "../../lib/v
 import { siteImageSetting } from "../vulcan-core/App";
 import { htmlToText } from "html-to-text";
 import { truncate } from "../../lib/editor/ellipsize";
-import { getPostDescription } from "../posts/PostsPage/PostsPage";
+import { getPostDescription } from '../posts/PostsPage/getPostDescription';
 import {
   PLAINTEXT_DESCRIPTION_LENGTH,
   PLAINTEXT_HTML_TRUNCATION_LENGTH,
