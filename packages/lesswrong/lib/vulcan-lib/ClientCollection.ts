@@ -92,3 +92,5 @@ class ClientCollection<
 }
 
 export default ClientCollection;
+
+(globalThis as any).Collection = ClientCollection;

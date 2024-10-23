@@ -61,12 +61,6 @@ export const VERTEX_ATTRIBUTION_ID_QUERY_PARAM = 'vertexAttributionId';
 
 const MAX_ANSWERS_AND_REPLIES_QUERIED = 10000
 
-export const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [
-  /cross-? ?posted/i,
-  /epistemic status/i,
-  /acknowledgements/i
-];
-
 const getRecommendationsPosition = (): "right" | "underPost" => "underPost";
 
 /**

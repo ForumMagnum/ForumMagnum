@@ -13,8 +13,7 @@ export const createApolloClient = (baseUrl = '/'): ApolloClient<NormalizedCacheO
   cache.restore(cachedState ?? ""); // ssr
 
   return new ApolloClient({
-    uri: 'http://localhost:3000/graphql',
-    link: ApolloLink.from([headerLink, createErrorLink(), createHttpLink('http://localhost:3000/')]),
+    link: ApolloLink.from([headerLink, createErrorLink(), createHttpLink(baseUrl)]),
     cache,
   });
 };

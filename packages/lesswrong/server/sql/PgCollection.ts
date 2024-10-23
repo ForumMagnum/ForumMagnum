@@ -372,3 +372,5 @@ class PgCollection<
 }
 
 export default PgCollection;
+
+(globalThis as any).Collection = PgCollection;

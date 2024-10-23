@@ -1,11 +1,11 @@
-window.themeOptions = {
+(globalThis as any).themeOptions = {
   "name": "default",
   "siteThemeOverride": {
       "LessWrong": "LessWrong"
   }
-}
+};
 
-window.publicInstanceSettings = {
+(globalThis as any).publicInstanceSettings = {
   "forumType": "LessWrong",
   "title": "LessWrong Development Server",
   "tagline": "A community blog devoted to refining the art of rationality",
@@ -88,9 +88,9 @@ window.publicInstanceSettings = {
           "disabled": true
       }]
   }
-}
+};
 
-window.publicSettings = {
+(globalThis as any).publicSettings = {
   "forum": {
       "numberOfDays": 10,
       "postInterval": 30,
@@ -434,7 +434,7 @@ window.publicSettings = {
   "commentModerationWarningCommentId": "LbGNE5Ssnvs6MYnLu",
   "performanceMetricLoggingEnax5bled": true,
   "firstCommentAcknowledgeMessageCommentId": "QgwD7PkQHFp3nfhjj"
-}
+};
 
 // NOTE: This file is used early in server startup and is import-order-sensitive;
 // importing things from here can break things, by making it so that global
@@ -456,7 +456,7 @@ export const getServerSettingsLoaded = () => serverSettingsLoaded;
 // but they get initialized via separate pathways on the client and on the server
 // Server: See databaseSettings.ts in the server directory
 // Client: See publicSettings.ts in the client directory
-let publicSettings: Record<string, any> = window?.publicSettings || {}
+let publicSettings: Record<string, any> = (globalThis as any)?.publicSettings || {}
 let publicSettingsLoaded = false;
 export const setPublicSettings = (newCacheContents: Record<string,any>) => {
   publicSettings = newCacheContents;

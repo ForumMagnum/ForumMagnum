@@ -98,8 +98,8 @@ export const ThemeContextProvider = ({options, children}: {
   const concreteTheme = abstractThemeToConcrete(themeOptions, prefersDarkMode);
 
   useEffect(() => {
-    if (stringify(themeOptions) !== stringify(window.themeOptions)) {
-      window.themeOptions = themeOptions;
+    if (stringify(themeOptions) !== stringify((globalThis as any).themeOptions)) {
+      (globalThis as any).themeOptions = themeOptions;
       if (isEAForum) {
         removeCookie(THEME_COOKIE, {path: "/"});
       } else {

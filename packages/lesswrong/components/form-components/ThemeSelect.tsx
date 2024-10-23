@@ -8,8 +8,8 @@ const getValue = (props: any) => {
     return props.value.name;
   }
 
-  if (typeof window !== "undefined" && window.themeOptions?.name) {
-    return window.themeOptions.name;
+  if (typeof globalThis !== "undefined" && (globalThis as any).themeOptions?.name) {
+    return (globalThis as any).themeOptions.name;
   }
 
   return getDefaultThemeOptions().name;

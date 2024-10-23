@@ -1,4 +1,5 @@
 import '../client/publicSettings' // Must come first
+import '../lib/vulcan-lib/ClientCollection'
 import './styles.css'
 // Imports required for this file:
 import { filterConsoleLogSpam } from '../lib/consoleFilters';

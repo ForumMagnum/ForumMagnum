@@ -32063,7 +32063,7 @@ body:has(.headroom--pinned) .MultiToCLayoutStickyBlockScroller,body:has(.headroo
   z-index: 1000000;
   display: flex;
   position: fixed;
-  background: #000 url(../mushroomCloud.jpg)no-repeat fixed center;
+  /* background: #000 url(../mushroomCloud.jpg)no-repeat fixed center; */
   align-items: center;
   font-family: GreekFallback,Calibri,"Gill Sans","Gill Sans MT",Myriad Pro,Myriad,"Liberation Sans","Nimbus Sans L",Tahoma,Geneva,"Helvetica Neue",Helvetica,Arial,sans-serif;
   flex-direction: column;

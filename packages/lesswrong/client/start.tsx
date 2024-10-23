@@ -27,13 +27,12 @@ export function hydrateClient() {
       apolloClient={apolloClient}
       foreignApolloClient={foreignApolloClient}
       abTestGroupsUsed={{}}
-      themeOptions={window.themeOptions}
-      ssrMetadata={window.ssrMetadata}
+      themeOptions={(globalThis as any).themeOptions}
+      ssrMetadata={(globalThis as any).ssrMetadata}
     />
   );
 
-  const root = createRoot(document.getElementById('react-app')!);
-  root.render(<Main />);
+  const root = hydrateRoot(document.getElementById('react-app')!, <Main />);
   setTimeout(() => {
     apolloClient.disableNetworkFetches = false;
     foreignApolloClient.disableNetworkFetches = false;

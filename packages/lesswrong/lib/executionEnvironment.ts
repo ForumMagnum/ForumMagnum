@@ -38,7 +38,7 @@ export const getInstanceSettings = (args?: CommandLineArguments): any => {
       instanceSettings = loadInstanceSettings(args);
     } else {
       instanceSettings = {
-        public: window.publicInstanceSettings,
+        public: (globalThis as any).publicInstanceSettings,
       };
     }
   }

@@ -3,7 +3,8 @@ import { registerCollection } from './getCollection';
 import { addGraphQLCollection } from './graphql';
 import { pluralize } from './pluralize';
 export * from './getCollection';
-import Collection from './ClientCollection';
+
+const Collection = (globalThis as any).Collection;
 
 // When used in a view, set the query so that it returns rows where a field is
 // null or is missing. Equivalent to a search with mongo's `field:null`, except

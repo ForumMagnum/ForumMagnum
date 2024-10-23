@@ -1,5 +1,4 @@
 import { forumTitleSetting } from "@/lib/instanceSettings";
-import { POST_DESCRIPTION_EXCLUSIONS } from "./PostsPage";
 
 /** Get a og:description-appropriate description for a post */
 
@@ -54,4 +53,11 @@ export const getPostDescription = (post: {
   if (post.shortform)
     return `A collection of shorter posts ${post.user ? `by ${forumTitleSetting.get()} user ${post.user.displayName}` : ""}`;
   return null;
-};
+}
+
+export const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [
+  /cross-? ?posted/i,
+  /epistemic status/i,
+  /acknowledgements/i
+];
+
