@@ -106,8 +106,9 @@ const fullTextMapping: MappingProperty = {
       analyzer: "fm_exact_analyzer",
     },
     sort: {
-      type: "keyword",
-      normalizer: "fm_sortable_keyword",
+      // A wildcard is similar to a keyword, but supports data larger than 32KB
+      type: "wildcard",
+      null_value: "",
     },
   },
 };
