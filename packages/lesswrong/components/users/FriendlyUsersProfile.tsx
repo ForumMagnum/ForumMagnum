@@ -19,7 +19,7 @@ import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/dropdownOptions';
 import { PROGRAM_PARTICIPATION } from '../../lib/collections/users/schema';
 import { eaUsersProfileSectionStyles, UserProfileTabType } from '../ea-forum/users/modules/EAUsersProfileTabbedSection';
-import { getUserFromResults } from './UsersProfile';
+import { getUserFromResults } from './getUserFromResults';
 import InfoIcon from '@material-ui/icons/Info'
 import DescriptionIcon from '@material-ui/icons/Description'
 import LibraryAddIcon from '@material-ui/icons/LibraryAdd'

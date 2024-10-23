@@ -4,7 +4,7 @@ import { Components, capitalize, registerComponent, slugify } from "../../lib/vu
 import { useCurrentUser } from "../common/withUser";
 import { userIsAdminOrMod } from "../../lib/vulcan-users";
 import { useMulti } from "../../lib/crud/withMulti";
-import { getUserFromResults } from "../users/UsersProfile";
+import { getUserFromResults } from '../users/getUserFromResults';
 import { useMultiPostAnalytics } from "../hooks/useAnalytics";
 import classNames from "classnames";
 import { useNavigate } from "../../lib/reactRouterWrapper";

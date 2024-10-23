@@ -2,7 +2,7 @@ import { Components, registerComponent, slugify } from '../../lib/vulcan-lib';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { useMulti } from '../../lib/crud/withMulti';
-import { getUserFromResults } from '../users/UsersProfile';
+import { getUserFromResults } from '../users/getUserFromResults';
 
 const styles = (theme: ThemeType): JssStyles =>  ({
   root: {

@@ -25,14 +25,8 @@ import CopyIcon from '@material-ui/icons/FileCopy'
 import { getUserStructuredData } from './UsersSingle';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { COMMENT_SORTING_MODES } from '@/lib/collections/comments/views';
-
-export const sectionFooterLeftStyles = {
-  flexGrow: 1,
-  display: "flex",
-  '&&:after': {
-    content: '""'
-  }
-}
+import { getUserFromResults } from './getUserFromResults';
+import { sectionFooterLeftStyles } from './sectionFooterLeftStyles';
 
 const styles = (theme: ThemeType): JssStyles => ({
   profilePage: {
@@ -105,11 +99,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   }
 })
-
-export const getUserFromResults = <T extends UsersMinimumInfo>(results: Array<T>|null|undefined): T|null => {
-  // HOTFIX: Filtering out invalid users
-  return results?.find(user => !!user.displayName) || results?.[0] || null
-}
 
 const UsersProfileFn = ({terms, slug, classes}: {
   terms: UsersViewTerms,
@@ -277,7 +266,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
             <div className={classNames(classes.usernameTitle, {
               [classes.deletedUserName]: user.deleted
             })}>
-              {username}
+              {"WOOOOP"}
             </div>
             {user.deleted && "(account deleted)"}
             <Typography variant="body2" className={classes.userInfo}>
@@ -432,3 +421,5 @@ declare global {
     UsersProfile: typeof UsersProfileComponent
   }
 }
+
+export default UsersProfileComponent;

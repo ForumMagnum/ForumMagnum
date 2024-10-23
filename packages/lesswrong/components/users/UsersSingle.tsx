@@ -4,6 +4,7 @@ import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { userGetProfileUrl, userGetProfileUrlFromSlug } from "../../lib/collections/users/helpers";
 import { isFriendlyUI } from '../../themes/forumTheme';
+import UsersProfile from './UsersProfile';
 
 /**
  * Build structured data for a user to help with SEO.
@@ -58,7 +59,7 @@ const UsersSingle = () => {
   } else {
     return isFriendlyUI ?
       <Components.FriendlyUsersProfile terms={{view: 'usersProfile', slug}} slug={slug} /> :
-      <Components.UsersProfile terms={{view: 'usersProfile', slug}} slug={slug} />
+      <UsersProfile terms={{view: 'usersProfile', slug}} slug={slug} />
   }
 };
 

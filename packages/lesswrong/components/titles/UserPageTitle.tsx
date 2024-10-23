@@ -5,7 +5,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { useLocation } from '../../lib/routeUtil';
 import { styles } from '../common/HeaderSubtitle';
-import { getUserFromResults } from '../users/UsersProfile';
+import { getUserFromResults } from '../users/getUserFromResults';
 import { Helmet } from '../../lib/utils/componentsWithChildren';
 
 const UserPageTitle = ({isSubtitle, siteName, classes}: {

@@ -4,7 +4,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
 import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
-import { sectionFooterLeftStyles } from '../users/UsersProfile'
+import { sectionFooterLeftStyles } from '../users/sectionFooterLeftStyles';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { DatabasePublicSetting, nofollowKarmaThreshold } from '../../lib/publicSettings';
 import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from '../common/Header';
