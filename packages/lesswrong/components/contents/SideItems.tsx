@@ -7,8 +7,9 @@ import { registerComponent } from '@/lib/vulcan-lib';
 import { getOffsetChainTop } from '@/lib/utils/domUtil';
 
 type SideItemOptions = {
-  format: "block"|"icon"
+  format: "block"|"icon",
   offsetTop: number,
+  pinnedFromTop?: number,
 }
 const defaultSideItemOptions: SideItemOptions = {
   format: "block",
@@ -192,9 +193,13 @@ const SideItemsSidebar = ({classes}: {
     let top = 0;
     for (let i=0; i<sortedSideItems.length; i++) {
       const sideItem = sortedSideItems[i];
-      let newTop = Math.max(top, sideItem.anchorTop!);
-      sideItem.container.setAttribute("style", `top:${newTop}px;`);
-      top = newTop + sideItem.sideItemHeight!;
+      if (sideItem.options.pinnedFromTop) {
+        sideItem.container.setAttribute("style", `position: fixed; top: ${sideItem.options.pinnedFromTop}px;`)
+      } else {
+        let newTop = Math.max(top, sideItem.anchorTop!);
+        sideItem.container.setAttribute("style", `top:${newTop}px;`);
+        top = newTop + sideItem.sideItemHeight!;  
+      }
     }
     
     // Use a ResizeObserver to watch for size-changes of side-item containers
