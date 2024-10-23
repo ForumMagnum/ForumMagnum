@@ -71,8 +71,8 @@ const styles = (theme: ThemeType) => ({
     opacity: 0.6,
     position: 'absolute',
     height: 14,
-    scale: 1.2,
-    transform: 'translate(-3.5px, 2.6px)'
+    scale: 1.4,
+    transform: 'translate(-2.5px, 2.3px)'
   },
   hideIcon: {
     opacity: 0
