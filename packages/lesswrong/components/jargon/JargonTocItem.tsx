@@ -6,6 +6,7 @@ import classNames from 'classnames';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import Checkbox from '@material-ui/core/Checkbox';
 import { JargonTooltip } from './JargonTooltip';
+import { ContentItemBody } from '../common/ContentItemBody';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -106,12 +107,13 @@ export const JargonTocItem = ({classes, jargonTerm}: {
     })
   }
 
-  const { LWTooltip, JargonTooltip } = Components;
+  const { LWTooltip, JargonTooltip, ContentItemBody } = Components;
 
   return (
     <div className={classNames(classes.root, jargonTerm.approved && classes.approved)} onClick={handleActiveChange}>
       <JargonTooltip tooltipClassName={classes.tooltip} term={jargonTerm.term} definitionHTML={jargonTerm.contents?.html ?? ''} altTerms={jargonTerm.altTerms ?? []} humansAndOrAIEdited={jargonTerm.humansAndOrAIEdited} replacedSubstrings={[]} clickable={false}>
-        <span className={classes.term}>{jargonTerm.term}</span>
+        <ContentItemBody dangerouslySetInnerHTML={{ __html: jargonTerm.contents?.html ?? '' }} />
+        {/* <span className={classes.term}>{jargonTerm.term}</span> */}
       </JargonTooltip>
       <LWTooltip title="Delete" placement="right">
         <span className={classes.delete} onClick={handleDelete}>x</span>

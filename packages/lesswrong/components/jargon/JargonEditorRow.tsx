@@ -14,7 +14,7 @@ const styles = (theme: ThemeType) => ({
     ...commentBodyStyles(theme),
     pointerEvents: 'undefined',
     marginTop: 0,
-    padding: 10,
+    padding: 6,
     borderBottom: theme.palette.border.commentBorder,
     display: 'flex',
     alignItems: 'center',
@@ -130,12 +130,22 @@ const styles = (theme: ThemeType) => ({
   },
   explanationContainer: {
     cursor: 'text',
+    '& > *': {
+      lineHeight: 1.6,
+      height: '1.6rem',
+      overflow: 'hidden',
+      color: theme.palette.grey[600],
+      '& strong': {
+        color: theme.palette.grey[900],
+        marginRight: 8
+      }
+    }
   },
   checkbox: {
     width: 30,
     height: 30,
-    paddingRight: 50,
-    paddingLeft: 25,
+    paddingRight: 28,
+    paddingLeft: 22,
   }
 });
 
@@ -182,7 +192,7 @@ export const JargonEditorRow = ({classes, postId, jargonTerm}: {
   postId: string,
   jargonTerm?: JargonTerms,
 }) => {
-  const { LWTooltip, WrappedSmartForm, ContentItemBody } = Components;
+  const { JargonTooltip, WrappedSmartForm, ContentItemBody } = Components;
 
   const [edit, setEdit] = useState(false);
 
@@ -259,8 +269,10 @@ export const JargonEditorRow = ({classes, postId, jargonTerm}: {
             prefetchedDocument={jargonTerm}
           />
         </div>
-      : <div className={classes.explanationContainer} onClick={() => setEdit(true)}>
-         <ContentItemBody dangerouslySetInnerHTML={{__html: jargonDefinition}} className={classNames(classes.explanation, !jargonTerm.approved && classes.unapproved)}/>
+      : <div className={classNames(classes.explanationContainer, !jargonTerm.approved && classes.unapproved)} onClick={() => setEdit(true)}>
+        <JargonTooltip term={jargonTerm.term} definitionHTML={jargonTerm.contents?.html ?? ''} altTerms={jargonTerm.altTerms ?? []} humansAndOrAIEdited={jargonTerm.humansAndOrAIEdited} replacedSubstrings={[]} clickable={false} placement="bottom-end">
+          <ContentItemBody dangerouslySetInnerHTML={{ __html: jargonTerm.contents?.html ?? '' }} />
+        </JargonTooltip>
         </div>}
       {/* <div className={classes.altTerms}>
         {jargonTerm.altTerms?.map((altTerm) => <div key={altTerm}>{altTerm}</div>)}

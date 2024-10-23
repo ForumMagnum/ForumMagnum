@@ -9,6 +9,7 @@ import classNames from 'classnames';
 const styles = (theme: ThemeType) => ({
   card: {
     padding: 16,
+    paddingBottom: 12,
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
     maxWidth: 350,
     ...commentBodyStyles(theme),
@@ -21,6 +22,8 @@ const styles = (theme: ThemeType) => ({
   },
   altTerms: {
     marginTop: 8,
+    display: 'flex',
+    justifyContent: 'space-between',
   },
   altTerm: {
     color: theme.palette.grey[600],
@@ -47,20 +50,30 @@ export const JargonTooltip = ({term, definitionHTML, altTerms, humansAndOrAIEdit
   /*const replacedSubstringsWithoutTermOrAltTerms = Object.fromEntries(
     Object.entries(replacedSubstrings).filter(([key]) => key !== term && !altTerms.includes(key))
   );*/
+
+  let humansAndOrAIEditedText = 'AI Generated'
+  if (humansAndOrAIEdited === 'Human') {
+    humansAndOrAIEditedText = 'Edited by Human';
+  } else if (humansAndOrAIEdited === 'Both') {
+    humansAndOrAIEditedText = 'Edited by AI and Human';
+  }
+
   const tooltip = <Card className={classes.card}>
     <ContentItemBody
       dangerouslySetInnerHTML={{ __html: definitionHTML }}
       replacedSubstrings={replacedSubstringsWithoutTermOrAltTerms}
     />
     <div className={classes.altTerms}>
-      {altTerms.map((term: string) => (
+      <div>
+        {altTerms.map((term: string) => (
         <span className={classes.altTerm} key={term}>{term}</span>
-      ))}
-      {humansAndOrAIEdited && <span>{humansAndOrAIEdited}</span>}
+        ))}
+      </div>
+      {humansAndOrAIEditedText && <span className={classes.altTerm}>{humansAndOrAIEditedText}</span>}
     </div>
   </Card>
 
-  return <LWTooltip title={tooltip} tooltip={false} placement={placement} clickable={clickable} className={tooltipClassName}>
+  return <LWTooltip title={tooltip} tooltip={false} placement={placement} className={tooltipClassName}>
     <span className={classes.jargonWord}>
       {children}
     </span>

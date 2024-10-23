@@ -62,6 +62,12 @@ const styles = (theme: ThemeType) => ({
     marginTop: -16,
     marginBottom: -16,
   },
+  window: {
+    maxHeight: 300,
+    overflowY: 'scroll',
+    display: 'flex',
+    justifyContent: 'space-between',
+  },
   expanded: {
     maxHeight: 'unset',
   },
@@ -73,6 +79,10 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 500,
     fontSize: "14px",
     fontFamily: "Roboto, sans-serif",
+  },
+  term: {
+    padding: 4,
+    fontSize: '1rem',
   },
   approveAllButton: {
     cursor: 'pointer',
@@ -103,6 +113,15 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'center',
     paddingTop: 16
   },
+  header: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 12,
+    paddingBottom: 8,
+    borderBottom: theme.palette.border.faint,
+    marginBottom: 4,
+  },
   icon: {
     color: theme.palette.grey[500],
   },
@@ -117,7 +136,13 @@ const styles = (theme: ThemeType) => ({
   },
   termsList: {
     display: 'flex',
+    flexDirection: 'column',
     flexWrap: 'wrap',
+    gap: '4px'
+  },
+  termsListColumn: {
+    display: 'flex',
+    flexDirection: 'column',
     gap: '4px'
   },
   smallTerm: {
@@ -175,7 +200,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     // const termB = b.term.toLowerCase();
     // if (termA < termB) return -1;
     // if (termA > termB) return 1;
-    // return 0;
+    return 0;
   });
 
   const deletedTerms = sortedGlossary.filter((item) => item.deleted);
@@ -272,88 +297,64 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   
   const { JargonEditorRow, LoadMore, Loading, LWTooltip, JargonTocItem, Row, WrappedSmartForm } = Components;
 
+  const promptEditor = <div>
+    <TextField
+      label="Prompt"
+      value={glossaryPrompt}
+      onChange={(e) => setGlossaryPrompt(e.target.value)}
+      multiline
+      fullWidth
+      variant="outlined"
+      className={classes.promptTextField}
+      InputProps={{
+        style: { minHeight: '120px', resize: 'vertical' }
+      }}
+    />
+    <TextField
+      label="Example Post"
+      value={examplePost}
+      onChange={(e) => setExamplePost(e.target.value)}
+      multiline
+      fullWidth
+      variant="outlined"
+      className={classes.promptTextField}
+      InputProps={{
+        style: { minHeight: '100px', resize: 'vertical' }
+      }}
+    />
+    <TextField
+      label="Example Term"
+      value={exampleTerm}
+      onChange={(e) => setExampleTerm(e.target.value)}
+      fullWidth
+      className={classes.promptTextField}
+      variant="outlined"
+    />
+    <TextField
+      label="Example Alt Term"
+      value={exampleAltTerm}
+      onChange={(e) => setExampleAltTerm(e.target.value)}
+      fullWidth
+      className={classes.promptTextField}
+      variant="outlined"
+    />
+    <TextField
+      label="Example Definition"
+      value={exampleDefinition}
+      className={classes.promptTextField}
+      onChange={(e) => setExampleDefinition(e.target.value)}
+      multiline
+      fullWidth
+      variant="outlined"
+    />
+  </div>
+
   return <div className={classes.root}>
     {showTitle && <h2>Glossary [Beta]<LWTooltip title="Beta feature! Select/edit terms below, and readers will be able to hover over and read the explanation.">  </LWTooltip></h2>}
     {/* {!showTitle && <br/>} */}
 
     <LoadMore {...loadMoreProps} />
-    <div className={classes.buttonRow}>
-      <Button onClick={() => addNewJargonTerms({glossaryPrompt, examplePost, exampleTerm, exampleAltTerm, exampleDefinition})} className={classes.generateButton}>Generate new terms</Button>
-      <div className={classes.approveAllButton}>
-        <LWTooltip title={<div><p>Current Prompt:</p><p>{glossaryPrompt}</p></div>}>
-          <div className={classes.approveAllButton} onClick={() => setEditingPrompt(!editingPrompt)}>{editingPrompt ? "SAVE PROMPT" : "EDIT PROMPT"}</div>
-        </LWTooltip>
-      </div>
-      {mutationLoading && <Loading/>}
-      {mutationLoading && <div>(Loading... warning, this will take 30-60 seconds)</div>}
-    </div>
-    {editingPrompt && <div>
-      <TextField
-        label="Prompt"
-        value={glossaryPrompt}
-        onChange={(e) => setGlossaryPrompt(e.target.value)}
-        multiline
-        fullWidth
-        variant="outlined"
-        className={classes.promptTextField}
-        InputProps={{
-          style: { minHeight: '120px', resize: 'vertical' }
-        }}
-      />
-      <TextField
-        label="Example Post"
-        value={examplePost}
-        onChange={(e) => setExamplePost(e.target.value)}
-        multiline
-        fullWidth
-        variant="outlined"
-        className={classes.promptTextField}
-        InputProps={{
-          style: { minHeight: '100px', resize: 'vertical' }
-        }}
-      />
-      <TextField
-        label="Example Term"
-        value={exampleTerm}
-        onChange={(e) => setExampleTerm(e.target.value)}
-        fullWidth
-        className={classes.promptTextField}
-        variant="outlined"
-      />
-      <TextField
-        label="Example Alt Term"
-        value={exampleAltTerm}
-        onChange={(e) => setExampleAltTerm(e.target.value)}
-        fullWidth
-        className={classes.promptTextField}
-        variant="outlined"
-      />
-      <TextField
-        label="Example Definition"
-        value={exampleDefinition}
-        className={classes.promptTextField}
-        onChange={(e) => setExampleDefinition(e.target.value)}
-        multiline
-        fullWidth
-        variant="outlined"
-      />
-    </div>}
-
-
-    <div className={classNames(classes.termsList, expanded && classes.expandedTermsList)}>
-      {nonDeletedTerms.map((item) => {
-        let sizeClass = classes.smallTerm;
-        if (item.term.length > 20) sizeClass = classes.mediumTerm;
-        return <div key={item._id} className={sizeClass}><JargonTocItem jargonTerm={item}/></div>
-      })}
-    </div>
-
-    {expanded && <div>
-      {showNewJargonTermForm && <JargonEditorRow key={'newJargonTermForm'} postId={document._id} />}
-      {nonDeletedTerms.map((item) => <JargonEditorRow key={item._id} postId={document._id} jargonTerm={item}/>)}
-    </div>}
-
-    <div className={classes.buttonRow}>
+    <div className={classes.header}>
       <LWTooltip title="Enable all glossary hoverovers for readers of this post">
         <div className={classes.approveAllButton} onClick={() => handleSetApproveAll(true)}>ENABLE ALL</div>
       </LWTooltip>
@@ -368,15 +369,43 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
           UNHIDE ALL ({deletedTerms.length})
         </div>
       </LWTooltip>}
-      <LWTooltip title={expanded ? "Cancel editing the glossary" : "Edit the glossary definitions"}>
-        <div className={classes.button} onClick={() => setExpanded(!expanded)}>
-          {expanded 
-          ? "CANCEL"
-          : "EDIT GLOSSARY"
-        }
-        </div>
-      </LWTooltip>
+      <div className={classes.button} onClick={() => setExpanded(!expanded)}>
+        {expanded 
+        ? "COLLAPSE"
+        : "EXPAND"
+      }
+      </div>
     </div>
+
+    {/* <div> */}
+    <div className={classNames(classes.window, expanded && classes.expanded)}>
+      {/* <div className={classes.termsList}>
+        {nonDeletedTerms.map((item) => {
+          let sizeClass = classes.smallTerm;
+          if (item.term.length > 20) sizeClass = classes.mediumTerm;
+          return <div key={item._id} className={sizeClass}><JargonTocItem jargonTerm={item}/></div>
+        })}
+      </div> */}
+      <div>
+        {showNewJargonTermForm && <JargonEditorRow key={'newJargonTermForm'} postId={document._id} />}
+        {nonDeletedTerms.map((item) => <JargonEditorRow key={item._id} postId={document._id} jargonTerm={item}/>)}
+      </div>
+    </div>
+    <div className={classes.buttonRow}>
+      <Button onClick={() => addNewJargonTerms({glossaryPrompt, examplePost, exampleTerm, exampleAltTerm, exampleDefinition})} className={classes.generateButton}>Generate new terms</Button>
+      <div className={classes.approveAllButton}>
+        <LWTooltip title="Make changes to the jargon generator LLM prompt">
+          <div className={classes.approveAllButton} onClick={() => setEditingPrompt(!editingPrompt)}>{editingPrompt ? "SAVE PROMPT" : "EDIT PROMPT"}</div>
+        </LWTooltip>
+      </div>
+      {expanded && <div className={classes.button} onClick={() => setExpanded(!expanded)}>
+        COLLAPSE
+      </div>}
+      {mutationLoading && <Loading/>}
+      {mutationLoading && <div>(Loading... warning, this will take 30-60 seconds)</div>}
+    </div>
+    {editingPrompt && promptEditor}
+
   </div>;
 }
 
