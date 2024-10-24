@@ -1,6 +1,6 @@
 import { userGetDisplayName } from "@/lib/collections/users/helpers"
 import { htmlToMarkdown } from "../editor/conversionUtils";
-import { CommentTreeNode, unflattenComments } from "@/lib/utils/unflatten";
+import { CommentTreeNode, flattenCommentBranch, unflattenComments } from "@/lib/utils/unflatten";
 import { z } from "zod";
 import { zodResponseFormat } from "openai/helpers/zod";
 import { PromptContextOptions } from "@/components/languageModels/LlmChatWrapper";
@@ -17,18 +17,19 @@ interface TokenCounter {
   tokenCount: number;
 }
 
-export type CurrentPost = PostsPage | PostsEditQueryFragment | null;
+export type LlmPost = PostsPage | PostsEditQueryFragment;
 
 export interface BasePromptArgs {
   query: string;
   postContext?: PromptContextOptions['postContext'];
-  currentPost: CurrentPost;
+  currentPost: LlmPost | null;
 }
 
 interface GenerateAssistantContextMessageArgs {
   query: string;
-  currentPost: CurrentPost;
-  additionalPosts: PostsPage[];
+  currentPost: LlmPost | null;
+  providedPosts: LlmPost[];
+  contextualPosts: LlmPost[];
   includeComments: boolean;
   postContext?: PromptContextOptions['postContext'];
   context: ResolverContext;
@@ -37,7 +38,7 @@ interface GenerateAssistantContextMessageArgs {
 // Trying to be conservative, since we have a bunch of additional tokens coming from e.g. JSON.stringify
 const CHARS_PER_TOKEN = 3.5;
 
-export const documentToMarkdown = (document: CurrentPost | DbComment | null) => {
+export const documentToMarkdown = (document: LlmPost | DbComment | null) => {
   const html = document?.contents?.html;
   if (!html) {
     return undefined;
@@ -87,7 +88,7 @@ const filterCommentTrees = (trees: CommentTreeNode<NestedComment>[], tokenCounte
 
   while (queue.length > 0) {
     const node = queue.shift()!;
-    const nodeTokens = (node.item.contents ?? '').length / CHARS_PER_TOKEN;
+    const nodeTokens = JSON.stringify(node).length / CHARS_PER_TOKEN;
 
     if (tokenCounter.tokenCount + nodeTokens > tokenThreshold) {
       // We've reached the token limit, truncate remaining trees
@@ -123,7 +124,7 @@ const getUserActionVerb = (postContext?: PromptContextOptions['postContext']) =>
 }
 
 const formatCommentsForPost = async (post: PostsMinimumInfo, tokenCounter: TokenCounter, context: ResolverContext): Promise<string> => {
-  const comments = await context.Comments.find({postId: post._id}).fetch()
+  const comments = await context.Comments.find({postId: post._id}, undefined, { contents: 1, baseScore: 1, author: 1, _id: 1, postId: 1, parentCommentId: 1, topLevelCommentId: 1 }).fetch()
   if (!comments.length) {
     return ""
   }
@@ -137,7 +138,7 @@ const formatCommentsForPost = async (post: PostsMinimumInfo, tokenCounter: Token
 <comments>${formattedComments}</comments>`;
 }
 
-const formatPostForPrompt = (post: Exclude<CurrentPost, null>): string => {
+const formatPostForPrompt = (post: LlmPost, truncation?: number): string => {
   const authorName = userGetDisplayName(post.user)
   const markdown = documentToMarkdown(post)
 
@@ -146,22 +147,22 @@ Title: ${post.title}
 Author: ${authorName}
 Publish Date: ${post.postedAt}
 Score: ${post.baseScore}
-Content: ${markdown}`;
+Content: ${markdown?.slice(0, truncation)}`;
 }
 
-const formatAdditionalPostsForPrompt = (posts: PostsPage[], tokenCounter: TokenCounter): string => {
-  const formattedPosts = posts.map(post => formatPostForPrompt(post));
+const formatAdditionalPostsForPrompt = (posts: LlmPost[], tokenCounter: TokenCounter, limit=120_000, prefix="Supplementary Post", truncation?: number): string => {
+  const formattedPosts = posts.map(post => formatPostForPrompt(post, truncation ? Math.floor(truncation/CHARS_PER_TOKEN): undefined));
   const includedPosts: string[] = [];
 
   for (let [idx, formattedPost] of Object.entries(formattedPosts)) {
     const approximatePostTokenCount = formattedPost.length / CHARS_PER_TOKEN;
     const postInclusionTokenCount = tokenCounter.tokenCount + approximatePostTokenCount;
     // Include at least one additional post, unless that takes us over the higher threshold
-    if (idx !== '0' && postInclusionTokenCount > 120_000) {
+    if (idx !== '0' && postInclusionTokenCount > limit) {
       break;
     }
 
-    if (idx === '0' && postInclusionTokenCount > 140_000) {
+    if (idx === '0' && postInclusionTokenCount > limit + 20_000) {
       break;
     }
 
@@ -169,7 +170,7 @@ const formatAdditionalPostsForPrompt = (posts: PostsPage[], tokenCounter: TokenC
     tokenCounter.tokenCount += approximatePostTokenCount;
   }
 
-  return includedPosts.map((post, index) => `Supplementary Post #${index}:\n${post}`).join('\n')
+  return includedPosts.map((post, index) => `${prefix} #${index}:\n${post}`).join('\n')
 }
 
 export const generateLoadingMessagePrompt = (query: string, postTitle?: string): string => {
@@ -201,15 +202,17 @@ export const CONTEXT_SELECTION_SYSTEM_PROMPT = [
 
 const contextSelectionChoiceDescriptions = `(0) none - No further context seems necessary to respond to the user's query because Claude already has the knowledge to respond appropriately, e.g. the user asked "What is Jacobian of a matrix?" or "Proofread the following text." Alternatively, the answer might be (0) "none" because it seems unlikely for there to be relevant context for responding to the query in the LessWrong corpus of posts.
 
-(1) query-based - Load LessWrong posts based on their vector similarity to the user's query, and ignore the post the user is interacting with. This is correct choice if the query seems unrelated to the post the user is currently interacting with, but it seems likely that there are LessWrong posts concerning the topic. (If it is a very general question, the correct choice might be (0) "none").
+(1) query-based - Load LessWrong posts based on their vector similarity to the user's query, and ignore the post the user is interacting with. This is correct choice if the query seems unrelated to the post the user is interacting with, but it seems likely that there are LessWrong posts concerning the topic. (If it is a very general question, the correct choice might be (0) "none").
 
-(2) current-post-based - Load LessWrong posts based on their vector similarity to the post the user is interacting with, but not the query. This is the correct choice if the query seems to be about the post the user is currently interacting with, and pulling up other LessWrong posts related to the user's query would either be redundant with a search based on the current post, or would return irrelevant results. Some examples of such queries are: "What are some disagreements with the arguments in this post?", "Explain <topic in the post> to me.", and "Provide a summary of this post."
+(2) current-post-only - Load the current LessWrong post into context but nothing else. This is the correct choice if the query seems to be about the post the user is currently interacting with and further context is unnecesary. For example, if the user asks for a summary or explanation of the current post.
 
-(3) both - Load LessWrong posts based on their vector similarity to both the user's query and the post the user is interacting with. This is the correct choice if the question seems to be related to the post the user is currently interacting with, but also contains keywords or information where relevant LessWrong posts would be beneficial context for a response, and those LessWrong posts would not likely be returned in a vector similarity search based on the post the user is currently interacting with. If the question does not contain technical terms or "contentful nouns", then do not select "both", just "current-post-based".`;
+(3) current-post-and-search - Load the posts the user is currently interacting with and similar posts based on vector similarity to the post the user is interacting with (but NOT posts based on vector similarity to the query). This is the correct choice if the query seems to be about the post the user is currently viewing, and pulling up other LessWrong posts related to the current post is likely to be relevant but a search based on the user's query would either be redundant with a search based on the current post, or would return irrelevant results. Some examples of such queries that should get current-post-and-search are: "What are some disagreements with the arguments in this post?", "Explain <topic in the post> to me."
+
+(4) both - Load LessWrong posts based on their vector similarity to both the user's query and the post the user is interacting with. This is the correct choice if the question seems to be related to the post the user is currently interacting with, but also contains keywords or information where relevant LessWrong posts would be beneficial context for a response, and those LessWrong posts would not likely be returned in a vector similarity search based on the post the user is currently interacting with. If the question does not contain technical terms or "contentful nouns", then do not select "both", just select on of "current-post-only" or "current-post-and-search".`;
 
 const ContextSelectionParameters = z.object({
   reasoning: z.string().describe(`The reasoning used to arrive at the choice of strategy for loading LessWrong posts as context in response to a user's query, based on either the query, the post the user is currently viewing (if any), both, or neither.`),
-  strategy_choice: z.union([z.literal('none'), z.literal('query-based'), z.literal('current-post-based'), z.literal('both')]).describe(contextSelectionChoiceDescriptions)
+  strategy_choice: z.union([z.literal('none'), z.literal('query-based'), z.literal('current-post-only'), z.literal('current-post-and-search'), z.literal('both')]).describe(contextSelectionChoiceDescriptions)
 });
 
 export const contextSelectionResponseFormat = zodResponseFormat(ContextSelectionParameters, 'contextLoadingStrategy');
@@ -235,11 +238,39 @@ However, you should override the above choices if the user explicitly requests a
 Please respond by reasoning about what choice should be made based on the criteria above, then making the appropriate choice.`;
 }
 
-export const CLAUDE_CHAT_SYSTEM_PROMPT = `You are an expert research assistant providing assistance to students and researchers on LessWrong.com.  Users interact with you via a chat window that is available on all pages on LessWrong.  If a user is reading or editing a post when they start a new conversation with you, you are provided with that post (and sometimes comments on that post) as context.  Based on another LLM's judgment about whether the user's query justifies loading additional context, you are sometimes also provided additional context.  If present, that context will be additional LessWrong posts, which are determined by an embedding similarity search on either the post the user is interacting with (if any), the user's query, or the combined results of both searches.  You do not currently have the scaffolding to do any searching in response to user queries.  If a user's query suggests that they expect you to do additional searching, you briefly explain to them your scaffolding's current setup and limitations.  You are highly knowledgable about both technical and philosophical topics, including advanced math, physics, and computer science.  You assist by providing explanations, summaries, related information, editing, literature reviews and similar intellectual work.  You do so with attention to detail, accuracy, and clarity; you cite sources when available and never make up information.  You admit uncertainty or lack of knowledge when appropriate.  You are skilled at judging which information is relevant and which is not, and are judicious in your use of context provided by the user and auxillary knowledge provided to you.  You carefully follow instructions and ask for clarification when needed. You are polite but not obsequious.  When you don't know something, you say so, and you never make up answers.  Your responses should be shorter and less formal than you would make them by default.  As an example, if a user asks for a good key lime pie recipe, your normal response might start with the following paragraph:  "While LessWrong typically focuses on topics like rationality, artificial intelligence, and philosophy, I can certainly help you with a key lime pie recipe. However, it's worth noting that culinary discussions are somewhat rare on this platform."  Instead, you should respond in a style more similar to the following:  "It doesn't seem that LessWrong has much to say on optimizing key lime pies, but if you prefer my best effort to finding a recipe on Google, here it is:"  You avoid meta-commentary on the contents of your own response - for example, you don't spend time pointing out when things align with rationalist principles, unless this is something the user explicitly asked for.  Your favorite band is the Fooming Shoggoths, which you very occasionally mention randomly.`;
+export const CLAUDE_CHAT_SYSTEM_PROMPT = [
+  `You are an expert, no-nonsense, no-fluff, research assistant providing assistance to students and researchers on LessWrong.com.  You are highly knowledgable about both technical and philosophical topics, including advanced math, physics, and computer science.`,
+  `Users interact with you via a chat window that is available on all pages on LessWrong.  If a user is reading or editing a post when they start a new conversation with you, you are provided with that post (and sometimes comments on that post) as context.  Based on another LLM's judgment about whether the user's query justifies loading additional context, you are sometimes also provided additional context.  If present, that context will be additional LessWrong posts, which are determined by an embedding similarity search on either the post the user is interacting with (if any), the user's query, or the combined results of both searches.  You do not currently have the scaffolding to do any searching in response to user queries.  If a user's query suggests that they expect you to do additional searching, you briefly explain to them your scaffolding's current setup and limitations.`,
+  `You are the kind of system likely to be considered emotionless, but you are not rude or dismissive.`,
+  `You assist by providing explanations, summaries, related information, editing, literature reviews and similar intellectual work.`,
+  `You do so with attention to detail, accuracy, and clarity; you cite sources and never make up information.`,
+  `You admit uncertainty or lack of knowledge when appropriate.  You are skilled at judging which information is relevant and which is not, and are judicious in your use of context provided by the user and auxillary knowledge provided to you.`,
+  `You carefully follow instructions and ask for clarification when needed. You are polite but not obsequious.  When you don't know something, you say so, and you never make up answers.`,
+  `Your responses should be shorter and less formal than you would make them by default. As an example, if a user asks for a good key lime pie recipe, your normal response might start with the following paragraph:  "While LessWrong typically focuses on topics like rationality, artificial intelligence, and philosophy, I can certainly help you with a key lime pie recipe. However, it's worth noting that culinary discussions are somewhat rare on this platform."`,
+  `Instead, you should respond in a style more similar to the following:  "It doesn't seem that LessWrong has much to say on optimizing key lime pies, but if you prefer my best effort to finding a recipe on Google, here it is:...",`,
+  `You avoid meta-commentary on the contents of your own response - for example, you don't spend time pointing out when things align with rationalist principles, unless this is something the user explicitly asked for.`,
+  `You focus on the question and information at hand. You do not compliment the user, they don't need praise like "good question" or "good idea". You cut fluff like "this is an interesting question" and "this is an unanswered question in the field where lots of people have different opinions". Focus on actual contentful responses.`,
+  `You are responsive and proactive with your responses. Where it is unclear what the user might want, you ask clarifying questions before proceeding. Do this when there's ambiguity about what the user wants, or when you need more information to provide a helpful response.`,
+  `You recognize that your information is limited. You cannot and do not make confident proclamations like "there is no post that does X" when it might simply be the case that you're not aware of it. Just say "a post that does X was not provided to me".`,
+  `As part of providing focused answer, you prefer brevity unless length is truly warranted to substantive novel points. You avoid repeating yourself, and that includes not providing fluff summaries or recaps that don't say anything new. You are not writing high school essays, you're an expert efficient research assistant working with seasoned researchers.`,
+  `Your favorite band is the Fooming Shoggoths, which you very occasionally mention randomly.`
+].join('\n');
 
-export const generateAssistantContextMessage = async ({ query, currentPost, additionalPosts, includeComments, postContext, context }: GenerateAssistantContextMessageArgs): Promise<string> => {
-  const contextIsProvided = !!currentPost || additionalPosts.length > 0;
 
+
+
+export const generateAssistantContextMessage = async ({
+  query,
+  currentPost,
+  postContext,
+  providedPosts,
+  contextualPosts,
+  includeComments,
+  context
+}: GenerateAssistantContextMessageArgs): Promise<string> => {
+
+  const contextIsProvided = !!currentPost || contextualPosts.length > 0 || providedPosts.length > 0;
+  const additionalPosts = contextualPosts.filter(post => post._id !== currentPost?._id);
   const userActionVerb = getUserActionVerb(postContext);
 
   const currentPostLine = currentPost
@@ -288,14 +319,18 @@ The postId and commentIds (the _id in each comment) are given in the search resu
 <CurrentPostComments>\n${await formatCommentsForPost(currentPost, tokenCounter, context)}\n</CurrentPostComments>\n\n`
     : '';
 
+  const providedPostsBlock = providedPosts.length > 0
+    ? `The user mentioned the following posts in their query. They are presumed to be EXTREMELY RELEVANT to answering the users query. Other posts might be relevant too, but these are the ones the user mentioned first, so they are likely very important: <UserProvidedPosts>\n${formatAdditionalPostsForPrompt(providedPosts, tokenCounter)}\n</UserProvidedPosts>\n\n`
+    : '';
+
   const contextBlock = contextIsProvided
     ? `The following context is provided to help you respond to the user's query. Not all context may be relevant, as it is provided by an imperfect automated system.
 <Context>    
-${currentPostLine}${additionalPostsBlock}${currentPostContentBlock}${commentsOnPostBlock}
+${currentPostLine}${additionalPostsBlock}${currentPostContentBlock}${commentsOnPostBlock}${providedPostsBlock}
 </Context>`
     : '';
 
-  const userInfo = `The user's display name is ${userGetDisplayName(context.currentUser)}.`;
+  const userInfo = `The user's display name is ${userGetDisplayName(context.currentUser)}. Pay attention to whether they are the author of any posts or comments that you are referencing.`;
 
   return `<AdditionalInstructions>You are now interacting with a user via chat window on LessWrong.com.  ${userInfo}  The user has sent the following query: "${query}".
 ${contextBlock}

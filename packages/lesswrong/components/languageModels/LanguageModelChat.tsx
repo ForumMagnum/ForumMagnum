@@ -7,7 +7,7 @@ import { useMessages } from '../common/withMessages';
 import Select from '@material-ui/core/Select';
 import CloseIcon from '@material-ui/icons/Close';
 import { useLocation } from "../../lib/routeUtil";
-import { NewLlmMessage, PromptContextOptions, useLlmChat } from './LlmChatWrapper';
+import { NewLlmMessage, PromptContextOptions, RAG_MODE_SET, RagModeType, useLlmChat } from './LlmChatWrapper';
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import CKEditor from '@/lib/vendor/ckeditor5-react/ckeditor';
 import { getCkCommentEditor } from '@/lib/wrapCkEditor';
@@ -22,7 +22,7 @@ import { usePostsPageContext } from '../posts/PostsPage/PostsPageContext';
 
 const styles = (theme: ThemeType) => ({
   root: {
-    height: "calc(100vh - 160px)"
+    height: "calc(100vh - 190px)"
   },
   subRoot: {
     display: "flex",
@@ -130,6 +130,8 @@ const styles = (theme: ThemeType) => ({
   select: {
     // TODO: maybe really the styling of the options section should be flex display and flex grow stuff
     maxWidth: 250,
+  },
+  ragModeSelect: {
   },
   menuItem: {
     zIndex: theme.zIndexes.languageModelChat + 10,
@@ -311,6 +313,7 @@ export const ChatInterface = ({classes}: {
   const { currentPostId, postContext } = useCurrentPostContext();
   const { autosaveEditorState } = useContext(AutosaveEditorStateContext);
 
+  const [ragMode, setRagMode] = useState<RagModeType>('Auto'); // TODO: make this auto
   const { flash } = useMessages();
 
   const messagesRef = useRef<HTMLDivElement>(null);
@@ -432,6 +435,19 @@ export const ChatInterface = ({classes}: {
       </MenuItem>
     </Select>;
 
+    const ragModeSelect = <Select 
+      onChange={(e) => setRagMode(e.target.value as RagModeType)}
+      value={ragMode}
+      disableUnderline
+      className={classes.ragModeSelect}
+    >
+      {RAG_MODE_SET.map((ragMode) => (
+        <MenuItem key={ragMode} value={ragMode}>
+          {ragMode}
+        </MenuItem>
+      ))}
+    </Select>
+
 
   const options = <div className={classes.options}>
     <Button onClick={() => setCurrentConversation()}>
@@ -441,14 +457,15 @@ export const ChatInterface = ({classes}: {
       Export
     </Button>
     {conversationSelect}
+    {ragModeSelect}
   </div>  
 
   const handleSubmit = useCallback(async (message: string) => {
     if (autosaveEditorState) {
       await autosaveEditorState();
     }
-    submitMessage({ query: message, currentPostId, postContext });
-  }, [autosaveEditorState, currentPostId, postContext, submitMessage]);
+    submitMessage({ query: message, ragMode, currentPostId, postContext });
+  }, [autosaveEditorState, currentPostId, postContext, submitMessage, ragMode]);
 
   return <div className={classes.subRoot}>
     {messagesForDisplay}

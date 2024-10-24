@@ -2232,6 +2232,16 @@ interface GardenCodesDefaultFragment { // fragment on GardenCodes
   readonly afOnly: boolean,
 }
 
+interface ReadStatusWithPostPage { // fragment on ReadStatuses
+  readonly _id: string,
+  readonly userId: string,
+  readonly postId: string,
+  readonly tagId: string,
+  readonly isRead: boolean,
+  readonly lastUpdated: Date,
+  readonly post: PostsPage|null,
+}
+
 interface BansDefaultFragment { // fragment on Bans
   readonly expirationDate: Date | null,
   readonly userId: string,
@@ -3642,6 +3652,11 @@ interface UserVotesWithDocument extends UserVotes { // fragment on Votes
   readonly post: PostsListWithVotes|null,
 }
 
+interface UserVotesWithFullDocument extends UserVotes { // fragment on Votes
+  readonly comment: CommentsListWithParentMetadata|null,
+  readonly post: PostsPage|null,
+}
+
 interface SpotlightsDefaultFragment { // fragment on Spotlights
   readonly documentId: string,
   readonly documentType: "Sequence" | "Post",
@@ -4305,6 +4320,7 @@ interface FragmentTypes {
   GardenCodeFragment: GardenCodeFragment
   GardenCodeFragmentEdit: GardenCodeFragmentEdit
   GardenCodesDefaultFragment: GardenCodesDefaultFragment
+  ReadStatusWithPostPage: ReadStatusWithPostPage
   BansDefaultFragment: BansDefaultFragment
   BansAdminPageFragment: BansAdminPageFragment
   ChaptersDefaultFragment: ChaptersDefaultFragment
@@ -4410,6 +4426,7 @@ interface FragmentTypes {
   TagVotingActivity: TagVotingActivity
   UserVotes: UserVotes
   UserVotesWithDocument: UserVotesWithDocument
+  UserVotesWithFullDocument: UserVotesWithFullDocument
   SpotlightsDefaultFragment: SpotlightsDefaultFragment
   SpotlightMinimumInfo: SpotlightMinimumInfo
   SpotlightHeaderEventSubtitle: SpotlightHeaderEventSubtitle
@@ -4497,7 +4514,7 @@ interface FragmentTypesByCollection {
   SurveySchedules: "SurveySchedulesDefaultFragment"|"SurveyScheduleMinimumInfo"|"SurveyScheduleEdit"
   TypingIndicators: "TypingIndicatorsDefaultFragment"|"TypingIndicatorInfo"
   CronHistories: "CronHistoriesDefaultFragment"
-  Votes: "VotesDefaultFragment"|"TagRelVotes"|"TagVotingActivity"|"UserVotes"|"UserVotesWithDocument"
+  Votes: "VotesDefaultFragment"|"TagRelVotes"|"TagVotingActivity"|"UserVotes"|"UserVotesWithDocument"|"UserVotesWithFullDocument"
   LWEvents: "LWEventsDefaultFragment"|"newEventFragment"|"lastEventFragment"|"lwEventsAdminPageFragment"|"emailHistoryFragment"
   GoogleServiceAccountSessions: "GoogleServiceAccountSessionsDefaultFragment"|"GoogleServiceAccountSessionInfo"|"GoogleServiceAccountSessionAdminInfo"
   Sessions: "SessionsDefaultFragment"
@@ -4506,6 +4523,7 @@ interface FragmentTypesByCollection {
   Reports: "ReportsDefaultFragment"|"UnclaimedReportsList"
   TagFlags: "TagFlagFragment"|"TagFlagEditFragment"|"TagFlagsDefaultFragment"
   GardenCodes: "GardenCodeFragment"|"GardenCodeFragmentEdit"|"GardenCodesDefaultFragment"
+  ReadStatuses: "ReadStatusWithPostPage"
   Bans: "BansDefaultFragment"|"BansAdminPageFragment"
   Chapters: "ChaptersDefaultFragment"|"ChaptersFragment"|"ChaptersEdit"
   ReviewVotes: "ReviewVotesDefaultFragment"|"reviewVoteFragment"|"reviewVoteWithUserAndPost"
@@ -4661,6 +4679,7 @@ interface CollectionNamesByFragmentName {
   GardenCodeFragment: "GardenCodes"
   GardenCodeFragmentEdit: "GardenCodes"
   GardenCodesDefaultFragment: "GardenCodes"
+  ReadStatusWithPostPage: "ReadStatuses"
   BansDefaultFragment: "Bans"
   BansAdminPageFragment: "Bans"
   ChaptersDefaultFragment: "Chapters"
@@ -4766,6 +4785,7 @@ interface CollectionNamesByFragmentName {
   TagVotingActivity: "Votes"
   UserVotes: "Votes"
   UserVotesWithDocument: "Votes"
+  UserVotesWithFullDocument: "Votes"
   SpotlightsDefaultFragment: "Spotlights"
   SpotlightMinimumInfo: "Spotlights"
   SpotlightHeaderEventSubtitle: "Spotlights"

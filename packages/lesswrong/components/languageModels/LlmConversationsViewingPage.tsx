@@ -11,6 +11,7 @@ import { useLocation, useNavigate } from '@/lib/routeUtil';
 import { isEmpty } from 'underscore';
 import qs from 'qs';
 import { Link } from '../../lib/reactRouterWrapper';
+import Checkbox, { CheckboxProps } from "@material-ui/core/Checkbox";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -25,12 +26,28 @@ const styles = (theme: ThemeType) => ({
   conversationSelectorRoot: {
     marginRight: 24,
   },
+  conversationSelector: {
+    height: "calc(100vh - 162px)",
+    overflowY: "scroll",
+  },
   conversationViewer: {
+    marginTop: 48,
     borderRadius: 5,
     width: 500,
-    height: "calc(100vh - 114px)",
+    height: "calc(100vh - 162px)",
     backgroundColor: theme.palette.grey[0],
     overflowY: "scroll",
+  },
+  checkboxContainer: {
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+    // color: theme.palette.primary.main,
+    fontFamily: theme.palette.fonts.sansSerifStack
+  },
+  checkbox: {
+    margin: 0,
+    // color: theme.palette.primary.main,
   },
   conversationViewerTitle: {
     ...theme.typography.commentStyle,
@@ -131,11 +148,22 @@ const LlmConversationSelector = ({currentConversationId, setCurrentConversationI
   setCurrentConversationId: (conversationId: string) => void,
   classes: ClassesType<typeof styles>,
 }) => {
+
+  const [showDeleted, setShowDeleted] = useState(false);
+  const [showAdmin, setShowAdmin] = useState(true);
+
   const { results, loading } = useMulti({
     collectionName: "LlmConversations",
     fragmentName: "LlmConversationsViewingPageFragment",
-    terms: { view: "llmConversationsAll" },
+    terms: { view: "llmConversationsAll", showDeleted: showDeleted },
     limit: 200,
+  });
+
+  const filteredResults = results?.filter((conversation) => {
+    if (!showAdmin && userIsAdmin(conversation.user)) {
+      return false;
+    }
+    return true;
   });
 
   const navigate = useNavigate();
@@ -166,14 +194,23 @@ const LlmConversationSelector = ({currentConversationId, setCurrentConversationI
   }
 
   return <div className={classes.conversationSelectorRoot}>
-    {results.map((conversation, idx) => {
-      return <LlmConversationRow
-        key={idx} 
-        conversation={conversation}
-        currentConversationId={currentConversationId}
-        setCurrentConversationId={updateConversationId}
-        classes={classes} />;
-    })}
+    <div className={classes.checkboxContainer}>
+      <span>Deleted <Checkbox checked={showDeleted} onChange={() => setShowDeleted(!showDeleted)} className={classes.checkbox}/></span>
+      <span>Show admin <Checkbox checked={showAdmin} onChange={() => setShowAdmin(!showAdmin)} className={classes.checkbox}/></span>
+    </div>
+    <div className={classes.conversationSelector}>
+      {filteredResults && filteredResults.length > 0
+        ? filteredResults.map((conversation, idx) => {
+          return <LlmConversationRow
+            key={idx} 
+            conversation={conversation}
+            currentConversationId={currentConversationId}
+            setCurrentConversationId={updateConversationId}
+            classes={classes} />;
+        })
+        : <div>No conversations found</div>
+    }
+  </div>
   </div>
 }
 
