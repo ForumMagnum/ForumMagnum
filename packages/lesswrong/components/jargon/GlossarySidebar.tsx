@@ -33,13 +33,17 @@ const styles = (theme: ThemeType) => ({
     padding: 12,
     borderRadius: 3,
     cursor: 'pointer',
+    maxHeight: 170,
+    transition: 'max-height 0.2s 0.2s',
+    overflow: 'hidden',
 
     "&:hover": {
       background: theme.palette.background.glossaryBackground,
+      maxHeight: 'unset',
       // Show the pin icon when hovering over the glossary container
       "& $pinIcon": {
         display: 'block',
-      }
+      },
     },
   },
   outerContainer: {
@@ -54,6 +58,12 @@ const styles = (theme: ThemeType) => ({
     // Hide other side items behind the glossary sidebar when it's pinned and we're scrolling down
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
     zIndex: 1,
+
+    "&:hover": {
+      "& $overflowFade": {
+        opacity: 0,
+      },
+    }
   },
   pinnedGlossaryContainer: {
     position: 'sticky',
@@ -84,15 +94,15 @@ const styles = (theme: ThemeType) => ({
   termTooltip: {
     marginRight: 5,
   },
-  toggleCollapseContainer: {
-    paddingTop: 4,
-    paddingLeft: 12,
+  overflowFade: {
+    position: "absolute",
+    top: 160,
+    height: 40,
+    width: "100%",
+    background: `linear-gradient(0deg,${theme.palette.background.pageActiveAreaBackground},transparent)`,
+    opacity: 1,
+    pointerEvents: 'none',
   },
-  toggleCollapseButton: {
-    ...theme.typography.body2,
-    ...theme.typography.commentStyle,
-    color: theme.palette.lwTertiary.main,
-  }
 })
 
 const GlossarySidebar = ({post, postGlossariesPinned, togglePin, classes}: {
@@ -103,7 +113,7 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, classes}: {
 }) => {
   const { SideItem, JargonTooltip, LWTooltip, ForumIcon } = Components;
 
-  const [collapsed, setCollapsed] = useState('glossary' in post && post.glossary.length > 10);
+  // const [collapsed, setCollapsed] = useState('glossary' in post && post.glossary.length > 10);
 
   const currentUser = useCurrentUser();
   const glossaryContainerRef = useRef<HTMLDivElement>(null);
@@ -125,7 +135,7 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, classes}: {
     return null;
   }
 
-  const displayGlossary = collapsed ? post.glossary.slice(0, 10) : post.glossary;
+  // const displayGlossary = collapsed ? post.glossary.slice(0, 10) : post.glossary;
 
   const tooltip = <div><p>Pin to highlight every term. (Opt/Alt + Shift + J)</p></div>;
   const titleRow = (
@@ -136,13 +146,13 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, classes}: {
       popperClassName={classes.titleRowTooltipPopper}
     >
       <div className={classes.titleRow}>
-        <h3 className={classes.title}>Glossary</h3>
+        <h3 className={classes.title}><strong>Glossary</strong></h3>
         <ForumIcon icon='Pin' className={classes.pinIcon} />
       </div>
     </LWTooltip>
   );
 
-  const glossaryItems = displayGlossary.map((jargonTerm: JargonTermsPost) => {
+  const glossaryItems = post.glossary.map((jargonTerm: JargonTermsPost) => {
     const replacedSubstrings = jargonTermsToTextReplacements(post.glossary, jargonReplacementMode);
     return (<div key={jargonTerm.term}>
       <JargonTooltip
@@ -161,7 +171,7 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, classes}: {
     </div>);
   });
 
-  return <div className={classes.glossaryAnchor}><SideItem options={{ format: 'block', offsetTop: 0, measuredElement: glossaryContainerRef }}>
+  return <div className={classes.glossaryAnchor}><SideItem options={{ format: 'block', offsetTop: -10, measuredElement: glossaryContainerRef }}>
     <div className={classNames(postGlossariesPinned && classes.outerContainer)}>
       <div className={classNames(postGlossariesPinned && classes.innerContainer)}>
         <div className={classNames(classes.displayedHeightGlossaryContainer, postGlossariesPinned && classes.pinnedGlossaryContainer)} ref={glossaryContainerRef}>
@@ -169,9 +179,7 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, classes}: {
             {titleRow}
             {glossaryItems}
           </div>
-          <div className={classes.toggleCollapseContainer}>
-            <a className={classes.toggleCollapseButton} onClick={() => setCollapsed(!collapsed)}>{collapsed ? 'Show More' : 'Show Less'}</a>
-          </div>
+          <div className={classes.overflowFade} />
         </div>
       </div>
     </div>
