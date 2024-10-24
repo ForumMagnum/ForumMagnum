@@ -132,8 +132,7 @@ const FormSubmit = ({
       className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
       variant={outlined ? "outlined" : undefined}
     >
-      {'test!'}
-      {/* {submitLabel} */}
+      {submitLabel}
     </Button>
   </div>
 };

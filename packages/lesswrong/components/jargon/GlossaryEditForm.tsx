@@ -1,13 +1,10 @@
 import React, { useState } from 'react';
-import { Components, fragmentTextForQuery, getFragment, registerComponent } from '../../lib/vulcan-lib';
+import { Components, fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
 import { useMutation, gql } from '@apollo/client';
 import { useMulti } from '@/lib/crud/withMulti';
 import Button from '@material-ui/core/Button';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import classNames from 'classnames';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import ExpandLessIcon from '@material-ui/icons/ExpandLess';
-import { JargonTocItem } from './JargonTocItem';
 import TextField from '@material-ui/core/TextField';
 
 export const defaultGlossaryPrompt = `You're a Glossary AI. Your goal is to make good explanations for technical jargon terms. You are trying to produce a useful hoverover tooltip in an essay on LessWrong.com, accessible to a smart, widely read layman. 
