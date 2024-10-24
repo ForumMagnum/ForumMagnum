@@ -41,11 +41,6 @@ export const addField = async <N extends CollectionNameString>(
   await db.none(sql, args);
 }
 
-Globals.addFieldQuery = (collectionName: CollectionNameString, fieldName: string) => {
-  const { sql, args } = new AddFieldQuery(getCollection(collectionName).getTable(), fieldName).compile();
-  console.log({ sql, args });
-}
-
 /**
  * WARNING: Please use addField instead (if possible)!
  *

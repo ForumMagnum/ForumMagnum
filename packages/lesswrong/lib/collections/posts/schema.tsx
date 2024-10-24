@@ -842,10 +842,8 @@ const schema: SchemaType<"Posts"> = {
 
   glossary: {
     type: Array,
-    typescriptType: "GlossaryTerm[]",
     optional: true,
     nullable: true,
-    blackbox: true,
     canRead: ['guests'],
     control: "GlossaryEditForm",
     group: formGroups.glossary,

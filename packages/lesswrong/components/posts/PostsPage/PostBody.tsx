@@ -1,11 +1,11 @@
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useRef } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 import { useSingle } from '../../../lib/crud/withSingle';
 import mapValues from 'lodash/mapValues';
 import { SideItemVisibilityContext } from '../../dropdowns/posts/SetSideItemVisibility';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
-import type { ContentItemBody, ContentReplacedSubstringComponentInfo, ContentReplacementMode } from '../../common/ContentItemBody';
+import type { ContentItemBody, ContentReplacedSubstringComponentInfo } from '../../common/ContentItemBody';
 import { hasSideComments, inlineReactsHoverEnabled } from '../../../lib/betas';
 import { VotingProps } from '@/components/votes/votingProps';
 import { jargonTermsToTextReplacements } from '@/components/jargon/JargonTooltip';
@@ -20,7 +20,6 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
   voteProps: VotingProps<PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes>
 }) => {
   const { postGlossariesPinned, togglePin } = useGlossaryPinnedState();
-  const jargonReplacementMode: ContentReplacementMode = postGlossariesPinned ? 'all' : 'first';
 
   const sideItemVisibilityContext = useContext(SideItemVisibilityContext);
   const sideCommentMode= isOldVersion ? "hidden" : (sideItemVisibilityContext?.sideCommentMode ?? "hidden")
@@ -48,7 +47,7 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
     ? votingSystem.getPostHighlights({post, voteProps})
     : []
   const glossaryItems: ContentReplacedSubstringComponentInfo[] = ('glossary' in post)
-    ? jargonTermsToTextReplacements(post.glossary, jargonReplacementMode)
+    ? jargonTermsToTextReplacements(post.glossary)
     : [];
   const replacedSubstrings = [...highlights, ...glossaryItems];
   const glossarySidebar = <GlossarySidebar post={post} postGlossariesPinned={!!postGlossariesPinned} togglePin={togglePin} />
