@@ -1069,7 +1069,7 @@ interface emailHistoryFragment { // fragment on LWEvents
 interface JargonTermsDefaultFragment { // fragment on JargonTerms
   readonly postId: string,
   readonly term: string,
-  readonly humansAndOrAIEdited: string|null,
+  readonly humansAndOrAIEdited: "humans" | "AI" | "humansAndAI" | null,
   readonly approved: boolean,
   readonly deleted: boolean,
   readonly altTerms: Array<string>,
@@ -4200,7 +4200,7 @@ interface JargonTerms { // fragment on JargonTerms
   readonly postId: string,
   readonly term: string,
   readonly contents: RevisionEdit|null,
-  readonly humansAndOrAIEdited: string|null,
+  readonly humansAndOrAIEdited: "humans" | "AI" | "humansAndAI" | null,
   readonly approved: boolean,
   readonly deleted: boolean,
   readonly altTerms: Array<string>,
@@ -4209,7 +4209,7 @@ interface JargonTerms { // fragment on JargonTerms
 interface JargonTermsPost { // fragment on JargonTerms
   readonly _id: string,
   readonly term: string,
-  readonly humansAndOrAIEdited: string|null,
+  readonly humansAndOrAIEdited: "humans" | "AI" | "humansAndAI" | null,
   readonly approved: boolean,
   readonly altTerms: Array<string>,
   readonly contents: RevisionDisplay|null,

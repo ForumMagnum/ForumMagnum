@@ -27,6 +27,7 @@ const schema: SchemaType<"JargonTerms"> = {
     optional: true,
     nullable: true,
     canRead: ['guests'],
+    allowedValues: ['humans', 'AI', 'humansAndAI'],
     // Implementation in jargonTermResolvers.ts
   },
   approved: {
