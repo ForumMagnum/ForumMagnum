@@ -227,8 +227,8 @@ class ElasticQuery {
       } else if (type === "tag") {
         tagFilters.push(
           {term: {"tags._id": token}},
-          {term: {"tags.slug": token}},
-          {term: {"tags.name": token}},
+          {term: {"tags.slug": {value: token, case_insensitive: true}}},
+          {term: {"tags.name": {value: token, case_insensitive: true}}},
         );
       }
     }
