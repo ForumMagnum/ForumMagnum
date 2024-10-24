@@ -156,6 +156,7 @@ import './server/callbacks/reviewVoteCallbacks';
 import './server/callbacks/tagFlagCallbacks';
 import './server/callbacks/moderatorActionCallbacks';
 import './server/callbacks/digestCallbacks';
+import './server/callbacks/jargonTermCallbacks';
 
 
 import './server/resolvers/alignmentForumMutations';
