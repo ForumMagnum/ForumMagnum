@@ -1,26 +1,36 @@
 import React from "react";
-import { registerComponent, Components } from "../../../lib/vulcan-lib";
+import { registerComponent, Components, fragmentTextForQuery } from "../../../lib/vulcan-lib";
 import { userCanMakeAlignmentPost } from "../../../lib/alignment-forum/users/helpers";
 import { useCurrentUser } from "../../common/withUser";
-import { useSetAlignmentPost } from "../../alignment-forum/withSetAlignmentPost";
+import { useMutate } from "@/components/hooks/useMutate";
+import { gql } from "@apollo/client";
 import { isLWorAF } from "../../../lib/instanceSettings";
 
 const MoveToAlignmentPostDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
-  const {setAlignmentPostMutation} = useSetAlignmentPost({fragmentName: "PostsList"});
+  const { mutate } = useMutate();
+
+  const setPostIsAf = async (postId: string, af: boolean) => {
+    await mutate({
+      mutation: gql`
+        mutation setPostIsAf($postId: String, $af: Boolean {
+          mutation alignmentPost(postId: $postId, af: $af) {
+            ...PostsList
+          }
+          ${fragmentTextForQuery("PostsList")}
+        },
+      `,
+      variables: { postId, af },
+      errorHandling: "flashMessageAndReturn",
+    });
+  }
 
   const handleMoveToAlignmentForum = () => {
-    void setAlignmentPostMutation({
-      postId: post._id,
-      af: true,
-    })
+    void setPostIsAf(post._id, true);
   }
 
   const handleRemoveFromAlignmentForum = () => {
-    void setAlignmentPostMutation({
-      postId: post._id,
-      af: false,
-    })
+    void setPostIsAf(post._id, false);
   }
 
   if (

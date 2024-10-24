@@ -1,13 +1,13 @@
 import { useState, useCallback, useRef } from 'react';
-import { useMessages } from '../common/withMessages';
 import { useDialog } from '../common/withDialog';
-import { useMutation, gql } from '@apollo/client';
+import { gql } from '@apollo/client';
 import { setVoteClient } from '../../lib/voting/vote';
 import { collectionNameToTypeName, getFragmentText } from '../../lib/vulcan-lib';
 import { isAF } from '../../lib/instanceSettings';
 import { VotingSystem, getDefaultVotingSystem } from '../../lib/voting/votingSystems';
 import * as _ from 'underscore';
 import { VotingProps } from './votingProps';
+import { useMutate } from '../hooks/useMutate';
 
 const getVoteMutationQuery = (typeName: string) => {
   const mutationName = `performVote${typeName}`;
@@ -26,34 +26,20 @@ const getVoteMutationQuery = (typeName: string) => {
 }
 
 export const useVote = <T extends VoteableTypeClient>(document: T, collectionName: VoteableCollectionName, votingSystem?: VotingSystem): VotingProps<T> => {
-  const messages = useMessages();
   const [optimisticResponseDocument, setOptimisticResponseDocument] = useState<any>(null);
   const mutationCounts = useRef({optimisticMutationIndex: 0, completedMutationIndex: 0});
   const typeName = collectionNameToTypeName(collectionName);
-  const query = getVoteMutationQuery(typeName);
   const votingSystemOrDefault = votingSystem || getDefaultVotingSystem();
   const {openDialog} = useDialog();
+  const {mutate} = useMutate();
   
-  const showVotingPatternWarningPopup= useCallback(() => {
+  const showVotingPatternWarningPopup = useCallback(() => {
     openDialog({
       componentName: "VotingPatternsWarningPopup",
       componentProps: {},
       closeOnNavigate: true,
     });
   }, [openDialog]);
-  
-  const [mutate] = useMutation(query, {
-    onCompleted: useCallback((mutationResult: AnyBecauseHard) => {
-      if (++mutationCounts.current.completedMutationIndex === mutationCounts.current.optimisticMutationIndex) {
-        setOptimisticResponseDocument(null)
-      }
-      
-      const mutationName = `performVote${typeName}`;
-      if (mutationResult?.[mutationName]?.showVotingPatternWarning) {
-        showVotingPatternWarningPopup();
-      }
-    }, [typeName, showVotingPatternWarningPopup]),
-  });
   
   const vote = useCallback(async ({document, voteType, extendedVote=null, currentUser}: {
     document: T,
@@ -74,21 +60,30 @@ export const useVote = <T extends VoteableTypeClient>(document: T, collectionNam
     
     const newDocument = await setVoteClient({collectionName, document, user: currentUser, voteType, extendedVote, votingSystem: votingSystemOrDefault });
 
-    try {
-      mutationCounts.current.optimisticMutationIndex++;
-      setOptimisticResponseDocument(newDocument);
-      await mutate({
-        variables: {
-          documentId: document._id,
-          voteType, extendedVote,
-        },
-      })
-    } catch(e) {
-      const errorMessage = _.map(e.graphQLErrors, (gqlErr: any)=>gqlErr.message).join("; ");
-      messages.flash({ messageString: errorMessage });
+    mutationCounts.current.optimisticMutationIndex++;
+    setOptimisticResponseDocument(newDocument);
+
+    const { result, error } = await mutate({
+      mutation: getVoteMutationQuery(typeName),
+      variables: {
+        documentId: document._id,
+        voteType, extendedVote,
+      },
+      errorHandling: "flashMessageAndReturn"
+    })
+    if (error) {
       setOptimisticResponseDocument(null);
+      return;
     }
-  }, [messages, mutate, collectionName, votingSystemOrDefault]);
+    if (++mutationCounts.current.completedMutationIndex === mutationCounts.current.optimisticMutationIndex) {
+      setOptimisticResponseDocument(null)
+    }
+    
+    const mutationName = `performVote${typeName}`;
+    if (result.data?.[mutationName]?.showVotingPatternWarning) {
+      showVotingPatternWarningPopup();
+    }
+  }, [mutate, collectionName, typeName, votingSystemOrDefault, showVotingPatternWarningPopup]);
 
   const result = optimisticResponseDocument || document;
   return {

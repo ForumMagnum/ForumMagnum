@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
-import { useMutation, gql } from '@apollo/client';
+import { gql } from '@apollo/client';
+import { useMutate } from '../hooks/useMutate';
 import { useTracking } from "../../lib/analyticsEvents";
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import classNames from 'classnames';
@@ -99,24 +100,12 @@ const AddPostsToTag = ({classes, tag}: {
   classes: ClassesType,
   tag: TagPreviewFragment
 }) => {
-  const [isAwaiting, setIsAwaiting] = useState(false);
   const { captureEvent } = useTracking()
   const { flash } = useMessages()
   const [ searchOpen, setSearchOpen ] = useState(false)  
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
-  const [mutate] = useMutation(gql`
-    mutation addOrUpvoteTag($tagId: String, $postId: String) {
-      addOrUpvoteTag(tagId: $tagId, postId: $postId) {
-        ...TagRelCreationFragment
-      }
-    }
-    ${getFragment("TagRelCreationFragment")}
-  `, {
-    update(cache, { data: {addOrUpvoteTag: TagRel}  }) {
-      updateEachQueryResultOfType({ func: handleUpdateMutation, store: cache, typeName: "Post",  document: TagRel.post })
-    }
-  });
+  const {mutate, loading: isAwaiting} = useMutate();
 
   const onPostSelected = useCallback(async (postId: string) => {
     if (!currentUser) {
@@ -127,14 +116,25 @@ const AddPostsToTag = ({classes, tag}: {
       return
     }
     flash({messageString: `Tagged post with '${tag.name}'`, type: "success"})
-    setIsAwaiting(true)
     await mutate({
+      mutation: gql`
+        mutation addOrUpvoteTag($tagId: String, $postId: String) {
+          addOrUpvoteTag(tagId: $tagId, postId: $postId) {
+            ...TagRelCreationFragment
+          }
+        }
+        ${getFragment("TagRelCreationFragment")}
+      `,
+      update: (cache, result) => {
+        const tagRel = result?.data?.addOrUpvoteTag;
+        updateEachQueryResultOfType({ func: handleUpdateMutation, store: cache, typeName: "Post",  document: tagRel.post })
+      },
       variables: {
         tagId: tag._id,
         postId: postId,
       },
-    });    
-    setIsAwaiting(false)
+      errorHandling: "flashMessageAndReturn",
+    });
     captureEvent("tagAddedToItem", {tagId: tag._id, tagName: tag.name})
   }, [mutate, flash, tag._id, tag.name, captureEvent, openDialog, currentUser]);
 

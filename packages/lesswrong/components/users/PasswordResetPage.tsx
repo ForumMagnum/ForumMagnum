@@ -1,6 +1,7 @@
 import React, { useState} from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useNamedMutation } from '../../lib/crud/withMutation';
+import { useMutate } from '../hooks/useMutate';
+import { gql } from "@apollo/client";
 import { useLocation } from '../../lib/routeUtil';
 import Button from '@material-ui/core/Button';
 
@@ -34,23 +35,46 @@ const styles = (theme: ThemeType): JssStyles => ({
 const PasswordResetPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { mutate: emailTokenMutation } = useNamedMutation({name: "useEmailToken", graphqlArgs: {token: "String", args: "JSON"}})
+  const { mutate, loading } = useMutate();
   const [useTokenResult, setUseTokenResult] = useState<any>(null)
   const { params: { token } } = useLocation()
   const [ password, setPassword ] = useState("")
+
   const submitFunction = async () => {
-    const result = await emailTokenMutation({token, args: { password }})
-    setUseTokenResult(result?.data?.useEmailToken)
+    const result = await mutate({
+      mutation: gql`
+        mutation useEmailToken($token: String, $args: JSON) {
+          useEmailToken(token: $token, args: $args)
+        }
+      `,
+      variables: {
+        token, args: { password }
+      },
+      errorHandling: "flashMessageAndReturn",
+    })
+    if (!result.error) {
+      setUseTokenResult(result.result?.data?.useEmailToken)
+    }
   }
-  const { SingleColumnSection } = Components;
+  const { SingleColumnSection, Loading } = Components;
   
   const ResultComponent = useTokenResult?.componentName && Components[useTokenResult.componentName as keyof ComponentTypes]
   return <SingleColumnSection className={classes.root}>
-    {!useTokenResult && <> 
-      <input value={password} type="password" name="password" placeholder="new password" className={classes.input} onChange={event => setPassword(event.target.value)}/>
+    {!useTokenResult && <form
+      onSubmit={(ev) => {
+        ev.preventDefault();
+        void submitFunction()
+      }}
+    >
+      <input
+        value={password} type="password" name="password"
+        placeholder="new password" className={classes.input}
+        onChange={event => setPassword(event.target.value)}
+      />
       <Button onClick={submitFunction} className={classes.submit}>Set New Password</Button>
-    </>}
+    </form>}
     {useTokenResult && ResultComponent && <ResultComponent {...useTokenResult.props}/>}
+    {loading && <Loading/>}
   </SingleColumnSection>
 }
 
