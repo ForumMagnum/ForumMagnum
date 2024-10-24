@@ -119,6 +119,7 @@ function convertGlossaryItemToTextReplacement(glossaryItem: JargonTermsPost, rep
     caseInsensitive: true,
     props: {
       term: glossaryItem.term,
+      approved: glossaryItem.approved,
       definitionHTML: glossaryItem.contents?.html ?? '',
       altTerms: glossaryItem.altTerms,
       humansAndOrAIEdited: glossaryItem.humansAndOrAIEdited,
