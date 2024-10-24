@@ -33,8 +33,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const JargonTooltip = ({term, definitionHTML, approved, altTerms, humansAndOrAIEdited, isFirstOccurrence = false, placement="top-start", children, classes, tooltipClassName, tooltipTitleClassName}: {
-  term: string,
+export const JargonTooltip = ({definitionHTML, approved, altTerms, humansAndOrAIEdited, isFirstOccurrence = false, placement="top-start", children, classes, tooltipClassName, tooltipTitleClassName}: {
   definitionHTML: string,
   approved: boolean,
   altTerms: string[],
@@ -51,9 +50,9 @@ export const JargonTooltip = ({term, definitionHTML, approved, altTerms, humansA
   const { postGlossariesPinned } = useGlossaryPinnedState();
 
   let humansAndOrAIEditedText = 'AI Generated'
-  if (humansAndOrAIEdited === 'Human') {
+  if (humansAndOrAIEdited === 'humans') {
     humansAndOrAIEditedText = 'Edited by Human';
-  } else if (humansAndOrAIEdited === 'Both') {
+  } else if (humansAndOrAIEdited === 'humansAndAI') {
     humansAndOrAIEditedText = 'Edited by AI and Human';
   }
 
