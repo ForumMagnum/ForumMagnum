@@ -3,18 +3,18 @@ import JargonTerms from "./collection"
 
 declare global {
   interface PostJargonTermsViewTerms {
-    view: 'postEditorJargonTerms'|'glossaryEditAll',
-    postId?: string
+    view: 'postEditorJargonTerms',
+    postId: string
   }
-
-  type JargonTermsViewTerms = Omit<ViewTermsBase, 'view'> & (PostJargonTermsViewTerms | {
-    view?: undefined,
-    postId?: string,
-  });
 
   interface GlossaryEditAllViewTerms {
     view: 'glossaryEditAll',
   }
+
+  type JargonTermsViewTerms = Omit<ViewTermsBase, 'view'> & (PostJargonTermsViewTerms | GlossaryEditAllViewTerms | {
+    view?: undefined,
+    postId?: string,
+  });
 }
 
 ensureIndex(JargonTerms, { postId: 1, term: 1, createdAt: 1 });
