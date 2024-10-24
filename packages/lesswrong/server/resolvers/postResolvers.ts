@@ -352,6 +352,7 @@ augmentFieldsDict(Posts, {
   },
 })
 
+
 export type PostIsCriticismRequest = {
   _id?: string,
   title: string,
