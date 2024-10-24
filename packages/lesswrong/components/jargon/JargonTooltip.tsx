@@ -5,6 +5,7 @@ import { commentBodyStyles } from '@/themes/stylePiping';
 import { ContentReplacedSubstringComponentInfo, ContentReplacementMode } from '../common/ContentItemBody';
 import { PopperPlacementType } from '@material-ui/core/Popper';
 import classNames from 'classnames';
+import { useGlossaryPinnedState } from '../hooks/useUpdateGlossaryPinnedState';
 
 const styles = (theme: ThemeType) => ({
   card: {
@@ -18,7 +19,7 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 0,
   },
   jargonWord: {
-    color: theme.palette.grey[600],
+    color: theme.palette.text.jargonTerm,
   },
   altTerms: {
     marginTop: 8,
@@ -32,7 +33,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const JargonTooltip = ({term, definitionHTML, altTerms, humansAndOrAIEdited, replacedSubstrings, isFirstOccurrence = false, placement="top-start", children, classes, clickable=true, tooltipClassName}: {
+export const JargonTooltip = ({term, definitionHTML, altTerms, humansAndOrAIEdited, replacedSubstrings, isFirstOccurrence = false, placement="top-start", children, classes, tooltipClassName, tooltipTitleClassName}: {
   term: string,
   definitionHTML: string,
   altTerms: string[],
@@ -42,14 +43,12 @@ export const JargonTooltip = ({term, definitionHTML, altTerms, humansAndOrAIEdit
   placement?: PopperPlacementType
   children: React.ReactNode,
   classes: ClassesType<typeof styles>,
-  clickable?: boolean,
   tooltipClassName?: string,
+  tooltipTitleClassName?: string,
 }) => {
   const { LWTooltip, ContentItemBody } = Components;
-  const replacedSubstringsWithoutTermOrAltTerms = replacedSubstrings.filter(s => s.replacedString !== term && !altTerms.includes(term));
-  /*const replacedSubstringsWithoutTermOrAltTerms = Object.fromEntries(
-    Object.entries(replacedSubstrings).filter(([key]) => key !== term && !altTerms.includes(key))
-  );*/
+
+  const { postGlossariesPinned } = useGlossaryPinnedState();
 
   let humansAndOrAIEditedText = 'AI Generated'
   if (humansAndOrAIEdited === 'Human') {
@@ -61,7 +60,6 @@ export const JargonTooltip = ({term, definitionHTML, altTerms, humansAndOrAIEdit
   const tooltip = <Card className={classes.card}>
     <ContentItemBody
       dangerouslySetInnerHTML={{ __html: definitionHTML }}
-      replacedSubstrings={replacedSubstringsWithoutTermOrAltTerms}
     />
     <div className={classes.altTerms}>
       <div>
@@ -73,7 +71,21 @@ export const JargonTooltip = ({term, definitionHTML, altTerms, humansAndOrAIEdit
     </div>
   </Card>
 
-  return <LWTooltip title={tooltip} tooltip={false} placement={placement} className={tooltipClassName}>
+  // Check the glossary pinned state is a bit of a hack to allow the tooltip to show up on every occurrence of a jargon term
+  // when the glossary is pinned, until we fix substring replacement in general.
+  if (!isFirstOccurrence && !postGlossariesPinned) {
+    return <>{children}</>;
+  }
+
+  return <LWTooltip
+    title={tooltip}
+    tooltip={false}
+    // We don't want text in the post to reflow when jargon terms are highlighted
+    inlineBlock={false}
+    placement={placement}
+    className={tooltipClassName}
+    titleClassName={tooltipTitleClassName}
+  >
     <span className={classes.jargonWord}>
       {children}
     </span>
@@ -100,7 +112,7 @@ function convertGlossaryItemToTextReplacement(glossaryItem: JargonTermsPost, rep
   return {
     replacedString: glossaryItem.term,
     componentName: "JargonTooltip",
-    replace: replacementMode,
+    replace: 'all',
     caseInsensitive: true,
     props: {
       term: glossaryItem.term,

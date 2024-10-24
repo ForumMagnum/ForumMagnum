@@ -189,6 +189,8 @@ declare global {
         [5]: ColorString,
         [6]: ColorString,
       },
+
+      jargonTerm: ColorString,
     },
     linkHover: {
       dim: ColorString,

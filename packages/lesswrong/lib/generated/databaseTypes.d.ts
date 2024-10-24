@@ -1579,6 +1579,7 @@ interface DbUser extends DbObject {
   hidePostsRecommendations: boolean
   petrovOptOut: boolean
   optedOutOfSurveys: boolean | null
+  postGlossariesPinned: boolean
   acceptedTos: boolean
   hideNavigationSidebar: boolean | null
   currentFrontpageFilter: string | null

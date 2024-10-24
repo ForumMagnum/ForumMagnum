@@ -9,6 +9,7 @@ import type { ContentItemBody, ContentReplacedSubstringComponentInfo, ContentRep
 import { hasSideComments, inlineReactsHoverEnabled } from '../../../lib/betas';
 import { VotingProps } from '@/components/votes/votingProps';
 import { jargonTermsToTextReplacements } from '@/components/jargon/JargonTooltip';
+import { useGlossaryPinnedState } from '@/components/hooks/useUpdateGlossaryPinnedState';
 
 const enableInlineReactsOnPosts = inlineReactsHoverEnabled;
 
@@ -18,8 +19,8 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
   isOldVersion: boolean
   voteProps: VotingProps<PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes>
 }) => {
-  const [replaceAllJargon, setReplaceAllJargon] = useState(false);
-  const jargonReplacementMode: ContentReplacementMode = replaceAllJargon ? 'all' : 'first';
+  const { postGlossariesPinned, togglePin } = useGlossaryPinnedState();
+  const jargonReplacementMode: ContentReplacementMode = postGlossariesPinned ? 'all' : 'first';
 
   const sideItemVisibilityContext = useContext(SideItemVisibilityContext);
   const sideCommentMode= isOldVersion ? "hidden" : (sideItemVisibilityContext?.sideCommentMode ?? "hidden")
@@ -50,7 +51,7 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
     ? jargonTermsToTextReplacements(post.glossary, jargonReplacementMode)
     : [];
   const replacedSubstrings = [...highlights, ...glossaryItems];
-  const glossarySidebar = <GlossarySidebar post={post} replaceAllJargon={replaceAllJargon} setReplaceAllJargon={setReplaceAllJargon} />
+  const glossarySidebar = <GlossarySidebar post={post} postGlossariesPinned={!!postGlossariesPinned} togglePin={togglePin} />
 
   if (includeSideComments && document?.sideComments) {
     const htmlWithIDs = document.sideComments.html;

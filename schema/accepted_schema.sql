@@ -3139,6 +3139,7 @@ CREATE TABLE "Users" (
   "hidePostsRecommendations" BOOL NOT NULL DEFAULT FALSE,
   "petrovOptOut" BOOL NOT NULL DEFAULT FALSE,
   "optedOutOfSurveys" BOOL,
+  "postGlossariesPinned" BOOL NOT NULL DEFAULT FALSE,
   "acceptedTos" BOOL NOT NULL DEFAULT FALSE,
   "hideNavigationSidebar" BOOL,
   "currentFrontpageFilter" TEXT,

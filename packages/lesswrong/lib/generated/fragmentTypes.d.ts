@@ -99,6 +99,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly hidePostsRecommendations: boolean,
   readonly petrovOptOut: boolean,
   readonly optedOutOfSurveys: boolean | null,
+  readonly postGlossariesPinned: boolean,
   readonly acceptedTos: boolean,
   readonly hideNavigationSidebar: boolean,
   readonly currentFrontpageFilter: string,
@@ -3219,6 +3220,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly hideActiveDialogueUsers: boolean,
   readonly hideSunshineSidebar: boolean,
   readonly optedOutOfSurveys: boolean | null,
+  readonly postGlossariesPinned: boolean,
 }
 
 interface UsersCurrentCommentRateLimit { // fragment on Users

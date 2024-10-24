@@ -111,7 +111,7 @@ export const JargonTocItem = ({classes, jargonTerm}: {
 
   return (
     <div className={classNames(classes.root, jargonTerm.approved && classes.approved)} onClick={handleActiveChange}>
-      <JargonTooltip tooltipClassName={classes.tooltip} term={jargonTerm.term} definitionHTML={jargonTerm.contents?.html ?? ''} altTerms={jargonTerm.altTerms ?? []} humansAndOrAIEdited={jargonTerm.humansAndOrAIEdited} replacedSubstrings={[]} clickable={false}>
+      <JargonTooltip tooltipClassName={classes.tooltip} term={jargonTerm.term} definitionHTML={jargonTerm.contents?.html ?? ''} altTerms={jargonTerm.altTerms ?? []} humansAndOrAIEdited={jargonTerm.humansAndOrAIEdited} replacedSubstrings={[]}>
         <ContentItemBody dangerouslySetInnerHTML={{ __html: jargonTerm.contents?.html ?? '' }} />
         {/* <span className={classes.term}>{jargonTerm.term}</span> */}
       </JargonTooltip>
