@@ -121,7 +121,8 @@ export const hasAuthorModeration = !isEAForum || isAnyTest;
 
 export const userCanCreateAndEditJargonTerms = (user: UsersCurrent|DbUser|null) => isLW && !!user && user.karma > 1000 && (isAdmin(user) || user.beta);
 export const userCanViewJargonTerms = (user: UsersCurrent|DbUser|null) => isLW;
-export const userCanViewUnapprovedJargonTerms = (user: UsersCurrent|DbUser|null) => isLW && !!user && isAdmin(user)
+export const userCanViewUnapprovedJargonTerms = (user: UsersCurrent|DbUser|null) => isLW && isAdmin(user)
+export const userWillPassivelyGenerateJargonTerms = (user: UsersCurrent|DbUser|null) => isLW && !!user && user.karma > 100
 
 // Shipped Features
 export const userCanManageTags = shippedFeature;

@@ -20,6 +20,7 @@ registerFragment(`
     _id
     term
     humansAndOrAIEdited
+    approved
     altTerms
     contents {
       ...RevisionDisplay

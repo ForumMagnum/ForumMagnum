@@ -34,9 +34,10 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const JargonTooltip = ({term, definitionHTML, altTerms, humansAndOrAIEdited, replacedSubstrings, isFirstOccurrence = false, placement="top-start", children, classes, tooltipClassName, tooltipTitleClassName}: {
+export const JargonTooltip = ({term, definitionHTML, approved, altTerms, humansAndOrAIEdited, replacedSubstrings, isFirstOccurrence = false, placement="top-start", children, classes, tooltipClassName, tooltipTitleClassName}: {
   term: string,
   definitionHTML: string,
+  approved: boolean,
   altTerms: string[],
   humansAndOrAIEdited: JargonTermsDefaultFragment['humansAndOrAIEdited'],
   replacedSubstrings: ContentReplacedSubstringComponentInfo[],
@@ -62,6 +63,7 @@ export const JargonTooltip = ({term, definitionHTML, altTerms, humansAndOrAIEdit
     <ContentItemBody
       dangerouslySetInnerHTML={{ __html: definitionHTML }}
     />
+    {!approved && <div>Unapproved [admin only]</div>}
     <div className={classes.altTerms}>
       <div>
         {altTerms.map((term: string) => (

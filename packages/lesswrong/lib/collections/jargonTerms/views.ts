@@ -3,7 +3,7 @@ import JargonTerms from "./collection"
 
 declare global {
   interface PostJargonTermsViewTerms {
-    view: 'postEditorJargonTerms',
+    view: 'postEditorJargonTerms'|'glossaryEditAll',
     postId?: string
   }
 
@@ -11,20 +11,24 @@ declare global {
     view?: undefined,
     postId?: string,
   });
+
+  interface GlossaryEditAllViewTerms {
+    view: 'glossaryEditAll',
+  }
 }
 
 ensureIndex(JargonTerms, { postId: 1, term: 1, createdAt: 1 });
 
 JargonTerms.addView("postEditorJargonTerms", function (terms: PostJargonTermsViewTerms) {
-  if (terms.postId) {
-    return {
-      selector: { postId: terms.postId },
-      options: { sort: { term: 1, createdAt: 1 } }
-    };
-  }
+  return {
+    selector: { postId: terms.postId },
+    options: { sort: { term: 1, createdAt: 1 } }
+  };
+});
+
+JargonTerms.addView("glossaryEditAll", function (terms: GlossaryEditAllViewTerms) {
   return {
     selector: {},
     options: { sort: { term: 1, createdAt: 1 } }
   };
 });
-

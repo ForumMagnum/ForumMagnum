@@ -103,6 +103,9 @@ const styles = (theme: ThemeType) => ({
     opacity: 1,
     pointerEvents: 'none',
   },
+  unapproved: {
+    color: theme.palette.grey[600],
+  },
 })
 
 // TODO: maybe sort by first use instead of frequency?
@@ -172,7 +175,7 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, classes}: {
         // The terms in the glossary should always have tooltips
         isFirstOccurrence
       >
-        <div className={classes.jargonTerm}>{jargonTerm.term}</div>
+        <div className={classNames(classes.jargonTerm, !jargonTerm.approved && classes.unapproved)}>{jargonTerm.term}</div>
       </JargonTooltip>
     </div>);
   });

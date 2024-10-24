@@ -21,7 +21,7 @@ import { isDialogueParticipant } from '../../components/posts/PostsPage/PostsPag
 import { marketInfoLoader } from '../../lib/collections/posts/annualReviewMarkets';
 import { getWithCustomLoader } from '../../lib/loaders';
 import { isLWorAF, isAF, jargonBotClaudeKey, twitterBotKarmaThresholdSetting } from '../../lib/instanceSettings';
-import { hasSideComments, userCanViewJargonTerms } from '../../lib/betas';
+import { hasSideComments, userCanViewJargonTerms, userCanViewUnapprovedJargonTerms } from '../../lib/betas';
 import SideCommentCaches from '../../lib/collections/sideCommentCaches/collection';
 import { drive } from "@googleapis/drive";
 import { convertImportedGoogleDoc } from '../editor/conversionUtils';
@@ -375,15 +375,20 @@ augmentFieldsDict(Posts, {
         if (!userCanViewJargonTerms(context.currentUser)) {
           return [];
         }
-        const jargonTerms = await context.JargonTerms.find({ postId: post._id, approved: true, deleted: false }, { sort: { term: 1 }}).fetch();
+
+        const approvedClause = userCanViewUnapprovedJargonTerms(context.currentUser) ? {} : { approved: true };
+        const jargonTerms = await context.JargonTerms.find({ postId: post._id, deleted: false, ...approvedClause }, { sort: { term: 1 }}).fetch();
 
         return await accessFilterMultiple(context.currentUser, context.JargonTerms, jargonTerms, context);
       },
-      sqlResolver: ({ field }) => `(
+      sqlResolver: ({ field, currentUserField }) => `(
         SELECT ARRAY_AGG(ROW_TO_JSON(jt.*) ORDER BY jt."term" ASC)
         FROM "JargonTerms" jt
         WHERE jt."postId" = ${field('_id')}
-        AND jt."approved" IS TRUE
+        AND CASE WHEN ${currentUserField('isAdmin')} IS NOT TRUE 
+          THEN jt."approved" IS TRUE 
+          ELSE TRUE 
+        END
         AND jt."deleted" IS NOT TRUE
         LIMIT 1
       )`
