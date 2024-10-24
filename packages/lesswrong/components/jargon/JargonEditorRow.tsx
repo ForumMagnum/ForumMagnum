@@ -14,7 +14,7 @@ const styles = (theme: ThemeType) => ({
     ...commentBodyStyles(theme),
     pointerEvents: 'undefined',
     marginTop: 0,
-    padding: 6,
+    padding: '0 6px',
     borderBottom: theme.palette.border.commentBorder,
     display: 'flex',
     alignItems: 'center',
@@ -116,6 +116,8 @@ const styles = (theme: ThemeType) => ({
   },
   explanationContainer: {
     cursor: 'text',
+    paddingTop: 6,
+    paddingBottom: 10,
   },
   checkbox: {
     width: 30,
@@ -198,14 +200,18 @@ export const JargonEditorRow = ({classes, postId, jargonTerm, instancesOfJargonC
       return;
     }
 
+    const newDeleteStatus = !jargonTerm.approved ? false : jargonTerm.deleted;
+
     void updateJargonTerm({
       selector: { _id: jargonTerm._id },
       data: {
-        approved: !jargonTerm.approved
+        approved: !jargonTerm.approved,
+        deleted: newDeleteStatus,
       },
       optimisticResponse: {
         ...jargonTerm,
         approved: !jargonTerm.approved,
+        deleted: newDeleteStatus,
       }
     })
   }
@@ -263,7 +269,7 @@ export const JargonEditorRow = ({classes, postId, jargonTerm, instancesOfJargonC
           />
         </div>
       : <div className={classNames(classes.explanationContainer, !jargonTerm.approved && classes.unapproved)} onClick={() => setEdit(true)}>
-          <JargonTooltip term={jargonTerm.term} definitionHTML={jargonDefinition} altTerms={jargonTerm.altTerms ?? []} humansAndOrAIEdited={jargonTerm.humansAndOrAIEdited} replacedSubstrings={[]} placement="bottom-end" approved={jargonTerm.approved}>
+          <JargonTooltip term={jargonTerm.term} definitionHTML={jargonDefinition} altTerms={jargonTerm.altTerms ?? []} humansAndOrAIEdited={jargonTerm.humansAndOrAIEdited} placement="bottom-end" approved={jargonTerm.approved}>
             <ContentItemBody className={classes.definition} dangerouslySetInnerHTML={{ __html: jargonDefinition }} />
           </JargonTooltip>
         </div>}

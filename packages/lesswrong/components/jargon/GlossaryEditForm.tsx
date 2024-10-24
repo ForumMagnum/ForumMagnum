@@ -178,9 +178,6 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   const [exampleAltTerm, setExampleAltTerm] = useState<string | undefined>(defaultExampleAltTerm);
   const [exampleDefinition, setExampleDefinition] = useState<string | undefined>(defaultExampleDefinition);
 
-
-
-  const [showNewJargonTermForm, setShowNewJargonTermForm] = useState(false);
   const [editingPrompt, setEditingPrompt] = useState(false);
   
   const { results: glossary = [], loadMoreProps, refetch } = useMulti({
@@ -194,8 +191,12 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   })
 
   const glossaryWithInstanceCounts = glossary.map((item) => {
-    const jargonVariants = [item.term.toLowerCase(), ...(item.altTerms ?? []).map(altTerm => altTerm.toLowerCase())];
-    const instancesOfJargonCount = document.contents?.html?.toLowerCase().match(new RegExp(jargonVariants.join('|'), 'g'))?.length ?? 0;
+    const jargonVariants = [item.term, ...(item.altTerms ?? []).map(altTerm => altTerm)];
+
+    // Create a regex to match any of the jargon variants, case-insensitive, while matching whole words
+    const regex = new RegExp(`\\b(${jargonVariants.join('|')})\\b`, 'gi');
+
+    const instancesOfJargonCount = document.contents?.html?.toLowerCase().match(regex)?.length ?? 0;
     return { ...item, instancesOfJargonCount };
   }).sort((a, b) => {
     return b.instancesOfJargonCount - a.instancesOfJargonCount;
@@ -423,3 +424,4 @@ declare global {
     GlossaryEditForm: typeof GlossaryEditFormComponent
   }
 }
+
