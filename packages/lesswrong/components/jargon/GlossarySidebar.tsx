@@ -96,7 +96,7 @@ const styles = (theme: ThemeType) => ({
 })
 
 const GlossarySidebar = ({post, postGlossariesPinned, togglePin, classes}: {
-  post: PostsDetails|PostsListWithVotes,
+  post: PostsPage,
   postGlossariesPinned: boolean,
   togglePin: () => void,
   classes: ClassesType<typeof styles>,
@@ -142,7 +142,21 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, classes}: {
     </LWTooltip>
   );
 
-  const glossaryItems = displayGlossary.map((jargonTerm: JargonTermsPost) => {
+  const glossaryWithInstanceCounts = displayGlossary.map((item) => {
+    const jargonVariants = [item.term.toLowerCase(), ...(item.altTerms ?? []).map(altTerm => altTerm.toLowerCase())];
+    const instancesOfJargonCount = (post.contents?.html ?? "").toLowerCase().match(new RegExp(jargonVariants.join('|'), 'g'))?.length ?? 0;
+    return { ...item, instancesOfJargonCount };
+  });
+
+  type GlossaryWithInstanceCounts = JargonTermsPost & {
+    instancesOfJargonCount: number;
+  }
+
+  const sortedGlossary = [...glossaryWithInstanceCounts].sort((a, b) => {
+    return b.instancesOfJargonCount - a.instancesOfJargonCount;
+  });
+
+  const glossaryItems = sortedGlossary.map((jargonTerm: GlossaryWithInstanceCounts) => {
     const replacedSubstrings = jargonTermsToTextReplacements(post.glossary, jargonReplacementMode);
     return (<div key={jargonTerm.term}>
       <JargonTooltip

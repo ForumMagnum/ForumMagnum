@@ -20,6 +20,7 @@ const styles = (theme: ThemeType) => ({
   },
   jargonWord: {
     color: theme.palette.text.jargonTerm,
+    textTransform: 'capitalize',
   },
   altTerms: {
     marginTop: 8,
