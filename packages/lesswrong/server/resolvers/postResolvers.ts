@@ -11,7 +11,7 @@ import { getToCforPost } from '../tableOfContents';
 import { getDefaultViewSelector } from '../../lib/utils/viewUtils';
 import keyBy from 'lodash/keyBy';
 import GraphQLJSON from 'graphql-type-json';
-import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema, createMutator, sanitize } from '../vulcan-lib';
+import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema, createMutator } from '../vulcan-lib';
 import { postIsCriticism } from '../languageModels/criticismTipsBot';
 import { createPaginatedResolver } from './paginatedResolver';
 import { getDefaultPostLocationFields, getDialogueResponseIds, getDialogueMessageTimestamps, getPostHTML } from "../posts/utils";
@@ -20,7 +20,7 @@ import { cheerioParse } from '../utils/htmlUtil';
 import { isDialogueParticipant } from '../../components/posts/PostsPage/PostsPage';
 import { marketInfoLoader } from '../../lib/collections/posts/annualReviewMarkets';
 import { getWithCustomLoader } from '../../lib/loaders';
-import { isLWorAF, isAF, jargonBotClaudeKey, twitterBotKarmaThresholdSetting } from '../../lib/instanceSettings';
+import { isLWorAF, isAF, twitterBotKarmaThresholdSetting } from '../../lib/instanceSettings';
 import { hasSideComments, userCanViewJargonTerms, userCanViewUnapprovedJargonTerms } from '../../lib/betas';
 import SideCommentCaches from '../../lib/collections/sideCommentCaches/collection';
 import { drive } from "@googleapis/drive";
@@ -34,20 +34,6 @@ import { RecommendedPost, recombeeApi, recombeeRequestHelpers } from '../recombe
 import { HybridRecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
 import { googleVertexApi } from '../google-vertex/client';
 import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
-import { PromptCachingBetaMessageParam } from '@anthropic-ai/sdk/resources/beta/prompt-caching/messages';
-import { getAnthropicPromptCachingClientOrThrow } from '../languageModels/anthropicClient';
-
-const claudeKey = jargonBotClaudeKey.get()
-
-async function queryClaudeJailbreak(prompt: PromptCachingBetaMessageParam[], maxTokens: number, systemPrompt: string) {
-  const client = getAnthropicPromptCachingClientOrThrow(claudeKey)
-  return await client.messages.create({
-    system: systemPrompt,
-    model: "claude-3-5-sonnet-20240620",
-    max_tokens: maxTokens,
-    messages: prompt
-  })
-}
 
 augmentFieldsDict(Posts, {
   // Compute a denormalized start/end time for events, accounting for the

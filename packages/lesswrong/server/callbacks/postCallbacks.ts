@@ -35,7 +35,7 @@ import { postsNewNotifications } from '../notificationCallbacks';
 import { getLatestContentsRevision } from '../../lib/collections/revisions/helpers';
 import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
 import { createNewJargonTerms } from '../resolvers/jargonResolvers/jargonTermMutations';
-import { userCanCreateAndEditJargonTerms, userWillPassivelyGenerateJargonTerms } from '@/lib/betas';
+import { userWillPassivelyGenerateJargonTerms } from '@/lib/betas';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
