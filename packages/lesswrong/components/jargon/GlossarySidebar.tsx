@@ -32,7 +32,6 @@ const styles = (theme: ThemeType) => ({
     },
     padding: 12,
     borderRadius: 3,
-    cursor: 'pointer',
     maxHeight: 170,
     transition: 'max-height 0.2s 0.2s',
     overflow: 'hidden',
@@ -45,6 +44,9 @@ const styles = (theme: ThemeType) => ({
         display: 'block',
       },
     },
+  },
+  glossaryContainerClickTarget: {
+    cursor: 'pointer',
   },
   outerContainer: {
     height: 0,
@@ -140,7 +142,7 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, classes}: {
   }
 
   const tooltip = <div><p>Pin to highlight every term. (Opt/Alt + Shift + J)</p></div>;
-  const titleRow = (
+  const titleRow = currentUser ? (
     <LWTooltip
       title={tooltip}
       inlineBlock={false}
@@ -152,6 +154,10 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, classes}: {
         <ForumIcon icon='Pin' className={classes.pinIcon} />
       </div>
     </LWTooltip>
+  ) : (
+    <div className={classes.titleRow}>
+      <h3 className={classes.title}><strong>Glossary</strong></h3>
+    </div>
   );
   
   const sortedGlossary = [...post.glossary].sort((a, b) => {
@@ -181,7 +187,7 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, classes}: {
     <div className={classNames(postGlossariesPinned && classes.outerContainer)}>
       <div className={classNames(postGlossariesPinned && classes.innerContainer)}>
         <div className={classNames(classes.displayedHeightGlossaryContainer, postGlossariesPinned && classes.pinnedGlossaryContainer)} ref={glossaryContainerRef}>
-          <div className={classes.glossaryContainer} onClick={() => togglePin()}>
+          <div className={classNames(classes.glossaryContainer, currentUser && classes.glossaryContainerClickTarget)} onClick={currentUser ? togglePin : undefined}>
             {titleRow}
             {glossaryItems}
           </div>
