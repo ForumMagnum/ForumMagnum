@@ -33,7 +33,6 @@ const styles = (theme: ThemeType) => ({
     padding: 12,
     borderRadius: 3,
     maxHeight: 170,
-    transition: 'max-height 0.2s 0.2s',
     overflow: 'hidden',
 
     "&:hover": {
