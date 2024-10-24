@@ -21,7 +21,7 @@ import { isDialogueParticipant } from '../../components/posts/PostsPage/PostsPag
 import { marketInfoLoader } from '../../lib/collections/posts/annualReviewMarkets';
 import { getWithCustomLoader } from '../../lib/loaders';
 import { isLWorAF, isAF, twitterBotKarmaThresholdSetting } from '../../lib/instanceSettings';
-import { hasSideComments, userCanViewJargonTerms, userCanViewUnapprovedJargonTerms } from '../../lib/betas';
+import { hasSideComments } from '../../lib/betas';
 import SideCommentCaches from '../../lib/collections/sideCommentCaches/collection';
 import { drive } from "@googleapis/drive";
 import { convertImportedGoogleDoc } from '../editor/conversionUtils';
@@ -350,36 +350,6 @@ augmentFieldsDict(Posts, {
       },
     },
   },
-
-  glossary: {
-    resolveAs: {
-      type: '[JargonTerm!]!',
-      resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<Partial<DbJargonTerm>[]> => {
-        // Forum-gating/beta-gating is done here, rather than just client side,
-        // so that users don't have to download the glossary if it isn't going
-        // to be displayed.
-        if (!userCanViewJargonTerms(context.currentUser)) {
-          return [];
-        }
-
-        const approvedClause = userCanViewUnapprovedJargonTerms(context.currentUser) ? {} : { approved: true };
-        const jargonTerms = await context.JargonTerms.find({ postId: post._id, deleted: false, ...approvedClause }, { sort: { term: 1 }}).fetch();
-
-        return await accessFilterMultiple(context.currentUser, context.JargonTerms, jargonTerms, context);
-      },
-      sqlResolver: ({ field, currentUserField }) => `(
-        SELECT ARRAY_AGG(ROW_TO_JSON(jt.*) ORDER BY jt."term" ASC)
-        FROM "JargonTerms" jt
-        WHERE jt."postId" = ${field('_id')}
-        AND CASE WHEN ${currentUserField('isAdmin')} IS NOT TRUE 
-          THEN jt."approved" IS TRUE 
-          ELSE TRUE 
-        END
-        AND jt."deleted" IS NOT TRUE
-        LIMIT 1
-      )`
-    }
-  }
 })
 
 export type PostIsCriticismRequest = {

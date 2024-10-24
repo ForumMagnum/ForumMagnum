@@ -35,7 +35,7 @@ import { getDefaultViewSelector } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 import SideCommentCaches from '../sideCommentCaches/collection';
-import { hasSideComments, hasSidenotes, userCanCreateAndEditJargonTerms } from '../../betas';
+import { hasSideComments, hasSidenotes, userCanCreateAndEditJargonTerms, userCanViewJargonTerms, userCanViewUnapprovedJargonTerms } from '../../betas';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { getPostReviewWinnerInfo } from '../reviewWinners/cache';
 import { stableSortTags } from '../tags/helpers';
@@ -840,17 +840,42 @@ const schema: SchemaType<"Posts"> = {
     hidden: !isLWorAF
   },
 
-  glossary: {
+  glossary: resolverOnlyField({
     type: Array,
+    graphQLtype: '[JargonTerm!]!',
     optional: true,
-    nullable: true,
     canRead: ['guests'],
+    // This isn't a field on the post table, but we need canUpdate for it to show up in the post edit form
+    canUpdate: [userOwns, 'admins'],
     control: "GlossaryEditForm",
     group: formGroups.glossary,
-    canUpdate: [userOwns, 'admins'],
-    hidden: ({currentUser}) => !userCanCreateAndEditJargonTerms(currentUser)
-    // Implementation in postResolvers.ts
-  },
+    hidden: ({currentUser}) => !userCanCreateAndEditJargonTerms(currentUser),
+
+    resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<Partial<DbJargonTerm>[]> => {
+      // Forum-gating/beta-gating is done here, rather than just client side,
+      // so that users don't have to download the glossary if it isn't going
+      // to be displayed.
+      if (!userCanViewJargonTerms(context.currentUser)) {
+        return [];
+      }
+
+      const approvedClause = userCanViewUnapprovedJargonTerms(context.currentUser) ? {} : { approved: true };
+      const jargonTerms = await context.JargonTerms.find({ postId: post._id, deleted: false, ...approvedClause }, { sort: { term: 1 }}).fetch();
+
+      return await accessFilterMultiple(context.currentUser, context.JargonTerms, jargonTerms, context);
+    },
+    sqlResolver: ({ field, currentUserField }) => `(
+      SELECT ARRAY_AGG(ROW_TO_JSON(jt.*) ORDER BY jt."term" ASC)
+      FROM "JargonTerms" jt
+      WHERE jt."postId" = ${field('_id')}
+      AND CASE WHEN ${currentUserField('isAdmin')} IS NOT TRUE 
+        THEN jt."approved" IS TRUE 
+        ELSE TRUE 
+      END
+      AND jt."deleted" IS NOT TRUE
+      LIMIT 1
+    )`
+  }),
   
   'glossary.$': {
     type: Object,

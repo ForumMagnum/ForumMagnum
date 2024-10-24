@@ -779,7 +779,6 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly annualReviewMarketProbability: number|null,
   readonly annualReviewMarketIsResolved: boolean|null,
   readonly annualReviewMarketYear: number|null,
-  readonly glossary: Array<JargonTerm>,
   readonly reviewVoteScoreAF: number,
   readonly reviewVotesAF: Array<number>,
   readonly reviewVoteScoreHighKarma: number,
