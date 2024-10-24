@@ -14,7 +14,6 @@ import { cyrb53Rand } from '@/server/perfMetrics';
 import JargonTermsRepo from '@/server/repos/JargonTermsRepo';
 import keyBy from 'lodash/keyBy';
 import { randomId } from '@/lib/random';
-import { readFile } from 'fs/promises';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 import { defaultExampleTerm, defaultExamplePost, defaultGlossaryPrompt, defaultExampleAltTerm, defaultExampleDefinition } from '@/components/jargon/GlossaryEditForm';
 
@@ -138,15 +137,15 @@ function sanitizeJargonTerms(jargonTerms: LLMGeneratedJargonTerm[]) {
   }));
 }
 
-async function queryClaudeJailbreak(prompt: PromptCachingBetaMessageParam[], maxTokens: number, systemPrompt: string) {
-  const client = getAnthropicPromptCachingClientOrThrow(jargonBotClaudeKey.get())
-  return await client.messages.create({
-    system: systemPrompt,
-    model: "claude-3-5-sonnet-20240620",
-    max_tokens: maxTokens,
-    messages: prompt
-  });
-}
+// async function queryClaudeJailbreak(prompt: PromptCachingBetaMessageParam[], maxTokens: number, systemPrompt: string) {
+//   const client = getAnthropicPromptCachingClientOrThrow(jargonBotClaudeKey.get())
+//   return await client.messages.create({
+//     system: systemPrompt,
+//     model: "claude-3-5-sonnet-20240620",
+//     max_tokens: maxTokens,
+//     messages: prompt
+//   });
+// }
 
 export const queryClaudeForTerms = async (markdown: string) => {
   console.log(`I'm pinging Claude for terms!`)
@@ -326,18 +325,18 @@ const queryClaudeForSingleJargonExplanation = async ({ markdown, term, toolUseId
   return sanitizeJargonTerms([parsedJargonTerm])[0];
 }
 
-const getExamplePost = (() => {
-  let examplePostContents: string;
+// const getExamplePost = (() => {
+//   let examplePostContents: string;
 
-  return async (documentTitle: string) => {
-    if (!examplePostContents) {
-      const pathName = `./public/${documentTitle}`
-      examplePostContents = (await readFile(pathName)).toString()
-    }
+//   return async (documentTitle: string) => {
+//     if (!examplePostContents) {
+//       const pathName = `./public/${documentTitle}`
+//       examplePostContents = (await readFile(pathName)).toString()
+//     }
 
-    return examplePostContents;
-  };
-})();
+//     return examplePostContents;
+//   };
+// })();
 
 
 // async function getNewJargonTerms(post: PostsPage, user: DbUser ) {
