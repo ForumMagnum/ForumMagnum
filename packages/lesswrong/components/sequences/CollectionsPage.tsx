@@ -42,7 +42,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     background: theme.palette.buttons.startReadingButtonBackground,
     fontWeight: 500,
     fontSize: "14px",
-    fontFamily: theme.typography.commentStyle
+    fontFamily: theme.typography.commentStyle.fontFamily
   },
   title: {
     ...theme.typography.headerStyle,

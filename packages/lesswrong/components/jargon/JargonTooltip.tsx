@@ -2,9 +2,8 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import Card from '@material-ui/core/Card';
 import { commentBodyStyles } from '@/themes/stylePiping';
-import { ContentReplacedSubstringComponentInfo, ContentReplacementMode } from '../common/ContentItemBody';
+import { ContentReplacedSubstringComponentInfo } from '../common/ContentItemBody';
 import { PopperPlacementType } from '@material-ui/core/Popper';
-import classNames from 'classnames';
 import { useGlossaryPinnedState } from '../hooks/useUpdateGlossaryPinnedState';
 
 const styles = (theme: ThemeType) => ({
@@ -110,7 +109,7 @@ export function expandJargonAltTerms<T extends MinimumExpandableJargonTerm>(glos
   return expandedTerms;
 }
 
-function convertGlossaryItemToTextReplacement(glossaryItem: JargonTermsPost, replacementMode: ContentReplacementMode): ContentReplacedSubstringComponentInfo {
+function convertGlossaryItemToTextReplacement(glossaryItem: JargonTermsPost): ContentReplacedSubstringComponentInfo {
   return {
     replacedString: glossaryItem.term,
     componentName: "JargonTooltip",
@@ -126,10 +125,10 @@ function convertGlossaryItemToTextReplacement(glossaryItem: JargonTermsPost, rep
   };
 }
 
-export function jargonTermsToTextReplacements(terms: JargonTermsPost[], replacementMode: ContentReplacementMode): ContentReplacedSubstringComponentInfo[] {
+export function jargonTermsToTextReplacements(terms: JargonTermsPost[]): ContentReplacedSubstringComponentInfo[] {
   return terms
     .flatMap((glossaryItem) => expandJargonAltTerms(glossaryItem))
-    .map((glossaryItem) => convertGlossaryItemToTextReplacement(glossaryItem, replacementMode));
+    .map(convertGlossaryItemToTextReplacement);
 }
 
 const JargonTooltipComponent = registerComponent('JargonTooltip', JargonTooltip, {styles});

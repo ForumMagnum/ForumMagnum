@@ -3,7 +3,6 @@ import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import { jargonTermsToTextReplacements } from './JargonTooltip';
 import { useCurrentUser } from '../common/withUser';
 import { userCanViewJargonTerms } from '@/lib/betas';
-import { ContentReplacementMode } from '../common/ContentItemBody';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import classNames from 'classnames';
 
@@ -125,8 +124,6 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, classes}: {
   const currentUser = useCurrentUser();
   const glossaryContainerRef = useRef<HTMLDivElement>(null);
 
-  const jargonReplacementMode: ContentReplacementMode = postGlossariesPinned ? 'all' : 'first';
-
   useGlobalKeydown((e) => {
     const J_KeyCode = 74;
     if (e.altKey && e.shiftKey && e.keyCode === J_KeyCode) {
@@ -166,7 +163,7 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, classes}: {
   });
 
   const glossaryItems = sortedGlossary.map((jargonTerm) => {
-    const replacedSubstrings = jargonTermsToTextReplacements(post.glossary, jargonReplacementMode);
+    const replacedSubstrings = jargonTermsToTextReplacements(post.glossary);
     return (<div key={jargonTerm.term}>
       <JargonTooltip
         term={jargonTerm.term}
