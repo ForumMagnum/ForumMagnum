@@ -195,7 +195,10 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
 
   const glossaryWithInstanceCounts = glossary.map((item) => {
     const jargonVariants = [item.term.toLowerCase(), ...(item.altTerms ?? []).map(altTerm => altTerm.toLowerCase())];
-    const instancesOfJargonCount = document.contents?.html?.toLowerCase().match(new RegExp(jargonVariants.join('|'), 'g'))?.length ?? 0;
+
+    const regex = new RegExp(`\\b(${jargonVariants.join('|')})\\b`, 'g');
+
+    const instancesOfJargonCount = document.contents?.html?.toLowerCase().match(regex)?.length ?? 0;
     return { ...item, instancesOfJargonCount };
   }).sort((a, b) => {
     return b.instancesOfJargonCount - a.instancesOfJargonCount;

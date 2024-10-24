@@ -36,7 +36,6 @@ const styles = (theme: ThemeType) => ({
     overflow: 'hidden',
 
     "&:hover": {
-      background: theme.palette.background.glossaryBackground,
       maxHeight: 'unset',
       // Show the pin icon when hovering over the glossary container
       "& $pinIcon": {
@@ -175,7 +174,6 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, classes}: {
         altTerms={jargonTerm.altTerms}
         humansAndOrAIEdited={jargonTerm.humansAndOrAIEdited}
         approved={jargonTerm.approved}
-        replacedSubstrings={replacedSubstrings}
         placement="left-start"
         tooltipTitleClassName={classes.termTooltip}
         // The terms in the glossary should always have tooltips

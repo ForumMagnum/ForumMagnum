@@ -34,13 +34,12 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const JargonTooltip = ({term, definitionHTML, approved, altTerms, humansAndOrAIEdited, replacedSubstrings, isFirstOccurrence = false, placement="top-start", children, classes, tooltipClassName, tooltipTitleClassName}: {
+export const JargonTooltip = ({term, definitionHTML, approved, altTerms, humansAndOrAIEdited, isFirstOccurrence = false, placement="top-start", children, classes, tooltipClassName, tooltipTitleClassName}: {
   term: string,
   definitionHTML: string,
   approved: boolean,
   altTerms: string[],
   humansAndOrAIEdited: JargonTermsDefaultFragment['humansAndOrAIEdited'],
-  replacedSubstrings: ContentReplacedSubstringComponentInfo[],
   isFirstOccurrence?: boolean,
   placement?: PopperPlacementType
   children: React.ReactNode,

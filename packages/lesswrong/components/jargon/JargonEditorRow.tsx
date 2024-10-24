@@ -198,14 +198,19 @@ export const JargonEditorRow = ({classes, postId, jargonTerm, instancesOfJargonC
       return;
     }
 
+    const newDeleteStatus = !jargonTerm.approved ? false : jargonTerm.deleted;
+    console.log(newDeleteStatus);
+
     void updateJargonTerm({
       selector: { _id: jargonTerm._id },
       data: {
-        approved: !jargonTerm.approved
+        approved: !jargonTerm.approved,
+        deleted: newDeleteStatus,
       },
       optimisticResponse: {
         ...jargonTerm,
         approved: !jargonTerm.approved,
+        deleted: newDeleteStatus,
       }
     })
   }
