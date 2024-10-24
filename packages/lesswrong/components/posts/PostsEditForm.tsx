@@ -34,7 +34,7 @@ const PostsEditForm = ({ documentId, version, classes }: {
   version?: string | null,
   classes: ClassesType,
 }) => {
-  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags, ForeignCrosspostEditForm, DialogueSubmit, RateLimitWarning, DynamicTableOfContents, GlossaryEditForm } = Components
+  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags, ForeignCrosspostEditForm, DialogueSubmit, RateLimitWarning, DynamicTableOfContents } = Components
 
   const { query, params } = useLocation();
   const navigate = useNavigate();
@@ -195,7 +195,6 @@ const PostsEditForm = ({ documentId, version, classes }: {
               editFormFetchPolicy={editFormFetchPolicy}
             />
           </EditorContext.Provider>
-          {/* <GlossaryEditForm document={document} /> */}
         </DeferRender>
       </div>
     </DynamicTableOfContents>
