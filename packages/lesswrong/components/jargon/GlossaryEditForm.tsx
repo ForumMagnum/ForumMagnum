@@ -86,6 +86,8 @@ const styles = (theme: ThemeType) => ({
   headerButton: {
     cursor: 'pointer',
     padding: 10,
+    paddingLeft: 16,
+    paddingRight: 16,
     fontSize: '1.1rem',
     color: theme.palette.primary.main,
     gap: '8px',
@@ -113,7 +115,7 @@ const styles = (theme: ThemeType) => ({
   },
   header: {
     display: 'flex',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
     alignItems: 'center',
     padding: 12,
     paddingTop: 8,
@@ -418,9 +420,9 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
 
   const footer = <div className={classes.buttonRow}>
     <Button onClick={() => addNewJargonTerms({glossaryPrompt, examplePost, exampleTerm, exampleAltTerm, exampleDefinition})} className={classes.generateButton}>Generate new terms</Button>
-    <div className={classes.approveAllButton}>
+    <div className={classes.headerButtons}>
       <LWTooltip title="Make changes to the jargon generator LLM prompt">
-        <div className={classes.approveAllButton} onClick={() => setEditingPrompt(!editingPrompt)}>{editingPrompt ? "SAVE PROMPT" : "EDIT PROMPT"}</div>
+        <div className={classes.headerButton} onClick={() => setEditingPrompt(!editingPrompt)}>{editingPrompt ? "SAVE PROMPT" : "EDIT PROMPT"}</div>
       </LWTooltip>
     </div>
     {expandCollapseButton}
