@@ -105,15 +105,19 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
+// TODO: maybe sort by first use instead of frequency?
+function countInstancesOfJargon(item: JargonTermsPost, post: PostsWithNavigationAndRevision | PostsWithNavigation) {
+  const jargonVariants = [item.term.toLowerCase(), ...(item.altTerms ?? []).map(altTerm => altTerm.toLowerCase())];
+  return (post.contents?.html ?? "").toLowerCase().match(new RegExp(jargonVariants.join('|'), 'g'))?.length ?? 0;
+};
+
 const GlossarySidebar = ({post, postGlossariesPinned, togglePin, classes}: {
-  post: PostsPage,
+  post: PostsListWithVotes | PostsWithNavigationAndRevision | PostsWithNavigation,
   postGlossariesPinned: boolean,
   togglePin: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
   const { SideItem, JargonTooltip, LWTooltip, ForumIcon } = Components;
-
-  // const [collapsed, setCollapsed] = useState('glossary' in post && post.glossary.length > 10);
 
   const currentUser = useCurrentUser();
   const glossaryContainerRef = useRef<HTMLDivElement>(null);
@@ -135,8 +139,6 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, classes}: {
     return null;
   }
 
-  // const displayGlossary = collapsed ? post.glossary.slice(0, 10) : post.glossary;
-
   const tooltip = <div><p>Pin to highlight every term. (Opt/Alt + Shift + J)</p></div>;
   const titleRow = (
     <LWTooltip
@@ -151,22 +153,12 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, classes}: {
       </div>
     </LWTooltip>
   );
-
-  const glossaryWithInstanceCounts = post.glossary.map((item) => {
-    const jargonVariants = [item.term.toLowerCase(), ...(item.altTerms ?? []).map(altTerm => altTerm.toLowerCase())];
-    const instancesOfJargonCount = (post.contents?.html ?? "").toLowerCase().match(new RegExp(jargonVariants.join('|'), 'g'))?.length ?? 0;
-    return { ...item, instancesOfJargonCount };
+  
+  const sortedGlossary = [...post.glossary].sort((a, b) => {
+    return countInstancesOfJargon(b, post) - countInstancesOfJargon(a, post);
   });
 
-  type GlossaryWithInstanceCounts = JargonTermsPost & {
-    instancesOfJargonCount: number;
-  }
-
-  const sortedGlossary = [...glossaryWithInstanceCounts].sort((a, b) => {
-    return b.instancesOfJargonCount - a.instancesOfJargonCount;
-  });
-
-  const glossaryItems = sortedGlossary.map((jargonTerm: GlossaryWithInstanceCounts) => {
+  const glossaryItems = sortedGlossary.map((jargonTerm) => {
     const replacedSubstrings = jargonTermsToTextReplacements(post.glossary, jargonReplacementMode);
     return (<div key={jargonTerm.term}>
       <JargonTooltip
