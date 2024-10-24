@@ -1,6 +1,5 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { CommentVotingComponentProps } from '../../lib/voting/votingSystems';
 import { useCurrentUser } from '../common/withUser';
 import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
 import { VotingProps } from './votingProps';
@@ -12,30 +11,24 @@ const styles = (theme: ThemeType): JssStyles => ({
   agreementSection: {
     display: "inline-block",
     fontSize: 25,
-    marginLeft: 10,
+    marginLeft: 4,
     lineHeight: 0.6,
     height: 24,
     minWidth: 60,
-    paddingTop: 2,
-    outline: theme.palette.border.commentBorder,
     borderRadius: isFriendlyUI ? theme.borderRadius.small : 2,
     textAlign: 'center',
     whiteSpace: "nowrap",
   },
   agreementScore: {
     fontSize: "1.1rem",
-    marginLeft: 4,
+    marginLeft: 3,
     lineHeight: 1,
-    marginRight: 4,
+    marginRight: 3,
   },
   tooltip: {
-    transform: isFriendlyUI ? "translateY(-10px)" : undefined,
+    transform: "translateY(-10px)",
   },
 });
-
-interface TwoAxisVoteOnCommentProps extends CommentVotingComponentProps {
-  classes: ClassesType
-}
 
 const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
   document: VoteableTypeClient,
@@ -58,11 +51,12 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
     documentTypeName = "revision";
   }
   
-  const karmaTooltipTitle = hideKarma
+  const karmaTooltipTitle = React.useMemo(() => hideKarma
     ? 'This post has disabled karma visibility'
     : <div>This {documentTypeName} has {karma} <b>agreement</b> karma ({voteCount} {voteCount === 1 ? "Vote" : "Votes"})</div>
+  , [hideKarma, documentTypeName, karma, voteCount])
 
-  const TooltipIfDisabled = (canVote
+  const TooltipIfDisabled = React.useMemo(() => canVote
     ? ({children}: {children: React.ReactNode}) => <>{children}</>
     : ({children}: {children: React.ReactNode}) => <LWTooltip
       placement="top"
@@ -74,16 +68,16 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
     >
       {children}
     </LWTooltip>
-  )
-  const TooltipIfEnabled = (canVote
+  , [canVote, karmaTooltipTitle, whyYouCantVote, classes.tooltip, LWTooltip])
+  const TooltipIfEnabled = React.useMemo(() => canVote
     ? ({children, ...props}: React.ComponentProps<typeof LWTooltip>) =>
       <LWTooltip {...props} popperClassName={classes.tooltip}>
         {children}
       </LWTooltip>
     : ({children}: {children: React.ReactNode}) => <>{children}</>
-  );
+  , [canVote, classes.tooltip, LWTooltip])
 
-  const tooltipPlacement = isFriendlyUI ? "top" : "bottom";
+  const tooltipPlacement = "top";
 
   return <TooltipIfDisabled>
     <span className={classes.agreementSection}>

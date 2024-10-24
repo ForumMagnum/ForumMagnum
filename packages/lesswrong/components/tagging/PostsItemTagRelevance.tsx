@@ -6,6 +6,7 @@ import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers'
 import classNames from 'classnames';
 import Tooltip from '@material-ui/core/Tooltip';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
+import { forumSelect } from '@/lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -21,13 +22,21 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   vertLayoutVoteUp: {
     position: "absolute",
-    left: isFriendlyUI ? 9 : 8,
-    top: -15,
+    left: isFriendlyUI ? 10.5 : 10,
+    top: forumSelect({
+      LessWrong: -17,
+      AlignmentForum: -15,
+      default: -16
+    })
   },
   vertLayoutVoteDown: {
     position: "absolute",
-    left: isFriendlyUI ? 9 : 8,
-    top: isFriendlyUI ? 10 : 9,
+    left: isFriendlyUI ? 10.5 : 10,
+    top: forumSelect({
+      LessWrong: 8,
+      AlignmentForum: 10,
+      default: 10
+    })
   },
   score: {
     width: "100%",
