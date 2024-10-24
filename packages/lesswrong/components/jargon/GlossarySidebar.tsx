@@ -174,6 +174,7 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, classes}: {
         definitionHTML={jargonTerm.contents?.html ?? ''}
         altTerms={jargonTerm.altTerms}
         humansAndOrAIEdited={jargonTerm.humansAndOrAIEdited}
+        approved={jargonTerm.approved}
         replacedSubstrings={replacedSubstrings}
         placement="left-start"
         tooltipTitleClassName={classes.termTooltip}
