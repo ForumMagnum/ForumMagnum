@@ -116,16 +116,6 @@ const styles = (theme: ThemeType) => ({
   },
   explanationContainer: {
     cursor: 'text',
-    '& > *': {
-      lineHeight: 1.6,
-      height: '1.6rem',
-      overflow: 'hidden',
-      color: theme.palette.grey[600],
-      '& strong': {
-        color: theme.palette.grey[900],
-        marginRight: 8
-      }
-    }
   },
   checkbox: {
     width: 30,
@@ -138,6 +128,16 @@ const styles = (theme: ThemeType) => ({
     textAlign: 'center', 
     whiteSpace: 'nowrap',
     color: theme.palette.grey[600],
+  },
+  definition: {
+    lineHeight: 1.6,
+    height: '1.6rem',
+    overflow: 'hidden',
+    color: theme.palette.grey[600],
+    '& strong': {
+      color: theme.palette.grey[900],
+      marginRight: 8
+    }
   }
 });
 
@@ -264,7 +264,7 @@ export const JargonEditorRow = ({classes, postId, jargonTerm, instancesOfJargonC
         </div>
       : <div className={classNames(classes.explanationContainer, !jargonTerm.approved && classes.unapproved)} onClick={() => setEdit(true)}>
           <JargonTooltip term={jargonTerm.term} definitionHTML={jargonDefinition} altTerms={jargonTerm.altTerms ?? []} humansAndOrAIEdited={jargonTerm.humansAndOrAIEdited} replacedSubstrings={[]} placement="bottom-end">
-            <ContentItemBody dangerouslySetInnerHTML={{ __html: jargonDefinition }} />
+            <ContentItemBody className={classes.definition} dangerouslySetInnerHTML={{ __html: jargonDefinition }} />
           </JargonTooltip>
         </div>}
       <LWTooltip title={<div>{jargonTerm.term} is used {instancesOfJargonCount} times in this post</div>} placement="right">
