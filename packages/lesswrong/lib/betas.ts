@@ -119,8 +119,9 @@ export const hasSidenotes = isLWorAF;
 // test the moderation features.
 export const hasAuthorModeration = !isEAForum || isAnyTest;
 
-export const userCanCreateAndEditJargonTerms = (user: UsersCurrent|DbUser|null) => isLW && !!user && user.karma > 1000;
-export const userCanViewJargonTerms = (user: UsersCurrent|DbUser|null) => !isEAForum;
+export const userCanCreateAndEditJargonTerms = (user: UsersCurrent|DbUser|null) => isLW && !!user && user.karma > 1000 && (isAdmin(user) || user.beta);
+export const userCanViewJargonTerms = (user: UsersCurrent|DbUser|null) => isLW;
+export const userCanViewUnapprovedJargonTerms = (user: UsersCurrent|DbUser|null) => isLW && !!user && isAdmin(user)
 
 // Shipped Features
 export const userCanManageTags = shippedFeature;
