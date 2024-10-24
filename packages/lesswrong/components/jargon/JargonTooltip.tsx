@@ -33,8 +33,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const JargonTooltip = ({term, definitionHTML, approved, altTerms, humansAndOrAIEdited, isFirstOccurrence = false, placement="top-start", children, classes, tooltipClassName, tooltipTitleClassName}: {
-  term: string,
+export const JargonTooltip = ({definitionHTML, approved, altTerms, humansAndOrAIEdited, isFirstOccurrence = false, placement="top-start", children, classes, tooltipClassName, tooltipTitleClassName}: {
   definitionHTML: string,
   approved: boolean,
   altTerms: string[],

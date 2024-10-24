@@ -163,10 +163,8 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, classes}: {
   });
 
   const glossaryItems = sortedGlossary.map((jargonTerm) => {
-    const replacedSubstrings = jargonTermsToTextReplacements(post.glossary);
     return (<div key={jargonTerm.term}>
       <JargonTooltip
-        term={jargonTerm.term}
         definitionHTML={jargonTerm.contents?.html ?? ''}
         altTerms={jargonTerm.altTerms}
         humansAndOrAIEdited={jargonTerm.humansAndOrAIEdited}

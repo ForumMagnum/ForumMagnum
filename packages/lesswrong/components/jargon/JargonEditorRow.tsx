@@ -255,7 +255,13 @@ export const JargonEditorRow = ({classes, postId, jargonTerm, instancesOfJargonC
           />
         </div>
       : <div className={classNames(classes.explanationContainer, !jargonTerm.approved && classes.unapproved)} onClick={() => setEdit(true)}>
-          <JargonTooltip term={jargonTerm.term} definitionHTML={jargonDefinition} altTerms={jargonTerm.altTerms ?? []} humansAndOrAIEdited={jargonTerm.humansAndOrAIEdited} placement="bottom-end" approved={jargonTerm.approved}>
+          <JargonTooltip
+            definitionHTML={jargonDefinition}
+            altTerms={jargonTerm.altTerms ?? []}
+            humansAndOrAIEdited={jargonTerm.humansAndOrAIEdited}
+            placement="bottom-end"
+            approved={jargonTerm.approved}
+          >
             <ContentItemBody className={classes.definition} dangerouslySetInnerHTML={{ __html: jargonDefinition }} />
           </JargonTooltip>
         </div>}
