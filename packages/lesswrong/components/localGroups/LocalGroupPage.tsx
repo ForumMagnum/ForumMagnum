@@ -222,7 +222,8 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
   const {
     HeadTags, CommunityMapWrapper, SingleColumnSection, SectionTitle, PostsList2,
     Loading, SectionButton, NotifyMeButton, SectionFooter, GroupFormLink, ContentItemBody,
-    Error404, CloudinaryImage2, EventCards, LoadMore, ContentStyles, Typography
+    Error404, CloudinaryImage2, EventCards, LoadMore, ContentStyles, Typography,
+    HoverOver,
   } = Components
 
   const { document: group, loading: groupLoading } = useSingle({
@@ -420,9 +421,13 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
             <SectionFooter className={classes.organizerActions}>
               {canCreateEvent &&
                 (!isEAForum || isAdmin || isGroupAdmin) && <SectionButton>
-                  <Link to={`/newPost?${qs.stringify({eventForm: true, groupId})}`}>
-                    New event
-                  </Link>
+                  <HoverOver title={<div>
+                    Note: If this is a recurring event, you might want to open the menu on a previous event and choose Duplicate Event.
+                  </div>}>
+                    <Link to={`/newPost?${qs.stringify({eventForm: true, groupId})}`}>
+                      New event
+                    </Link>
+                  </HoverOver>
                 </SectionButton>}
               {canEditGroup &&
                 (!isEAForum || isAdmin || isGroupAdmin ) &&
