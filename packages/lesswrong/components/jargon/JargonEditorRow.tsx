@@ -25,22 +25,8 @@ const styles = (theme: ThemeType) => ({
       opacity: .5
     }
   },
-  toggleAndEdit: {
-    marginRight: 8,
-  },
   unapproved: {
     opacity: .5,
-  },
-  explanation: {
-    fontSize: '1.1rem',
-    marginBottom: 0,
-    marginTop: 0,
-  },
-  input: {
-    flexGrow: 1,
-    marginRight: 8,
-  },
-  toggleSwitch: {
   },
   editButton: {
     cursor: 'pointer',
@@ -146,6 +132,12 @@ const styles = (theme: ThemeType) => ({
     height: 30,
     paddingRight: 28,
     paddingLeft: 22,
+  },
+  instancesOfJargonCount: {
+    width: 30,
+    textAlign: 'center', 
+    whiteSpace: 'nowrap',
+    color: theme.palette.grey[600],
   }
 });
 
@@ -187,12 +179,12 @@ const JargonSubmitButton = ({ submitForm, cancelCallback, classes }: FormButtonP
 
 // Jargon editor row
 
-export const JargonEditorRow = ({classes, postId, jargonTerm}: {
+export const JargonEditorRow = ({classes, postId, jargonTerm, instancesOfJargonCount}: {
   classes: ClassesType<typeof styles>,
   postId: string,
   jargonTerm?: JargonTerms,
+  instancesOfJargonCount?: number,
 }) => {
-  const { JargonTooltip, WrappedSmartForm, ContentItemBody } = Components;
 
   const [edit, setEdit] = useState(false);
 
@@ -234,6 +226,7 @@ export const JargonEditorRow = ({classes, postId, jargonTerm}: {
       }
     })
   }
+  const { JargonTooltip, WrappedSmartForm, ContentItemBody, LWTooltip } = Components;
 
   const jargonDefinition = jargonTerm?.contents?.originalContents?.data ?? '';
 
@@ -270,35 +263,20 @@ export const JargonEditorRow = ({classes, postId, jargonTerm}: {
           />
         </div>
       : <div className={classNames(classes.explanationContainer, !jargonTerm.approved && classes.unapproved)} onClick={() => setEdit(true)}>
-        <JargonTooltip term={jargonTerm.term} definitionHTML={jargonTerm.contents?.html ?? ''} altTerms={jargonTerm.altTerms ?? []} humansAndOrAIEdited={jargonTerm.humansAndOrAIEdited} replacedSubstrings={[]} placement="bottom-end">
-          <ContentItemBody dangerouslySetInnerHTML={{ __html: jargonTerm.contents?.html ?? '' }} />
-        </JargonTooltip>
+          <JargonTooltip term={jargonTerm.term} definitionHTML={jargonDefinition} altTerms={jargonTerm.altTerms ?? []} humansAndOrAIEdited={jargonTerm.humansAndOrAIEdited} replacedSubstrings={[]} placement="bottom-end">
+            <ContentItemBody dangerouslySetInnerHTML={{ __html: jargonDefinition }} />
+          </JargonTooltip>
         </div>}
-      {/* <div className={classes.altTerms}>
-        {jargonTerm.altTerms?.map((altTerm) => <div key={altTerm}>{altTerm}</div>)}
-      </div> */}
-    {/* {!edit && <div className={classes.bottomButtons}>
-      <LWTooltip title={<div>Remove from list</div>} placement="bottom">
+      <LWTooltip title={<div>{jargonTerm.term} is used {instancesOfJargonCount} times in this post</div>} placement="right">
+        <div className={classNames(classes.instancesOfJargonCount, !jargonTerm.approved && classes.unapproved)}>
+          {instancesOfJargonCount}
+        </div>
+      </LWTooltip>
+      <LWTooltip title={<div><div>Remove from list</div><div><em>(You can unhide it later)</em></div></div>} placement="right">
         <span onClick={() => handleDelete()} className={classes.bottomButton}>
-          HIDE
+          x
         </span>
-      </LWTooltip>
-      {jargonTerm.approved && <LWTooltip title={"Don't show this tooltip on your post"} placement="bottom">
-        <span onClick={() => handleActiveChange()} className={classes.bottomButton}>
-          UNAPPROVE
-        </span>
-      </LWTooltip>}
-      {!jargonTerm.approved && <LWTooltip title="Show this tooltip on your post" placement="bottom">
-        <span onClick={() => handleActiveChange()} className={classes.bottomButton}>
-          APPROVE
-        </span>
-      </LWTooltip>}
-      <LWTooltip title="Edit term/definition" placement="bottom">
-        <span onClick={() => setEdit(true)} className={classes.bottomButton}>
-          EDIT
-        </span>
-      </LWTooltip>
-    </div>} */}
+      </LWTooltip>  
   </div>
 }
 

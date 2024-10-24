@@ -59,7 +59,7 @@ export const defaultExampleGlossary: { glossaryItems: ExampleJargonGlossaryEntry
 const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
-    marginTop: -16,
+    marginTop: -8,
     marginBottom: -16,
   },
   window: {
@@ -118,6 +118,7 @@ const styles = (theme: ThemeType) => ({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 12,
+    paddingTop: 8,
     paddingBottom: 8,
     borderBottom: theme.palette.border.faint,
     marginBottom: 4,
@@ -195,17 +196,17 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     fragmentName: 'JargonTerms',
   })
 
-  const sortedGlossary = [...glossary].sort((a, b) => {
-    return a.term.length - b.term.length;
-    // const termA = a.term.toLowerCase();
-    // const termB = b.term.toLowerCase();
-    // if (termA < termB) return -1;
-    // if (termA > termB) return 1;
-    return 0;
+  const glossaryWithInstanceCounts = glossary.map((item) => {
+    const jargonVariants = [item.term.toLowerCase(), ...(item.altTerms ?? []).map(altTerm => altTerm.toLowerCase())];
+    const instancesOfJargonCount = document.contents?.html?.toLowerCase().match(new RegExp(jargonVariants.join('|'), 'g'))?.length ?? 0;
+    return { ...item, instancesOfJargonCount };
+  }).sort((a, b) => {
+    return b.instancesOfJargonCount - a.instancesOfJargonCount;
   });
 
-  const deletedTerms = sortedGlossary.filter((item) => item.deleted);
-  const nonDeletedTerms = sortedGlossary.filter((item) => !item.deleted);
+
+  const deletedTerms = glossaryWithInstanceCounts.filter((item) => item.deleted);
+  const nonDeletedTerms = glossaryWithInstanceCounts.filter((item) => !item.deleted);
   const sortedApprovedTerms = nonDeletedTerms.filter((item) => item.approved);
   const sortedUnapprovedTerms = nonDeletedTerms.filter((item) => !item.approved);
 
@@ -296,7 +297,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     }
   }
   
-  const { JargonEditorRow, LoadMore, Loading, LWTooltip, JargonTocItem, Row, WrappedSmartForm } = Components;
+  const { JargonEditorRow, LoadMore, Loading, LWTooltip, WrappedSmartForm, IconRight, IconDown } = Components;
 
   const promptEditor = <div>
     <TextField
@@ -350,6 +351,13 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     />
   </div>
 
+  const expandCollapseButton = <div className={classes.button} onClick={() => setExpanded(!expanded)}>
+    {expanded 
+      ? <>COLLAPSE <IconRight height={16} width={16} /></>
+      : <>EXPAND <IconDown height={16} width={16} /></>
+    }
+  </div>
+
   const header = <div className={classes.header}>
     <LWTooltip title="Enable all glossary hoverovers for readers of this post">
       <div className={classNames(classes.approveAllButton, sortedApprovedTerms.length !== 0 && classes.disabled)} 
@@ -363,7 +371,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
         DISABLE ALL
       </div>
     </LWTooltip>
-    <LWTooltip title={<div><p>Hide all terms that aren't currently enabled (you can unhide them later)</p><p>{sortedUnapprovedTerms.map((item) => item.term).join(", ")}</p></div>}>
+    <LWTooltip title={<div><p>Hide all terms that aren't currently enabled</p><p>(you can unhide them later)</p></div>}>
       <div className={classNames(classes.approveAllButton, sortedUnapprovedTerms.length === 0 && classes.disabled)} onClick={handleDeleteUnused}>HIDE DISABLED TERMS</div>
     </LWTooltip>
     {deletedTerms.length > 0 && <LWTooltip title="Unhide all deleted terms">
@@ -371,48 +379,41 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
         UNHIDE ALL ({deletedTerms.length})
       </div>
     </LWTooltip>}
-    <div className={classes.button} onClick={() => setExpanded(!expanded)}>
-      {expanded 
-      ? "COLLAPSE"
-      : "EXPAND"
-    }
+    {expanded && expandCollapseButton}
+  </div>
+
+  const footer = <div className={classes.buttonRow}>
+    <Button onClick={() => addNewJargonTerms({glossaryPrompt, examplePost, exampleTerm, exampleAltTerm, exampleDefinition})} className={classes.generateButton}>Generate new terms</Button>
+    <div className={classes.approveAllButton}>
+      <LWTooltip title="Make changes to the jargon generator LLM prompt">
+        <div className={classes.approveAllButton} onClick={() => setEditingPrompt(!editingPrompt)}>{editingPrompt ? "SAVE PROMPT" : "EDIT PROMPT"}</div>
+      </LWTooltip>
     </div>
+    {expandCollapseButton}
+    {mutationLoading && <Loading/>}
+    {mutationLoading && <div>(Loading... warning, this will take 30-60 seconds)</div>}
   </div>
 
   return <div className={classes.root}>
     {showTitle && <h2>Glossary [Beta]<LWTooltip title="Beta feature! Select/edit terms below, and readers will be able to hover over and read the explanation.">  </LWTooltip></h2>}
-    {/* {!showTitle && <br/>} */}
-
-    <LoadMore {...loadMoreProps} />
     {header}
-
-    {/* <div> */}
     <div className={classNames(classes.window, expanded && classes.expanded)}>
-      {/* <div className={classes.termsList}>
-        {nonDeletedTerms.map((item) => {
-          let sizeClass = classes.smallTerm;
-          if (item.term.length > 20) sizeClass = classes.mediumTerm;
-          return <div key={item._id} className={sizeClass}><JargonTocItem jargonTerm={item}/></div>
-        })}
-      </div> */}
       <div>
         {showNewJargonTermForm && <JargonEditorRow key={'newJargonTermForm'} postId={document._id} />}
-        {nonDeletedTerms.map((item) => <JargonEditorRow key={item._id} postId={document._id} jargonTerm={item}/>)}
+        {nonDeletedTerms.map((item) => {
+          return <JargonEditorRow key={item._id} postId={document._id} jargonTerm={item} instancesOfJargonCount={item.instancesOfJargonCount}/>
+        })}
+        {deletedTerms.length > 0 && <div className={classes.button} onClick={() => setShowDeletedTerms(!showDeletedTerms)}>
+          {showDeletedTerms ? "Hide deleted terms" : `Show deleted terms (${deletedTerms.length})`}
+        </div>}
+        {deletedTerms.length > 0 && showDeletedTerms && deletedTerms.map((item) => {
+          return <JargonEditorRow key={item._id} postId={document._id} jargonTerm={item} instancesOfJargonCount={item.instancesOfJargonCount}/>
+        })}
+
       </div>
+      <LoadMore {...loadMoreProps} />
     </div>
-    <div className={classes.buttonRow}>
-      <Button onClick={() => addNewJargonTerms({glossaryPrompt, examplePost, exampleTerm, exampleAltTerm, exampleDefinition})} className={classes.generateButton}>Generate new terms</Button>
-      <div className={classes.approveAllButton}>
-        <LWTooltip title="Make changes to the jargon generator LLM prompt">
-          <div className={classes.approveAllButton} onClick={() => setEditingPrompt(!editingPrompt)}>{editingPrompt ? "SAVE PROMPT" : "EDIT PROMPT"}</div>
-        </LWTooltip>
-      </div>
-      {expanded && <div className={classes.button} onClick={() => setExpanded(!expanded)}>
-        COLLAPSE
-      </div>}
-      {mutationLoading && <Loading/>}
-      {mutationLoading && <div>(Loading... warning, this will take 30-60 seconds)</div>}
-    </div>
+    {footer}
     {editingPrompt && promptEditor}
 
   </div>;
