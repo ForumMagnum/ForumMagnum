@@ -223,7 +223,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
     HeadTags, CommunityMapWrapper, SingleColumnSection, SectionTitle, PostsList2,
     Loading, SectionButton, NotifyMeButton, SectionFooter, GroupFormLink, ContentItemBody,
     Error404, CloudinaryImage2, EventCards, LoadMore, ContentStyles, Typography,
-    HoverOver,
+    HoverOver, LocalGroupSubscribers
   } = Components
 
   const { document: group, loading: groupLoading } = useSingle({
@@ -430,8 +430,8 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
                   </HoverOver>
                 </SectionButton>}
               {canEditGroup &&
-                (!isEAForum || isAdmin || isGroupAdmin ) &&
-                <GroupFormLink documentId={groupId} />
+                (!isEAForum || isAdmin || isGroupAdmin) &&
+                  <GroupFormLink documentId={groupId} />
               }
             </SectionFooter>
           </div>
@@ -527,6 +527,8 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
         {tbdEventsList}
 
         {pastEventsList}
+        
+        {(isAdmin || isGroupAdmin) && <LocalGroupSubscribers groupId={groupId}/>}
       </SingleColumnSection>
     </div>
   )

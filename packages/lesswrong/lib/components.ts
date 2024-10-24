@@ -599,6 +599,7 @@ importComponent("DistanceUnitToggle", () => require('../components/community/mod
 importComponent(["SearchResultsMap", "RawSearchResultsMap"], () => require('../components/community/modules/SearchResultsMap'));
 // this is the previous Community page, used by LW
 importComponent("CommunityHome", () => require('../components/localGroups/CommunityHome'));
+importComponent("LocalGroupSubscribers", () => require('../components/localGroups/LocalGroupSubscribers'));
 importComponent(["CommunityMap", "PersonalMapLocationMarkers"], () => require('../components/localGroups/CommunityMap'));
 importComponent("CommunityMapFilter", () => require('../components/localGroups/CommunityMapFilter'));
 importComponent("CommunityMapWrapper", () => require('../components/localGroups/CommunityMapWrapper'));

@@ -1,5 +1,6 @@
 import { Subscriptions } from "./collection"
 import { ensureIndex } from '../../collectionIndexUtils';
+import { subscriptionTypes } from "./schema";
 
 declare global {
   interface SubscriptionsViewTerms extends ViewTermsBase {
@@ -12,8 +13,6 @@ declare global {
   }
 }
 
-
-//Messages for a specific conversation
 Subscriptions.addView("subscriptionState", function (terms: SubscriptionsViewTerms) {
   const { userId, documentId, collectionName, type} = terms
   return {
@@ -35,3 +34,21 @@ Subscriptions.addView("subscriptionsOfType", function (terms: SubscriptionsViewT
     options: {sort: {createdAt: -1}}
   };
 });
+
+Subscriptions.addView("membersOfGroup", (terms) => {
+  const { documentId } = terms;
+  return {
+    selector: {
+      documentId,
+      type: subscriptionTypes.newEvents,
+      deleted: false,
+      state: "subscribed",
+    },
+    options: {
+      sort: {
+        createdAt: -1,
+      },
+    },
+  };
+});
+
