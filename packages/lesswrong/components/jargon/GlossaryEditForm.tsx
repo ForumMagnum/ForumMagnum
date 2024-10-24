@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Components, fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
+import { Components, fragmentTextForQuery, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { useMutation, gql } from '@apollo/client';
 import { useMulti } from '@/lib/crud/withMulti';
 import Button from '@material-ui/core/Button';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import classNames from 'classnames';
 import TextField from '@material-ui/core/TextField';
+import { formStyles } from './JargonEditorRow';
 
 export const defaultGlossaryPrompt = `You're a Glossary AI. Your goal is to make good explanations for technical jargon terms. You are trying to produce a useful hoverover tooltip in an essay on LessWrong.com, accessible to a smart, widely read layman. 
 
@@ -160,6 +161,15 @@ const styles = (theme: ThemeType) => ({
   promptTextField: {
     marginTop: 12,
     marginBottom: 12,
+  },
+  formStyles: {
+    ...formStyles
+  },
+  newTermButton: {
+    cursor: 'pointer',
+    padding: 10,
+    fontSize: '1.1rem',
+    borderBottom: theme.palette.border.faint,
   }
 });
 
@@ -178,6 +188,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   const [exampleAltTerm, setExampleAltTerm] = useState<string | undefined>(defaultExampleAltTerm);
   const [exampleDefinition, setExampleDefinition] = useState<string | undefined>(defaultExampleDefinition);
 
+  const [showNewJargonTermForm, setShowNewJargonTermForm] = useState(false);
   const [editingPrompt, setEditingPrompt] = useState(false);
   
   const { results: glossary = [], loadMoreProps, refetch } = useMulti({
@@ -295,7 +306,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     }
   }
   
-  const { JargonEditorRow, LoadMore, Loading, LWTooltip, WrappedSmartForm, IconRight, IconDown } = Components;
+  const { JargonEditorRow, LoadMore, Loading, LWTooltip, WrappedSmartForm, IconRight, IconDown, ForumIcon } = Components;
 
   const promptEditor = <div>
     <TextField
@@ -357,6 +368,9 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   </div>
 
   const header = <div className={classes.header}>
+    <LWTooltip title="Add a new term to the glossary">
+      <ForumIcon className={classes.newTermButton} onClick={() => setShowNewJargonTermForm(true)} icon="PlusIcon"/>
+    </LWTooltip>
     <LWTooltip title="Enable all glossary hoverovers for readers of this post">
       <div className={classNames(classes.approveAllButton, sortedApprovedTerms.length !== 0 && classes.disabled)} 
         onClick={() => handleSetApproveAll(true)}>
@@ -397,7 +411,20 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     {header}
     <div className={classNames(classes.window, expanded && classes.expanded)}>
       <div>
-        {showNewJargonTermForm && <JargonEditorRow key={'newJargonTermForm'} postId={document._id} />}
+        {showNewJargonTermForm && <div className={classes.root}>
+          <div className={classes.formStyles}>
+            <WrappedSmartForm
+              collectionName="JargonTerms"
+              mutationFragment={getFragment('JargonTerms')}
+              queryFragment={getFragment('JargonTerms')}
+              formComponents={{ FormSubmit: Components.JargonSubmitButton }}
+              prefilledProps={{ postId: document._id }}
+              cancelCallback={() => setShowNewJargonTermForm(false)}
+              successCallback={() => setShowNewJargonTermForm(false)}
+            />
+          </div>
+        </div>}
+        {!showNewJargonTermForm && <div className={classes.newTermButton} onClick={() => setShowNewJargonTermForm(true)}>New Term</div>}
         {nonDeletedTerms.map((item) => {
           return <JargonEditorRow key={item._id} postId={document._id} jargonTerm={item} instancesOfJargonCount={item.instancesOfJargonCount}/>
         })}

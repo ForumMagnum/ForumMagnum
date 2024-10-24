@@ -6,7 +6,25 @@ import { useUpdate } from '@/lib/crud/withUpdate';
 import Button from '@material-ui/core/Button';
 import Checkbox from '@material-ui/core/Checkbox';
 
-const APPROVED_PADDING = 10;
+export const formStyles = {
+  '& .form-section-default > div': {
+    display: "flex",
+    flexWrap: "wrap",
+  },
+  '& .ContentStyles-commentBody': {
+    fontSize: '1.1rem',
+  },
+  '& .form-component-EditorFormComponent': {
+    marginBottom: 0,
+    width: '100%',
+  },
+  '& .form-component-default, & .MuiTextField-textField': {
+    marginBottom: 0,
+    marginTop: 0,
+    width: 150,
+    marginRight: 20
+  },
+}
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -95,24 +113,8 @@ const styles = (theme: ThemeType) => ({
       opacity: 1
     }
   },
-  formStyles: {
-    '& .form-section-default > div': {
-      display: "flex",
-      flexWrap: "wrap",
-    },
-    '& .ContentStyles-commentBody': {
-      fontSize: '1.1rem',
-    },
-    '& .form-component-EditorFormComponent': {
-      marginBottom: 0,
-      width: '100%',
-    },
-    '& .form-component-default, & .MuiTextField-textField': {
-      marginBottom: 0,
-      marginTop: 0,
-      width: 150,
-      marginRight: 20
-    },
+  formStyles: { 
+    ...formStyles
   },
   explanationContainer: {
     cursor: 'text',
@@ -184,7 +186,7 @@ const JargonSubmitButton = ({ submitForm, cancelCallback, classes }: FormButtonP
 export const JargonEditorRow = ({classes, postId, jargonTerm, instancesOfJargonCount}: {
   classes: ClassesType<typeof styles>,
   postId: string,
-  jargonTerm?: JargonTerms,
+  jargonTerm: JargonTerms,
   instancesOfJargonCount?: number,
 }) => {
 
@@ -235,22 +237,6 @@ export const JargonEditorRow = ({classes, postId, jargonTerm, instancesOfJargonC
   const { JargonTooltip, WrappedSmartForm, ContentItemBody, LWTooltip } = Components;
 
   const jargonDefinition = jargonTerm?.contents?.originalContents?.data ?? '';
-
-  if (!jargonTerm) {
-    // TODO: implement validation for new terms; they should be present in the post, and not already exist as a term on the post.
-    // That should probably be in a validation callback, but can do client-side validation as well.
-    return <div className={classes.root}>
-      <div className={classes.formStyles}>
-        <WrappedSmartForm
-          collectionName="JargonTerms"
-          mutationFragment={getFragment('JargonTerms')}
-          queryFragment={getFragment('JargonTerms')}
-          formComponents={{ FormSubmit: Components.JargonSubmitButton }}
-          prefilledProps={{ postId }}
-        />
-      </div>
-    </div>;
-  }
 
   return <div className={classes.root}>
       <div onClick={handleActiveChange}>
