@@ -1,6 +1,7 @@
-import config from "./jest.config";
+import config, { IGNORE_PATHS } from "./jest.config";
 
-const base = "packages/lesswrong/unitTests";
+const dir = "/unitTests";
+const base = `packages/lesswrong${dir}`;
 
 export default {
   ...config,
@@ -16,6 +17,6 @@ export default {
   coverageDirectory: "<rootDir>/unit-coverage/",
   coveragePathIgnorePatterns: [
     ...config.coveragePathIgnorePatterns,
-    "/integrationTests/",
+    ...IGNORE_PATHS.filter(p => !p.startsWith(dir)),
   ],
 };
