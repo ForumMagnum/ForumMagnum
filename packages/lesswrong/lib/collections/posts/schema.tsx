@@ -42,6 +42,8 @@ import { stableSortTags } from '../tags/helpers';
 import { getLatestContentsRevision } from '../revisions/helpers';
 import { marketInfoLoader } from './annualReviewMarkets';
 import { getUnusedSlugByCollectionName } from '@/lib/helpers';
+import mapValues from 'lodash/mapValues';
+import groupBy from 'lodash/groupBy';
 
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
@@ -1084,6 +1086,15 @@ const schema: SchemaType<"Posts"> = {
     // TODO: how to remove people without db access?
     hidden: true,
   },
+  
+  rsvpCounts: resolverOnlyField({
+    type: "Object",
+    graphQLtype: "JSON!",
+    canRead: ['guests'],
+    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+      return mapValues(groupBy(post.rsvps, rsvp=>rsvp.response), v=>v.length);
+    }
+  }),
   
   'rsvps.$': {
     type: rsvpType,

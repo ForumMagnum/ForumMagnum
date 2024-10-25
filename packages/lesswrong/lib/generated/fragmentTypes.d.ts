@@ -1213,6 +1213,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly annualReviewMarketYear: number|null,
   readonly annualReviewMarketUrl: string|null,
   readonly group: PostsBase_group|null,
+  readonly rsvpCounts: any /*JSON*/,
   readonly podcastEpisodeId: string | null,
   readonly forceAllowType3Audio: boolean,
   readonly nominationCount2019: number,
