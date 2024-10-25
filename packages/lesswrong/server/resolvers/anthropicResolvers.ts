@@ -4,7 +4,6 @@ import { getEmbeddingsFromApi } from "../embeddings";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { generateContextSelectionPrompt, CLAUDE_CHAT_SYSTEM_PROMPT, generateTitleGenerationPrompt, generateAssistantContextMessage, 
   CONTEXT_SELECTION_SYSTEM_PROMPT, contextSelectionResponseFormat, LlmPost, BasePromptArgs } from "../languageModels/promptUtils";
-import { filterNonnull, filterWhereFieldsNotNull } from "@/lib/utils/typeGuardUtils";
 import { userHasLlmChat } from "@/lib/betas";
 import { PromptCachingBetaMessageParam, PromptCachingBetaTextBlockParam } from "@anthropic-ai/sdk/resources/beta/prompt-caching/messages";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
