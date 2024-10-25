@@ -450,13 +450,13 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
           </div>
         </div>}
         {nonDeletedTerms.map((item) => {
-          return <JargonEditorRow key={item._id} postId={document._id} jargonTerm={item} instancesOfJargonCount={countInstancesOfJargon(item, document)}/>
+          return <JargonEditorRow key={item._id} jargonTerm={item} instancesOfJargonCount={countInstancesOfJargon(item, document)}/>
         })}
         {deletedTerms.length > 0 && <div className={classes.button} onClick={() => setShowDeletedTerms(!showDeletedTerms)}>
           {showDeletedTerms ? "Hide deleted terms" : `Show deleted terms (${deletedTerms.length})`}
         </div>}
         {deletedTerms.length > 0 && showDeletedTerms && deletedTerms.map((item) => {
-          return <JargonEditorRow key={item._id} postId={document._id} jargonTerm={item} instancesOfJargonCount={countInstancesOfJargon(item, document)}/>
+          return <JargonEditorRow key={item._id} jargonTerm={item} instancesOfJargonCount={countInstancesOfJargon(item, document)}/>
         })}
 
       </div>
