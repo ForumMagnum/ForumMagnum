@@ -251,7 +251,7 @@ const buildSchemaSQL = () => {
   const graph = new Graph();
   graph.addNodes(postgresExtensions.map((e) => new ExtensionNode(e)));
   graph.addNodes(getAllCollections().flatMap((collection) => {
-    const table = Table.fromCollection(collection, 'EAForum');
+    const table = Table.fromCollection(collection);
     const indexes: Node[] = table.getRequestedIndexes().map((i) => new IndexNode(table, i));
     return indexes.concat(new TableNode(table));
   }));
