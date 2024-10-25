@@ -419,7 +419,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
       }
     </div>
     {mutationLoading && <Loading/>}
-    {mutationLoading && <div>(Loading... warning, this will take 30-60 seconds)</div>}
+    {mutationLoading && <div>(Loading... warning, this will take 10-20 seconds.)</div>}
   </div>
 
   return <div className={classes.root}>
