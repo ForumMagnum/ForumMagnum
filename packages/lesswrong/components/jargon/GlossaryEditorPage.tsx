@@ -56,6 +56,7 @@ export const GlossaryEditorPage = ({classes}: {
           <GlossaryEditForm document={post} showTitle={false}/>
         </div>
       </div>)}
+      {posts.length === 0 && <div>No posts found</div>}
       <LoadMore {...loadMoreProps} />
     </SingleColumnSection>
   </div>;
