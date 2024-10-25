@@ -67,6 +67,14 @@ const styles = (theme: ThemeType) => ({
       display: 'none'
     }
   },
+  userNotApprovedMessage: {
+    background: 'none',
+    border: 'none',
+    padding: '10px 10px 0 10px',
+    fontSize: 14,
+    color: theme.palette.grey[600],
+    fontStyle: 'italic',
+  },
 });
 
 // TODO: decide on copy for LW
@@ -126,8 +134,12 @@ const QuickTakesEntry = ({
     return null;
   }
 
+  const userIsNotApproved = !currentUser?.reviewedByUserId;
+
   const {CommentsNewForm} = Components;
   return <div className={classNames(classes.root, className)} ref={ref}>
+    {/* TODO: Write a better message for new users */}
+    {expanded && userIsNotApproved && <div className={classes.userNotApprovedMessage}>Quick Takes is an excellent place for your first contribution!</div>}
     <div
       className={classNames(classes.commentEditor, {[classes.collapsed]: !expanded})}
       onFocus={onFocus}
