@@ -5,6 +5,7 @@ import { useCurrentUser } from '../common/withUser';
 import { userCanViewJargonTerms } from '@/lib/betas';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import classNames from 'classnames';
+import { countInstancesOfJargon } from './utils';
 
 const styles = (theme: ThemeType) => ({
   glossaryAnchor: {
@@ -106,12 +107,6 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[600],
   },
 })
-
-// TODO: maybe sort by first use instead of frequency?
-function countInstancesOfJargon(item: JargonTermsPost, post: PostsWithNavigationAndRevision | PostsWithNavigation) {
-  const jargonVariants = [item.term.toLowerCase(), ...(item.altTerms ?? []).map(altTerm => altTerm.toLowerCase())];
-  return (post.contents?.html ?? "").toLowerCase().match(new RegExp(jargonVariants.join('|'), 'g'))?.length ?? 0;
-};
 
 const GlossarySidebar = ({post, postGlossariesPinned, togglePin, classes}: {
   post: PostsListWithVotes | PostsWithNavigationAndRevision | PostsWithNavigation,

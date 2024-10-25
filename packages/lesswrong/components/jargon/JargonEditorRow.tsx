@@ -29,8 +29,7 @@ export const formStyles = {
 const styles = (theme: ThemeType) => ({
   root: {
     width: '100%',
-    ...commentBodyStyles(theme),
-    pointerEvents: 'undefined',
+    ...commentBodyStyles(theme, true),
     marginTop: 0,
     padding: '0 6px',
     borderBottom: theme.palette.border.commentBorder,

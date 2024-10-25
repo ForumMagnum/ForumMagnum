@@ -7,7 +7,7 @@ import { useUpdate } from '@/lib/crud/withUpdate';
 import classNames from 'classnames';
 import TextField from '@material-ui/core/TextField';
 import { formStyles } from './JargonEditorRow';
-import { gracefulify } from 'graceful-fs';
+import { countInstancesOfJargon } from './utils';
 
 export const defaultGlossaryPrompt = `You're a Glossary AI. Your goal is to make good explanations for technical jargon terms. You are trying to produce a useful hoverover tooltip in an essay on LessWrong.com, accessible to a smart, widely read layman. 
 
@@ -224,21 +224,13 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     fragmentName: 'JargonTerms',
   })
 
-  const glossaryWithInstanceCounts = glossary.map((item) => {
-    const jargonVariants = [item.term, ...(item.altTerms ?? []).map(altTerm => altTerm)];
-
-    // Create a regex to match any of the jargon variants, case-insensitive, while matching whole words
-    const regex = new RegExp(`\\b(${jargonVariants.join('|')})\\b`, 'gi');
-
-    const instancesOfJargonCount = document.contents?.html?.toLowerCase().match(regex)?.length ?? 0;
-    return { ...item, instancesOfJargonCount };
-  }).sort((a, b) => {
-    return b.instancesOfJargonCount - a.instancesOfJargonCount;
+  const sortedGlossary = glossary.sort((a, b) => {
+    return countInstancesOfJargon(b, document) - countInstancesOfJargon(a, document);
   });
 
 
-  const deletedTerms = glossaryWithInstanceCounts.filter((item) => item.deleted);
-  const nonDeletedTerms = glossaryWithInstanceCounts.filter((item) => !item.deleted);
+  const deletedTerms = sortedGlossary.filter((item) => item.deleted);
+  const nonDeletedTerms = sortedGlossary.filter((item) => !item.deleted);
   const sortedApprovedTerms = nonDeletedTerms.filter((item) => item.approved);
   const sortedUnapprovedTerms = nonDeletedTerms.filter((item) => !item.approved);
 
@@ -459,13 +451,13 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
           </div>
         </div>}
         {nonDeletedTerms.map((item) => {
-          return <JargonEditorRow key={item._id} postId={document._id} jargonTerm={item} instancesOfJargonCount={item.instancesOfJargonCount}/>
+          return <JargonEditorRow key={item._id} postId={document._id} jargonTerm={item} instancesOfJargonCount={countInstancesOfJargon(item, document)}/>
         })}
         {deletedTerms.length > 0 && <div className={classes.button} onClick={() => setShowDeletedTerms(!showDeletedTerms)}>
           {showDeletedTerms ? "Hide deleted terms" : `Show deleted terms (${deletedTerms.length})`}
         </div>}
         {deletedTerms.length > 0 && showDeletedTerms && deletedTerms.map((item) => {
-          return <JargonEditorRow key={item._id} postId={document._id} jargonTerm={item} instancesOfJargonCount={item.instancesOfJargonCount}/>
+          return <JargonEditorRow key={item._id} postId={document._id} jargonTerm={item} instancesOfJargonCount={countInstancesOfJargon(item, document)}/>
         })}
 
       </div>
