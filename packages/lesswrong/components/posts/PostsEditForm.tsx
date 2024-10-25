@@ -142,6 +142,7 @@ const PostsEditForm = ({ documentId, version, classes }: {
     addFields.push('tagRelevance');
   }
 
+  // This is a resolver-only field, so we need to add it to the addFields array to get it to show up in the form
   if (userCanCreateAndEditJargonTerms(currentUser)) {
     addFields.push('glossary');
   }
