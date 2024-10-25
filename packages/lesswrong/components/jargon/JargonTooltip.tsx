@@ -30,6 +30,11 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[600],
     fontSize: "0.8em",
     marginRight: 8,
+  },
+  unapprovedLabel: {
+    color: theme.palette.grey[600],
+    fontSize: "0.8em",
+    marginBottom: 8,
   }
 });
 
@@ -58,10 +63,10 @@ export const JargonTooltip = ({definitionHTML, approved, altTerms, humansAndOrAI
   }
 
   const tooltip = <Card className={classes.card}>
+    {!approved && <div className={classes.unapprovedLabel}>Unapproved [admin only]</div>}
     <ContentItemBody
       dangerouslySetInnerHTML={{ __html: definitionHTML }}
     />
-    {!approved && <div>Unapproved [admin only]</div>}
     <div className={classes.altTerms}>
       <div>
         {altTerms.map((term: string) => (

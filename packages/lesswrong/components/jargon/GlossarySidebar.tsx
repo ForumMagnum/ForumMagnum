@@ -1,6 +1,5 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib/components';
-import { jargonTermsToTextReplacements } from './JargonTooltip';
 import { useCurrentUser } from '../common/withUser';
 import { userCanViewJargonTerms } from '@/lib/betas';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
@@ -104,7 +103,7 @@ const styles = (theme: ThemeType) => ({
     pointerEvents: 'none',
   },
   unapproved: {
-    color: theme.palette.grey[600],
+    color: theme.palette.grey[400],
   },
 })
 

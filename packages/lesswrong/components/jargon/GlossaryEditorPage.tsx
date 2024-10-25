@@ -1,12 +1,9 @@
 // TODO: Import component in components.ts
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useTracking } from "../../lib/analyticsEvents";
 import { useMulti } from '@/lib/crud/withMulti';
-import groupBy from 'lodash/groupBy';
 import { useCurrentUser } from '../common/withUser';
-import { ContentItemBody } from '../common/ContentItemBody';
-import { userCanCreateAndEditJargonTerms } from '@/lib/betas';
+import { userWillPassivelyGenerateJargonTerms } from '@/lib/betas';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -35,17 +32,17 @@ export const GlossaryEditorPage = ({classes}: {
     collectionName: "Posts",
     fragmentName: 'PostsPage',
   })
+
+  const { GlossaryEditForm, SingleColumnSection, PostsTitle, LoadMore, SectionTitle, ContentStyles, ErrorAccessDenied } = Components
+
   if (!currentUser) {
-    return <div>You must be logged in to view this page.</div>;
+    return <SingleColumnSection><ErrorAccessDenied/></SingleColumnSection>;
   }
-  if (!userCanCreateAndEditJargonTerms(currentUser)) {
-    return <div>
-      Currently, the Glossary Editor is only available to users with over 1000 karma.
-    </div>;
+  if (!userWillPassivelyGenerateJargonTerms(currentUser)) {
+    return <SingleColumnSection>
+      Currently, the Glossary Editor is only available to users with over 100 karma.
+    </SingleColumnSection>;
   }
-
-  const { GlossaryEditForm, SingleColumnSection, PostsTitle, LoadMore, SectionTitle, ContentStyles } = Components
-
 
   return <div className={classes.root}>
     <SingleColumnSection>
@@ -59,6 +56,7 @@ export const GlossaryEditorPage = ({classes}: {
           <GlossaryEditForm document={post} showTitle={false}/>
         </div>
       </div>)}
+      {posts.length === 0 && <div>No posts found</div>}
       <LoadMore {...loadMoreProps} />
     </SingleColumnSection>
   </div>;
