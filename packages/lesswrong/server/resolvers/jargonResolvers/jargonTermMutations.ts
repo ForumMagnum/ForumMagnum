@@ -148,7 +148,6 @@ function sanitizeJargonTerms(jargonTerms: LLMGeneratedJargonTerm[]) {
 // }
 
 export const queryClaudeForTerms = async (markdown: string) => {
-  console.log(`I'm pinging Claude for terms!`)
   const client = getAnthropicPromptCachingClientOrThrow(jargonBotClaudeKey.get());
   const messages = [{
     role: "user" as const, 
@@ -169,6 +168,7 @@ The jargon terms are:`
   });
 
   if (termsResponse.content[0].type === "text") {
+    // eslint-disable-next-line no-console
     console.error(`Claude responded with text, but we expected a tool use.`)
     return [];
   }
@@ -176,6 +176,7 @@ The jargon terms are:`
   const responseContent = termsResponse.content[0]?.input;
   const parsedResponse = jargonTermListResponseSchema.safeParse(responseContent);
   if (!parsedResponse.success) {
+    // eslint-disable-next-line no-console
     console.error(`Claude's response when getting jargon terms doesn't match the expected format.`)
     return [];
   }
@@ -265,37 +266,7 @@ async function createSingleExplanationMessageWithExample({markdown, term, toolUs
   }];
 }
 
-// export const queryClaudeForJargonExplanations = async ({ markdown, terms }: JargonTermsExplanationQueryParams): Promise<LLMGeneratedJargonTerm[]> => {
-//   console.log(`I'm pinging Claude for jargon explanations!`)
-//   const client = getAnthropicPromptCachingClientOrThrow(jargonBotClaudeKey.get());
-//   const messages: PromptCachingBetaMessageParam[] = await createExplanationMessagesWithExample(markdown, terms);
-
-//   const response = await client.messages.create({
-//     model: "claude-3-5-sonnet-20240620",
-//     max_tokens: 5000,
-//     messages,
-//     tools: [generateJargonGlossaryTool],
-//     tool_choice: { type: "tool", name: "generate_jargon_glossary" }
-//   });
-
-//   if (response.content[0].type === "text") {
-//     console.error(`Claude responded with text, but we expected a tool use.`)
-//     return [];
-//   }
-
-//   const responseContent = response.content[0]?.input;
-//   const validatedTerms = jargonGlossarySchema.safeParse(responseContent);
-//   if (!validatedTerms.success) {
-//     console.error('Invalid jargon terms:', validatedTerms.error);
-//     return [];
-//   }
-//   const parsedJargonTerms = validatedTerms.data.glossaryItems;
-//   return sanitizeJargonTerms(parsedJargonTerms);
-// }
-
 const queryClaudeForSingleJargonExplanation = async ({ markdown, term, toolUseId, glossaryPrompt, examplePost, exampleTerm, exampleAltTerm, exampleDefinition }: SingleJargonTermExplanationQueryParams): Promise<LLMGeneratedJargonTerm | null> => {
-  console.log(`Pinging Claude for term ${term}!`);
-  console.time(`Generating term ${term}`);
   const client = getAnthropicPromptCachingClientOrThrow(jargonBotClaudeKey.get());
   const messages: PromptCachingBetaMessageParam[] = await createSingleExplanationMessageWithExample({markdown, term, toolUseId, glossaryPrompt, examplePost, exampleTerm, exampleAltTerm, exampleDefinition});
 
@@ -325,104 +296,12 @@ const queryClaudeForSingleJargonExplanation = async ({ markdown, term, toolUseId
   return sanitizeJargonTerms([parsedJargonTerm])[0];
 }
 
-// const getExamplePost = (() => {
-//   let examplePostContents: string;
-
-//   return async (documentTitle: string) => {
-//     if (!examplePostContents) {
-//       const pathName = `./public/${documentTitle}`
-//       examplePostContents = (await readFile(pathName)).toString()
-//     }
-
-//     return examplePostContents;
-//   };
-// })();
-
-
-// async function getNewJargonTerms(post: PostsPage, user: DbUser ) {
-//   if (!userIsAdmin(user)) {
-//     return null;
-//   }
-
-//   const contents = post.contents;
-//   const originalHtml = contents?.html ?? ""
-//   const originalMarkdown = htmlToMarkdown(originalHtml)
-//   const markdown = (originalMarkdown.length < 200_000) ? originalMarkdown : originalMarkdown.slice(0, 200_000)
-
-//   const terms = await queryClaudeForTerms(markdown)
-//   if (!terms) return null
-  
-//   return queryClaudeForJargonExplanations({ markdown, terms });
-// }
-
-// these functions are used to create jargonTerms explaining LaTeX terms from a post
-
-// export function identifyLatexTerms(htmlContent: string): string {
-//   // Regular expression to match aria-label attributes
-//   const ariaLabelRegex = /aria-label="([^"]*)"/g;
-  
-//   // Regular expression to match common LaTeX patterns
-//   const latexPattern = /\\[a-zA-Z]+|[_^{}]|\$/;
-  
-//   // Array to store results
-//   const results: string[] = [];
-  
-//   let match;
-//   while ((match = ariaLabelRegex.exec(htmlContent)) !== null) {
-//     const ariaLabel = match[1];
-//     if (latexPattern.test(ariaLabel)) {
-//       results.push(ariaLabel);
-//     }
-//   }
-  
-//   return results.join(",");
-// }
-
-
-// const getMathExample = (() => {
-//   let examplePostContents: string;
-
-//   return async () => {
-//     if (!examplePostContents) {
-//       const pathName = './public/exampleMathPost.md'
-//       examplePostContents = (await readFile(pathName)).toString()
-//     }
-
-//     return examplePostContents;
-//   };
-// })();
-
-
-// export async function getLaTeXExplanations(post: PostsPage) {
-//   const originalHtml = post.contents?.html ?? ""
-//   const originalMarkdown = htmlToMarkdown(originalHtml)
-//   const markdown = (originalMarkdown.length < 200 * 1000) ? originalMarkdown : originalMarkdown.slice(0, 200 * 1000)
-
-//   const terms = identifyLatexTerms(originalHtml)
-//   const exampleMathPost = await getMathExample();
-
-//   const response = await queryClaudeForJargonExplanations({markdown, terms, formatPrompt: mathFormatPrompt, examplePost: exampleMathPost, exampleExplanations: exampleMathGlossary});
-
-//   return response?.map(jargon => ({
-//     term: jargon.term,
-//     text: `<div>
-//       <p>${jargon.htmlContent}</p>
-//       <p><strong>Concrete Example:</strong> ${jargon.concreteExample}</p>
-//       <p><strong>Why It Matters:</strong> ${jargon.whyItMatters}</p>
-//       <p><em>Math Basics: ${jargon.mathBasics}</em></p>
-//     </div>`,
-//     altTerms: jargon.altTerms,
-//   }))
-// }
-
 export async function createEnglishExplanations({post, excludeTerms, glossaryPrompt, examplePost, exampleTerm, exampleAltTerm, exampleDefinition}: {post: PostsPage, excludeTerms: string[], glossaryPrompt?: string, examplePost?: string, exampleTerm?: string, exampleAltTerm?: string, exampleDefinition?: string}): Promise<LLMGeneratedJargonTerm[]> {
   const originalHtml = post.contents?.html ?? "";
   const originalMarkdown = htmlToMarkdown(originalHtml);
   const markdown = (originalMarkdown.length < 200_000) ? originalMarkdown : originalMarkdown.slice(0, 200_000);
 
-  console.time('queryClaudeForTerms');
   const terms = await queryClaudeForTerms(markdown);
-  console.timeEnd('queryClaudeForTerms');
   if (!terms.length) {
     return [];
   }
@@ -432,9 +311,7 @@ export async function createEnglishExplanations({post, excludeTerms, glossaryPro
 
   // return queryClaudeForJargonExplanations({ markdown, terms: newTerms });
   const toolUseId = randomId();
-  console.time('query Claude for all explanations');
   const explanations = await Promise.all(terms.map((term) => queryClaudeForSingleJargonExplanation({ markdown, term, toolUseId, glossaryPrompt, examplePost, exampleTerm, exampleAltTerm, exampleDefinition })));
-  console.timeEnd('query Claude for all explanations');
   return filterNonnull(explanations);
 }
 
@@ -474,11 +351,8 @@ export const createNewJargonTerms = async (postId: string, currentUser: DbUser, 
     newJargonTerms = await executeWithLock(rawLockId, async () => {
       const newEnglishJargon = await createEnglishExplanations({post, excludeTerms: termsToExclude, glossaryPrompt, examplePost, exampleTerm, exampleAltTerm, exampleDefinition});
 
-      console.time('getAdminTeamAccount');
       const botAccount = await getAdminTeamAccount();
-      console.timeEnd('getAdminTeamAccount');
       
-      console.time('term createMutators');
       const createdTerms = await Promise.all([
         ...newEnglishJargon.map((term) =>
           createMutator({
@@ -516,7 +390,7 @@ export const createNewJargonTerms = async (postId: string, currentUser: DbUser, 
           })
         ),
       ]);
-      console.timeEnd('term createMutators');
+      
       return createdTerms;
     });
   } catch (err) {
