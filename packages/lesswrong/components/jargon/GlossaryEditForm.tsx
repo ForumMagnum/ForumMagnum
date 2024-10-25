@@ -223,11 +223,10 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     collectionName: "JargonTerms",
     fragmentName: 'JargonTerms',
   })
-
-  const sortedGlossary = glossary.sort((a, b) => {
+  console.log(glossary);
+  const sortedGlossary = [...glossary].sort((a, b) => {
     return countInstancesOfJargon(b, document) - countInstancesOfJargon(a, document);
   });
-
 
   const deletedTerms = sortedGlossary.filter((item) => item.deleted);
   const nonDeletedTerms = sortedGlossary.filter((item) => !item.deleted);
@@ -404,11 +403,11 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
       <LWTooltip title={<div><p>Hide all terms that aren't currently enabled</p><p>(you can unhide them later)</p></div>}>
         <div className={classNames(classes.headerButton, sortedUnapprovedTerms.length === 0 && classes.disabled)} onClick={handleDeleteUnused}>HIDE DISABLED TERMS</div>
       </LWTooltip>
-      {deletedTerms.length > 0 && <LWTooltip title="Unhide all deleted terms">
-        <div className={classes.headerButton} onClick={handleUnhideAll}>
+      <LWTooltip title="Unhide all deleted terms">
+        <div className={classNames(classes.headerButton, deletedTerms.length === 0 && classes.disabled)} onClick={handleUnhideAll}>
           UNHIDE ALL ({deletedTerms.length})
         </div>
-      </LWTooltip>}
+      </LWTooltip>
     </div>
   </div>
 
