@@ -7,7 +7,6 @@ import { useUpdate } from '@/lib/crud/withUpdate';
 import classNames from 'classnames';
 import TextField from '@material-ui/core/TextField';
 import { formStyles } from './JargonEditorRow';
-import { countInstancesOfJargon } from './utils';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { useJargonCounts } from '@/components/hooks/useJargonCounts';
 
@@ -198,6 +197,9 @@ const styles = (theme: ThemeType) => ({
     fontSize: "1.25rem",
     fontWeight: isFriendlyUI ? 600 : undefined,
   },
+  formCollapsed: {
+    display: 'none',
+  },
 });
 
 export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
@@ -205,8 +207,8 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   document: PostsPage,
   showTitle?: boolean,
 }) => {
-
-  const [expanded, setExpanded] = useState(false);
+  const [formCollapsed, setFormCollapsed] = useState(false);
+  const [showMoreTerms, setShowMoreTerms] = useState(false);
   const [showDeletedTerms, setShowDeletedTerms] = useState(false);
 
   const [glossaryPrompt, setGlossaryPrompt] = useState<string | undefined>(defaultGlossaryPrompt);
@@ -373,7 +375,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     />
   </div>
 
-  const header = <div className={classes.header}>
+  const header = <div className={classNames(classes.header, formCollapsed && classes.formCollapsed)}>
     <LWTooltip title={showNewJargonTermForm ? "Cancel adding a new term" : "Add a new term to the glossary"}>
       <div className={classNames(classes.newTermButton, showNewJargonTermForm && classes.newTermButtonCancel)} onClick={() => setShowNewJargonTermForm(!showNewJargonTermForm)}>
         +
@@ -403,17 +405,17 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     </div>
   </div>
 
-  const footer = <div className={classes.buttonRow}>
+  const footer = <div className={classNames(classes.buttonRow, formCollapsed && classes.formCollapsed)}>
     <Button onClick={addNewJargonTerms} className={classes.generateButton}>Generate new terms</Button>
     <div className={classes.headerButtons}>
       <LWTooltip title="Make changes to the jargon generator LLM prompt">
         <div className={classes.headerButton} onClick={() => setEditingPrompt(!editingPrompt)}>{editingPrompt ? "SAVE PROMPT" : "EDIT PROMPT"}</div>
       </LWTooltip>
     </div>
-    <div className={classes.button} onClick={() => setExpanded(!expanded)}>
-      {expanded 
-        ? <>COLLAPSE</>
-        : <>EXPAND</>
+    <div className={classes.button} onClick={() => setShowMoreTerms(!showMoreTerms)}>
+      {showMoreTerms 
+        ? <>SHOW LESS</>
+        : <>SHOW MORE</>
       }
     </div>
     {mutationLoading && <Loading/>}
@@ -421,14 +423,14 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   </div>
 
   return <div className={classes.root}>
-    {showTitle && <Row justifyContent="space-between">
+    {showTitle && <Row justifyContent="space-between" alignItems="flex-start">
       <LWTooltip title="Beta feature! Select/edit terms below, and readers will be able to hover over and read the explanation.">
         <h3 className={classes.formSectionHeadingTitle}>Glossary [Beta]</h3>
       </LWTooltip>
-      <div className={classes.expandCollapseIcon} onClick={() => setExpanded(!expanded)}>{expanded ? <IconDown height={16} width={16} /> : <IconRight height={16} width={16} />}</div>
+      <div className={classes.expandCollapseIcon} onClick={() => setFormCollapsed(!formCollapsed)}>{formCollapsed ? <IconRight height={16} width={16} /> : <IconDown height={16} width={16} />}</div>
     </Row>}
     {header}
-    <div className={classNames(classes.window, expanded && classes.expanded)}>
+    <div className={classNames(classes.window, showMoreTerms && classes.expanded, formCollapsed && classes.formCollapsed)}>
       <div>
         {showNewJargonTermForm && <div className={classes.root}>
           <div className={classes.formStyles}>
