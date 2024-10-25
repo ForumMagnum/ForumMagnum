@@ -101,7 +101,7 @@ const fiftyThreeBits = Math.pow(2, 53);
  * Modified form of https://github.com/bryc/code/blob/master/jshash/experimental/cyrb53.js
  * Returns a pseudorandom number between 0 and 1 by hashing the input
  */
-function cyrb53Rand(str: string, seed = 0) {
+export function cyrb53Rand(str: string, seed = 0) {
   let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
   for(let i = 0, ch; i < str.length; i++) {
       ch = str.charCodeAt(i);

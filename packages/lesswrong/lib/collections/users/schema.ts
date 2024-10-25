@@ -15,7 +15,7 @@ import { userThemeSettings, defaultThemeOptions } from "../../../themes/themeNam
 import { postsLayouts } from '../posts/dropdownOptions';
 import type { ForumIconName } from '../../../components/common/ForumIcon';
 import { getCommentViewOptions } from '../../commentViewOptions';
-import { allowSubscribeToSequencePosts, allowSubscribeToUserComments, dialoguesEnabled, hasAccountDeletionFlow, hasPostRecommendations, hasSurveys } from '../../betas';
+import { allowSubscribeToSequencePosts, allowSubscribeToUserComments, dialoguesEnabled, hasAccountDeletionFlow, hasPostRecommendations, hasSurveys, userCanViewJargonTerms } from '../../betas';
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import { randomId } from '../../random';
 import { getUserABTestKey } from '../../abTestImpl';
@@ -916,6 +916,19 @@ const schema: SchemaType<"Users"> = {
     group: formGroups.siteCustomizations,
     label: "Opt out of user surveys",
     order: 97,
+  },
+
+  postGlossariesPinned: {
+    type: Boolean,
+    optional: true,
+    hidden: (props) => userCanViewJargonTerms(props.currentUser),
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    group: formGroups.siteCustomizations,
+    label: "Pin glossaries on posts, and highlight all instances of each term",
+    order: 98,
+    ...schemaDefaultValue(false),
   },
 
   acceptedTos: {

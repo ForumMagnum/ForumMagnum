@@ -190,8 +190,12 @@ function getFragmentFieldType(fragmentName: string, parsedFragmentField: AnyBeca
   for (let schemaFieldName of Object.keys(schema)) {
     const fieldWithResolver = schema[schemaFieldName];
     if (fieldWithResolver?.resolveAs?.fieldName === fieldName) {
-      assert(!!fieldWithResolver.resolveAs.type);
-      fieldType = graphqlTypeToTypescript(fieldWithResolver.resolveAs.type);
+      if (fieldWithResolver.typescriptType) {
+        fieldType = fieldWithResolver.typescriptType;
+      } else {
+        assert(!!fieldWithResolver.resolveAs.type);
+        fieldType = graphqlTypeToTypescript(fieldWithResolver.resolveAs.type);
+      }
       break;
     }
   }
@@ -201,8 +205,17 @@ function getFragmentFieldType(fragmentName: string, parsedFragmentField: AnyBeca
     if (fieldName in schema) {
       const fieldSchema = schema[fieldName];
       assert(fieldSchema?.type);
-      if (fieldSchema?.resolveAs?.type && !fieldSchema?.resolveAs?.fieldName) {
-        fieldType = graphqlTypeToTypescript(fieldSchema.resolveAs.type);
+      if (fieldSchema?.typescriptType && fieldSchema?.blackbox) {
+        fieldType = fieldSchema.typescriptType;
+      } else if (fieldSchema?.resolveAs?.type && !fieldSchema?.resolveAs?.fieldName) {
+        // If the field is a string with allowed values, we need to emit a type that matches the allowed values
+        // It'd be annoying to refactor graphqlTypeToTypescript to support this, so we just special-case strings with allowed values here
+        // Annoyingly, allowedValues seems to get reassigned from being a top-level field to being on the `type` (probably when it's run through SimpleSchema somewhere)
+        if (fieldSchema.resolveAs.type === 'String' && fieldSchema.type?.definitions[0]?.allowedValues?.length) {
+          fieldType = simplSchemaTypeToTypescript(schema, fieldName, fieldSchema.type);
+        } else {
+          fieldType = graphqlTypeToTypescript(fieldSchema.resolveAs.type);
+        }
       } else {
         fieldType = simplSchemaTypeToTypescript(schema, fieldName, schema[fieldName].type);
       }

@@ -156,6 +156,7 @@ import './server/callbacks/reviewVoteCallbacks';
 import './server/callbacks/tagFlagCallbacks';
 import './server/callbacks/moderatorActionCallbacks';
 import './server/callbacks/digestCallbacks';
+import './server/callbacks/jargonTermCallbacks';
 
 
 import './server/resolvers/alignmentForumMutations';
@@ -194,6 +195,7 @@ import './server/resolvers/defaultResolvers';
 import './server/resolvers/forumEventResolvers';
 import './server/resolvers/anthropicResolvers';
 import './server/resolvers/llmConversationsResolvers';
+import './server/resolvers/jargonResolvers/jargonTermResolvers';
 
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';

@@ -164,7 +164,7 @@ const FormWrapperEdit = <N extends CollectionNameString>(props: WrappedSmartForm
   const currentUser = useCurrentUser();
   const collection = getCollection(props.collectionName);
   const { queryFragment, mutationFragment } = getFragments("edit", props);
-  const { extraVariables = {}, extraVariablesValues = {}, editFormFetchPolicy } = props;
+  const { extraVariables = {}, extraVariablesValues = {}, editFormFetchPolicy, prefetchedDocument } = props;
 
   // if we're not e.g. being redirected after an autosave, we always want to load a fresh copy of the document
   const fetchPolicy = editFormFetchPolicy ?? 'network-only';
@@ -189,16 +189,17 @@ const FormWrapperEdit = <N extends CollectionNameString>(props: WrappedSmartForm
     fragment: mutationFragment,
   });
 
-  if (loading) {
+  if (!prefetchedDocument && loading) {
     return <Components.Loading/>
   }
+
   return <Form
     {...props}
     currentUser={currentUser}
     collection={collection}
     typeName={collection.typeName}
     schema={props.schema}
-    document={document}
+    document={document ?? prefetchedDocument}
     updateMutation={updateMutation}
     removeMutation={deleteDocument}
   />

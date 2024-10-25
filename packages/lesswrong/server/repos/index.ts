@@ -33,6 +33,7 @@ import TypingIndicatorsRepo from "./TypingIndicatorsRepo";
 import UsersRepo from "./UsersRepo";
 import VotesRepo from "./VotesRepo";
 import LWEventsRepo from "./LWEventsRepo";
+import JargonTermsRepo from "./JargonTermsRepo";
 
 declare global {
   type AllRepos = typeof allRepos;
@@ -54,6 +55,7 @@ const allRepos = {
   electionCandidates: ElectionCandidatesRepo,
   electionVotes: ElectionVotesRepo,
   forumEvents: ForumEventsRepo,
+  jargonTerms: JargonTermsRepo,
   localgroups: LocalgroupsRepo,
   lwEvents: LWEventsRepo,
   notifications: NotificationsRepo,
@@ -114,6 +116,7 @@ export {
   ElectionCandidatesRepo,
   ElectionVotesRepo,
   ForumEventsRepo,
+  JargonTermsRepo,
   LocalgroupsRepo,
   LWEventsRepo,
   ManifoldProbabilitiesCachesRepo,
