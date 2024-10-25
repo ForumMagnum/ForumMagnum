@@ -382,8 +382,8 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
 
   const expandCollapseButton = <div className={classes.button} onClick={() => setExpanded(!expanded)}>
     {expanded 
-      ? <>COLLAPSE <IconRight height={16} width={16} /></>
-      : <>EXPAND <IconDown height={16} width={16} /></>
+      ? <>COLLAPSE <IconDown height={16} width={16} /></>
+      : <>EXPAND <IconRight height={16} width={16} /></>
     }
   </div>
 
