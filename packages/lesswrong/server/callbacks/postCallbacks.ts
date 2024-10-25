@@ -698,6 +698,7 @@ async function createNewJargonTermsCallback(post: DbPost, callbackProperties: Cr
   if (!currentUser) return post;
   if (currentUser._id !== post.userId) return post;
   if (!post.contents_latest) return post;
+
   if (!userWillPassivelyGenerateJargonTerms(currentUser)) return post;
   // TODO: refactor this so that createNewJargonTerms handles the case where we might be creating duplicate terms
   const [existingJargon, newContents] = await Promise.all([

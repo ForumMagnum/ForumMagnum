@@ -104,7 +104,7 @@ const styles = (theme: ThemeType) => ({
     pointerEvents: 'none',
   },
   unapproved: {
-    color: theme.palette.grey[600],
+    color: theme.palette.grey[400],
   },
 })
 
