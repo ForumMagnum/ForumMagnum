@@ -113,7 +113,9 @@ const styles = (theme: ThemeType) => ({
     }
   },
   formStyles: { 
-    ...formStyles
+    ...formStyles,
+    marginBottom: 12,
+    marginTop: 12,
   },
   explanationContainer: {
     cursor: 'text',

@@ -374,13 +374,6 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     />
   </div>
 
-  const expandCollapseButton = <div className={classes.button} onClick={() => setExpanded(!expanded)}>
-    {expanded 
-      ? <>COLLAPSE <IconDown height={16} width={16} /></>
-      : <>EXPAND <IconRight height={16} width={16} /></>
-    }
-  </div>
-
   const header = <div className={classes.header}>
     <LWTooltip title={showNewJargonTermForm ? "Cancel adding a new term" : "Add a new term to the glossary"}>
       <div className={classNames(classes.newTermButton, showNewJargonTermForm && classes.newTermButtonCancel)} onClick={() => setShowNewJargonTermForm(!showNewJargonTermForm)}>
@@ -430,7 +423,9 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
 
   return <div className={classes.root}>
     {showTitle && <Row justifyContent="space-between">
-      <h2>Glossary [Beta]<LWTooltip title="Beta feature! Select/edit terms below, and readers will be able to hover over and read the explanation.">?</LWTooltip></h2>
+      <LWTooltip title="Beta feature! Select/edit terms below, and readers will be able to hover over and read the explanation.">
+        <h2>Glossary [Beta ]</h2>
+      </LWTooltip>
       <div className={classes.expandCollapseIcon} onClick={() => setExpanded(!expanded)}>{expanded ? <IconDown height={16} width={16} /> : <IconRight height={16} width={16} />}</div>
     </Row>}
     {header}
