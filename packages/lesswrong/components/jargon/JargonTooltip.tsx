@@ -79,7 +79,7 @@ export const JargonTooltip = ({definitionHTML, approved, altTerms, humansAndOrAI
         <span className={classes.altTerm} key={term}>{term}</span>
         ))}
       </div>
-      {humansAndOrAIEditedText && <span className={classes.altTerm}>{humansAndOrAIEditedText}</span>}
+      {humansAndOrAIEditedText && <div><span className={classes.altTerm}>{humansAndOrAIEditedText}</span></div>}
     </div>
   </Card>
 
