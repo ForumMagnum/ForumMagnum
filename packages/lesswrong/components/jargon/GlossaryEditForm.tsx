@@ -223,8 +223,8 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     collectionName: "JargonTerms",
     fragmentName: 'JargonTerms',
   })
-
-  const sortedGlossary = glossary.sort((a, b) => {
+  console.log(glossary);
+  const sortedGlossary = [...glossary].sort((a, b) => {
     return countInstancesOfJargon(b, document) - countInstancesOfJargon(a, document);
   });
 
@@ -371,13 +371,6 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     />
   </div>
 
-  const expandCollapseButton = <div className={classes.button} onClick={() => setExpanded(!expanded)}>
-    {expanded 
-      ? <>COLLAPSE <IconDown height={16} width={16} /></>
-      : <>EXPAND <IconRight height={16} width={16} /></>
-    }
-  </div>
-
   const header = <div className={classes.header}>
     <LWTooltip title={showNewJargonTermForm ? "Cancel adding a new term" : "Add a new term to the glossary"}>
       <div className={classNames(classes.newTermButton, showNewJargonTermForm && classes.newTermButtonCancel)} onClick={() => setShowNewJargonTermForm(!showNewJargonTermForm)}>
@@ -400,11 +393,11 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
       <LWTooltip title={<div><p>Hide all terms that aren't currently enabled</p><p>(you can unhide them later)</p></div>}>
         <div className={classNames(classes.headerButton, sortedUnapprovedTerms.length === 0 && classes.disabled)} onClick={handleDeleteUnused}>HIDE DISABLED TERMS</div>
       </LWTooltip>
-      {deletedTerms.length > 0 && <LWTooltip title="Unhide all deleted terms">
-        <div className={classes.headerButton} onClick={handleUnhideAll}>
+      <LWTooltip title="Unhide all deleted terms">
+        <div className={classNames(classes.headerButton, deletedTerms.length === 0 && classes.disabled)} onClick={handleUnhideAll}>
           UNHIDE ALL ({deletedTerms.length})
         </div>
-      </LWTooltip>}
+      </LWTooltip>
     </div>
   </div>
 
@@ -427,7 +420,9 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
 
   return <div className={classes.root}>
     {showTitle && <Row justifyContent="space-between">
-      <h2>Glossary [Beta]<LWTooltip title="Beta feature! Select/edit terms below, and readers will be able to hover over and read the explanation.">?</LWTooltip></h2>
+      <LWTooltip title="Beta feature! Select/edit terms below, and readers will be able to hover over and read the explanation.">
+        <h2>Glossary [Beta ]</h2>
+      </LWTooltip>
       <div className={classes.expandCollapseIcon} onClick={() => setExpanded(!expanded)}>{expanded ? <IconDown height={16} width={16} /> : <IconRight height={16} width={16} />}</div>
     </Row>}
     {header}
