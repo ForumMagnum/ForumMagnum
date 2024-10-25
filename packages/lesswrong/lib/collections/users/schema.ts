@@ -2946,7 +2946,8 @@ const schema: SchemaType<"Users"> = {
     label: "Allow Session Replay",
     tooltip: "Allow us to capture a video-like recording of your browser session (using Datadog Session Replay) — this is useful for debugging and improving the site.",
     group: formGroups.privacy,
-    ...schemaDefaultValue(false),
+    nullable: false,
+    defaultValue: isEAForum ? false : true,
   },
 
   /* Alignment Forum fields */
