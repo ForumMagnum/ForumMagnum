@@ -72,12 +72,9 @@ const styles = (theme: ThemeType) => ({
   },
   generateButton: {
     background: theme.palette.buttons.startReadingButtonBackground,
-
-    // TODO: Pick typography for this button. (This is just the typography that
-    // Material UI v0 happened to use.)
     fontWeight: 500,
-    fontSize: "14px",
-    fontFamily: "Roboto, sans-serif",
+    fontSize: 14,
+    fontFamily: theme.typography.commentStyle.fontFamily,
   },
   term: {
     padding: 4,
