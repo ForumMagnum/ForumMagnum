@@ -223,7 +223,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     collectionName: "JargonTerms",
     fragmentName: 'JargonTerms',
   })
-  console.log(glossary);
+
   const sortedGlossary = [...glossary].sort((a, b) => {
     return countInstancesOfJargon(b, document) - countInstancesOfJargon(a, document);
   });
