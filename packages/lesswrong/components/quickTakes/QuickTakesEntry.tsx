@@ -8,6 +8,7 @@ import {
 } from "../comments/CommentsNewForm";
 import classNames from "classnames";
 import { isFriendlyUI } from "../../themes/forumTheme";
+import { useDialog } from "../common/withDialog";
 
 const COLLAPSED_HEIGHT = 40;
 
@@ -30,8 +31,10 @@ const styles = (theme: ThemeType) => ({
     },
   },
   collapsed: {
-    height: COLLAPSED_HEIGHT + (2 * COMMENTS_NEW_FORM_PADDING),
-    overflow: "hidden",
+    '& .quickTakesForm': {
+      height: COLLAPSED_HEIGHT + (2 * COMMENTS_NEW_FORM_PADDING),
+      overflow: "hidden",
+    },
   },
   commentForm: {
     '& .form-input': {
@@ -100,6 +103,7 @@ const QuickTakesEntry = ({
   classes: ClassesType<typeof styles>,
 }) => {
   const ref = useRef<HTMLDivElement>(null);
+  const { openDialog } = useDialog();
   const [expanded, setExpanded] = useState(defaultExpanded);
   const {
     frontpage,
@@ -112,7 +116,15 @@ const QuickTakesEntry = ({
     void cancelCallback?.();
   }, [cancelCallback]);
 
-  const onFocus = useCallback(() => setExpanded(true), []);
+  const onFocus = useCallback(() => {
+    if (!currentUser) {
+      openDialog({
+        componentName: "LoginPopup",
+        componentProps: {}
+      });
+    }
+    setExpanded(true);
+  }, [currentUser, openDialog]);
 
   useEffect(() => {
     setTimeout(() => {
