@@ -220,6 +220,7 @@ registerFragment(`
 
     hideSunshineSidebar
     optedOutOfSurveys
+    postGlossariesPinned
   }
 `);
 

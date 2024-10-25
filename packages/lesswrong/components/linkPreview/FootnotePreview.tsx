@@ -114,6 +114,7 @@ const footnotePreviewStyles = (theme: ThemeType) => ({
   
   sidenoteHover: {
     background: theme.palette.background.sidenoteBackground,
+    borderRadius: 3,
     
     "& $sidenoteContent": {
       maxHeight: "unset",

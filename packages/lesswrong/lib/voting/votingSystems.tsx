@@ -65,11 +65,11 @@ export interface VotingSystem<ExtendedVoteType=any, ExtendedScoreType=any> {
   getCommentHighlights?: (props: {
     comment: CommentsList
     voteProps: VotingProps<VoteableTypeClient>
-  }) => Record<string, ContentReplacedSubstringComponentInfo>
+  }) => ContentReplacedSubstringComponentInfo[]
   getPostHighlights?: (props: {
     post: PostsBase
     voteProps: VotingProps<VoteableTypeClient>
-  }) => Record<string, ContentReplacedSubstringComponentInfo>
+  }) => ContentReplacedSubstringComponentInfo[]
 }
 
 const votingSystems: Partial<Record<string,VotingSystem>> = {};

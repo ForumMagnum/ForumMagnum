@@ -1215,3 +1215,9 @@ importComponent("LanguageModelLauncherButton", () => require('../components/lang
 importComponent("AutocompleteModelSettings", () => require('../components/languageModels/AutocompleteModelSettings'));
 importComponent("LlmChatWrapper", () => require('../components/languageModels/LlmChatWrapper'));
 importComponent("LlmConversationsViewingPage", () => require('../components/languageModels/LlmConversationsViewingPage'));
+
+importComponent("JargonTooltip", () => require('../components/jargon/JargonTooltip'));
+importComponent("GlossarySidebar", () => require('../components/jargon/GlossarySidebar'));
+importComponent("GlossaryEditForm", () => require('../components/jargon/GlossaryEditForm'));
+importComponent("JargonEditorRow", () => require('../components/jargon/JargonEditorRow'));
+importComponent("GlossaryEditorPage", () => require('../components/jargon/GlossaryEditorPage'));

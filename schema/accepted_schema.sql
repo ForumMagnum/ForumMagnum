@@ -987,6 +987,27 @@ CREATE INDEX IF NOT EXISTS "idx_Images_identifier" ON "Images" USING btree ("ide
 -- Index "idx_Images_cdnHostedUrl"
 CREATE INDEX IF NOT EXISTS "idx_Images_cdnHostedUrl" ON "Images" USING btree ("cdnHostedUrl");
 
+-- Table "JargonTerms"
+CREATE TABLE "JargonTerms" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "postId" VARCHAR(27) NOT NULL,
+  "term" TEXT NOT NULL,
+  "approved" BOOL NOT NULL DEFAULT FALSE,
+  "deleted" BOOL NOT NULL DEFAULT FALSE,
+  "altTerms" TEXT[] NOT NULL DEFAULT '{}',
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
+  "contents" JSONB,
+  "contents_latest" TEXT
+);
+
+-- Index "idx_JargonTerms_schemaVersion"
+CREATE INDEX IF NOT EXISTS "idx_JargonTerms_schemaVersion" ON "JargonTerms" USING btree ("schemaVersion");
+
+-- Index "idx_JargonTerms_postId_term_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_JargonTerms_postId_term_createdAt" ON "JargonTerms" USING btree ("postId", "term", "createdAt");
+
 -- Table "LWEvents"
 CREATE TABLE "LWEvents" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -3118,6 +3139,7 @@ CREATE TABLE "Users" (
   "hidePostsRecommendations" BOOL NOT NULL DEFAULT FALSE,
   "petrovOptOut" BOOL NOT NULL DEFAULT FALSE,
   "optedOutOfSurveys" BOOL,
+  "postGlossariesPinned" BOOL NOT NULL DEFAULT FALSE,
   "acceptedTos" BOOL NOT NULL DEFAULT FALSE,
   "hideNavigationSidebar" BOOL,
   "currentFrontpageFilter" TEXT,

@@ -189,6 +189,8 @@ declare global {
         [5]: ColorString,
         [6]: ColorString,
       },
+
+      jargonTerm: ColorString,
     },
     linkHover: {
       dim: ColorString,
@@ -490,6 +492,7 @@ declare global {
       transparent: ColorString,
       imageOverlay: ColorString,
       digestAdBannerInput: ColorString,
+      glossaryBackground: ColorString,
       sidenoteBackground: ColorString,
     },
     header: {
