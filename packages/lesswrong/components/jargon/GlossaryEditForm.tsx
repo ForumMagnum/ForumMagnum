@@ -83,10 +83,11 @@ const styles = (theme: ThemeType) => ({
     padding: 4,
     fontSize: '1rem',
   },
-  approveAllButton: {
+  headerButton: {
     cursor: 'pointer',
-    paddingTop: 10,
-    paddingBottom: 10,
+    padding: 10,
+    paddingLeft: 16,
+    paddingRight: 16,
     fontSize: '1.1rem',
     color: theme.palette.primary.main,
     gap: '8px',
@@ -121,6 +122,10 @@ const styles = (theme: ThemeType) => ({
     paddingBottom: 8,
     borderBottom: theme.palette.border.faint,
     marginBottom: 4,
+  },
+  headerButtons: {
+    display: 'flex',
+    gap: 12,
   },
   icon: {
     color: theme.palette.grey[500],
@@ -164,13 +169,27 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 12,
   },
   formStyles: {
-    ...formStyles
+    ...formStyles,
+    borderBottom: theme.palette.border.faint,
+    paddingBottom: 10,
+    paddingTop: 16,
+    paddingLeft: 24,
+    paddingRight: 24,
+    marginBottom: 16,
+
   },
   newTermButton: {
     cursor: 'pointer',
-    padding: 10,
-    fontSize: '1.1rem',
-    borderBottom: theme.palette.border.faint,
+    color: theme.palette.primary.main,
+    fontSize: 25,
+    fontWeight: 900,
+    paddingLeft: 7,
+    paddingRight: 7
+  },
+  newTermButtonCancel: {
+    color: theme.palette.grey[500],
+    transform: 'rotate(45deg)',
+    fontWeight: 600
   }
 });
 
@@ -355,43 +374,47 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
 
   const expandCollapseButton = <div className={classes.button} onClick={() => setExpanded(!expanded)}>
     {expanded 
-      ? <>COLLAPSE <IconRight height={16} width={16} /></>
-      : <>EXPAND <IconDown height={16} width={16} /></>
+      ? <>COLLAPSE <IconDown height={16} width={16} /></>
+      : <>EXPAND <IconRight height={16} width={16} /></>
     }
   </div>
 
   const header = <div className={classes.header}>
-    <LWTooltip title="Add a new term to the glossary">
-      <ForumIcon className={classes.newTermButton} onClick={() => setShowNewJargonTermForm(true)} icon="PlusIcon"/>
-    </LWTooltip>
-    <LWTooltip title="Enable all glossary hoverovers for readers of this post">
-      <div className={classNames(classes.approveAllButton, sortedApprovedTerms.length !== 0 && classes.disabled)} 
-        onClick={() => handleSetApproveAll(true)}>
-        ENABLE ALL
+    <LWTooltip title={showNewJargonTermForm ? "Cancel adding a new term" : "Add a new term to the glossary"}>
+      <div className={classNames(classes.newTermButton, showNewJargonTermForm && classes.newTermButtonCancel)} onClick={() => setShowNewJargonTermForm(!showNewJargonTermForm)}>
+        +
       </div>
     </LWTooltip>
-    <LWTooltip title="Disable all glossary hoverovers for readers of this post">
-      <div className={classNames(classes.approveAllButton, sortedUnapprovedTerms.length !== 0 && classes.disabled)} 
-        onClick={() => handleSetApproveAll(false)}>
-        DISABLE ALL
-      </div>
-    </LWTooltip>
-    <LWTooltip title={<div><p>Hide all terms that aren't currently enabled</p><p>(you can unhide them later)</p></div>}>
-      <div className={classNames(classes.approveAllButton, sortedUnapprovedTerms.length === 0 && classes.disabled)} onClick={handleDeleteUnused}>HIDE DISABLED TERMS</div>
-    </LWTooltip>
-    {deletedTerms.length > 0 && <LWTooltip title="Unhide all deleted terms">
-      <div className={classes.approveAllButton} onClick={handleUnhideAll}>
-        UNHIDE ALL ({deletedTerms.length})
-      </div>
-    </LWTooltip>}
+    <div className={classes.headerButtons}>
+      <LWTooltip title="Enable all glossary hoverovers for readers of this post">
+        <div className={classNames(classes.headerButton, sortedApprovedTerms.length !== 0 && classes.disabled)} 
+          onClick={() => handleSetApproveAll(true)}>
+          ENABLE ALL
+        </div>
+      </LWTooltip>
+      <LWTooltip title="Disable all glossary hoverovers for readers of this post">
+        <div className={classNames(classes.headerButton, sortedUnapprovedTerms.length !== 0 && classes.disabled)} 
+          onClick={() => handleSetApproveAll(false)}>
+          DISABLE ALL
+        </div>
+      </LWTooltip>
+      <LWTooltip title={<div><p>Hide all terms that aren't currently enabled</p><p>(you can unhide them later)</p></div>}>
+        <div className={classNames(classes.headerButton, sortedUnapprovedTerms.length === 0 && classes.disabled)} onClick={handleDeleteUnused}>HIDE DISABLED TERMS</div>
+      </LWTooltip>
+      {deletedTerms.length > 0 && <LWTooltip title="Unhide all deleted terms">
+        <div className={classes.headerButton} onClick={handleUnhideAll}>
+          UNHIDE ALL ({deletedTerms.length})
+        </div>
+      </LWTooltip>}
+    </div>
     {expanded && expandCollapseButton}
   </div>
 
   const footer = <div className={classes.buttonRow}>
     <Button onClick={() => addNewJargonTerms({glossaryPrompt, examplePost, exampleTerm, exampleAltTerm, exampleDefinition})} className={classes.generateButton}>Generate new terms</Button>
-    <div className={classes.approveAllButton}>
+    <div className={classes.headerButtons}>
       <LWTooltip title="Make changes to the jargon generator LLM prompt">
-        <div className={classes.approveAllButton} onClick={() => setEditingPrompt(!editingPrompt)}>{editingPrompt ? "SAVE PROMPT" : "EDIT PROMPT"}</div>
+        <div className={classes.headerButton} onClick={() => setEditingPrompt(!editingPrompt)}>{editingPrompt ? "SAVE PROMPT" : "EDIT PROMPT"}</div>
       </LWTooltip>
     </div>
     {expandCollapseButton}
@@ -417,7 +440,6 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
             />
           </div>
         </div>}
-        {!showNewJargonTermForm && <div className={classes.newTermButton} onClick={() => setShowNewJargonTermForm(true)}>New Term</div>}
         {nonDeletedTerms.map((item) => {
           return <JargonEditorRow key={item._id} postId={document._id} jargonTerm={item} instancesOfJargonCount={countInstancesOfJargon(item, document)}/>
         })}
