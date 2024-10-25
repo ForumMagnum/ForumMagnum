@@ -116,11 +116,12 @@ const styles = (theme: ThemeType) => ({
     ...formStyles,
     marginBottom: 12,
     marginTop: 12,
+    width: '100%',
   },
   explanationContainer: {
     cursor: 'text',
     paddingTop: 6,
-    paddingBottom: 10,
+    paddingBottom: 10
   },
   checkbox: {
     width: 30,
@@ -138,6 +139,7 @@ const styles = (theme: ThemeType) => ({
     lineHeight: 1.6,
     height: '1.6rem',
     overflow: 'hidden',
+    minWidth: 100,
     color: theme.palette.grey[600],
     '& strong': {
       color: theme.palette.grey[900],
@@ -246,17 +248,18 @@ export const JargonEditorRow = ({classes, jargonTerm, instancesOfJargonCount}: {
             prefetchedDocument={jargonTerm}
           />
         </div>
-      : <div className={classNames(classes.explanationContainer, !jargonTerm.approved && classes.unapproved)} onClick={() => setEdit(true)}>
-          <JargonTooltip
-            definitionHTML={jargonDefinition}
-            altTerms={jargonTerm.altTerms ?? []}
-            humansAndOrAIEdited={jargonTerm.humansAndOrAIEdited}
-            placement="bottom-end"
-            approved={jargonTerm.approved}
-          >
+      :  <JargonTooltip
+          definitionHTML={jargonDefinition}
+          altTerms={jargonTerm.altTerms ?? []}
+          humansAndOrAIEdited={jargonTerm.humansAndOrAIEdited}
+          placement="bottom-end"
+          approved={jargonTerm.approved}
+          forceTooltip={true}
+        >
+          <div className={classNames(classes.explanationContainer, !jargonTerm.approved && classes.unapproved)} onClick={() => setEdit(true)}>
             <ContentItemBody className={classes.definition} dangerouslySetInnerHTML={{ __html: jargonDefinition }} />
-          </JargonTooltip>
-        </div>}
+          </div>
+        </JargonTooltip>}
       <LWTooltip title={<div>{jargonTerm.term} is used {instancesOfJargonCount} times in this post</div>} placement="right">
         <div className={classNames(classes.instancesOfJargonCount, !jargonTerm.approved && classes.unapproved)}>
           {instancesOfJargonCount}

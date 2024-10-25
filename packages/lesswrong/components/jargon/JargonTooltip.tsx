@@ -33,7 +33,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const JargonTooltip = ({definitionHTML, approved, altTerms, humansAndOrAIEdited, isFirstOccurrence = false, placement="top-start", children, classes, tooltipClassName, tooltipTitleClassName}: {
+export const JargonTooltip = ({definitionHTML, approved, altTerms, humansAndOrAIEdited, isFirstOccurrence = false, placement="top-start", children, classes, tooltipClassName, tooltipTitleClassName, forceTooltip=false}: {
   definitionHTML: string,
   approved: boolean,
   altTerms: string[],
@@ -44,6 +44,7 @@ export const JargonTooltip = ({definitionHTML, approved, altTerms, humansAndOrAI
   classes: ClassesType<typeof styles>,
   tooltipClassName?: string,
   tooltipTitleClassName?: string,
+  forceTooltip?: boolean,
 }) => {
   const { LWTooltip, ContentItemBody } = Components;
 
@@ -73,7 +74,7 @@ export const JargonTooltip = ({definitionHTML, approved, altTerms, humansAndOrAI
 
   // Check the glossary pinned state is a bit of a hack to allow the tooltip to show up on every occurrence of a jargon term
   // when the glossary is pinned, until we fix substring replacement in general.
-  if (!isFirstOccurrence && !postGlossariesPinned) {
+  if (!isFirstOccurrence && !postGlossariesPinned && !forceTooltip) {
     return <>{children}</>;
   }
 
