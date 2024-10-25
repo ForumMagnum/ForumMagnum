@@ -223,7 +223,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     collectionName: "JargonTerms",
     fragmentName: 'JargonTerms',
   })
-  console.log(glossary);
+
   const sortedGlossary = [...glossary].sort((a, b) => {
     return countInstancesOfJargon(b, document) - countInstancesOfJargon(a, document);
   });
@@ -242,16 +242,12 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     ${fragmentTextForQuery("JargonTerms")}
   `);
 
-  const addNewJargonTerms = async ({glossaryPrompt, examplePost, exampleTerm, exampleAltTerm, exampleDefinition}: {
-    glossaryPrompt?: string, 
-    examplePost?: string, 
-    exampleTerm?: string, 
-    exampleAltTerm?: string, 
-    exampleDefinition?: string
-  }) => { 
+  const addNewJargonTerms = async () => {
+    // TODO: maybe just disable button if no prompt?
     if (!glossaryPrompt) return;
+    
     try {
-      const response = await getNewJargonTerms({
+      await getNewJargonTerms({
         variables: {
           postId: document._id,
           glossaryPrompt,
@@ -261,6 +257,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
           exampleDefinition,
         },
       });
+
       refetch();
     } catch (err) {
       // eslint-disable-next-line no-console
@@ -405,7 +402,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   </div>
 
   const footer = <div className={classes.buttonRow}>
-    <Button onClick={() => addNewJargonTerms({glossaryPrompt, examplePost, exampleTerm, exampleAltTerm, exampleDefinition})} className={classes.generateButton}>Generate new terms</Button>
+    <Button onClick={addNewJargonTerms} className={classes.generateButton}>Generate new terms</Button>
     <div className={classes.headerButtons}>
       <LWTooltip title="Make changes to the jargon generator LLM prompt">
         <div className={classes.headerButton} onClick={() => setEditingPrompt(!editingPrompt)}>{editingPrompt ? "SAVE PROMPT" : "EDIT PROMPT"}</div>
