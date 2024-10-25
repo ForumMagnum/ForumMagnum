@@ -196,10 +196,6 @@ export const JargonEditorRow = ({classes, jargonTerm, instancesOfJargonCount}: {
   });
 
   const handleActiveChange = () => {
-    if (!jargonTerm) {
-      return;
-    }
-
     const newDeleteStatus = !jargonTerm.approved ? false : jargonTerm.deleted;
 
     void updateJargonTerm({
@@ -217,10 +213,6 @@ export const JargonEditorRow = ({classes, jargonTerm, instancesOfJargonCount}: {
   }
 
   const handleDelete = () => {
-    if (!jargonTerm) {
-      return;
-    }
-
     void updateJargonTerm({
       selector: { _id: jargonTerm._id },
       data: {
