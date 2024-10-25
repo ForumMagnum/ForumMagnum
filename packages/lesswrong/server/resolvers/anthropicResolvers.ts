@@ -17,10 +17,6 @@ import { markdownToHtml, htmlToMarkdown } from "../editor/conversionUtils";
 import { getOpenAI } from "../languageModels/languageModelIntegration";
 import express, { Express } from "express";
 import { captureException } from "@sentry/core";
-import { FilterSettings, getDefaultFilterSettings } from "@/lib/filterSettings";
-import sampleSize from "lodash/sampleSize";
-import moment from "moment";
-import uniqBy from "lodash/uniqBy";
 
 interface InitializeConversationArgs {
   newMessage: ClientMessage;

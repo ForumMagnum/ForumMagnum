@@ -282,22 +282,21 @@ type CurrentPostContext = {
 };
 
 function useCurrentPostContext(): CurrentPostContext {
-  const { query } = useLocation();
-  const postsPageContext = usePostsPageContext();
-
-  const postsPagePostId = postsPageContext?.fullPost?._id ?? postsPageContext?.postPreload?._id;
-
-  if (postsPagePostId) {
-    return {
-      currentPostId: postsPagePostId,
-      postContext: 'post-page'
-    };
-  }
+  const { query, location } = useLocation();
+  const { pathname } = location;
+  const parsedPostId = pathname.match(/\/posts\/([^/]+)\/[^/]+/)?.[1];
 
   if (query.postId) {
     return {
       currentPostId: query.postId,
       postContext: 'post-editor'
+    };
+  }
+
+  if (parsedPostId) {
+    return {
+      currentPostId: parsedPostId,
+      postContext: 'post-page'
     };
   }
 
