@@ -231,7 +231,6 @@ const queryClaudeForSingleJargonExplanation = async ({ markdown, term, toolUseId
     tools: [generateSingleJargonGlossaryItemTool],
     tool_choice: { type: "tool", name: "generate_jargon_glossary_item" }
   });
-  console.timeEnd(`Generating term ${term}`);
 
   if (response.content[0].type === "text") {
     // eslint-disable-next-line no-console
