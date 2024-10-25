@@ -190,6 +190,9 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[500],
     transform: 'rotate(45deg)',
     fontWeight: 600
+  },
+  expandCollapseIcon: {
+    cursor: 'pointer',
   }
 });
 
@@ -318,7 +321,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     }
   }
   
-  const { JargonEditorRow, LoadMore, Loading, LWTooltip, WrappedSmartForm, IconRight, IconDown, ForumIcon } = Components;
+  const { JargonEditorRow, LoadMore, Loading, LWTooltip, WrappedSmartForm, IconRight, IconDown, ForumIcon, Row } = Components;
 
   const promptEditor = <div>
     <TextField
@@ -407,7 +410,6 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
         </div>
       </LWTooltip>}
     </div>
-    {expanded && expandCollapseButton}
   </div>
 
   const footer = <div className={classes.buttonRow}>
@@ -417,13 +419,21 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
         <div className={classes.headerButton} onClick={() => setEditingPrompt(!editingPrompt)}>{editingPrompt ? "SAVE PROMPT" : "EDIT PROMPT"}</div>
       </LWTooltip>
     </div>
-    {expandCollapseButton}
+    <div className={classes.button} onClick={() => setExpanded(!expanded)}>
+      {expanded 
+        ? <>COLLAPSE</>
+        : <>EXPAND</>
+      }
+    </div>
     {mutationLoading && <Loading/>}
     {mutationLoading && <div>(Loading... warning, this will take 30-60 seconds)</div>}
   </div>
 
   return <div className={classes.root}>
-    {showTitle && <h2>Glossary [Beta]<LWTooltip title="Beta feature! Select/edit terms below, and readers will be able to hover over and read the explanation.">  </LWTooltip></h2>}
+    {showTitle && <Row justifyContent="space-between">
+      <h2>Glossary [Beta]<LWTooltip title="Beta feature! Select/edit terms below, and readers will be able to hover over and read the explanation.">?</LWTooltip></h2>
+      <div className={classes.expandCollapseIcon} onClick={() => setExpanded(!expanded)}>{expanded ? <IconDown height={16} width={16} /> : <IconRight height={16} width={16} />}</div>
+    </Row>}
     {header}
     <div className={classNames(classes.window, expanded && classes.expanded)}>
       <div>
