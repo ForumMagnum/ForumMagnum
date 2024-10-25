@@ -70,6 +70,7 @@ import BookOpenIcon from "@heroicons/react/24/outline/BookOpenIcon";
 import ComputerDesktopIcon from "@heroicons/react/24/outline/ComputerDesktopIcon";
 import ArrowRightIcon from "@heroicons/react/24/solid/ArrowRightIcon";
 import ArrowRightOutlineIcon from "@heroicons/react/24/outline/PaperAirplaneIcon";
+import ArrowLeftIcon from "@heroicons/react/24/solid/ArrowLeftIcon";
 import ArrowCircleIcon from "@heroicons/react/20/solid/ArrowPathRoundedSquareIcon";
 import FunnelIcon from "@heroicons/react/24/outline/FunnelIcon";
 import BarsArrowDown from "@heroicons/react/24/outline/BarsArrowDownIcon";
@@ -237,6 +238,7 @@ export type ForumIconName =
   "Document" |
   "DocumentFilled" |
   "SoftUpArrow" |
+  "ArrowLeft" |
   "ArrowRight" |
   "ArrowRightOutline" |
   "ArrowCircle" |
@@ -358,6 +360,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     List: ListIcon,
     SoftUpArrow: SoftUpArrowIcon,
     ArrowRight: ArrowRightIcon,
+    ArrowLeft: ArrowLeftIcon,
     ArrowRightOutline: ArrowRightOutlineIcon,
     ArrowCircle: ArrowCircleIcon,
     EllipsisVertical: MuiEllipsisVerticalIcon,
@@ -475,6 +478,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Card: CardIcon,
     List: ListIcon,
     SoftUpArrow: SoftUpArrowIcon,
+    ArrowLeft: ArrowLeftIcon,
     ArrowRight: ArrowRightIcon,
     ArrowRightOutline: ArrowRightOutlineIcon,
     ArrowCircle: ArrowCircleIcon,

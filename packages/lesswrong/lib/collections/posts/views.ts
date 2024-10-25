@@ -14,11 +14,16 @@ import { jsonArrayContainsSelector } from '../../utils/viewUtils';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/collection';
 import { filter, isEmpty, pick } from 'underscore';
 import { visitorGetsDynamicFrontpage } from '../../betas';
+import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
 
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
 
 const eventBuffer = isEAForum ? {startBuffer: '1 hour', endBuffer: null} : {startBuffer: '6 hours', endBuffer: '3 hours'}
+
+export const POST_SORTING_MODES = new TupleSet([
+  "magic", "top", "topAdjusted", "new", "old", "recentComments"
+] as const);
 
 type ReviewSortings = "fewestReviews"|"mostReviews"|"lastCommentedAt"
 
@@ -77,7 +82,7 @@ declare global {
     algoActivityWeight?: number
     // END
   }
-  type PostSortingMode = "magic"|"top"|"topAdjusted"|"new"|"old"|"recentComments"
+  type PostSortingMode = UnionOf<typeof POST_SORTING_MODES>;
   type PostSortingModeWithRelevanceOption = PostSortingMode|"relevance"
 }
 
@@ -1576,3 +1581,18 @@ void ensureCustomPgIndex(`
 
 // Needed to speed up getPostsAndCommentsFromSubscriptions, which otherwise has a pretty slow nested loop when joining on Posts because of the "postedAt" filter
 ensureIndex(Posts, { userId: 1, postedAt: 1 }, { concurrently: true });
+
+
+Posts.addView("glossaryEditorPosts", (terms: PostsViewTerms, _, context?: ResolverContext) => {
+  return {
+    selector: {
+      userId: context?.currentUser?._id,
+      draft: viewFieldAllowAny,
+    },
+    options: {
+      sort: {
+        postedAt: -1
+      }
+    }
+  }
+})

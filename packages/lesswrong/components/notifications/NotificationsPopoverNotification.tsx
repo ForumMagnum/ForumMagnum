@@ -7,6 +7,7 @@ import { useCurrentUser } from "../common/withUser";
 import type { NotificationDisplay } from "@/lib/notificationTypes";
 import classNames from "classnames";
 import moment from "moment";
+import { useNotificationsPopoverContext } from "./useNotificationsPopoverContext";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -88,9 +89,8 @@ const formatNotificationType = (type: string): string => {
   }
 }
 
-const NotificationsPopoverNotification = ({notification, onClick, classes}: {
+const NotificationsPopoverNotification = ({notification, classes}: {
   notification: NotificationDisplay,
-  onClick?: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -100,8 +100,10 @@ const NotificationsPopoverNotification = ({notification, onClick, classes}: {
     (currentUser?.lastNotificationsCheck ?? new Date()) > notification.createdAt,
   );
 
+  const { closeNotifications } = useNotificationsPopoverContext();
+
   const onSelect = useCallback((ev: MouseEvent<HTMLDivElement>) => {
-    onClick?.();
+    closeNotifications();
     setIsRead(true);
     captureEvent("notificationClick", {
       notification: {
@@ -110,7 +112,7 @@ const NotificationsPopoverNotification = ({notification, onClick, classes}: {
       },
     });
     redirect(ev);
-  }, [redirect, onClick, captureEvent, notification]);
+  }, [closeNotifications, captureEvent, notification._id, notification.link, redirect]);
 
   if (!currentUser) {
     return null;

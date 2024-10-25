@@ -230,6 +230,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       [6]: '#6C7BFF',
     },
 
+    jargonTerm: shades.grey[600],
   },
   link: {
     unmarked: shades.greyAlpha(.87),
@@ -341,6 +342,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     transparent: shades.inverseGreyAlpha(0),
     imageOverlay: 'rgba(0,0,0,0.4)',
     digestAdBannerInput: shades.grey[0],
+    glossaryBackground: "rgba(190,120,80,.05)",
     sidenoteBackground: "rgba(190,120,80,.05)",
   },
   panelBackground: {

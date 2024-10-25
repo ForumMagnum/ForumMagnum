@@ -745,6 +745,7 @@ importComponent("AdminToggle", () => require('../components/admin/AdminToggle'))
 importComponent("RandomUserPage", () => require('../components/admin/RandomUserPage'));
 importComponent("AdminGoogleServiceAccount", () => require('../components/admin/AdminGoogleServiceAccount'));
 importComponent("AdminViewOnboarding", () => require('../components/admin/AdminViewOnboarding'));
+importComponent("TwitterAdmin", () => require('../components/admin/TwitterAdmin'));
 importComponent("ModerationDashboard", () => require('../components/sunshineDashboard/ModerationDashboard'));
 importComponent("TagMergePage", () => require('../components/tagging/TagMergePage.tsx'));
 importComponent("RecentlyActiveUsers", () => require('../components/sunshineDashboard/ModeratorUserInfo/RecentlyActiveUsers'));
@@ -1214,3 +1215,9 @@ importComponent("LanguageModelLauncherButton", () => require('../components/lang
 importComponent("AutocompleteModelSettings", () => require('../components/languageModels/AutocompleteModelSettings'));
 importComponent("LlmChatWrapper", () => require('../components/languageModels/LlmChatWrapper'));
 importComponent("LlmConversationsViewingPage", () => require('../components/languageModels/LlmConversationsViewingPage'));
+
+importComponent("JargonTooltip", () => require('../components/jargon/JargonTooltip'));
+importComponent("GlossarySidebar", () => require('../components/jargon/GlossarySidebar'));
+importComponent("GlossaryEditForm", () => require('../components/jargon/GlossaryEditForm'));
+importComponent("JargonEditorRow", () => require('../components/jargon/JargonEditorRow'));
+importComponent("GlossaryEditorPage", () => require('../components/jargon/GlossaryEditorPage'));

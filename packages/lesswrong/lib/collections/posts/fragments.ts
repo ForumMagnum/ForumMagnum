@@ -426,6 +426,11 @@ registerFragment(`
 
     # Crossposting
     fmCrosspost
+
+    # Jargon Terms
+    glossary {
+      ...JargonTermsPost
+    }
   }
 `);
 

@@ -211,7 +211,8 @@ export const darkModeTheme: UserThemeSpecification = {
       reviewWinner: {
         title: greyAlpha(0.75),
         author: greyAlpha(0.65)
-      }
+      },
+      jargonTerm: shadePalette.grey['A200'],
     },
     link: {
       primaryDim: '#3a7883',
@@ -239,6 +240,7 @@ export const darkModeTheme: UserThemeSpecification = {
       warningTranslucent: "rgba(255,173,8,0.3)",
       transparent: 'transparent',
       digestAdBannerInput: shadePalette.grey[300],
+      glossaryBackground: "rgba(180,160,160,.1)",
       sidenoteBackground: "rgba(180,160,160,.1)",
     },
     border: {

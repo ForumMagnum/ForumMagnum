@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, useCallback } from "react";
+import React, { FC, ReactNode, useCallback, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useTagPreview } from "./useTag";
 import { isFriendlyUI } from "../../themes/forumTheme";
@@ -20,13 +20,13 @@ type TagsTooltipTag = {
 const useTagsTooltipTag = (
   {tag, tagSlug}: TagsTooltipTag,
   hash?: string,
-  noPrefetch?: boolean,
+  skip?: boolean,
 ): {
   tag: PreviewableTag | null,
   loading: boolean,
 } => {
   const {tag: loadedTag, loading} = useTagPreview(tagSlug ?? "", hash, {
-    skip: noPrefetch || !!tag,
+    skip: skip || !!tag,
   });
 
   if (tag) {
@@ -65,6 +65,11 @@ const styles = (theme: ThemeType) => ({
     : {
       maxWidth: "unset",
     },
+  loading: {
+    paddingLeft: 16,
+    paddingRight: 32,
+    paddingBottom: 24,
+  },
 });
 
 const TagsTooltip = ({
@@ -95,42 +100,25 @@ const TagsTooltip = ({
   children: ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {tag, loading} = useTagsTooltipTag(tagsTooltipProps, hash, noPrefetch);
+  const [everHovered, setEverHovered] = useState(false);
+  const {tag, loading} = useTagsTooltipTag(
+    tagsTooltipProps, hash,
+    noPrefetch && !everHovered
+  );
 
-  const Title = useCallback<FC>(() => {
-    const {Loading, TagRelCard, TagPreview} = Components;
-    if (loading) {
-      return (
-        <Loading />
-      );
-    }
-
-    if (tagRel) {
-      return (
-        <TagRelCard tagRel={tagRel} />
-      );
-    }
-
-    if (tag) {
-      return (
-        <TagPreview
-          tag={tag}
-          hash={hash}
-          postCount={previewPostCount}
-          hideRelatedTags={hideRelatedTags}
-        />
-      );
-    }
-
-    return null;
-  }, [loading, tagRel, tag, hash, previewPostCount, hideRelatedTags]);
-
-  const {HoverOver} = Components;
+  const {HoverOver, Loading, TagRelCard, TagPreview} = Components;
   return (
     <HoverOver
       title={
         <PreviewWrapper tag={tag} loading={loading}>
-          <Title />
+          {loading && <Loading className={classes.loading}/>}
+          {!loading && tagRel && <TagRelCard tagRel={tagRel}/>}
+          {!loading && !tagRel && tag && <TagPreview
+            tag={tag}
+            hash={hash}
+            postCount={previewPostCount}
+            hideRelatedTags={hideRelatedTags}
+          />}
         </PreviewWrapper>
       }
       clickable
@@ -142,6 +130,7 @@ const TagsTooltip = ({
         tagName: tag?.name,
         tagSlug: tag?.slug
       }}
+      onShow={useCallback(() => setEverHovered(true), [])}
       className={className}
       popperClassName={classNames(classes.tooltip, popperClassName)}
       titleClassName={classes.tooltipTitle}

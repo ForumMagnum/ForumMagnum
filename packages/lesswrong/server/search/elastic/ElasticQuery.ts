@@ -57,6 +57,7 @@ export type QueryData = {
 export type Fuzziness = "AUTO" | number;
 
 type CompiledQuery = {
+  tokens: QueryToken[],
   searchQuery: QueryDslQueryContainer,
   snippetName: string,
   snippetQuery?: QueryDslQueryContainer,
@@ -186,7 +187,7 @@ class ElasticQuery {
     }
   }
 
-  private compileFilters() {
+  private compileFilters(tokens: QueryToken[]) {
     const filtersByField: Record<string, QueryFilter[]> = {};
     for (const filter of this.queryData.filters) {
       filtersByField[filter.field] ??= [];
@@ -214,6 +215,30 @@ class ElasticQuery {
       }
     }
 
+    const userFilters: QueryDslQueryContainer[] = [];
+    const tagFilters: QueryDslQueryContainer[] = [];
+    for (const {type, token} of tokens) {
+      if (type === "user") {
+        userFilters.push(
+          {term: {"authorSlug.sort": token}},
+          {term: {"authorDisplayName.sort": token}},
+          {term: {userId: token}},
+        );
+      } else if (type === "tag") {
+        tagFilters.push(
+          {term: {"tags._id": token}},
+          {term: {"tags.slug": {value: token, case_insensitive: true}}},
+          {term: {"tags.name": {value: token, case_insensitive: true}}},
+        );
+      }
+    }
+    if (userFilters.length) {
+      terms.push({bool: {should: userFilters}});
+    }
+    if (tagFilters.length) {
+      terms.push({bool: {should: tagFilters}});
+    }
+
     return terms.length ? terms : undefined;
   }
 
@@ -234,11 +259,12 @@ class ElasticQuery {
     };
   }
 
-  private compileSimpleQuery(): CompiledQuery {
+  private compileSimpleQuery(tokens: QueryToken[]): CompiledQuery {
     const {fields, snippet, highlight} = this.config;
     const {search} = this.queryData;
     const mainField = this.textFieldToExactField(fields[0], false);
     return {
+      tokens,
       searchQuery: {
         bool: {
           should: [
@@ -301,6 +327,7 @@ class ElasticQuery {
       },
     });
     return {
+      tokens: [{ type: "must", token: mustToken }],
       snippetName,
       snippetQuery: buildQuery(snippetName),
       ...(highlight && {
@@ -339,6 +366,10 @@ class ElasticQuery {
       case "should":
         should.push(this.getDefaultQuery(token, fields));
         break;
+      case "user":
+      case "tag":
+        // Do nothing - this is handled by `this.compileFilters`
+        break;
       }
     }
 
@@ -357,23 +388,27 @@ class ElasticQuery {
       };
     }
 
+    const highlightQueryString = tokens.filter(
+      ({type}) => type !== "user" && type !== "tag",
+    ).map(({token}) => token).join(" ");
+    const highlightQuery = this.getDefaultQuery(
+      highlightQueryString,
+      this.config.fields,
+    );
+
     return {
+      tokens,
       searchQuery,
       snippetName: snippet,
-      snippetQuery: this.getDefaultQuery(
-        this.queryData.search,
-        this.config.fields,
-      ),
+      snippetQuery: highlightQuery,
       highlightName: highlight,
-      highlightQuery: this.getDefaultQuery(
-        this.queryData.search,
-        this.config.fields,
-      ),
+      highlightQuery,
     };
   }
 
   private compileEmptyQuery(): CompiledQuery {
     return {
+      tokens: [],
       searchQuery: {
         match_all: {},
       },
@@ -389,7 +424,7 @@ class ElasticQuery {
     const {tokens, isAdvanced} = parseQuery(search);
     return isAdvanced
       ? this.compileAdvancedQuery(tokens)
-      : this.compileSimpleQuery();
+      : this.compileSimpleQuery(tokens);
   }
 
   private compileSort(sorting?: string, coordinates?: number[]): Sort {
@@ -469,6 +504,7 @@ class ElasticQuery {
     const hasCustomHighlight = !coordinates;
 
     const {
+      tokens,
       searchQuery,
       snippetName,
       snippetQuery,
@@ -519,7 +555,7 @@ class ElasticQuery {
               bool: {
                 must: searchQuery,
                 should: [],
-                filter: this.compileFilters(),
+                filter: this.compileFilters(tokens),
               },
             },
             script: {
