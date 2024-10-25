@@ -151,8 +151,6 @@ async function getContextualPosts({ content: query, ragMode, currentPost, postCo
     ? await getQueryContextDecision({ query, postContext, currentPost })
     : ragModeMapping[ragMode];
 
-  console.log({ ragMode,contextSelectionCode })
-  
   const useQueryEmbeddings = ['query-based', 'both'].includes(contextSelectionCode);
   const useCurrentPost = ['current-post-only', 'current-post-and-search', 'both'].includes(contextSelectionCode);
   const useCurrentPostSearchEmbeddings = ['current-post-and-search', 'both'].includes(contextSelectionCode);
@@ -672,85 +670,8 @@ export function addLlmChatEndpoint(app: Express) {
   });
 }
 
-function isString(value: unknown) {
-  return typeof value === 'string';
-}
-
-// export async function getLlmRecommendationsForUser(
-//   user: DbUser,
-//   limit: number,
-//   // settings: HybridRecombeeConfiguration,
-//   context: ResolverContext
-// ) {
-//   const client = getAnthropicPromptCachingClientOrThrow();
-
-//   const lastReadStatuses = await runFragmentQuery({
-//     collectionName: "ReadStatuses",
-//     fragmentName: "ReadStatusWithPostPage",
-//     terms: { view: 'userReadStatuses', userId: user._id, limit },
-//     context,
-//   });
-
-//   const lastReadPosts = filterWhereFieldsNotNull(lastReadStatuses, 'post');
-
-//   const prompt = `LessWrong user ${userGetDisplayName(user)} has most recently read the following posts:
-// ${lastReadPosts.map(({ post, lastUpdated }) => {
-//   const contentPreview = htmlToMarkdown(post.contents?.html ?? '').slice(0, 1000);
-
-//   return `Title: ${post.title}
-// Author: ${userGetDisplayName(post.user)}
-// Publish Date: ${post.postedAt}
-// Read Date: ${lastUpdated}
-// Score: ${post.baseScore}
-// Content Preview: ${contentPreview}`;
-// })}
-
-// Please recommend the next ten LessWrong posts they should read.  Do not recommend posts in the read history above.`;
-
-//   const tool: Tool = {
-//     name: 'recommend_post_titles',
-//     description: 'Recommends posts with the provided titles to the user, based on their reading history.',
-//     input_schema: {
-//       type: 'object',
-//       properties: {
-//         titles: {
-//           type: 'array',
-//           items: {
-//             type: 'string'
-//           },
-//           description: 'The titles of the posts to serve to the user as recommendations.'
-//         }
-//       }
-//     }
-//   };
-
-//   const response = await client.messages.create({
-//     model: 'claude-3-5-sonnet-20240620',
-//     max_tokens: 1028,
-//     messages: [{ role: 'user', content: [{ type: 'text', text: prompt, cache_control: { type: 'ephemeral' } }] }],
-//     tools: [tool],
-//     tool_choice: { type: 'tool', name: 'recommend_post_titles' } 
-//   });
-
-//   const [responseContent] = response.content;
-//   if (responseContent.type === 'text') {
-//     console.log({ text: responseContent.text });
-//     throw new Error('Got text response!');
-//   }
-
-//   const toolUseResponse = responseContent.input;
-//   if (('titles' in toolUseResponse) && Array.isArray(toolUseResponse.titles) && toolUseResponse.titles.every(isString)) {
-//     console.log({ titles: toolUseResponse.titles });
-//     const recommendedPosts = await context.Posts.find({ title: { $in: toolUseResponse.titles } }).fetch();
-//     return recommendedPosts.map((post) => ({
-//       post,
-//       curated: false,
-//       stickied: false,
-//     }));
-//   }
-
-//   console.log('Invalid tool_use response data format', { toolUseResponse });
-//   throw new Error('Invalid tool_use response data format');
+// function isString(value: unknown) {
+//   return typeof value === 'string';
 // }
 
 
