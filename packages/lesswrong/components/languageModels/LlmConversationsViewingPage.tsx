@@ -155,7 +155,7 @@ const LlmConversationSelector = ({currentConversationId, setCurrentConversationI
   const { results, loading } = useMulti({
     collectionName: "LlmConversations",
     fragmentName: "LlmConversationsViewingPageFragment",
-    terms: { view: "llmConversationsAll", showDeleted: showDeleted },
+    terms: { view: "llmConversationsAll", showDeleted },
     limit: 200,
   });
 

@@ -131,7 +131,6 @@ async function getProvidedPosts(query: string, context: ResolverContext): Promis
 
   const postIds = uniq(postIdMatches);
   const posts = await getPostsWithContents(postIds, context);
-  console.log('analyzing for provided posts', {query, postIds, postTitles: posts?.map(post => post.title)})
 
   return posts;
 }
@@ -417,8 +416,6 @@ async function getPostsWithContents(postIds: string[], context: ResolverContext)
 }
 
 async function getContextMessages({ content, ragMode, currentPost, postContext, context }: GetContextMessageArgs) {
-
-  
   if (['None', 'Recommendation'].includes(ragMode)) {
     return {
       userContextMessage: '',
