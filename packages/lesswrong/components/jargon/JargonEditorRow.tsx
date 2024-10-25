@@ -182,9 +182,8 @@ const JargonSubmitButton = ({ submitForm, cancelCallback, classes }: FormButtonP
 
 // Jargon editor row
 
-export const JargonEditorRow = ({classes, postId, jargonTerm, instancesOfJargonCount}: {
+export const JargonEditorRow = ({classes, jargonTerm, instancesOfJargonCount}: {
   classes: ClassesType<typeof styles>,
-  postId: string,
   jargonTerm: JargonTerms,
   instancesOfJargonCount?: number,
 }) => {
