@@ -2124,7 +2124,7 @@ const schema: SchemaType<"Posts"> = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members'],
-    hidden: (props) => !props.eventForm,
+    hidden: (props) => !props.eventForm || isLWorAF,
     control: 'select',
     group: formGroups.event,
     optional: true,

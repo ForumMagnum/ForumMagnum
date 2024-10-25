@@ -15,9 +15,10 @@ import EmailIcon from '@material-ui/icons/Email';
 import LocationIcon from '@material-ui/icons/LocationOn';
 import { GROUP_CATEGORIES } from '../../lib/collections/localgroups/schema';
 import { preferredHeadingCase } from '../../themes/forumTheme';
+import Person from '@material-ui/icons/Person';
 
 
-const styles = createStyles((theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {},
   topSection: {
     [theme.breakpoints.up('md')]: {
@@ -82,6 +83,16 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     marginTop: "0px",
     marginBottom: "0.5rem"
   },
+  groupOrganizers: {
+    display: "flex",
+    alignItems: 'center',
+    ...theme.typography.body2,
+    color: theme.palette.text.slightlyDim2,
+    marginBottom: 5,
+  },
+  organizedBy: {
+    marginLeft: 5,
+  },
   groupLocation: {
     ...theme.typography.body2,
     display: "flex",
@@ -90,6 +101,9 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     color: theme.palette.text.slightlyDim2,
   },
   groupLocationIcon: {
+    fontSize: 20
+  },
+  organizersIcon: {
     fontSize: 20
   },
   groupCategories: {
@@ -211,10 +225,10 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       maxWidth: 'none'
     },
   }
-}));
+});
 
 const LocalGroupPage = ({ classes, documentId: groupId }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   documentId: string,
   groupId?: string,
 }) => {
@@ -223,7 +237,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
     HeadTags, CommunityMapWrapper, SingleColumnSection, SectionTitle, PostsList2,
     Loading, SectionButton, NotifyMeButton, SectionFooter, GroupFormLink, ContentItemBody,
     Error404, CloudinaryImage2, EventCards, LoadMore, ContentStyles, Typography,
-    HoverOver, LocalGroupSubscribers
+    HoverOver, LocalGroupSubscribers, UsersNameDisplay,
   } = Components
 
   const { document: group, loading: groupLoading } = useSingle({
@@ -399,6 +413,17 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
             {isEAForum ? <Typography variant="display1" className={classes.groupName}>
               {groupNameHeading}
             </Typography> : <SectionTitle title={groupNameHeading} noTopMargin />}
+
+            {!isEAForum && <div className={classes.groupOrganizers}>
+              <Person className={classes.organizersIcon}/>
+              <div className={classes.organizedBy}>
+                Organized by: {group.organizers.map((user, i) => <>
+                  {(i>0) && <>,&nbsp;</>}
+                  <UsersNameDisplay user={user} tooltipPlacement="bottom-start"/>
+                </>)}
+              </div>
+            </div>}
+
             <div className={classes.groupLocation}>
               <LocationIcon className={classes.groupLocationIcon} />
               {group.isOnline ? 'Online Group' : group.location}
@@ -528,7 +553,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
 
         {pastEventsList}
         
-        {(isAdmin || isGroupAdmin) && <LocalGroupSubscribers groupId={groupId}/>}
+        {(!isEAForum && (isAdmin || isGroupAdmin)) && <LocalGroupSubscribers groupId={groupId}/>}
       </SingleColumnSection>
     </div>
   )
