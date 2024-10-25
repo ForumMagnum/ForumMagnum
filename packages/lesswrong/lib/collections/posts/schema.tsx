@@ -42,6 +42,7 @@ import { stableSortTags } from '../tags/helpers';
 import { getLatestContentsRevision } from '../revisions/helpers';
 import { marketInfoLoader } from './annualReviewMarkets';
 import { getUnusedSlugByCollectionName } from '@/lib/helpers';
+import jargonTermSchema from '../jargonTerms/schema';
 
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
@@ -840,13 +841,13 @@ const schema: SchemaType<"Posts"> = {
     hidden: !isLWorAF
   },
 
+  // We get this to show up in the PostsEditForm by adding it to the addFields array
+  // Trying to do that by having `canUpdate` doesn't work because it then tries to validate the jargon terms in the glossary, and barfs
   glossary: resolverOnlyField({
     type: Array,
     graphQLtype: '[JargonTerm!]!',
     optional: true,
     canRead: ['guests'],
-    // This isn't a field on the post table, but we need canUpdate for it to show up in the post edit form
-    canUpdate: [userOwns, 'admins'],
     control: "GlossaryEditForm",
     group: formGroups.glossary,
     hidden: ({currentUser}) => !userCanCreateAndEditJargonTerms(currentUser),
