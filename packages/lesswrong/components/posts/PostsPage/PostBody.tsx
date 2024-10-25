@@ -50,7 +50,7 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
     ? jargonTermsToTextReplacements(post.glossary)
     : [];
   const replacedSubstrings = [...highlights, ...glossaryItems];
-  const glossarySidebar = 'glossary' in post
+  const glossarySidebar = 'glossary' in post && post.glossary.length > 0
     ? <GlossarySidebar post={post} postGlossariesPinned={!!postGlossariesPinned} togglePin={togglePin} />
     : null;
     
