@@ -1,10 +1,11 @@
-import React, { useRef } from 'react';
+import React, { useRef, useMemo } from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { userCanViewJargonTerms } from '@/lib/betas';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import classNames from 'classnames';
-import { countInstancesOfJargon } from './utils';
+import { sidenotesHiddenBreakpoint } from '../posts/PostsPage/PostsPage';
+import { useJargonCounts } from '@/components/hooks/useJargonCounts';
 
 const styles = (theme: ThemeType) => ({
   glossaryAnchor: {
@@ -23,7 +24,8 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.postStyle,
     fontSize: "1.1rem",
     color: theme.palette.grey[800],
-    cursor: 'pointer'
+    cursor: 'pointer',
+    textTransform: 'capitalize',
   },
   glossaryContainer: {
     [theme.breakpoints.down('sm')]: {
@@ -32,6 +34,7 @@ const styles = (theme: ThemeType) => ({
     padding: 12,
     borderRadius: 3,
     maxHeight: 170,
+    width: 'fit-content',
     overflow: 'hidden',
 
     "&:hover": {
@@ -40,6 +43,12 @@ const styles = (theme: ThemeType) => ({
       "& $pinIcon": {
         display: 'block',
       },
+    },
+
+    // Hide the overflow fade when hovering over the glossary container
+    // This only works if the overflow fade is a sibling to the glossary container, and comes after it
+    "&:hover + $overflowFade": {
+      opacity: 0,
     },
   },
   glossaryContainerClickTarget: {
@@ -52,17 +61,14 @@ const styles = (theme: ThemeType) => ({
     height: 'var(--sidebar-column-remaining-height)',
   },
   displayedHeightGlossaryContainer: {
+    [sidenotesHiddenBreakpoint(theme)]: {
+      display: "none",
+    },
     paddingTop: 30,
     paddingBottom: 20,
     // Hide other side items behind the glossary sidebar when it's pinned and we're scrolling down
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
     zIndex: 1,
-
-    "&:hover": {
-      "& $overflowFade": {
-        opacity: 0,
-      },
-    }
   },
   pinnedGlossaryContainer: {
     position: 'sticky',
@@ -107,8 +113,12 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
+const getNormalizedPostContents = (post: PostsWithNavigationAndRevision | PostsWithNavigation): string => {
+  return (post.contents?.html ?? "").toLowerCase();
+};
+
 const GlossarySidebar = ({post, postGlossariesPinned, togglePin, classes}: {
-  post: PostsListWithVotes | PostsWithNavigationAndRevision | PostsWithNavigation,
+  post: PostsWithNavigationAndRevision | PostsWithNavigation,
   postGlossariesPinned: boolean,
   togglePin: () => void,
   classes: ClassesType<typeof styles>,
@@ -125,7 +135,9 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, classes}: {
     }
   });
 
-  if (!post || !('glossary' in post) || !post.glossary?.length) {
+  const { sortedTerms } = useJargonCounts(post, post.glossary);
+
+  if (!post) {
     return null;
   }
 
@@ -151,13 +163,9 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, classes}: {
       <h3 className={classes.title}><strong>Glossary</strong></h3>
     </div>
   );
-  
-  const sortedGlossary = [...post.glossary].sort((a, b) => {
-    return countInstancesOfJargon(b, post) - countInstancesOfJargon(a, post);
-  });
 
-  const glossaryItems = sortedGlossary.map((jargonTerm) => {
-    return (<div key={jargonTerm.term}>
+  const glossaryItems = sortedTerms.map((jargonTerm) => {
+    return (<div key={jargonTerm._id + jargonTerm.term}>
       <JargonTooltip
         definitionHTML={jargonTerm.contents?.html ?? ''}
         altTerms={jargonTerm.altTerms}

@@ -50,8 +50,10 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
     ? jargonTermsToTextReplacements(post.glossary)
     : [];
   const replacedSubstrings = [...highlights, ...glossaryItems];
-  const glossarySidebar = <GlossarySidebar post={post} postGlossariesPinned={!!postGlossariesPinned} togglePin={togglePin} />
-
+  const glossarySidebar = 'glossary' in post
+    ? <GlossarySidebar post={post} postGlossariesPinned={!!postGlossariesPinned} togglePin={togglePin} />
+    : null;
+    
   if (includeSideComments && document?.sideComments) {
     const htmlWithIDs = document.sideComments.html;
     const sideComments = sideCommentMode==="highKarma"

@@ -8,6 +8,8 @@ import classNames from 'classnames';
 import TextField from '@material-ui/core/TextField';
 import { formStyles } from './JargonEditorRow';
 import { countInstancesOfJargon } from './utils';
+import { isFriendlyUI } from '@/themes/forumTheme';
+import { useJargonCounts } from '@/components/hooks/useJargonCounts';
 
 export const defaultGlossaryPrompt = `You're a Glossary AI. Your goal is to make good explanations for technical jargon terms. You are trying to produce a useful hoverover tooltip in an essay on LessWrong.com, accessible to a smart, widely read layman. 
 
@@ -190,7 +192,12 @@ const styles = (theme: ThemeType) => ({
   },
   expandCollapseIcon: {
     cursor: 'pointer',
-  }
+  },
+  formSectionHeadingTitle: {
+    marginBottom: 5,
+    fontSize: "1.25rem",
+    fontWeight: isFriendlyUI ? 600 : undefined,
+  },
 });
 
 export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
@@ -221,12 +228,10 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     fragmentName: 'JargonTerms',
   })
 
-  const sortedGlossary = [...glossary].sort((a, b) => {
-    return countInstancesOfJargon(b, document) - countInstancesOfJargon(a, document);
-  });
+  const { sortedTerms, getCount } = useJargonCounts(document, glossary);
 
-  const deletedTerms = sortedGlossary.filter((item) => item.deleted);
-  const nonDeletedTerms = sortedGlossary.filter((item) => !item.deleted);
+  const deletedTerms = sortedTerms.filter((item) => item.deleted);
+  const nonDeletedTerms = sortedTerms.filter((item) => !item.deleted);
   const sortedApprovedTerms = nonDeletedTerms.filter((item) => item.approved);
   const sortedUnapprovedTerms = nonDeletedTerms.filter((item) => !item.approved);
 
@@ -418,7 +423,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   return <div className={classes.root}>
     {showTitle && <Row justifyContent="space-between">
       <LWTooltip title="Beta feature! Select/edit terms below, and readers will be able to hover over and read the explanation.">
-        <h2>Glossary [Beta ]</h2>
+        <h3 className={classes.formSectionHeadingTitle}>Glossary [Beta]</h3>
       </LWTooltip>
       <div className={classes.expandCollapseIcon} onClick={() => setExpanded(!expanded)}>{expanded ? <IconDown height={16} width={16} /> : <IconRight height={16} width={16} />}</div>
     </Row>}
@@ -439,13 +444,17 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
           </div>
         </div>}
         {nonDeletedTerms.map((item) => {
-          return <JargonEditorRow key={item._id} jargonTerm={item} instancesOfJargonCount={countInstancesOfJargon(item, document)}/>
+          return <JargonEditorRow 
+            key={item._id} 
+            jargonTerm={item} 
+            instancesOfJargonCount={getCount(item)}
+          />;
         })}
         {deletedTerms.length > 0 && <div className={classes.button} onClick={() => setShowDeletedTerms(!showDeletedTerms)}>
           {showDeletedTerms ? "Hide deleted terms" : `Show deleted terms (${deletedTerms.length})`}
         </div>}
         {deletedTerms.length > 0 && showDeletedTerms && deletedTerms.map((item) => {
-          return <JargonEditorRow key={item._id} jargonTerm={item} instancesOfJargonCount={countInstancesOfJargon(item, document)}/>
+          return <JargonEditorRow key={item._id} jargonTerm={item} instancesOfJargonCount={getCount(item)}/>
         })}
 
       </div>

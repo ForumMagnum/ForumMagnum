@@ -18,8 +18,14 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 0,
   },
   jargonWord: {
-    color: theme.palette.text.jargonTerm,
-    textTransform: 'capitalize',
+    'a &': {
+      // When the span is inside a link, inherit the link's color
+      color: 'inherit',
+    },
+    '&': {
+      // Default case (when not in a link)
+      color: theme.palette.text.jargonTerm,
+    },
   },
   altTerms: {
     marginTop: 8,
@@ -98,25 +104,18 @@ export const JargonTooltip = ({definitionHTML, approved, altTerms, humansAndOrAI
   </LWTooltip>;
 }
 
-type MinimumExpandableJargonTerm = Pick<JargonTermsPost, '_id' | 'term' | 'altTerms'>;
-
-export function expandJargonAltTerms<T extends MinimumExpandableJargonTerm>(glossaryItem: T, includeOriginalTerm = true): T[] {
-  const expandedTerms = [...glossaryItem.altTerms.map(altTerm => ({
-    ...glossaryItem,
-    term: altTerm,
-    // I considered replacing the alt term in the altTerms list with the original term, but decided that'd be confusing to users
-  }))];
-
-  if (includeOriginalTerm) {
-    expandedTerms.unshift(glossaryItem);
-  }
-  
-  return expandedTerms;
-}
-
 function convertGlossaryItemToTextReplacement(glossaryItem: JargonTermsPost): ContentReplacedSubstringComponentInfo {
+  // Create an array of all terms (original + alternates) to search for
+  const allTerms = [glossaryItem.term, ...glossaryItem.altTerms];
+  
+  // First trim all terms, then sort by length and escape special chars
+  const escapedTerms = allTerms
+    .map(term => term.trim())
+    .sort((a, b) => b.length - a.length)
+    .map(term => term.replace(/[\\/$^*+?.()|[\]{}]-/g, '\\$&')); // Escape regex special chars
+  
   return {
-    replacedString: glossaryItem.term,
+    replacedString: escapedTerms.join('|'),
     componentName: "JargonTooltip",
     replace: 'all',
     caseInsensitive: true,
@@ -127,13 +126,12 @@ function convertGlossaryItemToTextReplacement(glossaryItem: JargonTermsPost): Co
       altTerms: glossaryItem.altTerms,
       humansAndOrAIEdited: glossaryItem.humansAndOrAIEdited,
     },
+    isRegex: true,
   };
 }
 
 export function jargonTermsToTextReplacements(terms: JargonTermsPost[]): ContentReplacedSubstringComponentInfo[] {
-  return terms
-    .flatMap((glossaryItem) => expandJargonAltTerms(glossaryItem))
-    .map(convertGlossaryItemToTextReplacement);
+  return terms.map(convertGlossaryItemToTextReplacement);
 }
 
 const JargonTooltipComponent = registerComponent('JargonTooltip', JargonTooltip, {styles});

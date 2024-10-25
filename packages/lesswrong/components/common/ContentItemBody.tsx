@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { Components, registerComponent, validateUrl } from '../../lib/vulcan-lib';
-import { captureException }from '@sentry/core';
+import { captureException } from '@sentry/core';
 import { linkIsExcludedFromPreview } from '../linkPreview/HoverPreviewLink';
 import { toRange } from '../../lib/vendor/dom-anchor-text-quote';
 import { rawExtractElementChildrenToReactComponent, reduceRangeToText, splitRangeIntoReplaceableSubRanges, wrapRangeWithSpan } from '../../lib/utils/rawDom';
@@ -66,6 +66,7 @@ export type ContentReplacedSubstringComponentInfo = {
   componentName: keyof ComponentTypes,
   replace: ContentReplacementMode,
   caseInsensitive?: boolean,
+  isRegex?: boolean,
   props: AnyBecauseHard
 };
 
@@ -402,7 +403,6 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
       if (replacement.replace === "all") {
         const ReplacementComponent = Components[replacement.componentName];
         const replacementComponentProps = replacement.props;
-        const searchString = replacement.replacedString.trim();
         
         try {
           // Collect all ranges to replace in document order
@@ -412,17 +412,51 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
           const collectRanges = (node: Node) => {
             if (node.nodeType === Node.TEXT_NODE) {
               let textContent = node.textContent || "";
-              let index = replacement.caseInsensitive
-                ? textContent.toLowerCase().indexOf(searchString.toLowerCase())
-                : textContent.indexOf(searchString);
-              while (index !== -1) {
-                const range = document.createRange();
-                range.setStart(node, index);
-                range.setEnd(node, index + searchString.length);
-                rangesToReplace.push({ range, isFirst });
-                if (isFirst) isFirst = false;
-                index = textContent.indexOf(searchString, index + searchString.length);
-                if (replacement.replace === 'first' && !isFirst) break;
+              
+              // Helper function to check if a character is part of a word
+              const isWordChar = (char: string) => /[\p{L}\p{N}'-]/u.test(char);
+              
+              // Helper function to process a potential match
+              const processMatch = (index: number, matchLength: number, isFirst: boolean) => {
+                const prevChar = textContent[index - 1];
+                const nextChar = textContent[index + matchLength];
+                
+                const isPrevBoundary = !prevChar || !isWordChar(prevChar);
+                const isNextBoundary = !nextChar || !isWordChar(nextChar);
+
+                if (isPrevBoundary && isNextBoundary) {
+                  const range = document.createRange();
+                  range.setStart(node, index);
+                  range.setEnd(node, index + matchLength);
+                  
+                  rangesToReplace.push({ range, isFirst });
+                  return true;
+                }
+                return false;
+              };
+              
+              if (replacement.isRegex) {
+                // Use regex for patterns with alternates
+                const pattern = new RegExp(`(${replacement.replacedString.trim()})`, replacement.caseInsensitive ? 'gi' : 'g');
+                let match;
+                while ((match = pattern.exec(textContent)) !== null) {
+                  if (processMatch(match.index, match[0].length, isFirst)) {
+                    isFirst = false;
+                  }
+                }
+              } else {
+                // Use indexOf for simple string searches
+                const searchString = replacement.replacedString.trim();
+                const searchStringLower = replacement.caseInsensitive ? searchString.toLowerCase() : searchString;
+                const textContentForSearch = replacement.caseInsensitive ? textContent.toLowerCase() : textContent;
+                
+                let index = textContentForSearch.indexOf(searchStringLower);
+                while (index !== -1) {
+                  if (processMatch(index, searchString.length, isFirst)) {
+                    isFirst = false;
+                  }
+                  index = textContentForSearch.indexOf(searchStringLower, index + 1);
+                }
               }
             } else if (node.nodeType === Node.ELEMENT_NODE) {
               node.childNodes.forEach(child => collectRanges(child));
@@ -576,3 +610,4 @@ declare global {
     ContentItemBody: typeof ContentItemBodyComponent
   }
 }
+
