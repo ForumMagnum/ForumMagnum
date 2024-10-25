@@ -435,7 +435,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
               mutationFragment={getFragment('JargonTerms')}
               queryFragment={getFragment('JargonTerms')}
               formComponents={{ FormSubmit: Components.JargonSubmitButton }}
-              prefilledProps={{ postId: document._id, humansAndOrAIEdited: 'humans', approved: true, deleted: false }}
+              prefilledProps={{ postId: document._id }}
               cancelCallback={() => setShowNewJargonTermForm(false)}
               successCallback={() => setShowNewJargonTermForm(false)}
             />

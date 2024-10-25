@@ -32,6 +32,7 @@ const schema: SchemaType<"JargonTerms"> = {
   },
   approved: {
     type: Boolean,
+    optional: true,
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members'],
@@ -40,6 +41,7 @@ const schema: SchemaType<"JargonTerms"> = {
   },
   deleted: {
     type: Boolean,
+    optional: true,
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members'],
