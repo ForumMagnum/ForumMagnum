@@ -98,9 +98,7 @@ async function executeWithLock<T>(rawLockId: string, callback: () => Promise<T>)
       // 2. The lock is not acquired
       // 3. The lock is acquired, but the query throws an error
       // 4. The lock is not acquired, and the query throws an error
-      console.time('acquire lock');
       lockResult = await task.any<{ pg_try_advisory_lock: boolean }>('SELECT pg_try_advisory_lock($1)', [lockId]);
-      console.timeEnd('acquire lock');
     } catch (err) {
       // This deals with cases 3 and 4 (query threw an error, lock may or may not be acquired)
       // Case 4 is unfortunate, since we might release someone else's lock, but it's better than leaving the lock in place
@@ -136,16 +134,6 @@ function sanitizeJargonTerms(jargonTerms: LLMGeneratedJargonTerm[]) {
     htmlContent: sanitize(jargonTerm.htmlContent)
   }));
 }
-
-// async function queryClaudeJailbreak(prompt: PromptCachingBetaMessageParam[], maxTokens: number, systemPrompt: string) {
-//   const client = getAnthropicPromptCachingClientOrThrow(jargonBotClaudeKey.get())
-//   return await client.messages.create({
-//     system: systemPrompt,
-//     model: "claude-3-5-sonnet-20240620",
-//     max_tokens: maxTokens,
-//     messages: prompt
-//   });
-// }
 
 export const queryClaudeForTerms = async (markdown: string) => {
   const client = getAnthropicPromptCachingClientOrThrow(jargonBotClaudeKey.get());
@@ -184,41 +172,7 @@ The jargon terms are:`
   return parsedResponse.data.jargonTerms;
 }
 
-// async function createExplanationMessagesWithExample(postMarkdown: string, extractedTerms: string[]): Promise<PromptCachingBetaMessageParam[]> {
-
-//   const toolUseId = randomId();
-//   const examplePost = await getExamplePost("exampleJargonLatents.md");
-
-//   return [{
-//     role: "user",
-//     content: [{
-//       type: "text",
-//       text: `${glossarySystemPrompt}\n\nThe post is: <Post>${examplePost}</Post>.  The jargon terms are: <Terms>${exampleJargonLatentsTerms}</Terms>`
-//     }]
-//   },
-//   {
-//     role: "assistant",
-//     content: [{
-//       type: "tool_use",
-//       id: toolUseId,
-//       name: "generate_jargon_glossary",
-//       input: exampleJargonLatentsGlossary,
-//     }]
-//   },
-//   {
-//     role: "user",
-//     content: [{
-//       type: "tool_result",
-//       tool_use_id: toolUseId,
-//     }, {
-//       type: "text",
-//       text: `Thanks!  Now can you do the following post? <Post>${postMarkdown}</Post>.  The jargon terms are: <Terms>${extractedTerms}</Terms>`
-//     }]
-//   }];
-// }
-
 async function createSingleExplanationMessageWithExample({markdown, term, toolUseId, glossaryPrompt, examplePost, exampleTerm, exampleAltTerm, exampleDefinition}: {markdown: string, term: string, toolUseId: string, glossaryPrompt?: string, examplePost?: string, exampleTerm?: string, exampleAltTerm?: string, exampleDefinition?: string}): Promise<PromptCachingBetaMessageParam[]> {
-  // console.log(`exampleTerms: ${oldExampleTerms}`)
   const finalSystemPrompt = glossaryPrompt ?? defaultGlossaryPrompt
   const finalExamplePost = examplePost ?? defaultExamplePost
   const finalExampleTerm = exampleTerm ?? defaultExampleTerm
@@ -307,11 +261,9 @@ export async function createEnglishExplanations({post, excludeTerms, glossaryPro
   }
 
   const newTerms = terms.filter(term => !excludeTerms.includes(term) && post.contents?.html?.includes(term));
-  console.log(`newTerms: ${newTerms}`)
 
-  // return queryClaudeForJargonExplanations({ markdown, terms: newTerms });
   const toolUseId = randomId();
-  const explanations = await Promise.all(terms.map((term) => queryClaudeForSingleJargonExplanation({ markdown, term, toolUseId, glossaryPrompt, examplePost, exampleTerm, exampleAltTerm, exampleDefinition })));
+  const explanations = await Promise.all(newTerms.map((term) => queryClaudeForSingleJargonExplanation({ markdown, term, toolUseId, glossaryPrompt, examplePost, exampleTerm, exampleAltTerm, exampleDefinition })));
   return filterNonnull(explanations);
 }
 
