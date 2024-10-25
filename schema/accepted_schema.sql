@@ -3116,7 +3116,7 @@ CREATE TABLE "Users" (
   "noindex" BOOL NOT NULL DEFAULT FALSE,
   "groups" TEXT[],
   "lwWikiImport" BOOL,
-  "theme" JSONB NOT NULL DEFAULT '{"name":"auto"}'::JSONB,
+  "theme" JSONB NOT NULL DEFAULT '{"name":"default"}'::JSONB,
   "lastUsedTimezone" TEXT,
   "whenConfirmationEmailSent" TIMESTAMPTZ,
   "legacy" BOOL NOT NULL DEFAULT FALSE,
