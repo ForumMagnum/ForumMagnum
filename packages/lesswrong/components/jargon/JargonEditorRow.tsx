@@ -230,7 +230,7 @@ export const JargonEditorRow = ({classes, jargonTerm, instancesOfJargonCount}: {
   }
   const { JargonTooltip, WrappedSmartForm, ContentItemBody, LWTooltip } = Components;
 
-  const jargonDefinition = jargonTerm?.contents?.originalContents?.data ?? '';
+  const jargonDefinition = jargonTerm?.contents?.html ?? '';
 
   return <div className={classes.root}>
       <div onClick={handleActiveChange}>

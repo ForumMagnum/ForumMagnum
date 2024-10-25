@@ -13,10 +13,6 @@ export function sanitizeJargonTerm<T extends Partial<DbJargonTerm>>(jargonTerm: 
     sanitizedJargonTerm.contents.html = sanitize(sanitizedJargonTerm.contents.html);
   }
 
-  if (sanitizedJargonTerm.contents?.originalContents?.data) {
-    sanitizedJargonTerm.contents.originalContents.data = sanitize(sanitizedJargonTerm.contents.originalContents.data);
-  }
-
   return sanitizedJargonTerm;
 }
 
