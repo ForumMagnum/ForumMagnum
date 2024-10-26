@@ -563,7 +563,7 @@ Comments.addView('shortformFrontpage', (terms: CommentsViewTerms, _, context?: R
           : {},
         {
           $or: [
-            {reviewedByUserId: {$exists: true}},
+            {authorIsUnreviewed: false},
             {userId: currentUserId},
           ]
         },

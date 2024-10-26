@@ -146,12 +146,13 @@ const QuickTakesEntry = ({
     return null;
   }
 
-  const userIsNotApproved = !currentUser?.reviewedByUserId;
+  // is true when user is logged out or has not been reviewed yet, i.e. has made no contributions yet
+  const showNewUserMessage = !currentUser?.reviewedByUserId;
 
   const {CommentsNewForm} = Components;
   return <div className={classNames(classes.root, className)} ref={ref}>
     {/* TODO: Write a better message for new users */}
-    {expanded && userIsNotApproved && <div className={classes.userNotApprovedMessage}>Quick Takes is an excellent place for your first contribution!</div>}
+    {expanded && showNewUserMessage && <div className={classes.userNotApprovedMessage}>Quick Takes is an excellent place for your first contribution!</div>}
     <div
       className={classNames(classes.commentEditor, {[classes.collapsed]: !expanded})}
       onFocus={onFocus}
