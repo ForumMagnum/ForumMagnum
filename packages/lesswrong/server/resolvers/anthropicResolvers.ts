@@ -135,17 +135,18 @@ async function getProvidedPosts(query: string, context: ResolverContext): Promis
   return posts;
 }
 
+const ragModeMapping = {
+  'CurrentPost': 'current-post-only',
+  'Search': 'both',
+  'None': 'none',
+  // 'Recommendation': 'recommendation',
+  'Provided': 'provided',
+  // 'Rationality Tutor': 'rationality-tutor',
+}
+
 // TODO: come back and refactor the query context decision to actually use the embedding distance results (including the post titles)
 async function getContextualPosts({ content: query, ragMode, currentPost, postContext, context }: GetContextMessageArgs): Promise<LlmPost[]> {
 
-  const ragModeMapping = {
-    'CurrentPost': 'current-post-only',
-    'Search': 'both',
-    'None': 'none',
-    // 'Recommendation': 'recommendation',
-    'Provided': 'provided',
-    // 'Rationality Tutor': 'rationality-tutor',
-  }
 
   const contextSelectionCode = (ragMode === 'Auto')
     ? await getQueryContextDecision({ query, postContext, currentPost })
@@ -423,10 +424,12 @@ async function getContextMessages({ content, ragMode, currentPost, postContext, 
     };
   }
 
-  const providedPosts = await getProvidedPosts(content, context);
-  const contextualPosts = await getContextualPosts({ content, ragMode, currentPost, postContext, context });
-  const userContextMessage = getPostContextMessage([...providedPosts, ...contextualPosts], currentPost);
+  const [providedPosts, contextualPosts] = await Promise.all([
+    getProvidedPosts(content, context),
+    getContextualPosts({ content, ragMode, currentPost, postContext, context })
+  ]);
   const assistantContextMessage = await generateAssistantContextMessage({query: content, currentPost, postContext,providedPosts, contextualPosts, includeComments: true, context});
+  const userContextMessage = getPostContextMessage([...providedPosts, ...contextualPosts], currentPost);
 
   return { userContextMessage, assistantContextMessage, providedPosts, contextualPosts };
 }
@@ -669,10 +672,6 @@ export function addLlmChatEndpoint(app: Express) {
     res.end();
   });
 }
-
-// function isString(value: unknown) {
-//   return typeof value === 'string';
-// }
 
 
 // defineMutation({

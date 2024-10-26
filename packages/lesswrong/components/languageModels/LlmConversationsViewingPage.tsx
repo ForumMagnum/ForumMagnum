@@ -42,12 +42,10 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     gap: 10,
-    // color: theme.palette.primary.main,
     fontFamily: theme.palette.fonts.sansSerifStack
   },
   checkbox: {
     margin: 0,
-    // color: theme.palette.primary.main,
   },
   conversationViewerTitle: {
     ...theme.typography.commentStyle,
