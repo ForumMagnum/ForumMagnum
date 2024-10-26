@@ -242,7 +242,7 @@ async function maybeCreateReviewMarket({newDocument, vote}: VoteDocTuple, collec
   const closeTime = new Date(year + 2, 1, 1) // i.e. february 1st of the next next year (so if year is 2022, feb 1 of 2024)
   const visibility = isProduction ? "public" : "unlisted"
 
-  const liteMarket = await createManifoldMarket(question, descriptionMarkdown, closeTime, visibility, initialProb)
+  const liteMarket = await createManifoldMarket(question, descriptionMarkdown, closeTime, visibility, initialProb, post._id)
 
   // Return if market creation fails
   if (!liteMarket) return;

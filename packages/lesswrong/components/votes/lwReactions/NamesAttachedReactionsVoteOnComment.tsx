@@ -380,9 +380,9 @@ const HoverableReactionIcon = ({reactionRowRef, react, numberShown, voteProps, q
     onMouseOver(e);
   }
   
-  function handleMouseLeave () {
+  function handleMouseLeave (ev: React.MouseEvent) {
     setHoveredReaction?.({reactionName: react, isHovered: false, quote: null});
-    onMouseLeave();
+    onMouseLeave(ev);
   }
 
   return <span onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
