@@ -715,7 +715,7 @@ async function createNewJargonTermsCallback(post: DbPost, callbackProperties: Cr
   // TODO: do we want different behavior for new vs updated posts?
   if (changeMetrics.added > 1000 || !existingJargon.length) {
     // TODO: do we want to exclude existing jargon terms from being added again for posts which had a large diff but already had some jargon terms?
-    void createNewJargonTerms(post._id, currentUser);
+    void createNewJargonTerms({ postId: post._id, currentUser });
   }
 
   return post;
