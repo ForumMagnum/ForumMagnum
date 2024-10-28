@@ -438,7 +438,7 @@ const Header = ({
     })})${darkColor ? `, ${darkColor}` : ''}`
     headerStyle.background = background
   }
-  
+
   // Make all the text and icons white when we have some sort of color in the header background
   const useWhiteText = Object.keys(headerStyle).length > 0
 

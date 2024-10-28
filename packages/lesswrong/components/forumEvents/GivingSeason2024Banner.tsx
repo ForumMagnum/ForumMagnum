@@ -1,4 +1,4 @@
-import React, { ReactNode, useState } from "react";
+import React, { ReactNode, useCallback, useEffect, useState } from "react";
 import { registerComponent } from "@/lib/vulcan-lib";
 import { Link } from "@/lib/reactRouterWrapper";
 import moment, { Moment } from "moment";
@@ -90,6 +90,7 @@ const styles = (theme: ThemeType) => ({
     margin: "0 auto",
     padding: "0 24px",
     transition: "color 0.5s ease",
+    borderTop: `1px solid ${theme.palette.givingSeason.timeline}`,
   },
   darkText: {
     color: theme.palette.givingSeason.primary,
@@ -111,6 +112,7 @@ const styles = (theme: ThemeType) => ({
     width: 200,
     textAlign: "center",
     whiteSpace: "nowrap",
+    userSelect: "none",
     opacity: 0.6,
     margin: 12,
     "&:first-child": {
@@ -133,6 +135,21 @@ const styles = (theme: ThemeType) => ({
     borderRadius: "50%",
     background: theme.palette.text.alwaysWhite,
   },
+  detailsContainer: {
+    whiteSpace: "nowrap",
+    overflowX: "scroll",
+    scrollSnapType: "x mandatory",
+    scrollbarWidth: "none",
+    "-ms-overflow-style": "none",
+    "&::-webkit-scrollbar": {
+      display: "none",
+    },
+  },
+  eventDetails: {
+    display: "inline-block",
+    width: "100%",
+    scrollSnapAlign: "start",
+  },
   eventDate: {
     maxWidth: 470,
     marginBottom: 8,
@@ -142,9 +159,12 @@ const styles = (theme: ThemeType) => ({
     fontSize: 40,
     fontWeight: 600,
     marginBottom: 12,
+    whiteSpace: "wrap",
   },
   eventDescription: {
     maxWidth: 470,
+    lineHeight: "140%",
+    whiteSpace: "wrap",
     "& a": {
       textDecoration: "underline",
       "&:hover": {
@@ -154,14 +174,44 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
+const formatDate = (start: Moment, end: Moment) => {
+  const endFormat = start.month() === end.month() ? "D" : "MMM D";
+  return `${start.format("MMM D")} - ${end.format(endFormat)}`;
+}
+
 const GivingSeason2024Banner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const [selectedEvent, setSelectedEvent] = useState(events[0]);
+  const [detailsRef, setDetailsRef] = useState<HTMLDivElement | null>(null);
 
-  const {name, description, start, end, darkText} = selectedEvent;
-  const endFormat = start.month() === end.month() ? "D" : "MMM D";
-  const date = `${start.format("MMM D")} - ${end.format(endFormat)}`;
+  useEffect(() => {
+    if (!detailsRef) {
+      return;
+    }
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          const id = parseInt(entry.target.getAttribute("data-event-id") ?? "");
+          if (Number.isSafeInteger(id) && events[id]) {
+            setSelectedEvent(events[id]);
+          }
+        }
+      }
+    }, {threshold: 0.5});
+    for (const child of Array.from(detailsRef.children)) {
+      observer.observe(child);
+    }
+    return () => observer.disconnect();
+  }, [detailsRef]);
+
+  const onClickTimeline = useCallback((index: number) => {
+    detailsRef?.querySelector(`[data-event-id="${index}"]`)?.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline: "start",
+    });
+  }, [detailsRef]);
 
   return (
     <div className={classes.root}>
@@ -177,12 +227,15 @@ const GivingSeason2024Banner = ({classes}: {
           />
         ))}
       </div>
-      <div className={classNames(classes.content, darkText && classes.darkText)}>
+      <div className={classNames(
+        classes.content,
+        selectedEvent.darkText && classes.darkText,
+      )}>
         <div className={classes.timeline}>
-          {events.map((event) => (
+          {events.map((event, i) => (
             <div
               key={event.name}
-              onClick={setSelectedEvent.bind(null, event)}
+              onClick={onClickTimeline.bind(null, i)}
               className={classNames(
                 classes.timelineEvent,
                 selectedEvent === event && classes.timelineEventSelected,
@@ -195,10 +248,14 @@ const GivingSeason2024Banner = ({classes}: {
             </div>
           ))}
         </div>
-        <div>
-          <div className={classes.eventDate}>{date}</div>
-          <div className={classes.eventName}>{name}</div>
-          <div className={classes.eventDescription}>{description}</div>
+        <div className={classes.detailsContainer} ref={setDetailsRef}>
+          {events.map(({name, description, start, end}, i) => (
+            <div className={classes.eventDetails} data-event-id={i}>
+              <div className={classes.eventDate}>{formatDate(start, end)}</div>
+              <div className={classes.eventName}>{name}</div>
+              <div className={classes.eventDescription}>{description}</div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
