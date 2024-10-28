@@ -293,6 +293,7 @@ export const createNewJargonTerms = async (postId: string, currentUser: DbUser, 
   const jargonTermsToCopy = presentTerms.map(jargonTerm => existingJargonTermsById[jargonTerm._id]);
 
   const termsToExclude = jargonTermsToCopy.map(jargonTerm => jargonTerm.term);
+  console.log("termsToExclude", termsToExclude);
 
   let newJargonTerms;
   try {
