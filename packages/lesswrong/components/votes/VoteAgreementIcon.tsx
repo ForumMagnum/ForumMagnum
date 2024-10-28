@@ -173,30 +173,6 @@ const VoteAgreementIcon = ({
           style={bigVoteCompleted || bigVoted ? {color: lightColor} : undefined}
           className={strongVoteAccentIconClasses}
         />
-
-
-
-
-
-
-        {/* <Transition in={(bigVotingTransition || bigVoted)} timeout={theme.voting.strongVoteDelay}>
-          {(state) => (
-            <>
-              <ForumIcon
-                icon={bigVoteAccentIcon}
-                className={classNames(bigVoteAccentStyling, classes.noClickCatch, {[classes.hideIcon]: !bigVoted})}
-                style={bigVoteCompleted || bigVoted ? {color: lightColor} : undefined}
-              />
-              <ForumIcon
-                icon={primaryIcon}
-                style={bigVoteCompleted || bigVoted ? {color: lightColor} : undefined}
-                className={classNames(bigVoteStyling, classes.noClickCatch, {
-                  [bigVoteCompletedStyling]: bigVoteCompleted,
-                  // [classes.bigCheckCompleted]: bigVoteCompleted,
-                }, classes[state])}
-              />
-            </>)}
-        </Transition> */}
       </span>
     </IconButton>
   )
