@@ -464,6 +464,7 @@ interface DbForumEvent extends DbObject {
   postId: string | null
   bannerImageId: string | null
   includesPoll: boolean
+  customComponent: string | null
   publicData: any /*{"definitions":[{"blackbox":true}]}*/
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
