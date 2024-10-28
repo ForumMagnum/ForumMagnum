@@ -138,9 +138,10 @@ const formatCommentsForPost = async (post: PostsMinimumInfo, tokenCounter: Token
 <comments>${formattedComments}</comments>`;
 }
 
-const formatPostForPrompt = (post: LlmPost, truncationInChars?: number): string => {
+const formatPostForPrompt = (post: LlmPost, truncationInTokens?: number): string => {
   const authorName = userGetDisplayName(post.user)
   const markdown = documentToMarkdown(post)
+  const truncationInChars = truncationInTokens ? truncationInTokens * CHARS_PER_TOKEN : undefined
 
   return `postId: ${post._id}
 Title: ${post.title}
@@ -151,8 +152,7 @@ Content: ${markdown?.slice(0, truncationInChars)}`;
 }
 
 const formatAdditionalPostsForPrompt = (posts: LlmPost[], tokenCounter: TokenCounter, limit=120_000, prefix="Supplementary Post", truncationInTokens?: number): string => {
-  const truncationInChars = truncationInTokens ? truncationInTokens * CHARS_PER_TOKEN : undefined
-  const formattedPosts = posts.map(post => formatPostForPrompt(post, truncationInChars));
+  const formattedPosts = posts.map(post => formatPostForPrompt(post, truncationInTokens));
   const includedPosts: string[] = [];
 
   for (let [idx, formattedPost] of Object.entries(formattedPosts)) {
@@ -274,13 +274,16 @@ export const generateAssistantContextMessage = async ({
   const additionalPosts = contextualPosts.filter(post => post._id !== currentPost?._id);
   const userActionVerb = getUserActionVerb(postContext);
 
+  // TODO: Warn user if intended context might be exceed context window limits
+  const CURRENT_POST_TRUNCATION_IN_TOKENS = 50_000;
+
   const currentPostLine = currentPost
     ? `The user is currently ${userActionVerb} the post titled "${currentPost.title}" with postId "${currentPost._id}".\n\n`
     : '';
   
   const currentPostContentBlock = currentPost
     ? `If relevant to the user's query, the most important context is likely to be the post the user is currently ${userActionVerb}. The full text of the current post is provided below:
-<CurrentPost>\n${formatPostForPrompt(currentPost)}\n</CurrentPost>\n\n`
+<CurrentPost>\n${formatPostForPrompt(currentPost, CURRENT_POST_TRUNCATION_IN_TOKENS)}\n</CurrentPost>\n\n`
     : '';
 
   const additionalInstructionContextLine = contextIsProvided
