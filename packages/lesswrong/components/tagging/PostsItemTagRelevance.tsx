@@ -20,18 +20,20 @@ const styles = (theme: ThemeType): JssStyles => ({
   voteButton: {
     fontSize: 25,
   },
+  // these interact with whether the vote icons are solid or hollow (i.e. different components). Not ideally set up, so nb. 
   vertLayoutVoteUp: {
     position: "absolute",
-    left: isFriendlyUI ? 10.5 : 10,
+    left: isFriendlyUI ? 9 : 10,
     top: forumSelect({
       LessWrong: -17,
       AlignmentForum: -15,
-      default: -16
+      default: -15
     })
   },
+  // these interact with whether the vote icons are solid or hollow (i.e. different components). Not ideally set up, so nb. 
   vertLayoutVoteDown: {
     position: "absolute",
-    left: isFriendlyUI ? 10.5 : 10,
+    left: isFriendlyUI ? 9 : 10,
     top: forumSelect({
       LessWrong: 8,
       AlignmentForum: 10,
