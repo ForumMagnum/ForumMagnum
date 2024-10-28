@@ -1,6 +1,6 @@
 import { userGetDisplayName } from "@/lib/collections/users/helpers"
 import { htmlToMarkdown } from "../editor/conversionUtils";
-import { CommentTreeNode, flattenCommentBranch, unflattenComments } from "@/lib/utils/unflatten";
+import { CommentTreeNode, unflattenComments } from "@/lib/utils/unflatten";
 import { z } from "zod";
 import { zodResponseFormat } from "openai/helpers/zod";
 import { PromptContextOptions } from "@/components/languageModels/LlmChatWrapper";
@@ -138,7 +138,7 @@ const formatCommentsForPost = async (post: PostsMinimumInfo, tokenCounter: Token
 <comments>${formattedComments}</comments>`;
 }
 
-const formatPostForPrompt = (post: LlmPost, truncation?: number): string => {
+const formatPostForPrompt = (post: LlmPost, truncationInChars?: number): string => {
   const authorName = userGetDisplayName(post.user)
   const markdown = documentToMarkdown(post)
 
@@ -147,11 +147,12 @@ Title: ${post.title}
 Author: ${authorName}
 Publish Date: ${post.postedAt}
 Score: ${post.baseScore}
-Content: ${markdown?.slice(0, truncation)}`;
+Content: ${markdown?.slice(0, truncationInChars)}`;
 }
 
-const formatAdditionalPostsForPrompt = (posts: LlmPost[], tokenCounter: TokenCounter, limit=120_000, prefix="Supplementary Post", truncation?: number): string => {
-  const formattedPosts = posts.map(post => formatPostForPrompt(post, truncation ? Math.floor(truncation/CHARS_PER_TOKEN): undefined));
+const formatAdditionalPostsForPrompt = (posts: LlmPost[], tokenCounter: TokenCounter, limit=120_000, prefix="Supplementary Post", truncationInTokens?: number): string => {
+  const truncationInChars = truncationInTokens ? truncationInTokens * CHARS_PER_TOKEN : undefined
+  const formattedPosts = posts.map(post => formatPostForPrompt(post, truncationInChars));
   const includedPosts: string[] = [];
 
   for (let [idx, formattedPost] of Object.entries(formattedPosts)) {
