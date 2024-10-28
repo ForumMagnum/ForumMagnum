@@ -20,15 +20,28 @@ import { defaultExampleTerm, defaultExamplePost, defaultGlossaryPrompt, defaultE
 import type { Tool } from '@anthropic-ai/sdk/resources';
 import type { PromptCachingBetaMessageParam } from '@anthropic-ai/sdk/resources/beta/prompt-caching/messages';
 
-interface SingleJargonTermExplanationQueryParams {
-  markdown: string;
-  term: string;
-  toolUseId: string;
+interface JargonTermGenerationExampleParams {
   glossaryPrompt?: string;
   examplePost?: string;
   exampleTerm?: string;
   exampleAltTerm?: string;
   exampleDefinition?: string;
+}
+
+interface CreateJargonTermsQueryParams extends JargonTermGenerationExampleParams {
+  postId: string;
+  currentUser: DbUser;
+}
+
+interface SingleJargonTermExplanationQueryParams extends JargonTermGenerationExampleParams {
+  markdown: string;
+  term: string;
+  toolUseId: string;
+}
+
+interface ExplanationsGenerationQueryParams extends JargonTermGenerationExampleParams {
+  post: PostsPage;
+  excludeTerms: string[];
 }
 
 const jargonTermListResponseSchema = z.object({
@@ -172,12 +185,12 @@ The jargon terms are:`
   return parsedResponse.data.jargonTerms;
 }
 
-async function createSingleExplanationMessageWithExample({markdown, term, toolUseId, glossaryPrompt, examplePost, exampleTerm, exampleAltTerm, exampleDefinition}: {markdown: string, term: string, toolUseId: string, glossaryPrompt?: string, examplePost?: string, exampleTerm?: string, exampleAltTerm?: string, exampleDefinition?: string}): Promise<PromptCachingBetaMessageParam[]> {
-  const finalSystemPrompt = glossaryPrompt ?? defaultGlossaryPrompt
-  const finalExamplePost = examplePost ?? defaultExamplePost
-  const finalExampleTerm = exampleTerm ?? defaultExampleTerm
-  const finalExampleAltTerm = exampleAltTerm ?? defaultExampleAltTerm
-  const finalExampleDefinition = exampleDefinition ?? defaultExampleDefinition
+async function createSingleExplanationMessageWithExample({ markdown, term, toolUseId, ...exampleParams }: SingleJargonTermExplanationQueryParams): Promise<PromptCachingBetaMessageParam[]> {
+  const finalSystemPrompt = exampleParams.glossaryPrompt ?? defaultGlossaryPrompt
+  const finalExamplePost = exampleParams.examplePost ?? defaultExamplePost
+  const finalExampleTerm = exampleParams.exampleTerm ?? defaultExampleTerm
+  const finalExampleAltTerm = exampleParams.exampleAltTerm ?? defaultExampleAltTerm
+  const finalExampleDefinition = exampleParams.exampleDefinition ?? defaultExampleDefinition
   
   const finalExampleGlossary = {
     term: finalExampleTerm,
@@ -220,13 +233,13 @@ async function createSingleExplanationMessageWithExample({markdown, term, toolUs
   }];
 }
 
-const queryClaudeForSingleJargonExplanation = async ({ markdown, term, toolUseId, glossaryPrompt, examplePost, exampleTerm, exampleAltTerm, exampleDefinition }: SingleJargonTermExplanationQueryParams): Promise<LLMGeneratedJargonTerm | null> => {
+const queryClaudeForSingleJargonExplanation = async ({ markdown, term, toolUseId, ...exampleParams }: SingleJargonTermExplanationQueryParams): Promise<LLMGeneratedJargonTerm | null> => {
   const client = getAnthropicPromptCachingClientOrThrow(jargonBotClaudeKey.get());
-  const messages: PromptCachingBetaMessageParam[] = await createSingleExplanationMessageWithExample({markdown, term, toolUseId, glossaryPrompt, examplePost, exampleTerm, exampleAltTerm, exampleDefinition});
+  const messages: PromptCachingBetaMessageParam[] = await createSingleExplanationMessageWithExample({ markdown, term, toolUseId, ...exampleParams });
 
   const response = await client.messages.create({
     model: "claude-3-5-sonnet-20240620",
-    max_tokens: 5000,
+    max_tokens: 512,
     messages,
     tools: [generateSingleJargonGlossaryItemTool],
     tool_choice: { type: "tool", name: "generate_jargon_glossary_item" }
@@ -249,7 +262,7 @@ const queryClaudeForSingleJargonExplanation = async ({ markdown, term, toolUseId
   return sanitizeJargonTerms([parsedJargonTerm])[0];
 }
 
-export async function createEnglishExplanations({post, excludeTerms, glossaryPrompt, examplePost, exampleTerm, exampleAltTerm, exampleDefinition}: {post: PostsPage, excludeTerms: string[], glossaryPrompt?: string, examplePost?: string, exampleTerm?: string, exampleAltTerm?: string, exampleDefinition?: string}): Promise<LLMGeneratedJargonTerm[]> {
+export async function createEnglishExplanations({ post, excludeTerms, ...exampleParams }: ExplanationsGenerationQueryParams): Promise<LLMGeneratedJargonTerm[]> {
   const originalHtml = post.contents?.html ?? "";
   const originalMarkdown = htmlToMarkdown(originalHtml);
   const markdown = (originalMarkdown.length < 200_000) ? originalMarkdown : originalMarkdown.slice(0, 200_000);
@@ -262,11 +275,14 @@ export async function createEnglishExplanations({post, excludeTerms, glossaryPro
   const newTerms = terms.filter(term => !excludeTerms.includes(term) && post.contents?.html?.includes(term));
 
   const toolUseId = randomId();
-  const explanations = await Promise.all(newTerms.map((term) => queryClaudeForSingleJargonExplanation({ markdown, term, toolUseId, glossaryPrompt, examplePost, exampleTerm, exampleAltTerm, exampleDefinition })));
-  return filterNonnull(explanations);
+  const [firstTerm, ...remainingTerms] = newTerms;
+  // Do one term first to ensure the shared prompt is cached, before doing the others in parallel
+  const firstExplanation = await queryClaudeForSingleJargonExplanation({ markdown, term: firstTerm, toolUseId, ...exampleParams });
+  const remainingExplanations = await Promise.all(remainingTerms.map((term) => queryClaudeForSingleJargonExplanation({ markdown, term, toolUseId, ...exampleParams })));
+  return filterNonnull([firstExplanation, ...remainingExplanations]);
 }
 
-export const createNewJargonTerms = async (postId: string, currentUser: DbUser, glossaryPrompt?: string, examplePost?: string, exampleTerm?: string, exampleAltTerm?: string, exampleDefinition?: string) => {
+export const createNewJargonTerms = async ({ postId, currentUser, ...exampleParams }: CreateJargonTermsQueryParams) => {
   const post = await fetchFragmentSingle({
     collectionName: 'Posts',
     fragmentName: 'PostsPage',
@@ -301,7 +317,7 @@ export const createNewJargonTerms = async (postId: string, currentUser: DbUser, 
     // Test lock by sleeping for 10 seconds
 
     newJargonTerms = await executeWithLock(rawLockId, async () => {
-      const newEnglishJargon = await createEnglishExplanations({post, excludeTerms: termsToExclude, glossaryPrompt, examplePost, exampleTerm, exampleAltTerm, exampleDefinition});
+      const newEnglishJargon = await createEnglishExplanations({ post, excludeTerms: termsToExclude, ...exampleParams });
 
       const botAccount = await getAdminTeamAccount();
       
@@ -361,13 +377,13 @@ defineMutation({
   name: 'getNewJargonTerms',
   argTypes: '(postId: String!, glossaryPrompt: String, examplePost: String, exampleTerm: String, exampleAltTerm: String, exampleDefinition: String)',
   resultType: '[JargonTerm]',
-  fn: async (_, { postId, glossaryPrompt, examplePost, exampleTerm, exampleAltTerm, exampleDefinition }: { postId: string, glossaryPrompt?: string, examplePost?: string, exampleTerm?: string, exampleAltTerm?: string, exampleDefinition?: string }, { currentUser }: ResolverContext) => {
+  fn: async (_, { postId, ...exampleParams }: Omit<CreateJargonTermsQueryParams, 'currentUser'>, { currentUser }: ResolverContext) => {
     if (!currentUser) {
       throw new Error('You need to be logged in to generate jargon terms');
     }
     if (!userCanCreateAndEditJargonTerms(currentUser)) {
       throw new Error('This is a prototype feature that is not yet available to all users');
     }
-    return await createNewJargonTerms(postId, currentUser, glossaryPrompt, examplePost, exampleTerm, exampleAltTerm, exampleDefinition);
+    return await createNewJargonTerms({ postId, currentUser, ...exampleParams });
   },
 });
