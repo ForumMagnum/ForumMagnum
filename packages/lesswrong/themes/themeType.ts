@@ -553,6 +553,9 @@ declare global {
       panelBackgroundDark: ColorString,
       postScoreArrow: ColorString,
     },
+    givingSeason: {
+      primary: ColorString,
+    },
     namesAttachedReactions: {
       selectedAnti: ColorString,
     },

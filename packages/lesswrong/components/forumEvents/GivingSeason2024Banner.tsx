@@ -10,6 +10,7 @@ type Event = {
   start: Moment,
   end: Moment,
   background: string,
+  darkText?: boolean,
 }
 
 const events: Event[] = [
@@ -47,6 +48,7 @@ const events: Event[] = [
     start: moment("2024-12-23").utc(),
     end: moment("2024-12-31").utc(),
     background: "https://res.cloudinary.com/cea/image/upload/v1730143996/Rectangle_5075.jpg",
+    darkText: true,
   },
 ];
 
@@ -69,6 +71,7 @@ const styles = (theme: ThemeType) => ({
     width: "100%",
     height: "100%",
     zIndex: -1,
+    background: theme.palette.text.alwaysWhite,
   },
   background: {
     position: "absolute",
@@ -77,7 +80,7 @@ const styles = (theme: ThemeType) => ({
     width: "100%",
     height: "100%",
     opacity: 0,
-    transition: "opacity 1s ease",
+    transition: "opacity 0.5s ease",
   },
   backgroundActive: {
     opacity: 1,
@@ -86,6 +89,13 @@ const styles = (theme: ThemeType) => ({
     maxWidth: 1200,
     margin: "0 auto",
     padding: "0 24px",
+    transition: "color 0.5s ease",
+  },
+  darkText: {
+    color: theme.palette.givingSeason.primary,
+    "& $timelineDot": {
+      background: theme.palette.givingSeason.primary,
+    },
   },
   timeline: {
     position: "relative",
@@ -98,6 +108,9 @@ const styles = (theme: ThemeType) => ({
     position: "relative",
     cursor: "pointer",
     fontWeight: 400,
+    width: 200,
+    textAlign: "center",
+    whiteSpace: "nowrap",
     opacity: 0.6,
     margin: 12,
     "&:first-child": {
@@ -134,6 +147,9 @@ const styles = (theme: ThemeType) => ({
     maxWidth: 470,
     "& a": {
       textDecoration: "underline",
+      "&:hover": {
+        textDecoration: "underline",
+      },
     },
   },
 });
@@ -143,12 +159,12 @@ const GivingSeason2024Banner = ({classes}: {
 }) => {
   const [selectedEvent, setSelectedEvent] = useState(events[0]);
 
-  const {name, description, start, end, background} = selectedEvent;
+  const {name, description, start, end, darkText} = selectedEvent;
   const endFormat = start.month() === end.month() ? "D" : "MMM D";
   const date = `${start.format("MMM D")} - ${end.format(endFormat)}`;
 
   return (
-    <div className={classes.root} style={{background: `url(${background})`}}>
+    <div className={classes.root}>
       <div className={classes.backgrounds}>
         {events.map(({name, background}) => (
           <div
@@ -161,7 +177,7 @@ const GivingSeason2024Banner = ({classes}: {
           />
         ))}
       </div>
-      <div className={classes.content}>
+      <div className={classNames(classes.content, darkText && classes.darkText)}>
         <div className={classes.timeline}>
           {events.map((event) => (
             <div
@@ -173,7 +189,9 @@ const GivingSeason2024Banner = ({classes}: {
               )}
             >
               {event.name}
-              <div className={classes.timelineDot} />
+              {selectedEvent === event &&
+                <div className={classes.timelineDot} />
+              }
             </div>
           ))}
         </div>
