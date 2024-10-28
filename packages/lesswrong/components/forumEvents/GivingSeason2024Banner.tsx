@@ -1,7 +1,7 @@
 import React, { ReactNode, useState } from "react";
-import { registerComponent } from "../../lib/vulcan-lib";
-import moment, { Moment } from "moment";
+import { registerComponent } from "@/lib/vulcan-lib";
 import { Link } from "@/lib/reactRouterWrapper";
+import moment, { Moment } from "moment";
 import classNames from "classnames";
 
 type Event = {
@@ -9,6 +9,7 @@ type Event = {
   description: ReactNode,
   start: Moment,
   end: Moment,
+  background: string,
 }
 
 const events: Event[] = [
@@ -17,30 +18,35 @@ const events: Event[] = [
     description: <>This week, we are encouraging content around a range of important funding considerations. <Link to="#">Read more</Link>.</>,
     start: moment("2024-11-04").utc(),
     end: moment("2024-11-10").utc(),
+    background: "https://res.cloudinary.com/cea/image/upload/v1730143995/Rectangle_5034.jpg",
   },
   {
     name: "Marginal Funding Week",
     description: <>Here is a description of what Marginal Funding Week is and how to engage with it. Probably also a <Link to="#">link to the posts</Link>.</>,
     start: moment("2024-11-12").utc(),
     end: moment("2024-11-18").utc(),
+    background: "https://res.cloudinary.com/cea/image/upload/v1730143996/Rectangle_5064.jpg",
   },
   {
     name: "Donation Election",
     description: <>A crowd-sourced pot of funds will be distributed amongst three charities based on your votes. <Link to="#">Find out more</Link>.</>,
     start: moment("2024-11-18").utc(),
     end: moment("2024-12-03").utc(),
+    background: "https://res.cloudinary.com/cea/image/upload/v1730143996/Rectangle_5069.jpg",
   },
   {
     name: "Pledge Highlight",
     description: <>A week to post about your experience with pledging, and to discuss the value of pledging. <Link to="#">Read more</Link>.</>,
     start: moment("2024-12-16").utc(),
     end: moment("2024-12-22").utc(),
+    background: "https://res.cloudinary.com/cea/image/upload/v1730143996/Rectangle_5072.jpg",
   },
   {
     name: "Donation Celebration",
     description: <>When the donation celebration starts, you’ll be able to add a heart to the banner showing that you’ve done your annual donations.</>,
     start: moment("2024-12-23").utc(),
     end: moment("2024-12-31").utc(),
+    background: "https://res.cloudinary.com/cea/image/upload/v1730143996/Rectangle_5075.jpg",
   },
 ];
 
@@ -48,13 +54,33 @@ const DOT_SIZE = 12;
 
 const styles = (theme: ThemeType) => ({
   root: {
+    position: "relative",
     color: theme.palette.text.alwaysWhite,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 14,
     fontWeight: 500,
     paddingBottom: 40,
     marginBottom: 24,
-    background: "#440000",
+  },
+  backgrounds: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    zIndex: -1,
+  },
+  background: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    opacity: 0,
+    transition: "opacity 1s ease",
+  },
+  backgroundActive: {
+    opacity: 1,
   },
   content: {
     maxWidth: 1200,
@@ -117,12 +143,24 @@ const GivingSeason2024Banner = ({classes}: {
 }) => {
   const [selectedEvent, setSelectedEvent] = useState(events[0]);
 
-  const {name, description, start, end} = selectedEvent;
+  const {name, description, start, end, background} = selectedEvent;
   const endFormat = start.month() === end.month() ? "D" : "MMM D";
   const date = `${start.format("MMM D")} - ${end.format(endFormat)}`;
 
   return (
-    <div className={classes.root}>
+    <div className={classes.root} style={{background: `url(${background})`}}>
+      <div className={classes.backgrounds}>
+        {events.map(({name, background}) => (
+          <div
+            key={name}
+            style={{background: `url(${background})`}}
+            className={classNames(
+              classes.background,
+              name === selectedEvent.name && classes.backgroundActive,
+            )}
+          />
+        ))}
+      </div>
       <div className={classes.content}>
         <div className={classes.timeline}>
           {events.map((event) => (
