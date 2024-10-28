@@ -115,29 +115,31 @@ const VoteAgreementIcon = ({
 
   const { ForumIcon } = Components;
 
+  const bigVoteVisible = bigVotingTransition || bigVoteCompleted || bigVoted
+
   const strongVoteLargeIconClasses = (upOrDown === "Downvote")
     ? classNames(
       bigVotingTransition && classes.entering,
       classes.bigClear,
-      (bigVotingTransition || bigVoteCompleted || bigVoted) && classes.bigClearCompleted,
+      bigVoteVisible && classes.bigClearCompleted,
     )
     : classNames(
       bigVotingTransition && classes.entering,
       classes.bigCheck,
-      (bigVotingTransition || bigVoteCompleted || bigVoted) && classes.bigCheckCompleted,
+      bigVoteVisible && classes.bigCheckCompleted,
     )
 
   const strongVoteAccentIconClasses = (upOrDown === "Downvote")
     ? classNames(
       bigVotingTransition && classes.entering,
       classes.smallArrowBigVoted,
-      (bigVotingTransition || bigVoteCompleted || bigVoted) && classes.smallArrowBigVoted,
+      bigVoteVisible && classes.smallArrowBigVoted,
       {[classes.hideIcon]: !bigVoted}
     )
     : classNames(
       bigVotingTransition && classes.entering,
       classes.smallCheckBigVoted,
-      (bigVotingTransition || bigVoteCompleted || bigVoted) && classes.smallCheckBigVoted,
+      bigVoteVisible && classes.smallCheckBigVoted,
       {[classes.hideIcon]: !bigVoted}
     )
 
@@ -157,7 +159,7 @@ const VoteAgreementIcon = ({
           icon={primaryIcon}  
           className={classNames(
             (upOrDown === "Downvote") ? classes.clear : classes.check,
-            (bigVotingTransition || bigVoteCompleted || bigVoted) && classes.hideIcon
+            bigVoteVisible && classes.hideIcon
           )}
           style={{color: voted || alwaysColored ? mainColor : "inherit"}}
         />

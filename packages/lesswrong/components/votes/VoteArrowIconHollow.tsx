@@ -103,7 +103,7 @@ const VoteArrowIconHollow = ({
             className={classNames(
               classes.bigArrow,
               bigVoteCompleted && classes.bigArrowCompleted,
-                  classes[state]
+              classes[state]
             )}
             viewBox="6 6 12 12"
         />)}
