@@ -298,13 +298,14 @@ export const createNewJargonTerms = async ({ postId, currentUser, ...examplePara
   const authorsOtherPostJargonTerms = await (new JargonTermsRepo().getAuthorsOtherJargonTerms(currentUser._id, postId));
   const jargonTermsFromThisPost = await JargonTerms.find({ postId }).fetch();
   const existingJargonTerms = [...authorsOtherPostJargonTerms, ...jargonTermsFromThisPost];
-  const termsToExclude = uniq(existingJargonTerms.flatMap(jargonTerm => [jargonTerm.term.toLowerCase(), ...jargonTerm.altTerms.map(altTerm => altTerm.toLowerCase())]))
+  const termsToExclude = uniq(existingJargonTerms.flatMap(jargonTerm => [jargonTerm.term.toLowerCase(), ...jargonTerm.altTerms.map(altTerm => altTerm.toLowerCase())])).sort();
 
   const presentTerms = existingJargonTerms.filter(jargonTerm => post.contents?.html?.includes(jargonTerm.term));
   const jargonTermsToCopy = presentTerms.filter(jargonTerm => {
     const terms = [jargonTerm.term.toLowerCase(), ...jargonTerm.altTerms.map(altTerm => altTerm.toLowerCase())];
     return !termsToExclude.some(excludedTerm => terms.includes(excludedTerm));
   });
+  console.log({ termsToExclude, jargonTermsToCopy });
 
   let newJargonTerms;
   try {
@@ -343,8 +344,8 @@ export const createNewJargonTerms = async ({ postId, currentUser, ...examplePara
             document: {
               postId: postId,
               term: jargonTerm.term,
-              approved: true,
-              deleted: false,
+              approved: jargonTerm.approved,
+              deleted: jargonTerm.deleted,
               contents: { originalContents: jargonTerm.contents!.originalContents },
               altTerms: jargonTerm.altTerms,
             },
