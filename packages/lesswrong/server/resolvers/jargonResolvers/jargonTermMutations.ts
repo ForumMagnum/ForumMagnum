@@ -299,23 +299,12 @@ export const createNewJargonTerms = async ({ postId, currentUser, ...examplePara
   const jargonTermsFromThisPost = await JargonTerms.find({ postId }).fetch();
   const existingJargonTerms = [...authorsOtherPostJargonTerms, ...jargonTermsFromThisPost];
   const termsToExclude = uniq(existingJargonTerms.flatMap(jargonTerm => [jargonTerm.term.toLowerCase(), ...jargonTerm.altTerms.map(altTerm => altTerm.toLowerCase())])).sort();
-  console.log(termsToExclude.sort((a, b) => a.localeCompare(b)));
 
   const presentTerms = existingJargonTerms.filter(jargonTerm => post.contents?.html?.includes(jargonTerm.term));
   const jargonTermsToCopy = presentTerms.filter(jargonTerm => {
     const terms = [jargonTerm.term.toLowerCase(), ...jargonTerm.altTerms.map(altTerm => altTerm.toLowerCase())];
     return !termsToExclude.some(excludedTerm => terms.includes(excludedTerm));
   });
-  console.log(jargonTermsToCopy.map(jargonTerm => jargonTerm.term));
-  
-  // TODO: This might be too annoying to do properly, come back to it later
-  //const presentTermIds = new Set(presentTerms.map(jargonTerm => jargonTerm._id));
-
-  // const presentAltTerms = authorsOtherJargonTerms
-  //   .flatMap(jargonTerm => expandJargonAltTerms(jargonTerm, false))
-  //   .filter(altTerm => !presentTermIds.has(altTerm._id))
-  //   .filter(altTerm => post.contents?.html?.includes(altTerm.term));
-
 
   let newJargonTerms;
   try {
