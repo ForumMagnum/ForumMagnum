@@ -19,6 +19,7 @@ import { defaultExampleTerm, defaultExamplePost, defaultGlossaryPrompt, defaultE
 
 import type { Tool } from '@anthropic-ai/sdk/resources';
 import type { PromptCachingBetaMessageParam } from '@anthropic-ai/sdk/resources/beta/prompt-caching/messages';
+import uniq from 'lodash/uniq';
 
 interface JargonTermGenerationExampleParams {
   glossaryPrompt?: string;
@@ -294,9 +295,18 @@ export const createNewJargonTerms = async ({ postId, currentUser, ...examplePara
     throw new Error('Post not found');
   }
 
-  const authorsOtherJargonTerms = await (new JargonTermsRepo().getAuthorsOtherJargonTerms(currentUser._id, postId));
-  const existingJargonTermsById = keyBy(authorsOtherJargonTerms, '_id');
-  const presentTerms = authorsOtherJargonTerms.filter(jargonTerm => post.contents?.html?.includes(jargonTerm.term));
+  const authorsOtherPostJargonTerms = await (new JargonTermsRepo().getAuthorsOtherJargonTerms(currentUser._id, postId));
+  const jargonTermsFromThisPost = await JargonTerms.find({ postId }).fetch();
+  const existingJargonTerms = [...authorsOtherPostJargonTerms, ...jargonTermsFromThisPost];
+  const termsToExclude = uniq(existingJargonTerms.flatMap(jargonTerm => [jargonTerm.term.toLowerCase(), ...jargonTerm.altTerms.map(altTerm => altTerm.toLowerCase())])).sort();
+  console.log(termsToExclude.sort((a, b) => a.localeCompare(b)));
+
+  const presentTerms = existingJargonTerms.filter(jargonTerm => post.contents?.html?.includes(jargonTerm.term));
+  const jargonTermsToCopy = presentTerms.filter(jargonTerm => {
+    const terms = [jargonTerm.term.toLowerCase(), ...jargonTerm.altTerms.map(altTerm => altTerm.toLowerCase())];
+    return !termsToExclude.some(excludedTerm => terms.includes(excludedTerm));
+  });
+  console.log(jargonTermsToCopy.map(jargonTerm => jargonTerm.term));
   
   // TODO: This might be too annoying to do properly, come back to it later
   //const presentTermIds = new Set(presentTerms.map(jargonTerm => jargonTerm._id));
@@ -306,10 +316,6 @@ export const createNewJargonTerms = async ({ postId, currentUser, ...examplePara
   //   .filter(altTerm => !presentTermIds.has(altTerm._id))
   //   .filter(altTerm => post.contents?.html?.includes(altTerm.term));
 
-  const jargonTermsToCopy = presentTerms.map(jargonTerm => existingJargonTermsById[jargonTerm._id]);
-
-  const termsToExclude = jargonTermsToCopy.map(jargonTerm => jargonTerm.term);
-  console.log("termsToExclude", termsToExclude);
 
   let newJargonTerms;
   try {
