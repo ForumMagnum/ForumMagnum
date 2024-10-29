@@ -85,9 +85,14 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     justifyContent: "space-between",
     gap: "24px",
-    overflow: "scroll hidden",
     padding: "14px 24px 0 24px",
     marginTop: -12,
+    overflow: "scroll hidden",
+    scrollbarWidth: "none",
+    "-ms-overflow-style": "none",
+    "&::-webkit-scrollbar": {
+      display: "none",
+    },
   },
   timelineEvent: {
     cursor: "pointer",
@@ -134,7 +139,7 @@ const styles = (theme: ThemeType) => ({
   },
   detailsContainer: {
     whiteSpace: "nowrap",
-    overflowX: "scroll",
+    overflow: "scroll hidden",
     scrollSnapType: "x mandatory",
     scrollbarWidth: "none",
     "-ms-overflow-style": "none",
