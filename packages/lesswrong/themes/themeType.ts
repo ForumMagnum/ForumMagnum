@@ -555,8 +555,6 @@ declare global {
     },
     givingSeason: {
       primary: ColorString,
-      timelineDark: ColorString,
-      timelineLight: ColorString,
     },
     namesAttachedReactions: {
       selectedAnti: ColorString,

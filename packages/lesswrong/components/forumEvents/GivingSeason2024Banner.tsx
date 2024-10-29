@@ -13,7 +13,6 @@ const styles = (theme: ThemeType) => ({
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 14,
     fontWeight: 500,
-    marginBottom: 24,
   },
   backgrounds: {
     position: "absolute",
@@ -38,19 +37,21 @@ const styles = (theme: ThemeType) => ({
   },
   darkText: {
     color: theme.palette.givingSeason.primary,
-    "& $content": {
-      borderColor: theme.palette.givingSeason.timelineDark,
-    },
-    "& $timelineDot": {
+    "& $line, & $timelineDot": {
       background: theme.palette.givingSeason.primary,
     },
   },
   content: {
     maxWidth: 1200,
     margin: "0 auto",
-    padding: "0 24px",
-    transition: "color 0.5s ease, border-color 0.5s ease",
-    borderTop: `1px solid ${theme.palette.givingSeason.timelineLight}`,
+    transition: "color 0.5s ease",
+  },
+  line: {
+    width: "100%",
+    height: 1,
+    opacity: 0.6,
+    background: theme.palette.text.alwaysWhite,
+    transition: "background 0.5s ease",
   },
   timeline: {
     display: "flex",
@@ -58,19 +59,23 @@ const styles = (theme: ThemeType) => ({
   },
   timelineEvent: {
     cursor: "pointer",
+    margin: "12px 0",
     fontWeight: 400,
-    width: 200,
-    textAlign: "center",
     whiteSpace: "nowrap",
     userSelect: "none",
     opacity: 0.6,
-    margin: 12,
     transition: "opacity 0.5s ease",
-    "&:first-child": {
-      marginLeft: 0,
-    },
-    "&:last-child": {
-      marginRight: 0,
+    // Use `after` to overlay the same text but with the higher font weight as
+    // if it's selected, even if it's not. This means that the size of each
+    // title won't change when they switch between active/inactive.
+    "&:after": {
+      display: "block",
+      content: "attr(data-title)",
+      fontWeight: 600,
+      height: 1,
+      color: "transparent",
+      overflow: "hidden",
+      visibility: "hidden",
     },
   },
   timelineEventSelected: {
@@ -80,7 +85,7 @@ const styles = (theme: ThemeType) => ({
   timelineDot: {
     position: "absolute",
     zIndex: theme.zIndexes.header + 1,
-    top: -7,
+    top: -5.5,
     transition: "left 0.35s ease, background 0.5s ease",
     width: DOT_SIZE,
     height: DOT_SIZE,
@@ -197,6 +202,7 @@ const GivingSeason2024Banner = ({classes}: {
           />
         ))}
       </div>
+      <div className={classes.line} />
       <div className={classes.content}>
         <div className={classes.timeline} ref={setTimelineRef}>
           {dotLeft > 0 &&
@@ -206,6 +212,7 @@ const GivingSeason2024Banner = ({classes}: {
             <div
               key={event.name}
               data-event-id={i}
+              data-title={event.name}
               onClick={onClickTimeline.bind(null, i)}
               className={classNames(
                 classes.timelineEvent,
