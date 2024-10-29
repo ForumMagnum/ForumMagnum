@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { registerComponent } from "@/lib/vulcan-lib";
+import { Link } from "@/lib/reactRouterWrapper";
+import { formatStat } from "../users/EAUserTooltipContent";
 import { useGivingSeasonEvents } from "./useGivingSeasonEvents";
 import classNames from "classnames";
 import type { Moment } from "moment";
@@ -95,6 +97,9 @@ const styles = (theme: ThemeType) => ({
     borderRadius: "50%",
     background: theme.palette.text.alwaysWhite,
   },
+  mainContainer: {
+    display: "flex",
+  },
   detailsContainer: {
     whiteSpace: "nowrap",
     overflowX: "scroll",
@@ -134,6 +139,53 @@ const styles = (theme: ThemeType) => ({
       },
     },
   },
+  fund: {
+    width: 260,
+    minWidth: 260,
+    padding: 16,
+    marginTop: 8,
+    marginBottom: 24,
+    background: theme.palette.givingSeason.electionFundBackground,
+    borderRadius: theme.borderRadius.default,
+  },
+  fundTitle: {
+    fontSize: 18,
+    fontWeight: 700,
+    letterSpacing: "-0.18px",
+    marginBottom: 12,
+  },
+  fundInfo: {
+    marginBottom: 16,
+    lineHeight: "140%",
+    whiteSpace: "wrap",
+    "& a": {
+      textDecoration: "underline",
+      "&:hover": {
+        textDecoration: "underline",
+      },
+    },
+  },
+  fundBarContainer: {
+    width: "100%",
+    height: 12,
+    marginBottom: 8,
+    background: theme.palette.givingSeason.electionFundBackground,
+    borderRadius: theme.borderRadius.small,
+    overflow: "hidden",
+  },
+  fundBar: {
+    height: "100%",
+    background: theme.palette.text.alwaysWhite,
+  },
+  fundRaised: {
+    fontSize: 16,
+    fontWeight: 500,
+    lineHeight: "140%",
+    textAlign: "center",
+  },
+  fundAmount: {
+    fontWeight: 700,
+  },
 });
 
 const formatDate = (start: Moment, end: Moment) => {
@@ -144,10 +196,18 @@ const formatDate = (start: Moment, end: Moment) => {
 const GivingSeason2024Banner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {events, selectedEvent, setSelectedEvent} = useGivingSeasonEvents();
+  const {
+    events,
+    selectedEvent,
+    setSelectedEvent,
+    amountRaised,
+    amountTarget,
+  } = useGivingSeasonEvents();
   const [timelineRef, setTimelineRef] = useState<HTMLDivElement | null>(null);
   const [detailsRef, setDetailsRef] = useState<HTMLDivElement | null>(null);
   const [dotLeft, setDotLeft] = useState(0);
+
+  const fundPercent = Math.round((amountRaised / amountTarget) * 100);
 
   const repositionDot = useCallback((index = 0) => {
     const target = timelineRef?.querySelector(`[data-event-id="${index}"]`);
@@ -209,7 +269,10 @@ const GivingSeason2024Banner = ({classes}: {
       <div className={classes.content}>
         <div className={classes.timeline} ref={setTimelineRef}>
           {dotLeft > 0 &&
-            <div className={classes.timelineDot} style={{left: `${dotLeft}px`}} />
+            <div
+              style={{left: `${dotLeft}px`}}
+              className={classes.timelineDot}
+            />
           }
           {events.map((event, i) => (
             <div
@@ -226,14 +289,36 @@ const GivingSeason2024Banner = ({classes}: {
             </div>
           ))}
         </div>
-        <div className={classes.detailsContainer} ref={setDetailsRef}>
-          {events.map(({name, description, start, end}, i) => (
-            <div className={classes.eventDetails} data-event-id={i} key={name}>
-              <div className={classes.eventDate}>{formatDate(start, end)}</div>
-              <div className={classes.eventName}>{name}</div>
-              <div className={classes.eventDescription}>{description}</div>
+        <div className={classes.mainContainer}>
+          <div className={classes.detailsContainer} ref={setDetailsRef}>
+            {events.map(({name, description, start, end}, i) => (
+              <div className={classes.eventDetails} data-event-id={i} key={name}>
+                <div className={classes.eventDate}>{formatDate(start, end)}</div>
+                <div className={classes.eventName}>{name}</div>
+                <div className={classes.eventDescription}>{description}</div>
+              </div>
+            ))}
+          </div>
+          <div className={classes.fund}>
+            <div className={classes.fundTitle}>
+              Donation Election Fund
             </div>
-          ))}
+            <div className={classes.fundInfo}>
+              Donate to the fund to boost the value of the Election.{" "}
+              <Link to="#">Learn more</Link>.
+            </div>
+            <div className={classes.fundBarContainer}>
+              <div
+                style={{width: `${fundPercent}%`}}
+                className={classes.fundBar}
+              />
+            </div>
+            <div className={classes.fundRaised}>
+              <span className={classes.fundAmount}>
+                ${formatStat(amountRaised)}
+              </span> raised
+            </div>
+          </div>
         </div>
       </div>
     </div>

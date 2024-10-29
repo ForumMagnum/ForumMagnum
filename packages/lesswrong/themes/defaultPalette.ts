@@ -590,6 +590,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   },
   givingSeason: {
     primary: "#862115",
+    electionFundBackground: "rgba(255, 255, 255, 0.15)",
   },
   namesAttachedReactions: {
     selectedAnti: "rgb(255, 189, 189, .23)",

@@ -54,12 +54,16 @@ type GivingSeasonEventsContext = {
   events: GivingSeasonEvent[],
   selectedEvent: GivingSeasonEvent,
   setSelectedEvent: Dispatch<GivingSeasonEvent>,
+  amountRaised: number,
+  amountTarget: number,
 }
 
 const givingSeasonEventsContext = createContext<GivingSeasonEventsContext>({
   events,
   selectedEvent: events[0],
   setSelectedEvent: () => {},
+  amountRaised: 0,
+  amountTarget: 10000,
 });
 
 export const GivingSeasonEventsProvider = ({children}: {children: ReactNode}) => {
@@ -69,6 +73,8 @@ export const GivingSeasonEventsProvider = ({children}: {children: ReactNode}) =>
       events,
       selectedEvent,
       setSelectedEvent,
+      amountRaised: 0, // TODO: Where does this come from?
+      amountTarget: 10000,
     }}>
       {children}
     </givingSeasonEventsContext.Provider>
