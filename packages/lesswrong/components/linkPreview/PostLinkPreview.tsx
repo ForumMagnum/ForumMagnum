@@ -697,7 +697,7 @@ const ManifoldPreview = ({classes, href, id, children}: {
   const isEmbed = /^https?:\/\/manifold\.markets\/embed\/.+$/.test(href);
 
   // if it fits  https://manifold.markets/[username]/[market-slug] instead, get the (username and market slug)
-  const [, userAndSlug] = href.match(/^https?:\/\/manifold\.markets\/(\w+\/[\w-]+)/) || [];
+  const [userAndSlug] = href.match(/^https?:\/\/manifold\.markets\/(\w+\/[\w-]+)/) || [];
 
   if (!isEmbed && !userAndSlug) {
     return (
