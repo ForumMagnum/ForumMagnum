@@ -301,7 +301,7 @@ export const createNewJargonTerms = async ({ postId, currentUser, ...examplePara
   const authorsOtherPostJargonTerms = await (new JargonTermsRepo().getAuthorsOtherJargonTerms(currentUser._id, postId));
   const jargonTermsFromThisPost = await JargonTerms.find({ postId }).fetch();
   const existingJargonTerms = [...authorsOtherPostJargonTerms, ...jargonTermsFromThisPost];
-  const termsToExclude = uniq(existingJargonTerms.flatMap(jargonTerm => [jargonTerm.term.toLowerCase(), ...jargonTerm.altTerms.map(altTerm => altTerm.toLowerCase())])).sort();
+  const termsToExclude = uniq(existingJargonTerms.flatMap(jargonTerm => [jargonTerm.term.toLowerCase(), ...jargonTerm.altTerms.map(altTerm => altTerm.toLowerCase())]))
 
   const presentTerms = existingJargonTerms.filter(jargonTerm => post.contents?.html?.includes(jargonTerm.term));
   const jargonTermsToCopy = presentTerms.filter(jargonTerm => {
