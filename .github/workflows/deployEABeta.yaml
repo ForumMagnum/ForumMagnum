@@ -3,7 +3,7 @@ concurrency: deploy-ea-beta
 on:
   workflow_dispatch:
   push:
-    branches: [audio-play-from-heading-fixes]
+    branches: [giving-season-2024-banner]
 jobs:
   deploy:
     runs-on: ubuntu-latest
