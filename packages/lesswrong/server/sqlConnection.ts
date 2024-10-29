@@ -10,7 +10,7 @@ import { recordSqlQueryPerfMetric } from "./perfMetrics";
 // Setting this to -1 disables slow query logging
 const SLOW_QUERY_REPORT_CUTOFF_MS = parseInt(process.env.SLOW_QUERY_REPORT_CUTOFF_MS ?? '') >= -1
   ? parseInt(process.env.SLOW_QUERY_REPORT_CUTOFF_MS ?? '')
-  : 2000;
+  : isDevelopment ? 3000 : 2000;
 
 const pgConnIdleTimeoutMsSetting = new PublicInstanceSetting<number>('pg.idleTimeoutMs', 10000, 'optional')
 
