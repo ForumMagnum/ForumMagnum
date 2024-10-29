@@ -1723,6 +1723,13 @@ addRoute({
   componentName: 'GlossaryEditorPage',
 })
 
+addRoute({
+  title: "Think Page",
+  name: 'thinkPage',
+  path: '/think',
+  componentName: 'ThinkPage',
+})
+
 if (hasSurveys) {
   addRoute(
     {

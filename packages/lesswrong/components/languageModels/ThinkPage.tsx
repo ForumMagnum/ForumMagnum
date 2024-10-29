@@ -5,23 +5,28 @@ import { useTracking } from "../../lib/analyticsEvents";
 
 const styles = (theme: ThemeType) => ({
   root: {
-
+    display: 'flex',
+    gap: theme.spacing.unit * 2,
   }
 });
 
-export const TemplateComponent = ({classes}: {
+export const ThinkPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
-  return <div className={classes.root}>
 
+  const { PostsNewForm, LanguageModelChat } = Components;
+
+  return <div className={classes.root}>
+      <PostsNewForm  />
+      <LanguageModelChat />
   </div>;
 }
 
-const TemplateComponentComponent = registerComponent('TemplateComponent', TemplateComponent, {styles});
+const ThinkPageComponent = registerComponent('ThinkPage', ThinkPage, {styles});
 
 declare global {
   interface ComponentTypes {
-    TemplateComponent: typeof TemplateComponentComponent
+    ThinkPage: typeof ThinkPageComponent
   }
 }
