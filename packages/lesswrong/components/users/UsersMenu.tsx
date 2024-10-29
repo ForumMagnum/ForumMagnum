@@ -1,7 +1,7 @@
 import React, { MouseEvent, useContext } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
-import { userCanComment, userCanDo, userIsMemberOf, userOverNKarmaOrApproved } from '../../lib/vulcan-users/permissions';
+import { userCanDo, userCanQuickTake, userIsMemberOf, userOverNKarmaOrApproved } from '../../lib/vulcan-users/permissions';
 import { userGetAnalyticsUrl, userGetDisplayName } from '../../lib/collections/users/helpers';
 import { dialoguesEnabled, userHasThemePicker } from '../../lib/betas';
 
@@ -183,7 +183,7 @@ const UsersMenu = ({classes}: {
       * Long-term, we should fix these issues and reenable this option.
       */
     newShortform: () =>
-      showNewButtons && userCanComment(currentUser)
+      showNewButtons && userCanQuickTake(currentUser)
         ? (
           <DropdownItem
             title={preferredHeadingCase("New Quick Take")}
