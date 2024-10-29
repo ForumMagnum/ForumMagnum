@@ -6,6 +6,7 @@ import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers'
 import classNames from 'classnames';
 import Tooltip from '@material-ui/core/Tooltip';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
+import { forumSelect } from '@/lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -19,15 +20,25 @@ const styles = (theme: ThemeType): JssStyles => ({
   voteButton: {
     fontSize: 25,
   },
+  // these interact with whether the vote icons are solid or hollow (i.e. different components). Not ideally set up, so nb. 
   vertLayoutVoteUp: {
     position: "absolute",
-    left: isFriendlyUI ? 9 : 8,
-    top: -15,
+    left: isFriendlyUI ? 9 : 10,
+    top: forumSelect({
+      LessWrong: -17,
+      AlignmentForum: -15,
+      default: -15
+    })
   },
+  // these interact with whether the vote icons are solid or hollow (i.e. different components). Not ideally set up, so nb. 
   vertLayoutVoteDown: {
     position: "absolute",
-    left: isFriendlyUI ? 9 : 8,
-    top: isFriendlyUI ? 10 : 9,
+    left: isFriendlyUI ? 9 : 10,
+    top: forumSelect({
+      LessWrong: 8,
+      AlignmentForum: 10,
+      default: 10
+    })
   },
   score: {
     width: "100%",
