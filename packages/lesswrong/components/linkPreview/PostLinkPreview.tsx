@@ -624,7 +624,7 @@ const manifoldStyles = (theme: ThemeType): JssStyles => ({
     width: 560,
     height: 405,
     border: "none",
-    maxWidth: "100vw",
+    maxWidth: "100vw"
   },
   link: linkStyle(theme),
 });
