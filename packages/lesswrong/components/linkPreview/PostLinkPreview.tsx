@@ -632,12 +632,11 @@ const manifoldStyles = (theme: ThemeType): JssStyles => ({
 const fatebookStyles = (theme: ThemeType): JssStyles => ({
   iframeStyling: {
     width: 560,
-    height: 405,
     border: "none",
     maxWidth: "100vw",
     backgroundColor: theme.palette.panelBackground.default,
     borderRadius: 3,
-    boxShadow: theme.palette.boxShadow.default,
+    boxShadow: theme.palette.boxShadow.eaCard,
   },
   link: linkStyle(theme),
 })
@@ -665,7 +664,7 @@ const FatebookPreview = ({classes, href, id, children}: {
     );
   }
 
-  const url = isEmbed ? href : `https://fatebook.io/embed/q/${questionSlug  }`;
+  const url = isEmbed ? href : `https://fatebook.io/embed/q/${questionSlug}?requireSignIn=false&compact=true`;
 
   return (
     <AnalyticsTracker eventType="link" eventProps={{ to: href }}>
@@ -682,7 +681,7 @@ const FatebookPreview = ({classes, href, id, children}: {
   );
 };
 
-const FatebookPreviewComponent = registerComponent('FatebookPreview', FatebookPreview, { styles: manifoldStyles })
+const FatebookPreviewComponent = registerComponent('FatebookPreview', FatebookPreview, { styles: fatebookStyles })
 
 
 const ManifoldPreview = ({classes, href, id, children}: {
