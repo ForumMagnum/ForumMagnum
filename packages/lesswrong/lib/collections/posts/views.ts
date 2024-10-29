@@ -1581,18 +1581,3 @@ void ensureCustomPgIndex(`
 
 // Needed to speed up getPostsAndCommentsFromSubscriptions, which otherwise has a pretty slow nested loop when joining on Posts because of the "postedAt" filter
 ensureIndex(Posts, { userId: 1, postedAt: 1 }, { concurrently: true });
-
-
-Posts.addView("glossaryEditorPosts", (terms: PostsViewTerms, _, context?: ResolverContext) => {
-  return {
-    selector: {
-      userId: terms.userId,
-      draft: viewFieldAllowAny,
-    },
-    options: {
-      sort: {
-        postedAt: -1
-      }
-    }
-  }
-})
