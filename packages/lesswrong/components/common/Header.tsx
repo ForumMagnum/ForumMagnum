@@ -258,6 +258,19 @@ export const styles = (theme: ThemeType) => ({
       theme.palette.text.alwaysWhite,
     ),
   },
+  gsBanner: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: 16,
+    fontWeight: 600,
+    lineHeight: "150%",
+    letterSpacing: "1.12px",
+    textAlign: "center",
+    flex: 1,
+  },
+  gsRightHeaderItems: {
+    flex: 1,
+    justifyContent: "flex-end",
+  },
 });
 
 const Header = ({
@@ -289,6 +302,8 @@ const Header = ({
   const { notificationsOpened } = useUnreadNotifications();
   const { currentRoute, pathname, hash } = useLocation();
   const {currentForumEvent} = useCurrentForumEvent();
+  const isGivingSeason = currentForumEvent?.customComponent === "GivingSeason2024Banner";
+  const {events, selectedEvent} = useGivingSeasonEvents();
 
   const {
     SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
@@ -421,7 +436,10 @@ const Header = ({
   </div>
 
   // the items on the right-hand side (search, notifications, user menu, login/sign up buttons)
-  const rightHeaderItemsNode = <div className={classes.rightHeaderItems}>
+  const rightHeaderItemsNode = <div className={classNames(
+    classes.rightHeaderItems,
+    isGivingSeason && classes.gsRightHeaderItems,
+  )}>
     <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
     {!isFriendlyUI && usersMenuNode}
     {!currentUser && <UsersAccountMenu />}
@@ -459,9 +477,6 @@ const Header = ({
         setIsOpen={handleSetNotificationDrawerOpen}
       />
     );
-
-  const isGivingSeason = currentForumEvent?.customComponent === "GivingSeason2024Banner";
-  const {events, selectedEvent} = useGivingSeasonEvents();
 
   const headerStyle: CSSProperties = {}
   const bannerImageId = currentForumEvent?.bannerImageId
@@ -546,6 +561,13 @@ const Header = ({
                 </div>
               </Typography>
               {!isEAForum &&<ActiveDialogues />}
+              {isGivingSeason &&
+                <div className={classes.gsBanner}>
+                  <Link to="#">
+                    GIVING SEASON 2024
+                  </Link>
+                </div>
+              }
               {rightHeaderItemsNode}
             </Toolbar>
           </header>

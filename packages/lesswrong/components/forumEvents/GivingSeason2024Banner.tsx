@@ -13,7 +13,6 @@ const styles = (theme: ThemeType) => ({
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 14,
     fontWeight: 500,
-    paddingBottom: 40,
     marginBottom: 24,
   },
   backgrounds: {
@@ -56,7 +55,6 @@ const styles = (theme: ThemeType) => ({
   timeline: {
     display: "flex",
     justifyContent: "space-between",
-    marginBottom: 24,
   },
   timelineEvent: {
     cursor: "pointer",
@@ -103,6 +101,8 @@ const styles = (theme: ThemeType) => ({
     display: "inline-block",
     width: "100%",
     scrollSnapAlign: "start",
+    paddingTop: 24,
+    paddingBottom: 40,
   },
   eventDate: {
     maxWidth: 470,
