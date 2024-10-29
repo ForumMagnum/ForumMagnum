@@ -37,18 +37,21 @@ const styles = (theme: ThemeType) => ({
   backgroundActive: {
     opacity: 1,
   },
+  darkText: {
+    color: theme.palette.givingSeason.primary,
+    "& $content": {
+      borderColor: theme.palette.givingSeason.timelineDark,
+    },
+    "& $timelineDot": {
+      background: theme.palette.givingSeason.primary,
+    },
+  },
   content: {
     maxWidth: 1200,
     margin: "0 auto",
     padding: "0 24px",
-    transition: "color 0.5s ease",
-    borderTop: `1px solid ${theme.palette.givingSeason.timeline}`,
-  },
-  darkText: {
-    color: theme.palette.givingSeason.primary,
-    "& $timelineDot": {
-      background: theme.palette.givingSeason.primary,
-    },
+    transition: "color 0.5s ease, border-color 0.5s ease",
+    borderTop: `1px solid ${theme.palette.givingSeason.timelineLight}`,
   },
   timeline: {
     position: "relative",
@@ -67,6 +70,7 @@ const styles = (theme: ThemeType) => ({
     userSelect: "none",
     opacity: 0.6,
     margin: 12,
+    transition: "opacity 0.5s linear",
     "&:first-child": {
       marginLeft: 0,
     },
@@ -166,7 +170,10 @@ const GivingSeason2024Banner = ({classes}: {
   }, [detailsRef]);
 
   return (
-    <div className={classes.root}>
+    <div className={classNames(
+      classes.root,
+      selectedEvent.darkText && classes.darkText,
+    )}>
       <div className={classes.backgrounds}>
         {events.map(({name, background}) => (
           <div
@@ -179,10 +186,7 @@ const GivingSeason2024Banner = ({classes}: {
           />
         ))}
       </div>
-      <div className={classNames(
-        classes.content,
-        selectedEvent.darkText && classes.darkText,
-      )}>
+      <div className={classes.content}>
         <div className={classes.timeline}>
           {events.map((event, i) => (
             <div

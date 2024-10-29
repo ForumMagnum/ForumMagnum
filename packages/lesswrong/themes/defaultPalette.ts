@@ -590,7 +590,8 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   },
   givingSeason: {
     primary: "#862115",
-    timeline: "rgba(255, 255, 255, 0.60)",
+    timelineLight: "rgba(255, 255, 255, 0.6)",
+    timelineDark: "rgba(134, 33, 21,0.6)",
   },
   namesAttachedReactions: {
     selectedAnti: "rgb(255, 189, 189, .23)",
