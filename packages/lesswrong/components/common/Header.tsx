@@ -107,11 +107,11 @@ export const styles = (theme: ThemeType) => ({
 
     // Transition added for giving season
     transition: isEAForum
-      ? "color 0.5s linear, background-color 0.5s linear"
+      ? "color 0.5s ease, background-color 0.5s ease"
       : undefined,
     "& *": {
       transition: isEAForum
-        ? "color 0.5s linear, background-color 0.5s linear"
+        ? "color 0.5s ease, background-color 0.5s ease"
         : undefined,
     },
   },

@@ -54,14 +54,11 @@ const styles = (theme: ThemeType) => ({
     borderTop: `1px solid ${theme.palette.givingSeason.timelineLight}`,
   },
   timeline: {
-    position: "relative",
-    zIndex: theme.zIndexes.header + 1,
     display: "flex",
     justifyContent: "space-between",
-    marginBottom: 50,
+    marginBottom: 24,
   },
   timelineEvent: {
-    position: "relative",
     cursor: "pointer",
     fontWeight: 400,
     width: 200,
@@ -70,7 +67,7 @@ const styles = (theme: ThemeType) => ({
     userSelect: "none",
     opacity: 0.6,
     margin: 12,
-    transition: "opacity 0.5s linear",
+    transition: "opacity 0.5s ease",
     "&:first-child": {
       marginLeft: 0,
     },
@@ -84,8 +81,9 @@ const styles = (theme: ThemeType) => ({
   },
   timelineDot: {
     position: "absolute",
-    top: -18,
-    left: `calc(50% - ${DOT_SIZE / 2}px)`,
+    zIndex: theme.zIndexes.header + 1,
+    top: -7,
+    transition: "left 0.35s ease, background 0.5s ease",
     width: DOT_SIZE,
     height: DOT_SIZE,
     borderRadius: "50%",
@@ -139,7 +137,19 @@ const GivingSeason2024Banner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {events, selectedEvent, setSelectedEvent} = useGivingSeasonEvents();
+  const [timelineRef, setTimelineRef] = useState<HTMLDivElement | null>(null);
   const [detailsRef, setDetailsRef] = useState<HTMLDivElement | null>(null);
+  const [dotLeft, setDotLeft] = useState(0);
+
+  const repositionDot = useCallback((index = 0) => {
+    const target = timelineRef?.querySelector(`[data-event-id="${index}"]`);
+    if (target) {
+      const rect = target.getBoundingClientRect();
+      setDotLeft(Math.floor(rect.x + (rect.width / 2) - (DOT_SIZE / 2)));
+    }
+  }, [timelineRef]);
+
+  useEffect(repositionDot, [repositionDot]);
 
   useEffect(() => {
     if (!detailsRef) {
@@ -151,6 +161,7 @@ const GivingSeason2024Banner = ({classes}: {
           const id = parseInt(entry.target.getAttribute("data-event-id") ?? "");
           if (Number.isSafeInteger(id) && events[id]) {
             setSelectedEvent(events[id]);
+            repositionDot(id);
           }
         }
       }
@@ -159,7 +170,7 @@ const GivingSeason2024Banner = ({classes}: {
       observer.observe(child);
     }
     return () => observer.disconnect();
-  }, [detailsRef]);
+  }, [detailsRef, events, setSelectedEvent, repositionDot]);
 
   const onClickTimeline = useCallback((index: number) => {
     detailsRef?.querySelector(`[data-event-id="${index}"]`)?.scrollIntoView({
@@ -187,10 +198,14 @@ const GivingSeason2024Banner = ({classes}: {
         ))}
       </div>
       <div className={classes.content}>
-        <div className={classes.timeline}>
+        <div className={classes.timeline} ref={setTimelineRef}>
+          {dotLeft > 0 &&
+            <div className={classes.timelineDot} style={{left: `${dotLeft}px`}} />
+          }
           {events.map((event, i) => (
             <div
               key={event.name}
+              data-event-id={i}
               onClick={onClickTimeline.bind(null, i)}
               className={classNames(
                 classes.timelineEvent,
@@ -198,15 +213,12 @@ const GivingSeason2024Banner = ({classes}: {
               )}
             >
               {event.name}
-              {selectedEvent === event &&
-                <div className={classes.timelineDot} />
-              }
             </div>
           ))}
         </div>
         <div className={classes.detailsContainer} ref={setDetailsRef}>
           {events.map(({name, description, start, end}, i) => (
-            <div className={classes.eventDetails} data-event-id={i}>
+            <div className={classes.eventDetails} data-event-id={i} key={name}>
               <div className={classes.eventDate}>{formatDate(start, end)}</div>
               <div className={classes.eventName}>{name}</div>
               <div className={classes.eventDescription}>{description}</div>
