@@ -65,7 +65,7 @@ const styles = (theme: ThemeType) => ({
     marginBottom: -16,
   },
   window: {
-    maxHeight: 300,
+    maxHeight: 230,
     overflowY: 'scroll',
     display: 'flex',
     justifyContent: 'space-between',
@@ -232,7 +232,9 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     fragmentName: 'JargonTerms',
   })
 
-  const { sortedTerms, getCount } = useJargonCounts(document, glossary);
+  let { sortedTerms, getCount } = useJargonCounts(document, glossary);
+
+  sortedTerms = sortedTerms.sort((a, b) => a.term.localeCompare(b.term));
 
   const deletedTerms = sortedTerms.filter((item) => item.deleted);
   const nonDeletedTerms = sortedTerms.filter((item) => !item.deleted);

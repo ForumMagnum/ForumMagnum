@@ -1586,7 +1586,7 @@ ensureIndex(Posts, { userId: 1, postedAt: 1 }, { concurrently: true });
 Posts.addView("glossaryEditorPosts", (terms: PostsViewTerms, _, context?: ResolverContext) => {
   return {
     selector: {
-      userId: context?.currentUser?._id,
+      userId: terms.userId,
       draft: viewFieldAllowAny,
     },
     options: {

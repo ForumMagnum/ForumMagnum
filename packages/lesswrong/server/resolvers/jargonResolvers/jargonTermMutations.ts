@@ -273,7 +273,10 @@ export async function createEnglishExplanations({ post, excludeTerms, ...example
     return [];
   }
 
-  const newTerms = terms.filter(term => !excludeTerms.includes(term) && post.contents?.html?.includes(term));
+  const newTerms = terms.filter(term => {
+    const lowerCaseTerm = term.toLowerCase();
+    return !excludeTerms.includes(lowerCaseTerm) && post.contents?.html?.toLowerCase().includes(lowerCaseTerm);
+  });
 
   const toolUseId = randomId();
   const [firstTerm, ...remainingTerms] = newTerms;
@@ -305,7 +308,6 @@ export const createNewJargonTerms = async ({ postId, currentUser, ...examplePara
     const terms = [jargonTerm.term.toLowerCase(), ...jargonTerm.altTerms.map(altTerm => altTerm.toLowerCase())];
     return !termsToExclude.some(excludedTerm => terms.includes(excludedTerm));
   });
-  console.log({ termsToExclude, jargonTermsToCopy });
 
   let newJargonTerms;
   try {
