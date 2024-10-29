@@ -164,6 +164,23 @@ export const userCanComment = (user: PermissionableUser|DbUser|null): boolean =>
   return true;
 }
 
+// Same as userCanComment, but without the unreviewed author check
+export const userCanQuickTake = (user: PermissionableUser|DbUser|null): boolean => {
+  if (!user) {
+    return false;
+  }
+
+  if (userIsAdminOrMod(user)) {
+    return true;
+  }
+
+  if (user.allCommentingDisabled) {
+    return false;
+  }
+
+  return true;
+}
+
 export const userOverNKarmaFunc = (n: number) => {
     return (user: UsersMinimumInfo|DbUser|null): boolean => {
       if (!user) return false
