@@ -18,7 +18,10 @@ import { useLocation } from '../../lib/routeUtil';
 import { useCurrentForumEvent } from '../hooks/useCurrentForumEvent';
 import { makeCloudinaryImageUrl } from './CloudinaryImage2';
 import { hasForumEvents } from '@/lib/betas';
-import { useGivingSeasonEvents } from '../forumEvents/useGivingSeasonEvents';
+import {
+  GIVING_SEASON_MOBILE_WIDTH,
+  useGivingSeasonEvents,
+} from '../forumEvents/useGivingSeasonEvents';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
@@ -106,9 +109,7 @@ export const styles = (theme: ThemeType) => ({
     } : {}),
 
     // Transition added for giving season
-    transition: isEAForum
-      ? "color 0.5s ease, background-color 0.5s ease"
-      : undefined,
+    transition: isEAForum ? "color 0.5s ease" : undefined,
     "& *": {
       transition: isEAForum
         ? "color 0.5s ease, background-color 0.5s ease"
@@ -143,7 +144,6 @@ export const styles = (theme: ThemeType) => ({
     top: 3,
     paddingRight: theme.spacing.unit,
     color: theme.palette.text.secondary,
-  //  maxWidth: 130,
   },
   titleLink: {
     color: theme.palette.header.text,
@@ -247,7 +247,7 @@ export const styles = (theme: ThemeType) => ({
     height: "100%",
     opacity: 0,
     transition: "opacity 0.5s ease",
-    backgroundSize: "cover",
+    backgroundSize: "100% 400px",
     backgroundRepeat: "no-repeat",
     backgroundBlendMode: "darken",
   },
@@ -269,6 +269,9 @@ export const styles = (theme: ThemeType) => ({
     letterSpacing: "1.12px",
     textAlign: "center",
     flex: 1,
+    [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
+      display: "none",
+    },
   },
   gsRightHeaderItems: {
     flex: 1,
@@ -499,7 +502,7 @@ const Header = ({
       })})${darkColor ? `, ${darkColor}` : ''}`;
       headerStyle.background = background;
     } else if (isGivingSeason) {
-      headerStyle.background = "#fff";
+      headerStyle.background = unFixed ? "transparent" : "#fff";
     }
   }
 
@@ -530,7 +533,7 @@ const Header = ({
             )}
             style={headerStyle}
           >
-            {isGivingSeason &&
+            {isGivingSeason && !unFixed &&
               <div>
                 {events.map(({name, background}) => (
                 <div

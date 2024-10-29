@@ -2,7 +2,12 @@ import React, { useCallback, useEffect, useState } from "react";
 import { registerComponent } from "@/lib/vulcan-lib";
 import { Link } from "@/lib/reactRouterWrapper";
 import { formatStat } from "../users/EAUserTooltipContent";
-import { useGivingSeasonEvents } from "./useGivingSeasonEvents";
+import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from "../common/Header";
+import {
+  GIVING_SEASON_DESKTOP_WIDTH,
+  GIVING_SEASON_MOBILE_WIDTH,
+  useGivingSeasonEvents,
+} from "./useGivingSeasonEvents";
 import classNames from "classnames";
 import type { Moment } from "moment";
 
@@ -15,6 +20,12 @@ const styles = (theme: ThemeType) => ({
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 14,
     fontWeight: 500,
+    marginTop: -HEADER_HEIGHT,
+    paddingTop: HEADER_HEIGHT,
+    [theme.breakpoints.down("xs")]: {
+      marginTop: -MOBILE_HEADER_HEIGHT,
+      paddingTop: MOBILE_HEADER_HEIGHT,
+    },
   },
   backgrounds: {
     position: "absolute",
@@ -46,10 +57,22 @@ const styles = (theme: ThemeType) => ({
       background: theme.palette.givingSeason.primary,
     },
   },
+  banner: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: 15,
+    fontWeight: 700,
+    lineHeight: "150%",
+    letterSpacing: "0.98px",
+    textAlign: "center",
+    margin: "-4px 0 16px 0",
+    [theme.breakpoints.up(GIVING_SEASON_MOBILE_WIDTH)]: {
+      display: "none",
+    },
+  },
   content: {
-    maxWidth: 1200,
-    margin: "0 auto",
     transition: "color 0.5s ease",
+    maxWidth: GIVING_SEASON_DESKTOP_WIDTH - 10,
+    margin: "0 auto",
   },
   line: {
     width: "100%",
@@ -61,6 +84,10 @@ const styles = (theme: ThemeType) => ({
   timeline: {
     display: "flex",
     justifyContent: "space-between",
+    gap: "24px",
+    overflow: "scroll hidden",
+    padding: "14px 24px 0 24px",
+    marginTop: -12,
   },
   timelineEvent: {
     cursor: "pointer",
@@ -91,7 +118,7 @@ const styles = (theme: ThemeType) => ({
   },
   timelineDot: {
     position: "absolute",
-    top: -18.5,
+    top: -20.5,
     left: `calc(50% - ${DOT_SIZE / 2}px)`,
     width: DOT_SIZE,
     height: DOT_SIZE,
@@ -101,6 +128,9 @@ const styles = (theme: ThemeType) => ({
   },
   mainContainer: {
     display: "flex",
+    [theme.breakpoints.down(GIVING_SEASON_DESKTOP_WIDTH)]: {
+      padding: "0 24px",
+    },
   },
   detailsContainer: {
     whiteSpace: "nowrap",
@@ -114,6 +144,7 @@ const styles = (theme: ThemeType) => ({
   },
   eventDetails: {
     display: "inline-block",
+    verticalAlign: "middle",
     width: "100%",
     scrollSnapAlign: "start",
     paddingTop: 24,
@@ -149,6 +180,9 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 24,
     background: theme.palette.givingSeason.electionFundBackground,
     borderRadius: theme.borderRadius.default,
+    [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
+      display: "none",
+    },
   },
   fundTitle: {
     fontSize: 18,
@@ -206,7 +240,9 @@ const GivingSeason2024Banner = ({classes}: {
     amountRaised,
     amountTarget,
   } = useGivingSeasonEvents();
+  const [timelineRef, setTimelineRef] = useState<HTMLDivElement | null>(null);
   const [detailsRef, setDetailsRef] = useState<HTMLDivElement | null>(null);
+  const [lastTimelineClick, setLastTimelineClick] = useState<number>();
 
   const fundPercent = Math.round((amountRaised / amountTarget) * 100);
 
@@ -228,9 +264,24 @@ const GivingSeason2024Banner = ({classes}: {
       observer.observe(child);
     }
     return () => observer.disconnect();
-  }, [detailsRef, events, setSelectedEvent]);
+  }, [timelineRef, detailsRef, events, setSelectedEvent]);
+
+  useEffect(() => {
+    // Disable for a short period after clicking an event to prevent spurious
+    // scrolling on mobile
+    if (lastTimelineClick && Date.now() - lastTimelineClick < 150) {
+      return;
+    }
+    const id = events.findIndex((event) => event === selectedEvent);
+    timelineRef?.querySelector(`[data-event-id="${id}"]`)?.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline: "nearest",
+    });
+  }, [timelineRef, selectedEvent, lastTimelineClick, events]);
 
   const onClickTimeline = useCallback((index: number) => {
+    setLastTimelineClick(Date.now());
     detailsRef?.querySelector(`[data-event-id="${index}"]`)?.scrollIntoView({
       behavior: "smooth",
       block: "nearest",
@@ -255,9 +306,14 @@ const GivingSeason2024Banner = ({classes}: {
           />
         ))}
       </div>
+      <div className={classes.banner}>
+        <Link to="#">
+          GIVING SEASON 2024
+        </Link>
+      </div>
       <div className={classes.line} />
       <div className={classes.content}>
-        <div className={classes.timeline}>
+        <div className={classes.timeline} ref={setTimelineRef}>
           {events.map((event, i) => (
             <div
               key={event.name}

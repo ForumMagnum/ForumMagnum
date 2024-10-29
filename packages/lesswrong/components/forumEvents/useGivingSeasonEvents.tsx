@@ -2,6 +2,9 @@ import React, { Dispatch, ReactNode, createContext, useContext, useState } from 
 import { Link } from "@/lib/reactRouterWrapper";
 import moment, { Moment } from "moment";
 
+export const GIVING_SEASON_DESKTOP_WIDTH = 1220;
+export const GIVING_SEASON_MOBILE_WIDTH = 900;
+
 type GivingSeasonEvent = {
   name: string,
   description: ReactNode,
