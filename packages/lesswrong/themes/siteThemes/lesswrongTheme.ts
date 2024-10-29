@@ -2,6 +2,7 @@ import { blackBarTitle } from "../../lib/publicSettings";
 
 const sansSerifStack = [
   'GreekFallback', // Ensures that greek letters render consistently
+  'gill-sans-nova',
   'Calibri',
   '"Gill Sans"',
   '"Gill Sans MT"',
@@ -78,7 +79,8 @@ export const lessWrongTheme: SiteThemeSpecification = {
         fontSize: '.85em'
       },
       body2: {
-        fontSize: 15.08
+        fontSize: 15.08,
+        lineHeight: "19.8px"
       },
       commentStyle: {
         fontFamily: sansSerifStack,

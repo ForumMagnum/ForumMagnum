@@ -67,7 +67,7 @@ test("voting on a post gives karma", async ({page, context}) => {
   await expect(karma).toContainText("0");
 
   // Click the upvote button and give time for the page to update
-  await page.locator(".VoteArrowIcon-up").click();
+  await page.locator(".VoteArrowIconHollow-up").click();
   await page.waitForTimeout(1000);
 
   // Post should now have 2 karma
