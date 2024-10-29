@@ -50,6 +50,8 @@ export async function sendCurationEmail({users, postId, reason, subject}: {
   const post = await Posts.findOne(postId);
   if (!post) throw Error(`Can't find post to send by email: ${postId}`)
 
+  const defaultCurationSubject = `Newly Curated: ${post.title}`
+
   for (const user of users) {
     await wrapAndSendEmail({
       user,
