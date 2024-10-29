@@ -308,7 +308,9 @@ const Header = ({
   const { notificationsOpened } = useUnreadNotifications();
   const { currentRoute, pathname, hash } = useLocation();
   const {currentForumEvent} = useCurrentForumEvent();
-  const isGivingSeason = currentForumEvent?.customComponent === "GivingSeason2024Banner";
+  const isGivingSeason =
+    currentForumEvent?.customComponent === "GivingSeason2024Banner" &&
+    currentRoute?.name === "home";
   const {events, selectedEvent} = useGivingSeasonEvents();
 
   const {
