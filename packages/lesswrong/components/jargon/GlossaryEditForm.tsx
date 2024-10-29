@@ -234,8 +234,6 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
 
   let { sortedTerms, getCount } = useJargonCounts(document, glossary);
 
-  sortedTerms = sortedTerms.sort((a, b) => a.term.localeCompare(b.term));
-
   const deletedTerms = sortedTerms.filter((item) => item.deleted);
   const nonDeletedTerms = sortedTerms.filter((item) => !item.deleted);
   const sortedApprovedTerms = nonDeletedTerms.filter((item) => item.approved);
