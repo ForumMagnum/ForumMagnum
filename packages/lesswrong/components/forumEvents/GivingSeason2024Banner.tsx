@@ -15,6 +15,9 @@ const DOT_SIZE = 12;
 
 const styles = (theme: ThemeType) => ({
   root: {
+    width: "100vw",
+    maxWidth: "100vw",
+    overflow: "hidden",
     position: "relative",
     color: theme.palette.text.alwaysWhite,
     fontFamily: theme.palette.fonts.sansSerifStack,

@@ -99,6 +99,8 @@ export const styles = (theme: ThemeType) => ({
     flexShrink: 0,
     flexDirection: "column",
     ...(isFriendlyUI ? {
+      maxWidth: "100vw",
+      overflow: "hidden",
       padding: '1px 20px',
       [theme.breakpoints.down('sm')]: {
         padding: '1px 11px',
