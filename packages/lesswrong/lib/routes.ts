@@ -1715,6 +1715,14 @@ addRoute(
   }
 );
 
+//jargon routes
+addRoute({
+  title: "Glossary Editor",
+  name: 'glossaryEditor',
+  path: '/glossaryEditor',
+  componentName: 'GlossaryEditorPage',
+})
+
 if (hasSurveys) {
   addRoute(
     {

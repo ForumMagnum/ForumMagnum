@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
-import { userCanComment } from '../../lib/vulcan-users/permissions';
+import { userCanQuickTake } from '../../lib/vulcan-users/permissions';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -31,7 +31,7 @@ const ShortformThreadList = ({ classes }: {
   
   return (
     <div>
-      {userCanComment(currentUser) &&
+      {(userCanQuickTake(currentUser) || !currentUser) &&
         <QuickTakesEntry currentUser={currentUser} successCallback={refetch} />
       }
 

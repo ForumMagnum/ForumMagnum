@@ -3,7 +3,6 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useHover } from "../common/withHover";
 import { isMobile } from "../../lib/utils/isMobile";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
-import { htmlToTextDefault } from "../../lib/htmlToText";
 import classNames from "classnames";
 import { commentBodyStyles } from "../../themes/stylePiping";
 
@@ -60,7 +59,7 @@ const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
   setExpanded: (expanded: boolean) => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { ForumIcon, LWPopper, CommentsNode, CommentsItemMeta } = Components;
+  const { ForumIcon, LWPopper, CommentsNode, CommentsItemMeta, CommentBottomCaveats } = Components;
 
   const {eventHandlers, hover, anchorEl} = useHover({
     eventProps: {
@@ -177,6 +176,7 @@ const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
         }}
       />
       {body}
+      <CommentBottomCaveats comment={quickTake} />
       {tooltip}
     </div>
   );
