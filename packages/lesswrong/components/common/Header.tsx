@@ -247,6 +247,9 @@ export const styles = (theme: ThemeType) => ({
     height: "100%",
     opacity: 0,
     transition: "opacity 0.5s ease",
+    backgroundSize: "cover",
+    backgroundRepeat: "no-repeat",
+    backgroundBlendMode: "darken",
   },
   gsBackgroundActive: {
     opacity: 1,
@@ -532,7 +535,7 @@ const Header = ({
                 {events.map(({name, background}) => (
                 <div
                   key={name}
-                  style={{background: `url(${background})`}}
+                  style={{backgroundImage: `url(${background})`}}
                   className={classNames(
                     classes.gsBackground,
                     name === selectedEvent.name && classes.gsBackgroundActive,

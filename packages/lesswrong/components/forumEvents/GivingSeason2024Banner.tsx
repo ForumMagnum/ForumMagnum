@@ -31,6 +31,9 @@ const styles = (theme: ThemeType) => ({
     height: "100%",
     opacity: 0,
     transition: "opacity 0.5s ease",
+    backgroundSize: "cover",
+    backgroundRepeat: "no-repeat",
+    backgroundBlendMode: "darken",
   },
   backgroundActive: {
     opacity: 1,
@@ -194,7 +197,7 @@ const GivingSeason2024Banner = ({classes}: {
         {events.map(({name, background}) => (
           <div
             key={name}
-            style={{background: `url(${background})`}}
+            style={{backgroundImage: `url(${background})`}}
             className={classNames(
               classes.background,
               name === selectedEvent.name && classes.backgroundActive,
