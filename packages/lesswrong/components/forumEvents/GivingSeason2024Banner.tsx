@@ -116,6 +116,12 @@ const styles = (theme: ThemeType) => ({
       overflow: "hidden",
       visibility: "hidden",
     },
+    "&:first-child": {
+      scrollMarginLeft: "1000px",
+    },
+    "&:last-child": {
+      scrollMarginRight: "1000px",
+    },
   },
   timelineEventSelected: {
     fontWeight: 600,
