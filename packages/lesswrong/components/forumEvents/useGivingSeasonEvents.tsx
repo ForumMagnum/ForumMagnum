@@ -50,8 +50,14 @@ const events: GivingSeasonEvent[] = [
   },
 ];
 
+const getCurrentEvent = (): GivingSeasonEvent | null => {
+  const now = moment();
+  return events.find(({start, end}) => now.isBetween(start, end)) ?? null;
+}
+
 type GivingSeasonEventsContext = {
   events: GivingSeasonEvent[],
+  currentEvent: GivingSeasonEvent | null,
   selectedEvent: GivingSeasonEvent,
   setSelectedEvent: Dispatch<GivingSeasonEvent>,
   amountRaised: number,
@@ -60,6 +66,7 @@ type GivingSeasonEventsContext = {
 
 const givingSeasonEventsContext = createContext<GivingSeasonEventsContext>({
   events,
+  currentEvent: getCurrentEvent(),
   selectedEvent: events[0],
   setSelectedEvent: () => {},
   amountRaised: 0,
@@ -67,10 +74,12 @@ const givingSeasonEventsContext = createContext<GivingSeasonEventsContext>({
 });
 
 export const GivingSeasonEventsProvider = ({children}: {children: ReactNode}) => {
-  const [selectedEvent, setSelectedEvent] = useState(events[0]);
+  const currentEvent = getCurrentEvent();
+  const [selectedEvent, setSelectedEvent] = useState(currentEvent ?? events[0]);
   return (
     <givingSeasonEventsContext.Provider value={{
       events,
+      currentEvent,
       selectedEvent,
       setSelectedEvent,
       amountRaised: 0, // TODO: Where does this come from?
