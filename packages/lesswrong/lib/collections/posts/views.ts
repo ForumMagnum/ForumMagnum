@@ -1099,15 +1099,12 @@ ensureIndex(Posts,
 );
 
 Posts.addView("events", (terms: PostsViewTerms) => {
-  console.log(JSON.stringify(terms, null, 2))
-  console.log(eventBuffer)
   const timeSelector = {
     $or: [
       { startTime: { $gt: moment().subtract(eventBuffer.startBuffer, 'hours').toDate() } },
       { endTime: { $gt: moment().subtract(eventBuffer.endBuffer, 'hours').toDate() } },
     ],
   };
-  console.log(JSON.stringify(timeSelector, null, 2))
   const twoMonthsAgo = moment().subtract(60, 'days').toDate();
   // make sure that, by default, events are not global
   let globalEventSelector: {} = terms.globalEvent ? {globalEvent: true} : {};
@@ -1116,7 +1113,6 @@ Posts.addView("events", (terms: PostsViewTerms) => {
       {globalEvent: false}, {globalEvent: {$exists:false}}
     ]}
   }
-  console.log(JSON.stringify(globalEventSelector, null, 2))
   
   let onlineEventSelector: {} = terms.onlineEvent ? {onlineEvent: true} : {}
   if (terms.onlineEvent === false) {
@@ -1124,7 +1120,6 @@ Posts.addView("events", (terms: PostsViewTerms) => {
       {onlineEvent: false}, {onlineEvent: {$exists: false}}
     ]}
   }
-  console.log(JSON.stringify(onlineEventSelector, null, 2))
   
   return {
     selector: {
