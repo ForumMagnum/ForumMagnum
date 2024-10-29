@@ -232,7 +232,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     fragmentName: 'JargonTerms',
   })
 
-  let { sortedTerms, getCount } = useJargonCounts(document, glossary);
+  const { sortedTerms, getCount } = useJargonCounts(document, glossary);
 
   const deletedTerms = sortedTerms.filter((item) => item.deleted);
   const nonDeletedTerms = sortedTerms.filter((item) => !item.deleted);
