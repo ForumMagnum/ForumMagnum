@@ -88,13 +88,17 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     justifyContent: "space-between",
     gap: "24px",
-    padding: "14px 24px 0 24px",
+    paddingTop: 14,
     marginTop: -12,
     overflow: "scroll hidden",
     scrollbarWidth: "none",
     "-ms-overflow-style": "none",
     "&::-webkit-scrollbar": {
       display: "none",
+    },
+    [theme.breakpoints.down(GIVING_SEASON_DESKTOP_WIDTH)]: {
+      paddingLeft: 24,
+      paddingRight: 24,
     },
   },
   timelineEvent: {
@@ -163,6 +167,10 @@ const styles = (theme: ThemeType) => ({
     scrollSnapAlign: "start",
     paddingTop: 24,
     paddingBottom: 40,
+    [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
+      paddingTop: 12,
+      paddingBottom: 24,
+    },
   },
   eventDate: {
     maxWidth: 470,
