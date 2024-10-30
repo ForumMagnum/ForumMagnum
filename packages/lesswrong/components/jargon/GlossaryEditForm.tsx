@@ -65,7 +65,7 @@ const styles = (theme: ThemeType) => ({
     marginBottom: -16,
   },
   window: {
-    maxHeight: 230,
+    maxHeight: 215,
     overflowY: 'scroll',
     display: 'flex',
     justifyContent: 'space-between',
@@ -183,7 +183,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.primary.main,
     fontSize: 25,
     fontWeight: 900,
-    paddingLeft: 7,
+    paddingLeft: 1,
     paddingRight: 7
   },
   newTermButtonCancel: {
@@ -388,13 +388,13 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
       <LWTooltip title="Enable all glossary hoverovers for readers of this post">
         <div className={classNames(classes.headerButton, sortedApprovedTerms.length !== 0 && classes.disabled)} 
           onClick={() => handleSetApproveAll(true)}>
-          ENABLE ALL
+          ENABLE ALL{ sortedUnapprovedTerms.length > 0 ? ` (${sortedUnapprovedTerms.length})` : '' }
         </div>
       </LWTooltip>
       <LWTooltip title="Disable all glossary hoverovers for readers of this post">
         <div className={classNames(classes.headerButton, sortedUnapprovedTerms.length !== 0 && classes.disabled)} 
           onClick={() => handleSetApproveAll(false)}>
-          DISABLE ALL
+          DISABLE ALL{ sortedApprovedTerms.length > 0 ?  ` (${sortedApprovedTerms.length})` : '' }
         </div>
       </LWTooltip>
       <LWTooltip title={<div><p>Hide all terms that aren't currently enabled</p><p>(you can unhide them later)</p></div>}>
@@ -402,7 +402,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
       </LWTooltip>
       <LWTooltip title="Unhide all deleted terms">
         <div className={classNames(classes.headerButton, deletedTerms.length === 0 && classes.disabled)} onClick={handleUnhideAll}>
-          UNHIDE ALL ({deletedTerms.length})
+          UNHIDE ALL{ deletedTerms.length > 0 ? ` (${deletedTerms.length})` : '' }
         </div>
       </LWTooltip>
     </div>
@@ -453,13 +453,14 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
             key={item._id} 
             jargonTerm={item} 
             instancesOfJargonCount={getCount(item)}
+            setShowMoreTerms={setShowMoreTerms}
           />;
         })}
         {deletedTerms.length > 0 && <div className={classes.button} onClick={() => setShowDeletedTerms(!showDeletedTerms)}>
           {showDeletedTerms ? "Hide deleted terms" : `Show deleted terms (${deletedTerms.length})`}
         </div>}
         {deletedTerms.length > 0 && showDeletedTerms && deletedTerms.map((item) => {
-          return <JargonEditorRow key={item._id} jargonTerm={item} instancesOfJargonCount={getCount(item)}/>
+          return <JargonEditorRow key={item._id} jargonTerm={item} instancesOfJargonCount={getCount(item)} setShowMoreTerms={setShowMoreTerms}/>
         })}
 
       </div>
