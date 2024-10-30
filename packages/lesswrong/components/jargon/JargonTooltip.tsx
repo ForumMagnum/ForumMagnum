@@ -78,7 +78,10 @@ export const JargonTooltip = ({definitionHTML, approved, altTerms, humansAndOrAI
     icons = <ForumIcon icon="Pencil" className={classes.icon}/>;
   } else if (humansAndOrAIEdited === 'humansAndAI') {
     humansAndOrAIEditedText = 'Edited by AI and Human';
-    icons = <> <ForumIcon icon="Sparkles" className={classes.icon}/> <ForumIcon icon="Pencil" className={classes.icon}/> </>;
+    icons = <>
+      <ForumIcon icon="Sparkles" className={classes.icon}/>
+      <ForumIcon icon="Pencil" className={classes.icon}/>
+    </>;
   }
 
   const tooltip = <Card className={classes.card}>
