@@ -286,6 +286,10 @@ export async function createEnglishExplanations({ post, excludeTerms, ...example
   return filterNonnull([firstExplanation, ...remainingExplanations]);
 }
 
+const processedTerms = (jargonTerms: DbJargonTerm[]) => {
+  return jargonTerms.flatMap(jargonTerm => [jargonTerm.term.toLowerCase(), ...jargonTerm.altTerms.map(altTerm => altTerm.toLowerCase())]);
+}
+
 export const createNewJargonTerms = async ({ postId, currentUser, ...exampleParams }: CreateJargonTermsQueryParams) => {
   const post = await fetchFragmentSingle({
     collectionName: 'Posts',
@@ -303,10 +307,6 @@ export const createNewJargonTerms = async ({ postId, currentUser, ...examplePara
     JargonTerms.find({ postId }).fetch()
   ]);
   const existingJargonTerms = [...authorsOtherPostJargonTerms, ...jargonTermsFromThisPost];
-
-  const processedTerms = (jargonTerms: DbJargonTerm[]) => {
-    return jargonTerms.flatMap(jargonTerm => [jargonTerm.term.toLowerCase(), ...jargonTerm.altTerms.map(altTerm => altTerm.toLowerCase())]);
-  }
 
   const termsToExclude = uniq(processedTerms(existingJargonTerms));
 
