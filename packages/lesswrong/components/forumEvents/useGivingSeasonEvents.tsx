@@ -16,7 +16,7 @@ type GivingSeasonEvent = {
 
 const events: GivingSeasonEvent[] = [
   {
-    name: "Funding Diversification Week",
+    name: "Funding Strategy Week",
     description: <>This week, we are encouraging content around a range of important funding considerations. <Link to="#">Read more</Link>.</>,
     start: moment("2024-11-04").utc(),
     end: moment("2024-11-10").utc(),
