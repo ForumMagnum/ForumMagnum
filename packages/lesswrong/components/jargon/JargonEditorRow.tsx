@@ -16,6 +16,7 @@ export const formStyles = {
   },
   '& .form-component-EditorFormComponent': {
     marginBottom: 0,
+    marginTop: 0,
     width: '100%',
   },
   '& .form-component-default, & .MuiTextField-textField': {
@@ -32,18 +33,17 @@ const styles = (theme: ThemeType) => ({
     ...commentBodyStyles(theme, true),
     marginTop: 0,
     padding: '0 6px',
-    borderBottom: theme.palette.border.commentBorder,
     display: 'flex',
     alignItems: 'center',
-    '&:last-child': {
-      borderBottom: 'none',
-    },
     '&:hover $bottomButton': {
       opacity: .5
     }
   },
   unapproved: {
     opacity: .5,
+    '&:hover': {
+      opacity: 1
+    }
   },
   editButton: {
     cursor: 'pointer',
@@ -120,14 +120,17 @@ const styles = (theme: ThemeType) => ({
   },
   explanationContainer: {
     cursor: 'text',
-    paddingTop: 6,
-    paddingBottom: 10
+    paddingBottom: 4
   },
   checkbox: {
-    width: 30,
-    height: 30,
-    paddingRight: 28,
-    paddingLeft: 22,
+    width: 24,
+    height: 24,
+    paddingRight: 24,
+    paddingLeft: 14,
+    '& svg': {
+      width: 16,
+      height: 16,
+    }
   },
   instancesOfJargonCount: {
     width: 30,
@@ -140,8 +143,9 @@ const styles = (theme: ThemeType) => ({
     height: '1.6rem',
     overflow: 'hidden',
     minWidth: 100,
-    color: theme.palette.grey[600],
-    '& strong': {
+    paddingRight: 8,
+    color: theme.palette.grey[500],
+    '& strong, & b': {
       color: theme.palette.grey[900],
       marginRight: 8
     }
@@ -186,10 +190,11 @@ const JargonSubmitButton = ({ submitForm, cancelCallback, classes }: FormButtonP
 
 // Jargon editor row
 
-export const JargonEditorRow = ({classes, jargonTerm, instancesOfJargonCount}: {
+export const JargonEditorRow = ({classes, jargonTerm, instancesOfJargonCount, setShowMoreTerms}: {
   classes: ClassesType<typeof styles>,
   jargonTerm: JargonTerms,
   instancesOfJargonCount?: number,
+  setShowMoreTerms: (expanded: boolean) => void,
 }) => {
 
   const [edit, setEdit] = useState(false);
@@ -256,7 +261,10 @@ export const JargonEditorRow = ({classes, jargonTerm, instancesOfJargonCount}: {
           approved={jargonTerm.approved}
           forceTooltip={true}
         >
-          <div className={classNames(classes.explanationContainer, !jargonTerm.approved && classes.unapproved)} onClick={() => setEdit(true)}>
+          <div className={classNames(classes.explanationContainer, !jargonTerm.approved && classes.unapproved)} onClick={() => {
+            setShowMoreTerms(true);
+            setEdit(true);
+          }}>
             <ContentItemBody className={classes.definition} dangerouslySetInnerHTML={{ __html: jargonDefinition }} />
           </div>
         </JargonTooltip>}

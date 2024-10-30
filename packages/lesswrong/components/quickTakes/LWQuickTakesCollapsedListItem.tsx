@@ -52,6 +52,9 @@ const styles = (theme: ThemeType) => ({
   hoverOver: {
     width: 400,
   },
+  commentCountText: {
+    marginTop: -4,
+  },
 });
 
 const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
@@ -117,7 +120,9 @@ const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
       })}
     >
       <ForumIcon icon="Comment" />
-      {commentCount}
+      <span className={classes.commentCountText}>
+        {commentCount}
+      </span>
     </div>
   );
 
