@@ -50,7 +50,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: 26,
     display: "inline-block",
     borderRadius: 8,
-    paddingTop: 2,
     paddingLeft: 7,
     paddingRight: 7,
     "&:hover": {
