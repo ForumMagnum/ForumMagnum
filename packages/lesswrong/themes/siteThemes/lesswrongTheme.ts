@@ -2,8 +2,8 @@ import { blackBarTitle } from "../../lib/publicSettings";
 
 const sansSerifStack = [
   'GreekFallback', // Ensures that greek letters render consistently
-  'gill-sans-nova',
   'Calibri',
+  'gill-sans-nova',
   '"Gill Sans"',
   '"Gill Sans MT"',
   "Myriad Pro",

@@ -20,6 +20,7 @@ import { convertZodParserToAnthropicTool } from '@/server/languageModels/llmApiW
 
 import type { Tool } from '@anthropic-ai/sdk/resources';
 import type { PromptCachingBetaMessageParam } from '@anthropic-ai/sdk/resources/beta/prompt-caching/messages';
+import uniq from 'lodash/uniq';
 
 interface JargonTermGenerationExampleParams {
   glossaryPrompt?: string;
@@ -252,7 +253,10 @@ export async function createEnglishExplanations({ post, excludeTerms, ...example
     return [];
   }
 
-  const newTerms = terms.filter(term => !excludeTerms.includes(term) && post.contents?.html?.includes(term));
+  const newTerms = terms.filter(term => {
+    const lowerCaseTerm = term.toLowerCase();
+    return !excludeTerms.includes(lowerCaseTerm) && post.contents?.html?.toLowerCase().includes(lowerCaseTerm);
+  });
 
   const toolUseId = randomId();
   const [firstTerm, ...remainingTerms] = newTerms;
@@ -260,6 +264,10 @@ export async function createEnglishExplanations({ post, excludeTerms, ...example
   const firstExplanation = await queryClaudeForSingleJargonExplanation({ markdown, term: firstTerm, toolUseId, ...exampleParams });
   const remainingExplanations = await Promise.all(remainingTerms.map((term) => queryClaudeForSingleJargonExplanation({ markdown, term, toolUseId, ...exampleParams })));
   return filterNonnull([firstExplanation, ...remainingExplanations]);
+}
+
+const processedTerms = (jargonTerms: DbJargonTerm[]) => {
+  return jargonTerms.flatMap(jargonTerm => [jargonTerm.term.toLowerCase(), ...jargonTerm.altTerms.map(altTerm => altTerm.toLowerCase())]);
 }
 
 export const createNewJargonTerms = async ({ postId, currentUser, ...exampleParams }: CreateJargonTermsQueryParams) => {
@@ -274,21 +282,19 @@ export const createNewJargonTerms = async ({ postId, currentUser, ...examplePara
     throw new Error('Post not found');
   }
 
-  const authorsOtherJargonTerms = await (new JargonTermsRepo().getAuthorsOtherJargonTerms(currentUser._id, postId));
-  const existingJargonTermsById = keyBy(authorsOtherJargonTerms, '_id');
-  const presentTerms = authorsOtherJargonTerms.filter(jargonTerm => post.contents?.html?.includes(jargonTerm.term));
-  
-  // TODO: This might be too annoying to do properly, come back to it later
-  //const presentTermIds = new Set(presentTerms.map(jargonTerm => jargonTerm._id));
+  const [authorsOtherPostJargonTerms, jargonTermsFromThisPost] = await Promise.all([ 
+    (new JargonTermsRepo()).getAuthorsOtherJargonTerms(currentUser._id, postId),
+    JargonTerms.find({ postId }).fetch()
+  ]);
+  const existingJargonTerms = [...authorsOtherPostJargonTerms, ...jargonTermsFromThisPost];
 
-  // const presentAltTerms = authorsOtherJargonTerms
-  //   .flatMap(jargonTerm => expandJargonAltTerms(jargonTerm, false))
-  //   .filter(altTerm => !presentTermIds.has(altTerm._id))
-  //   .filter(altTerm => post.contents?.html?.includes(altTerm.term));
+  const termsToExclude = uniq(processedTerms(existingJargonTerms));
 
-  const jargonTermsToCopy = presentTerms.map(jargonTerm => existingJargonTermsById[jargonTerm._id]);
-
-  const termsToExclude = jargonTermsToCopy.map(jargonTerm => jargonTerm.term);
+  const presentTerms = existingJargonTerms.filter(jargonTerm => post.contents?.html?.includes(jargonTerm.term));
+  const jargonTermsToCopy = presentTerms.filter(jargonTerm => {
+    const terms = processedTerms([jargonTerm]);
+    return !termsToExclude.some(excludedTerm => terms.includes(excludedTerm));
+  });
 
   let newJargonTerms;
   try {
@@ -327,8 +333,8 @@ export const createNewJargonTerms = async ({ postId, currentUser, ...examplePara
             document: {
               postId: postId,
               term: jargonTerm.term,
-              approved: true,
-              deleted: false,
+              approved: jargonTerm.approved,
+              deleted: jargonTerm.deleted,
               contents: { originalContents: jargonTerm.contents!.originalContents },
               altTerms: jargonTerm.altTerms,
             },
