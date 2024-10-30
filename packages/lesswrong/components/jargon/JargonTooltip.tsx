@@ -32,6 +32,7 @@ const styles = (theme: ThemeType) => ({
     marginTop: 8,
     display: 'flex',
     justifyContent: 'space-between',
+    alignItems: 'center',
   },
   altTerm: {
     color: theme.palette.grey[600],
@@ -48,6 +49,8 @@ const styles = (theme: ThemeType) => ({
     height: 12,
     color: theme.palette.grey[400],
     marginRight: 4,
+    position: 'relative',
+    top: 1,
   }
 });
 
