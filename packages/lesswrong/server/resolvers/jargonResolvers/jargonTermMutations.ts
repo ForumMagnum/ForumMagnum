@@ -298,14 +298,21 @@ export const createNewJargonTerms = async ({ postId, currentUser, ...examplePara
     throw new Error('Post not found');
   }
 
-  const authorsOtherPostJargonTerms = await (new JargonTermsRepo().getAuthorsOtherJargonTerms(currentUser._id, postId));
-  const jargonTermsFromThisPost = await JargonTerms.find({ postId }).fetch();
+  const [authorsOtherPostJargonTerms, jargonTermsFromThisPost] = await Promise.all([ 
+    (new JargonTermsRepo()).getAuthorsOtherJargonTerms(currentUser._id, postId),
+    JargonTerms.find({ postId }).fetch()
+  ]);
   const existingJargonTerms = [...authorsOtherPostJargonTerms, ...jargonTermsFromThisPost];
-  const termsToExclude = uniq(existingJargonTerms.flatMap(jargonTerm => [jargonTerm.term.toLowerCase(), ...jargonTerm.altTerms.map(altTerm => altTerm.toLowerCase())]))
+
+  const processedTerms = (jargonTerms: DbJargonTerm[]) => {
+    return jargonTerms.flatMap(jargonTerm => [jargonTerm.term.toLowerCase(), ...jargonTerm.altTerms.map(altTerm => altTerm.toLowerCase())]);
+  }
+
+  const termsToExclude = uniq(processedTerms(existingJargonTerms));
 
   const presentTerms = existingJargonTerms.filter(jargonTerm => post.contents?.html?.includes(jargonTerm.term));
   const jargonTermsToCopy = presentTerms.filter(jargonTerm => {
-    const terms = [jargonTerm.term.toLowerCase(), ...jargonTerm.altTerms.map(altTerm => altTerm.toLowerCase())];
+    const terms = processedTerms([jargonTerm]);
     return !termsToExclude.some(excludedTerm => terms.includes(excludedTerm));
   });
 
