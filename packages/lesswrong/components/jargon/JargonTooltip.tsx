@@ -5,11 +5,12 @@ import { commentBodyStyles } from '@/themes/stylePiping';
 import { ContentReplacedSubstringComponentInfo } from '../common/ContentItemBody';
 import { PopperPlacementType } from '@material-ui/core/Popper';
 import { useGlossaryPinnedState } from '../hooks/useUpdateGlossaryPinnedState';
+import { ForumIconName } from '../common/ForumIcon';
 
 const styles = (theme: ThemeType) => ({
   card: {
     padding: 16,
-    paddingBottom: 12,
+    paddingBottom: 10,
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
     maxWidth: 350,
     ...commentBodyStyles(theme),
@@ -27,7 +28,7 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.text.jargonTerm,
     },
   },
-  altTerms: {
+  metadata: {
     marginTop: 8,
     display: 'flex',
     justifyContent: 'space-between',
@@ -41,6 +42,12 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[600],
     fontSize: "0.8em",
     marginBottom: 8,
+  },
+  icon: {
+    width: 12,
+    height: 12,
+    color: theme.palette.grey[400],
+    marginRight: 4,
   }
 });
 
@@ -57,29 +64,30 @@ export const JargonTooltip = ({definitionHTML, approved, altTerms, humansAndOrAI
   tooltipTitleClassName?: string,
   forceTooltip?: boolean,
 }) => {
-  const { LWTooltip, ContentItemBody } = Components;
+  const { LWTooltip, ContentItemBody, ForumIcon } = Components;
 
   const { postGlossariesPinned } = useGlossaryPinnedState();
 
   let humansAndOrAIEditedText = 'AI Generated'
+  let icons = <ForumIcon icon="Sparkles" className={classes.icon}/>;
   if (humansAndOrAIEdited === 'humans') {
     humansAndOrAIEditedText = 'Edited by Human';
+    icons = <ForumIcon icon="Pencil" className={classes.icon}/>;
   } else if (humansAndOrAIEdited === 'humansAndAI') {
     humansAndOrAIEditedText = 'Edited by AI and Human';
+    icons = <> <ForumIcon icon="Sparkles" className={classes.icon}/> <ForumIcon icon="Pencil" className={classes.icon}/> </>;
   }
 
   const tooltip = <Card className={classes.card}>
-    {!approved && <div className={classes.unapprovedLabel}>Unapproved [admin only]</div>}
     <ContentItemBody
       dangerouslySetInnerHTML={{ __html: definitionHTML }}
     />
-    <div className={classes.altTerms}>
-      <div>
-        {altTerms.map((term: string) => (
-        <span className={classes.altTerm} key={term}>{term}</span>
-        ))}
-      </div>
-      {humansAndOrAIEditedText && <div><span className={classes.altTerm}>{humansAndOrAIEditedText}</span></div>}
+    <div className={classes.metadata}>
+      {humansAndOrAIEditedText && <div><span className={classes.altTerm}>
+        {icons}{humansAndOrAIEditedText}
+      </span></div>}
+
+      {!approved && <div className={classes.unapprovedLabel}>Unapproved [admin only]</div>}
     </div>
   </Card>
 

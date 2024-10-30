@@ -388,13 +388,13 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
       <LWTooltip title="Enable all glossary hoverovers for readers of this post">
         <div className={classNames(classes.headerButton, sortedApprovedTerms.length !== 0 && classes.disabled)} 
           onClick={() => handleSetApproveAll(true)}>
-          ENABLE ALL
+          ENABLE ALL { sortedUnapprovedTerms.length > 0 && `(${sortedUnapprovedTerms.length})`}
         </div>
       </LWTooltip>
       <LWTooltip title="Disable all glossary hoverovers for readers of this post">
         <div className={classNames(classes.headerButton, sortedUnapprovedTerms.length !== 0 && classes.disabled)} 
           onClick={() => handleSetApproveAll(false)}>
-          DISABLE ALL
+          DISABLE ALL { sortedApprovedTerms.length > 0 && `(${sortedApprovedTerms.length})`}
         </div>
       </LWTooltip>
       <LWTooltip title={<div><p>Hide all terms that aren't currently enabled</p><p>(you can unhide them later)</p></div>}>
@@ -402,7 +402,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
       </LWTooltip>
       <LWTooltip title="Unhide all deleted terms">
         <div className={classNames(classes.headerButton, deletedTerms.length === 0 && classes.disabled)} onClick={handleUnhideAll}>
-          UNHIDE ALL ({deletedTerms.length})
+          UNHIDE ALL { deletedTerms.length > 0 && `(${deletedTerms.length})`}
         </div>
       </LWTooltip>
     </div>

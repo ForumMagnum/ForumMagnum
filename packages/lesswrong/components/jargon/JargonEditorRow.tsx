@@ -41,6 +41,9 @@ const styles = (theme: ThemeType) => ({
   },
   unapproved: {
     opacity: .5,
+    '&:hover': {
+      opacity: 1
+    }
   },
   editButton: {
     cursor: 'pointer',
