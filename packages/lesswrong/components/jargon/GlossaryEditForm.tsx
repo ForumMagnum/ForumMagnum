@@ -65,7 +65,7 @@ const styles = (theme: ThemeType) => ({
     marginBottom: -16,
   },
   window: {
-    maxHeight: 230,
+    maxHeight: 215,
     overflowY: 'scroll',
     display: 'flex',
     justifyContent: 'space-between',
@@ -183,7 +183,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.primary.main,
     fontSize: 25,
     fontWeight: 900,
-    paddingLeft: 7,
+    paddingLeft: 1,
     paddingRight: 7
   },
   newTermButtonCancel: {

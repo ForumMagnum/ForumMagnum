@@ -32,12 +32,8 @@ const styles = (theme: ThemeType) => ({
     ...commentBodyStyles(theme, true),
     marginTop: 0,
     padding: '0 6px',
-    borderBottom: theme.palette.border.commentBorder,
     display: 'flex',
     alignItems: 'center',
-    '&:last-child': {
-      borderBottom: 'none',
-    },
     '&:hover $bottomButton': {
       opacity: .5
     }
@@ -120,14 +116,17 @@ const styles = (theme: ThemeType) => ({
   },
   explanationContainer: {
     cursor: 'text',
-    paddingTop: 6,
-    paddingBottom: 10
+    paddingBottom: 4
   },
   checkbox: {
-    width: 30,
-    height: 30,
-    paddingRight: 28,
-    paddingLeft: 22,
+    width: 24,
+    height: 24,
+    paddingRight: 24,
+    paddingLeft: 14,
+    '& svg': {
+      width: 16,
+      height: 16,
+    }
   },
   instancesOfJargonCount: {
     width: 30,
@@ -140,7 +139,8 @@ const styles = (theme: ThemeType) => ({
     height: '1.6rem',
     overflow: 'hidden',
     minWidth: 100,
-    color: theme.palette.grey[600],
+    paddingRight: 8,
+    color: theme.palette.grey[500],
     '& strong': {
       color: theme.palette.grey[900],
       marginRight: 8
