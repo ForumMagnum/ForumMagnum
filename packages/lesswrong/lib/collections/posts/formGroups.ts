@@ -38,7 +38,7 @@ export const formGroups: Record<string, FormGroupType<"Posts">> = {
   socialPreview: {
     name: "socialPreview",
     order: 23,
-    label: preferredHeadingCase("Edit Link Preview"),
+    label: preferredHeadingCase("Link Preview"),
     startCollapsed: !isFriendlyUI,
   },
   highlight: {
@@ -50,13 +50,13 @@ export const formGroups: Record<string, FormGroupType<"Posts">> = {
   adminOptions: {
     name: "adminOptions",
     order: 25,
-    label: preferredHeadingCase("Admin Options"),
+    label: preferredHeadingCase("Admin"),
     startCollapsed: true,
   },
   moderationGroup: {
     order: 60,
     name: "moderation",
-    label: preferredHeadingCase(isFriendlyUI ? "Moderation" : "Moderation Guidelines"),
+    label: preferredHeadingCase("Moderation"),
     helpText: isFriendlyUI ? undefined : "We prefill these moderation guidelines based on your user settings. But you can adjust them for each post.",
     startCollapsed: true,
   },
@@ -104,8 +104,8 @@ export const formGroups: Record<string, FormGroupType<"Posts">> = {
   tags: {
     order: isEAForum ? 20 : 70,
     name: "tags",
-    label: isEAForum ? `Set ${taggingNamePluralSetting.get()}` : `Apply ${taggingNamePluralCapitalSetting.get()}`,
-    startCollapsed: false
+    label: isEAForum ? `Set ${taggingNamePluralSetting.get()}` : `${taggingNamePluralCapitalSetting.get()}`,
+    startCollapsed: true
   },
   glossary: {
     order: 65,

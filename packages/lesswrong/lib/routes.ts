@@ -1728,6 +1728,7 @@ addRoute({
   name: 'thinkPage',
   path: '/think',
   componentName: 'ThinkPage',
+  background: 'white',
 })
 
 if (hasSurveys) {

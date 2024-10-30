@@ -20,7 +20,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 8,
     
     "& a": {
-      textDecoration: "underline",
       '&:hover': {
         color: theme.palette.primary.dark,
         opacity: 1
@@ -29,10 +28,20 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   restoreLink: {
     color: theme.palette.text.primaryAlert,
+    whiteSpace: 'nowrap',
+  },
+  restoreBody: {
+    color: theme.palette.grey[500],
+    maxHeight: '1.5em',
+    lineHeight: '1.5em',
+    fontSize: '1.1rem',
+    overflow: 'hidden',
+    padding: '0 4px',
   },
   closeIcon: {
     fontSize: 16,
     cursor: 'pointer',
+    marginLeft: 'auto',
     '&:hover': {
       color: theme.palette.primary.dark,
     }
@@ -82,10 +91,15 @@ const LocalStorageCheck = ({getLocalStorageHandlers, onRestore, classes}: {
   
   if (!restorableState)
     return null;
-  
+
+  const stripHTML = (html: string) => {
+    return html.replace(/<[^>]*>?/g, '');
+  }
+
+  const displayedRestore = stripHTML(deserializeEditorContents(restorableState.savedDocument)?.value ?? '');
+
   return <div className={classes.root}>
     <div>
-      You have autosaved text.{" "}
       <a className={classes.restoreLink} onClick={() => {
         setRestorableState(null);
         const restored = deserializeEditorContents(restorableState.savedDocument);
@@ -95,8 +109,10 @@ const LocalStorageCheck = ({getLocalStorageHandlers, onRestore, classes}: {
           // eslint-disable-next-line no-console
           console.error("Error restoring from localStorage");
         }
-      }}>Restore</a>
+      }}>Restore Autosave</a>
     </div>
+    <div className={classes.restoreBody}> {displayedRestore} </div>
+
     <Components.ForumIcon icon="Close" className={classes.closeIcon} onClick={() => setRestorableState(null)}/>
   </div>
 }

@@ -29,6 +29,11 @@ const styles = (theme: ThemeType) => ({
     flexDirection: "column",
     height: "100%"
   },
+  warning: {
+    margin: 10,
+    padding: 20,
+    backgroundColor: theme.palette.error.light,
+  },
   submission: {
     margin: 10,
     display: "flex",
@@ -52,7 +57,7 @@ const styles = (theme: ThemeType) => ({
   inputTextbox: {
     margin: 10,
     marginTop: 20,
-    borderRadius: 4,
+    borderRadius: 8,
     maxHeight: "40vh",
     backgroundColor: theme.palette.panelBackground.commentNodeEven,
     overflowY: 'hidden',
@@ -171,9 +176,10 @@ const LLMChatMessage = ({message, classes}: {
   </ContentStyles>
 }
 
-const LLMInputTextbox = ({onSubmit, classes}: {
+const LLMInputTextbox = ({onSubmit, classes, showWarning}: {
   onSubmit: (message: string) => void,
   classes: ClassesType<typeof styles>,
+  showWarning?: boolean,
 }) => {
   const { ContentStyles } = Components;
   
@@ -192,6 +198,8 @@ const LLMInputTextbox = ({onSubmit, classes}: {
     currentEditorContent && void onSubmit(currentEditorContent);
     setCurrentMessage('');
   }, [onSubmit]);
+
+  const [focused, setFocused] = useState(false);
 
   // We need to pipe through the `conversationId` and do all of this eventListener setup/teardown like this because
   // otherwise messages get submitted to whatever conversation was "current" when the editor was initially loaded
@@ -234,8 +242,11 @@ const LLMInputTextbox = ({onSubmit, classes}: {
 
   // TODO: styling and debouncing
   return <ContentStyles className={classes.inputTextbox} contentType='comment'>
+    {showWarning && focused && <div className={classes.warning}>{LLM_CHAT_WARNING}</div>}
     <div className={classes.editor}>
       <CKEditor
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
         data={currentMessage}
         ref={ckEditorRef}
         editor={getCkCommentEditor(forumTypeSetting.get())}
@@ -265,11 +276,13 @@ const LLMInputTextbox = ({onSubmit, classes}: {
   </ContentStyles>
 }
 
+const LLM_CHAT_WARNING = "The LessWrong team will read conversations to help us with product iteration during development.";
+
 const welcomeGuideHtml = [
   `<h1>Welcome to the LessWrong LLM Chat!</h1>`,
   `<ul><li>The LLM chat interface is currently hooked up to Claude Sonnet 3.5</li>`,
   `<li>LaTeX is supported both on input and output.`,
-  `<li style="color: #bf360c;">The LessWrong team will read conversations to help us with product iteration during development.</li></ul>`,
+  `<li style="color: #bf360c;">${LLM_CHAT_WARNING}</li></ul>`,
   `<p><strong>Posts and comments may be loaded into the context window based on your <em>first message</em> (and based on the current post you are viewing).</strong></p>`,
 ].join('');
 
@@ -303,8 +316,9 @@ function useCurrentPostContext(): CurrentPostContext {
   return {};
 }
 
-export const ChatInterface = ({classes}: {
+export const ChatInterface = ({classes, hideHeader}: {
   classes: ClassesType<typeof styles>,
+  hideHeader?: boolean,
 }) => {
   const { LlmChatMessage, Loading, MenuItem, ContentStyles, ContentItemBody } = Components;
 
@@ -384,7 +398,7 @@ export const ChatInterface = ({classes}: {
   </ContentStyles>
 
   const messagesForDisplay = <div className={classes.messages} ref={messagesRef}>
-    {llmChatGuide}
+    {!hideHeader && llmChatGuide}
     {currentConversation?.messages.map((message, index) => (
       <LlmChatMessage key={index} message={message} />
     ))}
@@ -469,20 +483,21 @@ export const ChatInterface = ({classes}: {
   return <div className={classes.subRoot}>
     {messagesForDisplay}
     {currentConversationLoading && <Loading className={classes.loadingSpinner}/>}
-    <LLMInputTextbox onSubmit={handleSubmit} classes={classes} />
+    <LLMInputTextbox onSubmit={handleSubmit} classes={classes} showWarning={!hideHeader}/>
     {options}
   </div>
 }
 
 
 // Wrapper component needed so we can use deferRender
-export const LanguageModelChat = ({classes}: {
+export const LanguageModelChat = ({classes, hideHeader}: {
   classes: ClassesType<typeof styles>,
+  hideHeader?: boolean,
 }) => {
   return <DeferRender ssr={false}>
     <AnalyticsContext pageSectionContext='llmChat'>
       <div className={classes.root}>
-        <ChatInterface classes={classes} />
+        <ChatInterface classes={classes} hideHeader={hideHeader} />
       </div>
     </AnalyticsContext>
   </DeferRender>;
