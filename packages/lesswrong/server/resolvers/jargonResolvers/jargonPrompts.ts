@@ -2,4 +2,4 @@ export const initialGlossaryPrompt = `Please provide a list of all the jargon te
 
 Avoid including terms that are 3+ word phrases unless it is a complete noun-phrase where all the words are an important part of the term.
 
-Then, return a second list of terms that are likely known to LessWrong readers.`;
+Then, return a second list of terms that are likely known to LessWrong readers.  It's fine if the second list is empty, if the first list is composed entirely of terms that are highly technical.`;
