@@ -16,6 +16,7 @@ import keyBy from 'lodash/keyBy';
 import { randomId } from '@/lib/random';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 import { defaultExampleTerm, defaultExamplePost, defaultGlossaryPrompt, defaultExampleAltTerm, defaultExampleDefinition } from '@/components/jargon/GlossaryEditForm';
+import { convertZodParserToAnthropicTool } from '@/server/languageModels/llmApiWrapper';
 
 import type { Tool } from '@anthropic-ai/sdk/resources';
 import type { PromptCachingBetaMessageParam } from '@anthropic-ai/sdk/resources/beta/prompt-caching/messages';
@@ -45,40 +46,17 @@ interface ExplanationsGenerationQueryParams extends JargonTermGenerationExampleP
 }
 
 const jargonTermListResponseSchema = z.object({
-  jargonTerms: z.array(z.string())
-});
+  jargonTerms: z.array(z.string()),
+  likelyKnownJargonTerms: z.array(z.string()),
+}).describe('A tool that allows Claude to return a list of jargon terms extracted from a post, and of those, which terms are likely known to LessWrong readers.');
 
 const jargonTermSchema = z.object({
   term: z.string(),
   altTerms: z.array(z.string()).optional(),
   htmlContent: z.string(),
-});
+}).describe('A tool that generates a jargon glossary item for a given post.  It should be provided with a glossary item, which include the term (the identifier), altTerms (alternate spellings or forms of the term), and htmlContent (the explanation of the term).');
 
 type LLMGeneratedJargonTerm = z.infer<typeof jargonTermSchema>;
-
-const returnJargonTermsTool: Tool = {
-  name: "return_jargon_terms",
-  description: "A tool that allows Claude to return a list of jargon terms extracted from a post.",
-  input_schema: {
-    type: "object",
-    properties: {
-      jargonTerms: { type: "array", items: { type: "string" } }
-    }
-  }
-};
-
-const generateSingleJargonGlossaryItemTool: Tool = {
-  name: "generate_jargon_glossary_item",
-  description: "A tool that generates a jargon glossary item for a given post.  It should be provided with a glossary item, which include the term (the identifier), altTerms (alternate spellings or forms of the term), and htmlContent (the explanation of the term).",
-  input_schema: {
-    type: "object",
-    properties: {
-      term: { type: "string" },
-      altTerms: { type: "array", items: { type: "string" } },
-      htmlContent: { type: "string" }
-    }
-  }
-};
 
 class AdvisoryLockError extends Error {}
 
@@ -161,10 +139,10 @@ The jargon terms are:`
   }];
 
   const termsResponse = await client.messages.create({
-    model: "claude-3-5-sonnet-20240620",
+    model: "claude-3-5-sonnet-20241022",
     max_tokens: 5000,
     messages,
-    tools: [returnJargonTermsTool],
+    tools: [convertZodParserToAnthropicTool(jargonTermListResponseSchema, 'return_jargon_terms')],
     tool_choice: { type: "tool", name: "return_jargon_terms" }
   });
 
@@ -182,7 +160,9 @@ The jargon terms are:`
     return [];
   }
 
-  return parsedResponse.data.jargonTerms;
+  const remainingTerms = parsedResponse.data.jargonTerms.filter(term => !parsedResponse.data.likelyKnownJargonTerms.includes(term));
+
+  return remainingTerms;
 }
 
 async function createSingleExplanationMessageWithExample({ markdown, term, toolUseId, ...exampleParams }: SingleJargonTermExplanationQueryParams): Promise<PromptCachingBetaMessageParam[]> {
@@ -210,7 +190,7 @@ async function createSingleExplanationMessageWithExample({ markdown, term, toolU
     content: [{
       type: "tool_use",
       id: toolUseId,
-      name: "generate_jargon_glossary",
+      name: "generate_jargon_glossary_item",
       input: finalExampleGlossary
     }]
   },
@@ -241,7 +221,7 @@ const queryClaudeForSingleJargonExplanation = async ({ markdown, term, toolUseId
     model: "claude-3-5-sonnet-20240620",
     max_tokens: 512,
     messages,
-    tools: [generateSingleJargonGlossaryItemTool],
+    tools: [convertZodParserToAnthropicTool(jargonTermSchema, 'generate_jargon_glossary_item')],
     tool_choice: { type: "tool", name: "generate_jargon_glossary_item" }
   });
 
