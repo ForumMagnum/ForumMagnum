@@ -30,6 +30,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   restoreLink: {
     color: theme.palette.text.primaryAlert,
     whiteSpace: 'nowrap',
+    paddingLeft: 6,
+    paddingRight: 2
   },
   restoreBody: {
     color: theme.palette.grey[500],
