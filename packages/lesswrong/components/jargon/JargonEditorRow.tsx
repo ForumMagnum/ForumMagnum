@@ -16,6 +16,7 @@ export const formStyles = {
   },
   '& .form-component-EditorFormComponent': {
     marginBottom: 0,
+    marginTop: 0,
     width: '100%',
   },
   '& .form-component-default, & .MuiTextField-textField': {
@@ -141,7 +142,7 @@ const styles = (theme: ThemeType) => ({
     minWidth: 100,
     paddingRight: 8,
     color: theme.palette.grey[500],
-    '& strong': {
+    '& strong, & b': {
       color: theme.palette.grey[900],
       marginRight: 8
     }
@@ -186,10 +187,11 @@ const JargonSubmitButton = ({ submitForm, cancelCallback, classes }: FormButtonP
 
 // Jargon editor row
 
-export const JargonEditorRow = ({classes, jargonTerm, instancesOfJargonCount}: {
+export const JargonEditorRow = ({classes, jargonTerm, instancesOfJargonCount, setShowMoreTerms}: {
   classes: ClassesType<typeof styles>,
   jargonTerm: JargonTerms,
   instancesOfJargonCount?: number,
+  setShowMoreTerms: (expanded: boolean) => void,
 }) => {
 
   const [edit, setEdit] = useState(false);
@@ -256,7 +258,7 @@ export const JargonEditorRow = ({classes, jargonTerm, instancesOfJargonCount}: {
           approved={jargonTerm.approved}
           forceTooltip={true}
         >
-          <div className={classNames(classes.explanationContainer, !jargonTerm.approved && classes.unapproved)} onClick={() => setEdit(true)}>
+          <div className={classNames(classes.explanationContainer, !jargonTerm.approved && classes.unapproved)} onClick={() => {setShowMoreTerms(true); setEdit(true)}}>
             <ContentItemBody className={classes.definition} dangerouslySetInnerHTML={{ __html: jargonDefinition }} />
           </div>
         </JargonTooltip>}

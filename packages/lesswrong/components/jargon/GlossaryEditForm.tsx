@@ -453,13 +453,14 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
             key={item._id} 
             jargonTerm={item} 
             instancesOfJargonCount={getCount(item)}
+            setShowMoreTerms={setShowMoreTerms}
           />;
         })}
         {deletedTerms.length > 0 && <div className={classes.button} onClick={() => setShowDeletedTerms(!showDeletedTerms)}>
           {showDeletedTerms ? "Hide deleted terms" : `Show deleted terms (${deletedTerms.length})`}
         </div>}
         {deletedTerms.length > 0 && showDeletedTerms && deletedTerms.map((item) => {
-          return <JargonEditorRow key={item._id} jargonTerm={item} instancesOfJargonCount={getCount(item)}/>
+          return <JargonEditorRow key={item._id} jargonTerm={item} instancesOfJargonCount={getCount(item)} setShowMoreTerms={setShowMoreTerms}/>
         })}
 
       </div>
