@@ -280,7 +280,7 @@ async function maybeCreateModeratorAlertsAfterVote({ newDocument, vote }: VoteDo
       longtermSeniorDownvoterCount
     } = longtermDownvoteScore;
   
-    if (commentCount > 20 && longtermSeniorDownvoterCount >= 3 && longtermScore < 0) {
+    if (commentCount > 30 && longtermSeniorDownvoterCount >= 20 && longtermScore < 0) {
       void createMutator({
         collection: context.ModeratorActions,
         document: {
