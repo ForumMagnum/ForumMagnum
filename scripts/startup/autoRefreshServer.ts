@@ -1,23 +1,23 @@
 // @ts-check
-const WebSocket = require('ws');
-const crypto = require('crypto');
-const fs = require('fs');
-const { getOutputDir } = require('./buildUtil');
-const childProcess = require('child_process');
-const { promisify } = require('util');
+import WebSocket from 'ws';
+import crypto from 'crypto';
+import fs from 'fs';
+import { getOutputDir } from './buildUtil';
+import childProcess from 'child_process';
+import { promisify } from 'util';
 
-const openWebsocketConnections = [];
+const openWebsocketConnections: WebSocket[] = [];
 let clientRebuildInProgress = false;
 let serverRebuildInProgress = false;
 
-function setClientRebuildInProgress(inProgress) {
+export function setClientRebuildInProgress(inProgress: boolean) {
   clientRebuildInProgress = inProgress;
 }
-function setServerRebuildInProgress(inProgress) {
+export function setServerRebuildInProgress(inProgress: boolean) {
   serverRebuildInProgress = inProgress;
 }
 
-async function isServerReady(serverPort) {
+async function isServerReady(serverPort: number) {
   const readyApiUrl = `http://localhost:${serverPort}/api/ready`;
   try {
     const response = await fetch(readyApiUrl);
@@ -27,14 +27,14 @@ async function isServerReady(serverPort) {
   }
 }
 
-async function waitForServerReady(serverPort) {
+async function waitForServerReady(serverPort: number) {
   while (!(await isServerReady(serverPort))) {
     await asyncSleep(100);
   }
 }
 
-async function asyncSleep(durationMs) {
-  return new Promise((resolve, reject) => {
+async function asyncSleep(durationMs: number) {
+  return new Promise<void>((resolve, reject) => {
     setTimeout(() => resolve(), durationMs);
   });
 }
@@ -60,12 +60,14 @@ function getEitherBundleTimestamp() {
     return serverBundleTimestamp;
 }
 
-function generateBuildId() {
+export function generateBuildId() {
   return crypto.randomBytes(12).toString('base64');
 }
 
 let refreshIsPending = false;
-async function initiateRefresh({serverPort}) {
+export async function initiateRefresh({serverPort}: {
+  serverPort: number
+}) {
   if (refreshIsPending || clientRebuildInProgress || serverRebuildInProgress) {
     return;
   }
@@ -90,7 +92,10 @@ async function initiateRefresh({serverPort}) {
   refreshIsPending = false;
 }
 
-function startAutoRefreshServer({serverPort, websocketPort}) {
+export function startAutoRefreshServer({serverPort, websocketPort}: {
+  serverPort: number
+  websocketPort: number
+}) {
   const server = new WebSocket.Server({
     port: websocketPort,
   });
@@ -114,7 +119,7 @@ function startAutoRefreshServer({serverPort, websocketPort}) {
 const asyncExec = promisify(childProcess.exec);
 let eslintIsRunning = false;
 
-async function startLint() {
+export async function startLint() {
   if (eslintIsRunning) {
     return;
   }
@@ -130,5 +135,3 @@ async function startLint() {
     console.error('Lint failed: ', err);
   }
 }
-
-module.exports = { setClientRebuildInProgress, setServerRebuildInProgress, generateBuildId, startAutoRefreshServer, initiateRefresh, startLint };
