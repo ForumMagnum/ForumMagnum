@@ -270,6 +270,11 @@ export function startWebserver() {
     const {hash: bundleHash, content: bundleBuffer, brotli: bundleBrotliBuffer} = getClientBundle().resource;
     let headers: Record<string,string> = {}
     const acceptBrotli = req.headers['accept-encoding'] && req.headers['accept-encoding'].includes('br')
+    if (!acceptBrotli) {
+      console.log("Client does not accept brotli");
+      console.log(req.headers);
+    }
+    if (!bundleBrotliBuffer) console.log("Brotli-compressed bundle is not ready");
 
     if ((query.hash && query.hash !== bundleHash) || (acceptBrotli && bundleBrotliBuffer === null)) {
       // If the query specifies a hash, but it's wrong, this probably means there's a
@@ -293,14 +298,16 @@ export function startWebserver() {
       }
     }
 
-    if (bundleBrotliBuffer !== null && acceptBrotli) {
+    /*if (bundleBrotliBuffer !== null && acceptBrotli) {
+      console.log("Serving client bundle (brotli)");
       headers["Content-Encoding"] = "br";
       res.writeHead(200, headers);
       res.end(bundleBrotliBuffer);
-    } else {
+    } else {*/
+      console.log("Serving client bundle (not brotli)");
       res.writeHead(200, headers);
       res.end(bundleBuffer);
-    }
+    //}
   });
   // Setup CKEditor Token
   app.use("/ckeditor-token", ckEditorTokenHandler)
