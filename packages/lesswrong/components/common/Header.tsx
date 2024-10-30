@@ -571,7 +571,7 @@ const Header = ({
                 </div>
               </Typography>
               {!isEAForum &&<ActiveDialogues />}
-              {isGivingSeason &&
+              {isGivingSeason && !searchOpen &&
                 <div className={classes.gsBanner}>
                   <Link to="#">
                     GIVING SEASON 2024
