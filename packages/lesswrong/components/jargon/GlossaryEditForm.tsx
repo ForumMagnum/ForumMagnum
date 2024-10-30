@@ -25,6 +25,8 @@ Use your general knowledge as well as the post's specific explanations or defini
 Include a set of altTerms that are slight variations of the term, such as plurals, abbreviations or acryonyms, or alternate spellings that appear in the text. Make sure to include all variations that appear in the text.
 
 Do NOT emphasize that the term is important, but DO explain how it's used in this context. Make sure to put the "contextual explanation" in a separate paragraph from the opening term definition. Make sure to make the term definition a short sentence.
+
+Do NOT use the phrase "In this context", "In this post", or anything like that. Just explain the term.
 `
 
 export const defaultExamplePost = `Suppose two Bayesian agents are presented with the same spreadsheet - IID samples of data in each row, a feature in each column. Each agent develops a generative model of the data distribution. We'll assume the two converge to the same predictive distribution, but may have different generative models containing different latent variables. We'll also assume that the two agents develop their models independently, i.e. their models and latents don't have anything to do with each other informationally except via the data. Under what conditions can a latent variable in one agent's model be faithfully expressed in terms of the other agent's latents?`
@@ -63,7 +65,7 @@ const styles = (theme: ThemeType) => ({
     marginBottom: -16,
   },
   window: {
-    maxHeight: 300,
+    maxHeight: 230,
     overflowY: 'scroll',
     display: 'flex',
     justifyContent: 'space-between',
@@ -249,6 +251,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   const addNewJargonTerms = async () => {
     // TODO: maybe just disable button if no prompt?
     if (!glossaryPrompt) return;
+    if (mutationLoading) return;
     
     try {
       await getNewJargonTerms({
@@ -406,7 +409,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   </div>
 
   const footer = <div className={classNames(classes.buttonRow, formCollapsed && classes.formCollapsed)}>
-    <Button onClick={addNewJargonTerms} className={classes.generateButton}>Generate new terms</Button>
+    <Button onClick={addNewJargonTerms} className={classNames(classes.generateButton, mutationLoading && classes.disabled)}>Generate new terms</Button>
     <div className={classes.headerButtons}>
       <LWTooltip title="Make changes to the jargon generator LLM prompt">
         <div className={classes.headerButton} onClick={() => setEditingPrompt(!editingPrompt)}>{editingPrompt ? "SAVE PROMPT" : "EDIT PROMPT"}</div>
