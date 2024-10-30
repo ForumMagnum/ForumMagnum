@@ -17,8 +17,13 @@ import { randomId } from '@/lib/random';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 import { defaultExampleTerm, defaultExamplePost, defaultGlossaryPrompt, defaultExampleAltTerm, defaultExampleDefinition } from '@/components/jargon/GlossaryEditForm';
 
+import { sendMessagesToLlm, SendAnthropicMessages } from '@/server/languageModels/llmApiWrapper';
+
 import type { Tool } from '@anthropic-ai/sdk/resources';
 import type { PromptCachingBetaMessageParam } from '@anthropic-ai/sdk/resources/beta/prompt-caching/messages';
+import { getOpenAI } from '@/server/languageModels/languageModelIntegration';
+import { zodResponseFormat } from 'openai/helpers/zod';
+import { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 
 interface JargonTermGenerationExampleParams {
   glossaryPrompt?: string;
@@ -45,24 +50,32 @@ interface ExplanationsGenerationQueryParams extends JargonTermGenerationExampleP
 }
 
 const jargonTermListResponseSchema = z.object({
-  jargonTerms: z.array(z.string())
+  jargonTerms: z.array(z.string()),
+  likelyKnownJargonTerms: z.array(z.string()),
 });
 
 const jargonTermSchema = z.object({
   term: z.string(),
   altTerms: z.array(z.string()).optional(),
   htmlContent: z.string(),
-});
+  familiarityReasoning: z.string().optional(),
+  familiarity: z.number().min(0).max(100),
+  // categories: z.array(z.string()).optional(),
+  // lwCommon: z.boolean().optional(),
+  // expertise: z.enum(["low", "med", "high"]).optional(),
+  // novel: z.boolean().optional(),
+}).describe("A tool that generates a jargon glossary item for a given post.  It should be provided with a glossary item, which include the term (the identifier), altTerms (alternate spellings or forms of the term), and htmlContent (the explanation of the term).  It should also include familiarityReasoning, which is a string explaining what percentage of LessWrong readers are likely to be familiar with the term, and familiarity, which is a number between 0 and 100 indicating the percentage of readers likely to be familiar with the term.");
 
 type LLMGeneratedJargonTerm = z.infer<typeof jargonTermSchema>;
 
 const returnJargonTermsTool: Tool = {
   name: "return_jargon_terms",
-  description: "A tool that allows Claude to return a list of jargon terms extracted from a post.",
+  description: "A tool that allows Claude to return a list of jargon terms extracted from a post, and of those, which terms are likely known to LessWrong readers.",
   input_schema: {
     type: "object",
     properties: {
-      jargonTerms: { type: "array", items: { type: "string" } }
+      jargonTerms: { type: "array", items: { type: "string" } },
+      likelyKnownJargonTerms: { type: "array", items: { type: "string" } },
     }
   }
 };
@@ -75,7 +88,13 @@ const generateSingleJargonGlossaryItemTool: Tool = {
     properties: {
       term: { type: "string" },
       altTerms: { type: "array", items: { type: "string" } },
-      htmlContent: { type: "string" }
+      htmlContent: { type: "string" },
+      familiarityReasoning: { type: "string" },
+      familiarity: { type: "number" },
+      // lwCommon: { type: "boolean" },
+      // expertise: { type: "string", enum: ["low", "med", "high"] },
+      // novel: { type: "boolean" },
+      // categories: { type: "array", items: { type: "string" } },
     }
   }
 };
@@ -161,7 +180,7 @@ The jargon terms are:`
   }];
 
   const termsResponse = await client.messages.create({
-    model: "claude-3-5-sonnet-20240620",
+    model: "claude-3-5-sonnet-20241022",
     max_tokens: 5000,
     messages,
     tools: [returnJargonTermsTool],
@@ -182,21 +201,27 @@ The jargon terms are:`
     return [];
   }
 
+  console.log({ data: parsedResponse.data });
+
   return parsedResponse.data.jargonTerms;
 }
 
-async function createSingleExplanationMessageWithExample({ markdown, term, toolUseId, ...exampleParams }: SingleJargonTermExplanationQueryParams): Promise<PromptCachingBetaMessageParam[]> {
+async function createSingleExplanationMessageWithExample({ markdown, term, toolUseId, ...exampleParams }: SingleJargonTermExplanationQueryParams): Promise<SendAnthropicMessages['messages']> {
   const finalSystemPrompt = exampleParams.glossaryPrompt ?? defaultGlossaryPrompt
   const finalExamplePost = exampleParams.examplePost ?? defaultExamplePost
   const finalExampleTerm = exampleParams.exampleTerm ?? defaultExampleTerm
   const finalExampleAltTerm = exampleParams.exampleAltTerm ?? defaultExampleAltTerm
   const finalExampleDefinition = exampleParams.exampleDefinition ?? defaultExampleDefinition
+
+  const finalExampleCategories = finalExampleAltTerm === defaultExampleAltTerm ? ['math', 'expert', 'novel'] : [];
   
   const finalExampleGlossary = {
     term: finalExampleTerm,
     altTerms: [finalExampleAltTerm],
-    htmlContent: finalExampleDefinition
-  }
+    htmlContent: finalExampleDefinition,
+    familiarity: 10,
+    // categories: finalExampleCategories,
+  };
 
   return [{
     role: "user",
@@ -210,7 +235,7 @@ async function createSingleExplanationMessageWithExample({ markdown, term, toolU
     content: [{
       type: "tool_use",
       id: toolUseId,
-      name: "generate_jargon_glossary",
+      name: "generate_jargon_glossary_item",
       input: finalExampleGlossary
     }]
   },
@@ -235,10 +260,36 @@ async function createSingleExplanationMessageWithExample({ markdown, term, toolU
 
 const queryClaudeForSingleJargonExplanation = async ({ markdown, term, toolUseId, ...exampleParams }: SingleJargonTermExplanationQueryParams): Promise<LLMGeneratedJargonTerm | null> => {
   const client = getAnthropicPromptCachingClientOrThrow(jargonBotClaudeKey.get());
-  const messages: PromptCachingBetaMessageParam[] = await createSingleExplanationMessageWithExample({ markdown, term, toolUseId, ...exampleParams });
+  const messages = await createSingleExplanationMessageWithExample({ markdown, term, toolUseId, ...exampleParams });
+
+  // await sendMessagesToLlm({
+  //   provider: 'anthropic',
+  //   model: 'claude-3-5-sonnet-20240620',
+  //   messages,
+  //   maxTokens: 512,
+  //   zodParser: jargonTermSchema,
+  //   name: 'generate_jargon_glossary_item',
+  // });
+
+  // const openaiClient = await getOpenAI();
+  // if (!openaiClient) {
+  //   throw new Error('OpenAI client not found');
+  // }
+  // const response = await openaiClient.beta.chat.completions.parse({
+  //   model: "o1-mini-2024-09-12",
+  //   max_completion_tokens: 512,
+  //   messages,
+  //   response_format: zodResponseFormat(jargonTermSchema, 'jargonGlossaryItem'),
+  // });
+
+  // const responseContent = response.choices[0]?.message.parsed;
+
+  // if (!responseContent) {
+  //   throw new Error('No response content');
+  // }
 
   const response = await client.messages.create({
-    model: "claude-3-5-sonnet-20240620",
+    model: "claude-3-5-sonnet-20241022",
     max_tokens: 512,
     messages,
     tools: [generateSingleJargonGlossaryItemTool],
@@ -259,6 +310,9 @@ const queryClaudeForSingleJargonExplanation = async ({ markdown, term, toolUseId
     return null;
   }
   const parsedJargonTerm = validatedTerm.data;
+
+  console.log({ parsedJargonTerm });
+  
   return sanitizeJargonTerms([parsedJargonTerm])[0];
 }
 
