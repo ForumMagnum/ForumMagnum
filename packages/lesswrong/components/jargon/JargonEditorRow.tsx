@@ -261,7 +261,10 @@ export const JargonEditorRow = ({classes, jargonTerm, instancesOfJargonCount, se
           approved={jargonTerm.approved}
           forceTooltip={true}
         >
-          <div className={classNames(classes.explanationContainer, !jargonTerm.approved && classes.unapproved)} onClick={() => {setShowMoreTerms(true); setEdit(true)}}>
+          <div className={classNames(classes.explanationContainer, !jargonTerm.approved && classes.unapproved)} onClick={() => {
+            setShowMoreTerms(true);
+            setEdit(true);
+          }}>
             <ContentItemBody className={classes.definition} dangerouslySetInnerHTML={{ __html: jargonDefinition }} />
           </div>
         </JargonTooltip>}
