@@ -43,14 +43,14 @@ const styles = (theme: ThemeType) => ({
     opacity: 0.6,
     position: 'absolute',
     height: 14,
-    transform: 'translate(-8px, -2px)'
+    transform: 'translate(-4.5px, -2px)'
   },
   clear: {
     fontSize: '45%',
     opacity: 0.6,
     position: 'absolute',
     top: 6,
-    left: 11
+    left: 4
   },
   bigClear: {
     opacity: 0,
@@ -64,23 +64,24 @@ const styles = (theme: ThemeType) => ({
     opacity: 1,
     fontSize: '80%',
     position: 'absolute',
-    left: 4,
+    left: -2,
     top: 0,
+    pointerEvents: 'none'
   },
   smallArrowBigVoted: {
     opacity: 0.6,
     position: 'absolute',
     height: 14,
-    scale: 1.4,
-    transform: 'translate(-2.5px, 2.3px)'
+    transform: 'scale(1.4) translate(-4.1px, 2.3px)',
+    pointerEvents: 'none',
   },
   hideIcon: {
     opacity: 0
   },
   iconsContainer: {
     position: 'relative',
-    width: 25,
-    height: 18
+    width: 18,
+    height: 18,
   },
   disabled: {
     cursor: 'not-allowed',
@@ -154,7 +155,7 @@ const VoteAgreementIcon = ({
       onClick={handlers.handleClick}
       disableRipple
     >
-      <span className={classes.iconsContainer}>
+      <div className={classes.iconsContainer}>
         <ForumIcon
           icon={primaryIcon}  
           className={classNames(
@@ -175,7 +176,7 @@ const VoteAgreementIcon = ({
           style={bigVoteCompleted || bigVoted ? {color: lightColor} : undefined}
           className={strongVoteAccentIconClasses}
         />
-      </span>
+      </div>
     </IconButton>
   )
 }
