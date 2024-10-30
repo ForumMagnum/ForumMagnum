@@ -10,6 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     maxWidth: 310,
     textOverflow: "ellipsis",
     overflowX: "hidden",
+    overflowY: 'hidden',
     textAlign: "right",
     [theme.breakpoints.down('xs')]: {
       maxWidth: 160
