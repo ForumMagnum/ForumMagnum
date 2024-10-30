@@ -65,7 +65,7 @@ const styles = (theme: ThemeType) => ({
     marginBottom: -16,
   },
   window: {
-    maxHeight: 300,
+    maxHeight: 230,
     overflowY: 'scroll',
     display: 'flex',
     justifyContent: 'space-between',
