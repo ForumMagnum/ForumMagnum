@@ -30,11 +30,23 @@ export const HEADER_HEIGHT = isBookUI ? 64 : 66;
 /** Height of top header on mobile. On Friendly UI sites, this is the same as the HEADER_HEIGHT */
 export const MOBILE_HEADER_HEIGHT = isBookUI ? 56 : HEADER_HEIGHT;
 
-const textColorOverrideStyles = (
+const textColorOverrideStyles = ({
+  theme,
+  color,
+  contrastColor,
+  loginButtonBackgroundColor,
+  loginButtonColor,
+  signupButtonBackgroundColor,
+  signupButtonColor,
+}: {
   theme: ThemeType,
   color: string,
-  contrastColor: string,
-) => ({
+  contrastColor?: string,
+  loginButtonBackgroundColor?: string,
+  loginButtonColor?: string,
+  signupButtonBackgroundColor?: string,
+  signupButtonColor?: string,
+}) => ({
   color,
   boxShadow: 'none',
   "& .Header-titleLink": {
@@ -71,17 +83,17 @@ const textColorOverrideStyles = (
     color,
   },
   "& .EAButton-variantContained": {
-    backgroundColor: color,
-    color: contrastColor,
+    backgroundColor: signupButtonBackgroundColor ?? color,
+    color: signupButtonColor ?? contrastColor,
     "&:hover": {
-      backgroundColor: `color-mix(in oklab, ${color} 90%, ${contrastColor})`,
+      backgroundColor: `color-mix(in oklab, ${signupButtonBackgroundColor ?? color} 90%, ${signupButtonColor ?? contrastColor})`,
     },
   },
   "& .EAButton-greyContained": {
-    backgroundColor: `color-mix(in oklab, ${color} 15%, ${contrastColor})`,
-    color,
+    backgroundColor: loginButtonBackgroundColor ?? `color-mix(in oklab, ${loginButtonColor ?? color} 15%, ${contrastColor})`,
+    color: loginButtonColor ?? color,
     "&:hover": {
-      backgroundColor: `color-mix(in oklab, ${color} 10%, ${theme.palette.background.transparent}) !important`,
+      backgroundColor: `color-mix(in oklab, ${loginButtonColor ?? color} 10%, ${theme.palette.background.transparent}) !important`,
     },
   },
 });
@@ -110,7 +122,7 @@ export const styles = (theme: ThemeType) => ({
       },
     } : {}),
 
-    // Transition added for giving season
+    // Transition for giving season 2024
     transition: isEAForum ? "color 0.5s ease" : undefined,
     "& *": {
       transition: isEAForum
@@ -119,11 +131,17 @@ export const styles = (theme: ThemeType) => ({
     },
   },
   appBarDarkBackground: {
-    ...textColorOverrideStyles(
+    ...textColorOverrideStyles({
       theme,
-      theme.palette.text.alwaysWhite,
-      theme.palette.text.alwaysBlack,
-    ),
+      color: theme.palette.text.alwaysWhite,
+      contrastColor: theme.palette.text.alwaysBlack,
+
+      // Custom button styles for giving season 2024
+      signupButtonBackgroundColor: theme.palette.givingSeason.electionFundBackground,
+      signupButtonColor: theme.palette.text.alwaysWhite,
+      loginButtonBackgroundColor: theme.palette.givingSeason.electionFundBackground,
+      loginButtonColor: theme.palette.text.alwaysWhite,
+    }),
   },
   root: {
     // This height (including the breakpoint at xs/600px) is set by Headroom, and this wrapper (which surrounds
@@ -240,7 +258,7 @@ export const styles = (theme: ThemeType) => ({
     },
   },
 
-  // Giving season styles
+  // Giving season 2024 styles
   gsBackground: {
     position: "absolute",
     top: 0,
@@ -257,11 +275,11 @@ export const styles = (theme: ThemeType) => ({
     opacity: 1,
   },
   gsAppBarText: {
-    ...textColorOverrideStyles(
+    ...textColorOverrideStyles({
       theme,
-      theme.palette.givingSeason.primary,
-      theme.palette.text.alwaysWhite,
-    ),
+      color: theme.palette.givingSeason.primary,
+      contrastColor: theme.palette.text.alwaysWhite,
+    }),
   },
   gsBanner: {
     fontFamily: theme.palette.fonts.sansSerifStack,
