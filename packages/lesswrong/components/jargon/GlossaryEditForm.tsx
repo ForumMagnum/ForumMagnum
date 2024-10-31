@@ -16,9 +16,9 @@ We're about to provide you with the text of an essay, followed by a list of jarg
 
 For each term, provide:
   
-The term itself (wrapped in a <strong> tag), followed by a concise one-line definition. Then, on a separate paragraph, explain how the term is used here.
+The term itself (wrapped in a <strong> tag), followed by a concise one-line definition. Then, on a separate paragraph, explain how the term is used in this context (although it's important not to use the phrase "in this context" or "in this post" – just explain how this concept fits into the other concepts in the post).
 
-Ensure that your explanations are clear and accessible to someone who may not be familiar with the subject matter. Follow Strunk and White guidelines. 
+Ensure that your explanations are clear and accessible to someone who may not be familiar with the subject matter. Follow Strunk and White guidelines.
 
 Use your general knowledge, as well as the post's specific explanations or definitions of the term, to decide on an appropriate definition.
 
@@ -39,7 +39,7 @@ export interface ExampleJargonGlossaryEntry {
 export const defaultExampleTerm = 'latent variables'
 export const defaultExampleAltTerm = 'latents'
 export const defaultExampleDefinition = `<div>
-  <p><b>Latent variables:</b> Variables which an agent's world model includes but which are not directly observed.</p>
+  <p><b>Latent variables:</b> Variables which an agent's world model includes, but which are not directly observed.</p>
   <p>These variables are not part of the data distribution, but can help explain the data distribution.</p>
 </div>`
 
