@@ -619,19 +619,10 @@ const MetaculusPreviewComponent = registerComponent('MetaculusPreview', Metaculu
   styles: metaculusStyles
 })
 
-const manifoldStyles = (theme: ThemeType): JssStyles => ({
-  iframeStyling: {
-    width: 560,
-    height: 405,
-    border: "none",
-    maxWidth: "100vw"
-  },
-  link: linkStyle(theme),
-});
-
 const fatebookStyles = (theme: ThemeType): JssStyles => ({
   iframeStyling: {
     width: 560,
+    height: 200,
     border: "none",
     maxWidth: "100vw",
     backgroundColor: theme.palette.panelBackground.default,
@@ -650,9 +641,7 @@ const FatebookPreview = ({classes, href, id, children}: {
   const { AnalyticsTracker, LWPopper } = Components;
   const { anchorEl, hover, eventHandlers } = useHover();
 
-  // test if fits https://manifold.markets/embed/[...]
   const isEmbed = /^https?:\/\/fatebook\.io\/embed\/q\/[\w-]+$/.test(href);
-
 
   const [, questionSlug] = href.match(/^https?:\/\/fatebook\.io\/q\/(.+)$/) || [];
 
@@ -683,6 +672,15 @@ const FatebookPreview = ({classes, href, id, children}: {
 
 const FatebookPreviewComponent = registerComponent('FatebookPreview', FatebookPreview, { styles: fatebookStyles })
 
+const manifoldStyles = (theme: ThemeType): JssStyles => ({
+  iframeStyling: {
+    width: 560,
+    height: 405,
+    border: "none",
+    maxWidth: "100vw"
+  },
+  link: linkStyle(theme),
+});
 
 const ManifoldPreview = ({classes, href, id, children}: {
   classes: ClassesType;
@@ -697,7 +695,7 @@ const ManifoldPreview = ({classes, href, id, children}: {
   const isEmbed = /^https?:\/\/manifold\.markets\/embed\/.+$/.test(href);
 
   // if it fits  https://manifold.markets/[username]/[market-slug] instead, get the (username and market slug)
-  const [userAndSlug] = href.match(/^https?:\/\/manifold\.markets\/(\w+\/[\w-]+)/) || [];
+  const [, userAndSlug] = href.match(/^https?:\/\/manifold\.markets\/(\w+\/[\w-]+)/) || [];
 
   if (!isEmbed && !userAndSlug) {
     return (
