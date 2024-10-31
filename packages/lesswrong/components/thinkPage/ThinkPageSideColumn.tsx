@@ -1,5 +1,5 @@
 // TODO: Import component in components.ts
-import React from 'react';
+import React, { useState } from 'react';
 import { registerComponent, Components, fragmentTextForQuery } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
 import moment from 'moment';
@@ -7,6 +7,15 @@ import { gql, useQuery } from '@apollo/client';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '@/lib/routeUtil';
 import { useMulti } from '@/lib/crud/withMulti';
+
+export type WebsiteData = {
+  title: string;
+  url: string;
+  body: string;
+  bodyLength: number;
+  paragraph: string;
+  paragraphLength: number;
+};
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -84,6 +93,9 @@ export const ThinkPageSideColumn = ({classes}: {
   )
   const readHistory: (PostsListWithVotes & {lastVisitedAt: Date})[] = data?.UserReadHistory?.posts ?? []
   const readHistoryArray = Array.from(readHistory)
+  const [websiteUrls, setWebsiteUrls] = useState<Record<string, WebsiteData>>({})
+  const websites = Object.values(websiteUrls)
+
   const allPosts = [...readHistoryArray, ...drafts].sort((a, b) => {
     const aDate = moment(a.modifiedAt || a.lastVisitedAt)
     const bDate = moment(b.modifiedAt || b.lastVisitedAt)
@@ -97,9 +109,12 @@ export const ThinkPageSideColumn = ({classes}: {
   const yesterdaysPosts = allPosts.filter(post => moment(post.lastVisitedAt).isSame(moment().subtract(1, 'day'), 'day'))
   const olderPosts = allPosts.filter(post => moment(post.lastVisitedAt).isBefore(moment().subtract(1, 'day'), 'day'))
 
-  const { ThinkPageSideItem } = Components
+
+
+  const { ThinkPageSideItem, ThinkOmnibar } = Components
 
   return <div className={classes.root}>
+    <ThinkOmnibar setWebsiteUrls={setWebsiteUrls} websiteUrls={websiteUrls}/>
     {todaysPosts.length > 0 && <>
       <h3>Today</h3>
       {todaysPosts.map(post => <ThinkPageSideItem key={post._id} post={post} />)}
