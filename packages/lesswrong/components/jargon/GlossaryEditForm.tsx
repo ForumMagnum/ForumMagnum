@@ -323,6 +323,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   const { JargonEditorRow, LoadMore, Loading, LWTooltip, WrappedSmartForm, IconRight, IconDown, ForumIcon, Row } = Components;
 
   const promptEditor = <div>
+    <h3>WARNING! This will not be saved after page reload</h3>
     <TextField
       label="Prompt"
       value={glossaryPrompt}
@@ -418,7 +419,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
       }
     </div>
     {mutationLoading && <Loading/>}
-    {mutationLoading && <div>(Loading... warning, this will take 10-20 seconds.)</div>}
+    {mutationLoading && <div>(Loading... warning, this will take 30-60 seconds.)</div>}
   </div>
 
   return <div className={classes.root}>
