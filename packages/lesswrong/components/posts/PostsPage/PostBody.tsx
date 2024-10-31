@@ -1,4 +1,4 @@
-import React, { useContext, useRef } from 'react';
+import React, { useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 import { useSingle } from '../../../lib/crud/withSingle';
@@ -10,8 +10,43 @@ import { hasSideComments, inlineReactsHoverEnabled } from '../../../lib/betas';
 import { VotingProps } from '@/components/votes/votingProps';
 import { jargonTermsToTextReplacements } from '@/components/jargon/JargonTooltip';
 import { useGlossaryPinnedState } from '@/components/hooks/useUpdateGlossaryPinnedState';
+import { useGlobalKeydown } from '@/components/common/withGlobalKeydown';
 
 const enableInlineReactsOnPosts = inlineReactsHoverEnabled;
+
+function useDisplayGlossary(post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes) {
+  const [showAllTerms, setShowAllTerms] = useState(false);
+
+  const postHasGlossary = 'glossary' in post;
+
+  useGlobalKeydown((e) => {
+    const G_KeyCode = 71;
+    if (e.altKey && e.shiftKey && e.keyCode === G_KeyCode) {
+      e.preventDefault();
+      if (postHasGlossary) {
+        setShowAllTerms(!showAllTerms);
+      }
+    }
+  });
+
+  const wrappedSetShowAllTerms = useCallback((e: React.MouseEvent, showAllTerms: boolean) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowAllTerms(showAllTerms);
+  }, [setShowAllTerms]);
+
+  if (!postHasGlossary) {
+    return { displayTermCount: 0, showAllTerms: false, setShowAllTerms: () => {}, termsToHighlight: [] };
+  }
+
+  const approvedTerms = post.glossary.filter(term => term.approved && !term.deleted);
+  
+  // Right now we could just derive displayTermCount from termsToHighlight, but the implementations might not always be coupled
+  const termsToHighlight = showAllTerms ? post.glossary : approvedTerms;
+  const displayTermCount = showAllTerms ? post.glossary.length : approvedTerms.length;
+
+  return { displayTermCount, showAllTerms, setShowAllTerms: wrappedSetShowAllTerms, termsToHighlight };
+}
 
 const PostBody = ({post, html, isOldVersion, voteProps}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
@@ -20,6 +55,7 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
   voteProps: VotingProps<PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes>
 }) => {
   const { postGlossariesPinned, togglePin } = useGlossaryPinnedState();
+  const { displayTermCount, showAllTerms, setShowAllTerms, termsToHighlight } = useDisplayGlossary(post);
 
   const sideItemVisibilityContext = useContext(SideItemVisibilityContext);
   const sideCommentMode= isOldVersion ? "hidden" : (sideItemVisibilityContext?.sideCommentMode ?? "hidden")
@@ -47,11 +83,11 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
     ? votingSystem.getPostHighlights({post, voteProps})
     : []
   const glossaryItems: ContentReplacedSubstringComponentInfo[] = ('glossary' in post)
-    ? jargonTermsToTextReplacements(post.glossary)
+    ? jargonTermsToTextReplacements(termsToHighlight)
     : [];
   const replacedSubstrings = [...highlights, ...glossaryItems];
-  const glossarySidebar = 'glossary' in post && post.glossary.length > 0
-    ? <GlossarySidebar post={post} postGlossariesPinned={!!postGlossariesPinned} togglePin={togglePin} />
+  const glossarySidebar = 'glossary' in post && displayTermCount > 0
+    ? <GlossarySidebar post={post} postGlossariesPinned={!!postGlossariesPinned} togglePin={togglePin} showAllTerms={showAllTerms} setShowAllTerms={setShowAllTerms} />
     : null;
     
   if (includeSideComments && document?.sideComments) {

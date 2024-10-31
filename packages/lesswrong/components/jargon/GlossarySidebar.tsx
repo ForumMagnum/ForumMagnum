@@ -1,4 +1,4 @@
-import React, { useRef, useMemo } from 'react';
+import React, { useRef, useMemo, useState } from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { userCanViewJargonTerms } from '@/lib/betas';
@@ -111,16 +111,28 @@ const styles = (theme: ThemeType) => ({
   unapproved: {
     color: theme.palette.grey[400],
   },
+  deleted: {
+    textDecoration: 'line-through',
+  },
+  showAllTermsButton: {
+    marginTop: 10,
+    cursor: 'pointer',
+  },
+  showAllTermsTooltipPopper: {
+    maxWidth: 200,
+  },
 })
 
 const getNormalizedPostContents = (post: PostsWithNavigationAndRevision | PostsWithNavigation): string => {
   return (post.contents?.html ?? "").toLowerCase();
 };
 
-const GlossarySidebar = ({post, postGlossariesPinned, togglePin, classes}: {
+const GlossarySidebar = ({post, postGlossariesPinned, togglePin, showAllTerms, setShowAllTerms, classes}: {
   post: PostsWithNavigationAndRevision | PostsWithNavigation,
   postGlossariesPinned: boolean,
   togglePin: () => void,
+  showAllTerms: boolean,
+  setShowAllTerms: (e: React.MouseEvent, showAllTerms: boolean) => void,
   classes: ClassesType<typeof styles>,
 }) => {
   const { SideItem, JargonTooltip, LWTooltip, ForumIcon } = Components;
@@ -131,11 +143,16 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, classes}: {
   useGlobalKeydown((e) => {
     const J_KeyCode = 74;
     if (e.altKey && e.shiftKey && e.keyCode === J_KeyCode) {
+      e.preventDefault();
       togglePin();
     }
   });
 
   const { sortedTerms } = useJargonCounts(post, post.glossary);
+
+  const approvedTerms = sortedTerms.filter(term => term.approved);
+  const unapprovedTerms = sortedTerms.filter(term => !term.approved && !term.deleted);
+  const deletedTerms = sortedTerms.filter(term => term.deleted);
 
   if (!post) {
     return null;
@@ -164,7 +181,8 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, classes}: {
     </div>
   );
 
-  const glossaryItems = sortedTerms.map((jargonTerm) => {
+
+  const approvedGlossaryItems = approvedTerms.map((jargonTerm) => {
     return (<div key={jargonTerm._id + jargonTerm.term}>
       <JargonTooltip
         definitionHTML={jargonTerm.contents?.html ?? ''}
@@ -181,13 +199,44 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, classes}: {
     </div>);
   });
 
+  const otherGlossaryItems = showAllTerms ? [...unapprovedTerms, ...deletedTerms].map((jargonTerm) => {
+    return (<div key={jargonTerm._id + jargonTerm.term}>
+      <JargonTooltip
+        definitionHTML={jargonTerm.contents?.html ?? ''}
+        altTerms={jargonTerm.altTerms}
+        humansAndOrAIEdited={jargonTerm.humansAndOrAIEdited}
+        approved={jargonTerm.approved}
+        placement="left-start"
+        tooltipTitleClassName={classes.termTooltip}
+        // The terms in the glossary should always have tooltips
+        isFirstOccurrence
+      >
+        <div className={classNames(classes.jargonTerm, !jargonTerm.approved && classes.unapproved, jargonTerm.deleted && classes.deleted)}>{jargonTerm.term}</div>
+      </JargonTooltip>
+    </div>);
+  }) : null;
+
+  const showAllTermsTooltip = <div><p>{`Click to ${showAllTerms ? 'hide' : 'show'} terms the author hasn't approved.  These may be lower quality.  (Opt/Alt + Shift + G)`}</p></div>;
+  const showAllTermsButton = <LWTooltip
+    title={showAllTermsTooltip}
+    inlineBlock={false}
+    placement='right-end'
+    popperClassName={classes.showAllTermsTooltipPopper}
+  >
+    <div className={classes.showAllTermsButton} onClick={(e) => setShowAllTerms(e, !showAllTerms)}>
+      {showAllTerms ? 'Hide Unapproved Terms' : 'Show Unapproved Terms'}
+    </div>
+  </LWTooltip>;
+
   return <div className={classes.glossaryAnchor}><SideItem options={{ format: 'block', offsetTop: -10, measuredElement: glossaryContainerRef }}>
     <div className={classNames(postGlossariesPinned && classes.outerContainer)}>
       <div className={classNames(postGlossariesPinned && classes.innerContainer)}>
         <div className={classNames(classes.displayedHeightGlossaryContainer, postGlossariesPinned && classes.pinnedGlossaryContainer)} ref={glossaryContainerRef}>
           <div className={classNames(classes.glossaryContainer, currentUser && classes.glossaryContainerClickTarget)} onClick={currentUser ? togglePin : undefined}>
             {titleRow}
-            {glossaryItems}
+            {approvedGlossaryItems}
+            {otherGlossaryItems}
+            {showAllTermsButton}
           </div>
           <div className={classes.overflowFade} />
         </div>
