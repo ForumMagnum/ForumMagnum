@@ -288,7 +288,7 @@ export function addAutocompleteEndpoint(app: Express) {
       });
 
       const loadingMessagesStream = client.messages.stream({
-        model: "claude-3-5-sonnet-20240620",
+        model: "claude-3-5-sonnet-20241022",
         max_tokens: 1000,
         system: "The assistant is in CLI simulation mode, and responds to the user's CLI commands only with the output of the command.",
         messages: await constructMessageHistory(
