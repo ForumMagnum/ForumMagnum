@@ -222,7 +222,7 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, showAllTerms, s
     </div>);
   }) : null;
 
-  const showAllTermsTooltip = <div><p>{`Click to ${showAllTerms ? 'hide' : 'show'} terms the author hasn't approved.  These may be lower quality.  (Opt/Alt + Shift + G)`}</p></div>;
+  const showAllTermsTooltip = <div><div>{`Click to ${showAllTerms ? 'hide' : 'show'} terms the author hasn't approved.  These may be lower quality.`}</div><div><em>(Opt/Alt + Shift + G)</em></div></div>;
   const showAllTermsButton = <LWTooltip
     title={showAllTermsTooltip}
     inlineBlock={false}
