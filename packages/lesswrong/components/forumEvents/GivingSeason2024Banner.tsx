@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { registerComponent } from "@/lib/vulcan-lib";
+import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { Link } from "@/lib/reactRouterWrapper";
 import { formatStat } from "../users/EAUserTooltipContent";
 import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from "../common/Header";
@@ -213,7 +213,7 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 12,
   },
   fundInfo: {
-    marginBottom: 16,
+    marginBottom: 12,
     lineHeight: "140%",
     whiteSpace: "wrap",
     "& a": {
@@ -223,10 +223,16 @@ const styles = (theme: ThemeType) => ({
       },
     },
   },
+  fundRaised: {
+    fontSize: 16,
+    fontWeight: 500,
+    lineHeight: "140%",
+    marginBottom: 4,
+  },
   fundBarContainer: {
     width: "100%",
     height: 12,
-    marginBottom: 8,
+    marginBottom: 20,
     background: theme.palette.givingSeason.electionFundBackground,
     borderRadius: theme.borderRadius.small,
     overflow: "hidden",
@@ -235,14 +241,18 @@ const styles = (theme: ThemeType) => ({
     height: "100%",
     background: theme.palette.text.alwaysWhite,
   },
-  fundRaised: {
-    fontSize: 16,
-    fontWeight: 500,
-    lineHeight: "140%",
-    textAlign: "center",
-  },
   fundAmount: {
     fontWeight: 700,
+  },
+  donateButton: {
+    width: "100%",
+    color: theme.palette.givingSeason.primary,
+    background: theme.palette.text.alwaysWhite,
+    transition: "opacity 0.3s ease",
+    "&:hover": {
+      background: theme.palette.text.alwaysWhite,
+      opacity: 0.85,
+    },
   },
 });
 
@@ -311,6 +321,7 @@ const GivingSeason2024Banner = ({classes}: {
     });
   }, [detailsRef]);
 
+  const {EAButton} = Components;
   return (
     <div className={classNames(
       classes.root,
@@ -372,17 +383,20 @@ const GivingSeason2024Banner = ({classes}: {
               Donate to the fund to boost the value of the Election.{" "}
               <Link to="#">Learn more</Link>.
             </div>
+            <div className={classes.fundRaised}>
+              <span className={classes.fundAmount}>
+                ${formatStat(amountRaised)}
+              </span> raised
+            </div>
             <div className={classes.fundBarContainer}>
               <div
                 style={{width: `${fundPercent}%`}}
                 className={classes.fundBar}
               />
             </div>
-            <div className={classes.fundRaised}>
-              <span className={classes.fundAmount}>
-                ${formatStat(amountRaised)}
-              </span> raised
-            </div>
+            <EAButton className={classes.donateButton}>
+              Donate
+            </EAButton>
           </div>
         </div>
       </div>
