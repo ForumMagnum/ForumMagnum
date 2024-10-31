@@ -80,7 +80,6 @@ import InformationCircleIcon from '@heroicons/react/24/solid/InformationCircleIc
 import ArrowDownOnSquareIcon from '@heroicons/react/24/outline/ArrowDownOnSquareIcon';
 import ChevronUpDownIcon from "@heroicons/react/24/outline/ChevronUpDownIcon";
 import ArrowsUpDownIcon from "@heroicons/react/20/solid/ArrowsUpDownIcon";
-import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
 import MuiBookmarksIcon from "@material-ui/icons/Bookmarks";
@@ -110,7 +109,6 @@ import MuiSearchIcon from '@material-ui/icons/Search';
 import MuiMenuIcon from "@material-ui/icons/Menu";
 import MuiForumIcon from '@material-ui/icons/Forum';
 import MuiVoteIcon from '@material-ui/icons/HowToVote'
-import MuiCommentIcon from '@material-ui/icons/ModeComment';
 import MuiNotInterestedIcon from '@material-ui/icons/NotInterested';
 import MuiExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import MuiExpandLessIcon from "@material-ui/icons/ExpandLess";
@@ -154,6 +152,7 @@ import { CheckSmallIcon } from "../icons/CheckSmallIcon";
 import { FilterBarsIcon } from "../icons/FilterBarsIcon";
 import { EAEnvelopeIcon } from "../icons/EAEnvelopeIcon";
 import { RobotIcon } from '../icons/RobotIcon';
+import { GivingHandIcon } from "../icons/GivingHandIcon";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -163,6 +162,7 @@ import { RobotIcon } from '../icons/RobotIcon';
  */
 export type ForumIconName =
   "VolumeUp" |
+  "GivingHand" |
   "BookOpen" |
   "Bookmark" |
   "BookmarkBorder" |
@@ -284,6 +284,7 @@ export type ForumIconName =
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   LWAF: {
     VolumeUp: SpeakerWaveIcon,
+    GivingHand: GivingHandIcon,
     BookOpen: BookOpenIcon,
     Bookmark: MuiBookmarkIcon,
     BookmarkBorder: MuiBookmarkBorderIcon,
@@ -403,6 +404,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   },
   default: {
     VolumeUp: SpeakerWaveIcon,
+    GivingHand: GivingHandIcon,
     BookOpen: BookOpenIcon,
     Bookmark: BookmarkIcon,
     BookmarkBorder: BookmarkOutlineIcon,
