@@ -44,7 +44,7 @@ const execAsync = promisify(exec);
  * part of the connection, from the bastion host to the DB, is then within the
  * same datacenter).
  */
-export function getDatabaseConfig(opts: CommandLineOptions) {
+export function getDatabaseConfig(opts: Partial<CommandLineOptions>) {
   let dbConfig: any = null;
   if (opts.db) {
     let dbConfigFile = readFileOrDie(opts.db);
