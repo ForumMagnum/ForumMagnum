@@ -340,9 +340,18 @@ export const ForumEventFrontpageBanner = ({classes}: {
   }
 
   const {customComponent, includesPoll} = currentForumEvent;
-  const CustomComponent = Components[customComponent as keyof ComponentTypes] as FC;
-  if (CustomComponent) {
-    return <CustomComponent />
+  if (customComponent) {
+    const CustomComponent = Components[customComponent as keyof ComponentTypes] as FC;
+    if (CustomComponent) {
+      return (
+        <AnalyticsContext
+          pageSectionContext="forumEventFrontpageBannerCustom"
+          componentName={customComponent}
+        >
+          <CustomComponent />
+        </AnalyticsContext>
+      );
+    }
   }
   if (includesPoll) {
     return <ForumEventFrontpageBannerWithPoll classes={classes} />
