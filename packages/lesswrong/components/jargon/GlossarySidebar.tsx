@@ -120,10 +120,6 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const getNormalizedPostContents = (post: PostsWithNavigationAndRevision | PostsWithNavigation): string => {
-  return (post.contents?.html ?? "").toLowerCase();
-};
-
 const GlossarySidebar = ({post, postGlossariesPinned, togglePin, classes}: {
   post: PostsWithNavigationAndRevision | PostsWithNavigation,
   postGlossariesPinned: boolean,
@@ -152,7 +148,7 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, classes}: {
     return null;
   }
 
-  const tooltip = <div><p>Pin to highlight every term. (Opt/Alt + Shift + J)</p></div>;
+  const tooltip = <div><p>Pin to highlight every instance of a term. (Opt/Alt + Shift + J)</p></div>;
   const titleRow = currentUser ? (
     <LWTooltip
       title={tooltip}
