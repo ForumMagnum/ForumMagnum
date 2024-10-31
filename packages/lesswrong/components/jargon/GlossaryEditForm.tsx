@@ -453,7 +453,13 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
           />;
         })}
         {deletedTerms.length > 0 && <div className={classes.button} onClick={() => setShowDeletedTerms(!showDeletedTerms)}>
-          {showDeletedTerms ? "Hide deleted terms" : `Show deleted terms (${deletedTerms.length})`}
+          <LWTooltip title="Hidden terms are hidden from readers unless they explicitly opt into 'Show me hidden AI slop that the author doesn't necessarily endorse'">
+            {showDeletedTerms ? 
+              <span>Hide hidden terms</span>
+            : 
+              <span>Show hidden terms ({deletedTerms.length})</span>
+            }
+          </LWTooltip>
         </div>}
         {deletedTerms.length > 0 && showDeletedTerms && deletedTerms.map((item) => {
           return <JargonEditorRow key={item._id} jargonTerm={item} instancesOfJargonCount={getCount(item)} setShowMoreTerms={setShowMoreTerms}/>
