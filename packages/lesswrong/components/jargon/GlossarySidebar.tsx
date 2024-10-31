@@ -1,4 +1,4 @@
-import React, { useRef, useMemo, useState } from 'react';
+import React, { useRef } from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { userCanViewJargonTerms } from '@/lib/betas';
@@ -193,6 +193,7 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, showAllTerms, s
         altTerms={jargonTerm.altTerms}
         humansAndOrAIEdited={jargonTerm.humansAndOrAIEdited}
         approved={jargonTerm.approved}
+        deleted={jargonTerm.deleted}
         placement="left-start"
         tooltipTitleClassName={classes.termTooltip}
         // The terms in the glossary should always have tooltips
@@ -210,6 +211,7 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, showAllTerms, s
         altTerms={jargonTerm.altTerms}
         humansAndOrAIEdited={jargonTerm.humansAndOrAIEdited}
         approved={jargonTerm.approved}
+        deleted={jargonTerm.deleted}
         placement="left-start"
         tooltipTitleClassName={classes.termTooltip}
         // The terms in the glossary should always have tooltips

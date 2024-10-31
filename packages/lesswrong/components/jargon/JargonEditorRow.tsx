@@ -259,6 +259,7 @@ export const JargonEditorRow = ({classes, jargonTerm, instancesOfJargonCount, se
           humansAndOrAIEdited={jargonTerm.humansAndOrAIEdited}
           placement="bottom-end"
           approved={jargonTerm.approved}
+          deleted={jargonTerm.deleted}
           forceTooltip={true}
           forceExpand={true}
         >
