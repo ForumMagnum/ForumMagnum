@@ -7,6 +7,7 @@
 
 import { existsSync } from "node:fs";
 import type { ITask } from "pg-promise";
+import { CommandLineOptions } from "./build";
 
 // @ts-ignore This is a javascript file without a .d.ts
 import { getDatabaseConfig, startSshTunnel } from "./scripts/startup/buildUtil";
@@ -82,7 +83,7 @@ const databaseConfig = (mode: string, forumType: ForumType): DatabaseConfig => {
   if (!mode) {
     return {};
   }
-  const memorizedConfigPaths: Record<ForumType, unknown> = {
+  const memorizedConfigPaths: Record<ForumType, Partial<CommandLineOptions>> = {
     lw: {
       db: `${credentialsPath(forumType)}/connectionConfigs/${mode}.json`,
     },
