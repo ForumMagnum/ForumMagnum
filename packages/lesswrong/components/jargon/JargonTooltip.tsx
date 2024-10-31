@@ -87,7 +87,7 @@ export function jargonTermsToTextReplacements(terms: JargonTermsPost[]): Content
   return terms.map(convertGlossaryItemToTextReplacement);
 }
 
-export const JargonTooltip = ({definitionHTML, approved, forceOpen, humansAndOrAIEdited, isFirstOccurrence = false, placement="top-start", children, classes, tooltipClassName, tooltipTitleClassName, forceTooltip=false, replacedSubstrings}: {
+export const JargonTooltip = ({definitionHTML, approved, forceExpand, humansAndOrAIEdited, isFirstOccurrence = false, placement="top-start", children, classes, tooltipClassName, tooltipTitleClassName, forceTooltip=false, replacedSubstrings}: {
   definitionHTML: string,
   approved: boolean,
   altTerms: string[],
@@ -99,12 +99,12 @@ export const JargonTooltip = ({definitionHTML, approved, forceOpen, humansAndOrA
   tooltipClassName?: string,
   tooltipTitleClassName?: string,
   forceTooltip?: boolean,
-  forceOpen?: boolean,
+  forceExpand?: boolean,
   replacedSubstrings?: ContentReplacedSubstringComponentInfo[],
 }) => {
   const { LWTooltip, ContentItemBody, ForumIcon, LWClickAwayListener } = Components;
 
-  const [open, setOpen] = useState(forceOpen);
+  const [open, setOpen] = useState(false);
 
   const { postGlossariesPinned } = useGlossaryPinnedState();
 
@@ -121,7 +121,7 @@ export const JargonTooltip = ({definitionHTML, approved, forceOpen, humansAndOrA
     </>;
   }
 
-  const truncatedDefinitionHTML = open ? definitionHTML : truncatise(definitionHTML, {TruncateBy:"paragraphs", TruncateLength:1, Suffix:'<span class="jargon-tooltip-expand">(click to expand)</span>'});
+  const truncatedDefinitionHTML = (open || forceExpand) ? definitionHTML : truncatise(definitionHTML, {TruncateBy:"paragraphs", TruncateLength:1, Suffix:'<span class="jargon-tooltip-expand">(click to expand)</span>'});
 
 
   const tooltip = <Card className={classes.card}>
