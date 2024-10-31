@@ -355,7 +355,7 @@ export function startWebserver() {
   if (testServerSetting.get()) {
     app.post('/api/quit', (_req, res) => {
       res.status(202).send('Quiting server');
-      process.kill(estrellaPid, 'SIGQUIT');
+      process.kill(buildProcessPid, 'SIGQUIT');
     })
   }
 

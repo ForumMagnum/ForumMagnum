@@ -73,8 +73,8 @@ export async function initiateRefresh({serverPort}: {
     return;
   }
   
-  // Wait just long enough to make sure estrella has killed the old server
-  // process so that when we check for server-readiness, we don't accidentally
+  // Wait just long enough to make sure the old server process has shut down
+  // so that when we check for server-readiness, we don't accidentally
   // check the process that's being replaced.
   await asyncSleep(100);
   

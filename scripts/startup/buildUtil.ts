@@ -10,8 +10,8 @@ const execAsync = promisify(exec);
 /**
  * Distill all the various connection-string-related options into a
  * straightforward database connection string. Takes parsed command-line options
- * formatted as Estrella's CLI-parser would parse them, ie, a dictionary where
- * arguments of the form "--opt <string>" turn into {opt: "<string>"}. If
+ * formatted as our build script's CLI-parser would parse them, ie, a dictionary
+ * where arguments of the form "--opt <string>" turn into {opt: "<string>"}. If
  * connection-string arguments aren't provided, uses the environment variable
  * PG_URL as a fallback.
  *

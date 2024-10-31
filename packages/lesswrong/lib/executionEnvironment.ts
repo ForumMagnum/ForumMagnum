@@ -8,7 +8,7 @@ declare global {
   let bundleIsMigrations: boolean;
   let defaultSiteAbsoluteUrl: string;
   let serverPort: number;
-  let estrellaPid: number;
+  let buildProcessPid: number;
   let ddEnv: string;
 }
 

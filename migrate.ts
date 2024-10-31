@@ -20,7 +20,7 @@ const initGlobals = (args: Record<string, unknown>, isProd: boolean) => {
     bundleIsMigrations: true,
     defaultSiteAbsoluteUrl: "",
     serverPort: 5001,
-    estrellaPid: -1,
+    buildProcessPid: -1,
   });
 
   const { getInstanceSettings } = require("./packages/lesswrong/lib/executionEnvironment");

@@ -189,7 +189,7 @@ const clientBundleDefinitions: Record<string,string> = {
 
 const serverBundleDefinitions: Record<string,string> = {
   "bundleIsServer": "true",
-  "estrellaPid": `${process.pid}`,
+  "buildProcessPid": `${process.pid}`,
 }
 
 class RunningServer {
@@ -271,7 +271,7 @@ async function main() {
           logWithTimestamp("Client build started");
           setClientRebuildInProgress(true);
           inProgressBuildId = generateBuildId();
-          if (opts.lint) {
+          if (opts.lint && !isProduction) {
             lintAndCheckTypes();
           }
         });
@@ -332,7 +332,7 @@ async function main() {
         build.onStart(() => {
           logWithTimestamp("Server build started");
           setServerRebuildInProgress(true);
-          if (opts.lint) {
+          if (opts.lint && !isProduction) {
             lintAndCheckTypes();
           }
         });
@@ -346,10 +346,6 @@ async function main() {
         });
       },
     }],
-    // FIXME This was an Estrella option for controlling whether Typescript typechecking
-    // is done. This functionality is currently orphaned (typescript errors don't get shown
-    // in the server console)
-    //tslint: !isProduction,
     define: {
       ...bundleDefinitions,
       ...serverBundleDefinitions,

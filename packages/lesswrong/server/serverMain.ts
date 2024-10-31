@@ -40,7 +40,7 @@ export const serverMain = async ({shellMode, command}: CommandLineArguments) => 
     const result = await func();
     // eslint-disable-next-line no-console
     console.log("Finished. Result: ", result);
-    process.kill(estrellaPid, 'SIGQUIT');
+    process.kill(buildProcessPid, 'SIGQUIT');
   } else if (!isAnyTest && !isMigrations) {
     watchForShellCommands();
     startWebserver();
