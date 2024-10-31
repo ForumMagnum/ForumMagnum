@@ -30,10 +30,11 @@ function getDraftLabel(post: PostsPage | null) {
   return "Save Draft";
 }
 
-const PostsEditForm = ({ documentId, version, classes }: {
+const PostsEditForm = ({ documentId, version, classes, showTableOfContents }: {
   documentId: string,
   version?: string | null,
   classes: ClassesType,
+  showTableOfContents?: boolean,
 }) => {
   const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags, ForeignCrosspostEditForm, DialogueSubmit, RateLimitWarning, DynamicTableOfContents } = Components
 
@@ -147,70 +148,76 @@ const PostsEditForm = ({ documentId, version, classes }: {
     addFields.push('glossary');
   }
 
-  return (
-    <DynamicTableOfContents title={document.title}>
-      <div className={classes.postForm}>
-        <HeadTags title={document.title} />
-        {currentUser && <Components.PostsAcceptTos currentUser={currentUser} />}
-        {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
-        <DeferRender ssr={false}>
-          <EditorContext.Provider value={[editorState, setEditorState]}>
-            <WrappedSmartForm
-              collectionName="Posts"
-              documentId={documentId}
-              queryFragment={getFragment('PostsEditQueryFragment')}
-              mutationFragment={getFragment('PostsEditMutationFragment')}
-              successCallback={(post: any, options: any) => {
-                const alreadySubmittedToAF = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(post.userId)
-                if (!post.draft && !alreadySubmittedToAF) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost})
-                if (options?.submitOptions?.redirectToEditor) {
-                  navigate(postGetEditUrl(post._id, false, post.linkSharingKey));
-                } else {
-                  // If they are publishing a draft, show the share popup
-                  // Note: we can't use isDraft here because it gets updated to true when they click "Publish"
-                  const showSharePopup = isEAForum && wasEverDraft.current && !post.draft
-                  const sharePostQuery = `?${SHARE_POPUP_QUERY_PARAM}=true`
-                  navigate({pathname: postGetPageUrl(post), search: showSharePopup ? sharePostQuery : ''})
+  const editorComponent = <div className={classes.postForm}>
+    <HeadTags title={document.title} />
+    {currentUser && <Components.PostsAcceptTos currentUser={currentUser} />}
+    {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
+    <DeferRender ssr={false}>
+      <EditorContext.Provider value={[editorState, setEditorState]}>
+        <WrappedSmartForm
+          collectionName="Posts"
+          documentId={documentId}
+          queryFragment={getFragment('PostsEditQueryFragment')}
+          mutationFragment={getFragment('PostsEditMutationFragment')}
+          successCallback={(post: any, options: any) => {
+            const alreadySubmittedToAF = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(post.userId)
+            if (!post.draft && !alreadySubmittedToAF) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost})
+            if (options?.submitOptions?.redirectToEditor) {
+              navigate(postGetEditUrl(post._id, false, post.linkSharingKey));
+            } else {
+              // If they are publishing a draft, show the share popup
+              // Note: we can't use isDraft here because it gets updated to true when they click "Publish"
+              const showSharePopup = isEAForum && wasEverDraft.current && !post.draft
+              const sharePostQuery = `?${SHARE_POPUP_QUERY_PARAM}=true`
+              navigate({pathname: postGetPageUrl(post), search: showSharePopup ? sharePostQuery : ''})
 
-                  if (!showSharePopup) {
-                    flash({ messageString: `Post "${post.title}" edited`, type: 'success'});
-                  }
-                }
-              }}
-              eventForm={document.isEvent}
-              removeSuccessCallback={({ documentId, documentTitle }: { documentId: string; documentTitle: string; }) => {
-                // post edit form is being included from a single post, redirect to index
-                // note: this.props.params is in the worst case an empty obj (from react-router)
-                if (params._id) {
-                  navigate('/');
-                }
+              if (!showSharePopup) {
+                flash({ messageString: `Post "${post.title}" edited`, type: 'success'});
+              }
+            }
+          }}
+          eventForm={document.isEvent}
+          removeSuccessCallback={({ documentId, documentTitle }: { documentId: string; documentTitle: string; }) => {
+            // post edit form is being included from a single post, redirect to index
+            // note: this.props.params is in the worst case an empty obj (from react-router)
+            if (params._id) {
+              navigate('/');
+            }
 
-                flash({ messageString: `Post "${documentTitle}" deleted.`, type: 'success'});
-                // todo: handle events in collection callbacks
-                // this.context.events.track("post deleted", {_id: documentId});
-              }}
-              showRemove={true}
-              collabEditorDialogue={!!document.collabEditorDialogue}
-              submitLabel={preferredHeadingCase(isDraft ? "Publish" : "Publish Changes")}
-              formComponents={{FormSubmit: !!document.collabEditorDialogue ? DialogueSubmit : EditPostsSubmit}}
-              extraVariables={{
-                version: 'String'
-              }}
-              extraVariablesValues={{
-                version: version ?? 'draft'
-              }}
-              noSubmitOnCmdEnter
-              repeatErrors
-              
-              addFields={addFields}
+            flash({ messageString: `Post "${documentTitle}" deleted.`, type: 'success'});
+            // todo: handle events in collection callbacks
+            // this.context.events.track("post deleted", {_id: documentId});
+          }}
+          showRemove={true}
+          collabEditorDialogue={!!document.collabEditorDialogue}
+          submitLabel={preferredHeadingCase(isDraft ? "Publish" : "Publish Changes")}
+          formComponents={{FormSubmit: !!document.collabEditorDialogue ? DialogueSubmit : EditPostsSubmit}}
+          extraVariables={{
+            version: 'String'
+          }}
+          extraVariablesValues={{
+            version: version ?? 'draft'
+          }}
+          noSubmitOnCmdEnter
+          repeatErrors
+          
+          addFields={addFields}
 
-              editFormFetchPolicy={editFormFetchPolicy}
-            />
-          </EditorContext.Provider>
-        </DeferRender>
-      </div>
-    </DynamicTableOfContents>
-  );
+          editFormFetchPolicy={editFormFetchPolicy}
+        />
+      </EditorContext.Provider>
+    </DeferRender>
+  </div>
+
+  if (showTableOfContents) {
+    return (
+      <DynamicTableOfContents title={document.title}>
+        {editorComponent}
+      </DynamicTableOfContents>
+    );
+  }
+
+  return editorComponent;
 }
 
 const PostsEditFormComponent = registerComponent('PostsEditForm', PostsEditForm, {styles});

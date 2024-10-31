@@ -22,6 +22,7 @@ registerFragment(`
     rejected
     debate
     collabEditorDialogue
+    modifiedAt
   }
 `);
 

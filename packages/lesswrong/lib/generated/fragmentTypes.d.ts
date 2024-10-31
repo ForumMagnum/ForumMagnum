@@ -1109,6 +1109,7 @@ interface PostsMinimumInfo { // fragment on Posts
   readonly rejected: boolean,
   readonly debate: boolean,
   readonly collabEditorDialogue: boolean,
+  readonly modifiedAt: Date,
 }
 
 interface PostsMinimumInfo_currentUserReviewVote { // fragment on ReviewVotes

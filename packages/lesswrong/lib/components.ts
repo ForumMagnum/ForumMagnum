@@ -1230,3 +1230,4 @@ importComponent("ThinkPagePostEdit", () => require('../components/thinkPage/Thin
 importComponent("ThinkPagePostNew", () => require('../components/thinkPage/ThinkPagePostNew'));
 importComponent("ThinkPageSideColumn", () => require('../components/thinkPage/ThinkPageSideColumn'));
 importComponent("ThinkPageSideItem", () => require('../components/thinkPage/ThinkPageSideItem'));
+importComponent("ThinkPageWrapper", () => require('../components/thinkPage/ThinkPageWrapper'));

@@ -2,6 +2,7 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
+import { Link } from '@/lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -10,6 +11,36 @@ const styles = (theme: ThemeType) => ({
     maxHeight: theme.typography.body2.lineHeight * 2,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
+    ...theme.typography.body2,
+    ...theme.typography.headerStyle,
+    width: 250,
+    display: 'flex',
+    alignItems: 'center',
+    opacity: 0.5,
+    transition: 'opacity 0.2s ease-in-out',
+    '&:hover': {
+      opacity: 1
+    },
+    '&:hover $date': {
+      opacity: 1
+    }
+  },
+  icon: {
+    width: 12,
+    height: 12,
+    color: theme.palette.grey[600],
+    marginRight: 10
+  },
+  title: {
+    flex: 1,
+    textWrap: 'balance'
+  },
+  date: {
+    marginLeft: 10,
+    ...theme.typography.body2,
+    color: theme.palette.grey[600],
+    fontSize: '0.9rem',
+    opacity: 0
   }
 });
 
@@ -19,13 +50,22 @@ export const ThinkPageSideItem = ({post, classes}: {
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
   
-  const { ForumIcon } = Components
+  const { ForumIcon, FormatDate } = Components
 
-  const icon = post.draft ? <ForumIcon icon="Pencil" /> : <ForumIcon icon="Document" />
+  const icon = post.draft ? <ForumIcon icon="Pencil" className={classes.icon}/> : <ForumIcon icon="Document" className={classes.icon}/>
 
-  return <div className={classes.root}>
-    {post.title}
-  </div>;
+  const url = post.draft ? `/think/posts/${post._id}/edit` : `/think/posts/${post._id}/${post.slug}`
+
+  const date = post.modifiedAt > (post.lastVisitedAt ?? post.createdAt) ? post.modifiedAt : post.lastVisitedAt ?? post.createdAt
+
+  return <Link className={classes.root} to={url}>
+    {icon} <div className={classes.title}>
+      {post.title}
+      <span className={classes.date}>
+        <FormatDate date={date} />
+      </span>
+    </div>
+  </Link>;
 }
 
 const ThinkPageSideItemComponent = registerComponent('ThinkPageSideItem', ThinkPageSideItem, {styles});

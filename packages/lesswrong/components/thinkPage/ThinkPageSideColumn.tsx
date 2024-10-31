@@ -10,14 +10,14 @@ import { useMulti } from '@/lib/crud/withMulti';
 
 const styles = (theme: ThemeType) => ({
   root: {
-    width: 260,
+    width: 360,
+    paddingRight: 100,
     position: 'absolute',
     padding: 16,
     left: 0,
     top: 70,
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing.unit,
     opacity: 0,
     '&:hover': {
       transition: 'opacity .2s ease-in-out',
@@ -84,7 +84,13 @@ export const ThinkPageSideColumn = ({classes}: {
   )
   const readHistory: (PostsListWithVotes & {lastVisitedAt: Date})[] = data?.UserReadHistory?.posts ?? []
   const readHistoryArray = Array.from(readHistory)
-  const allPosts = [...readHistoryArray, ...drafts]
+  const allPosts = [...readHistoryArray, ...drafts].sort((a, b) => {
+    const aDate = moment(a.modifiedAt || a.lastVisitedAt)
+    const bDate = moment(b.modifiedAt || b.lastVisitedAt)
+    if (aDate.isBefore(bDate)) return 1
+    if (aDate.isAfter(bDate)) return -1
+    return 0
+  })
 
   // group the posts by last read "Today", "Yesterday", and "Older"
   const todaysPosts = allPosts.filter(post => moment(post.lastVisitedAt).isSame(moment(), 'day'))
