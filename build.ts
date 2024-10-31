@@ -254,6 +254,7 @@ async function main() {
   const clientOutfilePath = `${getOutputDir()}/client/js/bundle.js`;
   const clientContext = await esbuild.context({
     entryPoints: ['./packages/lesswrong/client/clientStartup.ts'],
+    tsconfig: "./tsconfig-client.json",
     bundle: true,
     target: "es6",
     sourcemap: true,
@@ -320,6 +321,7 @@ async function main() {
   
   const serverContext = await esbuild.context({
     entryPoints: ['./packages/lesswrong/server/runServer.ts'],
+    tsconfig: "./tsconfig-server.json",
     bundle: true,
     outfile: `${getOutputDir()}/server/js/serverBundle.js`,
     platform: "node",
