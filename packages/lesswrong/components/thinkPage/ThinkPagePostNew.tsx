@@ -1,10 +1,7 @@
 // TODO: Import component in components.ts
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent, Components, fragmentTextForQuery } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
-import { useCurrentUser } from '../common/withUser';
-import { useLocation } from '@/lib/routeUtil';
-import { useMulti } from '@/lib/crud/withMulti';
 
 const postFormSectionStyles = (theme: ThemeType) => ({
   '& .FormGroupHeader-formSectionHeading': {
@@ -71,81 +68,49 @@ const postFormSectionStyles = (theme: ThemeType) => ({
   '& .PostsNewForm-formSubmit': {
     display: 'none',
   },
+  '& .FormGroupPostTopBar-tabs': {
+    display: 'none',
+  },
 })
 
 const styles = (theme: ThemeType) => ({
   root: {
-    display: 'flex',
-    gap: theme.spacing.unit * 4,
-    padding: theme.spacing.unit * 2,
     justifyContent: 'space-between',
     ...theme.typography.commentStyle,
-  },
-  sidebarContainer: {
-    width: 200,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: theme.spacing.unit,
-    ...theme.typography.body2,
+    [theme.breakpoints.down('md')]: {
+      justifyContent: 'center',
+    },
   },
   formContainer: {
     maxWidth: 715,
     width: '100%',
     ...postFormSectionStyles(theme),
-  },
-  chatContainer: {
-    position: 'sticky',
-    top: 0,
-    width: '100%',
-    maxWidth: 300,
+    marginLeft: "auto",
+    marginRight: "auto",
   }
 });
 
-export const ThinkPage = ({classes}: {
+export const ThinkPagePostNew = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
 
-  const { PostsNewForm, LanguageModelChat } = Components;
-  const currentUser = useCurrentUser();
-  const { query } = useLocation();
+  const { PostsNewForm, ThinkPageChat, ThinkPageSideColumn } = Components;
 
-  const currentSorting = query.sortDraftsBy ?? query.view ?? currentUser?.draftsListSorting ?? "lastModified";
-
-
-  const terms: PostsViewTerms = {
-    view: "drafts",
-    userId: currentUser?._id,
-    sortDraftsBy: currentSorting,
-    // includeArchived: !!query.includeArchived ? (query.includeArchived === 'true') : currentUser?.draftsListShowArchived,
-    // includeShared: !!query.includeShared ? (query.includeShared === 'true') : (currentUser?.draftsListShowShared !== false),
-  }
-  
-  const { results, loading, loadMoreProps } = useMulti({
-    terms,
-    collectionName: "Posts",
-    fragmentName: 'PostsListWithVotes',
-    fetchPolicy: 'cache-and-network',
-    nextFetchPolicy: "cache-first",
-  });
 
   return <div className={classes.root}>
-    <div className={classes.sidebarContainer}>
-      {results?.map((post) => <div key={post._id}>{post.title}</div>)}
-    </div>
+    <ThinkPageSideColumn />
     <div className={classes.formContainer}>
       <PostsNewForm showTableOfContents={false} />
     </div>
-    <div className={classes.chatContainer}>
-      <LanguageModelChat hideHeader={true} />
-    </div>
+    <ThinkPageChat />
   </div>;
 }
 
-const ThinkPageComponent = registerComponent('ThinkPage', ThinkPage, {styles});
+const ThinkPagePostNewComponent = registerComponent('ThinkPagePostNew', ThinkPagePostNew, {styles});
 
 declare global {
   interface ComponentTypes {
-    ThinkPage: typeof ThinkPageComponent
+    ThinkPagePostNew: typeof ThinkPagePostNewComponent
   }
 }

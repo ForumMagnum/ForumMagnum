@@ -1724,12 +1724,30 @@ addRoute({
 })
 
 addRoute({
-  title: "Think Page",
-  name: 'thinkPage',
-  path: '/think',
-  componentName: 'ThinkPage',
-  background: 'white',
-})
+    title: "Think Page",
+    name: 'thinkPage',
+    path: '/think',
+    redirect: () => '/think/posts/new',
+  },
+  {
+    name: 'thinkPagePostRead',
+    path: '/think/posts/:postId/:slug',
+    componentName: 'ThinkPagePostRead',
+    background: 'white',
+  },
+  {
+    name: 'thinkPageEditPost',
+    path: '/think/posts/:postId/edit',
+    componentName: 'ThinkPagePostEdit',
+    title: "Edit Post"
+  },
+  {
+    name: 'thinkPageNewPost',
+    path: '/think/posts/new',
+    componentName: 'ThinkPagePostNew',
+    title: "Edit Post"
+  }
+);
 
 if (hasSurveys) {
   addRoute(
