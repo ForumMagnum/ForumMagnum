@@ -40,8 +40,8 @@ const styles = (theme: ThemeType) => ({
     "&:hover": {
       maxHeight: 'unset',
       // Show the pin icon when hovering over the glossary container
-      "& $pinIcon": {
-        display: 'block',
+      "& $pinIcon, & $pinnedPinIcon": {
+        opacity: 1,
       },
     },
 
@@ -85,16 +85,23 @@ const styles = (theme: ThemeType) => ({
   },
   title: {
     flex: 1,
+    display: 'flex',
+    alignItems: 'center',
     ...theme.typography.body2,
     ...theme.typography.postStyle,
   },
   pinIcon: {
-    width: 10,
-    paddingBottom: 4,
-    marginRight: 6,
-    color: theme.palette.grey[600],
+    width: 18,
+    padding: 4,
+    marginLeft: 6,
+    color: theme.palette.grey[400],
     // Hide the pin icon by default, show it when hovering over the glossary container
-    display: 'none',
+    opacity: 0
+  },
+  pinnedPinIcon: {
+    display: 'block',
+    color: theme.palette.grey[800],
+    opacity: .5
   },
   termTooltip: {
     marginRight: 5,
@@ -154,8 +161,10 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, classes}: {
       popperClassName={classes.titleRowTooltipPopper}
     >
       <div className={classes.titleRow}>
-        <h3 className={classes.title}><strong>Glossary</strong></h3>
-        <ForumIcon icon='Pin' className={classes.pinIcon} />
+        <h3 className={classes.title}>
+          <strong>Glossary</strong>
+          <ForumIcon icon="Pin" className={classNames(classes.pinIcon, postGlossariesPinned && classes.pinnedPinIcon)} />
+        </h3>
       </div>
     </LWTooltip>
   ) : (

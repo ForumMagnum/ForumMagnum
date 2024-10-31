@@ -129,6 +129,9 @@ export const JargonTooltip = ({definitionHTML, approved, forceExpand, humansAndO
       dangerouslySetInnerHTML={{ __html: truncatedDefinitionHTML }}
       replacedSubstrings={replacedSubstrings}
     />
+    {open && <div className={classes.metadata}>
+      (click anywhere to collapse)
+    </div>}
     <div className={classes.metadata}>
       {humansAndOrAIEditedText && <div><span className={classes.metadataItem}>
         {icons}{humansAndOrAIEditedText}
