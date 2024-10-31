@@ -46,7 +46,10 @@ const jargonTermListResponseSchema = z.object({
   jargonTerms: z.array(z.string()),
   reasoning: z.string(),
   likelyKnownJargonTerms: z.array(z.string()),
-}).describe('A tool that allows Claude to return a list of jargon terms extracted from a post, and of those, which terms are likely already known to LessWrong readers.');
+  marginalTerms: z.array(z.string()),
+}).describe('A tool that allows Claude to return a list of jargon terms extracted from a post, and of those, which terms are likely already known to LessWrong readers, and which terms are the next most likely candidates for inclusion in a glossary.');
+
+type JargonTermListResponse = z.infer<typeof jargonTermListResponseSchema>;
 
 const jargonTermSchema = z.object({
   term: z.string(),
@@ -55,6 +58,8 @@ const jargonTermSchema = z.object({
 });
 
 type LLMGeneratedJargonTerm = z.infer<typeof jargonTermSchema>;
+
+type CategorizedJargonTerm = LLMGeneratedJargonTerm & { deleted: boolean };
 
 // A glossary schema that's an object with an array of jargonTerms
 const jargonGlossarySchema = z.object({
@@ -129,7 +134,7 @@ function sanitizeJargonTerms(jargonTerms: LLMGeneratedJargonTerm[]) {
   }));
 }
 
-export const queryClaudeForTerms = async (markdown: string) => {
+export const queryClaudeForTerms = async (markdown: string): Promise<JargonTermListResponse> => {
   const client = getAnthropicPromptCachingClientOrThrow(jargonBotClaudeKey.get());
   const messages = [{
     role: "user" as const, 
@@ -152,7 +157,12 @@ The jargon terms are:`
   if (termsResponse.content[0].type === "text") {
     // eslint-disable-next-line no-console
     console.error(`Claude responded with text, but we expected a tool use.`)
-    return [];
+    return {
+      jargonTerms: [],
+      reasoning: '',
+      likelyKnownJargonTerms: [],
+      marginalTerms: []
+    };
   }
   
   const responseContent = termsResponse.content[0]?.input;
@@ -160,12 +170,15 @@ The jargon terms are:`
   if (!parsedResponse.success) {
     // eslint-disable-next-line no-console
     console.error(`Claude's response when getting jargon terms doesn't match the expected format.`)
-    return [];
+    return {
+      jargonTerms: [],
+      reasoning: '',
+      likelyKnownJargonTerms: [],
+      marginalTerms: []
+    };
   }
 
-  const remainingTerms = parsedResponse.data.jargonTerms.filter(term => !parsedResponse.data.likelyKnownJargonTerms.includes(term));
-
-  return remainingTerms;
+  return parsedResponse.data;
 }
 
 function createJargonGlossaryMessageWithExample({ markdown, terms, ...exampleParams }: JargonGlossaryQueryParams): PromptCachingBetaMessageParam[] {
@@ -240,23 +253,31 @@ const queryClaudeForJargonGlossary = async ({ markdown, terms, ...exampleParams 
   return sanitizeJargonTerms(parsedResponse.data.jargonTerms);
 }
 
-export async function createEnglishExplanations({ post, excludeTerms, ...exampleParams }: ExplanationsGenerationQueryParams): Promise<LLMGeneratedJargonTerm[]> {
+export async function createEnglishExplanations({ post, excludeTerms, ...exampleParams }: ExplanationsGenerationQueryParams): Promise<CategorizedJargonTerm[]> {
   const originalHtml = post.contents?.html ?? "";
   const originalMarkdown = htmlToMarkdown(originalHtml);
   // Conservatively limit the markdown to 500k characters, since Claude has a context window of 200k tokens.  (Real limit is probably closer to 3.5 characters per token.)
   const markdown = (originalMarkdown.length < 500_000) ? originalMarkdown : originalMarkdown.slice(0, 500_000);
 
   const terms = await queryClaudeForTerms(markdown);
-  if (!terms.length) {
+  if (!terms.jargonTerms.length) {
     return [];
   }
 
-  const newTerms = terms.filter(term => {
+  const allTerms = [...terms.jargonTerms, ...terms.likelyKnownJargonTerms, ...terms.marginalTerms];
+
+  const newTerms = allTerms.filter(term => {
     const lowerCaseTerm = term.toLowerCase();
     return !excludeTerms.includes(lowerCaseTerm) && post.contents?.html?.toLowerCase().includes(lowerCaseTerm);
   });
 
-  return await queryClaudeForJargonGlossary({ markdown, terms: newTerms, ...exampleParams });
+  const generatedTermDefinitions = await queryClaudeForJargonGlossary({ markdown, terms: newTerms, ...exampleParams });
+
+  return generatedTermDefinitions.map(term => ({
+    ...term,
+    // By default, create potential false-positives as deleted so authors have access to them but they aren't cluttering up their primary view
+    deleted: terms.likelyKnownJargonTerms.includes(term.term) || terms.marginalTerms.includes(term.term)
+  }));
 }
 
 const processedTerms = (jargonTerms: DbJargonTerm[]) => {
@@ -307,7 +328,7 @@ export const createNewJargonTerms = async ({ postId, currentUser, ...examplePara
               postId: postId,
               term: term.term,
               approved: false,
-              deleted: false,
+              deleted: term.deleted,
               contents: {
                 originalContents: {
                   data: term.htmlContent,
