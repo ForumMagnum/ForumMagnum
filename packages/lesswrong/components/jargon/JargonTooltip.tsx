@@ -75,6 +75,7 @@ function convertGlossaryItemToTextReplacement(glossaryItem: JargonTermsPost): Co
     props: {
       term: glossaryItem.term,
       approved: glossaryItem.approved,
+      deleted: glossaryItem.deleted,
       definitionHTML: glossaryItem.contents?.html ?? '',
       altTerms: glossaryItem.altTerms,
       humansAndOrAIEdited: glossaryItem.humansAndOrAIEdited,
@@ -87,9 +88,10 @@ export function jargonTermsToTextReplacements(terms: JargonTermsPost[]): Content
   return terms.map(convertGlossaryItemToTextReplacement);
 }
 
-export const JargonTooltip = ({definitionHTML, approved, forceExpand, humansAndOrAIEdited, isFirstOccurrence = false, placement="top-start", children, classes, tooltipClassName, tooltipTitleClassName, forceTooltip=false, replacedSubstrings}: {
+export const JargonTooltip = ({definitionHTML, approved, deleted, forceExpand, humansAndOrAIEdited, isFirstOccurrence = false, placement="top-start", children, classes, tooltipClassName, tooltipTitleClassName, forceTooltip=false, replacedSubstrings}: {
   definitionHTML: string,
   approved: boolean,
+  deleted: boolean,
   altTerms: string[],
   humansAndOrAIEdited: JargonTermsDefaultFragment['humansAndOrAIEdited'],
   isFirstOccurrence?: boolean,
@@ -138,6 +140,7 @@ export const JargonTooltip = ({definitionHTML, approved, forceExpand, humansAndO
       </span></div>}
 
       {!approved && <div>Unapproved</div>}
+      {deleted && <div>Deleted</div>}
     </div>
   </Card>
 
