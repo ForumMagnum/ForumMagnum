@@ -394,7 +394,9 @@ const GivingSeason2024Banner = ({classes}: {
             </div>
             <div className={classes.fundInfo}>
               Donate to the fund to boost the value of the Election.{" "}
-              <Link to="#">Learn more</Link>.
+              <Link to="/posts/srZEX2r9upbwfnRKw/giving-season-2024-announcement#November_18___December_3__Donation_Election">
+                Learn more
+              </Link>.
             </div>
             <div className={classes.fundRaised}>
               <span className={classes.fundAmount}>
