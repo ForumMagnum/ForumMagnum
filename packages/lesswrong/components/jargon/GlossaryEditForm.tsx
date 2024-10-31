@@ -16,7 +16,7 @@ We're about to provide you with the text of an essay, followed by a list of jarg
 
 For each term, provide:
   
-The term itself (wrapped in a <strong> tag), followed by a concise one-line definition. Then, on a separate paragraph, explain how the term is used here. If the term has a well-established origin, briefly mention it.
+The term itself (wrapped in a <strong> tag), followed by a concise one-line definition. Then, on a separate paragraph, explain how the term is used here.
 
 Ensure that your explanations are clear and accessible to someone who may not be familiar with the subject matter. Follow Strunk and White guidelines. 
 

@@ -4,4 +4,6 @@ Also avoid including terms that are 3+ word phrases unless it is a complete noun
 
 Then, use the "reasoning" field to reason about which terms should be excluded if you were to optimize even harder for avoiding "false positives" - terms which are most likely to already be known to LessWrong readers, which are therefore least likely to be beneficial to display in a glossary.
 
-Finally, return that second list of terms in the "likelyKnownJargonTerms" field.  It's fine if the second list is empty, if the first list is composed entirely of terms that are highly technical.`;
+Next, return that second list of terms in the "likelyKnownJargonTerms" field.  It's fine if the second list is empty, if the first list is composed entirely of terms that are highly technical.
+
+Finally, return a third list of terms in the "marginalTerms" field.  This should be a list of two to five terms that are not in the first list, but are the next most likely candidates for inclusion in a glossary.`;
