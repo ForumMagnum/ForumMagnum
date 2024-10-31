@@ -3,13 +3,14 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { SerializedEditorContents, deserializeEditorContents, EditorContents, nonAdminEditors, adminEditors } from './Editor';
 import { useCurrentUser } from '../common/withUser';
 import { htmlToTextDefault } from '@/lib/htmlToText';
+import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    columnGap: 10,
+    columnGap: isFriendlyUI ? 8 : 10,
     fontFamily: theme.typography.commentStyle.fontFamily,
     color: theme.palette.text.primaryAlert,
     fontSize: 14,
@@ -31,15 +32,24 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.text.primaryAlert,
     whiteSpace: 'nowrap',
     paddingLeft: 6,
-    paddingRight: 2
+    paddingRight: 2,
+    fontWeight: isFriendlyUI ? 600 : undefined,
   },
   restoreBody: {
-    color: theme.palette.grey[500],
     maxHeight: '1.5em',
     lineHeight: '1.5em',
     fontSize: '1.1rem',
     overflow: 'hidden',
-    padding: '0 4px',
+    ...(isFriendlyUI
+      ? {
+        color: theme.palette.text.primaryAlert,
+        fontWeight: 500,
+        opacity: 0.75,
+      }
+      : {
+        color: theme.palette.grey[500],
+        padding: '0 4px',
+      }),
   },
   closeIcon: {
     fontSize: 16,
@@ -108,7 +118,7 @@ const LocalStorageCheck = ({getLocalStorageHandlers, onRestore, classes}: {
           // eslint-disable-next-line no-console
           console.error("Error restoring from localStorage");
         }
-      }}>Restore Autosave</a>
+      }}>{preferredHeadingCase("Restore Autosave")}</a>
     </div>
     <div className={classes.restoreBody}> {displayedRestore} </div>
 
