@@ -146,6 +146,7 @@ const styles = (theme: ThemeType) => ({
   },
   mainContainer: {
     display: "flex",
+    alignItems: "center",
     [theme.breakpoints.down(GIVING_SEASON_DESKTOP_WIDTH)]: {
       padding: "0 24px",
     },
