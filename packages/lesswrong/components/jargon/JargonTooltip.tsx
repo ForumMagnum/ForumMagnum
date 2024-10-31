@@ -88,7 +88,7 @@ export function jargonTermsToTextReplacements(terms: JargonTermsPost[]): Content
   return terms.map(convertGlossaryItemToTextReplacement);
 }
 
-export const JargonTooltip = ({definitionHTML, approved, deleted, forceExpand, humansAndOrAIEdited, isFirstOccurrence = false, placement="top-start", children, classes, tooltipClassName, tooltipTitleClassName, forceTooltip=false, replacedSubstrings}: {
+export const JargonTooltip = ({definitionHTML, approved, deleted, forceExpand, humansAndOrAIEdited, isFirstOccurrence = false, placement="right-start", children, classes, tooltipClassName, tooltipTitleClassName, forceTooltip=false, replacedSubstrings}: {
   definitionHTML: string,
   approved: boolean,
   deleted: boolean,
@@ -123,17 +123,14 @@ export const JargonTooltip = ({definitionHTML, approved, deleted, forceExpand, h
     </>;
   }
 
-  const truncatedDefinitionHTML = (open || forceExpand) ? definitionHTML : truncatise(definitionHTML, {TruncateBy:"paragraphs", TruncateLength:1, Suffix:'<span class="jargon-tooltip-expand">(click to expand)</span>'});
-
+  // TODO: Re-enable truncation once we've gotten better second-paragraphs. (or, if we don't get around to it, eventually just delete)
+  // const truncatedDefinitionHTML = (open || forceExpand) ? definitionHTML : truncatise(definitionHTML, {TruncateBy:"paragraphs", TruncateLength:1, Suffix:'<span class="jargon-tooltip-expand">(click to expand)</span>'});
 
   const tooltip = <Card className={classes.card}>
     <ContentItemBody
-      dangerouslySetInnerHTML={{ __html: truncatedDefinitionHTML }}
+      dangerouslySetInnerHTML={{ __html: definitionHTML }}
       replacedSubstrings={replacedSubstrings}
     />
-    {open && <div className={classes.metadata}>
-      (click anywhere to collapse)
-    </div>}
     <div className={classes.metadata}>
       {humansAndOrAIEditedText && <div><span className={classes.metadataItem}>
         {icons}{humansAndOrAIEditedText}
