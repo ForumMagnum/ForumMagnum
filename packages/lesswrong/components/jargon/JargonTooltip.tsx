@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import Card from '@material-ui/core/Card';
 import { commentBodyStyles } from '@/themes/stylePiping';
@@ -6,6 +6,7 @@ import { ContentReplacedSubstringComponentInfo } from '../common/ContentItemBody
 import { PopperPlacementType } from '@material-ui/core/Popper';
 import { useGlossaryPinnedState } from '../hooks/useUpdateGlossaryPinnedState';
 import { ForumIconName } from '../common/ForumIcon';
+import { truncatise } from '@/lib/truncatise';
 
 const styles = (theme: ThemeType) => ({
   card: {
@@ -17,8 +18,14 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[700],
     marginTop: 0,
     marginBottom: 0,
+    '& .jargon-tooltip-expand': {
+      marginLeft: 6,
+      color: theme.palette.grey[400],
+      fontSize: "0.8em",
+    },
   },
   jargonWord: {
+    cursor: 'default',
     'a &': {
       // When the span is inside a link, inherit the link's color
       color: 'inherit',
@@ -33,16 +40,11 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-  },
-  altTerm: {
     color: theme.palette.grey[600],
     fontSize: "0.8em",
+  },
+  metadataItem: {
     marginRight: 8,
-  },
-  unapprovedLabel: {
-    color: theme.palette.grey[600],
-    fontSize: "0.8em",
-    marginBottom: 8,
   },
   icon: {
     width: 12,
@@ -54,69 +56,6 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const JargonTooltip = ({definitionHTML, approved, altTerms, humansAndOrAIEdited, isFirstOccurrence = false, placement="top-start", children, classes, tooltipClassName, tooltipTitleClassName, forceTooltip=false}: {
-  definitionHTML: string,
-  approved: boolean,
-  altTerms: string[],
-  humansAndOrAIEdited: JargonTermsDefaultFragment['humansAndOrAIEdited'],
-  isFirstOccurrence?: boolean,
-  placement?: PopperPlacementType
-  children: React.ReactNode,
-  classes: ClassesType<typeof styles>,
-  tooltipClassName?: string,
-  tooltipTitleClassName?: string,
-  forceTooltip?: boolean,
-}) => {
-  const { LWTooltip, ContentItemBody, ForumIcon } = Components;
-
-  const { postGlossariesPinned } = useGlossaryPinnedState();
-
-  let humansAndOrAIEditedText = 'AI Generated'
-  let icons = <ForumIcon icon="Sparkles" className={classes.icon}/>;
-  if (humansAndOrAIEdited === 'humans') {
-    humansAndOrAIEditedText = 'Edited by Human';
-    icons = <ForumIcon icon="Pencil" className={classes.icon}/>;
-  } else if (humansAndOrAIEdited === 'humansAndAI') {
-    humansAndOrAIEditedText = 'Edited by AI and Human';
-    icons = <>
-      <ForumIcon icon="Sparkles" className={classes.icon}/>
-      <ForumIcon icon="Pencil" className={classes.icon}/>
-    </>;
-  }
-
-  const tooltip = <Card className={classes.card}>
-    <ContentItemBody
-      dangerouslySetInnerHTML={{ __html: definitionHTML }}
-    />
-    <div className={classes.metadata}>
-      {humansAndOrAIEditedText && <div><span className={classes.altTerm}>
-        {icons}{humansAndOrAIEditedText}
-      </span></div>}
-
-      {!approved && <div className={classes.unapprovedLabel}>Unapproved [admin only]</div>}
-    </div>
-  </Card>
-
-  // Check the glossary pinned state is a bit of a hack to allow the tooltip to show up on every occurrence of a jargon term
-  // when the glossary is pinned, until we fix substring replacement in general.
-  if (!isFirstOccurrence && !postGlossariesPinned && !forceTooltip) {
-    return <>{children}</>;
-  }
-
-  return <LWTooltip
-    title={tooltip}
-    tooltip={false}
-    // We don't want text in the post to reflow when jargon terms are highlighted
-    inlineBlock={false}
-    placement={placement}
-    className={tooltipClassName}
-    titleClassName={tooltipTitleClassName}
-  >
-    <span className={classes.jargonWord}>
-      {children}
-    </span>
-  </LWTooltip>;
-}
 
 function convertGlossaryItemToTextReplacement(glossaryItem: JargonTermsPost): ContentReplacedSubstringComponentInfo {
   // Create an array of all terms (original + alternates) to search for
@@ -146,6 +85,80 @@ function convertGlossaryItemToTextReplacement(glossaryItem: JargonTermsPost): Co
 
 export function jargonTermsToTextReplacements(terms: JargonTermsPost[]): ContentReplacedSubstringComponentInfo[] {
   return terms.map(convertGlossaryItemToTextReplacement);
+}
+
+export const JargonTooltip = ({definitionHTML, approved, altTerms, humansAndOrAIEdited, isFirstOccurrence = false, placement="top-start", children, classes, tooltipClassName, tooltipTitleClassName, forceTooltip=false, replacedSubstrings}: {
+  definitionHTML: string,
+  approved: boolean,
+  altTerms: string[],
+  humansAndOrAIEdited: JargonTermsDefaultFragment['humansAndOrAIEdited'],
+  isFirstOccurrence?: boolean,
+  placement?: PopperPlacementType
+  children: React.ReactNode,
+  classes: ClassesType<typeof styles>,
+  tooltipClassName?: string,
+  tooltipTitleClassName?: string,
+  forceTooltip?: boolean,
+  replacedSubstrings?: ContentReplacedSubstringComponentInfo[],
+}) => {
+  const { LWTooltip, ContentItemBody, ForumIcon, LWClickAwayListener } = Components;
+
+  const [open, setOpen] = useState(false);
+
+  const { postGlossariesPinned } = useGlossaryPinnedState();
+
+  let humansAndOrAIEditedText = 'AI Generated'
+  let icons = <ForumIcon icon="Sparkles" className={classes.icon}/>;
+  if (humansAndOrAIEdited === 'humans') {
+    humansAndOrAIEditedText = 'Edited by Human';
+    icons = <ForumIcon icon="Pencil" className={classes.icon}/>;
+  } else if (humansAndOrAIEdited === 'humansAndAI') {
+    humansAndOrAIEditedText = 'Edited by AI and Human';
+    icons = <>
+      <ForumIcon icon="Sparkles" className={classes.icon}/>
+      <ForumIcon icon="Pencil" className={classes.icon}/>
+    </>;
+  }
+
+  const truncatedDefinitionHTML = open ? definitionHTML : truncatise(definitionHTML, {TruncateBy:"paragraphs", TruncateLength:1, Suffix:'<span class="jargon-tooltip-expand">(click to expand)</span>'});
+
+
+  const tooltip = <Card className={classes.card}>
+    <ContentItemBody
+      dangerouslySetInnerHTML={{ __html: truncatedDefinitionHTML }}
+      replacedSubstrings={replacedSubstrings}
+    />
+    <div className={classes.metadata}>
+      {humansAndOrAIEditedText && <div><span className={classes.metadataItem}>
+        {icons}{humansAndOrAIEditedText}
+      </span></div>}
+
+      {!approved && <div>Unapproved</div>}
+    </div>
+  </Card>
+
+  // Check the glossary pinned state is a bit of a hack to allow the tooltip to show up on every occurrence of a jargon term
+  // when the glossary is pinned, until we fix substring replacement in general.
+  if (!isFirstOccurrence && !postGlossariesPinned && !forceTooltip) {
+    return <>{children}</>;
+  }
+
+  return <LWTooltip
+    title={tooltip}
+    tooltip={false}
+    // We don't want text in the post to reflow when jargon terms are highlighted
+    inlineBlock={false}
+    placement={placement}
+    className={tooltipClassName}
+    titleClassName={tooltipTitleClassName}
+    forceOpen={open}
+  >
+    <LWClickAwayListener onClickAway={() => setOpen(false)}>
+      <span className={classes.jargonWord} onClick={() => setOpen(!open)}>
+        {children}
+      </span>
+    </LWClickAwayListener>
+  </LWTooltip>;
 }
 
 const JargonTooltipComponent = registerComponent('JargonTooltip', JargonTooltip, {styles});

@@ -120,7 +120,7 @@ const styles = (theme: ThemeType) => ({
   },
   explanationContainer: {
     cursor: 'text',
-    paddingBottom: 4
+    paddingBottom: 2
   },
   checkbox: {
     width: 24,
@@ -140,7 +140,7 @@ const styles = (theme: ThemeType) => ({
   },
   definition: {
     lineHeight: 1.6,
-    height: '1.6rem',
+    height: '1.8rem',
     overflow: 'hidden',
     minWidth: 100,
     paddingRight: 8,

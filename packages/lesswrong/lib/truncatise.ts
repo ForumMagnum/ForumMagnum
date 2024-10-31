@@ -157,10 +157,16 @@ export const truncatise = function(text: string, {TruncateBy="words", TruncateLe
         truncatedText += "</"+tag+">";
       }
     }
-
+    if (text.includes("bridge") && text.length < 1000) {
+      console.log({text, truncatedText, pointer, Suffix});
+    }
     if(pointer < text.length-1) {
       if(truncatedText.endsWith("</p>") || truncatedText.endsWith("</P>")) {
         return truncatedText.substring(0, truncatedText.length - 4) + Suffix + "</p>";
+      } else if (truncatedText.endsWith("</p></div>")) {
+        return truncatedText.substring(0, truncatedText.length - 10) + Suffix + "</p></div>";
+      } else if (truncatedText.endsWith("</div>")) {
+        return truncatedText.substring(0, truncatedText.length - 6) + Suffix + "</div>";
       } else {
         return truncatedText + Suffix;
       }
