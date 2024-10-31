@@ -1,8 +1,9 @@
-import { isServer, isDevelopment, isAnyTest, getInstanceSettings, getAbsoluteUrl, isE2E } from './executionEnvironment';
+import { isServer, isDevelopment, isAnyTest, getAbsoluteUrl, isE2E } from './executionEnvironment';
 import { pluralize } from './vulcan-lib/pluralize';
 import startCase from 'lodash/startCase' // AKA: capitalize, titleCase
 import { TupleSet, UnionOf } from './utils/typeGuardUtils';
 import {initializeSetting} from './settingsCache'
+import { getInstanceSettings } from './getInstanceSettings';
 
 const getNestedProperty = function (obj: AnyBecauseTodo, desc: AnyBecauseTodo) {
   var arr = desc.split('.');

@@ -21,32 +21,6 @@ export const isAnyTest = bundleIsTest
 export const isE2E = bundleIsE2E
 export const isPackageTest = bundleIsTest
 
-export interface CommandLineArguments {
-  postgresUrl: string
-  postgresReadUrl: string
-  settingsFileName: string
-  shellMode: boolean,
-  command?: string,
-}
-
-let instanceSettings: any = null;
-export const getInstanceSettings = (args?: CommandLineArguments): any => {
-  if (!instanceSettings) {
-    if (bundleIsServer) {
-      // eslint-disable-next-line import/no-restricted-paths
-      const { loadInstanceSettings } = require('../server/commandLine.ts');
-      instanceSettings = loadInstanceSettings(args);
-    } else {
-      instanceSettings = {
-        public: window.publicInstanceSettings,
-      };
-    }
-  }
-  return instanceSettings;
-}
-export const setInstanceSettings = (settings: any) => {
-  instanceSettings = settings;
-}
 
 export const getAbsoluteUrl = (): string => {
   if (defaultSiteAbsoluteUrl?.length>0) {
