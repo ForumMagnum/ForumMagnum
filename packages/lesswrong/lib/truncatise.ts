@@ -157,9 +157,6 @@ export const truncatise = function(text: string, {TruncateBy="words", TruncateLe
         truncatedText += "</"+tag+">";
       }
     }
-    if (text.includes("bridge") && text.length < 1000) {
-      console.log({text, truncatedText, pointer, Suffix});
-    }
     if(pointer < text.length-1) {
       if(truncatedText.endsWith("</p>") || truncatedText.endsWith("</P>")) {
         return truncatedText.substring(0, truncatedText.length - 4) + Suffix + "</p>";

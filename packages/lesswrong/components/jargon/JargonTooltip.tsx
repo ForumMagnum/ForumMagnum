@@ -87,7 +87,7 @@ export function jargonTermsToTextReplacements(terms: JargonTermsPost[]): Content
   return terms.map(convertGlossaryItemToTextReplacement);
 }
 
-export const JargonTooltip = ({definitionHTML, approved, altTerms, humansAndOrAIEdited, isFirstOccurrence = false, placement="top-start", children, classes, tooltipClassName, tooltipTitleClassName, forceTooltip=false, replacedSubstrings}: {
+export const JargonTooltip = ({definitionHTML, approved, forceOpen, humansAndOrAIEdited, isFirstOccurrence = false, placement="top-start", children, classes, tooltipClassName, tooltipTitleClassName, forceTooltip=false, replacedSubstrings}: {
   definitionHTML: string,
   approved: boolean,
   altTerms: string[],
@@ -99,11 +99,12 @@ export const JargonTooltip = ({definitionHTML, approved, altTerms, humansAndOrAI
   tooltipClassName?: string,
   tooltipTitleClassName?: string,
   forceTooltip?: boolean,
+  forceOpen?: boolean,
   replacedSubstrings?: ContentReplacedSubstringComponentInfo[],
 }) => {
   const { LWTooltip, ContentItemBody, ForumIcon, LWClickAwayListener } = Components;
 
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(forceOpen);
 
   const { postGlossariesPinned } = useGlossaryPinnedState();
 
