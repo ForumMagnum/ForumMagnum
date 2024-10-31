@@ -1,7 +1,7 @@
 import * as esbuild from 'esbuild';
 import process from 'process';
-import { getDatabaseConfig, startSshTunnel, getOutputDir, setOutputDir } from "./scripts/startup/buildUtil";
-import { setClientRebuildInProgress, setServerRebuildInProgress, generateBuildId, startAutoRefreshServer, initiateRefresh, startLint } from "./scripts/startup/autoRefreshServer";
+import { getDatabaseConfig, startSshTunnel, getOutputDir, setOutputDir, logWithTimestamp } from "./scripts/startup/buildUtil";
+import { setClientRebuildInProgress, setServerRebuildInProgress, generateBuildId, startAutoRefreshServer, initiateRefresh, lintAndCheckTypes } from "./scripts/startup/autoRefreshServer";
 import { spawn, ChildProcess } from 'child_process';
 import fs from 'fs';
 
@@ -13,6 +13,7 @@ import fs from 'fs';
 process.on("SIGQUIT", () => process.exit(0));
 
 export type CommandLineOptions = {
+  action: "build"|"watch"|"command"
   production: boolean
   e2e: boolean
   settings: string|null
@@ -22,10 +23,9 @@ export type CommandLineOptions = {
   shell: boolean
   command: string|null
   lint: boolean
-  watch: boolean
-  run: boolean
 }
 const defaultCommandLineOptions: CommandLineOptions = {
+  action: "build",
   production: false,
   e2e: false,
   settings: null,
@@ -35,8 +35,6 @@ const defaultCommandLineOptions: CommandLineOptions = {
   shell: false,
   command: null,
   lint: false,
-  watch: false,
-  run: true,
 }
 const helpText = (argv0: string) => `usage: yarn ts-node build-esbuild.ts [options]`
 
@@ -73,13 +71,18 @@ function parseCommandLine(argv: string[]): [CommandLineOptions,string[]] {
           result.shell = true;
           break;
         case "command":
+          result.action = "command";
           result.command = argv[++i];
           break;
         case "lint":
           result.lint = true;
           break;
+        case "build":
+          result.action = "build";
+          break;
         case "watch":
-          result.watch = true;
+        case "run":
+          result.action = "watch"
           break;
         // Ignored arguments for Estrella back-compat
         case "quiet":
@@ -91,8 +94,6 @@ function parseCommandLine(argv: string[]): [CommandLineOptions,string[]] {
         case "no-diag":
         case "color":
         case "diag":
-        case "run":
-        case "build":
           break;
       }
     } else {
@@ -249,13 +250,6 @@ class RunningServer {
   }
 }
 
-function logWithTimestamp(...args: any[]) {
-  const colorBlue = "\x1b[34m";
-  const colorNormal = "\x1b[0m";
-  const timestampStr = colorBlue + new Date().toISOString() + colorNormal;
-  console.log(timestampStr, ...args);
-}
-
 async function main() {
   const clientOutfilePath = `${getOutputDir()}/client/js/bundle.js`;
   const clientContext = await esbuild.context({
@@ -278,7 +272,7 @@ async function main() {
           setClientRebuildInProgress(true);
           inProgressBuildId = generateBuildId();
           if (opts.lint) {
-            startLint();
+            lintAndCheckTypes();
           }
         });
         build.onEnd((result) => {
@@ -288,7 +282,7 @@ async function main() {
             console.log("Skipping browser refresh notification because there were build errors");
           } else {
             latestCompletedBuildId = inProgressBuildId;
-            if (opts.watch) {
+            if (opts.action === "watch") {
               initiateRefresh({serverPort});
             }
       
@@ -339,14 +333,14 @@ async function main() {
           logWithTimestamp("Server build started");
           setServerRebuildInProgress(true);
           if (opts.lint) {
-            startLint();
+            lintAndCheckTypes();
           }
         });
         build.onEnd((result) => {
           logWithTimestamp("Server build finished");
           setServerRebuildInProgress(false);
-          serverProcess.startOrRestart();
-          if (opts.watch) {
+          if (opts.action === "watch") {
+            serverProcess.startOrRestart();
             initiateRefresh({serverPort});
           }
         });
@@ -372,12 +366,20 @@ async function main() {
     ],
   })
   
-  if (opts.watch && opts.run && !isProduction && !process.env.CI) {
+  if (opts.action === "watch" && !isProduction && !process.env.CI) {
     startAutoRefreshServer({serverPort, websocketPort});
   }
   
-  serverContext.watch();
-  clientContext.watch();
+  if (opts.action === "watch") {
+    serverContext.watch();
+    clientContext.watch();
+  } else {
+    await Promise.all([
+      serverContext.rebuild(),
+      clientContext.rebuild()
+    ]);
+    process.exit(0);
+  }
 }
 
 main();

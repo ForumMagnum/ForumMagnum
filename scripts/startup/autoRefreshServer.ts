@@ -2,9 +2,10 @@
 import WebSocket from 'ws';
 import crypto from 'crypto';
 import fs from 'fs';
-import { getOutputDir } from './buildUtil';
+import { getOutputDir, logWithTimestamp } from './buildUtil';
 import childProcess from 'child_process';
 import { promisify } from 'util';
+import debounce from 'lodash/debounce';
 
 const openWebsocketConnections: WebSocket[] = [];
 let clientRebuildInProgress = false;
@@ -116,22 +117,82 @@ export function startAutoRefreshServer({serverPort, websocketPort}: {
   });
 }
 
-const asyncExec = promisify(childProcess.exec);
 let eslintIsRunning = false;
+let tscIsRunning = false;
+let eslintRestartRequested = false;
+let tscRestartRequested = false;
 
-export async function startLint() {
-  if (eslintIsRunning) {
-    return;
+/**
+ * Start eslint and tsc to get type errors and warnings. We only want to run
+ * one instance of each tool concurrently, but need to ensure that we
+ * eventually run on a version that reflects the latest code changes; so, if
+ * this is called and tsc or eslint is already running, we should note this fact so that
+ * when it finishes we start running it again.
+ */
+async function _lintAndCheckTypes() {
+  if (!eslintIsRunning) {
+    runEslint();
+  } else {
+    eslintRestartRequested = true;
   }
 
+  if (!tscIsRunning) {
+    runTsc();
+  } else {
+    tscRestartRequested = true;
+  }
+}
+
+/*
+ * Debounce lintAndCheckTypes with a 2s delay. This has two functions: first,
+ * it ensures that if a change causes the client and server bundles to both
+ * rebuild, we only have to run tsc/esbuild once; and second, it prevents
+ * tsc/eslint from starting up while esbuild is doing its extremely-parallel
+ * compilation step and soaking up all available CPU.
+ */
+export const lintAndCheckTypes = debounce(_lintAndCheckTypes, 2000);
+
+function runEslint() {
   eslintIsRunning = true;
 
   try {
     const eslintProcess = childProcess.spawn('yarn', ['--silent', 'eslint'], { stdio: 'inherit' });
     eslintProcess.on('close', () => {
       eslintIsRunning = false;
+      if (eslintRestartRequested) {
+        eslintRestartRequested = false;
+        logWithTimestamp("Rerunning eslint (code changed while eslint was running)");
+        runEslint();
+      } else {
+        logWithTimestamp("Finished eslint");
+      }
     });
   } catch(err) {
     console.error('Lint failed: ', err);
+    eslintIsRunning = false;
   }
 }
+
+function runTsc() {
+  tscIsRunning = true;
+
+  try {
+    const tscProcess = childProcess.spawn('yarn', ['--silent', 'tsc'], { stdio: 'inherit' });
+    tscProcess.on('close', () => {
+      tscIsRunning = false;
+      if (tscRestartRequested) {
+        tscRestartRequested = false;
+        logWithTimestamp("Rerunning tsc (code changed while tsc was running)");
+        runTsc();
+      } else {
+        logWithTimestamp("Finished typechecking");
+      }
+    });
+  } catch(err) {
+    console.error('Type checking failed: ', err);
+    tscIsRunning = false;
+  }
+}
+
+
+
