@@ -86,7 +86,7 @@ export const createTestingSqlClientFromTemplate = async (template: string): Prom
       retry = false;
       await sql.any('CREATE DATABASE "$1:value" TEMPLATE $2', [dbName, template]);
     } catch(e) {
-      if (retryCount++ < 3 && e.message.test(/source database .* is being accessed by other users/)) {
+      if (retryCount++ < 3 && /source database .* is being accessed by other users/.test(e.message)) {
         await sleep(1000);
         retry = true;
       }
