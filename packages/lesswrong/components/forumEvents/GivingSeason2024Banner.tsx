@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { Link } from "@/lib/reactRouterWrapper";
 import { formatStat } from "../users/EAUserTooltipContent";
@@ -276,6 +276,7 @@ const GivingSeason2024Banner = ({classes}: {
   const [timelineRef, setTimelineRef] = useState<HTMLDivElement | null>(null);
   const [detailsRef, setDetailsRef] = useState<HTMLDivElement | null>(null);
   const [lastTimelineClick, setLastTimelineClick] = useState<number>();
+  const didInitialScroll = useRef(false);
 
   const fundPercent = Math.round((amountRaised / amountTarget) * 100);
 
@@ -306,21 +307,32 @@ const GivingSeason2024Banner = ({classes}: {
       return;
     }
     const id = events.findIndex((event) => event === selectedEvent);
-    timelineRef?.querySelector(`[data-event-id="${id}"]`)?.scrollIntoView({
-      behavior: "smooth",
-      block: "nearest",
-      inline: "nearest",
-    });
+    setTimeout(() => {
+      timelineRef?.querySelector(`[data-event-id="${id}"]`)?.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+        inline: "nearest",
+      });
+    }, 0);
   }, [timelineRef, selectedEvent, lastTimelineClick, events]);
 
   const onClickTimeline = useCallback((index: number) => {
     setLastTimelineClick(Date.now());
-    detailsRef?.querySelector(`[data-event-id="${index}"]`)?.scrollIntoView({
-      behavior: "smooth",
-      block: "nearest",
-      inline: "start",
-    });
+    setTimeout(() => {
+      detailsRef?.querySelector(`[data-event-id="${index}"]`)?.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+        inline: "start",
+      });
+    }, 0);
   }, [detailsRef]);
+
+  useEffect(() => {
+    if (currentEvent && detailsRef && !didInitialScroll.current) {
+      didInitialScroll.current = true;
+      onClickTimeline(events.findIndex(({name}) => name === currentEvent.name));
+    }
+  }, [currentEvent, detailsRef]);
 
   const {EAButton} = Components;
   return (
