@@ -859,7 +859,6 @@ const schema: SchemaType<"Posts"> = {
         return [];
       }
 
-      // const approvedClause = userCanViewUnapprovedJargonTerms(context.currentUser) ? {} : { approved: true };
       const jargonTerms = await context.JargonTerms.find({ postId: post._id }, { sort: { term: 1 }}).fetch();
 
       return await accessFilterMultiple(context.currentUser, context.JargonTerms, jargonTerms, context);

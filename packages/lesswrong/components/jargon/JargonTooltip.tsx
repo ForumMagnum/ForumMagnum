@@ -17,12 +17,7 @@ const styles = (theme: ThemeType) => ({
     ...commentBodyStyles(theme),
     color: theme.palette.grey[700],
     marginTop: 0,
-    marginBottom: 0,
-    '& .jargon-tooltip-expand': {
-      marginLeft: 6,
-      color: theme.palette.grey[400],
-      fontSize: "0.8em",
-    },
+    marginBottom: 0
   },
   jargonWord: {
     cursor: 'default',
@@ -88,7 +83,7 @@ export function jargonTermsToTextReplacements(terms: JargonTermsPost[]): Content
   return terms.map(convertGlossaryItemToTextReplacement);
 }
 
-export const JargonTooltip = ({definitionHTML, approved, deleted, forceExpand, humansAndOrAIEdited, isFirstOccurrence = false, placement="right-start", children, classes, tooltipClassName, tooltipTitleClassName, forceTooltip=false, replacedSubstrings}: {
+export const JargonTooltip = ({definitionHTML, approved, deleted, humansAndOrAIEdited, isFirstOccurrence = false, placement="right-start", children, classes, tooltipClassName, tooltipTitleClassName, forceTooltip=false, replacedSubstrings}: {
   definitionHTML: string,
   approved: boolean,
   deleted: boolean,
@@ -101,7 +96,6 @@ export const JargonTooltip = ({definitionHTML, approved, deleted, forceExpand, h
   tooltipClassName?: string,
   tooltipTitleClassName?: string,
   forceTooltip?: boolean,
-  forceExpand?: boolean,
   replacedSubstrings?: ContentReplacedSubstringComponentInfo[],
 }) => {
   const { LWTooltip, ContentItemBody, ForumIcon, LWClickAwayListener } = Components;
@@ -122,9 +116,6 @@ export const JargonTooltip = ({definitionHTML, approved, deleted, forceExpand, h
       <ForumIcon icon="Pencil" className={classes.icon}/>
     </>;
   }
-
-  // TODO: Re-enable truncation once we've gotten better second-paragraphs. (or, if we don't get around to it, eventually just delete)
-  // const truncatedDefinitionHTML = (open || forceExpand) ? definitionHTML : truncatise(definitionHTML, {TruncateBy:"paragraphs", TruncateLength:1, Suffix:'<span class="jargon-tooltip-expand">(click to expand)</span>'});
 
   const tooltip = <Card className={classes.card}>
     <ContentItemBody

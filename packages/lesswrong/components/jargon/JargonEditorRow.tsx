@@ -261,7 +261,6 @@ export const JargonEditorRow = ({classes, jargonTerm, instancesOfJargonCount, se
           approved={jargonTerm.approved}
           deleted={jargonTerm.deleted}
           forceTooltip={true}
-          forceExpand={true}
         >
           <div className={classNames(classes.explanationContainer, !jargonTerm.approved && classes.unapproved)} onClick={() => {
             setShowMoreTerms(true);
