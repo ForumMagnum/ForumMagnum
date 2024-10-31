@@ -3324,6 +3324,7 @@ CREATE TABLE "Users" (
   "hideSunshineSidebar" BOOL NOT NULL DEFAULT FALSE,
   "inactiveSurveyEmailSentAt" TIMESTAMPTZ,
   "userSurveyEmailSentAt" TIMESTAMPTZ,
+  "givingSeason2024DonatedFlair" BOOL NOT NULL DEFAULT FALSE,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB,

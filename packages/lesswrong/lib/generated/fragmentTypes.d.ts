@@ -440,6 +440,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly hideSunshineSidebar: boolean,
   readonly inactiveSurveyEmailSentAt: Date | null,
   readonly userSurveyEmailSentAt: Date | null,
+  readonly givingSeason2024DonatedFlair: boolean,
 }
 
 interface CommentsDefaultFragment { // fragment on Comments
@@ -2998,6 +2999,7 @@ interface UsersMinimumInfo { // fragment on Users
   readonly spamRiskScore: number,
   readonly tagRevisionCount: number,
   readonly reviewedByUserId: string,
+  readonly givingSeason2024DonatedFlair: boolean,
 }
 
 interface UsersProfile extends UsersMinimumInfo, SharedUserBooleans { // fragment on Users
