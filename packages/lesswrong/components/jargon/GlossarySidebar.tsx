@@ -126,6 +126,9 @@ const styles = (theme: ThemeType) => ({
   showAllTermsButton: {
     marginTop: 10,
     cursor: 'pointer',
+    fontSize: '1rem',
+    ...theme.typography.commentStyle,
+    color: theme.palette.grey[400],
   },
   showAllTermsTooltipPopper: {
     maxWidth: 200,
@@ -231,7 +234,7 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, showAllTerms, s
     </div>);
   }) : null;
 
-  const showAllTermsTooltip = <div><div>{`Click to ${showAllTerms ? 'hide' : 'show'} hidden AI slop that the author doesn't necessarily endorse.`}</div><div><em>(Opt/Alt + Shift + G)</em></div></div>;
+  const showAllTermsTooltip = <div><div>{`Click to ${showAllTerms ? 'hide' : 'show'} hidden AI slop the author doesn't necessarily endorse.`}</div><div><em>(Opt/Alt + Shift + G)</em></div></div>;
   const showAllTermsButton = <LWTooltip
     title={showAllTermsTooltip}
     inlineBlock={false}

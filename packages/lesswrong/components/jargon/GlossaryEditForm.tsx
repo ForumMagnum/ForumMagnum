@@ -397,7 +397,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
       <LWTooltip title={<div><p>Hide all terms that aren't currently enabled</p><p>(you can unhide them later)</p></div>}>
         <div className={classNames(classes.headerButton, sortedUnapprovedTerms.length === 0 && classes.disabled)} onClick={handleDeleteUnused}>HIDE DISABLED TERMS</div>
       </LWTooltip>
-      <LWTooltip title="Unhide all deleted terms">
+      <LWTooltip title="Unhide all hidden terms">
         <div className={classNames(classes.headerButton, deletedTerms.length === 0 && classes.disabled)} onClick={handleUnhideAll}>
           UNHIDE ALL{ deletedTerms.length > 0 ? ` (${deletedTerms.length})` : '' }
         </div>
@@ -454,7 +454,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
           />;
         })}
         {deletedTerms.length > 0 && <div className={classes.button} onClick={() => setShowDeletedTerms(!showDeletedTerms)}>
-          <LWTooltip title="Hidden terms are hidden from readers unless they explicitly opt into 'Show me hidden AI slop that the author doesn't necessarily endorse'">
+          <LWTooltip title="Hidden terms are hidden from readers unless they explicitly opt into 'Show me hidden AI slop the author doesn't necessarily endorse'">
             {showDeletedTerms ? 
               <span>Hide hidden terms</span>
             : 
