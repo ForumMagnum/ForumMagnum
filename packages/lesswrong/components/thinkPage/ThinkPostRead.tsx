@@ -5,10 +5,14 @@ import { useTracking } from "../../lib/analyticsEvents";
 import { ThinkWrapper } from './ThinkWrapper';
 import { useLocation } from '@/lib/routeUtil';
 import { useSingle } from '@/lib/crud/withSingle';
+import { CENTRAL_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
 
 const styles = (theme: ThemeType) => ({
-  root: {
-
+  title: {
+    marginBottom: theme.spacing.unit * 4
+  },
+  postBody: {
+    maxWidth: CENTRAL_COLUMN_WIDTH
   }
 });
 
@@ -16,7 +20,7 @@ export const ThinkPostRead = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
-  const { PostBody, PostsPageTitle, ThinkWrapper } = Components;
+  const { PostsPageTitle, ThinkWrapper, ContentStyles, ContentItemBody } = Components;
 
   const { params: {postId} } = useLocation();
 
@@ -24,13 +28,20 @@ export const ThinkPostRead = ({classes}: {
     documentId: postId,
     collectionName: "Posts",
     fragmentName: "PostsWithNavigation",
+    
   });
 
   if (!post || loading) return null;
 
   return <ThinkWrapper>
-    <PostsPageTitle post={post} />
-    <PostBody post={post} />
+    <div className={classes.title}>
+      <PostsPageTitle post={post} />
+    </div>
+    <div className={classes.postBody}>
+      <ContentStyles contentType={"post"}>
+        <ContentItemBody dangerouslySetInnerHTML={{__html: post.contents?.html ?? ""}} />
+      </ContentStyles>
+    </div>
   </ThinkWrapper>
 }
 

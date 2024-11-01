@@ -99,7 +99,6 @@ export const ThinkWrapper = ({classes, children}: {
     <div className={classes.formContainer}>
       {children}
     </div>
-    <ThinkChat />
   </div>;
 }
 
