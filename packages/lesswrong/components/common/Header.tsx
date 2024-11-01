@@ -283,7 +283,7 @@ export const styles = (theme: ThemeType) => ({
   },
   gsBanner: {
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 600,
     lineHeight: "150%",
     letterSpacing: "1.12px",

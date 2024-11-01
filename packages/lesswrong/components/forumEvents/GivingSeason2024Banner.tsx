@@ -116,6 +116,9 @@ const styles = (theme: ThemeType) => ({
     // Use `after` to overlay the same text but with the higher font weight as
     // if it's selected, even if it's not. This means that the size of each
     // title won't change when they switch between active/inactive.
+    "&:hover": {
+      opacity: 1,
+    },
     "&:after": {
       display: "block",
       content: "attr(data-title)",
@@ -182,7 +185,7 @@ const styles = (theme: ThemeType) => ({
   eventName: {
     maxWidth: 640,
     fontSize: 40,
-    fontWeight: 600,
+    fontWeight: 700,
     marginBottom: 12,
     whiteSpace: "wrap",
   },
@@ -392,9 +395,6 @@ const GivingSeason2024Banner = ({classes}: {
             ))}
           </div>
           <div className={classes.fund}>
-            <div className={classes.fundTitle}>
-              Donation Election Fund
-            </div>
             <div className={classes.fundInfo}>
               Donate to the fund to boost the value of the Election.{" "}
               <Link to="/posts/srZEX2r9upbwfnRKw/giving-season-2024-announcement#November_18___December_3__Donation_Election">
