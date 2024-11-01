@@ -35,16 +35,20 @@ const textColorOverrideStyles = ({
   color,
   contrastColor,
   loginButtonBackgroundColor,
+  loginButtonHoverBackgroundColor,
   loginButtonColor,
   signupButtonBackgroundColor,
+  signupButtonHoverBackgroundColor,
   signupButtonColor,
 }: {
   theme: ThemeType,
   color: string,
   contrastColor?: string,
   loginButtonBackgroundColor?: string,
+  loginButtonHoverBackgroundColor?: string,
   loginButtonColor?: string,
   signupButtonBackgroundColor?: string,
+  signupButtonHoverBackgroundColor?: string,
   signupButtonColor?: string,
 }) => ({
   color,
@@ -86,14 +90,14 @@ const textColorOverrideStyles = ({
     backgroundColor: signupButtonBackgroundColor ?? color,
     color: signupButtonColor ?? contrastColor,
     "&:hover": {
-      backgroundColor: `color-mix(in oklab, ${signupButtonBackgroundColor ?? color} 90%, ${signupButtonColor ?? contrastColor})`,
+      backgroundColor: signupButtonHoverBackgroundColor ?? `color-mix(in oklab, ${signupButtonBackgroundColor ?? color} 90%, ${signupButtonColor ?? contrastColor})`,
     },
   },
   "& .EAButton-greyContained": {
     backgroundColor: loginButtonBackgroundColor ?? `color-mix(in oklab, ${loginButtonColor ?? color} 15%, ${contrastColor})`,
     color: loginButtonColor ?? color,
     "&:hover": {
-      backgroundColor: `color-mix(in oklab, ${loginButtonColor ?? color} 10%, ${theme.palette.background.transparent}) !important`,
+      backgroundColor: loginButtonHoverBackgroundColor ?? `color-mix(in oklab, ${loginButtonColor ?? color} 10%, ${theme.palette.background.transparent}) !important`,
     },
   },
 });
@@ -133,6 +137,7 @@ export const styles = (theme: ThemeType) => ({
       signupButtonColor: theme.palette.text.alwaysWhite,
       loginButtonBackgroundColor: theme.palette.givingSeason.electionFundBackground,
       loginButtonColor: theme.palette.text.alwaysWhite,
+      loginButtonHoverBackgroundColor: `color-mix(in oklab, ${theme.palette.givingSeason.electionFundBackground} 90%, ${theme.palette.text.alwaysWhite})`,
     }),
   },
   root: {
