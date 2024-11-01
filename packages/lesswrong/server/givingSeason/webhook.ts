@@ -1,7 +1,20 @@
 import { Express, json } from "express";
+import { Globals } from "@/lib/vulcan-lib";
 import { captureEvent } from "@/lib/analyticsEvents";
 import { DatabaseMetadataRepo } from "@/server/repos";
 import { getExchangeRate } from "./currencies";
+
+Globals.addToGivingSeasonTotal = async (usdAmount: number) => {
+  if (Number.isFinite(usdAmount) && usdAmount > 0) {
+    await new DatabaseMetadataRepo().addGivingSeason2024Donation(usdAmount);
+  }
+}
+
+Globals.setGivingSeasonTotal = async (usdAmount: number) => {
+  if (Number.isFinite(usdAmount) && usdAmount > 0) {
+    await new DatabaseMetadataRepo().setGivingSeason2024DonationTotal(usdAmount);
+  }
+}
 
 // See https://docs.every.org/docs/webhooks/
 type WebhookPayload = {
@@ -40,7 +53,7 @@ export const addGivingSeasonEndpoints = (app: Express) => {
     const exchangeRate = await getExchangeRate(currency);
     const usdAmount = parsedAmount * exchangeRate;
     if (Number.isFinite(usdAmount) && usdAmount > 0) {
-      await new DatabaseMetadataRepo().addGivingSeason2024Donation(usdAmount);
+      await Globals.addToGivingSeasonTotal(usdAmount);
     }
     captureEvent("givingSeason2024Donation", {
       payload: payload as Json,
