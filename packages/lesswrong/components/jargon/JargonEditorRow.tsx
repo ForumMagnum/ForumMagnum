@@ -254,6 +254,7 @@ export const JargonEditorRow = ({classes, jargonTerm, instancesOfJargonCount, se
           />
         </div>
       :  <JargonTooltip
+          term={jargonTerm.term}
           definitionHTML={jargonDefinition}
           altTerms={jargonTerm.altTerms ?? []}
           humansAndOrAIEdited={jargonTerm.humansAndOrAIEdited}

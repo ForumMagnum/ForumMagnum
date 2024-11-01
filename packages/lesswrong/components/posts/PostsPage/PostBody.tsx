@@ -11,10 +11,12 @@ import { VotingProps } from '@/components/votes/votingProps';
 import { jargonTermsToTextReplacements } from '@/components/jargon/JargonTooltip';
 import { useGlossaryPinnedState } from '@/components/hooks/useUpdateGlossaryPinnedState';
 import { useGlobalKeydown } from '@/components/common/withGlobalKeydown';
+import { useTracking } from '@/lib/analyticsEvents';
 
 const enableInlineReactsOnPosts = inlineReactsHoverEnabled;
 
 function useDisplayGlossary(post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes) {
+  const { captureEvent } = useTracking();
   const [showAllTerms, setShowAllTerms] = useState(false);
 
   const postHasGlossary = 'glossary' in post;
@@ -25,15 +27,17 @@ function useDisplayGlossary(post: PostsWithNavigation|PostsWithNavigationAndRevi
       e.preventDefault();
       if (postHasGlossary) {
         setShowAllTerms(!showAllTerms);
+        captureEvent('toggleShowAllTerms', { newValue: !showAllTerms, source: 'hotkey' });
       }
     }
   });
 
-  const wrappedSetShowAllTerms = useCallback((e: React.MouseEvent, showAllTerms: boolean) => {
+  const wrappedSetShowAllTerms = useCallback((e: React.MouseEvent, showAllTerms: boolean, source: string) => {
     e.preventDefault();
     e.stopPropagation();
     setShowAllTerms(showAllTerms);
-  }, [setShowAllTerms]);
+    captureEvent('toggleShowAllTerms', { newValue: showAllTerms, source });
+  }, [setShowAllTerms, captureEvent]);
 
   if (!postHasGlossary) {
     return { displayTermCount: 0, showAllTerms: false, setShowAllTerms: () => {}, termsToHighlight: [] };
