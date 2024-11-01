@@ -78,8 +78,8 @@ export const addGivingSeasonEndpoints = (app: Express) => {
     const isVerified = hasVerifiedBearer(req);
 
     const payload = req.body as WebhookPayload;
-    const {amount = "0", currency = "USD"} = payload;
-    const parsedAmount = parseFloat(amount);
+    const {netAmount, amount, currency = "USD"} = payload;
+    const parsedAmount = parseFloat(netAmount ?? amount ?? "0");
     const exchangeRate = await getExchangeRate(currency);
     const usdAmount = parsedAmount * exchangeRate;
 
