@@ -698,7 +698,7 @@ async function createNewJargonTermsCallback(post: DbPost, callbackProperties: Cr
   if (!currentUser) return post;
   if (currentUser._id !== post.userId) return post;
   if (!post.contents_latest) return post;
-  if (!post.generateDraftJargon && post.draft) return post;
+  if (post.draft && !post.generateDraftJargon) return post;
   if (!post.draft && !currentUser.generateJargonForPublishedPosts) return post;
 
   if (!userCanPassivelyGenerateJargonTerms(currentUser)) return post;
