@@ -3074,7 +3074,7 @@ const schema: SchemaType<"Posts"> = {
     group: formGroups.adminOptions,
     ...schemaDefaultValue(false),
   },
-  generateJargon: {
+  generateDraftJargon: {
     type: Boolean,
     optional: true,
     nullable: true,

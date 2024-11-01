@@ -122,7 +122,7 @@ export const hasAuthorModeration = !isEAForum || isAnyTest;
 export const userCanCreateAndEditJargonTerms = (user: UsersCurrent|DbUser|null) => isLW && !!user && user.karma >= 100;
 export const userCanViewJargonTerms = (user: UsersCurrent|DbUser|null) => isLW;
 export const userCanViewUnapprovedJargonTerms = (user: UsersCurrent|DbUser|null) => isLW
-export const userWillPassivelyGenerateJargonTerms = (user: UsersCurrent|DbUser|null) => isLW && !!user && user.karma >= 100
+export const userCanPassivelyGenerateJargonTerms = (user: UsersCurrent|DbUser|null) => isLW && !!user && user.karma >= 100 // if this is reduced to 0, we need to make sure to handle spam somehow
 
 // Shipped Features
 export const userCanManageTags = shippedFeature;

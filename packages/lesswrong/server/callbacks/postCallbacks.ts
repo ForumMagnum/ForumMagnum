@@ -35,7 +35,7 @@ import { postsNewNotifications } from '../notificationCallbacks';
 import { getLatestContentsRevision } from '../../lib/collections/revisions/helpers';
 import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
 import { createNewJargonTerms } from '../resolvers/jargonResolvers/jargonTermMutations';
-import { userWillPassivelyGenerateJargonTerms } from '@/lib/betas';
+import { userCanPassivelyGenerateJargonTerms } from '@/lib/betas';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -698,9 +698,10 @@ async function createNewJargonTermsCallback(post: DbPost, callbackProperties: Cr
   if (!currentUser) return post;
   if (currentUser._id !== post.userId) return post;
   if (!post.contents_latest) return post;
-  if (!post.generateJargon && (!post.draft && !currentUser.generateJargonForPublishedPosts)) return post;
+  if (!post.generateDraftJargon && post.draft) return post;
+  if (!post.draft && !currentUser.generateJargonForPublishedPosts) return post;
 
-  if (!userWillPassivelyGenerateJargonTerms(currentUser)) return post;
+  if (!userCanPassivelyGenerateJargonTerms(currentUser)) return post;
   // TODO: refactor this so that createNewJargonTerms handles the case where we might be creating duplicate terms
   const [existingJargon, newContents] = await Promise.all([
     JargonTerms.find({postId: post._id}).fetch(),
