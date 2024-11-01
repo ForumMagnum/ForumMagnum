@@ -7,8 +7,6 @@ import qs from "qs";
 export const GIVING_SEASON_DESKTOP_WIDTH = 1220;
 export const GIVING_SEASON_MOBILE_WIDTH = 900;
 
-export const GIVING_SEASON_DONATE_HREF = "https://www.every.org/effectivealtruism?no_exit=true&success_url=https%253A%252F%252Fforum.effectivealtruism.org#/donate";
-
 export const getDonateLink = (currentUser: UsersCurrent | null) => {
   // See docs at https://docs.every.org/docs/donate-link
   const params: Record<string, string> = {
