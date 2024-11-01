@@ -54,7 +54,7 @@ const events: GivingSeasonEvent[] = [
     description: <>
       A week for organisations to explain what they would do with marginal funding.{" "}
       <Link to="/posts/srZEX2r9upbwfnRKw/giving-season-2024-announcement#November_11___17__Marginal_Funding_Week">
-        Read more.
+        Read more
       </Link>.
     </>,
     start: moment("2024-11-12").utc(),
