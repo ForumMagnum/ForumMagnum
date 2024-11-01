@@ -1,5 +1,6 @@
 import { Express, json } from "express";
 import { captureEvent } from "@/lib/analyticsEvents";
+import { DatabaseMetadataRepo } from "@/server/repos";
 import { getExchangeRate } from "./currencies";
 
 // See https://docs.every.org/docs/webhooks/
@@ -31,13 +32,16 @@ type WebhookPayload = {
 
 export const addGivingSeasonEndpoints = (app: Express) => {
   const webhook = "/api/donation-election-2024-webhook";
-  app.use(webhook, json({ limit: "20mb" }));
+  app.use(webhook, json({limit: "10mb"}));
   app.post(webhook, async (req, res) => {
     const payload = req.body as WebhookPayload;
-    const {amount, currency} = payload;
+    const {amount = "0", currency = "USD"} = payload;
     const parsedAmount = parseFloat(amount);
     const exchangeRate = await getExchangeRate(currency);
     const usdAmount = parsedAmount * exchangeRate;
+    if (Number.isFinite(usdAmount) && usdAmount > 0) {
+      await new DatabaseMetadataRepo().addGivingSeason2024Donation(usdAmount);
+    }
     captureEvent("givingSeason2024Donation", {
       payload: payload as Json,
       parsedAmount,

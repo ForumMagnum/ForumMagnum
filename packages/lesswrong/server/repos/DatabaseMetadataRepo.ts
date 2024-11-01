@@ -78,6 +78,23 @@ export default class DatabaseMetadataRepo extends AbstractRepo<"DatabaseMetadata
     return this.getGivingSeasonHearts(electionName);
   }
 
+  async addGivingSeason2024Donation(usdAmount: number): Promise<void> {
+    await this.none(`
+      -- DatabaseMetadataRepo.addGivingSeason2024Donation
+      INSERT INTO "DatabaseMetadata" ("_id", "name", "value", "createdAt")
+      VALUES ($1, 'givingSeason2024ElectionTotal', $2, CURRENT_TIMESTAMP)
+      ON CONFLICT ("name") DO UPDATE SET
+        "value" = JSONB_BUILD_OBJECT(
+          'total',
+          (("DatabaseMetadata"."value")->'total')::INTEGER + $3
+        )
+    `, [
+      randomId(),
+      {total: usdAmount},
+      usdAmount,
+    ]);
+  }
+
   getServerSettings(): Promise<DbDatabaseMetadata | null> {
     return this.getByName("serverSettings");
   }
