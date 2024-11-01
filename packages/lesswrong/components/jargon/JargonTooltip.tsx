@@ -5,8 +5,6 @@ import { commentBodyStyles } from '@/themes/stylePiping';
 import { ContentReplacedSubstringComponentInfo } from '../common/ContentItemBody';
 import { PopperPlacementType } from '@material-ui/core/Popper';
 import { useGlossaryPinnedState } from '../hooks/useUpdateGlossaryPinnedState';
-import { ForumIconName } from '../common/ForumIcon';
-import { truncatise } from '@/lib/truncatise';
 
 const styles = (theme: ThemeType) => ({
   card: {
@@ -17,18 +15,21 @@ const styles = (theme: ThemeType) => ({
     ...commentBodyStyles(theme),
     color: theme.palette.grey[700],
     marginTop: 0,
-    marginBottom: 0
+    marginBottom: 0,
+    '& $jargonWord': {
+      color: theme.palette.grey[400]
+    },
+    '& strong $jargonWord, & b $jargonWord': {
+      color: 'unset',
+    }
   },
   jargonWord: {
     cursor: 'default',
+    color: theme.palette.text.jargonTerm,
     'a &': {
       // When the span is inside a link, inherit the link's color
       color: 'inherit',
-    },
-    '&': {
-      // Default case (when not in a link)
-      color: theme.palette.text.jargonTerm,
-    },
+    }
   },
   metadata: {
     marginTop: 8,
@@ -73,7 +74,7 @@ function convertGlossaryItemToTextReplacement(glossaryItem: JargonTermsPost): Co
       deleted: glossaryItem.deleted,
       definitionHTML: glossaryItem.contents?.html ?? '',
       altTerms: glossaryItem.altTerms,
-      humansAndOrAIEdited: glossaryItem.humansAndOrAIEdited,
+      humansAndOrAIEdited: glossaryItem.humansAndOrAIEdited
     },
     isRegex: true,
   };

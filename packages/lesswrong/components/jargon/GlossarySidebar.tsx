@@ -6,6 +6,7 @@ import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import classNames from 'classnames';
 import { sidenotesHiddenBreakpoint } from '../posts/PostsPage/PostsPage';
 import { useJargonCounts } from '@/components/hooks/useJargonCounts';
+import { jargonTermsToTextReplacements } from './JargonTooltip';
 
 const styles = (theme: ThemeType) => ({
   glossaryAnchor: {
@@ -186,6 +187,8 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, showAllTerms, s
     </div>
   );
 
+  const replacedSubstrings = jargonTermsToTextReplacements(sortedTerms);
+
   const approvedGlossaryItems = approvedTerms.map((jargonTerm) => {
     return (<div key={jargonTerm._id + jargonTerm.term}>
       <JargonTooltip
@@ -196,6 +199,7 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, showAllTerms, s
         deleted={jargonTerm.deleted}
         placement="left-start"
         tooltipTitleClassName={classes.termTooltip}
+        replacedSubstrings={replacedSubstrings}
         // The terms in the glossary should always have tooltips
         isFirstOccurrence
       >
@@ -216,6 +220,7 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, showAllTerms, s
         tooltipTitleClassName={classes.termTooltip}
         // The terms in the glossary should always have tooltips
         isFirstOccurrence
+        replacedSubstrings={replacedSubstrings}
       >
         <div className={classNames(classes.jargonTerm, !jargonTerm.approved && classes.unapproved, jargonTerm.deleted && classes.deleted)}>{jargonTerm.term}</div>
       </JargonTooltip>
