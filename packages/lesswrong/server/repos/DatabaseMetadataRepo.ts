@@ -86,7 +86,7 @@ export default class DatabaseMetadataRepo extends AbstractRepo<"DatabaseMetadata
       ON CONFLICT ("name") DO UPDATE SET
         "value" = JSONB_BUILD_OBJECT(
           'total',
-          (("DatabaseMetadata"."value")->'total')::INTEGER + $3
+          (("DatabaseMetadata"."value")->'total')::FLOAT + $3
         )
     `, [
       randomId(),
