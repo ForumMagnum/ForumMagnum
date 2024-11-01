@@ -934,15 +934,13 @@ const schema: SchemaType<"Users"> = {
   generateJargonForDrafts: {
     type: Boolean,
     optional: true,
-    nullable: true,
     hidden: true,
-    // ...schemaDefaultValue(false),
+    ...schemaDefaultValue(false),
   },
 
   generateJargonForPublishedPosts: {
     type: Boolean,
     optional: true,
-    nullable: false,
     hidden: true,
     ...schemaDefaultValue(true),
   },
