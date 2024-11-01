@@ -12,18 +12,14 @@ import { z } from 'zod';
 import { getSqlClientOrThrow } from '@/server/sql/sqlClient';
 import { cyrb53Rand } from '@/server/perfMetrics';
 import JargonTermsRepo from '@/server/repos/JargonTermsRepo';
-import keyBy from 'lodash/keyBy';
 import { randomId } from '@/lib/random';
-import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 import { defaultExampleTerm, defaultExamplePost, defaultGlossaryPrompt, defaultExampleAltTerm, defaultExampleDefinition } from '@/components/jargon/GlossaryEditForm';
+import { convertZodParserToAnthropicTool } from '@/server/languageModels/llmApiWrapper';
+import uniq from 'lodash/uniq';
 
-import type { Tool } from '@anthropic-ai/sdk/resources';
 import type { PromptCachingBetaMessageParam } from '@anthropic-ai/sdk/resources/beta/prompt-caching/messages';
 
-interface SingleJargonTermExplanationQueryParams {
-  markdown: string;
-  term: string;
-  toolUseId: string;
+interface JargonTermGenerationExampleParams {
   glossaryPrompt?: string;
   examplePost?: string;
   exampleTerm?: string;
@@ -31,9 +27,29 @@ interface SingleJargonTermExplanationQueryParams {
   exampleDefinition?: string;
 }
 
+interface CreateJargonTermsQueryParams extends JargonTermGenerationExampleParams {
+  postId: string;
+  currentUser: DbUser;
+}
+
+interface JargonGlossaryQueryParams extends JargonTermGenerationExampleParams {
+  markdown: string;
+  terms: string[];
+}
+
+interface ExplanationsGenerationQueryParams extends JargonTermGenerationExampleParams {
+  post: PostsPage;
+  excludeTerms: string[];
+}
+
 const jargonTermListResponseSchema = z.object({
-  jargonTerms: z.array(z.string())
-});
+  jargonTerms: z.array(z.string()),
+  reasoning: z.string(),
+  likelyKnownJargonTerms: z.array(z.string()),
+  marginalTerms: z.array(z.string()),
+}).describe('A tool that allows Claude to return a list of jargon terms extracted from a post, and of those, which terms are likely already known to LessWrong readers, and which terms are the next most likely candidates for inclusion in a glossary.');
+
+type JargonTermListResponse = z.infer<typeof jargonTermListResponseSchema>;
 
 const jargonTermSchema = z.object({
   term: z.string(),
@@ -43,29 +59,12 @@ const jargonTermSchema = z.object({
 
 type LLMGeneratedJargonTerm = z.infer<typeof jargonTermSchema>;
 
-const returnJargonTermsTool: Tool = {
-  name: "return_jargon_terms",
-  description: "A tool that allows Claude to return a list of jargon terms extracted from a post.",
-  input_schema: {
-    type: "object",
-    properties: {
-      jargonTerms: { type: "array", items: { type: "string" } }
-    }
-  }
-};
+type CategorizedJargonTerm = LLMGeneratedJargonTerm & { deleted: boolean };
 
-const generateSingleJargonGlossaryItemTool: Tool = {
-  name: "generate_jargon_glossary_item",
-  description: "A tool that generates a jargon glossary item for a given post.  It should be provided with a glossary item, which include the term (the identifier), altTerms (alternate spellings or forms of the term), and htmlContent (the explanation of the term).",
-  input_schema: {
-    type: "object",
-    properties: {
-      term: { type: "string" },
-      altTerms: { type: "array", items: { type: "string" } },
-      htmlContent: { type: "string" }
-    }
-  }
-};
+// A glossary schema that's an object with an array of jargonTerms
+const jargonGlossarySchema = z.object({
+  jargonTerms: z.array(jargonTermSchema)
+}).describe('A tool that generates a jargon glossary for a given post.  It should be provided with a list of jargon terms, which include the term (the identifier), altTerms (alternate spellings or forms of the term), and htmlContent (the explanation of the term).');
 
 class AdvisoryLockError extends Error {}
 
@@ -135,7 +134,7 @@ function sanitizeJargonTerms(jargonTerms: LLMGeneratedJargonTerm[]) {
   }));
 }
 
-export const queryClaudeForTerms = async (markdown: string) => {
+export const queryClaudeForTerms = async (markdown: string): Promise<JargonTermListResponse> => {
   const client = getAnthropicPromptCachingClientOrThrow(jargonBotClaudeKey.get());
   const messages = [{
     role: "user" as const, 
@@ -148,17 +147,22 @@ The jargon terms are:`
   }];
 
   const termsResponse = await client.messages.create({
-    model: "claude-3-5-sonnet-20240620",
+    model: "claude-3-5-sonnet-20241022",
     max_tokens: 5000,
     messages,
-    tools: [returnJargonTermsTool],
+    tools: [convertZodParserToAnthropicTool(jargonTermListResponseSchema, 'return_jargon_terms')],
     tool_choice: { type: "tool", name: "return_jargon_terms" }
   });
 
   if (termsResponse.content[0].type === "text") {
     // eslint-disable-next-line no-console
     console.error(`Claude responded with text, but we expected a tool use.`)
-    return [];
+    return {
+      jargonTerms: [],
+      reasoning: '',
+      likelyKnownJargonTerms: [],
+      marginalTerms: []
+    };
   }
   
   const responseContent = termsResponse.content[0]?.input;
@@ -166,24 +170,31 @@ The jargon terms are:`
   if (!parsedResponse.success) {
     // eslint-disable-next-line no-console
     console.error(`Claude's response when getting jargon terms doesn't match the expected format.`)
-    return [];
+    return {
+      jargonTerms: [],
+      reasoning: '',
+      likelyKnownJargonTerms: [],
+      marginalTerms: []
+    };
   }
 
-  return parsedResponse.data.jargonTerms;
+  return parsedResponse.data;
 }
 
-async function createSingleExplanationMessageWithExample({markdown, term, toolUseId, glossaryPrompt, examplePost, exampleTerm, exampleAltTerm, exampleDefinition}: {markdown: string, term: string, toolUseId: string, glossaryPrompt?: string, examplePost?: string, exampleTerm?: string, exampleAltTerm?: string, exampleDefinition?: string}): Promise<PromptCachingBetaMessageParam[]> {
-  const finalSystemPrompt = glossaryPrompt ?? defaultGlossaryPrompt
-  const finalExamplePost = examplePost ?? defaultExamplePost
-  const finalExampleTerm = exampleTerm ?? defaultExampleTerm
-  const finalExampleAltTerm = exampleAltTerm ?? defaultExampleAltTerm
-  const finalExampleDefinition = exampleDefinition ?? defaultExampleDefinition
+function createJargonGlossaryMessageWithExample({ markdown, terms, ...exampleParams }: JargonGlossaryQueryParams): PromptCachingBetaMessageParam[] {
+  const finalSystemPrompt = exampleParams.glossaryPrompt ?? defaultGlossaryPrompt
+  const finalExamplePost = exampleParams.examplePost ?? defaultExamplePost
+  const finalExampleTerm = exampleParams.exampleTerm ?? defaultExampleTerm
+  const finalExampleAltTerm = exampleParams.exampleAltTerm ?? defaultExampleAltTerm
+  const finalExampleDefinition = exampleParams.exampleDefinition ?? defaultExampleDefinition
   
   const finalExampleGlossary = {
     term: finalExampleTerm,
     altTerms: [finalExampleAltTerm],
     htmlContent: finalExampleDefinition
-  }
+  };
+
+  const toolUseId = randomId();
 
   return [{
     role: "user",
@@ -197,7 +208,7 @@ async function createSingleExplanationMessageWithExample({markdown, term, toolUs
     content: [{
       type: "tool_use",
       id: toolUseId,
-      name: "generate_jargon_glossary",
+      name: "generate_jargon_glossary_item",
       input: finalExampleGlossary
     }]
   },
@@ -208,65 +219,72 @@ async function createSingleExplanationMessageWithExample({markdown, term, toolUs
       tool_use_id: toolUseId,
     }, {
       type: "text",
-      text: `Thanks!  Now can you do the following post?  This time, you'll only need to do one term. <Post>${markdown}</Post>.`,
-      cache_control: { type: 'ephemeral' }
-    }]
-  }, {
-    role: "user",
-    content: [{
-      type: "text",
-      text: `  The jargon term is: <Term>${term}</Term>`
+      text: `Thanks!  Now can you do the following post?  <Post>${markdown}</Post>.  Here are the jargon terms: ${terms.map(term => `<Term>${term}</Term>`).join(', ')}`,
     }]
   }];
 }
 
-const queryClaudeForSingleJargonExplanation = async ({ markdown, term, toolUseId, glossaryPrompt, examplePost, exampleTerm, exampleAltTerm, exampleDefinition }: SingleJargonTermExplanationQueryParams): Promise<LLMGeneratedJargonTerm | null> => {
+const queryClaudeForJargonGlossary = async ({ markdown, terms, ...exampleParams }: JargonGlossaryQueryParams): Promise<LLMGeneratedJargonTerm[]> => {
   const client = getAnthropicPromptCachingClientOrThrow(jargonBotClaudeKey.get());
-  const messages: PromptCachingBetaMessageParam[] = await createSingleExplanationMessageWithExample({markdown, term, toolUseId, glossaryPrompt, examplePost, exampleTerm, exampleAltTerm, exampleDefinition});
+  const messages: PromptCachingBetaMessageParam[] = createJargonGlossaryMessageWithExample({ markdown, terms, ...exampleParams });
 
   const response = await client.messages.create({
-    model: "claude-3-5-sonnet-20240620",
-    max_tokens: 5000,
+    model: "claude-3-5-sonnet-20241022",
+    max_tokens: 8092,
     messages,
-    tools: [generateSingleJargonGlossaryItemTool],
-    tool_choice: { type: "tool", name: "generate_jargon_glossary_item" }
+    tools: [convertZodParserToAnthropicTool(jargonGlossarySchema, 'return_jargon_glossary')],
+    tool_choice: { type: "tool", name: "return_jargon_glossary" }
   });
 
   if (response.content[0].type === "text") {
     // eslint-disable-next-line no-console
     console.error(`Claude responded with text, but we expected a tool use.`)
-    return null;
-  }
-
-  const responseContent = response.content[0]?.input;
-  const validatedTerm = jargonTermSchema.safeParse(responseContent);
-  if (!validatedTerm.success) {
-    // eslint-disable-next-line no-console
-    console.error('Invalid jargon term:', validatedTerm.error);
-    return null;
-  }
-  const parsedJargonTerm = validatedTerm.data;
-  return sanitizeJargonTerms([parsedJargonTerm])[0];
-}
-
-export async function createEnglishExplanations({post, excludeTerms, glossaryPrompt, examplePost, exampleTerm, exampleAltTerm, exampleDefinition}: {post: PostsPage, excludeTerms: string[], glossaryPrompt?: string, examplePost?: string, exampleTerm?: string, exampleAltTerm?: string, exampleDefinition?: string}): Promise<LLMGeneratedJargonTerm[]> {
-  const originalHtml = post.contents?.html ?? "";
-  const originalMarkdown = htmlToMarkdown(originalHtml);
-  const markdown = (originalMarkdown.length < 200_000) ? originalMarkdown : originalMarkdown.slice(0, 200_000);
-
-  const terms = await queryClaudeForTerms(markdown);
-  if (!terms.length) {
     return [];
   }
 
-  const newTerms = terms.filter(term => !excludeTerms.includes(term) && post.contents?.html?.includes(term));
+  const responseContent = response.content[0]?.input;
+  const parsedResponse = jargonGlossarySchema.safeParse(responseContent);
+  if (!parsedResponse.success) {
+    // eslint-disable-next-line no-console
+    console.error('Invalid jargon glossary:', parsedResponse.error);
+    return [];
+  }
 
-  const toolUseId = randomId();
-  const explanations = await Promise.all(newTerms.map((term) => queryClaudeForSingleJargonExplanation({ markdown, term, toolUseId, glossaryPrompt, examplePost, exampleTerm, exampleAltTerm, exampleDefinition })));
-  return filterNonnull(explanations);
+  return sanitizeJargonTerms(parsedResponse.data.jargonTerms);
 }
 
-export const createNewJargonTerms = async (postId: string, currentUser: DbUser, glossaryPrompt?: string, examplePost?: string, exampleTerm?: string, exampleAltTerm?: string, exampleDefinition?: string) => {
+export async function createEnglishExplanations({ post, excludeTerms, ...exampleParams }: ExplanationsGenerationQueryParams): Promise<CategorizedJargonTerm[]> {
+  const originalHtml = post.contents?.html ?? "";
+  const originalMarkdown = htmlToMarkdown(originalHtml);
+  // Conservatively limit the markdown to 500k characters, since Claude has a context window of 200k tokens.  (Real limit is probably closer to 3.5 characters per token.)
+  const markdown = (originalMarkdown.length < 500_000) ? originalMarkdown : originalMarkdown.slice(0, 500_000);
+
+  const terms = await queryClaudeForTerms(markdown);
+  if (!terms.jargonTerms.length) {
+    return [];
+  }
+
+  const allTerms = [...terms.jargonTerms, ...terms.likelyKnownJargonTerms, ...terms.marginalTerms];
+
+  const newTerms = allTerms.filter(term => {
+    const lowerCaseTerm = term.toLowerCase();
+    return !excludeTerms.includes(lowerCaseTerm) && post.contents?.html?.toLowerCase().includes(lowerCaseTerm);
+  });
+
+  const generatedTermDefinitions = await queryClaudeForJargonGlossary({ markdown, terms: newTerms, ...exampleParams });
+
+  return generatedTermDefinitions.map(term => ({
+    ...term,
+    // By default, create potential false-positives as deleted so authors have access to them but they aren't cluttering up their primary view
+    deleted: terms.likelyKnownJargonTerms.includes(term.term) || terms.marginalTerms.includes(term.term)
+  }));
+}
+
+const processedTerms = (jargonTerms: DbJargonTerm[]) => {
+  return jargonTerms.flatMap(jargonTerm => [jargonTerm.term.toLowerCase(), ...jargonTerm.altTerms.map(altTerm => altTerm.toLowerCase())]);
+}
+
+export const createNewJargonTerms = async ({ postId, currentUser, ...exampleParams }: CreateJargonTermsQueryParams) => {
   const post = await fetchFragmentSingle({
     collectionName: 'Posts',
     fragmentName: 'PostsPage',
@@ -278,21 +296,19 @@ export const createNewJargonTerms = async (postId: string, currentUser: DbUser, 
     throw new Error('Post not found');
   }
 
-  const authorsOtherJargonTerms = await (new JargonTermsRepo().getAuthorsOtherJargonTerms(currentUser._id, postId));
-  const existingJargonTermsById = keyBy(authorsOtherJargonTerms, '_id');
-  const presentTerms = authorsOtherJargonTerms.filter(jargonTerm => post.contents?.html?.includes(jargonTerm.term));
-  
-  // TODO: This might be too annoying to do properly, come back to it later
-  //const presentTermIds = new Set(presentTerms.map(jargonTerm => jargonTerm._id));
+  const [authorsOtherPostJargonTerms, jargonTermsFromThisPost] = await Promise.all([ 
+    (new JargonTermsRepo()).getAuthorsOtherJargonTerms(currentUser._id, postId),
+    JargonTerms.find({ postId }).fetch()
+  ]);
+  const existingJargonTerms = [...authorsOtherPostJargonTerms, ...jargonTermsFromThisPost];
 
-  // const presentAltTerms = authorsOtherJargonTerms
-  //   .flatMap(jargonTerm => expandJargonAltTerms(jargonTerm, false))
-  //   .filter(altTerm => !presentTermIds.has(altTerm._id))
-  //   .filter(altTerm => post.contents?.html?.includes(altTerm.term));
+  const termsToExclude = uniq(processedTerms(existingJargonTerms));
 
-  const jargonTermsToCopy = presentTerms.map(jargonTerm => existingJargonTermsById[jargonTerm._id]);
-
-  const termsToExclude = jargonTermsToCopy.map(jargonTerm => jargonTerm.term);
+  const presentTerms = existingJargonTerms.filter(jargonTerm => post.contents?.html?.includes(jargonTerm.term));
+  const jargonTermsToCopy = presentTerms.filter(jargonTerm => {
+    const terms = processedTerms([jargonTerm]);
+    return !termsToExclude.some(excludedTerm => terms.includes(excludedTerm));
+  });
 
   let newJargonTerms;
   try {
@@ -300,7 +316,7 @@ export const createNewJargonTerms = async (postId: string, currentUser: DbUser, 
     // Test lock by sleeping for 10 seconds
 
     newJargonTerms = await executeWithLock(rawLockId, async () => {
-      const newEnglishJargon = await createEnglishExplanations({post, excludeTerms: termsToExclude, glossaryPrompt, examplePost, exampleTerm, exampleAltTerm, exampleDefinition});
+      const newEnglishJargon = await createEnglishExplanations({ post, excludeTerms: termsToExclude, ...exampleParams });
 
       const botAccount = await getAdminTeamAccount();
       
@@ -312,7 +328,7 @@ export const createNewJargonTerms = async (postId: string, currentUser: DbUser, 
               postId: postId,
               term: term.term,
               approved: false,
-              deleted: false,
+              deleted: term.deleted,
               contents: {
                 originalContents: {
                   data: term.htmlContent,
@@ -331,8 +347,8 @@ export const createNewJargonTerms = async (postId: string, currentUser: DbUser, 
             document: {
               postId: postId,
               term: jargonTerm.term,
-              approved: true,
-              deleted: false,
+              approved: jargonTerm.approved,
+              deleted: jargonTerm.deleted,
               contents: { originalContents: jargonTerm.contents!.originalContents },
               altTerms: jargonTerm.altTerms,
             },
@@ -360,13 +376,13 @@ defineMutation({
   name: 'getNewJargonTerms',
   argTypes: '(postId: String!, glossaryPrompt: String, examplePost: String, exampleTerm: String, exampleAltTerm: String, exampleDefinition: String)',
   resultType: '[JargonTerm]',
-  fn: async (_, { postId, glossaryPrompt, examplePost, exampleTerm, exampleAltTerm, exampleDefinition }: { postId: string, glossaryPrompt?: string, examplePost?: string, exampleTerm?: string, exampleAltTerm?: string, exampleDefinition?: string }, { currentUser }: ResolverContext) => {
+  fn: async (_, { postId, ...exampleParams }: Omit<CreateJargonTermsQueryParams, 'currentUser'>, { currentUser }: ResolverContext) => {
     if (!currentUser) {
       throw new Error('You need to be logged in to generate jargon terms');
     }
     if (!userCanCreateAndEditJargonTerms(currentUser)) {
       throw new Error('This is a prototype feature that is not yet available to all users');
     }
-    return await createNewJargonTerms(postId, currentUser, glossaryPrompt, examplePost, exampleTerm, exampleAltTerm, exampleDefinition);
+    return await createNewJargonTerms({ postId, currentUser, ...exampleParams });
   },
 });

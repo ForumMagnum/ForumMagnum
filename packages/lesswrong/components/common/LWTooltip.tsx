@@ -37,6 +37,7 @@ export type LWTooltipProps = {
   onHide?: () => void,
   children?: ReactNode,
   classes: ClassesType,
+  forceOpen?: boolean,
 }
 
 const LWTooltip = ({
@@ -57,6 +58,7 @@ const LWTooltip = ({
   children,
   className,
   classes,
+  forceOpen,
 }: LWTooltipProps) => {
   const { LWPopper } = Components
   const { hover, everHovered, anchorEl, eventHandlers } = useHover({
@@ -80,7 +82,7 @@ const LWTooltip = ({
          can have a closing animation if applicable. */ }
     {everHovered && <LWPopper
       placement={placement}
-      open={hover && !disabled}
+      open={forceOpen || (hover && !disabled)}
       anchorEl={anchorEl}
       tooltip={tooltip}
       allowOverflow={!flip}

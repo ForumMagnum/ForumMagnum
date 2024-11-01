@@ -10,7 +10,8 @@ declare global {
   }
 
   interface LlmConversationsAllViewTerms {
-    view: 'llmConversationsAll'
+    view: 'llmConversationsAll',
+    showDeleted?: boolean
   }
 
   type LlmConversationsViewTerms = Omit<ViewTermsBase, 'view'> & (LlmConversationsWithUserViewTerms | LlmConversationsAllViewTerms |{
@@ -31,6 +32,9 @@ LLMConversations.addView("llmConversationsWithUser", function (terms: LlmConvers
 
 LLMConversations.addView("llmConversationsAll", function (terms: LlmConversationsAllViewTerms) {
   return {
+    selector: {
+      deleted: terms.showDeleted ? undefined : false
+    },
     options: {
       sort: {
         createdAt: -1

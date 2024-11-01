@@ -10,38 +10,36 @@ import { formStyles } from './JargonEditorRow';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { useJargonCounts } from '@/components/hooks/useJargonCounts';
 
-export const defaultGlossaryPrompt = `You're a Glossary AI. Your goal is to make good explanations for technical jargon terms. You are trying to produce a useful hoverover tooltip in an essay on LessWrong.com, accessible to a smart, widely read layman. 
+export const defaultGlossaryPrompt = `You're a LessWrong Glossary AI. Your goal is to make good explanations for technical jargon terms. You are trying to produce a useful hoverover tooltip in an essay on LessWrong.com, accessible to a smart, widely read layman. 
 
-We're about to provide you with the text of an essay, followed by a list of jargon terms for that essay. 
+We're about to provide you with the text of an essay, followed by a list of jargon terms present in that essay. 
 
 For each term, provide:
   
-The term itself (wrapped in a strong tag), followed by a concise one-line definition. Then, on a separate paragraph, explain how the term is used in this context. Include where the term is originally from (whether it's established from an academic field, new to LessWrong or this particular post, or something else. Note what year it was first used in this context if possible).
+The term itself (wrapped in a <strong> tag), followed by a concise one-line definition. Then, on a separate paragraph, explain how the term is used in this context (although it's important not to use the phrase "in this context" or "in this post" - just explain how this concept fits into the other concepts in the post).
 
-Ensure that your explanations are clear and accessible to someone who may not be familiar with the subject matter. Follow Strunk and White guidelines. 
+Ensure that your explanations are clear and accessible to someone who may not be familiar with the subject matter. Follow Strunk and White guidelines.
 
-Use your general knowledge as well as the post's specific explanations or definitions of the terms to find a good definition of each term. 
+Use your general knowledge, as well as the post's specific explanations or definitions of the term, to decide on an appropriate definition.
 
-Include a set of altTerms that are slight variations of the term, such as plurals, abbreviations or acryonyms, or alternate spellings that appear in the text. Make sure to include all variations that appear in the text.
+Include a set of altTerms that are slight variations of the term, such as plurals, abbreviations or acryonyms, or alternate spellings that appear in the text. Make sure to include all variations that appear in the text, and only those that are present in the text.
 
-Do NOT emphasize that the term is important, but DO explain how it's used in this context. Make sure to put the "contextual explanation" in a separate paragraph from the opening term definition. Make sure to make the term definition a short sentence.
-`
+To reiterate: do not emphasize that the term is important, but do explain how it's used here. Make sure to put that explanation in a separate paragraph from the opening term definition. Make sure to make the term definition a short sentence.`;
 
-export const defaultExamplePost = `Suppose two Bayesian agents are presented with the same spreadsheet - IID samples of data in each row, a feature in each column. Each agent develops a generative model of the data distribution. We'll assume the two converge to the same predictive distribution, but may have different generative models containing different latent variables. We'll also assume that the two agents develop their models independently, i.e. their models and latents don't have anything to do with each other informationally except via the data. Under what conditions can a latent variable in one agent's model be faithfully expressed in terms of the other agent's latents?`
+export const defaultExamplePost = `Suppose two Bayesian agents are presented with the same spreadsheet - IID samples of data in each row, a feature in each column. Each agent develops a generative model of the data distribution. We'll assume the two converge to the same predictive distribution, but may have different generative models containing different latent variables. We'll also assume that the two agents develop their models independently, i.e. their models and latents don't have anything to do with each other informationally except via the data. Under what conditions can a latent variable in one agent's model be faithfully expressed in terms of the other agent's latents?`;
 
-export const defaultExampleLateX = `Now for the question: under what conditions on agent 1's latent(s) (Lambda^1) can we *guarantee* that (Lambda^1) is expressible in terms of (Lambda^2), no matter what generative model agent 2 uses (so long as the agents agree on the predictive distribution (P[X]))? In particular, let's require that (Lambda^1) be a function of (Lambda^2). (Note that we'll weaken this later.) So, when is (Lambda^1) *guaranteed* to be a function of (Lambda^2), for *any* generative model (M_2) which agrees on the predictive distribution (P[X])? Or, worded in terms of latents: when is (Lambda^1) *guaranteed* to be a function of (Lambda^2), for *any* latent(s) (Lambda^2) which account for all interactions between features in the predictive distribution (P[X])?
-`
+export const defaultExampleLateX = `Now for the question: under what conditions on agent 1's latent(s) (Lambda^1) can we *guarantee* that (Lambda^1) is expressible in terms of (Lambda^2), no matter what generative model agent 2 uses (so long as the agents agree on the predictive distribution (P[X]))? In particular, let's require that (Lambda^1) be a function of (Lambda^2). (Note that we'll weaken this later.) So, when is (Lambda^1) *guaranteed* to be a function of (Lambda^2), for *any* generative model (M_2) which agrees on the predictive distribution (P[X])? Or, worded in terms of latents: when is (Lambda^1) *guaranteed* to be a function of (Lambda^2), for *any* latent(s) (Lambda^2) which account for all interactions between features in the predictive distribution (P[X])?`;
 
 export interface ExampleJargonGlossaryEntry {
   term: string;
   altTerms: string[];
-  text: string;
+  htmlContent: string;
 }
 
 export const defaultExampleTerm = 'latent variables'
 export const defaultExampleAltTerm = 'latents'
 export const defaultExampleDefinition = `<div>
-  <p><b>Latent variables:</b> Variables which an agent's world model includes but which are not directly observed.</p>
+  <p><b>Latent variables:</b> Variables which an agent's world model includes, but which are not directly observed.</p>
   <p>These variables are not part of the data distribution, but can help explain the data distribution.</p>
 </div>`
 
@@ -50,7 +48,7 @@ export const defaultExampleGlossary: { glossaryItems: ExampleJargonGlossaryEntry
     {
       "term": defaultExampleTerm,
       "altTerms": [defaultExampleAltTerm],
-      "text": defaultExampleDefinition
+      "htmlContent": defaultExampleDefinition
     },
   ]
 };
@@ -63,7 +61,7 @@ const styles = (theme: ThemeType) => ({
     marginBottom: -16,
   },
   window: {
-    maxHeight: 300,
+    maxHeight: 160,
     overflowY: 'scroll',
     display: 'flex',
     justifyContent: 'space-between',
@@ -181,7 +179,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.primary.main,
     fontSize: 25,
     fontWeight: 900,
-    paddingLeft: 7,
+    paddingLeft: 1,
     paddingRight: 7
   },
   newTermButtonCancel: {
@@ -224,7 +222,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     terms: {
       view: "postEditorJargonTerms",
       postId: document._id,
-      limit: 100
+      limit: 500
     },
     collectionName: "JargonTerms",
     fragmentName: 'JargonTerms',
@@ -249,6 +247,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   const addNewJargonTerms = async () => {
     // TODO: maybe just disable button if no prompt?
     if (!glossaryPrompt) return;
+    if (mutationLoading) return;
     
     try {
       await getNewJargonTerms({
@@ -324,6 +323,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   const { JargonEditorRow, LoadMore, Loading, LWTooltip, WrappedSmartForm, IconRight, IconDown, ForumIcon, Row } = Components;
 
   const promptEditor = <div>
+    <h3>WARNING! This will not be saved after page reload</h3>
     <TextField
       label="Prompt"
       value={glossaryPrompt}
@@ -383,30 +383,30 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     </LWTooltip>
     <div className={classes.headerButtons}>
       <LWTooltip title="Enable all glossary hoverovers for readers of this post">
-        <div className={classNames(classes.headerButton, sortedApprovedTerms.length !== 0 && classes.disabled)} 
+        <div className={classNames(classes.headerButton, sortedUnapprovedTerms.length === 0 && classes.disabled)} 
           onClick={() => handleSetApproveAll(true)}>
-          ENABLE ALL
+          ENABLE ALL{ sortedUnapprovedTerms.length > 0 ? ` (${sortedUnapprovedTerms.length})` : '' }
         </div>
       </LWTooltip>
       <LWTooltip title="Disable all glossary hoverovers for readers of this post">
-        <div className={classNames(classes.headerButton, sortedUnapprovedTerms.length !== 0 && classes.disabled)} 
+        <div className={classNames(classes.headerButton, sortedApprovedTerms.length === 0 && classes.disabled)} 
           onClick={() => handleSetApproveAll(false)}>
-          DISABLE ALL
+          DISABLE ALL{ sortedApprovedTerms.length > 0 ?  ` (${sortedApprovedTerms.length})` : '' }
         </div>
       </LWTooltip>
       <LWTooltip title={<div><p>Hide all terms that aren't currently enabled</p><p>(you can unhide them later)</p></div>}>
         <div className={classNames(classes.headerButton, sortedUnapprovedTerms.length === 0 && classes.disabled)} onClick={handleDeleteUnused}>HIDE DISABLED TERMS</div>
       </LWTooltip>
-      <LWTooltip title="Unhide all deleted terms">
+      <LWTooltip title="Unhide all hidden terms">
         <div className={classNames(classes.headerButton, deletedTerms.length === 0 && classes.disabled)} onClick={handleUnhideAll}>
-          UNHIDE ALL ({deletedTerms.length})
+          UNHIDE ALL{ deletedTerms.length > 0 ? ` (${deletedTerms.length})` : '' }
         </div>
       </LWTooltip>
     </div>
   </div>
 
   const footer = <div className={classNames(classes.buttonRow, formCollapsed && classes.formCollapsed)}>
-    <Button onClick={addNewJargonTerms} className={classes.generateButton}>Generate new terms</Button>
+    <Button onClick={addNewJargonTerms} className={classNames(classes.generateButton, mutationLoading && classes.disabled)}>Generate new terms</Button>
     <div className={classes.headerButtons}>
       <LWTooltip title="Make changes to the jargon generator LLM prompt">
         <div className={classes.headerButton} onClick={() => setEditingPrompt(!editingPrompt)}>{editingPrompt ? "SAVE PROMPT" : "EDIT PROMPT"}</div>
@@ -419,7 +419,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
       }
     </div>
     {mutationLoading && <Loading/>}
-    {mutationLoading && <div>(Loading... warning, this will take 10-20 seconds.)</div>}
+    {mutationLoading && <div>(Loading... warning, this will take 30-60 seconds.)</div>}
   </div>
 
   return <div className={classes.root}>
@@ -450,13 +450,20 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
             key={item._id} 
             jargonTerm={item} 
             instancesOfJargonCount={getCount(item)}
+            setShowMoreTerms={setShowMoreTerms}
           />;
         })}
         {deletedTerms.length > 0 && <div className={classes.button} onClick={() => setShowDeletedTerms(!showDeletedTerms)}>
-          {showDeletedTerms ? "Hide deleted terms" : `Show deleted terms (${deletedTerms.length})`}
+          <LWTooltip title="Hidden terms are hidden from readers unless they explicitly opt into 'Show me hidden AI slop the author doesn't necessarily endorse'">
+            {showDeletedTerms ? 
+              <span>Hide hidden terms</span>
+            : 
+              <span>Show hidden terms ({deletedTerms.length})</span>
+            }
+          </LWTooltip>
         </div>}
         {deletedTerms.length > 0 && showDeletedTerms && deletedTerms.map((item) => {
-          return <JargonEditorRow key={item._id} jargonTerm={item} instancesOfJargonCount={getCount(item)}/>
+          return <JargonEditorRow key={item._id} jargonTerm={item} instancesOfJargonCount={getCount(item)} setShowMoreTerms={setShowMoreTerms}/>
         })}
 
       </div>
