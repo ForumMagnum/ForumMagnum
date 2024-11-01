@@ -416,7 +416,7 @@ const GivingSeason2024Banner = ({classes}: {
               href={getDonateLink(currentUser)}
               className={classes.donateButton}
             >
-              Donate
+              Donate to the Election Fund
             </EAButton>
           </div>
         </div>
