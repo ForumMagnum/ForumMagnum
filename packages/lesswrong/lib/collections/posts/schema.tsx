@@ -3073,7 +3073,13 @@ const schema: SchemaType<"Posts"> = {
     label: "stale-while-revalidate caching enabled",
     group: formGroups.adminOptions,
     ...schemaDefaultValue(false),
-  }
+  },
+  generateJargon: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    hidden: true,
+  },
 };
 
 export default schema;

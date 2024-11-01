@@ -13,6 +13,11 @@ import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import Checkbox from '@material-ui/core/Checkbox';
 
+// Integrity Alert! This is currently designed so if the model changes, users are informed
+// about what model is being used in the jargon generation process.
+// If you change this architecture, make sure to update GlossaryEditForm.tsx and the Users' schema
+export const JARGON_LLM_MODEL = 'claude-3-5-sonnet-20241022';
+
 export const defaultGlossaryPrompt = `You're a LessWrong Glossary AI. Your goal is to make good explanations for technical jargon terms. You are trying to produce a useful hoverover tooltip in an essay on LessWrong.com, accessible to a smart, widely read layman. 
 
 We're about to provide you with the text of an essay, followed by a list of jargon terms present in that essay. 
@@ -257,6 +262,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
 
   const [showNewJargonTermForm, setShowNewJargonTermForm] = useState(false);
   const [editingPrompt, setEditingPrompt] = useState(false);
+  const [clickedAutogenerate, setClickedAutogenerate] = useState(false);
   
   const { results: glossary = [], loadMoreProps, refetch } = useMulti({
     terms: {
@@ -443,46 +449,43 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     </div>
   </div>
 
-  const generateJargonFlagsTopRow = <div className={classes.checkboxTopRow}>
-    <div className={classes.checkboxTopContainer}>
-      <Checkbox
-        className={classes.generationFlagCheckbox}
-        checked={currentUser?.generateJargonForDrafts}
-        onChange={(e) => updateCurrentUser({generateJargonForDrafts: e.target.checked})}
-      />
-      <Typography className={classes.inline} variant="body2" component="label">Generate jargon for drafts</Typography>
-    </div>
-    <div className={classes.checkboxTopContainer}>
-      <Checkbox
-        className={classes.generationFlagCheckbox}
-        checked={currentUser?.generateJargonForPublishedPosts}
-        onChange={(e) => updateCurrentUser({generateJargonForPublishedPosts: e.target.checked})}
-      />
-      <Typography className={classes.inline} variant="body2" component="label">Generate jargon for published posts</Typography>
-    </div>
-  </div>;
-
   const generateJargonFlagsRow = <div className={classes.checkboxRow}>
-    <div className={classes.checkboxContainer}>
-      <MetaInfo>Generate jargon for drafts</MetaInfo>
-      <Checkbox
-        className={classes.generationFlagCheckbox}
-        checked={currentUser?.generateJargonForDrafts}
-        onChange={(e) => updateCurrentUser({generateJargonForDrafts: e.target.checked})}
-      />
-    </div>
-    <div className={classes.checkboxContainer}>
-      <MetaInfo>Generate jargon for published posts</MetaInfo>
-      <Checkbox
-        className={classes.generationFlagCheckbox}
-        checked={currentUser?.generateJargonForPublishedPosts}
-        onChange={(e) => updateCurrentUser({generateJargonForPublishedPosts: e.target.checked})}
-      />
-    </div>
+    <LWTooltip title={`Automatically query ${JARGON_LLM_MODEL} every ~1000 characters added to the post`}>
+      <div className={classes.checkboxContainer} onClick={() => setClickedAutogenerate(true)}>
+        <MetaInfo>Autogenerate</MetaInfo>
+        <Checkbox
+          className={classes.generationFlagCheckbox}
+          checked={currentUser?.generateJargonForDrafts}
+          onChange={(e) => updateCurrentUser({generateJargonForDrafts: e.target.checked})}
+        />
+      </div>
+    </LWTooltip>
+    {clickedAutogenerate && <>
+      <LWTooltip title="Automatically query jargon for all drafts">
+        <div className={classes.checkboxContainer}>
+          <MetaInfo>All drafts</MetaInfo>
+          <Checkbox
+            className={classes.generationFlagCheckbox}
+            checked={currentUser?.generateJargonForDrafts}
+            onChange={(e) => updateCurrentUser({generateJargonForDrafts: e.target.checked})}
+          />
+        </div>
+      </LWTooltip>
+      <LWTooltip title="Automatically query jargon for all published posts">
+        <div className={classes.checkboxContainer}>
+          <MetaInfo>All published posts</MetaInfo>
+          <Checkbox
+            className={classes.generationFlagCheckbox}
+            checked={currentUser?.generateJargonForPublishedPosts}
+            onChange={(e) => updateCurrentUser({generateJargonForPublishedPosts: e.target.checked})}
+          />
+        </div>
+      </LWTooltip>
+    </>}
   </div>
 
   const footer = <div className={classNames(classes.buttonRow, formCollapsed && classes.formCollapsed)}>
-    <Button onClick={addNewJargonTerms} className={classNames(classes.generateButton, mutationLoading && classes.disabled)}>Generate new terms</Button>
+    <Button onClick={addNewJargonTerms} className={classNames(classes.generateButton, (mutationLoading || !glossaryPrompt) && classes.disabled)}>Generate new terms</Button>
     <div className={classes.headerButtons}>
       <LWTooltip title="Make changes to the jargon generator LLM prompt">
         <div className={classes.headerButton} onClick={() => setEditingPrompt(!editingPrompt)}>{editingPrompt ? "SAVE PROMPT" : "EDIT PROMPT"}</div>
@@ -501,11 +504,12 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   return <div className={classes.root}>
     {showTitle && <Row justifyContent="space-between" alignItems="flex-start">
       <LWTooltip title="Beta feature! Select/edit terms below, and readers will be able to hover over and read the explanation.">
-        <h3 className={classes.formSectionHeadingTitle}>Glossary [Beta]</h3>
+        <h3 className={classes.formSectionHeadingTitle}>Glossary [Beta]
+        </h3>
       </LWTooltip>
+      {generateJargonFlagsRow}
       <div className={classes.expandCollapseIcon} onClick={() => setFormCollapsed(!formCollapsed)}>{formCollapsed ? <IconRight height={16} width={16} /> : <IconDown height={16} width={16} />}</div>
     </Row>}
-    {generateJargonFlagsTopRow}
     {header}
     <div className={classNames(classes.window, showMoreTerms && classes.expanded, formCollapsed && classes.formCollapsed)}>
       <div>

@@ -1018,6 +1018,7 @@ interface DbPost extends DbObject {
   reviewForAlignmentUserId: string | null
   agentFoundationsId: string | null
   swrCachingEnabled: boolean
+  generateJargon: boolean | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   contents_latest: string | null

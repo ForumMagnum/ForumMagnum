@@ -311,6 +311,7 @@ const PostsNewForm = ({classes}: {
     groupId: query && query.groupId,
     moderationStyle: currentUser && currentUser.moderationStyle,
     moderationGuidelines: currentUserWithModerationGuidelines?.moderationGuidelines ?? undefined,
+    generateJargon: currentUser?.generateJargonForDrafts,
     debate: debateForm,
     postCategory
   }

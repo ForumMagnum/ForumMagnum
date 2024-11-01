@@ -1641,6 +1641,7 @@ CREATE TABLE "Posts" (
   "reviewForAlignmentUserId" TEXT,
   "agentFoundationsId" TEXT,
   "swrCachingEnabled" BOOL NOT NULL DEFAULT FALSE,
+  "generateJargon" BOOL,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB,
