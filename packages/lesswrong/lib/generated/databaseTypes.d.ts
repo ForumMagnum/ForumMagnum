@@ -1018,7 +1018,7 @@ interface DbPost extends DbObject {
   reviewForAlignmentUserId: string | null
   agentFoundationsId: string | null
   swrCachingEnabled: boolean
-  generateDraftJargon: boolean | null
+  generateDraftJargon: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   contents_latest: string | null
@@ -1581,7 +1581,7 @@ interface DbUser extends DbObject {
   petrovOptOut: boolean
   optedOutOfSurveys: boolean | null
   postGlossariesPinned: boolean
-  generateJargonForDrafts: boolean | null
+  generateJargonForDrafts: boolean
   generateJargonForPublishedPosts: boolean
   acceptedTos: boolean
   hideNavigationSidebar: boolean | null

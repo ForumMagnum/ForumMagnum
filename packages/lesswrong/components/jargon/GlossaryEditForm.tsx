@@ -245,7 +245,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   document: PostsPage,
   showTitle?: boolean,
 }) => {
-  const { JargonEditorRow, LoadMore, Loading, LWTooltip, WrappedSmartForm, IconRight, IconDown, Row, MetaInfo, Typography } = Components;
+  const { JargonEditorRow, LoadMore, Loading, LWTooltip, WrappedSmartForm, IconRight, IconDown, Row, MetaInfo } = Components;
 
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();

@@ -1560,7 +1560,7 @@ interface PostsEdit extends PostsDetails, PostSideComments { // fragment on Post
   readonly user: UsersMinimumInfo|null,
   readonly usersSharedWith: Array<UsersMinimumInfo>,
   readonly coauthors: Array<UsersMinimumInfo>,
-  readonly generateDraftJargon: boolean | null,
+  readonly generateDraftJargon: boolean,
 }
 
 interface PostsEditQueryFragment extends PostsEdit { // fragment on Posts
@@ -3221,7 +3221,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly hideSunshineSidebar: boolean,
   readonly optedOutOfSurveys: boolean | null,
   readonly postGlossariesPinned: boolean,
-  readonly generateJargonForDrafts: boolean | null,
+  readonly generateJargonForDrafts: boolean,
   readonly generateJargonForPublishedPosts: boolean,
 }
 

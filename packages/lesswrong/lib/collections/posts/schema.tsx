@@ -3077,7 +3077,6 @@ const schema: SchemaType<"Posts"> = {
   generateDraftJargon: {
     type: Boolean,
     optional: true,
-    nullable: true,
     hidden: true,
     ...schemaDefaultValue(false),
   },
