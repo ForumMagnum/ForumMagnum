@@ -335,7 +335,7 @@ const GivingSeason2024Banner = ({classes}: {
       didInitialScroll.current = true;
       onClickTimeline(events.findIndex(({name}) => name === currentEvent.name));
     }
-  }, [currentEvent, detailsRef]);
+  }, [events, onClickTimeline, currentEvent, detailsRef]);
 
   const {EAButton} = Components;
   return (
