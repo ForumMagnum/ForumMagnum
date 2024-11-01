@@ -4212,6 +4212,7 @@ interface JargonTermsPost { // fragment on JargonTerms
   readonly term: string,
   readonly humansAndOrAIEdited: "humans" | "AI" | "humansAndAI" | null,
   readonly approved: boolean,
+  readonly deleted: boolean,
   readonly altTerms: Array<string>,
   readonly contents: RevisionDisplay|null,
 }

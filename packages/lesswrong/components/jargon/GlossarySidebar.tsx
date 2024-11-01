@@ -1,4 +1,4 @@
-import React, { useRef, useMemo } from 'react';
+import React, { useRef } from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { userCanViewJargonTerms } from '@/lib/betas';
@@ -6,6 +6,8 @@ import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import classNames from 'classnames';
 import { sidenotesHiddenBreakpoint } from '../posts/PostsPage/PostsPage';
 import { useJargonCounts } from '@/components/hooks/useJargonCounts';
+import { jargonTermsToTextReplacements } from './JargonTooltip';
+import { useTracking } from '@/lib/analyticsEvents';
 
 const styles = (theme: ThemeType) => ({
   glossaryAnchor: {
@@ -40,8 +42,8 @@ const styles = (theme: ThemeType) => ({
     "&:hover": {
       maxHeight: 'unset',
       // Show the pin icon when hovering over the glossary container
-      "& $pinIcon": {
-        display: 'block',
+      "& $pinIcon, & $pinnedPinIcon": {
+        opacity: 1,
       },
     },
 
@@ -85,16 +87,23 @@ const styles = (theme: ThemeType) => ({
   },
   title: {
     flex: 1,
+    display: 'flex',
+    alignItems: 'center',
     ...theme.typography.body2,
     ...theme.typography.postStyle,
   },
   pinIcon: {
-    width: 10,
-    paddingBottom: 4,
-    marginRight: 6,
-    color: theme.palette.grey[600],
+    width: 18,
+    padding: 4,
+    marginLeft: 6,
+    color: theme.palette.grey[400],
     // Hide the pin icon by default, show it when hovering over the glossary container
-    display: 'none',
+    opacity: 0
+  },
+  pinnedPinIcon: {
+    display: 'block',
+    color: theme.palette.grey[800],
+    opacity: .5
   },
   termTooltip: {
     marginRight: 5,
@@ -111,31 +120,48 @@ const styles = (theme: ThemeType) => ({
   unapproved: {
     color: theme.palette.grey[400],
   },
+  deleted: {
+    textDecoration: 'line-through',
+  },
+  showAllTermsButton: {
+    marginTop: 10,
+    cursor: 'pointer',
+    fontSize: '1rem',
+    ...theme.typography.commentStyle,
+    color: theme.palette.grey[400],
+  },
+  showAllTermsTooltipPopper: {
+    maxWidth: 200,
+  },
 })
 
-const getNormalizedPostContents = (post: PostsWithNavigationAndRevision | PostsWithNavigation): string => {
-  return (post.contents?.html ?? "").toLowerCase();
-};
-
-const GlossarySidebar = ({post, postGlossariesPinned, togglePin, classes}: {
+const GlossarySidebar = ({post, postGlossariesPinned, togglePin, showAllTerms, setShowAllTerms, classes}: {
   post: PostsWithNavigationAndRevision | PostsWithNavigation,
   postGlossariesPinned: boolean,
-  togglePin: () => void,
+  togglePin: (source: string) => void,
+  showAllTerms: boolean,
+  setShowAllTerms: (e: React.MouseEvent, showAllTerms: boolean, source: string) => void,
   classes: ClassesType<typeof styles>,
 }) => {
   const { SideItem, JargonTooltip, LWTooltip, ForumIcon } = Components;
 
+  const { captureEvent } = useTracking();
   const currentUser = useCurrentUser();
   const glossaryContainerRef = useRef<HTMLDivElement>(null);
 
   useGlobalKeydown((e) => {
     const J_KeyCode = 74;
     if (e.altKey && e.shiftKey && e.keyCode === J_KeyCode) {
-      togglePin();
+      e.preventDefault();
+      togglePin('hotkey');
     }
   });
 
   const { sortedTerms } = useJargonCounts(post, post.glossary);
+
+  const approvedTerms = sortedTerms.filter(term => term.approved);
+  const unapprovedTerms = sortedTerms.filter(term => !term.approved && !term.deleted);
+  const deletedTerms = sortedTerms.filter(term => term.deleted);
 
   if (!post) {
     return null;
@@ -145,7 +171,7 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, classes}: {
     return null;
   }
 
-  const tooltip = <div><p>Pin to highlight every term. (Opt/Alt + Shift + J)</p></div>;
+  const tooltip = <div><p>Pin to highlight every instance of a term. (Opt/Alt + Shift + J)</p></div>;
   const titleRow = currentUser ? (
     <LWTooltip
       title={tooltip}
@@ -154,8 +180,10 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, classes}: {
       popperClassName={classes.titleRowTooltipPopper}
     >
       <div className={classes.titleRow}>
-        <h3 className={classes.title}><strong>Glossary</strong></h3>
-        <ForumIcon icon='Pin' className={classes.pinIcon} />
+        <h3 className={classes.title}>
+          <strong>Glossary</strong>
+          <ForumIcon icon="Pin" className={classNames(classes.pinIcon, postGlossariesPinned && classes.pinnedPinIcon)} />
+        </h3>
       </div>
     </LWTooltip>
   ) : (
@@ -164,15 +192,20 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, classes}: {
     </div>
   );
 
-  const glossaryItems = sortedTerms.map((jargonTerm) => {
+  const replacedSubstrings = jargonTermsToTextReplacements(sortedTerms);
+
+  const approvedGlossaryItems = approvedTerms.map((jargonTerm) => {
     return (<div key={jargonTerm._id + jargonTerm.term}>
       <JargonTooltip
+        term={jargonTerm.term}
         definitionHTML={jargonTerm.contents?.html ?? ''}
         altTerms={jargonTerm.altTerms}
         humansAndOrAIEdited={jargonTerm.humansAndOrAIEdited}
         approved={jargonTerm.approved}
+        deleted={jargonTerm.deleted}
         placement="left-start"
         tooltipTitleClassName={classes.termTooltip}
+        replacedSubstrings={replacedSubstrings}
         // The terms in the glossary should always have tooltips
         isFirstOccurrence
       >
@@ -181,13 +214,47 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, classes}: {
     </div>);
   });
 
+  const otherGlossaryItems = showAllTerms ? [...unapprovedTerms, ...deletedTerms].map((jargonTerm) => {
+    return (<div key={jargonTerm._id + jargonTerm.term}>
+      <JargonTooltip
+        term={jargonTerm.term}
+        definitionHTML={jargonTerm.contents?.html ?? ''}
+        altTerms={jargonTerm.altTerms}
+        humansAndOrAIEdited={jargonTerm.humansAndOrAIEdited}
+        approved={jargonTerm.approved}
+        deleted={jargonTerm.deleted}
+        placement="left-start"
+        tooltipTitleClassName={classes.termTooltip}
+        // The terms in the glossary should always have tooltips
+        isFirstOccurrence
+        replacedSubstrings={replacedSubstrings}
+      >
+        <div className={classNames(classes.jargonTerm, !jargonTerm.approved && classes.unapproved, jargonTerm.deleted && classes.deleted)}>{jargonTerm.term}</div>
+      </JargonTooltip>
+    </div>);
+  }) : null;
+
+  const showAllTermsTooltip = <div><div>{`Click to ${showAllTerms ? 'hide' : 'show'} hidden AI slop the author doesn't necessarily endorse.`}</div><div><em>(Opt/Alt + Shift + G)</em></div></div>;
+  const showAllTermsButton = <LWTooltip
+    title={showAllTermsTooltip}
+    inlineBlock={false}
+    placement='right-end'
+    popperClassName={classes.showAllTermsTooltipPopper}
+  >
+    <div className={classes.showAllTermsButton} onClick={(e) => setShowAllTerms(e, !showAllTerms, 'showAllTermsButton')}>
+      {showAllTerms ? 'Hide Unapproved' : 'Show Unapproved'}
+    </div>
+  </LWTooltip>;
+
   return <div className={classes.glossaryAnchor}><SideItem options={{ format: 'block', offsetTop: -10, measuredElement: glossaryContainerRef }}>
     <div className={classNames(postGlossariesPinned && classes.outerContainer)}>
       <div className={classNames(postGlossariesPinned && classes.innerContainer)}>
         <div className={classNames(classes.displayedHeightGlossaryContainer, postGlossariesPinned && classes.pinnedGlossaryContainer)} ref={glossaryContainerRef}>
-          <div className={classNames(classes.glossaryContainer, currentUser && classes.glossaryContainerClickTarget)} onClick={currentUser ? togglePin : undefined}>
+          <div className={classNames(classes.glossaryContainer, currentUser && classes.glossaryContainerClickTarget)} onClick={currentUser ? () => togglePin('clickGlossaryContainer') : undefined}>
             {titleRow}
-            {glossaryItems}
+            {approvedGlossaryItems}
+            {otherGlossaryItems}
+            {showAllTermsButton}
           </div>
           <div className={classes.overflowFade} />
         </div>
