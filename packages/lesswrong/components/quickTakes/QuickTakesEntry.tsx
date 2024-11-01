@@ -8,6 +8,8 @@ import {
 } from "../comments/CommentsNewForm";
 import classNames from "classnames";
 import { isFriendlyUI } from "../../themes/forumTheme";
+import { useDialog } from "../common/withDialog";
+import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
 
 const COLLAPSED_HEIGHT = 40;
 
@@ -67,6 +69,14 @@ const styles = (theme: ThemeType) => ({
       display: 'none'
     }
   },
+  userNotApprovedMessage: {
+    background: 'none',
+    border: 'none',
+    padding: '10px 10px 0 10px',
+    fontSize: 14,
+    color: theme.palette.grey[600],
+    fontStyle: 'italic',
+  },
 });
 
 // TODO: decide on copy for LW
@@ -92,6 +102,8 @@ const QuickTakesEntry = ({
   classes: ClassesType<typeof styles>,
 }) => {
   const ref = useRef<HTMLDivElement>(null);
+  const { openDialog } = useDialog();
+  const {onSignup} = useLoginPopoverContext();
   const [expanded, setExpanded] = useState(defaultExpanded);
   const {
     frontpage,
@@ -104,7 +116,21 @@ const QuickTakesEntry = ({
     void cancelCallback?.();
   }, [cancelCallback]);
 
-  const onFocus = useCallback(() => setExpanded(true), []);
+  const onFocus = useCallback(() => {
+    if (currentUser) {
+      setExpanded(true);
+    } else {
+      if (isFriendlyUI) {
+        onSignup();
+      } else {
+        openDialog({
+          componentName: "LoginPopup",
+          componentProps: {}
+        });
+        setExpanded(true);
+      }
+    }
+  }, [currentUser, openDialog, onSignup]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -126,13 +152,19 @@ const QuickTakesEntry = ({
     return null;
   }
 
+  // is true when user is logged out or has not been reviewed yet, i.e. has made no contributions yet
+  const showNewUserMessage = !currentUser?.reviewedByUserId && !isFriendlyUI;
+
   const {CommentsNewForm} = Components;
   return <div className={classNames(classes.root, className)} ref={ref}>
+    {/* TODO: Write a better message for new users */}
+    {expanded && showNewUserMessage && <div className={classes.userNotApprovedMessage}>Quick Takes is an excellent place for your first contribution!</div>}
     <div
       className={classNames(classes.commentEditor, {[classes.collapsed]: !expanded})}
       onFocus={onFocus}
     >
       <CommentsNewForm
+        key={currentUser?._id ?? "logged-out"}
         type='reply'
         prefilledProps={{
           shortform: true,

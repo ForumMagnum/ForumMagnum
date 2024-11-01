@@ -283,9 +283,6 @@ export const eaForumTheme: SiteThemeSpecification = {
           sidebar: {
             top: 26,
           },
-          footerBar: {
-            backgroundColor: palette.grey[200],
-          }
         },
         TabNavigationItem: {
           navButton: {

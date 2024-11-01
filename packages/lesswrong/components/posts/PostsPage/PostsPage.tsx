@@ -25,7 +25,7 @@ import qs from 'qs';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { useOnServerSentEvent } from '../../hooks/useUnreadNotifications';
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema';
-import { unflattenComments } from '../../../lib/utils/unflatten';
+import { CommentTreeNode, unflattenComments } from '../../../lib/utils/unflatten';
 import { useNavigate } from '../../../lib/reactRouterWrapper';
 import { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
 import { ImageProvider } from './ImageContext';
@@ -42,6 +42,7 @@ import DeferRender from '@/components/common/DeferRender';
 import { SideItemVisibilityContextProvider } from '@/components/dropdowns/posts/SetSideItemVisibility';
 import { LW_POST_PAGE_PADDING } from './LWPostsPageHeader';
 import { useCommentLinkState } from '@/components/comments/CommentsItem/useCommentLink';
+import { useCurrentTime } from '@/lib/utils/timeUtil';
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
 export const MAX_COLUMN_WIDTH = 720
@@ -124,22 +125,63 @@ export const getPostDescription = (post: {
   return null;
 };
 
+
+const getCommentStructuredData = ({
+  comment
+}: {
+  comment: CommentTreeNode<CommentsList>
+}): Record<string, any> => ({
+  "@type": "Comment",
+  text: comment.item.contents?.html,
+  datePublished: new Date(comment.item.postedAt).toISOString(),
+  author: [{
+    "@type": "Person",
+    name: comment.item.user?.displayName,
+    url: userGetProfileUrl(comment.item.user, true),
+    interactionStatistic: [
+      {
+        "@type": "InteractionCounter",
+        interactionType: {
+          "@type": "http://schema.org/CommentAction",
+        },
+        userInteractionCount: comment.item.user?.[isAF ? "afCommentCount" : "commentCount"],
+      },
+      {
+        "@type": "InteractionCounter",
+        interactionType: {
+          "@type": "http://schema.org/WriteAction",
+        },
+        userInteractionCount: comment.item.user?.[isAF ? "afPostCount" : "postCount"],
+      },
+    ],
+  }],
+  ...(comment.children.length > 0 && {comment: comment.children.map(child => getCommentStructuredData({comment: child}))})
+})
+
 /**
  * Build structured data for a post to help with SEO.
  */
 const getStructuredData = ({
   post,
   description,
+  commentTree,
+  answersTree
 }: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision;
   description: string | null;
+  commentTree: CommentTreeNode<CommentsList>[];
+  answersTree: CommentTreeNode<CommentsList>[];
 }) => {
   const hasUser = !!post.user;
   const hasCoauthors = !!post.coauthors && post.coauthors.length > 0;
+  const answersAndComments = [...answersTree, ...commentTree];
+  // Get comments from Apollo Cache
 
   return {
     "@context": "http://schema.org",
     "@type": "DiscussionForumPosting",
+    "url": postGetPageUrl(post, true),
+    "text": post.contents?.html,
     mainEntityOfPage: {
       "@type": "WebPage",
       "@id": postGetPageUrl(post, true),
@@ -171,6 +213,7 @@ const getStructuredData = ({
           : []),
       ],
     }),
+    ...(answersAndComments.length > 0 && {comment: answersAndComments.map(comment => getCommentStructuredData({comment}))}),
     interactionStatistic: [
       {
         "@type": "InteractionCounter",
@@ -357,7 +400,7 @@ export const styles = (theme: ThemeType) => ({
     color: theme.palette.text.dim3,
     fontSize: isFriendlyUI ? undefined : theme.typography.body2.fontSize,
     cursor: 'default'
-  }
+  },
 })
 
 const getDebateResponseBlocks = (responses: CommentsList[], replies: CommentsList[]) => responses.map(debateResponse => ({
@@ -389,6 +432,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   const location = useSubscribedLocation();
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
+  const now = useCurrentTime();
   const { openDialog } = useDialog();
   const { recordPostView } = useRecordPostView(post);
   const [showDigestAd, setShowDigestAd] = useState(false)
@@ -544,7 +588,8 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     PostBottomRecommendations, NotifyMeDropdownItem, Row, AnalyticsInViewTracker,
     PostsPageQuestionContent, AFUnreviewedCommentCount, CommentsListSection, CommentsTableOfContents,
     StickyDigestAd, PostsPageSplashHeader, PostsAudioPlayerWrapper, AttributionInViewTracker,
-    ForumEventPostPagePollSection, NotifyMeButton, LWTooltip, PostsPageDate, PostFixedPositionToCHeading
+    ForumEventPostPagePollSection, NotifyMeButton, LWTooltip, PostsPageDate,
+    PostFixedPositionToCHeading
   } = Components
 
   useEffect(() => {
@@ -653,7 +698,22 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     ...postsCommentsThreadMultiOptions,
   });
 
-  const { loading, results, loadMore, loadingMore, totalCount } = useEagerResults ? eagerPostComments.queryResponse : lazyResults;
+  const { loading, results: rawResults, loadMore, loadingMore, totalCount } = useEagerResults ? eagerPostComments.queryResponse : lazyResults;
+
+  // If the user has just posted a comment, and they are sorting by magic, put it at the top of the list for them
+  const results = useMemo(() => {
+    if (!isEAForum || !rawResults || commentTerms.view !== "postCommentsMagic") return rawResults;
+
+    const recentUserComments = rawResults
+      .filter((c) => c.userId === currentUser?._id && now.getTime() - new Date(c.postedAt).getTime() < 60000)
+      .sort((a, b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime());
+
+    if (!recentUserComments.length) return rawResults;
+
+    return [...recentUserComments, ...rawResults.filter((c) => !recentUserComments.includes(c))];
+    // Ignore `now` to make this more stable
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [commentTerms.view, rawResults, currentUser?._id]);
 
   const commentCount = results?.length ?? 0;
   const commentTree = unflattenComments(results ?? []);
@@ -705,7 +765,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
         title={post.title}
         description={description}
         noIndex={noIndex}
-        structuredData={getStructuredData({post: fullPost, description})}
+        structuredData={getStructuredData({post: fullPost, description, commentTree, answersTree})}
       />
       <CitationTags
         title={post.title}
@@ -756,7 +816,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
       </div>
     </DeferRender>
   );
-  
+
   const rightColumnChildren = (welcomeBox || hasSidenotes || (showRecommendations && recommendationsPosition === "right")) && <>
     {welcomeBox}
     {showRecommendations && recommendationsPosition === "right" && fullPost && <PostSideRecommendations post={fullPost} />}

@@ -536,6 +536,8 @@ importComponent("ShortformListItem", () => require('../components/shortform/Shor
 importComponent("ProfileShortform", () => require('../components/shortform/ProfileShortform'));
 
 importComponent("VoteArrowIcon", () => require('../components/votes/VoteArrowIcon'));
+importComponent("VoteArrowIconSolid", () => require('../components/votes/VoteArrowIconSolid'));
+importComponent("VoteArrowIconHollow", () => require('../components/votes/VoteArrowIconHollow'));
 importComponent("VoteAgreementIcon", () => require('../components/votes/VoteAgreementIcon'));
 importComponent("VoteButton", () => require('../components/votes/VoteButton'));
 importComponent("OverallVoteButton", () => require('../components/votes/OverallVoteButton'));
@@ -1215,3 +1217,9 @@ importComponent("LanguageModelLauncherButton", () => require('../components/lang
 importComponent("AutocompleteModelSettings", () => require('../components/languageModels/AutocompleteModelSettings'));
 importComponent("LlmChatWrapper", () => require('../components/languageModels/LlmChatWrapper'));
 importComponent("LlmConversationsViewingPage", () => require('../components/languageModels/LlmConversationsViewingPage'));
+
+importComponent("JargonTooltip", () => require('../components/jargon/JargonTooltip'));
+importComponent("GlossarySidebar", () => require('../components/jargon/GlossarySidebar'));
+importComponent("GlossaryEditForm", () => require('../components/jargon/GlossaryEditForm'));
+importComponent("JargonEditorRow", () => require('../components/jargon/JargonEditorRow'));
+importComponent("GlossaryEditorPage", () => require('../components/jargon/GlossaryEditorPage'));

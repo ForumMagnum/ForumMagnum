@@ -940,8 +940,9 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
 
   */
   submitForm = async (event?: any, submitOptions?: any) => {
-
-    event && event.preventDefault();
+    if (event) {
+      event.preventDefault();
+    }
 
     // if form is disabled (there is already a submit handler running) don't do anything
     if (this.state.disabled) {
