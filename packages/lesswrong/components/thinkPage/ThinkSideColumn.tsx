@@ -46,7 +46,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const ThinkPageSideColumn = ({classes}: {
+export const ThinkSideColumn = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
@@ -111,29 +111,29 @@ export const ThinkPageSideColumn = ({classes}: {
 
 
 
-  const { ThinkPageSideItem, ThinkOmnibar } = Components
+  const { ThinkSideItem, ThinkOmnibar } = Components
 
   return <div className={classes.root}>
     <ThinkOmnibar setWebsiteUrls={setWebsiteUrls} websiteUrls={websiteUrls}/>
     {todaysPosts.length > 0 && <>
       <h3>Today</h3>
-      {todaysPosts.map(post => <ThinkPageSideItem key={post._id} post={post} />)}
+      {todaysPosts.map(post => <ThinkSideItem key={post._id} post={post} />)}
     </>}
     {yesterdaysPosts.length > 0 && <>
       <h3>Yesterday</h3>
-      {yesterdaysPosts.map(post => <ThinkPageSideItem key={post._id} post={post} />)}
+      {yesterdaysPosts.map(post => <ThinkSideItem key={post._id} post={post} />)}
     </>}
     {olderPosts.length > 0 && <>
       <h3>Older</h3>
-      {olderPosts.map(post => <ThinkPageSideItem key={post._id} post={post} />)}
+      {olderPosts.map(post => <ThinkSideItem key={post._id} post={post} />)}
     </>}
   </div>;
 }
 
-const ThinkPageSideColumnComponent = registerComponent('ThinkPageSideColumn', ThinkPageSideColumn, {styles});
+const ThinkSideColumnComponent = registerComponent('ThinkSideColumn', ThinkSideColumn, {styles});
 
 declare global {
   interface ComponentTypes {
-    ThinkPageSideColumn: typeof ThinkPageSideColumnComponent
+    ThinkSideColumn: typeof ThinkSideColumnComponent
   }
 }

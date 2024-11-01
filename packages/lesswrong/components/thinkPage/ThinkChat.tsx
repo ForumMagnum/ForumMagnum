@@ -6,17 +6,17 @@ const styles = (theme: ThemeType) => ({
   root: {
     padding: 16,
     position: 'absolute',
-    bottom: 0,
+    top: "calc(100vh - 100px)",
     right: 0,
     width: '100%',
-    maxWidth: 300,
+    maxWidth: 425,
     [theme.breakpoints.down('md')]: {
       display: 'none',
     },
   }
 });
 
-export const ThinkPageChat = ({classes}: {
+export const ThinkChat = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
@@ -26,10 +26,10 @@ export const ThinkPageChat = ({classes}: {
   </div>;
 }
 
-const ThinkPageChatComponent = registerComponent('ThinkPageChat', ThinkPageChat, {styles});
+const ThinkChatComponent = registerComponent('ThinkChat', ThinkChat, {styles});
 
 declare global {
   interface ComponentTypes {
-    ThinkPageChat: typeof ThinkPageChatComponent
+    ThinkChat: typeof ThinkChatComponent
   }
 }

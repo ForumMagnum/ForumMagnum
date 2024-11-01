@@ -2,7 +2,7 @@ import sanitize from 'sanitize-html';
 import { addGraphQLResolvers, addGraphQLQuery } from '../../lib/vulcan-lib/graphql';
 import { URL } from 'url';
 import cheerio from 'cheerio';
-import { WebsiteData } from '../../components/thinkPage/ThinkPageSideColumn';
+import { WebsiteData } from '../../components/thinkPage/ThinkSideColumn';
 
 // Function to clean text by removing newlines and excessive whitespace
 function cleanText(text: string): string {

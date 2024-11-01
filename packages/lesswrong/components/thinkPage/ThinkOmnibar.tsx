@@ -4,7 +4,7 @@ import { useTracking } from "../../lib/analyticsEvents";
 import Input from '@material-ui/core/Input';
 import { useLazyQuery } from '@apollo/client';
 import gql from 'graphql-tag';
-import { WebsiteData } from './ThinkPageSideColumn';
+import { WebsiteData } from './ThinkSideColumn';
 
 const styles = (theme: ThemeType) => ({
   root: {

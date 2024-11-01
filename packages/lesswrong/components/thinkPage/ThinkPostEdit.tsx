@@ -10,26 +10,26 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const ThinkPagePostEdit  = ({classes}: {
+export const ThinkPostEdit  = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
 
-  const { PostsEditForm, ThinkPageWrapper } = Components;
+  const { PostsEditForm, ThinkWrapper } = Components;
 
   const { params } = useLocation();
   const documentId = params.documentId;
   const version = params.version;
 
-  return <ThinkPageWrapper>
+  return <ThinkWrapper>
     <PostsEditForm documentId={documentId} version={version} showTableOfContents={false}/>
-  </ThinkPageWrapper>
+  </ThinkWrapper>
 }
 
-const ThinkPagePostEditComponent = registerComponent('ThinkPagePostEdit', ThinkPagePostEdit, {styles});
+const ThinkPostEditComponent = registerComponent('ThinkPostEdit', ThinkPostEdit, {styles});
 
 declare global {
   interface ComponentTypes {
-    ThinkPagePostEdit: typeof ThinkPagePostEditComponent
+    ThinkPostEdit: typeof ThinkPostEditComponent
   }
 }

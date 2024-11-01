@@ -44,7 +44,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const ThinkPageSideItem = ({post, classes}: {
+export const ThinkSideItem = ({post, classes}: {
   post: PostsListWithVotes,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -68,10 +68,10 @@ export const ThinkPageSideItem = ({post, classes}: {
   </Link>;
 }
 
-const ThinkPageSideItemComponent = registerComponent('ThinkPageSideItem', ThinkPageSideItem, {styles});
+const ThinkSideItemComponent = registerComponent('ThinkSideItem', ThinkSideItem, {styles});
 
 declare global {
   interface ComponentTypes {
-    ThinkPageSideItem: typeof ThinkPageSideItemComponent
+    ThinkSideItem: typeof ThinkSideItemComponent
   }
 }

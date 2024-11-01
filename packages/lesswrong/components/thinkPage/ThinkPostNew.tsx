@@ -9,22 +9,22 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const ThinkPagePostNew = ({classes}: {
+export const ThinkPostNew = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
 
-  const { PostsNewForm, ThinkPageWrapper } = Components;
+  const { PostsNewForm, ThinkWrapper } = Components;
 
-  return <ThinkPageWrapper>
+  return <ThinkWrapper>
     <PostsNewForm showTableOfContents={false} />
-  </ThinkPageWrapper>
+  </ThinkWrapper>
 }
 
-const ThinkPagePostNewComponent = registerComponent('ThinkPagePostNew', ThinkPagePostNew, {styles});
+const ThinkPostNewComponent = registerComponent('ThinkPostNew', ThinkPostNew, {styles});
 
 declare global {
   interface ComponentTypes {
-    ThinkPagePostNew: typeof ThinkPagePostNewComponent
+    ThinkPostNew: typeof ThinkPostNewComponent
   }
 }

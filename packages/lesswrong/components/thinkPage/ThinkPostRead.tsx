@@ -9,7 +9,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const ThinkPagePostRead = ({classes}: {
+export const ThinkPostRead = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
@@ -18,10 +18,10 @@ export const ThinkPagePostRead = ({classes}: {
   </div>;
 }
 
-const ThinkPagePostReadComponent = registerComponent('ThinkPagePostRead', ThinkPagePostRead, {styles});
+const ThinkPostReadComponent = registerComponent('ThinkPostRead', ThinkPostRead, {styles});
 
 declare global {
   interface ComponentTypes {
-    ThinkPagePostRead: typeof ThinkPagePostReadComponent
+    ThinkPostRead: typeof ThinkPostReadComponent
   }
 }

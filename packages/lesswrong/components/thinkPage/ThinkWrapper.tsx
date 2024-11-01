@@ -87,26 +87,26 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const ThinkPageWrapper = ({classes, children}: {
+export const ThinkWrapper = ({classes, children}: {
   classes: ClassesType<typeof styles>,
   children: React.ReactNode,
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
 
-  const { ThinkPageSideColumn, ThinkPageChat } = Components;
+  const { ThinkSideColumn, ThinkChat } = Components;
   return <div className={classes.root}>
-    <ThinkPageSideColumn />
+    <ThinkSideColumn />
     <div className={classes.formContainer}>
       {children}
     </div>
-    <ThinkPageChat />
+    <ThinkChat />
   </div>;
 }
 
-const ThinkPageWrapperComponent = registerComponent('ThinkPageWrapper', ThinkPageWrapper, {styles});
+const ThinkWrapperComponent = registerComponent('ThinkWrapper', ThinkWrapper, {styles});
 
 declare global {
   interface ComponentTypes {
-    ThinkPageWrapper: typeof ThinkPageWrapperComponent
+    ThinkWrapper: typeof ThinkWrapperComponent
   }
 }
