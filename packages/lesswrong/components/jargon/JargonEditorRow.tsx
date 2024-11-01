@@ -120,7 +120,7 @@ const styles = (theme: ThemeType) => ({
   },
   explanationContainer: {
     cursor: 'text',
-    paddingBottom: 4
+    paddingBottom: 2
   },
   checkbox: {
     width: 24,
@@ -140,7 +140,7 @@ const styles = (theme: ThemeType) => ({
   },
   definition: {
     lineHeight: 1.6,
-    height: '1.6rem',
+    height: '1.8rem',
     overflow: 'hidden',
     minWidth: 100,
     paddingRight: 8,
@@ -254,11 +254,13 @@ export const JargonEditorRow = ({classes, jargonTerm, instancesOfJargonCount, se
           />
         </div>
       :  <JargonTooltip
+          term={jargonTerm.term}
           definitionHTML={jargonDefinition}
           altTerms={jargonTerm.altTerms ?? []}
           humansAndOrAIEdited={jargonTerm.humansAndOrAIEdited}
           placement="bottom-end"
           approved={jargonTerm.approved}
+          deleted={jargonTerm.deleted}
           forceTooltip={true}
         >
           <div className={classNames(classes.explanationContainer, !jargonTerm.approved && classes.unapproved)} onClick={() => {

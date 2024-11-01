@@ -859,8 +859,7 @@ const schema: SchemaType<"Posts"> = {
         return [];
       }
 
-      const approvedClause = userCanViewUnapprovedJargonTerms(context.currentUser) ? {} : { approved: true };
-      const jargonTerms = await context.JargonTerms.find({ postId: post._id, deleted: false, ...approvedClause }, { sort: { term: 1 }}).fetch();
+      const jargonTerms = await context.JargonTerms.find({ postId: post._id }, { sort: { term: 1 }}).fetch();
 
       return await accessFilterMultiple(context.currentUser, context.JargonTerms, jargonTerms, context);
     },
@@ -868,11 +867,6 @@ const schema: SchemaType<"Posts"> = {
       SELECT ARRAY_AGG(ROW_TO_JSON(jt.*) ORDER BY jt."term" ASC)
       FROM "JargonTerms" jt
       WHERE jt."postId" = ${field('_id')}
-      AND CASE WHEN ${currentUserField('isAdmin')} IS NOT TRUE 
-        THEN jt."approved" IS TRUE 
-        ELSE TRUE 
-      END
-      AND jt."deleted" IS NOT TRUE
       LIMIT 1
     )`
   }),
