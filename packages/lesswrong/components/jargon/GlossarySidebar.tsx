@@ -7,6 +7,7 @@ import classNames from 'classnames';
 import { sidenotesHiddenBreakpoint } from '../posts/PostsPage/PostsPage';
 import { useJargonCounts } from '@/components/hooks/useJargonCounts';
 import { jargonTermsToTextReplacements } from './JargonTooltip';
+import { useTracking } from '@/lib/analyticsEvents';
 
 const styles = (theme: ThemeType) => ({
   glossaryAnchor: {
@@ -134,13 +135,14 @@ const styles = (theme: ThemeType) => ({
 const GlossarySidebar = ({post, postGlossariesPinned, togglePin, showAllTerms, setShowAllTerms, classes}: {
   post: PostsWithNavigationAndRevision | PostsWithNavigation,
   postGlossariesPinned: boolean,
-  togglePin: () => void,
+  togglePin: (source: string) => void,
   showAllTerms: boolean,
-  setShowAllTerms: (e: React.MouseEvent, showAllTerms: boolean) => void,
+  setShowAllTerms: (e: React.MouseEvent, showAllTerms: boolean, source: string) => void,
   classes: ClassesType<typeof styles>,
 }) => {
   const { SideItem, JargonTooltip, LWTooltip, ForumIcon } = Components;
 
+  const { captureEvent } = useTracking();
   const currentUser = useCurrentUser();
   const glossaryContainerRef = useRef<HTMLDivElement>(null);
 
@@ -148,7 +150,7 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, showAllTerms, s
     const J_KeyCode = 74;
     if (e.altKey && e.shiftKey && e.keyCode === J_KeyCode) {
       e.preventDefault();
-      togglePin();
+      togglePin('hotkey');
     }
   });
 
@@ -192,6 +194,7 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, showAllTerms, s
   const approvedGlossaryItems = approvedTerms.map((jargonTerm) => {
     return (<div key={jargonTerm._id + jargonTerm.term}>
       <JargonTooltip
+        term={jargonTerm.term}
         definitionHTML={jargonTerm.contents?.html ?? ''}
         altTerms={jargonTerm.altTerms}
         humansAndOrAIEdited={jargonTerm.humansAndOrAIEdited}
@@ -211,6 +214,7 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, showAllTerms, s
   const otherGlossaryItems = showAllTerms ? [...unapprovedTerms, ...deletedTerms].map((jargonTerm) => {
     return (<div key={jargonTerm._id + jargonTerm.term}>
       <JargonTooltip
+        term={jargonTerm.term}
         definitionHTML={jargonTerm.contents?.html ?? ''}
         altTerms={jargonTerm.altTerms}
         humansAndOrAIEdited={jargonTerm.humansAndOrAIEdited}
@@ -227,14 +231,14 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, showAllTerms, s
     </div>);
   }) : null;
 
-  const showAllTermsTooltip = <div><div>{`Click to ${showAllTerms ? 'hide' : 'show'} terms the author hasn't approved.  These may be lower quality.`}</div><div><em>(Opt/Alt + Shift + G)</em></div></div>;
+  const showAllTermsTooltip = <div><div>{`Click to ${showAllTerms ? 'hide' : 'show'} hidden AI slop that the author doesn't necessarily endorse.`}</div><div><em>(Opt/Alt + Shift + G)</em></div></div>;
   const showAllTermsButton = <LWTooltip
     title={showAllTermsTooltip}
     inlineBlock={false}
     placement='right-end'
     popperClassName={classes.showAllTermsTooltipPopper}
   >
-    <div className={classes.showAllTermsButton} onClick={(e) => setShowAllTerms(e, !showAllTerms)}>
+    <div className={classes.showAllTermsButton} onClick={(e) => setShowAllTerms(e, !showAllTerms, 'showAllTermsButton')}>
       {showAllTerms ? 'Hide Unapproved Terms' : 'Show Unapproved Terms'}
     </div>
   </LWTooltip>;
@@ -243,7 +247,7 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, showAllTerms, s
     <div className={classNames(postGlossariesPinned && classes.outerContainer)}>
       <div className={classNames(postGlossariesPinned && classes.innerContainer)}>
         <div className={classNames(classes.displayedHeightGlossaryContainer, postGlossariesPinned && classes.pinnedGlossaryContainer)} ref={glossaryContainerRef}>
-          <div className={classNames(classes.glossaryContainer, currentUser && classes.glossaryContainerClickTarget)} onClick={currentUser ? togglePin : undefined}>
+          <div className={classNames(classes.glossaryContainer, currentUser && classes.glossaryContainerClickTarget)} onClick={currentUser ? () => togglePin('clickGlossaryContainer') : undefined}>
             {titleRow}
             {approvedGlossaryItems}
             {otherGlossaryItems}

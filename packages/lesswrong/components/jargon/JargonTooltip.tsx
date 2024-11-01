@@ -5,6 +5,7 @@ import { commentBodyStyles } from '@/themes/stylePiping';
 import { ContentReplacedSubstringComponentInfo } from '../common/ContentItemBody';
 import { PopperPlacementType } from '@material-ui/core/Popper';
 import { useGlossaryPinnedState } from '../hooks/useUpdateGlossaryPinnedState';
+import { useTracking } from '@/lib/analyticsEvents';
 
 const styles = (theme: ThemeType) => ({
   card: {
@@ -84,7 +85,8 @@ export function jargonTermsToTextReplacements(terms: JargonTermsPost[]): Content
   return terms.map(convertGlossaryItemToTextReplacement);
 }
 
-export const JargonTooltip = ({definitionHTML, approved, deleted, humansAndOrAIEdited, isFirstOccurrence = false, placement="right-start", children, classes, tooltipClassName, tooltipTitleClassName, forceTooltip=false, replacedSubstrings}: {
+export const JargonTooltip = ({term, definitionHTML, approved, deleted, humansAndOrAIEdited, isFirstOccurrence = false, placement="right-start", children, classes, tooltipClassName, tooltipTitleClassName, forceTooltip=false, replacedSubstrings}: {
+  term: string,
   definitionHTML: string,
   approved: boolean,
   deleted: boolean,
@@ -100,10 +102,15 @@ export const JargonTooltip = ({definitionHTML, approved, deleted, humansAndOrAIE
   replacedSubstrings?: ContentReplacedSubstringComponentInfo[],
 }) => {
   const { LWTooltip, ContentItemBody, ForumIcon, LWClickAwayListener } = Components;
-
+  const { captureEvent } = useTracking();
   const [open, setOpen] = useState(false);
 
   const { postGlossariesPinned } = useGlossaryPinnedState();
+
+  const clickTooltip = () => {
+    captureEvent('clickJargonTermInPost', { term });
+    setOpen(!open);
+  };
 
   let humansAndOrAIEditedText = 'AI Generated'
   let icons = <ForumIcon icon="Sparkles" className={classes.icon}/>;
@@ -150,7 +157,7 @@ export const JargonTooltip = ({definitionHTML, approved, deleted, humansAndOrAIE
     forceOpen={open}
   >
     <LWClickAwayListener onClickAway={() => setOpen(false)}>
-      <span className={classes.jargonWord} onClick={() => setOpen(!open)}>
+      <span className={classes.jargonWord} onClick={clickTooltip}>
         {children}
       </span>
     </LWClickAwayListener>
