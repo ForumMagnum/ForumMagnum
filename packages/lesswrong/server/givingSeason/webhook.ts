@@ -1,6 +1,6 @@
 import { Express, Request, json } from "express";
 import { Globals } from "@/lib/vulcan-lib";
-import { PublicInstanceSetting } from "@/lib/instanceSettings";
+import { PublicInstanceSetting, isEAForum } from "@/lib/instanceSettings";
 import { captureEvent } from "@/lib/analyticsEvents";
 import { DatabaseMetadataRepo } from "@/server/repos";
 import { getExchangeRate } from "./currencies";
@@ -72,6 +72,10 @@ type WebhookPayload = {
 }
 
 export const addGivingSeasonEndpoints = (app: Express) => {
+  if (!isEAForum) {
+    return;
+  }
+
   const webhook = "/api/donation-election-2024-webhook";
   app.use(webhook, json({limit: "10mb"}));
   app.post(webhook, async (req, res) => {
