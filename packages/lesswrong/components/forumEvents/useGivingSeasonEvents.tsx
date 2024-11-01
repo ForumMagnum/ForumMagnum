@@ -52,10 +52,9 @@ const events: GivingSeasonEvent[] = [
   {
     name: "Marginal Funding Week",
     description: <>
-      Here is a description of what Marginal Funding Week is and how to engage{" "}
-      with it. Probably also a{" "}
+      A week for organisations to explain what they would do with marginal funding.{" "}
       <Link to="/posts/srZEX2r9upbwfnRKw/giving-season-2024-announcement#November_11___17__Marginal_Funding_Week">
-        link to the posts
+        Read more.
       </Link>.
     </>,
     start: moment("2024-11-12").utc(),
