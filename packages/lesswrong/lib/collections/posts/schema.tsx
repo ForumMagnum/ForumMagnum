@@ -3079,6 +3079,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     nullable: true,
     hidden: true,
+    ...schemaDefaultValue(false),
   },
 };
 
