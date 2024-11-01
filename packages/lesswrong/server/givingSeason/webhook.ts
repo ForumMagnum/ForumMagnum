@@ -1,5 +1,6 @@
-import { Express, json } from "express";
+import { Express, Request, json } from "express";
 import { Globals } from "@/lib/vulcan-lib";
+import { PublicInstanceSetting } from "@/lib/instanceSettings";
 import { captureEvent } from "@/lib/analyticsEvents";
 import { DatabaseMetadataRepo } from "@/server/repos";
 import { getExchangeRate } from "./currencies";
@@ -14,6 +15,33 @@ Globals.setGivingSeasonTotal = async (usdAmount: number) => {
   if (Number.isFinite(usdAmount) && usdAmount > 0) {
     await new DatabaseMetadataRepo().setGivingSeason2024DonationTotal(usdAmount);
   }
+}
+
+const everyBearer = new PublicInstanceSetting<string | null>(
+  "givingSeason.everyBearer",
+  null,
+  "optional",
+);
+
+const hasVerifiedBearer = (req: Request): boolean => {
+  const token = everyBearer.get();
+  if (!token) {
+    // eslint-disable-next-line no-console
+    console.warn("Every.org bearer token not configured");
+    return false;
+  }
+  const auth = req.headers.authorization;
+  if (!auth) {
+    // eslint-disable-next-line no-console
+    console.warn("Every.org auth header not present:", req.headers);
+    return false;
+  }
+  if (auth !== `Bearer ${token}`) {
+    // eslint-disable-next-line no-console
+    console.warn("Invalid every.org auth header:", auth);
+    return false;
+  }
+  return true;
 }
 
 // See https://docs.every.org/docs/webhooks/
@@ -47,20 +75,26 @@ export const addGivingSeasonEndpoints = (app: Express) => {
   const webhook = "/api/donation-election-2024-webhook";
   app.use(webhook, json({limit: "10mb"}));
   app.post(webhook, async (req, res) => {
+    const isVerified = hasVerifiedBearer(req);
+
     const payload = req.body as WebhookPayload;
     const {amount = "0", currency = "USD"} = payload;
     const parsedAmount = parseFloat(amount);
     const exchangeRate = await getExchangeRate(currency);
     const usdAmount = parsedAmount * exchangeRate;
-    if (Number.isFinite(usdAmount) && usdAmount > 0) {
+
+    if (isVerified && Number.isFinite(usdAmount) && usdAmount > 0) {
       await Globals.addToGivingSeasonTotal(usdAmount);
     }
+
     captureEvent("givingSeason2024Donation", {
+      isVerified,
       payload: payload as Json,
       parsedAmount,
       exchangeRate,
       usdAmount,
     });
+
     res.status(200).end("");
   });
 }
