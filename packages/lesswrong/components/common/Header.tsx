@@ -121,14 +121,6 @@ export const styles = (theme: ThemeType) => ({
         padding: '9px 11px',
       },
     } : {}),
-
-    // Transition for giving season 2024
-    transition: isEAForum ? "color 0.5s ease" : undefined,
-    "& *": {
-      transition: isEAForum
-        ? "color 0.5s ease, background-color 0.5s ease"
-        : undefined,
-    },
   },
   appBarDarkBackground: {
     ...textColorOverrideStyles({
