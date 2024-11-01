@@ -24,7 +24,7 @@ const initGlobals = (args: Record<string, unknown>, isProd: boolean) => {
     buildProcessPid: -1,
   });
 
-  const { getInstanceSettings } = require("./packages/lesswrong/lib/executionEnvironment");
+  const { getInstanceSettings } = require("./packages/lesswrong/lib/getInstanceSettings");
   getInstanceSettings(args); // These args will be cached for later
 }
 
