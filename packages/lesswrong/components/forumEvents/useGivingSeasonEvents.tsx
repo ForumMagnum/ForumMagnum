@@ -1,9 +1,30 @@
 import React, { Dispatch, ReactNode, createContext, useContext, useState } from "react";
+import { siteUrlSetting } from "@/lib/instanceSettings";
 import { Link } from "@/lib/reactRouterWrapper";
 import moment, { Moment } from "moment";
+import qs from "qs";
 
 export const GIVING_SEASON_DESKTOP_WIDTH = 1220;
 export const GIVING_SEASON_MOBILE_WIDTH = 900;
+
+export const GIVING_SEASON_DONATE_HREF = "https://www.every.org/effectivealtruism?no_exit=true&success_url=https%253A%252F%252Fforum.effectivealtruism.org#/donate";
+
+export const getDonateLink = (currentUser: UsersCurrent | null) => {
+  // See docs at https://docs.every.org/docs/donate-link
+  const params: Record<string, string> = {
+    no_exit: "true",
+    success_url: siteUrlSetting.get(),
+    exit_url: siteUrlSetting.get(),
+    frequency: "ONCE",
+    theme_color: "0c869b",
+    ...(currentUser?.email && {
+      email: currentUser.email,
+    }),
+  };
+  // TODO: Update this fund to the giving season fund instead of general cea
+  const fund = "effectivealtruism";
+  return `https://www.every.org/${fund}?${qs.stringify(params)}#/donate`;
+}
 
 type GivingSeasonEvent = {
   name: string,

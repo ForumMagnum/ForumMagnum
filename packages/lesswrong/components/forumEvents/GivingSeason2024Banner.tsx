@@ -1,11 +1,13 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { Link } from "@/lib/reactRouterWrapper";
+import { useCurrentUser } from "../common/withUser";
 import { formatStat } from "../users/EAUserTooltipContent";
 import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from "../common/Header";
 import {
   GIVING_SEASON_DESKTOP_WIDTH,
   GIVING_SEASON_MOBILE_WIDTH,
+  getDonateLink,
   useGivingSeasonEvents,
 } from "./useGivingSeasonEvents";
 import classNames from "classnames";
@@ -273,6 +275,7 @@ const GivingSeason2024Banner = ({classes}: {
     amountRaised,
     amountTarget,
   } = useGivingSeasonEvents();
+  const currentUser = useCurrentUser();
   const [timelineRef, setTimelineRef] = useState<HTMLDivElement | null>(null);
   const [detailsRef, setDetailsRef] = useState<HTMLDivElement | null>(null);
   const [lastTimelineClick, setLastTimelineClick] = useState<number>();
@@ -409,7 +412,10 @@ const GivingSeason2024Banner = ({classes}: {
                 className={classes.fundBar}
               />
             </div>
-            <EAButton className={classes.donateButton}>
+            <EAButton
+              href={getDonateLink(currentUser)}
+              className={classes.donateButton}
+            >
               Donate
             </EAButton>
           </div>
