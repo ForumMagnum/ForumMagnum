@@ -18,7 +18,7 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center",
     borderRadius: 24,
     height: 48,
-    width: 120,
+    width: 100,
     padding: 10,
     cursor: "pointer",
     // TODO: Currently the shadow and animation effects on hover don't show up in darkmode
@@ -39,6 +39,7 @@ const styles = (theme: ThemeType) => ({
   icon: {
     witdh: 16,
     height: 16,
+    marginLeft: -4,
     color: theme.palette.grey[500]
   }
 });
@@ -68,7 +69,7 @@ export const LanguageModelLauncherButton = ({classes}: {
   }, []);
 
   return <div className={classes.root} onClick={openLlmChat}>
-    <ForumIcon icon="Sparkles" className={classes.icon} /> LLM Chat...
+    <ForumIcon icon="Sparkles" className={classes.icon} /> AI Chat
   </div>;
 }
 
