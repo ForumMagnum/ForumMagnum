@@ -40,18 +40,13 @@ const fetchWebsiteHtmlResolvers = {
         const sanitizedHtml = sanitize(html);
         const cheerioTool = cheerio.load(sanitizedHtml);
         const getTitle = cheerioTool('title').text().trim();
-        const bodyText = cleanText(cheerioTool('body').text());
-        const paragraphText = cleanText(cheerioTool('p').text());
+        const bodyHtml = cheerioTool('body').html() ?? '';
+        const body = cleanText(cheerioTool('body').text()) ?? '';
+        const paragraph = cleanText(cheerioTool('p').text()) ?? '';
+        const paragraphHtml = cheerioTool('p').html() ?? '';
         const title = getTitle ?? '';
 
-        return {
-          title,
-          url,
-          body: bodyText,
-          paragraph: paragraphText,
-          bodyLength: bodyText.length,
-          paragraphLength: paragraphText.length,
-        };
+        return { title, url, body, paragraph, bodyHtml, paragraphHtml };
       } catch (error: any) {
         throw new Error(`Error fetching URL ${url}: ${error.message}`);
       }

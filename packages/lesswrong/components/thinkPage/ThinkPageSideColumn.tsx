@@ -12,9 +12,9 @@ export type WebsiteData = {
   title: string;
   url: string;
   body: string;
-  bodyLength: number;
   paragraph: string;
-  paragraphLength: number;
+  bodyHtml: string;
+  paragraphHtml: string;
 };
 
 const styles = (theme: ThemeType) => ({
