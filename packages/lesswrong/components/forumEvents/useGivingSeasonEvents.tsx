@@ -1,8 +1,10 @@
 import React, { Dispatch, ReactNode, createContext, useContext, useState } from "react";
-import { siteUrlSetting } from "@/lib/instanceSettings";
+import { isEAForum, siteUrlSetting } from "@/lib/instanceSettings";
 import { Link } from "@/lib/reactRouterWrapper";
 import moment, { Moment } from "moment";
 import qs from "qs";
+import gql from "graphql-tag";
+import { useQuery } from "@apollo/client";
 
 export const GIVING_SEASON_DESKTOP_WIDTH = 1220;
 export const GIVING_SEASON_MOBILE_WIDTH = 900;
@@ -116,24 +118,37 @@ const givingSeasonEventsContext = createContext<GivingSeasonEventsContext>({
   selectedEvent: events[0],
   setSelectedEvent: () => {},
   amountRaised: 0,
-  amountTarget: 10000,
+  amountTarget: 35000,
 });
+
+const amountRaisedQuery = gql`
+  query GivingSeason2024DonationTotal {
+    GivingSeason2024DonationTotal
+  }
+`;
 
 export const GivingSeasonEventsProvider = ({children}: {children: ReactNode}) => {
   const currentEvent = getCurrentEvent();
   const [selectedEvent, setSelectedEvent] = useState(currentEvent ?? events[0]);
+
+  const {data} = useQuery(amountRaisedQuery, {
+    pollInterval: 60 * 1000, // Poll once per minute
+    ssr: true,
+    skip: !isEAForum,
+  });
+
   return (
     <givingSeasonEventsContext.Provider value={{
       events,
       currentEvent,
       selectedEvent,
       setSelectedEvent,
-      amountRaised: 0, // TODO: Where does this come from?
-      amountTarget: 10000,
+      amountRaised: data?.GivingSeason2024DonationTotal ?? 0,
+      amountTarget: 35000,
     }}>
       {children}
     </givingSeasonEventsContext.Provider>
   );
 }
 
-export const useGivingSeasonEvents = () => useContext(givingSeasonEventsContext);
+export const useGivingSeasonEvents = () => useContext(givingSeasonEventsContext)

@@ -246,6 +246,7 @@ const styles = (theme: ThemeType) => ({
   fundBar: {
     height: "100%",
     background: theme.palette.text.alwaysWhite,
+    transition: "width 0.5s ease",
   },
   fundAmount: {
     fontWeight: 700,
@@ -403,7 +404,7 @@ const GivingSeason2024Banner = ({classes}: {
             </div>
             <div className={classes.fundRaised}>
               <span className={classes.fundAmount}>
-                ${formatStat(amountRaised)}
+                ${formatStat(Math.round(amountRaised))}
               </span> raised
             </div>
             <div className={classes.fundBarContainer}>
