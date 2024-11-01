@@ -9,6 +9,7 @@ import {
 import classNames from "classnames";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import { useDialog } from "../common/withDialog";
+import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
 
 const COLLAPSED_HEIGHT = 40;
 
@@ -31,10 +32,8 @@ const styles = (theme: ThemeType) => ({
     },
   },
   collapsed: {
-    '& .quickTakesForm': {
-      height: COLLAPSED_HEIGHT + (2 * COMMENTS_NEW_FORM_PADDING),
-      overflow: "hidden",
-    },
+    height: COLLAPSED_HEIGHT + (2 * COMMENTS_NEW_FORM_PADDING),
+    overflow: "hidden",
   },
   commentForm: {
     '& .form-input': {
@@ -104,6 +103,7 @@ const QuickTakesEntry = ({
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const { openDialog } = useDialog();
+  const {onSignup} = useLoginPopoverContext();
   const [expanded, setExpanded] = useState(defaultExpanded);
   const {
     frontpage,
@@ -117,14 +117,20 @@ const QuickTakesEntry = ({
   }, [cancelCallback]);
 
   const onFocus = useCallback(() => {
-    if (!currentUser) {
-      openDialog({
-        componentName: "LoginPopup",
-        componentProps: {}
-      });
+    if (currentUser) {
+      setExpanded(true);
+    } else {
+      if (isFriendlyUI) {
+        onSignup();
+      } else {
+        openDialog({
+          componentName: "LoginPopup",
+          componentProps: {}
+        });
+        setExpanded(true);
+      }
     }
-    setExpanded(true);
-  }, [currentUser, openDialog]);
+  }, [currentUser, openDialog, onSignup]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -147,7 +153,7 @@ const QuickTakesEntry = ({
   }
 
   // is true when user is logged out or has not been reviewed yet, i.e. has made no contributions yet
-  const showNewUserMessage = !currentUser?.reviewedByUserId;
+  const showNewUserMessage = !currentUser?.reviewedByUserId && !isFriendlyUI;
 
   const {CommentsNewForm} = Components;
   return <div className={classNames(classes.root, className)} ref={ref}>
@@ -158,6 +164,7 @@ const QuickTakesEntry = ({
       onFocus={onFocus}
     >
       <CommentsNewForm
+        key={currentUser?._id ?? "logged-out"}
         type='reply'
         prefilledProps={{
           shortform: true,
