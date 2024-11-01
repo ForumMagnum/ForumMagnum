@@ -113,12 +113,12 @@ const styles = (theme: ThemeType) => ({
     userSelect: "none",
     opacity: 0.6,
     transition: "opacity 0.5s ease",
-    // Use `after` to overlay the same text but with the higher font weight as
-    // if it's selected, even if it's not. This means that the size of each
-    // title won't change when they switch between active/inactive.
     "&:hover": {
       opacity: 1,
     },
+    // Use `after` to overlay the same text but with the higher font weight as
+    // if it's selected, even if it's not. This means that the size of each
+    // title won't change when they switch between active/inactive.
     "&:after": {
       display: "block",
       content: "attr(data-title)",
