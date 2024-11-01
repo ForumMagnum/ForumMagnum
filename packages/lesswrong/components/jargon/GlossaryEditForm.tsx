@@ -16,9 +16,9 @@ We're about to provide you with the text of an essay, followed by a list of jarg
 
 For each term, provide:
   
-The term itself (wrapped in a <strong> tag), followed by a concise one-line definition. Then, on a separate paragraph, explain how the term is used here.
+The term itself (wrapped in a <strong> tag), followed by a concise one-line definition. Then, on a separate paragraph, explain how the term is used in this context (although it's important not to use the phrase "in this context" or "in this post" - just explain how this concept fits into the other concepts in the post).
 
-Ensure that your explanations are clear and accessible to someone who may not be familiar with the subject matter. Follow Strunk and White guidelines. 
+Ensure that your explanations are clear and accessible to someone who may not be familiar with the subject matter. Follow Strunk and White guidelines.
 
 Use your general knowledge, as well as the post's specific explanations or definitions of the term, to decide on an appropriate definition.
 
@@ -39,7 +39,7 @@ export interface ExampleJargonGlossaryEntry {
 export const defaultExampleTerm = 'latent variables'
 export const defaultExampleAltTerm = 'latents'
 export const defaultExampleDefinition = `<div>
-  <p><b>Latent variables:</b> Variables which an agent's world model includes but which are not directly observed.</p>
+  <p><b>Latent variables:</b> Variables which an agent's world model includes, but which are not directly observed.</p>
   <p>These variables are not part of the data distribution, but can help explain the data distribution.</p>
 </div>`
 
@@ -61,7 +61,7 @@ const styles = (theme: ThemeType) => ({
     marginBottom: -16,
   },
   window: {
-    maxHeight: 215,
+    maxHeight: 160,
     overflowY: 'scroll',
     display: 'flex',
     justifyContent: 'space-between',
@@ -323,6 +323,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   const { JargonEditorRow, LoadMore, Loading, LWTooltip, WrappedSmartForm, IconRight, IconDown, ForumIcon, Row } = Components;
 
   const promptEditor = <div>
+    <h3>WARNING! This will not be saved after page reload</h3>
     <TextField
       label="Prompt"
       value={glossaryPrompt}
@@ -382,13 +383,13 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     </LWTooltip>
     <div className={classes.headerButtons}>
       <LWTooltip title="Enable all glossary hoverovers for readers of this post">
-        <div className={classNames(classes.headerButton, sortedApprovedTerms.length !== 0 && classes.disabled)} 
+        <div className={classNames(classes.headerButton, sortedUnapprovedTerms.length === 0 && classes.disabled)} 
           onClick={() => handleSetApproveAll(true)}>
           ENABLE ALL{ sortedUnapprovedTerms.length > 0 ? ` (${sortedUnapprovedTerms.length})` : '' }
         </div>
       </LWTooltip>
       <LWTooltip title="Disable all glossary hoverovers for readers of this post">
-        <div className={classNames(classes.headerButton, sortedUnapprovedTerms.length !== 0 && classes.disabled)} 
+        <div className={classNames(classes.headerButton, sortedApprovedTerms.length === 0 && classes.disabled)} 
           onClick={() => handleSetApproveAll(false)}>
           DISABLE ALL{ sortedApprovedTerms.length > 0 ?  ` (${sortedApprovedTerms.length})` : '' }
         </div>
@@ -396,7 +397,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
       <LWTooltip title={<div><p>Hide all terms that aren't currently enabled</p><p>(you can unhide them later)</p></div>}>
         <div className={classNames(classes.headerButton, sortedUnapprovedTerms.length === 0 && classes.disabled)} onClick={handleDeleteUnused}>HIDE DISABLED TERMS</div>
       </LWTooltip>
-      <LWTooltip title="Unhide all deleted terms">
+      <LWTooltip title="Unhide all hidden terms">
         <div className={classNames(classes.headerButton, deletedTerms.length === 0 && classes.disabled)} onClick={handleUnhideAll}>
           UNHIDE ALL{ deletedTerms.length > 0 ? ` (${deletedTerms.length})` : '' }
         </div>
@@ -418,7 +419,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
       }
     </div>
     {mutationLoading && <Loading/>}
-    {mutationLoading && <div>(Loading... warning, this will take 10-20 seconds.)</div>}
+    {mutationLoading && <div>(Loading... warning, this will take 30-60 seconds.)</div>}
   </div>
 
   return <div className={classes.root}>
@@ -453,7 +454,13 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
           />;
         })}
         {deletedTerms.length > 0 && <div className={classes.button} onClick={() => setShowDeletedTerms(!showDeletedTerms)}>
-          {showDeletedTerms ? "Hide deleted terms" : `Show deleted terms (${deletedTerms.length})`}
+          <LWTooltip title="Hidden terms are hidden from readers unless they explicitly opt into 'Show me hidden AI slop the author doesn't necessarily endorse'">
+            {showDeletedTerms ? 
+              <span>Hide hidden terms</span>
+            : 
+              <span>Show hidden terms ({deletedTerms.length})</span>
+            }
+          </LWTooltip>
         </div>}
         {deletedTerms.length > 0 && showDeletedTerms && deletedTerms.map((item) => {
           return <JargonEditorRow key={item._id} jargonTerm={item} instancesOfJargonCount={getCount(item)} setShowMoreTerms={setShowMoreTerms}/>
