@@ -23,7 +23,6 @@ export const ThinkOmnibar = ({classes, setWebsiteUrls, websiteUrls}: {
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
   const [value, setValue] = useState('');
-  const [currentData, setCurrentData] = useState<WebsiteData | null>(null);
 
   // Import useLazyQuery from Apollo Client
   const [fetchWebsiteHtmlQuery, { data, loading, error }] = useLazyQuery(gql`
@@ -41,7 +40,7 @@ export const ThinkOmnibar = ({classes, setWebsiteUrls, websiteUrls}: {
 
   // Log the fetched HTML when data is received
   useEffect(() => {
-    if (data !== currentData) {
+    if (data) {
       const { body, title, url, paragraph, bodyLength, paragraphLength } = data.fetchWebsiteHtml;
       console.log(data.fetchWebsiteHtml);
       setWebsiteUrls({...websiteUrls, [url]: {title, body, paragraph, bodyLength, paragraphLength}});
@@ -53,7 +52,7 @@ export const ThinkOmnibar = ({classes, setWebsiteUrls, websiteUrls}: {
       // eslint-disable-next-line no-console
       console.error(error);
     }
-  }, [data, currentData, error, setWebsiteUrls, websiteUrls]);
+  }, [data, error, setWebsiteUrls, websiteUrls]);
 
   return <div className={classes.root}>
     <Input
