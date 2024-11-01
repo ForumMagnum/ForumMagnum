@@ -210,9 +210,11 @@ const UsersMenu = ({classes}: {
         : null,
   } as const;
 
+  const hasBookmarks = (currentUser?.bookmarkedPostsMetadata.length ?? 0) >= 1;
+
   const order: (keyof typeof items)[] = isFriendlyUI
     ? ["newPost", "newShortform", "newQuestion", "newDialogue", "divider", "newEvent", "newSequence"]
-    : ["newQuestion", "newPost", "newDialogue", "newShortform", "divider", "newEvent", "newSequence"];
+    : ["newShortform", "newPost", "newEvent"];
 
   return (
     <div className={classes.root} {...eventHandlers}>
@@ -270,14 +272,6 @@ const UsersMenu = ({classes}: {
                   }
                 />
               }
-              {!isEAForum &&
-                <DropdownItem
-                  title={preferredHeadingCase("My Drafts")}
-                  to="/drafts"
-                  icon="Edit"
-                  iconClassName={classes.icon}
-                />
-              }
               {!currentUser.deleted &&
                 <DropdownItem
                   title={preferredHeadingCase("User Profile")}
@@ -286,6 +280,15 @@ const UsersMenu = ({classes}: {
                   iconClassName={classes.icon}
                 />
               }
+               {!isEAForum &&
+                <DropdownItem
+                  title={preferredHeadingCase("My Drafts")}
+                  to="/drafts"
+                  icon="Edit"
+                  iconClassName={classes.icon}
+                />
+              }
+              {!isFriendlyUI && messagesNode}
               {userHasThemePicker(currentUser) &&
                 <ThemePickerMenu>
                   <DropdownItem
@@ -306,15 +309,14 @@ const UsersMenu = ({classes}: {
                 icon="BarChart"
                 iconClassName={classes.icon}
               />}
-              {!isFriendlyUI && accountSettingsNode}
-              {!isFriendlyUI && messagesNode}
-              <DropdownItem
+              {hasBookmarks &&<DropdownItem
                 title={isFriendlyUI ? "Saved & read" : "Bookmarks"}
                 to={isFriendlyUI ? "/saved" : "/bookmarks"}
                 icon="Bookmarks"
                 iconClassName={classes.icon}
-              />
-              {currentUser.shortformFeedId &&
+              />}
+              {!isFriendlyUI && accountSettingsNode}
+              {isFriendlyUI && currentUser.shortformFeedId &&
                 <DropdownItem
                   // TODO: get Habryka's take on what the title here should be
                   title={preferredHeadingCase("Your Quick Takes")}

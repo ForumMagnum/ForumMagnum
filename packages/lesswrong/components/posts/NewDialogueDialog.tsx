@@ -45,14 +45,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const NewDialogueDialog = ({onClose, classes}: {
+const NewDialogueDialog = ({initialParticipantIds, onClose, classes}: {
+  initialParticipantIds?: string[],
   onClose: () => void,
   classes: ClassesType,
 }) => {
   const { UserMultiselect, LWDialog, Loading, EAButton } = Components;
   const [title, setTitle] = useState("");
   const {flash} = useMessages();
-  const [participants, setParticipants] = useState<string[]>([]);
+  const [participants, setParticipants] = useState<string[]>(initialParticipantIds ?? []);
   const {create: createPost, loading} = useCreate({ collectionName: "Posts", fragmentName: "PostsEdit" });
   const navigate = useNavigate();
 
