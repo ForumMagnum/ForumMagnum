@@ -356,6 +356,7 @@
     "tsconfig-paths": "^4.2.0"
   },
   "resolutions": {
+    "esbuild": "^0.24.0",
     "graphql": "^14.5.8",
     "graphql-tools": "^4.0.7",
     "ts-node": "^10.9.1",

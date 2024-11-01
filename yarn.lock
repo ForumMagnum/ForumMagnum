@@ -9210,7 +9210,7 @@ esbuild-visualizer@^0.6.0:
     picomatch "^2.3.1"
     yargs "^17.6.2"
 
-esbuild@^0.24.0:
+esbuild@^0.24.0, esbuild@^0.8.17:
   version "0.24.0"
   resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.24.0.tgz#f2d470596885fcb2e91c21eb3da3b3c89c0b55e7"
   integrity sha512-FuLPevChGDshgSicjisSooU0cemp/sGXR841D5LHMB7mTVOmsEHcAxaH3irL53+8YDIeVNQEySh4DaYU/iuPqQ==
@@ -9239,11 +9239,6 @@ esbuild@^0.24.0:
     "@esbuild/win32-arm64" "0.24.0"
     "@esbuild/win32-ia32" "0.24.0"
     "@esbuild/win32-x64" "0.24.0"
-
-esbuild@^0.8.17:
-  version "0.8.22"
-  resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.8.22.tgz"
-  integrity sha512-7cgcJwjff5pw6JLTpUyN3QZ6raOYamfvBt7ry0tyGZwZJ/W8mJrHuv+VC5rbNEO4Mz8s8ElmcavKc7R2g1HWow==
 
 escalade@^3.1.1:
   version "3.1.1"
