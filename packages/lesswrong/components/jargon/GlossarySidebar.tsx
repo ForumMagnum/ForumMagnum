@@ -242,7 +242,7 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, showAllTerms, s
     popperClassName={classes.showAllTermsTooltipPopper}
   >
     <div className={classes.showAllTermsButton} onClick={(e) => setShowAllTerms(e, !showAllTerms, 'showAllTermsButton')}>
-      {showAllTerms ? 'Hide Unapproved Terms' : 'Show Unapproved Terms'}
+      {showAllTerms ? 'Hide Unapproved' : 'Show Unapproved'}
     </div>
   </LWTooltip>;
 
