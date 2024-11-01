@@ -12,19 +12,22 @@ import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    background: theme.palette.panelBackground.default,
-    width: 500,
+    background: "unset",
+    width: 450,
     maxHeight: "calc(100vh - 80px)",
     position: "fixed",
     right: theme.spacing.unit,
     bottom: theme.spacing.unit,
     zIndex: theme.zIndexes.languageModelChat,
+    boxShadow: "unset",
     [theme.breakpoints.down('sm')]: {
       display: "none"
     }
   },
   expanded: {
+    background: theme.palette.panelBackground.default,
     width: 650,
+    boxShadow: theme.palette.boxShadow.lwCard,
   },
   title: {
     ...theme.typography.commentStyle,
@@ -62,20 +65,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     justifyContent: "flex-end",
   },
   header: {
-    backgroundColor: theme.palette.grey[100],
-    paddingLeft: 20,
-    paddingRight: 20,
-    paddingTop: 8,
-    paddingBottom: 8,
     position: "relative",
     display: "flex",
-    justifyContent: "space-between",
+    justifyContent: "flex-end",
   },
   editor: {
-    paddingLeft: 20,
-    paddingRight: 20,
+    paddingLeft: 10,
+    paddingRight: 10,
     paddingTop: 8,
-    paddingBottom: 12,
+    paddingBottom: 100,
   },
 });
 
@@ -105,14 +103,14 @@ const PopupLanguageModelChat = ({onClose, classes}: {
   return <Paper className={classNames(classes.root, {[classes.expanded]: expanded})}>
     <AnalyticsContext pageSectionContext='llmChatPopup'>
       <div className={classes.header}>
-        <div className={classes.title}>
+        {/* <div className={classes.title}>
           {title}
           <LWTooltip title="LLM chat is under development. Reviewing user conversations helps with product decisions.">
             <div className={classes.privacyWarning}>
               Warning! Conversation may be viewed by the LW dev team
             </div>
           </LWTooltip>
-        </div>
+        </div> */}
         <div className={classes.icons}>
           <ForumIcon icon={expanded ? "FullscreenExit" : "Fullscreen"} className={classes.icon} onClick={toggleExpanded} />
           <CloseIcon className={classes.icon} onClick={handleClose} />

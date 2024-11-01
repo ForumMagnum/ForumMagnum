@@ -93,7 +93,7 @@ export const ThinkWrapper = ({classes, children}: {
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
 
-  const { ThinkSideColumn, ThinkChat } = Components;
+  const { ThinkSideColumn } = Components;
   return <div className={classes.root}>
     <ThinkSideColumn />
     <div className={classes.formContainer}>

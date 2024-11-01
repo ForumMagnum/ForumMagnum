@@ -44,7 +44,7 @@ const styles = (theme: ThemeType) => ({
     overflowY: 'scroll',
     paddingLeft: 20,
     paddingTop: 20,
-    fontSize: '1.0rem',
+    fontSize: theme.typography.body2.fontSize,
     '& blockquote, & li': {
       fontSize: '1.0rem'
     }
@@ -52,7 +52,7 @@ const styles = (theme: ThemeType) => ({
   inputTextbox: {
     margin: 10,
     marginTop: 20,
-    borderRadius: 4,
+    borderRadius: 15,
     maxHeight: "40vh",
     backgroundColor: theme.palette.panelBackground.commentNodeEven,
     overflowY: 'hidden',
@@ -82,6 +82,7 @@ const styles = (theme: ThemeType) => ({
     margin: 10,
     display: "flex",
     flexDirection: "column",
+    borderRadius: 15
   },
   welcomeGuideText: {
     padding: 20,
@@ -98,8 +99,9 @@ const styles = (theme: ThemeType) => ({
   chatMessage: {
     padding: 20,
     margin: 10,
-    borderRadius: 10,
+    borderRadius: 15,
     backgroundColor: theme.palette.grey[100],
+
   },
   chatMessageContent: {
   },
