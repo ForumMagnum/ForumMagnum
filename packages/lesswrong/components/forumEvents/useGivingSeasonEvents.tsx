@@ -21,9 +21,7 @@ export const getDonateLink = (currentUser: UsersCurrent | null) => {
       email: currentUser.email,
     }),
   };
-  // TODO: Update this fund to the giving season fund instead of general cea
-  const fund = "effectivealtruism";
-  return `https://www.every.org/${fund}?${qs.stringify(params)}#/donate`;
+  return `https://www.every.org/effective-ventures-foundation-usa-inc-for-the-ea-forum-donation-election-fund-2024?${qs.stringify(params)}#/donate`;
 }
 
 type GivingSeasonEvent = {
