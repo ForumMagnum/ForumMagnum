@@ -221,6 +221,8 @@ registerFragment(`
     hideSunshineSidebar
     optedOutOfSurveys
     postGlossariesPinned
+    # generateJargonForDrafts
+    # generateJargonForPublishedPosts
   }
 `);
 

@@ -3220,6 +3220,8 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly hideSunshineSidebar: boolean,
   readonly optedOutOfSurveys: boolean | null,
   readonly postGlossariesPinned: boolean,
+  readonly generateJargonForDrafts: boolean | null,
+  readonly generateJargonForPublishedPosts: boolean,
 }
 
 interface UsersCurrentCommentRateLimit { // fragment on Users

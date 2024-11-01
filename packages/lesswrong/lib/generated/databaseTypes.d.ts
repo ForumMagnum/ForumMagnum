@@ -1580,6 +1580,8 @@ interface DbUser extends DbObject {
   petrovOptOut: boolean
   optedOutOfSurveys: boolean | null
   postGlossariesPinned: boolean
+  generateJargonForDrafts: boolean | null
+  generateJargonForPublishedPosts: boolean
   acceptedTos: boolean
   hideNavigationSidebar: boolean | null
   currentFrontpageFilter: string | null

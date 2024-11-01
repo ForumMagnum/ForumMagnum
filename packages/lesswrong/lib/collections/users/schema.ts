@@ -931,6 +931,22 @@ const schema: SchemaType<"Users"> = {
     ...schemaDefaultValue(false),
   },
 
+  generateJargonForDrafts: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    hidden: true,
+    // ...schemaDefaultValue(false),
+  },
+
+  generateJargonForPublishedPosts: {
+    type: Boolean,
+    optional: true,
+    nullable: false,
+    hidden: true,
+    ...schemaDefaultValue(true),
+  },
+
   acceptedTos: {
     type: Boolean,
     optional: true,

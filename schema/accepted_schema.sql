@@ -3140,6 +3140,8 @@ CREATE TABLE "Users" (
   "petrovOptOut" BOOL NOT NULL DEFAULT FALSE,
   "optedOutOfSurveys" BOOL,
   "postGlossariesPinned" BOOL NOT NULL DEFAULT FALSE,
+  "generateJargonForDrafts" BOOL,
+  "generateJargonForPublishedPosts" BOOL NOT NULL DEFAULT TRUE,
   "acceptedTos" BOOL NOT NULL DEFAULT FALSE,
   "hideNavigationSidebar" BOOL,
   "currentFrontpageFilter" TEXT,

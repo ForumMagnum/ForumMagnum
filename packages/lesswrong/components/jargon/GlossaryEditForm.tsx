@@ -9,6 +9,9 @@ import TextField from '@material-ui/core/TextField';
 import { formStyles } from './JargonEditorRow';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { useJargonCounts } from '@/components/hooks/useJargonCounts';
+import { useCurrentUser } from '../common/withUser';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
+import Checkbox from '@material-ui/core/Checkbox';
 
 export const defaultGlossaryPrompt = `You're a LessWrong Glossary AI. Your goal is to make good explanations for technical jargon terms. You are trying to produce a useful hoverover tooltip in an essay on LessWrong.com, accessible to a smart, widely read layman. 
 
@@ -198,6 +201,38 @@ const styles = (theme: ThemeType) => ({
   formCollapsed: {
     display: 'none',
   },
+  checkboxTopRow: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    alignItems: 'start',
+    paddingTop: 4,
+  },
+  checkboxTopContainer: {
+    marginRight: theme.spacing.unit * 3,
+    marginTop: 5,
+    display: "flex",
+    alignItems: "center"
+  },
+  checkboxRow: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    alignItems: 'end',
+    paddingTop: 4,
+  },
+  checkboxContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    marginRight: 8,
+  },
+  generationFlagCheckbox: {
+    padding: 2,
+  },
+  inline: {
+    display: 'inline',
+    cursor: 'pointer',
+  },
 });
 
 export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
@@ -205,6 +240,11 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   document: PostsPage,
   showTitle?: boolean,
 }) => {
+  const { JargonEditorRow, LoadMore, Loading, LWTooltip, WrappedSmartForm, IconRight, IconDown, Row, MetaInfo, Typography } = Components;
+
+  const currentUser = useCurrentUser();
+  const updateCurrentUser = useUpdateCurrentUser();
+
   const [formCollapsed, setFormCollapsed] = useState(false);
   const [showMoreTerms, setShowMoreTerms] = useState(false);
   const [showDeletedTerms, setShowDeletedTerms] = useState(false);
@@ -320,8 +360,6 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     }
   }
   
-  const { JargonEditorRow, LoadMore, Loading, LWTooltip, WrappedSmartForm, IconRight, IconDown, ForumIcon, Row } = Components;
-
   const promptEditor = <div>
     <h3>WARNING! This will not be saved after page reload</h3>
     <TextField
@@ -405,6 +443,44 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     </div>
   </div>
 
+  const generateJargonFlagsTopRow = <div className={classes.checkboxTopRow}>
+    <div className={classes.checkboxTopContainer}>
+      <Checkbox
+        className={classes.generationFlagCheckbox}
+        checked={currentUser?.generateJargonForDrafts}
+        onChange={(e) => updateCurrentUser({generateJargonForDrafts: e.target.checked})}
+      />
+      <Typography className={classes.inline} variant="body2" component="label">Generate jargon for drafts</Typography>
+    </div>
+    <div className={classes.checkboxTopContainer}>
+      <Checkbox
+        className={classes.generationFlagCheckbox}
+        checked={currentUser?.generateJargonForPublishedPosts}
+        onChange={(e) => updateCurrentUser({generateJargonForPublishedPosts: e.target.checked})}
+      />
+      <Typography className={classes.inline} variant="body2" component="label">Generate jargon for published posts</Typography>
+    </div>
+  </div>;
+
+  const generateJargonFlagsRow = <div className={classes.checkboxRow}>
+    <div className={classes.checkboxContainer}>
+      <MetaInfo>Generate jargon for drafts</MetaInfo>
+      <Checkbox
+        className={classes.generationFlagCheckbox}
+        checked={currentUser?.generateJargonForDrafts}
+        onChange={(e) => updateCurrentUser({generateJargonForDrafts: e.target.checked})}
+      />
+    </div>
+    <div className={classes.checkboxContainer}>
+      <MetaInfo>Generate jargon for published posts</MetaInfo>
+      <Checkbox
+        className={classes.generationFlagCheckbox}
+        checked={currentUser?.generateJargonForPublishedPosts}
+        onChange={(e) => updateCurrentUser({generateJargonForPublishedPosts: e.target.checked})}
+      />
+    </div>
+  </div>
+
   const footer = <div className={classNames(classes.buttonRow, formCollapsed && classes.formCollapsed)}>
     <Button onClick={addNewJargonTerms} className={classNames(classes.generateButton, mutationLoading && classes.disabled)}>Generate new terms</Button>
     <div className={classes.headerButtons}>
@@ -429,6 +505,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
       </LWTooltip>
       <div className={classes.expandCollapseIcon} onClick={() => setFormCollapsed(!formCollapsed)}>{formCollapsed ? <IconRight height={16} width={16} /> : <IconDown height={16} width={16} />}</div>
     </Row>}
+    {generateJargonFlagsTopRow}
     {header}
     <div className={classNames(classes.window, showMoreTerms && classes.expanded, formCollapsed && classes.formCollapsed)}>
       <div>
@@ -469,9 +546,9 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
       </div>
       <LoadMore {...loadMoreProps} />
     </div>
+    {generateJargonFlagsRow}
     {footer}
     {editingPrompt && promptEditor}
-
   </div>;
 }
 
