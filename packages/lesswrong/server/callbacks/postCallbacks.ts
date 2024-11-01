@@ -721,6 +721,6 @@ async function createNewJargonTermsCallback(post: DbPost, callbackProperties: Cr
   return post;
 }
 
-getCollectionHooks("Posts").createAfter.add(createNewJargonTermsCallback);
+// getCollectionHooks("Posts").createAfter.add(createNewJargonTermsCallback);
 
-getCollectionHooks("Posts").updateAfter.add(createNewJargonTermsCallback);
+// getCollectionHooks("Posts").updateAfter.add(createNewJargonTermsCallback);
