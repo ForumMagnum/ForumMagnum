@@ -383,13 +383,13 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     </LWTooltip>
     <div className={classes.headerButtons}>
       <LWTooltip title="Enable all glossary hoverovers for readers of this post">
-        <div className={classNames(classes.headerButton, sortedApprovedTerms.length !== 0 && classes.disabled)} 
+        <div className={classNames(classes.headerButton, sortedUnapprovedTerms.length === 0 && classes.disabled)} 
           onClick={() => handleSetApproveAll(true)}>
           ENABLE ALL{ sortedUnapprovedTerms.length > 0 ? ` (${sortedUnapprovedTerms.length})` : '' }
         </div>
       </LWTooltip>
       <LWTooltip title="Disable all glossary hoverovers for readers of this post">
-        <div className={classNames(classes.headerButton, sortedUnapprovedTerms.length !== 0 && classes.disabled)} 
+        <div className={classNames(classes.headerButton, sortedApprovedTerms.length === 0 && classes.disabled)} 
           onClick={() => handleSetApproveAll(false)}>
           DISABLE ALL{ sortedApprovedTerms.length > 0 ?  ` (${sortedApprovedTerms.length})` : '' }
         </div>
