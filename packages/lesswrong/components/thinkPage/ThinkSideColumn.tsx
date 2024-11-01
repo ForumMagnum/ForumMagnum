@@ -15,7 +15,14 @@ export type WebsiteData = {
   paragraph: string;
   bodyHtml: string;
   paragraphHtml: string;
+  date: Date;
 };
+
+export type PostData = PostsListWithVotes & {
+  lastVisitedAt: Date;
+};
+
+export type AllPostData = PostData | WebsiteData;
 
 const styles = (theme: ThemeType) => ({
   root: {

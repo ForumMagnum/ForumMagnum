@@ -46,7 +46,7 @@ const fetchWebsiteHtmlResolvers = {
         const paragraphHtml = cheerioTool('p').html() ?? '';
         const title = getTitle ?? '';
 
-        return { title, url, body, paragraph, bodyHtml, paragraphHtml };
+        return { title, url, body, paragraph, bodyHtml, paragraphHtml, date: new Date() };
       } catch (error: any) {
         throw new Error(`Error fetching URL ${url}: ${error.message}`);
       }

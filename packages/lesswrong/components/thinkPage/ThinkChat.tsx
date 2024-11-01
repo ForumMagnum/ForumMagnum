@@ -6,7 +6,8 @@ const styles = (theme: ThemeType) => ({
   root: {
     padding: 16,
     position: 'absolute',
-    top: "calc(100vh - 100px)",
+    top: 0,
+    height: 'calc(100vh - 100px)',
     right: 0,
     width: '100%',
     maxWidth: 425,
