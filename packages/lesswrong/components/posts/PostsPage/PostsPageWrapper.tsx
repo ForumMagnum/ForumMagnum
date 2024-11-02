@@ -27,6 +27,22 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
     id: 'Post:'+documentId,
   });
 
+  const sequencePreload = apolloClient.cache.readFragment<SequencesPageFragment>({
+    fragment: getFragment("SequencesPageFragment"),
+    fragmentName: "SequencesPageFragment",
+    id: 'Sequence:'+sequenceId,
+  });
+
+  const postPreloadWithSequence = (sequencePreload && postPreload) ? {
+    ...postPreload,
+    sequence: sequencePreload,
+  } : postPreload;
+
+  console.log('postPreloadWithSequence', { sequencePreload, postPreloadWithSequence: {
+    title: postPreloadWithSequence?.title,
+    sequence: postPreloadWithSequence?.sequence,
+  } });
+
   const { document: post, refetch, loading, error, fetchProps } = useDisplayedPost(documentId, sequenceId, version);
 
   // This section is a performance optimisation to make comment fetching start as soon as possible rather than waiting for
@@ -56,7 +72,7 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   const { Error404, Loading, PostsPageCrosspostWrapper, PostsPage } = Components;
   if (error && !isMissingDocumentError(error) && !isOperationNotAllowedError(error)) {
     throw new Error(error.message);
-  } else if (loading && !postPreload) {
+  } else if (loading && !postPreloadWithSequence) {
     return <div><Loading/></div>
   } else if (error) {
     if (isMissingDocumentError(error)) {
@@ -66,7 +82,7 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
     } else {
       throw new Error(error.message);
     }
-  } else if (!post && !postPreload) {
+  } else if (!post && !postPreloadWithSequence) {
     return <Error404/>
   } else if (post && isPostWithForeignId(post)) {
     return <PostsPageCrosspostWrapper post={post} eagerPostComments={eagerPostComments} refetch={refetch} fetchProps={fetchProps} />
@@ -75,7 +91,7 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   return (
     <PostsPage
       fullPost={post}
-      postPreload={postPreload ?? undefined}
+      postPreload={postPreloadWithSequence ?? undefined}
       eagerPostComments={eagerPostComments}
       refetch={refetch}
     />
