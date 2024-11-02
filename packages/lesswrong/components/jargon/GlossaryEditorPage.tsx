@@ -39,7 +39,7 @@ export const GlossaryEditorPage = ({classes}: {
     },
     itemsPerPage: 50,
     collectionName: "Posts",
-    fragmentName: 'PostsPage',
+    fragmentName: 'PostsEditQueryFragment',
   })
 
   const { GlossaryEditForm, SingleColumnSection, PostsTitle, LoadMore, SectionTitle, ContentStyles, ErrorAccessDenied, Row, UsersNameDisplay } = Components

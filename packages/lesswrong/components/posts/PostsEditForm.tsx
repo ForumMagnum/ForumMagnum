@@ -147,6 +147,7 @@ const PostsEditForm = ({ documentId, version, classes }: {
     addFields.push('glossary');
   }
 
+
   return (
     <DynamicTableOfContents title={document.title}>
       <div className={classes.postForm}>

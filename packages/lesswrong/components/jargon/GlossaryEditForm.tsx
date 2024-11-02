@@ -221,7 +221,6 @@ const styles = (theme: ThemeType) => ({
   },
   checkboxRow: {
     display: 'flex',
-    flexDirection: 'column',
     justifyContent: 'space-between',
     alignItems: 'end',
     paddingTop: 4,
@@ -242,13 +241,18 @@ const styles = (theme: ThemeType) => ({
 
 export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   classes: ClassesType<typeof styles>,
-  document: PostsPage,
+  document: PostsEditQueryFragment,
   showTitle?: boolean,
 }) => {
-  const { JargonEditorRow, LoadMore, Loading, LWTooltip, WrappedSmartForm, IconRight, IconDown, Row, MetaInfo } = Components;
+  const { JargonEditorRow, LoadMore, Loading, LWTooltip, WrappedSmartForm, IconRight, IconDown, Row, MetaInfo, EditUserJargonSettings } = Components;
 
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
+
+  const { mutate: updatePost } = useUpdate({
+    collectionName: "Posts",
+    fragmentName: 'PostsEdit',
+  });
 
   const [formCollapsed, setFormCollapsed] = useState(false);
   const [showMoreTerms, setShowMoreTerms] = useState(false);
@@ -450,38 +454,26 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   </div>
 
   const generateJargonFlagsRow = <div className={classes.checkboxRow}>
-    <LWTooltip title={`Automatically query ${JARGON_LLM_MODEL} every ~1000 characters added to the post`}>
+    <LWTooltip title={<div><div>
+        Have jargon automatically generated so when you're ready to publish, you can easily review it.
+      </div>
+      <div>
+        <em>(Queries ${JARGON_LLM_MODEL} every ~5 minutes.)</em>
+      </div>
+      </div>}>
       <div className={classes.checkboxContainer} onClick={() => setClickedAutogenerate(true)}>
-        <MetaInfo>Autogenerate</MetaInfo>
+        <MetaInfo>Autogenerate while drafting</MetaInfo>
         <Checkbox
           className={classes.generationFlagCheckbox}
-          checked={currentUser?.generateJargonForDrafts}
-          onChange={(e) => updateCurrentUser({generateJargonForDrafts: e.target.checked})}
+          checked={document?.generateDraftJargon}
+          onChange={(e) => updatePost({
+            selector: { _id: document._id },
+            data: { generateDraftJargon: e.target.checked },
+          })}
         />
       </div>
     </LWTooltip>
-    {clickedAutogenerate && <>
-      <LWTooltip title="Automatically query jargon for all drafts">
-        <div className={classes.checkboxContainer}>
-          <MetaInfo>All drafts</MetaInfo>
-          <Checkbox
-            className={classes.generationFlagCheckbox}
-            checked={currentUser?.generateJargonForDrafts}
-            onChange={(e) => updateCurrentUser({generateJargonForDrafts: e.target.checked})}
-          />
-        </div>
-      </LWTooltip>
-      <LWTooltip title="Automatically query jargon for all published posts">
-        <div className={classes.checkboxContainer}>
-          <MetaInfo>All published posts</MetaInfo>
-          <Checkbox
-            className={classes.generationFlagCheckbox}
-            checked={currentUser?.generateJargonForPublishedPosts}
-            onChange={(e) => updateCurrentUser({generateJargonForPublishedPosts: e.target.checked})}
-          />
-        </div>
-      </LWTooltip>
-    </>}
+    {clickedAutogenerate && <EditUserJargonSettings />}
   </div>
 
   const footer = <div className={classNames(classes.buttonRow, formCollapsed && classes.formCollapsed)}>
@@ -550,7 +542,6 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
       </div>
       <LoadMore {...loadMoreProps} />
     </div>
-    {generateJargonFlagsRow}
     {footer}
     {editingPrompt && promptEditor}
   </div>;

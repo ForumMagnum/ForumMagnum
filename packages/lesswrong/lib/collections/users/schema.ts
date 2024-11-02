@@ -936,6 +936,8 @@ const schema: SchemaType<"Users"> = {
     optional: true,
     hidden: true,
     ...schemaDefaultValue(false),
+    canRead: ['members'],
+    canUpdate: [userOwns],
   },
 
   generateJargonForPublishedPosts: {
@@ -943,6 +945,8 @@ const schema: SchemaType<"Users"> = {
     optional: true,
     hidden: true,
     ...schemaDefaultValue(true),
+    canRead: ['members'],
+    canUpdate: [userOwns],
   },
 
   acceptedTos: {

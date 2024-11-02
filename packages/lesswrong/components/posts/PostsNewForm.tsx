@@ -17,6 +17,7 @@ import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/PostsPage';
 import { Link, useNavigate } from '../../lib/reactRouterWrapper';
 import { QuestionIcon } from '../icons/questionIcon';
 import DeferRender from '../common/DeferRender';
+import { userCanCreateAndEditJargonTerms } from '@/lib/betas';
 
 // Also used by PostsEditForm
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -357,6 +358,13 @@ const PostsNewForm = ({classes}: {
     </div>
   }
 
+  const addFields: string[] = [];
+  
+  // This is a resolver-only field, so we need to add it to the addFields array to get it to show up in the form
+  if (userCanCreateAndEditJargonTerms(currentUser)) {
+    addFields.push('glossary');
+  }
+
   return (
     <DynamicTableOfContents rightColumnChildren={getPostEditorGuide(classes)}>
       <div className={classes.postForm}>
@@ -395,6 +403,7 @@ const PostsNewForm = ({classes}: {
                 eventForm={eventForm}
                 debateForm={debateForm}
                 repeatErrors
+                addFields={addFields}
                 noSubmitOnCmdEnter
                 formComponents={{
                   FormSubmit: NewPostsSubmit

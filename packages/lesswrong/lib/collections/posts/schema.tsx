@@ -847,7 +847,7 @@ const schema: SchemaType<"Posts"> = {
     graphQLtype: '[JargonTerm!]!',
     optional: true,
     canRead: ['guests'],
-    control: "GlossaryEditForm",
+    control: "GlossaryEditFormWrapper",
     group: formGroups.glossary,
     hidden: ({currentUser}) => !userCanCreateAndEditJargonTerms(currentUser),
 
@@ -3079,6 +3079,8 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     hidden: true,
     ...schemaDefaultValue(false),
+    canRead: ['members'],
+    canUpdate: [userOwns],
   },
 };
 
