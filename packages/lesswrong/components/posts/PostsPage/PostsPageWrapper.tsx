@@ -38,11 +38,6 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
     sequence: sequencePreload,
   } : postPreload;
 
-  console.log('postPreloadWithSequence', { sequencePreload, postPreloadWithSequence: {
-    title: postPreloadWithSequence?.title,
-    sequence: postPreloadWithSequence?.sequence,
-  } });
-
   const { document: post, refetch, loading, error, fetchProps } = useDisplayedPost(documentId, sequenceId, version);
 
   // This section is a performance optimisation to make comment fetching start as soon as possible rather than waiting for
