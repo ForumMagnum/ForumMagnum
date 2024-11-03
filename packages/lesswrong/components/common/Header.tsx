@@ -18,6 +18,10 @@ import { useLocation } from '../../lib/routeUtil';
 import { useCurrentForumEvent } from '../hooks/useCurrentForumEvent';
 import { makeCloudinaryImageUrl } from './CloudinaryImage2';
 import { hasForumEvents } from '@/lib/betas';
+import {
+  GIVING_SEASON_MOBILE_WIDTH,
+  useGivingSeasonEvents,
+} from '../forumEvents/useGivingSeasonEvents';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
@@ -25,6 +29,78 @@ export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSe
 export const HEADER_HEIGHT = isBookUI ? 64 : 66;
 /** Height of top header on mobile. On Friendly UI sites, this is the same as the HEADER_HEIGHT */
 export const MOBILE_HEADER_HEIGHT = isBookUI ? 56 : HEADER_HEIGHT;
+
+const textColorOverrideStyles = ({
+  theme,
+  color,
+  contrastColor,
+  loginButtonBackgroundColor,
+  loginButtonHoverBackgroundColor,
+  loginButtonColor,
+  signupButtonBackgroundColor,
+  signupButtonHoverBackgroundColor,
+  signupButtonColor,
+}: {
+  theme: ThemeType,
+  color: string,
+  contrastColor?: string,
+  loginButtonBackgroundColor?: string,
+  loginButtonHoverBackgroundColor?: string,
+  loginButtonColor?: string,
+  signupButtonBackgroundColor?: string,
+  signupButtonHoverBackgroundColor?: string,
+  signupButtonColor?: string,
+}) => ({
+  color,
+  boxShadow: 'none',
+  "& .Header-titleLink": {
+    color,
+  },
+  "& .HeaderSubtitle-subtitle": {
+    color,
+  },
+  "& .SearchBar-searchIcon": {
+    color,
+  },
+  "& .ais-SearchBox-input": {
+    color,
+  },
+  "& .ais-SearchBox-input::placeholder": {
+    color,
+  },
+  "& .KarmaChangeNotifier-starIcon": {
+    color,
+  },
+  "& .KarmaChangeNotifier-gainedPoints": {
+    color,
+  },
+  "& .NotificationsMenuButton-badge": {
+    color,
+  },
+  "& .NotificationsMenuButton-buttonClosed": {
+    color,
+  },
+  "& .MessagesMenuButton-buttonClosed": {
+    color,
+  },
+  "& .UsersMenu-arrowIcon": {
+    color,
+  },
+  "& .EAButton-variantContained": {
+    backgroundColor: signupButtonBackgroundColor ?? color,
+    color: signupButtonColor ?? contrastColor,
+    "&:hover": {
+      backgroundColor: signupButtonHoverBackgroundColor ?? `color-mix(in oklab, ${signupButtonBackgroundColor ?? color} 90%, ${signupButtonColor ?? contrastColor})`,
+    },
+  },
+  "& .EAButton-greyContained": {
+    backgroundColor: loginButtonBackgroundColor ?? `color-mix(in oklab, ${loginButtonColor ?? color} 15%, ${contrastColor})`,
+    color: loginButtonColor ?? color,
+    "&:hover": {
+      backgroundColor: loginButtonHoverBackgroundColor ?? `color-mix(in oklab, ${loginButtonColor ?? color} 10%, ${theme.palette.background.transparent}) !important`,
+    },
+  },
+});
 
 export const styles = (theme: ThemeType) => ({
   appBar: {
@@ -39,6 +115,8 @@ export const styles = (theme: ThemeType) => ({
     flexShrink: 0,
     flexDirection: "column",
     ...(isFriendlyUI ? {
+      maxWidth: "100vw",
+      overflow: "hidden",
       padding: '1px 20px',
       [theme.breakpoints.down('sm')]: {
         padding: '1px 11px',
@@ -48,60 +126,19 @@ export const styles = (theme: ThemeType) => ({
       },
     } : {}),
   },
-  // This class is applied when "backgroundColor" is passed in.
-  // Currently we assume that the background color is always dark,
-  // so all text in the header changes to "alwaysWhite".
-  // If that's not the case, you'll need to expand this code.
   appBarDarkBackground: {
-    color: theme.palette.text.alwaysWhite,
-    boxShadow: 'none',
-    "& .Header-titleLink": {
+    ...textColorOverrideStyles({
+      theme,
       color: theme.palette.text.alwaysWhite,
-    },
-    "& .HeaderSubtitle-subtitle": {
-      color: theme.palette.text.alwaysWhite,
-    },
-    "& .SearchBar-searchIcon": {
-      color: theme.palette.text.alwaysWhite,
-    },
-    "& .ais-SearchBox-input": {
-      color: theme.palette.text.alwaysWhite,
-    },
-    "& .ais-SearchBox-input::placeholder": {
-      color: theme.palette.text.alwaysWhite,
-    },
-    "& .KarmaChangeNotifier-starIcon": {
-      color: theme.palette.text.alwaysWhite,
-    },
-    "& .KarmaChangeNotifier-gainedPoints": {
-      color: theme.palette.text.alwaysWhite,
-    },
-    "& .NotificationsMenuButton-badge": {
-      color: theme.palette.text.alwaysWhite,
-    },
-    "& .NotificationsMenuButton-buttonClosed": {
-      color: theme.palette.text.alwaysWhite,
-    },
-    "& .MessagesMenuButton-buttonClosed": {
-      color: theme.palette.text.alwaysWhite,
-    },
-    "& .UsersMenu-arrowIcon": {
-      color: theme.palette.text.alwaysWhite,
-    },
-    "& .EAButton-variantContained": {
-      backgroundColor: theme.palette.text.alwaysWhite,
-      color: theme.palette.text.alwaysBlack,
-      "&:hover": {
-        backgroundColor: `color-mix(in oklab, ${theme.palette.text.alwaysWhite} 90%, ${theme.palette.text.alwaysBlack})`,
-      },
-    },
-    "& .EAButton-greyContained": {
-      backgroundColor: `color-mix(in oklab, ${theme.palette.text.alwaysWhite} 15%, ${theme.palette.background.transparent})`,
-      color: theme.palette.text.alwaysWhite,
-      "&:hover": {
-        backgroundColor: `color-mix(in oklab, ${theme.palette.text.alwaysWhite} 10%, ${theme.palette.background.transparent}) !important`,
-      },
-    },
+      contrastColor: theme.palette.text.alwaysBlack,
+
+      // Custom button styles for giving season 2024
+      signupButtonBackgroundColor: theme.palette.givingSeason.electionFundBackground,
+      signupButtonColor: theme.palette.text.alwaysWhite,
+      loginButtonBackgroundColor: theme.palette.givingSeason.electionFundBackground,
+      loginButtonColor: theme.palette.text.alwaysWhite,
+      loginButtonHoverBackgroundColor: `color-mix(in oklab, ${theme.palette.givingSeason.electionFundBackground} 90%, ${theme.palette.text.alwaysWhite})`,
+    }),
   },
   root: {
     // This height (including the breakpoint at xs/600px) is set by Headroom, and this wrapper (which surrounds
@@ -124,7 +161,6 @@ export const styles = (theme: ThemeType) => ({
     top: 3,
     paddingRight: theme.spacing.unit,
     color: theme.palette.text.secondary,
-  //  maxWidth: 130,
   },
   titleLink: {
     color: theme.palette.header.text,
@@ -218,6 +254,46 @@ export const styles = (theme: ThemeType) => ({
       position: "fixed !important",
     },
   },
+
+  // Giving season 2024 styles
+  gsBackground: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    opacity: 0,
+    transition: "opacity 0.5s ease",
+    backgroundSize: "100% 400px",
+    backgroundRepeat: "no-repeat",
+    backgroundBlendMode: "darken",
+  },
+  gsBackgroundActive: {
+    opacity: 1,
+  },
+  gsAppBarText: {
+    ...textColorOverrideStyles({
+      theme,
+      color: theme.palette.givingSeason.primary,
+      contrastColor: theme.palette.text.alwaysWhite,
+    }),
+  },
+  gsBanner: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: 14,
+    fontWeight: 600,
+    lineHeight: "150%",
+    letterSpacing: "1.12px",
+    textAlign: "center",
+    flex: 1,
+    [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
+      display: "none",
+    },
+  },
+  gsRightHeaderItems: {
+    flex: 1,
+    justifyContent: "flex-end",
+  },
 });
 
 const Header = ({
@@ -249,6 +325,10 @@ const Header = ({
   const { notificationsOpened } = useUnreadNotifications();
   const { currentRoute, pathname, hash } = useLocation();
   const {currentForumEvent} = useCurrentForumEvent();
+  const isGivingSeason =
+    currentForumEvent?.customComponent === "GivingSeason2024Banner" &&
+    currentRoute?.name === "home";
+  const {events, selectedEvent} = useGivingSeasonEvents();
 
   const {
     SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
@@ -381,7 +461,10 @@ const Header = ({
   </div>
 
   // the items on the right-hand side (search, notifications, user menu, login/sign up buttons)
-  const rightHeaderItemsNode = <div className={classes.rightHeaderItems}>
+  const rightHeaderItemsNode = <div className={classNames(
+    classes.rightHeaderItems,
+    isGivingSeason && classes.gsRightHeaderItems,
+  )}>
     <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
     {!isFriendlyUI && usersMenuNode}
     {!currentUser && <UsersAccountMenu />}
@@ -425,22 +508,27 @@ const Header = ({
   // If we're explicitly given a backgroundColor, that overrides any event header
   if (backgroundColor) {
     headerStyle.backgroundColor = backgroundColor
+  } else if (hasForumEvents && currentRoute?.name === "home") {
+    // On EAF, forum events with polls also update the home page header background
+    if (bannerImageId && currentForumEvent?.includesPoll) {
+      const darkColor = currentForumEvent.darkColor;
+      const background = `top / cover no-repeat url(${makeCloudinaryImageUrl(bannerImageId, {
+        c: "fill",
+        dpr: "auto",
+        q: "auto",
+        f: "auto",
+        g: "north",
+      })})${darkColor ? `, ${darkColor}` : ''}`;
+      headerStyle.background = background;
+    } else if (isGivingSeason) {
+      headerStyle.background = unFixed ? "transparent" : "#fff";
+    }
   }
-  // On EAF, forum events with polls also update the home page header background
-  else if (currentRoute?.name === 'home' && bannerImageId && currentForumEvent.includesPoll && hasForumEvents) {
-    const darkColor = currentForumEvent?.darkColor
-    const background = `top / cover no-repeat url(${makeCloudinaryImageUrl(bannerImageId, {
-      c: "fill",
-      dpr: "auto",
-      q: "auto",
-      f: "auto",
-      g: "north",
-    })})${darkColor ? `, ${darkColor}` : ''}`
-    headerStyle.background = background
-  }
-  
+
+  const useGivingSeasonText = isGivingSeason && selectedEvent.darkText;
+
   // Make all the text and icons white when we have some sort of color in the header background
-  const useWhiteText = Object.keys(headerStyle).length > 0
+  const useWhiteText = Object.keys(headerStyle).length > 0 && !useGivingSeasonText;
 
   return (
     <AnalyticsContext pageSectionContext="header">
@@ -460,9 +548,24 @@ const Header = ({
             className={classNames(
               classes.appBar,
               useWhiteText && classes.appBarDarkBackground,
+              useGivingSeasonText && classes.gsAppBarText,
             )}
             style={headerStyle}
           >
+            {isGivingSeason && !unFixed &&
+              <div>
+                {events.map(({name, background}) => (
+                <div
+                  key={name}
+                  style={{backgroundImage: `url(${background})`}}
+                  className={classNames(
+                    classes.gsBackground,
+                    name === selectedEvent.name && classes.gsBackgroundActive,
+                  )}
+                />
+                ))}
+              </div>
+            }
             <Toolbar disableGutters={isFriendlyUI}>
               {navigationMenuButton}
               <Typography className={classes.title} variant="title">
@@ -483,6 +586,13 @@ const Header = ({
                 </div>
               </Typography>
               {!isEAForum &&<ActiveDialogues />}
+              {isGivingSeason && !searchOpen &&
+                <div className={classes.gsBanner}>
+                  <Link to="#">
+                    GIVING SEASON 2024
+                  </Link>
+                </div>
+              }
               {rightHeaderItemsNode}
             </Toolbar>
           </header>
