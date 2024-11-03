@@ -14,6 +14,7 @@
 
 <h1>CKEditor 5 – balloon block editor build – development sample</h1>
 
+<div id="presence-list-container"></div>
 <div id="editor">
 	<h2>Sample Post Editor</h2>
 	<p>This is an instance of the <a
@@ -47,7 +48,65 @@
 <script src="../build/ckeditor.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@ckeditor/ckeditor5-inspector@1.5.0/build/inspector.js"></script>
 <script>
-	CKEditor.PostEditor.create( document.querySelector( '#editor' ) )
+	const cache = new Map();
+	// function generateTokenRequest(collectionName, fieldName, documentId, userId, formType, linkSharingKey) {
+	// 	return () => {
+	// 		const cacheKey = `${collectionName}-${fieldName}-${documentId}-${userId}-${formType}-${linkSharingKey}`;
+	// 		const cachedToken = cache.get(cacheKey);
+	// 		if (cachedToken) {
+	// 			return Promise.resolve(cachedToken);
+	// 		}
+
+	// 		const headers = {
+	// 			'collection-name': collectionName,
+	// 			'field-name': fieldName
+	// 		};
+			
+	// 		if (linkSharingKey) {
+	// 			headers['link-sharing-key'] = linkSharingKey;
+	// 		}
+	// 		if (documentId) {
+	// 			headers['document-id'] = documentId;
+	// 		}
+	// 		if (userId) {
+	// 			headers['user-id'] = userId;
+	// 		}
+	// 		if (formType) {
+	// 			headers['form-type'] = formType;
+	// 		}
+
+	// 		return fetch('/ckeditor-token', {
+	// 			method: 'GET',
+	// 			headers
+	// 		})
+	// 		.then(response => {
+	// 			if (!response.ok) {
+	// 				throw new Error('Cannot download a new token!');
+	// 			}
+	// 			return response.text();
+	// 		})
+	// 		.then(token => {
+	// 			cache.set(cacheKey, token);
+	// 			return token;
+	// 		});
+	// 	}
+	// }
+
+	function generateTokenRequest() {
+		return async () => 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJyUXZEM1ZudW5YWnUzNG04NmU1ZiIsImlhdCI6MTczMDUwNTg1MywidXNlciI6eyJpZCI6ImdyZWNISmNna2IzS1c1d25NIiwibmFtZSI6IlJvYmVydE0ifSwiYXV0aCI6eyJjb2xsYWJvcmF0aW9uIjp7InNadk1MV3JXb21OMjh1V0E5LWVkaXQiOnsicm9sZSI6IndyaXRlciJ9fX19.3qBpB9FUmTq5GcPEXqvTvmJbc-xun-de3ZyPcKYkVbs';
+	}
+
+	CKEditor.getPostEditorCollaboration('LessWrong').create( document.querySelector( '#editor' ), {
+		collaboration: { channelId: "sZvMLWrWomN28uWA9-edit" },
+		presenceList: { container: document.querySelector( '#presence-list-container' ) },
+		cloudServices: {
+			bundleVersion: "43.1.0",
+			documentId: "test-local-build-edit",
+			tokenUrl: generateTokenRequest('Posts', 'contents', 'test-local-build-edit', 'edit'),
+			uploadUrl: "https://39669.cke-cs.com/easyimage/upload/",
+			webSocketUrl: "39669.cke-cs.com/ws"
+		}
+	} )
 		.then( editor => {
 			CKEditorInspector.attach(editor);
 			window.CKEditor = editor
@@ -56,7 +115,7 @@
 		.catch( err => {
 			console.error( err.stack );
 		} );
-	CKEditor.CommentEditor.create( document.querySelector( '#comment-editor' ) )
+	CKEditor.getCommentEditor('LessWrong').create( document.querySelector( '#comment-editor' ) )
 		.then( editor => {
 			CKEditorInspector.attach(editor);
 			window.CKEditorComment = editor

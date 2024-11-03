@@ -65,6 +65,7 @@ export async function ckEditorTokenHandler (req: AnyBecauseTodo, res: AnyBecause
     res.writeHead(200, {
       "Content-Type": "application/octet-stream"
     });
+    console.log({ result });
     res.end(result);
   } else {
     const payload = {
