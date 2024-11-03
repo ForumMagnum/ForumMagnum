@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useLayoutEffect, useRef } from "react";
 import { isClient } from "../executionEnvironment";
 
 
@@ -40,7 +40,10 @@ export function rawDomNodeToReactComponent(node: Node) {
   function DomNodeComponent(props: {}) {
     const containerRef = useRef<HTMLSpanElement|null>(null);
     
-    useEffect(() => {
+    // Insert contents in `useLayoutEffect` so that the screen can't paint with
+    // substituted content missing, and so that it precedes any `useEffect`s
+    // (most notably the footnote-extraction useEffect in `FootnotePreview`).
+    useLayoutEffect(() => {
       if (containerRef.current) {
         // If this has been attached somewhere else, detach it
         if (node.parentElement && node.parentElement !== containerRef.current) {
