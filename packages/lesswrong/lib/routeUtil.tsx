@@ -7,6 +7,7 @@ import * as _ from 'underscore';
 import { ForumOptions, forumSelect } from './forumTypeUtils';
 import type { LocationDescriptor } from 'history';
 import {siteUrlSetting} from './instanceSettings'
+import { getUrlClass } from '@/server/utils/getUrlClass';
 
 // React Hook which returns the page location (parsed URL and route).
 // Return value contains:
@@ -86,14 +87,6 @@ export const withLocation = (WrappedComponent: any) => {
       }
     </LocationContext.Consumer>
   );
-}
-
-export const getUrlClass = (): typeof URL => {
-  if (isServer) {
-    return require('url').URL
-  } else {
-    return URL
-  }
 }
 
 // Given a URL which might or might not have query parameters, return a URL in
