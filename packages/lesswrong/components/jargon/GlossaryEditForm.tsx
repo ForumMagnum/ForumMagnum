@@ -17,6 +17,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 // about what model is being used in the jargon generation process.
 // If you change this architecture, make sure to update GlossaryEditForm.tsx and the Users' schema
 export const JARGON_LLM_MODEL = 'claude-3-5-sonnet-20241022';
+export const JARGON_LLM_MODEL_TITLE = JARGON_LLM_MODEL.toUpperCase()
 
 export const defaultGlossaryPrompt = `You're a LessWrong Glossary AI. Your goal is to make good explanations for technical jargon terms. You are trying to produce a useful hoverover tooltip in an essay on LessWrong.com, accessible to a smart, widely read layman. 
 
@@ -67,6 +68,7 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.commentStyle,
     marginTop: -8,
     marginBottom: -16,
+    position: 'relative',
   },
   window: {
     maxHeight: 160,
@@ -89,9 +91,7 @@ const styles = (theme: ThemeType) => ({
   },
   headerButton: {
     cursor: 'pointer',
-    padding: 10,
-    paddingLeft: 16,
-    paddingRight: 16,
+    padding: 12,
     fontSize: '1.1rem',
     color: theme.palette.primary.main,
     gap: '8px',
@@ -111,25 +111,38 @@ const styles = (theme: ThemeType) => ({
       opacity: 0.8
     }
   },
+  expandButton: {
+    cursor: 'pointer',
+    padding: 10,
+    fontSize: '1.1rem',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    opacity: 0.6,
+    '&:hover': {
+      opacity: 0.8
+    },
+    position: 'absolute',
+    bottom: 4,
+    right: 0
+  },
   buttonRow: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingTop: 16
+    paddingTop: 8
   },
+
   header: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 12,
-    paddingTop: 8,
-    paddingBottom: 8,
     borderBottom: theme.palette.border.faint,
-    marginBottom: 4,
+    marginBottom: 10,
   },
   headerButtons: {
     display: 'flex',
-    gap: 12,
+    alignItems: 'center'
   },
   icon: {
     color: theme.palette.grey[500],
@@ -174,24 +187,28 @@ const styles = (theme: ThemeType) => ({
   },
   formStyles: {
     ...formStyles,
-    borderBottom: theme.palette.border.faint,
+    border: theme.palette.border.faint,
+    borderRadius: 4,
     paddingBottom: 10,
     paddingTop: 16,
     paddingLeft: 24,
     paddingRight: 24,
-    marginBottom: 16,
+    marginTop: 16,
 
   },
   newTermButton: {
     cursor: 'pointer',
-    color: theme.palette.primary.main,
+    background: theme.palette.buttons.startReadingButtonBackground,
+    borderRadius: 4,
     fontSize: 25,
     fontWeight: 900,
-    paddingLeft: 1,
-    paddingRight: 7
+    padding: "0 12px 1px 12px",
+    marginRight: 10,
   },
   newTermButtonCancel: {
+    background: 'unset',
     color: theme.palette.grey[500],
+    marginRight: 16,
     transform: 'rotate(45deg)',
     fontWeight: 600
   },
@@ -203,6 +220,10 @@ const styles = (theme: ThemeType) => ({
     fontSize: "1.25rem",
     fontWeight: isFriendlyUI ? 600 : undefined,
   },
+  promptEditorWarning: {
+    color: theme.palette.error.main,
+    marginTop: 16,
+  },
   formCollapsed: {
     display: 'none',
   },
@@ -213,30 +234,37 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'start',
     paddingTop: 4,
   },
-  checkboxTopContainer: {
-    marginRight: theme.spacing.unit * 3,
-    marginTop: 5,
-    display: "flex",
-    alignItems: "center"
-  },
   checkboxRow: {
     display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'end',
-    paddingTop: 4,
+    alignItems: 'center',
+    marginTop: 8
   },
   checkboxContainer: {
     display: 'flex',
     alignItems: 'center',
-    marginRight: 8,
+    cursor: 'pointer',
   },
   generationFlagCheckbox: {
-    padding: 2,
+    padding: 8,
+    marginRight: 2,
   },
   inline: {
     display: 'inline',
     cursor: 'pointer',
   },
+  warningIcon: {
+    marginRight: 10,
+    opacity: 0.85,
+    height: 20,
+    width: 20,
+  },
+  editPromptIcon: {
+    height: 20,
+    width: 20,
+    marginLeft: 5,
+    marginTop: 1,
+    color: theme.palette.grey[500]
+  }
 });
 
 export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
@@ -244,18 +272,27 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   document: PostsEditQueryFragment,
   showTitle?: boolean,
 }) => {
-  const { JargonEditorRow, LoadMore, Loading, LWTooltip, WrappedSmartForm, IconRight, IconDown, Row, MetaInfo, EditUserJargonSettings } = Components;
-
-  const currentUser = useCurrentUser();
-  const updateCurrentUser = useUpdateCurrentUser();
+  const { JargonEditorRow, LoadMore, Loading, LWTooltip, WrappedSmartForm, IconRight, IconDown, Row, MetaInfo, EditUserJargonSettings, ForumIcon } = Components;
 
   const { mutate: updatePost } = useUpdate({
     collectionName: "Posts",
     fragmentName: 'PostsEdit',
   });
 
+  const togglePostAutoGenerate = (autoGenerate: boolean) => {
+    void updatePost({
+      selector: { _id: document._id },
+      data: { generateDraftJargon: autoGenerate },
+      optimisticResponse: {
+        ...document,
+        generateDraftJargon: autoGenerate,
+      }
+    });
+  }
+
+
   const [formCollapsed, setFormCollapsed] = useState(false);
-  const [showMoreTerms, setShowMoreTerms] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const [showDeletedTerms, setShowDeletedTerms] = useState(false);
 
   const [glossaryPrompt, setGlossaryPrompt] = useState<string | undefined>(defaultGlossaryPrompt);
@@ -266,7 +303,6 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
 
   const [showNewJargonTermForm, setShowNewJargonTermForm] = useState(false);
   const [editingPrompt, setEditingPrompt] = useState(false);
-  const [clickedAutogenerate, setClickedAutogenerate] = useState(false);
   
   const { results: glossary = [], loadMoreProps, refetch } = useMulti({
     terms: {
@@ -294,10 +330,16 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     ${fragmentTextForQuery("JargonTerms")}
   `);
 
+  const [generatedOnce, setGeneratedOnce] = useState(sortedTerms.length > 0);
+
   const addNewJargonTerms = async () => {
     // TODO: maybe just disable button if no prompt?
     if (!glossaryPrompt) return;
     if (mutationLoading) return;
+
+    setGeneratedOnce(true);
+    togglePostAutoGenerate(true);
+
     
     try {
       await getNewJargonTerms({
@@ -371,7 +413,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   }
   
   const promptEditor = <div>
-    <h3>WARNING! This will not be saved after page reload</h3>
+    <h3 className={classes.promptEditorWarning}>WARNING! Prompt edits will not be saved after page reload</h3>
     <TextField
       label="Prompt"
       value={glossaryPrompt}
@@ -423,75 +465,74 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     />
   </div>
 
-  const header = <div className={classNames(classes.header, formCollapsed && classes.formCollapsed)}>
-    <LWTooltip title={showNewJargonTermForm ? "Cancel adding a new term" : "Add a new term to the glossary"}>
-      <div className={classNames(classes.newTermButton, showNewJargonTermForm && classes.newTermButtonCancel)} onClick={() => setShowNewJargonTermForm(!showNewJargonTermForm)}>
-        +
-      </div>
-    </LWTooltip>
-    <div className={classes.headerButtons}>
-      <LWTooltip title="Enable all glossary hoverovers for readers of this post">
-        <div className={classNames(classes.headerButton, sortedUnapprovedTerms.length === 0 && classes.disabled)} 
-          onClick={() => handleSetApproveAll(true)}>
-          ENABLE ALL{ sortedUnapprovedTerms.length > 0 ? ` (${sortedUnapprovedTerms.length})` : '' }
-        </div>
-      </LWTooltip>
-      <LWTooltip title="Disable all glossary hoverovers for readers of this post">
-        <div className={classNames(classes.headerButton, sortedApprovedTerms.length === 0 && classes.disabled)} 
-          onClick={() => handleSetApproveAll(false)}>
-          DISABLE ALL{ sortedApprovedTerms.length > 0 ?  ` (${sortedApprovedTerms.length})` : '' }
-        </div>
-      </LWTooltip>
-      <LWTooltip title={<div><p>Hide all terms that aren't currently enabled</p><p>(you can unhide them later)</p></div>}>
-        <div className={classNames(classes.headerButton, sortedUnapprovedTerms.length === 0 && classes.disabled)} onClick={handleDeleteUnused}>HIDE DISABLED TERMS</div>
-      </LWTooltip>
-      <LWTooltip title="Unhide all hidden terms">
-        <div className={classNames(classes.headerButton, deletedTerms.length === 0 && classes.disabled)} onClick={handleUnhideAll}>
-          UNHIDE ALL{ deletedTerms.length > 0 ? ` (${deletedTerms.length})` : '' }
-        </div>
-      </LWTooltip>
-    </div>
-  </div>
-
   const generateJargonFlagsRow = <div className={classes.checkboxRow}>
-    <LWTooltip title={<div><div>
-        Have jargon automatically generated so when you're ready to publish, you can easily review it.
-      </div>
-      <div>
-        <em>(Queries ${JARGON_LLM_MODEL} every ~5 minutes.)</em>
-      </div>
+    <LWTooltip title={<div>
+        {document.draft && <Row><ForumIcon icon={"Warning"} className={classes.warningIcon} /> <div>Send this draft to {JARGON_LLM_MODEL_TITLE}, automatically generating glossary terms every 5 min. Review them before publishing.</div></Row>}
       </div>}>
-      <div className={classes.checkboxContainer} onClick={() => setClickedAutogenerate(true)}>
-        <MetaInfo>Autogenerate while drafting</MetaInfo>
+      <div className={classes.checkboxContainer}>
         <Checkbox
           className={classes.generationFlagCheckbox}
           checked={document?.generateDraftJargon}
-          onChange={(e) => updatePost({
-            selector: { _id: document._id },
-            data: { generateDraftJargon: e.target.checked },
-          })}
+          onChange={(e) => togglePostAutoGenerate(e.target.checked)}
         />
+        <MetaInfo>Autogenerate</MetaInfo>
       </div>
     </LWTooltip>
-    {clickedAutogenerate && <EditUserJargonSettings />}
+    <EditUserJargonSettings />
   </div>
 
+  const header = (sortedTerms.length > 0) && <div className={classNames(classes.header, formCollapsed && classes.formCollapsed)}>
+    <LWTooltip title="Enable all glossary hoverovers for readers of this post">
+      <div className={classNames(classes.headerButton, sortedUnapprovedTerms.length === 0 && classes.disabled)} 
+        onClick={() => handleSetApproveAll(true)}>
+        ENABLE ALL{ sortedUnapprovedTerms.length > 0 ? ` (${sortedUnapprovedTerms.length})` : '' }
+      </div>
+    </LWTooltip>
+    <LWTooltip title="Disable all glossary hoverovers for readers of this post">
+      <div className={classNames(classes.headerButton, sortedApprovedTerms.length === 0 && classes.disabled)} 
+        onClick={() => handleSetApproveAll(false)}>
+        DISABLE ALL{ sortedApprovedTerms.length > 0 ?  ` (${sortedApprovedTerms.length})` : '' }
+      </div>
+    </LWTooltip>
+    <LWTooltip title={<div><p>Hide all terms that aren't currently enabled</p><p>(you can unhide them later)</p></div>}>
+      <div className={classNames(classes.headerButton, sortedUnapprovedTerms.length === 0 && classes.disabled)} onClick={handleDeleteUnused}>HIDE DISABLED TERMS</div>
+    </LWTooltip>
+    <LWTooltip title="Unhide all hidden terms">
+      <div className={classNames(classes.headerButton, deletedTerms.length === 0 && classes.disabled)} onClick={handleUnhideAll}>
+        UNHIDE ALL{ deletedTerms.length > 0 ? ` (${deletedTerms.length})` : '' }
+      </div>
+    </LWTooltip>
+  </div>
+
+  let rowCount = nonDeletedTerms.length
+  if (showDeletedTerms) { 
+    rowCount += deletedTerms.length
+  } else {
+    rowCount += deletedTerms.length > 0 ? 1 : 0
+  }
+
   const footer = <div className={classNames(classes.buttonRow, formCollapsed && classes.formCollapsed)}>
-    <Button onClick={addNewJargonTerms} className={classNames(classes.generateButton, (mutationLoading || !glossaryPrompt) && classes.disabled)}>Generate new terms</Button>
     <div className={classes.headerButtons}>
-      <LWTooltip title="Make changes to the jargon generator LLM prompt">
-        <div className={classes.headerButton} onClick={() => setEditingPrompt(!editingPrompt)}>{editingPrompt ? "SAVE PROMPT" : "EDIT PROMPT"}</div>
+    <LWTooltip title={showNewJargonTermForm ? "Cancel adding a new term" : "Manually add a new term to the glossary"}>
+      <div className={classNames(classes.newTermButton, showNewJargonTermForm && classes.newTermButtonCancel)} onClick={() => setShowNewJargonTermForm(!showNewJargonTermForm)}>
+        +
+      </div>
       </LWTooltip>
-    </div>
-    <div className={classes.button} onClick={() => setShowMoreTerms(!showMoreTerms)}>
-      {showMoreTerms 
-        ? <>SHOW LESS</>
-        : <>SHOW MORE</>
-      }
+      <LWTooltip title={<div>Send post to {JARGON_LLM_MODEL_TITLE},<br/>to generate new glossary terms/explanations</div>}>
+        <Button onClick={addNewJargonTerms} className={classNames(classes.generateButton, (mutationLoading || !glossaryPrompt) && classes.disabled)}>Autogenerate Glossary</Button>
+      </LWTooltip>
+      <LWTooltip title="Edit the jargon generator LLM prompt">
+        <div className={classes.headerButton} onClick={() => setEditingPrompt(!editingPrompt)}>{editingPrompt ? "SAVE PROMPT" : <ForumIcon icon="Settings" className={classes.editPromptIcon} />}</div>
+      </LWTooltip>
     </div>
     {mutationLoading && <Loading/>}
     {mutationLoading && <div>(Loading... warning, this will take 30-60 seconds.)</div>}
   </div>
+
+  const handleShowDeletedTerms = () => {
+    setShowDeletedTerms(!showDeletedTerms);
+    setExpanded(true);
+  }
 
   return <div className={classes.root}>
     {showTitle && <Row justifyContent="space-between" alignItems="flex-start">
@@ -499,34 +540,20 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
         <h3 className={classes.formSectionHeadingTitle}>Glossary [Beta]
         </h3>
       </LWTooltip>
-      {generateJargonFlagsRow}
       <div className={classes.expandCollapseIcon} onClick={() => setFormCollapsed(!formCollapsed)}>{formCollapsed ? <IconRight height={16} width={16} /> : <IconDown height={16} width={16} />}</div>
     </Row>}
     {header}
-    <div className={classNames(classes.window, showMoreTerms && classes.expanded, formCollapsed && classes.formCollapsed)}>
+    <div className={classNames(classes.window, expanded && classes.expanded, formCollapsed && classes.formCollapsed)}>
       <div>
-        {showNewJargonTermForm && <div className={classes.root}>
-          <div className={classes.formStyles}>
-            <WrappedSmartForm
-              collectionName="JargonTerms"
-              mutationFragment={getFragment('JargonTerms')}
-              queryFragment={getFragment('JargonTerms')}
-              formComponents={{ FormSubmit: Components.JargonSubmitButton }}
-              prefilledProps={{ postId: document._id }}
-              cancelCallback={() => setShowNewJargonTermForm(false)}
-              successCallback={() => setShowNewJargonTermForm(false)}
-            />
-          </div>
-        </div>}
         {nonDeletedTerms.map((item) => {
           return <JargonEditorRow 
             key={item._id} 
             jargonTerm={item} 
             instancesOfJargonCount={getCount(item)}
-            setShowMoreTerms={setShowMoreTerms}
+            setShowMoreTerms={setExpanded}
           />;
         })}
-        {deletedTerms.length > 0 && <div className={classes.button} onClick={() => setShowDeletedTerms(!showDeletedTerms)}>
+        {deletedTerms.length > 0 && <div className={classes.button} onClick={handleShowDeletedTerms}>
           <LWTooltip title="Hidden terms are hidden from readers unless they explicitly opt into 'Show me hidden AI slop the author doesn't necessarily endorse'">
             {showDeletedTerms ? 
               <span>Hide hidden terms</span>
@@ -536,14 +563,32 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
           </LWTooltip>
         </div>}
         {deletedTerms.length > 0 && showDeletedTerms && deletedTerms.map((item) => {
-          return <JargonEditorRow key={item._id} jargonTerm={item} instancesOfJargonCount={getCount(item)} setShowMoreTerms={setShowMoreTerms}/>
+          return <JargonEditorRow key={item._id} jargonTerm={item} instancesOfJargonCount={getCount(item)} setShowMoreTerms={setExpanded}/>
         })}
 
       </div>
       <LoadMore {...loadMoreProps} />
     </div>
+    {showNewJargonTermForm && <div className={classes.formStyles}>
+      <WrappedSmartForm
+        collectionName="JargonTerms"
+        mutationFragment={getFragment('JargonTerms')}
+        queryFragment={getFragment('JargonTerms')}
+        formComponents={{ FormSubmit: Components.JargonSubmitButton }}
+        prefilledProps={{ postId: document._id }}
+        cancelCallback={() => setShowNewJargonTermForm(false)}
+        successCallback={() => setShowNewJargonTermForm(false)}
+      />
+    </div>}
     {footer}
+    {(generatedOnce || editingPrompt) && generateJargonFlagsRow}
     {editingPrompt && promptEditor}
+    {rowCount > 5 && <div className={classes.expandButton} onClick={() => setExpanded(!expanded)}>
+      {expanded 
+        ? <>COLLAPSE</>
+        : <>EXPAND</>
+      }
+    </div>}
   </div>;
 }
 

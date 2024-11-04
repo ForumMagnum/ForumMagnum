@@ -5,6 +5,7 @@ import { useTracking } from "../../lib/analyticsEvents";
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from '../common/withUser';
 import Checkbox from '@material-ui/core/Checkbox';
+import { JARGON_LLM_MODEL } from './GlossaryEditForm';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -15,7 +16,8 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'center',
   },
   generationFlagCheckbox: {
-    marginLeft: 10,
+    marginRight: 2,
+    padding: 8,
   },
 });
 
@@ -28,24 +30,25 @@ export const EditUserJargonSettings = ({classes}: {
 
   const { LWTooltip, MetaInfo } = Components;
   return <>
-      <LWTooltip title="Automatically query jargon for all drafts">
+      <LWTooltip title={<div><div>Automatically generate jargon for all your drafts, by default</div>
+      <em>(i.e. send your drafts to {JARGON_LLM_MODEL} every ~5 minutes)</em></div>}>
         <div className={classes.checkboxContainer}>
-          <MetaInfo>All drafts</MetaInfo>
           <Checkbox
             className={classes.generationFlagCheckbox}
             checked={currentUser?.generateJargonForDrafts}
             onChange={(e) => updateCurrentUser({generateJargonForDrafts: e.target.checked})}
           />
+          <MetaInfo>Autogen for all my drafts</MetaInfo>
         </div>
       </LWTooltip>
       <LWTooltip title="Automatically query jargon for all published posts">
         <div className={classes.checkboxContainer}>
-          <MetaInfo>All published posts</MetaInfo>
           <Checkbox
             className={classes.generationFlagCheckbox}
             checked={currentUser?.generateJargonForPublishedPosts}
             onChange={(e) => updateCurrentUser({generateJargonForPublishedPosts: e.target.checked})}
           />
+          <MetaInfo>Autogen for all my published posts</MetaInfo>
         </div>
       </LWTooltip>
   </>;
