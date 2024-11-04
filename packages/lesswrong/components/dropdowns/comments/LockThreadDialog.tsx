@@ -27,12 +27,13 @@ const LockThreadDialog = ({commentId, onClose, classes}: {
   const handleLockThread = async () => {
     const result = await mutate({
       mutation: gql`
-        mutation unlockThread($commentId: String!) {
-          unlockThread(commentId: $commentId)
+        mutation lockThread($commentId: String!, $until: String) {
+          lockThread(commentId: $commentId, until: $until)
         }
       `,
       variables: {
-        commentId: commentId
+        commentId: commentId,
+        until: until,
       },
       errorHandling: "flashMessageAndReturn",
     });
