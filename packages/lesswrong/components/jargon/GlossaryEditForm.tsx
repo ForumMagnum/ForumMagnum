@@ -237,7 +237,11 @@ const styles = (theme: ThemeType) => ({
   checkboxRow: {
     display: 'flex',
     alignItems: 'center',
-    marginTop: 8
+    marginTop: 8,
+    [theme.breakpoints.down('md')]: {
+      flexDirection: 'column',
+      alignItems: 'flex-start',
+    }
   },
   checkboxContainer: {
     display: 'flex',
@@ -279,8 +283,8 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     fragmentName: 'PostsEdit',
   });
 
-  const togglePostAutoGenerate = (autoGenerate: boolean) => {
-    void updatePost({
+  const togglePostAutoGenerate = async (autoGenerate: boolean) => {
+    await updatePost({
       selector: { _id: document._id },
       data: { generateDraftJargon: autoGenerate },
       optimisticResponse: {
@@ -289,7 +293,6 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
       }
     });
   }
-
 
   const [formCollapsed, setFormCollapsed] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -337,10 +340,9 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     if (!glossaryPrompt) return;
     if (mutationLoading) return;
 
+    await togglePostAutoGenerate(true);
     setGeneratedOnce(true);
-    togglePostAutoGenerate(true);
 
-    
     try {
       await getNewJargonTerms({
         variables: {
