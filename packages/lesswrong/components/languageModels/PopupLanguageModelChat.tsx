@@ -12,7 +12,7 @@ import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    background: "unset",
+    // background: "unset",
     width: 450,
     maxHeight: "calc(100vh - 80px)",
     position: "fixed",
@@ -72,8 +72,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   editor: {
     paddingLeft: 10,
     paddingRight: 10,
-    paddingTop: 8,
-    paddingBottom: 100,
+    paddingTop: 12,
+    paddingBottom: 12,
   },
 });
 

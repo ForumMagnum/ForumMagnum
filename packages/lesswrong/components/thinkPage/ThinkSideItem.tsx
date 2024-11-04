@@ -54,7 +54,7 @@ export const ThinkSideItem = ({post, classes}: {
 
   const icon = post.draft ? <ForumIcon icon="Pencil" className={classes.icon}/> : <ForumIcon icon="Document" className={classes.icon}/>
 
-  const url = post.draft ? `/think/posts/${post._id}/edit` : `/think/posts/${post._id}/${post.slug}`
+  const url = post.draft ? `/think/posts/${post._id}/edit?key=${post.linkSharingKey}` : `/think/posts/${post._id}/${post.slug}`
 
   const date = post.modifiedAt > (post.lastVisitedAt ?? post.createdAt) ? post.modifiedAt : post.lastVisitedAt ?? post.createdAt
 

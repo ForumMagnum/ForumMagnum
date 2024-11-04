@@ -9,13 +9,8 @@ import { useLocation } from '@/lib/routeUtil';
 import { useMulti } from '@/lib/crud/withMulti';
 
 export type WebsiteData = {
-  title: string;
-  url: string;
-  body: string;
-  paragraph: string;
-  bodyHtml: string;
-  paragraphHtml: string;
-  date: Date;
+  postId: string;
+  postSlug: string;
 };
 
 export type PostData = PostsListWithVotes & {
@@ -34,10 +29,10 @@ const styles = (theme: ThemeType) => ({
     top: 70,
     display: 'flex',
     flexDirection: 'column',
-    opacity: 0,
+    // opacity: 0,
     '&:hover': {
       transition: 'opacity .2s ease-in-out',
-      opacity: 1,
+      // opacity: 1,
     },
     ...theme.typography.body2,
     '& h3': {
@@ -60,6 +55,7 @@ export const ThinkSideColumn = ({classes}: {
 
   const currentUser = useCurrentUser();
   const { query } = useLocation();
+  const [active, setActive] = useState(false);
 
   const currentSorting = query.sortDraftsBy ?? query.view ?? currentUser?.draftsListSorting ?? "lastModified";
 
@@ -116,24 +112,24 @@ export const ThinkSideColumn = ({classes}: {
   const yesterdaysPosts = allPosts.filter(post => moment(post.lastVisitedAt).isSame(moment().subtract(1, 'day'), 'day'))
   const olderPosts = allPosts.filter(post => moment(post.lastVisitedAt).isBefore(moment().subtract(1, 'day'), 'day'))
 
-
-
   const { ThinkSideItem, ThinkOmnibar } = Components
 
   return <div className={classes.root}>
     <ThinkOmnibar setWebsiteUrls={setWebsiteUrls} websiteUrls={websiteUrls}/>
-    {todaysPosts.length > 0 && <>
-      <h3>Today</h3>
-      {todaysPosts.map(post => <ThinkSideItem key={post._id} post={post} />)}
-    </>}
-    {yesterdaysPosts.length > 0 && <>
-      <h3>Yesterday</h3>
-      {yesterdaysPosts.map(post => <ThinkSideItem key={post._id} post={post} />)}
-    </>}
-    {olderPosts.length > 0 && <>
-      <h3>Older</h3>
-      {olderPosts.map(post => <ThinkSideItem key={post._id} post={post} />)}
-    </>}
+    {active && <div>
+      {todaysPosts.length > 0 && <>
+        <h3>Today</h3>
+        {todaysPosts.map(post => <ThinkSideItem key={post._id} post={post} />)}
+      </>}
+      {yesterdaysPosts.length > 0 && <>
+        <h3>Yesterday</h3>
+        {yesterdaysPosts.map(post => <ThinkSideItem key={post._id} post={post} />)}
+      </>}
+      {olderPosts.length > 0 && <>
+        <h3>Older</h3>
+        {olderPosts.map(post => <ThinkSideItem key={post._id} post={post} />)}
+      </>}
+    </div>}
   </div>;
 }
 

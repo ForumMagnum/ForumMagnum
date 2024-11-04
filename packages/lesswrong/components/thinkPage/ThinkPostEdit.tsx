@@ -17,12 +17,11 @@ export const ThinkPostEdit  = ({classes}: {
 
   const { PostsEditForm, ThinkWrapper } = Components;
 
-  const { params } = useLocation();
-  const documentId = params.documentId;
-  const version = params.version;
+  const { params, query } = useLocation();
+  const documentId = params.postId;
 
   return <ThinkWrapper>
-    <PostsEditForm documentId={documentId} version={version} showTableOfContents={false}/>
+    <PostsEditForm documentId={documentId} showTableOfContents={false}/>
   </ThinkWrapper>
 }
 

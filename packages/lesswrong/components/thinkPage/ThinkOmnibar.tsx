@@ -5,6 +5,7 @@ import Input from '@material-ui/core/Input';
 import { useLazyQuery } from '@apollo/client';
 import gql from 'graphql-tag';
 import { WebsiteData } from './ThinkSideColumn';
+import { useNavigate } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -16,13 +17,16 @@ const extractImportantText = (html: string) => {
   return html;
 }
 
-export const ThinkOmnibar = ({classes, setWebsiteUrls, websiteUrls}: {
+export const ThinkOmnibar = ({classes, setWebsiteUrls, websiteUrls, setActive}: {
   classes: ClassesType<typeof styles>,
   setWebsiteUrls: (urls: Record<string, WebsiteData>) => void,
   websiteUrls: Record<string, WebsiteData>,
+  setActive: (active: boolean) => void,
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
   const [value, setValue] = useState('');
+
+  const navigate = useNavigate();
 
   // Import useLazyQuery from Apollo Client
   const [fetchWebsiteHtmlQuery, { data, loading, error }] = useLazyQuery(gql`
@@ -32,30 +36,41 @@ export const ThinkOmnibar = ({classes, setWebsiteUrls, websiteUrls}: {
   `);
 
   // Handle Enter key press
-  const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyPress = async(event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
       fetchWebsiteHtmlQuery({ variables: { url: value } });
     }
   };
 
-  // Log the fetched HTML when data is received
+  // Redirect to the think post page when data is received
   useEffect(() => {
     if (data) {
-      const { body, title, url, paragraph, bodyLength, paragraphLength } = data.fetchWebsiteHtml;
-      console.log(data.fetchWebsiteHtml);
-      setWebsiteUrls({...websiteUrls, [url]: {title, body, paragraph, bodyLength, paragraphLength}});
-      if (navigator.clipboard && window.isSecureContext) {
-        void navigator.clipboard.writeText(body);
+      const { postId, postSlug } = data.fetchWebsiteHtml;
+
+      if (postId && postSlug) {
+        navigate(`/think/posts/${postId}/${postSlug}`);
+      } else {
+        throw new Error('Post ID or slug not found in data:', data.fetchWebsiteHtml);
       }
     }
     if (error) {
       // eslint-disable-next-line no-console
       console.error(error);
     }
-  }, [data, error, setWebsiteUrls, websiteUrls]);
+  }, [data, error, navigate]);
+
+  const handleSetActive = (active: boolean) => {
+    if (value.length > 0) {
+      setActive(true);
+    } else {
+      setActive(active);
+    }
+  }
 
   return <div className={classes.root}>
     <Input
+      onFocus={() => handleSetActive(true)}
+      onBlur={() => handleSetActive(false)}
       className={classes.root}
       placeholder="Search..."
       value={value}

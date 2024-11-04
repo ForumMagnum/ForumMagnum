@@ -20,27 +20,30 @@ const styles = (theme: ThemeType) => ({
     height: 48,
     width: 100,
     padding: 10,
-    cursor: "pointer",
+    cursor: "text",
     // TODO: Currently the shadow and animation effects on hover don't show up in darkmode
     boxShadow: `0 1px 6px 0 ${theme.palette.greyAlpha(0.06)}, 0 2px 32px 0 ${theme.palette.greyAlpha(0.16)}`,
+    transition: 'all 0.2s ease-in-out',
     "&:hover": {
-      boxShadow: `0 6px 8px ${theme.palette.greyAlpha(0.2)}`
+      padding: 4,
+      bottom: 18,
+      right: 78,
+      width: 104,
+      height: 52,
+      borderRadius: 26,
     },
     [theme.breakpoints.down('sm')]: {
       display: "none"
     },
     color: theme.palette.grey[500],
-    ...(theme.palette.intercom ? {
-      backgroundColor: theme.palette?.intercom?.buttonBackground ?? theme.palette.grey[100],
-    } : {
-      backgroundColor: theme.palette.grey[100],
-    })
+    backgroundColor: theme.palette.background.pageActiveAreaBackground
   },
   icon: {
-    witdh: 16,
-    height: 16,
+    width: 20,
+    height: 20,
     marginLeft: -4,
-    color: theme.palette.grey[500]
+    marginRight: 8,
+    color: theme.palette.grey[900]
   }
 });
 
@@ -69,7 +72,7 @@ export const LanguageModelLauncherButton = ({classes}: {
   }, []);
 
   return <div className={classes.root} onClick={openLlmChat}>
-    <ForumIcon icon="Sparkles" className={classes.icon} /> AI Chat
+    <ForumIcon icon="Sparkles" className={classes.icon} /> Chat...
   </div>;
 }
 

@@ -1231,3 +1231,4 @@ importComponent("ThinkSideColumn", () => require('../components/thinkPage/ThinkS
 importComponent("ThinkSideItem", () => require('../components/thinkPage/ThinkSideItem'));
 importComponent("ThinkWrapper", () => require('../components/thinkPage/ThinkWrapper'));
 importComponent("ThinkOmnibar", () => require('../components/thinkPage/ThinkOmnibar'));
+importComponent("ThinkSequence", () => require('../components/thinkPage/ThinkSequence'));

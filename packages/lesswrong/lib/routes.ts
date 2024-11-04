@@ -1749,6 +1749,18 @@ addRoute({
     componentName: 'ThinkPostNew',
     title: "Think: New Post",
     background: 'white',
+  },
+  {
+    name: 'thinkPageSequenceOriginal',
+    path: '/think/s/:sequenceId',
+    componentName: 'ThinkSequence',
+    title: "Think: Sequence Original",
+  },
+  {
+    name: 'thinkPageSequence',
+    path: '/think/sequence/:sequenceId/:slug?',
+    componentName: 'ThinkSequence',
+    title: "Think: Sequence",
   }
 );
 
