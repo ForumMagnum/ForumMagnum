@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { Link } from "@/lib/reactRouterWrapper";
+import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
 import { useCurrentUser } from "../common/withUser";
 import { formatStat } from "../users/EAUserTooltipContent";
 import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from "../common/Header";
@@ -200,6 +201,8 @@ const styles = (theme: ThemeType) => ({
       },
     },
   },
+  recentComments: {
+  },
   fund: {
     width: 260,
     minWidth: 260,
@@ -279,6 +282,7 @@ const GivingSeason2024Banner = ({classes}: {
     amountRaised,
     amountTarget,
   } = useGivingSeasonEvents();
+  const {currentForumEvent} = useCurrentForumEvent();
   const currentUser = useCurrentUser();
   const [timelineRef, setTimelineRef] = useState<HTMLDivElement | null>(null);
   const [detailsRef, setDetailsRef] = useState<HTMLDivElement | null>(null);
@@ -286,6 +290,11 @@ const GivingSeason2024Banner = ({classes}: {
   const didInitialScroll = useRef(false);
 
   const fundPercent = Math.round((amountRaised / amountTarget) * 100);
+
+  const showRecentComments = !!currentForumEvent?.tagId && (
+    currentEvent?.name === "Marginal Funding Week" ||
+    currentEvent?.name === "Donation Election"
+  );
 
   useEffect(() => {
     if (!detailsRef) {
@@ -341,7 +350,7 @@ const GivingSeason2024Banner = ({classes}: {
     }
   }, [events, onClickTimeline, currentEvent, detailsRef]);
 
-  const {EAButton} = Components;
+  const {EAButton, MixedTypeFeed} = Components;
   return (
     <div className={classNames(
       classes.root,
@@ -395,6 +404,33 @@ const GivingSeason2024Banner = ({classes}: {
               </div>
             ))}
           </div>
+          {showRecentComments &&
+            <div className={classes.recentComments}>
+              <MixedTypeFeed
+                firstPageSize={3}
+                resolverName="GivingSeasonTagFeed"
+                resolverArgs={{tagId: "String!"}}
+                resolverArgsValues={{tagId: currentForumEvent?.tagId}}
+                sortKeyType="Date"
+                renderers={{
+                  newPost: {
+                    fragmentName: "PostsList",
+                    render: (post) => {
+                      console.log("POST", post);
+                      return null;
+                    },
+                  },
+                  newComment: {
+                    fragmentName: "CommentsList",
+                    render: (comment) => {
+                      console.log("COMMENT", comment);
+                      return null;
+                    },
+                  },
+                }}
+              />
+            </div>
+          }
           <div className={classes.fund}>
             <div className={classes.fundInfo}>
               Donate to the fund to boost the value of the Election.{" "}
