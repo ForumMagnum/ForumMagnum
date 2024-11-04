@@ -17,6 +17,7 @@ import { hasProminentLogoSetting } from '../../lib/publicSettings';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentForumEvent } from '../hooks/useCurrentForumEvent';
 import { makeCloudinaryImageUrl } from './CloudinaryImage2';
+import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import { hasForumEvents } from '@/lib/betas';
 import {
   GIVING_SEASON_MOBILE_WIDTH,
@@ -35,16 +36,20 @@ const textColorOverrideStyles = ({
   color,
   contrastColor,
   loginButtonBackgroundColor,
+  loginButtonHoverBackgroundColor,
   loginButtonColor,
   signupButtonBackgroundColor,
+  signupButtonHoverBackgroundColor,
   signupButtonColor,
 }: {
   theme: ThemeType,
   color: string,
   contrastColor?: string,
   loginButtonBackgroundColor?: string,
+  loginButtonHoverBackgroundColor?: string,
   loginButtonColor?: string,
   signupButtonBackgroundColor?: string,
+  signupButtonHoverBackgroundColor?: string,
   signupButtonColor?: string,
 }) => ({
   color,
@@ -86,14 +91,14 @@ const textColorOverrideStyles = ({
     backgroundColor: signupButtonBackgroundColor ?? color,
     color: signupButtonColor ?? contrastColor,
     "&:hover": {
-      backgroundColor: `color-mix(in oklab, ${signupButtonBackgroundColor ?? color} 90%, ${signupButtonColor ?? contrastColor})`,
+      backgroundColor: signupButtonHoverBackgroundColor ?? `color-mix(in oklab, ${signupButtonBackgroundColor ?? color} 90%, ${signupButtonColor ?? contrastColor})`,
     },
   },
   "& .EAButton-greyContained": {
     backgroundColor: loginButtonBackgroundColor ?? `color-mix(in oklab, ${loginButtonColor ?? color} 15%, ${contrastColor})`,
     color: loginButtonColor ?? color,
     "&:hover": {
-      backgroundColor: `color-mix(in oklab, ${loginButtonColor ?? color} 10%, ${theme.palette.background.transparent}) !important`,
+      backgroundColor: loginButtonHoverBackgroundColor ?? `color-mix(in oklab, ${loginButtonColor ?? color} 10%, ${theme.palette.background.transparent}) !important`,
     },
   },
 });
@@ -121,14 +126,6 @@ export const styles = (theme: ThemeType) => ({
         padding: '9px 11px',
       },
     } : {}),
-
-    // Transition for giving season 2024
-    transition: isEAForum ? "color 0.5s ease" : undefined,
-    "& *": {
-      transition: isEAForum
-        ? "color 0.5s ease, background-color 0.5s ease"
-        : undefined,
-    },
   },
   appBarDarkBackground: {
     ...textColorOverrideStyles({
@@ -141,6 +138,7 @@ export const styles = (theme: ThemeType) => ({
       signupButtonColor: theme.palette.text.alwaysWhite,
       loginButtonBackgroundColor: theme.palette.givingSeason.electionFundBackground,
       loginButtonColor: theme.palette.text.alwaysWhite,
+      loginButtonHoverBackgroundColor: `color-mix(in oklab, ${theme.palette.givingSeason.electionFundBackground} 90%, ${theme.palette.text.alwaysWhite})`,
     }),
   },
   root: {
@@ -283,7 +281,7 @@ export const styles = (theme: ThemeType) => ({
   },
   gsBanner: {
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 600,
     lineHeight: "150%",
     letterSpacing: "1.12px",
@@ -330,8 +328,8 @@ const Header = ({
   const {currentForumEvent} = useCurrentForumEvent();
   const isGivingSeason =
     currentForumEvent?.customComponent === "GivingSeason2024Banner" &&
-    currentRoute?.name === "home";
-  const {events, selectedEvent} = useGivingSeasonEvents();
+    (currentRoute?.name === "home" || currentRoute?.name === "posts.single");
+  const {events, selectedEvent, currentEvent} = useGivingSeasonEvents();
 
   const {
     SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
@@ -526,9 +524,14 @@ const Header = ({
     } else if (isGivingSeason) {
       headerStyle.background = unFixed ? "transparent" : "#fff";
     }
+  } else if (isGivingSeason) {
+    headerStyle.background = "#fff";
   }
 
-  const useGivingSeasonText = isGivingSeason && selectedEvent.darkText;
+  const useGivingSeasonText = isGivingSeason && (
+    (currentRoute?.name === "home" && selectedEvent.darkText) ||
+    (currentRoute?.name === "posts.single" && !!currentEvent?.darkText)
+  );
 
   // Make all the text and icons white when we have some sort of color in the header background
   const useWhiteText = Object.keys(headerStyle).length > 0 && !useGivingSeasonText;
@@ -555,19 +558,28 @@ const Header = ({
             )}
             style={headerStyle}
           >
-            {isGivingSeason && !unFixed &&
+            {isGivingSeason && !unFixed && currentRoute?.name === "home" &&
               <div>
                 {events.map(({name, background}) => (
-                <div
-                  key={name}
-                  style={{backgroundImage: `url(${background})`}}
-                  className={classNames(
-                    classes.gsBackground,
-                    name === selectedEvent.name && classes.gsBackgroundActive,
-                  )}
-                />
+                  <div
+                    key={name}
+                    style={{backgroundImage: `url(${background})`}}
+                    className={classNames(
+                      classes.gsBackground,
+                      name === selectedEvent.name && classes.gsBackgroundActive,
+                    )}
+                  />
                 ))}
               </div>
+            }
+            {isGivingSeason && currentEvent && currentRoute?.name === "posts.single" &&
+              <div
+                style={{backgroundImage: `url(${currentEvent.background})`}}
+                className={classNames(
+                  classes.gsBackground,
+                  classes.gsBackgroundActive,
+                )}
+              />
             }
             <Toolbar disableGutters={isFriendlyUI}>
               {navigationMenuButton}
@@ -591,7 +603,11 @@ const Header = ({
               {!isEAForum &&<ActiveDialogues />}
               {isGivingSeason && !searchOpen &&
                 <div className={classes.gsBanner}>
-                  <Link to="#">
+                  <Link to={
+                    currentForumEvent?.post
+                      ? postGetPageUrl(currentForumEvent.post)
+                      : "/posts/srZEX2r9upbwfnRKw/giving-season-2024-announcement"
+                  }>
                     GIVING SEASON 2024
                   </Link>
                 </div>

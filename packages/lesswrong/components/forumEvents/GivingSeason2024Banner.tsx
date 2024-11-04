@@ -1,11 +1,13 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { Link } from "@/lib/reactRouterWrapper";
+import { useCurrentUser } from "../common/withUser";
 import { formatStat } from "../users/EAUserTooltipContent";
 import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from "../common/Header";
 import {
   GIVING_SEASON_DESKTOP_WIDTH,
   GIVING_SEASON_MOBILE_WIDTH,
+  getDonateLink,
   useGivingSeasonEvents,
 } from "./useGivingSeasonEvents";
 import classNames from "classnames";
@@ -111,6 +113,9 @@ const styles = (theme: ThemeType) => ({
     userSelect: "none",
     opacity: 0.6,
     transition: "opacity 0.5s ease",
+    "&:hover": {
+      opacity: 1,
+    },
     // Use `after` to overlay the same text but with the higher font weight as
     // if it's selected, even if it's not. This means that the size of each
     // title won't change when they switch between active/inactive.
@@ -180,7 +185,7 @@ const styles = (theme: ThemeType) => ({
   eventName: {
     maxWidth: 640,
     fontSize: 40,
-    fontWeight: 600,
+    fontWeight: 700,
     marginBottom: 12,
     whiteSpace: "wrap",
   },
@@ -241,6 +246,7 @@ const styles = (theme: ThemeType) => ({
   fundBar: {
     height: "100%",
     background: theme.palette.text.alwaysWhite,
+    transition: "width 0.5s ease",
   },
   fundAmount: {
     fontWeight: 700,
@@ -273,9 +279,11 @@ const GivingSeason2024Banner = ({classes}: {
     amountRaised,
     amountTarget,
   } = useGivingSeasonEvents();
+  const currentUser = useCurrentUser();
   const [timelineRef, setTimelineRef] = useState<HTMLDivElement | null>(null);
   const [detailsRef, setDetailsRef] = useState<HTMLDivElement | null>(null);
   const [lastTimelineClick, setLastTimelineClick] = useState<number>();
+  const didInitialScroll = useRef(false);
 
   const fundPercent = Math.round((amountRaised / amountTarget) * 100);
 
@@ -306,21 +314,32 @@ const GivingSeason2024Banner = ({classes}: {
       return;
     }
     const id = events.findIndex((event) => event === selectedEvent);
-    timelineRef?.querySelector(`[data-event-id="${id}"]`)?.scrollIntoView({
-      behavior: "smooth",
-      block: "nearest",
-      inline: "nearest",
-    });
+    setTimeout(() => {
+      timelineRef?.querySelector(`[data-event-id="${id}"]`)?.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+        inline: "nearest",
+      });
+    }, 0);
   }, [timelineRef, selectedEvent, lastTimelineClick, events]);
 
   const onClickTimeline = useCallback((index: number) => {
     setLastTimelineClick(Date.now());
-    detailsRef?.querySelector(`[data-event-id="${index}"]`)?.scrollIntoView({
-      behavior: "smooth",
-      block: "nearest",
-      inline: "start",
-    });
+    setTimeout(() => {
+      detailsRef?.querySelector(`[data-event-id="${index}"]`)?.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+        inline: "start",
+      });
+    }, 0);
   }, [detailsRef]);
+
+  useEffect(() => {
+    if (currentEvent && detailsRef && !didInitialScroll.current) {
+      didInitialScroll.current = true;
+      onClickTimeline(events.findIndex(({name}) => name === currentEvent.name));
+    }
+  }, [events, onClickTimeline, currentEvent, detailsRef]);
 
   const {EAButton} = Components;
   return (
@@ -377,16 +396,15 @@ const GivingSeason2024Banner = ({classes}: {
             ))}
           </div>
           <div className={classes.fund}>
-            <div className={classes.fundTitle}>
-              Donation Election Fund
-            </div>
             <div className={classes.fundInfo}>
               Donate to the fund to boost the value of the Election.{" "}
-              <Link to="#">Learn more</Link>.
+              <Link to="/posts/srZEX2r9upbwfnRKw/giving-season-2024-announcement#November_18___December_3__Donation_Election">
+                Learn more
+              </Link>.
             </div>
             <div className={classes.fundRaised}>
               <span className={classes.fundAmount}>
-                ${formatStat(amountRaised)}
+                ${formatStat(Math.round(amountRaised))}
               </span> raised
             </div>
             <div className={classes.fundBarContainer}>
@@ -395,8 +413,11 @@ const GivingSeason2024Banner = ({classes}: {
                 className={classes.fundBar}
               />
             </div>
-            <EAButton className={classes.donateButton}>
-              Donate
+            <EAButton
+              href={getDonateLink(currentUser)}
+              className={classes.donateButton}
+            >
+              Donate to the Election Fund
             </EAButton>
           </div>
         </div>

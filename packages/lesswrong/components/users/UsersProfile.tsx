@@ -25,6 +25,7 @@ import CopyIcon from '@material-ui/icons/FileCopy'
 import { getUserStructuredData } from './UsersSingle';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { COMMENT_SORTING_MODES } from '@/lib/collections/comments/views';
+import { useDialog } from '../common/withDialog';
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -103,7 +104,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('xs')]: {
       marginRight: 0,
     },
-  }
+  },
+  dialogueButton: {
+    display: 'flex',
+    alignItems: 'center',
+  },
 })
 
 export const getUserFromResults = <T extends UsersMinimumInfo>(results: Array<T>|null|undefined): T|null => {
@@ -130,6 +135,8 @@ const UsersProfileFn = ({terms, slug, classes}: {
   const user = getUserFromResults(results)
   
   const { query } = useLocation()
+
+  const { openDialog } = useDialog();
 
   const displaySequenceSection = (canEdit: boolean, user: UsersProfile) => {
     if (isAF) {
@@ -201,7 +208,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
     const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, LocalGroupsList,
       PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, DialogGroup,
       SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
-      Typography, ContentStyles, ReportUserButton, LWTooltip, UserNotifyDropdown, CommentsSortBySelector } = Components
+      Typography, ContentStyles, ReportUserButton, LWTooltip, UserNotifyDropdown, CommentsSortBySelector, NewDialogueDialog } = Components
 
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
@@ -307,6 +314,17 @@ const UsersProfileFn = ({terms, slug, classes}: {
               { showMessageButton && <NewConversationButton user={user} currentUser={currentUser}>
                 <a>Message</a>
               </NewConversationButton> }
+              { showMessageButton && (
+                <div
+                  className={classes.subscribeButton}
+                  onClick={() => openDialog({ 
+                    componentName: "NewDialogueDialog", 
+                    componentProps: { initialParticipantIds: [user._id] } 
+                  })}
+                >
+                  <a>Dialogue</a>
+                </div>
+              )}
               { <UserNotifyDropdown 
                 user={user} 
                 popperPlacement="bottom-end"

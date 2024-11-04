@@ -275,7 +275,7 @@ const PostsNewForm = ({classes}: {
   const { document: templateDocument, loading: templateLoading } = useSingle({
     documentId: templateId,
     collectionName: "Posts",
-    fragmentName: 'PostsEdit',
+    fragmentName: 'PostsEditMutationFragment',
     skip: !templateId,
   });
 

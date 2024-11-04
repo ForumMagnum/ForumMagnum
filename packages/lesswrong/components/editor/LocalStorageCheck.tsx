@@ -2,13 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { SerializedEditorContents, deserializeEditorContents, EditorContents, nonAdminEditors, adminEditors } from './Editor';
 import { useCurrentUser } from '../common/withUser';
+import { htmlToTextDefault } from '@/lib/htmlToText';
+import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    columnGap: 10,
+    columnGap: isFriendlyUI ? 8 : 10,
     fontFamily: theme.typography.commentStyle.fontFamily,
     color: theme.palette.text.primaryAlert,
     fontSize: 14,
@@ -20,7 +22,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 8,
     
     "& a": {
-      textDecoration: "underline",
       '&:hover': {
         color: theme.palette.primary.dark,
         opacity: 1
@@ -29,10 +30,31 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   restoreLink: {
     color: theme.palette.text.primaryAlert,
+    whiteSpace: 'nowrap',
+    paddingLeft: 6,
+    paddingRight: 2,
+    fontWeight: isFriendlyUI ? 600 : undefined,
+  },
+  restoreBody: {
+    maxHeight: '1.5em',
+    lineHeight: '1.5em',
+    fontSize: '1.1rem',
+    overflow: 'hidden',
+    ...(isFriendlyUI
+      ? {
+        color: theme.palette.text.primaryAlert,
+        fontWeight: 500,
+        opacity: 0.75,
+      }
+      : {
+        color: theme.palette.grey[500],
+        padding: '0 4px',
+      }),
   },
   closeIcon: {
     fontSize: 16,
     cursor: 'pointer',
+    marginLeft: 'auto',
     '&:hover': {
       color: theme.palette.primary.dark,
     }
@@ -83,9 +105,10 @@ const LocalStorageCheck = ({getLocalStorageHandlers, onRestore, classes}: {
   if (!restorableState)
     return null;
   
+  const displayedRestore = htmlToTextDefault(deserializeEditorContents(restorableState.savedDocument)?.value ?? '');
+
   return <div className={classes.root}>
     <div>
-      You have autosaved text.{" "}
       <a className={classes.restoreLink} onClick={() => {
         setRestorableState(null);
         const restored = deserializeEditorContents(restorableState.savedDocument);
@@ -95,8 +118,10 @@ const LocalStorageCheck = ({getLocalStorageHandlers, onRestore, classes}: {
           // eslint-disable-next-line no-console
           console.error("Error restoring from localStorage");
         }
-      }}>Restore</a>
+      }}>{preferredHeadingCase("Restore Autosave")}</a>
     </div>
+    <div className={classes.restoreBody}> {displayedRestore} </div>
+
     <Components.ForumIcon icon="Close" className={classes.closeIcon} onClick={() => setRestorableState(null)}/>
   </div>
 }
