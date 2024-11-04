@@ -779,6 +779,13 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       noFooter: true,
     },
     {
+      name: 'Twitter tools',
+      path: '/admin/twitter',
+      componentName: 'TwitterAdmin',
+      title: 'Twitter tools',
+      isAdmin: true,
+    },
+    {
       name: 'Digests',
       path: '/admin/digests',
       componentName: 'Digests',
@@ -1707,6 +1714,14 @@ addRoute(
     isAdmin: true,
   }
 );
+
+//jargon routes
+addRoute({
+  title: "Glossary Editor",
+  name: 'glossaryEditor',
+  path: '/glossaryEditor',
+  componentName: 'GlossaryEditorPage',
+})
 
 if (hasSurveys) {
   addRoute(

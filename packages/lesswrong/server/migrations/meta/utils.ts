@@ -117,6 +117,15 @@ export const dropIndex = async <N extends CollectionNameString>(
   await db.none(sql, args);
 }
 
+export const dropIndexByName = async <N extends CollectionNameString>(
+  db: SqlClientOrTx,
+  collection: CollectionBase<N>,
+  indexName: string
+): Promise<void> => {
+  const {sql, args} = new DropIndexQuery(collection.getTable(), indexName).compile();
+  await db.none(sql, args);
+}
+
 export const createIndex = async <N extends CollectionNameString>(
   db: SqlClientOrTx,
   collection: CollectionBase<N>,
@@ -144,7 +153,7 @@ export const createTable = async <N extends CollectionNameString>(
   const table = collection.getTable();
   const {sql, args} = new CreateTableQuery(table, ifNotExists).compile();
   await db.none(sql, args);
-  for (const index of table.getIndexes()) {
+  for (const index of table.getRequestedIndexes()) {
     await createIndex(db, collection, index, ifNotExists);
   }
 }

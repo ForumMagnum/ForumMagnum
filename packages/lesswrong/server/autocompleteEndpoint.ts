@@ -8,7 +8,7 @@ import { formatRelative } from "@/lib/utils/timeFormat";
 import { Readable } from 'stream';
 import { pipeline } from 'stream/promises'
 import { hyperbolicApiKey } from "@/lib/instanceSettings";
-import { runFragmentQuery } from "./vulcan-lib/query";
+import { runFragmentMultiQuery } from "./vulcan-lib/query";
 import Users from "@/lib/vulcan-users";
 
 
@@ -75,13 +75,13 @@ async function constructMessageHistory(
 
   // Make the fetches parallel to save time
   const [posts, comments] = await Promise.all([
-    runFragmentQuery({
+    runFragmentMultiQuery({
       collectionName: "Posts",
       fragmentName: "PostsForAutocomplete",
       terms: { postIds },
       context,
     }),
-    runFragmentQuery({
+    runFragmentMultiQuery({
       collectionName: "Comments",
       fragmentName: "CommentsForAutocomplete",
       terms: { commentIds },
@@ -130,7 +130,7 @@ async function constructMessageHistory(
 
   if (replyingCommentId) {
     // Fetch the comment we're replying to
-    const replyingToCommentResponse = await runFragmentQuery({
+    const replyingToCommentResponse = await runFragmentMultiQuery({
       collectionName: "Comments",
       fragmentName: "CommentsForAutocompleteWithParents",
       terms: { commentIds: [replyingCommentId] },
@@ -153,7 +153,7 @@ async function constructMessageHistory(
     });
   }
   else if (postId) {
-    const postResponse = await runFragmentQuery({
+    const postResponse = await runFragmentMultiQuery({
       collectionName: "Posts",
       fragmentName: "PostsForAutocomplete",
       terms: { postIds: [postId] },
@@ -200,13 +200,13 @@ async function construct405bPrompt(
 
   // Make the fetches parallel to save time
   const [posts, comments] = await Promise.all([
-    runFragmentQuery({
+    runFragmentMultiQuery({
       collectionName: "Posts",
       fragmentName: "PostsForAutocomplete",
       terms: { postIds },
       context,
     }),
-    runFragmentQuery({
+    runFragmentMultiQuery({
       collectionName: "Comments",
       fragmentName: "CommentsForAutocomplete",
       terms: { commentIds },
@@ -222,7 +222,7 @@ async function construct405bPrompt(
 
   if (replyingCommentId) {
     // Fetch the comment we're replying to
-    const replyingToCommentResponse = await runFragmentQuery({
+    const replyingToCommentResponse = await runFragmentMultiQuery({
       collectionName: "Comments",
       fragmentName: "CommentsForAutocompleteWithParents",
       terms: { commentIds: [replyingCommentId] },
@@ -235,7 +235,7 @@ async function construct405bPrompt(
 
     finalSection = getCommentReplyMessageFormatted(replyingToComment, prefix, user)    
   } else if (postId) {
-    const postResponse = await runFragmentQuery({
+    const postResponse = await runFragmentMultiQuery({
       collectionName: "Posts",
       fragmentName: "PostsForAutocomplete",
       terms: { postIds: [postId] },
@@ -288,7 +288,7 @@ export function addAutocompleteEndpoint(app: Express) {
       });
 
       const loadingMessagesStream = client.messages.stream({
-        model: "claude-3-5-sonnet-20240620",
+        model: "claude-3-5-sonnet-20241022",
         max_tokens: 1000,
         system: "The assistant is in CLI simulation mode, and responds to the user's CLI commands only with the output of the command.",
         messages: await constructMessageHistory(

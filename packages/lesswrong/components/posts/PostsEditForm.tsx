@@ -18,49 +18,41 @@ import type { Editor } from '@ckeditor/ckeditor5-core';
 import { useNavigate } from '../../lib/reactRouterWrapper';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import DeferRender from '../common/DeferRender';
+import { useSingleWithPreload } from '@/lib/crud/useSingleWithPreload';
+import { userCanCreateAndEditJargonTerms } from '@/lib/betas';
 
 const editor: Editor | null = null
 export const EditorContext = React.createContext<[Editor | null, (e: Editor) => void]>([editor, _ => {}]);
+
+function getDraftLabel(post: PostsPage | null) {
+  if (!post) return "Save Draft";
+  if (!post.draft) return "Move to Drafts";
+  return "Save Draft";
+}
 
 const PostsEditForm = ({ documentId, version, classes }: {
   documentId: string,
   version?: string | null,
   classes: ClassesType,
 }) => {
+  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags, ForeignCrosspostEditForm, DialogueSubmit, RateLimitWarning, DynamicTableOfContents } = Components
+
   const { query, params } = useLocation();
   const navigate = useNavigate();
   const { flash } = useMessages();
-  const { document, loading } = useSingle({
+  const { openDialog } = useDialog();
+  const currentUser = useCurrentUser();
+
+  const [editorState, setEditorState] = useState<Editor | null>(editor);
+
+  const { bestResult: document, fetchedResult: { loading } } = useSingleWithPreload({
     documentId,
     collectionName: "Posts",
     fragmentName: 'PostsPage',
+    preloadFragmentName: 'PostsPage',
   });
-  const { openDialog } = useDialog();
-  const currentUser = useCurrentUser();
-  const isDraft = document && document.draft;
 
-  const wasEverDraft = useRef(isDraft);
-  useEffect(() => {
-    if (wasEverDraft.current === undefined && isDraft !== undefined) {
-      wasEverDraft.current = isDraft;
-    }
-  }, [isDraft]);
-
-  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags, ForeignCrosspostEditForm, DialogueSubmit, RateLimitWarning, DynamicTableOfContents } = Components
-
-  const [editorState, setEditorState] = useState<Editor | null>(editor)
-  const saveDraftLabel: string = ((post) => {
-    if (!post) return "Save Draft"
-    if (!post.draft) return "Move to Drafts"
-    return "Save Draft"
-  })(document)
-  
-  const { mutate: updatePost } = useUpdate({
-    collectionName: "Posts",
-    fragmentName: 'SuggestAlignmentPost',
-  })
-
-  const {document: userWithRateLimit} = useSingle({
+  const { document: userWithRateLimit } = useSingle({
     documentId: currentUser?._id,
     collectionName: "Users",
     fragmentName: "UsersCurrentPostRateLimit",
@@ -68,7 +60,27 @@ const PostsEditForm = ({ documentId, version, classes }: {
     extraVariables: { eventForm: 'Boolean' },
     extraVariablesValues: { eventForm: document?.isEvent }
   });
-  const rateLimitNextAbleToPost = userWithRateLimit?.rateLimitNextAbleToPost
+
+  const { mutate: updatePost } = useUpdate({
+    collectionName: "Posts",
+    fragmentName: 'SuggestAlignmentPost',
+  });
+
+  const saveDraftLabel = getDraftLabel(document);
+
+  // If we've been redirected from PostsNewForm because of the post being autosaved, have the WrappedSmartForm try to fetch from the apollo cache first, since we should have prefetched to hydrate it before redirecting.
+  const editFormFetchPolicy = query.autosaveRedirect ? 'cache-first' : undefined;
+
+  const rateLimitNextAbleToPost = userWithRateLimit?.rateLimitNextAbleToPost;
+
+  const isDraft = document && document.draft;
+  const wasEverDraft = useRef(isDraft);
+
+  useEffect(() => {
+    if (wasEverDraft.current === undefined && isDraft !== undefined) {
+      wasEverDraft.current = isDraft;
+    }
+  }, [isDraft]);
   
   if (!document && loading) {
     return <Components.Loading/>
@@ -116,6 +128,23 @@ const PostsEditForm = ({ documentId, version, classes }: {
         {...props}
       />
     </div>
+  }
+
+  const addFields: string[] = [];
+
+  /*
+  * addFields includes tagRelevance because the field permissions on
+  * the schema say the user can't edit this field, but the widget
+  * "edits" the tag list via indirect operations (upvoting/downvoting
+  * relevance scores).
+  */
+  if (!(document.isEvent || !!document.collabEditorDialogue)) {
+    addFields.push('tagRelevance');
+  }
+
+  // This is a resolver-only field, so we need to add it to the addFields array to get it to show up in the form
+  if (userCanCreateAndEditJargonTerms(currentUser)) {
+    addFields.push('glossary');
   }
 
   return (
@@ -173,13 +202,9 @@ const PostsEditForm = ({ documentId, version, classes }: {
               noSubmitOnCmdEnter
               repeatErrors
               
-              /*
-              * addFields includes tagRelevance because the field permissions on
-              * the schema say the user can't edit this field, but the widget
-              * "edits" the tag list via indirect operations (upvoting/downvoting
-              * relevance scores).
-              */
-              addFields={(document.isEvent || !!document.collabEditorDialogue) ? [] : ['tagRelevance']}
+              addFields={addFields}
+
+              editFormFetchPolicy={editFormFetchPolicy}
             />
           </EditorContext.Provider>
         </DeferRender>

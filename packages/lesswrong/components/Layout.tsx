@@ -35,6 +35,8 @@ export const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTi
 import { LoginPopoverContextProvider } from './hooks/useLoginPopoverContext';
 import DeferRender from './common/DeferRender';
 import { userHasLlmChat } from '@/lib/betas';
+import { AutosaveEditorStateContext } from './editor/EditorFormComponent';
+import { GivingSeasonEventsProvider } from './forumEvents/useGivingSeasonEvents';
 
 const STICKY_SECTION_TOP_MARGIN = 20;
 
@@ -356,6 +358,7 @@ const Layout = ({currentUser, children, classes}: {
 }) => {
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
   const [disableNoKibitz, setDisableNoKibitz] = useState(false); 
+  const [autosaveEditorState, setAutosaveEditorState] = useState<(() => Promise<void>) | null>(null);
   const hideNavigationSidebarDefault = currentUser ? !!(currentUser?.hideNavigationSidebar) : false
   const [hideNavigationSidebar,setHideNavigationSidebar] = useState(hideNavigationSidebarDefault);
   const theme = useTheme();
@@ -419,6 +422,10 @@ const Layout = ({currentUser, children, classes}: {
     [disableNoKibitz, setDisableNoKibitz]
   );
 
+  const autosaveEditorStateContext = useMemo(
+    () => ({ autosaveEditorState, setAutosaveEditorState }),
+    [autosaveEditorState, setAutosaveEditorState]
+  );
 
   let headerBackgroundColor: ColorString;
   // For the EAF Wrapped page, we change the header's background color to a dark blue.
@@ -490,10 +497,12 @@ const Layout = ({currentUser, children, classes}: {
       <ItemsReadContextWrapper>
       <LoginPopoverContextProvider>
       <SidebarsWrapper>
+      <AutosaveEditorStateContext.Provider value={autosaveEditorStateContext}>
       <LlmChatWrapper>
       <DisableNoKibitzContext.Provider value={noKibitzContext}>
       <CommentOnSelectionPageWrapper>
       <CurrentForumEventProvider>
+      <GivingSeasonEventsProvider>
         <div className={classNames(
           "wrapper",
           {'alignment-forum': isAF, [classes.fullscreen]: currentRoute?.fullscreen, [classes.wrapper]: isLWorAF}
@@ -614,10 +623,12 @@ const Layout = ({currentUser, children, classes}: {
             </CommentBoxManager>
           </DialogManager>
         </div>
+      </GivingSeasonEventsProvider>
       </CurrentForumEventProvider>
       </CommentOnSelectionPageWrapper>
       </DisableNoKibitzContext.Provider>
       </LlmChatWrapper>
+      </AutosaveEditorStateContext.Provider>
       </SidebarsWrapper>
       </LoginPopoverContextProvider>
       </ItemsReadContextWrapper>

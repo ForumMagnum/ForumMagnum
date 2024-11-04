@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback, useContext } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import DeferRender from '../common/DeferRender';
@@ -7,7 +7,7 @@ import { useMessages } from '../common/withMessages';
 import Select from '@material-ui/core/Select';
 import CloseIcon from '@material-ui/icons/Close';
 import { useLocation } from "../../lib/routeUtil";
-import { NewLlmMessage, useLlmChat } from './LlmChatWrapper';
+import { NewLlmMessage, PromptContextOptions, RAG_MODE_SET, RagModeType, useLlmChat } from './LlmChatWrapper';
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import CKEditor from '@/lib/vendor/ckeditor5-react/ckeditor';
 import { getCkCommentEditor } from '@/lib/wrapCkEditor';
@@ -17,10 +17,12 @@ import { ckEditorStyles } from '@/themes/stylePiping';
 import { HIDE_LLM_CHAT_GUIDE_COOKIE } from '@/lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
+import { AutosaveEditorStateContext } from '../editor/EditorFormComponent';
+import { usePostsPageContext } from '../posts/PostsPage/PostsPageContext';
 
 const styles = (theme: ThemeType) => ({
   root: {
-    height: "calc(100vh - 160px)"
+    height: "calc(100vh - 190px)"
   },
   subRoot: {
     display: "flex",
@@ -128,6 +130,8 @@ const styles = (theme: ThemeType) => ({
   select: {
     // TODO: maybe really the styling of the options section should be flex display and flex grow stuff
     maxWidth: 250,
+  },
+  ragModeSelect: {
   },
   menuItem: {
     zIndex: theme.zIndexes.languageModelChat + 10,
@@ -269,20 +273,47 @@ const welcomeGuideHtml = [
   `<p><strong>Posts and comments may be loaded into the context window based on your <em>first message</em> (and based on the current post you are viewing).</strong></p>`,
 ].join('');
 
+type CurrentPostContext = {
+  currentPostId: string;
+  postContext: Exclude<PromptContextOptions['postContext'], undefined>
+} | {
+  currentPostId?: undefined;
+  postContext?: undefined;
+};
+
+function useCurrentPostContext(): CurrentPostContext {
+  const { query, location } = useLocation();
+  const { pathname } = location;
+  const parsedPostId = pathname.match(/\/posts\/([^/]+)\/[^/]+/)?.[1];
+
+  if (query.postId) {
+    return {
+      currentPostId: query.postId,
+      postContext: 'post-editor'
+    };
+  }
+
+  if (parsedPostId) {
+    return {
+      currentPostId: parsedPostId,
+      postContext: 'post-page'
+    };
+  }
+
+  return {};
+}
+
 export const ChatInterface = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { LlmChatMessage, Loading, MenuItem, ContentStyles, ContentItemBody } = Components;
 
   const { currentConversation, setCurrentConversation, archiveConversation, orderedConversations, submitMessage, currentConversationLoading } = useLlmChat();
+  const { currentPostId, postContext } = useCurrentPostContext();
+  const { autosaveEditorState } = useContext(AutosaveEditorStateContext);
 
-
+  const [ragMode, setRagMode] = useState<RagModeType>('Auto');
   const { flash } = useMessages();
-
-  // TODO: come back and refactor this to use currentRoute & matchPath to get the url parameter instead
-  const { location } = useLocation();
-  const { pathname } = location;
-  const currentPostId = pathname.match(/\/posts\/([^/]+)\/[^/]+/)?.[1];
 
   const messagesRef = useRef<HTMLDivElement>(null);
   const lastMessageLengthRef = useRef(0);
@@ -403,6 +434,19 @@ export const ChatInterface = ({classes}: {
       </MenuItem>
     </Select>;
 
+    const ragModeSelect = <Select 
+      onChange={(e) => setRagMode(e.target.value as RagModeType)}
+      value={ragMode}
+      disableUnderline
+      className={classes.ragModeSelect}
+    >
+      {RAG_MODE_SET.map((ragMode) => (
+        <MenuItem key={ragMode} value={ragMode}>
+          {ragMode}
+        </MenuItem>
+      ))}
+    </Select>
+
 
   const options = <div className={classes.options}>
     <Button onClick={() => setCurrentConversation()}>
@@ -412,11 +456,15 @@ export const ChatInterface = ({classes}: {
       Export
     </Button>
     {conversationSelect}
+    {ragModeSelect}
   </div>  
 
-  const handleSubmit = useCallback((message: string) => {
-    submitMessage(message, currentPostId);
-  }, [currentPostId, submitMessage]);
+  const handleSubmit = useCallback(async (message: string) => {
+    if (autosaveEditorState) {
+      await autosaveEditorState();
+    }
+    submitMessage({ query: message, ragMode, currentPostId, postContext });
+  }, [autosaveEditorState, currentPostId, postContext, submitMessage, ragMode]);
 
   return <div className={classes.subRoot}>
     {messagesForDisplay}

@@ -6,9 +6,10 @@ import { useHover } from '@/components/common/withHover';
 import { registerComponent } from '@/lib/vulcan-lib';
 import { getOffsetChainTop } from '@/lib/utils/domUtil';
 
-type SideItemOptions = {
-  format: "block"|"icon"
+export type SideItemOptions = {
+  format: "block"|"icon",
   offsetTop: number,
+  measuredElement?: React.RefObject<HTMLElement>,
 }
 const defaultSideItemOptions: SideItemOptions = {
   format: "block",
@@ -51,6 +52,7 @@ export const styles = (theme: ThemeType) => ({
   },
   sidebar: {
     position: "relative",
+    height: "100%",
   },
 });
 
@@ -180,7 +182,7 @@ const SideItemsSidebar = ({classes}: {
       const sideItem = displayContext.sideItems[i];
       sideItem.anchorTop = getOffsetChainTop(sideItem.anchorEl) - sidebarColumnTop + sideItem.options.offsetTop;
       sideItem.anchorLeft = sideItem.anchorEl.offsetLeft;
-      sideItem.sideItemHeight = sideItem.container.clientHeight;
+      sideItem.sideItemHeight = sideItem.options.measuredElement?.current?.clientHeight ?? sideItem.container.clientHeight;
     }
     
     // Sort side-items by their anchor position
@@ -193,8 +195,13 @@ const SideItemsSidebar = ({classes}: {
     for (let i=0; i<sortedSideItems.length; i++) {
       const sideItem = sortedSideItems[i];
       let newTop = Math.max(top, sideItem.anchorTop!);
-      sideItem.container.setAttribute("style", `top:${newTop}px;`);
-      top = newTop + sideItem.sideItemHeight!;
+
+      const sidebarColumnHeight = sideItemColumnRef.current?.clientHeight;
+
+      const style = `top:${newTop}px; --sidebar-column-remaining-height: ${sidebarColumnHeight - newTop}px`;
+
+      sideItem.container.setAttribute("style", style);
+      top = newTop + sideItem.sideItemHeight!;  
     }
     
     // Use a ResizeObserver to watch for size-changes of side-item containers
@@ -239,7 +246,7 @@ const SideItem = ({options, children}: {
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [placementContext, JSON.stringify(mergedOptions)]);
+  }, [placementContext, mergedOptions.format, mergedOptions.offsetTop, mergedOptions.measuredElement]);
 
   if (!placementContext) {
     return null;

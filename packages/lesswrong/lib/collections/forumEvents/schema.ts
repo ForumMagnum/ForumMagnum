@@ -85,6 +85,10 @@ const schema: SchemaType<"ForumEvents"> = {
     type: Boolean,
     control: "FormComponentCheckbox",
   },
+  customComponent: {
+    ...defaultProps(true),
+    type: String,
+  },
   /**
   Used to store public event data, like public poll votes.
   For the AI Welfare Debate Week, it was structured like:

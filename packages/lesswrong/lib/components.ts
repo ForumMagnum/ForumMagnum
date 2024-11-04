@@ -536,6 +536,8 @@ importComponent("ShortformListItem", () => require('../components/shortform/Shor
 importComponent("ProfileShortform", () => require('../components/shortform/ProfileShortform'));
 
 importComponent("VoteArrowIcon", () => require('../components/votes/VoteArrowIcon'));
+importComponent("VoteArrowIconSolid", () => require('../components/votes/VoteArrowIconSolid'));
+importComponent("VoteArrowIconHollow", () => require('../components/votes/VoteArrowIconHollow'));
 importComponent("VoteAgreementIcon", () => require('../components/votes/VoteAgreementIcon'));
 importComponent("VoteButton", () => require('../components/votes/VoteButton'));
 importComponent("OverallVoteButton", () => require('../components/votes/OverallVoteButton'));
@@ -745,6 +747,7 @@ importComponent("AdminToggle", () => require('../components/admin/AdminToggle'))
 importComponent("RandomUserPage", () => require('../components/admin/RandomUserPage'));
 importComponent("AdminGoogleServiceAccount", () => require('../components/admin/AdminGoogleServiceAccount'));
 importComponent("AdminViewOnboarding", () => require('../components/admin/AdminViewOnboarding'));
+importComponent("TwitterAdmin", () => require('../components/admin/TwitterAdmin'));
 importComponent("ModerationDashboard", () => require('../components/sunshineDashboard/ModerationDashboard'));
 importComponent("TagMergePage", () => require('../components/tagging/TagMergePage.tsx'));
 importComponent("RecentlyActiveUsers", () => require('../components/sunshineDashboard/ModeratorUserInfo/RecentlyActiveUsers'));
@@ -774,6 +777,7 @@ importComponent("ForumEventPostPageBanner", () => require('../components/forumEv
 importComponent("ForumEventPostPagePollSection", () => require('../components/forumEvents/ForumEventPostPagePollSection'));
 importComponent("ForumEventPoll", () => require('../components/forumEvents/ForumEventPoll'));
 importComponent("ForumEventResultIcon", () => require('../components/forumEvents/ForumEventResultIcon'));
+importComponent("GivingSeason2024Banner", () => require('../components/forumEvents/GivingSeason2024Banner'));
 
 importComponent("UserReviewMetadata", () => require('../components/sunshineDashboard/ModeratorUserInfo/UserReviewMetadata'));
 importComponent("UserReviewStatus", () => require('../components/sunshineDashboard/ModeratorUserInfo/UserReviewStatus'));
@@ -1214,3 +1218,9 @@ importComponent("LanguageModelLauncherButton", () => require('../components/lang
 importComponent("AutocompleteModelSettings", () => require('../components/languageModels/AutocompleteModelSettings'));
 importComponent("LlmChatWrapper", () => require('../components/languageModels/LlmChatWrapper'));
 importComponent("LlmConversationsViewingPage", () => require('../components/languageModels/LlmConversationsViewingPage'));
+
+importComponent("JargonTooltip", () => require('../components/jargon/JargonTooltip'));
+importComponent("GlossarySidebar", () => require('../components/jargon/GlossarySidebar'));
+importComponent("GlossaryEditForm", () => require('../components/jargon/GlossaryEditForm'));
+importComponent("JargonEditorRow", () => require('../components/jargon/JargonEditorRow'));
+importComponent("GlossaryEditorPage", () => require('../components/jargon/GlossaryEditorPage'));

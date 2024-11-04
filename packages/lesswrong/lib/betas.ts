@@ -85,6 +85,8 @@ export const userHasLlmChat = (currentUser: UsersCurrent|DbUser|null): currentUs
 
 export const userHasDarkModeHotkey = isEAForum ? adminOnly : shippedFeature;
 
+export const userHasPostAutosave = isLWorAF ? adminOnly : disabled;
+
 // Non-user-specific features
 export const dialoguesEnabled = hasDialoguesSetting.get();
 export const ckEditorUserSessionsEnabled = isLWorAF;
@@ -95,6 +97,12 @@ export const allowSubscribeToSequencePosts = isFriendlyUI;
 export const hasPostRecommendations = isEAForum;
 /** Some Forums, notably the EA Forum, have a weekly digest that users can sign up to receive */
 export const hasDigests = isEAForum;
+/**
+ * Whether the instance should have any features for integrating with twitter.
+ * This is different to `twitterBot.enabled`, as there are features to help
+ * with manual posting too.
+ */
+export const hasTwitterFeatures = isEAForum;
 export const hasAccountDeletionFlow = isEAForum;
 export const hasSideComments = hasSideCommentsSetting.get();
 export const useElicitApi = false;
@@ -111,6 +119,11 @@ export const hasSidenotes = isLWorAF;
 // test the moderation features.
 export const hasAuthorModeration = !isEAForum || isAnyTest;
 
+export const userCanCreateAndEditJargonTerms = (user: UsersCurrent|DbUser|null) => isLW && !!user && user.karma >= 100;
+export const userCanViewJargonTerms = (user: UsersCurrent|DbUser|null) => isLW;
+export const userCanViewUnapprovedJargonTerms = (user: UsersCurrent|DbUser|null) => isLW
+export const userWillPassivelyGenerateJargonTerms = (user: UsersCurrent|DbUser|null) => isLW && !!user && user.karma >= 100
+
 // Shipped Features
 export const userCanManageTags = shippedFeature;
 export const userCanCreateTags = shippedFeature;
@@ -118,3 +131,4 @@ export const userCanUseTags = shippedFeature;
 export const userCanViewRevisionHistory = shippedFeature;
 export const userHasPingbacks = shippedFeature;
 export const userHasElasticsearch = shippedFeature;
+

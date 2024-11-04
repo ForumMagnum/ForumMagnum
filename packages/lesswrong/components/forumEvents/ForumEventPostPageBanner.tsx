@@ -52,15 +52,24 @@ export const ForumEventPostPageBanner = ({classes}: {
   const {params} = useLocation();
   const {currentForumEvent} = useCurrentForumEvent();
 
+  // For now, events that have polls have a special post page UI, so hide this banner
+  const hideBanner =
+    !currentForumEvent ||
+    !!currentForumEvent.includesPoll ||
+    !!currentForumEvent.customComponent;
+
   const {document: post} = useSingle({
     collectionName: "Posts",
     fragmentName: "PostsDetails",
     documentId: params._id,
-    skip: !hasForumEvents || !params._id || !currentForumEvent?.tagId || !!currentForumEvent?.includesPoll,
+    skip:
+      !hasForumEvents ||
+      !params._id ||
+      hideBanner ||
+      !currentForumEvent?.tagId,
   });
 
-  // For now, events that have polls have a special post page UI, so hide this banner
-  if (!currentForumEvent || !post || currentForumEvent.includesPoll) {
+  if (hideBanner || !post) {
     return null;
   }
 

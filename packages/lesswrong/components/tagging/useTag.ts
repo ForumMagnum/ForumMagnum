@@ -50,7 +50,7 @@ export const useTagPreview = (
     : 'TagPreviewFragment';
 
   const hashVariables = hash
-    ? { extraVariables: { hash: "String" }, extraVariablesValues: { hash } }
+    ? { extraVariables: { hash: "String" }, extraVariablesValues: { hash } } as const
     : {};
 
   const { results, loading, error } = useMulti<TagPreviewFragmentName, "Tags">({

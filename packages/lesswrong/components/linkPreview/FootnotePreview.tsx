@@ -114,6 +114,7 @@ const footnotePreviewStyles = (theme: ThemeType) => ({
   
   sidenoteHover: {
     background: theme.palette.background.sidenoteBackground,
+    borderRadius: 3,
     
     "& $sidenoteContent": {
       maxHeight: "unset",
@@ -185,8 +186,6 @@ const FootnotePreview = ({classes, href, id, rel, children}: {
   // information isn't wired to pass through the hover-preview system.
 
   const onClick = useCallback((ev: React.MouseEvent) => {
-    window.dispatchEvent(new CustomEvent(EXPAND_FOOTNOTES_EVENT, {detail: href}));
-    
     if (isRegularClick(ev) && isMobile()) {
       setDisableHover(true);
       openDialog({
@@ -196,6 +195,8 @@ const FootnotePreview = ({classes, href, id, rel, children}: {
         },
       });
       ev.preventDefault();
+    } else {
+      window.dispatchEvent(new CustomEvent(EXPAND_FOOTNOTES_EVENT, {detail: href}));
     }
   }, [href, footnoteHTML, openDialog]);
   

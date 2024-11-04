@@ -25,6 +25,7 @@ registerFragment(`
     spamRiskScore
     tagRevisionCount
     reviewedByUserId
+    givingSeason2024DonatedFlair
   }
 `);
 
@@ -220,6 +221,7 @@ registerFragment(`
 
     hideSunshineSidebar
     optedOutOfSurveys
+    postGlossariesPinned
   }
 `);
 

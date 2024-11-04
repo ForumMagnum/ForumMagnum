@@ -6,7 +6,7 @@ import { useLocation } from '../../lib/routeUtil';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { userCanEditUser, userGetDisplayName, userGetProfileUrl, userGetProfileUrlFromSlug } from "../../lib/collections/users/helpers";
 import { userGetEditUrl } from '../../lib/vulcan-users/helpers';
-import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
+import { DEFAULT_LOW_KARMA_THRESHOLD, POST_SORTING_MODES } from '../../lib/collections/posts/views'
 import StarIcon from '@material-ui/icons/Star'
 import DescriptionIcon from '@material-ui/icons/Description'
 import MessageIcon from '@material-ui/icons/Message'
@@ -25,6 +25,7 @@ import CopyIcon from '@material-ui/icons/FileCopy'
 import { getUserStructuredData } from './UsersSingle';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { COMMENT_SORTING_MODES } from '@/lib/collections/comments/views';
+import { useDialog } from '../common/withDialog';
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -103,7 +104,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('xs')]: {
       marginRight: 0,
     },
-  }
+  },
+  dialogueButton: {
+    display: 'flex',
+    alignItems: 'center',
+  },
 })
 
 export const getUserFromResults = <T extends UsersMinimumInfo>(results: Array<T>|null|undefined): T|null => {
@@ -130,6 +135,8 @@ const UsersProfileFn = ({terms, slug, classes}: {
   const user = getUserFromResults(results)
   
   const { query } = useLocation()
+
+  const { openDialog } = useDialog();
 
   const displaySequenceSection = (canEdit: boolean, user: UsersProfile) => {
     if (isAF) {
@@ -201,7 +208,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
     const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, LocalGroupsList,
       PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, DialogGroup,
       SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
-      Typography, ContentStyles, ReportUserButton, LWTooltip, UserNotifyDropdown, CommentsSortBySelector } = Components
+      Typography, ContentStyles, ReportUserButton, LWTooltip, UserNotifyDropdown, CommentsSortBySelector, NewDialogueDialog } = Components
 
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
@@ -240,7 +247,10 @@ const UsersProfileFn = ({terms, slug, classes}: {
     const sequenceAllTerms: SequencesViewTerms = {view: "userProfileAll", userId: user._id, limit:9}
 
     // maintain backward compatibility with bookmarks
-    const currentSorting = (query.sortedBy || query.view ||  "new") as PostSortingMode
+    const postQueryMode = (query.sortedBy || query.view ||  "new")
+    const currentPostSortingMode = POST_SORTING_MODES.has(postQueryMode) ? postQueryMode : "new"
+    terms.sortedBy = currentPostSortingMode
+    
     const currentFilter = query.filter ||  "all"
     
     const commentQueryName = "commentsSortBy"
@@ -304,6 +314,17 @@ const UsersProfileFn = ({terms, slug, classes}: {
               { showMessageButton && <NewConversationButton user={user} currentUser={currentUser}>
                 <a>Message</a>
               </NewConversationButton> }
+              { showMessageButton && (
+                <div
+                  className={classes.subscribeButton}
+                  onClick={() => openDialog({ 
+                    componentName: "NewDialogueDialog", 
+                    componentProps: { initialParticipantIds: [user._id] } 
+                  })}
+                >
+                  <a>Dialogue</a>
+                </div>
+              )}
               { <UserNotifyDropdown 
                 user={user} 
                 popperPlacement="bottom-end"
@@ -357,12 +378,12 @@ const UsersProfileFn = ({terms, slug, classes}: {
           <SingleColumnSection>
             <div className={classes.postsTitle} onClick={() => setShowSettings(!showSettings)}>
               <SectionTitle title={"Posts"}>
-                <SettingsButton label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`}/>
+                <SettingsButton label={`Sorted by ${ SORT_ORDER_OPTIONS[currentPostSortingMode].label }`}/>
               </SectionTitle>
             </div>
             {showSettings && <PostsListSettings
               hidden={false}
-              currentSorting={currentSorting}
+              currentSorting={currentPostSortingMode}
               currentFilter={currentFilter}
               currentShowLowKarma={currentShowLowKarma}
               currentIncludeEvents={currentIncludeEvents}

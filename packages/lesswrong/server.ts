@@ -49,7 +49,7 @@ import './server/scripts/fillUserEmail';
 import './server/scripts/deletePgIndexes';
 import './server/scripts/dropTestingDatabases';
 import './server/scripts/dropAndSeedJestPg';
-import './server/scripts/makeMigrations';
+import './server/scripts/generateSQLSchema';
 import './server/scripts/reviewGetResultsPost';
 import './server/scripts/sendAnnualForumUserSurveyEmails';
 import './server/scripts/sendWrappedNotifications';
@@ -82,6 +82,7 @@ import "./server/scripts/generativeModels/coverImage";
 import "./server/scripts/addManualReviewArt";
 import "./server/scripts/backfillRecombee";
 import "./server/scripts/backfillGoogleVertex";
+import "./server/scripts/exportAEStudiosData";
 // doesn't pass unit tests but works fine. Leaving commented out for now
 import './server/scripts/generativeModels/autoSpotlight';
 import "./server/scripts/mongoQueryToSQL";
@@ -155,6 +156,7 @@ import './server/callbacks/reviewVoteCallbacks';
 import './server/callbacks/tagFlagCallbacks';
 import './server/callbacks/moderatorActionCallbacks';
 import './server/callbacks/digestCallbacks';
+import './server/callbacks/jargonTermCallbacks';
 
 
 import './server/resolvers/alignmentForumMutations';
@@ -193,6 +195,7 @@ import './server/resolvers/defaultResolvers';
 import './server/resolvers/forumEventResolvers';
 import './server/resolvers/anthropicResolvers';
 import './server/resolvers/llmConversationsResolvers';
+import './server/resolvers/jargonResolvers/jargonTermResolvers';
 
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';
@@ -228,3 +231,5 @@ import './server/conversationUnreadMessages';
 import './server/userLoginTokens';
 
 import './server/migrations/meta/utils';
+
+import './server/givingSeason/resolvers'

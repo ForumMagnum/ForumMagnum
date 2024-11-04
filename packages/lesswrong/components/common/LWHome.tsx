@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { combineUrls, Components, getSiteUrl, registerComponent } from '../../lib/vulcan-lib';
 import React, { useEffect } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
@@ -7,16 +7,46 @@ import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../lib/cookies/cookies';
 import moment from 'moment';
 import { visitorGetsDynamicFrontpage } from '../../lib/betas';
+import { isLW, isAF } from '@/lib/instanceSettings';
+
+const getStructuredData = () => ({
+  "@context": "http://schema.org",
+  "@type": "WebSite",
+  "url": `${getSiteUrl()}`,
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": `${combineUrls(getSiteUrl(), '/search')}?query={search_term_string}`,
+    "query-input": "required name=search_term_string"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": `${getSiteUrl()}`,
+  },
+  ...(isLW && {
+    "description": [
+      "LessWrong is an online forum and community dedicated to improving human reasoning and decision-making.", 
+      "We seek to hold true beliefs and to be effective at accomplishing our goals.", 
+      "Each day, we aim to be less wrong about the world than the day before."
+    ].join(' ')
+  }),
+  ...(isAF && {
+    "description": [
+      "The Alignment Forum is a single online hub for researchers to discuss all ideas related to ensuring that transformatively powerful AIs are aligned with human values.", 
+      "Discussion ranges from technical models of agency to the strategic landscape, and everything in between."
+    ].join(' ')
+  }),
+})
 
 const LWHome = () => {
   const { DismissibleSpotlightItem, RecentDiscussionFeed, AnalyticsInViewTracker, FrontpageReviewWidget,
     SingleColumnSection, FrontpageBestOfLWWidget, EAPopularCommentsSection,
-    QuickTakesSection, LWHomePosts
+    QuickTakesSection, LWHomePosts, HeadTags
   } = Components;
 
   return (
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
+          <HeadTags structuredData={getStructuredData()}/>
           <UpdateLastVisitCookie />
 
           {reviewIsActive() && getReviewPhase() === "RESULTS" && <SingleColumnSection>

@@ -21,6 +21,9 @@ mdi.use(markdownItFootnote);
 mdi.use(markdownItSub);
 mdi.use(markdownItSup);
 
+export const RAG_MODE_SET = ['Auto', 'None', 'CurrentPost', 'Search', 'Provided'] as const;
+export type RagModeType = typeof RAG_MODE_SET[number];
+
 const ClientMessageSchema = z.object({
   conversationId: z.string().nullable(),
   userId: z.string(),
@@ -28,8 +31,10 @@ const ClientMessageSchema = z.object({
 });
 
 const PromptContextOptionsSchema = z.object({
+  ragMode: z.enum(RAG_MODE_SET),
   postId: z.string().optional(),
   includeComments: z.boolean().optional(),
+  postContext: z.optional(z.union([z.literal('post-page'), z.literal('post-editor')])),
 });
 
 export const ClaudeMessageRequestSchema = z.object({
@@ -114,11 +119,18 @@ type LlmConversationWithPartialMessages = LlmConversationsFragment & {
 type LlmConversation = NewLlmConversation | LlmConversationWithPartialMessages;
 type LlmConversationsDict = Record<string, LlmConversation>;
 
+interface SubmitMessageArgs {
+  query: string;
+  ragMode: RagModeType;
+  currentPostId?: string;
+  postContext?: PromptContextOptions['postContext']
+}
+
 interface LlmChatContextType {
   orderedConversations: LlmConversation[];
   currentConversation?: LlmConversation;
   currentConversationLoading: boolean;
-  submitMessage: (query: string, currentPostId?: string) => void;
+  submitMessage: (args: SubmitMessageArgs) => void;
   setCurrentConversation: (conversationId?: string) => void;
   archiveConversation: (conversationId: string) => void;
 }
@@ -146,7 +158,7 @@ const LlmChatWrapper = ({children}: {
   const { results: userLlmConversations } = useMulti({
     collectionName: "LlmConversations",
     fragmentName: "LlmConversationsFragment",
-    terms: { view: "llmConversationsWithUser", userId: currentUser?._id },
+    terms: { view: "llmConversationsWithUser", userId: currentUser?._id, limit: 50 }, //TODO: Figure out what to do when people have many conversations
     skip: !currentUser,
     enableTotal: false,
   });
@@ -442,7 +454,7 @@ const LlmChatWrapper = ({children}: {
   }, [handleClaudeResponseMesage, handleLlmStreamError]);
 
   // TODO: Ensure code is sanitized against injection attacks
-  const submitMessage = useCallback(async (query: string, currentPostId?: string) => {
+  const submitMessage = useCallback(async ({ query, ragMode, currentPostId, postContext }: SubmitMessageArgs) => {
     if (!currentUser) {
       return;
     }
@@ -486,7 +498,13 @@ const LlmChatWrapper = ({children}: {
       setCurrentConversationId(newConversationChannelId);
     }
 
-    const promptContextOptions: PromptContextOptions = { postId: currentPostId, includeComments: true /* TODO: this currently doesn't do anything; it's hardcoded on the server */ };
+    const promptContextOptions: PromptContextOptions = {
+      postId: currentPostId,
+      ragMode,
+      /* TODO: this currently doesn't do anything; it's hardcoded on the server */
+      includeComments: true,
+      postContext,
+    };
 
     void sendClaudeMessage({
       newMessage: {
