@@ -8,12 +8,22 @@ import { commentBodyStyles } from '@/themes/stylePiping';
 const styles = (theme: ThemeType) => ({
   root: {
     ...commentBodyStyles(theme),
-    color: theme.palette.grey[500],
+    color: theme.palette.grey[500]
   },
   title: {
     marginRight: 10,
     color: theme.palette.grey[900],
     fontSize: '1.25rem'
+  },
+  descriptionDesktop: {
+    [theme.breakpoints.down('xs')]: {
+      display: 'none'
+    }
+  },
+  descriptionMobile: {
+    [theme.breakpoints.up('sm')]: {
+      display: 'none'
+    }
   }
 });
 
@@ -23,7 +33,9 @@ export const GlossaryEditFormNewPost = ({classes}: {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
 
   return <div className={classes.root}>
-    <span className={classes.title}>Glossary [Beta]</span> Save this post once, to start generating/editing a jargon glossary
+    <span className={classes.title}>Glossary [Beta]</span> 
+    <span className={classes.descriptionMobile}>Available after saving post</span>
+    <span className={classes.descriptionDesktop}>Save this post once, to generate and edit jargon</span>
   </div>;
 }
 
