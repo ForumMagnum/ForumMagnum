@@ -8,7 +8,8 @@ import { commentBodyStyles } from '@/themes/stylePiping';
 const styles = (theme: ThemeType) => ({
   root: {
     ...commentBodyStyles(theme),
-    color: theme.palette.grey[500]
+    color: theme.palette.grey[500],
+    textWrap: 'pretty'
   },
   title: {
     marginRight: 10,
