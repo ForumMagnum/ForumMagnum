@@ -9,8 +9,9 @@ import { useUpdate } from '../../../lib/crud/withUpdate';
 import { TAG_POSTS_SORT_ORDER_OPTIONS } from '../../../lib/collections/tags/schema';
 import difference from 'lodash/fp/difference';
 import { PostsLayout } from '../../../lib/collections/posts/dropdownOptions';
+import { ObservableQuery } from '@apollo/client';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   centralColumn: {
     marginLeft: "auto",
     marginRight: "auto",
@@ -28,7 +29,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   newShortformContainer: {
     background: theme.palette.grey[0],
     marginTop: 16,
-    padding: "0px 8px 8px 8px",
+    paddingTop: 2,
+    borderRadius: theme.borderRadius.default,
   },
   shortformComment: {
     '&&': {
@@ -66,7 +68,7 @@ const SubforumSubforumTab = ({
   layout: PostsLayout,
   newShortformOpen: boolean,
   setNewShortformOpen: (open: boolean) => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {
     CommentPermalink,
@@ -83,10 +85,10 @@ const SubforumSubforumTab = ({
 
   const { query } = useLocation();
   const currentUser = useCurrentUser();
-  const refetchRef = useRef<null|(() => void)>(null);
+  const refetchRef = useRef<null|ObservableQuery['refetch']>(null);
   const refetch = useCallback(() => {
     if (refetchRef.current)
-      refetchRef.current();
+      void refetchRef.current();
   }, [refetchRef]);
 
   const hideIntroPost = currentUser && userTagRel && !!userTagRel?.subforumHideIntroPost
@@ -257,8 +259,6 @@ const SubforumSubforumTab = ({
       </div>
       {newShortformOpen && (
         <div className={classes.newShortformContainer}>
-          {/* FIXME: bug here where the submit and cancel buttons don't do anything the first time
-              you click on them, on desktop only */}
           {currentUser ? <ShortformSubmitForm
             prefilledProps={{
               relevantTagIds: [tag._id],
@@ -269,6 +269,7 @@ const SubforumSubforumTab = ({
               refetch();
             }}
             noDefaultStyles
+            hideCloseButton
           /> : <div className={classes.centerChild}>
             <LoginForm />
           </div>}

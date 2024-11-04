@@ -5,12 +5,14 @@ import { combineUrls } from "../../vulcan-lib";
 import { TagCommentType } from "../comments/types";
 import Users from "../users/collection";
 import { isFriendlyUI } from "../../../themes/forumTheme";
+import type { RouterLocation } from '../../vulcan-lib/routes';
+import type { Request, Response } from 'express';
 
 export const tagMinimumKarmaPermissions = forumSelect({
   // Topic spampocalypse defense
   EAForum: {
-    new: 10,
-    edit: 10,
+    new: 1,
+    edit: 1,
   },
   LessWrong: {
     new: 1,
@@ -27,6 +29,7 @@ type GetUrlOptions = {
   edit?: boolean,
   flagId?: string
   tab?: string
+  from?: string,
 }
 
 export const tagUrlBase = taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'
@@ -123,4 +126,10 @@ export function stableSortTags<
 
     return 0;
   });
+}
+
+export const tagRouteWillDefinitelyReturn200 = async (req: Request, res: Response, parsedRoute: RouterLocation, context: ResolverContext) => {
+  const tagSlug = parsedRoute.params.slug;
+  if (!tagSlug) return false;
+  return await context.repos.tags.tagRouteWillDefinitelyReturn200(tagSlug);
 }

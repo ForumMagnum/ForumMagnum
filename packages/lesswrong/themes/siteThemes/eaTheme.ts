@@ -129,6 +129,7 @@ export const eaForumTheme: SiteThemeSpecification = {
       borderRadius: {
         default: defaultBorderRadius,
         small: 4,
+        quickTakesEntry: defaultBorderRadius,
       },
       typography: {
         fontDownloads: [
@@ -144,24 +145,24 @@ export const eaForumTheme: SiteThemeSpecification = {
         fontFamily: sansSerifStack,
         body1: {
           ...basicText,
-          fontSize: "1.2rem",
+          fontSize: 15.6,
           fontFamily: serifStack,
         },
         body2: {
-          fontSize: "1.1rem",
+          fontSize: 14.3,
           lineHeight: "1.5em",
           fontWeight: 450,
         },
         smallText: {
           fontFamily: palette.fonts.sansSerifStack,
           fontWeight: 450,
-          fontSize: "1rem",
-          lineHeight: '1.4rem'
+          fontSize: 13,
+          lineHeight: "18.2px"
         },
         tinyText: {
           fontWeight: 450,
-          fontSize: ".75rem",
-          lineHeight: '1.4rem'
+          fontSize: 9.75,
+          lineHeight: "18.2px"
         },
         postStyle: {
           ...basicText,
@@ -194,7 +195,7 @@ export const eaForumTheme: SiteThemeSpecification = {
           color: palette.grey[800],
           fontFamily: titleStack,
           fontWeight: 600,
-          fontSize: '1.6rem',
+          fontSize: 20.8,
           lineHeight: '1.25em',
         },
         // used by h2
@@ -202,7 +203,7 @@ export const eaForumTheme: SiteThemeSpecification = {
           color: palette.grey[800],
           fontFamily: titleStack,
           fontWeight: 650,
-          fontSize: '2rem',
+          fontSize: 26,
           lineHeight: '1.25em',
         },
         // used by h1
@@ -210,7 +211,7 @@ export const eaForumTheme: SiteThemeSpecification = {
           color: palette.grey[800],
           fontFamily: titleStack,
           fontWeight: 600,
-          fontSize: '2.4rem',
+          fontSize: 31.2,
           lineHeight: '1.25em',
         },
         // used by page title
@@ -231,7 +232,7 @@ export const eaForumTheme: SiteThemeSpecification = {
           fontWeight: 500,
         },
         largeChapterTitle: {
-          fontSize: "2.2rem"
+          fontSize: 28.6
         },
         italic: {
           fontStyle: "normal",
@@ -243,8 +244,8 @@ export const eaForumTheme: SiteThemeSpecification = {
       overrides: {
         MuiTooltip: {
           tooltip: {
-            fontSize: "1rem",
-            padding: ".7rem",
+            fontSize: 13,
+            padding: "9.1px",
           }
         },
         MetaInfo: {
@@ -282,9 +283,6 @@ export const eaForumTheme: SiteThemeSpecification = {
           sidebar: {
             top: 26,
           },
-          footerBar: {
-            backgroundColor: palette.grey[200],
-          }
         },
         TabNavigationItem: {
           navButton: {
@@ -353,7 +351,7 @@ export const eaForumTheme: SiteThemeSpecification = {
           root: {
             fontFamily: sansSerifStack,
             fontWeight: 500,
-            fontSize: "1.1rem",
+            fontSize: 14.3,
             color: palette.grey[900],
           }
         },

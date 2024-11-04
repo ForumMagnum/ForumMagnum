@@ -12,15 +12,15 @@ import { getDefaultViewSelector } from '../../lib/utils/viewUtils';
 import keyBy from 'lodash/keyBy';
 import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema, createMutator } from '../vulcan-lib';
-import { postIsCriticism } from '../languageModels/autoTagCallbacks';
+import { postIsCriticism } from '../languageModels/criticismTipsBot';
 import { createPaginatedResolver } from './paginatedResolver';
-import { getDefaultPostLocationFields, getDialogueResponseIds, getDialogueMessageTimestamps } from "../posts/utils";
+import { getDefaultPostLocationFields, getDialogueResponseIds, getDialogueMessageTimestamps, getPostHTML } from "../posts/utils";
 import { buildRevision } from '../editor/make_editable_callbacks';
 import { cheerioParse } from '../utils/htmlUtil';
 import { isDialogueParticipant } from '../../components/posts/PostsPage/PostsPage';
-import { marketInfoLoader } from '../posts/annualReviewMarkets';
+import { marketInfoLoader } from '../../lib/collections/posts/annualReviewMarkets';
 import { getWithCustomLoader } from '../../lib/loaders';
-import { isLWorAF } from '../../lib/instanceSettings';
+import { isLWorAF, isAF, twitterBotKarmaThresholdSetting } from '../../lib/instanceSettings';
 import { hasSideComments } from '../../lib/betas';
 import SideCommentCaches from '../../lib/collections/sideCommentCaches/collection';
 import { drive } from "@googleapis/drive";
@@ -29,26 +29,11 @@ import Revisions from '../../lib/collections/revisions/collection';
 import { randomId } from '../../lib/random';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
 import { canAccessGoogleDoc, getGoogleDocImportOAuthClient } from '../posts/googleDocImport';
-import type { GoogleDocMetadata } from '../../lib/collections/revisions/helpers';
-import { RecommendedPost, recombeeApi } from '../recombee/client';
+import { GoogleDocMetadata, getLatestContentsRevision } from '../../lib/collections/revisions/helpers';
+import { RecommendedPost, recombeeApi, recombeeRequestHelpers } from '../recombee/client';
 import { HybridRecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
-
-/**
- * Extracts the contents of tag with provided messageId for a collabDialogue post, extracts using Cheerio
- * Do not use this for anyone who doesn't have privileged access to document since it can return unpublished edits
-*/
-const getDialogueMessageContents = async (post: DbPost, messageId: string): Promise<string|null> => {
-  if (!post.collabEditorDialogue) throw new Error("Post is not a dialogue!")
-
-  // fetch remote document from storage / fetch latest revision / post latest contents
-  const latestRevision = await getLatestRev(post._id, "contents")
-  const html = latestRevision?.html ?? post.contents.html ?? ""
-
-  const $ = cheerioParse(html)
-  const message = $(`[message-id="${messageId}"]`);
-  return message.html();
-}
-
+import { googleVertexApi } from '../google-vertex/client';
+import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
 
 augmentFieldsDict(Posts, {
   // Compute a denormalized start/end time for events, accounting for the
@@ -109,9 +94,10 @@ augmentFieldsDict(Posts, {
   totalDialogueResponseCount: {
     resolveAs: {
       type: 'Int!', 
-      resolver: (post, _, context) => {
+      resolver: async (post, _, context) => {
         if (!post.debate) return 0;
-        return getDialogueResponseIds(post).length
+        const responseIds = await getDialogueResponseIds(post, context);
+        return responseIds.length;
       }
     }
   },
@@ -124,7 +110,7 @@ augmentFieldsDict(Posts, {
         const lastReadStatus = await getLastReadStatus(post, context);
         if (!lastReadStatus) return 0;
 
-        const messageTimestamps = getDialogueMessageTimestamps(post)
+        const messageTimestamps = await getDialogueMessageTimestamps(post, context);
         const newMessageTimestamps = messageTimestamps.filter(ts => ts > lastReadStatus.lastUpdated)
 
         return newMessageTimestamps.length ?? 0
@@ -133,9 +119,9 @@ augmentFieldsDict(Posts, {
   },
   mostRecentPublishedDialogueResponseDate: {
     ...denormalizedField({
-      getValue: (post: DbPost) => {
+      getValue: async (post: DbPost, context: ResolverContext) => {
         if ((!post.debate && !post.collabEditorDialogue) || post.draft) return null;
-        const messageTimestamps = getDialogueMessageTimestamps(post)
+        const messageTimestamps = await getDialogueMessageTimestamps(post, context);
         if (messageTimestamps.length === 0) { return null } 
         const lastTimestamp = messageTimestamps[messageTimestamps.length - 1]
         return lastTimestamp
@@ -164,7 +150,7 @@ augmentFieldsDict(Posts, {
             : sqlFetchedPost.sideCommentsCache;
 
         const cachedAt = new Date(cache?.createdAt ?? 0);
-        const editedAt = new Date(post.contents?.editedAt);
+        const editedAt = new Date(post.modifiedAt ?? 0);
 
         const cacheIsValid = cache
           && (!post.lastCommentedAt || cachedAt > post.lastCommentedAt)
@@ -204,9 +190,9 @@ augmentFieldsDict(Posts, {
           };
         } else {
           const toc = await getToCforPost({document: post, version: null, context});
-          const html = toc?.html || post?.contents?.html
+          const html = toc?.html || await getPostHTML(post, context);
           const sideCommentMatches = matchSideComments({
-            html: html,
+            html: html ?? "",
             comments: comments.map(comment => ({
               _id: comment._id,
               html: comment.contents?.html ?? "",
@@ -291,7 +277,13 @@ augmentFieldsDict(Posts, {
         const isParticipant = isDialogueParticipant(currentUser._id, post)
         if (!isParticipant) return null;
 
-        return getDialogueMessageContents(post, dialogueMessageId)
+        const html = (await getLatestRev(post._id, "contents"))?.html ??
+          (await getLatestContentsRevision(post, context))?.html ??
+          "";
+
+        const $ = cheerioParse(html)
+        const message = $(`[message-id="${dialogueMessageId}"]`);
+        return message.html();
       }
     }
   },
@@ -302,7 +294,7 @@ augmentFieldsDict(Posts, {
         if (!isLWorAF) {
           return 0;
         }
-        const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, marketInfoLoader);
+        const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, marketInfoLoader(context));
         return market?.probability
       }
     }
@@ -314,7 +306,7 @@ augmentFieldsDict(Posts, {
         if (!isLWorAF) {
           return false;
         }
-        const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, marketInfoLoader)
+        const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, marketInfoLoader(context))
         return market?.isResolved
       }
     }
@@ -326,7 +318,7 @@ augmentFieldsDict(Posts, {
         if (!isLWorAF) {
           return 0;
         }
-        const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, marketInfoLoader)
+        const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, marketInfoLoader(context))
         return market?.year
       }
     }
@@ -341,7 +333,8 @@ augmentFieldsDict(Posts, {
           "https://youtube.com",
           "https://youtu.be",
         ];
-        const $ = cheerioParse(post.contents?.html);
+        const html = await getPostHTML(post, context);
+        const $ = cheerioParse(html);
         const iframes = $("iframe").toArray();
         for (const iframe of iframes) {
           if ("attribs" in iframe) {
@@ -361,6 +354,7 @@ augmentFieldsDict(Posts, {
 
 
 export type PostIsCriticismRequest = {
+  _id?: string,
   title: string,
   contentType: string,
   body: string
@@ -386,7 +380,11 @@ addGraphQLResolvers({
         throw new Error('Must be logged in to check post')
       }
 
-      return await postIsCriticism(args)
+      return await postIsCriticism(args, currentUser._id)
+    },
+    async DigestPosts(root: void, {num}: {num: number}, context: ResolverContext) {
+      const { repos } = context
+      return await repos.posts.getPostsForOnsiteDigest(num)
     },
     async DigestPlannerData(root: void, {digestId, startDate, endDate}: {digestId: string, startDate: Date, endDate: Date}, context: ResolverContext) {
       const { currentUser, repos } = context
@@ -530,6 +528,13 @@ addGraphQLResolvers({
 
         return await Posts.findOne({_id: postId})
       } else {
+        let afField: Partial<ReplaceFieldsOfType<DbPost, EditableFieldContents, EditableFieldInsertion>> = {};
+        if (isAF) {
+          afField = !userCanDo(currentUser, 'posts.alignment.new')
+            ? { suggestForAlignmentUserIds: [currentUser._id] }
+            : { af: true };
+        }
+
         // Create a draft post if one doesn't exist. This runs `buildRevision` itself via a callback
         const { data: post } = await createMutator({
           collection: Posts,
@@ -537,12 +542,17 @@ addGraphQLResolvers({
             _id: finalPostId,
             userId: currentUser._id,
             title: docMetadata.name,
-            contents: {
-              originalContents,
-              commitMessage,
-              googleDocMetadata: docMetadata
-            },
-            draft: true
+            ...({
+              // Contents is a resolver only field, but there is handling for it
+              // in `createMutator`/`updateMutator`
+              contents: {
+                originalContents,
+                commitMessage,
+                googleDocMetadata: docMetadata
+              },
+            }),
+            draft: true,
+            ...afField,
           },
           currentUser,
           validate: false,
@@ -572,6 +582,7 @@ addGraphQLSchema(`
   }
 `)
 addGraphQLQuery('DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost]')
+addGraphQLQuery('DigestPosts(num: Int): [Post]')
 
 addGraphQLQuery("CanAccessGoogleDoc(fileUrl: String!): Boolean");
 addGraphQLMutation("ImportGoogleDoc(fileUrl: String!, postId: String): Post");
@@ -636,7 +647,9 @@ createPaginatedResolver({
 addGraphQLSchema(`
   type RecombeeRecommendedPost {
     post: Post!
+    scenario: String
     recommId: String
+    generatedAt: Date
     curated: Boolean
     stickied: Boolean
   }
@@ -651,13 +664,13 @@ createPaginatedResolver({
     limit: number,
     args: { settings: RecombeeRecommendationArgs }
   ): Promise<RecommendedPost[]> => {
-    const { currentUser } = context;
+    const recombeeUser = recombeeRequestHelpers.getRecombeeUser(context);
 
-    if (!currentUser) {
-      throw new Error(`You must be logged in to use Recombee recommendations right now`);
+    if (!recombeeUser) {
+      throw new Error(`You must be logged in or have a clientId to use Recombee recommendations right now`);
     }
 
-    return await recombeeApi.getRecommendationsForUser(currentUser._id, limit, args.settings, context);
+    return await recombeeApi.getRecommendationsForUser(recombeeUser, limit, args.settings, context);
   }
 });
 
@@ -670,13 +683,13 @@ createPaginatedResolver({
     limit: number,
     args: { settings: HybridRecombeeConfiguration }
   ): Promise<RecommendedPost[]> => {
-    const { currentUser } = context;
+    const recombeeUser = recombeeRequestHelpers.getRecombeeUser(context);
 
-    if (!currentUser) {
-      throw new Error(`You must be logged in to use Recombee recommendations right now`);
+    if (!recombeeUser) {
+      throw new Error(`You must be logged in or have a clientId to use Recombee recommendations right now`);
     }
 
-    return await recombeeApi.getHybridRecommendationsForUser(currentUser._id, limit, args.settings, context);
+    return await recombeeApi.getHybridRecommendationsForUser(recombeeUser, limit, args.settings, context);
   }
 });
 
@@ -704,4 +717,58 @@ createPaginatedResolver({
 
     return await repos.posts.getPostsFromPostSubscriptions(currentUser._id, limit);
   }
+});
+
+addGraphQLSchema(`
+  type VertexRecommendedPost {
+    post: Post!
+    attributionId: String
+  }
+`);
+
+interface VertexRecommendedPost {
+  post: Partial<DbPost>;
+  attributionId?: string | null;
+}
+
+createPaginatedResolver({
+  name: "GoogleVertexPosts",
+  graphQLType: "VertexRecommendedPost",
+  args: { settings: "JSON" },
+  callback: async (
+    context: ResolverContext,
+    limit: number,
+  ): Promise<VertexRecommendedPost[]> => {
+    const { currentUser } = context;
+
+    if (!currentUser) {
+      throw new Error(`You must logged in to use Google Vertex recommendations right now`);
+    }
+
+    return await googleVertexApi.getRecommendations(limit, context);
+  }
+});
+
+createPaginatedResolver({
+  name: "CrossedKarmaThreshold",
+  graphQLType: "Post",
+  callback: async (
+    context: ResolverContext,
+    limit: number // This limit is not actually respected
+  ): Promise<DbPost[]> => {
+      const {repos, currentUser} = context
+
+      if (!currentUser) return []
+      if (!userIsAdmin(currentUser)) {
+        throw new Error("You must be an admin to use this resolver")
+      }
+
+      // 8 days ago
+      const since = new Date(Date.now() - (8 * 24 * 60 * 60 * 1000));
+      const threshold = twitterBotKarmaThresholdSetting.get();
+
+      const postIds = await repos.tweets.getUntweetedPostsCrossingKarmaThreshold({ since, threshold });
+      return await Posts.find({ _id: { $in: postIds } }, { sort: { postedAt: -1 } }).fetch();
+    },
+  cacheMaxAgeMs: 0
 });

@@ -5,7 +5,7 @@ import type { SearchState } from 'react-instantsearch/connectors';
 import { Hits, Configure, SearchBox, Pagination, connectStats, connectScrollTo } from 'react-instantsearch-dom';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { useLocation } from '../../lib/routeUtil';
-import { isEAForum, taggingNameIsSet, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
+import { isEAForum, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import InfoIcon from '@material-ui/icons/Info';
@@ -25,11 +25,13 @@ import {
 } from '../../lib/search/searchUtil';
 import Modal from '@material-ui/core/Modal';
 import classNames from 'classnames';
-import { useNavigate } from '../../lib/reactRouterWrapper';
+import { Link, useNavigate } from '../../lib/reactRouterWrapper';
+import { useCurrentUser } from '../common/withUser';
+import { userHasPeopleDirectory } from '../../lib/betas';
 
 const hitsPerPage = 10
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     width: "100%",
     maxWidth: 1200,
@@ -174,7 +176,22 @@ const styles = (theme: ThemeType): JssStyles => ({
     '& .ais-Pagination-item--disabled': {
       color: theme.palette.grey[500]
     }
-  }
+  },
+  peopleDirectory: {
+    display: "block",
+    padding: "16px 12px",
+    fontSize: 14,
+    fontWeight: 600,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    color: theme.palette.primary.main,
+    background: theme.palette.primaryAlpha(0.05),
+    borderRadius: theme.borderRadius.small,
+    marginBottom: 20,
+    maxWidth: 585,
+    "&:hover": {
+      opacity: 0.8,
+    },
+  },
 });
 
 export type ExpandedSearchState = SearchState & {
@@ -215,12 +232,13 @@ const ScrollTo: FC<{
 const CustomScrollTo = connectScrollTo(ScrollTo);
 
 const SearchPageTabbed = ({classes}: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>,
 }) => {
   const scrollToRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { location, query } = useLocation()
   const captureSearch = useSearchAnalytics();
+  const currentUser = useCurrentUser();
 
   // store these values for the search filter
   const pastDay = useRef(moment().subtract(24, 'hours').valueOf())
@@ -369,7 +387,7 @@ const SearchPageTabbed = ({classes}: {
             </div>
           </div>
           <LWTooltip
-            title={`"Quotes" and -minus signs are supported.`}
+            title={`"Quotes" and -minus signs are supported. Use user:"Jane Doe" or ${taggingNameSetting.get()}:"Expected value" to filter by user or ${taggingNameSetting.get()}.`}
             className={classes.searchHelp}
           >
             <InfoIcon className={classes.infoIcon}/>
@@ -413,10 +431,18 @@ const SearchPageTabbed = ({classes}: {
           <Tab label="Sequences" value="Sequences" />
           <Tab label="Users" value="Users" />
         </Tabs>
-        
+
         <ErrorBoundary>
           <Configure hitsPerPage={hitsPerPage} />
           <CustomStats className={classes.resultCount} />
+          {userHasPeopleDirectory(currentUser) && tab === "Users" && searchState?.query &&
+            <Link
+              to={`/people-directory?query=${encodeURIComponent(searchState.query)}`}
+              className={classes.peopleDirectory}
+            >
+              -&gt; View results in People directory (beta)
+            </Link>
+          }
           <CustomScrollTo targetRef={scrollToRef}>
             <Hits hitComponent={(props) => <HitComponent {...props} />} />
           </CustomScrollTo>

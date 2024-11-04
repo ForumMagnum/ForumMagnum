@@ -5,6 +5,7 @@ import HomeIcon from '@material-ui/icons/Home';
 import StarIcon from '@material-ui/icons/Star';
 import SubjectIcon from '@material-ui/icons/Subject';
 import TagIcon from '@material-ui/icons/LocalOffer';
+import EventIcon from '@material-ui/icons/Event';
 import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
 import { forumTitleSetting, siteNameWithArticleSetting, taggingNameCapitalSetting, taggingNameIsSet } from '../../../lib/instanceSettings';
 import { curatedUrl } from '../../recommendations/RecommendationsAndCurated';
@@ -53,6 +54,7 @@ type ContentTypeRecord = {
   shortform: ContentTypeSettings,
   tags: ContentTypeSettings,
   subforumDiscussion?: ContentTypeSettings,
+  event?: ContentTypeSettings,
 }
 
 export const contentTypes: ForumOptions<ContentTypeRecord> = {
@@ -96,6 +98,14 @@ export const contentTypes: ForumOptions<ContentTypeRecord> = {
       </div>,
       linkTarget: curatedUrl,
       Icon: StarIcon,
+    },
+    event: {
+      tooltipTitle: 'Event',
+      tooltipBody: <div>
+        An event post.
+      </div>,
+      linkTarget: "/community",
+      Icon: EventIcon
     },
     shortform: {
       tooltipTitle: 'Shortform',
@@ -325,7 +335,7 @@ const ContentType = ({classes, className, type, label}: {
   }
 
   const innerComponent = isFriendlyUI
-    ? <SectionTitle title={label} className={classNames(classes.sectionTitle, className)} noTopMargin noBottomPadding />
+    ? <SectionTitle title={label} titleClassName={classNames(classes.sectionTitle, className)} noTopMargin noBottomPadding />
     : <span>
       <contentData.Icon className={classes.icon} />{label ? " "+label : ""}
     </span>;

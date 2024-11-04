@@ -40,9 +40,25 @@ export function userIsDefaultSubscribed({user, subscriptionType, collectionName,
     case subscriptionTypes.newDialogueMessages:
       const authorIds = [document.userId, ...getConfirmedCoauthorIds(document)];
       return authorIds.includes(user._id);
+    case subscriptionTypes.newActivityForFeed:
+      return false;
     default:
       //eslint-disable-next-line no-console
       console.error("Unrecognized subscription type: "+subscriptionType);
+      return false;
+  }
+}
+
+export function userSubscriptionStateIsFixed({user, subscriptionType, documentId}: {
+  user: DbUser|UsersCurrent,
+  subscriptionType: SubscriptionType,
+  documentId: string,
+}): boolean {
+  switch(subscriptionType) {
+    case subscriptionTypes.newUserComments:
+    case subscriptionTypes.newPosts:
+      return user?._id === documentId;
+    default:
       return false;
   }
 }

@@ -14,11 +14,16 @@ import { jsonArrayContainsSelector } from '../../utils/viewUtils';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/collection';
 import { filter, isEmpty, pick } from 'underscore';
 import { visitorGetsDynamicFrontpage } from '../../betas';
+import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
 
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
 
 const eventBuffer = isEAForum ? {startBuffer: '1 hour', endBuffer: null} : {startBuffer: '6 hours', endBuffer: '3 hours'}
+
+export const POST_SORTING_MODES = new TupleSet([
+  "magic", "top", "topAdjusted", "new", "old", "recentComments"
+] as const);
 
 type ReviewSortings = "fewestReviews"|"mostReviews"|"lastCommentedAt"
 
@@ -54,6 +59,7 @@ declare global {
     authorIsUnreviewed?: boolean|null,
     before?: Date|string|null,
     after?: Date|string|null,
+    curatedAfter?: Date|string|null,
     timeField?: keyof DbPost,
     postIds?: Array<string>,
     notPostIds?: Array<string>,
@@ -76,7 +82,7 @@ declare global {
     algoActivityWeight?: number
     // END
   }
-  type PostSortingMode = "magic"|"top"|"topAdjusted"|"new"|"old"|"recentComments"
+  type PostSortingMode = UnionOf<typeof POST_SORTING_MODES>;
   type PostSortingModeWithRelevanceOption = PostSortingMode|"relevance"
 }
 
@@ -165,13 +171,15 @@ export const sortings: Record<PostSortingMode,MongoSelector<DbPost>> = {
 /**
  * @summary Base parameters that will be common to all other view unless specific properties are overwritten
  *
+ * When changing this, also update getViewablePostsSelector.
+ *
  * NB: Specifying "before" into posts views is a bit of a misnomer at present,
  * as it is *inclusive*. The parameters callback that handles it outputs
  * ~ $lt: before.endOf('day').
  */
 Posts.addDefaultView((terms: PostsViewTerms, _, context?: ResolverContext) => {
   const validFields: any = pick(terms, 'userId', 'groupId', 'af','question', 'authorIsUnreviewed');
-  // Also valid fields: before, after, timeField (select on postedAt), excludeEvents, and
+  // Also valid fields: before, after, curatedAfter, timeField (select on postedAt), excludeEvents, and
   // karmaThreshold (selects on baseScore).
 
   const postCommentedExcludeCommunity = {$or: [
@@ -273,6 +281,9 @@ Posts.addDefaultView((terms: PostsViewTerms, _, context?: ResolverContext) => {
     } else if (!isEmpty(postedAt) && terms.timeField) {
       params.selector[terms.timeField] = postedAt;
     }
+  }
+  if (terms.curatedAfter) {
+    params.selector.curatedDate = {$gte: moment(terms.curatedAfter).toDate()}
   }
   
   return params;
@@ -591,12 +602,6 @@ Posts.addView("daily", (terms: PostsViewTerms) => ({
     sort: {baseScore: -1}
   }
 }));
-ensureIndex(Posts,
-  augmentForDefaultView({ postedAt:1, baseScore:1}),
-  {
-    name: "posts.postedAt_baseScore",
-  }
-);
 
 Posts.addView("tagRelevance", ({ sortedBy, tagId }: PostsViewTerms) => ({
   // note: this relies on the selector filtering done in the default view
@@ -790,11 +795,13 @@ Posts.addView("drafts", (terms: PostsViewTerms) => {
   
   switch (terms.sortDraftsBy) {
     case 'wordCountAscending': {
-      query.options.sort = {"contents.wordCount": 1, modifiedAt: -1, createdAt: -1}
+      // FIXME: This should have "contents.wordCount": 1, but that crashes
+      query.options.sort = {modifiedAt: -1, createdAt: -1}
       break
     }
     case 'wordCountDescending': {
-      query.options.sort = {"contents.wordCount": -1, modifiedAt: -1, createdAt: -1}
+      // FIXME: This should have "contents.wordCount": -1, but that crashes
+      query.options.sort = {modifiedAt: -1, createdAt: -1}
       break
     }
     case 'lastModified': {
@@ -1571,3 +1578,6 @@ void ensureCustomPgIndex(`
   ON "Posts" (GREATEST("postedAt", "mostRecentPublishedDialogueResponseDate") DESC)
   WHERE "collabEditorDialogue" IS TRUE;
 `);
+
+// Needed to speed up getPostsAndCommentsFromSubscriptions, which otherwise has a pretty slow nested loop when joining on Posts because of the "postedAt" filter
+ensureIndex(Posts, { userId: 1, postedAt: 1 }, { concurrently: true });

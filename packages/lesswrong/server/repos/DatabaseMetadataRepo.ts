@@ -2,7 +2,7 @@ import AbstractRepo from "./AbstractRepo";
 import { DatabaseMetadata } from "../../lib/collections/databaseMetadata/collection";
 import type { TimeSeries } from "../../lib/collections/posts/karmaInflation";
 import { randomId } from "../../lib/random";
-import { GivingSeasonHeart } from "../../components/review/ReviewVotingCanvas";
+import type { GivingSeasonHeart } from "../../components/review/ReviewVotingCanvas";
 
 export default class DatabaseMetadataRepo extends AbstractRepo<"DatabaseMetadata"> {
   constructor() {
@@ -76,6 +76,45 @@ export default class DatabaseMetadataRepo extends AbstractRepo<"DatabaseMetadata
       WHERE "name" = $2
     `, [userId, metadataName]);
     return this.getGivingSeasonHearts(electionName);
+  }
+
+  async addGivingSeason2024Donation(usdAmount: number): Promise<void> {
+    await this.none(`
+      -- DatabaseMetadataRepo.addGivingSeason2024Donation
+      INSERT INTO "DatabaseMetadata" ("_id", "name", "value", "createdAt")
+      VALUES ($1, 'givingSeason2024ElectionTotal', $2, CURRENT_TIMESTAMP)
+      ON CONFLICT ("name") DO UPDATE SET
+        "value" = JSONB_BUILD_OBJECT(
+          'total',
+          (("DatabaseMetadata"."value")->'total')::FLOAT + $3
+        )
+    `, [
+      randomId(),
+      {total: usdAmount},
+      usdAmount,
+    ]);
+  }
+
+  async setGivingSeason2024DonationTotal(usdAmount: number): Promise<void> {
+    await this.none(`
+      -- DatabaseMetadataRepo.setGivingSeason2024DonationTotal
+      INSERT INTO "DatabaseMetadata" ("_id", "name", "value", "createdAt")
+      VALUES ($1, 'givingSeason2024ElectionTotal', $2, CURRENT_TIMESTAMP)
+      ON CONFLICT ("name") DO UPDATE SET "value" = $2
+    `, [
+      randomId(),
+      {total: usdAmount},
+    ]);
+  }
+
+  async getGivingSeason2024DonationTotal(): Promise<number> {
+    const result = await this.getRawDb().oneOrNone(`
+      -- DatabaseMetadataRepo.getGivingSeason2024DonationTotal
+      SELECT COALESCE(("value"->'total')::FLOAT, 0) AS "total"
+      FROM "DatabaseMetadata"
+      WHERE "name" = 'givingSeason2024ElectionTotal'
+    `);
+    return result?.total ?? 0;
   }
 
   getServerSettings(): Promise<DbDatabaseMetadata | null> {

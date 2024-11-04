@@ -1,7 +1,7 @@
 import moment from "moment";
 import { Posts } from "../../lib/collections/posts";
 import ReviewWinners from "../../lib/collections/reviewWinners/collection";
-import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
+import { getSqlClientOrThrow } from "../../server/sql/sqlClient";
 import { Globals, createAdminContext, createMutator } from "../vulcan-lib";
 import { registerMigration } from "./migrationUtils"
 import zip from 'lodash/zip'

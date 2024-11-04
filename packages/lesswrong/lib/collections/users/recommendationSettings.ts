@@ -4,6 +4,7 @@ import Users from "../users/collection";
 import { userOwns } from '../../vulcan-users/permissions';
 import { ReviewYear } from '../../reviewUtils';
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
+import type { FilterSettings } from '@/lib/filterSettings';
 
 export const recommendationStrategyNames = new TupleSet([
   "moreFromAuthor",
@@ -107,16 +108,24 @@ export const recommendationsAlgorithmHasStrategy = (
 ): algorithm is RecommendationsAlgorithmWithStrategy =>
   "strategy" in algorithm;
 
+export interface HybridArmsConfig {
+  fixed: string,
+  configurable: string,
+}
+
 export interface RecombeeConfiguration {
   userId?: string,
   rotationRate?: number,
   rotationTime?: number,
   booster?: string,
   filter?: string,
+  hybridScenarios?: HybridArmsConfig,
   refreshKey?: string,
   loadMore?: {
-    prevRecommId: string,
+    prevRecommId?: string,
   },
+  excludedPostIds?: string[],
+  filterSettings?: FilterSettings,
 }
 
 export interface RecombeeRecommendationArgs extends RecombeeConfiguration {
@@ -124,16 +133,27 @@ export interface RecombeeRecommendationArgs extends RecombeeConfiguration {
   onlyUnread?: boolean,
   lwRationalityOnly?: boolean,
   scenario: string,
+  filterSettings?: FilterSettings,
 }
 
 export interface HybridRecombeeConfiguration {
+  hybridScenarios: HybridArmsConfig,
   userId?: string,
   rotationRate?: number,
   rotationTime?: number,
   booster?: string,
   refreshKey?: string,
   loadMore?: {
-    prevRecommIds: [string, string],
+    prevRecommIds: [string | undefined, string | undefined],
+    loadMoreCount?: number,
+  },
+  excludedPostIds?: string[],
+  filterSettings?: FilterSettings,
+}
+
+export interface VertexConfiguration {
+  loadMore?: {
+    prevAttributionId: string,
   },
 }
 

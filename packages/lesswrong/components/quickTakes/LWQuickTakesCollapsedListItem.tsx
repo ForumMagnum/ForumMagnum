@@ -3,7 +3,6 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useHover } from "../common/withHover";
 import { isMobile } from "../../lib/utils/isMobile";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
-import { htmlToTextDefault } from "../../lib/htmlToText";
 import classNames from "classnames";
 import { commentBodyStyles } from "../../themes/stylePiping";
 
@@ -53,6 +52,9 @@ const styles = (theme: ThemeType) => ({
   hoverOver: {
     width: 400,
   },
+  commentCountText: {
+    marginTop: -4,
+  },
 });
 
 const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
@@ -60,7 +62,7 @@ const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
   setExpanded: (expanded: boolean) => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { ForumIcon, LWPopper, CommentsNode, CommentsItemMeta } = Components;
+  const { ForumIcon, LWPopper, CommentsNode, CommentsItemMeta, CommentBottomCaveats } = Components;
 
   const {eventHandlers, hover, anchorEl} = useHover({
     eventProps: {
@@ -118,7 +120,9 @@ const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
       })}
     >
       <ForumIcon icon="Comment" />
-      {commentCount}
+      <span className={classes.commentCountText}>
+        {commentCount}
+      </span>
     </div>
   );
 
@@ -149,7 +153,7 @@ const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
   const body = (
     <div className={classes.bodyWrapper} onClick={expand} {...eventHandlers}>
       <div  className={classes.body}>
-        {htmlToTextDefault(quickTake.contents?.html)}
+        {quickTake.contents?.plaintextMainText}
       </div>
     </div>
   );
@@ -177,6 +181,7 @@ const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
         }}
       />
       {body}
+      <CommentBottomCaveats comment={quickTake} />
       {tooltip}
     </div>
   );

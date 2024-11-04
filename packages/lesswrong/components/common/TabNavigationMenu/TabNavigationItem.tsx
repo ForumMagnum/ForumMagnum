@@ -1,10 +1,13 @@
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import React from 'react';
+import React, { useCallback } from 'react';
 import classNames from 'classnames';
 import { useLocation } from '../../../lib/routeUtil';
 import { MenuTabRegular } from './menuTabs';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { useCurrentUser } from '../withUser';
+import { useCookiesWithConsent } from '@/components/hooks/useCookiesWithConsent';
+import { NAV_MENU_FLAG_COOKIE_PREFIX } from '@/lib/cookies/cookies';
 
 export const iconWidth = 30
 
@@ -14,7 +17,7 @@ const iconTransform = forumSelect({
   default: undefined,
 });
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   selected: {
     '& $icon': {
       opacity: 1,
@@ -25,7 +28,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   menuItem: {
-    width: 190,
+    width: isFriendlyUI ? 210 : 190,
+  },
+  desktopOnly: {
+    [theme.breakpoints.down("xs")]: {
+      display: "none !important",
+    },
   },
   navButton: {
     '&:hover': {
@@ -91,29 +99,103 @@ const styles = (theme: ThemeType): JssStyles => ({
   tooltip: {
     maxWidth: isFriendlyUI ? 190 : undefined,
   },
-})
+  flag: {
+    padding: "2px 4px",
+    marginLeft: 10,
+    fontSize: 11,
+    fontWeight: 600,
+    lineHeight: "110%",
+    letterSpacing: "0.33px",
+    textTransform: "uppercase",
+    background: theme.palette.primary.main,
+    borderRadius: theme.borderRadius.small,
+    color: theme.palette.text.alwaysWhite,
+  },
+});
 
 export type TabNavigationItemProps = {
   tab: MenuTabRegular,
   onClick?: (event: React.MouseEvent<HTMLAnchorElement>) => void,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
+}
+
+const parseCookie = (
+  cookie: unknown,
+  setCookie: (value: string) => void,
+): {clickedAt?: Date, firstViewedAt: Date} => {
+  try {
+    if (!cookie || typeof cookie !== "object") {
+      throw new Error();
+    }
+    const {clickedAt, firstViewedAt} = cookie as AnyBecauseIsInput;
+    if (clickedAt && typeof clickedAt !== "string") {
+      throw new Error();
+    }
+    if (typeof firstViewedAt !== "string") {
+      throw new Error();
+    }
+    return {
+      clickedAt: clickedAt ? new Date(clickedAt) : undefined,
+      firstViewedAt: new Date(firstViewedAt),
+    };
+  } catch (e) {
+    const value = {firstViewedAt: new Date()};
+    setTimeout(() => setCookie(JSON.stringify(value)), 0);
+    return value;
+  }
+}
+
+const useFlag = (tab: MenuTabRegular): {
+  flag: string | undefined,
+  onClickFlag?: () => void,
+} => {
+  const cookieName = `${NAV_MENU_FLAG_COOKIE_PREFIX}${tab.id}_${tab.flag}`;
+  const [cookies, setCookie] = useCookiesWithConsent();
+  const cookie = cookies[cookieName];
+  const flag = tab.flag;
+  if (flag === "new") {
+    const {clickedAt, firstViewedAt} = parseCookie(
+      cookie,
+      (value: string) => setCookie(cookieName, value),
+    );
+    const MS_PER_28_DAYS = 2_628_000_000;
+    if (clickedAt || firstViewedAt < new Date(Date.now() - MS_PER_28_DAYS)) {
+      return {flag: undefined};
+    }
+    return {
+      flag,
+      onClickFlag: () => {
+        setCookie(cookieName, JSON.stringify({
+          clickedAt: new Date(),
+          firstViewedAt,
+        }));
+      },
+    };
+  }
+  return {flag};
 }
 
 const TabNavigationItem = ({tab, onClick, className, classes}: TabNavigationItemProps) => {
-  const { TabNavigationSubItem, LWTooltip, MenuItemLink } = Components
-  const { pathname } = useLocation()
-  
+  const {pathname} = useLocation();
+  const currentUser = useCurrentUser();
+  const {flag, onClickFlag} = useFlag(tab);
+
   // Due to an issue with using anchor tags, we use react-router links, even for
   // external links, we just use window.open to actuate the link.
-  const externalLink = /https?:\/\//.test(tab.link);
-  let handleClick = onClick
-  if (externalLink) {
-    handleClick = (e) => {
-      e.preventDefault()
-      window.open(tab.link, '_blank')?.focus()
-      onClick && onClick(e)
+  const handleClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
+    onClickFlag?.();
+    const externalLink = /https?:\/\//.test(tab.link);
+    if (externalLink) {
+      e.preventDefault();
+      window.open(tab.link, '_blank')?.focus();
+      onClick?.(e);
     }
+    onClick?.(e);
+  }, [onClick, tab, onClickFlag]);
+
+  if (tab.betaOnly && !currentUser?.beta) {
+    return null;
   }
 
   const isSelected = pathname === tab.link;
@@ -122,6 +204,7 @@ const TabNavigationItem = ({tab, onClick, className, classes}: TabNavigationItem
     ? tab.selectedIconComponent ?? tab.iconComponent
     : tab.iconComponent;
 
+  const { TabNavigationSubItem, LWTooltip, MenuItemLink } = Components;
   return <LWTooltip
     placement='right-start'
     title={tab.tooltip || ''}
@@ -138,6 +221,7 @@ const TabNavigationItem = ({tab, onClick, className, classes}: TabNavigationItem
         [classes.navButton]: !tab.subItem,
         [classes.subItemOverride]: tab.subItem,
         [classes.selected]: isSelected,
+        [classes.desktopOnly]: tab.desktopOnly,
       })}
       disableTouchRipple
     >
@@ -156,6 +240,7 @@ const TabNavigationItem = ({tab, onClick, className, classes}: TabNavigationItem
           {tab.title}
         </span>
       }
+      {flag && <span className={classes.flag}>{flag}</span>}
     </MenuItemLink>
   </LWTooltip>
 }

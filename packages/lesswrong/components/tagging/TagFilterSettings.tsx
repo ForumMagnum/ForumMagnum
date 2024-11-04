@@ -20,16 +20,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       ? {
         marginTop: 8,
       } : {
+        gap: "4px",
         marginBottom: 4,
       }),
-  },
-  showPersonalBlogposts: {
-    ...tagStyle(theme),
-    display: "inline-block",
-    marginBottom: 4,
-    marginRight: 4,
-    border: theme.palette.border.slightlyIntense,
-    backgroundColor: theme.palette.tag.hollowTagBackground,
   },
   addButton: {
     backgroundColor: theme.palette.panelBackground.default,
@@ -50,7 +43,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...filteringStyles(theme),
   },
   personalAndPlus: {
-
+    ...(isFriendlyUI ? {} : {
+      gap: "4px",
+      display: "flex",
+      alignItems: "center"
+    }),
   }
 });
 

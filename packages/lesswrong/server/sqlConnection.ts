@@ -1,13 +1,16 @@
 import pgp, { IDatabase, IEventContext } from "pg-promise";
 import type { IClient, IResult } from "pg-promise/typescript/pg-subset";
-import Query from "../lib/sql/Query";
+import Query from "@/server/sql/Query";
 import { isAnyTest } from "../lib/executionEnvironment";
 import { PublicInstanceSetting } from "../lib/instanceSettings";
 import omit from "lodash/omit";
-import { logAllQueries } from "../lib/sql/sqlClient";
+import { logAllQueries } from "@/server/sql/sqlClient";
 import { recordSqlQueryPerfMetric } from "./perfMetrics";
 
-const SLOW_QUERY_REPORT_CUTOFF_MS = 2000;
+// Setting this to -1 disables slow query logging
+const SLOW_QUERY_REPORT_CUTOFF_MS = parseInt(process.env.SLOW_QUERY_REPORT_CUTOFF_MS ?? '') >= -1
+  ? parseInt(process.env.SLOW_QUERY_REPORT_CUTOFF_MS ?? '')
+  : 2000;
 
 const pgConnIdleTimeoutMsSetting = new PublicInstanceSetting<number>('pg.idleTimeoutMs', 10000, 'optional')
 
@@ -173,7 +176,7 @@ const logIfSlow = async <T>(
   if (logAllQueries) {
     // eslint-disable-next-line no-console
     console.log(`Finished query #${queryID} (${milliseconds} ms) (${JSON.stringify(result).length}b)`);
-  } else if (milliseconds > SLOW_QUERY_REPORT_CUTOFF_MS && !quiet && !isAnyTest) {
+  } else if (SLOW_QUERY_REPORT_CUTOFF_MS >= 0 && milliseconds > SLOW_QUERY_REPORT_CUTOFF_MS && !quiet && !isAnyTest) {
     // eslint-disable-next-line no-console
     console.trace(`Slow Postgres query detected (${milliseconds} ms): ${getDescription()}`);
   }

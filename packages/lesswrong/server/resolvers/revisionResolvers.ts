@@ -19,6 +19,7 @@ import { userOwns } from '../../lib/vulcan-users/permissions';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
 import { parseDocumentFromString } from '../../lib/domParser';
 import { extractTableOfContents } from '../../lib/tableOfContents';
+import { htmlContainsFootnotes } from '../utils/htmlUtil';
 
 // Use html-to-text's compile() wrapper (baking in options) to make it faster when called repeatedly
 const htmlToTextPlaintextDescription = compileHtmlToText({
@@ -129,6 +130,17 @@ augmentFieldsDict(Revisions, {
       }
     }
   },
+  
+  hasFootnotes: {
+    type: Boolean,
+    resolveAs: {
+      type: 'Boolean',
+      resolver: ({html}): boolean => {
+        if (!html) return false;
+        return htmlContainsFootnotes(html);
+      },
+    },
+  },
 })
 
 defineQuery({
@@ -198,7 +210,7 @@ defineMutation({
       getLatestRev(tagId, 'description')
     ]);
 
-    const anyDiff = !isEqual(tag.description.originalContents, revertToRevision.originalContents);
+    const anyDiff = !isEqual(tag.description?.originalContents, revertToRevision.originalContents);
 
     if (!tag)               throw new Error('Invalid tagId');
     if (!revertToRevision)  throw new Error('Invalid revisionId');
@@ -249,6 +261,13 @@ defineMutation({
       dataToHTML(contents.value, contents.type, { sanitize: !currentUser.isAdmin })
     ]);
 
+    // This behavior differs from make_editable's `updateBefore` callback, but in the case of manual user saves it seems fine to create new revisions; they don't happen that often
+    // In principle we shouldn't be getting autosave requests from the client when there's no diff, but seems better to avoid creating spurious revisions for autosaves
+    // (especially if there's a bug on the client which causes the client-side diff-checking to fail)
+    if (previousRev && isEqual(previousRev.originalContents, contents)) {
+      return previousRev;
+    }
+
     const nextVersion = getNextVersion(previousRev, updateSemverType, post.draft);
     const changeMetrics = htmlToChangeMetrics(previousRev?.html || "", html);
 
@@ -264,6 +283,7 @@ defineMutation({
       draft: true,
       updateType: updateSemverType,
       changeMetrics,
+      commitMessage: 'Native editor autosave',
     };
 
     const { data: createdRevision } = await createMutator({

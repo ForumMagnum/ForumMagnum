@@ -150,14 +150,11 @@ registerFragment(`
     reviewVoteCount
     positiveReviewVoteCount
     manifoldReviewMarketId
-    annualReviewMarketCommentId
-    annualReviewMarketComment {
-      ...CommentsListWithParentMetadata
-    }
 
     annualReviewMarketProbability
     annualReviewMarketIsResolved
     annualReviewMarketYear
+    annualReviewMarketUrl
 
     group {
       _id
@@ -173,6 +170,8 @@ registerFragment(`
     reviewCount2019
 
     votingSystem
+    
+    disableRecommendation
   }
 `);
 
@@ -189,6 +188,18 @@ registerFragment(`
     ...PostsList
     currentUserVote
     currentUserExtendedVote
+    podcastEpisode {
+      _id
+      title
+      podcast {
+        _id
+        title
+        applePodcastLink
+        spotifyPodcastLink
+      }
+      episodeLink
+      externalEpisodeId
+    }
   }
 `)
 
@@ -213,6 +224,26 @@ registerFragment(`
   }
 `)
 
+registerFragment(`
+  fragment PostsModerationGuidelines on Post {
+    ...PostsMinimumInfo
+    frontpageDate
+    user {
+      _id
+      displayName
+      moderationStyle
+    }
+    moderationStyle
+    moderationGuidelines {
+      _id
+      html
+      originalContents {
+        type
+        data
+      }
+    }
+  }
+`)
 
 registerFragment(`
   fragment PostsAuthors on Post {
@@ -240,14 +271,10 @@ registerFragment(`
     ...PostsAuthors
     readTimeMinutes
     rejectedReason
-    disableRecommendation
-    moderationGuidelines {
-      _id
-      html
-    }
     customHighlight {
       _id
       html
+      plaintextDescription
     }
     lastPromotedComment {
       _id
@@ -270,6 +297,7 @@ registerFragment(`
     totalDialogueResponseCount
     unreadDebateResponseCount
     dialogTooltipPreview
+    disableSidenotes
   }
 `);
 
@@ -280,6 +308,7 @@ registerFragment(`
     contents {
       _id
       htmlHighlight
+      plaintextDescription
       wordCount
       version
     }
@@ -359,7 +388,6 @@ registerFragment(`
     }
 
     # Moderation stuff
-    showModerationGuidelines
     bannedUserIds
     moderationStyle
     
@@ -398,6 +426,11 @@ registerFragment(`
 
     # Crossposting
     fmCrosspost
+
+    # Jargon Terms
+    glossary {
+      ...JargonTermsPost
+    }
   }
 `);
 
@@ -488,23 +521,13 @@ registerFragment(`
       ...SequencesPageFragment
     }
     prevPost(sequenceId: $sequenceId) {
-      _id
-      title
-      slug
-      commentCount
-      afCommentCount
-      baseScore
+      ...PostsListWithVotes
       sequence(sequenceId: $sequenceId, prevOrNext: "prev") {
         _id
       }
     }
     nextPost(sequenceId: $sequenceId) {
-      _id
-      title
-      slug
-      commentCount
-      afCommentCount
-      baseScore
+      ...PostsListWithVotes
       sequence(sequenceId: $sequenceId, prevOrNext: "next") {
         _id
       }
@@ -552,7 +575,6 @@ registerFragment(`
       imageId
       text
     }
-    criticismTipsDismissed
     user {
       ...UsersMinimumInfo
     }
@@ -629,6 +651,7 @@ registerFragment(`
     currentUserExtendedVote
     fmCrosspost
     rejectedReason
+    autoFrontpage
 
     contents {
       _id
@@ -637,7 +660,12 @@ registerFragment(`
       wordCount
       version
     }
-    
+
+    moderationGuidelines {
+      _id
+      html
+    }
+
     user {
       ...UsersMinimumInfo
       biography {
@@ -728,13 +756,6 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment PostsEditCriticismTips on Post {
-    _id
-    criticismTipsDismissed
-  }
-`);
-
-registerFragment(`
   fragment PostsBestOfList on Post {
     ...PostsListWithVotes
     podcastEpisode {
@@ -757,3 +778,54 @@ registerFragment(`
     firstVideoAttribsForPreview
   }
 `);
+
+registerFragment(`
+  fragment PostsRSSFeed on Post {
+    ...PostsPage
+    scoreExceeded2Date
+    scoreExceeded30Date
+    scoreExceeded45Date
+    scoreExceeded75Date
+    scoreExceeded125Date
+    scoreExceeded200Date
+    metaDate
+  }
+`);
+
+registerFragment(`
+  fragment PostsOriginalContents on Post {
+    _id
+    contents {
+      _id
+      originalContents {
+        type
+        data
+      }
+    }
+  }
+`);
+
+registerFragment(`
+  fragment PostsHTML on Post {
+    _id
+    contents {
+      ...RevisionHTML
+    }
+  }
+`);
+
+registerFragment(`
+  fragment PostsForAutocomplete on Post {
+    _id
+    title
+    userId
+    baseScore
+    extendedScore
+    user {
+      ...UsersMinimumInfo
+    }
+    contents {
+      markdown
+    }
+  }
+`)

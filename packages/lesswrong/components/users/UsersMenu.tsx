@@ -1,7 +1,7 @@
 import React, { MouseEvent, useContext } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
-import { userCanComment, userCanDo, userIsAdminOrMod, userIsMemberOf, userOverNKarmaOrApproved } from '../../lib/vulcan-users/permissions';
+import { userCanDo, userCanQuickTake, userIsMemberOf, userOverNKarmaOrApproved } from '../../lib/vulcan-users/permissions';
 import { userGetAnalyticsUrl, userGetDisplayName } from '../../lib/collections/users/helpers';
 import { dialoguesEnabled, userHasThemePicker } from '../../lib/betas';
 
@@ -23,8 +23,9 @@ import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { isMobile } from '../../lib/utils/isMobile'
 import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequences/permissions';
 import { isAF, isEAForum } from '../../lib/instanceSettings';
+import { blackBarTitle } from '../../lib/publicSettings';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginTop: isFriendlyUI ? undefined : 5,
     wordBreak: 'break-all',
@@ -41,8 +42,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     textTransform: 'none',
     fontSize: '16px',
     fontWeight: isFriendlyUI ? undefined : 400,
-    color: theme.palette.header.text,
-    wordBreak: 'break-word',
+    color: blackBarTitle.get() ? theme.palette.text.alwaysWhite : theme.palette.header.text,
+    wordBreak: 'break-word'
   },
   userImageButton: {
     display: 'flex',
@@ -76,7 +77,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const UsersMenu = ({classes}: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const {eventHandlers, hover, forceUnHover, anchorEl} = useHover();
@@ -182,7 +183,7 @@ const UsersMenu = ({classes}: {
       * Long-term, we should fix these issues and reenable this option.
       */
     newShortform: () =>
-      showNewButtons && userCanComment(currentUser)
+      showNewButtons && userCanQuickTake(currentUser)
         ? (
           <DropdownItem
             title={preferredHeadingCase("New Quick Take")}
@@ -209,14 +210,20 @@ const UsersMenu = ({classes}: {
         : null,
   } as const;
 
+  const hasBookmarks = (currentUser?.bookmarkedPostsMetadata.length ?? 0) >= 1;
+
   const order: (keyof typeof items)[] = isFriendlyUI
     ? ["newPost", "newShortform", "newQuestion", "newDialogue", "divider", "newEvent", "newSequence"]
-    : ["newQuestion", "newPost", "newDialogue", "newShortform", "divider", "newEvent", "newSequence"];
+    : ["newShortform", "newPost", "newEvent"];
 
   return (
     <div className={classes.root} {...eventHandlers}>
       <Link to={`/users/${currentUser.slug}`}>
-        <Button classes={{root: classes.userButtonRoot}} onClick={menuButtonOnClick}>
+        <Button
+          classes={{root: classes.userButtonRoot}}
+          onClick={menuButtonOnClick}
+          data-testid="users-menu"
+        >
           {userButtonNode}
         </Button>
       </Link>
@@ -265,14 +272,6 @@ const UsersMenu = ({classes}: {
                   }
                 />
               }
-              {!isEAForum &&
-                <DropdownItem
-                  title={preferredHeadingCase("My Drafts")}
-                  to="/drafts"
-                  icon="Edit"
-                  iconClassName={classes.icon}
-                />
-              }
               {!currentUser.deleted &&
                 <DropdownItem
                   title={preferredHeadingCase("User Profile")}
@@ -281,6 +280,15 @@ const UsersMenu = ({classes}: {
                   iconClassName={classes.icon}
                 />
               }
+               {!isEAForum &&
+                <DropdownItem
+                  title={preferredHeadingCase("My Drafts")}
+                  to="/drafts"
+                  icon="Edit"
+                  iconClassName={classes.icon}
+                />
+              }
+              {!isFriendlyUI && messagesNode}
               {userHasThemePicker(currentUser) &&
                 <ThemePickerMenu>
                   <DropdownItem
@@ -301,15 +309,14 @@ const UsersMenu = ({classes}: {
                 icon="BarChart"
                 iconClassName={classes.icon}
               />}
-              {!isFriendlyUI && accountSettingsNode}
-              {!isFriendlyUI && messagesNode}
-              <DropdownItem
+              {hasBookmarks &&<DropdownItem
                 title={isFriendlyUI ? "Saved & read" : "Bookmarks"}
                 to={isFriendlyUI ? "/saved" : "/bookmarks"}
                 icon="Bookmarks"
                 iconClassName={classes.icon}
-              />
-              {currentUser.shortformFeedId &&
+              />}
+              {!isFriendlyUI && accountSettingsNode}
+              {isFriendlyUI && currentUser.shortformFeedId &&
                 <DropdownItem
                   // TODO: get Habryka's take on what the title here should be
                   title={preferredHeadingCase("Your Quick Takes")}

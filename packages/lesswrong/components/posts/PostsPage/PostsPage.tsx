@@ -8,16 +8,11 @@ import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import {forumTitleSetting, isAF, isEAForum, isLWorAF} from '../../../lib/instanceSettings';
-import { cloudinaryCloudNameSetting, recombeeEnabledSetting } from '../../../lib/publicSettings';
+import { cloudinaryCloudNameSetting, recombeeEnabledSetting, vertexEnabledSetting } from '../../../lib/publicSettings';
 import classNames from 'classnames';
-import { hasPostRecommendations, hasSideComments, commentsTableOfContentsEnabled, hasDigests } from '../../../lib/betas';
-import { forumSelect } from '../../../lib/forumTypeUtils';
-import { welcomeBoxes } from './WelcomeBox';
-import { useABTest } from '../../../lib/abTestImpl';
-import { welcomeBoxABTest } from '../../../lib/abTests';
+import { hasPostRecommendations, commentsTableOfContentsEnabled, hasDigests, hasSidenotes } from '../../../lib/betas';
 import { useDialog } from '../../common/withDialog';
 import { UseMultiResult, useMulti } from '../../../lib/crud/withMulti';
-import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../../dropdowns/posts/SetSideCommentVisibility';
 import { PostsPageContext } from './PostsPageContext';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { SHOW_PODCAST_PLAYER_COOKIE } from '../../../lib/cookies/cookies';
@@ -30,23 +25,39 @@ import qs from 'qs';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { useOnServerSentEvent } from '../../hooks/useUnreadNotifications';
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema';
-import { unflattenComments } from '../../../lib/utils/unflatten';
+import { CommentTreeNode, unflattenComments } from '../../../lib/utils/unflatten';
 import { useNavigate } from '../../../lib/reactRouterWrapper';
 import { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
 import { ImageProvider } from './ImageContext';
-import { getMarketInfo, highlightMarket } from '../../../lib/annualReviewMarkets';
+import { getMarketInfo, highlightMarket } from '../../../lib/collections/posts/annualReviewMarkets';
 import isEqual from 'lodash/isEqual';
 import { usePostReadProgress } from '../usePostReadProgress';
 import { useDynamicTableOfContents } from '../../hooks/useDynamicTableOfContents';
 import { RecombeeRecommendationsContextWrapper } from '../../recommendations/RecombeeRecommendationsContextWrapper';
 import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
-import ForumNoSSR from '../../common/ForumNoSSR';
+import { HoveredReactionContextProvider } from '@/components/votes/lwReactions/HoveredReactionContextProvider';
+import { useVote } from '@/components/votes/withVote';
+import { getVotingSystemByName } from '@/lib/voting/votingSystems';
+import DeferRender from '@/components/common/DeferRender';
+import { SideItemVisibilityContextProvider } from '@/components/dropdowns/posts/SetSideItemVisibility';
+import { LW_POST_PAGE_PADDING } from './LWPostsPageHeader';
+import { useCommentLinkState } from '@/components/comments/CommentsItem/useCommentLink';
+import { useCurrentTime } from '@/lib/utils/timeUtil';
 
+const HIDE_TOC_WORDCOUNT_LIMIT = 300
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
 
+export const RIGHT_COLUMN_WIDTH_WITH_SIDENOTES = 300;
+export const RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES = 50;
+export const RIGHT_COLUMN_WIDTH_XS = 5;
+export const sidenotesHiddenBreakpoint = (theme: ThemeType) =>
+  theme.breakpoints.down('md')
+
+
 export const SHARE_POPUP_QUERY_PARAM = 'sharePopup';
 export const RECOMBEE_RECOMM_ID_QUERY_PARAM = 'recombeeRecommId';
+export const VERTEX_ATTRIBUTION_ID_QUERY_PARAM = 'vertexAttributionId';
 
 const MAX_ANSWERS_AND_REPLIES_QUERIED = 10000
 
@@ -114,22 +125,63 @@ export const getPostDescription = (post: {
   return null;
 };
 
+
+const getCommentStructuredData = ({
+  comment
+}: {
+  comment: CommentTreeNode<CommentsList>
+}): Record<string, any> => ({
+  "@type": "Comment",
+  text: comment.item.contents?.html,
+  datePublished: new Date(comment.item.postedAt).toISOString(),
+  author: [{
+    "@type": "Person",
+    name: comment.item.user?.displayName,
+    url: userGetProfileUrl(comment.item.user, true),
+    interactionStatistic: [
+      {
+        "@type": "InteractionCounter",
+        interactionType: {
+          "@type": "http://schema.org/CommentAction",
+        },
+        userInteractionCount: comment.item.user?.[isAF ? "afCommentCount" : "commentCount"],
+      },
+      {
+        "@type": "InteractionCounter",
+        interactionType: {
+          "@type": "http://schema.org/WriteAction",
+        },
+        userInteractionCount: comment.item.user?.[isAF ? "afPostCount" : "postCount"],
+      },
+    ],
+  }],
+  ...(comment.children.length > 0 && {comment: comment.children.map(child => getCommentStructuredData({comment: child}))})
+})
+
 /**
  * Build structured data for a post to help with SEO.
  */
 const getStructuredData = ({
   post,
   description,
+  commentTree,
+  answersTree
 }: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision;
   description: string | null;
+  commentTree: CommentTreeNode<CommentsList>[];
+  answersTree: CommentTreeNode<CommentsList>[];
 }) => {
   const hasUser = !!post.user;
   const hasCoauthors = !!post.coauthors && post.coauthors.length > 0;
+  const answersAndComments = [...answersTree, ...commentTree];
+  // Get comments from Apollo Cache
 
   return {
     "@context": "http://schema.org",
     "@type": "DiscussionForumPosting",
+    "url": postGetPageUrl(post, true),
+    "text": post.contents?.html,
     mainEntityOfPage: {
       "@type": "WebPage",
       "@id": postGetPageUrl(post, true),
@@ -161,6 +213,7 @@ const getStructuredData = ({
           : []),
       ],
     }),
+    ...(answersAndComments.length > 0 && {comment: answersAndComments.map(comment => getCommentStructuredData({comment}))}),
     interactionStatistic: [
       {
         "@type": "InteractionCounter",
@@ -182,7 +235,7 @@ const getStructuredData = ({
 
 
 // Also used in PostsCompareRevisions
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   readingProgressBar: {
     position: 'fixed',
     top: 0,
@@ -208,11 +261,29 @@ export const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   centralColumn: {
-    maxWidth: CENTRAL_COLUMN_WIDTH,
     marginLeft: 'auto',
     marginRight: 'auto',
+    maxWidth: CENTRAL_COLUMN_WIDTH, // this necessary in both friendly and non-friendly UI to prevent Comment Permalinks from overflowing the page
+    ...(isFriendlyUI && {
+      [theme.breakpoints.down('sm')]: {
+        // This can only be used when display: "block" is applied, otherwise the 100% confuses the
+        // grid layout into adding loads of left margin
+        maxWidth: `min(100%, ${CENTRAL_COLUMN_WIDTH}px)`,
+      }
+    }),
   },
-  postContent: { //Used by a Cypress test
+  postBody: {
+    ...(isFriendlyUI && {
+      width: "max-content",
+    }),
+  },
+  audioPlayerHidden: {
+    // Only show the play button next to headings if the audio player is visible
+    '& .t3a-heading-play-button': {
+      display: 'none !important'
+    },
+  },
+  postContent: {
     marginBottom: isFriendlyUI ? 40 : undefined
   },
   betweenPostAndComments: {
@@ -282,11 +353,13 @@ export const styles = (theme: ThemeType): JssStyles => ({
     display: "none"
   },
   welcomeBox: {
+    marginTop: LW_POST_PAGE_PADDING,
+    maxWidth: 220,
     [theme.breakpoints.down('md')]: {
       display: 'none'
     }
   },
-  subscribeToDialogue: {
+  bottomOfPostSubscribe: {
     marginBottom: 40,
     marginTop: 40,
     border: theme.palette.border.commentBorder,
@@ -300,7 +373,34 @@ export const styles = (theme: ThemeType): JssStyles => ({
     lineHeight: 1,
     textWrap: 'balance',
     fontWeight: '600'
-  }
+  },
+  reserveSpaceForSidenotes: {
+    width: RIGHT_COLUMN_WIDTH_WITH_SIDENOTES,
+    [sidenotesHiddenBreakpoint(theme)]: {
+      width: RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES,
+      [theme.breakpoints.down('xs')]: {
+        width: RIGHT_COLUMN_WIDTH_XS,
+      },
+    },
+  },
+  reserveSpaceForIcons: {
+    width: 0,
+    [theme.breakpoints.up('xs')]: {
+      width: RIGHT_COLUMN_WIDTH_XS,
+      [theme.breakpoints.up('sm')]: {
+        width: RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES,
+      },
+    },
+  },
+  subscribeToGroup: {
+    padding: '8px 16px',
+    ...theme.typography.body2,
+  },
+  dateAtBottom: {
+    color: theme.palette.text.dim3,
+    fontSize: isFriendlyUI ? undefined : theme.typography.body2.fontSize,
+    cursor: 'default'
+  },
 })
 
 const getDebateResponseBlocks = (responses: CommentsList[], replies: CommentsList[]) => responses.map(debateResponse => ({
@@ -323,7 +423,7 @@ export const postsCommentsThreadMultiOptions = {
 const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}: {
   eagerPostComments?: EagerPostComments,
   refetch: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 } & (
   { fullPost: PostsWithNavigation|PostsWithNavigationAndRevision, postPreload: undefined }
   | { fullPost: undefined, postPreload: PostsListWithVotes }
@@ -332,6 +432,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   const location = useSubscribedLocation();
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
+  const now = useCurrentTime();
   const { openDialog } = useDialog();
   const { recordPostView } = useRecordPostView(post);
   const [showDigestAd, setShowDigestAd] = useState(false)
@@ -341,25 +442,28 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_PODCAST_PLAYER_COOKIE]);
   const { query, params } = location;
   const [recommId, setRecommId] = useState<string | undefined>();
+  const [attributionId, setAttributionId] = useState<string | undefined>();
+
+  const votingSystem = getVotingSystemByName(post.votingSystem || 'default');
+  const voteProps = useVote(post, 'Posts', votingSystem);
 
   const showEmbeddedPlayerCookie = cookies[SHOW_PODCAST_PLAYER_COOKIE] === "true";
 
   // Show the podcast player if the user opened it on another post, hide it if they closed it (and by default)
   const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(showEmbeddedPlayerCookie);
 
-  const toggleEmbeddedPlayer = fullPost && postHasAudioPlayer(fullPost) ? () => {
+  const toggleEmbeddedPlayer = post && postHasAudioPlayer(post) ? () => {
     const action = showEmbeddedPlayer ? "close" : "open";
     const newCookieValue = showEmbeddedPlayer ? "false" : "true";
     captureEvent("toggleAudioPlayer", { action });
     setCookie(
       SHOW_PODCAST_PLAYER_COOKIE,
       newCookieValue, {
+
       path: "/"
     });
     setShowEmbeddedPlayer(!showEmbeddedPlayer);
   } : undefined;
-
-  const welcomeBoxABTestGroup = useABTest(welcomeBoxABTest);
 
   const disableProgressBar = (isBookUI || isServer || post.isEvent || post.question || post.debate || post.shortform || post.readTimeMinutes < 3);
 
@@ -372,8 +476,8 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   const ls = getBrowserLocalStorage()
   useEffect(() => {
     if (ls && hasDigests) {
-      const postReadCount = ls.getItem('postReadCount') ?? 0
-      ls.setItem('postReadCount', parseInt(postReadCount) + 1)
+      const postReadCount = ls.getItem('postReadCount') ?? '0'
+      ls.setItem('postReadCount', `${parseInt(postReadCount) + 1}`)
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -413,7 +517,6 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
         componentProps: {
           post: fullPost,
         },
-        noClickawayCancel: true,
         closeOnNavigate: true,
       });
     }
@@ -444,7 +547,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   // note: these are from a debate feature that was deprecated in favor of collabEditorDialogue.
   // we're leaving it for now to keep supporting the few debates that were made with it, but
   // may want to migrate them at some point.
-  const { results: debateResponses, refetch: refetchDebateResponses } = useMulti({
+  const { results: debateResponses=[], refetch: refetchDebateResponses } = useMulti({
     terms: {
       view: 'debateResponses',
       postId: post._id,
@@ -478,51 +581,50 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     skip: !post.debate || !fullPost
   });
 
-  const { HeadTags, CitationTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
+const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPagePostFooter, PostBodyPrefix,
     PostCoauthorRequest, CommentPermalink, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
     CloudinaryImage2, ContentStyles, PostBody, CommentOnSelectionContentWrapper,
     PermanentRedirect, DebateBody, PostsPageRecommendationsList, PostSideRecommendations,
     PostBottomRecommendations, NotifyMeDropdownItem, Row, AnalyticsInViewTracker,
     PostsPageQuestionContent, AFUnreviewedCommentCount, CommentsListSection, CommentsTableOfContents,
-    StickyDigestAd, PostsPageSplashHeader, PostsAudioPlayerWrapper, RecombeeInViewTracker
+    StickyDigestAd, PostsPageSplashHeader, PostsAudioPlayerWrapper, AttributionInViewTracker,
+    ForumEventPostPagePollSection, NotifyMeButton, LWTooltip, PostsPageDate,
+    PostFixedPositionToCHeading
   } = Components
 
   useEffect(() => {
     const recommId = query[RECOMBEE_RECOMM_ID_QUERY_PARAM];
+    const attributionId = query[VERTEX_ATTRIBUTION_ID_QUERY_PARAM];
 
     void recordPostView({
       post: post,
       extraEventProperties: {
         sequenceId: getSequenceId()
       },
-      recombeeOptions: {
-        recommId
+      recommendationOptions: {
+        recombeeOptions: { recommId },
+        vertexOptions: { attributionId }
       }
-
     });
 
-    if (!currentUser || !recombeeEnabledSetting.get()) return;
+    if (!recombeeEnabledSetting.get() && !vertexEnabledSetting.get()) return;
     setRecommId(recommId);
+    setAttributionId(attributionId);
 
-    // Remove "recombeeRecommId" from query once the recommId has stored to state and initial event fired off, to prevent accidentally
-    // sharing links with a recommId
+    // Remove recombee & vertex attribution ids from query once the they're stored to state and initial event fired off, to prevent accidentally
+    // sharing links with the query params still present
     const currentQuery = isEmpty(query) ? {} : query;
-    const newQuery = {...currentQuery, [RECOMBEE_RECOMM_ID_QUERY_PARAM]: undefined};
+    const newQuery = {
+      ...currentQuery,
+      [RECOMBEE_RECOMM_ID_QUERY_PARAM]: undefined,
+      [VERTEX_ATTRIBUTION_ID_QUERY_PARAM]: undefined
+    };
     navigate({...location.location, search: `?${qs.stringify(newQuery)}`}, { replace: true });  
 
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post._id]);
   
-  const isOldVersion = query.revision && post.contents;
-  
-  const defaultSideCommentVisibility = hasSideComments
-    ? (fullPost?.sideCommentVisibility ?? "highKarma")
-    : "hidden";
-  const [sideCommentMode,setSideCommentMode] = useState<SideCommentMode>(defaultSideCommentVisibility as SideCommentMode);
-  const sideCommentModeContext: SideCommentVisibilityContextType = useMemo(
-    () => ({ sideCommentMode, setSideCommentMode }),
-    [sideCommentMode, setSideCommentMode]
-  );
+  const isOldVersion = !!(query.revision && post.contents);
   
   const sequenceId = getSequenceId();
   const sectionData = useDynamicTableOfContents({
@@ -544,7 +646,8 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     (post.contents?.wordCount ?? 0) >= 500;
   const recommendationsPosition = getRecommendationsPosition();
 
-  const commentId = query.commentId || params.commentId
+  const { linkedCommentId: globalLinkedCommentId } = useCommentLinkState();
+  const linkedCommentId = globalLinkedCommentId || params.commentId
 
   const description = fullPost ? getPostDescription(fullPost) : null
   const ogUrl = postGetPageUrl(post, true) // open graph
@@ -558,23 +661,22 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   const debateResponseIds = new Set((debateResponses ?? []).map(response => response._id));
   const debateResponseReplies = debateReplies?.filter(comment => debateResponseIds.has(comment.topLevelCommentId));
 
-  const isDebateResponseLink = commentId && debateResponseIds.has(commentId);
+  const isDebateResponseLink = linkedCommentId && debateResponseIds.has(linkedCommentId);
   
   useEffect(() => {
     if (isDebateResponseLink) {
-      navigate({ ...location.location, hash: `#debate-comment-${commentId}` }, {replace: true});
+      navigate({ ...location.location, hash: `#debate-comment-${linkedCommentId}` }, {replace: true});
     }
     // No exhaustive deps to avoid any infinite loops with links to comments
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isDebateResponseLink, commentId]);
+  }, [isDebateResponseLink, linkedCommentId]);
 
   const onClickCommentOnSelection = useCallback((html: string) => {
     openDialog({
-      componentName:"ReplyCommentDialog",
+      componentName: "ReplyCommentDialog",
       componentProps: {
         post, initialHtml: html
       },
-      noClickawayCancel: true,
     })
   }, [openDialog, post]);
 
@@ -582,27 +684,88 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     post.fmCrosspost?.isCrosspost &&
     !post.fmCrosspost?.hostedHere;
 
+  const shouldLowKarmaNoIndex = isEAForum && post.baseScore <= 0;
+  const noIndex = fullPost?.noIndex || post.rejected || shouldLowKarmaNoIndex;
+
+  const marketInfo = getMarketInfo(post)
+
+  // check for deep equality between terms and eagerPostComments.terms
+  const useEagerResults = eagerPostComments && isEqual(commentTerms, eagerPostComments?.terms);
+
+  const lazyResults = useMulti({
+    terms: {...commentTerms, postId: post._id},
+    skip: useEagerResults,
+    ...postsCommentsThreadMultiOptions,
+  });
+
+  const { loading, results: rawResults, loadMore, loadingMore, totalCount } = useEagerResults ? eagerPostComments.queryResponse : lazyResults;
+
+  // If the user has just posted a comment, and they are sorting by magic, put it at the top of the list for them
+  const results = useMemo(() => {
+    if (!isEAForum || !rawResults || commentTerms.view !== "postCommentsMagic") return rawResults;
+
+    const recentUserComments = rawResults
+      .filter((c) => c.userId === currentUser?._id && now.getTime() - new Date(c.postedAt).getTime() < 60000)
+      .sort((a, b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime());
+
+    if (!recentUserComments.length) return rawResults;
+
+    return [...recentUserComments, ...rawResults.filter((c) => !recentUserComments.includes(c))];
+    // Ignore `now` to make this more stable
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [commentTerms.view, rawResults, currentUser?._id]);
+
+  const commentCount = results?.length ?? 0;
+  const commentTree = unflattenComments(results ?? []);
+  const answersTree = unflattenComments(answersAndReplies ?? []);
+  const answerCount = post.question ? answersTree.length : undefined;
+
   // Hide the table of contents on questions that are foreign crossposts
   // as we read ToC data from the foreign site and it includes answers
   // which don't exists locally. TODO: Remove this gating when we finally
   // rewrite crossposting.
   const hasTableOfContents = !!sectionData && !isCrosspostedQuestion;
   const tableOfContents = hasTableOfContents
-    ? <TableOfContents sectionData={sectionData} title={post.title} postedAt={post.postedAt} fixedPositionToc={isLWorAF} />
+    ? (isLWorAF
+        ? <TableOfContents
+            sectionData={sectionData}
+            title={post.title}
+            heading={<PostFixedPositionToCHeading post={post}/>}
+            fixedPositionToc={true}
+          />
+        : <TableOfContents sectionData={sectionData} title={post.title} fixedPositionToc={false} />
+      )
     : null;
 
-  const noIndex = fullPost?.noIndex || post.rejected;
+  const hashCommentId = location.hash.length >= 1 ? location.hash.slice(1) : null;
+  // If the comment reference in the hash doesn't appear in the page, try and load it separately as a permalinked comment
+  const showHashCommentFallback = useMemo(() => (
+    hashCommentId && !loading && ![...(results ?? []), ...(answersAndReplies ?? [])].map(({ _id }) => _id).includes(hashCommentId)
+  ), [answersAndReplies, hashCommentId, loading, results]);
 
-  const marketInfo = getMarketInfo(post)
+  const [permalinkedCommentId, setPermalinkedCommentId] = useState(fullPost && !isDebateResponseLink ? linkedCommentId : null)
+  // Don't show loading state if we are are getting the id from the hash, because it might be a hash referencing a non-comment id in the page
+  const silentLoadingPermalink = permalinkedCommentId === hashCommentId;
+  useEffect(() => { // useEffect required because `location.hash` isn't sent to the server
+    if (fullPost && !isDebateResponseLink) {
+      if (linkedCommentId) {
+        setPermalinkedCommentId(linkedCommentId)
+      } else if (showHashCommentFallback) {
+        setPermalinkedCommentId(hashCommentId)
+      } else {
+        setPermalinkedCommentId(null)
+      }
+    }
+  }, [fullPost, hashCommentId, isDebateResponseLink, linkedCommentId, showHashCommentFallback])
 
   const header = <>
-    {fullPost && !commentId && <>
+    {fullPost && !linkedCommentId && <>
       <HeadTags
         ogUrl={ogUrl} canonicalUrl={canonicalUrl} image={socialPreviewImageUrl}
         title={post.title}
         description={description}
         noIndex={noIndex}
-        structuredData={getStructuredData({post: fullPost, description})}
+        structuredData={getStructuredData({post: fullPost, description, commentTree, answersTree})}
       />
       <CitationTags
         title={post.title}
@@ -617,8 +780,8 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     <AnalyticsContext pageSectionContext="postHeader">
       <div className={classNames(classes.title, {[classes.titleWithMarket] : highlightMarket(marketInfo)})}>
         <div className={classes.centralColumn}>
-          {fullPost && commentId && !isDebateResponseLink && <CommentPermalink documentId={commentId} post={fullPost} />}
-          {post.eventImageId && <div className={classNames(classes.headerImageContainer, {[classes.headerImageContainerWithComment]: commentId})}>
+          {permalinkedCommentId && <CommentPermalink documentId={permalinkedCommentId} post={fullPost} silentLoading={silentLoadingPermalink} />}
+          {post.eventImageId && <div className={classNames(classes.headerImageContainer, {[classes.headerImageContainerWithComment]: permalinkedCommentId})}>
             <CloudinaryImage2
               publicId={post.eventImageId}
               imgProps={{ar: '191:100', w: '682', q: '100'}}
@@ -626,7 +789,15 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
             />
           </div>}
           <PostCoauthorRequest post={post} currentUser={currentUser} />
-          {!showSplashPageHeader && <PostsPagePostHeader
+          {!showSplashPageHeader && isBookUI && <LWPostsPageHeader
+            post={post}
+            showEmbeddedPlayer={showEmbeddedPlayer}
+            dialogueResponses={debateResponses}
+            answerCount={answerCount}
+            toggleEmbeddedPlayer={toggleEmbeddedPlayer}
+            annualReviewMarketInfo={marketInfo}
+            />}
+          {!showSplashPageHeader && !isBookUI && <PostsPagePostHeader
             post={post}
             answers={answers ?? []}
             showEmbeddedPlayer={showEmbeddedPlayer}
@@ -638,28 +809,22 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     </AnalyticsContext>
   </>;
 
-  const maybeWelcomeBoxProps = forumSelect(welcomeBoxes);
-  const welcomeBoxProps = welcomeBoxABTestGroup === "welcomeBox" && !currentUser && maybeWelcomeBoxProps;
-  const welcomeBox = welcomeBoxProps
-    ? <div className={classes.welcomeBox}>
-        <WelcomeBox {...welcomeBoxProps} />
+  const welcomeBox = (
+    <DeferRender ssr={false}>
+      <div className={classes.welcomeBox}>
+        <WelcomeBox />
       </div>
-    : null;
+    </DeferRender>
+  );
 
-  const rightColumnChildren = (welcomeBox || (showRecommendations && recommendationsPosition === "right")) && <>
+  const rightColumnChildren = (welcomeBox || hasSidenotes || (showRecommendations && recommendationsPosition === "right")) && <>
     {welcomeBox}
     {showRecommendations && recommendationsPosition === "right" && fullPost && <PostSideRecommendations post={fullPost} />}
+    {hasSidenotes && <>
+      <div className={classes.reserveSpaceForSidenotes}/>
+      <Components.SideItemsSidebar/>
+    </>}
   </>;
-
-  // check for deep equality between terms and eagerPostComments.terms
-  const useEagerResults = eagerPostComments && isEqual(commentTerms, eagerPostComments?.terms);
-
-  const lazyResults = useMulti({
-    terms: {...commentTerms, postId: post._id},
-    skip: useEagerResults,
-    ...postsCommentsThreadMultiOptions,
-  });
-
 
   // If this is a non-AF post being viewed on AF, redirect to LW.
   if (isAF && !post.af) {
@@ -677,30 +842,46 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   // the same time.
 
   const postBodySection =
-    <div id="postBody" className={classNames(classes.centralColumn, classes.postBody)}>
-      {showSplashPageHeader && !commentId && !isDebateResponseLink && <h1 className={classes.secondSplashPageHeader}>
+    <div id="postBody" className={classNames(
+      classes.centralColumn,
+      classes.postBody,
+      !showEmbeddedPlayer && classes.audioPlayerHidden
+    )}>
+      {isBookUI && header}
+      {showSplashPageHeader && <h1 className={classes.secondSplashPageHeader}>
         {post.title}
       </h1>}
       {/* Body */}
-      {fullPost && <PostsAudioPlayerWrapper showEmbeddedPlayer={showEmbeddedPlayer} post={fullPost}/>}
+      {fullPost && isEAForum && <PostsAudioPlayerWrapper showEmbeddedPlayer={showEmbeddedPlayer} post={fullPost}/>}
       {fullPost && post.isEvent && fullPost.activateRSVPs &&  <RSVPs post={fullPost} />}
-      {!post.debate && <ContentStyles contentType="post" className={classNames(classes.postContent, "instapaper_body")}>
+      {!post.debate && <ContentStyles
+        contentType="post"
+        className={classNames(classes.postContent, "instapaper_body")}
+      >
         <PostBodyPrefix post={post} query={query}/>
         <AnalyticsContext pageSectionContext="postBody">
+          <HoveredReactionContextProvider voteProps={voteProps}>
           <CommentOnSelectionContentWrapper onClickComment={onClickCommentOnSelection}>
-            {htmlWithAnchors &&
+          <div id="postContent">
+            {htmlWithAnchors && <>
               <PostBody
                 post={post}
                 html={htmlWithAnchors}
-                sideCommentMode={isOldVersion ? "hidden" : sideCommentMode}
+                isOldVersion={isOldVersion}
+                voteProps={voteProps}
               />
+              {post.isEvent && isBookUI && <p className={classes.dateAtBottom}>Posted on: <PostsPageDate post={post} hasMajorRevision={false} /></p>
+              }
+              </>
             }
+          </div>
           </CommentOnSelectionContentWrapper>
+          </HoveredReactionContextProvider>
         </AnalyticsContext>
       </ContentStyles>}
 
       {showSubscribeToDialogueButton && <Row justifyContent="center">
-        <div className={classes.subscribeToDialogue}>
+        <div className={classes.bottomOfPostSubscribe}>
           <NotifyMeDropdownItem
             document={post}
             enabled={!!post.collabEditorDialogue}
@@ -712,6 +893,22 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
         </div>
       </Row>}
 
+      {post.isEvent && post.group && isBookUI &&
+          <Row justifyContent="center">
+            <div className={classes.bottomOfPostSubscribe}>
+              <LWTooltip title={<div>Subscribed users get emails for future events by<div>{post.group?.name}</div></div>} placement='bottom'>
+                <NotifyMeButton
+                    showIcon
+                    document={post.group}
+                    subscribeMessage="Subscribe to group"
+                    unsubscribeMessage="Unsubscribe from group"
+                    className={classes.subscribeToGroup}
+                />
+              </LWTooltip>
+            </div>
+          </Row>
+      }
+
       {post.debate && debateResponses && debateResponseReplies && fullPost &&
         <DebateBody
           debateResponses={getDebateResponseBlocks(debateResponses, debateResponseReplies)}
@@ -722,6 +919,9 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   const betweenPostAndCommentsSection =
     <div className={classNames(classes.centralColumn, classes.betweenPostAndComments)}>
       <PostsPagePostFooter post={post} sequenceId={sequenceId} />
+      <DeferRender ssr={false}>
+        <ForumEventPostPagePollSection postId={post._id} />
+      </DeferRender>
   
       {showRecommendations && recommendationsPosition === "underPost" &&
         <AnalyticsContext pageSectionContext="postBottomRecommendations">
@@ -734,15 +934,9 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
       }
     </div>
 
-  const { loading, results, loadMore, loadingMore, totalCount } = useEagerResults ? eagerPostComments.queryResponse : lazyResults;
-
-  const commentCount = results?.length ?? 0;
-  const commentTree = unflattenComments(results ?? []);
-  const answersTree = unflattenComments(answersAndReplies ?? []);
-  
   const commentsSection =
     <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}}>
-      <RecombeeInViewTracker eventProps={{postId: post._id, portion: 1, recommId}}>
+      <AttributionInViewTracker eventProps={{ post, portion: 1, recommId, vertexAttributionId: attributionId }}>
         {/* Answers Section */}
         {post.question && <div className={classes.centralColumn}>
           <div id="answers"/>
@@ -759,6 +953,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
               totalComments={totalCount as number}
               commentCount={commentCount}
               loadingMoreComments={loadingMore}
+              loading={loading}
               post={fullPost}
               newForm={!post.question && (!post.shortform || post.userId===currentUser?._id)}
               highlightDate={highlightDate ?? undefined}
@@ -766,14 +961,14 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
             />}
             {isAF && <AFUnreviewedCommentCount post={post}/>}
           </AnalyticsContext>
-          {isFriendlyUI && post.commentCount < 1 &&
+          {isFriendlyUI && Math.max(post.commentCount, results?.length ?? 0) < 1 &&
             <div className={classes.noCommentsPlaceholder}>
               <div>No comments on this post yet.</div>
               <div>Be the first to respond.</div>
             </div>
           }
         </div>
-      </RecombeeInViewTracker>
+      </AttributionInViewTracker>
     </AnalyticsInViewTracker>
 
   const commentsToC = fullPost
@@ -786,12 +981,13 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     : undefined
 
   return <AnalyticsContext pageContext="postsPage" postId={post._id}>
-    <PostsPageContext.Provider value={fullPost ?? null}>
+    <PostsPageContext.Provider value={{fullPost: fullPost ?? null, postPreload: postPreload ?? null}}>
     <RecombeeRecommendationsContextWrapper postId={post._id} recommId={recommId}>
+    <Components.SideItemsContainer>
     <ImageProvider>
-    <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
+    <SideItemVisibilityContextProvider post={fullPost}>
     <div ref={readingProgressBarRef} className={classes.readingProgressBar}></div>
-    {fullPost && showSplashPageHeader && !commentId && !isDebateResponseLink && <PostsPageSplashHeader
+    {fullPost && showSplashPageHeader && !permalinkedCommentId && <PostsPageSplashHeader
       // We perform this seemingly redundant spread because `showSplashPageHeader` checks that `post.reviewWinner` exists,
       // and Typescript is only smart enough to narrow the type for you if you access the field directly like this
       post={{...fullPost, reviewWinner: fullPost.reviewWinner!}}
@@ -801,9 +997,8 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     {commentsTableOfContentsEnabled
       ? <Components.MultiToCLayout
           segments={[
-            {centralColumn: header},
             {
-              toc: tableOfContents,
+              toc: (post.contents?.wordCount || 0) > HIDE_TOC_WORDCOUNT_LIMIT && tableOfContents,
               centralColumn: postBodySection,
               rightColumn: rightColumnChildren
             },
@@ -814,8 +1009,10 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
               isCommentToC: true
             },
           ]}
-          tocRowMap={[1, 1, 1, 3]}
+          tocRowMap={[0, 0, 2]}
           showSplashPageHeader={showSplashPageHeader}
+          answerCount={answerCount}
+          commentCount={commentCount}
         />
       : <ToCColumn
           tableOfContents={tableOfContents}
@@ -828,15 +1025,16 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
         </ToCColumn>
     }
   
-    {isEAForum && showDigestAd && <ForumNoSSR><StickyDigestAd /></ForumNoSSR>}
+    {isEAForum && showDigestAd && <DeferRender ssr={false}><StickyDigestAd /></DeferRender>}
     {hasPostRecommendations && fullPost && <AnalyticsInViewTracker eventProps={{inViewType: "postPageFooterRecommendations"}}>
       <PostBottomRecommendations
         post={post}
         hasTableOfContents={hasTableOfContents}
       />
     </AnalyticsInViewTracker>}
-    </SideCommentVisibilityContext.Provider>
+    </SideItemVisibilityContextProvider>
     </ImageProvider>
+    </Components.SideItemsContainer>
     </RecombeeRecommendationsContextWrapper>
     </PostsPageContext.Provider>
   </AnalyticsContext>

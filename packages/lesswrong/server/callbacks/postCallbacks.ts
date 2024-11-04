@@ -2,14 +2,12 @@ import { createAdminContext, createMutator, updateMutator } from '../vulcan-lib'
 import { Posts } from '../../lib/collections/posts/collection';
 import { Comments } from '../../lib/collections/comments/collection';
 import Users from '../../lib/collections/users/collection';
-import { clearVotesServer, performVoteServer } from '../voteServer';
-import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
+import type { VoteDocTuple } from '../../lib/voting/vote';
 import Localgroups from '../../lib/collections/localgroups/collection';
 import { PostRelations } from '../../lib/collections/postRelations/index';
 import { getDefaultPostLocationFields } from '../posts/utils'
 import { cheerioParse } from '../utils/htmlUtil'
 import { CreateCallbackProperties, getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
-import { postPublishedCallback } from '../notificationCallbacks';
 import moment from 'moment';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import { performCrosspost, handleCrosspostUpdate } from "../fmCrosspost/crosspost";
@@ -25,19 +23,33 @@ import Conversations from '../../lib/collections/conversations/collection';
 import Messages from '../../lib/collections/messages/collection';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import { getAdminTeamAccount, getRejectionMessage } from './commentCallbacks';
-import { DatabaseServerSetting } from '../databaseSettings';
 import { postStatuses } from '../../lib/collections/posts/constants';
 import { HAS_EMBEDDINGS_FOR_RECOMMENDATIONS, updatePostEmbeddings } from '../embeddings';
 import { moveImageToCloudinary } from '../scripts/convertImagesToCloudinary';
 import DialogueChecks from '../../lib/collections/dialogueChecks/collection';
 import DialogueMatchPreferences from '../../lib/collections/dialogueMatchPreferences/collection';
 import { recombeeApi } from '../recombee/client';
-import { recombeeEnabledSetting } from '../../lib/publicSettings';
+import { recombeeEnabledSetting, vertexEnabledSetting } from '../../lib/publicSettings';
+import { googleVertexApi } from '../google-vertex/client';
+import { postsNewNotifications } from '../notificationCallbacks';
+import { getLatestContentsRevision } from '../../lib/collections/revisions/helpers';
+import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
+import { createNewJargonTerms } from '../resolvers/jargonResolvers/jargonTermMutations';
+import { userWillPassivelyGenerateJargonTerms } from '@/lib/betas';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
-const type3ClientIdSetting = new DatabaseServerSetting<string | null>('type3.clientId', null)
-const type3WebhookSecretSetting = new DatabaseServerSetting<string | null>('type3.webhookSecret', null)
+// Callback for a post being published. This is distinct from being created in
+// that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
+// moderator approval because they're a user's first post (but does fire when
+// they're approved).
+export async function onPostPublished(post: DbPost, context: ResolverContext) {
+  updateRecombeeWithPublishedPost(post, context);
+  await postsNewNotifications(post);
+  const { updateScoreOnPostPublish } = require("./votingCallbacks");
+  await updateScoreOnPostPublish(post, context);
+  await ensureNonzeroRevisionVersionsAfterUndraft(post, context);
+}
 
 if (isEAForum) {
   const checkTosAccepted = <T extends Partial<DbPost>>(currentUser: DbUser | null, post: T): T => {
@@ -64,7 +76,7 @@ if (isEAForum) {
 
 if (HAS_EMBEDDINGS_FOR_RECOMMENDATIONS) {
   const updateEmbeddings = async (newPost: DbPost, oldPost?: DbPost) => {
-    const hasChanged = !oldPost || oldPost.contents?.html !== newPost.contents?.html;
+    const hasChanged = !oldPost || oldPost.contents_latest !== newPost.contents_latest;
     if (hasChanged &&
       !newPost.draft &&
       !newPost.deletedDraft &&
@@ -113,7 +125,7 @@ getCollectionHooks("Posts").updateBefore.add(function PostsEditRunPostUndraftedS
   return data;
 });
 
-voteCallbacks.castVoteAsync.add(async function increaseMaxBaseScore ({newDocument, vote}: VoteDocTuple) {
+export async function increaseMaxBaseScore ({newDocument, vote}: VoteDocTuple) {
   if (vote.collectionName === "Posts") {
     const post = newDocument as DbPost;
     if (post.baseScore > (post.maxBaseScore || 0)) {
@@ -139,7 +151,7 @@ voteCallbacks.castVoteAsync.add(async function increaseMaxBaseScore ({newDocumen
       await Posts.rawUpdateOne({_id: post._id}, {$set: {maxBaseScore: post.baseScore, ...thresholdTimestamp}})
     }
   }
-});
+}
 
 getCollectionHooks("Posts").newSync.add(async function PostsNewDefaultLocation(post: DbPost): Promise<DbPost> {
   return {...post, ...(await getDefaultPostLocationFields(post))}
@@ -159,6 +171,7 @@ getCollectionHooks("Posts").newSync.add(async function PostsNewDefaultTypes(post
 getCollectionHooks("Posts").newAfter.add(async function LWPostsNewUpvoteOwnPost(post: DbPost): Promise<DbPost> {
  var postAuthor = await Users.findOne(post.userId);
  if (!postAuthor) throw new Error(`Could not find user: ${post.userId}`);
+ const { performVoteServer } = require("../voteServer");
  const {modifiedDocument: votedPost} = await performVoteServer({
    document: post,
    voteType: 'bigUpvote',
@@ -172,7 +185,7 @@ getCollectionHooks("Posts").newAfter.add(async function LWPostsNewUpvoteOwnPost(
 
 getCollectionHooks("Posts").createAfter.add((post: DbPost, { context }) => {
   if (!post.authorIsUnreviewed && !post.draft) {
-    void postPublishedCallback.runCallbacksAsync([post, context]);
+    void onPostPublished(post, context);
   }
 });
 
@@ -261,9 +274,16 @@ getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTrigg
   // or the post author is getting approved,
   // then we consider this "publishing" the post
   if ((oldDocument.draft && !document.authorIsUnreviewed) || (oldDocument.authorIsUnreviewed && !document.authorIsUnreviewed)) {
-    await postPublishedCallback.runCallbacksAsync([document, context]);
+    await onPostPublished(document, context);
   }
 });
+
+async function ensureNonzeroRevisionVersionsAfterUndraft (post: DbPost, context: ResolverContext) {
+  // When a post is published, ensure that the version number of its contents
+  // revision does not have `draft` set or an 0.x version number (which would
+  // affect permissions).
+  await context.repos.posts.ensurePostHasNonDraftContents(post._id);
+}
 
 interface SendPostRejectionPMParams {
   messageContents: string,
@@ -375,14 +395,19 @@ async function extractSocialPreviewImage (post: DbPost) {
   // socialPreviewImageId is set manually, and will override this
   if (post.socialPreviewImageId) return post
 
+  const contents = await getLatestContentsRevision(post);
+  if (!contents) {
+    return post;
+  }
+
   let socialPreviewImageAutoUrl = ''
-  if (post.contents?.html) {
-    const $ = cheerioParse(post.contents?.html)
+  if (contents?.html) {
+    const $ = cheerioParse(contents?.html)
     const firstImg = $('img').first()
     const firstImgSrc = firstImg?.attr('src')
     if (firstImg && firstImgSrc) {
       try {
-        socialPreviewImageAutoUrl = await moveImageToCloudinary(firstImgSrc, post._id) ?? firstImgSrc
+        socialPreviewImageAutoUrl = await moveImageToCloudinary({oldUrl: firstImgSrc, originDocumentId: post._id}) ?? firstImgSrc
       } catch (e) {
         captureException(e);
         socialPreviewImageAutoUrl = firstImgSrc
@@ -516,6 +541,7 @@ async function bulkApplyPostTags ({postId, tagsToApply, currentUser, context}: {
 async function bulkRemovePostTags ({tagRels, currentUser, context}: {tagRels: DbTagRel[], currentUser: DbUser, context: ResolverContext}) {
   const clearOneTag = async (tagRel: DbTagRel) => {
     try {
+      const { clearVotesServer } = require("../voteServer");
       await clearVotesServer({ document: tagRel, collection: TagRels, user: currentUser, context})
     } catch(e) {
       captureException(e)
@@ -603,30 +629,98 @@ getCollectionHooks("Posts").updateAfter.add(async (post: DbPost, props: UpdateCa
 
 /* Recombee callbacks */
 
-postPublishedCallback.add((post, context) => {
-  if (!recombeeEnabledSetting.get() || post.shortform || post.unlisted) return;
+function updateRecombeeWithPublishedPost(post: DbPost, context: ResolverContext) {
+  if (!isRecombeeRecommendablePost(post)) return;
 
-  void recombeeApi.upsertPost(post, context)
-    // eslint-disable-next-line no-console
-    .catch(e => console.log('Error when sending published post to recombee', { e }));  
-});
+  if (recombeeEnabledSetting.get()) {
+    void recombeeApi.upsertPost(post, context)
+      // eslint-disable-next-line no-console
+      .catch(e => console.log('Error when sending published post to recombee', { e }));
+  }
+
+  if (vertexEnabledSetting.get()) {
+    void googleVertexApi.upsertPost({ post }, context)
+      // eslint-disable-next-line no-console
+      .catch(e => console.log('Error when sending published post to google vertex', { e }));
+  }
+}
 
 getCollectionHooks("Posts").updateAsync.add(async ({ newDocument, oldDocument, context }) => {
-  //newDocument is only a "preview" and does not reliably have full post data, e.g. is missing contents.html
-  //This does seem likely to be a bug in a the mutator logic
+  // newDocument is only a "preview" and does not reliably have full post data, e.g. is missing contents.html
+  // This does seem likely to be a bug in a the mutator logic
   const post = await context.loaders.Posts.load(newDocument._id);
   const redrafted = post.draft && !oldDocument.draft
-  if (!recombeeEnabledSetting.get() || (post.draft && !redrafted) || post.shortform || post.unlisted || post.rejected) return;
+  if ((post.draft && !redrafted) || !isRecombeeRecommendablePost(post)) return;
 
-  void recombeeApi.upsertPost(post, context)
+  if (recombeeEnabledSetting.get()) {
+    void recombeeApi.upsertPost(post, context)
     // eslint-disable-next-line no-console
-    .catch(e => console.log('Error when sending updated post to recombee', { e }));  
+    .catch(e => console.log('Error when sending updated post to recombee', { e }));
+  }
+
+  if (vertexEnabledSetting.get()) {
+    void googleVertexApi.upsertPost({ post }, context)
+      // eslint-disable-next-line no-console
+      .catch(e => console.log('Error when sending updated post to google vertex', { e }));
+  }
 });
 
-voteCallbacks.castVoteAsync.add(({ newDocument, vote }, collection, user, context) => {
-  if (!recombeeEnabledSetting.get() || vote.collectionName !== 'Posts' || newDocument.userId === vote.userId) return;
+export function updateRecombeeVote({ newDocument, vote }: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext) {
+  if (vote.collectionName !== 'Posts' || newDocument.userId === vote.userId || !isRecombeeRecommendablePost(newDocument as DbPost)) return;
 
-  void recombeeApi.upsertPost(newDocument as DbPost, context)
+  if (recombeeEnabledSetting.get()) {
+    void recombeeApi.upsertPost(newDocument as DbPost, context)
     // eslint-disable-next-line no-console
-    .catch(e => console.log('Error when sending voted-on post to recombee', { e }));  
+    .catch(e => console.log('Error when sending voted-on post to recombee', { e }));
+  }
+  
+  // Vertex doesn't track any sort of "rating" or "score" (i.e. karma) for documents, so no point in pushing updates to it when posts are voted on
+}
+
+getCollectionHooks("Posts").editSync.add(async function removeFrontpageDate(
+  modifier: MongoModifier<DbPost>,
+  _post: DbPost,
+): Promise<MongoModifier<DbPost>> {
+  if (
+    modifier.$set?.submitToFrontpage === false ||
+    modifier.$set?.submitToFrontpage === null ||
+    modifier.$unset?.submitToFrontpage
+  ) {
+    modifier.$unset ??= {};
+    modifier.$unset.frontpageDate = 1;
+  }
+  return modifier;
 });
+
+async function createNewJargonTermsCallback(post: DbPost, callbackProperties: CreateCallbackProperties<"Posts">) {
+  const { context: { currentUser, loaders, JargonTerms } } = callbackProperties;
+
+  if (!currentUser) return post;
+  if (currentUser._id !== post.userId) return post;
+  if (!post.contents_latest) return post;
+
+  if (!userWillPassivelyGenerateJargonTerms(currentUser)) return post;
+  // TODO: refactor this so that createNewJargonTerms handles the case where we might be creating duplicate terms
+  const [existingJargon, newContents] = await Promise.all([
+    JargonTerms.find({postId: post._id}).fetch(),
+    loaders.Revisions.load(post.contents_latest)
+  ]);
+
+  if (!newContents?.html) {
+    return post;
+  }
+  
+  const { changeMetrics } = newContents;
+
+  // TODO: do we want different behavior for new vs updated posts?
+  if (changeMetrics.added > 1000 || !existingJargon.length) {
+    // TODO: do we want to exclude existing jargon terms from being added again for posts which had a large diff but already had some jargon terms?
+    void createNewJargonTerms({ postId: post._id, currentUser });
+  }
+
+  return post;
+}
+
+// getCollectionHooks("Posts").createAfter.add(createNewJargonTermsCallback);
+
+// getCollectionHooks("Posts").updateAfter.add(createNewJargonTermsCallback);

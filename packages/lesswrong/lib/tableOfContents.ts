@@ -4,6 +4,7 @@ import { answerTocExcerptFromHTML, truncate } from "./editor/ellipsize";
 import { htmlToTextDefault } from "./htmlToText";
 import type { WindowType } from "./domParser";
 import { PostWithCommentCounts, postGetCommentCountStr } from "./collections/posts/helpers";
+import { isLWorAF } from "./instanceSettings";
 
 export interface ToCAnswer {
   baseScore: number,
@@ -25,11 +26,26 @@ export interface ToCSection {
   anchor: string,
   level: number,
   divider?: boolean,
+  
+  /**
+   * The y-position of the anchor that corresponds to this ToC entry, relative
+   * to the top of the page. Used to determine which heading is highlighted.
+   */
   offset?: number,
+  
+  /**
+   * If a variable-height ToC is in use, the relative vertical size of this
+   * section
+   */
+  scale?: number,
 }
 
 export interface ToCSectionWithOffset extends ToCSection {
   offset: number,
+}
+
+export interface ToCSectionWithOffsetAndScale extends ToCSectionWithOffset {
+  scale: number,
 }
 
 export interface ToCData {
@@ -103,7 +119,13 @@ export function extractTableOfContents({
       continue;
     }
 
-    let title = element.textContent;
+    // Get title from element text
+    let title = elementToToCTitle(element);
+    // Cap the length at 300 chars
+    if (title.length > 300) {
+      title = title.substring(0, 300) + '...';
+    }
+
     if (title && title.trim() !== "") {
       let anchor = titleToAnchor(title, usedAnchors);
       usedAnchors[anchor] = true;
@@ -141,6 +163,28 @@ export function extractTableOfContents({
     html: document.body.innerHTML,
     sections: headings,
   };
+}
+
+/**
+ * Generate a (string) section heading from a heading element. This means
+ * taking text from text nodes (with element.textContent), except with a
+ * special case to make sure `<style>` nodes aren't included. This comes up
+ * if the MathJax stylesheet happens to be in the same block as the heading,
+ * which happens if the heading contains the first usage of LaTeX in the post.
+ * (eg: https://www.lesswrong.com/s/Gmc7vtnpyKZRHWdt5/p/tCex9F9YptGMpk2sT)
+ */
+function elementToToCTitle(element: HTMLElement): string {
+  // Check whether there's a <style> element. Usually there isn't.
+  const styleSelector = element.querySelector("style");
+  if (styleSelector) {
+    // If there's a <style>, clone the subtree, then remove style nodes from the clone
+    const elementClone: HTMLElement = element.cloneNode(true) as HTMLElement; //pass true to make the copy be deep
+    const cloneStyleSelector = elementClone.querySelectorAll("style");
+    cloneStyleSelector.forEach(i => i.remove());
+    return elementClone.textContent ?? "";
+  } else {
+    return element.textContent ?? "";
+  }
 }
 
 type CommentType = CommentsList | DbComment
@@ -193,7 +237,8 @@ export function shouldShowTableOfContents({
   sections: ToCSection[];
   post?: { question: boolean } | null;
 }): boolean {
-  // Always show the ToC for questions, to avoid layout shift when the answers load
+  
+  if (isLWorAF) return true;
   return sections.length > MIN_HEADINGS_FOR_TOC || (post?.question ?? false);
 }
 

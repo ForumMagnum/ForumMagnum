@@ -5,6 +5,7 @@ import { addUniversalFields, getDefaultMutations, getDefaultResolvers } from '..
 import { makeEditable } from '../../editor/make_editable';
 import { formGroups } from './formGroups';
 import { isEAForum } from '../../instanceSettings';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 export const Users = createCollection({
   collectionName: 'Users',
@@ -30,6 +31,9 @@ export const Users = createCollection({
     removeCheck: () => false
   }),
   logChanges: true,
+  dependencies: [
+    {type: "extension", name: "pg_trgm"},
+  ],
 });
 
 addGraphQLResolvers({
@@ -62,6 +66,7 @@ makeEditable({
     // Determines whether to use the comment editor styles (e.g. Fonts)
     commentStyles: true,
     formGroup: formGroups.moderationGroup,
+    hidden: isFriendlyUI,
     order: 50,
     fieldName: "moderationGuidelines",
     permissions: {
@@ -82,6 +87,7 @@ makeEditable({
     order: 7,
     fieldName: 'howOthersCanHelpMe',
     label: "How others can help me",
+    formVariant: isFriendlyUI ? "grey" : undefined,
     hintText: "Ex: I am looking for opportunities to do...",
     permissions: {
       canRead: ['guests'],
@@ -101,6 +107,7 @@ makeEditable({
     order: 8,
     fieldName: 'howICanHelpOthers',
     label: "How I can help others",
+    formVariant: isFriendlyUI ? "grey" : undefined,
     hintText: "Ex: Reach out to me if you have questions about...",
     permissions: {
       canRead: ['guests'],
@@ -125,6 +132,7 @@ makeEditable({
     formGroup: isEAForum ? formGroups.aboutMe : formGroups.default,
     fieldName: "biography",
     label: "Bio",
+    formVariant: isFriendlyUI ? "grey" : undefined,
     hintText: "Tell us about yourself",
     permissions: {
       canRead: ['guests'],

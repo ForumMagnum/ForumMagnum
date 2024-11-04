@@ -38,8 +38,8 @@ const GDPR_COUNTRY_CODES: string[] = [
 function getCountryCodeFromLocalStorage(): string | null {
   const ls = getBrowserLocalStorage();
 
-  const cachedCountryCode = ls.getItem('countryCode');
-  const cachedTimestamp = ls.getItem('countryCodeTimestamp');
+  const cachedCountryCode = ls?.getItem('countryCode');
+  const cachedTimestamp = ls?.getItem('countryCodeTimestamp');
 
   if (!cachedCountryCode || !cachedTimestamp) {
     return null;
@@ -63,11 +63,11 @@ function setCountryCodeToLocalStorage(countryCode: string) {
   const ls = getBrowserLocalStorage();
 
   const timestamp = new Date().getTime();
-  ls.setItem('countryCode', countryCode);
-  ls.setItem('countryCodeTimestamp', timestamp.toString());
+  ls?.setItem('countryCode', countryCode);
+  ls?.setItem('countryCodeTimestamp', timestamp.toString());
 }
 
-function getCachedUserCountryCode() {
+export function getCachedUserCountryCode() {
   if (isServer) return null;
 
   const cachedCountryCode = getCountryCodeFromLocalStorage();

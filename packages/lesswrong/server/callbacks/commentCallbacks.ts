@@ -6,7 +6,6 @@ import { Posts } from "../../lib/collections/posts/collection";
 import { Tags } from "../../lib/collections/tags/collection";
 import Users from "../../lib/collections/users/collection";
 import { userCanDo, userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
-import { performVoteServer } from '../voteServer';
 import { updateMutator, createMutator, deleteMutator } from '../vulcan-lib';
 import { getCommentAncestorIds } from '../utils/commentTreeUtils';
 import { recalculateAFCommentMetadata } from './alignment-forum/alignmentCommentCallbacks';
@@ -20,6 +19,7 @@ import { REJECTED_COMMENT } from '../../lib/collections/moderatorActions/schema'
 import { captureEvent } from '../../lib/analyticsEvents';
 import { adminAccountSetting, recombeeEnabledSetting } from '../../lib/publicSettings';
 import { recombeeApi } from '../recombee/client';
+import { userShortformPostTitle } from '@/lib/collections/users/helpers';
 
 
 const MINIMUM_APPROVAL_KARMA = 5
@@ -56,13 +56,12 @@ getCollectionHooks("Comments").newValidate.add(async function createShortformPos
       });
     }
 
-    const shortformName = isEAForum ? "Quick takes" : "Shortform";
     const post = await createMutator({
       collection: Posts,
       document: {
         userId: currentUser._id,
         shortform: true,
-        title: `${currentUser.displayName}'s ${shortformName}`,
+        title: userShortformPostTitle(currentUser),
         af: currentUser.groups?.includes('alignmentForum'),
       },
       currentUser,
@@ -359,7 +358,7 @@ export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser
           <p>One of your comments on "${contentTitle}" has been removed by ${(moderatingUser?.displayName) || "the Akismet spam integration"}. We've sent you another PM with the content. If this deletion seems wrong to you, please send us a message on Intercom (the icon in the bottom-right of the page); we will not see replies to this conversation.</p>
           <p>The contents of your message are here:</p>
           <blockquote>
-            ${comment.contents.html}
+            ${comment.contents?.html}
           </blockquote>
         </div>`
     if (comment.deletedReason && moderatingUser) {
@@ -397,6 +396,7 @@ getCollectionHooks("Comments").newAfter.add(async function LWCommentsNewUpvoteOw
   const start = Date.now();
   var commentAuthor = await Users.findOne(comment.userId);
   if (!commentAuthor) throw new Error(`Could not find user: ${comment.userId}`);
+  const { performVoteServer } = require("../voteServer");
   const {modifiedDocument: votedComment} = await performVoteServer({
     document: comment,
     voteType: 'smallUpvote',

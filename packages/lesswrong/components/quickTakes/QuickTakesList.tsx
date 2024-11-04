@@ -23,6 +23,7 @@ const QuickTakesList = ({showCommunity, tagId, maxAgeDays, className}: {
     limit: 5,
     collectionName: "Comments",
     fragmentName: "ShortformComments",
+    enableTotal: true,
   });
   const {QuickTakesListItem, Loading, SectionFooter, LoadMore} = Components;
   return (

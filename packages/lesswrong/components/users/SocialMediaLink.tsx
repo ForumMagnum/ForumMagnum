@@ -1,6 +1,9 @@
 import React from "react";
-import { combineUrls, Components, registerComponent } from "../../lib/vulcan-lib";
-import { SocialMediaProfileField, SOCIAL_MEDIA_PROFILE_FIELDS, } from "../../lib/collections/users/schema";
+import { Components, registerComponent } from "../../lib/vulcan-lib";
+import {
+  SocialMediaProfileField,
+  profileFieldToSocialMediaHref,
+} from "../../lib/collections/users/helpers";
 import { iconNameByUserFieldName } from '../form-components/PrefixedInput';
 
 const SocialMediaLink = ({user, field, className}: {
@@ -16,7 +19,7 @@ const SocialMediaLink = ({user, field, className}: {
 
   return (
     <a
-      href={`https://${combineUrls(SOCIAL_MEDIA_PROFILE_FIELDS[field], url)}`}
+      href={profileFieldToSocialMediaHref(field, url)}
       target="_blank"
       rel="noopener noreferrer"
     >

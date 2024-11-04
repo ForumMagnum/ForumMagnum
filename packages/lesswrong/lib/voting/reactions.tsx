@@ -135,6 +135,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     searchTerms: ["check", "correct", "confirm"],
     svg: "/reactionImages/nounproject/verified.svg",
     description: "I looked up sources, did empiricism, checked the equations, etc.",
+    deprecated:true
   },
   {
     name: "verifiedFalse",
@@ -142,6 +143,21 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     searchTerms: ["check", "correct", "confirm"],
     svg: "/reactionImages/nounproject/noun-cross-2014310.svg",
     description: "I looked up sources, did empiricism, checked the equations, etc.",
+    deprecated:true
+  },
+  {
+    name: "betTrue",
+    label: "I'd bet this is true",
+    searchTerms: ["bet", "betting", "true"],
+    svg: "/reactionImages/nounproject/noun-dice-7011847.svg",
+    description: "I'm willing to operationalize this, find an adjudicator, and bet this claim is true",
+  },
+  {
+    name: "betFalse",
+    label: "I'd bet this is false",
+    searchTerms: ["bet", "betting", "false"],
+    svg: "/reactionImages/nounproject/noun-dice-7119510.svg",
+    description: "I'm willing to operationalize this, find an adjudicator, and bet this claim is false",
   },
   
   {
@@ -205,7 +221,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     label: "Locally Invalid",
     svg: "/reactionImages/nounproject/negateddoubleturnstile.svg",
     searchTerms: ["locally", "invalid", "unsound"],
-    description: "This reasoning is not sound and does not preserve truth values.",
+    description: "This step is incorrect; these premises do not imply this conclusion.",
   },
   
   {
@@ -286,6 +302,15 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     name: "empathy",
     label: "Empathy",
     searchTerms: ["heart"],
+    svg: "/reactionImages/nounproject/noun-heart-1212629.svg",
+    description: "",
+    filter: {opacity: 0.6, translateY: 1, scale: 1.05},
+    deprecated:true
+  },
+  {
+    name: "heart",
+    label: "Heart",
+    searchTerms: ["empathy"],
     svg: "/reactionImages/nounproject/noun-heart-1212629.svg",
     description: "",
     filter: {opacity: 0.6, translateY: 1, scale: 1.05},

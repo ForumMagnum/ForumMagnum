@@ -127,6 +127,8 @@ import './collections/tags/fragments';
 import './collections/tags/helpers';
 import './collections/tags/schema';
 
+import './collections/tweets/collection'
+
 import './collections/chapters/views';
 
 import './collections/sequences/permissions';
@@ -214,6 +216,10 @@ import './collections/comments'
 
 import './collections/petrovDayLaunchs'
 
+import './collections/petrovDayActions/collection'
+import './collections/petrovDayActions/fragments'
+import './collections/petrovDayActions/views'
+
 import './collections/featuredResources/collection'
 import './collections/featuredResources/views'
 import './collections/featuredResources/fragments'
@@ -235,6 +241,9 @@ import './collections/commentModeratorActions/index';
 
 // ModerationTemplates
 import './collections/moderationTemplates/index';
+
+// CurationNotices
+import './collections/curationNotices/index';
 
 // UserRateLimits
 import './collections/userRateLimits/index';
@@ -323,6 +332,28 @@ import './collections/splashArtCoordinates/fragments';
 // Curation emails
 import './collections/curationEmails/collection';
 
+// Recommendations cache
+import './collections/recommendationsCaches/collection';
+
+// Surveys
+import "./collections/surveys/collection";
+import "./collections/surveys/fragments";
+import "./collections/surveys/views";
+import "./collections/surveyQuestions/collection";
+import "./collections/surveyQuestions/fragments";
+import "./collections/surveyResponses/collection";
+import "./collections/surveyResponses/fragments";
+import "./collections/surveySchedules/collection";
+import "./collections/surveySchedules/fragments";
+import "./collections/surveySchedules/views";
+
+// LLM Conversations
+import "./collections/llmConversations/collection";
+import "./collections/llmConversations/fragments";
+import "./collections/llmConversations/views";
+import "./collections/llmMessages/collection";
+import "./collections/llmMessages/fragments";
+
 // Alignment Forum
 import './alignment-forum/permissions';
 import './alignment-forum/posts/helpers';
@@ -341,7 +372,12 @@ import './vulcan-i18n-en-us';
 
 import '../components/spuriousChange';
 
-import './sql';
-
 import './rateLimits/constants';
 import './rateLimits/types';
+
+import './subscribedUsersFeed';
+
+import './collections/jargonTerms/collection';
+import './collections/jargonTerms/views';
+import './collections/jargonTerms/fragments';
+import './collections/jargonTerms/schema';

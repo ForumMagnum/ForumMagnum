@@ -30,7 +30,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   hoverBallotLabel: {
     verticalAlign: "middle",
     display: "inline-block",
-    minWidth: 80,
+    minWidth: 70,
+    marginRight: 10,
     marginBottom: 4
   },
   hoverBallotReactDescription: {

@@ -1,23 +1,18 @@
-import React from 'react'
-import { PublicInstanceSetting, isEAForum } from '../../lib/instanceSettings'
+import React, { useCallback } from 'react'
+import { PublicInstanceSetting, isBotSiteSetting, isEAForum } from '../../lib/instanceSettings'
 import { DatabasePublicSetting } from '../../lib/publicSettings'
 import { Components, combineUrls, getSiteUrl, registerComponent } from '../../lib/vulcan-lib'
 import { useCurrentUser } from '../common/withUser'
 import { reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils'
 import { maintenanceTime } from '../common/MaintenanceBanner'
 import { AnalyticsContext } from '../../lib/analyticsEvents'
-import ForumNoSSR from '../common/ForumNoSSR'
+import DeferRender from '../common/DeferRender'
 
 const eaHomeSequenceIdSetting = new PublicInstanceSetting<string | null>('eaHomeSequenceId', null, "optional") // Sequence ID for the EAHomeHandbook sequence
 const showSmallpoxSetting = new DatabasePublicSetting<boolean>('showSmallpox', false)
 const showHandbookBannerSetting = new DatabasePublicSetting<boolean>('showHandbookBanner', false)
 const showEventBannerSetting = new DatabasePublicSetting<boolean>('showEventBanner', false)
 const showMaintenanceBannerSetting = new DatabasePublicSetting<boolean>('showMaintenanceBanner', false)
-const isBotSiteSetting = new PublicInstanceSetting<boolean>('botSite.isBotSite', false, 'optional');
-
-// TODO remove these once we have measured the effect (or after 2024-04-14)
-const noSSRPopularCommentsSetting = new DatabasePublicSetting<boolean>('noSSRPopularComments', true)
-const noSSRRecentDiscussionSetting = new DatabasePublicSetting<boolean>('noSSRRecentDiscussion', true)
 
 /**
  * Build structured data to help with SEO.
@@ -47,22 +42,44 @@ const getStructuredData = () => ({
   }),
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (_theme: ThemeType) => ({
   spotlightMargin: {
     marginBottom: 24,
   },
 });
 
-const EAHome = ({classes}: {classes: ClassesType}) => {
+const FrontpageNode = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const currentUser = useCurrentUser();
+  const recentDiscussionCommentsPerPost = currentUser && currentUser.isAdmin ? 4 : 3;
   const {
-    RecentDiscussionFeed, EAHomeMainContent, QuickTakesSection,
-    SmallpoxBanner, EventBanner, MaintenanceBanner, FrontpageReviewWidget,
-    SingleColumnSection, HomeLatestPosts, EAHomeCommunityPosts, HeadTags,
-    EAPopularCommentsSection, BotSiteBanner, DismissibleSpotlightItem
+    RecentDiscussionFeed, QuickTakesSection, DismissibleSpotlightItem,
+    HomeLatestPosts, EAHomeCommunityPosts, EAPopularCommentsSection,
   } = Components
 
-  const recentDiscussionCommentsPerPost = (currentUser && currentUser.isAdmin) ? 4 : 3;
+  return (
+    <>
+      <DismissibleSpotlightItem current className={classes.spotlightMargin} />
+      <HomeLatestPosts />
+      <DeferRender ssr={true} clientTiming="mobile-aware">
+        {!currentUser?.hideCommunitySection && <EAHomeCommunityPosts />}
+        <QuickTakesSection />
+      </DeferRender>
+      <DeferRender ssr={!!currentUser} clientTiming="mobile-aware">
+        <EAPopularCommentsSection />
+      </DeferRender>
+      <DeferRender ssr={!!currentUser} clientTiming="async-non-blocking">
+        <RecentDiscussionFeed
+          title="Recent discussion"
+          af={false}
+          commentsLimit={recentDiscussionCommentsPerPost}
+          maxAgeHours={18}
+        />
+      </DeferRender>
+    </>
+  );
+};
+
+const EAHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const shouldRenderEventBanner = showEventBannerSetting.get()
   const shouldRenderSmallpox = showSmallpoxSetting.get()
   // Only show the maintenance banner if the the current time is before the maintenance time (plus 5 minutes leeway),
@@ -72,6 +89,15 @@ const EAHome = ({classes}: {classes: ClassesType}) => {
   const shouldRenderMaintenanceBanner = showMaintenanceBannerSetting.get() && isBeforeMaintenanceTime
   const shouldRenderBotSiteBanner = isBotSiteSetting.get() && isEAForum
 
+  const FrontpageNodeWithClasses = useCallback(
+    () => <FrontpageNode classes={classes} />,
+    [classes],
+  );
+
+  const {
+    EAHomeMainContent, SmallpoxBanner, EventBanner, MaintenanceBanner,
+    FrontpageReviewWidget, SingleColumnSection, HeadTags, BotSiteBanner,
+  } = Components
   return (
     <AnalyticsContext pageContext="homePage">
       <HeadTags structuredData={getStructuredData()}/>
@@ -84,25 +110,7 @@ const EAHome = ({classes}: {classes: ClassesType}) => {
         <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
       </SingleColumnSection>}
 
-      <EAHomeMainContent FrontpageNode={
-        () => <>
-          <DismissibleSpotlightItem current className={classes.spotlightMargin} />
-          <HomeLatestPosts />
-          {!currentUser?.hideCommunitySection && <EAHomeCommunityPosts />}
-          {isEAForum && <QuickTakesSection />}
-          <ForumNoSSR if={!!currentUser && noSSRPopularCommentsSetting.get()}>
-            <EAPopularCommentsSection />
-          </ForumNoSSR>
-          <ForumNoSSR if={!!currentUser && noSSRRecentDiscussionSetting.get()}>
-            <RecentDiscussionFeed
-              title="Recent discussion"
-              af={false}
-              commentsLimit={recentDiscussionCommentsPerPost}
-              maxAgeHours={18}
-            />
-          </ForumNoSSR>
-        </>
-      } />
+      <EAHomeMainContent FrontpageNode={FrontpageNodeWithClasses} />
     </AnalyticsContext>
   )
 }

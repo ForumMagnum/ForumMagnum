@@ -6,12 +6,14 @@ import { postGetLastCommentedAt } from "../../lib/collections/posts/helpers";
 import { useOnMountTracking } from "../../lib/analyticsEvents";
 import type { PopperPlacementType } from "@material-ui/core/Popper";
 import { isFriendlyUI } from "../../themes/forumTheme";
+import { PostsItemConfig } from "./usePostsItem";
+import { PostsListViewType, usePostsListView } from "../hooks/usePostsListView";
 
 export type PostsListConfig = {
   /** Child elements will be put in a footer section */
   children?: React.ReactNode,
   /** The search terms used to select the posts that will be shown. */
-  terms?: any,
+  terms?: PostsViewTerms,
   /**
    * Apply a style that grays out the list while it's in a loading state
    * (default false)
@@ -47,6 +49,7 @@ export type PostsListConfig = {
   defaultToShowUnreadComments?: boolean,
   itemsPerPage?: number,
   placeholderCount?: number,
+  showKarma?: boolean,
   hideAuthor?: boolean,
   hideTag?: boolean,
   hideTrailingButtons?: boolean,
@@ -58,13 +61,28 @@ export type PostsListConfig = {
   hideHiddenFrontPagePosts?: boolean
   hideShortform?: boolean,
   loadMoreMessage?: string,
+  /**
+   * The view to use for the items - if set to `fromContext` it will use the
+   * value from the nearest `PostsListViewProvider` (which default to "list"
+   * if there is no provider).
+   */
+  viewType?: PostsListViewType | "fromContext",
+  /**
+   * If true, then display the number corresponding to the post
+   * item's placement in the list (i.e. index + 1) to the left of the row.
+   */
+  showPlacement?: boolean,
+  /**
+   * An array of postIds. If provided, we reorder the results to match this order.
+   */
+  order?: string[],
 }
 
 const defaultTooltipPlacement = isFriendlyUI
   ? "bottom-start"
   : "bottom-end";
 
-export const usePostsList = ({
+export const usePostsList = <TagId extends string | undefined = undefined>({
   children,
   terms,
   dimWhenLoading = false,
@@ -84,6 +102,7 @@ export const usePostsList = ({
   defaultToShowUnreadComments,
   itemsPerPage = 25,
   placeholderCount,
+  showKarma = true,
   hideAuthor = false,
   hideTag = false,
   hideTrailingButtons = false,
@@ -95,6 +114,9 @@ export const usePostsList = ({
   hideHiddenFrontPagePosts = false,
   hideShortform = false,
   loadMoreMessage,
+  viewType: configuredViewType = "list",
+  showPlacement = false,
+  order,
 }: PostsListConfig) => {
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
 
@@ -104,7 +126,7 @@ export const usePostsList = ({
         tagId: "String"
       },
       extraVariablesValues: { tagId }
-    }
+    } as const
     : {};
 
   const {results, loading, error, loadMore, loadMoreProps, limit} = useMulti({
@@ -175,7 +197,7 @@ export const usePostsList = ({
   const maybeMorePosts = !!(results?.length && (results.length >= limit)) ||
     alwaysShowLoadMore;
 
-  let orderedResults = results;
+  let orderedResults = (order && results) ? sortBy(results, post => order.indexOf(post._id)) : results;
   if (defaultToShowUnreadComments && results) {
     orderedResults = sortBy(results, (post) => {
       const postLastCommentedAt = postGetLastCommentedAt(post)
@@ -189,17 +211,27 @@ export const usePostsList = ({
       return {postId: post._id, score: post.score, baseScore: post.baseScore}
     });
 
+  const {view: contextViewType} = usePostsListView();
+  const viewType: PostsListViewType = configuredViewType === "fromContext"
+    ? contextViewType
+    : configuredViewType;
+
   // Analytics Tracking
   useOnMountTracking({
     eventType: "postList",
-    eventProps: {postIds, postVisibility: hiddenPosts, postMountData: postIdsWithScores},
+    eventProps: {
+      postIds,
+      postVisibility: hiddenPosts,
+      postMountData: postIdsWithScores,
+      viewType,
+    },
     captureOnMount: (eventProps) => eventProps.postIds.length > 0,
     skip: !postIds.length || loading,
   });
 
   const hasResults = orderedResults && orderedResults.length > 1;
 
-  const itemProps = orderedResults?.filter(
+  const itemProps: PostsItemConfig[] | undefined = orderedResults?.filter(
     ({_id}) => !(_id in hiddenPosts),
   ).map((post, i) => ({
     post,
@@ -209,15 +241,18 @@ export const usePostsList = ({
     showReviewCount,
     showDraftTag,
     dense,
+    showKarma,
     hideAuthor,
     hideTag,
     hideTrailingButtons,
     curatedIconLeft: curatedIconLeft,
     tagRel: (tagId && !hideTagRelevance) ? (post as PostsListTag).tagRel : undefined,
-    defaultToShowUnreadComments, showPostedAt,
+    defaultToShowUnreadComments,
+    showPostedAt,
     showBottomBorder: showFinalBottomBorder ||
       (hasResults && i < (orderedResults!.length - 1)),
     tooltipPlacement,
+    viewType,
   }));
 
   const onLoadMore = useCallback(() => {
@@ -245,6 +280,9 @@ export const usePostsList = ({
     orderedResults,
     itemProps,
     limit,
+    showFinalBottomBorder,
     placeholderCount,
+    viewType,
+    showPlacement,
   };
 }

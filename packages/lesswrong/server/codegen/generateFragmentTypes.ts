@@ -1,4 +1,4 @@
-import { getAllFragmentNames, getFragment, getCollectionName, getCollection, getAllCollections, isValidCollectionName } from '../../lib/vulcan-lib';
+import { getAllFragmentNames, getFragment, graphqlTypeToCollectionName, getCollection, getAllCollections, isValidCollectionName } from '../../lib/vulcan-lib';
 import { generatedFileHeader, assert, simplSchemaTypeToTypescript, graphqlTypeToTypescript } from './typeGenerationUtils';
 import { getSchema } from '../../lib/utils/getSchema';
 import groupBy from 'lodash/groupBy';
@@ -48,15 +48,14 @@ function fragmentNameToCollectionName(fragmentName: FragmentName): CollectionNam
     throw new Error("Not a type node");
   }
   const typeName = parsedFragment.typeCondition.name?.value;
-  const collectionName = getCollectionName(typeName!);
+  const collectionName = graphqlTypeToCollectionName(typeName!);
   return collectionName;
 }
 
 function generateFragmentTypeDefinition(fragmentName: FragmentName): string {
   const parsedFragment = getParsedFragment(fragmentName);
   const collectionName = fragmentNameToCollectionName(fragmentName);
-  const collection = getCollection(collectionName);
-  assert(!!collection);
+  const collection = isValidCollectionName(collectionName) ? getCollection(collectionName) : null;
   
   return fragmentToInterface(fragmentName, parsedFragment, collection);
 }
@@ -90,7 +89,11 @@ function generateCollectionNamesByFragmentNameType(): string {
   sb.push(`interface CollectionNamesByFragmentName {\n`);
   for (let fragmentName of fragmentNames) {
     const collectionName = fragmentNameToCollectionName(fragmentName);
-    sb.push(`  ${fragmentName}: "${collectionName}"\n`);
+    if (isValidCollectionName(collectionName)) {
+      sb.push(`  ${fragmentName}: "${collectionName}"\n`);
+    } else {
+      sb.push(`  ${fragmentName}: never\n`);
+    }
   }
   sb.push('}\n\n');
   
@@ -124,7 +127,7 @@ function fragmentToInterface(interfaceName: string, parsedFragment: ParsedFragme
   const spreadFragments = getSpreadFragments(parsedFragment);
   const inheritanceStr = spreadFragments.length>0 ? ` extends ${spreadFragments.join(', ')}` : "";
   
-  sb.push(`interface ${interfaceName}${inheritanceStr} { // fragment on ${collection.collectionName}\n`);
+  sb.push(`interface ${interfaceName}${inheritanceStr} { // fragment on ${collection?.collectionName ?? "non-collection type"}\n`);
   
   const allSubfragments: Array<string> = [];
   for (let selection of parsedFragment.selectionSet.selections) {
@@ -162,6 +165,14 @@ function getSpreadFragments(parsedFragment: AnyBecauseTodo): Array<string> {
 function getFragmentFieldType(fragmentName: string, parsedFragmentField: AnyBecauseTodo, collection: AnyBecauseTodo):
   { fieldType: string, subfragment: string|null }
 {
+  if (collection === null) {
+    // Fragments may not correspond to a collection, if eg they're on a graphql
+    // type defined with addGraphQLSchema. In that case, emit a type with the
+    // right set of fields but with every field having type `any` because sadly
+    // we aren't yet tracking down the schema definition.
+    return { fieldType: "any", subfragment: null };
+  }
+
   const fieldName: string = parsedFragmentField.name.value;
   if (fieldName === "__typename") {
     return { fieldType: "string", subfragment: null };
@@ -179,8 +190,12 @@ function getFragmentFieldType(fragmentName: string, parsedFragmentField: AnyBeca
   for (let schemaFieldName of Object.keys(schema)) {
     const fieldWithResolver = schema[schemaFieldName];
     if (fieldWithResolver?.resolveAs?.fieldName === fieldName) {
-      assert(!!fieldWithResolver.resolveAs.type);
-      fieldType = graphqlTypeToTypescript(fieldWithResolver.resolveAs.type);
+      if (fieldWithResolver.typescriptType) {
+        fieldType = fieldWithResolver.typescriptType;
+      } else {
+        assert(!!fieldWithResolver.resolveAs.type);
+        fieldType = graphqlTypeToTypescript(fieldWithResolver.resolveAs.type);
+      }
       break;
     }
   }
@@ -190,8 +205,17 @@ function getFragmentFieldType(fragmentName: string, parsedFragmentField: AnyBeca
     if (fieldName in schema) {
       const fieldSchema = schema[fieldName];
       assert(fieldSchema?.type);
-      if (fieldSchema?.resolveAs?.type && !fieldSchema?.resolveAs?.fieldName) {
-        fieldType = graphqlTypeToTypescript(fieldSchema.resolveAs.type);
+      if (fieldSchema?.typescriptType && fieldSchema?.blackbox) {
+        fieldType = fieldSchema.typescriptType;
+      } else if (fieldSchema?.resolveAs?.type && !fieldSchema?.resolveAs?.fieldName) {
+        // If the field is a string with allowed values, we need to emit a type that matches the allowed values
+        // It'd be annoying to refactor graphqlTypeToTypescript to support this, so we just special-case strings with allowed values here
+        // Annoyingly, allowedValues seems to get reassigned from being a top-level field to being on the `type` (probably when it's run through SimpleSchema somewhere)
+        if (fieldSchema.resolveAs.type === 'String' && fieldSchema.type?.definitions[0]?.allowedValues?.length) {
+          fieldType = simplSchemaTypeToTypescript(schema, fieldName, fieldSchema.type);
+        } else {
+          fieldType = graphqlTypeToTypescript(fieldSchema.resolveAs.type);
+        }
       } else {
         fieldType = simplSchemaTypeToTypescript(schema, fieldName, schema[fieldName].type);
       }
@@ -282,7 +306,7 @@ function subfragmentTypeToCollection(fieldType: string): {
       nullable: false
     };
   } else {
-    const collectionName = getCollectionName(fieldType);
+    const collectionName = graphqlTypeToCollectionName(fieldType);
     if (isValidCollectionName(collectionName)) {
       return {
         collection: getCollection(collectionName),

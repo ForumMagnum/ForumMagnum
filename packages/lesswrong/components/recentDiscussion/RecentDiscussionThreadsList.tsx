@@ -10,7 +10,7 @@ const RecentDiscussionThreadsList = ({
   terms, commentsLimit, maxAgeHours, af,
   title="Recent Discussion", shortformButton=true
 }: {
-  terms: PostsViewTerms,
+  terms: Omit<PostsViewTerms, 'af'>,
   commentsLimit?: number,
   maxAgeHours?: number,
   af?: boolean,

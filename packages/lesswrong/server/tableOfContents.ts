@@ -9,6 +9,8 @@ import { getDefaultViewSelector } from '../lib/utils/viewUtils';
 import { extractTableOfContents, getTocAnswers, getTocComments, shouldShowTableOfContents, ToCData } from '../lib/tableOfContents';
 import { defineQuery } from './utils/serverGraphqlUtil';
 import { parseDocumentFromString } from '../lib/domParser';
+import { FetchedFragment } from './fetchFragment';
+import { getLatestContentsRevision } from '../lib/collections/revisions/helpers';
 
 
 async function getTocAnswersServer (document: DbPost) {
@@ -41,7 +43,7 @@ async function getTocCommentsServer (document: DbPost) {
 }
 
 export const getToCforPost = async ({document, version, context}: {
-  document: DbPost,
+  document: DbPost|FetchedFragment<"PostsHTML">,
   version: string|null,
   context: ResolverContext,
 }): Promise<ToCData|null> => {
@@ -52,10 +54,13 @@ export const getToCforPost = async ({document, version, context}: {
     if (!await Revisions.checkAccess(context.currentUser, revision, context))
       return null;
     html = revision.html;
+  } else if ("contents" in document && document.contents) {
+    html = document?.contents?.html ?? "";
   } else {
-    html = document?.contents?.html;
+    const revision = await getLatestContentsRevision(document, context);
+    html = revision?.html ?? "";
   }
-  
+
   const tableOfContents = extractTableOfContents(parseDocumentFromString(html))
   let tocSections = tableOfContents?.sections || []
   
@@ -73,7 +78,7 @@ export const getToCforPost = async ({document, version, context}: {
   return null;
 }
 
-const getToCforTag = async ({document, version, context}: {
+export const getToCforTag = async ({document, version, context}: {
   document: DbTag,
   version: string|null,
   context: ResolverContext,
@@ -105,7 +110,7 @@ const getToCforTag = async ({document, version, context}: {
       console.log("Author annotation failed");
       // eslint-disable-next-line no-console
       console.log(e);
-      html = document.description?.html;
+      html = document.description?.html ?? "";
     }
   }
   
@@ -117,9 +122,6 @@ const getToCforTag = async ({document, version, context}: {
     sections: tocSections,
   }
 }
-
-Utils.getToCforPost = getToCforPost;
-Utils.getToCforTag = getToCforTag;
 
 /** @deprecated Use extractTableOfContents directly on the client instead. TODO delete after 2024-04-14 */
 defineQuery({

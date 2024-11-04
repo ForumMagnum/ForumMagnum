@@ -1,6 +1,6 @@
 import RecommendationStrategy, { RecommendationResult } from "./RecommendationStrategy";
 import type { StrategySpecification } from "../../lib/collections/users/recommendationSettings";
-import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
+import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 
 /**
  * A recommendation strategy that returns more posts sharing a common tag. To choose

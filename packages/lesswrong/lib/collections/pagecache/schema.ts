@@ -12,7 +12,12 @@ import SimpleSchema from "simpl-schema";
 //   allAbTestGroups: CompleteTestGroupAllocation
 //   themeOptions: AbstractThemeOptions,
 //   renderedAt: Date,
-//   timings: RenderTimings
+//   cacheFriendly: boolean,
+//   timezone: string,
+//   timings: RenderTimings,
+//   aborted: false,
+// } | {
+//   aborted: true
 // }
 const RenderResultSchemaType = new SimpleSchema({
   ssrBody: {
@@ -55,6 +60,12 @@ const RenderResultSchemaType = new SimpleSchema({
   },
   renderedAt: {
     type: Date,
+  },
+  cacheFriendly: {
+    type: Boolean,
+  },
+  timezone: {
+    type: String,
   },
   timings: {
     type: Object,

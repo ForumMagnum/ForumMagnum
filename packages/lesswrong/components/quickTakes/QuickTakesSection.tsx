@@ -3,7 +3,7 @@ import Checkbox from "@material-ui/core/Checkbox";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { useCurrentUser } from "../common/withUser";
 import { useExpandedFrontpageSection } from "../hooks/useExpandedFrontpageSection";
-import { userCanComment } from "../../lib/vulcan-users";
+import { userCanQuickTake } from "../../lib/vulcan-users";
 import {
   SHOW_QUICK_TAKES_SECTION_COOKIE,
   SHOW_QUICK_TAKES_SECTION_COMMUNITY_COOKIE,
@@ -76,7 +76,7 @@ const QuickTakesSection = ({classes}: {
   const titleText = preferredHeadingCase("Quick Takes");
   const titleTooltip = (
     <div>
-      A feed of quick takes by other users, sorted by recency.
+      A feed of quick takes by other users, sorted by recency and karma.
     </div>
   );
   const title = isFriendlyUI
@@ -104,6 +104,9 @@ const QuickTakesSection = ({classes}: {
     )
   : undefined;
 
+
+
+
   return (
     <ExpandableSection
       pageSectionContext="quickTakesSection"
@@ -112,27 +115,23 @@ const QuickTakesSection = ({classes}: {
       title={title}
       afterTitleTo={afterTitleTo}
       AfterTitleComponent={AfterTitleComponent}
-      Content={() => (
-        <>
-          {userCanComment(currentUser) &&
-            <QuickTakesEntry currentUser={currentUser} />
-          }
-          
-          <QuickTakesList
-            showCommunity={showCommunity}
-            className={classes.list}
-          />
-        </>
-      )}
-    />
+    >
+      {(userCanQuickTake(currentUser) || !currentUser) &&
+        <QuickTakesEntry currentUser={currentUser} />
+      }
+      
+      <QuickTakesList
+        showCommunity={showCommunity}
+        className={classes.list}
+      />
+    </ExpandableSection>
   );
 }
 
-const QuickTakesSectionComponent = registerComponent(
-  "QuickTakesSection",
-  QuickTakesSection,
-  {styles},
-);
+const QuickTakesSectionComponent = registerComponent("QuickTakesSection", QuickTakesSection, {
+  styles,
+  areEqual: "auto"
+});
 
 declare global {
   interface ComponentTypes {

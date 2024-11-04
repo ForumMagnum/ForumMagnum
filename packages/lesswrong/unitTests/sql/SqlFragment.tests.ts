@@ -1,4 +1,8 @@
-import SqlFragment from "../../lib/sql/SqlFragment";
+import SqlFragment, { getResolverCollection } from "@/server/sql/SqlFragment";
+import { registerCollection } from "@/lib/vulcan-lib/getCollection";
+import JargonTerms from "@/lib/collections/jargonTerms/collection";
+import GraphQLJSON from "graphql-type-json";
+import type { GraphQLScalarType } from "graphql";
 
 describe("SqlFragment", () => {
   it("can parse field entries", () => {
@@ -107,5 +111,41 @@ describe("SqlFragment", () => {
         },
       },
     });
+  });
+});
+
+describe('getResolverCollection', () => {
+  registerCollection(JargonTerms);
+
+  const createResolver = (type: string | GraphQLScalarType) => ({
+    fieldName: 'testField',
+    type,
+    resolver: () => {},
+  });
+
+  const testCases = [
+    { type: 'JargonTerm', description: 'nullable type' },
+    { type: 'JargonTerm!', description: 'non-nullable type' },
+    { type: '[JargonTerm]', description: 'nullable array of nullable type' },
+    { type: '[JargonTerm]!', description: 'non-nullable array of nullable type' },
+    { type: '[JargonTerm!]', description: 'nullable array of non-nullable type' },
+    { type: '[JargonTerm!]!', description: 'non-nullable array of non-nullable type' },
+  ];
+
+  testCases.forEach(({ type, description }) => {
+    it(`should correctly handle ${description}: ${type}`, () => {
+      const resolver = createResolver(type);
+      expect(() => getResolverCollection(resolver)).not.toThrow();
+    });
+  });
+
+  it('should throw an error for scalar types', () => {
+    const resolver = createResolver(GraphQLJSON);
+    expect(() => getResolverCollection(resolver)).toThrow('Resolver "testField" has a scalar type');
+  });
+
+  it('should throw an error for invalid type names', () => {
+    const resolver = createResolver('InvalidTypeName');
+    expect(() => getResolverCollection(resolver)).toThrow('Invalid typeName: InvalidTypeName');
   });
 });

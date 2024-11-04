@@ -1,14 +1,14 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useSubscribedLocation } from '../../lib/routeUtil';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents"
-import { CommentTreeNode, commentTreesEqual } from '../../lib/utils/unflatten';
+import { CommentTreeNode, commentTreesEqual, flattenCommentBranch } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
 import { HIGHLIGHT_DURATION } from './CommentFrame';
-import { getCurrentSectionMark, getLandmarkY } from '../hooks/useScrollHighlight';
-import { commentIdToLandmark } from './CommentsTableOfContents';
+import { scrollFocusOnElement } from '@/lib/scrollUtils';
+import { commentPermalinkStyleSetting } from '@/lib/publicSettings';
+import { useCommentLinkState } from './CommentsItem/useCommentLink';
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
 
@@ -114,23 +114,43 @@ const CommentsNode = ({
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
   const scrollTargetRef = useRef<HTMLDivElement|null>(null);
-  const [collapsed, setCollapsed] = useState(!forceUnCollapsed && (comment.deleted || comment.baseScore < karmaCollapseThreshold));
-  const [truncatedState, setTruncated] = useState(!!startThreadTruncated);
-  const { lastCommentId, condensed, postPage, post, highlightDate, scrollOnExpand, forceSingleLine, forceNotSingleLine, noHash, onToggleCollapsed } = treeOptions;
 
-  const beginSingleLine = (): boolean => {
+  const hasInContextLinks = commentPermalinkStyleSetting.get() === 'in-context';
+
+  const { linkedCommentId, scrollToCommentId } = useCommentLinkState();
+
+  const { lastCommentId, condensed, postPage, post, highlightDate, scrollOnExpand, forceSingleLine, forceNotSingleLine, expandOnlyCommentIds, noDOMId, onToggleCollapsed } = treeOptions;
+
+  const shouldUncollapseForAutoScroll = useCallback(() => {
+    const commentAndChildren = [
+      comment,
+      ...(childComments ? childComments.flatMap((c) => flattenCommentBranch(c)) : []),
+    ];
+    return commentAndChildren.some(child => child._id === scrollToCommentId)
+  }, [childComments, comment, scrollToCommentId])
+
+  const shouldExpandAndScrollTo = !noDOMId && !noAutoScroll && comment && scrollToCommentId === comment._id
+
+  const beginCollapsed = useCallback(() => {
+    return !shouldUncollapseForAutoScroll() && !forceUnCollapsed && (comment.deleted || comment.baseScore < karmaCollapseThreshold)
+  }, [comment.baseScore, comment.deleted, forceUnCollapsed, karmaCollapseThreshold, shouldUncollapseForAutoScroll])
+
+  const beginSingleLine = useCallback((): boolean => {
     // TODO: Before hookification, this got nestingLevel without the default value applied, which may have changed its behavior?
     const mostRecent = lastCommentId === comment._id
     const lowKarmaOrCondensed = (comment.baseScore < 10 || !!condensed)
     const shortformAndTop = (nestingLevel === 1) && shortform
     const postPageAndTop = (nestingLevel === 1) && postPage
 
+    if (expandOnlyCommentIds)
+      return !expandOnlyCommentIds.has(comment._id);
     if (forceSingleLine)
       return true;
     if (treeOptions.isSideComment && nestingLevel>1)
       return true;
 
     return (
+      !shouldExpandAndScrollTo &&
       !expandAllThreads &&
       !!(truncated || startThreadTruncated) &&
       lowKarmaOrCondensed &&
@@ -139,10 +159,19 @@ const CommentsNode = ({
       !postPageAndTop &&
       !forceNotSingleLine
     )
-  }
+  }, [comment._id, comment.baseScore, condensed, expandAllThreads, expandOnlyCommentIds, forceNotSingleLine, forceSingleLine, lastCommentId, nestingLevel, postPage, shortform, shouldExpandAndScrollTo, startThreadTruncated, treeOptions.isSideComment, truncated]);
+
+  const beginTruncated = useCallback(() => {
+    return !shouldExpandAndScrollTo && !!startThreadTruncated
+  }, [shouldExpandAndScrollTo, startThreadTruncated])
+
+  // Whether the comment is completely hidden (with the toggle arrow closed)
+  const [collapsed, setCollapsed] = useState<boolean>(beginCollapsed);
   
   const [singleLine, setSingleLine] = useState(beginSingleLine());
+  const [truncatedState, setTruncated] = useState(beginTruncated);
   const [truncatedStateSet, setTruncatedStateSet] = useState(false);
+
   const [highlighted, setHighlighted] = useState(false);
 
   const isInViewport = (): boolean => {
@@ -153,47 +182,55 @@ const CommentsNode = ({
   }
 
   const scrollIntoView = useCallback((behavior: "auto"|"smooth"="smooth") => {
-    if (!isInViewport()) {
-      const commentTop = getLandmarkY(commentIdToLandmark(comment._id));
-      if (commentTop) {
-        // Add window.scrollY because window.scrollTo takes a relative scroll distance
-        // rather than an absolute scroll position, and a +1 because of rounding issues
-        // that otherwise cause us to wind up just above the comment such that the ToC
-        // highlights the wrong one.
-        const y = commentTop + window.scrollY - getCurrentSectionMark() + 1;
-        window.scrollTo({ top: y, behavior });
-      }
+    if (!isInViewport() || hasInContextLinks) {
+      scrollFocusOnElement({ id: comment._id, options: { behavior } });
     }
     setHighlighted(true);
     setTimeout(() => { //setTimeout make sure we execute this after the element has properly rendered
       setHighlighted(false);
     }, HIGHLIGHT_DURATION*1000);
-  }, [comment._id]);
+  }, [comment._id, hasInContextLinks]);
 
-  const handleExpand = async (event?: React.MouseEvent) => {
-    event?.stopPropagation()
+  const handleExpand = ({
+    event,
+    scroll = false,
+    scrollBehaviour = "smooth",
+  }: {
+    event?: React.MouseEvent;
+    scroll?: boolean;
+    scrollBehaviour?: "auto" | "smooth";
+  }) => {
+    event?.stopPropagation();
     if (isTruncated || isSingleLine) {
-      captureEvent('commentExpanded', {postId: comment.postId, commentId: comment._id})
+      captureEvent("commentExpanded", { postId: comment.postId, commentId: comment._id });
       setTruncated(false);
       setSingleLine(false);
       setTruncatedStateSet(true);
-      if (scrollOnExpand) {
-        scrollIntoView("auto") // should scroll instantly
+      if (scroll) {
+        scrollIntoView(scrollBehaviour);
       }
     }
-  }
+  };
 
-  const {hash: commentHash} = useSubscribedLocation();
+  // If not using in-context comments, scroll to top when the `commentId` query changes
   useEffect(() => {
-    if (!noHash && !noAutoScroll && comment && commentHash === ("#" + comment._id)) {
-      setTimeout(() => { //setTimeout make sure we execute this after the element has properly rendered
-        void handleExpand()
-        scrollIntoView()
-      }, 0);
+    if (!hasInContextLinks && !noAutoScroll && comment && linkedCommentId === comment._id) {
+      window.scrollTo({top: 0})
     }
-    //No exhaustive deps because this is supposed to run only on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [linkedCommentId]);
+
+  useEffect(() => {
+    // The comment hash isn't sent to the server, so `shouldUncollapseForAutoScroll` may be different from the first render pass
+    if (collapsed && shouldUncollapseForAutoScroll()) {
+      setCollapsed(false);
+    }
+
+    if (shouldExpandAndScrollTo) {
+      handleExpand({scroll: true})
+    }
     //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [commentHash]);
+  }, [scrollToCommentId]);
 
   const toggleCollapse = useCallback(
     () => {
@@ -248,8 +285,8 @@ const CommentsNode = ({
     <CommentFrame
       comment={comment}
       treeOptions={treeOptions}
-      onClick={(event) => handleExpand(event)}
-      id={!noHash ? comment._id : undefined}
+      onClick={(event) => handleExpand({ event, scroll: scrollOnExpand })}
+      id={!noDOMId ? comment._id : undefined}
       nestingLevel={updatedNestingLevel}
       hasChildren={childComments && childComments.length>0}
       highlighted={highlighted}

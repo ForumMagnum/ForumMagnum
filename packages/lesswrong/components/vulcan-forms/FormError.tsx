@@ -1,14 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import getContext from 'recompose/getContext';
 import { registerComponent } from '../../lib/vulcan-lib';
 import FormattedMessage from '../../lib/vulcan-i18n/message';
 
-const FormError = ({ error, errorContext="", getLabel=(name)=>name }: {
-  error: any,
-  errorContext: any,
-  getLabel?: (name: string, local: string) => string,
-}) => {
+const FormError = (
+  { error, errorContext="" }: {
+    error: any,
+    errorContext: any,
+  },
+  { getLabel=(name)=>name }: {
+    getLabel?: (name: string, local: string) => string,
+  }
+) => {
   if (error.message) { // A normal string error
     return error.message;
   } else if (error.id) { // An internationalized error
@@ -31,16 +34,15 @@ const FormError = ({ error, errorContext="", getLabel=(name)=>name }: {
   } else {
     return 'Error submitting form';
   }
-;};
+};
+
+(FormError as any).contextTypes = {
+  getLabel: PropTypes.func,
+};
+
 
 // TODO: pass getLabel as prop instead for consistency?
-const FormErrorComponent = registerComponent('FormError', FormError, {
-  hocs: [
-    getContext({
-      getLabel: PropTypes.func,
-    })
-  ]
-});
+const FormErrorComponent = registerComponent('FormError', FormError);
 
 
 declare global {

@@ -19,13 +19,13 @@ export const useRecentDiscussionThread = <T extends ThreadableCommentType>({
   const [highlightVisible, setHighlightVisible] = useState(false);
   const [markedAsVisitedAt, setMarkedAsVisitedAt] = useState<Date|null>(null);
   const [expandAllThreads, setExpandAllThreads] = useState(initialExpandAllThreads ?? false);
-  const {recordPostView} = useRecordPostView(post);
+  const {recordPostView, recordPostCommentsView} = useRecordPostView(post);
 
   const markAsRead = useCallback(
     () => {
       setMarkedAsVisitedAt(new Date());
       setExpandAllThreads(true);
-      void recordPostView({post, extraEventProperties: {type: "recentDiscussionClick"}, recombeeOptions: {skipRecombee: true}})
+      void recordPostView({post, extraEventProperties: {type: "recentDiscussionClick"}, recommendationOptions: {skip: true}})
     },
     [setMarkedAsVisitedAt, setExpandAllThreads, recordPostView, post],
   );
@@ -35,6 +35,19 @@ export const useRecentDiscussionThread = <T extends ThreadableCommentType>({
       markAsRead();
     },
     [setHighlightVisible, highlightVisible, markAsRead],
+  );
+
+  const markCommentsAsRead = useCallback(
+    () => {
+      // This is meant to be passed to e.g. an event listener (currently only use is with `onMouseUp`)
+      // The setTimeout punts running this until the rest of event listeners triggered by same event are done
+      // Necessary to avoid causing the child components those event listeners are on from rerendering before the event listeners run
+      setTimeout(() => {
+        setMarkedAsVisitedAt(new Date());
+        void recordPostCommentsView({ post });  
+      }, 0);
+    },
+    [recordPostCommentsView, post]
   );
 
   const lastCommentId = comments && comments[0]?._id;
@@ -70,6 +83,7 @@ export const useRecentDiscussionThread = <T extends ThreadableCommentType>({
   return {
     isSkippable,
     showHighlight,
+    markCommentsAsRead,
     expandAllThreads,
     lastVisitedAt,
     nestedComments,

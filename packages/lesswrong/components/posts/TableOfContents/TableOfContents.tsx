@@ -8,16 +8,16 @@ import type { ToCDisplayOptions } from './TableOfContentsList';
 const styles = (theme: ThemeType): JssStyles => ({
 });
 
-const TableOfContents = ({sectionData, title, postedAt, onClickSection, displayOptions, classes, fixedPositionToc = false}: {
+const TableOfContents = ({sectionData, title, heading, onClickSection, displayOptions, fixedPositionToc = false, hover}: {
   sectionData: ToCData,
   title: string,
-  postedAt?: Date,
+  heading?: React.ReactNode,
   onClickSection?: () => void,
   displayOptions?: ToCDisplayOptions,
   classes: ClassesType,
-  fixedPositionToc?: boolean
+  fixedPositionToc?: boolean,
+  hover?: boolean,
 }) => {
-  const [drawerOpen, setDrawerOpen] = useState(false);
   const {setToC, toc} = useContext(SidebarsContext)!;
 
   useEffect(() => {
@@ -38,9 +38,10 @@ const TableOfContents = ({sectionData, title, postedAt, onClickSection, displayO
       <Components.FixedPositionToC
         tocSections={displayToc.sectionData.sections}
         title={title}
-        postedAt={postedAt}
+        heading={heading}
         onClickSection={onClickSection}
         displayOptions={displayOptions}
+        hover={hover}
       />
     );
   }

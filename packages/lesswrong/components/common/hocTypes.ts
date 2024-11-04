@@ -1,5 +1,6 @@
 import type { FetchResult } from '@apollo/client';
 import { RouterLocation } from '../../lib/vulcan-lib';
+import { ReactElement } from 'react';
 
 declare global {
 
@@ -21,7 +22,7 @@ interface WithStylesProps {
   classes: ClassesType,
 }
 
-type WithMessagesMessage = string|{id?: string, properties?: any, messageString?: string, type?: string, action?: any};
+type WithMessagesMessage = string|{id?: string, properties?: any, messageString?: string|ReactElement, type?: string, action?: any};
 
 interface WithMessagesProps {
   messages: Array<WithMessagesMessage>,
@@ -61,9 +62,10 @@ type DbObjectForCollectionBase<C> = C extends CollectionBase<infer T> ? T : neve
 
 type NullablePartial<T> = { [K in keyof T]?: T[K]|null|undefined }
 
-type WithUpdateFunction<N extends CollectionNameString> = (args: {
+type WithUpdateFunction<N extends CollectionNameString, F extends FragmentName = FragmentName> = (args: {
   selector: MongoSelector<ObjectsByCollectionName[N]>,
   data: NullablePartial<ObjectsByCollectionName[N]>,
+  optimisticResponse?: FragmentTypes[F],
   extraVariables?: any,
 }) => Promise<FetchResult>;
 

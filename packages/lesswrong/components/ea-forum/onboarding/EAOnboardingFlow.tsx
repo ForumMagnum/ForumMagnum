@@ -1,61 +1,36 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
-import { useCurrentUser } from "../../common/withUser";
-import { EAOnboardingContextProvider } from "./useEAOnboarding";
+import React from 'react'
+import {Components, registerComponent} from '../../../lib/vulcan-lib'
 
-const styles = (_theme: ThemeType) => ({
-  root: {
-    padding: 0,
-  },
-});
-
-const EAOnboardingFlow = ({viewAsAdmin, classes}: {
+const EAOnboardingFlow = ({viewAsAdmin}: {
   // if viewAsAdmin is true, this is an admin testing out the flow, so don't update their account
   viewAsAdmin?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
-  const currentUser = useCurrentUser();
-
-  // If `usernameUnset` is true, then we need to show the onboarding flow.
-  // We cache the value in a `useState` as it gets set to false in the very
-  // first stage (which is the only compulsary stage) - without caching the
-  // value this would close the popup.
-  const [isOnboarding, setIsOnboarding] = useState(currentUser?.usernameUnset || viewAsAdmin);
-
-  useEffect(() => {
-    // Set `isOnboarding` to true after a new user signs up.
-    setIsOnboarding((currentValue) => currentValue || currentUser?.usernameUnset);
-  }, [currentUser?.usernameUnset]);
-
-  const onOnboardingComplete = useCallback(() => {
-    setIsOnboarding(false);
-  }, []);
-
-  if (!isOnboarding) {
-    return null;
-  }
-
   const {
-    BlurredBackgroundModal, EAOnboardingUserStage, EAOnboardingSubscribeStage,
+    OnboardingFlow, EAOnboardingUserStage, EAOnboardingSubscribeStage,
     EAOnboardingWorkStage, EAOnboardingThankYouStage,
-  } = Components;
+  } = Components
+
+  /**
+   * Ordered list of all onboarding stages.
+   * After saving a display name in the "user" the onboarding flow will not be
+   * shown again after a refresh, so the easiest way to debug specific stages is
+   * to create a new account and _not_ set the display name, then comment out all
+   * of the preceding stages in this list.
+   */
   return (
-    <BlurredBackgroundModal open className={classes.root}>
-      <EAOnboardingContextProvider onOnboardingComplete={onOnboardingComplete} viewAsAdmin={viewAsAdmin}>
-        <EAOnboardingUserStage />
-        <EAOnboardingSubscribeStage />
-        <EAOnboardingWorkStage />
-        <EAOnboardingThankYouStage />
-      </EAOnboardingContextProvider>
-    </BlurredBackgroundModal>
-  );
+    <OnboardingFlow stages={{
+      user: <EAOnboardingUserStage/>,
+      subscribe: <EAOnboardingSubscribeStage/>,
+      work: <EAOnboardingWorkStage/>,
+      thankyou: <EAOnboardingThankYouStage/>,
+    }} viewAsAdmin={viewAsAdmin}/>
+  )
 }
 
 const EAOnboardingFlowComponent = registerComponent(
-  "EAOnboardingFlow",
+  'EAOnboardingFlow',
   EAOnboardingFlow,
-  {styles},
-);
+)
 
 declare global {
   interface ComponentTypes {

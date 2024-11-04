@@ -47,7 +47,7 @@ registerFragment(`
     }
     profileTagIds
     profileTags {
-      ...TagBasicInfo
+      ...TagPreviewFragment
     }
     organizerOfGroupIds
     organizerOfGroups {
@@ -116,6 +116,7 @@ registerFragment(`
     expandedFrontpageSections
     hidePostsRecommendations
     currentFrontpageFilter
+    frontpageSelectedTab
     frontpageFilterSettings
     hideFrontpageFilterSettingsDesktop
     allPostsTimeframe
@@ -200,6 +201,7 @@ registerFragment(`
     subforumPreferredLayout
     
     hideJobAdUntil
+    criticismTipsDismissed
     
     allowDatadogSessionReplay
     hideFrontpageBook2020Ad
@@ -217,6 +219,8 @@ registerFragment(`
     hideActiveDialogueUsers
 
     hideSunshineSidebar
+    optedOutOfSurveys
+    postGlossariesPinned
   }
 `);
 
@@ -464,6 +468,7 @@ registerFragment(`
     mapLocation
     
     # Privacy settings
+    hideFromPeopleDirectory
     allowDatadogSessionReplay
 
     # Admin & Review
@@ -507,6 +512,7 @@ registerFragment(`
     hideFrontpageBook2020Ad
 
     deleted
+    permanentDeletionRequestedAt
   }
 `)
 
@@ -537,6 +543,7 @@ registerFragment(`
   fragment UsersProfileEdit on User {
     _id
     slug
+    displayName
     jobTitle
     organization
     careerStage

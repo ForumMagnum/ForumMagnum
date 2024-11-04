@@ -1,16 +1,13 @@
-import type { FilterTag } from './filterSettings';
-import { getPublicSettings, getPublicSettingsLoaded, registeredSettings } from './settingsCache';
+import type {FilterTag} from './filterSettings'
+import {getPublicSettings, getPublicSettingsLoaded, initializeSetting} from './settingsCache'
+import {forumSelect} from './forumTypeUtils'
+import {isEAForum} from './instanceSettings'
 
 const getNestedProperty = function (obj: AnyBecauseTodo, desc: AnyBecauseTodo) {
   var arr = desc.split('.');
   while(arr.length && (obj = obj[arr.shift()]));
   return obj;
 };
-
-export function initializeSetting(settingName: string, settingType: "server" | "public" | "instance")  {
-  if (registeredSettings[settingName]) throw Error(`Already initialized a setting with name ${settingName} before.`)
-  registeredSettings[settingName] = settingType
-}
 
 /* 
   A setting which is stored in the database in the "databasemedata" collection, in a record with the `name` field set to "publicSettings" 
@@ -158,8 +155,6 @@ export const hasProminentLogoSetting = new DatabasePublicSetting<boolean>("hasPr
 
 export const hasCookieConsentSetting = new DatabasePublicSetting<boolean>('hasCookieConsent', false)
 
-export const dialogueMatchmakingEnabled = new DatabasePublicSetting<boolean>('dialogueMatchmakingEnabled', false)
-
 export const maxRenderQueueSize = new DatabasePublicSetting<number>('maxRenderQueueSize', 10);
 
 export type Auth0ClientSettings = {
@@ -174,19 +169,26 @@ export const requestFeedbackKarmaLevelSetting = new DatabasePublicSetting<number
 
 export const alwaysShowAnonymousReactsSetting = new DatabasePublicSetting<boolean>('voting.eaEmoji.alwaysShowAnonymousReacts', true);
 
+export const showSubscribeReminderInFeed = new DatabasePublicSetting<boolean>(
+  'feed.showSubscribeReminder', 
+  forumSelect({EAForum: true, LWAF: true, default: false})
+);
+
 export const hasGoogleDocImportSetting = new DatabasePublicSetting<boolean>('googleDocImport.enabled', false);
 
-// TODO: Delete after fully migrated to new settings
-export const latestPostsAlgorithmsSetting = new DatabasePublicSetting<string[]>('latestPosts.algorithms', []);
 
-export type PostFeedDetails = {
-  name: string,
-  label: string,
-  description?: string,
-  disabled?: boolean,
-  slug?: string
-}
-
-export const postFeedsProductionSetting = new DatabasePublicSetting<PostFeedDetails[]>('latestPosts.productionFeeds', []);
-export const postFeedsTestingSetting = new DatabasePublicSetting<PostFeedDetails[]>('latestPosts.testingFeeds', []);
 export const recombeeEnabledSetting = new DatabasePublicSetting<boolean>('recombee.enabled', false);
+export const recommendationsTabManuallyStickiedPostIdsSetting = new DatabasePublicSetting<string[]>('recommendationsTab.manuallyStickiedPostIds', []);
+
+export const blackBarTitle = new DatabasePublicSetting<string | null>('blackBarTitle', null);
+
+export const quickTakesTagsEnabledSetting = new DatabasePublicSetting<boolean>('quickTakes.tagsEnabled', isEAForum)
+
+export const vertexEnabledSetting = new DatabasePublicSetting<boolean>('googleVertex.enabled', false);
+
+/** Whether to show permalinked (?commentId=...) comments at the top of the page, vs scrolling to show them in context */
+export const commentPermalinkStyleSetting = new DatabasePublicSetting<'top' | 'in-context'>('commentPermalinkStyle', isEAForum ? 'in-context' : 'top');
+
+export const userIdsWithAccessToLlmChat = new DatabasePublicSetting<string[]>('llmChat.userIds', []);
+
+export const textReplacementsSetting = new DatabasePublicSetting<Record<string, string>>('textReplacements', {});

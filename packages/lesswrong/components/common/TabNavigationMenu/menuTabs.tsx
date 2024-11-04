@@ -31,8 +31,13 @@ import TakeActionIcon from "@heroicons/react/24/outline/HeartIcon";
 import TakeActionSelectedIcon from "@heroicons/react/24/solid/HeartIcon";
 import EventsIcon from "@heroicons/react/24/outline/CalendarIcon";
 import EventsSelectedIcon from "@heroicons/react/24/solid/CalendarIcon";
-import GroupsIcon from "@heroicons/react/24/outline/UsersIcon";
-import GroupsSelectedIcon from "@heroicons/react/24/solid/UsersIcon";
+import GroupsIcon from "@heroicons/react/24/outline/UserGroupIcon";
+import GroupsSelectedIcon from "@heroicons/react/24/solid/UserGroupIcon";
+import {
+  PeopleDirectoryIcon,
+  PeopleDirectorySelectedIcon,
+} from '../../icons/peopleDirectoryIcon';
+import { podcastPost } from '@/lib/eaPodcasts';
 
 // The sidebar / bottom bar of the Forum contain 10 or so similar tabs, unique to each Forum. The
 // tabs can appear in
@@ -86,7 +91,10 @@ export type MenuTabRegular = {
   showOnMobileStandalone?: boolean
   showOnCompressed?: boolean
   subItem?: boolean,
-  loggedOutOnly?: boolean
+  loggedOutOnly?: boolean,
+  flag?: string,
+  desktopOnly?: boolean,
+  betaOnly?: boolean,
 }
 
 type MenuTab = MenuTabDivider | MenuTabCustomComponent | MenuTabRegular
@@ -293,6 +301,16 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {
+      id: 'peopleDirectory',
+      title: 'People directory',
+      link: '/people-directory',
+      iconComponent: PeopleDirectoryIcon,
+      selectedIconComponent: PeopleDirectorySelectedIcon,
+      tooltip: 'Search and filter Forum users',
+      showOnMobileStandalone: true,
+      showOnCompressed: true,
+      flag: "new",
+    }, {
       id: 'takeAction',
       title: 'Take action',
       link: `/${taggingNamePluralSetting.get()}/opportunities-to-take-action`,
@@ -311,7 +329,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnCompressed: true
     }, {
       id: 'community',
-      title: 'Groups & people',
+      title: 'Groups directory',
       link: communityPath,
       iconComponent: GroupsIcon,
       selectedIconComponent: GroupsSelectedIcon,
@@ -323,11 +341,6 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       divider: true,
       showOnCompressed: true,
     }, {
-      id: 'shortform',
-      title: 'Quick takes',
-      link: '/quicktakes',
-      subItem: true,
-    }, {
       id: 'about',
       title: 'How to use the Forum',
       link: '/about',
@@ -335,18 +348,38 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       compressedIconComponent: Info,
       showOnCompressed: true,
     }, {
-      id: 'contact',
-      title: preferredHeadingCase('Contact Us'),
-      link: '/contact',
+      id: 'handbook',
+      title: 'EA Handbook',
+      link: '/handbook',
       subItem: true,
+      showOnCompressed: true,
+    }, {
+      id: 'podcasts',
+      title: 'EA Forum Podcast',
+      link: podcastPost,
+      subItem: true,
+      showOnCompressed: true,
+    }, {
+      id: 'shortform',
+      title: 'Quick takes',
+      link: '/quicktakes',
+      subItem: true,
+    }, {
+      id: 'subscribeWidget',
+      customComponentName: "SubscribeWidget",
     }, {
       id: 'cookies',
       title: preferredHeadingCase('Cookie Policy'),
       link: '/cookiePolicy',
       subItem: true,
     }, {
-      id: 'subscribeWidget',
-      customComponentName: "SubscribeWidget",
+      id: 'divider2',
+      divider: true,
+    }, {
+      id: 'contact',
+      title: preferredHeadingCase('Contact Us'),
+      link: '/contact',
+      subItem: true,
     }
   ],
   default: [
@@ -393,8 +426,8 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnCompressed: true,
     }, {
       id: 'shortform',
-      title: 'Shortform',
-      link: '/shortform',
+      title: 'Quick takes',
+      link: '/quicktakes',
       subItem: true,
     }, {
       id: 'subscribeWidget',

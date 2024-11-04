@@ -1,3 +1,4 @@
+import { defineMutation } from './utils/serverGraphqlUtil';
 import { addGraphQLMutation, addGraphQLResolvers } from './vulcan-lib';
 
 addGraphQLMutation('markAsReadOrUnread(postId: String, isRead:Boolean): Boolean');
@@ -13,5 +14,20 @@ addGraphQLResolvers({
       
       return isRead;
     }
+  }
+});
+
+defineMutation({
+  name: 'markPostCommentsRead',
+  argTypes: '(postId: String!)',
+  resultType: 'Boolean',
+  fn: async (_, { postId }: { postId: string }, context) => {
+    const { currentUser, repos } = context;
+
+    if (!currentUser) {
+      throw new Error('You need to be logged in to mark post comments read');
+    }
+
+    await context.repos.readStatuses.upsertReadStatus(currentUser._id, postId, false, { skipIsReadUpdateOnUpsert: true });
   }
 });

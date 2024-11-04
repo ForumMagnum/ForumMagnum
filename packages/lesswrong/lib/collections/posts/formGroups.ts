@@ -56,8 +56,8 @@ export const formGroups: Record<string, FormGroupType<"Posts">> = {
   moderationGroup: {
     order: 60,
     name: "moderation",
-    label: preferredHeadingCase("Moderation Guidelines"),
-    helpText: "We prefill these moderation guidelines based on your user settings. But you can adjust them for each post.",
+    label: preferredHeadingCase(isFriendlyUI ? "Moderation" : "Moderation Guidelines"),
+    helpText: isFriendlyUI ? undefined : "We prefill these moderation guidelines based on your user settings. But you can adjust them for each post.",
     startCollapsed: true,
   },
   options: {
@@ -102,9 +102,16 @@ export const formGroups: Record<string, FormGroupType<"Posts">> = {
     startCollapsed: true
   },
   tags: {
-    order: isEAForum ? 20 : 60,
+    order: isEAForum ? 20 : 70,
     name: "tags",
     label: isEAForum ? `Set ${taggingNamePluralSetting.get()}` : `Apply ${taggingNamePluralCapitalSetting.get()}`,
     startCollapsed: false
+  },
+  glossary: {
+    order: 65,
+    name: "glossary",
+    label: "Glossary",
+    startCollapsed: false,
+    hideHeader: true,
   }
 };

@@ -15,9 +15,10 @@ import {
   usersAboveKarmaThresholdHardcoded20220922
 } from "../../lib/petrovHelpers";
 import { Helmet } from '../../lib/utils/componentsWithChildren';
+import { useMapStyle } from '../hooks/useMapStyle';
 
 export const petrovPostIdSetting = new DatabasePublicSetting<string>('petrov.petrovPostId', '')
-const petrovGamePostIdSetting = new DatabasePublicSetting<string>('petrov.petrovGamePostId', '')
+export const petrovGamePostIdSetting = new DatabasePublicSetting<string>('petrov.petrovGamePostId', '')
 export const petrovDayLaunchCode = 'whatwouldpetrovdo?'
 
 // This component is (most likely) going to be used once-a-year on Petrov Day (sept 26th)
@@ -198,7 +199,8 @@ const PetrovDayButton = ({classes, refetch, alreadyLaunched }: {
   
   const beforePressMessage = <p>press button to initiate missile launch procedure</p>
   const afterPressMessage = disableLaunchButton ? <p>You are not authorized to initiate a missile strike at this time. Try again later.</p> : <p>enter launch code to initiate missile strike</p>
-  
+
+  const mapStyle = useMapStyle();
 
   return (
     <div className={classes.root}>
@@ -209,7 +211,7 @@ const PetrovDayButton = ({classes, refetch, alreadyLaunched }: {
         zoom={2}
         width="100%"
         height="100%"
-        mapStyle={"mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra"}
+        mapStyle={mapStyle}
         mapboxApiAccessToken={mapboxAPIKeySetting.get() || undefined}
       />
       <div className={classes.panelBacking}>

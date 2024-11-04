@@ -18,6 +18,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   noKibitz: {
     minWidth: 55,
   },
+  nowrap: {
+    whiteSpace: "nowrap"
+  },
 });
 
 type DisableNoKibitzContextType = {disableNoKibitz: boolean, setDisableNoKibitz: (disableNoKibitz: boolean) => void};
@@ -32,6 +35,8 @@ const UsersNameDisplay = ({
   color=false,
   nofollow=false,
   simple=false,
+  nowrap=false,
+  hideFollowButton=false,
   tooltipPlacement="left",
   pageSectionContext,
   className,
@@ -45,6 +50,10 @@ const UsersNameDisplay = ({
   nofollow?: boolean,
   /** The name is only text, not a link, and doesn't have a hover */
   simple?: boolean,
+  /** If set, usernames with spaces are not allowed to wrap. Default false. */
+  nowrap?: boolean,
+  /** If set, the follow button is hidden (relevant to LWTooltip. */
+  hideFollowButton?: boolean,
   /** Positioning of the tooltip, if there is one */
   tooltipPlacement?: PopperPlacementType,
   /** If provided, a tracking string added to the link */
@@ -103,10 +112,15 @@ const UsersNameDisplay = ({
           user={user}
           placement={tooltipPlacement}
           inlineBlock={false}
+          hideFollowButton={hideFollowButton}
         >
           <Link
             to={profileUrl}
-            className={classNames(colorClass, noKibitz && classes.noKibitz)}
+            className={classNames(
+              colorClass,
+              noKibitz && classes.noKibitz,
+              nowrap && classes.nowrap,
+            )}
             {...(nofollow ? {rel:"nofollow"} : {})}
           >
             {displayName}

@@ -180,7 +180,7 @@ export function importAllComponents() {
   }
 }
 
-function prepareComponent(componentName: string): any
+export function prepareComponent(componentName: string): any
 {
   if (componentName in PreparedComponents) {
     return PreparedComponents[componentName];
@@ -264,6 +264,7 @@ const memoizeComponent = (areEqual: AreEqualOption, component: any, name: string
             }
             return false;
           }
+        // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
         } else switch(areEqual[key]) {
           case "ignore":
             break;

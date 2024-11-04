@@ -3,14 +3,17 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useCommentLink, UseCommentLinkProps } from './useCommentLink';
 import classNames from 'classnames';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
-import ForumNoSSR from '../../common/ForumNoSSR';
 import { isLWorAF } from '../../../lib/instanceSettings';
+import DeferRender from '@/components/common/DeferRender';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    ...(isFriendlyUI && {
+    ...(isFriendlyUI ? {
       marginLeft: 2,
       marginRight: 7,
+    } : {
+      marginLeft: 2,
+      marginRight: 16,
     }),
 
     "& a:hover, & a:active": {
@@ -76,7 +79,6 @@ const CommentsItemDate = ({comment, preventDateFormatting, classes, ...rest}: Co
       date={comment.postedAt}
       format={dateFormat}
     />
-    {isBookUI && <ForumIcon icon="Link" className={classes.icon} />}
   </>);
   
   return (
@@ -85,11 +87,11 @@ const CommentsItemDate = ({comment, preventDateFormatting, classes, ...rest}: Co
       !comment.answer && classes.date,
       comment.answer && classes.answerDate,
     )}>
-      <ForumNoSSR if={isLWorAF} onSSR={linkContents}>
+      <DeferRender ssr={!isLWorAF} fallback={linkContents}>
         <LinkWrapper>
           {linkContents}
         </LinkWrapper>
-      </ForumNoSSR>
+      </DeferRender>
     </span>
   );
 }

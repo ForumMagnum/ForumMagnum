@@ -28,24 +28,52 @@ type FieldName<N extends CollectionNameString> = (keyof ObjectsByCollectionName[
 
 type SqlFieldFunction<N extends CollectionNameString> = (fieldName: FieldName<N>) => string;
 
+type SqlJoinType = "inner" | "full" | "left" | "right";
+
 type SqlJoinBase<N extends CollectionNameString> = {
   table: N,
-  type?: "inner" | "full" | "left" | "right",
-  on: Partial<Record<FieldName<N>, string>>,
+  type?: SqlJoinType,
+  on: Partial<Record<FieldName<N>, string>> | ((field: SqlFieldFunction<N>) => string),
 }
 
 type SqlResolverJoin<N extends CollectionNameString> = SqlJoinBase<N> & {
+  /**
+   * By default, the `table` value in `SqlJoinBase` must be a table associated
+   * with a collection, and when this is the case we get type safety for the
+   * values in `on` and for the `field` argument to `resolver`.
+   * Setting `isNonCollectionJoin` to true allows us to join on anything that
+   * isn't a collection (like a custom table or a view for instance) at the
+   * expense of type-safety as we don't have schemas for these objects so
+   * everything just becomes strings.
+   */
+  isNonCollectionJoin?: false,
   resolver: (field: SqlFieldFunction<N>) => string,
-};
+}
 
-type SqlJoinSpec<N extends CollectionNameString = CollectionNameString> = SqlJoinBase<N> & {
-  prefix: string,
-};
+type SqlNonCollectionJoinBase = {
+  table: string,
+  type?: SqlJoinType,
+  on: Record<string, string> | ((field: (fieldName: string) => string) => string),
+}
+
+type SqlNonCollectionJoin = SqlNonCollectionJoinBase & {
+  isNonCollectionJoin: true,
+  resolver: (field: (fieldName: string) => string) => string,
+}
+
+type SqlJoinFunction = <N extends CollectionNameString>(
+  args: SqlResolverJoin<N> | SqlNonCollectionJoin,
+) => string;
+
+type SqlJoinSpec<N extends CollectionNameString = CollectionNameString> =
+  (SqlJoinBase<N> | SqlNonCollectionJoinBase) & {
+    prefix: string,
+  };
 
 type SqlResolverArgs<N extends CollectionNameString> = {
   field: SqlFieldFunction<N>,
   currentUserField: SqlFieldFunction<'Users'>,
-  join: <J extends CollectionNameString>(args: SqlResolverJoin<J>) => string,
+  join: SqlJoinFunction,
   arg: (value: unknown) => string,
   resolverArg: (name: string) => string,
 }
@@ -60,6 +88,24 @@ type SqlPostProcess<N extends CollectionNameString> = (
   context: ResolverContext,
 ) => AnyBecauseHard;
 
+type CollectionFieldResolveAs<N extends CollectionNameString> = {
+  type: string | GraphQLScalarType,
+  description?: string,
+  fieldName?: string,
+  addOriginalField?: boolean,
+  arguments?: string|null,
+  resolver: (root: ObjectsByCollectionName[N], args: any, context: ResolverContext) => any,
+  sqlResolver?: SqlResolver<N>,
+  /**
+   * `sqlPostProcess` is run on the result of the database call, in addition
+   * to the `sqlResolver`. It should return the value of this `field`, generally
+   * by performing some operation on the value returned by the `sqlResolver`.
+   * Most of the time this is an anti-pattern which should be avoided, but
+   * sometimes it's unavoidable.
+   */
+  sqlPostProcess?: SqlPostProcess<N>,
+}
+
 interface CollectionFieldSpecification<N extends CollectionNameString> extends CollectionFieldPermissions {
   type?: any,
   description?: string,
@@ -69,23 +115,7 @@ interface CollectionFieldSpecification<N extends CollectionNameString> extends C
   typescriptType?: string,
   /** Use the following information in the GraphQL schema and at query-time to
    * calculate a response */
-  resolveAs?: {
-    type: string|GraphQLScalarType,
-    description?: string,
-    fieldName?: string,
-    addOriginalField?: boolean,
-    arguments?: string|null,
-    resolver: (root: ObjectsByCollectionName[N], args: any, context: ResolverContext, info?: any) => any,
-    sqlResolver?: SqlResolver<N>,
-    /**
-     * `sqlPostProcess` is run on the result of the database call, in addition
-     * to the `sqlResolver`. It should return the value of this `field`, generally
-     * by performing some operation on the value returned by the `sqlResolver`.
-     * Most of the time this is an anti-pattern which should be avoided, but
-     * sometimes it's unavoidable.
-     */
-    sqlPostProcess?: SqlPostProcess<N>,
-  },
+  resolveAs?: CollectionFieldResolveAs<N>,
   blackbox?: boolean,
   denormalized?: boolean,
   canAutoDenormalize?: boolean,
@@ -163,6 +193,13 @@ interface CollectionFieldSpecification<N extends CollectionNameString> extends C
   onEdit?: (modifier: any, oldDocument: ObjectsByCollectionName[N], currentUser: DbUser|null, newDocument: ObjectsByCollectionName[N]) => any,
   onUpdate?: (args: {data: Partial<ObjectsByCollectionName[N]>, oldDocument: ObjectsByCollectionName[N], newDocument: ObjectsByCollectionName[N], document: ObjectsByCollectionName[N], currentUser: DbUser|null, collection: CollectionBase<N>, context: ResolverContext, schema: SchemaType<N>, fieldName: string}) => any,
   onDelete?: (args: {document: ObjectsByCollectionName[N], currentUser: DbUser|null, collection: CollectionBase<N>, context: ResolverContext, schema: SchemaType<N>}) => Promise<void>,
+  
+  countOfReferences?: {
+    foreignCollectionName: CollectionNameString
+    foreignFieldName: string
+    filterFn?: (obj: AnyBecauseHard) => boolean
+    resyncElastic: boolean
+  }
 }
 
 /** Field specification for a Form field, created from the collection schema */

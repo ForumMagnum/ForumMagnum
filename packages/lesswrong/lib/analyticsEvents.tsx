@@ -2,7 +2,7 @@ import { addGraphQLSchema } from './vulcan-lib/graphql';
 import { RateLimiter } from './rateLimiter';
 import React, { useContext, useEffect, useState, useRef, useCallback, ReactNode } from 'react'
 import { hookToHoc } from './hocUtils'
-import { isClient, isServer, isDevelopment, isAnyTest } from './executionEnvironment';
+import { isClient, isServer, isDevelopment, isAnyTest, isE2E } from './executionEnvironment';
 import { ColorHash } from './vendor/colorHash';
 import { DatabasePublicSetting } from './publicSettings';
 import { getPublicSettingsLoaded } from './settingsCache';
@@ -59,6 +59,9 @@ function getShowAnalyticsDebug() {
 export type EventProps = AnalyticsProps | Record<string, Json | undefined>;
 
 export function captureEvent(eventType: string, eventProps?: EventProps, suppressConsoleLog = false) {
+  if (isE2E) {
+    return;
+  }
   try {
     if (isServer) {
       // If run from the server, we can run this immediately except for a few
@@ -121,6 +124,7 @@ export type AnalyticsProps = {
   chapter?: string,
   documentSlug?: string,
   postId?: string,
+  forumEventId?: string,
   sequenceId?: string,
   commentId?: string,
   tagId?: string,
@@ -138,6 +142,8 @@ export type AnalyticsProps = {
   feedType?: string,
   onsite?: boolean,
   terms?: PostsViewTerms,
+  viewType?: string,
+  componentName?: string,
   /** @deprecated Use `pageSectionContext` instead */
   listContext?: string,
   /** @deprecated Use `pageSectionContext` instead */
@@ -411,8 +417,15 @@ export function flushClientEvents() {
   const eventsToWrite = pendingAnalyticsEvents;
   pendingAnalyticsEvents = [];
   AnalyticsUtil.clientWriteEvents(eventsToWrite.map(event => ({
-    ...(isClient ? AnalyticsUtil.clientContextVars : null),
-    ...event
+    ...event,
+    props: {
+      // clientContextVars will almost always be present already, in
+      // which case adding them here will do nothing. This is to cover
+      // the edge case of events that fire before clientContextVars
+      // is initialized (e.g. "pageLoadFinished")
+      ...(isClient ? AnalyticsUtil.clientContextVars : null),
+      ...event.props
+    }
   })));
 }
 

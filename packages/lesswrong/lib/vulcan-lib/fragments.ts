@@ -1,13 +1,16 @@
 import type { DocumentNode } from 'graphql';
 import gql from 'graphql-tag';
 import * as _ from 'underscore';
-import SqlFragment from '../sql/SqlFragment';
+
+// This is safe as it uses `import type`
+// eslint-disable-next-line import/no-restricted-paths
+import type SqlFragment from '@/server/sql/SqlFragment';
 
 interface FragmentDefinition {
   fragmentText: string
   subFragments?: Array<FragmentName>
   fragmentObject?: DocumentNode
-  sqlFragment: SqlFragment,
+  sqlFragment?: SqlFragment,
 }
 
 const Fragments: Record<FragmentName,FragmentDefinition> = {} as any;
@@ -31,14 +34,19 @@ export const registerFragment = (fragmentTextSource: string): void => {
   // extract subFragments from text
   const matchedSubFragments = fragmentText.match(/\.{3}([_A-Za-z][_0-9A-Za-z]*)/g) || [];
   const subFragments = _.unique(matchedSubFragments.map(f => f.replace('...', '')));
-  
+
+  const sqlFragment = bundleIsServer
+    // eslint-disable-next-line import/no-restricted-paths, babel/new-cap
+    ? new (require("@/server/sql/SqlFragment").default)(
+      fragmentText,
+      (name: FragmentName) => Fragments[name].sqlFragment ?? null,
+    )
+    : undefined;
+
   // register fragment
   Fragments[fragmentName] = {
     fragmentText,
-    sqlFragment: new SqlFragment(
-      fragmentText,
-      (name: FragmentName) => Fragments[name].sqlFragment ?? null,
-    ),
+    sqlFragment,
   };
 
   // also add subfragments if there are any
@@ -126,7 +134,11 @@ export const getSqlFragment = (fragmentName: FragmentName): SqlFragment => {
   if (!isValidFragmentName(fragmentName)) {
     throw new Error(`Fragment "${fragmentName}" not registered.`);
   }
-  return Fragments[fragmentName].sqlFragment;
+  const {sqlFragment} = Fragments[fragmentName];
+  if (!sqlFragment) {
+    throw new Error(`SQL fragment missing (did you request it on the client?)`);
+  }
+  return sqlFragment;
 }
 
 // Get gql fragment text

@@ -35,6 +35,25 @@ class ConversationsRepo extends AbstractRepo<"Conversations"> {
     return conversationIds.map(id => messagesByConversation[id] ?? null);
   }
 
+  async getReadStatuses(
+    userId: string,
+    conversationIds: string[],
+  ): Promise<boolean[]> {
+    const results = await this.getRawDb().manyOrNone<{
+      conversationId: string,
+      hasUnreadMessages: boolean,
+    }>(`
+      -- ConversationsRepo.getReadStatuses
+      SELECT "converationId", "hasUnreadMessages"
+      FROM "ConversationUnreadMessages"
+      WHERE "conversationId" IN ($1:csv) AND "userId" = $2
+    `, [conversationIds, userId]);
+    const statusesByConversation = keyBy(results, (res) => res.conversationId);
+    return conversationIds.map(
+      (id) => statusesByConversation[id].hasUnreadMessages ?? false,
+    );
+  }
+
   async markConversationRead(
     conversationId: string,
     userId: string,

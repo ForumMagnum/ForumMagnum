@@ -1,8 +1,8 @@
 import React, { useState, useCallback, useRef, useEffect, useContext } from 'react';
 import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
-import { debateEditorPlaceholder, defaultEditorPlaceholder, editableCollectionsFieldOptions, linkpostEditorPlaceholder, questionEditorPlaceholder } from '../../lib/editor/make_editable';
+import { debateEditorPlaceholder, defaultEditorPlaceholder, linkpostEditorPlaceholder, questionEditorPlaceholder } from '../../lib/editor/make_editable';
 import { getLSHandlers, getLSKeyPrefix } from './localStorageHandlers'
-import { userCanCreateCommitMessages } from '../../lib/betas';
+import { userCanCreateCommitMessages, userHasPostAutosave } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { Editor, EditorChangeEvent, getUserDefaultEditor, getInitialEditorContents,
   getBlankEditorContents, EditorContents, isBlank, serializeEditorContents,
@@ -11,19 +11,39 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import PropTypes from 'prop-types';
 import * as _ from 'underscore';
 import { gql, useLazyQuery, useMutation } from '@apollo/client';
-import { useUpdate } from "../../lib/crud/withUpdate";
-import { isEAForum } from '../../lib/instanceSettings';
+import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import Transition from 'react-transition-group/Transition';
 import { useTracking } from '../../lib/analyticsEvents';
 import { PostCategory } from '../../lib/collections/posts/helpers';
 import { DynamicTableOfContentsContext } from '../posts/TableOfContents/DynamicTableOfContents';
 import isEqual from 'lodash/isEqual';
-import { isFriendlyUI } from '../../themes/forumTheme';
-import { useCallbackDebugRerenders } from '../hooks/useCallbackDebugRerenders';
 import { useDebouncedCallback, useStabilizedCallback } from '../hooks/useDebouncedCallback';
+import { useMessages } from '../common/withMessages';
+import { editableCollectionsFieldOptions } from '@/lib/editor/makeEditableOptions';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE } from '@/lib/cookies/cookies';
 
 const autosaveInterval = 3000; //milliseconds
 const remoteAutosaveInterval = 1000 * 60 * 5; // 5 minutes in milliseconds
+
+type AutosaveFunc = () => Promise<void>;
+interface AutosaveEditorStateContext {
+  autosaveEditorState: AutosaveFunc | null;
+  /**
+   * WARNING: since `setAutosaveEditorState` is a React setState function,
+   * passing in a function seems to cause it to interpret it as the (prevValue: T): T => newValue form,
+   * so you actually need to pass in with an additional closure if you want to update `autosaveEditorState` with a new function:
+   * 
+   * (prevValue: T) => (): T => { ...;  return newValue; }
+   */
+  setAutosaveEditorState: React.Dispatch<React.SetStateAction<AutosaveFunc | null>>;
+}
+
+export const AutosaveEditorStateContext = React.createContext<AutosaveEditorStateContext>({
+  autosaveEditorState: null,
+  setAutosaveEditorState: _ => {},
+});
 
 export function isCollaborative(post: Pick<DbPost, '_id' | 'shareWithUsers' | 'sharingSettings' | 'collabEditorDialogue'>, fieldName: string): boolean {
   if (!post) return false;
@@ -33,7 +53,7 @@ export function isCollaborative(post: Pick<DbPost, '_id' | 'shareWithUsers' | 's
   if (post.sharingSettings?.anyoneWithLinkCan && post.sharingSettings.anyoneWithLinkCan !== "none")
     return true;
   if (post.collabEditorDialogue) return true;
-  return false;  
+  return false;
 }
 
 const getPostPlaceholder = (post: PostsBase) => {
@@ -46,7 +66,21 @@ const getPostPlaceholder = (post: PostsBase) => {
   return defaultEditorPlaceholder;
 }
 
-export const EditorFormComponent = ({form, formType, formProps, document, name, fieldName, value, hintText, placeholder, label, commentStyles, classes}: {
+export const EditorFormComponent = ({
+  form,
+  formType,
+  formProps,
+  document,
+  name,
+  fieldName,
+  value,
+  hintText,
+  placeholder,
+  label,
+  formVariant,
+  commentStyles,
+  classes,
+}: {
   form: any,
   formType: "edit"|"new",
   formProps: FormProps,
@@ -57,12 +91,14 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   hintText: string,
   placeholder: string,
   label: string,
+  formVariant?: "default" | "grey",
   commentStyles: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }, context: any) => {
   const { commentEditor, collectionName, hideControls } = (form || {});
   const { editorHintText, maxHeight } = (formProps || {});
   const { updateCurrentValues, submitForm } = context;
+  const { flash } = useMessages()
   const currentUser = useCurrentUser();
   const editorRef = useRef<Editor|null>(null);
   const hasUnsavedDataRef = useRef({hasUnsavedData: false});
@@ -85,7 +121,8 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   const [updatedFormType, setUpdatedFormType] = useState(formType);
 
   const dynamicTableOfContents = useContext(DynamicTableOfContentsContext)
-  
+  const { setAutosaveEditorState } = useContext(AutosaveEditorStateContext);
+
   const defaultEditorType = getUserDefaultEditor(currentUser);
   const currentEditorType = contents.type || defaultEditorType;
 
@@ -98,26 +135,17 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   // On the EA Forum, our bot checks if posts are potential criticism,
   // and if so we show a little card with tips on how to make it more likely to go well.
   const [postFlaggedAsCriticism, setPostFlaggedAsCriticism] = useState<boolean>(false)
-  const [criticismTipsDismissed, setCriticismTipsDismissed] = useState<boolean>(document.criticismTipsDismissed)
-
-  const { mutate: updatePostCriticismTips } = useUpdate({
-    collectionName: "Posts",
-    fragmentName: "PostsEditCriticismTips",
-  })
+  const [criticismTipsDismissed, setCriticismTipsDismissed] = useState<boolean>(!!currentUser?.criticismTipsDismissed)
+  const updateCurrentUser = useUpdateCurrentUser()
+  
   const handleDismissCriticismTips = () => {
     // hide the card
     setCriticismTipsDismissed(true)
     captureEvent('criticismTipsDismissed', {postId: document._id})
-    // make sure not to show the card for this post ever again
-    updateCurrentValues({criticismTipsDismissed: true})
-    if (updatedFormType !== 'new' && document._id) {
-      void updatePostCriticismTips({
-        selector: {_id: document._id},
-        data: {
-          criticismTipsDismissed: true
-        }
-      })
-    }
+    // make sure not to show the card for this user ever again
+    void updateCurrentUser({
+      criticismTipsDismissed: true
+    })
   }
   
   const [checkPostIsCriticism] = useLazyQuery(gql`
@@ -126,23 +154,32 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     }
     `, {
       onCompleted: (data) => {
-        const isCriticism = !!data.PostIsCriticism
-        setPostFlaggedAsCriticism(isCriticism)
-        if (isCriticism && !postFlaggedAsCriticism) {
-          captureEvent('criticismTipsShown', {postId: document._id})
-        }
+        // SC 2024-09-18: We are temporarily hiding the user-facing card,
+        // as we are testing using gpt-4o-mini directly instead of a fine-tuned model.
+        
+        // const isCriticism = !!data.PostIsCriticism
+        // setPostFlaggedAsCriticism(isCriticism)
+        // if (isCriticism && !postFlaggedAsCriticism) {
+        //   captureEvent('criticismTipsShown', {postId: document._id})
+        // }
       }
     }
   )
   
   // On the EA Forum, our bot checks if posts are potential criticism,
   // and if so we show a little card with tips on how to make it more likely to go well.
+  const [cookies] = useCookiesWithConsent([HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE])
   const checkIsCriticism = useCallback((contents: EditorContents) => {
-    // we're currently skipping linkposts, since the linked post's author is
-    // not always the same person posting it on the forum
+    // The "Useful links" card appears on the "new post" form by default,
+    // in the same area as the criticism tips card. If the user hasn't dismissed it,
+    // then we don't bother to show the criticism tips card.
+    const conflictingCardVisible = updatedFormType === 'new' && cookies[HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE] !== 'true'
+    // We're currently skipping linkposts, since the linked post's author is
+    // not always the same person posting it on the forum.
     if (
       !isEAForum ||
       collectionName !== 'Posts' ||
+      conflictingCardVisible ||
       document.isEvent ||
       document.debate ||
       document.shortform ||
@@ -151,12 +188,16 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     ) return
 
     checkPostIsCriticism({variables: { args: {
+      _id: document._id,
       title: document.title ?? '',
       contentType: contents.type,
       body: contents.value
     }}})
   }, [
     collectionName,
+    updatedFormType,
+    cookies,
+    document._id,
     document.isEvent,
     document.debate,
     document.shortform,
@@ -216,12 +257,12 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   `);
 
   // TODO: this currently clobbers the title if a new post had its contents edited before the title was edited
-  const saveRemoteBackup = useCallback(async (newContents: EditorContents) => {
+  const saveRemoteBackup = useCallback(async (newContents: EditorContents): Promise<void> => {
     // If a post hasn't ever been saved before, "submit" the form in order to create a draft post
     // Afterwards, check whatever revision was loaded for display
     // This may or may not be the most recent one) against current content
     // If different, save a new revision
-    if (collectionName === 'Posts' && !isEqual(autosaveContentsRef.current, newContents)) {
+    if (userHasPostAutosave(currentUser) && collectionName === 'Posts' && fieldName === 'contents' && !isEqual(autosaveContentsRef.current, newContents)) {
       // In order to avoid recreating this function (which is throttled) each time the contents change,
       // we need to use a ref rather than using the `contents` directly.  We also need to update it here,
       // rather than e.g. in `wrappedSetContents`, since updating it there would result in the `isEqual` always returning true
@@ -238,7 +279,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
         });
       }
     }
-  }, [collectionName, updatedFormType, updateCurrentValues, submitForm, autosaveRevision, document._id, document.title]);
+  }, [currentUser, collectionName, fieldName, updatedFormType, document.title, document._id, updateCurrentValues, submitForm, autosaveRevision]);
 
   /**
    * Update the edited field (e.g. "contents") so that other form components can access the updated value. The direct motivation for this
@@ -301,7 +342,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       throttledSaveBackup(newContents);
       // Don't do server-side autosave if using the collaborative editor, since it autosaves through the ckEditor webhook
       // TODO: come back to this after the React 18 upgrade and test it properly
-      // if (!isCollabEditor) void throttledSaveRemoteBackup(newContents);
+      if (!isCollabEditor) void throttledSaveRemoteBackup(newContents);
     }
     
     // We only check posts that have >300 characters, which is ~a few sentences.
@@ -339,9 +380,14 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   }, [fieldName, hasUnsavedDataRef]);
   
   const onRestoreLocalStorage = useCallback((newState: EditorContents) => {
-    wrappedSetContents({contents: newState, autosave: false});
-    // TODO: Focus editor
-  }, [wrappedSetContents]);
+    if (isCollabEditor) {
+      // If in collab editing mode, we can't edit the editor contents.
+      flash("Restoring from local storage is not supported in the collaborative editor. Use the Version History button to restore old versions.");
+    } else {
+      wrappedSetContents({contents: newState, autosave: false});
+      // TODO: Focus editor
+    }
+  }, [wrappedSetContents, flash, isCollabEditor]);
   
   useEffect(() => {
     if (editorRef.current) {
@@ -408,14 +454,23 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
 
   const actualPlaceholder = ((collectionName === "Posts" && getPostPlaceholder(document)) || editorHintText || hintText || placeholder);
 
-  // The logic here is to make sure that the placeholder is updated when it changes in the props.
-  // CKEditor can't change the placeholder after it's been initialized, so we need to change the key
-  // to force it to unmount and remount the whole component. Only do this where there are no contents,
-  // as this is the only time the placeholder is visible.
-  const placeholderKey = useRef(actualPlaceholder);
-  if (placeholderKey.current !== actualPlaceholder && !contents?.value) {
-    placeholderKey.current = actualPlaceholder;
-  }
+  useEffect(() => {
+    if (!isCollabEditor && collectionName === 'Posts' && fieldName === 'contents') {
+      setAutosaveEditorState((_) => () => new Promise((resolve, reject) => {
+        if (editorRef.current && shouldSubmitContents(editorRef.current)) {
+          void editorRef.current?.submitData()
+            .then(({ originalContents: { type, data: value }}) => ({ type, value }))
+            .then(saveRemoteBackup)
+            .then(resolve)
+            .catch(reject);
+        }
+      }));
+    }
+
+    return () => {
+      setAutosaveEditorState(null);
+    }
+  }, [isCollabEditor, collectionName, fieldName, saveRemoteBackup, setAutosaveEditorState]);
 
   // document isn't necessarily defined. TODO: clean up rest of file
   // to not rely on document
@@ -435,11 +490,11 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       onRestore={onRestoreLocalStorage}
     />}
     <Components.Editor
-      key={placeholderKey.current}
       ref={editorRef}
       _classes={classes}
       currentUser={currentUser}
       label={label}
+      formVariant={formVariant}
       formType={updatedFormType}
       documentId={document._id}
       collectionName={collectionName}
@@ -460,7 +515,9 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       hasCommitMessages={hasCommitMessages ?? undefined}
       document={document}
     />
-    {!hideControls && <Components.EditorTypeSelect value={contents} setValue={wrappedSetContents} isCollaborative={isCollabEditor}/>}
+    {!hideControls && formVariant !== "grey" &&
+      <Components.EditorTypeSelect value={contents} setValue={wrappedSetContents} isCollaborative={isCollabEditor}/>
+    }
     {!hideControls && collectionName==="Posts" && fieldName==="contents" && !!document._id &&
       <Components.PostVersionHistoryButton
         post={document}

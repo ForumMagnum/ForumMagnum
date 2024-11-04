@@ -17,7 +17,6 @@ import './emailComponents/EmailComment';
 import './emailComponents/PrivateMessagesEmail';
 import './emailComponents/EventUpdatedEmail';
 import './emailComponents/EmailUsernameByID';
-import './emailComponents/NewDialogueMatchEmail';
 import './emailComponents/SequenceNewPostsEmail';
 import {getDocumentSummary, taggedPostMessage, NotificationDocument, getDocument} from '../lib/notificationTypes'
 import { commentGetPageUrlFromIds } from "../lib/collections/comments/helpers";
@@ -29,7 +28,6 @@ import { tagGetSubforumUrl } from '../lib/collections/tags/helpers';
 import uniq from 'lodash/uniq';
 import startCase from 'lodash/startCase';
 import { DialogueMessageEmailInfo } from './emailComponents/NewDialogueMessagesEmail';
-import DialogueChecks from '../lib/collections/dialogueChecks/collection';
 import Sequences from '../lib/collections/sequences/collection';
 
 interface ServerNotificationType {
@@ -331,27 +329,6 @@ export const NewPublishedDialogueMessageNotification = serverRegisterNotificatio
   },
 });
 
-export const NewDialogueMatchNotification = serverRegisterNotificationType({
-  name: "newDialogueMatch",
-  canCombineEmails: true,
-  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
-    const dialogueCheck = await DialogueChecks.findOne(notifications[0].documentId);
-    if (!dialogueCheck) throw Error(`Can't find dialogue check for notification: ${notifications[0]}`)
-    const targetUser = await Users.findOne(dialogueCheck.targetUserId);
-    if (!targetUser) throw Error(`Can't find dialogue match user for notification: ${notifications[0]}`)
-    return `You matched with ${userGetDisplayName(targetUser)} for dialogues!`;
-  },
-  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
-    const documentId = notifications[0].documentId!; // We skip notifications without a documentId in the skip function
-    const dialogueCheck = await DialogueChecks.findOne(documentId);
-    const targetUser = await Users.findOne(dialogueCheck?.targetUserId);
-    return <Components.NewDialogueMatchEmail documentId={documentId} targetUser={targetUser}/>;
-  },
-  skip: async ({ notifications }: {notifications: DbNotification[]}) => {
-    return !notifications[0].documentId
-  }
-});
-
 export const NewDebateCommentNotification = serverRegisterNotificationType({
   name: "newDebateComment",
   canCombineEmails: true,
@@ -454,7 +431,7 @@ export const NewUserNotification = serverRegisterNotificationType({
 });
 
 const newMessageEmails: ForumOptions<string | null> = {
-  EAForum: 'forum-noreply@effectivealtruism.org',
+  EAForum: 'The EA Forum <forum-noreply@effectivealtruism.org>',
   default: null,
 }
 const forumNewMessageEmail = forumSelect(newMessageEmails) ?? undefined

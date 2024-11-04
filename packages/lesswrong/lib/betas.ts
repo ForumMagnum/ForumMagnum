@@ -14,12 +14,14 @@ import {
   hasSideCommentsSetting, 
   hasDialoguesSetting, 
   hasPostInlineReactionsSetting,
+  isBotSiteSetting,
   isLW,
 } from './instanceSettings'
 import { isAdmin, userOverNKarmaOrApproved } from "./vulcan-users/permissions";
 import {isFriendlyUI} from '../themes/forumTheme'
-import { recombeeEnabledSetting } from './publicSettings';
+import { recombeeEnabledSetting, userIdsWithAccessToLlmChat } from './publicSettings';
 import { useLocation } from './routeUtil';
+import { isAnyTest } from './executionEnvironment';
 
 // States for in-progress features
 const adminOnly = (user: UsersCurrent|DbUser|null): boolean => !!user?.isAdmin; // eslint-disable-line no-unused-vars
@@ -47,8 +49,6 @@ export const userHasAutosummarize = adminOnly
 
 export const userHasThemePicker = isFriendlyUI ? adminOnly : shippedFeature;
 
-export const userHasShortformTags = isEAForum ? shippedFeature : disabled;
-
 export const userHasCommentProfileImages = disabled;
 
 export const userHasEagProfileImport = disabled;
@@ -56,6 +56,11 @@ export const userHasEagProfileImport = disabled;
 export const userHasEAHomeRHS = isEAForum ? shippedFeature : disabled;
 
 export const visitorGetsDynamicFrontpage = isLW ? shippedFeature : disabled;
+
+export const userHasPeopleDirectory = (user: UsersCurrent|DbUser|null) =>
+  isEAForum;
+
+export const userHasSubscribeTabFeed = isLW ? shippedFeature : disabled;
 
 //defining as Hook so as to combine with ABTest
 export const useRecombeeFrontpage = (currentUser: UsersCurrent|DbUser|null) => {
@@ -69,6 +74,19 @@ export const useRecombeeFrontpage = (currentUser: UsersCurrent|DbUser|null) => {
   return isLW && (isAdmin(currentUser) || manualOptIn) && recombeeEnabledSetting.get()
 }
 
+export const userHasLlmChat = (currentUser: UsersCurrent|DbUser|null): currentUser is UsersCurrent|DbUser => {
+  if (!currentUser) {
+    return false
+  }
+  const userIdsWithAccess = userIdsWithAccessToLlmChat.get();
+  
+  return isLW && (isAdmin(currentUser) || userIdsWithAccess.includes(currentUser._id));
+}
+
+export const userHasDarkModeHotkey = isEAForum ? adminOnly : shippedFeature;
+
+export const userHasPostAutosave = isLWorAF ? adminOnly : disabled;
+
 // Non-user-specific features
 export const dialoguesEnabled = hasDialoguesSetting.get();
 export const ckEditorUserSessionsEnabled = isLWorAF;
@@ -79,12 +97,32 @@ export const allowSubscribeToSequencePosts = isFriendlyUI;
 export const hasPostRecommendations = isEAForum;
 /** Some Forums, notably the EA Forum, have a weekly digest that users can sign up to receive */
 export const hasDigests = isEAForum;
+/**
+ * Whether the instance should have any features for integrating with twitter.
+ * This is different to `twitterBot.enabled`, as there are features to help
+ * with manual posting too.
+ */
+export const hasTwitterFeatures = isEAForum;
+export const hasAccountDeletionFlow = isEAForum;
 export const hasSideComments = hasSideCommentsSetting.get();
 export const useElicitApi = false;
 export const commentsTableOfContentsEnabled = hasCommentsTableOfContentSetting.get();
 export const fullHeightToCEnabled = isLWorAF;
 export const hasForumEvents = isEAForum;
+export const hasSurveys = isFriendlyUI && !isBotSiteSetting.get();
+export const hasCollapsedFootnotes = !isLWorAF;
 export const useCurationEmailsCron = isLW;
+export const hasSidenotes = isLWorAF;
+
+// EA Forum disabled the author's ability to moderate posts. We disregard this
+// check in tests as the tests run in EA Forum mode, but we want to be able to
+// test the moderation features.
+export const hasAuthorModeration = !isEAForum || isAnyTest;
+
+export const userCanCreateAndEditJargonTerms = (user: UsersCurrent|DbUser|null) => isLW && !!user && user.karma >= 100;
+export const userCanViewJargonTerms = (user: UsersCurrent|DbUser|null) => isLW;
+export const userCanViewUnapprovedJargonTerms = (user: UsersCurrent|DbUser|null) => isLW
+export const userWillPassivelyGenerateJargonTerms = (user: UsersCurrent|DbUser|null) => isLW && !!user && user.karma >= 100
 
 // Shipped Features
 export const userCanManageTags = shippedFeature;
@@ -93,3 +131,4 @@ export const userCanUseTags = shippedFeature;
 export const userCanViewRevisionHistory = shippedFeature;
 export const userHasPingbacks = shippedFeature;
 export const userHasElasticsearch = shippedFeature;
+

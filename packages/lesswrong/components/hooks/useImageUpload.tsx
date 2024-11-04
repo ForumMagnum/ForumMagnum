@@ -31,6 +31,10 @@ const cloudinaryUploadPresetSpotlightSetting = new DatabasePublicSetting<string 
   "cloudinary.uploadPresetSpotlight",
   "yjgxmsio",
 );
+const cloudinaryUploadPresetDigestSetting = new DatabasePublicSetting<string | null>(
+  "cloudinary.uploadPresetDigest",
+  null,
+);
 
 type CloudinaryImageUploadError = {
   statusText: string,
@@ -154,10 +158,10 @@ const cloudinaryArgsByImageType = {
     uploadPreset: cloudinaryUploadPresetProfileSetting.get(),
   },
   socialPreviewImageId: {
-    minImageHeight: 400,
-    minImageWidth: 700,
+    minImageHeight: 270,
+    minImageWidth: 500,
     croppingAspectRatio: 1.91,
-    croppingDefaultSelectionRatio: 1,
+    croppingDefaultSelectionRatio: 1.91,
     uploadPreset: cloudinaryUploadPresetSocialPreviewSetting.get(),
   },
   eventImageId: {
@@ -178,6 +182,12 @@ const cloudinaryArgsByImageType = {
     minImageWidth: 345,
     cropping: false,
     uploadPreset: cloudinaryUploadPresetSpotlightSetting.get()
+  },
+  onsiteDigestImageId: {
+    minImageHeight: 300,
+    minImageWidth: 200,
+    cropping: false,
+    uploadPreset: cloudinaryUploadPresetDigestSetting.get()
   },
 } as const;
 

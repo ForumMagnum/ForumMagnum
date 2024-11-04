@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
-import { GardenCodes } from "../../lib/collections/gardencodes/collection";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
@@ -64,6 +63,8 @@ export const GardenCodeWidget = ({classes, type}: {classes: ClassesType, type: s
     }
   });
 
+  // FIXME: Unstable component will lose state on rerender
+  // eslint-disable-next-line react/no-unstable-nested-components
   const SubmitComponent = () => <div className={classNames("form-submit", classes.formSubmitRow)}>
       <Button onClick={()=>setOpen(false)}>
         Cancel

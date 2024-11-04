@@ -6,9 +6,16 @@ import type {
 import type {
   SearchRequest as SearchRequestBody,
 } from "@elastic/elasticsearch/lib/api/typesWithBodyKey";
-import { indexNameToConfig, IndexConfig, Ranking } from "./ElasticConfig";
+import {
+  IndexConfig,
+  Ranking,
+  isFullTextField,
+  indexToCollectionName,
+  collectionNameToConfig,
+} from "./ElasticConfig";
 import { parseQuery, QueryToken } from "./parseQuery";
 import { searchOriginDate } from "./elasticSettings";
+import { SearchIndexCollectionName } from "../../../lib/search/searchUtil";
 
 /**
  * There a couple of places where we need a rough origin date
@@ -24,7 +31,7 @@ export type QueryFilter = {
   field: string,
 } & ({
   type: "facet",
-  value: boolean | string,
+  value: boolean | string | null,
   negated: boolean,
 } | {
   type: "numeric",
@@ -50,6 +57,7 @@ export type QueryData = {
 export type Fuzziness = "AUTO" | number;
 
 type CompiledQuery = {
+  tokens: QueryToken[],
   searchQuery: QueryDslQueryContainer,
   snippetName: string,
   snippetQuery?: QueryDslQueryContainer,
@@ -58,13 +66,15 @@ type CompiledQuery = {
 }
 
 class ElasticQuery {
+  private collectionName: SearchIndexCollectionName;
   private config: IndexConfig;
 
   constructor(
     private queryData: QueryData,
     private fuzziness: Fuzziness = 1,
   ) {
-    this.config = indexNameToConfig(queryData.index);
+    this.collectionName = indexToCollectionName(queryData.index);
+    this.config = collectionNameToConfig(this.collectionName);
   }
 
   compileRanking({field, order, weight, scoring}: Ranking): string {
@@ -99,50 +109,136 @@ class ElasticQuery {
     return expr;
   }
 
-  private compileFilters() {
-    const terms = [...(this.config.filters ?? [])];
-    for (const filter of this.queryData.filters) {
-      switch (filter.type) {
-      case "facet":
-        const term: QueryDslQueryContainer = {
-          term: {
-            [filter.field]: filter.value,
-          },
-        };
-        terms.push(
-          filter.negated
-            ? {
-              bool: {
-                should: [],
-                must_not: [term],
-              },
-            }
-            : term,
-        );
-        break;
-      case "numeric":
-        terms.push({
-          range: {
-            [filter.field]: {
-              [filter.op]: filter.value,
-            },
-          },
-        });
-        break;
-      case "exists":
-        terms.push({
+  private compileFacet(
+    field: string,
+    value: boolean | string | null,
+    negated: boolean,
+  ): QueryDslQueryContainer {
+    if (value === null) {
+      const term: QueryDslQueryContainer = {
+        exists: {
+          field,
+        },
+      };
+      return negated
+        ? term
+        : {
           bool: {
             should: [],
-            must: [{
-              exists: {
-                field: filter.field
-              }
-            }]
-          }
+            must_not: [term],
+          },
+        };
+    }
+
+    const term: QueryDslQueryContainer = isFullTextField(this.collectionName, field)
+      ? {
+        match: {
+          [`${field}.exact`]: {
+            query: value,
+            analyzer: "fm_exact_analyzer",
+            operator: "AND",
+            fuzziness: 0,
+          },
+        },
+      }
+      : {
+        term: {
+          [field]: value,
+        },
+      };
+    return negated
+      ? {
+        bool: {
+          should: [],
+          must_not: [term],
+        },
+      }
+      : term;
+  }
+
+  private compileFilterTermForField(filter: QueryFilter): QueryDslQueryContainer {
+    switch (filter.type) {
+    case "facet":
+      return this.compileFacet(filter.field, filter.value, filter.negated);
+
+    case "numeric":
+      return {
+        range: {
+          [filter.field]: {
+            [filter.op]: filter.value,
+          },
+        },
+      };
+
+    case "exists":
+      return {
+        bool: {
+          should: [],
+          must: [{
+            exists: {
+              field: filter.field
+            }
+          }]
+        }
+      };
+
+    default:
+      return {};
+    }
+  }
+
+  private compileFilters(tokens: QueryToken[]) {
+    const filtersByField: Record<string, QueryFilter[]> = {};
+    for (const filter of this.queryData.filters) {
+      filtersByField[filter.field] ??= [];
+      filtersByField[filter.field].push(filter);
+    }
+
+    const terms = [...(this.config.filters ?? [])];
+
+    for (const filterField in filtersByField) {
+      const filters = filtersByField[filterField];
+      if (!filters.length) {
+        continue;
+      }
+      const fieldTerms = filters.map(
+        (filter) => this.compileFilterTermForField(filter),
+      );
+      if (fieldTerms.length > 1) {
+        terms.push({
+          bool: {
+            should: fieldTerms,
+          },
         });
-        break;
+      } else {
+        terms.push(fieldTerms[0]);
       }
     }
+
+    const userFilters: QueryDslQueryContainer[] = [];
+    const tagFilters: QueryDslQueryContainer[] = [];
+    for (const {type, token} of tokens) {
+      if (type === "user") {
+        userFilters.push(
+          {term: {"authorSlug.sort": token}},
+          {term: {"authorDisplayName.sort": token}},
+          {term: {userId: token}},
+        );
+      } else if (type === "tag") {
+        tagFilters.push(
+          {term: {"tags._id": token}},
+          {term: {"tags.slug": {value: token, case_insensitive: true}}},
+          {term: {"tags.name": {value: token, case_insensitive: true}}},
+        );
+      }
+    }
+    if (userFilters.length) {
+      terms.push({bool: {should: userFilters}});
+    }
+    if (tagFilters.length) {
+      terms.push({bool: {should: tagFilters}});
+    }
+
     return terms.length ? terms : undefined;
   }
 
@@ -163,11 +259,12 @@ class ElasticQuery {
     };
   }
 
-  private compileSimpleQuery(): CompiledQuery {
+  private compileSimpleQuery(tokens: QueryToken[]): CompiledQuery {
     const {fields, snippet, highlight} = this.config;
     const {search} = this.queryData;
     const mainField = this.textFieldToExactField(fields[0], false);
     return {
+      tokens,
       searchQuery: {
         bool: {
           should: [
@@ -230,6 +327,7 @@ class ElasticQuery {
       },
     });
     return {
+      tokens: [{ type: "must", token: mustToken }],
       snippetName,
       snippetQuery: buildQuery(snippetName),
       ...(highlight && {
@@ -268,6 +366,10 @@ class ElasticQuery {
       case "should":
         should.push(this.getDefaultQuery(token, fields));
         break;
+      case "user":
+      case "tag":
+        // Do nothing - this is handled by `this.compileFilters`
+        break;
       }
     }
 
@@ -286,23 +388,27 @@ class ElasticQuery {
       };
     }
 
+    const highlightQueryString = tokens.filter(
+      ({type}) => type !== "user" && type !== "tag",
+    ).map(({token}) => token).join(" ");
+    const highlightQuery = this.getDefaultQuery(
+      highlightQueryString,
+      this.config.fields,
+    );
+
     return {
+      tokens,
       searchQuery,
       snippetName: snippet,
-      snippetQuery: this.getDefaultQuery(
-        this.queryData.search,
-        this.config.fields,
-      ),
+      snippetQuery: highlightQuery,
       highlightName: highlight,
-      highlightQuery: this.getDefaultQuery(
-        this.queryData.search,
-        this.config.fields,
-      ),
+      highlightQuery,
     };
   }
 
   private compileEmptyQuery(): CompiledQuery {
     return {
+      tokens: [],
       searchQuery: {
         match_all: {},
       },
@@ -318,7 +424,7 @@ class ElasticQuery {
     const {tokens, isAdvanced} = parseQuery(search);
     return isAdvanced
       ? this.compileAdvancedQuery(tokens)
-      : this.compileSimpleQuery();
+      : this.compileSimpleQuery(tokens);
   }
 
   private compileSort(sorting?: string, coordinates?: number[]): Sort {
@@ -339,10 +445,26 @@ class ElasticQuery {
         {[this.config.tiebreaker]: {order: "desc"}},
       ];
     }
+
     const sort: Sort = [
-      {_score: {order: "desc"}},
       {[this.config.tiebreaker]: {order: "desc"}},
     ];
+
+    // If we specify a custom sort (such as from the people directory) then
+    // we should ignore the search _score completely when sorting
+    if (sorting && sorting.indexOf(":") > 0) {
+      const [field, order] = sorting.split(":");
+      if (order !== "asc" && order !== "desc") {
+        throw new Error("Invalid sorting order");
+      }
+      sort.unshift({[field]: {order}});
+      return sort;
+    } else {
+      sort.unshift({_score: {order: "desc"}});
+    }
+
+    // There are several special sortings builtin to the main search page.
+    // Note that these are used in conjunction with the search _score
     switch (sorting) {
     case "karma":
       const field = this.config.karmaField ?? "baseScore";
@@ -361,6 +483,7 @@ class ElasticQuery {
         throw new Error("Invalid sorting: " + sorting);
       }
     }
+
     return sort;
   }
 
@@ -381,6 +504,7 @@ class ElasticQuery {
     const hasCustomHighlight = !coordinates;
 
     const {
+      tokens,
       searchQuery,
       snippetName,
       snippetQuery,
@@ -431,7 +555,7 @@ class ElasticQuery {
               bool: {
                 must: searchQuery,
                 should: [],
-                filter: this.compileFilters(),
+                filter: this.compileFilters(tokens),
               },
             },
             script: {

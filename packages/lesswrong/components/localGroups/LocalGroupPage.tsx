@@ -420,7 +420,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
             <SectionFooter className={classes.organizerActions}>
               {canCreateEvent &&
                 (!isEAForum || isAdmin || isGroupAdmin) && <SectionButton>
-                  <Link to={{pathname:"/newPost", search: `?${qs.stringify({eventForm: true, groupId})}`}}>
+                  <Link to={`/newPost?${qs.stringify({eventForm: true, groupId})}`}>
                     New event
                   </Link>
                 </SectionButton>}

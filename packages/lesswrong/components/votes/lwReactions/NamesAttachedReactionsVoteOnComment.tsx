@@ -27,6 +27,8 @@ import { isMobile } from '../../../lib/utils/isMobile';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
+    display: "flex",
+    alignItems: "center",
     whiteSpace: "nowrap",
   },
   footerReactions: {
@@ -37,7 +39,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     textAlign: 'center',
     whiteSpace: "nowrap",
     zIndex: theme.zIndexes.reactionsFooter,
-    // background: theme.palette.panelBackground.translucent2,
     marginRight: 6,
   },
   footerReactionsRow: {
@@ -49,7 +50,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: 26,
     display: "inline-block",
     borderRadius: 8,
-    paddingTop: 2,
     paddingLeft: 7,
     paddingRight: 7,
     "&:hover": {
@@ -281,8 +281,8 @@ export function reactionVoteIsMatch(react: UserVoteOnSingleReaction, name: Emoji
 }
 
 
-const NamesAttachedReactionsVoteOnComment = ({document, hideKarma=false, collection, votingSystem, classes}: CommentVotingComponentProps & WithStylesProps) => {
-  const voteProps = useVote(document, collection.options.collectionName, votingSystem);
+const NamesAttachedReactionsVoteOnComment = ({document, hideKarma=false, collectionName, votingSystem, classes}: CommentVotingComponentProps & WithStylesProps) => {
+  const voteProps = useVote(document, collectionName, votingSystem);
   const { OverallVoteAxis, AgreementVoteAxis } = Components;
   
   return <span className={classes.root}>
@@ -290,7 +290,8 @@ const NamesAttachedReactionsVoteOnComment = ({document, hideKarma=false, collect
       document={document}
       hideKarma={hideKarma}
       voteProps={voteProps}
-      showBox={true}
+      verticalArrows
+      largeArrows
     />
     <AgreementVoteAxis
       document={document}
@@ -376,13 +377,13 @@ const HoverableReactionIcon = ({reactionRowRef, react, numberShown, voteProps, q
   }
 
   function handleMouseEnter (e: any) {
-    setHoveredReaction?.({reactionName: react, isHovered: true});
+    setHoveredReaction?.({reactionName: react, isHovered: true, quote: null});
     onMouseOver(e);
   }
   
-  function handleMouseLeave () {
-    setHoveredReaction?.({reactionName: react, isHovered: false});
-    onMouseLeave();
+  function handleMouseLeave (ev: React.MouseEvent) {
+    setHoveredReaction?.({reactionName: react, isHovered: false, quote: null});
+    onMouseLeave(ev);
   }
 
   return <span onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
@@ -437,7 +438,7 @@ const ReactionOverview = ({voteProps, classes}: {
   classes: ClassesType
 }) => {
   const { getCurrentUserReactionVote, setCurrentUserReaction, getAlreadyUsedReactTypesByKarma, getAlreadyUsedReacts } = useNamesAttachedReactionsVoting(voteProps);
-  const { Row, LWTooltip, ReactionIcon } = Components;
+  const { Row, LWTooltip, ReactionIcon, ReactionDescription } = Components;
 
   const alreadyUsedReactionTypesByKarma = getAlreadyUsedReactTypesByKarma();
   const alreadyUsedReactions = getAlreadyUsedReacts();
@@ -449,10 +450,12 @@ const ReactionOverview = ({voteProps, classes}: {
         {alreadyUsedReactionTypesByKarma.map(r => {
           const reactions = alreadyUsedReactions[r]!;
           const netReactionCount = sumBy(reactions, r=>r.reactType==="disagreed"?-1:1);
-          const { description, label } = getNamesAttachedReactionsByName(r)
+          const reactionDetails = getNamesAttachedReactionsByName(r)
           return <div key={`${r}`} className={classes.overviewSummaryRow}>
             <Row justifyContent="flex-start">
-              <LWTooltip title={`${label} – ${description}`}>
+              <LWTooltip title={<>{
+                reactionDetails.label}{" – "}<ReactionDescription reaction={reactionDetails}/>
+              </>}>
                 <ReactionIcon react={r}/>
               </LWTooltip>
               <Components.ReactOrAntireactVote
@@ -534,16 +537,15 @@ export const AddReactionButton = ({voteProps, classes}: {
       className={classNames(classes.addReactionButton, "react-hover-style")}
     >
       <AddReactionIcon />
-      {open && <LWClickAwayListener onClickAway={() => {
-        setOpen(false)
-        captureEvent("reactPaletteStateChanged", {open: false})
-      }}>
-        <PopperCard
-          open={open} anchorEl={buttonRef.current}
-          placement="bottom-end"
-          allowOverflow={true}
-          
-        >
+      <PopperCard
+        open={open} anchorEl={buttonRef.current}
+        placement="bottom-end"
+        allowOverflow={true}
+      >
+        <LWClickAwayListener onClickAway={() => {
+          setOpen(false)
+          captureEvent("reactPaletteStateChanged", {open: false})
+        }}>
           <div className={classes.hoverBallot}>
             <ReactionsPalette
               quote={null}
@@ -551,8 +553,8 @@ export const AddReactionButton = ({voteProps, classes}: {
               toggleReaction={handleToggleReaction}
             />
           </div>
-        </PopperCard>
-      </LWClickAwayListener>}
+        </LWClickAwayListener>
+      </PopperCard>
     </span>
   </LWTooltip>
 }

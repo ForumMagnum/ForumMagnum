@@ -1,5 +1,6 @@
 import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
+import {taggingNameSetting} from '../../lib/instanceSettings'
 
 const EARecentDiscussionTagRevision = ({
   tag,
@@ -21,7 +22,7 @@ const EARecentDiscussionTagRevision = ({
       icon="TagFilled"
       iconVariant="green"
       user={revision.user}
-      action="edited tag"
+      action={`edited ${taggingNameSetting.get()}`}
       tag={tag}
       timestamp={revision.editedAt}
     >

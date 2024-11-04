@@ -1,12 +1,13 @@
 import React from 'react';
 import { TupleSet, UnionOf } from "../../utils/typeGuardUtils";
-import { Components } from '../../../lib/vulcan-lib';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import type { ForumIconName } from '../../../components/common/ForumIcon';
 
 export interface SettingsOption {
   label: string | JSX.Element;
   shortLabel?: string | React.ReactNode;
   tooltip?: string;
+  icon?: ForumIconName,
 }
 
 export const SORT_ORDER_OPTIONS: Record<PostSortingMode,SettingsOption> = {

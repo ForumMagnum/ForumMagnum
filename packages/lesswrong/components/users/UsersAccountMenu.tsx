@@ -4,7 +4,8 @@ import Popover from '@material-ui/core/Popover';
 import Button from '@material-ui/core/Button';
 import { useTracking } from '../../lib/analyticsEvents';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { isLW } from '../../lib/instanceSettings';
+import { blackBarTitle } from '../../lib/publicSettings';
+import { useLoginPopoverContext } from '../hooks/useLoginPopoverContext';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -14,7 +15,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: '14px',
     fontWeight: isFriendlyUI ? undefined : 400,
     opacity: .8,
-    color: theme.palette.header.text,
+    color: blackBarTitle.get() ? theme.palette.text.alwaysWhite : theme.palette.header.text,
   },
   login: {
     marginLeft: 12,
@@ -32,32 +33,26 @@ const styles = (theme: ThemeType) => ({
 const EAUsersAccountMenu = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const [action, setAction] = useState<"login" | "signup" | null>(null);
-
-  const onLogin = useCallback(() => setAction("login"), []);
-  const onSignup = useCallback(() => setAction("signup"), []);
-
+  const {onLogin, onSignup} = useLoginPopoverContext();
   const {EAButton, EALoginPopover} = Components;
   return (
     <div className={classes.root}>
       <EAButton
         style="grey"
         onClick={onLogin}
+        data-testid="user-login-button"
         className={classes.login}
       >
         Login
       </EAButton>
       <EAButton
         onClick={onSignup}
+        data-testid="user-signup-button"
         className={classes.signUp}
       >
         Sign up
       </EAButton>
-      <EALoginPopover
-        open={!!action}
-        setAction={setAction}
-        isSignup={action === "signup"}
-      />
+      <EALoginPopover />
     </div>
   );
 }

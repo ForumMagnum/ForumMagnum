@@ -1,3 +1,4 @@
+import { isFriendlyUI } from "../forumTheme";
 
 export default (theme: ThemeType): string => `
 /*
@@ -129,6 +130,11 @@ html {
    * necessary to ensure it works on modal dialogs
    * (also tried adding it to Layout.jsx's JSS, and to the styles file in the ckeditor folder)
    */
+  --ck-z-panel: 10000000002 !important;
+  /**
+   * --ck-z-modal was renamed to --ck-z-panel in https://github.com/ckeditor/ckeditor5/pull/15285
+   * it's here for backwards compatibility only
+   */
   --ck-z-modal: 10000000002 !important;
 }
 
@@ -181,9 +187,9 @@ select.form-control{
   right: 5px;
   color: #ddd;
   font-size: 80%;
-  &.danger{
-    color: #EF1642;
-  }
+}
+.form-control-limit.danger{
+  color: #EF1642;
 }
 
 /* //////////////////////////////////////////////////////////////////////// */
@@ -253,5 +259,22 @@ div#mocha {
   top: 0;
   width: 20px;
   z-index: 10000000;
+}
+
+/* Mapbox */
+${
+  isFriendlyUI
+    ? `
+      .mapboxgl-popup-content {
+        background: ${theme.palette.panelBackground.mapboxTooltip} !important;
+      }
+      .mapboxgl-popup-tip {
+        border-top-color: ${theme.palette.panelBackground.mapboxTooltip} !important;
+      }
+      .mapboxgl-popup-close-button {
+        color: ${theme.palette.text.normal} !important;
+      }
+    `
+    : ""
 }
 `

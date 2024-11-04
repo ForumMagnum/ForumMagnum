@@ -1,9 +1,10 @@
 import Button from '@material-ui/core/Button';
-import CloseIcon from '@material-ui/icons/Close';
 import EditIcon from '@material-ui/icons/Edit';
+import PublishIcon from '@material-ui/icons/Publish';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
+import CloseIcon from '@material-ui/icons/Close';
 import classNames from 'classnames';
-import React, { useState } from 'react';
+import React, { CSSProperties, useCallback, useState } from 'react';
 import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
@@ -13,7 +14,9 @@ import { useCurrentUser } from '../common/withUser';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { getSpotlightUrl } from '../../lib/collections/spotlights/helpers';
+import { useUpdate } from '../../lib/crud/withUpdate';
 
+const TEXT_WIDTH = 350;
 
 export const descriptionStyles = (theme: ThemeType) => ({
   ...postBodyStyles(theme),
@@ -34,7 +37,12 @@ export const descriptionStyles = (theme: ThemeType) => ({
   },
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const buildFadeMask = (breakpoints: string[]) => {
+  const mask = `linear-gradient(to right, ${breakpoints.join(",")})`;
+  return {mask, "-webkit-mask-image": mask};
+}
+
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: 12,
     boxShadow: theme.palette.boxShadow.default,
@@ -56,12 +64,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&:hover': {
       boxShadow: theme.palette.boxShadow.sequencesGridItemHover,
     },
-    '&:hover $editButtonIcon': {
+    '&:hover $adminButtonIcon': {
       opacity: .2
     },
     '&:hover $closeButton': {
       color: theme.palette.grey[100],
     }
+  },
+  spotlightFadeBackground: {
+    background: "var(--spotlight-fade)",
   },
   closeButtonWrapper: {
     position: 'absolute',
@@ -72,21 +83,32 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: '.5em',
     minHeight: '.75em',
     minWidth: '.75em',
-    color: theme.palette.grey[300],
+    color: isFriendlyUI ? theme.palette.text.alwaysWhite : theme.palette.grey[300],
     zIndex: theme.zIndexes.spotlightItemCloseButton,
+  },
+  hideButton: {
+    cursor: "pointer",
+    position: "absolute",
+    top: 12,
+    right: 12,
+    width: 20,
+    height: 20,
+    color: theme.palette.text.alwaysWhite,
+    "&:hover": {
+      opacity: 0.8,
+    },
   },
   content: {
     padding: 16,
     paddingRight: 35,
     display: "flex",
-    // overflow: "hidden",
     flexDirection: "column",
     justifyContent: "space-between",
     marginRight: 150,
     position: "relative",
     zIndex: theme.zIndexes.spotlightItem,
     // Drop shadow that helps the text stand out from the background image
-    textShadow: `
+    textShadow: isFriendlyUI ? undefined : `
       0px 0px 10px ${theme.palette.background.default},
       0px 0px 20px ${theme.palette.background.default}
     `,
@@ -115,38 +137,67 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     ...(isFriendlyUI ? {
       fontSize: 13,
+      fontWeight: 500,
       fontFamily: theme.palette.fonts.sansSerifStack,
-      color: theme.palette.grey[700],
+      color: theme.palette.text.alwaysWhite,
       marginTop: 8,
+      maxWidth: TEXT_WIDTH,
+      "& a": {
+        color: theme.palette.text.alwaysWhite,
+        textDecoration: "underline",
+        "&:hover": {
+          opacity: 0.8,
+          color: `${theme.palette.text.alwaysWhite} !important`,
+        },
+        "&:visited": {
+          color: theme.palette.text.alwaysWhite,
+        },
+      },
     } : {}),
   },
   title: {
-    ...theme.typography.headerStyle,
-    fontSize: 20,
-    ...(isFriendlyUI ?
-      {fontWeight: 600} :
-      {fontVariant: "small-caps"}
+    ...theme.typography.postStyle,
+    ...(isFriendlyUI
+      ? {
+        fontSize: 22,
+        fontWeight: 700,
+        color: theme.palette.text.alwaysWhite,
+      }
+      : {
+        fontSize: 20,
+        fontVariant: "small-caps",
+        lineHeight: "1.2em",
+      }
     ),
-    lineHeight: "1.2em",
     display: "flex",
     alignItems: "center"
   },
   subtitle: {
     ...theme.typography.postStyle,
-    color: theme.palette.grey[700],
     ...theme.typography.italic,
     ...(isFriendlyUI ? {
       fontSize: 13,
+      fontWeight: 500,
       fontFamily: theme.palette.fonts.sansSerifStack,
+      color: theme.palette.text.alwaysWhite,
       marginTop: 8,
+      maxWidth: TEXT_WIDTH,
     } : {
+      color: theme.palette.grey[700],
       fontSize: 15,
       marginTop: -1,
     }),
   },
-  startOrContinue: {
-    marginTop: isFriendlyUI ? 16 : 4,
-  },
+  startOrContinue: isFriendlyUI
+    ? {
+      marginTop: 0,
+      [theme.breakpoints.down("xs")]: {
+        marginTop: 8,
+      },
+    }
+    : {
+      marginTop: 4,
+    },
   image: {
     height: "100%",
     position: "absolute",
@@ -157,10 +208,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     // TODO these were added to fix an urgent bug, hence the forum gating. Maybe they could be un-gated
     ...(isFriendlyUI && {width: "100%", objectFit: "cover"}),
   },
-  imageFade: {
-    mask: `linear-gradient(to right, transparent 0, ${theme.palette.text.alwaysWhite} 80%, ${theme.palette.text.alwaysWhite} 100%)`,
-    "-webkit-mask-image": `linear-gradient(to right, transparent 0, ${theme.palette.text.alwaysWhite} 80%, ${theme.palette.text.alwaysWhite} 100%)`,
-  },
+  imageFade: buildFadeMask([
+    "transparent 0",
+    `${theme.palette.text.alwaysWhite} 80%`,
+    `${theme.palette.text.alwaysWhite} 100%`,
+  ]),
+  imageFadeCustom: buildFadeMask([
+    "transparent 0",
+    "transparent 30%",
+    `${theme.palette.text.alwaysWhite} 90%`,
+    `${theme.palette.text.alwaysWhite} 100%`,
+  ]),
   author: {
     marginTop: 4,
     color: theme.palette.grey[600],
@@ -180,10 +238,34 @@ const styles = (theme: ThemeType): JssStyles => ({
       right: 8
     },
   },
+  draftButton: {
+    [theme.breakpoints.up('md')]: {
+      position: "absolute",
+      top: 35,
+      right: -28,
+    },
+    [theme.breakpoints.down('sm')]: {
+      position: "absolute",
+      top: 33,
+      right: 8
+    },
+  },
+  deleteButton: {
+    [theme.breakpoints.up('md')]: {
+      position: "absolute",
+      bottom: 0,
+      right: -28,
+    },
+    [theme.breakpoints.down('sm')]: {
+      position: "absolute",
+      bottom: 0,
+      right: 8
+    },
+  },
   editAllButtonIcon: {
     width: 20
   },
-  editButtonIcon: {
+  adminButtonIcon: {
     width: 18,
     opacity: 0,
     cursor: "pointer",
@@ -239,7 +321,22 @@ const styles = (theme: ThemeType): JssStyles => ({
     textAlign: "right",
     paddingTop: 6,
     paddingBottom: 12
-  }
+  },
+  splashImage: {
+    transform: "translateX(13%) scale(1.15)", // splash images aren't quite designed for this context and need this adjustment. Scale 1.15 to deal with a few random images that had weird whitespace.
+    filter: "brightness(1.2)",
+  },
+  splashImageContainer: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    width: "100%",
+    height: "100%",
+    overflow: "hidden",
+  },
+  reverseIcon: {
+    transform: "rotate(180deg)",
+  },
 });
 
 export const SpotlightItem = ({
@@ -256,13 +353,8 @@ export const SpotlightItem = ({
   // This is so that if a spotlight's position is updated (in SpotlightsPage), we refetch all of them to display them with their updated positions and in the correct order
   refetchAllSpotlights?: () => void,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
-  const {
-    MetaInfo, FormatDate, AnalyticsTracker, ContentItemBody, CloudinaryImage2, LWTooltip,
-    WrappedSmartForm, SpotlightEditorStyles, SpotlightStartOrContinueReading, Typography
-  } = Components
-  
   const currentUser = useCurrentUser()
 
   const [edit, setEdit] = useState<boolean>(false)
@@ -272,14 +364,57 @@ export const SpotlightItem = ({
 
   const duration = spotlight.duration
 
-  const onUpdate = () => {
+  const onUpdate = useCallback(() => {
     setEdit(false);
     refetchAllSpotlights?.();
-  };
-  
+  }, [refetchAllSpotlights]);
+
+  const { mutate: updateSpotlight } = useUpdate({
+    collectionName: "Spotlights",
+    fragmentName: "SpotlightDisplay",
+  });
+
+  const toggleDraft = useCallback(async () => {
+    if (!currentUser || !userCanDo(currentUser, 'spotlights.edit.all')) {
+      return;
+    }
+    await updateSpotlight({
+      selector: { _id: spotlight._id },
+      data: { draft: !spotlight.draft }
+    });
+    refetchAllSpotlights?.();
+  }, [currentUser, spotlight._id, spotlight.draft, refetchAllSpotlights, updateSpotlight]);
+
+  const deleteDraft = useCallback(async () => {
+    if (!currentUser || !userCanDo(currentUser, 'spotlights.edit.all')) {
+      return;
+    }
+    await updateSpotlight({
+      selector: { _id: spotlight._id },
+      data: { deletedDraft: true }
+    });
+    refetchAllSpotlights?.();
+  }, [currentUser, spotlight._id, refetchAllSpotlights, updateSpotlight]);
+
+  // Define fade color with a CSS variable to be accessed in the styles
+  const style = {
+    "--spotlight-fade": spotlight.imageFadeColor,
+  } as CSSProperties;
+
+  const {
+    MetaInfo, FormatDate, AnalyticsTracker, ContentItemBody, CloudinaryImage2,
+    WrappedSmartForm, SpotlightEditorStyles, SpotlightStartOrContinueReading,
+    Typography, LWTooltip, ForumIcon,
+  } = Components
   return <AnalyticsTracker eventType="spotlightItem" captureOnMount captureOnClick={false}>
-    <div className={classNames(classes.root, className)} id={spotlight._id}>
-      <div className={classes.spotlightItem}>
+    <div
+      id={spotlight._id}
+      style={style}
+      className={classNames(classes.root, className)}
+    >
+      <div className={classNames(classes.spotlightItem, {
+        [classes.spotlightFadeBackground]: !!spotlight.imageFadeColor,
+      })}>
         <div className={classNames(classes.content, {[classes.postPadding]: spotlight.documentType === "Post"})}>
           <div className={classes.title}>
             <Link to={url}>
@@ -287,7 +422,7 @@ export const SpotlightItem = ({
             </Link>
             <span className={classes.editDescriptionButton}>
               {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
-                <EditIcon className={classes.editButtonIcon} onClick={() => setEditDescription(!editDescription)}/>
+                <EditIcon className={classes.adminButtonIcon} onClick={() => setEditDescription(!editDescription)}/>
               </LWTooltip>}
             </span>
           </div>
@@ -318,28 +453,55 @@ export const SpotlightItem = ({
           </Typography>}
           <SpotlightStartOrContinueReading spotlight={spotlight} className={classes.startOrContinue} />
         </div>
+        {spotlight.spotlightSplashImageUrl && <div className={classes.splashImageContainer}><img src={spotlight.spotlightSplashImageUrl} className={classNames(classes.image, classes.imageFade, classes.splashImage)}/></div>}
         {spotlight.spotlightImageId && <CloudinaryImage2
           publicId={spotlight.spotlightImageId}
           darkPublicId={spotlight.spotlightDarkImageId}
           className={classNames(classes.image, {
-            [classes.imageFade]: spotlight.imageFade,
+            [classes.imageFade]: spotlight.imageFade && !spotlight.imageFadeColor,
+            [classes.imageFadeCustom]: spotlight.imageFade && spotlight.imageFadeColor,
           })}
         />}
-        {hideBanner && <div className={classes.closeButtonWrapper}>
-          <LWTooltip title="Hide this spotlight" placement="right">
-            <Button className={classes.closeButton} onClick={hideBanner}>
-              <CloseIcon className={classes.closeIcon} />
-            </Button>
-          </LWTooltip>
-        </div>}
+        {hideBanner && (
+          isFriendlyUI
+            ? (
+              <ForumIcon
+                icon="Close"
+                onClick={hideBanner}
+                className={classes.hideButton}
+              />
+            )
+            : (
+              <div className={classes.closeButtonWrapper}>
+                <LWTooltip title="Hide this spotlight" placement="right">
+                  <Button className={classes.closeButton} onClick={hideBanner}>
+                    <ForumIcon icon="Close" />
+                  </Button>
+                </LWTooltip>
+              </div>
+            )
+          )
+        }
         <div className={classes.editAllButton}>
-          {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
-            <MoreVertIcon className={classNames(classes.editButtonIcon, classes.editAllButtonIcon)} onClick={() => setEdit(!edit)}/>
+          {userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
+            <MoreVertIcon className={classNames(classes.adminButtonIcon, classes.editAllButtonIcon)} onClick={() => setEdit(!edit)}/>
           </LWTooltip>}
         </div>
+        <div className={classes.draftButton}>
+          {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && 
+            <LWTooltip title={spotlight.draft ? "Undraft" : "Draft"}>
+              <PublishIcon className={classNames(classes.adminButtonIcon, classes.editAllButtonIcon, 
+                !spotlight.draft && classes.reverseIcon)} onClick={() => toggleDraft()}/>
+            </LWTooltip>
+          }
+        </div>
+        {spotlight.draft && <div className={classes.deleteButton}>
+          {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Archive">
+            <CloseIcon className={classNames(classes.adminButtonIcon, classes.editAllButtonIcon)} onClick={() => deleteDraft()}/>
+          </LWTooltip>}
+        </div>}
       </div>
-      {showAdminInfo && <>
-        {edit ? <div className={classes.form}>
+      {edit && <div className={classes.form}>
             <SpotlightEditorStyles>
             <WrappedSmartForm
               collectionName="Spotlights"
@@ -350,8 +512,8 @@ export const SpotlightItem = ({
             />
             </SpotlightEditorStyles>
           </div>
-           :
-          <div className={classes.metaData}>
+      }
+      {!edit && showAdminInfo &&  <div className={classes.metaData}>
             {spotlight.draft && <MetaInfo>[Draft]</MetaInfo>}
             <MetaInfo>{spotlight.position}</MetaInfo>
             <MetaInfo><FormatDate date={spotlight.lastPromotedAt} format="YYYY-MM-DD"/></MetaInfo>
@@ -359,8 +521,7 @@ export const SpotlightItem = ({
               <MetaInfo>{duration} days</MetaInfo>
             </LWTooltip>
           </div>
-        }
-      </>}
+      }
     </div>
   </AnalyticsTracker>
 }

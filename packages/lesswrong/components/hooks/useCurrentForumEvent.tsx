@@ -5,6 +5,7 @@ import { hasForumEvents } from "../../lib/betas";
 type CurrentForumEventContext = {
   currentForumEvent: ForumEventsDisplay | null,
   isEventPost: (post: PostsBase) => boolean,
+  refetch?: () => void
 }
 
 const defaultValue: CurrentForumEventContext = {
@@ -40,7 +41,9 @@ export const CurrentForumEventProvider: FC<{
     : true;
 
   useEffect(() => {
-    void refetch();
+    if (hasForumEvents) {
+      void refetch();
+    }
   }, [refetch, eventEnded]);
 
   const value = useMemo(() => {
@@ -49,8 +52,9 @@ export const CurrentForumEventProvider: FC<{
       : {
         currentForumEvent,
         isEventPost,
+        refetch,
       };
-  }, [currentForumEvent, isEventPost, eventEnded]);
+  }, [currentForumEvent, isEventPost, refetch, eventEnded]);
 
   return (
     <currentForumEventContext.Provider value={value}>

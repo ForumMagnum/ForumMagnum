@@ -8,6 +8,7 @@ import SparklesIcon from "@heroicons/react/24/solid/SparklesIcon";
 import StarIcon from "@heroicons/react/24/solid/StarIcon";
 import StarOutlineIcon from "@heroicons/react/24/outline/StarIcon";
 import UserIcon from "@heroicons/react/24/solid/UserIcon";
+import UserCircleIcon from "@heroicons/react/24/outline/UserCircleIcon";
 import UsersIcon from "@heroicons/react/24/solid/UsersIcon";
 import UsersOutlineIcon from "@heroicons/react/24/outline/UsersIcon";
 import BellIcon from "@heroicons/react/24/solid/BellIcon";
@@ -22,12 +23,17 @@ import HeartOutlineIcon from "@heroicons/react/24/outline/HeartIcon";
 import BellOutlineIcon from "@heroicons/react/24/outline/BellIcon";
 import CheckIcon from "@heroicons/react/20/solid/CheckIcon";
 import CheckCircleIcon from "@heroicons/react/20/solid/CheckCircleIcon";
+import ChevronLeftIcon from "@heroicons/react/24/solid/ChevronLeftIcon";
+import ChevronRightIcon from "@heroicons/react/24/solid/ChevronRightIcon";
 import CloseIcon from "@heroicons/react/24/solid/XMarkIcon";
+import ClockIcon from "@heroicons/react/24/outline/ClockIcon";
+import NoSymbolIcon from "@heroicons/react/24/solid/NoSymbolIcon";
 import CalendarIcon from "@heroicons/react/24/solid/CalendarIcon";
 import CalendarDaysIcon from "@heroicons/react/24/solid/CalendarDaysIcon";
 import BriefcaseIcon from "@heroicons/react/24/solid/BriefcaseIcon";
 import AcademicCapIcon from "@heroicons/react/24/solid/AcademicCapIcon";
 import MapPinIcon from "@heroicons/react/24/solid/MapPinIcon";
+import MapIcon from "@heroicons/react/24/outline/MapIcon";
 import CommentIcon from "@heroicons/react/24/outline/ChatBubbleLeftIcon";
 import CommentFilledIcon from "@heroicons/react/24/solid/ChatBubbleLeftIcon";
 import ChatBubbleLeftRightIcon from "@heroicons/react/24/outline/ChatBubbleLeftRightIcon";
@@ -56,17 +62,24 @@ import ShareIcon from "@heroicons/react/24/outline/ArrowUpTrayIcon";
 import ClipboardDocumentListIcon from "@heroicons/react/24/outline/ClipboardDocumentListIcon";
 import ClipboardDocumentIcon from "@heroicons/react/24/outline/ClipboardDocumentIcon";
 import QuestionMarkCircleIcon from "@heroicons/react/24/outline/QuestionMarkCircleIcon";
+import QuestionMarkCircleFilledIcon from "@heroicons/react/24/solid/QuestionMarkCircleIcon";
 import SearchIcon from "@heroicons/react/24/outline/MagnifyingGlassIcon";
 import ArrowLongDown from "@heroicons/react/20/solid/ArrowLongDownIcon";
+import ArrowLongUp from "@heroicons/react/20/solid/ArrowLongUpIcon";
 import BookOpenIcon from "@heroicons/react/24/outline/BookOpenIcon";
 import ComputerDesktopIcon from "@heroicons/react/24/outline/ComputerDesktopIcon";
 import ArrowRightIcon from "@heroicons/react/24/solid/ArrowRightIcon";
 import ArrowRightOutlineIcon from "@heroicons/react/24/outline/PaperAirplaneIcon";
+import ArrowLeftIcon from "@heroicons/react/24/solid/ArrowLeftIcon";
 import ArrowCircleIcon from "@heroicons/react/20/solid/ArrowPathRoundedSquareIcon";
 import FunnelIcon from "@heroicons/react/24/outline/FunnelIcon";
 import BarsArrowDown from "@heroicons/react/24/outline/BarsArrowDownIcon";
+import Bars3 from "@heroicons/react/24/outline/Bars3Icon";
+import ViewColumnsIcon from "@heroicons/react/24/outline/ViewColumnsIcon";
 import InformationCircleIcon from '@heroicons/react/24/solid/InformationCircleIcon';
 import ArrowDownOnSquareIcon from '@heroicons/react/24/outline/ArrowDownOnSquareIcon';
+import ChevronUpDownIcon from "@heroicons/react/24/outline/ChevronUpDownIcon";
+import ArrowsUpDownIcon from "@heroicons/react/20/solid/ArrowsUpDownIcon";
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
@@ -98,7 +111,15 @@ import MuiMenuIcon from "@material-ui/icons/Menu";
 import MuiForumIcon from '@material-ui/icons/Forum';
 import MuiVoteIcon from '@material-ui/icons/HowToVote'
 import MuiCommentIcon from '@material-ui/icons/ModeComment';
-
+import MuiNotInterestedIcon from '@material-ui/icons/NotInterested';
+import MuiExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import MuiExpandLessIcon from "@material-ui/icons/ExpandLess";
+import MuiPlaylistAddIcon from "@material-ui/icons/PlaylistAdd";
+import PlusOneIcon from '@material-ui/icons/PlusOne';
+import UndoIcon from '@material-ui/icons/Undo';
+import ClearIcon from '@material-ui/icons/Clear';
+import FullscreenIcon from '@material-ui/icons/Fullscreen';
+import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
 
 
 /**
@@ -125,7 +146,17 @@ import { FilterAlt } from "../icons/filteralt";
 import { VotedIcon } from "../icons/votedIcon";
 import { LightbulbChatIcon } from "../icons/lightbulbChatIcon";
 import { AddReactionIcon } from "../icons/AddReactionIcon";
-
+import { LabBeakerIcon } from "../icons/LabBeakerIcon";
+import { SparkleIcon } from "../icons/sparkleIcon";
+import { ListViewIcon } from "../icons/ListViewIcon";
+import { CardViewIcon } from "../icons/CardViewIcon";
+import { CheckSmallIcon } from "../icons/CheckSmallIcon";
+import { FilterBarsIcon } from "../icons/FilterBarsIcon";
+import { EAEnvelopeIcon } from "../icons/EAEnvelopeIcon";
+import { RobotIcon } from '../icons/RobotIcon';
+import { TickReactionIcon } from "../icons/reactions/TickReactionIcon";
+import { CrossReactionIcon } from "../icons/reactions/CrossReactionIcon";
+import { CrossReactionCapIcon } from "../icons/CrossReactionCapIcon";
 /**
  * This exists to allow us to easily use different icon sets on different
  * forums. To add a new icon, add its name to `ForumIconName` and add an
@@ -143,6 +174,7 @@ export type ForumIconName =
   "KarmaOutline" |
   "Star" |
   "User" |
+  "UserCircle" |
   "Users" |
   "UsersOutline" |
   "Bell" |
@@ -155,11 +187,14 @@ export type ForumIconName =
   "Author" |
   "Sprout" |
   "Close" |
+  "Clock" |
+  "No" |
   "Calendar" |
   "CalendarDays" |
   "Work" |
   "School" |
   "MapPin" |
+  "Map" |
   "Pencil" |
   "PencilSquare" |
   "Comment" |
@@ -177,13 +212,19 @@ export type ForumIconName =
   "TagFilled" |
   "Edit" |
   "Analytics" |
+  "ChevronLeft" |
+  "ChevronRight" |
   "ThickChevronLeft" |
   "ThickChevronRight" |
   "ThickChevronDown" |
+  "ChevronUpDown" |
+  "ArrowsUpDown" |
   "NarrowArrowDown" |
+  "NarrowArrowUp" |
   "Plus" |
   "Check" |
   "CheckCircle" |
+  "CheckSmall" |
   "Card" |
   "List" |
   "PlusSmall" |
@@ -193,11 +234,13 @@ export type ForumIconName =
   "Settings" |
   "Email" |
   "Envelope" |
+  "EAEnvelope" |
   "Puzzle" |
   "Image" |
   "Document" |
   "DocumentFilled" |
   "SoftUpArrow" |
+  "ArrowLeft" |
   "ArrowRight" |
   "ArrowRightOutline" |
   "ArrowCircle" |
@@ -206,6 +249,7 @@ export type ForumIconName =
   "ClipboardDocumentList" |
   "ClipboardDocument" |
   "QuestionMarkCircle" |
+  "QuestionMarkCircleFilled" |
   "Search" |
   "ComputerDesktop" |
   "Menu" |
@@ -213,18 +257,37 @@ export type ForumIconName =
   "Q" |
   "BarChart" |
   "Funnel" |
+  "FilterBars" |
   "Voted" |
   "InfoCircle" |
   "BarsArrowDown" |
+  "Bars3" |
+  "ViewColumns" |
+  "ListView" |
+  "CardView" |
   "LightbulbChat" |
   "VoteBallot" |
   "Import" |
-  "AddReaction"
-  ;
+  "AddReaction" |
+  "LabBeaker" |
+  "Sparkle" |
+  "NotInterested" |
+  "Robot" |
+  "ExpandMore" |
+  "ExpandLess" |
+  "PlaylistAdd"|
+  "PlusOne" |
+  "Undo" |
+  "Clear" |
+  "Fullscreen" |
+  "FullscreenExit" |
+  "TickReaction" |
+  "CrossReaction" |
+  "CrossReactionCap";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   LWAF: {
-    VolumeUp: MuiVolumeUpIcon,
+    VolumeUp: SpeakerWaveIcon,
     BookOpen: BookOpenIcon,
     Bookmark: MuiBookmarkIcon,
     BookmarkBorder: MuiBookmarkBorderIcon,
@@ -234,6 +297,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     KarmaOutline: MuiStarBorderIcon,
     Star: MuiStarIcon,
     User: MuiPersonIcon,
+    UserCircle: UserCircleIcon,
     Users: MuiPeopleIcon,
     UsersOutline: UsersOutlineIcon,
     Bell: MuiNotificationsIcon,
@@ -246,14 +310,17 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Author: AuthorIcon,
     Sprout: SproutIcon,
     Close: CloseIcon,
+    Clock: ClockIcon,
+    No: NoSymbolIcon,
     Calendar: CalendarIcon,
     CalendarDays: CalendarDaysIcon,
     Work: BriefcaseIcon,
     School: AcademicCapIcon,
     MapPin: MuiLocationIcon,
+    Map: MapIcon,
     Pencil: PencilIcon,
     PencilSquare: PencilSquareIcon,
-    Comment: MuiCommentIcon,
+    Comment: CommentIcon,
     CommentFilled: CommentFilledIcon,
     ChatBubbleLeftRight: ChatBubbleLeftRightIcon,
     ChatBubbleLeftRightFilled: MuiForumIcon,
@@ -268,10 +335,15 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     EyeOutline: MuiVisibilityOff,
     Edit: MuiEditIcon,
     Analytics: MuiShowChartIcon,
+    ChevronLeft: ChevronLeftIcon,
+    ChevronRight: ChevronRightIcon,
     ThickChevronLeft: ThickChevronLeftIcon,
     ThickChevronRight: ThickChevronRightIcon,
     ThickChevronDown: ThickChevronDownIcon,
+    ChevronUpDown: ChevronUpDownIcon,
+    ArrowsUpDown: ArrowsUpDownIcon,
     NarrowArrowDown: ArrowLongDown,
+    NarrowArrowUp: ArrowLongUp,
     Plus: PlusIcon,
     PlusSmall: PlusSmallIcon,
     MinusSmall: MinusSmallIcon,
@@ -280,16 +352,19 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Settings: MuiSettingsIcon,
     Email: MuiEmailIcon,
     Envelope: EnvelopeIcon,
+    EAEnvelope: EAEnvelopeIcon,
     Image: PhotoIcon,
     Document: DocumentTextIcon,
     DocumentFilled: DocumentIcon,
     Puzzle: MuiPuzzleIcon,
     Check: MuiCheckIcon,
     CheckCircle: CheckCircleIcon,
+    CheckSmall: CheckSmallIcon,
     Card: CardIcon,
     List: ListIcon,
     SoftUpArrow: SoftUpArrowIcon,
     ArrowRight: ArrowRightIcon,
+    ArrowLeft: ArrowLeftIcon,
     ArrowRightOutline: ArrowRightOutlineIcon,
     ArrowCircle: ArrowCircleIcon,
     EllipsisVertical: MuiEllipsisVerticalIcon,
@@ -297,6 +372,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ClipboardDocumentList: ClipboardDocumentListIcon,
     ClipboardDocument: ClipboardDocumentIcon,
     QuestionMarkCircle: QuestionMarkCircleIcon,
+    QuestionMarkCircleFilled: QuestionMarkCircleFilledIcon,
     Search: MuiSearchIcon,
     ComputerDesktop: ComputerDesktopIcon,
     Menu: MuiMenuIcon,
@@ -304,13 +380,33 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Q: QIcon,
     BarChart: ChartBarIcon,
     Funnel: FilterAlt,
+    FilterBars: FilterBarsIcon,
     Voted: VotedIcon,
     InfoCircle: InformationCircleIcon,
     BarsArrowDown: BarsArrowDown,
+    Bars3: Bars3,
+    ViewColumns: ViewColumnsIcon,
+    ListView: ListViewIcon,
+    CardView: CardViewIcon,
     LightbulbChat: LightbulbChatIcon,
     VoteBallot: MuiVoteIcon,
     Import: ArrowDownOnSquareIcon,
     AddReaction: AddReactionIcon,
+    LabBeaker: LabBeakerIcon,
+    Sparkle: SparkleIcon,
+    NotInterested: MuiNotInterestedIcon,
+    Robot: RobotIcon,
+    ExpandMore: MuiExpandMoreIcon,
+    ExpandLess: MuiExpandLessIcon,
+    PlaylistAdd: MuiPlaylistAddIcon,
+    PlusOne: PlusOneIcon,
+    Undo: UndoIcon,
+    Clear: ClearIcon,
+    Fullscreen: FullscreenIcon,
+    FullscreenExit: FullscreenExitIcon,
+    TickReaction: TickReactionIcon,
+    CrossReaction: CrossReactionIcon,
+    CrossReactionCap: CrossReactionCapIcon
   },
   default: {
     VolumeUp: SpeakerWaveIcon,
@@ -323,6 +419,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     KarmaOutline: StarOutlineIcon,
     Star: StarIcon,
     User: UserIcon,
+    UserCircle: UserCircleIcon,
     Users: UsersIcon,
     UsersOutline: UsersOutlineIcon,
     Bell: BellIcon,
@@ -335,11 +432,14 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Author: AuthorIcon,
     Sprout: SproutIcon,
     Close: CloseIcon,
+    Clock: ClockIcon,
+    No: NoSymbolIcon,
     Calendar: CalendarIcon,
     CalendarDays: CalendarDaysIcon,
     Work: BriefcaseIcon,
     School: AcademicCapIcon,
     MapPin: MapPinIcon,
+    Map: MapIcon,
     Pencil: PencilIcon,
     PencilSquare: PencilSquareIcon,
     Comment: CommentIcon,
@@ -357,10 +457,15 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     EyeOutline: EyeOutlineIcon,
     Edit: PencilIcon,
     Analytics: MuiShowChartIcon,
+    ChevronLeft: ChevronLeftIcon,
+    ChevronRight: ChevronRightIcon,
     ThickChevronLeft: ThickChevronLeftIcon,
     ThickChevronRight: ThickChevronRightIcon,
     ThickChevronDown: ThickChevronDownIcon,
+    ChevronUpDown: ChevronUpDownIcon,
+    ArrowsUpDown: ArrowsUpDownIcon,
     NarrowArrowDown: ArrowLongDown,
+    NarrowArrowUp: ArrowLongUp,
     Plus: PlusIcon,
     PlusSmall: PlusSmallIcon,
     MinusSmall: MinusSmallIcon,
@@ -369,15 +474,18 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Settings: SettingsIcon,
     Email: EmailIcon,
     Envelope: EnvelopeIcon,
+    EAEnvelope: EAEnvelopeIcon,
     Image: PhotoIcon,
     Document: DocumentTextIcon,
     DocumentFilled: DocumentIcon,
     Puzzle: PuzzleIcon,
     Check: CheckIcon,
     CheckCircle: CheckCircleIcon,
+    CheckSmall: CheckSmallIcon,
     Card: CardIcon,
     List: ListIcon,
     SoftUpArrow: SoftUpArrowIcon,
+    ArrowLeft: ArrowLeftIcon,
     ArrowRight: ArrowRightIcon,
     ArrowRightOutline: ArrowRightOutlineIcon,
     ArrowCircle: ArrowCircleIcon,
@@ -386,6 +494,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ClipboardDocumentList: ClipboardDocumentListIcon,
     ClipboardDocument: ClipboardDocumentIcon,
     QuestionMarkCircle: QuestionMarkCircleIcon,
+    QuestionMarkCircleFilled: QuestionMarkCircleFilledIcon,
     Search: SearchIcon,
     ComputerDesktop: ComputerDesktopIcon,
     Menu: MenuIcon,
@@ -393,33 +502,45 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Q: QIcon,
     BarChart: ChartBarIcon,
     Funnel: FunnelIcon,
+    FilterBars: FilterBarsIcon,
     Voted: VotedIcon,
     InfoCircle: InformationCircleIcon,
     BarsArrowDown: BarsArrowDown,
+    Bars3: Bars3,
+    ViewColumns: ViewColumnsIcon,
+    ListView: ListViewIcon,
+    CardView: CardViewIcon,
     LightbulbChat: LightbulbChatIcon,
     VoteBallot: MuiVoteIcon,
     Import: ArrowDownOnSquareIcon,
     AddReaction: AddReactionIcon,
-  },
-};
-
-// This is a map from forum types to icon names to keys in the `styles` object.
-const CUSTOM_CLASSES: ForumOptions<Partial<Record<ForumIconName, string>>> = {
-  default: {
-    Link: "linkRotation",
-  },
-  EAForum: {
+    LabBeaker: LabBeakerIcon,
+    Sparkle: SparkleIcon,
+    NotInterested: MuiNotInterestedIcon,
+    Robot: RobotIcon,
+    ExpandMore: MuiExpandMoreIcon,
+    ExpandLess: MuiExpandLessIcon,
+    PlaylistAdd: MuiPlaylistAddIcon,
+    PlusOne: PlusOneIcon,
+    Undo: UndoIcon,
+    Clear: ClearIcon,
+    Fullscreen: FullscreenIcon,
+    FullscreenExit: FullscreenExitIcon,
+    TickReaction: TickReactionIcon,
+    CrossReaction: CrossReactionIcon,
+    CrossReactionCap: CrossReactionCapIcon
   },
 };
 
 export type IconProps = {
   className: string,
-  onClick: MouseEventHandler<SVGElement>,
+  onClick?: MouseEventHandler<SVGElement>,
+  onMouseDown?: MouseEventHandler<SVGElement>,
 }
 
 export type IconComponent = ComponentType<Partial<IconProps>>;
 
-const styles = (_: ThemeType): JssStyles => ({
+const styles = (_: ThemeType) => ({
   root: {
     userSelect: "none",
     width: "1em",
@@ -436,10 +557,20 @@ const styles = (_: ThemeType): JssStyles => ({
   },
 });
 
-type ForumIconProps = Partial<IconProps> & {
+type IconClassName = keyof ClassesType<typeof styles>;
+
+// This is a map from forum types to icon names to keys in the `styles` object.
+const CUSTOM_CLASSES: ForumOptions<Partial<Record<ForumIconName, IconClassName>>> = {
+  default: {
+    Link: "linkRotation",
+  },
+  EAForum: {
+  },
+};
+
+export type ForumIconProps = Partial<IconProps> & {
   icon: ForumIconName,
   noDefaultStyles?: boolean,
-  classes: ClassesType,
   style?: CSSProperties,
 };
 
@@ -449,7 +580,7 @@ const ForumIcon = ({
   className,
   classes,
   ...props
-}: ForumIconProps) => {
+}: ForumIconProps & {classes: ClassesType<typeof styles>}) => {
   const icons = forumSelect(ICONS);
   const Icon = icons[icon] ?? ICONS.default[icon];
   if (!Icon) {

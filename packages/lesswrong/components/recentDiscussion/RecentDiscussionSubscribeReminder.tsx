@@ -201,8 +201,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
     // since they chose to subscribe to an email, make sure this is false
     userSubscriptionData.unsubscribeFromAll = false;
 
-    // EA Forum does not care about email verification
-    if (!isEAForum && !userEmailAddressIsVerified(currentUser)) {
+    if (!userEmailAddressIsVerified(currentUser)) {
       userSubscriptionData.whenConfirmationEmailSent = new Date();
     }
 
@@ -216,6 +215,8 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
     setLoading(false);
   }
   
+  // FIXME: Unstable component will lose state on rerender
+  // eslint-disable-next-line react/no-unstable-nested-components
   const AnalyticsWrapper = ({children, branch}: {children: React.ReactNode, branch: string}) => {
     return <AnalyticsContext pageElementContext="subscribeReminder" branch={branch}>
       <AnalyticsInViewTracker eventProps={{inViewType: "subscribeReminder"}}>
@@ -313,7 +314,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
               userSubscriptionData.unsubscribeFromAll = false;
               await updateCurrentUser(userSubscriptionData);
 
-              if (isEAForum) {
+              if (!userEmailAddressIsVerified(currentUser)) {
                 // Confirmation-email mutation is separate from the send-verification-email
                 // mutation because otherwise it goes to the old email address (aka null)
                 await updateCurrentUser({
@@ -386,7 +387,8 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
         {dontAskAgainButton}
       </div>
     </AnalyticsWrapper>
-  } else if ((!isEAForum && !userEmailAddressIsVerified(currentUser)) || adminBranch===4) {
+
+  } else if (!userEmailAddressIsVerified(currentUser) || adminBranch===4) {
     // User is subscribed, but they haven't verified their email address. Show
     // a resend-verification-email button.
     return <AnalyticsWrapper branch="needs-email-verification">

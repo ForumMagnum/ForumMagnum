@@ -1,12 +1,12 @@
-import { getSqlClient } from "../../lib/sql/sqlClient";
-import PgCollection from "../../lib/sql/PgCollection";
+import { getSqlClient } from "@/server/sql/sqlClient";
+import PgCollection from "@/server/sql/PgCollection";
 
 /**
  * abstractRepo provides the superclass from which all of our collection
  * repositories are descended. Any common properties or functions
  * should be added here.
  *
- * To make the repo available in GraphQL resolvers, add it to `getAllRepos`
+ * To make the repo available in GraphQL resolvers, add it to `allRepos`
  * in index.ts
  */
 export default abstract class AbstractRepo<N extends CollectionNameString> {

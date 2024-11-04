@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { Components, registerComponent, validateUrl } from '../../lib/vulcan-lib';
-import { captureException }from '@sentry/core';
+import { captureException } from '@sentry/core';
 import { linkIsExcludedFromPreview } from '../linkPreview/HoverPreviewLink';
 import { toRange } from '../../lib/vendor/dom-anchor-text-quote';
-import { isLWorAF } from '../../lib/instanceSettings';
 import { rawExtractElementChildrenToReactComponent, reduceRangeToText, splitRangeIntoReplaceableSubRanges, wrapRangeWithSpan } from '../../lib/utils/rawDom';
 import { withTracking } from '../../lib/analyticsEvents';
+import { hasCollapsedFootnotes } from '@/lib/betas';
+import isEqual from 'lodash/isEqual';
 
 interface ExternalProps {
   /**
@@ -55,12 +56,19 @@ interface ExternalProps {
    * Substrings to replace with an element. Used for highlighting inline
    * reactions.
    */
-  replacedSubstrings?: Record<string, ContentReplacedSubstringComponent>
+  replacedSubstrings?: ContentReplacedSubstringComponentInfo[]
 }
 
-export type ContentReplacedSubstringComponent = (props: {
-  children: React.ReactNode
-}) => React.ReactNode;
+export type ContentReplacementMode = 'first' | 'all';
+
+export type ContentReplacedSubstringComponentInfo = {
+  replacedString: string
+  componentName: keyof ComponentTypes,
+  replace: ContentReplacementMode,
+  caseInsensitive?: boolean,
+  isRegex?: boolean,
+  props: AnyBecauseHard
+};
 
 interface ContentItemBodyProps extends ExternalProps, WithStylesProps, WithUserProps, WithLocationProps, WithTrackingProps {}
 interface ContentItemBodyState {
@@ -105,7 +113,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
   componentDidUpdate(prevProps: ContentItemBodyProps) {
     if (this.state.updatedElements) {
       const htmlChanged = prevProps.dangerouslySetInnerHTML?.__html !== this.props.dangerouslySetInnerHTML?.__html;
-      const replacedSubstringsChanged = prevProps.replacedSubstrings !== this.props.replacedSubstrings;
+      const replacedSubstringsChanged = !isEqual(prevProps.replacedSubstrings, this.props.replacedSubstrings);
       if (htmlChanged || replacedSubstringsChanged) {
         this.replacedElements = [];
         this.setState({
@@ -128,10 +136,11 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
 
   applyLocalModificationsTo(element: HTMLElement) {
     try {
-      // Replace substrings (for inline reacts) goes first, because it can split
-      // elements that other substitutions work on (in particular it can split
-      // an <a> tag into two).
-      this.replaceSubstrings(element);
+      // Replace substrings (for inline reacts and glossary) goes first,
+      // because it can split elements that other substitutions work on (in
+      // particular it can split an <a> tag into two).
+      this.props.replacedSubstrings && this.replaceSubstrings(element, this.props.replacedSubstrings);
+
       this.addCTAButtonEventListeners(element);
 
       this.markScrollableBlocks(element);
@@ -240,7 +249,18 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
       const block = allTopLevelBlocks[i];
       if (block.nodeType === Node.ELEMENT_NODE) {
         const blockAsElement = block as HTMLElement;
-        if (blockAsElement.scrollWidth > this.bodyRef.current!.clientWidth+1) {
+        
+        // Check whether this block is wider than the content-block it's inside
+        // of, and if so, wrap it in a horizontal scroller. This makes wide
+        // LaTeX formulas and tables functional on mobile.
+        // We also need to check that this element has nonzero width, because of
+        // an odd bug in Firefox where, when you open a tab in the background,
+        // it runs JS but doesn't do page layout (or does page layout as-if the
+        // page was zero width?) Without this check, you would sometimes get a
+        // spurious horizontal scroller on every paragraph-block.
+        if (blockAsElement.scrollWidth > this.bodyRef.current!.clientWidth+1
+          && this.bodyRef.current!.clientWidth > 0)
+        {
           this.addHorizontalScrollIndicators(blockAsElement);
         }
       }
@@ -272,7 +292,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
 
 
   collapseFootnotes = (body: HTMLElement) => {
-    if (isLWorAF || !body) {
+    if (!hasCollapsedFootnotes || !body) {
       return;
     }
 
@@ -314,7 +334,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
       this.replaceElement(linkTag, replacementElement);
     }
   }
-
+  
   markElicitBlocks = (element: HTMLElement) => {
     const elicitBlocks = this.getElementsByClassname(element, "elicit-binary-prediction");
     for (const elicitBlock of elicitBlocks) {
@@ -369,12 +389,111 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
       })
     }
   }
+  
+  replaceSubstrings = (
+    element: HTMLElement,
+    replacedSubstrings: ContentReplacedSubstringComponentInfo[],
+  ) => {
+    if (!replacedSubstrings) return;
 
-  replaceSubstrings = (element: HTMLElement) => {
-    if(this.props.replacedSubstrings) {
-      for (let str of Object.keys(this.props.replacedSubstrings)) {
-        const replacement: ContentReplacedSubstringComponent = this.props.replacedSubstrings[str]!;
+    // Sort substrings by length descending to handle overlapping substrings
+    const sortedSubstrings = replacedSubstrings.sort((a, b) => b.replacedString.length - a.replacedString.length);
 
+    for (let replacement of sortedSubstrings) {
+      if (replacement.replace === "all") {
+        const ReplacementComponent = Components[replacement.componentName];
+        const replacementComponentProps = replacement.props;
+        
+        try {
+          // Collect all ranges to replace in document order
+          const rangesToReplace: { range: Range; isFirst: boolean }[] = [];
+          let isFirst = true;
+  
+          const collectRanges = (node: Node) => {
+            if (node.nodeType === Node.TEXT_NODE) {
+              let textContent = node.textContent || "";
+              
+              // Helper function to check if a character is part of a word
+              const isWordChar = (char: string) => /[\p{L}\p{N}'-]/u.test(char);
+              
+              // Helper function to process a potential match
+              const processMatch = (index: number, matchLength: number, isFirst: boolean) => {
+                const prevChar = textContent[index - 1];
+                const nextChar = textContent[index + matchLength];
+                
+                const isPrevBoundary = !prevChar || !isWordChar(prevChar);
+                const isNextBoundary = !nextChar || !isWordChar(nextChar);
+
+                if (isPrevBoundary && isNextBoundary) {
+                  const range = document.createRange();
+                  range.setStart(node, index);
+                  range.setEnd(node, index + matchLength);
+                  
+                  rangesToReplace.push({ range, isFirst });
+                  return true;
+                }
+                return false;
+              };
+              
+              if (replacement.isRegex) {
+                // Use regex for patterns with alternates
+                const pattern = new RegExp(`(${replacement.replacedString.trim()})`, replacement.caseInsensitive ? 'gi' : 'g');
+                let match;
+                while ((match = pattern.exec(textContent)) !== null) {
+                  if (processMatch(match.index, match[0].length, isFirst)) {
+                    isFirst = false;
+                  }
+                }
+              } else {
+                // Use indexOf for simple string searches
+                const searchString = replacement.replacedString.trim();
+                const searchStringLower = replacement.caseInsensitive ? searchString.toLowerCase() : searchString;
+                const textContentForSearch = replacement.caseInsensitive ? textContent.toLowerCase() : textContent;
+                
+                let index = textContentForSearch.indexOf(searchStringLower);
+                while (index !== -1) {
+                  if (processMatch(index, searchString.length, isFirst)) {
+                    isFirst = false;
+                  }
+                  index = textContentForSearch.indexOf(searchStringLower, index + 1);
+                }
+              }
+            } else if (node.nodeType === Node.ELEMENT_NODE) {
+              node.childNodes.forEach(child => collectRanges(child));
+            }
+          };
+  
+          collectRanges(element);
+  
+          // Replace from the end to avoid index shifting
+          rangesToReplace
+            .reverse()
+            .forEach(({ range, isFirst }) => {
+              const span = wrapRangeWithSpan(range);
+              if (span) {
+                const WrappedSpan = rawExtractElementChildrenToReactComponent(span);
+                const replacementNode = (
+                  <ReplacementComponent
+                    {...replacementComponentProps}
+                    replacedSubstrings={replacedSubstrings}
+                    isFirstOccurrence={isFirst}
+                  >
+                    <WrappedSpan />
+                  </ReplacementComponent>
+                );
+                this.replaceElement(span, replacementNode);
+              }
+            });
+  
+        } catch (e) {
+          // eslint-disable-next-line no-console
+          console.error(`Error highlighting string ${replacement.replacedString} in ${this.props.description ?? "content block"}`, e);
+        }
+      } else {
+        const ReplacementComponent = Components[replacement.componentName];
+        const replacementComponentProps = replacement.props;
+        const str = replacement.replacedString;
+  
         try {
           // Find (the first instance of) the string to replace. This should be
           // an HTML text node plus an offset into that node.
@@ -390,18 +509,22 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
           // Do surgery on the DOM
           if (range) {
             const subRanges = splitRangeIntoReplaceableSubRanges(range);
+            let first=true;
             for (let subRange of subRanges) {
               const reducedRange = reduceRangeToText(subRange);
               if (reducedRange) {
                 const span = wrapRangeWithSpan(reducedRange)
                 if (span) {
                   const InlineReactedSpan = rawExtractElementChildrenToReactComponent(span);
-                  const replacementNode = replacement({
-                    children: <InlineReactedSpan/>
-                  });
+                  const replacementNode = (
+                    <ReplacementComponent {...replacementComponentProps} isSplitContinuation={!first}>
+                      <InlineReactedSpan/>
+                    </ReplacementComponent>
+                  );
                   this.replaceElement(span, replacementNode);
                 }
               }
+              first=false;
             }
           }
         } catch {
@@ -411,7 +534,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
       }
     }
   }
-  
+
   applyIdInsertions = (element: HTMLElement) => {
     if (!this.props.idInsertions) return;
     for (let id of Object.keys(this.props.idInsertions)) {
@@ -465,14 +588,21 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
   }
 }
 
-
 const addNofollowToHTML = (html: string): string => {
   return html.replace(/<a /g, '<a rel="nofollow" ')
 }
 
-
 const ContentItemBodyComponent = registerComponent<ExternalProps>("ContentItemBody", ContentItemBody, {
-  hocs: [withTracking]
+  hocs: [withTracking],
+  
+  // Memoization options. If this spuriously rerenders, then voting on a comment
+  // that contains a YouTube embed causes that embed to visually flash and lose
+  // its place.
+  areEqual: {
+    ref: "ignore",
+    "dangerouslySetInnerHTML": "deep",
+    replacedSubstrings: "deep"
+  },
 });
 
 declare global {
@@ -480,3 +610,4 @@ declare global {
     ContentItemBody: typeof ContentItemBodyComponent
   }
 }
+

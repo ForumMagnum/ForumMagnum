@@ -1,64 +1,92 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import withErrorBoundary from '../../common/withErrorBoundary'
+import React, { useEffect, useState } from 'react';
+import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import withErrorBoundary from '@/components/common/withErrorBoundary'
 import { isServer } from '../../../lib/executionEnvironment';
 import { useLocation } from '../../../lib/routeUtil';
-import type { ToCSection, ToCSectionWithOffset } from '../../../lib/tableOfContents';
+import type { ToCSection, ToCSectionWithOffsetAndScale } from '../../../lib/tableOfContents';
 import qs from 'qs'
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import filter from 'lodash/filter';
-import { getCurrentSectionMark, ScrollHighlightLandmark, useScrollHighlight } from '../../hooks/useScrollHighlight';
+import { useScrollHighlight } from '../../hooks/useScrollHighlight';
 import { useNavigate } from '../../../lib/reactRouterWrapper';
-import moment from 'moment';
-import { useTimezone } from '../../common/withTimezone';
 import { usePostReadProgress } from '../usePostReadProgress';
 import { usePostsPageContext } from '../PostsPage/PostsPageContext';
-import { SidebarsContext } from '../../common/SidebarsWrapper';
 import classNames from 'classnames';
 import { ToCDisplayOptions, adjustHeadingText, getAnchorY, isRegularClick, jumpToY } from './TableOfContentsList';
+import { HOVER_CLASSNAME } from './MultiToCLayout';
+import { getOffsetChainTop } from '@/lib/utils/domUtil';
+import { scrollFocusOnElement, ScrollHighlightLandmark } from '@/lib/scrollUtils';
+import { isLWorAF } from '@/lib/instanceSettings';
 
-function normalizeOffsets(sections: (ToCSection | ToCSectionWithOffset)[]): ToCSectionWithOffset[] {
-  if (sections.length === 0) {
-    return [];
-  }
-  
-  const titleSection: ToCSectionWithOffset = { ...sections[0], offset: sections[0].offset ?? 0 };
 
-  const remainingSections = sections.slice(1);
-
-  const normalizedSections: ToCSectionWithOffset[] = remainingSections.map((section, idx) => ({
-    ...section,
-    offset: section.divider ? (1 - (sections[idx].offset ?? 0)) : ((section.offset ?? 0) - (sections[idx].offset ?? 0))
-  }));
-
-  return [titleSection, ...normalizedSections];
+function normalizeToCScale({containerPosition, sections}: {
+  sections: ToCSection[]
+  containerPosition?: {top: number, bottom: number},
+}): ToCSectionWithOffsetAndScale[] {
+  return sections.map((section,idx) => {
+    // The vertical scale (flex-grow amount) of a ToC element is proportional
+    // to the offset of the next positioned element minus its own offset.
+    // However, not every element necessarily has an offset; if an element
+    // doesn't have one its vertical scale is 0 (ie it does not grow past its
+    // minimum size), and it's skipped for purposes of deciding what counts as
+    // the "next positioned element". (When we hit the end of the list, we use
+    // containerPosition.bottom in place of the next offset)
+    let nextPositionedIdx = idx+1;
+    while (nextPositionedIdx<sections.length && !sections[nextPositionedIdx].offset)
+      nextPositionedIdx++;
+    
+    const nextSectionOffset = (nextPositionedIdx>=sections.length)
+      ? containerPosition?.bottom ?? 0
+      : sections[nextPositionedIdx].offset ?? 0;
+    return {
+      ...section,
+      offset: section.offset ?? 0,
+      scale: section.divider
+        ? 1
+        : nextSectionOffset - (section.offset ?? 0)
+    };
+  });
 };
 
-function getSectionsWithOffsets(sectionHeaders: Element[], filteredSections: ToCSection[]) {
-  let sectionsWithOffsets;
-  const parentContainer = sectionHeaders[0]?.parentElement;
-  // If we have any section headers, assign offsets to them
-  if (parentContainer) {
-    const containerHeight = parentContainer.getBoundingClientRect().height;
+function getSectionsWithOffsets(postContents: HTMLElement, sections: ToCSection[]): ToCSectionWithOffsetAndScale[] {
+  // Filter out ToC entries which don't correspond to headings inside the post
+  // body. This removes entries for the comment section, answers, and
+  // dividers, which are included in the server-side ToC generation and are
+  // used in the original ToC, but aren't used in the full-height ToC.
+  const postBodyBlocks = Array.from(postContents.querySelectorAll('[id]'));
+  const sectionHeaderIds = new Set<string>();
+  for (const block of postBodyBlocks) {
+    const id = block.getAttribute('id')
+    if (id) {
+      sectionHeaderIds.add(id);
+    }
+  }
+  const filteredSections = sections.filter(section => sectionHeaderIds.has(section.anchor));
 
-    const anchorOffsets = sectionHeaders.map(sectionHeader => ({
-      anchorHref: sectionHeader.getAttribute('id'),
-      offset: (sectionHeader as HTMLElement).offsetTop / containerHeight
-    }));
+  // Measure the post contents container (distinct from the post body container,
+  // in that it doesn't include the title and metadata).
+  const containerTop = getOffsetChainTop(postContents);
+  const containerHeight = postContents.offsetHeight;
 
-    sectionsWithOffsets = filteredSections.map((section) => {
-      const anchorOffset = anchorOffsets.find((anchorOffset) => anchorOffset.anchorHref === section.anchor);
+  // Measure the vertical position of each anchor
+  const sectionsWithOffsets = filteredSections.map((section) => {
+    const anchor = document.getElementById(section.anchor);
+    if (anchor) {
       return {
         ...section,
-        offset: anchorOffset?.offset,
+        offset: getOffsetChainTop(anchor),
       };
-    });
-  } else {
-    // Otherwise, we'll just default to assigning the entire offset to the comments "section" in the ToC in `normalizeOffsets`
-    sectionsWithOffsets = filteredSections;
-  }
-  return sectionsWithOffsets;
+    } else {
+      return section;
+    }
+  });
+  
+  // Using the vertical positions, compute scale factors
+  return normalizeToCScale({
+    sections: sectionsWithOffsets,
+    containerPosition: {top: containerTop, bottom: containerTop+containerHeight},
+  });
 }
 
 const styles = (theme: ThemeType) => ({
@@ -69,32 +97,62 @@ const styles = (theme: ThemeType) => ({
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
+    paddingTop: 22,
     //Override bottom border of title row for FixedToC but not in other uses of TableOfContentsRow
     '& .TableOfContentsRow-title': {
       borderBottom: "none",
     },
     wordBreak: 'break-word',
-    transition: 'opacity .5s ease-in-out 0.5s, transform .5s ease-in-out 0.5s, height 0.4s ease-in-out, max-height 0.4s ease-in-out',
+    transition: 'opacity .25s ease-in-out 0.5s, transform .5s ease-in-out 0.5s, height 0.4s ease-in-out, max-height 0.4s ease-in-out',
   },
-  fadeOut: {
+  hover: {
+    '& $rowOpacity': {
+      opacity: 1,
+    },
+    '& $headingOpacity': {
+      opacity: 1,
+    },
+    '& $tocTitle': {
+      opacity: 1,
+    }
+  },
+  rowWrapper: {
+    position: "relative",
+    zIndex: 1,
+    display: "flex",
+    flexDirection: "column",
+  },
+  rowOpacity: {
+    transition: '.25s',
     opacity: 0,
-    transform: 'translateX(-50px)',
-    transitionDelay: '0s',
   },
-  fadeIn: {
+  headingOpacity: {
+    transition: '.25s',
+    opacity: 0,
+  },
+  rowDotContainer: {
+    display: "flex",
+    alignItems: "center"
+  },
+  rowDot: {
+    fontSize: 9,
+    height: 9,
+    background: theme.palette.background.pageActiveAreaBackground,
+    marginLeft: 2,
+    marginRight: 8,
+    zIndex: 1,
+    color: theme.palette.grey[700]
+  },
+  tocWrapper: {
+    marginLeft: 13,
   },
   //Use our PostTitle styling with small caps
   tocTitle: {
     ...theme.typography.postStyle,
     ...theme.typography.smallCaps,
     fontSize: "1.3rem",
-    marginTop: 16,
-    marginBottom: 8,
   },
-  tocPostedAt: {
-    color: theme.palette.link.tocLink
-  },
-  belowTitle: {
+  wrapper: {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-evenly',
@@ -106,7 +164,7 @@ const styles = (theme: ThemeType) => ({
     justifyContent: 'space-evenly',
     '--scrollAmount': '0%',
     marginRight: -4,
-    marginBottom: 20,
+    marginBottom: 0,
     width: 1,
     background: theme.palette.grey[400],
     overflowY: 'clip',
@@ -135,10 +193,9 @@ const styles = (theme: ThemeType) => ({
       marginRight: -8
     },
   },
-  nonTitleRows: {
+  rows: {
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'space-evenly',
     flexGrow: 1,
     '& .TableOfContentsRow-link': {
       background: theme.palette.panelBackground.default
@@ -149,27 +206,26 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, displayOptions, classes}: {
+const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayOptions, classes, hover}: {
   tocSections: ToCSection[],
   title: string|null,
-  postedAt?: Date,
+  heading?: React.ReactNode,
   onClickSection?: () => void,
   displayOptions?: ToCDisplayOptions,
   classes: ClassesType<typeof styles>,
+  hover?: boolean,
 }) => {
   const { TableOfContentsRow, AnswerTocRow } = Components;
 
   const navigate = useNavigate();
   const location = useLocation();
-  const { timezone } = useTimezone();
   const { query } = location;
-  const { tocVisible } = useContext(SidebarsContext)!;
 
-  const [normalizedSections, setNormalizedSections] = useState<ToCSectionWithOffset[]>([]);
+  const [normalizedSections, setNormalizedSections] = useState<ToCSectionWithOffsetAndScale[]>([]);
   const [hasLoaded, setHasLoaded] = useState(false);
 
-  const postContext = usePostsPageContext();
-  const disableProgressBar = (!postContext || isServer || postContext.shortform || postContext.readTimeMinutes < 2);
+  const postContext = usePostsPageContext()?.fullPost;
+  const disableProgressBar = (!postContext || isServer || postContext.shortform);
 
   const { readingProgressBarRef } = usePostReadProgress({
     updateProgressBar: (element, scrollPercent) => element.style.setProperty("--scrollAmount", `${scrollPercent}%`),
@@ -189,7 +245,13 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
         hash: `#${anchor}`,
       });
       let sectionYdocumentSpace = anchorY + window.scrollY;
-      jumpToY(sectionYdocumentSpace);
+
+      // This is forum-gating of a fairly subtle change in scroll behaviour, LW may want to adopt scrollFocusOnElement
+      if (!isLWorAF) {
+        scrollFocusOnElement({ id: anchor, options: {behavior: "smooth"}})
+      } else {
+        jumpToY(sectionYdocumentSpace);
+      }
     }
   }
 
@@ -211,13 +273,11 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
       landmarkName: section.anchor,
       elementId: section.anchor,
       position: "centerOfElement",
-      offset: -(getCurrentSectionMark() * 2)
     })),
     {
       landmarkName: "comments",
       elementId: "postBody",
       position: "bottomOfElement",
-      offset: -(getCurrentSectionMark() * 2)
     },
   ]);
 
@@ -234,28 +294,16 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
   }
 
   useEffect(() => {
-    const postBodyRef = document.getElementById('postBody');
-    if (!postBodyRef) return;
-    //Get all elements with href corresponding to anchors from the table of contents
-    const postImages = Array.from(postBodyRef.getElementsByTagName('img'));
-    function updateImageLoadingState(this: HTMLImageElement) {
-      if (postImages.every(image => image.complete)) setHasLoaded(true)
-      this.removeEventListener('load', updateImageLoadingState);
-    };
-    postImages.forEach((postImage) => postImage.addEventListener('load', updateImageLoadingState));
-    if (postImages.every(image => image.complete)) setHasLoaded(true);
-    return () => {
-      postImages.forEach((postImage) => postImage.removeEventListener('load', updateImageLoadingState));
-    }
+    void (async () => {
+      await waitForAllPostImagesToLoad();
+      setHasLoaded(true);
+    })();
   }, [])
 
   useEffect(() => {
-    const postBodyRef = document.getElementById('postBody');
-    if (!postBodyRef) return;
-    const postBodyBlocks = Array.from(postBodyRef.querySelectorAll('[id]'));
-    const sectionHeaders = postBodyBlocks.filter(block => filteredSections.map(section => section.anchor).includes(block.getAttribute('id') ?? ''));
-    const sectionsWithOffsets = getSectionsWithOffsets(sectionHeaders, filteredSections);
-    const newNormalizedSections = normalizeOffsets(sectionsWithOffsets);
+    const postContent = document.getElementById('postContent');
+    if (!postContent) return;
+    const newNormalizedSections = getSectionsWithOffsets(postContent, filteredSections);
 
     if (!isEqual(normalizedSections, newNormalizedSections)) {
       setNormalizedSections(newNormalizedSections);
@@ -263,40 +311,46 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
   }, [filteredSections, normalizedSections, hasLoaded]);
 
   const titleRow = (
-    <TableOfContentsRow
-      key="postTitle"
-      href="#"
-      offset={0}
-      onClick={ev => {
-        if (isRegularClick(ev)) {
-          void handleClick(ev, () => {
-            navigate("#");
-            jumpToY(0)
-          });
-        }
-      }}
-      highlighted={currentSection === "above"}
-      title
-      fullHeight
-    >
-      <div className={classes.tocTitle}>
-        {title?.trim()}
+    <div className={classes.rowWrapper} key={"#"}>
+      <div className={classes.rowDotContainer}>
+        <span className={classNames(HOVER_CLASSNAME, classes.rowOpacity, classes.tocWrapper)}>
+          <TableOfContentsRow
+            indentLevel={1}
+            key="postTitle"
+            href="#"
+            scale={0}
+            fullHeight
+            highlighted={currentSection === "above"}
+            onClick={ev => {
+              if (isRegularClick(ev)) {
+              void handleClick(ev, () => {
+                navigate("#");
+                jumpToY(0)
+              });
+              }
+            }}
+          >
+            <div className={classes.tocTitle}>
+              {title?.trim()}
+            </div>
+          </TableOfContentsRow>
+        </span>
       </div>
-      {postedAt && <div className={classes.tocPostedAt}>
-        {moment(new Date(postedAt)).tz(timezone).format("Do MMM YYYY")}
-      </div>}
-    </TableOfContentsRow>
+    </div>
   );
+  
+  const renderedSections = normalizedSections.filter(row => !row.divider && row.anchor !== "comments");
 
-  const rows = normalizedSections.map((section, index) => {
-    return (
+  const rows = renderedSections.map((section, index) => {
+    const scaleStyling = section.scale !== undefined ? { flex: section.scale } : undefined;
+
+    const tocRow = (
       <TableOfContentsRow
-        key={section.anchor}
         indentLevel={section.level}
         divider={section.divider}
-        highlighted={section.anchor === currentSection}
         href={"#"+section.anchor}
-        offset={section.offset}
+        scale={section.scale}
+        highlighted={section.anchor === currentSection}
         onClick={(ev) => {
           if (isRegularClick(ev)) {
             void handleClick(ev, () => {
@@ -313,26 +367,64 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
         }
       </TableOfContentsRow>
     )
-  });
 
-  const commentsRow = normalizedSections.slice(-1)?.[0]?.anchor === 'comments' ? rows.pop() : undefined;
+    return (
+      <div className={classes.rowWrapper} style={scaleStyling} key={section.anchor}>
+        <div className={classes.rowDotContainer}>
+          <div className={classes.rowDot}>•</div>
+          <span className={classNames(classes.rowOpacity, HOVER_CLASSNAME)}>
+            {tocRow}
+          </span>
+        </div>
+      </div>
+    )
+  });
 
   if (!tocSections || !hasLoaded)
     return <div/>
 
-  return <div className={classNames(classes.root, { [classes.fadeIn]: tocVisible, [classes.fadeOut]: !tocVisible })}>
-    {titleRow}
-    <div className={classes.belowTitle}>
+  return <div className={classNames(classes.root, { [classes.hover]: hover })}>
+    <div className={classes.wrapper}>
       <div className={classes.progressBarContainer} ref={readingProgressBarRef}>
         <div className={classes.progressBar} />
         <div className={classes.unfilledProgressBar}/>
       </div>
-      <div className={classes.nonTitleRows}>
+      <div className={classes.rows}>
+        {titleRow}
+        <div className={classNames(HOVER_CLASSNAME, classes.headingOpacity)}>
+          {heading}
+        </div>
         {rows}
       </div>
     </div>
-    {commentsRow}
   </div>
+}
+
+async function waitForAllPostImagesToLoad() {
+  const postBody = document.getElementById('postBody');
+  if (!postBody) return;
+  const postImages = Array.from(postBody.getElementsByTagName('img'));
+
+  for (const imageTag of postImages) {
+    if (!imageTag.complete) {
+      await waitForImageToLoad(imageTag);
+    }
+  }
+}
+
+function waitForImageToLoad(imageTag: HTMLImageElement): Promise<void> {
+  return new Promise((resolve) => {
+    if (imageTag.complete) {
+      resolve();
+      return;
+    }
+    
+    function onImageLoaded(this: HTMLImageElement) {
+      imageTag.removeEventListener("load", onImageLoaded);
+      resolve();
+    }
+    imageTag.addEventListener("load", onImageLoaded);
+  });
 }
 
 const FixedPositionTocComponent = registerComponent(

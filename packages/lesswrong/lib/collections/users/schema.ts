@@ -1,11 +1,11 @@
 import SimpleSchema from 'simpl-schema';
-import { Utils, slugify, getNestedProperty } from '../../vulcan-lib';
-import {userGetProfileUrl, getAuth0Id, getUserEmail, userOwnsAndInGroup } from "./helpers";
+import { slugify, getNestedProperty } from '../../vulcan-lib';
+import {userGetProfileUrl, getUserEmail, userOwnsAndInGroup, SOCIAL_MEDIA_PROFILE_FIELDS, getAuth0Provider } from "./helpers";
 import { userGetEditUrl } from '../../vulcan-users/helpers';
 import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../vulcan-users/permissions';
 import { formGroups } from './formGroups';
 import * as _ from 'underscore';
-import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF, taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting } from "../../instanceSettings";
+import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF, taggingNamePluralSetting, verifyEmailsSetting } from "../../instanceSettings";
 import { accessFilterMultiple, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, schemaDefaultValue } from '../../utils/schemaUtils';
 import { postStatuses } from '../posts/constants';
 import GraphQLJSON from 'graphql-type-json';
@@ -15,11 +15,12 @@ import { userThemeSettings, defaultThemeOptions } from "../../../themes/themeNam
 import { postsLayouts } from '../posts/dropdownOptions';
 import type { ForumIconName } from '../../../components/common/ForumIcon';
 import { getCommentViewOptions } from '../../commentViewOptions';
-import { allowSubscribeToSequencePosts, allowSubscribeToUserComments, dialoguesEnabled, hasPostRecommendations } from '../../betas';
-import { isFriendlyUI } from '../../../themes/forumTheme';
+import { allowSubscribeToSequencePosts, allowSubscribeToUserComments, dialoguesEnabled, hasAccountDeletionFlow, hasPostRecommendations, hasSurveys, userCanViewJargonTerms } from '../../betas';
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import { randomId } from '../../random';
 import { getUserABTestKey } from '../../abTestImpl';
+import { isFriendlyUI } from '../../../themes/forumTheme';
+import { getUnusedSlugByCollectionName, slugIsUsed } from '@/lib/helpers';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -305,14 +306,6 @@ export const PROGRAM_PARTICIPATION = [
   {value: '80k', label: "Received career coaching from 80,000 Hours"},
 ]
 
-export const SOCIAL_MEDIA_PROFILE_FIELDS = {
-  linkedinProfileURL: 'linkedin.com/in/',
-  facebookProfileURL: 'facebook.com/',
-  twitterProfileURL: 'twitter.com/',
-  githubProfileURL: 'github.com/'
-}
-export type SocialMediaProfileField = keyof typeof SOCIAL_MEDIA_PROFILE_FIELDS;
-
 export type RateLimitReason = "moderator"|"lowKarma"|"downvoteRatio"|"universal"
 
 /**
@@ -401,26 +394,23 @@ const schema: SchemaType<"Users"> = {
     blackbox: true,
     canRead: ownsOrIsAdmin
   },
+  /** hasAuth0Id: true if they use auth0 with username/password login, false otherwise */
   hasAuth0Id: resolverOnlyField({
     type: Boolean,
     // Mods cannot read because they cannot read services, which is a prerequisite
     canRead: [userOwns, 'admins'],
     resolver: (user: DbUser) => {
-      try {
-        getAuth0Id(user);
-        return true;
-      } catch {
-        return false;
-      }
+      return getAuth0Provider(user) === 'auth0';
     },
   }),
   // The name displayed throughout the app. Can contain spaces and special characters, doesn't need to be unique
   // Hide the option to change your displayName (for now) TODO: Create proper process for changing name
   displayName: {
     type: String,
+    hidden: isFriendlyUI,
     optional: true,
-    input: 'text',
-    canUpdate: ['sunshineRegiment', 'admins', userHasntChangedName],
+    // On the EA Forum name changing is rate limited in rateLimitCallbacks
+    canUpdate: ['sunshineRegiment', 'admins', isEAForum ? 'members' : userHasntChangedName],
     canCreate: ['sunshineRegiment', 'admins'],
     canRead: ['guests'],
     order: 10,
@@ -428,6 +418,7 @@ const schema: SchemaType<"Users"> = {
       return user.displayName || createDisplayName(user);
     },
     group: formGroups.default,
+    control: isFriendlyUI ? "FormComponentFriendlyDisplayNameInput" : undefined,
   },
   /**
    Used for tracking changes of displayName
@@ -494,20 +485,20 @@ const schema: SchemaType<"Users"> = {
       // create a basic slug from display name and then modify it if this slugs already exists;
       const displayName = createDisplayName(user);
       const basicSlug = slugify(displayName);
-      return await Utils.getUnusedSlugByCollectionName('Users', basicSlug);
+      return await getUnusedSlugByCollectionName('Users', basicSlug);
     },
     onUpdate: async ({data, oldDocument}) => {
       if (data.slug && data.slug !== oldDocument.slug) {
         const slugLower = data.slug.toLowerCase();
-        const slugIsUsed = !oldDocument.oldSlugs?.includes(slugLower) && await Utils.slugIsUsed("Users", slugLower)
-        if (slugIsUsed) {
+        const isUsed = !oldDocument.oldSlugs?.includes(slugLower) && await slugIsUsed("Users", slugLower)
+        if (isUsed) {
           throw Error(`Specified slug is already used: ${slugLower}`)
         }
         return slugLower;
       }
       if (data.displayName && data.displayName !== oldDocument.displayName) {
         const slugForNewName = slugify(data.displayName);
-        if (oldDocument.oldSlugs?.includes(slugForNewName) || !await Utils.slugIsUsed("Users", slugForNewName)) {
+        if (oldDocument.oldSlugs?.includes(slugForNewName) || !await slugIsUsed("Users", slugForNewName)) {
           return slugForNewName;
         }
       }
@@ -630,10 +621,10 @@ const schema: SchemaType<"Users"> = {
     group: formGroups.emails,
     control: 'UsersEmailVerification',
     canRead: ['members'],
-    // EA Forum does not care about email verification
-    canUpdate: isEAForum ?
-      [userOwns, 'sunshineRegiment', 'admins'] :
-      [],
+    // Editing this triggers a verification email, so don't allow editing on instances (like EAF) that don't use email verification
+    canUpdate: verifyEmailsSetting.get()
+      ? [userOwns, 'sunshineRegiment', 'admins']
+      : [],
     canCreate: ['members'],
   },
 
@@ -914,6 +905,32 @@ const schema: SchemaType<"Users"> = {
     // public settings aren't been loaded yet.
   },
 
+  optedOutOfSurveys: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    hidden: !hasSurveys,
+    canCreate: ["members"],
+    canRead: [userOwns, "sunshineRegiment", "admins"],
+    canUpdate: [userOwns, "sunshineRegiment", "admins"],
+    group: formGroups.siteCustomizations,
+    label: "Opt out of user surveys",
+    order: 97,
+  },
+
+  postGlossariesPinned: {
+    type: Boolean,
+    optional: true,
+    hidden: (props) => userCanViewJargonTerms(props.currentUser),
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    group: formGroups.siteCustomizations,
+    label: "Pin glossaries on posts, and highlight all instances of each term",
+    order: 98,
+    ...schemaDefaultValue(false),
+  },
+
   acceptedTos: {
     type: Boolean,
     optional: true,
@@ -936,6 +953,15 @@ const schema: SchemaType<"Users"> = {
   currentFrontpageFilter: {
     type: String,
     optional: true,
+    canRead: userOwns,
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: 'guests',
+    hidden: true,
+  },
+  frontpageSelectedTab: {
+    type: String,
+    optional: true,
+    nullable: true,
     canRead: userOwns,
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: 'guests',
@@ -1070,6 +1096,7 @@ const schema: SchemaType<"Users"> = {
     optional: true,
     control: "select",
     group: formGroups.moderationGroup,
+    hidden: isFriendlyUI,
     label: "Style",
     canRead: ['guests'],
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
@@ -1092,6 +1119,7 @@ const schema: SchemaType<"Users"> = {
     type: Boolean,
     optional: true,
     group: formGroups.moderationGroup,
+    hidden: isFriendlyUI,
     label: "I'm happy for site moderators to help enforce my policy",
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
@@ -1105,6 +1133,7 @@ const schema: SchemaType<"Users"> = {
     optional: true,
     group: formGroups.moderationGroup,
     label: "On my posts, collapse my moderation guidelines by default",
+    hidden: isFriendlyUI,
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members', 'sunshineRegiment', 'admins'],
@@ -1232,7 +1261,27 @@ const schema: SchemaType<"Users"> = {
     label: 'Deactivate',
     tooltip: "Your posts and comments will be listed as '[Anonymous]', and your user profile won't accessible.",
     control: 'checkbox',
+    hidden: hasAccountDeletionFlow,
     group: formGroups.deactivate,
+  },
+
+  // permanentDeletionRequestedAt: The date the user requested their account to be permanently deleted,
+  // it will be deleted by the script in packages/lesswrong/server/users/permanentDeletion.ts after a cooling
+  // off period
+  permanentDeletionRequestedAt: {
+    type: Date,
+    optional: true,
+    nullable: true,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canUpdate: ['members', 'admins'],
+    hidden: true, // Editing is handled outside a form
+    onUpdate: ({data}) => {
+      if (!data.permanentDeletionRequestedAt) return data.permanentDeletionRequestedAt;
+
+      // Whenever the field is set, reset it to the current server time to ensure users
+      // can't work around the cooling off period
+      return new Date();
+    },
   },
 
   // DEPRECATED
@@ -1780,10 +1829,13 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    group: isEAForum ? formGroups.aboutMe : formGroups.siteCustomizations,
+    group: isLWorAF ? formGroups.siteCustomizations : formGroups.generalInfo,
     order: isLWorAF ? 101 : 5, // would use isFriendlyUI but that's not available here
-    label: "Public map location",
+    label: isLWorAF ? "Public map location" : "Location",
     control: 'LocationFormComponent',
+    form: {
+      variant: "grey",
+    },
     blackbox: true,
     optional: true,
     hidden: isEAForum
@@ -2201,7 +2253,7 @@ const schema: SchemaType<"Users"> = {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     tooltip: "Get early access to new in-development features",
     group: formGroups.siteCustomizations,
-    label: "Opt into experimental features",
+    label: "Opt into experimental (beta) features",
     order: 70,
   },
   reviewVotesQuadratic: {
@@ -2287,7 +2339,7 @@ const schema: SchemaType<"Users"> = {
       // The next three lines are copy-pasted from slug.onUpdate
       if (data.displayName && data.displayName !== oldDocument.displayName) {
         const slugForNewName = slugify(data.displayName);
-        if (oldDocument.oldSlugs?.includes(slugForNewName) || !await Utils.slugIsUsed("Users", slugForNewName)) {
+        if (oldDocument.oldSlugs?.includes(slugForNewName) || !await slugIsUsed("Users", slugForNewName)) {
           // if they are changing back to an old slug, remove it from the array to avoid infinite redirects
           return [...new Set([...(oldDocument.oldSlugs?.filter(s => s !== slugForNewName) || []), oldDocument.slug])];
         }
@@ -2354,7 +2406,8 @@ const schema: SchemaType<"Users"> = {
       foreignCollectionName: "Comments",
       foreignTypeName: "comment",
       foreignFieldName: "userId",
-      filterFn: comment => !comment.deleted && !comment.rejected
+      filterFn: comment => !comment.deleted && !comment.rejected,
+      resyncElastic: true,
     }),
     canRead: ['guests'],
   },
@@ -2472,18 +2525,33 @@ const schema: SchemaType<"Users"> = {
     group: formGroups.paymentInfo,
     hidden: !isLWorAF,
   },
-  
+
+  profileUpdatedAt: {
+    type: Date,
+    optional: false,
+    nullable: false,
+    canCreate: ["members"],
+    canRead: ["guests"],
+    canUpdate: [userOwns, "admins"],
+    hidden: true,
+    onInsert: (user) => user.createdAt,
+    ...schemaDefaultValue(new Date(0)),
+  },
+
   // Cloudinary image id for the profile image (high resolution)
   profileImageId: {
     hidden: true,
     order: isLWorAF ? 40 : 1, // would use isFriendlyUI but that's not available here
-    group: isEAForum ? formGroups.aboutMe : formGroups.default,
+    group: formGroups.default,
     type: String,
     optional: true,
     canRead: ['guests'],
     canUpdate: [userOwns, "admins", "sunshineRegiment"],
     label: "Profile Image",
-    control: "ImageUpload"
+    control: "ImageUpload",
+    form: {
+      horizontal: true,
+    },
   },
   
   jobTitle: {
@@ -2493,9 +2561,10 @@ const schema: SchemaType<"Users"> = {
     canCreate: ['members'],
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    group: formGroups.aboutMe,
+    group: formGroups.generalInfo,
     order: 2,
-    label: 'Role'
+    label: 'Role',
+    control: "FormComponentFriendlyTextInput",
   },
   
   organization: {
@@ -2505,8 +2574,9 @@ const schema: SchemaType<"Users"> = {
     canCreate: ['members'],
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    group: formGroups.aboutMe,
+    group: formGroups.generalInfo,
     order: 3,
+    control: "FormComponentFriendlyTextInput",
   },
   
   careerStage: {
@@ -2516,21 +2586,22 @@ const schema: SchemaType<"Users"> = {
     canCreate: ['members'],
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    group: formGroups.aboutMe,
+    group: formGroups.generalInfo,
     order: 4,
     control: 'FormComponentMultiSelect',
     label: "Career stage",
     placeholder: 'Select all that apply',
     form: {
-      separator: '\r\n',
-      options: CAREER_STAGES
+      variant: "grey",
+      separator: ", ",
+      options: CAREER_STAGES,
     },
   },
   'careerStage.$': {
     type: String,
     optional: true,
   },
-  
+
   website: {
     type: String,
     hidden: true,
@@ -2540,9 +2611,10 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     form: {
-      inputPrefix: 'https://'
+      inputPrefix: 'https://',
+      heading: "Website",
     },
-    group: formGroups.aboutMe,
+    group: formGroups.socialMedia,
     order: 6
   },
 
@@ -2577,9 +2649,12 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     form: {
-      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.linkedinProfileURL
+      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.linkedinProfileURL,
+      heading: "Social media",
+      smallBottomMargin: true,
     },
-    group: formGroups.socialMedia
+    group: formGroups.socialMedia,
+    order: 1,
   },
   facebookProfileURL: {
     type: String,
@@ -2590,9 +2665,11 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     form: {
-      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.facebookProfileURL
+      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.facebookProfileURL,
+      smallBottomMargin: true,
     },
-    group: formGroups.socialMedia
+    group: formGroups.socialMedia,
+    order: 2,
   },
   twitterProfileURL: {
     type: String,
@@ -2603,9 +2680,11 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     form: {
-      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.twitterProfileURL
+      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.twitterProfileURL,
+      smallBottomMargin: true,
     },
-    group: formGroups.socialMedia
+    group: formGroups.socialMedia,
+    order: 3,
   },
   githubProfileURL: {
     type: String,
@@ -2618,9 +2697,10 @@ const schema: SchemaType<"Users"> = {
     form: {
       inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.githubProfileURL
     },
-    group: formGroups.socialMedia
+    group: formGroups.socialMedia,
+    order: 4,
   },
-  
+
   profileTagIds: {
     ...arrayOfForeignKeysField({
       idFieldName: "profileTagIds",
@@ -2633,11 +2713,13 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members'],
-    group: formGroups.activity,
-    order: 1,
+    group: formGroups.aboutMe,
+    order: 100,
     control: "TagMultiselect",
-    label: `${taggingNamePluralCapitalSetting.get()} I'm interested in`,
-    tooltip: `This will also update your frontpage ${taggingNameSetting.get()} weightings.`,
+    form: {
+      variant: "grey",
+    },
+    label: "Interests",
     placeholder: `Search for ${taggingNamePluralSetting.get()}`
   },
   'profileTagIds.$': {
@@ -2668,8 +2750,10 @@ const schema: SchemaType<"Users"> = {
     tooltip: "If you organize a group that is missing from this list, please contact the EA Forum team.",
     form: {
       useDocumentAsUser: true,
-      separator: '\r\n',
-      multiselect: true
+      variant: "grey",
+      separator: ", ",
+      multiselect: true,
+      hideClear: true,
     },
   },
   'organizerOfGroupIds.$': {
@@ -2690,7 +2774,8 @@ const schema: SchemaType<"Users"> = {
     control: 'FormComponentMultiSelect',
     placeholder: "Which of these programs have you participated in?",
     form: {
-      separator: '\r\n',
+      variant: "grey",
+      separator: ", ",
       options: PROGRAM_PARTICIPATION
     },
   },
@@ -2839,8 +2924,31 @@ const schema: SchemaType<"Users"> = {
     canUpdate: [userOwns, 'admins'],
     hidden: true,
   },
+  
+  // used by the EA Forum to track if a user has dismissed the post page criticism tips card
+  criticismTipsDismissed: {
+    type: Boolean,
+    canCreate: ['members'],
+    canRead: [userOwns, 'admins'],
+    canUpdate: [userOwns, 'admins'],
+    optional: true,
+    hidden: true,
+    ...schemaDefaultValue(false),
+  },
 
   /* Privacy settings */
+  hideFromPeopleDirectory: {
+    type: Boolean,
+    optional: true,
+    hidden: !isEAForum,
+    canRead: ["guests"],
+    canUpdate: [userOwns, "sunshineRegiment", "admins"],
+    canCreate: ["members"],
+    label: "Hide my profile from the People directory",
+    group: formGroups.privacy,
+    ...schemaDefaultValue(false),
+  },
+
   allowDatadogSessionReplay: {
     type: Boolean,
     optional: true,
@@ -2959,7 +3067,7 @@ const schema: SchemaType<"Users"> = {
   hideSunshineSidebar: {
     type: Boolean,
     optional: true,
-    canRead: [userOwns],
+    canRead: [userOwns, 'admins'],
     canUpdate: ['admins'],
     canCreate: ['admins'],
     group: formGroups.adminOptions,
@@ -2968,8 +3076,18 @@ const schema: SchemaType<"Users"> = {
     ...schemaDefaultValue(false),
   },
   
-  // EA Forum emails the user a survey if they haven't read a post in 3 months
+  // EA Forum emails the user a survey if they haven't read a post in 4 months
   inactiveSurveyEmailSentAt: {
+    type: Date,
+    optional: true,
+    nullable: true,
+    hidden: true,
+    canCreate: ['members'],
+    canRead: ['admins'],
+    canUpdate: ['admins'],
+  },
+  // Used by EAF to track when we last emailed the user about the annual user survey
+  userSurveyEmailSentAt: {
     type: Date,
     optional: true,
     nullable: true,

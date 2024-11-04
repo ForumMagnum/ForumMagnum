@@ -6,7 +6,7 @@ import { useCurrentUser } from '../../common/withUser'
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 import type { ContentStyleType } from '../../common/ContentStyles';
 import { VotingProps } from '../../votes/votingProps';
-import type { ContentItemBody, ContentReplacedSubstringComponent } from '../../common/ContentItemBody';
+import type { ContentItemBody, ContentReplacedSubstringComponentInfo } from '../../common/ContentItemBody';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -82,7 +82,7 @@ const CommentBody = ({
   }
   
   const votingSystem = getVotingSystemByName(comment.votingSystem);
-  let highlights: Record<string,ContentReplacedSubstringComponent>|undefined = undefined;
+  let highlights: ContentReplacedSubstringComponentInfo[]|undefined = undefined;
   if (voteProps && votingSystem.getCommentHighlights) {
     highlights = votingSystem.getCommentHighlights({comment, voteProps});
   }

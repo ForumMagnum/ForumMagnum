@@ -1,14 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import Geosuggest from 'react-geosuggest';
 // These imports need to be separate to satisfy eslint, for some reason
 import type { Suggest } from 'react-geosuggest';
 import { isClient } from '../../lib/executionEnvironment';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
+import { styles as greyInputStyles } from "../ea-forum/onboarding/EAOnboardingInput";
 import FormLabel from '@material-ui/core/FormLabel';
+import classNames from 'classnames';
 
 // Recommended styling for React-geosuggest: https://github.com/ubilabs/react-geosuggest/blob/master/src/geosuggest.css
-export const geoSuggestStyles = (theme: ThemeType): JssStyles => ({
+export const geoSuggestStyles = (theme: ThemeType) => ({
   "& .geosuggest": {
     fontSize: "1rem",
     position: "relative",
@@ -86,7 +88,19 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   label: {
     fontSize: 10
-  }
+  },
+  sectionTitle: {
+    fontSize: 12,
+  },
+  greyRoot: {
+    "& .geosuggest__input": {
+      ...greyInputStyles(theme).root,
+      padding: "16px !important",
+      "&:focus": {
+        border: "none",
+      },
+    },
+  },
 });
 
 export const mapsAPIKeySetting = new DatabasePublicSetting<string | null>('googleMaps.apiKey', null)
@@ -111,8 +125,8 @@ export const useGoogleMaps = (): [boolean, any] => {
         mapsLoadingState = "loading";
         
         var tag = document.createElement('script');
-        tag.async = false;
-        tag.src = `https://maps.googleapis.com/maps/api/js?key=${mapsAPIKeySetting.get()}&libraries=places&callback=googleMapsFinishedLoading`;
+        tag.async = true;
+        tag.src = `https://maps.googleapis.com/maps/api/js?key=${mapsAPIKeySetting.get()}&libraries=places&loading=async&callback=googleMapsFinishedLoading`;
         window.googleMapsFinishedLoading = () => {
           mapsLoadingState = "loaded";
           let callbacks = onMapsLoaded;
@@ -135,14 +149,19 @@ export const useGoogleMaps = (): [boolean, any] => {
  * LocationPicker: A textbox for typing in a location. This is split from LocationFormComponent
  * so that it can be used outside of vulcan-forms.
  */
-const LocationPicker = ({document, path, label, value, updateCurrentValues, stringVersionFieldName, classes}: {
-  document: any,
-  path: string,
-  label?: string,
-  value: any,
-  updateCurrentValues: any,
+const LocationPicker = ({
+  document,
+  path,
+  label,
+  value,
+  updateCurrentValues,
+  stringVersionFieldName,
+  variant = "default",
+  classes,
+}: Pick<FormComponentProps<AnyBecauseTodo>, "document" | "path" | "label" | "value" | "updateCurrentValues"> & {
   stringVersionFieldName?: string|null,
-  classes: ClassesType,
+  variant?: "default" | "grey",
+  classes: ClassesType<typeof styles>,
 }) => {
   // if this location field has a matching field that just stores the string version of the location,
   // make sure to update the matching field along with this one
@@ -154,38 +173,48 @@ const LocationPicker = ({document, path, label, value, updateCurrentValues, stri
     || ""
   const [ mapsLoaded ] = useGoogleMaps()
   const geosuggestEl = useRef<any>(null)
-  
+
   useEffect(() => {
     if (geosuggestEl && geosuggestEl.current) {
       geosuggestEl.current.update(value?.formatted_address)
     }
   }, [value])
-  
-  const handleCheckClear = (value: any) => {
+
+  const handleCheckClear = useCallback((value: AnyBecauseTodo) => {
     // clear location fields if the user deletes the input text
     if (value === '') {
-      updateCurrentValues({
+      void updateCurrentValues({
         ...(locationFieldName ? {[locationFieldName]: null} : {}),
         [path]: null,
       })
     }
-  }
+  }, [updateCurrentValues, locationFieldName, path]);
 
-  const handleSuggestSelect = (suggestion: Suggest) => {
+  const handleSuggestSelect = useCallback((suggestion: Suggest) => {
     if (suggestion && suggestion.gmaps) {
-      updateCurrentValues({
+      void updateCurrentValues({
         ...(locationFieldName ? {
           [locationFieldName]: suggestion.label
         } : {}),
         [path]: suggestion.gmaps,
       })
     }
+  }, [updateCurrentValues, locationFieldName, path]);
+
+  const {Loading, SectionTitle} = Components;
+
+  if (!document || !mapsLoaded) {
+    return <Loading />;
   }
 
+  const isGrey = variant === "grey";
+  const labelNode = isGrey
+    ? <SectionTitle title={label} noTopMargin titleClassName={classes.sectionTitle} />
+    : value && <FormLabel className={classes.label}>{label}</FormLabel>;
 
-  if (document && mapsLoaded) {
-    return <div className={classes.root}>
-      {value && label && <FormLabel className={classes.label}>{label}</FormLabel>}
+  return (
+    <div className={classNames(classes.root, isGrey && classes.greyRoot)}>
+      {label && labelNode}
       <Geosuggest
         ref={geosuggestEl}
         placeholder={label}
@@ -194,13 +223,20 @@ const LocationPicker = ({document, path, label, value, updateCurrentValues, stri
         initialValue={location}
       />
     </div>
-  } else {
-    return <Components.Loading/>;
-  }
+  );
 }
 
-const LocationFormComponent = ({document, path, label, value, updateCurrentValues, stringVersionFieldName}: FormComponentProps<any> & {
+const LocationFormComponent = ({
+  document,
+  path,
+  label,
+  value,
+  updateCurrentValues,
+  stringVersionFieldName,
+  variant,
+}: FormComponentProps<AnyBecauseTodo> & {
   stringVersionFieldName?: string|null,
+  variant?: "default" | "grey",
 }) => {
   return <Components.LocationPicker
     document={document}
@@ -209,6 +245,7 @@ const LocationFormComponent = ({document, path, label, value, updateCurrentValue
     value={value}
     updateCurrentValues={updateCurrentValues}
     stringVersionFieldName={stringVersionFieldName}
+    variant={variant}
   />
 }
 

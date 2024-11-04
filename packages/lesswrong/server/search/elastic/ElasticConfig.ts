@@ -5,6 +5,7 @@ import type {
 import { SearchIndexCollectionName } from "../../../lib/search/searchUtil";
 import { postStatuses } from "../../../lib/collections/posts/constants";
 import { isEAForum } from "../../../lib/instanceSettings";
+import { isFriendlyUI } from "@/themes/forumTheme";
 
 export type Ranking = {
   field: string,
@@ -104,6 +105,11 @@ const fullTextMapping: MappingProperty = {
       type: "text",
       analyzer: "fm_exact_analyzer",
     },
+    sort: {
+      // A wildcard is similar to a keyword, but supports data larger than 32KB
+      type: "wildcard",
+      null_value: "",
+    },
   },
 };
 
@@ -120,6 +126,10 @@ const shingleTextMapping: MappingProperty = {
       type: "text",
       analyzer: "fm_exact_analyzer",
     },
+    sort: {
+      type: "keyword",
+      normalizer: "fm_sortable_keyword",
+    },
   },
 };
 
@@ -135,11 +145,15 @@ const keywordMapping: MappingProperty = {
   type: "keyword",
 };
 
+const objectMapping = (
+  properties: Record<string, MappingProperty>,
+): MappingProperty => ({properties});
+
 const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
   Comments: {
     fields: [
       "body",
-      "authorDisplayName",
+      "authorDisplayName^11",
     ],
     snippet: "body",
     highlight: "authorDisplayName",
@@ -149,6 +163,12 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
         order: "desc",
         weight: 0.5,
         scoring: {type: "numeric", pivot: 20},
+      },
+      {
+        field: "baseScore",
+        order: "desc",
+        weight: 1.5,
+        scoring: {type: "numeric", pivot: 50, min: 50},
       },
     ],
     tiebreaker: "publicDateMs",
@@ -204,6 +224,7 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
       {term: {draft: false}},
       {term: {rejected: false}},
       {term: {authorIsUnreviewed: false}},
+      {term: {unlisted: false}},
       {term: {status: postStatuses.STATUS_APPROVED}},
       ...(isEAForum ? [] : [{range: {baseScore: {gte: 0}}}]),
     ],
@@ -215,12 +236,17 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
       body: fullTextMapping,
       feedLink: keywordMapping,
       slug: keywordMapping,
-      tags: keywordMapping,
+      tags: objectMapping({
+        _id: keywordMapping,
+        slug: keywordMapping,
+        name: keywordMapping,
+      }),
       url: keywordMapping,
       userId: keywordMapping,
     },
     privateFields: [
       "authorIsUnreviewed",
+      "unlisted",
       "draft",
       "isFuture",
       "legacy",
@@ -238,6 +264,12 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
       "organization",
       "howICanHelpOthers",
       "howOthersCanHelpMe",
+      ...(isFriendlyUI
+        ? [
+          "tags.name",
+          "posts.title",
+        ]
+        : []),
     ],
     snippet: "bio",
     ranking: [
@@ -284,13 +316,23 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
       slug: shingleTextMapping,
       website: keywordMapping,
       profileImageId: keywordMapping,
-      tags: keywordMapping,
+      tags: objectMapping({
+        _id: keywordMapping,
+        slug: keywordMapping,
+        name: keywordMapping,
+      }),
+      posts: objectMapping({
+        _id: keywordMapping,
+        slug: keywordMapping,
+        title: fullTextMapping,
+      }),
       _geoloc: geopointMapping,
     },
     privateFields: [
       "deleteContent",
       "deleted",
       "isAdmin",
+      "hideFromPeopleDirectory",
     ],
     karmaField: "karma",
     locationField: "_geoloc",
@@ -360,7 +402,7 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
   },
 };
 
-const indexToCollectionName = (index: string): SearchIndexCollectionName => {
+export const indexToCollectionName = (index: string): SearchIndexCollectionName => {
   const data: Record<string, SearchIndexCollectionName> = {
     comments: "Comments",
     posts: "Posts",
@@ -387,4 +429,15 @@ export const collectionNameToConfig = (
 export const indexNameToConfig = (indexName: string): IndexConfig => {
   const collectionName = indexToCollectionName(indexName);
   return collectionNameToConfig(collectionName);
+}
+
+export const isFullTextField = <N extends SearchIndexCollectionName>(
+  collectionName: N,
+  fieldName: string,
+) => {
+  const config = elasticSearchConfig[collectionName];
+  if (!config) {
+    throw new Error(`Invalid elastic collection name: ${collectionName}`);
+  }
+  return config.mappings?.[fieldName] === fullTextMapping;
 }
