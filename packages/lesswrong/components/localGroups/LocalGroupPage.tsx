@@ -446,9 +446,12 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
             <SectionFooter className={classes.organizerActions}>
               {canCreateEvent &&
                 (!isEAForum || isAdmin || isGroupAdmin) && <SectionButton>
-                  <HoverOver title={<div>
-                    Note: If this is a recurring event, you might want to open the menu on a previous event and choose Duplicate Event.
-                  </div>}>
+                  <HoverOver
+                    disabled={!isLWorAF}
+                    title={<div>
+                      Note: If this is a recurring event, you might want to open the menu on a previous event and choose Duplicate Event.
+                    </div>}
+                  >
                     <Link to={`/newPost?${qs.stringify({eventForm: true, groupId})}`}>
                       New event
                     </Link>
@@ -553,7 +556,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
 
         {pastEventsList}
         
-        {(!isEAForum && (isAdmin || isGroupAdmin)) && <LocalGroupSubscribers groupId={groupId}/>}
+        {((isAdmin || isGroupAdmin)) && <LocalGroupSubscribers groupId={groupId}/>}
       </SingleColumnSection>
     </div>
   )
