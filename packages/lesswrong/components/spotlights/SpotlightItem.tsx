@@ -453,7 +453,9 @@ export const SpotlightItem = ({
           </Typography>}
           <SpotlightStartOrContinueReading spotlight={spotlight} className={classes.startOrContinue} />
         </div>
-        {spotlight.spotlightSplashImageUrl && <div className={classes.splashImageContainer}><img src={spotlight.spotlightSplashImageUrl} className={classNames(classes.image, classes.imageFade, classes.splashImage)}/></div>}
+        {spotlight.spotlightSplashImageUrl && <div className={classes.splashImageContainer}>
+          <img src={spotlight.spotlightSplashImageUrl} className={classNames(classes.image, classes.imageFade, classes.splashImage)}/>
+        </div>}
         {spotlight.spotlightImageId && <CloudinaryImage2
           publicId={spotlight.spotlightImageId}
           darkPublicId={spotlight.spotlightDarkImageId}
@@ -461,6 +463,8 @@ export const SpotlightItem = ({
             [classes.imageFade]: spotlight.imageFade && !spotlight.imageFadeColor,
             [classes.imageFadeCustom]: spotlight.imageFade && spotlight.imageFadeColor,
           })}
+          imgProps={{w: "500"}}
+          loading="lazy"
         />}
         {hideBanner && (
           isFriendlyUI
