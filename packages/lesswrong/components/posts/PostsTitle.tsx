@@ -118,15 +118,12 @@ const styles = (theme: ThemeType) => ({
     padding: "0 6px",
     height: 20,
     border: "none",
-    // TODO after event: revert this back
-    background: `linear-gradient(270deg, ${theme.palette.tag.eventLightGreen} 0%, ${theme.palette.tag.eventLightBlue} 100%)`,
-    color: theme.palette.grey[1000],
-    // backgroundColor: theme.themeOptions.name === "dark"
-    //   ? "var(--post-title-tag-foreground)"
-    //   : "var(--post-title-tag-background)",
-    // color: theme.themeOptions.name === "dark"
-    //   ? "var(--post-title-tag-background)"
-    //   : "var(--post-title-tag-foreground)",
+    backgroundColor: theme.themeOptions.name === "dark"
+      ? "var(--post-title-tag-foreground)"
+      : "var(--post-title-tag-background)",
+    color: theme.themeOptions.name === "dark"
+      ? "var(--post-title-tag-background)"
+      : "var(--post-title-tag-foreground)",
   },
   highlightedTagTooltip: {
     marginTop: -2,
