@@ -87,9 +87,7 @@ export const addGivingSeasonEndpoints = (app: Express) => {
     const exchangeRate = await getExchangeRate(currency);
     const usdAmount = parsedAmount * exchangeRate;
 
-    if (isVerified && Number.isFinite(usdAmount) && usdAmount > 0) {
-      await Globals.addToGivingSeasonTotal(usdAmount);
-    }
+    await Globals.addToGivingSeasonTotal(usdAmount);
 
     captureEvent("givingSeason2024Donation", {
       isVerified,
