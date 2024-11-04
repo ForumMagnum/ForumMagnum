@@ -3096,6 +3096,19 @@ const schema: SchemaType<"Users"> = {
     canRead: ['admins'],
     canUpdate: ['admins'],
   },
+
+  // Giving season 2024
+  givingSeason2024DonatedFlair: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    canCreate: ['admins'],
+    group: formGroups.adminOptions,
+    label: '"I Donated" flair for giving season 2024',
+    hidden: !isEAForum,
+    ...schemaDefaultValue(false),
+  },
 };
 
 export default schema;
