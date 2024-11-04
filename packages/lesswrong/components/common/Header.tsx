@@ -327,8 +327,8 @@ const Header = ({
   const {currentForumEvent} = useCurrentForumEvent();
   const isGivingSeason =
     currentForumEvent?.customComponent === "GivingSeason2024Banner" &&
-    currentRoute?.name === "home";
-  const {events, selectedEvent} = useGivingSeasonEvents();
+    (currentRoute?.name === "home" || currentRoute?.name === "posts.single");
+  const {events, selectedEvent, currentEvent} = useGivingSeasonEvents();
 
   const {
     SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
@@ -523,9 +523,14 @@ const Header = ({
     } else if (isGivingSeason) {
       headerStyle.background = unFixed ? "transparent" : "#fff";
     }
+  } else if (isGivingSeason) {
+    headerStyle.background = "#fff";
   }
 
-  const useGivingSeasonText = isGivingSeason && selectedEvent.darkText;
+  const useGivingSeasonText = isGivingSeason && (
+    (currentRoute?.name === "home" && selectedEvent.darkText) ||
+    (currentRoute?.name === "posts.single" && !!currentEvent?.darkText)
+  );
 
   // Make all the text and icons white when we have some sort of color in the header background
   const useWhiteText = Object.keys(headerStyle).length > 0 && !useGivingSeasonText;
@@ -552,19 +557,28 @@ const Header = ({
             )}
             style={headerStyle}
           >
-            {isGivingSeason && !unFixed &&
+            {isGivingSeason && !unFixed && currentRoute?.name === "home" &&
               <div>
                 {events.map(({name, background}) => (
-                <div
-                  key={name}
-                  style={{backgroundImage: `url(${background})`}}
-                  className={classNames(
-                    classes.gsBackground,
-                    name === selectedEvent.name && classes.gsBackgroundActive,
-                  )}
-                />
+                  <div
+                    key={name}
+                    style={{backgroundImage: `url(${background})`}}
+                    className={classNames(
+                      classes.gsBackground,
+                      name === selectedEvent.name && classes.gsBackgroundActive,
+                    )}
+                  />
                 ))}
               </div>
+            }
+            {isGivingSeason && currentEvent && currentRoute?.name === "posts.single" &&
+              <div
+                style={{backgroundImage: `url(${currentEvent.background})`}}
+                className={classNames(
+                  classes.gsBackground,
+                  classes.gsBackgroundActive,
+                )}
+              />
             }
             <Toolbar disableGutters={isFriendlyUI}>
               {navigationMenuButton}
@@ -588,7 +602,7 @@ const Header = ({
               {!isEAForum &&<ActiveDialogues />}
               {isGivingSeason && !searchOpen &&
                 <div className={classes.gsBanner}>
-                  <Link to="#">
+                  <Link to="/posts/srZEX2r9upbwfnRKw/giving-season-2024-announcement">
                     GIVING SEASON 2024
                   </Link>
                 </div>
