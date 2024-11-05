@@ -1498,13 +1498,7 @@ interface PostSequenceNavigation { // fragment on Posts
   readonly nextPost: PostSequenceNavigation_nextPost|null,
 }
 
-interface PostSequenceNavigation_prevPost { // fragment on Posts
-  readonly _id: string,
-  readonly title: string,
-  readonly slug: string,
-  readonly commentCount: number,
-  readonly afCommentCount: number,
-  readonly baseScore: number,
+interface PostSequenceNavigation_prevPost extends PostsListWithVotes { // fragment on Posts
   readonly sequence: PostSequenceNavigation_prevPost_sequence|null,
 }
 
@@ -1512,13 +1506,7 @@ interface PostSequenceNavigation_prevPost_sequence { // fragment on Sequences
   readonly _id: string,
 }
 
-interface PostSequenceNavigation_nextPost { // fragment on Posts
-  readonly _id: string,
-  readonly title: string,
-  readonly slug: string,
-  readonly commentCount: number,
-  readonly afCommentCount: number,
-  readonly baseScore: number,
+interface PostSequenceNavigation_nextPost extends PostsListWithVotes { // fragment on Posts
   readonly sequence: PostSequenceNavigation_nextPost_sequence|null,
 }
 
@@ -1811,6 +1799,10 @@ interface CommentsList_contents { // fragment on Revisions
 
 interface CommentsListWithTopLevelComment extends CommentsList { // fragment on Comments
   readonly topLevelComment: CommentsList|null,
+}
+
+interface CommentsListWithPost extends CommentsList { // fragment on Comments
+  readonly post: PostsMinimumInfo|null,
 }
 
 interface ShortformComments extends CommentsList { // fragment on Comments
@@ -4308,6 +4300,7 @@ interface FragmentTypes {
   PostsForAutocomplete: PostsForAutocomplete
   CommentsList: CommentsList
   CommentsListWithTopLevelComment: CommentsListWithTopLevelComment
+  CommentsListWithPost: CommentsListWithPost
   ShortformComments: ShortformComments
   CommentWithRepliesFragment: CommentWithRepliesFragment
   CommentEdit: CommentEdit
@@ -4515,7 +4508,7 @@ interface FragmentTypesByCollection {
   ClientIds: "ClientIdsDefaultFragment"|"ModeratorClientIDInfo"
   Localgroups: "LocalgroupsDefaultFragment"|"localGroupsBase"|"localGroupsHomeFragment"|"localGroupsEdit"|"localGroupsIsOnline"
   Users: "UsersDefaultFragment"|"SuggestAlignmentUser"|"UsersMinimumInfo"|"UsersProfile"|"UsersCurrent"|"UsersCurrentCommentRateLimit"|"UsersCurrentPostRateLimit"|"UserBookmarkedPosts"|"UserKarmaChanges"|"UsersBannedFromUsersModerationLog"|"SunshineUsersList"|"UserAltAccountsFragment"|"SharedUserBooleans"|"UsersMapEntry"|"UsersEdit"|"UsersAdmin"|"UsersWithReviewInfo"|"UsersProfileEdit"|"UsersCrosspostInfo"|"UsersOptedInToDialogueFacilitation"|"UserOnboardingAuthor"
-  Comments: "CommentsDefaultFragment"|"CommentsList"|"CommentsListWithTopLevelComment"|"ShortformComments"|"CommentWithRepliesFragment"|"CommentEdit"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"CommentsListWithParentMetadata"|"StickySubforumCommentFragment"|"WithVoteComment"|"CommentsListWithModerationMetadata"|"CommentsListWithModGPTAnalysis"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"SuggestAlignmentComment"
+  Comments: "CommentsDefaultFragment"|"CommentsList"|"CommentsListWithTopLevelComment"|"CommentsListWithPost"|"ShortformComments"|"CommentWithRepliesFragment"|"CommentEdit"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"CommentsListWithParentMetadata"|"StickySubforumCommentFragment"|"WithVoteComment"|"CommentsListWithModerationMetadata"|"CommentsListWithModGPTAnalysis"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"SuggestAlignmentComment"
   UserTagRels: "UserTagRelsDefaultFragment"|"UserTagRelDetails"
   Tags: "TagsDefaultFragment"|"TagBasicInfo"|"TagDetailsFragment"|"TagFragment"|"TagHistoryFragment"|"TagCreationHistoryFragment"|"TagRevisionFragment"|"TagPreviewFragment"|"TagSectionPreviewFragment"|"TagSubforumFragment"|"TagSubtagFragment"|"TagSubforumSidebarFragment"|"TagDetailedPreviewFragment"|"TagWithFlagsFragment"|"TagWithFlagsAndRevisionFragment"|"TagPageFragment"|"AllTagsPageFragment"|"TagPageWithRevisionFragment"|"TagFullContributorsList"|"TagEditFragment"|"TagRecentDiscussion"|"SunshineTagFragment"|"UserOnboardingTag"|"TagName"
   Conversations: "ConversationsDefaultFragment"|"ConversationsMinimumInfo"|"ConversationsList"|"ConversationsListWithReadStatus"
@@ -4669,6 +4662,7 @@ interface CollectionNamesByFragmentName {
   PostsForAutocomplete: "Posts"
   CommentsList: "Comments"
   CommentsListWithTopLevelComment: "Comments"
+  CommentsListWithPost: "Comments"
   ShortformComments: "Comments"
   CommentWithRepliesFragment: "Comments"
   CommentEdit: "Comments"

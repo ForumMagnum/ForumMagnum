@@ -13,6 +13,7 @@ import {
 } from "./useGivingSeasonEvents";
 import classNames from "classnames";
 import type { Moment } from "moment";
+import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 
 const DOT_SIZE = 12;
 
@@ -201,8 +202,6 @@ const styles = (theme: ThemeType) => ({
       },
     },
   },
-  recentComments: {
-  },
   fund: {
     width: 260,
     minWidth: 260,
@@ -263,6 +262,64 @@ const styles = (theme: ThemeType) => ({
       background: theme.palette.text.alwaysWhite,
       opacity: 0.85,
     },
+  },
+  recentComments: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "18px",
+    minWidth: 440,
+    margin: 12,
+    "& .Loading-spinner": {
+      display: "none",
+    },
+    [theme.breakpoints.down(GIVING_SEASON_DESKTOP_WIDTH)]: {
+      display: "none",
+    },
+  },
+  feedItem: {
+    display: "flex",
+    gap: "8px",
+    fontSize: 14,
+    lineHeight: "140%",
+  },
+  feedIcon: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: "50%",
+    padding: 4,
+    width: 24,
+    height: 24,
+    "& svg": {
+      width: 12,
+    },
+  },
+  feedPostIcon: {
+    color: theme.palette.text.alwaysWhite,
+    background: theme.palette.primary.main,
+  },
+  feedCommentIcon: {
+    color: theme.palette.text.alwaysWhite,
+    background: theme.palette.grey[600],
+  },
+  feedDetails: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "4px",
+  },
+  feedUser: {
+    fontWeight: 600,
+  },
+  feedPost: {
+    textDecoration: "underline",
+    fontWeight: 600,
+  },
+  feedPreview: {
+    color: theme.palette.text.alwaysWhite,
+    fontWeight: 500,
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
   },
 });
 
@@ -350,7 +407,7 @@ const GivingSeason2024Banner = ({classes}: {
     }
   }, [events, onClickTimeline, currentEvent, detailsRef]);
 
-  const {EAButton, MixedTypeFeed} = Components;
+  const {EAButton, MixedTypeFeed, ForumIcon, UsersName} = Components;
   return (
     <div className={classNames(
       classes.root,
@@ -415,17 +472,65 @@ const GivingSeason2024Banner = ({classes}: {
                 renderers={{
                   newPost: {
                     fragmentName: "PostsList",
-                    render: (post) => {
-                      console.log("POST", post);
-                      return null;
-                    },
+                      render: (post: PostsList) => (
+                      <div className={classes.feedItem}>
+                        <div className={classNames(
+                          classes.feedIcon,
+                          classes.feedPostIcon,
+                        )}>
+                          <ForumIcon icon="DocumentFilled" />
+                        </div>
+                        <div>
+                          <div>
+                            <UsersName
+                              user={post.user}
+                              className={classes.feedUser}
+                            />{" "}
+                            posted{" "}
+                            <Link
+                              to={postGetPageUrl(post)}
+                              className={classes.feedPost}
+                            >
+                              {post.title}
+                            </Link>
+                          </div>
+                          <div className={classes.feedPreview}>
+                            {post.contents?.plaintextDescription}
+                          </div>
+                        </div>
+                      </div>
+                    ),
                   },
                   newComment: {
-                    fragmentName: "CommentsList",
-                    render: (comment) => {
-                      console.log("COMMENT", comment);
-                      return null;
-                    },
+                    fragmentName: "CommentsListWithPost",
+                      render: ({user, post, contents}: CommentsListWithPost) => (
+                      <div className={classes.feedItem}>
+                        <div className={classNames(
+                          classes.feedIcon,
+                          classes.feedCommentIcon,
+                        )}>
+                          <ForumIcon icon="CommentFilled" />
+                        </div>
+                        <div className={classes.feedDetails}>
+                          <div>
+                            <UsersName
+                              user={user}
+                              className={classes.feedUser}
+                            />{" "}
+                            on{" "}
+                            <Link
+                              to={post ? postGetPageUrl(post) : "#"}
+                              className={classes.feedPost}
+                            >
+                              {post?.title}
+                            </Link>
+                          </div>
+                          <div className={classes.feedPreview}>
+                            {contents?.plaintextMainText}
+                          </div>
+                        </div>
+                      </div>
+                    ),
                   },
                 }}
               />

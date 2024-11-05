@@ -57,6 +57,7 @@ defineFeedResolver<Date>({
           context,
           selector: {
             postId: {$in: relevantPostIds},
+            baseScore: {$gt: 0},
           },
         }),
       ],
