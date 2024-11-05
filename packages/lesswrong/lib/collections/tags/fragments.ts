@@ -117,6 +117,7 @@ registerFragment(`
 registerFragment(`
   fragment TagPreviewFragment on Tag {
     ...TagBasicInfo
+    isRead
     parentTag {
       ...TagBasicInfo
     }
@@ -134,6 +135,7 @@ registerFragment(`
 registerFragment(`
   fragment TagSectionPreviewFragment on Tag {
     ...TagBasicInfo
+    isRead
     parentTag {
       ...TagBasicInfo
     }
