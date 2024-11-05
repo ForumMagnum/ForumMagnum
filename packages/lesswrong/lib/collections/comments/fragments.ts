@@ -87,15 +87,6 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment CommentsListWithPost on Comment {
-    ...CommentsList
-    post {
-      ...PostsMinimumInfo
-    }
-  }
-`);
-
-registerFragment(`
   fragment ShortformComments on Comment {
     ...CommentsList
     post {

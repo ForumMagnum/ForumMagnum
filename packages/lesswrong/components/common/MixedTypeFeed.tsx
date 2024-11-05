@@ -108,10 +108,24 @@ const MixedTypeFeed = (args: {
 
   // By default, MixedTypeFeed preserves the order of elements that persist across refetches.  If you don't want that, pass in true.
   reorderOnRefetch?: boolean,
-  
+
+  className?: string,
 }) => {
-  const { resolverName, resolverArgs=null, resolverArgsValues=null, fragmentArgs=null, fragmentArgsValues=null, sortKeyType, renderers, firstPageSize=20, pageSize=20, refetchRef, reorderOnRefetch=false } = args;
-  
+  const {
+    resolverName,
+    resolverArgs=null,
+    resolverArgsValues=null,
+    fragmentArgs=null,
+    fragmentArgsValues=null,
+    sortKeyType,
+    renderers,
+    firstPageSize=20,
+    pageSize=20,
+    refetchRef,
+    reorderOnRefetch=false,
+    className,
+  } = args;
+
   // Reference to a bottom-marker used for checking scroll position.
   const bottomRef = useRef<HTMLDivElement|null>(null);
   
@@ -200,7 +214,7 @@ const MixedTypeFeed = (args: {
   const results = (data && data[resolverName]?.results) || [];
   const orderPolicy = reorderOnRefetch ? 'no-reorder' : undefined;
   const orderedResults = useOrderPreservingArray(results, keyFunc, orderPolicy);
-  return <div>
+  return <div className={className}>
     {orderedResults.map((result) =>
       <div key={keyFunc(result)}>
         <RenderFeedItem renderers={renderers} item={result}/>

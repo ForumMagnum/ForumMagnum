@@ -14,6 +14,9 @@ import {
 import classNames from "classnames";
 import type { Moment } from "moment";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
+import { ForumIconName } from "../common/ForumIcon";
+import { commentGetPageUrl } from "@/lib/collections/comments/helpers";
+import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
 
 const DOT_SIZE = 12;
 
@@ -266,11 +269,11 @@ const styles = (theme: ThemeType) => ({
   recentComments: {
     display: "flex",
     flexDirection: "column",
-    gap: "18px",
+    gap: "4px",
     minWidth: 440,
-    margin: 12,
+    margin: 8,
     "& .Loading-spinner": {
-      display: "none",
+      display: "none", // TODO
     },
     [theme.breakpoints.down(GIVING_SEASON_DESKTOP_WIDTH)]: {
       display: "none",
@@ -281,6 +284,12 @@ const styles = (theme: ThemeType) => ({
     gap: "8px",
     fontSize: 14,
     lineHeight: "140%",
+    padding: 8,
+    borderRadius: theme.borderRadius.default,
+    cursor: "pointer",
+    "&:hover": {
+      background: theme.palette.givingSeason.electionFundBackground,
+    },
   },
   feedIcon: {
     display: "flex",
@@ -289,7 +298,11 @@ const styles = (theme: ThemeType) => ({
     borderRadius: "50%",
     padding: 4,
     width: 24,
+    minWidth: 24,
+    maxWidth: 24,
     height: 24,
+    minHeight: 24,
+    maxHeight: 24,
     "& svg": {
       width: 12,
     },
@@ -310,6 +323,19 @@ const styles = (theme: ThemeType) => ({
   feedUser: {
     fontWeight: 600,
   },
+  feedAction: {
+    opacity: 0.7,
+  },
+  feedDate: {
+    opacity: 0.7,
+    whiteSpace: "nowrap",
+    float: "right",
+  },
+  feedInfo: {
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+  },
   feedPost: {
     textDecoration: "underline",
     fontWeight: 600,
@@ -321,11 +347,68 @@ const styles = (theme: ThemeType) => ({
     overflow: "hidden",
     textOverflow: "ellipsis",
   },
+  feedInteraction: {
+    display: "inline",
+  },
 });
 
 const formatDate = (start: Moment, end: Moment) => {
   const endFormat = start.month() === end.month() ? "D" : "MMM D";
   return `${start.format("MMM D")} - ${end.format(endFormat)}`;
+}
+
+const FeedItem = ({href, icon, iconClassName, user, post, date, preview, classes}: {
+  href: string,
+  icon: ForumIconName,
+  iconClassName: string,
+  user: UsersMinimumInfo | null,
+  post: PostsMinimumInfo | null,
+  date: Date,
+  preview: string,
+  classes: ClassesType<typeof styles>,
+}) => {
+  const {onClick} = useClickableCell({href, ignoreLinks: true});
+  const {ForumIcon, UsersName, PostsTooltip, FormatDate} = Components;
+  return (
+    <div onClick={onClick} className={classes.feedItem}>
+      <div className={classNames(classes.feedIcon, iconClassName)}>
+        <ForumIcon icon={icon} />
+      </div>
+      <div>
+        <div>
+          <FormatDate
+            date={date}
+            tooltip={false}
+            includeAgo
+            className={classes.feedDate}
+          />
+          <div className={classes.feedInfo}>
+            <InteractionWrapper className={classes.feedInteraction}>
+              <UsersName
+                user={user}
+                tooltipPlacement="bottom-start"
+                className={classes.feedUser}
+              />
+            </InteractionWrapper>{" "}
+            <span className={classes.feedAction}>posted</span>{" "}
+            <InteractionWrapper className={classes.feedInteraction}>
+              <PostsTooltip postId={post?._id} placement="bottom-start">
+                <Link
+                  to={post ? postGetPageUrl(post) : "#"}
+                  className={classes.feedPost}
+                >
+                  {post?.title}
+                </Link>
+              </PostsTooltip>
+            </InteractionWrapper>
+          </div>
+        </div>
+        <div className={classes.feedPreview}>
+          {preview}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 const GivingSeason2024Banner = ({classes}: {
@@ -407,7 +490,7 @@ const GivingSeason2024Banner = ({classes}: {
     }
   }, [events, onClickTimeline, currentEvent, detailsRef]);
 
-  const {EAButton, MixedTypeFeed, ForumIcon, UsersName} = Components;
+  const {EAButton, MixedTypeFeed} = Components;
   return (
     <div className={classNames(
       classes.root,
@@ -462,79 +545,46 @@ const GivingSeason2024Banner = ({classes}: {
             ))}
           </div>
           {showRecentComments &&
-            <div className={classes.recentComments}>
-              <MixedTypeFeed
-                firstPageSize={3}
-                resolverName="GivingSeasonTagFeed"
-                resolverArgs={{tagId: "String!"}}
-                resolverArgsValues={{tagId: currentForumEvent?.tagId}}
-                sortKeyType="Date"
-                renderers={{
-                  newPost: {
-                    fragmentName: "PostsList",
-                      render: (post: PostsList) => (
-                      <div className={classes.feedItem}>
-                        <div className={classNames(
-                          classes.feedIcon,
-                          classes.feedPostIcon,
-                        )}>
-                          <ForumIcon icon="DocumentFilled" />
-                        </div>
-                        <div>
-                          <div>
-                            <UsersName
-                              user={post.user}
-                              className={classes.feedUser}
-                            />{" "}
-                            posted{" "}
-                            <Link
-                              to={postGetPageUrl(post)}
-                              className={classes.feedPost}
-                            >
-                              {post.title}
-                            </Link>
-                          </div>
-                          <div className={classes.feedPreview}>
-                            {post.contents?.plaintextDescription}
-                          </div>
-                        </div>
-                      </div>
-                    ),
-                  },
-                  newComment: {
-                    fragmentName: "CommentsListWithPost",
-                      render: ({user, post, contents}: CommentsListWithPost) => (
-                      <div className={classes.feedItem}>
-                        <div className={classNames(
-                          classes.feedIcon,
-                          classes.feedCommentIcon,
-                        )}>
-                          <ForumIcon icon="CommentFilled" />
-                        </div>
-                        <div className={classes.feedDetails}>
-                          <div>
-                            <UsersName
-                              user={user}
-                              className={classes.feedUser}
-                            />{" "}
-                            on{" "}
-                            <Link
-                              to={post ? postGetPageUrl(post) : "#"}
-                              className={classes.feedPost}
-                            >
-                              {post?.title}
-                            </Link>
-                          </div>
-                          <div className={classes.feedPreview}>
-                            {contents?.plaintextMainText}
-                          </div>
-                        </div>
-                      </div>
-                    ),
-                  },
-                }}
-              />
-            </div>
+            <MixedTypeFeed
+              className={classes.recentComments}
+              firstPageSize={3}
+              resolverName="GivingSeasonTagFeed"
+              resolverArgs={{tagId: "String!"}}
+              resolverArgsValues={{tagId: currentForumEvent?.tagId}}
+              sortKeyType="Date"
+              renderers={{
+                newPost: {
+                  fragmentName: "PostsList",
+                  render: (post: PostsList) => (
+                    <FeedItem
+                      href={postGetPageUrl(post)}
+                      icon="DocumentFilled"
+                      iconClassName={classes.feedPostIcon}
+                      user={post.user}
+                      post={post}
+                      date={post.postedAt}
+                      preview={post.contents?.plaintextDescription ?? ""}
+                      classes={classes}
+                    />
+                  ),
+                },
+                newComment: {
+                  fragmentName: "CommentsListWithParentMetadata",
+                  render: (comment: CommentsListWithParentMetadata) => (
+                    <FeedItem
+                      href={commentGetPageUrl(comment)}
+                      icon="CommentFilled"
+                      iconClassName={classes.feedCommentIcon}
+                      user={comment.user}
+                      post={comment.post}
+                      date={comment.postedAt}
+                      preview={comment.contents?.plaintextMainText ?? ""}
+                      classes={classes}
+                    />
+                  ),
+                },
+              }}
+            />
           }
           <div className={classes.fund}>
             <div className={classes.fundInfo}>
