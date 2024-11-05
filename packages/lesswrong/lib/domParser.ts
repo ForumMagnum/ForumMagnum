@@ -1,5 +1,5 @@
 import type { DOMWindow } from "jsdom";
-import linkedom from "@/server/utils/wrapLinkedom";
+import { parseHTML } from "@/server/utils/wrapLinkedom";
 
 /**
  * A window type that works with jsdom or the browser window
@@ -14,7 +14,7 @@ export function parseDocumentFromString(html: string): {
   window: WindowType;
 } {
   if (bundleIsServer) {
-    const { document, window } = linkedom.parseHTML(`<html><body>${html}</body></html>`);
+    const { document, window } = parseHTML(`<html><body>${html}</body></html>`);
     return { document, window };
   } else {
     const parser = new DOMParser();

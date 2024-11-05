@@ -1,2 +1,2 @@
-import linkedom from 'linkedom';
-export default linkedom;
+import { parseHTML } from 'linkedom';
+export { parseHTML };
