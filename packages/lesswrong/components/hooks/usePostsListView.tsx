@@ -17,11 +17,13 @@ type PostsListViewContext = {
   setView: (view: PostsListViewType) => void,
 }
 
-const defaultViewSetting = postsListViewTypeSetting.get()
-const defaultView: PostsListViewType = isPostsListViewType(defaultViewSetting) ? defaultViewSetting : "list"
+const getDefaultView: () => PostsListViewType = () => {
+  const defaultViewSetting = postsListViewTypeSetting.get()
+  return isPostsListViewType(defaultViewSetting) ? defaultViewSetting : 'list'
+}
 
 const postsListViewContext = createContext<PostsListViewContext>({
-  view: defaultView,
+  view: getDefaultView(),
   // eslint-disable-next-line no-console
   setView: () => console.error("Can't set view outside of PostsListViewProvider"),
 });
@@ -38,7 +40,7 @@ const useCookieValue = (): {
 
   // TODO: We currently need to disable persisting the card view for logged out
   // users because it plays really badly with the page cache
-  const value = currentUser ? cookies[POSTS_LIST_VIEW_TYPE_COOKIE] : defaultView;
+  const value = currentUser ? cookies[POSTS_LIST_VIEW_TYPE_COOKIE] : getDefaultView();
   return {
     cookieValue: isPostsListViewType(value) ? value : null,
     setCookieValue,
@@ -47,7 +49,7 @@ const useCookieValue = (): {
 
 export const PostsListViewProvider: FC<{children: ReactNode}> = ({children}) => {
   const {cookieValue, setCookieValue} = useCookieValue();
-  const [view, setView_] = useState<PostsListViewType>(cookieValue ?? defaultView);
+  const [view, setView_] = useState<PostsListViewType>(cookieValue ?? getDefaultView());
 
   const setView = useCallback((newValue: PostsListViewType) => {
     setView_(newValue);
