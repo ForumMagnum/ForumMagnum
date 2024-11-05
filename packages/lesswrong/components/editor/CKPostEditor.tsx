@@ -16,7 +16,7 @@ import sortBy from 'lodash/sortBy'
 import uniqBy from 'lodash/uniqBy';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { gql, useMutation } from "@apollo/client";
-import type { Editor } from '@ckeditor/ckeditor5-core';
+import type { Command, Editor } from '@ckeditor/ckeditor5-core';
 import type { Node, RootElement, Writer, Element as CKElement, Selection, DocumentFragment } from '@ckeditor/ckeditor5-engine';
 import { EditorContext } from '../posts/PostsEditForm';
 import { isFriendlyUI } from '../../themes/forumTheme';
@@ -24,11 +24,14 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { cloudinaryConfig } from '../../lib/editor/cloudinaryConfig'
 import CKEditor from '../../lib/vendor/ckeditor5-react/ckeditor';
 import { useSyncCkEditorPlaceholder } from '../hooks/useSyncCkEditorPlaceholder';
+import classNames from 'classnames';
+import { sleep } from '@/lib/helpers';
+import { useGlobalKeydown } from '../common/withGlobalKeydown';
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   sidebar: {
     position: 'absolute',
     right: -350,
@@ -48,7 +51,23 @@ const styles = (theme: ThemeType): JssStyles => ({
   hidden: {
     display: "none",
   },
+  loadingLlmFeedback: {
+    opacity: 0.7,
+    cursor: 'wait',
+    '& .ck.ck-content': {
+      pointerEvents: 'none',
+    },
+  },
 })
+
+// If any custom commands' execute methods change their signatures, we need to update this declaration
+declare module '@ckeditor/ckeditor5-core' {
+  interface CommandsMap {
+    getLLMFeedback: Command & {
+      execute: ({ afterLlmRequestCallback }: { afterLlmRequestCallback: () => Promise<void> }) => { abort: () => void, request: Promise<void> };
+    };
+  }
+}
 
 const DIALOGUE_MESSAGE_INPUT_WRAPPER = 'dialogueMessageInputWrapper';
 const DIALOGUE_MESSAGE_INPUT = 'dialogueMessageInput';
@@ -318,6 +337,35 @@ function handleSubmitWithoutNewline(editor: Editor, currentUser: UsersCurrent | 
   }
 }
 
+interface HandleLlmFeedbackCommandArgs {
+  editor: Editor;
+  setLoadingLlmFeedback: (loadingLlmFeedback: boolean) => void;
+  loadingLlmFeedbackAbortControllerRef: React.MutableRefObject<(() => void) | null>;
+}
+
+async function handleLlmFeedbackCommand({ editor, setLoadingLlmFeedback, loadingLlmFeedbackAbortControllerRef }: HandleLlmFeedbackCommandArgs) {
+  if (loadingLlmFeedbackAbortControllerRef.current) {
+    loadingLlmFeedbackAbortControllerRef.current();
+    loadingLlmFeedbackAbortControllerRef.current = null;
+    setLoadingLlmFeedback(false);
+  } else {
+    // We pass this in as a callback because we want to re-enable the editor after the LLM request is complete
+    // Otherwise the editor will still be disabled when we try to apply the suggestions
+    const afterLlmRequestCallback = async () => {
+      loadingLlmFeedbackAbortControllerRef.current = null;
+      setLoadingLlmFeedback(false);
+      // Empirically, we need to wait a bit for the editor to be re-enabled based on the loadingLlmFeedback state
+      await sleep(100);
+    };
+
+    const { abort, request } = editor.execute('getLLMFeedback', { afterLlmRequestCallback });
+    loadingLlmFeedbackAbortControllerRef.current = abort;
+    setLoadingLlmFeedback(true);
+
+    await request;
+  }
+}
+
 export type ConnectedUserInfo = {
   _id: string
   name: string
@@ -359,7 +407,7 @@ const CKPostEditor = ({
   accessLevel?: CollaborativeEditingAccessLevel,
   placeholder?: string,
   document?: any,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
@@ -380,6 +428,8 @@ const CKPostEditor = ({
   const [collaborationMode,setCollaborationMode] = useState<CollaborationMode>(initialCollaborationMode);
   const collaborationModeRef = useRef(collaborationMode)
   const [connectedUsers,setConnectedUsers] = useState<ConnectedUserInfo[]>([]);
+  const [loadingLlmFeedback, setLoadingLlmFeedback] = useState(false);
+  const loadingLlmFeedbackAbortControllerRef = useRef<(() => void) | null>(null);
 
   // Get the linkSharingKey, if it exists
   const { query : { key } } = useSubscribedLocation();
@@ -510,6 +560,14 @@ const CKPostEditor = ({
 
   useSyncCkEditorPlaceholder(editorObject, actualPlaceholder);
 
+  // We need to use a global keydown listener because we disable the editor when we're waiting for LLM feedback
+  // And when the editor is disabled, it doesn't respond to keydown events
+  useGlobalKeydown((event) => {
+    if (isCollaborative && editorObject && (event.metaKey || event.ctrlKey) && event.altKey && event.keyCode === 76) {
+      void handleLlmFeedbackCommand({ editor: editorObject, loadingLlmFeedbackAbortControllerRef, setLoadingLlmFeedback });
+    }
+  });
+
   return <div>
     {isBlockOwnershipMode && <>
      {!hasEverDialoguedBefore && <DialogueEditorGuidelines />}
@@ -541,13 +599,14 @@ const CKPostEditor = ({
     <div className={classes.hidden} ref={hiddenPresenceListRef}/>
     <div ref={sidebarRef} className={classes.sidebar}/>
 
-    {layoutReady && <CKEditor
+    {layoutReady && <span className={classNames(loadingLlmFeedback && classes.loadingLlmFeedback)}><CKEditor
       ref={editorRef}
       onChange={onChange}
       onFocus={onFocus}
       editor={getCkPostEditor(!!isCollaborative, forumTypeSetting.get())}
       data={data}
       isCollaborative={!!isCollaborative}
+      disabled={loadingLlmFeedback}
       onReady={(editor: Editor) => {
         setEditorObject(editor);
 
@@ -668,7 +727,7 @@ const CKPostEditor = ({
         onReady(editor)
       }}
       config={editorConfig}
-    />}
+    /></span>}
     {post.collabEditorDialogue && !isFriendlyUI ? <DialogueEditorFeedback post={post} /> : null}
   </div>
 }

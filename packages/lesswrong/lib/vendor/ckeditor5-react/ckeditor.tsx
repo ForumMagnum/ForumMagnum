@@ -191,7 +191,6 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 * @param config CKEditor 5 editor configuration.
 	 */
 	private _createEditor( element: HTMLElement | string | Record<string, string>, config: EditorConfig ): Promise<TEditor> {
-		console.log({ config });
 		return this.props.editor.create( element as HTMLElement, config )
 			.then( editor => {
 				if ( 'disabled' in this.props ) {
