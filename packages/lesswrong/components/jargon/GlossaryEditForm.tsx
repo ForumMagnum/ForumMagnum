@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Components, fragmentTextForQuery, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { useMutation, gql } from '@apollo/client';
 import { useMulti } from '@/lib/crud/withMulti';
@@ -9,8 +9,6 @@ import TextField from '@material-ui/core/TextField';
 import { formStyles } from './JargonEditorRow';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { useJargonCounts } from '@/components/hooks/useJargonCounts';
-import { useCurrentUser } from '../common/withUser';
-import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import Checkbox from '@material-ui/core/Checkbox';
 
 // Integrity Alert! This is currently designed so if the model changes, users are informed
@@ -283,7 +281,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     fragmentName: 'PostsEdit',
   });
 
-  const togglePostAutoGenerate = async (autoGenerate: boolean) => {
+  const updatePostAutoGenerate = async (autoGenerate: boolean) => {
     await updatePost({
       selector: { _id: document._id },
       data: { generateDraftJargon: autoGenerate },
@@ -333,14 +331,13 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     ${fragmentTextForQuery("JargonTerms")}
   `);
 
-  const [generatedOnce, setGeneratedOnce] = useState(sortedTerms.length > 0);
+  const [generatedOnce, setGeneratedOnce] = useState(false);
 
-  const addNewJargonTerms = async () => {
-    // TODO: maybe just disable button if no prompt?
+  const autogenerateJargonTerms = async () => {
     if (!glossaryPrompt) return;
     if (mutationLoading) return;
 
-    await togglePostAutoGenerate(true);
+    await updatePostAutoGenerate(true);
     setGeneratedOnce(true);
 
     try {
@@ -475,7 +472,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
         <Checkbox
           className={classes.generationFlagCheckbox}
           checked={document?.generateDraftJargon}
-          onChange={(e) => togglePostAutoGenerate(e.target.checked)}
+          onChange={(e) => updatePostAutoGenerate(e.target.checked)}
         />
         <MetaInfo>Autogenerate</MetaInfo>
       </div>
@@ -521,7 +518,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
       </div>
       </LWTooltip>
       <LWTooltip title={<div>Send post to {JARGON_LLM_MODEL_TITLE},<br/>to generate new glossary terms/explanations</div>}>
-        <Button onClick={addNewJargonTerms} className={classNames(classes.generateButton, (mutationLoading || !glossaryPrompt) && classes.disabled)}>Autogenerate Glossary</Button>
+        <Button onClick={autogenerateJargonTerms} className={classNames(classes.generateButton, (mutationLoading || !glossaryPrompt) && classes.disabled)}>Autogenerate Glossary</Button>
       </LWTooltip>
       <LWTooltip title="Edit the jargon generator LLM prompt">
         <div className={classes.headerButton} onClick={() => setEditingPrompt(!editingPrompt)}>{editingPrompt ? "SAVE PROMPT" : <ForumIcon icon="Settings" className={classes.editPromptIcon} />}</div>

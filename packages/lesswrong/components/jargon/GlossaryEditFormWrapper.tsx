@@ -1,27 +1,16 @@
-// TODO: Import component in components.ts
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useTracking } from "../../lib/analyticsEvents";
 
-const styles = (theme: ThemeType) => ({
-  root: {
-
-  }
-});
-
-export const GlossaryEditFormWrapper = ({classes, document}: {
-  classes: ClassesType<typeof styles>,
+export const GlossaryEditFormWrapper = ({document}: {
   document: PostsEditQueryFragment,
 }) => {
   const { GlossaryEditFormNewPost, GlossaryEditForm } = Components;
 
   if (!document._id) return <GlossaryEditFormNewPost />
-  return <div className={classes.root}>
-    <GlossaryEditForm document={document} />
-  </div>;
+  return <GlossaryEditForm document={document} />
 }
 
-const GlossaryEditFormWrapperComponent = registerComponent('GlossaryEditFormWrapper', GlossaryEditFormWrapper, {styles});
+const GlossaryEditFormWrapperComponent = registerComponent('GlossaryEditFormWrapper', GlossaryEditFormWrapper);
 
 declare global {
   interface ComponentTypes {
