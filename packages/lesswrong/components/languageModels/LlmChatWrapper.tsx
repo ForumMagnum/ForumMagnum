@@ -173,7 +173,7 @@ const LlmChatWrapper = ({children}: {
 
   const sortedConversations = useMemo(() => {
     const llmConversationsList = conversations ? Object.values(conversations) : [];
-    return sortBy(llmConversationsList, (conversation) => conversation.lastUpdatedAt ?? conversation.createdAt);
+    return sortBy(llmConversationsList, (conversation) => conversation.lastUpdatedAt ?? conversation.createdAt).reverse();
   }, [conversations]);
 
   const [currentConversationId, setCurrentConversationId] = useState<string>();

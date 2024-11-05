@@ -39,7 +39,7 @@ const styles = (theme: ThemeType) => ({
       marginTop: 10,
       marginBottom: 10,
       fontSize: '1.1rem',
-      opacity: .4,
+      opacity: .7,
       fontStyle: 'italic',
     },
     [theme.breakpoints.down('md')]: {
@@ -96,8 +96,6 @@ export const ThinkSideColumn = ({classes}: {
   )
   const readHistory: (PostsListWithVotes & {lastVisitedAt: Date})[] = data?.UserReadHistory?.posts ?? []
   const readHistoryArray = Array.from(readHistory)
-  const [websiteUrls, setWebsiteUrls] = useState<Record<string, WebsiteData>>({})
-  const websites = Object.values(websiteUrls)
 
   const allPosts = [...readHistoryArray, ...drafts].sort((a, b) => {
     const aDate = moment(a.modifiedAt || a.lastVisitedAt)
@@ -108,15 +106,24 @@ export const ThinkSideColumn = ({classes}: {
   })
 
   // group the posts by last read "Today", "Yesterday", and "Older"
-  const todaysPosts = allPosts.filter(post => moment(post.lastVisitedAt).isSame(moment(), 'day'))
-  const yesterdaysPosts = allPosts.filter(post => moment(post.lastVisitedAt).isSame(moment().subtract(1, 'day'), 'day'))
-  const olderPosts = allPosts.filter(post => moment(post.lastVisitedAt).isBefore(moment().subtract(1, 'day'), 'day'))
+  const todaysPosts = allPosts.filter(post => {
+    const date = post.modifiedAt || post.lastVisitedAt;
+    return moment(date).isSame(moment(), 'day');
+  })
+  const yesterdaysPosts = allPosts.filter(post => {
+    const date = post.modifiedAt || post.lastVisitedAt;
+    return moment(date).isSame(moment().subtract(1, 'day'), 'day');
+  })
+  const olderPosts = allPosts.filter(post => {
+    const date = post.modifiedAt || post.lastVisitedAt;
+    return moment(date).isBefore(moment().subtract(1, 'day'), 'day');
+  })
 
   const { ThinkSideItem, ThinkOmnibar } = Components
 
   return <div className={classes.root}>
-    <ThinkOmnibar setWebsiteUrls={setWebsiteUrls} websiteUrls={websiteUrls}/>
-    {active && <div>
+    <ThinkOmnibar setActive={setActive} />
+    <div>
       {todaysPosts.length > 0 && <>
         <h3>Today</h3>
         {todaysPosts.map(post => <ThinkSideItem key={post._id} post={post} />)}
@@ -129,7 +136,7 @@ export const ThinkSideColumn = ({classes}: {
         <h3>Older</h3>
         {olderPosts.map(post => <ThinkSideItem key={post._id} post={post} />)}
       </>}
-    </div>}
+    </div>
   </div>;
 }
 

@@ -8,15 +8,11 @@ const styles = (theme: ThemeType) => ({
   root: {
     paddingTop: 6,
     paddingBottom: 6,
-    maxHeight: theme.typography.body2.lineHeight * 2,
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
     ...theme.typography.body2,
-    ...theme.typography.headerStyle,
     width: 250,
     display: 'flex',
     alignItems: 'center',
-    opacity: 0.5,
+    opacity: 0.75,
     transition: 'opacity 0.2s ease-in-out',
     '&:hover': {
       opacity: 1
@@ -33,7 +29,10 @@ const styles = (theme: ThemeType) => ({
   },
   title: {
     flex: 1,
-    textWrap: 'balance'
+    textWrap: 'balance',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    maxHeight: '3rem'
   },
   date: {
     marginLeft: 10,

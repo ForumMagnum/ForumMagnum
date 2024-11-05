@@ -22,7 +22,11 @@ import { usePostsPageContext } from '../posts/PostsPage/PostsPageContext';
 
 const styles = (theme: ThemeType) => ({
   root: {
-    height: "calc(100vh - 190px)"
+    maxHeight: "calc(100vh - 190px)",
+    overflowY: "scroll",
+    background: theme.palette.background.translucentBackground,
+    borderRadius: 6,
+    padding: 6,
   },
   subRoot: {
     display: "flex",
@@ -92,7 +96,7 @@ const styles = (theme: ThemeType) => ({
   welcomeGuideButton: {
     cursor: "pointer",
     opacity: 0.8,
-    alignSelf: "flex-end",
+    alignSelf: "flex-start",
     fontStyle: "italic",
     marginBottom: 4
   },
@@ -101,12 +105,10 @@ const styles = (theme: ThemeType) => ({
     margin: 10,
     borderRadius: 15,
     backgroundColor: theme.palette.grey[100],
-
-  },
-  chatMessageContent: {
+    position: "relative",
   },
   userMessage: {
-    backgroundColor: theme.palette.grey[300],
+    backgroundColor: theme.palette.background.primaryTranslucent
   },
   errorMessage: {
     backgroundColor: theme.palette.error.light,
@@ -150,27 +152,99 @@ const styles = (theme: ThemeType) => ({
   loadingSpinner: {
     marginTop: 10
   },
+  convoListExpanded: {
+    maxHeight: "unset !important",
+  },
+  chatMessageContent: {
+    maxHeight: 50,
+    overflow: "hidden",
+  },
+  chatMessageContentExpand: {
+    maxHeight: "50vh",
+    overflowY: "scroll"
+  },
+  collapsedIcon: {
+    transform: "rotate(-90deg)",
+  },
+  expandCollapseIcon: {
+    cursor: "pointer",
+    color: theme.palette.grey[400],
+    '&:hover': {
+      color: theme.palette.grey[600],
+    },
+    height: 18,
+    width: 18,
+    position: "absolute",
+    left: 10,
+    top: 10,
+  },
+  conversation2Item: {
+    cursor: "pointer",
+    whiteSpace: "nowrap",
+    width: "calc(51% - 8px)",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+  },
+  convoList: {
+    display: "flex",
+    gap: '8px',
+    flexWrap: "wrap",
+    maxHeight: 50,
+    overflow: "hidden",
+    ...theme.typography.body2,
+    color: theme.palette.grey[500],
+    '&:hover': {
+      color: theme.palette.grey[600],
+    },
+    fontSize: "1.1rem",
+  },
+  convosListWrapper: {
+    padding: 12,
+    display: "flex",
+  },
+  convosButtons: {
+    display: "flex",
+    justifyContent: "space-between",
+  },
+  icon: {
+    cursor: "pointer",
+    height: 24,
+    width: 24,
+    margin: 4,
+    marginTop: 12,
+    opacity: 0.5,
+    '&:hover': {
+      opacity: 1,
+    },
+  },
 });
 
 const NEW_CONVERSATION_MENU_ITEM = "New Conversation";
 
-const LLMChatMessage = ({message, classes}: {
+const LLMChatMessage = ({message, classes, index}: {
   message: LlmMessagesFragment | NewLlmMessage,
   classes: ClassesType<typeof styles>,
+  index: number,
 }) => {
-  const { ContentItemBody, ContentStyles } = Components;
+  const { ContentItemBody, ContentStyles, ForumIcon, Row } = Components;
+  const [expanded, setExpanded] = useState(true);
 
   const { role, content } = message;
 
-  return <ContentStyles contentType="llmChat" className={classes.chatMessageContent}>
-    <ContentItemBody
-      className={classNames(classes.chatMessage, {
-        [classes.userMessage]: role === 'user',
-        [classes.errorMessage]: role === 'error'
-      })}
-      dangerouslySetInnerHTML={{__html: content}}
-    />
-  </ContentStyles>
+  return <Row alignItems="flex-start">
+    <div className={classNames(classes.chatMessage, 
+      role === 'user' && classes.userMessage,
+      role === 'error' && classes.errorMessage,
+    )}>
+      <ForumIcon icon={"ExpandMore"} className={classNames(classes.expandCollapseIcon, !expanded && classes.collapsedIcon)} onClick={() => setExpanded(!expanded)} />
+      <ContentStyles contentType="llmChat">
+        <ContentItemBody
+          className={classNames(classes.chatMessageContent, expanded && classes.chatMessageContentExpand)}
+          dangerouslySetInnerHTML={{__html: content}}
+        />
+      </ContentStyles>
+    </div>
+  </Row>
 }
 
 const LLMInputTextbox = ({onSubmit, classes}: {
@@ -308,7 +382,7 @@ function useCurrentPostContext(): CurrentPostContext {
 export const ChatInterface = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { LlmChatMessage, Loading, MenuItem, ContentStyles, ContentItemBody } = Components;
+  const { LlmChatMessage, Loading, MenuItem, ContentStyles, ContentItemBody, ForumIcon, LWTooltip } = Components;
 
   const { currentConversation, setCurrentConversation, archiveConversation, orderedConversations, submitMessage, currentConversationLoading } = useLlmChat();
   const { currentPostId, postContext } = useCurrentPostContext();
@@ -320,6 +394,8 @@ export const ChatInterface = ({classes}: {
   const messagesRef = useRef<HTMLDivElement>(null);
   const lastMessageLengthRef = useRef(0);
   const previousMessagesLengthRef = useRef(0);
+
+  const [isConvoListExpanded, setIsConvoListExpanded] = useState(false);
 
   // Scroll to bottom when new messages are added or the content of the last message grows due to streaming
   useEffect(() => {
@@ -388,7 +464,7 @@ export const ChatInterface = ({classes}: {
   const messagesForDisplay = <div className={classes.messages} ref={messagesRef}>
     {llmChatGuide}
     {currentConversation?.messages.map((message, index) => (
-      <LlmChatMessage key={index} message={message} />
+      <LlmChatMessage key={index} message={message} index={index} />
     ))}
   </div>
 
@@ -436,30 +512,37 @@ export const ChatInterface = ({classes}: {
       </MenuItem>
     </Select>;
 
-    const ragModeSelect = <Select 
-      onChange={(e) => setRagMode(e.target.value as RagModeType)}
-      value={ragMode}
-      disableUnderline
-      className={classes.ragModeSelect}
-    >
-      {RAG_MODE_SET.map((ragMode) => (
-        <MenuItem key={ragMode} value={ragMode}>
-          {ragMode}
-        </MenuItem>
+  const ragModeSelect = <Select 
+    onChange={(e) => setRagMode(e.target.value as RagModeType)}
+    value={ragMode}
+    disableUnderline
+    className={classes.ragModeSelect}
+  >
+    {RAG_MODE_SET.map((ragMode) => (
+      <MenuItem key={ragMode} value={ragMode}>
+        {ragMode}
+      </MenuItem>
+    ))}
+  </Select>
+
+  const conversations = <div className={classes.convosListWrapper}>
+    <LWTooltip title="New LLM Chat">
+      <ForumIcon icon="Add" className={classes.icon} onClick={() => setCurrentConversation()} />
+    </LWTooltip>
+    <LWTooltip title="Copy Chat History to Clipboard">
+      <ForumIcon icon="ClipboardDocument" className={classes.icon} onClick={exportHistoryToClipboard} />
+    </LWTooltip>
+    <LWTooltip title={isConvoListExpanded ? "Show Fewer Conversations" : "Show All Conversations"}>
+      <ForumIcon icon="ExpandMore" className={classNames(classes.icon, !isConvoListExpanded && classes.collapsedIcon)} onClick={() => setIsConvoListExpanded(!isConvoListExpanded)} />
+    </LWTooltip>
+    <div className={classNames(classes.convoList, isConvoListExpanded && classes.convoListExpanded)}>
+      {orderedConversations.map(({ title, _id }, index) => (
+        <div key={index} className={classes.conversation2Item} onClick={() => setCurrentConversation(_id)}>
+          {title ?? "...Title Pending..."}
+        </div>
       ))}
-    </Select>
-
-
-  const options = <div className={classes.options}>
-    <Button onClick={() => setCurrentConversation()}>
-      New Chat
-    </Button>
-    <Button onClick={exportHistoryToClipboard} disabled={!currentConversation}>
-      Export
-    </Button>
-    {conversationSelect}
-    {ragModeSelect}
-  </div>  
+    </div>
+  </div>
 
   const handleSubmit = useCallback(async (message: string) => {
     if (autosaveEditorState) {
@@ -472,10 +555,10 @@ export const ChatInterface = ({classes}: {
     {messagesForDisplay}
     {currentConversationLoading && <Loading className={classes.loadingSpinner}/>}
     <LLMInputTextbox onSubmit={handleSubmit} classes={classes} />
-    {options}
+    {/* {options} */}
+    {conversations}
   </div>
 }
-
 
 // Wrapper component needed so we can use deferRender
 export const LanguageModelChat = ({classes}: {

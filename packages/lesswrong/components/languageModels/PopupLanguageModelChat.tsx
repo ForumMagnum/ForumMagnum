@@ -12,9 +12,12 @@ import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    // background: "unset",
+    background: "unset",
     width: 450,
-    maxHeight: "calc(100vh - 80px)",
+    height: "calc(100vh - 130px)",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
     position: "fixed",
     right: theme.spacing.unit,
     bottom: theme.spacing.unit,
@@ -63,9 +66,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "flex-end",
+    position: "absolute",
+    top: 26,
+    right: 16,
   },
   header: {
-    position: "relative",
+    position: "absolute",
+    top: 0,
+    right: 0,
     display: "flex",
     justifyContent: "flex-end",
   },
@@ -74,6 +82,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingRight: 10,
     paddingTop: 12,
     paddingBottom: 12,
+    position: "relative",
   },
 });
 
@@ -102,21 +111,11 @@ const PopupLanguageModelChat = ({onClose, classes}: {
 
   return <Paper className={classNames(classes.root, {[classes.expanded]: expanded})}>
     <AnalyticsContext pageSectionContext='llmChatPopup'>
-      <div className={classes.header}>
-        {/* <div className={classes.title}>
-          {title}
-          <LWTooltip title="LLM chat is under development. Reviewing user conversations helps with product decisions.">
-            <div className={classes.privacyWarning}>
-              Warning! Conversation may be viewed by the LW dev team
-            </div>
-          </LWTooltip>
-        </div> */}
+      <div className={classes.editor}>
         <div className={classes.icons}>
           <ForumIcon icon={expanded ? "FullscreenExit" : "Fullscreen"} className={classes.icon} onClick={toggleExpanded} />
           <CloseIcon className={classes.icon} onClick={handleClose} />
         </div>
-      </div>
-      <div className={classes.editor}>
         <LanguageModelChat />
       </div>
     </AnalyticsContext>

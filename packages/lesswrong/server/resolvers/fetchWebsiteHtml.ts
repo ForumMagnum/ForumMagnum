@@ -25,7 +25,6 @@ const fetchWebsiteHtmlResolvers = {
         if (!context.currentUser) {
           throw new Error('You must be logged in to fetch website HTML.');
         }
-
         // Basic URL validation
         if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
           throw new Error('Invalid URL protocol. Only HTTP and HTTPS are allowed.');
@@ -35,8 +34,9 @@ const fetchWebsiteHtmlResolvers = {
         if (!parsedUrl.hostname || !parsedUrl.pathname) {
           throw new Error('Invalid URL. Hostname and pathname are required.');
         }
-
+        console.time('fetchWebsiteHtml');
         const response = await fetch(url);
+        console.timeLog('fetchWebsiteHtml', 'After fetch');
 
         if (!response.ok) {
           throw new Error(`Failed to fetch HTML from URL: ${url}, status: ${response.status}`);
@@ -54,6 +54,8 @@ const fetchWebsiteHtmlResolvers = {
           .get()
           .join('');
 
+        console.timeLog('fetchWebsiteHtml', 'After cheerio links processing');
+
         const paragraphHtml = cheerioTool('p')
           .map((_, p) => `<p>${cheerioTool(p).html()}</p>`)
           .get()
@@ -67,14 +69,16 @@ const fetchWebsiteHtmlResolvers = {
           .replace(/<p>&nbsp;<\/p>/g, '')
           .trim();
 
-        // Fetch the existing post using fetchFragmentSingle
-        const existingPost = await fetchFragmentSingle({
-          collectionName: 'Posts',
-          fragmentName: 'PostsEditQueryFragment',
-          currentUser: context.currentUser,
-          selector: { url, userId: context.currentUser._id, draft: true },
-          context,
-        });
+        console.timeLog('fetchWebsiteHtml', 'After paragraph processing');
+
+        const tablesHtml = cheerioTool('table')
+          .map((_, table) => cheerioTool(table).prop('outerHTML'))
+          .get()
+          .join('');
+
+        const trimmedTablesHtml = cleanText(tablesHtml);
+
+        console.timeLog('fetchWebsiteHtml', 'After tables processing');
 
         const currentDateSection = `
           <h1>${new Date().toLocaleDateString('en-US', {
@@ -94,11 +98,27 @@ const fetchWebsiteHtmlResolvers = {
             ${trimmedParagraphHtml}
           </details>
           <details>
+            <summary>Tables</summary>
+            ${trimmedTablesHtml}
+          </details>
+          <details>
             <summary>Body Content</summary>
             ${bodyHtml}
           </details>
         `;
 
+        console.timeLog('fetchWebsiteHtml', 'After date section creation');
+
+        // Fetch the existing post using fetchFragmentSingle
+        const existingPost = await fetchFragmentSingle({
+          collectionName: 'Posts',
+          fragmentName: 'PostsEditQueryFragment',
+          currentUser: context.currentUser,
+          selector: { url, userId: context.currentUser._id, draft: true },
+          context,
+        });
+
+        console.timeLog('fetchWebsiteHtml', 'After post fetch');
         if (existingPost?.contents?.originalContents?.data) {
           const existingPostHtml = existingPost.contents.originalContents.data;
           const existingCheerio = cheerio.load(existingPostHtml);
@@ -115,6 +135,9 @@ const fetchWebsiteHtmlResolvers = {
           const existingParagraphsSection = existingCheerio(nextElements)
             .filter((_, el) => existingCheerio(el).find('summary').text() === 'Paragraphs')
             .html() || '';
+          const existingTablesSection = existingCheerio(nextElements)
+            .filter((_, el) => existingCheerio(el).find('summary').text() === 'Tables')
+            .html() || '';
           const existingBodySection = existingCheerio(nextElements)
             .filter((_, el) => existingCheerio(el).find('summary').text() === 'Body Content')
             .html() || '';
@@ -122,9 +145,11 @@ const fetchWebsiteHtmlResolvers = {
           // Compare sections
           const linksChanged = existingLinksSection !== `<details><summary>Links</summary><ul>${links}</ul></details>`;
           const paragraphsChanged = existingParagraphsSection !== `<details><summary>Paragraphs</summary>${trimmedParagraphHtml}</details>`;
+          const tablesChanged = existingTablesSection !== `<details><summary>Tables</summary>${trimmedTablesHtml}</details>`;
           const bodyChanged = existingBodySection !== `<details><summary>Body Content</summary>${bodyHtml}</details>`;
 
-          if (linksChanged || paragraphsChanged || bodyChanged) {
+          console.timeLog('fetchWebsiteHtml', 'After post update');
+          if (linksChanged || paragraphsChanged || tablesChanged || bodyChanged) {
             // Insert new sections below the <hr/> tag but above the previous date
             const hrIndex = existingPostHtml.indexOf('<hr/>');
             const beforeHr = existingPostHtml.substring(0, hrIndex + 5); // Include '<hr/>'
@@ -145,6 +170,7 @@ const fetchWebsiteHtmlResolvers = {
               currentUser: context.currentUser,
               validate: false,
             });
+            console.timeLog('fetchWebsiteHtml', 'After post update');
 
             return { postId: existingPost._id, postSlug: existingPost.slug };
           } else {
@@ -152,7 +178,7 @@ const fetchWebsiteHtmlResolvers = {
             return { postId: existingPost._id, postSlug: existingPost.slug };
           }
         } else {
-            // Create new post if none exists
+          // Create new post if none exists
           const postHtml = `
             <h1>Notes</h1>
             <hr/>
@@ -176,6 +202,8 @@ const fetchWebsiteHtmlResolvers = {
         }
       } catch (error: any) {
         throw new Error(`Error fetching URL ${url}: ${error.message}`);
+      } finally {
+        console.timeEnd('fetchWebsiteHtml');
       }
     },
   },

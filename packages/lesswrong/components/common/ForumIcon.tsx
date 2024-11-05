@@ -120,6 +120,7 @@ import UndoIcon from '@material-ui/icons/Undo';
 import ClearIcon from '@material-ui/icons/Clear';
 import FullscreenIcon from '@material-ui/icons/Fullscreen';
 import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
+import MuiAddIcon from "@material-ui/icons/Add";
 
 
 /**
@@ -283,7 +284,8 @@ export type ForumIconName =
   "FullscreenExit" |
   "TickReaction" |
   "CrossReaction" |
-  "CrossReactionCap";
+  "CrossReactionCap"|
+  "Add";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   LWAF: {
@@ -406,7 +408,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     FullscreenExit: FullscreenExitIcon,
     TickReaction: TickReactionIcon,
     CrossReaction: CrossReactionIcon,
-    CrossReactionCap: CrossReactionCapIcon
+    CrossReactionCap: CrossReactionCapIcon,
+    Add: MuiAddIcon,
   },
   default: {
     VolumeUp: SpeakerWaveIcon,
@@ -528,7 +531,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     FullscreenExit: FullscreenExitIcon,
     TickReaction: TickReactionIcon,
     CrossReaction: CrossReactionIcon,
-    CrossReactionCap: CrossReactionCapIcon
+    CrossReactionCap: CrossReactionCapIcon,
+    Add: MuiAddIcon,
   },
 };
 

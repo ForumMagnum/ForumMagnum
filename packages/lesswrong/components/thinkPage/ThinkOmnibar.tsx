@@ -17,10 +17,8 @@ const extractImportantText = (html: string) => {
   return html;
 }
 
-export const ThinkOmnibar = ({classes, setWebsiteUrls, websiteUrls, setActive}: {
+export const ThinkOmnibar = ({classes, setActive}: {
   classes: ClassesType<typeof styles>,
-  setWebsiteUrls: (urls: Record<string, WebsiteData>) => void,
-  websiteUrls: Record<string, WebsiteData>,
   setActive: (active: boolean) => void,
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components

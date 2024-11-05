@@ -2,6 +2,7 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
+import { commentBodyStyles } from '@/themes/stylePiping';
 
 
 const postFormSectionStyles = (theme: ThemeType) => ({
@@ -46,6 +47,31 @@ const postFormSectionStyles = (theme: ThemeType) => ({
   },
   '& .form-component-EditorFormComponent': {
     width: 715,
+    ...commentBodyStyles(theme),
+    '& p, & li': {
+      fontSize: "1.2rem",
+      lineHeight: "1.6",
+      ...commentBodyStyles(theme),
+      color: theme.palette.grey[800],
+    },
+    '& b, & strong': {
+      color: theme.palette.text.maxIntensity,
+    },
+    '& h1': {
+      fontSize: "2.4rem",
+      ...theme.typography.headerStyle
+    },
+    '& h2': {
+      fontSize: "2rem",
+      ...theme.typography.headerStyle
+    },
+    '& h3': {
+      fontSize: "1.65rem",
+      ...theme.typography.headerStyle
+    },
+    '& li': {
+      fontSize: "1.2rem"
+    }
   },
   '& .FormGroupLayout-formSectionBody': {
     width: 715,
@@ -66,10 +92,20 @@ const postFormSectionStyles = (theme: ThemeType) => ({
   '& .SubmitToFrontpageCheckbox-submitToFrontpageWrapper': {
     display: 'none',
   },
-  '& .PostsNewForm-formSubmit': {
+  '& .PostsNewForm-formSubmit, & .PostsEditForm-formSubmit': {
     display: 'none',
   },
+
   '& .FormGroupPostTopBar-tabs': {
+    display: 'none',
+  },
+  '& .form-section-glossary': {
+    display: 'none',
+  },
+  '& .EditorFormComponent-select': {
+    display: 'none',
+  },
+  '& .PostVersionHistoryButton-versionHistoryButton': {
     display: 'none',
   },
 })
@@ -89,13 +125,13 @@ const styles = (theme: ThemeType) => ({
 
 export const ThinkWrapper = ({classes, children}: {
   classes: ClassesType<typeof styles>,
-  children: React.ReactNode,
+  children: React.ReactNode
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
 
   const { ThinkSideColumn } = Components;
   return <div className={classes.root}>
-    <ThinkSideColumn />
+    <ThinkSideColumn/>
     <div className={classes.formContainer}>
       {children}
     </div>
