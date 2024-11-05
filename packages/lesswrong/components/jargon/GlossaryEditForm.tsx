@@ -341,17 +341,9 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     setGeneratedOnce(true);
 
     try {
-      await getNewJargonTerms({
-        variables: {
-          postId: document._id,
-          glossaryPrompt,
-          examplePost,
-          exampleTerm,
-          exampleAltTerm,
-          exampleDefinition,
-        },
+      await getNewJargonTerms({ 
+        variables: { postId: document._id, glossaryPrompt, examplePost, exampleTerm, exampleAltTerm, exampleDefinition }
       });
-
       refetch();
     } catch (err) {
       // eslint-disable-next-line no-console
