@@ -211,6 +211,7 @@ const schema: SchemaType<"Spotlights"> = {
     canCreate: ['admins', 'sunshineRegiment'],
     optional: true,
     nullable: true,
+    tooltip: "Note: Large images can cause slow loading of the front page. Consider using the Cloudinary uploader instead (which will automatically resize the image)",
     order: 88,
   },
   draft: {

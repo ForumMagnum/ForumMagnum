@@ -136,19 +136,10 @@ const styles = (theme: ThemeType) => ({
     },
   },
   eventTab: {
-    // TODO after event: revert this back
-    // ...eventTabStyles(theme.themeOptions.name === "dark"),
-    background: `linear-gradient(270deg, ${theme.palette.tag.eventLightGreen} 0%, ${theme.palette.tag.eventLightBlue} 100%)`,
-    color: theme.palette.grey[1000],
+    ...eventTabStyles(theme.themeOptions.name === "dark"),
   },
   activeEventTab: {
-    // TODO after event: revert this back
-    // ...eventTabStyles(theme.themeOptions.name !== "dark"),
-    background: `linear-gradient(270deg, ${theme.palette.tag.eventDarkGreen} 0%, ${theme.palette.tag.eventDarkBlue} 100%), ${theme.palette.grey[500]}`,
-    color: theme.palette.grey[0],
-    '&:hover': {
-      backgroundColor: theme.palette.grey[500],
-    },
+    ...eventTabStyles(theme.themeOptions.name !== "dark"),
   },
   placeholderTab: {
     flex: 'none',

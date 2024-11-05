@@ -521,23 +521,13 @@ registerFragment(`
       ...SequencesPageFragment
     }
     prevPost(sequenceId: $sequenceId) {
-      _id
-      title
-      slug
-      commentCount
-      afCommentCount
-      baseScore
+      ...PostsListWithVotes
       sequence(sequenceId: $sequenceId, prevOrNext: "prev") {
         _id
       }
     }
     nextPost(sequenceId: $sequenceId) {
-      _id
-      title
-      slug
-      commentCount
-      afCommentCount
-      baseScore
+      ...PostsListWithVotes
       sequence(sequenceId: $sequenceId, prevOrNext: "next") {
         _id
       }
@@ -594,6 +584,7 @@ registerFragment(`
     coauthors {
       ...UsersMinimumInfo
     }
+    generateDraftJargon
   }
 `);
 
