@@ -935,18 +935,20 @@ const schema: SchemaType<"Users"> = {
     type: Boolean,
     optional: true,
     hidden: true,
-    ...schemaDefaultValue(false),
     canRead: ['members'],
     canUpdate: [userOwns],
+    group: formGroups.siteCustomizations,
+    ...schemaDefaultValue(false),
   },
 
   generateJargonForPublishedPosts: {
     type: Boolean,
     optional: true,
     hidden: true,
-    ...schemaDefaultValue(true),
+    group: formGroups.siteCustomizations,
     canRead: ['members'],
     canUpdate: [userOwns],
+    ...schemaDefaultValue(true),
   },
 
   acceptedTos: {

@@ -225,13 +225,6 @@ const styles = (theme: ThemeType) => ({
   formCollapsed: {
     display: 'none',
   },
-  checkboxTopRow: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    alignItems: 'start',
-    paddingTop: 4,
-  },
   checkboxRow: {
     display: 'flex',
     alignItems: 'center',
@@ -295,15 +288,15 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   const [formCollapsed, setFormCollapsed] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [showDeletedTerms, setShowDeletedTerms] = useState(false);
-
   const [glossaryPrompt, setGlossaryPrompt] = useState<string | undefined>(defaultGlossaryPrompt);
+  const [generatedOnce, setGeneratedOnce] = useState(false);
+  const [showNewJargonTermForm, setShowNewJargonTermForm] = useState(false);
+  const [editingPrompt, setEditingPrompt] = useState(false);
+
   const [examplePost, setExamplePost] = useState<string | undefined>(defaultExamplePost);
   const [exampleTerm, setExampleTerm] = useState<string | undefined>(defaultExampleTerm);
   const [exampleAltTerm, setExampleAltTerm] = useState<string | undefined>(defaultExampleAltTerm);
   const [exampleDefinition, setExampleDefinition] = useState<string | undefined>(defaultExampleDefinition);
-
-  const [showNewJargonTermForm, setShowNewJargonTermForm] = useState(false);
-  const [editingPrompt, setEditingPrompt] = useState(false);
   
   const { results: glossary = [], loadMoreProps, refetch } = useMulti({
     terms: {
@@ -330,8 +323,6 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     }
     ${fragmentTextForQuery("JargonTerms")}
   `);
-
-  const [generatedOnce, setGeneratedOnce] = useState(false);
 
   const autogenerateJargonTerms = async () => {
     if (!glossaryPrompt) return;
@@ -409,6 +400,11 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
         }
       });
     }
+  }
+
+  const handleShowDeletedTerms = () => {
+    setShowDeletedTerms(!showDeletedTerms);
+    setExpanded(true);
   }
   
   const promptEditor = <div>
@@ -528,11 +524,6 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     {mutationLoading && <div>(Loading... warning, this will take 30-60 seconds.)</div>}
   </div>
 
-  const handleShowDeletedTerms = () => {
-    setShowDeletedTerms(!showDeletedTerms);
-    setExpanded(true);
-  }
-
   return <div className={classes.root}>
     {showTitle && <Row justifyContent="space-between" alignItems="flex-start">
       <LWTooltip title="Beta feature! Select/edit terms below, and readers will be able to hover over and read the explanation.">
@@ -582,6 +573,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     {footer}
     {(generatedOnce || editingPrompt) && generateJargonFlagsRow}
     {editingPrompt && promptEditor}
+    {/* if there are more than 5 terms, they overflow the default max-height, so show the expand button */}
     {rowCount > 5 && <div className={classes.expandButton} onClick={() => setExpanded(!expanded)}>
       {expanded 
         ? <>COLLAPSE</>
