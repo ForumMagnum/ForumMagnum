@@ -694,12 +694,14 @@ getCollectionHooks("Posts").editSync.add(async function removeFrontpageDate(
 
 async function createNewJargonTermsCallback(post: DbPost, callbackProperties: CreateCallbackProperties<"Posts">) {
   const { context: { currentUser, loaders, JargonTerms } } = callbackProperties;
+  const oldPost = 'oldDocument' in callbackProperties ? callbackProperties.oldDocument as DbPost : null;
 
   if (!currentUser) return post;
   if (currentUser._id !== post.userId) return post;
   if (!post.contents_latest) return post;
   if (post.draft && !post.generateDraftJargon) return post;
   if (!post.draft && !currentUser.generateJargonForPublishedPosts) return post;
+  if (oldPost?.contents_latest === post.contents_latest) return post;
 
   if (!userCanPassivelyGenerateJargonTerms(currentUser)) return post;
   // TODO: refactor this so that createNewJargonTerms handles the case where we might be creating duplicate terms

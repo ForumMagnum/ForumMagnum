@@ -571,7 +571,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
       />
     </div>}
     {footer}
-    {(generatedOnce || editingPrompt) && generateJargonFlagsRow}
+    {(generatedOnce || editingPrompt || sortedTerms.length > 0) && generateJargonFlagsRow}
     {editingPrompt && promptEditor}
     {/* if there are more than 5 terms, they overflow the default max-height, so show the expand button */}
     {rowCount > 5 && <div className={classes.expandButton} onClick={() => setExpanded(!expanded)}>
