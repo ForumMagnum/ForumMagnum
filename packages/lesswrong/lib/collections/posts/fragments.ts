@@ -584,6 +584,7 @@ registerFragment(`
     coauthors {
       ...UsersMinimumInfo
     }
+    generateDraftJargon
   }
 `);
 

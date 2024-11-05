@@ -100,6 +100,8 @@ interface UsersDefaultFragment { // fragment on Users
   readonly petrovOptOut: boolean,
   readonly optedOutOfSurveys: boolean | null,
   readonly postGlossariesPinned: boolean,
+  readonly generateJargonForDrafts: boolean,
+  readonly generateJargonForPublishedPosts: boolean,
   readonly acceptedTos: boolean,
   readonly hideNavigationSidebar: boolean,
   readonly currentFrontpageFilter: string,
@@ -924,6 +926,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly reviewForAlignmentUserId: string,
   readonly agentFoundationsId: string,
   readonly swrCachingEnabled: boolean,
+  readonly generateDraftJargon: boolean,
 }
 
 interface RecommendationsCachesDefaultFragment { // fragment on RecommendationsCaches
@@ -1498,13 +1501,7 @@ interface PostSequenceNavigation { // fragment on Posts
   readonly nextPost: PostSequenceNavigation_nextPost|null,
 }
 
-interface PostSequenceNavigation_prevPost { // fragment on Posts
-  readonly _id: string,
-  readonly title: string,
-  readonly slug: string,
-  readonly commentCount: number,
-  readonly afCommentCount: number,
-  readonly baseScore: number,
+interface PostSequenceNavigation_prevPost extends PostsListWithVotes { // fragment on Posts
   readonly sequence: PostSequenceNavigation_prevPost_sequence|null,
 }
 
@@ -1512,13 +1509,7 @@ interface PostSequenceNavigation_prevPost_sequence { // fragment on Sequences
   readonly _id: string,
 }
 
-interface PostSequenceNavigation_nextPost { // fragment on Posts
-  readonly _id: string,
-  readonly title: string,
-  readonly slug: string,
-  readonly commentCount: number,
-  readonly afCommentCount: number,
-  readonly baseScore: number,
+interface PostSequenceNavigation_nextPost extends PostsListWithVotes { // fragment on Posts
   readonly sequence: PostSequenceNavigation_nextPost_sequence|null,
 }
 
@@ -1562,6 +1553,7 @@ interface PostsEdit extends PostsDetails, PostSideComments { // fragment on Post
   readonly user: UsersMinimumInfo|null,
   readonly usersSharedWith: Array<UsersMinimumInfo>,
   readonly coauthors: Array<UsersMinimumInfo>,
+  readonly generateDraftJargon: boolean,
 }
 
 interface PostsEditQueryFragment extends PostsEdit { // fragment on Posts
@@ -3224,6 +3216,8 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly hideSunshineSidebar: boolean,
   readonly optedOutOfSurveys: boolean | null,
   readonly postGlossariesPinned: boolean,
+  readonly generateJargonForDrafts: boolean,
+  readonly generateJargonForPublishedPosts: boolean,
 }
 
 interface UsersCurrentCommentRateLimit { // fragment on Users

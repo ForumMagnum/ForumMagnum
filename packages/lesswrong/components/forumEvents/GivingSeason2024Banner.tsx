@@ -397,9 +397,9 @@ const GivingSeason2024Banner = ({classes}: {
           </div>
           <div className={classes.fund}>
             <div className={classes.fundInfo}>
-              Donate to the fund to boost the value of the Election.{" "}
-              <Link to="/posts/srZEX2r9upbwfnRKw/giving-season-2024-announcement#November_18___December_3__Donation_Election">
-                Learn more
+              Donate to the fund to boost the value of the{" "}
+              <Link to="/posts/2WbDAAtGdyAEfcw6S/donation-election-fund-announcement-matching-rewards-and-faq">
+                Donation Election
               </Link>.
             </div>
             <div className={classes.fundRaised}>
@@ -417,7 +417,7 @@ const GivingSeason2024Banner = ({classes}: {
               href={getDonateLink(currentUser)}
               className={classes.donateButton}
             >
-              Donate to the Election Fund
+              Donate
             </EAButton>
           </div>
         </div>
