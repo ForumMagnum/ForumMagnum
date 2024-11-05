@@ -181,7 +181,7 @@ const getStructuredData = ({
     "@context": "http://schema.org",
     "@type": "DiscussionForumPosting",
     "url": postGetPageUrl(post, true),
-    "text": post.contents?.html,
+    "text": post.contents?.html ?? description,
     mainEntityOfPage: {
       "@type": "WebPage",
       "@id": postGetPageUrl(post, true),
