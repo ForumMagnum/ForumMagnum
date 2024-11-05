@@ -3078,9 +3078,9 @@ const schema: SchemaType<"Posts"> = {
     type: Boolean,
     optional: true,
     hidden: true,
-    ...schemaDefaultValue(false),
     canRead: ['members'],
     canUpdate: [userOwns],
+    ...schemaDefaultValue(false)
   },
 };
 

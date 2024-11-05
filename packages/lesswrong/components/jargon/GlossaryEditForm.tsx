@@ -262,6 +262,19 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
+/*
+  Returns the number of rows that are effectively visible in the glossary, to determine whether to show the "Expand" button.
+*/
+const getRowCount = (showDeletedTerms: boolean, nonDeletedTerms: JargonTerms[], deletedTerms: JargonTerms[]) => {
+  let rowCount = nonDeletedTerms.length // all non-deleted terms straightforwardly take up one row
+  if (showDeletedTerms) {
+    rowCount += deletedTerms.length + 1 // +1 for the "Show hidden terms" button row, and the deleted terms themselves
+  } else {
+    rowCount += deletedTerms.length > 0 ? 1 : 0 // +1 for the "Show hidden terms" button row
+  }
+  return rowCount;
+}
+
 export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   classes: ClassesType<typeof styles>,
   document: PostsEditQueryFragment,
@@ -495,13 +508,6 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     </LWTooltip>
   </div>
 
-  let rowCount = nonDeletedTerms.length
-  if (showDeletedTerms) { 
-    rowCount += deletedTerms.length
-  } else {
-    rowCount += deletedTerms.length > 0 ? 1 : 0
-  }
-
   const footer = <div className={classNames(classes.buttonRow, formCollapsed && classes.formCollapsed)}>
     <div className={classes.headerButtons}>
     <LWTooltip title={showNewJargonTermForm ? "Cancel adding a new term" : "Manually add a new term to the glossary"}>
@@ -519,6 +525,8 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     {mutationLoading && <Loading/>}
     {mutationLoading && <div>(Loading... warning, this will take 30-60 seconds.)</div>}
   </div>
+
+  const rowCount = getRowCount(showDeletedTerms, nonDeletedTerms, deletedTerms);
 
   return <div className={classes.root}>
     {showTitle && <Row justifyContent="space-between" alignItems="flex-start">
