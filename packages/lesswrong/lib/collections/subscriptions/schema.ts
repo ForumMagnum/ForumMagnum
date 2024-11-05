@@ -29,7 +29,7 @@ const schema: SchemaType<"Subscriptions"> = {
       nullable: false,
     }),
     onCreate: ({currentUser}) => currentUser!._id,
-    canRead: [userOwns],
+    canRead: ['members'],
     optional: true,
     nullable: false,
   },
@@ -38,23 +38,23 @@ const schema: SchemaType<"Subscriptions"> = {
     nullable: false,
     allowedValues: ['subscribed', 'suppressed'],
     canCreate: ['members'],
-    canRead: [userOwns],
+    canRead: ['members'],
   },
   documentId: {
     type: String,
-    canRead: [userOwns],
+    canRead: ['members'],
     canCreate: ['members']
   },
   collectionName: {
     type: String,
     nullable: false,
     typescriptType: "CollectionNameString",
-    canRead: [userOwns],
+    canRead: ['members'],
     canCreate: ['members']
   },
   deleted: {
     type: Boolean,
-    canRead: [userOwns],
+    canRead: ['members'],
     ...schemaDefaultValue(false),
     optional: true
   },
@@ -63,7 +63,7 @@ const schema: SchemaType<"Subscriptions"> = {
     nullable: false,
     allowedValues: Object.values(subscriptionTypes),
     canCreate: ['members'],
-    canRead: [userOwns]
+    canRead: ['members'],
   }
 };
 

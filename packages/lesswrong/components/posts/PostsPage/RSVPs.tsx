@@ -14,7 +14,7 @@ import { isFriendlyUI } from '../../../themes/forumTheme';
 import groupBy from "lodash/groupBy";
 import mapValues from "lodash/mapValues";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   body: {
     marginBottom: 48
   },
@@ -57,27 +57,16 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: "block"
     },
   },
+  button: {},
   goingButton: {
     color: theme.palette.primary.main,
     borderColor: theme.palette.primary.main,
     marginRight: 8
   },
-  goingIcon: {
-    height: 14,
-    color: theme.palette.primary.main
-  },
   maybeButton: {
     color: theme.palette.text.eventMaybe,
     borderColor: theme.palette.text.eventMaybe,
     marginRight: 8
-  },
-  maybeIcon: {
-    height: 14,
-    color: theme.palette.text.eventMaybe
-  },
-  noIcon: {
-    height: 14,
-    color: theme.palette.grey[500]
   },
   cantGoButton: {
     color: theme.palette.grey[800]
@@ -117,9 +106,9 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const RSVPs = ({post, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
-  const { ContentStyles } = Components;
+  const { ResponseIcon, ContentStyles } = Components;
   const { openDialog } = useDialog()
   const { query } = useLocation()
   const currentUser = useCurrentUser()
@@ -153,20 +142,20 @@ const RSVPs = ({post, classes}: {
       </span>
       <span className={classes.buttons}>
         <Button color="primary" variant="outlined" className={classes.goingButton} onClick={() => openRSVPForm("yes")}>
-          <CheckCircleOutlineIcon className={classes.goingIcon} /> Going
+          <ResponseIcon response="yes" /> Going
         </Button>
         <Button variant="outlined" className={classes.maybeButton} onClick={() => openRSVPForm("maybe")}>
-          <HelpOutlineIcon className={classes.maybeIcon} /> Maybe
+          <ResponseIcon response="maybe" /> Maybe
         </Button>
         <Button variant="outlined" className={classes.button} onClick={() => openRSVPForm("no")}>
-          <HighlightOffIcon className={classes.noIcon} /> Can't Go
+          <ResponseIcon response="no" /> Can't Go
         </Button>
       </span>
     </div>
     {post.isEvent && post.rsvps?.length > 0 && <>
       <div className={classes.rsvpCounts}>
         {Object.keys(responseToText).map((response: RsvpResponse) => <span key={response} className={classes.rsvpCount}>
-          <ResponseIcon response={response} classes={classes} />
+          <ResponseIcon response={response} />
           {rsvpCounts[response]??0} {responseToText[response]}
         </span>)}
       </div>
@@ -175,7 +164,7 @@ const RSVPs = ({post, classes}: {
           const canCancel = currentUser?._id === post.userId || currentUser?._id === rsvp.userId
           return <span className={classes.rsvpItem} key={`${rsvp.name}-${rsvp.response}`}>
             <div>
-              <ResponseIcon response={rsvp.response} classes={classes}/>
+              <ResponseIcon response={rsvp.response}/>
               <span className={classes.rsvpName}>{rsvp.name}</span>
               {canCancel && <span className={classes.remove} onClick={() => cancelRSVP(rsvp)}>
                 {"x"}
@@ -191,9 +180,24 @@ const RSVPs = ({post, classes}: {
   </ContentStyles>;
 }
 
-function ResponseIcon({response, classes}: {
+const responseIconStyles = (theme: ThemeType) => ({
+  goingIcon: {
+    height: 14,
+    color: theme.palette.primary.main
+  },
+  maybeIcon: {
+    height: 14,
+    color: theme.palette.text.eventMaybe
+  },
+  noIcon: {
+    height: 14,
+    color: theme.palette.grey[500]
+  },
+});
+
+export function ResponseIcon({response, classes}: {
   response: RsvpResponse
-  classes: ClassesType
+  classes: ClassesType<typeof responseIconStyles>
 }) {
   switch (response) {
     case "yes":
@@ -208,9 +212,11 @@ function ResponseIcon({response, classes}: {
 }
 
 const RSVPsComponent = registerComponent('RSVPs', RSVPs, {styles});
+const ResponseIconComponent = registerComponent('ResponseIcon', ResponseIcon, {styles: responseIconStyles});
 
 declare global {
   interface ComponentTypes {
     RSVPs: typeof RSVPsComponent
+    ResponseIcon: typeof ResponseIconComponent
   }
 }

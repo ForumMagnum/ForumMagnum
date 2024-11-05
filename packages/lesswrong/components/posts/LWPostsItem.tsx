@@ -14,6 +14,7 @@ import { MENU_WIDTH, DismissButton } from './PostsItemTrailingButtons';
 import DebateIcon from '@material-ui/icons/Forum';
 import { useHover } from '../common/withHover';
 import { highlightMarket } from '@/lib/collections/posts/annualReviewMarkets';
+import { isLW } from '@/lib/instanceSettings';
 
 
 export const KARMA_WIDTH = 32;
@@ -339,7 +340,21 @@ export const styles = (theme: ThemeType) => ({
     '&:hover': {
       opacity: 0.5
     }
-  }
+  },
+  rsvps: {
+    position: "relative",
+    top: 2,
+    [theme.breakpoints.down('xs')]: {
+      marginRight: 16,
+    },
+  },
+  rsvpCount: {
+    position: "relative",
+    top: -2,
+    fontSize: "1rem",
+    fontWeight: 300,
+    color: "rgba(0, 0, 0, .9)",
+  },
 })
 
 const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
@@ -406,7 +421,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
     PostActionsButton, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
     BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, PostsItemNewDialogueResponses,
     AnalyticsTracker, AddToCalendarButton, PostsItemReviewVote, ReviewPostButton,
-    PostReadCheckbox, PostMostValuableCheckbox, PostsItemTrailingButtons,
+    PostReadCheckbox, PostMostValuableCheckbox, PostsItemTrailingButtons, ResponseIcon,
   } = Components;
 
 
@@ -489,12 +504,22 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
                 </div>
               }
 
-              { post.isEvent && !post.onlineEvent && <PostsItem2MetaInfo className={classes.event}>
+              {post.isEvent && !post.onlineEvent && <PostsItem2MetaInfo className={classes.event}>
                 <Components.EventVicinity post={post} />
               </PostsItem2MetaInfo>}
-
               {/* space in-between title and author if there is width remaining */}
               <span className={classes.spacer} />
+
+              {isLW && post.isEvent && post.rsvpCounts?.yes>=5 && <PostsItem2MetaInfo className={classes.rsvps}>
+                {post.rsvpCounts?.yes && <>
+                  <ResponseIcon response="yes"/>
+                  <span className={classes.rsvpCount}>{post.rsvpCounts.yes}</span>
+                </>}
+                {post.rsvpCounts?.maybe && <>
+                  <ResponseIcon response="maybe"/>
+                  <span className={classes.rsvpCount}>{post.rsvpCounts.maybe}</span>
+                </>}
+              </PostsItem2MetaInfo>}
 
               {showAuthor && <PostsItem2MetaInfo className={classes.author}>
                 <PostsUserAndCoauthors post={post} abbreviateIfLong={true} newPromotedComments={hasNewPromotedComments} tooltipPlacement="top"/>

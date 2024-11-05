@@ -161,6 +161,7 @@ registerFragment(`
       name
       organizerIds
     }
+    rsvpCounts
 
     podcastEpisodeId
     forceAllowType3Audio
