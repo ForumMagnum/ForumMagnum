@@ -229,7 +229,7 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'center',
     marginTop: 8,
-    [theme.breakpoints.down('md')]: {
+    [theme.breakpoints.down('xs')]: {
       flexDirection: 'column',
       alignItems: 'flex-start',
     }
@@ -274,14 +274,10 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     fragmentName: 'PostsEdit',
   });
 
-  const updatePostAutoGenerate = async (autoGenerate: boolean) => {
-    await updatePost({
+  const updatePostAutoGenerate = (autoGenerate: boolean) => {
+    void updatePost({
       selector: { _id: document._id },
       data: { generateDraftJargon: autoGenerate },
-      optimisticResponse: {
-        ...document,
-        generateDraftJargon: autoGenerate,
-      }
     });
   }
 
@@ -328,7 +324,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     if (!glossaryPrompt) return;
     if (mutationLoading) return;
 
-    await updatePostAutoGenerate(true);
+    void updatePostAutoGenerate(true);
     setGeneratedOnce(true);
 
     try {
