@@ -477,7 +477,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     <EditUserJargonSettings />
   </div>
 
-  const header = (sortedTerms.length > 0) && <div className={classNames(classes.header, formCollapsed && classes.formCollapsed)}>
+  const header = (sortedTerms.length > 0) ? <div className={classNames(classes.header, formCollapsed && classes.formCollapsed)}>
     <LWTooltip title="Enable all glossary hoverovers for readers of this post">
       <div className={classNames(classes.headerButton, sortedUnapprovedTerms.length === 0 && classes.disabled)} 
         onClick={() => handleSetApproveAll(true)}>
@@ -498,7 +498,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
         UNHIDE ALL{ deletedTerms.length > 0 ? ` (${deletedTerms.length})` : '' }
       </div>
     </LWTooltip>
-  </div>
+  </div> : null;
 
   const footer = <div className={classNames(classes.buttonRow, formCollapsed && classes.formCollapsed)}>
     <div className={classes.headerButtons}>
@@ -570,12 +570,12 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     {(generatedOnce || editingPrompt || sortedTerms.length > 0) && generateJargonFlagsRow}
     {editingPrompt && promptEditor}
     {/* if there are more than 5 terms, they overflow the default max-height, so show the expand button */}
-    {rowCount > 5 && <div className={classes.expandButton} onClick={() => setExpanded(!expanded)}>
+    {rowCount > 5 ? <div className={classes.expandButton} onClick={() => setExpanded(!expanded)}>
       {expanded 
         ? <>COLLAPSE</>
         : <>EXPAND</>
       }
-    </div>}
+    </div> : null}
   </div>;
 }
 
