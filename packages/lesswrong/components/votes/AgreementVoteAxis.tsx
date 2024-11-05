@@ -11,7 +11,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   agreementSection: {
     display: "inline-block",
     fontSize: 25,
-    marginLeft: 4,
+    marginLeft: 8,
     lineHeight: 0.6,
     height: 24,
     minWidth: 60,

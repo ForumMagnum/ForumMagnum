@@ -35,7 +35,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   title: {
     flexGrow: 1,
-    overflow: "hidden",
+    overflowX: "clip",
     textOverflow: "ellipsis",
   },
   afterIcon: {

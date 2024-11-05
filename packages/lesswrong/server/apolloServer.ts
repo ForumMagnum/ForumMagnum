@@ -63,6 +63,7 @@ import { addAutocompleteEndpoint } from './autocompleteEndpoint';
 import { getSqlClientOrThrow } from './sql/sqlClient';
 import { addLlmChatEndpoint } from './resolvers/anthropicResolvers';
 import { getInstanceSettings } from '@/lib/getInstanceSettings';
+import { addGivingSeasonEndpoints } from './givingSeason/webhook';
 
 /**
  * End-to-end tests automate interactions with the page. If we try to, for
@@ -216,6 +217,8 @@ export function startWebserver() {
     // which is never actually used.
     ElasticController.addRoutes(app);
   }
+
+  addGivingSeasonEndpoints(app);
 
   addStripeMiddleware(addMiddleware);
   // Most middleware need to run after those added by addAuthMiddlewares, so that they can access the user that passport puts on the request.  Be careful if moving it!
