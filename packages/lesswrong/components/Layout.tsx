@@ -36,7 +36,7 @@ import { LoginPopoverContextProvider } from './hooks/useLoginPopoverContext';
 import DeferRender from './common/DeferRender';
 import { userHasLlmChat } from '@/lib/betas';
 import { AutosaveEditorStateContext } from './editor/EditorFormComponent';
-
+import { EditorCommandsContextProvider } from './editor/EditorCommandsContext';
 const STICKY_SECTION_TOP_MARGIN = 20;
 
 /**
@@ -426,6 +426,11 @@ const Layout = ({currentUser, children, classes}: {
     [autosaveEditorState, setAutosaveEditorState]
   );
 
+  // const editorContext = useMemo<EditorContextType>(
+  //   () => [editorState, setEditorState],
+  //   [editorState, setEditorState]
+  // );
+
   let headerBackgroundColor: ColorString;
   // For the EAF Wrapped page, we change the header's background color to a dark blue.
   if (pathname.startsWith('/wrapped')) {
@@ -496,6 +501,7 @@ const Layout = ({currentUser, children, classes}: {
       <ItemsReadContextWrapper>
       <LoginPopoverContextProvider>
       <SidebarsWrapper>
+      <EditorCommandsContextProvider>
       <AutosaveEditorStateContext.Provider value={autosaveEditorStateContext}>
       <LlmChatWrapper>
       <DisableNoKibitzContext.Provider value={noKibitzContext}>
@@ -626,6 +632,7 @@ const Layout = ({currentUser, children, classes}: {
       </DisableNoKibitzContext.Provider>
       </LlmChatWrapper>
       </AutosaveEditorStateContext.Provider>
+      </EditorCommandsContextProvider>
       </SidebarsWrapper>
       </LoginPopoverContextProvider>
       </ItemsReadContextWrapper>
