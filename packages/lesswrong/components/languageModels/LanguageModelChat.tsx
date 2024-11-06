@@ -296,6 +296,17 @@ const styles = (theme: ThemeType) => ({
     borderRadius: 4,
     padding: '4px 7px',
     width: 240
+  },
+  postSuggestionsList: {
+    display: "flex",
+    flex: 1,
+    gap: "8px",
+    maxHeight: 32,
+    flexWrap: "wrap",
+    overflow: "hidden",
+    ...theme.typography.body2,
+    color: theme.palette.grey[600],
+    fontSize: "1.1rem",
   }
 });
 
@@ -473,7 +484,11 @@ const PostSuggestionsPromptInput = ({classes, prompt}: {classes: ClassesType<typ
 
   if (prompt.title === llmFeedbackCommandLoadingSourceId) {
     return <div className={classes.postSuggestionsButton} onClick={handleCancel}>
-      <Loading />
+      <Row alignItems="center" gap={4}>
+        <LWTooltip title="Generating suggestions, click to cancel" placement="left">
+          <Loading />
+        </LWTooltip>
+      </Row>
     </div>
   }
 
@@ -502,15 +517,29 @@ const PostSuggestionsPromptInput = ({classes, prompt}: {classes: ClassesType<typ
   </div>
 }
 
-export const PostSuggestionPromptList = ({classes, children}: {classes: ClassesType<typeof styles>, children: React.ReactNode}) => {
+const ConversationsList = ({classes, children}: {classes: ClassesType<typeof styles>, children: React.ReactNode}) => {
   const { ForumIcon, LWTooltip } = Components;
-  const [isConvoListExpanded, setIsConvoListExpanded] = useState(false);
+  const [isListExpanded, setIsListExpanded] = useState(false);
 
   return <div className={classes.convosListWrapper}>
-    <LWTooltip title={isConvoListExpanded ? "Show Fewer Conversations" : "Show All Conversations"}>
-      <ForumIcon icon="ExpandMore" className={classNames(classes.icon, !isConvoListExpanded && classes.collapsedIcon)} onClick={() => setIsConvoListExpanded(!isConvoListExpanded)} />
+    <LWTooltip title={isListExpanded ? "Show Fewer Conversations" : "Show All Conversations"}>
+      <ForumIcon icon="ExpandMore" className={classNames(classes.icon, !isListExpanded && classes.collapsedIcon)} onClick={() => setIsListExpanded(!isListExpanded)} />
     </LWTooltip>
-    <div className={classNames(classes.convoList, isConvoListExpanded && classes.convoListExpanded)}>
+    <div className={classNames(classes.convoList, isListExpanded && classes.convoListExpanded)}>
+      {children}
+    </div>
+  </div>;
+}
+
+export const PostSuggestionPromptList = ({classes, children}: {classes: ClassesType<typeof styles>, children: React.ReactNode}) => {
+  const { ForumIcon, LWTooltip } = Components;
+  const [isListExpanded, setIsListExpanded] = useState(false);
+
+  return <div className={classes.convosListWrapper}>
+    <LWTooltip title={isListExpanded ? "Show Fewer Conversations" : "Show All Conversations"}>
+      <ForumIcon icon="ExpandMore" className={classNames(classes.icon, !isListExpanded && classes.collapsedIcon)} onClick={() => setIsListExpanded(!isListExpanded)} />
+    </LWTooltip>
+    <div className={classNames(classes.postSuggestionsList, isListExpanded && classes.convoListExpanded)}>
       {children}
     </div>
   </div>
@@ -524,6 +553,7 @@ export const ChatInterface = ({classes}: {
   const { currentConversation, setCurrentConversation, archiveConversation, orderedConversations, submitMessage, currentConversationLoading } = useLlmChat();
   const { currentPostId, postContext } = useCurrentPostContext();
   const { autosaveEditorState } = useContext(AutosaveEditorStateContext);
+  const { getLlmFeedbackCommand } = useEditorCommands();
 
   const [ragMode, setRagMode] = useState<RagModeType>('Links');
   const { flash } = useMessages();
@@ -695,7 +725,7 @@ export const ChatInterface = ({classes}: {
       {messagesForDisplay}
       {currentConversationLoading && <Loading className={classes.loadingSpinner}/>}
       <LLMInputTextbox onSubmit={handleSubmit} classes={classes} />
-      <PostSuggestionPromptList classes={classes}>
+      <ConversationsList classes={classes}>
         {orderedConversations.map(({ title, _id, messages }, index) => (
           <div key={index} className={classes.conversation2Item} onClick={() => setCurrentConversation(_id)}>
             {title ?? "...Title Pending..."}
@@ -704,11 +734,11 @@ export const ChatInterface = ({classes}: {
         <LWTooltip title="New LLM Chat">
           <ForumIcon icon="Add" className={classes.icon} onClick={() => setCurrentConversation()} />
         </LWTooltip>
-      </PostSuggestionPromptList>
-      <PostSuggestionPromptList classes={classes}>
+      </ConversationsList>
+      {!!getLlmFeedbackCommand && <PostSuggestionPromptList classes={classes}>
         <PostSuggestionsPromptInput classes={classes} prompt={rightBranchingPrompt} />
         <PostSuggestionsPromptInput classes={classes} prompt={danglingSentencesPrompt} />
-      </PostSuggestionPromptList>
+      </PostSuggestionPromptList>}
     </div>
   </>
 }
