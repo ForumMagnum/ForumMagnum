@@ -360,7 +360,7 @@ const GivingSeason2024Banner = ({classes}: {
         ))}
       </div>
       <div className={classes.banner}>
-        <Link to="#">
+        <Link to="/posts/srZEX2r9upbwfnRKw/giving-season-2024-announcement">
           GIVING SEASON 2024
         </Link>
       </div>
