@@ -2,6 +2,7 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
+import { useDynamicTableOfContents } from '../hooks/useDynamicTableOfContents';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -11,11 +12,22 @@ const styles = (theme: ThemeType) => ({
 
 export const ThinkSidePost = ({classes, post}: {
   classes: ClassesType<typeof styles>,
-  post: PostsListWithVotes
+  post: PostsPage
 }) => {
-  const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
-  return <div className={classes.root}>
+  const { FixedPositionToC } = Components;
 
+  const sectionData = useDynamicTableOfContents({
+    html: post?.contents?.html ?? post?.contents?.htmlHighlight ?? "",
+    post,
+    answers: [],
+  });
+  const htmlWithAnchors = sectionData
+  
+  if (!sectionData?.sections) return null;
+  return <div className={classes.root}>
+    {sectionData.sections.map((section, index) => (
+      <div key={index}>{section.title}</div>
+    ))}
   </div>;
 }
 

@@ -206,7 +206,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayOptions, classes, hover}: {
+const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayOptions, classes, hover, absolutePosition=true}: {
   tocSections: ToCSection[],
   title: string|null,
   heading?: React.ReactNode,
@@ -214,6 +214,7 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
   displayOptions?: ToCDisplayOptions,
   classes: ClassesType<typeof styles>,
   hover?: boolean,
+  absolutePosition?: boolean,
 }) => {
   const { TableOfContentsRow, AnswerTocRow } = Components;
 
@@ -383,7 +384,7 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
   if (!tocSections || !hasLoaded)
     return <div/>
 
-  return <div className={classNames(classes.root, { [classes.hover]: hover })}>
+  return <div className={classNames({ [classes.root]: absolutePosition, [classes.hover]: hover })}>
     <div className={classes.wrapper}>
       <div className={classes.progressBarContainer} ref={readingProgressBarRef}>
         <div className={classes.progressBar} />

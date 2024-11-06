@@ -59,7 +59,7 @@ export const ThinkPost = ({classes}: {
     // const attributionId = query[VERTEX_ATTRIBUTION_ID_QUERY_PARAM];
     if (!post?._id) return;
     void recordPostView({
-      post: post as PostsListBase,
+      post: post as PostsPage,
       // extraEventProperties: {
       //   sequenceId: getSequenceId()
       // },

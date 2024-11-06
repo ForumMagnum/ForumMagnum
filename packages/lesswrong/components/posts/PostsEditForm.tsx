@@ -40,7 +40,7 @@ const PostsEditForm = ({ documentId, version, classes, showTableOfContents, fiel
   showTableOfContents?: boolean,
   fields?: string[]
 }) => {
-  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags, ForeignCrosspostEditForm, DialogueSubmit, RateLimitWarning, DynamicTableOfContents, ThinkLink } = Components
+  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags, ForeignCrosspostEditForm, DialogueSubmit, RateLimitWarning, DynamicTableOfContents, ThinkLink, LWPostsPageHeaderTopRight } = Components
 
   const { pathname, query, params } = useLocation();
   const navigate = useNavigate();
@@ -157,7 +157,9 @@ const PostsEditForm = ({ documentId, version, classes, showTableOfContents, fiel
   }
 
   const editorComponent = <div className={classes.postForm}>
-    {currentUser?.isAdmin && <div style={{position: 'absolute', top: 74, right: 16}}><ThinkLink title="Think Version" document={document} /></div>}
+    {currentUser?.isAdmin && !isThinkPage && <div style={{position: 'absolute', top: 74, right: 16}}>
+      <ThinkLink document={document} title="Think" />
+    </div>}
     <HeadTags title={document.title} />
     {currentUser && <Components.PostsAcceptTos currentUser={currentUser} />}
     {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}

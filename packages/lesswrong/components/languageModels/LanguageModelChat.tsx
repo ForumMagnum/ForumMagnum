@@ -521,7 +521,7 @@ export const ChatInterface = ({classes}: {
   const { currentPostId, postContext } = useCurrentPostContext();
   const { autosaveEditorState } = useContext(AutosaveEditorStateContext);
 
-  const [ragMode, setRagMode] = useState<RagModeType>('Auto');
+  const [ragMode, setRagMode] = useState<RagModeType>('Links');
   const { flash } = useMessages();
 
   const messagesRef = useRef<HTMLDivElement>(null);

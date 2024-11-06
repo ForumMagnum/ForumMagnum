@@ -183,7 +183,7 @@ export const ThinkSideColumn = ({classes, document}: {
 
   let documentSideComponent
   if (identifyDocument(document) === 'Post') {
-    documentSideComponent = <ThinkSidePost post={document as PostsListWithVotes} />
+    documentSideComponent = <ThinkSidePost post={document as PostsPage} />
   } else if (identifyDocument(document) === 'Sequence') {
     documentSideComponent = <ThinkSideSequence sequence={document as SequencesPageWithChaptersFragment} />
   }
