@@ -57,7 +57,7 @@ export const ThinkPost = ({classes}: {
   useEffect(() => {
     // const recommId = query[RECOMBEE_RECOMM_ID_QUERY_PARAM];
     // const attributionId = query[VERTEX_ATTRIBUTION_ID_QUERY_PARAM];
-
+    if (!post?._id) return;
     void recordPostView({
       post: post as PostsListBase,
       // extraEventProperties: {
@@ -68,7 +68,8 @@ export const ThinkPost = ({classes}: {
       //   vertexOptions: { attributionId }
       // }
     });
-  }, [post, recordPostView]);
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [post?._id]);
 
   const handleEditClick = () => {
     setIsEditing(!isEditing);

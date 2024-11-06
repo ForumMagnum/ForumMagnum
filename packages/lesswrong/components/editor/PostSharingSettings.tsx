@@ -158,11 +158,11 @@ const PostSharingSettings = ({document, formType, value, classes}: {
             // mark it as a draft, then submit the form.
             if (formType==="new") {
               await updateCurrentValues({ draft: true });
-              await submitForm(null, {redirectToEditor: true});
+              await submitForm(null, {redirectToEditor: isThinkPage ? false : true});
             } else {
               // Otherwise we're going to leave whether-this-is-a-draft
               // unchanged, and subimt the form.
-              await submitForm(null, {redirectToEditor: !isThinkPage});
+              await submitForm(null, {redirectToEditor: isThinkPage ? false : true});
             }
           }
           closeDialog();

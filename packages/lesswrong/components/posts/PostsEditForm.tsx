@@ -41,7 +41,7 @@ const PostsEditForm = ({ documentId, version, classes, showTableOfContents, fiel
 }) => {
   const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags, ForeignCrosspostEditForm, DialogueSubmit, RateLimitWarning, DynamicTableOfContents, ThinkLink } = Components
 
-  const { query, params } = useLocation();
+  const { pathname, query, params } = useLocation();
   const navigate = useNavigate();
   const { flash } = useMessages();
   const { openDialog } = useDialog();
@@ -80,6 +80,8 @@ const PostsEditForm = ({ documentId, version, classes, showTableOfContents, fiel
   const isDraft = document && document.draft;
   const wasEverDraft = useRef(isDraft);
 
+  const isThinkPage = pathname.includes('/think/posts/');
+
   useEffect(() => {
     if (wasEverDraft.current === undefined && isDraft !== undefined) {
       wasEverDraft.current = isDraft;
@@ -90,15 +92,17 @@ const PostsEditForm = ({ documentId, version, classes, showTableOfContents, fiel
     return <Components.Loading/>
   }
 
+  // TODO: Before merging make sure to properly handle the cases where we're on the think page
+
   // If we only have read access to this post, but it's shared with us,
   // redirect to the collaborative editor.
-  if (document && !canUserEditPostMetadata(currentUser, document) && !userIsPodcaster(currentUser)) {
+  if (document && !isThinkPage && !canUserEditPostMetadata(currentUser, document) && !userIsPodcaster(currentUser)) {
     return <Components.PermanentRedirect url={getPostCollaborateUrl(documentId, false, query.key)} status={302}/>
   }
   
   // If we don't have access at all but a link-sharing key was provided, redirect to the
   // collaborative editor
-  if (!document && !loading && query?.key) {
+  if (!document && !loading && query?.key && !isThinkPage) {
     return <Components.PermanentRedirect url={getPostCollaborateUrl(documentId, false, query.key)} status={302}/>
   }
   
@@ -106,7 +110,7 @@ const PostsEditForm = ({ documentId, version, classes, showTableOfContents, fiel
   // the link-sharing key to the URL. (linkSharingKey has field-level
   // permissions so it will only be present if we've either already used the
   // link-sharing key, or have access through something other than link-sharing.)
-  if (document?.linkSharingKey && !(query?.key)) {
+  if (document?.linkSharingKey && !(query?.key) && !isThinkPage) {
     return <Components.PermanentRedirect url={postGetEditUrl(document._id, false, document.linkSharingKey)} status={302}/>
   }
   
