@@ -20,6 +20,7 @@ import { preferredHeadingCase } from '../../themes/forumTheme';
 import DeferRender from '../common/DeferRender';
 import { useSingleWithPreload } from '@/lib/crud/useSingleWithPreload';
 import { userCanCreateAndEditJargonTerms } from '@/lib/betas';
+import Input from '@material-ui/core/Input';
 
 const editor: Editor | null = null
 export const EditorContext = React.createContext<[Editor | null, (e: Editor) => void]>([editor, _ => {}]);
@@ -29,6 +30,12 @@ function getDraftLabel(post: PostsPage | null) {
   if (!post.draft) return "Move to Drafts";
   return "Save Draft";
 }
+
+const defaultPrompt = `Given the following post, figure out which sentences are the most left-branching and difficult to follow, and then suggest edits to make them easier to understand.  
+
+When suggesting edits, please write out a parse tree of the original text, using the edit's "reasoning" field.
+
+Then, rewrite the text to be more right-branching, while changing as little of the vocabulary as possible.`;
 
 const PostsEditForm = ({ documentId, version, classes }: {
   documentId: string,
@@ -44,6 +51,7 @@ const PostsEditForm = ({ documentId, version, classes }: {
   const currentUser = useCurrentUser();
 
   const [editorState, setEditorState] = useState<Editor | null>(editor);
+  const [userFeedbackPrompt, setUserFeedbackPrompt] = useState(defaultPrompt);
 
   const { bestResult: document, fetchedResult: { loading } } = useSingleWithPreload({
     documentId,
@@ -147,8 +155,22 @@ const PostsEditForm = ({ documentId, version, classes }: {
     addFields.push('glossary');
   }
 
+  // TODO: extract this to a component, along with its state and the default prompt
+  // Don't forget to remove the style from PostsNewForm then
+  const userFeedbackPromptInput = <Input
+    id="user-feedback-prompt-input"
+    className={classes.userFeedbackPromptInput}
+    type="text"
+    placeholder="Prompt"
+    value={userFeedbackPrompt}
+    onChange={(e) => setUserFeedbackPrompt(e.target.value)}
+    multiline
+    rows={15}
+    disableUnderline
+  />
+
   return (
-    <DynamicTableOfContents title={document.title}>
+    <DynamicTableOfContents title={document.title} rightColumnChildren={userFeedbackPromptInput}>
       <div className={classes.postForm}>
         <HeadTags title={document.title} />
         {currentUser && <Components.PostsAcceptTos currentUser={currentUser} />}
