@@ -18,6 +18,7 @@ import express, { Express } from "express";
 import { captureException } from "@sentry/core";
 import { LwAfDomainWhitelist } from "@/lib/routeUtil";
 import partition from "lodash/partition";
+import { fetchWebsiteHtmlContent } from "./fetchWebsiteHtml";
 
 interface InitializeConversationArgs {
   newMessage: ClientMessage;
@@ -149,14 +150,17 @@ export const getLinksContents = async (query: string, context: ResolverContext) 
       return false;
     }
   });
-  const postIds = lesswrongLinks.flatMap(link => {
+  const lwPostIds = lesswrongLinks.flatMap(link => {
     const postIdRegex = /\/posts\/([a-zA-Z0-9]{17})\//;
     const url = new URL(link);
     const match = url.pathname.match(postIdRegex);
     return match ? match[1] : null;
   });
-  console.log({links, lesswrongLinks, externalLinks, postIds})
-  return {lesswrongLinks, externalLinks, postIds}
+
+  const externalPosts = await Promise.all(externalLinks.map(link => fetchWebsiteHtmlContent(link, context)));
+  const externalPostIds = externalPosts.map(post => post.postId);
+
+  return [...lwPostIds, ...externalPostIds];
 }
 
 const ragModeMapping = {

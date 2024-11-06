@@ -67,8 +67,6 @@ export const LWPostsPageHeaderTopRight = ({classes, post, toggleEmbeddedPlayer, 
 
   const votingSystem = getVotingSystemByName(post.votingSystem ?? 'default');
 
-  console.log(children);
-
   return <div className={classes.root}>
       {children}
       {!post.shortform && <AnalyticsContext pageSectionContext="tagHeader">
@@ -77,7 +75,7 @@ export const LWPostsPageHeaderTopRight = ({classes, post, toggleEmbeddedPlayer, 
         </div>
       </AnalyticsContext>}
       {!post.shortform && postHasAudioPlayer(post) && <div className={classNames(classes.audioToggle, higherContrast && classes.darkerOpacity)}>
-        <AudioToggle post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />
+      <AudioToggle post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />
       </div>}
       {!post.shortform && <div className={classes.vote}>
         <LWPostsPageTopHeaderVote post={post} votingSystem={votingSystem} /> 
