@@ -211,12 +211,13 @@ async function getContextualPosts({ content: query, ragMode, currentPost, postCo
     // ...querySearchIds, ...currentPostSearchIds,
     ...linksIds
   ]);
-
+  console.log("deduplicatedSearchResultIds", deduplicatedSearchResultIds);
   // TODO: Clean up somehow. This is kind of ugly but this is where the decision is being made about whether or not to use the current post in the context window.
   const posts: LlmPost[] = await getPostsWithContents(deduplicatedSearchResultIds, context);
   if (useCurrentPost && currentPost && !deduplicatedSearchResultIds.includes(currentPost._id)) {
     posts.unshift(currentPost);
   }
+  console.log("posts", posts.map(post => post.title));
   return posts;
 };
 
