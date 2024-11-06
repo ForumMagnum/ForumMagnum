@@ -1224,8 +1224,7 @@ importComponent("GlossaryEditForm", () => require('../components/jargon/Glossary
 importComponent("JargonEditorRow", () => require('../components/jargon/JargonEditorRow'));
 importComponent("GlossaryEditorPage", () => require('../components/jargon/GlossaryEditorPage'));
 
-importComponent("ThinkPostRead", () => require('../components/thinkPage/ThinkPostRead'));
-importComponent("ThinkPostEdit", () => require('../components/thinkPage/ThinkPostEdit'));
+importComponent("ThinkPost", () => require('../components/thinkPage/ThinkPost'));
 importComponent("ThinkPostNew", () => require('../components/thinkPage/ThinkPostNew'));
 importComponent("ThinkSideColumn", () => require('../components/thinkPage/ThinkSideColumn'));
 importComponent("ThinkSideItem", () => require('../components/thinkPage/ThinkSideItem'));

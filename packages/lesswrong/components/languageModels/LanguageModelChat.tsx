@@ -21,7 +21,7 @@ import { AutosaveEditorStateContext } from '../editor/EditorFormComponent';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import { usePostsPageContext } from '../posts/PostsPage/PostsPageContext';
 import Input from '@material-ui/core/Input/Input';
-import { rightBranchingPrompt } from '@/lib/promptLibrary';
+import { danglingSentencesPrompt, Prompt, rightBranchingPrompt } from '@/lib/promptLibrary';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -34,7 +34,8 @@ const styles = (theme: ThemeType) => ({
   subRoot: {
     display: "flex",
     flexDirection: "column",
-    height: "100%"
+    height: "100%",
+    ...theme.typography.body2,
   },
   submission: {
     margin: 10,
@@ -59,7 +60,7 @@ const styles = (theme: ThemeType) => ({
   inputTextbox: {
     margin: 10,
     marginTop: 20,
-    borderRadius: 15,
+    borderRadius: 8,
     maxHeight: "40vh",
     backgroundColor: theme.palette.panelBackground.commentNodeEven,
     overflowY: 'hidden',
@@ -89,7 +90,7 @@ const styles = (theme: ThemeType) => ({
     margin: 10,
     display: "flex",
     flexDirection: "column",
-    borderRadius: 15
+    borderRadius: 8
   },
   welcomeGuideText: {
     padding: 20,
@@ -106,7 +107,7 @@ const styles = (theme: ThemeType) => ({
   chatMessage: {
     padding: 20,
     margin: 10,
-    borderRadius: 15,
+    borderRadius: 8,
     backgroundColor: theme.palette.grey[100],
     position: "relative",
   },
@@ -183,11 +184,11 @@ const styles = (theme: ThemeType) => ({
     '&:hover': {
       color: theme.palette.grey[600],
     },
-    height: 18,
-    width: 18,
+    height: 16,
+    width: 16,
     position: "absolute",
-    left: 10,
-    top: 10,
+    left: 6,
+    top: 6,
   },
   conversation2Item: {
     cursor: "pointer",
@@ -195,25 +196,25 @@ const styles = (theme: ThemeType) => ({
     overflow: "hidden",
     textOverflow: "ellipsis",
     position: "relative",
-    width: "100%",
-    display: "flex",
-    justifyContent: "flex-start",
-    alignItems: "center",
+    width: "calc(50% - 8px)",
+    border: theme.palette.border.faint,
+    borderRadius: 4,
+    paddingLeft: 6,
+    paddingRight: 6,
+    paddingTop: 4,
+    paddingBottom: 4,
     '&:hover $convoIcon, &:hover $deleteConvoIcon': {
       opacity: 1,
     },
   },
   convoList: {
     display: "flex",
-    gap: '8px',
+    gap: "8px",
     flexWrap: "wrap",
-    maxHeight: 100,
+    maxHeight: 30,
     overflow: "hidden",
     ...theme.typography.body2,
-    color: theme.palette.grey[500],
-    '&:hover': {
-      color: theme.palette.grey[600],
-    },
+    color: theme.palette.grey[600],
     fontSize: "1.1rem",
   },
   convosListWrapper: {
@@ -241,12 +242,21 @@ const styles = (theme: ThemeType) => ({
       opacity: 1,
     },
   },
+  suggestionIcon: {
+    cursor: "pointer",
+    height: 16,
+    width: 16,
+    opacity: 0.5,
+    marginLeft: 8,
+    '&:hover': {
+      opacity: 1,
+    },
+  },
   icon: {
     cursor: "pointer",
-    height: 24,
-    width: 24,
-    margin: 4,
-    marginTop: 12,
+    height: 20,
+    width: 20,
+    marginTop: 6,
     opacity: 0.5,
     '&:hover': {
       opacity: 1,
@@ -262,11 +272,16 @@ const styles = (theme: ThemeType) => ({
     cursor: 'pointer',
     opacity: 0.8,
     alignSelf: 'flex-start',
-    border: theme.palette.border.faint,
     ...theme.typography.body2,
     marginBottom: 4,
     padding: 10,
     borderRadius: 4,
+    '& $suggestionIcon': {
+      opacity: 0,
+    },
+    '&:hover $suggestionIcon': {
+      opacity: .5,
+    },
   },
   postSuggestionsWrapper: {
     backgroundColor: theme.palette.background.default,
@@ -423,26 +438,34 @@ function useCurrentPostContext(): CurrentPostContext {
   return {};
 }
 
-const PostSuggestionsPromptInput = ({classes}: {classes: ClassesType<typeof styles>}) => {
-  const [active, setActive] = useState(false);
-  const [userFeedbackPrompt, setUserFeedbackPrompt] = useState(rightBranchingPrompt);
+const PostSuggestionsPromptInput = ({classes, prompt}: {classes: ClassesType<typeof styles>, prompt: Prompt}) => {
+  const [edit, setEdit] = useState(false);
+  const [userFeedbackPrompt, setUserFeedbackPrompt] = useState(prompt.prompt);
 
-  if (!active) return <div onClick={() => setActive(true)} className={classes.postSuggestionsButton}>
-    Right-branching Readability
-  </div>
+  const { ForumIcon, Row, LWTooltip } = Components;
 
-  return <div className={classes.postSuggestionsWrapper}>
-    <Input
-      id="user-feedback-prompt-input"
-      className={classes.userFeedbackPromptInput}
-      type="text"
-      placeholder="Prompt"
-      value={userFeedbackPrompt}
-      onChange={(e) => setUserFeedbackPrompt(e.target.value)}
-      multiline
-      rows={15}
-      disableUnderline
-    />
+  return <div onClick={() => setEdit(true)} className={classes.postSuggestionsButton}>
+    <Row alignItems="center" gap={4}>
+      <LWTooltip title={prompt.description}>
+        <div>{prompt.title}</div>
+      </LWTooltip>
+      <LWTooltip title={edit ? "Cancel" : "Edit Prompt"}> 
+        <ForumIcon className={classes.suggestionIcon} icon={edit ? "Clear" : "Edit"} onClick={() => setEdit(!edit)}/>
+      </LWTooltip>
+    </Row>
+    <div className={classes.postSuggestionsWrapper} style={{display: edit ? "block" : "none"}}>
+      <Input
+        id="user-feedback-prompt-input"
+        className={classes.userFeedbackPromptInput}
+        type="text"
+        placeholder="Prompt"
+        value={userFeedbackPrompt}
+        onChange={(e) => setUserFeedbackPrompt(e.target.value)}
+        multiline
+        rows={15}
+        disableUnderline
+      />
+    </div>
   </div>
 }
 
@@ -601,28 +624,37 @@ export const ChatInterface = ({classes}: {
   }
 
   const conversations = <div className={classes.convosListWrapper}>
-    <LWTooltip title="New LLM Chat">
-      <ForumIcon icon="Add" className={classes.icon} onClick={() => setCurrentConversation()} />
-    </LWTooltip>
-    <LWTooltip title="Copy Chat History to Clipboard">
-      <ForumIcon icon="ClipboardDocument" className={classes.icon} onClick={exportHistoryToClipboard} />
-    </LWTooltip>
     <LWTooltip title={isConvoListExpanded ? "Show Fewer Conversations" : "Show All Conversations"}>
       <ForumIcon icon="ExpandMore" className={classNames(classes.icon, !isConvoListExpanded && classes.collapsedIcon)} onClick={() => setIsConvoListExpanded(!isConvoListExpanded)} />
     </LWTooltip>
     <div className={classNames(classes.convoList, isConvoListExpanded && classes.convoListExpanded)}>
       {orderedConversations.map(({ title, _id, messages }, index) => (
         <div key={index} className={classes.conversation2Item} onClick={() => setCurrentConversation(_id)}>
-          <LWTooltip title="Copy first message to clipboard">
+          {/* <LWTooltip title="Copy first message to clipboard">
             <ForumIcon icon="ClipboardDocument" className={classes.convoIcon} onClick={() => copyFirstMessageToClipboard(_id)} />
-          </LWTooltip>
+          </LWTooltip> */}
           {title ?? "...Title Pending..."}
-          <LWTooltip title="Delete Conversation">
+          {/* <LWTooltip title="Delete Conversation">
             <CloseIcon className={classes.deleteConvoIcon} onClick={(ev) => deleteConversation(ev, _id)} />
-          </LWTooltip>
+          </LWTooltip> */}
         </div>
       ))}
     </div>
+    <LWTooltip title="New LLM Chat">
+      <ForumIcon icon="Add" className={classes.icon} onClick={() => setCurrentConversation()} />
+    </LWTooltip>
+    {/* <LWTooltip title="Copy Chat History to Clipboard">
+      <ForumIcon icon="ClipboardDocument" className={classes.icon} onClick={exportHistoryToClipboard} />
+    </LWTooltip> */}
+  </div>
+
+  const options = <div className={classes.options}>
+    <LWTooltip title="New LLM Chat">
+      <ForumIcon icon="Add" className={classes.icon} onClick={() => setCurrentConversation()} />
+    </LWTooltip>
+    <LWTooltip title="Copy Chat History to Clipboard">
+      <ForumIcon icon="ClipboardDocument" className={classes.icon} onClick={exportHistoryToClipboard} />
+    </LWTooltip>
   </div>
 
   const handleSubmit = useCallback(async (message: string) => {
@@ -637,10 +669,11 @@ export const ChatInterface = ({classes}: {
       {messagesForDisplay}
       {currentConversationLoading && <Loading className={classes.loadingSpinner}/>}
       <LLMInputTextbox onSubmit={handleSubmit} classes={classes} />
-      {/* {options} */}
       {conversations}
+      <br/>
+      <PostSuggestionsPromptInput classes={classes} prompt={rightBranchingPrompt} />
+      <PostSuggestionsPromptInput classes={classes} prompt={danglingSentencesPrompt} />
     </div>
-    <PostSuggestionsPromptInput classes={classes} />
   </>
 }
 

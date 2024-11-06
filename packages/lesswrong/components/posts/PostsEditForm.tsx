@@ -32,11 +32,12 @@ function getDraftLabel(post: PostsPage | null) {
 }
 
 
-const PostsEditForm = ({ documentId, version, classes, showTableOfContents }: {
+const PostsEditForm = ({ documentId, version, classes, showTableOfContents, fields }: {
   documentId: string,
   version?: string | null,
   classes: ClassesType,
   showTableOfContents?: boolean,
+  fields?: string[]
 }) => {
   const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags, ForeignCrosspostEditForm, DialogueSubmit, RateLimitWarning, DynamicTableOfContents } = Components
 
@@ -192,6 +193,7 @@ const PostsEditForm = ({ documentId, version, classes, showTableOfContents }: {
           }}
           showRemove={true}
           collabEditorDialogue={!!document.collabEditorDialogue}
+          {...(fields ? {fields} : {})}
           submitLabel={preferredHeadingCase(isDraft ? "Publish" : "Publish Changes")}
           formComponents={{FormSubmit: !!document.collabEditorDialogue ? DialogueSubmit : EditPostsSubmit}}
           extraVariables={{

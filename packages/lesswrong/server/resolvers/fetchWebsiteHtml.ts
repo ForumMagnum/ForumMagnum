@@ -87,22 +87,22 @@ const fetchWebsiteHtmlResolvers = {
             month: 'short',
             day: 'numeric',
           })}</h1>
-          <details>
-            <summary>Links</summary>
+          <details class="detailsBlock">
+            <summary class="detailsBlockSummary">Links</summary>
             <ul>
               ${links}
             </ul>
           </details>
-          <details>
-            <summary>Paragraphs</summary>
+          <details class="detailsBlock">
+            <summary class="detailsBlockSummary">Paragraphs</summary>
             ${trimmedParagraphHtml}
           </details>
-          <details>
-            <summary>Tables</summary>
+          <details class="detailsBlock">
+            <summary class="detailsBlockSummary">Tables</summary>
             ${trimmedTablesHtml}
           </details>
-          <details>
-            <summary>Body Content</summary>
+          <details class="detailsBlock">
+            <summary class="detailsBlockSummary">Body Content</summary>
             ${bodyHtml}
           </details>
         `;

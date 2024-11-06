@@ -45,8 +45,12 @@ export const thinkSideItemStyles = (theme: ThemeType) => ({
 
 const styles = thinkSideItemStyles 
 
+export const getThinkPostBaseUrl = (post: PostsListWithVotes) => {
+  return `/think/posts/${post._id}/${post.slug}`
+}
+
 export const getThinkUrl = (post: PostsListWithVotes) => {
-  return post.draft ? `/think/posts/${post._id}/edit?key=${post.linkSharingKey}` : `/think/posts/${post._id}/${post.slug}`
+  return post.draft ? `${getThinkPostBaseUrl(post)}?edit=true&key=${post.linkSharingKey}` : getThinkPostBaseUrl(post)
 }
 
 export const ThinkSideItem = ({post, classes}: {

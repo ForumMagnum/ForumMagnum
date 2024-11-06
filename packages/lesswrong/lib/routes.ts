@@ -1732,16 +1732,9 @@ addRoute({
   {
     name: 'thinkPagePostRead',
     path: '/think/posts/:postId/:slug',
-    componentName: 'ThinkPostRead',
+    componentName: 'ThinkPost',
     background: 'white',
     title: "Think: Read Post"
-  },
-  {
-    name: 'thinkPageEditPost',
-    path: '/think/posts/:postId/edit',
-    componentName: 'ThinkPostEdit',
-    title: "Think:Edit Post",
-    background: 'white',
   },
   {
     name: 'thinkPageNewPost',

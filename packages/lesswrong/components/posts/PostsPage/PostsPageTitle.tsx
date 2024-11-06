@@ -3,6 +3,7 @@ import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
+import { is } from 'cheerio/lib/api/attributes';
 
 export const LW_POST_TITLE_FONT_SIZE = "3.75rem";
 
@@ -45,7 +46,9 @@ const styles = (theme: ThemeType) => ({
     ...postPageTitleStyles(theme)
   },
   draft: {
-    color: theme.palette.text.dim4
+    color: theme.palette.text.dim4,
+    fontSize: isFriendlyUI ? "1em" : "0.5em",
+    display: isFriendlyUI ? "inline" : "block",
   },
   question: {
     color: theme.palette.text.dim3,
