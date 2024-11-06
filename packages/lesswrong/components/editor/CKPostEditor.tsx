@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useContext } from 'react'
+import React, { useRef, useState, useEffect, useContext, useCallback } from 'react'
 import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import { ckEditorBundleVersion, getCkPostEditor } from '../../lib/wrapCkEditor';
 import { getCKEditorDocumentId, generateTokenRequest} from '../../lib/ckEditorUtils'
@@ -26,7 +26,7 @@ import CKEditor from '../../lib/vendor/ckeditor5-react/ckeditor';
 import { useSyncCkEditorPlaceholder } from '../hooks/useSyncCkEditorPlaceholder';
 import classNames from 'classnames';
 import { sleep } from '@/lib/helpers';
-import { useGlobalKeydown } from '../common/withGlobalKeydown';
+import { useEditorCommands } from './EditorCommandsContext';
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -64,7 +64,7 @@ const styles = (theme: ThemeType) => ({
 declare module '@ckeditor/ckeditor5-core' {
   interface CommandsMap {
     getLLMFeedback: Command & {
-      execute: ({ afterLlmRequestCallback }: { afterLlmRequestCallback: () => Promise<void> }) => { abort: () => void, request: Promise<void> };
+      execute: ({ userPrompt, afterLlmRequestCallback }: { userPrompt: string, afterLlmRequestCallback: () => Promise<void> }) => { abort: () => void, request: Promise<void> };
     };
   }
 }
@@ -337,35 +337,6 @@ function handleSubmitWithoutNewline(editor: Editor, currentUser: UsersCurrent | 
   }
 }
 
-interface HandleLlmFeedbackCommandArgs {
-  editor: Editor;
-  setLoadingLlmFeedback: (loadingLlmFeedback: boolean) => void;
-  loadingLlmFeedbackAbortControllerRef: React.MutableRefObject<(() => void) | null>;
-}
-
-async function handleLlmFeedbackCommand({ editor, setLoadingLlmFeedback, loadingLlmFeedbackAbortControllerRef }: HandleLlmFeedbackCommandArgs) {
-  if (loadingLlmFeedbackAbortControllerRef.current) {
-    loadingLlmFeedbackAbortControllerRef.current();
-    loadingLlmFeedbackAbortControllerRef.current = null;
-    setLoadingLlmFeedback(false);
-  } else {
-    // We pass this in as a callback because we want to re-enable the editor after the LLM request is complete
-    // Otherwise the editor will still be disabled when we try to apply the suggestions
-    const afterLlmRequestCallback = async () => {
-      loadingLlmFeedbackAbortControllerRef.current = null;
-      setLoadingLlmFeedback(false);
-      // Empirically, we need to wait a bit for the editor to be re-enabled based on the loadingLlmFeedback state
-      await sleep(100);
-    };
-
-    const { abort, request } = editor.execute('getLLMFeedback', { afterLlmRequestCallback });
-    loadingLlmFeedbackAbortControllerRef.current = abort;
-    setLoadingLlmFeedback(true);
-
-    await request;
-  }
-}
-
 export type ConnectedUserInfo = {
   _id: string
   name: string
@@ -428,7 +399,7 @@ const CKPostEditor = ({
   const [collaborationMode,setCollaborationMode] = useState<CollaborationMode>(initialCollaborationMode);
   const collaborationModeRef = useRef(collaborationMode)
   const [connectedUsers,setConnectedUsers] = useState<ConnectedUserInfo[]>([]);
-  const [loadingLlmFeedback, setLoadingLlmFeedback] = useState(false);
+  // const [loadingLlmFeedback, setLoadingLlmFeedback] = useState(false);
   const loadingLlmFeedbackAbortControllerRef = useRef<(() => void) | null>(null);
 
   // Get the linkSharingKey, if it exists
@@ -482,6 +453,7 @@ const CKPostEditor = ({
   const hasEverDialoguedBefore = !!anyDialogue && anyDialogue.length > 1;
 
   const [_, setEditor] = useContext(EditorContext);
+  const { setGetLlmFeedbackCommand, setCancelLlmFeedbackCommand, llmFeedbackCommandLoadingSourceId, setLlmFeedbackCommandLoadingSourceId } = useEditorCommands();
 
   const [editorObject, setEditorObject] = useState<Editor | null>(null);
 
@@ -560,13 +532,51 @@ const CKPostEditor = ({
 
   useSyncCkEditorPlaceholder(editorObject, actualPlaceholder);
 
-  // We need to use a global keydown listener because we disable the editor when we're waiting for LLM feedback
-  // And when the editor is disabled, it doesn't respond to keydown events
-  useGlobalKeydown((event) => {
-    if (isCollaborative && editorObject && (event.metaKey || event.ctrlKey) && event.altKey && event.keyCode === 76) {
-      void handleLlmFeedbackCommand({ editor: editorObject, loadingLlmFeedbackAbortControllerRef, setLoadingLlmFeedback });
+  const getLlmFeedback = useCallback(async (userPrompt: string, sourceId: string) => {
+    if (!editorObject || loadingLlmFeedbackAbortControllerRef.current) return Promise.resolve();
+
+    // We pass this in as a callback because we want to re-enable the editor after the LLM request is complete
+    // Otherwise the editor will still be disabled when we try to apply the suggestions
+    const afterLlmRequestCallback = async () => {
+      loadingLlmFeedbackAbortControllerRef.current = null;
+      setLlmFeedbackCommandLoadingSourceId(null);
+
+      // Sleep a bit to make sure the editor is re-enabled
+      await sleep(50);
+
+      // Focus the editor so that the window.find hack works
+      editorObject.editing.view.focus();
+
+      // Sleep a bit more in case something desperately needs it
+      await sleep(50);
+    };
+
+    const { abort, request } = editorObject.execute('getLLMFeedback', { userPrompt, afterLlmRequestCallback });
+    loadingLlmFeedbackAbortControllerRef.current = abort;
+    setLlmFeedbackCommandLoadingSourceId(sourceId);
+
+    await request;
+  }, [editorObject, setLlmFeedbackCommandLoadingSourceId]);
+
+  const cancelLlmFeedback = useCallback(() => {
+    if (loadingLlmFeedbackAbortControllerRef.current) {
+      loadingLlmFeedbackAbortControllerRef.current();
+      loadingLlmFeedbackAbortControllerRef.current = null;
+      setLlmFeedbackCommandLoadingSourceId(null);
     }
-  });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editorObject, setLlmFeedbackCommandLoadingSourceId]);
+
+  useEffect(() => {
+    setGetLlmFeedbackCommand(() => (userPrompt: string, sourceId: string) => getLlmFeedback(userPrompt, sourceId));
+    setCancelLlmFeedbackCommand(() => () => cancelLlmFeedback());
+
+    return () => {
+      setGetLlmFeedbackCommand(null);
+      setCancelLlmFeedbackCommand(null);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getLlmFeedback, cancelLlmFeedback]);
 
   return <div>
     {isBlockOwnershipMode && <>
@@ -599,14 +609,14 @@ const CKPostEditor = ({
     <div className={classes.hidden} ref={hiddenPresenceListRef}/>
     <div ref={sidebarRef} className={classes.sidebar}/>
 
-    {layoutReady && <span className={classNames(loadingLlmFeedback && classes.loadingLlmFeedback)}><CKEditor
+    {layoutReady && <span className={classNames(llmFeedbackCommandLoadingSourceId && classes.loadingLlmFeedback)}><CKEditor
       ref={editorRef}
       onChange={onChange}
       onFocus={onFocus}
       editor={getCkPostEditor(!!isCollaborative, forumTypeSetting.get())}
       data={data}
       isCollaborative={!!isCollaborative}
-      disabled={loadingLlmFeedback}
+      disabled={!!llmFeedbackCommandLoadingSourceId}
       onReady={(editor: Editor) => {
         setEditorObject(editor);
 

@@ -23,7 +23,8 @@ import { userCanCreateAndEditJargonTerms } from '@/lib/betas';
 import Input from '@material-ui/core/Input';
 
 const editor: Editor | null = null
-export const EditorContext = React.createContext<[Editor | null, (e: Editor) => void]>([editor, _ => {}]);
+export type EditorContextType = [Editor | null, (e: Editor) => void];
+export const EditorContext = React.createContext<EditorContextType>([editor, _ => {}]);
 
 function getDraftLabel(post: PostsPage | null) {
   if (!post) return "Save Draft";

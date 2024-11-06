@@ -22,6 +22,7 @@ import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import { usePostsPageContext } from '../posts/PostsPage/PostsPageContext';
 import Input from '@material-ui/core/Input/Input';
 import { danglingSentencesPrompt, Prompt, rightBranchingPrompt } from '@/lib/promptLibrary';
+import { useEditorCommands } from '../editor/EditorCommandsContext';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -446,12 +447,37 @@ function useCurrentPostContext(): CurrentPostContext {
 }
 
 const PostSuggestionsPromptInput = ({classes, prompt}: {classes: ClassesType<typeof styles>, prompt: Prompt}) => {
+  const { ForumIcon, Row, LWTooltip, Loading } = Components;
+
   const [edit, setEdit] = useState(false);
   const [userFeedbackPrompt, setUserFeedbackPrompt] = useState(prompt.prompt);
+  const { getLlmFeedbackCommand, cancelLlmFeedbackCommand, llmFeedbackCommandLoadingSourceId } = useEditorCommands();
 
-  const { ForumIcon, Row, LWTooltip } = Components;
+  const handleSubmit = useCallback(async () => {
+    if (getLlmFeedbackCommand) {
+      await getLlmFeedbackCommand(userFeedbackPrompt, prompt.title);
+    }
+    // setEdit(false);
+  }, [getLlmFeedbackCommand, userFeedbackPrompt, prompt.title]);
 
-  return <div onClick={() => setEdit(true)} className={classes.postSuggestionsButton}>
+  const handleCancel = useCallback(() => {
+    if (cancelLlmFeedbackCommand) {
+      cancelLlmFeedbackCommand();
+    }
+    // setEdit(false);
+  }, [cancelLlmFeedbackCommand]);
+
+  if (!getLlmFeedbackCommand) {
+    return null;
+  }
+
+  if (prompt.title === llmFeedbackCommandLoadingSourceId) {
+    return <div className={classes.postSuggestionsButton} onClick={handleCancel}>
+      <Loading />
+    </div>
+  }
+
+  return <div onClick={handleSubmit} className={classes.postSuggestionsButton}>
     <Row alignItems="center" gap={4}>
       <LWTooltip title={prompt.description} placement="left">
         <div>{prompt.title}</div>

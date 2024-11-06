@@ -8,18 +8,17 @@ interface FeedbackResponse {
 }
 
 class GetFeedbackCommand extends Command {
-    execute({ afterLlmRequestCallback }: { afterLlmRequestCallback: () => Promise<void> }) {
+    execute({ userPrompt, afterLlmRequestCallback }: { userPrompt: string, afterLlmRequestCallback: () => Promise<void> }) {
         const controller = new AbortController();
         return {
             abort: () => controller.abort(),
-            request: this.getFeedback(controller, afterLlmRequestCallback)
+            request: this.getFeedback(controller, userPrompt, afterLlmRequestCallback)
         };
     }
 
-    async getFeedback(abortController: AbortController, afterLlmRequestCallback: () => Promise<void>) {
+    async getFeedback(abortController: AbortController, userPrompt: string, afterLlmRequestCallback: () => Promise<void>) {
         try {
             const content = this.getDocumentContent();
-            const userPrompt = (document.getElementById('user-feedback-prompt-input') as HTMLInputElement)?.value;
             
             const response = await fetch('/api/getLlmFeedback', {
                 method: 'POST',
