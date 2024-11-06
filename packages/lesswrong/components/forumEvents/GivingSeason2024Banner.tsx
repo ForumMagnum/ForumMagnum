@@ -285,7 +285,8 @@ const GivingSeason2024Banner = ({classes}: {
   const [lastTimelineClick, setLastTimelineClick] = useState<number>();
   const didInitialScroll = useRef(false);
 
-  const fundPercent = Math.round((amountRaised / amountTarget) * 100);
+  const amountRaisedPlusMatched = amountRaised + Math.min(amountRaised, 5000);
+  const fundPercent = Math.round((amountRaisedPlusMatched / amountTarget) * 100);
 
   useEffect(() => {
     if (!detailsRef) {
@@ -404,7 +405,7 @@ const GivingSeason2024Banner = ({classes}: {
             </div>
             <div className={classes.fundRaised}>
               <span className={classes.fundAmount}>
-                ${formatStat(Math.round(amountRaised))}
+                ${formatStat(Math.round(amountRaisedPlusMatched))}
               </span> raised
             </div>
             <div className={classes.fundBarContainer}>
