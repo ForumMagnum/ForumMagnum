@@ -277,10 +277,27 @@ const LLMInputTextbox = ({onSubmit, classes}: {
 
     const options = { capture: true };
     const handleKeyDown = (event: KeyboardEvent) => {
+      // Submit on Ctrl/Cmd + Enter
       if ((event.ctrlKey || event.metaKey) && event.keyCode === 13) {
         event.stopPropagation();
         event.preventDefault();
         submitEditorContentAndClear();
+      }
+
+      // Insert current page URL on Ctrl/Cmd + Shift + L
+      if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === 'l') {
+        event.stopPropagation();
+        event.preventDefault();
+        const editor = editorRef.current;
+        if (editor) {
+          editor.model.change((writer) => {
+            const insertPosition = editor.model.document.selection.getFirstPosition();
+            const url = window.location.href;
+            if (insertPosition) {
+              writer.insertText(url, insertPosition);
+            }
+          });
+        }
       }
     };
   
