@@ -27,7 +27,7 @@ const styles = (theme: ThemeType) => ({
   root: {
     maxHeight: "calc(100vh - 190px)",
     overflowY: "scroll",
-    background: theme.palette.panelBackground.translucent,
+    background: theme.palette.background.pageActiveAreaBackground,
     borderRadius: 6,
     padding: 6,
   },
@@ -218,7 +218,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: "1.1rem",
   },
   convosListWrapper: {
-    padding: 12,
+    padding: 6,
     display: "flex",
   },
   convosButtons: {
@@ -269,13 +269,20 @@ const styles = (theme: ThemeType) => ({
     width: 240
   },
   postSuggestionsButton: {
+    border: theme.palette.border.faint,
     cursor: 'pointer',
     opacity: 0.8,
+    width: "calc(50% - 8px)",
     alignSelf: 'flex-start',
     ...theme.typography.body2,
+    fontSize: "1.1rem",
     marginBottom: 4,
-    padding: 10,
+    paddingTop: 4,
+    paddingBottom: 4,
+    paddingLeft: 6,
+    paddingRight: 6,
     borderRadius: 4,
+    whiteSpace: "nowrap",
     '& $suggestionIcon': {
       opacity: 0,
     },
@@ -446,14 +453,14 @@ const PostSuggestionsPromptInput = ({classes, prompt}: {classes: ClassesType<typ
 
   return <div onClick={() => setEdit(true)} className={classes.postSuggestionsButton}>
     <Row alignItems="center" gap={4}>
-      <LWTooltip title={prompt.description}>
+      <LWTooltip title={prompt.description} placement="left">
         <div>{prompt.title}</div>
       </LWTooltip>
-      <LWTooltip title={edit ? "Cancel" : "Edit Prompt"}> 
+      <LWTooltip title={edit ? "Cancel" : "Edit Prompt"} placement="right"> 
         <ForumIcon className={classes.suggestionIcon} icon={edit ? "Clear" : "Edit"} onClick={() => setEdit(!edit)}/>
       </LWTooltip>
     </Row>
-    <div className={classes.postSuggestionsWrapper} style={{display: edit ? "block" : "none"}}>
+    {/* <div className={classes.postSuggestionsWrapper} style={{display: edit ? "block" : "none"}}>
       <Input
         id="user-feedback-prompt-input"
         className={classes.userFeedbackPromptInput}
@@ -465,6 +472,20 @@ const PostSuggestionsPromptInput = ({classes, prompt}: {classes: ClassesType<typ
         rows={15}
         disableUnderline
       />
+    </div> */}
+  </div>
+}
+
+export const PostSuggestionPromptList = ({classes, children}: {classes: ClassesType<typeof styles>, children: React.ReactNode}) => {
+  const { ForumIcon, LWTooltip } = Components;
+  const [isConvoListExpanded, setIsConvoListExpanded] = useState(false);
+
+  return <div className={classes.convosListWrapper}>
+    <LWTooltip title={isConvoListExpanded ? "Show Fewer Conversations" : "Show All Conversations"}>
+      <ForumIcon icon="ExpandMore" className={classNames(classes.icon, !isConvoListExpanded && classes.collapsedIcon)} onClick={() => setIsConvoListExpanded(!isConvoListExpanded)} />
+    </LWTooltip>
+    <div className={classNames(classes.convoList, isConvoListExpanded && classes.convoListExpanded)}>
+      {children}
     </div>
   </div>
 }
@@ -623,30 +644,9 @@ export const ChatInterface = ({classes}: {
     }
   }
 
-  const conversations = <div className={classes.convosListWrapper}>
-    <LWTooltip title={isConvoListExpanded ? "Show Fewer Conversations" : "Show All Conversations"}>
-      <ForumIcon icon="ExpandMore" className={classNames(classes.icon, !isConvoListExpanded && classes.collapsedIcon)} onClick={() => setIsConvoListExpanded(!isConvoListExpanded)} />
-    </LWTooltip>
-    <div className={classNames(classes.convoList, isConvoListExpanded && classes.convoListExpanded)}>
-      {orderedConversations.map(({ title, _id, messages }, index) => (
-        <div key={index} className={classes.conversation2Item} onClick={() => setCurrentConversation(_id)}>
-          {/* <LWTooltip title="Copy first message to clipboard">
-            <ForumIcon icon="ClipboardDocument" className={classes.convoIcon} onClick={() => copyFirstMessageToClipboard(_id)} />
-          </LWTooltip> */}
-          {title ?? "...Title Pending..."}
-          {/* <LWTooltip title="Delete Conversation">
-            <CloseIcon className={classes.deleteConvoIcon} onClick={(ev) => deleteConversation(ev, _id)} />
-          </LWTooltip> */}
-        </div>
-      ))}
-    </div>
-    <LWTooltip title="New LLM Chat">
-      <ForumIcon icon="Add" className={classes.icon} onClick={() => setCurrentConversation()} />
-    </LWTooltip>
-    {/* <LWTooltip title="Copy Chat History to Clipboard">
-      <ForumIcon icon="ClipboardDocument" className={classes.icon} onClick={exportHistoryToClipboard} />
-    </LWTooltip> */}
-  </div>
+  {/* <LWTooltip title="Copy Chat History to Clipboard">
+    <ForumIcon icon="ClipboardDocument" className={classes.icon} onClick={exportHistoryToClipboard} />
+  </LWTooltip> */}
 
   const options = <div className={classes.options}>
     <LWTooltip title="New LLM Chat">
@@ -669,10 +669,20 @@ export const ChatInterface = ({classes}: {
       {messagesForDisplay}
       {currentConversationLoading && <Loading className={classes.loadingSpinner}/>}
       <LLMInputTextbox onSubmit={handleSubmit} classes={classes} />
-      {conversations}
-      <br/>
-      <PostSuggestionsPromptInput classes={classes} prompt={rightBranchingPrompt} />
-      <PostSuggestionsPromptInput classes={classes} prompt={danglingSentencesPrompt} />
+      <PostSuggestionPromptList classes={classes}>
+        {orderedConversations.map(({ title, _id, messages }, index) => (
+          <div key={index} className={classes.conversation2Item} onClick={() => setCurrentConversation(_id)}>
+            {title ?? "...Title Pending..."}
+          </div>
+        ))}
+        <LWTooltip title="New LLM Chat">
+          <ForumIcon icon="Add" className={classes.icon} onClick={() => setCurrentConversation()} />
+        </LWTooltip>
+      </PostSuggestionPromptList>
+      <PostSuggestionPromptList classes={classes}>
+        <PostSuggestionsPromptInput classes={classes} prompt={rightBranchingPrompt} />
+        <PostSuggestionsPromptInput classes={classes} prompt={danglingSentencesPrompt} />
+      </PostSuggestionPromptList>
     </div>
   </>
 }

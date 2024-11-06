@@ -1231,3 +1231,6 @@ importComponent("ThinkSideItem", () => require('../components/thinkPage/ThinkSid
 importComponent("ThinkWrapper", () => require('../components/thinkPage/ThinkWrapper'));
 importComponent("ThinkOmnibar", () => require('../components/thinkPage/ThinkOmnibar'));
 importComponent("ThinkSequence", () => require('../components/thinkPage/ThinkSequence'));
+importComponent("ThinkSideSequence", () => require('../components/thinkPage/ThinkSideSequence'));
+importComponent("ThinkSidePost", () => require('../components/thinkPage/ThinkSidePost'));
+importComponent("ThinkLink", () => require('../components/thinkPage/ThinkLink'));

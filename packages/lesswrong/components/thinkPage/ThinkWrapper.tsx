@@ -123,15 +123,16 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const ThinkWrapper = ({classes, children}: {
+export const ThinkWrapper = ({classes, children, document}: {
   classes: ClassesType<typeof styles>,
-  children: React.ReactNode
+  children: React.ReactNode,
+  document?: SequencesPageWithChaptersFragment | PostsPage
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
 
   const { ThinkSideColumn } = Components;
   return <div className={classes.root}>
-    <ThinkSideColumn/>
+    <ThinkSideColumn document={document} />
     <div className={classes.formContainer}>
       {children}
     </div>

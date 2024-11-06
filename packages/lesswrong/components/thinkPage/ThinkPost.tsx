@@ -1,5 +1,5 @@
 // TODO: Import component in components.ts
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
 import { postFormSectionStyles, ThinkWrapper } from './ThinkWrapper';
@@ -7,8 +7,8 @@ import { useLocation, useNavigate } from '@/lib/routeUtil';
 import { useSingle } from '@/lib/crud/withSingle';
 import { CENTRAL_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
 import classNames from 'classnames';
-import { getThinkPostBaseUrl, getThinkUrl } from './ThinkSideItem';
-import { Link } from '@/lib/reactRouterWrapper';
+import { usePostReadProgress } from '../posts/usePostReadProgress';
+import { useRecordPostView } from '../hooks/useRecordPostView';
 
 const styles = (theme: ThemeType) => ({
   title: {
@@ -49,18 +49,35 @@ export const ThinkPost = ({classes}: {
     documentId: postId,
     collectionName: "Posts",
     fragmentName: "PostsPage",
+    skip: !postId
   });
 
-  const navigate = useNavigate();
+  const { recordPostView } = useRecordPostView(post as PostsListBase);
 
-  if (!post && !loading) return <ThinkWrapper><Error404/></ThinkWrapper>;
-  if (!post && loading) return <ThinkWrapper><Loading/></ThinkWrapper>;
+  useEffect(() => {
+    // const recommId = query[RECOMBEE_RECOMM_ID_QUERY_PARAM];
+    // const attributionId = query[VERTEX_ATTRIBUTION_ID_QUERY_PARAM];
+
+    void recordPostView({
+      post: post as PostsListBase,
+      // extraEventProperties: {
+      //   sequenceId: getSequenceId()
+      // },
+      // recommendationOptions: {
+      //   recombeeOptions: { recommId },
+      //   vertexOptions: { attributionId }
+      // }
+    });
+  }, [post, recordPostView]);
 
   const handleEditClick = () => {
     setIsEditing(!isEditing);
   }
 
-  return <ThinkWrapper>
+  if (!post && !loading) return <ThinkWrapper><Error404/></ThinkWrapper>;
+  if (!post && loading) return <ThinkWrapper><Loading/></ThinkWrapper>;
+
+  return <ThinkWrapper document={post}>
     {loading && <Loading/>}
     {post && <LWPostsPageHeader post={post} dialogueResponses={[]} />} 
     {post && <div className={classes.topRight}>
@@ -70,10 +87,10 @@ export const ThinkPost = ({classes}: {
         </div>
       </LWPostsPageHeaderTopRight>
     </div>}
-    {post && <div className={classNames(!isEditing && classes.hide)}>
+    {post && isEditing && <div className={classNames(!isEditing && classes.hide)}>
       <PostsEditForm documentId={postId} showTableOfContents={false} fields={['contents']}/>
     </div>}
-    {post && <div className={classNames(isEditing && classes.hide, classes.postBody)}>
+    {post && !isEditing && <div className={classNames(isEditing && classes.hide, classes.postBody)}>
       <ContentStyles contentType={"post"}>
         <ContentItemBody dangerouslySetInnerHTML={{__html: post.contents?.html ?? ""}} />
       </ContentStyles>

@@ -3,6 +3,7 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
 import { Link } from '@/lib/reactRouterWrapper';
+import { getThinkUrl } from './ThinkLink';
 
 export const thinkSideItemStyles = (theme: ThemeType) => ({  
   root: {
@@ -44,14 +45,6 @@ export const thinkSideItemStyles = (theme: ThemeType) => ({
 });
 
 const styles = thinkSideItemStyles 
-
-export const getThinkPostBaseUrl = (post: PostsListWithVotes) => {
-  return `/think/posts/${post._id}/${post.slug}`
-}
-
-export const getThinkUrl = (post: PostsListWithVotes) => {
-  return post.draft ? `${getThinkPostBaseUrl(post)}?edit=true&key=${post.linkSharingKey}` : getThinkPostBaseUrl(post)
-}
 
 export const ThinkSideItem = ({post, classes}: {
   post: PostsListWithVotes,

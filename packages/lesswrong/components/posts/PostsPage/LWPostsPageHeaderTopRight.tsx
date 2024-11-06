@@ -63,7 +63,7 @@ export const LWPostsPageHeaderTopRight = ({classes, post, toggleEmbeddedPlayer, 
   annualReviewMarketInfo?: AnnualReviewMarketInfo,
   children?: React.ReactNode
 }) => {
-  const { FooterTagList, LWPostsPageTopHeaderVote, AudioToggle, PostActionsButton } = Components;
+  const { FooterTagList, LWPostsPageTopHeaderVote, AudioToggle, PostActionsButton, ThinkLink } = Components;
 
   const votingSystem = getVotingSystemByName(post.votingSystem ?? 'default');
 
@@ -72,6 +72,7 @@ export const LWPostsPageHeaderTopRight = ({classes, post, toggleEmbeddedPlayer, 
       {!post.shortform && <AnalyticsContext pageSectionContext="tagHeader">
         <div className={classNames(classes.tagList, higherContrast && classes.darkerOpacity)}>
           <FooterTagList post={post} hideScore useAltAddTagButton align="right" noBackground neverCoreStyling tagRight={false} annualReviewMarketInfo={annualReviewMarketInfo}/>
+          <ThinkLink document={post} title="Think Version" />
         </div>
       </AnalyticsContext>}
       {!post.shortform && postHasAudioPlayer(post) && <div className={classNames(classes.audioToggle, higherContrast && classes.darkerOpacity)}>

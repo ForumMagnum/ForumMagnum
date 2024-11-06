@@ -13,8 +13,9 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const ThinkSequence = ({classes}: {
+export const ThinkSequence = ({classes, sequence}: {
   classes: ClassesType<typeof styles>,
+  sequence: SequencesPageWithChaptersFragment
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
 
@@ -24,7 +25,7 @@ export const ThinkSequence = ({classes}: {
   const { document, loading } = useSingle({
     documentId: sequenceId,
     collectionName: "Sequences",
-    fragmentName: 'SequencesPageFragment',
+    fragmentName: 'SequencesPageWithChaptersFragment',
   });
 
   const nextSuggestedNumberRef = useRef(1);
@@ -44,7 +45,7 @@ export const ThinkSequence = ({classes}: {
   const canEditChapter = userCanDo(currentUser, 'chapters.edit.all') || canEdit
 
 
-  return <ThinkWrapper>
+  return <ThinkWrapper document={document}>
     <SingleColumnSection>
       {loading && <Loading />}
       <h1 className={classes.title}>{document?.title}</h1>

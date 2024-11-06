@@ -14,6 +14,7 @@ import { moderationEmail } from '../../lib/publicSettings';
 import { getPostCollaborateUrl } from '../../lib/collections/posts/helpers';
 import { ckEditorName } from './Editor';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { useLocation } from '@/lib/routeUtil';
 
 const styles = (theme: ThemeType) => ({
   linkSharingPreview: {
@@ -111,6 +112,9 @@ const PostSharingSettings = ({document, formType, value, classes}: {
   const currentUser = useCurrentUser();
   const initialSharingSettings = value || defaultSharingSettings;
   const { flash } = useMessages();
+
+  const location = useLocation();
+  const isThinkPage = location.pathname.includes('/think/posts/');
   
   const onClickShare = useCallback(() => {
     if (!document.title || !document.title.length) {
@@ -158,7 +162,7 @@ const PostSharingSettings = ({document, formType, value, classes}: {
             } else {
               // Otherwise we're going to leave whether-this-is-a-draft
               // unchanged, and subimt the form.
-              await submitForm(null, {redirectToEditor: true});
+              await submitForm(null, {redirectToEditor: !isThinkPage});
             }
           }
           closeDialog();
@@ -166,7 +170,7 @@ const PostSharingSettings = ({document, formType, value, classes}: {
         initialShareWithUsers: document.shareWithUsers || [],
       },
     });
-  }, [openDialog, closeDialog, formType, document, updateCurrentValues, initialSharingSettings, flash, submitForm]);
+  }, [openDialog, closeDialog, formType, document, updateCurrentValues, initialSharingSettings, flash, submitForm, isThinkPage]);
 
   const {LWTooltip, EAButton} = Components;
 

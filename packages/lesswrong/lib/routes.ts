@@ -1730,7 +1730,7 @@ addRoute({
     redirect: () => '/think/posts/new',
   },
   {
-    name: 'thinkPagePostRead',
+    name: 'thinkPagePost',
     path: '/think/posts/:postId/:slug',
     componentName: 'ThinkPost',
     background: 'white',

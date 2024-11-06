@@ -8,7 +8,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useLocation, useNavigate } from '@/lib/routeUtil';
 import { useMulti } from '@/lib/crud/withMulti';
 import { useCreate } from '@/lib/crud/withCreate';
-import { getThinkUrl } from './ThinkSideItem';
+import { getThinkUrl } from './ThinkLink';
 
 export type WebsiteData = {
   postId: string;
@@ -76,8 +76,15 @@ const getSideItems = (readHistory: PostsListWithVotes[], drafts: PostsListWithVo
   return { todaysPosts, yesterdaysPosts, olderPosts }
 }
 
-export const ThinkSideColumn = ({classes}: {
+const identifyDocument = (document?: PostsListWithVotes | SequencesPageWithChaptersFragment) => {
+  if (!document) return ""
+  if ('score' in document) return 'Post'
+  return 'Sequence'
+}
+
+export const ThinkSideColumn = ({classes, document}: {
   classes: ClassesType<typeof styles>,
+  document?: SequencesPageWithChaptersFragment | PostsPage
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
 
@@ -87,7 +94,7 @@ export const ThinkSideColumn = ({classes}: {
 
   const currentSorting = query.sortDraftsBy ?? query.view ?? currentUser?.draftsListSorting ?? "lastModified";
 
-  const limit = query.limit ? parseInt(query.limit) : 10;
+  const limit = query.limit ? parseInt(query.limit) : 100;
   
   const { results: drafts = [], loading: draftsLoading, loadMoreProps: draftsLoadMoreProps } = useMulti({
     terms: {
@@ -125,7 +132,7 @@ export const ThinkSideColumn = ({classes}: {
   const readHistory: (PostsListWithVotes & {lastVisitedAt: Date})[] = data?.UserReadHistory?.posts ?? []
   const readHistoryArray = Array.from(readHistory)
 
-  const { todaysPosts, yesterdaysPosts, olderPosts } = getSideItems(readHistoryArray, drafts)
+  const { todaysPosts, yesterdaysPosts, olderPosts } = getSideItems(readHistoryArray, [])
 
   const { create: createPost, loading: createPostLoading } = useCreate({
     collectionName: "Posts",
@@ -172,7 +179,14 @@ export const ThinkSideColumn = ({classes}: {
     }
   }
 
-  const { ThinkSideItem, ThinkOmnibar, ForumIcon, Row, Loading } = Components
+  const { ThinkSideItem, ThinkOmnibar, ForumIcon, Row, Loading, ThinkSidePost, ThinkSideSequence } = Components
+
+  let documentSideComponent
+  if (identifyDocument(document) === 'Post') {
+    documentSideComponent = <ThinkSidePost post={document as PostsListWithVotes} />
+  } else if (identifyDocument(document) === 'Sequence') {
+    documentSideComponent = <ThinkSideSequence sequence={document as SequencesPageWithChaptersFragment} />
+  }
 
   return <div className={classes.root}>
     <Row gap={8}>
@@ -181,6 +195,7 @@ export const ThinkSideColumn = ({classes}: {
       <ThinkOmnibar setActive={setActive} />
       {createPostLoading && <Loading />}
     </Row>
+    {documentSideComponent}
     <div>
       {todaysPosts.length > 0 && <>
         <h3>Today</h3>

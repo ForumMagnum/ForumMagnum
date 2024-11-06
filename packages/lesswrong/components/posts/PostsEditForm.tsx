@@ -15,7 +15,7 @@ import { userIsPodcaster } from '../../lib/vulcan-users/permissions';
 import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/PostsPage';
 import { isEAForum } from '../../lib/instanceSettings';
 import type { Editor } from '@ckeditor/ckeditor5-core';
-import { useNavigate } from '../../lib/reactRouterWrapper';
+import { Link, useNavigate } from '../../lib/reactRouterWrapper';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import DeferRender from '../common/DeferRender';
 import { useSingleWithPreload } from '@/lib/crud/useSingleWithPreload';
@@ -39,7 +39,7 @@ const PostsEditForm = ({ documentId, version, classes, showTableOfContents, fiel
   showTableOfContents?: boolean,
   fields?: string[]
 }) => {
-  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags, ForeignCrosspostEditForm, DialogueSubmit, RateLimitWarning, DynamicTableOfContents } = Components
+  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags, ForeignCrosspostEditForm, DialogueSubmit, RateLimitWarning, DynamicTableOfContents, ThinkLink } = Components
 
   const { query, params } = useLocation();
   const navigate = useNavigate();
@@ -152,6 +152,7 @@ const PostsEditForm = ({ documentId, version, classes, showTableOfContents, fiel
   }
 
   const editorComponent = <div className={classes.postForm}>
+    {currentUser?.isAdmin && <div style={{position: 'absolute', top: 74, right: 16}}><ThinkLink title="Think Version" document={document} /></div>}
     <HeadTags title={document.title} />
     {currentUser && <Components.PostsAcceptTos currentUser={currentUser} />}
     {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
