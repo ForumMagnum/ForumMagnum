@@ -1,9 +1,8 @@
 import React, { useRef, useEffect } from 'react';
 import { fragmentTextForQuery, registerComponent, Components } from '../../lib/vulcan-lib';
-import { useQuery, gql, ObservableQuery, QueryHookOptions, WatchQueryFetchPolicy } from '@apollo/client';
+import { useQuery, gql, ObservableQuery } from '@apollo/client';
 import { useOnPageScroll } from './withOnPageScroll';
 import { isClient } from '../../lib/executionEnvironment';
-import * as _ from 'underscore';
 import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
 
 const loadMoreDistance = 500;
@@ -25,7 +24,7 @@ const getQuery = ({resolverName, resolverArgs, fragmentArgs, sortKeyType, render
   sortKeyType: string,
   renderers: any,
 }) => {
-  const fragmentsUsed = _.filter(Object.keys(renderers).map(r => renderers[r].fragmentName), f=>f);
+  const fragmentsUsed = Object.keys(renderers).map(r => renderers[r].fragmentName).filter(f=>f);
   const queryArgsList=["$limit: Int", `$cutoff: ${sortKeyType}`, "$offset: Int",
     ...(resolverArgs ? Object.keys(resolverArgs).map(k => `$${k}: ${resolverArgs[k]}`) : []),
     ...(fragmentArgs ? Object.keys(fragmentArgs).map(k => `$${k}: ${fragmentArgs[k]}`) : []),
@@ -109,6 +108,12 @@ const MixedTypeFeed = (args: {
   // By default, MixedTypeFeed preserves the order of elements that persist across refetches.  If you don't want that, pass in true.
   reorderOnRefetch?: boolean,
 
+  // Hide the loading spinner
+  hideLoading?: boolean,
+
+  // Disable automatically loading more - only show the initially fetched documents
+  disableLoadMore?: boolean,
+
   className?: string,
 }) => {
   const {
@@ -123,6 +128,8 @@ const MixedTypeFeed = (args: {
     pageSize=20,
     refetchRef,
     reorderOnRefetch=false,
+    hideLoading,
+    disableLoadMore,
     className,
   } = args;
 
@@ -220,10 +227,10 @@ const MixedTypeFeed = (args: {
         <RenderFeedItem renderers={renderers} item={result}/>
       </div>
     )}
-    
-    <div ref={bottomRef}/>
+
+    {!disableLoadMore && <div ref={bottomRef}/>}
     {error && <div>{error.toString()}</div>}
-    {!reachedEnd && <Loading/>}
+    {!hideLoading && !reachedEnd && <Loading/>}
   </div>
 }
 
@@ -256,4 +263,3 @@ declare global {
     MixedTypeFeed: typeof MixedTypeInfiniteComponent,
   }
 }
-

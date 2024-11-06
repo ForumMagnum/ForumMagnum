@@ -272,9 +272,6 @@ const styles = (theme: ThemeType) => ({
     gap: "4px",
     minWidth: 440,
     margin: 8,
-    "& .Loading-spinner": {
-      display: "none", // TODO
-    },
     [theme.breakpoints.down(GIVING_SEASON_DESKTOP_WIDTH)]: {
       display: "none",
     },
@@ -550,6 +547,8 @@ const GivingSeason2024Banner = ({classes}: {
             <MixedTypeFeed
               className={classes.recentComments}
               firstPageSize={3}
+              hideLoading
+              disableLoadMore
               resolverName="GivingSeasonTagFeed"
               resolverArgs={{tagId: "String!"}}
               resolverArgsValues={{tagId: currentForumEvent?.tagId}}
