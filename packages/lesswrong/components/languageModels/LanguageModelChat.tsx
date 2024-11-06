@@ -467,6 +467,10 @@ const PostSuggestionsPromptInput = ({classes, prompt}: {classes: ClassesType<typ
     // setEdit(false);
   }, [cancelLlmFeedbackCommand]);
 
+  if (!getLlmFeedbackCommand) {
+    return null;
+  }
+
   if (prompt.title === llmFeedbackCommandLoadingSourceId) {
     return <div className={classes.postSuggestionsButton} onClick={handleCancel}>
       <Loading />

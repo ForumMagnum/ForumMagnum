@@ -570,6 +570,11 @@ const CKPostEditor = ({
   useEffect(() => {
     setGetLlmFeedbackCommand(() => (userPrompt: string, sourceId: string) => getLlmFeedback(userPrompt, sourceId));
     setCancelLlmFeedbackCommand(() => () => cancelLlmFeedback());
+
+    return () => {
+      setGetLlmFeedbackCommand(null);
+      setCancelLlmFeedbackCommand(null);
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getLlmFeedback, cancelLlmFeedback]);
 
