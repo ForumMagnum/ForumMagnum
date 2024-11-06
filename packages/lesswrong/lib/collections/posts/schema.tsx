@@ -847,7 +847,7 @@ const schema: SchemaType<"Posts"> = {
     graphQLtype: '[JargonTerm!]!',
     optional: true,
     canRead: ['guests'],
-    control: "GlossaryEditForm",
+    control: "GlossaryEditFormWrapper",
     group: formGroups.glossary,
     hidden: ({currentUser}) => !userCanCreateAndEditJargonTerms(currentUser),
 
@@ -3073,7 +3073,15 @@ const schema: SchemaType<"Posts"> = {
     label: "stale-while-revalidate caching enabled",
     group: formGroups.adminOptions,
     ...schemaDefaultValue(false),
-  }
+  },
+  generateDraftJargon: {
+    type: Boolean,
+    optional: true,
+    hidden: true,
+    canRead: ['members'],
+    canUpdate: [userOwns],
+    ...schemaDefaultValue(false)
+  },
 };
 
 export default schema;
