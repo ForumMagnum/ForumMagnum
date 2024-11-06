@@ -121,6 +121,7 @@ import ClearIcon from '@material-ui/icons/Clear';
 import FullscreenIcon from '@material-ui/icons/Fullscreen';
 import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
 import MuiAddIcon from "@material-ui/icons/Add";
+import MuiImportContactsIcon from "@material-ui/icons/ImportContacts";
 
 
 /**
@@ -285,10 +286,12 @@ export type ForumIconName =
   "TickReaction" |
   "CrossReaction" |
   "CrossReactionCap"|
-  "Add";
+  "Add" |
+  "Book";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   LWAF: {
+    Book: MuiImportContactsIcon,
     VolumeUp: SpeakerWaveIcon,
     BookOpen: BookOpenIcon,
     Bookmark: MuiBookmarkIcon,
@@ -412,6 +415,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Add: MuiAddIcon,
   },
   default: {
+    Book: MuiImportContactsIcon,
     VolumeUp: SpeakerWaveIcon,
     BookOpen: BookOpenIcon,
     Bookmark: BookmarkIcon,

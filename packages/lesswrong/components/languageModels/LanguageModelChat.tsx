@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback, useContext } from 'react';
+import React, { useEffect, useRef, useState, useCallback, useContext, forwardRef, useImperativeHandle } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import DeferRender from '../common/DeferRender';
@@ -18,13 +18,14 @@ import { HIDE_LLM_CHAT_GUIDE_COOKIE } from '@/lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { AutosaveEditorStateContext } from '../editor/EditorFormComponent';
+import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import { usePostsPageContext } from '../posts/PostsPage/PostsPageContext';
 
 const styles = (theme: ThemeType) => ({
   root: {
     maxHeight: "calc(100vh - 190px)",
     overflowY: "scroll",
-    background: theme.palette.background.translucentBackground,
+    background: theme.palette.panelBackground.translucent,
     borderRadius: 6,
     padding: 6,
   },
@@ -65,7 +66,7 @@ const styles = (theme: ThemeType) => ({
     flexShrink: 0,
     flexBasis: "auto",
     display: "flex",
-    flexDirection: "column",
+    flexDirection: "column"
   },
   submitButton:{
     width: "fit-content",
@@ -108,7 +109,7 @@ const styles = (theme: ThemeType) => ({
     position: "relative",
   },
   userMessage: {
-    backgroundColor: theme.palette.background.primaryTranslucent
+    backgroundColor: theme.palette.panelBackground.translucent
   },
   errorMessage: {
     backgroundColor: theme.palette.error.light,
@@ -144,10 +145,18 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center"
   },
   deleteConvoIcon: {
-    marginLeft: 10,
     cursor: "pointer",
-    opacity: 0.8,
-    width: 16
+    opacity: 0,
+    width: 16,
+    height: 16,
+    position: "absolute",
+    right: 0,
+    top: 0,
+    marginLeft: "auto",
+    flexGrow: 1,
+    '&:hover': {
+      opacity: 1,
+    },
   },
   loadingSpinner: {
     marginTop: 10
@@ -181,15 +190,22 @@ const styles = (theme: ThemeType) => ({
   conversation2Item: {
     cursor: "pointer",
     whiteSpace: "nowrap",
-    width: "calc(51% - 8px)",
     overflow: "hidden",
     textOverflow: "ellipsis",
+    position: "relative",
+    width: "100%",
+    display: "flex",
+    justifyContent: "flex-start",
+    alignItems: "center",
+    '&:hover $convoIcon, &:hover $deleteConvoIcon': {
+      opacity: 1,
+    },
   },
   convoList: {
     display: "flex",
     gap: '8px',
     flexWrap: "wrap",
-    maxHeight: 50,
+    maxHeight: 100,
     overflow: "hidden",
     ...theme.typography.body2,
     color: theme.palette.grey[500],
@@ -205,6 +221,23 @@ const styles = (theme: ThemeType) => ({
   convosButtons: {
     display: "flex",
     justifyContent: "space-between",
+  },
+  convoItemIcons: {
+    opacity: 0,
+    position: "absolute",
+    backgroundColor: theme.palette.background.pageActiveAreaBackground,
+    right: 0,
+    top: 0,
+  },
+  convoIcon: {
+    cursor: "pointer",
+    height: 16,
+    width: 16,
+    opacity: 0,
+    margin: 4,
+    '&:hover': {
+      opacity: 1,
+    },
   },
   icon: {
     cursor: "pointer",
@@ -247,7 +280,7 @@ const LLMChatMessage = ({message, classes, index}: {
   </Row>
 }
 
-const LLMInputTextbox = ({onSubmit, classes}: {
+const LLMInputTextbox = ({ onSubmit, classes }: {
   onSubmit: (message: string) => void,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -257,7 +290,6 @@ const LLMInputTextbox = ({onSubmit, classes}: {
   const ckEditorRef = useRef<CKEditor<any> | null>(null);
   const editorRef = useRef<Editor | null>(null);
 
-  // TODO: we probably want to come back to this and enable cloud services for image uploading
   const editorConfig = {
     placeholder: 'Type here.  Ctrl/Cmd + Enter to submit.',
     mention: mentionPluginConfiguration,
@@ -269,94 +301,65 @@ const LLMInputTextbox = ({onSubmit, classes}: {
     setCurrentMessage('');
   }, [onSubmit]);
 
-  // We need to pipe through the `conversationId` and do all of this eventListener setup/teardown like this because
-  // otherwise messages get submitted to whatever conversation was "current" when the editor was initially loaded
-  // Running this useEffect whenever either the conversationId or onSubmit changes ensures we remove and re-attach a fresh event listener with the correct "targets"
-  useEffect(() => {
-    const currentEditorRefValue = ckEditorRef.current;
-
-    const options = { capture: true };
-    const handleKeyDown = (event: KeyboardEvent) => {
-      // Submit on Ctrl/Cmd + Enter
-      if ((event.ctrlKey || event.metaKey) && event.keyCode === 13) {
-        event.stopPropagation();
-        event.preventDefault();
-        submitEditorContentAndClear();
-      }
-
-      // Insert current page URL on Ctrl/Cmd + Shift + L
-      if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === 'l') {
-        event.stopPropagation();
-        event.preventDefault();
-        const editor = editorRef.current;
-        if (editor) {
-          editor.model.change((writer) => {
-            const insertPosition = editor.model.document.selection.getFirstPosition();
-            const url = window.location.href;
-            if (insertPosition) {
-              writer.insertText(url, insertPosition);
-            }
-          });
-        }
-      }
-    };
-  
-    const internalEditorRefInstance = (currentEditorRefValue as AnyBecauseHard).domContainer?.current;
-    if (internalEditorRefInstance) {
-      internalEditorRefInstance.addEventListener('keydown', handleKeyDown, options);
+  useGlobalKeydown((event: KeyboardEvent) => {
+    // Submit on Ctrl/Cmd + Enter
+    if ((event.ctrlKey || event.metaKey) && event.keyCode === 13) {
+      event.stopPropagation();
+      event.preventDefault();
+      submitEditorContentAndClear();
     }
 
-    return () => {
-      const internalEditorRefInstance = (currentEditorRefValue as AnyBecauseHard)?.domContainer?.current;
-      if (internalEditorRefInstance) {
-        internalEditorRefInstance.removeEventListener('keydown', handleKeyDown, options);
+    // Insert current page URL on Ctrl/Cmd + Shift + U
+    if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === 'l') {
+      event.stopPropagation();
+      event.preventDefault();
+      const editor = editorRef.current;
+      if (editor) {
+        editor.model.change((writer) => {
+          const insertPosition = editor.model.document.selection.getFirstPosition();
+          const url = window.location.href;
+          if (insertPosition) {
+            writer.insertText(url, insertPosition);
+          }
+          // Focus the editor after inserting text
+          editor.editing.view.focus();
+        });
       }
     }
-  }, [onSubmit, submitEditorContentAndClear]);
+  });
 
   const submitButton = <div className={classes.editorButtons}>
     <Button
       type='submit'
       id='llm-submit-button'
-      className={classes.submitButton} 
+      className={classes.submitButton}
       onClick={submitEditorContentAndClear}
     >
       Submit
     </Button>
   </div>;
 
-  // TODO: styling and debouncing
-  return <ContentStyles className={classes.inputTextbox} contentType='comment'>
-    <div className={classes.editor}>
-      <CKEditor
-        data={currentMessage}
-        ref={ckEditorRef}
-        editor={getCkCommentEditor(forumTypeSetting.get())}
-        isCollaborative={false}
-        onChange={(_event, editor: Editor) => {
-          // debouncedValidateEditor(editor.model.document)
-          // If transitioning from empty to nonempty or nonempty to empty,
-          // bypass throttling. These cases don't have the performance
-          // implications that motivated having throttling in the first place,
-          // and this prevents a timing bug with form-clearing on submit.
-          setCurrentMessage(editor.getData());
-
-          // if (!editor.data.model.hasContent(editor.model.document.getRoot('main'))) {
-          //   throttledSetCkEditor.cancel();
-          //   setCurrentMessage(editor.getData());
-          // } else {
-          //   throttledSetCkEditor(() => editor.getData())
-          // }
-        }}
-        onReady={(editor) => {
-          editorRef.current = editor;
-        }}
-        config={editorConfig}
-      />
-    </div>
-    {submitButton}
-  </ContentStyles>
-}
+  return (
+    <ContentStyles className={classes.inputTextbox} contentType='comment'>
+      <div className={classes.editor}>
+        <CKEditor
+          data={currentMessage}
+          ref={ckEditorRef}
+          editor={getCkCommentEditor(forumTypeSetting.get())}
+          isCollaborative={false}
+          onChange={(_event, editor: Editor) => {
+            setCurrentMessage(editor.getData());
+          }}
+          onReady={(editor) => {
+            editorRef.current = editor;
+          }}
+          config={editorConfig}
+        />
+      </div>
+      {submitButton}
+    </ContentStyles>
+  );
+};
 
 const welcomeGuideHtml = [
   `<h1>Welcome to the LessWrong LLM Chat!</h1>`,
@@ -542,6 +545,14 @@ export const ChatInterface = ({classes}: {
     ))}
   </Select>
 
+  const copyFirstMessageToClipboard = (conversationId: string) => {
+    const conversation = orderedConversations.find(c => c._id === conversationId);
+    if (conversation) {
+      void navigator.clipboard.writeText(conversation.messages[0].content);
+      flash('First message copied to clipboard');
+    }
+  }
+
   const conversations = <div className={classes.convosListWrapper}>
     <LWTooltip title="New LLM Chat">
       <ForumIcon icon="Add" className={classes.icon} onClick={() => setCurrentConversation()} />
@@ -553,9 +564,15 @@ export const ChatInterface = ({classes}: {
       <ForumIcon icon="ExpandMore" className={classNames(classes.icon, !isConvoListExpanded && classes.collapsedIcon)} onClick={() => setIsConvoListExpanded(!isConvoListExpanded)} />
     </LWTooltip>
     <div className={classNames(classes.convoList, isConvoListExpanded && classes.convoListExpanded)}>
-      {orderedConversations.map(({ title, _id }, index) => (
+      {orderedConversations.map(({ title, _id, messages }, index) => (
         <div key={index} className={classes.conversation2Item} onClick={() => setCurrentConversation(_id)}>
+          <LWTooltip title="Copy first message to clipboard">
+            <ForumIcon icon="ClipboardDocument" className={classes.convoIcon} onClick={() => copyFirstMessageToClipboard(_id)} />
+          </LWTooltip>
           {title ?? "...Title Pending..."}
+          <LWTooltip title="Delete Conversation">
+            <CloseIcon className={classes.deleteConvoIcon} onClick={(ev) => deleteConversation(ev, _id)} />
+          </LWTooltip>
         </div>
       ))}
     </div>

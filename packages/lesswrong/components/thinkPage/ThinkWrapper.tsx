@@ -5,7 +5,7 @@ import { useTracking } from "../../lib/analyticsEvents";
 import { commentBodyStyles } from '@/themes/stylePiping';
 
 
-const postFormSectionStyles = (theme: ThemeType) => ({
+export const postFormSectionStyles = (theme: ThemeType) => ({
   '& .FormGroupHeader-formSectionHeading': {
     padding: '4px 8px',
     opacity: .4,
@@ -48,7 +48,7 @@ const postFormSectionStyles = (theme: ThemeType) => ({
   '& .form-component-EditorFormComponent': {
     width: 715,
     ...commentBodyStyles(theme),
-    '& p, & li': {
+    '& p, & li, & td, & th, & blockquote, & pre': {
       fontSize: "1.2rem",
       lineHeight: "1.6",
       ...commentBodyStyles(theme),

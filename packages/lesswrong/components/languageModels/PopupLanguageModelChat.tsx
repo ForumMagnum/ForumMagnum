@@ -78,10 +78,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     justifyContent: "flex-end",
   },
   editor: {
-    paddingLeft: 10,
-    paddingRight: 10,
-    paddingTop: 12,
-    paddingBottom: 12,
     position: "relative",
   },
 });

@@ -2,7 +2,7 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
-import { ThinkWrapper } from './ThinkWrapper';
+import { postFormSectionStyles, ThinkWrapper } from './ThinkWrapper';
 import { useLocation } from '@/lib/routeUtil';
 import { useSingle } from '@/lib/crud/withSingle';
 import { CENTRAL_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
@@ -12,7 +12,8 @@ const styles = (theme: ThemeType) => ({
     marginBottom: theme.spacing.unit * 4
   },
   postBody: {
-    maxWidth: CENTRAL_COLUMN_WIDTH
+    maxWidth: CENTRAL_COLUMN_WIDTH,
+    ...postFormSectionStyles(theme),
   }
 });
 

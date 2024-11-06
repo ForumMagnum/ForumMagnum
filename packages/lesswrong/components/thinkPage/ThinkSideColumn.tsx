@@ -5,8 +5,10 @@ import { useTracking } from "../../lib/analyticsEvents";
 import moment from 'moment';
 import { gql, useQuery } from '@apollo/client';
 import { useCurrentUser } from '../common/withUser';
-import { useLocation } from '@/lib/routeUtil';
+import { useLocation, useNavigate } from '@/lib/routeUtil';
 import { useMulti } from '@/lib/crud/withMulti';
+import { useCreate } from '@/lib/crud/withCreate';
+import { getThinkUrl } from './ThinkSideItem';
 
 export type WebsiteData = {
   postId: string;
@@ -47,6 +49,32 @@ const styles = (theme: ThemeType) => ({
     },
   }
 });
+
+const getSideItems = (readHistory: PostsListWithVotes[], drafts: PostsListWithVotes[]) => {
+  const allPosts = [...readHistory, ...drafts].sort((a, b) => {
+    const aDate = moment(a.modifiedAt || a.lastVisitedAt)
+    const bDate = moment(b.modifiedAt || b.lastVisitedAt)
+    if (aDate.isBefore(bDate)) return 1
+    if (aDate.isAfter(bDate)) return -1
+    return 0
+  })
+
+  // group the posts by last read "Today", "Yesterday", and "Older"
+  const todaysPosts = allPosts.filter(post => {
+    const date = post.modifiedAt || post.lastVisitedAt;
+    return moment(date).isSame(moment(), 'day');
+  })
+  const yesterdaysPosts = allPosts.filter(post => {
+    const date = post.modifiedAt || post.lastVisitedAt;
+    return moment(date).isSame(moment().subtract(1, 'day'), 'day');
+  })
+  const olderPosts = allPosts.filter(post => {
+    const date = post.modifiedAt || post.lastVisitedAt;
+    return moment(date).isBefore(moment().subtract(1, 'day'), 'day');
+  })
+
+  return { todaysPosts, yesterdaysPosts, olderPosts }
+}
 
 export const ThinkSideColumn = ({classes}: {
   classes: ClassesType<typeof styles>,
@@ -97,32 +125,62 @@ export const ThinkSideColumn = ({classes}: {
   const readHistory: (PostsListWithVotes & {lastVisitedAt: Date})[] = data?.UserReadHistory?.posts ?? []
   const readHistoryArray = Array.from(readHistory)
 
-  const allPosts = [...readHistoryArray, ...drafts].sort((a, b) => {
-    const aDate = moment(a.modifiedAt || a.lastVisitedAt)
-    const bDate = moment(b.modifiedAt || b.lastVisitedAt)
-    if (aDate.isBefore(bDate)) return 1
-    if (aDate.isAfter(bDate)) return -1
-    return 0
+  const { todaysPosts, yesterdaysPosts, olderPosts } = getSideItems(readHistoryArray, drafts)
+
+  const { create: createPost, loading: createPostLoading } = useCreate({
+    collectionName: "Posts",
+    fragmentName: "PostsListWithVotes",
   })
 
-  // group the posts by last read "Today", "Yesterday", and "Older"
-  const todaysPosts = allPosts.filter(post => {
-    const date = post.modifiedAt || post.lastVisitedAt;
-    return moment(date).isSame(moment(), 'day');
-  })
-  const yesterdaysPosts = allPosts.filter(post => {
-    const date = post.modifiedAt || post.lastVisitedAt;
-    return moment(date).isSame(moment().subtract(1, 'day'), 'day');
-  })
-  const olderPosts = allPosts.filter(post => {
-    const date = post.modifiedAt || post.lastVisitedAt;
-    return moment(date).isBefore(moment().subtract(1, 'day'), 'day');
+  const { create: createSequence, loading: createSequenceLoading } = useCreate({
+    collectionName: "Sequences",
+    fragmentName: "PostsListWithVotes",
   })
 
-  const { ThinkSideItem, ThinkOmnibar } = Components
+
+  const navigate = useNavigate();
+
+  const handleNewPostClick = async () => {
+    if (!currentUser) return;
+    const createResult = await createPost({
+      data: {
+        title: "Untitled Post",
+        userId: currentUser._id,
+        draft: true,
+      }
+    })
+    if (!createResult) return;
+    if (createResult?.data?.createPost?.data) {
+      const post = createResult.data.createPost.data; 
+      void navigate(getThinkUrl(post))
+    }
+  }
+
+  const handleNewSequenceClick = async () => {
+    if (!currentUser) return;
+    const createResult = await createPost({
+      data: {
+        title: "Untitled Post",
+        userId: currentUser._id,
+        draft: true,
+      }
+    })
+    if (!createResult) return;
+    if (createResult?.data?.createPost?.data) {
+      const post = createResult.data.createPost.data; 
+      void navigate(getThinkUrl(post))
+    }
+  }
+
+  const { ThinkSideItem, ThinkOmnibar, ForumIcon, Row, Loading } = Components
 
   return <div className={classes.root}>
-    <ThinkOmnibar setActive={setActive} />
+    <Row gap={8}>
+      <ForumIcon icon="Document" onClick={handleNewPostClick} />
+      <ForumIcon icon="Book" />
+      <ThinkOmnibar setActive={setActive} />
+      {createPostLoading && <Loading />}
+    </Row>
     <div>
       {todaysPosts.length > 0 && <>
         <h3>Today</h3>

@@ -1,11 +1,15 @@
 // TODO: Import component in components.ts
-import React from 'react';
+import React, { useRef } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
+import { useSingle } from '@/lib/crud/withSingle';
+import { useLocation } from '@/lib/routeUtil';
+import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
+import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType) => ({
-  root: {
-
+  title: {
+    ...theme.typography.display2,
   }
 });
 
@@ -13,9 +17,40 @@ export const ThinkSequence = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
-  return <div className={classes.root}>
 
-  </div>;
+  const currentUser = useCurrentUser();
+
+  const { params: {sequenceId} } = useLocation();
+  const { document, loading } = useSingle({
+    documentId: sequenceId,
+    collectionName: "Sequences",
+    fragmentName: 'SequencesPageFragment',
+  });
+
+  const nextSuggestedNumberRef = useRef(1);
+
+  const { ChaptersList, Loading, ThinkWrapper, Error404, SingleColumnSection } = Components;
+
+  if (!document && !loading) return <ThinkWrapper>
+    <Error404/>
+  </ThinkWrapper>
+
+  if (!document && loading) return <ThinkWrapper>
+    <Loading />
+  </ThinkWrapper>
+
+  const canEdit = userCanDo(currentUser, 'sequences.edit.all') || (userCanDo(currentUser, 'sequences.edit.own') && userOwns(currentUser, document))
+  const canCreateChapter = userCanDo(currentUser, 'chapters.new.all')
+  const canEditChapter = userCanDo(currentUser, 'chapters.edit.all') || canEdit
+
+
+  return <ThinkWrapper>
+    <SingleColumnSection>
+      {loading && <Loading />}
+      <h1 className={classes.title}>{document?.title}</h1>
+      <ChaptersList sequenceId={document._id} canEdit={canEditChapter} nextSuggestedNumberRef={nextSuggestedNumberRef} />
+    </SingleColumnSection>
+  </ThinkWrapper>
 }
 
 const ThinkSequenceComponent = registerComponent('ThinkSequence', ThinkSequence, {styles});

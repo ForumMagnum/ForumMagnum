@@ -4,7 +4,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
 import { Link } from '@/lib/reactRouterWrapper';
 
-const styles = (theme: ThemeType) => ({
+export const thinkSideItemStyles = (theme: ThemeType) => ({  
   root: {
     paddingTop: 6,
     paddingBottom: 6,
@@ -43,6 +43,12 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
+const styles = thinkSideItemStyles 
+
+export const getThinkUrl = (post: PostsListWithVotes) => {
+  return post.draft ? `/think/posts/${post._id}/edit?key=${post.linkSharingKey}` : `/think/posts/${post._id}/${post.slug}`
+}
+
 export const ThinkSideItem = ({post, classes}: {
   post: PostsListWithVotes,
   classes: ClassesType<typeof styles>,
@@ -52,12 +58,10 @@ export const ThinkSideItem = ({post, classes}: {
   const { ForumIcon, FormatDate } = Components
 
   const icon = post.draft ? <ForumIcon icon="Pencil" className={classes.icon}/> : <ForumIcon icon="Document" className={classes.icon}/>
-
-  const url = post.draft ? `/think/posts/${post._id}/edit?key=${post.linkSharingKey}` : `/think/posts/${post._id}/${post.slug}`
-
+  
   const date = post.modifiedAt > (post.lastVisitedAt ?? post.createdAt) ? post.modifiedAt : post.lastVisitedAt ?? post.createdAt
 
-  return <Link className={classes.root} to={url}>
+  return <Link className={classes.root} to={getThinkUrl(post)}>
     {icon} <div className={classes.title}>
       {post.title}
       <span className={classes.date}>
