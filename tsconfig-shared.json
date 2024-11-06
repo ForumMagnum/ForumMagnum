@@ -19,7 +19,8 @@
     "noEmit": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./packages/lesswrong/*"]
+      "@/*": ["./packages/lesswrong/*"],
+      "@/allComponents": ["./packages/lesswrong/lib/allComponents.ts"]
     }
   },
   "include": [

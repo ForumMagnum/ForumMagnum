@@ -3,7 +3,11 @@ import process from 'process';
 import { getDatabaseConfig, startSshTunnel, getOutputDir, setOutputDir, logWithTimestamp } from "./scripts/startup/buildUtil";
 import { setClientRebuildInProgress, setServerRebuildInProgress, generateBuildId, startAutoRefreshServer, initiateRefresh, lintAndCheckTypes } from "./scripts/startup/autoRefreshServer";
 import { spawn, ChildProcess } from 'child_process';
+import { createServer as createViteServer, type ViteDevServer} from "vite";
+import viteReact from "@vitejs/plugin-react";
 import fs from 'fs';
+import express from "express";
+import bodyParser from 'body-parser';
 
 
 /**
@@ -23,6 +27,7 @@ export type CommandLineOptions = {
   shell: boolean
   command: string|null
   lint: boolean
+  vite: boolean
 }
 const defaultCommandLineOptions: CommandLineOptions = {
   action: "build",
@@ -35,6 +40,7 @@ const defaultCommandLineOptions: CommandLineOptions = {
   shell: false,
   command: null,
   lint: false,
+  vite: false,
 }
 const helpText = (argv0: string) => `usage: yarn ts-node build-esbuild.ts [options]`
 
@@ -84,6 +90,8 @@ function parseCommandLine(argv: string[]): [CommandLineOptions,string[]] {
         case "run":
           result.action = "watch"
           break;
+        case "vite":
+          result.vite = true;
         // Ignored arguments for Estrella back-compat
         case "quiet":
         case "silent":
@@ -118,6 +126,7 @@ const [opts, args] = parseCommandLine(process.argv /*, [
 
 
 const defaultServerPort = 3000;
+const defaultVitePort = 3010;
 
 const getServerPort = () => {
   if (opts.command) {
@@ -180,6 +189,7 @@ const bundleDefinitions: Record<string,string> = {
   "buildId": `"${latestCompletedBuildId}"`,
   "serverPort": `${getServerPort()}`,
   "ddEnv": `\"${process.env.DD_ENV || "local"}\"`,
+  "enableVite": `${opts.vite}`,
 };
 
 const clientBundleDefinitions: Record<string,string> = {
@@ -360,15 +370,21 @@ async function main() {
       "bcrypt", "node-pre-gyp", "intercom-client", "node:*",
       "fsevents", "chokidar", "auth0", "dd-trace", "pg-formatter",
       "gpt-3-encoder", "@elastic/elasticsearch", "zod", "node-abort-controller",
-      "cheerio"
+      "cheerio", "vite", "@vitejs/plugin-react",
     ],
   })
   
   if (opts.action === "watch" && !isProduction && !process.env.CI) {
-    startAutoRefreshServer({serverPort, websocketPort});
+    if (!opts.vite) {
+      startAutoRefreshServer({serverPort, websocketPort});
+    }
   }
   
-  if (opts.action === "watch") {
+  if (opts.vite) {
+    //serverContext.watch();
+    serverContext.rebuild();
+    await createViteProxyServer();
+  } else if (opts.action === "watch") {
     serverContext.watch();
     clientContext.watch();
   } else {
@@ -378,6 +394,89 @@ async function main() {
     ]);
     process.exit(0);
   }
+}
+
+async function createViteProxyServer() {
+  console.log("Starting vite server");
+  
+  const app = express();
+  const viteServer = await createViteServer({
+    server: {
+      //port: defaultVitePort,
+      middlewareMode: true
+    },
+    appType: "custom",
+    configFile: false,
+    plugins: [viteReact()],
+    root: process.cwd(),
+    define: {
+      ...bundleDefinitions,
+      ...clientBundleDefinitions,
+      global: "globalThis",
+    },
+    build: {
+      commonjsOptions: {
+        transformMixedEsModules: true,
+      },
+    },
+    clearScreen: false,
+    resolve: {
+      alias: {
+        "@/server": "/packages/lesswrong/stubs/server",
+        "@/client": "/packages/lesswrong/client",
+        "@/allComponents": "/packages/lesswrong/lib/allComponentsVite",
+        "@": "/packages/lesswrong",
+      }
+    },
+  });
+  app.use(bodyParser.raw({ type: '*/*', limit: '50mb' }));
+  app.use(viteServer.middlewares);
+  app.use('*', async (req, res) => {
+    const originalUrl = new URL(req.originalUrl, "http://localhost:3000");
+    const proxyTarget = "localhost";
+    const proxyPort = defaultServerPort
+    const newUrl = new URL(originalUrl.pathname + originalUrl.search, `http://${proxyTarget}:${proxyPort}`);
+  
+    try {
+      // Forward the request
+      const response = await fetch(newUrl.toString(), {
+        method: req.method,
+        headers: {
+          ...(req.headers as any),
+        },
+        body: (req.method !== 'GET' && req.method !== 'HEAD') ? req.body : undefined,
+        redirect: 'manual',
+      });
+    
+      // Send the response back to the client
+      res.status(response.status);
+      for (const [key, value] of Array.from(response.headers as any) as any) {
+        res.setHeader(key, value);
+      }
+      const contentType = response.headers.get('content-type') ?? "";
+      const responseText = await response.text();
+      
+      if (contentType.startsWith('text/html')) {
+        res.send(
+          responseText
+          + await getViteProxiedSsrPageSuffix(viteServer, req.url)
+        );
+      } else {
+        res.send(responseText);
+      }
+    } catch(e) {
+      console.log(`Failed forwarding request for ${newUrl}`);
+      res.status(500);
+      res.end(`${e.message}`);
+    }
+  });
+  app.listen(defaultVitePort);
+}
+
+async function getViteProxiedSsrPageSuffix(viteServer: ViteDevServer, url: string): Promise<string> {
+  const viteHeader = await viteServer.transformIndexHtml(url, "<!--app-head-->");
+  return viteHeader
+    + '<script type="module" src="/packages/lesswrong/client/clientStartup.ts"></script>'
 }
 
 main();

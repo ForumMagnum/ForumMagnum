@@ -365,7 +365,7 @@ export function startWebserver() {
 
   addServerSentEventsEndpoint(app);
   addAutocompleteEndpoint(app);
-
+  
   app.get('/node_modules/*', (req, res) => {
     // Under some circumstances (I'm not sure exactly what the trigger is), the
     // Chrome JS debugger tries to load a bunch of /node_modules/... paths
@@ -395,7 +395,9 @@ export function startWebserver() {
     const publicSettingsHeader = embedAsGlobalVar("publicSettings", getPublicSettings())
 
     const bundleHash = getClientBundle().resource.hash;
-    const clientScript = `<script async src="/js/bundle.js?hash=${bundleHash}"></script>`
+    const clientScript = enableVite
+      ? ""
+      : `<script async src="/js/bundle.js?hash=${bundleHash}"></script>`
     const instanceSettingsHeader = embedAsGlobalVar("publicInstanceSettings", getInstanceSettings().public);
 
     // Check whether the requested route has enableResourcePrefetch. If it does,

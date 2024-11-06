@@ -13,6 +13,10 @@ import { rememberScrollPositionOnPageReload } from './scrollRestoration';
 import { addClickHandlerToCheckboxLabels } from './clickableCheckboxLabels';
 import { initLegacyRoutes } from '@/lib/routes';
 import { hydrateClient } from './start';
+import { googleTagManagerInit } from './ga';
+import { initReCaptcha } from './reCaptcha';
+import './type3';
+import { initDatadog } from './datadogRum';
 
 /**
  * These identifiers may or may not have been set on the server, depending on whether the request
@@ -39,7 +43,10 @@ async function clientStartup() {
   startupCalled = true;
 
   filterConsoleLogSpam();
-  require('../deferred-client-scripts.js');
+  
+  googleTagManagerInit();
+  void initDatadog();
+  void initReCaptcha();
 
   initAutoRefresh();
   rememberScrollPositionOnPageReload();

@@ -141,7 +141,10 @@ export function registerComponent<PropType>(name: string, rawComponent: React.Co
   rawComponent.displayName = name;
   
   if (name in ComponentsTable && ComponentsTable[name].rawComponent !== rawComponent) {
-    throw new Error(`Two components with the same name: ${name}`);
+    // Don't warn about duplicate components if using HMR because vite can trigger this
+    if (!enableVite) {
+      throw new Error(`Two components with the same name: ${name}`);
+    }
   }
   
   // store the component in the table

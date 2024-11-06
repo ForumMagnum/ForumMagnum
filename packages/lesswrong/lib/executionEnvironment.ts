@@ -10,6 +10,7 @@ declare global {
   let serverPort: number;
   let buildProcessPid: number;
   let ddEnv: string;
+  let enableVite: boolean;
 }
 
 export const isClient = !bundleIsServer

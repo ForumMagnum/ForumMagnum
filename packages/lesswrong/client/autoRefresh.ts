@@ -60,7 +60,7 @@ function disconnectWebsocket() {
 }
 
 export function initAutoRefresh() {
-  if (!bundleIsProduction) {
+  if (!bundleIsProduction && !enableVite) {
     setTimeout(() => {
       connectWebsocket();
       
