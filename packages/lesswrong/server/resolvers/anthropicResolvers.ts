@@ -18,6 +18,7 @@ import express, { Express } from "express";
 import { captureException } from "@sentry/core";
 import { LwAfDomainWhitelist } from "@/lib/routeUtil";
 import partition from "lodash/partition";
+import { fetchWebsiteHtmlContent } from "./fetchWebsiteHtml";
 
 interface InitializeConversationArgs {
   newMessage: ClientMessage;
