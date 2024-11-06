@@ -134,7 +134,18 @@ export const styles = (theme: ThemeType): JssStyles => ({
     fill: theme.palette.primary.main,
     marginRight: -4
   },
-  editorGuideLink: {}
+  editorGuideLink: {},
+  userFeedbackPromptInput: {
+    marginTop: 310,
+    position: 'absolute',
+    backgroundColor: theme.palette.background.default,
+    borderRadius: 4,
+    padding: '4px 7px',
+    width: 240,
+    ['@media (max-width: 1590px)']: {
+      display: 'none',
+    },
+  }
 })
 
 const prefillFromTemplate = (template: PostsEdit) => {
