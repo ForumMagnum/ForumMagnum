@@ -157,7 +157,7 @@ const PostsEditForm = ({ documentId, version, classes, showTableOfContents, fiel
 
   const editorComponent = <div className={classes.postForm}>
     {currentUser?.isAdmin && !isThinkPage && <div style={{position: 'absolute', top: 74, right: 16}}>
-      <ThinkLink document={document} title="Think" />
+      <ThinkLink document={document} title="Think" forceEdit/>
     </div>}
     <HeadTags title={document.title} />
     {currentUser && <Components.PostsAcceptTos currentUser={currentUser} />}
