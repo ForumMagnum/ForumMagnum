@@ -20,6 +20,8 @@ import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { AutosaveEditorStateContext } from '../editor/EditorFormComponent';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import { usePostsPageContext } from '../posts/PostsPage/PostsPageContext';
+import Input from '@material-ui/core/Input/Input';
+import { rightBranchingPrompt } from '@/lib/promptLibrary';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -250,6 +252,28 @@ const styles = (theme: ThemeType) => ({
       opacity: 1,
     },
   },
+  userFeedbackPromptInput: {
+    backgroundColor: theme.palette.background.default,
+    borderRadius: 4,
+    padding: '4px 7px',
+    width: 240
+  },
+  postSuggestionsButton: {
+    cursor: 'pointer',
+    opacity: 0.8,
+    alignSelf: 'flex-start',
+    border: theme.palette.border.faint,
+    ...theme.typography.body2,
+    marginBottom: 4,
+    padding: 10,
+    borderRadius: 4,
+  },
+  postSuggestionsWrapper: {
+    backgroundColor: theme.palette.background.default,
+    borderRadius: 4,
+    padding: '4px 7px',
+    width: 240
+  }
 });
 
 const NEW_CONVERSATION_MENU_ITEM = "New Conversation";
@@ -397,6 +421,29 @@ function useCurrentPostContext(): CurrentPostContext {
   }
 
   return {};
+}
+
+const PostSuggestionsPromptInput = ({classes}: {classes: ClassesType<typeof styles>}) => {
+  const [active, setActive] = useState(false);
+  const [userFeedbackPrompt, setUserFeedbackPrompt] = useState(rightBranchingPrompt);
+
+  if (!active) return <div onClick={() => setActive(true)} className={classes.postSuggestionsButton}>
+    Right-branching Readability
+  </div>
+
+  return <div className={classes.postSuggestionsWrapper}>
+    <Input
+      id="user-feedback-prompt-input"
+      className={classes.userFeedbackPromptInput}
+      type="text"
+      placeholder="Prompt"
+      value={userFeedbackPrompt}
+      onChange={(e) => setUserFeedbackPrompt(e.target.value)}
+      multiline
+      rows={15}
+      disableUnderline
+    />
+  </div>
 }
 
 export const ChatInterface = ({classes}: {
@@ -585,13 +632,16 @@ export const ChatInterface = ({classes}: {
     submitMessage({ query: message, ragMode, currentPostId, postContext });
   }, [autosaveEditorState, currentPostId, postContext, submitMessage, ragMode]);
 
-  return <div className={classes.subRoot}>
-    {messagesForDisplay}
-    {currentConversationLoading && <Loading className={classes.loadingSpinner}/>}
-    <LLMInputTextbox onSubmit={handleSubmit} classes={classes} />
-    {/* {options} */}
-    {conversations}
-  </div>
+  return <>
+    <div className={classes.subRoot}>
+      {messagesForDisplay}
+      {currentConversationLoading && <Loading className={classes.loadingSpinner}/>}
+      <LLMInputTextbox onSubmit={handleSubmit} classes={classes} />
+      {/* {options} */}
+      {conversations}
+    </div>
+    <PostSuggestionsPromptInput classes={classes} />
+  </>
 }
 
 // Wrapper component needed so we can use deferRender

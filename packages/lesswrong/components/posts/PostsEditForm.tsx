@@ -31,11 +31,6 @@ function getDraftLabel(post: PostsPage | null) {
   return "Save Draft";
 }
 
-const defaultPrompt = `Given the following post, figure out which sentences are the most left-branching and difficult to follow, and then suggest edits to make them easier to understand.  
-
-When suggesting edits, please write out a parse tree of the original text, using the edit's "reasoning" field.
-
-Then, rewrite the text to be more right-branching, while changing as little of the vocabulary as possible.`;
 
 const PostsEditForm = ({ documentId, version, classes, showTableOfContents }: {
   documentId: string,
@@ -52,7 +47,6 @@ const PostsEditForm = ({ documentId, version, classes, showTableOfContents }: {
   const currentUser = useCurrentUser();
 
   const [editorState, setEditorState] = useState<Editor | null>(editor);
-  const [userFeedbackPrompt, setUserFeedbackPrompt] = useState(defaultPrompt);
 
   const { bestResult: document, fetchedResult: { loading } } = useSingleWithPreload({
     documentId,
