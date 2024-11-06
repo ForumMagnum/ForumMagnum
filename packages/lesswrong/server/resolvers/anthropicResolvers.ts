@@ -160,7 +160,7 @@ export const getLinksContents = async (query: string, context: ResolverContext) 
   const externalPosts = await Promise.all(externalLinks.map(link => fetchWebsiteHtmlContent(link, context)));
   const externalPostIds = externalPosts.map(post => post.postId);
 
-  return [...lwPostIds, ...externalPostIds];
+  return [...lwPostIds, ...externalPostIds].filter(id => id !== null) as string[];
 }
 
 const ragModeMapping = {
@@ -199,13 +199,18 @@ async function getContextualPosts({ content: query, ragMode, currentPost, postCo
 
   const linksPromise = useLinks ? getLinksContents(query, context) : Promise.resolve([]);
 
-  const [querySearchIds, currentPostSearchIds, linksIds] = await Promise.all([
-    querySearchPromise,
-    currentPostSearchPromise,
+  const [
+    // querySearchIds, currentPostSearchIds, 
+    linksIds] = await Promise.all([
+    // querySearchPromise,
+    // currentPostSearchPromise,
     linksPromise,
   ]);
 
-  const deduplicatedSearchResultIds = uniq([...querySearchIds, ...currentPostSearchIds]);
+  const deduplicatedSearchResultIds = uniq([
+    // ...querySearchIds, ...currentPostSearchIds,
+    ...linksIds
+  ]);
 
   // TODO: Clean up somehow. This is kind of ugly but this is where the decision is being made about whether or not to use the current post in the context window.
   const posts: LlmPost[] = await getPostsWithContents(deduplicatedSearchResultIds, context);

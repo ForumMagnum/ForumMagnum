@@ -39,8 +39,10 @@ export async function fetchWebsiteHtmlContent(url: string, context: ResolverCont
 
     const response = await fetch(url);
     if (!response.ok) {
+      console.log("Failed to fetch HTML from URL: ", url, response.status);
       throw new Error(`Failed to fetch HTML from URL: ${url}, status: ${response.status}`);
     }
+    console.log("response", response)
     const html = await response.text();
     const titleMatch = html.match(/<title>(.*?)<\/title>/i);
     const title = titleMatch ? titleMatch[1] : 'Untitled';
