@@ -7,10 +7,74 @@ import { WebsiteData } from '../../components/thinkPage/ThinkSideColumn';
 import Posts from '../../lib/collections/posts/collection';
 import { createMutator, updateMutator } from '../vulcan-lib';
 import { fetchFragment, fetchFragmentSingle } from '../fetchFragment';
+import { htmlToMarkdown } from '../editor/conversionUtils';
 
 // Function to clean text by removing newlines and excessive whitespace
 function cleanText(text: string): string {
   return text.replace(/\s+/g, ' ').trim();
+}
+
+// Export the utility function
+export async function fetchWebsiteHtmlContent(url: string, context: ResolverContext): Promise<WebsiteData> {
+  try {
+    const parsedUrl = new URL(url);
+    if (!context.currentUser) {
+      throw new Error('You must be logged in to fetch website HTML.');
+    }
+    if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
+      throw new Error('Invalid URL protocol. Only HTTP and HTTPS are allowed.');
+    }
+
+    const existingPost = await fetchFragmentSingle({
+      collectionName: 'Posts',
+      fragmentName: 'PostsEditQueryFragment',
+      currentUser: context.currentUser,
+      selector: { url, userId: context.currentUser._id, draft: true },
+      context,
+    });
+
+    if (existingPost) {
+      return { postId: existingPost._id, postSlug: existingPost.slug };
+    }
+
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch HTML from URL: ${url}, status: ${response.status}`);
+    }
+    const html = await response.text();
+    const titleMatch = html.match(/<title>(.*?)<\/title>/i);
+    const title = titleMatch ? titleMatch[1] : 'Untitled';
+    const sanitizedHtml = sanitize(html);
+    const cheerioTool = cheerio.load(sanitizedHtml);
+    const bodyHtml = cheerioTool('body').html() ?? '';
+    const bodyMarkdown = htmlToMarkdown(bodyHtml);
+    const currentDateSection = `
+# ${new Date().toLocaleDateString('en-US', {
+      weekday: 'short',
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    })}
+
+${bodyMarkdown}
+`;
+    const { data: post } = await createMutator({
+      collection: Posts,
+      document: {
+        userId: context.currentUser._id,
+        title: title,
+        url: url,
+        contents: { originalContents: { data: currentDateSection, type: 'markdown' } },
+        draft: true,
+      } as Partial<DbPost>,
+      currentUser: context.currentUser,
+      validate: false,
+    });
+
+    return { postId: post._id, postSlug: post.slug };
+  } catch (error: any) {
+    throw new Error(`Error fetching URL ${url}: ${error.message}`);
+  }
 }
 
 const fetchWebsiteHtmlResolvers = {
@@ -80,14 +144,7 @@ const fetchWebsiteHtmlResolvers = {
 
         console.timeLog('fetchWebsiteHtml', 'After tables processing');
 
-        const currentDateSection = `
-          <h1>${new Date().toLocaleDateString('en-US', {
-            weekday: 'short',
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-          })}</h1>
-          <details class="detailsBlock">
+        const unused = `<details class="detailsBlock">
             <summary class="detailsBlockSummary">Links</summary>
             <ul>
               ${links}
@@ -100,11 +157,19 @@ const fetchWebsiteHtmlResolvers = {
           <details class="detailsBlock">
             <summary class="detailsBlockSummary">Tables</summary>
             ${trimmedTablesHtml}
-          </details>
-          <details class="detailsBlock">
-            <summary class="detailsBlockSummary">Body Content</summary>
-            ${bodyHtml}
-          </details>
+          </details>`
+
+        const bodyMarkdown = htmlToMarkdown(bodyHtml);
+
+        const currentDateSection = `
+          # ${new Date().toLocaleDateString('en-US', {
+            weekday: 'short', 
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+          })}
+          
+          ${bodyMarkdown}
         `;
 
         console.timeLog('fetchWebsiteHtml', 'After date section creation');
@@ -119,87 +184,83 @@ const fetchWebsiteHtmlResolvers = {
         });
 
         console.timeLog('fetchWebsiteHtml', 'After post fetch');
-        if (existingPost?.contents?.originalContents?.data) {
-          const existingPostHtml = existingPost.contents.originalContents.data;
-          const existingCheerio = cheerio.load(existingPostHtml);
+        // if ("a" === "b") {
+        //   const existingPostHtml = existingPost.contents.originalContents.data;
+        //   const existingCheerio = cheerio.load(existingPostHtml);
 
-          // Find the most recent date section
-          const dateHeaders = existingCheerio('h1');
-          const latestDateHeader = dateHeaders.first();
-          const nextElements = latestDateHeader.nextUntil('h1');
+        //   // Find the most recent date section
+        //   const dateHeaders = existingCheerio('h1');
+        //   const latestDateHeader = dateHeaders.first();
+        //   const nextElements = latestDateHeader.nextUntil('h1');
 
-          // Extract existing sections
-          const existingLinksSection = existingCheerio(nextElements)
-            .filter((_, el) => existingCheerio(el).find('summary').text() === 'Links')
-            .html() || '';
-          const existingParagraphsSection = existingCheerio(nextElements)
-            .filter((_, el) => existingCheerio(el).find('summary').text() === 'Paragraphs')
-            .html() || '';
-          const existingTablesSection = existingCheerio(nextElements)
-            .filter((_, el) => existingCheerio(el).find('summary').text() === 'Tables')
-            .html() || '';
-          const existingBodySection = existingCheerio(nextElements)
-            .filter((_, el) => existingCheerio(el).find('summary').text() === 'Body Content')
-            .html() || '';
+        //   // Extract existing sections
+        //   const existingLinksSection = existingCheerio(nextElements)
+        //     .filter((_, el) => existingCheerio(el).find('summary').text() === 'Links')
+        //     .html() || '';
+        //   const existingParagraphsSection = existingCheerio(nextElements)
+        //     .filter((_, el) => existingCheerio(el).find('summary').text() === 'Paragraphs')
+        //     .html() || '';
+        //   const existingTablesSection = existingCheerio(nextElements)
+        //     .filter((_, el) => existingCheerio(el).find('summary').text() === 'Tables')
+        //     .html() || '';
+        //   const existingBodySection = existingCheerio(nextElements)
+        //     .filter((_, el) => existingCheerio(el).find('summary').text() === 'Body Content')
+        //     .html() || '';
 
-          // Compare sections
-          const linksChanged = existingLinksSection !== `<details><summary>Links</summary><ul>${links}</ul></details>`;
-          const paragraphsChanged = existingParagraphsSection !== `<details><summary>Paragraphs</summary>${trimmedParagraphHtml}</details>`;
-          const tablesChanged = existingTablesSection !== `<details><summary>Tables</summary>${trimmedTablesHtml}</details>`;
-          const bodyChanged = existingBodySection !== `<details><summary>Body Content</summary>${bodyHtml}</details>`;
+        //   // Compare sections
+        //   const linksChanged = existingLinksSection !== `<details><summary>Links</summary><ul>${links}</ul></details>`;
+        //   const paragraphsChanged = existingParagraphsSection !== `<details><summary>Paragraphs</summary>${trimmedParagraphHtml}</details>`;
+        //   const tablesChanged = existingTablesSection !== `<details><summary>Tables</summary>${trimmedTablesHtml}</details>`;
+        //   const bodyChanged = existingBodySection !== `<details><summary>Body Content</summary>${bodyHtml}</details>`;
 
-          console.timeLog('fetchWebsiteHtml', 'After post update');
-          if (linksChanged || paragraphsChanged || tablesChanged || bodyChanged) {
-            // Insert new sections below the <hr/> tag but above the previous date
-            const hrIndex = existingPostHtml.indexOf('<hr/>');
-            const beforeHr = existingPostHtml.substring(0, hrIndex + 5); // Include '<hr/>'
-            const afterHr = existingPostHtml.substring(hrIndex + 5);
+        //   console.timeLog('fetchWebsiteHtml', 'After post update');
+        //   if (linksChanged || paragraphsChanged || tablesChanged || bodyChanged) {
+        //     // Insert new sections below the <hr/> tag but above the previous date
+        //     const hrIndex = existingPostHtml.indexOf('<hr/>');
+        //     const beforeHr = existingPostHtml.substring(0, hrIndex + 5); // Include '<hr/>'
+        //     const afterHr = existingPostHtml.substring(hrIndex + 5);
 
-            const updatedPostHtml = `
-              ${beforeHr}
-              ${currentDateSection}
-              ${afterHr}
-            `;
+        //     const updatedPostHtml = `
+        //       ${beforeHr}
+        //       ${currentDateSection}
+        //       ${afterHr}
+        //     `;
 
-            await updateMutator({
-              collection: Posts,
-              selector: { _id: existingPost._id },
-              data: {
-                contents: { originalContents: { data: updatedPostHtml, type: 'ckEditorMarkup' } },
-              } as Partial<DbPost>,
-              currentUser: context.currentUser,
-              validate: false,
-            });
-            console.timeLog('fetchWebsiteHtml', 'After post update');
+        //     await updateMutator({
+        //       collection: Posts,
+        //       selector: { _id: existingPost._id },
+        //       data: {
+        //         contents: { originalContents: { data: updatedPostHtml, type: 'markdown' } },
+        //       } as Partial<DbPost>,
+        //       currentUser: context.currentUser,
+        //       validate: false,
+        //     });
+        //     console.timeLog('fetchWebsiteHtml', 'After post update');
 
-            return { postId: existingPost._id, postSlug: existingPost.slug };
-          } else {
-            // No changes detected
-            return { postId: existingPost._id, postSlug: existingPost.slug };
-          }
-        } else {
+        //     return { postId: existingPost._id, postSlug: existingPost.slug };
+        //   } else {
+        //     // No changes detected
+        //     return { postId: existingPost._id, postSlug: existingPost.slug };
+        //   }
+        // } else {
           // Create new post if none exists
-          const postHtml = `
-            <h1>Notes</h1>
-            <hr/>
-            ${currentDateSection}
-          `;
-
+          console.timeLog('fetchWebsiteHtml', 'Before post creation');
           const { data: post } = await createMutator({
             collection: Posts,
             document: {
               userId: context.currentUser._id,
               title: title,
               url: url,
-              contents: { originalContents: { data: postHtml, type: 'ckEditorMarkup' } },
+              contents: { originalContents: { data: currentDateSection, type: 'markdown' } },
               draft: true,
             } as Partial<DbPost>,
             currentUser: context.currentUser,
             validate: false,
           });
+          console.timeLog('fetchWebsiteHtml', 'After post creation');
 
           return { postId: post._id, postSlug: post.slug };
-        }
+        
       } catch (error: any) {
         throw new Error(`Error fetching URL ${url}: ${error.message}`);
       } finally {

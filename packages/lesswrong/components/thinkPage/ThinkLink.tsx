@@ -15,17 +15,17 @@ export const getThinkPostBaseUrl = (document: PostsListWithVotes) => {
   return `/think/posts/${document._id}/${document.slug}`
 }
 
-export const getThinkUrl = (document: PostsListWithVotes) => {
-  return document.draft ? `${getThinkPostBaseUrl(document)}?edit=true&key=${document.linkSharingKey}` : getThinkPostBaseUrl(document)
+export const getThinkUrl = (document: PostsListWithVotes, forceEdit?: boolean) => {
+  return (document.draft || forceEdit) ? `${getThinkPostBaseUrl(document)}?edit=true&key=${document.linkSharingKey}` : getThinkPostBaseUrl(document)
 }
 
-
-export const ThinkLink = ({classes, document, title}: {
+export const ThinkLink = ({classes, document, title, forceEdit}: {
   classes: ClassesType<typeof styles>,
   document: PostsListWithVotes,
   title?: string,
+  forceEdit?: boolean,
 }) => {
-  return <Link className={classes.root} to={getThinkUrl(document)}>
+  return <Link className={classes.root} to={getThinkUrl(document, forceEdit)}>
     {title ?? document.title}
   </Link>;
 }
