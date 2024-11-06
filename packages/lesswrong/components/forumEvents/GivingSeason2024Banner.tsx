@@ -429,7 +429,8 @@ const GivingSeason2024Banner = ({classes}: {
   const [lastTimelineClick, setLastTimelineClick] = useState<number>();
   const didInitialScroll = useRef(false);
 
-  const fundPercent = Math.round((amountRaised / amountTarget) * 100);
+  const amountRaisedPlusMatched = amountRaised + Math.min(amountRaised, 5000);
+  const fundPercent = Math.round((amountRaisedPlusMatched / amountTarget) * 100);
 
   const showRecentComments = !!currentForumEvent?.tagId && (
     currentEvent?.name === "Marginal Funding Week" ||
@@ -509,7 +510,7 @@ const GivingSeason2024Banner = ({classes}: {
         ))}
       </div>
       <div className={classes.banner}>
-        <Link to="#">
+        <Link to="/posts/srZEX2r9upbwfnRKw/giving-season-2024-announcement">
           GIVING SEASON 2024
         </Link>
       </div>
@@ -588,14 +589,14 @@ const GivingSeason2024Banner = ({classes}: {
           }
           <div className={classes.fund}>
             <div className={classes.fundInfo}>
-              Donate to the fund to boost the value of the Election.{" "}
-              <Link to="/posts/srZEX2r9upbwfnRKw/giving-season-2024-announcement#November_18___December_3__Donation_Election">
-                Learn more
+              Donate to the fund to boost the value of the{" "}
+              <Link to="/posts/2WbDAAtGdyAEfcw6S/donation-election-fund-announcement-matching-rewards-and-faq">
+                Donation Election
               </Link>.
             </div>
             <div className={classes.fundRaised}>
               <span className={classes.fundAmount}>
-                ${formatStat(Math.round(amountRaised))}
+                ${formatStat(Math.round(amountRaisedPlusMatched))}
               </span> raised
             </div>
             <div className={classes.fundBarContainer}>
@@ -608,7 +609,7 @@ const GivingSeason2024Banner = ({classes}: {
               href={getDonateLink(currentUser)}
               className={classes.donateButton}
             >
-              Donate to the Election Fund
+              Donate
             </EAButton>
           </div>
         </div>

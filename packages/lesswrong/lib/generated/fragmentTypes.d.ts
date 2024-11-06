@@ -100,6 +100,8 @@ interface UsersDefaultFragment { // fragment on Users
   readonly petrovOptOut: boolean,
   readonly optedOutOfSurveys: boolean | null,
   readonly postGlossariesPinned: boolean,
+  readonly generateJargonForDrafts: boolean,
+  readonly generateJargonForPublishedPosts: boolean,
   readonly acceptedTos: boolean,
   readonly hideNavigationSidebar: boolean,
   readonly currentFrontpageFilter: string,
@@ -924,6 +926,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly reviewForAlignmentUserId: string,
   readonly agentFoundationsId: string,
   readonly swrCachingEnabled: boolean,
+  readonly generateDraftJargon: boolean,
 }
 
 interface RecommendationsCachesDefaultFragment { // fragment on RecommendationsCaches
@@ -1550,6 +1553,7 @@ interface PostsEdit extends PostsDetails, PostSideComments { // fragment on Post
   readonly user: UsersMinimumInfo|null,
   readonly usersSharedWith: Array<UsersMinimumInfo>,
   readonly coauthors: Array<UsersMinimumInfo>,
+  readonly generateDraftJargon: boolean,
 }
 
 interface PostsEditQueryFragment extends PostsEdit { // fragment on Posts
@@ -2632,6 +2636,7 @@ interface TagRevisionFragment_description { // fragment on Revisions
 }
 
 interface TagPreviewFragment extends TagBasicInfo { // fragment on Tags
+  readonly isRead: boolean|null,
   readonly parentTag: TagBasicInfo|null,
   readonly subTags: Array<TagBasicInfo>,
   readonly description: TagPreviewFragment_description|null,
@@ -2644,6 +2649,7 @@ interface TagPreviewFragment_description { // fragment on Revisions
 }
 
 interface TagSectionPreviewFragment extends TagBasicInfo { // fragment on Tags
+  readonly isRead: boolean|null,
   readonly parentTag: TagBasicInfo|null,
   readonly subTags: Array<TagBasicInfo>,
   readonly description: TagSectionPreviewFragment_description|null,
@@ -3212,6 +3218,8 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly hideSunshineSidebar: boolean,
   readonly optedOutOfSurveys: boolean | null,
   readonly postGlossariesPinned: boolean,
+  readonly generateJargonForDrafts: boolean,
+  readonly generateJargonForPublishedPosts: boolean,
 }
 
 interface UsersCurrentCommentRateLimit { // fragment on Users

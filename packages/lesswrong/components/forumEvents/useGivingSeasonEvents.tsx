@@ -39,7 +39,7 @@ const events: GivingSeasonEvent[] = [
     description: <>
       This week, we are encouraging content around a range of important funding{" "}
       considerations.{" "}
-      <Link to="/posts/srZEX2r9upbwfnRKw/giving-season-2024-announcement#November_4___10__Funding_Strategy_Week">
+      <Link to="/posts/stdWZ4qrewemS7Rfq/what-i-d-like-to-see-during-funding-diversification-week">
         Read more
       </Link>.
     </>,
