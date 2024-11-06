@@ -1,6 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { Link } from "@/lib/reactRouterWrapper";
+import { postGetPageUrl } from "@/lib/collections/posts/helpers";
+import { commentGetPageUrl } from "@/lib/collections/comments/helpers";
+import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
 import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
 import { useCurrentUser } from "../common/withUser";
 import { formatStat } from "../users/EAUserTooltipContent";
@@ -13,10 +16,7 @@ import {
 } from "./useGivingSeasonEvents";
 import classNames from "classnames";
 import type { Moment } from "moment";
-import { postGetPageUrl } from "@/lib/collections/posts/helpers";
-import { ForumIconName } from "../common/ForumIcon";
-import { commentGetPageUrl } from "@/lib/collections/comments/helpers";
-import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
+import type { ForumIconName } from "../common/ForumIcon";
 
 const DOT_SIZE = 12;
 
@@ -330,6 +330,7 @@ const styles = (theme: ThemeType) => ({
     opacity: 0.7,
     whiteSpace: "nowrap",
     float: "right",
+    marginRight: 12,
   },
   feedInfo: {
     whiteSpace: "nowrap",
