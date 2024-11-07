@@ -726,14 +726,14 @@ export const ChatInterface = ({classes}: {
       {currentConversationLoading && <Loading className={classes.loadingSpinner}/>}
       <LLMInputTextbox onSubmit={handleSubmit} classes={classes} />
       <ConversationsList classes={classes}>
+        <LWTooltip title="New LLM Chat">
+          <ForumIcon icon="Add" className={classes.icon} onClick={() => setCurrentConversation()} />
+        </LWTooltip>
         {orderedConversations.map(({ title, _id, messages }, index) => (
           <div key={index} className={classes.conversation2Item} onClick={() => setCurrentConversation(_id)}>
             {title ?? "...Title Pending..."}
           </div>
         ))}
-        <LWTooltip title="New LLM Chat">
-          <ForumIcon icon="Add" className={classes.icon} onClick={() => setCurrentConversation()} />
-        </LWTooltip>
       </ConversationsList>
       {!!getLlmFeedbackCommand && <PostSuggestionPromptList classes={classes}>
         <PostSuggestionsPromptInput classes={classes} prompt={rightBranchingPrompt} />
