@@ -1,5 +1,9 @@
 import { Client } from "@elastic/elasticsearch";
-import type { SearchHit, SearchResponse } from "@elastic/elasticsearch/lib/api/types";
+import type {
+  AggregationsTopHitsAggregate,
+  SearchHit,
+  SearchResponse,
+} from "@elastic/elasticsearch/lib/api/types";
 import ElasticQuery, { QueryData } from "./ElasticQuery";
 import {
   elasticCloudIdSetting,
@@ -75,11 +79,14 @@ class ElasticClient {
       console.log("Elastic multi query:", JSON.stringify(request, null, 2));
     }
     const result: ElasticSearchResponse = await this.client.search(request);
-    const buckets = (result.aggregations?.indexes as AnyBecauseHard)?.buckets ?? {};
-    const allHits = buckets
-      .flatMap((bucket: any) => bucket?.hits?.hits?.hits)
-      .filter((hit: any) => (hit?._score ?? 0) > 0);
-    const sortedHits = sortBy(allHits, ((hit: any) => hit._score));
+
+    const aggregation = result.aggregations?.indexes as undefined | {
+      buckets?: {hits?: AggregationsTopHitsAggregate}[],
+    };
+    const allHits = (aggregation?.buckets ?? [])
+      .flatMap((bucket) => bucket?.hits?.hits?.hits)
+      .filter((hit): hit is SearchHit<SearchDocument> => (hit?._score ?? 0) > 0);
+    const sortedHits = sortBy(allHits ?? [], ((hit) => hit._score));
     result.hits.hits = sortedHits;
     result.hits.max_score = sortedHits[0]?._score ?? null;
     delete result.aggregations;

@@ -32,7 +32,8 @@ class ElasticMultiQuery {
   private getSearchFieldFromConfig(config: IndexConfig): string {
     const field = config.fields[0];
     const caretIndex = field.indexOf("^");
-    return caretIndex >= 0 ? field.substring(0, caretIndex) : field;
+    const fieldName = caretIndex >= 0 ? field.substring(0, caretIndex) : field;
+    return `${fieldName}.exact`;
   }
 
   compile(): SearchRequestInfo | SearchRequestBody {
@@ -56,7 +57,7 @@ class ElasticMultiQuery {
               bool: {
                 should: {
                   match_phrase_prefix: {
-                    [`${this.getSearchFieldFromConfig(this.configs[i])}.exact`]: search,
+                    [this.getSearchFieldFromConfig(this.configs[i])]: search,
                   },
                 },
                 filter: [
