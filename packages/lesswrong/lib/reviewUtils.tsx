@@ -6,7 +6,7 @@ import { annualReviewEnd, annualReviewNominationPhaseEnd, annualReviewReviewPhas
 import { TupleSet, UnionOf } from './utils/typeGuardUtils';
 import { memoizeWithExpiration } from './utils/memoizeWithExpiration';
 
-export const reviewYears = [2018, 2019, 2020, 2021, 2022] as const
+export const reviewYears = [2018, 2019, 2020, 2021, 2022, 2023] as const
 const years = new TupleSet(reviewYears);
 export type ReviewYear = UnionOf<typeof years>;
 
@@ -19,7 +19,7 @@ export function getReviewYearFromString(yearParam: string): ReviewYear {
 }
 
 /** Review year is the year under review, not the year in which the review takes place. */
-export const REVIEW_YEAR: ReviewYear = 2022
+export const REVIEW_YEAR: ReviewYear = 2023
 
 // Deprecated in favor of getReviewTitle and getReviewShortTitle 
 export const REVIEW_NAME_TITLE = isEAForum ? 'Effective Altruism: The First Decade' : `The ${REVIEW_YEAR} Review`
@@ -49,6 +49,7 @@ export function getReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
 }
 
 function recomputeReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
+  return "NOMINATIONS"
   if (reviewYear && reviewYear !== REVIEW_YEAR) {
     return "COMPLETE"
   }
@@ -103,7 +104,7 @@ export function reviewIsActive(): boolean {
 
 export function eligibleToNominate (currentUser: UsersCurrent|DbUser|null) {
   if (!currentUser) return false;
-  if (isLWorAF && new Date(currentUser.createdAt) > new Date(`${REVIEW_YEAR}-01-01`)) return false
+  // if (isLWorAF && new Date(currentUser.createdAt) > new Date(`${REVIEW_YEAR}-01-01`)) return false
   if (isEAForum && new Date(currentUser.createdAt) > new Date(annualReviewStart.get())) return false
   return true
 }
