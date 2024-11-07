@@ -1,4 +1,4 @@
-import { isServer, getServerPort } from './executionEnvironment';
+import { isServer } from './executionEnvironment';
 import qs from 'qs';
 import React, { useCallback, useContext } from 'react';
 import { LocationContext, ServerRequestStatusContext, SubscribeLocationContext, ServerRequestStatusContextType, NavigationContext } from './vulcan-core/appContext';
@@ -8,6 +8,7 @@ import { ForumOptions, forumSelect } from './forumTypeUtils';
 import type { LocationDescriptor } from 'history';
 import {siteUrlSetting} from './instanceSettings'
 import { getUrlClass } from '@/server/utils/getUrlClass';
+import { getCommandLineArguments } from '@/server/commandLine';
 
 // React Hook which returns the page location (parsed URL and route).
 // Return value contains:
@@ -119,7 +120,7 @@ const LwAfDomainWhitelist: DomainList = {
     "lessestwrong.com",
     "alignmentforum.org",
     "alignment-forum.com",
-    `localhost:${getServerPort()}`,
+    `localhost:${getCommandLineArguments().port}`,
   ],
   mirrorDomains: [
     "greaterwrong.com",
@@ -134,14 +135,14 @@ const forumDomainWhitelist: ForumOptions<DomainList> = {
     onsiteDomains: [
       'forum.effectivealtruism.org',
       'forum-staging.effectivealtruism.org',
-      `localhost:${getServerPort()}`,
+      `localhost:${getCommandLineArguments().port}`,
     ],
     mirrorDomains: ['ea.greaterwrong.com'],
   },
   default: {
     onsiteDomains: [
       new URLClass(siteUrlSetting.get()).host,
-      `localhost:${getServerPort()}`,
+      `localhost:${getCommandLineArguments().port}`,
     ],
     mirrorDomains: [],
   }

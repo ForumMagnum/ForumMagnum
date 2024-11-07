@@ -28,7 +28,7 @@ async function isServerReady(serverPort: number) {
   }
 }
 
-async function waitForServerReady(serverPort: number) {
+export async function waitForServerReady(serverPort: number) {
   while (!(await isServerReady(serverPort))) {
     await asyncSleep(100);
   }

@@ -1,7 +1,7 @@
 import { ApolloServer } from 'apollo-server-express';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 
-import { isDevelopment, getServerPort, isProduction, isE2E } from '../lib/executionEnvironment';
+import { isDevelopment, isProduction, isE2E } from '../lib/executionEnvironment';
 import { renderWithCache, getThemeOptionsFromReq } from './vulcan-lib/apollo-ssr/renderPage';
 
 import { pickerMiddleware, addStaticRoute } from './vulcan-lib/staticRoutes';
@@ -64,6 +64,7 @@ import { getSqlClientOrThrow } from './sql/sqlClient';
 import { addLlmChatEndpoint } from './resolvers/anthropicResolvers';
 import { getInstanceSettings } from '@/lib/getInstanceSettings';
 import { addGivingSeasonEndpoints } from './givingSeason/webhook';
+import { getCommandLineArguments } from './commandLine';
 
 /**
  * End-to-end tests automate interactions with the page. If we try to, for
@@ -512,7 +513,7 @@ export function startWebserver() {
   })
 
   // Start Server
-  const port = getServerPort();
+  const port = getCommandLineArguments().port;
   const env = process.env.NODE_ENV || 'production'
   const server = app.listen({ port }, () => {
     // eslint-disable-next-line no-console

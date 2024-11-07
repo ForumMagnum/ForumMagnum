@@ -1,7 +1,7 @@
 import * as esbuild from 'esbuild';
 import process from 'process';
 import { getDatabaseConfig, startSshTunnel, getOutputDir, setOutputDir, logWithTimestamp } from "./scripts/startup/buildUtil";
-import { setClientRebuildInProgress, setServerRebuildInProgress, generateBuildId, startAutoRefreshServer, initiateRefresh, lintAndCheckTypes } from "./scripts/startup/autoRefreshServer";
+import { setClientRebuildInProgress, setServerRebuildInProgress, generateBuildId, startAutoRefreshServer, initiateRefresh, lintAndCheckTypes, waitForServerReady } from "./scripts/startup/autoRefreshServer";
 import { spawn, ChildProcess } from 'child_process';
 import { createServer as createViteServer, type ViteDevServer} from "vite";
 import viteReact from "@vitejs/plugin-react";
@@ -18,6 +18,7 @@ process.on("SIGQUIT", () => process.exit(0));
 
 export type CommandLineOptions = {
   action: "build"|"watch"|"command"
+  port: number|null
   production: boolean
   e2e: boolean
   settings: string|null
@@ -31,6 +32,7 @@ export type CommandLineOptions = {
 }
 const defaultCommandLineOptions: CommandLineOptions = {
   action: "build",
+  port: null,
   production: false,
   e2e: false,
   settings: null,
@@ -92,6 +94,10 @@ function parseCommandLine(argv: string[]): [CommandLineOptions,string[]] {
           break;
         case "vite":
           result.vite = true;
+          break;
+        case "port":
+          result.port = parseInt(argv[++i]);
+          break;
         // Ignored arguments for Estrella back-compat
         case "quiet":
         case "silent":
@@ -124,27 +130,25 @@ const [opts, args] = parseCommandLine(process.argv /*, [
   ["lint", "Run the linter on site refresh"],
 ]*/)
 
-
 const defaultServerPort = 3000;
-const defaultVitePort = 3010;
 
-const getServerPort = () => {
-  if (opts.command) {
+function getServerPort (opts: CommandLineOptions) {
+  if (opts.port) {
+    return opts.port;
+  } else if (opts.command) {
     return 5001;
   }
-  const port = parseInt(process.env.PORT ?? "");
-  return Number.isNaN(port) ? defaultServerPort : port;
+  const envPort = parseInt(process.env.PORT ?? "");
+  if (!Number.isNaN(envPort)) return envPort;
+  return defaultServerPort;
 }
 
 let latestCompletedBuildId: string|null = generateBuildId();
 let inProgressBuildId: string|null = null;
-const serverPort = getServerPort();
+const serverPort = getServerPort(opts);
 const websocketPort = serverPort + 1;
 
 setOutputDir(`./build${serverPort === defaultServerPort ? "" : serverPort}`);
-
-// Two things this script should do, that it currently doesn't:
-//  * Provide a websocket server for signaling autorefresh
 
 const isProduction = !!opts.production;
 const isE2E = !!opts.e2e;
@@ -187,7 +191,6 @@ const bundleDefinitions: Record<string,string> = {
   "bundleIsMigrations": "false",
   "defaultSiteAbsoluteUrl": `\"${process.env.ROOT_URL || ""}\"`,
   "buildId": `"${latestCompletedBuildId}"`,
-  "serverPort": `${getServerPort()}`,
   "ddEnv": `\"${process.env.DD_ENV || "local"}\"`,
   "enableVite": `${opts.vite}`,
 };
@@ -202,13 +205,32 @@ const serverBundleDefinitions: Record<string,string> = {
   "buildProcessPid": `${process.pid}`,
 }
 
+/**
+ * Managing a running server, and the restarting thereof. Takes a command
+ * line invocation for starting the server, and a port number or list of
+ * port numbers. If more than one port number is provided, will m
+ */
+type ServerSlotType = {
+  port: number
+  startedAt: Date|null
+  status: "empty"|"starting"|"ready"|"exiting"
+  process: ChildProcess|null
+  pid: number|null
+};
 class RunningServer {
   private argv: string[];
-  private pid: number | null = null;
-  private process: ChildProcess | null = null;
+  
+  private serverSlots: Array<ServerSlotType>
 
-  constructor(argv: string[]) {
+  constructor(argv: string[], portOrPorts: number[]) {
     this.argv = argv;
+    this.serverSlots = portOrPorts.map(port => ({
+      port,
+      startedAt: null,
+      status: "empty",
+      process: null,
+      pid: null,
+    }));
   }
 
   /**
@@ -216,47 +238,96 @@ class RunningServer {
    * server.
    */
   async startOrRestart(): Promise<void> {
-    if (this.process) {
-      await this.killProcess();
+    const slotToStartIn = this.selectSlotForServer();
+    if (this.serverSlots[slotToStartIn].pid) {
+      await this.killProcessInSlot(slotToStartIn);
     }
-    this.startProcess();
+    this.startProcessInSlot(slotToStartIn);
+  }
+  
+  private selectSlotForServer(): number {
+    for (let targetStatus of ["empty", "exiting", "ready", "starting"]) {
+      for (let i=0; i<this.serverSlots.length; i++) {
+        const slot = this.serverSlots[i];
+        if (slot.status === targetStatus) return i;
+      }
+    }
+    return 0;
   }
 
-  private startProcess(): void {
+  private startProcessInSlot(slotIndex: number): void {
     const [command, ...args] = this.argv;
-    this.process = spawn(command, args, {
+    const port = this.serverSlots[slotIndex].port;
+
+    console.log(`Starting server on port ${port}`);
+    const process = spawn(command, [...args, "--port", port+""], {
       stdio: 'inherit',
       detached: false,
     });
+    const slot: ServerSlotType = {
+      port,
+      startedAt: new Date(),
+      status: "starting",
+      process,
+      pid: process.pid!,
+    };
+    this.serverSlots[slotIndex] = slot;
   
-    this.pid = this.process.pid ?? null;
-  
-    this.process.on('error', (err) => {
+    process.on('error', (err) => {
       console.error('Failed to start subprocess.', err);
     });
   
-    this.process.on('exit', (code, signal) => {
+    process.on('exit', (code, signal) => {
       logWithTimestamp(`Webserver process exited`);
-      this.process = null;
-      this.pid = null;
+      slot.status = "empty";
+      slot.process = null;
+      slot.pid = null;
+    });
+    
+    waitForServerReady(port).then(() => {
+      if (slot.status === "starting") {
+        slot.status = "ready";
+        this.killServersOtherThan(slotIndex);
+      }
     });
   }
+  
+  private killServersOtherThan(slotIndex: number) {
+    for (let i=0; i<this.serverSlots.length; i++) {
+      if (slotIndex === i) continue;
+      this.killProcessInSlot(i);
+    }
+  }
 
-  private killProcess(): Promise<void> {
+  private killProcessInSlot(slotIndex: number): Promise<void> {
     return new Promise<void>((resolve) => {
-      if (!this.process) {
+      const slot = this.serverSlots[slotIndex];
+      const process = slot.process;
+      slot.status = "exiting";
+      if (!process) {
         resolve();
         return;
       }
+      console.log(`Killing old server on port ${slot.port}`);
   
-      this.process.once('exit', () => {
-        this.process = null;
-        this.pid = null;
+      process.once('exit', () => {
+        slot.status = "empty";
+        slot.process = null;
+        slot.pid = null;
         resolve();
       });
   
-      this.process.kill('SIGTERM');
+      process.kill('SIGTERM');
     });
+  }
+  
+  getPort(): number|null {
+    for (const serverSlot of this.serverSlots) {
+      if (serverSlot.status === "ready") {
+        return serverSlot.port;
+      }
+    }
+    return null;
   }
 }
 
@@ -293,7 +364,7 @@ async function main() {
             console.log("Skipping browser refresh notification because there were build errors");
           } else {
             latestCompletedBuildId = inProgressBuildId;
-            if (opts.action === "watch") {
+            if (opts.action === "watch" && !opts.vite) {
               initiateRefresh({serverPort});
             }
       
@@ -327,7 +398,9 @@ async function main() {
     ...(opts.shell ? ["--shell"] : []),
     ...(opts.command ? ["--command", opts.command] : []),
   ]
-  const serverProcess = new RunningServer(serverCli);
+  const serverProcess = opts.vite
+    ? new RunningServer(serverCli, [serverPort+2, serverPort+4])
+    : new RunningServer(serverCli, [serverPort]);
   
   const serverContext = await esbuild.context({
     entryPoints: ['./packages/lesswrong/server/runServer.ts'],
@@ -353,7 +426,9 @@ async function main() {
           setServerRebuildInProgress(false);
           if (opts.action === "watch") {
             serverProcess.startOrRestart();
-            initiateRefresh({serverPort});
+            if (!opts.vite) {
+              initiateRefresh({serverPort});
+            }
           }
         });
       },
@@ -381,9 +456,9 @@ async function main() {
   }
   
   if (opts.vite) {
-    //serverContext.watch();
-    serverContext.rebuild();
-    await createViteProxyServer();
+    serverContext.watch();
+    //serverContext.rebuild();
+    await createViteProxyServer(serverProcess);
   } else if (opts.action === "watch") {
     serverContext.watch();
     clientContext.watch();
@@ -396,13 +471,12 @@ async function main() {
   }
 }
 
-async function createViteProxyServer() {
+async function createViteProxyServer(backend: RunningServer) {
   console.log("Starting vite server");
   
   const app = express();
   const viteServer = await createViteServer({
     server: {
-      //port: defaultVitePort,
       middlewareMode: true
     },
     appType: "custom",
@@ -432,12 +506,15 @@ async function createViteProxyServer() {
   app.use(bodyParser.raw({ type: '*/*', limit: '50mb' }));
   app.use(viteServer.middlewares);
   app.use('*', async (req, res) => {
-    const originalUrl = new URL(req.originalUrl, "http://localhost:3000");
-    const proxyTarget = "localhost";
-    const proxyPort = defaultServerPort
-    const newUrl = new URL(originalUrl.pathname + originalUrl.search, `http://${proxyTarget}:${proxyPort}`);
-  
     try {
+      const originalUrl = new URL(req.originalUrl, "http://localhost:3000");
+      const proxyTarget = "localhost";
+      const proxyPort = backend.getPort();
+      if (!proxyPort) {
+        throw new Error("Backend server not ready yet");
+      }
+      const newUrl = new URL(originalUrl.pathname + originalUrl.search, `http://${proxyTarget}:${proxyPort}`);
+  
       // Forward the request
       const response = await fetch(newUrl.toString(), {
         method: req.method,
@@ -465,12 +542,13 @@ async function createViteProxyServer() {
         res.send(responseText);
       }
     } catch(e) {
-      console.log(`Failed forwarding request for ${newUrl}`);
+      console.log(`Failed forwarding request for ${req.originalUrl}`);
       res.status(500);
       res.end(`${e.message}`);
     }
   });
-  app.listen(defaultVitePort);
+  console.log(`Vite listening on port ${serverPort}`);
+  app.listen(serverPort);
 }
 
 async function getViteProxiedSsrPageSuffix(viteServer: ViteDevServer, url: string): Promise<string> {

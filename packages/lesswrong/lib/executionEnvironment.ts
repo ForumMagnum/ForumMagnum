@@ -7,7 +7,6 @@ declare global {
   let bundleIsProduction: boolean;
   let bundleIsMigrations: boolean;
   let defaultSiteAbsoluteUrl: string;
-  let serverPort: number;
   let buildProcessPid: number;
   let ddEnv: string;
   let enableVite: boolean;
@@ -22,21 +21,9 @@ export const isAnyTest = bundleIsTest
 export const isE2E = bundleIsE2E
 export const isPackageTest = bundleIsTest
 
-
-export const getAbsoluteUrl = (): string => {
-  if (defaultSiteAbsoluteUrl?.length>0) {
-    return defaultSiteAbsoluteUrl;
-  } else {
-    return `http://localhost:${getServerPort()}/`
-  }
-}
-
 export const addGlobalForShell = (name: string, value: any) => {
   // TODO
 }
-
-export const getServerPort = () => serverPort;
-export const getWebsocketPort = () => serverPort + 1;
 
 // Polyfill
 import 'setimmediate';

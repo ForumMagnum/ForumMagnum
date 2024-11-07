@@ -8,6 +8,7 @@ export interface CommandLineArguments {
   settingsFileName: string
   shellMode: boolean,
   command?: string,
+  port: number
 }
 
 
@@ -17,6 +18,7 @@ const parseCommandLine = (argv: Array<string>): CommandLineArguments => {
     postgresReadUrl: process.env.PG_READ_URL || "",
     settingsFileName: "settings.json",
     shellMode: false,
+    port: 3000,
   }
   
   // Don't parse command-line arguments during unit testing (because jest passes
@@ -36,6 +38,9 @@ const parseCommandLine = (argv: Array<string>): CommandLineArguments => {
       case "--command":
         commandLine.command = argv[++i];
         break;
+      case "--port":
+        commandLine.port = parseInt(argv[++i]);
+        break;
       default:
         if (!isMigrations) {
           throw new Error(`Unrecognized command line argument: ${arg}`);
@@ -46,8 +51,12 @@ const parseCommandLine = (argv: Array<string>): CommandLineArguments => {
   return commandLine;
 }
 
+let parsedCommandLine: CommandLineArguments|null = null;
 export const getCommandLineArguments = () => {
-  return parseCommandLine(process.argv);
+  if (!parsedCommandLine) {
+    parsedCommandLine = parseCommandLine(process.argv);
+  }
+  return parsedCommandLine;
 }
 
 export const getInstanceSettingsFilePath = () => {
