@@ -1,103 +1,126 @@
-import {SearchIndexCollectionName, getSearchIndexName, getSearchClient} from '../search/searchUtil'
+import {getSearchClient, getSearchIndexName, SearchIndexCollectionName} from '../search/searchUtil'
 import {Components, getSiteUrl} from '../vulcan-lib'
 import React from 'react'
-import ReactDOM from 'react-dom'
+import {createRoot} from 'react-dom/client'
 import {userGetDisplayName} from '../collections/users/helpers'
 import {userMentionQueryString} from '../pingback'
-import type { Response } from 'algoliasearch'
-
-interface PostSearchHit {
-  title: string,
-  slug: string,
-  _id: string
-}
-
-interface UserSearchHit {
-  displayName: string
-  fullName?: string
-  slug: string
-  _id: string
-  username: string
-  groups?: string[]
-  karma?: number
-  createdAt: string
-}
+import type {Response} from 'algoliasearch'
+import {taggingNamePluralSetting} from '@/lib/instanceSettings'
 
 const markers = {
-  post: '#',
+  post: '@',
   user: '@',
+  tag: '@',
 }
 
 const linkPrefix = getSiteUrl()
 
 function initSearchForIndex<T>(collectionName: SearchIndexCollectionName) {
-  const indexName = getSearchIndexName(collectionName);
-  const searchClient = getSearchClient();
-  return async (
-    query: string,
-    attributesToRetrieve: string[],
-  ): Promise<Response<T> | null> => {
+  const indexName = getSearchIndexName(collectionName)
+  const searchClient = getSearchClient()
+
+  return async (query: string): Promise<Response<T> | null> => {
     const response = await searchClient.search<T>([{
       indexName,
       query,
       params: {
         query,
-        attributesToRetrieve,
-        hitsPerPage: 20,
+        hitsPerPage: 6,
       },
-    }]);
-    return response?.results?.[0];
-  };
+    }])
+    return response?.results?.[0]
+  }
 }
 
 async function fetchPostSuggestions(searchString: string) {
-  const search = initSearchForIndex<PostSearchHit>('Posts')
-  const searchResults = await search(searchString, ['title', 'slug', '_id']);
+  const search = initSearchForIndex<SearchPost>('Posts')
+  const searchResults = await search(searchString)
 
   return searchResults?.hits.map(hit => ({
+    type: 'Posts',
     id: markers.post + hit.title, //what gets displayed in the dropdown results, must have postMarker 
     link: `${linkPrefix}posts/${hit._id}/${hit.slug}`,
     text: hit.title,
-  }))
+    hit,
+  })) || []
 }
 
 async function fetchUserSuggestions(searchString: string) {
-  const search = initSearchForIndex<UserSearchHit>('Users')
-  const searchResults = await search(searchString, ['displayName', 'slug', '_id', 'username', 'groups', 'karma', 'createdAt', 'fullName']);
+  const search = initSearchForIndex<SearchUser>('Users')
+  const searchResults = await search(searchString)
 
   return searchResults?.hits.map(hit => {
     const displayName = markers.user + userGetDisplayName(hit)
     return ({
+      type: 'Users',
       id: displayName,
       // Query string is intended for later use in detecting the ping
       link: `${linkPrefix}users/${hit.slug}?${userMentionQueryString}`,
       text: displayName,
-      karma: hit.karma,
-      createdAt: new Date(hit.createdAt),
+      hit: {
+        ...hit,
+        displayName: '👤 ' + userGetDisplayName(hit),
+      },
     })
-  })
+  }) || []
 }
 
-const renderUserItem = (item: { text: string, karma?: number, createdAt: Date }) => {
-  const itemElement = document.createElement('button')
+async function fetchTagSuggestions(searchString: string) {
+  const search = initSearchForIndex<SearchTag>('Tags')
+  const searchResults = await search(searchString)
 
-  ReactDOM.render(<Components.UsersSearchAutocompleteHit {...item} name={item.text}/>, itemElement)
+  return searchResults?.hits.map(hit => ({
+    type: 'Tags',
+    id: markers.tag + hit.name,
+    link: `${linkPrefix}${taggingNamePluralSetting.get()}/${hit.slug}`,
+    text: hit.name,
+    hit,
+  })) || []
+}
+
+const fetchMentionableSuggestions = async (searchString: string) => [
+  ...(await fetchUserSuggestions(searchString)),
+  ...(await fetchTagSuggestions(searchString)),
+  ...(await fetchPostSuggestions(searchString)),
+]
+
+interface MentionItem {
+  type: 'Users' | 'Posts' | 'Tags'
+  id: string
+  text: string
+  link: string
+  hit: SearchUser | SearchPost | SearchTag
+}
+
+const renderUserItem = (item: MentionItem) => {
+  const itemElement = document.createElement('button')
+  itemElement.classList.add('ck-mention-item', 'ck-reset_all-excluded')
+  const root = createRoot(itemElement)
+
+  root.render(<Components.UsersSearchAutocompleteHit hit={item.hit as SearchUser}/>)
 
   return itemElement
+}
+
+const renderMentionItem = (
+  item: MentionItem,
+) => {
+  const renderer = {
+    Users: renderUserItem,
+    Posts: (item: MentionItem) => '📃 ' + item.text,
+    Tags: (item: MentionItem) => '🏷️ ' + item.text,
+  }[item.type]
+
+  return renderer(item)
 }
 
 export const mentionPluginConfiguration = {
   feeds: [
     {
-      marker: markers.post,
-      feed: fetchPostSuggestions,
+      marker: '@',
+      feed: fetchMentionableSuggestions,
       minimumCharacters: 1,
-    },
-    {
-      marker: markers.user,
-      feed: fetchUserSuggestions,
-      minimumCharacters: 1,
-      itemRenderer: renderUserItem,
+      itemRenderer: renderMentionItem,
     },
   ],
 }
