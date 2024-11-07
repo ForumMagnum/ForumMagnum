@@ -7,6 +7,7 @@ import {
   elasticUsernameSetting,
   isElasticEnabled,
 } from "./elasticSettings";
+import ElasticMultiQuery, { MultiQueryData } from "./ElasticMultiQuery";
 
 export type ElasticDocument = Exclude<SearchDocument, "_id">;
 export type ElasticSearchHit = SearchHit<ElasticDocument>;
@@ -61,6 +62,16 @@ class ElasticClient {
     if (DEBUG_LOG_ELASTIC_QUERIES) {
       // eslint-disable-next-line no-console
       console.log("Elastic query:", JSON.stringify(request, null, 2));
+    }
+    return this.client.search(request);
+  }
+
+  multiSearch(queryData: MultiQueryData): Promise<ElasticSearchResponse> {
+    const query = new ElasticMultiQuery(queryData);
+    const request = query.compile();
+    if (DEBUG_LOG_ELASTIC_QUERIES) {
+      // eslint-disable-next-line no-console
+      console.log("Elastic multi query:", JSON.stringify(request, null, 2));
     }
     return this.client.search(request);
   }
