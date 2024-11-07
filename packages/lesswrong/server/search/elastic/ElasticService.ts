@@ -238,8 +238,8 @@ class ElasticService {
 
   private sanitizeIndexName(indexName: string): SanitizedIndexName {
     const prefix = algoliaPrefixSetting.get();
-    if (prefix && indexName.indexOf(prefix) === 0) {
-      indexName = indexName.slice(prefix.length)
+    if (prefix) {
+      indexName = indexName.replace(new RegExp(prefix, "g"), "");
     }
     const tokens = indexName.split("_");
     const indexNames = tokens[0].split(",");

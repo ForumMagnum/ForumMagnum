@@ -1,4 +1,4 @@
-import { getSearchClient } from '../search/searchUtil'
+import { getSearchClient, getSearchIndexName } from '../search/searchUtil'
 import {Components, getSiteUrl} from '../vulcan-lib'
 import React from 'react'
 import {createRoot} from 'react-dom/client'
@@ -52,10 +52,13 @@ const formatSearchHit = (hit: SearchUser | SearchPost | SearchTag) => {
   }
 }
 
+const collectionNames = ["Posts", "Users", "Tags"] as const;
+
 const fetchMentionableSuggestions = async (searchString: string) => {
+  const indexName = collectionNames.map(getSearchIndexName).join(",");
   const searchClient = getSearchClient();
   const response = await searchClient.search<SearchUser | SearchPost | SearchTag>([{
-    indexName: "posts,users,tags",
+    indexName,
     query: searchString,
     params: {
       query: searchString,
@@ -67,7 +70,7 @@ const fetchMentionableSuggestions = async (searchString: string) => {
 }
 
 interface MentionItem {
-  type: 'Users' | 'Posts' | 'Tags'
+  type: typeof collectionNames[number]
   id: string
   text: string
   link: string
