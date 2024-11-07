@@ -312,6 +312,9 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.text.alwaysWhite,
     background: theme.palette.grey[600],
   },
+  feedDetailsWrapper: {
+    minWidth: 0,
+  },
   feedDetails: {
     display: "flex",
     flexDirection: "column",
@@ -372,7 +375,7 @@ const FeedItem = ({href, icon, iconClassName, user, post, date, preview, classes
       <div className={classNames(classes.feedIcon, iconClassName)}>
         <ForumIcon icon={icon} />
       </div>
-      <div>
+      <div className={classes.feedDetailsWrapper}>
         <div>
           <FormatDate
             date={date}

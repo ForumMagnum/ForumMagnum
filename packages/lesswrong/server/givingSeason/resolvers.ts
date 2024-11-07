@@ -64,4 +64,3 @@ defineFeedResolver<Date>({
     });
   }
 });
-
