@@ -43,9 +43,10 @@ class ElasticMultiQuery {
       limit = 10,
     } = this.queryData;
     return {
+      search_type: "dfs_query_then_fetch",
       index: indexes,
       from: offset,
-      size: limit,
+      size: 0,
       body: {
         track_scores: true,
         track_total_hits: true,
@@ -55,7 +56,7 @@ class ElasticMultiQuery {
               bool: {
                 should: {
                   match_phrase_prefix: {
-                    [this.getSearchFieldFromConfig(this.configs[i])]: search,
+                    [`${this.getSearchFieldFromConfig(this.configs[i])}.exact`]: search,
                   },
                 },
                 filter: [
@@ -70,6 +71,21 @@ class ElasticMultiQuery {
                 ],
               },
             })),
+          },
+        },
+        aggs: {
+          indexes: {
+            terms: {
+              field: "_index",
+              size: 50,
+            },
+            aggs: {
+              hits: {
+                top_hits: {
+                  "size": limit,
+                },
+              },
+            },
           },
         },
         _source: {

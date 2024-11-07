@@ -8,6 +8,7 @@ import {
   isElasticEnabled,
 } from "./elasticSettings";
 import ElasticMultiQuery, { MultiQueryData } from "./ElasticMultiQuery";
+import sortBy from "lodash/sortBy";
 
 export type ElasticDocument = Exclude<SearchDocument, "_id">;
 export type ElasticSearchHit = SearchHit<ElasticDocument>;
@@ -66,14 +67,23 @@ class ElasticClient {
     return this.client.search(request);
   }
 
-  multiSearch(queryData: MultiQueryData): Promise<ElasticSearchResponse> {
+  async multiSearch(queryData: MultiQueryData): Promise<ElasticSearchResponse> {
     const query = new ElasticMultiQuery(queryData);
     const request = query.compile();
     if (DEBUG_LOG_ELASTIC_QUERIES) {
       // eslint-disable-next-line no-console
       console.log("Elastic multi query:", JSON.stringify(request, null, 2));
     }
-    return this.client.search(request);
+    const result: ElasticSearchResponse = await this.client.search(request);
+    const buckets = (result.aggregations?.indexes as AnyBecauseHard)?.buckets ?? {};
+    const allHits = buckets
+      .flatMap((bucket: any) => bucket?.hits?.hits?.hits)
+      .filter((hit: any) => (hit?._score ?? 0) > 0);
+    const sortedHits = sortBy(allHits, ((hit: any) => hit._score));
+    result.hits.hits = sortedHits;
+    result.hits.max_score = sortedHits[0]?._score ?? null;
+    delete result.aggregations;
+    return result;
   }
 }
 

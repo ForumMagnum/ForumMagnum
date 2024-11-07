@@ -59,7 +59,7 @@ const fetchMentionableSuggestions = async (searchString: string) => {
     query: searchString,
     params: {
       query: searchString,
-      hitsPerPage: 6,
+      hitsPerPage: 7,
     },
   }])
   const hits = response?.results?.[0]?.hits;
