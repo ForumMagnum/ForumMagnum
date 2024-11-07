@@ -3,7 +3,36 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
 import { commentBodyStyles } from '@/themes/stylePiping';
+import { ToCData } from '@/lib/tableOfContents';
 
+export const THINK_FORM_WIDTH = 640;
+
+export const thinkTypography = (theme: ThemeType) => ({
+  '& p, & li, & td, & th, & blockquote, & pre': {
+    ...commentBodyStyles(theme),
+    fontSize: "1.2rem",
+    lineHeight: "1.6",
+    color: theme.palette.grey[800],
+  },
+  '& b, & strong': {
+    color: theme.palette.text.maxIntensity,
+  },
+  '& h1': {
+    fontSize: "2.4rem",
+    ...theme.typography.headerStyle
+  },
+  '& h2': {
+    fontSize: "2rem",
+    ...theme.typography.headerStyle
+  },
+  '& h3': {
+    fontSize: "1.65rem",
+    ...theme.typography.headerStyle
+  },
+  '& li': {
+    fontSize: "1.2rem"
+  }
+})
 
 export const postFormSectionStyles = (theme: ThemeType) => ({
   '& .FormGroupHeader-formSectionHeading': {
@@ -46,32 +75,9 @@ export const postFormSectionStyles = (theme: ThemeType) => ({
     },
   },
   '& .form-component-EditorFormComponent': {
-    width: 715,
+    width: THINK_FORM_WIDTH,
     ...commentBodyStyles(theme),
-    '& p, & li, & td, & th, & blockquote, & pre': {
-      fontSize: "1.2rem",
-      lineHeight: "1.6",
-      ...commentBodyStyles(theme),
-      color: theme.palette.grey[800],
-    },
-    '& b, & strong': {
-      color: theme.palette.text.maxIntensity,
-    },
-    '& h1': {
-      fontSize: "2.4rem",
-      ...theme.typography.headerStyle
-    },
-    '& h2': {
-      fontSize: "2rem",
-      ...theme.typography.headerStyle
-    },
-    '& h3': {
-      fontSize: "1.65rem",
-      ...theme.typography.headerStyle
-    },
-    '& li': {
-      fontSize: "1.2rem"
-    }
+    ...thinkTypography(theme),
   },
   '& .FormGroupLayout-formSectionBody': {
     width: 715,
@@ -82,6 +88,10 @@ export const postFormSectionStyles = (theme: ThemeType) => ({
   },
   '& .PostSubmit-feedback': {
     display: 'none',
+  },
+  '& .EditorFormComponent-root': {
+    marginLeft: -16,
+    marginTop: -8
   },
   '& .EditorFormComponent-postEditorHeight': {
     height: 350
@@ -115,7 +125,7 @@ const styles = (theme: ThemeType) => ({
   root: {
   },
   formContainer: {
-    maxWidth: 715,
+    maxWidth: THINK_FORM_WIDTH,
     width: '100%',
     ...postFormSectionStyles(theme),
     marginLeft: "auto",
@@ -123,19 +133,27 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const ThinkWrapper = ({classes, children, document}: {
+export const ThinkWrapper = ({classes, children, document, sectionData, rightColumn}: {
   classes: ClassesType<typeof styles>,
   children: React.ReactNode,
-  document?: SequencesPageWithChaptersFragment | PostsPage
+  document?: SequencesPageWithChaptersFragment | PostsPage,
+  sectionData?: ToCData | null,
+  rightColumn?: React.ReactNode
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
 
-  const { ThinkSideColumn } = Components;
+  const { ThinkSideColumn, MultiToCLayout } = Components;
   return <div className={classes.root}>
-    <ThinkSideColumn document={document} />
-    <div className={classes.formContainer}>
-      {children}
-    </div>
+    <MultiToCLayout
+        segments={[
+          {
+            toc: <ThinkSideColumn document={document} sectionData={sectionData} />,
+            centralColumn: children,
+            rightColumn: rightColumn
+          }
+        ]}
+        tocRowMap={[0, 0, 2]}
+      />
   </div>;
 }
 

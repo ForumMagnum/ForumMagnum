@@ -9,6 +9,7 @@ import { CENTRAL_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
 import classNames from 'classnames';
 import { usePostReadProgress } from '../posts/usePostReadProgress';
 import { useRecordPostView } from '../hooks/useRecordPostView';
+import { useDynamicTableOfContents } from '../hooks/useDynamicTableOfContents';
 
 const styles = (theme: ThemeType) => ({
   title: {
@@ -33,53 +34,37 @@ const styles = (theme: ThemeType) => ({
     '&:hover': {
       color: theme.palette.grey[700],
     }
+  },
+  formContainer: {
+    maxWidth: 715,
+    width: '100%',
+    ...postFormSectionStyles(theme),
+    marginLeft: "auto",
+    marginRight: "auto",
   }
 });
 
-export const ThinkPost = ({classes}: {
+export const ThinkPost = ({classes, post}: {
   classes: ClassesType<typeof styles>,
+  post: PostsPage,
 }) => {
-  const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
   const { LWPostsPageHeader, ThinkWrapper, ContentStyles, ContentItemBody, Loading, LWPostsPageHeaderTopRight, PostsEditForm, SingleColumnSection, Error404 } = Components;
 
   const { params: {postId}, query: {edit, key} } = useLocation();
   const [isEditing, setIsEditing] = useState(edit === 'true');
 
-  const { document: post, loading } = useSingle({
-    documentId: postId,
-    collectionName: "Posts",
-    fragmentName: "PostsPage",
-    skip: !postId
-  });
-
-  const { recordPostView } = useRecordPostView(post as PostsListBase);
-
-  useEffect(() => {
-    // const recommId = query[RECOMBEE_RECOMM_ID_QUERY_PARAM];
-    // const attributionId = query[VERTEX_ATTRIBUTION_ID_QUERY_PARAM];
-    if (!post?._id) return;
-    void recordPostView({
-      post: post as PostsPage,
-      // extraEventProperties: {
-      //   sequenceId: getSequenceId()
-      // },
-      // recommendationOptions: {
-      //   recombeeOptions: { recommId },
-      //   vertexOptions: { attributionId }
-      // }
-    });
-    //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [post?._id]);
-
   const handleEditClick = () => {
     setIsEditing(!isEditing);
   }
 
-  if (!post && !loading) return <ThinkWrapper><Error404/></ThinkWrapper>;
-  if (!post && loading) return <ThinkWrapper><Loading/></ThinkWrapper>;
-
-  return <ThinkWrapper document={post}>
-    {loading && <Loading/>}
+  const sectionData = useDynamicTableOfContents({
+    html: (post as PostsPage)?.contents?.html ?? post?.contents?.htmlHighlight ?? "",
+    post,
+    answers: [],
+  });
+  const htmlWithAnchors = sectionData?.html || post?.contents?.html || "";
+  
+  return <ThinkWrapper document={post} sectionData={sectionData} rightColumn={<div>Right Column</div>}>
     {post && <LWPostsPageHeader post={post} dialogueResponses={[]} />} 
     {post && <div className={classes.topRight}>
       <LWPostsPageHeaderTopRight post={post}>
@@ -93,7 +78,7 @@ export const ThinkPost = ({classes}: {
     </div>}
     {post && !isEditing && <div className={classNames(isEditing && classes.hide, classes.postBody)}>
       <ContentStyles contentType={"post"}>
-        <ContentItemBody dangerouslySetInnerHTML={{__html: post.contents?.html ?? ""}} />
+        <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}} />
       </ContentStyles>
     </div>}
   </ThinkWrapper>

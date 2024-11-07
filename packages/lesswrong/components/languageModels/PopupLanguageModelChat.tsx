@@ -13,16 +13,19 @@ import classNames from 'classnames';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     background: "unset",
-    width: 450,
+    width: 425,
     height: "calc(100vh - 130px)",
     display: "flex",
     flexDirection: "column",
     justifyContent: "center",
     position: "fixed",
     right: theme.spacing.unit,
-    bottom: theme.spacing.unit,
+    top: '50vh',
+    transform: 'translateY(-50%)',
     zIndex: theme.zIndexes.languageModelChat,
-    boxShadow: "unset",
+    boxShadow: 'unset',
+    paddingLeft: 3,
+    paddingRight: 3,
     [theme.breakpoints.down('sm')]: {
       display: "none"
     }
@@ -79,6 +82,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   editor: {
     position: "relative",
+    boxShadow: `0px 0px 5px 0px ${theme.palette.grey[300]}`,
+    borderRadius: 6,
   },
 });
 

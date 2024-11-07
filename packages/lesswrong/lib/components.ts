@@ -1234,3 +1234,4 @@ importComponent("ThinkSequence", () => require('../components/thinkPage/ThinkSeq
 importComponent("ThinkSideSequence", () => require('../components/thinkPage/ThinkSideSequence'));
 importComponent("ThinkSidePost", () => require('../components/thinkPage/ThinkSidePost'));
 importComponent("ThinkLink", () => require('../components/thinkPage/ThinkLink'));
+importComponent("ThinkPostPage", () => require('../components/thinkPage/ThinkPostPage'));

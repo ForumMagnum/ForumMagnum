@@ -9,6 +9,7 @@ import { useLocation, useNavigate } from '@/lib/routeUtil';
 import { useMulti } from '@/lib/crud/withMulti';
 import { useCreate } from '@/lib/crud/withCreate';
 import { getThinkUrl } from './ThinkLink';
+import { ToCData } from '@/lib/tableOfContents';
 
 export type WebsiteData = {
   postId: string;
@@ -23,19 +24,14 @@ export type AllPostData = PostData | WebsiteData;
 
 const styles = (theme: ThemeType) => ({
   root: {
-    width: 360,
+    width: 370,
+    padding: 16,
     paddingRight: 100,
     position: 'absolute',
-    padding: 16,
     left: 0,
     top: 70,
     display: 'flex',
     flexDirection: 'column',
-    // opacity: 0,
-    '&:hover': {
-      transition: 'opacity .2s ease-in-out',
-      // opacity: 1,
-    },
     ...theme.typography.body2,
     '& h3': {
       marginTop: 10,
@@ -46,6 +42,15 @@ const styles = (theme: ThemeType) => ({
     },
     [theme.breakpoints.down('md')]: {
       display: 'none',
+    },
+  },
+  icon: {
+    cursor: 'pointer',
+    height: 20,
+    width: 20,
+    opacity: .5,
+    '&:hover': {
+      opacity: .7,
     },
   }
 });
@@ -82,9 +87,10 @@ const identifyDocument = (document?: PostsListWithVotes | SequencesPageWithChapt
   return 'Sequence'
 }
 
-export const ThinkSideColumn = ({classes, document}: {
+export const ThinkSideColumn = ({classes, document, sectionData}: {
   classes: ClassesType<typeof styles>,
-  document?: SequencesPageWithChaptersFragment | PostsPage
+  document?: SequencesPageWithChaptersFragment | PostsPage,
+  sectionData?: ToCData | null
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
 
@@ -165,17 +171,17 @@ export const ThinkSideColumn = ({classes, document}: {
 
   const handleNewSequenceClick = async () => {
     if (!currentUser) return;
-    const createResult = await createPost({
+    const createResult = await createSequence({
       data: {
-        title: "Untitled Post",
+        title: "Untitled Sequence",
         userId: currentUser._id,
         draft: true,
       }
     })
     if (!createResult) return;
-    if (createResult?.data?.createPost?.data) {
-      const post = createResult.data.createPost.data; 
-      void navigate(getThinkUrl(post))
+    if (createResult?.data?.createSequence?.data) {
+      const sequence = createResult.data.createSequence.data; 
+      void navigate(getThinkUrl(sequence))
     }
   }
 
@@ -183,15 +189,15 @@ export const ThinkSideColumn = ({classes, document}: {
 
   let documentSideComponent
   if (identifyDocument(document) === 'Post') {
-    documentSideComponent = <ThinkSidePost post={document as PostsPage} />
+    documentSideComponent = <ThinkSidePost post={document as PostsPage} sectionData={sectionData} />
   } else if (identifyDocument(document) === 'Sequence') {
     documentSideComponent = <ThinkSideSequence sequence={document as SequencesPageWithChaptersFragment} />
   }
 
   return <div className={classes.root}>
     <Row gap={8}>
-      <ForumIcon icon="Document" onClick={handleNewPostClick} />
-      <ForumIcon icon="Book" />
+      <ForumIcon icon="Document" className={classes.icon} onClick={handleNewPostClick} />
+      <ForumIcon icon="Book" className={classes.icon} onClick={handleNewSequenceClick} />
       <ThinkOmnibar setActive={setActive} />
       {createPostLoading && <Loading />}
     </Row>

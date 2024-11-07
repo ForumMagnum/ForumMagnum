@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import withErrorBoundary from '@/components/common/withErrorBoundary'
 import { isServer } from '../../../lib/executionEnvironment';
-import { useLocation } from '../../../lib/routeUtil';
+import { NavigateFunction, useLocation } from '../../../lib/routeUtil';
 import type { ToCSection, ToCSectionWithOffsetAndScale } from '../../../lib/tableOfContents';
 import qs from 'qs'
 import isEmpty from 'lodash/isEmpty';
@@ -49,7 +49,7 @@ function normalizeToCScale({containerPosition, sections}: {
   });
 };
 
-function getSectionsWithOffsets(postContents: HTMLElement, sections: ToCSection[]): ToCSectionWithOffsetAndScale[] {
+export function getSectionsWithOffsets(postContents: HTMLElement, sections: ToCSection[]): ToCSectionWithOffsetAndScale[] {
   // Filter out ToC entries which don't correspond to headings inside the post
   // body. This removes entries for the comment section, answers, and
   // dividers, which are included in the server-side ToC generation and are
@@ -206,6 +206,27 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
+export const jumpToAnchorGeneric = (anchor: string, navigate: NavigateFunction, query: Record<string, string>) => {
+  if (isServer) return;
+
+  const anchorY = getAnchorY(anchor);
+  if (anchorY !== null) {
+    delete query.commentId;
+    navigate({
+      search: isEmpty(query) ? '' : `?${qs.stringify(query)}`,
+      hash: `#${anchor}`,
+    });
+    let sectionYdocumentSpace = anchorY + window.scrollY;
+
+    // This is forum-gating of a fairly subtle change in scroll behaviour, LW may want to adopt scrollFocusOnElement
+    if (!isLWorAF) {
+      scrollFocusOnElement({ id: anchor, options: {behavior: "smooth"}})
+    } else {
+      jumpToY(sectionYdocumentSpace);
+    }
+  }
+}
+
 const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayOptions, classes, hover, absolutePosition=true}: {
   tocSections: ToCSection[],
   title: string|null,
@@ -235,26 +256,7 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
     useFirstViewportHeight: true
   });
 
-  const jumpToAnchor = (anchor: string) => {
-    if (isServer) return;
-
-    const anchorY = getAnchorY(anchor);
-    if (anchorY !== null) {
-      delete query.commentId;
-      navigate({
-        search: isEmpty(query) ? '' : `?${qs.stringify(query)}`,
-        hash: `#${anchor}`,
-      });
-      let sectionYdocumentSpace = anchorY + window.scrollY;
-
-      // This is forum-gating of a fairly subtle change in scroll behaviour, LW may want to adopt scrollFocusOnElement
-      if (!isLWorAF) {
-        scrollFocusOnElement({ id: anchor, options: {behavior: "smooth"}})
-      } else {
-        jumpToY(sectionYdocumentSpace);
-      }
-    }
-  }
+  const jumpToAnchor = (anchor: string) => jumpToAnchorGeneric(anchor, navigate, query);
 
   let filteredSections = (displayOptions?.maxHeadingDepth && tocSections)
     ? filter(tocSections, s=>s.level <= displayOptions.maxHeadingDepth!)
