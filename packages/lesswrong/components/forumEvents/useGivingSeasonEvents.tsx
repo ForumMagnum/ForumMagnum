@@ -99,7 +99,6 @@ const events: GivingSeasonEvent[] = [
 ];
 
 const getCurrentEvent = (): GivingSeasonEvent | null => {
-  return events[1];
   const now = moment();
   return events.find(({start, end}) => now.isBetween(start, end)) ?? null;
 }
