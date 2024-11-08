@@ -8,6 +8,7 @@ import { sidenotesHiddenBreakpoint } from '../posts/PostsPage/PostsPage';
 import { useJargonCounts } from '@/components/hooks/useJargonCounts';
 import { jargonTermsToTextReplacements } from './JargonTooltip';
 import { useTracking } from '@/lib/analyticsEvents';
+import { useGlossaryPinnedState } from '../hooks/useUpdateGlossaryPinnedState';
 
 const styles = (theme: ThemeType) => ({
   glossaryAnchor: {
@@ -43,7 +44,7 @@ const styles = (theme: ThemeType) => ({
       maxHeight: 'unset',
       // Show the pin icon when hovering over the glossary container
       "& $pinIcon, & $pinnedPinIcon": {
-        opacity: 1,
+        opacity: .8,
       },
     },
 
@@ -76,7 +77,10 @@ const styles = (theme: ThemeType) => ({
     position: 'sticky',
     top: 100,
     '& $pinIcon': {
-      color: theme.palette.grey[500],
+      opacity: .5
+    },
+    '& $pinnedPinIcon': {
+      opacity: .85,
     },
   },
   titleRow: {
@@ -96,17 +100,20 @@ const styles = (theme: ThemeType) => ({
     fontSize: 18,
     marginLeft: 6,
     marginTop: -1,
-    color: theme.palette.grey[400],
-    // Hide the pin icon by default, show it when hovering over the glossary container
-    opacity: .25
+    cursor: 'pointer',
+    color: theme.palette.grey[600],
+    // icon should be semi-transparent by default, escalatingly visible when hovering over the glossary container or over itself, directly
+    opacity: .4,
+    '&:hover': {
+      opacity: .7,
+    }
   },
   pinnedPinIcon: {
     display: 'block',
-    color: theme.palette.grey[800],
-    opacity: .5,
+    color: theme.palette.grey[900],
+    opacity: .85,
     '&:hover': {
       opacity: 1,
-      color: theme.palette.grey[900],
     }
   },
   termTooltip: {
@@ -136,10 +143,8 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const GlossarySidebar = ({post, postGlossariesPinned, togglePin, showAllTerms, setShowAllTerms, classes}: {
+const GlossarySidebar = ({post, showAllTerms, setShowAllTerms, classes}: {
   post: PostsWithNavigationAndRevision | PostsWithNavigation,
-  postGlossariesPinned: boolean,
-  togglePin: (source: string) => void,
   showAllTerms: boolean,
   setShowAllTerms: (e: React.MouseEvent, showAllTerms: boolean, source: string) => void,
   classes: ClassesType<typeof styles>,
@@ -147,6 +152,8 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, showAllTerms, s
   const { SideItem, JargonTooltip, LWTooltip, ForumIcon } = Components;
 
   const { captureEvent } = useTracking();
+  const { postGlossariesPinned, togglePin } = useGlossaryPinnedState();
+
   const currentUser = useCurrentUser();
   const glossaryContainerRef = useRef<HTMLDivElement>(null);
 
@@ -154,7 +161,7 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, showAllTerms, s
     const J_KeyCode = 74;
     if (e.altKey && e.shiftKey && e.keyCode === J_KeyCode) {
       e.preventDefault();
-      togglePin('hotkey');
+      void togglePin('hotkey');
     }
   });
 
@@ -172,7 +179,7 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, showAllTerms, s
     return null;
   }
 
-  const tooltip = <div><p>Pin to highlight every instance of a term.</p>
+  const tooltip = <div>{postGlossariesPinned ? 'Unpin to only highlight the first instance of each term.' : 'Pin to highlight every instance of a term.'}
     <div><em>(Opt/Alt + Shift + J)</em></div></div>;
 
   const titleRow = (
@@ -250,7 +257,7 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, showAllTerms, s
     <div className={classNames(postGlossariesPinned && classes.outerContainer)}>
       <div className={classNames(postGlossariesPinned && classes.innerContainer)}>
         <div className={classNames(classes.displayedHeightGlossaryContainer, postGlossariesPinned && classes.pinnedGlossaryContainer)} ref={glossaryContainerRef}>
-          <div className={classNames(classes.glossaryContainer, currentUser && classes.glossaryContainerClickTarget)} onClick={currentUser ? () => togglePin('clickGlossaryContainer') : undefined}>
+          <div className={classNames(classes.glossaryContainer, currentUser && classes.glossaryContainerClickTarget)} onClick={() => togglePin('clickGlossaryContainer')}>
             {titleRow}
             {approvedGlossaryItems}
             {otherGlossaryItems}

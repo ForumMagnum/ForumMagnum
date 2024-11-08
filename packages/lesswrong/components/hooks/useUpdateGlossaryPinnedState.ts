@@ -1,6 +1,6 @@
 import { useUpdate } from "@/lib/crud/withUpdate";
 import { useCurrentUser } from "../common/withUser";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useTracking } from "@/lib/analyticsEvents";
 import { useCookiesWithConsent } from "./useCookiesWithConsent";
 
@@ -8,31 +8,38 @@ export function useGlossaryPinnedState() {
   const { captureEvent } = useTracking();
   const currentUser = useCurrentUser();
   const [cookies, setCookie] = useCookiesWithConsent(['pinnedGlossary']);
+  const PINNED_GLOSSARY_COOKIE = 'pinnedGlossary';
 
   const { mutate: updateUser } = useUpdate({
     collectionName: "Users",
     fragmentName: 'UsersCurrent',
   });
-  
+
+  // Initialize state based on currentUser or cookie
+  const initialPinnedState = currentUser?.postGlossariesPinned ?? cookies[PINNED_GLOSSARY_COOKIE] === 'true';
+  const [postGlossariesPinned, setPostGlossariesPinned] = useState(initialPinnedState);
+
   const togglePin = useCallback(async (source: string) => {
     if (currentUser) {
-      captureEvent('toggleGlossaryPin', { newValue: !currentUser.postGlossariesPinned, source });
-      return await updateUser({
+      const newValue = !currentUser.postGlossariesPinned;
+      captureEvent('toggleGlossaryPin', { newValue, source });
+      await updateUser({
         selector: { _id: currentUser._id },
-        data: { postGlossariesPinned: !currentUser.postGlossariesPinned },
+        data: { postGlossariesPinned: newValue },
         optimisticResponse: {
           ...currentUser,
-          postGlossariesPinned: !currentUser.postGlossariesPinned,
+          postGlossariesPinned: newValue,
         },
       });
+      setPostGlossariesPinned(newValue);
     } else {
-      const newValue = !cookies.pinnedGlossary;
+      const cookieGlossaryPinned = cookies[PINNED_GLOSSARY_COOKIE] === 'true';
+      const newValue = !cookieGlossaryPinned;
       captureEvent('toggleGlossaryPin', { newValue, source });
-      setCookie('pinnedGlossary', newValue.toString(), { path: '/', expires: new Date('2038-01-19') });
+      setCookie(PINNED_GLOSSARY_COOKIE, newValue.toString(), { path: '/', expires: new Date('2038-01-19') });
+      setPostGlossariesPinned(newValue);
     }
   }, [updateUser, currentUser, captureEvent, cookies, setCookie]);
-
-  const postGlossariesPinned = currentUser?.postGlossariesPinned ?? cookies.pinnedGlossary === 'true';
 
   return {
     postGlossariesPinned,

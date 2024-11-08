@@ -58,7 +58,6 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
   isOldVersion: boolean
   voteProps: VotingProps<PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes>
 }) => {
-  const { postGlossariesPinned, togglePin } = useGlossaryPinnedState();
   const { displayTermCount, showAllTerms, setShowAllTerms, termsToHighlight } = useDisplayGlossary(post);
 
   const sideItemVisibilityContext = useContext(SideItemVisibilityContext);
@@ -91,7 +90,7 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
     : [];
   const replacedSubstrings = [...highlights, ...glossaryItems];
   const glossarySidebar = 'glossary' in post && displayTermCount > 0
-    ? <GlossarySidebar post={post} postGlossariesPinned={!!postGlossariesPinned} togglePin={togglePin} showAllTerms={showAllTerms} setShowAllTerms={setShowAllTerms} />
+    ? <GlossarySidebar post={post} showAllTerms={showAllTerms} setShowAllTerms={setShowAllTerms} />
     : null;
     
   if (includeSideComments && document?.sideComments) {

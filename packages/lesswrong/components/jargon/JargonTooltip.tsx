@@ -28,6 +28,9 @@ const styles = (theme: ThemeType) => ({
   jargonWord: {
     cursor: 'default',
     color: theme.palette.text.jargonTerm,
+    '&:hover': {
+      opacity: .6
+    },
     'a &': {
       // When the span is inside a link, inherit the link's color
       color: 'inherit',
@@ -57,7 +60,8 @@ const styles = (theme: ThemeType) => ({
   },
   close: {
     color: theme.palette.grey[500],
-    fontSize: "0.9em",
+    marginRight: 'auto',
+    marginLeft: 10
   }
 });
 
