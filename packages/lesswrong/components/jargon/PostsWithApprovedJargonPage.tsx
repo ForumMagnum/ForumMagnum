@@ -6,7 +6,9 @@ import { userIsAdmin } from '@/lib/vulcan-users';
 import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType) => ({
-  root: {},
+  root: {
+    ...theme.typography.body2
+  },
   post: {
     marginBottom: theme.spacing.unit * 4,
   },
@@ -16,7 +18,10 @@ const styles = (theme: ThemeType) => ({
     flexWrap: 'wrap',
   },
   jargonTerm: {
-    marginRight: theme.spacing.unit * 2,
+    margin: theme.spacing.unit * .5,
+    backgroundColor: theme.palette.background.pageActiveAreaBackground,
+    padding: `${theme.spacing.unit * .5}px ${theme.spacing.unit * 1}px`,
+    borderRadius: 3,
   },
   empty: {},
   loadMore: {
