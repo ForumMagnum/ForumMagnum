@@ -5,8 +5,8 @@ import { commentBodyStyles } from '@/themes/stylePiping';
 import { ContentReplacedSubstringComponentInfo } from '../common/ContentItemBody';
 import { PopperPlacementType } from '@material-ui/core/Popper';
 import { useGlossaryPinnedState } from '../hooks/useUpdateGlossaryPinnedState';
-import { useTracking } from '@/lib/analyticsEvents';
 import classNames from 'classnames';
+import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
 
 const styles = (theme: ThemeType) => ({
   card: {
@@ -159,22 +159,26 @@ export const JargonTooltip = ({term, definitionHTML, approved, deleted, humansAn
     return <>{children}</>;
   }
 
-  return <LWTooltip
-    title={tooltip}
-    tooltip={false}
-    // We don't want text in the post to reflow when jargon terms are highlighted
-    inlineBlock={false}
-    placement={placement}
-    className={tooltipClassName}
-    titleClassName={tooltipTitleClassName}
-    forceOpen={open}
-  >
-    <LWClickAwayListener onClickAway={() => setOpen(false)}>
-      <span className={classes.jargonWord} onClick={clickTooltip}>
-        {children}
-      </span>
-    </LWClickAwayListener>
-  </LWTooltip>;
+  return <AnalyticsContext nestedPageElementContext={term}>
+    <LWTooltip
+      title={tooltip}
+      tooltip={false}
+      // We don't want text in the post to reflow when jargon terms are highlighted
+      inlineBlock={false}
+      placement={placement}
+      className={tooltipClassName}
+      titleClassName={tooltipTitleClassName}
+      forceOpen={open}
+      analyticsProps={{ pageElementContext: 'jargonTermHovered' }}
+      otherEventProps={{ term }}
+    >
+      <LWClickAwayListener onClickAway={() => setOpen(false)}>
+        <span className={classes.jargonWord} onClick={clickTooltip}>
+          {children}
+        </span>
+      </LWClickAwayListener>
+    </LWTooltip>
+  </AnalyticsContext>;
 }
 
 const JargonTooltipComponent = registerComponent('JargonTooltip', JargonTooltip, {styles});

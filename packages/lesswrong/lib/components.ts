@@ -1227,3 +1227,4 @@ importComponent("GlossaryEditorPage", () => require('../components/jargon/Glossa
 importComponent("GlossaryEditFormWrapper", () => require('../components/jargon/GlossaryEditFormWrapper'));
 importComponent("GlossaryEditFormNewPost", () => require('../components/jargon/GlossaryEditFormNewPost'));
 importComponent("EditUserJargonSettings", () => require('../components/jargon/EditUserJargonSettings'));
+importComponent("PostsWithApprovedJargonPage", () => require('../components/jargon/PostsWithApprovedJargonPage'));
