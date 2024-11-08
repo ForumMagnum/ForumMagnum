@@ -1716,12 +1716,19 @@ addRoute(
 );
 
 //jargon routes
-addRoute({
-  title: "Glossary Editor",
-  name: 'glossaryEditor',
-  path: '/glossaryEditor',
-  componentName: 'GlossaryEditorPage',
-})
+if (isLW) {
+  addRoute({
+    title: "Glossary Editor",
+    name: 'glossaryEditor',
+    path: '/glossaryEditor',
+    componentName: 'GlossaryEditorPage',
+  }, {
+    title: "Posts with approved jargon",
+    name: 'postsWithApprovedJargon',
+    path: '/postsWithApprovedJargon',
+    componentName: 'PostsWithApprovedJargonPage',
+  });
+}
 
 if (hasSurveys) {
   addRoute(
