@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { registerComponent, Components, fragmentTextForQuery } from '../../lib/vulcan-lib';
 import moment from 'moment';
 import { NetworkStatus, gql, useQuery } from '@apollo/client';
+import { userIsAdmin } from '@/lib/vulcan-users';
+import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType) => ({
   root: {},
@@ -56,10 +58,12 @@ const PostListItemWithJargon = ({ post, jargonTerms, classes }: {
 export const PostsWithApprovedJargonPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { SingleColumnSection, SectionTitle, ContentStyles, LoadMore, Loading } = Components;
+  const { SingleColumnSection, SectionTitle, ContentStyles, LoadMore, Loading, ErrorAccessDenied } = Components;
 
   const [limit, setLimit] = useState(20);
   const pageSize = 30;
+
+  const currentUser = useCurrentUser();
 
   const getPostsQuery = gql`
     query getPostsWithApprovedJargon($limit: Int!) {
@@ -83,6 +87,10 @@ export const PostsWithApprovedJargonPage = ({classes}: {
   });
 
   const postsWithJargon: PostWithJargon[] = data?.PostsWithApprovedJargon?.results ?? [];
+
+  if (!userIsAdmin(currentUser)) {
+    return <ErrorAccessDenied />
+  }
 
   if (loading || networkStatus === NetworkStatus.loading) {
     return <Loading/>;
