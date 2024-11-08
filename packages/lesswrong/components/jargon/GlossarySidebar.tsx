@@ -9,6 +9,7 @@ import { useJargonCounts } from '@/components/hooks/useJargonCounts';
 import { jargonTermsToTextReplacements } from './JargonTooltip';
 import { useTracking } from '@/lib/analyticsEvents';
 import { useGlossaryPinnedState } from '../hooks/useUpdateGlossaryPinnedState';
+import { useHover } from '../common/withHover';
 
 const styles = (theme: ThemeType) => ({
   glossaryAnchor: {
@@ -85,21 +86,21 @@ const styles = (theme: ThemeType) => ({
   },
   titleRow: {
     display: 'flex',
+    alignItems: 'center',
   },
   titleRowTooltipPopper: {
     marginBottom: 12,
   },
   title: {
     flex: 1,
-    display: 'flex',
-    alignItems: 'center',
     ...theme.typography.body2,
     ...theme.typography.postStyle,
+    marginRight: 6,
   },
   pinIcon: {
     fontSize: 18,
-    marginLeft: 6,
-    marginTop: -1,
+    marginRight: 6,
+    marginTop: -2,
     cursor: 'pointer',
     color: theme.palette.grey[600],
     // icon should be semi-transparent by default, escalatingly visible when hovering over the glossary container or over itself, directly
@@ -141,12 +142,20 @@ const styles = (theme: ThemeType) => ({
   showAllTermsTooltipPopper: {
     maxWidth: 200,
   },
+  unapprovedTermsCount: {
+    margin: 0,
+    marginTop: -1,
+    ...theme.typography.body2,
+    fontSize: '1rem',
+  },
 })
 
-const GlossarySidebar = ({post, showAllTerms, setShowAllTerms, classes}: {
+const GlossarySidebar = ({post, showAllTerms, setShowAllTerms, approvedTermsCount, unapprovedTermsCount, classes}: {
   post: PostsWithNavigationAndRevision | PostsWithNavigation,
   showAllTerms: boolean,
   setShowAllTerms: (e: React.MouseEvent, showAllTerms: boolean, source: string) => void,
+  approvedTermsCount: number,
+  unapprovedTermsCount: number,
   classes: ClassesType<typeof styles>,
 }) => {
   const { SideItem, JargonTooltip, LWTooltip, ForumIcon } = Components;
@@ -166,6 +175,7 @@ const GlossarySidebar = ({post, showAllTerms, setShowAllTerms, classes}: {
   });
 
   const { sortedTerms } = useJargonCounts(post, post.glossary);
+  const { hover: unapprovedTermsHover, eventHandlers: unapprovedHoverHandlers } = useHover();
 
   const approvedTerms = sortedTerms.filter(term => term.approved);
   const unapprovedTerms = sortedTerms.filter(term => !term.approved && !term.deleted);
@@ -179,10 +189,18 @@ const GlossarySidebar = ({post, showAllTerms, setShowAllTerms, classes}: {
     return null;
   }
 
+  if (approvedTermsCount === 0 && unapprovedTermsCount === 0) {
+    return null;
+  }
+
+
   const tooltip = <div>{postGlossariesPinned ? 'Unpin to only highlight the first instance of each term.' : 'Pin to highlight every instance of a term.'}
     <div><em>(Opt/Alt + Shift + J)</em></div></div>;
 
-  const titleRow = (
+  const onlyUnapprovedTerms = approvedTermsCount === 0 && unapprovedTermsCount > 0;
+  console.log('onlyUnapprovedTerms', onlyUnapprovedTerms, approvedTermsCount, unapprovedTermsCount);
+
+  const titleRow = !onlyUnapprovedTerms ? (
     <LWTooltip
       title={tooltip}
       inlineBlock={false}
@@ -190,15 +208,21 @@ const GlossarySidebar = ({post, showAllTerms, setShowAllTerms, classes}: {
       popperClassName={classes.titleRowTooltipPopper}
     >
       <div className={classes.titleRow}>
-        <h3 className={classes.title}>
+        <h3 className={classes.title} onClick={() => togglePin('clickGlossaryContainer')}>
           <strong>Glossary</strong>
-          <ForumIcon icon="Dictionary" className={classNames(classes.pinIcon, postGlossariesPinned && classes.pinnedPinIcon)} />
         </h3>
+        <ForumIcon icon="Dictionary" className={classNames(classes.pinIcon, postGlossariesPinned && classes.pinnedPinIcon)} />
       </div>
     </LWTooltip>
-  )
+  ) : (
+    <LWTooltip title="Click to show unapproved terms" inlineBlock={false} placement='top-end' popperClassName={classes.titleRowTooltipPopper}>
+      <div className={classes.titleRow} onClick={() => togglePin('clickGlossaryContainer')}  {...unapprovedHoverHandlers}>
+        <ForumIcon icon="Dictionary" className={classNames(classes.pinIcon, postGlossariesPinned && classes.pinnedPinIcon)} /> 
+        <span className={classes.unapprovedTermsCount}>{unapprovedTermsCount}</span>
+      </div>
+    </LWTooltip>
+  );
   
-
   const replacedSubstrings = jargonTermsToTextReplacements(sortedTerms);
 
   const approvedGlossaryItems = approvedTerms.map((jargonTerm) => {
@@ -221,7 +245,7 @@ const GlossarySidebar = ({post, showAllTerms, setShowAllTerms, classes}: {
     </div>);
   });
 
-  const otherGlossaryItems = showAllTerms ? [...unapprovedTerms, ...deletedTerms].map((jargonTerm) => {
+  const otherGlossaryItems = (showAllTerms || unapprovedTermsHover) ? [...unapprovedTerms, ...deletedTerms].map((jargonTerm) => {
     return (<div key={jargonTerm._id + jargonTerm.term}>
       <JargonTooltip
         term={jargonTerm.term}
@@ -257,11 +281,11 @@ const GlossarySidebar = ({post, showAllTerms, setShowAllTerms, classes}: {
     <div className={classNames(postGlossariesPinned && classes.outerContainer)}>
       <div className={classNames(postGlossariesPinned && classes.innerContainer)}>
         <div className={classNames(classes.displayedHeightGlossaryContainer, postGlossariesPinned && classes.pinnedGlossaryContainer)} ref={glossaryContainerRef}>
-          <div className={classNames(classes.glossaryContainer, currentUser && classes.glossaryContainerClickTarget)} onClick={() => togglePin('clickGlossaryContainer')}>
+          <div className={classNames(classes.glossaryContainer, currentUser && classes.glossaryContainerClickTarget)}>
             {titleRow}
             {approvedGlossaryItems}
             {otherGlossaryItems}
-            {showAllTermsButton}
+            {!onlyUnapprovedTerms && showAllTermsButton}
           </div>
           <div className={classes.overflowFade} />
         </div>

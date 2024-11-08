@@ -40,7 +40,7 @@ function useDisplayGlossary(post: PostsWithNavigation|PostsWithNavigationAndRevi
   }, [setShowAllTerms, captureEvent]);
 
   if (!postHasGlossary) {
-    return { displayTermCount: 0, showAllTerms: false, setShowAllTerms: () => {}, termsToHighlight: [] };
+    return { displayTermCount: 0, showAllTerms: false, setShowAllTerms: () => {}, termsToHighlight: [], unapprovedTermsCount: 0, approvedTermsCount: 0 };
   }
 
   const approvedTerms = post.glossary.filter(term => term.approved && !term.deleted);
@@ -48,8 +48,10 @@ function useDisplayGlossary(post: PostsWithNavigation|PostsWithNavigationAndRevi
   // Right now we could just derive displayTermCount from termsToHighlight, but the implementations might not always be coupled
   const termsToHighlight = showAllTerms ? post.glossary : approvedTerms;
   const displayTermCount = showAllTerms ? post.glossary.length : approvedTerms.length;
-
-  return { displayTermCount, showAllTerms, setShowAllTerms: wrappedSetShowAllTerms, termsToHighlight };
+  const approvedTermsCount = approvedTerms.length;
+  const unapprovedTermsCount = post.glossary.length - approvedTermsCount;
+  
+  return { displayTermCount, showAllTerms, setShowAllTerms: wrappedSetShowAllTerms, termsToHighlight, unapprovedTermsCount, approvedTermsCount };
 }
 
 const PostBody = ({post, html, isOldVersion, voteProps}: {
@@ -58,7 +60,8 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
   isOldVersion: boolean
   voteProps: VotingProps<PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes>
 }) => {
-  const { displayTermCount, showAllTerms, setShowAllTerms, termsToHighlight } = useDisplayGlossary(post);
+
+  const { displayTermCount, showAllTerms, setShowAllTerms, termsToHighlight, unapprovedTermsCount, approvedTermsCount } = useDisplayGlossary(post);
 
   const sideItemVisibilityContext = useContext(SideItemVisibilityContext);
   const sideCommentMode= isOldVersion ? "hidden" : (sideItemVisibilityContext?.sideCommentMode ?? "hidden")
@@ -89,9 +92,7 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
     ? jargonTermsToTextReplacements(termsToHighlight)
     : [];
   const replacedSubstrings = [...highlights, ...glossaryItems];
-  const glossarySidebar = 'glossary' in post && displayTermCount > 0
-    ? <GlossarySidebar post={post} showAllTerms={showAllTerms} setShowAllTerms={setShowAllTerms} />
-    : null;
+  const glossarySidebar = 'glossary' in post && <GlossarySidebar post={post} showAllTerms={showAllTerms} setShowAllTerms={setShowAllTerms} unapprovedTermsCount={unapprovedTermsCount} approvedTermsCount={approvedTermsCount} />
     
   if (includeSideComments && document?.sideComments) {
     const htmlWithIDs = document.sideComments.html;
