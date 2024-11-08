@@ -6,6 +6,7 @@ import { ContentReplacedSubstringComponentInfo } from '../common/ContentItemBody
 import { PopperPlacementType } from '@material-ui/core/Popper';
 import { useGlossaryPinnedState } from '../hooks/useUpdateGlossaryPinnedState';
 import { useTracking } from '@/lib/analyticsEvents';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType) => ({
   card: {
@@ -50,6 +51,13 @@ const styles = (theme: ThemeType) => ({
     marginRight: 4,
     position: 'relative',
     top: 1,
+  },
+  open: {
+    border: `1px solid ${theme.palette.lwTertiary.main}`,
+  },
+  close: {
+    color: theme.palette.grey[500],
+    fontSize: "0.9em",
   }
 });
 
@@ -125,7 +133,7 @@ export const JargonTooltip = ({term, definitionHTML, approved, deleted, humansAn
     </>;
   }
 
-  const tooltip = <Card className={classes.card}>
+  const tooltip = <Card className={classNames(classes.card, open && classes.open)}>
     <ContentItemBody
       dangerouslySetInnerHTML={{ __html: definitionHTML }}
       replacedSubstrings={replacedSubstrings}
@@ -134,6 +142,7 @@ export const JargonTooltip = ({term, definitionHTML, approved, deleted, humansAn
       {humansAndOrAIEditedText && <div><span className={classes.metadataItem}>
         {icons}{humansAndOrAIEditedText}
       </span></div>}
+      {open && <div className={classes.close}><em>Click to close</em></div>}
 
       {!approved && <div>Unapproved</div>}
       {deleted && <div>Deleted</div>}

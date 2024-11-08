@@ -76,7 +76,7 @@ const styles = (theme: ThemeType) => ({
     position: 'sticky',
     top: 100,
     '& $pinIcon': {
-      color: theme.palette.grey[800],
+      color: theme.palette.grey[500],
     },
   },
   titleRow: {
@@ -93,17 +93,21 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.postStyle,
   },
   pinIcon: {
-    width: 18,
-    padding: 4,
+    fontSize: 18,
     marginLeft: 6,
+    marginTop: -1,
     color: theme.palette.grey[400],
     // Hide the pin icon by default, show it when hovering over the glossary container
-    opacity: 0
+    opacity: .25
   },
   pinnedPinIcon: {
     display: 'block',
     color: theme.palette.grey[800],
-    opacity: .5
+    opacity: .5,
+    '&:hover': {
+      opacity: 1,
+      color: theme.palette.grey[900],
+    }
   },
   termTooltip: {
     marginRight: 5,
@@ -119,9 +123,6 @@ const styles = (theme: ThemeType) => ({
   },
   unapproved: {
     color: theme.palette.grey[400],
-  },
-  deleted: {
-    textDecoration: 'line-through',
   },
   showAllTermsButton: {
     marginTop: 10,
@@ -171,8 +172,10 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, showAllTerms, s
     return null;
   }
 
-  const tooltip = <div><p>Pin to highlight every instance of a term. (Opt/Alt + Shift + J)</p></div>;
-  const titleRow = currentUser ? (
+  const tooltip = <div><p>Pin to highlight every instance of a term.</p>
+    <div><em>(Opt/Alt + Shift + J)</em></div></div>;
+
+  const titleRow = (
     <LWTooltip
       title={tooltip}
       inlineBlock={false}
@@ -182,15 +185,12 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, showAllTerms, s
       <div className={classes.titleRow}>
         <h3 className={classes.title}>
           <strong>Glossary</strong>
-          <ForumIcon icon="Pin" className={classNames(classes.pinIcon, postGlossariesPinned && classes.pinnedPinIcon)} />
+          <ForumIcon icon="Dictionary" className={classNames(classes.pinIcon, postGlossariesPinned && classes.pinnedPinIcon)} />
         </h3>
       </div>
     </LWTooltip>
-  ) : (
-    <div className={classes.titleRow}>
-      <h3 className={classes.title}><strong>Glossary</strong></h3>
-    </div>
-  );
+  )
+  
 
   const replacedSubstrings = jargonTermsToTextReplacements(sortedTerms);
 
@@ -229,7 +229,7 @@ const GlossarySidebar = ({post, postGlossariesPinned, togglePin, showAllTerms, s
         isFirstOccurrence
         replacedSubstrings={replacedSubstrings}
       >
-        <div className={classNames(classes.jargonTerm, !jargonTerm.approved && classes.unapproved, jargonTerm.deleted && classes.deleted)}>{jargonTerm.term}</div>
+        <div className={classNames(classes.jargonTerm, !jargonTerm.approved && classes.unapproved)}>{jargonTerm.term}</div>
       </JargonTooltip>
     </div>);
   }) : null;
