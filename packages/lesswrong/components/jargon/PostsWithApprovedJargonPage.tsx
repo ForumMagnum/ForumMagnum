@@ -60,8 +60,8 @@ export const PostsWithApprovedJargonPage = ({classes}: {
 }) => {
   const { SingleColumnSection, SectionTitle, ContentStyles, LoadMore, Loading, ErrorAccessDenied } = Components;
 
-  const [limit, setLimit] = useState(20);
-  const pageSize = 30;
+  const [limit, setLimit] = useState(15);
+  const pageSize = 20;
 
   const currentUser = useCurrentUser();
 
