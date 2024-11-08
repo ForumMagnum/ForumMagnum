@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Components, fragmentTextForQuery, getFragment, registerComponent } from '../../lib/vulcan-lib';
+import { Components, capitalize, fragmentTextForQuery, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { useMutation, gql } from '@apollo/client';
 import { useMulti } from '@/lib/crud/withMulti';
 import Button from '@material-ui/core/Button';
@@ -10,6 +10,7 @@ import { formStyles } from './JargonEditorRow';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { useJargonCounts } from '@/components/hooks/useJargonCounts';
 import Checkbox from '@material-ui/core/Checkbox';
+import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 
 // Integrity Alert! This is currently designed so if the model changes, users are informed
 // about what model is being used in the jargon generation process.
@@ -275,6 +276,53 @@ const getRowCount = (showDeletedTerms: boolean, nonDeletedTerms: JargonTerms[], 
   return rowCount;
 }
 
+function wrapDispatchInLocalStorage(ls: Storage, key: string, setState: React.Dispatch<string>, unsetValue?: string): React.Dispatch<string> {
+  return (value: string) => {
+    setState(value);
+    if (value === unsetValue) {
+      ls.removeItem(key);
+    } else {
+      ls.setItem(key, value);
+    }
+  }
+};
+
+type LocalPromptExample<Suffix extends string> = {
+  [K in Suffix]: string | undefined;
+} & {
+  [K in `set${Capitalize<Suffix>}`]: React.Dispatch<string>;
+}
+
+/**
+ * For when you want to use localStorage to store a value, and have a React state to manage the value.
+ */
+function useLocalStorageState<Suffix extends string>(key: Suffix, getStorageKey: (key: string) => string, defaultValue: string): LocalPromptExample<Suffix> {
+  const ls = getBrowserLocalStorage();
+  const storageKey = getStorageKey(key);
+  const [value, setValue] = useState<string | undefined>(defaultValue);
+
+  const capitalizedSuffix = capitalize(key);
+
+  useEffect(() => {
+    const storedValue = ls?.getItem(storageKey);
+    if (storedValue) setValue(storedValue);
+  }, [storageKey, ls]);
+
+  if (!ls) {
+    return {
+      [key]: value,
+      [`set${capitalizedSuffix}`]: setValue,
+    } as LocalPromptExample<Suffix>;
+  }
+
+  const lsSetValue = wrapDispatchInLocalStorage(ls, storageKey, setValue, defaultValue);
+
+  return {
+    [key]: value,
+    [`set${capitalizedSuffix}`]: lsSetValue,
+  } as LocalPromptExample<Suffix>;
+}
+
 export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   classes: ClassesType<typeof styles>,
   document: PostsEditQueryFragment,
@@ -297,16 +345,20 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   const [formCollapsed, setFormCollapsed] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [showDeletedTerms, setShowDeletedTerms] = useState(false);
-  const [glossaryPrompt, setGlossaryPrompt] = useState<string | undefined>(defaultGlossaryPrompt);
   const [generatedOnce, setGeneratedOnce] = useState(false);
   const [showNewJargonTermForm, setShowNewJargonTermForm] = useState(false);
   const [editingPrompt, setEditingPrompt] = useState(false);
 
-  const [examplePost, setExamplePost] = useState<string | undefined>(defaultExamplePost);
-  const [exampleTerm, setExampleTerm] = useState<string | undefined>(defaultExampleTerm);
-  const [exampleAltTerm, setExampleAltTerm] = useState<string | undefined>(defaultExampleAltTerm);
-  const [exampleDefinition, setExampleDefinition] = useState<string | undefined>(defaultExampleDefinition);
-  
+  const { userId } = document;
+
+  const getPromptExampleStorageKey = (key: string) => `${userId}_${key}`;
+
+  const { glossaryPrompt, setGlossaryPrompt } = useLocalStorageState("glossaryPrompt", getPromptExampleStorageKey, defaultGlossaryPrompt);
+  const { examplePost, setExamplePost } = useLocalStorageState("examplePost", getPromptExampleStorageKey, defaultExamplePost);
+  const { exampleTerm, setExampleTerm } = useLocalStorageState("exampleTerm", getPromptExampleStorageKey, defaultExampleTerm);
+  const { exampleAltTerm, setExampleAltTerm } = useLocalStorageState("exampleAltTerm", getPromptExampleStorageKey, defaultExampleAltTerm);
+  const { exampleDefinition, setExampleDefinition } = useLocalStorageState("exampleDefinition", getPromptExampleStorageKey, defaultExampleDefinition);
+
   const { results: glossary = [], loadMoreProps, refetch } = useMulti({
     terms: {
       view: "postEditorJargonTerms",
@@ -409,7 +461,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   }
   
   const promptEditor = <div>
-    <h3 className={classes.promptEditorWarning}>WARNING! Prompt edits will not be saved after page reload</h3>
+    <h3 className={classes.promptEditorWarning}>WARNING! Prompt edits are only saved in your browser's localStorage.  If you clear your browser's localStorage or switch devices, your prompt edits will be lost.</h3>
     <TextField
       label="Prompt"
       value={glossaryPrompt}
