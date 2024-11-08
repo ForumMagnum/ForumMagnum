@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Components, capitalize, fragmentTextForQuery, getFragment, registerComponent } from '../../lib/vulcan-lib';
+import React, { useState } from 'react';
+import { Components, fragmentTextForQuery, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { useMutation, gql } from '@apollo/client';
 import { useMulti } from '@/lib/crud/withMulti';
 import Button from '@material-ui/core/Button';
@@ -10,7 +10,7 @@ import { formStyles } from './JargonEditorRow';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { useJargonCounts } from '@/components/hooks/useJargonCounts';
 import Checkbox from '@material-ui/core/Checkbox';
-import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
+import { useLocalStorageState } from '../hooks/useLocalStorageState';
 
 // Integrity Alert! This is currently designed so if the model changes, users are informed
 // about what model is being used in the jargon generation process.
@@ -274,53 +274,6 @@ const getRowCount = (showDeletedTerms: boolean, nonDeletedTerms: JargonTerms[], 
     rowCount += deletedTerms.length > 0 ? 1 : 0 // +1 for the "Show hidden terms" button row
   }
   return rowCount;
-}
-
-function wrapDispatchInLocalStorage(ls: Storage, key: string, setState: React.Dispatch<string>, unsetValue?: string): React.Dispatch<string> {
-  return (value: string) => {
-    setState(value);
-    if (value === unsetValue) {
-      ls.removeItem(key);
-    } else {
-      ls.setItem(key, value);
-    }
-  }
-};
-
-type LocalPromptExample<Suffix extends string> = {
-  [K in Suffix]: string | undefined;
-} & {
-  [K in `set${Capitalize<Suffix>}`]: React.Dispatch<string>;
-}
-
-/**
- * For when you want to use localStorage to store a value, and have a React state to manage the value.
- */
-function useLocalStorageState<Suffix extends string>(key: Suffix, getStorageKey: (key: string) => string, defaultValue: string): LocalPromptExample<Suffix> {
-  const ls = getBrowserLocalStorage();
-  const storageKey = getStorageKey(key);
-  const [value, setValue] = useState<string | undefined>(defaultValue);
-
-  const capitalizedSuffix = capitalize(key);
-
-  useEffect(() => {
-    const storedValue = ls?.getItem(storageKey);
-    if (storedValue) setValue(storedValue);
-  }, [storageKey, ls]);
-
-  if (!ls) {
-    return {
-      [key]: value,
-      [`set${capitalizedSuffix}`]: setValue,
-    } as LocalPromptExample<Suffix>;
-  }
-
-  const lsSetValue = wrapDispatchInLocalStorage(ls, storageKey, setValue, defaultValue);
-
-  return {
-    [key]: value,
-    [`set${capitalizedSuffix}`]: lsSetValue,
-  } as LocalPromptExample<Suffix>;
 }
 
 export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
