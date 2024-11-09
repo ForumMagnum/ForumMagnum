@@ -142,6 +142,9 @@ const LWPopper = ({
     return null;
   }
 
+  // We use createPortal here to avoid having to deal with overflow problems and styling from the current child
+  // context, by placing the Popper element directly into the document root
+  // Rest of usage from https://popper.js.org/react-popper/v2/
   return (
     <>
       {createPortal(
