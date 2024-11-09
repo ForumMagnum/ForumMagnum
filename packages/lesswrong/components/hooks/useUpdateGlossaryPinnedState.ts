@@ -19,10 +19,12 @@ export function useGlossaryPinnedState() {
   const initialPinnedState = currentUser?.postGlossariesPinned ?? cookies[PINNED_GLOSSARY_COOKIE] === 'true';
   const [postGlossariesPinned, setPostGlossariesPinned] = useState(initialPinnedState);
 
+  // TODO streamline this function so we don't repeat logic
   const togglePin = useCallback(async (source: string) => {
     if (currentUser) {
       const newValue = !currentUser.postGlossariesPinned;
       captureEvent('toggleGlossaryPin', { newValue, source });
+      setPostGlossariesPinned(newValue);
       await updateUser({
         selector: { _id: currentUser._id },
         data: { postGlossariesPinned: newValue },
@@ -31,7 +33,6 @@ export function useGlossaryPinnedState() {
           postGlossariesPinned: newValue,
         },
       });
-      setPostGlossariesPinned(newValue);
     } else {
       const cookieGlossaryPinned = cookies[PINNED_GLOSSARY_COOKIE] === 'true';
       const newValue = !cookieGlossaryPinned;

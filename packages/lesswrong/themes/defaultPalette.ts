@@ -230,7 +230,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       [6]: '#6C7BFF',
     },
 
-    jargonTerm: shades.grey[600],
+    jargonTerm: "#a8742a",
   },
   link: {
     unmarked: shades.greyAlpha(.87),

@@ -45,7 +45,9 @@ const styles = (theme: ThemeType) => ({
     maxHeight: 170,
     width: 'fit-content',
     overflow: 'hidden',
-
+    '& .JargonTooltip-jargonWord:after': {
+      display: 'none',
+    },
     "&:hover": {
       maxHeight: 'unset',
       // Show the pin icon when hovering over the glossary container
@@ -53,10 +55,11 @@ const styles = (theme: ThemeType) => ({
         opacity: hoverOpacity
       },
       "& $pinIcon": {
-        color: theme.palette.primary.main,
+        color: theme.palette.text.jargonTerm,
       },
       "& $pinnedPinIcon": {
-        color: theme.palette.primary.dark,
+        color: theme.palette.text.jargonTerm,
+        filter: 'brightness(.93)',
         opacity: 1
       },
     },
@@ -118,14 +121,17 @@ const styles = (theme: ThemeType) => ({
   pinIcon: {
     fontSize: 18,
     marginRight: 8,
-    marginTop: -2,
+    marginTop: -1,
     cursor: 'pointer',
     color: theme.palette.grey[600],
     // icon should be semi-transparent by default, escalatingly visible when hovering over the glossary container or over itself, directly
-    opacity: lowOpacity,
+    opacity: 0,
     '&:hover': {
       opacity: hoverOpacity,
     }
+  },
+  unapprovedPinIcon: {
+    opacity: lowOpacity,
   },
   pinnedPinIcon: {
     display: 'block',
@@ -219,7 +225,8 @@ const GlossarySidebar = ({post, showAllTerms, setShowAllTerms, approvedTermsCoun
 
   const onlyUnapprovedTerms = approvedTermsCount === 0 && unapprovedTermsCount > 0;
 
-  const shouldShowAllTerms = showAllTerms || unapprovedTermsHover || (postGlossariesPinned && onlyUnapprovedTerms);
+  const shouldShowAllTerms = showAllTerms || unapprovedTermsHover
+  const displayAsPinned = onlyUnapprovedTerms ? showAllTerms : postGlossariesPinned;
 
   const replacedSubstrings = jargonTermsToTextReplacements(sortedTerms);
 
@@ -290,26 +297,23 @@ const GlossarySidebar = ({post, showAllTerms, setShowAllTerms, approvedTermsCoun
         <h3 className={classes.title}>
           Glossary
         </h3> 
-        <ForumIcon icon="Dictionary" className={classNames(classes.pinIcon, postGlossariesPinned && classes.pinnedPinIcon)} />
+        <ForumIcon icon="Dictionary" className={classNames(classes.pinIcon, displayAsPinned && classes.pinnedPinIcon)} />
       </div>
     </LWTooltip>
   ) : (
-    <LWTooltip title={<div>Pin to {postGlossariesPinned ? 'hide' : 'show'} a hacky AI generated glossary<br/> that the author doesn't endorse<div><em>(Opt/Alt + Shift + G)</em></div></div>} inlineBlock={false} placement='top-end' popperClassName={classes.titleRowTooltipPopper}>
-      <div className={classes.titleRow} onClick={() => togglePin('clickGlossaryContainer')}  {...unapprovedHoverHandlers}>
-        {/* {postGlossariesPinned && <h3 className={classes.title}>
-          Glossary
-        </h3>} */}
-        <ForumIcon icon="Dictionary" className={classNames(classes.pinIcon, postGlossariesPinned && classes.pinnedPinIcon)} /> 
-        {!postGlossariesPinned && <span className={classes.unapprovedTermsCount}>{unapprovedTermsCount}</span>}
-        { postGlossariesPinned && <p className={classes.title}>Glossary (Auto)</p>}
+    <LWTooltip title={<div>Pin to {showAllTerms ? 'hide' : 'show'} a hacky AI generated glossary<br/> that the author doesn't endorse<div><em>(Opt/Alt + Shift + G)</em></div></div>} inlineBlock={false} placement='top-end' popperClassName={classes.titleRowTooltipPopper}>
+      <div className={classes.titleRow} onClick={(e) => setShowAllTerms(e, !showAllTerms, 'unapprovedGlossaryClick')}  {...unapprovedHoverHandlers}>
+        <ForumIcon icon="Dictionary" className={classNames(classes.pinIcon, classes.unapprovedPinIcon, showAllTerms && classes.pinnedPinIcon)} /> 
+        {!displayAsPinned && <span className={classes.unapprovedTermsCount}>{unapprovedTermsCount}</span>}
+        {showAllTerms && <p className={classes.title}>Glossary (Auto)</p>}
       </div>
     </LWTooltip>
   );
 
   return <div className={classes.glossaryAnchor}><SideItem options={{ format: 'block', offsetTop: -10, measuredElement: glossaryContainerRef }}>
-    <div className={classNames(postGlossariesPinned && classes.outerContainer)}>
-      <div className={classNames(postGlossariesPinned && classes.innerContainer)}>
-        <div className={classNames(classes.displayedHeightGlossaryContainer, postGlossariesPinned && classes.pinnedGlossaryContainer)} ref={glossaryContainerRef}>
+    <div className={classNames(displayAsPinned && classes.outerContainer)}>
+      <div className={classNames(displayAsPinned && classes.innerContainer)}>
+        <div className={classNames(classes.displayedHeightGlossaryContainer, displayAsPinned && classes.pinnedGlossaryContainer)} ref={glossaryContainerRef}>
           <div className={classNames(classes.glossaryContainer, currentUser && classes.glossaryContainerClickTarget)}>
             {titleRow}  
             {approvedGlossaryItems}

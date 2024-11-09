@@ -19,7 +19,13 @@ const styles = (theme: ThemeType) => ({
     marginTop: 0,
     marginBottom: 0,
     '& $jargonWord': {
-      color: theme.palette.grey[400]
+      color: theme.palette.text.jargonTerm,
+      '&:after': {
+        content: '""',
+      },
+      '&:first-child': {
+        color: "unset"
+      }
     },
     '& strong $jargonWord, & b $jargonWord': {
       color: 'unset',
@@ -27,7 +33,12 @@ const styles = (theme: ThemeType) => ({
   },
   jargonWord: {
     cursor: 'default',
-    color: theme.palette.text.jargonTerm,
+    '&:after': {
+      content: '"°"',
+      display: 'inline-block',
+      width: 4,
+      height: 4,
+    },
     '&:hover': {
       opacity: .6
     },
@@ -35,6 +46,9 @@ const styles = (theme: ThemeType) => ({
       // When the span is inside a link, inherit the link's color
       color: 'inherit',
     }
+  },
+  pinnedJargonWord: {
+    color: theme.palette.text.jargonTerm,
   },
   metadata: {
     marginTop: 8,
@@ -62,6 +76,11 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[500],
     marginRight: 'auto',
     marginLeft: 10
+  },
+  warning: {
+    color: theme.palette.error.main,
+    fontSize: '.9em',
+    marginBottom: 8,
   }
 });
 
@@ -138,7 +157,7 @@ export const JargonTooltip = ({term, definitionHTML, approved, deleted, humansAn
   }
 
   const tooltip = <Card className={classNames(classes.card, open && classes.open)}>
-    {!approved && <div className={classes.metadata}>Unapproved. Believe at your own peril</div>}
+    {!approved && <div className={classes.warning}>Unapproved by author. Believe at your own peril</div>}
     <ContentItemBody
       dangerouslySetInnerHTML={{ __html: definitionHTML }}
       replacedSubstrings={replacedSubstrings}
@@ -173,7 +192,7 @@ export const JargonTooltip = ({term, definitionHTML, approved, deleted, humansAn
       
     >
       <LWClickAwayListener onClickAway={() => setOpen(false)}>
-        <span className={classes.jargonWord} onClick={clickTooltip}>
+        <span className={classNames(classes.jargonWord, postGlossariesPinned && classes.pinnedJargonWord)} onClick={clickTooltip}>
           {children}
         </span>
       </LWClickAwayListener>
