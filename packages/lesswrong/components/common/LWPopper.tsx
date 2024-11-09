@@ -131,7 +131,7 @@ const LWPopper = ({
   });
 
   if (updateRef && update) {
-    updateRef.current = update;
+    updateRef.current = update
   }
 
   if (!open) return null;
