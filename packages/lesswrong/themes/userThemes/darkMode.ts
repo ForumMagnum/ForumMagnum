@@ -216,7 +216,7 @@ export const darkModeTheme: UserThemeSpecification = {
     },
     link: {
       primaryDim: '#3a7883',
-      visited: "#bb7c43",
+      visited: "#798754",
     },
     panelBackground: {
       translucent: "rgba(0,0,0,.87)",

@@ -190,6 +190,7 @@ export const JargonTooltip = ({term, definitionHTML, approved, deleted, humansAn
       otherEventProps={{ term }}
     >
       <LWClickAwayListener onClickAway={() => setOpen(false)}>
+        {/* TODO: fix this so that it uses "displayAsPinned" instead of "postGlossariesPinned" */}
         <span className={classNames(classes.jargonWord, postGlossariesPinned && classes.pinnedJargonWord)} onClick={clickTooltip}>
           {children}
         </span>
