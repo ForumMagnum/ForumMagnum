@@ -138,6 +138,7 @@ export const JargonTooltip = ({term, definitionHTML, approved, deleted, humansAn
   }
 
   const tooltip = <Card className={classNames(classes.card, open && classes.open)}>
+    {!approved && <div className={classes.metadata}>Unapproved. Believe at your own peril</div>}
     <ContentItemBody
       dangerouslySetInnerHTML={{ __html: definitionHTML }}
       replacedSubstrings={replacedSubstrings}
@@ -147,8 +148,6 @@ export const JargonTooltip = ({term, definitionHTML, approved, deleted, humansAn
         {icons}{humansAndOrAIEditedText}
       </span></div>}
       {open && <div className={classes.close}><em>Click to close</em></div>}
-
-      {!approved && <div>Unapproved</div>}
       {deleted && <div>Deleted</div>}
     </div>
   </Card>
@@ -171,6 +170,7 @@ export const JargonTooltip = ({term, definitionHTML, approved, deleted, humansAn
       forceOpen={open}
       analyticsProps={{ pageElementContext: 'jargonTermHovered' }}
       otherEventProps={{ term }}
+      
     >
       <LWClickAwayListener onClickAway={() => setOpen(false)}>
         <span className={classes.jargonWord} onClick={clickTooltip}>
