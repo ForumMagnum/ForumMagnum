@@ -97,9 +97,12 @@ export const postGetMarketInfoFromManifold = async (post: DbPost): Promise<Annua
 }
 
 export const createManifoldMarket = async (question: string, descriptionMarkdown: string, closeTime: Date, visibility: string, initialProb: number, idKey?: string): Promise<LiteMarket | undefined> => {
-  
+
   //eslint-disable-next-line no-console
   if (!manifoldAPIKey) console.error("Manifold API key not found");
+
+  const idempotencyKey = idKey?.slice(0, 10);
+  const idempotencyFields = idempotencyKey == null ? {} : { idempotencyKey };
 
   const manifoldLessWrongAnnualReviewTag = "0a0b0d16-7a4b-4de5-aadf-ddd85fbefe5c"
   try {
@@ -117,13 +120,13 @@ export const createManifoldMarket = async (question: string, descriptionMarkdown
         visibility,
         initialProb,
         marketTier: "play",
-        idempotencyKey: idKey,
-        groupIds: [manifoldLessWrongAnnualReviewTag]
+        groupIds: [manifoldLessWrongAnnualReviewTag],
+        ...idempotencyFields,
       })
     })
 
     if (!result.ok) {
-      throw new Error(`HTTP error! status: ${result.status}`);
+      throw new Error(`HTTP error! status: ${result.status}. body: ${await result.text()}`);
     }
 
     return result.json()
