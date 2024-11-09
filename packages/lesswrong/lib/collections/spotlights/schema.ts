@@ -43,6 +43,7 @@ const schema: SchemaType<"Spotlights"> = {
       addOriginalField: true,
       // TODO: try a graphql union type?
       type: 'Post!',
+      // TODO: make a sql resolver and loader and stuff
       resolver: async (spotlight: DbSpotlight, args: void, context: ResolverContext): Promise<Partial<DbPost | DbSequence | DbCollection> | null> => {
         switch(spotlight.documentType) {
           case "Post": {
@@ -211,6 +212,7 @@ const schema: SchemaType<"Spotlights"> = {
     canCreate: ['admins', 'sunshineRegiment'],
     optional: true,
     nullable: true,
+    tooltip: "Note: Large images can cause slow loading of the front page. Consider using the Cloudinary uploader instead (which will automatically resize the image)",
     order: 88,
   },
   draft: {

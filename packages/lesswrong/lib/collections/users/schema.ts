@@ -931,6 +931,26 @@ const schema: SchemaType<"Users"> = {
     ...schemaDefaultValue(false),
   },
 
+  generateJargonForDrafts: {
+    type: Boolean,
+    optional: true,
+    hidden: true,
+    canRead: ['members'],
+    canUpdate: [userOwns],
+    group: formGroups.siteCustomizations,
+    ...schemaDefaultValue(false),
+  },
+
+  generateJargonForPublishedPosts: {
+    type: Boolean,
+    optional: true,
+    hidden: true,
+    group: formGroups.siteCustomizations,
+    canRead: ['members'],
+    canUpdate: [userOwns],
+    ...schemaDefaultValue(true),
+  },
+
   acceptedTos: {
     type: Boolean,
     optional: true,
@@ -3095,6 +3115,19 @@ const schema: SchemaType<"Users"> = {
     canCreate: ['members'],
     canRead: ['admins'],
     canUpdate: ['admins'],
+  },
+
+  // Giving season 2024
+  givingSeason2024DonatedFlair: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    canCreate: ['admins'],
+    group: formGroups.adminOptions,
+    label: '"I Donated" flair for giving season 2024',
+    hidden: !isEAForum,
+    ...schemaDefaultValue(false),
   },
 };
 

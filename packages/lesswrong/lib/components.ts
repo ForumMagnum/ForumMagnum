@@ -777,6 +777,7 @@ importComponent("ForumEventPostPageBanner", () => require('../components/forumEv
 importComponent("ForumEventPostPagePollSection", () => require('../components/forumEvents/ForumEventPostPagePollSection'));
 importComponent("ForumEventPoll", () => require('../components/forumEvents/ForumEventPoll'));
 importComponent("ForumEventResultIcon", () => require('../components/forumEvents/ForumEventResultIcon'));
+importComponent("GivingSeason2024Banner", () => require('../components/forumEvents/GivingSeason2024Banner'));
 
 importComponent("UserReviewMetadata", () => require('../components/sunshineDashboard/ModeratorUserInfo/UserReviewMetadata'));
 importComponent("UserReviewStatus", () => require('../components/sunshineDashboard/ModeratorUserInfo/UserReviewStatus'));
@@ -1223,6 +1224,10 @@ importComponent("GlossarySidebar", () => require('../components/jargon/GlossaryS
 importComponent("GlossaryEditForm", () => require('../components/jargon/GlossaryEditForm'));
 importComponent("JargonEditorRow", () => require('../components/jargon/JargonEditorRow'));
 importComponent("GlossaryEditorPage", () => require('../components/jargon/GlossaryEditorPage'));
+importComponent("GlossaryEditFormWrapper", () => require('../components/jargon/GlossaryEditFormWrapper'));
+importComponent("GlossaryEditFormNewPost", () => require('../components/jargon/GlossaryEditFormNewPost'));
+importComponent("EditUserJargonSettings", () => require('../components/jargon/EditUserJargonSettings'));
+importComponent("PostsWithApprovedJargonPage", () => require('../components/jargon/PostsWithApprovedJargonPage'));
 
 importComponent("ThinkPost", () => require('../components/thinkPage/ThinkPost'));
 importComponent("ThinkPostNew", () => require('../components/thinkPage/ThinkPostNew'));
@@ -1235,3 +1240,4 @@ importComponent("ThinkSideSequence", () => require('../components/thinkPage/Thin
 importComponent("ThinkSidePost", () => require('../components/thinkPage/ThinkSidePost'));
 importComponent("ThinkLink", () => require('../components/thinkPage/ThinkLink'));
 importComponent("ThinkPostPage", () => require('../components/thinkPage/ThinkPostPage'));
+

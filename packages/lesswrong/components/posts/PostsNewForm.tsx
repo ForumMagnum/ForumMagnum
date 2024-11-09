@@ -17,6 +17,7 @@ import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/PostsPage';
 import { Link, useNavigate } from '../../lib/reactRouterWrapper';
 import { QuestionIcon } from '../icons/questionIcon';
 import DeferRender from '../common/DeferRender';
+import { userCanCreateAndEditJargonTerms } from '@/lib/betas';
 
 // Also used by PostsEditForm
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -323,6 +324,7 @@ const PostsNewForm = ({classes, showTableOfContents}: {
     groupId: query && query.groupId,
     moderationStyle: currentUser && currentUser.moderationStyle,
     moderationGuidelines: currentUserWithModerationGuidelines?.moderationGuidelines ?? undefined,
+    generateDraftJargon: currentUser?.generateJargonForDrafts,
     debate: debateForm,
     postCategory
   }
@@ -368,6 +370,13 @@ const PostsNewForm = ({classes, showTableOfContents}: {
     </div>
   }
 
+  const addFields: string[] = [];
+  
+  // This is a resolver-only field, so we need to add it to the addFields array to get it to show up in the form
+  if (userCanCreateAndEditJargonTerms(currentUser)) {
+    addFields.push('glossary');
+  }
+
   const editor = <div className={classes.postForm}>
     <RecaptchaWarning currentUser={currentUser}>
       <PostsAcceptTos currentUser={currentUser} />
@@ -404,6 +413,7 @@ const PostsNewForm = ({classes, showTableOfContents}: {
             eventForm={eventForm}
             debateForm={debateForm}
             repeatErrors
+            addFields={addFields}
             noSubmitOnCmdEnter
             formComponents={{
               FormSubmit: NewPostsSubmit

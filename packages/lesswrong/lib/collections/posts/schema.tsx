@@ -847,7 +847,7 @@ const schema: SchemaType<"Posts"> = {
     graphQLtype: '[JargonTerm!]!',
     optional: true,
     canRead: ['guests'],
-    control: "GlossaryEditForm",
+    control: "GlossaryEditFormWrapper",
     group: formGroups.glossary,
     hidden: ({currentUser}) => !userCanCreateAndEditJargonTerms(currentUser),
 
@@ -1235,6 +1235,35 @@ const schema: SchemaType<"Posts"> = {
         postId: field("_id"),
       },
       resolver: (reviewWinnersField) => reviewWinnersField("*"),
+    })
+  }),
+
+  spotlight: resolverOnlyField({
+    type: "Spotlight",
+    graphQLtype: "Spotlight",
+    canRead: ['guests'],
+    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+      const { currentUser, Spotlights } = context;
+      const spotlight = await getWithLoader(context, Spotlights,
+        "postSpotlight",
+        {
+          documentId: post._id,
+          draft: false,
+          deletedDraft: false
+        },
+        "documentId", post._id
+      );
+      return accessFilterSingle(currentUser, Spotlights, spotlight[0], context);
+    },
+    sqlResolver: ({field, join}) => join({
+      table: "Spotlights",
+      type: "left",
+      on: {
+        documentId: field("_id"),
+        draft: "false",
+        deletedDraft: "false"
+      },
+      resolver: (spotlightsField) => spotlightsField("*"),
     })
   }),
 
@@ -3073,7 +3102,15 @@ const schema: SchemaType<"Posts"> = {
     label: "stale-while-revalidate caching enabled",
     group: formGroups.adminOptions,
     ...schemaDefaultValue(false),
-  }
+  },
+  generateDraftJargon: {
+    type: Boolean,
+    optional: true,
+    hidden: true,
+    canRead: ['members'],
+    canUpdate: [userOwns],
+    ...schemaDefaultValue(false)
+  },
 };
 
 export default schema;

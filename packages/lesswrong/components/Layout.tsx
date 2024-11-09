@@ -37,6 +37,8 @@ import DeferRender from './common/DeferRender';
 import { userHasLlmChat } from '@/lib/betas';
 import { AutosaveEditorStateContext } from './editor/EditorFormComponent';
 import { EditorCommandsContextProvider } from './editor/EditorCommandsContext';
+import { GivingSeasonEventsProvider } from './forumEvents/useGivingSeasonEvents';
+
 const STICKY_SECTION_TOP_MARGIN = 20;
 
 /**
@@ -507,6 +509,7 @@ const Layout = ({currentUser, children, classes}: {
       <DisableNoKibitzContext.Provider value={noKibitzContext}>
       <CommentOnSelectionPageWrapper>
       <CurrentForumEventProvider>
+      <GivingSeasonEventsProvider>
         <div className={classNames(
           "wrapper",
           {'alignment-forum': isAF, [classes.fullscreen]: currentRoute?.fullscreen, [classes.wrapper]: isLWorAF}
@@ -627,6 +630,7 @@ const Layout = ({currentUser, children, classes}: {
             </CommentBoxManager>
           </DialogManager>
         </div>
+      </GivingSeasonEventsProvider>
       </CurrentForumEventProvider>
       </CommentOnSelectionPageWrapper>
       </DisableNoKibitzContext.Provider>
