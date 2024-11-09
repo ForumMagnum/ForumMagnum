@@ -188,7 +188,6 @@ export const JargonTooltip = ({term, definitionHTML, approved, deleted, humansAn
       forceOpen={open}
       analyticsProps={{ pageElementContext: 'jargonTermHovered' }}
       otherEventProps={{ term }}
-      
     >
       <LWClickAwayListener onClickAway={() => setOpen(false)}>
         <span className={classNames(classes.jargonWord, postGlossariesPinned && classes.pinnedJargonWord)} onClick={clickTooltip}>

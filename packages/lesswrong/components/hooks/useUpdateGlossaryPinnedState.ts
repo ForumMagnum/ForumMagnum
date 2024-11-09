@@ -7,8 +7,8 @@ import { useCookiesWithConsent } from "./useCookiesWithConsent";
 export function useGlossaryPinnedState() {
   const { captureEvent } = useTracking();
   const currentUser = useCurrentUser();
-  const [cookies, setCookie] = useCookiesWithConsent(['pinnedGlossary']);
   const PINNED_GLOSSARY_COOKIE = 'pinnedGlossary';
+  const [cookies, setCookie] = useCookiesWithConsent([PINNED_GLOSSARY_COOKIE]);
 
   const { mutate: updateUser } = useUpdate({
     collectionName: "Users",
@@ -37,7 +37,7 @@ export function useGlossaryPinnedState() {
       const cookieGlossaryPinned = cookies[PINNED_GLOSSARY_COOKIE] === 'true';
       const newValue = !cookieGlossaryPinned;
       captureEvent('toggleGlossaryPin', { newValue, source });
-      setCookie(PINNED_GLOSSARY_COOKIE, newValue.toString(), { path: '/', expires: new Date('2038-01-19') });
+      setCookie(PINNED_GLOSSARY_COOKIE, newValue.toString(), { path: '/' });
       setPostGlossariesPinned(newValue);
     }
   }, [updateUser, currentUser, captureEvent, cookies, setCookie]);

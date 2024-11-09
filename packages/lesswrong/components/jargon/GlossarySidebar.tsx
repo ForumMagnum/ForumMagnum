@@ -16,9 +16,11 @@ const highOpacity = .85;
 const hoverOpacity = .7;
 const pinnedOpacity = .5;
 
-export const removeJargonDot = { '& .JargonTooltip-jargonWord:after': {
-  display: 'none'
-}}
+export const removeJargonDot = { 
+  '& .JargonTooltip-jargonWord:after': {
+    display: 'none'
+  }
+}
 
 const styles = (theme: ThemeType) => ({
   glossaryAnchor: {
@@ -287,8 +289,7 @@ const GlossarySidebar = ({post, showAllTerms, setShowAllTerms, approvedTermsCoun
     </div>
   </LWTooltip>;
 
-
-  const titleRow = !onlyUnapprovedTerms ? (
+  const approvedTitleRow = (
     <LWTooltip
       title={tooltip}
       inlineBlock={false}
@@ -302,15 +303,19 @@ const GlossarySidebar = ({post, showAllTerms, setShowAllTerms, approvedTermsCoun
         <ForumIcon icon="Dictionary" className={classNames(classes.pinIcon, displayAsPinned && classes.pinnedPinIcon)} />
       </div>
     </LWTooltip>
-  ) : (
-    <LWTooltip title={<div>Pin to {showAllTerms ? 'hide' : 'show'} a hacky AI generated glossary<br/> that the author doesn't endorse<div><em>(Opt/Alt + Shift + G)</em></div></div>} inlineBlock={false} placement='top-end' popperClassName={classes.titleRowTooltipPopper}>
+  )
+
+  const unapprovedTitleRow = (
+    <LWTooltip title={<div>Pin to {displayAsPinned ? 'hide' : 'show'} a hacky AI generated glossary<br/> that the author doesn't endorse<div><em>(Opt/Alt + Shift + G)</em></div></div>} inlineBlock={false} placement='top-end' popperClassName={classes.titleRowTooltipPopper}>
       <div className={classes.titleRow} onClick={(e) => setShowAllTerms(e, !showAllTerms, 'unapprovedGlossaryClick')}  {...unapprovedHoverHandlers}>
-        <ForumIcon icon="Dictionary" className={classNames(classes.pinIcon, classes.unapprovedPinIcon, showAllTerms && classes.pinnedPinIcon)} /> 
+        <ForumIcon icon="Dictionary" className={classNames(classes.pinIcon, classes.unapprovedPinIcon, displayAsPinned && classes.pinnedPinIcon)} /> 
         {!displayAsPinned && <span className={classes.unapprovedTermsCount}>{unapprovedTermsCount}</span>}
-        {showAllTerms && <p className={classes.title}>Glossary (Auto)</p>}
+        {displayAsPinned && <p className={classes.title}>Glossary (Auto)</p>}
       </div>
     </LWTooltip>
-  );
+  )
+
+  const titleRow = !onlyUnapprovedTerms ? approvedTitleRow : unapprovedTitleRow;
 
   return <div className={classes.glossaryAnchor}><SideItem options={{ format: 'block', offsetTop: -10, measuredElement: glossaryContainerRef }}>
     <div className={classNames(displayAsPinned && classes.outerContainer)}>

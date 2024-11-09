@@ -9,7 +9,6 @@ import type { ContentItemBody, ContentReplacedSubstringComponentInfo } from '../
 import { hasSideComments, inlineReactsHoverEnabled } from '../../../lib/betas';
 import { VotingProps } from '@/components/votes/votingProps';
 import { jargonTermsToTextReplacements } from '@/components/jargon/JargonTooltip';
-import { useGlossaryPinnedState } from '@/components/hooks/useUpdateGlossaryPinnedState';
 import { useGlobalKeydown } from '@/components/common/withGlobalKeydown';
 import { useTracking } from '@/lib/analyticsEvents';
 
@@ -40,18 +39,17 @@ function useDisplayGlossary(post: PostsWithNavigation|PostsWithNavigationAndRevi
   }, [setShowAllTerms, captureEvent]);
 
   if (!postHasGlossary) {
-    return { displayTermCount: 0, showAllTerms: false, setShowAllTerms: () => {}, termsToHighlight: [], unapprovedTermsCount: 0, approvedTermsCount: 0 };
+    return { showAllTerms: false, setShowAllTerms: () => {}, termsToHighlight: [], unapprovedTermsCount: 0, approvedTermsCount: 0 };
   }
 
   const approvedTerms = post.glossary.filter(term => term.approved && !term.deleted);
   
   // Right now we could just derive displayTermCount from termsToHighlight, but the implementations might not always be coupled
   const termsToHighlight = showAllTerms ? post.glossary : approvedTerms;
-  const displayTermCount = showAllTerms ? post.glossary.length : approvedTerms.length;
   const approvedTermsCount = approvedTerms.length;
   const unapprovedTermsCount = post.glossary.length - approvedTermsCount;
   
-  return { displayTermCount, showAllTerms, setShowAllTerms: wrappedSetShowAllTerms, termsToHighlight, unapprovedTermsCount, approvedTermsCount };
+  return { showAllTerms, setShowAllTerms: wrappedSetShowAllTerms, termsToHighlight, unapprovedTermsCount, approvedTermsCount };
 }
 
 const PostBody = ({post, html, isOldVersion, voteProps}: {
