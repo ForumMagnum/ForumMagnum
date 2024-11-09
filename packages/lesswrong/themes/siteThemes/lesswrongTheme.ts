@@ -80,7 +80,7 @@ export const lessWrongTheme: SiteThemeSpecification = {
       },
       body2: {
         fontSize: 15.08,
-        lineHeight: "19.8px"
+        lineHeight: "20.0px"
       },
       commentStyle: {
         fontFamily: sansSerifStack,

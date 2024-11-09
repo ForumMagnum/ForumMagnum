@@ -23,6 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       ? theme.palette.fonts.sansSerifStack
       : theme.typography.postStyle.fontFamily,
     fontWeight: 600,
+    lineHeight: isFriendlyUI ?  undefined : 21, // override the default line height of 20px coming from theme.body2
     '& a, & a:hover': {
       textShadow:"none",
       backgroundImage: "none"

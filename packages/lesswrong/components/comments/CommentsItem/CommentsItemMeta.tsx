@@ -80,7 +80,8 @@ const styles = (theme: ThemeType): JssStyles => ({
       textOverflow: "ellipsis",
       flexShrink: 1,
       display: "inline-block",
-      overflowX: "hidden",
+      overflowX: "clip",
+      overflowY: "clip",
     },
   },
   userMarkers: {
