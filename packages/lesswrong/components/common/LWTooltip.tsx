@@ -92,7 +92,6 @@ const LWTooltip = ({
       clickable={clickable}
       hideOnTouchScreens={hideOnTouchScreens}
       className={popperClassName}
-      fallbackPlacements={['left-end']}
     >
       <div className={classNames(
         tooltip && classes.tooltip,
