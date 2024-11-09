@@ -28,18 +28,30 @@ const styles = (theme: ThemeType) => ({
   icon: {
     // note: the specificity seems necessary to successfully override the OmegaIcon styling.
     // not sure if this is best way to do this
-    '&&': {
+    '&&': isFriendlyUI ? {
       fontSize: "1.2rem",
-      color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.icon.dim4,
+      color: theme.palette.grey[600], 
       position: "relative",
-      top: 3,
+      top: 3
+    } : {
+      fontSize: "1rem",
+      transform: "scale(1.2)",
+      color: theme.palette.icon.dim4,
+      position: "relative", 
+      top: 2
     },
   },
   curatedIcon: {
-    fontSize: "1.2rem",
-    color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.icon.dim4,
+    ...(isFriendlyUI ? {
+      fontSize: "1.2rem",
+      color: theme.palette.grey[600]
+    } : {
+      fontSize: "1rem", 
+      transform: "scale(1.2)",
+      color: theme.palette.icon.dim4
+    }),
     position: "relative",
-    top: isFriendlyUI ? 2 : 3,
+    top: 2
   },
   curatedIconColor: {
     color: isFriendlyUI ? theme.palette.icon.yellow : theme.palette.primary.main,
@@ -51,7 +63,10 @@ const styles = (theme: ThemeType) => ({
   },
   alignmentIcon: {
     '&&':{
-      top: 0,
+      fontSize: "1.2rem",
+      color: theme.palette.icon.dim4,
+      position: "relative",
+      top: 1
     }
   },
   linkIcon: {
@@ -63,8 +78,9 @@ const styles = (theme: ThemeType) => ({
         color: theme.palette.grey[600],
       }
       : {
-        fontSize: "1.2rem",
-        top: 3,
+        fontSize: "1.0rem",
+        transform: "scale(1.2) rotate(-45deg)",
+        top: 2,
         color: theme.palette.icon.dim4,
       }),
   },
@@ -180,7 +196,7 @@ const PostsItemIcons = ({post, hover, classes, hideCuratedIcon, hidePersonalIcon
 
     {!isAF && post.af && <span className={classes.postIcon}>
       <LWTooltip title={<div>Crossposted from AlignmentForum.org<div><em>(Click to visit AF version)</em></div></div>} placement="right">
-          <a href={`https://alignmentforum.org${postGetPageUrl(post)}`}><OmegaIcon className={classNames(classes.icon, classes.alignmentIcon)}/></a>
+          <a href={`https://alignmentforum.org${postGetPageUrl(post)}`}><OmegaIcon className={classes.alignmentIcon}/></a>
       </LWTooltip>
     </span>}
 

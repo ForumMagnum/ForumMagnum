@@ -108,7 +108,7 @@ export const styles = (theme: ThemeType) => ({
     marginRight: 12,
     [theme.breakpoints.up('sm')]: {
       position: "relative",
-      top: 3,
+      top: 4.5,
     },
     [theme.breakpoints.down('xs')]: {
       order:-1,
