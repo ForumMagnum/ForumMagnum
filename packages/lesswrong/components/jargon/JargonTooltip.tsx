@@ -78,7 +78,7 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 10
   },
   warning: {
-    color: theme.palette.error.main,
+    color: theme.palette.text.warning,
     fontSize: '.9em',
     marginBottom: 8,
   }
@@ -167,7 +167,6 @@ export const JargonTooltip = ({term, definitionHTML, approved, deleted, humansAn
         {icons}{humansAndOrAIEditedText}
       </span></div>}
       {open && <div className={classes.close}><em>Click to close</em></div>}
-      {deleted && <div>Deleted</div>}
     </div>
   </Card>
 

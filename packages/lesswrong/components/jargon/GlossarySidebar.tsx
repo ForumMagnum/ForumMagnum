@@ -16,6 +16,10 @@ const highOpacity = .85;
 const hoverOpacity = .7;
 const pinnedOpacity = .5;
 
+export const removeJargonDot = { '& .JargonTooltip-jargonWord:after': {
+  display: 'none'
+}}
+
 const styles = (theme: ThemeType) => ({
   glossaryAnchor: {
     // HACK: If there is a footnote on the first line, because the footnote
@@ -45,9 +49,7 @@ const styles = (theme: ThemeType) => ({
     maxHeight: 170,
     width: 'fit-content',
     overflow: 'hidden',
-    '& .JargonTooltip-jargonWord:after': {
-      display: 'none',
-    },
+    ...removeJargonDot,
     "&:hover": {
       maxHeight: 'unset',
       // Show the pin icon when hovering over the glossary container

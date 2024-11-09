@@ -11,6 +11,7 @@ import { isFriendlyUI } from '@/themes/forumTheme';
 import { useJargonCounts } from '@/components/hooks/useJargonCounts';
 import Checkbox from '@material-ui/core/Checkbox';
 import { useLocalStorageState } from '../hooks/useLocalStorageState';
+import { removeJargonDot } from './GlossarySidebar';
 
 // Integrity Alert! This is currently designed so if the model changes, users are informed
 // about what model is being used in the jargon generation process.
@@ -74,6 +75,7 @@ const styles = (theme: ThemeType) => ({
     overflowY: 'scroll',
     display: 'flex',
     justifyContent: 'space-between',
+    ...removeJargonDot,
   },
   expanded: {
     maxHeight: 'unset',
