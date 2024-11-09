@@ -102,7 +102,7 @@ export const createManifoldMarket = async (question: string, descriptionMarkdown
   if (!manifoldAPIKey) console.error("Manifold API key not found");
 
   const idempotencyKey = idKey?.slice(0, 10);
-  const idempotencyFields = idempotencyKey == null ? {} : { idempotencyKey };
+  const idempotencyFields = idempotencyKey === undefined ? {} : { idempotencyKey };
 
   const manifoldLessWrongAnnualReviewTag = "0a0b0d16-7a4b-4de5-aadf-ddd85fbefe5c"
   try {
