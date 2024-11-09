@@ -432,10 +432,6 @@ declare global {
       onboardingBackground: ColorString,
       onboardingBackgroundHover: ColorString,
       onboardingBackgroundSelected: ColorString,
-      eventLightGreen: ColorString,
-      eventDarkGreen: ColorString,
-      eventLightBlue: ColorString,
-      eventDarkBlue: ColorString,
     },
     tab: {
       inactive: {
