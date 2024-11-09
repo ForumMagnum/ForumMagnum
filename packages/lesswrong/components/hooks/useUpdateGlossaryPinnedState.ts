@@ -3,11 +3,11 @@ import { useCurrentUser } from "../common/withUser";
 import { useCallback, useState } from "react";
 import { useTracking } from "@/lib/analyticsEvents";
 import { useCookiesWithConsent } from "./useCookiesWithConsent";
+import { PINNED_GLOSSARY_COOKIE } from "@/lib/cookies/cookies";
 
 export function useGlossaryPinnedState() {
   const { captureEvent } = useTracking();
   const currentUser = useCurrentUser();
-  const PINNED_GLOSSARY_COOKIE = 'pinnedGlossary';
   const [cookies, setCookie] = useCookiesWithConsent([PINNED_GLOSSARY_COOKIE]);
 
   const { mutate: updateUser } = useUpdate({
