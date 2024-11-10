@@ -5,6 +5,7 @@ import moment, { Moment } from "moment";
 import qs from "qs";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
+import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
 
 export const GIVING_SEASON_DESKTOP_WIDTH = 1220;
 export const GIVING_SEASON_MOBILE_WIDTH = 900;
@@ -98,7 +99,15 @@ const events: GivingSeasonEvent[] = [
   },
 ];
 
-const getCurrentEvent = (): GivingSeasonEvent | null => {
+const getCurrentEvent = (
+  currentForumEvent: ForumEventsDisplay | null,
+): GivingSeasonEvent | null => {
+  if (currentForumEvent) {
+    const matchingEvent = events.find(({name}) => name === currentForumEvent.title);
+    if (matchingEvent) {
+      return matchingEvent;
+    }
+  }
   const now = moment();
   return events.find(({start, end}) => now.isBetween(start, end)) ?? null;
 }
@@ -114,7 +123,7 @@ type GivingSeasonEventsContext = {
 
 const givingSeasonEventsContext = createContext<GivingSeasonEventsContext>({
   events,
-  currentEvent: getCurrentEvent(),
+  currentEvent: getCurrentEvent(null),
   selectedEvent: events[0],
   setSelectedEvent: () => {},
   amountRaised: 0,
@@ -128,7 +137,8 @@ const amountRaisedQuery = gql`
 `;
 
 export const GivingSeasonEventsProvider = ({children}: {children: ReactNode}) => {
-  const currentEvent = getCurrentEvent();
+  const {currentForumEvent} = useCurrentForumEvent();
+  const currentEvent = getCurrentEvent(currentForumEvent);
   const [selectedEvent, setSelectedEvent] = useState(currentEvent ?? events[0]);
 
   const {data} = useQuery(amountRaisedQuery, {
