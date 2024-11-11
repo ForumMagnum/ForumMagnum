@@ -477,7 +477,9 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       FROM "Posts"
       WHERE
         ("tagRelevance"->$1)::INT > 0
-        AND "baseScore" > 0
+        AND "baseScore" >= 5
+        AND "hideFromRecentDiscussions" IS NOT TRUE
+        AND "hideFromPopularComments" IS NOT TRUE
         AND ${getViewablePostsSelector()}
     `, [tagId]);
     return results.map(({_id}) => _id);
