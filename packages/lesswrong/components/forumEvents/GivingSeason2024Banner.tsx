@@ -171,7 +171,7 @@ const styles = (theme: ThemeType) => ({
     },
   },
   eventDetails: {
-    display: "inline-block",
+    display: "inline-flex",
     verticalAlign: "middle",
     width: "100%",
     scrollSnapAlign: "start",
@@ -180,6 +180,11 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
       paddingTop: 12,
       paddingBottom: 24,
+    },
+    [theme.breakpoints.up(GIVING_SEASON_DESKTOP_WIDTH)]: {
+      "& > *": {
+        flexBasis: "50%",
+      },
     },
   },
   eventDate: {
@@ -268,7 +273,7 @@ const styles = (theme: ThemeType) => ({
   recentComments: {
     display: "flex",
     flexDirection: "column",
-    minWidth: 440,
+    minWidth: 530,
     margin: 8,
     [theme.breakpoints.down(GIVING_SEASON_DESKTOP_WIDTH)]: {
       display: "none",
@@ -312,6 +317,7 @@ const styles = (theme: ThemeType) => ({
   },
   feedDetailsWrapper: {
     minWidth: 0,
+    width: "100%",
   },
   feedDetails: {
     display: "flex",
@@ -549,58 +555,60 @@ const GivingSeason2024Banner = ({classes}: {
           <div className={classes.detailsContainer} ref={setDetailsRef}>
             {events.map(({name, description, start, end}, i) => (
               <div className={classes.eventDetails} data-event-id={i} key={name}>
-                <div className={classes.eventDate}>{formatDate(start, end)}</div>
-                <div className={classes.eventName}>{name}</div>
-                <div className={classes.eventDescription}>{description}</div>
+                <div>
+                  <div className={classes.eventDate}>{formatDate(start, end)}</div>
+                  <div className={classes.eventName}>{name}</div>
+                  <div className={classes.eventDescription}>{description}</div>
+                </div>
+                {showRecentComments && name === currentEvent?.name &&
+                  <MixedTypeFeed
+                    className={classes.recentComments}
+                    firstPageSize={3}
+                    hideLoading
+                    disableLoadMore
+                    resolverName="GivingSeasonTagFeed"
+                    resolverArgs={{tagId: "String!"}}
+                    resolverArgsValues={{tagId: currentForumEvent?.tagId}}
+                    sortKeyType="Date"
+                    renderers={{
+                      newPost: {
+                        fragmentName: "PostsList",
+                        render: (post: PostsList) => (
+                          <FeedItem
+                            href={postGetPageUrl(post)}
+                            icon="DocumentFilled"
+                            iconClassName={classes.feedPostIcon}
+                            action="posted"
+                            user={post.user}
+                            post={post}
+                            date={post.postedAt}
+                            preview={post.contents?.plaintextDescription ?? ""}
+                            classes={classes}
+                          />
+                        ),
+                      },
+                      newComment: {
+                        fragmentName: "CommentsListWithParentMetadata",
+                        render: (comment: CommentsListWithParentMetadata) => (
+                          <FeedItem
+                            href={commentGetPageUrl(comment)}
+                            icon="CommentFilled"
+                            iconClassName={classes.feedCommentIcon}
+                            action="on"
+                            user={comment.user}
+                            post={comment.post}
+                            date={comment.postedAt}
+                            preview={comment.contents?.plaintextMainText ?? ""}
+                            classes={classes}
+                          />
+                        ),
+                      },
+                    }}
+                  />
+                }
               </div>
             ))}
           </div>
-          {showRecentComments &&
-            <MixedTypeFeed
-              className={classes.recentComments}
-              firstPageSize={3}
-              hideLoading
-              disableLoadMore
-              resolverName="GivingSeasonTagFeed"
-              resolverArgs={{tagId: "String!"}}
-              resolverArgsValues={{tagId: currentForumEvent?.tagId}}
-              sortKeyType="Date"
-              renderers={{
-                newPost: {
-                  fragmentName: "PostsList",
-                  render: (post: PostsList) => (
-                    <FeedItem
-                      href={postGetPageUrl(post)}
-                      icon="DocumentFilled"
-                      iconClassName={classes.feedPostIcon}
-                      action="posted"
-                      user={post.user}
-                      post={post}
-                      date={post.postedAt}
-                      preview={post.contents?.plaintextDescription ?? ""}
-                      classes={classes}
-                    />
-                  ),
-                },
-                newComment: {
-                  fragmentName: "CommentsListWithParentMetadata",
-                  render: (comment: CommentsListWithParentMetadata) => (
-                    <FeedItem
-                      href={commentGetPageUrl(comment)}
-                      icon="CommentFilled"
-                      iconClassName={classes.feedCommentIcon}
-                      action="on"
-                      user={comment.user}
-                      post={comment.post}
-                      date={comment.postedAt}
-                      preview={comment.contents?.plaintextMainText ?? ""}
-                      classes={classes}
-                    />
-                  ),
-                },
-              }}
-            />
-          }
           <div className={classes.fund}>
             <div className={classes.fundInfo}>
               Donate to the fund to boost the value of the{" "}

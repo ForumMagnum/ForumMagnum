@@ -7,7 +7,7 @@ import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
 import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
 
-export const GIVING_SEASON_DESKTOP_WIDTH = 1220;
+export const GIVING_SEASON_DESKTOP_WIDTH = 1300;
 export const GIVING_SEASON_MOBILE_WIDTH = 900;
 
 export const getDonateLink = (currentUser: UsersCurrent | null) => {
