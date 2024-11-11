@@ -1,12 +1,12 @@
 import React from "react"
 import { Components, registerComponent } from "../../lib/vulcan-lib"
 import { styles as metaInfoStyles } from "../common/MetaInfo"
-import { isEAForum } from "@/lib/instanceSettings"
+import { isFriendlyUI } from "@/themes/forumTheme";
 
 const styles = (theme: ThemeType) => ({
   root: {
     color: "inherit",
-    ...(isEAForum && {
+    ...(isFriendlyUI && {
       display: "block",
       maxWidth: 500,
       overflow: "hidden",
@@ -36,7 +36,7 @@ const UserMentionHit = ({hit, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {MetaInfo, FormatDate, ForumIcon} = Components;
-  const icon = isEAForum
+  const icon = isFriendlyUI
     ? <ForumIcon icon="UserOutline" className={classes.icon} />
     : "👤";
   return <span className={classes.root}>

@@ -1,10 +1,10 @@
 import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
-import { isEAForum } from "@/lib/instanceSettings";
+import { isFriendlyUI } from "@/themes/forumTheme";
 
 const styles = () => ({
   root: {
-    ...(isEAForum && {
+    ...(isFriendlyUI && {
       display: "block",
       maxWidth: 500,
       overflow: "hidden",
@@ -23,7 +23,7 @@ const PostMentionHit = ({hit, classes}: {
   hit: SearchPost,
   classes: ClassesType<typeof styles>,
 }) => {
-  const icon = isEAForum
+  const icon = isFriendlyUI
     ? <Components.ForumIcon icon="Document" className={classes.icon} />
     : "📃";
   return (
