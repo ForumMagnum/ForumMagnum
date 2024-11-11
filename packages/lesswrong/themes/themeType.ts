@@ -552,6 +552,7 @@ declare global {
     givingSeason: {
       primary: ColorString,
       electionFundBackground: ColorString,
+      electionFundBackgroundHeavy: ColorString,
     },
     namesAttachedReactions: {
       selectedAnti: ColorString,
