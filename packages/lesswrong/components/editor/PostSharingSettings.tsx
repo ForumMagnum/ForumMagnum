@@ -114,7 +114,7 @@ const PostSharingSettings = ({document, formType, value, classes}: {
   const { flash } = useMessages();
 
   const location = useLocation();
-  const isThinkPage = location.pathname.includes('/think/posts/');
+  const isThink = location.pathname.includes('/think');
   
   const onClickShare = useCallback(() => {
     if (!document.title || !document.title.length) {
@@ -158,11 +158,11 @@ const PostSharingSettings = ({document, formType, value, classes}: {
             // mark it as a draft, then submit the form.
             if (formType==="new") {
               await updateCurrentValues({ draft: true });
-              await submitForm(null, {redirectToEditor: isThinkPage ? false : true});
+              await submitForm(null, {redirectToEditor: isThink ? false : true});
             } else {
               // Otherwise we're going to leave whether-this-is-a-draft
               // unchanged, and subimt the form.
-              await submitForm(null, {redirectToEditor: isThinkPage ? false : true});
+              await submitForm(null, {redirectToEditor: isThink ? false : true});
             }
           }
           closeDialog();
@@ -170,7 +170,7 @@ const PostSharingSettings = ({document, formType, value, classes}: {
         initialShareWithUsers: document.shareWithUsers || [],
       },
     });
-  }, [openDialog, closeDialog, formType, document, updateCurrentValues, initialSharingSettings, flash, submitForm, isThinkPage]);
+  }, [openDialog, closeDialog, formType, document, updateCurrentValues, initialSharingSettings, flash, submitForm, isThink]);
 
   const {LWTooltip, EAButton} = Components;
 

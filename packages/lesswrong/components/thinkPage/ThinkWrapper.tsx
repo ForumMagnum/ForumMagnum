@@ -117,6 +117,9 @@ export const postFormSectionStyles = (theme: ThemeType) => ({
   },
   '& .PostVersionHistoryButton-versionHistoryButton': {
     display: 'none',
+  },
+  '& .FormGroupLayout-formSectionPadding': {
+    padding: '0 !important'
   }
 })
 

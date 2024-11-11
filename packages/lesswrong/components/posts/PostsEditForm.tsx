@@ -41,8 +41,10 @@ const PostsEditForm = ({ documentId, version, classes, showTableOfContents, fiel
   fields?: string[]
 }) => {
   const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags, ForeignCrosspostEditForm, DialogueSubmit, RateLimitWarning, DynamicTableOfContents, ThinkLink, LWPostsPageHeaderTopRight } = Components
-
+  
   const { pathname, query, params } = useLocation();
+  const isThink = pathname.includes('/think');
+
   const navigate = useNavigate();
   const { flash } = useMessages();
   const { openDialog } = useDialog();
@@ -81,8 +83,6 @@ const PostsEditForm = ({ documentId, version, classes, showTableOfContents, fiel
   const isDraft = document && document.draft;
   const wasEverDraft = useRef(isDraft);
 
-  const isThinkPage = pathname.includes('/think/posts/');
-
   useEffect(() => {
     if (wasEverDraft.current === undefined && isDraft !== undefined) {
       wasEverDraft.current = isDraft;
@@ -97,13 +97,13 @@ const PostsEditForm = ({ documentId, version, classes, showTableOfContents, fiel
 
   // If we only have read access to this post, but it's shared with us,
   // redirect to the collaborative editor.
-  if (document && !isThinkPage && !canUserEditPostMetadata(currentUser, document) && !userIsPodcaster(currentUser)) {
+  if (document && !isThink && !canUserEditPostMetadata(currentUser, document) && !userIsPodcaster(currentUser)) {
     return <Components.PermanentRedirect url={getPostCollaborateUrl(documentId, false, query.key)} status={302}/>
   }
   
   // If we don't have access at all but a link-sharing key was provided, redirect to the
   // collaborative editor
-  if (!document && !loading && query?.key && !isThinkPage) {
+  if (!document && !loading && query?.key && !isThink) {
     return <Components.PermanentRedirect url={getPostCollaborateUrl(documentId, false, query.key)} status={302}/>
   }
   
@@ -111,10 +111,9 @@ const PostsEditForm = ({ documentId, version, classes, showTableOfContents, fiel
   // the link-sharing key to the URL. (linkSharingKey has field-level
   // permissions so it will only be present if we've either already used the
   // link-sharing key, or have access through something other than link-sharing.)
-  if (document?.linkSharingKey && !(query?.key) && !isThinkPage) {
+  if (document?.linkSharingKey && !(query?.key) && !isThink) {
     return <Components.PermanentRedirect url={postGetEditUrl(document._id, false, document.linkSharingKey)} status={302}/>
   }
-  
   // If we don't have the post and none of the earlier cases applied, we either
   // have an invalid post ID or the post is a draft that we don't have access
   // to.
@@ -157,7 +156,7 @@ const PostsEditForm = ({ documentId, version, classes, showTableOfContents, fiel
   }
 
   const editorComponent = <div className={classes.postForm}>
-    {currentUser?.isAdmin && !isThinkPage && <div style={{position: 'absolute', top: 74, right: 16}}>
+    {currentUser?.isAdmin && !isThink && <div style={{position: 'absolute', top: 74, right: 16}}>
       <ThinkLink document={document} title="Think" forceEdit/>
     </div>}
     <HeadTags title={document.title} />

@@ -9,7 +9,7 @@ export const ThinkPostPage = () => {
 
   const { Error404, Loading, ThinkPost, ThinkWrapper } = Components;
 
-  const { params: {postId, sequenceId}, query: {edit, key} } = useLocation();
+  const { params: {postId, sequenceId} } = useLocation();
 
   const { document: post, loading } = useSingle({
     documentId: postId,
