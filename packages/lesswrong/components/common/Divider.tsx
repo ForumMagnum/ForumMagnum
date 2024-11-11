@@ -4,8 +4,6 @@ import { isLWorAF } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType) => ({
   root: {
-    marginTop: theme.spacing.unit*3,
-    marginBottom: theme.spacing.unit*3,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -34,14 +32,15 @@ const divider = <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w
 
 const compass = <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" viewBox="0 0 100 125" enableBackground="new 0 0 100 100" xmlSpace="preserve"><path d="M69.948,30.052l-13.739,7.632L50,4.574l-6.208,33.111l-13.74-7.633l7.633,13.739L4.574,50l33.111,6.208l-7.632,13.739  l13.739-7.633L50,95.426l6.208-33.112l13.74,7.634l-7.634-13.74L95.426,50l-33.111-6.208L69.948,30.052z M64.8,35.2l-4.558,8.203  l-3.07-0.576l-0.576-3.07L64.8,35.2z M35.2,35.2l8.203,4.557l-0.576,3.07l-3.07,0.576L35.2,35.2z M35.2,64.8l4.557-8.203l3.07,0.576  l0.576,3.07L35.2,64.8z M64.8,64.8l-8.203-4.557l0.576-3.07l3.07-0.576L64.8,64.8z M55.459,55.459L50,50v34.574l-5.459-29.115L50,50  H15.426l29.115-5.459L50,50V15.426l5.459,29.115L50,50h34.574L55.459,55.459z"/></svg>
 
-const Divider = ({ classes, wings=true }: {
+const Divider = ({ classes, wings=true, margin=24 }: {
   classes: ClassesType,
-  wings?: boolean
+  wings?: boolean,
+  margin?: number
 }) => {
   if (!isLWorAF) {
     return null;
   }
-  return <div className={classes.root}>
+  return <div className={classes.root} style={{ marginTop: margin, marginBottom: margin }}>
     {wings && <div className={classes.divider}>
       { divider }
     </div>}

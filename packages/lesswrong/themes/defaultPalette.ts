@@ -230,7 +230,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       [6]: '#6C7BFF',
     },
 
-    jargonTerm: shades.grey[600],
+    jargonTerm: "#a8742a",
   },
   link: {
     unmarked: shades.greyAlpha(.87),
@@ -241,7 +241,6 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     tocLink: shades.grey[600],
     tocLinkHighlighted: shades.grey[1000],
     primaryDim: "#5caab7",
-    // Currently unused on LW due to Forum-gate
     visited: "#bb7c43",
   },
   linkHover: {

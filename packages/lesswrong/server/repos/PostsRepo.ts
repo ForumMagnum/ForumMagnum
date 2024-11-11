@@ -938,6 +938,20 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       postId
     });
   }
+
+  async getPostsWithApprovedJargon(limit: number): Promise<Array<DbPost & { jargonTerms: DbJargonTerm[] }>> {
+    return this.getRawDb().any(`
+      SELECT DISTINCT p.*, JSONB_AGG(jt.*) AS "jargonTerms"
+      FROM "Posts" p
+      JOIN "JargonTerms" jt
+      ON p._id = jt."postId"
+      WHERE jt."approved" IS TRUE
+      AND ${getViewablePostsSelector('p')}
+      GROUP BY p._id
+      ORDER BY p."postedAt" DESC
+      LIMIT $1
+    `, [limit]);
+  }
 }
 
 recordPerfMetrics(PostsRepo);

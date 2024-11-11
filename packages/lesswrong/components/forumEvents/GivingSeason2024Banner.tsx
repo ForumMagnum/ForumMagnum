@@ -111,7 +111,6 @@ const styles = (theme: ThemeType) => ({
   timelineEvent: {
     cursor: "pointer",
     position: "relative",
-    zIndex: theme.zIndexes.header + 1,
     margin: "12px 0",
     fontWeight: 400,
     whiteSpace: "nowrap",

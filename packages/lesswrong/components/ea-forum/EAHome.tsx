@@ -96,7 +96,7 @@ const EAHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
 
   const {
     EAHomeMainContent, SmallpoxBanner, EventBanner, MaintenanceBanner,
-    FrontpageReviewWidget, SingleColumnSection, HeadTags, BotSiteBanner,
+    FrontpageReviewWidget, SingleColumnSection, HeadTags, BotSiteBanner, EAGBanner,
   } = Components
   return (
     <AnalyticsContext pageContext="homePage">
@@ -110,6 +110,7 @@ const EAHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
         <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
       </SingleColumnSection>}
 
+      <EAGBanner />
       <EAHomeMainContent FrontpageNode={FrontpageNodeWithClasses} />
     </AnalyticsContext>
   )

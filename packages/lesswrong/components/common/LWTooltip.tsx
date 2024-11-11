@@ -31,6 +31,7 @@ export type LWTooltipProps = {
   hideOnTouchScreens?: boolean,
   className?: string,
   analyticsProps?: AnalyticsProps,
+  otherEventProps?: Record<string, Json | undefined>,
   titleClassName?: string
   popperClassName?: string,
   onShow?: () => void,
@@ -51,6 +52,7 @@ const LWTooltip = ({
   disabled=false,
   hideOnTouchScreens=false,
   analyticsProps,
+  otherEventProps,
   titleClassName,
   popperClassName,
   onShow,
@@ -66,6 +68,7 @@ const LWTooltip = ({
       pageElementContext: "tooltipHovered", // Can be overwritten by analyticsProps
       title: typeof title === "string" ? title : undefined,
       ...analyticsProps,
+      ...otherEventProps,
     },
     onEnter: onShow,
     onLeave: onHide,
