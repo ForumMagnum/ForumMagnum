@@ -357,6 +357,20 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
+const scrollIntoViewHorizontally = (
+  container: HTMLElement,
+  child: HTMLElement,
+) => {
+  const child_offsetRight = child.offsetLeft + child.offsetWidth;
+  const container_scrollRight = container.scrollLeft + container.offsetWidth;
+
+  if (container.scrollLeft > child.offsetLeft) {
+    container.scrollLeft = child.offsetLeft;
+  } else if (container_scrollRight < child_offsetRight) {
+    container.scrollLeft += child_offsetRight - container_scrollRight;
+  }
+};
+
 const formatDate = (start: Moment, end: Moment) => {
   const endFormat = start.month() === end.month() ? "D" : "MMM D";
   return `${start.format("MMM D")} - ${end.format(endFormat)}`;
@@ -474,38 +488,41 @@ const GivingSeason2024Banner = ({classes}: {
   }, [timelineRef, detailsRef, events, setSelectedEvent]);
 
   useEffect(() => {
+    if (currentEvent && detailsRef && !didInitialScroll.current) {
+      didInitialScroll.current = true;
+      setTimeout(() => {
+        setLastTimelineClick(Date.now());
+        const index = events.findIndex(({name}) => name === currentEvent.name);
+        const elem = detailsRef?.querySelector(`[data-event-id="${index}"]`);
+        if (detailsRef && elem) {
+          scrollIntoViewHorizontally(detailsRef, elem as HTMLElement);
+        }
+      }, 0);
+    }
+  }, [events, currentEvent, detailsRef]);
+
+  useEffect(() => {
     // Disable for a short period after clicking an event to prevent spurious
     // scrolling on mobile
     if (lastTimelineClick && Date.now() - lastTimelineClick < 150) {
       return;
     }
     const id = events.findIndex((event) => event === selectedEvent);
-    setTimeout(() => {
-      timelineRef?.querySelector(`[data-event-id="${id}"]`)?.scrollIntoView({
-        behavior: "smooth",
-        block: "nearest",
-        inline: "nearest",
-      });
-    }, 0);
+    timelineRef?.querySelector(`[data-event-id="${id}"]`)?.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline: "nearest",
+    });
   }, [timelineRef, selectedEvent, lastTimelineClick, events]);
 
   const onClickTimeline = useCallback((index: number) => {
     setLastTimelineClick(Date.now());
-    setTimeout(() => {
-      detailsRef?.querySelector(`[data-event-id="${index}"]`)?.scrollIntoView({
-        behavior: "smooth",
-        block: "nearest",
-        inline: "start",
-      });
-    }, 0);
+    detailsRef?.querySelector(`[data-event-id="${index}"]`)?.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline: "start",
+    });
   }, [detailsRef]);
-
-  useEffect(() => {
-    if (currentEvent && detailsRef && !didInitialScroll.current) {
-      didInitialScroll.current = true;
-      onClickTimeline(events.findIndex(({name}) => name === currentEvent.name));
-    }
-  }, [events, onClickTimeline, currentEvent, detailsRef]);
 
   const {EAButton, MixedTypeFeed} = Components;
   return (
