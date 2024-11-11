@@ -356,10 +356,21 @@ const formatDate = (start: Moment, end: Moment) => {
   return `${start.format("MMM D")} - ${end.format(endFormat)}`;
 }
 
-const FeedItem = ({href, icon, iconClassName, user, post, date, preview, classes}: {
+const FeedItem = ({
+  href,
+  icon,
+  iconClassName,
+  action,
+  user,
+  post,
+  date,
+  preview,
+  classes,
+}: {
   href: string,
   icon: ForumIconName,
   iconClassName: string,
+  action: string,
   user: UsersMinimumInfo | null,
   post: PostsMinimumInfo | null,
   date: Date,
@@ -389,7 +400,7 @@ const FeedItem = ({href, icon, iconClassName, user, post, date, preview, classes
                 className={classes.feedUser}
               />
             </InteractionWrapper>{" "}
-            <span className={classes.feedAction}>posted</span>{" "}
+            <span className={classes.feedAction}>{action}</span>{" "}
             <InteractionWrapper className={classes.feedInteraction}>
               <PostsTooltip postId={post?._id} placement="bottom-start">
                 <Link
@@ -562,6 +573,7 @@ const GivingSeason2024Banner = ({classes}: {
                       href={postGetPageUrl(post)}
                       icon="DocumentFilled"
                       iconClassName={classes.feedPostIcon}
+                      action="posted"
                       user={post.user}
                       post={post}
                       date={post.postedAt}
@@ -577,6 +589,7 @@ const GivingSeason2024Banner = ({classes}: {
                       href={commentGetPageUrl(comment)}
                       icon="CommentFilled"
                       iconClassName={classes.feedCommentIcon}
+                      action="on"
                       user={comment.user}
                       post={comment.post}
                       date={comment.postedAt}
