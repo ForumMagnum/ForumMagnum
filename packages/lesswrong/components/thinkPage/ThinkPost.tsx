@@ -44,9 +44,10 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const ThinkPost = ({classes, post}: {
+export const ThinkPost = ({classes, post, sequence}: {
   classes: ClassesType<typeof styles>,
   post: PostsPage,
+  sequence?: SequencesPageWithChaptersFragment,
 }) => {
   const { LWPostsPageHeader, ThinkWrapper, ContentStyles, ContentItemBody, Loading, LWPostsPageHeaderTopRight, PostsEditForm, SingleColumnSection, Error404 } = Components;
 
@@ -64,19 +65,14 @@ export const ThinkPost = ({classes, post}: {
   });
   const htmlWithAnchors = sectionData?.html || post?.contents?.html || "";
   
-  return <ThinkWrapper document={post} sectionData={sectionData} rightColumn={<div>Right Column</div>}>
-    {post && <LWPostsPageHeader post={post} dialogueResponses={[]} />} 
-    {post && <div className={classes.topRight}>
-      <LWPostsPageHeaderTopRight post={post}>
-        <div className={classes.editButton} onClick={handleEditClick}>
-          {isEditing ? 'Read' : 'Edit'}
-        </div>
-      </LWPostsPageHeaderTopRight>
-    </div>}
-    {post && isEditing && <div className={classNames(!isEditing && classes.hide)}>
+  return <ThinkWrapper document={post} sectionData={sectionData}>
+    {post && <LWPostsPageHeader post={post} dialogueResponses={[]} topRightExtras={<div className={classes.editButton} onClick={handleEditClick}>
+      {isEditing ? 'Read' : 'Edit'}
+    </div>} />} 
+    {post && <div className={classNames(!isEditing && classes.hide)}>
       <PostsEditForm documentId={postId} showTableOfContents={false} fields={['contents']}/>
     </div>}
-    {post && !isEditing && <div className={classNames(isEditing && classes.hide, classes.postBody)}>
+    {post && <div className={classNames(isEditing && classes.hide, classes.postBody)}>
       <ContentStyles contentType={"post"}>
         <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}} />
       </ContentStyles>

@@ -15,6 +15,7 @@ import { hideScrollBars } from '../../../themes/styleUtils';
 import { useCurrentUser } from '../../common/withUser';
 import { Coordinates } from './ImageCropPreview';
 import { userIsAdminOrMod } from '../../../lib/vulcan-users';
+import { userCanUseThink } from '@/lib/betas';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -537,7 +538,7 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
     <div className={classes.top}>
       {topLeftSection}
       <LWPostsPageHeaderTopRight post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} higherContrast={true}>
-        <ThinkLink document={post} title="Think" />
+        {userCanUseThink(currentUser) && <ThinkLink document={post} title="Think" />}
       </LWPostsPageHeaderTopRight>
     </div>
     {audioPlayer}

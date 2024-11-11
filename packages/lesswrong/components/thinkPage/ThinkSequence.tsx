@@ -46,11 +46,9 @@ export const ThinkSequence = ({classes, sequence}: {
 
 
   return <ThinkWrapper document={document}>
-    <SingleColumnSection>
-      {loading && <Loading />}
-      <h1 className={classes.title}>{document?.title}</h1>
-      <ChaptersList sequenceId={document._id} canEdit={canEditChapter} nextSuggestedNumberRef={nextSuggestedNumberRef} />
-    </SingleColumnSection>
+    {loading && <Loading />}
+    <h1 className={classes.title}>{document?.title}</h1>
+    <ChaptersList sequenceId={document._id} canEdit={canEditChapter} nextSuggestedNumberRef={nextSuggestedNumberRef} />
   </ThinkWrapper>
 }
 

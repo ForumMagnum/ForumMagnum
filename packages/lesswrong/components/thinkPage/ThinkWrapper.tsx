@@ -117,7 +117,7 @@ export const postFormSectionStyles = (theme: ThemeType) => ({
   },
   '& .PostVersionHistoryButton-versionHistoryButton': {
     display: 'none',
-  },
+  }
 })
 
 
@@ -130,6 +130,9 @@ const styles = (theme: ThemeType) => ({
     ...postFormSectionStyles(theme),
     marginLeft: "auto",
     marginRight: "auto",
+  },
+  centralColumn: {
+    maxWidth: THINK_FORM_WIDTH
   }
 });
 
@@ -140,15 +143,13 @@ export const ThinkWrapper = ({classes, children, document, sectionData, rightCol
   sectionData?: ToCData | null,
   rightColumn?: React.ReactNode
 }) => {
-  const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
-
   const { ThinkSideColumn, MultiToCLayout } = Components;
   return <div className={classes.root}>
     <MultiToCLayout
         segments={[
           {
             toc: <ThinkSideColumn document={document} sectionData={sectionData} />,
-            centralColumn: children,
+            centralColumn: <div className={classes.centralColumn}>{children}</div>,
             rightColumn: rightColumn
           }
         ]}

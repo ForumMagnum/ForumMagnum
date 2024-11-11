@@ -1761,14 +1761,21 @@ addRoute({
   {
     name: 'thinkPageSequenceOriginal',
     path: '/think/s/:sequenceId',
-    componentName: 'ThinkSequence',
-    title: "Think: Sequence Original",
+    redirect: (parsedUrl) => `/think/sequence/${parsedUrl.params.sequenceId}`,
   },
   {
     name: 'thinkPageSequence',
-    path: '/think/sequence/:sequenceId/:slug?',
+    path: '/think/seq/:sequenceId/',
     componentName: 'ThinkSequence',
     title: "Think: Sequence",
+    background: 'white',
+  },
+  {
+    name: 'thinkPageSequencePostEdit',
+    path: '/think/seq/:sequenceId/post/:postId/:postSlug',
+    componentName: 'ThinkPostPage',
+    title: "Think Sequences Post",
+    background: 'white',
   }
 );
 

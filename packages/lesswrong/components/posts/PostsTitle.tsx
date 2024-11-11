@@ -196,6 +196,7 @@ const PostsTitle = ({
     !pathname.includes('/events') && !pathname.includes('/groups') && !pathname.includes('/community');
 
   const url = postLink || postGetPageUrl(post)
+  console.log('url', url);
 
   const Icon = postIcon(post);
 

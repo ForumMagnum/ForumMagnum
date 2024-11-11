@@ -29,7 +29,7 @@ const styles = (theme: ThemeType) => ({
     paddingRight: 100,
     position: 'absolute',
     left: 0,
-    top: 70,
+    top: 0,
     display: 'flex',
     flexDirection: 'column',
     ...theme.typography.body2,

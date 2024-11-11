@@ -9,13 +9,20 @@ export const ThinkPostPage = () => {
 
   const { Error404, Loading, ThinkPost, ThinkWrapper } = Components;
 
-  const { params: {postId}, query: {edit, key} } = useLocation();
+  const { params: {postId, sequenceId}, query: {edit, key} } = useLocation();
 
   const { document: post, loading } = useSingle({
     documentId: postId,
     collectionName: "Posts",
     fragmentName: "PostsPage",
     skip: !postId
+  });
+
+  const { document: sequence, loading: sequenceLoading } = useSingle({
+    documentId: sequenceId,
+    collectionName: "Sequences",
+    fragmentName: "SequencesPageWithChaptersFragment",
+    skip: !sequenceId
   });
 
   const { recordPostView } = useRecordPostView(post as PostsListBase);
@@ -31,7 +38,7 @@ export const ThinkPostPage = () => {
   if (!post && !loading) return <ThinkWrapper><Error404/></ThinkWrapper>;
   if (!post && loading) return <ThinkWrapper><Loading/></ThinkWrapper>;
 
-  return <ThinkPost post={post} />
+  return <ThinkPost post={post} sequence={sequence} />
 }
 
 const ThinkPostWrapperComponent = registerComponent('ThinkPostPage', ThinkPostPage);
