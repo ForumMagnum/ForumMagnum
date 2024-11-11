@@ -268,7 +268,6 @@ const styles = (theme: ThemeType) => ({
   recentComments: {
     display: "flex",
     flexDirection: "column",
-    gap: "4px",
     minWidth: 440,
     margin: 8,
     [theme.breakpoints.down(GIVING_SEASON_DESKTOP_WIDTH)]: {
