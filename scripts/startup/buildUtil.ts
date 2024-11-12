@@ -183,7 +183,7 @@ export function getOutputDir() {
 export function logWithTimestamp(...args: any[]) {
   const colorBlue = "\x1b[34m";
   const colorNormal = "\x1b[0m";
-  const timestampStr = colorBlue + new Date().toISOString() + colorNormal;
+  const timestampStr = colorBlue + new Date().toISOString() + colorNormal + ':';
   console.log(timestampStr, ...args);
 }
 

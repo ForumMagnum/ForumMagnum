@@ -53,6 +53,10 @@ async function clientStartup() {
   addClickHandlerToCheckboxLabels();
   initLegacyRoutes();
   hydrateClient();
+  
+  if (enableVite) {
+    setTimeout(removeStaticStylesheet, 1000);
+  }
 }
 
 // Starting up too early is known to compete for resources with rendering the page, causing the
@@ -119,3 +123,16 @@ if (document.readyState === 'loading') {
 }
 
 importAllComponents();
+
+function removeStaticStylesheet() {
+  const linkTags = document.getElementsByTagName("link")
+  for (let i=0; i<linkTags.length; i++) {
+    const linkTag = linkTags.item(i);
+    if (linkTag) {
+      const href = linkTag.getAttribute("href")
+      if (href && href.startsWith("/allStyles")) {
+        linkTag.remove();
+      }
+    }
+  }
+}

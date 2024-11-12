@@ -208,7 +208,9 @@ const serverBundleDefinitions: Record<string,string> = {
 /**
  * Managing a running server, and the restarting thereof. Takes a command
  * line invocation for starting the server, and a port number or list of
- * port numbers. If more than one port number is provided, will m
+ * port numbers. If more than one port number is provided, will manage
+ * overlapping servers, so that you can keep the old server running until its
+ * replacement is ready for requests.
  */
 type ServerSlotType = {
   port: number
@@ -216,6 +218,8 @@ type ServerSlotType = {
   status: "empty"|"starting"|"ready"|"exiting"
   process: ChildProcess|null
   pid: number|null
+  inFlightRequestCount: number
+  onDrain: (()=>void)|null
 };
 class RunningServer {
   private argv: string[];
@@ -230,6 +234,8 @@ class RunningServer {
       status: "empty",
       process: null,
       pid: null,
+      inFlightRequestCount: 0,
+      onDrain: null,
     }));
   }
 
@@ -240,7 +246,7 @@ class RunningServer {
   async startOrRestart(): Promise<void> {
     const slotToStartIn = this.selectSlotForServer();
     if (this.serverSlots[slotToStartIn].pid) {
-      await this.killProcessInSlot(slotToStartIn);
+      await this.killProcessInSlot(slotToStartIn, {drain: false});
     }
     this.startProcessInSlot(slotToStartIn);
   }
@@ -259,7 +265,7 @@ class RunningServer {
     const [command, ...args] = this.argv;
     const port = this.serverSlots[slotIndex].port;
 
-    console.log(`Starting server on port ${port}`);
+    logWithTimestamp(`Starting server on port ${port}`);
     const process = spawn(command, [...args, "--port", port+""], {
       stdio: 'inherit',
       detached: false,
@@ -270,6 +276,8 @@ class RunningServer {
       status: "starting",
       process,
       pid: process.pid!,
+      inFlightRequestCount: 0,
+      onDrain: null,
     };
     this.serverSlots[slotIndex] = slot;
   
@@ -295,21 +303,23 @@ class RunningServer {
   private killServersOtherThan(slotIndex: number) {
     for (let i=0; i<this.serverSlots.length; i++) {
       if (slotIndex === i) continue;
-      this.killProcessInSlot(i);
+      this.killProcessInSlot(i, {drain: true});
     }
   }
 
-  private killProcessInSlot(slotIndex: number): Promise<void> {
+  private async killProcessInSlot(slotIndex: number, options?: {drain?: boolean}): Promise<void> {
+    const slot = this.serverSlots[slotIndex];
+    if (options?.drain) {
+      await this.waitForRequestsToFinish(slot);
+    }
+    const process = slot.process;
+    slot.status = "exiting";
+    if (!process) {
+      return;
+    }
+    logWithTimestamp(`Killing old server on port ${slot.port}`);
+
     return new Promise<void>((resolve) => {
-      const slot = this.serverSlots[slotIndex];
-      const process = slot.process;
-      slot.status = "exiting";
-      if (!process) {
-        resolve();
-        return;
-      }
-      console.log(`Killing old server on port ${slot.port}`);
-  
       process.once('exit', () => {
         slot.status = "empty";
         slot.process = null;
@@ -321,13 +331,53 @@ class RunningServer {
     });
   }
   
-  getPort(): number|null {
+  private async waitForRequestsToFinish(slot: ServerSlotType): Promise<void> {
+    if (!slot.inFlightRequestCount)
+      return;
+
+    logWithTimestamp(`Waiting for requests to drain from server on port ${slot.port}`);
+    return new Promise((resolve) => {
+      // Add an `onDrain` callback, which will get called by `requestFinished`.
+      // If there's already one there, save it to be called in a chain. Also set
+      // a timeout so that this triggers even if there's a stuck long request.
+      let isResolved = false;
+      const oldOnDrain = slot.onDrain
+      function onFinish() {
+        if (!isResolved) {
+          isResolved = true;
+          slot.onDrain = null;
+          oldOnDrain?.();
+          resolve();
+        }
+      }
+      slot.onDrain = onFinish
+      setTimeout(onFinish, 3000);
+    });
+  }
+  
+  getCurrentServer(): ServerSlotType|null {
     for (const serverSlot of this.serverSlots) {
       if (serverSlot.status === "ready") {
-        return serverSlot.port;
+        return serverSlot;
       }
     }
     return null;
+  }
+
+  getPort(): number|null {
+    return this.getCurrentServer()?.port ?? null;
+  }
+  
+  requestStarted(slot: ServerSlotType) {
+    slot.inFlightRequestCount++;
+  }
+
+  requestFinished(slot: ServerSlotType) {
+    slot.inFlightRequestCount--;
+    if (!slot.inFlightRequestCount) {
+      slot.onDrain?.();
+      slot.onDrain = null;
+    }
   }
 }
 
@@ -472,7 +522,7 @@ async function main() {
 }
 
 async function createViteProxyServer(backend: RunningServer) {
-  console.log("Starting vite server");
+  logWithTimestamp("Starting vite server");
   
   const app = express();
   const viteServer = await createViteServer({
@@ -509,45 +559,51 @@ async function createViteProxyServer(backend: RunningServer) {
     try {
       const originalUrl = new URL(req.originalUrl, "http://localhost:3000");
       const proxyTarget = "localhost";
-      const proxyPort = backend.getPort();
-      if (!proxyPort) {
+      const backendServer = backend.getCurrentServer();
+      if (!backendServer) {
         throw new Error("Backend server not ready yet");
       }
-      const newUrl = new URL(originalUrl.pathname + originalUrl.search, `http://${proxyTarget}:${proxyPort}`);
-  
-      // Forward the request
-      const response = await fetch(newUrl.toString(), {
-        method: req.method,
-        headers: {
-          ...(req.headers as any),
-        },
-        body: (req.method !== 'GET' && req.method !== 'HEAD') ? req.body : undefined,
-        redirect: 'manual',
-      });
+      try {
+        const proxyPort = backendServer.port;
+        backend.requestStarted(backendServer);
+        const newUrl = new URL(originalUrl.pathname + originalUrl.search, `http://${proxyTarget}:${proxyPort}`);
     
-      // Send the response back to the client
-      res.status(response.status);
-      for (const [key, value] of Array.from(response.headers as any) as any) {
-        res.setHeader(key, value);
-      }
-      const contentType = response.headers.get('content-type') ?? "";
-      const responseText = await response.text();
+        // Forward the request
+        const response = await fetch(newUrl.toString(), {
+          method: req.method,
+          headers: {
+            ...(req.headers as any),
+          },
+          body: (req.method !== 'GET' && req.method !== 'HEAD') ? req.body : undefined,
+          redirect: 'manual',
+        });
       
-      if (contentType.startsWith('text/html')) {
-        res.send(
-          responseText
-          + await getViteProxiedSsrPageSuffix(viteServer, req.url)
-        );
-      } else {
-        res.send(responseText);
+        // Send the response back to the client
+        res.status(response.status);
+        for (const [key, value] of Array.from(response.headers as any) as any) {
+          res.setHeader(key, value);
+        }
+        const contentType = response.headers.get('content-type') ?? "";
+        const responseText = await response.text();
+        
+        if (contentType.startsWith('text/html')) {
+          res.send(
+            responseText
+            + await getViteProxiedSsrPageSuffix(viteServer, req.url)
+          );
+        } else {
+          res.send(responseText);
+        }
+      } finally {
+        backend.requestFinished(backendServer);
       }
     } catch(e) {
-      console.log(`Failed forwarding request for ${req.originalUrl}`);
+      logWithTimestamp(`Failed forwarding request for ${req.originalUrl}`);
       res.status(500);
       res.end(`${e.message}`);
     }
   });
-  console.log(`Vite listening on port ${serverPort}`);
+  logWithTimestamp(`Vite listening on port ${serverPort}`);
   app.listen(serverPort);
 }
 

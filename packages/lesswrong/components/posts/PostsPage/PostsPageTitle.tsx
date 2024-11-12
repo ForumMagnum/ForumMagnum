@@ -3,6 +3,7 @@ import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 export const LW_POST_TITLE_FONT_SIZE = "3.75rem";
 
@@ -13,7 +14,8 @@ export const postPageTitleStyles = (theme: ThemeType) => ({
   marginTop: isFriendlyUI ? 5 : 0,
   marginLeft: 0,
   marginBottom: isFriendlyUI ? 12 : 0,
-  color: theme.palette.text.primary,
+  //color: theme.palette.text.primary,
+  color: theme.themeOptions.name === "dark" ? "blue" : "orange", // For debugging theme-switching with Vite
   textWrap: isBookUI ? "balance" : undefined,
   [theme.breakpoints.down('sm')]: isFriendlyUI
     ? {
@@ -40,7 +42,7 @@ export const postPageTitleStyles = (theme: ThemeType) => ({
     },
 })
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostsPageTitle", (theme: ThemeType) => ({
   root: {
     ...postPageTitleStyles(theme)
   },
@@ -70,12 +72,12 @@ const styles = (theme: ThemeType) => ({
     fontSize: "1em",
     transform: "translateY(5px)",
   },
-})
+}));
 
-const PostsPageTitle = ({classes, post}: {
+const PostsPageTitle = ({post}: {
   post: PostsDetails|PostsList,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const sourcePostRelations = ('sourcePostRelations' in post) ? post.sourcePostRelations : null;
   const parentPost = sourcePostRelations?.filter(rel => !!rel.sourcePost)?.[0]?.sourcePost;
   const { Typography, ForumIcon, LWTooltip } = Components;
@@ -121,7 +123,8 @@ const PostsPageTitle = ({classes, post}: {
   )
 }
 
-const PostsPageTitleComponent = registerComponent('PostsPageTitle', PostsPageTitle, {styles});
+const PostsPageTitleComponent = registerComponent('PostsPageTitle', PostsPageTitle);
+export default PostsPageTitleComponent;
 
 declare global {
   interface ComponentTypes {
