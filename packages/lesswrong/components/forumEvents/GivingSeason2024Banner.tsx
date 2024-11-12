@@ -186,8 +186,8 @@ const styles = (theme: ThemeType) => ({
     paddingTop: 24,
     paddingBottom: 40,
     [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
-      paddingTop: 12,
-      paddingBottom: 24,
+      paddingTop: 8,
+      paddingBottom: 8,
     },
     [theme.breakpoints.up(GIVING_SEASON_DESKTOP_WIDTH)]: {
       "& > *": {
@@ -205,6 +205,9 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 700,
     marginBottom: 12,
     whiteSpace: "wrap",
+    [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
+      fontSize: 32,
+    },
   },
   eventDescription: {
     maxWidth: 470,
