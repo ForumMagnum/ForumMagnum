@@ -15,6 +15,19 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     marginLeft: 3,
     marginRight: 0
+  },
+  voteBar: {
+    width: 5,
+    backgroundColor: theme.palette.secondary.main,
+    display: "inline-block",
+    marginRight: 1,
+    height: '1em'
+  },
+  voteBarContainer: {
+    display: "inline-flex",
+    alignItems: "flex-end",
+    height: '0.9em',
+    marginLeft: 5,
   }
 });
 
@@ -50,6 +63,10 @@ const TagHoverPreview = ({
   // Remove showPostCount and useTagName query parameters from the link, if present
   const linkTarget = normalizeTagLink(href);
 
+  const votes = [5, 0, 0, 1, 2, 7, 19, 20, 9, 3]
+  const maxVote = Math.max(...votes)
+  const normalizedVoteHeights = votes.map(vote => vote / maxVote)
+
   const {TagsTooltip} = Components;
   const isRead = tag?.isRead;
   return (
@@ -68,6 +85,11 @@ const TagHoverPreview = ({
         to={linkTarget}
       >
         {tagName ?? children}
+        <span className={classes.voteBarContainer}>
+          {normalizedVoteHeights.map((height, index) => (
+            <span key={index} className={classes.voteBar} style={{maxHeight: `${height * 100}%`}} />
+          ))}
+        </span>
       </Link>
       {!!(showPostCount && tag?.postCount) &&
         <span className={classes.count}>({tag?.postCount})</span>
