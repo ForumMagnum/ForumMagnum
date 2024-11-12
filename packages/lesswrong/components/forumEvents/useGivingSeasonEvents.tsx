@@ -38,10 +38,9 @@ const events: GivingSeasonEvent[] = [
   {
     name: "Funding Strategy Week",
     description: <>
-      This week, we are encouraging content around a range of important funding{" "}
-      considerations.{" "}
-      <Link to="/posts/stdWZ4qrewemS7Rfq/what-i-d-like-to-see-during-funding-diversification-week">
-        Read more
+      Read and continue Funding Strategy Week's conversations{" "}
+      <Link to="/topics/funding-strategy-week">
+        here
       </Link>.
     </>,
     start: moment("2024-11-04").utc(),
