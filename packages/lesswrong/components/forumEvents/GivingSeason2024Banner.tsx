@@ -18,6 +18,8 @@ import classNames from "classnames";
 import type { Moment } from "moment";
 import type { ForumIconName } from "../common/ForumIcon";
 
+const DONATION_ELECTION_HREF = "/posts/2WbDAAtGdyAEfcw6S/donation-election-fund-announcement-matching-rewards-and-faq";
+
 const DOT_SIZE = 12;
 
 const styles = (theme: ThemeType) => ({
@@ -155,12 +157,18 @@ const styles = (theme: ThemeType) => ({
   },
   mainContainer: {
     display: "flex",
+    flexDirection: "row",
+    gap: "8px",
     alignItems: "center",
     [theme.breakpoints.down(GIVING_SEASON_DESKTOP_WIDTH)]: {
       padding: "0 24px",
     },
+    [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
+      flexDirection: "column",
+    },
   },
   detailsContainer: {
+    width: "100%",
     whiteSpace: "nowrap",
     overflow: "scroll hidden",
     scrollSnapType: "x mandatory",
@@ -178,8 +186,8 @@ const styles = (theme: ThemeType) => ({
     paddingTop: 24,
     paddingBottom: 40,
     [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
-      paddingTop: 12,
-      paddingBottom: 24,
+      paddingTop: 8,
+      paddingBottom: 8,
     },
     [theme.breakpoints.up(GIVING_SEASON_DESKTOP_WIDTH)]: {
       "& > *": {
@@ -197,6 +205,9 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 700,
     marginBottom: 12,
     whiteSpace: "wrap",
+    [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
+      fontSize: 32,
+    },
   },
   eventDescription: {
     maxWidth: 470,
@@ -218,14 +229,32 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.givingSeason.electionFundBackground,
     borderRadius: theme.borderRadius.default,
     [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
-      display: "none",
+      width: "100%",
+      minWidth: "100%",
+      maxWidth: "100%",
+      padding: 8,
+      marginTop: 0,
     },
   },
-  fundTitle: {
-    fontSize: 18,
-    fontWeight: 700,
-    letterSpacing: "-0.18px",
-    marginBottom: 12,
+  fundDetailsContainer: {
+    display: "flex",
+    flexDirection: "column",
+    marginBottom: 4,
+    [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
+      flexDirection: "row",
+      gap: "8px",
+      alignItems: "center",
+      marginBottom: 8,
+    },
+  },
+  fundMobileTitle: {
+    flexGrow: 1,
+    fontSize: 14,
+    fontWeight: 600,
+    lineHeight: "140%",
+    [theme.breakpoints.up(GIVING_SEASON_MOBILE_WIDTH)]: {
+      display: "none",
+    },
   },
   fundInfo: {
     marginBottom: 12,
@@ -237,12 +266,18 @@ const styles = (theme: ThemeType) => ({
         textDecoration: "underline",
       },
     },
+    [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
+      display: "none",
+    },
   },
   fundRaised: {
     fontSize: 16,
     fontWeight: 500,
     lineHeight: "140%",
-    marginBottom: 4,
+    [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
+      fontWeight: 700,
+      textAlign: "right",
+    },
   },
   fundBarContainer: {
     width: "100%",
@@ -251,6 +286,9 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.givingSeason.electionFundBackground,
     borderRadius: theme.borderRadius.small,
     overflow: "hidden",
+    [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
+      marginBottom: 12,
+    },
   },
   fundBar: {
     height: "100%",
@@ -260,8 +298,30 @@ const styles = (theme: ThemeType) => ({
   fundAmount: {
     fontWeight: 700,
   },
-  donateButton: {
+  fundButtonContainer: {
+    display: "flex",
+    gap: "12px",
     width: "100%",
+    textAlign: "center",
+  },
+  fundLearnButton: {
+    width: "100%",
+    fontSize: 14,
+    fontWeight: 600,
+    color: theme.palette.text.alwaysWhite,
+    background: theme.palette.givingSeason.electionFundBackground,
+    transition: "background 0.3s ease",
+    "&:hover": {
+      background: theme.palette.givingSeason.electionFundBackgroundHeavy,
+    },
+    [theme.breakpoints.up(GIVING_SEASON_MOBILE_WIDTH)]: {
+      display: "none",
+    },
+  },
+  fundDonateButton: {
+    width: "100%",
+    fontSize: 14,
+    fontWeight: 600,
     color: theme.palette.givingSeason.primary,
     background: theme.palette.text.alwaysWhite,
     transition: "opacity 0.3s ease",
@@ -274,7 +334,7 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     flexDirection: "column",
     minWidth: 530,
-    margin: 8,
+    margin: "8px 0 8px 8px",
     [theme.breakpoints.down(GIVING_SEASON_DESKTOP_WIDTH)]: {
       display: "none",
     },
@@ -627,16 +687,21 @@ const GivingSeason2024Banner = ({classes}: {
             ))}
           </div>
           <div className={classes.fund}>
-            <div className={classes.fundInfo}>
-              Donate to the fund to boost the value of the{" "}
-              <Link to="/posts/2WbDAAtGdyAEfcw6S/donation-election-fund-announcement-matching-rewards-and-faq">
-                Donation Election
-              </Link>.
-            </div>
-            <div className={classes.fundRaised}>
-              <span className={classes.fundAmount}>
-                ${formatStat(Math.round(amountRaisedPlusMatched))}
-              </span> raised
+            <div className={classes.fundDetailsContainer}>
+              <div className={classes.fundMobileTitle}>
+                Donation Election Fund
+              </div>
+              <div className={classes.fundInfo}>
+                Donate to the fund to boost the value of the{" "}
+                <Link to={DONATION_ELECTION_HREF}>
+                  Donation Election
+                </Link>.
+              </div>
+              <div className={classes.fundRaised}>
+                <span className={classes.fundAmount}>
+                  ${formatStat(Math.round(amountRaisedPlusMatched))}
+                </span> raised
+              </div>
             </div>
             <div className={classes.fundBarContainer}>
               <div
@@ -644,12 +709,20 @@ const GivingSeason2024Banner = ({classes}: {
                 className={classes.fundBar}
               />
             </div>
-            <EAButton
-              href={getDonateLink(currentUser)}
-              className={classes.donateButton}
-            >
-              Donate
-            </EAButton>
+            <div className={classes.fundButtonContainer}>
+              <EAButton
+                href={DONATION_ELECTION_HREF}
+                className={classes.fundLearnButton}
+              >
+                Learn more
+              </EAButton>
+              <EAButton
+                href={getDonateLink(currentUser)}
+                className={classes.fundDonateButton}
+              >
+                Donate
+              </EAButton>
+            </div>
           </div>
         </div>
       </div>

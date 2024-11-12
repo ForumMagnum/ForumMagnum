@@ -8,7 +8,7 @@ import { useQuery } from "@apollo/client";
 import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
 
 export const GIVING_SEASON_DESKTOP_WIDTH = 1300;
-export const GIVING_SEASON_MOBILE_WIDTH = 900;
+export const GIVING_SEASON_MOBILE_WIDTH = 700;
 
 export const getDonateLink = (currentUser: UsersCurrent | null) => {
   // See docs at https://docs.every.org/docs/donate-link
