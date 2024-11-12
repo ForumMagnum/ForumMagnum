@@ -1,4 +1,4 @@
-import { StyleDefinition } from '@/server/styleGeneration';
+import type { StyleDefinition } from '@/server/styleGeneration';
 import React, { createContext, useMemo, useState } from 'react';
 import { useTheme } from '../themes/useTheme';
 import { StylesContext, StylesContextType } from './useStyles';
