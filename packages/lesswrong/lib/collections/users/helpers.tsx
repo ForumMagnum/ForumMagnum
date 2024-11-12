@@ -6,7 +6,7 @@ import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissi
 import React, { useEffect, useState } from 'react';
 import * as _ from 'underscore';
 import { getBrowserLocalStorage } from '../../../components/editor/localStorageHandlers';
-import { Components } from '../../vulcan-lib';
+import { Components } from '../../vulcan-lib/components';
 import type { PermissionResult } from '../../make_voteable';
 import { DatabasePublicSetting } from '../../publicSettings';
 import { hasAuthorModeration } from '../../betas';

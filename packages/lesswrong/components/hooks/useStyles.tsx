@@ -1,12 +1,9 @@
-import React, { createContext, useContext, useLayoutEffect, useMemo, useRef, useState } from "react";
+import React, { createContext, useContext, useLayoutEffect } from "react";
 import type { ClassNameProxy, StyleDefinition, StyleOptions } from "@/server/styleGeneration";
-import { create as jssCreate, createGenerateClassName, SheetsRegistry, StyleSheet } from "jss";
-import { useTheme } from "../themes/useTheme";
+import { create as jssCreate, SheetsRegistry } from "jss";
 import { jssPreset } from "@material-ui/core/styles";
 
-export const topLevelStyleDefinitions: Record<string,StyleDefinition<string>> = {};
-
-type StylesContext = {
+export type StylesContextType = {
   theme: ThemeType
   mountedStyles: Map<string, {
     refcount: number
@@ -14,6 +11,10 @@ type StylesContext = {
     styleNode: HTMLStyleElement
   }>
 }
+
+export const StylesContext = createContext<StylesContextType|null>(null);
+
+export const topLevelStyleDefinitions: Record<string,StyleDefinition<string>> = {};
 
 export const defineStyles = <T extends string>(
   name: string,
@@ -30,7 +31,7 @@ export const defineStyles = <T extends string>(
   return definition;
 }
 
-function addStyleUsage<T extends string>(context: StylesContext, styleDefinition: StyleDefinition<T>) {
+function addStyleUsage<T extends string>(context: StylesContextType, styleDefinition: StyleDefinition<T>) {
   const theme = context.theme;
   const name = styleDefinition.name;
 
@@ -44,7 +45,6 @@ function addStyleUsage<T extends string>(context: StylesContext, styleDefinition
   } else {
     const mountedStyleNode = context.mountedStyles.get(name)!
     if (mountedStyleNode.styleDefinition !== styleDefinition) {
-      console.log(`Style ${styleDefinition.name} has changed`);
       // Style is mounted by that name, but it doesn't match? Replace it, keeping
       // the ref count
       mountedStyleNode.styleNode.remove();
@@ -57,7 +57,7 @@ function addStyleUsage<T extends string>(context: StylesContext, styleDefinition
   }
 }
 
-function removeStyleUsage<T extends string>(context: StylesContext, styleDefinition: StyleDefinition<T>) {
+function removeStyleUsage<T extends string>(context: StylesContextType, styleDefinition: StyleDefinition<T>) {
   const name = styleDefinition.name;
   if (context.mountedStyles.has(name)) {
     const mountedStyle = context.mountedStyles.get(name)!
@@ -68,8 +68,6 @@ function removeStyleUsage<T extends string>(context: StylesContext, styleDefinit
     }
   }
 }
-
-const StylesContext = createContext<StylesContext|null>(null);
 
 export const useStyles = <T extends string>(styles: StyleDefinition<T>): JssStyles<T> => {
   const stylesContext = useContext(StylesContext);
@@ -216,19 +214,3 @@ function insertStyleNodeAtCorrectPosition(styleNode: HTMLStyleElement, name: str
   }
 }
 
-export const FMJssProvider = ({children}: {
-  children: React.ReactNode
-}) => {
-  const theme = useTheme();
-  const [mountedStyles] = useState(() => new Map<string, {
-    refcount: number
-    styleDefinition: StyleDefinition,
-    styleNode: HTMLStyleElement
-  }>());
-  const jssState = useMemo<StylesContext>(() => ({
-    theme, mountedStyles: mountedStyles
-  }), [theme, mountedStyles]);
-  return <StylesContext.Provider value={jssState}>
-    {children}
-  </StylesContext.Provider>
-}
