@@ -2,6 +2,8 @@ import React, { useCallback, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "@/lib/reactRouterWrapper";
 import { MOBILE_HEADER_HEIGHT } from "@/components/common/Header";
+import { useElectionCandidates } from "./hooks";
+import { AnalyticsContext } from "@/lib/analyticsEvents";
 
 const BACKGROUND_HREF = "https://res.cloudinary.com/cea/image/upload/v1731504237/Rectangle_5032.jpg";
 const FUND_HREF = "https://www.every.org/effective-ventures-foundation-usa-inc-for-the-ea-forum-donation-election-fund-2024";
@@ -91,6 +93,45 @@ const styles = (theme: ThemeType) => ({
     opacity: 0.7,
   },
   rankingCandidates: {
+    marginTop: 32,
+    display: "flex",
+    flexDirection: "column",
+    gap: "4px",
+  },
+  candidate: {
+    display: "flex",
+    alignItems: "center",
+    background: theme.palette.givingSeason.candidateBackground,
+    borderRadius: theme.borderRadius.default,
+    boxShadow: `0px 2px 4px 0px ${theme.palette.givingSeason.candidateShadow}`,
+    border: `1px solid ${theme.palette.givingSeason.candidateBorder}`,
+    padding: "8px 12px",
+  },
+  candidateHandle: {
+    marginRight: 8,
+  },
+  candidateImage: {
+    width: 44,
+    height: 44,
+    borderRadius: theme.borderRadius.small,
+    backgroundRepeat: "no-repeat",
+    backgroundSize: "cover",
+    marginRight: 16,
+  },
+  candidateInfo: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "4px",
+  },
+  candidateName: {
+    fontSize: 16,
+    fontWeight: 600,
+    letterSpacing: "-0.16px",
+  },
+  candidatePostCount: {
+    fontSize: 14,
+    letterSpacing: "-0.14px",
+    opacity: 0.7,
   },
   commentRoot: {
   },
@@ -133,10 +174,12 @@ const WelcomeScreen = ({onNext, classes}: {
   );
 }
 
-const RankingScreen = ({classes}: {
+const RankingScreen = ({candidates, classes}: {
+  candidates: ElectionCandidateBasicInfo[],
   onNext?: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
+  const {ForumIcon} = Components;
   return (
     <div className={classes.rankingRoot}>
       <div className={classes.rankingInfo}>
@@ -153,6 +196,27 @@ const RankingScreen = ({classes}: {
         </div>
       </div>
       <div className={classes.rankingCandidates}>
+        {candidates.map(({_id, name, tag, logoSrc, href}) => (
+          <div key={_id} className={classes.candidate}>
+            <div className={classes.candidateHandle}>
+              <ForumIcon icon="ChevronUpDown" />
+            </div>
+            <div
+              style={{backgroundImage: `url(${logoSrc})`}}
+              className={classes.candidateImage}
+            />
+            <div className={classes.candidateInfo}>
+              <div className={classes.candidateName}>
+                <Link to={href}>
+                  {name}
+                </Link>
+              </div>
+              <div className={classes.candidatePostCount}>
+                {tag?.postCount ?? 0} post{tag?.postCount === 1 ? "" : "s"}
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -185,26 +249,29 @@ type Screen = typeof SCREENS[number];
 
 const VotingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const [screen, setScreen] = useState<Screen>("welcome");
+  const {results: candidates = []} = useElectionCandidates();
 
   const onNext = useCallback(() => {
     setScreen((currentScreen) => SCREENS[SCREENS.indexOf(currentScreen) + 1]);
   }, []);
 
   return (
-    <div className={classes.root}>
-      {screen === "welcome" &&
-        <WelcomeScreen onNext={onNext} classes={classes} />
-      }
-      {screen === "ranking" &&
-        <RankingScreen onNext={onNext} classes={classes} />
-      }
-      {screen === "comment" &&
-        <CommentScreen onNext={onNext} classes={classes} />
-      }
-      {screen === "thank-you" &&
-        <ThankYouScreen onNext={onNext} classes={classes} />
-      }
-    </div>
+    <AnalyticsContext pageContext="votingPortal" pageSectionContext={screen}>
+      <div className={classes.root}>
+        {screen === "welcome" &&
+          <WelcomeScreen onNext={onNext} classes={classes} />
+        }
+        {screen === "ranking" &&
+          <RankingScreen candidates={candidates} onNext={onNext} classes={classes} />
+        }
+        {screen === "comment" &&
+          <CommentScreen onNext={onNext} classes={classes} />
+        }
+        {screen === "thank-you" &&
+          <ThankYouScreen onNext={onNext} classes={classes} />
+        }
+      </div>
+    </AnalyticsContext>
   );
 }
 

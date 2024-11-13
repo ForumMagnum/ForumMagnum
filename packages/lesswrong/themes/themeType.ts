@@ -554,6 +554,9 @@ declare global {
       electionFundBackground: ColorString,
       electionFundBackgroundHeavy: ColorString,
       portalPrimary: ColorString,
+      candidateBorder: ColorString,
+      candidateBackground: ColorString,
+      candidateShadow: ColorString,
     },
     namesAttachedReactions: {
       selectedAnti: ColorString,
