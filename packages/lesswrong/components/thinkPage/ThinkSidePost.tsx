@@ -1,15 +1,9 @@
 // TODO: Import component in components.ts
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { useTracking } from "../../lib/analyticsEvents";
-import { useDynamicTableOfContents } from '../hooks/useDynamicTableOfContents';
 import { ToCData, ToCSection } from '@/lib/tableOfContents';
 import { Link, useNavigate } from '@/lib/reactRouterWrapper';
 import { getSectionsWithOffsets, jumpToAnchorGeneric } from '../posts/TableOfContents/FixedPositionToC';
-import { getAnchorY, jumpToY } from '../posts/TableOfContents/TableOfContentsList';
-import { scrollFocusOnElement } from '@/lib/scrollUtils';
-import isEmpty from 'lodash/isEmpty';
-import { isLWorAF } from '@/lib/instanceSettings';
 import { useLocation } from '@/lib/routeUtil';
 
 const styles = (theme: ThemeType) => ({

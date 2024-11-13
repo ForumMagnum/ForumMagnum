@@ -195,7 +195,7 @@ export const ThinkSideColumn = ({classes, document, sectionData}: {
   }
 
   return <div className={classes.root}>
-    <Row gap={8}>
+    <Row gap={8} justifyContent="flex-start">
       <ForumIcon icon="Document" className={classes.icon} onClick={handleNewPostClick} />
       <ForumIcon icon="Book" className={classes.icon} onClick={handleNewSequenceClick} />
       <ThinkOmnibar setActive={setActive} />
