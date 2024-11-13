@@ -59,10 +59,10 @@ const embedConfig = {
 		},
 		{
 			name: "Neuronpedia",
-			url: /^neuronpedia\.org\/([a-zA-Z0-9-/]*)(?:\?embed=true&embedexplanation=([a-zA-Z0-9-/]*)&embedplots=([a-zA-Z0-9-/]*)&embedtest=([a-zA-Z0-9-/]*)&height=([a-zA-Z0-9-/]*))?/,
-			html: ([match, identifier, explanation, plots, test, height]: RegExpMatchArray) => `
+			url: /^neuronpedia\.org\/([a-zA-Z0-9-/]*)(?:\?embed=true(.*))?/,
+			html: ([match, identifier, slug]: RegExpMatchArray) => `
 				<div class="neuronpedia-preview">
-					<iframe style="height: ${match.match(/(?:[?&]height=)(\d+)/)?.[1] || "300"}px; max-width: 639px; border: none; overflow: hidden;" scrolling="no" src="https://neuronpedia.org/${identifier}/?embed=true&embedexplanation=${explanation || "true"}&embedplots=${plots || "true"}&embedtest=${test || "true"}&height=${height || 300}"/>
+					<iframe style="height: 360px; max-width: 639px; border: 1px solid #e2e8f0; border-radius: 6; overflow: hidden;" scrolling="no" src="https://neuronpedia.org/${identifier}/?embed=true${slug ? `&${slug}` : ""}"/>
 				</div>
 			`
 		},
