@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "@/lib/reactRouterWrapper";
 import { MOBILE_HEADER_HEIGHT } from "@/components/common/Header";
@@ -8,6 +8,7 @@ const FUND_HREF = "https://www.every.org/effective-ventures-foundation-usa-inc-f
 const VOTING_HREF = "#";
 const CANDIDATES_HREF = "#";
 const FRAUD_HREF = "#";
+const RANKING_HREF = "#";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -67,9 +68,38 @@ const styles = (theme: ThemeType) => ({
     lineHeight: "140%",
     opacity: 0.7,
   },
+  rankingRoot: {
+    maxWidth: 680,
+    padding: 24,
+  },
+  rankingInfo: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "12px",
+  },
+  rankingTitle: {
+    fontSize: 40,
+    fontWeight: 700,
+  },
+  rankingDescription: {
+    fontSize: 16,
+    lineHeight: "150%",
+  },
+  rankingSubDescription: {
+    fontSize: 16,
+    lineHeight: "150%",
+    opacity: 0.7,
+  },
+  rankingCandidates: {
+  },
+  commentRoot: {
+  },
+  thankYouRoot: {
+  },
 });
 
-const WelcomeScreen = ({classes}: {
+const WelcomeScreen = ({onNext, classes}: {
+  onNext?: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
   const {EAButton} = Components;
@@ -85,7 +115,7 @@ const WelcomeScreen = ({classes}: {
         your vote<sup>2</sup> as many times as you like until the deadline. Find
         out more about the candidates <Link to={CANDIDATES_HREF}>here</Link>.
       </div>
-      <EAButton className={classes.welcomeButton}>
+      <EAButton onClick={onNext} className={classes.welcomeButton}>
         Vote in the Election -&gt;
       </EAButton>
       <div>
@@ -103,12 +133,77 @@ const WelcomeScreen = ({classes}: {
   );
 }
 
-const VotingPortalPage = ({classes}: {
+const RankingScreen = ({classes}: {
+  onNext?: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
   return (
+    <div className={classes.rankingRoot}>
+      <div className={classes.rankingInfo}>
+        <div className={classes.rankingTitle}>Rank the candidates</div>
+        <div className={classes.rankingDescription}>
+          Rank the candidates in descending order with your favourite at the
+          top. Click on candidates to rank them, drag to change order. Unranked
+          candidates get no points. Find out more{" "}
+          <Link to={RANKING_HREF}>here</Link>.
+        </div>
+        <div className={classes.rankingSubDescription}>
+          If you’re unsure about your ranking: vote, read more, and change your
+          vote.
+        </div>
+      </div>
+      <div className={classes.rankingCandidates}>
+      </div>
+    </div>
+  );
+}
+
+const CommentScreen = ({classes}: {
+  onNext?: () => void,
+  classes: ClassesType<typeof styles>,
+}) => {
+  return (
+    <div className={classes.commentRoot}>
+      Comment
+    </div>
+  );
+}
+
+const ThankYouScreen = ({classes}: {
+  onNext?: () => void,
+  classes: ClassesType<typeof styles>,
+}) => {
+  return (
+    <div className={classes.thankYouRoot}>
+      Thank you
+    </div>
+  );
+}
+
+const SCREENS = ["welcome", "ranking", "comment", "thank-you"];
+type Screen = typeof SCREENS[number];
+
+const VotingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
+  const [screen, setScreen] = useState<Screen>("welcome");
+
+  const onNext = useCallback(() => {
+    setScreen((currentScreen) => SCREENS[SCREENS.indexOf(currentScreen) + 1]);
+  }, []);
+
+  return (
     <div className={classes.root}>
-      <WelcomeScreen classes={classes} />
+      {screen === "welcome" &&
+        <WelcomeScreen onNext={onNext} classes={classes} />
+      }
+      {screen === "ranking" &&
+        <RankingScreen onNext={onNext} classes={classes} />
+      }
+      {screen === "comment" &&
+        <CommentScreen onNext={onNext} classes={classes} />
+      }
+      {screen === "thank-you" &&
+        <ThankYouScreen onNext={onNext} classes={classes} />
+      }
     </div>
   );
 }
