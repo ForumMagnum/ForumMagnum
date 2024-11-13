@@ -1,3 +1,4 @@
+import { eaGivingSeason24ElectionName } from "@/components/forumEvents/votingPortal/hooks";
 import { foreignKeyField, schemaDefaultValue } from "../../utils/schemaUtils";
 
 const schema: SchemaType<"ElectionCandidates"> = {
@@ -12,8 +13,8 @@ const schema: SchemaType<"ElectionCandidates"> = {
     control: "select",
     options: () => [
       {
-        value: "givingSeason23",
-        label: "EA Giving Season 2023",
+        value: eaGivingSeason24ElectionName,
+        label: "EA Giving Season 2024",
       },
     ],
   },
