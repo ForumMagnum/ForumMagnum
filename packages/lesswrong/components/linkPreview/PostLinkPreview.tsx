@@ -764,7 +764,7 @@ const NeuronpediaPreview = ({classes, href, id, children}: {
         </a>
 
         <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
-          <iframe className={classes.iframeStyling} scrolling="no" src={url} />
+          <iframe className={classes.iframeStyling} src={url} />
         </LWPopper>
       </span>
     </AnalyticsTracker>
