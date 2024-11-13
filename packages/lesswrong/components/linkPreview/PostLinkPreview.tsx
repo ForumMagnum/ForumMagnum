@@ -722,7 +722,8 @@ const neuronpediaStyles = (theme: ThemeType) => ({
   iframeStyling: {
     width: "100%",
     height: 360,
-    border: "1px solid #e2e8f0",
+    border: "1px solid",
+    borderColor: theme.palette.grey[300],
     borderRadius: 6,
     maxWidth: 639,
   },

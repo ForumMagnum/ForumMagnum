@@ -62,7 +62,7 @@ const embedConfig = {
 			url: /^neuronpedia\.org\/([a-zA-Z0-9-/]*)(?:\?embed=true(.*))?/,
 			html: ([match, identifier, slug]: RegExpMatchArray) => `
 				<div class="neuronpedia-preview">
-					<iframe style="height: 360px; max-width: 639px; border: 1px solid #e2e8f0; border-radius: 6; overflow: hidden;" scrolling="no" src="https://neuronpedia.org/${identifier}/?embed=true${slug ? `&${slug}` : ""}"/>
+					<iframe style="height: 360px; max-width: 639px; border: 1px solid gray; border-radius: 6; overflow: hidden;" scrolling="no" src="https://neuronpedia.org/${identifier}/?embed=true${slug ? `&${slug}` : ""}"/>
 				</div>
 			`
 		},
