@@ -778,6 +778,7 @@ importComponent("ForumEventPostPagePollSection", () => require('../components/fo
 importComponent("ForumEventPoll", () => require('../components/forumEvents/ForumEventPoll'));
 importComponent("ForumEventResultIcon", () => require('../components/forumEvents/ForumEventResultIcon'));
 importComponent("GivingSeason2024Banner", () => require('../components/forumEvents/GivingSeason2024Banner'));
+importComponent("VotingPortalPage", () => require('../components/forumEvents/votingPortal/VotingPortalPage'));
 
 importComponent("UserReviewMetadata", () => require('../components/sunshineDashboard/ModeratorUserInfo/UserReviewMetadata'));
 importComponent("UserReviewStatus", () => require('../components/sunshineDashboard/ModeratorUserInfo/UserReviewStatus'));

@@ -844,6 +844,13 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'PeopleDirectoryPage',
       title: 'People directory',
     },
+    {
+      name: 'VotingPortal',
+      path: '/voting-portal',
+      componentName: 'VotingPortalPage',
+      title: 'Vote in the Donation Election',
+      noFooter: true,
+    },
   ],
   LessWrong: [
     {

@@ -553,6 +553,7 @@ declare global {
       primary: ColorString,
       electionFundBackground: ColorString,
       electionFundBackgroundHeavy: ColorString,
+      portalPrimary: ColorString,
     },
     namesAttachedReactions: {
       selectedAnti: ColorString,
