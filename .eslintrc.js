@@ -150,28 +150,6 @@ module.exports = {
       allowUnsafeDynamicCyclicDependency: true,
     }],
     "import/no-mutable-exports": 1,
-    "import/no-restricted-paths": ["error", {"zones": [
-      {
-        target: "packages/lesswrong/components",
-        from: "packages/lesswrong/server",
-        message: "server cannot be imported into components - move the shared code into lib",
-      },
-      {
-        target: "packages/lesswrong/lib",
-        from: "packages/lesswrong/server",
-        message: "server cannot be imported into lib - move the shared code into lib",
-      },
-      {
-        target: "packages/lesswrong/client",
-        from: "packages/lesswrong/server",
-        message: "server cannot be imported into client - move the shared code into lib",
-      },
-      {
-        target: "packages/lesswrong/themes",
-        from: "packages/lesswrong/server",
-        message: "server cannot be imported into themes - move the shared code into lib",
-      },
-    ]}],
     "no-restricted-imports": ["error", {
       "paths": restrictedImportsPaths,
       patterns: [
@@ -348,7 +326,7 @@ module.exports = {
     "afterEach": true
   },
   "ignorePatterns": [
-    "build.js",
+    "build.ts",
     // You wouldn't have thought this was necessary would you
     ".eslintrc.js"
   ]

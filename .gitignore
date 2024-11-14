@@ -73,7 +73,7 @@ typings
 *.secret
 
 build*
-!build.js
+!build.ts
 !buildUtil.js
 yarn-error.log
 public/lesswrong-editor/obj

@@ -1,6 +1,5 @@
 import seedrandom from "./seedrandom";
-
-const crypto = bundleIsServer ? require('crypto') : null;
+import crypto from "@/server/utils/wrapNodeCrypto";
 
 // Excludes 0O1lIUV
 const unmistakableChars = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTWXYZ23456789";
