@@ -2708,6 +2708,7 @@ interface TagPageFragment extends TagWithFlagsFragment { // fragment on Tags
   readonly subforumWelcomeText: TagPageFragment_subforumWelcomeText|null,
   readonly contributors: any,
   readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
+  readonly lenses: Array<MultiDocumentEdit>,
 }
 
 interface TagPageFragment_subforumWelcomeText { // fragment on Revisions
@@ -2726,6 +2727,7 @@ interface TagPageWithRevisionFragment extends TagWithFlagsAndRevisionFragment { 
   readonly subforumWelcomeText: TagPageWithRevisionFragment_subforumWelcomeText|null,
   readonly contributors: any,
   readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
+  readonly lenses: Array<MultiDocumentEdit>,
 }
 
 interface TagPageWithRevisionFragment_subforumWelcomeText { // fragment on Revisions
@@ -4186,9 +4188,21 @@ interface LlmMessagesFragment { // fragment on LlmMessages
 }
 
 interface MultiDocumentsDefaultFragment { // fragment on MultiDocuments
-  readonly name: string,
+  readonly title: string,
+  readonly subtitle: string | null,
+  readonly userId: string,
   readonly parentDocumentId: string,
   readonly collectionName: string,
+}
+
+interface MultiDocumentEdit { // fragment on MultiDocuments
+  readonly _id: string,
+  readonly parentDocumentId: string,
+  readonly collectionName: string,
+  readonly userId: string,
+  readonly title: string,
+  readonly subtitle: string | null,
+  readonly contents: RevisionEdit|null,
 }
 
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
@@ -4516,6 +4530,7 @@ interface FragmentTypes {
   LlmMessagesDefaultFragment: LlmMessagesDefaultFragment
   LlmMessagesFragment: LlmMessagesFragment
   MultiDocumentsDefaultFragment: MultiDocumentsDefaultFragment
+  MultiDocumentEdit: MultiDocumentEdit
   SuggestAlignmentComment: SuggestAlignmentComment
   SubscribedPostAndCommentsFeed: SubscribedPostAndCommentsFeed
   JargonTerms: JargonTerms
@@ -4595,7 +4610,7 @@ interface FragmentTypesByCollection {
   SurveyResponses: "SurveyResponsesDefaultFragment"|"SurveyResponseMinimumInfo"
   LlmConversations: "LlmConversationsDefaultFragment"|"LlmConversationsFragment"|"LlmConversationsViewingPageFragment"|"LlmConversationsWithMessagesFragment"
   LlmMessages: "LlmMessagesDefaultFragment"|"LlmMessagesFragment"
-  MultiDocuments: "MultiDocumentsDefaultFragment"
+  MultiDocuments: "MultiDocumentsDefaultFragment"|"MultiDocumentEdit"
   SubscribedPostAndCommentses: "SubscribedPostAndCommentsFeed"
 }
 
@@ -4880,6 +4895,7 @@ interface CollectionNamesByFragmentName {
   LlmMessagesDefaultFragment: "LlmMessages"
   LlmMessagesFragment: "LlmMessages"
   MultiDocumentsDefaultFragment: "MultiDocuments"
+  MultiDocumentEdit: "MultiDocuments"
   SuggestAlignmentComment: "Comments"
   SubscribedPostAndCommentsFeed: never
   JargonTerms: "JargonTerms"

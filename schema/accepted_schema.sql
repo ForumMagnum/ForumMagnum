@@ -1244,7 +1244,9 @@ CREATE INDEX IF NOT EXISTS "idx_ModeratorActions_type_createdAt_endedAt" ON "Mod
 -- Table "MultiDocuments"
 CREATE TABLE "MultiDocuments" (
   _id VARCHAR(27) PRIMARY KEY,
-  "name" TEXT,
+  "title" TEXT,
+  "subtitle" TEXT,
+  "userId" TEXT,
   "parentDocumentId" TEXT,
   "collectionName" TEXT,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
@@ -1255,6 +1257,9 @@ CREATE TABLE "MultiDocuments" (
 
 -- Index "idx_MultiDocuments_schemaVersion"
 CREATE INDEX IF NOT EXISTS "idx_MultiDocuments_schemaVersion" ON "MultiDocuments" USING btree ("schemaVersion");
+
+-- Index "idx_MultiDocuments_parentDocumentId_collectionName"
+CREATE INDEX IF NOT EXISTS "idx_MultiDocuments_parentDocumentId_collectionName" ON "MultiDocuments" USING btree ("parentDocumentId", "collectionName");
 
 -- Table "Notifications"
 CREATE TABLE "Notifications" (

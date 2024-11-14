@@ -270,6 +270,9 @@ registerFragment(`
       }
     }
     canVoteOnRels
+    lenses {
+      ...MultiDocumentEdit
+    }
   }
 `);
 

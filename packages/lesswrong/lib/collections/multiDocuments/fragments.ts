@@ -5,6 +5,9 @@ registerFragment(`
     _id
     parentDocumentId
     collectionName
+    userId
+    title
+    subtitle
     contents {
       ...RevisionEdit
     }

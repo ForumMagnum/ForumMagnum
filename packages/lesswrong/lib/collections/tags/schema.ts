@@ -678,7 +678,14 @@ const schema: SchemaType<"Tags"> = {
       }));
     },
     sqlResolver: ({ field }) => `(
-      SELECT md.*, ROW_TO_JSON(r.*) AS contents
+      SELECT ARRAY_AGG(
+        JSONB_SET(
+          TO_JSONB(md.*),
+          '{contents}'::TEXT[],
+          TO_JSONB(r.*),
+          true
+        )
+      ) AS contents
       FROM "MultiDocuments" md
       LEFT JOIN "Revisions" r
       ON r._id = md.contents_latest

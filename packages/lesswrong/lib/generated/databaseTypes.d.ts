@@ -685,7 +685,9 @@ type MultiDocumentsCollection = CollectionBase<"MultiDocuments">;
 
 interface DbMultiDocument extends DbObject {
   __collectionName?: "MultiDocuments"
-  name: string | null
+  title: string | null
+  subtitle: string | null
+  userId: string | null
   parentDocumentId: string | null
   collectionName: CollectionNameString | null
   createdAt: Date
