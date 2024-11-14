@@ -233,6 +233,9 @@ registerFragment(`
       }
     }
     canVoteOnRels
+    lenses {
+      ...MultiDocumentEdit
+    }
   }
 `);
 
