@@ -59,12 +59,12 @@ const embedConfig = {
 		},
 		{
 			name: "Neuronpedia",
-			url: /^neuronpedia\.org\/([a-zA-Z0-9-/]*)(?:\?embed=true(.*))?/,
-			html: ([match, identifier, slug]: RegExpMatchArray) => `
+			url: /^neuronpedia\.org\/([^?]+)\?(?=.*embed=true(&|$))(\w+=[a-zA-Z0-9\-_.!~*'()%]+)(?:&\w+=[a-zA-Z0-9\-_.!~*'()%+]+)*$/,
+			html: ([match]: RegExpMatchArray) => `
 				<div class="neuronpedia-preview">
-					<iframe style="height: 360px; max-width: 639px; border: 1px solid gray; border-radius: 6; overflow: hidden;" scrolling="no" src="https://neuronpedia.org/${identifier}/?embed=true${slug ? `&${slug}` : ""}"/>
+					<iframe style="height: 360px; max-width: 639px; border: 1px solid gray; border-radius: 6; overflow: hidden;" scrolling="no" src="https://${match}"/>
 				</div>
-			`
+			`,
 		},
 		{
 			name: "StrawPoll",
