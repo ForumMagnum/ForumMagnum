@@ -10,6 +10,7 @@ import { markdownToHtml } from '@/server/editor/conversionUtils';
 import { createAdminContext, createMutator, slugify } from '@/server/vulcan-lib';
 import Tags from '@/lib/collections/tags/collection';
 import { getUnusedSlugByCollectionName } from '@/lib/helpers';
+import { randomId } from '@/lib/random';
 
 
 
@@ -41,7 +42,14 @@ Globals.importArbitalDb = async (mysqlConnectionString: string) => {
 }
 
 Globals.deleteAllImportedArbitalData = async (mysqlConnectionString: string) => {
-  // TODO
+  await Tags.rawUpdateMany({
+    "legacyData.arbitalPageId": {$exists: true}
+  }, {
+    "$set": {
+      slug: `deleted-import-${randomId()}`,
+      deleted: true,
+    },
+  });
 }
 
 async function doArbitalImport(database: WholeArbitalDatabase, matchedUsers: Record<string,DbUser|null>, resolverContext: ResolverContext): Promise<void> {
@@ -51,7 +59,10 @@ async function doArbitalImport(database: WholeArbitalDatabase, matchedUsers: Rec
   const wikiPageIds = database.pageInfos.filter(pi => pi.type === "wiki").map(pi=>pi.pageId);
   const pageIdsByTitle: Record<string,string> = {};
   const liveRevisionsByPageId: Record<string,WholeArbitalDatabase["pages"][0]> = {};
-  //const defaultUser: DbUser = await Users.findOne({ username: "arbitalimport" });
+  const defaultUser: DbUser|null = await Users.findOne({ username: "arbitalimport" });
+  if (!defaultUser) {
+    throw new Error("There must be a user named arbitalimport to assign edits to");
+  }
   
   for (const pageId of wikiPageIds) {
     const pageInfo = pageInfosById[pageId];
@@ -70,25 +81,29 @@ async function doArbitalImport(database: WholeArbitalDatabase, matchedUsers: Rec
   
   console.log(`There are ${Object.keys(liveRevisionsByPageId).length} wiki pages with live revisions`);
   
-  const testPageTitles = ['Epistemology', 'Logical Uncertainty'];
+  const testPageTitles = ['Logical game', 'Big-O Notation'];
   for (const title of testPageTitles) {
     const pageId = pageIdsByTitle[title];
+    if (!pageId) {
+      throw new Error(`No page with title: ${title}`);
+    }
     const pageInfo = pageInfosById[pageId];
     const lenses = lensesByPageId[pageId] ?? [];
     const liveRevision = liveRevisionsByPageId[pageId];
-    /*const pageCreator = matchedUsers[pageInfo.createdBy] ?? defaultUser;
+    const pageCreator = matchedUsers[pageInfo.createdBy] ?? defaultUser;
     const html = await arbitalMarkdownToHtml(database, liveRevision.text);
+    const slug = await getUnusedSlugByCollectionName("Tags", slugify(title));
+    console.log(`Creating wiki page: ${title} (${slug})`);
     
     await createMutator({
       collection: Tags,
       document: {
-        user: pageCreator._id,
         name: title,
-        slug: await getUnusedSlugByCollectionName("Tags", slugify(title)),
+        slug: slug,
         description: {
           originalContents: {
             type: "markdown",
-            value: liveRevision.text,
+            data: liveRevision.text,
           },
         },
         legacyData: {
@@ -97,7 +112,7 @@ async function doArbitalImport(database: WholeArbitalDatabase, matchedUsers: Rec
       },
       context: resolverContext,
       currentUser: pageCreator,
-    });*/
+    });
 
     //console.log('==============');
     //console.log(`${title} (${lenses.length} lenses)`);
