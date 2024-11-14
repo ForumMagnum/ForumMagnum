@@ -1,9 +1,16 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "@/lib/reactRouterWrapper";
 import { MOBILE_HEADER_HEIGHT } from "@/components/common/Header";
 import { useElectionCandidates } from "./hooks";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  DropResult,
+} from "@hello-pangea/dnd";
+import classNames from "classnames";
 
 const BACKGROUND_HREF = "https://res.cloudinary.com/cea/image/upload/v1731504237/Rectangle_5032.jpg";
 const FUND_HREF = "https://www.every.org/effective-ventures-foundation-usa-inc-for-the-ea-forum-donation-election-fund-2024";
@@ -101,14 +108,23 @@ const styles = (theme: ThemeType) => ({
   candidate: {
     display: "flex",
     alignItems: "center",
-    background: theme.palette.givingSeason.candidateBackground,
     borderRadius: theme.borderRadius.default,
     boxShadow: `0px 2px 4px 0px ${theme.palette.givingSeason.candidateShadow}`,
     border: `1px solid ${theme.palette.givingSeason.candidateBorder}`,
     padding: "8px 12px",
   },
+  candidateUnordered: {
+    background: theme.palette.givingSeason.candidateBackground,
+  },
+  candidateOrdered: {
+    background: theme.palette.text.alwaysWhite,
+    color: theme.palette.text.alwaysBlack,
+  },
   candidateHandle: {
     marginRight: 8,
+  },
+  candidateHandleIcon: {
+    marginTop: 4,
   },
   candidateImage: {
     width: 44,
@@ -119,6 +135,7 @@ const styles = (theme: ThemeType) => ({
     marginRight: 16,
   },
   candidateInfo: {
+    flexGrow: 1,
     display: "flex",
     flexDirection: "column",
     gap: "4px",
@@ -132,6 +149,16 @@ const styles = (theme: ThemeType) => ({
     fontSize: 14,
     letterSpacing: "-0.14px",
     opacity: 0.7,
+  },
+  candidateClear: {
+    cursor: "pointer",
+    opacity: 0.7,
+    fontSize: 14,
+    letterSpacing: "-0.14px",
+    fontWeight: 600,
+    "&:hover": {
+      opacity: 1,
+    },
   },
   commentRoot: {
   },
@@ -174,11 +201,60 @@ const WelcomeScreen = ({onNext, classes}: {
   );
 }
 
+type CandidateItem = {
+  id: string,
+  content: ElectionCandidateBasicInfo,
+  ordered: boolean,
+}
+
+const candidatesToListItems = (
+  candidates: ElectionCandidateBasicInfo[],
+): CandidateItem[] => {
+  return candidates.map((candidate) => ({
+    id: candidate._id,
+    content: candidate,
+    ordered: false,
+  }));
+}
+
+const reorder = (list: CandidateItem[], startIndex: number, endIndex: number) => {
+  const result = Array.from(list);
+  const [removed] = result.splice(startIndex, 1);
+  result.splice(endIndex, 0, removed);
+  for (let i = 0; i <= endIndex; i++) {
+    result[i].ordered = true;
+  }
+  return result;
+};
+
 const RankingScreen = ({candidates, classes}: {
   candidates: ElectionCandidateBasicInfo[],
   onNext?: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
+  const [items, setItems] = useState(candidatesToListItems.bind(null, candidates));
+
+  useEffect(() => {
+    setItems(candidatesToListItems(candidates));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [candidates.length]);
+
+  const onDragEnd = useCallback(({source, destination}: DropResult<string>) => {
+    if (destination) {
+      setItems((items) => reorder(items, source.index, destination.index));
+    }
+  }, []);
+
+  const onClear = useCallback((index: number) => {
+    setItems((items) => {
+      const result = Array.from(items);
+      result[index].ordered = false;
+      const ordered = result.filter(({ordered}) => ordered);
+      const unordered = result.filter(({ordered}) => !ordered);
+      return [...ordered, ...unordered];
+    });
+  }, []);
+
   const {ForumIcon} = Components;
   return (
     <div className={classes.rankingRoot}>
@@ -195,29 +271,66 @@ const RankingScreen = ({candidates, classes}: {
           vote.
         </div>
       </div>
-      <div className={classes.rankingCandidates}>
-        {candidates.map(({_id, name, tag, logoSrc, href}) => (
-          <div key={_id} className={classes.candidate}>
-            <div className={classes.candidateHandle}>
-              <ForumIcon icon="ChevronUpDown" />
-            </div>
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Droppable droppableId="droppable">
+          {({droppableProps, innerRef, placeholder}) => (
             <div
-              style={{backgroundImage: `url(${logoSrc})`}}
-              className={classes.candidateImage}
-            />
-            <div className={classes.candidateInfo}>
-              <div className={classes.candidateName}>
-                <Link to={href}>
-                  {name}
-                </Link>
-              </div>
-              <div className={classes.candidatePostCount}>
-                {tag?.postCount ?? 0} post{tag?.postCount === 1 ? "" : "s"}
-              </div>
+              {...droppableProps}
+              ref={innerRef}
+              className={classes.rankingCandidates}
+            >
+              {items.map((
+                {id, content: {name, tag, logoSrc, href}, ordered},
+                index,
+              ) => (
+                <Draggable key={id} draggableId={id} index={index}>
+                  {({innerRef, draggableProps, dragHandleProps}) => (
+                    <div
+                      className={classNames(
+                        classes.candidate,
+                        !ordered && classes.candidateUnordered,
+                        ordered && classes.candidateOrdered,
+                      )}
+                      ref={innerRef}
+                      {...draggableProps}
+                    >
+                      <div className={classes.candidateHandle} {...dragHandleProps}>
+                        <ForumIcon
+                          icon="ChevronUpDown"
+                          className={classes.candidateHandleIcon}
+                        />
+                      </div>
+                      <div
+                        style={{backgroundImage: `url(${logoSrc})`}}
+                        className={classes.candidateImage}
+                      />
+                      <div className={classes.candidateInfo}>
+                        <div className={classes.candidateName}>
+                          <Link to={href}>
+                            {name}
+                          </Link>
+                        </div>
+                        <div className={classes.candidatePostCount}>
+                          {tag?.postCount ?? 0} post{tag?.postCount === 1 ? "" : "s"}
+                        </div>
+                      </div>
+                      {ordered &&
+                        <div
+                          className={classes.candidateClear}
+                          onClick={onClear.bind(null, index)}
+                        >
+                          Clear
+                        </div>
+                      }
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {placeholder}
             </div>
-          </div>
-        ))}
-      </div>
+          )}
+        </Droppable>
+      </DragDropContext>
     </div>
   );
 }
