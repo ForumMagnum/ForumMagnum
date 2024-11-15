@@ -6,11 +6,11 @@ import UsersRepo from "../../repos/UsersRepo";
 import { loadArbitalDatabase, WholeArbitalDatabase } from './arbitalSchema';
 import keyBy from 'lodash/keyBy';
 import groupBy from 'lodash/groupBy';
-import { markdownToHtml } from '@/server/editor/conversionUtils';
 import { createAdminContext, createMutator, slugify } from '@/server/vulcan-lib';
 import Tags from '@/lib/collections/tags/collection';
 import { getUnusedSlugByCollectionName } from '@/lib/helpers';
 import { randomId } from '@/lib/random';
+import { arbitalMarkdownToHtml } from './arbitalMarkdown';
 
 
 
@@ -52,6 +52,11 @@ Globals.deleteAllImportedArbitalData = async (mysqlConnectionString: string) => 
   });
 }
 
+Globals.replaceAllImportedArbitalData = async (mysqlConnectionString: string) => {
+  await Globals.deleteAllImportedArbitalData(mysqlConnectionString);
+  await Globals.importArbitalDb(mysqlConnectionString);
+}
+
 async function doArbitalImport(database: WholeArbitalDatabase, matchedUsers: Record<string,DbUser|null>, resolverContext: ResolverContext): Promise<void> {
   const pageInfosById = keyBy(database.pageInfos, pi=>pi.pageId);
   const pagesById = groupBy(database.pages, p=>p.pageId);
@@ -63,6 +68,8 @@ async function doArbitalImport(database: WholeArbitalDatabase, matchedUsers: Rec
   if (!defaultUser) {
     throw new Error("There must be a user named arbitalimport to assign edits to");
   }
+  
+  const slugsByPageId: Record<string,string> = {};
   
   for (const pageId of wikiPageIds) {
     const pageInfo = pageInfosById[pageId];
@@ -77,52 +84,52 @@ async function doArbitalImport(database: WholeArbitalDatabase, matchedUsers: Rec
     pageIdsByTitle[title] = pageId
     liveRevisionsByPageId[pageId] = liveRevision;
     console.log(`${pageId}: ${title}`);
+    slugsByPageId[pageId] = await getUnusedSlugByCollectionName("Tags", slugify(title));
   }
   
   console.log(`There are ${Object.keys(liveRevisionsByPageId).length} wiki pages with live revisions`);
   
-  const testPageTitles = ['Logical game', 'Big-O Notation'];
+  /*const testPageTitles = ['Logical game', 'Big-O Notation'];
   for (const title of testPageTitles) {
     const pageId = pageIdsByTitle[title];
     if (!pageId) {
       throw new Error(`No page with title: ${title}`);
-    }
-    const pageInfo = pageInfosById[pageId];
-    const lenses = lensesByPageId[pageId] ?? [];
-    const liveRevision = liveRevisionsByPageId[pageId];
-    const pageCreator = matchedUsers[pageInfo.createdBy] ?? defaultUser;
-    const html = await arbitalMarkdownToHtml(database, liveRevision.text);
-    const slug = await getUnusedSlugByCollectionName("Tags", slugify(title));
-    console.log(`Creating wiki page: ${title} (${slug})`);
-    
-    await createMutator({
-      collection: Tags,
-      document: {
-        name: title,
-        slug: slug,
-        description: {
-          originalContents: {
-            type: "markdown",
-            data: liveRevision.text,
+    }*/
+  for (const pageId of Object.keys(liveRevisionsByPageId)) {
+    try {
+      const pageInfo = pageInfosById[pageId];
+      if (pageInfo.isDeleted) continue;
+      const lenses = lensesByPageId[pageId] ?? [];
+      const liveRevision = liveRevisionsByPageId[pageId];
+      const title = liveRevision.title;
+      const pageCreator = matchedUsers[pageInfo.createdBy] ?? defaultUser;
+      const html = await arbitalMarkdownToHtml({database, markdown: liveRevision.text, slugsByPageId});
+      const slug = await getUnusedSlugByCollectionName("Tags", slugify(title));
+      console.log(`Creating wiki page: ${title} (${slug})`);
+      
+      await createMutator({
+        collection: Tags,
+        document: {
+          name: title,
+          slug: slug,
+          description: {
+            originalContents: {
+              type: "ckEditorMarkup",
+              data: html,
+            },
+          },
+          legacyData: {
+            "arbitalPageId": pageId,
           },
         },
-        legacyData: {
-          "arbitalPageId": pageId,
-        },
-      },
-      context: resolverContext,
-      currentUser: pageCreator,
-    });
-
-    //console.log('==============');
-    //console.log(`${title} (${lenses.length} lenses)`);
-    //console.log(await arbitalMarkdownToHtml(database, liveRevision.text));
-    //console.log('==============');
+        context: resolverContext,
+        currentUser: pageCreator,
+        validate: false, //causes the check for name collisions to be skipped
+      });
+    } catch(e) {
+      console.error(e);
+    }
   }
-}
-
-async function arbitalMarkdownToHtml(database: WholeArbitalDatabase, markdown: string) {
-  return await markdownToHtml(markdown);
 }
 
 async function printTablesAndStats(connection: mysql.Connection): Promise<void> {
