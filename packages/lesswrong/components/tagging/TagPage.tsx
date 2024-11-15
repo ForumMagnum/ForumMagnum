@@ -166,6 +166,27 @@ export const styles = (theme: ThemeType): JssStyles => ({
   nextLink: {
     ...theme.typography.commentStyle
   },
+  lenses: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between"
+  },
+  lens: {
+    padding: 4,
+    margin: 4,
+    flex: 1,
+    textAlign: "center",
+    fontSize: 16,
+    '&::after': {
+      content: '|',
+      position: 'absolute',
+      top: '10%',          // Adjust as needed
+      right: 0,
+      height: '80%',       // Adjust as needed
+      width: '1px',
+      backgroundColor: 'gray', // Adjust the color as desired
+    },
+  },
   ...tagPageHeaderStyles(theme),
 });
 
@@ -392,7 +413,7 @@ const TagPage = ({classes}: {
             <Typography variant="display3" className={classes.title}>
               {tag.deleted ? "[Deleted] " : ""}{tag.name}
             </Typography>
-            <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classNames(classes.editMenu, classes.mobileButtonRow)} />
+            {/* <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classNames(classes.editMenu, classes.mobileButtonRow)} />
             {!tag.wikiOnly && !editing && userHasNewTagSubscriptions(currentUser) &&
               <SubscribeButton
                 tag={tag}
@@ -401,9 +422,15 @@ const TagPage = ({classes}: {
                 unsubscribeMessage="Subscribed"
                 subscriptionType={subscriptionTypes.newTagPosts}
               />
-            }
+            } */}
           </div>
-          <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classNames(classes.editMenu, classes.nonMobileButtonRow)} />
+          <div className={classes.lenses}>
+            <div className={classes.lens}>Main</div>
+            <div className={classes.lens}>Definition</div>
+            <div className={classes.lens}>Guide</div>
+            <div className={classes.lens}>Fast Intro</div>
+          </div>
+          {/* <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classNames(classes.editMenu, classes.nonMobileButtonRow)} /> */}
         </div>}
       >
         {(tag.parentTag || tag.subTags.length) ?

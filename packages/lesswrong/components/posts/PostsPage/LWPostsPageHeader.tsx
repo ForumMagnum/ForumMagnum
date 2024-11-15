@@ -12,8 +12,7 @@ export const LW_POST_PAGE_PADDING = 110;
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    paddingTop: LW_POST_PAGE_PADDING,
-    marginBottom: 96,
+    paddingTop: 70,
     [theme.breakpoints.down('xs')]: {
       paddingTop: 16,
       marginBottom: 38
@@ -178,18 +177,10 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
           <PostsTopSequencesNav post={post} />
         </div>}
       </AnalyticsContext>
-      <div>
-        <span className={classes.topRight}>
-          <LWPostsPageHeaderTopRight post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} annualReviewMarketInfo={annualReviewMarketInfo} />
-        </span>
-        {post && <span className={classes.audioPlayerWrapper}>
-          <PostsAudioPlayerWrapper showEmbeddedPlayer={!!showEmbeddedPlayer} post={post}/>
-        </span>}
-      </div>
       <div className={classes.titleSection}>
         <div className={classes.title}>
           <PostsPageTitle post={post} />
-          <div className={classes.authorAndSecondaryInfo}>
+          {/* <div className={classes.authorAndSecondaryInfo}>
             <div className={classes.authorInfo}>
               <PostsAuthors post={post} pageSectionContext="post_header" />
             </div>
@@ -216,7 +207,7 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
               </div>
               <PostActionsButton post={post} className={classes.postActionsButton} flip />
             </div>
-          </div>
+          </div> */}
         </div>
         <div className={classes.mobileHeaderVote}>
           <PostsVote post={post} />

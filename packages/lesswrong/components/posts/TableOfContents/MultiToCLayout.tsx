@@ -59,7 +59,10 @@ const styles = (theme: ThemeType) => ({
       `
     },
   },
-  gap1: {gridArea: "gap1"},
+  gap1: {
+    gridArea: "gap1",
+    position: "relative",
+  },
   toc: {
     position: 'unset',
     width: 'unset',
@@ -158,7 +161,13 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]: {
       display: 'none',
     },
-  }
+  },
+  wtfButton: {
+    position: "absolute",
+    right: 30,
+    // top: "218px",
+    top: 300,
+  },
 });
 
 export type ToCLayoutSegment = {
@@ -206,7 +215,15 @@ const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader
             </div>
           </div>
         </>}
-        <div className={classes.gap1}/>
+        <div className={classes.gap1}>
+          {/* <h2>Logical decision theories</h2> */}
+          <div className={classes.wtfButton}>
+            <Components.SectionButton>
+                {/* <AddIcon /> */}
+                WTF?
+            </Components.SectionButton>
+          </div>
+        </div>
         <div className={classes.content} style={{ "gridArea": `content${i}` }} >
           {segment.centralColumn}
         </div>

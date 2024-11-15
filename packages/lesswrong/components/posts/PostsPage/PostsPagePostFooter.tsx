@@ -100,11 +100,6 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
     {!post.shortform && (isLW || isEAEmojis) &&
       <>
         <div className={classes.footerSection}>
-          <div className={classNames(classes.voteBottom, isLWorAF && classes.lwVote)}>
-            <AnalyticsContext pageSectionContext="lowerVoteButton">
-              <PostsVote post={post} useHorizontalLayout={isFriendlyUI} isFooter />
-            </AnalyticsContext>
-          </div>
           {isFriendlyUI && <div className={classes.secondaryInfoRight}>
             <BookmarkButton post={post} className={classes.bookmarkButton} placement='bottom-start' />
             <SharePostButton post={post} />
@@ -115,13 +110,6 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
             </span>
           </div>}
         </div>
-        {PostBottomSecondaryVotingComponent &&
-          <PostBottomSecondaryVotingComponent
-            document={post}
-            votingSystem={votingSystem}
-            isFooter
-          />
-        }
       </>
     }
     {sequenceId && <div className={classes.bottomNavigation}>

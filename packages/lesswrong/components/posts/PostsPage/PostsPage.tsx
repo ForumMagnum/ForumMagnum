@@ -43,6 +43,7 @@ import { SideItemVisibilityContextProvider } from '@/components/dropdowns/posts/
 import { LW_POST_PAGE_PADDING } from './LWPostsPageHeader';
 import { useCommentLinkState } from '@/components/comments/CommentsItem/useCommentLink';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
+import { Link } from '@/lib/reactRouterWrapper';
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
 export const MAX_COLUMN_WIDTH = 720
@@ -250,7 +251,6 @@ export const styles = (theme: ThemeType) => ({
     }
   },
   title: {
-    marginBottom: 32,
     [theme.breakpoints.down('sm')]: {
       marginBottom: theme.spacing.titleDividerSpacing,
     }
@@ -259,6 +259,10 @@ export const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]: {
       marginBottom: 35,
     }
+  },
+  writtenBy: {
+    marginBottom: 50,
+    fontVariant: 'small-caps',
   },
   centralColumn: {
     marginLeft: 'auto',
@@ -401,6 +405,78 @@ export const styles = (theme: ThemeType) => ({
     fontSize: isFriendlyUI ? undefined : theme.typography.body2.fontSize,
     cursor: 'default'
   },
+  tabsContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    gap: '2px',
+    marginTop: 30,
+    position: 'relative',
+    zIndex: 1,
+    maxWidth: 1000,
+    margin: '0 auto',
+    width: '100%',
+    paddingRight: 50,
+    marginBottom: 30,
+  },
+  tab: {
+    padding: '12px 24px',
+    cursor: 'pointer',
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 20,
+    color: '#666',
+    flex: 1,
+    display: 'flex',
+    alignItems: 'center',
+    textAlign: 'center',
+    justifyContent: 'center',
+    '&:hover': {
+      backgroundColor: '#f8f8f8'
+    },
+    flexDirection: 'column',
+  },
+  activeTab: {
+    backgroundColor: '#fff',
+    marginBottom: -1,
+    color: '#333',
+    fontWeight: 300,
+    opacity: 0.6,
+  },
+  tabTitle: {
+    fontSize: 20,
+    color: '#666',
+  },
+  subheading: {
+    fontSize: 16,
+    color: '#999',
+    marginTop: 4,
+  },
+  relatedPosts: {
+    marginTop: 40,
+  },
+  rightColumnWikiInfo: {
+    fontSize: 16,
+    // marginTop: 220,
+    marginTop: 300,
+  },
+  rightColumnWikiInfoItem: {
+    padding: '1px 0 1px 0',
+  },
+  wikiLink: {
+    color: '#327e09',
+  },
+  topRow: {
+    display: 'flex',
+    alignItems: 'end',
+    width: 648,
+    flexDirection: 'column',
+  },
+  topRowContainer: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+  tabsContainerContainer: {
+    width: 1000,
+  },
 })
 
 const getDebateResponseBlocks = (responses: CommentsList[], replies: CommentsList[]) => responses.map(debateResponse => ({
@@ -419,6 +495,41 @@ export const postsCommentsThreadMultiOptions = {
   fetchPolicy: 'cache-and-network' as const,
   enableTotal: true,
 }
+
+const TabsHeader = ({classes}: {classes: ClassesType}) => {
+  return (
+    <div className={classes.tabsContainer}>
+      <div className={classes.tab}>
+        <div className={classes.tabTitle}>Main</div>
+      </div>
+      <div className={classes.tab}>
+        <div className={classes.tabTitle}>Intro</div>
+        <div className={classes.subheading}>Economists</div>
+      </div>
+      <div className={classes.tab}>
+        <div className={classes.tabTitle}>Intro</div>
+        <div className={classes.subheading}>Computer Scientists</div>
+      </div>
+      <div className={`${classes.tab} ${classes.activeTab}`}>
+        <div className={classes.tabTitle}>Intro</div>
+        <div className={classes.subheading}>Philosophers</div>
+      </div>
+      <div className={classes.tab}>
+        <div className={classes.tabTitle}>Loose Intro</div>
+        <div className={classes.subheading}>Everyone Else</div>
+      </div>
+    </div>
+  );
+};
+
+// const TabsHeader = ({classes}: {classes: ClassesType}) => {
+//   return (
+//     <div className={classes.tabsContainer}>
+//       <div className={`${classes.tab} ${classes.activeTab}`}>Main</div>
+//       <div className={classes.tab}>Technical tutorial</div>
+//     </div>
+//   );
+// };
 
 const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}: {
   eagerPostComments?: EagerPostComments,
@@ -589,7 +700,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     PostsPageQuestionContent, AFUnreviewedCommentCount, CommentsListSection, CommentsTableOfContents,
     StickyDigestAd, PostsPageSplashHeader, PostsAudioPlayerWrapper, AttributionInViewTracker,
     ForumEventPostPagePollSection, NotifyMeButton, LWTooltip, PostsPageDate,
-    PostFixedPositionToCHeading
+    PostFixedPositionToCHeading, PostsList2
   } = Components
 
   useEffect(() => {
@@ -789,21 +900,17 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
             />
           </div>}
           <PostCoauthorRequest post={post} currentUser={currentUser} />
-          {!showSplashPageHeader && isBookUI && <LWPostsPageHeader
+          {/* {!showSplashPageHeader && isBookUI && <LWPostsPageHeader
             post={post}
-            showEmbeddedPlayer={showEmbeddedPlayer}
             dialogueResponses={debateResponses}
             answerCount={answerCount}
-            toggleEmbeddedPlayer={toggleEmbeddedPlayer}
             annualReviewMarketInfo={marketInfo}
-            />}
+          />}
           {!showSplashPageHeader && !isBookUI && <PostsPagePostHeader
             post={post}
             answers={answers ?? []}
-            showEmbeddedPlayer={showEmbeddedPlayer}
-            toggleEmbeddedPlayer={toggleEmbeddedPlayer}
             dialogueResponses={debateResponses} 
-            annualReviewMarketInfo={marketInfo}/>}
+            annualReviewMarketInfo={marketInfo}/>} */}
         </div>
       </div>
     </AnalyticsContext>
@@ -818,6 +925,15 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
   );
 
   const rightColumnChildren = (welcomeBox || hasSidenotes || (showRecommendations && recommendationsPosition === "right")) && <>
+    {<div className={classes.rightColumnWikiInfo}>
+      <div className={classes.rightColumnWikiInfoItem}>
+        Teaches: <Link to="/posts/mw4BRrvayX52CnBGx/logical-decision-theories" className={classes.wikiLink}>Logical decision theories</Link>
+      </div>
+      <div className={classes.rightColumnWikiInfoItem}>
+        Parents: <Link to="/posts/mw4BRrvayX52CnBGx/logical-decision-theories" className={classes.wikiLink}>Logical decision theories</Link>
+      </div>
+      <div className={classes.rightColumnWikiInfoItem}>Children: none</div>
+    </div>}
     {welcomeBox}
     {showRecommendations && recommendationsPosition === "right" && fullPost && <PostSideRecommendations post={fullPost} />}
     {hasSidenotes && <>
@@ -848,17 +964,18 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
       !showEmbeddedPlayer && classes.audioPlayerHidden
     )}>
       {isBookUI && header}
-      {showSplashPageHeader && <h1 className={classes.secondSplashPageHeader}>
+      {/* {showSplashPageHeader && <h1 className={classes.secondSplashPageHeader}>
         {post.title}
-      </h1>}
+      </h1>} */}
+      {/* <h2 className={classes.writtenBy}>written by Eliezer Yudkowsky (Feb 3, 2016)</h2> */}
+      {/* <TabsHeader classes={classes} /> */}
       {/* Body */}
       {fullPost && isEAForum && <PostsAudioPlayerWrapper showEmbeddedPlayer={showEmbeddedPlayer} post={fullPost}/>}
       {fullPost && post.isEvent && fullPost.activateRSVPs &&  <RSVPs post={fullPost} />}
       {!post.debate && <ContentStyles
-        contentType="post"
+        contentType="tag"
         className={classNames(classes.postContent, "instapaper_body")}
       >
-        <PostBodyPrefix post={post} query={query}/>
         <AnalyticsContext pageSectionContext="postBody">
           <HoveredReactionContextProvider voteProps={voteProps}>
           <CommentOnSelectionContentWrapper onClickComment={onClickCommentOnSelection}>
@@ -932,6 +1049,9 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
           </div>
         </AnalyticsContext>
       }
+      {/* <div className={classes.relatedPosts}>
+        <PostsList2 terms={{ view: 'top', limit: 10 }} />
+      </div> */}
     </div>
 
   const commentsSection =
@@ -991,9 +1111,18 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
       // We perform this seemingly redundant spread because `showSplashPageHeader` checks that `post.reviewWinner` exists,
       // and Typescript is only smart enough to narrow the type for you if you access the field directly like this
       post={{...fullPost, reviewWinner: fullPost.reviewWinner!}}
-      showEmbeddedPlayer={showEmbeddedPlayer}
-      toggleEmbeddedPlayer={toggleEmbeddedPlayer}
+      // Remove audio player controls
+      // showEmbeddedPlayer={showEmbeddedPlayer}
+      // toggleEmbeddedPlayer={toggleEmbeddedPlayer}
     />}
+    <div className={classes.topRowContainer}>
+      <div className={classes.topRow}>
+        <h2>Logical decision theories</h2>
+      </div>
+      <div className={classes.tabsContainerContainer}>
+        <TabsHeader classes={classes} />
+      </div>
+    </div>
     {commentsTableOfContentsEnabled
       ? <Components.MultiToCLayout
           segments={[
@@ -1026,12 +1155,6 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     }
   
     {isEAForum && showDigestAd && <DeferRender ssr={false}><StickyDigestAd /></DeferRender>}
-    {hasPostRecommendations && fullPost && <AnalyticsInViewTracker eventProps={{inViewType: "postPageFooterRecommendations"}}>
-      <PostBottomRecommendations
-        post={post}
-        hasTableOfContents={hasTableOfContents}
-      />
-    </AnalyticsInViewTracker>}
     </SideItemVisibilityContextProvider>
     </ImageProvider>
     </Components.SideItemsContainer>

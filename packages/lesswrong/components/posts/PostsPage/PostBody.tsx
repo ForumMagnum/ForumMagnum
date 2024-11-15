@@ -11,6 +11,7 @@ import { VotingProps } from '@/components/votes/votingProps';
 import { jargonTermsToTextReplacements } from '@/components/jargon/JargonTooltip';
 import { useGlobalKeydown } from '@/components/common/withGlobalKeydown';
 import { useTracking } from '@/lib/analyticsEvents';
+import { truncate } from '@/lib/editor/ellipsize';
 
 const enableInlineReactsOnPosts = inlineReactsHoverEnabled;
 
@@ -99,7 +100,10 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
       : document.sideComments.commentsByBlock;
     const sideCommentsMap = mapValues(sideComments, commentIds => <SideCommentIcon post={post} commentIds={commentIds}/>)
 
+    const truncatedHtml = truncate(htmlWithIDs, 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>")
+
     content = <ContentItemBody
+      // dangerouslySetInnerHTML={{__html: truncatedHtml}}
       dangerouslySetInnerHTML={{__html: htmlWithIDs}}
       ref={contentRef}
       key={`${post._id}_${sideCommentMode}`}
