@@ -22,6 +22,10 @@ const schema: SchemaType<"MultiDocuments"> = {
     canRead: ['guests'],
     typescriptType: "CollectionNameString",
   },
+  fieldName: {
+    type: String,
+    canRead: ['guests'],
+  },
 };
 
 export default schema;

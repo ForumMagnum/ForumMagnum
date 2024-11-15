@@ -5,6 +5,7 @@ registerFragment(`
     _id
     parentDocumentId
     collectionName
+    fieldName
     userId
     title
     subtitle
