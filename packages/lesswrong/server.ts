@@ -86,6 +86,7 @@ import "./server/scripts/exportAEStudiosData";
 // doesn't pass unit tests but works fine. Leaving commented out for now
 import './server/scripts/generativeModels/autoSpotlight';
 import "./server/scripts/mongoQueryToSQL";
+import "./server/scripts/arbitalImport/arbitalImport";
 import './server/manualMigrations';
 import './server/manualMigrations/migrationsDashboardGraphql';
 
