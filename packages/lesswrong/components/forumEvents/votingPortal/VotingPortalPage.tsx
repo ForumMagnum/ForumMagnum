@@ -126,6 +126,16 @@ const styles = (theme: ThemeType) => ({
   candidateHandleIcon: {
     marginTop: 4,
   },
+  candidateOrder: {
+    background: theme.palette.givingSeason.candidateOrder,
+    color: theme.palette.text.alwaysWhite,
+    width: 20,
+    height: 20,
+    borderRadius: theme.borderRadius.small,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
   candidateImage: {
     width: 44,
     height: 44,
@@ -295,10 +305,19 @@ const RankingScreen = ({candidates, classes}: {
                       {...draggableProps}
                     >
                       <div className={classes.candidateHandle} {...dragHandleProps}>
-                        <ForumIcon
-                          icon="ChevronUpDown"
-                          className={classes.candidateHandleIcon}
-                        />
+                        {ordered
+                          ? (
+                            <div className={classes.candidateOrder}>
+                              {index + 1}
+                            </div>
+                          )
+                          : (
+                            <ForumIcon
+                              icon="ChevronUpDown"
+                              className={classes.candidateHandleIcon}
+                            />
+                          )
+                        }
                       </div>
                       <div
                         style={{backgroundImage: `url(${logoSrc})`}}
