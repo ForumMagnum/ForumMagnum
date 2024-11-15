@@ -7,6 +7,7 @@ import {
   viewBasedSubquery,
 } from "../utils/feedUtil";
 
+
 addGraphQLResolvers({
   Query: {
     GivingSeason2024DonationTotal: (
@@ -14,6 +15,9 @@ addGraphQLResolvers({
       _args: {},
       context: ResolverContext,
     ) => context.repos.databaseMetadata.getGivingSeason2024DonationTotal(),
+    // TODO
+    // GivingSeason2024VoteCountWinners,
+    // GivingSeason2024VoteCountAll,
   },
 });
 
