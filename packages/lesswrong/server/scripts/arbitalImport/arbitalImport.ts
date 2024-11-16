@@ -8,9 +8,11 @@ import keyBy from 'lodash/keyBy';
 import groupBy from 'lodash/groupBy';
 import { createAdminContext, createMutator, slugify } from '@/server/vulcan-lib';
 import Tags from '@/lib/collections/tags/collection';
-import { getUnusedSlugByCollectionName } from '@/lib/helpers';
+import { getUnusedSlugByCollectionName, slugIsUsed } from '@/lib/helpers';
 import { randomId } from '@/lib/random';
 import { arbitalMarkdownToHtml } from './arbitalMarkdown';
+import { MultiDocuments } from '@/lib/collections/multiDocuments/collection';
+import { executePromiseQueue } from '@/lib/utils/asyncUtils';
 
 
 
@@ -26,8 +28,9 @@ Globals.importArbitalDb = async (mysqlConnectionString: string) => {
     const wholeDatabase = await loadArbitalDatabase(connection);
 
     //console.log("Matching Arbital users to LW users"); //eslint-disable-line no-console
-    //const matchedUsers = await matchArbitalUsers(wholeDatabase);
-    const matchedUsers = Object.fromEntries(wholeDatabase.users.map(u => [u.id,null]))
+    // const matchedUsers = await matchArbitalUsers(wholeDatabase);
+    // const matchedUsers = Object.fromEntries(wholeDatabase.users.map(u => [u.id,null]))
+    const matchedUsers = await Users.findOne('nmk3nLpQE89dMRzzN').then(u => u ? { [u._id]: u } : {});
     
     console.log("Importing data into LW"); //eslint-disable-line no-console
     await doArbitalImport(wholeDatabase, matchedUsers, resolverContext);
@@ -43,7 +46,8 @@ Globals.importArbitalDb = async (mysqlConnectionString: string) => {
 
 Globals.deleteAllImportedArbitalData = async (mysqlConnectionString: string) => {
   await Tags.rawUpdateMany({
-    "legacyData.arbitalPageId": {$exists: true}
+    "legacyData.arbitalPageId": {$exists: true},
+    deleted: false,
   }, {
     "$set": {
       slug: `deleted-import-${randomId()}`,
@@ -64,50 +68,60 @@ async function doArbitalImport(database: WholeArbitalDatabase, matchedUsers: Rec
   const wikiPageIds = database.pageInfos.filter(pi => pi.type === "wiki").map(pi=>pi.pageId);
   const pageIdsByTitle: Record<string,string> = {};
   const liveRevisionsByPageId: Record<string,WholeArbitalDatabase["pages"][0]> = {};
-  const defaultUser: DbUser|null = await Users.findOne({ username: "arbitalimport" });
-  if (!defaultUser) {
-    throw new Error("There must be a user named arbitalimport to assign edits to");
+  // const defaultUser: DbUser|null = await Users.findOne({ username: "arbitalimport" });
+  // if (!defaultUser) {
+  //   throw new Error("There must be a user named arbitalimport to assign edits to");
+  // }
+  
+  let slugsByPageId: Record<string,string> = {};
+  const slugsCachePath = path.join(__dirname, "./slugsByPageId.json");
+  if (fs.existsSync(slugsCachePath)) {
+    slugsByPageId = JSON.parse(fs.readFileSync(slugsCachePath, "utf8"));
   }
   
-  const slugsByPageId: Record<string,string> = {};
-  
-  for (const pageId of wikiPageIds) {
-    const pageInfo = pageInfosById[pageId];
-    const revisions = pagesById[pageId] ?? [];
+  const pageImportFunctions = wikiPageIds
+    .filter(pageId => pagesById[pageId]?.some(revision => revision.isLiveEdit))
+    .map(pageId => {
+      const revisions = pagesById[pageId] ?? [];
+      const liveRevision = revisions.filter(r => r.isLiveEdit)[0];
+      const title = liveRevision.title;
+      
+      return async () => {
+        pageIdsByTitle[title] = pageId;
+        liveRevisionsByPageId[pageId] = liveRevision;
+        console.log(`${pageId}: ${title}`);
+        slugsByPageId[pageId] = await getUnusedSlugByCollectionName("Tags", slugify(title));
+      };
+    });
 
-    const liveRevision = revisions?.filter(r => r.isLiveEdit)?.[0];
-    if (!liveRevision) {
-      // TODO: Figure out what these pages are that have no live revision
-      continue;
-    }
-    const title = liveRevision.title;
-    pageIdsByTitle[title] = pageId
-    liveRevisionsByPageId[pageId] = liveRevision;
-    console.log(`${pageId}: ${title}`);
-    slugsByPageId[pageId] = await getUnusedSlugByCollectionName("Tags", slugify(title));
-  }
+  await executePromiseQueue(pageImportFunctions, 10);
+
+
   
   console.log(`There are ${Object.keys(liveRevisionsByPageId).length} wiki pages with live revisions`);
   
-  /*const testPageTitles = ['Logical game', 'Big-O Notation'];
+  // const testPageTitles = ['Logical game', 'Big-O Notation'];
+  const testPageTitles = ['Logical decision theories'];
   for (const title of testPageTitles) {
     const pageId = pageIdsByTitle[title];
     if (!pageId) {
       throw new Error(`No page with title: ${title}`);
-    }*/
-  for (const pageId of Object.keys(liveRevisionsByPageId)) {
+    }
+  // for (const pageId of Object.keys(liveRevisionsByPageId)) {
     try {
       const pageInfo = pageInfosById[pageId];
       if (pageInfo.isDeleted) continue;
       const lenses = lensesByPageId[pageId] ?? [];
       const liveRevision = liveRevisionsByPageId[pageId];
       const title = liveRevision.title;
-      const pageCreator = matchedUsers[pageInfo.createdBy] ?? defaultUser;
+      const pageCreator = matchedUsers[pageInfo.createdBy] // ?? defaultUser;
       const html = await arbitalMarkdownToHtml({database, markdown: liveRevision.text, slugsByPageId});
-      const slug = await getUnusedSlugByCollectionName("Tags", slugify(title));
-      console.log(`Creating wiki page: ${title} (${slug})`);
+      const slug = await slugIsUsed("Tags", pageInfo.alias)
+        ? await getUnusedSlugByCollectionName("Tags", slugify(title))
+        : pageInfo.alias;
+      console.log(`Creating wiki page: ${title} (${slug}).  Lenses found: ${lenses.map(l=>l.lensName).join(", ")}`);
       
-      await createMutator({
+      const { data: tag } = await createMutator({
         collection: Tags,
         document: {
           name: title,
@@ -126,6 +140,38 @@ async function doArbitalImport(database: WholeArbitalDatabase, matchedUsers: Rec
         currentUser: pageCreator,
         validate: false, //causes the check for name collisions to be skipped
       });
+
+      // Add lenses
+      for (const lens of lenses) {
+        const lensPageInfo = pageInfosById[lens.pageId];
+        if (!lensPageInfo || lensPageInfo.isDeleted) {
+          continue;
+        }
+        const lensLiveRevision = liveRevisionsByPageId[lens.pageId];
+        const lensHtml = await arbitalMarkdownToHtml({database, markdown: lensLiveRevision.text, slugsByPageId});
+
+        await createMutator({
+          collection: MultiDocuments,
+          document: {
+            parentDocumentId: tag._id,
+            collectionName: "Tags",
+            fieldName: "description",
+            title: lens.lensName,
+            subtitle: lens.lensSubtitle,
+            userId: pageCreator._id,
+            index: lens.lensIndex,
+            contents: {
+              originalContents: {
+                type: "ckEditorMarkup",
+                data: lensHtml
+              }
+            },
+          } as AnyBecauseHard,
+          context: resolverContext,
+          currentUser: pageCreator,
+          validate: false,
+        });
+      }
     } catch(e) {
       console.error(e);
     }

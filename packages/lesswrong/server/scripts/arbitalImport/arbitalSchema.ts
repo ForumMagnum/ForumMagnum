@@ -785,6 +785,13 @@ export type WholeArbitalDatabase = { //{{_}}
   votes: VotesRow[];
 };
 
+const TABLE_PAGINATION_LIMITS = {
+  pages: 5000,
+  pathInstances: 20000,
+  userMasteryPairs: 80000,
+  userPageObjectPairs: 80000,
+} as const;
+
 export async function loadArbitalDatabase(connection: mysql.Connection): Promise<WholeArbitalDatabase> {
   let database: WholeArbitalDatabase = {
     aliasRedirects: [],
@@ -826,9 +833,26 @@ export async function loadArbitalDatabase(connection: mysql.Connection): Promise
 
   // Load data for each table
   for (const tableName of Object.keys(database)) {
-    const query = `SELECT * FROM ${tableName}`
-    const [rows] = await connection.query(query);
-    (database as any)[tableName] = (rows as any);
+    if (tableName === 'lastVisits' || tableName === 'pathInstances' || tableName === 'userMasteryPairs' || tableName === 'userPageObjectPairs') continue;
+
+    // Pages are large, and don't fit into a single query (grpc has a message size limit)
+    // So we paginate through them based on createdAt with a limit of 1000
+    if (tableName in TABLE_PAGINATION_LIMITS) {
+      const limit = TABLE_PAGINATION_LIMITS[tableName as keyof typeof TABLE_PAGINATION_LIMITS];
+      let offset = 0;
+      let loadMore = true;
+      while (loadMore) {
+        const query = `SELECT * FROM ${tableName} ORDER BY createdAt LIMIT ${limit} OFFSET ${offset}`;
+        const [rows] = await connection.query(query);
+        (database as any)[tableName].push(...(rows as any));
+        offset += rows.length;
+        loadMore = rows.length === limit;
+      }
+    } else {
+      const query = `SELECT * FROM ${tableName}`
+      const [rows] = await connection.query(query);
+      (database as any)[tableName] = (rows as any);
+    }
   }
 
   return database;

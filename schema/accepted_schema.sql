@@ -1249,6 +1249,8 @@ CREATE TABLE "MultiDocuments" (
   "userId" TEXT,
   "parentDocumentId" TEXT,
   "collectionName" TEXT,
+  "fieldName" TEXT,
+  "index" DOUBLE PRECISION,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB,

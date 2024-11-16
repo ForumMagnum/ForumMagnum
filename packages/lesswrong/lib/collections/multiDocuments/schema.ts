@@ -26,6 +26,10 @@ const schema: SchemaType<"MultiDocuments"> = {
     type: String,
     canRead: ['guests'],
   },
+  index: {
+    type: Number,
+    canRead: ['guests'],
+  },
 };
 
 export default schema;

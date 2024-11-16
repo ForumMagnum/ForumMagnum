@@ -690,6 +690,8 @@ interface DbMultiDocument extends DbObject {
   userId: string | null
   parentDocumentId: string | null
   collectionName: CollectionNameString | null
+  fieldName: string | null
+  index: number | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   contents_latest: string | null

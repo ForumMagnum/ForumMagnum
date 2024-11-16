@@ -4193,12 +4193,15 @@ interface MultiDocumentsDefaultFragment { // fragment on MultiDocuments
   readonly userId: string,
   readonly parentDocumentId: string,
   readonly collectionName: string,
+  readonly fieldName: string,
+  readonly index: number,
 }
 
 interface MultiDocumentEdit { // fragment on MultiDocuments
   readonly _id: string,
   readonly parentDocumentId: string,
   readonly collectionName: string,
+  readonly fieldName: string,
   readonly userId: string,
   readonly title: string,
   readonly subtitle: string | null,
