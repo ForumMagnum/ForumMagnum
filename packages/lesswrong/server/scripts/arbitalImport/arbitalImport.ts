@@ -13,7 +13,7 @@ import { randomId } from '@/lib/random';
 import { arbitalMarkdownToHtml } from './arbitalMarkdown';
 import { MultiDocuments } from '@/lib/collections/multiDocuments/collection';
 import { executePromiseQueue } from '@/lib/utils/asyncUtils';
-
+import path from 'path';
 
 
 // Create the connection to database
@@ -96,7 +96,7 @@ async function doArbitalImport(database: WholeArbitalDatabase, matchedUsers: Rec
 
   await executePromiseQueue(pageImportFunctions, 10);
 
-
+  fs.writeFileSync(slugsCachePath, JSON.stringify(slugsByPageId, null, 2));
   
   console.log(`There are ${Object.keys(liveRevisionsByPageId).length} wiki pages with live revisions`);
   
