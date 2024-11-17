@@ -183,6 +183,8 @@ export const DonationElectionLeaderboard = ({
 
   // Only show the running count once there are a reasonable number of votes
   if (totalVotes < 100) {
+    return null;
+  }
 
   const maxVotes = sortedCharityIds[0][1];
 
