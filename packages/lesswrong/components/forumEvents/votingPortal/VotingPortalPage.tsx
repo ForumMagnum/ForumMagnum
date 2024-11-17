@@ -4,6 +4,8 @@ import React, {
   SetStateAction,
   useCallback,
   useEffect,
+  useMemo,
+  useRef,
   useState,
 } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
@@ -372,10 +374,10 @@ const styles = (theme: ThemeType) => ({
   },
   thankYouToggle: {
     "& .ToggleSwitch-switchOff": {
-      background: theme.palette.givingSeason.electionFundBackground,
+      background: `${theme.palette.givingSeason.electionFundBackground} !important`,
     },
     "& .ToggleSwitch-switchOn": {
-      background: theme.palette.givingSeason.primary,
+      background: `${theme.palette.givingSeason.primary} !important`,
     },
   },
   footer: {
@@ -813,17 +815,24 @@ const candidatesToListItems = (
 const VotingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const {amountRaised, amountTarget} = useGivingSeasonEvents();
   const [screen, setScreen] = useState<Screen>("welcome");
+  const initializedRef = useRef(false);
   const {data: existingVoteData} = useQuery(gql`
     query GivingSeason2024MyVote {
       GivingSeason2024MyVote
     }
   `, {fetchPolicy: "cache-first", nextFetchPolicy: "cache-only"});
-  const existingVote = existingVoteData?.GivingSeason2024MyVote ?? {};
+  const existingVote = useMemo(
+    () => existingVoteData?.GivingSeason2024MyVote ?? {},
+    [existingVoteData],
+  );
   const {results: candidates = []} = useElectionCandidates();
   const [items, setItems] = useState(
     candidatesToListItems.bind(null, candidates, existingVote),
   );
-  const voteCount = items.filter(({ordered}) => ordered).length;
+  const voteCount = useMemo(
+    () => items.filter(({ordered}) => ordered).length,
+    [items],
+  );
 
   const {document: commentsPost} = useSingle({
     collectionName: "Posts",
@@ -832,9 +841,11 @@ const VotingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   });
 
   useEffect(() => {
-    setItems(candidatesToListItems(candidates, existingVote));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [candidates.length, existingVote]);
+    if (!initializedRef.current && candidates.length && existingVote) {
+      initializedRef.current = true;
+      setItems(candidatesToListItems(candidates, existingVote));
+    }
+  }, [candidates, existingVote]);
 
   const [saveVote] = useMutation(gql`
     mutation GivingSeason2024Vote($vote: JSON!) {
