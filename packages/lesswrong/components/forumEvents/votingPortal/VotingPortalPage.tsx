@@ -595,8 +595,9 @@ const RankingScreen = ({items, setItems, classes}: {
                       )}
                       ref={innerRef}
                       {...draggableProps}
+                      {...dragHandleProps}
                     >
-                      <div className={classes.candidateHandle} {...dragHandleProps}>
+                      <div className={classes.candidateHandle}>
                         {ordered
                           ? (
                             <div className={classes.candidateOrder}>
