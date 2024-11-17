@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "@/lib/reactRouterWrapper";
 import { MOBILE_HEADER_HEIGHT } from "@/components/common/Header";
@@ -174,10 +174,52 @@ const styles = (theme: ThemeType) => ({
   },
   thankYouRoot: {
   },
+  footer: {
+    position: "fixed",
+    bottom: 0,
+    left: 0,
+    width: "100vw",
+    height: 128,
+    background: theme.palette.text.alwaysWhite,
+    color: theme.palette.givingSeason.portalPrimary,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  footerContainer: {
+    width: 750,
+    maxWidth: "100vw",
+    padding: 8,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "48px",
+    fontSize: 14,
+    fontWeight: 600,
+  },
+  footerBackContainer: {
+    flexGrow: 1,
+  },
+  footerBackButton: {
+    cursor: "pointer",
+    textDecoration: "none !important",
+    "&:hover": {
+      opacity: 1,
+      color: theme.palette.givingSeason.primary,
+    },
+  },
+  footerButton: {
+    background: theme.palette.givingSeason.primary,
+    color: theme.palette.text.alwaysWhite,
+    padding: "16px 64px",
+    "&:hover": {
+      background: theme.palette.givingSeason.portalPrimary,
+    },
+  },
 });
 
 const WelcomeScreen = ({onNext, classes}: {
-  onNext?: () => void,
+  onNext: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
   const {EAButton} = Components;
@@ -217,16 +259,6 @@ type CandidateItem = {
   ordered: boolean,
 }
 
-const candidatesToListItems = (
-  candidates: ElectionCandidateBasicInfo[],
-): CandidateItem[] => {
-  return candidates.map((candidate) => ({
-    id: candidate._id,
-    content: candidate,
-    ordered: false,
-  }));
-}
-
 const reorder = (list: CandidateItem[], startIndex: number, endIndex: number) => {
   const result = Array.from(list);
   const [removed] = result.splice(startIndex, 1);
@@ -237,23 +269,16 @@ const reorder = (list: CandidateItem[], startIndex: number, endIndex: number) =>
   return result;
 };
 
-const RankingScreen = ({candidates, classes}: {
-  candidates: ElectionCandidateBasicInfo[],
-  onNext?: () => void,
+const RankingScreen = ({items, setItems, classes}: {
+  items: CandidateItem[],
+  setItems: Dispatch<SetStateAction<CandidateItem[]>>,
   classes: ClassesType<typeof styles>,
 }) => {
-  const [items, setItems] = useState(candidatesToListItems.bind(null, candidates));
-
-  useEffect(() => {
-    setItems(candidatesToListItems(candidates));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [candidates.length]);
-
   const onDragEnd = useCallback(({source, destination}: DropResult<string>) => {
     if (destination) {
       setItems((items) => reorder(items, source.index, destination.index));
     }
-  }, []);
+  }, [setItems]);
 
   const onClear = useCallback((index: number) => {
     setItems((items) => {
@@ -263,7 +288,7 @@ const RankingScreen = ({candidates, classes}: {
       const unordered = result.filter(({ordered}) => !ordered);
       return [...ordered, ...unordered];
     });
-  }, []);
+  }, [setItems]);
 
   const {ForumIcon} = Components;
   return (
@@ -355,7 +380,7 @@ const RankingScreen = ({candidates, classes}: {
 }
 
 const CommentScreen = ({classes}: {
-  onNext?: () => void,
+  onNext: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
   return (
@@ -366,7 +391,7 @@ const CommentScreen = ({classes}: {
 }
 
 const ThankYouScreen = ({classes}: {
-  onNext?: () => void,
+  onNext: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
   return (
@@ -376,12 +401,64 @@ const ThankYouScreen = ({classes}: {
   );
 }
 
+const Footer = ({onBack, onNext, infoText, continueText, classes}: {
+  onBack: () => void,
+  onNext: () => void,
+  infoText: string,
+  continueText: string,
+  classes: ClassesType<typeof styles>,
+}) => {
+  const {EAButton} = Components;
+  return (
+    <div className={classes.footer}>
+      <div className={classes.footerContainer}>
+        <div className={classes.footerBackContainer}>
+          <Link to="#" onClick={onBack} className={classes.footerBackButton}>
+            &lt;- Go back
+          </Link>
+        </div>
+        <div>
+          {infoText}
+        </div>
+        <div>
+          <EAButton onClick={onNext} className={classes.footerButton}>
+            {continueText} -&gt;
+          </EAButton>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const SCREENS = ["welcome", "ranking", "comment", "thank-you"];
+
 type Screen = typeof SCREENS[number];
+
+const candidatesToListItems = (
+  candidates: ElectionCandidateBasicInfo[],
+): CandidateItem[] => {
+  return candidates.map((candidate) => ({
+    id: candidate._id,
+    content: candidate,
+    ordered: false,
+  }));
+}
 
 const VotingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const [screen, setScreen] = useState<Screen>("welcome");
   const {results: candidates = []} = useElectionCandidates();
+  const [items, setItems] = useState(candidatesToListItems.bind(null, candidates));
+  const voteCount = items.filter(({ordered}) => ordered).length;
+
+  useEffect(() => {
+    setItems(candidatesToListItems(candidates));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [candidates.length]);
+
+  const onBack = useCallback((ev?: Event) => {
+    ev?.preventDefault();
+    setScreen((currentScreen) => SCREENS[SCREENS.indexOf(currentScreen) - 1]);
+  }, []);
 
   const onNext = useCallback(() => {
     setScreen((currentScreen) => SCREENS[SCREENS.indexOf(currentScreen) + 1]);
@@ -394,10 +471,28 @@ const VotingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
           <WelcomeScreen onNext={onNext} classes={classes} />
         }
         {screen === "ranking" &&
-          <RankingScreen candidates={candidates} onNext={onNext} classes={classes} />
+          <>
+            <RankingScreen items={items} setItems={setItems} classes={classes} />
+            <Footer
+              onBack={onBack}
+              onNext={onNext}
+              infoText={`You voted for ${voteCount}/${items.length} candidates`}
+              continueText="Continue"
+              classes={classes}
+            />
+          </>
         }
         {screen === "comment" &&
-          <CommentScreen onNext={onNext} classes={classes} />
+          <>
+            <CommentScreen onNext={onNext} classes={classes} />
+            <Footer
+              onBack={onBack}
+              onNext={onNext}
+              infoText="You can change your vote until Dec 2"
+              continueText="Submit your vote"
+              classes={classes}
+            />
+          </>
         }
         {screen === "thank-you" &&
           <ThankYouScreen onNext={onNext} classes={classes} />
