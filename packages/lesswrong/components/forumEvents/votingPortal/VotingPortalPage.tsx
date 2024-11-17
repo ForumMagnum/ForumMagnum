@@ -227,10 +227,14 @@ const styles = (theme: ThemeType) => ({
   commentTitle: {
     fontSize: 40,
     fontWeight: 700,
-    marginBottom: 16,
     [theme.breakpoints.down("sm")]: {
       fontSize: 28,
     },
+  },
+  commentExplanation: {
+    fontSize: 14,
+    lineHeight: "140%",
+    marginBottom: 16,
   },
   commentDescription: {
     fontSize: 16,
@@ -247,7 +251,13 @@ const styles = (theme: ThemeType) => ({
     fontSize: 14,
     fontWeight: 600,
   },
+  commentFormContainer: {
+    display: "flex",
+    alignItems: "flex-start",
+    gap: "16px",
+  },
   commentForm: {
+    flexGrow: 1,
     background: theme.palette.givingSeason.electionFundBackgroundHeavy,
     borderRadius: theme.borderRadius.default,
     "& .EditorTypeSelect-select": {
@@ -634,21 +644,31 @@ const RankingScreen = ({items, setItems, classes}: {
   );
 }
 
-const CommentScreen = ({commentsPost, classes}: {
+const CommentScreen = ({currentUser, commentsPost, classes}: {
+  currentUser: UsersCurrent | null,
   commentsPost?: PostsMinimumInfo,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {CommentsNewForm} = Components;
+  const {UsersProfileImage, CommentsNewForm} = Components;
   return (
     <div className={classes.commentRoot}>
       <div className={classes.commentTitle}>
-        Add a comment about your vote
+        Post a comment about your vote
+      </div>
+      <div className={classes.commentExplanation}>
+        You comment will be published in the{" "}
+        <Link to={THREAD_HREF}>Donation Election discussion thread</Link>.&nbsp;
+        <span className={classes.commentSecondaryText}>
+          It will be posted with your user name, but your vote will remain
+          anonymous.
+        </span>
       </div>
       <div className={classes.commentDescription}>
         Why did you vote the way you did?{" "}
         <span className={classes.commentSecondaryText}>(not required)</span>
       </div>
-      <div>
+      <div className={classes.commentFormContainer}>
+        <UsersProfileImage user={currentUser} size={40} />
         <CommentsNewForm
           overrideHintText="Consider sharing why you picked the candidates you selected, writing a note about your experience with the Donation Election, etc."
           type="submit"
@@ -945,7 +965,11 @@ const VotingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
         }
         {screen === "comment" &&
           <>
-            <CommentScreen commentsPost={commentsPost} classes={classes} />
+            <CommentScreen
+              currentUser={currentUser}
+              commentsPost={commentsPost}
+              classes={classes}
+            />
             <Footer
               onBack={onBack}
               onNext={onSubmitVote}
