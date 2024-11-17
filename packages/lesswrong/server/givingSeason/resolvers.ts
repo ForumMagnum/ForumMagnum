@@ -9,6 +9,7 @@ import {
 import ElectionVotes from "@/lib/collections/electionVotes/collection";
 import { ACTIVE_ELECTION } from "@/lib/givingSeason";
 import { instantRunoffAllPossibleResults, IRVote } from "@/lib/givingSeason/instantRunoff";
+import ElectionCandidates from "@/lib/collections/electionCandidates/collection";
 
 
 const DUMMY_VOTES = [

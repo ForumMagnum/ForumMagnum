@@ -5,7 +5,7 @@ import { ACTIVE_ELECTION, ELECTION_NUM_WINNERS } from "@/lib/givingSeason";
 import { useMulti } from "@/lib/crud/withMulti";
 import classNames from "classnames";
 import { Link } from "@/lib/reactRouterWrapper";
-import { GIVING_SEASON_MOBILE_WIDTH } from "./useGivingSeasonEvents";
+import { GIVING_SEASON_MD_WIDTH } from "./useGivingSeasonEvents";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -13,7 +13,8 @@ const styles = (theme: ThemeType) => ({
     flexDirection: "column",
     gap: "16px",
     flex: 1,
-    maxWidth: 750
+    maxWidth: 750,
+    marginBottom: 16
   },
   header: {
     fontSize: 18,
@@ -24,7 +25,6 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     gap: "12px"
   },
-  // TODO placeholder with shimmer
   candidateImage: {
     width: '36px',
     height: '36px',
@@ -44,6 +44,10 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 600,
     textDecoration: "underline",
     textUnderlineOffset: "3px",
+    maxWidth: 350,
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
     '&:hover': {
       textDecoration: "underline",
       textUnderlineOffset: "3px",
@@ -69,8 +73,7 @@ const styles = (theme: ThemeType) => ({
   showMoreRow: {
     display: "flex",
     gap: "8px",
-    alignItems: "center",
-    marginBottom: 16
+    alignItems: "center"
   },
   showMoreButton: {
     cursor: "pointer",
@@ -81,7 +84,7 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 500,
     display: "flex",
     alignItems: "center",
-    [theme.breakpoints.down(900)]: {
+    [theme.breakpoints.down(GIVING_SEASON_MD_WIDTH)]: {
       display: "none"
     },
   },
@@ -139,7 +142,6 @@ export const DonationElectionLeaderboard = ({
       electionName: ACTIVE_ELECTION
     },
     limit: 100,
-    ssr: false,
   });
   const candidates = useMemo(() => results ?? [], [results]);
 
@@ -176,8 +178,14 @@ export const DonationElectionLeaderboard = ({
 
   const maxVotes = sortedCharityIds[0][1];
 
-  // TODO remove
-  console.log({voteCounts, voteCount, visibleCount: winnerCount})
+  const totalVotes = useMemo(() => 
+    Object.values(voteCounts[ELECTION_NUM_WINNERS]).reduce((acc, count) => acc + count, 0), 
+    [voteCounts]
+  );
+
+  // if (totalVotes < 100) {
+  //   return null;
+  // }
 
   return (
     <div className={classNames(classes.root, className)}>
@@ -185,7 +193,6 @@ export const DonationElectionLeaderboard = ({
       {sortedCharities.map(({ count, candidate }, index) => (
         <div key={candidate?._id ?? index} className={classes.candidateWrapper}>
           <div
-            // TODO don't use backgroundImage, it appears to be more grainy than a real <img>
             style={{ backgroundImage: candidate?.logoSrc ? `url(${candidate.logoSrc})` : "none" }}
             className={classes.candidateImage}
           />

@@ -10,6 +10,7 @@ import { formatStat } from "../users/EAUserTooltipContent";
 import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from "../common/Header";
 import {
   GIVING_SEASON_DESKTOP_WIDTH,
+  GIVING_SEASON_MD_WIDTH,
   GIVING_SEASON_MOBILE_WIDTH,
   getDonateLink,
   shouldShowLeaderboard,
@@ -214,6 +215,7 @@ const styles = (theme: ThemeType) => ({
     maxWidth: 470,
     lineHeight: "140%",
     whiteSpace: "wrap",
+    marginBottom: 16,
     "& a": {
       textDecoration: "underline",
       "&:hover": {
@@ -308,14 +310,19 @@ const styles = (theme: ThemeType) => ({
     width: "100%",
     textAlign: "center",
   },
-  // Buttons in small RHS box
+  
   hideAboveMobile: {
     [theme.breakpoints.up(GIVING_SEASON_MOBILE_WIDTH)]: {
       display: "none",
     },
   },
-  hideBelowMobile: {
-    [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
+  hideAboveMd: {
+    [theme.breakpoints.up(GIVING_SEASON_MD_WIDTH)]: {
+      display: "none",
+    },
+  },
+  hideBelowMd: {
+    [theme.breakpoints.down(GIVING_SEASON_MD_WIDTH)]: {
       display: "none",
     },
   },
@@ -481,7 +488,7 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 700,
   },
   electionInfoButtonContainer: {
-    marginTop: 4,
+    marginBottom: 16,
     display: "flex",
     justifyContent: "center",
     gap: "16px",
@@ -699,12 +706,11 @@ const GivingSeason2024Banner = ({classes}: {
             {events.map(({ name, description, start, end }, i) => (
               <div className={classes.eventDetails} data-event-id={i} key={name}>
                 {name === currentEvent?.name && showLeaderboard && leaderboardData ? (
-                  // TODO next: clean this up, rename classes
                   <div className={classes.electionInfoContainer}>
                     <div className={classes.eventDate}>{formatDate(selectedEvent.start, selectedEvent.end)}</div>
                     <div className={classes.eventName}>{name}</div>
-                    <div className={classes.eventDescription}>{description}</div>
-                    <div className={classNames(classes.electionInfoRaised, classes.hideBelowMobile)}>
+                    <div className={classes.eventDescription}>{description} <b className={classes.hideAboveMd}>${formatStat(Math.round(amountRaisedPlusMatched))}{" "}raised.</b></div>
+                    <div className={classNames(classes.electionInfoRaised, classes.hideBelowMd)}>
                       <span className={classes.electionInfoAmount}>
                         ${formatStat(Math.round(amountRaisedPlusMatched))}
                       </span>{" "}
@@ -714,14 +720,14 @@ const GivingSeason2024Banner = ({classes}: {
                       className={classNames(
                         classes.fundBarContainer,
                         classes.fundBarContainerLarge,
-                        classes.hideBelowMobile
+                        classes.hideBelowMd
                       )}
                     >
                       <div style={{ width: `${fundPercent}%` }} className={classes.fundBar} />
                     </div>
                     <DonationElectionLeaderboard
                       voteCounts={leaderboardData}
-                      className={classes.hideAboveMobile}
+                      className={classes.hideAboveMd}
                       hideHeader
                     />
                     <div className={classes.electionInfoButtonContainer}>
@@ -731,7 +737,7 @@ const GivingSeason2024Banner = ({classes}: {
                       >
                         Donate to the fund
                       </EAButton>
-                      {/* TODO colour, and link */}
+                      {/* TODO link */}
                       <EAButton
                         href={DONATION_ELECTION_HREF}
                         className={classNames(classes.button, classes.buttonLarge, classes.buttonTranslucent)}
@@ -794,7 +800,7 @@ const GivingSeason2024Banner = ({classes}: {
                   />
                 )}
                 {name === currentEvent?.name && showLeaderboard && leaderboardData && (
-                  <DonationElectionLeaderboard voteCounts={leaderboardData} className={classes.hideBelowMobile} />
+                  <DonationElectionLeaderboard voteCounts={leaderboardData} className={classes.hideBelowMd} />
                 )}
               </div>
             ))}

@@ -10,6 +10,7 @@ import { IRPossibleVoteCounts } from "@/lib/givingSeason/instantRunoff";
 
 export const GIVING_SEASON_DESKTOP_WIDTH = 1300;
 export const GIVING_SEASON_MOBILE_WIDTH = 700;
+export const GIVING_SEASON_MD_WIDTH = 900;
 
 export const getDonateLink = (currentUser: UsersCurrent | null) => {
   // See docs at https://docs.every.org/docs/donate-link
