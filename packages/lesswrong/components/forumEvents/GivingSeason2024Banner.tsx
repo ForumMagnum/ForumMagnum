@@ -479,7 +479,7 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 24,
   },
   electionInfoRaised: {
-    marginTop: 24,
+    marginTop: 8,
     fontSize: 20,
     fontWeight: 600,
     marginBottom: 12,
