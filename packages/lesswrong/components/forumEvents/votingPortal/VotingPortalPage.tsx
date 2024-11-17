@@ -534,7 +534,7 @@ const ThankYouScreen = ({onEditVote, amountRaised, amountTarget, classes}: {
   const amountRaisedPlusMatched = amountRaised + Math.min(amountRaised, 5000);
   const fundPercent = Math.round((amountRaisedPlusMatched / amountTarget) * 100);
 
-  const {EAButton, ToggleSwitch} = Components;
+  const {ForumIcon, EAButton, ToggleSwitch} = Components;
   return (
     <div className={classes.thankYouRoot}>
       {confetti &&
@@ -549,12 +549,10 @@ const ThankYouScreen = ({onEditVote, amountRaised, amountTarget, classes}: {
         />
       }
       <div className={classes.thankYouTitle}>
-        Thank you for voting  in the EA Forum Donation Election 2024
+        Thank you for voting in the EA Forum Donation Election 2024
       </div>
       <div className={classNames(classes.thankYouBox, classes.thankYouRow)}>
-        <div>
-          Icon TODO
-        </div>
+        <ForumIcon icon="Voted" />
         <div className={classes.thankYouGrow}>
           <div className={classes.thankYouSubtitle}>
             Display “I voted” icon on your profile

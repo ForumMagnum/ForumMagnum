@@ -1921,6 +1921,7 @@ interface DbUser extends DbObject {
   inactiveSurveyEmailSentAt: Date | null
   userSurveyEmailSentAt: Date | null
   givingSeason2024DonatedFlair: boolean
+  givingSeason2024VotedFlair: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   moderationGuidelines: EditableFieldContents | null
