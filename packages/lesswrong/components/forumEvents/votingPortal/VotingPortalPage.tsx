@@ -276,13 +276,14 @@ const styles = (theme: ThemeType) => ({
     gap: "16px",
   },
   thankYouTitle: {
-    fontSize: 50,
+    fontSize: 52,
     fontWeight: 700,
     lineHeight: "120%",
     letterSpacing: "-1px",
     textAlign: "center",
+    marginBottom: 16,
     [theme.breakpoints.down("sm")]: {
-      fontSize: 28,
+      fontSize: 32,
     },
   },
   thankYouSubtitle: {
@@ -781,8 +782,7 @@ const Footer = ({onBack, onNext, infoText, continueText, underText, classes}: {
       <div className={classes.footerContainer}>
         <div className={classes.footerBackContainer}>
           <Link to="#" onClick={onBack} className={classes.footerBackButton}>
-            <span className={classes.noMobile}>&lt;- Go back</span>
-            <span className={classes.onlyMobile}>&lt;- Back</span>
+            <span>&lt;- Back</span>
           </Link>
         </div>
         <div>
