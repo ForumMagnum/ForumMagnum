@@ -373,11 +373,12 @@ const styles = (theme: ThemeType) => ({
     transition: "width 0.5s ease",
   },
   thankYouToggle: {
+    background: theme.palette.givingSeason.electionFundBackground,
     "& .ToggleSwitch-switchOff": {
-      background: `${theme.palette.givingSeason.electionFundBackground} !important`,
+      background: theme.palette.givingSeason.electionFundBackgroundHeavy,
     },
     "& .ToggleSwitch-switchOn": {
-      background: `${theme.palette.givingSeason.primary} !important`,
+      background: theme.palette.givingSeason.primary,
     },
   },
   footer: {
