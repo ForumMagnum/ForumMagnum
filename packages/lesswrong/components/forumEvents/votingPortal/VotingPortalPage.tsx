@@ -1,5 +1,6 @@
 import React, {
   Dispatch,
+  ReactNode,
   SetStateAction,
   useCallback,
   useEffect,
@@ -71,11 +72,17 @@ const styles = (theme: ThemeType) => ({
   welcomeTitle: {
     fontSize: 50,
     fontWeight: 700,
+    [theme.breakpoints.down("sm")]: {
+      fontSize: 40,
+    },
   },
   welcomeDescription: {
     fontSize: 18,
     lineHeight: "150%",
     marginBottom: 8,
+    [theme.breakpoints.down("sm")]: {
+      fontSize: 16,
+    },
   },
   welcomeButton: {
     width: "100%",
@@ -98,6 +105,10 @@ const styles = (theme: ThemeType) => ({
   rankingRoot: {
     maxWidth: 680,
     padding: 24,
+    paddingBottom: 150,
+    [theme.breakpoints.down("sm")]: {
+      padding: 16,
+    },
   },
   rankingInfo: {
     display: "flex",
@@ -107,15 +118,24 @@ const styles = (theme: ThemeType) => ({
   rankingTitle: {
     fontSize: 40,
     fontWeight: 700,
+    [theme.breakpoints.down("sm")]: {
+      fontSize: 28,
+    },
   },
   rankingDescription: {
     fontSize: 16,
     lineHeight: "150%",
+    [theme.breakpoints.down("sm")]: {
+      fontSize: 14,
+    },
   },
   rankingSubDescription: {
     fontSize: 16,
     lineHeight: "150%",
     opacity: 0.7,
+    [theme.breakpoints.down("sm")]: {
+      fontSize: 13,
+    },
   },
   rankingCandidates: {
     marginTop: 32,
@@ -161,6 +181,10 @@ const styles = (theme: ThemeType) => ({
     backgroundRepeat: "no-repeat",
     backgroundSize: "cover",
     marginRight: 16,
+    [theme.breakpoints.down("sm")]: {
+      width: 30,
+      height: 30,
+    },
   },
   candidateInfo: {
     flexGrow: 1,
@@ -172,6 +196,9 @@ const styles = (theme: ThemeType) => ({
     fontSize: 16,
     fontWeight: 600,
     letterSpacing: "-0.16px",
+    [theme.breakpoints.down("sm")]: {
+      fontSize: 14,
+    },
   },
   candidateClear: {
     cursor: "pointer",
@@ -189,19 +216,32 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     flexDirection: "column",
     gap: "12px",
+    [theme.breakpoints.down("sm")]: {
+      padding: 16,
+    },
   },
   commentTitle: {
     fontSize: 40,
     fontWeight: 700,
     marginBottom: 16,
+    [theme.breakpoints.down("sm")]: {
+      fontSize: 28,
+    },
   },
   commentDescription: {
     fontSize: 16,
     fontWeight: 600,
     lineHeight: "150%",
+    [theme.breakpoints.down("sm")]: {
+      fontSize: 14,
+    },
   },
   commentSecondaryText: {
     opacity: 0.7,
+  },
+  commentTertiaryText: {
+    fontSize: 13,
+    fontWeight: 600,
   },
   commentForm: {
     background: theme.palette.givingSeason.electionFundBackgroundHeavy,
@@ -239,6 +279,9 @@ const styles = (theme: ThemeType) => ({
     lineHeight: "120%",
     letterSpacing: "-1px",
     textAlign: "center",
+    [theme.breakpoints.down("sm")]: {
+      fontSize: 28,
+    },
   },
   thankYouSubtitle: {
     fontSize: 16,
@@ -289,7 +332,11 @@ const styles = (theme: ThemeType) => ({
   },
   thankYouGrid: {
     display: "flex",
+    flexDirection: "row",
     gap: "16px",
+    [theme.breakpoints.down("sm")]: {
+      flexDirection: "column",
+    },
   },
   thankYouBoxButton: {
     background: theme.palette.givingSeason.electionFundBackground,
@@ -336,23 +383,35 @@ const styles = (theme: ThemeType) => ({
     bottom: 0,
     left: 0,
     width: "100vw",
-    height: 128,
+    minHeight: 128,
     background: theme.palette.text.alwaysWhite,
     color: theme.palette.givingSeason.portalPrimary,
     display: "flex",
+    flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
+    paddingBottom: 0,
+    [theme.breakpoints.down("sm")]: {
+      minHeight: 82,
+      paddingBottom: 16,
+    },
   },
   footerContainer: {
     width: 750,
     maxWidth: "100vw",
     padding: 8,
+    paddingBottom: 0,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     gap: "48px",
     fontSize: 14,
     fontWeight: 600,
+    [theme.breakpoints.down("sm")]: {
+      padding: 16,
+      paddingBottom: 0,
+      gap: "16px",
+    },
   },
   footerBackContainer: {
     flexGrow: 1,
@@ -360,6 +419,7 @@ const styles = (theme: ThemeType) => ({
   footerBackButton: {
     cursor: "pointer",
     textDecoration: "none !important",
+    whiteSpace: "nowrap",
     "&:hover": {
       opacity: 1,
       color: theme.palette.givingSeason.primary,
@@ -369,8 +429,32 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.givingSeason.primary,
     color: theme.palette.text.alwaysWhite,
     padding: "16px 64px",
+    whiteSpace: "nowrap",
     "&:hover": {
       background: theme.palette.givingSeason.portalPrimary,
+    },
+    [theme.breakpoints.down("sm")]: {
+      padding: 16,
+    },
+  },
+  footerUnderText: {
+    width: "100%",
+    "& > *": {
+      display: "block",
+      width: "100%",
+      textAlign: "right",
+      paddingRight: 16,
+      paddingTop: 8,
+    },
+  },
+  noMobile: {
+    [theme.breakpoints.down("sm")]: {
+      display: "none",
+    },
+  },
+  onlyMobile: {
+    [theme.breakpoints.up("md")]: {
+      display: "none",
     },
   },
 });
@@ -667,18 +751,19 @@ const ThankYouScreen = ({
         </div>
       </div>
       <EAButton onClick={onEditVote} className={classes.thankYouButton}>
-        Edit your vote{" "}
+        Edit your vote&nbsp;
         <span className={classes.thankYouSecondaryText}>(until Dec 2)</span>
       </EAButton>
     </div>
   );
 }
 
-const Footer = ({onBack, onNext, infoText, continueText, classes}: {
+const Footer = ({onBack, onNext, infoText, continueText, underText, classes}: {
   onBack: () => void,
   onNext: () => void,
-  infoText: string,
-  continueText: string,
+  infoText: ReactNode,
+  continueText: ReactNode,
+  underText?: ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
   const {EAButton} = Components;
@@ -687,7 +772,8 @@ const Footer = ({onBack, onNext, infoText, continueText, classes}: {
       <div className={classes.footerContainer}>
         <div className={classes.footerBackContainer}>
           <Link to="#" onClick={onBack} className={classes.footerBackButton}>
-            &lt;- Go back
+            <span className={classes.noMobile}>&lt;- Go back</span>
+            <span className={classes.onlyMobile}>&lt;- Back</span>
           </Link>
         </div>
         <div>
@@ -698,6 +784,9 @@ const Footer = ({onBack, onNext, infoText, continueText, classes}: {
             {continueText} -&gt;
           </EAButton>
         </div>
+      </div>
+      <div className={classes.footerUnderText}>
+        {underText}
       </div>
     </div>
   );
@@ -791,7 +880,13 @@ const VotingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
             <Footer
               onBack={onBack}
               onNext={onNext}
-              infoText={`You voted for ${voteCount}/${items.length} candidates`}
+              infoText={
+                <>
+                  <span className={classes.noMobile}>You voted for </span>
+                  <span>{voteCount}/{items.length}</span>
+                  <span className={classes.noMobile}> candidates</span>
+                </>
+              }
               continueText="Continue"
               classes={classes}
             />
@@ -803,7 +898,22 @@ const VotingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
             <Footer
               onBack={onBack}
               onNext={onSubmitVote}
-              infoText="You can change your vote until Dec 2"
+              infoText={
+                <span className={classNames(
+                  classes.commentTertiaryText,
+                  classes.noMobile,
+                )}>
+                  You can change your vote until Dec 2
+                </span>
+              }
+              underText={
+                <span className={classNames(
+                  classes.commentTertiaryText,
+                  classes.onlyMobile,
+                )}>
+                  You can change your vote until Dec 2
+                </span>
+              }
               continueText="Submit your vote"
               classes={classes}
             />
