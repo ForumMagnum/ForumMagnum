@@ -7,6 +7,8 @@ import React, {
 } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "@/lib/reactRouterWrapper";
+import { useSingle } from "@/lib/crud/withSingle";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import { isProduction } from "@/lib/executionEnvironment";
 import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
 import { useCurrentUser } from "@/components/common/withUser";
@@ -24,8 +26,7 @@ import {
 } from "@hello-pangea/dnd";
 import ReactConfetti from "react-confetti";
 import classNames from "classnames";
-import { useSingle } from "@/lib/crud/withSingle";
-import { gql, useMutation } from "@apollo/client";
+import sortBy from "lodash/sortBy";
 
 const BACKGROUND_HREF = "https://res.cloudinary.com/cea/image/upload/v1731504237/Rectangle_5032.jpg";
 const FUND_HREF = "https://www.every.org/effective-ventures-foundation-usa-inc-for-the-ea-forum-donation-election-fund-2024";
@@ -708,19 +709,31 @@ type Screen = typeof SCREENS[number];
 
 const candidatesToListItems = (
   candidates: ElectionCandidateBasicInfo[],
+  existingVote: Record<string, number>,
 ): CandidateItem[] => {
-  return candidates.map((candidate) => ({
+  const orderedCandidates = sortBy(candidates, (candidate) => {
+    return existingVote[candidate._id] ?? 1000;
+  });
+  return orderedCandidates.map((candidate) => ({
     id: candidate._id,
     content: candidate,
-    ordered: false,
+    ordered: !!existingVote[candidate._id],
   }));
 }
 
 const VotingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const {amountRaised, amountTarget} = useGivingSeasonEvents();
   const [screen, setScreen] = useState<Screen>("welcome");
+  const {data: existingVoteData} = useQuery(gql`
+    query GivingSeason2024MyVote {
+      GivingSeason2024MyVote
+    }
+  `, {fetchPolicy: "cache-first", nextFetchPolicy: "cache-only"});
+  const existingVote = existingVoteData?.GivingSeason2024MyVote ?? {};
   const {results: candidates = []} = useElectionCandidates();
-  const [items, setItems] = useState(candidatesToListItems.bind(null, candidates));
+  const [items, setItems] = useState(
+    candidatesToListItems.bind(null, candidates, existingVote),
+  );
   const voteCount = items.filter(({ordered}) => ordered).length;
 
   const {document: commentsPost} = useSingle({
@@ -730,9 +743,9 @@ const VotingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   });
 
   useEffect(() => {
-    setItems(candidatesToListItems(candidates));
+    setItems(candidatesToListItems(candidates, existingVote));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [candidates.length]);
+  }, [candidates.length, existingVote]);
 
   const [saveVote] = useMutation(gql`
     mutation GivingSeason2024Vote($vote: JSON!) {
