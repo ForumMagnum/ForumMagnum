@@ -242,7 +242,7 @@ const styles = (theme: ThemeType) => ({
     opacity: 0.7,
   },
   commentTertiaryText: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: 600,
   },
   commentForm: {
@@ -252,11 +252,11 @@ const styles = (theme: ThemeType) => ({
       display: "none",
     },
     "& #new-comment-submit": {
-      background: theme.palette.givingSeason.primary,
+      background: theme.palette.givingSeason.portalPrimary,
       fontSize: 14,
       fontWeight: 600,
       "&:hover": {
-        background: theme.palette.givingSeason.portalPrimary,
+        background: theme.palette.givingSeason.primary,
       },
     },
     "& .form-input": {
@@ -432,12 +432,13 @@ const styles = (theme: ThemeType) => ({
     },
   },
   footerButton: {
-    background: theme.palette.givingSeason.primary,
+    background: theme.palette.givingSeason.portalPrimary,
     color: theme.palette.text.alwaysWhite,
     padding: "16px 64px",
+    fontWeight: 600,
     whiteSpace: "nowrap",
     "&:hover": {
-      background: theme.palette.givingSeason.portalPrimary,
+      background: theme.palette.givingSeason.primary,
     },
     [theme.breakpoints.down("sm")]: {
       padding: 16,
