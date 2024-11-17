@@ -1,6 +1,7 @@
 import React, {
   Dispatch,
   ReactNode,
+  MouseEvent,
   SetStateAction,
   useCallback,
   useEffect,
@@ -545,7 +546,26 @@ const RankingScreen = ({items, setItems, classes}: {
     }
   }, [setItems]);
 
-  const onClear = useCallback((index: number) => {
+  const onClick = useCallback((index: number) => {
+    setItems((items) => {
+      const item = items[index];
+      if (item.ordered) {
+        return items;
+      }
+      const result = Array.from(items);
+      const ordered = result.filter(({ordered}) => ordered);
+      const unordered = result.filter(({ordered, id}) => !ordered && id !== item.id);
+      return [...ordered, {...item, ordered: true}, ...unordered];
+    });
+  }, [setItems]);
+
+  const onClickTitle = useCallback((ev?: MouseEvent<HTMLAnchorElement>) => {
+    ev?.stopPropagation();
+  }, []);
+
+  const onClear = useCallback((index: number, ev?: MouseEvent<HTMLDivElement>) => {
+    ev?.preventDefault();
+    ev?.stopPropagation();
     setItems((items) => {
       const result = Array.from(items);
       result[index].ordered = false;
@@ -596,6 +616,7 @@ const RankingScreen = ({items, setItems, classes}: {
                       ref={innerRef}
                       {...draggableProps}
                       {...dragHandleProps}
+                      onClick={onClick.bind(null, index)}
                     >
                       <div className={classes.candidateHandle}>
                         {ordered
@@ -622,6 +643,7 @@ const RankingScreen = ({items, setItems, classes}: {
                             to={href}
                             target="_blank"
                             rel="noopener noreferrer"
+                            onClick={onClickTitle}
                           >
                             {name}
                           </Link>
