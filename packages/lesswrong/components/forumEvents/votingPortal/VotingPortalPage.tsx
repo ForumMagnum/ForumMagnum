@@ -142,6 +142,7 @@ const styles = (theme: ThemeType) => ({
   },
   rankingCandidates: {
     marginTop: 32,
+    marginBottom: 150
   },
   candidate: {
     display: "flex",
