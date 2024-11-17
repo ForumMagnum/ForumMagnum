@@ -304,8 +304,11 @@ const styles = (theme: ThemeType) => ({
     flexDirection: "row",
     alignItems: "center",
   },
-  thankYouGrow: {
+  thankYouFlairInfo: {
     flexGrow: 1,
+    display: "flex",
+    flexDirection: "column",
+    gap: "4px",
   },
   thankYouSecondaryText: {
     fontSize: 13,
@@ -704,7 +707,7 @@ const ThankYouScreen = ({
       </div>
       <div className={classNames(classes.thankYouBox, classes.thankYouRow)}>
         <ForumIcon icon="Voted" />
-        <div className={classes.thankYouGrow}>
+        <div className={classes.thankYouFlairInfo}>
           <div className={classes.thankYouSubtitle}>
             Display “I voted” icon on your profile
           </div>
