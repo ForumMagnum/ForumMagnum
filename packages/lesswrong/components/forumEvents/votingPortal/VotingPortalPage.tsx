@@ -110,7 +110,6 @@ const styles = (theme: ThemeType) => ({
     padding: 24,
     [theme.breakpoints.down("sm")]: {
       padding: 16,
-      paddingBottom: 150,
     },
   },
   rankingInfo: {
