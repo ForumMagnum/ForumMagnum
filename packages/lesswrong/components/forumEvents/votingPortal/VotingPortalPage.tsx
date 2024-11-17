@@ -58,7 +58,8 @@ const styles = (theme: ThemeType) => ({
     "& a": {
       textDecoration: "underline",
     },
-    [theme.breakpoints.down(400)]: {
+    [theme.breakpoints.down("sm")]: {
+      alignItems: "flex-start",
       paddingTop: MOBILE_HEADER_HEIGHT,
     },
   },
@@ -105,9 +106,9 @@ const styles = (theme: ThemeType) => ({
   rankingRoot: {
     maxWidth: 680,
     padding: 24,
-    paddingBottom: 150,
     [theme.breakpoints.down("sm")]: {
       padding: 16,
+      paddingBottom: 150,
     },
   },
   rankingInfo: {
@@ -218,6 +219,7 @@ const styles = (theme: ThemeType) => ({
     gap: "12px",
     [theme.breakpoints.down("sm")]: {
       padding: 16,
+      paddingBottom: 150,
     },
   },
   commentTitle: {
