@@ -180,6 +180,7 @@ const styles = (theme: ThemeType) => ({
     width: 44,
     height: 44,
     borderRadius: theme.borderRadius.small,
+    backgroundPosition: "center",
     backgroundRepeat: "no-repeat",
     backgroundSize: "cover",
     marginRight: 16,
