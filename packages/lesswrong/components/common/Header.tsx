@@ -329,6 +329,7 @@ const Header = ({
     currentForumEvent?.customComponent === "GivingSeason2024Banner" &&
     (currentRoute?.name === "home" || currentRoute?.name === "posts.single");
   const {events, selectedEvent, currentEvent} = useGivingSeasonEvents();
+  const isVotingPortal = currentRoute?.name === "VotingPortal";
 
   const {
     SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
@@ -587,7 +588,10 @@ const Header = ({
                   <div className={classes.titleSubtitleContainer}>
                     <Link to="/" className={classes.titleLink}>
                       {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaWhite={useWhiteText}/></div>}
-                      {forumHeaderTitleSetting.get()}
+                      {isVotingPortal
+                        ? "Vote in the Donation Election"
+                        : forumHeaderTitleSetting.get()
+                      }
                     </Link>
                     <HeaderSubtitle />
                   </div>
@@ -595,7 +599,10 @@ const Header = ({
                 <div className={classes.hideMdUp}>
                   <Link to="/" className={classes.titleLink}>
                     {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaWhite={useWhiteText}/></div>}
-                    {forumShortTitleSetting.get()}
+                    {isVotingPortal
+                      ? "Vote"
+                      : forumShortTitleSetting.get()
+                    }
                   </Link>
                 </div>
               </Typography>

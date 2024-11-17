@@ -310,7 +310,6 @@ const styles = (theme: ThemeType) => ({
     width: "100%",
     textAlign: "center",
   },
-  
   hideAboveMobile: {
     [theme.breakpoints.up(GIVING_SEASON_MOBILE_WIDTH)]: {
       display: "none",
@@ -354,10 +353,8 @@ const styles = (theme: ThemeType) => ({
       background: theme.palette.givingSeason.electionFundBackgroundHeavy,
     },
   },
-  // Buttons in large LHS box
   fundVoteButton: {
     width: "100%",
-
     fontSize: 14,
     fontWeight: 600,
     color: theme.palette.text.alwaysWhite,
@@ -416,11 +413,6 @@ const styles = (theme: ThemeType) => ({
     minWidth: 0,
     width: "100%",
   },
-  feedDetails: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "4px",
-  },
   feedUser: {
     fontWeight: 600,
   },
@@ -452,7 +444,6 @@ const styles = (theme: ThemeType) => ({
   feedInteraction: {
     display: "inline",
   },
-  // TODO prune
   electionInfoContainer: {
     display: "flex",
     flexDirection: "column",
@@ -466,17 +457,6 @@ const styles = (theme: ThemeType) => ({
       padding: 0,
       flex: 1
     },
-  },
-  electionInfoTitle: {
-    fontSize: 28,
-    fontWeight: 700,
-    marginBottom: 12,
-  },
-  electionInfoText: {
-    whiteSpace: "normal",
-    fontSize: 16,
-    lineHeight: "150%",
-    marginBottom: 24,
   },
   electionInfoRaised: {
     marginTop: 8,
@@ -493,12 +473,7 @@ const styles = (theme: ThemeType) => ({
     justifyContent: "center",
     gap: "16px",
     width: "100%",
-  },
-  leaderboardHeader: {
-    fontSize: 18,
-    marginBottom: 36,
-    fontWeight: 600,
-  },
+  }
 });
 
 const scrollIntoViewHorizontally = (
@@ -737,9 +712,8 @@ const GivingSeason2024Banner = ({classes}: {
                       >
                         Donate to the fund
                       </EAButton>
-                      {/* TODO link */}
                       <EAButton
-                        href={DONATION_ELECTION_HREF}
+                        href={"/voting-portal"}
                         className={classNames(classes.button, classes.buttonLarge, classes.buttonTranslucent)}
                       >
                         Vote in the election

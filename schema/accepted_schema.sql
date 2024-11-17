@@ -3328,6 +3328,7 @@ CREATE TABLE "Users" (
   "inactiveSurveyEmailSentAt" TIMESTAMPTZ,
   "userSurveyEmailSentAt" TIMESTAMPTZ,
   "givingSeason2024DonatedFlair" BOOL NOT NULL DEFAULT FALSE,
+  "givingSeason2024VotedFlair" BOOL NOT NULL DEFAULT FALSE,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB,

@@ -165,6 +165,7 @@ import './server/callbacks/alignment-forum/alignmentCommentCallbacks';
 import './server/callbacks/alignment-forum/alignmentPostCallbacks';
 import './server/callbacks/alignment-forum/alignmentUserCallbacks';
 import './server/callbacks/votingCallbacks';
+import './server/callbacks/electionCandidateCallbacks';
 
 import './server/resolvers/diffResolvers';
 import './server/resolvers/revisionResolvers';

@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { IRPossibleVoteCounts } from "@/lib/givingSeason/instantRunoff";
 import { ACTIVE_ELECTION, ELECTION_NUM_WINNERS } from "@/lib/givingSeason";
@@ -179,13 +179,13 @@ export const DonationElectionLeaderboard = ({
   const maxVotes = sortedCharityIds[0][1];
 
   const totalVotes = useMemo(() => 
-    Object.values(voteCounts[ELECTION_NUM_WINNERS]).reduce((acc, count) => acc + count, 0), 
+    Object.values(voteCounts[ELECTION_NUM_WINNERS]).reduce((acc, count) => acc + count, 0),
     [voteCounts]
   );
 
-  // if (totalVotes < 100) {
-  //   return null;
-  // }
+  if (totalVotes < 100) {
+    return null;
+  }
 
   return (
     <div className={classNames(classes.root, className)}>
@@ -224,11 +224,11 @@ export const DonationElectionLeaderboard = ({
               title={
                 <>
                   To get down to 3 winners, candidates are eliminated one by one and votes are reallocated according to{" "}
-                  <Link to="/posts/j6fmnYM5ZRu9fJyrq/donation-election-how-to-vote">instant-runoff rules</Link>.
+                  <Link to="/posts/j6fmnYM5ZRu9fJyrq/donation-election-how-to-vote" target="_blank" rel="noopener noreferrer">instant-runoff rules</Link>.
                   Clicking "show one more" here un-eliminates the next best candidate, which results in votes being
                   removed from higher scoring candidates and allocated back to this one. This is intended for
                   illustration/tactical voting purposes.{" "}
-                  <Link to="/posts/j6fmnYM5ZRu9fJyrq/donation-election-how-to-vote">Learn more here</Link>.
+                  <Link to="/posts/j6fmnYM5ZRu9fJyrq/donation-election-how-to-vote" target="_blank" rel="noopener noreferrer">Learn more here</Link>.
                 </>
               }
               popperClassName={classes.infoTooltipPopper}

@@ -587,6 +587,11 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     primary: "#862115",
     electionFundBackground: "rgba(255, 255, 255, 0.15)",
     electionFundBackgroundHeavy: "rgba(255, 255, 255, 0.3)",
+    portalPrimary: "#D82817",
+    candidateBorder: "#C34F4F",
+    candidateBackground: "rgba(255, 255, 255, 0.2)",
+    candidateShadow: "rgba(147, 0, 0, 0.25)",
+    candidateOrder: "#C50000",
   },
   namesAttachedReactions: {
     selectedAnti: "rgb(255, 189, 189, .23)",
