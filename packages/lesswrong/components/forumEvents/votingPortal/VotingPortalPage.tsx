@@ -617,7 +617,11 @@ const RankingScreen = ({items, setItems, classes}: {
                       />
                       <div className={classes.candidateInfo}>
                         <div className={classes.candidateName}>
-                          <Link to={href}>
+                          <Link
+                            to={href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
                             {name}
                           </Link>
                         </div>
