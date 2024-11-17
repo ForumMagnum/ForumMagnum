@@ -266,6 +266,26 @@ const styles = (theme: ThemeType) => ({
     fontWeigh: 500,
     opacity: 0.7,
   },
+  thankYouPostInfo: {
+    display: "flex",
+    alignItems: "center",
+    gap: "4px",
+    opacity: 0.7,
+    fontSize: 13,
+    fontWeight: 500,
+    "& *": {
+      textDecoration: "none !important",
+    },
+  },
+  thankYouCommentContainer: {
+    display: "flex",
+    alignItems: "center",
+    gap: "2px",
+  },
+  thankYouCommentIcon: {
+    width: 16,
+    height: 16,
+  },
   thankYouGrid: {
     display: "flex",
     gap: "16px",
@@ -540,7 +560,14 @@ const CommentScreen = ({commentsPost, classes}: {
   );
 }
 
-const ThankYouScreen = ({onEditVote, amountRaised, amountTarget, classes}: {
+const ThankYouScreen = ({
+  commentsPost,
+  onEditVote,
+  amountRaised,
+  amountTarget,
+  classes,
+}: {
+  commentsPost?: PostsList,
   onEditVote: () => void,
   amountRaised: number,
   amountTarget: number,
@@ -549,7 +576,9 @@ const ThankYouScreen = ({onEditVote, amountRaised, amountTarget, classes}: {
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const {captureEvent} = useTracking();
-  const [addFlair, setAddFlair] = useState(false);
+  const [addFlair, setAddFlair] = useState(
+    currentUser?.givingSeason2024VotedFlair ?? false,
+  );
   const [confetti, setConfetti] = useState(true);
   const {width, height} = useWindowSize();
 
@@ -568,7 +597,7 @@ const ThankYouScreen = ({onEditVote, amountRaised, amountTarget, classes}: {
   const amountRaisedPlusMatched = amountRaised + Math.min(amountRaised, 5000);
   const fundPercent = Math.round((amountRaisedPlusMatched / amountTarget) * 100);
 
-  const {ForumIcon, EAButton, ToggleSwitch} = Components;
+  const {ForumIcon, EAButton, ToggleSwitch, UsersName, FormatDate} = Components;
   return (
     <div className={classes.thankYouRoot}>
       {confetti &&
@@ -606,8 +635,13 @@ const ThankYouScreen = ({onEditVote, amountRaised, amountTarget, classes}: {
           <div className={classes.thankYouSubtitle}>
             Donation Election Discussion Thread
           </div>
-          <div>
-            TODO Post secondary info
+          <div className={classes.thankYouPostInfo}>
+            <UsersName user={commentsPost?.user} />
+            <FormatDate date={commentsPost?.postedAt ?? new Date()} includeAgo />
+            <div className={classes.thankYouCommentContainer}>
+              <ForumIcon icon="Comment" className={classes.thankYouCommentIcon} />
+              {commentsPost?.commentCount}
+            </div>
           </div>
           <EAButton href={THREAD_HREF} className={classes.thankYouBoxButton}>
             Read discussion
@@ -691,7 +725,7 @@ const VotingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
 
   const {document: commentsPost} = useSingle({
     collectionName: "Posts",
-    fragmentName: "PostsMinimumInfo",
+    fragmentName: "PostsList",
     documentId: COMMENT_POST_ID,
   });
 
@@ -764,6 +798,7 @@ const VotingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
         }
         {screen === "thank-you" &&
           <ThankYouScreen
+            commentsPost={commentsPost}
             onEditVote={onEditVote}
             amountRaised={amountRaised}
             amountTarget={amountTarget}
