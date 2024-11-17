@@ -11,6 +11,7 @@ import React, {
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "@/lib/reactRouterWrapper";
 import { useSingle } from "@/lib/crud/withSingle";
+import { useLoginPopoverContext } from "@/components/hooks/useLoginPopoverContext";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { isProduction } from "@/lib/executionEnvironment";
 import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
@@ -657,23 +658,24 @@ const CommentScreen = ({commentsPost, classes}: {
 }
 
 const ThankYouScreen = ({
+  currentUser,
   commentsPost,
   onEditVote,
   amountRaised,
   amountTarget,
   classes,
 }: {
+  currentUser: UsersCurrent,
   commentsPost?: PostsList,
   onEditVote: () => void,
   amountRaised: number,
   amountTarget: number,
   classes: ClassesType<typeof styles>,
 }) => {
-  const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const {captureEvent} = useTracking();
   const [addFlair, setAddFlair] = useState(
-    currentUser?.givingSeason2024VotedFlair ?? false,
+    currentUser.givingSeason2024VotedFlair ?? false,
   );
   const [confetti, setConfetti] = useState(true);
   const {width, height} = useWindowSize();
@@ -821,6 +823,8 @@ const candidatesToListItems = (
 }
 
 const VotingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
+  const currentUser = useCurrentUser();
+  const {onLogin} = useLoginPopoverContext();
   const {amountRaised, amountTarget} = useGivingSeasonEvents();
   const [screen, setScreen] = useState<Screen>("welcome");
   const initializedRef = useRef(false);
@@ -867,8 +871,12 @@ const VotingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   }, []);
 
   const onNext = useCallback(() => {
-    setScreen((currentScreen) => SCREENS[SCREENS.indexOf(currentScreen) + 1]);
-  }, []);
+    if (currentUser) {
+      setScreen((currentScreen) => SCREENS[SCREENS.indexOf(currentScreen) + 1]);
+    } else {
+      onLogin();
+    }
+  }, [currentUser, onLogin]);
 
   const onEditVote = useCallback(() => {
     setScreen("ranking");
@@ -938,8 +946,9 @@ const VotingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
             />
           </>
         }
-        {screen === "thank-you" &&
+        {screen === "thank-you" && currentUser &&
           <ThankYouScreen
+            currentUser={currentUser}
             commentsPost={commentsPost}
             onEditVote={onEditVote}
             amountRaised={amountRaised}
