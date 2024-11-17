@@ -1,3 +1,6 @@
+/* eslint-disable no-useless-escape */
+/* eslint-disable eqeqeq */
+
 import { markdownToHtml } from '@/server/editor/conversionUtils';
 import { WholeArbitalDatabase } from './arbitalSchema';
 
@@ -32,23 +35,23 @@ export async function arbitalMarkdownToHtml({ database, markdown, slugsByPageId 
   slugsByPageId: Record<string,string>
 }) {
   let result = markdown;
-  
-	// Trim + or - from beginning of the alias.
-	const trimAlias = function(alias: string): string {
-		var firstAliasChar = alias.substring(0, 1);
-		if (firstAliasChar == '-' || firstAliasChar == '+') {
-			return alias.substring(1);
-		}
-		return alias;
-	};
+ 
+  // Trim + or - from beginning of the alias.
+  const trimAlias = function(alias: string): string {
+    var firstAliasChar = alias.substring(0, 1);
+    if (firstAliasChar == '-' || firstAliasChar == '+') {
+      return alias.substring(1);
+    }
+    return alias;
+  };
 
-	// If prefix is '-', lowercase the first letter of text. Otherwise capitalize it.
-	const getCasedText = function(text: string, prefix: string) {
-		if (prefix == '-') {
-			return text.substring(0, 1).toLowerCase() + text.substring(1);
-		}
-		return text.substring(0, 1).toUpperCase() + text.substring(1);
-	};
+  // If prefix is '-', lowercase the first letter of text. Otherwise capitalize it.
+  const getCasedText = function(text: string, prefix: string) {
+    if (prefix == '-') {
+      return text.substring(0, 1).toLowerCase() + text.substring(1);
+    }
+    return text.substring(0, 1).toUpperCase() + text.substring(1);
+  };
 
 
   function pageIdToLink(pageId: string): string|null {

@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 import mysql from 'mysql2/promise';
 import { Globals } from "@/lib/vulcan-lib/config";
 import fs from 'node:fs';
@@ -10,7 +12,8 @@ import { createAdminContext, createMutator, slugify } from '@/server/vulcan-lib'
 import Tags from '@/lib/collections/tags/collection';
 import { getUnusedSlugByCollectionName } from '@/lib/helpers';
 import { randomId } from '@/lib/random';
-import { arbitalMarkdownToHtml } from './arbitalMarkdown';
+//import { arbitalMarkdownToHtml } from './arbitalMarkdown';
+import { arbitalMarkdownToHtml } from './markdownService';
 
 
 
@@ -63,6 +66,7 @@ async function doArbitalImport(database: WholeArbitalDatabase, matchedUsers: Rec
   const lensesByPageId = groupBy(database.lenses, l=>l.pageId);
   const wikiPageIds = database.pageInfos.filter(pi => pi.type === "wiki").map(pi=>pi.pageId);
   const pageIdsByTitle: Record<string,string> = {};
+  const titlesByPageId: Record<string,string> = {};
   const liveRevisionsByPageId: Record<string,WholeArbitalDatabase["pages"][0]> = {};
   const defaultUser: DbUser|null = await Users.findOne({ username: "arbitalimport" });
   if (!defaultUser) {
@@ -82,6 +86,7 @@ async function doArbitalImport(database: WholeArbitalDatabase, matchedUsers: Rec
     }
     const title = liveRevision.title;
     pageIdsByTitle[title] = pageId
+    titlesByPageId[pageId] = title;
     liveRevisionsByPageId[pageId] = liveRevision;
     console.log(`${pageId}: ${title}`);
     slugsByPageId[pageId] = await getUnusedSlugByCollectionName("Tags", slugify(title));
@@ -89,12 +94,6 @@ async function doArbitalImport(database: WholeArbitalDatabase, matchedUsers: Rec
   
   console.log(`There are ${Object.keys(liveRevisionsByPageId).length} wiki pages with live revisions`);
   
-  /*const testPageTitles = ['Logical game', 'Big-O Notation'];
-  for (const title of testPageTitles) {
-    const pageId = pageIdsByTitle[title];
-    if (!pageId) {
-      throw new Error(`No page with title: ${title}`);
-    }*/
   for (const pageId of Object.keys(liveRevisionsByPageId)) {
     try {
       const pageInfo = pageInfosById[pageId];
@@ -103,7 +102,7 @@ async function doArbitalImport(database: WholeArbitalDatabase, matchedUsers: Rec
       const liveRevision = liveRevisionsByPageId[pageId];
       const title = liveRevision.title;
       const pageCreator = matchedUsers[pageInfo.createdBy] ?? defaultUser;
-      const html = await arbitalMarkdownToHtml({database, markdown: liveRevision.text, slugsByPageId});
+      const html = await arbitalMarkdownToHtml({database, markdown: liveRevision.text, slugsByPageId, titlesByPageId, pageId});
       const slug = await getUnusedSlugByCollectionName("Tags", slugify(title));
       console.log(`Creating wiki page: ${title} (${slug})`);
       
