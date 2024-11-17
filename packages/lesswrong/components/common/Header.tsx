@@ -548,7 +548,7 @@ const Header = ({
           })}
           onUnfix={() => setUnFixed(true)}
           onUnpin={() => setUnFixed(false)}
-          disable={stayAtTop}
+          disable={stayAtTop || isVotingPortal}
         >
           <header
             className={classNames(
