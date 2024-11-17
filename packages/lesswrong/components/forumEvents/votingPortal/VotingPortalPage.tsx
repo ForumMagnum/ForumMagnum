@@ -140,9 +140,6 @@ const styles = (theme: ThemeType) => ({
   },
   rankingCandidates: {
     marginTop: 32,
-    display: "flex",
-    flexDirection: "column",
-    gap: "4px",
   },
   candidate: {
     display: "flex",
@@ -151,6 +148,7 @@ const styles = (theme: ThemeType) => ({
     boxShadow: `0px 2px 4px 0px ${theme.palette.givingSeason.candidateShadow}`,
     border: `1px solid ${theme.palette.givingSeason.candidateBorder}`,
     padding: "8px 12px",
+    marginBottom: 4,
   },
   candidateUnordered: {
     background: theme.palette.givingSeason.candidateBackground,
