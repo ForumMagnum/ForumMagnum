@@ -1,3 +1,3 @@
 
-export const ACTIVE_ELECTION = "givingSeason24";
-export const ELECTION_NUM_WINNERS = 3;
+export const ACTIVE_DONATION_ELECTION = "givingSeason24";
+export const DONATION_ELECTION_NUM_WINNERS = 3;

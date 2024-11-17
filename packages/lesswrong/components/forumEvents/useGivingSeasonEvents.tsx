@@ -103,17 +103,14 @@ const events: GivingSeasonEvent[] = [
 const getCurrentEvent = (
   currentForumEvent: ForumEventsDisplay | null,
 ): GivingSeasonEvent | null => {
-  // TODO revert
-  return events.find(event => event.name === "Donation Election") ?? null;
-
-  // if (currentForumEvent) {
-  //   const matchingEvent = events.find(({name}) => name === currentForumEvent.title);
-  //   if (matchingEvent) {
-  //     return matchingEvent;
-  //   }
-  // }
-  // const now = moment();
-  // return events.find(({start, end}) => now.isBetween(start, end)) ?? null;
+  if (currentForumEvent) {
+    const matchingEvent = events.find(({name}) => name === currentForumEvent.title);
+    if (matchingEvent) {
+      return matchingEvent;
+    }
+  }
+  const now = moment();
+  return events.find(({start, end}) => now.isBetween(start, end)) ?? null;
 }
 
 type GivingSeasonEventsContext = {

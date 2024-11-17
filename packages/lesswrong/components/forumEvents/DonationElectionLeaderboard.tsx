@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { IRPossibleVoteCounts } from "@/lib/givingSeason/instantRunoff";
-import { ACTIVE_ELECTION, ELECTION_NUM_WINNERS } from "@/lib/givingSeason";
+import { ACTIVE_DONATION_ELECTION, DONATION_ELECTION_NUM_WINNERS } from "@/lib/givingSeason";
 import { useMulti } from "@/lib/crud/withMulti";
 import classNames from "classnames";
 import { Link } from "@/lib/reactRouterWrapper";
@@ -132,14 +132,14 @@ export const DonationElectionLeaderboard = ({
 }) => {
   const { LWTooltip, ForumIcon } = Components;
 
-  const [winnerCount, setVisibleCount] = useState(ELECTION_NUM_WINNERS);
+  const [winnerCount, setVisibleCount] = useState(DONATION_ELECTION_NUM_WINNERS);
   const [tooltipPinned, setTooltipPinned] = useState(false);
 
   const { results } = useMulti({
     collectionName: "ElectionCandidates",
     fragmentName: "ElectionCandidateBasicInfo",
     terms: {
-      electionName: ACTIVE_ELECTION
+      electionName: ACTIVE_DONATION_ELECTION
     },
     limit: 100,
   });
@@ -177,7 +177,7 @@ export const DonationElectionLeaderboard = ({
   );
 
   const totalVotes = useMemo(() => 
-    Object.values(voteCounts[ELECTION_NUM_WINNERS] ?? {}).reduce((acc, count) => acc + count, 0),
+    Object.values(voteCounts[DONATION_ELECTION_NUM_WINNERS] ?? {}).reduce((acc, count) => acc + count, 0),
     [voteCounts]
   );
 

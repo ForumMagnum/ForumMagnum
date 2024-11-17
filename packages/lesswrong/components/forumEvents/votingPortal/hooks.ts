@@ -5,7 +5,7 @@ import { useCurrentUser } from "../../common/withUser";
 import { useCookiesWithConsent } from "@/components/hooks/useCookiesWithConsent";
 import { CLIENT_ID_COOKIE } from "@/lib/cookies/cookies";
 import seedrandom from "@/lib/seedrandom";
-import { ACTIVE_ELECTION } from "@/lib/givingSeason";
+import { ACTIVE_DONATION_ELECTION } from "@/lib/givingSeason";
 
 // TODO: Check this date - last year it was the time that the election was announced
 const votingAccountCreationCutoff = new Date("2024-10-23T19:00:00Z");
@@ -18,7 +18,7 @@ const userCanVoteInDonationElection = (
 type NullablePartial<T> = { [K in keyof T]?: T[K]|null|undefined }
 
 export const useElectionVote = (
-  electionName = ACTIVE_ELECTION,
+  electionName = ACTIVE_DONATION_ELECTION,
 ) => {
   const currentUser = useCurrentUser();
 
@@ -79,7 +79,7 @@ export const useElectionCandidates = (
     collectionName: "ElectionCandidates",
     fragmentName: "ElectionCandidateBasicInfo",
     terms: {
-      electionName: ACTIVE_ELECTION,
+      electionName: ACTIVE_DONATION_ELECTION,
       sortBy: sortBy === "random" ? "name" : sortBy,
     },
     limit: 30,

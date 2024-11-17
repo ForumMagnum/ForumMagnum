@@ -7,7 +7,7 @@ import {
   viewBasedSubquery,
 } from "../utils/feedUtil";
 import ElectionVotes from "@/lib/collections/electionVotes/collection";
-import { ACTIVE_ELECTION } from "@/lib/givingSeason";
+import { ACTIVE_DONATION_ELECTION } from "@/lib/givingSeason";
 import { instantRunoffAllPossibleResults, IRVote } from "@/lib/givingSeason/instantRunoff";
 
 addGraphQLResolvers({
@@ -22,7 +22,7 @@ addGraphQLResolvers({
       _args: {},
       _context: ResolverContext,
     ) => {
-      const dbVotes = await ElectionVotes.find({ electionName: ACTIVE_ELECTION }).fetch();
+      const dbVotes = await ElectionVotes.find({ electionName: ACTIVE_DONATION_ELECTION }).fetch();
       const votes: IRVote[] = dbVotes.map((vote) => vote.vote);
 
       return instantRunoffAllPossibleResults(votes as IRVote[]);
@@ -36,7 +36,7 @@ addGraphQLResolvers({
         return {};
       }
       const vote = await ElectionVotes.findOne({
-        electionName: ACTIVE_ELECTION,
+        electionName: ACTIVE_DONATION_ELECTION,
         userId: currentUser?._id,
       });
       return vote?.vote ?? {};
@@ -64,7 +64,7 @@ addGraphQLResolvers({
         }
       }
       await repos.electionVotes.upsertVote(
-        ACTIVE_ELECTION,
+        ACTIVE_DONATION_ELECTION,
         currentUser._id,
         vote,
       );

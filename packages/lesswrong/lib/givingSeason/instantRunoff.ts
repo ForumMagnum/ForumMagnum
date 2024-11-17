@@ -1,6 +1,6 @@
 import minBy from "lodash/minBy";
 import { weightedRandomPick } from "../abTestImpl";
-import { ELECTION_NUM_WINNERS } from ".";
+import { ACTIVE_DONATION_ELECTION, DONATION_ELECTION_NUM_WINNERS } from ".";
 
 
 /**
@@ -47,7 +47,7 @@ export function instantRunoffResults({ votes, winners }: { votes: IRVote[]; winn
 
     const candidateToEliminate =
       candidatesWithMinScore.length > 1
-        ? weightedRandomPick(Object.fromEntries(candidatesWithMinScore.map((c) => [c, 1])), "givingSeason24") // TODO make "givingSeason24" a constant elsewhere
+        ? weightedRandomPick(Object.fromEntries(candidatesWithMinScore.map((c) => [c, 1])), ACTIVE_DONATION_ELECTION)
         : candidatesWithMinScore[0];
 
     eliminatedCandidates.add(candidateToEliminate);
@@ -69,11 +69,11 @@ export function instantRunoffResults({ votes, winners }: { votes: IRVote[]; winn
 export function instantRunoffAllPossibleResults(votes: IRVote[]) {
   const results: Record<number, Record<string, number>> = {};
 
-  let winners = ELECTION_NUM_WINNERS;
+  let winners = DONATION_ELECTION_NUM_WINNERS;
   let previousWinnersCount = 0;
   let currentWinnersCount = 0;
 
-  while (currentWinnersCount !== previousWinnersCount || winners === ELECTION_NUM_WINNERS) {
+  while (currentWinnersCount !== previousWinnersCount || winners === DONATION_ELECTION_NUM_WINNERS) {
     const voteCounts = instantRunoffResults({ votes, winners });
 
     previousWinnersCount = currentWinnersCount;
