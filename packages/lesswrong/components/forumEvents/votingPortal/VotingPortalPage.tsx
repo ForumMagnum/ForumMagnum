@@ -25,6 +25,7 @@ import {
 import ReactConfetti from "react-confetti";
 import classNames from "classnames";
 import { useSingle } from "@/lib/crud/withSingle";
+import { gql, useMutation } from "@apollo/client";
 
 const BACKGROUND_HREF = "https://res.cloudinary.com/cea/image/upload/v1731504237/Rectangle_5032.jpg";
 const FUND_HREF = "https://www.every.org/effective-ventures-foundation-usa-inc-for-the-ea-forum-donation-election-fund-2024";
@@ -699,6 +700,12 @@ const VotingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [candidates.length]);
 
+  const [saveVote] = useMutation(gql`
+    mutation GivingSeason2024Vote($vote: JSON!) {
+      GivingSeason2024Vote(vote: $vote)
+    }
+  `);
+
   const onBack = useCallback((ev?: Event) => {
     ev?.preventDefault();
     setScreen((currentScreen) => SCREENS[SCREENS.indexOf(currentScreen) - 1]);
@@ -711,6 +718,19 @@ const VotingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const onEditVote = useCallback(() => {
     setScreen("ranking");
   }, []);
+
+  const onSubmitVote = useCallback(async () => {
+    const vote: Record<string, number> = {};
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (!item.ordered) {
+        break;
+      }
+      vote[item.id] = i + 1;
+    }
+    void saveVote({variables: {vote}});
+    onNext();
+  }, [onNext, saveVote, items]);
 
   return (
     <AnalyticsContext pageContext="votingPortal2024" pageSectionContext={screen}>
@@ -735,7 +755,7 @@ const VotingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
             <CommentScreen commentsPost={commentsPost} classes={classes} />
             <Footer
               onBack={onBack}
-              onNext={onNext}
+              onNext={onSubmitVote}
               infoText="You can change your vote until Dec 2"
               continueText="Submit your vote"
               classes={classes}
