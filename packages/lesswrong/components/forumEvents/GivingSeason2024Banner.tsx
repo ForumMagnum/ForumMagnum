@@ -291,6 +291,9 @@ const styles = (theme: ThemeType) => ({
       marginBottom: 12,
     },
   },
+  fundBarContainerLarge: {
+    height: 17
+  },
   fundBar: {
     height: "100%",
     background: theme.palette.text.alwaysWhite,
@@ -305,8 +308,49 @@ const styles = (theme: ThemeType) => ({
     width: "100%",
     textAlign: "center",
   },
-  fundLearnButton: {
+  // Buttons in small RHS box
+  hideAboveMobile: {
+    [theme.breakpoints.up(GIVING_SEASON_MOBILE_WIDTH)]: {
+      display: "none",
+    },
+  },
+  hideBelowMobile: {
+    [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
+      display: "none",
+    },
+  },
+  button: {
     width: "100%",
+    fontSize: 14,
+    fontWeight: 600,
+    transition: "background 0.3s ease",
+  },
+  buttonLarge: {
+    padding: "12px 24px",
+    [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
+      padding: "8px 12px",
+    },
+  },
+  buttonWhite: {
+    color: theme.palette.givingSeason.primary,
+    background: theme.palette.text.alwaysWhite,
+    transition: "opacity 0.3s ease",
+    "&:hover": {
+      background: theme.palette.text.alwaysWhite,
+      opacity: 0.85,
+    },
+  },
+  buttonTranslucent: {
+    color: theme.palette.text.alwaysWhite,
+    background: theme.palette.givingSeason.electionFundBackground,
+    "&:hover": {
+      background: theme.palette.givingSeason.electionFundBackgroundHeavy,
+    },
+  },
+  // Buttons in large LHS box
+  fundVoteButton: {
+    width: "100%",
+
     fontSize: 14,
     fontWeight: 600,
     color: theme.palette.text.alwaysWhite,
@@ -314,21 +358,6 @@ const styles = (theme: ThemeType) => ({
     transition: "background 0.3s ease",
     "&:hover": {
       background: theme.palette.givingSeason.electionFundBackgroundHeavy,
-    },
-    [theme.breakpoints.up(GIVING_SEASON_MOBILE_WIDTH)]: {
-      display: "none",
-    },
-  },
-  fundDonateButton: {
-    width: "100%",
-    fontSize: 14,
-    fontWeight: 600,
-    color: theme.palette.givingSeason.primary,
-    background: theme.palette.text.alwaysWhite,
-    transition: "opacity 0.3s ease",
-    "&:hover": {
-      background: theme.palette.text.alwaysWhite,
-      opacity: 0.85,
     },
   },
   recentComments: {
@@ -421,11 +450,15 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     flexDirection: "column",
     textAlign: "left",
-    justifyContent: "center",
-    padding: 24,
+    padding: "0px 48px 0px 0px",
     borderRadius: theme.borderRadius.default,
     maxWidth: 600,
-    margin: "0 auto",
+    margin: "0 auto 0 0",
+    flexBasis: "30%",
+    [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
+      padding: 0,
+      flex: 1
+    },
   },
   electionInfoTitle: {
     fontSize: 28,
@@ -439,6 +472,7 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 24,
   },
   electionInfoRaised: {
+    marginTop: 24,
     fontSize: 20,
     fontWeight: 600,
     marginBottom: 12,
@@ -452,6 +486,11 @@ const styles = (theme: ThemeType) => ({
     justifyContent: "center",
     gap: "16px",
     width: "100%",
+  },
+  leaderboardHeader: {
+    fontSize: 18,
+    marginBottom: 36,
+    fontWeight: 600,
   },
 });
 
@@ -659,42 +698,53 @@ const GivingSeason2024Banner = ({classes}: {
           <div className={classes.detailsContainer} ref={setDetailsRef}>
             {events.map(({ name, description, start, end }, i) => (
               <div className={classes.eventDetails} data-event-id={i} key={name}>
-                {/* Don't show the name here for the "Donation Election" because it shows in the
-                    sticky fund/vote box*/}
-                {!showLeaderboard ? (
-                  <div>
-                    <div className={classes.eventDate}>{formatDate(start, end)}</div>
-                    <div className={classes.eventName}>{name}</div>
-                    <div className={classes.eventDescription}>{description}</div>
-                  </div>
-                ) : (
-                  // TODO next: clean this up
+                {name === currentEvent?.name && showLeaderboard && leaderboardData ? (
+                  // TODO next: clean this up, rename classes
                   <div className={classes.electionInfoContainer}>
                     <div className={classes.eventDate}>{formatDate(selectedEvent.start, selectedEvent.end)}</div>
-                    <div className={classes.electionInfoTitle}>Donation Election</div>
-                    <div className={classes.electionInfoText}>
-                      A crowd-sourced pot of funds will be distributed amongst three charities based on your votes.
-                      Donate to the fund to boost the value of the Election.{" "}
-                      <Link to={DONATION_ELECTION_HREF}>Learn more</Link>.
-                    </div>
-                    <div className={classes.electionInfoRaised}>
+                    <div className={classes.eventName}>{name}</div>
+                    <div className={classes.eventDescription}>{description}</div>
+                    <div className={classNames(classes.electionInfoRaised, classes.hideBelowMobile)}>
                       <span className={classes.electionInfoAmount}>
                         ${formatStat(Math.round(amountRaisedPlusMatched))}
                       </span>{" "}
                       raised
                     </div>
-                    <div className={classes.fundBarContainer}>
+                    <div
+                      className={classNames(
+                        classes.fundBarContainer,
+                        classes.fundBarContainerLarge,
+                        classes.hideBelowMobile
+                      )}
+                    >
                       <div style={{ width: `${fundPercent}%` }} className={classes.fundBar} />
                     </div>
+                    <DonationElectionLeaderboard
+                      voteCounts={leaderboardData}
+                      className={classes.hideAboveMobile}
+                      hideHeader
+                    />
                     <div className={classes.electionInfoButtonContainer}>
-                      <EAButton href={getDonateLink(currentUser)} className={classes.fundDonateButton}>
+                      <EAButton
+                        href={getDonateLink(currentUser)}
+                        className={classNames(classes.button, classes.buttonLarge, classes.buttonWhite)}
+                      >
                         Donate to the fund
                       </EAButton>
                       {/* TODO colour, and link */}
-                      <EAButton href={DONATION_ELECTION_HREF} className={classes.fundDonateButton}>
+                      <EAButton
+                        href={DONATION_ELECTION_HREF}
+                        className={classNames(classes.button, classes.buttonLarge, classes.buttonTranslucent)}
+                      >
                         Vote in the election
                       </EAButton>
                     </div>
+                  </div>
+                ) : (
+                  <div>
+                    <div className={classes.eventDate}>{formatDate(start, end)}</div>
+                    <div className={classes.eventName}>{name}</div>
+                    <div className={classes.eventDescription}>{description}</div>
                   </div>
                 )}
                 {name === currentEvent?.name && showRecentComments && (
@@ -744,7 +794,7 @@ const GivingSeason2024Banner = ({classes}: {
                   />
                 )}
                 {name === currentEvent?.name && showLeaderboard && leaderboardData && (
-                  <DonationElectionLeaderboard voteCounts={leaderboardData} />
+                  <DonationElectionLeaderboard voteCounts={leaderboardData} className={classes.hideBelowMobile} />
                 )}
               </div>
             ))}
@@ -765,10 +815,13 @@ const GivingSeason2024Banner = ({classes}: {
                 <div style={{ width: `${fundPercent}%` }} className={classes.fundBar} />
               </div>
               <div className={classes.fundButtonContainer}>
-                <EAButton href={DONATION_ELECTION_HREF} className={classes.fundLearnButton}>
+                <EAButton
+                  href={DONATION_ELECTION_HREF}
+                  className={classNames(classes.button, classes.buttonTranslucent, classes.hideAboveMobile)}
+                >
                   Learn more
                 </EAButton>
-                <EAButton href={getDonateLink(currentUser)} className={classes.fundDonateButton}>
+                <EAButton href={getDonateLink(currentUser)} className={classNames(classes.button, classes.buttonWhite)}>
                   Donate
                 </EAButton>
               </div>

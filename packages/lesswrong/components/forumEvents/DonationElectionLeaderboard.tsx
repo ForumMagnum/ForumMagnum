@@ -5,13 +5,15 @@ import { ACTIVE_ELECTION, ELECTION_NUM_WINNERS } from "@/lib/givingSeason";
 import { useMulti } from "@/lib/crud/withMulti";
 import classNames from "classnames";
 import { Link } from "@/lib/reactRouterWrapper";
+import { GIVING_SEASON_MOBILE_WIDTH } from "./useGivingSeasonEvents";
 
 const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "column",
     gap: "16px",
-    flex: 1
+    flex: 1,
+    maxWidth: 750
   },
   header: {
     fontSize: 18,
@@ -54,7 +56,6 @@ const styles = (theme: ThemeType) => ({
   barContainer: {
     position: 'relative',
     height: '12px',
-    borderRadius: '2px',
     overflow: 'hidden',
     marginTop: '8px',
   },
@@ -63,23 +64,73 @@ const styles = (theme: ThemeType) => ({
     height: '100%',
     backgroundColor: theme.palette.inverseGreyAlpha(0.5),
     transition: 'width 0.3s ease',
+    borderRadius: '2px',
   },
-  showMore: {
-    
+  showMoreRow: {
+    display: "flex",
+    gap: "8px",
+    alignItems: "center",
+    marginBottom: 16
   },
-  info: {
-    
+  showMoreButton: {
+    cursor: "pointer",
+    fontWeight: 600,
   },
+  showMoreInfo: {
+    color: theme.palette.inverseGreyAlpha(0.7),
+    fontWeight: 500,
+    display: "flex",
+    alignItems: "center",
+    [theme.breakpoints.down(900)]: {
+      display: "none"
+    },
+  },
+  infoCircle: {
+    width: 20,
+    height: 20,
+    marginTop: 4,
+    marginLeft: 4,
+    cursor: "pointer",
+    '&:hover': {
+      color: theme.palette.inverseGreyAlpha(1),
+    }
+  },
+  infoCirclePinned: {
+    color: theme.palette.inverseGreyAlpha(1),
+  },
+  infoTooltipPopper: {
+    background: `${theme.palette.grey[1000]} !important`,
+    textAlign: "center",
+  },
+  infoTooltip: {
+    maxWidth: 400,
+    '& a': {
+      textDecoration: "underline",
+      textUnderlineOffset: "2px",
+      '&:hover': {
+        textDecoration: "underline",
+        textUnderlineOffset: "2px",
+        opacity: 0.8
+      }
+    }
+  }
 });
 
 export const DonationElectionLeaderboard = ({
   voteCounts,
+  hideHeader,
+  className,
   classes,
 }: {
   voteCounts: IRPossibleVoteCounts;
+  hideHeader?: boolean;
+  className?: string;
   classes: ClassesType<typeof styles>;
 }) => {
+  const { LWTooltip, ForumIcon } = Components;
+
   const [winnerCount, setVisibleCount] = useState(ELECTION_NUM_WINNERS);
+  const [tooltipPinned, setTooltipPinned] = useState(false);
 
   const { results } = useMulti({
     collectionName: "ElectionCandidates",
@@ -129,35 +180,62 @@ export const DonationElectionLeaderboard = ({
   console.log({voteCounts, voteCount, visibleCount: winnerCount})
 
   return (
-    <div className={classes.root}>
-      <div className={classes.header}>Current Leaderboard</div>
+    <div className={classNames(classes.root, className)}>
+      {!hideHeader && <div className={classes.header}>Current Leaderboard</div>}
       {sortedCharities.map(({ count, candidate }, index) => (
         <div key={candidate?._id ?? index} className={classes.candidateWrapper}>
           <div
             // TODO don't use backgroundImage, it appears to be more grainy than a real <img>
-            style={{ backgroundImage: candidate?.logoSrc ? `url(${candidate.logoSrc})` : 'none' }}
+            style={{ backgroundImage: candidate?.logoSrc ? `url(${candidate.logoSrc})` : "none" }}
             className={classes.candidateImage}
           />
           <div className={classes.result}>
             <div className={classes.candidateDetails}>
-              {candidate ? <Link to={candidate?.href} className={classes.candidateName}>{candidate?.name}</Link> : <div>—</div>}
+              {candidate ? (
+                <Link to={candidate?.href} className={classes.candidateName}>
+                  {candidate?.name}
+                </Link>
+              ) : (
+                <div>—</div>
+              )}
               <div className={classes.voteCount}>{count}</div>
             </div>
             <div className={classes.barContainer}>
-              <div
-                className={classes.barFill}
-                style={{ width: `${(count / maxVotes) * 100}%` }}
-              ></div>
+              <div className={classes.barFill} style={{ width: `${(count / maxVotes) * 100}%` }}></div>
             </div>
           </div>
         </div>
       ))}
       {voteCounts[winnerCount + 1] && (
-        <div
-          className={classes.showMore}
-          onClick={handleShowMore}
-        >
-          + Show one more
+        <div className={classes.showMoreRow}>
+          <div className={classes.showMoreButton} onClick={handleShowMore}>
+            + Show one more
+          </div>
+          <div className={classes.showMoreInfo}>
+            <span>This will recalculate the vote totals</span>
+            <LWTooltip
+              title={
+                <>
+                  To get down to 3 winners, candidates are eliminated one by one and votes are reallocated according to{" "}
+                  <Link to="/posts/j6fmnYM5ZRu9fJyrq/donation-election-how-to-vote">instant-runoff rules</Link>.
+                  Clicking "show one more" here un-eliminates the next best candidate, which results in votes being
+                  removed from higher scoring candidates and allocated back to this one. This is intended for
+                  illustration/tactical voting purposes.{" "}
+                  <Link to="/posts/j6fmnYM5ZRu9fJyrq/donation-election-how-to-vote">Learn more here</Link>.
+                </>
+              }
+              popperClassName={classes.infoTooltipPopper}
+              titleClassName={classes.infoTooltip}
+              placement="top"
+              forceOpen={tooltipPinned}
+              clickable
+            >
+              <ForumIcon
+                icon="InfoCircle"
+                className={classNames(classes.infoCircle, { [classes.infoCirclePinned]: tooltipPinned })}
+              />
+            </LWTooltip>
+          </div>
         </div>
       )}
     </div>
