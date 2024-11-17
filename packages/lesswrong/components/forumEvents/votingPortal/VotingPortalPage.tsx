@@ -449,6 +449,9 @@ const styles = (theme: ThemeType) => ({
       padding: 16,
     },
   },
+  footerButtonDisabled: {
+    opacity: 0.5,
+  },
   footerUnderText: {
     width: "100%",
     "& > *": {
@@ -771,14 +774,28 @@ const ThankYouScreen = ({
   );
 }
 
-const Footer = ({onBack, onNext, infoText, continueText, underText, classes}: {
+const Footer = ({
+  onBack,
+  onNext,
+  infoText,
+  continueText,
+  underText,
+  disableContinue,
+  classes,
+}: {
   onBack: () => void,
   onNext: () => void,
   infoText: ReactNode,
   continueText: ReactNode,
   underText?: ReactNode,
+  disableContinue?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
+  const onContinue = useCallback(() => {
+    if (!disableContinue) {
+      onNext();
+    }
+  }, [onNext, disableContinue]);
   const {EAButton} = Components;
   return (
     <div className={classes.footer}>
@@ -792,7 +809,13 @@ const Footer = ({onBack, onNext, infoText, continueText, underText, classes}: {
           {infoText}
         </div>
         <div>
-          <EAButton onClick={onNext} className={classes.footerButton}>
+          <EAButton
+            onClick={onContinue}
+            className={classNames(
+              classes.footerButton,
+              disableContinue && classes.footerButtonDisabled,
+            )}
+          >
             {continueText} -&gt;
           </EAButton>
         </div>
@@ -915,6 +938,7 @@ const VotingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
                 </>
               }
               continueText="Continue"
+              disableContinue={voteCount < 1}
               classes={classes}
             />
           </>
