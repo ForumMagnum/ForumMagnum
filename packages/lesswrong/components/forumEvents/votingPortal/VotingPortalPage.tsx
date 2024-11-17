@@ -751,7 +751,7 @@ const ThankYouScreen = ({
         </div>
       </div>
       <EAButton onClick={onEditVote} className={classes.thankYouButton}>
-        Edit your vote&nbsp;
+        Edit your vote&nbsp;{""}
         <span className={classes.thankYouSecondaryText}>(until Dec 2)</span>
       </EAButton>
     </div>
