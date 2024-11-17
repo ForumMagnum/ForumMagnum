@@ -160,7 +160,7 @@ export const DonationElectionLeaderboard = ({
             .map(Number)
             .filter((key) => key <= winnerCount)
         )
-      ],
+      ] ?? {},
     [voteCounts, winnerCount]
   );
 
@@ -176,16 +176,15 @@ export const DonationElectionLeaderboard = ({
     [sortedCharityIds, candidates]
   );
 
-  const maxVotes = sortedCharityIds[0][1];
-
   const totalVotes = useMemo(() => 
-    Object.values(voteCounts[ELECTION_NUM_WINNERS]).reduce((acc, count) => acc + count, 0),
+    Object.values(voteCounts[ELECTION_NUM_WINNERS] ?? {}).reduce((acc, count) => acc + count, 0),
     [voteCounts]
   );
 
+  // Only show the running count once there are a reasonable number of votes
   if (totalVotes < 100) {
-    return null;
-  }
+
+  const maxVotes = sortedCharityIds[0][1];
 
   return (
     <div className={classNames(classes.root, className)}>

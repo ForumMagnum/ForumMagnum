@@ -9,113 +9,6 @@ import {
 import ElectionVotes from "@/lib/collections/electionVotes/collection";
 import { ACTIVE_ELECTION } from "@/lib/givingSeason";
 import { instantRunoffAllPossibleResults, IRVote } from "@/lib/givingSeason/instantRunoff";
-import ElectionCandidates from "@/lib/collections/electionCandidates/collection";
-
-const DUMMY_VOTES = [
-  // Vote 1
-  {
-    '6yhJEFA6RidnrEwgk': 1, // TLYCS
-    'hpJattsZrqyNpdnZa': 2, // Animal Welfare Fund
-    'NwhdDs8rSkafxFda2': 3, // GiveDirectly
-  },
-  // Vote 2
-  {
-    'aWQ9EHkcqFJ5tQ3HQ': 1, // Good Food Institute
-  },
-  // Vote 3
-  {
-    'iqRgzWyQYkyJa42oe': 1, // Giving What We Can
-    '6yhJEFA6RidnrEwgk': 2, // TLYCS
-  },
-  // Vote 4
-  {
-    'hpJattsZrqyNpdnZa': 1, // Animal Welfare Fund
-    'aWQ9EHkcqFJ5tQ3HQ': 2, // Good Food Institute
-    'NwhdDs8rSkafxFda2': 3, // GiveDirectly
-  },
-  // Vote 5
-  {
-    'NwhdDs8rSkafxFda2': 1, // GiveDirectly
-  },
-  // Vote 6
-  {
-    '6yhJEFA6RidnrEwgk': 1, // TLYCS
-    'iqRgzWyQYkyJa42oe': 2, // Giving What We Can
-    'aWQ9EHkcqFJ5tQ3HQ': 3, // Good Food Institute
-    'hpJattsZrqyNpdnZa': 4, // Animal Welfare Fund
-  },
-  // Vote 7
-  {
-    'hpJattsZrqyNpdnZa': 1, // Animal Welfare Fund
-    '6yhJEFA6RidnrEwgk': 2, // TLYCS
-  },
-  // Vote 8
-  {
-    'aWQ9EHkcqFJ5tQ3HQ': 1, // Good Food Institute
-    'NwhdDs8rSkafxFda2': 2, // GiveDirectly
-  },
-  // Vote 9
-  {
-    'iqRgzWyQYkyJa42oe': 1, // Giving What We Can
-  },
-  // Vote 10
-  {
-    'NwhdDs8rSkafxFda2': 1, // GiveDirectly
-    'hpJattsZrqyNpdnZa': 2, // Animal Welfare Fund
-    'aWQ9EHkcqFJ5tQ3HQ': 3, // Good Food Institute
-  },
-  // Vote 11
-  {
-    '6yhJEFA6RidnrEwgk': 1, // TLYCS
-  },
-  // Vote 12
-  {
-    'hpJattsZrqyNpdnZa': 1, // Animal Welfare Fund
-    'iqRgzWyQYkyJa42oe': 2, // Giving What We Can
-    'aWQ9EHkcqFJ5tQ3HQ': 3, // Good Food Institute
-    'NwhdDs8rSkafxFda2': 4, // GiveDirectly
-  },
-  // Vote 13
-  {
-    'aWQ9EHkcqFJ5tQ3HQ': 1, // Good Food Institute
-    '6yhJEFA6RidnrEwgk': 2, // TLYCS
-  },
-  // Vote 14
-  {
-    'iqRgzWyQYkyJa42oe': 1, // Giving What We Can
-    'NwhdDs8rSkafxFda2': 2, // GiveDirectly
-  },
-  // Vote 15
-  {
-    'hpJattsZrqyNpdnZa': 1, // Animal Welfare Fund
-  },
-  // Vote 16
-  {
-    '6yhJEFA6RidnrEwgk': 1, // TLYCS
-    'aWQ9EHkcqFJ5tQ3HQ': 2, // Good Food Institute
-    'iqRgzWyQYkyJa42oe': 3, // Giving What We Can
-  },
-  // Vote 17
-  {
-    'NwhdDs8rSkafxFda2': 1, // GiveDirectly
-    'hpJattsZrqyNpdnZa': 2, // Animal Welfare Fund
-  },
-  // Vote 18
-  {
-    'aWQ9EHkcqFJ5tQ3HQ': 1, // Good Food Institute
-  },
-  // Vote 19
-  {
-    'iqRgzWyQYkyJa42oe': 1, // Giving What We Can
-    '6yhJEFA6RidnrEwgk': 2, // TLYCS
-    'NwhdDs8rSkafxFda2': 3, // GiveDirectly
-  },
-  // Vote 20
-  {
-    'hpJattsZrqyNpdnZa': 1, // Animal Welfare Fund
-    'aWQ9EHkcqFJ5tQ3HQ': 2, // Good Food Institute
-  },
-];
 
 addGraphQLResolvers({
   Query: {
@@ -127,12 +20,10 @@ addGraphQLResolvers({
     GivingSeason2024VoteCounts: async (
       _root: void,
       _args: {},
-      context: ResolverContext,
+      _context: ResolverContext,
     ) => {
-      // TODO use real votes
-      // const dbVotes = await ElectionVotes.find({ electionName: ACTIVE_ELECTION }).fetch();
-      // const votes: IRVote[] = dbVotes.map((vote) => vote.vote);
-      const votes = DUMMY_VOTES;
+      const dbVotes = await ElectionVotes.find({ electionName: ACTIVE_ELECTION }).fetch();
+      const votes: IRVote[] = dbVotes.map((vote) => vote.vote);
 
       return instantRunoffAllPossibleResults(votes as IRVote[]);
     },

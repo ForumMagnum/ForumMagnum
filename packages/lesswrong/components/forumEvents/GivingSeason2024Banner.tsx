@@ -468,11 +468,14 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 700,
   },
   electionInfoButtonContainer: {
-    marginBottom: 16,
+    marginBottom: 4,
     display: "flex",
     justifyContent: "center",
     gap: "16px",
     width: "100%",
+    [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
+      marginBottom: 16
+    },
   }
 });
 
@@ -586,7 +589,6 @@ const GivingSeason2024Banner = ({classes}: {
     currentEvent?.name === "Marginal Funding Week"
   );
   const showLeaderboard = shouldShowLeaderboard(currentEvent);
-  console.log({currentEvent, showLeaderboard, leaderboardData})
 
   useEffect(() => {
     if (!detailsRef) {
