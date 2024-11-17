@@ -12,6 +12,7 @@ import {
   GIVING_SEASON_DESKTOP_WIDTH,
   GIVING_SEASON_MOBILE_WIDTH,
   getDonateLink,
+  shouldShowLeaderboard,
   useGivingSeasonEvents,
 } from "./useGivingSeasonEvents";
 import classNames from "classnames";
@@ -415,6 +416,43 @@ const styles = (theme: ThemeType) => ({
   feedInteraction: {
     display: "inline",
   },
+  // TODO prune
+  electionInfoContainer: {
+    display: "flex",
+    flexDirection: "column",
+    textAlign: "left",
+    justifyContent: "center",
+    padding: 24,
+    borderRadius: theme.borderRadius.default,
+    maxWidth: 600,
+    margin: "0 auto",
+  },
+  electionInfoTitle: {
+    fontSize: 28,
+    fontWeight: 700,
+    marginBottom: 12,
+  },
+  electionInfoText: {
+    whiteSpace: "normal",
+    fontSize: 16,
+    lineHeight: "150%",
+    marginBottom: 24,
+  },
+  electionInfoRaised: {
+    fontSize: 20,
+    fontWeight: 600,
+    marginBottom: 12,
+  },
+  electionInfoAmount: {
+    fontWeight: 700,
+  },
+  electionInfoButtonContainer: {
+    marginTop: 4,
+    display: "flex",
+    justifyContent: "center",
+    gap: "16px",
+    width: "100%",
+  },
 });
 
 const scrollIntoViewHorizontally = (
@@ -511,6 +549,7 @@ const GivingSeason2024Banner = ({classes}: {
     setSelectedEvent,
     amountRaised,
     amountTarget,
+    leaderboard: leaderboardData
   } = useGivingSeasonEvents();
   const {currentForumEvent} = useCurrentForumEvent();
   const currentUser = useCurrentUser();
@@ -523,9 +562,10 @@ const GivingSeason2024Banner = ({classes}: {
   const fundPercent = Math.round((amountRaisedPlusMatched / amountTarget) * 100);
 
   const showRecentComments = !!currentForumEvent?.tagId && (
-    currentEvent?.name === "Marginal Funding Week" ||
-    currentEvent?.name === "Donation Election"
+    currentEvent?.name === "Marginal Funding Week"
   );
+  const showLeaderboard = shouldShowLeaderboard(currentEvent);
+  console.log({currentEvent, showLeaderboard, leaderboardData})
 
   useEffect(() => {
     if (!detailsRef) {
@@ -584,28 +624,20 @@ const GivingSeason2024Banner = ({classes}: {
     });
   }, [detailsRef]);
 
-  const {EAButton, MixedTypeFeed} = Components;
+  const {EAButton, MixedTypeFeed, DonationElectionLeaderboard} = Components;
   return (
-    <div className={classNames(
-      classes.root,
-      selectedEvent.darkText && classes.darkText,
-    )}>
+    <div className={classNames(classes.root, selectedEvent.darkText && classes.darkText)}>
       <div className={classes.backgrounds}>
-        {events.map(({name, background}) => (
+        {events.map(({ name, background }) => (
           <div
             key={name}
-            style={{backgroundImage: `url(${background})`}}
-            className={classNames(
-              classes.background,
-              name === selectedEvent.name && classes.backgroundActive,
-            )}
+            style={{ backgroundImage: `url(${background})` }}
+            className={classNames(classes.background, name === selectedEvent.name && classes.backgroundActive)}
           />
         ))}
       </div>
       <div className={classes.banner}>
-        <Link to="/posts/srZEX2r9upbwfnRKw/giving-season-2024-announcement">
-          GIVING SEASON 2024
-        </Link>
+        <Link to="/posts/srZEX2r9upbwfnRKw/giving-season-2024-announcement">GIVING SEASON 2024</Link>
       </div>
       <div className={classes.line} />
       <div className={classes.content}>
@@ -616,36 +648,64 @@ const GivingSeason2024Banner = ({classes}: {
               data-event-id={i}
               data-title={event.name}
               onClick={onClickTimeline.bind(null, i)}
-              className={classNames(
-                classes.timelineEvent,
-                selectedEvent === event && classes.timelineEventSelected,
-              )}
+              className={classNames(classes.timelineEvent, selectedEvent === event && classes.timelineEventSelected)}
             >
               {event.name}
-              {event === currentEvent &&
-                <div className={classes.timelineDot} />
-              }
+              {event === currentEvent && <div className={classes.timelineDot} />}
             </div>
           ))}
         </div>
         <div className={classes.mainContainer}>
           <div className={classes.detailsContainer} ref={setDetailsRef}>
-            {events.map(({name, description, start, end}, i) => (
+            {events.map(({ name, description, start, end }, i) => (
               <div className={classes.eventDetails} data-event-id={i} key={name}>
-                <div>
-                  <div className={classes.eventDate}>{formatDate(start, end)}</div>
-                  <div className={classes.eventName}>{name}</div>
-                  <div className={classes.eventDescription}>{description}</div>
-                </div>
-                {showRecentComments && name === currentEvent?.name &&
+                {/* Don't show the name here for the "Donation Election" because it shows in the
+                    sticky fund/vote box*/}
+                {!showLeaderboard ? (
+                  <div>
+                    <div className={classes.eventDate}>{formatDate(start, end)}</div>
+                    <div className={classes.eventName}>{name}</div>
+                    <div className={classes.eventDescription}>{description}</div>
+                  </div>
+                ) : (
+                  // TODO next: clean this up
+                  <div className={classes.electionInfoContainer}>
+                    <div className={classes.eventDate}>{formatDate(selectedEvent.start, selectedEvent.end)}</div>
+                    <div className={classes.electionInfoTitle}>Donation Election</div>
+                    <div className={classes.electionInfoText}>
+                      A crowd-sourced pot of funds will be distributed amongst three charities based on your votes.
+                      Donate to the fund to boost the value of the Election.{" "}
+                      <Link to={DONATION_ELECTION_HREF}>Learn more</Link>.
+                    </div>
+                    <div className={classes.electionInfoRaised}>
+                      <span className={classes.electionInfoAmount}>
+                        ${formatStat(Math.round(amountRaisedPlusMatched))}
+                      </span>{" "}
+                      raised
+                    </div>
+                    <div className={classes.fundBarContainer}>
+                      <div style={{ width: `${fundPercent}%` }} className={classes.fundBar} />
+                    </div>
+                    <div className={classes.electionInfoButtonContainer}>
+                      <EAButton href={getDonateLink(currentUser)} className={classes.fundDonateButton}>
+                        Donate to the fund
+                      </EAButton>
+                      {/* TODO colour, and link */}
+                      <EAButton href={DONATION_ELECTION_HREF} className={classes.fundDonateButton}>
+                        Vote in the election
+                      </EAButton>
+                    </div>
+                  </div>
+                )}
+                {name === currentEvent?.name && showRecentComments && (
                   <MixedTypeFeed
                     className={classes.recentComments}
                     firstPageSize={3}
                     hideLoading
                     disableLoadMore
                     resolverName="GivingSeasonTagFeed"
-                    resolverArgs={{tagId: "String!"}}
-                    resolverArgsValues={{tagId: currentForumEvent?.tagId}}
+                    resolverArgs={{ tagId: "String!" }}
+                    resolverArgsValues={{ tagId: currentForumEvent?.tagId }}
                     sortKeyType="Date"
                     renderers={{
                       newPost: {
@@ -682,48 +742,38 @@ const GivingSeason2024Banner = ({classes}: {
                       },
                     }}
                   />
-                }
+                )}
+                {name === currentEvent?.name && showLeaderboard && leaderboardData && (
+                  <DonationElectionLeaderboard voteCounts={leaderboardData} />
+                )}
               </div>
             ))}
           </div>
-          <div className={classes.fund}>
-            <div className={classes.fundDetailsContainer}>
-              <div className={classes.fundMobileTitle}>
-                Donation Election Fund
+          {!showLeaderboard && (
+            <div className={classes.fund}>
+              <div className={classes.fundDetailsContainer}>
+                <div className={classes.fundMobileTitle}>Donation Election Fund</div>
+                <div className={classes.fundInfo}>
+                  Donate to the fund to boost the value of the{" "}
+                  <Link to={DONATION_ELECTION_HREF}>Donation Election</Link>.
+                </div>
+                <div className={classes.fundRaised}>
+                  <span className={classes.fundAmount}>${formatStat(Math.round(amountRaisedPlusMatched))}</span> raised
+                </div>
               </div>
-              <div className={classes.fundInfo}>
-                Donate to the fund to boost the value of the{" "}
-                <Link to={DONATION_ELECTION_HREF}>
-                  Donation Election
-                </Link>.
+              <div className={classes.fundBarContainer}>
+                <div style={{ width: `${fundPercent}%` }} className={classes.fundBar} />
               </div>
-              <div className={classes.fundRaised}>
-                <span className={classes.fundAmount}>
-                  ${formatStat(Math.round(amountRaisedPlusMatched))}
-                </span> raised
+              <div className={classes.fundButtonContainer}>
+                <EAButton href={DONATION_ELECTION_HREF} className={classes.fundLearnButton}>
+                  Learn more
+                </EAButton>
+                <EAButton href={getDonateLink(currentUser)} className={classes.fundDonateButton}>
+                  Donate
+                </EAButton>
               </div>
             </div>
-            <div className={classes.fundBarContainer}>
-              <div
-                style={{width: `${fundPercent}%`}}
-                className={classes.fundBar}
-              />
-            </div>
-            <div className={classes.fundButtonContainer}>
-              <EAButton
-                href={DONATION_ELECTION_HREF}
-                className={classes.fundLearnButton}
-              >
-                Learn more
-              </EAButton>
-              <EAButton
-                href={getDonateLink(currentUser)}
-                className={classes.fundDonateButton}
-              >
-                Donate
-              </EAButton>
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

@@ -6,6 +6,7 @@ import qs from "qs";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
 import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
+import { IRPossibleVoteCounts } from "@/lib/givingSeason/instantRunoff";
 
 export const GIVING_SEASON_DESKTOP_WIDTH = 1300;
 export const GIVING_SEASON_MOBILE_WIDTH = 700;
@@ -101,14 +102,17 @@ const events: GivingSeasonEvent[] = [
 const getCurrentEvent = (
   currentForumEvent: ForumEventsDisplay | null,
 ): GivingSeasonEvent | null => {
-  if (currentForumEvent) {
-    const matchingEvent = events.find(({name}) => name === currentForumEvent.title);
-    if (matchingEvent) {
-      return matchingEvent;
-    }
-  }
-  const now = moment();
-  return events.find(({start, end}) => now.isBetween(start, end)) ?? null;
+  // TODO revert
+  return events.find(event => event.name === "Donation Election") ?? null;
+
+  // if (currentForumEvent) {
+  //   const matchingEvent = events.find(({name}) => name === currentForumEvent.title);
+  //   if (matchingEvent) {
+  //     return matchingEvent;
+  //   }
+  // }
+  // const now = moment();
+  // return events.find(({start, end}) => now.isBetween(start, end)) ?? null;
 }
 
 type GivingSeasonEventsContext = {
@@ -118,6 +122,7 @@ type GivingSeasonEventsContext = {
   setSelectedEvent: Dispatch<GivingSeasonEvent>,
   amountRaised: number,
   amountTarget: number,
+  leaderboard?: IRPossibleVoteCounts
 }
 
 const givingSeasonEventsContext = createContext<GivingSeasonEventsContext>({
@@ -135,15 +140,29 @@ const amountRaisedQuery = gql`
   }
 `;
 
+const leaderboardQuery = gql`
+  query GivingSeason2024VoteCounts {
+    GivingSeason2024VoteCounts
+  }
+`;
+
+export const shouldShowLeaderboard = (currentEvent: GivingSeasonEvent | null) => currentEvent?.name === "Donation Election";
+
 export const GivingSeasonEventsProvider = ({children}: {children: ReactNode}) => {
   const {currentForumEvent} = useCurrentForumEvent();
   const currentEvent = getCurrentEvent(currentForumEvent);
   const [selectedEvent, setSelectedEvent] = useState(currentEvent ?? events[0]);
 
-  const {data} = useQuery(amountRaisedQuery, {
+  const {data: amountRaisedData} = useQuery(amountRaisedQuery, {
     pollInterval: 60 * 1000, // Poll once per minute
     ssr: true,
     skip: !isEAForum,
+  });
+
+  const { data: leaderboardData } = useQuery<{ GivingSeason2024VoteCounts: IRPossibleVoteCounts }>(leaderboardQuery, {
+    pollInterval: 60 * 1000, // Poll once per minute
+    ssr: true,
+    skip: !shouldShowLeaderboard(currentEvent),
   });
 
   return (
@@ -152,8 +171,9 @@ export const GivingSeasonEventsProvider = ({children}: {children: ReactNode}) =>
       currentEvent,
       selectedEvent,
       setSelectedEvent,
-      amountRaised: data?.GivingSeason2024DonationTotal ?? 0,
+      amountRaised: amountRaisedData?.GivingSeason2024DonationTotal ?? 0,
       amountTarget: 35000,
+      leaderboard: leaderboardData?.GivingSeason2024VoteCounts
     }}>
       {children}
     </givingSeasonEventsContext.Provider>

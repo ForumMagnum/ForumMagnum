@@ -14,7 +14,7 @@ describe('instantRunoffResults', () => {
     // Round 2: {'A': 4}
 
     const winners = 1;
-    const result = instantRunoffResults(votes, winners);
+    const result = instantRunoffResults({ votes, winners });
     expect(result).toEqual({ 'A': 4 });
   });
 
@@ -31,7 +31,7 @@ describe('instantRunoffResults', () => {
     // Round 2: {'B': 2} (the vote for 'C' didn't rank 'B', so 'B' gains no votes here)
 
     const winners = 1;
-    const result = instantRunoffResults(votes, winners);
+    const result = instantRunoffResults({ votes, winners });
     expect(result).toEqual({ 'B': 2 });
   });
 
@@ -50,14 +50,14 @@ describe('instantRunoffResults', () => {
     // Round 2: {'A': 4, 'B': 2}
 
     const winners = 2;
-    const result = instantRunoffResults(votes, winners);
+    const result = instantRunoffResults({ votes, winners });
     expect(result).toEqual({ 'A': 4, 'B': 2 });
   });
 
   it('should handle no votes', () => {
     const votes: IRVote[] = [];
     const winners = 1;
-    const result = instantRunoffResults(votes, winners);
+    const result = instantRunoffResults({ votes, winners });
     expect(result).toEqual({});
   });
 
@@ -69,7 +69,7 @@ describe('instantRunoffResults', () => {
       { 'B': 1, 'A': 2 }
     ];
     const winners = 2;
-    const result = instantRunoffResults(votes, winners);
+    const result = instantRunoffResults({ votes, winners });
     expect(result).toEqual({ 'A': 1, 'B': 1 });
   });
 });

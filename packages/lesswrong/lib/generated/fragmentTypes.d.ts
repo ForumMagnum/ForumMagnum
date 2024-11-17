@@ -1128,7 +1128,7 @@ interface PostsTopItemInfo extends PostsMinimumInfo, PostsAuthors { // fragment 
   readonly customHighlight: PostsTopItemInfo_customHighlight|null,
   readonly tags: Array<TagPreviewFragment>,
   readonly reviewWinner: ReviewWinnerTopPostsPage|null,
-  readonly spotlight: SpotlightDisplay|null,
+  readonly spotlight: SpotlightReviewWinner|null,
 }
 
 interface PostsTopItemInfo_contents { // fragment on Revisions
@@ -3700,6 +3700,14 @@ interface SpotlightMinimumInfo { // fragment on Spotlights
   readonly imageFadeColor: string | null,
 }
 
+interface SpotlightReviewWinner extends SpotlightMinimumInfo { // fragment on Spotlights
+  readonly description: SpotlightReviewWinner_description|null,
+}
+
+interface SpotlightReviewWinner_description { // fragment on Revisions
+  readonly html: string,
+}
+
 interface SpotlightHeaderEventSubtitle extends SpotlightMinimumInfo { // fragment on Spotlights
   readonly document: SpotlightHeaderEventSubtitle_document,
 }
@@ -4451,6 +4459,7 @@ interface FragmentTypes {
   UserVotesWithDocument: UserVotesWithDocument
   SpotlightsDefaultFragment: SpotlightsDefaultFragment
   SpotlightMinimumInfo: SpotlightMinimumInfo
+  SpotlightReviewWinner: SpotlightReviewWinner
   SpotlightHeaderEventSubtitle: SpotlightHeaderEventSubtitle
   SpotlightDisplay: SpotlightDisplay
   SpotlightEditQueryFragment: SpotlightEditQueryFragment
@@ -4564,7 +4573,7 @@ interface FragmentTypesByCollection {
   PetrovDayLaunchs: "PetrovDayLaunchsDefaultFragment"|"PetrovDayLaunchInfo"
   PetrovDayActions: "PetrovDayActionsDefaultFragment"|"PetrovDayActionInfo"
   FeaturedResources: "FeaturedResourcesDefaultFragment"|"FeaturedResourcesFragment"
-  Spotlights: "SpotlightsDefaultFragment"|"SpotlightMinimumInfo"|"SpotlightHeaderEventSubtitle"|"SpotlightDisplay"|"SpotlightEditQueryFragment"
+  Spotlights: "SpotlightsDefaultFragment"|"SpotlightMinimumInfo"|"SpotlightReviewWinner"|"SpotlightHeaderEventSubtitle"|"SpotlightDisplay"|"SpotlightEditQueryFragment"
   ModeratorActions: "ModeratorActionsDefaultFragment"|"ModeratorActionDisplay"
   CommentModeratorActions: "CommentModeratorActionsDefaultFragment"|"CommentModeratorActionDisplay"
   ModerationTemplates: "ModerationTemplatesDefaultFragment"|"ModerationTemplateFragment"
@@ -4812,6 +4821,7 @@ interface CollectionNamesByFragmentName {
   UserVotesWithDocument: "Votes"
   SpotlightsDefaultFragment: "Spotlights"
   SpotlightMinimumInfo: "Spotlights"
+  SpotlightReviewWinner: "Spotlights"
   SpotlightHeaderEventSubtitle: "Spotlights"
   SpotlightDisplay: "Spotlights"
   SpotlightEditQueryFragment: "Spotlights"

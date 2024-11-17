@@ -1,11 +1,14 @@
 import minBy from "lodash/minBy";
 import { weightedRandomPick } from "../abTestImpl";
+import { ELECTION_NUM_WINNERS } from ".";
 
 
 /**
  * Record of `{_id: ranking}`, from 1 (top preference) downwards
  */
 export type IRVote = Record<string, number>
+export type IRVoteCount = Record<string, number>
+export type IRPossibleVoteCounts = Record<number, Record<string, number>>
 
 function tallyVotes({votes, eliminatedCandidates}: {votes: IRVote[], eliminatedCandidates: Set<string>}) {
   const candidateScores: Record<string, number> = {};
@@ -30,7 +33,7 @@ function tallyVotes({votes, eliminatedCandidates}: {votes: IRVote[], eliminatedC
   return candidateScores;
 }
 
-export function instantRunoffResults(votes: IRVote[], winners: number): Record<string, number> {
+export function instantRunoffResults({ votes, winners }: { votes: IRVote[]; winners: number; }): Record<string, number> {
   const eliminatedCandidates: Set<string> = new Set();
 
   let voteCount = tallyVotes({votes, eliminatedCandidates});
@@ -53,4 +56,35 @@ export function instantRunoffResults(votes: IRVote[], winners: number): Record<s
   }
 
   return voteCount;
+}
+
+/**
+ * On the frontend, clicking "show more" needs to display what the results would look like if fewer
+ * candidates were eliminated. Here we calculate all these possibilities upfront, starting with
+ * `ELECTION_WINNERS` (the actual number of winners) and going up to the point where no candidates are eliminated.
+ *
+ * @returns `results` with the format {[numWinners]: voteCounts, ...}, where `voteCounts` is itself an object
+ * like `{id1: voteCount1, id2: voteCount2, ...}`
+ */
+export function instantRunoffAllPossibleResults(votes: IRVote[]) {
+  const results: Record<number, Record<string, number>> = {};
+
+  let winners = ELECTION_NUM_WINNERS;
+  let previousWinnersCount = 0;
+  let currentWinnersCount = 0;
+
+  while (currentWinnersCount !== previousWinnersCount || winners === ELECTION_NUM_WINNERS) {
+    const voteCounts = instantRunoffResults({ votes, winners });
+
+    previousWinnersCount = currentWinnersCount;
+    currentWinnersCount = Object.keys(voteCounts).length;
+
+    if (previousWinnersCount !== currentWinnersCount) {
+      results[winners] = voteCounts;
+    }
+
+    winners++;
+  }
+
+  return results;
 }
