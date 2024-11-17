@@ -354,13 +354,15 @@ const styles = (theme: ThemeType) => ({
     },
   },
   thankYouButton: {
-    background: theme.palette.givingSeason.primary,
     padding: 16,
     fontSize: 14,
     fontWeight: 600,
+    color: theme.palette.givingSeason.portalPrimary,
+    background: theme.palette.text.alwaysWhite,
     "&:hover": {
-      background: theme.palette.givingSeason.portalPrimary,
-    },
+      background: theme.palette.text.alwaysWhite,
+      opacity: 0.8,
+    }
   },
   thankYouBarContainer: {
     width: "100%",
@@ -378,7 +380,7 @@ const styles = (theme: ThemeType) => ({
   thankYouToggle: {
     background: theme.palette.givingSeason.electionFundBackground,
     "& .ToggleSwitch-switchOff": {
-      background: theme.palette.givingSeason.electionFundBackgroundHeavy,
+      background: theme.palette.givingSeason.electionFundBackground,
     },
     "& .ToggleSwitch-switchOn": {
       background: theme.palette.givingSeason.primary,

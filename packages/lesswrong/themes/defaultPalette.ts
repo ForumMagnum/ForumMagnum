@@ -584,10 +584,10 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     postScoreArrow: '#BCBCBC',
   },
   givingSeason: {
-    primary: "#862115",
+    primary: "#8A0003",
     electionFundBackground: "rgba(255, 255, 255, 0.15)",
     electionFundBackgroundHeavy: "rgba(255, 255, 255, 0.3)",
-    portalPrimary: "#D82817",
+    portalPrimary: "#AE070A",
     candidateBorder: "#C34F4F",
     candidateBackground: "rgba(255, 255, 255, 0.2)",
     candidateShadow: "rgba(147, 0, 0, 0.25)",
