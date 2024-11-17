@@ -1,4 +1,10 @@
-import React, { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react";
+import React, {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "@/lib/reactRouterWrapper";
 import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
@@ -182,6 +188,7 @@ const styles = (theme: ThemeType) => ({
   commentTitle: {
     fontSize: 40,
     fontWeight: 700,
+    marginBottom: 16,
   },
   commentDescription: {
     fontSize: 16,
@@ -191,10 +198,20 @@ const styles = (theme: ThemeType) => ({
   commentSecondaryText: {
     opacity: 0.7,
   },
-  commentCheckLabel: {
-    fontSize: 14,
-    fontWeight: 500,
-    lineHeight: "140%",
+  commentForm: {
+    background: theme.palette.givingSeason.electionFundBackgroundHeavy,
+    borderRadius: theme.borderRadius.default,
+    "& .EditorTypeSelect-select, & .CommentsNewForm-submit": {
+      display: "none",
+    },
+    "& .form-input": {
+      marginBottom: 0,
+    },
+    "& .ck-placeholder::before": {
+      color: `${theme.palette.text.alwaysWhite} !important`,
+      fontStyle: "italic",
+      opacity: 0.7,
+    },
   },
   thankYouRoot: {
     maxWidth: 680,
@@ -489,6 +506,7 @@ const CommentScreen = ({classes}: {
   onNext: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
+  const {CommentsNewForm} = Components;
   return (
     <div className={classes.commentRoot}>
       <div className={classes.commentTitle}>
@@ -499,19 +517,11 @@ const CommentScreen = ({classes}: {
         <span className={classes.commentSecondaryText}>(not required)</span>
       </div>
       <div>
-        Comment input TODO
-      </div>
-      <div>
-        Comment check box TODO
-        <div className={classes.commentCheckLabel}>
-          Check the box to post this comment to the{" "}
-          <Link to={THREAD_HREF}>Donation election discussion thread</Link>,{" "}
-          and start a conversation.{" "}
-          <span className={classes.commentSecondaryText}>
-            This will be posted with your user name, but your vote will remain
-            anonomous.
-          </span>
-        </div>
+        <CommentsNewForm
+          overrideHintText="Consider sharing why you picked the candidates you selected, writing a note about your experience with the Donation Election, etc."
+          type="submit"
+          className={classes.commentForm}
+        />
       </div>
     </div>
   );
@@ -539,7 +549,7 @@ const ThankYouScreen = ({onEditVote, amountRaised, amountTarget, classes}: {
     void updateCurrentUser({
       givingSeason2024VotedFlair: newValue,
     });
-    captureEvent("setGivingSeasonVotedFlair", {value: newValue});
+    captureEvent("setGivingSeasonVotedFlair", {value: newValue, year: 2024});
   }, [updateCurrentUser, captureEvent]);
 
   const amountRaisedPlusMatched = amountRaised + Math.min(amountRaised, 5000);
@@ -685,7 +695,7 @@ const VotingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   }, []);
 
   return (
-    <AnalyticsContext pageContext="votingPortal" pageSectionContext={screen}>
+    <AnalyticsContext pageContext="votingPortal2024" pageSectionContext={screen}>
       <div className={classes.root}>
         {screen === "welcome" &&
           <WelcomeScreen onNext={onNext} classes={classes} />
