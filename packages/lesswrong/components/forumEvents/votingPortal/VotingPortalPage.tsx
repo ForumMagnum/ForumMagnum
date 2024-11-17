@@ -7,6 +7,7 @@ import React, {
 } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "@/lib/reactRouterWrapper";
+import { isProduction } from "@/lib/executionEnvironment";
 import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
 import { useCurrentUser } from "@/components/common/withUser";
 import { useUpdateCurrentUser } from "@/components/hooks/useUpdateCurrentUser";
@@ -23,6 +24,7 @@ import {
 } from "@hello-pangea/dnd";
 import ReactConfetti from "react-confetti";
 import classNames from "classnames";
+import { useSingle } from "@/lib/crud/withSingle";
 
 const BACKGROUND_HREF = "https://res.cloudinary.com/cea/image/upload/v1731504237/Rectangle_5032.jpg";
 const FUND_HREF = "https://www.every.org/effective-ventures-foundation-usa-inc-for-the-ea-forum-donation-election-fund-2024";
@@ -31,6 +33,7 @@ const CANDIDATES_HREF = "#";
 const FRAUD_HREF = "#";
 const RANKING_HREF = "#";
 const THREAD_HREF = "#";
+const COMMENT_POST_ID = isProduction ? "TODO" : "TKPz7FSTd6siveswn";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -201,8 +204,16 @@ const styles = (theme: ThemeType) => ({
   commentForm: {
     background: theme.palette.givingSeason.electionFundBackgroundHeavy,
     borderRadius: theme.borderRadius.default,
-    "& .EditorTypeSelect-select, & .CommentsNewForm-submit": {
+    "& .EditorTypeSelect-select": {
       display: "none",
+    },
+    "& #new-comment-submit": {
+      background: theme.palette.givingSeason.primary,
+      fontSize: 14,
+      fontWeight: 600,
+      "&:hover": {
+        background: theme.palette.givingSeason.portalPrimary,
+      },
     },
     "& .form-input": {
       marginBottom: 0,
@@ -502,8 +513,8 @@ const RankingScreen = ({items, setItems, classes}: {
   );
 }
 
-const CommentScreen = ({classes}: {
-  onNext: () => void,
+const CommentScreen = ({commentsPost, classes}: {
+  commentsPost?: PostsMinimumInfo,
   classes: ClassesType<typeof styles>,
 }) => {
   const {CommentsNewForm} = Components;
@@ -520,6 +531,7 @@ const CommentScreen = ({classes}: {
         <CommentsNewForm
           overrideHintText="Consider sharing why you picked the candidates you selected, writing a note about your experience with the Donation Election, etc."
           type="submit"
+          post={commentsPost}
           className={classes.commentForm}
         />
       </div>
@@ -676,6 +688,12 @@ const VotingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const [items, setItems] = useState(candidatesToListItems.bind(null, candidates));
   const voteCount = items.filter(({ordered}) => ordered).length;
 
+  const {document: commentsPost} = useSingle({
+    collectionName: "Posts",
+    fragmentName: "PostsMinimumInfo",
+    documentId: COMMENT_POST_ID,
+  });
+
   useEffect(() => {
     setItems(candidatesToListItems(candidates));
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -714,7 +732,7 @@ const VotingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
         }
         {screen === "comment" &&
           <>
-            <CommentScreen onNext={onNext} classes={classes} />
+            <CommentScreen commentsPost={commentsPost} classes={classes} />
             <Footer
               onBack={onBack}
               onNext={onNext}
