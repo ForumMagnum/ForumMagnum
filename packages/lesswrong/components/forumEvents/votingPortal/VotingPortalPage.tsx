@@ -425,13 +425,12 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    gap: "48px",
+    gap: "16px",
     fontSize: 14,
     fontWeight: 600,
     [theme.breakpoints.down("sm")]: {
       padding: 16,
       paddingBottom: 0,
-      gap: "16px",
     },
   },
   footerBackContainer: {
