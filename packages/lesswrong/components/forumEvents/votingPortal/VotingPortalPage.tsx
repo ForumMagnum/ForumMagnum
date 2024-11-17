@@ -1,15 +1,20 @@
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "@/lib/reactRouterWrapper";
+import { AnalyticsContext } from "@/lib/analyticsEvents";
+import { useCurrentUser } from "@/components/common/withUser";
+import { useWindowSize } from "@/components/hooks/useScreenWidth";
 import { MOBILE_HEADER_HEIGHT } from "@/components/common/Header";
 import { useElectionCandidates } from "./hooks";
-import { AnalyticsContext } from "@/lib/analyticsEvents";
+import { getDonateLink, useGivingSeasonEvents } from "../useGivingSeasonEvents";
+import { formatStat } from "@/components/users/EAUserTooltipContent";
 import {
   DragDropContext,
   Droppable,
   Draggable,
   DropResult,
 } from "@hello-pangea/dnd";
+import ReactConfetti from "react-confetti";
 import classNames from "classnames";
 
 const BACKGROUND_HREF = "https://res.cloudinary.com/cea/image/upload/v1731504237/Rectangle_5032.jpg";
@@ -18,6 +23,7 @@ const VOTING_HREF = "#";
 const CANDIDATES_HREF = "#";
 const FRAUD_HREF = "#";
 const RANKING_HREF = "#";
+const THREAD_HREF = "#";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -155,11 +161,6 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 600,
     letterSpacing: "-0.16px",
   },
-  candidatePostCount: {
-    fontSize: 14,
-    letterSpacing: "-0.14px",
-    opacity: 0.7,
-  },
   candidateClear: {
     cursor: "pointer",
     opacity: 0.7,
@@ -171,8 +172,113 @@ const styles = (theme: ThemeType) => ({
     },
   },
   commentRoot: {
+    maxWidth: 680,
+    padding: 24,
+    display: "flex",
+    flexDirection: "column",
+    gap: "12px",
+  },
+  commentTitle: {
+    fontSize: 40,
+    fontWeight: 700,
+  },
+  commentDescription: {
+    fontSize: 16,
+    fontWeight: 600,
+    lineHeight: "150%",
+  },
+  commentSecondaryText: {
+    opacity: 0.7,
+  },
+  commentCheckLabel: {
+    fontSize: 14,
+    fontWeight: 500,
+    lineHeight: "140%",
   },
   thankYouRoot: {
+    maxWidth: 680,
+    padding: 24,
+    display: "flex",
+    flexDirection: "column",
+    gap: "16px",
+  },
+  thankYouTitle: {
+    fontSize: 50,
+    fontWeight: 700,
+    lineHeight: "120%",
+    letterSpacing: "-1px",
+    textAlign: "center",
+  },
+  thankYouSubtitle: {
+    fontSize: 16,
+    fontWeight: 600,
+  },
+  thankYouBox: {
+    background: theme.palette.givingSeason.electionFundBackground,
+    borderRadius: theme.borderRadius.default,
+    padding: 16,
+    flexBasis: 0,
+    flexGrow: 1,
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    gap: "12px",
+  },
+  thankYouRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  thankYouGrow: {
+    flexGrow: 1,
+  },
+  thankYouSecondaryText: {
+    fontSize: 13,
+    fontWeigh: 500,
+    opacity: 0.7,
+  },
+  thankYouGrid: {
+    display: "flex",
+    gap: "16px",
+  },
+  thankYouBoxButton: {
+    background: theme.palette.givingSeason.electionFundBackground,
+    textDecoration: "none !important",
+    padding: "12px 24px",
+    fontSize: 14,
+    fontWeight: 600,
+    "&:hover": {
+      background: theme.palette.givingSeason.electionFundBackgroundHeavy,
+    },
+  },
+  thankYouButton: {
+    background: theme.palette.givingSeason.primary,
+    padding: 16,
+    fontSize: 14,
+    fontWeight: 600,
+    "&:hover": {
+      background: theme.palette.givingSeason.portalPrimary,
+    },
+  },
+  thankYouBarContainer: {
+    width: "100%",
+    height: 12,
+    marginBottom: 20,
+    background: theme.palette.givingSeason.electionFundBackground,
+    borderRadius: theme.borderRadius.small,
+    overflow: "hidden",
+  },
+  thankYouBar: {
+    height: "100%",
+    background: theme.palette.text.alwaysWhite,
+    transition: "width 0.5s ease",
+  },
+  thankYouToggle: {
+    "& .ToggleSwitch-switchOff": {
+      background: theme.palette.givingSeason.electionFundBackground,
+    },
+    "& .ToggleSwitch-switchOn": {
+      background: theme.palette.givingSeason.primary,
+    },
   },
   footer: {
     position: "fixed",
@@ -294,7 +400,9 @@ const RankingScreen = ({items, setItems, classes}: {
   return (
     <div className={classes.rankingRoot}>
       <div className={classes.rankingInfo}>
-        <div className={classes.rankingTitle}>Rank the candidates</div>
+        <div className={classes.rankingTitle}>
+          Rank the candidates
+        </div>
         <div className={classes.rankingDescription}>
           Rank the candidates in descending order with your favourite at the
           top. Click on candidates to rank them, drag to change order. Unranked
@@ -315,7 +423,7 @@ const RankingScreen = ({items, setItems, classes}: {
               className={classes.rankingCandidates}
             >
               {items.map((
-                {id, content: {name, tag, logoSrc, href}, ordered},
+                {id, content: {name, logoSrc, href}, ordered},
                 index,
               ) => (
                 <Draggable key={id} draggableId={id} index={index}>
@@ -354,9 +462,6 @@ const RankingScreen = ({items, setItems, classes}: {
                             {name}
                           </Link>
                         </div>
-                        <div className={classes.candidatePostCount}>
-                          {tag?.postCount ?? 0} post{tag?.postCount === 1 ? "" : "s"}
-                        </div>
                       </div>
                       {ordered &&
                         <div
@@ -385,18 +490,119 @@ const CommentScreen = ({classes}: {
 }) => {
   return (
     <div className={classes.commentRoot}>
-      Comment
+      <div className={classes.commentTitle}>
+        Add a comment about your vote
+      </div>
+      <div className={classes.commentDescription}>
+        Why did you vote the way you did?{" "}
+        <span className={classes.commentSecondaryText}>(not required)</span>
+      </div>
+      <div>
+        Comment input TODO
+      </div>
+      <div>
+        Comment check box TODO
+        <div className={classes.commentCheckLabel}>
+          Check the box to post this comment to the{" "}
+          <Link to={THREAD_HREF}>Donation election discussion thread</Link>,{" "}
+          and start a conversation.{" "}
+          <span className={classes.commentSecondaryText}>
+            This will be posted with your user name, but your vote will remain
+            anonomous.
+          </span>
+        </div>
+      </div>
     </div>
   );
 }
 
-const ThankYouScreen = ({classes}: {
-  onNext: () => void,
+const ThankYouScreen = ({onEditVote, amountRaised, amountTarget, classes}: {
+  onEditVote: () => void,
+  amountRaised: number,
+  amountTarget: number,
   classes: ClassesType<typeof styles>,
 }) => {
+  const currentUser = useCurrentUser();
+  const [addFlair, setAddFlair] = useState(false);
+  const [confetti, setConfetti] = useState(true);
+  const {width, height} = useWindowSize();
+
+  const onConfettiComplete = useCallback(() => {
+    setConfetti(false);
+  }, []);
+
+  const amountRaisedPlusMatched = amountRaised + Math.min(amountRaised, 5000);
+  const fundPercent = Math.round((amountRaisedPlusMatched / amountTarget) * 100);
+
+  const {EAButton, ToggleSwitch} = Components;
   return (
     <div className={classes.thankYouRoot}>
-      Thank you
+      {confetti &&
+        <ReactConfetti
+          width={width}
+          height={height}
+          numberOfPieces={1200}
+          tweenDuration={20000}
+          colors={["#A82D22", "#9BBB99", "#FFAF58", "#FAA2A2", "#90CEE9"]}
+          recycle={false}
+          onConfettiComplete={onConfettiComplete}
+        />
+      }
+      <div className={classes.thankYouTitle}>
+        Thank you for voting  in the EA Forum Donation Election 2024
+      </div>
+      <div className={classNames(classes.thankYouBox, classes.thankYouRow)}>
+        <div>
+          Icon TODO
+        </div>
+        <div className={classes.thankYouGrow}>
+          <div className={classes.thankYouSubtitle}>
+            Display “I voted” icon on your profile
+          </div>
+          <div className={classes.thankYouSecondaryText}>
+            The icon appears next to your user name
+          </div>
+        </div>
+        <ToggleSwitch
+          value={addFlair}
+          setValue={setAddFlair}
+          className={classes.thankYouToggle}
+        />
+      </div>
+      <div className={classes.thankYouGrid}>
+        <div className={classes.thankYouBox}>
+          <div className={classes.thankYouSubtitle}>
+            Donation Election Discussion Thread
+          </div>
+          <div>
+            TODO Post secondary info
+          </div>
+          <EAButton href={THREAD_HREF} className={classes.thankYouBoxButton}>
+            Read discussion
+          </EAButton>
+        </div>
+        <div className={classes.thankYouBox}>
+          <div className={classes.thankYouSubtitle}>
+            ${formatStat(Math.round(amountRaisedPlusMatched))}
+          </div>
+          <div className={classes.thankYouBarContainer}>
+            <div
+              style={{width: `${fundPercent}%`}}
+              className={classes.thankYouBar}
+            />
+          </div>
+          <EAButton
+            href={getDonateLink(currentUser)}
+            className={classes.thankYouBoxButton}
+          >
+            Donate to the Election Fund
+          </EAButton>
+        </div>
+      </div>
+      <EAButton onClick={onEditVote} className={classes.thankYouButton}>
+        Edit your vote{" "}
+        <span className={classes.thankYouSecondaryText}>(until Dec 2)</span>
+      </EAButton>
     </div>
   );
 }
@@ -445,6 +651,7 @@ const candidatesToListItems = (
 }
 
 const VotingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
+  const {amountRaised, amountTarget} = useGivingSeasonEvents();
   const [screen, setScreen] = useState<Screen>("welcome");
   const {results: candidates = []} = useElectionCandidates();
   const [items, setItems] = useState(candidatesToListItems.bind(null, candidates));
@@ -462,6 +669,10 @@ const VotingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
 
   const onNext = useCallback(() => {
     setScreen((currentScreen) => SCREENS[SCREENS.indexOf(currentScreen) + 1]);
+  }, []);
+
+  const onEditVote = useCallback(() => {
+    setScreen("ranking");
   }, []);
 
   return (
@@ -495,7 +706,12 @@ const VotingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
           </>
         }
         {screen === "thank-you" &&
-          <ThankYouScreen onNext={onNext} classes={classes} />
+          <ThankYouScreen
+            onEditVote={onEditVote}
+            amountRaised={amountRaised}
+            amountTarget={amountTarget}
+            classes={classes}
+          />
         }
       </div>
     </AnalyticsContext>
