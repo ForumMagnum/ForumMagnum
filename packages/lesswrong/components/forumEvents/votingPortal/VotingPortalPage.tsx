@@ -1,8 +1,9 @@
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "@/lib/reactRouterWrapper";
-import { AnalyticsContext } from "@/lib/analyticsEvents";
+import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
 import { useCurrentUser } from "@/components/common/withUser";
+import { useUpdateCurrentUser } from "@/components/hooks/useUpdateCurrentUser";
 import { useWindowSize } from "@/components/hooks/useScreenWidth";
 import { MOBILE_HEADER_HEIGHT } from "@/components/common/Header";
 import { useElectionCandidates } from "./hooks";
@@ -523,6 +524,8 @@ const ThankYouScreen = ({onEditVote, amountRaised, amountTarget, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
+  const updateCurrentUser = useUpdateCurrentUser();
+  const {captureEvent} = useTracking();
   const [addFlair, setAddFlair] = useState(false);
   const [confetti, setConfetti] = useState(true);
   const {width, height} = useWindowSize();
@@ -530,6 +533,14 @@ const ThankYouScreen = ({onEditVote, amountRaised, amountTarget, classes}: {
   const onConfettiComplete = useCallback(() => {
     setConfetti(false);
   }, []);
+
+  const onToggleFlair = useCallback(async (newValue: boolean) => {
+    setAddFlair(newValue);
+    void updateCurrentUser({
+      givingSeason2024VotedFlair: newValue,
+    });
+    captureEvent("setGivingSeasonVotedFlair", {value: newValue});
+  }, [updateCurrentUser, captureEvent]);
 
   const amountRaisedPlusMatched = amountRaised + Math.min(amountRaised, 5000);
   const fundPercent = Math.round((amountRaisedPlusMatched / amountTarget) * 100);
@@ -563,7 +574,7 @@ const ThankYouScreen = ({onEditVote, amountRaised, amountTarget, classes}: {
         </div>
         <ToggleSwitch
           value={addFlair}
-          setValue={setAddFlair}
+          setValue={onToggleFlair}
           className={classes.thankYouToggle}
         />
       </div>
