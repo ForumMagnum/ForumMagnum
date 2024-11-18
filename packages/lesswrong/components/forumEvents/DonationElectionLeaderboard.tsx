@@ -51,11 +51,15 @@ const styles = (theme: ThemeType) => ({
     '&:hover': {
       textDecoration: "underline",
       textUnderlineOffset: "3px",
-    }
+    },
+    [theme.breakpoints.down(GIVING_SEASON_MD_WIDTH)]: {
+      maxWidth: 260,
+    },
   },
   voteCount: {
     fontWeight: 500,
-    color: theme.palette.inverseGreyAlpha(0.8)
+    color: theme.palette.text.alwaysWhite,
+    opacity: 0.8
   },
   barContainer: {
     position: 'relative',
@@ -66,7 +70,8 @@ const styles = (theme: ThemeType) => ({
   barFill: {
     position: 'absolute',
     height: '100%',
-    backgroundColor: theme.palette.inverseGreyAlpha(0.5),
+    backgroundColor: theme.palette.text.alwaysWhite,
+    opacity: 0.5,
     transition: 'width 0.3s ease',
     borderRadius: '2px',
   },
@@ -80,7 +85,8 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 600,
   },
   showMoreInfo: {
-    color: theme.palette.inverseGreyAlpha(0.7),
+    color: theme.palette.text.alwaysWhite,
+    opacity: 0.7,
     fontWeight: 500,
     display: "flex",
     alignItems: "center",
@@ -95,14 +101,11 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 4,
     cursor: "pointer",
     '&:hover': {
-      color: theme.palette.inverseGreyAlpha(1),
+      color: theme.palette.text.alwaysWhite,
     }
   },
-  infoCirclePinned: {
-    color: theme.palette.inverseGreyAlpha(1),
-  },
   infoTooltipPopper: {
-    background: `${theme.palette.grey[1000]} !important`,
+    background: `${theme.palette.text.alwaysBlack} !important`,
     textAlign: "center",
   },
   infoTooltip: {
@@ -133,7 +136,6 @@ export const DonationElectionLeaderboard = ({
   const { LWTooltip, ForumIcon } = Components;
 
   const [winnerCount, setVisibleCount] = useState(DONATION_ELECTION_NUM_WINNERS);
-  const [tooltipPinned, setTooltipPinned] = useState(false);
 
   const { results } = useMulti({
     collectionName: "ElectionCandidates",
@@ -172,19 +174,9 @@ export const DonationElectionLeaderboard = ({
     sortedCharityIds.map(([id, count]) => {
       const candidate = candidates.find(candidate => candidate._id === id);
       return { candidate, count };
-    }), 
+    }),
     [sortedCharityIds, candidates]
   );
-
-  const totalVotes = useMemo(() => 
-    Object.values(voteCounts[DONATION_ELECTION_NUM_WINNERS] ?? {}).reduce((acc, count) => acc + count, 0),
-    [voteCounts]
-  );
-
-  // Only show the running count once there are a reasonable number of votes
-  if (totalVotes < 100) {
-    return null;
-  }
 
   const maxVotes = sortedCharityIds[0][1];
 
@@ -235,12 +227,11 @@ export const DonationElectionLeaderboard = ({
               popperClassName={classes.infoTooltipPopper}
               titleClassName={classes.infoTooltip}
               placement="top"
-              forceOpen={tooltipPinned}
               clickable
             >
               <ForumIcon
                 icon="InfoCircle"
-                className={classNames(classes.infoCircle, { [classes.infoCirclePinned]: tooltipPinned })}
+                className={classes.infoCircle}
               />
             </LWTooltip>
           </div>
