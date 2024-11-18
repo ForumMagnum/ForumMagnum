@@ -6,8 +6,9 @@ import {
   mergeFeedQueries,
   viewBasedSubquery,
 } from "../utils/feedUtil";
-import { eaGivingSeason24ElectionName } from "@/components/forumEvents/votingPortal/hooks";
 import ElectionVotes from "@/lib/collections/electionVotes/collection";
+import { ACTIVE_DONATION_ELECTION } from "@/lib/givingSeason";
+import { instantRunoffAllPossibleResults, IRVote } from "@/lib/givingSeason/instantRunoff";
 
 addGraphQLResolvers({
   Query: {
@@ -16,6 +17,16 @@ addGraphQLResolvers({
       _args: {},
       context: ResolverContext,
     ) => context.repos.databaseMetadata.getGivingSeason2024DonationTotal(),
+    GivingSeason2024VoteCounts: async (
+      _root: void,
+      _args: {},
+      _context: ResolverContext,
+    ) => {
+      const dbVotes = await ElectionVotes.find({ electionName: ACTIVE_DONATION_ELECTION }).fetch();
+      const votes: IRVote[] = dbVotes.map((vote) => vote.vote);
+
+      return instantRunoffAllPossibleResults(votes as IRVote[]);
+    },
     GivingSeason2024MyVote: async (
       _root: void,
       _args: {},
@@ -25,7 +36,7 @@ addGraphQLResolvers({
         return {};
       }
       const vote = await ElectionVotes.findOne({
-        electionName: eaGivingSeason24ElectionName,
+        electionName: ACTIVE_DONATION_ELECTION,
         userId: currentUser?._id,
       });
       return vote?.vote ?? {};
@@ -53,7 +64,7 @@ addGraphQLResolvers({
         }
       }
       await repos.electionVotes.upsertVote(
-        eaGivingSeason24ElectionName,
+        ACTIVE_DONATION_ELECTION,
         currentUser._id,
         vote,
       );
@@ -63,6 +74,7 @@ addGraphQLResolvers({
 });
 
 addGraphQLQuery("GivingSeason2024DonationTotal: Float!");
+addGraphQLQuery("GivingSeason2024VoteCounts: JSON!");
 addGraphQLQuery("GivingSeason2024MyVote: JSON!");
 addGraphQLMutation("GivingSeason2024Vote(vote: JSON!): Boolean");
 
