@@ -60,7 +60,6 @@ const styles = (theme: ThemeType) => ({
   },
   inputTextbox: {
     margin: 10,
-    marginTop: 20,
     borderRadius: 8,
     maxHeight: "40vh",
     backgroundColor: theme.palette.panelBackground.commentNodeEven,
@@ -89,6 +88,7 @@ const styles = (theme: ThemeType) => ({
   },
   welcomeGuide: {
     margin: 10,
+    marginTop: 9,
     display: "flex",
     flexDirection: "column",
     borderRadius: 8
@@ -102,8 +102,7 @@ const styles = (theme: ThemeType) => ({
     cursor: "pointer",
     opacity: 0.8,
     alignSelf: "flex-start",
-    fontStyle: "italic",
-    marginBottom: 4
+    fontStyle: "italic"
   },
   chatMessage: {
     padding: 20,

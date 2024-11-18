@@ -70,8 +70,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
     justifyContent: "flex-end",
     position: "absolute",
-    top: 26,
-    right: 16,
+    top: 14,
+    right: 10,
   },
   header: {
     position: "absolute",
