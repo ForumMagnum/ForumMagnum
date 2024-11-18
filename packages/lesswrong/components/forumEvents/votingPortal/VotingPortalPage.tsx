@@ -195,9 +195,10 @@ const styles = (theme: ThemeType) => ({
     width: 44,
     height: 44,
     borderRadius: theme.borderRadius.small,
+    backgroundColor: theme.palette.text.alwaysWhite,
     backgroundPosition: "center",
     backgroundRepeat: "no-repeat",
-    backgroundSize: "cover",
+    backgroundSize: "contain",
     marginRight: 16,
     [theme.breakpoints.down("sm")]: {
       width: 30,
