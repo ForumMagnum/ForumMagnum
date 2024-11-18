@@ -686,8 +686,8 @@ const CommentScreen = ({currentUser, commentsPost, classes}: {
       </div>
       <div className={classes.commentExplanation}>
         This will get posted in the{" "}
-        <Link to={THREAD_HREF}>Donation Election discussion thread</Link>&nbsp;
-        with your user name, but your vote will remain anonymous.
+        <Link to={THREAD_HREF}>Donation Election discussion thread</Link>{" "}
+       with your user name, but your vote will remain anonymous.
       </div>
       <div className={classes.commentDescription}>
         What made you vote the way you did?{" "}
