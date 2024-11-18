@@ -9,8 +9,6 @@ import {useLocation} from '../../lib/routeUtil.tsx'
 import { useCurrentForumEvent } from '../hooks/useCurrentForumEvent.tsx'
 import qs from 'qs'
 import range from 'lodash/range'
-import { useSingle } from '@/lib/crud/withSingle.ts'
-import { isProduction } from '@/lib/executionEnvironment.ts'
 
 const eventTabStyles = (invertColors: boolean) => ({
   backgroundColor: invertColors
@@ -204,14 +202,7 @@ const HomeTagBar = (
     showDescriptionOnHover?: boolean,
   },
 ) => {
-  const {currentForumEvent} = useCurrentForumEvent();
-
-  const {document: marginalFundingWeek} = useSingle({
-    collectionName: "ForumEvents",
-    fragmentName: "ForumEventsDisplay",
-    documentId: isProduction ? "BkpY8huZKGykawEG9" : "93kPzFTBEmE8Jsxrs",
-  });
-  console.log({marginalFundingWeek});
+  const {currentForumEvent, marginalFundingWeek} = useCurrentForumEvent();
 
   // we use the widths of the tabs window and the underlying topics bar
   // when calculating how far to scroll left and right
