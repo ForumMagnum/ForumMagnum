@@ -156,7 +156,6 @@ export const shouldShowLeaderboard = ({
 
   const totalVotes = Object.values(voteCounts?.[DONATION_ELECTION_NUM_WINNERS] ?? {}).reduce((acc, count) => acc + count, 0);
   return totalVotes >= DONATION_ELECTION_SHOW_LEADERBOARD_CUTOFF;
-  // return totalVotes >= 0;
 }
 
 export const GivingSeasonEventsProvider = ({children}: {children: ReactNode}) => {
