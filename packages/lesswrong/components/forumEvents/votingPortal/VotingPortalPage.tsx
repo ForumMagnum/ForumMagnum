@@ -52,7 +52,6 @@ const styles = (theme: ThemeType) => ({
     backgroundRepeat: "no-repeat",
     backgroundSize: "cover",
     display: "flex",
-    alignItems: "center",
     justifyContent: "center",
     fontFamily: theme.palette.fonts.sansSerifStack,
     color: theme.palette.text.alwaysWhite,
@@ -65,6 +64,13 @@ const styles = (theme: ThemeType) => ({
       alignItems: "flex-start",
       paddingTop: MOBILE_HEADER_HEIGHT,
     },
+  },
+  rootAlignCentered: {
+    alignItems: "center",
+  },
+  rootAlignTop: {
+    alignItems: "flex-start",
+    paddingTop: 70,
   },
   welcomeRoot: {
     display: "flex",
@@ -963,9 +969,14 @@ const VotingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
     onNext();
   }, [onNext, saveVote, items]);
 
+  const isCenterAligned = screen === "welcome" || screen === "thank-you";
+
   return (
     <AnalyticsContext pageContext="votingPortal2024" pageSectionContext={screen}>
-      <div className={classes.root}>
+      <div className={classNames(classes.root, {
+        [classes.rootAlignCentered]: isCenterAligned,
+        [classes.rootAlignTop]: !isCenterAligned,
+      })}>
         {screen === "welcome" &&
           <WelcomeScreen onNext={onNext} classes={classes} />
         }
