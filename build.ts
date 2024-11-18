@@ -8,6 +8,10 @@ import viteReact from "@vitejs/plugin-react";
 import fs from 'fs';
 import express from "express";
 import bodyParser from 'body-parser';
+// We explicitly need to override the native Node fetch implementation
+// At least in Node 18, node's fetch relies on undici, which has a list of forbidden headers: https://github.com/nodejs/undici/issues/1470
+// This causes it to break unless you have some other version of fetch installed in a way that overrides it globally
+import fetch from 'node-fetch';
 
 
 /**
@@ -598,6 +602,7 @@ async function createViteProxyServer(backend: RunningServer) {
         backend.requestFinished(backendServer);
       }
     } catch(e) {
+      console.error(e);
       logWithTimestamp(`Failed forwarding request for ${req.originalUrl}`);
       res.status(500);
       res.end(`${e.message}`);
