@@ -166,7 +166,7 @@ const styles = (theme: ThemeType) => ({
     position: "absolute",
     right: 30,
     // top: "218px",
-    top: 300,
+    top: 164,
   },
 });
 
@@ -220,7 +220,7 @@ const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader
           <div className={classes.wtfButton}>
             <Components.SectionButton>
                 {/* <AddIcon /> */}
-                WTF?
+                Say what?
             </Components.SectionButton>
           </div>
         </div>

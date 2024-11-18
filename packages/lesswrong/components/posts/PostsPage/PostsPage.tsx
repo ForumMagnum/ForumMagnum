@@ -409,41 +409,40 @@ export const styles = (theme: ThemeType) => ({
     display: 'flex',
     justifyContent: 'center',
     gap: '2px',
-    marginTop: 30,
     position: 'relative',
     zIndex: 1,
-    maxWidth: 1000,
     margin: '0 auto',
     width: '100%',
-    paddingRight: 50,
     marginBottom: 30,
+    // flexDirection: 'column',
   },
   tab: {
-    padding: '12px 24px',
+    padding: '28px 24px',
     cursor: 'pointer',
     fontFamily: theme.typography.fontFamily,
     fontSize: 20,
-    color: '#666',
+    color: 'black',
     flex: 1,
     display: 'flex',
     alignItems: 'center',
     textAlign: 'center',
     justifyContent: 'center',
-    '&:hover': {
-      backgroundColor: '#f8f8f8'
-    },
+    backgroundColor: '#f8f8f8',
     flexDirection: 'column',
+    // borderBottom: theme.palette.border.extraFaint,
   },
   activeTab: {
+    padding: '28px 24px',
     backgroundColor: '#fff',
     marginBottom: -1,
-    color: '#333',
-    fontWeight: 300,
-    opacity: 0.6,
+    color: 'black',
+    // opacity: 0.6,
+    // borderBottom: 0,
+    // borderRight: theme.palette.border.extraFaint,
+    // borderLeft: theme.palette.border.extraFaint,
   },
   tabTitle: {
-    fontSize: 20,
-    color: '#666',
+    color: 'black',
   },
   subheading: {
     fontSize: 16,
@@ -459,7 +458,7 @@ export const styles = (theme: ThemeType) => ({
     marginTop: 300,
   },
   rightColumnWikiInfoItem: {
-    padding: '1px 0 1px 0',
+    marginTop: -15,
   },
   wikiLink: {
     color: '#327e09',
@@ -473,9 +472,22 @@ export const styles = (theme: ThemeType) => ({
   topRowContainer: {
     display: 'flex',
     alignItems: 'center',
+    flexDirection: 'column',
   },
   tabsContainerContainer: {
-    width: 1000,
+    width: 1200,
+  },
+  wikiTitle: {
+    padding: '44px 24px',
+    // borderBottom: theme.palette.border.extraFaint,
+    fontFamily: theme.typography.fontFamily,
+    backgroundColor: '#f8f8f8',
+    display: 'flex',
+    alignItems: 'center',
+    flexDirection: 'column',
+  },
+  wikiTitleText: {
+    marginTop: 0,
   },
 })
 
@@ -499,6 +511,12 @@ export const postsCommentsThreadMultiOptions = {
 const TabsHeader = ({classes}: {classes: ClassesType}) => {
   return (
     <div className={classes.tabsContainer}>
+      <div className={classes.wikiTitle}>
+          <h2 className={classes.wikiTitleText}>Logical decision theories</h2>
+          <div className={classes.rightColumnWikiInfoItem}>
+          Teaches: <Link to="/posts/mw4BRrvayX52CnBGx/logical-decision-theories" className={classes.wikiLink}>Logical decision theories</Link>
+      </div>
+      </div>
       <div className={classes.tab}>
         <div className={classes.tabTitle}>Main</div>
       </div>
@@ -838,12 +856,14 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
   const hasTableOfContents = !!sectionData && !isCrosspostedQuestion;
   const tableOfContents = hasTableOfContents
     ? (isLWorAF
-        ? <TableOfContents
+        ? <div style={{marginTop: 40}}>
+          <TableOfContents
             sectionData={sectionData}
             title={post.title}
             heading={<PostFixedPositionToCHeading post={post}/>}
             fixedPositionToc={true}
           />
+          </div>
         : <TableOfContents sectionData={sectionData} title={post.title} fixedPositionToc={false} />
       )
     : null;
@@ -925,7 +945,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
   );
 
   const rightColumnChildren = (welcomeBox || hasSidenotes || (showRecommendations && recommendationsPosition === "right")) && <>
-    {<div className={classes.rightColumnWikiInfo}>
+    {/* {<div className={classes.rightColumnWikiInfo}>
       <div className={classes.rightColumnWikiInfoItem}>
         Teaches: <Link to="/posts/mw4BRrvayX52CnBGx/logical-decision-theories" className={classes.wikiLink}>Logical decision theories</Link>
       </div>
@@ -933,7 +953,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
         Parents: <Link to="/posts/mw4BRrvayX52CnBGx/logical-decision-theories" className={classes.wikiLink}>Logical decision theories</Link>
       </div>
       <div className={classes.rightColumnWikiInfoItem}>Children: none</div>
-    </div>}
+    </div>} */}
     {welcomeBox}
     {showRecommendations && recommendationsPosition === "right" && fullPost && <PostSideRecommendations post={fullPost} />}
     {hasSidenotes && <>
@@ -1116,9 +1136,6 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
       // toggleEmbeddedPlayer={toggleEmbeddedPlayer}
     />}
     <div className={classes.topRowContainer}>
-      <div className={classes.topRow}>
-        <h2>Logical decision theories</h2>
-      </div>
       <div className={classes.tabsContainerContainer}>
         <TabsHeader classes={classes} />
       </div>
