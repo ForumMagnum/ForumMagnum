@@ -33,7 +33,7 @@ import ReactConfetti from "react-confetti";
 import classNames from "classnames";
 import sortBy from "lodash/sortBy";
 
-const BACKGROUND_HREF = "https://res.cloudinary.com/cea/image/upload/v1731504237/Rectangle_5032.jpg";
+const BACKGROUND_HREF = "https://res.cloudinary.com/cea/image/upload/v1731932208/tallbackground.jpg";
 const FUND_HREF = "https://www.every.org/effective-ventures-foundation-usa-inc-for-the-ea-forum-donation-election-fund-2024";
 const VOTING_HREF = "/posts/j6fmnYM5ZRu9fJyrq/donation-election-how-to-vote";
 const CANDIDATES_HREF = "/posts/tucbWEN7SBWxNiHWj/meet-the-candidates-in-the-forum-s-donation-election-2024";
@@ -59,6 +59,12 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 500,
     "& a": {
       textDecoration: "underline",
+    },
+    "& sup": {
+      fontSize: 10,
+      verticalAlign: "top",
+      position: "relative",
+      top: "-0.5em",
     },
     [theme.breakpoints.down("sm")]: {
       alignItems: "flex-start",
@@ -543,6 +549,8 @@ const reorder = (list: CandidateItem[], startIndex: number, endIndex: number) =>
   return result;
 };
 
+const hrefToPostId = (href: string) => href.match(/.+posts\/(.+)\//)?.[1];
+
 const RankingScreen = ({items, setItems, classes}: {
   items: CandidateItem[],
   setItems: Dispatch<SetStateAction<CandidateItem[]>>,
@@ -583,7 +591,7 @@ const RankingScreen = ({items, setItems, classes}: {
     });
   }, [setItems]);
 
-  const {ForumIcon} = Components;
+  const {ForumIcon, PostsTooltip} = Components;
   return (
     <div className={classes.rankingRoot}>
       <div className={classes.rankingInfo}>
@@ -647,14 +655,16 @@ const RankingScreen = ({items, setItems, classes}: {
                       />
                       <div className={classes.candidateInfo}>
                         <div className={classes.candidateName}>
-                          <Link
-                            to={href}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={onClickTitle}
-                          >
-                            {name}
-                          </Link>
+                          <PostsTooltip postId={hrefToPostId(href)}>
+                            <Link
+                              to={href}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={onClickTitle}
+                            >
+                              {name}
+                            </Link>
+                          </PostsTooltip>
                         </div>
                       </div>
                       {ordered &&

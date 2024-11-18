@@ -588,10 +588,7 @@ const Header = ({
                   <div className={classes.titleSubtitleContainer}>
                     <Link to="/" className={classes.titleLink}>
                       {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaWhite={useWhiteText}/></div>}
-                      {isVotingPortal
-                        ? "Vote in the Donation Election"
-                        : forumHeaderTitleSetting.get()
-                      }
+                      {forumHeaderTitleSetting.get()}
                     </Link>
                     <HeaderSubtitle />
                   </div>
@@ -599,10 +596,7 @@ const Header = ({
                 <div className={classes.hideMdUp}>
                   <Link to="/" className={classes.titleLink}>
                     {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaWhite={useWhiteText}/></div>}
-                    {isVotingPortal
-                      ? "Vote"
-                      : forumShortTitleSetting.get()
-                    }
+                    {forumShortTitleSetting.get()}
                   </Link>
                 </div>
               </Typography>
