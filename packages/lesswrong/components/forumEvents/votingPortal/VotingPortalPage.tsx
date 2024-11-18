@@ -543,6 +543,8 @@ const reorder = (list: CandidateItem[], startIndex: number, endIndex: number) =>
   return result;
 };
 
+const hrefToPostId = (href: string) => href.match(/.+posts\/(.+)\//)?.[1];
+
 const RankingScreen = ({items, setItems, classes}: {
   items: CandidateItem[],
   setItems: Dispatch<SetStateAction<CandidateItem[]>>,
@@ -583,7 +585,7 @@ const RankingScreen = ({items, setItems, classes}: {
     });
   }, [setItems]);
 
-  const {ForumIcon} = Components;
+  const {ForumIcon, PostsTooltip} = Components;
   return (
     <div className={classes.rankingRoot}>
       <div className={classes.rankingInfo}>
@@ -647,14 +649,16 @@ const RankingScreen = ({items, setItems, classes}: {
                       />
                       <div className={classes.candidateInfo}>
                         <div className={classes.candidateName}>
-                          <Link
-                            to={href}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={onClickTitle}
-                          >
-                            {name}
-                          </Link>
+                          <PostsTooltip postId={hrefToPostId(href)}>
+                            <Link
+                              to={href}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={onClickTitle}
+                            >
+                              {name}
+                            </Link>
+                          </PostsTooltip>
                         </div>
                       </div>
                       {ordered &&
