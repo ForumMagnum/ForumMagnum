@@ -9,6 +9,8 @@ import {useLocation} from '../../lib/routeUtil.tsx'
 import { useCurrentForumEvent } from '../hooks/useCurrentForumEvent.tsx'
 import qs from 'qs'
 import range from 'lodash/range'
+import { useSingle } from '@/lib/crud/withSingle.ts'
+import { isProduction } from '@/lib/executionEnvironment.ts'
 
 const eventTabStyles = (invertColors: boolean) => ({
   backgroundColor: invertColors
@@ -163,6 +165,15 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
+const eventTabProperties = (event?: ForumEventsDisplay): CSSProperties => {
+  return event
+    ? {
+      "--tag-bar-event-background": event.lightColor,
+      "--tag-bar-event-foreground": event.darkColor,
+    } as CSSProperties
+    : {};
+}
+
 export type TopicsBarTab = {
   _id: string,
   name: string,
@@ -194,6 +205,13 @@ const HomeTagBar = (
   },
 ) => {
   const {currentForumEvent} = useCurrentForumEvent();
+
+  const {document: marginalFundingWeek} = useSingle({
+    collectionName: "ForumEvents",
+    fragmentName: "ForumEventsDisplay",
+    documentId: isProduction ? "BkpY8huZKGykawEG9" : "93kPzFTBEmE8Jsxrs",
+  });
+  console.log({marginalFundingWeek});
 
   // we use the widths of the tabs window and the underlying topics bar
   // when calculating how far to scroll left and right
@@ -232,8 +250,11 @@ const HomeTagBar = (
     if (currentForumEvent?.tag) {
       mainTabs.push(currentForumEvent?.tag);
     }
+    if (marginalFundingWeek?.tag) {
+      mainTabs.push(marginalFundingWeek?.tag);
+    }
     return [...mainTabs, ...(sortTopics(coreTopics ?? []))];
-  }, [coreTopics, sortTopics, frontpageTab, currentForumEvent?.tag]);
+  }, [coreTopics, sortTopics, frontpageTab, currentForumEvent?.tag, marginalFundingWeek]);
 
   const [activeTab, setActiveTab] = useState<TopicsBarTab>(frontpageTab)
   const [leftArrowVisible, setLeftArrowVisible] = useState(false)
@@ -256,11 +277,13 @@ const HomeTagBar = (
         updateActiveTab(activeTab)
       } else if (currentForumEvent?.tag && query.tab === currentForumEvent?.tag?.slug) {
         updateActiveTab(currentForumEvent?.tag);
+      } else if (marginalFundingWeek?.tag && query.tab === marginalFundingWeek?.tag?.slug) {
+        updateActiveTab(marginalFundingWeek?.tag);
       } else {
         updateActiveTab(frontpageTab)
       }
     }
-  }, [coreTopics, query, updateActiveTab, frontpageTab, currentForumEvent?.tag])
+  }, [coreTopics, query, updateActiveTab, frontpageTab, currentForumEvent?.tag, marginalFundingWeek])
 
   /**
    * When the topics bar is scrolled, hide/show the left/right arrows as necessary.
@@ -340,6 +363,7 @@ const HomeTagBar = (
                     const tabName = tab.shortName || tab.name
                     const isActive = tab._id === activeTab._id;
                     const isEventTab = tab._id === currentForumEvent?.tag?._id;
+                    const isMFW = tab._id === marginalFundingWeek?.tag?._id;
                     return <LWTooltip
                       title={showDescriptionOnHover ? tab.description?.plaintextDescription : null}
                       popperClassName={classes.tagDescriptionTooltip}
@@ -348,17 +372,16 @@ const HomeTagBar = (
                       <button
                         onClick={() => handleTabClick(tab)}
                         className={classNames(classes.tab, {
-                          [classes.activeTab]: isActive && !isEventTab,
-                          [classes.eventTab]: isEventTab,
-                          [classes.activeEventTab]: isActive && isEventTab,
+                          [classes.activeTab]: isActive && !(isEventTab || isMFW),
+                          [classes.eventTab]: isEventTab || isMFW,
+                          [classes.activeEventTab]: isActive && (isEventTab || isMFW),
                         })}
                         style={
                           isEventTab
-                            ? {
-                              "--tag-bar-event-background": currentForumEvent.lightColor,
-                              "--tag-bar-event-foreground": currentForumEvent.darkColor,
-                            } as CSSProperties
-                            : undefined
+                            ? eventTabProperties(currentForumEvent)
+                            : isMFW
+                              ? eventTabProperties(marginalFundingWeek)
+                              : undefined
                         }
                       >
                         {tabName}
