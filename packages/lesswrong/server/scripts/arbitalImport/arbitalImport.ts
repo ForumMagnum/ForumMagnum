@@ -30,7 +30,7 @@ Globals.importArbitalDb = async (mysqlConnectionString: string) => {
     //console.log("Matching Arbital users to LW users"); //eslint-disable-line no-console
     // const matchedUsers = await matchArbitalUsers(wholeDatabase);
     // const matchedUsers = Object.fromEntries(wholeDatabase.users.map(u => [u.id,null]))
-    const matchedUsers = await Users.findOne('nmk3nLpQE89dMRzzN').then(u => u ? { [u._id]: u } : {});
+    const matchedUsers = await Users.findOne('nmk3nLpQE89dMRzzN').then(u => u ? { '2': u } : {});
     
     console.log("Importing data into LW"); //eslint-disable-line no-console
     await doArbitalImport(wholeDatabase, matchedUsers, resolverContext);
@@ -75,10 +75,12 @@ async function doArbitalImport(database: WholeArbitalDatabase, matchedUsers: Rec
   
   let slugsByPageId: Record<string,string> = {};
   const slugsCachePath = path.join(__dirname, "./slugsByPageId.json");
+  let cacheLoaded = false;
   if (fs.existsSync(slugsCachePath)) {
     slugsByPageId = JSON.parse(fs.readFileSync(slugsCachePath, "utf8"));
+    cacheLoaded = true;
   }
-  
+
   const pageImportFunctions = wikiPageIds
     .filter(pageId => pagesById[pageId]?.some(revision => revision.isLiveEdit))
     .map(pageId => {
@@ -90,7 +92,9 @@ async function doArbitalImport(database: WholeArbitalDatabase, matchedUsers: Rec
         pageIdsByTitle[title] = pageId;
         liveRevisionsByPageId[pageId] = liveRevision;
         console.log(`${pageId}: ${title}`);
-        slugsByPageId[pageId] = await getUnusedSlugByCollectionName("Tags", slugify(title));
+        if (!cacheLoaded) {
+          slugsByPageId[pageId] = await getUnusedSlugByCollectionName("Tags", slugify(title));
+        }
       };
     });
 
@@ -115,10 +119,12 @@ async function doArbitalImport(database: WholeArbitalDatabase, matchedUsers: Rec
       const liveRevision = liveRevisionsByPageId[pageId];
       const title = liveRevision.title;
       const pageCreator = matchedUsers[pageInfo.createdBy] // ?? defaultUser;
-      const html = await arbitalMarkdownToHtml({database, markdown: liveRevision.text, slugsByPageId});
       const slug = await slugIsUsed("Tags", pageInfo.alias)
-        ? await getUnusedSlugByCollectionName("Tags", slugify(title))
-        : pageInfo.alias;
+      ? await getUnusedSlugByCollectionName("Tags", slugify(title))
+      : pageInfo.alias;
+
+      const modifiedSlugsByPageId = {...slugsByPageId, [pageId]: slug};
+      const html = await arbitalMarkdownToHtml({database, markdown: liveRevision.text, slugsByPageId: modifiedSlugsByPageId});
       console.log(`Creating wiki page: ${title} (${slug}).  Lenses found: ${lenses.map(l=>l.lensName).join(", ")}`);
       
       const { data: tag } = await createMutator({

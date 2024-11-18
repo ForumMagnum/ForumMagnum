@@ -669,7 +669,7 @@ const schema: SchemaType<"Tags"> = {
     optional: true,
     resolver: async (tag: DbTag, args: void, context: ResolverContext) => {
       const { MultiDocuments, Revisions } = context;
-      const multiDocuments = await MultiDocuments.find({ parentDocumentId: tag._id, collectionName: 'Tags', fieldName: 'contents' }).fetch();
+      const multiDocuments = await MultiDocuments.find({ parentDocumentId: tag._id, collectionName: 'Tags', fieldName: 'description' }).fetch();
       const revisions = await Revisions.find({ _id: { $in: multiDocuments.map(md => md.contents_latest) } }).fetch();
 
       return multiDocuments.map(md => ({
@@ -691,7 +691,7 @@ const schema: SchemaType<"Tags"> = {
       ON r._id = md.contents_latest
       WHERE md."parentDocumentId" = ${field("_id")}
       AND md."collectionName" = 'Tags'
-      AND md."fieldName" = 'contents'
+      AND md."fieldName" = 'description'
       LIMIT 1
     )`,
   }),

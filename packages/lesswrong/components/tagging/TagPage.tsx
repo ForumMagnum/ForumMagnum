@@ -21,6 +21,8 @@ import { getTagStructuredData } from "./TagPageRouter";
 import { HEADER_HEIGHT } from "../common/Header";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import DeferRender from "../common/DeferRender";
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
 
 export const tagPageHeaderStyles = (theme: ThemeType) => ({
   postListMeta: {
@@ -166,6 +168,17 @@ export const styles = (theme: ThemeType): JssStyles => ({
   nextLink: {
     ...theme.typography.commentStyle
   },
+  lensLabel: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  lensTitle: {
+    ...theme.typography.title,
+  },
+  lensSubtitle: {
+    ...theme.typography.subtitle,
+  },
+  selectedLens: {},
   ...tagPageHeaderStyles(theme),
 });
 
@@ -250,6 +263,7 @@ const TagPage = ({classes}: {
   const [truncated, setTruncated] = useState(true)
   const [editing, setEditing] = useState(!!query.edit)
   const [hoveredContributorId, setHoveredContributorId] = useState<string|null>(null);
+  const [selectedLens, setSelectedLens] = useState<string>();
   const { captureEvent } =  useTracking()
   const client = useApolloClient()
 
@@ -388,6 +402,20 @@ const TagPage = ({classes}: {
                 Next Tag ({nextTag.name})
             </Link></span>}
           </span>}
+          {tag.lenses.length > 0
+            ?  (
+              <Tabs value={selectedLens ?? tag.lenses[0].title} onChange={(e, value) => setSelectedLens(value)}>
+                {tag.lenses.map(lens => {
+                  const label = <div className={classes.lensLabel}>
+                    <span className={classes.lensTitle}>{lens.title}</span>
+                    <span className={classes.lensSubtitle}>{lens.subtitle}</span>
+                  </div>;
+
+                  return <Tab key={lens.title} value={lens.title} label={label} />
+                })}
+              </Tabs>
+            )
+            : <></>}
           <div className={classes.titleRow}>
             <Typography variant="display3" className={classes.title}>
               {tag.deleted ? "[Deleted] " : ""}{tag.name}
