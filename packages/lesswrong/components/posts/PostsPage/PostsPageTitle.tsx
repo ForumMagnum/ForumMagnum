@@ -14,8 +14,7 @@ export const postPageTitleStyles = (theme: ThemeType) => ({
   marginTop: isFriendlyUI ? 5 : 0,
   marginLeft: 0,
   marginBottom: isFriendlyUI ? 12 : 0,
-  //color: theme.palette.text.primary,
-  color: theme.themeOptions.name === "dark" ? "blue" : "orange", // For debugging theme-switching with Vite
+  color: theme.palette.text.primary,
   textWrap: isBookUI ? "balance" : undefined,
   [theme.breakpoints.down('sm')]: isFriendlyUI
     ? {
