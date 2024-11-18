@@ -5,9 +5,6 @@
 
 //import app from './angular.ts';
 //import {Editor} from './Markdown.Editor.ts';
-import { slugify } from '@/lib/vulcan-lib/utils';
-import { mjPagePromise } from '@/server/editor/conversionUtils';
-import { trimLatexAndAddCSS } from '@/server/editor/utils';
 import { WholeArbitalDatabase } from './arbitalSchema';
 import {getSanitizingConverter} from './Markdown.Sanitizer';
 //import {InitMathjax} from './mathjax.ts';
@@ -46,7 +43,7 @@ var atAliasRegexp = new RegExp(notEscaped +
 // markdownService provides a constructor you can use to create a markdown converter,
 // either for converting markdown to text or editing.
 //app.service('markdownService', function($compile, $timeout, pageService, userService, urlService, stateService) {
-export async function arbitalMarkdownToHtml({database, markdown: pageMarkdown, slugsByPageId, titlesByPageId, pageId}: {
+export async function arbitalMarkdownToCkEditorMarkup({database, markdown: pageMarkdown, slugsByPageId, titlesByPageId, pageId}: {
   database: WholeArbitalDatabase,
   markdown: string,
   slugsByPageId: Record<string,string>
