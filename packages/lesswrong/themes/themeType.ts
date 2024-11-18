@@ -432,10 +432,6 @@ declare global {
       onboardingBackground: ColorString,
       onboardingBackgroundHover: ColorString,
       onboardingBackgroundSelected: ColorString,
-      eventLightGreen: ColorString,
-      eventDarkGreen: ColorString,
-      eventLightBlue: ColorString,
-      eventDarkBlue: ColorString,
     },
     tab: {
       inactive: {
@@ -556,6 +552,12 @@ declare global {
     givingSeason: {
       primary: ColorString,
       electionFundBackground: ColorString,
+      electionFundBackgroundHeavy: ColorString,
+      portalPrimary: ColorString,
+      candidateBorder: ColorString,
+      candidateBackground: ColorString,
+      candidateShadow: ColorString,
+      candidateOrder: ColorString,
     },
     namesAttachedReactions: {
       selectedAnti: ColorString,

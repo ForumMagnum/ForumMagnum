@@ -5,9 +5,13 @@ import moment, { Moment } from "moment";
 import qs from "qs";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
+import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
+import { IRPossibleVoteCounts } from "@/lib/givingSeason/instantRunoff";
+import { DONATION_ELECTION_NUM_WINNERS, DONATION_ELECTION_SHOW_LEADERBOARD_CUTOFF } from "@/lib/givingSeason";
 
-export const GIVING_SEASON_DESKTOP_WIDTH = 1220;
-export const GIVING_SEASON_MOBILE_WIDTH = 900;
+export const GIVING_SEASON_DESKTOP_WIDTH = 1300;
+export const GIVING_SEASON_MOBILE_WIDTH = 700;
+export const GIVING_SEASON_MD_WIDTH = 900;
 
 export const getDonateLink = (currentUser: UsersCurrent | null) => {
   // See docs at https://docs.every.org/docs/donate-link
@@ -37,10 +41,9 @@ const events: GivingSeasonEvent[] = [
   {
     name: "Funding Strategy Week",
     description: <>
-      This week, we are encouraging content around a range of important funding{" "}
-      considerations.{" "}
-      <Link to="/posts/srZEX2r9upbwfnRKw/giving-season-2024-announcement#November_4___10__Funding_Strategy_Week">
-        Read more
+      Read and continue Funding Strategy Week's conversations{" "}
+      <Link to="/topics/funding-strategy-week">
+        here
       </Link>.
     </>,
     start: moment("2024-11-04").utc(),
@@ -64,7 +67,7 @@ const events: GivingSeasonEvent[] = [
     description: <>
       A crowd-sourced pot of funds will be distributed amongst three charities{" "}
       based on your votes.{" "}
-      <Link to="/posts/srZEX2r9upbwfnRKw/giving-season-2024-announcement#November_18___December_3__Donation_Election">
+      <Link to="/posts/j6fmnYM5ZRu9fJyrq/donation-election-how-to-vote">
         Find out more
       </Link>.
     </>,
@@ -98,7 +101,15 @@ const events: GivingSeasonEvent[] = [
   },
 ];
 
-const getCurrentEvent = (): GivingSeasonEvent | null => {
+const getCurrentEvent = (
+  currentForumEvent: ForumEventsDisplay | null,
+): GivingSeasonEvent | null => {
+  if (currentForumEvent) {
+    const matchingEvent = events.find(({name}) => name === currentForumEvent.title);
+    if (matchingEvent) {
+      return matchingEvent;
+    }
+  }
   const now = moment();
   return events.find(({start, end}) => now.isBetween(start, end)) ?? null;
 }
@@ -110,11 +121,12 @@ type GivingSeasonEventsContext = {
   setSelectedEvent: Dispatch<GivingSeasonEvent>,
   amountRaised: number,
   amountTarget: number,
+  leaderboard?: IRPossibleVoteCounts
 }
 
 const givingSeasonEventsContext = createContext<GivingSeasonEventsContext>({
   events,
-  currentEvent: getCurrentEvent(),
+  currentEvent: getCurrentEvent(null),
   selectedEvent: events[0],
   setSelectedEvent: () => {},
   amountRaised: 0,
@@ -127,14 +139,40 @@ const amountRaisedQuery = gql`
   }
 `;
 
+const leaderboardQuery = gql`
+  query GivingSeason2024VoteCounts {
+    GivingSeason2024VoteCounts
+  }
+`;
+
+export const shouldShowLeaderboard = ({
+  currentEvent,
+  voteCounts,
+}: {
+  currentEvent: GivingSeasonEvent | null;
+  voteCounts: IRPossibleVoteCounts | undefined;
+}) => {
+  if (currentEvent?.name !== "Donation Election") return false;
+
+  const totalVotes = Object.values(voteCounts?.[DONATION_ELECTION_NUM_WINNERS] ?? {}).reduce((acc, count) => acc + count, 0);
+  return totalVotes >= DONATION_ELECTION_SHOW_LEADERBOARD_CUTOFF;
+}
+
 export const GivingSeasonEventsProvider = ({children}: {children: ReactNode}) => {
-  const currentEvent = getCurrentEvent();
+  const {currentForumEvent} = useCurrentForumEvent();
+  const currentEvent = getCurrentEvent(currentForumEvent);
   const [selectedEvent, setSelectedEvent] = useState(currentEvent ?? events[0]);
 
-  const {data} = useQuery(amountRaisedQuery, {
+  const {data: amountRaisedData} = useQuery(amountRaisedQuery, {
     pollInterval: 60 * 1000, // Poll once per minute
     ssr: true,
     skip: !isEAForum,
+  });
+
+  const { data: leaderboardData } = useQuery<{ GivingSeason2024VoteCounts: IRPossibleVoteCounts }>(leaderboardQuery, {
+    pollInterval: 60 * 1000, // Poll once per minute
+    ssr: true,
+    skip: currentEvent?.name !== "Donation Election",
   });
 
   return (
@@ -143,8 +181,9 @@ export const GivingSeasonEventsProvider = ({children}: {children: ReactNode}) =>
       currentEvent,
       selectedEvent,
       setSelectedEvent,
-      amountRaised: data?.GivingSeason2024DonationTotal ?? 0,
+      amountRaised: amountRaisedData?.GivingSeason2024DonationTotal ?? 0,
       amountTarget: 35000,
+      leaderboard: leaderboardData?.GivingSeason2024VoteCounts
     }}>
       {children}
     </givingSeasonEventsContext.Provider>

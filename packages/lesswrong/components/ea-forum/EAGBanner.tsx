@@ -78,16 +78,16 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-// This is the data for the next EAGx (Toronto, CA)
-const eagName = 'EAGxToronto'
-const eagLocation = {
-  lat: 43.6532,
-  lng: -79.3832,
-}
-const eagCountry = 'CA'
-const eagPostLink = "/events/WGeby2GfMHH8jXmMY/eagxtoronto"
-const eagLink = "https://www.effectivealtruism.org/ea-global/events/eagxtoronto-2024"
-const applicationDeadline = moment.utc('2024-07-31', 'YYYY-MM-DD')
+// This is the data for the next EAGx (Virtual)
+const eagName = 'EAGxVirtual'
+// const eagLocation = {
+//   lat: 43.6532,
+//   lng: -79.3832,
+// }
+// const eagCountry = 'CA'
+const eagPostLink = "/events/mbf5Ksd9Xb8yc2pcC/eagxvirtual-2024-2"
+const eagLink = "https://www.effectivealtruism.org/ea-global/events/eagxvirtual-2024"
+const applicationDeadline = moment.utc('2024-11-14', 'YYYY-MM-DD')
 
 
 /**
@@ -106,12 +106,12 @@ const EAGBanner = ({classes}: {classes: ClassesType}) => {
   // 1. (logged in user) user settings
   // 2. (logged out user) browser's local storage
   // 3. country code in local storage, which is also used by the cookie banner
-  const userLocation = useUserLocation(currentUser, true)
-  const [countryCode, setCountryCode] = useState<string|null>(null)
-  useEffect(() => {
-    // Get the country code from local storage
-    setCountryCode(getCachedUserCountryCode())
-  }, [])
+  // const userLocation = useUserLocation(currentUser, true)
+  // const [countryCode, setCountryCode] = useState<string|null>(null)
+  // useEffect(() => {
+  //   // Get the country code from local storage
+  //   setCountryCode(getCachedUserCountryCode())
+  // }, [])
 
   const hideBanner = useCallback(() => {
     setCookie(HIDE_EAG_BANNER_COOKIE, "true", {
@@ -127,13 +127,12 @@ const EAGBanner = ({classes}: {classes: ClassesType}) => {
 
   // This EAG(x) is relevant to the user if they are within 500 miles of it,
   // or they live in relevant/nearby countries.
-  const userLocationNearby = userLocation.known && (distance(eagLocation, userLocation, 'mi') < 500)
-  const userInCountry = countryCode === eagCountry
-  const isRelevant = userLocationNearby || userInCountry
+  // const userLocationNearby = userLocation.known && (distance(eagLocation, userLocation, 'mi') < 500)
+  // const userInCountry = countryCode === eagCountry
+  // const isRelevant = userLocationNearby || userInCountry
   if (
     moment.utc().isAfter(applicationDeadline, 'day') ||
-    cookies[HIDE_EAG_BANNER_COOKIE] === "true" ||
-    !isRelevant
+    cookies[HIDE_EAG_BANNER_COOKIE] === "true"
   ) {
     return null;
   }
@@ -142,7 +141,7 @@ const EAGBanner = ({classes}: {classes: ClassesType}) => {
   
   const inViewEventProps = {
     inViewType: `${eagName}Banner`,
-    reason: userLocationNearby && userInCountry ? 'both' : userLocationNearby ? 'nearby' : 'country'
+    // reason: userLocationNearby && userInCountry ? 'both' : userLocationNearby ? 'nearby' : 'country'
   }
 
   return (
@@ -153,8 +152,8 @@ const EAGBanner = ({classes}: {classes: ClassesType}) => {
             <div className={classes.lightbulb}>{lightbulbIcon}</div>
             <div className={classes.content}>
               <div className={classes.topRow}>
-                Upcoming conference near you
-                <LWTooltip title={
+                Upcoming virtual conference
+                {/* <LWTooltip title={
                     <>
                       You're seeing this recommendation because of your location.{" "}
                       {userLocationNearby && <>
@@ -168,7 +167,7 @@ const EAGBanner = ({classes}: {classes: ClassesType}) => {
                   clickable={userLocationNearby}
                 >
                   <ForumIcon icon="QuestionMarkCircle" className={classes.infoIcon} />
-                </LWTooltip>
+                </LWTooltip> */}
               </div>
               <div className={classes.bottomRow}>
                 <HoverPreviewLink href={eagPostLink}>

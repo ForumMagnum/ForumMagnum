@@ -778,6 +778,11 @@ importComponent("ForumEventPostPagePollSection", () => require('../components/fo
 importComponent("ForumEventPoll", () => require('../components/forumEvents/ForumEventPoll'));
 importComponent("ForumEventResultIcon", () => require('../components/forumEvents/ForumEventResultIcon'));
 importComponent("GivingSeason2024Banner", () => require('../components/forumEvents/GivingSeason2024Banner'));
+importComponent("DonationElectionLeaderboard", () => require('../components/forumEvents/DonationElectionLeaderboard'));
+importComponent("VotingPortalPage", () => require('../components/forumEvents/votingPortal/VotingPortalPage'));
+importComponent("AdminElectionCandidates", () => require('../components/forumEvents/votingPortal/AdminElectionCandidates'));
+importComponent("EditElectionCandidate", () => require('../components/forumEvents/votingPortal/EditElectionCandidate'));
+importComponent("DeleteElectionCandidateDialog", () => require('../components/forumEvents/votingPortal/DeleteElectionCandidateDialog'));
 
 importComponent("UserReviewMetadata", () => require('../components/sunshineDashboard/ModeratorUserInfo/UserReviewMetadata'));
 importComponent("UserReviewStatus", () => require('../components/sunshineDashboard/ModeratorUserInfo/UserReviewStatus'));
@@ -1227,3 +1232,4 @@ importComponent("GlossaryEditorPage", () => require('../components/jargon/Glossa
 importComponent("GlossaryEditFormWrapper", () => require('../components/jargon/GlossaryEditFormWrapper'));
 importComponent("GlossaryEditFormNewPost", () => require('../components/jargon/GlossaryEditFormNewPost'));
 importComponent("EditUserJargonSettings", () => require('../components/jargon/EditUserJargonSettings'));
+importComponent("PostsWithApprovedJargonPage", () => require('../components/jargon/PostsWithApprovedJargonPage'));
