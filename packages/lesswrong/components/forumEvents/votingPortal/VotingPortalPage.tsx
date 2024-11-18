@@ -242,10 +242,10 @@ const styles = (theme: ThemeType) => ({
   },
   commentDescription: {
     fontSize: 16,
-    fontWeight: 600,
+    fontWeight: 700,
     lineHeight: "150%",
     [theme.breakpoints.down("sm")]: {
-      fontSize: 14,
+      fontSize: 16,
     },
   },
   commentSecondaryText: {
@@ -408,7 +408,7 @@ const styles = (theme: ThemeType) => ({
     bottom: 0,
     left: 0,
     width: "100vw",
-    minHeight: 128,
+    minHeight: 100,
     background: theme.palette.text.alwaysWhite,
     color: theme.palette.givingSeason.portalPrimary,
     display: "flex",
@@ -452,7 +452,7 @@ const styles = (theme: ThemeType) => ({
   footerButton: {
     background: theme.palette.givingSeason.portalPrimary,
     color: theme.palette.text.alwaysWhite,
-    padding: "16px 64px",
+    padding: "16px 40px",
     fontWeight: 600,
     whiteSpace: "nowrap",
     "&:hover": {
@@ -691,7 +691,7 @@ const CommentScreen = ({currentUser, commentsPost, classes}: {
       </div>
       <div className={classes.commentDescription}>
         What made you vote the way you did?{" "}
-        <span className={classes.commentSecondaryText}>(not required)</span>
+        <span className={classes.commentSecondaryText}>(Optional)</span>
       </div>
       <div className={classes.commentFormContainer}>
         <UsersProfileImage user={currentUser} size={40} />
