@@ -531,7 +531,7 @@ const WelcomeScreen = ({onNext, isTooYoung, classes}: {
       >
         {isTooYoung
           ? "Your account is too young to vote in the Donation Election"
-          : "Vote in the Election -&gt;"
+          : "Vote in the Election ->"
         }
       </EAButton>
       <div>
