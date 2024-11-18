@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { Link } from "@/lib/reactRouterWrapper";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
@@ -19,7 +19,6 @@ import {
 import classNames from "classnames";
 import type { Moment } from "moment";
 import type { ForumIconName } from "../common/ForumIcon";
-import { DONATION_ELECTION_NUM_WINNERS } from "@/lib/givingSeason";
 
 const DONATION_ELECTION_HREF = "/posts/2WbDAAtGdyAEfcw6S/donation-election-fund-announcement-matching-rewards-and-faq";
 
