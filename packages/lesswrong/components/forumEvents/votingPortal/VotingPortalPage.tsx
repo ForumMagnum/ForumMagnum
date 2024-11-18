@@ -33,7 +33,7 @@ import ReactConfetti from "react-confetti";
 import classNames from "classnames";
 import sortBy from "lodash/sortBy";
 
-const BACKGROUND_HREF = "https://res.cloudinary.com/cea/image/upload/v1731504237/Rectangle_5032.jpg";
+const BACKGROUND_HREF = "https://res.cloudinary.com/cea/image/upload/v1731932208/tallbackground.jpg";
 const FUND_HREF = "https://www.every.org/effective-ventures-foundation-usa-inc-for-the-ea-forum-donation-election-fund-2024";
 const VOTING_HREF = "/posts/j6fmnYM5ZRu9fJyrq/donation-election-how-to-vote";
 const CANDIDATES_HREF = "/posts/tucbWEN7SBWxNiHWj/meet-the-candidates-in-the-forum-s-donation-election-2024";
