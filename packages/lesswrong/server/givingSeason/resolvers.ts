@@ -7,7 +7,7 @@ import {
   viewBasedSubquery,
 } from "../utils/feedUtil";
 import ElectionVotes from "@/lib/collections/electionVotes/collection";
-import { ACTIVE_DONATION_ELECTION } from "@/lib/givingSeason";
+import { ACTIVE_DONATION_ELECTION, DONATION_ELECTION_AGE_CUTOFF } from "@/lib/givingSeason";
 import { instantRunoffAllPossibleResults, IRVote } from "@/lib/givingSeason/instantRunoff";
 
 addGraphQLResolvers({
@@ -48,7 +48,11 @@ addGraphQLResolvers({
       {vote}: {vote: Record<string, number>},
       {currentUser, repos}: ResolverContext,
     ) => {
-      if (!currentUser || currentUser.banned) {
+      if (
+        !currentUser ||
+        currentUser.banned ||
+        currentUser.createdAt > DONATION_ELECTION_AGE_CUTOFF
+      ) {
         throw new Error("Unauthorized");
       }
       if (!vote || typeof vote !== "object") {

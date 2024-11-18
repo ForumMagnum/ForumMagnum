@@ -20,6 +20,7 @@ import { useCurrentUser } from "@/components/common/withUser";
 import { useUpdateCurrentUser } from "@/components/hooks/useUpdateCurrentUser";
 import { useWindowSize } from "@/components/hooks/useScreenWidth";
 import { MOBILE_HEADER_HEIGHT } from "@/components/common/Header";
+import { DONATION_ELECTION_AGE_CUTOFF } from "@/lib/givingSeason";
 import { useElectionCandidates } from "./hooks";
 import { getDonateLink, useGivingSeasonEvents } from "../useGivingSeasonEvents";
 import { formatStat } from "@/components/users/EAUserTooltipContent";
@@ -111,6 +112,12 @@ const styles = (theme: ThemeType) => ({
     "&:hover": {
       background: theme.palette.text.alwaysWhite,
       opacity: 0.8,
+    },
+  },
+  welcomeButtonDisabled: {
+    opacity: 0.6,
+    "&:hover": {
+      opacity: 0.6,
     },
   },
   welcomeFootnote: {
@@ -499,8 +506,9 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const WelcomeScreen = ({onNext, classes}: {
+const WelcomeScreen = ({onNext, isTooYoung, classes}: {
   onNext: () => void,
+  isTooYoung: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
   const {EAButton} = Components;
@@ -516,8 +524,16 @@ const WelcomeScreen = ({onNext, classes}: {
         your vote<sup>2</sup> as many times as you like until the deadline. Find
         out more about the candidates <Link to={CANDIDATES_HREF}>here</Link>.
       </div>
-      <EAButton onClick={onNext} className={classes.welcomeButton}>
-        Vote in the Election -&gt;
+      <EAButton
+        onClick={isTooYoung ? undefined : onNext}
+        className={classNames(classes.welcomeButton, {
+          [classes.welcomeButtonDisabled]: isTooYoung,
+        })}
+      >
+        {isTooYoung
+          ? "Your account is too young to vote in the Donation Election"
+          : "Vote in the Election ->"
+        }
       </EAButton>
       <div>
         <div className={classes.welcomeFootnote}>
@@ -930,6 +946,8 @@ const VotingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
     () => items.filter(({ordered}) => ordered).length,
     [items],
   );
+  const isTooYoung = !!currentUser &&
+    (new Date(currentUser.createdAt) > DONATION_ELECTION_AGE_CUTOFF);
 
   const {document: commentsPost} = useSingle({
     collectionName: "Posts",
@@ -989,7 +1007,11 @@ const VotingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
         [classes.rootAlignTop]: !isCenterAligned,
       })}>
         {screen === "welcome" &&
-          <WelcomeScreen onNext={onNext} classes={classes} />
+          <WelcomeScreen
+            onNext={onNext}
+            isTooYoung={isTooYoung}
+            classes={classes}
+          />
         }
         {screen === "ranking" &&
           <>
