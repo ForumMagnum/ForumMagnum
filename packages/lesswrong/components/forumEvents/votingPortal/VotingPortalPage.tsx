@@ -340,7 +340,7 @@ const styles = (theme: ThemeType) => ({
   thankYouPostInfo: {
     display: "flex",
     alignItems: "center",
-    gap: "4px",
+    gap: "8px",
     opacity: 0.7,
     fontSize: 13,
     fontWeight: 500,
