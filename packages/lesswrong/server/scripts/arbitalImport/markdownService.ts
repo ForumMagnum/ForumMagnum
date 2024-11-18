@@ -452,7 +452,7 @@ export async function arbitalMarkdownToHtml({database, markdown: pageMarkdown, s
         /*var cachedValue = stateService.getMathjaxCacheValue(key);
         var style = cachedValue ? ('style=\'' + cachedValue.style + ';display:inline-block;\' ') : '';
         return prefix + '<span ' + style + 'arb-math-compiler="' + key + '">&nbsp;</span>';*/
-        return prefix + `<span>\(${mathjaxText}\)</span>`; //TODO
+        return prefix + latexSourceToCkEditorEmbeddedLatexTag(mathjaxText, true);
       });
     });
     // Process $$mathjax$$ spans.
@@ -464,7 +464,7 @@ export async function arbitalMarkdownToHtml({database, markdown: pageMarkdown, s
         /*var key = '$$' + encodedText + '$$';
         var style = cachedValue ? ('style=\'' + cachedValue.style + '\' ') : '';
         return prefix + '<span ' + style + 'class=\'mathjax-div\' arb-math-compiler="' + key + '">&nbsp;</span>';*/
-        return prefix + `<span>\(${mathjaxText}\)</span>`; //TODO
+        return prefix + latexSourceToCkEditorEmbeddedLatexTag(mathjaxText, true);
       });
     });
     // Process $mathjax$ spans.
@@ -476,7 +476,7 @@ export async function arbitalMarkdownToHtml({database, markdown: pageMarkdown, s
         /*var key = '$' + encodedText + '$';
         var style = cachedValue ? ('style=\'' + cachedValue.style + ';display:inline-block;\' ') : '';
         return prefix + '<span ' + style + 'arb-math-compiler="' + key + '">&nbsp;</span>';*/
-        return prefix + `<span>\(${mathjaxText}\)</span>`; //TODO
+        return prefix + latexSourceToCkEditorEmbeddedLatexTag(mathjaxText, true);
       });
     });
 
@@ -753,6 +753,20 @@ export async function arbitalMarkdownToHtml({database, markdown: pageMarkdown, s
   };*/
   
   const converter = createConverterInternal(null, pageId);
-  const html = converter.makeHtml(pageMarkdown);
-  return await mjPagePromise(html, trimLatexAndAddCSS);
+  return converter.makeHtml(pageMarkdown);
 }
+
+function latexSourceToCkEditorEmbeddedLatexTag(latex: string, inline: boolean): string {
+  // LaTeX formulas are wrapped in a variable number of dollar signs, eg
+  // $$\LaTeX$$. These got replaced with ~D earlier, because in some of the
+  // libraries Arbital uses $ is too special. So strip ~D from the start and
+  // end until none left.
+  while (latex.startsWith("~D") && latex.endsWith("~D")) {
+    latex = latex.substr(2, latex.length-4);
+  }
+  if (inline)
+    return `<span class="math-tex">\\\\(${latex}\\\\)</span>`;
+  else
+    return `<span class="math-tex">\\\\[${latex}\\\\]</span>`;
+}
+
