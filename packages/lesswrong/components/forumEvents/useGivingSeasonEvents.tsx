@@ -7,6 +7,7 @@ import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
 import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
 import { IRPossibleVoteCounts } from "@/lib/givingSeason/instantRunoff";
+import { DONATION_ELECTION_NUM_WINNERS, DONATION_ELECTION_SHOW_LEADERBOARD_CUTOFF } from "@/lib/givingSeason";
 
 export const GIVING_SEASON_DESKTOP_WIDTH = 1300;
 export const GIVING_SEASON_MOBILE_WIDTH = 700;
@@ -66,7 +67,7 @@ const events: GivingSeasonEvent[] = [
     description: <>
       A crowd-sourced pot of funds will be distributed amongst three charities{" "}
       based on your votes.{" "}
-      <Link to="/posts/srZEX2r9upbwfnRKw/giving-season-2024-announcement#November_18___December_3__Donation_Election">
+      <Link to="/posts/j6fmnYM5ZRu9fJyrq/donation-election-how-to-vote">
         Find out more
       </Link>.
     </>,
@@ -144,7 +145,18 @@ const leaderboardQuery = gql`
   }
 `;
 
-export const shouldShowLeaderboard = (currentEvent: GivingSeasonEvent | null) => currentEvent?.name === "Donation Election";
+export const shouldShowLeaderboard = ({
+  currentEvent,
+  voteCounts,
+}: {
+  currentEvent: GivingSeasonEvent | null;
+  voteCounts: IRPossibleVoteCounts | undefined;
+}) => {
+  if (currentEvent?.name !== "Donation Election") return false;
+
+  const totalVotes = Object.values(voteCounts?.[DONATION_ELECTION_NUM_WINNERS] ?? {}).reduce((acc, count) => acc + count, 0);
+  return totalVotes >= DONATION_ELECTION_SHOW_LEADERBOARD_CUTOFF;
+}
 
 export const GivingSeasonEventsProvider = ({children}: {children: ReactNode}) => {
   const {currentForumEvent} = useCurrentForumEvent();
@@ -160,7 +172,7 @@ export const GivingSeasonEventsProvider = ({children}: {children: ReactNode}) =>
   const { data: leaderboardData } = useQuery<{ GivingSeason2024VoteCounts: IRPossibleVoteCounts }>(leaderboardQuery, {
     pollInterval: 60 * 1000, // Poll once per minute
     ssr: true,
-    skip: !shouldShowLeaderboard(currentEvent),
+    skip: currentEvent?.name !== "Donation Election",
   });
 
   return (

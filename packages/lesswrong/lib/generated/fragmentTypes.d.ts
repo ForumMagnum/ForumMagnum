@@ -3704,6 +3704,7 @@ interface SpotlightMinimumInfo { // fragment on Spotlights
 
 interface SpotlightReviewWinner extends SpotlightMinimumInfo { // fragment on Spotlights
   readonly description: SpotlightReviewWinner_description|null,
+  readonly sequenceChapters: Array<ChaptersFragment>,
 }
 
 interface SpotlightReviewWinner_description { // fragment on Revisions
