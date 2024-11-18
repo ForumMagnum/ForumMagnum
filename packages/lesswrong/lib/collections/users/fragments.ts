@@ -26,6 +26,7 @@ registerFragment(`
     tagRevisionCount
     reviewedByUserId
     givingSeason2024DonatedFlair
+    givingSeason2024VotedFlair
   }
 `);
 
