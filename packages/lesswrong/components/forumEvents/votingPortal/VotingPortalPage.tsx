@@ -35,12 +35,11 @@ import sortBy from "lodash/sortBy";
 
 const BACKGROUND_HREF = "https://res.cloudinary.com/cea/image/upload/v1731504237/Rectangle_5032.jpg";
 const FUND_HREF = "https://www.every.org/effective-ventures-foundation-usa-inc-for-the-ea-forum-donation-election-fund-2024";
-const VOTING_HREF = "#";
-const CANDIDATES_HREF = "#";
-const FRAUD_HREF = "#";
-const RANKING_HREF = "#";
-const THREAD_HREF = "#";
-const COMMENT_POST_ID = isProduction ? "TODO" : "TKPz7FSTd6siveswn";
+const VOTING_HREF = "/posts/j6fmnYM5ZRu9fJyrq/donation-election-how-to-vote";
+const CANDIDATES_HREF = "/posts/tucbWEN7SBWxNiHWj/meet-the-candidates-in-the-forum-s-donation-election-2024";
+const FRAUD_HREF = "/posts/j6fmnYM5ZRu9fJyrq/donation-election-how-to-vote#What_s_not_allowed";
+const THREAD_HREF = "/posts/q6C23rxvyHX2ZxNNS/donation-election-discussion-thread";
+const COMMENT_POST_ID = isProduction ? "q6C23rxvyHX2ZxNNS" : "TKPz7FSTd6siveswn";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -53,7 +52,6 @@ const styles = (theme: ThemeType) => ({
     backgroundRepeat: "no-repeat",
     backgroundSize: "cover",
     display: "flex",
-    alignItems: "center",
     justifyContent: "center",
     fontFamily: theme.palette.fonts.sansSerifStack,
     color: theme.palette.text.alwaysWhite,
@@ -66,6 +64,13 @@ const styles = (theme: ThemeType) => ({
       alignItems: "flex-start",
       paddingTop: MOBILE_HEADER_HEIGHT,
     },
+  },
+  rootAlignCentered: {
+    alignItems: "center",
+  },
+  rootAlignTop: {
+    alignItems: "flex-start",
+    paddingTop: 70,
   },
   welcomeRoot: {
     display: "flex",
@@ -589,7 +594,7 @@ const RankingScreen = ({items, setItems, classes}: {
           Rank the candidates in descending order with your favourite at the
           top. Click on candidates to rank them, drag to change order. Unranked
           candidates get no points. Find out more{" "}
-          <Link to={RANKING_HREF}>here</Link>.
+          <Link to={VOTING_HREF}>here</Link>.
         </div>
         <div className={classes.rankingSubDescription}>
           If you’re unsure about your ranking: vote, read more, and change your
@@ -964,9 +969,14 @@ const VotingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
     onNext();
   }, [onNext, saveVote, items]);
 
+  const isCenterAligned = screen === "welcome" || screen === "thank-you";
+
   return (
     <AnalyticsContext pageContext="votingPortal2024" pageSectionContext={screen}>
-      <div className={classes.root}>
+      <div className={classNames(classes.root, {
+        [classes.rootAlignCentered]: isCenterAligned,
+        [classes.rootAlignTop]: !isCenterAligned,
+      })}>
         {screen === "welcome" &&
           <WelcomeScreen onNext={onNext} classes={classes} />
         }
