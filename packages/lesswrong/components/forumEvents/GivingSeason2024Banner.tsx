@@ -585,10 +585,12 @@ const GivingSeason2024Banner = ({classes}: {
   const amountRaisedPlusMatched = amountRaised + Math.min(amountRaised, 5000);
   const fundPercent = Math.round((amountRaisedPlusMatched / amountTarget) * 100);
 
-  const showRecentComments = !!currentForumEvent?.tagId && (
-    currentEvent?.name === "Marginal Funding Week"
-  );
-  const showLeaderboard = shouldShowLeaderboard(currentEvent);
+  const isDonationElection = currentEvent?.name === "Donation Election";
+  const showLeaderboard = shouldShowLeaderboard({ currentEvent, voteCounts: leaderboardData });
+  const showRecentComments =
+    !showLeaderboard &&
+    !!currentForumEvent?.tagId &&
+    (currentEvent?.name === "Marginal Funding Week" || isDonationElection);
 
   useEffect(() => {
     if (!detailsRef) {
@@ -682,11 +684,14 @@ const GivingSeason2024Banner = ({classes}: {
           <div className={classes.detailsContainer} ref={setDetailsRef}>
             {events.map(({ name, description, start, end }, i) => (
               <div className={classes.eventDetails} data-event-id={i} key={name}>
-                {name === currentEvent?.name && showLeaderboard && leaderboardData ? (
+                {name === currentEvent?.name && isDonationElection ? (
                   <div className={classes.electionInfoContainer}>
                     <div className={classes.eventDate}>{formatDate(selectedEvent.start, selectedEvent.end)}</div>
                     <div className={classes.eventName}>{name}</div>
-                    <div className={classes.eventDescription}>{description} <b className={classes.hideAboveMd}>${formatStat(Math.round(amountRaisedPlusMatched))}{" "}raised.</b></div>
+                    <div className={classes.eventDescription}>
+                      {description}{" "}
+                      <b className={classes.hideAboveMd}>${formatStat(Math.round(amountRaisedPlusMatched))} raised.</b>
+                    </div>
                     <div className={classNames(classes.electionInfoRaised, classes.hideBelowMd)}>
                       <span className={classes.electionInfoAmount}>
                         ${formatStat(Math.round(amountRaisedPlusMatched))}
@@ -702,11 +707,13 @@ const GivingSeason2024Banner = ({classes}: {
                     >
                       <div style={{ width: `${fundPercent}%` }} className={classes.fundBar} />
                     </div>
-                    <DonationElectionLeaderboard
-                      voteCounts={leaderboardData}
-                      className={classes.hideAboveMd}
-                      hideHeader
-                    />
+                    {showLeaderboard && leaderboardData && (
+                      <DonationElectionLeaderboard
+                        voteCounts={leaderboardData}
+                        className={classes.hideAboveMd}
+                        hideHeader
+                      />
+                    )}
                     <div className={classes.electionInfoButtonContainer}>
                       <EAButton
                         href={getDonateLink(currentUser)}
@@ -781,7 +788,7 @@ const GivingSeason2024Banner = ({classes}: {
               </div>
             ))}
           </div>
-          {!showLeaderboard && (
+          {!isDonationElection && (
             <div className={classes.fund}>
               <div className={classes.fundDetailsContainer}>
                 <div className={classes.fundMobileTitle}>Donation Election Fund</div>
