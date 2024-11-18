@@ -13,6 +13,10 @@ import { rememberScrollPositionOnPageReload } from './scrollRestoration';
 import { addClickHandlerToCheckboxLabels } from './clickableCheckboxLabels';
 import { initLegacyRoutes } from '@/lib/routes';
 import { hydrateClient } from './start';
+import { googleTagManagerInit } from './ga';
+import { initReCaptcha } from './reCaptcha';
+import './type3';
+import { initDatadog } from './datadogRum';
 
 /**
  * These identifiers may or may not have been set on the server, depending on whether the request
@@ -39,13 +43,20 @@ async function clientStartup() {
   startupCalled = true;
 
   filterConsoleLogSpam();
-  require('../deferred-client-scripts.js');
+  
+  googleTagManagerInit();
+  void initDatadog();
+  void initReCaptcha();
 
   initAutoRefresh();
   rememberScrollPositionOnPageReload();
   addClickHandlerToCheckboxLabels();
   initLegacyRoutes();
   hydrateClient();
+  
+  if (enableVite) {
+    setTimeout(removeStaticStylesheet, 1000);
+  }
 }
 
 // Starting up too early is known to compete for resources with rendering the page, causing the
@@ -112,3 +123,16 @@ if (document.readyState === 'loading') {
 }
 
 importAllComponents();
+
+function removeStaticStylesheet() {
+  const linkTags = document.getElementsByTagName("link")
+  for (let i=0; i<linkTags.length; i++) {
+    const linkTag = linkTags.item(i);
+    if (linkTag) {
+      const href = linkTag.getAttribute("href")
+      if (href && href.startsWith("/allStyles")) {
+        linkTag.remove();
+      }
+    }
+  }
+}

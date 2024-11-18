@@ -1,38 +1,3 @@
 {
-  "compilerOptions": {
-    "lib": ["es2019", "dom"],
-    "noImplicitAny": true,
-    "noImplicitThis": true,
-    "strictNullChecks": true,
-    "jsx": "react",
-    "esModuleInterop": true,
-    "rootDir": ".",
-    "module": "commonjs",
-    "target": "es6",
-    "sourceMap": true,
-    "moduleResolution": "node",
-    "downlevelIteration": true,
-    "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "strictBindCallApply": true,
-    "allowImportingTsExtensions": true,
-    "noEmit": true,
-
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./packages/lesswrong/*"],
-    }
-  },
-  "include": [
-    "packages/lesswrong",
-    "public/lesswrong-editor/src/editorConfigs.js",
-    "playwright"
-  ],
-  "exclude": [
-    "node_modules",
-    "build"
-  ],
-  "ts-node": {
-    "files": true
-  }
+  "extends": "./tsconfig-shared.json"
 }

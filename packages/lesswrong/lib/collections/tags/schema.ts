@@ -669,7 +669,7 @@ const schema: SchemaType<"Tags"> = {
     optional: true,
     resolver: async (tag: DbTag, args: void, context: ResolverContext) => {
       const { MultiDocuments, Revisions } = context;
-      const multiDocuments = await MultiDocuments.find({ parentDocumentId: tag._id, collectionName: 'Tags', fieldName: 'description' }).fetch();
+      const multiDocuments = await MultiDocuments.find({ parentDocumentId: tag._id, collectionName: 'Tags', fieldName: 'description' }, { sort: { index: 1 } }).fetch();
       const revisions = await Revisions.find({ _id: { $in: multiDocuments.map(md => md.contents_latest) } }).fetch();
 
       return multiDocuments.map(md => ({
@@ -685,6 +685,7 @@ const schema: SchemaType<"Tags"> = {
           TO_JSONB(r.*),
           true
         )
+        ORDER BY md."index" ASC
       ) AS contents
       FROM "MultiDocuments" md
       LEFT JOIN "Revisions" r
