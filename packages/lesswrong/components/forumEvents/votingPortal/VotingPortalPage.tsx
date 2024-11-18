@@ -60,6 +60,12 @@ const styles = (theme: ThemeType) => ({
     "& a": {
       textDecoration: "underline",
     },
+    "& sup": {
+      fontSize: 10,
+      verticalAlign: "top",
+      position: "relative",
+      top: "-0.5em",
+    },
     [theme.breakpoints.down("sm")]: {
       alignItems: "flex-start",
       paddingTop: MOBILE_HEADER_HEIGHT,
