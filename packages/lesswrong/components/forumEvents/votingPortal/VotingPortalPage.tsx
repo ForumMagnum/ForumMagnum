@@ -156,6 +156,9 @@ const styles = (theme: ThemeType) => ({
   },
   candidateUnordered: {
     background: theme.palette.givingSeason.candidateBackground,
+    "&:hover": {
+      opacity: 0.7,
+    },
   },
   candidateOrdered: {
     background: theme.palette.text.alwaysWhite,
@@ -233,7 +236,7 @@ const styles = (theme: ThemeType) => ({
     },
   },
   commentExplanation: {
-    fontSize: 14,
+    fontSize: 16,
     lineHeight: "140%",
     marginBottom: 16,
   },
@@ -682,10 +685,10 @@ const CommentScreen = ({currentUser, commentsPost, classes}: {
         Post a comment about your vote
       </div>
       <div className={classes.commentExplanation}>
-        You comment will be published in the{" "}
-        <Link to={THREAD_HREF}>Donation Election discussion thread</Link>.&nbsp;
+        It will be published in the{" "}
+        <Link to={THREAD_HREF}>Donation Election discussion thread</Link>&nbsp;
         <span className={classes.commentSecondaryText}>
-          It will be posted with your user name, but your vote will remain
+          with your user name, but your vote will remain
           anonymous.
         </span>
       </div>
@@ -696,7 +699,7 @@ const CommentScreen = ({currentUser, commentsPost, classes}: {
       <div className={classes.commentFormContainer}>
         <UsersProfileImage user={currentUser} size={40} />
         <CommentsNewForm
-          overrideHintText="Consider sharing why you picked the candidates you selected, writing a note about your experience with the Donation Election, etc."
+          overrideHintText="Type here..."
           type="submit"
           post={commentsPost}
           className={classes.commentForm}
