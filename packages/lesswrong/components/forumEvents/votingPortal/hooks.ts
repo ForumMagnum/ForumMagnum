@@ -82,7 +82,7 @@ export const useElectionCandidates = (
       electionName: ACTIVE_DONATION_ELECTION,
       sortBy: sortBy === "random" ? "name" : sortBy,
     },
-    limit: 30,
+    limit: 100,
     // There is an SSR mismatch bug that occurs on safari when using the random sort
     ssr: false,
     ...options,
