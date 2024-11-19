@@ -549,7 +549,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly lesswrongWikiImportCompleted: boolean,
   readonly tableOfContents: any,
   readonly htmlWithContributorAnnotations: string,
-  readonly contributors: any /*TagContributorsList*/,
+  readonly contributors: TagContributorsList,
   readonly contributionStats: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly introSequenceId: string,
   readonly postsDefaultSortOrder: string,

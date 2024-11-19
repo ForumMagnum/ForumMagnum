@@ -84,10 +84,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const TagPageButtonRow = ({ tag, editing, setEditing, className, classes }: {
+const TagPageButtonRow = ({ tag, editing, setEditing, hideLabels = false, className, classes }: {
   tag: TagPageWithRevisionFragment | TagPageFragment,
   editing: boolean,
   setEditing: (editing: boolean) => void,
+  hideLabels?: boolean,
   className?: string,
   classes: ClassesType
 }) => {
@@ -150,32 +151,35 @@ const TagPageButtonRow = ({ tag, editing, setEditing, className, classes }: {
     >
       {canEdit ? (<a className={classes.button} onClick={handleEditClick}>
         <EditOutlinedIcon /><span className={classes.buttonLabel}>
-          Edit
+          {!hideLabels && "Edit"}
         </span>
       </a>) : (
         <a className={classes.lockIcon} onClick={() => {}}><LockIcon className={classes.lockIcon}/><span className={classes.buttonLabel}>
-          Edit
+          {!hideLabels && "Edit"}
         </span></a>)}
     </LWTooltip>}
     {<Link
       className={classes.button}
       to={tagGetHistoryUrl(tag)}
     >
-      <HistoryIcon /><span className={classes.buttonLabel}>History</span>
+      <HistoryIcon /><span className={classes.buttonLabel}>
+        {!hideLabels && "History"}
+      </span>
     </Link>}
     {!userHasNewTagSubscriptions(currentUser) && !tag.wikiOnly && !editing && <LWTooltip title="Get notifications when posts are added to this tag." className={classes.subscribeToWrapper}>
       <NotifyMeButton
         document={tag}
         className={classes.subscribeTo}
         showIcon
+        hideLabel={hideLabels}
         hideLabelOnMobile
         subscribeMessage="Subscribe"
         unsubscribeMessage="Unsubscribe"
         subscriptionType={subscriptionTypes.newTagPosts}
       />
     </LWTooltip>}
-    {<div className={classes.button}><TagDiscussionButton tag={tag} hideLabelOnMobile /></div>}
-    {!userHasNewTagSubscriptions(currentUser) && <LWTooltip
+    {<div className={classes.button}><TagDiscussionButton tag={tag} hideLabel={hideLabels} hideLabelOnMobile /></div>}
+    {!userHasNewTagSubscriptions(currentUser) && !hideLabels && <LWTooltip
       className={classes.helpImprove}
       title={editTooltip}
     >

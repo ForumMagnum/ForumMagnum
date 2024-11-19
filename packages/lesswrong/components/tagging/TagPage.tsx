@@ -102,6 +102,9 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
       marginTop: 16,
       marginBottom: 8,
     },
+    position: 'absolute',
+    top: -36,
+    right: 8,
   },
   wikiSection: {
     paddingTop: 5,
@@ -221,6 +224,14 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   },
   hideMuiTabIndicator: {
     display: 'none',
+  },
+  contributorRow: {
+    ...theme.typography.body1,
+    color: theme.palette.grey[600],
+  },
+  contributorName: {
+    fontWeight: 600,
+    // color: theme.palette.grey[900],
   },
   ...tagPageHeaderStyles(theme),
 }));
@@ -382,10 +393,9 @@ const TagPage = () => {
     captureEvent("readMoreClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "wikiSection"})
   }
 
-  // const htmlWithAnchors = tag.tableOfContents?.html ?? tag.description?.html ?? "";
   const selectedTab = lensTabs.find(lens => lens._id === selectedLens);
   const htmlWithAnchors = selectedTab?.tableOfContents?.html ?? selectedTab?.contents?.html ?? "";
-  console.log({ selectedTab });
+
   let description = htmlWithAnchors;
   // EA Forum wants to truncate much less than LW
   if (isFriendlyUI) {
@@ -571,7 +581,11 @@ const TagPage = () => {
           />
         }
       </div>
-      <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classNames(classes.editMenu, classes.nonMobileButtonRow)} />
+      {/* <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classNames(classes.editMenu, classes.nonMobileButtonRow)} /> */}
+      {tag.contributors && <div className={classes.contributorRow}>
+        <span>Written by </span>
+        {tag.contributors.contributors.map(({ user }: { user?: UsersMinimumInfo }) => <UsersNameDisplay key={user?._id} user={user} className={classes.contributorName} />)}
+      </div>}
     </div>
   );
 
@@ -599,6 +613,7 @@ const TagPage = () => {
           </>,
           // toc: tagToc,
           toc: fixedPositionTagToc,
+          rightColumn: <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} hideLabels={true} className={classNames(classes.editMenu, classes.nonMobileButtonRow)} />
         },
         {
           centralColumn: tagPostsAndCommentsSection,
