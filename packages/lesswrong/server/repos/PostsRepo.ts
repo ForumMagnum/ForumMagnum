@@ -471,6 +471,20 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     return count;
   }
 
+  async getViewablePostsIdsWithTag(tagId: string): Promise<string[]> {
+    const results: {_id: string}[] = await this.getRawDb().any(`
+      SELECT "_id"
+      FROM "Posts"
+      WHERE
+        ("tagRelevance"->$1)::INT > 0
+        AND "baseScore" >= 5
+        AND "hideFromRecentDiscussions" IS NOT TRUE
+        AND "hideFromPopularComments" IS NOT TRUE
+        AND ${getViewablePostsSelector()}
+    `, [tagId]);
+    return results.map(({_id}) => _id);
+  }
+
   async getUsersReadPostsOfTargetUser(userId: string, targetUserId: string, limit = 20): Promise<DbPost[]> {
     return this.any(`
       -- PostsRepo.getUsersReadPostsOfTargetUser

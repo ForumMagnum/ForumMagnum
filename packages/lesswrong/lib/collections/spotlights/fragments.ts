@@ -31,6 +31,9 @@ registerFragment(`
     description {
       html
     }
+    sequenceChapters {
+      ...ChaptersFragment
+    }
   }
 `);
 
