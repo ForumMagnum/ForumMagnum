@@ -71,6 +71,7 @@ export async function performCrosspost(post: DbPost): Promise<DbPost> {
     ...extractDenormalizedData(post),
     contents: {
       originalContents: revision?.originalContents,
+      draft: revision?.draft ?? false,
     },
   });
 
@@ -98,6 +99,7 @@ const updateCrosspost = async (
     postId: foreignPostId,
     contents: {
       originalContents: revision?.originalContents,
+      draft: revision?.draft ?? false,
     },
   });
   await makeV2CrossSiteRequest(
