@@ -56,6 +56,8 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     marginLeft: "auto",
     marginRight: "auto",
     maxWidth: MAX_COLUMN_WIDTH,
+    paddingLeft: 42,
+    paddingRight: 42,
   },
   header: {
     paddingTop: 19,
@@ -153,21 +155,92 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   nextLink: {
     ...theme.typography.commentStyle
   },
+  description: {},
+  lensTabsContainer: {
+    gap: '4px',
+    [theme.breakpoints.down('sm')]: {
+      gap: '2px',
+      flexDirection: 'column',
+    },
+  },
+  lensTab: {
+    minWidth: 'unset',
+    borderWidth: 1,
+  },
+  tabLabelContainerOverride: {
+    paddingLeft: 16,
+    paddingRight: 16,
+    [theme.breakpoints.down('sm')]: {
+      paddingLeft: 8,
+      paddingRight: 8,
+    },
+  },
   lensLabel: {
     display: 'flex',
     flexDirection: 'column',
+    alignItems: 'start',
+    [theme.breakpoints.down('sm')]: {
+      alignItems: 'center',
+    },
   },
   lensTitle: {
     ...theme.typography.subtitle,
+    textTransform: 'none',
+    marginBottom: 0,
   },
   lensSubtitle: {
     ...theme.typography.subtitle,
+    textTransform: 'none',
     fontSize: '1rem',
     fontWeight: 400,
+    [theme.breakpoints.up('sm')]: {
+      minHeight: 19,
+    },
   },
-  selectedLens: {},
+  selectedLens: {
+    [theme.breakpoints.down('sm')]: {
+      border: theme.palette.border.grey400,
+    },
+    [theme.breakpoints.up('sm')]: {
+      borderStyle: 'solid',
+      borderWidth: '1px 1px 0 1px',
+      borderImageSource: `linear-gradient(to bottom, 
+        ${theme.palette.grey[400]} 0%, 
+        rgba(0,0,0,0) 100%
+      )`,
+      borderImageSlice: '1',
+      // Needed to maintain solid top border
+      borderTop: theme.palette.border.grey400
+    },
+  },
+  nonSelectedLens: {
+    // TODO: define custom background for tabs with dark mode override, since darken04 is basically not visible in dark mode
+    background: theme.palette.panelBackground.darken04,
+    borderStyle: 'solid',
+    borderColor: theme.palette.background.transparent,
+  },
+  hideMuiTabIndicator: {
+    display: 'none',
+  },
   ...tagPageHeaderStyles(theme),
 }));
+
+function useTagLenses(tag: TagPageFragment | TagPageWithRevisionFragment | null) {
+  if (!tag) return [];
+
+  return [{
+    _id: 'main-tab',
+    collectionName: 'Tags',
+    fieldName: 'description',
+    index: 0,
+    contents: tag.description,
+    tableOfContents: tag.tableOfContents,
+    parentDocumentId: tag._id,
+    title: 'Main',
+    subtitle: null,
+    userId: tag.userId
+  }, ...tag.lenses.map(lens => ({ ...lens, index: lens.index + 1 }))];
+}
 
 const PostsListHeading: FC<{
   tag: TagPageFragment|TagPageWithRevisionFragment,
@@ -202,6 +275,7 @@ const TagPage = () => {
     PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection,
     TagPageButtonRow, ToCColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
     TagTableOfContents, TagVersionHistoryButton, ContentStyles, CommentsListCondensed,
+    MultiToCLayout, TableOfContents,
   } = Components;
   const classes = useStyles(styles);
 
@@ -228,10 +302,10 @@ const TagPage = () => {
     },
   });
   
-  const [truncated, setTruncated] = useState(true)
+  const [truncated, setTruncated] = useState(false)
   const [editing, setEditing] = useState(!!query.edit)
   const [hoveredContributorId, setHoveredContributorId] = useState<string|null>(null);
-  const [selectedLens, setSelectedLens] = useState<string>();
+  const [selectedLens, setSelectedLens] = useState<string>('main-tab');
   const { captureEvent } =  useTracking()
   const client = useApolloClient()
 
@@ -250,6 +324,8 @@ const TagPage = () => {
   })
   
   useOnSearchHotkey(() => setTruncated(false));
+
+  const lensTabs = useTagLenses(tag);
 
   const tagPositionInList = otherTagsWithNavigation?.findIndex(tagInList => tag?._id === tagInList._id);
   // We have to handle updates to the listPosition explicitly, since we have to deal with three cases
@@ -306,7 +382,10 @@ const TagPage = () => {
     captureEvent("readMoreClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "wikiSection"})
   }
 
-  const htmlWithAnchors = tag.tableOfContents?.html ?? tag.description?.html ?? "";
+  // const htmlWithAnchors = tag.tableOfContents?.html ?? tag.description?.html ?? "";
+  const selectedTab = lensTabs.find(lens => lens._id === selectedLens);
+  const htmlWithAnchors = selectedTab?.tableOfContents?.html ?? selectedTab?.contents?.html ?? "";
+  console.log({ selectedTab });
   let description = htmlWithAnchors;
   // EA Forum wants to truncate much less than LW
   if (isFriendlyUI) {
@@ -326,7 +405,207 @@ const TagPage = () => {
     myPages: "userPages"
   }
 
-  console.log({ tagLenses: tag.lenses });
+  const parentAndSubTags = (tag.parentTag || tag.subTags.length)
+    ? (
+      <div className={classNames(classes.subHeading,classes.centralColumn)}>
+        <div className={classes.subHeadingInner}>
+          {tag.parentTag && <div className={classes.relatedTag}>Parent {taggingNameCapitalSetting.get()}: <Link className={classes.relatedTagLink} to={tagGetUrl(tag.parentTag)}>{tag.parentTag.name}</Link></div>}
+          {/* For subtags it would be better to:
+              - put them at the bottom of the page
+              - truncate the list
+              for our first use case we only need a small number of subtags though, so I'm leaving it for now
+          */}
+          {tag.subTags.length ? <div className={classes.relatedTag}><span>Sub-{tag.subTags.length > 1 ? taggingNamePluralCapitalSetting.get() : taggingNameCapitalSetting.get()}:&nbsp;{
+              tag.subTags.map((subTag, idx) => {
+              return <Fragment key={idx}>
+                <Link className={classes.relatedTagLink} to={tagGetUrl(subTag)}>{subTag.name}</Link>
+                {idx < tag.subTags.length - 1 ? <>,&nbsp;</>: <></>}
+              </Fragment>
+            })}</span>
+          </div> : <></>}
+        </div>
+      </div>
+    )
+    : <></>;
+
+  const tagBodySection = (
+    <div className={classNames(classes.wikiSection,classes.centralColumn)}>
+      <AnalyticsContext pageSectionContext="wikiSection">
+        { revision && tag.description && (tag.description as TagRevisionFragment_description).user && <div className={classes.pastRevisionNotice}>
+          You are viewing revision {tag.description.version}, last edited by <UsersNameDisplay user={(tag.description as TagRevisionFragment_description).user}/>
+        </div>}
+        {editing ? <div>
+          <EditTagForm
+            tag={tag}
+            successCallback={ async () => {
+              setEditing(false)
+              await client.resetStore()
+            }}
+            cancelCallback={() => setEditing(false)}
+          />
+          <TagVersionHistoryButton tagId={tag._id} />
+        </div> :
+        <div onClick={clickReadMore}>
+          <ContentStyles contentType="tag">
+            <ContentItemBody
+              dangerouslySetInnerHTML={{__html: description||""}}
+              description={`tag ${tag.name}`}
+              className={classes.description}
+            />
+          </ContentStyles>
+        </div>}
+      </AnalyticsContext>
+    </div>
+  );
+
+  const tagPostsAndCommentsSection = (
+    <div className={classes.centralColumn}>
+      {editing && <TagDiscussionSection
+        key={tag._id}
+        tag={tag}
+      />}
+      {tag.sequence && <TagIntroSequence tag={tag} />}
+      {!tag.wikiOnly && <>
+        <AnalyticsContext pageSectionContext="tagsSection">
+          <PostsListHeading tag={tag} query={query} classes={classes} />
+          <PostsList2
+            terms={terms}
+            enableTotal
+            tagId={tag._id}
+            itemsPerPage={200}
+          >
+            <AddPostsToTag tag={tag} />
+          </PostsList2>
+        </AnalyticsContext>
+        <DeferRender ssr={false}>
+          <AnalyticsContext pageSectionContext="quickTakesSection">
+            <CommentsListCondensed
+              label="Quick takes"
+              terms={{
+                view: "tagSubforumComments" as const,
+                tagId: tag._id,
+                sortBy: 'new',
+              }}
+              initialLimit={8}
+              itemsPerPage={20}
+              showTotal
+              hideTag
+            />
+          </AnalyticsContext>
+        </DeferRender>
+      </>}
+    </div>
+  );
+
+  const tagToc = (
+    <TagTableOfContents
+      tag={tag}
+      expandAll={expandAll}
+      showContributors={true}
+      onHoverContributor={onHoverContributor}
+    />
+  );
+
+  const fixedPositionTagToc = (
+    <TableOfContents
+      sectionData={selectedTab?.tableOfContents}
+      title={tag.name}
+      onClickSection={expandAll}
+      fixedPositionToc
+    />
+  );
+
+  const tagHeader = (
+    <div className={classNames(classes.header,classes.centralColumn)}>
+      {query.flagId && <span>
+        <Link to={`/tags/dashboard?focus=${query.flagId}`}>
+          <TagFlagItem 
+            itemType={["allPages", "myPages"].includes(query.flagId) ? tagFlagItemType[query.flagId] : "tagFlagId"}
+            documentId={query.flagId}
+          />
+        </Link>
+        {nextTag && <span onClick={() => setEditing(true)}><Link
+          className={classes.nextLink}
+          to={tagGetUrl(nextTag, {flagId: query.flagId, edit: true})}>
+            Next Tag ({nextTag.name})
+        </Link></span>}
+      </span>}
+      {lensTabs.length > 1
+        ?  (
+          <Tabs
+            value={selectedLens ?? lensTabs[0]._id}
+            onChange={(e, value) => setSelectedLens(value)}
+            classes={{ flexContainer: classes.lensTabsContainer, indicator: classes.hideMuiTabIndicator }}
+          >
+            {lensTabs.map(lens => {
+              const label = <div className={classes.lensLabel}>
+                <span className={classes.lensTitle}>{lens.title}</span>
+                <span className={classes.lensSubtitle}>{lens.subtitle}</span>
+              </div>;
+
+              const isSelected = selectedLens === lens._id;
+
+              return <Tab
+                className={classNames(classes.lensTab, isSelected && classes.selectedLens, !isSelected && classes.nonSelectedLens)}
+                key={lens._id}
+                value={lens._id}
+                label={label}
+                classes={{ labelContainer: classes.tabLabelContainerOverride }}
+              />
+            })}
+          </Tabs>
+        )
+        : <></>}
+      <div className={classes.titleRow}>
+        <Typography variant="display3" className={classes.title}>
+          {tag.deleted ? "[Deleted] " : ""}{tag.name}
+        </Typography>
+        <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classNames(classes.editMenu, classes.mobileButtonRow)} />
+        {!tag.wikiOnly && !editing && userHasNewTagSubscriptions(currentUser) &&
+          <SubscribeButton
+            tag={tag}
+            className={classes.notifyMeButton}
+            subscribeMessage="Subscribe"
+            unsubscribeMessage="Subscribed"
+            subscriptionType={subscriptionTypes.newTagPosts}
+          />
+        }
+      </div>
+      <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classNames(classes.editMenu, classes.nonMobileButtonRow)} />
+    </div>
+  );
+
+  const originalToc = (
+    <ToCColumn
+      tableOfContents={tagToc}
+      header={tagHeader}
+    >
+      {parentAndSubTags}
+      {tagBodySection}
+      {tagPostsAndCommentsSection}
+    </ToCColumn>
+  );
+
+  const multiColumnToc = (
+    <MultiToCLayout
+      segments={[
+        {
+          centralColumn: parentAndSubTags,
+        },
+        {
+          centralColumn: <>
+            {tagHeader}
+            {tagBodySection}
+          </>,
+          // toc: tagToc,
+          toc: fixedPositionTagToc,
+        },
+        {
+          centralColumn: tagPostsAndCommentsSection,
+        },
+      ]}
+    />
+  );
   
   return <AnalyticsContext
     pageContext='tagPage'
@@ -351,142 +630,8 @@ const TagPage = () => {
       />
     </div>}
     <div className={tag.bannerImageId ? classes.rootGivenImage : ''}>
-      <ToCColumn
-        tableOfContents={
-          <TagTableOfContents
-            tag={tag} expandAll={expandAll} showContributors={true}
-            onHoverContributor={onHoverContributor}
-          />
-        }
-        header={<div className={classNames(classes.header,classes.centralColumn)}>
-          {query.flagId && <span>
-            <Link to={`/tags/dashboard?focus=${query.flagId}`}>
-              <TagFlagItem 
-                itemType={["allPages", "myPages"].includes(query.flagId) ? tagFlagItemType[query.flagId] : "tagFlagId"}
-                documentId={query.flagId}
-              />
-            </Link>
-            {nextTag && <span onClick={() => setEditing(true)}><Link
-              className={classes.nextLink}
-              to={tagGetUrl(nextTag, {flagId: query.flagId, edit: true})}>
-                Next Tag ({nextTag.name})
-            </Link></span>}
-          </span>}
-          {tag.lenses.length > 0
-            ?  (
-              <Tabs value={selectedLens ?? tag.lenses[0].title} onChange={(e, value) => setSelectedLens(value)}>
-                {tag.lenses.map(lens => {
-                  const label = <div className={classes.lensLabel}>
-                    <span className={classes.lensTitle}>{lens.title}</span>
-                    <span className={classes.lensSubtitle}>{lens.subtitle}</span>
-                  </div>;
-
-                  return <Tab key={lens.title} value={lens.title} label={label} />
-                })}
-              </Tabs>
-            )
-            : <></>}
-          <div className={classes.titleRow}>
-            <Typography variant="display3" className={classes.title}>
-              {tag.deleted ? "[Deleted] " : ""}{tag.name}
-            </Typography>
-            <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classNames(classes.editMenu, classes.mobileButtonRow)} />
-            {!tag.wikiOnly && !editing && userHasNewTagSubscriptions(currentUser) &&
-              <SubscribeButton
-                tag={tag}
-                className={classes.notifyMeButton}
-                subscribeMessage="Subscribe"
-                unsubscribeMessage="Subscribed"
-                subscriptionType={subscriptionTypes.newTagPosts}
-              />
-            }
-          </div>
-          <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classNames(classes.editMenu, classes.nonMobileButtonRow)} />
-        </div>}
-      >
-        {(tag.parentTag || tag.subTags.length) ?
-        <div className={classNames(classes.subHeading,classes.centralColumn)}>
-          <div className={classes.subHeadingInner}>
-            {tag.parentTag && <div className={classes.relatedTag}>Parent {taggingNameCapitalSetting.get()}: <Link className={classes.relatedTagLink} to={tagGetUrl(tag.parentTag)}>{tag.parentTag.name}</Link></div>}
-            {/* For subtags it would be better to:
-                 - put them at the bottom of the page
-                 - truncate the list
-                for our first use case we only need a small number of subtags though, so I'm leaving it for now
-             */}
-            {tag.subTags.length ? <div className={classes.relatedTag}><span>Sub-{tag.subTags.length > 1 ? taggingNamePluralCapitalSetting.get() : taggingNameCapitalSetting.get()}:&nbsp;{
-                tag.subTags.map((subTag, idx) => {
-                return <Fragment key={idx}>
-                  <Link className={classes.relatedTagLink} to={tagGetUrl(subTag)}>{subTag.name}</Link>
-                  {idx < tag.subTags.length - 1 ? <>,&nbsp;</>: <></>}
-                </Fragment>
-              })}</span>
-            </div> : <></>}
-          </div>
-        </div>: <></>}
-        <div className={classNames(classes.wikiSection,classes.centralColumn)}>
-          <AnalyticsContext pageSectionContext="wikiSection">
-            { revision && tag.description && (tag.description as TagRevisionFragment_description).user && <div className={classes.pastRevisionNotice}>
-              You are viewing revision {tag.description.version}, last edited by <UsersNameDisplay user={(tag.description as TagRevisionFragment_description).user}/>
-            </div>}
-            {editing ? <div>
-              <EditTagForm
-                tag={tag}
-                successCallback={ async () => {
-                  setEditing(false)
-                  await client.resetStore()
-                }}
-                cancelCallback={() => setEditing(false)}
-              />
-              <TagVersionHistoryButton tagId={tag._id} />
-            </div> :
-            <div onClick={clickReadMore}>
-              <ContentStyles contentType="tag">
-                <ContentItemBody
-                  dangerouslySetInnerHTML={{__html: description||""}}
-                  description={`tag ${tag.name}`}
-                  className={classes.description}
-                />
-              </ContentStyles>
-            </div>}
-          </AnalyticsContext>
-        </div>
-        <div className={classes.centralColumn}>
-          {editing && <TagDiscussionSection
-            key={tag._id}
-            tag={tag}
-          />}
-          {tag.sequence && <TagIntroSequence tag={tag} />}
-          {!tag.wikiOnly && <>
-            <AnalyticsContext pageSectionContext="tagsSection">
-              <PostsListHeading tag={tag} query={query} classes={classes} />
-              <PostsList2
-                terms={terms}
-                enableTotal
-                tagId={tag._id}
-                itemsPerPage={200}
-              >
-                <AddPostsToTag tag={tag} />
-              </PostsList2>
-            </AnalyticsContext>
-            <DeferRender ssr={false}>
-              <AnalyticsContext pageSectionContext="quickTakesSection">
-                <CommentsListCondensed
-                  label="Quick takes"
-                  terms={{
-                    view: "tagSubforumComments" as const,
-                    tagId: tag._id,
-                    sortBy: 'new',
-                  }}
-                  initialLimit={8}
-                  itemsPerPage={20}
-                  showTotal
-                  hideTag
-                />
-              </AnalyticsContext>
-            </DeferRender>
-          </>}
-        </div>
-      </ToCColumn>
+      {/* {originalToc} */}
+      {isFriendlyUI ? originalToc : multiColumnToc}
     </div>
   </AnalyticsContext>
 }

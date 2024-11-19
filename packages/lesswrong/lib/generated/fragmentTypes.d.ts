@@ -4195,6 +4195,7 @@ interface MultiDocumentsDefaultFragment { // fragment on MultiDocuments
   readonly collectionName: string,
   readonly fieldName: string,
   readonly index: number,
+  readonly tableOfContents: any /*{"definitions":[{}]}*/,
 }
 
 interface MultiDocumentEdit { // fragment on MultiDocuments
@@ -4205,6 +4206,8 @@ interface MultiDocumentEdit { // fragment on MultiDocuments
   readonly userId: string,
   readonly title: string,
   readonly subtitle: string | null,
+  readonly index: number,
+  readonly tableOfContents: any /*{"definitions":[{}]}*/,
   readonly contents: RevisionEdit|null,
 }
 

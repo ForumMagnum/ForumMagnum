@@ -301,7 +301,7 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
   }, [])
 
   useEffect(() => {
-    const postContent = document.getElementById('postContent');
+    const postContent = document.getElementById('postContent') ?? document.getElementsByClassName('content').item(0);
     if (!postContent) return;
     const newNormalizedSections = getSectionsWithOffsets(postContent, filteredSections);
 
@@ -340,6 +340,8 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
   );
   
   const renderedSections = normalizedSections.filter(row => !row.divider && row.anchor !== "comments");
+
+  console.log({ renderedSections });
 
   const rows = renderedSections.map((section, index) => {
     const scaleStyling = section.scale !== undefined ? { flex: section.scale } : undefined;

@@ -120,8 +120,8 @@ async function doArbitalImport(database: WholeArbitalDatabase, matchedUsers: Rec
       const title = liveRevision.title;
       const pageCreator = matchedUsers[pageInfo.createdBy] // ?? defaultUser;
       const slug = await slugIsUsed("Tags", pageInfo.alias)
-      ? await getUnusedSlugByCollectionName("Tags", slugify(title))
-      : pageInfo.alias;
+        ? await getUnusedSlugByCollectionName("Tags", slugify(title))
+        : pageInfo.alias;
 
       const modifiedSlugsByPageId = {...slugsByPageId, [pageId]: slug};
       const html = await arbitalMarkdownToHtml({database, markdown: liveRevision.text, slugsByPageId: modifiedSlugsByPageId});
@@ -153,7 +153,7 @@ async function doArbitalImport(database: WholeArbitalDatabase, matchedUsers: Rec
         if (!lensPageInfo || lensPageInfo.isDeleted) {
           continue;
         }
-        const lensLiveRevision = liveRevisionsByPageId[lens.pageId];
+        const lensLiveRevision = liveRevisionsByPageId[lens.lensId];
         const lensHtml = await arbitalMarkdownToHtml({database, markdown: lensLiveRevision.text, slugsByPageId});
 
         await createMutator({

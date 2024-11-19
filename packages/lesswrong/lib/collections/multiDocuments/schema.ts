@@ -30,6 +30,11 @@ const schema: SchemaType<"MultiDocuments"> = {
     type: Number,
     canRead: ['guests'],
   },
+  tableOfContents: {
+    // Implemented in multiDocumentResolvers.ts
+    type: Object,
+    canRead: ['guests'],
+  },
 };
 
 export default schema;

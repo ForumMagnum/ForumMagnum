@@ -9,6 +9,8 @@ registerFragment(`
     userId
     title
     subtitle
+    index
+    tableOfContents
     contents {
       ...RevisionEdit
     }
