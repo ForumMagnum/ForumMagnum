@@ -536,6 +536,8 @@ importComponent("ShortformListItem", () => require('../components/shortform/Shor
 importComponent("ProfileShortform", () => require('../components/shortform/ProfileShortform'));
 
 importComponent("VoteArrowIcon", () => require('../components/votes/VoteArrowIcon'));
+importComponent("VoteArrowIconSolid", () => require('../components/votes/VoteArrowIconSolid'));
+importComponent("VoteArrowIconHollow", () => require('../components/votes/VoteArrowIconHollow'));
 importComponent("VoteAgreementIcon", () => require('../components/votes/VoteAgreementIcon'));
 importComponent("VoteButton", () => require('../components/votes/VoteButton'));
 importComponent("OverallVoteButton", () => require('../components/votes/OverallVoteButton'));
@@ -775,6 +777,12 @@ importComponent("ForumEventPostPageBanner", () => require('../components/forumEv
 importComponent("ForumEventPostPagePollSection", () => require('../components/forumEvents/ForumEventPostPagePollSection'));
 importComponent("ForumEventPoll", () => require('../components/forumEvents/ForumEventPoll'));
 importComponent("ForumEventResultIcon", () => require('../components/forumEvents/ForumEventResultIcon'));
+importComponent("GivingSeason2024Banner", () => require('../components/forumEvents/GivingSeason2024Banner'));
+importComponent("DonationElectionLeaderboard", () => require('../components/forumEvents/DonationElectionLeaderboard'));
+importComponent("VotingPortalPage", () => require('../components/forumEvents/votingPortal/VotingPortalPage'));
+importComponent("AdminElectionCandidates", () => require('../components/forumEvents/votingPortal/AdminElectionCandidates'));
+importComponent("EditElectionCandidate", () => require('../components/forumEvents/votingPortal/EditElectionCandidate'));
+importComponent("DeleteElectionCandidateDialog", () => require('../components/forumEvents/votingPortal/DeleteElectionCandidateDialog'));
 
 importComponent("UserReviewMetadata", () => require('../components/sunshineDashboard/ModeratorUserInfo/UserReviewMetadata'));
 importComponent("UserReviewStatus", () => require('../components/sunshineDashboard/ModeratorUserInfo/UserReviewStatus'));
@@ -1215,3 +1223,13 @@ importComponent("LanguageModelLauncherButton", () => require('../components/lang
 importComponent("AutocompleteModelSettings", () => require('../components/languageModels/AutocompleteModelSettings'));
 importComponent("LlmChatWrapper", () => require('../components/languageModels/LlmChatWrapper'));
 importComponent("LlmConversationsViewingPage", () => require('../components/languageModels/LlmConversationsViewingPage'));
+
+importComponent("JargonTooltip", () => require('../components/jargon/JargonTooltip'));
+importComponent("GlossarySidebar", () => require('../components/jargon/GlossarySidebar'));
+importComponent("GlossaryEditForm", () => require('../components/jargon/GlossaryEditForm'));
+importComponent("JargonEditorRow", () => require('../components/jargon/JargonEditorRow'));
+importComponent("GlossaryEditorPage", () => require('../components/jargon/GlossaryEditorPage'));
+importComponent("GlossaryEditFormWrapper", () => require('../components/jargon/GlossaryEditFormWrapper'));
+importComponent("GlossaryEditFormNewPost", () => require('../components/jargon/GlossaryEditFormNewPost'));
+importComponent("EditUserJargonSettings", () => require('../components/jargon/EditUserJargonSettings'));
+importComponent("PostsWithApprovedJargonPage", () => require('../components/jargon/PostsWithApprovedJargonPage'));

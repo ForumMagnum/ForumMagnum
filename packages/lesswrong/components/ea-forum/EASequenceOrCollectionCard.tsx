@@ -3,6 +3,7 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
 import { Link } from "../../lib/reactRouterWrapper";
 import classNames from "classnames";
+import { UseHoverEventHandlers } from "../common/withHover";
 
 const SEQUENCE_CARD_IMAGE_HEIGHT = 162;
 const Z_IMAGE = 1;
@@ -95,10 +96,7 @@ const EASequenceOrCollectionCard = ({
   readCount: number,
   imageId: string,
   href: string,
-  eventHandlers: {
-    onMouseOver: (event: MouseEvent<HTMLDivElement>) => void,
-    onMouseLeave: () => void,
-  },
+  eventHandlers: UseHoverEventHandlers,
   className?: string,
   classes: ClassesType,
 }) => {

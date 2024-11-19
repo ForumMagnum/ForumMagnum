@@ -368,10 +368,10 @@ const ctaButtonStyles = (theme: ThemeType): JssStyles => ({
       backgroundColor: theme.palette.primary.dark,
       color: theme.palette.text.alwaysWhite, // Override default <a> style
     },
-    '&:visited': {
+    '&:visited, &.visited': {
       color: theme.palette.text.alwaysWhite, // Override default <a> style
     },
-    '&:visited:hover': {
+    '&:visited:hover, &.visited:hover': {
       color: theme.palette.text.alwaysWhite, // Override default <a> style
     },
     '&:disabled': {
@@ -470,10 +470,10 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
       textDecoration: "none"
     }
   },
-  '& a:visited': {
+  '& a:visited, & a.visited': {
     color: theme.palette.link.visited
   },
-  '& a:visited:hover, & a:visited:active': isFriendlyUI ? {
+  '& a:visited:hover, & a.visited:hover, & a:visited:active, & a.visited:active': isFriendlyUI ? {
     color: theme.palette.link.visitedHover,
   } : {},
   '& table': {

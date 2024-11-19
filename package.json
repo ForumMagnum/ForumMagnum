@@ -73,7 +73,7 @@
     "brigader-check": "ts-node -r tsconfig-paths/register scripts/brigaderCheck.ts"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.26.0",
+    "@anthropic-ai/sdk": "^0.30.1",
     "@apollo/client": "^3.2.0",
     "@aws-sdk/client-cloudfront": "^3.577.0",
     "@babel/runtime": "^7.12.1",
@@ -85,6 +85,7 @@
     "@googleapis/drive": "^8.7.0",
     "@googleapis/oauth2": "^1.0.5",
     "@googlemaps/google-maps-services-js": "^3.1.13",
+    "@hello-pangea/dnd": "^17.0.0",
     "@heroicons/react": "^2.0.16",
     "@material-ui/core": "3.1.2",
     "@material-ui/icons": "^3.0.0",
@@ -308,7 +309,8 @@
     "universal-cookie-express": "^2.2.0",
     "url": "^0.11.0",
     "uuid": "^7.0.0",
-    "zod": "^3.22.3"
+    "zod": "^3.22.3",
+    "zod-to-json-schema": "^3.23.5"
   },
   "devDependencies": {
     "@babel/core": "7.12.3",

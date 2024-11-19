@@ -464,6 +464,7 @@ interface DbForumEvent extends DbObject {
   postId: string | null
   bannerImageId: string | null
   includesPoll: boolean
+  customComponent: string | null
   publicData: any /*{"definitions":[{"blackbox":true}]}*/
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -520,6 +521,21 @@ interface DbImages extends DbObject {
   cdnHostedUrl: string
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
+type JargonTermsCollection = CollectionBase<"JargonTerms">;
+
+interface DbJargonTerm extends DbObject {
+  __collectionName?: "JargonTerms"
+  postId: string
+  term: string
+  approved: boolean
+  deleted: boolean
+  altTerms: Array<string>
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  contents: EditableFieldContents | null
+  contents_latest: string | null
 }
 
 type LWEventsCollection = CollectionBase<"LWEvents">;
@@ -1003,6 +1019,7 @@ interface DbPost extends DbObject {
   reviewForAlignmentUserId: string | null
   agentFoundationsId: string | null
   swrCachingEnabled: boolean
+  generateDraftJargon: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   contents_latest: string | null
@@ -1564,6 +1581,9 @@ interface DbUser extends DbObject {
   hidePostsRecommendations: boolean
   petrovOptOut: boolean
   optedOutOfSurveys: boolean | null
+  postGlossariesPinned: boolean
+  generateJargonForDrafts: boolean
+  generateJargonForPublishedPosts: boolean
   acceptedTos: boolean
   hideNavigationSidebar: boolean | null
   currentFrontpageFilter: string | null
@@ -1900,6 +1920,8 @@ interface DbUser extends DbObject {
   hideSunshineSidebar: boolean
   inactiveSurveyEmailSentAt: Date | null
   userSurveyEmailSentAt: Date | null
+  givingSeason2024DonatedFlair: boolean
+  givingSeason2024VotedFlair: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   moderationGuidelines: EditableFieldContents | null
@@ -1996,6 +2018,7 @@ interface CollectionsByName {
   GardenCodes: GardenCodesCollection
   GoogleServiceAccountSessions: GoogleServiceAccountSessionsCollection
   Images: ImagesCollection
+  JargonTerms: JargonTermsCollection
   LWEvents: LWEventsCollection
   LegacyData: LegacyDataCollection
   LlmConversations: LlmConversationsCollection
@@ -2082,6 +2105,7 @@ interface ObjectsByCollectionName {
   GardenCodes: DbGardenCode
   GoogleServiceAccountSessions: DbGoogleServiceAccountSession
   Images: DbImages
+  JargonTerms: DbJargonTerm
   LWEvents: DbLWEvent
   LegacyData: DbLegacyData
   LlmConversations: DbLlmConversation
@@ -2168,6 +2192,7 @@ interface ObjectsByTypeName {
   GardenCode: DbGardenCode
   GoogleServiceAccountSession: DbGoogleServiceAccountSession
   Images: DbImages
+  JargonTerm: DbJargonTerm
   LWEvent: DbLWEvent
   LegacyData: DbLegacyData
   LlmConversation: DbLlmConversation

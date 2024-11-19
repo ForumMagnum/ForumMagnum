@@ -156,6 +156,7 @@ import './server/callbacks/reviewVoteCallbacks';
 import './server/callbacks/tagFlagCallbacks';
 import './server/callbacks/moderatorActionCallbacks';
 import './server/callbacks/digestCallbacks';
+import './server/callbacks/jargonTermCallbacks';
 
 
 import './server/resolvers/alignmentForumMutations';
@@ -164,10 +165,12 @@ import './server/callbacks/alignment-forum/alignmentCommentCallbacks';
 import './server/callbacks/alignment-forum/alignmentPostCallbacks';
 import './server/callbacks/alignment-forum/alignmentUserCallbacks';
 import './server/callbacks/votingCallbacks';
+import './server/callbacks/electionCandidateCallbacks';
 
 import './server/resolvers/diffResolvers';
 import './server/resolvers/revisionResolvers';
 import './server/resolvers/postResolvers';
+import './server/resolvers/spotlightResolvers';
 import './server/resolvers/userResolvers';
 import './server/resolvers/wrappedResolvers';
 import './server/resolvers/karmaChangeResolvers';
@@ -194,6 +197,7 @@ import './server/resolvers/defaultResolvers';
 import './server/resolvers/forumEventResolvers';
 import './server/resolvers/anthropicResolvers';
 import './server/resolvers/llmConversationsResolvers';
+import './server/resolvers/jargonResolvers/jargonTermResolvers';
 
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';
@@ -230,3 +234,5 @@ import './server/conversationUnreadMessages';
 import './server/userLoginTokens';
 
 import './server/migrations/meta/utils';
+
+import './server/givingSeason/resolvers'

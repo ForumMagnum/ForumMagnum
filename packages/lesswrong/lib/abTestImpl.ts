@@ -169,7 +169,7 @@ export function getAllUserABTestGroups(abKeyInfo: ABKeyInfo): CompleteTestGroupA
 }
 
 // Given a weighted set of strings and a seed, return a random element of that set.
-function weightedRandomPick<T extends string>(options: Record<T,number>, seed: string): T {
+export function weightedRandomPick<T extends string>(options: Record<T,number>, seed: string): T {
   const weights = _.values(options);
   if (weights.length === 0)
     throw new Error("Random pick from empty set");

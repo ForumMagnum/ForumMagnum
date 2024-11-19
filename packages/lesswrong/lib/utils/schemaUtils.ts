@@ -413,13 +413,15 @@ export function googleLocationToMongoLocation(gmaps: AnyBecauseTodo) {
 export function schemaDefaultValue<N extends CollectionNameString>(
   defaultValue: any,
 ): Partial<CollectionFieldSpecification<N>> {
+  const isForumSpecific = defaultValue instanceof DeferredForumSelect;
+
   // Used for both onCreate and onUpdate
   const fillIfMissing = ({ newDocument, fieldName }: {
     newDocument: ObjectsByCollectionName[N];
     fieldName: string;
   }) => {
     if (newDocument[fieldName as keyof ObjectsByCollectionName[N]] === undefined) {
-      return defaultValue instanceof DeferredForumSelect ? defaultValue.get() : defaultValue;
+      return isForumSpecific ? defaultValue.get() : defaultValue;
     } else {
       return undefined;
     }
@@ -438,7 +440,7 @@ export function schemaDefaultValue<N extends CollectionNameString>(
   };
 
   return {
-    defaultValue: defaultValue,
+    defaultValue: isForumSpecific ? defaultValue.getDefault() : defaultValue,
     onCreate: fillIfMissing,
     onUpdate: throwIfSetToNull,
     canAutofillDefault: true,

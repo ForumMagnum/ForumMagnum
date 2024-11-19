@@ -189,6 +189,8 @@ declare global {
         [5]: ColorString,
         [6]: ColorString,
       },
+
+      jargonTerm: ColorString,
     },
     linkHover: {
       dim: ColorString,
@@ -430,10 +432,6 @@ declare global {
       onboardingBackground: ColorString,
       onboardingBackgroundHover: ColorString,
       onboardingBackgroundSelected: ColorString,
-      eventLightGreen: ColorString,
-      eventDarkGreen: ColorString,
-      eventLightBlue: ColorString,
-      eventDarkBlue: ColorString,
     },
     tab: {
       inactive: {
@@ -490,6 +488,7 @@ declare global {
       transparent: ColorString,
       imageOverlay: ColorString,
       digestAdBannerInput: ColorString,
+      glossaryBackground: ColorString,
       sidenoteBackground: ColorString,
     },
     header: {
@@ -549,6 +548,16 @@ declare global {
       panelBackground: ColorString,
       panelBackgroundDark: ColorString,
       postScoreArrow: ColorString,
+    },
+    givingSeason: {
+      primary: ColorString,
+      electionFundBackground: ColorString,
+      electionFundBackgroundHeavy: ColorString,
+      portalPrimary: ColorString,
+      candidateBorder: ColorString,
+      candidateBackground: ColorString,
+      candidateShadow: ColorString,
+      candidateOrder: ColorString,
     },
     namesAttachedReactions: {
       selectedAnti: ColorString,

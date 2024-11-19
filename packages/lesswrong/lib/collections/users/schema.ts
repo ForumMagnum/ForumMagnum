@@ -15,7 +15,7 @@ import { userThemeSettings, defaultThemeOptions } from "../../../themes/themeNam
 import { postsLayouts } from '../posts/dropdownOptions';
 import type { ForumIconName } from '../../../components/common/ForumIcon';
 import { getCommentViewOptions } from '../../commentViewOptions';
-import { allowSubscribeToSequencePosts, allowSubscribeToUserComments, dialoguesEnabled, hasAccountDeletionFlow, hasPostRecommendations, hasSurveys } from '../../betas';
+import { allowSubscribeToSequencePosts, allowSubscribeToUserComments, dialoguesEnabled, hasAccountDeletionFlow, hasPostRecommendations, hasSurveys, userCanViewJargonTerms } from '../../betas';
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import { randomId } from '../../random';
 import { getUserABTestKey } from '../../abTestImpl';
@@ -916,6 +916,39 @@ const schema: SchemaType<"Users"> = {
     group: formGroups.siteCustomizations,
     label: "Opt out of user surveys",
     order: 97,
+  },
+
+  postGlossariesPinned: {
+    type: Boolean,
+    optional: true,
+    hidden: (props) => userCanViewJargonTerms(props.currentUser),
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    group: formGroups.siteCustomizations,
+    label: "Pin glossaries on posts, and highlight all instances of each term",
+    order: 98,
+    ...schemaDefaultValue(false),
+  },
+
+  generateJargonForDrafts: {
+    type: Boolean,
+    optional: true,
+    hidden: true,
+    canRead: ['members'],
+    canUpdate: [userOwns],
+    group: formGroups.siteCustomizations,
+    ...schemaDefaultValue(false),
+  },
+
+  generateJargonForPublishedPosts: {
+    type: Boolean,
+    optional: true,
+    hidden: true,
+    group: formGroups.siteCustomizations,
+    canRead: ['members'],
+    canUpdate: [userOwns],
+    ...schemaDefaultValue(true),
   },
 
   acceptedTos: {
@@ -3082,6 +3115,30 @@ const schema: SchemaType<"Users"> = {
     canCreate: ['members'],
     canRead: ['admins'],
     canUpdate: ['admins'],
+  },
+
+  // Giving season 2024
+  givingSeason2024DonatedFlair: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    canCreate: ['admins'],
+    group: formGroups.adminOptions,
+    label: '"I Donated" flair for giving season 2024',
+    hidden: !isEAForum,
+    ...schemaDefaultValue(false),
+  },
+  givingSeason2024VotedFlair: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'admins'],
+    canCreate: ['members'],
+    group: formGroups.siteCustomizations,
+    label: '"I Voted" flair for 2024 giving season',
+    hidden: !isEAForum,
+    ...schemaDefaultValue(false),
   },
 };
 

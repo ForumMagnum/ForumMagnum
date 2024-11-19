@@ -33,6 +33,8 @@ import { googleVertexApi } from '../google-vertex/client';
 import { postsNewNotifications } from '../notificationCallbacks';
 import { getLatestContentsRevision } from '../../lib/collections/revisions/helpers';
 import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
+import { createNewJargonTerms } from '../resolvers/jargonResolvers/jargonTermMutations';
+import { userCanPassivelyGenerateJargonTerms } from '@/lib/betas';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -685,3 +687,40 @@ getCollectionHooks("Posts").editSync.add(async function removeFrontpageDate(
   }
   return modifier;
 });
+
+async function createNewJargonTermsCallback(post: DbPost, callbackProperties: CreateCallbackProperties<"Posts">) {
+  const { context: { currentUser, loaders, JargonTerms } } = callbackProperties;
+  const oldPost = 'oldDocument' in callbackProperties ? callbackProperties.oldDocument as DbPost : null;
+
+  if (!currentUser) return post;
+  if (currentUser._id !== post.userId) return post;
+  if (!post.contents_latest) return post;
+  if (post.draft && !post.generateDraftJargon) return post;
+  if (!post.draft && !currentUser.generateJargonForPublishedPosts) return post;
+  if (oldPost?.contents_latest === post.contents_latest) return post;
+
+  if (!userCanPassivelyGenerateJargonTerms(currentUser)) return post;
+  // TODO: refactor this so that createNewJargonTerms handles the case where we might be creating duplicate terms
+  const [existingJargon, newContents] = await Promise.all([
+    JargonTerms.find({postId: post._id}).fetch(),
+    loaders.Revisions.load(post.contents_latest)
+  ]);
+
+  if (!newContents?.html) {
+    return post;
+  }
+  
+  const { changeMetrics } = newContents;
+
+  // TODO: do we want different behavior for new vs updated posts?
+  if (changeMetrics.added > 1000 || !existingJargon.length) {
+    // TODO: do we want to exclude existing jargon terms from being added again for posts which had a large diff but already had some jargon terms?
+    void createNewJargonTerms({ postId: post._id, currentUser });
+  }
+
+  return post;
+}
+
+getCollectionHooks("Posts").createAfter.add(createNewJargonTermsCallback);
+
+getCollectionHooks("Posts").updateAfter.add(createNewJargonTermsCallback);

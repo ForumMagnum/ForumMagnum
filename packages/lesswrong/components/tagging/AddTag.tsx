@@ -96,7 +96,7 @@ const AddTag = ({onTagSelected, isVotingContext, classes}: {
        // @ts-ignore */}
       <SearchBox reset={null} focusShortcuts={[]}/>
       <Configure
-        filters="wikiOnly:false"
+        facetFilters={[["wikiOnly:false"]]}
         hitsPerPage={searchOpen ? 12 : 6}
       />
       <Hits hitComponent={({hit}) =>

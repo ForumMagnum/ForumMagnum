@@ -4,6 +4,7 @@ import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { getVotingSystemByName } from '@/lib/voting/votingSystems';
 import classNames from 'classnames';
 import type { AnnualReviewMarketInfo } from '@/lib/collections/posts/annualReviewMarkets';
+import { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -14,7 +15,11 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]: {
       top: 8,
       right: 8
-    }
+    },
+    
+    // Ensure this is above the side-items column, which extends to the top of
+    // the page.
+    zIndex: 100,
   },
   vote: {
     display: 'flex',
@@ -67,7 +72,7 @@ export const LWPostsPageHeaderTopRight = ({classes, post, toggleEmbeddedPlayer, 
           <FooterTagList post={post} hideScore useAltAddTagButton align="right" noBackground neverCoreStyling tagRight={false} annualReviewMarketInfo={annualReviewMarketInfo}/>
         </div>
       </AnalyticsContext>}
-      {!post.shortform && <div className={classNames(classes.audioToggle, higherContrast && classes.darkerOpacity)}>
+      {!post.shortform && postHasAudioPlayer(post) && <div className={classNames(classes.audioToggle, higherContrast && classes.darkerOpacity)}>
         <AudioToggle post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />
       </div>}
       {!post.shortform && <div className={classes.vote}>

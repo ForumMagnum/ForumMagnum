@@ -19,6 +19,7 @@ import { useNavigate } from '../../lib/reactRouterWrapper';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import DeferRender from '../common/DeferRender';
 import { useSingleWithPreload } from '@/lib/crud/useSingleWithPreload';
+import { userCanCreateAndEditJargonTerms } from '@/lib/betas';
 
 const editor: Editor | null = null
 export const EditorContext = React.createContext<[Editor | null, (e: Editor) => void]>([editor, _ => {}]);
@@ -129,6 +130,23 @@ const PostsEditForm = ({ documentId, version, classes }: {
     </div>
   }
 
+  const addFields: string[] = [];
+
+  /*
+  * addFields includes tagRelevance because the field permissions on
+  * the schema say the user can't edit this field, but the widget
+  * "edits" the tag list via indirect operations (upvoting/downvoting
+  * relevance scores).
+  */
+  if (!(document.isEvent || !!document.collabEditorDialogue)) {
+    addFields.push('tagRelevance');
+  }
+
+  // This is a resolver-only field, so we need to add it to the addFields array to get it to show up in the form
+  if (userCanCreateAndEditJargonTerms(currentUser)) {
+    addFields.push('glossary');
+  }
+
   return (
     <DynamicTableOfContents title={document.title}>
       <div className={classes.postForm}>
@@ -184,13 +202,7 @@ const PostsEditForm = ({ documentId, version, classes }: {
               noSubmitOnCmdEnter
               repeatErrors
               
-              /*
-              * addFields includes tagRelevance because the field permissions on
-              * the schema say the user can't edit this field, but the widget
-              * "edits" the tag list via indirect operations (upvoting/downvoting
-              * relevance scores).
-              */
-              addFields={(document.isEvent || !!document.collabEditorDialogue) ? [] : ['tagRelevance']}
+              addFields={addFields}
 
               editFormFetchPolicy={editFormFetchPolicy}
             />

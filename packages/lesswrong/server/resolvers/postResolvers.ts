@@ -765,11 +765,40 @@ createPaginatedResolver({
 
       // 8 days ago
       const since = new Date(Date.now() - (8 * 24 * 60 * 60 * 1000));
-      // Slightly below the threshold we're aiming for to make it easier to queue up tweets
-      const threshold = twitterBotKarmaThresholdSetting.get() - 5;
+      const threshold = twitterBotKarmaThresholdSetting.get();
 
       const postIds = await repos.tweets.getUntweetedPostsCrossingKarmaThreshold({ since, threshold });
       return await Posts.find({ _id: { $in: postIds } }, { sort: { postedAt: -1 } }).fetch();
     },
   cacheMaxAgeMs: 0
+});
+
+addGraphQLSchema(`
+  type PostWithApprovedJargon {
+    post: Post!
+    jargonTerms: [JargonTerm!]
+  }
+`);
+
+interface PostWithApprovedJargon {
+  post: Partial<DbPost>;
+  jargonTerms: Partial<DbJargonTerm>[];
+}
+
+createPaginatedResolver({
+  name: "PostsWithApprovedJargon",
+  graphQLType: "PostWithApprovedJargon",
+  callback: async (context, limit): Promise<PostWithApprovedJargon[]> => {
+    const { repos, currentUser, JargonTerms } = context;
+    if (!userIsAdmin(currentUser)) {
+      throw new Error("You must be an admin to see posts with approved jargon");
+    }
+
+    const postsWithUnfilteredJargon = await repos.posts.getPostsWithApprovedJargon(limit);
+
+    return await Promise.all(postsWithUnfilteredJargon.map(async ({ jargonTerms, ...post }) => ({
+      post,
+      jargonTerms: await accessFilterMultiple(currentUser, JargonTerms, jargonTerms, context)
+    })));
+  }
 });

@@ -21,6 +21,7 @@ export interface OverallVoteButtonProps<T extends VoteableTypeClient> {
   orientation: "up"|"down"|"left"|"right",
   enabled: boolean,
   solidArrow?: boolean,
+  largeArrow?: boolean
 }
 
 const OverallVoteButton = <T extends VoteableTypeClient>({
@@ -29,6 +30,7 @@ const OverallVoteButton = <T extends VoteableTypeClient>({
   orientation = "up",
   enabled,
   solidArrow,
+  largeArrow,
 }: OverallVoteButtonProps<T>) => {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
@@ -68,6 +70,7 @@ const OverallVoteButton = <T extends VoteableTypeClient>({
     color={color}
     orientation={orientation}
     solidArrow={solidArrow}
+    largeArrow={largeArrow}
     enabled={enabled}
   />
 }

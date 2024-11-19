@@ -415,7 +415,14 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         p."lastCommentedAt",
         COALESCE(p."draft", FALSE) AS "draft",
         COALESCE(p."af", FALSE) AS "af",
-        fm_post_tag_ids(p."_id") AS "tags",
+        (SELECT JSONB_AGG(JSONB_BUILD_OBJECT(
+          '_id', t."_id",
+          'slug', t."slug",
+          'name', t."name"
+        )) FROM "Tags" t WHERE
+          t."_id" = ANY(fm_post_tag_ids(p."_id")) AND
+          t."deleted" IS NOT TRUE
+        ) AS "tags",
         CASE
           WHEN author."deleted" THEN NULL
           ELSE author."slug"
@@ -462,6 +469,20 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       SELECT COUNT(*) FROM "Posts"
     `);
     return count;
+  }
+
+  async getViewablePostsIdsWithTag(tagId: string): Promise<string[]> {
+    const results: {_id: string}[] = await this.getRawDb().any(`
+      SELECT "_id"
+      FROM "Posts"
+      WHERE
+        ("tagRelevance"->$1)::INT > 0
+        AND "baseScore" >= 5
+        AND "hideFromRecentDiscussions" IS NOT TRUE
+        AND "hideFromPopularComments" IS NOT TRUE
+        AND ${getViewablePostsSelector()}
+    `, [tagId]);
+    return results.map(({_id}) => _id);
   }
 
   async getUsersReadPostsOfTargetUser(userId: string, targetUserId: string, limit = 20): Promise<DbPost[]> {
@@ -918,6 +939,20 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     `, {
       postId
     });
+  }
+
+  async getPostsWithApprovedJargon(limit: number): Promise<Array<DbPost & { jargonTerms: DbJargonTerm[] }>> {
+    return this.getRawDb().any(`
+      SELECT DISTINCT p.*, JSONB_AGG(jt.*) AS "jargonTerms"
+      FROM "Posts" p
+      JOIN "JargonTerms" jt
+      ON p._id = jt."postId"
+      WHERE jt."approved" IS TRUE
+      AND ${getViewablePostsSelector('p')}
+      GROUP BY p._id
+      ORDER BY p."postedAt" DESC
+      LIMIT $1
+    `, [limit]);
   }
 }
 
