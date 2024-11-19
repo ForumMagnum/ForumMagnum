@@ -322,10 +322,53 @@ const TagPage = () => {
     limit: 1500,
     skip: !query.flagId
   })
+
+
+  const { tag: secondTabTag } = useTagBySlug("featured-arbital", "TagPageFragment")
+  const { tag: thirdTabTag } = useTagBySlug("history-arbital", "TagPageFragment")
+
+  console.log({ tag, secondTabTag, thirdTabTag })
+
+  const lensTabs = [{
+    _id: 'main-tab',
+    collectionName: 'Tags',
+    fieldName: 'description',
+    index: 0,
+    contents: tag?.description,
+    tableOfContents: tag?.tableOfContents,
+    parentDocumentId: tag?._id,
+    title: 'Main',
+    subtitle: null,
+    userId: tag?.userId
+  },
+  {
+    _id: secondTabTag?._id ?? 'featured-tab',
+    collectionName: 'Tags',
+    fieldName: 'description',
+    index: 1,
+    contents: secondTabTag?.description,
+    tableOfContents: secondTabTag?.tableOfContents,
+    parentDocumentId: secondTabTag?._id,
+    title: 'Featured',
+    // subtitle: 'Featured content from Arbital',
+    userId: secondTabTag?.userId
+  },
+  {
+    _id: thirdTabTag?._id ?? 'history-tab',
+    collectionName: 'Tags',
+    fieldName: 'description', 
+    index: 2,
+    contents: thirdTabTag?.description,
+    tableOfContents: thirdTabTag?.tableOfContents,
+    parentDocumentId: thirdTabTag?._id,
+    title: 'History',
+    // subtitle: 'Historical content from Arbital',
+    userId: thirdTabTag?.userId
+  }];
   
   useOnSearchHotkey(() => setTruncated(false));
 
-  const lensTabs = useTagLenses(tag);
+  // const lensTabs = useTagLenses(tag);
 
   const tagPositionInList = otherTagsWithNavigation?.findIndex(tagInList => tag?._id === tagInList._id);
   // We have to handle updates to the listPosition explicitly, since we have to deal with three cases
@@ -465,7 +508,7 @@ const TagPage = () => {
         tag={tag}
       />}
       {tag.sequence && <TagIntroSequence tag={tag} />}
-      {!tag.wikiOnly && <>
+      {/* {!tag.wikiOnly && <>
         <AnalyticsContext pageSectionContext="tagsSection">
           <PostsListHeading tag={tag} query={query} classes={classes} />
           <PostsList2
@@ -493,7 +536,7 @@ const TagPage = () => {
             />
           </AnalyticsContext>
         </DeferRender>
-      </>}
+      </>} */}
     </div>
   );
 
@@ -560,7 +603,7 @@ const TagPage = () => {
         <Typography variant="display3" className={classes.title}>
           {tag.deleted ? "[Deleted] " : ""}{tag.name}
         </Typography>
-        <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classNames(classes.editMenu, classes.mobileButtonRow)} />
+        {/* <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classNames(classes.editMenu, classes.mobileButtonRow)} /> */}
         {!tag.wikiOnly && !editing && userHasNewTagSubscriptions(currentUser) &&
           <SubscribeButton
             tag={tag}
@@ -571,7 +614,7 @@ const TagPage = () => {
           />
         }
       </div>
-      <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classNames(classes.editMenu, classes.nonMobileButtonRow)} />
+      {/* <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classNames(classes.editMenu, classes.nonMobileButtonRow)} /> */}
     </div>
   );
 
