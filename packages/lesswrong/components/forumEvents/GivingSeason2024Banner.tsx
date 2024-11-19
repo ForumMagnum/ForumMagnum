@@ -480,16 +480,6 @@ const styles = (theme: ThemeType) => ({
       marginBottom: 16
     },
   },
-  noMobile: {
-    [theme.breakpoints.down("sm")]: {
-      display: "none",
-    },
-  },
-  onlyMobile: {
-    [theme.breakpoints.up("md")]: {
-      display: "none",
-    },
-  },
 });
 
 const scrollIntoViewHorizontally = (
