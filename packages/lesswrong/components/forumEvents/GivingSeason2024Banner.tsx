@@ -330,6 +330,8 @@ const styles = (theme: ThemeType) => ({
     fontSize: 14,
     fontWeight: 600,
     transition: "background 0.3s ease",
+    whiteSpace: "wrap",
+    textAlign: "center",
   },
   buttonLarge: {
     padding: "12px 24px",
@@ -450,9 +452,10 @@ const styles = (theme: ThemeType) => ({
     textAlign: "left",
     padding: "0px 48px 0px 0px",
     borderRadius: theme.borderRadius.default,
-    maxWidth: 600,
+    width: 600,
+    maxWidth: "100%",
     margin: "0 auto 0 0",
-    flexBasis: "30%",
+    flexBasis: "35%",
     [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
       padding: 0,
       flex: 1
@@ -476,7 +479,7 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
       marginBottom: 16
     },
-  }
+  },
 });
 
 const scrollIntoViewHorizontally = (
@@ -739,7 +742,7 @@ const GivingSeason2024Banner = ({classes}: {
                 {name === currentEvent?.name && showRecentComments && (
                   <MixedTypeFeed
                     className={classes.recentComments}
-                    firstPageSize={3}
+                    firstPageSize={isDonationElection ? 5 : 3}
                     hideLoading
                     disableLoadMore
                     resolverName="GivingSeasonTagFeed"
