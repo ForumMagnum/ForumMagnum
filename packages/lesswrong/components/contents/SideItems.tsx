@@ -80,6 +80,7 @@ const SideItemsContainer = ({classes, children}: {
   const {renderCount, rerender} = useForceRerender();
   
   const addSideItem = useCallback((anchorEl: HTMLElement, options: SideItemOptions) => {
+    console.log("addSideItem", options)
     const container = document.createElement("div");
     container.setAttribute("class", classes.sideItem);
     state.current.sideItems = [...state.current.sideItems, {

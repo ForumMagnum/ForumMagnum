@@ -90,7 +90,6 @@ export const postFormSectionStyles = (theme: ThemeType) => ({
     display: 'none',
   },
   '& .EditorFormComponent-root': {
-    marginLeft: -16,
     marginTop: -8
   },
   '& .EditorFormComponent-postEditorHeight': {
@@ -151,7 +150,8 @@ export const ThinkWrapper = ({classes, children, document, sectionData, rightCol
     <MultiToCLayout
         segments={[
           {
-            toc: <ThinkSideColumn document={document} sectionData={sectionData} />,
+            // toc: <ThinkSideColumn document={document} sectionData={sectionData} />,
+            toc: null,
             centralColumn: <div className={classes.centralColumn}>{children}</div>,
             rightColumn: rightColumn
           }

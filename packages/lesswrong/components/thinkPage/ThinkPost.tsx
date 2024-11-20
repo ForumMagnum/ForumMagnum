@@ -11,12 +11,14 @@ import { usePostReadProgress } from '../posts/usePostReadProgress';
 import { useRecordPostView } from '../hooks/useRecordPostView';
 import { useDynamicTableOfContents } from '../hooks/useDynamicTableOfContents';
 import type { ContentItemBody, ContentReplacedSubstringComponentInfo } from '../common/ContentItemBody';
+import { SideItemVisibilityContextProvider } from '@/components/dropdowns/posts/SetSideItemVisibility';
 
 // Import necessary hooks and utilities
 import { jargonTermsToTextReplacements } from '@/components/jargon/JargonTooltip';
 import { useVote } from '@/components/votes/withVote';
 import { useDisplayGlossary } from '../posts/PostsPage/PostBody';
 import { getVotingSystemByName } from '@/lib/voting/votingSystems';
+import { PostsPageContext } from '../posts/PostsPage/PostsPageContext';
 
 const styles = (theme: ThemeType) => ({
   title: {
@@ -56,7 +58,7 @@ export const ThinkPost = ({classes, post, sequence}: {
   post: PostsPage,
   sequence?: SequencesPageWithChaptersFragment,
 }) => {
-  const { LWPostsPageHeader, ThinkWrapper, ContentStyles, ContentItemBody, Loading, InlineReactSelectionWrapper, PostsEditForm, SideItemsSidebar, Error404, GlossarySidebar } = Components;
+  const { LWPostsPageHeader, ThinkWrapper, ContentStyles, ContentItemBody, ForumIcon, InlineReactSelectionWrapper, PostsEditForm, SideItemsSidebar, Error404, GlossarySidebar, LWTooltip, SideItemsContainer } = Components;
 
   const { params: { postId }, query: { edit, key } } = useLocation();
   const [isEditing, setIsEditing] = useState(edit === 'true');
@@ -93,7 +95,6 @@ export const ThinkPost = ({classes, post, sequence}: {
     ? jargonTermsToTextReplacements(termsToHighlight)
     : [];
   const replacedSubstrings = [...highlights, ...glossaryItems];
-
   // Create the glossary sidebar
   const glossarySidebar = ('glossary' in post) && (
     <GlossarySidebar
@@ -106,40 +107,45 @@ export const ThinkPost = ({classes, post, sequence}: {
   );
 
   return (
-    <ThinkWrapper document={post} sectionData={sectionData} rightColumn={<SideItemsSidebar />}>
-      {post && (
-        <LWPostsPageHeader
-          post={post}
-          dialogueResponses={[]}
-          topRightExtras={
-            <div className={classes.editButton} onClick={handleEditClick}>
-              {isEditing ? 'Read' : 'Edit'}
-            </div>
-          }
-        />
-      )}
-      {post && (
-          <InlineReactSelectionWrapper
-            commentBodyRef={contentRef}
-            voteProps={voteProps}
-            styling="post"
-          >
-            {glossarySidebar}
-            <div className={classNames(isEditing && classes.hide, classes.postBody)}>
+    <SideItemsContainer>
+      <SideItemVisibilityContextProvider post={post}>
+        <ThinkWrapper document={post} sectionData={sectionData} rightColumn={<SideItemsSidebar />}>
+          {post && (
+            <LWPostsPageHeader
+              post={post}
+              dialogueResponses={[]}
+              topRightExtras={
+                <div className={classes.editButton} onClick={handleEditClick}>
+                  <LWTooltip title={isEditing ? "Read Mode" : "Edit Mode"}> 
+                    <ForumIcon style={{fontSize: 16}} icon={isEditing ? 'Eye' : 'Edit'} />
+                  </LWTooltip>
+                </div>
+              }
+            />
+          )}
+          {post && <InlineReactSelectionWrapper
+              commentBodyRef={contentRef}
+              voteProps={voteProps}
+              styling="post"
+            >
+              {glossarySidebar}
+              <div className={classNames(isEditing && classes.hide, classes.postBody)}>
                 <ContentStyles contentType={"post"}>
                   <ContentItemBody
                     dangerouslySetInnerHTML={{ __html: htmlWithAnchors }}
                     ref={contentRef}
                     replacedSubstrings={replacedSubstrings}
-                />
-              </ContentStyles>
-            </div>
-            <div className={classNames(!isEditing && classes.hide)}>
-              <PostsEditForm documentId={postId} showTableOfContents={false} fields={['contents']} />
-            </div>
-          </InlineReactSelectionWrapper>
-      )}
-    </ThinkWrapper>
+                  />
+                </ContentStyles>
+              </div>
+              <div className={classNames(classes.formContainer, !isEditing && classes.hide)}>
+                <PostsEditForm documentId={postId} showTableOfContents={false} fields={['contents']} />
+              </div>
+            </InlineReactSelectionWrapper>
+          }
+        </ThinkWrapper>
+    </SideItemVisibilityContextProvider>
+    </SideItemsContainer>
   );
 };
 

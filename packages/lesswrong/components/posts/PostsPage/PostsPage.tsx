@@ -967,7 +967,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     <RecombeeRecommendationsContextWrapper postId={post._id} recommId={recommId}>
     <Components.SideItemsContainer>
     <ImageProvider>
-    <SideItemVisibilityContextProvider post={fullPost}>
+    {/* <SideItemVisibilityContextProvider post={fullPost}> */}
     <div ref={readingProgressBarRef} className={classes.readingProgressBar}></div>
     {fullPost && showSplashPageHeader && !permalinkedCommentId && <PostsPageSplashHeader
       // We perform this seemingly redundant spread because `showSplashPageHeader` checks that `post.reviewWinner` exists,
@@ -1014,7 +1014,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
         hasTableOfContents={hasTableOfContents}
       />
     </AnalyticsInViewTracker>}
-    </SideItemVisibilityContextProvider>
+    {/* </SideItemVisibilityContextProvider> */}
     </ImageProvider>
     </Components.SideItemsContainer>
     </RecombeeRecommendationsContextWrapper>
