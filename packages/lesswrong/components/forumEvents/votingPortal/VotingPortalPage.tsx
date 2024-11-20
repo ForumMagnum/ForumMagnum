@@ -201,6 +201,8 @@ const styles = (theme: ThemeType) => ({
   candidateImage: {
     width: 44,
     height: 44,
+    minWidth: 44,
+    minHeight: 44,
     borderRadius: theme.borderRadius.small,
     backgroundColor: theme.palette.text.alwaysWhite,
     backgroundPosition: "center",
