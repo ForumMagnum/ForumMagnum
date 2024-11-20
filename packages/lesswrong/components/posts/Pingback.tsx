@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { KARMA_WIDTH } from './LWPostsItem';
+import { KARMA_WIDTH } from './LWPostsItemExports';
 
 const styles = (_theme: ThemeType): JssStyles => ({
   root: {

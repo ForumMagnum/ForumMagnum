@@ -3,6 +3,7 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useTagPreview } from "./useTag";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import classNames from "classnames";
+import { defineStyles, useStyles } from "../hooks/useStyles";
 
 type PreviewableTag =
   TagPreviewFragment |
@@ -52,7 +53,7 @@ const DefaultPreviewWrapper: TagsTooltipPreviewWrapper = ({children}) => (
   <>{children}</>
 );
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagsTooltip", (theme: ThemeType) => ({
   tooltip: isFriendlyUI
     ? {}
     : {
@@ -70,7 +71,7 @@ const styles = (theme: ThemeType) => ({
     paddingRight: 32,
     paddingBottom: 24,
   },
-});
+}));
 
 const TagsTooltip = ({
   tagRel,
@@ -84,7 +85,6 @@ const TagsTooltip = ({
   className,
   popperClassName,
   children,
-  classes,
   ...tagsTooltipProps
 }: TagsTooltipTag & {
   tagRel?: TagRelMinimumFragment
@@ -98,8 +98,8 @@ const TagsTooltip = ({
   className?: string,
   popperClassName?: string,
   children: ReactNode,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [everHovered, setEverHovered] = useState(false);
   const {tag, loading} = useTagsTooltipTag(
     tagsTooltipProps, hash,
@@ -143,8 +143,9 @@ const TagsTooltip = ({
 const TagsTooltipComponent = registerComponent(
   "TagsTooltip",
   TagsTooltip,
-  {styles},
 );
+
+export default TagsTooltipComponent;
 
 declare global {
   interface ComponentTypes {

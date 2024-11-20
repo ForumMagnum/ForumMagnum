@@ -14,11 +14,13 @@ import { MENU_WIDTH, DismissButton } from './PostsItemTrailingButtons';
 import DebateIcon from '@material-ui/icons/Forum';
 import { useHover } from '../common/withHover';
 import { highlightMarket } from '@/lib/collections/posts/annualReviewMarkets';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { SoftUpArrowIcon } from '../icons/softUpArrowIcon';
 
 
-export const KARMA_WIDTH = 32;
+const KARMA_WIDTH = 32;
 
-export const styles = (theme: ThemeType) => ({
+const styles = defineStyles("LWPostsItem", (theme: ThemeType) => ({
   row: {
     display: "flex",
     alignItems: "center",
@@ -344,11 +346,9 @@ export const styles = (theme: ThemeType) => ({
 
 const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
-export type PostsList2Props = PostsItemConfig & {
-  classes: ClassesType<typeof styles>,
-};
+type PostsList2Props = PostsItemConfig;
 
-const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
+const LWPostsItem = ({...props}: PostsList2Props) => {
   const {
     post,
     postLink,
@@ -395,6 +395,8 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
     className,
   } = usePostsItem(props);
 
+  const classes = useStyles(styles);
+
   const { hover, eventHandlers } = useHover();
 
   if (isRepeated) {
@@ -408,7 +410,6 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
     AnalyticsTracker, AddToCalendarButton, PostsItemReviewVote, ReviewPostButton,
     PostReadCheckbox, PostMostValuableCheckbox, PostsItemTrailingButtons,
   } = Components;
-
 
   const reviewCountsTooltip = `${post.nominationCount2019 || 0} nomination${(post.nominationCount2019 === 1) ? "" :"s"} / ${post.reviewCount2019 || 0} review${(post.nominationCount2019 === 1) ? "" :"s"}`
 
@@ -461,17 +462,17 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
                     captureOnMount={(eventData) => eventData.capturePostItemOnMount}
                     captureOnClick={false}
                 >
-                  <PostsTitle
-                    postLink={postLink}
-                    post={post}
+                    <PostsTitle
+                      postLink={postLink}
+                      post={post}
                     read={isRead && !showReadCheckbox} // readCheckbox and post-title read-status don't aesthetically match
                     sticky={sticky}
-                    showDraftTag={showDraftTag}
+                      showDraftTag={showDraftTag}
                     {...(showPersonalIcon ? {showPersonalIcon} : {})}
                     curatedIconLeft={curatedIconLeft}
-                    strikethroughTitle={strikethroughTitle}
-                    postItemHovered={hover}
-                  />
+                      strikethroughTitle={strikethroughTitle}
+                      postItemHovered={hover}
+                    />
                 </AnalyticsTracker>
               </span>
 
@@ -603,13 +604,15 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
 };
 
 const LWPostsItemComponent = registerComponent('LWPostsItem', LWPostsItem, {
-  styles,
-  stylePriority: 1,
+  // styles,
+  // stylePriority: 1,
   hocs: [withErrorBoundary],
   areEqual: {
     terms: "deep",
-  },
+  }
 });
+
+export default LWPostsItemComponent;
 
 declare global {
   interface ComponentTypes {

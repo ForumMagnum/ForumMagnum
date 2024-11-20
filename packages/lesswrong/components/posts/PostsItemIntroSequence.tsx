@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import { useRecordPostView } from '../hooks/useRecordPostView';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
-import { KARMA_WIDTH } from './LWPostsItem';
+import { KARMA_WIDTH } from './LWPostsItemExports';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
 const IMAGE_WIDTH = 292;

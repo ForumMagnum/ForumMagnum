@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
-import { styles } from './LWPostsItem';
+import { styles } from './LWPostsItemExports';
 
 const PostsListPlaceholder = ({count, classes}: {
   count: number,

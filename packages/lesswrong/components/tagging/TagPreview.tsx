@@ -9,8 +9,9 @@ import { getTagDescriptionHtml } from '../common/excerpts/TagExcerpt';
 import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import classNames from 'classnames';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = defineStyles("TagPreview", (theme: ThemeType) => ({
   root: {
     paddingTop: 8,
     paddingLeft: 16,
@@ -75,7 +76,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   footerMarginTop: {
     marginTop: 16,
   },
-});
+}));
 
 const TagPreview = ({
   tag,
@@ -84,7 +85,6 @@ const TagPreview = ({
   hideRelatedTags,
   postCount=6,
   autoApplied=false,
-  classes,
 }: {
   tag: TagPreviewFragment | TagSectionPreviewFragment,
   hash?: string,
@@ -92,8 +92,8 @@ const TagPreview = ({
   hideRelatedTags?: boolean,
   postCount?: number,
   autoApplied?: boolean,
-  classes: ClassesType,
 }) => {
+  const classes = useStyles(styles);
   const showPosts = postCount > 0 && !!tag?._id && !isFriendlyUI;
   const {results} = useMulti({
     skip: !showPosts,
@@ -213,7 +213,9 @@ const TagPreview = ({
   );
 }
 
-const TagPreviewComponent = registerComponent("TagPreview", TagPreview, {styles});
+const TagPreviewComponent = registerComponent("TagPreview", TagPreview);
+
+export default TagPreviewComponent;
 
 declare global {
   interface ComponentTypes {
