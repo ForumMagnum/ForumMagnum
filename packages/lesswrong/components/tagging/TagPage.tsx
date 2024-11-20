@@ -287,7 +287,7 @@ const TagPage = () => {
     PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection,
     TagPageButtonRow, ToCColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
     TagTableOfContents, TagVersionHistoryButton, ContentStyles, CommentsListCondensed,
-    MultiToCLayout, TableOfContents, WikiTagItem, WikiTagNestedList,
+    MultiToCLayout, TableOfContents, WikiTagNestedList,
   } = Components;
   const classes = useStyles(styles);
 

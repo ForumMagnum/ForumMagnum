@@ -1,4 +1,4 @@
-[
+export const arbitalPageData = [
   {
     "pageId": "1lz",
     "title": "Bayes' rule",

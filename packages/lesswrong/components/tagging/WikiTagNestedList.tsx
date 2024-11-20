@@ -1,7 +1,8 @@
 // TODO: Import component in components.ts
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import arbitalPageData from './ArbitalMockupData.json';
+import { arbitalPageData } from './ArbitalMockupData';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
 // Define the type for an arbital page
 interface ArbitalPage {
@@ -16,7 +17,7 @@ interface ArbitalPage {
 }
 
 // Extend the type to include children for tree nodes
-export interface ArbitalPageNode extends ArbitalPage {
+interface ArbitalPageNode extends ArbitalPage {
   children: ArbitalPageNode[];
 }
 
@@ -33,17 +34,15 @@ function buildTree(items: ArbitalPage[], parentId: string | null = null): Arbita
 }
 
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("WikiTagNestedList", (theme: ThemeType) => ({
   root: {
 
   }
-});
+}));
 
-export const WikiTagNestedList = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
-
+const WikiTagNestedList = () => {
   const { WikiTagItem } = Components;
+  const classes = useStyles(styles);
   const tree = buildTree(arbitalPageData);
 
   // let's make the root tree have three nodes: AI alignment (existing in data), Mathematics (existing in data), and "Other" (not existing in data)
@@ -67,10 +66,6 @@ export const WikiTagNestedList = ({classes}: {
 
   const actualTree = [...alignmentAndMathNodes, otherNode];
 
-
-
-  console.log("in WikiTagNestedList", tree);
-
   return (
     <div className={classes.root}>
       {actualTree.slice(0, 10).map(page => (
@@ -81,7 +76,9 @@ export const WikiTagNestedList = ({classes}: {
 
 }
 
-const WikiTagNestedListComponent = registerComponent('WikiTagNestedList', WikiTagNestedList, {styles});
+const WikiTagNestedListComponent = registerComponent('WikiTagNestedList', WikiTagNestedList);
+
+export default WikiTagNestedListComponent;
 
 declare global {
   interface ComponentTypes {

@@ -922,7 +922,8 @@ import '../components/tagging/TagDiscussionSection';
 import '../components/tagging/TagDiscussionButton';
 import '../components/tagging/AllPostsPageTagRevisionItem';
 import '../components/tagging/PostsTagsList';
-
+import '../components/tagging/WikiTagItem';
+import '../components/tagging/WikiTagNestedList';
 
 
 import '../components/tagging/TagsListItem';

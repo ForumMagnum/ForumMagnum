@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import classNames from 'classnames';
 import { Components, registerComponent   } from '../../lib/vulcan-lib';
 import { isFriendlyUI } from '@/themes/forumTheme';
-import { ArbitalPageNode } from './WikiTagNestedList';
+// import { ArbitalPageNode } from './WikiTagNestedList';
 import CommentIcon from '@material-ui/icons/ModeComment';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 // Import styles as needed
@@ -11,6 +11,23 @@ const KARMA_WIDTH = 50;
 const CARD_IMG_HEIGHT = 80;
 const CARD_IMG_WIDTH = 160;
 const SECTION_WIDTH = 768;
+
+// Define the type for an arbital page
+interface ArbitalPage {
+  pageId: string;
+  title: string;
+  oneLiner: string;
+  parentPageId: string | null;
+  relationship_type: string | null;
+  text_length: number;
+  authorName: string;
+  commentCount: number;
+}
+
+// Extend the type to include children for tree nodes
+interface ArbitalPageNode extends ArbitalPage {
+  children: ArbitalPageNode[];
+}
 
 const styles = defineStyles("WikiTagItem", (theme: ThemeType) => ({
 
@@ -141,10 +158,11 @@ const styles = defineStyles("WikiTagItem", (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    // background: theme.palette.grey[100],
     marginBottom: 4,
-    // boxShadow: theme.palette.boxShadow.default,
     boxShadow: "0 1px 5px rgba(0,0,0,.075)",
+    "&:hover .WikiTagItem-wordCount": {
+      opacity: 1,
+    },
   },
   titleAndOneLiner: {
     flexGrow: 1,
@@ -158,6 +176,12 @@ const styles = defineStyles("WikiTagItem", (theme: ThemeType) => ({
     gap: "8px",
     marginBottom: 3
   },
+  leftSideItems: {
+    display: "flex",
+    alignItems: "end",
+    gap: "8px",
+    overflow: "hidden",
+  },
   title: {
     fontWeight: 400,
     flexGrow: 1,
@@ -168,7 +192,7 @@ const styles = defineStyles("WikiTagItem", (theme: ThemeType) => ({
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
-    marginRight: 10,
+    // marginRight: 10,
     opacity: 0.95
   },
   rightSideItems: {
@@ -184,7 +208,10 @@ const styles = defineStyles("WikiTagItem", (theme: ThemeType) => ({
     fontSize: 11,
     minWidth: 10,
     display: "flex",
-    justifyContent: "flex-end",
+    justifyContent: "start",
+    opacity: 0,
+    transition: "opacity 0.2s ease",
+    color: theme.palette.grey[600],
   },
   wordCountSeparator: {
     fontSize: 11,
@@ -221,11 +248,11 @@ const styles = defineStyles("WikiTagItem", (theme: ThemeType) => ({
     color: theme.palette.grey[400],
   },  
   commentsIconSmall: {
-    width: 12,
+    width: 18,
     height: 18,
     fontSize: 9,
     fontWeight: 600,
-    top: 2.5,
+    top: 2,
     position: "relative",
     flexShrink: 0,
     marginRight: 4,
@@ -275,8 +302,9 @@ const styles = defineStyles("WikiTagItem", (theme: ThemeType) => ({
     pointerEvents: "none",
   },
   oneLinerInvisible: {
-    opacity: 0,
-    pointerEvents: "none",
+    display: 'none',
+    // opacity: 0,
+    // pointerEvents: "none",
   },
 }));
 
@@ -315,14 +343,14 @@ const WikiTagItem = ({ page, nestingLevel }: WikiTagItemProps) => {
   // }
 
   const oneLinerText = page.oneLiner || "filler text will be invisible"
-  console.log({title: page.title, oneLinerText, pageOneLiner: page.oneLiner});
 
-  const wordCountFormatted = `${page.text_length/6 >= 1000 ? `${(page.text_length/6/1000).toFixed(1)}k` : Math.round(page.text_length/6)}`;
+  const wordCountFormatted = `${(page.text_length/6/1000).toFixed(1)}k words`;
+  // `${page.text_length/6 >= 1000 ? `${(page.text_length/6/1000).toFixed(1)}k` : Math.round(page.text_length/6)}`;
 
   //random number between 0 and 3
   const randomNumber = Math.random() < 0.8 ? Math.floor(Math.random() * 2) : Math.floor(Math.random() * 2) + 2;
 
-  const authorList = `${page.authorName}${randomNumber > 0 ? `\u2009+\u2009${randomNumber}` : ""}`
+  const authorList = page.authorName // `${page.authorName}${randomNumber > 0 ? `\u2009+\u2009${randomNumber}` : ""}`
         
   const commentCountNode = !!(page.commentCount && page.commentCount > 0) && <div className={classes.commentsIconSmall}>
     <CommentIcon className={classes.commentCountIcon}/>
@@ -349,10 +377,13 @@ const WikiTagItem = ({ page, nestingLevel }: WikiTagItemProps) => {
         {/* Title and One-liner */}
         <div className={classes.titleAndOneLiner}>
           <div className={classes.titleRow}>
-            <div className={classes.title}>
-              <ArbitalPreview href={`https://www.arbital.com/p/${page.pageId}`}>
-                {page.title}
-              </ArbitalPreview>
+            <div className={classes.leftSideItems}>
+              <div className={classes.title}>
+                {/* <ArbitalPreview href={`https://www.arbital.com/p/${page.pageId}`}> */}
+                  {page.title}
+                {/* </ArbitalPreview> */}
+              </div>
+              <div className={classes.wordCount}>{wordCountFormatted}</div>
             </div>
             <div className={classes.rightSideItems}>
               {commentCountNode}
@@ -360,14 +391,12 @@ const WikiTagItem = ({ page, nestingLevel }: WikiTagItemProps) => {
                 <div className={classes.mainAuthor}>{authorList}</div>
               </LWTooltip>
               {/* <div className={classes.wordCountSeparator}>|</div> */}
-              <div className={classes.wordCount}>{wordCountFormatted}</div>
             </div>
           </div>
           <div className={classNames(classes.oneLiner, {[classes.oneLinerInvisible]: !page.oneLiner})}>
             {oneLinerText}
           </div>
         </div>
-
 
 
       </div>

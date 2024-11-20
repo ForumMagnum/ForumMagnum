@@ -905,8 +905,8 @@ importComponent("TagHistoryPage", () => require('../components/tagging/history/T
 importComponent("TagActivityFeed", () => require('../components/tagging/TagActivityFeed'));
 importComponent("TagProgressBar", () => require('../components/tagging/TagProgressBar'));
 importComponent("SingleLineTagUpdates", () => require('../components/tagging/SingleLineTagUpdates'));
-importComponent("WikiTagItem", () => require('../components/tagging/WikiTagItem'));
 importComponent("WikiTagNestedList", () => require('../components/tagging/WikiTagNestedList'));
+importComponent("WikiTagItem", () => require('../components/tagging/WikiTagItem'));
 // Subforums
 importComponent("TagPageRouter", () => require('../components/tagging/TagPageRouter'));
 importComponent("TagSubforumPage2", () => require('../components/tagging/subforums/TagSubforumPage2'));
