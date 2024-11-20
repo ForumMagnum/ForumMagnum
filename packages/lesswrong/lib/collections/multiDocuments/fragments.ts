@@ -8,7 +8,9 @@ registerFragment(`
     fieldName
     userId
     title
-    subtitle
+    tabTitle
+    tabSubtitle
+    preview
     index
     tableOfContents
     contents {

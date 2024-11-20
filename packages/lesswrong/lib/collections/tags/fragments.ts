@@ -64,6 +64,7 @@ registerFragment(`
       htmlHighlight
       plaintextDescription
       version
+      editedAt
     }
     canVoteOnRels
   }
@@ -106,6 +107,7 @@ registerFragment(`
       html
       htmlHighlight
       plaintextDescription
+      editedAt
       
       user {
         ...UsersMinimumInfo

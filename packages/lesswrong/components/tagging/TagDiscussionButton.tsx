@@ -25,8 +25,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   discussionCount: {
     [theme.breakpoints.down('sm')]: {
-      alignSelf: "flex-start" //appears to low when there's no label
+      alignSelf: "flex-start", //appears too low when there's no label
+      marginTop: -2,
     }
+  },
+  discussionCountWithoutLabel: {
+    alignSelf: "flex-start", //appears too low when there's no label
+    marginTop: -2,
   },
   hideOnMobile: {
     marginRight: 2,
@@ -63,6 +68,8 @@ const TagDiscussionButton = ({tag, text = "Discussion", hideLabel = false, hideL
 
   const hideLabelClass = hideLabel ? classes.hideLabel : undefined;
   const hideLabelOnMobileClass = hideLabelOnMobile ? classes.hideOnMobile : undefined;
+
+  const discussionCountClass = hideLabel ? classes.discussionCountWithoutLabel : classes.discussionCount;
   
   return <Link
     className={classes.discussionButton}
@@ -71,7 +78,7 @@ const TagDiscussionButton = ({tag, text = "Discussion", hideLabel = false, hideL
   >
     <CommentOutlinedIcon className={classes.discussionButtonIcon} />
     <span className={classNames(hideLabelClass, hideLabelOnMobileClass)}>{text}</span>
-    {!loading && !hideLabel && <span className={classes.discussionCount}>&nbsp;{`(${totalCount || 0})`}</span>}
+    {!loading && <span className={discussionCountClass}>&nbsp;{`(${totalCount || 0})`}</span>}
     <PopperCard open={hover} anchorEl={anchorEl} placement="bottom-start" >
       <TagDiscussion tag={tag}/>
     </PopperCard>
