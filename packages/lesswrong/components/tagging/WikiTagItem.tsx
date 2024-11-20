@@ -4,6 +4,7 @@ import { Components, registerComponent   } from '../../lib/vulcan-lib';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { ArbitalPageNode } from './WikiTagNestedList';
 import CommentIcon from '@material-ui/icons/ModeComment';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 // Import styles as needed
 
 const KARMA_WIDTH = 50;
@@ -11,7 +12,7 @@ const CARD_IMG_HEIGHT = 80;
 const CARD_IMG_WIDTH = 160;
 const SECTION_WIDTH = 768;
 
-export const styles = (theme: ThemeType) => ({
+const styles = defineStyles("WikiTagItem", (theme: ThemeType) => ({
 
   details: {
     flexGrow: 1,
@@ -277,7 +278,7 @@ export const styles = (theme: ThemeType) => ({
     opacity: 0,
     pointerEvents: "none",
   },
-});
+}));
 
 
 // const samplePage = {
@@ -293,11 +294,12 @@ export const styles = (theme: ThemeType) => ({
 interface WikiTagItemProps {
   page: ArbitalPageNode;
   nestingLevel: number;
-  classes: ClassesType<typeof styles>;
 }
 
 
-const WikiTagItem = ({ page, nestingLevel,classes }: WikiTagItemProps) => {
+const WikiTagItem = ({ page, nestingLevel }: WikiTagItemProps) => {
+  const classes = useStyles(styles);
+
   const [collapsed, setCollapsed] = useState(nestingLevel > 0);
 
   const { ForumIcon, ArbitalPreview, LWTooltip } = Components;
@@ -373,7 +375,7 @@ const WikiTagItem = ({ page, nestingLevel,classes }: WikiTagItemProps) => {
       {!collapsed && hasChildren && (<div className={classes.children}>
         <div>
           {page.children.slice(0, 5).map(childPage => (
-            <WikiTagItem key={childPage.pageId} page={childPage} nestingLevel={nestingLevel + 1} classes={classes} />
+            <WikiTagItem key={childPage.pageId} page={childPage} nestingLevel={nestingLevel + 1} />
           ))}
         </div>
         {page.children.length > 5 && <div className={classes.showMoreChildren}>
@@ -384,7 +386,9 @@ const WikiTagItem = ({ page, nestingLevel,classes }: WikiTagItemProps) => {
   );
 };
 
-const WikiTagItemComponent = registerComponent('WikiTagItem', WikiTagItem, {styles});
+const WikiTagItemComponent = registerComponent('WikiTagItem', WikiTagItem);
+
+export default WikiTagItemComponent;
 
 declare global {
   interface ComponentTypes {
