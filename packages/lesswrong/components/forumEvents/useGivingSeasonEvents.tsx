@@ -154,8 +154,9 @@ export const shouldShowLeaderboard = ({
 }) => {
   if (currentEvent?.name !== "Donation Election") return false;
 
-  const totalVotes = Object.values(voteCounts?.[DONATION_ELECTION_NUM_WINNERS] ?? {}).reduce((acc, count) => acc + count, 0);
-  return totalVotes >= DONATION_ELECTION_SHOW_LEADERBOARD_CUTOFF;
+  // const totalVotes = Object.values(voteCounts?.[DONATION_ELECTION_NUM_WINNERS] ?? {}).reduce((acc, count) => acc + count, 0);
+  // return totalVotes >= DONATION_ELECTION_SHOW_LEADERBOARD_CUTOFF;
+  return true;
 }
 
 export const GivingSeasonEventsProvider = ({children}: {children: ReactNode}) => {
