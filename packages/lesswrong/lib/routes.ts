@@ -361,11 +361,13 @@ if (taggingNameIsSet.get()) {
       subtitleComponentName: 'TagPageTitle',
       previewComponentName: 'TagHoverPreview',
       enableResourcePrefetch: tagRouteWillDefinitelyReturn200,
+      // background: "g",
     },
     {
       name: 'tagsSingleRedirectCustomName',
       path: '/tag/:slug',
       redirect: ({ params }) => `/${taggingNamePluralSetting.get()}/${params.slug}`,
+      background: "#fffeee"
     },
     {
       name: 'tagDiscussionCustomName',
@@ -374,7 +376,7 @@ if (taggingNameIsSet.get()) {
       titleComponentName: 'TagPageTitle',
       subtitleComponentName: 'TagPageTitle',
       previewComponentName: 'TagHoverPreview',
-      background: "white",
+      // background: "white",
       noIndex: true,
     },
     {

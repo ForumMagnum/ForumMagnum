@@ -58,6 +58,7 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     maxWidth: MAX_COLUMN_WIDTH,
     paddingLeft: 42,
     paddingRight: 42,
+    background: theme.palette.background.paper,
   },
   header: {
     paddingTop: 19,
@@ -286,7 +287,7 @@ const TagPage = () => {
     PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection,
     TagPageButtonRow, ToCColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
     TagTableOfContents, TagVersionHistoryButton, ContentStyles, CommentsListCondensed,
-    MultiToCLayout, TableOfContents,
+    MultiToCLayout, TableOfContents, WikiTagItem, WikiTagNestedList,
   } = Components;
   const classes = useStyles(styles);
 
@@ -474,6 +475,7 @@ const TagPage = () => {
         key={tag._id}
         tag={tag}
       />}
+      <WikiTagNestedList />
       {tag.sequence && <TagIntroSequence tag={tag} />}
       {!tag.wikiOnly && <>
         <AnalyticsContext pageSectionContext="tagsSection">

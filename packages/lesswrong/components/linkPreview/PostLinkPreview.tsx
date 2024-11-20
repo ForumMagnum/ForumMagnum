@@ -215,54 +215,54 @@ export const linkStyle = (theme: ThemeType) => (
   visitedLinksHaveFilledInCircle
     ? {
       link: {
-        '&:after': {
-          content: '""',
-          top: -7,
-          position: "relative",
-          marginLeft: 2,
-          marginRight: 0,
-          width: 4,
-          height: 4,
-          display: "inline-block",
+        // '&:after': {
+        //   content: '""',
+        //   top: -7,
+        //   position: "relative",
+        //   marginLeft: 2,
+        //   marginRight: 0,
+        //   width: 4,
+        //   height: 4,
+        //   display: "inline-block",
           
-          // The center of the link-circle is the page-background color, rather
-          // than transparent, because :visited cannot change background
-          // opacity. Technically, this means that if a link appears on a
-          // non-default background, the center of the circle is the wrong
-          // color. I'm able to detect this on even-numbered replies (which
-          // have a gray background) if I use a magnifier/color-picker, but
-          // can't detect it by eye, so this is probably fine.
-          background: theme.palette.background.default,
-          border: `1.2px solid ${theme.palette.link.color ?? theme.palette.primary.main}`,
-          borderRadius: "50%",
-        },
+        //   // The center of the link-circle is the page-background color, rather
+        //   // than transparent, because :visited cannot change background
+        //   // opacity. Technically, this means that if a link appears on a
+        //   // non-default background, the center of the circle is the wrong
+        //   // color. I'm able to detect this on even-numbered replies (which
+        //   // have a gray background) if I use a magnifier/color-picker, but
+        //   // can't detect it by eye, so this is probably fine.
+        //   background: theme.palette.background.default,
+        //   border: `1.2px solid ${theme.palette.link.color ?? theme.palette.primary.main}`,
+        //   borderRadius: "50%",
+        // },
 
-        // Visited styles can be applied for two reasons: based on the :visited
-        // selector (which is applied by the browser based on local browser
-        // history), or based on the .visited class (which is applied by link
-        // components for logged-in users based on the read-status of the
-        // destination, in the DB).
-        //
-        // `visited` is a string-classname rather than something that gets
-        // prefixed, because some broadly-applied styles in `stylePiping` also use
-        // it.
-        //
-        // Because of browser rules intended to prevent history-sniffing, the
-        // attributes that can appear in this block, if it's applied via the
-        // :visited selector rather than the .visited class, are highly
-        // restricted. In particular, the `background` attribute can change
-        // color, but it cannot change opacity.
-        "&:visited:after, &.visited:after": {
-          background: theme.palette.link.visited ?? theme.palette.primary.main,
-          border: `1.2px solid ${theme.palette.link.visited ?? theme.palette.primary.main}`,
-        },
+        // // Visited styles can be applied for two reasons: based on the :visited
+        // // selector (which is applied by the browser based on local browser
+        // // history), or based on the .visited class (which is applied by link
+        // // components for logged-in users based on the read-status of the
+        // // destination, in the DB).
+        // //
+        // // `visited` is a string-classname rather than something that gets
+        // // prefixed, because some broadly-applied styles in `stylePiping` also use
+        // // it.
+        // //
+        // // Because of browser rules intended to prevent history-sniffing, the
+        // // attributes that can appear in this block, if it's applied via the
+        // // :visited selector rather than the .visited class, are highly
+        // // restricted. In particular, the `background` attribute can change
+        // // color, but it cannot change opacity.
+        // "&:visited:after, &.visited:after": {
+        //   background: theme.palette.link.visited ?? theme.palette.primary.main,
+        //   border: `1.2px solid ${theme.palette.link.visited ?? theme.palette.primary.main}`,
+        // },
       }
     } : {
       link: {
-        '&:after': {
-          content: '"°"',
-          marginLeft: 1,
-        },
+        // '&:after': {
+        //   content: '"°"',
+        //   marginLeft: 1,
+        // },
       },
     }
 );
@@ -901,11 +901,15 @@ const ArbitalPreview = ({classes, href, id, children}: {
     skip: !arbitalSlug,
   });
 
+  console.log({href, arbitalSlug, loading});
+
   if (!arbitalSlug || loading) {
     return <Components.DefaultPreview href={href} id={id}>
       {children}
     </Components.DefaultPreview>
   }
+
+  // console.log({href, arbitalSlug, loading});
 
   return <AnalyticsTracker eventType="link" eventProps={{to: href}}>
     <span {...eventHandlers}>

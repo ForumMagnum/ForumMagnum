@@ -1,6 +1,7 @@
 import { blackBarTitle } from "../../lib/publicSettings";
 
 const sansSerifStack = [
+  'Roboto',
   'GreekFallback', // Ensures that greek letters render consistently
   'Calibri',
   'gill-sans-nova',
