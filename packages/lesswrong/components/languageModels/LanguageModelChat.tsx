@@ -26,7 +26,6 @@ import { useEditorCommands } from '../editor/EditorCommandsContext';
 
 const styles = (theme: ThemeType) => ({
   root: {
-    maxHeight: "calc(100vh - 190px)",
     overflowY: "scroll",
     background: theme.palette.background.pageActiveAreaBackground,
     borderRadius: 6,
@@ -516,20 +515,6 @@ const PostSuggestionsPromptInput = ({classes, prompt}: {classes: ClassesType<typ
   </div>
 }
 
-const ConversationsList = ({classes, children}: {classes: ClassesType<typeof styles>, children: React.ReactNode}) => {
-  const { ForumIcon, LWTooltip } = Components;
-  const [isListExpanded, setIsListExpanded] = useState(false);
-
-  return <div className={classes.convosListWrapper}>
-    <LWTooltip title={isListExpanded ? "Show Fewer Conversations" : "Show All Conversations"}>
-      <ForumIcon icon="ExpandMore" className={classNames(classes.icon, !isListExpanded && classes.collapsedIcon)} onClick={() => setIsListExpanded(!isListExpanded)} />
-    </LWTooltip>
-    <div className={classNames(classes.convoList, isListExpanded && classes.convoListExpanded)}>
-      {children}
-    </div>
-  </div>;
-}
-
 export const PostSuggestionPromptList = ({classes, children}: {classes: ClassesType<typeof styles>, children: React.ReactNode}) => {
   const { ForumIcon, LWTooltip } = Components;
   const [isListExpanded, setIsListExpanded] = useState(false);
@@ -658,26 +643,6 @@ export const ChatInterface = ({classes}: {
     archiveConversation(conversationId);
   };
 
-  const conversationSelect = <Select 
-    onChange={onSelect} 
-    value={currentConversation?._id ?? NEW_CONVERSATION_MENU_ITEM}
-    disableUnderline
-    className={classes.select}
-    MenuProps={{style: {zIndex: 10000000002}}} // TODO: figure out sensible z-index stuff
-    renderValue={(conversationId: string) => orderedConversations.find(c => c._id === conversationId)?.title ?? NEW_CONVERSATION_MENU_ITEM}
-    >
-      {
-        orderedConversations.map(({ title, _id }, index) => (
-          <MenuItem key={index} value={_id} className={classes.menuItem}>
-            {title ?? "...Title Pending..."}
-            <CloseIcon onClick={(ev) => deleteConversation(ev, _id)} className={classes.deleteConvoIcon} />
-          </MenuItem>
-      ))}
-      <MenuItem value={NEW_CONVERSATION_MENU_ITEM} className={classes.menuItem}>
-        New Conversation
-      </MenuItem>
-    </Select>;
-
   const ragModeSelect = <Select 
     onChange={(e) => setRagMode(e.target.value as RagModeType)}
     value={ragMode}
@@ -719,12 +684,14 @@ export const ChatInterface = ({classes}: {
     submitMessage({ query: message, ragMode, currentPostId, postContext });
   }, [autosaveEditorState, currentPostId, postContext, submitMessage, ragMode]);
 
+  const [expandConvosList, setExpandConvosList] = useState<boolean>(false);
+
   return <>
     <div className={classes.subRoot}>
       {messagesForDisplay}
       {currentConversationLoading && <Loading className={classes.loadingSpinner}/>}
       <LLMInputTextbox onSubmit={handleSubmit} classes={classes} />
-      <ConversationsList classes={classes}>
+      <div className={classes.convoList}>
         <LWTooltip title="New LLM Chat">
           <ForumIcon icon="Add" className={classes.icon} onClick={() => setCurrentConversation()} />
         </LWTooltip>
@@ -733,7 +700,10 @@ export const ChatInterface = ({classes}: {
             {title ?? "...Title Pending..."}
           </div>
         ))}
-      </ConversationsList>
+        {orderedConversations.length > 2 && <span onClick={() => setExpandConvosList(!expandConvosList)}>
+          {expandConvosList ? "Fewer" : "More"}
+        </span>}
+      </div>
       {!!getLlmFeedbackCommand && <PostSuggestionPromptList classes={classes}>
         <PostSuggestionsPromptInput classes={classes} prompt={rightBranchingPrompt} />
         <PostSuggestionsPromptInput classes={classes} prompt={danglingSentencesPrompt} />

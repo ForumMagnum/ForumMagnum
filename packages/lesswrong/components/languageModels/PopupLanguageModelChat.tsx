@@ -14,7 +14,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     background: "unset",
     width: 425,
-    height: "calc(100vh - 130px)",
     display: "flex",
     flexDirection: "column",
     justifyContent: "center",
@@ -82,7 +81,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   editor: {
     position: "relative",
-    boxShadow: `0px 0px 5px 0px ${theme.palette.grey[300]}`,
+    boxShadow: `0px 0px 5px 0px ${theme.palette.background.pageActiveAreaBackground}`,
     borderRadius: 6,
   },
 });

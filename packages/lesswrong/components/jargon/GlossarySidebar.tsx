@@ -181,7 +181,7 @@ const styles = (theme: ThemeType) => ({
 })
 
 const GlossarySidebar = ({post, showAllTerms, setShowAllTerms, approvedTermsCount, unapprovedTermsCount, classes}: {
-  post: PostsWithNavigationAndRevision | PostsWithNavigation,
+  post: PostsWithNavigationAndRevision | PostsWithNavigation | PostsPage,
   showAllTerms: boolean,
   setShowAllTerms: (e: React.MouseEvent, showAllTerms: boolean, source: string) => void,
   approvedTermsCount: number,

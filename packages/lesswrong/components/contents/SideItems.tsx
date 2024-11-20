@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import { useHover } from '@/components/common/withHover';
 import { registerComponent } from '@/lib/vulcan-lib';
 import { getOffsetChainTop } from '@/lib/utils/domUtil';
+import { RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES, RIGHT_COLUMN_WIDTH_XS, sidenotesHiddenBreakpoint } from '../posts/PostsPage/PostsPage';
 
 export type SideItemOptions = {
   format: "block"|"icon",
@@ -53,6 +54,13 @@ export const styles = (theme: ThemeType) => ({
   sidebar: {
     position: "relative",
     height: "100%",
+    width: RIGHT_COLUMN_WIDTH_WITH_SIDENOTES,
+    [sidenotesHiddenBreakpoint(theme)]: {
+      width: RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES,
+      [theme.breakpoints.down('xs')]: {
+        width: RIGHT_COLUMN_WIDTH_XS,
+      }
+    },    
   },
 });
 

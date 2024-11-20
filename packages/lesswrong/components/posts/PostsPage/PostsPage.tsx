@@ -374,24 +374,6 @@ export const styles = (theme: ThemeType) => ({
     textWrap: 'balance',
     fontWeight: '600'
   },
-  reserveSpaceForSidenotes: {
-    width: RIGHT_COLUMN_WIDTH_WITH_SIDENOTES,
-    [sidenotesHiddenBreakpoint(theme)]: {
-      width: RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES,
-      [theme.breakpoints.down('xs')]: {
-        width: RIGHT_COLUMN_WIDTH_XS,
-      },
-    },
-  },
-  reserveSpaceForIcons: {
-    width: 0,
-    [theme.breakpoints.up('xs')]: {
-      width: RIGHT_COLUMN_WIDTH_XS,
-      [theme.breakpoints.up('sm')]: {
-        width: RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES,
-      },
-    },
-  },
   subscribeToGroup: {
     padding: '8px 16px',
     ...theme.typography.body2,
@@ -822,7 +804,6 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     {welcomeBox}
     {showRecommendations && recommendationsPosition === "right" && fullPost && <PostSideRecommendations post={fullPost} />}
     {hasSidenotes && <>
-      <div className={classes.reserveSpaceForSidenotes}/>
       <Components.SideItemsSidebar/>
     </>}
   </>;
