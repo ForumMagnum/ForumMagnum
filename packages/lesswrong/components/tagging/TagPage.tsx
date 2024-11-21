@@ -404,6 +404,7 @@ function useTagLenses(tag: TagPageFragment | TagPageWithRevisionFragment | null)
   );
 
   const updateSelectedLens = useCallback((lensId: string) => {
+    console.log('updateSelectedLens', lensId);
     setSelectedLensId(lensId);
     const selectedLensSlug = availableLenses.find(lens => lens._id === lensId)?.slug;
     if (selectedLensSlug) {
@@ -476,6 +477,30 @@ const PostsListHeading: FC<{
     </div>
   );
 }
+
+// We need to pass through all of the props that Tab accepts in order to maintain the functionality of Tab switching/etc
+const LensTab = ({ key, value, label, lens, isSelected, ...tabProps }: {
+  key: string,
+  value: string,
+  label: React.ReactNode,
+  lens: TagLens,
+  isSelected: boolean,
+} & Omit<React.ComponentProps<typeof Tab>, 'key' | 'value' | 'label'>) => {
+  const classes = useStyles(styles);
+  return (
+    <div key={key} className={classes.lensTabContainer}>
+      {lens.tabTitle === 'Loose Intro' && <div className={classes.aboveLensTab}>Less Technical</div>}
+      <Tab
+        className={classNames(classes.lensTab, isSelected && classes.selectedLens, !isSelected && classes.nonSelectedLens)}
+        key={key}
+        value={value}
+        label={label}
+        classes={{ labelContainer: classes.tabLabelContainerOverride }}
+        {...tabProps}
+      ></Tab>
+    </div>
+  );
+};
 
 const TagPage = () => {
   const {
@@ -770,16 +795,7 @@ const TagPage = () => {
 
               const isSelected = selectedLens?._id === lens._id;
 
-              return <div key={lens._id} className={classes.lensTabContainer}>
-                {lens.tabTitle === 'Loose Intro' && <div className={classes.aboveLensTab}>Less Technical</div>}
-                <Tab
-                  className={classNames(classes.lensTab, isSelected && classes.selectedLens, !isSelected && classes.nonSelectedLens)}
-                  key={lens._id}
-                  value={lens._id}
-                  label={label}
-                  classes={{ labelContainer: classes.tabLabelContainerOverride }}
-                />
-              </div>
+              return <LensTab key={lens._id} value={lens._id} label={label} lens={lens} isSelected={isSelected} />;
             })}
           </Tabs>
         )
