@@ -30,7 +30,7 @@ Globals.importArbitalDb = async (mysqlConnectionString: string) => {
     //console.log("Matching Arbital users to LW users"); //eslint-disable-line no-console
     // const matchedUsers = await matchArbitalUsers(wholeDatabase);
     // const matchedUsers = Object.fromEntries(wholeDatabase.users.map(u => [u.id,null]))
-    const matchedUsers = await Users.findOne('nmk3nLpQE89dMRzzN').then(u => u ? { '2': u } : {});
+    const matchedUsers: Record<string, DbUser | null> = await Users.findOne('nmk3nLpQE89dMRzzN').then(u => u ? { '2': u } : { '2': null });
     
     console.log("Importing data into LW"); //eslint-disable-line no-console
     await doArbitalImport(wholeDatabase, matchedUsers, resolverContext);
@@ -153,6 +153,8 @@ async function doArbitalImport(database: WholeArbitalDatabase, matchedUsers: Rec
         if (!lensPageInfo || lensPageInfo.isDeleted) {
           continue;
         }
+
+        // const 
         const lensLiveRevision = liveRevisionsByPageId[lens.lensId];
         const lensHtml = await arbitalMarkdownToHtml({database, markdown: lensLiveRevision.text, slugsByPageId});
 
@@ -162,9 +164,11 @@ async function doArbitalImport(database: WholeArbitalDatabase, matchedUsers: Rec
             parentDocumentId: tag._id,
             collectionName: "Tags",
             fieldName: "description",
-            title: lens.lensName,
-            subtitle: lens.lensSubtitle,
-            userId: pageCreator._id,
+            title: lensLiveRevision.title,
+            preview: lensLiveRevision.clickbait,
+            tabTitle: lens.lensName,
+            tabSubtitle: lens.lensSubtitle,
+            userId: pageCreator?._id,
             index: lens.lensIndex,
             contents: {
               originalContents: {

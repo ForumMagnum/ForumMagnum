@@ -1245,7 +1245,9 @@ CREATE INDEX IF NOT EXISTS "idx_ModeratorActions_type_createdAt_endedAt" ON "Mod
 CREATE TABLE "MultiDocuments" (
   _id VARCHAR(27) PRIMARY KEY,
   "title" TEXT,
-  "subtitle" TEXT,
+  "preview" TEXT,
+  "tabTitle" TEXT,
+  "tabSubtitle" TEXT,
   "userId" TEXT,
   "parentDocumentId" TEXT,
   "collectionName" TEXT,

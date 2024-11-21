@@ -845,8 +845,8 @@ export async function loadArbitalDatabase(connection: mysql.Connection): Promise
         const query = `SELECT * FROM ${tableName} ORDER BY createdAt LIMIT ${limit} OFFSET ${offset}`;
         const [rows] = await connection.query(query);
         (database as any)[tableName].push(...(rows as any));
-        offset += rows.length;
-        loadMore = rows.length === limit;
+        offset += (rows as any).length;
+        loadMore = (rows as any).length === limit;
       }
     } else {
       const query = `SELECT * FROM ${tableName}`

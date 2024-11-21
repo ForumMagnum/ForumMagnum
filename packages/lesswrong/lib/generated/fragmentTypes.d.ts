@@ -549,7 +549,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly lesswrongWikiImportCompleted: boolean,
   readonly tableOfContents: any,
   readonly htmlWithContributorAnnotations: string,
-  readonly contributors: TagContributorsList,
+  readonly contributors: any /*TagContributorsList*/,
   readonly contributionStats: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly introSequenceId: string,
   readonly postsDefaultSortOrder: string,
@@ -2605,6 +2605,7 @@ interface TagFragment_description { // fragment on Revisions
   readonly htmlHighlight: string,
   readonly plaintextDescription: string,
   readonly version: string,
+  readonly editedAt: Date,
 }
 
 interface TagHistoryFragment extends TagBasicInfo { // fragment on Tags
@@ -2633,6 +2634,7 @@ interface TagRevisionFragment_description { // fragment on Revisions
   readonly html: string,
   readonly htmlHighlight: string,
   readonly plaintextDescription: string,
+  readonly editedAt: Date,
   readonly user: UsersMinimumInfo|null,
 }
 
@@ -4188,8 +4190,10 @@ interface LlmMessagesFragment { // fragment on LlmMessages
 }
 
 interface MultiDocumentsDefaultFragment { // fragment on MultiDocuments
-  readonly title: string,
-  readonly subtitle: string | null,
+  readonly title: string | null,
+  readonly preview: string | null,
+  readonly tabTitle: string,
+  readonly tabSubtitle: string | null,
   readonly userId: string,
   readonly parentDocumentId: string,
   readonly collectionName: string,
@@ -4204,8 +4208,10 @@ interface MultiDocumentEdit { // fragment on MultiDocuments
   readonly collectionName: string,
   readonly fieldName: string,
   readonly userId: string,
-  readonly title: string,
-  readonly subtitle: string | null,
+  readonly title: string | null,
+  readonly tabTitle: string,
+  readonly tabSubtitle: string | null,
+  readonly preview: string | null,
   readonly index: number,
   readonly tableOfContents: any /*{"definitions":[{}]}*/,
   readonly contents: RevisionEdit|null,

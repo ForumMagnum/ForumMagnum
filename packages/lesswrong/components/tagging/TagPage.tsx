@@ -1,6 +1,6 @@
 import { useApolloClient } from "@apollo/client";
 import classNames from 'classnames';
-import React, { FC, Fragment, useCallback, useEffect, useState } from 'react';
+import React, { FC, Fragment, useCallback, useEffect, useMemo, useState } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from "../../lib/betas";
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
@@ -8,7 +8,7 @@ import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from
 import { useMulti } from '../../lib/crud/withMulti';
 import { truncate } from '../../lib/editor/ellipsize';
 import { Link } from '../../lib/reactRouterWrapper';
-import { useLocation } from '../../lib/routeUtil';
+import { useLocation, useNavigate } from '../../lib/routeUtil';
 import { useOnSearchHotkey } from '../common/withGlobalKeydown';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
@@ -25,6 +25,8 @@ import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from "./TagPageExpo
 import { useStyles, defineStyles } from "../hooks/useStyles";
 import { HEADER_HEIGHT } from "../common/Header";
 import { MAX_COLUMN_WIDTH } from "../posts/PostsPage/PostsPage";
+import { ToCData } from "@/lib/tableOfContents";
+import qs from "qs";
 
 const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   rootGivenImage: {
@@ -103,9 +105,11 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
       marginTop: 16,
       marginBottom: 8,
     },
-    position: 'absolute',
-    top: -36,
-    right: 8,
+    [theme.breakpoints.up('sm')]: {
+      position: 'absolute',
+      top: -36,
+      right: 8,
+    },
   },
   wikiSection: {
     paddingTop: 5,
@@ -170,6 +174,10 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   lensTab: {
     minWidth: 'unset',
     borderWidth: 1,
+    [theme.breakpoints.down('sm')]: {
+      width: '100%',
+      alignSelf: 'center',
+    },
   },
   tabLabelContainerOverride: {
     paddingLeft: 16,
@@ -198,7 +206,7 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     fontSize: '1rem',
     fontWeight: 400,
     [theme.breakpoints.up('sm')]: {
-      minHeight: 19,
+      // minHeight: 19,
     },
   },
   selectedLens: {
@@ -229,29 +237,162 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   contributorRow: {
     ...theme.typography.body1,
     color: theme.palette.grey[600],
+    display: 'flex',
+    alignItems: 'end',
+  },
+  contributorNameWrapper: {
+    flex: 1,
   },
   contributorName: {
     fontWeight: 600,
-    // color: theme.palette.grey[900],
+    // flex: 1,
+  },
+  lastUpdated: {
+    ...theme.typography.body2,
+    color: theme.palette.grey[600],
+  },
+  requirementsAndAlternatives: {
+    display: 'flex',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: '4px',
+  },
+  relationshipPill: {
+    border: theme.palette.border.grey400,
+    borderRadius: theme.borderRadius.small,
+    padding: 8,
+    textWrapMode: 'nowrap',
+    width: 'max-content',
+  },
+  alternatives: {
+    marginLeft: 16,
+  },
+  alternativeArrowIcon: {
+    width: 16,
+    height: 16,
   },
   ...tagPageHeaderStyles(theme),
 }));
 
-function useTagLenses(tag: TagPageFragment | TagPageWithRevisionFragment | null) {
-  if (!tag) return [];
+interface TagLens {
+  _id: string;
+  collectionName: string;
+  fieldName: string;
+  index: number;
+  contents: TagFragment_description | TagRevisionFragment_description | RevisionDisplay | null;
+  tableOfContents: ToCData | null;
+  parentDocumentId: string;
+  title: string;
+  preview: string | null;
+  tabTitle: string;
+  tabSubtitle: string | null;
+  slug: string;
+  userId: string;
+}
 
-  return [{
-    _id: 'main-tab',
+const MAIN_TAB_ID = 'main-tab';
+
+function getDefaultLens(tag: TagPageFragment | TagPageWithRevisionFragment): TagLens {
+  return {
+    _id: MAIN_TAB_ID,
     collectionName: 'Tags',
     fieldName: 'description',
     index: 0,
     contents: tag.description,
     tableOfContents: tag.tableOfContents,
     parentDocumentId: tag._id,
-    title: 'Main',
-    subtitle: null,
+    title: tag.name,
+    preview: null,
+    tabTitle: 'Main',
+    tabSubtitle: null,
+    slug: 'main',
     userId: tag.userId
-  }, ...tag.lenses.map(lens => ({ ...lens, index: lens.index + 1 }))];
+  }
+}
+
+interface TagLensInfo {
+  selectedLens?: TagLens;
+  selectedLensId: string;
+  updateSelectedLens: (lensId: string) => void;
+  lenses: TagLens[];
+}
+
+function getImputedSlug(lens: MultiDocumentEdit) {
+  const slugComponents = lens.tabTitle.split(' ');
+
+  if (lens.tabSubtitle) {
+    slugComponents.push(...lens.tabSubtitle.split(' '));
+  }
+
+  return slugComponents.join('_').toLowerCase();
+}
+
+function useTagLenses(tag: TagPageFragment | TagPageWithRevisionFragment | null): TagLensInfo {
+  const { query, location } = useLocation();
+  const navigate = useNavigate();
+
+  const availableLenses = useMemo(() => {
+    if (!tag) return [];
+    return [getDefaultLens(tag), ...tag.lenses.map(lens => ({ ...lens, index: lens.index + 1, title: lens.title ?? tag.name, slug: getImputedSlug(lens) }))];
+  }, [tag]);
+
+  const querySelectedLens = useMemo(() =>
+    availableLenses.find(lens => lens.slug === query.lens),
+    [availableLenses, query.lens]
+  );
+
+  const [selectedLensId, setSelectedLensId] = useState<string>(querySelectedLens?._id ?? MAIN_TAB_ID);
+
+  const selectedLens = useMemo(() =>
+    availableLenses.find(lens => lens._id === selectedLensId),
+    [selectedLensId, availableLenses]
+  );
+
+  const updateSelectedLens = useCallback((lensId: string) => {
+    setSelectedLensId(lensId);
+    const selectedLensSlug = availableLenses.find(lens => lens._id === lensId)?.slug;
+    if (selectedLensSlug) {
+      const defaultLens = availableLenses.find(lens => lens._id === MAIN_TAB_ID);
+      const navigatingToDefaultLens = selectedLensSlug === defaultLens?.slug;
+      const newSearch = navigatingToDefaultLens
+       ? ''
+       : `?${qs.stringify({ lens: selectedLensSlug })}`;
+
+      navigate({ ...location, search: newSearch });
+    }
+  }, [availableLenses, location, navigate]);
+
+  useEffect(() => {
+    if (query.lens) {
+      if (querySelectedLens) {
+        setSelectedLensId(querySelectedLens._id);
+      } else {
+        // If the lens doesn't exist, reset the search query
+        navigate({ ...location, search: '' }, { replace: true });
+      }
+    }
+  }, [query.lens, availableLenses, navigate, location, querySelectedLens]);
+
+  return {
+    selectedLens,
+    selectedLensId,
+    updateSelectedLens,
+    lenses: availableLenses,
+  };
+}
+
+/**
+ * If we're on the main tab (or on a tag without any lenses), we want to display the tag name.
+ * Otherwise, we want to display the selected lens title.
+ */
+function useDisplayedTagTitle(tag: TagPageFragment | TagPageWithRevisionFragment | null, lenses: TagLens[], selectedLens?: TagLens) {
+  if (!tag) return '';
+
+  if (!selectedLens || selectedLens._id === 'main-tab' || lenses.length === 0) {
+    return tag.name;
+  }
+
+  return selectedLens.title;
 }
 
 const PostsListHeading: FC<{
@@ -287,7 +428,7 @@ const TagPage = () => {
     PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection,
     TagPageButtonRow, ToCColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
     TagTableOfContents, TagVersionHistoryButton, ContentStyles, CommentsListCondensed,
-    MultiToCLayout, TableOfContents, WikiTagNestedList,
+    MultiToCLayout, TableOfContents, FormatDate, LWTooltip, HoverPreviewLink, WikiTagNestedList
   } = Components;
   const classes = useStyles(styles);
 
@@ -317,7 +458,7 @@ const TagPage = () => {
   const [truncated, setTruncated] = useState(false)
   const [editing, setEditing] = useState(!!query.edit)
   const [hoveredContributorId, setHoveredContributorId] = useState<string|null>(null);
-  const [selectedLens, setSelectedLens] = useState<string>('main-tab');
+  // const [selectedLens, setSelectedLens] = useState<string>('main-tab');
   const { captureEvent } =  useTracking()
   const client = useApolloClient()
 
@@ -337,7 +478,8 @@ const TagPage = () => {
   
   useOnSearchHotkey(() => setTruncated(false));
 
-  const lensTabs = useTagLenses(tag);
+  const { selectedLensId, selectedLens, updateSelectedLens, lenses } = useTagLenses(tag);
+  const displayedTagTitle = useDisplayedTagTitle(tag, lenses, selectedLens);
 
   const tagPositionInList = otherTagsWithNavigation?.findIndex(tagInList => tag?._id === tagInList._id);
   // We have to handle updates to the listPosition explicitly, since we have to deal with three cases
@@ -394,8 +536,7 @@ const TagPage = () => {
     captureEvent("readMoreClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "wikiSection"})
   }
 
-  const selectedTab = lensTabs.find(lens => lens._id === selectedLens);
-  const htmlWithAnchors = selectedTab?.tableOfContents?.html ?? selectedTab?.contents?.html ?? "";
+  const htmlWithAnchors = selectedLens?.tableOfContents?.html ?? selectedLens?.contents?.html ?? "";
 
   let description = htmlWithAnchors;
   // EA Forum wants to truncate much less than LW
@@ -440,7 +581,7 @@ const TagPage = () => {
     : <></>;
 
   const tagBodySection = (
-    <div className={classNames(classes.wikiSection,classes.centralColumn)}>
+    <div id="tagContent" className={classNames(classes.wikiSection,classes.centralColumn)}>
       <AnalyticsContext pageSectionContext="wikiSection">
         { revision && tag.description && (tag.description as TagRevisionFragment_description).user && <div className={classes.pastRevisionNotice}>
           You are viewing revision {tag.description.version}, last edited by <UsersNameDisplay user={(tag.description as TagRevisionFragment_description).user}/>
@@ -520,7 +661,7 @@ const TagPage = () => {
 
   const fixedPositionTagToc = (
     <TableOfContents
-      sectionData={selectedTab?.tableOfContents}
+      sectionData={selectedLens?.tableOfContents ?? tag.tableOfContents}
       title={tag.name}
       onClickSection={expandAll}
       fixedPositionToc
@@ -542,20 +683,20 @@ const TagPage = () => {
             Next Tag ({nextTag.name})
         </Link></span>}
       </span>}
-      {lensTabs.length > 1
+      {lenses.length > 1
         ?  (
           <Tabs
-            value={selectedLens ?? lensTabs[0]._id}
-            onChange={(e, value) => setSelectedLens(value)}
+            value={selectedLens?._id}
+            onChange={(e, newLensId) => updateSelectedLens(newLensId)}
             classes={{ flexContainer: classes.lensTabsContainer, indicator: classes.hideMuiTabIndicator }}
           >
-            {lensTabs.map(lens => {
+            {lenses.map(lens => {
               const label = <div className={classes.lensLabel}>
-                <span className={classes.lensTitle}>{lens.title}</span>
-                <span className={classes.lensSubtitle}>{lens.subtitle}</span>
+                <span className={classes.lensTitle}>{lens.tabTitle}</span>
+                <span className={classes.lensSubtitle}>{lens.tabSubtitle}</span>
               </div>;
 
-              const isSelected = selectedLens === lens._id;
+              const isSelected = selectedLens?._id === lens._id;
 
               return <Tab
                 className={classNames(classes.lensTab, isSelected && classes.selectedLens, !isSelected && classes.nonSelectedLens)}
@@ -570,9 +711,9 @@ const TagPage = () => {
         : <></>}
       <div className={classes.titleRow}>
         <Typography variant="display3" className={classes.title}>
-          {tag.deleted ? "[Deleted] " : ""}{tag.name}
+          {tag.deleted ? "[Deleted] " : ""}{displayedTagTitle}
         </Typography>
-        <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classNames(classes.editMenu, classes.mobileButtonRow)} />
+        <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} hideLabels={true} className={classNames(classes.editMenu, classes.mobileButtonRow)} />
         {!tag.wikiOnly && !editing && userHasNewTagSubscriptions(currentUser) &&
           <SubscribeButton
             tag={tag}
@@ -583,11 +724,41 @@ const TagPage = () => {
           />
         }
       </div>
-      {/* <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classNames(classes.editMenu, classes.nonMobileButtonRow)} /> */}
       {tag.contributors && <div className={classes.contributorRow}>
-        <span>Written by </span>
-        {tag.contributors.contributors.map(({ user }: { user?: UsersMinimumInfo }) => <UsersNameDisplay key={user?._id} user={user} className={classes.contributorName} />)}
+        <div className={classes.contributorNameWrapper}>
+          <span>Written by </span>
+          {tag.contributors.contributors.map(({ user }: { user?: UsersMinimumInfo }) => <UsersNameDisplay key={user?._id} user={user} className={classes.contributorName} />)}
+        </div>
+        <div className={classes.lastUpdated}>
+          {'last updated '}
+          {selectedLens?.contents?.editedAt && <FormatDate date={selectedLens.contents.editedAt} format="Do MMM YYYY" tooltip={false} />}
+        </div>
       </div>}
+      {/** Just hardcoding an example for now, since we haven't imported the necessary relationships to derive it dynamically */}
+      <ContentStyles contentType="tag" className={classes.requirementsAndAlternatives}>
+        <div className={classes.relationshipPill}>
+          {'Relies on: '}
+          <HoverPreviewLink href={'/tag/reads_algebra'} >Ability to read algebra</HoverPreviewLink>
+        </div>
+        <div className={classes.relationshipPill}>
+          <LWTooltip title={<HoverPreviewLink href={'/tag/logical-decision-theories?lens=loose_intro_everyone_else'}>An introduction to logical decision theories for everyone else</HoverPreviewLink>} clickable>
+            Less Technical
+          </LWTooltip>
+        </div>
+        <div className={classes.relationshipPill}>
+          <LWTooltip title={<HoverPreviewLink href={'/tag/causal-decision-theories'}>Causal decision theories</HoverPreviewLink>} clickable>
+            More Technical
+          </LWTooltip>
+        </div>
+        <div className={classes.relationshipPill}>
+          {'Teaches: '}
+          <HoverPreviewLink href={'/tag/logical-decision-theories'}>Logical decision theories</HoverPreviewLink>
+          {', '}
+          <HoverPreviewLink href={'/tag/causal-decision-theories'}>Causal decision theories</HoverPreviewLink>
+          {', '}
+          <HoverPreviewLink href={'/tag/evidential-decision-theories'}>Evidential decision theories</HoverPreviewLink>
+        </div>
+      </ContentStyles>
     </div>
   );
 
