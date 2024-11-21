@@ -18,7 +18,7 @@ const styles = (theme: ThemeType) => ({
   },
   header: {
     fontSize: 18,
-    marginBottom: 26,
+    marginBottom: 4,
     fontWeight: 600
   },
   candidateWrapper: {
