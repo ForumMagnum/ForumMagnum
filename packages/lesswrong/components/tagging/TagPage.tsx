@@ -83,6 +83,8 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     marginTop: 0,
     fontWeight: isFriendlyUI ? 700 : 600,
     ...theme.typography.smallCaps,
+    fontSize: 90,
+    letterSpacing: "0.04em",
   },
   notifyMeButton: {
     [theme.breakpoints.down('xs')]: {
@@ -163,7 +165,9 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   nextLink: {
     ...theme.typography.commentStyle
   },
-  description: {},
+  description: {
+    lineHeight: "21px",
+  },
   lensTabsContainer: {
     gap: '4px',
     [theme.breakpoints.down('sm')]: {
@@ -272,6 +276,9 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     height: 16,
   },
   ...tagPageHeaderStyles(theme),
+  nestedListContainer: {
+    marginTop: 32,
+  },
 }));
 
 interface TagLens {
@@ -478,8 +485,72 @@ const TagPage = () => {
   
   useOnSearchHotkey(() => setTruncated(false));
 
-  const { selectedLensId, selectedLens, updateSelectedLens, lenses } = useTagLenses(tag);
+
+
+  const { tag: secondTabTag } = useTagBySlug("featured-arbital", "TagPageFragment")
+  const { tag: thirdTabTag } = useTagBySlug("history-arbital", "TagPageFragment")
+
+  console.log({ tag, secondTabTag, thirdTabTag })
+
+
+
+// interface TagLens {
+//   _id: string;
+//   collectionName: string;
+//   fieldName: string;
+//   index: number;
+//   contents: TagFragment_description | TagRevisionFragment_description | RevisionDisplay | null;
+//   tableOfContents: ToCData | null;
+//   parentDocumentId: string;
+//   title: string;
+//   preview: string | null;
+//   tabTitle: string;
+//   tabSubtitle: string | null;
+//   slug: string;
+//   userId: string;
+// }
+
+  const lensTabs: TagLens[] = [
+  {
+    _id: secondTabTag?._id ?? 'featured-tab',
+    collectionName: 'Tags',
+    fieldName: 'description',
+    index: 1,
+    contents: secondTabTag?.description ?? null,
+    tableOfContents: secondTabTag?.tableOfContents ?? null,
+    parentDocumentId: tag?._id ?? '',
+    title: 'Featured',
+    userId: secondTabTag?.userId ?? '',
+    preview: null,
+    tabTitle: 'Featured',
+    tabSubtitle: null,
+    slug: 'featured',
+  },
+  {
+    _id: thirdTabTag?._id ?? 'history-tab',
+    collectionName: 'Tags',
+    fieldName: 'description',
+    index: 2,
+    contents: thirdTabTag?.description ?? null,
+    tableOfContents: thirdTabTag?.tableOfContents ?? null,
+    parentDocumentId: tag?._id ?? '',
+    title: 'History',
+    userId: thirdTabTag?.userId ?? '',
+    preview: null,
+    tabTitle: 'History',
+    tabSubtitle: null,
+    slug: 'history',
+  },
+  ];
+
+  const splicedTag = {...tag, lenses: lensTabs}
+
+  const { selectedLensId, selectedLens, updateSelectedLens, lenses } = useTagLenses(splicedTag);
   const displayedTagTitle = useDisplayedTagTitle(tag, lenses, selectedLens);
+
+  // if (!tag || !secondTabTag || !thirdTabTag) {
+  //   return <Loading />
+  // }
 
   const tagPositionInList = otherTagsWithNavigation?.findIndex(tagInList => tag?._id === tagInList._id);
   // We have to handle updates to the listPosition explicitly, since we have to deal with three cases
@@ -606,6 +677,9 @@ const TagPage = () => {
             />
           </ContentStyles>
         </div>}
+        <div className={classes.nestedListContainer}>
+          <WikiTagNestedList />
+        </div>
       </AnalyticsContext>
     </div>
   );
@@ -616,7 +690,6 @@ const TagPage = () => {
         key={tag._id}
         tag={tag}
       />}
-      <WikiTagNestedList />
       {tag.sequence && <TagIntroSequence tag={tag} />}
       {!tag.wikiOnly && <>
         <AnalyticsContext pageSectionContext="tagsSection">
@@ -725,17 +798,17 @@ const TagPage = () => {
         }
       </div>
       {tag.contributors && <div className={classes.contributorRow}>
-        <div className={classes.contributorNameWrapper}>
+        {/* <div className={classes.contributorNameWrapper}>
           <span>Written by </span>
           {tag.contributors.contributors.map(({ user }: { user?: UsersMinimumInfo }) => <UsersNameDisplay key={user?._id} user={user} className={classes.contributorName} />)}
-        </div>
-        <div className={classes.lastUpdated}>
+        </div> */}
+        {/* <div className={classes.lastUpdated}>
           {'last updated '}
           {selectedLens?.contents?.editedAt && <FormatDate date={selectedLens.contents.editedAt} format="Do MMM YYYY" tooltip={false} />}
-        </div>
+        </div> */}
       </div>}
       {/** Just hardcoding an example for now, since we haven't imported the necessary relationships to derive it dynamically */}
-      <ContentStyles contentType="tag" className={classes.requirementsAndAlternatives}>
+      {/* <ContentStyles contentType="tag" className={classes.requirementsAndAlternatives}>
         <div className={classes.relationshipPill}>
           {'Relies on: '}
           <HoverPreviewLink href={'/tag/reads_algebra'} >Ability to read algebra</HoverPreviewLink>
@@ -758,7 +831,7 @@ const TagPage = () => {
           {', '}
           <HoverPreviewLink href={'/tag/evidential-decision-theories'}>Evidential decision theories</HoverPreviewLink>
         </div>
-      </ContentStyles>
+      </ContentStyles> */}
     </div>
   );
 
