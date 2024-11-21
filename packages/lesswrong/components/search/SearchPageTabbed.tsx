@@ -402,6 +402,7 @@ const SearchPageTabbed = ({classes}: {
           aria-labelledby="search-filters-modal"
           aria-describedby="search-filters-modal"
           className={classNames(classes.filtersModal)}
+          keepMounted
         >
           <div className={classes.filtersModalContent}>
             <Components.SearchFilters
