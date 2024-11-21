@@ -81,43 +81,6 @@ const styles = defineStyles("WikiTagItem", (theme: ThemeType) => ({
       padding: '10px 0',
     }
   },
-  commentsCard: {
-    [theme.breakpoints.up("sm")]: {
-      padding: 0,
-    },
-  },
-  newComments: {
-    fontWeight: 700,
-    color: theme.palette.grey[1000],
-  },
-  postActions: {
-    minWidth: 20,
-    marginLeft: -5,
-    "& .PostActionsButton-icon": {
-      fontSize: 20,
-    },
-    "&:hover .PostActionsButton-icon": {
-      color: theme.palette.grey[700],
-    },
-  },
-  hideOnMobile: {
-    [theme.breakpoints.down("xs")]: {
-      display: "none",
-    },
-  },
-  onlyMobile: {
-    [theme.breakpoints.up("sm")]: {
-      display: "none",
-    },
-  },
-  expandedComments: {
-    padding: "0 12px 8px",
-  },
-  interactionWrapper: {
-    "&:hover": {
-      opacity: 1,
-    },
-  },
   karmaDisplay: {
     width: KARMA_WIDTH,
     minWidth: KARMA_WIDTH,
@@ -149,7 +112,6 @@ const styles = defineStyles("WikiTagItem", (theme: ThemeType) => ({
     display: "flex",
     flexDirection: "column",
     alignItems: "flex-start",
-    // justifyContent: "space-between",
   },
   item: {
     width: '100%',
@@ -178,7 +140,7 @@ const styles = defineStyles("WikiTagItem", (theme: ThemeType) => ({
   },
   leftSideItems: {
     display: "flex",
-    alignItems: "end",
+    alignItems: "center",
     gap: "8px",
     overflow: "hidden",
   },
@@ -201,7 +163,7 @@ const styles = defineStyles("WikiTagItem", (theme: ThemeType) => ({
     flexShrink: 0,
     flexBasis: "auto",
     alignItems: "center",
-    gap: "8px",
+    gap: "4px",
     color: theme.palette.grey[600],
   },
   wordCount: {
@@ -252,7 +214,7 @@ const styles = defineStyles("WikiTagItem", (theme: ThemeType) => ({
     height: 18,
     fontSize: 9,
     fontWeight: 600,
-    top: 2,
+    top: 1,
     position: "relative",
     flexShrink: 0,
     marginRight: 4,
@@ -266,7 +228,7 @@ const styles = defineStyles("WikiTagItem", (theme: ThemeType) => ({
   },
   collapse: {
     marginRight: 7,
-    opacity: 0.6,
+    opacity: 0.5,
     display: "flex",
     verticalAlign: "middle",
 
@@ -288,6 +250,16 @@ const styles = defineStyles("WikiTagItem", (theme: ThemeType) => ({
   children: {
     marginLeft: 16,
     width: `calc(100% - 16px)`,
+  },
+  childrenList: {
+    display: "flex",
+    flexDirection: "column",
+    // doesn't work
+    // "&:last-child": {
+    //   "& .WikiTagItem-item": {  // or use classes.item if you prefer
+    //     boxShadow: "0 2px 8px rgba(0,0,0,1)",
+    //   },
+    // },
   },
   showMoreChildren: {
     fontSize: 12,
@@ -344,8 +316,7 @@ const WikiTagItem = ({ page, nestingLevel }: WikiTagItemProps) => {
 
   const oneLinerText = page.oneLiner || "filler text will be invisible"
 
-  const wordCountFormatted = `${(page.text_length/6/1000).toFixed(1)}k words`;
-  // `${page.text_length/6 >= 1000 ? `${(page.text_length/6/1000).toFixed(1)}k` : Math.round(page.text_length/6)}`;
+  const wordCountFormatted = `${page.text_length/6 >= 100 ? `${(page.text_length/6/1000).toFixed(1)}k ` : Math.round(page.text_length/6)} words`;
 
   //random number between 0 and 3
   const randomNumber = Math.random() < 0.8 ? Math.floor(Math.random() * 2) : Math.floor(Math.random() * 2) + 2;
@@ -380,8 +351,11 @@ const WikiTagItem = ({ page, nestingLevel }: WikiTagItemProps) => {
             <div className={classes.leftSideItems}>
               <div className={classes.title}>
                 {/* <ArbitalPreview href={`https://www.arbital.com/p/${page.pageId}`}> */}
-                  {page.title}
+                  {/* {page.title} */}
                 {/* </ArbitalPreview> */}
+                <a href={`https://www.arbital.com/p/${page.pageId}`}>
+                  {page.title}
+                </a>
               </div>
               <div className={classes.wordCount}>{wordCountFormatted}</div>
             </div>
@@ -402,7 +376,7 @@ const WikiTagItem = ({ page, nestingLevel }: WikiTagItemProps) => {
       </div>
       {/* Render Children */}
       {!collapsed && hasChildren && (<div className={classes.children}>
-        <div>
+        <div className={classes.childrenList}>
           {page.children.slice(0, 5).map(childPage => (
             <WikiTagItem key={childPage.pageId} page={childPage} nestingLevel={nestingLevel + 1} />
           ))}
