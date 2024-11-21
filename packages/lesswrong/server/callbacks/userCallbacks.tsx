@@ -141,6 +141,12 @@ getCollectionHooks("Users").editSync.add(function clearKarmaChangeBatchOnSetting
 });
 
 getCollectionHooks("Users").newAsync.add(async function subscribeOnSignup (user: DbUser) {
+  // Skip email confirmation if no email address is attached to the account.
+  // An email address is required when signing up normally, but might not exist
+  // for users created by data import, eg importing Arbital
+  if (!user.email)
+    return;
+
   await sendVerificationEmailConditional(user);
 });
 
