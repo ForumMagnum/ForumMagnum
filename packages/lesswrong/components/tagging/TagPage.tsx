@@ -58,20 +58,24 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     marginLeft: "auto",
     marginRight: "auto",
     maxWidth: MAX_COLUMN_WIDTH,
-    paddingLeft: 42,
-    paddingRight: 42,
+    [theme.breakpoints.up('md')]: {
+      paddingLeft: 42,
+      paddingRight: 42,
+    },
   },
   header: {
     paddingTop: 19,
     paddingBottom: 5,
-    paddingLeft: 42,
-    paddingRight: 42,
+    [theme.breakpoints.up('md')]: {
+      paddingLeft: 42,
+      paddingRight: 42,
+    },
     background: theme.palette.panelBackground.default,
     borderTopLeftRadius: theme.borderRadius.default,
     borderTopRightRadius: theme.borderRadius.default,
   },
   titleRow: {
-    [theme.breakpoints.up('sm')]: {
+    [theme.breakpoints.up('md')]: {
       display: 'flex',
       justifyContent: 'space-between',
     }
@@ -82,6 +86,9 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     marginTop: 0,
     fontWeight: isFriendlyUI ? 700 : 600,
     ...theme.typography.smallCaps,
+    [theme.breakpoints.down('sm')]: {
+      fontSize: '27px',
+    },
   },
   notifyMeButton: {
     [theme.breakpoints.down('xs')]: {
@@ -95,7 +102,7 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     },
   },
   mobileButtonRow: {
-    [theme.breakpoints.up('sm')]: {
+    [theme.breakpoints.up('md')]: {
       display: 'none !important',
     },
   },
@@ -104,7 +111,7 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
       marginTop: 16,
       marginBottom: 8,
     },
-    [theme.breakpoints.up('sm')]: {
+    [theme.breakpoints.up('md')]: {
       position: 'absolute',
       top: -36,
       right: 8,
@@ -112,8 +119,10 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   },
   wikiSection: {
     paddingTop: 5,
-    paddingLeft: 42,
-    paddingRight: 42,
+    [theme.breakpoints.up('md')]: {
+      paddingLeft: 42,
+      paddingRight: 42,
+    },
     paddingBottom: 12,
     marginBottom: 24,
     background: theme.palette.panelBackground.default,
@@ -121,8 +130,10 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     borderBottomRightRadius: theme.borderRadius.default,
   },
   subHeading: {
-    paddingLeft: 42,
-    paddingRight: 42,
+    [theme.breakpoints.up('md')]: {
+      paddingLeft: 42,
+      paddingRight: 42,
+    },
     marginTop: -2,
     background: theme.palette.panelBackground.default,
     ...theme.typography.body2,
@@ -165,7 +176,9 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   description: {},
   lensTabsContainer: {
     gap: '4px',
-    alignItems: 'flex-end',
+    [theme.breakpoints.up('md')]: {
+      alignItems: 'flex-end',
+    },
     [theme.breakpoints.down('sm')]: {
       gap: '2px',
       flexDirection: 'column',
@@ -175,6 +188,9 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
     gap: '4px',
+      [theme.breakpoints.down('sm')]: {
+        gap: '2px',
+      },
   },
   aboveLensTab: {
     ...theme.typography.body2,
@@ -183,6 +199,9 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     color: theme.palette.grey[400],
     fontWeight: 700,
     alignSelf: 'center',
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
   },
   lensTab: {
     minWidth: 'unset',
@@ -192,22 +211,36 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
       alignSelf: 'center',
     },
   },
+  lensTabRootOverride: {
+    [theme.breakpoints.down('sm')]: {
+      maxWidth: 'unset',
+      minHeight: 'unset',
+      paddingTop: 2,
+      paddingBottom: 2,
+    },
+  },
   tabLabelContainerOverride: {
     paddingLeft: 16,
     paddingRight: 16,
     [theme.breakpoints.down('sm')]: {
       paddingLeft: 8,
       paddingRight: 8,
+      paddingTop: 0,
+      paddingBottom: 4,
     },
   },
   lensLabel: {
     display: 'flex',
-    flexDirection: 'column',
+    [theme.breakpoints.up('md')]: {
+      flexDirection: 'column',
+      minHeight: 48,
+    },
     alignItems: 'start',
-    minHeight: 48,
     justifyContent: 'center',
     [theme.breakpoints.down('sm')]: {
-      alignItems: 'center',
+      height: 'min-content',
+      alignItems: 'end',
+      gap: '4px',
     },
   },
   lensTitle: {
@@ -220,15 +253,21 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     textTransform: 'none',
     fontSize: '1rem',
     fontWeight: 400,
-    [theme.breakpoints.up('sm')]: {
-      // minHeight: 19,
+    [theme.breakpoints.down('sm')]: {
+      marginBottom: 1,
+      '&::before': {
+        content: '"("',
+      },
+      '&::after': {
+        content: '")"'
+      }
     },
   },
   selectedLens: {
     [theme.breakpoints.down('sm')]: {
       border: theme.palette.border.grey400,
     },
-    [theme.breakpoints.up('sm')]: {
+    [theme.breakpoints.up('md')]: {
       borderStyle: 'solid',
       borderWidth: '1px 1px 0 1px',
       borderImageSource: `linear-gradient(to bottom, 
@@ -253,13 +292,14 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     color: theme.palette.grey[600],
     display: 'flex',
     alignItems: 'end',
+    fontSize: '17px',
   },
   contributorNameWrapper: {
     flex: 1,
   },
   contributorName: {
-    fontWeight: 600,
-    // flex: 1,
+    fontWeight: 550,
+    // fontSize: '15px',
   },
   lastUpdated: {
     ...theme.typography.body2,
@@ -286,6 +326,9 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     height: 16,
   },
   rightColumn: {
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
     marginTop: -32,
     '&:hover': {
       '& $rightColumnOverflowFade': {
@@ -495,7 +538,7 @@ const LensTab = ({ key, value, label, lens, isSelected, ...tabProps }: {
         key={key}
         value={value}
         label={label}
-        classes={{ labelContainer: classes.tabLabelContainerOverride }}
+        classes={{ root: classes.lensTabRootOverride, labelContainer: classes.tabLabelContainerOverride }}
         {...tabProps}
       ></Tab>
     </div>
@@ -790,7 +833,7 @@ const TagPage = () => {
             {lenses.map(lens => {
               const label = <div className={classes.lensLabel}>
                 <span className={classes.lensTitle}>{lens.tabTitle}</span>
-                <span className={classes.lensSubtitle}>{lens.tabSubtitle}</span>
+                {lens.tabSubtitle && <span className={classes.lensSubtitle}>{lens.tabSubtitle}</span>}
               </div>;
 
               const isSelected = selectedLens?._id === lens._id;
