@@ -20,7 +20,12 @@ import Papa from 'papaparse';
 import sortBy from 'lodash/sortBy';
 
 type ArbitalImportOptions = {
-  pages?: string[] // Default: all pages
+  /**
+   * A list of pages to import. If not provided, does a full import (all pages).
+   * This exists for testing iteration, since importing all pages is much slower
+   * than importing only the page you want to look at for testing.
+   */
+  pages?: string[]
   
   
   /**
@@ -28,6 +33,16 @@ type ArbitalImportOptions = {
    * run `matchArbitalToLWAccounts` to produce a CSV file with candidate
    * matches, then after reviewing the matches, pass that CSV file's filename
    * to future calls to `importArbitalDb`.
+   *
+   * To create a file with mappings from Arbital users to existing LW users,
+   * run Globals.matchArbitalToLWAccounts(connectionString, outputCsvFilename).
+   * DO NOT USE THE RESULTING CSV DIRECTLY - it matches on email addresses in
+   * a way that may reveal pseudonyms, and must be manually reviewed. After
+   * removing any unwanted matches and adding manual matches, run
+   * Globals.createImportAccounts(csvFilename) to create new accounts for users
+   * that don't have an existing matching. This will edit the CSV in place to
+   * add the IDs of the newly created accounts. Finally, pass the filename of
+   * that CSV to future import operations.
    */
   userMatchingFile?: string
 }
@@ -193,7 +208,7 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
       await Revisions.rawUpdateOne(
         {_id: lwLiveRevision._id},
         {$set: {
-          createdAt: liveRevision.createdAt,
+          editedAt: liveRevision.createdAt,
           commitMessage: liveRevision.editSummary,
           version: `1.${liveRevision.edit}.0`,
           legacyData: {
@@ -389,6 +404,7 @@ Globals.createImportAccounts = async (csvFilename: string) => {
   const rewrittenCsvRows: string[][] = [
     ["arbitalUserId", "arbitalEmail", "arbitalName", "lwUserId", "lwDisplayName", "lwFullName", "comment"]
   ];
+  let usersAlreadyMatchedCount = 0;
   let usersAlreadyImportedCount = 0;
   let usersCreatedCount = 0;
   let userNamesUsed = new Set<string>();
@@ -396,8 +412,14 @@ Globals.createImportAccounts = async (csvFilename: string) => {
   for (const row of rows) {
     const {arbitalUserId, arbitalEmail, arbitalName, lwUserId, lwDisplayName, lwFullName, comment} = (row as any);
     
-    // If the CSV doesn't have an LW account match
-    if (!lwUserId) {
+    if (lwUserId) {
+      // CSV already has an LW account match
+      rewrittenCsvRows.push([
+        arbitalUserId, arbitalEmail, arbitalName,
+        lwUserId, lwDisplayName, lwFullName, comment
+      ]);
+      usersAlreadyMatchedCount++;
+    } else {
       // First check whether there's an LW user from a previous run of the import script
       const existingLwUser = await Users.findOne({
         "legacyData.arbitalUserId": arbitalUserId,
@@ -444,7 +466,7 @@ Globals.createImportAccounts = async (csvFilename: string) => {
     }
   }
   fs.writeFileSync(csvFilename, Papa.unparse(rewrittenCsvRows));
-  console.log(`Finished. Created ${usersCreatedCount} users; found ${usersAlreadyImportedCount} already-created imported users.`);
+  console.log(`Finished. Created ${usersCreatedCount} users; found ${usersAlreadyImportedCount} already-created imported users in the DB; ignored ${usersAlreadyMatchedCount} already matched in the CSV.`);
 }
 
 function loadUsersCsv(filename: string) {

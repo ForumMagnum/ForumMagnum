@@ -481,6 +481,10 @@ getCollectionHooks("Users").updateBefore.add(async function UpdateDisplayName(da
 getCollectionHooks("Users").createAsync.add(({ document }) => {
   if (!recombeeEnabledSetting.get()) return;
 
+  // Skip users without email addresses because that means they're imported
+  if (!document.email)
+    return;
+
   void recombeeApi.createUser(document)
     // eslint-disable-next-line no-console
     .catch(e => console.log('Error when sending created user to recombee', { e }));
