@@ -165,10 +165,24 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   description: {},
   lensTabsContainer: {
     gap: '4px',
+    alignItems: 'flex-end',
     [theme.breakpoints.down('sm')]: {
       gap: '2px',
       flexDirection: 'column',
     },
+  },
+  lensTabContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '4px',
+  },
+  aboveLensTab: {
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle,
+    marginBottom: 4,
+    color: theme.palette.grey[400],
+    fontWeight: 700,
+    alignSelf: 'center',
   },
   lensTab: {
     minWidth: 'unset',
@@ -190,6 +204,8 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'start',
+    minHeight: 48,
+    justifyContent: 'center',
     [theme.breakpoints.down('sm')]: {
       alignItems: 'center',
     },
@@ -225,8 +241,7 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     },
   },
   nonSelectedLens: {
-    // TODO: define custom background for tabs with dark mode override, since darken04 is basically not visible in dark mode
-    background: theme.palette.panelBackground.darken04,
+    background: theme.palette.panelBackground.tagLensTab,
     borderStyle: 'solid',
     borderColor: theme.palette.background.transparent,
   },
@@ -257,9 +272,9 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     gap: '4px',
   },
   relationshipPill: {
-    border: theme.palette.border.grey400,
-    borderRadius: theme.borderRadius.small,
-    padding: 8,
+    // border: theme.palette.border.grey400,
+    // borderRadius: theme.borderRadius.small,
+    // padding: 4,
     textWrapMode: 'nowrap',
     width: 'max-content',
   },
@@ -269,6 +284,47 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   alternativeArrowIcon: {
     width: 16,
     height: 16,
+  },
+  rightColumn: {
+    marginTop: -32,
+    '&:hover': {
+      '& $rightColumnOverflowFade': {
+        opacity: 0,
+        pointerEvents: 'none',
+      },
+    },
+  },
+  rightColumnOverflowFade: {
+    position: "relative",
+    zIndex: 2,
+    marginTop: -120,
+    height: 140,
+    width: "100%",
+    background: `linear-gradient(0deg, 
+      ${theme.palette.background.pageActiveAreaBackground} 30%,
+      ${theme.palette.panelBackground.translucent} 70%,
+      transparent 100%
+    )`,
+    opacity: 1,
+  },
+  subjectsContainer: {
+    // marginTop: 24,
+    overflow: 'hidden',
+  },
+  subjectsHeader: {
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle,
+    fontWeight: 700,
+    marginBottom: 4,
+  },
+  subjectsList: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 4,
+  },
+  subject: {
+    textWrap: 'nowrap',
+    marginLeft: 6,
   },
   ...tagPageHeaderStyles(theme),
 }));
@@ -666,6 +722,24 @@ const TagPage = () => {
     />
   );
 
+  // const requirementsAndAlternatives = (
+  //   <ContentStyles contentType="tag" className={classNames(classes.requirementsAndAlternatives)}>
+  //     <div className={classes.relationshipPill}>
+  //       {'Relies on: '}
+  //       <HoverPreviewLink href={'/tag/reads_algebra'} >Ability to read algebra</HoverPreviewLink>
+  //     </div>
+  //   </ContentStyles>
+  // );
+
+  const requirementsAndAlternatives = (
+    <ContentStyles contentType="tag" className={classes.subjectsContainer}> 
+      <div className={classes.subjectsHeader}>Relies on</div>
+      <div className={classes.subjectsList}>
+        <span className={classes.subject}><HoverPreviewLink href={'/tag/reads_algebra'} >Ability to read algebra</HoverPreviewLink></span>
+      </div>
+    </ContentStyles>
+  );
+
   const tagHeader = (
     <div className={classNames(classes.header,classes.centralColumn)}>
       {query.flagId && <span>
@@ -696,13 +770,16 @@ const TagPage = () => {
 
               const isSelected = selectedLens?._id === lens._id;
 
-              return <Tab
-                className={classNames(classes.lensTab, isSelected && classes.selectedLens, !isSelected && classes.nonSelectedLens)}
-                key={lens._id}
-                value={lens._id}
-                label={label}
-                classes={{ labelContainer: classes.tabLabelContainerOverride }}
-              />
+              return <div key={lens._id} className={classes.lensTabContainer}>
+                {lens.tabTitle === 'Loose Intro' && <div className={classes.aboveLensTab}>Less Technical</div>}
+                <Tab
+                  className={classNames(classes.lensTab, isSelected && classes.selectedLens, !isSelected && classes.nonSelectedLens)}
+                  key={lens._id}
+                  value={lens._id}
+                  label={label}
+                  classes={{ labelContainer: classes.tabLabelContainerOverride }}
+                />
+              </div>
             })}
           </Tabs>
         )
@@ -733,30 +810,7 @@ const TagPage = () => {
         </div>
       </div>}
       {/** Just hardcoding an example for now, since we haven't imported the necessary relationships to derive it dynamically */}
-      <ContentStyles contentType="tag" className={classes.requirementsAndAlternatives}>
-        <div className={classes.relationshipPill}>
-          {'Relies on: '}
-          <HoverPreviewLink href={'/tag/reads_algebra'} >Ability to read algebra</HoverPreviewLink>
-        </div>
-        <div className={classes.relationshipPill}>
-          <LWTooltip title={<HoverPreviewLink href={'/tag/logical-decision-theories?lens=loose_intro_everyone_else'}>An introduction to logical decision theories for everyone else</HoverPreviewLink>} clickable>
-            Less Technical
-          </LWTooltip>
-        </div>
-        <div className={classes.relationshipPill}>
-          <LWTooltip title={<HoverPreviewLink href={'/tag/causal-decision-theories'}>Causal decision theories</HoverPreviewLink>} clickable>
-            More Technical
-          </LWTooltip>
-        </div>
-        <div className={classes.relationshipPill}>
-          {'Teaches: '}
-          <HoverPreviewLink href={'/tag/logical-decision-theories'}>Logical decision theories</HoverPreviewLink>
-          {', '}
-          <HoverPreviewLink href={'/tag/causal-decision-theories'}>Causal decision theories</HoverPreviewLink>
-          {', '}
-          <HoverPreviewLink href={'/tag/evidential-decision-theories'}>Evidential decision theories</HoverPreviewLink>
-        </div>
-      </ContentStyles>
+      {/* {requirementsAndAlternatives} */}
     </div>
   );
 
@@ -771,6 +825,28 @@ const TagPage = () => {
     </ToCColumn>
   );
 
+  const rightColumn = (<div className={classes.rightColumn}>
+    <div className={classes.rightColumnContent}>
+      <TagPageButtonRow
+        tag={tag}
+        editing={editing}
+        setEditing={setEditing}
+        hideLabels={true}
+        className={classNames(classes.editMenu, classes.nonMobileButtonRow)}
+      />
+      {requirementsAndAlternatives}
+      <ContentStyles contentType="tag" className={classes.subjectsContainer}> 
+        <div className={classes.subjectsHeader}>Subjects</div>
+        <div className={classes.subjectsList}>
+          <span className={classes.subject}><HoverPreviewLink href={'/tag/logical-decision-theories'}>Logical decision theories</HoverPreviewLink></span>
+          <span className={classes.subject}><HoverPreviewLink href={'/tag/causal-decision-theories'}>Causal decision theories</HoverPreviewLink></span>
+          <span className={classes.subject}><HoverPreviewLink href={'/tag/evidential-decision-theories'}>Evidential decision theories</HoverPreviewLink></span>
+        </div>
+      </ContentStyles>
+    </div>
+    <div className={classes.rightColumnOverflowFade} />
+  </div>);
+
   const multiColumnToc = (
     <MultiToCLayout
       segments={[
@@ -778,18 +854,18 @@ const TagPage = () => {
           centralColumn: parentAndSubTags,
         },
         {
-          centralColumn: <>
-            {tagHeader}
-            {tagBodySection}
-          </>,
-          // toc: tagToc,
+          centralColumn: tagHeader,
           toc: fixedPositionTagToc,
-          rightColumn: <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} hideLabels={true} className={classNames(classes.editMenu, classes.nonMobileButtonRow)} />
+        },
+        {
+          centralColumn: tagBodySection,
+          rightColumn
         },
         {
           centralColumn: tagPostsAndCommentsSection,
         },
       ]}
+      tocRowMap={[1, 1, 1, 1]}
     />
   );
   
