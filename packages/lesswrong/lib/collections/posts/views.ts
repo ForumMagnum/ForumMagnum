@@ -19,7 +19,9 @@ import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
 
-const eventBuffer = isEAForum ? {startBuffer: '1 hour', endBuffer: null} : {startBuffer: '6 hours', endBuffer: '3 hours'}
+const eventBuffer = isEAForum
+  ? { startBuffer: 1, endBuffer: null }
+  : { startBuffer: 6, endBuffer: 3 };
 
 export const POST_SORTING_MODES = new TupleSet([
   "magic", "top", "topAdjusted", "new", "old", "recentComments"
@@ -1097,10 +1099,12 @@ ensureIndex(Posts,
 );
 
 Posts.addView("events", (terms: PostsViewTerms) => {
-  const timeSelector = {$or: [
-    {startTime: {$gt: moment().subtract(eventBuffer.startBuffer).toDate()}},
-    {endTime: {$gt: moment().subtract(eventBuffer.endBuffer).toDate()}}
-  ]}
+  const timeSelector = {
+    $or: [
+      { startTime: { $gt: moment().subtract(eventBuffer.startBuffer, 'hours').toDate() } },
+      { endTime: { $gt: moment().subtract(eventBuffer.endBuffer, 'hours').toDate() } },
+    ],
+  };
   const twoMonthsAgo = moment().subtract(60, 'days').toDate();
   // make sure that, by default, events are not global
   let globalEventSelector: {} = terms.globalEvent ? {globalEvent: true} : {};

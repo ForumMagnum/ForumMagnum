@@ -5,9 +5,10 @@ import moment, { Moment } from "moment";
 import qs from "qs";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
+import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
 
-export const GIVING_SEASON_DESKTOP_WIDTH = 1220;
-export const GIVING_SEASON_MOBILE_WIDTH = 900;
+export const GIVING_SEASON_DESKTOP_WIDTH = 1300;
+export const GIVING_SEASON_MOBILE_WIDTH = 700;
 
 export const getDonateLink = (currentUser: UsersCurrent | null) => {
   // See docs at https://docs.every.org/docs/donate-link
@@ -37,10 +38,9 @@ const events: GivingSeasonEvent[] = [
   {
     name: "Funding Strategy Week",
     description: <>
-      This week, we are encouraging content around a range of important funding{" "}
-      considerations.{" "}
-      <Link to="/posts/srZEX2r9upbwfnRKw/giving-season-2024-announcement#November_4___10__Funding_Strategy_Week">
-        Read more
+      Read and continue Funding Strategy Week's conversations{" "}
+      <Link to="/topics/funding-strategy-week">
+        here
       </Link>.
     </>,
     start: moment("2024-11-04").utc(),
@@ -98,7 +98,15 @@ const events: GivingSeasonEvent[] = [
   },
 ];
 
-const getCurrentEvent = (): GivingSeasonEvent | null => {
+const getCurrentEvent = (
+  currentForumEvent: ForumEventsDisplay | null,
+): GivingSeasonEvent | null => {
+  if (currentForumEvent) {
+    const matchingEvent = events.find(({name}) => name === currentForumEvent.title);
+    if (matchingEvent) {
+      return matchingEvent;
+    }
+  }
   const now = moment();
   return events.find(({start, end}) => now.isBetween(start, end)) ?? null;
 }
@@ -114,7 +122,7 @@ type GivingSeasonEventsContext = {
 
 const givingSeasonEventsContext = createContext<GivingSeasonEventsContext>({
   events,
-  currentEvent: getCurrentEvent(),
+  currentEvent: getCurrentEvent(null),
   selectedEvent: events[0],
   setSelectedEvent: () => {},
   amountRaised: 0,
@@ -128,7 +136,8 @@ const amountRaisedQuery = gql`
 `;
 
 export const GivingSeasonEventsProvider = ({children}: {children: ReactNode}) => {
-  const currentEvent = getCurrentEvent();
+  const {currentForumEvent} = useCurrentForumEvent();
+  const currentEvent = getCurrentEvent(currentForumEvent);
   const [selectedEvent, setSelectedEvent] = useState(currentEvent ?? events[0]);
 
   const {data} = useQuery(amountRaisedQuery, {

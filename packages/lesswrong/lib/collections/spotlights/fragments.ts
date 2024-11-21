@@ -26,6 +26,15 @@ registerFragment(`
 `)
 
 registerFragment(`
+  fragment SpotlightReviewWinner on Spotlight {
+    ...SpotlightMinimumInfo
+    description {
+      html
+    }
+  }
+`);
+
+registerFragment(`
   fragment SpotlightHeaderEventSubtitle on Spotlight {
     ...SpotlightMinimumInfo
     document {
@@ -55,6 +64,7 @@ registerFragment(`
     }
   }
 `);
+
 
 registerFragment(`
   fragment SpotlightEditQueryFragment on Spotlight {

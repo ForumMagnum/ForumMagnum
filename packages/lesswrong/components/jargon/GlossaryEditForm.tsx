@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Components, fragmentTextForQuery, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { useMutation, gql } from '@apollo/client';
 import { useMulti } from '@/lib/crud/withMulti';
@@ -10,6 +10,8 @@ import { formStyles } from './JargonEditorRow';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { useJargonCounts } from '@/components/hooks/useJargonCounts';
 import Checkbox from '@material-ui/core/Checkbox';
+import { useLocalStorageState } from '../hooks/useLocalStorageState';
+import { removeJargonDot } from './GlossarySidebar';
 
 // Integrity Alert! This is currently designed so if the model changes, users are informed
 // about what model is being used in the jargon generation process.
@@ -73,6 +75,7 @@ const styles = (theme: ThemeType) => ({
     overflowY: 'scroll',
     display: 'flex',
     justifyContent: 'space-between',
+    ...removeJargonDot,
   },
   expanded: {
     maxHeight: 'unset',
@@ -297,16 +300,20 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   const [formCollapsed, setFormCollapsed] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [showDeletedTerms, setShowDeletedTerms] = useState(false);
-  const [glossaryPrompt, setGlossaryPrompt] = useState<string | undefined>(defaultGlossaryPrompt);
   const [generatedOnce, setGeneratedOnce] = useState(false);
   const [showNewJargonTermForm, setShowNewJargonTermForm] = useState(false);
   const [editingPrompt, setEditingPrompt] = useState(false);
 
-  const [examplePost, setExamplePost] = useState<string | undefined>(defaultExamplePost);
-  const [exampleTerm, setExampleTerm] = useState<string | undefined>(defaultExampleTerm);
-  const [exampleAltTerm, setExampleAltTerm] = useState<string | undefined>(defaultExampleAltTerm);
-  const [exampleDefinition, setExampleDefinition] = useState<string | undefined>(defaultExampleDefinition);
-  
+  const { userId } = document;
+
+  const getPromptExampleStorageKey = (key: string) => `${userId}_${key}`;
+
+  const { glossaryPrompt, setGlossaryPrompt } = useLocalStorageState("glossaryPrompt", getPromptExampleStorageKey, defaultGlossaryPrompt);
+  const { examplePost, setExamplePost } = useLocalStorageState("examplePost", getPromptExampleStorageKey, defaultExamplePost);
+  const { exampleTerm, setExampleTerm } = useLocalStorageState("exampleTerm", getPromptExampleStorageKey, defaultExampleTerm);
+  const { exampleAltTerm, setExampleAltTerm } = useLocalStorageState("exampleAltTerm", getPromptExampleStorageKey, defaultExampleAltTerm);
+  const { exampleDefinition, setExampleDefinition } = useLocalStorageState("exampleDefinition", getPromptExampleStorageKey, defaultExampleDefinition);
+
   const { results: glossary = [], loadMoreProps, refetch } = useMulti({
     terms: {
       view: "postEditorJargonTerms",
@@ -409,7 +416,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   }
   
   const promptEditor = <div>
-    <h3 className={classes.promptEditorWarning}>WARNING! Prompt edits will not be saved after page reload</h3>
+    <h3 className={classes.promptEditorWarning}>WARNING! Prompt edits are only saved in your browser's localStorage.  If you clear your browser's localStorage or switch devices, your prompt edits will be lost.</h3>
     <TextField
       label="Prompt"
       value={glossaryPrompt}

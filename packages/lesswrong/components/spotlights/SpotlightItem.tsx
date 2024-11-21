@@ -15,6 +15,8 @@ import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { getSpotlightUrl } from '../../lib/collections/spotlights/helpers';
 import { useUpdate } from '../../lib/crud/withUpdate';
+import { gql, useMutation } from '@apollo/client';
+import { usePublishAndDeDuplicateSpotlight } from './withPublishAndDeDuplicateSpotlight';
 
 const TEXT_WIDTH = 350;
 
@@ -343,15 +345,19 @@ export const SpotlightItem = ({
   spotlight,
   showAdminInfo,
   hideBanner,
+  showSubtitle=true,
   refetchAllSpotlights,
+  isDraftProcessing,
   className,
   classes,
 }: {
   spotlight: SpotlightDisplay,
   showAdminInfo?: boolean,
   hideBanner?: () => void,
+  showSubtitle?: boolean,
   // This is so that if a spotlight's position is updated (in SpotlightsPage), we refetch all of them to display them with their updated positions and in the correct order
   refetchAllSpotlights?: () => void,
+  isDraftProcessing?: boolean,
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -374,16 +380,31 @@ export const SpotlightItem = ({
     fragmentName: "SpotlightDisplay",
   });
 
+  const { publishAndDeDuplicateSpotlight } = usePublishAndDeDuplicateSpotlight({
+    fragmentName: "SpotlightDisplay",
+  });
+
   const toggleDraft = useCallback(async () => {
     if (!currentUser || !userCanDo(currentUser, 'spotlights.edit.all')) {
       return;
     }
-    await updateSpotlight({
-      selector: { _id: spotlight._id },
-      data: { draft: !spotlight.draft }
-    });
+    if (!spotlight.draft) {
+      await updateSpotlight({
+        selector: { _id: spotlight._id },
+        data: { draft: !spotlight.draft }
+      });
+    } else {
+      await publishAndDeDuplicateSpotlight({spotlightId: spotlight._id})
+    }
     refetchAllSpotlights?.();
-  }, [currentUser, spotlight._id, spotlight.draft, refetchAllSpotlights, updateSpotlight]);
+  }, [currentUser, spotlight._id, spotlight.draft, updateSpotlight, publishAndDeDuplicateSpotlight, refetchAllSpotlights]);
+
+  const handleUndraftSpotlight = async () => {
+    if (isDraftProcessing && spotlight.draft) {
+      await publishAndDeDuplicateSpotlight({spotlightId: spotlight._id})
+      refetchAllSpotlights?.()
+    }
+  }
 
   const deleteDraft = useCallback(async () => {
     if (!currentUser || !userCanDo(currentUser, 'spotlights.edit.all')) {
@@ -406,6 +427,9 @@ export const SpotlightItem = ({
     WrappedSmartForm, SpotlightEditorStyles, SpotlightStartOrContinueReading,
     Typography, LWTooltip, ForumIcon,
   } = Components
+
+  const subtitleComponent = spotlight.subtitleUrl ? <Link to={spotlight.subtitleUrl}>{spotlight.customSubtitle}</Link> : spotlight.customSubtitle
+
   return <AnalyticsTracker eventType="spotlightItem" captureOnMount captureOnClick={false}>
     <div
       id={spotlight._id}
@@ -426,8 +450,8 @@ export const SpotlightItem = ({
               </LWTooltip>}
             </span>
           </div>
-          {spotlight.customSubtitle && <div className={classes.subtitle}>
-            {spotlight.customSubtitle}
+          {spotlight.customSubtitle && showSubtitle && <div className={classes.subtitle}>
+            {subtitleComponent}
           </div>}
           {(spotlight.description?.html || isBookUI) && <div className={classes.description}>
             {editDescription ? 
@@ -438,7 +462,7 @@ export const SpotlightItem = ({
                   documentId={spotlight._id}
                   mutationFragment={getFragment('SpotlightEditQueryFragment')}
                   queryFragment={getFragment('SpotlightEditQueryFragment')}
-                  successCallback={() => setEditDescription(false)}
+                  successCallback={() => { setEditDescription(false); void handleUndraftSpotlight() }}
                 />
               </div>
               :
@@ -493,7 +517,7 @@ export const SpotlightItem = ({
         </div>
         <div className={classes.draftButton}>
           {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && 
-            <LWTooltip title={spotlight.draft ? "Undraft" : "Draft"}>
+            <LWTooltip title={spotlight.draft ? "Undraft, and archive duplicates" : "Draft"}>
               <PublishIcon className={classNames(classes.adminButtonIcon, classes.editAllButtonIcon, 
                 !spotlight.draft && classes.reverseIcon)} onClick={() => toggleDraft()}/>
             </LWTooltip>

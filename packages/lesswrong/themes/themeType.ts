@@ -345,6 +345,7 @@ declare global {
       onboardingSection: ColorString,
       onboardingPodcast: ColorString,
       placeholderGradient: ColorString,
+      tagLensTab: ColorString,
     },
     boxShadow: {
       default: string,
@@ -432,10 +433,6 @@ declare global {
       onboardingBackground: ColorString,
       onboardingBackgroundHover: ColorString,
       onboardingBackgroundSelected: ColorString,
-      eventLightGreen: ColorString,
-      eventDarkGreen: ColorString,
-      eventLightBlue: ColorString,
-      eventDarkBlue: ColorString,
     },
     tab: {
       inactive: {
@@ -556,6 +553,7 @@ declare global {
     givingSeason: {
       primary: ColorString,
       electionFundBackground: ColorString,
+      electionFundBackgroundHeavy: ColorString,
     },
     namesAttachedReactions: {
       selectedAnti: ColorString,

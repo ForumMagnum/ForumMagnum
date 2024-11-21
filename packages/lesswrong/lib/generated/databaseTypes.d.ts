@@ -681,6 +681,24 @@ interface DbModeratorAction extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+type MultiDocumentsCollection = CollectionBase<"MultiDocuments">;
+
+interface DbMultiDocument extends DbObject {
+  __collectionName?: "MultiDocuments"
+  title: string | null
+  preview: string | null
+  tabTitle: string | null
+  tabSubtitle: string | null
+  userId: string | null
+  parentDocumentId: string | null
+  collectionName: CollectionNameString | null
+  fieldName: string | null
+  index: number | null
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  contents_latest: string | null
+}
+
 type NotificationsCollection = CollectionBase<"Notifications">;
 
 interface DbNotification extends DbObject {
@@ -2028,6 +2046,7 @@ interface CollectionsByName {
   Migrations: MigrationsCollection
   ModerationTemplates: ModerationTemplatesCollection
   ModeratorActions: ModeratorActionsCollection
+  MultiDocuments: MultiDocumentsCollection
   Notifications: NotificationsCollection
   PageCache: PageCacheCollection
   PetrovDayActions: PetrovDayActionsCollection
@@ -2115,6 +2134,7 @@ interface ObjectsByCollectionName {
   Migrations: DbMigration
   ModerationTemplates: DbModerationTemplate
   ModeratorActions: DbModeratorAction
+  MultiDocuments: DbMultiDocument
   Notifications: DbNotification
   PageCache: DbPageCacheEntry
   PetrovDayActions: DbPetrovDayAction
@@ -2202,6 +2222,7 @@ interface ObjectsByTypeName {
   Migration: DbMigration
   ModerationTemplate: DbModerationTemplate
   ModeratorAction: DbModeratorAction
+  MultiDocument: DbMultiDocument
   Notification: DbNotification
   PageCacheEntry: DbPageCacheEntry
   PetrovDayAction: DbPetrovDayAction

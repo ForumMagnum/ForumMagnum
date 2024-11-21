@@ -182,6 +182,8 @@ const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader
     .map((_segment,i) => `"... toc${tocRowMap[i] ?? i} gap1 content${i} gap2 rhs${i} ..."`)
     .join('\n')
 
+  const showCommentCount = commentCount !== undefined || answerCount !== undefined;
+
   return <div className={classes.root}>
     <div className={classNames(classes.tableOfContents)} style={{ gridTemplateAreas }}>
       {segments.map((segment,i) => <React.Fragment key={i}>
@@ -215,12 +217,12 @@ const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader
         </div>}
       </React.Fragment>)}
     </div>
-    <div className={classes.commentCount}>
+    {showCommentCount && <div className={classes.commentCount}>
       <LWCommentCount
         answerCount={answerCount}
         commentCount={commentCount}
       />
-    </div>
+    </div>}
   </div>
 }
 

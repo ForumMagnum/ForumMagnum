@@ -17,7 +17,6 @@ import { hasProminentLogoSetting } from '../../lib/publicSettings';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentForumEvent } from '../hooks/useCurrentForumEvent';
 import { makeCloudinaryImageUrl } from './CloudinaryImage2';
-import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import { hasForumEvents } from '@/lib/betas';
 import {
   GIVING_SEASON_MOBILE_WIDTH,
@@ -603,11 +602,7 @@ const Header = ({
               {!isEAForum &&<ActiveDialogues />}
               {isGivingSeason && !searchOpen &&
                 <div className={classes.gsBanner}>
-                  <Link to={
-                    currentForumEvent?.post
-                      ? postGetPageUrl(currentForumEvent.post)
-                      : "/posts/srZEX2r9upbwfnRKw/giving-season-2024-announcement"
-                  }>
+                  <Link to="/posts/srZEX2r9upbwfnRKw/giving-season-2024-announcement">
                     GIVING SEASON 2024
                   </Link>
                 </div>

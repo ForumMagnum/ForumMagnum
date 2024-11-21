@@ -86,6 +86,7 @@ import "./server/scripts/exportAEStudiosData";
 // doesn't pass unit tests but works fine. Leaving commented out for now
 import './server/scripts/generativeModels/autoSpotlight';
 import "./server/scripts/mongoQueryToSQL";
+import "./server/scripts/arbitalImport/arbitalImport";
 import './server/manualMigrations';
 import './server/manualMigrations/migrationsDashboardGraphql';
 
@@ -169,6 +170,7 @@ import './server/callbacks/votingCallbacks';
 import './server/resolvers/diffResolvers';
 import './server/resolvers/revisionResolvers';
 import './server/resolvers/postResolvers';
+import './server/resolvers/spotlightResolvers';
 import './server/resolvers/userResolvers';
 import './server/resolvers/wrappedResolvers';
 import './server/resolvers/karmaChangeResolvers';
@@ -196,6 +198,7 @@ import './server/resolvers/forumEventResolvers';
 import './server/resolvers/anthropicResolvers';
 import './server/resolvers/llmConversationsResolvers';
 import './server/resolvers/jargonResolvers/jargonTermResolvers';
+import './server/resolvers/multiDocumentResolvers';
 
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';

@@ -772,3 +772,33 @@ createPaginatedResolver({
     },
   cacheMaxAgeMs: 0
 });
+
+addGraphQLSchema(`
+  type PostWithApprovedJargon {
+    post: Post!
+    jargonTerms: [JargonTerm!]
+  }
+`);
+
+interface PostWithApprovedJargon {
+  post: Partial<DbPost>;
+  jargonTerms: Partial<DbJargonTerm>[];
+}
+
+createPaginatedResolver({
+  name: "PostsWithApprovedJargon",
+  graphQLType: "PostWithApprovedJargon",
+  callback: async (context, limit): Promise<PostWithApprovedJargon[]> => {
+    const { repos, currentUser, JargonTerms } = context;
+    if (!userIsAdmin(currentUser)) {
+      throw new Error("You must be an admin to see posts with approved jargon");
+    }
+
+    const postsWithUnfilteredJargon = await repos.posts.getPostsWithApprovedJargon(limit);
+
+    return await Promise.all(postsWithUnfilteredJargon.map(async ({ jargonTerms, ...post }) => ({
+      post,
+      jargonTerms: await accessFilterMultiple(currentUser, JargonTerms, jargonTerms, context)
+    })));
+  }
+});

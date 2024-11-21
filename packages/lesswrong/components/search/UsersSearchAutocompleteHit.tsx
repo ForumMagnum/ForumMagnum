@@ -2,38 +2,36 @@ import {Components, registerComponent} from '../../lib/vulcan-lib'
 import React from 'react'
 import {styles as metaInfo} from '../common/MetaInfo'
 
-const specificityFmClass = 'forum-magnum'
-const specificityCkClass = 'ck-override'
 const styles = (theme: ThemeType): JssStyles => ({
   userHitLabel: {
-    // A specificity hack to work around https://github.com/ckeditor/ckeditor5/issues/3424
-    [`&.${specificityFmClass}.${specificityCkClass}, &.${specificityFmClass}.${specificityCkClass} *`]: {
-      ...theme.typography.body2,
-      ...metaInfo(theme).root,
-      marginLeft: theme.spacing.unit,
+    ...theme.typography.body2,
+    ...metaInfo(theme).root,
+    marginLeft: theme.spacing.unit,
+
+    // To properly switch color on item being selected
+    [`.ck-on &`]: {
+      color: 'inherit',
     },
+  },
+  
+  root: {
+    color: 'inherit',
   },
 })
 
-
-interface UsersSearchAutocompleteHitProps {
+const UsersSearchAutocompleteHit = ({hit, classes}: {
+  hit: SearchUser
   classes: ClassesType
-  name: string
-  createdAt: Date
-  karma?: number
-}
-
-const UsersSearchAutocompleteHit = (props: UsersSearchAutocompleteHitProps) => {
+}) => {
   const {MetaInfo, FormatDate} = Components
 
-  const metaClassName = `${props.classes.userHitLabel} ${specificityFmClass} ${specificityCkClass}`
-  return <span>
-    {props.name}
-    <MetaInfo className={metaClassName}>
-      <FormatDate date={props.createdAt} tooltip={false} />
+  return <span className={classes.root}>
+    {hit.displayName}
+    <MetaInfo className={classes.userHitLabel}>
+      <FormatDate date={hit.createdAt} tooltip={false}/>
     </MetaInfo>
-    <MetaInfo className={metaClassName}>
-      {props.karma || 0} karma
+    <MetaInfo className={classes.userHitLabel}>
+      {hit.karma || 0} karma
     </MetaInfo>
   </span>
 }

@@ -354,6 +354,10 @@ import "./collections/llmConversations/views";
 import "./collections/llmMessages/collection";
 import "./collections/llmMessages/fragments";
 
+// MultiDocuments
+import "./collections/multiDocuments/collection";
+import "./collections/multiDocuments/fragments";
+
 // Alignment Forum
 import './alignment-forum/permissions';
 import './alignment-forum/posts/helpers';

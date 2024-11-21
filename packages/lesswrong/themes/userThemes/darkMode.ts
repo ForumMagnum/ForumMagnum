@@ -212,11 +212,11 @@ export const darkModeTheme: UserThemeSpecification = {
         title: greyAlpha(0.75),
         author: greyAlpha(0.65)
       },
-      jargonTerm: shadePalette.grey['A200'],
+      jargonTerm: "#a8742a",
     },
     link: {
       primaryDim: '#3a7883',
-      visited: "#bb7c43",
+      visited: "#798754",
     },
     panelBackground: {
       translucent: "rgba(0,0,0,.87)",
@@ -227,6 +227,7 @@ export const darkModeTheme: UserThemeSpecification = {
       commentModeratorHat: "#202719",
       spoilerBlock: "#1b1b1b",
       cookieBanner: shadePalette.grey[900],
+      tagLensTab: shadePalette.greyAlpha(.15),
     },
     background: {
       default: shadePalette.grey[100],

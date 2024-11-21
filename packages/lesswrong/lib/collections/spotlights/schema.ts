@@ -43,6 +43,7 @@ const schema: SchemaType<"Spotlights"> = {
       addOriginalField: true,
       // TODO: try a graphql union type?
       type: 'Post!',
+      // TODO: make a sql resolver and loader and stuff
       resolver: async (spotlight: DbSpotlight, args: void, context: ResolverContext): Promise<Partial<DbPost | DbSequence | DbCollection> | null> => {
         switch(spotlight.documentType) {
           case "Post": {

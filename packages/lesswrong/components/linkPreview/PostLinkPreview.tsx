@@ -258,10 +258,12 @@ export const linkStyle = (theme: ThemeType) => (
         },
       }
     } : {
-      '&:after': {
-        content: '"°"',
-        marginLeft: 1,
-      }
+      link: {
+        '&:after': {
+          content: '"°"',
+          marginLeft: 1,
+        },
+      },
     }
 );
 

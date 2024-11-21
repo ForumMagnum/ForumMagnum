@@ -230,7 +230,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       [6]: '#6C7BFF',
     },
 
-    jargonTerm: shades.grey[600],
+    jargonTerm: "#a8742a",
   },
   link: {
     unmarked: shades.greyAlpha(.87),
@@ -241,7 +241,6 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     tocLink: shades.grey[600],
     tocLinkHighlighted: shades.grey[1000],
     primaryDim: "#5caab7",
-    // Currently unused on LW due to Forum-gate
     visited: "#bb7c43",
   },
   linkHover: {
@@ -412,6 +411,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     onboardingSection: "#f5f5f5",
     onboardingPodcast: "#e7e7e7",
     placeholderGradient: 'linear-gradient(90deg, #EEE 33%, #E6E6E6 50%, #EEE 66%)',
+    tagLensTab: shades.greyAlpha(.04),
   },
   boxShadow: {
     default: `0 1px 5px ${shades.boxShadowColor(.025)}`,
@@ -498,10 +498,6 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     onboardingBackground: "rgba(0, 0, 0, 0.4)",
     onboardingBackgroundHover: "rgba(0, 0, 0, 0.2)",
     onboardingBackgroundSelected: "rgba(0, 0, 0, 0.5)",
-    eventLightGreen: 'rgba(154, 176, 137, 0.30)',
-    eventDarkGreen: 'rgba(154, 176, 137, 0.60)',
-    eventLightBlue: 'rgba(65, 131, 161, 0.30)',
-    eventDarkBlue: 'rgba(65, 131, 161, 0.60)',
   },
   tab: {
     inactive: {
@@ -591,6 +587,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   givingSeason: {
     primary: "#862115",
     electionFundBackground: "rgba(255, 255, 255, 0.15)",
+    electionFundBackgroundHeavy: "rgba(255, 255, 255, 0.3)",
   },
   namesAttachedReactions: {
     selectedAnti: "rgb(255, 189, 189, .23)",

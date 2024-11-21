@@ -11,9 +11,15 @@ declare global {
     view: 'glossaryEditAll',
   }
 
-  type JargonTermsViewTerms = Omit<ViewTermsBase, 'view'> & (PostJargonTermsViewTerms | GlossaryEditAllViewTerms | {
+  interface PostsApprovedJargonViewTerms {
+    view: 'postsApprovedJargon',
+    postIds: string[]
+  }
+
+  type JargonTermsViewTerms = Omit<ViewTermsBase, 'view'> & (PostJargonTermsViewTerms | GlossaryEditAllViewTerms | PostsApprovedJargonViewTerms | {
     view?: undefined,
-    postId?: string,
+    postId?: undefined,
+    postIds?: undefined
   });
 }
 
@@ -29,6 +35,13 @@ JargonTerms.addView("postEditorJargonTerms", function (terms: PostJargonTermsVie
 JargonTerms.addView("glossaryEditAll", function (terms: GlossaryEditAllViewTerms) {
   return {
     selector: {},
+    options: { sort: { term: 1, createdAt: 1 } }
+  };
+});
+
+JargonTerms.addView("postsApprovedJargon", function (terms: PostsApprovedJargonViewTerms) {
+  return {
+    selector: { postId: { $in: terms.postIds }, approved: true },
     options: { sort: { term: 1, createdAt: 1 } }
   };
 });

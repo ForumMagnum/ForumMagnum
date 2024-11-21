@@ -78,6 +78,7 @@ import Bars3 from "@heroicons/react/24/outline/Bars3Icon";
 import ViewColumnsIcon from "@heroicons/react/24/outline/ViewColumnsIcon";
 import InformationCircleIcon from '@heroicons/react/24/solid/InformationCircleIcon';
 import ArrowDownOnSquareIcon from '@heroicons/react/24/outline/ArrowDownOnSquareIcon';
+import ArrowDownRightIcon from '@heroicons/react/24/outline/ArrowDownRightIcon';
 import ChevronUpDownIcon from "@heroicons/react/24/outline/ChevronUpDownIcon";
 import ArrowsUpDownIcon from "@heroicons/react/20/solid/ArrowsUpDownIcon";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
@@ -118,6 +119,7 @@ import UndoIcon from '@material-ui/icons/Undo';
 import ClearIcon from '@material-ui/icons/Clear';
 import FullscreenIcon from '@material-ui/icons/Fullscreen';
 import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
+import MuiArrowDownRightIcon from '@material-ui/icons/SubdirectoryArrowRight';
 
 
 /**
@@ -156,6 +158,7 @@ import { TickReactionIcon } from "../icons/reactions/TickReactionIcon";
 import { CrossReactionIcon } from "../icons/reactions/CrossReactionIcon";
 import { CrossReactionCapIcon } from "../icons/CrossReactionCapIcon";
 import { GivingHandIcon } from "../icons/GivingHandIcon";
+import { DictionaryIcon } from "../icons/Dictionary";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -284,7 +287,9 @@ export type ForumIconName =
   "FullscreenExit" |
   "TickReaction" |
   "CrossReaction" |
-  "CrossReactionCap";
+  "CrossReactionCap" |
+  "Dictionary" |
+  "ArrowDownRight";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   LWAF: {
@@ -408,7 +413,9 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     FullscreenExit: FullscreenExitIcon,
     TickReaction: TickReactionIcon,
     CrossReaction: CrossReactionIcon,
-    CrossReactionCap: CrossReactionCapIcon
+    CrossReactionCap: CrossReactionCapIcon,
+    Dictionary: DictionaryIcon,
+    ArrowDownRight: MuiArrowDownRightIcon,
   },
   default: {
     VolumeUp: SpeakerWaveIcon,
@@ -531,7 +538,9 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     FullscreenExit: FullscreenExitIcon,
     TickReaction: TickReactionIcon,
     CrossReaction: CrossReactionIcon,
-    CrossReactionCap: CrossReactionCapIcon
+    CrossReactionCap: CrossReactionCapIcon,
+    Dictionary: DictionaryIcon,
+    ArrowDownRight: ArrowDownRightIcon,
   },
 };
 

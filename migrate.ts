@@ -22,6 +22,7 @@ const initGlobals = (args: Record<string, unknown>, isProd: boolean) => {
     defaultSiteAbsoluteUrl: "",
     serverPort: 5001,
     buildProcessPid: -1,
+    enableVite: false,
   });
 
   const { getInstanceSettings } = require("./packages/lesswrong/lib/getInstanceSettings");

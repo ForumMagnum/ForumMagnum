@@ -28,7 +28,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: "none"
     }
   },
-  hide: {
+  hideLabel: {
     display: "none"
   },
 })

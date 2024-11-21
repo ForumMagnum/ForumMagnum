@@ -28,7 +28,7 @@ type ForumEventsViewName = "upcomingForumEvents"|"pastForumEvents"|"currentForum
 type GardenCodesViewName = "usersPrivateGardenCodes"|"publicGardenCodes"|"gardenCodeByCode";
 type GoogleServiceAccountSessionsViewName = never
 type ImagesViewName = never
-type JargonTermsViewName = "postEditorJargonTerms"|"glossaryEditAll";
+type JargonTermsViewName = "postEditorJargonTerms"|"glossaryEditAll"|"postsApprovedJargon";
 type LWEventsViewName = "adminView"|"postVisits"|"emailHistory"|"gatherTownUsers"|"postEverPublished";
 type LegacyDataViewName = never
 type LlmConversationsViewName = "llmConversationsWithUser"|"llmConversationsAll";
@@ -39,6 +39,7 @@ type MessagesViewName = "messagesConversation"|"conversationPreview";
 type MigrationsViewName = never
 type ModerationTemplatesViewName = "moderationTemplatesPage"|"moderationTemplatesList";
 type ModeratorActionsViewName = "userModeratorActions"|"restrictionModerationActions";
+type MultiDocumentsViewName = never
 type NotificationsViewName = "userNotifications"|"unreadUserNotifications"|"adminAlertNotifications";
 type PageCacheViewName = never
 type PetrovDayActionsViewName = "getAction"|"launchDashboard"|"adminConsole"|"warningConsole";
@@ -63,7 +64,7 @@ type SequencesViewName = "userProfile"|"userProfilePrivate"|"userProfileAll"|"cu
 type SessionsViewName = never
 type SideCommentCachesViewName = never
 type SplashArtCoordinatesViewName = never
-type SpotlightsViewName = "mostRecentlyPromotedSpotlights"|"spotlightsPage"|"spotlightsPageDraft"|"spotlightForSequence";
+type SpotlightsViewName = "mostRecentlyPromotedSpotlights"|"spotlightsPage"|"spotlightsPageDraft"|"spotlightsByDocumentIds";
 type SubscriptionsViewName = "subscriptionState"|"subscriptionsOfType";
 type SurveyQuestionsViewName = never
 type SurveyResponsesViewName = never
@@ -125,6 +126,7 @@ interface ViewTermsByCollectionName {
   Migrations: ViewTermsBase
   ModerationTemplates: ModerationTemplatesViewTerms
   ModeratorActions: ModeratorActionsViewTerms
+  MultiDocuments: ViewTermsBase
   Notifications: NotificationsViewTerms
   PageCache: ViewTermsBase
   PetrovDayActions: PetrovDayActionsViewTerms

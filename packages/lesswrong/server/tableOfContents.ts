@@ -123,6 +123,49 @@ export const getToCforTag = async ({document, version, context}: {
   }
 }
 
+export const getToCforMultiDocument = async ({document, version, context}: {
+  document: DbMultiDocument,
+  version: string|null,
+  context: ResolverContext,
+}): Promise<ToCData | null> => {
+  let html: string;
+  if (version) {
+    try {
+      html = await annotateAuthors(document._id, "MultiDocuments", "contents", version);
+    } catch(e) {
+      // eslint-disable-next-line no-console
+      console.log("Author annotation failed");
+      // eslint-disable-next-line no-console
+      console.log(e);
+      const revision = await Revisions.findOne({documentId: document._id, version, fieldName: "contents"})
+      if (!revision?.html) return null;
+      if (!await Revisions.checkAccess(context.currentUser, revision, context))
+        return null;
+      html = revision.html;
+    }
+  } else {
+    try {
+      // TODO: figure out how to denormalize the contributor annotations for multi-documents (like we do for tags); this probably isn't performant
+      html = await annotateAuthors(document._id, "MultiDocuments", "contents");
+    } catch(e) {
+      // eslint-disable-next-line no-console
+      console.log("Author annotation failed");
+      // eslint-disable-next-line no-console
+      console.log(e);
+      const revision = await getLatestContentsRevision(document, context);
+      html = revision?.html ?? "";
+    }
+  }
+  
+  const tableOfContents = extractTableOfContents(parseDocumentFromString(html))
+  let tocSections = tableOfContents?.sections || []
+  
+  return {
+    html: tableOfContents?.html||null,
+    sections: tocSections,
+  }
+}
+
 /** @deprecated Use extractTableOfContents directly on the client instead. TODO delete after 2024-04-14 */
 defineQuery({
   name: "generateTableOfContents",
