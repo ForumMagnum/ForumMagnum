@@ -63,7 +63,12 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 600,
     color: theme.palette.primary.main,
   },
-  notifications: {},
+  notifications: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "4px",
+    margin: "0 -8px",
+  },
   notification: {
     display: "flex",
   },

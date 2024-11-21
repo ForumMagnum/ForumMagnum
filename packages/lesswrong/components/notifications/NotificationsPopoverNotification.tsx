@@ -12,12 +12,14 @@ import { useNotificationsPopoverContext } from "./useNotificationsPopoverContext
 const styles = (theme: ThemeType) => ({
   root: {
     cursor: "pointer",
-    padding: 8,
-    paddingLeft: 0,
+    padding: "6px 8px",
     borderRadius: theme.borderRadius.default,
     "&:hover": {
       background: theme.palette.grey[140],
     },
+  },
+  rootNew: {
+    background: theme.palette.grey[50],
   },
   icon: {
     marginTop: 4,
@@ -119,7 +121,7 @@ const NotificationsPopoverNotification = ({notification, classes}: {
   }
 
   const {Icon, iconVariant} = getDisplayConfig(notification);
-  const {post, comment, type, message, createdAt} = notification;
+  const {post, comment, type, viewed, message, createdAt} = notification;
   const {PostsTooltip, NotificationsPageItem} = Components;
   return (
     <PostsTooltip
@@ -128,7 +130,10 @@ const NotificationsPopoverNotification = ({notification, classes}: {
       placement="left-start"
       clickable
     >
-      <div onClick={onSelect} className={classes.root}>
+      <div
+        onClick={onSelect}
+        className={classNames(classes.root, !viewed && classes.rootNew)}
+      >
         <NotificationsPageItem
           Icon={Icon}
           iconVariant={iconVariant}
