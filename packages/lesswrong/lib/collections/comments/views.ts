@@ -302,6 +302,7 @@ Comments.addView("postLWComments", (terms: CommentsViewTerms) => {
 
 export const profileCommentsSortings: Partial<Record<CommentSortingMode,MongoSelector<DbComment>>> = {
   "new" :  { isPinnedOnProfile: -1, postedAt: -1},
+  "magic": { score: -1 },
   "top" : { baseScore: -1},
   "old": {postedAt: 1},
   "recentComments": { lastSubthreadActivity: -1 },

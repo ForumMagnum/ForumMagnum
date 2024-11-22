@@ -326,11 +326,10 @@ const styles = (theme: ThemeType) => ({
     },
   },
   button: {
-    width: "100%",
+    flexGrow: 1,
     fontSize: 14,
     fontWeight: 600,
     transition: "background 0.3s ease",
-    whiteSpace: "wrap",
     textAlign: "center",
   },
   buttonLarge: {
@@ -455,7 +454,7 @@ const styles = (theme: ThemeType) => ({
     width: 600,
     maxWidth: "100%",
     margin: "0 auto 0 0",
-    flexBasis: "30%",
+    flexBasis: "35%",
     [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
       padding: 0,
       flex: 1
@@ -722,7 +721,7 @@ const GivingSeason2024Banner = ({classes}: {
                         href={getDonateLink(currentUser)}
                         className={classNames(classes.button, classes.buttonLarge, classes.buttonWhite)}
                       >
-                        Donate to the fund
+                        Donate&nbsp;<span className={classes.hideBelowMd}>to the fund</span>
                       </EAButton>
                       <EAButton
                         href={"/voting-portal"}
@@ -742,7 +741,7 @@ const GivingSeason2024Banner = ({classes}: {
                 {name === currentEvent?.name && showRecentComments && (
                   <MixedTypeFeed
                     className={classes.recentComments}
-                    firstPageSize={3}
+                    firstPageSize={isDonationElection ? 5 : 3}
                     hideLoading
                     disableLoadMore
                     resolverName="GivingSeasonTagFeed"
