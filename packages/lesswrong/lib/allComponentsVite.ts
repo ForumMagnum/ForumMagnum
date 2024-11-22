@@ -909,6 +909,7 @@ import '../components/tagging/RandomTagPage';
 import '../components/tagging/EditTagPage';
 import '../components/tagging/EditTagsDialog';
 import '../components/tagging/AllTagsPage';
+import '../components/tagging/AllWikiTagsPage';
 import '../components/tagging/EAAllTagsPage';
 import '../components/tagging/CoreTagsSection';
 import '../components/tagging/CoreTagCard';
@@ -924,7 +925,7 @@ import '../components/tagging/AllPostsPageTagRevisionItem';
 import '../components/tagging/PostsTagsList';
 import '../components/tagging/WikiTagItem';
 import '../components/tagging/WikiTagNestedList';
-
+import '../components/tagging/ConceptItem';
 
 import '../components/tagging/TagsListItem';
 import '../components/tagging/ChangeMetricsDisplay';

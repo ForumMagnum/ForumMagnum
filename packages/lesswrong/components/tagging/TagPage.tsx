@@ -489,18 +489,7 @@ const TagPage = () => {
 
   console.log({ tag, secondTabTag, thirdTabTag })
 
-  const lensTabs = [{
-    _id: 'main-tab',
-    collectionName: 'Tags',
-    fieldName: 'description',
-    index: 0,
-    contents: tag?.description,
-    tableOfContents: tag?.tableOfContents,
-    parentDocumentId: tag?._id,
-    title: 'Main',
-    subtitle: null,
-    userId: tag?.userId
-  },
+  const lensTabs = [
   {
     _id: secondTabTag?._id ?? 'featured-tab',
     collectionName: 'Tags',
@@ -530,8 +519,8 @@ const TagPage = () => {
 
 
 
-  const { tag: secondTabTag } = useTagBySlug("featured-arbital", "TagPageFragment")
-  const { tag: thirdTabTag } = useTagBySlug("history-arbital", "TagPageFragment")
+  // const { tag: secondTabTag } = useTagBySlug("featured-arbital", "TagPageFragment")
+  // const { tag: thirdTabTag } = useTagBySlug("history-arbital", "TagPageFragment")
 
   console.log({ tag, secondTabTag, thirdTabTag })
 
@@ -553,42 +542,10 @@ const TagPage = () => {
 //   userId: string;
 // }
 
-  const lensTabs: TagLens[] = [
-  {
-    _id: secondTabTag?._id ?? 'featured-tab',
-    collectionName: 'Tags',
-    fieldName: 'description',
-    index: 1,
-    contents: secondTabTag?.description ?? null,
-    tableOfContents: secondTabTag?.tableOfContents ?? null,
-    parentDocumentId: tag?._id ?? '',
-    title: 'Featured',
-    userId: secondTabTag?.userId ?? '',
-    preview: null,
-    tabTitle: 'Featured',
-    tabSubtitle: null,
-    slug: 'featured',
-  },
-  {
-    _id: thirdTabTag?._id ?? 'history-tab',
-    collectionName: 'Tags',
-    fieldName: 'description',
-    index: 2,
-    contents: thirdTabTag?.description ?? null,
-    tableOfContents: thirdTabTag?.tableOfContents ?? null,
-    parentDocumentId: tag?._id ?? '',
-    title: 'History',
-    userId: thirdTabTag?.userId ?? '',
-    preview: null,
-    tabTitle: 'History',
-    tabSubtitle: null,
-    slug: 'history',
-  },
-  ];
 
   const splicedTag = {...tag, lenses: lensTabs}
 
-  const { selectedLensId, selectedLens, updateSelectedLens, lenses } = useTagLenses(splicedTag);
+  const { selectedLensId, selectedLens, updateSelectedLens, lenses } = useTagLenses(tag);
   const displayedTagTitle = useDisplayedTagTitle(tag, lenses, selectedLens);
 
   // if (!tag || !secondTabTag || !thirdTabTag) {

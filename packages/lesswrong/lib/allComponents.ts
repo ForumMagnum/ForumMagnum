@@ -859,6 +859,7 @@ importComponent("RandomTagPage", () => require('../components/tagging/RandomTagP
 importComponent("EditTagPage", () => require('../components/tagging/EditTagPage'));
 importComponent("EditTagsDialog", () => require('../components/tagging/EditTagsDialog'));
 importComponent("AllTagsPage", () => require('../components/tagging/AllTagsPage'));
+importComponent("AllWikiTagsPage", () => require('../components/tagging/AllWikiTagsPage'));
 importComponent("EAAllTagsPage", () => require('../components/tagging/EAAllTagsPage'));
 importComponent("CoreTagsSection", () => require('../components/tagging/CoreTagsSection'));
 importComponent("CoreTagCard", () => require('../components/tagging/CoreTagCard'));
@@ -872,7 +873,7 @@ importComponent("TagDiscussionSection", () => require('../components/tagging/Tag
 importComponent("TagDiscussionButton", () => require('../components/tagging/TagDiscussionButton'));
 importComponent("AllPostsPageTagRevisionItem", () => require('../components/tagging/AllPostsPageTagRevisionItem'));
 importComponent("PostsTagsList", () => require('../components/tagging/PostsTagsList'));
-
+importComponent("ConceptItem", () => require('../components/tagging/ConceptItem'));
 
 
 importComponent("TagsListItem", () => require('../components/tagging/TagsListItem'));
