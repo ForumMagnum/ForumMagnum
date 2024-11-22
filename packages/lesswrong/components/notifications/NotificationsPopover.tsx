@@ -10,6 +10,7 @@ import type { KarmaChanges } from "@/lib/collections/users/karmaChangesGraphQL";
 import type { KarmaChangeUpdateFrequency } from "@/lib/collections/users/schema";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { NotificationsPopoverContext, NotifPopoverLink } from "./useNotificationsPopoverContext";
+import { gql, useMutation } from "@apollo/client";
 
 const notificationsSettingsLink = "/account?highlightField=auto_subscribe_to_my_posts";
 
@@ -86,9 +87,14 @@ const getKarmaFrequency = (batchingFrequency: KarmaChangeUpdateFrequency) => {
 
 const defaultLimit = 20;
 
-const NotificationsPopover = ({karmaChanges, markAllAsRead, closePopover, classes}: {
+const NotificationsPopover = ({
+  karmaChanges,
+  onOpenNotificationsPopover,
+  closePopover,
+  classes,
+}: {
   karmaChanges?: KarmaChanges,
-  markAllAsRead?: () => void,
+  onOpenNotificationsPopover?: () => void,
   closePopover?: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -106,8 +112,8 @@ const NotificationsPopover = ({karmaChanges, markAllAsRead, closePopover, classe
 
   const toggleMenu = useCallback(() => {
     setIsOpen((open) => !open);
-    markAllAsRead?.();
-  }, [markAllAsRead]);
+    onOpenNotificationsPopover?.();
+  }, [onOpenNotificationsPopover]);
 
   const closeMenu = useCallback(() => setIsOpen(false), []);
 
@@ -116,19 +122,25 @@ const NotificationsPopover = ({karmaChanges, markAllAsRead, closePopover, classe
     closePopover?.();
   }, [closePopover, closeMenu]);
 
-  const notifs = useRef<NotificationDisplay[]>([]);
-  if (
-    data?.NotificationDisplays?.results?.length &&
-    data.NotificationDisplays.results.length !== notifs.current.length
-  ) {
-    notifs.current = data.NotificationDisplays.results ?? [];
-  }
+  const [markAllAsReadMutation] = useMutation(gql`
+    mutation MarkAllNotificationsAsRead {
+      MarkAllNotificationsAsRead
+    }
+  `);
+
+  const markAllAsRead = useCallback(async () => {
+    closeNotifications();
+    await markAllAsReadMutation();
+    await refetch();
+  }, [closeNotifications, markAllAsReadMutation, refetch]);
+
+  const notifs: NotificationDisplay[] = data?.NotificationDisplays?.results ?? [];
 
   useEffect(() => {
-    if (!notificationsLoading && notifs.current.length <= defaultLimit) {
-      markAllAsRead?.();
+    if (!notificationsLoading && notifs.length <= defaultLimit) {
+      onOpenNotificationsPopover?.();
     }
-  }, [notificationsLoading, markAllAsRead]);
+  }, [notificationsLoading, onOpenNotificationsPopover]);
 
   if (!currentUser) {
     return null;
@@ -139,7 +151,7 @@ const NotificationsPopover = ({karmaChanges, markAllAsRead, closePopover, classe
     subscribedToDigest,
   } = currentUser;
 
-  const showNotifications = !!(notifs.current.length > 0 || cachedKarmaChanges);
+  const showNotifications = !!(notifs.length > 0 || cachedKarmaChanges);
 
   const {
     SectionTitle, NotificationsPageKarmaChangeList, NoNotificationsPlaceholder,
@@ -203,7 +215,7 @@ const NotificationsPopover = ({karmaChanges, markAllAsRead, closePopover, classe
                   titleClassName={classes.sectionTitle}
                 />
                 <div className={classes.notifications}>
-                  {notifs.current.map((notification) =>
+                  {notifs.map((notification) =>
                     <NotificationsPopoverNotification
                       key={notification._id}
                       notification={notification}

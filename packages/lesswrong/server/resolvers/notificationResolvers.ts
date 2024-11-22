@@ -9,6 +9,7 @@ import { cheerioParse } from '../utils/htmlUtil';
 import { DialogueMessageInfo } from '../../components/posts/PostsPreviewTooltip/PostsPreviewTooltip';
 import { handleDialogueHtml } from '../editor/conversionUtils';
 import { createPaginatedResolver } from './paginatedResolver';
+import { addGraphQLMutation, addGraphQLResolvers } from '@/lib/vulcan-lib';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
 defineQuery({
@@ -141,3 +142,21 @@ createPaginatedResolver({
     });
   },
 });
+
+addGraphQLResolvers({
+  Mutation: {
+    MarkAllNotificationsAsRead: async (
+      _root: void,
+      _args: {},
+      {currentUser, repos}: ResolverContext,
+    ) => {
+      if (!currentUser) {
+        throw new Error("Unauthorized");
+      }
+      await repos.notifications.markAllAsRead(currentUser._id);
+      return true;
+    },
+  },
+});
+
+addGraphQLMutation("MarkAllNotificationsAsRead: Boolean");
