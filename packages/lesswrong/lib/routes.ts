@@ -844,6 +844,27 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'PeopleDirectoryPage',
       title: 'People directory',
     },
+    {
+      name: 'VotingPortal',
+      path: '/voting-portal',
+      componentName: 'VotingPortalPage',
+      title: 'Vote in the Donation Election',
+      noFooter: true,
+    },
+    {
+      name: 'ElectionCandidates',
+      path: '/admin/election-candidates',
+      componentName: 'AdminElectionCandidates',
+      title: 'Election Candidates',
+      isAdmin: true,
+    },
+    {
+      name: 'EditElectionCandidate',
+      path: '/admin/election-candidates/:id',
+      componentName: 'EditElectionCandidate',
+      title: 'Edit Election Candidate',
+      isAdmin: true,
+    },
   ],
   LessWrong: [
     {
@@ -908,15 +929,23 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'bestoflesswrong',
       path: '/bestoflesswrong',
-      redirect: () => `/leastwrong`,
-    },
-    {
-      name: 'leastwrong',
-      path: '/leastwrong',
       componentName: 'TopPostsPage',
       title: "The Best of LessWrong",
       background: "#f8f4ee",
       ...leastWrongSubtitle,
+    },
+    {
+      name: 'bestoflesswrongByYear',
+      path: '/bestoflesswrong/:year/:topic',
+      componentName: 'TopPostsPage',
+      title: "The Best of LessWrong",
+      background: "#f8f4ee",
+      ...leastWrongSubtitle,
+    },
+    {
+      name: 'leastwrong',
+      path: '/leastwrong',
+      redirect: () => `/bestoflesswrong`,
     },
     { 
       name: 'books',

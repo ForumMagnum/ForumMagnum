@@ -368,7 +368,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     svg: "/reactionImages/nounproject/noun-cancel-chat-5735669.svg",
     filter: {opacity: 0.6, translateY: 1},
     description: <div>
-      <p>Could you rephase this using different words, without using the same keyterms?</p>
+      <p>Could you rephrase this using different words, without using the same keyterms?</p>
     </div>,
     deprecated:false
   },
