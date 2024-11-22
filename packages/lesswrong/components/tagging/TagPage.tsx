@@ -27,6 +27,7 @@ import { HEADER_HEIGHT } from "../common/Header";
 import { MAX_COLUMN_WIDTH } from "../posts/PostsPage/PostsPage";
 import { ToCData } from "@/lib/tableOfContents";
 import qs from "qs";
+import HistoryIcon from "@material-ui/icons/History";
 
 const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   rootGivenImage: {
@@ -58,14 +59,14 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     marginLeft: "auto",
     marginRight: "auto",
     maxWidth: MAX_COLUMN_WIDTH,
-    paddingLeft: 42,
-    paddingRight: 42,
+    // paddingLeft: 42,
+    // paddingRight: 42,
   },
   header: {
-    paddingTop: 19,
+    // paddingTop: 19,
     paddingBottom: 5,
-    paddingLeft: 42,
-    paddingRight: 42,
+    // paddingLeft: 42,
+    // paddingRight: 42,
     background: theme.palette.panelBackground.default,
     borderTopLeftRadius: theme.borderRadius.default,
     borderTopRightRadius: theme.borderRadius.default,
@@ -80,8 +81,14 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     ...theme.typography[isFriendlyUI ? "display2" : "display3"],
     ...theme.typography[isFriendlyUI ? "headerStyle" : "commentStyle"],
     marginTop: 0,
+    lineHeight: '1.1em',
     fontWeight: isFriendlyUI ? 700 : 600,
     ...theme.typography.smallCaps,
+    [theme.breakpoints.down('sm')]: {
+      fontSize: 30,
+      marginTop: 6,
+      marginBottom: 10,
+    },
   },
   notifyMeButton: {
     [theme.breakpoints.down('xs')]: {
@@ -112,8 +119,8 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   },
   wikiSection: {
     paddingTop: 5,
-    paddingLeft: 42,
-    paddingRight: 42,
+    // paddingLeft: 42,
+    // paddingRight: 42,
     paddingBottom: 12,
     marginBottom: 24,
     background: theme.palette.panelBackground.default,
@@ -168,7 +175,10 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     alignItems: 'flex-end',
     [theme.breakpoints.down('sm')]: {
       gap: '2px',
-      flexDirection: 'column',
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'center',
+      borderBottom: "1px solid #80808021",
     },
   },
   lensTabContainer: {
@@ -198,6 +208,8 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]: {
       paddingLeft: 8,
       paddingRight: 8,
+      paddingTop: 0,
+      paddingBottom: 0,
     },
   },
   lensLabel: {
@@ -226,7 +238,9 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   },
   selectedLens: {
     [theme.breakpoints.down('sm')]: {
-      border: theme.palette.border.grey400,
+      // border: theme.palette.border.grey400,
+      background: theme.palette.greyAlpha(0.1),
+      borderRadius: 4,
     },
     [theme.breakpoints.up('sm')]: {
       borderStyle: 'solid',
@@ -241,7 +255,7 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     },
   },
   nonSelectedLens: {
-    background: theme.palette.panelBackground.tagLensTab,
+    // background: theme.palette.panelBackground.tagLensTab,
     borderStyle: 'solid',
     borderColor: theme.palette.background.transparent,
   },
@@ -252,7 +266,8 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     ...theme.typography.body1,
     color: theme.palette.grey[600],
     display: 'flex',
-    alignItems: 'end',
+    alignItems: 'start',
+    flexDirection: 'column',
   },
   contributorNameWrapper: {
     flex: 1,
@@ -285,6 +300,7 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     width: 16,
     height: 16,
   },
+  rightColumnContent: {},
   rightColumn: {
     marginTop: -32,
     '&:hover': {
@@ -325,6 +341,24 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   subject: {
     textWrap: 'nowrap',
     marginLeft: 6,
+  },
+  metadata: {
+    color: theme.palette.greyAlpha(0.7),
+    marginTop: 5,
+  },
+  requirementsLabel: {
+    
+  },
+  requirement: {
+    // color: theme.palette.link.color
+    color: theme.palette.greyAlpha(1),
+  },
+  historyIcon: {
+    width: 15,
+    height: 15,
+    position: 'relative',
+    top: 2,
+    marginLeft: 2,
   },
   ...tagPageHeaderStyles(theme),
 }));
@@ -489,7 +523,7 @@ const LensTab = ({ key, value, label, lens, isSelected, ...tabProps }: {
   const classes = useStyles(styles);
   return (
     <div key={key} className={classes.lensTabContainer}>
-      {lens.tabTitle === 'Loose Intro' && <div className={classes.aboveLensTab}>Less Technical</div>}
+      {/* {lens.tabTitle === 'Loose Intro' && <div className={classes.aboveLensTab}>Less Technical</div>} */}
       <Tab
         className={classNames(classes.lensTab, isSelected && classes.selectedLens, !isSelected && classes.nonSelectedLens)}
         key={key}
@@ -804,7 +838,7 @@ const TagPage = () => {
         <Typography variant="display3" className={classes.title}>
           {tag.deleted ? "[Deleted] " : ""}{displayedTagTitle}
         </Typography>
-        <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} hideLabels={true} className={classNames(classes.editMenu, classes.mobileButtonRow)} />
+        {/* <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} hideLabels={true} className={classNames(classes.editMenu, classes.mobileButtonRow)} /> */}
         {!tag.wikiOnly && !editing && userHasNewTagSubscriptions(currentUser) &&
           <SubscribeButton
             tag={tag}
@@ -816,15 +850,32 @@ const TagPage = () => {
         }
       </div>
       {tag.contributors && <div className={classes.contributorRow}>
-        <div className={classes.contributorNameWrapper}>
-          <span>Written by </span>
-          {tag.contributors.contributors.map(({ user }: { user?: UsersMinimumInfo }) => <UsersNameDisplay key={user?._id} user={user} className={classes.contributorName} />)}
-        </div>
-        <div className={classes.lastUpdated}>
-          {'last updated '}
-          {selectedLens?.contents?.editedAt && <FormatDate date={selectedLens.contents.editedAt} format="Do MMM YYYY" tooltip={false} />}
-        </div>
+        <Typography variant="body2" className={classes.metadata}>
+          <div>
+            {'Last updated '}
+            <span className={classes.requirement}>
+              {selectedLens?.contents?.editedAt && <FormatDate date={selectedLens.contents.editedAt} format="Do MMM YYYY" tooltip={false} />}
+              <HistoryIcon className={classes.historyIcon}/>
+            </span>
+          </div>
+          <div>
+            <span>Written by </span>
+            {tag.contributors.contributors.map(({ user }: { user?: UsersMinimumInfo }) => <UsersNameDisplay key={user?._id} user={user} className={classes.requirement}/>)}
+          </div>
+        </Typography>
       </div>}
+      {<Typography variant="body2" className={classes.metadata}>
+        <div>
+          <span className={classes.requirementsLabel}>Relies on: </span>
+          <span className={classes.requirement}>Axiom</span>
+          <span>, </span>
+          <span className={classes.requirement}>Set</span>
+        </div>
+        <div>
+          <span className={classes.requirementsLabel}>Teaches: </span>
+          <span className={classes.requirement}>Axiom of Choice</span>
+        </div>
+      </Typography>}
       {/** Just hardcoding an example for now, since we haven't imported the necessary relationships to derive it dynamically */}
       {/* {requirementsAndAlternatives} */}
     </div>
@@ -850,7 +901,7 @@ const TagPage = () => {
         hideLabels={true}
         className={classNames(classes.editMenu, classes.nonMobileButtonRow)}
       />
-      {requirementsAndAlternatives}
+      {/* {requirementsAndAlternatives}
       <ContentStyles contentType="tag" className={classes.subjectsContainer}> 
         <div className={classes.subjectsHeader}>Subjects</div>
         <div className={classes.subjectsList}>
@@ -858,7 +909,7 @@ const TagPage = () => {
           <span className={classes.subject}><HoverPreviewLink href={'/tag/causal-decision-theories'}>Causal decision theories</HoverPreviewLink></span>
           <span className={classes.subject}><HoverPreviewLink href={'/tag/evidential-decision-theories'}>Evidential decision theories</HoverPreviewLink></span>
         </div>
-      </ContentStyles>
+      </ContentStyles> */}
     </div>
     <div className={classes.rightColumnOverflowFade} />
   </div>);
