@@ -64,9 +64,6 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.primary.main,
   },
   notifications: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "4px",
     margin: "0 -8px",
   },
   notification: {
@@ -97,7 +94,11 @@ const NotificationsPopover = ({karmaChanges, markAllAsRead, closePopover, classe
 }) => {
   const currentUser = useCurrentUser();
   const [limit, setLimit] = useState(defaultLimit);
-  const {data, loading: notificationsLoading} = useNotificationDisplays(limit);
+  const {
+    data,
+    loading: notificationsLoading,
+    refetch,
+  } = useNotificationDisplays(limit);
   const loadMore = useCallback(() => setLimit((limit) => limit + 10), []);
   const anchorEl = useRef<HTMLDivElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -206,6 +207,7 @@ const NotificationsPopover = ({karmaChanges, markAllAsRead, closePopover, classe
                     <NotificationsPopoverNotification
                       key={notification._id}
                       notification={notification}
+                      refetch={refetch}
                     />
                   )}
                   <LoadMore
