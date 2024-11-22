@@ -43,6 +43,15 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('md')]: {
       display: 'none',
     },
+    '&:hover': {
+      '.historyContainer': {
+        opacity: 1,
+      },
+    },
+  },
+  historyContainer: {
+    opacity: 0,
+    transition: 'opacity 0.3s ease-in-out',
   },
   icon: {
     cursor: 'pointer',
@@ -202,7 +211,7 @@ export const ThinkSideColumn = ({classes, document, sectionData}: {
       {createPostLoading && <Loading />}
     </Row>
     {documentSideComponent}
-    <div>
+    <div className={classes.historyContainer}>
       {todaysPosts.length > 0 && <>
         <h3>Today</h3>
         {todaysPosts.map(post => <ThinkSideItem key={post._id} post={post} />)}
