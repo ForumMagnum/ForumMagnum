@@ -348,7 +348,7 @@ module.exports = {
     "afterEach": true
   },
   "ignorePatterns": [
-    "build.js",
+    "build.ts",
     // You wouldn't have thought this was necessary would you
     ".eslintrc.js"
   ]
