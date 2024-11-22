@@ -281,15 +281,15 @@ async function printTablesAndStats(connection: mysql.Connection): Promise<void> 
 
 async function loadUserMatching(csvFilename: string): Promise<Record<string,DbUser|null>> {
   const parsedCsv = loadUsersCsv(csvFilename);
-  const userIds = parsedCsv.data.map(row => (row as any).lwUserId).filter(userId => !!userId);
+  const lwUserSlugs = parsedCsv.data.map(row => (row as any).lwUserSlug).filter(userSlug => !!userSlug);
   const lwUsers = await Users.find({
-    _id: {$in: userIds}
+    slug: {$in: lwUserSlugs}
   }).fetch();
-  const lwUsersById = keyBy(lwUsers, u=>u._id);
+  const lwUsersBySlug = keyBy(lwUsers, u=>u.slug);
 
   return Object.fromEntries(parsedCsv.data.map(row => [
     (row as any).arbitalUserId,
-    lwUsersById[(row as any).lwUserId] ?? null,
+    lwUsersBySlug[(row as any).lwUserSlug] ?? null,
   ]));
 }
 
@@ -310,7 +310,7 @@ Globals.matchArbitalToLWAccounts = async (mysqlConnectionString: string, outputC
   const usersRepo = new UsersRepo();
   
   console.log(`Matching Arbital users to LW users and saving results in ${outputCsvFilename}`);
-  const headerRow = ["arbitalUserId", "arbitalEmail", "arbitalName", "lwUserId", "lwDisplayName", "lwFullName", "comment"];
+  const headerRow = ["arbitalUserId", "arbitalEmail", "arbitalName", "lwUserSlug", "lwDisplayName", "lwFullName", "comment"];
   let skippedUsers = 0;
   const unmatchedUserRows: string[][] = [];
   const matchedUserRows: string[][] = [];
@@ -330,7 +330,7 @@ Globals.matchArbitalToLWAccounts = async (mysqlConnectionString: string, outputC
       arbitalUser.id,
       arbitalUser.email,
       `${arbitalUser.firstName} ${arbitalUser.lastName}`,
-      (isMatch && lwUser?._id) || "",
+      (isMatch && lwUser?.slug) || "",
       (isMatch && lwUser?.displayName) || "",
       (isMatch && lwUser?.fullName) || "",
       `${pageEditCount[arbitalUser.id]} contributions`,
@@ -402,7 +402,7 @@ Globals.createImportAccounts = async (csvFilename: string) => {
   const parsedCsv = loadUsersCsv(csvFilename);
   const rows = parsedCsv.data;
   const rewrittenCsvRows: string[][] = [
-    ["arbitalUserId", "arbitalEmail", "arbitalName", "lwUserId", "lwDisplayName", "lwFullName", "comment"]
+    ["arbitalUserId", "arbitalEmail", "arbitalName", "lwUserSlug", "lwDisplayName", "lwFullName", "comment"]
   ];
   let usersAlreadyMatchedCount = 0;
   let usersAlreadyImportedCount = 0;
@@ -410,13 +410,13 @@ Globals.createImportAccounts = async (csvFilename: string) => {
   let userNamesUsed = new Set<string>();
 
   for (const row of rows) {
-    const {arbitalUserId, arbitalEmail, arbitalName, lwUserId, lwDisplayName, lwFullName, comment} = (row as any);
+    const {arbitalUserId, arbitalEmail, arbitalName, lwUserSlug, lwDisplayName, lwFullName, comment} = (row as any);
     
-    if (lwUserId) {
+    if (lwUserSlug) {
       // CSV already has an LW account match
       rewrittenCsvRows.push([
         arbitalUserId, arbitalEmail, arbitalName,
-        lwUserId, lwDisplayName, lwFullName, comment
+        lwUserSlug, lwDisplayName, lwFullName, comment
       ]);
       usersAlreadyMatchedCount++;
     } else {
@@ -428,7 +428,7 @@ Globals.createImportAccounts = async (csvFilename: string) => {
       if (existingLwUser) {
         rewrittenCsvRows.push([
           arbitalUserId, arbitalEmail, arbitalName,
-          existingLwUser._id, existingLwUser.displayName, existingLwUser.fullName, comment
+          existingLwUser.slug, existingLwUser.displayName, existingLwUser.fullName, comment
         ]);
         usersAlreadyImportedCount++;
       } else {
@@ -460,7 +460,7 @@ Globals.createImportAccounts = async (csvFilename: string) => {
         usersCreatedCount++;
         rewrittenCsvRows.push([
           arbitalUserId, arbitalEmail, arbitalName,
-          lwUser._id, lwUser.displayName, lwUser.fullName, comment
+          lwUser.slug, lwUser.displayName, lwUser.fullName, comment
         ]);
       }
     }
