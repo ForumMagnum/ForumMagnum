@@ -7,6 +7,7 @@ import orderBy from 'lodash/orderBy';
 import times from 'lodash/times';
 import filter from 'lodash/filter';
 import * as _ from 'underscore';
+import fs from 'node:fs';
 
 type EditAttributions = (string|null)[]
 type InsDelUnc = "ins"|"del"|"unchanged"
@@ -101,13 +102,30 @@ function isSpace(s: string): boolean {
   return s.trim()==="";
 }
 
+function replaceDelTag($: cheerio.Root) {
+  $('del').each((_, element) => {
+    const $del = $(element);
+    const attributes = $del.attr();
+    const content = $del.html();
+  
+    // Create a new <s> element with the same attributes and content
+    const $s = $('<s>').attr(attributes).html(content!);
+  
+    // Replace the <del> element with the new <s> element
+    $del.replaceWith($s);
+  });
+  return $;
+}
+
 export const attributeEdits = (oldHtml: string, newHtml: string, userId: string, oldAttributions: EditAttributions): EditAttributions => {
-  const parsedOldHtml = cheerioParse(oldHtml);
-  const parsedNewHtml = cheerioParse(newHtml);
+  // Parse the before/after HTML
+  const parsedOldHtml = replaceDelTag(cheerioParse(oldHtml));
+  const parsedNewHtml = replaceDelTag(cheerioParse(newHtml));
+  
   const oldText = treeToText(parsedOldHtml);
   const newText = treeToText(parsedNewHtml);
   
-  const diffHtml = diff(oldHtml, newHtml);
+  const diffHtml = diff(parsedOldHtml.html(), parsedNewHtml.html());
   const parsedDiffs = cheerioParse(diffHtml);
   // @ts-ignore
   const insDelAnnotations = annotateInsDel(parsedDiffs.root()[0]);
