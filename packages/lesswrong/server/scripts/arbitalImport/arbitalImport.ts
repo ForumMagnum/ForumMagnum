@@ -18,6 +18,8 @@ import Revisions from '@/lib/collections/revisions/collection';
 import { afterCreateRevisionCallback, buildRevision } from '@/server/editor/make_editable_callbacks';
 import Papa from 'papaparse';
 import sortBy from 'lodash/sortBy';
+import { asyncMapSequential } from '@/lib/utils/asyncUtils';
+import { htmlToChangeMetrics } from '@/server/editor/utils';
 
 type ArbitalImportOptions = {
   /**
@@ -78,7 +80,8 @@ Globals.importArbitalDb = async (mysqlConnectionString: string, options?: Partia
 
 Globals.deleteImportedArbitalWikiPages = async () => {
   const wikiPagesToDelete = await Tags.find({
-    "legacyData.arbitalPageId": {$exists: true}
+    "legacyData.arbitalPageId": {$exists: true},
+    deleted: false,
   }).fetch();
   for (const wikiPage of wikiPagesToDelete) {
     await Tags.rawUpdateOne({
@@ -111,7 +114,9 @@ Globals.deleteImportedArbitalUsers = async () => {
 }
 
 Globals.replaceAllImportedArbitalData = async (mysqlConnectionString: string, options?: ArbitalImportOptions) => {
+  console.log(`Removing previously-imported wiki pages`);
   await Globals.deleteImportedArbitalWikiPages();
+  console.log(`Importing Arbital content`);
   await Globals.importArbitalDb(mysqlConnectionString, options);
 }
 
@@ -167,14 +172,28 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
       const pageInfo = pageInfosById[pageId];
       if (pageInfo.isDeleted) continue;
       const lenses = lensesByPageId[pageId] ?? [];
+      const revisions = database.pages.filter(p => p.pageId === pageId)
+        .sort(r => r.edit)
+        .filter(r => !r.isAutosave);
+      const firstRevision = revisions[0];
       const liveRevision = liveRevisionsByPageId[pageId];
       const title = liveRevision.title;
       const pageCreator = matchedUsers[pageInfo.createdBy] ?? defaultUser;
-      const ckEditorMarkup = await arbitalMarkdownToCkEditorMarkup({database, markdown: liveRevision.text, slugsByPageId, titlesByPageId, pageId});
       const slug = await getUnusedSlugByCollectionName("Tags", slugify(title));
       console.log(`Creating wiki page: ${title} (${slug})`);
       
-      // Create wiki page with the latest revision
+      const ckEditorMarkupByRevisionIndex = await asyncMapSequential(revisions,
+        (rev) => arbitalMarkdownToCkEditorMarkup({
+          database,
+          markdown: rev.text,
+          slugsByPageId, titlesByPageId, pageId
+        })
+      );
+      const oldestRevCkEditorMarkup = ckEditorMarkupByRevisionIndex[0];
+
+      // Create wiki page with the oldest revision (we will create the rest of
+      // revisions next; creating them in-order ensures some on-insert callbacks
+      // work properly.)
       const wiki = (await createMutator({
         collection: Tags,
         document: {
@@ -183,7 +202,7 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
           description: {
             originalContents: {
               type: "ckEditorMarkup",
-              data: ckEditorMarkup,
+              data: oldestRevCkEditorMarkup,
             },
           },
           legacyData: {
@@ -204,28 +223,26 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
       );
 
       // Fill in some metadata on the latest revision
-      const lwLiveRevision: DbRevision = (await Revisions.findOne({_id: wiki.description_latest}))!;
+      const lwFirstRevision: DbRevision = (await Revisions.findOne({_id: wiki.description_latest}))!;
       await Revisions.rawUpdateOne(
-        {_id: lwLiveRevision._id},
+        {_id: lwFirstRevision._id},
         {$set: {
-          editedAt: liveRevision.createdAt,
-          commitMessage: liveRevision.editSummary,
-          version: `1.${liveRevision.edit}.0`,
+          editedAt: firstRevision.createdAt,
+          commitMessage: firstRevision.editSummary,
+          version: `1.0.0`,
           legacyData: {
             "arbitalPageId": pageId,
-            "arbitalEditNumber": liveRevision.edit,
+            "arbitalEditNumber": firstRevision.edit,
           },
         }}
       );
       
 
-      // Create other revisions besides the live one
-      const revisions = database.pages.filter(p => p.pageId === pageId)
-        .sort(r => r.edit)
-        .filter(r => !r.isAutosave && !r.isLiveEdit);
+      // Create other revisions besides the first one
       console.log(`Importing ${revisions.length} revisions`);
-      for (const arbRevision of revisions) {
-        const ckEditorMarkup = await arbitalMarkdownToCkEditorMarkup({database, markdown: arbRevision.text, slugsByPageId, titlesByPageId, pageId});
+      for (let i=1; i<revisions.length; i++) {
+        const arbRevision = revisions[i];
+        const ckEditorMarkup = ckEditorMarkupByRevisionIndex[i];
         const revisionCreator = matchedUsers[arbRevision.creatorId] ?? defaultUser;
 
         const lwRevision = (await createMutator({
@@ -244,7 +261,7 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
             commitMessage: arbRevision.editSummary,
             editedAt: arbRevision.createdAt,
             version: `1.${arbRevision.edit}.0`,
-            changeMetrics: {added: 1, removed: 1},
+            changeMetrics: htmlToChangeMetrics(ckEditorMarkupByRevisionIndex[i-1], ckEditorMarkup),
             legacyData: {
               "arbitalPageId": pageId,
               "arbitalEditNumber": arbRevision.edit,
@@ -256,7 +273,6 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
         await afterCreateRevisionCallback.runCallbacksAsync([{ revisionID: lwRevision._id }]);
       }
       
-      // TODO Fill in changeMetrics (words added/removed)
     } catch(e) {
       console.error(e);
     }
@@ -285,12 +301,24 @@ async function loadUserMatching(csvFilename: string): Promise<Record<string,DbUs
   const lwUsers = await Users.find({
     slug: {$in: lwUserSlugs}
   }).fetch();
+  console.log(`Loaded ${lwUsers.length} users with matching slugs`);
   const lwUsersBySlug = keyBy(lwUsers, u=>u.slug);
+  const unmatchedSlugs: string[] = [];
 
-  return Object.fromEntries(parsedCsv.data.map(row => [
-    (row as any).arbitalUserId,
-    lwUsersBySlug[(row as any).lwUserSlug] ?? null,
-  ]));
+  const result = Object.fromEntries(parsedCsv.data.map(row => {
+    const {arbitalUserId, lwUserSlug} = (row as any);
+    const slug = lwUserSlug
+    const user = lwUsersBySlug[slug] ?? null;
+    if (!user) unmatchedSlugs.push(slug);
+    return [arbitalUserId, user]
+  }));
+  
+  if (unmatchedSlugs.length > 0) {
+    console.warn(`${unmatchedSlugs.length}/${parsedCsv.data.length} users did not have corresponding accounts for import`);
+    console.warn(`Unmatched: ${unmatchedSlugs.join(", ")}`);
+  }
+  
+  return result;
 }
 
 
