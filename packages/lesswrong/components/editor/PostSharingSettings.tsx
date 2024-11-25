@@ -14,6 +14,7 @@ import { moderationEmail } from '../../lib/publicSettings';
 import { getPostCollaborateUrl } from '../../lib/collections/posts/helpers';
 import { ckEditorName } from './Editor';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { useLocation } from '@/lib/routeUtil';
 
 const styles = (theme: ThemeType) => ({
   linkSharingPreview: {
@@ -111,6 +112,9 @@ const PostSharingSettings = ({document, formType, value, classes}: {
   const currentUser = useCurrentUser();
   const initialSharingSettings = value || defaultSharingSettings;
   const { flash } = useMessages();
+
+  const location = useLocation();
+  const isThink = location.pathname.includes('/think');
   
   const onClickShare = useCallback(() => {
     if (!document.title || !document.title.length) {
@@ -154,11 +158,11 @@ const PostSharingSettings = ({document, formType, value, classes}: {
             // mark it as a draft, then submit the form.
             if (formType==="new") {
               await updateCurrentValues({ draft: true });
-              await submitForm(null, {redirectToEditor: true});
+              await submitForm(null, {redirectToEditor: isThink ? false : true});
             } else {
               // Otherwise we're going to leave whether-this-is-a-draft
               // unchanged, and subimt the form.
-              await submitForm(null, {redirectToEditor: true});
+              await submitForm(null, {redirectToEditor: isThink ? false : true});
             }
           }
           closeDialog();
@@ -166,7 +170,7 @@ const PostSharingSettings = ({document, formType, value, classes}: {
         initialShareWithUsers: document.shareWithUsers || [],
       },
     });
-  }, [openDialog, closeDialog, formType, document, updateCurrentValues, initialSharingSettings, flash, submitForm]);
+  }, [openDialog, closeDialog, formType, document, updateCurrentValues, initialSharingSettings, flash, submitForm, isThink]);
 
   const {LWTooltip, EAButton} = Components;
 

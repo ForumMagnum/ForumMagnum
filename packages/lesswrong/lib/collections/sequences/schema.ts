@@ -7,13 +7,13 @@ const formGroups: Partial<Record<string, FormGroupType<"Sequences">>> = {
   adminOptions: {
     name: "adminOptions",
     order: 2,
-    label: preferredHeadingCase("Admin Options"),
+    label: preferredHeadingCase("Admin"),
     startCollapsed: false,
   },
   advancedOptions: {
     name: "advancedOptions",
     order: 3,
-    label: preferredHeadingCase("Advanced Options"),
+    label: preferredHeadingCase("Advanced"),
     startCollapsed: true,
   },
 };

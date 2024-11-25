@@ -4,6 +4,7 @@ registerFragment(`
   fragment SequencesPageTitleFragment on Sequence {
     _id
     title
+    draft
     canonicalCollectionSlug
     canonicalCollection {
       _id

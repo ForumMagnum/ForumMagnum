@@ -119,7 +119,7 @@ interface DomainList {
   mirrorDomains: string[]
 }
 
-const LwAfDomainWhitelist: DomainList = {
+export const LwAfDomainWhitelist: DomainList = {
   onsiteDomains: [
     "lesswrong.com",
     "lesserwrong.com",

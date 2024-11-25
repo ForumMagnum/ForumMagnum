@@ -14,7 +14,7 @@ import { commentBodyStyles, pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, blackBarTitle, googleTagManagerIdSetting } from '../lib/publicSettings';
 import { isAF, isEAForum, isLW, isLWorAF } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
-import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
+
 import { userCanDo } from '../lib/vulcan-users/permissions';
 import { Helmet } from '../lib/utils/componentsWithChildren';
 import { DisableNoKibitzContext } from './users/UsersNameDisplay';
@@ -36,6 +36,7 @@ import { LoginPopoverContextProvider } from './hooks/useLoginPopoverContext';
 import DeferRender from './common/DeferRender';
 import { userHasLlmChat } from '@/lib/betas';
 import { AutosaveEditorStateContext } from './editor/EditorFormComponent';
+import { EditorCommandsContextProvider } from './editor/EditorCommandsContext';
 import { GivingSeasonEventsProvider } from './forumEvents/useGivingSeasonEvents';
 
 const STICKY_SECTION_TOP_MARGIN = 20;
@@ -499,6 +500,7 @@ const Layout = ({currentUser, children, classes}: {
       <ItemsReadContextWrapper>
       <LoginPopoverContextProvider>
       <SidebarsWrapper>
+      <EditorCommandsContextProvider>
       <AutosaveEditorStateContext.Provider value={autosaveEditorStateContext}>
       <LlmChatWrapper>
       <DisableNoKibitzContext.Provider value={noKibitzContext}>
@@ -631,6 +633,7 @@ const Layout = ({currentUser, children, classes}: {
       </DisableNoKibitzContext.Provider>
       </LlmChatWrapper>
       </AutosaveEditorStateContext.Provider>
+      </EditorCommandsContextProvider>
       </SidebarsWrapper>
       </LoginPopoverContextProvider>
       </ItemsReadContextWrapper>

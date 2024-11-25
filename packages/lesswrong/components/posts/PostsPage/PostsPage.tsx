@@ -374,24 +374,6 @@ export const styles = (theme: ThemeType) => ({
     textWrap: 'balance',
     fontWeight: '600'
   },
-  reserveSpaceForSidenotes: {
-    width: RIGHT_COLUMN_WIDTH_WITH_SIDENOTES,
-    [sidenotesHiddenBreakpoint(theme)]: {
-      width: RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES,
-      [theme.breakpoints.down('xs')]: {
-        width: RIGHT_COLUMN_WIDTH_XS,
-      },
-    },
-  },
-  reserveSpaceForIcons: {
-    width: 0,
-    [theme.breakpoints.up('xs')]: {
-      width: RIGHT_COLUMN_WIDTH_XS,
-      [theme.breakpoints.up('sm')]: {
-        width: RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES,
-      },
-    },
-  },
   subscribeToGroup: {
     padding: '8px 16px',
     ...theme.typography.body2,
@@ -589,7 +571,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     PostsPageQuestionContent, AFUnreviewedCommentCount, CommentsListSection, CommentsTableOfContents,
     StickyDigestAd, PostsPageSplashHeader, PostsAudioPlayerWrapper, AttributionInViewTracker,
     ForumEventPostPagePollSection, NotifyMeButton, LWTooltip, PostsPageDate,
-    PostFixedPositionToCHeading
+    PostFixedPositionToCHeading, ThinkLink
   } = Components
 
   useEffect(() => {
@@ -796,7 +778,8 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
             answerCount={answerCount}
             toggleEmbeddedPlayer={toggleEmbeddedPlayer}
             annualReviewMarketInfo={marketInfo}
-            />}
+            topRightExtras={currentUser?.isAdmin && <ThinkLink document={post} title="Think" />}
+          />}
           {!showSplashPageHeader && !isBookUI && <PostsPagePostHeader
             post={post}
             answers={answers ?? []}
@@ -821,7 +804,6 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     {welcomeBox}
     {showRecommendations && recommendationsPosition === "right" && fullPost && <PostSideRecommendations post={fullPost} />}
     {hasSidenotes && <>
-      <div className={classes.reserveSpaceForSidenotes}/>
       <Components.SideItemsSidebar/>
     </>}
   </>;
@@ -985,7 +967,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     <RecombeeRecommendationsContextWrapper postId={post._id} recommId={recommId}>
     <Components.SideItemsContainer>
     <ImageProvider>
-    <SideItemVisibilityContextProvider post={fullPost}>
+    {/* <SideItemVisibilityContextProvider post={fullPost}> */}
     <div ref={readingProgressBarRef} className={classes.readingProgressBar}></div>
     {fullPost && showSplashPageHeader && !permalinkedCommentId && <PostsPageSplashHeader
       // We perform this seemingly redundant spread because `showSplashPageHeader` checks that `post.reviewWinner` exists,
@@ -1032,7 +1014,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
         hasTableOfContents={hasTableOfContents}
       />
     </AnalyticsInViewTracker>}
-    </SideItemVisibilityContextProvider>
+    {/* </SideItemVisibilityContextProvider> */}
     </ImageProvider>
     </Components.SideItemsContainer>
     </RecombeeRecommendationsContextWrapper>

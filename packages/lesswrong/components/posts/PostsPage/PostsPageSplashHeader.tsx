@@ -15,6 +15,7 @@ import { hideScrollBars } from '../../../themes/styleUtils';
 import { useCurrentUser } from '../../common/withUser';
 import { Coordinates } from './ImageCropPreview';
 import { userIsAdminOrMod } from '../../../lib/vulcan-users';
+import { userCanUseThink } from '@/lib/betas';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -365,7 +366,7 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
   toggleEmbeddedPlayer?: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { UsersName, CommentBody, LWPopper, ImageCropPreview, SplashHeaderImageOptions, PostsAudioPlayerWrapper, LWPostsPageHeaderTopRight } = Components;
+  const { UsersName, CommentBody, LWPopper, ImageCropPreview, SplashHeaderImageOptions, PostsAudioPlayerWrapper, LWPostsPageHeaderTopRight, ThinkLink } = Components;
   
   const { selectedImageInfo } = useImageContext();
   const { setToCVisible } = useContext(SidebarsContext)!;
@@ -536,7 +537,9 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
     </div>}
     <div className={classes.top}>
       {topLeftSection}
-      <LWPostsPageHeaderTopRight post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} higherContrast={true} />
+      <LWPostsPageHeaderTopRight post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} higherContrast={true}>
+        {userCanUseThink(currentUser) && <ThinkLink document={post} title="Think" />}
+      </LWPostsPageHeaderTopRight>
     </div>
     {audioPlayer}
     <div className={classes.rightSection}>

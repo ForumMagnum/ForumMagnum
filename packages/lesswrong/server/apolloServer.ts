@@ -63,6 +63,7 @@ import { addAutocompleteEndpoint } from './autocompleteEndpoint';
 import { getSqlClientOrThrow } from './sql/sqlClient';
 import { addLlmChatEndpoint } from './resolvers/anthropicResolvers';
 import { addGivingSeasonEndpoints } from './givingSeason/webhook';
+import { addFeedbackEndpoint } from './feedbackEndpoint';
 
 /**
  * End-to-end tests automate interactions with the page. If we try to, for
@@ -364,6 +365,7 @@ export function startWebserver() {
 
   addServerSentEventsEndpoint(app);
   addAutocompleteEndpoint(app);
+  addFeedbackEndpoint(app);
 
   app.get('/node_modules/*', (req, res) => {
     // Under some circumstances (I'm not sure exactly what the trigger is), the

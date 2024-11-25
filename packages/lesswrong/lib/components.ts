@@ -1233,3 +1233,15 @@ importComponent("GlossaryEditFormWrapper", () => require('../components/jargon/G
 importComponent("GlossaryEditFormNewPost", () => require('../components/jargon/GlossaryEditFormNewPost'));
 importComponent("EditUserJargonSettings", () => require('../components/jargon/EditUserJargonSettings'));
 importComponent("PostsWithApprovedJargonPage", () => require('../components/jargon/PostsWithApprovedJargonPage'));
+
+importComponent("ThinkPost", () => require('../components/thinkPage/ThinkPost'));
+importComponent("ThinkPostNew", () => require('../components/thinkPage/ThinkPostNew'));
+importComponent("ThinkSideColumn", () => require('../components/thinkPage/ThinkSideColumn'));
+importComponent("ThinkSideItem", () => require('../components/thinkPage/ThinkSideItem'));
+importComponent("ThinkWrapper", () => require('../components/thinkPage/ThinkWrapper'));
+importComponent("ThinkOmnibar", () => require('../components/thinkPage/ThinkOmnibar'));
+importComponent("ThinkSequence", () => require('../components/thinkPage/ThinkSequence'));
+importComponent("ThinkSideSequence", () => require('../components/thinkPage/ThinkSideSequence'));
+importComponent("ThinkSidePost", () => require('../components/thinkPage/ThinkSidePost'));
+importComponent("ThinkLink", () => require('../components/thinkPage/ThinkLink'));
+importComponent("ThinkPostPage", () => require('../components/thinkPage/ThinkPostPage'));
