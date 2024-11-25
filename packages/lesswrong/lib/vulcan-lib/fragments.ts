@@ -163,7 +163,7 @@ export const getAllFragmentNames = (): Array<FragmentName> => {
 const addFragmentDependencies = (fragments: Array<FragmentName>): Array<FragmentName> => {
   const result = [...fragments];
   for (let i=0; i<result.length; i++) {
-    const dependencies = Fragments[result[i]].subFragments;
+    const dependencies = Fragments[result[i]]?.subFragments;
     if (dependencies) {
       _.forEach(dependencies, (subfragment: FragmentName) => {
         if (!_.find(result, (s: FragmentName)=>s===subfragment))

@@ -13,6 +13,8 @@ export const MultiDocuments = createCollection({
 addUniversalFields({ collection: MultiDocuments });
 
 ensureIndex(MultiDocuments, { parentDocumentId: 1, collectionName: 1 });
+ensureIndex(MultiDocuments, { slug: 1 });
+ensureIndex(MultiDocuments, { oldSlugs: 1 });
 
 makeEditable({
   collection: MultiDocuments,

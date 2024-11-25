@@ -108,7 +108,7 @@ const RedLinkTooltip = ({ classes, ...tagsTooltipProps }: TagsTooltipTag & { cla
       This red link was used on one 1 other page:
       <ul>
         <li>
-          <TagHoverPreview targetLocation={{ params: { slug: 'nash_equilibrium' }, hash: '', query: {} }} href='/tag/nash_equilibrium' noPrefetch>
+          <TagHoverPreview targetLocation={{ params: { slug: 'nash_equilibrium' }, hash: '', query: {} } as AnyBecauseTodo} href='/tag/nash_equilibrium' noPrefetch>
             <Link to={`/tag/nash_equilibrium`}>
               Nash Equilibrium
             </Link>
