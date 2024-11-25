@@ -337,6 +337,7 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
       },
     },
   },
+  rightColumnContent: {},
   rightColumnOverflowFade: {
     position: "relative",
     zIndex: 2,
