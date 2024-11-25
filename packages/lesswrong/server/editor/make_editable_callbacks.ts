@@ -46,17 +46,20 @@ function versionIsDraft(semver: string, collectionName: CollectionNameString) {
 
 ensureIndex(Revisions, {documentId: 1, version: 1, fieldName: 1, editedAt: 1})
 
-export async function buildRevision({ originalContents, currentUser, dataWithDiscardedSuggestions }: {
+export async function buildRevision({ originalContents, currentUser, dataWithDiscardedSuggestions, isAdminContext }: {
   originalContents: DbRevision["originalContents"],
   currentUser: DbUser,
-  dataWithDiscardedSuggestions?: string
+  dataWithDiscardedSuggestions?: string,
+  isAdminContext?: boolean
 }) {
 
   if (!originalContents) throw new Error ("Can't build revision without originalContents")
 
   const { data, type } = originalContents;
   const readerVisibleData = dataWithDiscardedSuggestions ?? data
-  const html = await dataToHTML(readerVisibleData, type, { sanitize: !currentUser.isAdmin })
+  const sanitize = !currentUser.isAdmin && !isAdminContext
+  const html = await dataToHTML(readerVisibleData, type, { sanitize, skipMathjax: true })
+  console.log({ readerVisibleData, html, sanitize });
   const wordCount = await dataToWordCount(readerVisibleData, type)
 
   return {
@@ -118,6 +121,7 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
       const revision = await buildRevision({
         originalContents,
         currentUser,
+        isAdminContext: context.currentUser?.isAdmin,
       });
       const { html, wordCount } = revision;
       const version = getInitialVersion(doc)
