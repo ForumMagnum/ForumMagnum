@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useTagBySlug } from './useTag';
 import { useLocation } from '../../lib/routeUtil';
-import { styles } from './TagPage';
+import { styles } from './TagPageExports';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 

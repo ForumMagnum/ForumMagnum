@@ -227,6 +227,7 @@ export const darkModeTheme: UserThemeSpecification = {
       commentModeratorHat: "#202719",
       spoilerBlock: "#1b1b1b",
       cookieBanner: shadePalette.grey[900],
+      tagLensTab: shadePalette.greyAlpha(.15),
     },
     background: {
       default: shadePalette.grey[100],

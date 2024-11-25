@@ -5,10 +5,15 @@
 
 //import app from './angular.ts';
 //import {Editor} from './Markdown.Editor.ts';
-import { WholeArbitalDatabase } from './arbitalSchema';
+import { Components } from '@/lib/vulcan-lib/components';
+import { DomainsRow, PageInfosRow, WholeArbitalDatabase } from './arbitalSchema';
 import {getSanitizingConverter} from './Markdown.Sanitizer';
+import { getPageUrl } from './urlService';
 //import {InitMathjax} from './mathjax.ts';
 //import {anyUrlMatch} from './util.ts';
+import React from 'react';
+import ReactDOM from 'react-dom/server';
+
 
 const anyUrlMatch = /\b((?:[a-z][\w-]+:(?:\/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))/i;
 //`
@@ -43,13 +48,16 @@ var atAliasRegexp = new RegExp(notEscaped +
 // markdownService provides a constructor you can use to create a markdown converter,
 // either for converting markdown to text or editing.
 //app.service('markdownService', function($compile, $timeout, pageService, userService, urlService, stateService) {
-export async function arbitalMarkdownToCkEditorMarkup({database, markdown: pageMarkdown, slugsByPageId, titlesByPageId, pageId}: {
+export async function arbitalMarkdownToCkEditorMarkup({database, markdown: pageMarkdown, slugsByPageId, titlesByPageId, pageId, pageInfosByPageId, domainsByPageId}: {
   database: WholeArbitalDatabase,
   markdown: string,
   slugsByPageId: Record<string,string>
   titlesByPageId: Record<string,string>
-  pageId: string
+  pageId: string,
+  pageInfosByPageId: Record<string, PageInfosRow>,
+  domainsByPageId: Record<string, DomainsRow>,
 }) {
+  const { ForumIcon } = Components;
   //var that = this;
 
   // Store an array of page aliases that failed to load, so that we don't keep trying to reload them
@@ -288,15 +296,20 @@ export async function arbitalMarkdownToCkEditorMarkup({database, markdown: pageM
     var startPathBlockRegexp = new RegExp('^%start-path\\(\\[' + aliasMatch + '\\]\\)% *(?=\Z|\n)', 'gm');
     converter.hooks.chain('preBlockGamut', function(text: string, runBlockGamut: (s:string)=>string) {
       return text.replace(startPathBlockRegexp, function(whole, alias) {
-        return "<div>Paths aren not currently supported</div>" //TODO
-        /*var href = urlService.getPageUrl(alias, {startPath: true});
+        // return "<div>Paths aren not currently supported</div>" //TODO
+        var href = getPageUrl(alias, {startPath: true}, pageInfosByPageId, domainsByPageId);
         var html = ['<div class=\'start-path-div\'>\n\n',
-          '<md-button href=\'' + href + '\' class=\'md-primary md-raised special\'>',
-          'Start reading',
-          '<md-icon>chevron_right</md-icon>',
-          '</md-button>',
+          '<a href="' + href + '" class="md-primary md-raised special">',
+          '<span>',
+          '<p>Start reading</p>',
+          ReactDOM.renderToString(<ForumIcon icon='ChevronRight' />),
+          // '<md-icon>chevron_right</md-icon>',
+          '</span>',
+          '</a>',
           '\n\n</div>'].join('');
-        return html;*/
+
+        console.log('start-path hook', { href, html });
+        return html;
       });
     });
 
@@ -357,8 +370,8 @@ export async function arbitalMarkdownToCkEditorMarkup({database, markdown: pageM
             result.push(' - ' + arg);
           }
         }
-        return '<arb-multiple-choice page-id=\'' + pageId + '\' object-alias=\'' + arguments[1] + '\'>' +
-          runBlockGamut(result.join('')) + '\n\n</arb-multiple-choice>';
+        return '<div arb-multiple-choice page-id=\'' + pageId + '\' object-alias=\'' + arguments[1] + '\'>' +
+          runBlockGamut(result.join('')) + '\n\n</div>';
       });
     });
 

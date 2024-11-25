@@ -476,6 +476,7 @@ if (taggingNameIsSet.get()) {
       subtitleComponentName: 'TagPageTitle',
       previewComponentName: 'TagHoverPreview',
       enableResourcePrefetch: tagRouteWillDefinitelyReturn200,
+      background: "white",
     },
     {
       name: 'tagDiscussion',

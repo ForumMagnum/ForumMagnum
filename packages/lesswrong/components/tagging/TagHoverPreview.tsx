@@ -42,13 +42,15 @@ const TagHoverPreview = ({
   // element ID in the dom) eg: "Further_reading"
   const hashId = hash.slice(1);
 
-  const {tag} = useTagPreview(slug, hashId, {skip: noPrefetch});
+  const {tag, loading} = useTagPreview(slug, hashId, {skip: noPrefetch});
   const { showPostCount: showPostCountQuery, useTagName: useTagNameQuery } = targetLocation.query
   const showPostCount = showPostCountQuery === "true" // query parameters are strings
   const tagName = useTagNameQuery === "true" ? tag?.name : undefined // query parameters are strings
 
   // Remove showPostCount and useTagName query parameters from the link, if present
   const linkTarget = normalizeTagLink(href);
+
+  const isRedLink = !tag && !noPrefetch && !loading;
 
   const {TagsTooltip} = Components;
   const isRead = tag?.isRead;
@@ -59,11 +61,13 @@ const TagHoverPreview = ({
       As="span"
       previewPostCount={postCount}
       noPrefetch={noPrefetch}
+      isRedLink={isRedLink}
     >
       <Link
         className={classNames(
           !showPostCount && classes.link,
           isRead && classes.visited,
+          isRedLink && classes.redLink,
         )}
         to={linkTarget}
       >

@@ -1241,6 +1241,30 @@ CREATE INDEX IF NOT EXISTS "idx_ModeratorActions_userId_createdAt" ON "Moderator
 -- Index "idx_ModeratorActions_type_createdAt_endedAt"
 CREATE INDEX IF NOT EXISTS "idx_ModeratorActions_type_createdAt_endedAt" ON "ModeratorActions" USING btree ("type", "createdAt", "endedAt");
 
+-- Table "MultiDocuments"
+CREATE TABLE "MultiDocuments" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "title" TEXT,
+  "preview" TEXT,
+  "tabTitle" TEXT,
+  "tabSubtitle" TEXT,
+  "userId" TEXT,
+  "parentDocumentId" TEXT,
+  "collectionName" TEXT,
+  "fieldName" TEXT,
+  "index" DOUBLE PRECISION,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
+  "contents_latest" TEXT
+);
+
+-- Index "idx_MultiDocuments_schemaVersion"
+CREATE INDEX IF NOT EXISTS "idx_MultiDocuments_schemaVersion" ON "MultiDocuments" USING btree ("schemaVersion");
+
+-- Index "idx_MultiDocuments_parentDocumentId_collectionName"
+CREATE INDEX IF NOT EXISTS "idx_MultiDocuments_parentDocumentId_collectionName" ON "MultiDocuments" USING btree ("parentDocumentId", "collectionName");
+
 -- Table "Notifications"
 CREATE TABLE "Notifications" (
   _id VARCHAR(27) PRIMARY KEY,

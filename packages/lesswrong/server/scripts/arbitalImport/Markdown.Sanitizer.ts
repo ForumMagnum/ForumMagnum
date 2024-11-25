@@ -23,11 +23,21 @@ var a_white = /^(<a\shref="((https?|ftp):\/\/|\/)[-A-Za-z0-9+&@#\/%?=~_|!:,.;\(\
 // <img src="url..." optional width  optional height  optional alt  optional title
 var img_white = /^(<img\ssrc="(https?:\/\/|\/)[-A-Za-z0-9+&@#\/%?=~_|!:,.;\(\)*[\]$]+"(\swidth="\d{1,3}")?(\sheight="\d{1,3}")?(\salt="[^"<>]*")?(\stitle="[^"<>]*")?\s?\/?>)$/i;
 
+// SVG tag with its allowed attributes
+var svg_white = /^(<svg(?:\s+(?:xmlns="[^"]+"|viewBox="[^"]+"|fill="[^"]+"|aria-hidden="[^"]+"|class="[^"]+"|[\w-]+="[^"]*"))*\s*>|<\/svg>)$/i;
+
+// Path tag with any attributes
+var path_white = /^(<path(?:\s+[\w-]+="[^"]*")*\s*\/?>|<\/path>)$/i;
+
 function sanitizeTag(tag: string) {
-  if (tag.match(basic_tag_whitelist) || tag.match(a_white) || tag.match(img_white))
-  return tag;
+  if (tag.match(basic_tag_whitelist) || 
+      tag.match(a_white) || 
+      tag.match(img_white) ||
+      tag.match(svg_white) ||
+      tag.match(path_white))
+    return tag;
   else
-  return '';
+    return '';
 }
 
 /// <summary>
@@ -88,6 +98,8 @@ function balanceTags(html: string) {
     tagpaired[match] = true; // mark paired
   }
 
+  // console.log('before needsRemoval', { needsRemoval, html });
+
   if (!needsRemoval)
   return html;
 
@@ -99,5 +111,8 @@ function balanceTags(html: string) {
     ctag++;
     return res;
   });
+
+  // console.log('after needsRemoval', { html });
+
   return html;
 }

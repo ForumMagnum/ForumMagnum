@@ -662,6 +662,44 @@ const schema: SchemaType<"Tags"> = {
     label: "No Index",
     tooltip: `Hide this ${taggingNameSetting.get()} from search engines`,
   },
+  lenses: resolverOnlyField({
+    type: Array,
+    graphQLtype: '[MultiDocument!]!',
+    canRead: ['guests'],
+    optional: true,
+    resolver: async (tag: DbTag, args: void, context: ResolverContext) => {
+      const { MultiDocuments, Revisions } = context;
+      const multiDocuments = await MultiDocuments.find({ parentDocumentId: tag._id, collectionName: 'Tags', fieldName: 'description' }, { sort: { index: 1 } }).fetch();
+      const revisions = await Revisions.find({ _id: { $in: multiDocuments.map(md => md.contents_latest) } }).fetch();
+
+      return multiDocuments.map(md => ({
+        ...md,
+        contents: revisions.find(r => r._id === md.contents_latest),
+      }));
+    },
+    sqlResolver: ({ field }) => `(
+      SELECT ARRAY_AGG(
+        JSONB_SET(
+          TO_JSONB(md.*),
+          '{contents}'::TEXT[],
+          TO_JSONB(r.*),
+          true
+        )
+        ORDER BY md."index" ASC
+      ) AS contents
+      FROM "MultiDocuments" md
+      LEFT JOIN "Revisions" r
+      ON r._id = md.contents_latest
+      WHERE md."parentDocumentId" = ${field("_id")}
+      AND md."collectionName" = 'Tags'
+      AND md."fieldName" = 'description'
+      LIMIT 1
+    )`,
+  }),
+  'lenses.$': {
+    type: Object,
+    optional: true,
+  },
 }
 
 export default schema;

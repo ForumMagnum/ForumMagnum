@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig-shared.json",
+  "exclude": [
+    "packages/lesswrong/client",
+    "node_modules",
+    "build"
+  ],
+  "compilerOptions": {
+    "paths": {
+      "@/server/*": ["./packages/lesswrong/server/*"],
+      "@/client/*": ["./packages/lesswrong/stubs/client/*"],
+      "@/allComponents": ["./packages/lesswrong/lib/allComponents.ts"],
+      "@/*": ["./packages/lesswrong/*"]
+    }
+  }
+}

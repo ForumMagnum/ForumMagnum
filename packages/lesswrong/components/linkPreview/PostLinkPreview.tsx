@@ -256,7 +256,16 @@ export const linkStyle = (theme: ThemeType) => (
           background: theme.palette.link.visited ?? theme.palette.primary.main,
           border: `1.2px solid ${theme.palette.link.visited ?? theme.palette.primary.main}`,
         },
-      }
+      },
+      redLink: {
+        color: `${theme.palette.error.main} !important`,
+        '&:after': {
+          border: `1.2px solid ${theme.palette.error.main}`,
+        },
+        '&:visited:after, &.visited:after': {
+          border: `1.2px solid ${theme.palette.error.main}`,
+        },
+      },
     } : {
       link: {
         '&:after': {

@@ -10,15 +10,16 @@ import keyBy from 'lodash/keyBy';
 import groupBy from 'lodash/groupBy';
 import { createAdminContext, createMutator, slugify } from '@/server/vulcan-lib';
 import Tags from '@/lib/collections/tags/collection';
-import { getUnusedSlugByCollectionName } from '@/lib/helpers';
+import { getUnusedSlugByCollectionName, slugIsUsed } from '@/lib/helpers';
 import { randomId } from '@/lib/random';
-//import { arbitalMarkdownToCkEditorMarkup } from './arbitalMarkdown';
+import { MultiDocuments } from '@/lib/collections/multiDocuments/collection';
+import { executePromiseQueue, asyncMapSequential } from '@/lib/utils/asyncUtils';
+import path from 'path';
 import { arbitalMarkdownToCkEditorMarkup } from './markdownService';
 import Revisions from '@/lib/collections/revisions/collection';
 import { afterCreateRevisionCallback, buildRevision } from '@/server/editor/make_editable_callbacks';
 import Papa from 'papaparse';
 import sortBy from 'lodash/sortBy';
-import { asyncMapSequential } from '@/lib/utils/asyncUtils';
 import { htmlToChangeMetrics } from '@/server/editor/utils';
 
 type ArbitalImportOptions = {
@@ -48,7 +49,7 @@ type ArbitalImportOptions = {
    */
   userMatchingFile?: string
 }
-const defaultArbitalImportOptions: ArbitalImportOptions = {};
+const defaultArbitalImportOptions: ArbitalImportOptions = { pages: [`Bayes' rule`] };
 
 async function connectAndLoadArbitalDatabase(mysqlConnectionString: string): Promise<WholeArbitalDatabase> {
   let connection: mysql.Connection | null = null;
@@ -124,38 +125,56 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
   const pageInfosById = keyBy(database.pageInfos, pi=>pi.pageId);
   const pagesById = groupBy(database.pages, p=>p.pageId);
   const lensesByPageId = groupBy(database.lenses, l=>l.pageId);
+  const domainsByPageId = keyBy(database.domains, d=>d.id);
   const wikiPageIds = database.pageInfos.filter(pi => pi.type === "wiki").map(pi=>pi.pageId);
   const pageIdsByTitle: Record<string,string> = {};
   const titlesByPageId: Record<string,string> = {};
   const liveRevisionsByPageId: Record<string,WholeArbitalDatabase["pages"][0]> = {};
+  // const defaultUser: DbUser|null = await Users.findOne({ username: "arbitalimport" });
+  // if (!defaultUser) {
+  //   throw new Error("There must be a user named arbitalimport to assign edits to");
+  // }
+  
+  let slugsByPageId: Record<string,string> = {};
+  const slugsCachePath = path.join(__dirname, "./slugsByPageId.json");
+  let cacheLoaded = false;
+  if (fs.existsSync(slugsCachePath)) {
+    slugsByPageId = JSON.parse(fs.readFileSync(slugsCachePath, "utf8"));
+    cacheLoaded = true;
+  }
+
   const defaultUser: DbUser|null = await Users.findOne({ username: "arbitalimport" });
   if (!defaultUser) {
     throw new Error("There must be a fallback user named arbitalimport to assign edits to");
   }
 
-  const matchedUsers: Record<string,DbUser|null> = options.userMatchingFile
-    ? await loadUserMatching(options.userMatchingFile)
-    : {};
-  
-  const slugsByPageId: Record<string,string> = {};
-  
-  for (const pageId of wikiPageIds) {
-    const pageInfo = pageInfosById[pageId];
-    const revisions = pagesById[pageId] ?? [];
+  const matchedUsers: Record<string,DbUser|null> = { '2': await resolverContext.loaders.Users.load('nmk3nLpQE89dMRzzN') };
 
-    const liveRevision = revisions?.filter(r => r.isLiveEdit)?.[0];
-    if (!liveRevision) {
-      // TODO: Figure out what these pages are that have no live revision
-      //console.log(`Page ${pageInfo.pageId} has no live revision`);
-      continue;
-    }
-    const title = liveRevision.title;
-    pageIdsByTitle[title] = pageId
-    titlesByPageId[pageId] = title;
-    liveRevisionsByPageId[pageId] = liveRevision;
-    //console.log(`${pageId}: ${title}`);
-    slugsByPageId[pageId] = await getUnusedSlugByCollectionName("Tags", slugify(title));
-  }
+  // const matchedUsers: Record<string,DbUser|null> = options.userMatchingFile
+  //   ? await loadUserMatching(options.userMatchingFile)
+  //   : {};
+
+  const pageImportFunctions = wikiPageIds
+    .filter(pageId => pagesById[pageId]?.some(revision => revision.isLiveEdit))
+    .map(pageId => {
+      const revisions = pagesById[pageId] ?? [];
+      const liveRevision = revisions.filter(r => r.isLiveEdit)[0];
+      const title = liveRevision.title;
+      
+      return async () => {
+        pageIdsByTitle[title] = pageId;
+        titlesByPageId[pageId] = title;
+        liveRevisionsByPageId[pageId] = liveRevision;
+        console.log(`${pageId}: ${title}`);
+        if (!cacheLoaded) {
+          slugsByPageId[pageId] = await getUnusedSlugByCollectionName("Tags", slugify(title));
+        }
+      };
+    });
+
+  await executePromiseQueue(pageImportFunctions, 10);
+
+  fs.writeFileSync(slugsCachePath, JSON.stringify(slugsByPageId, null, 2));
   
   console.log(`There are ${Object.keys(liveRevisionsByPageId).length} wiki pages with live revisions`);
   
@@ -179,22 +198,28 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
       const liveRevision = liveRevisionsByPageId[pageId];
       const title = liveRevision.title;
       const pageCreator = matchedUsers[pageInfo.createdBy] ?? defaultUser;
-      const slug = await getUnusedSlugByCollectionName("Tags", slugify(title));
-      console.log(`Creating wiki page: ${title} (${slug})`);
-      
+      const slug = await slugIsUsed("Tags", pageInfo.alias)
+        ? await getUnusedSlugByCollectionName("Tags", slugify(title))
+        : pageInfo.alias;
+      const modifiedSlugsByPageId = {...slugsByPageId, [pageId]: slug};
+
       const ckEditorMarkupByRevisionIndex = await asyncMapSequential(revisions,
         (rev) => arbitalMarkdownToCkEditorMarkup({
           database,
           markdown: rev.text,
-          slugsByPageId, titlesByPageId, pageId
+          slugsByPageId: modifiedSlugsByPageId,
+          slugsByPageId,
+          titlesByPageId, pageId
         })
       );
       const oldestRevCkEditorMarkup = ckEditorMarkupByRevisionIndex[0];
+      console.log(`Creating wiki page: ${title} (${slug}).  Lenses found: ${lenses.map(l=>l.lensName).join(", ")}`);
 
       // Create wiki page with the oldest revision (we will create the rest of
       // revisions next; creating them in-order ensures some on-insert callbacks
       // work properly.)
-      const wiki = (await createMutator({
+
+      const { data: wiki } = await createMutator({
         collection: Tags,
         document: {
           name: title,
@@ -212,7 +237,43 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
         context: resolverContext,
         currentUser: pageCreator,
         validate: false, //causes the check for name collisions to be skipped
-      })).data;
+      });
+
+      // Add lenses
+      for (const lens of lenses) {
+        const lensPageInfo = pageInfosById[lens.pageId];
+        if (!lensPageInfo || lensPageInfo.isDeleted) {
+          continue;
+        }
+
+        // const 
+        const lensLiveRevision = liveRevisionsByPageId[lens.lensId];
+        const lensHtml = await arbitalMarkdownToCkEditorMarkup({database, markdown: lensLiveRevision.text, slugsByPageId: modifiedSlugsByPageId, titlesByPageId, pageId, pageInfosByPageId: pageInfosById, domainsByPageId});
+
+        await createMutator({
+          collection: MultiDocuments,
+          document: {
+            parentDocumentId: wiki._id,
+            collectionName: "Tags",
+            fieldName: "description",
+            title: lensLiveRevision.title,
+            preview: lensLiveRevision.clickbait,
+            tabTitle: lens.lensName,
+            tabSubtitle: lens.lensSubtitle,
+            userId: pageCreator?._id,
+            index: lens.lensIndex,
+            contents: {
+              originalContents: {
+                type: "html",
+                data: lensHtml
+              }
+            },
+          } as AnyBecauseHard,
+          context: resolverContext,
+          currentUser: pageCreator,
+          validate: false,
+        });
+      }
       
       // Back-date it to when it was created on Arbital
       await Tags.rawUpdateOne(
@@ -272,7 +333,6 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
         })).data;
         await afterCreateRevisionCallback.runCallbacksAsync([{ revisionID: lwRevision._id }]);
       }
-      
     } catch(e) {
       console.error(e);
     }

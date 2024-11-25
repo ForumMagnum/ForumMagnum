@@ -345,6 +345,7 @@ declare global {
       onboardingSection: ColorString,
       onboardingPodcast: ColorString,
       placeholderGradient: ColorString,
+      tagLensTab: ColorString,
     },
     boxShadow: {
       default: string,

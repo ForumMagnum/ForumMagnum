@@ -262,7 +262,7 @@ import './i18n-en-us/en_US';
 import './helpers'
 import './routes';
 
-import './components';
+import '@/allComponents';
 
 // PostRelation
 import './collections/postRelations';
@@ -353,6 +353,10 @@ import "./collections/llmConversations/fragments";
 import "./collections/llmConversations/views";
 import "./collections/llmMessages/collection";
 import "./collections/llmMessages/fragments";
+
+// MultiDocuments
+import "./collections/multiDocuments/collection";
+import "./collections/multiDocuments/fragments";
 
 // Alignment Forum
 import './alignment-forum/permissions';

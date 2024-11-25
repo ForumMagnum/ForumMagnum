@@ -39,6 +39,7 @@ type MessagesViewName = "messagesConversation"|"conversationPreview";
 type MigrationsViewName = never
 type ModerationTemplatesViewName = "moderationTemplatesPage"|"moderationTemplatesList";
 type ModeratorActionsViewName = "userModeratorActions"|"restrictionModerationActions";
+type MultiDocumentsViewName = never
 type NotificationsViewName = "userNotifications"|"unreadUserNotifications"|"adminAlertNotifications";
 type PageCacheViewName = never
 type PetrovDayActionsViewName = "getAction"|"launchDashboard"|"adminConsole"|"warningConsole";
@@ -125,6 +126,7 @@ interface ViewTermsByCollectionName {
   Migrations: ViewTermsBase
   ModerationTemplates: ModerationTemplatesViewTerms
   ModeratorActions: ModeratorActionsViewTerms
+  MultiDocuments: ViewTermsBase
   Notifications: NotificationsViewTerms
   PageCache: ViewTermsBase
   PetrovDayActions: PetrovDayActionsViewTerms

@@ -117,7 +117,7 @@ type DomainMembersRow = { //{{_}}
 };
 
 // This table contains all domains and relevant info.
-type DomainsRow = { //{{_}}
+export type DomainsRow = { //{{_}}
   // Domain id.
   id: number;
   // Id of the home page for this domain. FK into pageInfos.
@@ -304,7 +304,7 @@ type MarksRow = { //{{_}}
 
 // This table contains various information about the pages. This info is not
 // dependent on any specific edit number.
-type PageInfosRow = { //{{_}}
+export type PageInfosRow = { //{{_}}
   // Id of the page the info is for.
   pageId: string;
   // Likeable id for this page. Partial FK into likes.
@@ -407,7 +407,7 @@ type PagePairsRow = { //{{_}}
 
 // This table contains all the edits for all the pages, including the original edit.
 // Each row is one edit for a given page.
-type PagesRow = { //{{_}}
+export type PagesRow = { //{{_}}
   // Id of the page the edit is for.
   pageId: string;
   // The edit (version) number. Always >0.
@@ -785,6 +785,13 @@ export type WholeArbitalDatabase = { //{{_}}
   votes: VotesRow[];
 };
 
+const TABLE_PAGINATION_LIMITS = {
+  pages: 5000,
+  pathInstances: 20000,
+  userMasteryPairs: 80000,
+  userPageObjectPairs: 80000,
+} as const;
+
 export async function loadArbitalDatabase(connection: mysql.Connection): Promise<WholeArbitalDatabase> {
   let database: WholeArbitalDatabase = {
     aliasRedirects: [],
@@ -826,9 +833,26 @@ export async function loadArbitalDatabase(connection: mysql.Connection): Promise
 
   // Load data for each table
   for (const tableName of Object.keys(database)) {
-    const query = `SELECT * FROM ${tableName}`
-    const [rows] = await connection.query(query);
-    (database as any)[tableName] = (rows as any);
+    if (tableName === 'lastVisits' || tableName === 'pathInstances' || tableName === 'userMasteryPairs' || tableName === 'userPageObjectPairs') continue;
+
+    // Pages are large, and don't fit into a single query (grpc has a message size limit)
+    // So we paginate through them based on createdAt with a limit of 1000
+    if (tableName in TABLE_PAGINATION_LIMITS) {
+      const limit = TABLE_PAGINATION_LIMITS[tableName as keyof typeof TABLE_PAGINATION_LIMITS];
+      let offset = 0;
+      let loadMore = true;
+      while (loadMore) {
+        const query = `SELECT * FROM ${tableName} ORDER BY createdAt LIMIT ${limit} OFFSET ${offset}`;
+        const [rows] = await connection.query(query);
+        (database as any)[tableName].push(...(rows as any));
+        offset += (rows as any).length;
+        loadMore = (rows as any).length === limit;
+      }
+    } else {
+      const query = `SELECT * FROM ${tableName}`
+      const [rows] = await connection.query(query);
+      (database as any)[tableName] = (rows as any);
+    }
   }
 
   return database;
