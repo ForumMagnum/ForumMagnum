@@ -140,6 +140,8 @@ const USER_SETTING_NAMES = {
   hideCommunity: 'allPostsHideCommunity'
 }
 
+export const postListSettingUrlParameterNames = Object.keys(USER_SETTING_NAMES);
+
 const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, currentSorting, currentFilter, currentShowLowKarma, currentIncludeEvents, currentHideCommunity = false, timeframes=defaultTimeframes, sortings=SORT_ORDER_OPTIONS, showTimeframe, classes}: {
   persistentSettings?: any,
   hidden: boolean,

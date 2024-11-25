@@ -3,6 +3,7 @@ import { useMulti } from "../../lib/crud/withMulti";
 import { hasForumEvents } from "../../lib/betas";
 import { useSingle } from "@/lib/crud/withSingle";
 import { isProduction } from "@/lib/executionEnvironment";
+import { isEAForum } from "@/lib/instanceSettings";
 
 type CurrentForumEventContext = {
   currentForumEvent: ForumEventsDisplay | null,
@@ -36,6 +37,7 @@ export const CurrentForumEventProvider: FC<{
     collectionName: "ForumEvents",
     fragmentName: "ForumEventsDisplay",
     documentId: isProduction ? "BkpY8huZKGykawEG9" : "93kPzFTBEmE8Jsxrs",
+    skip: !isEAForum,
   });
 
   const isEventPost = useCallback((post: PostsBase, tag?: TagBasicInfo | null) => {
