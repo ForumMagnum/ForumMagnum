@@ -237,26 +237,35 @@ export const linkStyle = (theme: ThemeType) => (
         //   borderRadius: "50%",
         // },
 
-        // // Visited styles can be applied for two reasons: based on the :visited
-        // // selector (which is applied by the browser based on local browser
-        // // history), or based on the .visited class (which is applied by link
-        // // components for logged-in users based on the read-status of the
-        // // destination, in the DB).
-        // //
-        // // `visited` is a string-classname rather than something that gets
-        // // prefixed, because some broadly-applied styles in `stylePiping` also use
-        // // it.
-        // //
-        // // Because of browser rules intended to prevent history-sniffing, the
-        // // attributes that can appear in this block, if it's applied via the
-        // // :visited selector rather than the .visited class, are highly
-        // // restricted. In particular, the `background` attribute can change
-        // // color, but it cannot change opacity.
-        // "&:visited:after, &.visited:after": {
-        //   background: theme.palette.link.visited ?? theme.palette.primary.main,
-        //   border: `1.2px solid ${theme.palette.link.visited ?? theme.palette.primary.main}`,
-        // },
-      }
+        // Visited styles can be applied for two reasons: based on the :visited
+        // selector (which is applied by the browser based on local browser
+        // history), or based on the .visited class (which is applied by link
+        // components for logged-in users based on the read-status of the
+        // destination, in the DB).
+        //
+        // `visited` is a string-classname rather than something that gets
+        // prefixed, because some broadly-applied styles in `stylePiping` also use
+        // it.
+        //
+        // Because of browser rules intended to prevent history-sniffing, the
+        // attributes that can appear in this block, if it's applied via the
+        // :visited selector rather than the .visited class, are highly
+        // restricted. In particular, the `background` attribute can change
+        // color, but it cannot change opacity.
+        "&:visited:after, &.visited:after": {
+          background: theme.palette.link.visited ?? theme.palette.primary.main,
+          border: `1.2px solid ${theme.palette.link.visited ?? theme.palette.primary.main}`,
+        },
+      },
+      redLink: {
+        color: `${theme.palette.error.main} !important`,
+        '&:after': {
+          border: `1.2px solid ${theme.palette.error.main}`,
+        },
+        '&:visited:after, &.visited:after': {
+          border: `1.2px solid ${theme.palette.error.main}`,
+        },
+      },
     } : {
       link: {
         // '&:after': {

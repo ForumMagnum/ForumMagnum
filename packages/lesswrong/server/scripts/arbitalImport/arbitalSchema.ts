@@ -117,7 +117,7 @@ type DomainMembersRow = { //{{_}}
 };
 
 // This table contains all domains and relevant info.
-type DomainsRow = { //{{_}}
+export type DomainsRow = { //{{_}}
   // Domain id.
   id: number;
   // Id of the home page for this domain. FK into pageInfos.
@@ -304,7 +304,7 @@ type MarksRow = { //{{_}}
 
 // This table contains various information about the pages. This info is not
 // dependent on any specific edit number.
-type PageInfosRow = { //{{_}}
+export type PageInfosRow = { //{{_}}
   // Id of the page the info is for.
   pageId: string;
   // Likeable id for this page. Partial FK into likes.
@@ -407,7 +407,7 @@ type PagePairsRow = { //{{_}}
 
 // This table contains all the edits for all the pages, including the original edit.
 // Each row is one edit for a given page.
-type PagesRow = { //{{_}}
+export type PagesRow = { //{{_}}
   // Id of the page the edit is for.
   pageId: string;
   // The edit (version) number. Always >0.

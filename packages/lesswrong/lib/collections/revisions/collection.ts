@@ -99,7 +99,7 @@ Revisions.checkAccess = async (user: DbUser|null, revision: DbRevision, context:
   }
   
   // Everyone who can see the post can get access to non-draft revisions
-  if (!document || !await collection.checkAccess(user, document, context)) {
+  if (!document || (collection.checkAccess && !(await collection.checkAccess(user, document, context)))) {
     return false;
   }
   

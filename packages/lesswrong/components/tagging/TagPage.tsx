@@ -58,21 +58,24 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     marginLeft: "auto",
     marginRight: "auto",
     maxWidth: MAX_COLUMN_WIDTH,
-    paddingLeft: 42,
-    paddingRight: 42,
-    background: theme.palette.background.paper,
+    [theme.breakpoints.up('md')]: {
+      paddingLeft: 42,
+      paddingRight: 42,
+    },
   },
   header: {
     paddingTop: 19,
     paddingBottom: 5,
-    paddingLeft: 42,
-    paddingRight: 42,
+    [theme.breakpoints.up('md')]: {
+      paddingLeft: 42,
+      paddingRight: 42,
+    },
     background: theme.palette.panelBackground.default,
     borderTopLeftRadius: theme.borderRadius.default,
     borderTopRightRadius: theme.borderRadius.default,
   },
   titleRow: {
-    [theme.breakpoints.up('sm')]: {
+    [theme.breakpoints.up('md')]: {
       display: 'flex',
       justifyContent: 'space-between',
     }
@@ -83,8 +86,9 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     marginTop: 0,
     fontWeight: isFriendlyUI ? 700 : 600,
     ...theme.typography.smallCaps,
-    fontSize: 90,
-    letterSpacing: "0.04em",
+    [theme.breakpoints.down('sm')]: {
+      fontSize: '27px',
+    },
   },
   notifyMeButton: {
     [theme.breakpoints.down('xs')]: {
@@ -98,7 +102,7 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     },
   },
   mobileButtonRow: {
-    [theme.breakpoints.up('sm')]: {
+    [theme.breakpoints.up('md')]: {
       display: 'none !important',
     },
   },
@@ -107,7 +111,7 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
       marginTop: 16,
       marginBottom: 8,
     },
-    [theme.breakpoints.up('sm')]: {
+    [theme.breakpoints.up('md')]: {
       position: 'absolute',
       top: -36,
       right: 8,
@@ -115,8 +119,10 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   },
   wikiSection: {
     paddingTop: 5,
-    paddingLeft: 42,
-    paddingRight: 42,
+    [theme.breakpoints.up('md')]: {
+      paddingLeft: 42,
+      paddingRight: 42,
+    },
     paddingBottom: 12,
     marginBottom: 24,
     background: theme.palette.panelBackground.default,
@@ -124,8 +130,10 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     borderBottomRightRadius: theme.borderRadius.default,
   },
   subHeading: {
-    paddingLeft: 42,
-    paddingRight: 42,
+    [theme.breakpoints.up('md')]: {
+      paddingLeft: 42,
+      paddingRight: 42,
+    },
     marginTop: -2,
     background: theme.palette.panelBackground.default,
     ...theme.typography.body2,
@@ -170,9 +178,31 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   },
   lensTabsContainer: {
     gap: '4px',
+    [theme.breakpoints.up('md')]: {
+      alignItems: 'flex-end',
+    },
     [theme.breakpoints.down('sm')]: {
       gap: '2px',
       flexDirection: 'column',
+    },
+  },
+  lensTabContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '4px',
+      [theme.breakpoints.down('sm')]: {
+        gap: '2px',
+      },
+  },
+  aboveLensTab: {
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle,
+    marginBottom: 4,
+    color: theme.palette.grey[400],
+    fontWeight: 700,
+    alignSelf: 'center',
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
     },
   },
   lensTab: {
@@ -183,20 +213,36 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
       alignSelf: 'center',
     },
   },
+  lensTabRootOverride: {
+    [theme.breakpoints.down('sm')]: {
+      maxWidth: 'unset',
+      minHeight: 'unset',
+      paddingTop: 2,
+      paddingBottom: 2,
+    },
+  },
   tabLabelContainerOverride: {
     paddingLeft: 16,
     paddingRight: 16,
     [theme.breakpoints.down('sm')]: {
       paddingLeft: 8,
       paddingRight: 8,
+      paddingTop: 0,
+      paddingBottom: 4,
     },
   },
   lensLabel: {
     display: 'flex',
-    flexDirection: 'column',
+    [theme.breakpoints.up('md')]: {
+      flexDirection: 'column',
+      minHeight: 48,
+    },
     alignItems: 'start',
+    justifyContent: 'center',
     [theme.breakpoints.down('sm')]: {
-      alignItems: 'center',
+      height: 'min-content',
+      alignItems: 'end',
+      gap: '4px',
     },
   },
   lensTitle: {
@@ -209,15 +255,21 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     textTransform: 'none',
     fontSize: '1rem',
     fontWeight: 400,
-    [theme.breakpoints.up('sm')]: {
-      // minHeight: 19,
+    [theme.breakpoints.down('sm')]: {
+      marginBottom: 1,
+      '&::before': {
+        content: '"("',
+      },
+      '&::after': {
+        content: '")"'
+      }
     },
   },
   selectedLens: {
     [theme.breakpoints.down('sm')]: {
       border: theme.palette.border.grey400,
     },
-    [theme.breakpoints.up('sm')]: {
+    [theme.breakpoints.up('md')]: {
       borderStyle: 'solid',
       borderWidth: '1px 1px 0 1px',
       borderImageSource: `linear-gradient(to bottom, 
@@ -230,8 +282,7 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     },
   },
   nonSelectedLens: {
-    // TODO: define custom background for tabs with dark mode override, since darken04 is basically not visible in dark mode
-    background: theme.palette.panelBackground.darken04,
+    background: theme.palette.panelBackground.tagLensTab,
     borderStyle: 'solid',
     borderColor: theme.palette.background.transparent,
   },
@@ -243,13 +294,14 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     color: theme.palette.grey[600],
     display: 'flex',
     alignItems: 'end',
+    fontSize: '17px',
   },
   contributorNameWrapper: {
     flex: 1,
   },
   contributorName: {
-    fontWeight: 600,
-    // flex: 1,
+    fontWeight: 550,
+    // fontSize: '15px',
   },
   lastUpdated: {
     ...theme.typography.body2,
@@ -262,9 +314,9 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     gap: '4px',
   },
   relationshipPill: {
-    border: theme.palette.border.grey400,
-    borderRadius: theme.borderRadius.small,
-    padding: 8,
+    // border: theme.palette.border.grey400,
+    // borderRadius: theme.borderRadius.small,
+    // padding: 4,
     textWrapMode: 'nowrap',
     width: 'max-content',
   },
@@ -274,6 +326,50 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   alternativeArrowIcon: {
     width: 16,
     height: 16,
+  },
+  rightColumn: {
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
+    marginTop: -32,
+    '&:hover': {
+      '& $rightColumnOverflowFade': {
+        opacity: 0,
+        pointerEvents: 'none',
+      },
+    },
+  },
+  rightColumnOverflowFade: {
+    position: "relative",
+    zIndex: 2,
+    marginTop: -120,
+    height: 140,
+    width: "100%",
+    background: `linear-gradient(0deg, 
+      ${theme.palette.background.pageActiveAreaBackground} 30%,
+      ${theme.palette.panelBackground.translucent} 70%,
+      transparent 100%
+    )`,
+    opacity: 1,
+  },
+  subjectsContainer: {
+    // marginTop: 24,
+    overflow: 'hidden',
+  },
+  subjectsHeader: {
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle,
+    fontWeight: 700,
+    marginBottom: 4,
+  },
+  subjectsList: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 4,
+  },
+  subject: {
+    textWrap: 'nowrap',
+    marginLeft: 6,
   },
   ...tagPageHeaderStyles(theme),
   nestedListContainer: {
@@ -356,6 +452,7 @@ function useTagLenses(tag: TagPageFragment | TagPageWithRevisionFragment | null)
   );
 
   const updateSelectedLens = useCallback((lensId: string) => {
+    console.log('updateSelectedLens', lensId);
     setSelectedLensId(lensId);
     const selectedLensSlug = availableLenses.find(lens => lens._id === lensId)?.slug;
     if (selectedLensSlug) {
@@ -428,6 +525,30 @@ const PostsListHeading: FC<{
     </div>
   );
 }
+
+// We need to pass through all of the props that Tab accepts in order to maintain the functionality of Tab switching/etc
+const LensTab = ({ key, value, label, lens, isSelected, ...tabProps }: {
+  key: string,
+  value: string,
+  label: React.ReactNode,
+  lens: TagLens,
+  isSelected: boolean,
+} & Omit<React.ComponentProps<typeof Tab>, 'key' | 'value' | 'label'>) => {
+  const classes = useStyles(styles);
+  return (
+    <div key={key} className={classes.lensTabContainer}>
+      {lens.tabTitle === 'Loose Intro' && <div className={classes.aboveLensTab}>Less Technical</div>}
+      <Tab
+        className={classNames(classes.lensTab, isSelected && classes.selectedLens, !isSelected && classes.nonSelectedLens)}
+        key={key}
+        value={value}
+        label={label}
+        classes={{ root: classes.lensTabRootOverride, labelContainer: classes.tabLabelContainerOverride }}
+        {...tabProps}
+      ></Tab>
+    </div>
+  );
+};
 
 const TagPage = () => {
   const {
@@ -784,6 +905,24 @@ const TagPage = () => {
     />
   );
 
+  // const requirementsAndAlternatives = (
+  //   <ContentStyles contentType="tag" className={classNames(classes.requirementsAndAlternatives)}>
+  //     <div className={classes.relationshipPill}>
+  //       {'Relies on: '}
+  //       <HoverPreviewLink href={'/tag/reads_algebra'} >Ability to read algebra</HoverPreviewLink>
+  //     </div>
+  //   </ContentStyles>
+  // );
+
+  const requirementsAndAlternatives = (
+    <ContentStyles contentType="tag" className={classes.subjectsContainer}> 
+      <div className={classes.subjectsHeader}>Relies on</div>
+      <div className={classes.subjectsList}>
+        <span className={classes.subject}><HoverPreviewLink href={'/tag/reads_algebra'} >Ability to read algebra</HoverPreviewLink></span>
+      </div>
+    </ContentStyles>
+  );
+
   const tagHeader = (
     <div className={classNames(classes.header,classes.centralColumn)}>
       {query.flagId && <span>
@@ -809,18 +948,12 @@ const TagPage = () => {
             {lenses.map(lens => {
               const label = <div className={classes.lensLabel}>
                 <span className={classes.lensTitle}>{lens.tabTitle}</span>
-                <span className={classes.lensSubtitle}>{lens.tabSubtitle}</span>
+                {lens.tabSubtitle && <span className={classes.lensSubtitle}>{lens.tabSubtitle}</span>}
               </div>;
 
               const isSelected = selectedLens?._id === lens._id;
 
-              return <Tab
-                className={classNames(classes.lensTab, isSelected && classes.selectedLens, !isSelected && classes.nonSelectedLens)}
-                key={lens._id}
-                value={lens._id}
-                label={label}
-                classes={{ labelContainer: classes.tabLabelContainerOverride }}
-              />
+              return <LensTab key={lens._id} value={lens._id} label={label} lens={lens} isSelected={isSelected} />;
             })}
           </Tabs>
         )
@@ -851,30 +984,7 @@ const TagPage = () => {
         </div> */}
       </div>}
       {/** Just hardcoding an example for now, since we haven't imported the necessary relationships to derive it dynamically */}
-      {/* <ContentStyles contentType="tag" className={classes.requirementsAndAlternatives}>
-        <div className={classes.relationshipPill}>
-          {'Relies on: '}
-          <HoverPreviewLink href={'/tag/reads_algebra'} >Ability to read algebra</HoverPreviewLink>
-        </div>
-        <div className={classes.relationshipPill}>
-          <LWTooltip title={<HoverPreviewLink href={'/tag/logical-decision-theories?lens=loose_intro_everyone_else'}>An introduction to logical decision theories for everyone else</HoverPreviewLink>} clickable>
-            Less Technical
-          </LWTooltip>
-        </div>
-        <div className={classes.relationshipPill}>
-          <LWTooltip title={<HoverPreviewLink href={'/tag/causal-decision-theories'}>Causal decision theories</HoverPreviewLink>} clickable>
-            More Technical
-          </LWTooltip>
-        </div>
-        <div className={classes.relationshipPill}>
-          {'Teaches: '}
-          <HoverPreviewLink href={'/tag/logical-decision-theories'}>Logical decision theories</HoverPreviewLink>
-          {', '}
-          <HoverPreviewLink href={'/tag/causal-decision-theories'}>Causal decision theories</HoverPreviewLink>
-          {', '}
-          <HoverPreviewLink href={'/tag/evidential-decision-theories'}>Evidential decision theories</HoverPreviewLink>
-        </div>
-      </ContentStyles> */}
+      {/* {requirementsAndAlternatives} */}
     </div>
   );
 
@@ -889,6 +999,28 @@ const TagPage = () => {
     </ToCColumn>
   );
 
+  const rightColumn = (<div className={classes.rightColumn}>
+    <div className={classes.rightColumnContent}>
+      <TagPageButtonRow
+        tag={tag}
+        editing={editing}
+        setEditing={setEditing}
+        hideLabels={true}
+        className={classNames(classes.editMenu, classes.nonMobileButtonRow)}
+      />
+      {requirementsAndAlternatives}
+      <ContentStyles contentType="tag" className={classes.subjectsContainer}> 
+        <div className={classes.subjectsHeader}>Subjects</div>
+        <div className={classes.subjectsList}>
+          <span className={classes.subject}><HoverPreviewLink href={'/tag/logical-decision-theories'}>Logical decision theories</HoverPreviewLink></span>
+          <span className={classes.subject}><HoverPreviewLink href={'/tag/causal-decision-theories'}>Causal decision theories</HoverPreviewLink></span>
+          <span className={classes.subject}><HoverPreviewLink href={'/tag/evidential-decision-theories'}>Evidential decision theories</HoverPreviewLink></span>
+        </div>
+      </ContentStyles>
+    </div>
+    <div className={classes.rightColumnOverflowFade} />
+  </div>);
+
   const multiColumnToc = (
     <MultiToCLayout
       segments={[
@@ -896,18 +1028,18 @@ const TagPage = () => {
           centralColumn: parentAndSubTags,
         },
         {
-          centralColumn: <>
-            {tagHeader}
-            {tagBodySection}
-          </>,
-          // toc: tagToc,
+          centralColumn: tagHeader,
           toc: fixedPositionTagToc,
-          rightColumn: <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} hideLabels={true} className={classNames(classes.editMenu, classes.nonMobileButtonRow)} />
+        },
+        {
+          centralColumn: tagBodySection,
+          rightColumn
         },
         {
           centralColumn: tagPostsAndCommentsSection,
         },
       ]}
+      tocRowMap={[1, 1, 1, 1]}
     />
   );
   
