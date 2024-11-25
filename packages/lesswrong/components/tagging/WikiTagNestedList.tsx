@@ -1,5 +1,5 @@
 // TODO: Import component in components.ts
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import wikitagMockupData from './wikitag_mockup_data';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -31,7 +31,7 @@ function buildTree(
   seen: Set<string> = new Set()
 ): WikiTagNode[] {
   // Prevent excessive recursion
-  if (depth > 100) {
+  if (depth > 5) {
     console.warn('Maximum depth exceeded in buildTree');
     return [];
   }
@@ -63,54 +63,54 @@ const styles = defineStyles("WikiTagNestedList", (theme: ThemeType) => ({
   }
 }));
 
-const WikiTagNestedList = () => {
+const WikiTagNestedList = ({
+  onHover, 
+  onClick, 
+  pinnedWikiTag
+}: {
+  onHover: (wikitag: WikiTagMockup | null) => void, 
+  onClick: (wikitag: WikiTagMockup) => void,
+  pinnedWikiTag: WikiTagMockup | null
+}) => {
   const { ConceptItem } = Components;
   const classes = useStyles(styles);
 
+  const prioritySlugs = useMemo(() => ['rationality', 'ai', 'world-modeling', 'world-optimization', 'practical', 'community', 'site-meta'] as const, [])  ;
+
+  const sortedTree = useMemo(() => {
+    const tree = buildTree(wikitagMockupData as WikiTagMockup[], null, 0);
+    
+    return tree.sort((a, b) => {
+      const indexA = prioritySlugs.indexOf(a.slug as typeof prioritySlugs[number]);
+      const indexB = prioritySlugs.indexOf(b.slug as typeof prioritySlugs[number]);
+      
+      // If both items are in the priority list, sort by priority
+      if (indexA !== -1 && indexB !== -1) {
+        return indexA - indexB;
+      }
+      // If only one item is in priority list, it goes first
+      if (indexA !== -1) return -1;
+      if (indexB !== -1) return 1;
+      // For all other items, sort by viewCount
+      return (b.viewCount ?? 0) - (a.viewCount ?? 0);
+    });
+  }, [prioritySlugs]);
 
   // Filter out tags with no parentTagId and no postCount or postCount === 0
-  const prioritySlugs = ['rationality', 'ai', 'world-modeling', 'world-optimization', 'practical', 'community', 'site-meta'];
   // const filteredItems = wikitagMockupData.filter(item => item.parentTagId !== null || prioritySlugs.includes(item.slug));
-  const tree = buildTree(wikitagMockupData as WikiTagMockup[], null, 0);
-
-
-  /* Sort the tree so that the first items have these slugs, in this order:
-   [
-    'rationality', 
-    'ai', 
-    'world-modeling', 
-    'world-optimization'
-    'practical', 
-    'community', 
-    'site-meta', 
-  ]
-
-  after these, the rest of the tree is sorted by viewCount
-  */
-
-  
-  const sortedTree = tree.sort((a, b) => {
-    const indexA = prioritySlugs.indexOf(a.slug);
-    const indexB = prioritySlugs.indexOf(b.slug);
-    
-    // If both items are in the priority list, sort by priority
-    if (indexA !== -1 && indexB !== -1) {
-      return indexA - indexB;
-    }
-    // If only one item is in priority list, it goes first
-    if (indexA !== -1) return -1;
-    if (indexB !== -1) return 1;
-    // For all other items, sort by viewCount
-    return (b.viewCount ?? 0) - (a.viewCount ?? 0);
-  });
-
-
-  // console.log(sortedTree);
 
   return (
     <div className={classes.root}>
-      {sortedTree.filter(wikitag => prioritySlugs.includes(wikitag.slug)).map((wikitag, index) => (
-        <ConceptItem key={wikitag._id} wikitag={wikitag} nestingLevel={0} index={index} />
+      {sortedTree.filter(wikitag => prioritySlugs.includes(wikitag.slug as typeof prioritySlugs[number])).map((wikitag, index) => (
+        <ConceptItem 
+          key={wikitag._id} 
+          wikitag={wikitag} 
+          nestingLevel={0} 
+          index={index} 
+          onHover={onHover} 
+          onClick={onClick}
+          pinnedWikiTag={pinnedWikiTag}
+        />
       ))}
     </div>
   );

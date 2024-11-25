@@ -9,22 +9,6 @@ import TagIcon from '@material-ui/icons/LocalOffer';
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 const ITEM_WIDTH = 450;
 
-// Define the type for an arbital page
-interface ArbitalPage {
-  pageId: string;
-  title: string;
-  oneLiner: string;
-  parentPageId: string | null;
-  relationship_type: string | null;
-  text_length: number;
-  authorName: string;
-  commentCount: number;
-}
-
-// Extend the type to include children for tree nodes
-interface ArbitalPageNode extends ArbitalPage {
-  children: ArbitalPageNode[];
-}
 
 const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
 
@@ -74,6 +58,10 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     "&:hover .ConceptItem-wordCount": {
       opacity: 1,
     },
+    transition: "background-color 0.1s ease",
+    "&:hover": {
+      backgroundColor: theme.palette.grey[200],
+    },
   },
 
   leftSideItems: {
@@ -112,6 +100,7 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     color: theme.palette.grey[600],
     display: "flex",
     alignItems: "center",
+    // justifyContent: "flex-end",
     // gap: "1px",
   },
   wordCount: {
@@ -132,7 +121,9 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
 
 
 
-
+  titleItemRoot: {
+    marginBottom: 12,
+  },
   titleItem: {
     marginBottom: -8,
     backgroundColor: "unset",
@@ -252,11 +243,41 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     fontSize: 11,
     color: theme.palette.grey[600],
   },
+  clickToPin: {
+    fontSize: 11,
+    color: theme.palette.primary.main,
+    // fontWeight: 700,
+    cursor: "pointer",
+    opacity: 0,
+    transition: "opacity 0.05s ease",
+    "&:hover": {
+      opacity: 1,
+    },
+
+  },
+  itemPinned: {
+    backgroundColor: theme.palette.grey[800],
+    "& $title": {
+      color: theme.palette.grey[100],
+    },
+    "& $rightSideItems": {
+      color: theme.palette.grey[300],
+    },
+    "& $icons": {
+      opacity: 0.7,
+    },
+    "& $clickToPin": {
+      color: theme.palette.grey[300],
+    },
+    "&:hover": {
+      backgroundColor: theme.palette.grey[900],
+    },
+  },
 }));
 
 
 interface WikiTagMockup {
-  "core-tag"?: string;
+  "coreTag"?: string;
   _id: string;
   name: string;
   slug: string;
@@ -275,12 +296,15 @@ interface ConceptItemProps {
   wikitag: WikiTagNode;
   nestingLevel: number;
   index?: number;
+  onHover?: (wikitag: WikiTagMockup | null) => void;
+  onClick?: (wikitag: WikiTagMockup) => void;
+  pinnedWikiTag?: WikiTagMockup | null;
 }
+  
 
-
-const ConceptItem = ({ wikitag, nestingLevel, index }: ConceptItemProps) => {
+const ConceptItem = ({ wikitag, nestingLevel, index, onHover, onClick, pinnedWikiTag }: ConceptItemProps) => {
   const classes = useStyles(styles);
-  const defaultCollapsed = nestingLevel > 0 && (index !== undefined && index >= 3);
+  const defaultCollapsed = index !== undefined && index >= 3 && index < 6;
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
   const [showingAllChildren, setShowingAllChildren] = useState(false);
 
@@ -290,7 +314,27 @@ const ConceptItem = ({ wikitag, nestingLevel, index }: ConceptItemProps) => {
     setCollapsed(!collapsed);
   };
 
+  const handleMouseEnter = () => {
+    if (onHover) {
+      onHover(wikitag);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (onHover) {
+      onHover(null);
+    }
+  };
+
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent event from bubbling up to background
+    if (onClick) {
+      onClick(wikitag);
+    }
+  };
+
   const hasChildren = wikitag.children && wikitag.children.length > 0;
+  const isPinned = pinnedWikiTag?._id === wikitag._id;
 
   const numDirectChildren = wikitag.children?.length;
   // get the post count of this wikitag and all its descendants
@@ -310,25 +354,26 @@ const ConceptItem = ({ wikitag, nestingLevel, index }: ConceptItemProps) => {
   </div>
 
   // regularItem
-  const regularItem =  <div className={classes.item}>
+  const regularItem =  <div className={classNames(classes.item, { [classes.itemPinned]: isPinned })}>
     {collapseToggle}
     <div className={classes.leftSideItems}>
       <div className={classNames(classes.title)}>
         {/* <TagsTooltip tagSlug={wikitag.slug} hash={wikitag.slug}> */}
         {wikitag.name}
       {/* </TagsTooltip> */}
-    </div>
-    {/* <div className={classes.wordCount}>{wordCountFormatted}</div> */}
-  </div>
-  <div className={classes.rightSideItems}>
-    <div className={classes.wordCount}>
-      <EditOutlinedIcon className={classes.icons} />
-      {wordCountFormatted}
       </div>
-    <div className={classes.postCount}>
-      <DescriptionIcon className={classes.icons} />
-      {wikitag.postCount}
+      {/* <div className={classes.wordCount}>{wordCountFormatted}</div> */}
     </div>
+    <div className={classes.clickToPin}>Click to pin</div>
+    <div className={classes.rightSideItems}>
+      {/* <div className={classes.wordCount}>
+        <EditOutlinedIcon className={classes.icons} />
+        {wordCountFormatted}
+      </div> */}
+      <div className={classes.postCount}>
+        <DescriptionIcon className={classes.icons} />
+        {wikitag.postCount}
+      </div>
     </div>
   </div>
 
@@ -367,13 +412,13 @@ const ConceptItem = ({ wikitag, nestingLevel, index }: ConceptItemProps) => {
     setShowingAllChildren(true);
   };
 
-  const initialNumChildrenToShow = nestingLevel <= 1 ? undefined : 3;
-  const numChildrenToShow = nestingLevel <= 1 ? undefined : (showingAllChildren ? undefined : initialNumChildrenToShow);
-  console.log({wikitagName: wikitag.name, nestingLevel, showingAllChildren, initialNumChildrenToShow, numChildrenToShow});
-
   return (
-    <div className={classes.root}>
-
+    <div 
+      className={classNames(classes.root, {[classes.titleItemRoot]: nestingLevel === 0})}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onClick={handleClick}
+    >
       {itemToRender}
 
       {/* Render Children */}
@@ -381,28 +426,29 @@ const ConceptItem = ({ wikitag, nestingLevel, index }: ConceptItemProps) => {
         <div className={classes.children}>
           <div className={classes.childrenList}>
             {wikitag.children
-              .slice(0, numChildrenToShow)
+              .slice(0, showingAllChildren ? undefined : 6)
               .map((childPage, idx) => (
                 <ConceptItem
                   key={childPage._id}
                   wikitag={childPage}
                   nestingLevel={nestingLevel + 1}
                   index={idx}
+                  onHover={onHover}
+                  onClick={onClick}
+                  pinnedWikiTag={pinnedWikiTag}
                 />
             ))}
           </div>
-          {nestingLevel > 1 && !showingAllChildren && numDirectChildren > (initialNumChildrenToShow ?? 0) && (
+          {!showingAllChildren && wikitag.children.length > 6 && (
             <div 
               className={classes.showMoreChildren}
               onClick={handleShowMore}
             >
-              {`Show ${numDirectChildren - (initialNumChildrenToShow ?? 0)} more`}
+              {`Show ${wikitag.children.length - 6} more`}
             </div>
           )}
         </div>
       )}
-
-
     </div>
   );
 };
