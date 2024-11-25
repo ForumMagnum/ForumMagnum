@@ -3129,6 +3129,17 @@ const schema: SchemaType<"Users"> = {
     hidden: !isEAForum,
     ...schemaDefaultValue(false),
   },
+  givingSeason2024VotedFlair: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'admins'],
+    canCreate: ['members'],
+    group: formGroups.siteCustomizations,
+    label: '"I Voted" flair for 2024 giving season',
+    hidden: !isEAForum,
+    ...schemaDefaultValue(false),
+  },
 };
 
 export default schema;

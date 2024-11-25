@@ -182,9 +182,18 @@ const styles = (theme: ThemeType) => ({
     bottom: 1,
     color: theme.palette.givingSeason.primary,
     fontSize: 24,
-    marginLeft: 8
+    marginLeft: 8,
+    transform: "translateY(-2px)",
   },
-})
+  votedIcon: {
+    position: "relative",
+    bottom: 1,
+    color: theme.palette.givingSeason.primary,
+    fontSize: 24,
+    marginLeft: 8,
+    transform: "translateY(1px)",
+  },
+});
 
 const FriendlyUsersProfile = ({terms, slug, classes}: {
   terms: UsersViewTerms,
@@ -495,6 +504,14 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
                 title="Donated to the Donation Election fund"
               >
                 <ForumIcon icon="GivingHand" className={classes.donationIcon} />
+              </LWTooltip>
+            }
+           {user.givingSeason2024VotedFlair &&
+              <LWTooltip
+                placement="bottom-start"
+                title="Voted in the Donation Election"
+              >
+                <ForumIcon icon="Voted" className={classes.votedIcon} />
               </LWTooltip>
             }
           </Typography>
