@@ -454,7 +454,7 @@ export type PagesRow = { //{{_}}
 };
 
 // This table contains all the summaries for all the pages.
-type PageSummariesRow = { //{{_}}
+export type PageSummariesRow = { //{{_}}
   // Id of the page the summary is for.
   pageId: string;
   // Name of the summary.

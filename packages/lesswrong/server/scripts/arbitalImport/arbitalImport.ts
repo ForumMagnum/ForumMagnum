@@ -5,7 +5,7 @@ import { Globals } from "@/lib/vulcan-lib/config";
 import fs from 'node:fs';
 import Users from '@/lib/collections/users/collection';
 import UsersRepo from "../../repos/UsersRepo";
-import { loadArbitalDatabase, WholeArbitalDatabase } from './arbitalSchema';
+import { loadArbitalDatabase, PageSummariesRow, WholeArbitalDatabase } from './arbitalSchema';
 import keyBy from 'lodash/keyBy';
 import groupBy from 'lodash/groupBy';
 import { createAdminContext, createMutator, slugify } from '@/server/vulcan-lib';
@@ -121,11 +121,92 @@ Globals.replaceAllImportedArbitalData = async (mysqlConnectionString: string, op
   await Globals.importArbitalDb(mysqlConnectionString, options);
 }
 
+function summaryNameToSortOrder(name: string): number {
+  if (name === 'Brief') return 0;
+  if (name === 'Summary') return 1;
+  if (name === 'Technical') return 2;
+  return 3;
+}
+
+interface ImportedRecordMaps {
+  pageInfosById: Record<string, WholeArbitalDatabase["pageInfos"][number]>,
+  pagesById: Record<string, WholeArbitalDatabase["pages"]>,
+  lensesByPageId: Record<string, WholeArbitalDatabase["lenses"]>,
+  domainsByPageId: Record<string, WholeArbitalDatabase["domains"][number]>,
+  summariesByPageId: Record<string, PageSummariesRow[]>,
+  slugsByPageId: Record<string, string>,
+  titlesByPageId: Record<string, string>,
+}
+
+type CreateSummariesForPageArgs = {
+  pageId: string;
+  database: WholeArbitalDatabase;
+  importedRecordMaps: ImportedRecordMaps;
+  pageCreator: DbUser | null;
+  resolverContext: ResolverContext;
+} & ({
+  tagId: string;
+} | {
+  lensMultiDocumentId: string;
+})
+
+async function createSummariesForPage({ pageId, database, importedRecordMaps, pageCreator, resolverContext, ...parentIdArg }: CreateSummariesForPageArgs) {
+  const { summariesByPageId, slugsByPageId, titlesByPageId, pageInfosById, domainsByPageId } = importedRecordMaps;
+  const topLevelPageSummaries = summariesByPageId[pageId] ?? [];
+  topLevelPageSummaries.sort((a, b) => summaryNameToSortOrder(a.name) - summaryNameToSortOrder(b.name));
+
+  for (const [idx, summary] of Object.entries(topLevelPageSummaries)) {
+    const summaryHtml = await arbitalMarkdownToCkEditorMarkup({
+      database,
+      markdown: summary.text,
+      slugsByPageId,
+      titlesByPageId,
+      pageId,
+      pageInfosByPageId: pageInfosById,
+      domainsByPageId
+    });
+
+    let parentDocumentId: string;
+    let collectionName: string;
+
+    if ('tagId' in parentIdArg) {
+      parentDocumentId = parentIdArg.tagId;
+      collectionName = "Tags";
+    } else {
+      parentDocumentId = parentIdArg.lensMultiDocumentId;
+      collectionName = "MultiDocuments";
+    }
+
+    // TODO: add slugs when those fields are implemented for MultiDocuments
+    await createMutator({
+      collection: MultiDocuments,
+      document: {
+        parentDocumentId,
+        collectionName,
+        fieldName: "summary",
+        title: summary.name,
+        index: parseInt(idx),
+        userId: pageCreator?._id,
+        contents: {
+          originalContents: {
+            type: "ckEditorMarkup",
+            data: summaryHtml,
+          }
+        },
+      } as AnyBecauseHard,
+      context: resolverContext,
+      currentUser: pageCreator,
+      validate: false,
+    });
+  }
+}
+
 async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: ResolverContext, options: ArbitalImportOptions): Promise<void> {
   const pageInfosById = keyBy(database.pageInfos, pi=>pi.pageId);
   const pagesById = groupBy(database.pages, p=>p.pageId);
   const lensesByPageId = groupBy(database.lenses, l=>l.pageId);
   const domainsByPageId = keyBy(database.domains, d=>d.id);
+  const summariesByPageId = groupBy(database.pageSummaries, s=>s.pageId);
   const wikiPageIds = database.pageInfos.filter(pi => pi.type === "wiki").map(pi=>pi.pageId);
   const pageIdsByTitle: Record<string,string> = {};
   const titlesByPageId: Record<string,string> = {};
@@ -177,6 +258,16 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
   fs.writeFileSync(slugsCachePath, JSON.stringify(slugsByPageId, null, 2));
   
   console.log(`There are ${Object.keys(liveRevisionsByPageId).length} wiki pages with live revisions`);
+
+  const importedRecordMaps: ImportedRecordMaps = {
+    pageInfosById,
+    pagesById,
+    lensesByPageId,
+    domainsByPageId,
+    summariesByPageId,
+    slugsByPageId,
+    titlesByPageId,
+  };
   
   const pageIdsToImport = options.pages
     ? options.pages.map(p => {
@@ -202,13 +293,16 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
         ? await getUnusedSlugByCollectionName("Tags", slugify(title))
         : pageInfo.alias;
       const modifiedSlugsByPageId = {...slugsByPageId, [pageId]: slug};
+      importedRecordMaps.slugsByPageId = modifiedSlugsByPageId;
 
       const ckEditorMarkupByRevisionIndex = await asyncMapSequential(revisions,
         (rev) => arbitalMarkdownToCkEditorMarkup({
           database,
           markdown: rev.text,
           slugsByPageId: modifiedSlugsByPageId,
-          titlesByPageId, pageId
+          titlesByPageId, pageId,
+          pageInfosByPageId: pageInfosById,
+          domainsByPageId
         })
       );
       const oldestRevCkEditorMarkup = ckEditorMarkupByRevisionIndex[0];
@@ -238,6 +332,15 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
         validate: false, //causes the check for name collisions to be skipped
       });
 
+      await createSummariesForPage({
+        pageId,
+        database,
+        importedRecordMaps,
+        pageCreator,
+        resolverContext,
+        tagId: wiki._id,
+      });
+
       // Add lenses
       for (const lens of lenses) {
         const lensPageInfo = pageInfosById[lens.pageId];
@@ -249,7 +352,7 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
         const lensLiveRevision = liveRevisionsByPageId[lens.lensId];
         const lensHtml = await arbitalMarkdownToCkEditorMarkup({database, markdown: lensLiveRevision.text, slugsByPageId: modifiedSlugsByPageId, titlesByPageId, pageId, pageInfosByPageId: pageInfosById, domainsByPageId});
 
-        await createMutator({
+        const { data: lensMultiDocument } = await createMutator({
           collection: MultiDocuments,
           document: {
             parentDocumentId: wiki._id,
@@ -271,6 +374,15 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
           context: resolverContext,
           currentUser: pageCreator,
           validate: false,
+        });
+
+        await createSummariesForPage({
+          pageId,
+          database,
+          importedRecordMaps,
+          pageCreator,
+          resolverContext,
+          lensMultiDocumentId: lensMultiDocument._id,
         });
       }
       
