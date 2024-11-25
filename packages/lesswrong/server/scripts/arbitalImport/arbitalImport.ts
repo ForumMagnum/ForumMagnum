@@ -208,7 +208,6 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
           database,
           markdown: rev.text,
           slugsByPageId: modifiedSlugsByPageId,
-          slugsByPageId,
           titlesByPageId, pageId
         })
       );
