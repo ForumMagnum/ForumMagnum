@@ -2652,18 +2652,8 @@ interface TagPreviewFragment_description { // fragment on Revisions
   readonly htmlHighlight: string,
 }
 
-interface TagSummariesPreviewFragment extends TagBasicInfo { // fragment on Tags
-  readonly isRead: boolean|null,
-  readonly parentTag: TagBasicInfo|null,
-  readonly subTags: Array<TagBasicInfo>,
-  readonly description: TagSummariesPreviewFragment_description|null,
-  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
+interface TagSummariesPreviewFragment extends TagPreviewFragment { // fragment on Tags
   readonly summaries: Array<MultiDocumentEdit>,
-}
-
-interface TagSummariesPreviewFragment_description { // fragment on Revisions
-  readonly _id: string,
-  readonly htmlHighlight: string,
 }
 
 interface TagSectionPreviewFragment extends TagBasicInfo { // fragment on Tags
@@ -3863,6 +3853,8 @@ interface SideCommentCacheMinimumInfo { // fragment on SideCommentCaches
 
 interface MultiDocumentsDefaultFragment { // fragment on MultiDocuments
   readonly title: string | null,
+  readonly slug: string,
+  readonly oldSlugs: Array<string>,
   readonly preview: string | null,
   readonly tabTitle: string,
   readonly tabSubtitle: string | null,
@@ -4936,5 +4928,5 @@ type CollectionNameString = "AdvisorRequests"|"ArbitalCaches"|"Bans"|"Books"|"Ch
 
 type CollectionNameWithCreatedAt = "AdvisorRequests"|"ArbitalCaches"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"JargonTerms"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PageCache"|"PetrovDayActions"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"SurveyQuestions"|"SurveyResponses"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
 
-type CollectionNameWithSlug = "Collections"|"GardenCodes"|"Posts"|"TagFlags"|"Tags"|"Users"
+type CollectionNameWithSlug = "Collections"|"GardenCodes"|"MultiDocuments"|"Posts"|"TagFlags"|"Tags"|"Users"
 
