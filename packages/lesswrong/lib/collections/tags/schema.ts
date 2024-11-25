@@ -700,6 +700,63 @@ const schema: SchemaType<"Tags"> = {
     type: Object,
     optional: true,
   },
+
+  summaries: resolverOnlyField({
+    type: Array,
+    graphQLtype: '[MultiDocument!]!',
+    canRead: ['guests'],
+    optional: true,
+    graphqlArguments: 'lensId: String',
+    resolver: async (tag, args: { lensId: string | null }, context) => {
+      const { MultiDocuments, Revisions } = context;
+      const { lensId } = args;
+
+      if (lensId) {
+        const multiDocuments = await MultiDocuments.find({ parentDocumentId: tag._id, collectionName: 'MultiDocuments', fieldName: 'summary' }, { sort: { index: 1 } }).fetch();
+        const revisions = await Revisions.find({ _id: { $in: multiDocuments.map(md => md.contents_latest) } }).fetch();
+        return multiDocuments.map(md => ({
+          ...md,
+          contents: revisions.find(r => r._id === md.contents_latest),
+        }));
+      }
+
+      const multiDocuments = await MultiDocuments.find({ parentDocumentId: tag._id, collectionName: 'Tags', fieldName: 'summary' }, { sort: { index: 1 } }).fetch();
+      const revisions = await Revisions.find({ _id: { $in: multiDocuments.map(md => md.contents_latest) } }).fetch();
+
+      return multiDocuments.map(md => ({
+        ...md,
+        contents: revisions.find(r => r._id === md.contents_latest),
+      }));
+    },
+    sqlResolver: ({ field }) => `(
+      SELECT ARRAY_AGG(
+        JSONB_SET(
+          TO_JSONB(md.*),
+          '{contents}'::TEXT[],
+          TO_JSONB(r.*),
+          true
+        )
+        ORDER BY md."index" ASC
+      ) AS contents
+      FROM "MultiDocuments" md
+      LEFT JOIN "Revisions" r
+      ON r._id = md.contents_latest
+      WHERE md."parentDocumentId" = ${field("_id")}
+      AND md."collectionName" = 'Tags'
+      AND md."fieldName" = 'summary'
+      LIMIT 1
+    )`,
+  }),
+  'summaries.$': {
+    type: Object,
+    optional: true,
+  },
+
+  isArbitalImport: resolverOnlyField({
+    type: Boolean,
+    canRead: ['guests'],
+    resolver: (tag: DbTag) => tag.legacyData?.arbitalPageId !== undefined,
+  }),
 }
 
 export default schema;

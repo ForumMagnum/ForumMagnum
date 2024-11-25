@@ -1,3 +1,4 @@
+import merge from 'lodash/merge';
 import { useMulti, UseMultiOptions } from '../../lib/crud/withMulti';
 
 export const useTagBySlug = <FragmentTypeName extends keyof FragmentTypes>(
@@ -34,12 +35,13 @@ export const useTagBySlug = <FragmentTypeName extends keyof FragmentTypes>(
   }
 }
 
-type TagPreviewFragmentName = 'TagPreviewFragment' | 'TagSectionPreviewFragment';
+type TagPreviewFragmentName = 'TagSummariesPreviewFragment' | 'TagSectionPreviewFragment';
 
 export const useTagPreview = (
   slug: string,
   hash?: string,
-  queryOptions?: Partial<Omit<UseMultiOptions<TagPreviewFragmentName, "Tags">, 'extraVariables' | 'extraVariablesValues'>>
+  queryOptions?: Partial<Omit<UseMultiOptions<TagPreviewFragmentName, "Tags">, 'extraVariables' | 'extraVariablesValues'>>,
+  lensId?: string,
 ): {
   tag: FragmentTypes[TagPreviewFragmentName]|null,
   loading: boolean,
@@ -47,11 +49,15 @@ export const useTagPreview = (
 } => {
   const fragmentName = hash
     ? 'TagSectionPreviewFragment'
-    : 'TagPreviewFragment';
+    : 'TagSummariesPreviewFragment';
 
   const hashVariables = hash
     ? { extraVariables: { hash: "String" }, extraVariablesValues: { hash } } as const
     : {};
+
+  const lensIdVariables = { extraVariables: { lensId: "String" }, extraVariablesValues: { lensId: lensId ?? null } } as const;
+
+  const variables = merge(hashVariables, lensIdVariables);
 
   const { results, loading, error } = useMulti<TagPreviewFragmentName, "Tags">({
     terms: {
@@ -61,7 +67,7 @@ export const useTagPreview = (
     collectionName: "Tags",
     fragmentName: fragmentName,
     limit: 1,
-    ...hashVariables,
+    ...variables,
     ...queryOptions
   });
   

@@ -1,6 +1,8 @@
 /* eslint-disable no-useless-escape */
 /* eslint-disable eqeqeq */
-
+/* eslint-disable no-control-regex */
+/* eslint-disable @typescript-eslint/type-annotation-spacing */
+// @ts-nocheck
 
 export const escapeHtml = function(s) {
   const entityMap = {
@@ -115,6 +117,7 @@ export const submitForm = function($form, url, data, success, error = () => {}) 
   }
 
   if (!('password' in data)) {
+    // eslint-disable-next-line no-console
     console.log('Submitting form to ' + url + ':'); console.log(data);
   }
   $.ajax({
@@ -135,6 +138,7 @@ export const submitForm = function($form, url, data, success, error = () => {}) 
     $errorText.show();
     $errorText.text(r.statusText + ': ' + r.responseText);
     $successText.hide();
+    // eslint-disable-next-line no-console
     console.error(r);
     error();
   });

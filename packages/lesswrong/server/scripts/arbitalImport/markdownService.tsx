@@ -308,7 +308,6 @@ export async function arbitalMarkdownToCkEditorMarkup({database, markdown: pageM
           '</a>',
           '\n\n</div>'].join('');
 
-        console.log('start-path hook', { href, html });
         return html;
       });
     });

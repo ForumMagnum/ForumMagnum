@@ -2568,6 +2568,7 @@ interface TagBasicInfo { // fragment on Tags
   readonly deleted: boolean,
   readonly isSubforum: boolean,
   readonly noindex: boolean,
+  readonly isArbitalImport: boolean|null,
 }
 
 interface TagDetailsFragment extends TagBasicInfo { // fragment on Tags
@@ -2647,6 +2648,20 @@ interface TagPreviewFragment extends TagBasicInfo { // fragment on Tags
 }
 
 interface TagPreviewFragment_description { // fragment on Revisions
+  readonly _id: string,
+  readonly htmlHighlight: string,
+}
+
+interface TagSummariesPreviewFragment extends TagBasicInfo { // fragment on Tags
+  readonly isRead: boolean|null,
+  readonly parentTag: TagBasicInfo|null,
+  readonly subTags: Array<TagBasicInfo>,
+  readonly description: TagSummariesPreviewFragment_description|null,
+  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
+  readonly summaries: Array<MultiDocumentEdit>,
+}
+
+interface TagSummariesPreviewFragment_description { // fragment on Revisions
   readonly _id: string,
   readonly htmlHighlight: string,
 }
@@ -3846,6 +3861,34 @@ interface SideCommentCacheMinimumInfo { // fragment on SideCommentCaches
   readonly createdAt: Date,
 }
 
+interface MultiDocumentsDefaultFragment { // fragment on MultiDocuments
+  readonly title: string | null,
+  readonly preview: string | null,
+  readonly tabTitle: string,
+  readonly tabSubtitle: string | null,
+  readonly userId: string,
+  readonly parentDocumentId: string,
+  readonly collectionName: string,
+  readonly fieldName: string,
+  readonly index: number,
+  readonly tableOfContents: any /*{"definitions":[{}]}*/,
+}
+
+interface MultiDocumentEdit { // fragment on MultiDocuments
+  readonly _id: string,
+  readonly parentDocumentId: string,
+  readonly collectionName: string,
+  readonly fieldName: string,
+  readonly userId: string,
+  readonly title: string | null,
+  readonly tabTitle: string,
+  readonly tabSubtitle: string | null,
+  readonly preview: string | null,
+  readonly index: number,
+  readonly tableOfContents: any /*{"definitions":[{}]}*/,
+  readonly contents: RevisionEdit|null,
+}
+
 interface ElectionCandidateBasicInfo { // fragment on ElectionCandidates
   readonly _id: string,
   readonly electionName: string,
@@ -4189,34 +4232,6 @@ interface LlmMessagesFragment { // fragment on LlmMessages
   readonly createdAt: Date,
 }
 
-interface MultiDocumentsDefaultFragment { // fragment on MultiDocuments
-  readonly title: string | null,
-  readonly preview: string | null,
-  readonly tabTitle: string,
-  readonly tabSubtitle: string | null,
-  readonly userId: string,
-  readonly parentDocumentId: string,
-  readonly collectionName: string,
-  readonly fieldName: string,
-  readonly index: number,
-  readonly tableOfContents: any /*{"definitions":[{}]}*/,
-}
-
-interface MultiDocumentEdit { // fragment on MultiDocuments
-  readonly _id: string,
-  readonly parentDocumentId: string,
-  readonly collectionName: string,
-  readonly fieldName: string,
-  readonly userId: string,
-  readonly title: string | null,
-  readonly tabTitle: string,
-  readonly tabSubtitle: string | null,
-  readonly preview: string | null,
-  readonly index: number,
-  readonly tableOfContents: any /*{"definitions":[{}]}*/,
-  readonly contents: RevisionEdit|null,
-}
-
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
   readonly post: PostsMinimumInfo|null,
   readonly suggestForAlignmentUserIds: Array<string>,
@@ -4423,6 +4438,7 @@ interface FragmentTypes {
   TagCreationHistoryFragment: TagCreationHistoryFragment
   TagRevisionFragment: TagRevisionFragment
   TagPreviewFragment: TagPreviewFragment
+  TagSummariesPreviewFragment: TagSummariesPreviewFragment
   TagSectionPreviewFragment: TagSectionPreviewFragment
   TagSubforumFragment: TagSubforumFragment
   TagSubtagFragment: TagSubtagFragment
@@ -4506,6 +4522,8 @@ interface FragmentTypes {
   UserRateLimitsDefaultFragment: UserRateLimitsDefaultFragment
   UserRateLimitDisplay: UserRateLimitDisplay
   SideCommentCacheMinimumInfo: SideCommentCacheMinimumInfo
+  MultiDocumentsDefaultFragment: MultiDocumentsDefaultFragment
+  MultiDocumentEdit: MultiDocumentEdit
   ElectionCandidateBasicInfo: ElectionCandidateBasicInfo
   ElectionCandidateSimple: ElectionCandidateSimple
   WithVoteElectionCandidate: WithVoteElectionCandidate
@@ -4541,8 +4559,6 @@ interface FragmentTypes {
   LlmConversationsWithMessagesFragment: LlmConversationsWithMessagesFragment
   LlmMessagesDefaultFragment: LlmMessagesDefaultFragment
   LlmMessagesFragment: LlmMessagesFragment
-  MultiDocumentsDefaultFragment: MultiDocumentsDefaultFragment
-  MultiDocumentEdit: MultiDocumentEdit
   SuggestAlignmentComment: SuggestAlignmentComment
   SubscribedPostAndCommentsFeed: SubscribedPostAndCommentsFeed
   JargonTerms: JargonTerms
@@ -4557,7 +4573,7 @@ interface FragmentTypesByCollection {
   Users: "UsersDefaultFragment"|"SuggestAlignmentUser"|"UsersMinimumInfo"|"UsersProfile"|"UsersCurrent"|"UsersCurrentCommentRateLimit"|"UsersCurrentPostRateLimit"|"UserBookmarkedPosts"|"UserKarmaChanges"|"UsersBannedFromUsersModerationLog"|"SunshineUsersList"|"UserAltAccountsFragment"|"SharedUserBooleans"|"UsersMapEntry"|"UsersEdit"|"UsersAdmin"|"UsersWithReviewInfo"|"UsersProfileEdit"|"UsersCrosspostInfo"|"UsersOptedInToDialogueFacilitation"|"UserOnboardingAuthor"
   Comments: "CommentsDefaultFragment"|"CommentsList"|"CommentsListWithTopLevelComment"|"ShortformComments"|"CommentWithRepliesFragment"|"CommentEdit"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"CommentsListWithParentMetadata"|"StickySubforumCommentFragment"|"WithVoteComment"|"CommentsListWithModerationMetadata"|"CommentsListWithModGPTAnalysis"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"SuggestAlignmentComment"
   UserTagRels: "UserTagRelsDefaultFragment"|"UserTagRelDetails"
-  Tags: "TagsDefaultFragment"|"TagBasicInfo"|"TagDetailsFragment"|"TagFragment"|"TagHistoryFragment"|"TagCreationHistoryFragment"|"TagRevisionFragment"|"TagPreviewFragment"|"TagSectionPreviewFragment"|"TagSubforumFragment"|"TagSubtagFragment"|"TagSubforumSidebarFragment"|"TagDetailedPreviewFragment"|"TagWithFlagsFragment"|"TagWithFlagsAndRevisionFragment"|"TagPageFragment"|"AllTagsPageFragment"|"TagPageWithRevisionFragment"|"TagFullContributorsList"|"TagEditFragment"|"TagRecentDiscussion"|"SunshineTagFragment"|"UserOnboardingTag"|"TagName"
+  Tags: "TagsDefaultFragment"|"TagBasicInfo"|"TagDetailsFragment"|"TagFragment"|"TagHistoryFragment"|"TagCreationHistoryFragment"|"TagRevisionFragment"|"TagPreviewFragment"|"TagSummariesPreviewFragment"|"TagSectionPreviewFragment"|"TagSubforumFragment"|"TagSubtagFragment"|"TagSubforumSidebarFragment"|"TagDetailedPreviewFragment"|"TagWithFlagsFragment"|"TagWithFlagsAndRevisionFragment"|"TagPageFragment"|"AllTagsPageFragment"|"TagPageWithRevisionFragment"|"TagFullContributorsList"|"TagEditFragment"|"TagRecentDiscussion"|"SunshineTagFragment"|"UserOnboardingTag"|"TagName"
   Conversations: "ConversationsDefaultFragment"|"ConversationsMinimumInfo"|"ConversationsList"|"ConversationsListWithReadStatus"
   CurationEmails: "CurationEmailsDefaultFragment"
   ElectionCandidates: "ElectionCandidatesDefaultFragment"|"ElectionCandidateBasicInfo"|"ElectionCandidateSimple"|"WithVoteElectionCandidate"
@@ -4613,6 +4629,7 @@ interface FragmentTypesByCollection {
   ModerationTemplates: "ModerationTemplatesDefaultFragment"|"ModerationTemplateFragment"
   CurationNotices: "CurationNoticesDefaultFragment"|"CurationNoticesFragment"
   UserRateLimits: "UserRateLimitsDefaultFragment"|"UserRateLimitDisplay"
+  MultiDocuments: "MultiDocumentsDefaultFragment"|"MultiDocumentEdit"
   ElicitQuestions: "ElicitQuestionsDefaultFragment"
   ElicitQuestionPredictions: "ElicitQuestionPredictionsDefaultFragment"
   DialogueChecks: "DialogueChecksDefaultFragment"|"DialogueCheckInfo"
@@ -4622,7 +4639,6 @@ interface FragmentTypesByCollection {
   SurveyResponses: "SurveyResponsesDefaultFragment"|"SurveyResponseMinimumInfo"
   LlmConversations: "LlmConversationsDefaultFragment"|"LlmConversationsFragment"|"LlmConversationsViewingPageFragment"|"LlmConversationsWithMessagesFragment"
   LlmMessages: "LlmMessagesDefaultFragment"|"LlmMessagesFragment"
-  MultiDocuments: "MultiDocumentsDefaultFragment"|"MultiDocumentEdit"
   SubscribedPostAndCommentses: "SubscribedPostAndCommentsFeed"
 }
 
@@ -4788,6 +4804,7 @@ interface CollectionNamesByFragmentName {
   TagCreationHistoryFragment: "Tags"
   TagRevisionFragment: "Tags"
   TagPreviewFragment: "Tags"
+  TagSummariesPreviewFragment: "Tags"
   TagSectionPreviewFragment: "Tags"
   TagSubforumFragment: "Tags"
   TagSubtagFragment: "Tags"
@@ -4871,6 +4888,8 @@ interface CollectionNamesByFragmentName {
   UserRateLimitsDefaultFragment: "UserRateLimits"
   UserRateLimitDisplay: "UserRateLimits"
   SideCommentCacheMinimumInfo: "SideCommentCaches"
+  MultiDocumentsDefaultFragment: "MultiDocuments"
+  MultiDocumentEdit: "MultiDocuments"
   ElectionCandidateBasicInfo: "ElectionCandidates"
   ElectionCandidateSimple: "ElectionCandidates"
   WithVoteElectionCandidate: "ElectionCandidates"
@@ -4906,8 +4925,6 @@ interface CollectionNamesByFragmentName {
   LlmConversationsWithMessagesFragment: "LlmConversations"
   LlmMessagesDefaultFragment: "LlmMessages"
   LlmMessagesFragment: "LlmMessages"
-  MultiDocumentsDefaultFragment: "MultiDocuments"
-  MultiDocumentEdit: "MultiDocuments"
   SuggestAlignmentComment: "Comments"
   SubscribedPostAndCommentsFeed: never
   JargonTerms: "JargonTerms"

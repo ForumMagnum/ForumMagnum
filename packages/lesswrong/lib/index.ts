@@ -255,6 +255,10 @@ import './collections/postEmbeddings/collection';
 import './collections/sideCommentCaches/collection';
 import './collections/sideCommentCaches/fragments';
 
+// MultiDocuments
+import "./collections/multiDocuments/collection";
+import "./collections/multiDocuments/fragments";
+
 // Internationalization
 import './i18n-en-us/en_US';
 
@@ -353,10 +357,6 @@ import "./collections/llmConversations/fragments";
 import "./collections/llmConversations/views";
 import "./collections/llmMessages/collection";
 import "./collections/llmMessages/fragments";
-
-// MultiDocuments
-import "./collections/multiDocuments/collection";
-import "./collections/multiDocuments/fragments";
 
 // Alignment Forum
 import './alignment-forum/permissions';

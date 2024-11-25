@@ -19,6 +19,7 @@ registerFragment(`
     deleted
     isSubforum
     noindex
+    isArbitalImport
   }
 `);
 
@@ -131,6 +132,16 @@ registerFragment(`
       htmlHighlight
     }
     canVoteOnRels
+  }
+`);
+
+registerFragment(`
+  fragment TagSummariesPreviewFragment on Tag {
+    ...TagPreviewFragment
+
+    summaries(lensId: $lensId) {
+      ...MultiDocumentEdit
+    }
   }
 `);
 
