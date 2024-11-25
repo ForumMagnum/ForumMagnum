@@ -295,6 +295,9 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
       const modifiedSlugsByPageId = {...slugsByPageId, [pageId]: slug};
       importedRecordMaps.slugsByPageId = modifiedSlugsByPageId;
 
+      const pageAliasRedirects = database.aliasRedirects.filter(ar => ar.newAlias === pageInfo.alias);
+      const oldSlugs = [pageInfo.alias, ...pageAliasRedirects.map(ar => ar.oldAlias)];
+
       const ckEditorMarkupByRevisionIndex = await asyncMapSequential(revisions,
         (rev) => arbitalMarkdownToCkEditorMarkup({
           database,
@@ -317,6 +320,7 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
         document: {
           name: title,
           slug: slug,
+          oldSlugs,
           description: {
             originalContents: {
               type: "ckEditorMarkup",
@@ -348,7 +352,9 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
           continue;
         }
 
-        // const 
+        const lensAliasRedirects = database.aliasRedirects.filter(ar => ar.newAlias === pageInfo.alias);
+        const oldLensSlugs = [...lensAliasRedirects.map(ar => ar.oldAlias)];
+
         const lensLiveRevision = liveRevisionsByPageId[lens.lensId];
         const lensHtml = await arbitalMarkdownToCkEditorMarkup({database, markdown: lensLiveRevision.text, slugsByPageId: modifiedSlugsByPageId, titlesByPageId, pageId, pageInfosByPageId: pageInfosById, domainsByPageId});
 
@@ -359,6 +365,8 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
             collectionName: "Tags",
             fieldName: "description",
             title: lensLiveRevision.title,
+            slug: lensPageInfo.alias,
+            oldSlugs: oldLensSlugs,
             preview: lensLiveRevision.clickbait,
             tabTitle: lens.lensName,
             tabSubtitle: lens.lensSubtitle,
