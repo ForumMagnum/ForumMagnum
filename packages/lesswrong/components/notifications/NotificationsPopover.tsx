@@ -140,7 +140,7 @@ const NotificationsPopover = ({
     if (!notificationsLoading && notifs.length <= defaultLimit) {
       onOpenNotificationsPopover?.();
     }
-  }, [notificationsLoading, onOpenNotificationsPopover]);
+  }, [notificationsLoading, onOpenNotificationsPopover, notifs.length]);
 
   if (!currentUser) {
     return null;
