@@ -21,6 +21,7 @@ import { afterCreateRevisionCallback, buildRevision } from '@/server/editor/make
 import Papa from 'papaparse';
 import sortBy from 'lodash/sortBy';
 import { htmlToChangeMetrics } from '@/server/editor/utils';
+import { runSqlQuery } from '@/server/sql/sqlClient';
 
 type ArbitalImportOptions = {
   /**
@@ -347,7 +348,11 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
       });*/
 
       // Back-date it to when it was created on Arbital
-      await backDateObj(Tags, wiki._id, pageInfo.createdAt);
+      await Promise.all([
+        backDateObj(Tags, wiki._id, pageInfo.createdAt),
+        backDateDenormalizedEditable(Tags, wiki._id, "description", pageInfo.createdAt),
+        backDateRevision(wiki.description_latest!, pageInfo.createdAt),
+      ]);
 
       // Fill in some metadata on the latest revision
       const lwFirstRevision: DbRevision = (await Revisions.findOne({_id: wiki.description_latest}))!;
@@ -426,7 +431,10 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
           currentUser: pageCreator,
           validate: false,
         });
-        await backDateObj(MultiDocuments, lensObj._id, lensFirstRevision.createdAt);
+        await Promise.all([
+          backDateObj(MultiDocuments, lensObj._id, lensFirstRevision.createdAt),
+          backDateRevision(lensObj.contents_latest!, lensFirstRevision.createdAt),
+        ]);
         
         await importRevisions({
           collection: MultiDocuments,
@@ -462,6 +470,28 @@ async function backDateObj<N extends CollectionNameString>(collection: Collectio
   );
 }
 
+async function backDateDenormalizedEditable<N extends CollectionNameString>(collection: CollectionBase<N>, _id: string, fieldName: string, date: Date) {
+  await runSqlQuery(`
+    UPDATE "${collection.collectionName}"
+    SET "${fieldName}" = jsonb_set(
+      "description",
+      '{editedAt}',
+      to_jsonb($2::timestamp)
+    )
+    WHERE "_id" = $1
+  `, [_id, date]);
+}
+
+async function backDateRevision(_id: string, date: Date) {
+  await Revisions.rawUpdateOne(
+    {_id},
+    {$set: {
+      createdAt: date,
+      editedAt: date,
+    }}
+  );
+}
+
 async function importRevisions<N extends CollectionNameString>({
   collection, fieldName, documentId, pageId, revisions, oldestRevCkEditorMarkup, conversionContext
 }: {
@@ -482,11 +512,7 @@ async function importRevisions<N extends CollectionNameString>({
   );
   for (let i=0; i<revisions.length; i++) {
     const arbRevision = revisions[i];
-    const ckEditorMarkup = await arbitalMarkdownToCkEditorMarkup({
-      markdown: arbRevision.text,
-      pageId,
-      conversionContext
-    });
+    const ckEditorMarkup = ckEditorMarkupByRevisionIndex[i];
     const revisionCreator = conversionContext.matchedUsers[arbRevision.creatorId] ?? conversionContext.defaultUser;
 
     const lwRevision = (await createMutator({
@@ -503,7 +529,6 @@ async function importRevisions<N extends CollectionNameString>({
         collectionName: collection.collectionName,
         documentId: documentId,
         commitMessage: arbRevision.editSummary,
-        editedAt: arbRevision.createdAt,
         version: `1.${arbRevision.edit}.0`,
         changeMetrics: htmlToChangeMetrics(i>0 ? ckEditorMarkupByRevisionIndex[i-1] : oldestRevCkEditorMarkup, ckEditorMarkup),
         legacyData: {
@@ -514,9 +539,9 @@ async function importRevisions<N extends CollectionNameString>({
       currentUser: revisionCreator,
       validate: false,
     })).data;
+    await backDateRevision(lwRevision._id, arbRevision.createdAt);
     await afterCreateRevisionCallback.runCallbacksAsync([{ revisionID: lwRevision._id }]);
   }
-
 }
 
 async function printTablesAndStats(connection: mysql.Connection): Promise<void> {
