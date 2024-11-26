@@ -7,6 +7,7 @@
 //import {Editor} from './Markdown.Editor.ts';
 import { Components } from '@/lib/vulcan-lib/components';
 import { DomainsRow, PageInfosRow, WholeArbitalDatabase } from './arbitalSchema';
+import type { ArbitalConversionContext } from './arbitalImport';
 import {getSanitizingConverter} from './Markdown.Sanitizer';
 import { getPageUrl } from './urlService';
 //import {InitMathjax} from './mathjax.ts';
@@ -48,15 +49,13 @@ var atAliasRegexp = new RegExp(notEscaped +
 // markdownService provides a constructor you can use to create a markdown converter,
 // either for converting markdown to text or editing.
 //app.service('markdownService', function($compile, $timeout, pageService, userService, urlService, stateService) {
-export async function arbitalMarkdownToCkEditorMarkup({database, markdown: pageMarkdown, slugsByPageId, titlesByPageId, pageId, pageInfosByPageId, domainsByPageId}: {
-  database: WholeArbitalDatabase,
+export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, pageId, conversionContext}: {
   markdown: string,
-  slugsByPageId: Record<string,string>
-  titlesByPageId: Record<string,string>
   pageId: string,
-  pageInfosByPageId?: Record<string, PageInfosRow>,
-  domainsByPageId?: Record<string, DomainsRow>,
+  conversionContext: ArbitalConversionContext,
 }) {
+  if (!pageMarkdown) return "";
+  const { slugsByPageId, titlesByPageId, pageInfosByPageId, domainsByPageId } = conversionContext;
   const { ForumIcon } = Components;
   //var that = this;
 

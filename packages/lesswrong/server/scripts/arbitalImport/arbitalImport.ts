@@ -5,7 +5,7 @@ import { Globals } from "@/lib/vulcan-lib/config";
 import fs from 'node:fs';
 import Users from '@/lib/collections/users/collection';
 import UsersRepo from "../../repos/UsersRepo";
-import { loadArbitalDatabase, PageSummariesRow, WholeArbitalDatabase } from './arbitalSchema';
+import { loadArbitalDatabase, WholeArbitalDatabase, PageSummariesRow, PagesRow, PageInfosRow, DomainsRow } from './arbitalSchema';
 import keyBy from 'lodash/keyBy';
 import groupBy from 'lodash/groupBy';
 import { createAdminContext, createMutator, slugify } from '@/server/vulcan-lib';
@@ -140,30 +140,26 @@ interface ImportedRecordMaps {
 
 type CreateSummariesForPageArgs = {
   pageId: string;
-  database: WholeArbitalDatabase;
   importedRecordMaps: ImportedRecordMaps;
   pageCreator: DbUser | null;
   resolverContext: ResolverContext;
+  conversionContext: ArbitalConversionContext;
 } & ({
   tagId: string;
 } | {
   lensMultiDocumentId: string;
 })
 
-async function createSummariesForPage({ pageId, database, importedRecordMaps, pageCreator, resolverContext, ...parentIdArg }: CreateSummariesForPageArgs) {
-  const { summariesByPageId, slugsByPageId, titlesByPageId, pageInfosById, domainsByPageId } = importedRecordMaps;
+async function createSummariesForPage({ pageId, importedRecordMaps, pageCreator, conversionContext, resolverContext, ...parentIdArg }: CreateSummariesForPageArgs) {
+  const { summariesByPageId } = importedRecordMaps;
   const topLevelPageSummaries = summariesByPageId[pageId] ?? [];
   topLevelPageSummaries.sort((a, b) => summaryNameToSortOrder(a.name) - summaryNameToSortOrder(b.name));
 
   for (const [idx, summary] of Object.entries(topLevelPageSummaries)) {
     const summaryHtml = await arbitalMarkdownToCkEditorMarkup({
-      database,
       markdown: summary.text,
-      slugsByPageId,
-      titlesByPageId,
       pageId,
-      pageInfosByPageId: pageInfosById,
-      domainsByPageId
+      conversionContext,
     });
 
     let parentDocumentId: string;
@@ -201,6 +197,16 @@ async function createSummariesForPage({ pageId, database, importedRecordMaps, pa
   }
 }
 
+export type ArbitalConversionContext = {
+  database: WholeArbitalDatabase,
+  matchedUsers: Record<string,DbUser|null>
+  defaultUser: DbUser,
+  slugsByPageId: Record<string,string>
+  titlesByPageId: Record<string,string>
+  pageInfosByPageId: Record<string, PageInfosRow>,
+  domainsByPageId: Record<string, DomainsRow>,
+}
+
 async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: ResolverContext, options: ArbitalImportOptions): Promise<void> {
   const pageInfosById = keyBy(database.pageInfos, pi=>pi.pageId);
   const pagesById = groupBy(database.pages, p=>p.pageId);
@@ -229,11 +235,10 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
     throw new Error("There must be a fallback user named arbitalimport to assign edits to");
   }
 
-  const matchedUsers: Record<string,DbUser|null> = { '2': await resolverContext.loaders.Users.load('nmk3nLpQE89dMRzzN') };
-
-  // const matchedUsers: Record<string,DbUser|null> = options.userMatchingFile
-  //   ? await loadUserMatching(options.userMatchingFile)
-  //   : {};
+  //const matchedUsers: Record<string,DbUser|null> = { '2': await resolverContext.loaders.Users.load('nmk3nLpQE89dMRzzN') };
+  const matchedUsers: Record<string,DbUser|null> = options.userMatchingFile
+    ? await loadUserMatching(options.userMatchingFile)
+    : {};
 
   const pageImportFunctions = wikiPageIds
     .filter(pageId => pagesById[pageId]?.some(revision => revision.isLiveEdit))
@@ -272,10 +277,20 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
   const pageIdsToImport = options.pages
     ? options.pages.map(p => {
         if (pageIdsByTitle[p]) return pageIdsByTitle[p];
+        if (pagesById[p]) return p;
         throw new Error(`Page title not found: ${p}`)
       })
     : Object.keys(liveRevisionsByPageId)
   console.log(`Importing ${pageIdsToImport.length} pages`)
+  
+  const conversionContext: ArbitalConversionContext = {
+    database,
+    matchedUsers, defaultUser,
+    slugsByPageId,
+    titlesByPageId,
+    pageInfosByPageId: pageInfosById,
+    domainsByPageId,
+  };
   
   for (const pageId of pageIdsToImport) {
     try {
@@ -289,23 +304,19 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
       const liveRevision = liveRevisionsByPageId[pageId];
       const title = liveRevision.title;
       const pageCreator = matchedUsers[pageInfo.createdBy] ?? defaultUser;
-      const slug = await slugIsUsed("Tags", pageInfo.alias)
+      const slug = slugsByPageId[pageId];
+      /*const slug = await slugIsUsed("Tags", pageInfo.alias)
         ? await getUnusedSlugByCollectionName("Tags", slugify(title))
         : pageInfo.alias;
-      const modifiedSlugsByPageId = {...slugsByPageId, [pageId]: slug};
-      importedRecordMaps.slugsByPageId = modifiedSlugsByPageId;
+      const modifiedSlugsByPageId = {...slugsByPageId, [pageId]: slug};*/
 
       const pageAliasRedirects = database.aliasRedirects.filter(ar => ar.newAlias === pageInfo.alias);
       const oldSlugs = [pageInfo.alias, ...pageAliasRedirects.map(ar => ar.oldAlias)];
 
       const ckEditorMarkupByRevisionIndex = await asyncMapSequential(revisions,
         (rev) => arbitalMarkdownToCkEditorMarkup({
-          database,
-          markdown: rev.text,
-          slugsByPageId: modifiedSlugsByPageId,
-          titlesByPageId, pageId,
-          pageInfosByPageId: pageInfosById,
-          domainsByPageId
+          markdown: rev.text, pageId,
+          conversionContext,
         })
       );
       const oldestRevCkEditorMarkup = ckEditorMarkupByRevisionIndex[0];
@@ -335,72 +346,17 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
         currentUser: pageCreator,
         validate: false, //causes the check for name collisions to be skipped
       });
-
       await createSummariesForPage({
         pageId,
-        database,
         importedRecordMaps,
+        conversionContext,
         pageCreator,
         resolverContext,
         tagId: wiki._id,
       });
 
-      // Add lenses
-      for (const lens of lenses) {
-        const lensPageInfo = pageInfosById[lens.pageId];
-        if (!lensPageInfo || lensPageInfo.isDeleted) {
-          continue;
-        }
-
-        const lensAliasRedirects = database.aliasRedirects.filter(ar => ar.newAlias === pageInfo.alias);
-        const oldLensSlugs = [...lensAliasRedirects.map(ar => ar.oldAlias)];
-
-        const lensLiveRevision = liveRevisionsByPageId[lens.lensId];
-        const lensHtml = await arbitalMarkdownToCkEditorMarkup({database, markdown: lensLiveRevision.text, slugsByPageId: modifiedSlugsByPageId, titlesByPageId, pageId, pageInfosByPageId: pageInfosById, domainsByPageId});
-
-        const { data: lensMultiDocument } = await createMutator({
-          collection: MultiDocuments,
-          document: {
-            parentDocumentId: wiki._id,
-            collectionName: "Tags",
-            fieldName: "description",
-            title: lensLiveRevision.title,
-            slug: lensPageInfo.alias,
-            oldSlugs: oldLensSlugs,
-            preview: lensLiveRevision.clickbait,
-            tabTitle: lens.lensName,
-            tabSubtitle: lens.lensSubtitle,
-            userId: pageCreator?._id,
-            index: lens.lensIndex,
-            contents: {
-              originalContents: {
-                type: "html",
-                data: lensHtml
-              }
-            },
-          } as AnyBecauseHard,
-          context: resolverContext,
-          currentUser: pageCreator,
-          validate: false,
-        });
-
-        await createSummariesForPage({
-          pageId,
-          database,
-          importedRecordMaps,
-          pageCreator,
-          resolverContext,
-          lensMultiDocumentId: lensMultiDocument._id,
-        });
-      }
-      
       // Back-date it to when it was created on Arbital
-      await Tags.rawUpdateOne(
-        {_id: wiki._id},
-        {$set: {
-          createdAt: pageInfo.createdAt,
-        }}
-      );
+      await backDateObj(Tags, wiki._id, pageInfo.createdAt);
 
       // Fill in some metadata on the latest revision
       const lwFirstRevision: DbRevision = (await Revisions.findOne({_id: wiki.description_latest}))!;
@@ -419,43 +375,149 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
       
 
       // Create other revisions besides the first one
-      console.log(`Importing ${revisions.length} revisions`);
-      for (let i=1; i<revisions.length; i++) {
-        const arbRevision = revisions[i];
-        const ckEditorMarkup = ckEditorMarkupByRevisionIndex[i];
-        const revisionCreator = matchedUsers[arbRevision.creatorId] ?? defaultUser;
+      await importRevisions({
+        collection: Tags,
+        fieldName: "description",
+        pageId: wiki._id,
+        revisions: ckEditorMarkupByRevisionIndex.slice(1),
+        oldestRevCkEditorMarkup,
+        conversionContext,
+      })
 
-        const lwRevision = (await createMutator({
-          collection: Revisions,
+      // Add lenses
+      if (lenses.length > 0) {
+        console.log(`Importing ${revisions.length} lenses`);
+      }
+      for (const lens of lenses) {
+        const lensPageInfo = pageInfosById[lens.pageId];
+        if (!lensPageInfo || lensPageInfo.isDeleted) {
+          continue;
+        }
+
+        const lensRevisions = database.pages.filter(p => p.pageId === lens.pageId)
+        const lensFirstRevision = lensRevisions[0];
+        const lensLiveRevision = liveRevisionsByPageId[lens.pageId];
+        const lensTitle = lensLiveRevision.title;
+        const lensFirstRevisionCkEditorMarkup = await arbitalMarkdownToCkEditorMarkup({
+          markdown: lensFirstRevision.text,
+          pageId: lens.pageId,
+          conversionContext,
+        });
+
+        // Create the lens, with the oldest revision
+        const { data: lensObj } = await createMutator({
+          collection: MultiDocuments,
           document: {
-            ...await buildRevision({
+            parentDocumentId: wiki._id,
+            collectionName: "Tags",
+            fieldName: "description",
+            title: lensTitle,
+            //FIXME: preview/clickbait, tab-title, and subtitle need edit history/etc
+            preview: lensLiveRevision.clickbait,
+            tabTitle: lens.lensName,
+            tabSubtitle: lens.lensSubtitle,
+            userId: pageCreator?._id,
+            index: lens.lensIndex,
+            contents: {
               originalContents: {
                 type: "ckEditorMarkup",
-                data: ckEditorMarkup,
-              },
-              currentUser: revisionCreator,
-            }),
-            fieldName: "description",
-            collectionName: "Tags",
-            documentId: wiki._id,
-            commitMessage: arbRevision.editSummary,
-            editedAt: arbRevision.createdAt,
-            version: `1.${arbRevision.edit}.0`,
-            changeMetrics: htmlToChangeMetrics(ckEditorMarkupByRevisionIndex[i-1], ckEditorMarkup),
-            legacyData: {
-              "arbitalPageId": pageId,
-              "arbitalEditNumber": arbRevision.edit,
+                data: lensFirstRevisionCkEditorMarkup,
+              }
             },
-          },
-          currentUser: revisionCreator,
+          } as Partial<DbMultiDocument>,
+          context: resolverContext,
+          currentUser: pageCreator,
           validate: false,
-        })).data;
-        await afterCreateRevisionCallback.runCallbacksAsync([{ revisionID: lwRevision._id }]);
+        });
+        await backDateObj(MultiDocuments, lensObj._id, lensFirstRevision.createdAt);
+        
+        await importRevisions({
+          collection: MultiDocuments,
+          fieldName: "contents",
+          pageId: lens.pageId,
+          revisions: lensRevisions.slice(1),
+          oldestRevCkEditorMarkup,
+          conversionContext: conversionContext,
+        });
+
+        await createSummariesForPage({
+          pageId,
+          importedRecordMaps,
+          conversionContext,
+          pageCreator,
+          resolverContext,
+          lensMultiDocumentId: lensObj._id,
+        });
       }
     } catch(e) {
       console.error(e);
     }
   }
+}
+
+async function backDateObj<N extends CollectionNameString>(collection: CollectionBase<N>, _id: string, date: Date) {
+  await collection.rawUpdateOne(
+    {_id},
+    {$set: {
+      createdAt: date,
+    }}
+  );
+}
+
+async function importRevisions<N extends CollectionNameString>({
+  collection, fieldName, pageId, revisions, oldestRevCkEditorMarkup, conversionContext
+}: {
+  collection: CollectionBase<N>,
+  fieldName: string,
+  pageId: string,
+  revisions: PagesRow[],
+  oldestRevCkEditorMarkup: string,
+  conversionContext: ArbitalConversionContext,
+}) {
+  console.log(`Importing ${revisions.length} revisions of ${collection.collectionName}.${fieldName}:${pageId}`);
+  const ckEditorMarkupByRevisionIndex = await asyncMapSequential(revisions,
+    (rev) => arbitalMarkdownToCkEditorMarkup({
+      markdown: rev.text, pageId,
+      conversionContext,
+    })
+  );
+  for (let i=0; i<revisions.length; i++) {
+    const arbRevision = revisions[i];
+    const ckEditorMarkup = await arbitalMarkdownToCkEditorMarkup({
+      markdown: arbRevision.text,
+      pageId,
+      conversionContext
+    });
+    const revisionCreator = conversionContext.matchedUsers[arbRevision.creatorId] ?? conversionContext.defaultUser;
+
+    const lwRevision = (await createMutator({
+      collection: Revisions,
+      document: {
+        ...await buildRevision({
+          originalContents: {
+            type: "ckEditorMarkup",
+            data: ckEditorMarkup,
+          },
+          currentUser: revisionCreator,
+        }),
+        fieldName,
+        collectionName: collection.collectionName,
+        documentId: pageId,
+        commitMessage: arbRevision.editSummary,
+        editedAt: arbRevision.createdAt,
+        version: `1.${arbRevision.edit}.0`,
+        changeMetrics: htmlToChangeMetrics(i>0 ? ckEditorMarkupByRevisionIndex[i-1] : oldestRevCkEditorMarkup, ckEditorMarkup),
+        legacyData: {
+          "arbitalPageId": pageId,
+          "arbitalEditNumber": arbRevision.edit,
+        },
+      },
+      currentUser: revisionCreator,
+      validate: false,
+    })).data;
+    await afterCreateRevisionCallback.runCallbacksAsync([{ revisionID: lwRevision._id }]);
+  }
+
 }
 
 async function printTablesAndStats(connection: mysql.Connection): Promise<void> {
