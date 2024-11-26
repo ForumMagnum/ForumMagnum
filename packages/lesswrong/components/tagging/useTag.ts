@@ -58,7 +58,7 @@ export const useTagPreview = <T extends string | undefined>(
     : {};
 
   const query = gql`
-    query TagPreview($slug: String!, $hash: String) {
+    query getTagPreview($slug: String!, $hash: String) {
       TagPreview(slug: $slug, hash: $hash) {
         tag {
           ...${fragmentName}
@@ -73,7 +73,7 @@ export const useTagPreview = <T extends string | undefined>(
   `;
 
   const { data, loading: queryLoading, error: queryError } = useQuery(query, {
-    skip: !isLW,
+    skip: queryOptions?.skip || !isLW,
     variables: { ...hashVariables.extraVariablesValues, slug }
   })
 
@@ -86,7 +86,8 @@ export const useTagPreview = <T extends string | undefined>(
     fragmentName: fragmentName,
     limit: 1,
     ...hashVariables,
-    ...queryOptions
+    ...queryOptions,
+    skip: queryOptions?.skip || isLW,
   });
 
   if (isLW) {

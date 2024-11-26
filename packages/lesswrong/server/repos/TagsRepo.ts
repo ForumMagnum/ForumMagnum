@@ -80,10 +80,10 @@ class TagsRepo extends AbstractRepo<"Tags"> {
           t.slug,
           t.description
         FROM "Tags" t
-        WHERE t."slug" = 'logical_dt'
-        OR t."oldSlugs" @> ARRAY['logical_dt']
+        WHERE t."slug" = $1
+        OR t."oldSlugs" @> ARRAY[$1]
         
-        UNION
+        UNION ALL
         
         -- Get tags that have a lens matching the slug
         SELECT
@@ -96,15 +96,15 @@ class TagsRepo extends AbstractRepo<"Tags"> {
         LEFT JOIN "Revisions" r
         ON r."_id" = md."contents_latest"
         WHERE (
-          md."slug" = 'logical_dt'
-          OR md."oldSlugs" @> ARRAY['logical_dt']
+          md."slug" = $1
+          OR md."oldSlugs" @> ARRAY[$1]
         )
         AND md."collectionName" = 'Tags'
         AND md."fieldName" = 'description'
       )
       SELECT DISTINCT ON (t._id)
         t.*,
-        array_agg(md.*) OVER (PARTITION BY t._id) as summaries
+        ARRAY_AGG(TO_JSONB(md.*)) OVER (PARTITION BY t._id) as summaries
       FROM matching_tags t
       LEFT JOIN "MultiDocuments" md
       ON md."parentDocumentId" = t."_id"
