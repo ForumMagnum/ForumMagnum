@@ -12,7 +12,7 @@
     "upload-ckeditor-bundle": "node -r tsconfig-paths/register deployCkEditorBundle",
     "branchdb": "ts-node -r tsconfig-paths/register scripts/branchDb.ts",
     "start": "yarn start-local-db",
-    "start-local-db": "ts-node ./build.ts -run --watch --lint --settings settings-dev.json",
+    "start-local-db": "ts-node ./build.ts -run --watch --lint --settings settings-dev.json --db ../LessWrong-Credentials/connectionConfigs/local.json",
     "start-dev-db": "ts-node ./build.ts --watch --lint --db ../LessWrong-Credentials/connectionConfigs/dev.json --settings ../LessWrong-Credentials/settings-local-dev-devdb.json",
     "start-prod-db": "ts-node ./build.ts --no-clear -run --watch --lint --db ../LessWrong-Credentials/connectionConfigs/prod.json --settings ../LessWrong-Credentials/settings-local-dev-proddb.json",
     "lw-start-local-db": "ts-node ./build.ts --no-clear -run --watch --lint --db ../LessWrong-Credentials/connectionConfigs/local.json --settings settings.json",
