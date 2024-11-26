@@ -14,6 +14,7 @@ import { getPageUrl } from './urlService';
 //import {anyUrlMatch} from './util.ts';
 import React from 'react';
 import ReactDOM from 'react-dom/server';
+import { slugify } from '@/lib/vulcan-lib';
 
 
 const anyUrlMatch = /\b((?:[a-z][\w-]+:(?:\/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))/i;
@@ -113,7 +114,7 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
       if (!linkText) {
         console.error(`Could not get link text for page ${alias}`);
       }
-      const url = pageId ? pageIdToUrl(pageId) : `/tag/{slugify(linkText)}`;
+      const url = pageId ? pageIdToUrl(pageId) : `/tag/${slugify(linkText)}`;
       return `<a href="${url}">${linkText}</a>`;
     }
     
@@ -495,7 +496,7 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
         return prefix + latexSourceToCkEditorEmbeddedLatexTag(mathjaxText, true);
       });
     });
-
+    
     // Process %note: markdown% spans.
     var noteSpanRegexp = new RegExp(notEscaped + '(%+)note: ?([\\s\\S]+?)\\2', 'g');
     converter.hooks.chain('preSpanGamut', function(text: string) {
@@ -780,9 +781,23 @@ function latexSourceToCkEditorEmbeddedLatexTag(latex: string, inline: boolean): 
   while (latex.startsWith("~D") && latex.endsWith("~D")) {
     latex = latex.substr(2, latex.length-4);
   }
+  
+  // Next, encode the LaTeX string to protect it from subsequent markdown
+  // processig. Without this, things like brackets inside of LaTeX strings
+  // would get interpreted as links and get replaced with <a> tags, which of
+  // course makes them unsuitable for feeding into mathjax.
+  // We use an Arbital-specific janky escaping system, where a character can
+  // be replaced with ~E<n>E, where <n> is a character's UCS-2 codepoint. This
+  // matches the behavior of `escapeCharacters_callback` in
+  // Markdown.Converter.ts. This escaping will be undone later by
+  // `converter.makeHtml`.
+  const encodedLatex = latex.replace(/[^a-zA-Z0-9]/g, (ch) => {
+    return "~E" + ch.charCodeAt(0) + "E";
+  });
+  
   if (inline)
-    return `<span class="math-tex">\\\\(${latex}\\\\)</span>`;
+    return `<span class="math-tex">\\\\(${encodedLatex}\\\\)</span>`;
   else
-    return `<span class="math-tex">\\\\[${latex}\\\\]</span>`;
+    return `<span class="math-tex">\\\\[${encodedLatex}\\\\]</span>`;
 }
 
