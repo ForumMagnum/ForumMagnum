@@ -78,24 +78,22 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-// This is the data for the next EAGx (Virtual)
-const eagName = 'EAGxVirtual'
-// const eagLocation = {
-//   lat: 43.6532,
-//   lng: -79.3832,
-// }
-// const eagCountry = 'CA'
-const eagPostLink = "/events/mbf5Ksd9Xb8yc2pcC/eagxvirtual-2024-2"
-const eagLink = "https://www.effectivealtruism.org/ea-global/events/eagxvirtual-2024"
-const applicationDeadline = moment.utc('2024-11-14', 'YYYY-MM-DD')
+// This is the data for the next EAGx (Singapore)
+const eagName = 'EAGxSingapore'
+const eagLocation = {
+  lat: 1.293200,
+  lng: 103.857109,
+}
+const eagCountry = 'SG'
+const eagPostLink = "/posts/ygKf2PhKAFdaogHJy/apply-by-nov-30-eagxsingapore-in-december"
+const eagLink = "https://www.effectivealtruism.org/ea-global/events/eagxsingapore-2024"
+const applicationDeadline = moment.utc('2024-11-30', 'YYYY-MM-DD')
 
 
 /**
  * This is an experimental banner at the top of the EA Forum homepage.
  * We are considering displaying a small banner when an EAG(x) application deadline is near,
  * visible only to users who we think are in a relevant location for that conference.
- *
- * UPDATE: I've now removed it from EAHome. We'll probably redesign it and try again in the future.
  */
 const EAGBanner = ({classes}: {classes: ClassesType}) => {
   const [cookies, setCookie] = useCookiesWithConsent([HIDE_EAG_BANNER_COOKIE]);
@@ -106,12 +104,12 @@ const EAGBanner = ({classes}: {classes: ClassesType}) => {
   // 1. (logged in user) user settings
   // 2. (logged out user) browser's local storage
   // 3. country code in local storage, which is also used by the cookie banner
-  // const userLocation = useUserLocation(currentUser, true)
-  // const [countryCode, setCountryCode] = useState<string|null>(null)
-  // useEffect(() => {
-  //   // Get the country code from local storage
-  //   setCountryCode(getCachedUserCountryCode())
-  // }, [])
+  const userLocation = useUserLocation(currentUser, true)
+  const [countryCode, setCountryCode] = useState<string|null>(null)
+  useEffect(() => {
+    // Get the country code from local storage
+    setCountryCode(getCachedUserCountryCode())
+  }, [])
 
   const hideBanner = useCallback(() => {
     setCookie(HIDE_EAG_BANNER_COOKIE, "true", {
@@ -127,10 +125,11 @@ const EAGBanner = ({classes}: {classes: ClassesType}) => {
 
   // This EAG(x) is relevant to the user if they are within 500 miles of it,
   // or they live in relevant/nearby countries.
-  // const userLocationNearby = userLocation.known && (distance(eagLocation, userLocation, 'mi') < 500)
-  // const userInCountry = countryCode === eagCountry
-  // const isRelevant = userLocationNearby || userInCountry
+  const userLocationNearby = userLocation.known && (distance(eagLocation, userLocation, 'mi') < 500)
+  const userInCountry = countryCode === eagCountry
+  const isRelevant = userLocationNearby || userInCountry
   if (
+    !isRelevant ||
     moment.utc().isAfter(applicationDeadline, 'day') ||
     cookies[HIDE_EAG_BANNER_COOKIE] === "true"
   ) {
@@ -141,7 +140,7 @@ const EAGBanner = ({classes}: {classes: ClassesType}) => {
   
   const inViewEventProps = {
     inViewType: `${eagName}Banner`,
-    // reason: userLocationNearby && userInCountry ? 'both' : userLocationNearby ? 'nearby' : 'country'
+    reason: userLocationNearby && userInCountry ? 'both' : userLocationNearby ? 'nearby' : 'country'
   }
 
   return (
@@ -152,8 +151,8 @@ const EAGBanner = ({classes}: {classes: ClassesType}) => {
             <div className={classes.lightbulb}>{lightbulbIcon}</div>
             <div className={classes.content}>
               <div className={classes.topRow}>
-                Upcoming virtual conference
-                {/* <LWTooltip title={
+                Upcoming conference near you
+                <LWTooltip title={
                     <>
                       You're seeing this recommendation because of your location.{" "}
                       {userLocationNearby && <>
@@ -167,7 +166,7 @@ const EAGBanner = ({classes}: {classes: ClassesType}) => {
                   clickable={userLocationNearby}
                 >
                   <ForumIcon icon="QuestionMarkCircle" className={classes.infoIcon} />
-                </LWTooltip> */}
+                </LWTooltip>
               </div>
               <div className={classes.bottomRow}>
                 <HoverPreviewLink href={eagPostLink}>
