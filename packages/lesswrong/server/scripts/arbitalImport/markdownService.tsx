@@ -107,7 +107,12 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
       var trimmedAlias = trimAlias(alias);
       
       const pageId = pageAliasToPageId(trimmedAlias);
-      const linkText = options.text ?? (pageId ? pageIdToTitle(pageId, firstAliasChar) : "Broken Link");
+      const linkText = (options.text && options.text.length>0)
+        ? options.text
+        : (pageId ? pageIdToTitle(pageId, firstAliasChar) : "Broken Link");
+      if (!linkText) {
+        console.error(`Could not get link text for page ${alias}`);
+      }
       const url = pageId ? pageIdToUrl(pageId) : `/tag/{slugify(linkText)}`;
       return `<a href="${url}">${linkText}</a>`;
     }
