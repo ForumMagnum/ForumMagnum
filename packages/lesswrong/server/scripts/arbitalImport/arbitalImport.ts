@@ -49,7 +49,7 @@ type ArbitalImportOptions = {
    */
   userMatchingFile?: string
 }
-const defaultArbitalImportOptions: ArbitalImportOptions = { pages: [`Bayes' rule`] };
+const defaultArbitalImportOptions: ArbitalImportOptions = {};
 
 async function connectAndLoadArbitalDatabase(mysqlConnectionString: string): Promise<WholeArbitalDatabase> {
   let connection: mysql.Connection | null = null;
@@ -337,14 +337,14 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
         currentUser: pageCreator,
         validate: false, //causes the check for name collisions to be skipped
       });
-      await createSummariesForPage({
+      /*await createSummariesForPage({
         pageId,
         importedRecordMaps,
         conversionContext,
         pageCreator,
         resolverContext,
         tagId: wiki._id,
-      });
+      });*/
 
       // Back-date it to when it was created on Arbital
       await backDateObj(Tags, wiki._id, pageInfo.createdAt);
@@ -369,7 +369,8 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
       await importRevisions({
         collection: Tags,
         fieldName: "description",
-        pageId: wiki._id,
+        documentId: wiki._id,
+        pageId: pageId,
         revisions: revisions.slice(1),
         oldestRevCkEditorMarkup,
         conversionContext,
@@ -377,7 +378,7 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
 
       // Add lenses
       if (lenses.length > 0) {
-        console.log(`Importing ${revisions.length} lenses`);
+        console.log(`Importing ${lenses.length} lenses`);
       }
       for (const lens of lenses) {
         const lensPageInfo = pageInfosById[lens.pageId];
@@ -387,11 +388,8 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
 
         const lensAliasRedirects = database.aliasRedirects.filter(ar => ar.newAlias === lensPageInfo.alias);
         const lensSlug = lensPageInfo.alias;
-        if (!lensPageInfo.alias) {
-          debugger;
-        }
         const oldLensSlugs = lensAliasRedirects.map(ar => ar.oldAlias);
-        const lensRevisions = database.pages.filter(p => p.pageId === lens.pageId)
+        const lensRevisions = database.pages.filter(p => p.pageId === lens.lensId);
         const lensFirstRevision = lensRevisions[0];
         const lensLiveRevision = liveRevisionsByPageId[lens.pageId];
         const lensTitle = lensLiveRevision.title;
@@ -433,7 +431,8 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
         await importRevisions({
           collection: MultiDocuments,
           fieldName: "contents",
-          pageId: lens.pageId,
+          documentId: lensObj._id,
+          pageId: lens.lensId,
           revisions: lensRevisions.slice(1),
           oldestRevCkEditorMarkup: lensFirstRevisionCkEditorMarkup,
           conversionContext: conversionContext,
@@ -464,10 +463,11 @@ async function backDateObj<N extends CollectionNameString>(collection: Collectio
 }
 
 async function importRevisions<N extends CollectionNameString>({
-  collection, fieldName, pageId, revisions, oldestRevCkEditorMarkup, conversionContext
+  collection, fieldName, documentId, pageId, revisions, oldestRevCkEditorMarkup, conversionContext
 }: {
   collection: CollectionBase<N>,
   fieldName: string,
+  documentId: string,
   pageId: string,
   revisions: PagesRow[],
   oldestRevCkEditorMarkup: string,
@@ -501,7 +501,7 @@ async function importRevisions<N extends CollectionNameString>({
         }),
         fieldName,
         collectionName: collection.collectionName,
-        documentId: pageId,
+        documentId: documentId,
         commitMessage: arbRevision.editSummary,
         editedAt: arbRevision.createdAt,
         version: `1.${arbRevision.edit}.0`,
