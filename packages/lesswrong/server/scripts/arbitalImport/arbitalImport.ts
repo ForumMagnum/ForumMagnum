@@ -240,7 +240,7 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
     ? await loadUserMatching(options.userMatchingFile)
     : {};
 
-  const pageImportFunctions = wikiPageIds
+  await executePromiseQueue(wikiPageIds
     .filter(pageId => pagesById[pageId]?.some(revision => revision.isLiveEdit))
     .map(pageId => {
       const revisions = pagesById[pageId] ?? [];
@@ -256,9 +256,8 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
           slugsByPageId[pageId] = await getUnusedSlugByCollectionName("Tags", slugify(title));
         }
       };
-    });
-
-  await executePromiseQueue(pageImportFunctions, 10);
+    }), 10
+  );
 
   fs.writeFileSync(slugsCachePath, JSON.stringify(slugsByPageId, null, 2));
   
@@ -305,21 +304,13 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
       const title = liveRevision.title;
       const pageCreator = matchedUsers[pageInfo.createdBy] ?? defaultUser;
       const slug = slugsByPageId[pageId];
-      /*const slug = await slugIsUsed("Tags", pageInfo.alias)
-        ? await getUnusedSlugByCollectionName("Tags", slugify(title))
-        : pageInfo.alias;
-      const modifiedSlugsByPageId = {...slugsByPageId, [pageId]: slug};*/
 
       const pageAliasRedirects = database.aliasRedirects.filter(ar => ar.newAlias === pageInfo.alias);
       const oldSlugs = [pageInfo.alias, ...pageAliasRedirects.map(ar => ar.oldAlias)];
 
-      const ckEditorMarkupByRevisionIndex = await asyncMapSequential(revisions,
-        (rev) => arbitalMarkdownToCkEditorMarkup({
-          markdown: rev.text, pageId,
-          conversionContext,
-        })
-      );
-      const oldestRevCkEditorMarkup = ckEditorMarkupByRevisionIndex[0];
+      const oldestRevCkEditorMarkup = await arbitalMarkdownToCkEditorMarkup({
+        markdown: revisions[0].text, pageId, conversionContext
+      });
       console.log(`Creating wiki page: ${title} (${slug}).  Lenses found: ${lenses.map(l=>l.lensName).join(", ")}`);
 
       // Create wiki page with the oldest revision (we will create the rest of
@@ -379,7 +370,7 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
         collection: Tags,
         fieldName: "description",
         pageId: wiki._id,
-        revisions: ckEditorMarkupByRevisionIndex.slice(1),
+        revisions: revisions.slice(1),
         oldestRevCkEditorMarkup,
         conversionContext,
       })
@@ -394,6 +385,12 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
           continue;
         }
 
+        const lensAliasRedirects = database.aliasRedirects.filter(ar => ar.newAlias === lensPageInfo.alias);
+        const lensSlug = lensPageInfo.alias;
+        if (!lensPageInfo.alias) {
+          debugger;
+        }
+        const oldLensSlugs = lensAliasRedirects.map(ar => ar.oldAlias);
         const lensRevisions = database.pages.filter(p => p.pageId === lens.pageId)
         const lensFirstRevision = lensRevisions[0];
         const lensLiveRevision = liveRevisionsByPageId[lens.pageId];
@@ -412,6 +409,8 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
             collectionName: "Tags",
             fieldName: "description",
             title: lensTitle,
+            slug: lensSlug,
+            oldSlugs: oldLensSlugs,
             //FIXME: preview/clickbait, tab-title, and subtitle need edit history/etc
             preview: lensLiveRevision.clickbait,
             tabTitle: lens.lensName,
@@ -436,18 +435,18 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
           fieldName: "contents",
           pageId: lens.pageId,
           revisions: lensRevisions.slice(1),
-          oldestRevCkEditorMarkup,
+          oldestRevCkEditorMarkup: lensFirstRevisionCkEditorMarkup,
           conversionContext: conversionContext,
         });
 
-        await createSummariesForPage({
+        /*await createSummariesForPage({
           pageId,
           importedRecordMaps,
           conversionContext,
           pageCreator,
           resolverContext,
           lensMultiDocumentId: lensObj._id,
-        });
+        });*/
       }
     } catch(e) {
       console.error(e);
