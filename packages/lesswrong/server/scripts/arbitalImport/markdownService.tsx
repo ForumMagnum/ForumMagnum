@@ -54,8 +54,8 @@ export async function arbitalMarkdownToCkEditorMarkup({database, markdown: pageM
   slugsByPageId: Record<string,string>
   titlesByPageId: Record<string,string>
   pageId: string,
-  pageInfosByPageId: Record<string, PageInfosRow>,
-  domainsByPageId: Record<string, DomainsRow>,
+  pageInfosByPageId?: Record<string, PageInfosRow>,
+  domainsByPageId?: Record<string, DomainsRow>,
 }) {
   const { ForumIcon } = Components;
   //var that = this;
@@ -296,7 +296,10 @@ export async function arbitalMarkdownToCkEditorMarkup({database, markdown: pageM
     var startPathBlockRegexp = new RegExp('^%start-path\\(\\[' + aliasMatch + '\\]\\)% *(?=\Z|\n)', 'gm');
     converter.hooks.chain('preBlockGamut', function(text: string, runBlockGamut: (s:string)=>string) {
       return text.replace(startPathBlockRegexp, function(whole, alias) {
-        // return "<div>Paths aren not currently supported</div>" //TODO
+        if (!pageInfosByPageId || !domainsByPageId) {
+          return "<div>Paths aren not currently supported</div>" //TODO
+        }
+        
         var href = getPageUrl(alias, {startPath: true}, pageInfosByPageId, domainsByPageId);
         var html = ['<div class=\'start-path-div\'>\n\n',
           '<a href="' + href + '" class="md-primary md-raised special">',
@@ -308,7 +311,6 @@ export async function arbitalMarkdownToCkEditorMarkup({database, markdown: pageM
           '</a>',
           '\n\n</div>'].join('');
 
-        console.log('start-path hook', { href, html });
         return html;
       });
     });

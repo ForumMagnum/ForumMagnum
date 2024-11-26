@@ -448,7 +448,6 @@ function useTagLenses(tag: TagPageFragment | TagPageWithRevisionFragment | null)
   );
 
   const updateSelectedLens = useCallback((lensId: string) => {
-    console.log('updateSelectedLens', lensId);
     setSelectedLensId(lensId);
     const selectedLensSlug = availableLenses.find(lens => lens._id === lensId)?.slug;
     if (selectedLensSlug) {
