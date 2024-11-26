@@ -1,18 +1,16 @@
 import React, { useState } from 'react';
 import classNames from 'classnames';
-import { Components, registerComponent   } from '../../lib/vulcan-lib';
-import { isFriendlyUI } from '@/themes/forumTheme';
-// import { ArbitalPageNode } from './WikiTagNestedList';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import CommentIcon from '@material-ui/icons/ModeComment';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { Link } from '@/lib/reactRouterWrapper';
 // Import styles as needed
 
 const KARMA_WIDTH = 50;
-const CARD_IMG_HEIGHT = 80;
-const CARD_IMG_WIDTH = 160;
 const SECTION_WIDTH = 768;
+const CHILDREN_INDENT = 16;
 
-// Define the type for an arbital page
+// Define the type for an Arbital page
 interface ArbitalPage {
   pageId: string;
   title: string;
@@ -24,8 +22,12 @@ interface ArbitalPage {
   commentCount: number;
 }
 
+interface ArbitalPageWithNewSlug extends ArbitalPage {
+  newSlug?: string;
+}
+
 // Extend the type to include children for tree nodes
-interface ArbitalPageNode extends ArbitalPage {
+interface ArbitalPageNode extends ArbitalPageWithNewSlug {
   children: ArbitalPageNode[];
 }
 
@@ -113,10 +115,15 @@ const styles = defineStyles("WikiTagItem", (theme: ThemeType) => ({
     flexDirection: "column",
     alignItems: "flex-start",
   },
+  tooltip: {
+    width: '100%',
+  },
   item: {
+    background: theme.palette.panelBackground.default,
+    minHeight: 48,
     width: '100%',
     borderRadius: theme.borderRadius.default,
-    padding: "6px 8px 6px 8px",
+    padding: "5px 8px",
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
@@ -136,7 +143,7 @@ const styles = defineStyles("WikiTagItem", (theme: ThemeType) => ({
     alignItems: "center",
     justifyContent: "space-between",
     gap: "8px",
-    marginBottom: 3
+    marginBottom: 0
   },
   leftSideItems: {
     display: "flex",
@@ -149,13 +156,17 @@ const styles = defineStyles("WikiTagItem", (theme: ThemeType) => ({
     flexGrow: 1,
     flexShrink: 1,
     flexBasis: 0,
-    fontSize: 13,
+    fontSize: 14,
     fontFamily: theme.palette.fonts.sansSerifStack,
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
     // marginRight: 10,
     opacity: 0.95
+  },
+  titleLink: {
+    color: theme.palette.link.color,
+    opacity: 1,
   },
   rightSideItems: {
     display: "flex",
@@ -184,7 +195,7 @@ const styles = defineStyles("WikiTagItem", (theme: ThemeType) => ({
     // color: theme.palette.grey[400],
   },
   oneLiner: {
-    fontSize: 11,
+    fontSize: 12,
     color: theme.palette.grey[600],
     //text overflow ellipsis
     overflow: "hidden",
@@ -248,8 +259,8 @@ const styles = defineStyles("WikiTagItem", (theme: ThemeType) => ({
     transform: 'translateY(0.75px)',
   },
   children: {
-    marginLeft: 16,
-    width: `calc(100% - 16px)`,
+    marginLeft: CHILDREN_INDENT,
+    width: `calc(100% - ${CHILDREN_INDENT}px)`,
   },
   childrenList: {
     display: "flex",
@@ -267,7 +278,7 @@ const styles = defineStyles("WikiTagItem", (theme: ThemeType) => ({
     color: "#426c46",
     marginBottom: 8,
     marginTop: 2,
-    marginLeft: 16,
+    marginLeft: CHILDREN_INDENT,
   },
   collapseInvisible: {
     opacity: 0,
@@ -280,29 +291,17 @@ const styles = defineStyles("WikiTagItem", (theme: ThemeType) => ({
   },
 }));
 
-
-// const samplePage = {
-//   _id: "samplePage",
-//   title: "The Shutdown Problem",
-//   oneLiner: "How to build an AGI that lets you shut it down, despite the obvious fact that this will interfere with whatever the AGI's goals are.",
-//   wordCount: 416,
-//   baseScore: 4,
-//   commentsCount: 11,
-//   mainAuthor: "Eliezer Yudkowsky",
-// }
-
 interface WikiTagItemProps {
   page: ArbitalPageNode;
   nestingLevel: number;
 }
 
-
 const WikiTagItem = ({ page, nestingLevel }: WikiTagItemProps) => {
   const classes = useStyles(styles);
 
-  const [collapsed, setCollapsed] = useState(nestingLevel > 0);
+  const [collapsed, setCollapsed] = useState(false);
 
-  const { ForumIcon, ArbitalPreview, LWTooltip } = Components;
+  const { ForumIcon, LWTooltip, TagsTooltip, WikiTagNestedList } = Components;
 
   const toggleCollapse = () => {
     setCollapsed(!collapsed);
@@ -310,81 +309,80 @@ const WikiTagItem = ({ page, nestingLevel }: WikiTagItemProps) => {
 
   const hasChildren = page.children && page.children.length > 0;
 
-  // if (!hasChildren) {
-  //   return null;
-  // }
+  const oneLinerText = page.oneLiner || "filler text will be invisible";
 
-  const oneLinerText = page.oneLiner || "filler text will be invisible"
+  const wordCountFormatted = `${page.text_length / 6 >= 100 ? `${(page.text_length / 6 / 1000).toFixed(1)}k ` : Math.round(page.text_length / 6)} words`;
 
-  const wordCountFormatted = `${page.text_length/6 >= 100 ? `${(page.text_length/6/1000).toFixed(1)}k ` : Math.round(page.text_length/6)} words`;
-
-  //random number between 0 and 3
   const randomNumber = Math.random() < 0.8 ? Math.floor(Math.random() * 2) : Math.floor(Math.random() * 2) + 2;
 
-  const authorList = page.authorName // `${page.authorName}${randomNumber > 0 ? `\u2009+\u2009${randomNumber}` : ""}`
-        
-  const commentCountNode = !!(page.commentCount && page.commentCount > 0) && <div className={classes.commentsIconSmall}>
-    <CommentIcon className={classes.commentCountIcon}/>
-    <div className={classes.commentCount}>
-      {page.commentCount}
-    </div>
-  </div>
+  const authorList = page.authorName;
 
-  const countOfChildrenAllTheWayDown = page.children?.reduce((acc, child) => acc + (child.children?.length || 0), 0);
+  const commentCountNode = !!(page.commentCount && page.commentCount > 0) && (
+    <div className={classes.commentsIconSmall}>
+      <CommentIcon className={classes.commentCountIcon} />
+      <div className={classes.commentCount}>{page.commentCount}</div>
+    </div>
+  );
 
   return (
     <div className={classes.root}>
-      <div className={classes.item}>
-        <div className={classNames(classes.collapse, {[classes.collapseInvisible]: !hasChildren})} 
-             onClick={hasChildren ? toggleCollapse : undefined}>
-          <ForumIcon
-            icon="SoftUpArrow"
-            className={classNames(
-              classes.collapseChevron,
-              !collapsed && classes.collapseChevronOpen
-            )}
-          />
-        </div>
-        {/* Title and One-liner */}
-        <div className={classes.titleAndOneLiner}>
-          <div className={classes.titleRow}>
-            <div className={classes.leftSideItems}>
-              <div className={classes.title}>
-                {/* <ArbitalPreview href={`https://www.arbital.com/p/${page.pageId}`}> */}
-                  {/* {page.title} */}
-                {/* </ArbitalPreview> */}
-                <a href={`https://www.arbital.com/p/${page.pageId}`}>
-                  {page.title}
-                </a>
+      <TagsTooltip tagSlug={page.newSlug || page.title} className={classes.tooltip}>
+        <div className={classes.item}>
+          <div
+            className={classNames(classes.collapse, { [classes.collapseInvisible]: !hasChildren })}
+            onClick={hasChildren ? toggleCollapse : undefined}
+          >
+            <ForumIcon
+              icon="SoftUpArrow"
+              className={classNames(
+                classes.collapseChevron,
+                !collapsed && classes.collapseChevronOpen
+              )}
+            />
+          </div>
+          {/* Title and One-liner */}
+          <div className={classes.titleAndOneLiner}>
+            <div className={classes.titleRow}>
+              <div className={classes.leftSideItems}>
+                <div className={classes.title}>
+                  {page.newSlug ? (
+                    <Link to={`/tag/${page.newSlug}`} doOnDown={true} className={classes.titleLink}>
+                      {page.title}
+                    </Link>
+                  ) : (
+                    <a href={`https://arbital.com/wiki/${page.pageId}`} target="_blank" rel="noopener noreferrer">
+                      {page.title}
+                    </a>
+                  )}
+                </div>
+                <div className={classes.wordCount}>{wordCountFormatted}</div>
               </div>
-              <div className={classes.wordCount}>{wordCountFormatted}</div>
+              <div className={classes.rightSideItems}>
+                {commentCountNode}
+                <LWTooltip
+                  title={`${page.authorName}, Nate Soares, Daniel Dennett, and ${randomNumber * 2} other contributors`}
+                >
+                  <div className={classes.mainAuthor}>{authorList}</div>
+                </LWTooltip>
+              </div>
             </div>
-            <div className={classes.rightSideItems}>
-              {commentCountNode}
-              <LWTooltip title={`${page.authorName}, Nate Soares, Daniel Dennett, and ${randomNumber*2} other contributors`}>
-                <div className={classes.mainAuthor}>{authorList}</div>
-              </LWTooltip>
-              {/* <div className={classes.wordCountSeparator}>|</div> */}
+            <div
+              className={classNames(classes.oneLiner, {
+                [classes.oneLinerInvisible]: !page.oneLiner,
+              })}
+            >
+              {oneLinerText}
             </div>
           </div>
-          <div className={classNames(classes.oneLiner, {[classes.oneLinerInvisible]: !page.oneLiner})}>
-            {oneLinerText}
-          </div>
         </div>
+      </TagsTooltip>
 
-
-      </div>
-      {/* Render Children */}
-      {!collapsed && hasChildren && (<div className={classes.children}>
-        <div className={classes.childrenList}>
-          {page.children.slice(0, 5).map(childPage => (
-            <WikiTagItem key={childPage.pageId} page={childPage} nestingLevel={nestingLevel + 1} />
-          ))}
+      {/* Render Children using WikiTagNestedList */}
+      {!collapsed && hasChildren && (
+        <div className={classes.children}>
+          <WikiTagNestedList pages={page.children} nestingLevel={nestingLevel + 1} />
         </div>
-        {page.children.length > 5 && <div className={classes.showMoreChildren}>
-          {`Show more (${countOfChildrenAllTheWayDown} nested pages)`}
-        </div>}
-      </div>)}
+      )}
     </div>
   );
 };
@@ -395,6 +393,6 @@ export default WikiTagItemComponent;
 
 declare global {
   interface ComponentTypes {
-    WikiTagItem: typeof WikiTagItemComponent
+    WikiTagItem: typeof WikiTagItemComponent;
   }
 }

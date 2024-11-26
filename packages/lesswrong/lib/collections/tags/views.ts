@@ -237,7 +237,19 @@ Tags.addView('allPublicTags', (terms: TagsViewTerms) => {
   }
 });
 
-ensureIndex(Tags, {name: 1});
+Tags.addView('allArbitalTags', (terms: TagsViewTerms) => {
+  return {
+    selector: {
+      wikiOnly: viewFieldAllowAny,
+      //legacyData contains an arbitalPageId and is not deleted
+      'legacyData.arbitalPageId': {$exists: true},
+      deleted: false,
+    }
+  }
+});
+
+ensureIndex(Tags, {name: 1, "legacyData.arbitalPageId": 1});
 
 // Used in subTags resolver
 ensureIndex(Tags, {parentTagId: 1});
+

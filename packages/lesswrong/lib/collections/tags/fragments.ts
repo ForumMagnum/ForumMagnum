@@ -358,3 +358,11 @@ registerFragment(`
     slug
   }
 `);
+
+
+registerFragment(`
+  fragment TagWithLegacyDataFragment on Tag {
+    ...TagFragment
+    legacyData
+  }
+`);

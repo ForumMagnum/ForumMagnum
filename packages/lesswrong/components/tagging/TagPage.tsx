@@ -352,6 +352,9 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     )`,
     opacity: 1,
   },
+  rightColumnContent: {
+
+  },
   subjectsContainer: {
     // marginTop: 24,
     overflow: 'hidden',
@@ -372,9 +375,6 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     marginLeft: 6,
   },
   ...tagPageHeaderStyles(theme),
-  nestedListContainer: {
-    marginTop: 32,
-  },
 }));
 
 interface TagLens {
@@ -556,7 +556,7 @@ const TagPage = () => {
     PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection,
     TagPageButtonRow, ToCColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
     TagTableOfContents, TagVersionHistoryButton, ContentStyles, CommentsListCondensed,
-    MultiToCLayout, TableOfContents, FormatDate, LWTooltip, HoverPreviewLink, WikiTagNestedList
+    MultiToCLayout, TableOfContents, FormatDate, LWTooltip, HoverPreviewLink
   } = Components;
   const classes = useStyles(styles);
 
@@ -605,56 +605,53 @@ const TagPage = () => {
   })
 
 
-  const { tag: secondTabTag } = useTagBySlug("featured-arbital", "TagPageFragment")
-  const { tag: thirdTabTag } = useTagBySlug("history-arbital", "TagPageFragment")
+  // const { tag: secondTabTag } = useTagBySlug("featured-arbital", "TagPageFragment")
+  // const { tag: thirdTabTag } = useTagBySlug("history-arbital", "TagPageFragment")
 
-  console.log({ tag, secondTabTag, thirdTabTag })
+  // console.log({ tag, secondTabTag, thirdTabTag })
 
-  const lensTabs = [{
-    _id: 'main-tab',
-    collectionName: 'Tags',
-    fieldName: 'description',
-    index: 0,
-    contents: tag?.description,
-    tableOfContents: tag?.tableOfContents,
-    parentDocumentId: tag?._id,
-    title: 'Main',
-    subtitle: null,
-    userId: tag?.userId
-  },
-  {
-    _id: secondTabTag?._id ?? 'featured-tab',
-    collectionName: 'Tags',
-    fieldName: 'description',
-    index: 1,
-    contents: secondTabTag?.description,
-    tableOfContents: secondTabTag?.tableOfContents,
-    parentDocumentId: secondTabTag?._id,
-    title: 'Featured',
-    // subtitle: 'Featured content from Arbital',
-    userId: secondTabTag?.userId
-  },
-  {
-    _id: thirdTabTag?._id ?? 'history-tab',
-    collectionName: 'Tags',
-    fieldName: 'description', 
-    index: 2,
-    contents: thirdTabTag?.description,
-    tableOfContents: thirdTabTag?.tableOfContents,
-    parentDocumentId: thirdTabTag?._id,
-    title: 'History',
-    // subtitle: 'Historical content from Arbital',
-    userId: thirdTabTag?.userId
-  }];
+  // const lensTabs = [{
+  //   _id: 'main-tab',
+  //   collectionName: 'Tags',
+  //   fieldName: 'description',
+  //   index: 0,
+  //   contents: tag?.description,
+  //   tableOfContents: tag?.tableOfContents,
+  //   parentDocumentId: tag?._id,
+  //   title: 'Main',
+  //   subtitle: null,
+  //   userId: tag?.userId
+  // },
+  // {
+  //   _id: secondTabTag?._id ?? 'featured-tab',
+  //   collectionName: 'Tags',
+  //   fieldName: 'description',
+  //   index: 1,
+  //   contents: secondTabTag?.description,
+  //   tableOfContents: secondTabTag?.tableOfContents,
+  //   parentDocumentId: secondTabTag?._id,
+  //   title: 'Featured',
+  //   // subtitle: 'Featured content from Arbital',
+  //   userId: secondTabTag?.userId
+  // },
+  // {
+  //   _id: thirdTabTag?._id ?? 'history-tab',
+  //   collectionName: 'Tags',
+  //   fieldName: 'description', 
+  //   index: 2,
+  //   contents: thirdTabTag?.description,
+  //   tableOfContents: thirdTabTag?.tableOfContents,
+  //   parentDocumentId: thirdTabTag?._id,
+  //   title: 'History',
+  //   // subtitle: 'Historical content from Arbital',
+  //   userId: thirdTabTag?.userId
+  // }];
   
   useOnSearchHotkey(() => setTruncated(false));
 
 
 
-  const { tag: secondTabTag } = useTagBySlug("featured-arbital", "TagPageFragment")
-  const { tag: thirdTabTag } = useTagBySlug("history-arbital", "TagPageFragment")
-
-  console.log({ tag, secondTabTag, thirdTabTag })
+  // console.log({ tag })
 
 
 
@@ -674,42 +671,42 @@ const TagPage = () => {
 //   userId: string;
 // }
 
-  const lensTabs: TagLens[] = [
-  {
-    _id: secondTabTag?._id ?? 'featured-tab',
-    collectionName: 'Tags',
-    fieldName: 'description',
-    index: 1,
-    contents: secondTabTag?.description ?? null,
-    tableOfContents: secondTabTag?.tableOfContents ?? null,
-    parentDocumentId: tag?._id ?? '',
-    title: 'Featured',
-    userId: secondTabTag?.userId ?? '',
-    preview: null,
-    tabTitle: 'Featured',
-    tabSubtitle: null,
-    slug: 'featured',
-  },
-  {
-    _id: thirdTabTag?._id ?? 'history-tab',
-    collectionName: 'Tags',
-    fieldName: 'description',
-    index: 2,
-    contents: thirdTabTag?.description ?? null,
-    tableOfContents: thirdTabTag?.tableOfContents ?? null,
-    parentDocumentId: tag?._id ?? '',
-    title: 'History',
-    userId: thirdTabTag?.userId ?? '',
-    preview: null,
-    tabTitle: 'History',
-    tabSubtitle: null,
-    slug: 'history',
-  },
-  ];
+  // const lensTabs: TagLens[] = [
+  // {
+  //   _id: secondTabTag?._id ?? 'featured-tab',
+  //   collectionName: 'Tags',
+  //   fieldName: 'description',
+  //   index: 1,
+  //   contents: secondTabTag?.description ?? null,
+  //   tableOfContents: secondTabTag?.tableOfContents ?? null,
+  //   parentDocumentId: tag?._id ?? '',
+  //   title: 'Featured',
+  //   userId: secondTabTag?.userId ?? '',
+  //   preview: null,
+  //   tabTitle: 'Featured',
+  //   tabSubtitle: null,
+  //   slug: 'featured',
+  // },
+  // {
+  //   _id: thirdTabTag?._id ?? 'history-tab',
+  //   collectionName: 'Tags',
+  //   fieldName: 'description',
+  //   index: 2,
+  //   contents: thirdTabTag?.description ?? null,
+  //   tableOfContents: thirdTabTag?.tableOfContents ?? null,
+  //   parentDocumentId: tag?._id ?? '',
+  //   title: 'History',
+  //   userId: thirdTabTag?.userId ?? '',
+  //   preview: null,
+  //   tabTitle: 'History',
+  //   tabSubtitle: null,
+  //   slug: 'history',
+  // },
+  // ];
 
-  const splicedTag = {...tag, lenses: lensTabs}
+  // const splicedTag = {...tag, lenses: lensTabs}
 
-  const { selectedLensId, selectedLens, updateSelectedLens, lenses } = useTagLenses(splicedTag);
+  const { selectedLensId, selectedLens, updateSelectedLens, lenses } = useTagLenses(tag);
   const displayedTagTitle = useDisplayedTagTitle(tag, lenses, selectedLens);
 
   // if (!tag || !secondTabTag || !thirdTabTag) {
@@ -841,9 +838,6 @@ const TagPage = () => {
             />
           </ContentStyles>
         </div>}
-        <div className={classes.nestedListContainer}>
-          <WikiTagNestedList />
-        </div>
       </AnalyticsContext>
     </div>
   );

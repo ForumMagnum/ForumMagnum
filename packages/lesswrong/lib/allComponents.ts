@@ -872,7 +872,7 @@ importComponent("TagDiscussionSection", () => require('../components/tagging/Tag
 importComponent("TagDiscussionButton", () => require('../components/tagging/TagDiscussionButton'));
 importComponent("AllPostsPageTagRevisionItem", () => require('../components/tagging/AllPostsPageTagRevisionItem'));
 importComponent("PostsTagsList", () => require('../components/tagging/PostsTagsList'));
-
+importComponent("ArbitalExplorePage", () => require('../components/tagging/ArbitalExplorePage'));
 
 
 importComponent("TagsListItem", () => require('../components/tagging/TagsListItem'));
