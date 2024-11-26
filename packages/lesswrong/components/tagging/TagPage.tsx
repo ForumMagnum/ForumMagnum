@@ -861,7 +861,12 @@ const TagPage = () => {
       {tag.contributors && <div className={classes.contributorRow}>
         <div className={classes.contributorNameWrapper}>
           <span>Written by </span>
-          {tag.contributors.contributors.map(({ user }: { user?: UsersMinimumInfo }) => <UsersNameDisplay key={user?._id} user={user} className={classes.contributorName} />)}
+          {tag.contributors.contributors
+            .map(({ user }: { user?: UsersMinimumInfo }, idx: number) => (<>
+              <UsersNameDisplay key={user?._id} user={user} className={classes.contributorName} />
+              {idx < (tag.contributors.contributors.length - 1) ? ', ' : ''}
+            </>))
+          }
         </div>
         <div className={classes.lastUpdated}>
           {'last updated '}
