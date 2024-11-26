@@ -2961,6 +2961,9 @@ CREATE INDEX IF NOT EXISTS "idx_Tags_deleted_adminOnly_tagFlagsIds" ON "Tags" US
 -- Index "idx_Tags_name"
 CREATE INDEX IF NOT EXISTS "idx_Tags_name" ON "Tags" USING btree ("name");
 
+-- Index "idx_Tags_name_legacyData__arbitalPageId"
+CREATE INDEX IF NOT EXISTS "idx_Tags_name_legacyData__arbitalPageId" ON "Tags" USING gin ("name", ("legacyData" -> 'arbitalPageId'));
+
 -- Index "idx_Tags_parentTagId"
 CREATE INDEX IF NOT EXISTS "idx_Tags_parentTagId" ON "Tags" USING btree ("parentTagId");
 
