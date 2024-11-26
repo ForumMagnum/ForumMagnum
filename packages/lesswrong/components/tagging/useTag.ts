@@ -1,4 +1,3 @@
-import merge from 'lodash/merge';
 import { useMulti, UseMultiOptions } from '../../lib/crud/withMulti';
 import { gql, useQuery } from '@apollo/client';
 import { fragmentTextForQuery } from '@/lib/vulcan-lib';
