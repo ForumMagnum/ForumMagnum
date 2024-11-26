@@ -40,9 +40,9 @@ export const useTagBySlug = <FragmentTypeName extends keyof FragmentTypes>(
 
 type TagPreviewFragmentName = 'TagPreviewFragment' | 'TagSectionPreviewFragment';
 
-export const useTagPreview = <T extends string | undefined>(
+export const useTagPreview = (
   slug: string,
-  hash?: T,
+  hash?: string,
   queryOptions?: Partial<Omit<UseMultiOptions<TagPreviewFragmentName, "Tags">, 'extraVariables' | 'extraVariablesValues'>>,
 ): {
   tag: (FragmentTypes[TagPreviewFragmentName] & { summaries?: MultiDocumentEdit[] }) | null,
@@ -57,6 +57,8 @@ export const useTagPreview = <T extends string | undefined>(
     ? { extraVariables: { hash: "String" }, extraVariablesValues: { hash } } as const
     : {};
 
+  // TODO: figure out how to use the hash in the query
+  // Alternatively, assume that if we're getting a hash, we're using the hash query
   const query = gql`
     query getTagPreview($slug: String!, $hash: String) {
       TagPreview(slug: $slug, hash: $hash) {
