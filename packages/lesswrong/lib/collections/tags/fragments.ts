@@ -136,16 +136,6 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment TagSummariesPreviewFragment on Tag {
-    ...TagPreviewFragment
-
-    summaries(lensId: $lensId) {
-      ...MultiDocumentEdit
-    }
-  }
-`);
-
-registerFragment(`
   fragment TagSectionPreviewFragment on Tag {
     ...TagBasicInfo
     isRead
