@@ -2568,6 +2568,7 @@ interface TagBasicInfo { // fragment on Tags
   readonly deleted: boolean,
   readonly isSubforum: boolean,
   readonly noindex: boolean,
+  readonly isArbitalImport: boolean|null,
 }
 
 interface TagDetailsFragment extends TagBasicInfo { // fragment on Tags
@@ -3850,6 +3851,36 @@ interface SideCommentCacheMinimumInfo { // fragment on SideCommentCaches
   readonly createdAt: Date,
 }
 
+interface MultiDocumentsDefaultFragment { // fragment on MultiDocuments
+  readonly title: string | null,
+  readonly slug: string,
+  readonly oldSlugs: Array<string>,
+  readonly preview: string | null,
+  readonly tabTitle: string,
+  readonly tabSubtitle: string | null,
+  readonly userId: string,
+  readonly parentDocumentId: string,
+  readonly collectionName: string,
+  readonly fieldName: string,
+  readonly index: number,
+  readonly tableOfContents: any /*{"definitions":[{}]}*/,
+}
+
+interface MultiDocumentEdit { // fragment on MultiDocuments
+  readonly _id: string,
+  readonly parentDocumentId: string,
+  readonly collectionName: string,
+  readonly fieldName: string,
+  readonly userId: string,
+  readonly title: string | null,
+  readonly tabTitle: string,
+  readonly tabSubtitle: string | null,
+  readonly preview: string | null,
+  readonly index: number,
+  readonly tableOfContents: any /*{"definitions":[{}]}*/,
+  readonly contents: RevisionEdit|null,
+}
+
 interface ElectionCandidateBasicInfo { // fragment on ElectionCandidates
   readonly _id: string,
   readonly electionName: string,
@@ -4193,34 +4224,6 @@ interface LlmMessagesFragment { // fragment on LlmMessages
   readonly createdAt: Date,
 }
 
-interface MultiDocumentsDefaultFragment { // fragment on MultiDocuments
-  readonly title: string | null,
-  readonly preview: string | null,
-  readonly tabTitle: string,
-  readonly tabSubtitle: string | null,
-  readonly userId: string,
-  readonly parentDocumentId: string,
-  readonly collectionName: string,
-  readonly fieldName: string,
-  readonly index: number,
-  readonly tableOfContents: any /*{"definitions":[{}]}*/,
-}
-
-interface MultiDocumentEdit { // fragment on MultiDocuments
-  readonly _id: string,
-  readonly parentDocumentId: string,
-  readonly collectionName: string,
-  readonly fieldName: string,
-  readonly userId: string,
-  readonly title: string | null,
-  readonly tabTitle: string,
-  readonly tabSubtitle: string | null,
-  readonly preview: string | null,
-  readonly index: number,
-  readonly tableOfContents: any /*{"definitions":[{}]}*/,
-  readonly contents: RevisionEdit|null,
-}
-
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
   readonly post: PostsMinimumInfo|null,
   readonly suggestForAlignmentUserIds: Array<string>,
@@ -4511,6 +4514,8 @@ interface FragmentTypes {
   UserRateLimitsDefaultFragment: UserRateLimitsDefaultFragment
   UserRateLimitDisplay: UserRateLimitDisplay
   SideCommentCacheMinimumInfo: SideCommentCacheMinimumInfo
+  MultiDocumentsDefaultFragment: MultiDocumentsDefaultFragment
+  MultiDocumentEdit: MultiDocumentEdit
   ElectionCandidateBasicInfo: ElectionCandidateBasicInfo
   ElectionCandidateSimple: ElectionCandidateSimple
   WithVoteElectionCandidate: WithVoteElectionCandidate
@@ -4546,8 +4551,6 @@ interface FragmentTypes {
   LlmConversationsWithMessagesFragment: LlmConversationsWithMessagesFragment
   LlmMessagesDefaultFragment: LlmMessagesDefaultFragment
   LlmMessagesFragment: LlmMessagesFragment
-  MultiDocumentsDefaultFragment: MultiDocumentsDefaultFragment
-  MultiDocumentEdit: MultiDocumentEdit
   SuggestAlignmentComment: SuggestAlignmentComment
   SubscribedPostAndCommentsFeed: SubscribedPostAndCommentsFeed
   JargonTerms: JargonTerms
@@ -4618,6 +4621,7 @@ interface FragmentTypesByCollection {
   ModerationTemplates: "ModerationTemplatesDefaultFragment"|"ModerationTemplateFragment"
   CurationNotices: "CurationNoticesDefaultFragment"|"CurationNoticesFragment"
   UserRateLimits: "UserRateLimitsDefaultFragment"|"UserRateLimitDisplay"
+  MultiDocuments: "MultiDocumentsDefaultFragment"|"MultiDocumentEdit"
   ElicitQuestions: "ElicitQuestionsDefaultFragment"
   ElicitQuestionPredictions: "ElicitQuestionPredictionsDefaultFragment"
   DialogueChecks: "DialogueChecksDefaultFragment"|"DialogueCheckInfo"
@@ -4627,7 +4631,6 @@ interface FragmentTypesByCollection {
   SurveyResponses: "SurveyResponsesDefaultFragment"|"SurveyResponseMinimumInfo"
   LlmConversations: "LlmConversationsDefaultFragment"|"LlmConversationsFragment"|"LlmConversationsViewingPageFragment"|"LlmConversationsWithMessagesFragment"
   LlmMessages: "LlmMessagesDefaultFragment"|"LlmMessagesFragment"
-  MultiDocuments: "MultiDocumentsDefaultFragment"|"MultiDocumentEdit"
   SubscribedPostAndCommentses: "SubscribedPostAndCommentsFeed"
 }
 
@@ -4877,6 +4880,8 @@ interface CollectionNamesByFragmentName {
   UserRateLimitsDefaultFragment: "UserRateLimits"
   UserRateLimitDisplay: "UserRateLimits"
   SideCommentCacheMinimumInfo: "SideCommentCaches"
+  MultiDocumentsDefaultFragment: "MultiDocuments"
+  MultiDocumentEdit: "MultiDocuments"
   ElectionCandidateBasicInfo: "ElectionCandidates"
   ElectionCandidateSimple: "ElectionCandidates"
   WithVoteElectionCandidate: "ElectionCandidates"
@@ -4912,8 +4917,6 @@ interface CollectionNamesByFragmentName {
   LlmConversationsWithMessagesFragment: "LlmConversations"
   LlmMessagesDefaultFragment: "LlmMessages"
   LlmMessagesFragment: "LlmMessages"
-  MultiDocumentsDefaultFragment: "MultiDocuments"
-  MultiDocumentEdit: "MultiDocuments"
   SuggestAlignmentComment: "Comments"
   SubscribedPostAndCommentsFeed: never
   JargonTerms: "JargonTerms"
@@ -4925,5 +4928,5 @@ type CollectionNameString = "AdvisorRequests"|"ArbitalCaches"|"Bans"|"Books"|"Ch
 
 type CollectionNameWithCreatedAt = "AdvisorRequests"|"ArbitalCaches"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"JargonTerms"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PageCache"|"PetrovDayActions"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"SurveyQuestions"|"SurveyResponses"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
 
-type CollectionNameWithSlug = "Collections"|"GardenCodes"|"Posts"|"TagFlags"|"Tags"|"Users"
+type CollectionNameWithSlug = "Collections"|"GardenCodes"|"MultiDocuments"|"Posts"|"TagFlags"|"Tags"|"Users"
 

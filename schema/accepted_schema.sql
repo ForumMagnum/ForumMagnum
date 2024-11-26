@@ -1245,14 +1245,16 @@ CREATE INDEX IF NOT EXISTS "idx_ModeratorActions_type_createdAt_endedAt" ON "Mod
 CREATE TABLE "MultiDocuments" (
   _id VARCHAR(27) PRIMARY KEY,
   "title" TEXT,
+  "slug" TEXT NOT NULL,
+  "oldSlugs" TEXT[] NOT NULL DEFAULT '{}',
   "preview" TEXT,
-  "tabTitle" TEXT,
+  "tabTitle" TEXT NOT NULL,
   "tabSubtitle" TEXT,
-  "userId" TEXT,
-  "parentDocumentId" TEXT,
-  "collectionName" TEXT,
-  "fieldName" TEXT,
-  "index" DOUBLE PRECISION,
+  "userId" TEXT NOT NULL,
+  "parentDocumentId" TEXT NOT NULL,
+  "collectionName" TEXT NOT NULL,
+  "fieldName" TEXT NOT NULL,
+  "index" DOUBLE PRECISION NOT NULL,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB,
@@ -1264,6 +1266,12 @@ CREATE INDEX IF NOT EXISTS "idx_MultiDocuments_schemaVersion" ON "MultiDocuments
 
 -- Index "idx_MultiDocuments_parentDocumentId_collectionName"
 CREATE INDEX IF NOT EXISTS "idx_MultiDocuments_parentDocumentId_collectionName" ON "MultiDocuments" USING btree ("parentDocumentId", "collectionName");
+
+-- Index "idx_MultiDocuments_slug"
+CREATE INDEX IF NOT EXISTS "idx_MultiDocuments_slug" ON "MultiDocuments" USING btree ("slug");
+
+-- Index "idx_MultiDocuments_oldSlugs"
+CREATE INDEX IF NOT EXISTS "idx_MultiDocuments_oldSlugs" ON "MultiDocuments" USING gin ("oldSlugs");
 
 -- Table "Notifications"
 CREATE TABLE "Notifications" (

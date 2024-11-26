@@ -700,6 +700,12 @@ const schema: SchemaType<"Tags"> = {
     type: Object,
     optional: true,
   },
+
+  isArbitalImport: resolverOnlyField({
+    type: Boolean,
+    canRead: ['guests'],
+    resolver: (tag: DbTag) => tag.legacyData?.arbitalPageId !== undefined,
+  }),
 }
 
 export default schema;

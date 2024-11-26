@@ -19,6 +19,7 @@ registerFragment(`
     deleted
     isSubforum
     noindex
+    isArbitalImport
   }
 `);
 

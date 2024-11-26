@@ -1,4 +1,8 @@
+import merge from 'lodash/merge';
 import { useMulti, UseMultiOptions } from '../../lib/crud/withMulti';
+import { gql, useQuery } from '@apollo/client';
+import { fragmentTextForQuery } from '@/lib/vulcan-lib';
+import { isLW } from '@/lib/instanceSettings';
 
 export const useTagBySlug = <FragmentTypeName extends keyof FragmentTypes>(
   slug: string,
@@ -36,12 +40,12 @@ export const useTagBySlug = <FragmentTypeName extends keyof FragmentTypes>(
 
 type TagPreviewFragmentName = 'TagPreviewFragment' | 'TagSectionPreviewFragment';
 
-export const useTagPreview = (
+export const useTagPreview = <T extends string | undefined>(
   slug: string,
-  hash?: string,
-  queryOptions?: Partial<Omit<UseMultiOptions<TagPreviewFragmentName, "Tags">, 'extraVariables' | 'extraVariablesValues'>>
+  hash?: T,
+  queryOptions?: Partial<Omit<UseMultiOptions<TagPreviewFragmentName, "Tags">, 'extraVariables' | 'extraVariablesValues'>>,
 ): {
-  tag: FragmentTypes[TagPreviewFragmentName]|null,
+  tag: (FragmentTypes[TagPreviewFragmentName] & { summaries?: MultiDocumentEdit[] }) | null,
   loading: boolean,
   error: any
 } => {
@@ -52,6 +56,26 @@ export const useTagPreview = (
   const hashVariables = hash
     ? { extraVariables: { hash: "String" }, extraVariablesValues: { hash } } as const
     : {};
+
+  const query = gql`
+    query TagPreview($slug: String!, $hash: String) {
+      TagPreview(slug: $slug, hash: $hash) {
+        tag {
+          ...${fragmentName}
+        }
+        summaries {
+          ...MultiDocumentEdit
+        }
+      }
+    }
+    ${fragmentTextForQuery(fragmentName)}
+    ${fragmentTextForQuery('MultiDocumentEdit')}
+  `;
+
+  const { data, loading: queryLoading, error: queryError } = useQuery(query, {
+    skip: !isLW,
+    variables: { ...hashVariables.extraVariablesValues, slug }
+  })
 
   const { results, loading, error } = useMulti<TagPreviewFragmentName, "Tags">({
     terms: {
@@ -64,6 +88,24 @@ export const useTagPreview = (
     ...hashVariables,
     ...queryOptions
   });
+
+  if (isLW) {
+    if (data?.TagPreview?.tag) {
+      const tag: TagPreviewFragment & { summaries: MultiDocumentEdit[] } = { ...data.TagPreview.tag, summaries: data.TagPreview.summaries };
+
+      return {
+        tag,
+        loading: false,
+        error: null,
+      }
+    } else {
+      return {
+        tag: null,
+        loading: queryLoading,
+        error: queryError
+      };
+    }
+  }
   
   if (results && results.length>0 && (results[0] as HasIdType)._id) {
     return {

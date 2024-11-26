@@ -1,4 +1,7 @@
-'use strict';
+/* eslint-disable no-useless-escape */
+/* eslint-disable eqeqeq */
+/* eslint-disable no-control-regex */
+/* eslint-disable @typescript-eslint/type-annotation-spacing */
 
 import { DomainsRow, PageInfosRow, PagesRow } from './arbitalSchema';
 // import app from './angular.ts';
@@ -79,7 +82,7 @@ const getTopLevelDomain = function(withHttpPrefix: boolean): string {
 const getDomainUrl = function(subdomain?: string): string {
   if (subdomain === undefined) {
     // Use current domain
-    return getCurrentDomainUrl(true);
+    return getCurrentDomainUrl();
   }
   if (subdomain !== '') subdomain += '.';
   subdomain = subdomain.toLowerCase();
