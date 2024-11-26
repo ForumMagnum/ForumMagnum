@@ -1,10 +1,12 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { useTagBySlug } from '../useTag';
 import { useLocation } from '../../../lib/routeUtil';
 import { tagGetUrl } from '../../../lib/collections/tags/helpers';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { getAvailableLenses } from '../TagPage';
+import keyBy from 'lodash/keyBy';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -22,7 +24,9 @@ const TagHistoryPage = ({classes}: {
   const { slug } = params;
   const focusedUser: string = query.user;
   const { tag, loading: loadingTag } = useTagBySlug(slug, "TagHistoryFragment");
-  const { UsersName, SingleColumnSection, MixedTypeFeed, TagRevisionItem, FormatDate, CommentsNode, Loading, LinkToPost, SingleLineFeedEvent } = Components;
+  const lenses = useMemo(() => getAvailableLenses(tag), [tag]);
+  const lensesById = keyBy(lenses, l=>l._id);
+  const { UsersName, SingleColumnSection, MixedTypeFeed, TagRevisionItem, LensRevisionItem, FormatDate, CommentsNode, Loading, LinkToPost, SingleLineFeedEvent } = Components;
   
   if (loadingTag || !tag) {
     return <SingleColumnSection>
@@ -62,6 +66,20 @@ const TagHistoryPage = ({classes}: {
               showDiscussionLink={false}
             />
           </div>,
+        },
+        lensRevision: {
+          fragmentName: "RevisionHistoryEntry",
+          render: (revision: RevisionHistoryEntry) => {
+            const lens = lensesById[revision.documentId];
+            return <div>
+              <LensRevisionItem
+                tag={tag}
+                collapsed={!!focusedUser && focusedUser!==revision.user?.slug}
+                lens={lens}
+                revision={revision}
+              />
+            </div>
+          }
         },
         tagApplied: {
           fragmentName: "TagRelHistoryFragment",

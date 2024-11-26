@@ -2610,8 +2610,10 @@ interface TagFragment_description { // fragment on Revisions
   readonly editedAt: Date,
 }
 
-interface TagHistoryFragment extends TagBasicInfo { // fragment on Tags
+interface TagHistoryFragment extends TagFragment { // fragment on Tags
+  readonly tableOfContents: any,
   readonly user: UsersMinimumInfo|null,
+  readonly lenses: Array<MultiDocumentEdit>,
 }
 
 interface TagCreationHistoryFragment extends TagFragment { // fragment on Tags

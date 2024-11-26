@@ -907,6 +907,7 @@ importComponent("EAPostsItemTagRelevance", () => require('../components/tagging/
 importComponent("TagSmallPostLink", () => require('../components/tagging/TagSmallPostLink'));
 importComponent("RecentDiscussionTag", () => require('../components/recentDiscussion/RecentDiscussionTag'));
 importComponent("TagHistoryPage", () => require('../components/tagging/history/TagHistoryPage'));
+importComponent("LensRevisionItem", () => require('../components/tagging/history/LensRevisionItem'));
 importComponent("TagActivityFeed", () => require('../components/tagging/TagActivityFeed'));
 importComponent("TagProgressBar", () => require('../components/tagging/TagProgressBar'));
 importComponent("SingleLineTagUpdates", () => require('../components/tagging/SingleLineTagUpdates'));

@@ -4,6 +4,7 @@ import { TagRels } from '../../lib/collections/tagRels/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { defineFeedResolver, mergeFeedQueries, fixedResultSubquery, viewBasedSubquery } from '../utils/feedUtil';
+import { MultiDocuments } from '@/lib/collections/multiDocuments/collection';
 
 defineFeedResolver<Date>({
   name: "TagHistoryFeed",
@@ -14,6 +15,7 @@ defineFeedResolver<Date>({
     tagApplied: TagRel
     tagRevision: Revision
     tagDiscussionComment: Comment
+    lensRevision: Revision
   `,
   resolver: async ({limit=50, cutoff, offset, args, context}: {
     limit?: number,
@@ -30,6 +32,11 @@ defineFeedResolver<Date>({
     if (!tag) throw new Error("Tag not found");
     
     type SortKeyType = Date
+    
+    const lenses = await MultiDocuments.find({
+      parentDocumentId: tagId,
+    }).fetch();
+    const lensIds = lenses.map(lens => lens._id);
     
     const result = await mergeFeedQueries<SortKeyType>({
       limit, cutoff, offset,
@@ -80,6 +87,20 @@ defineFeedResolver<Date>({
             tagCommentType: "DISCUSSION",
           },
         }),
+        // Lens edits
+        {
+          type: "lensRevision",
+          getSortKey: (rev: DbRevision) => rev.editedAt,
+          doQuery: async (limit: number, cutoff: Date|null): Promise<DbRevision[]> => {
+            return await Revisions.find({
+              documentId: {$in: lensIds},
+              ...(cutoff ? {editedAt: {$lt: cutoff}} : {}),
+            }, {
+              sort: {editedAt: -1},
+              limit,
+            }).fetch();
+          },
+        },
       ],
     });
     return result;

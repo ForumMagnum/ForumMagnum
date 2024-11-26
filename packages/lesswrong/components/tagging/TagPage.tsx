@@ -373,7 +373,7 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   ...tagPageHeaderStyles(theme),
 }));
 
-interface TagLens {
+export interface TagLens {
   _id: string;
   collectionName: string;
   fieldName: string;
@@ -391,7 +391,7 @@ interface TagLens {
 
 const MAIN_TAB_ID = 'main-tab';
 
-function getDefaultLens(tag: TagPageFragment | TagPageWithRevisionFragment): TagLens {
+function getDefaultLens(tag: TagPageFragment|TagPageWithRevisionFragment|TagHistoryFragment): TagLens {
   return {
     _id: MAIN_TAB_ID,
     collectionName: 'Tags',
@@ -426,14 +426,23 @@ function getImputedSlug(lens: MultiDocumentEdit) {
   return slugComponents.join('_').toLowerCase();
 }
 
+export function getAvailableLenses(tag: TagPageFragment|TagPageWithRevisionFragment|TagHistoryFragment|null) {
+  if (!tag) return [];
+  return [
+    getDefaultLens(tag),
+    ...tag.lenses.map(lens => ({
+      ...lens,
+      index: lens.index + 1,
+      title: lens.title ?? tag.name,
+      slug: getImputedSlug(lens)
+    }))
+  ];
+}
+
 function useTagLenses(tag: TagPageFragment | TagPageWithRevisionFragment | null): TagLensInfo {
   const { query, location } = useLocation();
   const navigate = useNavigate();
-
-  const availableLenses = useMemo(() => {
-    if (!tag) return [];
-    return [getDefaultLens(tag), ...tag.lenses.map(lens => ({ ...lens, index: lens.index + 1, title: lens.title ?? tag.name, slug: getImputedSlug(lens) }))];
-  }, [tag]);
+  const availableLenses = useMemo(() => getAvailableLenses(tag), [tag]);
 
   const querySelectedLens = useMemo(() =>
     availableLenses.find(lens => lens.slug === query.lens),

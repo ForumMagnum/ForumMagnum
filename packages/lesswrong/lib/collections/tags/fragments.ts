@@ -73,9 +73,13 @@ registerFragment(`
 
 registerFragment(`
   fragment TagHistoryFragment on Tag {
-    ...TagBasicInfo
+    ...TagFragment
+    tableOfContents
     user {
       ...UsersMinimumInfo
+    }
+    lenses {
+      ...MultiDocumentEdit
     }
   }
 `);

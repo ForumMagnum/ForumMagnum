@@ -2,6 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagGetRevisionLink } from '../../lib/collections/tags/helpers';
+import type { TagLens } from './TagPage';
 
 const styles = (theme: ThemeType): JssStyles => ({
   username: {
@@ -13,8 +14,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const TagRevisionItemShortMetadata = ({tag, revision, classes}: {
+const TagRevisionItemShortMetadata = ({tag, lens, revision, classes}: {
   tag: TagBasicInfo,
+  lens?: TagLens,
   revision: RevisionMetadataWithChangeMetrics,
   classes: ClassesType,
 }) => {
@@ -22,6 +24,7 @@ const TagRevisionItemShortMetadata = ({tag, revision, classes}: {
   const revUrl = tagGetRevisionLink(tag, revision.version);
   
   return <>
+    {lens && <div>Lens {lens.tabTitle}</div>}
     <span className={classes.username}>
       <UsersName documentId={revision.userId}/>
     </span>

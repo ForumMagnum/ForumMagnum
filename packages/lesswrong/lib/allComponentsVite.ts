@@ -952,6 +952,7 @@ import '../components/tagging/EAPostsItemTagRelevance';
 import '../components/tagging/TagSmallPostLink';
 import '../components/recentDiscussion/RecentDiscussionTag';
 import '../components/tagging/history/TagHistoryPage';
+import '../components/tagging/history/LensRevisionItem';
 import '../components/tagging/TagActivityFeed';
 import '../components/tagging/TagProgressBar';
 import '../components/tagging/SingleLineTagUpdates';
