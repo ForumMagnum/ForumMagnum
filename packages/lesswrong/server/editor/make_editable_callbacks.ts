@@ -58,7 +58,7 @@ export async function buildRevision({ originalContents, currentUser, dataWithDis
   const { data, type } = originalContents;
   const readerVisibleData = dataWithDiscardedSuggestions ?? data
   const sanitize = !currentUser.isAdmin && !isAdminContext
-  const html = await dataToHTML(readerVisibleData, type, { sanitize, skipMathjax: true })
+  const html = await dataToHTML(readerVisibleData, type, { sanitize })
   const wordCount = await dataToWordCount(readerVisibleData, type)
 
   return {
