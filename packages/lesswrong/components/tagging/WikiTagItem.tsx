@@ -329,7 +329,7 @@ const WikiTagItem = ({ page, nestingLevel }: WikiTagItemProps) => {
 
   return (
     <div className={classes.root}>
-      <TagsTooltip tagSlug={page.newSlug || page.title} As="div" className={classes.tooltip}>
+      <TagsTooltip tagSlug={page.newSlug || page.title} noPrefetch className={classes.tooltip}>
         <div className={classes.item}>
           <div
             className={classNames(classes.collapse, { [classes.collapseInvisible]: !hasChildren })}
