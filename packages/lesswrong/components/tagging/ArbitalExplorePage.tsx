@@ -52,7 +52,7 @@ const ArbitalExplorePage = () => {
     fragmentName: "TagWithLegacyDataFragment",
     terms: {
       view: "allArbitalTags",
-      limit: 1000,
+      limit: 2000,
     },
   });
 
