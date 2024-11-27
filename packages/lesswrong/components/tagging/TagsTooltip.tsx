@@ -22,10 +22,7 @@ const useTagsTooltipTag = (
   {tag, tagSlug}: TagsTooltipTag,
   hash?: string,
   skip?: boolean,
-): {
-  tag: PreviewableTag | null,
-  loading: boolean,
-} => {
+) => {
   const {tag: loadedTag, loading} = useTagPreview(tagSlug ?? "", hash, {
     skip: skip || !!tag,
   });
@@ -153,12 +150,12 @@ const TagsTooltip = ({
   classes: ClassesType<typeof styles>,
 }) => {
   const [everHovered, setEverHovered] = useState(false);
-  const {tag, loading} = useTagsTooltipTag(
+  const { tag, loading } = useTagsTooltipTag(
     tagsTooltipProps, hash,
     (noPrefetch && !everHovered) || isRedLink
   );
 
-  const {HoverOver, Loading, TagRelCard, TagPreview} = Components;
+  const { HoverOver, Loading, TagRelCard, TagPreview } = Components;
   return (
     <HoverOver
       title={
