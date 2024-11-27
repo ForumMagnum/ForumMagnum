@@ -5,10 +5,10 @@ import { Globals } from "@/lib/vulcan-lib/config";
 import fs from 'node:fs';
 import Users from '@/lib/collections/users/collection';
 import UsersRepo from "../../repos/UsersRepo";
-import { loadArbitalDatabase, WholeArbitalDatabase, PageSummariesRow, PagesRow, PageInfosRow, DomainsRow } from './arbitalSchema';
+import { loadArbitalDatabase, WholeArbitalDatabase, PageSummariesRow, PagesRow, PageInfosRow, DomainsRow, LensesRow } from './arbitalSchema';
 import keyBy from 'lodash/keyBy';
 import groupBy from 'lodash/groupBy';
-import { createAdminContext, createMutator, slugify } from '@/server/vulcan-lib';
+import { createAdminContext, createMutator, slugify, updateMutator } from '@/server/vulcan-lib';
 import Tags from '@/lib/collections/tags/collection';
 import { getUnusedSlugByCollectionName, slugIsUsed } from '@/lib/helpers';
 import { randomId } from '@/lib/random';
@@ -182,6 +182,7 @@ async function createSummariesForPage({ pageId, importedRecordMaps, pageCreator,
         collectionName,
         fieldName: "summary",
         title: summary.name,
+        slug: `${pageId}-${summary.name}`,
         index: parseInt(idx),
         userId: pageCreator?._id,
         contents: {
@@ -196,6 +197,139 @@ async function createSummariesForPage({ pageId, importedRecordMaps, pageCreator,
       validate: false,
     });
   }
+}
+
+type AlternativeType = 'faster' | 'slower' | 'more_technical' | 'less_technical';
+type PageAlternatives = Record<AlternativeType, string[]>;
+
+function computePageAlternatives(database: WholeArbitalDatabase): Record<string, PageAlternatives> {
+  // Calculate speed tags for each page (-1=slower, 0=neutral, 1=faster)
+  const SLOWER_TAG = '6b4';
+  const FASTER_TAG = '6b5';
+  const pageSpeeds: Record<string, number> = {};
+  for (const pair of database.pagePairs) {
+    if (pair.type === 'tag') {
+      if (pair.parentId === SLOWER_TAG) {
+        pageSpeeds[pair.childId] = -1;
+      } else if (pair.parentId === FASTER_TAG) {
+        pageSpeeds[pair.childId] = 1;
+      }
+    }
+  }
+
+  // Group subject pairs by their parent (topic)
+  const subjectPairsByParent: Record<string, Array<{pageId: string, level: number}>> = {};
+  for (const pair of database.pagePairs) {
+    if (pair.type === 'subject' && pair.isStrong) {
+      if (!subjectPairsByParent[pair.parentId]) {
+        subjectPairsByParent[pair.parentId] = [];
+      }
+      subjectPairsByParent[pair.parentId].push({
+        pageId: pair.childId,
+        level: pair.level
+      });
+    }
+  }
+
+  // Initialize results
+  const results: Record<string, PageAlternatives> = {};
+  
+  // Helper to ensure a page has an entry in results
+  const initPageResult = (pageId: string) => {
+    if (!results[pageId]) {
+      results[pageId] = {
+        faster: [],
+        slower: [],
+        more_technical: [],
+        less_technical: []
+      };
+    }
+  };
+
+  // Process each group of pages that teach the same subject
+  for (const [_parentId, pages] of Object.entries(subjectPairsByParent)) {
+    // Compare each pair of pages
+    for (const page1 of pages) {
+      for (const page2 of pages) {
+        if (page1.pageId === page2.pageId) continue;
+
+        const speed1 = pageSpeeds[page1.pageId] || 0;
+        const speed2 = pageSpeeds[page2.pageId] || 0;
+
+        initPageResult(page1.pageId);
+        initPageResult(page2.pageId);
+
+        // Technical level comparisons
+        if (page2.level > page1.level) {
+          results[page1.pageId].more_technical.push(page2.pageId);
+          results[page2.pageId].less_technical.push(page1.pageId);
+        } else if (page1.level > page2.level) {
+          results[page1.pageId].less_technical.push(page2.pageId);
+          results[page2.pageId].more_technical.push(page1.pageId);
+        }
+        // Speed comparisons (when technical level is equal)
+        else if (speed2 > speed1) {
+          results[page1.pageId].faster.push(page2.pageId);
+          results[page2.pageId].slower.push(page1.pageId);
+        } else if (speed1 > speed2) {
+          results[page1.pageId].slower.push(page2.pageId);
+          results[page2.pageId].faster.push(page1.pageId);
+        }
+      }
+    }
+  }
+
+  // Add lens relationships
+  const lensesByPage: Record<string, LensesRow[]> = {};
+  for (const lens of database.lenses) {
+    if (!lensesByPage[lens.pageId]) {
+      lensesByPage[lens.pageId] = [];
+    }
+    lensesByPage[lens.pageId].push(lens);
+  }
+
+  // Process lens relationships
+  for (const [pageId, lenses] of Object.entries(lensesByPage)) {
+    // Sort lenses by their index
+    const sortedLenses = [...lenses].sort((a, b) => a.lensIndex - b.lensIndex);
+    
+    initPageResult(pageId);
+    for (let i = 0; i < sortedLenses.length; i++) {
+      const currentLens = sortedLenses[i];
+      initPageResult(currentLens.lensId);
+      
+      // Connect to previous lens (if exists)
+      if (i > 0) {
+        const prevLens = sortedLenses[i-1];
+        results[currentLens.lensId].less_technical.push(prevLens.lensId);
+        results[prevLens.lensId].more_technical.push(currentLens.lensId);
+      }
+      
+      // Connect to main page
+      results[currentLens.lensId].less_technical.push(pageId);
+      results[pageId].more_technical.push(currentLens.lensId);
+    }
+  }
+
+  // Remove duplicates and ensure valid pages
+  const validPages = new Set(database.pageInfos
+    .filter(pi => pi.currentEdit > 0 && !pi.isDeleted)
+    .map(pi => pi.pageId)
+  );
+
+  for (const [pageId, alternatives] of Object.entries(results)) {
+    if (!validPages.has(pageId)) {
+      delete results[pageId];
+      continue;
+    }
+    
+    for (const type of Object.keys(alternatives) as AlternativeType[]) {
+      alternatives[type] = [...new Set(alternatives[type])]
+        .filter(id => validPages.has(id));
+    }
+  }
+
+  return results;
 }
 
 export type ArbitalConversionContext = {
@@ -291,6 +425,8 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
     pageInfosByPageId: pageInfosById,
     domainsByPageId,
   };
+
+  const alternativesByPageId = computePageAlternatives(database);
   
   for (const pageId of pageIdsToImport) {
     try {
@@ -318,68 +454,94 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
       // revisions next; creating them in-order ensures some on-insert callbacks
       // work properly.)
 
-      const { data: wiki } = await createMutator({
-        collection: Tags,
-        document: {
-          name: title,
-          slug: slug,
-          oldSlugs,
-          description: {
-            originalContents: {
-              type: "ckEditorMarkup",
-              data: oldestRevCkEditorMarkup,
+      // const { data: wiki } = await createMutator({
+      //   collection: Tags,
+      //   document: {
+      //     name: title,
+      //     slug: slug,
+      //     oldSlugs,
+      //     description: {
+      //       originalContents: {
+      //         type: "ckEditorMarkup",
+      //         data: oldestRevCkEditorMarkup,
+      //       },
+      //     },
+      //     legacyData: {
+      //       "arbitalPageId": pageId,
+      //     },
+      //   },
+      //   context: resolverContext,
+      //   currentUser: pageCreator,
+      //   validate: false, //causes the check for name collisions to be skipped
+      // });
+
+      const wiki = await Tags.findOne({ 'legacyData.arbitalPageId': pageId });
+      if (!wiki) {
+        console.log(`Wiki page not found: ${pageId}`);
+        continue;
+      }
+
+      const pageAlternatives = alternativesByPageId[pageId];
+      if (pageAlternatives && Object.values(pageAlternatives).some(alternatives => alternatives.length > 0)) {
+        await updateMutator({
+          collection: Tags,
+          documentId: wiki._id,
+          set: {
+            legacyData: {
+              ...wiki.legacyData,
+              arbitalFasterAlternatives: pageAlternatives.faster ?? [],
+              arbitalSlowerAlternatives: pageAlternatives.slower ?? [],
+              arbitalMoreTechnicalAlternatives: pageAlternatives.more_technical ?? [],
+              arbitalLessTechnicalAlternatives: pageAlternatives.less_technical ?? [],
             },
           },
-          legacyData: {
-            "arbitalPageId": pageId,
-          },
-        },
-        context: resolverContext,
-        currentUser: pageCreator,
-        validate: false, //causes the check for name collisions to be skipped
-      });
-      /*await createSummariesForPage({
+          currentUser: pageCreator,
+          context: resolverContext,
+        });
+      }
+
+      await createSummariesForPage({
         pageId,
         importedRecordMaps,
         conversionContext,
         pageCreator,
         resolverContext,
         tagId: wiki._id,
-      });*/
+      });
 
       // Back-date it to when it was created on Arbital
-      await Promise.all([
-        backDateObj(Tags, wiki._id, pageInfo.createdAt),
-        backDateDenormalizedEditable(Tags, wiki._id, "description", pageInfo.createdAt),
-        backDateRevision(wiki.description_latest!, pageInfo.createdAt),
-      ]);
+      // await Promise.all([
+      //   backDateObj(Tags, wiki._id, pageInfo.createdAt),
+      //   backDateDenormalizedEditable(Tags, wiki._id, "description", pageInfo.createdAt),
+      //   backDateRevision(wiki.description_latest!, pageInfo.createdAt),
+      // ]);
 
       // Fill in some metadata on the latest revision
-      const lwFirstRevision: DbRevision = (await Revisions.findOne({_id: wiki.description_latest}))!;
-      await Revisions.rawUpdateOne(
-        {_id: lwFirstRevision._id},
-        {$set: {
-          editedAt: firstRevision.createdAt,
-          commitMessage: firstRevision.editSummary,
-          version: `1.0.0`,
-          legacyData: {
-            "arbitalPageId": pageId,
-            "arbitalEditNumber": firstRevision.edit,
-          },
-        }}
-      );
+      // const lwFirstRevision: DbRevision = (await Revisions.findOne({_id: wiki.description_latest}))!;
+      // await Revisions.rawUpdateOne(
+      //   {_id: lwFirstRevision._id},
+      //   {$set: {
+      //     editedAt: firstRevision.createdAt,
+      //     commitMessage: firstRevision.editSummary,
+      //     version: `1.0.0`,
+      //     legacyData: {
+      //       "arbitalPageId": pageId,
+      //       "arbitalEditNumber": firstRevision.edit,
+      //     },
+      //   }}
+      // );
       
 
       // Create other revisions besides the first one
-      await importRevisions({
-        collection: Tags,
-        fieldName: "description",
-        documentId: wiki._id,
-        pageId: pageId,
-        revisions: revisions.slice(1),
-        oldestRevCkEditorMarkup,
-        conversionContext,
-      })
+      // await importRevisions({
+      //   collection: Tags,
+      //   fieldName: "description",
+      //   documentId: wiki._id,
+      //   pageId: pageId,
+      //   revisions: revisions.slice(1),
+      //   oldestRevCkEditorMarkup,
+      //   conversionContext,
+      // })
 
       // Add lenses
       if (lenses.length > 0) {
@@ -405,55 +567,79 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
         });
 
         // Create the lens, with the oldest revision
-        const { data: lensObj } = await createMutator({
-          collection: MultiDocuments,
-          document: {
-            parentDocumentId: wiki._id,
-            collectionName: "Tags",
-            fieldName: "description",
-            title: lensTitle,
-            slug: lensSlug,
-            oldSlugs: oldLensSlugs,
-            //FIXME: preview/clickbait, tab-title, and subtitle need edit history/etc
-            preview: lensLiveRevision.clickbait,
-            tabTitle: lens.lensName,
-            tabSubtitle: lens.lensSubtitle,
-            userId: pageCreator?._id,
-            index: lens.lensIndex,
-            contents: {
-              originalContents: {
-                type: "ckEditorMarkup",
-                data: lensFirstRevisionCkEditorMarkup,
-              }
-            },
-          } as Partial<DbMultiDocument>,
-          context: resolverContext,
-          currentUser: pageCreator,
-          validate: false,
-        });
-        await Promise.all([
-          backDateObj(MultiDocuments, lensObj._id, lensFirstRevision.createdAt),
-          backDateRevision(lensObj.contents_latest!, lensFirstRevision.createdAt),
-        ]);
+        // const { data: lensObj } = await createMutator({
+        //   collection: MultiDocuments,
+        //   document: {
+        //     parentDocumentId: wiki._id,
+        //     collectionName: "Tags",
+        //     fieldName: "description",
+        //     title: lensTitle,
+        //     slug: lensSlug,
+        //     oldSlugs: oldLensSlugs,
+        //     //FIXME: preview/clickbait, tab-title, and subtitle need edit history/etc
+        //     preview: lensLiveRevision.clickbait,
+        //     tabTitle: lens.lensName,
+        //     tabSubtitle: lens.lensSubtitle,
+        //     userId: pageCreator?._id,
+        //     index: lens.lensIndex,
+        //     contents: {
+        //       originalContents: {
+        //         type: "ckEditorMarkup",
+        //         data: lensFirstRevisionCkEditorMarkup,
+        //       }
+        //     },
+        //   } as Partial<DbMultiDocument>,
+        //   context: resolverContext,
+        //   currentUser: pageCreator,
+        //   validate: false,
+        // });
+        // await Promise.all([
+        //   backDateObj(MultiDocuments, lensObj._id, lensFirstRevision.createdAt),
+        //   backDateRevision(lensObj.contents_latest!, lensFirstRevision.createdAt),
+        // ]);
         
-        await importRevisions({
-          collection: MultiDocuments,
-          fieldName: "contents",
-          documentId: lensObj._id,
-          pageId: lens.lensId,
-          revisions: lensRevisions.slice(1),
-          oldestRevCkEditorMarkup: lensFirstRevisionCkEditorMarkup,
-          conversionContext: conversionContext,
-        });
+        // await importRevisions({
+        //   collection: MultiDocuments,
+        //   fieldName: "contents",
+        //   documentId: lensObj._id,
+        //   pageId: lens.lensId,
+        //   revisions: lensRevisions.slice(1),
+        //   oldestRevCkEditorMarkup: lensFirstRevisionCkEditorMarkup,
+        //   conversionContext: conversionContext,
+        // });
 
-        /*await createSummariesForPage({
+        const lensObj = await MultiDocuments.findOne({ slug: lensSlug });
+        if (!lensObj) {
+          console.log(`Lens not found: ${lensSlug}`);
+          continue;
+        }
+
+        const lensAlternatives = alternativesByPageId[lens.lensId];
+        if (lensAlternatives && Object.values(lensAlternatives).some(alternatives => alternatives.length > 0)) {
+          await updateMutator({
+            collection: MultiDocuments,
+            documentId: lensObj._id,
+            set: {
+              legacyData: {
+                ...lensObj.legacyData,
+                arbitalPageId: lens.lensId,
+                arbitalFasterAlternatives: lensAlternatives.faster ?? [],
+                arbitalSlowerAlternatives: lensAlternatives.slower ?? [],
+                arbitalMoreTechnicalAlternatives: lensAlternatives.more_technical ?? [],
+                arbitalLessTechnicalAlternatives: lensAlternatives.less_technical ?? [],
+              },
+            },
+          });
+        }
+
+        await createSummariesForPage({
           pageId,
           importedRecordMaps,
           conversionContext,
           pageCreator,
           resolverContext,
           lensMultiDocumentId: lensObj._id,
-        });*/
+        });
       }
     } catch(e) {
       console.error(e);
