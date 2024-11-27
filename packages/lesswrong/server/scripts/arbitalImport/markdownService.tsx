@@ -15,6 +15,7 @@ import { getPageUrl } from './urlService';
 import React from 'react';
 import ReactDOM from 'react-dom/server';
 import { slugify } from '@/lib/vulcan-lib';
+import { convertImagesInHTML } from '../convertImagesToCloudinary';
 
 
 const anyUrlMatch = /\b((?:[a-z][\w-]+:(?:\/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))/i;
@@ -770,7 +771,9 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
   };*/
   
   const converter = createConverterInternal(null, pageId);
-  return converter.makeHtml(pageMarkdown);
+  const html = converter.makeHtml(pageMarkdown);
+  const {html: htmlWithImagesMoved} = await convertImagesInHTML(html, "arbital", ()=>true, conversionContext.imageUrlsCache);
+  return htmlWithImagesMoved;
 }
 
 function latexSourceToCkEditorEmbeddedLatexTag(latex: string, inline: boolean): string {
