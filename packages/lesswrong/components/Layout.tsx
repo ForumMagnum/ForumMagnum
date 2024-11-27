@@ -479,7 +479,6 @@ const Layout = ({currentUser, children, classes}: {
     }
 
     const { overridenLayoutOptions: overrideLayoutOptions } = layoutOptionsState
-    console.log("overrideLayoutOptions", overrideLayoutOptions)
 
     const standaloneNavigation = overrideLayoutOptions.standaloneNavigation ?? baseLayoutOptions.standaloneNavigation
     const renderSunshineSidebar = overrideLayoutOptions.renderSunshineSidebar ?? baseLayoutOptions.renderSunshineSidebar
@@ -491,7 +490,6 @@ const Layout = ({currentUser, children, classes}: {
     const friendlyHomeLayout = isFriendlyUI && currentRoute?.name === 'home'
 
     const isIncompletePath = allowedIncompletePaths.includes(currentRoute?.name ?? "404");
-    console.log({shouldUseGridLayout, unspacedGridLayout, overrideLayoutOptions, baseLayoutOptions})
     
     return (
       <AnalyticsContext path={pathname}>

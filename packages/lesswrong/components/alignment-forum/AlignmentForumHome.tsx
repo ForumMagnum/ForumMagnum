@@ -19,7 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const AlignmentForumHome = ({classes}: {
   classes: ClassesType
 }) => {
-  const { SingleColumnSection, SectionTitle, FrontpageReviewWidget, PostsList2, SectionButton, RecentDiscussionThreadsList, CuratedSequences, EAPopularCommentsSection, QuickTakesSection } = Components
+  const { SingleColumnSection, SectionTitle, FrontpageReviewWidget, PostsList2, SectionButton, RecentDiscussionThreadsList, CuratedSequences, EAPopularCommentsSection, ReviewWinnerItem } = Components
   const currentUser = useCurrentUser();
 
   let recentPostsTerms = {view: 'new', limit: 10, forum: true, af: true} as const;
@@ -33,7 +33,7 @@ const AlignmentForumHome = ({classes}: {
         </div>
       </SingleColumnSection> */}
       <SingleColumnSection>
-        <DismissibleSpotlightItem current />
+        <ReviewWinnerItem />
       </SingleColumnSection>
 
       {reviewIsActive() && <SingleColumnSection>
