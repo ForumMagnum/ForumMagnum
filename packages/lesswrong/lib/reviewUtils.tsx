@@ -49,6 +49,7 @@ export function getReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
 
 const TIMEZONE_OFFSET = 8 // Pacific Time
 
+// first line just for ease-of-testing
 // export const getReviewStart = () => moment.utc(`${REVIEW_YEAR+1}-11-25`).add(TIMEZONE_OFFSET, 'hours')
 export const getReviewStart = () => moment.utc(`${REVIEW_YEAR+1}-12-01`).add(TIMEZONE_OFFSET, 'hours')
 export const getNominationPhaseEnd = () => moment.utc(`${REVIEW_YEAR+1}-12-14`).add(TIMEZONE_OFFSET, 'hours')

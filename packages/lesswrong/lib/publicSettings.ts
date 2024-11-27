@@ -100,12 +100,16 @@ export const mailchimpEAForumListIdSetting = new DatabasePublicSetting<string | 
 export const isProductionDBSetting = new DatabasePublicSetting<boolean>('isProductionDB', false)
 
 export const showReviewOnFrontPageIfActive = new DatabasePublicSetting<boolean>('annualReview.showReviewOnFrontPageIfActive', true)
+
+// these are deprecated, but preserved for now in case we want to revert
+
 // export const annualReviewStart = new DatabasePublicSetting('annualReview.start', "2021-11-30")
 // // The following dates cut off their phase at the end of the day
 // export const annualReviewNominationPhaseEnd = new DatabasePublicSetting('annualReview.nominationPhaseEnd', "2021-12-14")
 // export const annualReviewReviewPhaseEnd = new DatabasePublicSetting('annualReview.reviewPhaseEnd', "2022-01-15")
 // export const annualReviewVotingPhaseEnd = new DatabasePublicSetting('annualReview.votingPhaseEnd', "2022-02-01")
 // export const annualReviewEnd = new DatabasePublicSetting('annualReview.end', "2022-02-06")
+
 export const annualReviewAnnouncementPostPathSetting = new DatabasePublicSetting<string | null>('annualReview.announcementPostPath', null)
 
 export const annualReviewVotingResultsPostPath = new DatabasePublicSetting<string>('annualReview.votingResultsPostPath', "")

@@ -250,10 +250,6 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
         <li>Any user registered before {reviewYear} can nominate posts for review</li>
         <li>Posts will need at least two positive votes to proceed to the Review Phase.</li>
       </ul>
-      {nominationStartDate.tz('America/Los_Angeles').format()}<br/>
-      {nominationEndDate.tz('America/Los_Angeles').format()}<br/>
-      {currentDate.tz('America/Los_Angeles').format()}<br/>
-      {nominationStartDate.fromNow()}<br/>
       {activeRange === "NOMINATIONS" && <div><em>{nominationEndDate.fromNow()} remaining</em></div>}
     </div>
 
@@ -279,7 +275,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
     <>
       <div>Cast your final votes for the {REVIEW_NAME_IN_SITU}. (Opens {reviewEndDate.clone().format('MMM Do')})</div>
       <ul>
-        <li>Look over nominated posts and vote on getReviewStart</li>
+        <li>Look over nominated posts and vote on them</li>
         <li>Any user registered before {getReviewStart().format('MMM Do')} can vote in the review</li>
       </ul>
       {activeRange === "REVIEWS" && <div><em>{voteEndDate.fromNow()} remaining</em></div>}
