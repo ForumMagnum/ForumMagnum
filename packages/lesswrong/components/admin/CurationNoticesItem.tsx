@@ -11,6 +11,7 @@ import { useUpdate } from '@/lib/crud/withUpdate';
 import { useOptimisticToggle } from '../hooks/useOptimisticToggle';
 import { Link } from '@/lib/reactRouterWrapper';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType) => ({
   root: {
