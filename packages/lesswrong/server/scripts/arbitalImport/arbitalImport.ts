@@ -326,6 +326,7 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
           name: title,
           slug: slug,
           oldSlugs,
+          wikiOnly: true,
           description: {
             originalContents: {
               type: "ckEditorMarkup",
