@@ -181,16 +181,29 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     },
     [theme.breakpoints.down('sm')]: {
       gap: '2px',
-      flexDirection: 'column',
+      padding: 2,
+      flexWrap: 'wrap-reverse',
+      display: 'flex',
+      flexDirection: 'row',
     },
   },
   lensTabContainer: {
     display: 'flex',
     flexDirection: 'column',
     gap: '4px',
-      [theme.breakpoints.down('sm')]: {
-        gap: '2px',
+    [theme.breakpoints.down('sm')]: {
+      minWidth: '30%',
+      maxWidth: '30%',
+      gap: '0px',
+      '&:not(:has(.TagPage-selectedLens))': {
+        boxShadow: `${theme.palette.grey[400]} 2px 2px 1px`,
       },
+      '&:has(.TagPage-selectedLens)': {
+        marginBottom: -1,
+        marginRight: -1,
+        boxShadow: `${theme.palette.grey[400]} 1px 1px 1px`,
+      },
+    },
   },
   aboveLensTab: {
     ...theme.typography.body2,
@@ -207,14 +220,16 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     minWidth: 'unset',
     borderWidth: 1,
     [theme.breakpoints.down('sm')]: {
-      width: '100%',
-      alignSelf: 'center',
+      // width: '33%',
+      // width: '100%',
+      // alignSelf: 'center',
     },
   },
   lensTabRootOverride: {
     [theme.breakpoints.down('sm')]: {
-      maxWidth: 'unset',
+      // maxWidth: 'unset',
       minHeight: 'unset',
+      height: '100%',
       paddingTop: 2,
       paddingBottom: 2,
     },
@@ -227,19 +242,19 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
       paddingRight: 8,
       paddingTop: 0,
       paddingBottom: 4,
+      width: '100%',
     },
   },
   lensLabel: {
     display: 'flex',
+    flexDirection: 'column',
+    minHeight: 48,
     [theme.breakpoints.up('md')]: {
-      flexDirection: 'column',
-      minHeight: 48,
     },
     alignItems: 'start',
     justifyContent: 'center',
     [theme.breakpoints.down('sm')]: {
       height: 'min-content',
-      alignItems: 'end',
       gap: '4px',
     },
   },
@@ -251,21 +266,24 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   lensSubtitle: {
     ...theme.typography.subtitle,
     textTransform: 'none',
-    fontSize: '1rem',
+    fontSize: '1em',
     fontWeight: 400,
     [theme.breakpoints.down('sm')]: {
-      marginBottom: 1,
-      '&::before': {
-        content: '"("',
-      },
-      '&::after': {
-        content: '")"'
-      }
+      width: 'fit-content',
+      display: 'block',
+      textAlign: 'left',
+      // marginBottom: 1,
+      // '&::before': {
+      //   content: '"("',
+      // },
+      // '&::after': {
+      //   content: '")"'
+      // }
     },
   },
   selectedLens: {
     [theme.breakpoints.down('sm')]: {
-      border: theme.palette.border.grey400,
+      // border: theme.palette.border.grey400,
     },
     [theme.breakpoints.up('md')]: {
       borderStyle: 'solid',
@@ -296,6 +314,9 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   },
   contributorNameWrapper: {
     flex: 1,
+    [theme.breakpoints.down('sm')]: {
+      fontSize: '15px',
+    },
   },
   contributorName: {
     fontWeight: 550,
