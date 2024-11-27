@@ -340,6 +340,7 @@ export type ArbitalConversionContext = {
   titlesByPageId: Record<string,string>
   pageInfosByPageId: Record<string, PageInfosRow>,
   domainsByPageId: Record<string, DomainsRow>,
+  imageUrlsCache: Record<string,string>
 }
 
 async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: ResolverContext, options: ArbitalImportOptions): Promise<void> {
@@ -386,7 +387,7 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
         pageIdsByTitle[title] = pageId;
         titlesByPageId[pageId] = title;
         liveRevisionsByPageId[pageId] = liveRevision;
-        console.log(`${pageId}: ${title}`);
+        //console.log(`${pageId}: ${title}`);
         if (!cacheLoaded) {
           slugsByPageId[pageId] = await getUnusedSlugByCollectionName("Tags", slugify(title));
         }
@@ -424,6 +425,7 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
     titlesByPageId,
     pageInfosByPageId: pageInfosById,
     domainsByPageId,
+    imageUrlsCache: {},
   };
 
   const alternativesByPageId = computePageAlternatives(database);
@@ -460,6 +462,7 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
       //     name: title,
       //     slug: slug,
       //     oldSlugs,
+      //     wikiOnly: true,
       //     description: {
       //       originalContents: {
       //         type: "ckEditorMarkup",
@@ -541,6 +544,7 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
       //   revisions: revisions.slice(1),
       //   oldestRevCkEditorMarkup,
       //   conversionContext,
+      //   resolverContext,
       // })
 
       // Add lenses
@@ -606,6 +610,7 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
         //   revisions: lensRevisions.slice(1),
         //   oldestRevCkEditorMarkup: lensFirstRevisionCkEditorMarkup,
         //   conversionContext: conversionContext,
+        //   resolverContext,
         // });
 
         const lensObj = await MultiDocuments.findOne({ slug: lensSlug });
@@ -678,8 +683,12 @@ async function backDateRevision(_id: string, date: Date) {
   );
 }
 
+/**
+ * Given an object which has been imported with only its first revision, add the
+ * other revisions.
+ */
 async function importRevisions<N extends CollectionNameString>({
-  collection, fieldName, documentId, pageId, revisions, oldestRevCkEditorMarkup, conversionContext
+  collection, fieldName, documentId, pageId, revisions, oldestRevCkEditorMarkup, conversionContext, resolverContext,
 }: {
   collection: CollectionBase<N>,
   fieldName: string,
@@ -688,7 +697,11 @@ async function importRevisions<N extends CollectionNameString>({
   revisions: PagesRow[],
   oldestRevCkEditorMarkup: string,
   conversionContext: ArbitalConversionContext,
+  resolverContext: ResolverContext,
 }) {
+  if (!revisions.length) {
+    return;
+  }
   console.log(`Importing ${revisions.length} revisions of ${collection.collectionName}.${fieldName}:${pageId}`);
   const ckEditorMarkupByRevisionIndex = await asyncMapSequential(revisions,
     (rev) => arbitalMarkdownToCkEditorMarkup({
@@ -696,7 +709,7 @@ async function importRevisions<N extends CollectionNameString>({
       conversionContext,
     })
   );
-  for (let i=0; i<revisions.length; i++) {
+  for (let i=0; i<revisions.length-1; i++) {
     const arbRevision = revisions[i];
     const ckEditorMarkup = ckEditorMarkupByRevisionIndex[i];
     const revisionCreator = conversionContext.matchedUsers[arbRevision.creatorId] ?? conversionContext.defaultUser;
@@ -715,7 +728,7 @@ async function importRevisions<N extends CollectionNameString>({
         collectionName: collection.collectionName,
         documentId: documentId,
         commitMessage: arbRevision.editSummary,
-        version: `1.${arbRevision.edit}.0`,
+        version: `1.${i+1}.0`,
         changeMetrics: htmlToChangeMetrics(i>0 ? ckEditorMarkupByRevisionIndex[i-1] : oldestRevCkEditorMarkup, ckEditorMarkup),
         legacyData: {
           "arbitalPageId": pageId,
@@ -728,6 +741,31 @@ async function importRevisions<N extends CollectionNameString>({
     await backDateRevision(lwRevision._id, arbRevision.createdAt);
     await afterCreateRevisionCallback.runCallbacksAsync([{ revisionID: lwRevision._id }]);
   }
+  
+  // Handle the last revision separately, as an edit-operation rather than a
+  // revision-insert operation, so that callbacks on the tag object trigger.
+  const lastRevision = revisions[revisions.length-1];
+  const lastRevCkEditorMarkup = ckEditorMarkupByRevisionIndex[revisions.length-1];
+  const lastRevisionCreator = conversionContext.matchedUsers[lastRevision.creatorId] ?? conversionContext.defaultUser;
+  const modifiedObj = (await updateMutator<N>({
+    collection,
+    documentId,
+    set: {
+      [fieldName]: {
+        originalContents: {
+          type: "ckEditorMarkup",
+          data: lastRevCkEditorMarkup,
+        }
+      },
+    } as AnyBecauseHard,
+    currentUser: lastRevisionCreator,
+    context: resolverContext,
+    validate: false,
+  })).data;
+  if (collection.collectionName === "Tags") {
+    await backDateDenormalizedEditable(collection, documentId, fieldName, lastRevision.createdAt);
+  }
+  await backDateRevision((modifiedObj as any)[`${fieldName}_latest`], lastRevision.createdAt);
 }
 
 async function printTablesAndStats(connection: mysql.Connection): Promise<void> {
