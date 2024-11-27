@@ -27,10 +27,16 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
   rootEAWidth: {
     width: FRIENDLY_HOVER_OVER_WIDTH,
   },
-  nonTabPadding: {
-    paddingTop: 8,
+  nonArbitalPadding: {
     paddingLeft: 16,
     paddingRight: 16,
+  },
+  nonTabPadding: {
+    paddingTop: 16,
+    paddingLeft: 16,
+    paddingRight: 16,
+    maxHeight: 400,
+    overflowY: 'auto',
   },
   relatedTagWrapper: {
     ...theme.typography.body2,
@@ -83,7 +89,6 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
   },
   arbitalTitle: {
     fontSize: "1.5rem",
-    fontWeight: 600,
     marginBottom: 16,
     color: theme.palette.link.color,
   },
@@ -91,12 +96,13 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
     display: "flex",
     flexDirection: "row",
     borderBottom: `1px solid ${theme.palette.greyAlpha(0.1)}`,
+    backgroundColor: theme.palette.panelBackground.postsItemHover,
   },
   summaryTab: {
     padding: "8px 14px",
     fontSize: "1.2em",
-    backgroundColor: theme.palette.panelBackground.postsItemHover,
     color: theme.palette.greyAlpha(1),
+    cursor: 'pointer !important',
     '&[data-selected="true"]': {
       backgroundColor: 'white',
       borderBottom: "1px solid white",
@@ -107,9 +113,9 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
     '&:first-of-type[data-selected="true"]': {
       borderLeft: 'none',
     },
-    '&:last-of-type[data-selected="true"]': {
-      borderRight: 'none',
-    }
+  },
+  descriptionTop: {
+    marginTop: 16,
   },
 }));
 
@@ -142,6 +148,7 @@ const TagPreview = ({
   const classes = useStyles(styles);
 
   const summaries = tag?.summaries;
+  const multipleSummaries = summaries && summaries.length > 1;
 
   console.log('summaries', tag.name, summaries);
 
@@ -159,37 +166,10 @@ const TagPreview = ({
       className={classes.summaryTab}
       data-selected={activeTab === index}
       onClick={() => setActiveTab(index)}
-      style={{cursor: 'pointer'}}
     >
       {summary.tabTitle}
     </div>
   )) ?? [];
-
-//   <div 
-//   className={classes.summaryTab} 
-//   data-selected={activeTab === 'summary'}
-//   onClick={() => setActiveTab('summary')}
-//   style={{cursor: 'pointer'}}
-// >
-//   Summary
-// </div>
-// <div 
-//   className={classes.summaryTab}
-//   data-selected={activeTab === 'brief'}
-//   onClick={() => setActiveTab('brief')}
-//   style={{cursor: 'pointer'}}
-// >
-//   Brief Summary
-// </div>
-// <div 
-//   className={classes.summaryTab}
-//   data-selected={activeTab === 'technical'}
-//   onClick={() => setActiveTab('technical')}
-//   style={{cursor: 'pointer'}}
-// >
-//   Technical
-// </div>
-// </div>}
 
   const showRelatedTags =
     !isFriendlyUI &&
@@ -205,9 +185,8 @@ const TagPreview = ({
 
   const hasDescription = !!getTagDescriptionHtml(tag);
 
-  // const arbitalImport = tag.arbitalImport;
-  const arbitalImport = true;
-
+  const arbitalImport = tag.isArbitalImport;
+  
   <Link className={classes.link} to="/admin/moderation">Moderation Dashboard</Link>
 
   const { TagPreviewDescription, TagSmallPostLink, Loading } = Components;
@@ -215,62 +194,67 @@ const TagPreview = ({
     <div className={classNames(classes.root, {
       [classes.rootEAWidth]: isFriendlyUI && hasDescription,
     })}>
-      {arbitalImport && <div className={classes.tabsContainer}>
+      {arbitalImport && multipleSummaries && <div className={classes.tabsContainer}>
        {summaryTabs}
       </div>}
-      <div className={classes.nonTabPadding}>
-      {arbitalImport && <Link className={classes.arbitalTitle} to={`/tag/${tag.slug}`}>{tag.name}</Link>}
-      <TagPreviewDescription 
-        tag={tag} 
-        hash={hash} 
-        {...(tag.summaries?.length ? { activeTab } : {})}
-      />
-      {showRelatedTags &&
-        <div className={classes.relatedTags}>
-          {tag.parentTag &&
-            <div className={classes.relatedTagWrapper}>
-              Parent topic:{" "}
-              <Link
-                className={classes.relatedTagLink}
-                to={tagGetUrl(tag.parentTag)}
-              >
-                {tag.parentTag.name}
-              </Link>
-            </div>
-          }
-          {tag.subTags.length
-            ? (
-              <div className={classes.relatedTagWrapper}>
-                <span>
-                  {subTagName}:&nbsp;{tag.subTags.map((subTag, idx) => (
-                    <Fragment key={idx}>
-                      <Link
-                        className={classes.relatedTagLink}
-                        to={tagGetUrl(subTag)}
-                      >
-                        {subTag.name}
-                      </Link>
-                      {idx < tag.subTags.length - 1 ? ", " : null}
-                    </Fragment>
-                  ))}
-                </span>
-              </div>
-            )
-            : null
-          }
+      <div className={classNames({
+        [classes.nonTabPadding]: arbitalImport,
+        [classes.nonArbitalPadding]: !arbitalImport
+      })}>
+        {arbitalImport && <Link className={classes.arbitalTitle} to={`/tag/${tag.slug}`}>{tag.name}</Link>}
+        <div className={classes.descriptionTop}>
+          <TagPreviewDescription 
+            tag={tag} 
+            hash={hash} 
+            {...(tag.summaries?.length ? { activeTab } : {})}
+          />
         </div>
-      }
-      {showPosts && !tag.wikiOnly && !arbitalImport &&
-        <>
-          {results
-            ? (
-              <div className={classes.posts}>
-                {results.map((post) => post &&
-                  <TagSmallPostLink
-                    key={post._id}
-                    post={post}
-                    widerSpacing={postCount > 3}
-                  />
+        {showRelatedTags &&
+          <div className={classes.relatedTags}>
+            {tag.parentTag &&
+              <div className={classes.relatedTagWrapper}>
+                Parent topic:{" "}
+                <Link
+                  className={classes.relatedTagLink}
+                  to={tagGetUrl(tag.parentTag)}
+                >
+                  {tag.parentTag.name}
+                </Link>
+              </div>
+            }
+            {tag.subTags.length
+              ? (
+                <div className={classes.relatedTagWrapper}>
+                  <span>
+                    {subTagName}:&nbsp;{tag.subTags.map((subTag, idx) => (
+                      <Fragment key={idx}>
+                        <Link
+                          className={classes.relatedTagLink}
+                          to={tagGetUrl(subTag)}
+                        >
+                          {subTag.name}
+                        </Link>
+                        {idx < tag.subTags.length - 1 ? ", " : null}
+                      </Fragment>
+                    ))}
+                  </span>
+                </div>
+              )
+              : null
+            }
+          </div>
+        }
+        {showPosts && !tag.wikiOnly && !arbitalImport &&
+          <>
+            {results
+              ? (
+                <div className={classes.posts}>
+                  {results.map((post) => post &&
+                    <TagSmallPostLink
+                      key={post._id}
+                      post={post}
+                      widerSpacing={postCount > 3}
+                    />
                 )}
               </div>
             )
@@ -293,17 +277,17 @@ const TagPreview = ({
             </div>
           }
         </>
-      }
-      {isFriendlyUI &&
-        <div className={classNames(classes.footerCount, {
-          [classes.footerMarginTop]: hasDescription,
-        })}>
-          <Link to={tagGetUrl(tag)}>
-            View all {tag.postCount} posts
-          </Link>
-        </div>
-      }
-    </div>
+        }
+        {isFriendlyUI &&
+          <div className={classNames(classes.footerCount, {
+            [classes.footerMarginTop]: hasDescription,
+          })}>
+            <Link to={tagGetUrl(tag)}>
+              View all {tag.postCount} posts
+            </Link>
+          </div>
+        }
+      </div>
     </div>
   );
 }
