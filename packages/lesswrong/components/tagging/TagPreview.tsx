@@ -13,9 +13,6 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
   root: {
-    // paddingTop: 8,
-    // paddingLeft: 16,
-    // paddingRight: 16,
     ...(!isFriendlyUI && {
       width: 500,
       paddingBottom: 6,
@@ -149,8 +146,6 @@ const TagPreview = ({
 
   const summaries = tag?.summaries;
   const multipleSummaries = summaries && summaries.length > 1;
-
-  console.log('summaries', tag.name, summaries);
 
   // In theory the type system doesn't allow this, but I'm too scared to
   // remove it
