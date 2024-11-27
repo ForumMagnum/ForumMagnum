@@ -111,7 +111,7 @@ const styles = (theme: ThemeType): JssStyles => ({
         minmax(0, min-content)
         minmax(0, 1fr)
         minmax(0, min-content)
-        minmax(0, ${isLW ? 7 : 1}fr)
+        minmax(0, ${isLWorAF ? 7 : 1}fr)
         minmax(0, min-content)
       `,
     },
@@ -428,7 +428,7 @@ const Layout = ({currentUser, children, classes}: {
   );
 
   let headerBackgroundColor: ColorString;
-  // For the EAF Wrapped page, we change the header's background color to a dark blue.
+  // For the E   Wrapped page, we change the header's background color to a dark blue.
   if (pathname.startsWith('/wrapped')) {
     headerBackgroundColor = wrappedBackgroundColor;
   } else if (pathname.startsWith("/voting-portal")) {
@@ -479,6 +479,7 @@ const Layout = ({currentUser, children, classes}: {
     }
 
     const { overridenLayoutOptions: overrideLayoutOptions } = layoutOptionsState
+    console.log("overrideLayoutOptions", overrideLayoutOptions)
 
     const standaloneNavigation = overrideLayoutOptions.standaloneNavigation ?? baseLayoutOptions.standaloneNavigation
     const renderSunshineSidebar = overrideLayoutOptions.renderSunshineSidebar ?? baseLayoutOptions.renderSunshineSidebar
@@ -490,6 +491,7 @@ const Layout = ({currentUser, children, classes}: {
     const friendlyHomeLayout = isFriendlyUI && currentRoute?.name === 'home'
 
     const isIncompletePath = allowedIncompletePaths.includes(currentRoute?.name ?? "404");
+    console.log({shouldUseGridLayout, unspacedGridLayout, overrideLayoutOptions, baseLayoutOptions})
     
     return (
       <AnalyticsContext path={pathname}>

@@ -6,6 +6,7 @@ import { useCurrentUser } from '../common/withUser';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 import AddIcon from '@material-ui/icons/Add';
 import { reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
+import { DismissibleSpotlightItem } from '../spotlights/DismissibleSpotlightItem';
 
 const styles = (theme: ThemeType): JssStyles => ({
   frontpageSequencesGridList: {
@@ -25,12 +26,16 @@ const AlignmentForumHome = ({classes}: {
 
   return (
     <div className="alignment-forum-home">
-      <SingleColumnSection>
+      {/* <SingleColumnSection>
         <SectionTitle title="Recommended Sequences"/>
         <div className={classes.frontpageSequencesGridList}>
           <CuratedSequences />
         </div>
+      </SingleColumnSection> */}
+      <SingleColumnSection>
+        <DismissibleSpotlightItem current />
       </SingleColumnSection>
+
       {reviewIsActive() && <SingleColumnSection>
         <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
       </SingleColumnSection>}
