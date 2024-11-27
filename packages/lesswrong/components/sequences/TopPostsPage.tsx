@@ -818,12 +818,14 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
   })).sort((a, b) => {
     const reviewWinnerA = reviewWinnersWithPosts.find(post => post._id === a.document?._id)
     const reviewWinnerB = reviewWinnersWithPosts.find(post => post._id === b.document?._id)
-    if (reviewWinnerA?.reviewWinner?.reviewYear !== reviewWinnerB?.reviewWinner?.reviewYear) {  
-      return (reviewWinnerB?.reviewWinner?.reviewYear ?? 0) - (reviewWinnerA?.reviewWinner?.reviewYear ?? 0)
+    if (reviewWinnerA?.reviewWinner?.reviewRanking !== reviewWinnerB?.reviewWinner?.reviewRanking) {
+      return (reviewWinnerA?.reviewWinner?.reviewRanking ?? 0) - (reviewWinnerB?.reviewWinner?.reviewRanking ?? 0)
+    } else if (reviewWinnerA?.reviewWinner?.reviewYear !== reviewWinnerB?.reviewWinner?.reviewYear) {  
+      return (reviewWinnerA?.reviewWinner?.reviewYear ?? 0) - (reviewWinnerB?.reviewWinner?.reviewYear ?? 0)
     } else if (reviewWinnerA?.reviewWinner?.category !== reviewWinnerB?.reviewWinner?.category) {
-      return (reviewWinnerB?.reviewWinner?.category ?? '').localeCompare(reviewWinnerA?.reviewWinner?.category ?? '')
+      return (reviewWinnerA?.reviewWinner?.category ?? '').localeCompare(reviewWinnerB?.reviewWinner?.category ?? '')
     } else {
-      return (reviewWinnerB?.reviewWinner?.reviewRanking ?? 0) - (reviewWinnerA?.reviewWinner?.reviewRanking ?? 0)
+      return 0
     }
   })
 

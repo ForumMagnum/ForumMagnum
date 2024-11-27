@@ -2,11 +2,10 @@ import React from 'react';
 import round from "lodash/round"
 import moment from "moment"
 import { isEAForum, isLWorAF } from "./instanceSettings"
-import { annualReviewEnd, annualReviewNominationPhaseEnd, annualReviewReviewPhaseEnd, annualReviewStart, annualReviewVotingPhaseEnd } from "./publicSettings"
 import { TupleSet, UnionOf } from './utils/typeGuardUtils';
 import { memoizeWithExpiration } from './utils/memoizeWithExpiration';
 
-export const reviewYears = [2018, 2019, 2020, 2021, 2022] as const
+export const reviewYears = [2018, 2019, 2020, 2021, 2022, 2023] as const
 const years = new TupleSet(reviewYears);
 export type ReviewYear = UnionOf<typeof years>;
 
@@ -19,7 +18,7 @@ export function getReviewYearFromString(yearParam: string): ReviewYear {
 }
 
 /** Review year is the year under review, not the year in which the review takes place. */
-export const REVIEW_YEAR: ReviewYear = 2022
+export const REVIEW_YEAR: ReviewYear = 2023
 
 // Deprecated in favor of getReviewTitle and getReviewShortTitle 
 export const REVIEW_NAME_TITLE = isEAForum ? 'Effective Altruism: The First Decade' : `The ${REVIEW_YEAR} Review`
@@ -48,19 +47,28 @@ export function getReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
   }
 }
 
+const TIMEZONE_OFFSET = 8 // Pacific Time
+
+// export const getReviewStart = () => moment.utc(`${REVIEW_YEAR+1}-11-25`).add(TIMEZONE_OFFSET, 'hours')
+export const getReviewStart = () => moment.utc(`${REVIEW_YEAR+1}-12-01`).add(TIMEZONE_OFFSET, 'hours')
+export const getNominationPhaseEnd = () => moment.utc(`${REVIEW_YEAR+1}-12-14`).add(TIMEZONE_OFFSET, 'hours')
+export const getReviewPhaseEnd = () => moment.utc(`${REVIEW_YEAR+2}-01-15`).add(TIMEZONE_OFFSET, 'hours')
+export const getVotingPhaseEnd = () => moment.utc(`${REVIEW_YEAR+2}-02-01`).add(TIMEZONE_OFFSET, 'hours')
+export const getResultsPhaseEnd = () => moment.utc(`${REVIEW_YEAR+2}-02-06`).add(TIMEZONE_OFFSET, 'hours')
+
 function recomputeReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
   if (reviewYear && reviewYear !== REVIEW_YEAR) {
     return "COMPLETE"
   }
 
   const currentDate = moment.utc()
-  const reviewStart = moment.utc(annualReviewStart.get())
+  const reviewStart = getReviewStart()
   if (currentDate < reviewStart) return "UNSTARTED"
 
-  const nominationsPhaseEnd = moment.utc(annualReviewNominationPhaseEnd.get())
-  const reviewPhaseEnd = moment.utc(annualReviewReviewPhaseEnd.get())
-  const votingEnd = moment.utc(annualReviewVotingPhaseEnd.get())
-  const reviewEnd = moment.utc(annualReviewEnd.get())
+  const nominationsPhaseEnd = getNominationPhaseEnd()
+  const reviewPhaseEnd = getReviewPhaseEnd()
+  const votingEnd = getVotingPhaseEnd()
+  const reviewEnd = getResultsPhaseEnd()
   
   if (currentDate < nominationsPhaseEnd) return "NOMINATIONS"
   if (currentDate < reviewPhaseEnd) return "REVIEWS"
@@ -98,13 +106,13 @@ export const VOTING_PHASE_REVIEW_THRESHOLD = 1
 
 /** Is there an active review taking place? */
 export function reviewIsActive(): boolean {
-  return getReviewPhase() !== "COMPLETE"
+  return getReviewPhase() !== "COMPLETE" && getReviewPhase() !== "UNSTARTED"
 }
 
 export function eligibleToNominate (currentUser: UsersCurrent|DbUser|null) {
   if (!currentUser) return false;
-  if (isLWorAF && new Date(currentUser.createdAt) > new Date(`${REVIEW_YEAR}-01-01`)) return false
-  if (isEAForum && new Date(currentUser.createdAt) > new Date(annualReviewStart.get())) return false
+  if (isLWorAF && moment.utc(currentUser.createdAt).isAfter(moment.utc(`${REVIEW_YEAR}-01-01`))) return false
+  if (isEAForum && moment.utc(currentUser.createdAt).isAfter(getReviewStart())) return false
   return true
 }
 
@@ -129,8 +137,8 @@ export function canNominate (currentUser: UsersCurrent|null, post: PostsBase) {
 
 export const currentUserCanVote = (currentUser: UsersCurrent|null) => {
   if (!currentUser) return false
-  if (isLWorAF && new Date(currentUser.createdAt) > new Date(`${REVIEW_YEAR+1}-01-01`)) return false
-  if (isEAForum && new Date(currentUser.createdAt) > new Date(annualReviewStart.get())) return false
+  if (isLWorAF && moment.utc(currentUser.createdAt).isAfter(moment.utc(`${REVIEW_YEAR+1}-01-01`))) return false
+  if (isEAForum && moment.utc(currentUser.createdAt).isAfter(getReviewStart())) return false
   return true
 }
 

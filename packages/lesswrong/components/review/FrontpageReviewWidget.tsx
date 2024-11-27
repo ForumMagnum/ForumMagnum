@@ -6,9 +6,9 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import classNames from 'classnames';
 import { forumTitleSetting, isEAForum, siteNameWithArticleSetting } from '../../lib/instanceSettings';
-import { annualReviewAnnouncementPostPathSetting, annualReviewEnd, annualReviewNominationPhaseEnd, annualReviewReviewPhaseEnd, annualReviewStart } from '../../lib/publicSettings';
+import { annualReviewAnnouncementPostPathSetting } from '../../lib/publicSettings';
 import moment from 'moment';
-import { eligibleToNominate, getReviewPhase, getReviewTitle, ReviewYear, REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../lib/reviewUtils';
+import { eligibleToNominate, getReviewPhase, getReviewTitle, ReviewYear, REVIEW_NAME_IN_SITU, REVIEW_YEAR, getResultsPhaseEnd, getNominationPhaseEnd, getReviewPhaseEnd, getReviewStart } from '../../lib/reviewUtils';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -183,10 +183,10 @@ export function getReviewAlgorithm(): RecommendationsAlgorithm {
 export function ReviewOverviewTooltip() {
   const forumTitle = forumTitleSetting.get()
   
-  const nominationStartDate = moment.utc(annualReviewStart.get())
-  const nominationEndDate = moment.utc(annualReviewNominationPhaseEnd.get())
-  const reviewEndDate = moment.utc(annualReviewReviewPhaseEnd.get())
-  const voteEndDate = moment.utc(annualReviewEnd.get())
+  const nominationStartDate = getReviewStart()
+  const nominationEndDate = getNominationPhaseEnd()
+  const reviewEndDate = getReviewPhaseEnd()
+  const voteEndDate = getResultsPhaseEnd()
   const nominationPhaseDateRange = <span>{nominationStartDate.format('MMM Do')} – {nominationEndDate.format('MMM Do')}</span>
   const reviewPhaseDateRange = <span>{nominationEndDate.clone().format('MMM Do')} – {reviewEndDate.format('MMM Do')}</span>
   const votingPhaseDateRange = <span>{reviewEndDate.clone().format('MMM Do')} – {voteEndDate.format('MMM Do')}</span>
@@ -222,10 +222,10 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
   const { SectionTitle, SettingsButton, LWTooltip, PostsList2, UserReviewsProgressBar, ReviewVotingProgressBar, FrontpageBestOfLWWidget } = Components
   const currentUser = useCurrentUser();
 
-  const nominationStartDate = moment.utc(annualReviewStart.get())
-  const nominationEndDate = moment.utc(annualReviewNominationPhaseEnd.get())
-  const reviewEndDate = moment.utc(annualReviewReviewPhaseEnd.get())
-  const voteEndDate = moment.utc(annualReviewEnd.get())
+  const nominationStartDate = getReviewStart()
+  const nominationEndDate = getNominationPhaseEnd()
+  const reviewEndDate = getReviewPhaseEnd()
+  const voteEndDate = getResultsPhaseEnd()
 
   // These should be calculated at render
   const currentDate = moment.utc()
@@ -250,6 +250,10 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
         <li>Any user registered before {reviewYear} can nominate posts for review</li>
         <li>Posts will need at least two positive votes to proceed to the Review Phase.</li>
       </ul>
+      {nominationStartDate.tz('America/Los_Angeles').format()}<br/>
+      {nominationEndDate.tz('America/Los_Angeles').format()}<br/>
+      {currentDate.tz('America/Los_Angeles').format()}<br/>
+      {nominationStartDate.fromNow()}<br/>
       {activeRange === "NOMINATIONS" && <div><em>{nominationEndDate.fromNow()} remaining</em></div>}
     </div>
 
@@ -275,8 +279,8 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
     <>
       <div>Cast your final votes for the {REVIEW_NAME_IN_SITU}. (Opens {reviewEndDate.clone().format('MMM Do')})</div>
       <ul>
-        <li>Look over nominated posts and vote on them</li>
-        <li>Any user registered before {nominationStartDate.format('MMM Do')} can vote in the review</li>
+        <li>Look over nominated posts and vote on getReviewStart</li>
+        <li>Any user registered before {getReviewStart().format('MMM Do')} can vote in the review</li>
       </ul>
       {activeRange === "REVIEWS" && <div><em>{voteEndDate.fromNow()} remaining</em></div>}
     </> :
