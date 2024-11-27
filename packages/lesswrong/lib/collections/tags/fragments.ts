@@ -361,8 +361,19 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment TagWithLegacyDataFragment on Tag {
+  fragment ExplorePageTagFragment on Tag {
     ...TagFragment
+    contributors(limit: $contributorsLimit) {
+      totalCount
+      contributors {
+        user {
+          ...UsersMinimumInfo
+        }
+        contributionScore
+        numCommits
+        voteCount
+      }
+    }
     legacyData
   }
 `);

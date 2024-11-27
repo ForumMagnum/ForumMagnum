@@ -1,35 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import classNames from 'classnames';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import CommentIcon from '@material-ui/icons/ModeComment';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { Link } from '@/lib/reactRouterWrapper';
+import type { ArbitalPage, ArbitalPageWithMatchedData, ArbitalPageNode } from './arbitalTypes';
 // Import styles as needed
 
 const KARMA_WIDTH = 50;
 const SECTION_WIDTH = 768;
 const CHILDREN_INDENT = 16;
-
-// Define the type for an Arbital page
-interface ArbitalPage {
-  pageId: string;
-  title: string;
-  oneLiner: string;
-  parentPageId: string | null;
-  relationship_type: string | null;
-  text_length: number;
-  authorName: string;
-  commentCount: number;
-}
-
-interface ArbitalPageWithNewSlug extends ArbitalPage {
-  newSlug?: string;
-}
-
-// Extend the type to include children for tree nodes
-interface ArbitalPageNode extends ArbitalPageWithNewSlug {
-  children: ArbitalPageNode[];
-}
 
 const styles = defineStyles("WikiTagItem", (theme: ThemeType) => ({
 
@@ -192,7 +172,10 @@ const styles = defineStyles("WikiTagItem", (theme: ThemeType) => ({
   },
   mainAuthor: {
     fontSize: 11,
-    // color: theme.palette.grey[400],
+    color: theme.palette.grey[600],
+    display: 'flex',
+    flexWrap: 'wrap',
+    alignItems: 'center',
   },
   oneLiner: {
     fontSize: 12,
@@ -289,20 +272,41 @@ const styles = defineStyles("WikiTagItem", (theme: ThemeType) => ({
     // opacity: 0,
     // pointerEvents: "none",
   },
+  contributorTooltip: {
+    whiteSpace: 'nowrap',
+
+    // color: theme.palette.grey[600],
+  },
 }));
 
 interface WikiTagItemProps {
   page: ArbitalPageNode;
   nestingLevel: number;
   options?: {
-    // Define any options needed
+    sort?: (a: ArbitalPageNode, b: ArbitalPageNode) => number;
+    defaultCollapseAfterLevel?: number;
   };
+  className?: string;
 }
 
-const WikiTagItem = ({ page, nestingLevel }: WikiTagItemProps) => {
+const WikiTagItem = ({ page, nestingLevel, options = {} }: WikiTagItemProps) => {
   const classes = useStyles(styles);
 
-  const [collapsed, setCollapsed] = useState(false);
+  if (nestingLevel < 1 ) {
+    console.log({nestingLevel, options, defaultCollapseAfterLevel: options.defaultCollapseAfterLevel});
+  }
+
+  const [collapsed, setCollapsed] = useState(
+    options.defaultCollapseAfterLevel !== undefined && 
+    nestingLevel >= options.defaultCollapseAfterLevel
+  );
+
+  useEffect(() => {
+    setCollapsed(
+      options.defaultCollapseAfterLevel !== undefined && 
+      nestingLevel >= options.defaultCollapseAfterLevel
+    );
+  }, [options.defaultCollapseAfterLevel, nestingLevel]);
 
   const { ForumIcon, LWTooltip, TagsTooltip, WikiTagNestedList } = Components;
 
@@ -316,16 +320,24 @@ const WikiTagItem = ({ page, nestingLevel }: WikiTagItemProps) => {
 
   const wordCountFormatted = `${page.text_length / 6 >= 100 ? `${(page.text_length / 6 / 1000).toFixed(1)}k ` : Math.round(page.text_length / 6)} words`;
 
-  const randomNumber = Math.random() < 0.8 ? Math.floor(Math.random() * 2) : Math.floor(Math.random() * 2) + 2;
-
-  const authorList = page.authorName;
-
   const commentCountNode = !!(page.commentCount && page.commentCount > 0) && (
     <div className={classes.commentsIconSmall}>
       <CommentIcon className={classes.commentCountIcon} />
       <div className={classes.commentCount}>{page.commentCount}</div>
     </div>
   );
+
+  const contributors = page.contributors?.contributors || [];
+
+  const contributorsList = contributors.length === 1 
+    ? `${contributors[0].numCommits} commit${contributors[0].numCommits === 1 ? '' : 's'}`
+    : [...contributors]
+      .sort((a, b) => b.numCommits - a.numCommits)
+      .map(({ user, numCommits }) => (
+        <div className={classes.contributorTooltip} key={user?._id}>{`${user?.displayName} (${numCommits} commit${numCommits === 1 ? '' : 's'})`}</div>
+      ))
+
+  const topContributor = contributors.find((contributor) => contributor.numCommits === Math.max(...contributors.map((contributor) => contributor.numCommits)));
 
   return (
     <div className={classes.root}>
@@ -360,14 +372,6 @@ const WikiTagItem = ({ page, nestingLevel }: WikiTagItemProps) => {
                 </div>
                 <div className={classes.wordCount}>{wordCountFormatted}</div>
               </div>
-              <div className={classes.rightSideItems}>
-                {commentCountNode}
-                <LWTooltip
-                  title={`${page.authorName}, Nate Soares, Daniel Dennett, and ${randomNumber * 2} other contributors`}
-                >
-                  <div className={classes.mainAuthor}>{authorList}</div>
-                </LWTooltip>
-              </div>
             </div>
             <div
               className={classNames(classes.oneLiner, {
@@ -377,12 +381,23 @@ const WikiTagItem = ({ page, nestingLevel }: WikiTagItemProps) => {
               {oneLinerText}
             </div>
           </div>
+          <div className={classes.rightSideItems}>
+            {commentCountNode}
+            <LWTooltip title={contributorsList}>
+              <div className={classes.mainAuthor}>{topContributor?.user?.displayName}</div>
+            </LWTooltip>
+          </div>
         </div>
       </TagsTooltip>
 
       {/* Render Children using WikiTagNestedList */}
       {!collapsed && hasChildren && (
-        <WikiTagNestedList pages={page.children} nestingLevel={nestingLevel + 1} className={classes.children}/>
+        <WikiTagNestedList 
+          pages={page.children} 
+          nestingLevel={nestingLevel + 1}
+          options={options}  // Pass all options down
+          className={classes.children}
+        />
       )}
     </div>
   );

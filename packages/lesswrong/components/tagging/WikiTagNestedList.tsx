@@ -31,13 +31,13 @@ interface WikiTagNestedListProps {
   pages: ArbitalPageNode[];
   nestingLevel: number;
   options?: {
-    // Define any options needed
     sort?: (a: ArbitalPageNode, b: ArbitalPageNode) => number;
+    defaultCollapseAfterLevel?: number;
   };
   className?: string;
 }
 
-const WikiTagNestedList: React.FC<WikiTagNestedListProps> = ({ pages, nestingLevel, options, className }) => {
+const WikiTagNestedList: React.FC<WikiTagNestedListProps> = ({ pages, nestingLevel, options = {}, className }) => {
   const { WikiTagItem } = Components;
   const classes = useStyles(styles);
 
@@ -66,7 +66,7 @@ const WikiTagNestedList: React.FC<WikiTagNestedListProps> = ({ pages, nestingLev
   return (
     <div className={classNames(classes.root, className)}>
       {processedPages.map(page => (
-        <WikiTagItem key={page.pageId} page={page} nestingLevel={nestingLevel} />
+        <WikiTagItem key={page.pageId} page={page} nestingLevel={nestingLevel} options={options}/>
       ))}
     </div>
   );

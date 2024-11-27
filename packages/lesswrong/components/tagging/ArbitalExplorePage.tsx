@@ -1,29 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { arbitalPageData } from './ArbitalMockupData';
 import { useMulti } from '@/lib/crud/withMulti';
-
-// Define the type for an Arbital page
-interface ArbitalPage {
-  pageId: string;
-  title: string;
-  oneLiner: string;
-  parentPageId: string | null;
-  relationship_type: string | null;
-  text_length: number;
-  authorName: string;
-  commentCount: number;
-}
-
-interface ArbitalPageWithNewSlug extends ArbitalPage {
-  newSlug?: string;
-}
-
-// Extend the type to include children for tree nodes
-interface ArbitalPageNode extends ArbitalPageWithNewSlug {
-  children: ArbitalPageNode[];
-}
+import type { ArbitalPage, ArbitalPageNode } from './arbitalTypes';
 
 // Helper function to build the tree
 function buildTree(items: ArbitalPage[], parentId: string | null = null): ArbitalPageNode[] {
@@ -39,17 +19,33 @@ function buildTree(items: ArbitalPage[], parentId: string | null = null): Arbita
 const styles = defineStyles("ArbitalExplorePage", (theme: ThemeType) => ({
   root: {
     marginLeft: 64,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  selectorContainer: {
+    color: theme.palette.primary.main,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    display: 'flex',
+    justifyContent: 'flex-end',
+    marginBottom: 8,
+  },
+  centralColumn: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-end',
   },
 }));
 
 const ArbitalExplorePage = () => {
   const classes = useStyles(styles);
-  const { WikiTagNestedList, Loading } = Components;
+  const { WikiTagNestedList, Loading, InlineSelect } = Components;
+  const [defaultCollapseAfterLevel, setDefaultCollapseAfterLevel] = useState<number>(0);
 
   // Fetch all Arbital pages
   const { results: arbitalPages, loading } = useMulti({
     collectionName: "Tags",
-    fragmentName: "TagWithLegacyDataFragment",
+    fragmentName: "ExplorePageTagFragment",
     terms: {
       view: "allArbitalTags",
       limit: 2000,
@@ -63,13 +59,16 @@ const ArbitalExplorePage = () => {
   // Filter arbitalPageData to only include pages present in arbitalPages query
   // and add the newSlug to each page
   const arbitalPageDataFiltered = arbitalPageData
-    // .filter(page => arbitalPages.find(result => result.legacyData.arbitalPageId === page.pageId))
-    .map(page => ({
-      ...page,
-      newSlug: arbitalPages.find(result =>
+    .map(page => {
+      const matchedTag = arbitalPages.find(result =>
         result.legacyData.arbitalPageId === page.pageId
-      )?.slug,
-    }));
+      );
+      return {
+        ...page,
+        newSlug: matchedTag?.slug,
+        contributors: matchedTag?.contributors,
+      };
+    });
 
   const tree = buildTree(arbitalPageDataFiltered);
 
@@ -103,9 +102,35 @@ const ArbitalExplorePage = () => {
     (node): node is ArbitalPageNode => node !== undefined
   );
 
+  const collapseLevelOptions = [
+    { value: 0, label: 'Collapse All' },
+    { value: 1, label: 'Collapse to Level 1' },
+    { value: 2, label: 'Collapse to Level 2' },
+    { value: 3, label: 'Collapse to Level 3' },
+    { value: 9999, label: 'Expand All' },
+  ];
+
+  const defaultCollapseLevel = 2
+  const selectedOption = collapseLevelOptions.find(option => option.value === defaultCollapseAfterLevel) || collapseLevelOptions[defaultCollapseLevel];
+
+  const handleSelect = (option: { value: number; label: string }) => {
+    setDefaultCollapseAfterLevel(option.value);
+  };
+
   return (
     <div className={classes.root}>
-      <WikiTagNestedList pages={actualTree} nestingLevel={0} />
+      <div className={classes.centralColumn}>
+        <div className={classes.selectorContainer}>
+          <InlineSelect options={collapseLevelOptions} selected={selectedOption} handleSelect={handleSelect} />
+        </div>
+        <WikiTagNestedList 
+          pages={actualTree} 
+          nestingLevel={0} 
+          options={{
+            defaultCollapseAfterLevel: selectedOption.value,
+          }}
+        />
+      </div>
     </div>
   );
 };
