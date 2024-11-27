@@ -18,8 +18,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     top: 2
   },
+  postTitle: {
+    ...theme.typography.body2,
+    ...theme.typography.postStyle,
+    fontSize: "1rem",
+    fontWeight: 500,
+  },
   titleWithCurationNotice: {
     color: 'green',
+    fontWeight: 600,
   },
 });
 
@@ -94,7 +101,7 @@ const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost}: {
           <PostsHighlight post={post} maxLengthWords={600}/>
         </SidebarHoverOver>
         <Link to={postGetPageUrl(post)}
-          className={classNames('sunshine-sidebar-posts-title', {
+          className={classNames(classes.postTitle, {
             [classes.titleWithCurationNotice]: !!(post.curationNotices.length > 0),
           })}
         >
