@@ -80,8 +80,8 @@ class TagsRepo extends AbstractRepo<"Tags"> {
           t.slug,
           t.description
         FROM "Tags" t
-        WHERE t."slug" = $1
-        OR t."oldSlugs" @> ARRAY[$1]
+        WHERE t.deleted IS FALSE
+        AND (t."slug" = $1 OR t."oldSlugs" @> ARRAY[$1])
         
         UNION ALL
         
@@ -95,7 +95,8 @@ class TagsRepo extends AbstractRepo<"Tags"> {
         ON t."_id" = md."parentDocumentId"
         LEFT JOIN "Revisions" r
         ON r."_id" = md."contents_latest"
-        WHERE (
+        WHERE t.deleted IS FALSE
+        AND (
           md."slug" = $1
           OR md."oldSlugs" @> ARRAY[$1]
         )
@@ -107,9 +108,7 @@ class TagsRepo extends AbstractRepo<"Tags"> {
         ARRAY_AGG(TO_JSONB(md.*)) OVER (PARTITION BY t._id) as summaries
       FROM matching_tags t
       LEFT JOIN "MultiDocuments" md
-      ON md."parentDocumentId" = t."_id"
-      WHERE md IS NULL
-      OR md."fieldName" = 'summary'
+      ON md."parentDocumentId" = t."_id" AND md."fieldName" = 'summary'
     `, [slug]);
   }
 }

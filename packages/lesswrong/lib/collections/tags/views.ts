@@ -94,7 +94,8 @@ Tags.addView('tagBySlug', (terms: TagsViewTerms) => {
     selector: {
       $or: [{slug: terms.slug}, {oldSlugs: terms.slug}],
       adminOnly: viewFieldAllowAny,
-      wikiOnly: viewFieldAllowAny
+      wikiOnly: viewFieldAllowAny,
+      deleted: false,
     },
   };
 });
