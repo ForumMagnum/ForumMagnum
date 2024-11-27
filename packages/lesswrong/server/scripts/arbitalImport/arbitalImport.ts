@@ -510,6 +510,9 @@ async function importRevisions<N extends CollectionNameString>({
   conversionContext: ArbitalConversionContext,
   resolverContext: ResolverContext,
 }) {
+  if (!revisions.length) {
+    return;
+  }
   console.log(`Importing ${revisions.length} revisions of ${collection.collectionName}.${fieldName}:${pageId}`);
   const ckEditorMarkupByRevisionIndex = await asyncMapSequential(revisions,
     (rev) => arbitalMarkdownToCkEditorMarkup({
