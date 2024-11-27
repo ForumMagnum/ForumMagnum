@@ -359,3 +359,21 @@ registerFragment(`
     slug
   }
 `);
+
+registerFragment(`
+  fragment ExplorePageTagFragment on Tag {
+    ...TagFragment
+    contributors(limit: $contributorsLimit) {
+      totalCount
+      contributors {
+        user {
+          ...UsersMinimumInfo
+        }
+        contributionScore
+        numCommits
+        voteCount
+      }
+    }
+    legacyData
+  }
+`);

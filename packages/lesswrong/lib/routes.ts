@@ -556,6 +556,16 @@ addRoute(
   }))
 );
 
+addRoute(
+  {
+    name: 'arbitalExplore',
+    title: 'Arbital',
+    path: '/arbital',
+    componentName: 'ArbitalExplorePage',
+    navigationFooterBar: true,
+  }
+)
+
 
 export function initLegacyRoutes() {
   const legacyRouteAcronym = legacyRouteAcronymSetting.get()
