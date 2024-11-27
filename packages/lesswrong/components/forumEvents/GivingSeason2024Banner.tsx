@@ -19,6 +19,7 @@ import {
 import classNames from "classnames";
 import type { Moment } from "moment";
 import type { ForumIconName } from "../common/ForumIcon";
+import { donationElectionVotingOpenSetting } from "@/lib/givingSeason";
 
 const DONATION_ELECTION_HREF = "/posts/2WbDAAtGdyAEfcw6S/donation-election-fund-announcement-matching-rewards-and-faq";
 
@@ -479,6 +480,9 @@ const styles = (theme: ThemeType) => ({
       marginBottom: 16
     },
   },
+  votingClosedTooltip: {
+    marginBottom: 4
+  }
 });
 
 const scrollIntoViewHorizontally = (
@@ -587,6 +591,7 @@ const GivingSeason2024Banner = ({classes}: {
   const amountRaisedPlusMatched = amountRaised + Math.min(amountRaised, 5000);
   const fundPercent = Math.round((amountRaisedPlusMatched / amountTarget) * 100);
 
+  const votingOpen = donationElectionVotingOpenSetting.get()
   const isDonationElection = currentEvent?.name === "Donation Election";
   const showLeaderboard = shouldShowLeaderboard({ currentEvent, voteCounts: leaderboardData });
   const showRecentComments =
@@ -651,7 +656,7 @@ const GivingSeason2024Banner = ({classes}: {
     });
   }, [detailsRef]);
 
-  const {EAButton, MixedTypeFeed, DonationElectionLeaderboard} = Components;
+  const {EAButton, MixedTypeFeed, DonationElectionLeaderboard, LWTooltip} = Components;
   return (
     <div className={classNames(classes.root, selectedEvent.darkText && classes.darkText)}>
       <div className={classes.backgrounds}>
@@ -723,12 +728,19 @@ const GivingSeason2024Banner = ({classes}: {
                       >
                         Donate&nbsp;<span className={classes.hideBelowMd}>to the fund</span>
                       </EAButton>
-                      <EAButton
-                        href={"/voting-portal"}
-                        className={classNames(classes.button, classes.buttonLarge, classes.buttonTranslucent)}
+                      <LWTooltip
+                        title={votingOpen ? null : "Voting has closed"}
+                        placement="top"
+                        popperClassName={classes.votingClosedTooltip}
                       >
-                        Vote in the election
-                      </EAButton>
+                        <EAButton
+                          href={"/voting-portal"}
+                          className={classNames(classes.button, classes.buttonLarge, classes.buttonTranslucent)}
+                          disabled={!votingOpen}
+                        >
+                          Vote in the election
+                        </EAButton>
+                      </LWTooltip>
                     </div>
                   </div>
                 ) : (
