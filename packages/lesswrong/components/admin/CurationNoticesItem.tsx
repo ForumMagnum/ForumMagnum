@@ -81,6 +81,10 @@ const styles = (theme: ThemeType) => ({
   },
   commentBody: {
     ...commentBodyStyles(theme)
+  },
+  publishButtonDisabled: {
+    color: theme.palette.grey[500],
+    cursor: "not-allowed",
   }
 });
 
@@ -110,6 +114,7 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
 
   const publishCommentAndCurate = async (curationNotice: CurationNoticesFragment) => {
     const { contents, postId, userId } = curationNotice;
+    if (clickedPushing) return;
     setClickedPushing(true)
 
     if (!contents) throw Error("Curation notice is missing contents")
@@ -175,9 +180,11 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
           Edit
         </div>}
         <ContentItemBody dangerouslySetInnerHTML={{__html: curationNotice.contents?.html ?? ''}} className={classes.commentBody}/>
-        {!curationNotice.commentId && !clickedPushing && <div
+        {!curationNotice.commentId && <div
           onClick={() => publishCommentAndCurate(curationNotice)}
-          className={classes.publishButton}
+          className={classNames(classes.publishButton, {
+            [classes.publishButtonDisabled]: clickedPushing,
+          })}
         >
           Publish & Curate
         </div>}
