@@ -181,8 +181,6 @@ const TagPreview = ({
   const hasDescription = !!getTagDescriptionHtml(tag);
 
   const arbitalImport = tag.isArbitalImport;
-  
-  <Link className={classes.link} to="/admin/moderation">Moderation Dashboard</Link>
 
   const { TagPreviewDescription, TagSmallPostLink, Loading } = Components;
   return (

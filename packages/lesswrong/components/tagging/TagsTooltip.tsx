@@ -4,7 +4,6 @@ import { useTagPreview } from "./useTag";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from "classnames";
-import { SummaryType, TagWithSummaries } from 'path/to/types';
 
 type PreviewableTag =
   TagPreviewFragment |
