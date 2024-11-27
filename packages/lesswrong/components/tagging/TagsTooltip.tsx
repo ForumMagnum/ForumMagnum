@@ -4,6 +4,7 @@ import { useTagPreview } from "./useTag";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from "classnames";
+import { SummaryType, TagWithSummaries } from 'path/to/types';
 
 type PreviewableTag =
   TagPreviewFragment |
@@ -22,10 +23,7 @@ const useTagsTooltipTag = (
   {tag, tagSlug}: TagsTooltipTag,
   hash?: string,
   skip?: boolean,
-): {
-  tag: PreviewableTag | null,
-  loading: boolean,
-} => {
+) => {
   const {tag: loadedTag, loading} = useTagPreview(tagSlug ?? "", hash, {
     skip: skip || !!tag,
   });
@@ -153,12 +151,95 @@ const TagsTooltip = ({
   classes: ClassesType<typeof styles>,
 }) => {
   const [everHovered, setEverHovered] = useState(false);
-  const {tag, loading} = useTagsTooltipTag(
+  const { tag, loading } = useTagsTooltipTag(
     tagsTooltipProps, hash,
     (noPrefetch && !everHovered) || isRedLink
   );
 
-  const {HoverOver, Loading, TagRelCard, TagPreview} = Components;
+  if (tag?.isArbitalImport && 'summaries' in tag) {
+    const mockSummaryOne: SummaryType = {
+      _id: '1',
+      parentDocumentId: '1',
+      collectionName: 'Posts',
+      fieldName: 'summary',
+      userId: '1',
+      tabTitle: 'Summary',
+      preview: 'Summary',
+      contents: {
+        _id: '1',
+        version: '1',
+        updateType: 'initial',
+        editedAt: new Date(),
+        userId: '1',
+        originalContents: {
+          html: 'This is contents ONE',
+        },
+        html: 'This is contents ONE',
+        markdown: 'This is contents ONE',
+        draftJS: 'This is contents ONE',
+        ckEditorMarkup: 'This is contents ONE',
+        wordCount: 10,
+        htmlHighlight: 'This is contents ONE',
+        plaintextDescription: 'This is contents ONE',
+      },
+    };
+    const mockSummaryTwo: SummaryType = {
+      _id: '1',
+      parentDocumentId: '1',
+      collectionName: 'Posts',
+      fieldName: 'summary',
+      userId: '1',
+      tabTitle: 'Definition',
+      preview: 'Summary',
+      contents: {
+        _id: '1',
+        version: '1',
+        updateType: 'initial',
+        editedAt: new Date(),
+        userId: '1',
+        originalContents: {
+          html: 'This is contents TWO ',
+        },
+        html: 'This is contents TWO',
+        markdown: 'This is contents TWO',
+        draftJS: 'This is contents TWO',
+        ckEditorMarkup: 'This is contents TWO',
+        wordCount: 10,
+        htmlHighlight: 'This is contents TWO',
+        plaintextDescription: 'This is contents TWO',
+      },
+    };
+    const mockSummaryThree: SummaryType = {
+      _id: '1',
+      parentDocumentId: '1',
+      collectionName: 'Posts',
+      fieldName: 'summary',
+      userId: '1',
+      tabTitle: 'Technical Guide',
+      preview: 'Summary',
+      contents: {
+        _id: '1',
+        version: '1',
+        updateType: 'initial',
+        editedAt: new Date(),
+        userId: '1',
+        originalContents: {
+          html: 'This is contents THREE',
+        },
+        html: 'This is contents THREE',
+        markdown: 'This is contents THREE',
+        draftJS: 'This is contents THREE',
+        ckEditorMarkup: 'This is contents THREE',
+        wordCount: 10,
+        htmlHighlight: 'This is contents THREE',
+        plaintextDescription: 'This is contents THREE',
+      },
+    };
+
+    tag.summaries = [mockSummaryOne, mockSummaryTwo, mockSummaryThree];
+  }
+
+  const { HoverOver, Loading, TagRelCard, TagPreview } = Components;
   return (
     <HoverOver
       title={

@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
@@ -9,12 +9,13 @@ import { getTagDescriptionHtml } from '../common/excerpts/TagExcerpt';
 import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import classNames from 'classnames';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
   root: {
-    paddingTop: 8,
-    paddingLeft: 16,
-    paddingRight: 16,
+    // paddingTop: 8,
+    // paddingLeft: 16,
+    // paddingRight: 16,
     ...(!isFriendlyUI && {
       width: 500,
       paddingBottom: 6,
@@ -25,6 +26,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   rootEAWidth: {
     width: FRIENDLY_HOVER_OVER_WIDTH,
+  },
+  nonTabPadding: {
+    paddingTop: 8,
+    paddingLeft: 16,
+    paddingRight: 16,
   },
   relatedTagWrapper: {
     ...theme.typography.body2,
@@ -75,7 +81,37 @@ const styles = (theme: ThemeType): JssStyles => ({
   footerMarginTop: {
     marginTop: 16,
   },
-});
+  arbitalTitle: {
+    fontSize: "1.5rem",
+    fontWeight: 600,
+    marginBottom: 16,
+    color: theme.palette.link.color,
+  },
+  tabsContainer: {
+    display: "flex",
+    flexDirection: "row",
+    borderBottom: `1px solid ${theme.palette.greyAlpha(0.1)}`,
+  },
+  summaryTab: {
+    padding: "8px 14px",
+    fontSize: "1.2em",
+    backgroundColor: theme.palette.panelBackground.postsItemHover,
+    color: theme.palette.greyAlpha(1),
+    '&[data-selected="true"]': {
+      backgroundColor: 'white',
+      borderBottom: "1px solid white",
+      marginBottom: -1,
+      borderLeft: `1px solid ${theme.palette.greyAlpha(0.1)}`,
+      borderRight: `1px solid ${theme.palette.greyAlpha(0.1)}`,
+    },
+    '&:first-of-type[data-selected="true"]': {
+      borderLeft: 'none',
+    },
+    '&:last-of-type[data-selected="true"]': {
+      borderRight: 'none',
+    }
+  },
+}));
 
 const TagPreview = ({
   tag,
@@ -84,16 +120,16 @@ const TagPreview = ({
   hideRelatedTags,
   postCount=6,
   autoApplied=false,
-  classes,
 }: {
-  tag: TagPreviewFragment | TagSectionPreviewFragment,
+  tag: (TagPreviewFragment | TagSectionPreviewFragment) & { summaries?: MultiDocumentEdit[] },
   hash?: string,
   showCount?: boolean,
   hideRelatedTags?: boolean,
   postCount?: number,
   autoApplied?: boolean,
-  classes: ClassesType,
 }) => {
+  const [activeTab, setActiveTab] = useState<number>(0);
+
   const showPosts = postCount > 0 && !!tag?._id && !isFriendlyUI;
   const {results} = useMulti({
     skip: !showPosts,
@@ -103,6 +139,12 @@ const TagPreview = ({
     limit: postCount,
   });
 
+  const classes = useStyles(styles);
+
+  const summaries = tag?.summaries;
+
+  console.log('summaries', tag.name, summaries);
+
   // In theory the type system doesn't allow this, but I'm too scared to
   // remove it
   if (!tag) {
@@ -110,6 +152,44 @@ const TagPreview = ({
       <div className={classes.root} />
     );
   }
+
+  const summaryTabs = tag.summaries?.map((summary, index) => (
+    <div 
+      key={summary.tabTitle}
+      className={classes.summaryTab}
+      data-selected={activeTab === index}
+      onClick={() => setActiveTab(index)}
+      style={{cursor: 'pointer'}}
+    >
+      {summary.tabTitle}
+    </div>
+  )) ?? [];
+
+//   <div 
+//   className={classes.summaryTab} 
+//   data-selected={activeTab === 'summary'}
+//   onClick={() => setActiveTab('summary')}
+//   style={{cursor: 'pointer'}}
+// >
+//   Summary
+// </div>
+// <div 
+//   className={classes.summaryTab}
+//   data-selected={activeTab === 'brief'}
+//   onClick={() => setActiveTab('brief')}
+//   style={{cursor: 'pointer'}}
+// >
+//   Brief Summary
+// </div>
+// <div 
+//   className={classes.summaryTab}
+//   data-selected={activeTab === 'technical'}
+//   onClick={() => setActiveTab('technical')}
+//   style={{cursor: 'pointer'}}
+// >
+//   Technical
+// </div>
+// </div>}
 
   const showRelatedTags =
     !isFriendlyUI &&
@@ -125,12 +205,26 @@ const TagPreview = ({
 
   const hasDescription = !!getTagDescriptionHtml(tag);
 
-  const {TagPreviewDescription, TagSmallPostLink, Loading} = Components;
+  // const arbitalImport = tag.arbitalImport;
+  const arbitalImport = true;
+
+  <Link className={classes.link} to="/admin/moderation">Moderation Dashboard</Link>
+
+  const { TagPreviewDescription, TagSmallPostLink, Loading } = Components;
   return (
     <div className={classNames(classes.root, {
       [classes.rootEAWidth]: isFriendlyUI && hasDescription,
     })}>
-      <TagPreviewDescription tag={tag} hash={hash} />
+      {arbitalImport && <div className={classes.tabsContainer}>
+       {summaryTabs}
+      </div>}
+      <div className={classes.nonTabPadding}>
+      {arbitalImport && <Link className={classes.arbitalTitle} to={`/tag/${tag.slug}`}>{tag.name}</Link>}
+      <TagPreviewDescription 
+        tag={tag} 
+        hash={hash} 
+        {...(tag.summaries?.length ? { activeTab } : {})}
+      />
       {showRelatedTags &&
         <div className={classes.relatedTags}>
           {tag.parentTag &&
@@ -166,7 +260,7 @@ const TagPreview = ({
           }
         </div>
       }
-      {showPosts && !tag.wikiOnly &&
+      {showPosts && !tag.wikiOnly && !arbitalImport &&
         <>
           {results
             ? (
@@ -210,10 +304,13 @@ const TagPreview = ({
         </div>
       }
     </div>
+    </div>
   );
 }
 
-const TagPreviewComponent = registerComponent("TagPreview", TagPreview, {styles});
+const TagPreviewComponent = registerComponent("TagPreview", TagPreview);
+
+export default TagPreviewComponent;
 
 declare global {
   interface ComponentTypes {
