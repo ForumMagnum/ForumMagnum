@@ -309,8 +309,10 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     ...theme.typography.body1,
     color: theme.palette.grey[600],
     display: 'flex',
-    alignItems: 'end',
+    flexDirection: 'column',
     fontSize: '17px',
+    lineHeight: 'inherit',
+    marginBottom: 8,
   },
   contributorNameWrapper: {
     flex: 1,
@@ -320,7 +322,6 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   },
   contributorName: {
     fontWeight: 550,
-    // fontSize: '15px',
   },
   lastUpdated: {
     ...theme.typography.body2,
@@ -333,9 +334,6 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     gap: '4px',
   },
   relationshipPill: {
-    // border: theme.palette.border.grey400,
-    // borderRadius: theme.borderRadius.small,
-    // padding: 4,
     textWrapMode: 'nowrap',
     width: 'max-content',
   },
@@ -373,23 +371,29 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     opacity: 1,
   },
   subjectsContainer: {
-    // marginTop: 24,
     overflow: 'hidden',
+    display: 'flex',
+    marginTop: 0,
+    marginBottom: 0,
   },
   subjectsHeader: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
-    fontWeight: 700,
     marginBottom: 4,
+    color: theme.palette.grey[600],
+    minWidth: 'fit-content',
   },
   subjectsList: {
     display: 'flex',
-    flexDirection: 'column',
-    gap: 4,
+    flexWrap: 'wrap',
   },
   subject: {
     textWrap: 'nowrap',
     marginLeft: 6,
+    // If it's not the last subject, add a comma
+    '&:not(:last-child)::after': {
+      content: '","',
+    },
   },
   ...tagPageHeaderStyles(theme),
 }));
@@ -822,9 +826,20 @@ const TagPage = () => {
 
   const requirementsAndAlternatives = (
     <ContentStyles contentType="tag" className={classes.subjectsContainer}> 
-      <div className={classes.subjectsHeader}>Relies on</div>
+      <div className={classes.subjectsHeader}>Relies on: </div>
       <div className={classes.subjectsList}>
         <span className={classes.subject}><HoverPreviewLink href={'/tag/reads_algebra'} >Ability to read algebra</HoverPreviewLink></span>
+      </div>
+    </ContentStyles>
+  );
+
+  const subjects = (
+    <ContentStyles contentType="tag" className={classes.subjectsContainer}> 
+      <div className={classes.subjectsHeader}>Subjects: </div>
+      <div className={classes.subjectsList}>
+        <span className={classes.subject}><HoverPreviewLink href={'/tag/logical-decision-theories'}>Logical decision theories</HoverPreviewLink></span>
+        <span className={classes.subject}><HoverPreviewLink href={'/tag/causal-decision-theories'}>Causal decision theories</HoverPreviewLink></span>
+        <span className={classes.subject}><HoverPreviewLink href={'/tag/evidential-decision-theories'}>Evidential decision theories</HoverPreviewLink></span>
       </div>
     </ContentStyles>
   );
@@ -895,7 +910,8 @@ const TagPage = () => {
         </div>
       </div>}
       {/** Just hardcoding an example for now, since we haven't imported the necessary relationships to derive it dynamically */}
-      {/* {requirementsAndAlternatives} */}
+      {requirementsAndAlternatives}
+      {subjects}
     </div>
   );
 
@@ -919,15 +935,8 @@ const TagPage = () => {
         hideLabels={true}
         className={classNames(classes.editMenu, classes.nonMobileButtonRow)}
       />
-      {requirementsAndAlternatives}
-      <ContentStyles contentType="tag" className={classes.subjectsContainer}> 
-        <div className={classes.subjectsHeader}>Subjects</div>
-        <div className={classes.subjectsList}>
-          <span className={classes.subject}><HoverPreviewLink href={'/tag/logical-decision-theories'}>Logical decision theories</HoverPreviewLink></span>
-          <span className={classes.subject}><HoverPreviewLink href={'/tag/causal-decision-theories'}>Causal decision theories</HoverPreviewLink></span>
-          <span className={classes.subject}><HoverPreviewLink href={'/tag/evidential-decision-theories'}>Evidential decision theories</HoverPreviewLink></span>
-        </div>
-      </ContentStyles>
+      {/* {requirementsAndAlternatives} */}
+      {/* {subjects} */}
     </div>
     <div className={classes.rightColumnOverflowFade} />
   </div>);
