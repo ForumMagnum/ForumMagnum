@@ -478,6 +478,27 @@ if (taggingNameIsSet.get()) {
       enableResourcePrefetch: tagRouteWillDefinitelyReturn200,
       background: "white",
     },
+    // Temporary arbital routes
+    {
+      name: 'tag.arbital.w',
+      path: '/w/:slug',
+      componentName: 'TagPage',
+      titleComponentName: 'TagPageTitle',
+      subtitleComponentName: 'TagPageTitle',
+      previewComponentName: 'TagHoverPreview',
+      enableResourcePrefetch: tagRouteWillDefinitelyReturn200,
+      background: "white",
+    },
+    {
+      name: 'tag.arbital.p',
+      path: '/p/:slug',
+      componentName: 'TagPage',
+      titleComponentName: 'TagPageTitle',
+      subtitleComponentName: 'TagPageTitle',
+      previewComponentName: 'TagHoverPreview',
+      enableResourcePrefetch: tagRouteWillDefinitelyReturn200,
+      background: "white",
+    },
     {
       name: 'tagDiscussion',
       path: '/tag/:slug/discussion',

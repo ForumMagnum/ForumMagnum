@@ -293,7 +293,7 @@ const WikiTagItem = ({ page, nestingLevel, options = {} }: WikiTagItemProps) => 
   const classes = useStyles(styles);
 
   if (nestingLevel < 1 ) {
-    console.log({nestingLevel, options, defaultCollapseAfterLevel: options.defaultCollapseAfterLevel});
+    // console.log({nestingLevel, options, defaultCollapseAfterLevel: options.defaultCollapseAfterLevel});
   }
 
   const [collapsed, setCollapsed] = useState(

@@ -438,6 +438,7 @@ interface TagLensInfo {
   lenses: TagLens[];
 }
 
+// TODO: get rid of this and use the lens slug when we fix the import to get the correct alias from lens.lensId's pageInfo
 function getImputedSlug(lens: MultiDocumentEdit) {
   const slugComponents = lens.tabTitle.split(' ');
 
@@ -659,7 +660,7 @@ const TagPage = () => {
   if (!tag)
     return <Error404/>
   // If the slug in our URL is not the same as the slug on the tag, redirect to the canonical slug page
-  if (tag.oldSlugs?.filter(slug => slug !== tag.slug)?.includes(slug)) {
+  if (tag.oldSlugs?.filter(slug => slug !== tag.slug)?.includes(slug) && !tag.isArbitalImport) {
     return <PermanentRedirect url={tagGetUrl(tag)} />
   }
   if (editing && !tagUserHasSufficientKarma(currentUser, "edit")) {

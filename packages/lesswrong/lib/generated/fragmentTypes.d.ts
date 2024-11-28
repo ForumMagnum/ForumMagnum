@@ -2783,7 +2783,6 @@ interface TagName { // fragment on Tags
 interface ExplorePageTagFragment extends TagFragment { // fragment on Tags
   readonly contributors: any,
   readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly lenses: Array<MultiDocumentEdit>,
 }
 
 interface AdvisorRequestsDefaultFragment { // fragment on AdvisorRequests
@@ -3874,6 +3873,7 @@ interface MultiDocumentEdit { // fragment on MultiDocuments
   readonly collectionName: string,
   readonly fieldName: string,
   readonly userId: string,
+  readonly slug: string,
   readonly title: string | null,
   readonly tabTitle: string,
   readonly tabSubtitle: string | null,
