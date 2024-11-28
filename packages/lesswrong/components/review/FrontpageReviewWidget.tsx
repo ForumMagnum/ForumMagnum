@@ -11,6 +11,22 @@ import moment from 'moment';
 import { eligibleToNominate, getReviewPhase, getReviewTitle, ReviewYear, REVIEW_NAME_IN_SITU, REVIEW_YEAR, getResultsPhaseEnd, getNominationPhaseEnd, getReviewPhaseEnd, getReviewStart } from '../../lib/reviewUtils';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
+const commonActionButtonStyle = (theme: ThemeType) => ({
+  paddingTop: 7,
+  paddingBottom: 7,
+  paddingLeft: 10,
+  paddingRight: 10,
+  borderRadius: 3,
+  ...theme.typography.commentStyle,
+  display: "inline-block",
+  marginLeft: 10,
+  [theme.breakpoints.down('xs')]: {
+    marginLeft: 6,
+    paddingLeft: 7,
+    paddingRight: 7,
+  }
+})
+
 const styles = (theme: ThemeType): JssStyles => ({
   learnMore: {
     color: theme.palette.lwTertiary.main
@@ -69,40 +85,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   actionButtonCTA: {
     backgroundColor: theme.palette.primary.main,
     border: `solid 1px ${theme.palette.primary.main}`,
-    paddingTop: 7,
-    paddingBottom: 7,
-    paddingLeft: 10,
-    paddingRight: 10,
-    borderRadius: 3,
     color: theme.palette.text.invertedBackgroundText,
-    ...theme.typography.commentStyle,
-    display: "inline-block",
-    marginLeft: 10
-  },
-  actionButtonCTA2: {
-    backgroundColor: theme.palette.panelBackground.default,
-    border: `solid 2px ${theme.palette.primary.light}`,
-    paddingTop: 6,
-    paddingBottom: 6,
-    paddingLeft: 14,
-    paddingRight: 14,
-    borderRadius: 3,
-    color: theme.palette.primary.dark,
-    ...theme.typography.commentStyle,
-    display: "inline-block",
-    marginLeft: 10
+    ...commonActionButtonStyle(theme),
   },
   actionButton: {
     border: `solid 1px ${theme.palette.grey[400]}`,
-    paddingTop: 7,
-    paddingBottom: 7,
-    paddingLeft: 10,
-    paddingRight: 10,
-    borderRadius: 3,
     color: theme.palette.grey[600],
-    ...theme.typography.commentStyle,
-    display: "inline-block",
-    marginLeft: 10
+    ...commonActionButtonStyle(theme),
   },
   adminButton: {
     border: `solid 1px ${theme.palette.review.adminButton}`,
@@ -335,10 +324,10 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
       <div>{nominationEndDate.fromNow()} remaining to cast nomination votes</div>
       <div>(posts need two votes to proceed)</div>
     </span>}
-    <LWTooltip className={classes.buttonWrapper} title={`Nominate posts you previously upvoted.`}>
+    <LWTooltip className={classes.buttonWrapper} title={`Nominate posts you've read or Upvoted.`}>
       <Link to={`/votesByYear/${reviewYear}`} className={classes.actionButton}>
         <span>
-          <span className={classes.hideOnMobile}>Your</span> {isEAForum && '≤'}{reviewYear} Upvotes
+          <span className={classes.hideOnMobile}>Your</span> {isEAForum && '≤'}{reviewYear} Post Interactions
         </span>
       </Link>
     </LWTooltip>

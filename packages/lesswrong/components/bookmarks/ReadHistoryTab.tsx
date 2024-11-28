@@ -1,9 +1,9 @@
-import React, {useState} from 'react';
-import { registerComponent, Components, fragmentTextForQuery } from '../../lib/vulcan-lib';
-import {AnalyticsContext} from "../../lib/analyticsEvents";
-import {useCurrentUser} from "../common/withUser"
-import { gql, useQuery, NetworkStatus } from '@apollo/client';
-import moment from 'moment';
+import React, {useState} from 'react'
+import {Components, fragmentTextForQuery, registerComponent} from '../../lib/vulcan-lib'
+import {AnalyticsContext} from '../../lib/analyticsEvents'
+import {useCurrentUser} from '../common/withUser'
+import {gql, NetworkStatus, useQuery} from '@apollo/client'
+import moment from 'moment'
 
 const styles = (theme: ThemeType): JssStyles => ({
   empty: {
@@ -25,34 +25,68 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const ReadHistoryTab = ({classes}: {classes: ClassesType}) => {
-  const currentUser = useCurrentUser()
-  const defaultLimit = 10;
-  const pageSize = 30;
-  const [limit, setLimit] = useState(defaultLimit);
-  
-  // pull the latest 10 posts that the current user has read
-  const { data, loading, fetchMore, networkStatus } = useQuery(gql`
-    query getReadHistory($limit: Int) {
-      UserReadHistory(limit: $limit) {
-        posts {
-          ...PostsListWithVotes
-          lastVisitedAt
+interface FilterReadHistory {
+  startDate?: Date
+  endDate?: Date
+  minKarma?: number
+  showEvents?: boolean
+}
+
+const useUserReadHistory = ({currentUser, limit, filter, sort}: {
+  currentUser: UsersCurrent | null,
+  limit: number,
+  filter?: FilterReadHistory,
+  sort?: {
+    karma?: boolean,
+  },
+}) => {
+  const {data, loading, fetchMore, networkStatus} = useQuery(gql`
+      query getReadHistory($limit: Int, $filter: UserReadHistoryFilter, $sort: UserReadHistorySort) {
+        UserReadHistory(limit: $limit, filter: $filter, sort: $sort) {
+          posts {
+            ...PostsListWithVotes
+            lastVisitedAt
+          }
         }
       }
-    }
-    ${fragmentTextForQuery("PostsListWithVotes")}
+      ${fragmentTextForQuery('PostsListWithVotes')}
     `,
     {
       ssr: true,
-      fetchPolicy: "cache-and-network",
-      nextFetchPolicy: "cache-only",
+      fetchPolicy: 'cache-and-network',
+      nextFetchPolicy: 'cache-only',
       skip: !currentUser,
-      variables: {limit: defaultLimit},
-      notifyOnNetworkStatusChange: true
-    }
+      variables: {
+        limit: limit,
+        filter: filter,
+        sort: sort,
+      },
+      notifyOnNetworkStatusChange: true,
+    },
   )
+  return {data, loading, fetchMore, networkStatus}
+}
+
+const ReadHistoryTab = ({classes, groupByDate = true, filter, sort}: {
+  classes: ClassesType,
+  groupByDate?: boolean,
+  filter?: FilterReadHistory,
+  sort?: {
+    karma?: boolean,
+  },
+}) => {
+  const currentUser = useCurrentUser()
+  const defaultLimit = 30;
+  const pageSize = 30;
+  const [limit, setLimit] = useState(defaultLimit);
   
+  const {data, loading, fetchMore, networkStatus} = useUserReadHistory({
+    currentUser: currentUser,
+    limit: defaultLimit,
+    filter,
+    sort,
+  })
+
   const {SectionTitle, Loading, PostsItem, LoadMore} = Components
   
   const readHistory: (PostsListWithVotes & {lastVisitedAt: Date})[] = data?.UserReadHistory?.posts
@@ -72,13 +106,19 @@ const ReadHistoryTab = ({classes}: {classes: ClassesType}) => {
   const yesterdaysPosts = readHistory.filter(post => moment(post.lastVisitedAt).isSame(moment().subtract(1, 'day'), 'day'))
   const olderPosts = readHistory.filter(post => moment(post.lastVisitedAt).isBefore(moment().subtract(1, 'day'), 'day'))
   
-  return <AnalyticsContext pageSectionContext="bookmarksTab">
+  return <AnalyticsContext pageSectionContext="readHistoryTab">
+    {groupByDate ? (
+      <>
     {!!todaysPosts.length && <SectionTitle title="Today"/>}
-    {todaysPosts?.map(post => <PostsItem key={post._id} post={post}/>)}
+        {todaysPosts.map(post => <PostsItem key={post._id} post={post}/>)}
     {!!yesterdaysPosts.length && <SectionTitle title="Yesterday"/>}
-    {yesterdaysPosts?.map(post => <PostsItem key={post._id} post={post}/>)}
+        {yesterdaysPosts.map(post => <PostsItem key={post._id} post={post}/>)}
     {!!olderPosts.length && <SectionTitle title="Older"/>}
-    {olderPosts?.map(post => <PostsItem key={post._id} post={post}/>)}
+        {olderPosts.map(post => <PostsItem key={post._id} post={post}/>)}
+      </>
+    ) : (
+      readHistory.map(post => <PostsItem key={post._id} post={post}/>)
+    )}
     {!!readHistory.length && <div className={classes.loadMore}>
       <LoadMore
         loading={networkStatus === NetworkStatus.fetchMore}
