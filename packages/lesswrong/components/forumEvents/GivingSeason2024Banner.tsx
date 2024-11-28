@@ -19,6 +19,7 @@ import {
 import classNames from "classnames";
 import type { Moment } from "moment";
 import type { ForumIconName } from "../common/ForumIcon";
+import { donationElectionVotingOpenSetting } from "@/lib/givingSeason";
 
 const DONATION_ELECTION_HREF = "/posts/2WbDAAtGdyAEfcw6S/donation-election-fund-announcement-matching-rewards-and-faq";
 
@@ -312,17 +313,17 @@ const styles = (theme: ThemeType) => ({
   },
   hideAboveMobile: {
     [theme.breakpoints.up(GIVING_SEASON_MOBILE_WIDTH)]: {
-      display: "none",
+      display: "none !important",
     },
   },
   hideAboveMd: {
     [theme.breakpoints.up(GIVING_SEASON_MD_WIDTH)]: {
-      display: "none",
+      display: "none !important",
     },
   },
   hideBelowMd: {
     [theme.breakpoints.down(GIVING_SEASON_MD_WIDTH)]: {
-      display: "none",
+      display: "none !important",
     },
   },
   button: {
@@ -461,6 +462,9 @@ const styles = (theme: ThemeType) => ({
     },
   },
   electionInfoRaised: {
+    display: "flex",
+    gap: "8px",
+    alignItems: "baseline",
     marginTop: 8,
     fontSize: 20,
     fontWeight: 600,
@@ -468,6 +472,11 @@ const styles = (theme: ThemeType) => ({
   },
   electionInfoAmount: {
     fontWeight: 700,
+  },
+  matchNotice: {
+    fontSize: 13,
+    fontWeight: 'normal',
+    transform: "translateY(-1px)"
   },
   electionInfoButtonContainer: {
     marginBottom: 4,
@@ -479,6 +488,9 @@ const styles = (theme: ThemeType) => ({
       marginBottom: 16
     },
   },
+  votingClosedTooltip: {
+    marginBottom: 4
+  }
 });
 
 const scrollIntoViewHorizontally = (
@@ -565,6 +577,8 @@ const FeedItem = ({
   );
 }
 
+const SECOND_MATCH_START = 9509;
+
 const GivingSeason2024Banner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
@@ -584,9 +598,13 @@ const GivingSeason2024Banner = ({classes}: {
   const [lastTimelineClick, setLastTimelineClick] = useState<number>();
   const didInitialScroll = useRef(false);
 
-  const amountRaisedPlusMatched = amountRaised + Math.min(amountRaised, 5000);
+  // Note: SECOND_MATCH_START is approximate, we will match based on the amount when we deploy
+  const amountRaisedPlusMatched =
+    amountRaised + Math.min(amountRaised, 5000) + Math.min(Math.max(amountRaised - SECOND_MATCH_START, 0), 5000);
+  const matchRemaining = Math.max(5000 - (amountRaised - SECOND_MATCH_START), 0)
   const fundPercent = Math.round((amountRaisedPlusMatched / amountTarget) * 100);
 
+  const votingOpen = donationElectionVotingOpenSetting.get()
   const isDonationElection = currentEvent?.name === "Donation Election";
   const showLeaderboard = shouldShowLeaderboard({ currentEvent, voteCounts: leaderboardData });
   const showRecentComments =
@@ -651,7 +669,7 @@ const GivingSeason2024Banner = ({classes}: {
     });
   }, [detailsRef]);
 
-  const {EAButton, MixedTypeFeed, DonationElectionLeaderboard} = Components;
+  const {EAButton, MixedTypeFeed, DonationElectionLeaderboard, LWTooltip} = Components;
   return (
     <div className={classNames(classes.root, selectedEvent.darkText && classes.darkText)}>
       <div className={classes.backgrounds}>
@@ -691,14 +709,19 @@ const GivingSeason2024Banner = ({classes}: {
                     <div className={classes.eventDate}>{formatDate(selectedEvent.start, selectedEvent.end)}</div>
                     <div className={classes.eventName}>{name}</div>
                     <div className={classes.eventDescription}>
-                      {description}{" "}
-                      <b className={classes.hideAboveMd}>${formatStat(Math.round(amountRaisedPlusMatched))} raised.</b>
+                      {description}
+                    </div>
+                    <div className={classNames(classes.eventDescription, classes.hideAboveMd)}>
+                      <b>${formatStat(Math.round(amountRaisedPlusMatched))} raised.</b> CEA will match the next <b>${formatStat(Math.round(matchRemaining))}</b>.
                     </div>
                     <div className={classNames(classes.electionInfoRaised, classes.hideBelowMd)}>
                       <span className={classes.electionInfoAmount}>
                         ${formatStat(Math.round(amountRaisedPlusMatched))}
                       </span>{" "}
                       raised
+                      <div className={classes.matchNotice}>
+                        CEA will match the next <b>${formatStat(Math.round(matchRemaining))}</b> donated
+                      </div>
                     </div>
                     <div
                       className={classNames(
@@ -723,12 +746,19 @@ const GivingSeason2024Banner = ({classes}: {
                       >
                         Donate&nbsp;<span className={classes.hideBelowMd}>to the fund</span>
                       </EAButton>
-                      <EAButton
-                        href={"/voting-portal"}
-                        className={classNames(classes.button, classes.buttonLarge, classes.buttonTranslucent)}
+                      <LWTooltip
+                        title={votingOpen ? null : "Voting has closed"}
+                        placement="top"
+                        popperClassName={classes.votingClosedTooltip}
                       >
-                        Vote in the election
-                      </EAButton>
+                        <EAButton
+                          href={"/voting-portal"}
+                          className={classNames(classes.button, classes.buttonLarge, classes.buttonTranslucent)}
+                          disabled={!votingOpen}
+                        >
+                          Vote in the election
+                        </EAButton>
+                      </LWTooltip>
                     </div>
                   </div>
                 ) : (
