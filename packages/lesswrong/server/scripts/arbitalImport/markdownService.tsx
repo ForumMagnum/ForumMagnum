@@ -111,7 +111,7 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
       const pageId = pageAliasToPageId(trimmedAlias);
       const linkText = (options.text && options.text.length>0)
         ? options.text
-        : (pageId ? pageIdToTitle(pageId, firstAliasChar) : "Broken Link");
+        : (pageId ? pageIdToTitle(pageId, firstAliasChar) : getCasedText(firstAliasChar, trimmedAlias));
       if (!linkText) {
         console.error(`Could not get link text for page ${alias}`);
       }
@@ -772,8 +772,13 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
   
   const converter = createConverterInternal(null, pageId);
   const html = converter.makeHtml(pageMarkdown);
-  const {html: htmlWithImagesMoved} = await convertImagesInHTML(html, "arbital", ()=>true, conversionContext.imageUrlsCache);
-  return htmlWithImagesMoved;
+  try {
+    const {html: htmlWithImagesMoved} = await convertImagesInHTML(html, "arbital", ()=>true, conversionContext.imageUrlsCache);
+    return htmlWithImagesMoved;
+  } catch(e) {
+    console.error(e);
+    return html;
+  }
 }
 
 function latexSourceToCkEditorEmbeddedLatexTag(latex: string, inline: boolean): string {
