@@ -8,6 +8,7 @@ import SparklesIcon from "@heroicons/react/24/solid/SparklesIcon";
 import StarIcon from "@heroicons/react/24/solid/StarIcon";
 import StarOutlineIcon from "@heroicons/react/24/outline/StarIcon";
 import UserIcon from "@heroicons/react/24/solid/UserIcon";
+import UserOutlineIcon from "@heroicons/react/24/outline/UserIcon";
 import UserCircleIcon from "@heroicons/react/24/outline/UserCircleIcon";
 import UsersIcon from "@heroicons/react/24/solid/UsersIcon";
 import UsersOutlineIcon from "@heroicons/react/24/outline/UsersIcon";
@@ -176,6 +177,7 @@ export type ForumIconName =
   "KarmaOutline" |
   "Star" |
   "User" |
+  "UserOutline" |
   "UserCircle" |
   "Users" |
   "UsersOutline" |
@@ -301,6 +303,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     KarmaOutline: MuiStarBorderIcon,
     Star: MuiStarIcon,
     User: MuiPersonIcon,
+    UserOutline: UserOutlineIcon,
     UserCircle: UserCircleIcon,
     Users: MuiPeopleIcon,
     UsersOutline: UsersOutlineIcon,
@@ -425,6 +428,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     KarmaOutline: StarOutlineIcon,
     Star: StarIcon,
     User: UserIcon,
+    UserOutline: UserOutlineIcon,
     UserCircle: UserCircleIcon,
     Users: UsersIcon,
     UsersOutline: UsersOutlineIcon,
