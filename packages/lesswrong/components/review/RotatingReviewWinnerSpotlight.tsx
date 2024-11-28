@@ -1,4 +1,3 @@
-// TODO: Import component in components.ts
 import React from 'react';
 import { Components, fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
@@ -7,23 +6,22 @@ import { GetAllReviewWinnersQueryResult } from '../sequences/TopPostsPage';
 import { useSingle } from '@/lib/crud/withSingle';
 
 const getTodayReviewInfo = (reviewWinners: GetAllReviewWinnersQueryResult, category: string) => {
-  const date = new Date()
   const categoryReviewWinners = reviewWinners.filter(reviewWinner => reviewWinner.reviewWinner.category === category)
-
   const totalWinners = categoryReviewWinners.length;
   if (totalWinners === 0) return null;
+  
   // Calculate an index based on the date
-  const startDate = new Date('2024-01-01');
+  const date = new Date()
+  const startDate = new Date('2024-01-03');
   const daysSinceStart = Math.floor(
     (date.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
   );
-  const index = ((daysSinceStart % totalWinners) + totalWinners) % totalWinners; // Ensure non-negative index
-  const selectedWinner = categoryReviewWinners[index];
-
-  return selectedWinner;
+  const index = ((daysSinceStart % totalWinners) + totalWinners) % totalWinners; // Ensure non-negative index (LLM)
+  
+  return categoryReviewWinners[index];
 };
 
-export const ReviewWinnerItem = () => {
+export const RotatingReviewWinnerSpotlight = () => {
   const { SpotlightItem } = Components
   const category = "ai safety"
   const { data } = useQuery(
@@ -53,10 +51,10 @@ export const ReviewWinnerItem = () => {
   </AnalyticsContext>
 }
 
-const ReviewWinnerItemComponent = registerComponent('ReviewWinnerItem', ReviewWinnerItem);
+const RotatingReviewWinnerSpotlightComponent = registerComponent('RotatingReviewWinnerSpotlight', RotatingReviewWinnerSpotlight);
 
 declare global {
   interface ComponentTypes {
-    ReviewWinnerItem: typeof ReviewWinnerItemComponent
+    RotatingReviewWinnerSpotlight: typeof RotatingReviewWinnerSpotlightComponent
   }
 }

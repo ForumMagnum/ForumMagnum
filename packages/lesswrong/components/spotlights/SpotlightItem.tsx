@@ -334,7 +334,6 @@ const styles = (theme: ThemeType) => ({
     right: 0,
     width: "100%",
     height: "100%",
-    maxHeight: 400,
     overflow: "hidden",
   },
   reverseIcon: {
@@ -342,7 +341,7 @@ const styles = (theme: ThemeType) => ({
   },
   reviews: {
     width: "100%",
-    borderTop: theme.palette.border.faint,
+    borderTop: theme.palette.border.extraFaint,
   },
   review: {
     '&& .CommentFrame-node': {
@@ -351,7 +350,19 @@ const styles = (theme: ThemeType) => ({
     },
     '& .SingleLineComment-commentInfo': {
       paddingLeft: 13,
-    }
+      backgroundColor: theme.palette.background.translucentBackgroundHeavy,
+      borderRadius: 0
+    },
+    '& .CommentsItem-root': {
+      borderBottom: theme.palette.border.extraFaint,
+      backgroundColor: theme.palette.background.pageActiveAreaBackground,
+      '&:last-child': {
+        borderTop: theme.palette.border.extraFaint,
+      }
+    },
+    '& .comments-node-root': {
+      backgroundColor: 'unset',
+    },
   },
   contentContainer: {
     position: "relative",
@@ -497,7 +508,7 @@ export const SpotlightItem = ({
             </Typography>}
             <SpotlightStartOrContinueReading spotlight={spotlight} className={classes.startOrContinue} />
           </div>
-          {spotlight.spotlightSplashImageUrl && <div className={classes.splashImageContainer}>
+          {spotlight.spotlightSplashImageUrl && <div className={classes.splashImageContainer} style={{height: `calc(100% + ${(spotlight.document?.reviews?.length ?? 0) * 30}px)`}}>
             <img src={spotlight.spotlightSplashImageUrl} className={classNames(classes.image, classes.imageFade, classes.splashImage)}/>
           </div>}
           {spotlight.spotlightImageId && <CloudinaryImage2
@@ -513,7 +524,7 @@ export const SpotlightItem = ({
         </div>
         <div className={classes.reviews}>
           {spotlight.document?.reviews?.map(review => <div key={review._id} className={classes.review}>
-            <CommentsNode comment={review} treeOptions={{forceSingleLine: true, hideSingleLineMeta: true}} nestingLevel={1}/>
+            <CommentsNode comment={review} treeOptions={{singleLineCollapse: true, forceSingleLine: true, hideSingleLineMeta: true}} nestingLevel={1}/>
           </div>)}
         </div>
         {hideBanner && (

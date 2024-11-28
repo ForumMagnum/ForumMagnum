@@ -428,7 +428,7 @@ const Layout = ({currentUser, children, classes}: {
   );
 
   let headerBackgroundColor: ColorString;
-  // For the E   Wrapped page, we change the header's background color to a dark blue.
+  // For the EAF Wrapped page, we change the header's background color to a dark blue.
   if (pathname.startsWith('/wrapped')) {
     headerBackgroundColor = wrappedBackgroundColor;
   } else if (pathname.startsWith("/voting-portal")) {

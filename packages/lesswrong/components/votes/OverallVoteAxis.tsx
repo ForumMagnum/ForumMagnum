@@ -52,6 +52,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   tooltip: {
     transform: "translateY(-10px)",
   },
+  lwTooltip: {
+    transform: "translateY(-3px)",
+  },
   verticalArrows: {
     "& .LWTooltip-root": {
     },
@@ -178,7 +181,7 @@ const OverallVoteAxis = ({
         <LWTooltip
           title="LessWrong Karma"
           placement={tooltipPlacement}
-          className={classes.tooltip}
+          className={classes.lwTooltip}
         >
           <span className={classes.secondaryScore}>
             <span className={classes.secondarySymbol}>LW</span>

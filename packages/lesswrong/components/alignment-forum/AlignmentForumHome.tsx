@@ -6,7 +6,6 @@ import { useCurrentUser } from '../common/withUser';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 import AddIcon from '@material-ui/icons/Add';
 import { reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { DismissibleSpotlightItem } from '../spotlights/DismissibleSpotlightItem';
 
 const styles = (theme: ThemeType): JssStyles => ({
   frontpageSequencesGridList: {
@@ -19,21 +18,15 @@ const styles = (theme: ThemeType): JssStyles => ({
 const AlignmentForumHome = ({classes}: {
   classes: ClassesType
 }) => {
-  const { SingleColumnSection, SectionTitle, FrontpageReviewWidget, PostsList2, SectionButton, RecentDiscussionThreadsList, CuratedSequences, EAPopularCommentsSection, ReviewWinnerItem } = Components
+  const { SingleColumnSection, SectionTitle, FrontpageReviewWidget, PostsList2, SectionButton, RecentDiscussionThreadsList, EAPopularCommentsSection, RotatingReviewWinnerSpotlight } = Components
   const currentUser = useCurrentUser();
 
   let recentPostsTerms = {view: 'new', limit: 10, forum: true, af: true} as const;
 
   return (
     <div className="alignment-forum-home">
-      {/* <SingleColumnSection>
-        <SectionTitle title="Recommended Sequences"/>
-        <div className={classes.frontpageSequencesGridList}>
-          <CuratedSequences />
-        </div>
-      </SingleColumnSection> */}
       <SingleColumnSection>
-        <ReviewWinnerItem />
+        <RotatingReviewWinnerSpotlight />
       </SingleColumnSection>
 
       {reviewIsActive() && <SingleColumnSection>
