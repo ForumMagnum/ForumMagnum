@@ -104,16 +104,14 @@ export const ReviewPhaseInformation = ({classes, reviewYear, reviewPhase}: {
 
   if (reviewPhase === "NOMINATIONS") {
     return <ContentStyles contentType="comment" className={classes.root}>
-        <p>During the <em>Nomination Voting Phase</em>, eligible users are encouraged to:</p>
+        <p>During the <em>Nomination Voting Phase:</em></p>
         <ul>
-          <li>
-            Vote on posts that represent important intellectual progress.
-          </li>
-          <li>Write short reviews that explain why those posts seem important</li>
-        </ul> 
-        <p>Posts with at least one positive vote will appear on this page, to the right. Posts with at least one review are sorted to the top, to make them easier to vote on.</p>
+          <li><b>Vote</b> on posts that represent important intellectual progress.</li>
+          <li><b>Write short reviews</b> that explain why those posts seem important. <em>(Reviewed posts are sorted to the top of this page)</em></li>
+          <p>Posts with at least one positive vote will appear on this page, to the right. Posts with at least one review are sorted to the top.</p>
+        </ul>
   
-        <p>At the end of the Nomination Voting phase, the LessWrong team will publish a ranked list of the results. This will help inform how to spend attention during <em>the Review Phase</em>. High-ranking, undervalued or controversial posts can get additional focus.</p>
+        <p>After the Nomination Voting phase, you'll see a ranked list of results, to help inform how to spend allocate time during <em>the Review Phase</em>. High-ranking, undervalued or controversial posts can get additional focus.</p>
         
         <div>
           <p><b>FAQ</b></p>
