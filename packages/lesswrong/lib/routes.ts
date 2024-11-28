@@ -1146,6 +1146,14 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       navigationFooterBar: true,
     },
     {
+      name: 'bestoflesswrong',
+      path: '/bestoflesswrong',
+      componentName: 'TopPostsPage',
+      title: "The Best of LessWrong",
+      background: "#f8f4ee",
+      ...leastWrongSubtitle,
+    },
+    {
       name:'about',
       path:'/about',
       componentName: 'PostsSingleRoute',

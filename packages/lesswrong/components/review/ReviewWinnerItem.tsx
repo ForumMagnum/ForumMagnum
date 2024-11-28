@@ -1,63 +1,59 @@
 // TODO: Import component in components.ts
-import React, { useEffect, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
-import { useTracking } from "../../lib/analyticsEvents";
-import { useMulti } from '@/lib/crud/withMulti';
-import { ReviewWinners } from '@/lib/collections/reviewWinners/collection';
-import { reviewYears } from '@/lib/reviewUtils';
-import { REVIEW_WINNER_CACHE } from '@/lib/collections/reviewWinners/cache';
+import React from 'react';
+import { Components, fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
+import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { gql, useQuery } from '@apollo/client';
+import { GetAllReviewWinnersQueryResult } from '../sequences/TopPostsPage';
+import { useSingle } from '@/lib/crud/withSingle';
 
-const styles = (theme: ThemeType) => ({
-  root: {
-
-  }
-});
-
-const getTodayReviewInfo = (category: string) => {
-
-
-
+const getTodayReviewInfo = (reviewWinners: GetAllReviewWinnersQueryResult, category: string) => {
   const date = new Date()
-  const reviewWinners = REVIEW_WINNER_CACHE.reviewWinners
-  const afReviewWinners = reviewWinners.filter(reviewWinner => reviewWinner.reviewWinner.category === "ai safety")
+  const categoryReviewWinners = reviewWinners.filter(reviewWinner => reviewWinner.reviewWinner.category === category)
 
-  const totalWinners = afReviewWinners.length;
-
+  const totalWinners = categoryReviewWinners.length;
+  if (totalWinners === 0) return null;
   // Calculate an index based on the date
-  const startDate = new Date('2024-01-02'); // Set a fixed start date
+  const startDate = new Date('2024-01-01');
   const daysSinceStart = Math.floor(
     (date.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
   );
   const index = ((daysSinceStart % totalWinners) + totalWinners) % totalWinners; // Ensure non-negative index
+  const selectedWinner = categoryReviewWinners[index];
 
-  const selectedWinner = reviewWinners[index];
-
-  return {
-    reviewYear: selectedWinner.reviewWinner?.reviewYear,
-    reviewRanking: selectedWinner.reviewWinner?.reviewRanking,
-  };
+  return selectedWinner;
 };
 
-export const ReviewWinnerItem = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
-  const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
+export const ReviewWinnerItem = () => {
+  const { SpotlightItem } = Components
   const category = "ai safety"
-  const { reviewYear, reviewRanking } = getTodayReviewInfo(category);
+  const { data } = useQuery(
+    gql`
+      query GetAllReviewWinners {
+        GetAllReviewWinners {
+          ...PostForReviewWinnerItem
+        }
+      }
+      ${fragmentTextForQuery('PostForReviewWinnerItem')}
+    `,
+  )
+  const reviewWinnersWithPosts: GetAllReviewWinnersQueryResult = [...data?.GetAllReviewWinners ?? []];
+  const winner = getTodayReviewInfo(reviewWinnersWithPosts, category);
 
-  const { results } = useMulti({
-    collectionName: "ReviewWinners",
-    fragmentName: "ReviewWinnerTopPostsDisplay",
-    terms: { view: "reviewWinners", category, reviewYear, reviewRanking, limit: 1 },
+  const { document } = useSingle({
+    documentId: winner?.spotlight?._id,
+    collectionName: "Spotlights",
+    fragmentName: 'SpotlightDisplay',
+    skip: !winner?.spotlight?._id,
+    ssr: true,
   });
-  const winner = results?.[0]
+  if (!document) return null;
 
-  return <div className={classes.root}>
-    {winner?.post?.title}
-  </div>;
+  return <AnalyticsContext pageSectionContext="reviewWinnerItem">
+    <SpotlightItem spotlight={document}/>
+  </AnalyticsContext>
 }
 
-const ReviewWinnerItemComponent = registerComponent('ReviewWinnerItem', ReviewWinnerItem, {styles});
+const ReviewWinnerItemComponent = registerComponent('ReviewWinnerItem', ReviewWinnerItem);
 
 declare global {
   interface ComponentTypes {

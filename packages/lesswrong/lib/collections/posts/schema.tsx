@@ -3111,6 +3111,23 @@ const schema: SchemaType<"Posts"> = {
     canUpdate: [userOwns, "admins"],
     ...schemaDefaultValue(false)
   },
+  reviews: resolverOnlyField({
+    type: Array,
+    graphQLtype: "[Comment]",
+    canRead: ['guests'],
+    graphqlArguments: 'commentsLimit: Int, maxAgeHours: Int, af: Boolean',
+    // commentsLimit for some reason can receive a null (which was happening in one case)
+    // we haven't figured out why yet
+    resolver: async (post: DbPost, args: {}, context: ResolverContext) => {
+      const { currentUser, Comments } = context;
+      const reviews = await context.Comments.find({postId: post._id, baseScore: {$gte: 10}, reviewingForReview: {$ne: null}}, {sort: {baseScore: -1}, limit: 2}).fetch();
+      return await accessFilterMultiple(currentUser, Comments, reviews, context);
+    }
+  }),
+  'reviews.$': {
+    type: Object,
+    foreignKey: 'Comments',
+  },
 };
 
 export default schema;
