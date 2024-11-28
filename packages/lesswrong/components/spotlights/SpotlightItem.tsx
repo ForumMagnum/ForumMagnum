@@ -63,7 +63,6 @@ const styles = (theme: ThemeType) => ({
   spotlightItem: {
     position: "relative",
     borderRadius: theme.borderRadius.default,
-    background: theme.palette.panelBackground.default,
     '&:hover': {
       boxShadow: theme.palette.boxShadow.sequencesGridItemHover,
     },
@@ -72,7 +71,12 @@ const styles = (theme: ThemeType) => ({
     },
     '&:hover $closeButton': {
       color: theme.palette.grey[100],
+      background: theme.palette.panelBackground.default,
     }
+  },
+  contentContainer: {
+    position: "relative",
+    background: theme.palette.panelBackground.default,
   },
   spotlightFadeBackground: {
     background: "var(--spotlight-fade)",
@@ -346,6 +350,8 @@ const styles = (theme: ThemeType) => ({
   reviews: {
     width: "100%",
     borderTop: theme.palette.border.extraFaint,
+    background: theme.palette.panelBackground.default,
+    marginLeft: 4,
     [theme.breakpoints.down('xs')]: {
       display: "none",
     }
@@ -370,9 +376,6 @@ const styles = (theme: ThemeType) => ({
     '& .comments-node-root': {
       backgroundColor: 'unset',
     },
-  },
-  contentContainer: {
-    position: "relative",
   }
 });
 

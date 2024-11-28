@@ -3120,16 +3120,7 @@ const schema: SchemaType<"Posts"> = {
       const { currentUser, Comments } = context;
       const reviews = await context.Comments.find({postId: post._id, baseScore: {$gte: 10}, reviewingForReview: {$ne: null}}, {sort: {baseScore: -1}, limit: 2}).fetch();
       return await accessFilterMultiple(currentUser, Comments, reviews, context);
-    },
-    sqlResolver: ({ field }) => `(
-      SELECT Comments.*
-      FROM "Comments"
-      WHERE Comments."postId" = ${field('_id')}
-      AND Comments."baseScore" >= 10
-      AND Comments."reviewingForReview" IS NOT NULL
-      ORDER BY Comments."baseScore" DESC
-      LIMIT 2
-    )`
+    }
   }),
   'reviews.$': {
     type: Object,
