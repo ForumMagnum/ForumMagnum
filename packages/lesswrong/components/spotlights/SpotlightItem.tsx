@@ -335,6 +335,9 @@ const styles = (theme: ThemeType) => ({
     width: "100%",
     height: "100%",
     overflow: "hidden",
+    [theme.breakpoints.down('xs')]: {
+      height: "100% !important",
+    }
   },
   reverseIcon: {
     transform: "rotate(180deg)",
@@ -342,6 +345,9 @@ const styles = (theme: ThemeType) => ({
   reviews: {
     width: "100%",
     borderTop: theme.palette.border.extraFaint,
+    [theme.breakpoints.down('xs')]: {
+      display: "none",
+    }
   },
   review: {
     '&& .CommentFrame-node': {
