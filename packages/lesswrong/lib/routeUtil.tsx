@@ -118,6 +118,7 @@ const LwAfDomainWhitelist: DomainList = {
     "lesswrong.com",
     "lesserwrong.com",
     "lessestwrong.com",
+    "baserates.org",
     "alignmentforum.org",
     "alignment-forum.com",
     `localhost:${getCommandLineArguments().port}`,
