@@ -200,3 +200,6 @@ export const commentPermalinkStyleSetting = new DatabasePublicSetting<'top' | 'i
 export const userIdsWithAccessToLlmChat = new DatabasePublicSetting<string[]>('llmChat.userIds', []);
 
 export const textReplacementsSetting = new DatabasePublicSetting<Record<string, string>>('textReplacements', {});
+
+export const lightconeInfrastructureFundraiserUnsyncedAmount = new DatabasePublicSetting<number>('lightconeInfrastructureFundraiserUnsyncedAmount', 0);
+export const lightconeInfrastructureFundraiserPaymentLinkId = new DatabasePublicSetting<string>('lightconeInfrastructureFundraiserPaymentLinkId', '');

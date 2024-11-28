@@ -1233,3 +1233,5 @@ importComponent("GlossaryEditFormWrapper", () => require('../components/jargon/G
 importComponent("GlossaryEditFormNewPost", () => require('../components/jargon/GlossaryEditFormNewPost'));
 importComponent("EditUserJargonSettings", () => require('../components/jargon/EditUserJargonSettings'));
 importComponent("PostsWithApprovedJargonPage", () => require('../components/jargon/PostsWithApprovedJargonPage'));
+
+importComponent("FundraisingThermometer", () => require('../components/common/FundraisingThermometer'));

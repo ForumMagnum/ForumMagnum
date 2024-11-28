@@ -39,7 +39,7 @@ const getStructuredData = () => ({
 
 const LWHome = () => {
   const { DismissibleSpotlightItem, RecentDiscussionFeed, AnalyticsInViewTracker, FrontpageReviewWidget,
-    SingleColumnSection, FrontpageBestOfLWWidget, EAPopularCommentsSection,
+    SingleColumnSection, FrontpageBestOfLWWidget, EAPopularCommentsSection, FundraisingThermometer,
     QuickTakesSection, LWHomePosts, HeadTags
   } = Components;
 
@@ -55,6 +55,9 @@ const LWHome = () => {
           {reviewIsActive() && getReviewPhase() !== "RESULTS" && showReviewOnFrontPageIfActive.get() && <SingleColumnSection>
             <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
           </SingleColumnSection>}
+          <SingleColumnSection>
+            <FundraisingThermometer goalAmount={1_000_000} />
+          </SingleColumnSection>
           <SingleColumnSection>
             <DismissibleSpotlightItem current/>
           </SingleColumnSection> 
