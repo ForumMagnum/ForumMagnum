@@ -6,14 +6,6 @@ import {gql, NetworkStatus, useQuery} from '@apollo/client'
 import moment from 'moment'
 
 const styles = (theme: ThemeType): JssStyles => ({
-  empty: {
-    color: theme.palette.grey[600],
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    fontWeight: 500,
-    fontSize: 14,
-    lineHeight: "1.6em",
-    marginBottom: 40,
-  },
   loadMore: {
     marginTop: 10
   },
@@ -25,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-interface FilterReadHistory {
+export interface FilterPostsForReview {
   startDate?: Date
   endDate?: Date
   minKarma?: number
@@ -35,13 +27,13 @@ interface FilterReadHistory {
 const useUserReadHistory = ({currentUser, limit, filter, sort}: {
   currentUser: UsersCurrent | null,
   limit: number,
-  filter?: FilterReadHistory,
+  filter?: FilterPostsForReview,
   sort?: {
     karma?: boolean,
   },
 }) => {
   const {data, loading, fetchMore, networkStatus} = useQuery(gql`
-      query getReadHistory($limit: Int, $filter: UserReadHistoryFilter, $sort: UserReadHistorySort) {
+      query getReadHistory($limit: Int, $filter: PostReviewFilter, $sort: PostReviewSort) {
         UserReadHistory(limit: $limit, filter: $filter, sort: $sort) {
           posts {
             ...PostsListWithVotes
@@ -70,7 +62,7 @@ const useUserReadHistory = ({currentUser, limit, filter, sort}: {
 const ReadHistoryTab = ({classes, groupByDate = true, filter, sort}: {
   classes: ClassesType,
   groupByDate?: boolean,
-  filter?: FilterReadHistory,
+  filter?: FilterPostsForReview,
   sort?: {
     karma?: boolean,
   },
@@ -87,7 +79,7 @@ const ReadHistoryTab = ({classes, groupByDate = true, filter, sort}: {
     sort,
   })
 
-  const {SectionTitle, Loading, PostsItem, LoadMore} = Components
+  const {SectionTitle, Loading, PostsItem, LoadMore, Typography} = Components
   
   const readHistory: (PostsListWithVotes & {lastVisitedAt: Date})[] = data?.UserReadHistory?.posts
   
@@ -98,7 +90,7 @@ const ReadHistoryTab = ({classes, groupByDate = true, filter, sort}: {
     return null;
   }
   if (!readHistory.length) {
-    return <div className={classes.empty}>{"You haven't read any posts yet."}</div>
+    return <Typography variant="body2">{"You haven't read any posts yet."}</Typography>
   }
   
   // group the posts by last read "Today", "Yesterday", and "Older"

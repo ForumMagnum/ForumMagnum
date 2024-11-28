@@ -1,40 +1,52 @@
-import { Posts } from '../../lib/collections/posts/collection';
-import { sideCommentFilterMinKarma, sideCommentAlwaysExcludeKarma } from '../../lib/collections/posts/constants';
-import { Comments } from '../../lib/collections/comments/collection';
-import { SideCommentsResolverResult, getLastReadStatus, sideCommentCacheVersion } from '../../lib/collections/posts/schema';
-import { augmentFieldsDict, denormalizedField, accessFilterMultiple } from '../../lib/utils/schemaUtils'
-import { getLocalTime } from '../mapsUtils'
-import { canUserEditPostMetadata, extractGoogleDocId, isNotHostedHere } from '../../lib/collections/posts/helpers';
-import { matchSideComments } from '../sideComments';
-import { captureException } from '@sentry/core';
-import { getToCforPost } from '../tableOfContents';
-import { getDefaultViewSelector } from '../../lib/utils/viewUtils';
-import keyBy from 'lodash/keyBy';
-import GraphQLJSON from 'graphql-type-json';
-import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema, createMutator } from '../vulcan-lib';
-import { postIsCriticism } from '../languageModels/criticismTipsBot';
-import { createPaginatedResolver } from './paginatedResolver';
-import { getDefaultPostLocationFields, getDialogueResponseIds, getDialogueMessageTimestamps, getPostHTML } from "../posts/utils";
-import { buildRevision } from '../editor/make_editable_callbacks';
-import { cheerioParse } from '../utils/htmlUtil';
-import { isDialogueParticipant } from '../../components/posts/PostsPage/PostsPage';
-import { marketInfoLoader } from '../../lib/collections/posts/annualReviewMarkets';
-import { getWithCustomLoader } from '../../lib/loaders';
-import { isLWorAF, isAF, twitterBotKarmaThresholdSetting } from '../../lib/instanceSettings';
-import { hasSideComments } from '../../lib/betas';
-import SideCommentCaches from '../../lib/collections/sideCommentCaches/collection';
-import { drive } from "@googleapis/drive";
-import { convertImportedGoogleDoc } from '../editor/conversionUtils';
-import Revisions from '../../lib/collections/revisions/collection';
-import { randomId } from '../../lib/random';
-import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
-import { canAccessGoogleDoc, getGoogleDocImportOAuthClient } from '../posts/googleDocImport';
-import { GoogleDocMetadata, getLatestContentsRevision } from '../../lib/collections/revisions/helpers';
-import { RecommendedPost, recombeeApi, recombeeRequestHelpers } from '../recombee/client';
-import { HybridRecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
-import { googleVertexApi } from '../google-vertex/client';
-import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
-import {FilterReadHistory} from '@/server/repos/PostsRepo'
+import {Posts} from '../../lib/collections/posts/collection'
+import {sideCommentAlwaysExcludeKarma, sideCommentFilterMinKarma} from '../../lib/collections/posts/constants'
+import {Comments} from '../../lib/collections/comments/collection'
+import {
+  getLastReadStatus,
+  sideCommentCacheVersion,
+  SideCommentsResolverResult,
+} from '../../lib/collections/posts/schema'
+import {accessFilterMultiple, augmentFieldsDict, denormalizedField} from '../../lib/utils/schemaUtils'
+import {getLocalTime} from '../mapsUtils'
+import {canUserEditPostMetadata, extractGoogleDocId, isNotHostedHere} from '../../lib/collections/posts/helpers'
+import {matchSideComments} from '../sideComments'
+import {captureException} from '@sentry/core'
+import {getToCforPost} from '../tableOfContents'
+import {getDefaultViewSelector} from '../../lib/utils/viewUtils'
+import keyBy from 'lodash/keyBy'
+import GraphQLJSON from 'graphql-type-json'
+import {addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema, createMutator} from '../vulcan-lib'
+import {postIsCriticism} from '../languageModels/criticismTipsBot'
+import {createPaginatedResolver} from './paginatedResolver'
+import {
+  getDefaultPostLocationFields,
+  getDialogueMessageTimestamps,
+  getDialogueResponseIds,
+  getPostHTML,
+} from '../posts/utils'
+import {buildRevision} from '../editor/make_editable_callbacks'
+import {cheerioParse} from '../utils/htmlUtil'
+import {isDialogueParticipant} from '../../components/posts/PostsPage/PostsPage'
+import {marketInfoLoader} from '../../lib/collections/posts/annualReviewMarkets'
+import {getWithCustomLoader} from '../../lib/loaders'
+import {isAF, isLWorAF, twitterBotKarmaThresholdSetting} from '../../lib/instanceSettings'
+import {hasSideComments} from '../../lib/betas'
+import SideCommentCaches from '../../lib/collections/sideCommentCaches/collection'
+import {drive} from '@googleapis/drive'
+import {convertImportedGoogleDoc} from '../editor/conversionUtils'
+import Revisions from '../../lib/collections/revisions/collection'
+import {randomId} from '../../lib/random'
+import {getLatestRev, getNextVersion, htmlToChangeMetrics} from '../editor/utils'
+import {canAccessGoogleDoc, getGoogleDocImportOAuthClient} from '../posts/googleDocImport'
+import {getLatestContentsRevision, GoogleDocMetadata} from '../../lib/collections/revisions/helpers'
+import {recombeeApi, recombeeRequestHelpers, RecommendedPost} from '../recombee/client'
+import {
+  HybridRecombeeConfiguration,
+  RecombeeRecommendationArgs,
+} from '../../lib/collections/users/recommendationSettings'
+import {googleVertexApi} from '../google-vertex/client'
+import {userCanDo, userIsAdmin} from '../../lib/vulcan-users/permissions'
+import {FilterPostsForReview} from '@/components/bookmarks/ReadHistoryTab'
 
 augmentFieldsDict(Posts, {
   // Compute a denormalized start/end time for events, accounting for the
@@ -367,7 +379,7 @@ addGraphQLResolvers({
       root: void,
       args: {
         limit: number,
-        filter?: FilterReadHistory,
+        filter?: FilterPostsForReview,
         sort?: {
           karma?: boolean,
         },
@@ -383,6 +395,26 @@ addGraphQLResolvers({
         posts: filteredPosts,
       }
     },
+    async PostsUserCommentedOn(
+      root: void,
+      {limit = 20, filter, sort}: { 
+        limit: number, 
+        filter?: FilterPostsForReview, 
+        sort?: { karma?: boolean } 
+      },
+      context: ResolverContext,
+    ) {
+      const {currentUser, repos} = context
+      if (!currentUser) {
+        throw new Error('Must be logged in to view posts user commented on')
+      }
+
+      const posts = await repos.posts.getPostsUserCommentedOn(currentUser._id, limit, filter, sort)
+      return {
+        posts: await accessFilterMultiple(currentUser, Posts, posts, context)
+      }
+    },
+
     async PostIsCriticism(root: void, { args }: { args: PostIsCriticismRequest }, context: ResolverContext) {
       const { currentUser } = context
       if (!currentUser) {
@@ -425,15 +457,6 @@ addGraphQLResolvers({
           rating: 0
         }
       })
-    },
-    async UsersReadPostsOfTargetUser(root: void, { userId, targetUserId, limit = 20 }: { userId: string, targetUserId: string, limit: number }, context: ResolverContext) {
-      const { currentUser, repos } = context
-      if (!currentUser) {
-        throw new Error('Must be logged in to view read posts of target user')
-      }
-
-      const posts = await repos.posts.getUsersReadPostsOfTargetUser(userId, targetUserId, limit)
-      return await accessFilterMultiple(currentUser, Posts, posts, context)
     },
     async CanAccessGoogleDoc(root: void, { fileUrl }: { fileUrl: string }, context: ResolverContext) {
       const { currentUser } = context
@@ -581,14 +604,19 @@ addGraphQLSchema(`
   }
 `)
 addGraphQLSchema(`
-  input UserReadHistoryFilter {
+  type PostsUserCommentedOnResult {
+    posts: [Post!]
+  }
+`);
+addGraphQLSchema(`
+  input PostReviewFilter {
     startDate: Date
     endDate: Date
     minKarma: Int
     showEvents: Boolean
   }
 
-  input UserReadHistorySort {
+  input PostReviewSort {
     karma: Boolean
   }
 `)
@@ -596,10 +624,19 @@ addGraphQLSchema(`
 addGraphQLQuery(`
   UserReadHistory(
     limit: Int, 
-    filter: UserReadHistoryFilter, 
-    sort: UserReadHistorySort
+    filter: PostReviewFilter, 
+    sort: PostReviewSort
   ): UserReadHistoryResult
 `)
+
+addGraphQLQuery(`
+  PostsUserCommentedOn(
+    limit: Int, 
+    filter: PostReviewFilter, 
+    sort: PostReviewSort
+  ): UserReadHistoryResult
+`)
+
 addGraphQLQuery('PostIsCriticism(args: JSON): Boolean')
 
 addGraphQLSchema(`

@@ -6,6 +6,7 @@ import { getViewablePostsSelector } from "./helpers";
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collection";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { isAF } from "../../lib/instanceSettings";
+import {FilterPostsForReview} from '@/components/bookmarks/ReadHistoryTab'
 
 type DbPostWithContents = DbPost & {contents?: DbRevision | null};
 
@@ -42,12 +43,21 @@ export type PostAndCommentsResultRow = {
   last_commented: Date|null
 };
 
-export interface FilterReadHistory {
-  startDate?: Date
-  endDate?: Date
-  minKarma?: number
-  showEvents?: boolean
+const constructFilters = ({ startDate, endDate, minKarma, showEvents }: FilterPostsForReview): [string, Record<string, any>] => {
+  const params = {
+    ...(startDate && { startDate: startDate.toISOString() }),
+    ...(endDate && { endDate: endDate.toISOString() }),
+    ...(minKarma && { minKarma }),
+  };
+
+  const startDateFilter = startDate ? `AND p."postedAt" >= $(startDate) ` : '';
+  const endDateFilter = endDate ? `AND p."postedAt" <= $(endDate) ` : '';
+  const baseScoreFilter = minKarma ? `AND p."baseScore" >= $(minKarma) ` : '';
+  const showEventsFilter = showEvents === false ? 'AND p."isEvent" IS NOT TRUE' : '';
+
+  return [`${startDateFilter}${endDateFilter}${baseScoreFilter}${showEventsFilter}`, params];
 }
+
 
 class PostsRepo extends AbstractRepo<"Posts"> {
   constructor() {
@@ -125,38 +135,54 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     `, [], "getMeanKarmaOverall");
     return result?.meanKarma ?? 0;
   }
-
+  
   async getReadHistoryForUser(
     userId: string,
     limit: number,
-    filter: FilterReadHistory = {},
+    filter: FilterPostsForReview = {},
     sort: {
       karma?: boolean
     } = {}
   ): Promise<Array<DbPost & { lastUpdated: Date }>> {
-    const {startDate, endDate, minKarma, showEvents} = filter;
-
-    const startDateFilter = startDate ? `AND p."postedAt" >= '${startDate.toISOString()}' ` : '';
-    const endDateFilter = endDate ? `AND p."postedAt" <= '${endDate.toISOString()}' ` : '';
-    const baseScoreFilter = minKarma ? `AND p."baseScore" >= ${minKarma} ` : '';
-    const showEventsFilter = showEvents === false ? 'AND p."isEvent" IS NOT TRUE' : '';
-
     const orderBy = sort.karma ? 'p."baseScore" DESC' : 'rs."lastUpdated" DESC';
+    const [filters, params] = constructFilters(filter);
 
     return await this.getRawDb().manyOrNone(`
       -- PostsRepo.getReadHistoryForUser
       SELECT p.*, rs."lastUpdated"
       FROM "Posts" p
       JOIN "ReadStatuses" rs ON rs."postId" = p."_id"
-      WHERE rs."userId" = '${userId}'
-      ${startDateFilter}
-      ${endDateFilter}
-      ${baseScoreFilter}
-      ${showEventsFilter}
+      WHERE rs."userId" = $(userId)
+      ${filters}
       ORDER BY ${orderBy}
-      LIMIT $1
-    `, [limit], 'getReadHistoryForUser')
+      LIMIT $(limit)
+    `, {userId, limit, ...params}, 'getReadHistoryForUser')
   }
+
+  async getPostsUserCommentedOn(
+    userId: string,
+    limit = 20,
+    filter: FilterPostsForReview = {},
+    sort: {
+      karma?: boolean
+    } = {}
+  ): Promise<DbPost[]> {
+    const orderBy = sort.karma ? 'ORDER BY p."baseScore" DESC' : '';
+    const [filters, params] = constructFilters(filter);
+
+    return this.getRawDb().manyOrNone(`
+      -- PostsRepo.getPostsUserCommentedOn
+      SELECT DISTINCT p.*
+      FROM "Posts" p
+      INNER JOIN "Comments" c ON c."postId" = p._id
+      WHERE
+          c."userId" = $(userId)
+          ${filters}
+      ${orderBy}
+      LIMIT $(limit)
+    `, { userId, limit, ...params }, 'getPostsUserCommentedOn');
+  }
+
 
   async getEligiblePostsForDigest(digestId: string, startDate: Date, endDate?: Date): Promise<Array<PostAndDigestPost>> {
     const end = endDate ?? new Date()

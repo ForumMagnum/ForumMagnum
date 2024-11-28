@@ -4,7 +4,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 
 const UserSuggestNominations = () => {
-    const { SectionTitle, SingleColumnSection, ErrorBoundary, PostsByVoteWrapper , ReadHistoryTab} = Components
+    const { SectionTitle, SingleColumnSection, ErrorBoundary, PostsByVoteWrapper , ReadHistoryTab, PostsListUserCommentedOn} = Components
     const currentUser = useCurrentUser()
 
     const { params } = useLocation();
@@ -29,7 +29,11 @@ const UserSuggestNominations = () => {
         <PostsByVoteWrapper voteType="smallUpvote" year={year}/>
       </SingleColumnSection>
       <SingleColumnSection>
-        <SectionTitle title={`Posts you've read from ${year}`}/>
+        <SectionTitle title={`Posts from ${year} you've commented on`}/>
+        <PostsListUserCommentedOn filter={{startDate, endDate, showEvents: false}} sort={{karma: true}} />
+      </SingleColumnSection>  
+      <SingleColumnSection>
+        <SectionTitle title={`Posts from ${year} you've read`}/>
         <ReadHistoryTab groupByDate={false} filter={{startDate, endDate, showEvents: false}} sort={{karma: true}} />
       </SingleColumnSection>
     </ErrorBoundary>

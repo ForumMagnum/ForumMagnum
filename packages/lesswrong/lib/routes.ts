@@ -347,7 +347,7 @@ addRoute(
     name: 'votesByYear',
     path: '/votesByYear/:year',
     componentName: 'UserSuggestNominations',
-    title: "Your Past Votes"
+    title: "Posts you've engaged with"
   },
 );
 
