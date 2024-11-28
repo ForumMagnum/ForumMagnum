@@ -34,6 +34,7 @@ import { RecommendedPost, recombeeApi, recombeeRequestHelpers } from '../recombe
 import { HybridRecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
 import { googleVertexApi } from '../google-vertex/client';
 import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
+import {FilterReadHistory} from '@/server/repos/PostsRepo'
 
 augmentFieldsDict(Posts, {
   // Compute a denormalized start/end time for events, accounting for the
@@ -362,14 +363,22 @@ export type PostIsCriticismRequest = {
 
 addGraphQLResolvers({
   Query: {
-    async UserReadHistory(root: void, args: {limit: number|undefined}, context: ResolverContext) {
-      const { currentUser, repos } = context
+    async UserReadHistory(
+      root: void,
+      args: {
+        limit: number,
+        filter?: FilterReadHistory,
+        sort?: {
+          karma?: boolean,
+        },
+      }, context: ResolverContext) {
+      const {currentUser, repos} = context
       if (!currentUser) {
         throw new Error('Must be logged in to view read history')
       }
 
-      const posts = await repos.posts.getReadHistoryForUser(currentUser._id, args.limit ?? 10)
-      const filteredPosts = accessFilterMultiple(currentUser, Posts, posts, context);
+      const posts = await repos.posts.getReadHistoryForUser(currentUser._id, args.limit ?? 10, args.filter, args.sort)
+      const filteredPosts = accessFilterMultiple(currentUser, Posts, posts, context)
       return {
         posts: filteredPosts,
       }
@@ -571,7 +580,26 @@ addGraphQLSchema(`
     posts: [Post!]
   }
 `)
-addGraphQLQuery('UserReadHistory(limit: Int): UserReadHistoryResult')
+addGraphQLSchema(`
+  input UserReadHistoryFilter {
+    startDate: Date
+    endDate: Date
+    minKarma: Int
+    showEvents: Boolean
+  }
+
+  input UserReadHistorySort {
+    karma: Boolean
+  }
+`)
+
+addGraphQLQuery(`
+  UserReadHistory(
+    limit: Int, 
+    filter: UserReadHistoryFilter, 
+    sort: UserReadHistorySort
+  ): UserReadHistoryResult
+`)
 addGraphQLQuery('PostIsCriticism(args: JSON): Boolean')
 
 addGraphQLSchema(`

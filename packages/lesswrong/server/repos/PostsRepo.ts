@@ -42,6 +42,13 @@ export type PostAndCommentsResultRow = {
   last_commented: Date|null
 };
 
+export interface FilterReadHistory {
+  startDate?: Date
+  endDate?: Date
+  minKarma?: number
+  showEvents?: boolean
+}
+
 class PostsRepo extends AbstractRepo<"Posts"> {
   constructor() {
     super(Posts);
@@ -119,16 +126,36 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     return result?.meanKarma ?? 0;
   }
 
-  async getReadHistoryForUser(userId: string, limit: number): Promise<Array<DbPost & {lastUpdated: Date}>> {
+  async getReadHistoryForUser(
+    userId: string,
+    limit: number,
+    filter: FilterReadHistory = {},
+    sort: {
+      karma?: boolean
+    } = {}
+  ): Promise<Array<DbPost & { lastUpdated: Date }>> {
+    const {startDate, endDate, minKarma, showEvents} = filter;
+
+    const startDateFilter = startDate ? `AND p."postedAt" >= '${startDate.toISOString()}' ` : '';
+    const endDateFilter = endDate ? `AND p."postedAt" <= '${endDate.toISOString()}' ` : '';
+    const baseScoreFilter = minKarma ? `AND p."baseScore" >= ${minKarma} ` : '';
+    const showEventsFilter = showEvents === false ? 'AND p."isEvent" IS NOT TRUE' : '';
+
+    const orderBy = sort.karma ? 'p."baseScore" DESC' : 'rs."lastUpdated" DESC';
+
     return await this.getRawDb().manyOrNone(`
       -- PostsRepo.getReadHistoryForUser
       SELECT p.*, rs."lastUpdated"
       FROM "Posts" p
       JOIN "ReadStatuses" rs ON rs."postId" = p."_id"
       WHERE rs."userId" = '${userId}'
-      ORDER BY rs."lastUpdated" desc
+      ${startDateFilter}
+      ${endDateFilter}
+      ${baseScoreFilter}
+      ${showEventsFilter}
+      ORDER BY ${orderBy}
       LIMIT $1
-    `, [limit], "getReadHistoryForUser");
+    `, [limit], 'getReadHistoryForUser')
   }
 
   async getEligiblePostsForDigest(digestId: string, startDate: Date, endDate?: Date): Promise<Array<PostAndDigestPost>> {
