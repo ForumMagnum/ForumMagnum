@@ -42,6 +42,7 @@ import { stableSortTags } from '../tags/helpers';
 import { getLatestContentsRevision } from '../revisions/helpers';
 import { marketInfoLoader } from './annualReviewMarkets';
 import { getUnusedSlugByCollectionName } from '@/lib/helpers';
+import { CurationNotices } from '../curationNotices/collection';
 
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
@@ -584,6 +585,7 @@ const schema: SchemaType<"Posts"> = {
       resolver: (revisionsField) => revisionsField("wordCount"),
     }),
   }),
+
   // DEPRECATED field for GreaterWrong backwards compatibility
   htmlBody: resolverOnlyField({
     type: String,
@@ -3110,6 +3112,24 @@ const schema: SchemaType<"Posts"> = {
     canRead: ['members'],
     canUpdate: [userOwns, "admins"],
     ...schemaDefaultValue(false)
+  },
+  
+  curationNotices: resolverOnlyField({
+    type: Array,
+    graphQLtype: '[CurationNotice]',
+    canRead: ['guests'],
+    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+      const { currentUser, CurationNotices } = context;
+      const curationNotices = await CurationNotices.find({
+        postId: post._id,
+        deleted: { $ne: true },
+      }).fetch();
+      return await accessFilterMultiple(currentUser, CurationNotices, curationNotices, context);
+    }
+  }),
+  'curationNotices.$': {
+    type: Object,
+    foreignKey: 'CurationNotices',
   },
 };
 
