@@ -48,6 +48,7 @@ const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: 12,
     boxShadow: theme.palette.boxShadow.default,
+    overflow: "hidden", // prevent background image from overflowing if we get styling mismatches in the future, since it depends on the exact height of the review SingleLineComment
     // TODO these were added to fix an urgent bug, hence the forum gating. Maybe they could be un-gated
     ...(isFriendlyUI && {
       maxWidth: SECTION_WIDTH,
