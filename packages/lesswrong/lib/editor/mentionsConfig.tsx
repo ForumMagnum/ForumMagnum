@@ -1,11 +1,11 @@
-import {getSearchClient, getSearchIndexName, SearchIndexCollectionName} from '../search/searchUtil'
+import { getSearchClient, getSearchIndexName } from '../search/searchUtil'
 import {Components, getSiteUrl} from '../vulcan-lib'
 import React from 'react'
 import {createRoot} from 'react-dom/client'
 import {userGetDisplayName} from '../collections/users/helpers'
 import {userMentionQueryString} from '../pingback'
-import type {Response} from 'algoliasearch'
 import {taggingNamePluralSetting} from '@/lib/instanceSettings'
+import { filterNonnull } from '../utils/typeGuardUtils'
 
 const markers = {
   post: '@',
@@ -15,77 +15,62 @@ const markers = {
 
 const linkPrefix = getSiteUrl()
 
-function initSearchForIndex<T>(collectionName: SearchIndexCollectionName) {
-  const indexName = getSearchIndexName(collectionName)
-  const searchClient = getSearchClient()
-
-  return async (query: string): Promise<Response<T> | null> => {
-    const response = await searchClient.search<T>([{
-      indexName,
-      query,
-      params: {
-        query,
-        hitsPerPage: 6,
-      },
-    }])
-    return response?.results?.[0]
+const formatSearchHit = (hit: SearchUser | SearchPost | SearchTag) => {
+  switch (hit._index) {
+    case "users":
+      const displayName = markers.user + userGetDisplayName(hit);
+      return {
+        type: "Users",
+        id: displayName,
+        // Query string is intended for later use in detecting the ping
+        link: `${linkPrefix}users/${hit.slug}?${userMentionQueryString}`,
+        text: displayName,
+        hit: {
+          ...hit,
+          displayName: "👤 " + userGetDisplayName(hit),
+        },
+      };
+    case "posts":
+      return {
+        type: "Posts",
+        // What gets displayed in the dropdown results, must have postMarker
+        id: markers.post + hit.title,
+        link: `${linkPrefix}posts/${hit._id}/${hit.slug}`,
+        text: hit.title,
+        hit,
+      };
+    case "tags":
+      return {
+        type: "Tags",
+        id: markers.tag + hit.name,
+        link: `${linkPrefix}${taggingNamePluralSetting.get()}/${hit.slug}`,
+        text: hit.name,
+        hit,
+      };
+    default:
+      return null;
   }
 }
 
-async function fetchPostSuggestions(searchString: string) {
-  const search = initSearchForIndex<SearchPost>('Posts')
-  const searchResults = await search(searchString)
+const collectionNames = ["Posts", "Users", "Tags"] as const;
 
-  return searchResults?.hits.map(hit => ({
-    type: 'Posts',
-    id: markers.post + hit.title, //what gets displayed in the dropdown results, must have postMarker 
-    link: `${linkPrefix}posts/${hit._id}/${hit.slug}`,
-    text: hit.title,
-    hit,
-  })) || []
+const fetchMentionableSuggestions = async (searchString: string) => {
+  const indexName = collectionNames.map(getSearchIndexName).join(",");
+  const searchClient = getSearchClient();
+  const response = await searchClient.search<SearchUser | SearchPost | SearchTag>([{
+    indexName,
+    query: searchString,
+    params: {
+      query: searchString,
+      hitsPerPage: 7,
+    },
+  }])
+  const hits = response?.results?.[0]?.hits;
+  return Array.isArray(hits) ? filterNonnull(hits.map(formatSearchHit)) : [];
 }
-
-async function fetchUserSuggestions(searchString: string) {
-  const search = initSearchForIndex<SearchUser>('Users')
-  const searchResults = await search(searchString)
-
-  return searchResults?.hits.map(hit => {
-    const displayName = markers.user + userGetDisplayName(hit)
-    return ({
-      type: 'Users',
-      id: displayName,
-      // Query string is intended for later use in detecting the ping
-      link: `${linkPrefix}users/${hit.slug}?${userMentionQueryString}`,
-      text: displayName,
-      hit: {
-        ...hit,
-        displayName: '👤 ' + userGetDisplayName(hit),
-      },
-    })
-  }) || []
-}
-
-async function fetchTagSuggestions(searchString: string) {
-  const search = initSearchForIndex<SearchTag>('Tags')
-  const searchResults = await search(searchString)
-
-  return searchResults?.hits.map(hit => ({
-    type: 'Tags',
-    id: markers.tag + hit.name,
-    link: `${linkPrefix}${taggingNamePluralSetting.get()}/${hit.slug}`,
-    text: hit.name,
-    hit,
-  })) || []
-}
-
-const fetchMentionableSuggestions = async (searchString: string) => [
-  ...(await fetchUserSuggestions(searchString)),
-  ...(await fetchTagSuggestions(searchString)),
-  ...(await fetchPostSuggestions(searchString)),
-]
 
 interface MentionItem {
-  type: 'Users' | 'Posts' | 'Tags'
+  type: typeof collectionNames[number]
   id: string
   text: string
   link: string
