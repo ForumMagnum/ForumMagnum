@@ -192,17 +192,10 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     flexDirection: 'column',
     gap: '4px',
     [theme.breakpoints.down('sm')]: {
-      minWidth: '30%',
-      maxWidth: '30%',
+      minWidth: '25%',
+      maxWidth: '40%',
+      flexGrow: 1,
       gap: '0px',
-      '&:not(:has(.TagPage-selectedLens))': {
-        boxShadow: `${theme.palette.grey[400]} 2px 2px 1px`,
-      },
-      '&:has(.TagPage-selectedLens)': {
-        marginBottom: -1,
-        marginRight: -1,
-        boxShadow: `${theme.palette.grey[400]} 1px 1px 1px`,
-      },
     },
   },
   aboveLensTab: {
@@ -227,11 +220,12 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   },
   lensTabRootOverride: {
     [theme.breakpoints.down('sm')]: {
-      // maxWidth: 'unset',
       minHeight: 'unset',
       height: '100%',
       paddingTop: 2,
       paddingBottom: 2,
+      borderTopLeftRadius: theme.borderRadius.small * 2,
+      borderTopRightRadius: theme.borderRadius.small * 2,
     },
   },
   tabLabelContainerOverride: {
@@ -299,8 +293,11 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   },
   nonSelectedLens: {
     background: theme.palette.panelBackground.tagLensTab,
-    borderStyle: 'solid',
-    borderColor: theme.palette.background.transparent,
+    // Needed to avoid annoying shifting of other tabs when one is selected
+    [theme.breakpoints.up('md')]: {
+      borderStyle: 'solid',
+      borderColor: theme.palette.background.transparent,
+    }
   },
   hideMuiTabIndicator: {
     display: 'none',
