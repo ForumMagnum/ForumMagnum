@@ -957,7 +957,7 @@ const TagPage = () => {
           centralColumn: tagPostsAndCommentsSection,
         },
       ]}
-      tocRowMap={[1, 1, 1, 1]}
+      tocRowMap={[0, 1, 1, 1]}
     />
   );
   

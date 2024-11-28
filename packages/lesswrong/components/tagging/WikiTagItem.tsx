@@ -341,20 +341,20 @@ const WikiTagItem = ({ page, nestingLevel, options = {} }: WikiTagItemProps) => 
 
   return (
     <div className={classes.root}>
-      <TagsTooltip tagSlug={page.newSlug || page.title} noPrefetch className={classes.tooltip}>
-        <div className={classes.item}>
-          <div
-            className={classNames(classes.collapse, { [classes.collapseInvisible]: !hasChildren })}
-            onClick={hasChildren ? toggleCollapse : undefined}
-          >
-            <ForumIcon
-              icon="SoftUpArrow"
-              className={classNames(
-                classes.collapseChevron,
-                !collapsed && classes.collapseChevronOpen
-              )}
-            />
-          </div>
+      <div className={classes.item}>
+        <div
+          className={classNames(classes.collapse, { [classes.collapseInvisible]: !hasChildren })}
+          onClick={hasChildren ? toggleCollapse : undefined}
+        >
+          <ForumIcon
+            icon="SoftUpArrow"
+            className={classNames(
+              classes.collapseChevron,
+              !collapsed && classes.collapseChevronOpen
+            )}
+          />
+        </div>
+        <TagsTooltip tagSlug={page.newSlug || page.title} noPrefetch className={classes.tooltip}>
           {/* Title and One-liner */}
           <div className={classes.titleAndOneLiner}>
             <div className={classes.titleRow}>
@@ -381,14 +381,14 @@ const WikiTagItem = ({ page, nestingLevel, options = {} }: WikiTagItemProps) => 
               {oneLinerText}
             </div>
           </div>
-          <div className={classes.rightSideItems}>
-            {commentCountNode}
-            <LWTooltip title={contributorsList}>
-              <div className={classes.mainAuthor}>{topContributor?.user?.displayName}</div>
-            </LWTooltip>
-          </div>
+        </TagsTooltip>
+        <div className={classes.rightSideItems}>
+          {commentCountNode}
+          <LWTooltip title={contributorsList}>
+            <div className={classes.mainAuthor}>{topContributor?.user?.displayName}</div>
+          </LWTooltip>
         </div>
-      </TagsTooltip>
+      </div>
 
       {/* Render Children using WikiTagNestedList */}
       {!collapsed && hasChildren && (
