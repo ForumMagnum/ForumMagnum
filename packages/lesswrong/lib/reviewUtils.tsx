@@ -54,7 +54,7 @@ const TIMEZONE_OFFSET = 8 // Pacific Time
 export const getReviewStart = (reviewYear: ReviewYear) => {
   const startDateString = isDevelopment
     ? `${reviewYear+1}-11-15`
-    : `${reviewYear+1}-12-01`; // Regular starting date on Dec 1
+    : `${reviewYear+1}-12-02`; // Regular starting date on Dec 2
   return moment.utc(startDateString).add(TIMEZONE_OFFSET, 'hours');
 };
 export const getNominationPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+1}-12-14`).add(TIMEZONE_OFFSET, 'hours')
