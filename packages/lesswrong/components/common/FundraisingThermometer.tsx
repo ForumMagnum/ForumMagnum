@@ -12,7 +12,7 @@ const styles = (theme: ThemeType) => ({
   thermometer: {
     width: '100%',
     height: '100px',
-    borderRadius: '15px',
+    borderRadius: '5px',
     position: 'relative',
     overflow: 'hidden',
     display: 'flex',
@@ -43,22 +43,17 @@ const styles = (theme: ThemeType) => ({
   },
   header: {
     fontSize: '2rem',
-    fontWeight: 'bold',
-    fontFamily: theme.typography.headerStyle.fontFamily,
-    padding: '0 15px',
     marginBottom: 0,  
   },
   subheader: {
     color: theme.palette.review.winner,
     fontSize: '1.2rem',
     fontFamily: theme.typography.headerStyle.fontFamily,
-    padding: '0 15px',
   },
   textContainer: {
     display: 'flex',
     justifyContent: 'space-between',
     width: '100%',
-    padding: '0 15px',
     fontFamily: theme.typography.body2.fontFamily,
     fontSize: '1.2rem',
   },
