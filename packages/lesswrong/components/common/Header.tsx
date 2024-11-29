@@ -13,7 +13,7 @@ import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import { PublicInstanceSetting, isEAForum, isLW } from '../../lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
-import { hasProminentLogoSetting, lightconeFundraiserUnsyncedAmount, lightconeFundraiserThermometerBgUrl, lightconeFundraiserThermometerGoalAmount } from '../../lib/publicSettings';
+import { hasProminentLogoSetting, lightconeFundraiserUnsyncedAmount, lightconeFundraiserThermometerBgUrl, lightconeFundraiserThermometerGoalAmount, lightconeFundraiserActive, lightconeFundraiserPostId } from '../../lib/publicSettings';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentForumEvent } from '../hooks/useCurrentForumEvent';
 import { makeCloudinaryImageUrl } from './CloudinaryImage2';
@@ -154,6 +154,11 @@ export const styles = (theme: ThemeType) => ({
   },
   titleSubtitleContainer: {
     display: 'flex',
+    alignItems: 'center'
+  },
+  titleFundraiserContainer: {
+    display: 'flex',
+    flexDirection: 'row',
     alignItems: 'center'
   },
   title: {
@@ -306,6 +311,19 @@ export const styles = (theme: ThemeType) => ({
     flex: 1,
     justifyContent: "flex-end",
   },
+  lightconeFundraiserHeaderItem: {
+    color: theme.palette.review.winner,
+    fontFamily: theme.typography.headerStyle.fontFamily,
+    fontSize: '1.4rem',
+    marginLeft: theme.spacing.unit,
+  },
+  lightconeFundraiserHeaderItemSmall: {
+    color: theme.palette.review.winner,
+    fontFamily: theme.typography.headerStyle.fontFamily,
+    fontSize: '1.4rem',
+    fontWeight: 600,
+    marginLeft: theme.spacing.unit,
+  },
 });
 
 const Header = ({
@@ -366,8 +384,7 @@ const Header = ({
   const unsyncedAmount = lightconeFundraiserUnsyncedAmount.get();
   const currentAmount = unsyncedAmount + stripeTotal;
   const goalAmount = lightconeFundraiserThermometerGoalAmount.get();
-  // const percentage = Math.min((currentAmount / goalAmount) * 100, 100);
-  const percentage = useLivePercentage();
+  const percentage = Math.min((currentAmount / goalAmount) * 100, 100);
 
   const setNavigationOpen = (open: boolean) => {
     setNavigationOpenState(open);
@@ -577,12 +594,6 @@ const Header = ({
             )}
             style={headerStyle}
           >
-            {isLW && (
-              <>
-                <div className={classes.lightconeFundraiserBackground} style={{width: `${percentage}%`, backgroundSize: `${100*100/percentage}% auto`}} />
-                <div className={classNames(classes.lightconeFundraiserBackground, classes.lightconeFundraiserBackgroundBlurred)} />
-              </>
-            )}
             {isGivingSeason && !unFixed && currentRoute?.name === "home" &&
               <div>
                 {events.map(({name, background}) => (
@@ -611,18 +622,22 @@ const Header = ({
               <Typography className={classes.title} variant="title">
                 <div className={classes.hideSmDown}>
                   <div className={classes.titleSubtitleContainer}>
-                    <Link to="/" className={classes.titleLink}>
-                      {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaWhite={useWhiteText}/></div>}
-                      {forumHeaderTitleSetting.get()}
-                    </Link>
+                    <div className={classes.titleFundraiserContainer}>
+                      <Link to="/" className={classes.titleLink}>
+                        {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaWhite={useWhiteText}/></div>}
+                        {forumHeaderTitleSetting.get()}
+                      </Link>
+                      {isLW && lightconeFundraiserActive.get() && <div className={classes.lightconeFundraiserHeaderItem}><Link to={`/posts/${lightconeFundraiserPostId.get()}`}> is fundraising!</Link></div>}
+                    </div>
                     <HeaderSubtitle />
                   </div>
                 </div>
-                <div className={classes.hideMdUp}>
+                <div className={classNames(classes.hideMdUp, classes.titleFundraiserContainer)}>
                   <Link to="/" className={classes.titleLink}>
                     {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaWhite={useWhiteText}/></div>}
                     {forumShortTitleSetting.get()}
                   </Link>
+                  {isLW && lightconeFundraiserActive.get() && <div className={classes.lightconeFundraiserHeaderItemSmall}><Link to={`/posts/${lightconeFundraiserPostId.get()}`}>$</Link></div>}
                 </div>
               </Typography>
               {!isEAForum &&<ActiveDialogues />}

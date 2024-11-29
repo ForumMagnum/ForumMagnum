@@ -20,7 +20,7 @@ export const useFundraiserStripeTotal = () => {
   return stripeTotal;
 }
 
-export const useGetPercentage = (goalAmount: number) => {
+export const useFundraiserPercentage = (goalAmount: number) => {
   const stripeTotal = useFundraiserStripeTotal();
   const unsyncedAmount = lightconeFundraiserUnsyncedAmount.get();
   const currentAmount = unsyncedAmount + stripeTotal;

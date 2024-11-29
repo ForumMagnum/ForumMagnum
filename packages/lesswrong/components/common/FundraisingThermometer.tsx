@@ -1,10 +1,8 @@
 import { registerComponent } from '@/lib/vulcan-lib';
 import React, { useEffect, useState } from 'react';
-import { useTheme } from '../themes/useTheme';
-import { lightconeFundraiserThermometerBgUrl, lightconeFundraiserUnsyncedAmount } from '@/lib/publicSettings';
-import { gql, useQuery } from '@apollo/client';
+import { lightconeFundraiserPostId, lightconeFundraiserThermometerBgUrl, lightconeFundraiserUnsyncedAmount } from '@/lib/publicSettings';
 import { Link } from '@/lib/reactRouterWrapper';
-import { useFundraiserStripeTotal, useLivePercentage } from '@/lib/lightconeFundraiser';
+import { useFundraiserPercentage, useFundraiserStripeTotal } from '@/lib/lightconeFundraiser';
 
 interface FundraisingThermometerProps {
   goalAmount: number;
@@ -105,15 +103,14 @@ const FundraisingThermometer: React.FC<FundraisingThermometerProps & {classes: C
   const stripeTotal = useFundraiserStripeTotal();
   const unsyncedAmount = lightconeFundraiserUnsyncedAmount.get();
   const currentAmount = unsyncedAmount + stripeTotal;
-  // const percentage = Math.min((currentAmount / goalAmount) * 100, 100);
-  const percentage = Math.min(useLivePercentage(), 100);
+  const percentage = useFundraiserPercentage(goalAmount);
 
 
   return (
     <div className={classes.fundraiserContainer}>
       <div className={classes.fundraiserHeader}>
         <div className={classes.fundraiserHeaderText}>
-          <h2 className={classes.header}>Lightcone Infrastructure fundraiser progress</h2>
+          <h2 className={classes.header}><Link to={`/posts/${lightconeFundraiserPostId.get()}`}>Lightcone Infrastructure fundraiser progress</Link></h2>
           <h3 className={classes.subheader}>Goal 1: June</h3>
         </div>
         <div className={classes.fundraiserHeaderDonateButton}>

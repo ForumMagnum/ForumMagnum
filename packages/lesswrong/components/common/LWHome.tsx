@@ -2,7 +2,7 @@ import { combineUrls, Components, getSiteUrl, registerComponent } from '../../li
 import React, { useEffect } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { showReviewOnFrontPageIfActive, lightconeFundraiserThermometerGoalAmount } from '../../lib/publicSettings';
+import { showReviewOnFrontPageIfActive, lightconeFundraiserThermometerGoalAmount, lightconeFundraiserActive } from '../../lib/publicSettings';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../lib/cookies/cookies';
 import moment from 'moment';
@@ -55,12 +55,12 @@ const LWHome = () => {
           {reviewIsActive() && getReviewPhase() !== "RESULTS" && showReviewOnFrontPageIfActive.get() && <SingleColumnSection>
             <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
           </SingleColumnSection>}
-          <SingleColumnSection>
+          {lightconeFundraiserActive.get() && <SingleColumnSection>
             <FundraisingThermometer goalAmount={lightconeFundraiserThermometerGoalAmount.get()} />
-          </SingleColumnSection>
-          <SingleColumnSection>
+          </SingleColumnSection>}
+          {!lightconeFundraiserActive.get() && !reviewIsActive() && <SingleColumnSection>
             <DismissibleSpotlightItem current/>
-          </SingleColumnSection> 
+          </SingleColumnSection>}
           <AnalyticsInViewTracker
             eventProps={{inViewType: "homePosts"}}
             observerProps={{threshold:[0, 0.5, 1]}}
