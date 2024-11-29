@@ -7,8 +7,17 @@ import {
   viewBasedSubquery,
 } from "../utils/feedUtil";
 import ElectionVotes from "@/lib/collections/electionVotes/collection";
-import { ACTIVE_DONATION_ELECTION, DONATION_ELECTION_AGE_CUTOFF } from "@/lib/givingSeason";
+import { ACTIVE_DONATION_ELECTION, DONATION_ELECTION_AGE_CUTOFF, donationElectionVotingOpenSetting } from "@/lib/givingSeason";
 import { instantRunoffAllPossibleResults, IRVote } from "@/lib/givingSeason/instantRunoff";
+import { memoizeWithExpiration } from "@/lib/utils/memoizeWithExpiration";
+
+const getVoteCounts = async () => {
+  const dbVotes = await ElectionVotes.find({ electionName: ACTIVE_DONATION_ELECTION }).fetch();
+  const votes: IRVote[] = dbVotes.map((vote) => vote.vote);
+  return instantRunoffAllPossibleResults(votes as IRVote[]);
+};
+
+const voteCountsWithCache = memoizeWithExpiration(getVoteCounts, 60 * 1000);
 
 addGraphQLResolvers({
   Query: {
@@ -22,10 +31,7 @@ addGraphQLResolvers({
       _args: {},
       _context: ResolverContext,
     ) => {
-      const dbVotes = await ElectionVotes.find({ electionName: ACTIVE_DONATION_ELECTION }).fetch();
-      const votes: IRVote[] = dbVotes.map((vote) => vote.vote);
-
-      return instantRunoffAllPossibleResults(votes as IRVote[]);
+      return voteCountsWithCache.get();
     },
     GivingSeason2024MyVote: async (
       _root: void,
@@ -48,6 +54,9 @@ addGraphQLResolvers({
       {vote}: {vote: Record<string, number>},
       {currentUser, repos}: ResolverContext,
     ) => {
+      if (!donationElectionVotingOpenSetting.get()) {
+        throw new Error("Voting has closed");
+      }
       if (
         !currentUser ||
         currentUser.banned ||

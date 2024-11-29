@@ -18,6 +18,7 @@ export const CommentsSortBySelector = ({setRestoreScrollPos}: {
 
   const sortByOptions = [
     {value: "top", label: "Top"},
+    {value: "magic", label: "Magic (New & Upvoted)"},
     {value: "new", label: "Newest"},
     {value: "old", label: "Oldest"},
     {value: "recentComments", label: "Recent Replies"}
