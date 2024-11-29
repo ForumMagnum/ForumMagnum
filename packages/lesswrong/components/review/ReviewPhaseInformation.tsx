@@ -107,8 +107,9 @@ export const ReviewPhaseInformation = ({classes, reviewYear, reviewPhase}: {
         <p>During the <em>Nomination Voting Phase:</em></p>
         <ul style={{marginLeft: -12}}>
           <li>Cast <em>Nomination Votes</em> on posts that represent important intellectual progress.</li>
-          <li>Write <em>short reviews</em> that explain why those posts seem important. <em>(Reviewed posts are sorted to the top of this page)</em></li>
+          <li>Write <em>short reviews</em> that explain why those posts seem important.</li>
           <li>Posts with at least 1 Nomination Vote will appear on this page, to the right. Posts with at least one review are sorted to the top.</li>
+          <li>Posts with at least 2 positive votes and at least 4 points will proceed to the Review Phase.</li>
         </ul>
   
         <p>On {getNominationPhaseEnd(reviewYear).format("MMM Do")}, you'll see the initial voting results, to help allocate time during <em>the Review Phase</em>.</p>
