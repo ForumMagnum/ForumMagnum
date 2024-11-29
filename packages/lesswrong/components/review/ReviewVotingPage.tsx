@@ -11,16 +11,13 @@ import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 import seedrandom from '../../lib/seedrandom';
 import { eligibleToNominate, getCostData, getReviewPhase, ReviewPhase, getReviewYearFromString } from '../../lib/reviewUtils';
 import { forumTypeSetting } from '../../lib/instanceSettings';
-import Select from '@material-ui/core/Select';
 import { randomId } from '../../lib/random';
 import { useLocation } from '../../lib/routeUtil';
 import { voteTooltipType } from './ReviewVoteTableRow';
-import qs from 'qs';
-import { Link, useNavigate } from '../../lib/reactRouterWrapper';
 import filter from 'lodash/filter';
 import { fieldIn } from '../../lib/utils/typeGuardUtils';
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import { getVotePower } from '../../lib/voting/vote';
+import {tagStyle} from '@/components/tagging/FooterTag.tsx'
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 const isLW = forumTypeSetting.get() === 'LessWrong'
@@ -217,6 +214,29 @@ const styles = (theme: ThemeType): JssStyles => ({
       boxShadow: "unset"
     }
   },
+  statusFilter: {
+    ...tagStyle(theme),
+    backgroundColor: theme.palette.background.pageActiveAreaBackground,
+    marginTop: 2,
+    marginBottom: 2,
+  },
+  filters: {
+    display: "flex",
+    alignItems: "center",
+    flexWrap: "wrap",
+  },
+  filterSelected: {
+    backgroundColor: theme.palette.grey[700],
+    color: theme.palette.background.pageActiveAreaBackground
+  },
+  separator: {
+    color: theme.palette.grey[400],
+    marginLeft: 5,
+    marginRight: 5,
+    [theme.breakpoints.down('sm')]: {
+      display: "none",
+    }
+  }
 });
 
 export type SyntheticReviewVote = {postId: string, score: number, type: 'QUALITATIVE' | 'QUADRATIC'}
@@ -241,7 +261,18 @@ export const generatePermutation = (count: number, user: UsersCurrent|null): Arr
 const ReviewVotingPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { ReviewVotingExpandedPost, ReviewVoteTableRow, FrontpageReviewWidget, SingleColumnSection, ReviewPhaseInformation, ReviewDashboardButtons, ReviewVotingPageMenu, PostsTagsList } = Components
+  const {
+    ReviewVotingExpandedPost,
+    ReviewVoteTableRow,
+    FrontpageReviewWidget,
+    SingleColumnSection,
+    ReviewPhaseInformation,
+    ReviewDashboardButtons,
+    ReviewVotingPageMenu,
+    PostsTagsList,
+    TabPicker,
+    LWTooltip,
+  } = Components
 
   const currentUser = useCurrentUser()
   const { captureEvent } = useTracking({eventType: "reviewVotingEvent"})
@@ -281,6 +312,7 @@ const ReviewVotingPage = ({classes}: {
   const [sortedPosts, setSortedPosts] = useState(postsResults)
   const [loading, setLoading] = useState(false)
   const [tagFilter, setTagFilter] = useState<string|null>(null)
+  const [statusFilter, setStatusFilter] = useState<string|null>('read')
   const [expandedPost, setExpandedPost] = useState<PostsReviewVotingList|null>(null)
   const [showKarmaVotes] = useState<any>(true)
   const [postsHaveBeenSorted, setPostsHaveBeenSorted] = useState(false)
@@ -290,6 +322,14 @@ const ReviewVotingPage = ({classes}: {
       setTagFilter(null)
     } else {
       setTagFilter(tagId)
+    }
+  }
+
+  const handleStatusFilter = (status: string) => {
+    if (statusFilter === status) {
+      setStatusFilter(null)
+    } else {
+      setStatusFilter(status)
     }
   }
 
@@ -443,15 +483,15 @@ const ReviewVotingPage = ({classes}: {
         return 0
       })
       .map(([post, _]) => post)
-      
-      const filteredPosts = tagFilter ? filter(newlySortedPosts, post => post.tags.map(tag=>tag._id).includes(tagFilter)) : newlySortedPosts
 
+    const tagFilteredPosts = tagFilter ? filter(newlySortedPosts, post => post.tags.map(tag => tag._id).includes(tagFilter)) : newlySortedPosts
+    const filteredPosts = filter(tagFilteredPosts, post => statusFilter === 'read' ? post.lastVisitedAt !== null : true);
 
     setSortedPosts(filteredPosts)
     setPostsHaveBeenSorted(true)
     captureEvent(undefined, {eventSubType: "postsResorted"})
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser, captureEvent, canInitialResort])
+  }, [currentUser, captureEvent, canInitialResort, statusFilter])
   
   useEffect(() => {
     setCostTotal(getCostTotal(postsResults))
@@ -459,7 +499,7 @@ const ReviewVotingPage = ({classes}: {
 
   useEffect(() => {
     reSortPosts(sortPosts, sortReversed, tagFilter)
-  }, [canInitialResort, reSortPosts, sortPosts, sortReversed, tagFilter])
+  }, [canInitialResort, reSortPosts, sortPosts, sortReversed, tagFilter, statusFilter])
 
   if (!reviewYear) return <SingleColumnSection>
   {params.year} is not a valid review year.
@@ -493,11 +533,24 @@ const ReviewVotingPage = ({classes}: {
         </div>
         <div className={classes.rightColumn}>
           <ReviewVotingPageMenu reviewPhase={reviewPhase} loading={loading} sortedPosts={sortedPosts} costTotal={costTotal} setSortPosts={setSortPosts} sortPosts={sortPosts} sortReversed={sortReversed} setSortReversed={setSortReversed} postsLoading={postsLoading} postsResults={postsResults} />
-          <PostsTagsList 
-            posts={postsResults}
-            currentFilter={tagFilter} 
-            handleFilter={(tagId) => handleTagFilter(tagId)}
-          />
+
+          <div className={classes.filters}>
+            <LWTooltip title="Only show the post you've read">
+              <div className={classNames(classes.statusFilter, {[classes.filterSelected]: statusFilter === 'read'})}
+                   onClick={() => handleStatusFilter('read')}>
+                Read
+              </div>
+            </LWTooltip>
+
+            <span className={classes.separator}>{' '}•{' '}</span>
+
+            <PostsTagsList
+              posts={postsResults}
+              currentFilter={tagFilter}
+              handleFilter={(tagId) => handleTagFilter(tagId)}
+              defaultMax={5}
+            />
+          </div>
 
           <div className={classNames({[classes.postList]: reviewPhase !== "VOTING", [classes.postLoading]: postsLoading || loading})}>
             {postsHaveBeenSorted && sortedPosts?.map((post) => {
