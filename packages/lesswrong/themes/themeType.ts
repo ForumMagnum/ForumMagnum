@@ -476,6 +476,7 @@ declare global {
       contrastInDarkMode: ColorString,
       pageActiveAreaBackground: ColorString,
       translucentBackground: ColorString,
+      translucentBackgroundHeavy: ColorString,
       loginBackdrop: ColorString,
       diffInserted: ColorString,
       diffDeleted: ColorString,
