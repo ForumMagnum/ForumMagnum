@@ -275,16 +275,6 @@ export const styles = (theme: ThemeType) => ({
     backgroundRepeat: "no-repeat",
     backgroundBlendMode: "darken",
   },
-  lightconeFundraiserBackground: {
-    backgroundImage: `url(${lightconeFundraiserThermometerBgUrl.get()})`,  
-    mixBlendMode: 'lighten',
-    position: 'absolute',
-    inset: 0,
-    borderRight: 'black 2px solid'
-  },
-  lightconeFundraiserBackgroundBlurred: {
-    filter: 'blur(10px)',
-  },
   gsBackgroundActive: {
     opacity: 1,
   },
