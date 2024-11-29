@@ -8,8 +8,9 @@ import {AnalyticsContext} from '@/lib/analyticsEvents'
 import {preferredHeadingCase} from '@/themes/forumTheme'
 import withErrorBoundary from '@/components/common/withErrorBoundary'
 import moment from 'moment'
+import qs from 'qs'
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   headline: {
     color: theme.palette.grey[1000],
     marginBottom: 20,
@@ -30,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const dateStr = (startDate?: Date) =>
   startDate ? moment(startDate).format('YYYY-MM-DD') : ''
 
-const UserSuggestNominations = ({classes}: { classes: ClassesType }) => {
+const UserSuggestNominations = ({classes}: { classes: ClassesType<typeof styles> }) => {
   const currentUser = useCurrentUser()
   const navigate = useNavigate()
   const {params, location, query} = useLocation()
@@ -58,10 +59,14 @@ const UserSuggestNominations = ({classes}: { classes: ClassesType }) => {
   const endDate = year === before2020 ? new Date(2020, 0, 1) : new Date(year + 1, 0, 1)
 
   const handleChangeTab = (e: React.ChangeEvent, value: string) => {
+    const newQuery = {
+      tab: value,
+      ...(value === 'all' && {after: dateStr(startDate), before: dateStr(endDate), timeframe: 'yearly'}),
+    }
+
     navigate({
       ...location,
-      search: `?tab=${value}` + 
-        (value === 'all' ? `&after=${(dateStr(startDate))}&before=${dateStr(endDate)}&timeframe=yearly` : ''),
+      search: `?${qs.stringify(newQuery)}`,
     })
   }
 

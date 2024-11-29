@@ -366,11 +366,11 @@ addGraphQLResolvers({
     async UserReadHistory(
       root: void,
       args: {
-        limit: number,
-        filter?: FilterPostsForReview,
-        sort?: {
+        limit: number | null,
+        filter: FilterPostsForReview | null,
+        sort: {
           karma?: boolean,
-        },
+        } | null,
       }, context: ResolverContext) {
       const {currentUser, repos} = context
       if (!currentUser) {
@@ -385,10 +385,10 @@ addGraphQLResolvers({
     },
     async PostsUserCommentedOn(
       root: void,
-      {limit = 20, filter, sort}: { 
-        limit: number, 
-        filter?: FilterPostsForReview, 
-        sort?: { karma?: boolean } 
+      {limit, filter, sort}: { 
+        limit: number | null, 
+        filter: FilterPostsForReview | null, 
+        sort: { karma?: boolean } | null 
       },
       context: ResolverContext,
     ) {
@@ -397,7 +397,7 @@ addGraphQLResolvers({
         throw new Error('Must be logged in to view posts user commented on')
       }
 
-      const posts = await repos.posts.getPostsUserCommentedOn(currentUser._id, limit, filter, sort)
+      const posts = await repos.posts.getPostsUserCommentedOn(currentUser._id, limit ?? 20, filter, sort)
       return {
         posts: await accessFilterMultiple(currentUser, Posts, posts, context)
       }

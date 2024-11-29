@@ -5,7 +5,7 @@ import {useCurrentUser} from '../common/withUser.tsx'
 import {gql, NetworkStatus, useQuery} from '@apollo/client'
 import {FilterPostsForReview} from '@/components/bookmarks/ReadHistoryTab.tsx'
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   loadMore: {
     marginTop: 10,
   },
@@ -49,7 +49,7 @@ const usePostsUserCommentedOn = ({currentUser, limit, filter, sort}: {
 }
 
 const PostsListUserCommentedOn = ({classes, filter, sort}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   filter?: FilterPostsForReview,
   sort?: {
     karma?: boolean,
