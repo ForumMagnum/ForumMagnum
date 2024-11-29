@@ -26,7 +26,7 @@ const styles = (theme: ThemeType) => ({
     left: 0,
     height: '100%',
     backgroundImage: `url(${lightconeFundraiserThermometerBgUrl.get()})`,
-    boxShadow: `5px 0px 10px #222`,
+    boxShadow: `5px 0px 10px ${theme.palette.fundraisingThermometer.shadow}`,
   },
   blurredUnfill: {
     position: 'absolute',
