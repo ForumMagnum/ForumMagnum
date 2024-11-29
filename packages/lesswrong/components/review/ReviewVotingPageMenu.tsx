@@ -243,7 +243,7 @@ export const ReviewVotingPageMenu = ({classes, reviewPhase, loading, sortedPosts
   const reviewedPostCount = <LWTooltip title="Posts need at least 1 review to enter the Final Voting Phase">
     {reviewedPosts?.length || 0} Reviewed Posts
   </LWTooltip> 
-  const nominatedPostCount = reviewPhase !== "VOTING" && <>{sortedPosts?.length ?? 0} Nominated</>
+  const nominatedPostCount = reviewPhase !== "VOTING" && <LWTooltip title={<div><div>{}</div></div>}>{sortedPosts?.length ?? 0} Nominated</LWTooltip>
 
   return <div>
           {reviewPhase === "VOTING" && currentUser?.noSingleLineComments && <ContentStyles contentType="comment" className={classes.singleLineWarning}>
