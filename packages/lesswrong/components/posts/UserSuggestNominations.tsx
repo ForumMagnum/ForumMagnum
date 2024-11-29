@@ -7,6 +7,7 @@ import Tab from '@material-ui/core/Tab';
 import {AnalyticsContext} from '@/lib/analyticsEvents'
 import {preferredHeadingCase} from '@/themes/forumTheme'
 import withErrorBoundary from '@/components/common/withErrorBoundary'
+import moment from 'moment'
 
 const styles = (theme: ThemeType): JssStyles => ({
   headline: {
@@ -26,6 +27,9 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 
+const dateStr = (startDate?: Date) =>
+  startDate ? moment(startDate).format('YYYY-MM-DD') : ''
+
 const UserSuggestNominations = ({classes}: { classes: ClassesType }) => {
   const currentUser = useCurrentUser()
   const navigate = useNavigate()
@@ -39,7 +43,8 @@ const UserSuggestNominations = ({classes}: { classes: ClassesType }) => {
     ReadHistoryTab,
     PostsListUserCommentedOn,
     Typography,
-    LWTooltip
+    LWTooltip,
+    AllPostsPage
   } = Components
 
   // Handle url-encoded special case, otherwise parseInt year
@@ -55,7 +60,8 @@ const UserSuggestNominations = ({classes}: { classes: ClassesType }) => {
   const handleChangeTab = (e: React.ChangeEvent, value: string) => {
     navigate({
       ...location,
-      search: `?tab=${value}`,
+      search: `?tab=${value}` + 
+        (value === 'all' ? `&after=${(dateStr(startDate))}&before=${dateStr(endDate)}&timeframe=yearly` : ''),
     })
   }
 
@@ -86,6 +92,11 @@ const UserSuggestNominations = ({classes}: { classes: ClassesType }) => {
           value="read"
           label={<LWTooltip title={`Posts from ${year} you've read`}>Read</LWTooltip>}
         />
+        <Tab
+          className={classes.tab}
+          value="all"
+          label={<LWTooltip title={`All posts from ${year}`}>All Posts</LWTooltip>}
+        />
       </Tabs>
 
       {(activeTab === 'votes') && <>
@@ -104,6 +115,9 @@ const UserSuggestNominations = ({classes}: { classes: ClassesType }) => {
         <SectionTitle title={`Posts from ${year} you've read`}/>
         <ReadHistoryTab groupByDate={false} filter={{startDate, endDate, showEvents: false}} sort={{karma: true}}/>
       </>}
+
+      {activeTab === 'all' && <AllPostsPage/>}
+      
     </SingleColumnSection>
   </AnalyticsContext>
 }
