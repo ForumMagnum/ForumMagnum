@@ -233,8 +233,6 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
       {activeRange === "REVIEWS" && <div><em>{voteEndDate.fromNow()} remaining</em></div>}
     </>
 
-  const allEligiblePostsUrl = `/allPosts?timeframe=yearly&after=${reviewYear}-01-01&before=${reviewYear+1}-01-01&limit=100&sortedBy=top&filter=all&includeShortform=false`
-  
   const reviewPostPath = annualReviewAnnouncementPostPathSetting.get()
   if (!reviewPostPath) {
     // eslint-disable-next-line no-console
