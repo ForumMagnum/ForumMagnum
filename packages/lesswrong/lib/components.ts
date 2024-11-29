@@ -720,7 +720,9 @@ importComponent("PostsSearchAutoComplete", () => require('../components/search/P
 importComponent("CommentsSearchHit", () => require('../components/search/CommentsSearchHit'));
 importComponent("ExpandedCommentsSearchHit", () => require('../components/search/ExpandedCommentsSearchHit'));
 importComponent("UsersSearchHit", () => require('../components/search/UsersSearchHit'));
-importComponent("UsersSearchAutocompleteHit", () => require('../components/search/UsersSearchAutocompleteHit'));
+importComponent("UserMentionHit", () => require('../components/search/UserMentionHit'));
+importComponent("PostMentionHit", () => require('../components/search/PostMentionHit'));
+importComponent("TagMentionHit", () => require('../components/search/TagMentionHit'));
 importComponent("ExpandedUsersSearchHit", () => require('../components/search/ExpandedUsersSearchHit'));
 importComponent("ExpandedUsersConversationSearchHit", () => require('../components/search/ExpandedUsersConversationSearchHit'));
 importComponent("TagsSearchHit", () => require('../components/search/TagsSearchHit'));
@@ -1233,5 +1235,6 @@ importComponent("GlossaryEditFormWrapper", () => require('../components/jargon/G
 importComponent("GlossaryEditFormNewPost", () => require('../components/jargon/GlossaryEditFormNewPost'));
 importComponent("EditUserJargonSettings", () => require('../components/jargon/EditUserJargonSettings'));
 importComponent("PostsWithApprovedJargonPage", () => require('../components/jargon/PostsWithApprovedJargonPage'));
+importComponent("RotatingReviewWinnerSpotlight", () => require('../components/review/RotatingReviewWinnerSpotlight'));
 
 importComponent("FundraisingThermometer", () => require('../components/common/FundraisingThermometer'));
