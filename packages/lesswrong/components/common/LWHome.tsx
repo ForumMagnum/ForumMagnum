@@ -2,7 +2,7 @@ import { combineUrls, Components, getSiteUrl, registerComponent } from '../../li
 import React, { useEffect } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { showReviewOnFrontPageIfActive } from '../../lib/publicSettings';
+import { showReviewOnFrontPageIfActive, lightconeFundraiserThermometerGoalAmount } from '../../lib/publicSettings';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../lib/cookies/cookies';
 import moment from 'moment';
@@ -56,7 +56,7 @@ const LWHome = () => {
             <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
           </SingleColumnSection>}
           <SingleColumnSection>
-            <FundraisingThermometer goalAmount={1_000_000} />
+            <FundraisingThermometer goalAmount={lightconeFundraiserThermometerGoalAmount.get()} />
           </SingleColumnSection>
           <SingleColumnSection>
             <DismissibleSpotlightItem current/>

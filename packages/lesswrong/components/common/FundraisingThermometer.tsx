@@ -1,14 +1,14 @@
 import { registerComponent } from '@/lib/vulcan-lib';
 import React, { useEffect, useState } from 'react';
 import { useTheme } from '../themes/useTheme';
-import { lightconeInfrastructureFundraiserUnsyncedAmount } from '@/lib/publicSettings';
+import { lightconeFundraiserThermometerBgUrl, lightconeFundraiserUnsyncedAmount } from '@/lib/publicSettings';
 import { gql, useQuery } from '@apollo/client';
+import { Link } from '@/lib/reactRouterWrapper';
+import { useFundraiserStripeTotal } from '@/lib/lightconeFundraiser';
 
 interface FundraisingThermometerProps {
   goalAmount: number;
 }
-
-const thermometerBgUrl = 'https://39669.cdn.cke-cs.com/rQvD3VnunXZu34m86e5f/images/7a9ab6c59013de7998ed469aaf231743140d306253d34cff.png/w_2460'
 
 const styles = (theme: ThemeType) => ({
   thermometer: {
@@ -28,7 +28,7 @@ const styles = (theme: ThemeType) => ({
     top: 0,
     left: 0,
     height: '100%',
-    backgroundImage: `url(${thermometerBgUrl})`,
+    backgroundImage: `url(${lightconeFundraiserThermometerBgUrl.get()})`,
     backgroundSize: 'auto 100%',
     backgroundPosition: '-150px',
     transition: 'width 0.5s ease-in-out',
@@ -49,7 +49,7 @@ const styles = (theme: ThemeType) => ({
     left: 0,
     width: '100%',
     height: '100%',
-    backgroundImage: `url(${thermometerBgUrl})`,
+    backgroundImage: `url(${lightconeFundraiserThermometerBgUrl.get()})`,
     backgroundSize: '765px',
     backgroundPosition: 'left',
     filter: 'blur(10px)',
@@ -85,29 +85,42 @@ const styles = (theme: ThemeType) => ({
   },
   raisedGoalNumber: {
     color: theme.palette.review.winner,
-  }
+  },
+  fundraiserHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  fundraiserHeaderDonateButton: {
+    padding: '10px 20px',
+    borderRadius: '5px',
+    marginRight: '3px',
+    fontSize: '1.6rem',
+    fontWeight: 'bold',
+    fontFamily: theme.typography.headerStyle.fontFamily,
+    color: theme.palette.review.winner,
+    background: theme.palette.inverseGreyAlpha(0.35),
+    backdropFilter: 'blur(3px)',
+  },
 });
 
 const FundraisingThermometer: React.FC<FundraisingThermometerProps & {classes: ClassesType}> = ({ goalAmount, classes }) => {
-  const { data } = useQuery(gql`
-    query Lightcone2024FundraiserStripeAmounts {
-      Lightcone2024FundraiserStripeAmounts
-    }   
-  `, {
-    ssr: true,
-  });
-
-  const stripeAmounts: number[] = data?.Lightcone2024FundraiserStripeAmounts || [];
-
-  const stripeTotal = Math.floor(stripeAmounts.reduce((a, b) => a + b, 0) / 100);
-  const unsyncedAmount = lightconeInfrastructureFundraiserUnsyncedAmount.get();
+  const stripeTotal = useFundraiserStripeTotal();
+  const unsyncedAmount = lightconeFundraiserUnsyncedAmount.get();
   const currentAmount = unsyncedAmount + stripeTotal;
   const percentage = Math.min((currentAmount / goalAmount) * 100, 100);
 
   return (
     <div className={classes.fundraiserContainer}>
-      <h2 className={classes.header}>Lightcone Infrastructure fundraiser progress</h2>
-      <h3 className={classes.subheader}>Goal 1: June</h3>
+      <div className={classes.fundraiserHeader}>
+        <div className={classes.fundraiserHeaderText}>
+          <h2 className={classes.header}>Lightcone Infrastructure fundraiser progress</h2>
+          <h3 className={classes.subheader}>Goal 1: June</h3>
+        </div>
+        <div className={classes.fundraiserHeaderDonateButton}>
+          <Link className={classes.fundraiserDonateText} to="https://lightconeinfrastructure.com/donate">Donate</Link>
+        </div>
+      </div>
       <div className={classes.thermometer}>
         <div className={classes.blurredUnfill}></div>
         <div className={classes.fill} style={{width: `${percentage}%`}}></div>

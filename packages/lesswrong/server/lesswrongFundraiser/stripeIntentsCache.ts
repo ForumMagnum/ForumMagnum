@@ -1,6 +1,6 @@
 import Stripe from 'stripe';
 import * as Sentry from '@sentry/node';
-import { lightconeInfrastructureFundraiserPaymentLinkId } from '@/lib/publicSettings';
+import { lightconeFundraiserPaymentLinkId } from '@/lib/publicSettings';
 import { lightconeFundraiserStripeSecretKeySetting } from '../serverSettings';
 export type SucceededPaymentIntent = Stripe.PaymentIntent & { status: 'succeeded' };
 
@@ -22,7 +22,7 @@ export async function updateStripeIntentsCache() {
 
     while (hasMore) {
       const sessions: Stripe.Response<Stripe.ApiList<Stripe.Checkout.Session>> = await stripe.checkout.sessions.list({
-        payment_link: lightconeInfrastructureFundraiserPaymentLinkId.get(),
+        payment_link: lightconeFundraiserPaymentLinkId.get(),
         limit: 100,
         starting_after: startingAfter,
         expand: ['data.payment_intent'],

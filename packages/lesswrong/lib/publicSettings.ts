@@ -201,5 +201,7 @@ export const userIdsWithAccessToLlmChat = new DatabasePublicSetting<string[]>('l
 
 export const textReplacementsSetting = new DatabasePublicSetting<Record<string, string>>('textReplacements', {});
 
-export const lightconeInfrastructureFundraiserUnsyncedAmount = new DatabasePublicSetting<number>('lightconeInfrastructureFundraiserUnsyncedAmount', 0);
-export const lightconeInfrastructureFundraiserPaymentLinkId = new DatabasePublicSetting<string>('lightconeInfrastructureFundraiserPaymentLinkId', '');
+export const lightconeFundraiserUnsyncedAmount = new DatabasePublicSetting<number>('lightconeFundraiser.unsyncedAmount', 0);
+export const lightconeFundraiserPaymentLinkId = new DatabasePublicSetting<string>('lightconeFundraiser.paymentLinkId', '');
+export const lightconeFundraiserThermometerBgUrl = new DatabasePublicSetting<string>('lightconeFundraiser.thermometerBgUrl', '');
+export const lightconeFundraiserThermometerGoalAmount = new DatabasePublicSetting<number>('lightconeFundraiser.thermometerGoalAmount', 0);

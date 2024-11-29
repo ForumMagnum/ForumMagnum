@@ -10,10 +10,10 @@ import { SidebarsContext } from './SidebarsWrapper';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
-import { PublicInstanceSetting, isEAForum } from '../../lib/instanceSettings';
+import { PublicInstanceSetting, isEAForum, isLW } from '../../lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
-import { hasProminentLogoSetting } from '../../lib/publicSettings';
+import { hasProminentLogoSetting, lightconeFundraiserUnsyncedAmount, lightconeFundraiserThermometerBgUrl, lightconeFundraiserThermometerGoalAmount } from '../../lib/publicSettings';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentForumEvent } from '../hooks/useCurrentForumEvent';
 import { makeCloudinaryImageUrl } from './CloudinaryImage2';
@@ -22,6 +22,7 @@ import {
   GIVING_SEASON_MOBILE_WIDTH,
   useGivingSeasonEvents,
 } from '../forumEvents/useGivingSeasonEvents';
+import { useFundraiserStripeTotal } from '@/lib/lightconeFundraiser';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
@@ -245,6 +246,7 @@ export const styles = (theme: ThemeType) => ({
       position: "fixed",
       transform: "translateY(0%)",
     },
+    overflow: 'hidden',
   },
   headroomPinnedOpen: {
     "& .headroom--unpinned": {
@@ -267,6 +269,17 @@ export const styles = (theme: ThemeType) => ({
     backgroundSize: "100% 400px",
     backgroundRepeat: "no-repeat",
     backgroundBlendMode: "darken",
+  },
+  lightconeFundraiserBackground: {
+    backgroundImage: `url(${lightconeFundraiserThermometerBgUrl.get()})`,  
+    backgroundSize: 'auto 100%',
+    mixBlendMode: 'lighten',
+    position: 'absolute',
+    inset: 0,
+    borderRight: 'black 2px solid'
+  },
+  lightconeFundraiserBackgroundBlurred: {
+    filter: 'blur(10px)',
   },
   gsBackgroundActive: {
     opacity: 1,
@@ -349,6 +362,12 @@ const Header = ({
   const hasNotificationsPopover = isFriendlyUI;
   const hasKarmaChangeNotifier = !isFriendlyUI && currentUser && !currentUser.usernameUnset;
   const hasMessagesButton = isFriendlyUI && currentUser && !currentUser.usernameUnset;
+
+  const stripeTotal = useFundraiserStripeTotal();
+  const unsyncedAmount = lightconeFundraiserUnsyncedAmount.get();
+  const currentAmount = unsyncedAmount + stripeTotal;
+  const goalAmount = lightconeFundraiserThermometerGoalAmount.get();
+  const percentage = Math.min((currentAmount / goalAmount) * 100, 100);
 
   const setNavigationOpen = (open: boolean) => {
     setNavigationOpenState(open);
@@ -558,6 +577,12 @@ const Header = ({
             )}
             style={headerStyle}
           >
+            {isLW && (
+              <>
+                <div className={classes.lightconeFundraiserBackground} style={{width: `${percentage}%`}} />
+                <div className={classNames(classes.lightconeFundraiserBackground, classes.lightconeFundraiserBackgroundBlurred)} />
+              </>
+            )}
             {isGivingSeason && !unFixed && currentRoute?.name === "home" &&
               <div>
                 {events.map(({name, background}) => (
