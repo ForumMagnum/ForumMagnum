@@ -4,7 +4,7 @@ import { useTheme } from '../themes/useTheme';
 import { lightconeFundraiserThermometerBgUrl, lightconeFundraiserUnsyncedAmount } from '@/lib/publicSettings';
 import { gql, useQuery } from '@apollo/client';
 import { Link } from '@/lib/reactRouterWrapper';
-import { useFundraiserStripeTotal } from '@/lib/lightconeFundraiser';
+import { useFundraiserStripeTotal, useLivePercentage } from '@/lib/lightconeFundraiser';
 
 interface FundraisingThermometerProps {
   goalAmount: number;
@@ -29,9 +29,6 @@ const styles = (theme: ThemeType) => ({
     left: 0,
     height: '100%',
     backgroundImage: `url(${lightconeFundraiserThermometerBgUrl.get()})`,
-    backgroundSize: 'auto 100%',
-    backgroundPosition: '-150px',
-    transition: 'width 0.5s ease-in-out',
     boxShadow: `5px 0px 10px #222`,
   },
   text: {
@@ -108,7 +105,9 @@ const FundraisingThermometer: React.FC<FundraisingThermometerProps & {classes: C
   const stripeTotal = useFundraiserStripeTotal();
   const unsyncedAmount = lightconeFundraiserUnsyncedAmount.get();
   const currentAmount = unsyncedAmount + stripeTotal;
-  const percentage = Math.min((currentAmount / goalAmount) * 100, 100);
+  // const percentage = Math.min((currentAmount / goalAmount) * 100, 100);
+  const percentage = Math.min(useLivePercentage(), 100);
+
 
   return (
     <div className={classes.fundraiserContainer}>
@@ -123,7 +122,7 @@ const FundraisingThermometer: React.FC<FundraisingThermometerProps & {classes: C
       </div>
       <div className={classes.thermometer}>
         <div className={classes.blurredUnfill}></div>
-        <div className={classes.fill} style={{width: `${percentage}%`}}></div>
+        <div className={classes.fill} style={{width: `${percentage}%`, backgroundSize: `${100*100/percentage}% auto`}}></div>
       </div>
       <div className={classes.textContainer}>
         <span className={classes.raisedText}><span className={classes.raisedTextBold}>Raised:</span> <span className={classes.raisedGoalNumber}>${currentAmount.toLocaleString()}</span></span>

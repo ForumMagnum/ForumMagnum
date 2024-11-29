@@ -22,7 +22,7 @@ import {
   GIVING_SEASON_MOBILE_WIDTH,
   useGivingSeasonEvents,
 } from '../forumEvents/useGivingSeasonEvents';
-import { useFundraiserStripeTotal } from '@/lib/lightconeFundraiser';
+import { useFundraiserStripeTotal, useLivePercentage } from '@/lib/lightconeFundraiser';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
@@ -272,7 +272,6 @@ export const styles = (theme: ThemeType) => ({
   },
   lightconeFundraiserBackground: {
     backgroundImage: `url(${lightconeFundraiserThermometerBgUrl.get()})`,  
-    backgroundSize: 'auto 100%',
     mixBlendMode: 'lighten',
     position: 'absolute',
     inset: 0,
@@ -367,7 +366,8 @@ const Header = ({
   const unsyncedAmount = lightconeFundraiserUnsyncedAmount.get();
   const currentAmount = unsyncedAmount + stripeTotal;
   const goalAmount = lightconeFundraiserThermometerGoalAmount.get();
-  const percentage = Math.min((currentAmount / goalAmount) * 100, 100);
+  // const percentage = Math.min((currentAmount / goalAmount) * 100, 100);
+  const percentage = useLivePercentage();
 
   const setNavigationOpen = (open: boolean) => {
     setNavigationOpenState(open);
@@ -579,7 +579,7 @@ const Header = ({
           >
             {isLW && (
               <>
-                <div className={classes.lightconeFundraiserBackground} style={{width: `${percentage}%`}} />
+                <div className={classes.lightconeFundraiserBackground} style={{width: `${percentage}%`, backgroundSize: `${100*100/percentage}% auto`}} />
                 <div className={classNames(classes.lightconeFundraiserBackground, classes.lightconeFundraiserBackgroundBlurred)} />
               </>
             )}
