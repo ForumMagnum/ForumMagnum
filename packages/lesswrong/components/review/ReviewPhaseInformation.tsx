@@ -108,7 +108,7 @@ export const ReviewPhaseInformation = ({classes, reviewYear, reviewPhase}: {
         <ul style={{marginLeft: -12}}>
           <li>Cast <em>Nomination Votes</em> on posts that represent important intellectual progress.</li>
           <li>Write <em>short reviews</em> that explain why those posts seem important. <em>(Reviewed posts are sorted to the top of this page)</em></li>
-          <li>Posts with at least 1 positive vote will appear on this page, to the right. Posts with at least one review are sorted to the top.</li>
+          <li>Posts with at least 1 Nomination Vote will appear on this page, to the right. Posts with at least one review are sorted to the top.</li>
         </ul>
   
         <p>On {getNominationPhaseEnd(reviewYear).format("MMM Do")}, you'll see the initial voting results, to help allocate time during <em>the Review Phase</em>.</p>
@@ -117,6 +117,7 @@ export const ReviewPhaseInformation = ({classes, reviewYear, reviewPhase}: {
           <p><b>FAQ</b></p>
           <p>
             <FaqCard linkText={<p className={classes.faqQuestion}>How exactly do Nomination Votes work?</p>}>
+              <p>A "Nomination Vote" is a positive vote cast during the Nomination Phase. Posts need at least 2 Nomination Votes to proceed to the Review Phase.</p>
               <p>If you intuitively sort posts into "good", "important", "crucial", you'll probably do fine. But here are some details on how it works under-the-hood:</p>
               <p>Each vote-button corresponds to a relative strength: 1x, 4x, or 9x. Your "9" votes are 9x as powerful as your "1" votes. But, voting power is normalized so that everyone ends up with roughly the same amount of influence. If you mark every post you like as a "9", you'll probably spend more than 500 points, and your "9" votes will end up weaker than someone who used them more sparingly.</p>
               <p>On the "backend" the system uses our <Link to="/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">quadratic voting system</Link>, giving you a 500 points and allocating them to match the relative strengths of your vote-choices. A 4x vote costs 10 points, a 9x costs 45.</p>
