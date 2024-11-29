@@ -29,15 +29,6 @@ const styles = (theme: ThemeType) => ({
     backgroundImage: `url(${lightconeFundraiserThermometerBgUrl.get()})`,
     boxShadow: `5px 0px 10px #222`,
   },
-  text: {
-    position: 'relative',
-    zIndex: 2,
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-    mixBlendMode: 'difference',
-    transition: 'background 0.5s ease-in-out',
-    color: '#ffffff',
-  },
   blurredUnfill: {
     position: 'absolute',
     top: 0,
