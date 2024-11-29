@@ -12,7 +12,6 @@ const styles = (theme: ThemeType) => ({
   thermometer: {
     width: '100%',
     height: '100px',
-    backgroundColor: '#8b953a',
     borderRadius: '15px',
     position: 'relative',
     overflow: 'hidden',
