@@ -771,7 +771,6 @@ import '../components/search/PostsSearchAutoComplete';
 import '../components/search/CommentsSearchHit';
 import '../components/search/ExpandedCommentsSearchHit';
 import '../components/search/UsersSearchHit';
-import '../components/search/UsersSearchAutocompleteHit';
 import '../components/search/ExpandedUsersSearchHit';
 import '../components/search/ExpandedUsersConversationSearchHit';
 import '../components/search/TagsSearchHit';
