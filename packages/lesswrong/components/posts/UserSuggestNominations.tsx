@@ -8,6 +8,7 @@ import {AnalyticsContext} from '@/lib/analyticsEvents'
 import {preferredHeadingCase} from '@/themes/forumTheme'
 import withErrorBoundary from '@/components/common/withErrorBoundary'
 import moment from 'moment'
+import Input from '@material-ui/core/Input';
 
 const styles = (theme: ThemeType): JssStyles => ({
   headline: {
@@ -71,6 +72,9 @@ const UserSuggestNominations = ({classes}: { classes: ClassesType }) => {
       <Typography variant="display2" className={classes.headline}>
         {preferredHeadingCase(`Nominate Posts for ${year} review`)}
       </Typography>
+      <div style={{border: '1px solid rgba(0,0,0,0.2)', borderRadius: 4, padding: 10}}>
+        <Input placeholder="Nominate a linkpost from the rationalsphere" />
+      </div>
 
       <Tabs
         value={activeTab}
