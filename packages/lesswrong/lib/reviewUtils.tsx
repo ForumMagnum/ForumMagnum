@@ -4,6 +4,7 @@ import moment from "moment"
 import { isEAForum, isLWorAF } from "./instanceSettings"
 import { TupleSet, UnionOf } from './utils/typeGuardUtils';
 import { memoizeWithExpiration } from './utils/memoizeWithExpiration';
+import { isDevelopment } from './executionEnvironment';
 
 export const reviewYears = [2018, 2019, 2020, 2021, 2022, 2023] as const
 const years = new TupleSet(reviewYears);
@@ -49,13 +50,17 @@ export function getReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
 
 const TIMEZONE_OFFSET = 8 // Pacific Time
 
-// first line just for ease-of-testing
-// export const getReviewStart = () => moment.utc(`${REVIEW_YEAR+1}-11-25`).add(TIMEZONE_OFFSET, 'hours')
-export const getReviewStart = () => moment.utc(`${REVIEW_YEAR+1}-12-01`).add(TIMEZONE_OFFSET, 'hours')
-export const getNominationPhaseEnd = () => moment.utc(`${REVIEW_YEAR+1}-12-14`).add(TIMEZONE_OFFSET, 'hours')
-export const getReviewPhaseEnd = () => moment.utc(`${REVIEW_YEAR+2}-01-15`).add(TIMEZONE_OFFSET, 'hours')
-export const getVotingPhaseEnd = () => moment.utc(`${REVIEW_YEAR+2}-02-01`).add(TIMEZONE_OFFSET, 'hours')
-export const getResultsPhaseEnd = () => moment.utc(`${REVIEW_YEAR+2}-02-06`).add(TIMEZONE_OFFSET, 'hours')
+// we typically start testing the next year's review in November of the current year
+export const getReviewStart = () => {
+  const startDateString = isDevelopment
+    ? `${REVIEW_YEAR}-11-15`
+    : `${REVIEW_YEAR+1}-12-01`; // Regular starting date on Dec 1
+  return moment.utc(startDateString).add(TIMEZONE_OFFSET, 'hours');
+};
+export const getNominationPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+1}-12-14`).add(TIMEZONE_OFFSET, 'hours')
+export const getReviewPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-01-15`).add(TIMEZONE_OFFSET, 'hours')
+export const getVotingPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-02-01`).add(TIMEZONE_OFFSET, 'hours')
+export const getResultsPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-02-06`).add(TIMEZONE_OFFSET, 'hours')
 
 function recomputeReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
   if (reviewYear && reviewYear !== REVIEW_YEAR) {
@@ -66,10 +71,10 @@ function recomputeReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
   const reviewStart = getReviewStart()
   if (currentDate < reviewStart) return "UNSTARTED"
 
-  const nominationsPhaseEnd = getNominationPhaseEnd()
-  const reviewPhaseEnd = getReviewPhaseEnd()
-  const votingEnd = getVotingPhaseEnd()
-  const reviewEnd = getResultsPhaseEnd()
+  const nominationsPhaseEnd = getNominationPhaseEnd(REVIEW_YEAR )
+  const reviewPhaseEnd = getReviewPhaseEnd(REVIEW_YEAR)
+  const votingEnd = getVotingPhaseEnd(REVIEW_YEAR)
+  const reviewEnd = getResultsPhaseEnd(REVIEW_YEAR)
   
   if (currentDate < nominationsPhaseEnd) return "NOMINATIONS"
   if (currentDate < reviewPhaseEnd) return "REVIEWS"
@@ -173,7 +178,7 @@ export const getCostData = ({costTotal=500}: {costTotal?: number}): Record<numbe
       tooltip: 
         <div>
           <p>Highly misleading, harmful, or unimportant.</p>
-          <div><em>Costs 45 points</em></div>
+          <div><em>Costs 45 points (of 500)</em></div>
           {overSpentWarning}
         </div>
     },
@@ -183,7 +188,7 @@ export const getCostData = ({costTotal=500}: {costTotal?: number}): Record<numbe
       tooltip: 
         <div>
           <p>Very misleading, harmful, or unimportant.</p>
-          <div><em>Costs 10 points</em></div>
+          <div><em>Costs 10 points (of 500)</em></div>
           {overSpentWarning}
         </div>
     },
@@ -193,7 +198,7 @@ export const getCostData = ({costTotal=500}: {costTotal?: number}): Record<numbe
       tooltip: 
         <div>
           <p>Misleading, harmful or unimportant.</p>
-          <div><em>Costs 1 point</em></div>
+          <div><em>Costs 1 point (of 500)</em></div>
           {overSpentWarning}
         </div>
     },
@@ -203,7 +208,7 @@ export const getCostData = ({costTotal=500}: {costTotal?: number}): Record<numbe
       tooltip: 
         <div>
           <p>No strong opinion on this post,</p>
-          <div><em>Costs 0 points</em></div>
+          <div><em>Costs 0 points (of 500)</em></div>
           {overSpentWarning}
         </div>
     },
@@ -213,7 +218,7 @@ export const getCostData = ({costTotal=500}: {costTotal?: number}): Record<numbe
       tooltip: 
         <div>
           <p>Good</p>
-          <div><em>Costs 1 point</em></div>
+          <div><em>Costs 1 point (of 500)</em></div>
           {overSpentWarning}
         </div>
     },
@@ -223,7 +228,7 @@ export const getCostData = ({costTotal=500}: {costTotal?: number}): Record<numbe
       tooltip: 
         <div>
           <p>Quite important</p>
-          <div><em>Costs 10 points</em></div>
+          <div><em>Costs 10 points (of 500)</em></div>
           {overSpentWarning}
         </div>
     },
@@ -233,7 +238,7 @@ export const getCostData = ({costTotal=500}: {costTotal?: number}): Record<numbe
       tooltip: 
         <div>
           <p>Extremely important</p>
-          <div><em>Costs 45 points</em></div>
+          <div><em>Costs 45 points (of 500)</em></div>
           {overSpentWarning}
         </div>
       },
