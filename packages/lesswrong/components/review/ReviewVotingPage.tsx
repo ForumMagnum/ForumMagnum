@@ -57,7 +57,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: "90vh",
     paddingLeft: 24,
     paddingRight: 36,
-    overflow: "scroll",
     [theme.breakpoints.down('sm')]: {
       gridArea: "unset",
       paddingLeft: 0,
