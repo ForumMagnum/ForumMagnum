@@ -60,9 +60,11 @@ const UserSuggestNominations = ({classes}: { classes: ClassesType<typeof styles>
   const endDate = year === before2020 ? new Date(2020, 0, 1) : new Date(year + 1, 0, 1)
 
   const handleChangeTab = (e: React.ChangeEvent, value: string) => {
+    const allPostsParams = {after: dateStr(startDate), before: dateStr(endDate), timeframe: 'yearly'}
     const newQuery = {
       tab: value,
-      ...(value === 'all' && {after: dateStr(startDate), before: dateStr(endDate), timeframe: 'yearly'}),
+      ...(value === 'all' && allPostsParams),
+      ...(value === 'rationalsphere' && {...allPostsParams, filter: 'linkpost', sortBy: 'new'}),
     }
 
     navigate({
@@ -131,7 +133,7 @@ const UserSuggestNominations = ({classes}: { classes: ClassesType<typeof styles>
       {activeTab === 'all' && <AllPostsPage/>}
       {activeTab === 'rationalsphere' && <div>
         <ImportExternalPost/>
-
+        <AllPostsPage />
       </div>}
       
     </SingleColumnSection>

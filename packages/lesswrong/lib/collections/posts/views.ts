@@ -152,6 +152,9 @@ export const filters: Record<string,any> = {
     tagRelevance: {$ne: {}}
   },
   "includeMetaAndPersonal": {},
+  "linkpost": {
+    url: {$exists: true},
+  }
 }
 
 /**
@@ -167,7 +170,8 @@ export const sortings: Record<PostSortingMode,MongoSelector<DbPost>> = {
   topAdjusted: { karmaInflationAdjustedScore: -1 },
   new: { postedAt: -1 },
   old: { postedAt: 1 },
-  recentComments: { lastCommentedAt: -1 }
+  recentComments: { lastCommentedAt: -1 },
+  // created: { createdAt: -1 },
 }
 
 /**
