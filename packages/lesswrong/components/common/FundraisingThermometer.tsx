@@ -44,10 +44,7 @@ const styles = (theme: ThemeType) => ({
   header: {
     fontSize: '2rem',
     marginBottom: 0,  
-  },
-  subheader: {
-    color: theme.palette.review.winner,
-    fontSize: '1.2rem',
+    marginTop: 0,
     fontFamily: theme.typography.headerStyle.fontFamily,
   },
   textContainer: {
@@ -56,12 +53,16 @@ const styles = (theme: ThemeType) => ({
     width: '100%',
     fontFamily: theme.typography.body2.fontFamily,
     fontSize: '1.2rem',
+    position: 'relative',
+    top: 8
   },
   raisedTextBold: {
     fontWeight: 'bold',
+    fontFamily: theme.typography.headerStyle.fontFamily,
   },
   goalTextBold: {
     fontWeight: 'bold',
+    fontFamily: theme.typography.headerStyle.fontFamily,
   },
   raisedGoalNumber: {
     color: theme.palette.review.winner,
@@ -91,10 +92,9 @@ const FundraisingThermometer: React.FC<FundraisingThermometerProps & {classes: C
   return (
     <div className={classes.fundraiserContainer}>
       <div className={classes.fundraiserHeader}>
-        <div className={classes.fundraiserHeaderText}>
-          <h2 className={classes.header}><Link to={`/posts/${lightconeFundraiserPostId.get()}`}>Lightcone Infrastructure fundraiser progress</Link></h2>
-          <h3 className={classes.subheader}>Goal 1: May</h3>
-        </div>
+        <h2 className={classes.header}>
+          <Link to={`/posts/${lightconeFundraiserPostId.get()}`}>Lightcone Infrastructure fundraiser progress</Link>
+        </h2>
         <Link className={classes.fundraiserDonateText} to="https://lightconeinfrastructure.com/donate">
           <div className={classes.fundraiserHeaderDonateButton}>
             Donate
@@ -109,7 +109,7 @@ const FundraisingThermometer: React.FC<FundraisingThermometerProps & {classes: C
       </Link>
       <div className={classes.textContainer}>
         <span className={classes.raisedText}><span className={classes.raisedTextBold}>Raised:</span> <span className={classes.raisedGoalNumber}>${currentAmount.toLocaleString()}</span></span>
-        <span className={classes.goalText}><span className={classes.goalTextBold}>Goal:</span> <span className={classes.raisedGoalNumber}>${goalAmount.toLocaleString()}</span></span>
+        <span className={classes.goalText}><span className={classes.goalTextBold}>Goal 1 (May):</span> <span className={classes.raisedGoalNumber}>${goalAmount.toLocaleString()}</span></span>
       </div>
     </div>
   );
