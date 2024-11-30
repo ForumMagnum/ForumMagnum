@@ -1,7 +1,7 @@
 import React from 'react';
 import { annualReviewAnnouncementPostPathSetting } from '../../lib/publicSettings';
 import { Link } from '../../lib/reactRouterWrapper';
-import { ReviewPhase, ReviewYear } from '../../lib/reviewUtils';
+import { getNominationPhaseEnd, ReviewPhase, ReviewYear } from '../../lib/reviewUtils';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import Card from '@material-ui/core/Card';
@@ -104,21 +104,21 @@ export const ReviewPhaseInformation = ({classes, reviewYear, reviewPhase}: {
 
   if (reviewPhase === "NOMINATIONS") {
     return <ContentStyles contentType="comment" className={classes.root}>
-        <p>During the <em>Nomination Voting Phase</em>, eligible users are encouraged to:</p>
-        <ul>
-          <li>
-            Vote on posts that represent important intellectual progress.
-          </li>
-          <li>Write short reviews that explain why those posts seem important</li>
-        </ul> 
-        <p>Posts with at least one positive vote will appear on this page, to the right. Posts with at least one review are sorted to the top, to make them easier to vote on.</p>
+        <p>During the <em>Nomination Voting Phase:</em></p>
+        <ul style={{marginLeft: -12}}>
+          <li>Cast <em>Nomination Votes</em> on posts that represent important intellectual progress.</li>
+          <li>Write <em>short reviews</em> that explain why those posts seem important.</li>
+          <li>Posts with at least 1 Nomination Vote will appear on this page, to the right. Posts with at least one review are sorted to the top.</li>
+          <li>Posts with at least 2 positive votes and at least 4 points will proceed to the Review Phase.</li>
+        </ul>
   
-        <p>At the end of the Nomination Voting phase, the LessWrong team will publish a ranked list of the results. This will help inform how to spend attention during <em>the Review Phase</em>. High-ranking, undervalued or controversial posts can get additional focus.</p>
+        <p>On {getNominationPhaseEnd(reviewYear).format("MMM Do")}, you'll see the initial voting results, to help allocate time during <em>the Review Phase</em>.</p>
         
         <div>
           <p><b>FAQ</b></p>
           <p>
             <FaqCard linkText={<p className={classes.faqQuestion}>How exactly do Nomination Votes work?</p>}>
+              <p>A "Nomination Vote" is a positive vote cast during the Nomination Phase. Posts need at least 2 Nomination Votes to proceed to the Review Phase.</p>
               <p>If you intuitively sort posts into "good", "important", "crucial", you'll probably do fine. But here are some details on how it works under-the-hood:</p>
               <p>Each vote-button corresponds to a relative strength: 1x, 4x, or 9x. Your "9" votes are 9x as powerful as your "1" votes. But, voting power is normalized so that everyone ends up with roughly the same amount of influence. If you mark every post you like as a "9", you'll probably spend more than 500 points, and your "9" votes will end up weaker than someone who used them more sparingly.</p>
               <p>On the "backend" the system uses our <Link to="/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">quadratic voting system</Link>, giving you a 500 points and allocating them to match the relative strengths of your vote-choices. A 4x vote costs 10 points, a 9x costs 45.</p>
@@ -128,7 +128,7 @@ export const ReviewPhaseInformation = ({classes, reviewYear, reviewPhase}: {
   
           <p>
             <FaqCard linkText={<p className={classes.faqQuestion}>How many votes does a post need to proceed to the Review Phase?</p>}>
-              <p>Posts will need at least two positive Preliminary Votes to proceed to the Review Phase.</p>
+              <p>Posts need at least 2 positive Nomination Votes to proceed to the Review Phase.</p>
             </FaqCard>
           </p>
 

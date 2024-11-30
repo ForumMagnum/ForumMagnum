@@ -1106,6 +1106,7 @@ importComponent("ReviewDashboardButtons", () => require('../components/review/Re
 importComponent("ReviewPhaseInformation", () => require('../components/review/ReviewPhaseInformation'));
 importComponent("UserReviewsProgressBar", () => require('../components/review/UserReviewsProgressBar'));
 importComponent("ReviewVotingProgressBar", () => require('../components/review/ReviewVotingProgressBar'));
+importComponent("ReviewVotingPageMenu", () => require('../components/review/ReviewVotingPageMenu'));
 importComponent("ReviewVotingCanvas", () => require('../components/review/ReviewVotingCanvas'));
 importComponent("FrontpageReviewWidget", () => require('../components/review/FrontpageReviewWidget'));
 // importComponent("FrontpageVotingPhase", () => require('../components/review/FrontpageVotingPhase'));
@@ -1136,7 +1137,7 @@ importComponent("PostNominatedNotification", () => require('../components/review
 importComponent("SingleLineReviewsList", () => require('../components/review/SingleLineReviewsList'));
 
 importComponent("QuadraticVotingButtons", () => require('../components/review/QuadraticVotingButtons'))
-importComponent("KarmaVoteStripe", () => require('../components/review/KarmaVoteStripe'))
+importComponent("PostInteractionStripe", () => require('../components/review/PostInteractionStripe'))
 importComponent("ReviewVoteTableRow", () => require('../components/review/ReviewVoteTableRow'))
 importComponent("ReviewVotingButtons", () => require('../components/review/ReviewVotingButtons'))
 
@@ -1235,6 +1236,6 @@ importComponent("GlossaryEditFormWrapper", () => require('../components/jargon/G
 importComponent("GlossaryEditFormNewPost", () => require('../components/jargon/GlossaryEditFormNewPost'));
 importComponent("EditUserJargonSettings", () => require('../components/jargon/EditUserJargonSettings'));
 importComponent("PostsWithApprovedJargonPage", () => require('../components/jargon/PostsWithApprovedJargonPage'));
+importComponent("PostsListUserCommentedOn", () => require('../components/review/PostsListUserCommentedOn'));
 importComponent("RotatingReviewWinnerSpotlight", () => require('../components/review/RotatingReviewWinnerSpotlight'));
-
 importComponent("FundraisingThermometer", () => require('../components/common/FundraisingThermometer'));
