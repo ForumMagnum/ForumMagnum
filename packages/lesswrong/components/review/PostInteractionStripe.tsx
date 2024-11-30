@@ -2,6 +2,10 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 
+const readPostStyle = (theme: ThemeType) => ({
+  background: theme.palette.grey[405],
+})
+
 const styles = (theme: ThemeType) => ({
   root: {
     position: "absolute",
@@ -23,19 +27,21 @@ const styles = (theme: ThemeType) => ({
   smallDownvote: {
     background: theme.palette.error.light
   },
-  readPost: {
-    background: theme.palette.grey[405]
-  }
+  readPost: readPostStyle(theme),
+  neutral: readPostStyle(theme),
 });
 
 const votePrefix = `You previously gave this post `
+
+const readPostLabel = `You have read this post`
 
 const interactionLabels = {
   'bigDownvote': `${votePrefix}a strong (karma) downvote`,
   'smallDownvote': `${votePrefix}a (karma) downvote`,
   'smallUpvote': `${votePrefix}a (karma) upvote`,
   'bigUpvote': `${votePrefix}a strong (karma) upvote`,
-  'readPost': `You have read this post`
+  'readPost': readPostLabel,
+  'neutral': readPostLabel
 }
 
 const isInteractionKey = (value: string | null): value is keyof typeof interactionLabels => 
