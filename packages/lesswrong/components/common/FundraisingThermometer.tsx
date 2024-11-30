@@ -71,6 +71,7 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 4,
   },
   fundraiserHeaderDonateButton: {
     padding: '10px 20px',
