@@ -257,6 +257,8 @@ const ReviewVotingPage = ({classes}: {
         const post2KarmaVote = post2.currentUserVote
           ? getVotePower({ user: currentUser!, voteType: post2.currentUserVote, document: post2 })
           : 0;
+        const post1Read = !!post1.lastVisitedAt
+        const post2Read = !!post2.lastVisitedAt
         const post1NotKarmaVoted = post1KarmaVote === 0;
         const post2NotKarmaVoted = post2KarmaVote === 0;
 
@@ -306,6 +308,8 @@ const ReviewVotingPage = ({classes}: {
           if (post2NotKarmaVoted && !post1NotKarmaVoted) return -1
           if (post1KarmaVote < post2KarmaVote) return 1;
           if (post1KarmaVote > post2KarmaVote) return -1;
+          if (post1Read && !post2Read) return -1
+          if (post2Read && !post1Read) return 1
         }
 
         if (fieldIn(sortPosts, post1, post2) && post1[sortPosts] > post2[sortPosts]) return -1
@@ -328,6 +332,8 @@ const ReviewVotingPage = ({classes}: {
         if (post2NotKarmaVoted && !post1NotKarmaVoted) return -1
         if (post1KarmaVote < post2KarmaVote) return 1;
         if (post1KarmaVote > post2KarmaVote) return -1;
+        if (post1Read && !post2Read) return -1
+        if (post2Read && !post1Read) return 1
         if (permuted1 < permuted2) return -1;
         if (permuted1 > permuted2) return 1;
         return 0
@@ -363,6 +369,12 @@ const ReviewVotingPage = ({classes}: {
     case ("reviewVoteScoreAF"):
       voteTooltip = "Showing votes from Alignment Forum members"
       break;
+  }
+
+  if (!currentUser) {
+    return <SingleColumnSection>
+      You must be logged in to vote in the LessWrong Review.
+    </SingleColumnSection>
   }
 
   return (

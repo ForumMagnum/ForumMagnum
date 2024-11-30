@@ -32,14 +32,15 @@ const styles = (theme: ThemeType) => ({
 });
 
 const votePrefix = `You previously gave this post `
+const voteSuffix = <div><em>(This is different from a LessWrong Review vote)</em></div>
 
 const readPostLabel = `You have read this post`
 
 const interactionLabels = {
-  'bigDownvote': `${votePrefix}a strong (karma) downvote`,
-  'smallDownvote': `${votePrefix}a (karma) downvote`,
-  'smallUpvote': `${votePrefix}a (karma) upvote`,
-  'bigUpvote': `${votePrefix}a strong (karma) upvote`,
+  'bigDownvote': <div>{votePrefix}a strong (karma) downvote{voteSuffix}</div>,
+  'smallDownvote': <div>{votePrefix}a (karma) downvote{voteSuffix}</div>,
+  'smallUpvote': <div>{votePrefix}a (karma) upvote{voteSuffix}</div>,
+  'bigUpvote': <div>{votePrefix}a strong (karma) upvote{voteSuffix}</div>,
   'readPost': readPostLabel,
   'neutral': readPostLabel
 }
