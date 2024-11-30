@@ -2,7 +2,11 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const readPostStyle = (theme: ThemeType) => ({
+  background: theme.palette.grey[405],
+})
+
+const styles = (theme: ThemeType) => ({
   root: {
     position: "absolute",
     left: 0,
@@ -23,28 +27,35 @@ const styles = (theme: ThemeType): JssStyles => ({
   smallDownvote: {
     background: theme.palette.error.light
   },
-  readPost: {
-    background: theme.palette.grey[405]
-  }
+  readPost: readPostStyle(theme),
+  neutral: readPostStyle(theme),
 });
 
 const votePrefix = `You previously gave this post `
+const voteSuffix = <div><em>(This is different from a LessWrong Review vote)</em></div>
 
-const interactionLabels: AnyBecauseTodo = {
-  'bigDownvote': `${votePrefix}a strong (karma) downvote`,
-  'smallDownvote': `${votePrefix}a (karma) downvote`,
-  'smallUpvote': `${votePrefix}a (karma) upvote`,
-  'bigUpvote': `${votePrefix}a strong (karma) upvote`,
-  'readPost': `You have read this post`
+const readPostLabel = `You have read this post`
+
+const interactionLabels = {
+  'bigDownvote': <div>{votePrefix}a strong (karma) downvote{voteSuffix}</div>,
+  'smallDownvote': <div>{votePrefix}a (karma) downvote{voteSuffix}</div>,
+  'smallUpvote': <div>{votePrefix}a (karma) upvote{voteSuffix}</div>,
+  'bigUpvote': <div>{votePrefix}a strong (karma) upvote{voteSuffix}</div>,
+  'readPost': readPostLabel,
+  'neutral': readPostLabel
 }
 
+const isInteractionKey = (value: string | null): value is keyof typeof interactionLabels => 
+  !!value && value in interactionLabels;
+
 export const PostInteractionStripe = ({classes, post}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   post: PostsListWithVotes
 }) => {
-  const { LWTooltip } = Components
-  const interaction = post.currentUserVote || (post.lastVisitedAt ? "readPost" : null)
-  if (!interaction) return null
+  const {LWTooltip} = Components
+  const interaction = post.currentUserVote || (post.lastVisitedAt ? 'readPost' : null)
+
+  if (!isInteractionKey(interaction)) return null
 
   return <LWTooltip title={interactionLabels[interaction]} placement="left" inlineBlock={false}>
     <div className={classNames(classes.root, classes[interaction])}/>

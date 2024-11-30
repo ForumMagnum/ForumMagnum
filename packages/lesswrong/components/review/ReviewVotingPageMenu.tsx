@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import * as _ from "underscore"
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward'
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward'
-import { useTracking } from '../../lib/analyticsEvents'
+import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 import { eligibleToNominate, ReviewPhase } from '../../lib/reviewUtils';
 import Select from '@material-ui/core/Select';
 import qs from 'qs';
@@ -15,66 +15,6 @@ import { isLW, isLWorAF } from '@/lib/instanceSettings';
 import { useLocation } from '@/lib/routeUtil';
 
 const styles = (theme: ThemeType) => ({
-  grid: {
-    display: 'grid',
-    gridTemplateColumns: `
-      minmax(10px, 0.5fr) minmax(100px, 740px) minmax(30px, 0.5fr) minmax(300px, 740px) minmax(30px, 0.5fr)
-    `,
-    gridTemplateAreas: `
-    "... leftColumn ... rightColumn ..."
-    `,
-    paddingBottom: 175,
-    alignItems: "start",
-    [theme.breakpoints.down('sm')]: {
-      display: "block"
-    }
-  },
-  instructions: {
-    padding: 16,
-    marginBottom: 24,
-    background: theme.palette.panelBackground.default,
-    boxShadow: theme.palette.boxShadow.default,
-    [theme.breakpoints.down('sm')]: {
-      display: "none"
-    }
-  },
-  leftColumn: {
-    gridArea: "leftColumn",
-    position: "sticky",
-    top: 72,
-    height: "90vh",
-    paddingLeft: 24,
-    paddingRight: 36,
-    overflow: "scroll",
-    [theme.breakpoints.down('sm')]: {
-      gridArea: "unset",
-      paddingLeft: 0,
-      paddingRight: 0,
-      overflow: "unset",
-      height: "unset",
-      position: "unset"
-    }
-  },
-  rightColumn: {
-    gridArea: "rightColumn",
-    [theme.breakpoints.down('sm')]: {
-      gridArea: "unset"
-    },
-  },
-  result: {
-    ...theme.typography.smallText,
-    ...theme.typography.commentStyle,
-    lineHeight: "1.3rem",
-    marginBottom: 10,
-    position: "relative"
-  },
-  votingBox: {
-    maxWidth: 700
-  },
-  expandedInfo: {
-    maxWidth: 600,
-    marginBottom: 175,
-  },
   menu: {
     position: "sticky",
     top:0,
@@ -88,32 +28,6 @@ const styles = (theme: ThemeType) => ({
     borderBottom: theme.palette.border.slightlyFaint,
     flexWrap: "wrap"
   },
-  menuIcon: {
-    marginLeft: theme.spacing.unit
-  },
-  returnToBasicIcon: {
-    transform: "rotate(180deg)",
-    marginRight: theme.spacing.unit
-  },
-  expandedInfoWrapper: {
-    position: "fixed",
-    top: 100,
-    overflowY: "auto",
-    height: "100vh",
-    paddingRight: 8
-  },
-  header: {
-    ...theme.typography.display3,
-    ...theme.typography.commentStyle,
-    marginTop: 6,
-  },
-  postHeader: {
-    ...theme.typography.display1,
-    ...theme.typography.postStyle,
-    marginTop: 0,
-  },
-  comments: {
-  },
   costTotal: {
     ...theme.typography.commentStyle,
     marginLeft: 10,
@@ -123,15 +37,6 @@ const styles = (theme: ThemeType) => ({
   },
   excessVotes: {
     color: theme.palette.error.main,
-    // border: `solid 1px ${theme.palette.error.light}`,
-    // paddingLeft: 12,
-    // paddingRight: 12,
-    // paddingTop: 6,
-    // paddingBottom: 6,
-    // borderRadius: 3,
-    // '&:hover': {
-    //   opacity: .5
-    // }
   },
   message: {
     width: "100%",
@@ -140,20 +45,11 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
   },
-  hideOnDesktop: {
-    [theme.breakpoints.up('md')]: {
-      display: "none"
-    }
-  },
   warning: {
     color: theme.palette.error.main
   },
   singleLineWarning: {
     padding: 16,
-  },
-  
-  voteAverage: {
-    cursor: 'pointer',
   },
   postCount: {
     ...theme.typography.commentStyle,
@@ -175,9 +71,6 @@ const styles = (theme: ThemeType) => ({
       paddingLeft: 4
     }
   },
-  postsLoading: {
-    opacity: .4,
-  },
   sortBy: {
     color: theme.palette.grey[600],
     marginRight: 3
@@ -198,14 +91,7 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.up('md')]: {
       display: "none"
     }
-  },
-  postList: {
-    boxShadow: `0 1px 5px 0px ${theme.palette.boxShadowColor(0.2)}`,
-    background: theme.palette.panelBackground.default,
-    [theme.breakpoints.down('sm')]: {
-      boxShadow: "unset"
-    }
-  },
+  }
 });
 
 export const ReviewVotingPageMenu = ({classes, reviewPhase, loading, sortedPosts, costTotal, setSortPosts, sortPosts, sortReversed, setSortReversed, postsLoading, postsResults}: {
@@ -221,7 +107,6 @@ export const ReviewVotingPageMenu = ({classes, reviewPhase, loading, sortedPosts
   postsLoading: boolean,
   postsResults: PostsList[]|null,
 }) => {
-  const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
   const currentUser = useCurrentUser();
   const { ContentStyles, LWTooltip, Loading, MenuItem, } = Components
 
@@ -245,7 +130,8 @@ export const ReviewVotingPageMenu = ({classes, reviewPhase, loading, sortedPosts
   </LWTooltip> 
   const nominatedPostCount = reviewPhase !== "VOTING" && <LWTooltip title={<div><div>{sortedPosts?.length ?? 0} have received at least one Nomination Vote</div><div><em>Posts need at least 2 Nomination Votes to proceed to the Review Phase</em></div></div>}>{sortedPosts?.length ?? 0} Nominated</LWTooltip>
 
-  return <div>
+  return <AnalyticsContext pageElementContext='reviewVotingPageMenu'> 
+      <div>
           {reviewPhase === "VOTING" && currentUser?.noSingleLineComments && <ContentStyles contentType="comment" className={classes.singleLineWarning}>
             <span className={classes.warning}>You have "Do not collapse comments to single line" enabled, </span>which is going to make this page pretty bloated. The intended experience is for each post to have a few truncated reviews, which you can expand. You may want to disable the option in your <Link to={'/account'}>{accountSettings}</Link>
             </ContentStyles>}
@@ -348,7 +234,8 @@ export const ReviewVotingPageMenu = ({classes, reviewPhase, loading, sortedPosts
               </Select>
             </div>
           </div>
-  </div>;
+    </div>
+  </AnalyticsContext>;
 }
 
 const ReviewVotingPageMenuComponent = registerComponent('ReviewVotingPageMenu', ReviewVotingPageMenu, {styles});

@@ -5,11 +5,9 @@ import { useMutation, gql } from '@apollo/client';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import * as _ from "underscore"
-import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward'
-import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward'
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 import seedrandom from '../../lib/seedrandom';
-import { eligibleToNominate, getCostData, getReviewPhase, ReviewPhase, getReviewYearFromString } from '../../lib/reviewUtils';
+import { getCostData, getReviewPhase, ReviewPhase, getReviewYearFromString } from '../../lib/reviewUtils';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { randomId } from '../../lib/random';
 import { useLocation } from '../../lib/routeUtil';
@@ -23,7 +21,7 @@ const isEAForum = forumTypeSetting.get() === 'EAForum'
 const isLW = forumTypeSetting.get() === 'LessWrong'
 const isAF = forumTypeSetting.get() === 'AlignmentForum'
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   grid: {
     display: 'grid',
     gridTemplateColumns: `
@@ -36,15 +34,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "start",
     [theme.breakpoints.down('sm')]: {
       display: "block"
-    }
-  },
-  instructions: {
-    padding: 16,
-    marginBottom: 24,
-    background: theme.palette.panelBackground.default,
-    boxShadow: theme.palette.boxShadow.default,
-    [theme.breakpoints.down('sm')]: {
-      display: "none"
     }
   },
   leftColumn: {
@@ -69,143 +58,8 @@ const styles = (theme: ThemeType): JssStyles => ({
       gridArea: "unset"
     },
   },
-  result: {
-    ...theme.typography.smallText,
-    ...theme.typography.commentStyle,
-    lineHeight: "1.3rem",
-    marginBottom: 10,
-    position: "relative"
-  },
-  votingBox: {
-    maxWidth: 700
-  },
-  expandedInfo: {
-    maxWidth: 600,
-    marginBottom: 175,
-  },
-  menu: {
-    position: "sticky",
-    top:0,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: theme.palette.panelBackground.default,
-    zIndex: theme.zIndexes.reviewVotingMenu,
-    padding: theme.spacing.unit,
-    background: theme.palette.grey[310],
-    borderBottom: theme.palette.border.slightlyFaint,
-    flexWrap: "wrap"
-  },
-  menuIcon: {
-    marginLeft: theme.spacing.unit
-  },
-  returnToBasicIcon: {
-    transform: "rotate(180deg)",
-    marginRight: theme.spacing.unit
-  },
-  expandedInfoWrapper: {
-    position: "fixed",
-    top: 100,
-    overflowY: "auto",
-    height: "100vh",
-    paddingRight: 8
-  },
-  header: {
-    ...theme.typography.display3,
-    ...theme.typography.commentStyle,
-    marginTop: 6,
-  },
-  postHeader: {
-    ...theme.typography.display1,
-    ...theme.typography.postStyle,
-    marginTop: 0,
-  },
-  comments: {
-  },
-  costTotal: {
-    ...theme.typography.commentStyle,
-    marginLeft: 10,
-    color: theme.palette.grey[600],
-    marginRight: "auto",
-    whiteSpace: "pre"
-  },
-  excessVotes: {
-    color: theme.palette.error.main,
-    // border: `solid 1px ${theme.palette.error.light}`,
-    // paddingLeft: 12,
-    // paddingRight: 12,
-    // paddingTop: 6,
-    // paddingBottom: 6,
-    // borderRadius: 3,
-    // '&:hover': {
-    //   opacity: .5
-    // }
-  },
-  message: {
-    width: "100%",
-    textAlign: "center",
-    paddingTop: 50,
-    ...theme.typography.body2,
-    ...theme.typography.commentStyle,
-  },
-  hideOnDesktop: {
-    [theme.breakpoints.up('md')]: {
-      display: "none"
-    }
-  },
-  warning: {
-    color: theme.palette.error.main
-  },
-  singleLineWarning: {
-    padding: 16,
-  },
-  
-  voteAverage: {
-    cursor: 'pointer',
-  },
-  postCount: {
-    ...theme.typography.commentStyle,
-    marginLeft: 10,
-    color: theme.palette.grey[600],
-    marginRight: "auto",
-    whiteSpace: "pre"
-  },
-  reviewedCount: {
-    color: theme.palette.primary.main,
-    cursor: "pointer",
-    marginRight: 8
-  },
-  sortingOptions: {
-    whiteSpace: "pre",
-    display: "flex",
-    [theme.breakpoints.down('xs')]: {
-      paddingTop: 12,
-      paddingLeft: 4
-    }
-  },
   postsLoading: {
     opacity: .4,
-  },
-  sortBy: {
-    color: theme.palette.grey[600],
-    marginRight: 3
-  },
-  sortArrow: {
-    cursor: "pointer",
-    padding: 4,
-    borderRadius: 3,
-    marginRight: 6,
-    border: theme.palette.border.normal,
-    "&:hover": {
-      background: theme.palette.panelBackground.darken20,
-    }
-  },
-  votingTitle: {
-    ...theme.typography.display2,
-    ...theme.typography.postStyle,
-    [theme.breakpoints.up('md')]: {
-      display: "none"
-    }
   },
   postList: {
     boxShadow: `0 1px 5px 0px ${theme.palette.boxShadowColor(0.2)}`,
@@ -220,11 +74,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 2,
     marginBottom: 2,
   },
-  filters: {
-    display: "flex",
-    alignItems: "center",
-    flexWrap: "wrap",
-  },
   filterSelected: {
     backgroundColor: theme.palette.grey[700],
     color: theme.palette.background.pageActiveAreaBackground
@@ -233,9 +82,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[400],
     marginLeft: 5,
     marginRight: 5,
-    [theme.breakpoints.down('sm')]: {
-      display: "none",
-    }
   }
 });
 
@@ -259,7 +105,7 @@ export const generatePermutation = (count: number, user: UsersCurrent|null): Arr
 
 
 const ReviewVotingPage = ({classes}: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const {
     ReviewVotingExpandedPost,
@@ -411,6 +257,8 @@ const ReviewVotingPage = ({classes}: {
         const post2KarmaVote = post2.currentUserVote
           ? getVotePower({ user: currentUser!, voteType: post2.currentUserVote, document: post2 })
           : 0;
+        const post1Read = !!post1.lastVisitedAt
+        const post2Read = !!post2.lastVisitedAt
         const post1NotKarmaVoted = post1KarmaVote === 0;
         const post2NotKarmaVoted = post2KarmaVote === 0;
 
@@ -460,6 +308,8 @@ const ReviewVotingPage = ({classes}: {
           if (post2NotKarmaVoted && !post1NotKarmaVoted) return -1
           if (post1KarmaVote < post2KarmaVote) return 1;
           if (post1KarmaVote > post2KarmaVote) return -1;
+          if (post1Read && !post2Read) return -1
+          if (post2Read && !post1Read) return 1
         }
 
         if (fieldIn(sortPosts, post1, post2) && post1[sortPosts] > post2[sortPosts]) return -1
@@ -478,6 +328,12 @@ const ReviewVotingPage = ({classes}: {
 
         if (post1Score < post2Score) return 1
         if (post1Score > post2Score) return -1
+        if (post1NotKarmaVoted && !post2NotKarmaVoted) return 1
+        if (post2NotKarmaVoted && !post1NotKarmaVoted) return -1
+        if (post1KarmaVote < post2KarmaVote) return 1;
+        if (post1KarmaVote > post2KarmaVote) return -1;
+        if (post1Read && !post2Read) return -1
+        if (post2Read && !post1Read) return 1
         if (permuted1 < permuted2) return -1;
         if (permuted1 > permuted2) return 1;
         return 0
@@ -515,6 +371,12 @@ const ReviewVotingPage = ({classes}: {
       break;
   }
 
+  if (!currentUser) {
+    return <SingleColumnSection>
+      You must be logged in to vote in the LessWrong Review.
+    </SingleColumnSection>
+  }
+
   return (
     <AnalyticsContext pageContext="ReviewVotingPage">
     <div>
@@ -534,25 +396,25 @@ const ReviewVotingPage = ({classes}: {
         <div className={classes.rightColumn}>
           <ReviewVotingPageMenu reviewPhase={reviewPhase} loading={loading} sortedPosts={sortedPosts} costTotal={costTotal} setSortPosts={setSortPosts} sortPosts={sortPosts} sortReversed={sortReversed} setSortReversed={setSortReversed} postsLoading={postsLoading} postsResults={postsResults} />
 
-          <div className={classes.filters}>
-            <LWTooltip title="Only show the post you've read">
-              <div className={classNames(classes.statusFilter, {[classes.filterSelected]: statusFilter === 'read'})}
-                   onClick={() => handleStatusFilter('read')}>
-                Read
-              </div>
-            </LWTooltip>
 
-            <span className={classes.separator}>{' '}•{' '}</span>
+          <PostsTagsList
+            posts={postsResults}
+            currentFilter={tagFilter}
+            handleFilter={(tagId) => handleTagFilter(tagId)}
+            defaultMax={5}
+            beforeChildren={<>
+              <LWTooltip title="Only show the post you've read">
+                <div className={classNames(classes.statusFilter, {[classes.filterSelected]: statusFilter === 'read'})}
+                     onClick={() => handleStatusFilter('read')}>
+                  Read
+                </div>
+              </LWTooltip>
 
-            <PostsTagsList
-              posts={postsResults}
-              currentFilter={tagFilter}
-              handleFilter={(tagId) => handleTagFilter(tagId)}
-              defaultMax={5}
-            />
-          </div>
+              <span className={classes.separator}>{' '}•{' '}</span>
+            </>}
+          />
 
-          <div className={classNames({[classes.postList]: reviewPhase !== "VOTING", [classes.postLoading]: postsLoading || loading})}>
+          <div className={classNames({[classes.postList]: reviewPhase !== "VOTING", [classes.postsLoading]: postsLoading || loading})}>
             {postsHaveBeenSorted && sortedPosts?.map((post) => {
               const currentVote = post.currentUserReviewVote !== null ? {
                 _id: post.currentUserReviewVote._id,

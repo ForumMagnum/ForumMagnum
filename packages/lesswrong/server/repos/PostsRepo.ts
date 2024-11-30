@@ -43,21 +43,29 @@ export type PostAndCommentsResultRow = {
   last_commented: Date|null
 };
 
-const constructFilters = ({ startDate, endDate, minKarma, showEvents }: FilterPostsForReview): [string, Record<string, any>] => {
+const constructFilters = (
+  {
+    startDate,
+    endDate,
+    minKarma,
+    showEvents,
+  }: FilterPostsForReview,
+): [string, Record<string, any>] => {
   const params = {
-    ...(startDate && { startDate: startDate.toISOString() }),
-    ...(endDate && { endDate: endDate.toISOString() }),
-    ...(minKarma && { minKarma }),
-  };
+    ...(startDate && {startDate: startDate.toISOString()}),
+    ...(endDate && {endDate: endDate.toISOString()}),
+    ...(minKarma && {minKarma}),
+  }
 
-  const startDateFilter = startDate ? `AND p."postedAt" >= $(startDate) ` : '';
-  const endDateFilter = endDate ? `AND p."postedAt" <= $(endDate) ` : '';
-  const baseScoreFilter = minKarma ? `AND p."baseScore" >= $(minKarma) ` : '';
-  const showEventsFilter = showEvents === false ? 'AND p."isEvent" IS NOT TRUE' : '';
+  const filters = [
+    startDate ? `AND p."postedAt" >= $(startDate)` : '',
+    endDate ? `AND p."postedAt" <= $(endDate)` : '',
+    minKarma ? `AND p."baseScore" >= $(minKarma)` : '',
+    showEvents === false ? 'AND p."isEvent" IS NOT TRUE' : '',
+  ].filter(Boolean).join(' ')
 
-  return [`${startDateFilter}${endDateFilter}${baseScoreFilter}${showEventsFilter}`, params];
+  return [filters, params]
 }
-
 
 class PostsRepo extends AbstractRepo<"Posts"> {
   constructor() {
@@ -139,13 +147,13 @@ class PostsRepo extends AbstractRepo<"Posts"> {
   async getReadHistoryForUser(
     userId: string,
     limit: number,
-    filter: FilterPostsForReview = {},
+    filter: FilterPostsForReview | null,
     sort: {
       karma?: boolean
-    } = {}
+    } | null, 
   ): Promise<Array<DbPost & { lastUpdated: Date }>> {
-    const orderBy = sort.karma ? 'p."baseScore" DESC' : 'rs."lastUpdated" DESC';
-    const [filters, params] = constructFilters(filter);
+    const orderBy = sort?.karma ? 'p."baseScore" DESC' : 'rs."lastUpdated" DESC';
+    const [filters, params] = constructFilters(filter ?? {});
 
     return await this.getRawDb().manyOrNone(`
       -- PostsRepo.getReadHistoryForUser
@@ -162,13 +170,13 @@ class PostsRepo extends AbstractRepo<"Posts"> {
   async getPostsUserCommentedOn(
     userId: string,
     limit = 20,
-    filter: FilterPostsForReview = {},
+    filter: FilterPostsForReview | null,
     sort: {
       karma?: boolean
-    } = {}
+    } | null,
   ): Promise<DbPost[]> {
-    const orderBy = sort.karma ? 'ORDER BY p."baseScore" DESC' : '';
-    const [filters, params] = constructFilters(filter);
+    const orderBy = sort?.karma ? 'ORDER BY p."baseScore" DESC' : '';
+    const [filters, params] = constructFilters(filter ?? {});
 
     return this.getRawDb().manyOrNone(`
       -- PostsRepo.getPostsUserCommentedOn

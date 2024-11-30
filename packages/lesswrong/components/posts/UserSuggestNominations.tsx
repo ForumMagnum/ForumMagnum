@@ -8,12 +8,13 @@ import {AnalyticsContext} from '@/lib/analyticsEvents'
 import {preferredHeadingCase} from '@/themes/forumTheme'
 import withErrorBoundary from '@/components/common/withErrorBoundary'
 import moment from 'moment'
+import qs from 'qs'
 import Input from '@material-ui/core/Input';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   headline: {
     color: theme.palette.grey[1000],
-    marginBottom: 20,
+    marginBottom: 40,
     [theme.breakpoints.down('sm')]: {
       marginTop: 20,
       marginBottom: 10,
@@ -31,7 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const dateStr = (startDate?: Date) =>
   startDate ? moment(startDate).format('YYYY-MM-DD') : ''
 
-const UserSuggestNominations = ({classes}: { classes: ClassesType }) => {
+const UserSuggestNominations = ({classes}: { classes: ClassesType<typeof styles> }) => {
   const currentUser = useCurrentUser()
   const navigate = useNavigate()
   const {params, location, query} = useLocation()
@@ -59,10 +60,14 @@ const UserSuggestNominations = ({classes}: { classes: ClassesType }) => {
   const endDate = year === before2020 ? new Date(2020, 0, 1) : new Date(year + 1, 0, 1)
 
   const handleChangeTab = (e: React.ChangeEvent, value: string) => {
+    const newQuery = {
+      tab: value,
+      ...(value === 'all' && {after: dateStr(startDate), before: dateStr(endDate), timeframe: 'yearly'}),
+    }
+
     navigate({
       ...location,
-      search: `?tab=${value}` + 
-        (value === 'all' ? `&after=${(dateStr(startDate))}&before=${dateStr(endDate)}&timeframe=yearly` : ''),
+      search: `?${qs.stringify(newQuery)}`,
     })
   }
 
@@ -70,7 +75,7 @@ const UserSuggestNominations = ({classes}: { classes: ClassesType }) => {
   return <AnalyticsContext pageContext="nominationPage">
     <SingleColumnSection>
       <Typography variant="display2" className={classes.headline}>
-        {preferredHeadingCase(`Nominate Posts for ${year} review`)}
+        {preferredHeadingCase(`Nominate Posts for ${year} LessWrong Review`)}
       </Typography>
       <div style={{border: '1px solid rgba(0,0,0,0.2)', borderRadius: 4, padding: 10}}>
         <Input placeholder="Nominate a linkpost from the rationalsphere" />
