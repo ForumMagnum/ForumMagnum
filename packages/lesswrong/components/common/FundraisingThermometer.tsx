@@ -43,7 +43,8 @@ const styles = (theme: ThemeType) => ({
   },
   header: {
     fontSize: '2rem',
-    marginBottom: 0,  
+    marginBottom: 0,
+    fontFamily: theme.typography.headerStyle.fontFamily,
   },
   subheader: {
     color: theme.palette.review.winner,
@@ -86,6 +87,17 @@ const styles = (theme: ThemeType) => ({
 
 const FundraisingThermometer: React.FC<FundraisingThermometerProps & {classes: ClassesType}> = ({ goalAmount, classes }) => {
   const [percentage, currentAmount] = useFundraiserProgress(goalAmount);
+  const [viewPercentage, setViewPercentage] = useState(percentage);
+  const [viewCurrentAmount, setViewCurrentAmount] = useState(currentAmount);
+  useEffect(() => {
+    const startTime = Date.now();
+    let interval = setInterval(() => {
+      const elapsedTime = Date.now() - startTime;
+      setViewPercentage(viewP => viewP < percentage ? Math.min(viewP + (1 * elapsedTime / 1000), percentage) : percentage);
+      setViewCurrentAmount(viewCA => viewCA < currentAmount ? Math.min(viewCA + (10000 * elapsedTime / 1000), currentAmount) : currentAmount);
+    }, 1);
+    return () => clearInterval(interval);
+  }, [percentage, currentAmount])
 
 
   return (
@@ -104,11 +116,11 @@ const FundraisingThermometer: React.FC<FundraisingThermometerProps & {classes: C
       <Link className={classes.thermometerLink} to={`/posts/${lightconeFundraiserPostId.get()}`}>
         <div className={classes.thermometer}>
           <div className={classes.blurredUnfill}></div>
-          <div className={classes.fill} style={{width: `${percentage}%`, backgroundSize: `${100*100/percentage}% auto`}}></div>
+          <div className={classes.fill} style={{width: `${viewPercentage}%`, backgroundSize: `${100*100/viewPercentage}% auto`}}></div>
         </div>
       </Link>
       <div className={classes.textContainer}>
-        <span className={classes.raisedText}><span className={classes.raisedTextBold}>Raised:</span> <span className={classes.raisedGoalNumber}>${currentAmount.toLocaleString()}</span></span>
+        <span className={classes.raisedText}><span className={classes.raisedTextBold}>Raised:</span> <span className={classes.raisedGoalNumber}>${Math.round(viewCurrentAmount).toLocaleString()}</span></span>
         <span className={classes.goalText}><span className={classes.goalTextBold}>Goal:</span> <span className={classes.raisedGoalNumber}>${goalAmount.toLocaleString()}</span></span>
       </div>
     </div>
