@@ -84,7 +84,7 @@ export const PostsTagsList = (
     return `Filter posts to only show posts tagged '${tag.name}'`
   }
 
-  const tagButton = (tag: TagWithCount) => <LWTooltip title={tagButtonTooltip(tag)}><div key={tag._id} className={classNames(classes.tagFilter, {[classes.selected]: currentFilter === tag._id})} onClick={()=>handleFilter(tag._id)}>
+  const tagButton = (tag: TagWithCount) => <LWTooltip key={tag._id} title={tagButtonTooltip(tag)}><div className={classNames(classes.tagFilter, {[classes.selected]: currentFilter === tag._id})} onClick={()=>handleFilter(tag._id)}>
     {tag.name} <span className={classes.count}>{tag.count}</span>
   </div></LWTooltip>
 

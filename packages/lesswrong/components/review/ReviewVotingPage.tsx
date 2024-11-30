@@ -324,6 +324,10 @@ const ReviewVotingPage = ({classes}: {
 
         if (post1Score < post2Score) return 1
         if (post1Score > post2Score) return -1
+        if (post1NotKarmaVoted && !post2NotKarmaVoted) return 1
+        if (post2NotKarmaVoted && !post1NotKarmaVoted) return -1
+        if (post1KarmaVote < post2KarmaVote) return 1;
+        if (post1KarmaVote > post2KarmaVote) return -1;
         if (permuted1 < permuted2) return -1;
         if (permuted1 > permuted2) return 1;
         return 0
