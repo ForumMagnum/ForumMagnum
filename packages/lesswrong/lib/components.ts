@@ -1236,3 +1236,5 @@ importComponent("GlossaryEditFormNewPost", () => require('../components/jargon/G
 importComponent("EditUserJargonSettings", () => require('../components/jargon/EditUserJargonSettings'));
 importComponent("PostsWithApprovedJargonPage", () => require('../components/jargon/PostsWithApprovedJargonPage'));
 importComponent("RotatingReviewWinnerSpotlight", () => require('../components/review/RotatingReviewWinnerSpotlight'));
+
+importComponent("FundraisingThermometer", () => require('../components/common/FundraisingThermometer'));
