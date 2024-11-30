@@ -23,7 +23,7 @@ const isEAForum = forumTypeSetting.get() === 'EAForum'
 const isLW = forumTypeSetting.get() === 'LessWrong'
 const isAF = forumTypeSetting.get() === 'AlignmentForum'
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   grid: {
     display: 'grid',
     gridTemplateColumns: `
@@ -220,11 +220,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 2,
     marginBottom: 2,
   },
-  filters: {
-    display: "flex",
-    alignItems: "center",
-    flexWrap: "wrap",
-  },
   filterSelected: {
     backgroundColor: theme.palette.grey[700],
     color: theme.palette.background.pageActiveAreaBackground
@@ -233,9 +228,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[400],
     marginLeft: 5,
     marginRight: 5,
-    [theme.breakpoints.down('sm')]: {
-      display: "none",
-    }
   }
 });
 
@@ -259,7 +251,7 @@ export const generatePermutation = (count: number, user: UsersCurrent|null): Arr
 
 
 const ReviewVotingPage = ({classes}: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const {
     ReviewVotingExpandedPost,
@@ -534,25 +526,25 @@ const ReviewVotingPage = ({classes}: {
         <div className={classes.rightColumn}>
           <ReviewVotingPageMenu reviewPhase={reviewPhase} loading={loading} sortedPosts={sortedPosts} costTotal={costTotal} setSortPosts={setSortPosts} sortPosts={sortPosts} sortReversed={sortReversed} setSortReversed={setSortReversed} postsLoading={postsLoading} postsResults={postsResults} />
 
-          <div className={classes.filters}>
-            <LWTooltip title="Only show the post you've read">
-              <div className={classNames(classes.statusFilter, {[classes.filterSelected]: statusFilter === 'read'})}
-                   onClick={() => handleStatusFilter('read')}>
-                Read
-              </div>
-            </LWTooltip>
 
-            <span className={classes.separator}>{' '}•{' '}</span>
+          <PostsTagsList
+            posts={postsResults}
+            currentFilter={tagFilter}
+            handleFilter={(tagId) => handleTagFilter(tagId)}
+            defaultMax={5}
+            beforeChildren={<>
+              <LWTooltip title="Only show the post you've read">
+                <div className={classNames(classes.statusFilter, {[classes.filterSelected]: statusFilter === 'read'})}
+                     onClick={() => handleStatusFilter('read')}>
+                  Read
+                </div>
+              </LWTooltip>
 
-            <PostsTagsList
-              posts={postsResults}
-              currentFilter={tagFilter}
-              handleFilter={(tagId) => handleTagFilter(tagId)}
-              defaultMax={5}
-            />
-          </div>
+              <span className={classes.separator}>{' '}•{' '}</span>
+            </>}
+          />
 
-          <div className={classNames({[classes.postList]: reviewPhase !== "VOTING", [classes.postLoading]: postsLoading || loading})}>
+          <div className={classNames({[classes.postList]: reviewPhase !== "VOTING", [classes.postsLoading]: postsLoading || loading})}>
             {postsHaveBeenSorted && sortedPosts?.map((post) => {
               const currentVote = post.currentUserReviewVote !== null ? {
                 _id: post.currentUserReviewVote._id,

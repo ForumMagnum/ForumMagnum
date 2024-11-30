@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     position: "absolute",
     left: 0,
@@ -30,7 +30,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const votePrefix = `You previously gave this post `
 
-const interactionLabels: AnyBecauseTodo = {
+const interactionLabels = {
   'bigDownvote': `${votePrefix}a strong (karma) downvote`,
   'smallDownvote': `${votePrefix}a (karma) downvote`,
   'smallUpvote': `${votePrefix}a (karma) upvote`,
@@ -38,13 +38,17 @@ const interactionLabels: AnyBecauseTodo = {
   'readPost': `You have read this post`
 }
 
+const isInteractionKey = (value: string | null): value is keyof typeof interactionLabels => 
+  !!value && value in interactionLabels;
+
 export const PostInteractionStripe = ({classes, post}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   post: PostsListWithVotes
 }) => {
-  const { LWTooltip } = Components
-  const interaction = post.currentUserVote || (post.lastVisitedAt ? "readPost" : null)
-  if (!interaction) return null
+  const {LWTooltip} = Components
+  const interaction = post.currentUserVote || (post.lastVisitedAt ? 'readPost' : null)
+
+  if (!isInteractionKey(interaction)) return null
 
   return <LWTooltip title={interactionLabels[interaction]} placement="left" inlineBlock={false}>
     <div className={classNames(classes.root, classes[interaction])}/>
