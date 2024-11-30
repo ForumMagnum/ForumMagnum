@@ -175,8 +175,8 @@ export function ReviewOverviewTooltip() {
   const reviewEndDate = getReviewPhaseEnd(REVIEW_YEAR)
   const voteEndDate = getResultsPhaseEnd(REVIEW_YEAR)
   const nominationPhaseDateRange = <span>{nominationStartDate.format('MMM Do')} - {nominationEndDate.format('MMM Do')}</span>
-  const reviewPhaseDateRange = <span>{nominationEndDate.clone().format('MMM Do')} - {reviewEndDate.format('MMM Do')}</span>
-  const votingPhaseDateRange = <span>{reviewEndDate.clone().format('MMM Do')} - {voteEndDate.format('MMM Do')}</span>
+  const reviewPhaseDateRange = <span>{nominationEndDate.format('MMM Do')} - {reviewEndDate.format('MMM Do')}</span>
+  const votingPhaseDateRange = <span>{reviewEndDate.format('MMM Do')} - {voteEndDate.format('MMM Do')}</span>
   
   return <div>
     <div>The {forumTitle} community is reflecting on the best posts from {REVIEW_YEAR}, in three phases:</div>
@@ -215,7 +215,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
     </div>
 
   const reviewTooltip = <>
-      <div>Review posts for the {reviewYear} Review (Opens {nominationEndDate.clone().format('MMM Do')})</div>
+      <div>Review posts for the {reviewYear} Review (Opens {nominationEndDate.format('MMM Do')})</div>
       <ul>
         <li>Write reviews of posts nominated for the {reviewYear} Review</li>
         <li>Only posts with at least one review are eligible for the final vote</li>
@@ -224,7 +224,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
     </>
 
   const voteTooltip = <>
-      <div>Cast your final votes for the {reviewYear} Review. (Opens {reviewEndDate.clone().format('MMM Do')})</div>
+      <div>Cast your final votes for the {reviewYear} Review. (Opens {reviewEndDate.format('MMM Do')})</div>
       <ul>
         <li>Look over nominated posts and vote on them</li>
         <li>Any user registered before {reviewYear} can vote in the review</li>
