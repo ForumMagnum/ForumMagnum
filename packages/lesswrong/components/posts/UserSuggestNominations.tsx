@@ -9,7 +9,6 @@ import {preferredHeadingCase} from '@/themes/forumTheme'
 import withErrorBoundary from '@/components/common/withErrorBoundary'
 import moment from 'moment'
 import qs from 'qs'
-import Input from '@material-ui/core/Input';
 
 const styles = (theme: ThemeType) => ({
   headline: {
@@ -46,7 +45,8 @@ const UserSuggestNominations = ({classes}: { classes: ClassesType<typeof styles>
     PostsListUserCommentedOn,
     Typography,
     LWTooltip,
-    AllPostsPage
+    AllPostsPage,
+    ImportExternalPost,
   } = Components
 
   // Handle url-encoded special case, otherwise parseInt year
@@ -77,10 +77,7 @@ const UserSuggestNominations = ({classes}: { classes: ClassesType<typeof styles>
       <Typography variant="display2" className={classes.headline}>
         {preferredHeadingCase(`Nominate Posts for ${year} LessWrong Review`)}
       </Typography>
-      <div style={{border: '1px solid rgba(0,0,0,0.2)', borderRadius: 4, padding: 10}}>
-        <Input placeholder="Nominate a linkpost from the rationalsphere" />
-      </div>
-
+      
       <Tabs
         value={activeTab}
         onChange={handleChangeTab}
@@ -106,6 +103,12 @@ const UserSuggestNominations = ({classes}: { classes: ClassesType<typeof styles>
           value="all"
           label={<LWTooltip title={`All posts from ${year}`}>All Posts</LWTooltip>}
         />
+        <Tab
+          className={classes.tab}
+          value="rationalsphere"
+          label={<LWTooltip title={`Posts from within broader Rationality community`}>LinkPosts</LWTooltip>}
+        />
+
       </Tabs>
 
       {(activeTab === 'votes') && <>
@@ -126,6 +129,10 @@ const UserSuggestNominations = ({classes}: { classes: ClassesType<typeof styles>
       </>}
 
       {activeTab === 'all' && <AllPostsPage/>}
+      {activeTab === 'rationalsphere' && <div>
+        <ImportExternalPost/>
+
+      </div>}
       
     </SingleColumnSection>
   </AnalyticsContext>
