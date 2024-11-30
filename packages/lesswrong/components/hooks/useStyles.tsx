@@ -126,7 +126,7 @@ export const classNameProxy = <T extends string>(prefix: string): ClassNameProxy
 function createAndInsertStyleNode(theme: ThemeType, styleDefinition: StyleDefinition): HTMLStyleElement {
   const stylesStr = styleNodeToString(theme, styleDefinition);
   const styleNode = document.createElement("style");
-  styleNode.innerText = stylesStr;
+  styleNode.append(document.createTextNode(stylesStr));
   styleNode.setAttribute("data-name", styleDefinition.name);
   styleNode.setAttribute("data-priority", styleDefinition.name);
   insertStyleNodeAtCorrectPosition(styleNode, styleDefinition.name, styleDefinition.options?.stylePriority ?? 0);
