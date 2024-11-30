@@ -322,7 +322,7 @@ export type PageInfosRow = { //{{_}}
   // Alias name of the page.
   alias: string;
   // Page's type.
-  type: string;
+  type: "group"|"wiki"|"comment"|"question";
   // How to sort the page's children.
   sortChildrenBy: string;
   // True iff the page has a probability vote.
@@ -386,7 +386,7 @@ type PagePairsRow = { //{{_}}
   // Other way to memorize: for each of the relationships you can add
   // on the relationship tab of the edit page, the page you're editing
   // is the child.
-  type: string;
+  type: "parent"|"tag"|"subject"|"requirement";
   // Id of the user who added this relationships. FK into pages.
   creatorId: string;
   // When this relationship was created.

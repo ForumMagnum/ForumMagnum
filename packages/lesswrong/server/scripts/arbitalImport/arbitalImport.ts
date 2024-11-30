@@ -22,6 +22,7 @@ import Papa from 'papaparse';
 import sortBy from 'lodash/sortBy';
 import { htmlToChangeMetrics } from '@/server/editor/utils';
 import { runSqlQuery } from '@/server/sql/sqlClient';
+import { Comments } from '@/lib/collections/comments';
 
 type ArbitalImportOptions = {
   /**
@@ -204,25 +205,38 @@ export type ArbitalConversionContext = {
   defaultUser: DbUser,
   slugsByPageId: Record<string,string>
   titlesByPageId: Record<string,string>
+  pageIdsByTitle: Record<string,string>
   pageInfosByPageId: Record<string, PageInfosRow>,
   domainsByPageId: Record<string, DomainsRow>,
   imageUrlsCache: Record<string,string>
+  liveRevisionsByPageId: Record<string,WholeArbitalDatabase["pages"][0]>
 }
 
 async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: ResolverContext, options: ArbitalImportOptions): Promise<void> {
-  const pageInfosById = keyBy(database.pageInfos, pi=>pi.pageId);
+  await importWikiPages(database, resolverContext, options);
+  //await importComments(database, resolverContext, options);
+}
+
+
+async function buildConversionContext(database: WholeArbitalDatabase, options: ArbitalImportOptions): Promise<ArbitalConversionContext> {
   const pagesById = groupBy(database.pages, p=>p.pageId);
-  const lensesByPageId = groupBy(database.lenses, l=>l.pageId);
-  const domainsByPageId = keyBy(database.domains, d=>d.id);
-  const summariesByPageId = groupBy(database.pageSummaries, s=>s.pageId);
+  const pageInfosById = keyBy(database.pageInfos, pi=>pi.pageId);
+
+  //const matchedUsers: Record<string,DbUser|null> = { '2': await resolverContext.loaders.Users.load('nmk3nLpQE89dMRzzN') };
+  const matchedUsers: Record<string,DbUser|null> = options.userMatchingFile
+    ? await loadUserMatching(options.userMatchingFile)
+    : {};
+
+  const defaultUser: DbUser|null = await Users.findOne({ username: "arbitalimport" });
+  if (!defaultUser) {
+    throw new Error("There must be a fallback user named arbitalimport to assign edits to");
+  }
+
   const wikiPageIds = database.pageInfos.filter(pi => pi.type === "wiki").map(pi=>pi.pageId);
   const pageIdsByTitle: Record<string,string> = {};
   const titlesByPageId: Record<string,string> = {};
   const liveRevisionsByPageId: Record<string,WholeArbitalDatabase["pages"][0]> = {};
-  // const defaultUser: DbUser|null = await Users.findOne({ username: "arbitalimport" });
-  // if (!defaultUser) {
-  //   throw new Error("There must be a user named arbitalimport to assign edits to");
-  // }
+  const domainsByPageId = keyBy(database.domains, d=>d.id);
   
   let slugsByPageId: Record<string,string> = {};
   const slugsCachePath = path.join(__dirname, "./slugsByPageId.json");
@@ -231,16 +245,6 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
     slugsByPageId = JSON.parse(fs.readFileSync(slugsCachePath, "utf8"));
     cacheLoaded = true;
   }
-
-  const defaultUser: DbUser|null = await Users.findOne({ username: "arbitalimport" });
-  if (!defaultUser) {
-    throw new Error("There must be a fallback user named arbitalimport to assign edits to");
-  }
-
-  //const matchedUsers: Record<string,DbUser|null> = { '2': await resolverContext.loaders.Users.load('nmk3nLpQE89dMRzzN') };
-  const matchedUsers: Record<string,DbUser|null> = options.userMatchingFile
-    ? await loadUserMatching(options.userMatchingFile)
-    : {};
 
   await executePromiseQueue(wikiPageIds
     .filter(pageId => pagesById[pageId]?.some(revision => revision.isLiveEdit))
@@ -263,8 +267,32 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
 
   fs.writeFileSync(slugsCachePath, JSON.stringify(slugsByPageId, null, 2));
   
-  console.log(`There are ${Object.keys(liveRevisionsByPageId).length} wiki pages with live revisions`);
+  return {
+    database,
+    matchedUsers, defaultUser,
+    slugsByPageId,
+    titlesByPageId,
+    pageIdsByTitle,
+    pageInfosByPageId: pageInfosById,
+    domainsByPageId,
+    liveRevisionsByPageId,
+    imageUrlsCache: {},
+  };
+  
+}
 
+async function importWikiPages(database: WholeArbitalDatabase, resolverContext: ResolverContext, options: ArbitalImportOptions): Promise<void> {
+  const pagesById = groupBy(database.pages, p=>p.pageId);
+  const lensesByPageId = groupBy(database.lenses, l=>l.pageId);
+  const summariesByPageId = groupBy(database.pageSummaries, s=>s.pageId);
+
+  const conversionContext = await buildConversionContext(database, options);
+  const {
+    pageInfosByPageId: pageInfosById, slugsByPageId, titlesByPageId,
+    pageIdsByTitle, domainsByPageId, matchedUsers, defaultUser, liveRevisionsByPageId,
+  } = conversionContext;
+  console.log(`There are ${Object.keys(liveRevisionsByPageId).length} wiki pages with live revisions`);
+  
   const importedRecordMaps: ImportedRecordMaps = {
     pageInfosById,
     pagesById,
@@ -283,16 +311,6 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
       })
     : Object.keys(liveRevisionsByPageId)
   console.log(`Importing ${pageIdsToImport.length} pages`)
-  
-  const conversionContext: ArbitalConversionContext = {
-    database,
-    matchedUsers, defaultUser,
-    slugsByPageId,
-    titlesByPageId,
-    pageInfosByPageId: pageInfosById,
-    domainsByPageId,
-    imageUrlsCache: {},
-  };
   
   for (const pageId of pageIdsToImport) {
     try {
@@ -463,6 +481,99 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
     }
   }
 }
+
+async function importComments(database: WholeArbitalDatabase, resolverContext: ResolverContext, options: ArbitalImportOptions): Promise<void> {
+  const commentPageInfos = database.pageInfos.filter(pi => pi.type === "comment");
+  const pageInfosById = keyBy(database.pageInfos, pi=>pi.pageId);
+  let irregularComments: {reason: string, commentId: string}[] = [];
+  const conversionContext = await buildConversionContext(database, options);
+
+  let importedCommentCount = 0;
+  const commentIdsToImport: string[] = [];
+  let lwCommentsById: Record<string,DbComment> = {};
+  
+  // Sort comments by creation date so that we only insert a comment after
+  // inserting its parent
+  for (const comment of sortBy(commentPageInfos, c=>c.createdAt)) {
+    const commentId = comment.pageId;
+    const revs = database.pages.filter(p => p.pageId === comment.pageId);
+    const publicRevs = revs.filter(r => !r.isAutosave);
+    const livePublicRev = revs.find(r => r.isLiveEdit);
+    if (!livePublicRev) {
+      irregularComments.push({reason: "No live rev", commentId});
+      continue;
+    }
+    if (livePublicRev.text.trim().length === 0) {
+      irregularComments.push({reason: "Live rev comment text is empty string", commentId});
+      continue;
+    }
+    
+    // A comment has either one or two parents. If it has one parent, the parent
+    // is a wiki page; if it has two, then one parent is a wiki page and the
+    // other is a comment.
+    const parentIds = database.pagePairs.filter(p => p.childId === comment.pageId).map(p => p.parentId);
+    if (parentIds.some(parentId => !pageInfosById[parentId])) {
+      irregularComments.push({reason: "Has a parent that doesn't exist", commentId});
+      continue;
+    }
+    const wikiPageParentId = parentIds.find(parentId => pageInfosById[parentId]?.type === "wiki")
+    const parentCommentId = parentIds.find(parentId => pageInfosById[parentId]?.type === "comment")
+    if (!wikiPageParentId) {
+      irregularComments.push({reason: "Not a reply to a wiki page", commentId});
+      continue;
+    }
+    
+    commentIdsToImport.push(commentId);
+    const commentUser = conversionContext.matchedUsers[comment.createdBy] ?? conversionContext.defaultUser;
+    const liveRevCkEditorMarkup = await arbitalMarkdownToCkEditorMarkup({
+      markdown: livePublicRev.text,
+      pageId: commentId,
+      conversionContext,
+    });
+    const lwWikiPageId = wikiPageParentId ? (await Tags.findOne({
+      "legacyData.arbitalPageId": wikiPageParentId,
+      deleted: false,
+    }))?._id : null;
+    const lwComment = (await createMutator({
+      collection: Comments,
+      document: {
+        contents: {
+          originalContents: {
+            type: "ckEditorMarkup",
+            data: liveRevCkEditorMarkup,
+          },
+        },
+        tagId: lwWikiPageId,
+        parentCommentId: parentCommentId ? (lwCommentsById[parentCommentId]?._id ?? null) : null,
+        legacyData: {
+          arbitalPageId: commentId,
+        },
+      },
+      currentUser: commentUser,
+      context: resolverContext,
+      validate: false,
+    })).data;
+    lwCommentsById[commentId] = lwComment;
+    await Comments.rawUpdateOne({_id: lwComment._id}, {
+      $set: {
+        createdAt: comment.createdAt,
+        postedAt: comment.createdAt,
+      }
+    });
+  }
+  
+
+  // Insert the comments
+
+  console.log(`Import found ${commentIdsToImport.length} normal comments and ${irregularComments.length} irregular comments`);
+  const irregularCommentsByReason = groupBy(irregularComments, c=>c.reason)
+  console.log(Object.keys(irregularCommentsByReason)
+    .map((reason) => `${irregularCommentsByReason[reason].length}: ${reason}`)
+    .join("\n")
+  );
+}
+
+
 
 async function backDateObj<N extends CollectionNameString>(collection: CollectionBase<N>, _id: string, date: Date) {
   await collection.rawUpdateOne(
@@ -813,3 +924,23 @@ function loadUsersCsv(filename: string) {
   }
   return parsedCsv;
 }
+
+Globals.domainStats = async (mysqlConnectionString: string) => {
+  const arbitalDb = await connectAndLoadArbitalDatabase(mysqlConnectionString);
+  const pageIdsToHide = arbitalDb.pageInfos.filter(pi => pi.seeDomainId !== 0);
+  console.log(`${pageIdsToHide.length}/${arbitalDb.pageInfos.length} pages hidden based on domain`);
+}
+
+Globals.hideContentFromNonDefaultDomains = async (mysqlConnectionString: string) => {
+  const arbitalDb = await connectAndLoadArbitalDatabase(mysqlConnectionString);
+  
+  const pageIdsToDelete = arbitalDb.pageInfos.filter(pi => pi.seeDomainId !== 0).map(pi => pi.pageId);
+  console.log(`Will delete ${pageIdsToDelete.length} pages`);
+  
+  const result = await Tags.rawUpdateMany({
+    "legacyData.arbitalPageId": {$in: pageIdsToDelete}
+  }, {
+    $set: {deleted: true},
+  });
+}
+
