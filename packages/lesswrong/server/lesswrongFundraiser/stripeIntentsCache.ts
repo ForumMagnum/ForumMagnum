@@ -6,14 +6,22 @@ export type SucceededPaymentIntent = Stripe.PaymentIntent & { status: 'succeeded
 
 export const stripeIntentsCache: { intents: SucceededPaymentIntent[] } = { intents: [] };
 
-const stripeSecretKey = lightconeFundraiserStripeSecretKeySetting.get();
-const stripe = stripeSecretKey && new Stripe(stripeSecretKey, {
-  apiVersion: '2024-11-20.acacia',
-});
+let stripe: Stripe | undefined = undefined;
+
+const getStripe = () => {
+  if (stripe) return stripe;
+  let stripeSecretKey = lightconeFundraiserStripeSecretKeySetting.get();
+  if (!stripeSecretKey) return;
+  stripe = new Stripe(stripeSecretKey, {
+    apiVersion: '2024-11-20.acacia',
+  });
+  return stripe;
+}
 
 let lastUpdatedAt = new Date();
 
 export async function updateStripeIntentsCache() {
+  const stripe = getStripe();
   if (!stripe) return;
   try {
     const succeededPaymentIntents = [];
