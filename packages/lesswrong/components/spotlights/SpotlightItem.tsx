@@ -349,9 +349,9 @@ const styles = (theme: ThemeType) => ({
   },
   reviews: {
     width: "100%",
+    maxWidth: SECTION_WIDTH,
     borderTop: theme.palette.border.extraFaint,
     background: theme.palette.panelBackground.default,
-    marginLeft: 4,
     [theme.breakpoints.down('xs')]: {
       display: "none",
     }
