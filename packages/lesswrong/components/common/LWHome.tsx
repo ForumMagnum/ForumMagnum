@@ -58,7 +58,7 @@ const LWHome = () => {
           {reviewIsActive() && getReviewPhase() !== "RESULTS" && showReviewOnFrontPageIfActive.get() && <SingleColumnSection>
             <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
           </SingleColumnSection>}
-          {!lightconeFundraiserActive.get() && (!reviewIsActive() || !showReviewOnFrontPageIfActive.get()) && <SingleColumnSection>
+          {(!reviewIsActive() || !showReviewOnFrontPageIfActive.get()) && <SingleColumnSection>
             <DismissibleSpotlightItem current/>
           </SingleColumnSection>}
           <AnalyticsInViewTracker
