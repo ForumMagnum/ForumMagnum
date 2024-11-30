@@ -2,7 +2,7 @@ import { registerComponent } from '@/lib/vulcan-lib';
 import React, { useEffect, useState } from 'react';
 import { lightconeFundraiserPostId, lightconeFundraiserThermometerBgUrl, lightconeFundraiserUnsyncedAmount } from '@/lib/publicSettings';
 import { Link } from '@/lib/reactRouterWrapper';
-import { useFundraiserPercentage, useFundraiserStripeTotal } from '@/lib/lightconeFundraiser';
+import { useFundraiserProgress } from '@/lib/lightconeFundraiser';
 
 interface FundraisingThermometerProps {
   goalAmount: number;
@@ -85,10 +85,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 const FundraisingThermometer: React.FC<FundraisingThermometerProps & {classes: ClassesType}> = ({ goalAmount, classes }) => {
-  const stripeTotal = useFundraiserStripeTotal();
-  const unsyncedAmount = lightconeFundraiserUnsyncedAmount.get();
-  const currentAmount = unsyncedAmount + stripeTotal;
-  const percentage = useFundraiserPercentage(goalAmount);
+  const [percentage, currentAmount] = useFundraiserProgress(goalAmount);
 
 
   return (

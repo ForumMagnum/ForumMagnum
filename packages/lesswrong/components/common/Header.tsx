@@ -370,12 +370,6 @@ const Header = ({
   const hasKarmaChangeNotifier = !isFriendlyUI && currentUser && !currentUser.usernameUnset;
   const hasMessagesButton = isFriendlyUI && currentUser && !currentUser.usernameUnset;
 
-  const stripeTotal = useFundraiserStripeTotal();
-  const unsyncedAmount = lightconeFundraiserUnsyncedAmount.get();
-  const currentAmount = unsyncedAmount + stripeTotal;
-  const goalAmount = lightconeFundraiserThermometerGoalAmount.get();
-  const percentage = Math.min((currentAmount / goalAmount) * 100, 100);
-
   const setNavigationOpen = (open: boolean) => {
     setNavigationOpenState(open);
     captureEvent("navigationBarToggle", {open: open})

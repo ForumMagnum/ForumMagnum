@@ -20,19 +20,21 @@ export const useFundraiserStripeTotal = () => {
   return stripeTotal;
 }
 
-export const useFundraiserPercentage = (goalAmount: number) => {
+export const useFundraiserProgress = (goalAmount: number) => {
   const stripeTotal = useFundraiserStripeTotal();
   const unsyncedAmount = lightconeFundraiserUnsyncedAmount.get();
   const currentAmount = unsyncedAmount + stripeTotal;
   const percentage = Math.min((currentAmount / goalAmount) * 100, 100);
-  return percentage;
+  return [percentage, currentAmount];
 }
 
+// userful for testing
 export const useLivePercentage = () => {
   const [percentage, setPercentage] = useState(0);
 
   useEffect(() => {
     setInterval(() => {
+      // 150 gives us a little time to look at the filled thermometer
       setPercentage(percentage => percentage >= 150 ? 0 : percentage + 0.1);
     }, 1);
   }, []);
