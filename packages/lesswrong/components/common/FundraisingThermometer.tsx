@@ -26,7 +26,7 @@ const styles = (theme: ThemeType) => ({
     left: 0,
     height: '100%',
     backgroundImage: `url(${lightconeFundraiserThermometerBgUrl.get()})`,
-    boxShadow: `5px 0px 10px ${theme.palette.fundraisingThermometer.shadow}`,
+    boxShadow: `inset -5px 0px 10px ${theme.palette.fundraisingThermometer.shadow}`,
   },
   blurredUnfill: {
     position: 'absolute',
@@ -93,16 +93,20 @@ const FundraisingThermometer: React.FC<FundraisingThermometerProps & {classes: C
       <div className={classes.fundraiserHeader}>
         <div className={classes.fundraiserHeaderText}>
           <h2 className={classes.header}><Link to={`/posts/${lightconeFundraiserPostId.get()}`}>Lightcone Infrastructure fundraiser progress</Link></h2>
-          <h3 className={classes.subheader}>Goal 1: June</h3>
+          <h3 className={classes.subheader}>Goal 1: May</h3>
         </div>
-        <div className={classes.fundraiserHeaderDonateButton}>
-          <Link className={classes.fundraiserDonateText} to="https://lightconeinfrastructure.com/donate">Donate</Link>
+        <Link className={classes.fundraiserDonateText} to="https://lightconeinfrastructure.com/donate">
+          <div className={classes.fundraiserHeaderDonateButton}>
+            Donate
+          </div>
+        </Link>
+      </div>
+      <Link className={classes.thermometerLink} to={`/posts/${lightconeFundraiserPostId.get()}`}>
+        <div className={classes.thermometer}>
+          <div className={classes.blurredUnfill}></div>
+          <div className={classes.fill} style={{width: `${percentage}%`, backgroundSize: `${100*100/percentage}% auto`}}></div>
         </div>
-      </div>
-      <div className={classes.thermometer}>
-        <div className={classes.blurredUnfill}></div>
-        <div className={classes.fill} style={{width: `${percentage}%`, backgroundSize: `${100*100/percentage}% auto`}}></div>
-      </div>
+      </Link>
       <div className={classes.textContainer}>
         <span className={classes.raisedText}><span className={classes.raisedTextBold}>Raised:</span> <span className={classes.raisedGoalNumber}>${currentAmount.toLocaleString()}</span></span>
         <span className={classes.goalText}><span className={classes.goalTextBold}>Goal:</span> <span className={classes.raisedGoalNumber}>${goalAmount.toLocaleString()}</span></span>

@@ -251,7 +251,6 @@ export const styles = (theme: ThemeType) => ({
       position: "fixed",
       transform: "translateY(0%)",
     },
-    overflow: 'hidden',
   },
   headroomPinnedOpen: {
     "& .headroom--unpinned": {
