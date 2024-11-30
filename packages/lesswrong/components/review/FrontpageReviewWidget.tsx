@@ -274,7 +274,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
       <div>(posts need two votes to proceed)</div>
     </span>}
     <LWTooltip className={classes.buttonWrapper} title={`Look over your favorite posts from ${reviewYear}, and nominate the ones that stand the tests of time.`}>
-      <Link to={`/votesByYear/${reviewYear}`} className={classes.actionButton}>
+      <Link to={`/nominatePosts/${reviewYear}`} className={classes.actionButton}>
         Nominate Posts
       </Link>
     </LWTooltip>

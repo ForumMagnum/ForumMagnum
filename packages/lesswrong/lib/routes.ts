@@ -346,9 +346,19 @@ addRoute(
   {
     name: 'votesByYear',
     path: '/votesByYear/:year',
-    componentName: 'UserSuggestNominations',
-    title: "Posts you've engaged with"
+    redirect: ({params}) => `/nominatePosts/${params.year}`
   },
+  {
+    name: 'nominatePosts',
+    path: '/nominatePosts',
+    redirect: () => `/nominatePosts/${REVIEW_YEAR}`
+  },
+  {
+    name: 'nominatePostsByYear',
+    path: '/nominatePosts/:year',
+    title: "Nominate Posts",
+    componentName: "UserSuggestNominations"
+  }
 );
 
 if (taggingNameIsSet.get()) {

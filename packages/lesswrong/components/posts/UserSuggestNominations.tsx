@@ -13,7 +13,7 @@ import qs from 'qs'
 const styles = (theme: ThemeType) => ({
   headline: {
     color: theme.palette.grey[1000],
-    marginBottom: 20,
+    marginBottom: 40,
     [theme.breakpoints.down('sm')]: {
       marginTop: 20,
       marginBottom: 10,
@@ -74,9 +74,8 @@ const UserSuggestNominations = ({classes}: { classes: ClassesType<typeof styles>
   return <AnalyticsContext pageContext="nominationPage">
     <SingleColumnSection>
       <Typography variant="display2" className={classes.headline}>
-        {preferredHeadingCase(`Nominate Posts for ${year} review`)}
+        {preferredHeadingCase(`Nominate Posts for ${year} LessWrong Review`)}
       </Typography>
-
       <Tabs
         value={activeTab}
         onChange={handleChangeTab}
