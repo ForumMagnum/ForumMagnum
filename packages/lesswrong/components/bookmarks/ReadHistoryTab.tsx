@@ -1,9 +1,9 @@
-import React, {useState} from 'react'
-import {Components, fragmentTextForQuery, registerComponent} from '../../lib/vulcan-lib'
-import {AnalyticsContext} from '../../lib/analyticsEvents'
-import {useCurrentUser} from '../common/withUser'
-import {gql, NetworkStatus, useQuery} from '@apollo/client'
-import moment from 'moment'
+import React, {useState} from 'react';
+import { registerComponent, Components, fragmentTextForQuery } from '../../lib/vulcan-lib';
+import {AnalyticsContext} from "../../lib/analyticsEvents";
+import {useCurrentUser} from "../common/withUser"
+import { gql, useQuery, NetworkStatus } from '@apollo/client';
+import moment from 'moment';
 
 const styles = (theme: ThemeType): JssStyles => ({
   loadMore: {
