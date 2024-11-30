@@ -194,7 +194,7 @@ type LastVisitsRow = { //{{_}}
 };
 
 // This table contains all information about lens relationships.
-type LensesRow = { //{{_}}
+export type LensesRow = { //{{_}}
   // Id of the lens relationships.
   id: number;
   // Id of the page that has the lens. FK into pageInfos.
