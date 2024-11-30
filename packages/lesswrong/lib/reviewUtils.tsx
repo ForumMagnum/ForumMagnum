@@ -50,11 +50,10 @@ export function getReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
 
 const TIMEZONE_OFFSET = 8 // Pacific Time
 
-// we typically start testing the next year's review in November of the current year
 export const getReviewStart = (reviewYear: ReviewYear) => {
   const startDateString = isDevelopment
-    ? `${reviewYear+1}-11-15`
-    : `${reviewYear+1}-12-02`; // Regular starting date on Dec 2
+    ? `${reviewYear+1}-11-15` // we typically start testing the next year's review in November of the current year
+    : `${reviewYear+1}-12-02`;
   return moment.utc(startDateString).add(TIMEZONE_OFFSET, 'hours');
 };
 export const getNominationPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+1}-12-14`).add(TIMEZONE_OFFSET, 'hours')
@@ -123,8 +122,8 @@ export function eligibleToNominate (currentUser: UsersCurrent|DbUser|null) {
 }
 
 export function postEligibleForReview (post: PostsBase) {
-  if (new Date(post.postedAt) > new Date(`${REVIEW_YEAR+1}-01-01`)) return false
-  if (isLWorAF && new Date(post.postedAt) < new Date(`${REVIEW_YEAR}-01-01`)) return false
+  if (moment.utc(post.postedAt) > moment.utc(`${REVIEW_YEAR+1}-01-01`)) return false
+  if (isLWorAF && moment.utc(post.postedAt) < moment.utc(`${REVIEW_YEAR}-01-01`)) return false
   return true
 }
 
