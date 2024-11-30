@@ -1,6 +1,7 @@
+import type { HeadingConfig } from "@ckeditor/ckeditor5-heading";
 import type { MathConfig } from "./ckeditor5-math/math";
 
-const headingOptions = {
+const headingOptions: HeadingConfig = {
 	options: [
 		{ model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
 		{ model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },

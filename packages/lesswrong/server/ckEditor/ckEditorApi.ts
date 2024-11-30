@@ -16,6 +16,7 @@ import { getCkEditorApiPrefix, getCkEditorApiSecretKey } from './ckEditorServerC
 import { getPostEditorConfig } from './postEditorConfig';
 import CkEditorUserSessions from '../../lib/collections/ckEditorUserSessions/collection';
 import { getLatestRev, getNextVersion, getPrecedingRev, htmlToChangeMetrics } from '../editor/utils';
+import { forumTypeSetting } from '@/lib/instanceSettings';
 
 // TODO: actually implement these in Zod
 interface CkEditorComment {
@@ -385,7 +386,9 @@ const ckEditorApi = {
     if (!bundleVersion)
       throw new Error("Missing argument: bundleVersion");
     
-    const editorBundle = fs.readFileSync("public/lesswrong-editor/build/ckeditor-cloud.js", 'utf8');
+    const bundleFileName = `ckeditor-cloud-${forumTypeSetting.get().toLowerCase()}.js`;
+    
+    const editorBundle = fs.readFileSync(`public/lesswrong-editor/build/${bundleFileName}`, 'utf8');
     const editorBundleHash = crypto.createHash('sha256').update(editorBundle, 'utf8').digest('hex');
     
     // eslint-disable-next-line no-console

@@ -1,2 +1,5 @@
 const { getWebpackConfig } = require("./webpack-common.config.js");
-module.exports = getWebpackConfig("cloud");
+module.exports = [
+  getWebpackConfig("cloud", "LessWrong"),
+  getWebpackConfig("cloud", "EAForum")
+];
