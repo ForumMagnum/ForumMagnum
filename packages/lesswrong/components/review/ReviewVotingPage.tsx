@@ -5,11 +5,9 @@ import { useMutation, gql } from '@apollo/client';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import * as _ from "underscore"
-import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward'
-import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward'
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 import seedrandom from '../../lib/seedrandom';
-import { eligibleToNominate, getCostData, getReviewPhase, ReviewPhase, getReviewYearFromString } from '../../lib/reviewUtils';
+import { getCostData, getReviewPhase, ReviewPhase, getReviewYearFromString } from '../../lib/reviewUtils';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { randomId } from '../../lib/random';
 import { useLocation } from '../../lib/routeUtil';
@@ -38,15 +36,6 @@ const styles = (theme: ThemeType) => ({
       display: "block"
     }
   },
-  instructions: {
-    padding: 16,
-    marginBottom: 24,
-    background: theme.palette.panelBackground.default,
-    boxShadow: theme.palette.boxShadow.default,
-    [theme.breakpoints.down('sm')]: {
-      display: "none"
-    }
-  },
   leftColumn: {
     gridArea: "leftColumn",
     position: "sticky",
@@ -69,143 +58,8 @@ const styles = (theme: ThemeType) => ({
       gridArea: "unset"
     },
   },
-  result: {
-    ...theme.typography.smallText,
-    ...theme.typography.commentStyle,
-    lineHeight: "1.3rem",
-    marginBottom: 10,
-    position: "relative"
-  },
-  votingBox: {
-    maxWidth: 700
-  },
-  expandedInfo: {
-    maxWidth: 600,
-    marginBottom: 175,
-  },
-  menu: {
-    position: "sticky",
-    top:0,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: theme.palette.panelBackground.default,
-    zIndex: theme.zIndexes.reviewVotingMenu,
-    padding: theme.spacing.unit,
-    background: theme.palette.grey[310],
-    borderBottom: theme.palette.border.slightlyFaint,
-    flexWrap: "wrap"
-  },
-  menuIcon: {
-    marginLeft: theme.spacing.unit
-  },
-  returnToBasicIcon: {
-    transform: "rotate(180deg)",
-    marginRight: theme.spacing.unit
-  },
-  expandedInfoWrapper: {
-    position: "fixed",
-    top: 100,
-    overflowY: "auto",
-    height: "100vh",
-    paddingRight: 8
-  },
-  header: {
-    ...theme.typography.display3,
-    ...theme.typography.commentStyle,
-    marginTop: 6,
-  },
-  postHeader: {
-    ...theme.typography.display1,
-    ...theme.typography.postStyle,
-    marginTop: 0,
-  },
-  comments: {
-  },
-  costTotal: {
-    ...theme.typography.commentStyle,
-    marginLeft: 10,
-    color: theme.palette.grey[600],
-    marginRight: "auto",
-    whiteSpace: "pre"
-  },
-  excessVotes: {
-    color: theme.palette.error.main,
-    // border: `solid 1px ${theme.palette.error.light}`,
-    // paddingLeft: 12,
-    // paddingRight: 12,
-    // paddingTop: 6,
-    // paddingBottom: 6,
-    // borderRadius: 3,
-    // '&:hover': {
-    //   opacity: .5
-    // }
-  },
-  message: {
-    width: "100%",
-    textAlign: "center",
-    paddingTop: 50,
-    ...theme.typography.body2,
-    ...theme.typography.commentStyle,
-  },
-  hideOnDesktop: {
-    [theme.breakpoints.up('md')]: {
-      display: "none"
-    }
-  },
-  warning: {
-    color: theme.palette.error.main
-  },
-  singleLineWarning: {
-    padding: 16,
-  },
-  
-  voteAverage: {
-    cursor: 'pointer',
-  },
-  postCount: {
-    ...theme.typography.commentStyle,
-    marginLeft: 10,
-    color: theme.palette.grey[600],
-    marginRight: "auto",
-    whiteSpace: "pre"
-  },
-  reviewedCount: {
-    color: theme.palette.primary.main,
-    cursor: "pointer",
-    marginRight: 8
-  },
-  sortingOptions: {
-    whiteSpace: "pre",
-    display: "flex",
-    [theme.breakpoints.down('xs')]: {
-      paddingTop: 12,
-      paddingLeft: 4
-    }
-  },
   postsLoading: {
     opacity: .4,
-  },
-  sortBy: {
-    color: theme.palette.grey[600],
-    marginRight: 3
-  },
-  sortArrow: {
-    cursor: "pointer",
-    padding: 4,
-    borderRadius: 3,
-    marginRight: 6,
-    border: theme.palette.border.normal,
-    "&:hover": {
-      background: theme.palette.panelBackground.darken20,
-    }
-  },
-  votingTitle: {
-    ...theme.typography.display2,
-    ...theme.typography.postStyle,
-    [theme.breakpoints.up('md')]: {
-      display: "none"
-    }
   },
   postList: {
     boxShadow: `0 1px 5px 0px ${theme.palette.boxShadowColor(0.2)}`,
