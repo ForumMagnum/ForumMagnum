@@ -1238,4 +1238,4 @@ importComponent("EditUserJargonSettings", () => require('../components/jargon/Ed
 importComponent("PostsWithApprovedJargonPage", () => require('../components/jargon/PostsWithApprovedJargonPage'));
 importComponent("PostsListUserCommentedOn", () => require('../components/review/PostsListUserCommentedOn'));
 importComponent("RotatingReviewWinnerSpotlight", () => require('../components/review/RotatingReviewWinnerSpotlight'));
-
+importComponent("FundraisingThermometer", () => require('../components/common/FundraisingThermometer'));

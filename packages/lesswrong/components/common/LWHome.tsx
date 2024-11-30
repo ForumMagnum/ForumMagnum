@@ -2,7 +2,7 @@ import { combineUrls, Components, getSiteUrl, registerComponent } from '../../li
 import React, { useEffect } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { showReviewOnFrontPageIfActive } from '../../lib/publicSettings';
+import { showReviewOnFrontPageIfActive, lightconeFundraiserThermometerGoalAmount, lightconeFundraiserActive } from '../../lib/publicSettings';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../lib/cookies/cookies';
 import moment from 'moment';
@@ -39,7 +39,7 @@ const getStructuredData = () => ({
 
 const LWHome = () => {
   const { DismissibleSpotlightItem, RecentDiscussionFeed, AnalyticsInViewTracker, FrontpageReviewWidget,
-    SingleColumnSection, FrontpageBestOfLWWidget, EAPopularCommentsSection,
+    SingleColumnSection, FrontpageBestOfLWWidget, EAPopularCommentsSection, FundraisingThermometer,
     QuickTakesSection, LWHomePosts, HeadTags
   } = Components;
 
@@ -49,13 +49,16 @@ const LWHome = () => {
           <HeadTags structuredData={getStructuredData()}/>
           <UpdateLastVisitCookie />
 
+          {lightconeFundraiserActive.get() && <SingleColumnSection>
+            <FundraisingThermometer goalAmount={lightconeFundraiserThermometerGoalAmount.get()} />
+          </SingleColumnSection>}
           {reviewIsActive() && getReviewPhase() === "RESULTS" && <SingleColumnSection>
             <FrontpageBestOfLWWidget reviewYear={REVIEW_YEAR}/>
           </SingleColumnSection>}
           {reviewIsActive() && getReviewPhase() !== "RESULTS" && showReviewOnFrontPageIfActive.get() && <SingleColumnSection>
             <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
           </SingleColumnSection>}
-          {(!reviewIsActive() || !showReviewOnFrontPageIfActive.get()) && <SingleColumnSection>
+          {!lightconeFundraiserActive.get() && (!reviewIsActive() || !showReviewOnFrontPageIfActive.get()) && <SingleColumnSection>
             <DismissibleSpotlightItem current/>
           </SingleColumnSection>}
           <AnalyticsInViewTracker
