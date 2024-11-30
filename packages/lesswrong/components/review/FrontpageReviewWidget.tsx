@@ -233,7 +233,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
       {activeRange === "REVIEWS" && <div><em>{voteEndDate.fromNow()} remaining</em></div>}
     </>
 
-  const reviewPostPath = annualReviewAnnouncementPostPathSetting.get()
+  const reviewPostPath = '/posts/pudQtkre7f9GLmb2b/the-2023-lesswrong-review-reflecting-on-ourselves'
   if (!reviewPostPath) {
     // eslint-disable-next-line no-console
     console.error("No review announcement post path set")
