@@ -11,7 +11,7 @@ interface FundraisingThermometerProps {
 const styles = (theme: ThemeType) => ({
   thermometer: {
     width: '100%',
-    height: '100px',
+    aspectRatio: '765 / 100',
     borderRadius: '5px',
     position: 'relative',
     overflow: 'hidden',
