@@ -57,7 +57,11 @@ const NominationsPage = ({classes}: { classes: ClassesType<typeof styles> }) => 
     parseInt(params?.year)
 
   if (!eligibleToNominate(currentUser)) {
-    return <div>You are not eligible to nominate posts for this year.</div>
+    return <SingleColumnSection>
+      <Typography variant="body2">
+        You are not eligible to nominate posts for this year.
+      </Typography>
+    </SingleColumnSection>
   }
 
   const startDate = year === before2020 ? undefined : new Date(year, 0, 1)
