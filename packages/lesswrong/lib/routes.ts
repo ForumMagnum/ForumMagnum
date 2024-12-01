@@ -357,7 +357,7 @@ addRoute(
     name: 'nominatePostsByYear',
     path: '/nominatePosts/:year',
     title: "Nominate Posts",
-    componentName: "UserSuggestNominations"
+    componentName: "NominationsPage"
   }
 );
 

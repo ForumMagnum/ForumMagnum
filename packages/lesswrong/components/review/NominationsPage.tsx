@@ -9,6 +9,7 @@ import {preferredHeadingCase} from '@/themes/forumTheme'
 import withErrorBoundary from '@/components/common/withErrorBoundary'
 import moment from 'moment'
 import qs from 'qs'
+import { eligibleToNominate } from '@/lib/reviewUtils';
 
 const styles = (theme: ThemeType) => ({
   headline: {
@@ -31,7 +32,7 @@ const styles = (theme: ThemeType) => ({
 const dateStr = (startDate?: Date) =>
   startDate ? moment(startDate).format('YYYY-MM-DD') : ''
 
-const UserSuggestNominations = ({classes}: { classes: ClassesType<typeof styles> }) => {
+const NominationsPage = ({classes}: { classes: ClassesType<typeof styles> }) => {
   const currentUser = useCurrentUser()
   const navigate = useNavigate()
   const {params, location, query} = useLocation()
@@ -54,7 +55,10 @@ const UserSuggestNominations = ({classes}: { classes: ClassesType<typeof styles>
   const year = [before2020, '%e2%89%a42020'].includes(params?.year) ?
     before2020 :
     parseInt(params?.year)
-  if (!currentUser) return null
+
+  if (!eligibleToNominate(currentUser)) {
+    return <div>You are not eligible to nominate posts for this year.</div>
+  }
 
   const startDate = year === before2020 ? undefined : new Date(year, 0, 1)
   const endDate = year === before2020 ? new Date(2020, 0, 1) : new Date(year + 1, 0, 1)
@@ -74,6 +78,7 @@ const UserSuggestNominations = ({classes}: { classes: ClassesType<typeof styles>
   }
 
   const activeTab = query.tab || 'votes'
+
   return <AnalyticsContext pageContext="nominationPage">
     <SingleColumnSection>
       <Typography variant="display2" className={classes.headline}>
@@ -140,13 +145,13 @@ const UserSuggestNominations = ({classes}: { classes: ClassesType<typeof styles>
   </AnalyticsContext>
 }
 
-const UserSuggestNominationsComponent = registerComponent("UserSuggestNominations", UserSuggestNominations, {
+const NominationsPageComponent = registerComponent("NominationsPage", NominationsPage, {
   hocs: [withErrorBoundary],
   styles
 });
 
 declare global {
   interface ComponentTypes {
-    UserSuggestNominations: typeof UserSuggestNominationsComponent
+    NominationsPage: typeof NominationsPageComponent
   }
 }
