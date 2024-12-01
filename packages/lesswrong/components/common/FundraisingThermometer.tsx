@@ -126,7 +126,7 @@ const FundraisingThermometer: React.FC<FundraisingThermometerProps & {classes: C
       </Link>
       <div className={classes.textContainer}>
         <span className={classes.raisedText}><span className={classes.raisedTextBold}>Raised:</span> <span className={classes.raisedGoalNumber}>${Math.round(viewCurrentAmount).toLocaleString()}</span></span>
-        <span className={classes.goalText}><span className={classes.goalTextBold}>Goal 1 (May):</span> <span className={classes.raisedGoalNumber}>${goalAmount.toLocaleString()}</span></span>
+        <span className={classes.goalText}><span className={classes.goalTextBold}>Goal 1 of 3:</span> <span className={classes.raisedGoalNumber}>${goalAmount.toLocaleString()}</span></span>
       </div>
     </div>
   );
