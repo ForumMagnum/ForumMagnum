@@ -405,7 +405,8 @@ export const sanitize = function(s: string): string {
       'estimaker.app',
       'viewpoints.xyz',
       'calendly.com',
-      'neuronpedia.org'
+      'neuronpedia.org',
+      'lwartifacts.vercel.app'
     ],
     allowedClasses: {
       span: [ 'footnote-reference', 'footnote-label', 'footnote-back-link', "math-tex" ],

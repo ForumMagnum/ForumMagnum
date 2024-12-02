@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
-import { useLocation, useNavigate } from '../../lib/routeUtil';
+import { useLocation } from '../../lib/routeUtil';
 import { Components, fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -15,11 +15,11 @@ import { CoordinateInfo, ReviewSectionInfo, ReviewWinnerSectionName, ReviewWinne
 import { useCurrentUser } from '../common/withUser';
 import qs from "qs";
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
-import { filterNonnull, filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
+import { filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
 import { getSpotlightUrl } from '@/lib/collections/spotlights/helpers';
 
 /** In theory, we can get back posts which don't have review winner info, but given we're explicitly querying for review winners... */
-type GetAllReviewWinnersQueryResult = (PostsTopItemInfo & { reviewWinner: Exclude<PostsTopItemInfo['reviewWinner'], null> })[]
+export type GetAllReviewWinnersQueryResult = (PostsTopItemInfo & { reviewWinner: Exclude<PostsTopItemInfo['reviewWinner'], null> })[]
 
 type ExpansionState = 'expanded' | 'collapsed' | 'default';
 type HiddenState = 'full' | 'hidden';
@@ -509,7 +509,15 @@ const styles = (theme: ThemeType) => ({
     cursor: 'default'
   },
   spotlightItem: {
-    marginBottom: 20
+    marginBottom: 20,
+    display: 'flex',
+    alignItems: 'center',
+  },
+  spotlightRanking: {
+    marginRight: 16,
+    ...theme.typography.body2,
+    ...theme.typography.headerStyle,
+    color: theme.palette.grey[500],
   },
   spotlightIsNotRead: {
     filter: 'saturate(0) opacity(0.8)',
@@ -736,8 +744,6 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
     return getPostsImageGrid(posts, imgUrl, coords ?? DEFAULT_SPLASH_ART_COORDINATES, year, year, index, expandedNotYetMoved);
   });
 
-  const { Divider } = Components;
-
   return (
     <>
       <HeadTags description={description} image={"https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,q_auto/v1709263848/Screen_Shot_2024-02-29_at_7.30.43_PM_m5pyah.png"} />
@@ -814,16 +820,19 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
 
   const filteredSpotlights = filterWhereFieldsNotNull(filteredReviewWinnersForSpotlights, 'spotlight').map(post => ({
     ...post.spotlight,
-    document: post
+    document: post,
+    ranking: post.reviewWinner?.reviewRanking
   })).sort((a, b) => {
     const reviewWinnerA = reviewWinnersWithPosts.find(post => post._id === a.document?._id)
     const reviewWinnerB = reviewWinnersWithPosts.find(post => post._id === b.document?._id)
-    if (reviewWinnerA?.reviewWinner?.reviewYear !== reviewWinnerB?.reviewWinner?.reviewYear) {  
-      return (reviewWinnerB?.reviewWinner?.reviewYear ?? 0) - (reviewWinnerA?.reviewWinner?.reviewYear ?? 0)
+    if (reviewWinnerA?.reviewWinner?.reviewRanking !== reviewWinnerB?.reviewWinner?.reviewRanking) {
+      return (reviewWinnerA?.reviewWinner?.reviewRanking ?? 0) - (reviewWinnerB?.reviewWinner?.reviewRanking ?? 0)
+    } else if (reviewWinnerA?.reviewWinner?.reviewYear !== reviewWinnerB?.reviewWinner?.reviewYear) {  
+      return (reviewWinnerA?.reviewWinner?.reviewYear ?? 0) - (reviewWinnerB?.reviewWinner?.reviewYear ?? 0)
     } else if (reviewWinnerA?.reviewWinner?.category !== reviewWinnerB?.reviewWinner?.category) {
-      return (reviewWinnerB?.reviewWinner?.category ?? '').localeCompare(reviewWinnerA?.reviewWinner?.category ?? '')
+      return (reviewWinnerA?.reviewWinner?.category ?? '').localeCompare(reviewWinnerB?.reviewWinner?.category ?? '')
     } else {
-      return (reviewWinnerB?.reviewWinner?.reviewRanking ?? 0) - (reviewWinnerA?.reviewWinner?.reviewRanking ?? 0)
+      return 0
     }
   })
 
@@ -885,7 +894,12 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
         })}
       </div>
       <div style={{ maxWidth: SECTION_WIDTH, paddingBottom: 1000 }}>
-        {filteredSpotlights.map((spotlight) => <span key={spotlight._id} className={classNames(classes.spotlightItem, !spotlight.document?.isRead && classes.spotlightIsNotRead )}><SpotlightItem spotlight={spotlight} showSubtitle={false}/></span>)}
+        {filteredSpotlights.map((spotlight) => <div key={spotlight._id} className={classNames(classes.spotlightItem, !spotlight.document?.isRead && classes.spotlightIsNotRead )}>
+          <LWTooltip title={`Ranked #${spotlight.ranking} in ${spotlight.document?.reviewWinner?.reviewYear}`}>
+            <div className={classes.spotlightRanking}>#{(spotlight.ranking ?? 0) + 1}</div>
+          </LWTooltip>
+          <SpotlightItem spotlight={spotlight} showSubtitle={false} />
+        </div>)}
       </div>
     </div>
 }

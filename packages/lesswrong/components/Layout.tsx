@@ -111,7 +111,7 @@ const styles = (theme: ThemeType): JssStyles => ({
         minmax(0, min-content)
         minmax(0, 1fr)
         minmax(0, min-content)
-        minmax(0, ${isLW ? 7 : 1}fr)
+        minmax(0, ${isLWorAF ? 7 : 1}fr)
         minmax(0, min-content)
       `,
     },

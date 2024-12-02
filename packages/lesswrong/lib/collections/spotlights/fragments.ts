@@ -58,6 +58,9 @@ registerFragment(`
         displayName
         slug
       }
+      reviews {
+        ...CommentsList
+      }
     }
     sequenceChapters {
       ...ChaptersFragment

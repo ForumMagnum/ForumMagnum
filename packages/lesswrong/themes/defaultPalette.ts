@@ -327,6 +327,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     contrastInDarkMode: shades.grey[0],
     pageActiveAreaBackground: shades.grey[0],
     translucentBackground: "rgba(255,255,255,.5)",
+    translucentBackgroundHeavy: "rgba(255,255,255,.75)",
     loginBackdrop: "rgba(217,217,217,0.5)",
     diffInserted: "#d4ead4",
     diffDeleted: "#f0d3d3",
