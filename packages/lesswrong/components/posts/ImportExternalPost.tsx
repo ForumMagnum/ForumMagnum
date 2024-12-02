@@ -6,6 +6,23 @@ import Button from '@material-ui/core/Button'
 import { useCurrentUser } from '../common/withUser'
 import { EditorContents } from '../editor/Editor'
 
+export type WebsiteData = {
+  _id: string;
+  slug: string;
+  title: string;
+  url: string | null;
+  postedAt: Date | null;
+  createdAt: Date | null;
+  userId: string | null;
+  modifiedAt: Date | null;
+  draft: boolean;
+  coauthorStatuses: Array<{
+    userId: string;
+    confirmed: boolean;
+    requested: boolean;
+  }> | null;
+};
+
 const styles = (theme: ThemeType) => ({
   root: {
     display: 'flex',
@@ -60,7 +77,7 @@ const ImportExternalPost = ({classes, filter, sort}: {
   sort?: any,
 }) => {
   const [value, setValue] = useState('')
-  const [postId, setPostId] = useState('')
+  const [post, setPost] = useState<WebsiteData | null>(null)
   const [editorValue, setEditorValue] = useState<EditorContents>({value: '', type: 'ckEditorMarkup'})
   const currentUser = useCurrentUser()
 
@@ -79,7 +96,7 @@ const ImportExternalPost = ({classes, filter, sort}: {
       const {_id, slug} = data.importUrlAsDraftPost
 
       if (_id && slug) {
-        setPostId(_id)
+        setPost(data.importUrlAsDraftPost)
         // navigate(`/editPost?postId=${postId}`)
       } else {
         throw new Error('Post ID or slug not found in data:', data.importUrlAsDraftPost)
@@ -93,8 +110,7 @@ const ImportExternalPost = ({classes, filter, sort}: {
 
   const handleKeyPress = async (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
-      const result = await importUrlAsDraftPost({variables: {url: value}})
-      console.log({result})
+      await importUrlAsDraftPost({variables: {url: value}})
     }
   }
   /**
@@ -121,6 +137,7 @@ const ImportExternalPost = ({classes, filter, sort}: {
       <Button className={classes.formButton} onClick={() => importUrlAsDraftPost({variables: {url: value}})}>
         {loading ? <Loading className={classes.loadingDots}/> : <>Import Post</>}
       </Button>
+      {post && <div>{post.title}</div>}
 
       {/* <Editor collectionName='Comments' fieldName='contents' currentUser={currentUser} _classes={classes} formType='new' initialEditorType='ckEditorMarkup' value={editorValue} isCollaborative={false} onChange={(change: EditorChangeEvent) => {
         setEditorValue(change.contents.value)

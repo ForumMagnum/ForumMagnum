@@ -5,22 +5,7 @@ import {createMutator} from '../vulcan-lib'
 import {fetchFragmentSingle} from '../fetchFragment'
 import {defineQuery} from '@/server/utils/serverGraphqlUtil.ts'
 import Users from '@/lib/collections/users/collection'
-
-export type WebsiteData = {
-  _id: string;
-  slug: string;
-  title: string;
-  url: string | null;
-  postedAt: Date | null;
-  createdAt: Date | null;
-  userId: string | null;
-  draft: boolean;
-  coauthorStatuses: Array<{
-    userId: string;
-    confirmed: boolean;
-    requested: boolean;
-  }> | null;
-};
+import { WebsiteData } from '@/components/posts/ImportExternalPost'
 
 // todo various url validation
 // mostly client side, but also mb avoid links to lw, eaf, etc
@@ -45,7 +30,7 @@ export async function importUrlAsDraftPost(url: string, context: ResolverContext
   })
 
   if (existingPost) {
-    return { _id: existingPost._id, slug: existingPost.slug, title: existingPost.title, url: existingPost.url, postedAt: existingPost.postedAt, createdAt: existingPost.createdAt, userId: existingPost.userId, coauthorStatuses: existingPost.coauthorStatuses, draft: existingPost.draft}
+    return { _id: existingPost._id, slug: existingPost.slug, title: existingPost.title, url: existingPost.url, postedAt: existingPost.postedAt, createdAt: existingPost.createdAt, userId: existingPost.userId, coauthorStatuses: existingPost.coauthorStatuses, draft: existingPost.draft, modifiedAt: existingPost.modifiedAt} 
   }
 
   const extractedData = await extract(url)
@@ -63,6 +48,7 @@ export async function importUrlAsDraftPost(url: string, context: ResolverContext
       url: url,
       contents: {originalContents: {data: extractedData.content, type: 'ckEditorMarkup'}},
       postedAt: extractedData.published ? new Date(extractedData.published) : undefined,
+      modifiedAt: new Date(),
       coauthorStatuses: [{userId: context.currentUser._id, confirmed: true, requested: true}],
       hasCoauthorPermission: true,
       draft: true
@@ -70,7 +56,7 @@ export async function importUrlAsDraftPost(url: string, context: ResolverContext
     currentUser: context.currentUser,
     validate: false,
   })
-  return {_id: data?._id, slug: data?.slug, title: data?.title, url: data?.url, postedAt: data?.postedAt, createdAt: data?.createdAt, userId: data?.userId, coauthorStatuses: data?.coauthorStatuses, draft: data?.draft}
+  return {_id: data?._id, slug: data?.slug, title: data?.title, url: data?.url, postedAt: data?.postedAt, createdAt: data?.createdAt, userId: data?.userId, coauthorStatuses: data?.coauthorStatuses, draft: data?.draft, modifiedAt: data?.modifiedAt}
 }
 
 defineQuery({
