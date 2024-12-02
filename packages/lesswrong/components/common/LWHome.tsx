@@ -49,11 +49,11 @@ const LWHome = () => {
           <HeadTags structuredData={getStructuredData()}/>
           <UpdateLastVisitCookie />
 
-          {lightconeFundraiserActive.get() && <SingleColumnSection>
-            <FundraisingThermometer goalAmount={lightconeFundraiserThermometerGoalAmount.get()} />
-          </SingleColumnSection>}
           {reviewIsActive() && getReviewPhase() === "RESULTS" && <SingleColumnSection>
             <FrontpageBestOfLWWidget reviewYear={REVIEW_YEAR}/>
+          </SingleColumnSection>}
+          {lightconeFundraiserActive.get() && <SingleColumnSection>
+            <FundraisingThermometer goalAmount={lightconeFundraiserThermometerGoalAmount.get()} />
           </SingleColumnSection>}
           {reviewIsActive() && getReviewPhase() !== "RESULTS" && showReviewOnFrontPageIfActive.get() && <SingleColumnSection>
             <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
