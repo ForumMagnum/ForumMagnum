@@ -7,7 +7,7 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import DescriptionIcon from '@material-ui/icons/Description';
 import TagIcon from '@material-ui/icons/LocalOffer';
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
-const ITEM_WIDTH = 450;
+const ITEM_WIDTH = 250;
 
 
 const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
@@ -47,13 +47,16 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
   },
   item: {
     backgroundColor: "white",
-    width: '100%',
+    height: 32,
+    width: ITEM_WIDTH,
+    maxWidth: ITEM_WIDTH,
+    // overflow: "hidden",
     borderRadius: theme.borderRadius.default,
-    padding: "1px 16px 1px 8px",
+    padding: "1px 16px",
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 4,
+    // marginBottom: 4,
     boxShadow: "0 1px 5px rgba(0,0,0,.075)",
     "&:hover .ConceptItem-wordCount": {
       opacity: 1,
@@ -66,10 +69,14 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
 
   leftSideItems: {
     display: "flex",
+    maxWidth: `calc(${ITEM_WIDTH}px - 32px)`,
     alignItems: "center",
     gap: "8px",
-    // overflow: "hidden",
+    overflow: "hidden",
     flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: 0,
+    minWidth: 0,
   },
   title: {
     fontWeight: 400,
@@ -81,7 +88,7 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
-    // marginRight: 10,
+    minWidth: 0,
     opacity: 0.95,
     marginBottom: 4,
   },
@@ -149,44 +156,42 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     opacity: 0,
     transition: "opacity 0.1s ease",
   },
-
-
-  groupingItem: {
-    backgroundColor: "unset",
-    width: '100%',
-    // borderRadius: theme.borderRadius.default,
-    // padding: "0px 8px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    // marginBottom: 4,
-    // boxShadow: "0 1px 5px rgba(0,0,0,.075)",
-    // "&:hover .ConceptItem-wordCount": {
-    //   opacity: 1,
-    // },
-  },
-  groupingTitle: {
-    fontWeight: 700,
-    fontSize: 10,
-    marginBottom: 4,
-    fontVariant: "all-petite-caps",
-  },
-  groupingRightSideItems: {
-    display: "flex",
-    flexGrow: 0,
-    flexShrink: 0,
-    flexBasis: "auto",
-    alignItems: "center",
-    gap: "4px",
-    // color: theme.palette.grey[600],
-  },
-  groupingItemChildrenCount: {
-    fontSize: 9,
-    fontWeight: 400,
-    marginRight: 2,
-    marginBottom: 3,
-    color: theme.palette.grey[600],
-  },
+  // groupingItem: {
+  //   backgroundColor: "unset",
+  //   width: '100%',
+  //   // borderRadius: theme.borderRadius.default,
+  //   // padding: "0px 8px",
+  //   display: "flex",
+  //   alignItems: "center",
+  //   justifyContent: "space-between",
+  //   // marginBottom: 4,
+  //   // boxShadow: "0 1px 5px rgba(0,0,0,.075)",
+  //   // "&:hover .ConceptItem-wordCount": {
+  //   //   opacity: 1,
+  //   // },
+  // },
+  // groupingTitle: {
+  //   fontWeight: 700,
+  //   fontSize: 10,
+  //   marginBottom: 4,
+  //   fontVariant: "all-petite-caps",
+  // },
+  // groupingRightSideItems: {
+  //   display: "flex",
+  //   flexGrow: 0,
+  //   flexShrink: 0,
+  //   flexBasis: "auto",
+  //   alignItems: "center",
+  //   gap: "4px",
+  //   // color: theme.palette.grey[600],
+  // },
+  // groupingItemChildrenCount: {
+  //   fontSize: 9,
+  //   fontWeight: 400,
+  //   marginRight: 2,
+  //   marginBottom: 3,
+  //   color: theme.palette.grey[600],
+  // },
 
 
 
@@ -220,8 +225,20 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     width: `calc(100% - 16px)`,
   },
   childrenList: {
-    display: "flex",
-    flexDirection: "column",
+    marginTop: 12,
+    maxWidth: "100%",
+    display: "grid",
+    gridTemplateRows: "repeat(12, min-content)", // 8 items per column
+    gridAutoFlow: "dense",
+    width: "fit-content",
+    rowGap: "4px",
+    columnGap: "12px",
+    // Creates columns of ITEM_WIDTH, up to 4 columns
+    gridTemplateColumns: `repeat(6, ${ITEM_WIDTH}px)`,
+    // Force a break after every 32 items (8 rows × 4 columns)
+    "& > *:nth-child(32n+1)": {
+      gridColumnStart: 1,
+    },
   },
   showMoreChildren: {
     fontSize: 10,
@@ -364,7 +381,7 @@ const ConceptItem = ({ wikitag, nestingLevel, index, onHover, onClick, pinnedWik
       </div>
       {/* <div className={classes.wordCount}>{wordCountFormatted}</div> */}
     </div>
-    <div className={classes.clickToPin}>Click to pin</div>
+    {/* <div className={classes.clickToPin}>Click to pin</div> */}
     <div className={classes.rightSideItems}>
       {/* <div className={classes.wordCount}>
         <EditOutlinedIcon className={classes.icons} />
@@ -389,23 +406,23 @@ const ConceptItem = ({ wikitag, nestingLevel, index, onHover, onClick, pinnedWik
   </div>
 
   // groupingItem
-  const groupingItem = <div className={classes.groupingItem}>
-    {collapseToggle}
-    <div className={classes.leftSideItems}>
-      <div className={classes.groupingTitle}>
-        {wikitag.name}
-      </div>
-    </div>
-    <div className={classes.groupingRightSideItems}>
-      {collapsed && <div className={classes.groupingItemChildrenCount}>{numDirectChildren} tags</div>}  
-    </div>
-  </div>
+  // const groupingItem = <div className={classes.groupingItem}>
+  //   {collapseToggle}
+  //   <div className={classes.leftSideItems}>
+  //     <div className={classes.groupingTitle}>
+  //       {wikitag.name}
+  //     </div>
+  //   </div>
+  //   <div className={classes.groupingRightSideItems}>
+  //     {collapsed && <div className={classes.groupingItemChildrenCount}>{numDirectChildren} tags</div>}  
+  //   </div>
+  // </div>
         
   // if item is nesting level 0, render titleItem instead of regularItem
   // if item is nesting level 1, render groupingItem instead of regularItem
   // otherwise, render regularItem
 
-  const itemToRender = nestingLevel === 0 ? titleItem : (nestingLevel === 1 ? groupingItem : regularItem);
+  const itemToRender = nestingLevel === 0 ? titleItem : regularItem;
 
   const handleShowMore = (e: React.MouseEvent) => {
     e.stopPropagation();

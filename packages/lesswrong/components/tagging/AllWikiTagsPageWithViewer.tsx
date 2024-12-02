@@ -1,20 +1,17 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { useTagBySlug } from './useTag';
 import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import { useDialog } from '../common/withDialog';
-import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
+import { taggingNameCapitalSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import SearchIcon from '@material-ui/icons/Search';
 
-// Import the mock data and types
-import wikitagMockupData from './wikitag_mockup_data';
-import { WikiTagMockup, WikiTagNode } from './types'; // Adjust the import path as needed
-
-const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
+const styles = defineStyles("AllWikiTagsPageWithViewer", (theme: ThemeType) => ({
   root: {
     padding: "0 100px",
     maxWidth: 1000,
@@ -107,49 +104,25 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
   },
 }))
 
-// Define the buildTree function here
-function buildTree(
-  items: WikiTagMockup[], 
-  _id: string | null = null, 
-  depth = 0, 
-  seen: Set<string> = new Set()
-): WikiTagNode[] {
-  // Prevent excessive recursion
-  if (depth > 5) {
-    console.warn('Maximum depth exceeded in buildTree');
-    return [];
-  }
-
-  // Filter items where parentTagId matches the current _id
-  const filteredItems = items.filter(item => item.parentTagId === _id);
-
-  return filteredItems.flatMap(item => {
-    // Check for circular references
-    if (seen.has(item._id)) {
-      console.warn(`Circular reference detected for item ${item._id}`);
-      return [];
-    }
-
-    // Add current item to seen set
-    seen.add(item._id);
-
-    if (depth === 1) {
-      // Skip level 1 items and process their children
-      return buildTree(items, item._id, depth + 1, new Set(seen));
-    } else {
-      // Normal processing for other levels
-      const children = buildTree(items, item._id, depth + 1, new Set(seen));
-      return [{ ...item, children }];
-    }
-  });
+interface WikiTagMockup {
+  "coreTag"?: string;
+  _id: string;
+  name: string;
+  slug: string;
+  postCount: number;
+  description_html: string;
+  description_length: number;
+  viewCount?: number;
+  parentTagId?: string | null;
 }
 
-const AllWikiTagsPage = () => {
+const AllWikiTagsPageWithViewer = () => {
   const classes = useStyles(styles);
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
+  // const { tag, loading } = useTagBySlug("portal", "AllWikiTagsPageWithViewerFragment");
 
-  const { SectionButton, SectionTitle, WikiTagNestedList } = Components;
+  const { SectionButton, SectionTitle, ContentStyles, ToCColumn, WikiTagNestedList, Typography } = Components;
   const [selectedWikiTag, setSelectedWikiTag] = useState<WikiTagMockup | null>(null);
   const [pinnedWikiTag, setPinnedWikiTag] = useState<WikiTagMockup | null>(null);
 
@@ -176,41 +149,8 @@ const AllWikiTagsPage = () => {
     }
   };
 
-  // Remove leading and trailing `"` and \n from the html
+  // remove leading and trailing `"` and \n from the html
   const cleanedHtml = selectedWikiTag?.description_html?.replace(/^"|"$/g, '').replace(/\\n/g, '') ?? '';
-
-  const prioritySlugs = useMemo(() => [
-    'rationality', 'ai', 'world-modeling', 
-    'world-optimization', 'practical', 'community', 'site-meta'
-  ] as const, []);
-
-  // Move the tree-building and sorting logic here
-  const sortedTree = useMemo(() => {
-    const tree = buildTree(wikitagMockupData as WikiTagMockup[], null, 0);
-    
-    return tree.sort((a, b) => {
-      const indexA = prioritySlugs.indexOf(a.slug as typeof prioritySlugs[number]);
-      const indexB = prioritySlugs.indexOf(b.slug as typeof prioritySlugs[number]);
-      
-      // If both items are in the priority list, sort by priority
-      if (indexA !== -1 && indexB !== -1) {
-        return indexA - indexB;
-      }
-      // If only one item is in priority list, it goes first
-      if (indexA !== -1) return -1;
-      if (indexB !== -1) return 1;
-      // For all other items, sort by viewCount
-      return (b.viewCount ?? 0) - (a.viewCount ?? 0);
-    });
-  }, [prioritySlugs]);
-
-  // Filter the tree to only show priority items at the root level
-  const filteredTree = useMemo(() => 
-    sortedTree.filter(wikitag => 
-      prioritySlugs.includes(wikitag.slug as typeof prioritySlugs[number])
-    ), 
-    [sortedTree, prioritySlugs]
-  );
 
   return (
     <AnalyticsContext pageContext="allWikiTagsPage">
@@ -256,7 +196,6 @@ const AllWikiTagsPage = () => {
 
           <div className={classes.wikiTagNestedList}>
             <WikiTagNestedList 
-              pages={filteredTree}
               onHover={handleHover} 
               onClick={handleClick}
               pinnedWikiTag={pinnedWikiTag}
@@ -264,6 +203,29 @@ const AllWikiTagsPage = () => {
           </div>
 
 
+          <div className={classes.viewer} onClick={handleBackgroundClick}>
+            <ContentStyles contentType="tag" className={classes.viewerContent}>
+              <div>
+                <div className={classes.wikitagHeader}>
+                  <Typography variant="display3" className={classes.wikitagName}>
+                    {selectedWikiTag?.name ?? 'Select a concept to view details'}
+                  </Typography>
+                  {selectedWikiTag && (
+                    <div className={classes.pinMessage}>
+                      {pinnedWikiTag ? 'Click anywhere to unpin' : 'Click to pin'}
+                    </div>
+                  )}
+                </div>
+                <div className={classes.wikitagDescription}>
+                  {selectedWikiTag ? (
+                    <div dangerouslySetInnerHTML={{ __html: cleanedHtml }} />
+                  ) : (
+                    <div>Please select a concept from the list to see its description.</div>
+                  )}
+                </div>
+              </div>
+            </ContentStyles>
+          </div>
 
 
         </div>
@@ -272,12 +234,12 @@ const AllWikiTagsPage = () => {
   );
 }
 
-const AllWikiTagsPageComponent = registerComponent("AllWikiTagsPage", AllWikiTagsPage);
+const AllWikiTagsPageWithViewerComponent = registerComponent("AllWikiTagsPageWithViewer", AllWikiTagsPageWithViewer);
 
-export default AllWikiTagsPageComponent;
+export default AllWikiTagsPageWithViewerComponent;
 
 declare global {
   interface ComponentTypes {
-    AllWikiTagsPage: typeof AllWikiTagsPageComponent
+    AllWikiTagsPageWithViewer: typeof AllWikiTagsPageWithViewerComponent
   }
 }
