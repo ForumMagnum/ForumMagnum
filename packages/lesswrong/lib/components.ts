@@ -1241,3 +1241,4 @@ importComponent("RotatingReviewWinnerSpotlight", () => require('../components/re
 
 importComponent("ImportExternalPost", () => require('../components/posts/ImportExternalPost'));
 
+importComponent("FundraisingThermometer", () => require('../components/common/FundraisingThermometer'));

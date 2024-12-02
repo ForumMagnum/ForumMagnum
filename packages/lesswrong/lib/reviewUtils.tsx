@@ -52,7 +52,7 @@ const TIMEZONE_OFFSET = 8 // Pacific Time
 
 export const getReviewStart = (reviewYear: ReviewYear) => {
   const startDateString = isDevelopment
-    ? `${reviewYear+1}-11-15` // we typically start testing the next year's review in November of the current year
+    ? `${reviewYear+1}-11-30` // we typically start testing the next year's review in November of the current year
     : `${reviewYear+1}-12-03`;
   return moment.utc(startDateString).add(TIMEZONE_OFFSET, 'hours');
 };
