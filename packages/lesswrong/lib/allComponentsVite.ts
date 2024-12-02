@@ -1176,7 +1176,6 @@ import '../components/review/PostNominatedNotification';
 import '../components/review/SingleLineReviewsList';
 
 import '../components/review/QuadraticVotingButtons';
-import '../components/review/KarmaVoteStripe';
 import '../components/review/ReviewVoteTableRow';
 import '../components/review/ReviewVotingButtons';
 
