@@ -50,6 +50,8 @@ type ArbitalImportOptions = {
    * that CSV to future import operations.
    */
   userMatchingFile?: string
+  
+  skipImportingPages?: boolean
 }
 const defaultArbitalImportOptions: ArbitalImportOptions = {};
 
@@ -473,33 +475,35 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
       // Create wiki page with the oldest revision (we will create the rest of
       // revisions next; creating them in-order ensures some on-insert callbacks
       // work properly.)
-
-      // const { data: wiki } = await createMutator({
-      //   collection: Tags,
-      //   document: {
-      //     name: title,
-      //     slug: slug,
-      //     oldSlugs,
-      //     wikiOnly: true,
-      //     description: {
-      //       originalContents: {
-      //         type: "ckEditorMarkup",
-      //         data: oldestRevCkEditorMarkup,
-      //       },
-      //     },
-      //     legacyData: {
-      //       "arbitalPageId": pageId,
-      //     },
-      //   },
-      //   context: resolverContext,
-      //   currentUser: pageCreator,
-      //   validate: false, //causes the check for name collisions to be skipped
-      // });
-
-      const wiki = await Tags.findOne({ 'legacyData.arbitalPageId': pageId });
-      if (!wiki) {
-        console.log(`Wiki page not found: ${pageId}`);
-        continue;
+      let wiki: DbTag|null;
+      if (options.skipImportingPages) {
+        wiki = await Tags.findOne({ 'legacyData.arbitalPageId': pageId });
+        if (!wiki) {
+          console.log(`Wiki page not found: ${pageId}`);
+          continue;
+        }
+      } else {
+        wiki = (await createMutator({
+          collection: Tags,
+          document: {
+            name: title,
+            slug: slug,
+            oldSlugs,
+            wikiOnly: true,
+            description: {
+              originalContents: {
+                type: "ckEditorMarkup",
+                data: oldestRevCkEditorMarkup,
+              },
+            },
+            legacyData: {
+              "arbitalPageId": pageId,
+            },
+          },
+          context: resolverContext,
+          currentUser: pageCreator,
+          validate: false, //causes the check for name collisions to be skipped
+        })).data;
       }
 
       const pageAlternatives = alternativesByPageId[pageId];
@@ -530,40 +534,42 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
         tagId: wiki._id,
       });
 
-      // Back-date it to when it was created on Arbital
-      // await Promise.all([
-      //   backDateObj(Tags, wiki._id, pageInfo.createdAt),
-      //   backDateDenormalizedEditable(Tags, wiki._id, "description", pageInfo.createdAt),
-      //   backDateRevision(wiki.description_latest!, pageInfo.createdAt),
-      // ]);
+      if (!options.skipImportingPages) {
+        // Back-date it to when it was created on Arbital
+        await Promise.all([
+          backDateObj(Tags, wiki._id, pageInfo.createdAt),
+          backDateDenormalizedEditable(Tags, wiki._id, "description", pageInfo.createdAt),
+          backDateRevision(wiki.description_latest!, pageInfo.createdAt),
+        ]);
 
-      // Fill in some metadata on the latest revision
-      // const lwFirstRevision: DbRevision = (await Revisions.findOne({_id: wiki.description_latest}))!;
-      // await Revisions.rawUpdateOne(
-      //   {_id: lwFirstRevision._id},
-      //   {$set: {
-      //     editedAt: firstRevision.createdAt,
-      //     commitMessage: firstRevision.editSummary,
-      //     version: `1.0.0`,
-      //     legacyData: {
-      //       "arbitalPageId": pageId,
-      //       "arbitalEditNumber": firstRevision.edit,
-      //     },
-      //   }}
-      // );
-      
-
-      // Create other revisions besides the first one
-      // await importRevisions({
-      //   collection: Tags,
-      //   fieldName: "description",
-      //   documentId: wiki._id,
-      //   pageId: pageId,
-      //   revisions: revisions.slice(1),
-      //   oldestRevCkEditorMarkup,
-      //   conversionContext,
-      //   resolverContext,
-      // })
+        // Fill in some metadata on the latest revision
+        const lwFirstRevision: DbRevision = (await Revisions.findOne({_id: wiki.description_latest}))!;
+        await Revisions.rawUpdateOne(
+          {_id: lwFirstRevision._id},
+          {$set: {
+            editedAt: firstRevision.createdAt,
+            commitMessage: firstRevision.editSummary,
+            version: `1.0.0`,
+            legacyData: {
+              "arbitalPageId": pageId,
+              "arbitalEditNumber": firstRevision.edit,
+            },
+          }}
+        );
+        
+  
+        // Create other revisions besides the first one
+        await importRevisions({
+          collection: Tags,
+          fieldName: "description",
+          documentId: wiki._id,
+          pageId: pageId,
+          revisions: revisions.slice(1),
+          oldestRevCkEditorMarkup,
+          conversionContext,
+          resolverContext,
+        })
+      }
 
       // Add lenses
       if (lenses.length > 0) {
@@ -589,52 +595,56 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
         });
 
         // Create the lens, with the oldest revision
-        // const { data: lensObj } = await createMutator({
-        //   collection: MultiDocuments,
-        //   document: {
-        //     parentDocumentId: wiki._id,
-        //     collectionName: "Tags",
-        //     fieldName: "description",
-        //     title: lensTitle,
-        //     slug: lensSlug,
-        //     oldSlugs: oldLensSlugs,
-        //     //FIXME: preview/clickbait, tab-title, and subtitle need edit history/etc
-        //     preview: lensLiveRevision.clickbait,
-        //     tabTitle: lens.lensName,
-        //     tabSubtitle: lens.lensSubtitle,
-        //     userId: pageCreator?._id,
-        //     index: lens.lensIndex,
-        //     contents: {
-        //       originalContents: {
-        //         type: "ckEditorMarkup",
-        //         data: lensFirstRevisionCkEditorMarkup,
-        //       }
-        //     },
-        //   } as Partial<DbMultiDocument>,
-        //   context: resolverContext,
-        //   currentUser: pageCreator,
-        //   validate: false,
-        // });
-        // await Promise.all([
-        //   backDateObj(MultiDocuments, lensObj._id, lensFirstRevision.createdAt),
-        //   backDateRevision(lensObj.contents_latest!, lensFirstRevision.createdAt),
-        // ]);
-        
-        // await importRevisions({
-        //   collection: MultiDocuments,
-        //   fieldName: "contents",
-        //   documentId: lensObj._id,
-        //   pageId: lens.lensId,
-        //   revisions: lensRevisions.slice(1),
-        //   oldestRevCkEditorMarkup: lensFirstRevisionCkEditorMarkup,
-        //   conversionContext: conversionContext,
-        //   resolverContext,
-        // });
+        let lensObj: DbMultiDocument|null;
+        if (!options.skipImportingPages) {
+          lensObj = (await createMutator({
+            collection: MultiDocuments,
+            document: {
+              parentDocumentId: wiki._id,
+              collectionName: "Tags",
+              fieldName: "description",
+              title: lensTitle,
+              slug: lensSlug,
+              oldSlugs: oldLensSlugs,
+              //FIXME: preview/clickbait, tab-title, and subtitle need edit history/etc
+              preview: lensLiveRevision.clickbait,
+              tabTitle: lens.lensName,
+              tabSubtitle: lens.lensSubtitle,
+              userId: pageCreator?._id,
+              index: lens.lensIndex,
+              contents: {
+                originalContents: {
+                  type: "ckEditorMarkup",
+                  data: lensFirstRevisionCkEditorMarkup,
+                }
+              },
+            } as Partial<DbMultiDocument>,
+            context: resolverContext,
+            currentUser: pageCreator,
+            validate: false,
+          })).data;
+          await Promise.all([
+            backDateObj(MultiDocuments, lensObj._id, lensFirstRevision.createdAt),
+            backDateRevision(lensObj.contents_latest!, lensFirstRevision.createdAt),
+          ]);
+          
+          await importRevisions({
+            collection: MultiDocuments,
+            fieldName: "contents",
+            documentId: lensObj._id,
+            pageId: lens.lensId,
+            revisions: lensRevisions.slice(1),
+            oldestRevCkEditorMarkup: lensFirstRevisionCkEditorMarkup,
+            conversionContext: conversionContext,
+            resolverContext,
+          });
 
-        const lensObj = await MultiDocuments.findOne({ slug: lensSlug });
-        if (!lensObj) {
-          console.log(`Lens not found: ${lensSlug}`);
-          continue;
+        } else {
+          lensObj = await MultiDocuments.findOne({ slug: lensSlug });
+          if (!lensObj) {
+            console.log(`Lens not found: ${lensSlug}`);
+            continue;
+          }
         }
 
         const lensAlternatives = alternativesByPageId[lens.lensId];
