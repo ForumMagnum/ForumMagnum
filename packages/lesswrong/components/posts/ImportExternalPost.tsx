@@ -1,7 +1,10 @@
 import React, {useState, useEffect} from 'react'
-import {Components, registerComponent} from '../../lib/vulcan-lib'
+import {Components, registerComponent, useStyles} from '../../lib/vulcan-lib'
 import {gql, useLazyQuery} from '@apollo/client'
 import {useNavigate} from '@/lib/reactRouterWrapper.tsx'
+import Button from '@material-ui/core/Button'
+import { useCurrentUser } from '../common/withUser'
+import { EditorContents } from '../editor/Editor'
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -43,7 +46,6 @@ const styles = (theme: ThemeType) => ({
     textAlign: "center",
     color: theme.palette.error.main
   },
-
 })
 
 /**
@@ -59,9 +61,11 @@ const ImportExternalPost = ({classes, filter, sort}: {
 }) => {
   const [value, setValue] = useState('')
   const [postId, setPostId] = useState('')
+  const [editorValue, setEditorValue] = useState<EditorContents>({value: '', type: 'ckEditorMarkup'})
+  const currentUser = useCurrentUser()
 
   const navigate = useNavigate()
-  const {EAButton, Loading, Typography} = Components
+  const { Editor, Loading, Typography } = Components
 
   // Import useLazyQuery from Apollo Client
   const [importUrlAsDraftPost, {data, loading, error}] = useLazyQuery(gql`
@@ -72,10 +76,10 @@ const ImportExternalPost = ({classes, filter, sort}: {
 
   useEffect(() => {
     if (data) {
-      const {postId, postSlug} = data.importUrlAsDraftPost
+      const {_id, slug} = data.importUrlAsDraftPost
 
-      if (postId && postSlug) {
-        setPostId(postId)
+      if (_id && slug) {
+        setPostId(_id)
         // navigate(`/editPost?postId=${postId}`)
       } else {
         throw new Error('Post ID or slug not found in data:', data.importUrlAsDraftPost)
@@ -89,7 +93,8 @@ const ImportExternalPost = ({classes, filter, sort}: {
 
   const handleKeyPress = async (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
-      importUrlAsDraftPost({variables: {url: value}})
+      const result = await importUrlAsDraftPost({variables: {url: value}})
+      console.log({result})
     }
   }
   /**
@@ -99,7 +104,6 @@ const ImportExternalPost = ({classes, filter, sort}: {
    *
    * 2 groups of tabs - your stuff, exploratory stuff - add visual sepration in tabs
    */
-
 
   return <div className={classes.root}>
     <Typography variant="body2">Nominate a post from a broader Rationality community by importing it to LessWrong</Typography>
@@ -114,9 +118,13 @@ const ImportExternalPost = ({classes, filter, sort}: {
         }}
         onKeyDown={handleKeyPress}
       />
-      <EAButton className={classes.formButton} onClick={() => importUrlAsDraftPost({variables: {url: value}})}>
+      <Button className={classes.formButton} onClick={() => importUrlAsDraftPost({variables: {url: value}})}>
         {loading ? <Loading className={classes.loadingDots}/> : <>Import Post</>}
-      </EAButton>
+      </Button>
+
+      {/* <Editor collectionName='Comments' fieldName='contents' currentUser={currentUser} _classes={classes} formType='new' initialEditorType='ckEditorMarkup' value={editorValue} isCollaborative={false} onChange={(change: EditorChangeEvent) => {
+        setEditorValue(change.contents.value)
+      }} /> */}
     </div>
     {error && <div className={classes.error}>{error.message}</div>}
   </div>

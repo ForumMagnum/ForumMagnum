@@ -7,8 +7,19 @@ import {defineQuery} from '@/server/utils/serverGraphqlUtil.ts'
 import Users from '@/lib/collections/users/collection'
 
 export type WebsiteData = {
-  postId: string;
-  postSlug: string;
+  _id: string;
+  slug: string;
+  title: string;
+  url: string | null;
+  postedAt: Date | null;
+  createdAt: Date | null;
+  userId: string | null;
+  draft: boolean;
+  coauthorStatuses: Array<{
+    userId: string;
+    confirmed: boolean;
+    requested: boolean;
+  }> | null;
 };
 
 // todo various url validation
@@ -34,7 +45,7 @@ export async function importUrlAsDraftPost(url: string, context: ResolverContext
   })
 
   if (existingPost) {
-    return {postId: existingPost._id, postSlug: existingPost.slug}
+    return { _id: existingPost._id, slug: existingPost.slug, title: existingPost.title, url: existingPost.url, postedAt: existingPost.postedAt, createdAt: existingPost.createdAt, userId: existingPost.userId, coauthorStatuses: existingPost.coauthorStatuses}
   }
 
   const extractedData = await extract(url)
@@ -44,7 +55,7 @@ export async function importUrlAsDraftPost(url: string, context: ResolverContext
 
   console.log({extractedData})
 
-  const {data: post} = await createMutator({
+  const {data} = await createMutator({
     collection: Posts,
     document: {
       userId: reviewUser._id,
@@ -54,12 +65,12 @@ export async function importUrlAsDraftPost(url: string, context: ResolverContext
       postedAt: extractedData.published ? new Date(extractedData.published) : undefined,
       coauthorStatuses: [{userId: context.currentUser._id, confirmed: true, requested: true}],
       hasCoauthorPermission: true,
+      draft: true
     } as Partial<DbPost>,
     currentUser: context.currentUser,
     validate: false,
   })
-
-  return {postId: post._id, postSlug: post.slug}
+  return {_id: data?._id, slug: data?.slug, title: data?.title, url: data?.url, postedAt: data?.postedAt, createdAt: data?.createdAt, userId: data?.userId, coauthorStatuses: data?.coauthorStatuses, draft: data?.draft}
 }
 
 defineQuery({

@@ -15,10 +15,14 @@ const styles = (theme: ThemeType) => ({
   headline: {
     color: theme.palette.grey[1000],
     marginBottom: 40,
+    ...theme.typography.headerStyle,
     [theme.breakpoints.down('sm')]: {
       marginTop: 20,
       marginBottom: 10,
     }
+  },
+  tabsContainer: {
+    marginTop: 20,
   },
   tab: {
     fontSize: 14,
@@ -88,8 +92,9 @@ const NominationsPage = ({classes}: { classes: ClassesType<typeof styles> }) => 
       <Typography variant="display2" className={classes.headline}>
         {preferredHeadingCase(`Nominate Posts for ${year} LessWrong Review`)}
       </Typography>
-      
-      <Tabs
+      <ImportExternalPost/>
+      <div className={classes.tabsContainer}> 
+        <Tabs
         value={activeTab}
         onChange={handleChangeTab}
       >
@@ -141,10 +146,9 @@ const NominationsPage = ({classes}: { classes: ClassesType<typeof styles> }) => 
 
       {activeTab === 'all' && <AllPostsPage/>}
       {activeTab === 'rationalsphere' && <div>
-        <ImportExternalPost/>
         <AllPostsPage />
       </div>}
-      
+      </div>
     </SingleColumnSection>
   </AnalyticsContext>
 }
