@@ -43,10 +43,11 @@ const getTagParagraphTruncationCount = (tag: TagPreviewFragment | TagSectionPrev
   return 2;
 }
 
-const TagPreviewDescription = ({tag, hash, classes}: {
-  tag: TagPreviewFragment | TagSectionPreviewFragment,
+const TagPreviewDescription = ({tag, hash, classes, activeTab}: {
+  tag: (TagPreviewFragment | TagSectionPreviewFragment) & { summaries?: MultiDocumentEdit[] },
   hash?: string,
   classes: ClassesType
+  activeTab?: number,
 }) => {
   const navigate = useNavigate();
 
@@ -86,6 +87,27 @@ const TagPreviewDescription = ({tag, hash, classes}: {
 
   const tagUrl = tagGetUrl(tag, undefined, undefined, hash);
   const hashLinkOnClick = getHashLinkOnClick({ to: tagUrl, id: 'read-more-button' });
+
+  if (activeTab !== undefined && tag.summaries) {
+    const {ContentItemBody, ContentStyles} = Components;
+    return <div
+      onClick={(ev: React.MouseEvent) => {
+        if ((ev.target as any)?.className==="read-more-button") {
+          ev.preventDefault();
+          navigate(tagUrl);
+          hashLinkOnClick(ev as React.MouseEvent<HTMLAnchorElement>);
+        }
+      }}
+    >
+      <ContentStyles contentType="comment">
+        <ContentItemBody
+          className={classes.root}
+          dangerouslySetInnerHTML={{__html: tag.summaries[activeTab].contents?.html ?? 'this is not working'}}
+          description={`tag ${tag.name}`}
+        />
+      </ContentStyles>
+    </div>
+  }
 
   if (highlight) {
     const {ContentItemBody, ContentStyles} = Components;

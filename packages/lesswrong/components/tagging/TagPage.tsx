@@ -181,16 +181,22 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     },
     [theme.breakpoints.down('sm')]: {
       gap: '2px',
-      flexDirection: 'column',
+      padding: 2,
+      flexWrap: 'wrap-reverse',
+      display: 'flex',
+      flexDirection: 'row',
     },
   },
   lensTabContainer: {
     display: 'flex',
     flexDirection: 'column',
     gap: '4px',
-      [theme.breakpoints.down('sm')]: {
-        gap: '2px',
-      },
+    [theme.breakpoints.down('sm')]: {
+      minWidth: '25%',
+      maxWidth: '40%',
+      flexGrow: 1,
+      gap: '0px',
+    },
   },
   aboveLensTab: {
     ...theme.typography.body2,
@@ -207,16 +213,19 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     minWidth: 'unset',
     borderWidth: 1,
     [theme.breakpoints.down('sm')]: {
-      width: '100%',
-      alignSelf: 'center',
+      // width: '33%',
+      // width: '100%',
+      // alignSelf: 'center',
     },
   },
   lensTabRootOverride: {
     [theme.breakpoints.down('sm')]: {
-      maxWidth: 'unset',
       minHeight: 'unset',
+      height: '100%',
       paddingTop: 2,
       paddingBottom: 2,
+      borderTopLeftRadius: theme.borderRadius.small * 2,
+      borderTopRightRadius: theme.borderRadius.small * 2,
     },
   },
   tabLabelContainerOverride: {
@@ -227,19 +236,19 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
       paddingRight: 8,
       paddingTop: 0,
       paddingBottom: 4,
+      width: '100%',
     },
   },
   lensLabel: {
     display: 'flex',
+    flexDirection: 'column',
+    minHeight: 48,
     [theme.breakpoints.up('md')]: {
-      flexDirection: 'column',
-      minHeight: 48,
     },
     alignItems: 'start',
     justifyContent: 'center',
     [theme.breakpoints.down('sm')]: {
       height: 'min-content',
-      alignItems: 'end',
       gap: '4px',
     },
   },
@@ -251,21 +260,24 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   lensSubtitle: {
     ...theme.typography.subtitle,
     textTransform: 'none',
-    fontSize: '1rem',
+    fontSize: '1em',
     fontWeight: 400,
     [theme.breakpoints.down('sm')]: {
-      marginBottom: 1,
-      '&::before': {
-        content: '"("',
-      },
-      '&::after': {
-        content: '")"'
-      }
+      width: 'fit-content',
+      display: 'block',
+      textAlign: 'left',
+      // marginBottom: 1,
+      // '&::before': {
+      //   content: '"("',
+      // },
+      // '&::after': {
+      //   content: '")"'
+      // }
     },
   },
   selectedLens: {
     [theme.breakpoints.down('sm')]: {
-      border: theme.palette.border.grey400,
+      // border: theme.palette.border.grey400,
     },
     [theme.breakpoints.up('md')]: {
       borderStyle: 'solid',
@@ -281,8 +293,11 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   },
   nonSelectedLens: {
     background: theme.palette.panelBackground.tagLensTab,
-    borderStyle: 'solid',
-    borderColor: theme.palette.background.transparent,
+    // Needed to avoid annoying shifting of other tabs when one is selected
+    [theme.breakpoints.up('md')]: {
+      borderStyle: 'solid',
+      borderColor: theme.palette.background.transparent,
+    }
   },
   hideMuiTabIndicator: {
     display: 'none',
@@ -291,15 +306,19 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     ...theme.typography.body1,
     color: theme.palette.grey[600],
     display: 'flex',
-    alignItems: 'end',
+    flexDirection: 'column',
     fontSize: '17px',
+    lineHeight: 'inherit',
+    marginBottom: 8,
   },
   contributorNameWrapper: {
     flex: 1,
+    [theme.breakpoints.down('sm')]: {
+      fontSize: '15px',
+    },
   },
   contributorName: {
     fontWeight: 550,
-    // fontSize: '15px',
   },
   lastUpdated: {
     ...theme.typography.body2,
@@ -312,9 +331,6 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     gap: '4px',
   },
   relationshipPill: {
-    // border: theme.palette.border.grey400,
-    // borderRadius: theme.borderRadius.small,
-    // padding: 4,
     textWrapMode: 'nowrap',
     width: 'max-content',
   },
@@ -352,23 +368,29 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     opacity: 1,
   },
   subjectsContainer: {
-    // marginTop: 24,
     overflow: 'hidden',
+    display: 'flex',
+    marginTop: 0,
+    marginBottom: 0,
   },
   subjectsHeader: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
-    fontWeight: 700,
     marginBottom: 4,
+    color: theme.palette.grey[600],
+    minWidth: 'fit-content',
   },
   subjectsList: {
     display: 'flex',
-    flexDirection: 'column',
-    gap: 4,
+    flexWrap: 'wrap',
   },
   subject: {
     textWrap: 'nowrap',
     marginLeft: 6,
+    // If it's not the last subject, add a comma
+    '&:not(:last-child)::after': {
+      content: '","',
+    },
   },
   ...tagPageHeaderStyles(theme),
 }));
@@ -416,6 +438,7 @@ interface TagLensInfo {
   lenses: TagLens[];
 }
 
+// TODO: get rid of this and use the lens slug when we fix the import to get the correct alias from lens.lensId's pageInfo
 function getImputedSlug(lens: MultiDocumentEdit) {
   const slugComponents = lens.tabTitle.split(' ');
 
@@ -646,7 +669,7 @@ const TagPage = () => {
   if (!tag)
     return <Error404/>
   // If the slug in our URL is not the same as the slug on the tag, redirect to the canonical slug page
-  if (tag.oldSlugs?.filter(slug => slug !== tag.slug)?.includes(slug)) {
+  if (tag.oldSlugs?.filter(slug => slug !== tag.slug)?.includes(slug) && !tag.isArbitalImport) {
     return <PermanentRedirect url={tagGetUrl(tag)} />
   }
   if (editing && !tagUserHasSufficientKarma(currentUser, "edit")) {
@@ -810,9 +833,20 @@ const TagPage = () => {
 
   const requirementsAndAlternatives = (
     <ContentStyles contentType="tag" className={classes.subjectsContainer}> 
-      <div className={classes.subjectsHeader}>Relies on</div>
+      <div className={classes.subjectsHeader}>Relies on: </div>
       <div className={classes.subjectsList}>
         <span className={classes.subject}><HoverPreviewLink href={'/tag/reads_algebra'} >Ability to read algebra</HoverPreviewLink></span>
+      </div>
+    </ContentStyles>
+  );
+
+  const subjects = (
+    <ContentStyles contentType="tag" className={classes.subjectsContainer}> 
+      <div className={classes.subjectsHeader}>Subjects: </div>
+      <div className={classes.subjectsList}>
+        <span className={classes.subject}><HoverPreviewLink href={'/tag/logical-decision-theories'}>Logical decision theories</HoverPreviewLink></span>
+        <span className={classes.subject}><HoverPreviewLink href={'/tag/causal-decision-theories'}>Causal decision theories</HoverPreviewLink></span>
+        <span className={classes.subject}><HoverPreviewLink href={'/tag/evidential-decision-theories'}>Evidential decision theories</HoverPreviewLink></span>
       </div>
     </ContentStyles>
   );
@@ -870,7 +904,12 @@ const TagPage = () => {
       {tag.contributors && <div className={classes.contributorRow}>
         <div className={classes.contributorNameWrapper}>
           <span>Written by </span>
-          {tag.contributors.contributors.map(({ user }: { user?: UsersMinimumInfo }) => <UsersNameDisplay key={user?._id} user={user} className={classes.contributorName} />)}
+          {tag.contributors.contributors
+            .map(({ user }: { user?: UsersMinimumInfo }, idx: number) => (<>
+              <UsersNameDisplay key={user?._id} user={user} className={classes.contributorName} />
+              {idx < (tag.contributors.contributors.length - 1) ? ', ' : ''}
+            </>))
+          }
         </div>
         <div className={classes.lastUpdated}>
           {'last updated '}
@@ -878,7 +917,8 @@ const TagPage = () => {
         </div>
       </div>}
       {/** Just hardcoding an example for now, since we haven't imported the necessary relationships to derive it dynamically */}
-      {/* {requirementsAndAlternatives} */}
+      {requirementsAndAlternatives}
+      {subjects}
     </div>
   );
 
@@ -902,15 +942,8 @@ const TagPage = () => {
         hideLabels={true}
         className={classNames(classes.editMenu, classes.nonMobileButtonRow)}
       />
-      {requirementsAndAlternatives}
-      <ContentStyles contentType="tag" className={classes.subjectsContainer}> 
-        <div className={classes.subjectsHeader}>Subjects</div>
-        <div className={classes.subjectsList}>
-          <span className={classes.subject}><HoverPreviewLink href={'/tag/logical-decision-theories'}>Logical decision theories</HoverPreviewLink></span>
-          <span className={classes.subject}><HoverPreviewLink href={'/tag/causal-decision-theories'}>Causal decision theories</HoverPreviewLink></span>
-          <span className={classes.subject}><HoverPreviewLink href={'/tag/evidential-decision-theories'}>Evidential decision theories</HoverPreviewLink></span>
-        </div>
-      </ContentStyles>
+      {/* {requirementsAndAlternatives} */}
+      {/* {subjects} */}
     </div>
     <div className={classes.rightColumnOverflowFade} />
   </div>);
@@ -933,7 +966,7 @@ const TagPage = () => {
           centralColumn: tagPostsAndCommentsSection,
         },
       ]}
-      tocRowMap={[1, 1, 1, 1]}
+      tocRowMap={[0, 1, 1, 1]}
     />
   );
   
