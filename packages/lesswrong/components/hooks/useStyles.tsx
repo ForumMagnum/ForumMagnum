@@ -1,7 +1,9 @@
-import React, { createContext, useContext, useLayoutEffect } from "react";
+import React, { createContext, useContext, useLayoutEffect, useMemo, useState } from "react";
 import type { ClassNameProxy, StyleDefinition, StyleOptions } from "@/server/styleGeneration";
 import { create as jssCreate, SheetsRegistry } from "jss";
 import { jssPreset } from "@material-ui/core/styles";
+import { useTheme } from "../themes/useTheme";
+import { isClient } from "@/lib/executionEnvironment";
 
 export type StylesContextType = {
   theme: ThemeType
@@ -13,6 +15,17 @@ export type StylesContextType = {
 }
 
 export const StylesContext = createContext<StylesContextType|null>(null);
+
+/**
+ * _clientMountedStyles: Client-side-only global variable that contains the
+ * style context, as an alternative to getting it through React context. This
+ * is client-side-only because on the server, where there may be more than one
+ * render happening concurrently for different users, there isn't a meaningful
+ * answer to questions like "what is the current theme". But when doing
+ * hot-module reloading on the client, we need "the current theme" in order to
+ * update any styles mounted in the <head> block.
+ */
+let _clientMountedStyles: StylesContextType|null = null;
 
 export const topLevelStyleDefinitions: Record<string,StyleDefinition<string>> = {};
 
@@ -28,6 +41,15 @@ export const defineStyles = <T extends string>(
     nameProxy: null,
   };
   topLevelStyleDefinitions[name] = definition;
+  
+  if (isClient && _clientMountedStyles) {
+    const mountedStyles = _clientMountedStyles.mountedStyles.get(name);
+    if (mountedStyles) {
+      mountedStyles.styleNode.remove();
+      createAndInsertStyleNode(_clientMountedStyles.theme, definition);
+    }
+  }
+  
   return definition;
 }
 
@@ -96,15 +118,17 @@ export const withAddClasses = (
   styles: (theme: ThemeType) => JssStyles,
   name: string,
   options?: StyleOptions,
-) => (Component: AnyBecauseHard) => {
-  if (!styles) return Component;
+) => {
   const styleDefinition = defineStyles(name, styles, options);
-  return function AddClassesHoc(props: AnyBecauseHard) {
-    const {children, ...otherProps} = props;
-    const classes = useStyles(styleDefinition);
-    return <Component {...otherProps} classes={classes}>
-      {children}
-    </Component>
+
+  return (Component: AnyBecauseHard) => {
+    return function AddClassesHoc(props: AnyBecauseHard) {
+      const {children, ...otherProps} = props;
+      const classes = useStyles(styleDefinition);
+      return <Component {...otherProps} classes={classes}>
+        {children}
+      </Component>
+    }
   }
 }
 
@@ -212,5 +236,27 @@ function insertStyleNodeAtCorrectPosition(styleNode: HTMLStyleElement, name: str
     // Insert before the node at the 'left' index
     styleNodes[left].insertAdjacentElement('beforebegin', styleNode);
   }
+}
+
+export const FMJssProvider = ({children}: {
+  children: React.ReactNode
+}) => {
+  const theme = useTheme();
+  const [mountedStyles] = useState(() => new Map<string, {
+    refcount: number
+    styleDefinition: StyleDefinition,
+    styleNode: HTMLStyleElement
+  }>());
+  const jssState = useMemo<StylesContextType>(() => ({
+    theme, mountedStyles: mountedStyles
+  }), [theme, mountedStyles]);
+  
+  if (isClient) {
+    _clientMountedStyles = jssState;
+  }
+  
+  return <StylesContext.Provider value={jssState}>
+    {children}
+  </StylesContext.Provider>
 }
 
