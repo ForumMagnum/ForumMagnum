@@ -12,6 +12,7 @@ import bodyParser from 'body-parser';
 // At least in Node 18, node's fetch relies on undici, which has a list of forbidden headers: https://github.com/nodejs/undici/issues/1470
 // This causes it to break unless you have some other version of fetch installed in a way that overrides it globally
 import fetch from 'node-fetch';
+import ckeditor5Vite from '@ckeditor/vite-plugin-ckeditor5';
 
 
 /**
@@ -535,7 +536,10 @@ async function createViteProxyServer(backend: RunningServer) {
     },
     appType: "custom",
     configFile: false,
-    plugins: [viteReact()],
+    plugins: [
+      viteReact(),
+      ckeditor5Vite({ theme: require.resolve( '@ckeditor/ckeditor5-theme-lark' ) })
+    ],
     root: process.cwd(),
     define: {
       ...bundleDefinitions,
@@ -551,6 +555,7 @@ async function createViteProxyServer(backend: RunningServer) {
     resolve: {
       alias: {
         "@/server": "/packages/lesswrong/stubs/server",
+        "@/client/importCkEditor": "/packages/lesswrong/viteClient/importCkEditorVite",
         "@/client": "/packages/lesswrong/client",
         "@/allComponents": "/packages/lesswrong/lib/allComponentsVite",
         "@": "/packages/lesswrong",

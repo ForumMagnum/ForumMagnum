@@ -4,7 +4,7 @@ import { toWidget } from "@ckeditor/ckeditor5-widget/src/utils";
 import Widget from "@ckeditor/ckeditor5-widget/src/widget";
 import CTAButtonForm from "./cta-button-form";
 
-import buttonIcon from "./button.svg";
+import buttonIcon from "./ckeditor5-cta-button.svg";
 
 const CTA_CLASS = "ck-cta-button";
 const CENTERED_CLASS = "ck-cta-button-centered";

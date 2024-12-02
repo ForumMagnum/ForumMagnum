@@ -155,7 +155,7 @@ export const postEditorConfig = {
 			'mediaEmbed',
 			'ctaButtonToolbarItem',
 			'footnote',
-		  'collapsibleSectionButton',
+			'collapsibleSectionButton',
 		],
 		
 		/* At some point the default icon for the block toolbar changed from a

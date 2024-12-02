@@ -30,6 +30,7 @@
   ],
   "exclude": [
     "node_modules",
+    "packages/lesswrong/viteClient",
     "build"
   ],
   "ts-node": {

@@ -4,7 +4,7 @@ import { createGenerateClassName, jssPreset } from '@material-ui/core/styles';
 import { create } from 'jss';
 import type { AbstractThemeOptions } from '../themes/themeNames';
 import { ThemeContextProvider } from '../components/themes/useTheme';
-import { FMJssProvider } from '@/components/hooks/FMJssProvider';
+import { FMJssProvider } from '@/components/hooks/useStyles';
 
 export function wrapWithMuiTheme (app: React.ReactNode, themeOptions: AbstractThemeOptions) {
   const generateClassName = createGenerateClassName({
