@@ -7,7 +7,8 @@ import { getUrlClass } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { isServer } from '../../../lib/executionEnvironment';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
-import type { AnnualReviewMarketInfo } from '../../../lib/annualReviewMarkets';
+import { captureException } from '@sentry/core';
+import type { AnnualReviewMarketInfo } from '../../../lib/collections/posts/annualReviewMarkets';
 
 const SECONDARY_SPACING = 20;
 
@@ -75,12 +76,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   secondaryInfoLink: {
     fontWeight: isFriendlyUI ? 450 : undefined,
     fontSize: isFriendlyUI ? undefined : theme.typography.body2.fontSize,
-    "@media print": { display: "none" },
-  },
-  wordCount: {
-    fontWeight: isFriendlyUI ? 450 : undefined,
-    fontSize: isFriendlyUI ? undefined : theme.typography.body2.fontSize,
-    cursor: 'default',
     "@media print": { display: "none" },
   },
   actions: {
@@ -170,7 +165,30 @@ export function getHostname(url: string): string {
   return parser.hostname;
 }
 
-const CommentsLink: FC<{
+/**
+ * Intended to be used when you have a url-like string that might be missing the protocol (http(s)://) prefix
+ * Trying to parse those with `new URL()`/`new URLClass()` blows up, so this tries to correctly handle them
+ * We default to logging an error to sentry and returning nothing if even that fails, but not confident we shouldn't just continue to throw in a visible way
+ */
+export function parseUnsafeUrl(url: string) {
+  const urlWithProtocol = url.slice(0, 4) === 'http'
+    ? url
+    : `https://${url}`;
+
+  try {
+    const parsedUrl = new URLClass(urlWithProtocol);
+    const protocol = getProtocol(urlWithProtocol);
+    const hostname = getHostname(urlWithProtocol);
+  
+    return { protocol, hostname, parsedUrl };
+  } catch (err) {
+    captureException(`Tried to parse url ${url} as ${urlWithProtocol} and failed`);
+  }
+
+  return {};
+}
+
+export const CommentsLink: FC<{
   anchor: string,
   children: React.ReactNode,
   className?: string,
@@ -209,39 +227,19 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   const { PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon,
     PostActionsButton, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
     PostsPageEventData, FooterTagList, AddToCalendarButton, BookmarkButton, 
-    ForumIcon, GroupLinks, SharePostButton, AudioToggle } = Components;
+    ForumIcon, GroupLinks, SharePostButton, AudioToggle, ReadTime } = Components;
 
-  const rssFeedSource = ('feed' in post) ? post.feed : null;
-  const feedLinkDescription = rssFeedSource?.url && getHostname(rssFeedSource.url)
-  const feedLink = rssFeedSource?.url && `${getProtocol(rssFeedSource.url)}//${getHostname(rssFeedSource.url)}`;
   const hasMajorRevision = ('version' in post) && extractVersionsFromSemver(post.version).major > 1
-
+  const rssFeedSource = ('feed' in post) ? post.feed : null;
+  let feedLinkDomain;
+  let feedLink;
+  if (rssFeedSource?.url) {
+    let feedLinkProtocol;
+    ({ hostname: feedLinkDomain, protocol: feedLinkProtocol } = parseUnsafeUrl(rssFeedSource.url));
+    feedLink = `${feedLinkProtocol}//${feedLinkDomain}`;
+  }
   const crosspostNode = post.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere &&
     <CrosspostHeaderIcon post={post} />
-
-  const wordCount = useMemo(() => {
-    if (!post.debate || dialogueResponses.length === 0) {
-      return post.contents?.wordCount || 0;
-    }
-
-    return dialogueResponses.reduce((wordCount, response) => {
-      wordCount += response.contents?.wordCount ?? 0;
-      return wordCount;
-    }, 0);
-  }, [post, dialogueResponses]);
-
-  /**
-   * It doesn't make a ton of sense to fetch all the debate response comments in the resolver field, since we:
-   * 1. already have them here
-   * 2. need them to compute the word count in the debate case as well
-   */
-  const readTime = useMemo(() => {
-    if (!post.debate || dialogueResponses.length === 0) {
-      return post.readTimeMinutes ?? 1;
-    }
-
-    return Math.max(1, Math.round(wordCount / 250));
-  }, [post, dialogueResponses, wordCount]);
 
   const {
     answerCount,
@@ -250,14 +248,6 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
 
   const minimalSecondaryInfo = post.isEvent || (isFriendlyUI && post.shortform);
 
-  const readingTimeNode = minimalSecondaryInfo
-    ? null
-    : (
-      <LWTooltip title={`${wordCount} words`}>
-        <span className={classes.wordCount}>{readTime} min read</span>
-      </LWTooltip>
-    );
-
   const answersNode = !post.question || minimalSecondaryInfo
     ? null
     : (
@@ -265,9 +255,6 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
         {postGetAnswerCountStr(answerCount)}
       </CommentsLink>
     );
-
-
-
 
   const addToCalendarNode = post.startTime && <div className={classes.secondaryInfoLink}>
     <AddToCalendarButton post={post} label="Add to calendar" hideTooltip />
@@ -280,11 +267,15 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
       </AnalyticsContext>
     </span>
 
-    // EA Forum splits the info into two sections, plus has the info in a different order
+  // EA Forum splits the info into two sections, plus has the info in a different order
   const secondaryInfoNode = <div className={classes.secondaryInfo}>
       <div className={classes.secondaryInfoLeft}>
-        {!minimalSecondaryInfo && <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />}
-        {readingTimeNode}
+        {!minimalSecondaryInfo &&
+          <>
+            <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />
+            <ReadTime post={post} dialogueResponses={dialogueResponses} />
+          </>
+        }
         <AudioToggle post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />
         {post.isEvent && <GroupLinks document={post} noMargin />}
         {answersNode}
@@ -322,7 +313,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
               <PostsAuthors post={post} pageSectionContext="post_header" />
             </div>
             {rssFeedSource && rssFeedSource.user &&
-              <LWTooltip title={`Crossposted from ${feedLinkDescription}`} className={classes.feedName}>
+              <LWTooltip title={`Crossposted from ${feedLinkDomain}`} className={classes.feedName}>
                 <a href={feedLink}>{rssFeedSource.nickname}</a>
               </LWTooltip>
             }

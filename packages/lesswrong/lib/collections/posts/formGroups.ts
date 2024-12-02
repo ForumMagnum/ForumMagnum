@@ -102,9 +102,16 @@ export const formGroups: Record<string, FormGroupType<"Posts">> = {
     startCollapsed: true
   },
   tags: {
-    order: isEAForum ? 20 : 60,
+    order: isEAForum ? 20 : 70,
     name: "tags",
     label: isEAForum ? `Set ${taggingNamePluralSetting.get()}` : `Apply ${taggingNamePluralCapitalSetting.get()}`,
     startCollapsed: false
+  },
+  glossary: {
+    order: 65,
+    name: "glossary",
+    label: "Glossary",
+    startCollapsed: false,
+    hideHeader: true,
   }
 };

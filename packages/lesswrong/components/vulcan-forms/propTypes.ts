@@ -1,4 +1,5 @@
 /** PropTypes for documentation purpose (not tested yet) */
+import { WatchQueryFetchPolicy } from '@apollo/client';
 import PropTypes from 'prop-types';
 
 export const fieldProps = {
@@ -86,6 +87,10 @@ export interface WrappedSmartFormProps<T extends CollectionNameString> extends S
 
   documentId?: string
   slug?: string
+  /**
+   * Warning - passing in a prefetched document into a wrapped smart form might cause unexpected issues for anything using ckEditor, if the loaded document comes back with different data than what was prefetched.
+   */
+  prefetchedDocument?: T extends keyof FragmentTypesByCollection ? FragmentTypes[FragmentTypesByCollection[T]] : never
   
   // fragment: Used externally, but may be erroneous; the internals of the forms seem to only use queryFragment and mutationFragment
   fragment?: any
@@ -100,6 +105,12 @@ export interface WrappedSmartFormProps<T extends CollectionNameString> extends S
   extraVariables?: any
   extraVariablesValues?: any
   excludeHiddenFields?: boolean
+
+  /**
+   * Passed from PostsEditForm in cases like being redirected to the edit form after an autosave on PostsNewForm.
+   * Used to provide a smoother rerender without loading states when the redirect happens, since we prefetch the relevant fragment and we know it'll be up to date when we get here
+   */
+  editFormFetchPolicy?: WatchQueryFetchPolicy
 }
 
 export interface SmartFormProps<T extends CollectionNameString> extends WrappedSmartFormProps<T> {

@@ -6,7 +6,21 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import menuTabs from './menuTabs'
 import { forumSelect } from '../../../lib/forumTypeUtils';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
+  wrapper: {
+    [theme.breakpoints.up('lg')]: {
+      display: "none"
+    },
+    "@media print": {
+      display: "none"
+    },
+    position: "fixed",
+    bottom: 0,
+    left: 0,
+    backgroundColor: theme.palette.grey[300],
+    width: "100%",
+    zIndex: theme.zIndexes.footerNav,
+  },
   root: {
     display: "flex",
     justifyContent: "space-around",
@@ -16,11 +30,12 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const TabNavigationMenuFooter = ({classes}: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { TabNavigationFooterItem } = Components
 
   return (
+    <div className={classes.wrapper}>
       <AnalyticsContext pageSectionContext="tabNavigationFooter">
         <div className={classes.root}>
           {forumSelect(menuTabs).map(tab => {
@@ -35,6 +50,7 @@ const TabNavigationMenuFooter = ({classes}: {
           })}
         </div>
       </AnalyticsContext>
+    </div>
   )
 };
 

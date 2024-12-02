@@ -5,6 +5,7 @@ import { userCanDo, membersGroup } from '../../vulcan-users/permissions';
 import { extractVersionsFromSemver } from '../../editor/utils';
 import { makeVoteable } from '../../make_voteable';
 import { getCollaborativeEditorAccess, accessLevelCan } from '../posts/collabEditingPermissions';
+import { postCheckAccess } from '../posts/checkAccess';
 
 export const PLAINTEXT_HTML_TRUNCATION_LENGTH = 4000
 export const PLAINTEXT_DESCRIPTION_LENGTH = 2000
@@ -33,8 +34,10 @@ Revisions.checkAccess = async (user: DbUser|null, revision: DbRevision, context:
   // not sure why some revisions have no collectionName,
   // but this will cause an error below so just exclude them
   if (!revision.collectionName) return false
+
   const collectionName = revision.collectionName;
-  
+  if (collectionName === "CurationNotices") return false
+
   // Get the document that this revision is a field of, and check for access to
   // it. This is necessary for correctly handling things like posts' draft
   // status and sharing settings.
@@ -73,6 +76,23 @@ Revisions.checkAccess = async (user: DbUser|null, revision: DbRevision, context:
       return true;
     }
   }
+
+  // JargonTerms are often created by an admin bot account, and by default would not be visible to post authors
+  // so we need to check read access to the post itself
+  if (collectionName === "JargonTerms") {
+    const postId = (document as DbJargonTerm).postId;
+    const post = context
+      ? await context.loaders.Posts.load(postId)
+      // Avoid import cycle
+      : await getCollection("Posts").findOne(postId);
+
+    if (!post) {
+      return false;
+    }
+
+    return await postCheckAccess(user, post, context);
+  }
+  
   
   if (revision.draft) {
     return false;

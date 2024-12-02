@@ -164,6 +164,23 @@ export const userCanComment = (user: PermissionableUser|DbUser|null): boolean =>
   return true;
 }
 
+// Same as userCanComment, but without the unreviewed author check
+export const userCanQuickTake = (user: PermissionableUser|DbUser|null): boolean => {
+  if (!user) {
+    return false;
+  }
+
+  if (userIsAdminOrMod(user)) {
+    return true;
+  }
+
+  if (user.allCommentingDisabled) {
+    return false;
+  }
+
+  return true;
+}
+
 export const userOverNKarmaFunc = (n: number) => {
     return (user: UsersMinimumInfo|DbUser|null): boolean => {
       if (!user) return false
@@ -267,23 +284,23 @@ export function restrictViewableFields<N extends CollectionNameString>(
   }
 };
 
-export const restrictViewableFieldsMultiple = function <N extends CollectionNameString>(
+export const restrictViewableFieldsMultiple = function <N extends CollectionNameString, DocType extends ObjectsByCollectionName[N]>(
   user: UsersCurrent|DbUser|null,
   collection: CollectionBase<N>,
-  docs: ObjectsByCollectionName[N][],
-): Partial<ObjectsByCollectionName[N]>[] {
+  docs: DocType[],
+): Partial<DocType>[] {
   if (!docs) return [];
   return docs.map(doc => restrictViewableFieldsSingle(user, collection, doc));
 };
 
-export const restrictViewableFieldsSingle = function <N extends CollectionNameString>(
+export const restrictViewableFieldsSingle = function <N extends CollectionNameString, DocType extends ObjectsByCollectionName[N]>(
   user: UsersCurrent|DbUser|null,
   collection: CollectionBase<N>,
-  doc: ObjectsByCollectionName[N] | undefined | null,
-): Partial<ObjectsByCollectionName[N]> {
+  doc: DocType | undefined | null,
+): Partial<DocType> {
   if (!doc) return {};
   const schema = getSchema(collection);
-  const restrictedDocument: Partial<ObjectsByCollectionName[N]> = {};
+  const restrictedDocument: Partial<DocType> = {};
   const userGroups = userGetGroups(user);
 
   for (const fieldName in doc) {

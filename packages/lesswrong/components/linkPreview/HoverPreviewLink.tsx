@@ -68,7 +68,7 @@ const HoverPreviewLink = ({ href, contentSourceDescription, id, rel, noPrefetch,
 
   // Within-page relative link?
   if (href.startsWith("#")) {
-    if (locationHashIsFootnote(href) && !isMobile()){
+    if (locationHashIsFootnote(href)){
       return <Components.FootnotePreview href={href} id={id} rel={rel}>
         {children}
       </Components.FootnotePreview>

@@ -478,7 +478,8 @@ export const useUserLocation = (currentUser: UsersCurrent|DbUser|null, dontAsk?:
       const ls = getBrowserLocalStorage()
       if (!currentUser && ls) {
         try {
-          const lsLocation = JSON.parse(ls.getItem('userlocation'))
+          const storedUserLocation = ls.getItem('userlocation')
+          const lsLocation = storedUserLocation ? JSON.parse(storedUserLocation) : null
           if (lsLocation) {
             return {...lsLocation, loading: false}
           }
@@ -634,5 +635,8 @@ export const socialMediaSiteNameToHref = (
 
 export const userShortformPostTitle = (user: Pick<DbUser, "displayName">) => {
   const shortformName = isEAForum ? "Quick takes" : "Shortform";
-  return `${user.displayName}'s ${shortformName}`;
+
+  // Emoji's aren't allowed in post titles, see `assertPostTitleHasNoEmojis`
+  const displayNameWithoutEmojis = user.displayName?.replace(/\p{Extended_Pictographic}/gu, '');
+  return `${displayNameWithoutEmojis}'s ${shortformName}`;
 }

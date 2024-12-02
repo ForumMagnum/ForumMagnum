@@ -2,14 +2,12 @@ import { createAdminContext, createMutator, updateMutator } from '../vulcan-lib'
 import { Posts } from '../../lib/collections/posts/collection';
 import { Comments } from '../../lib/collections/comments/collection';
 import Users from '../../lib/collections/users/collection';
-import { clearVotesServer, performVoteServer } from '../voteServer';
-import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
+import type { VoteDocTuple } from '../../lib/voting/vote';
 import Localgroups from '../../lib/collections/localgroups/collection';
 import { PostRelations } from '../../lib/collections/postRelations/index';
 import { getDefaultPostLocationFields } from '../posts/utils'
 import { cheerioParse } from '../utils/htmlUtil'
 import { CreateCallbackProperties, getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
-import { postPublishedCallback } from '../notificationCallbacks';
 import moment from 'moment';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import { performCrosspost, handleCrosspostUpdate } from "../fmCrosspost/crosspost";
@@ -33,10 +31,25 @@ import DialogueMatchPreferences from '../../lib/collections/dialogueMatchPrefere
 import { recombeeApi } from '../recombee/client';
 import { recombeeEnabledSetting, vertexEnabledSetting } from '../../lib/publicSettings';
 import { googleVertexApi } from '../google-vertex/client';
+import { postsNewNotifications } from '../notificationCallbacks';
 import { getLatestContentsRevision } from '../../lib/collections/revisions/helpers';
 import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
+import { createNewJargonTerms } from '../resolvers/jargonResolvers/jargonTermMutations';
+import { userCanPassivelyGenerateJargonTerms } from '@/lib/betas';
 
 const MINIMUM_APPROVAL_KARMA = 5
+
+// Callback for a post being published. This is distinct from being created in
+// that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
+// moderator approval because they're a user's first post (but does fire when
+// they're approved).
+export async function onPostPublished(post: DbPost, context: ResolverContext) {
+  updateRecombeeWithPublishedPost(post, context);
+  await postsNewNotifications(post);
+  const { updateScoreOnPostPublish } = require("./votingCallbacks");
+  await updateScoreOnPostPublish(post, context);
+  await ensureNonzeroRevisionVersionsAfterUndraft(post, context);
+}
 
 if (isEAForum) {
   const checkTosAccepted = <T extends Partial<DbPost>>(currentUser: DbUser | null, post: T): T => {
@@ -112,7 +125,7 @@ getCollectionHooks("Posts").updateBefore.add(function PostsEditRunPostUndraftedS
   return data;
 });
 
-voteCallbacks.castVoteAsync.add(async function increaseMaxBaseScore ({newDocument, vote}: VoteDocTuple) {
+export async function increaseMaxBaseScore ({newDocument, vote}: VoteDocTuple) {
   if (vote.collectionName === "Posts") {
     const post = newDocument as DbPost;
     if (post.baseScore > (post.maxBaseScore || 0)) {
@@ -138,7 +151,7 @@ voteCallbacks.castVoteAsync.add(async function increaseMaxBaseScore ({newDocumen
       await Posts.rawUpdateOne({_id: post._id}, {$set: {maxBaseScore: post.baseScore, ...thresholdTimestamp}})
     }
   }
-});
+}
 
 getCollectionHooks("Posts").newSync.add(async function PostsNewDefaultLocation(post: DbPost): Promise<DbPost> {
   return {...post, ...(await getDefaultPostLocationFields(post))}
@@ -158,6 +171,7 @@ getCollectionHooks("Posts").newSync.add(async function PostsNewDefaultTypes(post
 getCollectionHooks("Posts").newAfter.add(async function LWPostsNewUpvoteOwnPost(post: DbPost): Promise<DbPost> {
  var postAuthor = await Users.findOne(post.userId);
  if (!postAuthor) throw new Error(`Could not find user: ${post.userId}`);
+ const { performVoteServer } = require("../voteServer");
  const {modifiedDocument: votedPost} = await performVoteServer({
    document: post,
    voteType: 'bigUpvote',
@@ -171,7 +185,7 @@ getCollectionHooks("Posts").newAfter.add(async function LWPostsNewUpvoteOwnPost(
 
 getCollectionHooks("Posts").createAfter.add((post: DbPost, { context }) => {
   if (!post.authorIsUnreviewed && !post.draft) {
-    void postPublishedCallback.runCallbacksAsync([post, context]);
+    void onPostPublished(post, context);
   }
 });
 
@@ -260,16 +274,16 @@ getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTrigg
   // or the post author is getting approved,
   // then we consider this "publishing" the post
   if ((oldDocument.draft && !document.authorIsUnreviewed) || (oldDocument.authorIsUnreviewed && !document.authorIsUnreviewed)) {
-    await postPublishedCallback.runCallbacksAsync([document, context]);
+    await onPostPublished(document, context);
   }
 });
 
-postPublishedCallback.add(async function ensureNonzeroRevisionVersionsAfterUndraft (post: DbPost, context: ResolverContext) {
+async function ensureNonzeroRevisionVersionsAfterUndraft (post: DbPost, context: ResolverContext) {
   // When a post is published, ensure that the version number of its contents
   // revision does not have `draft` set or an 0.x version number (which would
   // affect permissions).
   await context.repos.posts.ensurePostHasNonDraftContents(post._id);
-});
+}
 
 interface SendPostRejectionPMParams {
   messageContents: string,
@@ -527,6 +541,7 @@ async function bulkApplyPostTags ({postId, tagsToApply, currentUser, context}: {
 async function bulkRemovePostTags ({tagRels, currentUser, context}: {tagRels: DbTagRel[], currentUser: DbUser, context: ResolverContext}) {
   const clearOneTag = async (tagRel: DbTagRel) => {
     try {
+      const { clearVotesServer } = require("../voteServer");
       await clearVotesServer({ document: tagRel, collection: TagRels, user: currentUser, context})
     } catch(e) {
       captureException(e)
@@ -614,7 +629,7 @@ getCollectionHooks("Posts").updateAfter.add(async (post: DbPost, props: UpdateCa
 
 /* Recombee callbacks */
 
-postPublishedCallback.add((post, context) => {
+function updateRecombeeWithPublishedPost(post: DbPost, context: ResolverContext) {
   if (!isRecombeeRecommendablePost(post)) return;
 
   if (recombeeEnabledSetting.get()) {
@@ -628,7 +643,7 @@ postPublishedCallback.add((post, context) => {
       // eslint-disable-next-line no-console
       .catch(e => console.log('Error when sending published post to google vertex', { e }));
   }
-});
+}
 
 getCollectionHooks("Posts").updateAsync.add(async ({ newDocument, oldDocument, context }) => {
   // newDocument is only a "preview" and does not reliably have full post data, e.g. is missing contents.html
@@ -650,7 +665,7 @@ getCollectionHooks("Posts").updateAsync.add(async ({ newDocument, oldDocument, c
   }
 });
 
-voteCallbacks.castVoteAsync.add(({ newDocument, vote }, collection, user, context) => {
+export function updateRecombeeVote({ newDocument, vote }: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext) {
   if (vote.collectionName !== 'Posts' || newDocument.userId === vote.userId || !isRecombeeRecommendablePost(newDocument as DbPost)) return;
 
   if (recombeeEnabledSetting.get()) {
@@ -660,7 +675,7 @@ voteCallbacks.castVoteAsync.add(({ newDocument, vote }, collection, user, contex
   }
   
   // Vertex doesn't track any sort of "rating" or "score" (i.e. karma) for documents, so no point in pushing updates to it when posts are voted on
-});
+}
 
 getCollectionHooks("Posts").editSync.add(async function removeFrontpageDate(
   modifier: MongoModifier<DbPost>,
@@ -676,3 +691,40 @@ getCollectionHooks("Posts").editSync.add(async function removeFrontpageDate(
   }
   return modifier;
 });
+
+async function createNewJargonTermsCallback(post: DbPost, callbackProperties: CreateCallbackProperties<"Posts">) {
+  const { context: { currentUser, loaders, JargonTerms } } = callbackProperties;
+  const oldPost = 'oldDocument' in callbackProperties ? callbackProperties.oldDocument as DbPost : null;
+
+  if (!currentUser) return post;
+  if (currentUser._id !== post.userId) return post;
+  if (!post.contents_latest) return post;
+  if (post.draft && !post.generateDraftJargon) return post;
+  if (!post.draft && !currentUser.generateJargonForPublishedPosts) return post;
+  if (oldPost?.contents_latest === post.contents_latest) return post;
+
+  if (!userCanPassivelyGenerateJargonTerms(currentUser)) return post;
+  // TODO: refactor this so that createNewJargonTerms handles the case where we might be creating duplicate terms
+  const [existingJargon, newContents] = await Promise.all([
+    JargonTerms.find({postId: post._id}).fetch(),
+    loaders.Revisions.load(post.contents_latest)
+  ]);
+
+  if (!newContents?.html) {
+    return post;
+  }
+  
+  const { changeMetrics } = newContents;
+
+  // TODO: do we want different behavior for new vs updated posts?
+  if (changeMetrics.added > 1000 || !existingJargon.length) {
+    // TODO: do we want to exclude existing jargon terms from being added again for posts which had a large diff but already had some jargon terms?
+    void createNewJargonTerms({ postId: post._id, currentUser });
+  }
+
+  return post;
+}
+
+getCollectionHooks("Posts").createAfter.add(createNewJargonTermsCallback);
+
+getCollectionHooks("Posts").updateAfter.add(createNewJargonTermsCallback);

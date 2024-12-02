@@ -15,7 +15,7 @@ import { isLWorAF, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import stringify from 'json-stringify-deterministic';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
-import { AnnualReviewMarketInfo, highlightMarket } from '../../lib/annualReviewMarkets';
+import { AnnualReviewMarketInfo, highlightMarket } from '../../lib/collections/posts/annualReviewMarkets';
 import { stableSortTags } from '../../lib/collections/tags/helpers';
 
 const styles = (theme: ThemeType) => ({
@@ -132,7 +132,8 @@ const FooterTagList = ({
   classes,
   align = "left",
   noBackground = false,
-  neverCoreStyling = false
+  neverCoreStyling = false,
+  tagRight = true,
 }: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList | SunshinePostsList,
   hideScore?: boolean,
@@ -150,7 +151,8 @@ const FooterTagList = ({
   align?: "left" | "right",
   classes: ClassesType<typeof styles>,
   noBackground?: boolean,
-  neverCoreStyling?: boolean
+  neverCoreStyling?: boolean,
+  tagRight?: boolean,
 }) => {
   const [isAwaiting, setIsAwaiting] = useState(false);
   const rootRef = useRef<HTMLSpanElement>(null);
@@ -250,6 +252,8 @@ const FooterTagList = ({
     }
   }, [setIsAwaiting, mutate, refetch, post._id, captureEvent, flash]);
 
+  // FIXME: Unstable component will lose state on rerender
+  // eslint-disable-next-line react/no-unstable-nested-components
   const MaybeLink = ({to, children, className}: {
     to: string|null,
     children: React.ReactNode,
@@ -323,8 +327,13 @@ const FooterTagList = ({
 
   const tooltipPlacement = useAltAddTagButton ? "bottom-end" : undefined;
 
+  const addTagButton = <AddTagButton onTagSelected={onTagSelected} isVotingContext tooltipPlacement={tooltipPlacement}>
+    {useAltAddTagButton && <span className={classNames(classes.altAddTagButton, noBackground && classes.noBackground)}>+</span>}
+  </AddTagButton>
+
   const innerContent = (
     <>
+      {!tagRight && currentUser && !hideAddTag && addTagButton}
       {showCoreTags && (
         <div>
           <CoreTagsChecklist existingTagIds={tagIds} onTagSelected={onTagSelected} />
@@ -348,14 +357,10 @@ const FooterTagList = ({
       )}
       {!hidePostTypeTag && postType}
       {eventTag}
-      {annualReviewMarketInfo && highlightMarket(annualReviewMarketInfo) && (
+      {isLWorAF && annualReviewMarketInfo && (
         <PostsAnnualReviewMarketTag post={post} annualReviewMarketInfo={annualReviewMarketInfo} />
       )}
-      {currentUser && !hideAddTag && (
-        <AddTagButton onTagSelected={onTagSelected} isVotingContext tooltipPlacement={tooltipPlacement}>
-          {useAltAddTagButton && <span className={classNames(classes.altAddTagButton, noBackground && classes.noBackground)}>+</span>}
-        </AddTagButton>
-      )}
+      {tagRight && currentUser && !hideAddTag && addTagButton}
       {isAwaiting && <Loading />}
     </>
   );

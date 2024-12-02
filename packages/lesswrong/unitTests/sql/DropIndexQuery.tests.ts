@@ -5,7 +5,7 @@ describe("DropIndexQuery", () => {
   runTestCases([
     {
       name: "can build drop index query from TableIndex",
-      getQuery: () => new DropIndexQuery(testTable, testTable.getIndexes()[0]),
+      getQuery: () => new DropIndexQuery(testTable, testTable.getRequestedIndexes()[0]),
       expectedSql: 'DROP INDEX IF EXISTS "idx_TestCollection_a_b"',
       expectedArgs: [],
     },

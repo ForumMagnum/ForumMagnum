@@ -2,7 +2,7 @@ import { isClient } from '../../lib/executionEnvironment';
 
 export function getBrowserLocalStorage() {
   try {
-    return 'localStorage' in global && (global as any).localStorage ? (global as any).localStorage : null;
+    return 'localStorage' in global && global.localStorage ? global.localStorage : null;
   } catch(e) {
     // Some browsers don't have an accessible localStorage
     // eslint-disable-next-line no-console
@@ -24,7 +24,11 @@ export const getLSHandlers = (getLocalStorageId: any, doc: any, name: string, pr
       if (!isClient || !ls) return null;
       
       try {
-        const savedState = JSON.parse(ls.getItem(prefixedId))
+        const item = ls.getItem(prefixedId)
+        if (item === null) {
+          return null;
+        }
+        const savedState = JSON.parse(item)
         return savedState;
       } catch(e) {
         // eslint-disable-next-line no-console

@@ -110,6 +110,7 @@ build({
   banner: {
     js: clientBundleBanner,
   },
+  tslint: !isProduction,
   run: false,
   onStart: (config, changedFiles, ctx) => {
     setClientRebuildInProgress(true);
@@ -166,6 +167,7 @@ build({
   sourcemap: true,
   sourcesContent: true,
   minify: false,
+  tslint: !isProduction,
   run: cliopts.run && serverCli,
   onStart: (config, changedFiles, ctx) => {
     setServerRebuildInProgress(true);

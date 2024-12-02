@@ -177,7 +177,23 @@ const styles = (theme: ThemeType) => ({
       marginRight: 6,
     },
   },
-})
+  donationIcon: {
+    position: "relative",
+    bottom: 1,
+    color: theme.palette.givingSeason.primary,
+    fontSize: 24,
+    marginLeft: 8,
+    transform: "translateY(-2px)",
+  },
+  votedIcon: {
+    position: "relative",
+    bottom: 1,
+    color: theme.palette.givingSeason.primary,
+    fontSize: 24,
+    marginLeft: 8,
+    transform: "translateY(1px)",
+  },
+});
 
 const FriendlyUsersProfile = ({terms, slug, classes}: {
   terms: UsersViewTerms,
@@ -208,7 +224,8 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
     const ls = getBrowserLocalStorage()
     if (currentUser && user && currentUser._id !== user._id && ls) {
       let from = query.from
-      let profiles: any[] = JSON.parse(ls.getItem('lastViewedProfiles')) || []
+      const storedLastViewedProfiles = ls.getItem('lastViewedProfiles')
+      let profiles: any[] = storedLastViewedProfiles ? JSON.parse(storedLastViewedProfiles) : []
       // if the profile user is already in the list, then remove them before re-adding them at the end
       const profileUserIndex = profiles?.findIndex(profile => profile.userId === user._id)
       if (profiles && profileUserIndex !== -1) {
@@ -266,7 +283,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
     Typography, ContentStyles, EAUsersProfileTabbedSection, PostsListSettings,
     RecentComments, SectionButton, SequencesGridWrapper, ReportUserButton, DraftsList,
     ProfileShortform, EAUsersProfileImage, EAUsersMetaInfo, EAUsersProfileLinks,
-    UserNotifyDropdown, FooterTag, DisplayNameWithMarkers
+    UserNotifyDropdown, FooterTag, DisplayNameWithMarkers, ForumIcon,
   } = Components
 
   if (loading) {
@@ -439,7 +456,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
       count: user.commentCount,
       body: <AnalyticsContext pageSectionContext="commentsSection">
         <RecentComments
-          terms={{view: 'profileRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}}
+          terms={{view: 'profileComments', sortBy: "new", authorIsUnreviewed: null, limit: 10, userId: user._id}}
           showPinnedOnProfile
         />
       </AnalyticsContext>
@@ -481,6 +498,22 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
           <EAUsersProfileImage user={user} />
           <Typography variant="headline" className={classNames(classes.username, {[classes.deletedUsername]: user.deleted})}>
             <DisplayNameWithMarkers name={displayName} />{user.deleted && <span className={classes.accountDeletedText}>(account deleted)</span>}
+           {user.givingSeason2024DonatedFlair &&
+              <LWTooltip
+                placement="bottom-start"
+                title="Donated to the Donation Election fund"
+              >
+                <ForumIcon icon="GivingHand" className={classes.donationIcon} />
+              </LWTooltip>
+            }
+           {user.givingSeason2024VotedFlair &&
+              <LWTooltip
+                placement="bottom-start"
+                title="Voted in the Donation Election"
+              >
+                <ForumIcon icon="Voted" className={classes.votedIcon} />
+              </LWTooltip>
+            }
           </Typography>
           {(user.jobTitle || user.organization) && <ContentStyles contentType="comment" className={classes.roleAndOrg}>
             {user.jobTitle} {user.organization ? `@ ${user.organization}` : ''}

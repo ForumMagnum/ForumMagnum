@@ -42,14 +42,16 @@ import './server/scripts/generateInflationAdjustedKarmaReport';
 import './server/scripts/voteMigration';
 import './server/scripts/slugDeduplication';
 import './server/scripts/debuggingScripts';
+import './server/scripts/createKarmaAward'
 import './server/scripts/rerunAFvotes';
 import './server/scripts/nullifyVotes';
 import './server/scripts/fillUserEmail';
 import './server/scripts/deletePgIndexes';
 import './server/scripts/dropTestingDatabases';
 import './server/scripts/dropAndSeedJestPg';
-import './server/scripts/makeMigrations';
+import './server/scripts/generateSQLSchema';
 import './server/scripts/reviewGetResultsPost';
+import './server/scripts/sendAnnualForumUserSurveyEmails';
 import './server/scripts/sendWrappedNotifications';
 import './server/scripts/triggerWrappedRefresh';
 import './server/scripts/removeRsvp';
@@ -67,6 +69,7 @@ import './server/scripts/recomputeReceivedVoteCounts';
 import './server/scripts/validateDatabase';
 import './server/scripts/validateMakeEditableDenormalization';
 import './server/scripts/mergeAccounts';
+import './server/scripts/petrov2024assigning';
 import "./server/scripts/testPostDescription";
 import "./server/scripts/importEAGUserInterests";
 import "./server/scripts/importLocalgroups";
@@ -79,8 +82,9 @@ import "./server/scripts/generativeModels/coverImage";
 import "./server/scripts/addManualReviewArt";
 import "./server/scripts/backfillRecombee";
 import "./server/scripts/backfillGoogleVertex";
+import "./server/scripts/exportAEStudiosData";
 // doesn't pass unit tests but works fine. Leaving commented out for now
-// import './server/scripts/generativeModels/autoSpotlight';
+import './server/scripts/generativeModels/autoSpotlight';
 import "./server/scripts/mongoQueryToSQL";
 import './server/manualMigrations';
 import './server/manualMigrations/migrationsDashboardGraphql';
@@ -152,6 +156,7 @@ import './server/callbacks/reviewVoteCallbacks';
 import './server/callbacks/tagFlagCallbacks';
 import './server/callbacks/moderatorActionCallbacks';
 import './server/callbacks/digestCallbacks';
+import './server/callbacks/jargonTermCallbacks';
 
 
 import './server/resolvers/alignmentForumMutations';
@@ -160,10 +165,12 @@ import './server/callbacks/alignment-forum/alignmentCommentCallbacks';
 import './server/callbacks/alignment-forum/alignmentPostCallbacks';
 import './server/callbacks/alignment-forum/alignmentUserCallbacks';
 import './server/callbacks/votingCallbacks';
+import './server/callbacks/electionCandidateCallbacks';
 
 import './server/resolvers/diffResolvers';
 import './server/resolvers/revisionResolvers';
 import './server/resolvers/postResolvers';
+import './server/resolvers/spotlightResolvers';
 import './server/resolvers/userResolvers';
 import './server/resolvers/wrappedResolvers';
 import './server/resolvers/karmaChangeResolvers';
@@ -177,6 +184,7 @@ import './server/resolvers/recentDiscussionFeed';
 import './server/resolvers/elicitPredictions';
 import './server/resolvers/reviewVoteResolvers';
 import './server/resolvers/petrovDayResolvers';
+import './server/resolvers/petrovDay2024Resolvers';
 import './server/resolvers/analyticsResolvers';
 import './server/resolvers/adminResolvers';
 import './server/resolvers/surveyResolvers';
@@ -187,6 +195,9 @@ import './server/resolvers/reviewWinnerResolvers';
 import './server/resolvers/googleVertexResolvers';
 import './server/resolvers/defaultResolvers';
 import './server/resolvers/forumEventResolvers';
+import './server/resolvers/anthropicResolvers';
+import './server/resolvers/llmConversationsResolvers';
+import './server/resolvers/jargonResolvers/jargonTermResolvers';
 
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';
@@ -222,3 +233,5 @@ import './server/conversationUnreadMessages';
 import './server/userLoginTokens';
 
 import './server/migrations/meta/utils';
+
+import './server/givingSeason/resolvers'

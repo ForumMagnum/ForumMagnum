@@ -170,6 +170,16 @@ const youtubePreviewStyles = (theme: ThemeType): JssStyles => ({
   }
 })
 
+const lwartifactsPreviewStyles = (theme: ThemeType): JssStyles => ({
+  '& figure.media div[data-oembed-url*="lwartifacts.vercel.app"]': {
+    '& iframe': {
+      width: '100%',
+      height: 525,
+      border: 'none'
+    }
+  }
+})
+
 const tableStyles = (theme: ThemeType): JssStyles => ({
   borderCollapse: "collapse",
   borderSpacing: 0,
@@ -368,10 +378,10 @@ const ctaButtonStyles = (theme: ThemeType): JssStyles => ({
       backgroundColor: theme.palette.primary.dark,
       color: theme.palette.text.alwaysWhite, // Override default <a> style
     },
-    '&:visited': {
+    '&:visited, &.visited': {
       color: theme.palette.text.alwaysWhite, // Override default <a> style
     },
-    '&:visited:hover': {
+    '&:visited:hover, &.visited:hover': {
       color: theme.palette.text.alwaysWhite, // Override default <a> style
     },
     '&:disabled': {
@@ -465,15 +475,15 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
     paddingRight: '0.07em'
   },
   '& a, & a:hover, & a:active': {
-    color: theme.palette.primary.main,
+    color: theme.palette.link.color ?? theme.palette.primary.main,
     '& u': {
       textDecoration: "none"
     }
   },
-  '& a:visited': isFriendlyUI ? {
-    color: theme.palette.link.visited,
-  } : {},
-  '& a:visited:hover, & a:visited:active': isFriendlyUI ? {
+  '& a:visited, & a.visited': {
+    color: theme.palette.link.visited
+  },
+  '& a:visited:hover, & a.visited:hover, & a:visited:active, & a.visited:active': isFriendlyUI ? {
     color: theme.palette.link.visitedHover,
   } : {},
   '& table': {
@@ -533,6 +543,7 @@ export const postBodyStyles = (theme: ThemeType): JssStyles => {
     ...estimakerPreviewStyles(theme),
     ...viewpointsPreviewStyles(theme),
     ...youtubePreviewStyles(theme),
+    ...lwartifactsPreviewStyles(theme),
     ...footnoteStyles(theme),
     ...collapsibleSectionStyles(theme),
     ...ctaButtonStyles(theme),

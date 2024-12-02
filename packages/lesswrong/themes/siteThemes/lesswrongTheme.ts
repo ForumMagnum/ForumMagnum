@@ -3,6 +3,7 @@ import { blackBarTitle } from "../../lib/publicSettings";
 const sansSerifStack = [
   'GreekFallback', // Ensures that greek letters render consistently
   'Calibri',
+  'gill-sans-nova',
   '"Gill Sans"',
   '"Gill Sans MT"',
   "Myriad Pro",
@@ -53,9 +54,17 @@ export const lessWrongTheme: SiteThemeSpecification = {
     },
     background: {
       default: '#f8f4ee'
-    }
+    },
+    link: {
+      color: "#327E09",
+      visited: "#798754"
+    },
   }),
   make: (palette: ThemePalette) => ({
+    zIndexes: {
+      searchResults: 1100,
+      intercomButton: 1030,
+    },
     typography: {
       fontFamily: sansSerifStack,
       postStyle: {
@@ -70,7 +79,8 @@ export const lessWrongTheme: SiteThemeSpecification = {
         fontSize: '.85em'
       },
       body2: {
-        fontSize: 15.08
+        fontSize: 15.08,
+        lineHeight: "19.8px"
       },
       commentStyle: {
         fontFamily: sansSerifStack,
@@ -89,7 +99,7 @@ export const lessWrongTheme: SiteThemeSpecification = {
         fontFamily: serifStack,
       },
       title: {
-        fontFamily: serifStack,
+        fontFamily: headerStack,
         fontWeight: 500,
       },
       uiSecondary: {

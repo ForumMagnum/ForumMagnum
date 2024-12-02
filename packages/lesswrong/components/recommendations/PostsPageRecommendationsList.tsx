@@ -53,7 +53,7 @@ const PostsPageRecommendationsList = ({
   forceLoggedOutView?: boolean,
   classes: ClassesType,
 }) => {
-  const post = usePostsPageContext();
+  const post = usePostsPageContext()?.fullPost;
   if (!post) {
     return null;
   }
@@ -80,7 +80,7 @@ const PostsPageRecommendationsList = ({
 
   return (
     <div className={classes.root}>
-      {title && <SectionTitle title={title} className={classes.title} />}
+      {title && <SectionTitle title={title} titleClassName={classes.title} />}
       <DeferRender ssr={false} fallback={loadingFallback}>
         <RecommendationsList
           algorithm={recommendationsAlgorithm}

@@ -190,6 +190,25 @@ registerCookie({
   description: "Whether or not to show particular flags in the main navigation menu",
 });
 
+export const SHOW_LLM_CHAT_COOKIE = registerCookie({
+  name: "llm_chat_conversation_open",
+  type: "functional",
+  description: "Whether the LLM chat conversation UI is open",
+});
+
+export const HIDE_LLM_CHAT_GUIDE_COOKIE = registerCookie({
+  name: "llm_chat_guide_open",
+  type: "functional",
+  description: "Whether the LLM chat guide is open",
+})
+
+export const LLM_CHAT_EXPANDED = registerCookie({
+  name: "llm_chat_expanded",
+  type: "functional",
+  description: "Whether the LLM chat has expanded size",
+})
+
+
 // Third party cookies
 
 // Intercom
@@ -322,3 +341,11 @@ registerCookie({
                "The full list of known possible cookies are: __Secure-3PSIDCC, __Secure-1PSIDCC, SIDCC, __Secure-3PAPISID, SSID, " +
                "__Secure-1PAPISID, HSID, __Secure-3PSID, __Secure-1PSID, SID, SAPISID, APISID, NID, OTZ, 1P_JAR, AEC, DV, __Secure-ENID",
 });
+
+// Pinned glossary
+export const PINNED_GLOSSARY_COOKIE = registerCookie({
+  name: 'pinnedGlossary',
+  type: 'functional',
+  description: 'Whether the glossary is pinned',
+});
+

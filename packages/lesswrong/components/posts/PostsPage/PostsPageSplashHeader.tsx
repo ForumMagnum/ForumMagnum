@@ -66,7 +66,7 @@ const styles = (theme: ThemeType) => ({
       left: 0,
       height: '100%',
       width: '100%',
-      background: `linear-gradient(180deg, ${theme.palette.panelBackground.translucent} 64px, transparent 30%, transparent 48%, ${theme.palette.panelBackground.default} 97%)`,
+      background: `linear-gradient(180deg, ${theme.palette.panelBackground.translucent} 64px, transparent 40%, transparent 48%, ${theme.palette.panelBackground.default} 97%)`,
       pointerEvents: 'none'
     },
     transition: 'opacity 0.5s ease-in-out',
@@ -365,7 +365,7 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
   toggleEmbeddedPlayer?: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { FooterTagList, UsersName, CommentBody, PostActionsButton, LWTooltip, LWPopper, ImageCropPreview, ForumIcon, SplashHeaderImageOptions, PostsAudioPlayerWrapper, LWPostsPageTopHeaderVote, LWPostsPageHeaderTopRight } = Components;
+  const { UsersName, CommentBody, LWPopper, ImageCropPreview, SplashHeaderImageOptions, PostsAudioPlayerWrapper, LWPostsPageHeaderTopRight, FormatDate } = Components;
   
   const { selectedImageInfo } = useImageContext();
   const { setToCVisible } = useContext(SidebarsContext)!;
@@ -446,10 +446,13 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
   const topLeftSection = (
     <div className={classes.leftSection}>
       <Link className={classes.reviewNavigation} to="/leastwrong?sort=year">
-        Ranked #{post.reviewWinner.reviewRanking + 1} of {post.reviewWinner.competitorCount} posts in {post.reviewWinner.reviewYear}
+        {/* Ranked #{post.reviewWinner.reviewRanking + 1} of {post.reviewWinner.competitorCount} posts in {post.reviewWinner.reviewYear} */}
+        <FormatDate date={post.postedAt} format="MMMM DD, YYYY" tooltip={false}/>
+        <em> (Ranked #{post.reviewWinner.reviewRanking + 1} of {post.reviewWinner.competitorCount} posts)</em>
       </Link>
       <Link className={classes.reviewNavigationMobile} to="/leastwrong?sort=year">
-        #{post.reviewWinner.reviewRanking + 1} in {post.reviewWinner.reviewYear} Review
+        <FormatDate date={post.postedAt} format="MMMM DD, YYYY" tooltip={false}/>
+        <em> (#{post.reviewWinner.reviewRanking + 1} of {post.reviewWinner.competitorCount})</em>
       </Link>
     </div>
   );
@@ -536,7 +539,7 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
     </div>}
     <div className={classes.top}>
       {topLeftSection}
-      <LWPostsPageHeaderTopRight post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />
+      <LWPostsPageHeaderTopRight post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} higherContrast={true} />
     </div>
     {audioPlayer}
     <div className={classes.rightSection}>

@@ -18,19 +18,17 @@ const styles = (theme: ThemeType): JssStyles => ({
 const AlignmentForumHome = ({classes}: {
   classes: ClassesType
 }) => {
-  const { SingleColumnSection, SectionTitle, FrontpageReviewWidget, PostsList2, SectionButton, RecentDiscussionThreadsList, CuratedSequences, EAPopularCommentsSection, QuickTakesSection } = Components
+  const { SingleColumnSection, SectionTitle, FrontpageReviewWidget, PostsList2, SectionButton, RecentDiscussionThreadsList, EAPopularCommentsSection, RotatingReviewWinnerSpotlight } = Components
   const currentUser = useCurrentUser();
 
-  let recentPostsTerms = {view: 'new', limit: 10, forum: true, af: true}
+  let recentPostsTerms = {view: 'new', limit: 10, forum: true, af: true} as const;
 
   return (
     <div className="alignment-forum-home">
       <SingleColumnSection>
-        <SectionTitle title="Recommended Sequences"/>
-        <div className={classes.frontpageSequencesGridList}>
-          <CuratedSequences />
-        </div>
+        <RotatingReviewWinnerSpotlight />
       </SingleColumnSection>
+
       {reviewIsActive() && <SingleColumnSection>
         <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
       </SingleColumnSection>}

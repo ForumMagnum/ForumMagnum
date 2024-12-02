@@ -2,6 +2,9 @@ import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { getVotingSystemByName } from '@/lib/voting/votingSystems';
+import classNames from 'classnames';
+import type { AnnualReviewMarketInfo } from '@/lib/collections/posts/annualReviewMarkets';
+import { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -12,7 +15,11 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]: {
       top: 8,
       right: 8
-    }
+    },
+    
+    // Ensure this is above the side-items column, which extends to the top of
+    // the page.
+    zIndex: 100,
   },
   vote: {
     display: 'flex',
@@ -26,6 +33,10 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'center',
     opacity: 0.3
   },
+  postActionsButtonShortform: {
+    marginTop: 12,
+    marginRight: 8
+  },
   tagList: {
     marginTop: 12,
     marginBottom: 12,
@@ -37,33 +48,37 @@ const styles = (theme: ThemeType) => ({
   audioToggle: {
     opacity: 0.55,
     display: 'flex',
+  },
+  darkerOpacity: {
+    opacity: 0.7
   }
 });
 
-export const LWPostsPageHeaderTopRight = ({classes, post, toggleEmbeddedPlayer, showEmbeddedPlayer}: {
+export const LWPostsPageHeaderTopRight = ({classes, post, toggleEmbeddedPlayer, showEmbeddedPlayer, higherContrast, annualReviewMarketInfo}: {
   classes: ClassesType<typeof styles>,
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   toggleEmbeddedPlayer?: () => void,
   showEmbeddedPlayer?: boolean,
-  hideVoteOnMobile?: boolean
+  higherContrast?: boolean,
+  annualReviewMarketInfo?: AnnualReviewMarketInfo
 }) => {
   const { FooterTagList, LWPostsPageTopHeaderVote, AudioToggle, PostActionsButton } = Components;
 
   const votingSystem = getVotingSystemByName(post.votingSystem ?? 'default');
 
   return <div className={classes.root}>
-      <AnalyticsContext pageSectionContext="tagHeader">
-        <div className={classes.tagList}>
-          <FooterTagList post={post} hideScore useAltAddTagButton hideAddTag={true} align="right" noBackground neverCoreStyling />
+      {!post.shortform && <AnalyticsContext pageSectionContext="tagHeader">
+        <div className={classNames(classes.tagList, higherContrast && classes.darkerOpacity)}>
+          <FooterTagList post={post} hideScore useAltAddTagButton align="right" noBackground neverCoreStyling tagRight={false} annualReviewMarketInfo={annualReviewMarketInfo}/>
         </div>
-      </AnalyticsContext>
-      <div className={classes.audioToggle}>
+      </AnalyticsContext>}
+      {!post.shortform && postHasAudioPlayer(post) && <div className={classNames(classes.audioToggle, higherContrast && classes.darkerOpacity)}>
         <AudioToggle post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />
-      </div>
-      <div className={classes.vote}>
+      </div>}
+      {!post.shortform && <div className={classes.vote}>
         <LWPostsPageTopHeaderVote post={post} votingSystem={votingSystem} /> 
-      </div>
-      <PostActionsButton post={post} className={classes.postActionsButton} flip />
+      </div>}
+      <PostActionsButton post={post} className={classNames(classes.postActionsButton, post.shortform && classes.postActionsButtonShortform)} flip />
   </div>;
 }
 

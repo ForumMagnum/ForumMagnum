@@ -7,6 +7,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
+import { isFriendlyUI } from '@/themes/forumTheme';
 
 const PADDING = 36
 const COLLECTION_WIDTH = SECTION_WIDTH + (PADDING * 2)
@@ -39,17 +40,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   startReadingButton: {
     background: theme.palette.buttons.startReadingButtonBackground,
-
-    // TODO: Pick typography for this button. (This is just the typography that
-    // Material UI v0 happened to use.)
     fontWeight: 500,
     fontSize: "14px",
-    fontFamily: "Roboto, sans-serif",
+    fontFamily: theme.typography.commentStyle.fontFamily
   },
   title: {
     ...theme.typography.headerStyle,
     fontWeight: "bold",
-    textTransform: "uppercase",
+    textTransform: isFriendlyUI ? undefined : "uppercase",
     borderTopStyle: "solid",
     borderTopWidth: 4,
     paddingTop: 10,
@@ -58,7 +56,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   description: {
     marginTop: 30,
-    marginBottom: 25,
+    marginBottom: isFriendlyUI ? 0 : 25,
     lineHeight: 1.25,
     maxWidth: 700,
   },
@@ -108,9 +106,10 @@ const CollectionsPage = ({ documentId, classes }: {
     // we don't show to users because it'd be too intimidating
     // (more info in BooksProgressBar for users)
     const posts = collection.books.flatMap(book => book.sequences.flatMap(sequence => sequence.chapters.flatMap(chapter => chapter.posts)))
-    const wordCount = posts.reduce((i, post) => i + (post?.contents?.wordCount || 0), 0)
-    // eslint-disable-next-line no-console
-    console.log(`${wordCount.toLocaleString()} words`)
+    // this shouldn't be enabled in production
+    // const wordCount = posts.reduce((i, post) => i + (post?.contents?.wordCount || 0), 0)
+    // // eslint-disable-next-line no-console
+    // console.log(`${wordCount.toLocaleString()} words`)
 
     const socialImageUrl = collection.gridImageId ? makeCloudinaryImageUrl(collection.gridImageId, {
       c: "fill",

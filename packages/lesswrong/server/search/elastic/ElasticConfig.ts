@@ -106,8 +106,9 @@ const fullTextMapping: MappingProperty = {
       analyzer: "fm_exact_analyzer",
     },
     sort: {
-      type: "keyword",
-      normalizer: "fm_sortable_keyword",
+      // A wildcard is similar to a keyword, but supports data larger than 32KB
+      type: "wildcard",
+      null_value: "",
     },
   },
 };
@@ -223,6 +224,7 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
       {term: {draft: false}},
       {term: {rejected: false}},
       {term: {authorIsUnreviewed: false}},
+      {term: {unlisted: false}},
       {term: {status: postStatuses.STATUS_APPROVED}},
       ...(isEAForum ? [] : [{range: {baseScore: {gte: 0}}}]),
     ],
@@ -234,12 +236,17 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
       body: fullTextMapping,
       feedLink: keywordMapping,
       slug: keywordMapping,
-      tags: keywordMapping,
+      tags: objectMapping({
+        _id: keywordMapping,
+        slug: keywordMapping,
+        name: keywordMapping,
+      }),
       url: keywordMapping,
       userId: keywordMapping,
     },
     privateFields: [
       "authorIsUnreviewed",
+      "unlisted",
       "draft",
       "isFuture",
       "legacy",

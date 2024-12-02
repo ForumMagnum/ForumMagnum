@@ -5,6 +5,7 @@ interface SearchBase {
 }
 
 interface SearchComment extends SearchBase {
+  _index: "comments",
   userId: string,
   baseScore: number,
   isDeleted: boolean,
@@ -33,6 +34,7 @@ interface SearchComment extends SearchBase {
 }
 
 interface SearchSequence extends SearchBase {
+  _index: "sequences",
   title: string | null,
   userId: string,
   createdAt: string,
@@ -45,6 +47,7 @@ interface SearchSequence extends SearchBase {
 }
 
 interface SearchUser extends SearchBase {
+  _index: "users",
   username: string,
   displayName: string,
   createdAt: string,
@@ -74,6 +77,7 @@ interface SearchUser extends SearchBase {
 }
 
 interface SearchPost extends SearchBase {
+  _index: "posts",
   url: string | null,
   title: string | null,
   slug: string,
@@ -91,7 +95,7 @@ interface SearchPost extends SearchBase {
   lastCommentedAt: string | null,
   draft: boolean,
   af: boolean,
-  tags: Array<string>,
+  tags: {_id: string, slug: string, name: string}[] | null,
   authorSlug?: string | null,
   authorDisplayName?: string | null,
   authorFullName?: string | null,
@@ -101,6 +105,7 @@ interface SearchPost extends SearchBase {
 }
 
 interface SearchTag extends SearchBase {
+  _index: "tags",
   name: string,
   slug: string,
   core: boolean,

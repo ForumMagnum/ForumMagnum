@@ -30,27 +30,15 @@ import { requireCssVar } from '../themes/cssVars';
 import { UnreadNotificationsContextProvider } from './hooks/useUnreadNotifications';
 import { CurrentForumEventProvider } from './hooks/useCurrentForumEvent';
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
-const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
-import moment from 'moment';
+export const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
 
-import { Link } from '../lib/reactRouterWrapper';
 import { LoginPopoverContextProvider } from './hooks/useLoginPopoverContext';
 import DeferRender from './common/DeferRender';
+import { userHasLlmChat } from '@/lib/betas';
+import { AutosaveEditorStateContext } from './editor/EditorFormComponent';
+import { GivingSeasonEventsProvider } from './forumEvents/useGivingSeasonEvents';
 
 const STICKY_SECTION_TOP_MARGIN = 20;
-
-// These routes will have the standalone TabNavigationMenu (aka sidebar)
-//
-// Refer to routes.js for the route names. Or console log in the route you'd
-// like to include
-const standaloneNavMenuRouteNames: ForumOptions<string[]> = {
-  'LessWrong': [
-    'home', 'allPosts', 'questions', 'library', 'Shortform', 'Sequences', 'collections', 'nominations', 'reviews',
-  ],
-  'AlignmentForum': ['alignment.home', 'library', 'allPosts', 'questions', 'Shortform'],
-  'EAForum': ['home', 'allPosts', 'questions', 'Shortform', 'eaLibrary', 'tagsSubforum'],
-  'default': ['home', 'allPosts', 'questions', 'Community', 'Shortform',],
-}
 
 /**
  * When a new user signs up, their profile is 'incomplete' (ie; without a display name)
@@ -123,7 +111,7 @@ const styles = (theme: ThemeType): JssStyles => ({
         minmax(0, min-content)
         minmax(0, 1fr)
         minmax(0, min-content)
-        minmax(0, ${isLW ? 7 : 1}fr)
+        minmax(0, ${isLWorAF ? 7 : 1}fr)
         minmax(0, min-content)
       `,
     },
@@ -286,6 +274,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   sunshine: {
     gridArea: 'sunshine'
   },
+  languageModelLauncher: {
+    position: 'absolute',
+    top: '-57px',
+    right: '-334px',
+    [theme.breakpoints.down('lg')]: {
+      display: 'none',
+    }
+  },
   whiteBackground: {
     background: theme.palette.background.pageActiveAreaBackground,
   },
@@ -362,13 +358,12 @@ const Layout = ({currentUser, children, classes}: {
 }) => {
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
   const [disableNoKibitz, setDisableNoKibitz] = useState(false); 
+  const [autosaveEditorState, setAutosaveEditorState] = useState<(() => Promise<void>) | null>(null);
   const hideNavigationSidebarDefault = currentUser ? !!(currentUser?.hideNavigationSidebar) : false
   const [hideNavigationSidebar,setHideNavigationSidebar] = useState(hideNavigationSidebarDefault);
   const theme = useTheme();
   const {currentRoute, pathname} = useLocation();
   const layoutOptionsState = React.useContext(LayoutOptionsContext);
-  const { explicitConsentGiven: cookieConsentGiven, explicitConsentRequired: cookieConsentRequired } = useCookiePreferences();
-  const showCookieBanner = cookieConsentRequired === true && !cookieConsentGiven;
   const {headerVisible, headerAtTop} = useHeaderVisible();
 
   // enable during ACX Everywhere
@@ -427,11 +422,17 @@ const Layout = ({currentUser, children, classes}: {
     [disableNoKibitz, setDisableNoKibitz]
   );
 
+  const autosaveEditorStateContext = useMemo(
+    () => ({ autosaveEditorState, setAutosaveEditorState }),
+    [autosaveEditorState, setAutosaveEditorState]
+  );
 
   let headerBackgroundColor: ColorString;
   // For the EAF Wrapped page, we change the header's background color to a dark blue.
   if (pathname.startsWith('/wrapped')) {
     headerBackgroundColor = wrappedBackgroundColor;
+  } else if (pathname.startsWith("/voting-portal")) {
+    headerBackgroundColor = "transparent";
   } else if (blackBarTitle.get()) {
     headerBackgroundColor = 'rgba(0, 0, 0, 0.7)';
   }
@@ -446,21 +447,22 @@ const Layout = ({currentUser, children, classes}: {
       AnalyticsClient,
       AnalyticsPageInitializer,
       NavigationEventSender,
-      PetrovDayWrapper,
+      PetrovGameWrapper,
       EAOnboardingFlow,
       BasicOnboardingFlow,
       CommentOnSelectionPageWrapper,
       SidebarsWrapper,
-      IntercomWrapper,
       HomepageCommunityMap,
-      CookieBanner,
       AdminToggle,
       SunshineSidebar,
       EAHomeRightHandSide,
       CloudinaryImage2,
       ForumEventBanner,
       GlobalHotkeys,
-      EASurveyBanner,
+      LanguageModelLauncherButton,
+      LlmChatWrapper,
+      TabNavigationMenuFooter
+      
     } = Components;
 
     const baseLayoutOptions: LayoutOptions = {
@@ -469,9 +471,10 @@ const Layout = ({currentUser, children, classes}: {
       // then it should.
       // FIXME: This is using route names, but it would be better if this was
       // a property on routes themselves.
-      standaloneNavigation: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute.name),
+      standaloneNavigation: !currentRoute || !!currentRoute.hasLeftNavigationColumn,
       renderSunshineSidebar: !!currentRoute?.sunshineSidebar && !!(userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins')) && !currentUser?.hideSunshineSidebar,
-      shouldUseGridLayout: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute.name),
+      renderLanguageModelChatLauncher: !!currentUser && userHasLlmChat(currentUser),
+      shouldUseGridLayout: !currentRoute || !!currentRoute.hasLeftNavigationColumn,
       unspacedGridLayout: !!currentRoute?.unspacedGrid,
     }
 
@@ -479,22 +482,14 @@ const Layout = ({currentUser, children, classes}: {
 
     const standaloneNavigation = overrideLayoutOptions.standaloneNavigation ?? baseLayoutOptions.standaloneNavigation
     const renderSunshineSidebar = overrideLayoutOptions.renderSunshineSidebar ?? baseLayoutOptions.renderSunshineSidebar
+    const renderLanguageModelChatLauncher = overrideLayoutOptions.renderLanguageModelChatLauncher ?? baseLayoutOptions.renderLanguageModelChatLauncher
     const shouldUseGridLayout = overrideLayoutOptions.shouldUseGridLayout ?? baseLayoutOptions.shouldUseGridLayout
     const unspacedGridLayout = overrideLayoutOptions.unspacedGridLayout ?? baseLayoutOptions.unspacedGridLayout
+    const navigationFooterBar = !currentRoute || currentRoute.navigationFooterBar;
     // The friendly home page has a unique grid layout, to account for the right hand side column.
     const friendlyHomeLayout = isFriendlyUI && currentRoute?.name === 'home'
 
     const isIncompletePath = allowedIncompletePaths.includes(currentRoute?.name ?? "404");
-
-    const renderPetrovDay = () => {
-      const currentTime = (new Date()).valueOf()
-      const beforeTime = petrovBeforeTime.get()
-      const afterTime = petrovAfterTime.get()
-    
-      return currentRoute?.name === "home" && isLW
-        && beforeTime < currentTime
-        && currentTime < afterTime
-    }
     
     return (
       <AnalyticsContext path={pathname}>
@@ -504,9 +499,12 @@ const Layout = ({currentUser, children, classes}: {
       <ItemsReadContextWrapper>
       <LoginPopoverContextProvider>
       <SidebarsWrapper>
+      <AutosaveEditorStateContext.Provider value={autosaveEditorStateContext}>
+      <LlmChatWrapper>
       <DisableNoKibitzContext.Provider value={noKibitzContext}>
       <CommentOnSelectionPageWrapper>
       <CurrentForumEventProvider>
+      <GivingSeasonEventsProvider>
         <div className={classNames(
           "wrapper",
           {'alignment-forum': isAF, [classes.fullscreen]: currentRoute?.fullscreen, [classes.wrapper]: isLWorAF}
@@ -528,7 +526,7 @@ const Layout = ({currentUser, children, classes}: {
               <GlobalHotkeys/>
               {/* Only show intercom after they have accepted cookies */}
               <DeferRender ssr={false}>
-                {showCookieBanner ? <CookieBanner /> : <IntercomWrapper/>}
+                <MaybeCookieBanner />
               </DeferRender>
 
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
@@ -546,8 +544,6 @@ const Layout = ({currentUser, children, classes}: {
               <ForumEventBanner />
               {/* enable during ACX Everywhere */}
               {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>}
-              {renderPetrovDay() && <PetrovDayWrapper/>}
-              {isEAForum && <EASurveyBanner />}
 
               <div className={classNames(classes.standaloneNavFlex, {
                 [classes.spacedGridActivated]: shouldUseGridLayout && !unspacedGridLayout,
@@ -573,6 +569,7 @@ const Layout = ({currentUser, children, classes}: {
                     </DeferRender>
                   </StickyWrapper>
                 }
+                {isLWorAF && navigationFooterBar && <TabNavigationMenuFooter />}
                 <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
                 <div className={classNames(classes.main, {
                   [classes.whiteBackground]: useWhiteBackground,
@@ -589,11 +586,18 @@ const Layout = ({currentUser, children, classes}: {
                   </ErrorBoundary>
                   {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
                 </div>
-                {isLW && <>
-                  {standaloneNavigation && <div className={classes.imageColumn}>
-                    <CloudinaryImage2 className={classes.backgroundImage} publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413" darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}/>
-                  </div>}
-                </>}
+                {isLW && standaloneNavigation && <div className={classes.imageColumn}>
+                  {/* Background image shown in the top-right corner of LW. The
+                    * loading="lazy" prevents downloading the image if the
+                    * screen-size is such that the image will be hidden by a
+                    * breakpoint. */}
+                  <CloudinaryImage2
+                    loading="lazy"
+                    className={classes.backgroundImage}
+                    publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413"
+                    darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}
+                  />
+                </div>}
                 {!renderSunshineSidebar &&
                   friendlyHomeLayout &&
                   <StickyWrapper
@@ -612,13 +616,21 @@ const Layout = ({currentUser, children, classes}: {
                     <SunshineSidebar/>
                   </DeferRender>
                 </div>}
+                {renderLanguageModelChatLauncher && <div className={classes.languageModelChatLauncher}>
+                  <DeferRender ssr={false}>
+                    <LanguageModelLauncherButton/>
+                  </DeferRender>
+                </div>}
               </div>
             </CommentBoxManager>
           </DialogManager>
         </div>
+      </GivingSeasonEventsProvider>
       </CurrentForumEventProvider>
       </CommentOnSelectionPageWrapper>
       </DisableNoKibitzContext.Provider>
+      </LlmChatWrapper>
+      </AutosaveEditorStateContext.Provider>
       </SidebarsWrapper>
       </LoginPopoverContextProvider>
       </ItemsReadContextWrapper>
@@ -629,6 +641,14 @@ const Layout = ({currentUser, children, classes}: {
     )
   };
   return render();
+}
+
+function MaybeCookieBanner() {
+  const { IntercomWrapper, CookieBanner } = Components;
+  const { explicitConsentGiven: cookieConsentGiven, explicitConsentRequired: cookieConsentRequired } = useCookiePreferences();
+  const showCookieBanner = cookieConsentRequired === true && !cookieConsentGiven;
+
+  return showCookieBanner ? <CookieBanner /> : <IntercomWrapper/>;
 }
 
 const LayoutComponent = registerComponent('Layout', Layout, {styles});

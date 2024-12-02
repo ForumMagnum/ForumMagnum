@@ -301,6 +301,7 @@ interface ResolverContext extends CollectionsByName {
   currentUser: DbUser|null,
   visitorActivity: DbUserActivity|null,
   locale: string,
+  isSSR: boolean,
   isGreaterWrong: boolean,
   /**
    * This means that the request originated from the other FM instance's servers
@@ -327,7 +328,7 @@ type VoteableCollectionName = "Posts"|"Comments"|"TagRels"|"Revisions"|"Election
 
 interface EditableFieldContents {
   html: string
-  wordCount: number | null
+  wordCount: number
   originalContents: DbRevision["originalContents"]
   editedAt: Date
   userId: string

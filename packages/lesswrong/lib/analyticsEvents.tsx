@@ -9,6 +9,7 @@ import { getPublicSettingsLoaded } from './settingsCache';
 import { throttle } from 'underscore';
 import moment from 'moment';
 import { Globals } from './vulcan-lib/config';
+import isEqual from 'lodash/isEqual';
 
 const showAnalyticsDebug = new DatabasePublicSetting<"never"|"dev"|"always">("showAnalyticsDebug", "dev");
 const flushIntervalSetting = new DatabasePublicSetting<number>("analyticsFlushInterval", 1000);
@@ -117,6 +118,8 @@ export type AnalyticsProps = {
   pageSubSectionContext?: string,
   pageElementContext?: string,
   pageElementSubContext?: string,
+  /** WARNING: read the documentation before using this.  Avoid unless you have a very good reason. */
+  nestedPageElementContext?: string,
   reviewYear?: string,
   path?: string,
   resourceName?: string,
@@ -124,6 +127,7 @@ export type AnalyticsProps = {
   chapter?: string,
   documentSlug?: string,
   postId?: string,
+  forumEventId?: string,
   sequenceId?: string,
   commentId?: string,
   tagId?: string,
@@ -142,6 +146,7 @@ export type AnalyticsProps = {
   onsite?: boolean,
   terms?: PostsViewTerms,
   viewType?: string,
+  componentName?: string,
   /** @deprecated Use `pageSectionContext` instead */
   listContext?: string,
   /** @deprecated Use `pageSectionContext` instead */
@@ -191,9 +196,13 @@ Please ensure that your context labeling follows the convention so future analys
 easy for everyone.
 
 WARNING! Be careful. Nested AnalyticsContext context share one context object so 1) you don't need
-to repeat context labels, 2) they can overwrite each others – be carefule you don't
+to repeat context labels, 2) they can overwrite each others – be careful you don't
 accidentally reuse a context label like "pageSectionContext" twice nested because the second usage
-will overwrite the first.
+will overwrite the first.  The one exception is nestedPageElementContext, which accepts a string and
+aggregates into an array of string values in the final event.  This is meant to allow tracking
+arbitrarily nested elements along with their parents, like nested tooltip hoverovers.  It ignores recursion
+on the same value; if you end up with nested analytics contexts that have the same value for nestedPageElementContext,
+only the first instance will be recorded.
 
 NOTE! AnalyticsContext components will only add context data to events that are already
 being tracked (e.g. linkClicks, navigate). If you've added a button or change of state, you
@@ -213,8 +222,30 @@ export const AnalyticsContext = ({children, ...props}: AnalyticsProps & {
   // (As long as they captured the context in the obvious way, they'll still get
   // the newest values of these props when they actually log an event.)
   const newContextData = useRef<TrackingContext>({...existingContextData});
-  for (let key of Object.keys(props))
-    newContextData.current[key] = props[key as keyof typeof props];
+  for (let key of Object.keys(props)) {
+    // If the key is nestedPageElementContext, we need to not clobber it when handling nested contexts
+    if (key === 'nestedPageElementContext' && props.nestedPageElementContext) {
+      // If nestedPageElementContext already exists and isn't just us triggering the same event on the same element, append to it
+      const previousNestedPageElementContext = newContextData.current.nestedPageElementContext as string[] | undefined;
+      if (previousNestedPageElementContext) {
+        if (previousNestedPageElementContext.slice(-1)[0] !== props.nestedPageElementContext) {
+          newContextData.current.nestedPageElementContext = [
+            ...(previousNestedPageElementContext as string[]),
+            props.nestedPageElementContext
+          ];
+        } else {
+          // If nestedPageElementContext already exists and is just us triggering the same event on the same element, do nothing
+          continue;
+        }
+      // If nestedPageElementContext doesn't exist yet, create it
+      } else {
+        newContextData.current.nestedPageElementContext = [props.nestedPageElementContext];
+      }
+    // Otherwise, just set the key to the value
+    } else {
+      newContextData.current[key] = props[key as keyof typeof props];
+    }
+  }
 
   return <ReactTrackingContext.Provider value={newContextData.current}>
     {children}

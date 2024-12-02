@@ -142,6 +142,7 @@ interface DbComment extends DbObject {
   author: string | null
   postId: string | null
   tagId: string | null
+  forumEventId: string | null
   tagCommentType: "SUBFORUM" | "DISCUSSION"
   subforumStickyPriority: number | null
   userId: string
@@ -245,6 +246,20 @@ interface DbCurationEmail extends DbObject {
   postId: string
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
+type CurationNoticesCollection = CollectionBase<"CurationNotices">;
+
+interface DbCurationNotice extends DbObject {
+  __collectionName?: "CurationNotices"
+  userId: string
+  commentId: string | null
+  postId: string | null
+  deleted: boolean
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  contents: EditableFieldContents | null
+  contents_latest: string | null
 }
 
 type DatabaseMetadataCollection = CollectionBase<"DatabaseMetadata">;
@@ -446,8 +461,10 @@ interface DbForumEvent extends DbObject {
   lightColor: string
   contrastColor: string | null
   tagId: string
+  postId: string | null
   bannerImageId: string | null
   includesPoll: boolean
+  customComponent: string | null
   publicData: any /*{"definitions":[{"blackbox":true}]}*/
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -506,6 +523,21 @@ interface DbImages extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+type JargonTermsCollection = CollectionBase<"JargonTerms">;
+
+interface DbJargonTerm extends DbObject {
+  __collectionName?: "JargonTerms"
+  postId: string
+  term: string
+  approved: boolean
+  deleted: boolean
+  altTerms: Array<string>
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  contents: EditableFieldContents | null
+  contents_latest: string | null
+}
+
 type LWEventsCollection = CollectionBase<"LWEvents">;
 
 interface DbLWEvent extends DbObject {
@@ -526,6 +558,31 @@ interface DbLegacyData extends DbObject {
   __collectionName?: "LegacyData"
   objectId: string
   collectionName: string
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
+type LlmConversationsCollection = CollectionBase<"LlmConversations">;
+
+interface DbLlmConversation extends DbObject {
+  __collectionName?: "LlmConversations"
+  userId: string
+  title: string
+  model: string
+  systemPrompt: string | null
+  deleted: boolean
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
+type LlmMessagesCollection = CollectionBase<"LlmMessages">;
+
+interface DbLlmMessage extends DbObject {
+  __collectionName?: "LlmMessages"
+  userId: string
+  conversationId: string
+  role: "user" | "assistant" | "user-context" | "assistant-context" | "lw-assistant"
+  content: string
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -569,6 +626,7 @@ interface DbManifoldProbabilitiesCache extends DbObject {
   isResolved: boolean
   year: number
   lastUpdated: Date
+  url: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -669,6 +727,17 @@ interface DbPageCacheEntry extends DbObject {
     timezone: string,
     timings: any /*{"definitions":[{"blackbox":true}]}*/,
   }
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
+type PetrovDayActionsCollection = CollectionBase<"PetrovDayActions">;
+
+interface DbPetrovDayAction extends DbObject {
+  __collectionName?: "PetrovDayActions"
+  actionType: "optIn" | "hasRole" | "hasSide" | "nukeTheWest" | "nukeTheEast" | "eastPetrovAllClear" | "eastPetrovNukesIncoming" | "westPetrovAllClear" | "westPetrovNukesIncoming"
+  data: any /*{"definitions":[{}]}*/
+  userId: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -815,7 +884,6 @@ interface DbPost extends DbObject {
   reviewVoteCount: number
   positiveReviewVoteCount: number
   manifoldReviewMarketId: string | null
-  annualReviewMarketCommentId: string | null
   reviewVoteScoreAF: number
   reviewVotesAF: Array<number>
   reviewVoteScoreHighKarma: number
@@ -856,6 +924,7 @@ interface DbPost extends DbObject {
   metaDate: Date | null
   suggestForCuratedUserIds: Array<string> | null
   frontpageDate: Date | null
+  autoFrontpage: "show" | "hide" | null
   collectionTitle: string | null
   coauthorStatuses: Array<{
     userId: string,
@@ -928,12 +997,12 @@ interface DbPost extends DbObject {
   commentSortOrder: string | null
   hideAuthor: boolean
   sideCommentVisibility: string | null
+  disableSidenotes: boolean
   moderationStyle: string | null
   ignoreRateLimits: boolean | null
   hideCommentKarma: boolean
   commentCount: number
   topLevelCommentCount: number
-  criticismTipsDismissed: boolean | null
   debate: boolean
   collabEditorDialogue: boolean
   mostRecentPublishedDialogueResponseDate: Date | null
@@ -950,6 +1019,7 @@ interface DbPost extends DbObject {
   reviewForAlignmentUserId: string | null
   agentFoundationsId: string | null
   swrCachingEnabled: boolean
+  generateDraftJargon: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   contents_latest: string | null
@@ -1089,7 +1159,7 @@ interface DbRevision extends DbObject {
     data: string,
   } | null
   html: string | null
-  wordCount: number | null
+  wordCount: number
   changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/
   googleDocMetadata: any /*{"definitions":[{"blackbox":true}]}*/
   createdAt: Date
@@ -1183,11 +1253,14 @@ interface DbSpotlight extends DbObject {
   duration: number
   customTitle: string | null
   customSubtitle: string | null
+  subtitleUrl: string | null
   headerTitle: string | null
   headerTitleLeftColor: string | null
   headerTitleRightColor: string | null
   lastPromotedAt: Date
+  spotlightSplashImageUrl: string | null
   draft: boolean
+  deletedDraft: boolean
   showAuthor: boolean
   imageFade: boolean
   imageFadeColor: string | null
@@ -1508,6 +1581,9 @@ interface DbUser extends DbObject {
   hidePostsRecommendations: boolean
   petrovOptOut: boolean
   optedOutOfSurveys: boolean | null
+  postGlossariesPinned: boolean
+  generateJargonForDrafts: boolean
+  generateJargonForPublishedPosts: boolean
   acceptedTos: boolean
   hideNavigationSidebar: boolean | null
   currentFrontpageFilter: string | null
@@ -1831,6 +1907,7 @@ interface DbUser extends DbObject {
   acknowledgedNewUserGuidelines: boolean | null
   subforumPreferredLayout: "card" | "list" | null
   hideJobAdUntil: Date | null
+  criticismTipsDismissed: boolean
   hideFromPeopleDirectory: boolean
   allowDatadogSessionReplay: boolean
   afPostCount: number
@@ -1842,6 +1919,9 @@ interface DbUser extends DbObject {
   afSubmittedApplication: boolean | null
   hideSunshineSidebar: boolean
   inactiveSurveyEmailSentAt: Date | null
+  userSurveyEmailSentAt: Date | null
+  givingSeason2024DonatedFlair: boolean
+  givingSeason2024VotedFlair: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   moderationGuidelines: EditableFieldContents | null
@@ -1894,7 +1974,7 @@ interface DbVote extends DbObject {
   collectionName: CollectionNameString
   userId: string
   authorIds: Array<string> | null
-  voteType: string
+  voteType: "bigDownvote" | "bigUpvote" | "neutral" | "smallDownvote" | "smallUpvote"
   extendedVoteType: any /*{"definitions":[{"type":"JSON"}]}*/
   power: number
   afPower: number | null
@@ -1921,6 +2001,7 @@ interface CollectionsByName {
   Conversations: ConversationsCollection
   CronHistories: CronHistoriesCollection
   CurationEmails: CurationEmailsCollection
+  CurationNotices: CurationNoticesCollection
   DatabaseMetadata: DatabaseMetadataCollection
   DebouncerEvents: DebouncerEventsCollection
   DialogueChecks: DialogueChecksCollection
@@ -1937,8 +2018,11 @@ interface CollectionsByName {
   GardenCodes: GardenCodesCollection
   GoogleServiceAccountSessions: GoogleServiceAccountSessionsCollection
   Images: ImagesCollection
+  JargonTerms: JargonTermsCollection
   LWEvents: LWEventsCollection
   LegacyData: LegacyDataCollection
+  LlmConversations: LlmConversationsCollection
+  LlmMessages: LlmMessagesCollection
   Localgroups: LocalgroupsCollection
   ManifoldProbabilitiesCaches: ManifoldProbabilitiesCachesCollection
   Messages: MessagesCollection
@@ -1947,6 +2031,7 @@ interface CollectionsByName {
   ModeratorActions: ModeratorActionsCollection
   Notifications: NotificationsCollection
   PageCache: PageCacheCollection
+  PetrovDayActions: PetrovDayActionsCollection
   PetrovDayLaunchs: PetrovDayLaunchsCollection
   PodcastEpisodes: PodcastEpisodesCollection
   Podcasts: PodcastsCollection
@@ -2003,6 +2088,7 @@ interface ObjectsByCollectionName {
   Conversations: DbConversation
   CronHistories: DbCronHistory
   CurationEmails: DbCurationEmail
+  CurationNotices: DbCurationNotice
   DatabaseMetadata: DbDatabaseMetadata
   DebouncerEvents: DbDebouncerEvents
   DialogueChecks: DbDialogueCheck
@@ -2019,8 +2105,11 @@ interface ObjectsByCollectionName {
   GardenCodes: DbGardenCode
   GoogleServiceAccountSessions: DbGoogleServiceAccountSession
   Images: DbImages
+  JargonTerms: DbJargonTerm
   LWEvents: DbLWEvent
   LegacyData: DbLegacyData
+  LlmConversations: DbLlmConversation
+  LlmMessages: DbLlmMessage
   Localgroups: DbLocalgroup
   ManifoldProbabilitiesCaches: DbManifoldProbabilitiesCache
   Messages: DbMessage
@@ -2029,6 +2118,7 @@ interface ObjectsByCollectionName {
   ModeratorActions: DbModeratorAction
   Notifications: DbNotification
   PageCache: DbPageCacheEntry
+  PetrovDayActions: DbPetrovDayAction
   PetrovDayLaunchs: DbPetrovDayLaunch
   PodcastEpisodes: DbPodcastEpisode
   Podcasts: DbPodcast
@@ -2085,6 +2175,7 @@ interface ObjectsByTypeName {
   Conversation: DbConversation
   CronHistory: DbCronHistory
   CurationEmail: DbCurationEmail
+  CurationNotice: DbCurationNotice
   DatabaseMetadata: DbDatabaseMetadata
   DebouncerEvents: DbDebouncerEvents
   DialogueCheck: DbDialogueCheck
@@ -2101,8 +2192,11 @@ interface ObjectsByTypeName {
   GardenCode: DbGardenCode
   GoogleServiceAccountSession: DbGoogleServiceAccountSession
   Images: DbImages
+  JargonTerm: DbJargonTerm
   LWEvent: DbLWEvent
   LegacyData: DbLegacyData
+  LlmConversation: DbLlmConversation
+  LlmMessage: DbLlmMessage
   Localgroup: DbLocalgroup
   ManifoldProbabilitiesCache: DbManifoldProbabilitiesCache
   Message: DbMessage
@@ -2111,6 +2205,7 @@ interface ObjectsByTypeName {
   ModeratorAction: DbModeratorAction
   Notification: DbNotification
   PageCacheEntry: DbPageCacheEntry
+  PetrovDayAction: DbPetrovDayAction
   PetrovDayLaunch: DbPetrovDayLaunch
   PodcastEpisode: DbPodcastEpisode
   Podcast: DbPodcast

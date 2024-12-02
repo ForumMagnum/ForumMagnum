@@ -3,15 +3,28 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { extractVersionsFromSemver } from '../../../lib/editor/utils';
 import classNames from 'classnames';
-import { getHostname, getProtocol } from './PostsPagePostHeader';
+import { getHostname, getProtocol, parseUnsafeUrl } from './PostsPagePostHeader';
+import { postGetLink, postGetLinkTarget } from '@/lib/collections/posts/helpers';
+import { BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from './PostBodyPrefix';
+import type { AnnualReviewMarketInfo } from '@/lib/collections/posts/annualReviewMarkets';
+
+export const LW_POST_PAGE_PADDING = 110;
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    paddingTop: 110,
+    paddingTop: LW_POST_PAGE_PADDING,
     marginBottom: 96,
     [theme.breakpoints.down('xs')]: {
       paddingTop: 16,
       marginBottom: 38
+    },
+  },
+  rootWithAudioPlayer: {
+    [theme.breakpoints.down('sm')]: {
+      paddingTop: LW_POST_PAGE_PADDING - 48,
+    },
+    [theme.breakpoints.down('xs')]: {
+      paddingTop: 16,
     },
   },
   eventHeader: {
@@ -19,7 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   authorAndSecondaryInfo: {
     display: 'flex',
-    alignItems: 'center',
+    alignItems: 'baseline',
     columnGap: 20,
     ...theme.typography.commentStyle,
     flexWrap: 'wrap',
@@ -28,8 +41,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   authorInfo: {
     maxWidth: "calc(100% - 60px)",
-    [theme.breakpoints.down('sm')]: {
-      maxWidth: "calc(100% - 60px)",
+    [theme.breakpoints.down('xs')]: {
+      width: "100%",
+      marginBottom: 8,
       fontSize: theme.typography.body2.fontSize,
     },
   },
@@ -59,9 +73,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     top: 15,
     display: 'flex',
     [theme.breakpoints.down('sm')]: {
-      top: 8,
-      right: 8
-    }
+      position: 'relative',
+      justifyContent: 'flex-end',
+      marginLeft: 8,
+      marginRight: -64,
+    },
+    [theme.breakpoints.down('xs')]: {
+      justifyContent: 'flex-start',
+    },
   },
   sequenceNav: {
     marginBottom: 8,
@@ -83,6 +102,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   mobileHeaderVote: {
     textAlign: 'center',
     fontSize: 42,
+    marginTop: -55,
+    marginLeft: 12,
     [theme.breakpoints.up("sm")]: {
       display: 'none'
     }
@@ -102,23 +123,34 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 12,
     display: "flex",
     opacity: 0.75
+  },
+  readTime: {
+    marginRight: 20,
   }
 }); 
 
 /// LWPostsPageHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
-const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, classes}: {
+const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, classes, dialogueResponses, answerCount, annualReviewMarketInfo}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   showEmbeddedPlayer?: boolean,
   toggleEmbeddedPlayer?: () => void,
-  classes: ClassesType<typeof styles>
+  classes: ClassesType<typeof styles>,
+  dialogueResponses: CommentsList[],
+  answerCount?: number,
+  annualReviewMarketInfo?: AnnualReviewMarketInfo
 }) => {
-  const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon, PostsGroupDetails, PostsTopSequencesNav, PostsPageEventData, AddToCalendarButton, GroupLinks, LWPostsPageHeaderTopRight, PostsAudioPlayerWrapper, PostsVote, AudioToggle, PostActionsButton } = Components;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const { PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon, PostsGroupDetails, PostsTopSequencesNav, PostsPageEventData, AddToCalendarButton, GroupLinks, LWPostsPageHeaderTopRight, PostsAudioPlayerWrapper, PostsVote, AudioToggle, PostActionsButton, AlignmentCrosspostLink, ReadTime, LWCommentCount } = Components;
 
   const rssFeedSource = ('feed' in post) ? post.feed : null;
-  const feedLinkDescription = rssFeedSource?.url && getHostname(rssFeedSource.url)
-  const feedLink = rssFeedSource?.url && `${getProtocol(rssFeedSource.url)}//${getHostname(rssFeedSource.url)}`;
+  let feedLinkDomain;
+  let feedLink;
+  if (rssFeedSource?.url) {
+    let feedLinkProtocol;
+    ({ hostname: feedLinkDomain, protocol: feedLinkProtocol } = parseUnsafeUrl(rssFeedSource.url));
+    feedLink = `${feedLinkProtocol}//${feedLinkDomain}`;
+  }
+
   const hasMajorRevision = ('version' in post) && extractVersionsFromSemver(post.version).major > 1
 
   const crosspostNode = post.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere &&
@@ -127,7 +159,19 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
   // TODO: If we are not the primary author of this post, but it was shared with
   // us as a draft, display a notice and a link to the collaborative editor.
 
-  return <div className={classNames(classes.root, {[classes.eventHeader]: post.isEvent})}>
+  const { hostname: linkpostDomain } = post.url
+    ? parseUnsafeUrl(post.url)
+    : { hostname: undefined };
+
+  const linkpostTooltip = <div>View the original at:<br/>{post.url}</div>;
+  const displayLinkpost = post.url && feedLinkDomain !== linkpostDomain && (post.contents?.wordCount ?? 0) >= BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD;
+  const linkpostNode = displayLinkpost ? <LWTooltip title={linkpostTooltip}>
+    <a href={postGetLink(post)} target={postGetLinkTarget(post)}>
+      Linkpost from {linkpostDomain}
+    </a>
+  </LWTooltip> : null;
+
+  return <div className={classNames(classes.root, {[classes.eventHeader]: post.isEvent, [classes.rootWithAudioPlayer]: !!showEmbeddedPlayer})}>
       {post.group && <PostsGroupDetails post={post} documentId={post.group._id} />}
       <AnalyticsContext pageSectionContext="topSequenceNavigation">
         {('sequence' in post) && !!post.sequence && <div className={classes.sequenceNav}>
@@ -135,9 +179,9 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
         </div>}
       </AnalyticsContext>
       <div>
-        {!post.shortform && <span className={classes.topRight}>
-          <LWPostsPageHeaderTopRight post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer}/>
-        </span>}
+        <span className={classes.topRight}>
+          <LWPostsPageHeaderTopRight post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} annualReviewMarketInfo={annualReviewMarketInfo} />
+        </span>
         {post && <span className={classes.audioPlayerWrapper}>
           <PostsAudioPlayerWrapper showEmbeddedPlayer={!!showEmbeddedPlayer} post={post}/>
         </span>}
@@ -150,17 +194,23 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
               <PostsAuthors post={post} pageSectionContext="post_header" />
             </div>
             {crosspostNode}
-            <div className={classes.date}>
+            {!post.isEvent && <div className={classes.date}>
               <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />
-            </div>
+            </div>}
             {rssFeedSource && rssFeedSource.user &&
-              <LWTooltip title={`Crossposted from ${feedLinkDescription}`} className={classes.feedName}>
+              <LWTooltip title={`Crossposted from ${feedLinkDomain}`} className={classes.feedName}>
                 <a href={feedLink}>{rssFeedSource.nickname}</a>
               </LWTooltip>
             }
+            <AlignmentCrosspostLink post={post} />
+            {linkpostNode}
             {post.isEvent && <GroupLinks document={post} noMargin />}
             <AddToCalendarButton post={post} label="Add to calendar" hideTooltip />
             <div className={classes.mobileButtons}>
+              <div className={classes.readTime}>
+                <ReadTime post={post} dialogueResponses={dialogueResponses} />
+              </div>
+              <LWCommentCount answerCount={answerCount} commentCount={post.commentCount} label={false} />
               <div className={classes.audioToggle}>
                 <AudioToggle post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />
               </div>

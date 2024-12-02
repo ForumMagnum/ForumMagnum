@@ -162,7 +162,12 @@ const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
         background: 'rgba(50,50,50,.75)',
       }
     },
-    default: {},
+    default: {
+      background: {
+        translucentBackgroundHeavy: "rgba(0,0,0,.75)",
+        translucentBackground: "rgba(0,0,0,.5)",
+      }
+    },
   });
 
 const forumOverrides = (palette: ThemePalette): PartialDeep<ThemeType['overrides']> =>
@@ -211,11 +216,12 @@ export const darkModeTheme: UserThemeSpecification = {
       reviewWinner: {
         title: greyAlpha(0.75),
         author: greyAlpha(0.65)
-      }
+      },
+      jargonTerm: "#a8742a",
     },
     link: {
       primaryDim: '#3a7883',
-      visited: "#bb7c43",
+      visited: "#798754",
     },
     panelBackground: {
       translucent: "rgba(0,0,0,.87)",
@@ -239,6 +245,8 @@ export const darkModeTheme: UserThemeSpecification = {
       warningTranslucent: "rgba(255,173,8,0.3)",
       transparent: 'transparent',
       digestAdBannerInput: shadePalette.grey[300],
+      glossaryBackground: "rgba(180,160,160,.1)",
+      sidenoteBackground: "rgba(180,160,160,.1)",
     },
     border: {
       itemSeparatorBottom: shadePalette.greyBorder("1px", .2),

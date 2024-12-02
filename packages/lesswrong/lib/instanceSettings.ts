@@ -208,6 +208,17 @@ const disableElastic = new PublicInstanceSetting<boolean>(
 export const isElasticEnabled = !isAnyTest && !isE2E && !disableElastic.get();
 
 export const requireReviewToFrontpagePostsSetting = new PublicInstanceSetting<boolean>('posts.requireReviewToFrontpage', !isEAForum, "optional")
+export const eaFrontpageDateDefault = (
+  isEvent?: boolean,
+  submitToFrontpage?: boolean,
+  draft?: boolean,
+) => {
+  if (isEvent || !submitToFrontpage || draft) {
+    return null;
+  }
+  return new Date();
+}
+
 export const manifoldAPIKeySetting = new PublicInstanceSetting<string | null>('manifold.reviewBotKey', null, "optional")
 export const reviewUserBotSetting = new PublicInstanceSetting<string | null>('reviewBotId', null, "optional")
 
@@ -267,3 +278,12 @@ export const recombeeCacheTtlMsSetting = new PublicInstanceSetting<number>('reco
 export const isBotSiteSetting = new PublicInstanceSetting<boolean>('botSite.isBotSite', false, 'optional');
 
 export const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId', 'bJ2haLkcGeLtTWaD5', "warning") // Post ID for the /about route
+
+export const anthropicApiKey = new PublicInstanceSetting<string>('anthropic.claudeTestKey', "LessWrong", "optional")
+
+export const jargonBotClaudeKey = new PublicInstanceSetting<string>('anthropic.jargonBotClaudeKey', "", "optional")
+
+export const hyperbolicApiKey = new PublicInstanceSetting<string>('hyperbolic.apiKey', "", "optional")
+
+export const twitterBotEnabledSetting = new PublicInstanceSetting<boolean>("twitterBot.enabled", false, "optional");
+export const twitterBotKarmaThresholdSetting = new PublicInstanceSetting<number>("twitterBot.karmaThreshold", 40, "optional");

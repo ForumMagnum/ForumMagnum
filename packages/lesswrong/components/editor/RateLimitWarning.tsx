@@ -54,7 +54,7 @@ const RateLimitWarning = ({lastRateLimitExpiry, rateLimitMessage, classes}: {
     return `${diffInWeeks} week${diffInWeeks > 1 ? 's' : ''}`
   }
 
-  let message = `<p>You can post again in ${getTimeUntilNextPost()}.</p> ${rateLimitMessage ?? ''}`
+  let message = `<p>You can submit again in ${getTimeUntilNextPost()}.</p> ${rateLimitMessage ?? ''}`
   if (isEAForum) {
     message = `You've written more than 3 comments in the last 30 minutes. Please wait ${getTimeUntilNextPost()} before commenting again. ${rateLimitMessage ?? ''}`
   }

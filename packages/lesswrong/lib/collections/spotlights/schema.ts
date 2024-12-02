@@ -43,11 +43,18 @@ const schema: SchemaType<"Spotlights"> = {
       addOriginalField: true,
       // TODO: try a graphql union type?
       type: 'Post!',
+      // TODO: make a sql resolver and loader and stuff
       resolver: async (spotlight: DbSpotlight, args: void, context: ResolverContext): Promise<Partial<DbPost | DbSequence | DbCollection> | null> => {
-        const collectionName = graphqlTypeToCollectionName(spotlight.documentType) as "Posts"|"Sequences";
-        const collection = context[collectionName];
-        const document = await collection.findOne(spotlight.documentId);
-        return accessFilterSingle(context.currentUser, collection, document, context);
+        switch(spotlight.documentType) {
+          case "Post": {
+            const document = await context.loaders.Posts.load(spotlight.documentId);
+            return accessFilterSingle(context.currentUser, context.Posts, document, context);
+          }
+          case "Sequence": {
+            const document = await context.loaders.Sequences.load(spotlight.documentId);
+            return accessFilterSingle(context.currentUser, context.Sequences, document, context);
+          }
+        }
       }
     },
   },
@@ -152,6 +159,15 @@ const schema: SchemaType<"Spotlights"> = {
     optional: true,
     nullable: true
   },
+  subtitleUrl: {
+    type: String,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    order: 61,
+    optional: true,
+    nullable: true
+  },
   headerTitle: {
     type: String,
     canRead: ["guests"],
@@ -189,6 +205,16 @@ const schema: SchemaType<"Spotlights"> = {
     // Default to the epoch date if not specified
     ...schemaDefaultValue(new Date(0)),
   },
+  spotlightSplashImageUrl: {
+    type: String,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    optional: true,
+    nullable: true,
+    tooltip: "Note: Large images can cause slow loading of the front page. Consider using the Cloudinary uploader instead (which will automatically resize the image)",
+    order: 88,
+  },
   draft: {
     type: Boolean,
     canRead: ['guests'],
@@ -196,6 +222,16 @@ const schema: SchemaType<"Spotlights"> = {
     canCreate: ['admins', 'sunshineRegiment'],
     order: 80,
     ...schemaDefaultValue(true),
+  },
+  deletedDraft: {
+    type: Boolean,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    order: 80,
+    optional: true,
+    nullable: true,
+    tooltip: "Remove from the spotlights page, but keep in the database.",
+    ...schemaDefaultValue(false),
   },
   showAuthor: {
     type: Boolean,
@@ -231,6 +267,7 @@ const schema: SchemaType<"Spotlights"> = {
     nullable: true,
     control: "FormComponentColorPicker",
   },
+
   spotlightImageId: {
     type: String,
     canRead: ['guests'],
@@ -251,7 +288,6 @@ const schema: SchemaType<"Spotlights"> = {
     nullable: true,
     order: 100,
   },
-  
   sequenceChapters: resolverOnlyField({
     type: Array,
     graphQLtype: '[Chapter]',

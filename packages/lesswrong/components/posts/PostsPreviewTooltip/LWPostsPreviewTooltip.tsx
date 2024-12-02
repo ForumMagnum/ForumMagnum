@@ -196,7 +196,8 @@ const LWPostsPreviewTooltip = ({
   if (post.isEvent && post.location) {
     eventLocation = <div>{post.location}</div>
   }
-  const postCategory: string|null = getPostCategory(post);
+
+  const postTags = post.tags?.slice(0,2)
 
   return <AnalyticsContext pageElementContext={POST_PREVIEW_ELEMENT_CONTEXT}>
       <Card className={classes.root}>
@@ -209,9 +210,7 @@ const LWPostsPreviewTooltip = ({
               { postsList && <span>
                 {post.startTime && <EventTime post={post} />}
                 {eventLocation}
-                {postCategory}
-                {postCategory && (post.tags?.length > 0) && " – "}
-                {post.tags?.map((tag, i) => <span key={tag._id}>{tag.name}{(i !== (post.tags?.length - 1)) ? ",  " : ""}</span>)}
+                {postTags.map((tag, i) => <span key={tag._id}>{tag.name}{(i !== (postTags?.length - 1)) ? ",  " : ""}</span>)}
                 {renderWordCount && <span>{" "}<span className={classes.wordCount}>({wordCount} words)</span></span>}
               </span>}
               { !postsList && <>

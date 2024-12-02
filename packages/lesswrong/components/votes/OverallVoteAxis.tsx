@@ -14,7 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   overallSection: {
     display: 'inline-block',
     height: 24,
-    paddingTop: 2
+    paddingTop: isFriendlyUI ? 2.5 : 0
   },
   overallSectionBox: {
     marginLeft: 8,
@@ -27,12 +27,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 25,
     lineHeight: 0.6,
     whiteSpace: "nowrap",
-    display: "inline-block"
+    display: "inline-block",
   },
   voteScore: {
     fontSize: '1.1rem',
-    marginLeft: 4,
-    marginRight: 4,
+    margin: '0 4px',
     lineHeight: 1,
   },
   secondarySymbol: {
@@ -51,14 +50,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontStyle: "italic"
   },
   tooltip: {
-    transform: isFriendlyUI ? "translateY(-10px)" : undefined,
+    transform: "translateY(-10px)",
+  },
+  lwTooltip: {
+    transform: "translateY(-3px)",
   },
   verticalArrows: {
     "& .LWTooltip-root": {
-      transform: "translateY(1px)",
     },
     "& $voteScore": {
-      transform: "translateY(-2px)",
       display: "block",
     },
   },
@@ -70,18 +70,21 @@ const OverallVoteAxis = ({
   voteProps,
   classes,
   showBox=false,
+  verticalArrows,
+  largeArrows,
   className,
 }: {
   document: VoteableTypeClient,
   hideKarma?: boolean,
   voteProps: VotingProps<VoteableTypeClient>,
   classes: ClassesType,
-  showBox?: boolean
+  showBox?: boolean,
+  verticalArrows?: boolean,
+  largeArrows?: boolean,
   className?: string,
 }) => {
   const currentUser = useCurrentUser();
 
-  if (!document) return null;
 
   const { OverallVoteButton, LWTooltip } = Components
 
@@ -109,7 +112,7 @@ const OverallVoteAxis = ({
 
   const af = (document as any).af;
   const afDate = (document as any).afDate;
-  const afBaseScore = (document as any).afBaseScore;
+  const afBaseScore = voteProps.document.afBaseScore;
 
   const moveToAfInfo = userIsAdmin(currentUser) && !!moveToAlignnmentUserId && (
     <div className={classes.tooltipHelp}>
@@ -117,11 +120,12 @@ const OverallVoteAxis = ({
     </div>
   )
 
-  const karmaTooltipTitle = hideKarma
+  const karmaTooltipTitle = React.useMemo(() =>  hideKarma
     ? 'This post has disabled karma visibility'
     : <div>This {documentTypeName} has {karma} <b>overall</b> karma ({voteCount} {voteCount === 1 ? "Vote" : "Votes"})</div>
+  , [hideKarma, documentTypeName, karma, voteCount])
 
-  const TooltipIfDisabled = (canVote
+  const TooltipIfDisabled = React.useMemo(() => canVote
     ? ({children}: {children: React.ReactNode}) => <>{children}</>
     : ({children}: {children: React.ReactNode}) => <LWTooltip
       placement="top"
@@ -133,20 +137,23 @@ const OverallVoteAxis = ({
     >
       {children}
     </LWTooltip>
-  )
-  const TooltipIfEnabled = (canVote
+  , [canVote, karmaTooltipTitle, whyYouCantVote, classes.tooltip, LWTooltip])
+  
+  const TooltipIfEnabled = React.useMemo(() => canVote
     ? ({children, ...props}: React.ComponentProps<typeof LWTooltip>) =>
       <LWTooltip {...props} popperClassName={classes.tooltip}>
         {children}
       </LWTooltip>
     : ({children}: {children: React.ReactNode}) => <>{children}</>
-  );
+  , [canVote, LWTooltip, classes.tooltip])
 
-  const tooltipPlacement = isFriendlyUI ? "top" : "bottom";
 
-  const buttonProps: Partial<OverallVoteButtonProps<VoteableTypeClient>> = {};
-  // TODO: In the fullness of time
-  const verticalArrows = false;
+  // Moved down here to allow for useMemo hooks
+  if (!document) return null;
+
+  const tooltipPlacement = "top"
+
+  const buttonProps: Partial<OverallVoteButtonProps<VoteableTypeClient>> = {largeArrow: largeArrows};
   if (verticalArrows) {
     buttonProps.solidArrow = true;
   }
@@ -174,7 +181,7 @@ const OverallVoteAxis = ({
         <LWTooltip
           title="LessWrong Karma"
           placement={tooltipPlacement}
-          className={classes.tooltip}
+          className={classes.lwTooltip}
         >
           <span className={classes.secondaryScore}>
             <span className={classes.secondarySymbol}>LW</span>

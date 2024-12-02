@@ -52,7 +52,8 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const announcementPostUrl = '/posts/PeBNdpoRSq59kAfDW/announcing-ai-welfare-debate-week-july-1-7'
+// TODO make this a field on forum events
+const announcementPostUrl = '/posts/9ad4C4YknLM5fGG4v/announcing-animal-welfare-vs-global-health-debate-week-oct-7'
 
 /**
  * This is used on the post page to display the current forum event's poll,

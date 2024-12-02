@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { CommentTreeNode } from '../../lib/utils/unflatten';
-import { getCurrentSectionMark, getLandmarkY, ScrollHighlightLandmark, useScrollHighlight } from '../hooks/useScrollHighlight';
+import { useScrollHighlight } from '../hooks/useScrollHighlight';
 import { useLocation } from '../../lib/routeUtil';
 import isEmpty from 'lodash/isEmpty';
 import qs from 'qs'
@@ -9,6 +9,7 @@ import { commentsTableOfContentsEnabled } from '../../lib/betas';
 import { useNavigate } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { forumTypeSetting } from '@/lib/instanceSettings';
+import { commentIdToLandmark, getCurrentSectionMark, getLandmarkY } from '@/lib/scrollUtils';
 
 const COMMENTS_TITLE_CLASS_NAME = 'CommentsTableOfContentsTitle';
 
@@ -88,9 +89,9 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
     flattenedComments.map(comment => commentIdToLandmark(comment._id))
   );
 
-  const [isPinned, setIsPinned] = useState(true);
+  const [pageHeaderCoversTitle, setPageHeaderCoversTitle] = useState(false);
   const titleRef = useRef<HTMLAnchorElement|null>(null);
-  const hideTitleContainer = isPinned;
+  const hideTitleContainer = pageHeaderCoversTitle;
 
   useEffect(() => {
     const target = titleRef.current;
@@ -98,8 +99,7 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
       // To prevent the comment ToC title from being hidden when scrolling up
       // This relies on the complementary `top: -1px` styling in `MultiToCLayout` on the parent sticky element
       const observer = new IntersectionObserver(([e]) => {
-        const newIsPinned = e.intersectionRatio < 1;
-        setIsPinned(newIsPinned);
+        setPageHeaderCoversTitle(e.intersectionRatio < 1);
       }, { threshold: [1] });
   
       observer.observe(target);
@@ -107,20 +107,27 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
     }
   }, []);
 
-  if (flattenedComments.length === 0) return null;
+  if (flattenedComments.length === 0) {
+    return null;
+  }
   
   if (!commentsTableOfContentsEnabled) {
     return null;
   }
 
   return <div className={classes.root}>
-      <a id="comments-table-of-contents" href="#" className={classNames(classes.postTitle, {[COMMENTS_TITLE_CLASS_NAME]: hideTitleContainer})}
+    <a id="comments-table-of-contents" href="#" className={classNames(
+      classes.postTitle,
+      {[COMMENTS_TITLE_CLASS_NAME]: hideTitleContainer}
+    )}
       onClick={ev => {
         ev.preventDefault();
         window.scrollTo({ top: 0, behavior: "smooth" });
-      }} ref={titleRef}>
-        {post.title?.trim()}
-      </a>
+      }}
+      ref={titleRef}
+    >
+      {post.title?.trim()}
+    </a>
 
     {answersTree && answersTree.map(answer => <>
       <ToCCommentBlock
@@ -140,15 +147,6 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
       classes={classes}
     />)}
   </div>
-}
-
-export function commentIdToLandmark(commentId: string): ScrollHighlightLandmark {
-  return {
-    landmarkName: commentId,
-    elementId: commentId,
-    position: "topOfElement",
-    offset: 25, //approximate distance from top-border of a comment to the center of the metadata line
-  }
 }
 
 const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highlightDate, classes}: {
@@ -199,7 +197,10 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highli
       })}>
         <span className={classes.commentKarma}>{score}</span>
         <span className={classes.commentAuthor}>
-          <UsersNameDisplay user={comment.user} simple/>
+          {comment.deleted
+            ? <span>[comment deleted]</span>
+            : <UsersNameDisplay user={comment.user} simple/>
+          }
         </span>
       </span>
     </TableOfContentsRow>

@@ -5,7 +5,7 @@ import LRU from 'lru-cache';
 import { queuePerfMetric } from './analyticsWriter';
 import type { Request, Response, NextFunction } from 'express';
 import { performanceMetricLoggingEnabled, performanceMetricLoggingSqlSampleRate } from '../lib/instanceSettings';
-import { getForwardedWhitelist } from './forwarded_whitelist';
+import { getClientIP } from './utils/getClientIP';
 
 type IncompletePerfMetricProps = Pick<PerfMetric, 'op_type' | 'op_name' | 'parent_trace_id' | 'extra_data' | 'client_path' | 'gql_string' | 'sql_string' | 'ip' | 'user_agent' | 'user_id'>;
 
@@ -101,7 +101,7 @@ const fiftyThreeBits = Math.pow(2, 53);
  * Modified form of https://github.com/bryc/code/blob/master/jshash/experimental/cyrb53.js
  * Returns a pseudorandom number between 0 and 1 by hashing the input
  */
-function cyrb53Rand(str: string, seed = 0) {
+export function cyrb53Rand(str: string, seed = 0) {
   let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
   for(let i = 0, ch; i < str.length; i++) {
       ch = str.charCodeAt(i);
@@ -192,7 +192,7 @@ export function perfMetricMiddleware(req: Request, res: Response, next: NextFunc
     op_type: 'request',
     op_name: req.originalUrl,
     client_path: req.headers['request-origin-path'] as string,
-    ip: getForwardedWhitelist().getClientIP(req),
+    ip: getClientIP(req),
     user_agent: req.headers["user-agent"],
     user_id: req.user?._id,
   });

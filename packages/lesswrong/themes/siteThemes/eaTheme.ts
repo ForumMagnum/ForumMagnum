@@ -123,9 +123,6 @@ export const eaForumTheme: SiteThemeSpecification = {
       fontFamily: serifStack
     }
     return {
-      zIndexes: {
-        searchResults: 1300,
-      },
       spacing: {
         mainLayoutPaddingTop: 20
       },
@@ -286,9 +283,6 @@ export const eaForumTheme: SiteThemeSpecification = {
           sidebar: {
             top: 26,
           },
-          footerBar: {
-            backgroundColor: palette.grey[200],
-          }
         },
         TabNavigationItem: {
           navButton: {

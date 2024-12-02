@@ -18,7 +18,7 @@ import { Helmet } from '../../lib/utils/componentsWithChildren';
 import { useMapStyle } from '../hooks/useMapStyle';
 
 export const petrovPostIdSetting = new DatabasePublicSetting<string>('petrov.petrovPostId', '')
-const petrovGamePostIdSetting = new DatabasePublicSetting<string>('petrov.petrovGamePostId', '')
+export const petrovGamePostIdSetting = new DatabasePublicSetting<string>('petrov.petrovGamePostId', '')
 export const petrovDayLaunchCode = 'whatwouldpetrovdo?'
 
 // This component is (most likely) going to be used once-a-year on Petrov Day (sept 26th)

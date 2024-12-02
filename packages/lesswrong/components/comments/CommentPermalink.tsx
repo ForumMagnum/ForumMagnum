@@ -5,11 +5,17 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { isLWorAF } from '../../lib/instanceSettings';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { isNotRandomId } from '@/lib/random';
+import { scrollFocusOnElement } from '@/lib/scrollUtils';
+import { commentPermalinkStyleSetting } from '@/lib/publicSettings';
+import { isBookUI } from '@/themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
+    ...(isBookUI ? {
+      marginTop: 64
+    } : {}),
   },
   dividerMargins: {
     marginTop: 150,
@@ -50,6 +56,8 @@ const CommentPermalink = ({
   silentLoading?: boolean,
   classes: ClassesType,
 }) => {
+  const hasInContextComments = commentPermalinkStyleSetting.get() === 'in-context'
+
   const { document: comment, data, loading, error } = useSingle({
     documentId,
     collectionName: "Comments",
@@ -121,7 +129,12 @@ const CommentPermalink = ({
           />
         )}
         <div className={classes.seeInContext}>
-          <a href={`#${documentId}`}>See in context</a>
+          <a href={`#${documentId}`} onClick={(e) => {
+            if (!hasInContextComments) return;
+
+            scrollFocusOnElement({ id: comment._id, options: { behavior: "smooth" } });
+            e.preventDefault()
+          }}>See in context</a>
         </div>
       </div>
       {isLWorAF && <div className={classes.dividerMargins}>

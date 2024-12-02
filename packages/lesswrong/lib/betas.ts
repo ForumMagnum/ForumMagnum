@@ -19,7 +19,7 @@ import {
 } from './instanceSettings'
 import { isAdmin, userOverNKarmaOrApproved } from "./vulcan-users/permissions";
 import {isFriendlyUI} from '../themes/forumTheme'
-import { recombeeEnabledSetting } from './publicSettings';
+import { recombeeEnabledSetting, userIdsWithAccessToLlmChat } from './publicSettings';
 import { useLocation } from './routeUtil';
 import { isAnyTest } from './executionEnvironment';
 
@@ -74,7 +74,18 @@ export const useRecombeeFrontpage = (currentUser: UsersCurrent|DbUser|null) => {
   return isLW && (isAdmin(currentUser) || manualOptIn) && recombeeEnabledSetting.get()
 }
 
+export const userHasLlmChat = (currentUser: UsersCurrent|DbUser|null): currentUser is UsersCurrent|DbUser => {
+  if (!currentUser) {
+    return false
+  }
+  const userIdsWithAccess = userIdsWithAccessToLlmChat.get();
+  
+  return isLW && (isAdmin(currentUser) || userIdsWithAccess.includes(currentUser._id));
+}
+
 export const userHasDarkModeHotkey = isEAForum ? adminOnly : shippedFeature;
+
+export const userHasPostAutosave = isLWorAF ? adminOnly : disabled;
 
 // Non-user-specific features
 export const dialoguesEnabled = hasDialoguesSetting.get();
@@ -86,6 +97,12 @@ export const allowSubscribeToSequencePosts = isFriendlyUI;
 export const hasPostRecommendations = isEAForum;
 /** Some Forums, notably the EA Forum, have a weekly digest that users can sign up to receive */
 export const hasDigests = isEAForum;
+/**
+ * Whether the instance should have any features for integrating with twitter.
+ * This is different to `twitterBot.enabled`, as there are features to help
+ * with manual posting too.
+ */
+export const hasTwitterFeatures = isEAForum;
 export const hasAccountDeletionFlow = isEAForum;
 export const hasSideComments = hasSideCommentsSetting.get();
 export const useElicitApi = false;
@@ -95,11 +112,19 @@ export const hasForumEvents = isEAForum;
 export const hasSurveys = isFriendlyUI && !isBotSiteSetting.get();
 export const hasCollapsedFootnotes = !isLWorAF;
 export const useCurationEmailsCron = isLW;
+export const hasSidenotes = isLWorAF;
+export const visitedLinksHaveFilledInCircle = isLWorAF;
 
 // EA Forum disabled the author's ability to moderate posts. We disregard this
 // check in tests as the tests run in EA Forum mode, but we want to be able to
 // test the moderation features.
 export const hasAuthorModeration = !isEAForum || isAnyTest;
+
+export const userCanCreateAndEditJargonTerms = (user: UsersCurrent|DbUser|null) => isLW && !!user && user.karma >= 100;
+export const userCanViewJargonTerms = (user: UsersCurrent|DbUser|null) => isLW;
+export const userCanViewUnapprovedJargonTerms = (user: UsersCurrent|DbUser|null) => isLW
+/* if this is reduced to 0, we need to make sure to handle spam somehow */
+export const userCanPassivelyGenerateJargonTerms = (user: UsersCurrent|DbUser|null) => isLW && !!user && user.karma >= 100
 
 // Shipped Features
 export const userCanManageTags = shippedFeature;
@@ -108,3 +133,4 @@ export const userCanUseTags = shippedFeature;
 export const userCanViewRevisionHistory = shippedFeature;
 export const userHasPingbacks = shippedFeature;
 export const userHasElasticsearch = shippedFeature;
+

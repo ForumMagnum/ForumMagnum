@@ -196,69 +196,71 @@ const FriendlyNotificationsMenuButton = ({
   }, [toggle]);
 
   const {
-    LWTooltip, LWPopper, LWClickAwayListener, ForumIcon, NotificationsPopover,
+    LWPopper, LWClickAwayListener, ForumIcon, NotificationsPopover,
   } = Components;
   return (
     <div ref={anchorEl}>
-      <LWTooltip
-        title="Notifications"
-        placement="bottom"
-        popperClassName={classes.tooltip}
+      <Badge
+        classes={{
+          root: classNames(classes.badgeContainer, className),
+          badge: classNames(classes.badge, {
+            [classes.badgeBackground]: hasBadge,
+            [classes.badge1Char]: badgeText.length === 1,
+            [classes.badge2Chars]: badgeText.length === 2,
+          })
+        }}
+        badgeContent={
+          <>
+            {badgeText}
+            {showKarmaStar &&
+              <ForumIcon
+                icon="Star"
+                className={classNames(classes.karmaStar, {
+                  [classes.karmaStarWithBadge]: hasBadge,
+                  [classes.karmaStarWithoutBadge]: !hasBadge,
+                })}
+              />
+            }
+          </>
+        }
       >
-        <Badge
-          classes={{
-            root: classNames(classes.badgeContainer, className),
-            badge: classNames(classes.badge, {
-              [classes.badgeBackground]: hasBadge,
-              [classes.badge1Char]: badgeText.length === 1,
-              [classes.badge2Chars]: badgeText.length === 2,
-            })
-          }}
-          badgeContent={
-            <>
-              {badgeText}
-              {showKarmaStar &&
-                <ForumIcon
-                  icon="Star"
-                  className={classNames(classes.karmaStar, {
-                    [classes.karmaStarWithBadge]: hasBadge,
-                    [classes.karmaStarWithoutBadge]: !hasBadge,
-                  })}
-                />
-              }
-            </>
-          }
-        >
-          <IconButton
-            classes={{root: classNames(classes.buttonClosed, {
-              [classes.buttonActive]: pathname.indexOf("/notifications") === 0,
-            })}}
-            onClick={onClick}
-          >
-            <ForumIcon icon="BellBorder" />
-          </IconButton>
-        </Badge>
-      </LWTooltip>
-      <DeferRender ssr={false}>
-        <LWPopper
-          open={open}
-          anchorEl={anchorEl.current}
-          placement="bottom"
-          tooltip={false}
-          overflowPadding={16}
-          clickable
-        >
-          {open &&
-            <LWClickAwayListener onClickAway={() => setOpen(false)}>
+        {/*
+          * `LWClickAwayListener` is outside the `LWPopper` so that clicks on the notification bell
+          * itself don't trigger the clickaway listener (which would result in the popper closing and
+          * then reopening).
+          *
+          * Note that this violates a general rule in favour of putting the clickaway listener inside
+          * `LWPopper` see this PR description for why that rule exists: https://github.com/ForumMagnum/ForumMagnum/pull/9331
+          */}
+        <LWClickAwayListener onClickAway={() => setOpen(false)}>
+          <>
+            <IconButton
+              classes={{root: classNames(classes.buttonClosed, {
+                [classes.buttonActive]: pathname.indexOf("/notifications") === 0,
+              })}}
+              onClick={onClick}
+            >
+              <ForumIcon icon="BellBorder" />
+            </IconButton>
+            <DeferRender ssr={false}>
+              <LWPopper
+                open={open}
+                anchorEl={anchorEl.current}
+                placement="bottom"
+                tooltip={false}
+                overflowPadding={16}
+                clickable
+              >
                 <NotificationsPopover
                   karmaChanges={showKarmaStar ? karmaChanges?.karmaChanges : undefined}
                   markAllAsRead={markAllAsRead}
                   closePopover={closePopover}
                 />
-            </LWClickAwayListener>
-          }
-        </LWPopper>
-      </DeferRender>
+              </LWPopper>
+            </DeferRender>
+          </>
+        </LWClickAwayListener>
+      </Badge>
     </div>
   );
 }

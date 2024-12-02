@@ -63,7 +63,7 @@ const FILTERS_ALL: ForumOptions<Partial<Record<Filters, SettingsOption>>> = {
     },
     curated: {
       label: "Curated",
-      tooltip: "Posts chosen by the moderation team to be well written and important (approximately 3 per week)"
+      tooltip: "Posts chosen by the moderation team to be well written and important (approximately weekly)"
     },
     questions: {
       label: "Questions",
@@ -139,6 +139,8 @@ const USER_SETTING_NAMES = {
   showEvents: 'allPostsIncludeEvents',
   hideCommunity: 'allPostsHideCommunity'
 }
+
+export const postListSettingUrlParameterNames = Object.keys(USER_SETTING_NAMES);
 
 const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, currentSorting, currentFilter, currentShowLowKarma, currentIncludeEvents, currentHideCommunity = false, timeframes=defaultTimeframes, sortings=SORT_ORDER_OPTIONS, showTimeframe, classes}: {
   persistentSettings?: any,

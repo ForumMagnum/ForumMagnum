@@ -230,6 +230,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       [6]: '#6C7BFF',
     },
 
+    jargonTerm: "#a8742a",
   },
   link: {
     unmarked: shades.greyAlpha(.87),
@@ -240,7 +241,6 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     tocLink: shades.grey[600],
     tocLinkHighlighted: shades.grey[1000],
     primaryDim: "#5caab7",
-    // Currently unused on LW due to Forum-gate
     visited: "#bb7c43",
   },
   linkHover: {
@@ -327,6 +327,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     contrastInDarkMode: shades.grey[0],
     pageActiveAreaBackground: shades.grey[0],
     translucentBackground: "rgba(255,255,255,.5)",
+    translucentBackgroundHeavy: "rgba(255,255,255,.75)",
     loginBackdrop: "rgba(217,217,217,0.5)",
     diffInserted: "#d4ead4",
     diffDeleted: "#f0d3d3",
@@ -341,6 +342,8 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     transparent: shades.inverseGreyAlpha(0),
     imageOverlay: 'rgba(0,0,0,0.4)',
     digestAdBannerInput: shades.grey[0],
+    glossaryBackground: "rgba(190,120,80,.05)",
+    sidenoteBackground: "rgba(190,120,80,.05)",
   },
   panelBackground: {
     default: shades.grey[0],
@@ -476,6 +479,11 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       hoverBackground: shades.grey[800],
     },
   },
+  sideItemIndicator: {
+    sideComment: '#5f9b65',
+    inlineReaction: 'lch(68 34.48 85.39 / 76%)',
+    footnote: shades.greyAlpha(0.4),
+  },
   tag: {
     text: shades.greyAlpha(.9),
     background: shades.grey[200],
@@ -576,6 +584,16 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     panelBackgroundDark: "rgba(255, 255, 255, 0.05)",
     postScoreArrow: '#BCBCBC',
   },
+  givingSeason: {
+    primary: "#8A0003",
+    electionFundBackground: "rgba(255, 255, 255, 0.15)",
+    electionFundBackgroundHeavy: "rgba(255, 255, 255, 0.3)",
+    portalPrimary: "#AE070A",
+    candidateBorder: "#C34F4F",
+    candidateBackground: "rgba(255, 255, 255, 0.2)",
+    candidateShadow: "rgba(147, 0, 0, 0.25)",
+    candidateOrder: "#C50000",
+  },
   namesAttachedReactions: {
     selectedAnti: "rgb(255, 189, 189, .23)",
   },
@@ -609,4 +627,15 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   warning: {
     main: "#ff9800",
   },
+  petrov: {
+    launchButtonBorder: "#000",
+    red: "#ff0000",
+    darkRed: "#990000",
+    red2: "#cc0000",
+    darkRed2: "#770000",
+    color1: "#aa8080",
+    color2: "#404040",
+    color3: "#998080",
+    color4: "#504040",
+  }
 })

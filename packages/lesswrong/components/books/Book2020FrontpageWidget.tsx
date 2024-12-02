@@ -129,6 +129,8 @@ const Book2020FrontpageWidget = ({ classes }: {
     }
   }
 
+  // FIXME: Unstable component will lose state on rerender
+  // eslint-disable-next-line react/no-unstable-nested-components
   const BookMarketingText = ({title, subtitle, description, buttons}: {
     title: string;
     subtitle: string;

@@ -125,8 +125,8 @@ export const useGoogleMaps = (): [boolean, any] => {
         mapsLoadingState = "loading";
         
         var tag = document.createElement('script');
-        tag.async = false;
-        tag.src = `https://maps.googleapis.com/maps/api/js?key=${mapsAPIKeySetting.get()}&libraries=places&callback=googleMapsFinishedLoading`;
+        tag.async = true;
+        tag.src = `https://maps.googleapis.com/maps/api/js?key=${mapsAPIKeySetting.get()}&libraries=places&loading=async&callback=googleMapsFinishedLoading`;
         window.googleMapsFinishedLoading = () => {
           mapsLoadingState = "loaded";
           let callbacks = onMapsLoaded;
@@ -209,7 +209,7 @@ const LocationPicker = ({
 
   const isGrey = variant === "grey";
   const labelNode = isGrey
-    ? <SectionTitle title={label} noTopMargin className={classes.sectionTitle} />
+    ? <SectionTitle title={label} noTopMargin titleClassName={classes.sectionTitle} />
     : value && <FormLabel className={classes.label}>{label}</FormLabel>;
 
   return (

@@ -88,6 +88,17 @@ module.exports = {
     "react/no-unescaped-entities": 0,
     "react/display-name": 0,
     "react/jsx-no-comment-textnodes": 1,
+
+    // Warn if defining a component inside a function, which results in the
+    // component's subtree and its state being destroyed on every render
+    "react/no-unstable-nested-components": [1, {
+      // Allow it if the component is passed directly as a prop. This is still
+      // potentially a bug, but components passed directly as props are often
+      // leaf-nodes with no state, like icons, so it's annoying to have to
+      // handle them properly and these are lower-priority to fix than the ones
+      // that aren't.
+      allowAsProps: true,
+    }],
     "react/no-unknown-property": ["error", {ignore: ["test-id"]}],
 
     // Differs from no-mixed-operators default only in that "??" is added to the first group
@@ -133,7 +144,11 @@ module.exports = {
     "import/no-extraneous-dependencies": 0,
     "import/no-duplicates": 1,
     "import/extensions": 0,
-    "import/no-cycle": 1,
+    "import/no-cycle": ["error", {
+      // A dynamic cyclic import (ie,  a require() inside a function) is okay
+      // if you're confident it won't be called at import-time.
+      allowUnsafeDynamicCyclicDependency: true,
+    }],
     "import/no-mutable-exports": 1,
     "import/no-restricted-paths": ["error", {"zones": [
       {
@@ -270,7 +285,8 @@ module.exports = {
     // used, if the usage is as a type rather than as a value.)
     "no-unused-vars": 0,
     "@typescript-eslint/no-unused-vars": 0,
-    "@typescript-eslint/type-annotation-spacing": 1
+    "@typescript-eslint/type-annotation-spacing": 1,
+    "@typescript-eslint/switch-exhaustiveness-check": 1,
   },
   "overrides": [
     {

@@ -104,10 +104,15 @@ const styles = (theme: ThemeType) => ({
   strikethroughTitle: {
     textDecoration: "line-through"
   },
+  eventTagLink: {
+    '&:hover': {
+      opacity: 0.8
+    }
+  },
   eventTag: {
     ...tagStyle(theme),
     ...smallTagTextStyle(theme),
-    display: "inline-flex",
+    display: "flex",
     alignItems: "center",
     marginLeft: 10,
     padding: "0 6px",
@@ -119,9 +124,6 @@ const styles = (theme: ThemeType) => ({
     color: theme.themeOptions.name === "dark"
       ? "var(--post-title-tag-background)"
       : "var(--post-title-tag-foreground)",
-    "&:hover": {
-      opacity: 0.9,
-    },
   },
   highlightedTagTooltip: {
     marginTop: -2,
@@ -142,6 +144,20 @@ const postIcon = (post: PostsBase|PostsListBase) => {
     return tagSettingIcons.get(matchingTagSetting);
   }
   return null;
+}
+
+const useTaggedEvent = (showEventTag: boolean, post: PostsBase|PostsListBase) => {
+  const {currentForumEvent, isEventPost, marginalFundingWeek} = useCurrentForumEvent();
+  if (!showEventTag) {
+    return undefined;
+  }
+  if (currentForumEvent?.tag && isEventPost(post)) {
+    return currentForumEvent;
+  }
+  if (marginalFundingWeek?.tag && isEventPost(post, marginalFundingWeek?.tag)) {
+    return marginalFundingWeek;
+  }
+  return undefined;
 }
 
 const DefaultWrapper: FC<PropsWithChildren<{}>> = ({children}) => <>{children}</>;
@@ -185,7 +201,7 @@ const PostsTitle = ({
 }) => {
   const currentUser = useCurrentUser();
   const { pathname } = useLocation();
-  const {currentForumEvent, isEventPost} = useCurrentForumEvent();
+  const taggedEvent = useTaggedEvent(showEventTag ?? false, post);
   const { PostsItemIcons, CuratedIcon, ForumIcon, TagsTooltip } = Components;
 
   const shared = post.draft && (post.userId !== currentUser?._id) && post.shareWithUsers
@@ -238,21 +254,21 @@ const PostsTitle = ({
           />
         </InteractionWrapper>
       </span>}
-      {showEventTag && currentForumEvent?.tag && isEventPost(post) &&
+      {taggedEvent?.tag &&
         <InteractionWrapper className={classes.interactionWrapper}>
           <TagsTooltip
-            tagSlug={currentForumEvent.tag.slug}
+            tagSlug={taggedEvent.tag.slug}
             className={classes.highlightedTagTooltip}
           >
-            <Link doOnDown={true} to={tagGetUrl(currentForumEvent.tag)}>
+            <Link doOnDown={true} to={tagGetUrl(taggedEvent.tag)} className={classes.eventTagLink}>
               <span
                 className={classes.eventTag}
                 style={{
-                  "--post-title-tag-background": currentForumEvent.lightColor,
-                  "--post-title-tag-foreground": currentForumEvent.darkColor,
+                  "--post-title-tag-background": taggedEvent.lightColor,
+                  "--post-title-tag-foreground": taggedEvent.darkColor,
                 } as CSSProperties}
               >
-                {currentForumEvent.tag.name}
+                {taggedEvent.tag.shortName || taggedEvent.tag.name}
               </span>
             </Link>
           </TagsTooltip>

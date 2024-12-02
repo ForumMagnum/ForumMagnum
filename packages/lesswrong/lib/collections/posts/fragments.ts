@@ -48,6 +48,12 @@ registerFragment(`
     reviewWinner {
       ...ReviewWinnerTopPostsPage
     }
+    spotlight {
+      ...SpotlightReviewWinner
+    }
+    reviews {
+      ...CommentsList
+    }
   }
 `);
 
@@ -150,14 +156,11 @@ registerFragment(`
     reviewVoteCount
     positiveReviewVoteCount
     manifoldReviewMarketId
-    annualReviewMarketCommentId
-    annualReviewMarketComment {
-      ...CommentsListWithParentMetadata
-    }
 
     annualReviewMarketProbability
     annualReviewMarketIsResolved
     annualReviewMarketYear
+    annualReviewMarketUrl
 
     group {
       _id
@@ -300,6 +303,7 @@ registerFragment(`
     totalDialogueResponseCount
     unreadDebateResponseCount
     dialogTooltipPreview
+    disableSidenotes
   }
 `);
 
@@ -428,6 +432,11 @@ registerFragment(`
 
     # Crossposting
     fmCrosspost
+
+    # Jargon Terms
+    glossary {
+      ...JargonTermsPost
+    }
   }
 `);
 
@@ -518,23 +527,13 @@ registerFragment(`
       ...SequencesPageFragment
     }
     prevPost(sequenceId: $sequenceId) {
-      _id
-      title
-      slug
-      commentCount
-      afCommentCount
-      baseScore
+      ...PostsListWithVotes
       sequence(sequenceId: $sequenceId, prevOrNext: "prev") {
         _id
       }
     }
     nextPost(sequenceId: $sequenceId) {
-      _id
-      title
-      slug
-      commentCount
-      afCommentCount
-      baseScore
+      ...PostsListWithVotes
       sequence(sequenceId: $sequenceId, prevOrNext: "next") {
         _id
       }
@@ -582,7 +581,6 @@ registerFragment(`
       imageId
       text
     }
-    criticismTipsDismissed
     user {
       ...UsersMinimumInfo
     }
@@ -592,6 +590,7 @@ registerFragment(`
     coauthors {
       ...UsersMinimumInfo
     }
+    generateDraftJargon
   }
 `);
 
@@ -659,6 +658,7 @@ registerFragment(`
     currentUserExtendedVote
     fmCrosspost
     rejectedReason
+    autoFrontpage
 
     contents {
       _id
@@ -763,13 +763,6 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment PostsEditCriticismTips on Post {
-    _id
-    criticismTipsDismissed
-  }
-`);
-
-registerFragment(`
   fragment PostsBestOfList on Post {
     ...PostsListWithVotes
     podcastEpisode {
@@ -827,3 +820,32 @@ registerFragment(`
     }
   }
 `);
+
+registerFragment(`
+  fragment PostsForAutocomplete on Post {
+    _id
+    title
+    userId
+    baseScore
+    extendedScore
+    user {
+      ...UsersMinimumInfo
+    }
+    contents {
+      markdown
+    }
+  }
+`)
+
+registerFragment(`
+  fragment PostForReviewWinnerItem on Post {
+    _id
+    spotlight {
+      _id
+    }
+    reviewWinner {
+      _id
+      category
+    }
+  }
+`)

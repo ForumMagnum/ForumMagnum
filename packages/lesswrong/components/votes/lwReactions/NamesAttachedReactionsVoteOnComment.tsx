@@ -27,6 +27,8 @@ import { isMobile } from '../../../lib/utils/isMobile';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
+    display: "flex",
+    alignItems: "center",
     whiteSpace: "nowrap",
   },
   footerReactions: {
@@ -37,7 +39,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     textAlign: 'center',
     whiteSpace: "nowrap",
     zIndex: theme.zIndexes.reactionsFooter,
-    // background: theme.palette.panelBackground.translucent2,
     marginRight: 6,
   },
   footerReactionsRow: {
@@ -49,7 +50,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: 26,
     display: "inline-block",
     borderRadius: 8,
-    paddingTop: 2,
     paddingLeft: 7,
     paddingRight: 7,
     "&:hover": {
@@ -290,7 +290,8 @@ const NamesAttachedReactionsVoteOnComment = ({document, hideKarma=false, collect
       document={document}
       hideKarma={hideKarma}
       voteProps={voteProps}
-      showBox={true}
+      verticalArrows
+      largeArrows
     />
     <AgreementVoteAxis
       document={document}
@@ -380,9 +381,9 @@ const HoverableReactionIcon = ({reactionRowRef, react, numberShown, voteProps, q
     onMouseOver(e);
   }
   
-  function handleMouseLeave () {
+  function handleMouseLeave (ev: React.MouseEvent) {
     setHoveredReaction?.({reactionName: react, isHovered: false, quote: null});
-    onMouseLeave();
+    onMouseLeave(ev);
   }
 
   return <span onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
@@ -437,7 +438,7 @@ const ReactionOverview = ({voteProps, classes}: {
   classes: ClassesType
 }) => {
   const { getCurrentUserReactionVote, setCurrentUserReaction, getAlreadyUsedReactTypesByKarma, getAlreadyUsedReacts } = useNamesAttachedReactionsVoting(voteProps);
-  const { Row, LWTooltip, ReactionIcon } = Components;
+  const { Row, LWTooltip, ReactionIcon, ReactionDescription } = Components;
 
   const alreadyUsedReactionTypesByKarma = getAlreadyUsedReactTypesByKarma();
   const alreadyUsedReactions = getAlreadyUsedReacts();
@@ -449,10 +450,12 @@ const ReactionOverview = ({voteProps, classes}: {
         {alreadyUsedReactionTypesByKarma.map(r => {
           const reactions = alreadyUsedReactions[r]!;
           const netReactionCount = sumBy(reactions, r=>r.reactType==="disagreed"?-1:1);
-          const { description, label } = getNamesAttachedReactionsByName(r)
+          const reactionDetails = getNamesAttachedReactionsByName(r)
           return <div key={`${r}`} className={classes.overviewSummaryRow}>
             <Row justifyContent="flex-start">
-              <LWTooltip title={`${label} – ${description}`}>
+              <LWTooltip title={<>{
+                reactionDetails.label}{" – "}<ReactionDescription reaction={reactionDetails}/>
+              </>}>
                 <ReactionIcon react={r}/>
               </LWTooltip>
               <Components.ReactOrAntireactVote

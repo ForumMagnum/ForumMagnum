@@ -79,7 +79,27 @@ export function addServerSentEventsEndpoint(app: Express) {
   setInterval(checkForNotifications, 1000);
   if (!isEAForum) {
     setInterval(checkForTypingIndicators, 1000);
-    setInterval(checkForActiveDialoguePartners, 1000);
+    // setInterval(checkForActiveDialoguePartners, 1000);
+  }
+}
+
+/*
+ * FIXME: This function can't be used in practice because it only works if the
+ * user is connected to the same server as this function is called on, but user
+ * server-sent event connections are sent by the load balancer to a randomly
+ * selected server.
+ */
+function sendSseMessageToUser(userId: string, message: ServerSentEventsMessage) {
+  const userConnections = openConnections[userId];
+  if (!userConnections) {
+    // TODO: do we want to log an error here?  Probably not, it'll be happening reasonably often for innocous reasons
+    // eslint-disable-next-line no-console
+    console.log(`No connections found for user id ${userId}`, message);
+    return;
+  }
+
+  for (let userConnection of userConnections) {
+    userConnection.res.write(`data: ${JSON.stringify(message)}\n\n`);
   }
 }
 

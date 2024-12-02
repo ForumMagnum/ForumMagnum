@@ -25,6 +25,8 @@ registerFragment(`
     spamRiskScore
     tagRevisionCount
     reviewedByUserId
+    givingSeason2024DonatedFlair
+    givingSeason2024VotedFlair
   }
 `);
 
@@ -201,6 +203,7 @@ registerFragment(`
     subforumPreferredLayout
     
     hideJobAdUntil
+    criticismTipsDismissed
     
     allowDatadogSessionReplay
     hideFrontpageBook2020Ad
@@ -219,6 +222,9 @@ registerFragment(`
 
     hideSunshineSidebar
     optedOutOfSurveys
+    postGlossariesPinned
+    generateJargonForDrafts
+    generateJargonForPublishedPosts
   }
 `);
 

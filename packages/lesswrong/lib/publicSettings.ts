@@ -2,6 +2,7 @@ import type {FilterTag} from './filterSettings'
 import {getPublicSettings, getPublicSettingsLoaded, initializeSetting} from './settingsCache'
 import {forumSelect} from './forumTypeUtils'
 import {isEAForum} from './instanceSettings'
+import { TupleSet, UnionOf } from './utils/typeGuardUtils';
 
 const getNestedProperty = function (obj: AnyBecauseTodo, desc: AnyBecauseTodo) {
   var arr = desc.split('.');
@@ -99,21 +100,32 @@ export const mailchimpEAForumListIdSetting = new DatabasePublicSetting<string | 
 export const isProductionDBSetting = new DatabasePublicSetting<boolean>('isProductionDB', false)
 
 export const showReviewOnFrontPageIfActive = new DatabasePublicSetting<boolean>('annualReview.showReviewOnFrontPageIfActive', true)
-export const annualReviewStart = new DatabasePublicSetting('annualReview.start', "2021-11-30")
-// The following dates cut off their phase at the end of the day
-export const annualReviewNominationPhaseEnd = new DatabasePublicSetting('annualReview.nominationPhaseEnd', "2021-12-14")
-export const annualReviewReviewPhaseEnd = new DatabasePublicSetting('annualReview.reviewPhaseEnd', "2022-01-15")
-export const annualReviewVotingPhaseEnd = new DatabasePublicSetting('annualReview.votingPhaseEnd', "2022-02-01")
-export const annualReviewEnd = new DatabasePublicSetting('annualReview.end', "2022-02-06")
+
+// these are deprecated, but preserved for now in case we want to revert
+
+// export const annualReviewStart = new DatabasePublicSetting('annualReview.start', "2021-11-30")
+// // The following dates cut off their phase at the end of the day
+// export const annualReviewNominationPhaseEnd = new DatabasePublicSetting('annualReview.nominationPhaseEnd', "2021-12-14")
+// export const annualReviewReviewPhaseEnd = new DatabasePublicSetting('annualReview.reviewPhaseEnd', "2022-01-15")
+// export const annualReviewVotingPhaseEnd = new DatabasePublicSetting('annualReview.votingPhaseEnd', "2022-02-01")
+// export const annualReviewEnd = new DatabasePublicSetting('annualReview.end', "2022-02-06")
+
 export const annualReviewAnnouncementPostPathSetting = new DatabasePublicSetting<string | null>('annualReview.announcementPostPath', null)
 
 export const annualReviewVotingResultsPostPath = new DatabasePublicSetting<string>('annualReview.votingResultsPostPath', "")
 
 export const reviewWinnersCoverArtIds = new DatabasePublicSetting<Record<string, string>>('annualReview.reviewWinnersCoverArtIds', {})
 
-export type ReviewWinnerSectionName = 'rationality' | 'optimization' | 'modeling' | 'ai' | 'practical' | 'misc';
-export type ReviewWinnerYear = 2018 | 2019 | 2020 | 2021 | 2022;
-export type CoordinateInfo = Omit<SplashArtCoordinates, '_id' | 'reviewWinnerArtId'> & {
+export const reviewWinnerSectionNameTypes = ['rationality', 'optimization', 'modeling', 'ai', 'practical', 'misc'] as const
+export const reviewWinnerSectionNamesSet = new TupleSet(reviewWinnerSectionNameTypes);
+export type ReviewWinnerSectionName = UnionOf<typeof reviewWinnerSectionNamesSet>;
+
+export const reviewWinnerYearTypes = [2018, 2019, 2020, 2021, 2022] as const
+export const reviewWinnerYearSet = new TupleSet(reviewWinnerYearTypes);
+export type ReviewWinnerYear
+ = UnionOf<typeof reviewWinnerYearSet>;
+
+export type CoordinateInfo = Omit<SplashArtCoordinates, '_id' | 'reviewWinnerArtId'> & { 
   leftHeightPct?: number;
   middleHeightPct?: number;
   rightHeightPct?: number;
@@ -189,3 +201,7 @@ export const vertexEnabledSetting = new DatabasePublicSetting<boolean>('googleVe
 
 /** Whether to show permalinked (?commentId=...) comments at the top of the page, vs scrolling to show them in context */
 export const commentPermalinkStyleSetting = new DatabasePublicSetting<'top' | 'in-context'>('commentPermalinkStyle', isEAForum ? 'in-context' : 'top');
+
+export const userIdsWithAccessToLlmChat = new DatabasePublicSetting<string[]>('llmChat.userIds', []);
+
+export const textReplacementsSetting = new DatabasePublicSetting<Record<string, string>>('textReplacements', {});

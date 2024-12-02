@@ -1,9 +1,7 @@
 import { Posts } from "../../../lib/collections/posts";
 import { Comments } from '../../../lib/collections/comments'
 import { updateMutator } from '../../vulcan-lib';
-import { commentsAlignmentAsync } from '../../resolvers/alignmentForumMutations';
 import { getCollectionHooks } from '../../mutationCallbacks';
-import { asyncForeachSequential } from '../../../lib/utils/asyncUtils';
 import { getCommentAncestorIds, getCommentSubtree } from '../../utils/commentTreeUtils';
 import * as _ from 'underscore';
 
@@ -37,11 +35,6 @@ export async function recalculateAFCommentMetadata(postId: string|null) {
   })
 }
 
-async function ModerateCommentsPostUpdate (comment: DbComment, oldComment: DbComment) {
-  await recalculateAFCommentMetadata(comment.postId)
-}
-commentsAlignmentAsync.add(ModerateCommentsPostUpdate);
-
 
 getCollectionHooks("Comments").newAsync.add(async function AlignmentCommentsNewOperations (comment: DbComment) {
   if (comment.af) {
@@ -65,7 +58,7 @@ const updateChildrenSetAFfalse = async (comment: DbComment) => {
   }
 }
 
-async function CommentsAlignmentEdit (comment: DbComment, oldComment: DbComment) {
+export async function commentsAlignmentEdit (comment: DbComment, oldComment: DbComment) {
   if (comment.af && !oldComment.af) {
     await updateParentsSetAFtrue(comment);
     await recalculateAFCommentMetadata(comment.postId)
@@ -75,8 +68,7 @@ async function CommentsAlignmentEdit (comment: DbComment, oldComment: DbComment)
     await recalculateAFCommentMetadata(comment.postId)
   }
 }
-getCollectionHooks("Comments").editAsync.add(CommentsAlignmentEdit);
-commentsAlignmentAsync.add(CommentsAlignmentEdit);
+getCollectionHooks("Comments").editAsync.add(commentsAlignmentEdit);
 
 
 getCollectionHooks("Comments").newAsync.add(async function CommentsAlignmentNew (comment: DbComment) {

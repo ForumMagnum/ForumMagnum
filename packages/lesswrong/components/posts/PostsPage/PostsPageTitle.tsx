@@ -4,6 +4,8 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 
+export const LW_POST_TITLE_FONT_SIZE = "3.75rem";
+
 export const postPageTitleStyles = (theme: ThemeType) => ({
   ...theme.typography.display3,
   ...theme.typography.postStyle,
@@ -26,7 +28,7 @@ export const postPageTitleStyles = (theme: ThemeType) => ({
       fontSize: '3rem',
     }
     : {
-      fontSize: '4.5rem',
+      fontSize: LW_POST_TITLE_FONT_SIZE,
       lineHeight: '1.1',
   }),
   [theme.breakpoints.down('xs')]: isFriendlyUI

@@ -7,6 +7,11 @@ import { viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Comments } from './collection';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/collection';
 import pick from 'lodash/pick';
+import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
+
+export const COMMENT_SORTING_MODES = new TupleSet([ 
+  "top", "groupByPost", "new", "newest", "old", "oldest", "magic", "recentComments", "recentDiscussion"
+] as const);
 
 declare global {
   interface CommentsViewTerms extends ViewTermsBase {
@@ -14,6 +19,7 @@ declare global {
     postId?: string,
     userId?: string,
     tagId?: string,
+    forumEventId?: string,
     relevantTagId?: string,
     maxAgeDays?: number,
     parentCommentId?: string,
@@ -28,6 +34,7 @@ declare global {
     profileTagIds?: string[],
     shortformFrontpage?: boolean,
     showCommunity?: boolean,
+    commentIds?: string[],
   }
   
   /**
@@ -39,13 +46,7 @@ declare global {
    * In past versions, different subsets of these depending on whether you were
    * using an answers view, a subforum view, or something else.
    */
-  type CommentSortingMode =
-     "top"
-    |"groupByPost"
-    |"new"|"newest"
-    |"old"|"oldest"
-    |"magic"
-    |"recentComments"|"recentDiscussion"
+  type CommentSortingMode = UnionOf<typeof COMMENT_SORTING_MODES>;
 }
 
 Comments.addDefaultView((terms: CommentsViewTerms, _, context?: ResolverContext) => {
@@ -89,6 +90,7 @@ Comments.addDefaultView((terms: CommentsViewTerms, _, context?: ResolverContext)
         : notDeletedOrDeletionIsPublic
       ),
       hideAuthor: terms.userId ? false : undefined,
+      ...(terms.commentIds && {_id: {$in: terms.commentIds}}),
       ...alignmentForum,
       ...validFields,
       debateResponse: { $ne: true },
@@ -110,13 +112,13 @@ const dontHideDeletedAndUnreviewed = {
 
 
 const sortings: Record<CommentSortingMode,MongoSelector<DbComment>> = {
-  "top" : { baseScore: -1},
+  "top": { baseScore: -1 },
   "magic": { score: -1 },
-  "groupByPost" : {postId: 1},
-  "new" :  { postedAt: -1},
-  "newest": {postedAt: -1},
-  "old": {postedAt: 1},
-  "oldest": {postedAt: 1},
+  "groupByPost": { postId: 1 },
+  "new": { postedAt: -1 },
+  "newest": { postedAt: -1 },
+  "old": { postedAt: 1 },
+  "oldest": { postedAt: 1 },
   recentComments: { lastSubthreadActivity: -1 },
   /** DEPRECATED */
   recentDiscussion: { lastSubthreadActivity: -1 },
@@ -298,12 +300,31 @@ Comments.addView("postLWComments", (terms: CommentsViewTerms) => {
   };
 })
 
+export const profileCommentsSortings: Partial<Record<CommentSortingMode,MongoSelector<DbComment>>> = {
+  "new" :  { isPinnedOnProfile: -1, postedAt: -1},
+  "magic": { score: -1 },
+  "top" : { baseScore: -1},
+  "old": {postedAt: 1},
+  "recentComments": { lastSubthreadActivity: -1 },
+} as const;
+
+// This view is DEPRECATED, use profileComments instead. This is here so that old links still work (plus greaterwrong etc)
 Comments.addView("profileRecentComments", (terms: CommentsViewTerms) => {
   return {
     selector: {deletedPublic: false},
     options: {sort: {isPinnedOnProfile: -1, postedAt: -1}, limit: terms.limit || 5},
   };
 })
+
+Comments.addView("profileComments", (terms: CommentsViewTerms) => {
+  const sortBy = terms.sortBy ?? "new"
+  
+  return {
+    selector: {deletedPublic: false},
+    options: {sort: profileCommentsSortings[sortBy], limit: terms.limit || 5},
+  };
+})
+
 ensureIndex(Comments, augmentForDefaultView({ userId: 1, isPinnedOnProfile: -1, postedAt: -1 }))
 
 Comments.addView("allRecentComments", (terms: CommentsViewTerms) => {
@@ -518,14 +539,16 @@ Comments.addView('shortform', (terms: CommentsViewTerms) => {
   };
 });
 
-Comments.addView('shortformFrontpage', (terms: CommentsViewTerms) => {
+Comments.addView('shortformFrontpage', (terms: CommentsViewTerms, _, context?: ResolverContext) => {
   const twoHoursAgo = moment().subtract(2, 'hours').toDate();
   const maxAgeDays = terms.maxAgeDays ?? 5;
+  const currentUserId = context?.currentUser?._id;
   return {
     selector: {
       shortform: true,
       shortformFrontpage: true,
       deleted: false,
+      rejected: {$ne: true},
       parentCommentId: viewFieldNullOrMissing,
       createdAt: {$gt: moment().subtract(maxAgeDays, 'days').toDate()},
       $and: [
@@ -539,6 +562,12 @@ Comments.addView('shortformFrontpage', (terms: CommentsViewTerms) => {
             relevantTagIds: terms.relevantTagId,
           }
           : {},
+        {
+          $or: [
+            {authorIsUnreviewed: false},
+            {userId: currentUserId},
+          ]
+        },
       ],
       // Quick takes older than 2 hours must have at least 1 karma, quick takes
       // younger than 2 hours must have at least -5 karma
@@ -745,6 +774,21 @@ Comments.addView("recentDebateResponses", (terms: CommentsViewTerms) => {
     options: {sort: {postedAt: -1}, limit: terms.limit || 7},
   };
 });
+
+Comments.addView('forumEventComments', (terms: CommentsViewTerms) => {
+  return {
+    selector: {
+      forumEventId: terms.forumEventId,
+      ...(terms.userId && { userId: terms.userId }),
+      deleted: false,
+    },
+    options: {
+      sort: { postedAt: -1 },
+    },
+  };
+});
+
+ensureIndex(Comments, augmentForDefaultView({ forumEventId: 1, userId: 1, postedAt: -1 }));
 
 
 // For allowing `CommentsRepo.getPromotedCommentsOnPosts` to use an index-only scan, which is much faster than an index scan followed by pulling each comment from disk to get its "promotedAt".

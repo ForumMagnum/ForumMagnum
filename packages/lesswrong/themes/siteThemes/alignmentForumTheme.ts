@@ -58,8 +58,15 @@ export const alignmentForumTheme: SiteThemeSpecification = {
       text: "#ffffff",
       background: "#3f51b5",
     },
+    link: {
+      visited: "#8c4298",
+    }
   }),
   make: (palette: ThemePalette) => ({
+    zIndexes: {
+      searchResults: 1100,
+      intercomButton: 1030,
+    },
     typography: {
       fontFamily: sansSerifStack,
       postStyle: {
