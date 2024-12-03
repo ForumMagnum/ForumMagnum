@@ -26,6 +26,8 @@ const styles = (theme: ThemeType) => ({
   },
   tab: {
     fontSize: 14,
+    //override default tab minWidth
+    minWidth: 140,
     [theme.breakpoints.down('xs')]: {
       fontSize: 13,
     }
