@@ -271,7 +271,7 @@ class RunningServer {
     const port = this.serverSlots[slotIndex].port;
 
     logWithTimestamp(`Starting server on port ${port}`);
-    const process = spawn(command, [...args, "--port", port+""], {
+    const process = spawn(command, [...args, "--listen-port", port+""], {
       stdio: 'inherit',
       detached: false,
     });
