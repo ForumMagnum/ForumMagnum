@@ -73,9 +73,9 @@ const events: GivingSeasonEvent[] = [
   {
     name: "Donation Election",
     description: <>
-      A crowd-sourced pot of funds was distributed amongst three charities{" "}
+      A crowd-sourced pot of funds will be distributed amongst three charities{" "}
       based on your votes. Continue donation election conversations {" "}
-      <Link to="/posts/j6fmnYM5ZRu9fJyrq/donation-election-how-to-vote">
+      <Link to="/posts/q6C23rxvyHX2ZxNNS/donation-election-discussion-thread">
         here
       </Link>.
     </>,
