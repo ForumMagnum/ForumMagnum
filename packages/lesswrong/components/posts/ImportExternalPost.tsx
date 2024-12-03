@@ -118,8 +118,8 @@ const styles = (theme: ThemeType) => ({
     fontStyle: 'italic',
   },
   importTitle: {
-    fontSize: '1.5em',
-    fontWeight: 600,
+    fontSize: '2.5em',
+    fontWeight: 500,
     fontFamily: theme.palette.fonts.serifStack,
   },
 });
@@ -350,7 +350,6 @@ const ImportExternalPost = ({ classes }: { classes: ClassesType<typeof styles> }
               onKeyDown={importLinkpostKeyPress}
             />
             <Button
-              className={classes.formButton}
               onClick={() => importUrlAsDraftPost({ variables: { url: value } })}
             >
               {loading ? <Loading className={classes.loadingDots} /> : <>Import Post</>}
@@ -373,6 +372,8 @@ const ImportExternalPost = ({ classes }: { classes: ClassesType<typeof styles> }
         <div className={classes.importEditors}>
           <Typography variant="body2" className={classes.importLabel}>
             Importing post from <a href={post.url ?? ''} target="_blank" rel="noopener noreferrer">{post.url ?? 'error: unknown'}</a>
+            <br />
+            You can edit the linkpost here:
           </Typography>
           {/* <Button
             onClick={handleImportDifferentPost}
