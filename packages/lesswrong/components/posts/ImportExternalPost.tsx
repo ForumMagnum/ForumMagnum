@@ -139,7 +139,7 @@ const ImportedPostEditor = ({
 
   useEffect(() => {
     onContentChange(editorValue);
-  }, [editorValue]);
+  }, [editorValue, onContentChange]);
 
   return (
     <div className={classes.editorContainer}>
@@ -303,6 +303,7 @@ const ImportExternalPost = ({ classes }: { classes: ClassesType<typeof styles> }
 
       setPublished(true);
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error publishing post and submitting review: ', error);
     }
   };
