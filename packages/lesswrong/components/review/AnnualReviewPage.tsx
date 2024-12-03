@@ -39,16 +39,18 @@ export const AnnualReviewPage = ({classes}: {
   const navigate = useNavigate()
   const { params, query, location } = useLocation()
   const reviewYear = getReviewYearFromString(params.year)
-  const startingTab = location.pathname.includes('reviewVoting') ? 'reviewVoting' : 'nominatePosts'
 
-  const [activeTab, setActiveTab] = useState<'nominatePosts' | 'reviewVoting'>(startingTab)
-  
-  const handleChangeTab = (e: React.ChangeEvent, value: string) => {
-    const newPathname = value === 'reviewVoting' ? `reviewVoting/${reviewYear}` : `nominatePosts/${reviewYear}`;
+  // Derive activeTab from the current pathname
+  const activeTab = location.pathname.includes('reviewVoting') ? 'reviewVoting' : 'nominatePosts'
+
+  const handleChangeTab = (e: React.ChangeEvent<{}>, value: string) => {
+    const newPathname = value === 'reviewVoting' ? `/reviewVoting/${reviewYear}` : `/nominatePosts/${reviewYear}`;
+    const newQuery = value === 'nominatePosts' ? { ...query, tab: 'rationalsphere' } : query;
+
     navigate({
       pathname: newPathname,
-      search: `?${qs.stringify(query)}`,
-    })
+      search: `?${qs.stringify(newQuery)}`,
+    });
   }
   
   if (!reviewYear) {

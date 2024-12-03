@@ -85,7 +85,6 @@ const NominationsPage = ({classes, reviewYear}: { classes: ClassesType<typeof st
 
   return <AnalyticsContext pageContext="nominationPage">
     <SingleColumnSection>
-      <ImportExternalPost/>
       <div className={classes.tabsContainer}> 
         <Tabs
           value={activeTab}
@@ -115,7 +114,7 @@ const NominationsPage = ({classes, reviewYear}: { classes: ClassesType<typeof st
           <Tab
             className={classes.tab}
             value="rationalsphere"
-            label={<LWTooltip title={`Posts from within broader Rationality community`}>LinkPosts</LWTooltip>}
+            label={<LWTooltip title={`Posts from other sites that are relevant to LessWrong or Alignment Forum`}>Submit LinkPosts</LWTooltip>}
           />
 
       </Tabs>
@@ -137,9 +136,10 @@ const NominationsPage = ({classes, reviewYear}: { classes: ClassesType<typeof st
         <ReadHistoryTab groupByDate={false} filter={{startDate, endDate, showEvents: false}} sort={{karma: true}}/>
       </>}
 
-      {activeTab === 'all' && <AllPostsPage/>}
+      {activeTab === 'all' && <AllPostsPage defaultHideSettings/>}
       {activeTab === 'rationalsphere' && <div>
-        <AllPostsPage />
+        <ImportExternalPost/>
+        {/* <AllPostsPage defaultHideSettings/> */}
       </div>}
       </div>
     </SingleColumnSection>
