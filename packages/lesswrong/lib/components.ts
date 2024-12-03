@@ -292,6 +292,8 @@ importComponent("Sparkline", () => require('../components/common/Sparkline'));
 importComponent(["SideItem","SideItemsSidebar","SideItemsContainer"], () => require('../components/contents/SideItems'));
 importComponent("SideItemLine", () => require('../components/contents/SideItemLine'));
 importComponent("FrontpageBestOfLWWidget", () => require('../components/review/FrontpageBestOfLWWidget'));
+importComponent("ReviewVotingVoteTitle", () => require('../components/review/ReviewVotingVoteTitle'));
+importComponent("AnnualReviewPage", () => require('../components/review/AnnualReviewPage'));
 
 importComponent("CompareRevisions", () => require('../components/revisions/CompareRevisions'));
 importComponent("RevisionSelect", () => require('../components/revisions/RevisionSelect'));

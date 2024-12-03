@@ -7,7 +7,7 @@ import classNames from 'classnames';
 import * as _ from "underscore"
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 import seedrandom from '../../lib/seedrandom';
-import { getCostData, getReviewPhase, ReviewPhase, getReviewYearFromString } from '../../lib/reviewUtils';
+import { getCostData, getReviewPhase, ReviewPhase, getReviewYearFromString, ReviewYear } from '../../lib/reviewUtils';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { randomId } from '../../lib/random';
 import { useLocation } from '../../lib/routeUtil';
@@ -16,9 +16,8 @@ import filter from 'lodash/filter';
 import { fieldIn } from '../../lib/utils/typeGuardUtils';
 import { getVotePower } from '../../lib/voting/vote';
 import {tagStyle} from '@/components/tagging/FooterTag.tsx'
+import { SECTION_WIDTH } from '../common/SingleColumnSection';
 
-const isEAForum = forumTypeSetting.get() === 'EAForum'
-const isLW = forumTypeSetting.get() === 'LessWrong'
 const isAF = forumTypeSetting.get() === 'AlignmentForum'
 
 const styles = (theme: ThemeType) => ({
@@ -35,6 +34,10 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]: {
       display: "block"
     }
+  },
+  noExpandedPost: {
+    margin: "0 auto",
+    width: SECTION_WIDTH
   },
   leftColumn: {
     gridArea: "leftColumn",
@@ -103,27 +106,22 @@ export const generatePermutation = (count: number, user: UsersCurrent|null): Arr
   return result;
 }
 
-
-const ReviewVotingPage = ({classes}: {
-  classes: ClassesType<typeof styles>
+const ReviewVotingPage = ({classes, reviewYear}: {
+  classes: ClassesType<typeof styles>,
+  reviewYear: ReviewYear
 }) => {
   const {
     ReviewVotingExpandedPost,
     ReviewVoteTableRow,
-    FrontpageReviewWidget,
-    SingleColumnSection,
-    ReviewPhaseInformation,
-    ReviewDashboardButtons,
     ReviewVotingPageMenu,
     PostsTagsList,
-    TabPicker,
     LWTooltip,
+    ReviewVotingVoteTitle,
   } = Components
 
   const currentUser = useCurrentUser()
   const { captureEvent } = useTracking({eventType: "reviewVotingEvent"})
-  const { params, query } = useLocation()
-  const reviewYear = getReviewYearFromString(params.year)
+  const { query } = useLocation()
 
 
   let reviewPhase = getReviewPhase(reviewYear)
@@ -136,7 +134,7 @@ const ReviewVotingPage = ({classes}: {
       view: reviewPhase === "VOTING" ? "reviewFinalVoting" : "reviewVoting",
       before: `${reviewYear+1}-01-01`,
       reviewPhase: reviewPhase,
-      ...(isEAForum ? {} : {after: `${reviewYear}-01-01`}),
+      after: `${reviewYear}-01-01`,
       limit: 600,
     },
     collectionName: "Posts",
@@ -357,10 +355,6 @@ const ReviewVotingPage = ({classes}: {
     reSortPosts(sortPosts, sortReversed, tagFilter)
   }, [canInitialResort, reSortPosts, sortPosts, sortReversed, tagFilter, statusFilter])
 
-  if (!reviewYear) return <SingleColumnSection>
-  {params.year} is not a valid review year.
-  </SingleColumnSection>
-
   let voteTooltip = isAF ? "Showing votes from Alignment Forum members" : "Showing votes from all LessWrong users" as voteTooltipType
   switch (sortPosts) {
     case ("reviewVoteScoreHighKarma"):
@@ -371,32 +365,15 @@ const ReviewVotingPage = ({classes}: {
       break;
   }
 
-  if (!currentUser) {
-    return <SingleColumnSection>
-      You must be logged in to vote in the LessWrong Review.
-    </SingleColumnSection>
-  }
-
   return (
     <AnalyticsContext pageContext="ReviewVotingPage">
     <div>
-      <div className={classes.grid}>
-        <div className={classes.leftColumn}>
-          {!expandedPost && <>
-            <FrontpageReviewWidget showFrontpageItems={false} reviewYear={reviewYear}/>
-            <ReviewPhaseInformation reviewYear={reviewYear} reviewPhase={reviewPhase}/>
-            <ReviewDashboardButtons 
-              reviewYear={reviewYear} 
-              reviewPhase={reviewPhase}
-              showQuickReview={reviewPhase === "REVIEWS"}
-            />
-          </>}
+      <div className={expandedPost ? classes.grid : classes.noExpandedPost}>
+        {expandedPost && <div className={classes.leftColumn}>
          <ReviewVotingExpandedPost key={expandedPost?._id} post={expandedPost} setExpandedPost={setExpandedPost}/> 
-        </div>
+        </div>}
         <div className={classes.rightColumn}>
-          <ReviewVotingPageMenu reviewPhase={reviewPhase} loading={loading} sortedPosts={sortedPosts} costTotal={costTotal} setSortPosts={setSortPosts} sortPosts={sortPosts} sortReversed={sortReversed} setSortReversed={setSortReversed} postsLoading={postsLoading} postsResults={postsResults} />
-
-
+          <ReviewVotingVoteTitle reviewYear={reviewYear} reviewPhase={reviewPhase} />
           <PostsTagsList
             posts={postsResults}
             currentFilter={tagFilter}
@@ -413,7 +390,7 @@ const ReviewVotingPage = ({classes}: {
               <span className={classes.separator}>{' '}•{' '}</span>
             </>}
           />
-
+          <ReviewVotingPageMenu reviewPhase={reviewPhase} loading={loading} sortedPosts={sortedPosts} costTotal={costTotal} setSortPosts={setSortPosts} sortPosts={sortPosts} sortReversed={sortReversed} setSortReversed={setSortReversed} postsLoading={postsLoading} postsResults={postsResults} />
           <div className={classNames({[classes.postList]: reviewPhase !== "VOTING", [classes.postsLoading]: postsLoading || loading})}>
             {postsHaveBeenSorted && sortedPosts?.map((post) => {
               const currentVote = post.currentUserReviewVote !== null ? {
@@ -423,7 +400,7 @@ const ReviewVotingPage = ({classes}: {
                 type: "QUALITATIVE" as const
               } : null
               return <div key={post._id} onClick={()=>{
-                setExpandedPost(post)
+                setExpandedPost(expandedPost === post ? null : post)
                 captureEvent(undefined, {eventSubType: "voteTableRowClicked", postId: post._id})}}
               >
                 <ReviewVoteTableRow

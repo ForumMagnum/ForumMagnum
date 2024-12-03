@@ -9,7 +9,7 @@ import {preferredHeadingCase} from '@/themes/forumTheme'
 import withErrorBoundary from '@/components/common/withErrorBoundary'
 import moment from 'moment'
 import qs from 'qs'
-import { eligibleToNominate } from '@/lib/reviewUtils';
+import { eligibleToNominate, ReviewYear } from '@/lib/reviewUtils';
 
 const styles = (theme: ThemeType) => ({
   headline: {
@@ -36,10 +36,10 @@ const styles = (theme: ThemeType) => ({
 const dateStr = (startDate?: Date) =>
   startDate ? moment(startDate).format('YYYY-MM-DD') : ''
 
-const NominationsPage = ({classes}: { classes: ClassesType<typeof styles> }) => {
+const NominationsPage = ({classes, reviewYear}: { classes: ClassesType<typeof styles>, reviewYear: ReviewYear }) => {
   const currentUser = useCurrentUser()
   const navigate = useNavigate()
-  const {params, location, query} = useLocation()
+  const {location, query} = useLocation()
   
   const {
     SectionTitle,
@@ -55,10 +55,6 @@ const NominationsPage = ({classes}: { classes: ClassesType<typeof styles> }) => 
   } = Components
 
   // Handle url-encoded special case, otherwise parseInt year
-  const before2020 = '≤2020'
-  const year = [before2020, '%e2%89%a42020'].includes(params?.year) ?
-    before2020 :
-    parseInt(params?.year)
 
   if (!eligibleToNominate(currentUser)) {
     return <SingleColumnSection>
@@ -68,8 +64,8 @@ const NominationsPage = ({classes}: { classes: ClassesType<typeof styles> }) => 
     </SingleColumnSection>
   }
 
-  const startDate = year === before2020 ? undefined : new Date(year, 0, 1)
-  const endDate = year === before2020 ? new Date(2020, 0, 1) : new Date(year + 1, 0, 1)
+  const startDate = new Date(reviewYear, 0, 1)
+  const endDate = new Date(reviewYear + 1, 0, 1)
 
   const handleChangeTab = (e: React.ChangeEvent, value: string) => {
     const allPostsParams = {after: dateStr(startDate), before: dateStr(endDate), timeframe: 'yearly'}
@@ -89,58 +85,55 @@ const NominationsPage = ({classes}: { classes: ClassesType<typeof styles> }) => 
 
   return <AnalyticsContext pageContext="nominationPage">
     <SingleColumnSection>
-      <Typography variant="display2" className={classes.headline}>
-        {preferredHeadingCase(`Nominate Posts for ${year} LessWrong Review`)}
-      </Typography>
       <ImportExternalPost/>
       <div className={classes.tabsContainer}> 
         <Tabs
-        value={activeTab}
-        onChange={handleChangeTab}
-      >
-        <Tab 
-          className={classes.tab} 
-          value="votes" 
-          label={
-          <LWTooltip title={`Posts from ${year} you've upvoted`}>Voted On</LWTooltip>}
-        />
-        <Tab
-          className={classes.tab}
-          value="comments"
-          label={<LWTooltip title={`Posts from ${year} you've commented on`}>Commented On</LWTooltip>}
-        />
-        <Tab
-          className={classes.tab}
-          value="read"
-          label={<LWTooltip title={`Posts from ${year} you've read`}>Read</LWTooltip>}
-        />
-        <Tab
-          className={classes.tab}
-          value="all"
-          label={<LWTooltip title={`All posts from ${year}`}>All Posts</LWTooltip>}
-        />
-        <Tab
-          className={classes.tab}
-          value="rationalsphere"
-          label={<LWTooltip title={`Posts from within broader Rationality community`}>LinkPosts</LWTooltip>}
-        />
+          value={activeTab}
+          onChange={handleChangeTab}
+        >
+          <Tab 
+            className={classes.tab} 
+            value="votes" 
+            label={
+            <LWTooltip title={`Posts from ${reviewYear} you've upvoted`}>Voted On</LWTooltip>}
+          />
+          <Tab
+            className={classes.tab}
+            value="comments"
+            label={<LWTooltip title={`Posts from ${reviewYear} you've commented on`}>Commented On</LWTooltip>}
+          />
+          <Tab
+            className={classes.tab}
+            value="read"
+            label={<LWTooltip title={`Posts from ${reviewYear} you've read`}>Read</LWTooltip>}
+          />
+          <Tab
+            className={classes.tab}
+            value="all"
+            label={<LWTooltip title={`All posts from ${reviewYear}`}>All Posts</LWTooltip>}
+          />
+          <Tab
+            className={classes.tab}
+            value="rationalsphere"
+            label={<LWTooltip title={`Posts from within broader Rationality community`}>LinkPosts</LWTooltip>}
+          />
 
       </Tabs>
 
       {(activeTab === 'votes') && <>
-        <SectionTitle title={`Your Strong Upvotes for posts from ${year}`}/>
-        <PostsByVoteWrapper voteType="bigUpvote" year={year}/>
-        <SectionTitle title={`Your Upvotes for posts from ${year}`}/>
-        <PostsByVoteWrapper voteType="smallUpvote" year={year}/>
+        <SectionTitle title={`Your Strong Upvotes for posts from ${reviewYear}`}/>
+        <PostsByVoteWrapper voteType="bigUpvote" year={reviewYear}/>
+        <SectionTitle title={`Your Upvotes for posts from ${reviewYear}`}/>
+        <PostsByVoteWrapper voteType="smallUpvote" year={reviewYear}/>
       </>}
 
       {activeTab === 'comments' && <>
-        <SectionTitle title={`Posts from ${year} you've commented on`}/>
+        <SectionTitle title={`Posts from ${reviewYear} you've commented on`}/>
         <PostsListUserCommentedOn filter={{startDate, endDate, showEvents: false}} sort={{karma: true}}/>
       </>}
 
       {activeTab === 'read' && <>
-        <SectionTitle title={`Posts from ${year} you've read`}/>
+        <SectionTitle title={`Posts from ${reviewYear} you've read`}/>
         <ReadHistoryTab groupByDate={false} filter={{startDate, endDate, showEvents: false}} sort={{karma: true}}/>
       </>}
 

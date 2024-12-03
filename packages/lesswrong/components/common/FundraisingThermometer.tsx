@@ -17,7 +17,6 @@ const styles = (theme: ThemeType) => ({
     overflow: 'hidden',
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'center',
     alignItems: 'center',
   },
   fill: {
@@ -46,6 +45,7 @@ const styles = (theme: ThemeType) => ({
     marginTop: 0,
     marginBottom: 0,
     fontFamily: theme.typography.headerStyle.fontFamily,
+    textShadow: `0px 0px 10px ${theme.palette.greyAlpha(1)}, 0px 0px 20px ${theme.palette.greyAlpha(1)}, 0px 0px 30px ${theme.palette.greyAlpha(1)}`,
   },
   subheader: {
     color: theme.palette.review.winner,
@@ -58,8 +58,7 @@ const styles = (theme: ThemeType) => ({
     width: '100%',
     fontFamily: theme.typography.body2.fontFamily,
     fontSize: '1.2rem',
-    position: 'relative',
-    top: 8
+    marginBottom: 6
   },
   raisedTextBold: {
     fontWeight: 'bold',
@@ -77,6 +76,12 @@ const styles = (theme: ThemeType) => ({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 4,
+    color: theme.palette.background.pageActiveAreaBackground,
+    zIndex: 1,
+    position: 'relative',
+    width: '100%',
+    height: '100%',
+    padding: '0 24px',
   },
   fundraiserHeaderDonateButton: {
     padding: '10px 20px',
@@ -85,7 +90,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: '1.6rem',
     fontWeight: 'bold',
     fontFamily: theme.typography.headerStyle.fontFamily,
-    color: theme.palette.review.winner,
+    color: theme.palette.background.pageActiveAreaBackground,
     background: theme.palette.inverseGreyAlpha(0.35),
     backdropFilter: 'blur(3px)',
   },
@@ -108,25 +113,23 @@ const FundraisingThermometer: React.FC<FundraisingThermometerProps & {classes: C
 
   return (
     <div className={classes.fundraiserContainer}>
-      <div className={classes.fundraiserHeader}>
-        <h2 className={classes.header}>
-          <Link to={`/posts/${lightconeFundraiserPostId.get()}`}>Lightcone Infrastructure fundraiser progress</Link>
-        </h2>
-        <Link className={classes.fundraiserDonateText} to="https://lightconeinfrastructure.com/donate">
-          <div className={classes.fundraiserHeaderDonateButton}>
-            Donate
-          </div>
-        </Link>
-      </div>
-      <Link className={classes.thermometerLink} to={`/posts/${lightconeFundraiserPostId.get()}`}>
-        <div className={classes.thermometer}>
-          <div className={classes.blurredUnfill}></div>
-          <div className={classes.fill} style={{width: `${viewPercentage}%`, backgroundSize: `${100*100/viewPercentage}% auto`}}></div>
-        </div>
-      </Link>
       <div className={classes.textContainer}>
         <span className={classes.raisedText}><span className={classes.raisedTextBold}>Raised:</span> <span className={classes.raisedGoalNumber}>${Math.round(viewCurrentAmount).toLocaleString()}</span></span>
         <span className={classes.goalText}><span className={classes.goalTextBold}>Goal 1 of 3:</span> <span className={classes.raisedGoalNumber}>${goalAmount.toLocaleString()}</span></span>
+      </div>
+      <div className={classes.thermometer}>
+        <div className={classes.fundraiserHeader}>
+          <h2 className={classes.header}>
+            <Link to={`/posts/${lightconeFundraiserPostId.get()}`}>Lightcone Infrastructure fundraiser progress</Link>
+          </h2>
+          <Link className={classes.fundraiserDonateText} to="https://lightconeinfrastructure.com/donate">
+            <div className={classes.fundraiserHeaderDonateButton}>
+              Donate
+            </div>
+          </Link>
+        </div>
+        <div className={classes.blurredUnfill}></div>
+        <div className={classes.fill} style={{width: `${viewPercentage}%`, backgroundSize: `${100*100/viewPercentage}% auto`}}></div>
       </div>
     </div>
   );

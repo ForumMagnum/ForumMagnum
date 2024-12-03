@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { annualReviewAnnouncementPostPathSetting } from '../../lib/publicSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import { ReviewPhase, ReviewYear } from '../../lib/reviewUtils';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { userIsAdmin } from '../../lib/vulcan-users';
 import { useCurrentUser } from '../common/withUser';
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
 
 const styles = (theme: ThemeType): JssStyles => ({
   actionButton: {
@@ -44,7 +46,27 @@ export const ReviewDashboardButtons = ({classes, reviewYear, reviewPhase, showAd
 }) => {
   const { Row, SectionFooter, LWTooltip } = Components 
   const currentUser = useCurrentUser()
+  const [activeTab, setActiveTab] = useState('votes')
 
+  return <div>
+            <Tabs
+          value={activeTab}
+          onChange={(event, value) => setActiveTab(value)}
+        >
+          <Tab 
+            className={classes.tab} 
+            value="votes" 
+            label={
+            <LWTooltip title={`Posts from ${reviewYear} you've upvoted`}>Find Posts to Nominate</LWTooltip>}
+          />
+          <Tab
+            className={classes.tab}
+            value="comments"
+            label={<LWTooltip title={`Posts from ${reviewYear} you've commented on`}>Vote on Nominated Posts</LWTooltip>}
+          />
+
+      </Tabs>
+  </div>
   return <div className={classes.root}>
     <Row justifyContent="space-between">
       <SectionFooter>
@@ -74,7 +96,7 @@ export const ReviewDashboardButtons = ({classes, reviewYear, reviewPhase, showAd
           </Link>
         </LWTooltip>}
       </SectionFooter>
-      <div>
+      {/* <div>
         <LWTooltip title={<div>
           <p>Write a broader review, as a top-level post. This can cover a wide variety of "Review shaped" thoughts, like:</p>
           <ul>
@@ -88,7 +110,7 @@ export const ReviewDashboardButtons = ({classes, reviewYear, reviewPhase, showAd
             Write a Longform Review
           </Link>
         </LWTooltip>
-      </div>
+      </div> */}
     </Row>
   </div>;
 }

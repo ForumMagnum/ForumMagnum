@@ -38,8 +38,6 @@ export async function importUrlAsDraftPost(url: string, context: ResolverContext
     throw new Error('Failed to extract data from URL')
   }
 
-  console.log({extractedData})
-
   const {data} = await createMutator({
     collection: Posts,
     document: {
