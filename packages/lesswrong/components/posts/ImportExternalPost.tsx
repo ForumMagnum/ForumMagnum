@@ -13,7 +13,7 @@ import { useCreate } from '@/lib/crud/withCreate';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import classNames from 'classnames';
 
-export type WebsiteData = {
+export type ForeignSiteImportData = {
   _id: string;
   slug: string;
   title: string;
@@ -135,7 +135,7 @@ const ImportedPostEditor = ({
   onContentChange,
   classes,
 }: {
-  post: WebsiteData;
+  post: ForeignSiteImportData;
   onContentChange: (updatedContent: string) => void;
   classes: ClassesType<typeof styles>;
 }) => {
@@ -230,7 +230,7 @@ const CommentEditor = ({
 // Main component
 const ImportExternalPost = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const [value, setValue] = useState('');
-  const [post, setPost] = useState<WebsiteData | null>(null);
+  const [post, setPost] = useState<ForeignSiteImportData | null>(null);
   const [postContent, setPostContent] = useState<string>('');
   const [published, setPublished] = useState<boolean>(false);
   const navigate = useNavigate();

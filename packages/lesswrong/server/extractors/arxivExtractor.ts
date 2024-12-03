@@ -73,4 +73,4 @@ export class ArxivExtractor {
     const xmlData = await this.fetchFromArxiv(arxivId)
     return this.parseArxivResponse(xmlData)
   }
-} 
+}

@@ -6,6 +6,8 @@ import { commentBodyStyles, postBodyStyles } from '@/themes/stylePiping';
 
 const styles = (theme: ThemeType) => ({
   root: {
+    backgroundColor: theme.palette.background.pageActiveAreaBackground,
+    padding: 24,
     ...commentBodyStyles(theme),
     '& h1': {
       fontSize: '2.25rem'
@@ -25,12 +27,11 @@ export const ReviewVotingVoteTitle = ({classes, reviewPhase, reviewYear}: {
 }) => {
   const { SectionTitle } = Components
   return <div className={classes.root}>
-    {reviewPhase === "NOMINATIONS" && <SectionTitle title="Posts with 1+ nomination vote" />}
-    {reviewPhase === "NOMINATIONS" && <div><em>
+    {reviewPhase === "NOMINATIONS" && <div>
       <p>Vote for posts that were important intellectual progress.</p>
       <p>Posts need 2 votes to proceed.</p>
       <p>Write short reviews explaining why a post was valuable.</p>
-    </em></div>}
+    </div>}
     {reviewPhase === "REVIEWS" && <SectionTitle title="Posts with 1+ review" />}
     {reviewPhase === "REVIEWS" && <p>Posts with at least 1 review vote appear here. Vote for posts that represent important intellectual progress.</p>}
     {reviewPhase === "VOTING" && <SectionTitle title="Final Voting" />}

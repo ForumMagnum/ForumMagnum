@@ -7,7 +7,7 @@ import classNames from 'classnames';
 import * as _ from "underscore"
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 import seedrandom from '../../lib/seedrandom';
-import { getCostData, getReviewPhase, ReviewPhase, getReviewYearFromString, ReviewYear } from '../../lib/reviewUtils';
+import { getCostData, getReviewPhase, ReviewPhase, ReviewYear } from '../../lib/reviewUtils';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { randomId } from '../../lib/random';
 import { useLocation } from '../../lib/routeUtil';
@@ -16,51 +16,10 @@ import filter from 'lodash/filter';
 import { fieldIn } from '../../lib/utils/typeGuardUtils';
 import { getVotePower } from '../../lib/voting/vote';
 import {tagStyle} from '@/components/tagging/FooterTag.tsx'
-import { SECTION_WIDTH } from '../common/SingleColumnSection';
 
 const isAF = forumTypeSetting.get() === 'AlignmentForum'
 
 const styles = (theme: ThemeType) => ({
-  grid: {
-    display: 'grid',
-    gridTemplateColumns: `
-      minmax(10px, 0.5fr) minmax(100px, 740px) minmax(30px, 0.5fr) minmax(300px, 740px) minmax(30px, 0.5fr)
-    `,
-    gridTemplateAreas: `
-    "... leftColumn ... rightColumn ..."
-    `,
-    paddingBottom: 175,
-    alignItems: "start",
-    [theme.breakpoints.down('sm')]: {
-      display: "block"
-    }
-  },
-  noExpandedPost: {
-    margin: "0 auto",
-    width: SECTION_WIDTH
-  },
-  leftColumn: {
-    gridArea: "leftColumn",
-    position: "sticky",
-    top: 72,
-    height: "90vh",
-    paddingLeft: 24,
-    paddingRight: 36,
-    [theme.breakpoints.down('sm')]: {
-      gridArea: "unset",
-      paddingLeft: 0,
-      paddingRight: 0,
-      overflow: "unset",
-      height: "unset",
-      position: "unset"
-    }
-  },
-  rightColumn: {
-    gridArea: "rightColumn",
-    [theme.breakpoints.down('sm')]: {
-      gridArea: "unset"
-    },
-  },
   postsLoading: {
     opacity: .4,
   },
@@ -106,12 +65,13 @@ export const generatePermutation = (count: number, user: UsersCurrent|null): Arr
   return result;
 }
 
-const ReviewVotingPage = ({classes, reviewYear}: {
+const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: {
   classes: ClassesType<typeof styles>,
-  reviewYear: ReviewYear
+  reviewYear: ReviewYear,
+  expandedPost: PostsReviewVotingList|null,
+  setExpandedPost: (post: PostsReviewVotingList|null) => void
 }) => {
   const {
-    ReviewVotingExpandedPost,
     ReviewVoteTableRow,
     ReviewVotingPageMenu,
     PostsTagsList,
@@ -157,7 +117,6 @@ const ReviewVotingPage = ({classes, reviewYear}: {
   const [loading, setLoading] = useState(false)
   const [tagFilter, setTagFilter] = useState<string|null>(null)
   const [statusFilter, setStatusFilter] = useState<string|null>('read')
-  const [expandedPost, setExpandedPost] = useState<PostsReviewVotingList|null>(null)
   const [showKarmaVotes] = useState<any>(true)
   const [postsHaveBeenSorted, setPostsHaveBeenSorted] = useState(false)
 
@@ -368,57 +327,51 @@ const ReviewVotingPage = ({classes, reviewYear}: {
   return (
     <AnalyticsContext pageContext="ReviewVotingPage">
     <div>
-      <div className={expandedPost ? classes.grid : classes.noExpandedPost}>
-        {expandedPost && <div className={classes.leftColumn}>
-         <ReviewVotingExpandedPost key={expandedPost?._id} post={expandedPost} setExpandedPost={setExpandedPost}/> 
-        </div>}
-        <div className={classes.rightColumn}>
-          <PostsTagsList
-            posts={postsResults}
-            currentFilter={tagFilter}
-            handleFilter={(tagId) => handleTagFilter(tagId)}
-            defaultMax={5}
-            beforeChildren={<>
-              <LWTooltip title="Only show the post you've read">
-                <div className={classNames(classes.statusFilter, {[classes.filterSelected]: statusFilter === 'read'})}
-                     onClick={() => handleStatusFilter('read')}>
-                  Read
-                </div>
-              </LWTooltip>
+      <ReviewVotingVoteTitle reviewYear={reviewYear} reviewPhase={reviewPhase}/>
+      <PostsTagsList
+        posts={postsResults}
+        currentFilter={tagFilter}
+        handleFilter={(tagId) => handleTagFilter(tagId)}
+        defaultMax={5}
+        beforeChildren={<>
+          <LWTooltip title="Only show the post you've read">
+            <div className={classNames(classes.statusFilter, {[classes.filterSelected]: statusFilter === 'read'})}
+                  onClick={() => handleStatusFilter('read')}>
+              Read
+            </div>
+          </LWTooltip>
 
-              <span className={classes.separator}>{' '}•{' '}</span>
-            </>}
-          />
-          <ReviewVotingPageMenu reviewPhase={reviewPhase} loading={loading} sortedPosts={sortedPosts} costTotal={costTotal} setSortPosts={setSortPosts} sortPosts={sortPosts} sortReversed={sortReversed} setSortReversed={setSortReversed} postsLoading={postsLoading} postsResults={postsResults} />
-          <div className={classNames({[classes.postList]: reviewPhase !== "VOTING", [classes.postsLoading]: postsLoading || loading})}>
-            {postsHaveBeenSorted && sortedPosts?.map((post) => {
-              const currentVote = post.currentUserReviewVote !== null ? {
-                _id: post.currentUserReviewVote._id,
-                postId: post._id,
-                score: post.currentUserReviewVote.qualitativeScore,
-                type: "QUALITATIVE" as const
-              } : null
-              return <div key={post._id} onClick={()=>{
-                setExpandedPost(expandedPost === post ? null : post)
-                captureEvent(undefined, {eventSubType: "voteTableRowClicked", postId: post._id})}}
-              >
-                <ReviewVoteTableRow
-                  post={post}
-                  costTotal={costTotal}
-                  showKarmaVotes={showKarmaVotes}
-                  dispatch={dispatchQualitativeVote}
-                  currentVote={currentVote}
-                  expandedPostId={expandedPost?._id}
-                  reviewPhase={reviewPhase}
-                  reviewYear={reviewYear}
-                  voteTooltip={voteTooltip}
-                />
-              </div>
-            })}
+          <span className={classes.separator}>{' '}•{' '}</span>
+        </>}
+      />
+      <ReviewVotingPageMenu reviewPhase={reviewPhase} loading={loading} sortedPosts={sortedPosts} costTotal={costTotal} setSortPosts={setSortPosts} sortPosts={sortPosts} sortReversed={sortReversed} setSortReversed={setSortReversed} postsLoading={postsLoading} postsResults={postsResults} />
+      <div className={classNames({[classes.postList]: reviewPhase !== "VOTING", [classes.postsLoading]: postsLoading || loading})}>
+        {postsHaveBeenSorted && sortedPosts?.map((post) => {
+          const currentVote = post.currentUserReviewVote !== null ? {
+            _id: post.currentUserReviewVote._id,
+            postId: post._id,
+            score: post.currentUserReviewVote.qualitativeScore,
+            type: "QUALITATIVE" as const
+          } : null
+          return <div key={post._id} onClick={()=>{
+            setExpandedPost(expandedPost === post ? null : post)
+            captureEvent(undefined, {eventSubType: "voteTableRowClicked", postId: post._id})}}
+          >
+            <ReviewVoteTableRow
+              post={post}
+              costTotal={costTotal}
+              showKarmaVotes={showKarmaVotes}
+              dispatch={dispatchQualitativeVote}
+              currentVote={currentVote}
+              expandedPostId={expandedPost?._id}
+              reviewPhase={reviewPhase}
+              reviewYear={reviewYear}
+              voteTooltip={voteTooltip}
+            />
           </div>
+          })}
         </div>
       </div>
-    </div>
     </AnalyticsContext>
   );
 }

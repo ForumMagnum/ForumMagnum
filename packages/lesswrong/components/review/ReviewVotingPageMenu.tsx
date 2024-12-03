@@ -135,7 +135,6 @@ export const ReviewVotingPageMenu = ({classes, reviewPhase, loading, sortedPosts
           {reviewPhase === "VOTING" && currentUser?.noSingleLineComments && <ContentStyles contentType="comment" className={classes.singleLineWarning}>
             <span className={classes.warning}>You have "Do not collapse comments to single line" enabled, </span>which is going to make this page pretty bloated. The intended experience is for each post to have a few truncated reviews, which you can expand. You may want to disable the option in your <Link to={'/account'}>{accountSettings}</Link>
             </ContentStyles>}
-          <div className={classes.votingTitle}>Voting</div>
           <div className={classes.menu}>
 
             {/* TODO: Remove this if we haven't seen the error in awhile. I think I've fixed it but... model uncertainty */}

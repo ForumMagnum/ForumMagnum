@@ -1,6 +1,6 @@
 import { registerComponent } from '@/lib/vulcan-lib';
 import React, { useEffect, useState } from 'react';
-import { lightconeFundraiserPostId, lightconeFundraiserThermometerBgUrl, lightconeFundraiserUnsyncedAmount } from '@/lib/publicSettings';
+import { lightconeFundraiserThermometerBgUrl } from '@/lib/publicSettings';
 import { Link } from '@/lib/reactRouterWrapper';
 import { useFundraiserProgress } from '@/lib/lightconeFundraiser';
 
@@ -45,11 +45,10 @@ const styles = (theme: ThemeType) => ({
     transition: 'filter 0.5s ease-in-out',
   },
   header: {
-    fontSize: '2rem',  
+    fontSize: '1.6rem',  
     marginTop: 0,
     marginBottom: 0,
     fontFamily: theme.typography.headerStyle.fontFamily,
-    textShadow: `0px 0px 10px ${theme.palette.greyAlpha(1)}, 0px 0px 20px ${theme.palette.greyAlpha(1)}, 0px 0px 30px ${theme.palette.greyAlpha(1)}`,
   },
   subheader: {
     color: theme.palette.review.winner,
@@ -62,7 +61,9 @@ const styles = (theme: ThemeType) => ({
     width: '100%',
     fontFamily: theme.typography.body2.fontFamily,
     fontSize: '1.2rem',
-    marginBottom: 6
+    marginBottom: 6,
+    textShadow: `0px 0px 20px ${theme.palette.background.default}, 0px 0px 30px ${theme.palette.background.default}, 0px 0px 40px ${theme.palette.background.default}, 0px 0px 50px ${theme.palette.background.default}`,
+    alignItems: 'center',
   },
   raisedTextBold: {
     fontWeight: 'bold',
@@ -100,12 +101,16 @@ const styles = (theme: ThemeType) => ({
     fontSize: '1.6rem',
     fontWeight: 'bold',
     fontFamily: theme.typography.headerStyle.fontFamily,
-    color: theme.palette.inverseGreyAlpha(0.5),
-    backdropFilter: 'blur(3px)',
-    transition: 'background 0.3s ease-in-out, color 0.3s ease-in-out',
+    color: theme.palette.inverseGreyAlpha(0.65),
+    // backdropFilter: 'blur(3px)',
+    transition: 'background 0.2s ease-in-out, color 0.2s ease-in-out',
     '&:hover': {
-      background: `${theme.palette.inverseGreyAlpha(0.7)} !important`,
+      background: `${theme.palette.inverseGreyAlpha(0.8)} !important`,
       boxShadow: `0px 0px 10px ${theme.palette.inverseGreyAlpha(0.5)}`,
+      color: theme.palette.background.pageActiveAreaBackground,
+    },
+    [theme.breakpoints.down('xs')]: {
+      color: theme.palette.background.pageActiveAreaBackground,
     },
   },
 });
@@ -128,7 +133,7 @@ const FundraisingThermometer: React.FC<FundraisingThermometerProps & {classes: C
   return (
     <div className={classes.fundraiserContainer}>
       <div className={classes.textContainer}>
-        <span className={classes.raisedText}><span className={classes.raisedTextBold}>Lightcone Fundraiser Progress</span></span>
+        <span className={classes.header}>Lightcone Fundraiser Progress</span>
 
         {/* <span className={classes.raisedText}><span className={classes.raisedTextBold}>Raised:</span> <span className={classes.raisedGoalNumber}></span></span> */}
         <span className={classes.goalText}><span className={classes.goalTextBold}>Goal 1:</span> <span className={classes.raisedGoalNumber} style={{color: "#584d3e"}}>${Math.round(viewCurrentAmount).toLocaleString()} of ${goalAmount.toLocaleString()}</span></span>
