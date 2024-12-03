@@ -111,7 +111,7 @@ export const VOTING_PHASE_REVIEW_THRESHOLD = 1
 
 /** Is there an active review taking place? */
 export function reviewIsActive(): boolean {
-  return getReviewPhase() !== "COMPLETE" && getReviewPhase() !== "UNSTARTED"
+  return isLWorAF && getReviewPhase() !== "COMPLETE" && getReviewPhase() !== "UNSTARTED"
 }
 
 export function eligibleToNominate (currentUser: UsersCurrent|DbUser|null) {
