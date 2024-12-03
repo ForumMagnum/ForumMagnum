@@ -5,20 +5,17 @@ import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { commentGetPageUrl } from "@/lib/collections/comments/helpers";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
 import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
-import { useCurrentUser } from "../common/withUser";
 import { formatStat } from "../users/EAUserTooltipContent";
 import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from "../common/Header";
 import {
   GIVING_SEASON_DESKTOP_WIDTH,
   GIVING_SEASON_MD_WIDTH,
   GIVING_SEASON_MOBILE_WIDTH,
-  getDonateLink,
   useGivingSeasonEvents,
 } from "./useGivingSeasonEvents";
 import classNames from "classnames";
 import type { Moment } from "moment";
 import type { ForumIconName } from "../common/ForumIcon";
-import { donationElectionVotingOpenSetting } from "@/lib/givingSeason";
 
 const DOT_SIZE = 12;
 
@@ -227,25 +224,6 @@ const styles = (theme: ThemeType) => ({
       },
     },
   },
-  fundBarContainer: {
-    width: "100%",
-    height: 12,
-    marginBottom: 20,
-    background: theme.palette.givingSeason.electionFundBackground,
-    borderRadius: theme.borderRadius.small,
-    overflow: "hidden",
-    [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
-      marginBottom: 12,
-    },
-  },
-  fundBarContainerLarge: {
-    height: 17
-  },
-  fundBar: {
-    height: "100%",
-    background: theme.palette.text.alwaysWhite,
-    transition: "width 0.5s ease",
-  },
   hideAboveMobile: {
     [theme.breakpoints.up(GIVING_SEASON_MOBILE_WIDTH)]: {
       display: "none !important",
@@ -274,20 +252,15 @@ const styles = (theme: ThemeType) => ({
       padding: "8px 12px",
     },
   },
-  buttonWhite: {
-    color: theme.palette.givingSeason.primary,
-    background: theme.palette.text.alwaysWhite,
-    transition: "opacity 0.3s ease",
-    "&:hover": {
-      background: theme.palette.text.alwaysWhite,
-      opacity: 0.85,
-    },
-  },
-  buttonTranslucent: {
+  buttonTranslucentDisabled: {
+    cursor: "not-allowed",
     color: theme.palette.text.alwaysWhite,
     background: theme.palette.givingSeason.electionFundBackground,
     "&:hover": {
-      background: theme.palette.givingSeason.electionFundBackgroundHeavy,
+      background: theme.palette.givingSeason.electionFundBackground,
+    },
+    "& > *": {
+      opacity: 0.5,
     },
   },
   fundVoteButton: {
@@ -399,22 +372,10 @@ const styles = (theme: ThemeType) => ({
   eventHidden: {
     display: "none",
   },
-  electionInfoRaised: {
-    display: "flex",
-    gap: "8px",
-    alignItems: "baseline",
-    marginTop: 8,
+  electionRaised: {
     fontSize: 20,
     fontWeight: 600,
-    marginBottom: 12,
-  },
-  electionInfoAmount: {
-    fontWeight: 700,
-  },
-  matchNotice: {
-    fontSize: 13,
-    fontWeight: 'normal',
-    transform: "translateY(-1px)"
+    marginBottom: 16,
   },
   electionInfoButtonContainer: {
     marginBottom: 4,
@@ -426,9 +387,6 @@ const styles = (theme: ThemeType) => ({
       marginBottom: 16
     },
   },
-  votingClosedTooltip: {
-    marginBottom: 4
-  }
 });
 
 const scrollIntoViewHorizontally = (
@@ -526,11 +484,9 @@ const GivingSeason2024Banner = ({classes}: {
     selectedEvent,
     setSelectedEvent,
     amountRaised,
-    amountTarget,
     leaderboard: leaderboardData
   } = useGivingSeasonEvents();
   const {currentForumEvent} = useCurrentForumEvent();
-  const currentUser = useCurrentUser();
   const [timelineRef, setTimelineRef] = useState<HTMLDivElement | null>(null);
   const [detailsRef, setDetailsRef] = useState<HTMLDivElement | null>(null);
   const [lastTimelineClick, setLastTimelineClick] = useState<number>();
@@ -539,10 +495,7 @@ const GivingSeason2024Banner = ({classes}: {
   // Note: SECOND_MATCH_START is approximate, we will match based on the amount when we deploy
   const amountRaisedPlusMatched =
     amountRaised + Math.min(amountRaised, 5000) + Math.min(Math.max(amountRaised - SECOND_MATCH_START, 0), 5000);
-  const matchRemaining = Math.max(5000 - (amountRaised - SECOND_MATCH_START), 0)
-  const fundPercent = Math.round((amountRaisedPlusMatched / amountTarget) * 100);
 
-  const votingOpen = donationElectionVotingOpenSetting.get()
   const isDonationElection = currentEvent?.name === "Donation Election";
   const showRecentComments =
     !!currentForumEvent?.tagId &&
@@ -622,7 +575,7 @@ const GivingSeason2024Banner = ({classes}: {
     setSelectedEvent(events[index] ?? events[0]);
   }, [detailsRef]);
 
-  const {EAButton, MixedTypeFeed, DonationElectionLeaderboard, LWTooltip} = Components;
+  const {EAButton, MixedTypeFeed, DonationElectionLeaderboard} = Components;
   return (
     <div className={classNames(classes.root, selectedEvent.darkText && classes.darkText)}>
       <div className={classes.backgrounds}>
@@ -667,26 +620,8 @@ const GivingSeason2024Banner = ({classes}: {
                     <div className={classes.eventDescription}>
                       {description}
                     </div>
-                    <div className={classNames(classes.eventDescription, classes.hideAboveMd)}>
-                      <b>${formatStat(Math.round(amountRaisedPlusMatched))} raised.</b> CEA will match the next <b>${formatStat(Math.round(matchRemaining))}</b>.
-                    </div>
-                    <div className={classNames(classes.electionInfoRaised, classes.hideBelowMd)}>
-                      <span className={classes.electionInfoAmount}>
-                        ${formatStat(Math.round(amountRaisedPlusMatched))}
-                      </span>{" "}
-                      raised
-                      <div className={classes.matchNotice}>
-                        CEA will match the next <b>${formatStat(Math.round(matchRemaining))}</b> donated
-                      </div>
-                    </div>
-                    <div
-                      className={classNames(
-                        classes.fundBarContainer,
-                        classes.fundBarContainerLarge,
-                        classes.hideBelowMd
-                      )}
-                    >
-                      <div style={{ width: `${fundPercent}%` }} className={classes.fundBar} />
+                    <div className={classes.electionRaised}>
+                      ${formatStat(Math.round(amountRaisedPlusMatched))} raised
                     </div>
                     {leaderboardData && (
                       <DonationElectionLeaderboard
@@ -697,24 +632,14 @@ const GivingSeason2024Banner = ({classes}: {
                     )}
                     <div className={classes.electionInfoButtonContainer}>
                       <EAButton
-                        href={getDonateLink(currentUser)}
-                        className={classNames(classes.button, classes.buttonLarge, classes.buttonWhite)}
+                        className={classNames(
+                          classes.button,
+                          classes.buttonLarge,
+                          classes.buttonTranslucentDisabled,
+                        )}
                       >
-                        Donate&nbsp;<span className={classes.hideBelowMd}>to the fund</span>
+                        You can no longer vote or donate
                       </EAButton>
-                      <LWTooltip
-                        title={votingOpen ? null : "Voting has closed"}
-                        placement="top"
-                        popperClassName={classes.votingClosedTooltip}
-                      >
-                        <EAButton
-                          href={"/voting-portal"}
-                          className={classNames(classes.button, classes.buttonLarge, classes.buttonTranslucent)}
-                          disabled={!votingOpen}
-                        >
-                          Vote in the election
-                        </EAButton>
-                      </LWTooltip>
                     </div>
                   </div>
                 ) : (

@@ -7,7 +7,6 @@ import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
 import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
 import { IRPossibleVoteCounts } from "@/lib/givingSeason/instantRunoff";
-import { DONATION_ELECTION_NUM_WINNERS, DONATION_ELECTION_SHOW_LEADERBOARD_CUTOFF } from "@/lib/givingSeason";
 
 export const GIVING_SEASON_DESKTOP_WIDTH = 1300;
 export const GIVING_SEASON_MOBILE_WIDTH = 700;
@@ -66,10 +65,10 @@ const events: GivingSeasonEvent[] = [
   {
     name: "Donation Election",
     description: <>
-      A crowd-sourced pot of funds will be distributed amongst three charities{" "}
-      based on your votes.{" "}
+      A crowd-sourced pot of funds was distributed amongst three charities{" "}
+      based on your votes. Continue donation election conversations {" "}
       <Link to="/posts/j6fmnYM5ZRu9fJyrq/donation-election-how-to-vote">
-        Find out more
+        here
       </Link>.
     </>,
     start: moment("2024-11-18").utc(),
@@ -166,9 +165,7 @@ export const GivingSeasonEventsProvider = ({children}: {children: ReactNode}) =>
   });
 
   const { data: leaderboardData } = useQuery<{ GivingSeason2024VoteCounts: IRPossibleVoteCounts }>(leaderboardQuery, {
-    pollInterval: 60 * 1000, // Poll once per minute
     ssr: true,
-    skip: currentEvent?.name !== "Donation Election",
   });
 
   return (

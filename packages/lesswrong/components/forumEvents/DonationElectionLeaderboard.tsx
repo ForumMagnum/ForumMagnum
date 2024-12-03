@@ -182,7 +182,7 @@ export const DonationElectionLeaderboard = ({
 
   return (
     <div className={classNames(classes.root, className)}>
-      {!hideHeader && <div className={classes.header}>Current Leaderboard</div>}
+      {!hideHeader && <div className={classes.header}>Winners</div>}
       {sortedCharities.map(({ count, candidate }, index) => (
         <div key={candidate?._id ?? index} className={classes.candidateWrapper}>
           <div

@@ -7,7 +7,7 @@ import {
   viewBasedSubquery,
 } from "../utils/feedUtil";
 import ElectionVotes from "@/lib/collections/electionVotes/collection";
-import { ACTIVE_DONATION_ELECTION, DONATION_ELECTION_AGE_CUTOFF, donationElectionVotingOpenSetting } from "@/lib/givingSeason";
+import { ACTIVE_DONATION_ELECTION } from "@/lib/givingSeason";
 import { instantRunoffAllPossibleResults, IRVote } from "@/lib/givingSeason/instantRunoff";
 import { memoizeWithExpiration } from "@/lib/utils/memoizeWithExpiration";
 
@@ -51,12 +51,11 @@ addGraphQLResolvers({
   Mutation: {
     GivingSeason2024Vote: async (
       _root: void,
-      {vote}: {vote: Record<string, number>},
-      {currentUser, repos}: ResolverContext,
+      _args: {vote: Record<string, number>},
+      _context: ResolverContext,
     ) => {
-      if (!donationElectionVotingOpenSetting.get()) {
-        throw new Error("Voting has closed");
-      }
+      throw new Error("Voting has closed");
+      /*
       if (
         !currentUser ||
         currentUser.banned ||
@@ -82,6 +81,7 @@ addGraphQLResolvers({
         vote,
       );
       return true;
+       */
     },
   },
 });
