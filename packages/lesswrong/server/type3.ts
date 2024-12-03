@@ -45,11 +45,14 @@ type PostWithAudio = Pick<DbPost, keyof typeof postWithAudioProjection>;
 const getPostUrl = (post: PostWithAudio) =>
   type3SourceUrlSetting.get() + postGetPageUrl(post);
 
-export const regenerateType3Audio = async (post: PostWithAudio) => {
+export const regenerateType3Audio = async (post: DbPost) => {
   const body = {
     source_url: getPostUrl(post),
     priority: "immediate",
   };
+
+  if (!isPostAllowedType3Audio(post)) return;
+
   await type3ApiRequest("narration/regenerate", "POST", body);
   captureEvent("regenerateType3Audio", {postId: post._id, ...body});
 }
@@ -81,13 +84,8 @@ const deleteType3AudioForPostId = async (postId: string) => {
 }
 
 export const regenerateAllType3AudioForUser = async (userId: string) => {
-  const posts: PostWithAudio[] = await Posts.find({
-    userId,
-    draft: false,
-    isFuture: false,
-    shortform: false,
-  }, {
-    projection: postWithAudioProjection,
+  const posts = await Posts.find({
+    userId
   }).fetch();
 
   for (const post of posts) {
