@@ -35,6 +35,7 @@ type GivingSeasonEvent = {
   end: Moment,
   background: string,
   darkText?: boolean,
+  hidden?: boolean,
 }
 
 const events: GivingSeasonEvent[] = [
@@ -74,6 +75,14 @@ const events: GivingSeasonEvent[] = [
     start: moment("2024-11-18").utc(),
     end: moment("2024-12-03").utc(),
     background: "https://res.cloudinary.com/cea/image/upload/v1730143996/Rectangle_5069.jpg",
+  },
+  {
+    name: "Intermission",
+    description: null,
+    start: moment("2024-12-03").utc(),
+    end: moment("2024-12-16").utc(),
+    background: "https://res.cloudinary.com/cea/image/upload/v1730143996/Rectangle_5069.jpg",
+    hidden: true,
   },
   {
     name: "Pledge Highlight",

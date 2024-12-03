@@ -171,6 +171,8 @@ const styles = (theme: ThemeType) => ({
     },
   },
   detailsContainer: {
+    transition: "max-height ease-in-out 0.35s",
+    maxHeight: 400,
     width: "100%",
     whiteSpace: "nowrap",
     overflow: "scroll hidden",
@@ -180,6 +182,10 @@ const styles = (theme: ThemeType) => ({
     "&::-webkit-scrollbar": {
       display: "none",
     },
+  },
+  detailsContainerHidden: {
+    minHeight: 1,
+    maxHeight: 1,
   },
   eventDetails: {
     display: "inline-flex",
@@ -461,6 +467,9 @@ const styles = (theme: ThemeType) => ({
       flex: 1
     },
   },
+  eventHidden: {
+    display: "none",
+  },
   electionInfoRaised: {
     display: "flex",
     gap: "8px",
@@ -612,6 +621,7 @@ const GivingSeason2024Banner = ({classes}: {
     !!currentForumEvent?.tagId &&
     (currentEvent?.name === "Marginal Funding Week" || isDonationElection);
 
+  /*
   useEffect(() => {
     if (!detailsRef) {
       return;
@@ -631,6 +641,7 @@ const GivingSeason2024Banner = ({classes}: {
     }
     return () => observer.disconnect();
   }, [timelineRef, detailsRef, events, setSelectedEvent]);
+   */
 
   useEffect(() => {
     if (currentEvent && detailsRef && !didInitialScroll.current) {
@@ -653,12 +664,26 @@ const GivingSeason2024Banner = ({classes}: {
       return;
     }
     const id = events.findIndex((event) => event === selectedEvent);
-    timelineRef?.querySelector(`[data-event-id="${id}"]`)?.scrollIntoView({
-      behavior: "smooth",
-      block: "nearest",
-      inline: "nearest",
-    });
+    const elem = timelineRef?.querySelector(`[data-event-id="${id}"]`);
+    if (elem) {
+      scrollIntoViewHorizontally(timelineRef!, elem as HTMLElement);
+    }
   }, [timelineRef, selectedEvent, lastTimelineClick, events]);
+
+  useEffect(() => {
+    if (!detailsRef) {
+      return;
+    }
+    const handler = (ev: MouseEvent) => {
+      ev.preventDefault();
+    }
+    detailsRef.addEventListener("wheel", handler);
+    detailsRef.addEventListener("touchmove", handler);
+    return () => {
+      detailsRef.removeEventListener("wheel", handler);
+      detailsRef.removeEventListener("touchmove", handler);
+    }
+  }, [detailsRef]);
 
   const onClickTimeline = useCallback((index: number) => {
     setLastTimelineClick(Date.now());
@@ -667,6 +692,7 @@ const GivingSeason2024Banner = ({classes}: {
       block: "nearest",
       inline: "start",
     });
+    setSelectedEvent(events[index] ?? events[0]);
   }, [detailsRef]);
 
   const {EAButton, MixedTypeFeed, DonationElectionLeaderboard, LWTooltip} = Components;
@@ -695,14 +721,17 @@ const GivingSeason2024Banner = ({classes}: {
               onClick={onClickTimeline.bind(null, i)}
               className={classNames(classes.timelineEvent, selectedEvent === event && classes.timelineEventSelected)}
             >
-              {event.name}
+              {event.name === "Intermission" ? "" : event.name}
               {event === currentEvent && <div className={classes.timelineDot} />}
             </div>
           ))}
         </div>
         <div className={classes.mainContainer}>
-          <div className={classes.detailsContainer} ref={setDetailsRef}>
-            {events.map(({ name, description, start, end }, i) => (
+          <div ref={setDetailsRef} className={classNames(
+            classes.detailsContainer,
+            selectedEvent.hidden && classes.detailsContainerHidden,
+          )}>
+            {events.map(({ name, description, start, end, hidden }, i) => (
               <div className={classes.eventDetails} data-event-id={i} key={name}>
                 {name === currentEvent?.name && isDonationElection ? (
                   <div className={classes.electionInfoContainer}>
@@ -762,7 +791,7 @@ const GivingSeason2024Banner = ({classes}: {
                     </div>
                   </div>
                 ) : (
-                  <div>
+                  <div className={classNames(hidden && classes.eventHidden)}>
                     <div className={classes.eventDate}>{formatDate(start, end)}</div>
                     <div className={classes.eventName}>{name}</div>
                     <div className={classes.eventDescription}>{description}</div>
