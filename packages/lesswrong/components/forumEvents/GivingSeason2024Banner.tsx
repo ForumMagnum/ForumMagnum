@@ -584,7 +584,14 @@ const GivingSeason2024Banner = ({classes}: {
               discussionTagSlug,
               hidden,
             }, i) => (
-              <div className={classes.eventDetails} data-event-id={i} key={name}>
+              <div
+                className={classNames(
+                  classes.eventDetails,
+                  hidden && classes.eventHidden,
+                )}
+                data-event-id={i}
+                key={name}
+              >
                 {name === "Donation Election" ? (
                   <div className={classes.electionInfoContainer}>
                     <div className={classes.eventDate}>{formatDate(selectedEvent.start, selectedEvent.end)}</div>
@@ -615,10 +622,7 @@ const GivingSeason2024Banner = ({classes}: {
                     </div>
                   </div>
                 ) : (
-                  <div className={classNames(
-                    classes.eventDetails,
-                    hidden && classes.eventHidden,
-                  )}>
+                  <>
                     <div className={classes.simpleEventContainer}>
                       <div className={classes.eventDate}>{formatDate(start, end)}</div>
                       <div className={classes.eventName}>{name}</div>
@@ -678,7 +682,7 @@ const GivingSeason2024Banner = ({classes}: {
                         }
                       </div>
                     }
-                  </div>
+                  </>
                 )}
                 {name === "Donation Election" && leaderboardData && (
                   <DonationElectionLeaderboard voteCounts={leaderboardData} className={classes.hideBelowMd} />
