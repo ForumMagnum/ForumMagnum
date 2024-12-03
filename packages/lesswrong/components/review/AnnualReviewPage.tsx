@@ -28,6 +28,10 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.background.pageActiveAreaBackground
     },
   },
+  subLabel: {
+    marginTop: 4,
+    fontSize: '0.8rem',
+  },
   selected: {},
 });
 
@@ -75,7 +79,7 @@ export const AnnualReviewPage = ({classes}: {
         className={classes.tabs}
       >
         <Tab
-          label="Find Posts to Nominate"
+          label={<div>Find Posts to Nominate<div className={classes.subLabel}><em>Posts You Engaged With • Submit LinkPosts</em></div></div>}
           value="nominatePosts"
           className={classes.tab}
         />

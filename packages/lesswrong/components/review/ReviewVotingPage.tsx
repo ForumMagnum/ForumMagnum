@@ -373,7 +373,6 @@ const ReviewVotingPage = ({classes, reviewYear}: {
          <ReviewVotingExpandedPost key={expandedPost?._id} post={expandedPost} setExpandedPost={setExpandedPost}/> 
         </div>}
         <div className={classes.rightColumn}>
-          <ReviewVotingVoteTitle reviewYear={reviewYear} reviewPhase={reviewPhase} />
           <PostsTagsList
             posts={postsResults}
             currentFilter={tagFilter}
