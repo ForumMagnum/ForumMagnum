@@ -5,6 +5,7 @@ import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { commentGetPageUrl } from "@/lib/collections/comments/helpers";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
 import { formatStat } from "../users/EAUserTooltipContent";
+import { tagGetUrl } from "@/lib/collections/tags/helpers";
 import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from "../common/Header";
 import {
   GIVING_SEASON_DESKTOP_WIDTH,
@@ -13,9 +14,9 @@ import {
   useGivingSeasonEvents,
 } from "./useGivingSeasonEvents";
 import classNames from "classnames";
+import moment from "moment";
 import type { Moment } from "moment";
 import type { ForumIconName } from "../common/ForumIcon";
-import { tagGetUrl } from "@/lib/collections/tags/helpers";
 
 const DOT_SIZE = 12;
 
@@ -278,6 +279,7 @@ const styles = (theme: ThemeType) => ({
     },
   },
   topPosts: {
+    marginLeft: 16,
     [theme.breakpoints.down(GIVING_SEASON_MD_WIDTH)]: {
       display: "none",
     },
@@ -290,14 +292,14 @@ const styles = (theme: ThemeType) => ({
   topPostsFeed: {
     display: "flex",
     flexDirection: "column",
+    gap: "4px",
+    margin: "12px 0",
     minWidth: 530,
     maxWidth: 600,
-    margin: "8px 0 8px 8px",
   },
   topPostsViewMore: {
     fontSize: 15,
     fontWeight: 600,
-    marginTop: -4,
   },
   feedItem: {
     display: "flex",
@@ -307,33 +309,10 @@ const styles = (theme: ThemeType) => ({
     padding: 8,
     borderRadius: theme.borderRadius.default,
     cursor: "pointer",
+    background: theme.palette.givingSeason.electionFundBackground,
     "&:hover": {
-      background: theme.palette.givingSeason.electionFundBackground,
+      opacity: 0.8,
     },
-  },
-  feedIcon: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: "50%",
-    padding: 4,
-    width: 24,
-    minWidth: 24,
-    maxWidth: 24,
-    height: 24,
-    minHeight: 24,
-    maxHeight: 24,
-    "& svg": {
-      width: 12,
-    },
-  },
-  feedPostIcon: {
-    color: theme.palette.text.alwaysWhite,
-    background: theme.palette.primary.main,
-  },
-  feedCommentIcon: {
-    color: theme.palette.text.alwaysWhite,
-    background: theme.palette.grey[600],
   },
   feedDetailsWrapper: {
     minWidth: 0,
@@ -342,30 +321,20 @@ const styles = (theme: ThemeType) => ({
   feedUser: {
     fontWeight: 600,
   },
-  feedAction: {
-    opacity: 0.7,
-  },
-  feedDate: {
-    opacity: 0.7,
-    whiteSpace: "nowrap",
-    float: "right",
-    marginRight: 12,
-  },
   feedInfo: {
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",
+    marginBottom: 2,
   },
   feedPost: {
-    textDecoration: "underline",
+    fontSize: 16,
     fontWeight: 600,
   },
-  feedPreview: {
+  feedMeta: {
     color: theme.palette.text.alwaysWhite,
     fontWeight: 500,
-    whiteSpace: "nowrap",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
+    opacity: 0.7,
   },
   feedInteraction: {
     display: "inline",
@@ -426,18 +395,14 @@ const formatDate = (start: Moment, end: Moment) => {
 
 const FeedItem = ({
   href,
-  icon,
-  iconClassName,
-  action,
   user,
   post,
   date,
-  preview,
   classes,
 }: {
   href: string,
   icon: ForumIconName,
-  iconClassName: string,
+  iconClassName?: string,
   action: string,
   user: UsersMinimumInfo | null,
   post: PostsMinimumInfo | null,
@@ -446,29 +411,12 @@ const FeedItem = ({
   classes: ClassesType<typeof styles>,
 }) => {
   const {onClick} = useClickableCell({href, ignoreLinks: true});
-  const {ForumIcon, UsersName, PostsTooltip, FormatDate} = Components;
+  const {UsersName, PostsTooltip} = Components;
   return (
     <div onClick={onClick} className={classes.feedItem}>
-      <div className={classNames(classes.feedIcon, iconClassName)}>
-        <ForumIcon icon={icon} />
-      </div>
       <div className={classes.feedDetailsWrapper}>
         <div>
-          <FormatDate
-            date={date}
-            tooltip={false}
-            includeAgo
-            className={classes.feedDate}
-          />
           <div className={classes.feedInfo}>
-            <InteractionWrapper className={classes.feedInteraction}>
-              <UsersName
-                user={user}
-                tooltipPlacement="bottom-start"
-                className={classes.feedUser}
-              />
-            </InteractionWrapper>{" "}
-            <span className={classes.feedAction}>{action}</span>{" "}
             <InteractionWrapper className={classes.feedInteraction}>
               <PostsTooltip postId={post?._id} placement="bottom-start">
                 <Link
@@ -481,8 +429,14 @@ const FeedItem = ({
             </InteractionWrapper>
           </div>
         </div>
-        <div className={classes.feedPreview}>
-          {preview}
+        <div className={classes.feedMeta}>
+          <InteractionWrapper className={classes.feedInteraction}>
+            <UsersName
+              user={user}
+              tooltipPlacement="bottom-start"
+              className={classes.feedUser}
+            />
+          </InteractionWrapper>, {moment(date).format("MMM DD")}
         </div>
       </div>
     </div>
@@ -689,7 +643,6 @@ const GivingSeason2024Banner = ({classes}: {
                                 <FeedItem
                                   href={postGetPageUrl(post)}
                                   icon="DocumentFilled"
-                                  iconClassName={classes.feedPostIcon}
                                   action="posted"
                                   user={post.user}
                                   post={post}
@@ -705,7 +658,6 @@ const GivingSeason2024Banner = ({classes}: {
                                 <FeedItem
                                   href={commentGetPageUrl(comment)}
                                   icon="CommentFilled"
-                                  iconClassName={classes.feedCommentIcon}
                                   action="on"
                                   user={comment.user}
                                   post={comment.post}
