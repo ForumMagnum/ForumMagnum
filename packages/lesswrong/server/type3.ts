@@ -83,6 +83,9 @@ const deleteType3AudioForPostId = async (postId: string) => {
 export const regenerateAllType3AudioForUser = async (userId: string) => {
   const posts: PostWithAudio[] = await Posts.find({
     userId,
+    draft: false,
+    deleted: false,
+    deletedDraft: false
   }, {
     projection: postWithAudioProjection,
   }).fetch();
