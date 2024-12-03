@@ -185,6 +185,7 @@ async function createSummariesForPage({ pageId, importedRecordMaps, pageCreator,
         collectionName,
         fieldName: "summary",
         title: summary.name,
+        tabTitle: summary.name,
         slug: `${pageId}-${summary.name}`,
         index: parseInt(idx),
         userId: pageCreator?._id,
@@ -647,7 +648,7 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
           }
         }
 
-        const lensAlternatives = alternativesByPageId[lens.lensId];
+        /*const lensAlternatives = alternativesByPageId[lens.lensId];
         if (lensAlternatives && Object.values(lensAlternatives).some(alternatives => alternatives.length > 0)) {
           await updateMutator({
             collection: MultiDocuments,
@@ -663,7 +664,7 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
               },
             },
           });
-        }
+        }*/
 
         await createSummariesForPage({
           pageId,
