@@ -360,15 +360,15 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     marginTop: -120,
     height: 140,
     width: "100%",
-    background: `linear-gradient(0deg, 
-      ${theme.palette.background.pageActiveAreaBackground} 30%,
-      ${theme.palette.panelBackground.translucent} 70%,
-      transparent 100%
-    )`,
+    // background: `linear-gradient(0deg, 
+    //   ${theme.palette.background.pageActiveAreaBackground} 30%,
+    //   ${theme.palette.panelBackground.translucent} 70%,
+    //   transparent 100%
+    // )`,
     opacity: 1,
   },
   subjectsContainer: {
-    overflow: 'hidden',
+    // overflow: 'hidden',
     display: 'flex',
     marginTop: 0,
     marginBottom: 0,
@@ -392,6 +392,60 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
       content: '","',
     },
   },
+  alternativesContainer: {
+    // marginTop: 0,
+    // marginBottom: 0,
+  },
+  alternativesHeader: {
+    position: 'relative',
+    fontSize: '1.0rem',
+    marginBottom: 4,
+    color: theme.palette.grey[600],
+    minWidth: 'fit-content',
+    whiteSpace: 'nowrap',
+    display: 'flex',
+    alignItems: 'center',
+    flexWrap: 'nowrap',
+  },
+  alternativesWrapper: {
+    display: 'flex',
+    flexWrap: 'nowrap',
+  },
+  alternativesSpeed: {
+    '&:hover': {
+      '& $alternativesList': {
+        display: 'flex',
+      },
+    },
+  },
+  alternativesTitle: {
+    color: theme.palette.grey[600],
+    fontWeight: 550,
+    fontSize: '1.2rem',
+    '&:hover': {
+      color: theme.palette.grey[900],
+    },
+  },
+  slowerAlternativesTitle: {
+    marginLeft: 4,
+  },
+  alternativesList: {
+    display: 'none',
+    position: 'absolute',
+    top: '100%',
+    left: 0,
+    background: theme.palette.background.paper,
+    boxShadow: theme.palette.boxShadow.default,
+    borderRadius: theme.borderRadius.default,
+    padding: '8px 16px',
+    zIndex: 1,
+    minWidth: 200,
+  },
+  alternative: {
+    display: 'block',
+    marginBottom: 8,
+  },
+
   ...tagPageHeaderStyles(theme),
 }));
 
@@ -831,6 +885,33 @@ const TagPage = () => {
   //   </ContentStyles>
   // );
 
+  const alternatives = (
+    <ContentStyles contentType="tag" className={classes.alternativesContainer}>
+      <div className={classes.alternativesHeader}>
+        Teach me this
+        <div className={classes.alternativesWrapper}>
+          <div className={classes.alternativesSpeed}>
+            <span className={classNames(classes.alternativesTitle, classes.slowerAlternativesTitle)}>slower</span>
+            <div className={classes.alternativesList}>
+              <span className={classes.alternative}>
+                <HoverPreviewLink href={'/tag/reads_algebra'}>Ability to read algebra</HoverPreviewLink>
+              </span>
+            </div>
+          </div>
+          &nbsp;/&nbsp;
+          <div className={classes.alternativesSpeed}>
+            <span className={classes.alternativesTitle}>faster</span>
+            <div className={classes.alternativesList}>
+              <span className={classes.alternative}>
+                <HoverPreviewLink href={'/tag/advanced_algebra'}>Advanced algebra</HoverPreviewLink>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ContentStyles>
+  );
+
   const requirementsAndAlternatives = (
     <ContentStyles contentType="tag" className={classes.subjectsContainer}> 
       <div className={classes.subjectsHeader}>Relies on: </div>
@@ -917,8 +998,8 @@ const TagPage = () => {
         </div>
       </div>}
       {/** Just hardcoding an example for now, since we haven't imported the necessary relationships to derive it dynamically */}
-      {requirementsAndAlternatives}
-      {subjects}
+      {/* {requirementsAndAlternatives}
+      {subjects} */}
     </div>
   );
 
@@ -942,8 +1023,9 @@ const TagPage = () => {
         hideLabels={true}
         className={classNames(classes.editMenu, classes.nonMobileButtonRow)}
       />
-      {/* {requirementsAndAlternatives} */}
-      {/* {subjects} */}
+      {alternatives}
+      {/* {requirementsAndAlternatives}
+      {subjects} */}
     </div>
     <div className={classes.rightColumnOverflowFade} />
   </div>);
