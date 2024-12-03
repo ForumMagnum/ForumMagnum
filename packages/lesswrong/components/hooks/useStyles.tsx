@@ -1,8 +1,7 @@
-import React, { createContext, useContext, useLayoutEffect, useMemo, useState } from "react";
+import React, { createContext, useContext, useLayoutEffect } from "react";
 import type { ClassNameProxy, StyleDefinition, StyleOptions } from "@/server/styleGeneration";
 import { create as jssCreate, SheetsRegistry } from "jss";
 import { jssPreset } from "@material-ui/core/styles";
-import { useTheme } from "../themes/useTheme";
 import { isClient } from "@/lib/executionEnvironment";
 
 export type StylesContextType = {
@@ -26,6 +25,9 @@ export const StylesContext = createContext<StylesContextType|null>(null);
  * update any styles mounted in the <head> block.
  */
 let _clientMountedStyles: StylesContextType|null = null;
+export function setClientMountedStyles(styles: StylesContextType) {
+  _clientMountedStyles = styles;
+}
 
 export const topLevelStyleDefinitions: Record<string,StyleDefinition<string>> = {};
 
@@ -237,26 +239,3 @@ function insertStyleNodeAtCorrectPosition(styleNode: HTMLStyleElement, name: str
     styleNodes[left].insertAdjacentElement('beforebegin', styleNode);
   }
 }
-
-export const FMJssProvider = ({children}: {
-  children: React.ReactNode
-}) => {
-  const theme = useTheme();
-  const [mountedStyles] = useState(() => new Map<string, {
-    refcount: number
-    styleDefinition: StyleDefinition,
-    styleNode: HTMLStyleElement
-  }>());
-  const jssState = useMemo<StylesContextType>(() => ({
-    theme, mountedStyles: mountedStyles
-  }), [theme, mountedStyles]);
-  
-  if (isClient) {
-    _clientMountedStyles = jssState;
-  }
-  
-  return <StylesContext.Provider value={jssState}>
-    {children}
-  </StylesContext.Provider>
-}
-
