@@ -18,6 +18,10 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
+    '&:hover $fundraiserHeaderDonateButton': {
+      background: theme.palette.inverseGreyAlpha(0.25),
+      color: theme.palette.background.pageActiveAreaBackground,
+    },
   },
   fill: {
     position: 'absolute',
@@ -73,7 +77,7 @@ const styles = (theme: ThemeType) => ({
   },
   fundraiserHeader: {
     display: 'flex',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
     alignItems: 'center',
     marginBottom: 4,
     color: theme.palette.background.pageActiveAreaBackground,
@@ -83,6 +87,12 @@ const styles = (theme: ThemeType) => ({
     height: '100%',
     padding: '0 24px',
   },
+  fundraiserDonateText: {
+    '&:hover': {
+      textDecoration: 'none',
+      opacity: 'unset'
+    },
+  },
   fundraiserHeaderDonateButton: {
     padding: '10px 20px',
     borderRadius: '5px',
@@ -90,9 +100,13 @@ const styles = (theme: ThemeType) => ({
     fontSize: '1.6rem',
     fontWeight: 'bold',
     fontFamily: theme.typography.headerStyle.fontFamily,
-    color: theme.palette.background.pageActiveAreaBackground,
-    background: theme.palette.inverseGreyAlpha(0.35),
+    color: theme.palette.inverseGreyAlpha(0.5),
     backdropFilter: 'blur(3px)',
+    transition: 'background 0.3s ease-in-out, color 0.3s ease-in-out',
+    '&:hover': {
+      background: `${theme.palette.inverseGreyAlpha(0.7)} !important`,
+      boxShadow: `0px 0px 10px ${theme.palette.inverseGreyAlpha(0.5)}`,
+    },
   },
 });
 
@@ -114,14 +128,16 @@ const FundraisingThermometer: React.FC<FundraisingThermometerProps & {classes: C
   return (
     <div className={classes.fundraiserContainer}>
       <div className={classes.textContainer}>
-        <span className={classes.raisedText}><span className={classes.raisedTextBold}>Raised:</span> <span className={classes.raisedGoalNumber}>${Math.round(viewCurrentAmount).toLocaleString()}</span></span>
-        <span className={classes.goalText}><span className={classes.goalTextBold}>Goal 1 of 3:</span> <span className={classes.raisedGoalNumber}>${goalAmount.toLocaleString()}</span></span>
+        <span className={classes.raisedText}><span className={classes.raisedTextBold}>Lightcone Fundraiser Progress</span></span>
+
+        {/* <span className={classes.raisedText}><span className={classes.raisedTextBold}>Raised:</span> <span className={classes.raisedGoalNumber}></span></span> */}
+        <span className={classes.goalText}><span className={classes.goalTextBold}>Goal 1:</span> <span className={classes.raisedGoalNumber} style={{color: "#584d3e"}}>${Math.round(viewCurrentAmount).toLocaleString()} of ${goalAmount.toLocaleString()}</span></span>
       </div>
       <div className={classes.thermometer}>
         <div className={classes.fundraiserHeader}>
-          <h2 className={classes.header}>
-            <Link to={`/posts/${lightconeFundraiserPostId.get()}`}>Lightcone Infrastructure fundraiser progress</Link>
-          </h2>
+          {/* <h2 className={classes.header}> */}
+            {/* <Link to={`/posts/${lightconeFundraiserPostId.get()}`}>Lightcone Infrastructure fundraiser progress</Link> */}
+          {/* </h2> */}
           <Link className={classes.fundraiserDonateText} to="https://lightconeinfrastructure.com/donate">
             <div className={classes.fundraiserHeaderDonateButton}>
               Donate
