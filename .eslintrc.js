@@ -18,6 +18,7 @@ const restrictedImportsPaths = [
 ];
 const clientRestrictedImportPaths = [
   { name: "cheerio", message: "Don't import cheerio on the client" },
+  { name: "url", message: "'url' is a nodejs polyfill; use getUrlClass() instead" },
 ]
 
 module.exports = {
