@@ -179,6 +179,7 @@ export const GivingSeasonEventsProvider = ({children}: {children: ReactNode}) =>
 
   const { data: leaderboardData } = useQuery<{ GivingSeason2024VoteCounts: IRPossibleVoteCounts }>(leaderboardQuery, {
     ssr: true,
+    skip: !isEAForum,
   });
 
   return (
