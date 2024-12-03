@@ -173,7 +173,6 @@ export const GivingSeasonEventsProvider = ({children}: {children: ReactNode}) =>
   }, [location]);
 
   const {data: amountRaisedData} = useQuery(amountRaisedQuery, {
-    pollInterval: 60 * 1000, // Poll once per minute
     ssr: true,
     skip: !isEAForum,
   });
