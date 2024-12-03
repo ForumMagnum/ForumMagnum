@@ -125,7 +125,8 @@ const styles = (theme: ThemeType) => ({
     width: 120
   },
   successMessage: {
-    marginTop: 32
+    marginBottom: 32,
+    fontSize: '1.6rem',
   },
 });
 
@@ -340,11 +341,19 @@ const ImportExternalPost = ({ classes }: { classes: ClassesType<typeof styles> }
 
   return (
     <div className={classes.root}>
+      {/* State 3: Display success message beneath input form */}
+      {published && post && (
+        <ContentStyles contentType="comment" className={classes.successMessage}>
+          Your linkpost and review have been published.{' '}
+            <a href={`/posts/${post._id}/${post.slug}`}>Click here to see them live.</a>
+        </ContentStyles>
+      )}
+
       {/* State 1 and State 3: Display message and input form */}
       {(!post || published) && (
         <>
           <Typography variant="body2">
-            {`Nominate ${published ? 'another' : 'a'} post from offsite that you think is relevant to the community's intellectual progress`}
+            {`${published ? 'Or nominate another' : 'Nominate a'} post from offsite that you think is relevant to the community's intellectual progress.`}
           </Typography>
           <div className={classes.inputGroup}>
             <input
@@ -368,13 +377,6 @@ const ImportExternalPost = ({ classes }: { classes: ClassesType<typeof styles> }
         </>
       )}
 
-      {/* State 3: Display success message beneath input form */}
-      {published && post && (
-        <ContentStyles contentType="comment" className={classes.successMessage}>
-          Your linkpost and review have been published.{' '}
-            <a href={`/posts/${post._id}/${post.slug}`}>Click here to see them live.</a>
-        </ContentStyles>
-      )}
 
       {/* State 2: Display imported content and editor, hide message and form */}
       {post && !published && (
