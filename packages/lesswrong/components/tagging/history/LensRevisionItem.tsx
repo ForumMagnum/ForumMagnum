@@ -3,6 +3,7 @@ import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { TagLens } from '../TagPage';
 import classNames from 'classnames';
+import withErrorBoundary from '@/components/common/withErrorBoundary';
 
 const styles = defineStyles("LensRevisionItem", (theme: ThemeType) => ({
   container: {
@@ -49,7 +50,9 @@ const LensRevisionItem = ({tag, collapsed, lens, revision}: {
   </div>
 }
 
-const LensRevisionItemComponent = registerComponent('LensRevisionItem', LensRevisionItem);
+const LensRevisionItemComponent = registerComponent('LensRevisionItem', LensRevisionItem, {
+  hocs: [withErrorBoundary]
+});
 
 declare global {
   interface ComponentTypes {

@@ -35,6 +35,7 @@ defineFeedResolver<Date>({
     
     const lenses = await MultiDocuments.find({
       parentDocumentId: tagId,
+      fieldName: "description",
     }).fetch();
     const lensIds = lenses.map(lens => lens._id);
     
@@ -68,11 +69,11 @@ defineFeedResolver<Date>({
             
             // Exclude no-change revisions (sometimes produced as a byproduct of
             // imports, metadata changes, etc)
-            $or: [{
+            /*$or: [{
               "changeMetrics.added": {$gt: 0},
             }, {
               "changeMetrics.removed": {$gt: 0},
-            }]
+            }]*/
           },
         }),
         // Tag discussion comments
@@ -94,6 +95,8 @@ defineFeedResolver<Date>({
           doQuery: async (limit: number, cutoff: Date|null): Promise<DbRevision[]> => {
             return await Revisions.find({
               documentId: {$in: lensIds},
+              collectionName: "MultiDocuments",
+              fieldName: "contents",
               ...(cutoff ? {editedAt: {$lt: cutoff}} : {}),
             }, {
               sort: {editedAt: -1},
