@@ -162,7 +162,12 @@ const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
         background: 'rgba(50,50,50,.75)',
       }
     },
-    default: {},
+    default: {
+      background: {
+        translucentBackgroundHeavy: "rgba(0,0,0,.75)",
+        translucentBackground: "rgba(0,0,0,.5)",
+      }
+    },
   });
 
 const forumOverrides = (palette: ThemePalette): PartialDeep<ThemeType['overrides']> =>

@@ -5,11 +5,26 @@ import { useCurrentUser } from '../common/withUser'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import classNames from 'classnames';
-import { forumTitleSetting, isEAForum, siteNameWithArticleSetting } from '../../lib/instanceSettings';
-import { annualReviewAnnouncementPostPathSetting, annualReviewEnd, annualReviewNominationPhaseEnd, annualReviewReviewPhaseEnd, annualReviewStart } from '../../lib/publicSettings';
+import { forumTitleSetting } from '../../lib/instanceSettings';
+import { annualReviewAnnouncementPostPathSetting } from '../../lib/publicSettings';
 import moment from 'moment';
-import { eligibleToNominate, getReviewPhase, getReviewTitle, ReviewYear, REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { isFriendlyUI } from '../../themes/forumTheme';
+import { eligibleToNominate, getReviewPhase, getReviewTitle, ReviewYear, REVIEW_NAME_IN_SITU, REVIEW_YEAR, getResultsPhaseEnd, getNominationPhaseEnd, getReviewPhaseEnd, getReviewStart } from '../../lib/reviewUtils';
+
+const commonActionButtonStyle = (theme: ThemeType) => ({
+  paddingTop: 7,
+  paddingBottom: 7,
+  paddingLeft: 10,
+  paddingRight: 10,
+  borderRadius: 3,
+  ...theme.typography.commentStyle,
+  display: "inline-block",
+  marginLeft: 10,
+  [theme.breakpoints.down('xs')]: {
+    marginLeft: 6,
+    paddingLeft: 7,
+    paddingRight: 7,
+  }
+})
 
 const styles = (theme: ThemeType): JssStyles => ({
   learnMore: {
@@ -50,14 +65,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   activeProgress: {
-    backgroundColor: isFriendlyUI ? theme.palette.primary.main : theme.palette.review.activeProgress,
+    backgroundColor: theme.palette.review.activeProgress,
   },
   coloredProgress: {
     position: 'absolute',
     top: 0,
     left: 0,
     height: '100%',
-    backgroundColor: isFriendlyUI ? theme.palette.lwTertiary.main : theme.palette.review.progressBar,
+    backgroundColor: theme.palette.review.progressBar,
   },
   nominationDate: {},
   actionButtonRow: {
@@ -69,40 +84,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   actionButtonCTA: {
     backgroundColor: theme.palette.primary.main,
     border: `solid 1px ${theme.palette.primary.main}`,
-    paddingTop: 7,
-    paddingBottom: 7,
-    paddingLeft: 10,
-    paddingRight: 10,
-    borderRadius: 3,
     color: theme.palette.text.invertedBackgroundText,
-    ...theme.typography.commentStyle,
-    display: "inline-block",
-    marginLeft: 10
-  },
-  actionButtonCTA2: {
-    backgroundColor: theme.palette.panelBackground.default,
-    border: `solid 2px ${theme.palette.primary.light}`,
-    paddingTop: 6,
-    paddingBottom: 6,
-    paddingLeft: 14,
-    paddingRight: 14,
-    borderRadius: 3,
-    color: theme.palette.primary.dark,
-    ...theme.typography.commentStyle,
-    display: "inline-block",
-    marginLeft: 10
+    ...commonActionButtonStyle(theme),
   },
   actionButton: {
     border: `solid 1px ${theme.palette.grey[400]}`,
-    paddingTop: 7,
-    paddingBottom: 7,
-    paddingLeft: 10,
-    paddingRight: 10,
-    borderRadius: 3,
     color: theme.palette.grey[600],
-    ...theme.typography.commentStyle,
-    display: "inline-block",
-    marginLeft: 10
+    ...commonActionButtonStyle(theme),
   },
   adminButton: {
     border: `solid 1px ${theme.palette.review.adminButton}`,
@@ -179,34 +167,19 @@ export function getReviewAlgorithm(): RecommendationsAlgorithm {
   }
 }
 
-// EA will use LW text next year, so I've kept the forumType genericization
 export function ReviewOverviewTooltip() {
   const forumTitle = forumTitleSetting.get()
   
-  const nominationStartDate = moment.utc(annualReviewStart.get())
-  const nominationEndDate = moment.utc(annualReviewNominationPhaseEnd.get())
-  const reviewEndDate = moment.utc(annualReviewReviewPhaseEnd.get())
-  const voteEndDate = moment.utc(annualReviewEnd.get())
-  const nominationPhaseDateRange = <span>{nominationStartDate.format('MMM Do')} – {nominationEndDate.format('MMM Do')}</span>
-  const reviewPhaseDateRange = <span>{nominationEndDate.clone().format('MMM Do')} – {reviewEndDate.format('MMM Do')}</span>
-  const votingPhaseDateRange = <span>{reviewEndDate.clone().format('MMM Do')} – {voteEndDate.format('MMM Do')}</span>
+  const nominationStartDate = getReviewStart(REVIEW_YEAR)
+  const nominationEndDate = getNominationPhaseEnd(REVIEW_YEAR)
+  const reviewEndDate = getReviewPhaseEnd(REVIEW_YEAR)
+  const voteEndDate = getResultsPhaseEnd(REVIEW_YEAR)
+  const nominationPhaseDateRange = <span>{nominationStartDate.format('MMM Do')} - {nominationEndDate.format('MMM Do')}</span>
+  const reviewPhaseDateRange = <span>{nominationEndDate.format('MMM Do')} - {reviewEndDate.format('MMM Do')}</span>
+  const votingPhaseDateRange = <span>{reviewEndDate.format('MMM Do')} - {voteEndDate.format('MMM Do')}</span>
   
-  if (isEAForum) {
-    return <div>
-      <div>The EA Forum is reflecting on the best EA writing, in three phases</div>
-      <ul>
-        <li><em>Nomination</em> ({nominationPhaseDateRange})</li>
-        <li><em>Review</em> ({reviewPhaseDateRange})</li>
-        <li><em>Voting</em> ({votingPhaseDateRange})</li>
-      </ul>
-      <div>To be eligible, posts must have been posted before January 1st, 2021.</div>
-      <br/>
-      {/* TODO:(Review) this won't be true in other phases */}
-      <div>(Currently this section shows a random sample of eligible posts, weighted by karma)</div>
-    </div>
-  } else {
-    return <div>
-      <div>The {forumTitle} community is reflecting on the best posts from {REVIEW_YEAR}, in three phases:</div>
+  return <div>
+    <div>The {forumTitle} community is reflecting on the best posts from {REVIEW_YEAR}, in three phases:</div>
       <ul>
         <li><em>Nomination Voting</em> ({nominationPhaseDateRange})</li>
         <li><em>Review</em> ({reviewPhaseDateRange})</li>
@@ -214,35 +187,23 @@ export function ReviewOverviewTooltip() {
       </ul>
       <div>The {forumTitle} moderation team will incorporate that information, along with their judgment, into a "Best of {REVIEW_YEAR}" sequence.</div>
       <p>We're currently in the nomination voting phase. Nominate posts by casting a nomination vote, or vote on existing nominations to help us prioritize them during the Review Phase.</p>
-    </div>
-  }
+  </div>
 }
 
 const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {classes: ClassesType, showFrontpageItems?: boolean, reviewYear: ReviewYear}) => {
   const { SectionTitle, SettingsButton, LWTooltip, PostsList2, UserReviewsProgressBar, ReviewVotingProgressBar, FrontpageBestOfLWWidget } = Components
   const currentUser = useCurrentUser();
 
-  const nominationStartDate = moment.utc(annualReviewStart.get())
-  const nominationEndDate = moment.utc(annualReviewNominationPhaseEnd.get())
-  const reviewEndDate = moment.utc(annualReviewReviewPhaseEnd.get())
-  const voteEndDate = moment.utc(annualReviewEnd.get())
+  const nominationStartDate = getReviewStart(reviewYear)
+  const nominationEndDate = getNominationPhaseEnd(reviewYear)
+  const reviewEndDate = getReviewPhaseEnd(reviewYear)
+  const voteEndDate = getResultsPhaseEnd(reviewYear)
 
   // These should be calculated at render
   const currentDate = moment.utc()
   const activeRange = getReviewPhase(reviewYear)
 
-  const nominationsTooltip = isEAForum ?
-    <div>
-      <div>Nominate posts for the {REVIEW_NAME_IN_SITU}</div>
-      <ul>
-        <li>Any post from before 2021 can be nominated</li>
-        <li>Any user registered before the start of the review can nominate posts</li>
-        <li>Posts with at least one positive vote proceed to the Review Phase.</li>
-      </ul>
-      <div>If you've been actively reading {siteNameWithArticleSetting.get()} before now, but didn't register an account, reach out to us on intercom.</div>
-      {activeRange === "NOMINATIONS" && <div><em>{nominationEndDate.fromNow()} remaining</em></div>}
-    </div> :
-    <div>
+  const nominationsTooltip = <div>
       <div>Cast initial votes for the {reviewYear} Review.</div>
       <ul>
         <li>Nominate a post by casting a <em>nomination vote</em>. Or, vote on an existing nominated post to help us prioritize it during the Review Phase.</li>
@@ -253,17 +214,8 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
       {activeRange === "NOMINATIONS" && <div><em>{nominationEndDate.fromNow()} remaining</em></div>}
     </div>
 
-  const reviewTooltip = isEAForum ?
-    <>
-      <div>Review posts for the {REVIEW_NAME_IN_SITU} (Opens {nominationEndDate.clone().format('MMM Do')})</div>
-      <ul>
-        <li>Write reviews of posts nominated for the {REVIEW_NAME_IN_SITU}</li>
-        <li>Only posts with at least one review are eligible for the final vote</li>
-      </ul>
-      {activeRange === "REVIEWS" && <div><em>{reviewEndDate.fromNow()} remaining</em></div>}
-    </> :
-    <>
-      <div>Review posts for the {reviewYear} Review (Opens {nominationEndDate.clone().format('MMM Do')})</div>
+  const reviewTooltip = <>
+      <div>Review posts for the {reviewYear} Review (Opens {nominationEndDate.format('MMM Do')})</div>
       <ul>
         <li>Write reviews of posts nominated for the {reviewYear} Review</li>
         <li>Only posts with at least one review are eligible for the final vote</li>
@@ -271,17 +223,8 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
       {activeRange === "REVIEWS" && <div><em>{reviewEndDate.fromNow()} remaining</em></div>}
     </>
 
-  const voteTooltip = isEAForum ?
-    <>
-      <div>Cast your final votes for the {REVIEW_NAME_IN_SITU}. (Opens {reviewEndDate.clone().format('MMM Do')})</div>
-      <ul>
-        <li>Look over nominated posts and vote on them</li>
-        <li>Any user registered before {nominationStartDate.format('MMM Do')} can vote in the review</li>
-      </ul>
-      {activeRange === "REVIEWS" && <div><em>{voteEndDate.fromNow()} remaining</em></div>}
-    </> :
-    <>
-      <div>Cast your final votes for the {reviewYear} Review. (Opens {reviewEndDate.clone().format('MMM Do')})</div>
+  const voteTooltip = <>
+      <div>Cast your final votes for the {reviewYear} Review. (Opens {reviewEndDate.format('MMM Do')})</div>
       <ul>
         <li>Look over nominated posts and vote on them</li>
         <li>Any user registered before {reviewYear} can vote in the review</li>
@@ -290,16 +233,11 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
       {activeRange === "REVIEWS" && <div><em>{voteEndDate.fromNow()} remaining</em></div>}
     </>
 
-  const allEligiblePostsUrl = 
-    isEAForum ? `/allPosts?timeframe=yearly&before=${reviewYear+1}-01-01&limit=25&sortedBy=top&filter=unnominated&includeShortform=false`
-    : `/allPosts?timeframe=yearly&after=${reviewYear}-01-01&before=${reviewYear+1}-01-01&limit=100&sortedBy=top&filter=all&includeShortform=false`
-  
-  const reviewPostPath = annualReviewAnnouncementPostPathSetting.get()
+  const reviewPostPath = '/posts/pudQtkre7f9GLmb2b/the-2023-lesswrong-review-reflecting-on-ourselves'
   if (!reviewPostPath) {
     // eslint-disable-next-line no-console
     console.error("No review announcement post path set")
   }
-
 
   const reviewTimeline = <div className={classes.reviewTimeline}>
     <div className={classes.nominationBlock}>
@@ -335,17 +273,9 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
       <div>{nominationEndDate.fromNow()} remaining to cast nomination votes</div>
       <div>(posts need two votes to proceed)</div>
     </span>}
-    <LWTooltip className={classes.buttonWrapper} title={`Nominate posts you previously upvoted.`}>
-      <Link to={`/votesByYear/${reviewYear}`} className={classes.actionButton}>
-        <span>
-          <span className={classes.hideOnMobile}>Your</span> {isEAForum && '≤'}{reviewYear} Upvotes
-        </span>
-      </Link>
-    </LWTooltip>
-
-    <LWTooltip className={classes.buttonWrapper} title={`Nominate posts ${isEAForum ? 'in or before' : 'from'} ${reviewYear}`}>
-      <Link to={allEligiblePostsUrl} className={classes.actionButton}>
-        All <span className={classes.hideOnMobile}>{isEAForum ? 'Eligible' : reviewYear}</span> Posts
+    <LWTooltip className={classes.buttonWrapper} title={`Look over your favorite posts from ${reviewYear}, and nominate the ones that stand the tests of time.`}>
+      <Link to={`/nominatePosts/${reviewYear}`} className={classes.actionButton}>
+        Nominate Posts
       </Link>
     </LWTooltip>
 
@@ -412,7 +342,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
       terms={{
         view:"reviewVoting",
         before: `${reviewYear+1}-01-01`,
-        ...(isEAForum ? {} : {after: `${reviewYear}-01-01`}),
+        after: `${reviewYear}-01-01`,
         limit: 3,
       }}
     >
