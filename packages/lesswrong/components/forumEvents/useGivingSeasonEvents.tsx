@@ -1,4 +1,4 @@
-import React, { Dispatch, ReactNode, createContext, useContext, useState } from "react";
+import React, { Dispatch, ReactNode, createContext, useContext, useEffect, useState } from "react";
 import { isEAForum, siteUrlSetting } from "@/lib/instanceSettings";
 import { Link } from "@/lib/reactRouterWrapper";
 import moment, { Moment } from "moment";
@@ -8,6 +8,7 @@ import { useQuery } from "@apollo/client";
 import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
 import { IRPossibleVoteCounts } from "@/lib/givingSeason/instantRunoff";
 import { isProduction } from "@/lib/executionEnvironment";
+import { useLocation } from "@/lib/routeUtil";
 
 export const GIVING_SEASON_DESKTOP_WIDTH = 1300;
 export const GIVING_SEASON_MOBILE_WIDTH = 700;
@@ -161,9 +162,15 @@ const leaderboardQuery = gql`
 `;
 
 export const GivingSeasonEventsProvider = ({children}: {children: ReactNode}) => {
+  const {location} = useLocation();
   const {currentForumEvent} = useCurrentForumEvent();
   const currentEvent = getCurrentEvent(currentForumEvent);
   const [selectedEvent, setSelectedEvent] = useState(currentEvent ?? events[0]);
+
+  useEffect(() => {
+    setSelectedEvent(currentEvent ?? events[0]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location]);
 
   const {data: amountRaisedData} = useQuery(amountRaisedQuery, {
     pollInterval: 60 * 1000, // Poll once per minute
