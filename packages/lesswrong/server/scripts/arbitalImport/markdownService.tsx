@@ -378,8 +378,10 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
             result.push(' - ' + arg);
           }
         }
-        return '<div arb-multiple-choice page-id=\'' + pageId + '\' object-alias=\'' + arguments[1] + '\'>' +
-          runBlockGamut(result.join('')) + '\n\n</div>';
+
+        return `<div class="arb-custom-script-${pageId}"></div>`;
+        // return '<div arb-multiple-choice page-id=\'' + pageId + '\' object-alias=\'' + arguments[1] + '\'>' +
+        //   runBlockGamut(result.join('')) + '\n\n</div>';
       });
     });
 

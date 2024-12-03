@@ -430,6 +430,7 @@ export const sanitize = function(s: string): string {
         'ck-cta-button-centered',
         'detailsBlockContent',
         'calendly-preview',
+        /arb-custom-script-[a-zA-Z0-9]*/
       ],
       iframe: [ 'thoughtSaverFrame' ],
       ol: [ 'footnotes', 'footnote-section' ],

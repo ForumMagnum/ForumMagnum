@@ -158,7 +158,7 @@
     "@types/react-router-dom": "^5.1.13",
     "@types/request": "^2.48.5",
     "@types/rss": "^0.0.28",
-    "@types/sanitize-html": "^1.22.0",
+    "@types/sanitize-html": "^2.11.0",
     "@types/simpl-schema": "^1.10.4",
     "@types/speakingurl": "^13.0.2",
     "@types/turndown": "^5.0.0",

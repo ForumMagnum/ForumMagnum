@@ -6,7 +6,7 @@ import {Converter} from './Markdown.Converter';
 
 export function getSanitizingConverter() {
   var converter = new (Converter as any)();
-  converter.hooks.chain('postConversion', sanitizeHtml);
+  // converter.hooks.chain('postConversion', sanitizeHtml);
   converter.hooks.chain('postConversion', balanceTags);
   return converter;
 };
