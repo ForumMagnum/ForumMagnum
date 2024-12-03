@@ -35,7 +35,7 @@ const styles = (theme: ThemeType) => ({
   root: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '8px',
+    // gap: '8px',
     width: "100%",
     background: theme.palette.panelBackground.default,
     padding: '12px 16px',
@@ -75,14 +75,17 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.error.main,
   },
   editorContainer: {
-    marginTop: 20,
+    marginTop: 12,
+    marginBottom: 24,
     '& .ck.ck-editor__editable': {
       minHeight: 300,
     },
     ...ckEditorStyles(theme),
+    padding: 10,
+    backgroundColor: theme.palette.grey[120],
   },
   commentEditorContainer: {
-    marginTop: 20,
+    marginTop: 12,
     '& .ck.ck-editor__editable': {
       minHeight: 300,
     },
@@ -99,28 +102,30 @@ const styles = (theme: ThemeType) => ({
   cancelButton: {
     color: theme.palette.grey[400],
   },
-  successMessage: {
-    // color: theme.palette.success.main,
-    marginTop: '10px',
-  },
   importEditors: {
     padding: 16,
     display: 'flex',
     flexDirection: 'column',
-    gap: '16px',
   },
   reviewPrompt: {
-    color: theme.palette.error.dark,
-    fontStyle: 'italic',
+    // color: theme.palette.error.dark,
+    // fontStyle: 'italic',
   },
   importLabel: {
     // fontWeight: 600,
     fontStyle: 'italic',
   },
   importTitle: {
+    marginTop: 20,
     fontSize: '2.5em',
     fontWeight: 500,
     fontFamily: theme.palette.fonts.serifStack,
+  },
+  importButton: {
+    width: 120
+  },
+  successMessage: {
+    marginTop: 32
   },
 });
 
@@ -204,7 +209,7 @@ const CommentEditor = ({
             className={classNames(classes.formButton, classes.cancelButton)}
             onClick={onCancel}
           >
-            Import different post
+            Cancel
           </Button>
           <Button
             type="submit"
@@ -213,7 +218,7 @@ const CommentEditor = ({
             disabled={isButtonDisabled}
             title={isButtonDisabled ? 'You must write a review before submitting.' : ''}
           >
-            Publish linkpost and submit review
+            Submit Linkpost 
           </Button>
         </div>
       </Components.ContentStyles>
@@ -229,7 +234,7 @@ const ImportExternalPost = ({ classes }: { classes: ClassesType<typeof styles> }
   const [published, setPublished] = useState<boolean>(false);
   const navigate = useNavigate();
 
-  const { Typography, Loading } = Components;
+  const { Typography, Loading, ContentStyles } = Components;
 
   const currentUser = useCurrentUser();
 
@@ -302,6 +307,8 @@ const ImportExternalPost = ({ classes }: { classes: ClassesType<typeof styles> }
       });
 
       setPublished(true);
+      setValue('');
+      window.scrollTo(0, 0);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Error publishing post and submitting review: ', error);
@@ -337,7 +344,7 @@ const ImportExternalPost = ({ classes }: { classes: ClassesType<typeof styles> }
       {(!post || published) && (
         <>
           <Typography variant="body2">
-            Nominate a post from offsite that you think is relevant to the community's intellectual progress
+            {`Nominate ${published ? 'another' : 'a'} post from offsite that you think is relevant to the community's intellectual progress`}
           </Typography>
           <div className={classes.inputGroup}>
             <input
@@ -352,6 +359,7 @@ const ImportExternalPost = ({ classes }: { classes: ClassesType<typeof styles> }
             />
             <Button
               onClick={() => importUrlAsDraftPost({ variables: { url: value } })}
+              className={classes.importButton}
             >
               {loading ? <Loading className={classes.loadingDots} /> : <>Import Post</>}
             </Button>
@@ -362,10 +370,10 @@ const ImportExternalPost = ({ classes }: { classes: ClassesType<typeof styles> }
 
       {/* State 3: Display success message beneath input form */}
       {published && post && (
-        <Typography variant="body2" className={classes.successMessage}>
+        <ContentStyles contentType="comment" className={classes.successMessage}>
           Your linkpost and review have been published.{' '}
-          <a href={`/posts/${post._id}/${post.slug}`}>Click here to see them live.</a>
-        </Typography>
+            <a href={`/posts/${post._id}/${post.slug}`}>Click here to see them live.</a>
+        </ContentStyles>
       )}
 
       {/* State 2: Display imported content and editor, hide message and form */}
@@ -389,7 +397,8 @@ const ImportExternalPost = ({ classes }: { classes: ClassesType<typeof styles> }
             classes={classes}
           />
           <Typography variant="body2" className={classes.reviewPrompt}>
-            To nominate a linkpost for review, you must write a review.
+            To nominate a linkpost for the Annual Review, you must write your own review it.<br />
+            Please explain why you think this post or paper is significant to LessWrong's intellectual progress.
           </Typography>
           <CommentEditor onPublish={handlePublish} onCancel={handleImportDifferentPost} classes={classes} />
         </div>
