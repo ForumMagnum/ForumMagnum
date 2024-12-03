@@ -13,15 +13,12 @@ import {
   GIVING_SEASON_MD_WIDTH,
   GIVING_SEASON_MOBILE_WIDTH,
   getDonateLink,
-  shouldShowLeaderboard,
   useGivingSeasonEvents,
 } from "./useGivingSeasonEvents";
 import classNames from "classnames";
 import type { Moment } from "moment";
 import type { ForumIconName } from "../common/ForumIcon";
 import { donationElectionVotingOpenSetting } from "@/lib/givingSeason";
-
-const DONATION_ELECTION_HREF = "/posts/2WbDAAtGdyAEfcw6S/donation-election-fund-announcement-matching-rewards-and-faq";
 
 const DOT_SIZE = 12;
 
@@ -230,65 +227,6 @@ const styles = (theme: ThemeType) => ({
       },
     },
   },
-  fund: {
-    width: 260,
-    minWidth: 260,
-    padding: 16,
-    marginTop: 8,
-    marginBottom: 24,
-    background: theme.palette.givingSeason.electionFundBackground,
-    borderRadius: theme.borderRadius.default,
-    [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
-      width: "100%",
-      minWidth: "100%",
-      maxWidth: "100%",
-      padding: 8,
-      marginTop: 0,
-    },
-  },
-  fundDetailsContainer: {
-    display: "flex",
-    flexDirection: "column",
-    marginBottom: 4,
-    [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
-      flexDirection: "row",
-      gap: "8px",
-      alignItems: "center",
-      marginBottom: 8,
-    },
-  },
-  fundMobileTitle: {
-    flexGrow: 1,
-    fontSize: 14,
-    fontWeight: 600,
-    lineHeight: "140%",
-    [theme.breakpoints.up(GIVING_SEASON_MOBILE_WIDTH)]: {
-      display: "none",
-    },
-  },
-  fundInfo: {
-    marginBottom: 12,
-    lineHeight: "140%",
-    whiteSpace: "wrap",
-    "& a": {
-      textDecoration: "underline",
-      "&:hover": {
-        textDecoration: "underline",
-      },
-    },
-    [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
-      display: "none",
-    },
-  },
-  fundRaised: {
-    fontSize: 16,
-    fontWeight: 500,
-    lineHeight: "140%",
-    [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
-      fontWeight: 700,
-      textAlign: "right",
-    },
-  },
   fundBarContainer: {
     width: "100%",
     height: 12,
@@ -307,15 +245,6 @@ const styles = (theme: ThemeType) => ({
     height: "100%",
     background: theme.palette.text.alwaysWhite,
     transition: "width 0.5s ease",
-  },
-  fundAmount: {
-    fontWeight: 700,
-  },
-  fundButtonContainer: {
-    display: "flex",
-    gap: "12px",
-    width: "100%",
-    textAlign: "center",
   },
   hideAboveMobile: {
     [theme.breakpoints.up(GIVING_SEASON_MOBILE_WIDTH)]: {
@@ -615,9 +544,7 @@ const GivingSeason2024Banner = ({classes}: {
 
   const votingOpen = donationElectionVotingOpenSetting.get()
   const isDonationElection = currentEvent?.name === "Donation Election";
-  const showLeaderboard = shouldShowLeaderboard({ currentEvent, voteCounts: leaderboardData });
   const showRecentComments =
-    !showLeaderboard &&
     !!currentForumEvent?.tagId &&
     (currentEvent?.name === "Marginal Funding Week" || isDonationElection);
 
@@ -733,7 +660,7 @@ const GivingSeason2024Banner = ({classes}: {
           )}>
             {events.map(({ name, description, start, end, hidden }, i) => (
               <div className={classes.eventDetails} data-event-id={i} key={name}>
-                {name === currentEvent?.name && isDonationElection ? (
+                {name === "Donation Election" ? (
                   <div className={classes.electionInfoContainer}>
                     <div className={classes.eventDate}>{formatDate(selectedEvent.start, selectedEvent.end)}</div>
                     <div className={classes.eventName}>{name}</div>
@@ -761,7 +688,7 @@ const GivingSeason2024Banner = ({classes}: {
                     >
                       <div style={{ width: `${fundPercent}%` }} className={classes.fundBar} />
                     </div>
-                    {showLeaderboard && leaderboardData && (
+                    {leaderboardData && (
                       <DonationElectionLeaderboard
                         voteCounts={leaderboardData}
                         className={classes.hideAboveMd}
@@ -843,40 +770,12 @@ const GivingSeason2024Banner = ({classes}: {
                     }}
                   />
                 )}
-                {name === currentEvent?.name && showLeaderboard && leaderboardData && (
+                {name === "Donation Election" && leaderboardData && (
                   <DonationElectionLeaderboard voteCounts={leaderboardData} className={classes.hideBelowMd} />
                 )}
               </div>
             ))}
           </div>
-          {!isDonationElection && (
-            <div className={classes.fund}>
-              <div className={classes.fundDetailsContainer}>
-                <div className={classes.fundMobileTitle}>Donation Election Fund</div>
-                <div className={classes.fundInfo}>
-                  Donate to the fund to boost the value of the{" "}
-                  <Link to={DONATION_ELECTION_HREF}>Donation Election</Link>.
-                </div>
-                <div className={classes.fundRaised}>
-                  <span className={classes.fundAmount}>${formatStat(Math.round(amountRaisedPlusMatched))}</span> raised
-                </div>
-              </div>
-              <div className={classes.fundBarContainer}>
-                <div style={{ width: `${fundPercent}%` }} className={classes.fundBar} />
-              </div>
-              <div className={classes.fundButtonContainer}>
-                <EAButton
-                  href={DONATION_ELECTION_HREF}
-                  className={classNames(classes.button, classes.buttonTranslucent, classes.hideAboveMobile)}
-                >
-                  Learn more
-                </EAButton>
-                <EAButton href={getDonateLink(currentUser)} className={classNames(classes.button, classes.buttonWhite)}>
-                  Donate
-                </EAButton>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>

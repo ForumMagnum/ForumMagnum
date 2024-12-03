@@ -154,19 +154,6 @@ const leaderboardQuery = gql`
   }
 `;
 
-export const shouldShowLeaderboard = ({
-  currentEvent,
-  voteCounts,
-}: {
-  currentEvent: GivingSeasonEvent | null;
-  voteCounts: IRPossibleVoteCounts | undefined;
-}) => {
-  if (currentEvent?.name !== "Donation Election") return false;
-
-  const totalVotes = Object.values(voteCounts?.[DONATION_ELECTION_NUM_WINNERS] ?? {}).reduce((acc, count) => acc + count, 0);
-  return totalVotes >= DONATION_ELECTION_SHOW_LEADERBOARD_CUTOFF;
-}
-
 export const GivingSeasonEventsProvider = ({children}: {children: ReactNode}) => {
   const {currentForumEvent} = useCurrentForumEvent();
   const currentEvent = getCurrentEvent(currentForumEvent);
