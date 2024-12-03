@@ -849,3 +849,15 @@ registerFragment(`
     }
   }
 `)
+
+registerFragment(`
+  fragment PostsTwitterAdmin on Post {
+    ...PostsListWithVotes
+    user {
+      ...UsersSocialMediaInfo
+    }
+    coauthors {
+      ...UsersSocialMediaInfo
+    }
+  }
+`)
