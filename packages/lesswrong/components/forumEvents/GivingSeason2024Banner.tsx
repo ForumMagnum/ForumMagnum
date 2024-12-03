@@ -4,7 +4,6 @@ import { Link } from "@/lib/reactRouterWrapper";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { commentGetPageUrl } from "@/lib/collections/comments/helpers";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
-import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
 import { formatStat } from "../users/EAUserTooltipContent";
 import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from "../common/Header";
 import {
@@ -16,6 +15,7 @@ import {
 import classNames from "classnames";
 import type { Moment } from "moment";
 import type { ForumIconName } from "../common/ForumIcon";
+import { tagGetUrl } from "@/lib/collections/tags/helpers";
 
 const DOT_SIZE = 12;
 
@@ -198,6 +198,9 @@ const styles = (theme: ThemeType) => ({
       },
     },
   },
+  simpleEventContainer: {
+    flexGrow: 1,
+  },
   eventDate: {
     maxWidth: 470,
     marginBottom: 8,
@@ -274,14 +277,27 @@ const styles = (theme: ThemeType) => ({
       background: theme.palette.givingSeason.electionFundBackgroundHeavy,
     },
   },
-  recentComments: {
+  topPosts: {
+    [theme.breakpoints.down(GIVING_SEASON_MD_WIDTH)]: {
+      display: "none",
+    },
+  },
+  topPostsTitle: {
+    marginBottom: 4,
+    fontSize: 18,
+    fontWeight: 600,
+  },
+  topPostsFeed: {
     display: "flex",
     flexDirection: "column",
     minWidth: 530,
+    maxWidth: 600,
     margin: "8px 0 8px 8px",
-    [theme.breakpoints.down(GIVING_SEASON_DESKTOP_WIDTH)]: {
-      display: "none",
-    },
+  },
+  topPostsViewMore: {
+    fontSize: 15,
+    fontWeight: 600,
+    marginTop: -4,
   },
   feedItem: {
     display: "flex",
@@ -486,7 +502,6 @@ const GivingSeason2024Banner = ({classes}: {
     amountRaised,
     leaderboard: leaderboardData
   } = useGivingSeasonEvents();
-  const {currentForumEvent} = useCurrentForumEvent();
   const [timelineRef, setTimelineRef] = useState<HTMLDivElement | null>(null);
   const [detailsRef, setDetailsRef] = useState<HTMLDivElement | null>(null);
   const [lastTimelineClick, setLastTimelineClick] = useState<number>();
@@ -495,11 +510,6 @@ const GivingSeason2024Banner = ({classes}: {
   // Note: SECOND_MATCH_START is approximate, we will match based on the amount when we deploy
   const amountRaisedPlusMatched =
     amountRaised + Math.min(amountRaised, 5000) + Math.min(Math.max(amountRaised - SECOND_MATCH_START, 0), 5000);
-
-  const isDonationElection = currentEvent?.name === "Donation Election";
-  const showRecentComments =
-    !!currentForumEvent?.tagId &&
-    (currentEvent?.name === "Marginal Funding Week" || isDonationElection);
 
   /*
   useEffect(() => {
@@ -573,7 +583,7 @@ const GivingSeason2024Banner = ({classes}: {
       inline: "start",
     });
     setSelectedEvent(events[index] ?? events[0]);
-  }, [detailsRef]);
+  }, [detailsRef, events, setSelectedEvent]);
 
   const {EAButton, MixedTypeFeed, DonationElectionLeaderboard} = Components;
   return (
@@ -611,7 +621,15 @@ const GivingSeason2024Banner = ({classes}: {
             classes.detailsContainer,
             selectedEvent.hidden && classes.detailsContainerHidden,
           )}>
-            {events.map(({ name, description, start, end, hidden }, i) => (
+            {events.map(({
+              name,
+              description,
+              start,
+              end,
+              discussionTagId,
+              discussionTagSlug,
+              hidden,
+            }, i) => (
               <div className={classes.eventDetails} data-event-id={i} key={name}>
                 {name === "Donation Election" ? (
                   <div className={classes.electionInfoContainer}>
@@ -643,57 +661,72 @@ const GivingSeason2024Banner = ({classes}: {
                     </div>
                   </div>
                 ) : (
-                  <div className={classNames(hidden && classes.eventHidden)}>
-                    <div className={classes.eventDate}>{formatDate(start, end)}</div>
-                    <div className={classes.eventName}>{name}</div>
-                    <div className={classes.eventDescription}>{description}</div>
+                  <div className={classNames(
+                    classes.eventDetails,
+                    hidden && classes.eventHidden,
+                  )}>
+                    <div className={classes.simpleEventContainer}>
+                      <div className={classes.eventDate}>{formatDate(start, end)}</div>
+                      <div className={classes.eventName}>{name}</div>
+                      <div className={classes.eventDescription}>{description}</div>
+                    </div>
+                    {discussionTagId &&
+                      <div className={classes.topPosts}>
+                        <div className={classes.topPostsTitle}>Top posts</div>
+                        <MixedTypeFeed
+                          className={classes.topPostsFeed}
+                          firstPageSize={3}
+                          hideLoading
+                          disableLoadMore
+                          resolverName="GivingSeasonTagFeed"
+                          resolverArgs={{ tagId: "String!" }}
+                          resolverArgsValues={{ tagId: discussionTagId }}
+                          sortKeyType="Int"
+                          renderers={{
+                            newPost: {
+                              fragmentName: "PostsList",
+                              render: (post: PostsList) => (
+                                <FeedItem
+                                  href={postGetPageUrl(post)}
+                                  icon="DocumentFilled"
+                                  iconClassName={classes.feedPostIcon}
+                                  action="posted"
+                                  user={post.user}
+                                  post={post}
+                                  date={post.postedAt}
+                                  preview={post.contents?.plaintextDescription ?? ""}
+                                  classes={classes}
+                                />
+                              ),
+                            },
+                            newComment: {
+                              fragmentName: "CommentsListWithParentMetadata",
+                              render: (comment: CommentsListWithParentMetadata) => (
+                                <FeedItem
+                                  href={commentGetPageUrl(comment)}
+                                  icon="CommentFilled"
+                                  iconClassName={classes.feedCommentIcon}
+                                  action="on"
+                                  user={comment.user}
+                                  post={comment.post}
+                                  date={comment.postedAt}
+                                  preview={comment.contents?.plaintextMainText ?? ""}
+                                  classes={classes}
+                                />
+                              ),
+                            },
+                          }}
+                        />
+                        {discussionTagSlug &&
+                          <div className={classes.topPostsViewMore}>
+                            <Link to={tagGetUrl({slug: discussionTagSlug})}>
+                              View more
+                            </Link>
+                          </div>
+                        }
+                      </div>
+                    }
                   </div>
-                )}
-                {name === currentEvent?.name && showRecentComments && (
-                  <MixedTypeFeed
-                    className={classes.recentComments}
-                    firstPageSize={isDonationElection ? 5 : 3}
-                    hideLoading
-                    disableLoadMore
-                    resolverName="GivingSeasonTagFeed"
-                    resolverArgs={{ tagId: "String!" }}
-                    resolverArgsValues={{ tagId: currentForumEvent?.tagId }}
-                    sortKeyType="Date"
-                    renderers={{
-                      newPost: {
-                        fragmentName: "PostsList",
-                        render: (post: PostsList) => (
-                          <FeedItem
-                            href={postGetPageUrl(post)}
-                            icon="DocumentFilled"
-                            iconClassName={classes.feedPostIcon}
-                            action="posted"
-                            user={post.user}
-                            post={post}
-                            date={post.postedAt}
-                            preview={post.contents?.plaintextDescription ?? ""}
-                            classes={classes}
-                          />
-                        ),
-                      },
-                      newComment: {
-                        fragmentName: "CommentsListWithParentMetadata",
-                        render: (comment: CommentsListWithParentMetadata) => (
-                          <FeedItem
-                            href={commentGetPageUrl(comment)}
-                            icon="CommentFilled"
-                            iconClassName={classes.feedCommentIcon}
-                            action="on"
-                            user={comment.user}
-                            post={comment.post}
-                            date={comment.postedAt}
-                            preview={comment.contents?.plaintextMainText ?? ""}
-                            classes={classes}
-                          />
-                        ),
-                      },
-                    }}
-                  />
                 )}
                 {name === "Donation Election" && leaderboardData && (
                   <DonationElectionLeaderboard voteCounts={leaderboardData} className={classes.hideBelowMd} />

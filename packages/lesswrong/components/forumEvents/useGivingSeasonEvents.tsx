@@ -7,6 +7,7 @@ import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
 import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
 import { IRPossibleVoteCounts } from "@/lib/givingSeason/instantRunoff";
+import { isProduction } from "@/lib/executionEnvironment";
 
 export const GIVING_SEASON_DESKTOP_WIDTH = 1300;
 export const GIVING_SEASON_MOBILE_WIDTH = 700;
@@ -32,6 +33,8 @@ type GivingSeasonEvent = {
   description: ReactNode,
   start: Moment,
   end: Moment,
+  discussionTagId?: string,
+  discussionTagSlug?: string,
   background: string,
   darkText?: boolean,
   hidden?: boolean,
@@ -48,6 +51,8 @@ const events: GivingSeasonEvent[] = [
     </>,
     start: moment("2024-11-04").utc(),
     end: moment("2024-11-10").utc(),
+    discussionTagId: isProduction ? "iaTpKWdeW79vqRFkA" : "4ktPbiFf6FLnfyRiC",
+    discussionTagSlug: isProduction ? "funding-strategy-week" : "funding-strategy-week-2024",
     background: "https://res.cloudinary.com/cea/image/upload/v1730143995/Rectangle_5034.jpg",
   },
   {
@@ -60,6 +65,8 @@ const events: GivingSeasonEvent[] = [
     </>,
     start: moment("2024-11-12").utc(),
     end: moment("2024-11-18").utc(),
+    discussionTagId: isProduction ? "Dvs6cEeHqvRvAfG2c" : "SHAB6gQvboCakozMA",
+    discussionTagSlug: isProduction ? "marginal-funding-week" : "marginal-funding-week-2024",
     background: "https://res.cloudinary.com/cea/image/upload/v1730143996/Rectangle_5064.jpg",
   },
   {

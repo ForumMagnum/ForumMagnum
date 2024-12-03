@@ -1,5 +1,4 @@
 import { Posts } from "@/lib/collections/posts";
-import { Comments } from "@/lib/collections/comments";
 import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers } from "@/lib/vulcan-lib";
 import {
   defineFeedResolver,
@@ -91,24 +90,24 @@ addGraphQLQuery("GivingSeason2024VoteCounts: JSON!");
 addGraphQLQuery("GivingSeason2024MyVote: JSON!");
 addGraphQLMutation("GivingSeason2024Vote(vote: JSON!): Boolean");
 
-defineFeedResolver<Date>({
+defineFeedResolver<number>({
   name: "GivingSeasonTagFeed",
   args: "tagId: String!",
-  cutoffTypeGraphQL: "Date",
+  cutoffTypeGraphQL: "Int",
   resultTypesGraphQL: `
     newPost: Post
     newComment: Comment
   `,
   resolver: async ({limit = 3, cutoff, offset, args, context}: {
     limit?: number,
-    cutoff?: Date,
+    cutoff?: number,
     offset?: number,
     args: {tagId: string},
     context: ResolverContext
   }) => {
     const {tagId} = args;
-    const relevantPostIds = await context.repos.posts.getViewablePostsIdsWithTag(tagId);
-    return mergeFeedQueries<Date>({
+    // const relevantPostIds = await context.repos.posts.getViewablePostsIdsWithTag(tagId);
+    return mergeFeedQueries<number>({
       limit,
       cutoff,
       offset,
@@ -116,12 +115,14 @@ defineFeedResolver<Date>({
         viewBasedSubquery({
           type: "newPost",
           collection: Posts,
-          sortField: "createdAt",
+          sortField: "baseScore",
           context,
           selector: {
-            _id: {$in: relevantPostIds},
+            [`tagRelevance.${tagId}`]: {$gte: 1},
+            // _id: {$in: relevantPostIds},
           },
         }),
+        /*
         viewBasedSubquery({
           type: "newComment",
           collection: Comments,
@@ -132,6 +133,7 @@ defineFeedResolver<Date>({
             baseScore: {$gte: 5},
           },
         }),
+         */
       ],
     });
   }
