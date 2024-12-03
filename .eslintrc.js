@@ -327,7 +327,10 @@ module.exports = {
   },
   "ignorePatterns": [
     "build.ts",
+    // Excluded here because it's also excluded in `tsconfig.json`, and they
+    // need to match.
+    "packages/lesswrong/viteClient",
     // You wouldn't have thought this was necessary would you
-    ".eslintrc.js"
+    ".eslintrc.js",
   ]
 }
