@@ -167,7 +167,7 @@ const styles = (theme: ThemeType) => ({
   },
   detailsContainer: {
     transition: "max-height ease-in-out 0.35s",
-    maxHeight: 400,
+    maxHeight: 500,
     width: "100%",
     whiteSpace: "nowrap",
     overflow: "scroll hidden",
