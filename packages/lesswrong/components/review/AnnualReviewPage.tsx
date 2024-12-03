@@ -13,6 +13,7 @@ const styles = (theme: ThemeType) => ({
 
   },
   tabs: {
+    marginTop: -4,
     width: '100%',
     '& .MuiTabs-indicator': {
       height: "100%",
@@ -49,7 +50,7 @@ export const AnnualReviewPage = ({classes}: {
 
   const handleChangeTab = (e: React.ChangeEvent<{}>, value: string) => {
     const newPathname = value === 'reviewVoting' ? `/reviewVoting/${reviewYear}` : `/nominatePosts/${reviewYear}`;
-    const newQuery = value === 'nominatePosts' ? { ...query, tab: 'rationalsphere' } : query;
+    const newQuery = value === 'nominatePosts' ? { ...query, tab: 'submitlinkposts' } : query;
 
     navigate({
       pathname: newPathname,

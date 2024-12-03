@@ -74,7 +74,7 @@ const NominationsPage = ({classes, reviewYear}: { classes: ClassesType<typeof st
     const newQuery = {
       tab: value,
       ...(value === 'all' && allPostsParams),
-      ...(value === 'rationalsphere' && {...allPostsParams, filter: 'linkpost', sortBy: 'new'}),
+      ...(value === 'submitlinkposts' && {...allPostsParams, filter: 'linkpost', sortBy: 'new'}),
     }
 
     navigate({
@@ -115,7 +115,7 @@ const NominationsPage = ({classes, reviewYear}: { classes: ClassesType<typeof st
           />
           <Tab
             className={classes.tab}
-            value="rationalsphere"
+            value="submitlinkposts"
             label={<LWTooltip title={`Posts from other sites that are relevant to LessWrong or Alignment Forum`}>Submit LinkPosts</LWTooltip>}
           />
 
@@ -139,7 +139,7 @@ const NominationsPage = ({classes, reviewYear}: { classes: ClassesType<typeof st
       </>}
 
       {activeTab === 'all' && <AllPostsPage defaultHideSettings/>}
-      {activeTab === 'rationalsphere' && <div>
+      {activeTab === 'submitlinkposts' && <div>
         <ImportExternalPost/>
         {/* <AllPostsPage defaultHideSettings/> */}
       </div>}

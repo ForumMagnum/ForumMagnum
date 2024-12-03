@@ -78,7 +78,7 @@ const styles = (theme: ThemeType) => ({
     marginTop: 12,
     marginBottom: 24,
     '& .ck.ck-editor__editable': {
-      minHeight: 300,
+      minHeight: 100,
     },
     ...ckEditorStyles(theme),
     padding: 10,
@@ -87,7 +87,7 @@ const styles = (theme: ThemeType) => ({
   commentEditorContainer: {
     marginTop: 12,
     '& .ck.ck-editor__editable': {
-      minHeight: 300,
+      minHeight: 100,
     },
     ...ckEditorStyles(theme),
     padding: 10,

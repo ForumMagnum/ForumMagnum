@@ -3,7 +3,7 @@ import { ArxivExtractor } from '../extractors/arxivExtractor'
 import { getLatestContentsRevision } from '@/lib/collections/revisions/helpers';
 
 import Posts from '../../lib/collections/posts/collection'
-import {addGraphQLSchema, createMutator} from '../vulcan-lib'
+import {addGraphQLSchema, createMutator, sanitize} from '../vulcan-lib'
 import {fetchFragmentSingle} from '../fetchFragment'
 import {defineQuery} from '@/server/utils/serverGraphqlUtil.ts'
 import Users from '@/lib/collections/users/collection'
@@ -57,9 +57,10 @@ export async function importUrlAsDraftPost(url: string, context: ResolverContext
     context,
   })
 
-  // if (existingPost) {
-    // return { _id: existingPost._id, slug: existingPost.slug, title: existingPost.title, url: existingPost.url, postedAt: existingPost.postedAt, createdAt: existingPost.createdAt, userId: existingPost.userId, coauthorStatuses: existingPost.coauthorStatuses, draft: existingPost.draft, modifiedAt: existingPost.modifiedAt} 
-  // }
+  if (existingPost) {
+    const latestRevision = await getLatestContentsRevision(existingPost, context);
+    return { _id: existingPost._id, slug: existingPost.slug, title: existingPost.title, url: existingPost.url, postedAt: existingPost.postedAt, createdAt: existingPost.createdAt, userId: existingPost.userId, coauthorStatuses: existingPost.coauthorStatuses, draft: existingPost.draft, modifiedAt: existingPost.modifiedAt, content: sanitize(latestRevision?.html ?? '')} 
+  }
 
   let extractedData
   
@@ -76,7 +77,6 @@ export async function importUrlAsDraftPost(url: string, context: ResolverContext
       title: arxivData.title,
       content: annotatedContents,
       published: arxivData.published,
-      // Additional metadata could be stored in customFields if needed
     }
   } else {
     extractedData = await extract(url)
@@ -97,7 +97,7 @@ export async function importUrlAsDraftPost(url: string, context: ResolverContext
       coauthorStatuses: [{userId: context.currentUser._id, confirmed: true, requested: true}],
       hasCoauthorPermission: true,
       draft: true,
-      contents_latest: extractedData.content,
+      contents_latest: sanitize(extractedData.content ?? ''),
     } as Partial<DbPost>,
     currentUser: context.currentUser,
     validate: false,
