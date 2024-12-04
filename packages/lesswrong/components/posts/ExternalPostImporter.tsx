@@ -1,12 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Components, registerComponent, useStyles, getFragment } from '../../lib/vulcan-lib';
-import { gql, useLazyQuery } from '@apollo/client';
-import { useNavigate } from '@/lib/reactRouterWrapper.tsx';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { gql, useMutation } from '@apollo/client';
 import Button from '@material-ui/core/Button';
 import { useCurrentUser } from '../common/withUser';
 import CKEditor from '@/lib/vendor/ckeditor5-react/ckeditor';
-import { getCkEditor, getCkPostEditor, getCkCommentEditor } from '@/lib/wrapCkEditor';
-import { mentionPluginConfiguration } from '@/lib/editor/mentionsConfig';
+import { getCkPostEditor, getCkCommentEditor } from '@/lib/wrapCkEditor';
 import { ckEditorStyles } from '@/themes/stylePiping';
 import { forumTypeSetting } from '@/lib/instanceSettings';
 import { useCreate } from '@/lib/crud/withCreate';
@@ -15,21 +13,24 @@ import classNames from 'classnames';
 import { useMessages } from '../common/withMessages';
 
 export type ExternalPostImportData = {
-  _id: string;
-  slug: string;
-  title: string;
-  url: string | null;
-  postedAt: Date | null;
-  createdAt: Date | null;
-  userId: string | null;
-  modifiedAt: Date | null;
-  draft: boolean;
-  content: string;
-  coauthorStatuses: Array<{
-    userId: string;
-    confirmed: boolean;
-    requested: boolean;
-  }> | null;
+  alreadyExists: boolean;
+  post: {
+    _id: string;
+    slug: string;
+    title: string;
+    url: string | null;
+    postedAt: Date | null;
+    createdAt: Date | null;
+    userId: string | null;
+    modifiedAt: Date | null;
+    draft: boolean;
+    content: string;
+    coauthorStatuses: Array<{
+      userId: string;
+      confirmed: boolean;
+      requested: boolean;
+    }> | null;
+  };
 };
 
 const styles = (theme: ThemeType) => ({
@@ -39,8 +40,7 @@ const styles = (theme: ThemeType) => ({
     width: "100%",
     background: theme.palette.panelBackground.default,
     padding: '12px 16px',
-    borderRadius: theme.borderRadius.quickTakesEntry,
-    marginTop: 24,
+    borderRadius: theme.borderRadius.quickTakesEntry
   },
   loadingDots: {
     marginTop: -8,
@@ -130,7 +130,7 @@ const ImportedPostEditor = ({
   onContentChange,
   classes,
 }: {
-  post: ExternalPostImportData;
+  post: ExternalPostImportData['post'];
   onContentChange: (updatedContent: string) => void;
   classes: ClassesType<typeof styles>;
 }) => {
@@ -222,9 +222,10 @@ const CommentEditor = ({
 
 const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesType<typeof styles>, defaultPostedAt?: Date }) => {
   const [value, setValue] = useState('');
-  const [post, setPost] = useState<ExternalPostImportData | null>(null);
+  const [post, setPost] = useState<ExternalPostImportData['post'] | null>(null);
   const [postContent, setPostContent] = useState<string>('');
   const [published, setPublished] = useState<boolean>(false);
+  const [alreadyExists, setAlreadyExists] = useState<boolean>(false);
 
   const { Typography, Loading, ContentStyles } = Components;
 
@@ -232,8 +233,8 @@ const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesTy
 
   const currentUser = useCurrentUser();
 
-  const [importUrlAsDraftPost, { data, loading, error }] = useLazyQuery(gql`
-    query importUrlAsDraftPost($url: String!) {
+  const [importUrlAsDraftPost, { data, loading, error }] = useMutation(gql`
+    mutation importUrlAsDraftPost($url: String!) {
       importUrlAsDraftPost(url: $url) {
         _id
         slug
@@ -255,10 +256,11 @@ const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesTy
   });
 
   useEffect(() => {
-    if (data && data.importUrlAsDraftPost) {
-      const importedPost = data.importUrlAsDraftPost;
+    if (data && data.importUrlAsDraftPost && data.importUrlAsDraftPost.post) {
+      const importedPost = data.importUrlAsDraftPost.post;
       setPost(importedPost);
       setPostContent(importedPost.content ?? '');
+      setAlreadyExists(data.importUrlAsDraftPost.alreadyExists);
     }
     if (error) {
       flash(error.message);
@@ -297,6 +299,7 @@ const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesTy
           draft: false,
           wasEverUndrafted: true,
           postedAt: post.postedAt ?? defaultPostedAt ?? new Date(),
+          deletedDraft: false
         } as AnyBecauseHard,
       });
 

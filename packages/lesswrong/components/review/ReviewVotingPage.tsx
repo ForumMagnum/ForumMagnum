@@ -29,6 +29,7 @@ const styles = (theme: ThemeType) => ({
   votingPageContainer: {
     width: "100%",
     maxWidth: SECTION_WIDTH,
+    backgroundColor: theme.palette.background.pageActiveAreaBackground,
   },
   postsLoading: {
     opacity: .4,

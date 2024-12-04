@@ -22,7 +22,13 @@ const styles = (theme: ThemeType) => ({
     }
   },
   tabsContainer: {
-    marginTop: 20,
+    paddingTop: 20,
+    backgroundColor: theme.palette.background.pageActiveAreaBackground,
+  },
+  content: {
+    backgroundColor: theme.palette.background.translucentBackground,
+    marginTop: -24,
+    paddingTop: 24,
   },
   tab: {
     fontSize: 14,
@@ -31,6 +37,27 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('xs')]: {
       fontSize: 13,
     }
+  },
+  title: {
+    paddingTop: 16,
+    padding: 24,
+    width: '100%',
+    textAlign: 'center'
+  },
+  allPosts: {
+    backgroundColor: theme.palette.background.translucentBackground,
+    '& .SectionTitle-children': {
+      position: 'relative',
+      left: -36
+    },
+    '& .SectionTitle-root, .PostsTimeBlock-root > a, .PostsTimeBlock-frontpageSubtitle': {
+      position: 'relative',
+      left: 12
+    }
+  },
+  externalPostImporter: {
+    paddingTop: 24,
+    backgroundColor: theme.palette.background.pageActiveAreaBackground
   }
 });
 
@@ -46,7 +73,6 @@ const NominationsPage = ({classes, reviewYear}: { classes: ClassesType<typeof st
   const {
     SectionTitle,
     SingleColumnSection,
-    ErrorBoundary,
     PostsByVoteWrapper,
     ReadHistoryTab,
     PostsListUserCommentedOn,
@@ -117,30 +143,33 @@ const NominationsPage = ({classes, reviewYear}: { classes: ClassesType<typeof st
             label={<LWTooltip title={`Posts from other sites that are relevant to LessWrong or Alignment Forum`}>Submit LinkPosts</LWTooltip>}
           />
 
-      </Tabs>
-
-      {(activeTab === 'votes') && <>
-        <SectionTitle title={`Your Strong Upvotes for posts from ${reviewYear}`}/>
-        <PostsByVoteWrapper voteType="bigUpvote" year={reviewYear}/>
-        <SectionTitle title={`Your Upvotes for posts from ${reviewYear}`}/>
-        <PostsByVoteWrapper voteType="smallUpvote" year={reviewYear}/>
-      </>}
-
-      {activeTab === 'comments' && <>
-        <SectionTitle title={`Posts from ${reviewYear} you've commented on`}/>
-        <PostsListUserCommentedOn filter={{startDate, endDate, showEvents: false}} sort={{karma: true}}/>
-      </>}
-
-      {activeTab === 'read' && <>
-        <SectionTitle title={`Posts from ${reviewYear} you've read`}/>
-        <ReadHistoryTab groupByDate={false} filter={{startDate, endDate, showEvents: false}} sort={{karma: true}}/>
-      </>}
-
-      {activeTab === 'all' && <AllPostsPage defaultHideSettings/>}
-      {activeTab === 'submitlinkposts' && <div>
-        <ExternalPostImporter defaultPostedAt={startDate} />
-      </div>}
+        </Tabs>
       </div>
+      <div className={classes.content}>
+        {(activeTab === 'votes') && <>
+          <SectionTitle title={`Your Strong Upvotes for posts from ${reviewYear}`} titleClassName={classes.title}/>
+          <PostsByVoteWrapper voteType="bigUpvote" year={reviewYear}/>
+          <SectionTitle title={`Your Upvotes for posts from ${reviewYear}`} titleClassName={classes.title}/>
+          <PostsByVoteWrapper voteType="smallUpvote" year={reviewYear}/>
+        </>}
+
+        {activeTab === 'comments' && <>
+          <SectionTitle title={`Posts from ${reviewYear} you've commented on`} titleClassName={classes.title}/>
+          <PostsListUserCommentedOn filter={{startDate, endDate, showEvents: false}} sort={{karma: true}}/>
+        </>}
+
+        {activeTab === 'read' && <>
+          <SectionTitle title={`Posts from ${reviewYear} you've read`} titleClassName={classes.title}/>
+          <ReadHistoryTab groupByDate={false} filter={{startDate, endDate, showEvents: false}} sort={{karma: true}}/>
+        </>}
+      </div>
+        {activeTab === 'all' && <div className={classes.allPosts}>
+          <AllPostsPage defaultHideSettings/>
+        </div>}
+
+        {activeTab === 'submitlinkposts' && <div className={classes.externalPostImporter}>
+          <ExternalPostImporter defaultPostedAt={startDate} />
+        </div>}
     </SingleColumnSection>
   </AnalyticsContext>
 }

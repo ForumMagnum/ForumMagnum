@@ -52,10 +52,6 @@ const styles = (theme: ThemeType) => ({
     },
   },
   tabsContainer: {
-    width: "100%",
-    maxWidth: SECTION_WIDTH,
-    backgroundColor: theme.palette.background.pageActiveAreaBackground,
-    paddingTop: 4
   },
   tabs: {
     marginTop: 12,

@@ -22,17 +22,20 @@ addGraphQLSchema(`
 // Define WebsiteData GraphQL type
 addGraphQLSchema(`
   type ExternalPostImportData {
-    _id: String!
-    slug: String
-    title: String
-    url: String
-    postedAt: Date
-    createdAt: Date
-    userId: String
-    modifiedAt: Date
-    draft: Boolean
-    content: String
-    coauthorStatuses: [CoauthorStatus]
+    alreadyExists: Boolean
+    post {
+      _id: String!
+      slug: String
+      title: String
+      url: String
+      postedAt: Date
+      createdAt: Date
+      userId: String
+      modifiedAt: Date
+      draft: Boolean
+      content: String
+      coauthorStatuses: [CoauthorStatus]
+    }
   }
 `);
 
@@ -61,17 +64,20 @@ export async function importUrlAsDraftPost(url: string, context: ResolverContext
     const { _id, slug, title, url, postedAt, createdAt, userId, coauthorStatuses, draft, modifiedAt } = existingPost;
 
     return { 
-      _id,
-      slug,
-      title,
-      url,
-      postedAt,
-      createdAt,
-      userId,
-      coauthorStatuses,
-      draft,
-      modifiedAt,
-      content: sanitize(latestRevision?.html ?? '')
+      alreadyExists: true,
+      post: {
+        _id,
+        slug,
+        title,
+        url,
+        postedAt,
+        createdAt,
+        userId,
+        coauthorStatuses,
+        draft,
+        modifiedAt,
+        content: sanitize(latestRevision?.html ?? '')
+      }
     }
   }
 
@@ -122,17 +128,20 @@ export async function importUrlAsDraftPost(url: string, context: ResolverContext
   const latestRevision = await getLatestContentsRevision(data, context);
 
   return {
-    _id: data._id,
-    slug: data.slug ?? null,
-    title: data.title ?? null,
-    url: data.url ?? null,
-    postedAt: data.postedAt ?? null,
-    createdAt: data.createdAt ?? null,
-    userId: data.userId ?? null,
-    modifiedAt: data.modifiedAt ?? null,
-    draft: data.draft ?? false,
-    content: latestRevision?.html ?? '',
-    coauthorStatuses: data.coauthorStatuses ?? null,
+    alreadyExists: false,
+    post: {
+      _id: data._id,
+      slug: data.slug ?? null,
+      title: data.title ?? null,
+      url: data.url ?? null,
+      postedAt: data.postedAt ?? null,
+      createdAt: data.createdAt ?? null,
+      userId: data.userId ?? null,
+      modifiedAt: data.modifiedAt ?? null,
+      draft: data.draft ?? false,
+      content: latestRevision?.html ?? '',
+      coauthorStatuses: data.coauthorStatuses ?? null,
+    }
   }
 }
 
