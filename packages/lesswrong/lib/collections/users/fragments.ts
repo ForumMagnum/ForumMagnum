@@ -517,6 +517,8 @@ registerFragment(`
 
     deleted
     permanentDeletionRequestedAt
+
+    twitterProfileURLAdmin
   }
 `)
 
@@ -600,5 +602,12 @@ registerFragment(`
     karma
     jobTitle
     organization
+  }
+`);
+
+registerFragment(`
+  fragment UsersSocialMediaInfo on User {
+    ...UsersProfile
+    twitterProfileURLAdmin
   }
 `);
