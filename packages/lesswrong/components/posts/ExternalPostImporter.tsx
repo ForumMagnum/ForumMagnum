@@ -12,6 +12,7 @@ import { forumTypeSetting } from '@/lib/instanceSettings';
 import { useCreate } from '@/lib/crud/withCreate';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import classNames from 'classnames';
+import { useMessages } from '../common/withMessages';
 
 export type ExternalPostImportData = {
   _id: string;
@@ -227,6 +228,8 @@ const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesTy
 
   const { Typography, Loading, ContentStyles } = Components;
 
+  const { flash } = useMessages();
+
   const currentUser = useCurrentUser();
 
   const [importUrlAsDraftPost, { data, loading, error }] = useLazyQuery(gql`
@@ -258,10 +261,9 @@ const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesTy
       setPostContent(importedPost.content ?? '');
     }
     if (error) {
-      // eslint-disable-next-line no-console
-      console.error(error);
+      flash(error.message);
     }
-  }, [data, error]);
+  }, [data, error, flash]);
 
   const handlePublish = async (commentContent: string) => {
     if (!post || !currentUser) return;
