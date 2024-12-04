@@ -11,7 +11,7 @@ import { ListView } from 'ckeditor5/src/ui';
 import { Rect } from 'ckeditor5/src/utils';
 import type { Locale } from "@ckeditor/ckeditor5-utils";
 
-import '../../theme/mentionui.css';
+import '../theme/mentionui.css';
 
 /**
  * The mention ui view.
