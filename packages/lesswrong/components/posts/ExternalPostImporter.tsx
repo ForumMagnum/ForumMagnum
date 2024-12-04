@@ -345,6 +345,12 @@ const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesTy
         </ContentStyles>
       )}
 
+      {alreadyExists && post && (
+        <ContentStyles contentType="comment" className={classes.successMessage}>
+          This post has already been nominated. <a href={`/posts/${post._id}/${post.slug}`}>Click here to see it live.</a>
+        </ContentStyles>
+      )}
+
       {/* State 1 and State 3: Display message and input form */}
       {(!post || published) && (
         <>
@@ -375,7 +381,7 @@ const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesTy
 
 
       {/* State 2: Display imported content and editor, hide message and form */}
-      {post && !published && (
+      {!alreadyExists && post && !published && (
         <div className={classes.importEditors}>
           <Typography variant="body2" className={classes.importLabel}>
             Importing post from <a href={post.url ?? ''} target="_blank" rel="noopener noreferrer">{post.url ?? 'error: unknown'}</a>
