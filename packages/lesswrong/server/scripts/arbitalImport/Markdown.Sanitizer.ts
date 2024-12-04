@@ -6,6 +6,10 @@ import {Converter} from './Markdown.Converter';
 
 export function getSanitizingConverter() {
   var converter = new (Converter as any)();
+  // JB: Don't do this HTML-sanitization in the context of Arbital import into
+  // LessWrong, because (a) we're already doing our own sanitization, and (b) this
+  // is filtering out some things that we want to keep, partially breaking
+  // mathjax.
   // converter.hooks.chain('postConversion', sanitizeHtml);
   converter.hooks.chain('postConversion', balanceTags);
   return converter;

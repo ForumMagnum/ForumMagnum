@@ -361,15 +361,15 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     marginTop: -120,
     height: 140,
     width: "100%",
-    background: `linear-gradient(0deg, 
-      ${theme.palette.background.pageActiveAreaBackground} 30%,
-      ${theme.palette.panelBackground.translucent} 70%,
-      transparent 100%
-    )`,
+    // background: `linear-gradient(0deg, 
+    //   ${theme.palette.background.pageActiveAreaBackground} 30%,
+    //   ${theme.palette.panelBackground.translucent} 70%,
+    //   transparent 100%
+    // )`,
     opacity: 1,
   },
   subjectsContainer: {
-    overflow: 'hidden',
+    // overflow: 'hidden',
     display: 'flex',
     marginTop: 0,
     marginBottom: 0,
@@ -393,6 +393,60 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
       content: '","',
     },
   },
+  alternativesContainer: {
+    // Add any container-specific styles if needed
+  },
+  alternativesHeader: {
+    position: 'relative',
+    fontSize: '1.0rem',
+    marginBottom: 4,
+    color: theme.palette.grey[600],
+    minWidth: 'fit-content',
+    whiteSpace: 'nowrap',
+    display: 'inline-block',
+    cursor: 'pointer',
+    '&:hover': {
+      '& $alternativesList': {
+        display: 'block',
+      },
+    },
+  },
+  alternativesTitle: {
+    color: theme.palette.grey[600],
+    fontWeight: 550,
+    fontSize: '1.2rem',
+    marginLeft: 4,
+    display: 'inline',
+  },
+  alternativesList: {
+    display: 'block',
+    position: 'absolute',
+    top: '100%',
+    left: 0,
+    background: theme.palette.background.paper,
+    boxShadow: theme.palette.boxShadow.default,
+    borderRadius: theme.borderRadius.default,
+    padding: '16px',
+    zIndex: 1,
+    minWidth: 200,
+  },
+  alternativesSection: {
+    marginBottom: 20,
+  },
+  alternativesSectionTitle: {
+    ...theme.typography.subtitle,
+    fontWeight: 400,
+    fontSize: '1.0rem',
+    fontVariant: 'all-petite-caps',
+    marginBottom: 2,
+  },
+  alternative: {
+    display: 'block',
+    fontSize: '1.0rem',
+    // marginBottom: 4,
+    // color: theme.palette.primary.main,
+  },
+
   ...tagPageHeaderStyles(theme),
 }));
 
@@ -620,7 +674,7 @@ const TagPage = () => {
     PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection,
     TagPageButtonRow, ToCColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
     TagTableOfContents, TagVersionHistoryButton, ContentStyles, CommentsListCondensed,
-    MultiToCLayout, TableOfContents, FormatDate, LWTooltip, HoverPreviewLink,
+    MultiToCLayout, TableOfContents, FormatDate, LWTooltip, HoverPreviewLink, TagsTooltip,
   } = Components;
   const classes = useStyles(styles);
 
@@ -870,6 +924,68 @@ const TagPage = () => {
   //   </ContentStyles>
   // );
 
+  const alternatives = (
+    <ContentStyles contentType="tag" className={classes.alternativesContainer}>
+      <div className={classes.alternativesHeader}>
+        {/* Teach me this */}
+        {/* <span className={classes.alternativesTitle}> slower/faster</span> */}
+
+
+        <div className={classes.alternativesList}>
+
+
+          <div className={classes.alternativesSection}>
+            <div className={classes.alternativesSectionTitle}>Relies on</div>
+            <span className={classes.alternative}>
+              <TagsTooltip placement="left" tagSlug={'reads_algebra'}>
+                <a href={'/tag/reads_algebra'}>Ability to read algebra</a>
+              </TagsTooltip>
+            </span>
+          </div>
+
+          <div className={classes.alternativesSection}>
+            <div className={classes.alternativesSectionTitle}>Subjects</div>
+            <span className={classes.alternative}>
+              <TagsTooltip placement="left" tagSlug={'logical-decision-theories'}>
+                <a href={'/tag/logical-decision-theories'}>Logical decision theories</a>
+              </TagsTooltip>
+            </span>
+            <span className={classes.alternative}>
+              <TagsTooltip placement="left" tagSlug={'causal-decision-theories'}>
+                <a href={'/tag/causal-decision-theories'}>Causal decision theories</a>
+              </TagsTooltip>
+            </span>
+            <span className={classes.alternative}>
+              <TagsTooltip placement="left" tagSlug={'evidential-decision-theories'}>
+                <a href={'/tag/evidential-decision-theories'}>Evidential decision theories</a>
+              </TagsTooltip>
+            </span>
+          </div>
+          
+          <div className={classes.alternativesSection}>
+            <div className={classes.alternativesSectionTitle}>Less technical alternative</div>
+            <span className={classes.alternative}>
+              <TagsTooltip placement="left" tagSlug={'reads_algebra'}>
+                <a href={'/tag/reads_algebra'}>Uncountability: Intuitive Intro</a>
+              </TagsTooltip>
+            </span>
+            {/* Add more slower alternatives as needed */}
+          </div>
+          
+          <div className={classes.alternativesSection}>
+            <div className={classes.alternativesSectionTitle}>More technical alternative</div>
+            <span className={classes.alternative}>
+              <TagsTooltip placement="left" tagSlug={'advanced_algebra'}>
+                <a href={'/tag/advanced_algebra'}>Uncountability (Math 3)</a>
+              </TagsTooltip>
+            </span>
+            {/* Add more faster alternatives as needed */}
+          </div>
+        </div>
+      </div>
+    </ContentStyles>
+  );
+
   const requirementsAndAlternatives = (
     <ContentStyles contentType="tag" className={classes.subjectsContainer}> 
       <div className={classes.subjectsHeader}>Relies on: </div>
@@ -981,8 +1097,9 @@ const TagPage = () => {
         hideLabels={true}
         className={classNames(classes.editMenu, classes.nonMobileButtonRow)}
       />
-      {/* {requirementsAndAlternatives} */}
-      {/* {subjects} */}
+      {alternatives}
+      {/* {requirementsandalternatives}
+      {subjects} */}
     </div>
     <div className={classes.rightColumnOverflowFade} />
   </div>);

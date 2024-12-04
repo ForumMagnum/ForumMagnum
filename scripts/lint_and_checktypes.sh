@@ -4,7 +4,7 @@
 # outputs from awkwardly intermingling, three of these four jobs run run
 # redirected to a file, which is then printed after all four have finished.
 
-CKEDITOR_DIR="public/lesswrong-editor"
+CKEDITOR_DIR="ckEditor"
 mkdir -p tmp
 
 # Run the linter on the main project in the background, redirected to a file,

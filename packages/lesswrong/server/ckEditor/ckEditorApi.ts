@@ -385,7 +385,7 @@ const ckEditorApi = {
     if (!bundleVersion)
       throw new Error("Missing argument: bundleVersion");
     
-    const editorBundle = fs.readFileSync("public/lesswrong-editor/build/ckeditor-cloud.js", 'utf8');
+    const editorBundle = fs.readFileSync("ckEditor/build/ckeditor-cloud.js", 'utf8');
     const editorBundleHash = crypto.createHash('sha256').update(editorBundle, 'utf8').digest('hex');
     
     // eslint-disable-next-line no-console

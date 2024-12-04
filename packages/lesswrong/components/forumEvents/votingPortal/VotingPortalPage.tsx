@@ -22,7 +22,7 @@ import { useCurrentUser } from "@/components/common/withUser";
 import { useUpdateCurrentUser } from "@/components/hooks/useUpdateCurrentUser";
 import { useWindowSize } from "@/components/hooks/useScreenWidth";
 import { MOBILE_HEADER_HEIGHT } from "@/components/common/Header";
-import { DONATION_ELECTION_AGE_CUTOFF, donationElectionVotingOpenSetting } from "@/lib/givingSeason";
+import { DONATION_ELECTION_AGE_CUTOFF } from "@/lib/givingSeason";
 import { useElectionCandidates } from "./hooks";
 import { getDonateLink, useGivingSeasonEvents } from "../useGivingSeasonEvents";
 import { formatStat } from "@/components/users/EAUserTooltipContent";
@@ -522,7 +522,7 @@ const WelcomeScreen = ({onNext, isTooYoung, classes}: {
   isTooYoung: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const votingOpen = donationElectionVotingOpenSetting.get()
+  const votingOpen = false;
   const disableVoting = isTooYoung || !votingOpen
 
   const {EAButton} = Components;

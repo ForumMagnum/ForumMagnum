@@ -1,13 +1,15 @@
 
 export type CommandLineArguments = {
-  port: number
+  listenPort: number,
+  localhostUrlPort: number,
 }
 
 export function loadInstanceSettings() {
 }
 export function getCommandLineArguments(): CommandLineArguments {
   return {
-    port: 3000
+    listenPort: 3000,
+    localhostUrlPort: 3000,
   };
 }
 

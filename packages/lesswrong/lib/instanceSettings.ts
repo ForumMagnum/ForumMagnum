@@ -154,7 +154,7 @@ const getDefaultAbsoluteUrl = (): string => {
   if (defaultSiteAbsoluteUrl?.length>0) {
     return defaultSiteAbsoluteUrl;
   } else {
-    return `http://localhost:${getCommandLineArguments().port}/`
+    return `http://localhost:${getCommandLineArguments().localhostUrlPort}/`
   }
 }
 export const siteUrlSetting = new PublicInstanceSetting<string>('siteUrl', getDefaultAbsoluteUrl(), "optional")

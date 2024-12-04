@@ -271,7 +271,7 @@ class RunningServer {
     const port = this.serverSlots[slotIndex].port;
 
     logWithTimestamp(`Starting server on port ${port}`);
-    const process = spawn(command, [...args, "--port", port+""], {
+    const process = spawn(command, [...args, "--listen-port", port+""], {
       stdio: 'inherit',
       detached: false,
     });
@@ -559,6 +559,13 @@ async function createViteProxyServer(backend: RunningServer) {
         "@/client": "/packages/lesswrong/client",
         "@/allComponents": "/packages/lesswrong/lib/allComponentsVite",
         "@": "/packages/lesswrong",
+        
+        // nodejs modules that aren't available on the client, which have
+        // references from node_modules (postcss in particular) that cause
+        // warnings
+        // See: https://github.com/vitejs/vite/discussions/4479#discussioncomment-5205843
+        ...(Object.fromEntries(["fs", "path", "source-map-js", "url"]
+          .map(lib => [lib, "./packages/lesswrong/viteClient/stubMissingNodejsLibrary.ts"])))
       }
     },
   });
