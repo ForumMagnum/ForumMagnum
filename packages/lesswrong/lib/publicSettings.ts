@@ -168,6 +168,7 @@ export const hasProminentLogoSetting = new DatabasePublicSetting<boolean>("hasPr
 export const hasCookieConsentSetting = new DatabasePublicSetting<boolean>('hasCookieConsent', false)
 
 export const maxRenderQueueSize = new DatabasePublicSetting<number>('maxRenderQueueSize', 10);
+export const queuedRequestTimeoutSecondsSetting = new DatabasePublicSetting<number>('queuedRequestTimeoutSeconds', 60);
 
 export type Auth0ClientSettings = {
   domain: string,

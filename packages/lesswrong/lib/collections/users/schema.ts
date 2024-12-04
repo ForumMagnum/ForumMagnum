@@ -2691,6 +2691,10 @@ const schema: SchemaType<"Users"> = {
     group: formGroups.socialMedia,
     order: 2,
   },
+  /**
+   * Twitter profile URL that the user can set in their public profile. "URL" is a bit of a misnomer here,
+   * if entered correctly this will be *just* the handle (e.g. "eaforumposts" for the account at https://twitter.com/eaforumposts)
+   */
   twitterProfileURL: {
     type: String,
     hidden: true,
@@ -2705,6 +2709,27 @@ const schema: SchemaType<"Users"> = {
     },
     group: formGroups.socialMedia,
     order: 3,
+  },
+  /**
+   * Twitter profile URL that can only be set by mods/admins. for when a more reliable reference is needed than
+   * what the user enters themselves (e.g. for tagging authors from the EA Forum twitter account)
+   */
+  twitterProfileURLAdmin: {
+    type: String,
+    optional: true,
+    nullable: true,
+    hidden: !isEAForum,
+    control: 'PrefixedInput',
+    canCreate: ['members'],
+    canRead: ['sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    form: {
+      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.twitterProfileURL,
+      heading: "Social media (private, for admin use)",
+      smallBottomMargin: false,
+    },
+    group: formGroups.adminOptions,
+    order: 11
   },
   githubProfileURL: {
     type: String,
