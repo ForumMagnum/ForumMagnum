@@ -48,7 +48,7 @@ export const defineStyles = <T extends string>(
     const mountedStyles = _clientMountedStyles.mountedStyles.get(name);
     if (mountedStyles) {
       mountedStyles.styleNode.remove();
-      createAndInsertStyleNode(_clientMountedStyles.theme, definition);
+      mountedStyles.styleNode = createAndInsertStyleNode(_clientMountedStyles.theme, definition);
     }
   }
   
