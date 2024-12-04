@@ -720,7 +720,9 @@ importComponent("PostsSearchAutoComplete", () => require('../components/search/P
 importComponent("CommentsSearchHit", () => require('../components/search/CommentsSearchHit'));
 importComponent("ExpandedCommentsSearchHit", () => require('../components/search/ExpandedCommentsSearchHit'));
 importComponent("UsersSearchHit", () => require('../components/search/UsersSearchHit'));
-importComponent("UsersSearchAutocompleteHit", () => require('../components/search/UsersSearchAutocompleteHit'));
+importComponent("UserMentionHit", () => require('../components/search/UserMentionHit'));
+importComponent("PostMentionHit", () => require('../components/search/PostMentionHit'));
+importComponent("TagMentionHit", () => require('../components/search/TagMentionHit'));
 importComponent("ExpandedUsersSearchHit", () => require('../components/search/ExpandedUsersSearchHit'));
 importComponent("ExpandedUsersConversationSearchHit", () => require('../components/search/ExpandedUsersConversationSearchHit'));
 importComponent("TagsSearchHit", () => require('../components/search/TagsSearchHit'));
@@ -778,6 +780,11 @@ importComponent("ForumEventPostPagePollSection", () => require('../components/fo
 importComponent("ForumEventPoll", () => require('../components/forumEvents/ForumEventPoll'));
 importComponent("ForumEventResultIcon", () => require('../components/forumEvents/ForumEventResultIcon'));
 importComponent("GivingSeason2024Banner", () => require('../components/forumEvents/GivingSeason2024Banner'));
+importComponent("DonationElectionLeaderboard", () => require('../components/forumEvents/DonationElectionLeaderboard'));
+importComponent("VotingPortalPage", () => require('../components/forumEvents/votingPortal/VotingPortalPage'));
+importComponent("AdminElectionCandidates", () => require('../components/forumEvents/votingPortal/AdminElectionCandidates'));
+importComponent("EditElectionCandidate", () => require('../components/forumEvents/votingPortal/EditElectionCandidate'));
+importComponent("DeleteElectionCandidateDialog", () => require('../components/forumEvents/votingPortal/DeleteElectionCandidateDialog'));
 
 importComponent("UserReviewMetadata", () => require('../components/sunshineDashboard/ModeratorUserInfo/UserReviewMetadata'));
 importComponent("UserReviewStatus", () => require('../components/sunshineDashboard/ModeratorUserInfo/UserReviewStatus'));
@@ -1099,6 +1106,7 @@ importComponent("ReviewDashboardButtons", () => require('../components/review/Re
 importComponent("ReviewPhaseInformation", () => require('../components/review/ReviewPhaseInformation'));
 importComponent("UserReviewsProgressBar", () => require('../components/review/UserReviewsProgressBar'));
 importComponent("ReviewVotingProgressBar", () => require('../components/review/ReviewVotingProgressBar'));
+importComponent("ReviewVotingPageMenu", () => require('../components/review/ReviewVotingPageMenu'));
 importComponent("ReviewVotingCanvas", () => require('../components/review/ReviewVotingCanvas'));
 importComponent("FrontpageReviewWidget", () => require('../components/review/FrontpageReviewWidget'));
 // importComponent("FrontpageVotingPhase", () => require('../components/review/FrontpageVotingPhase'));
@@ -1129,7 +1137,7 @@ importComponent("PostNominatedNotification", () => require('../components/review
 importComponent("SingleLineReviewsList", () => require('../components/review/SingleLineReviewsList'));
 
 importComponent("QuadraticVotingButtons", () => require('../components/review/QuadraticVotingButtons'))
-importComponent("KarmaVoteStripe", () => require('../components/review/KarmaVoteStripe'))
+importComponent("PostInteractionStripe", () => require('../components/review/PostInteractionStripe'))
 importComponent("ReviewVoteTableRow", () => require('../components/review/ReviewVoteTableRow'))
 importComponent("ReviewVotingButtons", () => require('../components/review/ReviewVotingButtons'))
 
@@ -1228,3 +1236,6 @@ importComponent("GlossaryEditFormWrapper", () => require('../components/jargon/G
 importComponent("GlossaryEditFormNewPost", () => require('../components/jargon/GlossaryEditFormNewPost'));
 importComponent("EditUserJargonSettings", () => require('../components/jargon/EditUserJargonSettings'));
 importComponent("PostsWithApprovedJargonPage", () => require('../components/jargon/PostsWithApprovedJargonPage'));
+importComponent("PostsListUserCommentedOn", () => require('../components/review/PostsListUserCommentedOn'));
+importComponent("RotatingReviewWinnerSpotlight", () => require('../components/review/RotatingReviewWinnerSpotlight'));
+

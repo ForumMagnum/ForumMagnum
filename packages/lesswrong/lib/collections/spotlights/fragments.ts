@@ -31,6 +31,9 @@ registerFragment(`
     description {
       html
     }
+    sequenceChapters {
+      ...ChaptersFragment
+    }
   }
 `);
 
@@ -54,6 +57,9 @@ registerFragment(`
         _id
         displayName
         slug
+      }
+      reviews {
+        ...CommentsList
       }
     }
     sequenceChapters {

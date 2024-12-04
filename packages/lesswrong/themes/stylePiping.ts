@@ -173,6 +173,16 @@ const youtubePreviewStyles = (theme: ThemeType): JssStyles => ({
   }
 })
 
+const lwartifactsPreviewStyles = (theme: ThemeType): JssStyles => ({
+  '& figure.media div[data-oembed-url*="lwartifacts.vercel.app"]': {
+    '& iframe': {
+      width: '100%',
+      height: 525,
+      border: 'none'
+    }
+  }
+})
+
 const tableStyles = (theme: ThemeType): JssStyles => ({
   borderCollapse: "collapse",
   borderSpacing: 0,
@@ -536,6 +546,7 @@ export const postBodyStyles = (theme: ThemeType): JssStyles => {
     ...estimakerPreviewStyles(theme),
     ...viewpointsPreviewStyles(theme),
     ...youtubePreviewStyles(theme),
+    ...lwartifactsPreviewStyles(theme),
     ...footnoteStyles(theme),
     ...collapsibleSectionStyles(theme),
     ...ctaButtonStyles(theme),

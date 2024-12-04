@@ -1,4 +1,4 @@
-import React, { Dispatch, ReactNode, createContext, useContext, useState } from "react";
+import React, { Dispatch, ReactNode, createContext, useContext, useEffect, useState } from "react";
 import { isEAForum, siteUrlSetting } from "@/lib/instanceSettings";
 import { Link } from "@/lib/reactRouterWrapper";
 import moment, { Moment } from "moment";
@@ -6,9 +6,13 @@ import qs from "qs";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
 import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
+import { IRPossibleVoteCounts } from "@/lib/givingSeason/instantRunoff";
+import { isProduction } from "@/lib/executionEnvironment";
+import { useLocation } from "@/lib/routeUtil";
 
 export const GIVING_SEASON_DESKTOP_WIDTH = 1300;
 export const GIVING_SEASON_MOBILE_WIDTH = 700;
+export const GIVING_SEASON_MD_WIDTH = 900;
 
 export const getDonateLink = (currentUser: UsersCurrent | null) => {
   // See docs at https://docs.every.org/docs/donate-link
@@ -30,8 +34,11 @@ type GivingSeasonEvent = {
   description: ReactNode,
   start: Moment,
   end: Moment,
+  discussionTagId?: string,
+  discussionTagSlug?: string,
   background: string,
   darkText?: boolean,
+  hidden?: boolean,
 }
 
 const events: GivingSeasonEvent[] = [
@@ -45,6 +52,8 @@ const events: GivingSeasonEvent[] = [
     </>,
     start: moment("2024-11-04").utc(),
     end: moment("2024-11-10").utc(),
+    discussionTagId: isProduction ? "iaTpKWdeW79vqRFkA" : "4ktPbiFf6FLnfyRiC",
+    discussionTagSlug: isProduction ? "funding-strategy-week" : "funding-strategy-week-2024",
     background: "https://res.cloudinary.com/cea/image/upload/v1730143995/Rectangle_5034.jpg",
   },
   {
@@ -57,21 +66,33 @@ const events: GivingSeasonEvent[] = [
     </>,
     start: moment("2024-11-12").utc(),
     end: moment("2024-11-18").utc(),
+    discussionTagId: isProduction ? "Dvs6cEeHqvRvAfG2c" : "SHAB6gQvboCakozMA",
+    discussionTagSlug: isProduction ? "marginal-funding-week" : "marginal-funding-week-2024",
     background: "https://res.cloudinary.com/cea/image/upload/v1730143996/Rectangle_5064.jpg",
   },
   {
     name: "Donation Election",
     description: <>
       A crowd-sourced pot of funds will be distributed amongst three charities{" "}
-      based on your votes.{" "}
-      <Link to="/posts/srZEX2r9upbwfnRKw/giving-season-2024-announcement#November_18___December_3__Donation_Election">
-        Find out more
+      based on your votes. Continue donation election conversations {" "}
+      <Link to="/posts/q6C23rxvyHX2ZxNNS/donation-election-discussion-thread">
+        here
       </Link>.
     </>,
     start: moment("2024-11-18").utc(),
     end: moment("2024-12-03").utc(),
     background: "https://res.cloudinary.com/cea/image/upload/v1730143996/Rectangle_5069.jpg",
   },
+  /*
+  {
+    name: "Intermission",
+    description: null,
+    start: moment("2024-12-03").utc(),
+    end: moment("2024-12-16").utc(),
+    background: "https://res.cloudinary.com/cea/image/upload/v1730143996/Rectangle_5069.jpg",
+    hidden: true,
+  },
+   */
   {
     name: "Pledge Highlight",
     description: <>
@@ -118,6 +139,7 @@ type GivingSeasonEventsContext = {
   setSelectedEvent: Dispatch<GivingSeasonEvent>,
   amountRaised: number,
   amountTarget: number,
+  leaderboard?: IRPossibleVoteCounts
 }
 
 const givingSeasonEventsContext = createContext<GivingSeasonEventsContext>({
@@ -135,13 +157,29 @@ const amountRaisedQuery = gql`
   }
 `;
 
+const leaderboardQuery = gql`
+  query GivingSeason2024VoteCounts {
+    GivingSeason2024VoteCounts
+  }
+`;
+
 export const GivingSeasonEventsProvider = ({children}: {children: ReactNode}) => {
+  const {location} = useLocation();
   const {currentForumEvent} = useCurrentForumEvent();
   const currentEvent = getCurrentEvent(currentForumEvent);
   const [selectedEvent, setSelectedEvent] = useState(currentEvent ?? events[0]);
 
-  const {data} = useQuery(amountRaisedQuery, {
-    pollInterval: 60 * 1000, // Poll once per minute
+  useEffect(() => {
+    setSelectedEvent(currentEvent ?? events[0]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location]);
+
+  const {data: amountRaisedData} = useQuery(amountRaisedQuery, {
+    ssr: true,
+    skip: !isEAForum,
+  });
+
+  const { data: leaderboardData } = useQuery<{ GivingSeason2024VoteCounts: IRPossibleVoteCounts }>(leaderboardQuery, {
     ssr: true,
     skip: !isEAForum,
   });
@@ -152,8 +190,9 @@ export const GivingSeasonEventsProvider = ({children}: {children: ReactNode}) =>
       currentEvent,
       selectedEvent,
       setSelectedEvent,
-      amountRaised: data?.GivingSeason2024DonationTotal ?? 0,
+      amountRaised: amountRaisedData?.GivingSeason2024DonationTotal ?? 0,
       amountTarget: 35000,
+      leaderboard: leaderboardData?.GivingSeason2024VoteCounts
     }}>
       {children}
     </givingSeasonEventsContext.Provider>

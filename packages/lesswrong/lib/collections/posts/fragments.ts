@@ -51,6 +51,9 @@ registerFragment(`
     spotlight {
       ...SpotlightReviewWinner
     }
+    reviews {
+      ...CommentsList
+    }
   }
 `);
 
@@ -830,6 +833,31 @@ registerFragment(`
     }
     contents {
       markdown
+    }
+  }
+`)
+
+registerFragment(`
+  fragment PostForReviewWinnerItem on Post {
+    _id
+    spotlight {
+      _id
+    }
+    reviewWinner {
+      _id
+      category
+    }
+  }
+`)
+
+registerFragment(`
+  fragment PostsTwitterAdmin on Post {
+    ...PostsListWithVotes
+    user {
+      ...UsersSocialMediaInfo
+    }
+    coauthors {
+      ...UsersSocialMediaInfo
     }
   }
 `)

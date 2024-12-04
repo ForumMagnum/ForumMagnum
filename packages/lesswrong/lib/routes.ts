@@ -346,9 +346,19 @@ addRoute(
   {
     name: 'votesByYear',
     path: '/votesByYear/:year',
-    componentName: 'UserSuggestNominations',
-    title: "Your Past Votes"
+    redirect: ({params}) => `/nominatePosts/${params.year}`
   },
+  {
+    name: 'nominatePosts',
+    path: '/nominatePosts',
+    redirect: () => `/nominatePosts/${REVIEW_YEAR}`
+  },
+  {
+    name: 'nominatePostsByYear',
+    path: '/nominatePosts/:year',
+    title: "Nominate Posts",
+    componentName: "UserSuggestNominations"
+  }
 );
 
 if (taggingNameIsSet.get()) {
@@ -844,6 +854,27 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'PeopleDirectoryPage',
       title: 'People directory',
     },
+    {
+      name: 'VotingPortal',
+      path: '/voting-portal',
+      componentName: 'VotingPortalPage',
+      title: 'Vote in the Donation Election',
+      noFooter: true,
+    },
+    {
+      name: 'ElectionCandidates',
+      path: '/admin/election-candidates',
+      componentName: 'AdminElectionCandidates',
+      title: 'Election Candidates',
+      isAdmin: true,
+    },
+    {
+      name: 'EditElectionCandidate',
+      path: '/admin/election-candidates/:id',
+      componentName: 'EditElectionCandidate',
+      title: 'Edit Election Candidate',
+      isAdmin: true,
+    },
   ],
   LessWrong: [
     {
@@ -1123,6 +1154,14 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       sunshineSidebar: true,
       hasLeftNavigationColumn: true,
       navigationFooterBar: true,
+    },
+    {
+      name: 'bestoflesswrong',
+      path: '/bestoflesswrong',
+      componentName: 'TopPostsPage',
+      title: "The Best of LessWrong",
+      background: "#f8f4ee",
+      ...leastWrongSubtitle,
     },
     {
       name:'about',

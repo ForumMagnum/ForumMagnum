@@ -131,7 +131,17 @@ const embedConfig = {
 					</div>
 				`
 			}
-		}
+		},
+		{
+			name: 'LW Artifacts',
+			// Regex should match URLS of the form: lwartifacts.vercel.app/artifacts/income
+			url: /^lwartifacts\.vercel\.app\/artifacts\/([a-zA-Z0-9_-]+)/,
+			html: ([match]: RegExpMatchArray) => `
+				<div data-lwartifacts-id="${match}" class="lwartifacts-preview">
+					<iframe style="height: 500px; width: 100%; border: none;" src="https://${match}"/>
+				</div>
+			`
+		},
 	],
 };
 
