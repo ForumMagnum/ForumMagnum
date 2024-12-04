@@ -224,7 +224,6 @@ const ExternalPostImporter = ({ classes }: { classes: ClassesType<typeof styles>
   const [post, setPost] = useState<ExternalPostImportData | null>(null);
   const [postContent, setPostContent] = useState<string>('');
   const [published, setPublished] = useState<boolean>(false);
-  const navigate = useNavigate();
 
   const { Typography, Loading, ContentStyles } = Components;
 

@@ -20,7 +20,7 @@ addGraphQLSchema(`
 
 // Define WebsiteData GraphQL type
 addGraphQLSchema(`
-  type ExternalPostImporterData {
+  type ExternalPostImportData {
     _id: String!
     slug: String
     title: String
@@ -124,7 +124,7 @@ export async function importUrlAsDraftPost(url: string, context: ResolverContext
 defineQuery({
   name: 'importUrlAsDraftPost',
   argTypes: '(url: String!)',
-  resultType: 'ForeignSiteImportData!',
+  resultType: 'ExternalPostImportData!',
   fn: async (_root: void, {url}: { url: string }, context: ResolverContext): Promise<ExternalPostImportData> => 
     importUrlAsDraftPost(url, context)
 })
