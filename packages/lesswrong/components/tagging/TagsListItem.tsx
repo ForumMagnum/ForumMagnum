@@ -13,8 +13,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingRight: 12,
     fontSize: "1.1rem",
     lineHeight: "1.1em",
-    marginBottom: 8
-
+    marginBottom: 8,
+    breakInside: 'avoid-column',
   },
   count: {
     color: theme.palette.grey[500],
