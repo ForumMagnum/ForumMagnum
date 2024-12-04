@@ -1,4 +1,4 @@
-import { extract } from '@extractus/article-extractor'
+const { extract } = require('@extractus/article-extractor')
 import { ArxivExtractor } from '../extractors/arxivExtractor'
 import { getLatestContentsRevision } from '@/lib/collections/revisions/helpers';
 
