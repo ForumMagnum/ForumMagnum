@@ -23,7 +23,7 @@ export function hydrateClient() {
   }
 
   const Main = () => {
-    const [renderCount, forceRerender] = useReducer(c=>c+1, 0);
+    const [renderCount, forceRerender] = useReducer(c => c+1, 0);
     _forceFullRerender = forceRerender;
     
     return <AppGenerator
