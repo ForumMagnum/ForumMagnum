@@ -13,7 +13,7 @@ import { useCreate } from '@/lib/crud/withCreate';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import classNames from 'classnames';
 
-export type ForeignSiteImportData = {
+export type ExternalPostImportData = {
   _id: string;
   slug: string;
   title: string;
@@ -129,7 +129,7 @@ const ImportedPostEditor = ({
   onContentChange,
   classes,
 }: {
-  post: ForeignSiteImportData;
+  post: ExternalPostImportData;
   onContentChange: (updatedContent: string) => void;
   classes: ClassesType<typeof styles>;
 }) => {
@@ -219,9 +219,9 @@ const CommentEditor = ({
   );
 };
 
-const ImportExternalPost = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const ExternalPostImporter = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const [value, setValue] = useState('');
-  const [post, setPost] = useState<ForeignSiteImportData | null>(null);
+  const [post, setPost] = useState<ExternalPostImportData | null>(null);
   const [postContent, setPostContent] = useState<string>('');
   const [published, setPublished] = useState<boolean>(false);
   const navigate = useNavigate();
@@ -400,12 +400,12 @@ const ImportExternalPost = ({ classes }: { classes: ClassesType<typeof styles> }
   );
 };
 
-const ImportExternalPostComponent = registerComponent('ImportExternalPost', ImportExternalPost, {
+const ExternalPostImporterComponent = registerComponent('ExternalPostImporter', ExternalPostImporter, {
   styles,
 });
 
 declare global {
   interface ComponentTypes {
-    ImportExternalPost: typeof ImportExternalPostComponent;
+    ExternalPostImporter: typeof ExternalPostImporterComponent;
   }
 }

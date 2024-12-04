@@ -7,7 +7,7 @@ import {addGraphQLSchema, createMutator, sanitize} from '../vulcan-lib'
 import {fetchFragmentSingle} from '../fetchFragment'
 import {defineQuery} from '@/server/utils/serverGraphqlUtil.ts'
 import Users from '@/lib/collections/users/collection'
-import { ForeignSiteImportData } from '@/components/posts/ImportExternalPost'
+import { ExternalPostImportData } from '@/components/posts/ExternalPostImporter'
 
 // Define CoauthorStatus type
 addGraphQLSchema(`
@@ -20,7 +20,7 @@ addGraphQLSchema(`
 
 // Define WebsiteData GraphQL type
 addGraphQLSchema(`
-  type ForeignSiteImportData {
+  type ExternalPostImporterData {
     _id: String!
     slug: String
     title: String
@@ -37,7 +37,7 @@ addGraphQLSchema(`
 
 // todo various url validation
 // mostly client side, but also mb avoid links to lw, eaf, etc
-export async function importUrlAsDraftPost(url: string, context: ResolverContext): Promise<ForeignSiteImportData> {
+export async function importUrlAsDraftPost(url: string, context: ResolverContext): Promise<ExternalPostImportData> {
   if (!context.currentUser) {
     throw new Error('You must be logged in to fetch website HTML.')
   }
@@ -125,6 +125,6 @@ defineQuery({
   name: 'importUrlAsDraftPost',
   argTypes: '(url: String!)',
   resultType: 'ForeignSiteImportData!',
-  fn: async (_root: void, {url}: { url: string }, context: ResolverContext): Promise<ForeignSiteImportData> => 
+  fn: async (_root: void, {url}: { url: string }, context: ResolverContext): Promise<ExternalPostImportData> => 
     importUrlAsDraftPost(url, context)
 })

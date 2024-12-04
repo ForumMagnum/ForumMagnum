@@ -53,7 +53,7 @@ const NominationsPage = ({classes, reviewYear}: { classes: ClassesType<typeof st
     Typography,
     LWTooltip,
     AllPostsPage,
-    ImportExternalPost,
+    ExternalPostImporter,
   } = Components
 
   // Handle url-encoded special case, otherwise parseInt year
@@ -140,8 +140,7 @@ const NominationsPage = ({classes, reviewYear}: { classes: ClassesType<typeof st
 
       {activeTab === 'all' && <AllPostsPage defaultHideSettings/>}
       {activeTab === 'submitlinkposts' && <div>
-        <ImportExternalPost/>
-        {/* <AllPostsPage defaultHideSettings/> */}
+        <ExternalPostImporter/>
       </div>}
       </div>
     </SingleColumnSection>

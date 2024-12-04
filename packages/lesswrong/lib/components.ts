@@ -1240,6 +1240,6 @@ importComponent("PostsWithApprovedJargonPage", () => require('../components/jarg
 importComponent("PostsListUserCommentedOn", () => require('../components/review/PostsListUserCommentedOn'));
 importComponent("RotatingReviewWinnerSpotlight", () => require('../components/review/RotatingReviewWinnerSpotlight'));
 
-importComponent("ImportExternalPost", () => require('../components/posts/ImportExternalPost'));
+importComponent("ExternalPostImporter", () => require('../components/posts/ExternalPostImporter'));
 
 importComponent("FundraisingThermometer", () => require('../components/common/FundraisingThermometer'));
