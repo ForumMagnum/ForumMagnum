@@ -12,16 +12,11 @@ import { SECTION_WIDTH } from '../common/SingleColumnSection';
 
 const styles = (theme: ThemeType) => ({
   root: {
-    transition: "display 0.2s ease-in-out",
+    display: "flex",
+    justifyContent: "space-around",
+    transition: "justify-content 0.2s ease-in-out",
   },
   grid: {
-    display: 'grid',
-    gridTemplateColumns: `
-      minmax(10px, 0.5fr) minmax(100px, 740px) minmax(30px, 0.5fr) minmax(300px, 740px) minmax(30px, 0.5fr)
-    `,
-    gridTemplateAreas: `
-    "... leftColumn ... rightColumn ..."
-    `,
     paddingBottom: 175,
     alignItems: "start",
     [theme.breakpoints.down('sm')]: {
@@ -29,18 +24,19 @@ const styles = (theme: ThemeType) => ({
     }
   },
   noExpandedPost: {
-    margin: "0 auto",
-    width: SECTION_WIDTH
+    justifyContent: "center",
+  },
+  expandedPost: {
+    width: "100%",
+    maxWidth: SECTION_WIDTH,
   },
   leftColumn: {
-    gridArea: "leftColumn",
     position: "sticky",
     top: 72,
     height: "90vh",
     paddingLeft: 24,
     paddingRight: 36,
     [theme.breakpoints.down('sm')]: {
-      gridArea: "unset",
       paddingLeft: 0,
       paddingRight: 0,
       overflow: "unset",
@@ -49,31 +45,56 @@ const styles = (theme: ThemeType) => ({
     }
   },
   rightColumn: {
-    gridArea: "rightColumn",
+    width: "100%",
+    maxWidth: SECTION_WIDTH,
     [theme.breakpoints.down('sm')]: {
       gridArea: "unset"
     },
   },
+  tabsContainer: {
+    width: "100%",
+    maxWidth: SECTION_WIDTH,
+    backgroundColor: theme.palette.background.pageActiveAreaBackground,
+    borderRadius: 8,
+    paddingTop: 4
+  },
   tabs: {
-    marginTop: -4,
+    marginTop: 12,
     width: '100%',
     '& .MuiTabs-indicator': {
       height: "100%",
-      backgroundColor: theme.palette.background.primaryTranslucent
+      backgroundColor: 'unset'
     }
   },
   tab: {
-    fontSize: '1.2rem',
+    fontSize: '1rem',
     minWidth: 120,
-    padding: 16,
-    '&$selected': {
-      backgroundColor: theme.palette.primary.main,
-      color: theme.palette.background.pageActiveAreaBackground
+    padding: 8,
+    borderRadius: 8,
+    '&:first-child': {
+      marginRight: 8,
     },
+    '&:last-child': {
+      marginLeft: 8,
+    },
+    marginBottom: -8,
+    '& .MuiTab-wrapper': {
+    },
+    color: theme.palette.grey[900],
+    backgroundColor: theme.palette.grey[300],
+    '&$selected': {
+      backgroundColor: theme.palette.background.pageActiveAreaBackground
+    },
+    '&.MuiTab-selected': {
+      backgroundColor: theme.palette.background.pageActiveAreaBackground,
+      margin: 0,
+      marginBottom: -8,
+    }
   },
   subLabel: {
     marginTop: 4,
     fontSize: '0.8rem',
+    opacity: 0.8
   },
   selected: {},
   expandedGrid: {
@@ -120,32 +141,32 @@ export const AnnualReviewPage = ({classes}: {
   }
 
   return <div className={classNames(classes.root, expandedPost ? classes.grid : classes.noExpandedPost)}>
-    {expandedPost && <div className={classes.leftColumn}>
-        <ReviewVotingExpandedPost key={expandedPost?._id} post={expandedPost} setExpandedPost={setExpandedPost}/> 
-      </div>}
+      <div className={classNames(classes.leftColumn, expandedPost && classes.expandedPost)}>
+        {expandedPost && <ReviewVotingExpandedPost key={expandedPost?._id} post={expandedPost} setExpandedPost={setExpandedPost}/>}
+      </div>
       <div className={classes.rightColumn}>
-        <SingleColumnSection>
-          <FrontpageReviewWidget showFrontpageItems={false} reviewYear={reviewYear}/>
-        <Tabs
-          value={activeTab}
-          onChange={handleChangeTab}
-          fullWidth
-          className={classes.tabs}
-        >
-          <Tab
-            label={<div>Find Posts to Nominate<div className={classes.subLabel}><em>Posts You Engaged With • Submit LinkPosts</em></div></div>}
-            value="nominatePosts"
-            className={classes.tab}
-          />
-          <Tab
-            label="Vote on Nominated Posts"
-            value="reviewVoting"
-            className={classes.tab}
-          />
+        <FrontpageReviewWidget showFrontpageItems={false} reviewYear={reviewYear}/>
+          <Tabs
+            value={activeTab}
+            onChange={handleChangeTab}
+            fullWidth
+            className={classes.tabs}
+          >
+            <Tab
+              label="Find Posts to Nominate"
+              value="nominatePosts"
+              className={classes.tab}
+            />
+            <Tab
+              label="Vote on Nominated Posts"
+              value="reviewVoting"
+              className={classes.tab}
+            />
         </Tabs>
-        {activeTab === 'nominatePosts' && <NominationsPage reviewYear={reviewYear}/>}
-        {activeTab === 'reviewVoting' && <ReviewVotingPage reviewYear={reviewYear} expandedPost={expandedPost} setExpandedPost={setExpandedPost}/>}
-      </SingleColumnSection>
+        <div className={classes.tabsContainer}>
+          {activeTab === 'nominatePosts' && <NominationsPage reviewYear={reviewYear}/>}
+          {activeTab === 'reviewVoting' && <ReviewVotingPage reviewYear={reviewYear} expandedPost={expandedPost} setExpandedPost={setExpandedPost}/>}
+        </div>
     </div>
   </div>
 }

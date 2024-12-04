@@ -1,6 +1,6 @@
 import { registerComponent } from '@/lib/vulcan-lib';
 import React, { useEffect, useState } from 'react';
-import { lightconeFundraiserThermometerBgUrl } from '@/lib/publicSettings';
+import { lightconeFundraiserPostId, lightconeFundraiserThermometerBgUrl } from '@/lib/publicSettings';
 import { Link } from '@/lib/reactRouterWrapper';
 import { useFundraiserProgress } from '@/lib/lightconeFundraiser';
 
@@ -61,9 +61,10 @@ const styles = (theme: ThemeType) => ({
     width: '100%',
     fontFamily: theme.typography.body2.fontFamily,
     fontSize: '1.2rem',
-    marginBottom: 6,
+    paddingBottom: 6,
     textShadow: `0px 0px 20px ${theme.palette.background.default}, 0px 0px 30px ${theme.palette.background.default}, 0px 0px 40px ${theme.palette.background.default}, 0px 0px 50px ${theme.palette.background.default}`,
     alignItems: 'center',
+    backdropFilter: 'blur(3px)',
   },
   raisedTextBold: {
     fontWeight: 'bold',
@@ -72,6 +73,7 @@ const styles = (theme: ThemeType) => ({
   goalTextBold: {
     fontWeight: 'bold',
     fontFamily: theme.typography.headerStyle.fontFamily,
+    marginRight: 6
   },
   raisedGoalNumber: {
     color: theme.palette.review.winner,
@@ -133,16 +135,14 @@ const FundraisingThermometer: React.FC<FundraisingThermometerProps & {classes: C
   return (
     <div className={classes.fundraiserContainer}>
       <div className={classes.textContainer}>
-        <span className={classes.header}>Lightcone Fundraiser Progress</span>
-
-        {/* <span className={classes.raisedText}><span className={classes.raisedTextBold}>Raised:</span> <span className={classes.raisedGoalNumber}></span></span> */}
-        <span className={classes.goalText}><span className={classes.goalTextBold}>Goal 1:</span> <span className={classes.raisedGoalNumber} style={{color: "#584d3e"}}>${Math.round(viewCurrentAmount).toLocaleString()} of ${goalAmount.toLocaleString()}</span></span>
+        <Link className={classes.header} to={`/posts/${lightconeFundraiserPostId.get()}`}>Lightcone Fundraiser Progress</Link>
+        <span className={classes.goalText}>
+          <span className={classes.goalTextBold}>Goal 1:</span> 
+          <span className={classes.raisedGoalNumber}>${Math.round(viewCurrentAmount).toLocaleString()}</span> of ${goalAmount.toLocaleString()}
+        </span>
       </div>
       <div className={classes.thermometer}>
         <div className={classes.fundraiserHeader}>
-          {/* <h2 className={classes.header}> */}
-            {/* <Link to={`/posts/${lightconeFundraiserPostId.get()}`}>Lightcone Infrastructure fundraiser progress</Link> */}
-          {/* </h2> */}
           <Link className={classes.fundraiserDonateText} to="https://lightconeinfrastructure.com/donate">
             <div className={classes.fundraiserHeaderDonateButton}>
               Donate

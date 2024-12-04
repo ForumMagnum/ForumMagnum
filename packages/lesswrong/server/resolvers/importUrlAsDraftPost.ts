@@ -127,7 +127,7 @@ export async function importUrlAsDraftPost(url: string, context: ResolverContext
 defineQuery({
   name: 'importUrlAsDraftPost',
   argTypes: '(url: String!)',
-  resultType: 'WebsiteData!',
+  resultType: 'ForeignSiteImportData!',
   fn: async (_root: void, {url}: { url: string }, context: ResolverContext): Promise<ForeignSiteImportData> => 
     importUrlAsDraftPost(url, context)
 })

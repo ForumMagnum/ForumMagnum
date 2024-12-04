@@ -16,15 +16,27 @@ import filter from 'lodash/filter';
 import { fieldIn } from '../../lib/utils/typeGuardUtils';
 import { getVotePower } from '../../lib/voting/vote';
 import {tagStyle} from '@/components/tagging/FooterTag.tsx'
+import { SECTION_WIDTH } from '../common/SingleColumnSection';
 
 const isAF = forumTypeSetting.get() === 'AlignmentForum'
 
 const styles = (theme: ThemeType) => ({
+  root: {
+    display: "flex",
+    alignItems: "flex-start",
+    justifyContent: "center",
+  },
+  votingPageContainer: {
+    width: "100%",
+    maxWidth: SECTION_WIDTH,
+  },
   postsLoading: {
     opacity: .4,
   },
   postList: {
     boxShadow: `0 1px 5px 0px ${theme.palette.boxShadowColor(0.2)}`,
+    width: "100%",
+    maxWidth: SECTION_WIDTH,
     background: theme.palette.panelBackground.default,
     [theme.breakpoints.down('sm')]: {
       boxShadow: "unset"
@@ -32,6 +44,8 @@ const styles = (theme: ThemeType) => ({
   },
   statusFilter: {
     ...tagStyle(theme),
+    paddingRight: 10,
+    paddingLeft: 8,
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
     marginTop: 2,
     marginBottom: 2,
@@ -44,6 +58,11 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[400],
     marginLeft: 5,
     marginRight: 5,
+  },
+  tagListContainer: {
+    paddingLeft: 16,
+    paddingRight: 16,
+    marginTop: 8,
   }
 });
 
@@ -75,8 +94,7 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
     ReviewVoteTableRow,
     ReviewVotingPageMenu,
     PostsTagsList,
-    LWTooltip,
-    ReviewVotingVoteTitle,
+    LWTooltip
   } = Components
 
   const currentUser = useCurrentUser()
@@ -326,50 +344,53 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
 
   return (
     <AnalyticsContext pageContext="ReviewVotingPage">
-    <div>
-      <ReviewVotingVoteTitle reviewYear={reviewYear} reviewPhase={reviewPhase}/>
-      <PostsTagsList
-        posts={postsResults}
-        currentFilter={tagFilter}
-        handleFilter={(tagId) => handleTagFilter(tagId)}
-        defaultMax={5}
-        beforeChildren={<>
-          <LWTooltip title="Only show the post you've read">
-            <div className={classNames(classes.statusFilter, {[classes.filterSelected]: statusFilter === 'read'})}
-                  onClick={() => handleStatusFilter('read')}>
-              Read
-            </div>
-          </LWTooltip>
+    <div className={classes.root}>
+      <div className={classes.votingPageContainer}>
+        <div className={classes.tagListContainer}>
+          <PostsTagsList
+            posts={postsResults}
+            currentFilter={tagFilter}
+            handleFilter={(tagId) => handleTagFilter(tagId)}
+            defaultMax={5}
+            beforeChildren={<>
+            <LWTooltip title="Only show the post you've read">
+              <div className={classNames(classes.statusFilter, {[classes.filterSelected]: statusFilter === 'read'})}
+                    onClick={() => handleStatusFilter('read')}>
+                Read
+              </div>
+            </LWTooltip>
 
-          <span className={classes.separator}>{' '}•{' '}</span>
-        </>}
-      />
-      <ReviewVotingPageMenu reviewPhase={reviewPhase} loading={loading} sortedPosts={sortedPosts} costTotal={costTotal} setSortPosts={setSortPosts} sortPosts={sortPosts} sortReversed={sortReversed} setSortReversed={setSortReversed} postsLoading={postsLoading} postsResults={postsResults} />
-      <div className={classNames({[classes.postList]: reviewPhase !== "VOTING", [classes.postsLoading]: postsLoading || loading})}>
-        {postsHaveBeenSorted && sortedPosts?.map((post) => {
-          const currentVote = post.currentUserReviewVote !== null ? {
-            _id: post.currentUserReviewVote._id,
-            postId: post._id,
-            score: post.currentUserReviewVote.qualitativeScore,
-            type: "QUALITATIVE" as const
-          } : null
-          return <div key={post._id} onClick={()=>{
-            setExpandedPost(expandedPost === post ? null : post)
-            captureEvent(undefined, {eventSubType: "voteTableRowClicked", postId: post._id})}}
-          >
-            <ReviewVoteTableRow
-              post={post}
-              costTotal={costTotal}
-              showKarmaVotes={showKarmaVotes}
-              dispatch={dispatchQualitativeVote}
-              currentVote={currentVote}
-              expandedPostId={expandedPost?._id}
-              reviewPhase={reviewPhase}
-              reviewYear={reviewYear}
-              voteTooltip={voteTooltip}
-            />
+              <span className={classes.separator}>{' '}•{' '}</span>
+            </>}
+          />
+        </div>
+        <ReviewVotingPageMenu reviewPhase={reviewPhase} loading={loading} sortedPosts={sortedPosts} costTotal={costTotal} setSortPosts={setSortPosts} sortPosts={sortPosts} sortReversed={sortReversed} setSortReversed={setSortReversed} postsLoading={postsLoading} postsResults={postsResults} />
+        <div className={classNames({[classes.postList]: reviewPhase !== "VOTING", [classes.postsLoading]: postsLoading || loading})}>
+          {postsHaveBeenSorted && sortedPosts?.map((post) => {
+            const currentVote = post.currentUserReviewVote !== null ? {
+              _id: post.currentUserReviewVote._id,
+              postId: post._id,
+              score: post.currentUserReviewVote.qualitativeScore,
+              type: "QUALITATIVE" as const
+            } : null
+            return <div key={post._id} onClick={()=>{
+              setExpandedPost(expandedPost === post ? null : post)
+              captureEvent(undefined, {eventSubType: "voteTableRowClicked", postId: post._id})}}
+            >
+              <ReviewVoteTableRow
+                post={post}
+                costTotal={costTotal}
+                showKarmaVotes={showKarmaVotes}
+                dispatch={dispatchQualitativeVote}
+                currentVote={currentVote}
+                expandedPostId={expandedPost?._id}
+                reviewPhase={reviewPhase}
+                reviewYear={reviewYear}
+                voteTooltip={voteTooltip}
+              />
+            </div>
+            })}
           </div>
-          })}
         </div>
       </div>
     </AnalyticsContext>

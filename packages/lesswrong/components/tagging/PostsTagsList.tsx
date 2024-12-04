@@ -18,8 +18,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
     marginTop: 2,
     marginBottom: 2,
-    // paddingLeft: 10,
-    // paddingRight: 8
+    marginRight: 2,
+    paddingLeft: 10,
+    paddingRight: 8
   },
   count: {
     ...theme.typography.body2,
