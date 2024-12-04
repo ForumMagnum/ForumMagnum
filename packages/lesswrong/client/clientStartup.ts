@@ -12,7 +12,7 @@ import { initAutoRefresh } from './autoRefresh';
 import { rememberScrollPositionOnPageReload } from './scrollRestoration';
 import { addClickHandlerToCheckboxLabels } from './clickableCheckboxLabels';
 import { initLegacyRoutes } from '@/lib/routes';
-import { hydrateClient } from './start';
+import { forceFullReactRerender, hydrateClient } from './start';
 import { googleTagManagerInit } from './ga';
 import { initReCaptcha } from './reCaptcha';
 import './type3';
@@ -58,6 +58,23 @@ async function clientStartup() {
   
   if (enableVite) {
     setTimeout(removeStaticStylesheet, 1000);
+
+    // @ts-ignore
+    if (import.meta.hot) {
+      // Prevent full reload, see https://github.com/vitejs/vite/issues/5763#issuecomment-1974235806
+      // @ts-ignore
+      import.meta.hot.on('vite:beforeFullReload', (payload: AnyBecauseHard) => {
+        // eslint-disable-next-line no-console
+        console.log("Suppressing vite reload");
+        payload.path = "(WORKAROUND).html";
+        
+        forceFullReactRerender();
+      });
+      // @ts-ignore
+      import.meta.hot.on('vite:afterUpdate', (payload: AnyBecauseHard) => {
+        console.log("In vite:afterUpdate");
+      });
+    }
   }
 }
 
