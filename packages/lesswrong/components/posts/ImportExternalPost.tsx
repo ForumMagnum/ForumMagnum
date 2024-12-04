@@ -35,7 +35,6 @@ const styles = (theme: ThemeType) => ({
   root: {
     display: 'flex',
     flexDirection: 'column',
-    // gap: '8px',
     width: "100%",
     background: theme.palette.panelBackground.default,
     padding: '12px 16px',
@@ -107,12 +106,7 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
   },
-  reviewPrompt: {
-    // color: theme.palette.error.dark,
-    // fontStyle: 'italic',
-  },
   importLabel: {
-    // fontWeight: 600,
     fontStyle: 'italic',
   },
   importTitle: {
@@ -170,7 +164,6 @@ const ImportedPostEditor = ({
   );
 };
 
-// Add the CommentEditor component
 const CommentEditor = ({
   onPublish,
   onCancel,
@@ -196,7 +189,6 @@ const CommentEditor = ({
           ref={ckEditorRef}
           config={{
             placeholder: 'Write a review about the imported post...',
-            // Other configurations as needed
           }}
           onReady={(editor: any) => {
             editorRef.current = editor;
@@ -227,7 +219,6 @@ const CommentEditor = ({
   );
 };
 
-// Main component
 const ImportExternalPost = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const [value, setValue] = useState('');
   const [post, setPost] = useState<ForeignSiteImportData | null>(null);
@@ -398,7 +389,7 @@ const ImportExternalPost = ({ classes }: { classes: ClassesType<typeof styles> }
             onContentChange={setPostContent}
             classes={classes}
           />
-          <Typography variant="body2" className={classes.reviewPrompt}>
+          <Typography variant="body2">
             To nominate a linkpost for the Annual Review, you must write your own review it.<br />
             Please explain why you think this post or paper is significant to LessWrong's intellectual progress.
           </Typography>

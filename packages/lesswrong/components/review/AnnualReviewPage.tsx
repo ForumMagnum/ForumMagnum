@@ -55,7 +55,6 @@ const styles = (theme: ThemeType) => ({
     width: "100%",
     maxWidth: SECTION_WIDTH,
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
-    borderRadius: 8,
     paddingTop: 4
   },
   tabs: {

@@ -104,7 +104,6 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 'bold',
     fontFamily: theme.typography.headerStyle.fontFamily,
     color: theme.palette.inverseGreyAlpha(0.65),
-    // backdropFilter: 'blur(3px)',
     transition: 'background 0.2s ease-in-out, color 0.2s ease-in-out',
     '&:hover': {
       background: `${theme.palette.inverseGreyAlpha(0.8)} !important`,
