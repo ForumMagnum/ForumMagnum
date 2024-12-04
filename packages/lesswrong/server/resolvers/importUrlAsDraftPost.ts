@@ -19,23 +19,27 @@ addGraphQLSchema(`
   }
 `);
 
+addGraphQLSchema(`
+  type ExternalPost {
+    _id: String!
+    slug: String
+    title: String
+    url: String
+    postedAt: Date
+    createdAt: Date
+    userId: String
+    modifiedAt: Date
+    draft: Boolean
+    content: String
+    coauthorStatuses: [CoauthorStatus]
+  }
+`);
+
 // Define WebsiteData GraphQL type
 addGraphQLSchema(`
   type ExternalPostImportData {
     alreadyExists: Boolean
-    post {
-      _id: String!
-      slug: String
-      title: String
-      url: String
-      postedAt: Date
-      createdAt: Date
-      userId: String
-      modifiedAt: Date
-      draft: Boolean
-      content: String
-      coauthorStatuses: [CoauthorStatus]
-    }
+    post: ExternalPost
   }
 `);
 

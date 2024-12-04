@@ -226,6 +226,7 @@ const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesTy
   const [postContent, setPostContent] = useState<string>('');
   const [published, setPublished] = useState<boolean>(false);
   const [alreadyExists, setAlreadyExists] = useState<boolean>(false);
+  const [publishingPost, setPublishingPost] = useState<boolean>(false);
 
   const { Typography, Loading, ContentStyles } = Components;
 
@@ -236,11 +237,14 @@ const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesTy
   const [importUrlAsDraftPost, { data, loading, error }] = useMutation(gql`
     mutation importUrlAsDraftPost($url: String!) {
       importUrlAsDraftPost(url: $url) {
-        _id
-        slug
-        title
-        content
-        url
+        alreadyExists
+        post {
+          _id
+          slug
+          title
+          content
+          url
+        }
       }
     }
   `);
@@ -271,6 +275,7 @@ const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesTy
     if (!post || !currentUser) return;
 
     try {
+      setPublishingPost(true);
       // Create the comment
       const commentData = {
         postId: post._id,
@@ -306,6 +311,7 @@ const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesTy
       setPublished(true);
       setValue('');
       window.scrollTo(0, 0);
+      setPublishingPost(false);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Error publishing post and submitting review: ', error);
@@ -352,7 +358,7 @@ const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesTy
       )}
 
       {/* State 1 and State 3: Display message and input form */}
-      {(!post || published) && (
+      {(!post || published || (post && alreadyExists)) && (
         <>
           <Typography variant="body2">
             {`${published ? 'Or nominate another' : 'Nominate a'} post from offsite that you think is relevant to the community's intellectual progress.`}
@@ -399,6 +405,7 @@ const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesTy
             Please explain why you think this post or paper is significant to LessWrong's intellectual progress.
           </Typography>
           <CommentEditor onPublish={handlePublish} onCancel={handleImportDifferentPost} classes={classes} />
+          {publishingPost && <Loading />}
         </div>
       )}
     </div>
