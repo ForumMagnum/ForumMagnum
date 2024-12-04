@@ -241,8 +241,7 @@ addRoute(
     name:'reviewVotingByYear',
     path: '/reviewVoting/:year',
     title: "Review Voting",
-    componentName: "ReviewVotingPage",
-    subtitleComponentName: "ReviewHeaderTitle"
+    componentName: "AnnualReviewPage"
   },
 
   {
@@ -357,7 +356,7 @@ addRoute(
     name: 'nominatePostsByYear',
     path: '/nominatePosts/:year',
     title: "Nominate Posts",
-    componentName: "UserSuggestNominations"
+    componentName: "AnnualReviewPage"
   }
 );
 

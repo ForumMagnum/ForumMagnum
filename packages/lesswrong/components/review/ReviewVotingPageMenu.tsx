@@ -13,8 +13,13 @@ import { Link, useNavigate } from '../../lib/reactRouterWrapper';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { isLW, isLWorAF } from '@/lib/instanceSettings';
 import { useLocation } from '@/lib/routeUtil';
+import { SECTION_WIDTH } from '../common/SingleColumnSection';
 
 const styles = (theme: ThemeType) => ({
+  root: {
+    width: "100%",
+    maxWidth: SECTION_WIDTH,
+  },
   menu: {
     position: "sticky",
     top:0,
@@ -80,7 +85,6 @@ const styles = (theme: ThemeType) => ({
     padding: 4,
     borderRadius: 3,
     marginRight: 6,
-    border: theme.palette.border.normal,
     "&:hover": {
       background: theme.palette.panelBackground.darken20,
     }
@@ -131,11 +135,10 @@ export const ReviewVotingPageMenu = ({classes, reviewPhase, loading, sortedPosts
   const nominatedPostCount = reviewPhase !== "VOTING" && <LWTooltip title={<div><div>{sortedPosts?.length ?? 0} have received at least one Nomination Vote</div><div><em>Posts need at least 2 Nomination Votes to proceed to the Review Phase</em></div></div>}>{sortedPosts?.length ?? 0} Nominated</LWTooltip>
 
   return <AnalyticsContext pageElementContext='reviewVotingPageMenu'> 
-      <div>
+      <div className={classes.root}>
           {reviewPhase === "VOTING" && currentUser?.noSingleLineComments && <ContentStyles contentType="comment" className={classes.singleLineWarning}>
             <span className={classes.warning}>You have "Do not collapse comments to single line" enabled, </span>which is going to make this page pretty bloated. The intended experience is for each post to have a few truncated reviews, which you can expand. You may want to disable the option in your <Link to={'/account'}>{accountSettings}</Link>
             </ContentStyles>}
-          <div className={classes.votingTitle}>Voting</div>
           <div className={classes.menu}>
 
             {/* TODO: Remove this if we haven't seen the error in awhile. I think I've fixed it but... model uncertainty */}

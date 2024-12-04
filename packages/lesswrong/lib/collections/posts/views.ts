@@ -152,6 +152,9 @@ export const filters: Record<string,any> = {
     tagRelevance: {$ne: {}}
   },
   "includeMetaAndPersonal": {},
+  "linkpost": {
+    url: {$exists: true},
+  }
 }
 
 /**

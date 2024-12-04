@@ -81,6 +81,7 @@
     "@datadog/browser-rum": "^5.18.0",
     "@dqbd/tiktoken": "^1.0.7",
     "@elastic/elasticsearch": "^8.7.0",
+    "@extractus/article-extractor": "^8.0.16",
     "@google-cloud/discoveryengine": "^1.4.1",
     "@googleapis/drive": "^8.7.0",
     "@googleapis/oauth2": "^1.0.5",

@@ -27,6 +27,26 @@ const commonActionButtonStyle = (theme: ThemeType) => ({
 })
 
 const styles = (theme: ThemeType): JssStyles => ({
+  sectionTitle: {
+    alignItems: 'flex-end',
+    marginBottom: 12,
+  },
+  reviewtitle: {
+    fontSize: "1.5rem",
+    fontVariant: "small-caps",
+    fontFamily: theme.typography.postStyle.fontFamily,
+    fontVariantNumeric: "normal",
+    color: theme.palette.grey[600],
+    marginBottom: 0,
+  },
+  reviewSectionTitle: {
+  marginBottom: -2
+  },
+  reviewPhaseTitle: {
+    fontSize: "3rem",
+    marginTop: -4,
+    marginBottom: 0
+  },
   learnMore: {
     color: theme.palette.lwTertiary.main
   },
@@ -190,7 +210,7 @@ export function ReviewOverviewTooltip() {
   </div>
 }
 
-const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {classes: ClassesType, showFrontpageItems?: boolean, reviewYear: ReviewYear}) => {
+const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, style}: {classes: ClassesType, showFrontpageItems?: boolean, reviewYear: ReviewYear, style?: React.CSSProperties}) => {
   const { SectionTitle, SettingsButton, LWTooltip, PostsList2, UserReviewsProgressBar, ReviewVotingProgressBar, FrontpageBestOfLWWidget } = Components
   const currentUser = useCurrentUser();
 
@@ -252,7 +272,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
     </div>
     <div className={classes.reviewBlock}>     
       <LWTooltip placement="bottom-start" title={reviewTooltip} className={classNames(classes.progress, {[classes.activeProgress]: activeRange === "REVIEWS"})}>
-        <div className={classNames(classes.blockText, classes.blockLabel)}>Reviews</div>
+        <div className={classNames(classes.blockText, classes.blockLabel)}>Discussion</div>
         <div className={classNames(classes.blockText, classes.hideOnMobile)}>{reviewEndDate.format('MMM Do')}</div>
         {activeRange === "REVIEWS" && <div className={classes.coloredProgress} style={{width: `${dateFraction(currentDate, nominationEndDate, reviewEndDate)}%`}}/>}
       </LWTooltip>   
@@ -356,19 +376,24 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
 
   return (
     <AnalyticsContext pageSectionContext="frontpageReviewWidget">
-      <div>
-        <SectionTitle 
+      <div style={style}>
+        <SectionTitle rootClassName={classes.sectionTitle} titleClassName={classes.reviewSectionTitle}
           title={<LWTooltip title={<ReviewOverviewTooltip/>} placement="bottom-start">
             <Link to={"/reviewVoting"}>
-              {getReviewTitle(reviewYear)}
+              <h3 className={classes.reviewtitle}>{getReviewTitle(reviewYear)}</h3>
+              <h1 className={classes.reviewPhaseTitle}>
+                {activeRange === "NOMINATIONS" && "Nomination Voting"}
+                {activeRange === "REVIEWS" && "Discussion Phase"}
+                {activeRange === "VOTING" && "Final Voting"}
+              </h1>
             </Link>
           </LWTooltip>}
         >
-          <LWTooltip title={<ReviewOverviewTooltip/>} className={classes.hideOnMobile}>
+          {showFrontpageItems && <LWTooltip title={<ReviewOverviewTooltip/>} className={classes.hideOnMobile}>
             <Link to={reviewPostPath || ""}>
-              <SettingsButton showIcon={false} label={`How does the ${REVIEW_NAME_IN_SITU} work?`}/>
+              <SettingsButton showIcon={false} label={`What is this?`}/>
             </Link>
-          </LWTooltip>
+          </LWTooltip>}
         </SectionTitle>
 
         {reviewTimeline}

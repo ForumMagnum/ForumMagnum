@@ -104,17 +104,12 @@ export const ReviewPhaseInformation = ({classes, reviewYear, reviewPhase}: {
 
   if (reviewPhase === "NOMINATIONS") {
     return <ContentStyles contentType="comment" className={classes.root}>
-        <p>During the <em>Nomination Voting Phase:</em></p>
-        <ul style={{marginLeft: -12}}>
-          <li>Cast <em>Nomination Votes</em> on posts that represent important intellectual progress.</li>
-          <li>Write <em>short reviews</em> that explain why those posts seem important.</li>
-          <li>Posts with at least 1 Nomination Vote will appear on this page, to the right. Posts with at least one review are sorted to the top.</li>
-          <li>Posts with at least 2 positive votes and at least 4 points will proceed to the Review Phase.</li>
-        </ul>
-  
-        <p>On {getNominationPhaseEnd(reviewYear).format("MMM Do")}, you'll see the initial voting results, to help allocate time during <em>the Review Phase</em>.</p>
+      <p>Cast <em>Nomination Votes</em> on posts that represent important intellectual progress.</p>
+      <p>Posts need at least 2 positive votes and at least 4 points to proceed to the Review Phase.</p>
+      <p>Write short reviews explaining why those posts are important to you. Posts with reviews are sorted to the top of the voting list.</p>
+
         
-        <div>
+        {/* <div>
           <p><b>FAQ</b></p>
           <p>
             <FaqCard linkText={<p className={classes.faqQuestion}>How exactly do Nomination Votes work?</p>}>
@@ -142,7 +137,7 @@ export const ReviewPhaseInformation = ({classes, reviewYear, reviewPhase}: {
             </FaqCard>
           </p>
         </div>
-        <br />
+        <br /> */}
         <p>
           Read more details in <Link to={annualReviewAnnouncementPostPathSetting.get()}> this year's review announcement</Link>.
         </p>

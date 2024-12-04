@@ -1,13 +1,14 @@
 import { combineUrls, Components, getSiteUrl, registerComponent } from '../../lib/vulcan-lib';
 import React, { useEffect } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
+import { getReviewPhase, reviewIsActive, REVIEW_YEAR, eligibleToNominate } from '../../lib/reviewUtils';
 import { showReviewOnFrontPageIfActive, lightconeFundraiserThermometerGoalAmount, lightconeFundraiserActive } from '../../lib/publicSettings';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../lib/cookies/cookies';
 import moment from 'moment';
 import { visitorGetsDynamicFrontpage } from '../../lib/betas';
 import { isLW, isAF } from '@/lib/instanceSettings';
+import { useCurrentUser } from './withUser';
 
 const getStructuredData = () => ({
   "@context": "http://schema.org",
@@ -43,21 +44,24 @@ const LWHome = () => {
     QuickTakesSection, LWHomePosts, HeadTags
   } = Components;
 
+  const currentUser = useCurrentUser();
+
   return (
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
           <HeadTags structuredData={getStructuredData()}/>
           <UpdateLastVisitCookie />
-
           {lightconeFundraiserActive.get() && <SingleColumnSection>
             <FundraisingThermometer goalAmount={lightconeFundraiserThermometerGoalAmount.get()} />
           </SingleColumnSection>}
-          {reviewIsActive() && getReviewPhase() === "RESULTS" && <SingleColumnSection>
-            <FrontpageBestOfLWWidget reviewYear={REVIEW_YEAR}/>
-          </SingleColumnSection>}
-          {reviewIsActive() && getReviewPhase() !== "RESULTS" && showReviewOnFrontPageIfActive.get() && <SingleColumnSection>
-            <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
-          </SingleColumnSection>}
+          {reviewIsActive() && <>
+            {getReviewPhase() === "RESULTS" && <SingleColumnSection>
+              <FrontpageBestOfLWWidget reviewYear={REVIEW_YEAR} />
+            </SingleColumnSection>}
+            {getReviewPhase() !== "RESULTS" && <SingleColumnSection>
+              <FrontpageReviewWidget reviewYear={REVIEW_YEAR} style={{marginTop: 48, marginBottom: eligibleToNominate(currentUser) ? 44 : 10}}/>
+            </SingleColumnSection>}
+          </>}
           {(!reviewIsActive() || !showReviewOnFrontPageIfActive.get()) && <SingleColumnSection>
             <DismissibleSpotlightItem current/>
           </SingleColumnSection>}

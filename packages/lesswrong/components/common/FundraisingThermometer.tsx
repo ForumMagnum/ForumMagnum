@@ -1,6 +1,6 @@
 import { registerComponent } from '@/lib/vulcan-lib';
 import React, { useEffect, useState } from 'react';
-import { lightconeFundraiserPostId, lightconeFundraiserThermometerBgUrl, lightconeFundraiserUnsyncedAmount } from '@/lib/publicSettings';
+import { lightconeFundraiserPostId, lightconeFundraiserThermometerBgUrl } from '@/lib/publicSettings';
 import { Link } from '@/lib/reactRouterWrapper';
 import { useFundraiserProgress } from '@/lib/lightconeFundraiser';
 
@@ -17,8 +17,11 @@ const styles = (theme: ThemeType) => ({
     overflow: 'hidden',
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'center',
     alignItems: 'center',
+    '&:hover $fundraiserHeaderDonateButton': {
+      background: theme.palette.inverseGreyAlpha(0.25),
+      color: theme.palette.background.pageActiveAreaBackground,
+    },
   },
   fill: {
     position: 'absolute',
@@ -42,7 +45,7 @@ const styles = (theme: ThemeType) => ({
     transition: 'filter 0.5s ease-in-out',
   },
   header: {
-    fontSize: '2rem',  
+    fontSize: '1.6rem',  
     marginTop: 0,
     marginBottom: 0,
     fontFamily: theme.typography.headerStyle.fontFamily,
@@ -58,8 +61,10 @@ const styles = (theme: ThemeType) => ({
     width: '100%',
     fontFamily: theme.typography.body2.fontFamily,
     fontSize: '1.2rem',
-    position: 'relative',
-    top: 8
+    paddingBottom: 6,
+    textShadow: `0px 0px 20px ${theme.palette.background.default}, 0px 0px 30px ${theme.palette.background.default}, 0px 0px 40px ${theme.palette.background.default}, 0px 0px 50px ${theme.palette.background.default}`,
+    alignItems: 'center',
+    backdropFilter: 'blur(3px)',
   },
   raisedTextBold: {
     fontWeight: 'bold',
@@ -68,15 +73,28 @@ const styles = (theme: ThemeType) => ({
   goalTextBold: {
     fontWeight: 'bold',
     fontFamily: theme.typography.headerStyle.fontFamily,
+    marginRight: 6
   },
   raisedGoalNumber: {
     color: theme.palette.review.winner,
   },
   fundraiserHeader: {
     display: 'flex',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
     alignItems: 'center',
     marginBottom: 4,
+    color: theme.palette.background.pageActiveAreaBackground,
+    zIndex: 1,
+    position: 'relative',
+    width: '100%',
+    height: '100%',
+    padding: '0 24px',
+  },
+  fundraiserDonateText: {
+    '&:hover': {
+      textDecoration: 'none',
+      opacity: 'unset'
+    },
   },
   fundraiserHeaderDonateButton: {
     padding: '10px 20px',
@@ -85,9 +103,16 @@ const styles = (theme: ThemeType) => ({
     fontSize: '1.6rem',
     fontWeight: 'bold',
     fontFamily: theme.typography.headerStyle.fontFamily,
-    color: theme.palette.review.winner,
-    background: theme.palette.inverseGreyAlpha(0.35),
-    backdropFilter: 'blur(3px)',
+    color: theme.palette.inverseGreyAlpha(0.65),
+    transition: 'background 0.2s ease-in-out, color 0.2s ease-in-out',
+    '&:hover': {
+      background: `${theme.palette.inverseGreyAlpha(0.8)} !important`,
+      boxShadow: `0px 0px 10px ${theme.palette.inverseGreyAlpha(0.5)}`,
+      color: theme.palette.background.pageActiveAreaBackground,
+    },
+    [theme.breakpoints.down('xs')]: {
+      color: theme.palette.background.pageActiveAreaBackground,
+    },
   },
 });
 
@@ -108,25 +133,23 @@ const FundraisingThermometer: React.FC<FundraisingThermometerProps & {classes: C
 
   return (
     <div className={classes.fundraiserContainer}>
-      <div className={classes.fundraiserHeader}>
-        <h2 className={classes.header}>
-          <Link to={`/posts/${lightconeFundraiserPostId.get()}`}>Lightcone Infrastructure fundraiser progress</Link>
-        </h2>
-        <Link className={classes.fundraiserDonateText} to="https://lightconeinfrastructure.com/donate">
-          <div className={classes.fundraiserHeaderDonateButton}>
-            Donate
-          </div>
-        </Link>
-      </div>
-      <Link className={classes.thermometerLink} to={`/posts/${lightconeFundraiserPostId.get()}`}>
-        <div className={classes.thermometer}>
-          <div className={classes.blurredUnfill}></div>
-          <div className={classes.fill} style={{width: `${viewPercentage}%`, backgroundSize: `${100*100/viewPercentage}% auto`}}></div>
-        </div>
-      </Link>
       <div className={classes.textContainer}>
-        <span className={classes.raisedText}><span className={classes.raisedTextBold}>Raised:</span> <span className={classes.raisedGoalNumber}>${Math.round(viewCurrentAmount).toLocaleString()}</span></span>
-        <span className={classes.goalText}><span className={classes.goalTextBold}>Goal 1 of 3:</span> <span className={classes.raisedGoalNumber}>${goalAmount.toLocaleString()}</span></span>
+        <Link className={classes.header} to={`/posts/${lightconeFundraiserPostId.get()}`}>Lightcone Fundraiser Progress</Link>
+        <span className={classes.goalText}>
+          <span className={classes.goalTextBold}>Goal 1:</span> 
+          <span className={classes.raisedGoalNumber}>${Math.round(viewCurrentAmount).toLocaleString()}</span> of ${goalAmount.toLocaleString()}
+        </span>
+      </div>
+      <div className={classes.thermometer}>
+        <div className={classes.fundraiserHeader}>
+          <Link className={classes.fundraiserDonateText} to="https://lightconeinfrastructure.com/donate">
+            <div className={classes.fundraiserHeaderDonateButton}>
+              Donate
+            </div>
+          </Link>
+        </div>
+        <div className={classes.blurredUnfill}></div>
+        <div className={classes.fill} style={{width: `${viewPercentage}%`, backgroundSize: `${100*100/viewPercentage}% auto`}}></div>
       </div>
     </div>
   );
