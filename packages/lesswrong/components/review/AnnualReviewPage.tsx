@@ -69,14 +69,16 @@ const styles = (theme: ThemeType) => ({
     fontSize: '1rem',
     minWidth: 120,
     padding: 8,
-    borderRadius: 8,
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
     '&:first-child': {
       marginRight: 8,
     },
     '&:last-child': {
       marginLeft: 8,
     },
-    marginBottom: -8,
     '& .MuiTab-wrapper': {
     },
     color: theme.palette.grey[900],
@@ -87,7 +89,6 @@ const styles = (theme: ThemeType) => ({
     '&.MuiTab-selected': {
       backgroundColor: theme.palette.background.pageActiveAreaBackground,
       margin: 0,
-      marginBottom: -8,
     }
   },
   subLabel: {

@@ -56,8 +56,6 @@ const NominationsPage = ({classes, reviewYear}: { classes: ClassesType<typeof st
     ExternalPostImporter,
   } = Components
 
-  // Handle url-encoded special case, otherwise parseInt year
-
   if (!eligibleToNominate(currentUser)) {
     return <SingleColumnSection>
       <Typography variant="body2">
@@ -140,7 +138,7 @@ const NominationsPage = ({classes, reviewYear}: { classes: ClassesType<typeof st
 
       {activeTab === 'all' && <AllPostsPage defaultHideSettings/>}
       {activeTab === 'submitlinkposts' && <div>
-        <ExternalPostImporter/>
+        <ExternalPostImporter defaultPostedAt={startDate} />
       </div>}
       </div>
     </SingleColumnSection>

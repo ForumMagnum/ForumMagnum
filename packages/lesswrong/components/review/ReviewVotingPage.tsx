@@ -51,7 +51,7 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 2,
   },
   filterSelected: {
-    backgroundColor: theme.palette.grey[700],
+    backgroundColor: theme.palette.grey[400],
     color: theme.palette.background.pageActiveAreaBackground
   },
   separator: {
@@ -352,15 +352,13 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
             currentFilter={tagFilter}
             handleFilter={(tagId) => handleTagFilter(tagId)}
             defaultMax={5}
-            beforeChildren={<>
-            <LWTooltip title="Only show the post you've read">
-              <div className={classNames(classes.statusFilter, {[classes.filterSelected]: statusFilter === 'read'})}
+            afterChildren={<>
+              <LWTooltip title="Only show the post you've read">
+                <div className={classNames(classes.statusFilter, {[classes.filterSelected]: statusFilter === 'read'})}
                     onClick={() => handleStatusFilter('read')}>
                 Read
               </div>
-            </LWTooltip>
-
-              <span className={classes.separator}>{' '}•{' '}</span>
+              </LWTooltip>
             </>}
           />
         </div>

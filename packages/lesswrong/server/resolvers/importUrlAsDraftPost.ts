@@ -3,11 +3,13 @@ import { ArxivExtractor } from '../extractors/arxivExtractor'
 import { getLatestContentsRevision } from '@/lib/collections/revisions/helpers';
 
 import Posts from '../../lib/collections/posts/collection'
-import {addGraphQLSchema, createMutator, sanitize} from '../vulcan-lib'
-import {fetchFragmentSingle} from '../fetchFragment'
-import {defineQuery} from '@/server/utils/serverGraphqlUtil.ts'
+import { addGraphQLSchema, createMutator, sanitize } from '../vulcan-lib'
+import { fetchFragmentSingle } from '../fetchFragment'
+import { defineMutation } from '@/server/utils/serverGraphqlUtil.ts'
 import Users from '@/lib/collections/users/collection'
 import { ExternalPostImportData } from '@/components/posts/ExternalPostImporter'
+import { isLWorAF } from '@/lib/instanceSettings';
+import { eligibleToNominate } from '@/lib/reviewUtils';
 
 // Define CoauthorStatus type
 addGraphQLSchema(`
@@ -38,7 +40,7 @@ addGraphQLSchema(`
 // todo various url validation
 // mostly client side, but also mb avoid links to lw, eaf, etc
 export async function importUrlAsDraftPost(url: string, context: ResolverContext): Promise<ExternalPostImportData> {
-  if (!context.currentUser) {
+  if (!context.currentUser || !eligibleToNominate(context.currentUser)) {
     throw new Error('You must be logged in to fetch website HTML.')
   }
 
@@ -57,7 +59,21 @@ export async function importUrlAsDraftPost(url: string, context: ResolverContext
 
   if (existingPost) {
     const latestRevision = await getLatestContentsRevision(existingPost, context);
-    return { _id: existingPost._id, slug: existingPost.slug, title: existingPost.title, url: existingPost.url, postedAt: existingPost.postedAt, createdAt: existingPost.createdAt, userId: existingPost.userId, coauthorStatuses: existingPost.coauthorStatuses, draft: existingPost.draft, modifiedAt: existingPost.modifiedAt, content: sanitize(latestRevision?.html ?? '')} 
+    const { _id, slug, title, url, postedAt, createdAt, userId, coauthorStatuses, draft, modifiedAt } = existingPost;
+
+    return { 
+      _id,
+      slug,
+      title,
+      url,
+      postedAt,
+      createdAt,
+      userId,
+      coauthorStatuses,
+      draft,
+      modifiedAt,
+      content: sanitize(latestRevision?.html ?? '')
+    }
   }
 
   let extractedData
@@ -83,7 +99,7 @@ export async function importUrlAsDraftPost(url: string, context: ResolverContext
     }
   }
 
-  const {data } = await createMutator({
+  const { data } = await createMutator({
     collection: Posts,
     document: {
       userId: reviewUser._id,
@@ -121,7 +137,7 @@ export async function importUrlAsDraftPost(url: string, context: ResolverContext
   }
 }
 
-defineQuery({
+defineMutation({
   name: 'importUrlAsDraftPost',
   argTypes: '(url: String!)',
   resultType: 'ExternalPostImportData!',

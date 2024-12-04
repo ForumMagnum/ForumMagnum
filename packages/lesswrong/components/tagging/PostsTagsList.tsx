@@ -29,7 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[500]
   },
   selected: {
-    backgroundColor: theme.palette.grey[700],
+    backgroundColor: theme.palette.grey[400],
     color: theme.palette.background.pageActiveAreaBackground
   },
   button: {
@@ -53,7 +53,7 @@ export const PostsTagsList = (
     handleFilter, 
     expandedMinCount = 3, 
     defaultMax = 6,
-    beforeChildren,
+    afterChildren,
   }: {
     classes: ClassesType,
     posts: PostsList[] | null,
@@ -62,7 +62,7 @@ export const PostsTagsList = (
     expandedMinCount?: number // when showing more tags, this is the number
     // of posts each tag needs to have to be included
     defaultMax?: number // default number of tags to show
-    beforeChildren?: React.ReactNode,
+    afterChildren?: React.ReactNode,
   }) => {
   const { LWTooltip } = Components
 
@@ -92,10 +92,10 @@ export const PostsTagsList = (
   if (!posts?.length) return null
 
   return <div className={classes.root}>
-    {beforeChildren}
     {slicedTags.map(tag => tagButton(tag))}
-    {(max === defaultMax) && <LWTooltip title={`Show ${expandedNumberOfTags - defaultMax} more tags`}><a className={classes.button} onClick={() => setMax(expandedNumberOfTags)}>More</a></LWTooltip>}
-    {(max !== defaultMax) && <a  className={classes.button} onClick={() => setMax(defaultMax)}>Fewer</a>}
+    {afterChildren}
+    {(max === defaultMax) && <LWTooltip title={`Show ${expandedNumberOfTags - defaultMax} more tags`}><a className={classes.button} onClick={() => setMax(expandedNumberOfTags)}>Fewer</a></LWTooltip>}
+    {(max !== defaultMax) && <a  className={classes.button} onClick={() => setMax(defaultMax)}>More</a>}
   </div>;
 }
 

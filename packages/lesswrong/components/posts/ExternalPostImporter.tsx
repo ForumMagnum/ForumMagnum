@@ -219,7 +219,7 @@ const CommentEditor = ({
   );
 };
 
-const ExternalPostImporter = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesType<typeof styles>, defaultPostedAt?: Date }) => {
   const [value, setValue] = useState('');
   const [post, setPost] = useState<ExternalPostImportData | null>(null);
   const [postContent, setPostContent] = useState<string>('');
@@ -255,7 +255,7 @@ const ExternalPostImporter = ({ classes }: { classes: ClassesType<typeof styles>
     if (data && data.importUrlAsDraftPost) {
       const importedPost = data.importUrlAsDraftPost;
       setPost(importedPost);
-      setPostContent(importedPost.content || '');
+      setPostContent(importedPost.content ?? '');
     }
     if (error) {
       // eslint-disable-next-line no-console
@@ -293,7 +293,8 @@ const ExternalPostImporter = ({ classes }: { classes: ClassesType<typeof styles>
             },
           },
           draft: false,
-          postedAt: new Date(),
+          wasEverUndrafted: true,
+          postedAt: post.postedAt ?? defaultPostedAt ?? new Date(),
         } as AnyBecauseHard,
       });
 
@@ -376,12 +377,6 @@ const ExternalPostImporter = ({ classes }: { classes: ClassesType<typeof styles>
             <br />
             You can edit the linkpost here:
           </Typography>
-          {/* <Button
-            onClick={handleImportDifferentPost}
-            className={classes.formButton}
-          >
-            Import different post
-          </Button> */}
           <div className={classes.importTitle}>{post.title}</div>
           <ImportedPostEditor
             post={post}

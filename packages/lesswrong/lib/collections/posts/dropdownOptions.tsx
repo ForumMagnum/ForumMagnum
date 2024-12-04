@@ -23,7 +23,6 @@ export const SORT_ORDER_OPTIONS: Record<PostSortingMode,SettingsOption> = {
   recentComments: { label: isFriendlyUI ? 'Recent comments' : 'Recent Comments' },
   new: { label: 'New' },
   old: { label: 'Old' },
-  // created: { label: 'Created' },
 }
 
 export const postsLayouts = new TupleSet(["card", "list"] as const)
