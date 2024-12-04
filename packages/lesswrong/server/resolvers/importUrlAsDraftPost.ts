@@ -1,4 +1,4 @@
-import {extract} from '@extractus/article-extractor'
+import { extract } from '@extractus/article-extractor'
 import { ArxivExtractor } from '../extractors/arxivExtractor'
 import { getLatestContentsRevision } from '@/lib/collections/revisions/helpers';
 
@@ -8,7 +8,6 @@ import { fetchFragmentSingle } from '../fetchFragment'
 import { defineMutation } from '@/server/utils/serverGraphqlUtil.ts'
 import Users from '@/lib/collections/users/collection'
 import { ExternalPostImportData } from '@/components/posts/ExternalPostImporter'
-import { isLWorAF } from '@/lib/instanceSettings';
 import { eligibleToNominate } from '@/lib/reviewUtils';
 
 // Define CoauthorStatus type
@@ -40,7 +39,7 @@ addGraphQLSchema(`
 // todo various url validation
 // mostly client side, but also mb avoid links to lw, eaf, etc
 export async function importUrlAsDraftPost(url: string, context: ResolverContext): Promise<ExternalPostImportData> {
-  if (!context.currentUser || !eligibleToNominate(context.currentUser)) {
+  if (!context.currentUser) {
     throw new Error('You must be logged in to fetch website HTML.')
   }
 
@@ -141,6 +140,10 @@ defineMutation({
   name: 'importUrlAsDraftPost',
   argTypes: '(url: String!)',
   resultType: 'ExternalPostImportData!',
-  fn: async (_root: void, {url}: { url: string }, context: ResolverContext): Promise<ExternalPostImportData> => 
-    importUrlAsDraftPost(url, context)
+  fn: async (_root: void, {url}: { url: string }, context: ResolverContext): Promise<ExternalPostImportData> => {
+    if (!context.currentUser || !eligibleToNominate(context.currentUser)) {
+      throw new Error('You are not eligible to import external posts');
+    }
+    return importUrlAsDraftPost(url, context)
+  }
 })

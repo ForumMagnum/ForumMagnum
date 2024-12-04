@@ -1,12 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { annualReviewAnnouncementPostPathSetting } from '../../lib/publicSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import { ReviewPhase, ReviewYear } from '../../lib/reviewUtils';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { userIsAdmin } from '../../lib/vulcan-users';
 import { useCurrentUser } from '../common/withUser';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
 
 const styles = (theme: ThemeType): JssStyles => ({
   actionButton: {
@@ -76,7 +74,6 @@ export const ReviewDashboardButtons = ({classes, reviewYear, reviewPhase, showAd
           </Link>
         </LWTooltip>}
       </SectionFooter>
-
       <div>
         <LWTooltip title={<div>
           <p>Write a broader review, as a top-level post. This can cover a wide variety of "Review shaped" thoughts, like:</p>
