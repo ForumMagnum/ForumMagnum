@@ -50,7 +50,7 @@ export function hydrateClient() {
 };
 
 
-let _forceFullRerender: (()=>void)|null = null;
+let _forceFullRerender: (() => void)|null = null;
 export function forceFullReactRerender() {
   _forceFullRerender?.();
 }
