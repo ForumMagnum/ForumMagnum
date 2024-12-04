@@ -27,6 +27,7 @@ import { HEADER_HEIGHT } from "../common/Header";
 import { MAX_COLUMN_WIDTH } from "../posts/PostsPage/PostsPage";
 import { ToCData } from "@/lib/tableOfContents";
 import qs from "qs";
+import { GUIDE_PATH_PAGES_MAPPING } from "@/lib/arbital/paths";
 
 const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   rootGivenImage: {
@@ -526,6 +527,42 @@ function useDisplayedTagTitle(tag: TagPageFragment | TagPageWithRevisionFragment
   return selectedLens.title;
 }
 
+function usePathInfo(tag: TagPageFragment | TagPageWithRevisionFragment | null) {
+  const { query } = useLocation();
+
+  if (!tag) {
+    return {};
+  }
+
+  const pathId = query.pathId;
+  const pathPages = pathId ? GUIDE_PATH_PAGES_MAPPING[pathId as keyof typeof GUIDE_PATH_PAGES_MAPPING] : undefined;
+
+  if (!pathPages) {
+    return {};
+  }
+
+  const tagSlugs = [tag.slug, ...tag.oldSlugs];
+  let currentPagePathIndex;
+  for (let slug of tagSlugs) {
+    const index = pathPages.indexOf(slug);
+    if (index >= 0) {
+      currentPagePathIndex = index;
+      break;
+    }
+  }
+
+  if (currentPagePathIndex === undefined) {
+    return {};
+  }
+
+  const nextPageId = pathPages[currentPagePathIndex + 1];
+  const previousPageId = currentPagePathIndex > 0 ? pathPages[currentPagePathIndex - 1] : undefined;
+  const displayPageIndex = currentPagePathIndex + 1;
+  const pathPageCount = pathPages.length;
+
+  return { displayPageIndex, nextPageId, previousPageId, pathPageCount };
+}
+
 const PostsListHeading: FC<{
   tag: TagPageFragment|TagPageWithRevisionFragment,
   query: Record<string, string>,
@@ -613,9 +650,11 @@ const TagPage = () => {
   const [truncated, setTruncated] = useState(false)
   const [editing, setEditing] = useState(!!query.edit)
   const [hoveredContributorId, setHoveredContributorId] = useState<string|null>(null);
-  // const [selectedLens, setSelectedLens] = useState<string>('main-tab');
   const { captureEvent } =  useTracking()
   const client = useApolloClient()
+
+  const pathId = query.pathId;
+
 
   const multiTerms: AnyBecauseTodo = {
     allPages: {view: "allPagesByNewest"},
