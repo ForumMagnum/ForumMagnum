@@ -147,15 +147,12 @@ const postIcon = (post: PostsBase|PostsListBase) => {
 }
 
 const useTaggedEvent = (showEventTag: boolean, post: PostsBase|PostsListBase) => {
-  const {currentForumEvent, isEventPost, marginalFundingWeek} = useCurrentForumEvent();
+  const {currentForumEvent, isEventPost} = useCurrentForumEvent();
   if (!showEventTag) {
     return undefined;
   }
   if (currentForumEvent?.tag && isEventPost(post)) {
     return currentForumEvent;
-  }
-  if (marginalFundingWeek?.tag && isEventPost(post, marginalFundingWeek?.tag)) {
-    return marginalFundingWeek;
   }
   return undefined;
 }

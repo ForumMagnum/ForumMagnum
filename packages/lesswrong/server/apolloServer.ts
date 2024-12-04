@@ -494,11 +494,11 @@ export function startWebserver() {
   })
 
   // Start Server
-  const port = getCommandLineArguments().port;
+  const listenPort = getCommandLineArguments().listenPort;
   const env = process.env.NODE_ENV || 'production'
-  const server = app.listen({ port }, () => {
+  const server = app.listen({ port: listenPort }, () => {
     // eslint-disable-next-line no-console
-    return console.info(`Server running on http://localhost:${port} [${env}]`)
+    return console.info(`Server running on http://localhost:${listenPort} [${env}]`)
   })
   server.keepAliveTimeout = 120000;
   

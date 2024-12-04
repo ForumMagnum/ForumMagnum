@@ -121,7 +121,7 @@ const LwAfDomainWhitelist: DomainList = {
     "baserates.org",
     "alignmentforum.org",
     "alignment-forum.com",
-    `localhost:${getCommandLineArguments().port}`,
+    `localhost:${getCommandLineArguments().localhostUrlPort}`,
   ],
   mirrorDomains: [
     "greaterwrong.com",
@@ -136,14 +136,14 @@ const forumDomainWhitelist: ForumOptions<DomainList> = {
     onsiteDomains: [
       'forum.effectivealtruism.org',
       'forum-staging.effectivealtruism.org',
-      `localhost:${getCommandLineArguments().port}`,
+      `localhost:${getCommandLineArguments().localhostUrlPort}`,
     ],
     mirrorDomains: ['ea.greaterwrong.com'],
   },
   default: {
     onsiteDomains: [
       new URLClass(siteUrlSetting.get()).host,
-      `localhost:${getCommandLineArguments().port}`,
+      `localhost:${getCommandLineArguments().localhostUrlPort}`,
     ],
     mirrorDomains: [],
   }
