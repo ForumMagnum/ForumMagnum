@@ -65,7 +65,6 @@ function recomputeReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
   if (reviewYear && reviewYear !== REVIEW_YEAR) {
     return "COMPLETE"
   }
-
   const currentDate = moment.utc()
   const reviewStart = getReviewStart(REVIEW_YEAR)
   if (currentDate < reviewStart) return "UNSTARTED"
