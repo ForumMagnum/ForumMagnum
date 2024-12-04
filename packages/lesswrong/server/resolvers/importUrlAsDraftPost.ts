@@ -47,13 +47,11 @@ export async function importUrlAsDraftPost(url: string, context: ResolverContext
     throw new Error('Misconfiguration: Failed to find review user')
   }
 
-    // todo what if I want to delete failed attempts and try again
-  // mb deletedDraft - false?
   const existingPost = await fetchFragmentSingle({
     collectionName: 'Posts',
     fragmentName: 'PostsEditQueryFragment',
     currentUser: context.currentUser,
-    selector: {url, userId: reviewUser._id},
+    selector: {url, userId: reviewUser._id, deletedDraft: false},
     context,
   })
 
@@ -91,13 +89,12 @@ export async function importUrlAsDraftPost(url: string, context: ResolverContext
       userId: reviewUser._id,
       title: extractedData.title,
       url: url,
-      contents: {originalContents: {data: extractedData.content, type: 'ckEditorMarkup'}},
+      contents: {originalContents: {data: sanitize(extractedData.content ?? ''), type: 'ckEditorMarkup'}},
       postedAt: extractedData.published ? new Date(extractedData.published) : undefined,
       modifiedAt: new Date(),
       coauthorStatuses: [{userId: context.currentUser._id, confirmed: true, requested: true}],
       hasCoauthorPermission: true,
       draft: true,
-      contents_latest: sanitize(extractedData.content ?? ''),
     } as Partial<DbPost>,
     currentUser: context.currentUser,
     validate: false,
