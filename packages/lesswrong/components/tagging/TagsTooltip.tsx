@@ -4,6 +4,7 @@ import { useTagPreview } from "./useTag";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from "classnames";
+import { PopperPlacementType } from "@material-ui/core/Popper";
 
 type PreviewableTag =
   TagPreviewFragment |
@@ -128,6 +129,7 @@ const TagsTooltip = ({
   PreviewWrapper = DefaultPreviewWrapper,
   As,
   inlineBlock = false,
+  placement,
   className,
   popperClassName,
   isRedLink,
@@ -143,6 +145,7 @@ const TagsTooltip = ({
   PreviewWrapper?: TagsTooltipPreviewWrapper,
   As?: keyof JSX.IntrinsicElements,
   inlineBlock?: boolean,
+  placement?: PopperPlacementType,
   className?: string,
   popperClassName?: string,
   isRedLink?: boolean,
@@ -184,6 +187,7 @@ const TagsTooltip = ({
       className={className}
       popperClassName={classNames(classes.tooltip, popperClassName)}
       titleClassName={classes.tooltipTitle}
+      placement={placement}
     >
       {children}
     </HoverOver>
