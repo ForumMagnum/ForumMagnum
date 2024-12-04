@@ -84,7 +84,7 @@ const tryToFixUrl = (oldUrl: string, newUrl: string) => {
   }
 }
 
-// NOTE: validateUrl and tryToFixUrl are duplicates of the code in public/lesswrong-editor/src/url-validator-plugin.js,
+// NOTE: validateUrl and tryToFixUrl are duplicates of the code in ckEditor/src/url-validator-plugin.js,
 // which can't be imported directly because it is part of the editor bundle
 export const validateUrl = (url: string) => {
   try {
