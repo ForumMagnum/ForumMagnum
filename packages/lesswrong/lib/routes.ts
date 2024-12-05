@@ -789,6 +789,13 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       noFooter: true,
     },
     {
+      name: 'Instagram landing page',
+      path: '/instagram',
+      componentName: 'InstagramLandingPage',
+      title: 'Instagram Links',
+      noFooter: true,
+    },
+    {
       name: 'Twitter tools',
       path: '/admin/twitter',
       componentName: 'TwitterAdmin',
