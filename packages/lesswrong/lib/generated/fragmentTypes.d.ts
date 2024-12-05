@@ -2729,6 +2729,15 @@ interface TagWithFlagsAndRevisionFragment extends TagRevisionFragment { // fragm
   readonly tagFlags: Array<TagFlagFragment>,
 }
 
+interface ArbitalLinkedPagesFragment { // fragment on non-collection type
+  readonly faster: any,
+  readonly slower: any,
+  readonly moreTechnical: any,
+  readonly lessTechnical: any,
+  readonly requirements: any,
+  readonly teaches: any,
+}
+
 interface TagPageFragment extends TagWithFlagsFragment { // fragment on Tags
   readonly tableOfContents: any,
   readonly postsDefaultSortOrder: string,
@@ -2737,6 +2746,7 @@ interface TagPageFragment extends TagWithFlagsFragment { // fragment on Tags
   readonly contributors: any,
   readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
   readonly lenses: Array<MultiDocumentEdit>,
+  readonly arbitalLinkedPages: ArbitalLinkedPagesFragment,
 }
 
 interface TagPageFragment_subforumWelcomeText { // fragment on Revisions
@@ -2756,6 +2766,7 @@ interface TagPageWithRevisionFragment extends TagWithFlagsAndRevisionFragment { 
   readonly contributors: any,
   readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
   readonly lenses: Array<MultiDocumentEdit>,
+  readonly arbitalLinkedPages: ArbitalLinkedPagesFragment,
 }
 
 interface TagPageWithRevisionFragment_subforumWelcomeText { // fragment on Revisions
@@ -3914,6 +3925,8 @@ interface MultiDocumentEdit { // fragment on MultiDocuments
   readonly index: number,
   readonly tableOfContents: any /*{"definitions":[{}]}*/,
   readonly contents: RevisionEdit|null,
+  readonly isArbitalImport: boolean|null,
+  readonly arbitalLinkedPages: ArbitalLinkedPagesFragment,
 }
 
 interface ElectionCandidateBasicInfo { // fragment on ElectionCandidates
@@ -4482,6 +4495,7 @@ interface FragmentTypes {
   TagDetailedPreviewFragment: TagDetailedPreviewFragment
   TagWithFlagsFragment: TagWithFlagsFragment
   TagWithFlagsAndRevisionFragment: TagWithFlagsAndRevisionFragment
+  ArbitalLinkedPagesFragment: ArbitalLinkedPagesFragment
   TagPageFragment: TagPageFragment
   AllTagsPageFragment: AllTagsPageFragment
   TagPageWithRevisionFragment: TagPageWithRevisionFragment
@@ -4650,6 +4664,7 @@ interface FragmentTypesByCollection {
   Bans: "BansDefaultFragment"|"BansAdminPageFragment"
   Chapters: "ChaptersDefaultFragment"|"ChaptersFragment"|"ChaptersEdit"
   ReviewVotes: "ReviewVotesDefaultFragment"|"reviewVoteFragment"|"reviewVoteWithUserAndPost"
+  ArbitalLinkedPageses: "ArbitalLinkedPagesFragment"
   AdvisorRequests: "AdvisorRequestsDefaultFragment"|"AdvisorRequestsMinimumInfo"
   UserJobAds: "UserJobAdsDefaultFragment"|"UserJobAdsMinimumInfo"
   UserEAGDetails: "UserEAGDetailsDefaultFragment"|"UserEAGDetailsMinimumInfo"
@@ -4853,6 +4868,7 @@ interface CollectionNamesByFragmentName {
   TagDetailedPreviewFragment: "Tags"
   TagWithFlagsFragment: "Tags"
   TagWithFlagsAndRevisionFragment: "Tags"
+  ArbitalLinkedPagesFragment: never
   TagPageFragment: "Tags"
   AllTagsPageFragment: "Tags"
   TagPageWithRevisionFragment: "Tags"

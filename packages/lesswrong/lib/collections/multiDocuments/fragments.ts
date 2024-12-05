@@ -18,6 +18,8 @@ registerFragment(`
       ...RevisionEdit
     }
     isArbitalImport
-    arbitalLinkedPages
+    arbitalLinkedPages {
+      ...ArbitalLinkedPagesFragment
+    }
   }
 `);

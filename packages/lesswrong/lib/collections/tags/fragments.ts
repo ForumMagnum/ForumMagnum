@@ -217,6 +217,29 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment ArbitalLinkedPagesFragment on ArbitalLinkedPages {
+    faster {
+      ...TagBasicInfo
+    }
+    slower {
+      ...TagBasicInfo
+    }
+    moreTechnical {
+      ...TagBasicInfo
+    }
+    lessTechnical {
+      ...TagBasicInfo
+    }
+    requirements {
+      ...TagBasicInfo
+    }
+    teaches {
+      ...TagBasicInfo
+    }
+  }
+`);
+
+registerFragment(`
   fragment TagPageFragment on Tag {
     ...TagWithFlagsFragment
     tableOfContents
@@ -243,7 +266,9 @@ registerFragment(`
     lenses {
       ...MultiDocumentEdit
     }
-    arbitalLinkedPages
+    arbitalLinkedPages {
+      ...ArbitalLinkedPagesFragment
+    }
   }
 `);
 
@@ -280,6 +305,9 @@ registerFragment(`
     canVoteOnRels
     lenses {
       ...MultiDocumentEdit
+    }
+    arbitalLinkedPages {
+      ...ArbitalLinkedPagesFragment
     }
   }
 `);
