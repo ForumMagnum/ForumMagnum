@@ -19,7 +19,7 @@ const PostsByVote = ({classes, postIds, year, limit, showMostValuableCheckbox=fa
   hideEmptyStateText?: boolean,
   postItemClassName?: string,
 }) => {
-  const { PostsItem, ErrorBoundary, Loading, Typography, LoadMore, SectionFooterCheckbox, Row } = Components
+  const { PostsItem, ErrorBoundary, Loading, Typography, LoadMore, SectionFooterCheckbox, LWTooltip } = Components
   const [requiredUnnominated, setRequiredUnnominated] = useState(true)
   const [requiredFrontpage, setRequiredFrontpage] = useState(true)
 
@@ -49,8 +49,12 @@ const PostsByVote = ({classes, postIds, year, limit, showMostValuableCheckbox=fa
   return <ErrorBoundary>
     <div>
       <div className={classes.checkboxRow}>
-        <SectionFooterCheckbox value={requiredUnnominated} onClick={() => setRequiredUnnominated(!requiredUnnominated)} label="Required unnominated" />
-        <SectionFooterCheckbox value={requiredFrontpage} onClick={() => setRequiredFrontpage(!requiredFrontpage)} label="Required frontpage" />
+        <LWTooltip title="Only show posts that don't have 2+ nomination votes yet.">
+          <SectionFooterCheckbox value={requiredUnnominated} onClick={() => setRequiredUnnominated(!requiredUnnominated)} label="Required unnominated" />
+        </LWTooltip>
+        <LWTooltip title="Only show frontpage posts (frontpage posts filtered for 'timelessness').">
+          <SectionFooterCheckbox value={requiredFrontpage} onClick={() => setRequiredFrontpage(!requiredFrontpage)} label="Required frontpage" />
+        </LWTooltip>
       </div>
       {posts.map(post => {
         return <PostsItem key={post._id} post={post} showMostValuableCheckbox={showMostValuableCheckbox} className={postItemClassName} />

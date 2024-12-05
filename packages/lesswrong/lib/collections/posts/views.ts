@@ -1459,7 +1459,7 @@ Posts.addView("stickied", (terms: PostsViewTerms, _, context?: ResolverContext) 
 // used to find a user's upvoted posts, so they can nominate them for the Review
 Posts.addView("nominatablePostsByVote", (terms: PostsViewTerms, _, context?: ResolverContext) => {
   const nominationFilter = terms.requiredUnnominated ? {positiveReviewVoteCount: { $lt: REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD }} : {}
-  const frontpageFilter = terms.requiredFrontpage ? {frontpageDate: {$exists: true}} : {frontpageDate: {$exists: false}}
+  const frontpageFilter = terms.requiredFrontpage ? {frontpageDate: {$exists: true}} : {}
   return {
     selector: {
       userId: {$ne: context?.currentUser?._id,},
