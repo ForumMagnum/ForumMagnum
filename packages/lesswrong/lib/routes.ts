@@ -1472,7 +1472,8 @@ if (hasEventsSetting.get()) {
       subtitle: forumTypeSetting.get() === 'EAForum' ? 'Events' : 'Community',
       subtitleLink: forumTypeSetting.get() === 'EAForum' ? '/events' : communityPath,
       getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
-      background: postBackground
+      background: postBackground,
+      noFooter: hasPostRecommendations,
     },
     {
       name: 'groups.post',
@@ -1482,6 +1483,7 @@ if (hasEventsSetting.get()) {
       background: postBackground,
       ...communitySubtitle,
       getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
+      noFooter: hasPostRecommendations,
     },
   );
 }
@@ -1670,6 +1672,7 @@ addRoute(
     titleComponentName: 'PostsPageHeaderTitle',
     previewComponentName: "PostCommentLinkPreviewGreaterWrong",
     noIndex: true,
+    noFooter: hasPostRecommendations,
     // TODO: Handle pingbacks leading to comments.
   }
 );
