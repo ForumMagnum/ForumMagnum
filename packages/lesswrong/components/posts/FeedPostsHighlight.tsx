@@ -3,9 +3,6 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import React, { FC, useState, useCallback, useEffect } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
-import { useForeignCrosspost, isPostWithForeignId, PostWithForeignId } from "../hooks/useForeignCrosspost";
-import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
-import { captureException }from "@sentry/core";
 import classNames from 'classnames';
 import { useRecordPostView } from '../hooks/useRecordPostView';
 import { useTracking } from '../../lib/analyticsEvents';
@@ -15,7 +12,6 @@ import { gql } from "@/lib/generated/gql-codegen";
 import ContentStyles from "../common/ContentStyles";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import Loading from "../vulcan-core/Loading";
-
 
 const PostsExpandedHighlightQuery = gql(`
   query FeedPostsHighlight($documentId: String) {
@@ -59,17 +55,6 @@ const TruncatedSuffix: FC<{
     </Link>
   );
 }
-
-const foreignFetchProps = {
-  collectionName: "Posts",
-  fragmentName: "PostsList",
-} as const;
-
-const expandedFetchProps = {
-  collectionName: "Posts",
-  fragmentName: "PostsExpandedHighlight",
-  fetchPolicy: "cache-first",
-} as const;
 
 const FeedPostHighlightBody = ({
   post,
@@ -143,39 +128,24 @@ const FeedPostsHighlight = ({post, ...rest}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const [expanded, setExpanded] = useState(false);
-  const isForeignCrosspost = isPostWithForeignId(post) && !post.fmCrosspost.hostedHere
-
-  const { loading, error, combinedPost } = useForeignCrosspost(post, foreignFetchProps);
-  const availablePost = combinedPost ?? post;
-  if (error) {
-    captureException(error);
-  }
-
-  const apolloClient = useForeignApolloClient();
-
-  const documentId = (isForeignCrosspost && !error) ? (availablePost.fmCrosspost?.foreignPostId ?? undefined) : availablePost._id;
 
   const { loading: expandedLoading, data } = useQuery(PostsExpandedHighlightQuery, {
-    variables: { documentId: documentId },
+    variables: { documentId: post._id },
     skip: !expanded && !!post.contents,
     fetchPolicy: "cache-first",
-    client: isForeignCrosspost ? apolloClient : undefined,
   });
   const expandedDocument = data?.post?.result ?? undefined;
 
-  return loading
-    ? <Loading />
-    : <FeedPostHighlightBody {...{
-        post,
-        expanded,
-        setExpanded,
-        expandedLoading,
-        expandedDocument,
-        ...rest
-      }}/>;
+  return (
+    <FeedPostHighlightBody {...{
+      post,
+      expanded,
+      setExpanded,
+      expandedLoading,
+      expandedDocument,
+      ...rest
+    }}/>
+  );
 }
 
 export default registerComponent('FeedPostsHighlight', FeedPostsHighlight, {styles});
-
-
-
