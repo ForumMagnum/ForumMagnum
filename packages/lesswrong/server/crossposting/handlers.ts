@@ -3,6 +3,7 @@ import { ZodType, z } from "zod";
 import { Utils } from "@/lib/vulcan-lib";
 import { getContextFromReqAndRes } from "../vulcan-lib/apollo-server/context";
 import { validateCrosspostingKarmaThreshold } from "@/server/fmCrosspost/helpers";
+import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import {
   ApiError,
   InvalidPostError,
@@ -16,12 +17,15 @@ import {
 } from "@/server/crossposting/tokens";
 import {
   FMCrosspostRoute,
+  crossposterDetailsRoute,
+  crosspostDetailsRoute,
   generateTokenRoute,
   connectCrossposterRoute,
   unlinkCrossposterRoute,
   createCrosspostRoute,
   updateCrosspostRoute,
 } from "@/lib/fmCrosspost/routes";
+import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { updateMutator } from "../vulcan-lib";
 import { Posts } from "@/lib/collections/posts";
 import Users from "@/lib/collections/users/collection";
@@ -90,6 +94,54 @@ const addHandler = <
 }
 
 export const addV2CrosspostHandlers = (app: Application) => {
+  addHandler(
+    app,
+    crossposterDetailsRoute,
+    async function crossposterDetailsCrosspostHandler(context, { userId }) {
+      const rawUser = await context.loaders.Users.load(userId);
+      if (!rawUser) {
+        throw new InvalidUserError();
+      }
+      const user = await accessFilterSingle(
+        context.currentUser,
+        Users,
+        rawUser,
+        context,
+      );
+      if (!user) {
+        throw new InvalidUserError();
+      }
+      return {
+        displayName: user.displayName ?? user.username ?? "",
+        slug: user.slug ?? "",
+      };
+    },
+  );
+
+  addHandler(
+    app,
+    crosspostDetailsRoute,
+    async function crosspostDetailsCrosspostHandler(context, { postId }) {
+      const rawPost = await context.loaders.Posts.load(postId);
+      if (!rawPost.fmCrosspost?.isCrosspost) {
+        throw new InvalidPostError();
+      }
+      const post = await accessFilterSingle(
+        context.currentUser,
+        Posts,
+        rawPost,
+        context,
+      );
+      if (!post) {
+        throw new InvalidPostError();
+      }
+      return {
+        canonicalLink: postGetPageUrl(post as DbPost, true),
+        commentCount: Math.max(post.commentCount ?? 0, 0),
+      };
+    },
+  );
+
   addHandler(
     app,
     generateTokenRoute,
