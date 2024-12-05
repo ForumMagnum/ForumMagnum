@@ -39,7 +39,7 @@ const formatSort = (sorting: PostSortingMode) => {
   return isFriendlyUI ? sort : `Sorted by ${sort}`;
 }
 
-const AllPostsPage = ({classes, defaultHideSettings}: {classes: ClassesType, defaultHideSettings?: boolean}) => {
+const AllPostsPage = ({classes, defaultHideSettings, noTopMargin}: {classes: ClassesType, defaultHideSettings?: boolean, noTopMargin?: boolean}) => {
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const {query} = useLocation();
@@ -85,7 +85,7 @@ const AllPostsPage = ({classes, defaultHideSettings}: {classes: ClassesType, def
             placement="top-end"
           >
             <div className={classes.title} onClick={toggleSettings}>
-              <SectionTitle title={preferredHeadingCase("All Posts")}>
+              <SectionTitle title={preferredHeadingCase("All Posts")} noTopMargin={noTopMargin}>
                 {isFriendlyUI ?
                   <SortButton label={formatSort(currentSorting)} /> :
                   <SettingsButton label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`}/>

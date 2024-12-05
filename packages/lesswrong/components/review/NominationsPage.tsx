@@ -9,7 +9,7 @@ import {preferredHeadingCase} from '@/themes/forumTheme'
 import withErrorBoundary from '@/components/common/withErrorBoundary'
 import moment from 'moment'
 import qs from 'qs'
-import { eligibleToNominate, ReviewYear } from '@/lib/reviewUtils';
+import { eligibleToNominate, getReviewPeriodEnd, getReviewPeriodStart, REVIEW_YEAR, ReviewYear } from '@/lib/reviewUtils';
 
 const styles = (theme: ThemeType) => ({
   headline: {
@@ -23,7 +23,7 @@ const styles = (theme: ThemeType) => ({
   },
   tabsContainer: {
     paddingTop: 20,
-    backgroundColor: theme.palette.background.pageActiveAreaBackground,
+    backgroundColor: theme.palette.background.translucentBackground,
   },
   content: {
     backgroundColor: theme.palette.background.translucentBackground,
@@ -45,6 +45,7 @@ const styles = (theme: ThemeType) => ({
     textAlign: 'center'
   },
   allPosts: {
+    paddingTop: 24,
     backgroundColor: theme.palette.background.translucentBackground,
     '& .SectionTitle-children': {
       position: 'relative',
@@ -53,17 +54,26 @@ const styles = (theme: ThemeType) => ({
     '& .SectionTitle-root, .PostsTimeBlock-root > a, .PostsTimeBlock-frontpageSubtitle': {
       position: 'relative',
       left: 12
-    }
+  }
   },
   externalPostImporter: {
     paddingTop: 24,
-    backgroundColor: theme.palette.background.pageActiveAreaBackground
+    backgroundColor: theme.palette.background.translucentBackground
+  },
+  divider: {
+    marginRight: 36
   }
 });
 
 
 const dateStr = (startDate?: Date) =>
   startDate ? moment(startDate).format('YYYY-MM-DD') : ''
+
+export const allPostsParams = (reviewYear: ReviewYear=REVIEW_YEAR) => {
+  const startDate = getReviewPeriodStart(reviewYear).toDate()
+  const endDate = getReviewPeriodEnd(reviewYear).toDate()
+  return {after: dateStr(startDate), before: dateStr(endDate), timeframe: 'yearly', frontpage: 'true', unnominated: 'true'}
+}  
 
 const NominationsPage = ({classes, reviewYear}: { classes: ClassesType<typeof styles>, reviewYear: ReviewYear }) => {
   const currentUser = useCurrentUser()
@@ -94,11 +104,10 @@ const NominationsPage = ({classes, reviewYear}: { classes: ClassesType<typeof st
   const endDate = new Date(reviewYear + 1, 0, 1)
 
   const handleChangeTab = (e: React.ChangeEvent, value: string) => {
-    const allPostsParams = {after: dateStr(startDate), before: dateStr(endDate), timeframe: 'yearly'}
     const newQuery = {
       tab: value,
-      ...(value === 'all' && allPostsParams),
-      ...(value === 'submitlinkposts' && {...allPostsParams, filter: 'linkpost', sortBy: 'new'}),
+      ...(value === 'all' && allPostsParams(reviewYear)),
+      ...(value === 'submitlinkposts' && {tab: 'submitlinkposts'})
     }
 
     navigate({
@@ -116,35 +125,41 @@ const NominationsPage = ({classes, reviewYear}: { classes: ClassesType<typeof st
           value={activeTab}
           onChange={handleChangeTab}
         >
-          <Tab 
-            className={classes.tab} 
-            value="votes" 
-            label={
-            <LWTooltip title={`Posts from ${reviewYear} you've upvoted`}>Voted On</LWTooltip>}
-          />
-          <Tab
-            className={classes.tab}
-            value="comments"
-            label={<LWTooltip title={`Posts from ${reviewYear} you've commented on`}>Commented On</LWTooltip>}
-          />
-          <Tab
-            className={classes.tab}
-            value="read"
-            label={<LWTooltip title={`Posts from ${reviewYear} you've read`}>Read</LWTooltip>}
-          />
           <Tab
             className={classes.tab}
             value="all"
-            label={<LWTooltip title={`All posts from ${reviewYear}`}>All Posts</LWTooltip>}
+            label={<LWTooltip title={`All posts from ${reviewYear}`}>All</LWTooltip>}
           />
           <Tab
             className={classes.tab}
             value="submitlinkposts"
             label={<LWTooltip title={`Posts from other sites that are relevant to LessWrong or Alignment Forum`}>Submit LinkPosts</LWTooltip>}
           />
-
+          <div className={classes.divider}/>
+          <Tab 
+            className={classes.tab} 
+            value="votes" 
+            label={
+            <LWTooltip title={`Posts from ${reviewYear} you've upvoted`}>Voted on</LWTooltip>}
+          />
+          <Tab
+            className={classes.tab}
+            value="comments"
+            label={<LWTooltip title={`Posts from ${reviewYear} you've commented on`}>Commented on</LWTooltip>}
+          />
+          <Tab
+            className={classes.tab}
+            value="read"
+            label={<LWTooltip title={`Posts from ${reviewYear} you've read`}>Read</LWTooltip>}
+          />
         </Tabs>
       </div>
+      {activeTab === 'all' && <div className={classes.allPosts}>
+        <AllPostsPage defaultHideSettings noTopMargin/>
+      </div>}
+      {activeTab === 'submitlinkposts' && <div className={classes.externalPostImporter}>
+        <ExternalPostImporter defaultPostedAt={startDate} />
+      </div>}
       <div className={classes.content}>
         {(activeTab === 'votes') && <>
           <SectionTitle title={`Your Strong Upvotes for posts from ${reviewYear}`} titleClassName={classes.title}/>
@@ -163,13 +178,6 @@ const NominationsPage = ({classes, reviewYear}: { classes: ClassesType<typeof st
           <ReadHistoryTab groupByDate={false} filter={{startDate, endDate, showEvents: false}} sort={{karma: true}}/>
         </>}
       </div>
-        {activeTab === 'all' && <div className={classes.allPosts}>
-          <AllPostsPage defaultHideSettings/>
-        </div>}
-
-        {activeTab === 'submitlinkposts' && <div className={classes.externalPostImporter}>
-          <ExternalPostImporter defaultPostedAt={startDate} />
-        </div>}
     </SingleColumnSection>
   </AnalyticsContext>
 }

@@ -94,8 +94,8 @@ export const PostsTagsList = (
   return <div className={classes.root}>
     {slicedTags.map(tag => tagButton(tag))}
     {afterChildren}
-    {(max === defaultMax) && <LWTooltip title={`Show ${expandedNumberOfTags - defaultMax} more tags`}><a className={classes.button} onClick={() => setMax(expandedNumberOfTags)}>Fewer</a></LWTooltip>}
-    {(max !== defaultMax) && <a  className={classes.button} onClick={() => setMax(defaultMax)}>More</a>}
+    {(max === defaultMax) && <LWTooltip title={`Show ${expandedNumberOfTags - defaultMax} more tags`}><a className={classes.button} onClick={() => setMax(expandedNumberOfTags)}>More</a></LWTooltip>}
+    {(max !== defaultMax) && <a  className={classes.button} onClick={() => setMax(defaultMax)}>Fewer</a>}
   </div>;
 }
 

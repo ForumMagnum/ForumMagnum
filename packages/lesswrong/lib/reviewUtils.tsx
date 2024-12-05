@@ -34,11 +34,19 @@ export function getReviewTitle(reviewYear: ReviewYear): string {
 export function getReviewShortTitle(reviewYear: ReviewYear): string {
   return `${reviewYear} Review`
 }
+export const reviewPostPath = "/posts/pudQtkre7f9GLmb2b/the-2023-lesswrong-review-the-basic-ask"
 
 const reviewPhases = new TupleSet(['UNSTARTED', 'NOMINATIONS', 'REVIEWS', 'VOTING', 'RESULTS', 'COMPLETE'] as const);
 export type ReviewPhase = UnionOf<typeof reviewPhases>;
 
 const reviewPhaseCache = memoizeWithExpiration<ReviewPhase>(() => recomputeReviewPhase(), 1000);
+
+export function getReviewPeriodStart(reviewYear: ReviewYear = REVIEW_YEAR) {
+  return moment.utc(`${reviewYear}-01-01`)
+}
+export function getReviewPeriodEnd(reviewYear: ReviewYear = REVIEW_YEAR) {
+  return moment.utc(`${reviewYear+1}-01-01`)
+}
 
 export function getReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
   if (reviewYear) {

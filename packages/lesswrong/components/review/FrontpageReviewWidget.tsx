@@ -6,10 +6,10 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import classNames from 'classnames';
 import { forumTitleSetting } from '../../lib/instanceSettings';
-import { annualReviewAnnouncementPostPathSetting } from '../../lib/publicSettings';
 import moment from 'moment';
-import { eligibleToNominate, getReviewPhase, getReviewTitle, ReviewYear, REVIEW_NAME_IN_SITU, REVIEW_YEAR, getResultsPhaseEnd, getNominationPhaseEnd, getReviewPhaseEnd, getReviewStart } from '../../lib/reviewUtils';
-
+import { eligibleToNominate, getReviewPhase, getReviewTitle, ReviewYear, REVIEW_NAME_IN_SITU, REVIEW_YEAR, getResultsPhaseEnd, getNominationPhaseEnd, getReviewPhaseEnd, getReviewStart, reviewPostPath } from '../../lib/reviewUtils';
+import { allPostsParams } from './NominationsPage';
+import qs from 'qs';
 const commonActionButtonStyle = (theme: ThemeType) => ({
   paddingTop: 7,
   paddingBottom: 7,
@@ -210,7 +210,7 @@ export function ReviewOverviewTooltip() {
   </div>
 }
 
-const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, style}: {classes: ClassesType, showFrontpageItems?: boolean, reviewYear: ReviewYear, style?: React.CSSProperties}) => {
+const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, className}: {classes: ClassesType, showFrontpageItems?: boolean, reviewYear: ReviewYear, className?: string}) => {
   const { SectionTitle, SettingsButton, LWTooltip, PostsList2, UserReviewsProgressBar, ReviewVotingProgressBar, FrontpageBestOfLWWidget } = Components
   const currentUser = useCurrentUser();
 
@@ -253,7 +253,6 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, st
       {activeRange === "REVIEWS" && <div><em>{voteEndDate.fromNow()} remaining</em></div>}
     </>
 
-  const reviewPostPath = '/posts/pudQtkre7f9GLmb2b/the-2023-lesswrong-review-reflecting-on-ourselves'
   if (!reviewPostPath) {
     // eslint-disable-next-line no-console
     console.error("No review announcement post path set")
@@ -286,6 +285,8 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, st
     </div>
   </div>
 
+
+  const nominatePostsLink = `/nominatePosts/${reviewYear}?${qs.stringify(allPostsParams(reviewYear))}`
   const nominationPhaseButtons = <div className={classes.actionButtonRow}>
     {/* Ray said this wasn't needed any more (and had styling issue), but leaving here so people know this component, <LatestReview> exists and could be used in the future. */}
     {/* {showFrontpageItems && !isLastDay(nominationEndDate) && <LatestReview/>} */}
@@ -294,7 +295,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, st
       <div>(posts need two votes to proceed)</div>
     </span>}
     <LWTooltip className={classes.buttonWrapper} title={`Look over your favorite posts from ${reviewYear}, and nominate the ones that stand the tests of time.`}>
-      <Link to={`/nominatePosts/${reviewYear}`} className={classes.actionButton}>
+      <Link to={nominatePostsLink} className={classes.actionButton}>
         Nominate Posts
       </Link>
     </LWTooltip>
@@ -376,7 +377,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, st
 
   return (
     <AnalyticsContext pageSectionContext="frontpageReviewWidget">
-      <div style={style}>
+      <div className={className}>
         <SectionTitle rootClassName={classes.sectionTitle} titleClassName={classes.reviewSectionTitle}
           title={<LWTooltip title={<ReviewOverviewTooltip/>} placement="bottom-start">
             <Link to={"/reviewVoting"}>

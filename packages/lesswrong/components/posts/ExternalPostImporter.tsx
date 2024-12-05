@@ -38,7 +38,6 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
     width: "100%",
-    background: theme.palette.panelBackground.default,
     padding: '12px 16px',
     borderRadius: theme.borderRadius.quickTakesEntry
   },
@@ -49,6 +48,7 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 500,
     backgroundColor: theme.palette.grey[100],
     borderRadius: theme.borderRadius.small,
+    boxShadow: `0px 0px 10px ${theme.palette.inverseGreyAlpha(1)}, 0 0 0 10px ${theme.palette.inverseGreyAlpha(1)}`,
     padding: '12px 8px',
     '&:hover, &:focus': {
       backgroundColor: theme.palette.grey[200],

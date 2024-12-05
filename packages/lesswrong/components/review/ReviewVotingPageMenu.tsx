@@ -85,6 +85,8 @@ const styles = (theme: ThemeType) => ({
     padding: 4,
     borderRadius: 3,
     marginRight: 6,
+    position: 'relative',
+    top: 2,
     "&:hover": {
       background: theme.palette.panelBackground.darken20,
     }

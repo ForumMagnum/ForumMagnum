@@ -1,4 +1,4 @@
-import { registerComponent } from '@/lib/vulcan-lib';
+import { Components, registerComponent } from '@/lib/vulcan-lib';
 import React, { useEffect, useState } from 'react';
 import { lightconeFundraiserPostId, lightconeFundraiserThermometerBgUrl } from '@/lib/publicSettings';
 import { Link } from '@/lib/reactRouterWrapper';
@@ -9,6 +9,15 @@ interface FundraisingThermometerProps {
 }
 
 const styles = (theme: ThemeType) => ({
+  root: {
+    '&:hover $header': {
+      color: theme.palette.review.winner,
+      textShadow: `0px 0px 1px ${theme.palette.review.winner}`,
+      '&:after': {
+        border: `1px solid ${theme.palette.review.winner}`,
+      }
+    }
+  },
   thermometer: {
     width: '100%',
     aspectRatio: '765 / 100',
@@ -49,6 +58,19 @@ const styles = (theme: ThemeType) => ({
     marginTop: 0,
     marginBottom: 0,
     fontFamily: theme.typography.headerStyle.fontFamily,
+    transition: 'color 0.2s ease-in-out',
+    '&:after': {
+      content: '""',
+      width: 4,
+      height: 4,
+      background: theme.palette.background.default,
+      border: `1px solid ${theme.palette.grey[800]}`,
+      display: 'inline-block',
+      position: 'relative',
+      marginLeft: 2,
+      borderRadius: '50%',
+      top: -7
+    }
   },
   subheader: {
     color: theme.palette.review.winner,
@@ -63,8 +85,12 @@ const styles = (theme: ThemeType) => ({
     fontSize: '1.2rem',
     paddingBottom: 6,
     textShadow: `0px 0px 20px ${theme.palette.background.default}, 0px 0px 30px ${theme.palette.background.default}, 0px 0px 40px ${theme.palette.background.default}, 0px 0px 50px ${theme.palette.background.default}`,
-    alignItems: 'center',
+    alignItems: 'flex-end',
     backdropFilter: 'blur(3px)',
+    [theme.breakpoints.down('xs')]: {
+      flexDirection: 'column',
+      alignItems: 'flex-start',
+    }
   },
   raisedTextBold: {
     fontWeight: 'bold',
@@ -82,7 +108,6 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     justifyContent: 'flex-end',
     alignItems: 'center',
-    marginBottom: 4,
     color: theme.palette.background.pageActiveAreaBackground,
     zIndex: 1,
     position: 'relative',
@@ -114,6 +139,13 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.background.pageActiveAreaBackground,
     },
   },
+  learnMoreContainer: {
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'flex-end',
+    marginTop: 12,
+    paddingBottom: 24,
+  },
 });
 
 const FundraisingThermometer: React.FC<FundraisingThermometerProps & {classes: ClassesType}> = ({ goalAmount, classes }) => {
@@ -130,11 +162,16 @@ const FundraisingThermometer: React.FC<FundraisingThermometerProps & {classes: C
     return () => clearInterval(interval);
   }, [percentage, currentAmount])
 
+  const { LWTooltip } = Components
 
   return (
-    <div className={classes.fundraiserContainer}>
+    <div className={classes.root}>
       <div className={classes.textContainer}>
-        <Link className={classes.header} to={`/posts/${lightconeFundraiserPostId.get()}`}>Lightcone Fundraiser Progress</Link>
+        <LWTooltip title="12,000 words about why you should give us money" placement="top-start">
+          <Link className={classes.header} to={`/posts/${lightconeFundraiserPostId.get()}`}>
+            Lightcone Infrastructure Fundraiser
+          </Link>
+        </LWTooltip>
         <span className={classes.goalText}>
           <span className={classes.goalTextBold}>Goal 1:</span> 
           <span className={classes.raisedGoalNumber}>${Math.round(viewCurrentAmount).toLocaleString()}</span> of ${goalAmount.toLocaleString()}
