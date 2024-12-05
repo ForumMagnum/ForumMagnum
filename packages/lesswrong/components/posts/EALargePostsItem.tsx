@@ -6,7 +6,6 @@ import { siteImageSetting } from "../vulcan-core/App";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Link } from "../../lib/reactRouterWrapper";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
-import { usePostContents } from "../hooks/useForeignCrosspost";
 import moment from "moment";
 import classNames from "classnames";
 
@@ -124,11 +123,6 @@ const EALargePostsItem = ({
     },
   });
 
-  const {postContents, loading, error} = usePostContents({
-    post: post,
-    fragmentName: "PostsPage",
-  });
-
   const timeFromNow = moment(new Date(post.postedAt)).fromNow();
   const ago = timeFromNow !== "now"
     ? <span className={classes.xsHide}>&nbsp;ago</span>
@@ -139,10 +133,9 @@ const EALargePostsItem = ({
     imageUrl = siteImageSetting.get();
   }
 
-  const description = postContents?.plaintextDescription ??
-    post?.contents?.plaintextDescription;
+  const description = post?.contents?.plaintextDescription;
 
-  const {TruncatedAuthorsList, ForumIcon, PostsItemTooltipWrapper, Loading, TimeTag} = Components;
+  const {TruncatedAuthorsList, ForumIcon, PostsItemTooltipWrapper, TimeTag} = Components;
   return (
     <AnalyticsContext documentSlug={post.slug}>
       <div
@@ -196,7 +189,6 @@ const EALargePostsItem = ({
           </div>
           <div className={classes.postListItemPreview}>
             {description}
-            {loading && !error && !description && <Loading />}
           </div>
         </div>
         {imageUrl && <img className={classes.postListItemImage} src={imageUrl} />}

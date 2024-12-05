@@ -653,7 +653,6 @@ importComponent("PostsAuthors", () => require("../../components/posts/PostsPage/
 importComponent("PostsCoauthor", () => require("../../components/posts/PostsPage/PostsCoauthor.tsx"));
 importComponent("PostsPage", () => require("../../components/posts/PostsPage/PostsPage.tsx"));
 importComponent("PostsPageCrosspostComments", () => require("../../components/posts/PostsPage/PostsPageCrosspostComments.tsx"));
-importComponent("PostsPageCrosspostWrapper", () => require("../../components/posts/PostsPage/PostsPageCrosspostWrapper.tsx"));
 importComponent("PostsPageDate", () => require("../../components/posts/PostsPage/PostsPageDate.tsx"));
 importComponent("PostsPageEventData", () => require("../../components/posts/PostsPage/PostsPageEventData.tsx"));
 importComponent("PostsPagePostFooter", () => require("../../components/posts/PostsPage/PostsPagePostFooter.tsx"));

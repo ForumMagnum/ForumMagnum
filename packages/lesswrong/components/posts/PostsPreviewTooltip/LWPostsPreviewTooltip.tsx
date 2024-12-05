@@ -6,7 +6,6 @@ import Card from '@material-ui/core/Card';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { Link } from '../../../lib/reactRouterWrapper';
 import { useSingle } from '../../../lib/crud/withSingle';
-import { useForeignApolloClient } from '../../hooks/useForeignApolloClient';
 import { POST_PREVIEW_ELEMENT_CONTEXT, POST_PREVIEW_WIDTH } from './helpers';
 import type { PostsPreviewTooltipProps } from './PostsPreviewTooltip';
 
@@ -112,24 +111,6 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const getPostCategory = (post: PostsBase) => {
-  const categories: Array<string> = [];
-
-  if (post.isEvent) return null
-  if (post.curatedDate) categories.push(`Curated Post`)
-  if (post.af) categories.push(`AI Alignment Forum Post`);
-  if (post.frontpageDate && !post.curatedDate && !post.af) categories.push(`Frontpage Post`)
-
-  if (categories.length > 0)
-    return categories.join(', ');
-  else if (post.question)
-    return "Question";
-  else if (post.reviewedByUserId)
-    return `Personal Blogpost`
-  else
-    return null;
-}
-
 type LWPostsPreviewTooltipProps = PostsPreviewTooltipProps & {
   classes: ClassesType<typeof styles>,
 }
@@ -146,8 +127,6 @@ const LWPostsPreviewTooltip = ({
     Loading, ContentStyles, EventTime } = Components
   const [expanded, setExpanded] = useState(false)
 
-  const foreignApolloClient = useForeignApolloClient();
-  const isForeign = post?.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere && !!post.fmCrosspost.foreignPostId;
   const {document: postWithHighlight, loading} = useSingle({
     collectionName: "Posts",
     fragmentName: "HighlightWithHash",
@@ -156,7 +135,6 @@ const LWPostsPreviewTooltip = ({
     fetchPolicy: "cache-first",
     extraVariables: { hash: "String" },
     extraVariablesValues: {hash},
-    apolloClient: isForeign ? foreignApolloClient : undefined,
   });
 
   const { dialogueMessageId, dialogueMessageContents } = dialogueMessageInfo ?? {}
@@ -169,7 +147,6 @@ const LWPostsPreviewTooltip = ({
     fetchPolicy: "cache-first",
     extraVariables: { dialogueMessageId: "String" },
     extraVariablesValues: {dialogueMessageId},
-    apolloClient: isForeign ? foreignApolloClient : undefined,
   });
 
   if (!post) return null

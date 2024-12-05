@@ -1,8 +1,21 @@
 import * as t from 'io-ts';
-import { crosspostFragments } from '../../components/hooks/useForeignCrosspost';
 
 /**
+ * This lists the valid fragment names that can be passed to the foreign site
+ * when fetching a post with a cross-site request. Note that the fragment name
+ * passed to the foreign site _is_ validated against this list and will throw
+ * an error if the fragment name isn't here, so additions to this list need to
+ * be deployed to _both_ sites before deploying any logic that relies on them
+ * otherwise your cross-site requests with be rejected.
  */
+export const crosspostFragments = [
+  "PostsWithNavigation",
+  "PostsWithNavigationAndRevision",
+  "PostsList",
+  "SunshinePostsList",
+  "PostsPage",
+] as const;
+
 interface PartialWithNullC<P extends t.Props>
   extends t.PartialType<
     P,

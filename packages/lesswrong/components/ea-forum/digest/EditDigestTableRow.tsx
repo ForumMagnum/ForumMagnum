@@ -7,7 +7,6 @@ import { useMessages } from '../../common/withMessages';
 import { StatusField, getEmailDigestPostData, getPostAuthors } from '../../../lib/collections/digests/helpers';
 import type { DigestPost, PostWithRating } from './EditDigest';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
-import { isPostWithForeignId } from '../../hooks/useForeignCrosspost';
 
 const styles = (theme: ThemeType) => ({
   row: {
@@ -229,7 +228,7 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
   
   const { ForumIcon, LWTooltip, PostsItemDate } = Components
   
-  const readTime = isPostWithForeignId(post) ? '' : `, ${post.readTimeMinutes} min`
+  const readTime = `, ${post.readTimeMinutes} min`
   const linkpostText = post.url ? ', link-post' : ''
   const visibleTags = post.tags.filter(tag => visibleTagIds.includes(tag._id))
   
