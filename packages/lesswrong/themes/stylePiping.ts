@@ -81,8 +81,11 @@ const neuronpediaPreviewStyles = (theme: ThemeType): JssStyles => ({
   "& div.neuronpedia-preview": {
     "& iframe": {
       width: "100%",
-      height: 440,
-      border: "none",
+      height: 360,
+      maxWidth: 639,
+      border: "1px solid",
+      borderColor: theme.palette.grey[300],
+      borderRadius: 6,
     },
   },
 });
