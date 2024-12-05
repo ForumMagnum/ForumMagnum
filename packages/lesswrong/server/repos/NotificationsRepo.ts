@@ -122,6 +122,7 @@ export default class NotificationsRepo extends AbstractRepo<"Notifications"> {
         n."_id",
         n."type",
         n."link",
+        n."viewed",
         n."message",
         n."createdAt",
         tr."_id" "tagRelId",
@@ -208,5 +209,14 @@ export default class NotificationsRepo extends AbstractRepo<"Notifications"> {
       LIMIT $(limit)
       OFFSET $(offset)
     `, {userId, type, limit, offset});
+  }
+
+  async markAllAsRead(userId: string) {
+    await this.none(`
+      -- NotificationsRepo.markAllAsRead
+      UPDATE "Notifications"
+      SET "viewed" = TRUE
+      WHERE "userId" = $1 AND "type" <> 'newMessage'
+    `, [userId]);
   }
 }
