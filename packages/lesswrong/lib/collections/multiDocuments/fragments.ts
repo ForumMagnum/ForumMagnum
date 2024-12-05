@@ -17,5 +17,7 @@ registerFragment(`
     contents {
       ...RevisionEdit
     }
+    isArbitalImport
+    arbitalLinkedPages
   }
 `);

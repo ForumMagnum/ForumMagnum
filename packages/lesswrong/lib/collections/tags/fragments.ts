@@ -243,6 +243,7 @@ registerFragment(`
     lenses {
       ...MultiDocumentEdit
     }
+    arbitalLinkedPages
   }
 `);
 
