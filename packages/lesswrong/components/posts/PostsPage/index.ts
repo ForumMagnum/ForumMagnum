@@ -13,7 +13,6 @@ importComponent("T3AudioPlayer", () => require('./T3AudioPlayer'));
 importComponent("PostsAudioPlayerWrapper", () => require('./PostsAudioPlayerWrapper'));
 importComponent("PostCoauthorRequest", () => require('./PostCoauthorRequest'));
 importComponent("PostsPageWrapper", () => require('./PostsPageWrapper'));
-importComponent("PostsPageCrosspostWrapper", () => require('./PostsPageCrosspostWrapper'));
 importComponent("PostsPageCrosspostComments", () => require('./PostsPageCrosspostComments'));
 importComponent("PostBody", () => require('./PostBody'));
 importComponent("PostBodyPrefix", () => require('./PostBodyPrefix'));
