@@ -51,7 +51,7 @@ const InstagramLandingPage = ({ classes }: { classes: ClassesType<typeof styles>
   } = Components;
 
   const postsList = loading ? (
-    <PostsLoading placeholderCount={20} viewType="card" />
+    <PostsLoading placeholderCount={postIds.length} viewType="card" />
   ) : orderedPosts.map((post) => (
     <EAPostsItem
       key={post._id}
