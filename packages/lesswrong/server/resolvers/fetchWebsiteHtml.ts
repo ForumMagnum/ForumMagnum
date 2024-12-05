@@ -29,7 +29,7 @@ export async function fetchWebsiteHtmlContent(url: string, context: ResolverCont
       collectionName: 'Posts',
       fragmentName: 'PostsEditQueryFragment',
       currentUser: context.currentUser,
-      selector: { url, userId: context.currentUser._id, draft: true },
+      selector: { url, userId: context.currentUser._id, draft: true, deletedDraft: false },
       context,
     });
 
@@ -42,31 +42,36 @@ export async function fetchWebsiteHtmlContent(url: string, context: ResolverCont
       console.log("Failed to fetch HTML from URL: ", url, response.status);
       throw new Error(`Failed to fetch HTML from URL: ${url}, status: ${response.status}`);
     }
-    console.log("response", response)
     const html = await response.text();
     const titleMatch = html.match(/<title>(.*?)<\/title>/i);
     const title = titleMatch ? titleMatch[1] : 'Untitled';
     const sanitizedHtml = sanitize(html);
     const cheerioTool = cheerio.load(sanitizedHtml);
+    const tables = cheerioTool('table').map((_, table) => cheerioTool(table).prop('outerHTML')).get();
+    const tableHtml = tables.join('\n') ?? '';
     const bodyHtml = cheerioTool('body').html() ?? '';
-    const bodyMarkdown = htmlToMarkdown(bodyHtml);
-    const currentDateSection = `
-# ${new Date().toLocaleDateString('en-US', {
-      weekday: 'short',
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    })}
 
-${bodyMarkdown}
-`;
+    const combinedHtml = `
+      <details class="detailsBlock">
+        <summary class="detailsBlockTitle">Table Content</summary>
+        <div class="detailsBlockContent">
+          ${tableHtml}
+        </div>
+      </details>
+      <details class="detailsBlock">
+        <summary class="detailsBlockTitle">Body Content</summary>
+        <div class="detailsBlockContent">
+          ${bodyHtml}
+        </div>
+      </details>
+    `;
     const { data: post } = await createMutator({
       collection: Posts,
       document: {
         userId: context.currentUser._id,
         title: title,
         url: url,
-        contents: { originalContents: { data: currentDateSection, type: 'markdown' } },
+        contents: { originalContents: { data: combinedHtml, type: 'ckEditorMarkup' } },
         draft: true,
       } as Partial<DbPost>,
       currentUser: context.currentUser,
