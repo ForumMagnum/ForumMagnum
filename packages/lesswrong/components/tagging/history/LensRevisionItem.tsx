@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { TagLens } from '../TagPage';
+import { TagLens } from '@/lib/arbital/useTagLenses';
 import classNames from 'classnames';
 import withErrorBoundary from '@/components/common/withErrorBoundary';
 

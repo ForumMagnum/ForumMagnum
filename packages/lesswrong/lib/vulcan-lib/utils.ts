@@ -432,7 +432,7 @@ export const sanitize = function(s: string): string {
         'detailsBlockContent',
         'calendly-preview',
         'conditionallyVisibleBlock',
-        /arb-custom-script-[a-zA-Z0-9]*/
+        /arb-custom-script-[a-zA-Z0-9]*/,
       ],
       iframe: [ 'thoughtSaverFrame' ],
       ol: [ 'footnotes', 'footnote-section' ],
