@@ -137,6 +137,8 @@ importComponent("EditableUsersList", () => require('../components/editor/Editabl
 importComponent(["PostSharingSettings", "PostSharingSettingsDialog"], () => require('../components/editor/PostSharingSettings'));
 importComponent("DraftJSEditor", () => require('../components/editor/DraftJSEditor'));
 importComponent("PresenceList", () => require('../components/editor/PresenceList'));
+importComponent("ConditionalVisibilityBlockDisplay", () => require('../components/editor/conditionalVisibilityBlock/ConditionalVisibilityBlockDisplay'));
+importComponent("EditConditionalVisibility", () => require('../components/editor/conditionalVisibilityBlock/EditConditionalVisibility'));
 
 // Generic dropdown menus and items
 importComponent("DropdownMenu", () => require('../components/dropdowns/DropdownMenu'));

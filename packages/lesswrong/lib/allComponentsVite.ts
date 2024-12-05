@@ -191,6 +191,8 @@ import '../components/editor/EditableUsersList';
 import '../components/editor/PostSharingSettings';
 import '../components/editor/DraftJSEditor';
 import '../components/editor/PresenceList';
+import '../components/editor/conditionalVisibilityBlock/ConditionalVisibilityBlockDisplay';
+import '../components/editor/conditionalVisibilityBlock/EditConditionalVisibility';
 
 // Generic dropdown menus and items
 import '../components/dropdowns/DropdownMenu';

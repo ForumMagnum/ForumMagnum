@@ -8,6 +8,7 @@ import { rawExtractElementChildrenToReactComponent, reduceRangeToText, splitRang
 import { withTracking } from '../../lib/analyticsEvents';
 import { hasCollapsedFootnotes } from '@/lib/betas';
 import isEqual from 'lodash/isEqual';
+import { ConditionalVisibilitySettings } from '../editor/conditionalVisibilityBlock/conditionalVisibility';
 
 interface ExternalProps {
   /**
@@ -144,6 +145,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
       this.addCTAButtonEventListeners(element);
 
       this.markScrollableBlocks(element);
+      this.markConditionallyVisibleBlocks(element);
       this.collapseFootnotes(element);
       this.markHoverableLinks(element);
       this.markElicitBlocks(element);
@@ -264,6 +266,25 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
           this.addHorizontalScrollIndicators(blockAsElement);
         }
       }
+    }
+  }
+  
+  markConditionallyVisibleBlocks = (element: HTMLElement) => {
+    const conditionallyVisibleBlocks = this.getElementsByClassname(element, "conditionallyVisibleBlock");
+    for (const block of conditionallyVisibleBlocks) {
+      const visibilityOptionsStr = block.getAttribute("data-visibility");
+      if (!visibilityOptionsStr) continue;
+      let visibilityOptions: ConditionalVisibilitySettings|null = null;
+      try {
+        visibilityOptions = JSON.parse(visibilityOptionsStr)
+      } catch {
+        continue;
+      }
+
+      const BlockContents = rawExtractElementChildrenToReactComponent(block)
+      this.replaceElement(block, <Components.ConditionalVisibilityBlockDisplay options={visibilityOptions!}>
+        <BlockContents/>
+      </Components.ConditionalVisibilityBlockDisplay>);
     }
   }
   
