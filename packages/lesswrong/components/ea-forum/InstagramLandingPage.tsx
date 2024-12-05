@@ -4,7 +4,7 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useMulti } from "../../lib/crud/withMulti";
 import sortBy from "lodash/sortBy";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: 'flex',
     justifyContent: 'center',
