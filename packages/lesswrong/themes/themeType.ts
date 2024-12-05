@@ -559,6 +559,7 @@ declare global {
       candidateBackground: ColorString,
       candidateShadow: ColorString,
       candidateOrder: ColorString,
+      heart: ColorString,
     },
     namesAttachedReactions: {
       selectedAnti: ColorString,

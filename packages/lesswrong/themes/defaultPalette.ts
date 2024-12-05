@@ -593,6 +593,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     candidateBackground: "rgba(255, 255, 255, 0.2)",
     candidateShadow: "rgba(147, 0, 0, 0.25)",
     candidateOrder: "#C50000",
+    heart: "#862115"
   },
   namesAttachedReactions: {
     selectedAnti: "rgb(255, 189, 189, .23)",

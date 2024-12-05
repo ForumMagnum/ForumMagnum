@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { FC, useCallback, useEffect, useRef, useState } from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { Link } from "@/lib/reactRouterWrapper";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
@@ -17,8 +17,26 @@ import classNames from "classnames";
 import moment from "moment";
 import type { Moment } from "moment";
 import type { ForumIconName } from "../common/ForumIcon";
+import { GivingSeasonHeart } from "../review/ReviewVotingCanvas";
 
 const DOT_SIZE = 12;
+
+// Notes (TODO remove):
+// - coords should be normalised, the reference is the div with class GivingSeason2024Banner-root
+// - when displaying, stick the hearts to the eventDetails container for the Donation Celebration
+//   - This means
+//
+const DEBUG_HEARTS: GivingSeasonHeart[] = [
+  { userId: "1", displayName: "User1", x: 0, y: 0, theta: 0 },
+  { userId: "2", displayName: "User2", x: 0.5, y: 0, theta: 0 },
+  { userId: "3", displayName: "User3", x: 1, y: 0, theta: 0 },
+  { userId: "4", displayName: "User4", x: 0, y: 0.5, theta: 0 },
+  { userId: "5", displayName: "User5", x: 0.5, y: 0.5, theta: 0 },
+  { userId: "6", displayName: "User6", x: 1, y: 0.5, theta: 0 },
+  { userId: "7", displayName: "User7", x: 0, y: 1, theta: 0 },
+  { userId: "8", displayName: "User8", x: 0.5, y: 1, theta: 0 },
+  { userId: "9", displayName: "User9", x: 1, y: 1, theta: 0 }
+];
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -183,6 +201,7 @@ const styles = (theme: ThemeType) => ({
     maxHeight: 1,
   },
   eventDetails: {
+    position: "relative",
     display: "inline-flex",
     verticalAlign: "middle",
     width: "100%",
@@ -372,7 +391,63 @@ const styles = (theme: ThemeType) => ({
       marginBottom: 16
     },
   },
+  heartsContainer: {
+    width: "100%",
+    height: "100%",
+    opacity: 1
+  },
+  heart: {
+    color: theme.palette.givingSeason.heart,
+    width: 20,
+    height: 20,
+    transform: "translate(-10px, -10px)",
+    // TODO probably smaller on mobile
+  }
+  // heartsContainerHidden: {
+  //   width: "100%",
+  //   height: "100%",
+  //   opacity: 1
+  // }
 });
+
+const Hearts: FC<{
+  classes: ClassesType<typeof styles>;
+}> = ({ classes }) => {
+  // TODO handle null refs
+  // const [style, setStyle] = useState<React.CSSProperties>({});
+  const userHeartRef = useRef<HTMLDivElement | null>(null);
+
+  const { ForumIcon, ForumEventCommentForm } = Components;
+
+  return (
+    <div className={classes.heartsContainer}>
+      {DEBUG_HEARTS.map((heart, index) => (
+        <div
+          key={index}
+          className={classes.heart}
+          ref={index === 4 ? userHeartRef : null}
+          style={{
+            position: "absolute",
+            left: `${heart.x * 100}%`,
+            top: `${heart.y * 100}%`,
+            transform: `rotate(${heart.theta}deg)`,
+          }}
+        >
+          <ForumIcon icon="Heart" />
+        </div>
+      ))}
+      {/* <ForumEventCommentForm
+        open={commentFormOpen}
+        comment={currentUserComment}
+        forumEventId={event._id}
+        onClose={() => setCommentFormOpen(false)}
+        refetch={refetchComments}
+        anchorEl={userVoteRef.current}
+        post={event.post}
+      /> */}
+    </div>
+  );
+};
 
 const scrollIntoViewHorizontally = (
   container: HTMLElement,
@@ -548,7 +623,9 @@ const GivingSeason2024Banner = ({classes}: {
             key={name}
             style={{ backgroundImage: `url(${background})` }}
             className={classNames(classes.background, name === selectedEvent.name && classes.backgroundActive)}
-          />
+          >
+            {name === "Donation Celebration" && <Hearts classes={classes} />}
+          </div>
         ))}
       </div>
       <div className={classes.banner}>
@@ -566,6 +643,7 @@ const GivingSeason2024Banner = ({classes}: {
               className={classNames(classes.timelineEvent, selectedEvent === event && classes.timelineEventSelected)}
             >
               {event.name === "Intermission" ? "" : event.name}
+              {/* TODO use heart for donation celebration */}
               {event === currentEvent && <div className={classes.timelineDot} />}
             </div>
           ))}
