@@ -87,7 +87,7 @@ export default class ConditionalVisibility extends Plugin {
           const stateString = modelElement.getAttribute("visibility");
           let state: ConditionalVisibilitySettings = {type: "unset"};
           try {
-            state = JSON.parse(stateString+"");
+            state = JSON.parse(String(stateString));
           } catch {
             console.error("Unparseable data-visibility attribute on conditionally visible block");
           }

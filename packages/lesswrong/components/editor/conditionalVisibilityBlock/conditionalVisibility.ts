@@ -19,8 +19,8 @@ export type ConditionalVisibilitySettings =
   | { type: "todo" }
   | { type: "fixme" }
   | { type: "comment" }
-  | { type: "knowsRequisite", inverted: boolean, requisite: string, otherPage: string }
-  | { type: "wantsRequisite", inverted: boolean, requisite: string, otherPage: string }
+  | { type: "knowsRequisite", inverted: boolean, otherPage: string }
+  | { type: "wantsRequisite", inverted: boolean, otherPage: string }
   | { type: "ifPathBeforeOrAfter", inverted: boolean, order: "before"|"after", otherPage: string }
 export const conditionalVisibilityModes: Record<ConditionalVisibilityMode, {
   settings: ConditionalVisibilitySettings,
@@ -47,11 +47,11 @@ export const conditionalVisibilityModes: Record<ConditionalVisibilityMode, {
     label: "Comment",
   },
   knowsRequisite: {
-    settings: {type: "knowsRequisite", inverted: false, requisite: "", otherPage: ""},
+    settings: {type: "knowsRequisite", inverted: false, otherPage: ""},
     label: "Knows Requisite",
   },
   wantsRequisite: {
-    settings: {type: "wantsRequisite", inverted: false, requisite: "", otherPage: ""},
+    settings: {type: "wantsRequisite", inverted: false, otherPage: ""},
     label: "Wants Requisite",
   },
   ifPathBeforeOrAfter: {

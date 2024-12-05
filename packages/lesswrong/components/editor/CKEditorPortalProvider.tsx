@@ -1,4 +1,4 @@
-import React, { createContext, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 export type CkEditorPortalContextType = {
@@ -15,11 +15,12 @@ export const CKEditorPortalProvider = ({children}: {
     content: React.ReactNode
   }>>([]);
 
-  const portalContext = useMemo(() => ({
-    createPortal: (location: HTMLElement, content: React.ReactNode) => {
+  const addPortal = useCallback(
+    (location: HTMLElement, content: React.ReactNode) => {
       setPortals(portals => [...portals, {location, content}])
-    },
-  }), []);
+    }, []
+  );
+  const portalContext = useMemo(() => ({ createPortal: addPortal }), [addPortal]);
 
   return <CkEditorPortalContext.Provider value={portalContext}>
     {children}
