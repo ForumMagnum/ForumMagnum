@@ -71,18 +71,16 @@ function parseRequisitesLine(match: string): string[] {
  * @param requisitesLines Array of requisites strings.
  * @returns An object containing sets of knows and wants requisites.
  */
-function parseRequisites(requisitesLines: string[]): { knows: Set<string>, wants: Set<string> } {
-  const requisites = {
-    knows: new Set<string>(),
-    wants: new Set<string>()
-  };
+function parseRequisites(requisitesLines: string[]): { knows: string[], wants: string[] } {
+  const knows: string[] = [];
+  const wants: string[] = [];
 
   requisitesLines.forEach(line => {
     const knowsMatch = line.match(/^knows: ?(.+)$/);
     if (knowsMatch) {
       const aliases = parseRequisitesLine(knowsMatch[1]);
       aliases.forEach(alias => {
-        requisites.knows.add(alias);
+        knows.push(alias);
       });
     }
 
@@ -90,15 +88,15 @@ function parseRequisites(requisitesLines: string[]): { knows: Set<string>, wants
     if (wantsMatch) {
       const aliases = parseRequisitesLine(wantsMatch[1]);
       aliases.forEach(alias => {
-        requisites.wants.add(alias);
+        wants.push(alias);
       });
     }
   });
 
-  return requisites;
+  return { knows, wants };
 }
 
-function parseMultipleChoiceBlock(text: string, ...args: string[]) {
+function parseMultipleChoiceBlock(...args: string[]) {
   const result = [];
   const requisitesLines: string[] = [];
 
@@ -423,14 +421,9 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
         '\\] *(?=\Z|\n)', 'gm');
     converter.hooks.chain('preBlockGamut', function(text: string, runBlockGamut: (s:string)=>string) {
       return text.replace(mcBlockRegexp, function() {
-        const { result, requisites } = parseMultipleChoiceBlock(text, ...arguments);
-
-        const requisitesData = {
-          knows: Array.from(requisites.knows),
-          wants: Array.from(requisites.wants)
-        };
+        const { result, requisites } = parseMultipleChoiceBlock(...arguments);
         
-        return `<div class="arb-custom-script-${pageId}" data-requisites='${JSON.stringify(requisitesData)}'>${runBlockGamut(result.join(''))}</div>`;
+        return `<div class="arb-custom-script-${pageId}" data-requisites='${JSON.stringify(requisites)}'>${runBlockGamut(result.join(''))}</div>`;
 
         // return '<div arb-multiple-choice page-id=\'' + pageId + '\' object-alias=\'' + arguments[1] + '\'>' +
         //   runBlockGamut(result.join('')) + '\n\n</div>';
@@ -584,12 +577,10 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
 
         // Locate the 'data-requisites' attribute associated with the multiple-choice block
         const requisitesIndex = text.indexOf('data-requisites');
-        // console.log({ requisites: text.slice(requisitesIndex - 100, requisitesIndex + 100) });
-
         const requisitesMatch = text.substring(requisitesIndex).match(/data-requisites='([^']+)'/);
         if (requisitesMatch) {
           const requisites = JSON.parse(requisitesMatch[1]);
-          if (pageId && requisites && requisites.wants.includes(pageId)) {
+          if (pageId && requisites.wants && requisites.wants.includes(pageId)) {
             // This requisite is tied to the multiple-choice block that's getting replaced, so we remove it
             return prefix;
           }
@@ -611,12 +602,10 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
 
         // Locate the 'data-requisites' attribute associated with the multiple-choice block
         const requisitesIndex = text.indexOf('data-requisites');
-        // console.log({ requisites: text.slice(requisitesIndex - 100, requisitesIndex + 100) });
-
         const requisitesMatch = text.substring(requisitesIndex).match(/data-requisites='([^']+)'/);
         if (requisitesMatch) {
           const requisites = JSON.parse(requisitesMatch[1]);
-          if (pageId && requisites && requisites.wants.includes(pageId)) {
+          if (pageId && requisites.wants && requisites.wants.includes(pageId)) {
             // This requisite is tied to the multiple-choice block that's getting replaced, so we remove it
             return '';
           }

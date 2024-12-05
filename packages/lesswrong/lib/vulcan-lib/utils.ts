@@ -410,7 +410,7 @@ export const sanitize = function(s: string): string {
       'lwartifacts.vercel.app'
     ],
     allowedClasses: {
-      span: [ 'footnote-reference', 'footnote-label', 'footnote-back-link', "math-tex", /arb-wants-requisite-[a-zA-Z0-9]*/ ],
+      span: [ 'footnote-reference', 'footnote-label', 'footnote-back-link', "math-tex" ],
       div: [
         'spoilers',
         'footnote-content',
@@ -432,7 +432,6 @@ export const sanitize = function(s: string): string {
         'detailsBlockContent',
         'calendly-preview',
         /arb-custom-script-[a-zA-Z0-9]*/,
-        /arb-wants-requisite-[a-zA-Z0-9]*/,
       ],
       iframe: [ 'thoughtSaverFrame' ],
       ol: [ 'footnotes', 'footnote-section' ],
