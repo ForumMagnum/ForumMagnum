@@ -18,7 +18,6 @@ import { userCanStartConversations } from "../../../lib/collections/conversation
 import { useInitiateConversation } from "../../hooks/useInitiateConversation";
 import { isClient } from "../../../lib/executionEnvironment";
 import { InteractionWrapper, useClickableCell } from "../../common/useClickableCell";
-import { isPostWithForeignId } from "../../hooks/useForeignCrosspost";
 import { ExpandedDate } from "../../common/FormatDate";
 import { useCommentLink } from "../../comments/CommentsItem/useCommentLink";
 import { htmlToTextDefault } from "../../../lib/htmlToText";
@@ -27,7 +26,6 @@ import { CloudinaryPropsType, makeCloudinaryImageUrl } from "../../common/Cloudi
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
 import { HeartReactionIcon } from "../../icons/reactions/HeartReactionIcon";
 import { tagGetUrl } from "../../../lib/collections/tags/helpers";
-import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 import { TagCommentType } from "../../../lib/collections/comments/types";
 import { useLocation } from "../../../lib/routeUtil";
 import { TupleSet, UnionOf } from "../../../lib/utils/typeGuardUtils";
@@ -788,7 +786,7 @@ const Post = ({post, classes}: {
   const titleNode = <InteractionWrapper>
     <Link to={postLink}>{post.title}</Link>
   </InteractionWrapper>
-  const readTimeText = (!isRecommendedPost || isPostWithForeignId(post)) ? '' : `, ${post.readTimeMinutes ?? 1} min read`
+  const readTimeText = !isRecommendedPost ? '' : `, ${post.readTimeMinutes ?? 1} min read`
   
   return <article className={classes.post} ref={authorExpandContainer} onClick={onClick}>
     <div className={classes.postScore}>
@@ -1608,8 +1606,7 @@ const MostValuablePostsSection = ({year, classes}: {
 const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
   const { pathname, params } = useLocation()
   const currentUser = useCurrentUser()
-  const updateCurrentUser = useUpdateCurrentUser();
-  const { setNode, entry, node } = useIsInView();
+  const { setNode, node } = useIsInView();
   
   const paramYear = ['2022','2023'].includes(params.year) ? parseInt(params.year) : 2023
   const year: WrappedYear = wrappedYears.has(paramYear) ? paramYear : 2023

@@ -1,7 +1,6 @@
 import React from 'react';
 import { Components, getFragment, registerComponent } from '../../../lib/vulcan-lib';
 import { isMissingDocumentError, isOperationNotAllowedError } from '../../../lib/utils/errorUtil';
-import { isPostWithForeignId } from "./PostsPageCrosspostWrapper";
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { useMulti } from '../../../lib/crud/withMulti';
@@ -9,7 +8,6 @@ import { useSubscribedLocation } from '../../../lib/routeUtil';
 import { isValidCommentView } from '../../../lib/commentViewOptions';
 import { postsCommentsThreadMultiOptions } from './PostsPage';
 import { useDisplayedPost } from '../usePost';
-import { useSingle } from '../../../lib/crud/withSingle';
 import { useApolloClient } from '@apollo/client';
 
 const PostsPageWrapper = ({ sequenceId, version, documentId }: {
@@ -38,7 +36,7 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
     sequence: sequencePreload,
   } : postPreload;
 
-  const { document: post, refetch, loading, error, fetchProps } = useDisplayedPost(documentId, sequenceId, version);
+  const { document: post, refetch, loading, error } = useDisplayedPost(documentId, sequenceId, version);
 
   // This section is a performance optimisation to make comment fetching start as soon as possible rather than waiting for
   // the post to be fetched first. This is mainly beneficial in SSR
@@ -64,7 +62,7 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   }
   // End of performance section
 
-  const { Error404, Loading, PostsPageCrosspostWrapper, PostsPage } = Components;
+  const { Error404, Loading, PostsPage } = Components;
   if (error && !isMissingDocumentError(error) && !isOperationNotAllowedError(error)) {
     throw new Error(error.message);
   } else if (loading && !postPreloadWithSequence) {
@@ -79,8 +77,6 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
     }
   } else if (!post && !postPreloadWithSequence) {
     return <Error404/>
-  } else if (post && isPostWithForeignId(post)) {
-    return <PostsPageCrosspostWrapper post={post} eagerPostComments={eagerPostComments} refetch={refetch} fetchProps={fetchProps} />
   }
 
   return (
