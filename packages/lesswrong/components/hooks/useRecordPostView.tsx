@@ -1,5 +1,5 @@
 import React, { useContext, useCallback, useState, useMemo } from 'react';
-import { useMutation, gql } from '@apollo/client';
+import { gql } from '@apollo/client';
 import { useCurrentUser } from '../common/withUser';
 import { useNewEvents } from '../../lib/events/withNewEvents';
 import { hookToHoc } from '../../lib/hocUtils';
@@ -7,6 +7,7 @@ import { recombeeApi } from '../../lib/recombee/client';
 import { recombeeEnabledSetting, vertexEnabledSetting } from '../../lib/publicSettings';
 import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
 import { useClientId } from '@/lib/abTestImpl';
+import { useMutate } from './useMutate';
 
 export type ItemsReadContextType = {
   postsRead: Record<string,boolean>,
@@ -45,29 +46,7 @@ interface RecordPostViewArgs {
 }
 
 export const useRecordPostView = (post: ViewablePost) => {
-  const [increasePostViewCount] = useMutation(gql`
-    mutation increasePostViewCountMutation($postId: String) {
-      increasePostViewCount(postId: $postId)
-    }
-  `, {
-    ignoreResults: true
-  });
-
-  const [sendVertexViewItemEvent] = useMutation(gql`
-    mutation sendVertexViewItemEventMutation($postId: String!, $attributionId: String) {
-      sendVertexViewItemEvent(postId: $postId, attributionId: $attributionId)
-    }
-  `, {
-    ignoreResults: true
-  });
-
-  const [markPostCommentsRead] = useMutation(gql`
-    mutation markPostCommentsRead($postId: String!) {
-      markPostCommentsRead(postId: $postId)
-    }
-  `, {
-    ignoreResults: true
-  });
+  const { mutate } = useMutate();
   
   const {recordEvent} = useNewEvents()
   const currentUser = useCurrentUser();
@@ -84,10 +63,16 @@ export const useRecordPostView = (post: ViewablePost) => {
 
         // Trigger the asynchronous mutation with postId as an argument
         // Deliberately not awaiting, because this should be fire-and-forget
-        await increasePostViewCount({
+        await mutate({
+          mutation: gql`
+            mutation increasePostViewCountMutation($postId: String) {
+              increasePostViewCount(postId: $postId)
+            }
+          `,
           variables: {
             postId: post._id
-          }
+          },
+          errorHandling: "loggedAndSilent",
         });
 
         // Update the client-side read status cache
@@ -108,11 +93,17 @@ export const useRecordPostView = (post: ViewablePost) => {
         recordEvent('post-view', true, eventProperties);
 
         if (vertexEnabledSetting.get() && !recommendationOptions?.skip && !post.draft) {
-          void sendVertexViewItemEvent({
+          void mutate({
+            mutation: gql`
+              mutation sendVertexViewItemEventMutation($postId: String!, $attributionId: String) {
+                sendVertexViewItemEvent(postId: $postId, attributionId: $attributionId)
+              }
+            `,
             variables: {
               postId: post._id,
               attributionId: recommendationOptions?.vertexOptions?.attributionId
-            }
+            },
+            errorHandling: "loggedAndSilent",
           })
         }
       }
@@ -125,7 +116,7 @@ export const useRecordPostView = (post: ViewablePost) => {
     } catch(error) {
       console.log("recordPostView error:", error); // eslint-disable-line
     }
-  }, [postsRead, setPostRead, increasePostViewCount, sendVertexViewItemEvent, currentUser, clientId, recordEvent]);
+  }, [postsRead, setPostRead, mutate, currentUser, clientId, recordEvent]);
 
   const recordPostCommentsView = ({ post }: Pick<RecordPostViewArgs, 'post'>) => {
     if (currentUser) {
@@ -137,8 +128,14 @@ export const useRecordPostView = (post: ViewablePost) => {
         // Calling `setPostRead` above ensures we only send an update to server the first time this is triggered.
         // Otherwise it becomes much more likely that someone else posts a comment after the first time we send this,
         // but then we send it again because e.g. the user clicked on another comment (from the initial render).
-        void markPostCommentsRead({
-          variables: { postId: post._id }
+        void mutate({
+          mutation: gql`
+            mutation markPostCommentsRead($postId: String!) {
+              markPostCommentsRead(postId: $postId)
+            }
+          `,
+          variables: { postId: post._id },
+          errorHandling: "loggedAndSilent",
         });
       }
     }

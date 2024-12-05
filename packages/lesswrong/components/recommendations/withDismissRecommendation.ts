@@ -1,16 +1,19 @@
 import { useCallback } from 'react';
-import { useMutation, gql } from '@apollo/client';
+import { gql } from '@apollo/client';
+import { useMutate } from '../hooks/useMutate';
 
 export const useDismissRecommendation = () => {
-  const [mutate] = useMutation(gql`
-    mutation dismissRecommendation($postId: String) {
-      dismissRecommendation(postId: $postId)
-    }
-  `);
+  const {mutate} = useMutate();
   
   return useCallback(async (postId: string) => {
     await mutate({
-      variables: { postId }
+      mutation: gql`
+        mutation dismissRecommendation($postId: String) {
+          dismissRecommendation(postId: $postId)
+        }
+      `,
+      variables: { postId },
+      errorHandling: "flashMessageAndReturn",
     });
   }, [mutate]);
 }

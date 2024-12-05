@@ -1,7 +1,8 @@
 import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import { useMutation, gql } from '@apollo/client';
+import { gql } from '@apollo/client';
+import { useMutate } from '../hooks/useMutate';
 import { useCurrentUser } from '../common/withUser';
 import { useTracking, useOnMountTracking } from "../../lib/analyticsEvents";
 import { contentTypes } from '../posts/PostsPage/ContentType';
@@ -10,7 +11,6 @@ import classNames from 'classnames';
 import Card from '@material-ui/core/Card';
 import { Link } from '../../lib/reactRouterWrapper';
 import { forumSelect } from '../../lib/forumTypeUtils';
-import { useMessages } from '../common/withMessages';
 import { isLWorAF, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import stringify from 'json-stringify-deterministic';
 import { isFriendlyUI } from '../../themes/forumTheme';
@@ -154,14 +154,12 @@ const FooterTagList = ({
   neverCoreStyling?: boolean,
   tagRight?: boolean,
 }) => {
-  const [isAwaiting, setIsAwaiting] = useState(false);
   const rootRef = useRef<HTMLSpanElement>(null);
   const [showAll, setShowAll] = useState(!allowTruncate);
   const [displayShowAllButton, setDisplayShowAllButton] = useState(false);
 
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
-  const { flash } = useMessages();
 
   // We already have the tags as a resolver on the post, this additional query
   // serves two purposes:
@@ -225,32 +223,27 @@ const FooterTagList = ({
     skip: isLWorAF || !tagIds.length || loading
   });
 
-  const [mutate] = useMutation(gql`
-    mutation addOrUpvoteTag($tagId: String, $postId: String) {
-      addOrUpvoteTag(tagId: $tagId, postId: $postId) {
-        ...TagRelMinimumFragment
-      }
-    }
-    ${getFragment("TagRelMinimumFragment")}
-  `);
+  const {mutate, loading: isAwaiting} = useMutate();
 
   const onTagSelected = useCallback(async ({tagId, tagName}: {tagId: string, tagName: string}) => {
-    try {
-      setIsAwaiting(true);
-      await mutate({
-        variables: {
-          tagId: tagId,
-          postId: post._id,
-        },
-      });
-      setIsAwaiting(false);
-      refetch();
-      captureEvent("tagAddedToItem", {tagId, tagName});
-    } catch (e) {
-      setIsAwaiting(false);
-      flash(e.message);
-    }
-  }, [setIsAwaiting, mutate, refetch, post._id, captureEvent, flash]);
+    await mutate({
+      mutation: gql`
+        mutation addOrUpvoteTag($tagId: String, $postId: String) {
+          addOrUpvoteTag(tagId: $tagId, postId: $postId) {
+            ...TagRelMinimumFragment
+          }
+        }
+        ${getFragment("TagRelMinimumFragment")}
+      `,
+      variables: {
+        tagId: tagId,
+        postId: post._id,
+      },
+      errorHandling: "flashMessageAndReturn",
+    });
+    refetch();
+    captureEvent("tagAddedToItem", {tagId, tagName});
+  }, [mutate, refetch, post._id, captureEvent]);
 
   // FIXME: Unstable component will lose state on rerender
   // eslint-disable-next-line react/no-unstable-nested-components

@@ -43,6 +43,9 @@ export const getUser = async (loginToken: string): Promise<DbUser|null> => {
         (tokenInfo: AnyBecauseTodo) => tokenInfo.hashedToken === hashedToken
       )
 
+      if (!tokenInformation) {
+        return null;
+      }
       const expiresAt = tokenExpiration(tokenInformation.when)
 
       const isExpired = expiresAt < new Date()
