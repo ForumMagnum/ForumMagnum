@@ -469,8 +469,9 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
       const pageAliasRedirects = database.aliasRedirects.filter(ar => ar.newAlias === pageInfo.alias);
       const oldSlugs = uniq([pageInfo.alias, pageInfo.pageId, ...pageAliasRedirects.map(ar => ar.oldAlias)]);
 
+      const oldestRevArbitalMarkdown = revisions[0].text;
       const oldestRevCkEditorMarkup = await arbitalMarkdownToCkEditorMarkup({
-        markdown: revisions[0].text, pageId, conversionContext
+        markdown: oldestRevArbitalMarkdown, pageId, conversionContext
       });
       console.log(`Creating wiki page: ${title} (${slug}).  Lenses found: ${lenses.map(l=>l.lensName).join(", ")}`);
 
@@ -500,6 +501,7 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
             },
             legacyData: {
               "arbitalPageId": pageId,
+              "arbitalMarkdown": oldestRevArbitalMarkdown,
             },
           },
           context: resolverContext,
@@ -748,6 +750,7 @@ async function importComments(database: WholeArbitalDatabase, resolverContext: R
         parentCommentId: parentCommentId ? (lwCommentsById[parentCommentId]?._id ?? null) : null,
         legacyData: {
           arbitalPageId: commentId,
+          arbitalMarkdown: livePublicRev.text,
         },
       },
       currentUser: commentUser,
@@ -857,6 +860,7 @@ async function importRevisions<N extends CollectionNameString>({
         legacyData: {
           "arbitalPageId": pageId,
           "arbitalEditNumber": arbRevision.edit,
+          "arbitalMarkdown": arbRevision.text,
         },
       },
       currentUser: revisionCreator,
