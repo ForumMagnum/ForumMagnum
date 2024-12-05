@@ -14,10 +14,9 @@ const ConditionalVisibilityBlockDisplay = ({options, children}: {
   let visible = false;
   
   if (revealHiddenBlocks) {
-    return <div>
-      <Components.ShowBlockVisibilityCondition options={options} />
-      <div>{children}</div>
-    </div>
+    return <Components.ShowBlockVisibilityCondition options={options}>
+      {children}
+    </Components.ShowBlockVisibilityCondition>
   } else if (visible) {
     return <div>{children}</div>
   } else {

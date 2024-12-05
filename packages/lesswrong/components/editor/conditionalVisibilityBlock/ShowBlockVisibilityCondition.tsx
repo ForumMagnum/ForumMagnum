@@ -5,21 +5,39 @@ import { conditionalVisibilityModes, ConditionalVisibilitySettings } from './con
 
 const styles = defineStyles("ShowBlockVisibilityCondition", (theme: ThemeType) => ({
   root: {
+    border: theme.palette.border.normal,
+    borderRadius: 4,
+    padding: 8,
+    margin: 8,
+  },
+  condition: {
+    marginBottom: 8,
+  },
+  conditionType: {
+    fontWeight: "bold",
+  },
+  contents: {
   },
 }));
 
-const ShowBlockVisibilityCondition = ({options}: {
+const ShowBlockVisibilityCondition = ({options, children}: {
   options: ConditionalVisibilitySettings
+  children: React.ReactNode
 }) => {
   const classes = useStyles(styles);
   const mode = conditionalVisibilityModes[options?.type];
   if (!mode) return null;
 
   return <div className={classes.root}>
-    {('inverted' in options && options.inverted) ? "!" : ""}
-    {(options.type === "ifPathBeforeOrAfter" && options.order==="before") ? "If before " : "If after"}
-    {options.type !== "ifPathBeforeOrAfter" && mode.label}
-    {('otherPage' in options) ? options.otherPage : ""}
+    <div className={classes.condition}>
+      {('inverted' in options && options.inverted) ? "!" : ""}
+      {(options.type === "ifPathBeforeOrAfter") && (options.order==="before" ? "If before " : "If after")}
+      <span className={classes.conditionType}>{options.type !== "ifPathBeforeOrAfter" && mode.label}</span>
+      {('otherPage' in options) ? options.otherPage : ""}
+    </div>
+    <div className={classes.contents}>
+      {children}
+    </div>
   </div>
 }
 
