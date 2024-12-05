@@ -89,6 +89,22 @@ const settingsFileName = (mode, forumType) => {
   return `settings-${mode}.json`;
 };
 
+const buildCkEditor = async (forumType) => {
+  const validForumTypes = ['lw', 'ea'];
+  if (!validForumTypes.includes(forumType)) {
+    throw new Error(`Invalid forum type: ${forumType}. Must be one of: ${validForumTypes.join(', ')}`);
+  }
+  
+  // Map CLI forum types to CKEditor forum types
+  const forumTypeMap = {
+    'lw': 'LessWrong',
+    'ea': 'EAForum'
+  };
+  
+  console.log(`Building CKEditor bundle for ${forumTypeMap[forumType]}`);
+  await execAsync(`cd public/lesswrong-editor && yarn && yarn build ${forumType}`);
+}
+
 (async () => {
   let mode = process.argv[2];
   if (mode === "development") {
@@ -122,7 +138,7 @@ const settingsFileName = (mode, forumType) => {
     const { exists } = await checkEditorBundle(ckEditorBundleVersion);
     if (!exists) {
       console.log(`ckEditor bundle version ${ckEditorBundleVersion} not yet uploaded; building now`);
-      await execAsync(`cd public/lesswrong-editor && yarn && yarn build`);
+      await buildCkEditor(forumType);
       await uploadEditorBundle(ckEditorBundleVersion);
     }
   } catch (e) {

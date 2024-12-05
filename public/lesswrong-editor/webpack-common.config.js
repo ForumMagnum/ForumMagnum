@@ -19,8 +19,8 @@ const UglifyJsWebpackPlugin = require( 'uglifyjs-webpack-plugin' );
  * CkEditor's cloud infrastructure; these correspond to values of the "mode"
  * argument, which should be the string "client" or the string "cloud".
  */
-function getWebpackConfig(mode) {
-	const entryPoint = (mode==="client") ? "ckeditor-client.js" : "ckeditor-cloud.js";
+function getWebpackConfig(mode, forumType) {
+	const entryPoint = (mode==="client") ? "ckeditor-client.js" : `ckeditor-cloud-${forumType.toLowerCase()}.js`;
 	return {
 		devtool: 'source-map',
 		performance: { hints: false },
@@ -32,7 +32,7 @@ function getWebpackConfig(mode) {
 			library: (mode==="cloud") ? 'CKEditorCS' : 'CKEditor',
 	
 			path: path.resolve( __dirname, 'build' ),
-			filename: (mode==="cloud") ? 'ckeditor-cloud.js' : 'ckeditor.js',
+			filename: (mode==="cloud") ? `ckeditor-cloud-${forumType.toLowerCase()}.js` : 'ckeditor.js',
 			libraryTarget: 'umd',
 			libraryExport: (mode==="cloud") ? 'default' : 'Editors'
 		},
