@@ -5,7 +5,7 @@ import { useLocation } from '../../../lib/routeUtil';
 import { tagGetUrl } from '../../../lib/collections/tags/helpers';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { isFriendlyUI } from '../../../themes/forumTheme';
-import { getAvailableLenses } from '../TagPage';
+import { getAvailableLenses } from '@/lib/arbital/useTagLenses';
 import keyBy from 'lodash/keyBy';
 
 const styles = (theme: ThemeType): JssStyles => ({

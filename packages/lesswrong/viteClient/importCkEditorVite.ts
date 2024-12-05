@@ -1,4 +1,4 @@
-import type { ForumTypeString } from "@/lib/instanceSettings";
+import type { ForumTypeString } from "../lib/instanceSettings";
 import ckEditor from '../../../ckEditor/src/ckeditor-client';
 
 export const getCkEditor = (forumType: ForumTypeString) => {

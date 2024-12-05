@@ -61,8 +61,12 @@ export type NavigateFunction = ReturnType<typeof useNavigate>
  */
 export const useNavigate = () => {
   const { history } = useContext(NavigationContext)!;
-  return useCallback((locationDescriptor: LocationDescriptor, options?: {replace?: boolean, openInNewTab?: boolean}) => {
-    if (options?.openInNewTab) {
+  return useCallback((locationDescriptor: LocationDescriptor | -1 | 1, options?: {replace?: boolean, openInNewTab?: boolean}) => {
+    if (locationDescriptor === -1) {
+      history.goBack();
+    } else if (locationDescriptor === 1) {
+      history.goForward();
+    } else if (options?.openInNewTab) {
       const href = typeof locationDescriptor === 'string' ?
         locationDescriptor :
         history.createHref(locationDescriptor);
