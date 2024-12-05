@@ -3111,6 +3111,21 @@ const schema: SchemaType<"Posts"> = {
     canUpdate: [userOwns, "admins"],
     ...schemaDefaultValue(false)
   },
+  // reviews that appear on SpotlightItem
+  reviews: resolverOnlyField({
+    type: Array,
+    graphQLtype: "[Comment]",
+    canRead: ['guests'],
+    resolver: async (post: DbPost, args: {}, context: ResolverContext) => {
+      const { currentUser, Comments } = context;
+      const reviews = await context.Comments.find({postId: post._id, baseScore: {$gte: 10}, reviewingForReview: {$ne: null}}, {sort: {baseScore: -1}, limit: 2}).fetch();
+      return await accessFilterMultiple(currentUser, Comments, reviews, context);
+    }
+  }),
+  'reviews.$': {
+    type: Object,
+    foreignKey: 'Comments',
+  },
 };
 
 export default schema;

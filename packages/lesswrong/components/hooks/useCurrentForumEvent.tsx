@@ -1,20 +1,16 @@
 import React, { FC, ReactNode, createContext, useCallback, useContext, useEffect, useMemo } from "react";
 import { useMulti } from "../../lib/crud/withMulti";
 import { hasForumEvents } from "../../lib/betas";
-import { useSingle } from "@/lib/crud/withSingle";
-import { isProduction } from "@/lib/executionEnvironment";
 
 type CurrentForumEventContext = {
   currentForumEvent: ForumEventsDisplay | null,
   isEventPost: (post: PostsBase, tag?: TagBasicInfo | null) => boolean,
   refetch?: () => void
-  marginalFundingWeek: ForumEventsDisplay | null,
 }
 
 const defaultValue: CurrentForumEventContext = {
   currentForumEvent: null,
   isEventPost: () => false,
-  marginalFundingWeek: null,
 };
 
 const currentForumEventContext = createContext<CurrentForumEventContext>(defaultValue);
@@ -31,12 +27,6 @@ export const CurrentForumEventProvider: FC<{
     skip: !hasForumEvents,
   });
   const currentForumEvent = results?.[0] ?? null;
-
-  const {document: marginalFundingWeek = null} = useSingle({
-    collectionName: "ForumEvents",
-    fragmentName: "ForumEventsDisplay",
-    documentId: isProduction ? "BkpY8huZKGykawEG9" : "93kPzFTBEmE8Jsxrs",
-  });
 
   const isEventPost = useCallback((post: PostsBase, tag?: TagBasicInfo | null) => {
     tag ??= currentForumEvent?.tag;
@@ -63,9 +53,8 @@ export const CurrentForumEventProvider: FC<{
         currentForumEvent,
         isEventPost,
         refetch,
-        marginalFundingWeek,
       };
-  }, [currentForumEvent, isEventPost, refetch, eventEnded, marginalFundingWeek]);
+  }, [currentForumEvent, isEventPost, refetch, eventEnded]);
 
   return (
     <currentForumEventContext.Provider value={value}>

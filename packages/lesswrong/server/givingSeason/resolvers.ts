@@ -1,5 +1,4 @@
 import { Posts } from "@/lib/collections/posts";
-import { Comments } from "@/lib/collections/comments";
 import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers } from "@/lib/vulcan-lib";
 import {
   defineFeedResolver,
@@ -7,8 +6,17 @@ import {
   viewBasedSubquery,
 } from "../utils/feedUtil";
 import ElectionVotes from "@/lib/collections/electionVotes/collection";
-import { ACTIVE_DONATION_ELECTION, DONATION_ELECTION_AGE_CUTOFF } from "@/lib/givingSeason";
+import { ACTIVE_DONATION_ELECTION } from "@/lib/givingSeason";
 import { instantRunoffAllPossibleResults, IRVote } from "@/lib/givingSeason/instantRunoff";
+import { memoizeWithExpiration } from "@/lib/utils/memoizeWithExpiration";
+
+const getVoteCounts = async () => {
+  const dbVotes = await ElectionVotes.find({ electionName: ACTIVE_DONATION_ELECTION }).fetch();
+  const votes: IRVote[] = dbVotes.map((vote) => vote.vote);
+  return instantRunoffAllPossibleResults(votes as IRVote[]);
+};
+
+const voteCountsWithCache = memoizeWithExpiration(getVoteCounts, 60 * 1000);
 
 addGraphQLResolvers({
   Query: {
@@ -22,10 +30,7 @@ addGraphQLResolvers({
       _args: {},
       _context: ResolverContext,
     ) => {
-      const dbVotes = await ElectionVotes.find({ electionName: ACTIVE_DONATION_ELECTION }).fetch();
-      const votes: IRVote[] = dbVotes.map((vote) => vote.vote);
-
-      return instantRunoffAllPossibleResults(votes as IRVote[]);
+      return voteCountsWithCache.get();
     },
     GivingSeason2024MyVote: async (
       _root: void,
@@ -45,9 +50,11 @@ addGraphQLResolvers({
   Mutation: {
     GivingSeason2024Vote: async (
       _root: void,
-      {vote}: {vote: Record<string, number>},
-      {currentUser, repos}: ResolverContext,
+      _args: {vote: Record<string, number>},
+      _context: ResolverContext,
     ) => {
+      throw new Error("Voting has closed");
+      /*
       if (
         !currentUser ||
         currentUser.banned ||
@@ -73,6 +80,7 @@ addGraphQLResolvers({
         vote,
       );
       return true;
+       */
     },
   },
 });
@@ -82,24 +90,24 @@ addGraphQLQuery("GivingSeason2024VoteCounts: JSON!");
 addGraphQLQuery("GivingSeason2024MyVote: JSON!");
 addGraphQLMutation("GivingSeason2024Vote(vote: JSON!): Boolean");
 
-defineFeedResolver<Date>({
+defineFeedResolver<number>({
   name: "GivingSeasonTagFeed",
   args: "tagId: String!",
-  cutoffTypeGraphQL: "Date",
+  cutoffTypeGraphQL: "Int",
   resultTypesGraphQL: `
     newPost: Post
     newComment: Comment
   `,
   resolver: async ({limit = 3, cutoff, offset, args, context}: {
     limit?: number,
-    cutoff?: Date,
+    cutoff?: number,
     offset?: number,
     args: {tagId: string},
     context: ResolverContext
   }) => {
     const {tagId} = args;
-    const relevantPostIds = await context.repos.posts.getViewablePostsIdsWithTag(tagId);
-    return mergeFeedQueries<Date>({
+    // const relevantPostIds = await context.repos.posts.getViewablePostsIdsWithTag(tagId);
+    return mergeFeedQueries<number>({
       limit,
       cutoff,
       offset,
@@ -107,12 +115,14 @@ defineFeedResolver<Date>({
         viewBasedSubquery({
           type: "newPost",
           collection: Posts,
-          sortField: "createdAt",
+          sortField: "baseScore",
           context,
           selector: {
-            _id: {$in: relevantPostIds},
+            [`tagRelevance.${tagId}`]: {$gte: 1},
+            // _id: {$in: relevantPostIds},
           },
         }),
+        /*
         viewBasedSubquery({
           type: "newComment",
           collection: Comments,
@@ -123,6 +133,7 @@ defineFeedResolver<Date>({
             baseScore: {$gte: 5},
           },
         }),
+         */
       ],
     });
   }

@@ -23,12 +23,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 16,
     marginRight: 6,
   } : {},
-  hideOnMobile: {
+  hideLabelOnMobile: {
     [theme.breakpoints.down('sm')]: { //optimized for tag page
       display: "none"
     }
   },
-  hide: {
+  hideLabel: {
     display: "none"
   },
 })

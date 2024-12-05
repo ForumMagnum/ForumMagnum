@@ -18,7 +18,7 @@ const styles = (theme: ThemeType) => ({
   },
   header: {
     fontSize: 18,
-    marginBottom: 26,
+    marginBottom: 4,
     fontWeight: 600
   },
   candidateWrapper: {
@@ -180,9 +180,15 @@ export const DonationElectionLeaderboard = ({
 
   const maxVotes = sortedCharityIds[0][1];
 
+  const electionIsOver = true;
+
   return (
     <div className={classNames(classes.root, className)}>
-      {!hideHeader && <div className={classes.header}>Current Leaderboard</div>}
+      {!hideHeader &&
+        <div className={classes.header}>
+          {electionIsOver ? "Winners" : "Current Leaderboard"}
+        </div>
+      }
       {sortedCharities.map(({ count, candidate }, index) => (
         <div key={candidate?._id ?? index} className={classes.candidateWrapper}>
           <div
@@ -206,7 +212,7 @@ export const DonationElectionLeaderboard = ({
           </div>
         </div>
       ))}
-      {voteCounts[winnerCount + 1] && (
+      {!electionIsOver && voteCounts[winnerCount + 1] && (
         <div className={classes.showMoreRow}>
           <div className={classes.showMoreButton} onClick={handleShowMore}>
             + Show one more
