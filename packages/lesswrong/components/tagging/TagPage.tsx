@@ -27,6 +27,16 @@ import { HEADER_HEIGHT } from "../common/Header";
 import { MAX_COLUMN_WIDTH } from "../posts/PostsPage/PostsPage";
 import { GUIDE_PATH_PAGES_MAPPING } from "@/lib/arbital/paths";
 import { TagLens, useTagLenses } from "@/lib/arbital/useTagLenses";
+import { quickTakesTagsEnabledSetting } from "@/lib/publicSettings";
+
+const sidePaddingStyle = (theme: ThemeType) => ({
+  paddingLeft: 42,
+  paddingRight: 42,
+  [theme.breakpoints.down('xs')]: {
+    paddingLeft: '8px',
+    paddingRight: '8px',
+  },
+})
 
 const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   rootGivenImage: {
@@ -66,10 +76,7 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   header: {
     paddingTop: 19,
     paddingBottom: 5,
-    [theme.breakpoints.up('md')]: {
-      paddingLeft: 42,
-      paddingRight: 42,
-    },
+    ...sidePaddingStyle(theme),
     background: theme.palette.panelBackground.default,
     borderTopLeftRadius: theme.borderRadius.default,
     borderTopRightRadius: theme.borderRadius.default,
@@ -119,21 +126,14 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   },
   wikiSection: {
     paddingTop: 5,
-    [theme.breakpoints.up('md')]: {
-      paddingLeft: 42,
-      paddingRight: 42,
-    },
-    paddingBottom: 12,
+    ...sidePaddingStyle(theme),
     marginBottom: 24,
     background: theme.palette.panelBackground.default,
     borderBottomLeftRadius: theme.borderRadius.default,
     borderBottomRightRadius: theme.borderRadius.default,
   },
   subHeading: {
-    [theme.breakpoints.up('md')]: {
-      paddingLeft: 42,
-      paddingRight: 42,
-    },
+    ...sidePaddingStyle(theme),
     marginTop: -2,
     background: theme.palette.panelBackground.default,
     ...theme.typography.body2,
@@ -807,17 +807,18 @@ const TagPage = () => {
       {tag.sequence && <TagIntroSequence tag={tag} />}
       {!tag.wikiOnly && <>
         <AnalyticsContext pageSectionContext="tagsSection">
-          <PostsListHeading tag={tag} query={query} classes={classes} />
           <PostsList2
+            header={<PostsListHeading tag={tag} query={query} classes={classes} />}
             terms={terms}
             enableTotal
             tagId={tag._id}
             itemsPerPage={200}
+            showNoResults={false}
           >
             <AddPostsToTag tag={tag} />
           </PostsList2>
         </AnalyticsContext>
-        <DeferRender ssr={false}>
+        {quickTakesTagsEnabledSetting.get() && <DeferRender ssr={false}>
           <AnalyticsContext pageSectionContext="quickTakesSection">
             <CommentsListCondensed
               label="Quick takes"
@@ -832,7 +833,7 @@ const TagPage = () => {
               hideTag
             />
           </AnalyticsContext>
-        </DeferRender>
+        </DeferRender>}
       </>}
     </div>
   );
