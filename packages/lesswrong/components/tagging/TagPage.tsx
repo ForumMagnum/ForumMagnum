@@ -620,6 +620,7 @@ const TagPage = () => {
       contributorsLimit,
     },
   });
+
   
   const [truncated, setTruncated] = useState(false)
   const [editing, setEditing] = useState(!!query.edit)
@@ -628,6 +629,8 @@ const TagPage = () => {
   const client = useApolloClient()
 
   const pathInfo = usePathInfo(tag);
+
+  const { tag: guideTag } = useTagBySlug(pathInfo?.pathId ?? '', 'TagBasicInfo', { skip: !pathInfo?.pathId });
 
   const multiTerms: AnyBecauseTodo = {
     allPages: {view: "allPagesByNewest"},
@@ -749,18 +752,27 @@ const TagPage = () => {
 
   const pathInfoSection = pathInfo && (
     <div className={classes.pathInfo}>
-      {pathInfo.previousPageId
-        ? <Link className={classes.pathNavigationBackButton} to={`/w/${pathInfo.previousPageId}?pathId=${pathInfo.pathId}`}>
-            <ForumIcon icon="ArrowLeft" className={classes.pathNavigationBackButtonIcon} />
-            Back
-          </Link>
-        : <Link className={classes.pathNavigationBackButton} to='#' onClick={() => navigate(-1)}>
-            <ForumIcon icon="ArrowLeft" className={classes.pathNavigationBackButtonIcon} />
-            Back
-          </Link>
-      }
-      {`You are reading ${/** TODO: guide page title */ 'TEST PATH NAME'}, page ${pathInfo.displayPageIndex} of ${pathInfo.pathPageCount}`}
-      <Link className={classes.pathNavigationNextButton} to={`/w/${pathInfo.nextPageId}?pathId=${pathInfo.pathId}`}>
+      {/* 
+        * We don't show a button if there's no previous page, since it's not obvious what should happen if the user clicks it.
+        * One might be tempted to have it navigate back in history, but if the user got to this page by clicking "Back" from the next page in the path,
+        * they'd be sent back to the next page instead of the page which started them on the path. Even that only makes sense in the context of the Bayes' Rule guide.
+        */}
+      {pathInfo.previousPageId && <Link
+        className={classes.pathNavigationBackButton}
+        to={`/w/${pathInfo.previousPageId}?pathId=${pathInfo.pathId}`}
+      >
+        <ForumIcon icon="ArrowLeft" className={classes.pathNavigationBackButtonIcon} />
+        Back
+      </Link>}
+      <span>
+        {`You are reading `}
+        <strong>{guideTag?.name ?? ''}</strong>
+        {`, page ${pathInfo.displayPageIndex} of ${pathInfo.pathPageCount}`}
+      </span>
+      <Link
+        className={classes.pathNavigationNextButton}
+        to={`/w/${pathInfo.nextPageId}?pathId=${pathInfo.pathId}`}
+      >
         Continue
         <ForumIcon icon="ArrowRight" className={classes.pathNavigationNextButtonIcon} />
       </Link>
