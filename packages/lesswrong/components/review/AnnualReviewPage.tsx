@@ -138,6 +138,7 @@ export const AnnualReviewPage = ({classes}: {
 
     if (value === 'reviewVoting') {
       newPathname = `/reviewVoting/${reviewYear}`;
+      newQuery = { }
     } else if (value === 'nominatePosts') {
       newPathname = `/nominatePosts/${reviewYear}`;
       newQuery = { ...newQuery, tab: 'all', ...allPostsParams(reviewYear) };
@@ -190,11 +191,11 @@ export const AnnualReviewPage = ({classes}: {
               value="reviewVoting"
               className={classes.tab}
             />
-            <Tab
+            {reviewPhase !== 'NOMINATIONS' && <Tab
               label="Reviews"
               value="reviews"
               className={classes.tab}
-            />
+            />}
         </Tabs>
         <div className={classes.tabsContainer}>
           {activeTab === 'nominatePosts' && <NominationsPage reviewYear={reviewYear}/>}

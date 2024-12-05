@@ -73,7 +73,7 @@ const dateStr = (startDate?: Date) =>
 export const allPostsParams = (reviewYear: ReviewYear=REVIEW_YEAR) => {
   const startDate = getReviewPeriodStart(reviewYear).toDate()
   const endDate = getReviewPeriodEnd(reviewYear).toDate()
-  return {after: dateStr(startDate), before: dateStr(endDate), timeframe: 'yearly', frontpage: 'true', unnominated: 'true'}
+  return {after: dateStr(startDate), before: dateStr(endDate), sortedBy: 'top', timeframe: 'yearly', frontpage: 'true', unnominated: 'true', limit: "100"}
 }  
 
 const NominationsPage = ({classes, reviewYear}: { classes: ClassesType<typeof styles>, reviewYear: ReviewYear }) => {
