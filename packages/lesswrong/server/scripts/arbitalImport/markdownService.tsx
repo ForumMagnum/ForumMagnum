@@ -2,6 +2,7 @@
 /* eslint-disable eqeqeq */
 /* eslint-disable no-control-regex */
 /* eslint-disable @typescript-eslint/type-annotation-spacing */
+/* eslint-disable no-console */
 
 //import app from './angular.ts';
 //import {Editor} from './Markdown.Editor.ts';
@@ -16,6 +17,8 @@ import React from 'react';
 import ReactDOM from 'react-dom/server';
 import { slugify } from '@/lib/vulcan-lib';
 import { convertImagesInHTML } from '../convertImagesToCloudinary';
+import type { ConditionalVisibilitySettings } from '@/components/editor/conditionalVisibilityBlock/conditionalVisibility';
+import { escapeHtml } from './util';
 
 
 const anyUrlMatch = /\b((?:[a-z][\w-]+:(?:\/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))/i;
@@ -278,11 +281,18 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
     converter.hooks.chain('preBlockGamut', function(text: string, runBlockGamut: (s:string)=>string) {
       return text.replace(hasReqBlockRegexp, function(whole, bars, not, alias, markdown) {
         var pageId = pageAliasToPageId(alias);
-        var div = '<div ng-show=\'' + (not ? '!' : '') + 'arb.masteryService.hasMastery("' + pageId + '")\'>';
+        /*var div = '<div ng-show=\'' + (not ? '!' : '') + 'arb.masteryService.hasMastery("' + pageId + '")\'>';
         if (isEditor) {
           div = '<div class=\'conditional-text editor-block\'>';
         }
-        return div + runBlockGamut(markdown) + '\n\n</div>';
+        return div + runBlockGamut(markdown) + '\n\n</div>';*/
+        if (!pageId) {
+          console.warn(`Page ${pageId} referenced in knows-requisite block was not found`);
+        }
+        return conditionallyVisibleBlockToHTML(
+          {type: "knowsRequisite", inverted: !!not, otherPage: pageId ?? ""},
+          runBlockGamut(markdown)
+        );
       });
     });
 
@@ -292,12 +302,19 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
     converter.hooks.chain('preBlockGamut', function(text: string, runBlockGamut: (s:string)=>string) {
       return text.replace(ifBeforeBlockRegexp, function(whole, bars, not, beforeOrAfter, alias, markdown) {
         var pageId = pageAliasToPageId(alias);
-        var fnName = beforeOrAfter == 'before' ? 'isBefore' : 'isAfter';
+        /*var fnName = beforeOrAfter == 'before' ? 'isBefore' : 'isAfter';
         var div = '<div ng-show=\'' + (not ? '!' : '') + 'arb.pathService.' + fnName + '("' + pageId + '")\'>';
         if (isEditor) {
           div = '<div class=\'conditional-text editor-block\'>';
         }
-        return div + runBlockGamut(markdown) + '\n\n</div>';
+        return div + runBlockGamut(markdown) + '\n\n</div>';*/
+        if (!pageId) {
+          console.warn(`Page ${pageId} referenced in knows-requisite block was not found`);
+        }
+        return conditionallyVisibleBlockToHTML(
+          {type: "ifPathBeforeOrAfter", inverted: !!not, order: beforeOrAfter, otherPage: pageId ?? ""},
+          runBlockGamut(markdown)
+        );
       });
     });
 
@@ -305,11 +322,14 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
     var todoBlockRegexp = new RegExp(todoBlockRegexpStr, 'gm');
     converter.hooks.chain('preBlockGamut', function(text: string, runBlockGamut: (s:string)=>string) {
       return text.replace(todoBlockRegexp, function(whole, bars, markdown) {
-        if (isEditor) {
+        /*if (isEditor) {
           return '<div class=\'todo-text editor-block\'>' + runBlockGamut(markdown) + '\n\n</div>';
         }
         markdownPage.todos.push(markdown);
-        return '';
+        return '';*/
+
+        markdownPage.todos.push(markdown);
+        return conditionallyVisibleBlockToHTML({type: "todo"}, runBlockGamut(markdown));
       });
     });
 
@@ -317,10 +337,11 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
     var fixmeBlockRegexp = new RegExp('^(%+)fixme: ?([\\s\\S]+?)\\1 *(?=\Z|\n)', 'gm');
     converter.hooks.chain('preBlockGamut', function(text: string, runBlockGamut: (s:string)=>string) {
       return text.replace(fixmeBlockRegexp, function(whole, bars, markdown) {
-        if (isEditor) {
+        /*if (isEditor) {
           return '<div class=\'fixme-text editor-block\'>' + runBlockGamut(markdown) + '\n\n</div>';
         }
-        return '';
+        return '';*/
+        return conditionallyVisibleBlockToHTML({type: "fixme"}, runBlockGamut(markdown));
       });
     });
 
@@ -328,16 +349,18 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
     var commentBlockRegexp = new RegExp('^(%+)comment: ?([\\s\\S]+?)\\1 *(?=\Z|\n)', 'gm');
     converter.hooks.chain('preBlockGamut', function(text: string, runBlockGamut: any) {
       return text.replace(commentBlockRegexp, function(whole, bars, markdown) {
-        if (isEditor) {
+        /*if (isEditor) {
           return '<div class=\'info-text editor-block\'>' + runBlockGamut(markdown) + '\n\n</div>';
         }
-        return '';
+        return '';*/
+        return conditionallyVisibleBlockToHTML({type: "comment"}, runBlockGamut(markdown));
       });
     });
 
     // Process %box:markdown% blocks.
     var boxBlockRegexp = new RegExp('^(%+)box: ?([\\s\\S]+?)\\1 *(?=\Z|\n)', 'gm');
     converter.hooks.chain('preBlockGamut', function(text: string, runBlockGamut: (s:string)=>string) {
+      // TODO
       return text.replace(boxBlockRegexp, function(whole, bars, markdown) {
         return '<div class=\'markdown-text-box\'>' + runBlockGamut(markdown) + '\n\n</div>';
       });
@@ -348,14 +371,19 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
     converter.hooks.chain('preBlockGamut', function(text: string, runBlockGamut: (s:string)=>string) {
       return text.replace(hiddenBlockRegexp, function(whole, bars, buttonText, text) {
         var blockText = runBlockGamut(text + '\n\n');
-        var divClass = 'hidden-text';
+        /*var divClass = 'hidden-text';
         if (!isEditor) {
           divClass += ' display-none';
         } else {
           buttonText = '';
         }
         var html = '\n\n<div class=\'' + divClass + '\'>' + blockText + '\n\n</div>';
-        return '<div arb-hidden-text button-text=\'' + buttonText + '\'>' + html + '\n\n</div>';
+        return '<div arb-hidden-text button-text=\'' + buttonText + '\'>' + html + '\n\n</div>';*/
+        
+        return `<details class="detailsBlock">
+          <summary class="detailsBlockTitle">${buttonText}</summary>
+          <div class="detailsBlockContent">${blockText}</div>
+        </details>`;
       });
     });
 
@@ -492,6 +520,7 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
     // Process [visualization(log-graph-demo):] block.
     var vizBlockRegexp = new RegExp('^\\[visualization\\(([^)]+)\\):\\] *(?=\Z|\n\Z|\n\n)', 'gm');
     converter.hooks.chain('preBlockGamut', function(text: string, runBlockGamut: (s:string)=>string) {
+      // TODO
       return text.replace(vizBlockRegexp, function(whole, name) {
         return '<div class=\'react-demo\' data-demo-name="' + name + '">\n\n</div>';
       });
@@ -549,6 +578,7 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
     var noteSpanRegexp = new RegExp(notEscaped + '(%+)note: ?([\\s\\S]+?)\\2', 'g');
     converter.hooks.chain('preSpanGamut', function(text: string) {
       return text.replace(noteSpanRegexp, function(whole, prefix, bars, markdown) {
+        // TODO
         if (isEditor) {
           return prefix + '<span class=\'conditional-text\'>' + markdown + '</span>';
         }
@@ -561,11 +591,18 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
     converter.hooks.chain('preSpanGamut', function(text: string) {
       return text.replace(hasReqSpanRegexp, function(whole, prefix, bars, not, alias, markdown) {
         var pageId = pageAliasToPageId(alias);
-        var span = '<span ng-show=\'' + (not ? '!' : '') + 'arb.masteryService.hasMastery("' + pageId + '")\'>';
+        /*var span = '<span ng-show=\'' + (not ? '!' : '') + 'arb.masteryService.hasMastery("' + pageId + '")\'>';
         if (isEditor) {
           span = '<span class=\'conditional-text\'>';
         }
-        return prefix + span + markdown + '</span>';
+        return prefix + span + markdown + '</span>';*/
+        if (!pageId) {
+          console.warn(`Page ${pageId} referenced in knows-requisite block was not found`);
+        }
+        return conditionallyVisibleBlockToHTML(
+          {type: "knowsRequisite", inverted: !!not, otherPage: pageId ?? ""},
+          markdown
+        );
       });
     });
 
@@ -586,11 +623,18 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
           }
         }
 
-        var span = `<span ng-show='${not ? '!' : ''}arb.masteryService.wantsMastery("${pageId}")'>`;
+        /*var span = `<span ng-show='${not ? '!' : ''}arb.masteryService.wantsMastery("${pageId}")'>`;
         if (isEditor) {
           span = '<span class=\'conditional-text\'>';
         }
-        return prefix + span + markdown + '</span>';
+        return prefix + span + markdown + '</span>';*/
+        if (!pageId) {
+          console.warn(`Page ${pageId} referenced in knows-requisite block was not found`);
+        }
+        return conditionallyVisibleBlockToHTML(
+          {type: "wantsRequisite", inverted: !!not, otherPage: pageId ?? ""},
+          markdown
+        );
       });
     });
 
@@ -611,11 +655,18 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
           }
         }
 
-        var div = `<div ng-show='${not ? '!' : ''}arb.masteryService.wantsMastery("${pageId}")'>`;
+        /*var div = `<div ng-show='${not ? '!' : ''}arb.masteryService.wantsMastery("${pageId}")'>`;
         if (isEditor) {
           div = '<div class=\'conditional-text editor-block\'>';
         }
-        return div + runBlockGamut(markdown) + '\n\n</div>';
+        return div + runBlockGamut(markdown) + '\n\n</div>';*/
+        if (!pageId) {
+          console.warn(`Page ${pageId} referenced in knows-requisite block was not found`);
+        }
+        return conditionallyVisibleBlockToHTML(
+          {type: "wantsRequisite", inverted: !!not, otherPage: pageId ?? ""},
+          markdown
+        );
       });
     });
     
@@ -625,12 +676,19 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
     converter.hooks.chain('preSpanGamut', function(text: string) {
       return text.replace(ifBeforeSpanRegexp, function(whole, prefix, bars, not, beforeOrAfter, alias, markdown) {
         var pageId = pageAliasToPageId(alias);
-        var fnName = beforeOrAfter == 'before' ? 'isBefore' : 'isAfter';
+        /*var fnName = beforeOrAfter == 'before' ? 'isBefore' : 'isAfter';
         var span = '<span ng-show=\'' + (not ? '!' : '') + 'arb.pathService.' + fnName + '("' + pageId + '")\'>';
         if (isEditor) {
           span = '<span class=\'conditional-text\'>';
         }
-        return prefix + span + markdown + '</span>';
+        return prefix + span + markdown + '</span>';*/
+        if (!pageId) {
+          console.warn(`Page ${pageId} referenced in knows-requisite block was not found`);
+        }
+        return conditionallyVisibleBlockToHTML(
+          { type: "ifPathBeforeOrAfter", inverted: !!not, order: beforeOrAfter, otherPage: pageId ?? "" },
+          markdown
+        )
       });
     });
 
@@ -638,22 +696,33 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
     var todoSpanRegexp = new RegExp(todoSpanRegexpStr, 'g');
     converter.hooks.chain('preSpanGamut', function(text: string) {
       return text.replace(todoSpanRegexp, function(whole, prefix, text) {
-        if (isEditor) {
+        /*if (isEditor) {
           return prefix + '<span class=\'todo-text\'>' + text + '</span>';
         }
         markdownPage.todos.push(text);
-        return prefix;
+        return prefix;*/
+        markdownPage.todos.push(text);
+        return conditionallyVisibleBlockToHTML(
+          { type: "todo" },
+          text
+        );
       });
+      
     });
 
     // Process [fixme:text] spans.
     var fixmeSpanRegexp = new RegExp(notEscaped + '\\[fixme: ?([^\\]]+?)\\]' + noParen, 'g');
     converter.hooks.chain('preSpanGamut', function(text: string) {
       return text.replace(fixmeSpanRegexp, function(whole, prefix, text) {
-        if (isEditor) {
+        /*if (isEditor) {
           return prefix + '<span class=\'fixme-text\'>' + text + '</span>';
         }
-        return prefix;
+        return prefix;*/
+        markdownPage.todos.push(text);
+        return conditionallyVisibleBlockToHTML(
+          { type: "fixme" },
+          text
+        );
       });
     });
 
@@ -662,10 +731,15 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
         '\\[comment: ?([^\\]]+?)\\]' + noParen, 'g');
     converter.hooks.chain('preSpanGamut', function(text: string) {
       return text.replace(commentSpanRegexp, function(whole, prefix, text) {
-        if (isEditor) {
+        /*if (isEditor) {
           return prefix + '<span class=\'info-text\'>';
         }
-        return prefix;
+        return prefix;*/
+        markdownPage.todos.push(text);
+        return conditionallyVisibleBlockToHTML(
+          { type: "comment" },
+          text
+        );
       });
     });
 
@@ -894,3 +968,8 @@ function latexSourceToCkEditorEmbeddedLatexTag(latex: string, inline: boolean): 
     return `<span class="math-tex">\\\\[${encodedLatex}\\\\]</span>`;
 }
 
+function conditionallyVisibleBlockToHTML(settings: ConditionalVisibilitySettings, contentsHtml: string) {
+  const settingsJsonStr = JSON.stringify(settings);
+  const visibilityAttrEscaped = escapeHtml(settingsJsonStr)
+  return `<div class="conditionallyVisibleBlock" data-visibility="${visibilityAttrEscaped}">${contentsHtml}</div>`
+}

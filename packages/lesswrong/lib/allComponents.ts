@@ -139,6 +139,7 @@ importComponent("DraftJSEditor", () => require('../components/editor/DraftJSEdit
 importComponent("PresenceList", () => require('../components/editor/PresenceList'));
 importComponent("ConditionalVisibilityBlockDisplay", () => require('../components/editor/conditionalVisibilityBlock/ConditionalVisibilityBlockDisplay'));
 importComponent("EditConditionalVisibility", () => require('../components/editor/conditionalVisibilityBlock/EditConditionalVisibility'));
+importComponent("ShowBlockVisibilityCondition", () => require('../components/editor/conditionalVisibilityBlock/ShowBlockVisibilityCondition'));
 
 // Generic dropdown menus and items
 importComponent("DropdownMenu", () => require('../components/dropdowns/DropdownMenu'));

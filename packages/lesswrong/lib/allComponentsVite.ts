@@ -193,6 +193,7 @@ import '../components/editor/DraftJSEditor';
 import '../components/editor/PresenceList';
 import '../components/editor/conditionalVisibilityBlock/ConditionalVisibilityBlockDisplay';
 import '../components/editor/conditionalVisibilityBlock/EditConditionalVisibility';
+import '../components/editor/conditionalVisibilityBlock/ShowBlockVisibilityCondition';
 
 // Generic dropdown menus and items
 import '../components/dropdowns/DropdownMenu';
