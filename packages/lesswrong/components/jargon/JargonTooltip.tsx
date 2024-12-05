@@ -188,6 +188,7 @@ export const JargonTooltip = ({term, definitionHTML, approved, deleted, humansAn
       forceOpen={open}
       analyticsProps={{ pageElementContext: 'jargonTermHovered' }}
       otherEventProps={{ term }}
+      fallbackPlacements={['left-end']}
     >
       <LWClickAwayListener onClickAway={() => setOpen(false)}>
         {/* TODO: fix this so that it uses "displayAsPinned" instead of "postGlossariesPinned" */}

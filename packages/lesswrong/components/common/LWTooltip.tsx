@@ -39,6 +39,7 @@ export type LWTooltipProps = {
   children?: ReactNode,
   classes: ClassesType,
   forceOpen?: boolean,
+  fallbackPlacements?: PopperPlacementType[],
 }
 
 const LWTooltip = ({
@@ -61,6 +62,7 @@ const LWTooltip = ({
   className,
   classes,
   forceOpen,
+  fallbackPlacements,
 }: LWTooltipProps) => {
   const { LWPopper } = Components
   const { hover, everHovered, anchorEl, eventHandlers } = useHover({
@@ -92,6 +94,7 @@ const LWTooltip = ({
       clickable={clickable}
       hideOnTouchScreens={hideOnTouchScreens}
       className={popperClassName}
+      fallbackPlacements={fallbackPlacements}
     >
       <div className={classNames(
         tooltip && classes.tooltip,
