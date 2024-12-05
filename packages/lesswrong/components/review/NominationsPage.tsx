@@ -46,6 +46,7 @@ const styles = (theme: ThemeType) => ({
   },
   allPosts: {
     paddingTop: 24,
+    marginTop: -24,
     backgroundColor: theme.palette.background.translucentBackground,
     '& .SectionTitle-children': {
       position: 'relative',
@@ -155,7 +156,7 @@ const NominationsPage = ({classes, reviewYear}: { classes: ClassesType<typeof st
         </Tabs>
       </div>
       {activeTab === 'all' && <div className={classes.allPosts}>
-        <AllPostsPage defaultHideSettings noTopMargin/>
+        <AllPostsPage defaultHideSettings/>
       </div>}
       {activeTab === 'submitlinkposts' && <div className={classes.externalPostImporter}>
         <ExternalPostImporter defaultPostedAt={startDate} />
