@@ -1,7 +1,7 @@
 import { combineUrls, Components, getSiteUrl, registerComponent } from '../../lib/vulcan-lib';
 import React, { useEffect } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { getReviewPhase, reviewIsActive, REVIEW_YEAR, eligibleToNominate } from '../../lib/reviewUtils';
+import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { showReviewOnFrontPageIfActive, lightconeFundraiserThermometerGoalAmount, lightconeFundraiserActive } from '../../lib/publicSettings';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../lib/cookies/cookies';
@@ -9,6 +9,17 @@ import moment from 'moment';
 import { visitorGetsDynamicFrontpage } from '../../lib/betas';
 import { isLW, isAF } from '@/lib/instanceSettings';
 import { useCurrentUser } from './withUser';
+
+const styles = (theme: ThemeType): JssStyles => ({
+  frontpageReviewWidget: {
+    marginTop: 42,
+    marginBottom: 20,
+    [theme.breakpoints.down('xs')]: {
+      marginTop: 24,
+      marginBottom: 10
+    }
+  }
+})
 
 const getStructuredData = () => ({
   "@context": "http://schema.org",
@@ -38,7 +49,7 @@ const getStructuredData = () => ({
   }),
 })
 
-const LWHome = () => {
+const LWHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const { DismissibleSpotlightItem, RecentDiscussionFeed, AnalyticsInViewTracker, FrontpageReviewWidget,
     SingleColumnSection, FrontpageBestOfLWWidget, EAPopularCommentsSection, FundraisingThermometer,
     QuickTakesSection, LWHomePosts, HeadTags
@@ -59,7 +70,7 @@ const LWHome = () => {
               <FrontpageBestOfLWWidget reviewYear={REVIEW_YEAR} />
             </SingleColumnSection>}
             {getReviewPhase() !== "RESULTS" && <SingleColumnSection>
-              <FrontpageReviewWidget reviewYear={REVIEW_YEAR} style={{marginTop: 48, marginBottom: eligibleToNominate(currentUser) ? 44 : 10}}/>
+              <FrontpageReviewWidget reviewYear={REVIEW_YEAR} className={classes.frontpageReviewWidget}/>
             </SingleColumnSection>}
           </>}
           {(!reviewIsActive() || !showReviewOnFrontPageIfActive.get()) && <SingleColumnSection>
@@ -98,7 +109,7 @@ const UpdateLastVisitCookie = () => {
   return <></>
 }
 
-const LWHomeComponent = registerComponent('LWHome', LWHome);
+const LWHomeComponent = registerComponent('LWHome', LWHome, {styles});
 
 declare global {
   interface ComponentTypes {

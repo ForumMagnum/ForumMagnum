@@ -7,7 +7,7 @@ import classNames from 'classnames';
 import * as _ from "underscore"
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 import seedrandom from '../../lib/seedrandom';
-import { getCostData, getReviewPhase, ReviewPhase, ReviewYear } from '../../lib/reviewUtils';
+import { getCostData, getReviewPhase, REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD, ReviewPhase, ReviewYear } from '../../lib/reviewUtils';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { randomId } from '../../lib/random';
 import { useLocation } from '../../lib/routeUtil';
@@ -29,7 +29,7 @@ const styles = (theme: ThemeType) => ({
   votingPageContainer: {
     width: "100%",
     maxWidth: SECTION_WIDTH,
-    backgroundColor: theme.palette.background.pageActiveAreaBackground,
+    backgroundColor: theme.palette.background.translucentBackground,
   },
   postsLoading: {
     opacity: .4,
@@ -61,9 +61,7 @@ const styles = (theme: ThemeType) => ({
     marginRight: 5,
   },
   tagListContainer: {
-    paddingLeft: 16,
-    paddingRight: 16,
-    marginTop: 8,
+    padding: 16
   }
 });
 
@@ -237,19 +235,17 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
         const post2Read = !!post2.lastVisitedAt
         const post1NotKarmaVoted = post1KarmaVote === 0;
         const post2NotKarmaVoted = post2KarmaVote === 0;
+        const post1isCurrentUsers = post1.userId === currentUser?._id
+        const post2isCurrentUsers = post2.userId === currentUser?._id
+        const post1Has2PrelimVotes = post1.positiveReviewVoteCount >= REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD
+        const post2Has2PrelimVotes = post2.positiveReviewVoteCount >= REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD
 
         if (sortPosts === "needsReview") {
           // This prioritizes posts with no reviews, which you highly upvoted
           const post1NeedsReview = post1.reviewCount === 0 && post1.reviewVoteScoreHighKarma > 4
           const post2NeedsReview = post2.reviewCount === 0 && post2.reviewVoteScoreHighKarma > 4
-
-          const post1isCurrentUsers = post1.userId === currentUser?._id
-          const post2isCurrentUsers = post2.userId === currentUser?._id
-
           if (post1NeedsReview && !post2NeedsReview) return -1
           if (post2NeedsReview && !post1NeedsReview) return 1
-          if (post1isCurrentUsers && !post2isCurrentUsers) return -1
-          if (post2isCurrentUsers && !post1isCurrentUsers) return 1
           if (post1Score > post2Score) return -1
           if (post1Score < post2Score) return 1
         }
@@ -288,11 +284,7 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
           if (post2Read && !post1Read) return 1
         }
 
-        if (fieldIn(sortPosts, post1, post2) && post1[sortPosts] > post2[sortPosts]) return -1
-        if (fieldIn(sortPosts, post1, post2) && post1[sortPosts] < post2[sortPosts]) return 1
 
-        if (post1.reviewVoteScoreHighKarma > post2.reviewVoteScoreHighKarma ) return -1
-        if (post1.reviewVoteScoreHighKarma < post2.reviewVoteScoreHighKarma ) return 1
 
         if (sortPosts === "needsPreliminaryVote") {
           // This is intended to prioritize showing users posts which have reviews but that the current user hasn't yet voted on
@@ -301,6 +293,11 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
           if (reviewedNotVoted1 && !reviewedNotVoted2) return -1
           if (!reviewedNotVoted1 && reviewedNotVoted2) return 1
         }
+        if (fieldIn(sortPosts, post1, post2) && post1[sortPosts] > post2[sortPosts]) return -1
+        if (fieldIn(sortPosts, post1, post2) && post1[sortPosts] < post2[sortPosts]) return 1
+
+        // if (post1.reviewVoteScoreHighKarma > post2.reviewVoteScoreHighKarma ) return -1
+        // if (post1.reviewVoteScoreHighKarma < post2.reviewVoteScoreHighKarma ) return 1
 
         if (post1Score < post2Score) return 1
         if (post1Score > post2Score) return -1
@@ -310,6 +307,10 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
         if (post1KarmaVote > post2KarmaVote) return -1;
         if (post1Read && !post2Read) return -1
         if (post2Read && !post1Read) return 1
+        if (post1isCurrentUsers && !post2isCurrentUsers) return -1
+        if (post2isCurrentUsers && !post1isCurrentUsers) return 1
+        if (post1Has2PrelimVotes && !post2Has2PrelimVotes) return -1
+        if (!post1Has2PrelimVotes && post2Has2PrelimVotes) return 1
         if (permuted1 < permuted2) return -1;
         if (permuted1 > permuted2) return 1;
         return 0
@@ -390,8 +391,24 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
             </div>
             })}
           </div>
+          {(postsHaveBeenSorted && (sortedPosts?.length ?? 0) > 30) && <div className={classes.tagListContainer}>
+            <PostsTagsList
+              posts={postsResults}
+              currentFilter={tagFilter}
+              handleFilter={(tagId) => handleTagFilter(tagId)}
+              defaultMax={5}
+              afterChildren={<>
+                <LWTooltip title="Only show the post you've read">
+                  <div className={classNames(classes.statusFilter, {[classes.filterSelected]: statusFilter === 'read'})}
+                      onClick={() => handleStatusFilter('read')}>
+                  Read
+                </div>
+                </LWTooltip>
+              </>}
+            />
+          </div>}
         </div>
-      </div>
+    </div>
     </AnalyticsContext>
   );
 }

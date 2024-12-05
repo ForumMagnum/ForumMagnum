@@ -82,6 +82,8 @@ declare global {
     algoActivityFactor?: number
     algoActivityHalfLifeHours?: number
     algoActivityWeight?: number
+    requiredUnnominated?: boolean,
+    requiredFrontpage?: boolean,
     // END
   }
   type PostSortingMode = UnionOf<typeof POST_SORTING_MODES>;
@@ -131,7 +133,7 @@ export const filters: Record<string,any> = {
   },
   // TODO(Review) is this indexed?
   "unnominated": {
-    positiveReviewVoteCount: 0
+    positiveReviewVoteCount: {$lt: REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD}
   },
   "unNonCoreTagged": {
     tagRelevance: {$exists: true},
@@ -1456,9 +1458,13 @@ Posts.addView("stickied", (terms: PostsViewTerms, _, context?: ResolverContext) 
 
 // used to find a user's upvoted posts, so they can nominate them for the Review
 Posts.addView("nominatablePostsByVote", (terms: PostsViewTerms, _, context?: ResolverContext) => {
+  const nominationFilter = terms.requiredUnnominated ? {positiveReviewVoteCount: { $lt: REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD }} : {}
+  const frontpageFilter = terms.requiredFrontpage ? {frontpageDate: {$exists: true}} : {frontpageDate: {$exists: false}}
   return {
     selector: {
       userId: {$ne: context?.currentUser?._id,},
+      ...frontpageFilter,
+      ...nominationFilter,
       isEvent: false
     },
     options: {

@@ -1742,10 +1742,8 @@ addRoute(
   {
     name: 'reviews',
     path:'/reviews/:year',
-    componentName: 'ReviewsPage',
+    componentName: 'AnnualReviewPage',
     title: "Reviews",
-    hasLeftNavigationColumn: true,
-    navigationFooterBar: true,
   },
   {
     name: 'reviewAdmin',
