@@ -24,6 +24,7 @@ const styles = (theme: ThemeType) => ({
 const postIds = [
   'ZhNaizQgYY9dXdQkM', // Intro to EA
   'mEQTxDGp4MxMSZA74', // Still donation half
+  'k8NLM6QoEjMkEGEmG', // Donation election results
   'SDJKMbvuLyppJNiGD', // RP
   'g2reCF86jukN9WMSJ', // AWF
   'ZYktdzJRMsp2JhwYg', // AMF
