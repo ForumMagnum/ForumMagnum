@@ -179,7 +179,7 @@ async function createSummariesForPage({ pageId, importedRecordMaps, pageCreator,
     }
 
     // TODO: add slugs when those fields are implemented for MultiDocuments
-    await createMutator({
+    const summaryObj = (await createMutator({
       collection: MultiDocuments,
       document: {
         parentDocumentId,
@@ -196,11 +196,15 @@ async function createSummariesForPage({ pageId, importedRecordMaps, pageCreator,
             data: summaryHtml,
           }
         },
+        legacyData: {
+          arbitalPageId: summary.pageId,
+        },
       } as AnyBecauseHard,
       context: resolverContext,
       currentUser: pageCreator,
       validate: false,
-    });
+    })).data;
+    // TODO: Import summaries history and back-date objects
   }
 }
 
@@ -501,13 +505,18 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
             },
             legacyData: {
               "arbitalPageId": pageId,
-              "arbitalMarkdown": oldestRevArbitalMarkdown,
             },
           },
           context: resolverContext,
           currentUser: pageCreator,
           validate: false, //causes the check for name collisions to be skipped
         })).data;
+        // Back-date it to when it was created on Arbital
+        await Promise.all([
+          backDateObj(Tags, wiki._id, pageInfo.createdAt),
+          backDateDenormalizedEditable(Tags, wiki._id, "description", pageInfo.createdAt),
+          backDateRevision(wiki.description_latest!, pageInfo.createdAt),
+        ]);
       }
 
       const pageAlternatives = alternativesByPageId[pageId];
@@ -539,14 +548,7 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
       });
 
       if (!options.skipImportingPages) {
-        // Back-date it to when it was created on Arbital
-        await Promise.all([
-          backDateObj(Tags, wiki._id, pageInfo.createdAt),
-          backDateDenormalizedEditable(Tags, wiki._id, "description", pageInfo.createdAt),
-          backDateRevision(wiki.description_latest!, pageInfo.createdAt),
-        ]);
-
-        // Fill in some metadata on the latest revision
+        // Fill in some metadata on the first revision
         const lwFirstRevision: DbRevision = (await Revisions.findOne({_id: wiki.description_latest}))!;
         await Revisions.rawUpdateOne(
           {_id: lwFirstRevision._id},
@@ -557,6 +559,7 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
             legacyData: {
               "arbitalPageId": pageId,
               "arbitalEditNumber": firstRevision.edit,
+              "arbitalMarkdown": firstRevision.text,
             },
           }}
         );
@@ -577,7 +580,7 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
 
       // Add lenses
       if (lenses.length > 0) {
-        console.log(`Importing ${lenses.length} lenses`);
+        console.log(`Importing ${lenses.length} lenses (${lenses.map(l => l.lensName).join(", ")})`);
       }
       for (const lens of lenses) {
         const lensPageInfo = pageInfosById[lens.pageId];
@@ -623,6 +626,9 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
                   data: lensFirstRevisionCkEditorMarkup,
                 }
               },
+              legacyData: {
+                arbitalPageId: lens.pageId,
+              },
             } as Partial<DbMultiDocument>,
             context: resolverContext,
             currentUser: pageCreator,
@@ -630,7 +636,11 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
           })).data;
           await Promise.all([
             backDateObj(MultiDocuments, lensObj._id, lensFirstRevision.createdAt),
-            backDateRevision(lensObj.contents_latest!, lensFirstRevision.createdAt),
+            backDateAndAddLegacyDataToRevision(lensObj.contents_latest!, lensFirstRevision.createdAt, {
+              arbitalPageId: lens.pageId,
+              arbitalEditNumber: lensFirstRevision.edit,
+              arbitalMarkdown: lensFirstRevision.text,
+            }),
           ]);
           
           await importRevisions({
@@ -809,6 +819,16 @@ async function backDateRevision(_id: string, date: Date) {
     }}
   );
 }
+async function backDateAndAddLegacyDataToRevision(_id: string, date: Date, legacyData: any) {
+  await Revisions.rawUpdateOne(
+    {_id},
+    {$set: {
+      createdAt: date,
+      editedAt: date,
+      legacyData,
+    }}
+  );
+}
 
 /**
  * Given an object which has been imported with only its first revision, add the
@@ -893,7 +913,11 @@ async function importRevisions<N extends CollectionNameString>({
   if (collection.collectionName === "Tags") {
     await backDateDenormalizedEditable(collection, documentId, fieldName, lastRevision.createdAt);
   }
-  await backDateRevision((modifiedObj as any)[`${fieldName}_latest`], lastRevision.createdAt);
+  await backDateAndAddLegacyDataToRevision((modifiedObj as any)[`${fieldName}_latest`], lastRevision.createdAt, {
+    "arbitalPageId": pageId,
+    "arbitalEditNumber": lastRevision.edit,
+    "arbitalMarkdown": lastRevision.text,
+  });
 }
 
 async function printTablesAndStats(connection: mysql.Connection): Promise<void> {
