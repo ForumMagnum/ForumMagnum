@@ -11,6 +11,7 @@ import SelectFragmentQuery from "@/server/sql/SelectFragmentQuery";
 import type { FieldNode, FragmentSpreadNode, GraphQLResolveInfo } from "graphql";
 import { captureException } from "@sentry/core";
 import isEqual from "lodash/isEqual";
+import { nameSqlQueryPerfMetric } from "../perfMetrics";
 
 const defaultOptions: DefaultResolverOptions = {
   cacheMaxAge: 300,
@@ -149,13 +150,15 @@ const addDefaultResolvers = <N extends CollectionNameString>(
         );
         const compiledQuery = query.compile();
         const db = getSqlClientOrThrow();
-        fetchDocs = () => db.any(compiledQuery.sql, compiledQuery.args);
+        const opName = `use_multi_fragment_${fragmentName}`;
+        fetchDocs = nameSqlQueryPerfMetric(opName, () => db.any(compiledQuery.sql, compiledQuery.args));
       } else {
-        fetchDocs = () => performQueryFromViewParameters(
+        const opName = `use_multi_compiled_${fragmentName}`;
+        fetchDocs = nameSqlQueryPerfMetric(opName, () => performQueryFromViewParameters(
           collection,
           terms,
           parameters,
-        );
+        ));
       }
       let docs = await fetchDocs();
 
@@ -254,9 +257,11 @@ const addDefaultResolvers = <N extends CollectionNameString>(
         );
         const compiledQuery = query.compile();
         const db = getSqlClientOrThrow();
-        doc = await db.oneOrNone(compiledQuery.sql, compiledQuery.args);
+        const opName = `use_single_fragment_${fragmentName}`;
+        doc = await nameSqlQueryPerfMetric(opName, () => db.oneOrNone(compiledQuery.sql, compiledQuery.args))();
       } else {
-        doc = await collection.findOne(convertDocumentIdToIdInSelector(selector));
+        const opName = `use_single_compiled_${collectionName}`;
+        doc = await nameSqlQueryPerfMetric(opName, () => collection.findOne(convertDocumentIdToIdInSelector(selector)))();
       }
 
       if (!doc) {
