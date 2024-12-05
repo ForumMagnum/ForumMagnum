@@ -229,11 +229,11 @@ registerVotingSystem({
   },
 });
 
-export type EmojiReaction = {
+export type EmojiReactionType = {
   name: string,
   icon: string,
 }
-export const emojiReactions: EmojiReaction[] = [
+export const emojiReactions: EmojiReactionType[] = [
   {name: "raised-hands", icon: "🙌"},
   {name: "enthusiasm", icon: "🎉"},
   {name: "empathy", icon: "❤️"},

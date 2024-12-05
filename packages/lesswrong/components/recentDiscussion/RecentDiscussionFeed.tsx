@@ -9,7 +9,7 @@ import { isLWorAF } from '../../lib/instanceSettings';
 import {showSubscribeReminderInFeed} from '../../lib/publicSettings'
 import { ObservableQuery } from '@apollo/client';
 
-const recentDisucssionFeedComponents = forumSelect({
+const recentDisucssionFeedComponents = () => forumSelect({
   LWAF: {
     ThreadComponent: Components.RecentDiscussionThread,
     ShortformComponent: Components.RecentDiscussionThread,
@@ -77,7 +77,7 @@ const RecentDiscussionFeed = ({
     TagRevisionComponent,
     SubscribeReminderComponent,
     MeetupsPokeComponent,
-  } = recentDisucssionFeedComponents;
+  } = recentDisucssionFeedComponents();
 
   return (
     <AnalyticsContext pageSectionContext="recentDiscussion">

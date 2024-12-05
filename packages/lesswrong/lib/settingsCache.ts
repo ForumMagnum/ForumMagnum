@@ -28,6 +28,12 @@ export const getPublicSettings = () => publicSettings;
 export const getPublicSettingsLoaded = () => publicSettingsLoaded;
 
 export function initializeSetting(settingName: string, settingType: 'server' | 'public' | 'instance') {
-  if (registeredSettings[settingName]) throw Error(`Already initialized a setting with name ${settingName} before.`)
+  if (registeredSettings[settingName]) {
+    if (!enableVite) {
+      // If using Vite, allow this to rerun. Otherwise enforce that a setting
+      // is only initialized once.
+      throw Error(`Already initialized a setting with name ${settingName} before.`)
+    }
+  }
   registeredSettings[settingName] = settingType
 }

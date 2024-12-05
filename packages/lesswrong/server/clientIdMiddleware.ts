@@ -26,6 +26,7 @@ const isApplicableUrl = (url: string) =>
  */
 export const addClientIdMiddleware = (addMiddleware: AddMiddlewareType) => {
   addMiddleware(function addClientId(req: express.Request, res: express.Response, next: express.NextFunction) {
+
     const existingClientId = getCookieFromReq(req, "clientId")
     const referrer = req.headers?.["referer"] ?? null;
     const url = req.url;

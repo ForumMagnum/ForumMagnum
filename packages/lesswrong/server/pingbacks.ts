@@ -1,8 +1,9 @@
 import { cheerioParse } from './utils/htmlUtil';
 import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
 import { getSiteUrl } from '../lib/vulcan-lib/utils';
-import { classifyHost, getUrlClass } from '../lib/routeUtil';
+import { classifyHost } from '../lib/routeUtil';
 import * as _ from 'underscore';
+import { getUrlClass } from './utils/getUrlClass';
 
 // Given an HTML document, extract the links from it and convert them to a set
 // of pingbacks, formatted as a dictionary from collection name -> array of

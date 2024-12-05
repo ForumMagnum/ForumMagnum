@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import moment, { Moment } from '../../lib/moment-timezone';
+import moment from 'moment-timezone';
 import { timeframeToTimeBlock, TimeframeType } from './timeframeUtils'
 import { QueryLink } from '../../lib/reactRouterWrapper';
 import type { ContentTypeString } from './PostsPage/ContentType';
@@ -102,8 +102,8 @@ const PostsTimeBlock = ({
   timeBlockLoadComplete: () => void,
   dateForTitle: moment.Moment,
   getTitle: (size: 'xsDown'|'smUp'|null) => string,
-  before: Moment,
-  after: Moment,
+  before: moment.Moment,
+  after: moment.Moment,
   hideIfEmpty: boolean,
   timeframe: TimeframeType,
   shortform?: PostsTimeBlockShortformOption,

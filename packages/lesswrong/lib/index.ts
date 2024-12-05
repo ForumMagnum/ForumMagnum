@@ -262,7 +262,7 @@ import './i18n-en-us/en_US';
 import './helpers'
 import './routes';
 
-import './components';
+import '@/allComponents';
 
 // PostRelation
 import './collections/postRelations';

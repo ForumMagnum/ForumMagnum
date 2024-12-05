@@ -2,7 +2,7 @@
 
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 // @ts-ignore-next-line
-import footnoteIcon from '../theme/icon.svg';
+import footnoteIcon from '../theme/ckeditor5-footnote-icon.svg';
 import { addListToDropdown, createDropdown } from '@ckeditor/ckeditor5-ui/src/dropdown/utils';
 import Collection from '@ckeditor/ckeditor5-utils/src/collection';
 import Model from '@ckeditor/ckeditor5-ui/src/model';

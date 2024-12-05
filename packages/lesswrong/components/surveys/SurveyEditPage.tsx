@@ -86,15 +86,6 @@ const formatOptions: Record<string, SettingsOption> = Object.fromEntries(
     ),
 );
 
-const updateSurveyMutation = gql`
-  mutation editSurvey($surveyId: String!, $name: String!, $questions: [SurveyQuestionInfo!]!) {
-    editSurvey(surveyId: $surveyId, name: $name, questions: $questions) {
-      ...SurveyMinimumInfo
-    }
-  }
-  ${getFragment("SurveyMinimumInfo")}
-`;
-
 export type SurveyQuestionInfo = {
   _id?: string,
   question: string,
@@ -160,7 +151,14 @@ const SurveyForm = ({survey, refetch, classes}: {
     }]);
   }, []);
 
-  const [updateSurvey] = useMutation(updateSurveyMutation);
+  const [updateSurvey] = useMutation(gql`
+    mutation editSurvey($surveyId: String!, $name: String!, $questions: [SurveyQuestionInfo!]!) {
+      editSurvey(surveyId: $surveyId, name: $name, questions: $questions) {
+        ...SurveyMinimumInfo
+      }
+    }
+    ${getFragment("SurveyMinimumInfo")}
+  `);
 
   const onSubmit = useCallback(async () => {
     setError("");

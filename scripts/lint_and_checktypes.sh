@@ -4,7 +4,7 @@
 # outputs from awkwardly intermingling, three of these four jobs run run
 # redirected to a file, which is then printed after all four have finished.
 
-CKEDITOR_DIR="public/lesswrong-editor"
+CKEDITOR_DIR="ckEditor"
 mkdir -p tmp
 
 # Run the linter on the main project in the background, redirected to a file,
@@ -13,11 +13,11 @@ yarn run --silent eslint 2>&1 >tmp/lint_result.txt &
 lint_pid=$!
 
 # Run the linter for ckeditor plugins
-(cd "$CKEDITOR_DIR" && yarn run --silent lint 2>&1 >../../tmp/ckeditor_lint_result.txt) &
+(cd "$CKEDITOR_DIR" && yarn run --silent lint 2>&1 >../tmp/ckeditor_lint_result.txt) &
 ckeditor_lint_pid=$!
 
 # Run the typechecker on ckeditor plugins
-(cd "$CKEDITOR_DIR" && yarn run --silent tsc 2>&1 >../../tmp/ckeditor_tsc_result.txt) &
+(cd "$CKEDITOR_DIR" && yarn run --silent tsc 2>&1 >../tmp/ckeditor_tsc_result.txt) &
 ckeditor_tsc_pid=$!
 
 # Run the typechecker on the main project, not in the background

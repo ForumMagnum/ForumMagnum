@@ -1,6 +1,6 @@
 'use strict';
 
-const mainProjectEslintConfig = require('../../.eslintrc.js');
+const mainProjectEslintConfig = require('../.eslintrc.js');
 const mainProjectRules = mainProjectEslintConfig.rules;
 
 module.exports = {

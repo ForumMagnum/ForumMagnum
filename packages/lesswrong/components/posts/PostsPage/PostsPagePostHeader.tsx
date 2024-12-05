@@ -3,12 +3,12 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { getResponseCounts, postGetAnswerCountStr, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { extractVersionsFromSemver } from '../../../lib/editor/utils';
-import { getUrlClass } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { isServer } from '../../../lib/executionEnvironment';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { captureException } from '@sentry/core';
 import type { AnnualReviewMarketInfo } from '../../../lib/collections/posts/annualReviewMarkets';
+import { getUrlClass } from '@/server/utils/getUrlClass';
 
 const SECONDARY_SPACING = 20;
 

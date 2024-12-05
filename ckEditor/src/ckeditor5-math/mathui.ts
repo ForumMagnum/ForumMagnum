@@ -13,7 +13,7 @@ import MainFormView from './ui/mainformview';
 import MathEditing from './mathediting';
 import { defaultConfig, getSelectedMathModelWidget, resizeInputElement } from './utils';
 
-import mathIcon from './math.svg';
+import mathIcon from './ckeditor5-math.svg';
 import type MathCommand from './mathcommand';
 
 const mathKeystroke = 'Ctrl+4';
