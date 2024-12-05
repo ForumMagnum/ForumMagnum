@@ -141,7 +141,7 @@ const SunshineNewPostsItem = ({post, refetch, classes}: {
     <span {...eventHandlers}>
       <SunshineListItem hover={hover}>
         <SidebarHoverOver hover={hover} anchorEl={anchorEl}>
-          <FooterTagList post={post} showCoreTags highlightAutoApplied />
+          <FooterTagList post={post} showCoreTags highlightAutoApplied tagTooltipPlacement="left-start" />
           <div className={classes.buttonRow}>
             <Button onClick={handlePersonal}>
               <PersonIcon className={classes.icon} /> Personal {autoFrontpage === "hide" && <span className={classes.robotIcon}><ForumIcon icon="Robot" /></span>}

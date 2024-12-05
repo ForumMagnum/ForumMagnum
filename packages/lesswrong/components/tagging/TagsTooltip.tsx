@@ -3,6 +3,7 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useTagPreview } from "./useTag";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import classNames from "classnames";
+import { PopperPlacementType } from "@material-ui/core/Popper";
 
 type PreviewableTag =
   TagPreviewFragment |
@@ -85,6 +86,7 @@ const TagsTooltip = ({
   popperClassName,
   children,
   classes,
+  placement="bottom-end",
   ...tagsTooltipProps
 }: TagsTooltipTag & {
   tagRel?: TagRelMinimumFragment
@@ -99,6 +101,7 @@ const TagsTooltip = ({
   popperClassName?: string,
   children: ReactNode,
   classes: ClassesType<typeof styles>,
+  placement?: PopperPlacementType,
 }) => {
   const [everHovered, setEverHovered] = useState(false);
   const {tag, loading} = useTagsTooltipTag(
@@ -134,6 +137,7 @@ const TagsTooltip = ({
       className={className}
       popperClassName={classNames(classes.tooltip, popperClassName)}
       titleClassName={classes.tooltipTitle}
+      placement={placement}
     >
       {children}
     </HoverOver>
