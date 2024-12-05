@@ -9,6 +9,8 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
 import { useGoogleMaps, geoSuggestStyles } from '../form-components/LocationFormComponent';
+import ToggleButton from '../community/modules/ToggleButton';
+import ToggleButtonGroup from '../community/modules/ToggleButtonGroup';
 import Select from '@material-ui/core/Select';
 import { useMulti } from '../../lib/crud/withMulti';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
@@ -439,16 +441,17 @@ const EventsHome = ({classes}: {
               />
               <DistanceUnitToggle distanceUnit={distanceUnit} onChange={handleChangeDistanceUnit} skipDefaultEffect />
             </div>
-            
-            <Select
-              className={classes.filter}
+
+            <ToggleButtonGroup
               value={modeFilter}
-              input={<OutlinedInput labelWidth={0} />}
-              onChange={(e) => setModeFilter(e.target.value)}>
-                <MenuItem key="all" value="all">In-person and online</MenuItem>
-                <MenuItem key="in-person" value="in-person">In-person only</MenuItem>
-                <MenuItem key="online" value="online">Online only</MenuItem>
-            </Select>
+              onChange={(_e, newMode) => {
+                setModeFilter(newMode)}
+              }
+            >
+              <ToggleButton value="in-person">In-person</ToggleButton>
+              <ToggleButton value="online">Online</ToggleButton>
+              <ToggleButton value="all">All</ToggleButton>
+            </ToggleButtonGroup>
 
             <Select
               className={classNames(classes.filter, classes.formatFilter)}
