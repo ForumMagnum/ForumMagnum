@@ -41,13 +41,6 @@ export type ReviewPhase = UnionOf<typeof reviewPhases>;
 
 const reviewPhaseCache = memoizeWithExpiration<ReviewPhase>(() => recomputeReviewPhase(), 1000);
 
-export function getReviewPeriodStart(reviewYear: ReviewYear = REVIEW_YEAR) {
-  return moment.utc(`${reviewYear}-01-01`)
-}
-export function getReviewPeriodEnd(reviewYear: ReviewYear = REVIEW_YEAR) {
-  return moment.utc(`${reviewYear+1}-01-01`)
-}
-
 export function getReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
   if (reviewYear) {
     return recomputeReviewPhase(reviewYear);
@@ -57,6 +50,14 @@ export function getReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
 }
 
 const TIMEZONE_OFFSET = 8 // Pacific Time
+
+export function getReviewPeriodStart(reviewYear: ReviewYear = REVIEW_YEAR) {
+  return moment.utc(`${reviewYear}-01-01`).add(TIMEZONE_OFFSET, 'hours')
+}
+export function getReviewPeriodEnd(reviewYear: ReviewYear = REVIEW_YEAR) {
+  return moment.utc(`${reviewYear+1}-01-01`).add(TIMEZONE_OFFSET, 'hours')
+}
+
 
 export const getReviewStart = (reviewYear: ReviewYear) => {
   const startDateString = isDevelopment

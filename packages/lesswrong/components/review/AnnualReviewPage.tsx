@@ -37,6 +37,7 @@ const styles = (theme: ThemeType) => ({
     height: "90vh",
     paddingLeft: 24,
     paddingRight: 36,
+    overflow: "hidden",
     [theme.breakpoints.down('sm')]: {
       paddingLeft: 0,
       paddingRight: 0,
