@@ -1,0 +1,191 @@
+<div class="question-container">
+  <h2>Which case fits you best?</h2>
+
+  <div class="options">
+    <label class="option">
+      <input type="radio" name="preference" value="basic" data-not-wants="62d,62f" checked />
+      <span>I want to have a basic theoretical and practical understanding of the Bayes' rule.</span>
+    </label>
+
+    <label class="option">
+      <input type="radio" name="preference" value="quick" data-wants="62d" data-not-wants="62f" />
+      <span
+        >I can easily read algebra and don't mind the explanation moving at a fast pace. Just give me the basics,
+        quick!</span
+      >
+    </label>
+
+    <label class="option">
+      <input type="radio" name="preference" value="theoretical" data-wants="62f" data-not-wants="62d" />
+      <span
+        >I want the basics, but I'm also interested in reading more about the theoretical implications and the reasons
+        why Bayes' rule is considered so important.</span
+      >
+    </label>
+
+    <label class="option">
+      <input type="radio" name="preference" value="deep" data-wants="62d,62f" />
+      <span
+        >I'd like to read everything! I want to have a <em>deep</em> theoretical and practical understanding of the
+        Bayes' rule.</span
+      >
+    </label>
+  </div>
+
+  <div id="pathDescription" class="path-description" style="display: none">
+    <div class="content"></div>
+    <button class="start-reading" onclick="startPath()" style="display: none">START READING</button>
+  </div>
+</div>
+
+<style>
+  .question-container {
+    max-width: 800px;
+    margin: 20px auto;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    cursor: pointer;
+    padding: 2px;
+  }
+
+  .option input {
+    margin-top: 3px;
+  }
+
+  .path-description {
+    background-color: #f0f0f0;
+    padding: 20px;
+    margin-top: 20px;
+    border-radius: 4px;
+  }
+
+  .start-reading {
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 15px;
+  }
+</style>
+
+<script>
+  const pathDescriptions = {
+    basic_theoretical: {
+      content: `
+          <p>Your path will teach you the basic odds form of Bayes' rule at a reasonable pace. It will contain 3 pages:</p>
+          <ul>
+              <li>Frequency diagrams: A first look at Bayes</li>
+              <li>Waterfall diagrams and relative odds</li>
+              <li>Introduction to Bayes' rule: Odds form</li>
+          </ul>
+      `,
+      pathId: "62c",
+    },
+    quick: {
+      content: `
+          <p>No time to waste! Let's plunge directly into a single-page abbreviated introduction to Bayes' rule.</p>
+      `,
+      pathId: "693",
+    },
+    theoretical: {
+      content: `
+          <p>Your path will teach you the basic odds form of Bayes' rule at a reasonable pace and then delve into the deep mysteries of the Bayes' Rule! Your path will contain 8 pages:</p>
+          <ul>
+              <li>Frequency diagrams: A first look at Bayes</li>
+              <li>Waterfall diagrams and relative odds</li>
+              <li>Introduction to Bayes' rule: Odds form</li>
+              <li>Belief revision as probability elimination</li>
+              <li>Extraordinary claims require extraordinary evidence</li>
+              <li>Ordinary claims require ordinary evidence</li>
+              <li>Shift towards the hypothesis of least surprise</li>
+              <li>Bayesian view of scientific virtues</li>
+          </ul>
+      `,
+      pathId: "62f",
+    },
+    deep: {
+      content: `
+          <p>Your path will go over all forms of Bayes' Rule, along with developing deep appreciation for its scientific usefulness. Your path will contain 12 pages:</p>
+          <ul>
+              <li>Frequency diagrams: A first look at Bayes</li>
+              <li>Waterfall diagrams and relative odds</li>
+              <li>Introduction to Bayes' rule: Odds form</li>
+              <li>Bayes' rule: Proportional form</li>
+              <li>Extraordinary claims require extraordinary evidence</li>
+              <li>Ordinary claims require ordinary evidence</li>
+              <li>Bayes' rule: Log-odds form</li>
+              <li>Shift towards the hypothesis of least surprise</li>
+              <li>Bayes' rule: Vector form</li>
+              <li>Belief revision as probability elimination</li>
+              <li>Bayes' rule: Probability form</li>
+              <li>Bayesian view of scientific virtues</li>
+          </ul>
+      `,
+      pathId: "61b",
+    },
+  };
+
+  const pathPages = {
+    '62c': [],
+    '693': [],
+    '62f': [],
+    '61b': [],
+  }
+
+  let currentPathId = null;
+
+  function handleRadioChange(radio) {
+    const wants = radio.dataset.wants?.split(",") || [];
+    const notWants = radio.dataset.notWants?.split(",") || [];
+
+    let pathKey;
+    if (wants.includes("62d") && wants.includes("62f")) {
+      pathKey = "deep";
+    } else if (wants.includes("62d") && notWants.includes("62f")) {
+      pathKey = "quick";
+    } else if (wants.includes("62f") && notWants.includes("62d")) {
+      pathKey = "theoretical";
+    } else {
+      pathKey = "basic_theoretical";
+    }
+
+    const pathDescription = document.getElementById("pathDescription");
+    const content = pathDescription.querySelector(".content");
+    const startButton = pathDescription.querySelector(".start-reading");
+
+    content.innerHTML = pathDescriptions[pathKey].content;
+    currentPathId = pathDescriptions[pathKey].pathId;
+
+    pathDescription.style.display = "block";
+    startButton.style.display = "block";
+  }
+
+  document.querySelectorAll('input[name="preference"]').forEach((radio) => {
+    radio.addEventListener("change", function() {
+      handleRadioChange(this);
+    });
+  });
+
+  const checkedRadio = document.querySelector('input[name="preference"]:checked');
+  if (checkedRadio) {
+    handleRadioChange(checkedRadio);
+  }
+
+  function startPath() {
+    if (currentPathId) {
+      window.location.href = `/w/${currentPathId}/?startPath`;
+    }
+  }
+</script>

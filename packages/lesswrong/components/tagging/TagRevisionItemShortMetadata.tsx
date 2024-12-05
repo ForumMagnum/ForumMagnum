@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagGetRevisionLink } from '../../lib/collections/tags/helpers';
-import type { TagLens } from './TagPage';
+import type { TagLens } from '@/lib/arbital/useTagLenses';
 
 const styles = (theme: ThemeType): JssStyles => ({
   username: {

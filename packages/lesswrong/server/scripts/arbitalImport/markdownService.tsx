@@ -48,6 +48,88 @@ var complexLinkRegexp = new RegExp(notEscaped +
 var atAliasRegexp = new RegExp(notEscaped +
     '\\[@' + aliasMatch + '\\]' + noParen, 'g');
 
+
+// Trim + or - from beginning of the alias.
+function trimAlias(alias: string): string {
+  var firstAliasChar = alias.substring(0, 1);
+  if (firstAliasChar == '-' || firstAliasChar == '+') {
+    return alias.substring(1);
+  }
+  return alias;
+};
+
+function parseRequisitesLine(match: string): string[] {
+  try {
+    return JSON.parse(match).map((a: string) => trimAlias(a.trim()));
+  } catch (e) {
+    return match.split(',').map(a => trimAlias(a.trim()).slice(1, -1));
+  }
+}
+
+/**
+ * Parses requisites lines and returns structured data.
+ * @param requisitesLines Array of requisites strings.
+ * @returns An object containing sets of knows and wants requisites.
+ */
+function parseRequisites(requisitesLines: string[]): { knows: string[], wants: string[] } {
+  const knows: string[] = [];
+  const wants: string[] = [];
+
+  requisitesLines.forEach(line => {
+    const knowsMatch = line.match(/^knows: ?(.+)$/);
+    if (knowsMatch) {
+      const aliases = parseRequisitesLine(knowsMatch[1]);
+      aliases.forEach(alias => {
+        knows.push(alias);
+      });
+    }
+
+    const wantsMatch = line.match(/^wants: ?(.+)$/);
+    if (wantsMatch) {
+      const aliases = parseRequisitesLine(wantsMatch[1]);
+      aliases.forEach(alias => {
+        wants.push(alias);
+      });
+    }
+  });
+
+  return { knows, wants };
+}
+
+function parseMultipleChoiceBlock(...args: string[]) {
+  const result = [];
+  const requisitesLines: string[] = [];
+
+  // Process captured groups
+  for (let n = 2; n < args.length; n++) {
+    const arg = args[n];
+    if (+arg) break; // Ignore extra numerical arguments
+    if (!arg) continue;
+
+    if (n === 2) { // Question text
+      result.push(arg + '\n\n');
+    } else {
+      // Collect requisites lines
+      if (/^(knows|wants):/.test(arg)) {
+        requisitesLines.push(arg.trim());
+      }
+
+      // Match answer choices
+      const choiceMatch = arg.match(/^([a-e]): ?([\s\S]+)$/);
+      if (choiceMatch) {
+        result.push('- ' + choiceMatch[2] + '\n');
+        continue;
+      }
+
+      result.push(' - ' + arg);
+    }
+  }
+
+  const requisites = parseRequisites(requisitesLines);
+
+  return { result, requisites };
+}
+
 // markdownService provides a constructor you can use to create a markdown converter,
 // either for converting markdown to text or editing.
 //app.service('markdownService', function($compile, $timeout, pageService, userService, urlService, stateService) {
@@ -63,15 +145,6 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
 
   // Store an array of page aliases that failed to load, so that we don't keep trying to reload them
   //var failedPageAliases = {};
-
-  // Trim + or - from beginning of the alias.
-  var trimAlias = function(alias: string): string {
-    var firstAliasChar = alias.substring(0, 1);
-    if (firstAliasChar == '-' || firstAliasChar == '+') {
-      return alias.substring(1);
-    }
-    return alias;
-  };
 
   // If prefix is '-', lowercase the first letter of text. Otherwise capitalize it.
   var getCasedText = function(text: string, prefix: string) {
@@ -213,18 +286,6 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
       });
     });
 
-    // Process %wants-requisite([alias]):markdown% blocks.
-    var wantsReqBlockRegexp = new RegExp('^(%+)(!?)wants-requisite\\(\\[' + aliasMatch + '\\]\\): ?([\\s\\S]+?)\\1 *(?=\Z|\n)', 'gm');
-    converter.hooks.chain('preBlockGamut', function(text: string, runBlockGamut: (s:string)=>string) {
-      return text.replace(wantsReqBlockRegexp, function(whole, bars, not, alias, markdown) {
-        var pageId = pageAliasToPageId(alias);
-        var div = '<div ng-show=\'' + (not ? '!' : '') + 'arb.masteryService.wantsMastery("' + pageId + '")\'>';
-        if (isEditor) {
-          div = '<div class=\'conditional-text editor-block\'>';
-        }
-        return div + runBlockGamut(markdown) + '\n\n</div>';
-      });
-    });
 
     // Process %if-before([alias]):markdown% blocks.
     var ifBeforeBlockRegexp = new RegExp('^(%+)(!?)if-(before|after)\\(\\[' + aliasMatch + '\\]\\): ?([\\s\\S]+?)\\1 *(?=\Z|\n)', 'gm');
@@ -360,26 +421,10 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
         '\\] *(?=\Z|\n)', 'gm');
     converter.hooks.chain('preBlockGamut', function(text: string, runBlockGamut: (s:string)=>string) {
       return text.replace(mcBlockRegexp, function() {
-        var result = [];
-        // Process captured groups
-        for (var n = 2; n < arguments.length; n++) {
-          var arg = arguments[n];
-          if (+arg) break; // there are extra arguments that we don't need, starting with some number
-          if (!arg) continue;
-          if (n == 2) { // question text
-            result.push(arg + '\n\n');
-          } else {
-            // Match answer line
-            var match = arg.match(/^([a-e]): ?([\s\S]+?)\n$/);
-            if (match) {
-              result.push('- ' + match[2] + '\n');
-              continue;
-            }
-            result.push(' - ' + arg);
-          }
-        }
+        const { result, requisites } = parseMultipleChoiceBlock(...arguments);
+        
+        return `<div class="arb-custom-script-${pageId}" data-requisites='${JSON.stringify(requisites)}'>${runBlockGamut(result.join(''))}</div>`;
 
-        return `<div class="arb-custom-script-${pageId}"></div>`;
         // return '<div arb-multiple-choice page-id=\'' + pageId + '\' object-alias=\'' + arguments[1] + '\'>' +
         //   runBlockGamut(result.join('')) + '\n\n</div>';
       });
@@ -528,14 +573,52 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
     var wantsReqSpanRegexp = new RegExp(notEscaped + '(%+)(!?)wants-requisite\\(\\[' + aliasMatch + '\\]\\): ?([\\s\\S]+?)\\2', 'g');
     converter.hooks.chain('preSpanGamut', function(text: string, run: any) {
       return text.replace(wantsReqSpanRegexp, function(whole, prefix, bars, not, alias, markdown) {
-        var pageId = pageAliasToPageId(alias);
-        var span = '<span ng-show=\'' + (not ? '!' : '') + 'arb.masteryService.wantsMastery("' + pageId + '")\'>';
+        const pageId = pageAliasToPageId(alias);
+
+        // Locate the 'data-requisites' attribute associated with the multiple-choice block
+        const requisitesIndex = text.indexOf('data-requisites');
+        const requisitesMatch = text.substring(requisitesIndex).match(/data-requisites='([^']+)'/);
+        if (requisitesMatch) {
+          const requisites = JSON.parse(requisitesMatch[1]);
+          if (pageId && requisites.wants && requisites.wants.includes(pageId)) {
+            // This requisite is tied to the multiple-choice block that's getting replaced, so we remove it
+            return prefix;
+          }
+        }
+
+        var span = `<span ng-show='${not ? '!' : ''}arb.masteryService.wantsMastery("${pageId}")'>`;
         if (isEditor) {
           span = '<span class=\'conditional-text\'>';
         }
         return prefix + span + markdown + '</span>';
       });
     });
+
+    // Process %wants-requisite([alias]):markdown% blocks.
+    var wantsReqBlockRegexp = new RegExp('^(%+)(!?)wants-requisite\\(\\[' + aliasMatch + '\\]\\): ?([\\s\\S]+?)\\1 *(?=\Z|\n)', 'gm');
+    converter.hooks.chain('preBlockGamut', function(text: string, runBlockGamut: (s:string)=>string) {
+      return text.replace(wantsReqBlockRegexp, function(whole, bars, not, alias, markdown) {
+        const pageId = pageAliasToPageId(alias);
+
+        // Locate the 'data-requisites' attribute associated with the multiple-choice block
+        const requisitesIndex = text.indexOf('data-requisites');
+        const requisitesMatch = text.substring(requisitesIndex).match(/data-requisites='([^']+)'/);
+        if (requisitesMatch) {
+          const requisites = JSON.parse(requisitesMatch[1]);
+          if (pageId && requisites.wants && requisites.wants.includes(pageId)) {
+            // This requisite is tied to the multiple-choice block that's getting replaced, so we remove it
+            return '';
+          }
+        }
+
+        var div = `<div ng-show='${not ? '!' : ''}arb.masteryService.wantsMastery("${pageId}")'>`;
+        if (isEditor) {
+          div = '<div class=\'conditional-text editor-block\'>';
+        }
+        return div + runBlockGamut(markdown) + '\n\n</div>';
+      });
+    });
+    
 
     // Process %if-before([alias]): markdown% spans.
     var ifBeforeSpanRegexp = new RegExp(notEscaped + '(%+)(!?)if-(before|after)\\(\\[' + aliasMatch + '\\]\\): ?([\\s\\S]+?)\\2', 'g');

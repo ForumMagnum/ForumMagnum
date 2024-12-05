@@ -25,7 +25,7 @@
   },
   "include": [
     "packages/lesswrong",
-    "public/lesswrong-editor/src/editorConfigs.js",
+    "ckEditor/src/editorConfigs.js",
     "playwright"
   ],
   "exclude": [

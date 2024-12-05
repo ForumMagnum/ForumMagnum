@@ -25,8 +25,18 @@ import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from "./TagPageExpo
 import { useStyles, defineStyles } from "../hooks/useStyles";
 import { HEADER_HEIGHT } from "../common/Header";
 import { MAX_COLUMN_WIDTH } from "../posts/PostsPage/PostsPage";
-import { ToCData } from "@/lib/tableOfContents";
-import qs from "qs";
+import { GUIDE_PATH_PAGES_MAPPING } from "@/lib/arbital/paths";
+import { TagLens, useTagLenses } from "@/lib/arbital/useTagLenses";
+import { quickTakesTagsEnabledSetting } from "@/lib/publicSettings";
+
+const sidePaddingStyle = (theme: ThemeType) => ({
+  paddingLeft: 42,
+  paddingRight: 42,
+  [theme.breakpoints.down('xs')]: {
+    paddingLeft: '8px',
+    paddingRight: '8px',
+  },
+})
 
 const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   rootGivenImage: {
@@ -66,10 +76,7 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   header: {
     paddingTop: 19,
     paddingBottom: 5,
-    [theme.breakpoints.up('md')]: {
-      paddingLeft: 42,
-      paddingRight: 42,
-    },
+    ...sidePaddingStyle(theme),
     background: theme.palette.panelBackground.default,
     borderTopLeftRadius: theme.borderRadius.default,
     borderTopRightRadius: theme.borderRadius.default,
@@ -119,21 +126,14 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   },
   wikiSection: {
     paddingTop: 5,
-    [theme.breakpoints.up('md')]: {
-      paddingLeft: 42,
-      paddingRight: 42,
-    },
-    paddingBottom: 12,
+    ...sidePaddingStyle(theme),
     marginBottom: 24,
     background: theme.palette.panelBackground.default,
     borderBottomLeftRadius: theme.borderRadius.default,
     borderBottomRightRadius: theme.borderRadius.default,
   },
   subHeading: {
-    [theme.breakpoints.up('md')]: {
-      paddingLeft: 42,
-      paddingRight: 42,
-    },
+    ...sidePaddingStyle(theme),
     marginTop: -2,
     background: theme.palette.panelBackground.default,
     ...theme.typography.body2,
@@ -445,126 +445,45 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     // marginBottom: 4,
     // color: theme.palette.primary.main,
   },
-
+  pathInfo: {
+    // ...theme.typography.body2,
+    // ...theme.typography.commentStyle,
+    // marginBottom: 4,
+    // color: theme.palette.grey[600],
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'end',
+    gap: '16px',
+  },
+  pathNavigationBackButton: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    // padding: '4px 8px 5px 8px',
+  },
+  pathNavigationNextButton: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: theme.palette.panelBackground.darken15,
+    borderRadius: theme.borderRadius.small,
+    padding: '4px 8px 5px 8px',
+  },
+  pathNavigationBackButtonIcon: {
+    width: '16px',
+    height: '16px',
+    marginRight: '4px',
+    marginTop: '3px',
+  },
+  pathNavigationNextButtonIcon: {
+    width: '16px',
+    height: '16px',
+    marginLeft: '4px',
+    marginTop: '3px',
+  },
   ...tagPageHeaderStyles(theme),
 }));
-
-export interface TagLens {
-  _id: string;
-  collectionName: string;
-  fieldName: string;
-  index: number;
-  contents: TagFragment_description | TagRevisionFragment_description | RevisionDisplay | null;
-  tableOfContents: ToCData | null;
-  parentDocumentId: string;
-  title: string;
-  preview: string | null;
-  tabTitle: string;
-  tabSubtitle: string | null;
-  slug: string;
-  userId: string;
-}
-
-const MAIN_TAB_ID = 'main-tab';
-
-function getDefaultLens(tag: TagPageFragment|TagPageWithRevisionFragment|TagHistoryFragment): TagLens {
-  return {
-    _id: MAIN_TAB_ID,
-    collectionName: 'Tags',
-    fieldName: 'description',
-    index: 0,
-    contents: tag.description,
-    tableOfContents: tag.tableOfContents,
-    parentDocumentId: tag._id,
-    title: tag.name,
-    preview: null,
-    tabTitle: 'Main',
-    tabSubtitle: null,
-    slug: 'main',
-    userId: tag.userId
-  }
-}
-
-interface TagLensInfo {
-  selectedLens?: TagLens;
-  selectedLensId: string;
-  updateSelectedLens: (lensId: string) => void;
-  lenses: TagLens[];
-}
-
-// TODO: get rid of this and use the lens slug when we fix the import to get the correct alias from lens.lensId's pageInfo
-function getImputedSlug(lens: MultiDocumentEdit) {
-  const slugComponents = lens.tabTitle.split(' ');
-
-  if (lens.tabSubtitle) {
-    slugComponents.push(...lens.tabSubtitle.split(' '));
-  }
-
-  return slugComponents.join('_').toLowerCase();
-}
-
-export function getAvailableLenses(tag: TagPageFragment|TagPageWithRevisionFragment|TagHistoryFragment|null) {
-  if (!tag) return [];
-  return [
-    getDefaultLens(tag),
-    ...tag.lenses.map(lens => ({
-      ...lens,
-      index: lens.index + 1,
-      title: lens.title ?? tag.name,
-      slug: getImputedSlug(lens)
-    }))
-  ];
-}
-
-function useTagLenses(tag: TagPageFragment | TagPageWithRevisionFragment | null): TagLensInfo {
-  const { query, location } = useLocation();
-  const navigate = useNavigate();
-  const availableLenses = useMemo(() => getAvailableLenses(tag), [tag]);
-
-  const querySelectedLens = useMemo(() =>
-    availableLenses.find(lens => lens.slug === query.lens),
-    [availableLenses, query.lens]
-  );
-
-  const [selectedLensId, setSelectedLensId] = useState<string>(querySelectedLens?._id ?? MAIN_TAB_ID);
-
-  const selectedLens = useMemo(() =>
-    availableLenses.find(lens => lens._id === selectedLensId),
-    [selectedLensId, availableLenses]
-  );
-
-  const updateSelectedLens = useCallback((lensId: string) => {
-    setSelectedLensId(lensId);
-    const selectedLensSlug = availableLenses.find(lens => lens._id === lensId)?.slug;
-    if (selectedLensSlug) {
-      const defaultLens = availableLenses.find(lens => lens._id === MAIN_TAB_ID);
-      const navigatingToDefaultLens = selectedLensSlug === defaultLens?.slug;
-      const newSearch = navigatingToDefaultLens
-       ? ''
-       : `?${qs.stringify({ lens: selectedLensSlug })}`;
-
-      navigate({ ...location, search: newSearch });
-    }
-  }, [availableLenses, location, navigate]);
-
-  useEffect(() => {
-    if (query.lens) {
-      if (querySelectedLens) {
-        setSelectedLensId(querySelectedLens._id);
-      } else {
-        // If the lens doesn't exist, reset the search query
-        navigate({ ...location, search: '' }, { replace: true });
-      }
-    }
-  }, [query.lens, availableLenses, navigate, location, querySelectedLens]);
-
-  return {
-    selectedLens,
-    selectedLensId,
-    updateSelectedLens,
-    lenses: availableLenses,
-  };
-}
 
 /**
  * If we're on the main tab (or on a tag without any lenses), we want to display the tag name.
@@ -578,6 +497,42 @@ function useDisplayedTagTitle(tag: TagPageFragment | TagPageWithRevisionFragment
   }
 
   return selectedLens.title;
+}
+
+function usePathInfo(tag: TagPageFragment | TagPageWithRevisionFragment | null) {
+  const { query } = useLocation();
+
+  if (!tag) {
+    return undefined;
+  }
+
+  const pathId = query.pathId;
+  const pathPages = pathId ? GUIDE_PATH_PAGES_MAPPING[pathId as keyof typeof GUIDE_PATH_PAGES_MAPPING] : undefined;
+
+  if (!pathPages) {
+    return undefined;
+  }
+
+  const tagSlugs = [tag.slug, ...tag.oldSlugs];
+  let currentPagePathIndex;
+  for (let slug of tagSlugs) {
+    const index = pathPages.indexOf(slug);
+    if (index >= 0) {
+      currentPagePathIndex = index;
+      break;
+    }
+  }
+
+  if (currentPagePathIndex === undefined) {
+    return undefined;
+  }
+
+  const nextPageId = pathPages[currentPagePathIndex + 1];
+  const previousPageId = currentPagePathIndex > 0 ? pathPages[currentPagePathIndex - 1] : undefined;
+  const displayPageIndex = currentPagePathIndex + 1;
+  const pathPageCount = pathPages.length;
+
+  return { displayPageIndex, nextPageId, previousPageId, pathPageCount, pathId };
 }
 
 const PostsListHeading: FC<{
@@ -638,11 +593,13 @@ const TagPage = () => {
     TagPageButtonRow, ToCColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
     TagTableOfContents, TagVersionHistoryButton, ContentStyles, CommentsListCondensed,
     MultiToCLayout, TableOfContents, FormatDate, LWTooltip, HoverPreviewLink, TagsTooltip,
+    ForumIcon,
   } = Components;
   const classes = useStyles(styles);
 
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
+  const navigate = useNavigate();
   
   // Support URLs with ?version=1.2.3 or with ?revision=1.2.3 (we were previously inconsistent, ?version is now preferred)
   const { version: queryVersion, revision: queryRevision } = query;
@@ -663,13 +620,17 @@ const TagPage = () => {
       contributorsLimit,
     },
   });
+
   
   const [truncated, setTruncated] = useState(false)
   const [editing, setEditing] = useState(!!query.edit)
   const [hoveredContributorId, setHoveredContributorId] = useState<string|null>(null);
-  // const [selectedLens, setSelectedLens] = useState<string>('main-tab');
   const { captureEvent } =  useTracking()
   const client = useApolloClient()
+
+  const pathInfo = usePathInfo(tag);
+
+  const { tag: guideTag } = useTagBySlug(pathInfo?.pathId ?? '', 'TagBasicInfo', { skip: !pathInfo?.pathId });
 
   const multiTerms: AnyBecauseTodo = {
     allPages: {view: "allPagesByNewest"},
@@ -789,6 +750,35 @@ const TagPage = () => {
     )
     : <></>;
 
+  const pathInfoSection = pathInfo && (
+    <div className={classes.pathInfo}>
+      {/* 
+        * We don't show a button if there's no previous page, since it's not obvious what should happen if the user clicks it.
+        * One might be tempted to have it navigate back in history, but if the user got to this page by clicking "Back" from the next page in the path,
+        * they'd be sent back to the next page instead of the page which started them on the path. Even that only makes sense in the context of the Bayes' Rule guide.
+        */}
+      {pathInfo.previousPageId && <Link
+        className={classes.pathNavigationBackButton}
+        to={`/w/${pathInfo.previousPageId}?pathId=${pathInfo.pathId}`}
+      >
+        <ForumIcon icon="ArrowLeft" className={classes.pathNavigationBackButtonIcon} />
+        Back
+      </Link>}
+      <span>
+        {`You are reading `}
+        <strong>{guideTag?.name ?? ''}</strong>
+        {`, page ${pathInfo.displayPageIndex} of ${pathInfo.pathPageCount}`}
+      </span>
+      <Link
+        className={classes.pathNavigationNextButton}
+        to={`/w/${pathInfo.nextPageId}?pathId=${pathInfo.pathId}`}
+      >
+        Continue
+        <ForumIcon icon="ArrowRight" className={classes.pathNavigationNextButtonIcon} />
+      </Link>
+    </div>
+  );
+
   const tagBodySection = (
     <div id="tagContent" className={classNames(classes.wikiSection,classes.centralColumn)}>
       <AnalyticsContext pageSectionContext="wikiSection">
@@ -813,6 +803,7 @@ const TagPage = () => {
               description={`tag ${tag.name}`}
               className={classes.description}
             />
+            {pathInfoSection}
           </ContentStyles>
         </div>}
       </AnalyticsContext>
@@ -828,17 +819,18 @@ const TagPage = () => {
       {tag.sequence && <TagIntroSequence tag={tag} />}
       {!tag.wikiOnly && <>
         <AnalyticsContext pageSectionContext="tagsSection">
-          <PostsListHeading tag={tag} query={query} classes={classes} />
           <PostsList2
+            header={<PostsListHeading tag={tag} query={query} classes={classes} />}
             terms={terms}
             enableTotal
             tagId={tag._id}
             itemsPerPage={200}
+            showNoResults={false}
           >
             <AddPostsToTag tag={tag} />
           </PostsList2>
         </AnalyticsContext>
-        <DeferRender ssr={false}>
+        {quickTakesTagsEnabledSetting.get() && <DeferRender ssr={false}>
           <AnalyticsContext pageSectionContext="quickTakesSection">
             <CommentsListCondensed
               label="Quick takes"
@@ -853,7 +845,7 @@ const TagPage = () => {
               hideTag
             />
           </AnalyticsContext>
-        </DeferRender>
+        </DeferRender>}
       </>}
     </div>
   );

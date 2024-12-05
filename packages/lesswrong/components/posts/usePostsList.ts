@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import {useState, useCallback, ReactNode} from 'react'
 import { useMulti } from "../../lib/crud/withMulti";
 import { useCurrentUser } from "../common/withUser";
 import { sortBy } from 'underscore';
@@ -76,6 +76,7 @@ export type PostsListConfig = {
    * An array of postIds. If provided, we reorder the results to match this order.
    */
   order?: string[],
+  header?: ReactNode,
 }
 
 const defaultTooltipPlacement = isFriendlyUI
@@ -117,6 +118,7 @@ export const usePostsList = <TagId extends string | undefined = undefined>({
   viewType: configuredViewType = "list",
   showPlacement = false,
   order,
+  ...restProps
 }: PostsListConfig) => {
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
 
@@ -284,5 +286,6 @@ export const usePostsList = <TagId extends string | undefined = undefined>({
     placeholderCount,
     viewType,
     showPlacement,
+    ...restProps,
   };
 }

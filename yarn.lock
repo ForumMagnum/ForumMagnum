@@ -2228,7 +2228,7 @@
     "@ckeditor/ckeditor5-utils" "43.3.1"
     lodash-es "4.17.21"
 
-"@ckeditor/ckeditor5-theme-lark@^43.3.1":
+"@ckeditor/ckeditor5-theme-lark@^43.1.0":
   version "43.3.1"
   resolved "https://registry.yarnpkg.com/@ckeditor/ckeditor5-theme-lark/-/ckeditor5-theme-lark-43.3.1.tgz#af79ad1929d6f5e3ea27b7a4b8ac590f62ae736e"
   integrity sha512-kAgeGx66jT31FFYwAoc43oX5ehQtiYE57OJWlPTXrDXxyq0Y+LYFW2/bp4UVYdZK+OKv9dp1Do3VQfxJoGzFjg==

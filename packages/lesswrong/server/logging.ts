@@ -74,10 +74,10 @@ export function startMemoryUsageMonitor() {
       const memoryUsage = process.memoryUsage()?.heapTotal;
       if (memoryUsage > consoleLogMemoryUsageThreshold.get()) {
         // eslint-disable-next-line no-console
-        console.log(`Memory usage is high: ${memoryUsage} bytes (warning threshold: ${consoleLogMemoryUsageThreshold.get()})`);
+        // console.log(`Memory usage is high: ${memoryUsage} bytes (warning threshold: ${consoleLogMemoryUsageThreshold.get()})`);
         checkForMemoryLeaks();
         
-        logInFlightStuff();
+        // logInFlightStuff();
       }
       if (memoryUsage > sentryErrorMemoryUsageThreshold.get()) {
         Sentry.captureException(new Error("Memory usage is high"));

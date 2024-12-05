@@ -8,7 +8,15 @@ export interface CommandLineArguments {
   settingsFileName: string
   shellMode: boolean,
   command?: string,
-  port: number
+  
+  // Port number to list on, and port number to use in localhost URLs. These
+  // don't necessarily match, because in vite we have a proxy server on a
+  // different port than the backend webserver.
+  // Use --listen-port <n> and --localhost-url-port <n> to set these separately,
+  // or --port <n> to set both at once.
+  listenPort: number
+  localhostUrlPort: number
+  
 }
 
 
@@ -18,7 +26,8 @@ const parseCommandLine = (argv: Array<string>): CommandLineArguments => {
     postgresReadUrl: process.env.PG_READ_URL || "",
     settingsFileName: "settings.json",
     shellMode: false,
-    port: 3000,
+    listenPort: 3000,
+    localhostUrlPort: 3000,
   }
   
   // Don't parse command-line arguments during unit testing (because jest passes
@@ -39,7 +48,13 @@ const parseCommandLine = (argv: Array<string>): CommandLineArguments => {
         commandLine.command = argv[++i];
         break;
       case "--port":
-        commandLine.port = parseInt(argv[++i]);
+        commandLine.listenPort = commandLine.localhostUrlPort = parseInt(argv[++i]);
+        break;
+      case "--listen-port":
+        commandLine.listenPort = parseInt(argv[++i]);
+        break;
+      case "--localhost-url-port":
+        commandLine.localhostUrlPort = parseInt(argv[++i]);
         break;
       default:
         if (!isMigrations) {

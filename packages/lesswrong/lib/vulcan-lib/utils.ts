@@ -7,12 +7,12 @@ Utilities
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import getSlug from 'speakingurl';
-import urlObject from 'url';
 import { siteUrlSetting } from '../instanceSettings';
 import { DatabasePublicSetting } from '../publicSettings';
 import type { ToCData } from '../../lib/tableOfContents';
 import sanitizeHtml from 'sanitize-html';
 import { containsKana, fromKana } from "hepburn";
+import { getUrlClass } from '@/server/utils/getUrlClass';
 
 export const logoUrlSetting = new DatabasePublicSetting<string | null>('logoUrl', null)
 
@@ -84,7 +84,7 @@ const tryToFixUrl = (oldUrl: string, newUrl: string) => {
   }
 }
 
-// NOTE: validateUrl and tryToFixUrl are duplicates of the code in public/lesswrong-editor/src/url-validator-plugin.js,
+// NOTE: validateUrl and tryToFixUrl are duplicates of the code in ckEditor/src/url-validator-plugin.js,
 // which can't be imported directly because it is part of the editor bundle
 export const validateUrl = (url: string) => {
   try {
@@ -144,7 +144,8 @@ export const slugify = function (s: string): string {
 export const getDomain = function(url: string | null): string|null {
   if (!url) return null;
   try {
-    const hostname = urlObject.parse(url).hostname
+    const URLClass = getUrlClass()
+    const hostname = new URLClass(url).hostname
     return hostname!.replace('www.', '');
   } catch (error) {
     return null;
@@ -430,7 +431,7 @@ export const sanitize = function(s: string): string {
         'ck-cta-button-centered',
         'detailsBlockContent',
         'calendly-preview',
-        /arb-custom-script-[a-zA-Z0-9]*/
+        /arb-custom-script-[a-zA-Z0-9]*/,
       ],
       iframe: [ 'thoughtSaverFrame' ],
       ol: [ 'footnotes', 'footnote-section' ],

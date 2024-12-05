@@ -24,6 +24,7 @@ import sortBy from 'lodash/sortBy';
 import { htmlToChangeMetrics } from '@/server/editor/utils';
 import { runSqlQuery } from '@/server/sql/sqlClient';
 import { Comments } from '@/lib/collections/comments';
+import uniq from 'lodash/uniq';
 
 type ArbitalImportOptions = {
   /**
@@ -470,7 +471,7 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
       const slug = slugsByPageId[pageId];
 
       const pageAliasRedirects = database.aliasRedirects.filter(ar => ar.newAlias === pageInfo.alias);
-      const oldSlugs = [pageInfo.alias, ...pageAliasRedirects.map(ar => ar.oldAlias)];
+      const oldSlugs = uniq([pageInfo.alias, pageInfo.pageId, ...pageAliasRedirects.map(ar => ar.oldAlias)]);
 
       const oldestRevCkEditorMarkup = await arbitalMarkdownToCkEditorMarkup({
         markdown: revisions[0].text, pageId, conversionContext
@@ -588,6 +589,7 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
 
         const lensAliasRedirects = database.aliasRedirects.filter(ar => ar.newAlias === lensPageInfo.alias);
         const lensSlug = lensPageInfo.alias;
+        // TODO: add lensId(?) to oldSlugs.  (Not sure if it's lensId or pageId)
         const oldLensSlugs = lensAliasRedirects.map(ar => ar.oldAlias);
         const lensRevisions = database.pages.filter(p => p.pageId === lens.lensId);
         const lensFirstRevision = lensRevisions[0];
