@@ -29,7 +29,7 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'center',
     '&:hover $fundraiserHeaderDonateButton': {
       background: theme.palette.inverseGreyAlpha(0.25),
-      color: theme.palette.background.pageActiveAreaBackground,
+      color: theme.palette.text.alwaysWhite,
     },
   },
   fill: {
@@ -128,15 +128,15 @@ const styles = (theme: ThemeType) => ({
     fontSize: '1.6rem',
     fontWeight: 'bold',
     fontFamily: theme.typography.headerStyle.fontFamily,
-    color: theme.palette.inverseGreyAlpha(0.65),
+    color: theme.palette.grey[500],
     transition: 'background 0.2s ease-in-out, color 0.2s ease-in-out',
     '&:hover': {
       background: `${theme.palette.inverseGreyAlpha(0.8)} !important`,
       boxShadow: `0px 0px 10px ${theme.palette.inverseGreyAlpha(0.5)}`,
-      color: theme.palette.background.pageActiveAreaBackground,
+      color: theme.palette.text.alwaysWhite,
     },
     [theme.breakpoints.down('xs')]: {
-      color: theme.palette.background.pageActiveAreaBackground,
+      color: theme.palette.text.alwaysWhite,
     },
   },
   learnMoreContainer: {
