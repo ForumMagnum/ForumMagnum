@@ -43,7 +43,7 @@ const schema: SchemaType<'ArbitalTagContentRels'> = {
     canCreate: ['members'],
     allowedValues: [
       'parent-taught-by-child',
-      'parent-requires-child',
+      'parent-is-requirement-of-child',
       'parent-is-tag-of-child',
     ],
   },

@@ -36,7 +36,7 @@ interface DbArbitalTagContentRel extends DbObject {
   __collectionName?: "ArbitalTagContentRels"
   parentTagId: string
   childTagId: string
-  type: "parent-taught-by-child" | "parent-requires-child" | "parent-is-tag-of-child"
+  type: "parent-taught-by-child" | "parent-is-requirement-of-child" | "parent-is-tag-of-child"
   level: number | null
   isStrong: boolean
   createdAt: Date

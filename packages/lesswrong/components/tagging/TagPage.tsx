@@ -913,21 +913,21 @@ const TagPage = () => {
             <div className={classes.linkedTagsSectionTitle}>Subjects</div>
             {teaches?.map((linkedPage: TagBasicInfo) => linkedTag(linkedPage))}
           </div>}
-          {hasList(lessTechnical) && <div className={classes.linkedTagsSection}>
-            <div className={classes.linkedTagsSectionTitle}>Less technical alternatives</div>
-            {lessTechnical?.map((linkedPage: TagBasicInfo) => linkedTag(linkedPage))}
-          </div>}
-          {hasList(moreTechnical) && <div className={classes.linkedTagsSection}>
-            <div className={classes.linkedTagsSectionTitle}>More technical alternatives</div>
-            {moreTechnical?.map((linkedPage: TagBasicInfo) => linkedTag(linkedPage))}
-          </div>}
           {hasList(slower) && <div className={classes.linkedTagsSection}>
             <div className={classes.linkedTagsSectionTitle}>Slower alternatives</div>
             {slower?.map((linkedPage: TagBasicInfo) => linkedTag(linkedPage))}
           </div>}
+          {hasList(lessTechnical) && <div className={classes.linkedTagsSection}>
+            <div className={classes.linkedTagsSectionTitle}>Less technical alternatives</div>
+            {lessTechnical?.map((linkedPage: TagBasicInfo) => linkedTag(linkedPage))}
+          </div>}
           {hasList(faster) && <div className={classes.linkedTagsSection}>
             <div className={classes.linkedTagsSectionTitle}>Faster alternatives</div>
             {faster?.map((linkedPage: TagBasicInfo) => linkedTag(linkedPage))}
+          </div>}
+          {hasList(moreTechnical) && <div className={classes.linkedTagsSection}>
+            <div className={classes.linkedTagsSectionTitle}>More technical alternatives</div>
+            {moreTechnical?.map((linkedPage: TagBasicInfo) => linkedTag(linkedPage))}
           </div>}
 
         </div>

@@ -4102,7 +4102,7 @@ interface CkEditorUserSessionInfo { // fragment on CkEditorUserSessions
 interface ArbitalTagContentRelsDefaultFragment { // fragment on ArbitalTagContentRels
   readonly parentTagId: string,
   readonly childTagId: string,
-  readonly type: "parent-taught-by-child" | "parent-requires-child" | "parent-is-tag-of-child",
+  readonly type: "parent-taught-by-child" | "parent-is-requirement-of-child" | "parent-is-tag-of-child",
   readonly level: number,
   readonly isStrong: boolean,
 }
