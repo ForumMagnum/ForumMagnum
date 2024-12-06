@@ -2021,6 +2021,7 @@ interface RevisionMetadataWithChangeMetrics extends RevisionMetadata { // fragme
 interface RevisionHistoryEntry extends RevisionMetadata { // fragment on Revisions
   readonly documentId: string,
   readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly user: UsersMinimumInfo|null,
 }
 

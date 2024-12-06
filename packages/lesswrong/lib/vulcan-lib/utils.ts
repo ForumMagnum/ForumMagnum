@@ -343,7 +343,7 @@ export const sanitize = function(s: string): string {
     allowedTags: sanitizeAllowedTags,
     allowedAttributes:  {
       ...sanitizeHtml.defaults.allowedAttributes,
-      '*': [...footnoteAttributes, 'data-internal-id'],
+      '*': [...footnoteAttributes, 'data-internal-id', 'data-visibility'],
       audio: [ 'controls', 'src', 'style' ],
       img: [ 'src' , 'srcset', 'alt', 'style'],
       figure: ['style', 'class'],
@@ -431,6 +431,7 @@ export const sanitize = function(s: string): string {
         'ck-cta-button-centered',
         'detailsBlockContent',
         'calendly-preview',
+        'conditionallyVisibleBlock',
         /arb-custom-script-[a-zA-Z0-9]*/,
       ],
       iframe: [ 'thoughtSaverFrame' ],

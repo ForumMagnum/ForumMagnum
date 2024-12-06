@@ -25,9 +25,9 @@ import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from "./TagPageExpo
 import { useStyles, defineStyles } from "../hooks/useStyles";
 import { HEADER_HEIGHT } from "../common/Header";
 import { MAX_COLUMN_WIDTH } from "../posts/PostsPage/PostsPage";
-import { GUIDE_PATH_PAGES_MAPPING } from "../../lib/arbital/paths";
-import { TagLens, useTagLenses } from "../../lib/arbital/useTagLenses";
-import { quickTakesTagsEnabledSetting } from "../../lib/publicSettings";
+import { GUIDE_PATH_PAGES_MAPPING } from "@/lib/arbital/paths";
+import { MAIN_TAB_ID, TagLens, useTagLenses } from "@/lib/arbital/useTagLenses";
+import { quickTakesTagsEnabledSetting } from "@/lib/publicSettings";
 
 const sidePaddingStyle = (theme: ThemeType) => ({
   paddingLeft: 42,
@@ -482,6 +482,18 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     marginLeft: '4px',
     marginTop: '3px',
   },
+  tocContributors: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '4px',
+    marginBottom: 12
+  },
+  tocContributor: {
+    marginLeft: 16,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    color: theme.palette.greyAlpha(0.5),
+  },
+  contributorRatio: {},
   ...tagPageHeaderStyles(theme),
 }));
 
@@ -544,6 +556,66 @@ function usePathInfo(tag: TagPageFragment | TagPageWithRevisionFragment | null) 
   return { displayPageIndex, nextPageId, previousPageId, pathPageCount, pathId };
 }
 
+function getNormalizedContributorRatio(ratio: number) {
+  return parseFloat((ratio * 100).toFixed(0));
+}
+
+function getDisplayedContributorRatio(ratio: number) {
+  return `${getNormalizedContributorRatio(ratio)}%`;
+}
+
+// TODO: maybe move this to the server, so that the user doesn't have to wait for the hooks to run to see the contributors
+function useContributorRatios(description: string, tag: TagPageFragment | TagPageWithRevisionFragment | null) {
+  const [contributorRatios, setContributorRatios] = useState<Record<string, string>>({});
+  const [sortedContributors, setSortedContributors] = useState<AnyBecauseHard[]>([]);
+
+  useEffect(() => {
+    if (!tag?.contributors) {
+      setContributorRatios({});
+      setSortedContributors([]);
+      return;
+    }
+
+    const contributorIds: string[] = tag.contributors.contributors.map(({ user }: { user?: UsersMinimumInfo }) => user?._id) ?? [];
+    const contributorAnnotationClassNames = contributorIds.map(id => `by_${id}`);
+
+    const contributorAnnotations = contributorAnnotationClassNames.map(className => Array.from(document.querySelectorAll(`.${className}`))).flat();
+    const annotationCharacterCounts = Array.from(contributorAnnotations).map(annotation => {
+      if (!annotation.textContent) return [undefined, 0] as const;
+      const contributorClassNames = annotation.className.split(' ').filter(className => className.startsWith('by_'));
+      const contributorId = contributorClassNames[0].split('_')[1];
+      // Remove all whitespace
+      return [contributorId, annotation.textContent.replace(/\s/g, '').length] as const;
+    });
+    const totalCharacterCount = annotationCharacterCounts.reduce((a, b) => a + b[1], 0);
+    const contributorCharacterCounts = annotationCharacterCounts.filter(([_, count]) => count > 0).reduce((acc, [contributorId, count]) => {
+      if (!contributorId) return acc;
+      acc[contributorId] = (acc[contributorId] ?? 0) + count;
+      return acc;
+    }, {} as Record<string, number>);
+    const computedRatios = Object.fromEntries(
+      Object
+        .entries(contributorCharacterCounts)
+        .map(([contributorId, count]) => [contributorId, count / totalCharacterCount])
+    );
+
+    const sortedContributors = [...tag.contributors.contributors]
+      .filter(({ user }) => computedRatios[user._id] && getNormalizedContributorRatio(computedRatios[user._id]) > 0)
+      .sort((a, b) => {
+        return getNormalizedContributorRatio(computedRatios[b.user._id]) - getNormalizedContributorRatio(computedRatios[a.user._id]);
+      });
+
+    const displayedContributorRatios = Object.fromEntries(
+      Object.entries(computedRatios).map(([contributorId, ratio]) => [contributorId, getDisplayedContributorRatio(ratio)])
+    );
+
+    setSortedContributors(sortedContributors);
+    setContributorRatios(displayedContributorRatios);
+  }, [description, tag]);
+
+  return { contributorRatios, sortedContributors };
+}
+
 const PostsListHeading: FC<{
   tag: TagPageFragment|TagPageWithRevisionFragment,
   query: Record<string, string>,
@@ -595,6 +667,20 @@ const LensTab = ({ key, value, label, lens, isSelected, ...tabProps }: {
   );
 };
 
+const EditLensForm = ({lens}: {
+  lens: TagLens,
+}) => {
+  console.log({ prefetchedDocument: lens.originalLensDocument });
+  return <Components.WrappedSmartForm
+    key={lens._id}
+    collectionName="MultiDocuments"
+    documentId={lens._id}
+    queryFragmentName="MultiDocumentEdit"
+    mutationFragmentName="MultiDocumentEdit"
+    {...(lens.originalLensDocument ? { prefetchedDocument: lens.originalLensDocument } : {})}
+  />
+}
+
 const TagPage = () => {
   const {
     PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, Typography,
@@ -614,7 +700,7 @@ const TagPage = () => {
   const { version: queryVersion, revision: queryRevision } = query;
   const revision = queryVersion ?? queryRevision ?? null;
   
-  const contributorsLimit = 7;
+  const contributorsLimit = 16;
   const { tag, loading: loadingTag } = useTagBySlug(slug, revision ? "TagPageWithRevisionFragment" : "TagPageFragment", {
     extraVariables: revision ? {
       version: 'String',
@@ -684,9 +770,25 @@ const TagPage = () => {
     setTruncated(false)
   }, []);
 
-  const onHoverContributor = useCallback((userId: string) => {
+  const onHoverContributor = useCallback((userId: string | null) => {
     setHoveredContributorId(userId);
   }, []);
+
+  const htmlWithAnchors = selectedLens?.tableOfContents?.html ?? selectedLens?.contents?.html ?? "";
+
+  let description = htmlWithAnchors;
+  // EA Forum wants to truncate much less than LW
+  if (isFriendlyUI) {
+    description = truncated
+      ? truncateTagDescription(htmlWithAnchors, tag?.descriptionTruncationCount)
+      : htmlWithAnchors;
+  } else {
+    description = (truncated && !tag?.wikiOnly)
+    ? truncate(htmlWithAnchors, tag?.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>")
+    : htmlWithAnchors
+  }
+
+  const { contributorRatios, sortedContributors } = useContributorRatios(description, tag);
   
   if (loadingTag)
     return <Loading/>
@@ -715,19 +817,6 @@ const TagPage = () => {
     captureEvent("readMoreClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "wikiSection"})
   }
 
-  const htmlWithAnchors = selectedLens?.tableOfContents?.html ?? selectedLens?.contents?.html ?? "";
-
-  let description = htmlWithAnchors;
-  // EA Forum wants to truncate much less than LW
-  if (isFriendlyUI) {
-    description = truncated
-      ? truncateTagDescription(htmlWithAnchors, tag.descriptionTruncationCount)
-      : htmlWithAnchors;
-  } else {
-    description = (truncated && !tag.wikiOnly)
-    ? truncate(htmlWithAnchors, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>")
-    : htmlWithAnchors
-  }
 
   const headTagDescription = tag.description?.plaintextDescription || `All posts related to ${tag.name}, sorted by relevance`
   
@@ -795,14 +884,17 @@ const TagPage = () => {
           You are viewing revision {tag.description.version}, last edited by <UsersNameDisplay user={(tag.description as TagRevisionFragment_description).user}/>
         </div>}
         {editing ? <div>
-          <EditTagForm
-            tag={tag}
-            successCallback={ async () => {
-              setEditing(false)
-              await client.resetStore()
-            }}
-            cancelCallback={() => setEditing(false)}
-          />
+          {(selectedLens && selectedLens._id !== MAIN_TAB_ID)
+            ? <EditLensForm key={selectedLens._id} lens={selectedLens} />
+            : <EditTagForm
+                tag={tag}
+                successCallback={ async () => {
+                  setEditing(false)
+                  await client.resetStore()
+                }}
+                cancelCallback={() => setEditing(false)}
+              />
+          }
           <TagVersionHistoryButton tagId={tag._id} />
         </div> :
         <div onClick={clickReadMore}>
@@ -868,12 +960,26 @@ const TagPage = () => {
     />
   );
 
+  const tocContributors = <div className={classes.tocContributors}>
+    {sortedContributors.map(({ user }: { user?: UsersMinimumInfo }, idx: number) => (
+      <span className={classes.tocContributor} key={user?._id} onMouseOver={() => onHoverContributor(user?._id ?? null)} onMouseOut={() => onHoverContributor(null)}>
+        <UsersNameDisplay key={user?._id} user={user} className={classes.contributorName} />
+        {user && <>
+          {' '}
+          ({contributorRatios[user._id] && <span className={classes.contributorRatio}>{contributorRatios[user._id]}</span>})
+        </>}
+      </span>
+    ))}
+  </div>;
+
   const fixedPositionTagToc = (
     <TableOfContents
       sectionData={selectedLens?.tableOfContents ?? tag.tableOfContents}
       title={tag.name}
+      heading={tocContributors}
       onClickSection={expandAll}
       fixedPositionToc
+      hover
     />
   );
 
@@ -1008,10 +1114,14 @@ const TagPage = () => {
       {tag.contributors && <div className={classes.contributorRow}>
         <div className={classes.contributorNameWrapper}>
           <span>Written by </span>
-          {tag.contributors.contributors
-            .map(({ user }: { user?: UsersMinimumInfo }, idx: number) => (<span key={user?._id}>
+          {sortedContributors
+            .map(({ user }: { user?: UsersMinimumInfo }, idx: number) => (<span key={user?._id} onMouseOver={() => onHoverContributor(user?._id ?? null)} onMouseOut={() => onHoverContributor(null)}>
               <UsersNameDisplay key={user?._id} user={user} className={classes.contributorName} />
-              {idx < (tag.contributors.contributors.length - 1) ? ', ' : ''}
+              {user && <>
+                {' '}
+                ({contributorRatios[user._id] && <span className={classes.contributorRatio}>{contributorRatios[user._id]}</span>})
+                {idx < (sortedContributors.length - 1) ? ', ' : ''}
+              </>}
             </span>))
           }
         </div>

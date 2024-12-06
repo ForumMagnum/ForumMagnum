@@ -156,6 +156,7 @@ export const postEditorConfig = {
 			'ctaButtonToolbarItem',
 			'footnote',
 			'collapsibleSectionButton',
+			'conditionallyVisibleSectionButton',
 		],
 		
 		/* At some point the default icon for the block toolbar changed from a

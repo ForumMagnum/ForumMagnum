@@ -12,7 +12,7 @@ const TagRevisionItemWrapper = ({tag, headingStyle, revisionId, documentId}: {
   const {document, loading} = useSingle({
     documentId: revisionId,
     collectionName: "Revisions",
-    fragmentName: "RevisionMetadataWithChangeMetrics",
+    fragmentName: "RevisionHistoryEntry",
     fetchPolicy: 'cache-then-network' as any, //TODO
   });
   

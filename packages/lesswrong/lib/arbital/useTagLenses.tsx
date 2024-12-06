@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "../routeUtil";
 import type { ToCData } from "../tableOfContents";
 import qs from "qs";
 
-const MAIN_TAB_ID = 'main-tab';
+export const MAIN_TAB_ID = 'main-tab';
 
 export interface TagLens {
   _id: string;
@@ -19,6 +19,7 @@ export interface TagLens {
   tabSubtitle: string | null;
   slug: string;
   userId: string;
+  originalLensDocument: MultiDocumentEdit | null;
 }
 
 interface TagLensInfo {
@@ -42,7 +43,8 @@ function getDefaultLens(tag: TagPageFragment|TagPageWithRevisionFragment|TagHist
     tabTitle: 'Main',
     tabSubtitle: null,
     slug: 'main',
-    userId: tag.userId
+    userId: tag.userId,
+    originalLensDocument: null,
   }
 }
 
@@ -65,7 +67,8 @@ export function getAvailableLenses(tag: TagPageFragment|TagPageWithRevisionFragm
       ...lens,
       index: lens.index + 1,
       title: lens.title ?? tag.name,
-      slug: getImputedSlug(lens)
+      slug: getImputedSlug(lens),
+      originalLensDocument: lens,
     }))
   ];
 }
