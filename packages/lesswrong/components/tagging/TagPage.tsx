@@ -392,10 +392,10 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
       content: '","',
     },
   },
-  alternativesContainer: {
+  linkedTagsContainer: {
     // Add any container-specific styles if needed
   },
-  alternativesHeader: {
+  linkedTagsHeader: {
     position: 'relative',
     fontSize: '1.0rem',
     marginBottom: 4,
@@ -405,19 +405,19 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     display: 'inline-block',
     cursor: 'pointer',
     '&:hover': {
-      '& $alternativesList': {
+      '& $linkedTagsList': {
         display: 'block',
       },
     },
   },
-  alternativesTitle: {
+  linkedTagsTitle: {
     color: theme.palette.grey[600],
     fontWeight: 550,
     fontSize: '1.2rem',
     marginLeft: 4,
     display: 'inline',
   },
-  alternativesList: {
+  linkedTagsList: {
     display: 'block',
     position: 'absolute',
     top: '100%',
@@ -429,17 +429,17 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     zIndex: 1,
     minWidth: 200,
   },
-  alternativesSection: {
+  linkedTagsSection: {
     marginBottom: 20,
   },
-  alternativesSectionTitle: {
+  linkedTagsSectionTitle: {
     ...theme.typography.subtitle,
     fontWeight: 400,
     fontSize: '1.0rem',
     fontVariant: 'all-petite-caps',
     marginBottom: 2,
   },
-  alternative: {
+  linkedTag: {
     display: 'block',
     fontSize: '1.0rem',
     // marginBottom: 4,
@@ -496,6 +496,15 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   contributorRatio: {},
   ...tagPageHeaderStyles(theme),
 }));
+
+interface ArbitalLinkedPages {
+  faster: TagBasicInfo[],
+  slower: TagBasicInfo[],
+  moreTechnical: TagBasicInfo[],
+  lessTechnical: TagBasicInfo[],
+  requirements: TagBasicInfo[],
+  teaches: TagBasicInfo[],
+}
 
 /**
  * If we're on the main tab (or on a tag without any lenses), we want to display the tag name.
@@ -983,63 +992,48 @@ const TagPage = () => {
   //   </ContentStyles>
   // );
 
-  const alternatives = (
-    <ContentStyles contentType="tag" className={classes.alternativesContainer}>
-      <div className={classes.alternativesHeader}>
-        {/* Teach me this */}
-        {/* <span className={classes.alternativesTitle}> slower/faster</span> */}
+  // console.log({tagName: tag.name, linkedPages: JSON.stringify(tag.arbitalLinkedPages, null, 2)});
 
+  const linkedTag = (linkedPage: TagBasicInfo) => <div key={linkedPage.slug} className={classes.linkedTag}>
+    <TagsTooltip placement="left" tagSlug={linkedPage.slug}>
+      <Link to={tagGetUrl(linkedPage)}>{linkedPage.name}</Link>
+    </TagsTooltip>
+  </div>
 
-        <div className={classes.alternativesList}>
+  const { requirements, teaches, lessTechnical, moreTechnical, slower, faster } = tag.arbitalLinkedPages as ArbitalLinkedPages;
 
+  const hasList = (list: TagBasicInfo[] | undefined) => list && list?.length > 0;
 
-          <div className={classes.alternativesSection}>
-            <div className={classes.alternativesSectionTitle}>Relies on</div>
-            <span className={classes.alternative}>
-              <TagsTooltip placement="left" tagSlug={'reads_algebra'}>
-                <a href={'/tag/reads_algebra'}>Ability to read algebra</a>
-              </TagsTooltip>
-            </span>
-          </div>
+  const linkedTags = (
+    <ContentStyles contentType="tag" className={classes.linkedTagsContainer}>
+      <div className={classes.linkedTagsHeader}>
+        <div className={classes.linkedTagsList}>
 
-          <div className={classes.alternativesSection}>
-            <div className={classes.alternativesSectionTitle}>Subjects</div>
-            <span className={classes.alternative}>
-              <TagsTooltip placement="left" tagSlug={'logical-decision-theories'}>
-                <a href={'/tag/logical-decision-theories'}>Logical decision theories</a>
-              </TagsTooltip>
-            </span>
-            <span className={classes.alternative}>
-              <TagsTooltip placement="left" tagSlug={'causal-decision-theories'}>
-                <a href={'/tag/causal-decision-theories'}>Causal decision theories</a>
-              </TagsTooltip>
-            </span>
-            <span className={classes.alternative}>
-              <TagsTooltip placement="left" tagSlug={'evidential-decision-theories'}>
-                <a href={'/tag/evidential-decision-theories'}>Evidential decision theories</a>
-              </TagsTooltip>
-            </span>
-          </div>
-          
-          <div className={classes.alternativesSection}>
-            <div className={classes.alternativesSectionTitle}>Less technical alternative</div>
-            <span className={classes.alternative}>
-              <TagsTooltip placement="left" tagSlug={'reads_algebra'}>
-                <a href={'/tag/reads_algebra'}>Uncountability: Intuitive Intro</a>
-              </TagsTooltip>
-            </span>
-            {/* Add more slower alternatives as needed */}
-          </div>
-          
-          <div className={classes.alternativesSection}>
-            <div className={classes.alternativesSectionTitle}>More technical alternative</div>
-            <span className={classes.alternative}>
-              <TagsTooltip placement="left" tagSlug={'advanced_algebra'}>
-                <a href={'/tag/advanced_algebra'}>Uncountability (Math 3)</a>
-              </TagsTooltip>
-            </span>
-            {/* Add more faster alternatives as needed */}
-          </div>
+          {hasList(requirements) && <div className={classes.linkedTagsSection}>
+            <div className={classes.linkedTagsSectionTitle}>Relies on</div>
+            {requirements?.map((linkedPage: TagBasicInfo) => linkedTag(linkedPage))}
+          </div>}
+          {hasList(teaches) && <div className={classes.linkedTagsSection}>
+            <div className={classes.linkedTagsSectionTitle}>Subjects</div>
+            {teaches?.map((linkedPage: TagBasicInfo) => linkedTag(linkedPage))}
+          </div>}
+          {hasList(slower) && <div className={classes.linkedTagsSection}>
+            <div className={classes.linkedTagsSectionTitle}>Slower alternatives</div>
+            {slower?.map((linkedPage: TagBasicInfo) => linkedTag(linkedPage))}
+          </div>}
+          {hasList(lessTechnical) && <div className={classes.linkedTagsSection}>
+            <div className={classes.linkedTagsSectionTitle}>Less technical alternatives</div>
+            {lessTechnical?.map((linkedPage: TagBasicInfo) => linkedTag(linkedPage))}
+          </div>}
+          {hasList(faster) && <div className={classes.linkedTagsSection}>
+            <div className={classes.linkedTagsSectionTitle}>Faster alternatives</div>
+            {faster?.map((linkedPage: TagBasicInfo) => linkedTag(linkedPage))}
+          </div>}
+          {hasList(moreTechnical) && <div className={classes.linkedTagsSection}>
+            <div className={classes.linkedTagsSectionTitle}>More technical alternatives</div>
+            {moreTechnical?.map((linkedPage: TagBasicInfo) => linkedTag(linkedPage))}
+          </div>}
+
         </div>
       </div>
     </ContentStyles>
@@ -1088,7 +1082,7 @@ const TagPage = () => {
             classes={{ flexContainer: classes.lensTabsContainer, indicator: classes.hideMuiTabIndicator }}
           >
             {lenses.map(lens => {
-              const label = <div className={classes.lensLabel}>
+              const label = <div key={lens._id} className={classes.lensLabel}>
                 <span className={classes.lensTitle}>{lens.tabTitle}</span>
                 {lens.tabSubtitle && <span className={classes.lensSubtitle}>{lens.tabSubtitle}</span>}
               </div>;
@@ -1135,8 +1129,8 @@ const TagPage = () => {
         </div>
       </div>}
       {/** Just hardcoding an example for now, since we haven't imported the necessary relationships to derive it dynamically */}
-      {requirementsAndAlternatives}
-      {subjects}
+      {/* {requirementsAndAlternatives}
+      {subjects} */}
     </div>
   );
 
@@ -1160,7 +1154,7 @@ const TagPage = () => {
         hideLabels={true}
         className={classNames(classes.editMenu, classes.nonMobileButtonRow)}
       />
-      {alternatives}
+      {linkedTags}
       {/* {requirementsandalternatives}
       {subjects} */}
     </div>

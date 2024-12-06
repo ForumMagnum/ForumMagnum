@@ -1,6 +1,7 @@
 import { slugIsUsed } from "@/lib/helpers";
-import { schemaDefaultValue } from "@/lib/utils/schemaUtils";
+import { resolverOnlyField, schemaDefaultValue } from "@/lib/utils/schemaUtils";
 import { getCollection } from "@/lib/vulcan-lib/getCollection";
+import { arbitalLinkedPagesField } from '../helpers/arbitalLinkedPagesField';
 
 const schema: SchemaType<"MultiDocuments"> = {
   // In the case of tag lenses, this is the title displayed in the body of the tag page when the lens is selected.
@@ -109,6 +110,12 @@ const schema: SchemaType<"MultiDocuments"> = {
     type: Object,
     canRead: ['guests'],
   },
+  isArbitalImport: resolverOnlyField({
+    type: Boolean,
+    canRead: ['guests'],
+    resolver: (doc: DbMultiDocument) => doc.legacyData?.arbitalPageId !== undefined,
+  }),
+  arbitalLinkedPages: arbitalLinkedPagesField({ collectionName: 'MultiDocuments' }),
 };
 
 export default schema;

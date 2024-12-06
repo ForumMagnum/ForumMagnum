@@ -30,6 +30,19 @@ interface DbArbitalCaches extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+type ArbitalTagContentRelsCollection = CollectionBase<"ArbitalTagContentRels">;
+
+interface DbArbitalTagContentRel extends DbObject {
+  __collectionName?: "ArbitalTagContentRels"
+  parentTagId: string
+  childTagId: string
+  type: "parent-taught-by-child" | "parent-is-requirement-of-child" | "parent-is-tag-of-child"
+  level: number | null
+  isStrong: boolean
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 type BansCollection = CollectionBase<"Bans">;
 
 interface DbBan extends DbObject {
@@ -2011,6 +2024,7 @@ interface DbVote extends DbObject {
 interface CollectionsByName {
   AdvisorRequests: AdvisorRequestsCollection
   ArbitalCaches: ArbitalCachesCollection
+  ArbitalTagContentRels: ArbitalTagContentRelsCollection
   Bans: BansCollection
   Books: BooksCollection
   Chapters: ChaptersCollection
@@ -2099,6 +2113,7 @@ interface CollectionsByName {
 interface ObjectsByCollectionName {
   AdvisorRequests: DbAdvisorRequest
   ArbitalCaches: DbArbitalCaches
+  ArbitalTagContentRels: DbArbitalTagContentRel
   Bans: DbBan
   Books: DbBook
   Chapters: DbChapter
@@ -2187,6 +2202,7 @@ interface ObjectsByCollectionName {
 interface ObjectsByTypeName {
   AdvisorRequest: DbAdvisorRequest
   ArbitalCaches: DbArbitalCaches
+  ArbitalTagContentRel: DbArbitalTagContentRel
   Ban: DbBan
   Book: DbBook
   Chapter: DbChapter

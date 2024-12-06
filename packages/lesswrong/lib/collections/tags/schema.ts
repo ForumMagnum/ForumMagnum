@@ -14,6 +14,7 @@ import { permissionGroups } from '../../permissions';
 import type { TagCommentType } from '../comments/types';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 import { getUnusedSlugByCollectionName, slugIsUsed } from '@/lib/helpers';
+import { arbitalLinkedPagesField } from '../helpers/arbitalLinkedPagesField';
 
 addGraphQLSchema(`
   type TagContributor {
@@ -706,6 +707,9 @@ const schema: SchemaType<"Tags"> = {
     canRead: ['guests'],
     resolver: (tag: DbTag) => tag.legacyData?.arbitalPageId !== undefined,
   }),
+
+  arbitalLinkedPages: arbitalLinkedPagesField({ collectionName: 'Tags' }),
+  
 }
 
 export default schema;
