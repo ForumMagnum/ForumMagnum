@@ -837,7 +837,8 @@ CREATE TABLE "ElicitQuestionPredictions" (
   "userId" VARCHAR(27),
   "sourceUrl" TEXT,
   "sourceId" TEXT,
-  "binaryQuestionId" VARCHAR(27) NOT NULL
+  "binaryQuestionId" VARCHAR(27) NOT NULL,
+  "isDeleted" BOOL NOT NULL DEFAULT FALSE
 );
 
 -- Table "ElicitQuestions"
