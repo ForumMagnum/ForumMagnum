@@ -24,6 +24,7 @@ import { htmlToChangeMetrics } from '@/server/editor/utils';
 import { runSqlQuery } from '@/server/sql/sqlClient';
 import { Comments } from '@/lib/collections/comments';
 import uniq from 'lodash/uniq';
+import maxBy from 'lodash/maxBy';
 
 type ArbitalImportOptions = {
   /**
@@ -350,8 +351,12 @@ export type ArbitalConversionContext = {
   pageIdsByTitle: Record<string,string>
   pageInfosByPageId: Record<string, PageInfosRow>,
   domainsByPageId: Record<string, DomainsRow>,
-  imageUrlsCache: Record<string,string>
-  liveRevisionsByPageId: Record<string,WholeArbitalDatabase["pages"][0]>
+  imageUrlsCache: Record<string,string>,
+  pagesToConvertToLenses: Array<{
+    tagId: string
+    arbitalPageId: string
+  }>,
+  liveRevisionsByPageId: Record<string,WholeArbitalDatabase["pages"][0]>,
 }
 
 async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: ResolverContext, options: ArbitalImportOptions): Promise<void> {
@@ -360,9 +365,109 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
 }
 
 
+async function findCollidingWikiPages(database: WholeArbitalDatabase): Promise<{
+  existingPagesToMove: Array<{
+    lwWikiPageSlug: string
+    newSlug: string
+  }>
+  pagesToConvertToLenses: Array<{
+    tagId: string
+    arbitalPageId: string
+  }>
+}> {
+  const existingPagesToMove: Array<{
+    lwWikiPageSlug: string
+    newSlug: string
+  }> = [];
+  const pagesToConvertToLenses: Array<{
+    tagId: string
+    arbitalPageId: string
+  }> = [];
+
+  const pagesById = groupBy(database.pages, p=>p.pageId);
+  const wikiPageIds = database.pageInfos.filter(pi => pi.type === "wiki").map(pi=>pi.pageId);
+
+  // Find wiki pages that were previously moved out of the way by a previous
+  // Arbital import, which should be converted to lenses again
+  const previouslyMovedPages: Array<{_id: string, slug: string}> = await runSqlQuery(`
+    SELECT _id,slug
+    FROM "Tags"
+    WHERE slug LIKE 'lwwiki-old-%'
+  `);
+  console.log(`Found ${previouslyMovedPages.length} previously-moved pages`);
+  const previouslyMovedPagesByOriginalSlug = keyBy(
+    previouslyMovedPages,
+    ({_id, slug}) => slug.substring("lwwiki-old-".length)
+  );
+
+  // Find existing wiki pages that have name collisions with incoming Arbital
+  // pages
+  await executePromiseQueue(wikiPageIds
+    .filter(pageId => pagesById[pageId]?.some(revision => revision.isLiveEdit))
+    .map(pageId => {
+      const revisions = pagesById[pageId] ?? [];
+      const liveRevision = revisions.filter(r => r.isLiveEdit)[0];
+      const title = liveRevision.title;
+      const desiredSlug = slugify(title)
+      
+      return async () => {
+        const pageUsingSlug = await Tags.findOne({
+          slug: desiredSlug
+        });
+        if (pageUsingSlug) {
+          existingPagesToMove.push({
+            lwWikiPageSlug: desiredSlug,
+            newSlug: `lwwiki-old-${desiredSlug}`,
+          });
+          pagesToConvertToLenses.push({
+            tagId: pageUsingSlug._id,
+            arbitalPageId: pageId,
+          });
+        } else if (previouslyMovedPagesByOriginalSlug[desiredSlug]) {
+          pagesToConvertToLenses.push({
+            tagId: previouslyMovedPagesByOriginalSlug[desiredSlug]._id,
+            arbitalPageId: pageId,
+          });
+        }
+      }
+    }), 10
+  );
+  
+  return { existingPagesToMove, pagesToConvertToLenses };
+}
+
+Globals.findCollidingWikiPages = async (mysqlConnectionString: string) => {
+  const arbitalDb = await connectAndLoadArbitalDatabase(mysqlConnectionString);
+  const { existingPagesToMove, pagesToConvertToLenses } = await findCollidingWikiPages(arbitalDb);
+  console.log(existingPagesToMove);
+  console.log(pagesToConvertToLenses);
+}
+
+async function renameCollidingWikiPages(existingPagesToMove: Array<{
+  lwWikiPageSlug: string
+  newSlug: string
+}>): Promise<void> {
+  await executePromiseQueue(
+    existingPagesToMove.map(({lwWikiPageSlug, newSlug}) => {
+      return async () => {
+        return Tags.rawUpdateOne(
+          {slug: lwWikiPageSlug},
+          {$set: {
+            slug: newSlug
+          }}
+        );
+      }
+    }),
+    10
+  );
+}
+
 async function buildConversionContext(database: WholeArbitalDatabase, options: ArbitalImportOptions): Promise<ArbitalConversionContext> {
   const pagesById = groupBy(database.pages, p=>p.pageId);
   const pageInfosById = keyBy(database.pageInfos, pi=>pi.pageId);
+  
+  const { existingPagesToMove, pagesToConvertToLenses } = await findCollidingWikiPages(database);
+  await renameCollidingWikiPages(existingPagesToMove);
 
   //const matchedUsers: Record<string,DbUser|null> = { '2': await resolverContext.loaders.Users.load('nmk3nLpQE89dMRzzN') };
   const matchedUsers: Record<string,DbUser|null> = options.userMatchingFile
@@ -381,12 +486,12 @@ async function buildConversionContext(database: WholeArbitalDatabase, options: A
   const domainsByPageId = keyBy(database.domains, d=>d.id);
   
   let slugsByPageId: Record<string,string> = {};
-  const slugsCachePath = path.join(__dirname, "./slugsByPageId.json");
+  /*const slugsCachePath = path.join(__dirname, "./slugsByPageId.json");
   let cacheLoaded = false;
   if (fs.existsSync(slugsCachePath)) {
     slugsByPageId = JSON.parse(fs.readFileSync(slugsCachePath, "utf8"));
     cacheLoaded = true;
-  }
+  }*/
 
   await executePromiseQueue(wikiPageIds
     .filter(pageId => pagesById[pageId]?.some(revision => revision.isLiveEdit))
@@ -399,15 +504,18 @@ async function buildConversionContext(database: WholeArbitalDatabase, options: A
         pageIdsByTitle[title] = pageId;
         titlesByPageId[pageId] = title;
         liveRevisionsByPageId[pageId] = liveRevision;
-        //console.log(`${pageId}: ${title}`);
-        if (!cacheLoaded) {
+        
+        // We can assume the slug is available because of the earlier call to
+        // renameCollidingWikiPages().
+        slugsByPageId[pageId] = slugify(title);
+        /*if (!cacheLoaded) {
           slugsByPageId[pageId] = await getUnusedSlugByCollectionName("Tags", slugify(title));
-        }
+        }*/
       };
     }), 10
   );
 
-  fs.writeFileSync(slugsCachePath, JSON.stringify(slugsByPageId, null, 2));
+  //fs.writeFileSync(slugsCachePath, JSON.stringify(slugsByPageId, null, 2));
   
   return {
     database,
@@ -418,6 +526,7 @@ async function buildConversionContext(database: WholeArbitalDatabase, options: A
     pageInfosByPageId: pageInfosById,
     domainsByPageId,
     liveRevisionsByPageId,
+    pagesToConvertToLenses,
     imageUrlsCache: {},
   };
   
@@ -432,6 +541,7 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
   const {
     pageInfosByPageId: pageInfosById, slugsByPageId, titlesByPageId,
     pageIdsByTitle, domainsByPageId, matchedUsers, defaultUser, liveRevisionsByPageId,
+    pagesToConvertToLenses,
   } = conversionContext;
   console.log(`There are ${Object.keys(liveRevisionsByPageId).length} wiki pages with live revisions`);
   
@@ -688,6 +798,64 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
           resolverContext,
           lensMultiDocumentId: lensObj._id,
         });
+      }
+      
+      const lwWikiPageToConvertToLens = pagesToConvertToLenses.find(({arbitalPageId}) => arbitalPageId === pageId);
+      if (lwWikiPageToConvertToLens) {
+        console.log(`Converting LW wiki page ${lwWikiPageToConvertToLens.tagId} to a lens`);
+        const lwWikiPage = await Tags.findOne({_id: lwWikiPageToConvertToLens.tagId});
+        if (!lwWikiPage) continue;
+        const lwWikiPageCreator: DbUser = (await Users.findOne({_id: lwWikiPage.userId}))!;
+        const lwWikiLensSlug = await getUnusedSlugByCollectionName("MultiDocuments", `lwwiki-${slugify(title)}`);
+        const lwWikiLensIndex = lenses.length > 0
+          ? maxBy(lenses, l => l.lensIndex)!.lensIndex + 1
+          : 0;
+        const lwWikiLens = (await createMutator({
+          collection: MultiDocuments,
+          document: {
+            parentDocumentId: wiki._id,
+            collectionName: "Tags",
+            fieldName: "description",
+            title: "LW Wiki",
+            slug: lwWikiLensSlug,
+            oldSlugs: [],
+            preview: "",
+            tabTitle: "LW Wiki",
+            tabSubtitle: "",
+            userId: lwWikiPageCreator?._id,
+            index: lwWikiLensIndex,
+            legacyData: {
+            },
+          } as Partial<DbMultiDocument>,
+          context: resolverContext,
+          currentUser: lwWikiPageCreator,
+          validate: false,
+        })).data;
+
+        // Clone revisions on the LW wiki page as revisions on the lens
+        const lwWikiPageRevisions = await Revisions.find({
+          documentId: lwWikiPage._id,
+          fieldName: "description",
+          collectionName: "Tags",
+        }).fetch();
+        for (const lwWikiPageRevision of lwWikiPageRevisions) {
+          const { _id, ...fieldsToCopy } = lwWikiPageRevision;
+          await Revisions.rawInsert({
+            ...fieldsToCopy,
+            fieldName: "contents",
+            documentId: lwWikiLens._id,
+            collectionName: "MultiDocuments",
+          });
+        }
+        const latestRev = maxBy(lwWikiPageRevisions, r=>r.editedAt)!;
+        
+        // Set the active rev on the new lens
+        await MultiDocuments.rawUpdateOne(
+          { _id: lwWikiLens._id },
+          {$set: {
+            contents_latest: latestRev._id,
+          }}
+        );
       }
     } catch(e) {
       console.error(e);
