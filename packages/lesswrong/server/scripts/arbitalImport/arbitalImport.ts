@@ -535,6 +535,7 @@ async function buildConversionContext(database: WholeArbitalDatabase, options: A
 async function importWikiPages(database: WholeArbitalDatabase, resolverContext: ResolverContext, options: ArbitalImportOptions): Promise<void> {
   const pagesById = groupBy(database.pages, p=>p.pageId);
   const lensesByPageId = groupBy(database.lenses, l=>l.pageId);
+  const lensIds = new Set(database.lenses.map(l=>l.lensId));
   const summariesByPageId = groupBy(database.pageSummaries, s=>s.pageId);
 
   const conversionContext = await buildConversionContext(database, options);
@@ -561,7 +562,7 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
         if (pagesById[p]) return p;
         throw new Error(`Page title not found: ${p}`)
       })
-    : Object.keys(liveRevisionsByPageId)
+    : Object.keys(liveRevisionsByPageId).filter(pageId => !lensIds.has(pageId))
   console.log(`Importing ${pageIdsToImport.length} pages`)
   
   const alternativesByPageId = computePageAlternatives(database);
@@ -1340,4 +1341,36 @@ Globals.hideContentFromNonDefaultDomains = async (mysqlConnectionString: string)
     $set: {deleted: true},
   });
 }
+
+async function cleanUpAccidentalLensTags(wholeArbitalDb: WholeArbitalDatabase) {
+  const lensIds = Array.from(new Set(wholeArbitalDb.lenses.map(l => l.lensId)));
+  await executePromiseQueue(lensIds.map(id => () => Tags.rawUpdateOne({
+    "legacyData.arbitalPageId": id,
+    deleted: false,
+  }, {
+    $set: {
+      slug: `deleted-import-${randomId()}`,
+      deleted: true,
+      },
+    })
+  ), 10);
+}
+
+Globals.cleanUpAccidentalLensTags = async (mysqlConnectionString: string) => {
+  const arbitalDb = await connectAndLoadArbitalDatabase(mysqlConnectionString);
+  await cleanUpAccidentalLensTags(arbitalDb);
+};
+
+Globals.checkAccidentalLensTags = async (mysqlConnectionString: string) => {
+  const arbitalDb = await connectAndLoadArbitalDatabase(mysqlConnectionString);
+  const lensIds = Array.from(new Set(arbitalDb.lenses.map(l => l.lensId)));
+  const tags = await executePromiseQueue(lensIds.map(id => () => Tags.findOne({
+    deleted: false,
+    "legacyData.arbitalPageId": id
+  })), 10);
+
+  tags.forEach(tag => {
+    console.log(`${tag?.name} (${tag?.slug}) is an accidental lens tag`);
+  });
+};
 
