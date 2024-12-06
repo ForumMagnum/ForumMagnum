@@ -911,6 +911,9 @@ importComponent("LensRevisionItem", () => require('../components/tagging/history
 importComponent("TagActivityFeed", () => require('../components/tagging/TagActivityFeed'));
 importComponent("TagProgressBar", () => require('../components/tagging/TagProgressBar'));
 importComponent("SingleLineTagUpdates", () => require('../components/tagging/SingleLineTagUpdates'));
+importComponent("WikiTagItem", () => require('../components/tagging/WikiTagItem'));
+importComponent("WikiTagNestedList", () => require('../components/tagging/WikiTagNestedList'));
+importComponent("ArbitalExplorePage", () => require('../components/tagging/ArbitalExplorePage'));
 
 // Subforums
 importComponent("TagPageRouter", () => require('../components/tagging/TagPageRouter'));

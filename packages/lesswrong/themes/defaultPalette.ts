@@ -411,7 +411,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     onboardingSection: "#f5f5f5",
     onboardingPodcast: "#e7e7e7",
     placeholderGradient: 'linear-gradient(90deg, #EEE 33%, #E6E6E6 50%, #EEE 66%)',
-    tagLensTab: shades.greyAlpha(.04),
+    tagLensTab: shades.greyAlpha(.1),
   },
   boxShadow: {
     default: `0 1px 5px ${shades.boxShadowColor(.025)}`,

@@ -2655,10 +2655,6 @@ interface TagPreviewFragment_description { // fragment on Revisions
   readonly htmlHighlight: string,
 }
 
-interface TagSummariesPreviewFragment extends TagPreviewFragment { // fragment on Tags
-  readonly summaries: Array<MultiDocumentEdit>,
-}
-
 interface TagSectionPreviewFragment extends TagBasicInfo { // fragment on Tags
   readonly isRead: boolean|null,
   readonly parentTag: TagBasicInfo|null,
@@ -2785,6 +2781,11 @@ interface TagName { // fragment on Tags
   readonly _id: string,
   readonly name: string,
   readonly slug: string,
+}
+
+interface ExplorePageTagFragment extends TagFragment { // fragment on Tags
+  readonly contributors: any,
+  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface AdvisorRequestsDefaultFragment { // fragment on AdvisorRequests
@@ -3877,6 +3878,7 @@ interface MultiDocumentEdit { // fragment on MultiDocuments
   readonly collectionName: string,
   readonly fieldName: string,
   readonly userId: string,
+  readonly slug: string,
   readonly title: string | null,
   readonly tabTitle: string,
   readonly tabSubtitle: string | null,
@@ -4435,7 +4437,6 @@ interface FragmentTypes {
   TagCreationHistoryFragment: TagCreationHistoryFragment
   TagRevisionFragment: TagRevisionFragment
   TagPreviewFragment: TagPreviewFragment
-  TagSummariesPreviewFragment: TagSummariesPreviewFragment
   TagSectionPreviewFragment: TagSectionPreviewFragment
   TagSubforumFragment: TagSubforumFragment
   TagSubtagFragment: TagSubtagFragment
@@ -4452,6 +4453,7 @@ interface FragmentTypes {
   SunshineTagFragment: SunshineTagFragment
   UserOnboardingTag: UserOnboardingTag
   TagName: TagName
+  ExplorePageTagFragment: ExplorePageTagFragment
   AdvisorRequestsDefaultFragment: AdvisorRequestsDefaultFragment
   AdvisorRequestsMinimumInfo: AdvisorRequestsMinimumInfo
   UserJobAdsDefaultFragment: UserJobAdsDefaultFragment
@@ -4570,7 +4572,7 @@ interface FragmentTypesByCollection {
   Users: "UsersDefaultFragment"|"SuggestAlignmentUser"|"UsersMinimumInfo"|"UsersProfile"|"UsersCurrent"|"UsersCurrentCommentRateLimit"|"UsersCurrentPostRateLimit"|"UserBookmarkedPosts"|"UserKarmaChanges"|"UsersBannedFromUsersModerationLog"|"SunshineUsersList"|"UserAltAccountsFragment"|"SharedUserBooleans"|"UsersMapEntry"|"UsersEdit"|"UsersAdmin"|"UsersWithReviewInfo"|"UsersProfileEdit"|"UsersCrosspostInfo"|"UsersOptedInToDialogueFacilitation"|"UserOnboardingAuthor"
   Comments: "CommentsDefaultFragment"|"CommentsList"|"CommentsListWithTopLevelComment"|"ShortformComments"|"CommentWithRepliesFragment"|"CommentEdit"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"CommentsListWithParentMetadata"|"StickySubforumCommentFragment"|"WithVoteComment"|"CommentsListWithModerationMetadata"|"CommentsListWithModGPTAnalysis"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"SuggestAlignmentComment"
   UserTagRels: "UserTagRelsDefaultFragment"|"UserTagRelDetails"
-  Tags: "TagsDefaultFragment"|"TagBasicInfo"|"TagDetailsFragment"|"TagFragment"|"TagHistoryFragment"|"TagCreationHistoryFragment"|"TagRevisionFragment"|"TagPreviewFragment"|"TagSummariesPreviewFragment"|"TagSectionPreviewFragment"|"TagSubforumFragment"|"TagSubtagFragment"|"TagSubforumSidebarFragment"|"TagDetailedPreviewFragment"|"TagWithFlagsFragment"|"TagWithFlagsAndRevisionFragment"|"TagPageFragment"|"AllTagsPageFragment"|"TagPageWithRevisionFragment"|"TagFullContributorsList"|"TagEditFragment"|"TagRecentDiscussion"|"SunshineTagFragment"|"UserOnboardingTag"|"TagName"
+  Tags: "TagsDefaultFragment"|"TagBasicInfo"|"TagDetailsFragment"|"TagFragment"|"TagHistoryFragment"|"TagCreationHistoryFragment"|"TagRevisionFragment"|"TagPreviewFragment"|"TagSectionPreviewFragment"|"TagSubforumFragment"|"TagSubtagFragment"|"TagSubforumSidebarFragment"|"TagDetailedPreviewFragment"|"TagWithFlagsFragment"|"TagWithFlagsAndRevisionFragment"|"TagPageFragment"|"AllTagsPageFragment"|"TagPageWithRevisionFragment"|"TagFullContributorsList"|"TagEditFragment"|"TagRecentDiscussion"|"SunshineTagFragment"|"UserOnboardingTag"|"TagName"|"ExplorePageTagFragment"
   Conversations: "ConversationsDefaultFragment"|"ConversationsMinimumInfo"|"ConversationsList"|"ConversationsListWithReadStatus"
   CurationEmails: "CurationEmailsDefaultFragment"
   ElectionCandidates: "ElectionCandidatesDefaultFragment"|"ElectionCandidateBasicInfo"|"ElectionCandidateSimple"|"WithVoteElectionCandidate"
@@ -4801,7 +4803,6 @@ interface CollectionNamesByFragmentName {
   TagCreationHistoryFragment: "Tags"
   TagRevisionFragment: "Tags"
   TagPreviewFragment: "Tags"
-  TagSummariesPreviewFragment: "Tags"
   TagSectionPreviewFragment: "Tags"
   TagSubforumFragment: "Tags"
   TagSubtagFragment: "Tags"
@@ -4818,6 +4819,7 @@ interface CollectionNamesByFragmentName {
   SunshineTagFragment: "Tags"
   UserOnboardingTag: "Tags"
   TagName: "Tags"
+  ExplorePageTagFragment: "Tags"
   AdvisorRequestsDefaultFragment: "AdvisorRequests"
   AdvisorRequestsMinimumInfo: "AdvisorRequests"
   UserJobAdsDefaultFragment: "UserJobAds"

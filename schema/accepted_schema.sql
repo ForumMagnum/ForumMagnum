@@ -1267,6 +1267,12 @@ CREATE INDEX IF NOT EXISTS "idx_MultiDocuments_schemaVersion" ON "MultiDocuments
 -- Index "idx_MultiDocuments_parentDocumentId_collectionName"
 CREATE INDEX IF NOT EXISTS "idx_MultiDocuments_parentDocumentId_collectionName" ON "MultiDocuments" USING btree ("parentDocumentId", "collectionName");
 
+-- Index "idx_MultiDocuments_slug"
+CREATE INDEX IF NOT EXISTS "idx_MultiDocuments_slug" ON "MultiDocuments" USING btree ("slug");
+
+-- Index "idx_MultiDocuments_oldSlugs"
+CREATE INDEX IF NOT EXISTS "idx_MultiDocuments_oldSlugs" ON "MultiDocuments" USING gin ("oldSlugs");
+
 -- Table "Notifications"
 CREATE TABLE "Notifications" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -2962,6 +2968,9 @@ CREATE INDEX IF NOT EXISTS "idx_Tags_deleted_adminOnly_tagFlagsIds" ON "Tags" US
 
 -- Index "idx_Tags_name"
 CREATE INDEX IF NOT EXISTS "idx_Tags_name" ON "Tags" USING btree ("name");
+
+-- Index "idx_Tags_name_legacyData__arbitalPageId"
+CREATE INDEX IF NOT EXISTS "idx_Tags_name_legacyData__arbitalPageId" ON "Tags" USING gin ("name", ("legacyData" -> 'arbitalPageId'));
 
 -- Index "idx_Tags_parentTagId"
 CREATE INDEX IF NOT EXISTS "idx_Tags_parentTagId" ON "Tags" USING btree ("parentTagId");

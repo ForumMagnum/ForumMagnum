@@ -956,6 +956,9 @@ import '../components/tagging/history/LensRevisionItem';
 import '../components/tagging/TagActivityFeed';
 import '../components/tagging/TagProgressBar';
 import '../components/tagging/SingleLineTagUpdates';
+import '../components/tagging/WikiTagItem';
+import '../components/tagging/WikiTagNestedList';
+import '../components/tagging/ArbitalExplorePage';
 
 // Subforums
 import '../components/tagging/TagPageRouter';

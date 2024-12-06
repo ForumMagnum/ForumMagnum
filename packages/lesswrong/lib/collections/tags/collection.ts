@@ -54,7 +54,11 @@ Tags.checkAccess = async (currentUser: DbUser|null, tag: DbTag, context: Resolve
     return true;
 }
 
-addUniversalFields({collection: Tags})
+addUniversalFields({collection: Tags, legacyDataOptions: {
+  canRead: ['guests'],
+  canCreate: ['admins'],
+  canUpdate: ['admins'],
+}});
 
 makeEditable({
   collection: Tags,

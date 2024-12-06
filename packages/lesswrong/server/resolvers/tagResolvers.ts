@@ -404,6 +404,39 @@ addGraphQLQuery('TagUpdatesByUser(userId: String!, limit: Int!, skip: Int!): [Ta
 addGraphQLQuery('RandomTag: Tag!');
 addGraphQLQuery('ActiveTagCount: Int!');
 
+defineQuery({
+  name: "TagPreview",
+  schema: `
+    type TagPreviewWithSummaries {
+      tag: Tag!
+      summaries: [MultiDocument!]!
+    }
+  `,
+  resultType: "TagPreviewWithSummaries",
+  argTypes: "(slug: String!, hash: String)",
+  fn: async (root, { slug, hash }: { slug: string, hash: string | null }, context) => {
+    const { Tags, MultiDocuments, repos, currentUser } = context;
+
+    const tagWithSummaries = await repos.tags.getTagWithSummaries(slug);
+
+    if (!tagWithSummaries) return null;
+
+    const { summaries, ...tag } = tagWithSummaries;
+
+    const [filteredTag, filteredSummaries] = await Promise.all([
+      accessFilterSingle(currentUser, Tags, tag, context),
+      accessFilterMultiple(currentUser, MultiDocuments, summaries, context)
+    ]);
+
+    if (!filteredTag) return null;
+
+    return {
+      tag: filteredTag,
+      summaries: filteredSummaries,
+    };
+  },
+});
+
 type ContributorWithStats = {
   user: Partial<DbUser>,
   contributionScore: number,

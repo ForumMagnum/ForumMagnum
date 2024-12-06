@@ -7,6 +7,7 @@ registerFragment(`
     collectionName
     fieldName
     userId
+    slug
     title
     tabTitle
     tabSubtitle

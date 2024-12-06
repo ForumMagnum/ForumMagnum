@@ -70,6 +70,47 @@ class TagsRepo extends AbstractRepo<"Tags"> {
     return count;
   }
 
+  async getTagWithSummaries(slug: string) {
+    return this.getRawDb().oneOrNone<DbTag & { summaries: DbMultiDocument[] }>(`
+      -- TagsRepo.getTagWithSummaries
+      WITH matching_tags AS (
+        -- Get tags that directly match the slug
+        SELECT
+          t.*,
+          t.slug,
+          t.description
+        FROM "Tags" t
+        WHERE t.deleted IS FALSE
+        AND (t."slug" = $1 OR t."oldSlugs" @> ARRAY[$1])
+        
+        UNION ALL
+        
+        -- Get tags that have a lens matching the slug
+        SELECT
+          t.*,
+          md.slug AS "slug",
+          TO_JSONB(r.*) AS "description"
+        FROM "MultiDocuments" md
+        JOIN "Tags" t
+        ON t."_id" = md."parentDocumentId"
+        LEFT JOIN "Revisions" r
+        ON r."_id" = md."contents_latest"
+        WHERE t.deleted IS FALSE
+        AND (
+          md."slug" = $1
+          OR md."oldSlugs" @> ARRAY[$1]
+        )
+        AND md."collectionName" = 'Tags'
+        AND md."fieldName" = 'description'
+      )
+      SELECT DISTINCT ON (t._id)
+        t.*,
+        ARRAY_AGG(TO_JSONB(md.*)) OVER (PARTITION BY t._id) as summaries
+      FROM matching_tags t
+      LEFT JOIN "MultiDocuments" md
+      ON md."parentDocumentId" = t."_id" AND md."fieldName" = 'summary'
+    `, [slug]);
+  }
 }
 
 recordPerfMetrics(TagsRepo);

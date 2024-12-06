@@ -140,16 +140,6 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment TagSummariesPreviewFragment on Tag {
-    ...TagPreviewFragment
-
-    summaries(lensId: $lensId) {
-      ...MultiDocumentEdit
-    }
-  }
-`);
-
-registerFragment(`
   fragment TagSectionPreviewFragment on Tag {
     ...TagBasicInfo
     isRead
@@ -371,5 +361,23 @@ registerFragment(`
     _id
     name
     slug
+  }
+`);
+
+registerFragment(`
+  fragment ExplorePageTagFragment on Tag {
+    ...TagFragment
+    contributors(limit: $contributorsLimit) {
+      totalCount
+      contributors {
+        user {
+          ...UsersMinimumInfo
+        }
+        contributionScore
+        numCommits
+        voteCount
+      }
+    }
+    legacyData
   }
 `);
