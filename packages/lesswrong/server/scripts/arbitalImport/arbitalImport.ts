@@ -578,7 +578,7 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
         console.log(`Importing ${lenses.length} lenses`);
       }
       for (const lens of lenses) {
-        const lensPageInfo = pageInfosById[lens.pageId];
+        const lensPageInfo = pageInfosById[lens.lensId];
         if (!lensPageInfo || lensPageInfo.isDeleted) {
           continue;
         }

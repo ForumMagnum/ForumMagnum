@@ -1,5 +1,5 @@
 import { createCollection } from "@/lib/vulcan-lib";
-import { addUniversalFields } from "@/lib/collectionUtils";
+import { addUniversalFields, getDefaultResolvers } from "@/lib/collectionUtils";
 import { makeEditable } from "@/lib/editor/make_editable";
 import schema from "./schema";
 import { ensureIndex } from "@/lib/collectionIndexUtils";
@@ -8,6 +8,7 @@ export const MultiDocuments = createCollection({
   collectionName: 'MultiDocuments',
   typeName: 'MultiDocument',
   schema,
+  resolvers: getDefaultResolvers('MultiDocuments')
 });
 
 addUniversalFields({ collection: MultiDocuments });
