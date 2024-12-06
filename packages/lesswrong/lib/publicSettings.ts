@@ -206,6 +206,10 @@ export const userIdsWithAccessToLlmChat = new DatabasePublicSetting<string[]>('l
 
 export const textReplacementsSetting = new DatabasePublicSetting<Record<string, string>>('textReplacements', {});
 
+export const postsListViewTypeSetting = new DatabasePublicSetting<string>('posts.viewType', 'list');
+
+export const quickTakesMaxAgeDaysSetting = new DatabasePublicSetting<number>('feed.quickTakesMaxAgeDays', 5);
+
 export const lightconeFundraiserUnsyncedAmount = new DatabasePublicSetting<number>('lightconeFundraiser.unsyncedAmount', 0);
 export const lightconeFundraiserPaymentLinkId = new DatabasePublicSetting<string>('lightconeFundraiser.paymentLinkId', '');
 export const lightconeFundraiserThermometerBgUrl = new DatabasePublicSetting<string>('lightconeFundraiser.thermometerBgUrl', '');
