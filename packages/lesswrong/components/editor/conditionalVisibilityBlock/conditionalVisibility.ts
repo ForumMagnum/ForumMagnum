@@ -6,7 +6,6 @@
 
 export type ConditionalVisibilityMode =
   | "unset"
-  | "hidden"
   | "todo"
   | "fixme"
   | "comment"
@@ -15,7 +14,6 @@ export type ConditionalVisibilityMode =
   | "ifPathBeforeOrAfter"
 export type ConditionalVisibilitySettings =
   | { type: "unset" }
-  | { type: "hidden" }
   | { type: "todo" }
   | { type: "fixme" }
   | { type: "comment" }
@@ -29,10 +27,6 @@ export const conditionalVisibilityModes: Record<ConditionalVisibilityMode, {
   unset: {
     settings: {type: "unset"},
     label: "(Choose a block type)",
-  },
-  hidden: {
-    settings: {type: "hidden"},
-    label: "Hidden",
   },
   todo: {
     settings: {type: "todo"},

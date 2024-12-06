@@ -139,6 +139,7 @@ importComponent("DraftJSEditor", () => require('../components/editor/DraftJSEdit
 importComponent("PresenceList", () => require('../components/editor/PresenceList'));
 importComponent("ConditionalVisibilityBlockDisplay", () => require('../components/editor/conditionalVisibilityBlock/ConditionalVisibilityBlockDisplay'));
 importComponent("EditConditionalVisibility", () => require('../components/editor/conditionalVisibilityBlock/EditConditionalVisibility'));
+importComponent("ShowBlockVisibilityCondition", () => require('../components/editor/conditionalVisibilityBlock/ShowBlockVisibilityCondition'));
 
 // Generic dropdown menus and items
 importComponent("DropdownMenu", () => require('../components/dropdowns/DropdownMenu'));
@@ -912,6 +913,7 @@ importComponent("TagSmallPostLink", () => require('../components/tagging/TagSmal
 importComponent("RecentDiscussionTag", () => require('../components/recentDiscussion/RecentDiscussionTag'));
 importComponent("TagHistoryPage", () => require('../components/tagging/history/TagHistoryPage'));
 importComponent("LensRevisionItem", () => require('../components/tagging/history/LensRevisionItem'));
+importComponent("ArbitalImportRevisionDetails", () => require('../components/tagging/history/ArbitalImportRevisionDetails'));
 importComponent("TagActivityFeed", () => require('../components/tagging/TagActivityFeed'));
 importComponent("TagProgressBar", () => require('../components/tagging/TagProgressBar'));
 importComponent("SingleLineTagUpdates", () => require('../components/tagging/SingleLineTagUpdates'));

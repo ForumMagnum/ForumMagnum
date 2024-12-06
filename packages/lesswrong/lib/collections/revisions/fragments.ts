@@ -75,6 +75,7 @@ registerFragment(`
     ...RevisionMetadata
     documentId
     changeMetrics
+    legacyData
     user {
       ...UsersMinimumInfo
     }

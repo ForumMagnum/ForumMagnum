@@ -19,7 +19,14 @@ export const Revisions: RevisionsCollection = createCollection({
   // byproduct of creating/editing documents in other collections).
   // mutations: getDefaultMutations('Revisions'),
 });
-addUniversalFields({collection: Revisions})
+addUniversalFields({
+  collection: Revisions,
+  legacyDataOptions: {
+    canRead: ['guests'],
+    canCreate: ['admins'],
+    canUpdate: ['admins'],
+  }
+})
 
 // Note, since we want to make sure checkAccess is a performant function, we can only check the 
 // userId of the current revision for ownership. If the userId of the document the revision is on,
