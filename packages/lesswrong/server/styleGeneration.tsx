@@ -88,8 +88,8 @@ const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
   const cssVars = requestedCssVarsToString(theme);
   
   const mergedCSS = [
-    draftjsStyles(theme),
-    miscStyles(theme),
+    draftjsStyles(),
+    miscStyles(),
     jssStylesheet,
     ...theme.rawCSS,
     cssVars,

@@ -3338,6 +3338,7 @@ CREATE TABLE "Users" (
   "linkedinProfileURL" TEXT,
   "facebookProfileURL" TEXT,
   "twitterProfileURL" TEXT,
+  "twitterProfileURLAdmin" TEXT,
   "githubProfileURL" TEXT,
   "profileTagIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
   "organizerOfGroupIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',

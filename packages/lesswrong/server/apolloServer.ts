@@ -57,7 +57,7 @@ import { randomId } from '../lib/random';
 import { addCacheControlMiddleware, responseIsCacheable } from './cacheControlMiddleware';
 import { SSRMetadata } from '../lib/utils/timeUtil';
 import type { RouterLocation } from '../lib/vulcan-lib/routes';
-import { getCookieFromReq } from './utils/httpUtil';
+import { getCookieFromReq, trySetResponseStatus } from './utils/httpUtil';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '@/lib/cookies/cookies';
 import { addAutocompleteEndpoint } from './autocompleteEndpoint';
 import { getSqlClientOrThrow } from './sql/sqlClient';
@@ -84,25 +84,6 @@ const ssrInteractionDisable = isE2E
     </style>
   `
   : "";
-
-/**
- * Try to set the response status, but log an error if the headers have already been sent.
- */
-const trySetResponseStatus = ({ response, status }: { response: express.Response, status: number; }) => {
-  if (!response.headersSent) {
-    response.status(status);
-  } else if (response.statusCode !== status) {
-    const message = `Tried to set status to ${status} but headers have already been sent with status ${response.statusCode}. This may be due to enableResourcePrefetch wrongly being set to true.`;
-    if (isProduction) {
-      // eslint-disable-next-line no-console
-      console.error(message);
-    } else {
-      throw new Error(message);
-    }
-  }
-
-  return response;
-}
 
 /**
  * If allowed, write the prefetchPrefix to the response so the client can start downloading resources
@@ -513,11 +494,11 @@ export function startWebserver() {
   })
 
   // Start Server
-  const port = getCommandLineArguments().port;
+  const listenPort = getCommandLineArguments().listenPort;
   const env = process.env.NODE_ENV || 'production'
-  const server = app.listen({ port }, () => {
+  const server = app.listen({ port: listenPort }, () => {
     // eslint-disable-next-line no-console
-    return console.info(`Server running on http://localhost:${port} [${env}]`)
+    return console.info(`Server running on http://localhost:${listenPort} [${env}]`)
   })
   server.keepAliveTimeout = 120000;
   

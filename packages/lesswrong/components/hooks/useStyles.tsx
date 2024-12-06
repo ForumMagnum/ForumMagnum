@@ -2,6 +2,7 @@ import React, { createContext, useContext, useLayoutEffect } from "react";
 import type { ClassNameProxy, StyleDefinition, StyleOptions } from "@/server/styleGeneration";
 import { create as jssCreate, SheetsRegistry } from "jss";
 import { jssPreset } from "@material-ui/core/styles";
+import { isClient } from "@/lib/executionEnvironment";
 
 export type StylesContextType = {
   theme: ThemeType
@@ -13,6 +14,20 @@ export type StylesContextType = {
 }
 
 export const StylesContext = createContext<StylesContextType|null>(null);
+
+/**
+ * _clientMountedStyles: Client-side-only global variable that contains the
+ * style context, as an alternative to getting it through React context. This
+ * is client-side-only because on the server, where there may be more than one
+ * render happening concurrently for different users, there isn't a meaningful
+ * answer to questions like "what is the current theme". But when doing
+ * hot-module reloading on the client, we need "the current theme" in order to
+ * update any styles mounted in the <head> block.
+ */
+let _clientMountedStyles: StylesContextType|null = null;
+export function setClientMountedStyles(styles: StylesContextType) {
+  _clientMountedStyles = styles;
+}
 
 export const topLevelStyleDefinitions: Record<string,StyleDefinition<string>> = {};
 
@@ -28,6 +43,15 @@ export const defineStyles = <T extends string>(
     nameProxy: null,
   };
   topLevelStyleDefinitions[name] = definition;
+  
+  if (isClient && _clientMountedStyles) {
+    const mountedStyles = _clientMountedStyles.mountedStyles.get(name);
+    if (mountedStyles) {
+      mountedStyles.styleNode.remove();
+      mountedStyles.styleNode = createAndInsertStyleNode(_clientMountedStyles.theme, definition);
+    }
+  }
+  
   return definition;
 }
 
@@ -96,15 +120,17 @@ export const withAddClasses = (
   styles: (theme: ThemeType) => JssStyles,
   name: string,
   options?: StyleOptions,
-) => (Component: AnyBecauseHard) => {
-  if (!styles) return Component;
+) => {
   const styleDefinition = defineStyles(name, styles, options);
-  return function AddClassesHoc(props: AnyBecauseHard) {
-    const {children, ...otherProps} = props;
-    const classes = useStyles(styleDefinition);
-    return <Component {...otherProps} classes={classes}>
-      {children}
-    </Component>
+
+  return (Component: AnyBecauseHard) => {
+    return function AddClassesHoc(props: AnyBecauseHard) {
+      const {children, ...otherProps} = props;
+      const classes = useStyles(styleDefinition);
+      return <Component {...otherProps} classes={classes}>
+        {children}
+      </Component>
+    }
   }
 }
 
@@ -126,7 +152,7 @@ export const classNameProxy = <T extends string>(prefix: string): ClassNameProxy
 function createAndInsertStyleNode(theme: ThemeType, styleDefinition: StyleDefinition): HTMLStyleElement {
   const stylesStr = styleNodeToString(theme, styleDefinition);
   const styleNode = document.createElement("style");
-  styleNode.innerText = stylesStr;
+  styleNode.append(document.createTextNode(stylesStr));
   styleNode.setAttribute("data-name", styleDefinition.name);
   styleNode.setAttribute("data-priority", styleDefinition.name);
   insertStyleNodeAtCorrectPosition(styleNode, styleDefinition.name, styleDefinition.options?.stylePriority ?? 0);
@@ -213,4 +239,3 @@ function insertStyleNodeAtCorrectPosition(styleNode: HTMLStyleElement, name: str
     styleNodes[left].insertAdjacentElement('beforebegin', styleNode);
   }
 }
-

@@ -323,6 +323,7 @@ import './collections/arbitalCache/collection';
 // Review winners
 import './collections/reviewWinners/collection';
 import './collections/reviewWinners/fragments';
+import './collections/reviewWinners/views';
 
 // Review winners
 import './collections/reviewWinnerArts/collection';

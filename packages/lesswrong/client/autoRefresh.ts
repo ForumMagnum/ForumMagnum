@@ -10,7 +10,7 @@ let buildTimestamp: string|null = null;
 function connectWebsocket() {
   if (connectedWebsocket) return;
   
-  const websocketPort = getCommandLineArguments().port + 1;
+  const websocketPort = getCommandLineArguments().localhostUrlPort + 1;
   connectedWebsocket = new WebSocket(`ws://localhost:${websocketPort}`);
 
   connectedWebsocket.addEventListener("message", (event: MessageEvent) => {

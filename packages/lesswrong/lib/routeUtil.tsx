@@ -61,8 +61,12 @@ export type NavigateFunction = ReturnType<typeof useNavigate>
  */
 export const useNavigate = () => {
   const { history } = useContext(NavigationContext)!;
-  return useCallback((locationDescriptor: LocationDescriptor, options?: {replace?: boolean, openInNewTab?: boolean}) => {
-    if (options?.openInNewTab) {
+  return useCallback((locationDescriptor: LocationDescriptor | -1 | 1, options?: {replace?: boolean, openInNewTab?: boolean}) => {
+    if (locationDescriptor === -1) {
+      history.goBack();
+    } else if (locationDescriptor === 1) {
+      history.goForward();
+    } else if (options?.openInNewTab) {
       const href = typeof locationDescriptor === 'string' ?
         locationDescriptor :
         history.createHref(locationDescriptor);
@@ -121,7 +125,7 @@ const LwAfDomainWhitelist: DomainList = {
     "baserates.org",
     "alignmentforum.org",
     "alignment-forum.com",
-    `localhost:${getCommandLineArguments().port}`,
+    `localhost:${getCommandLineArguments().localhostUrlPort}`,
   ],
   mirrorDomains: [
     "greaterwrong.com",
@@ -136,14 +140,14 @@ const forumDomainWhitelist: ForumOptions<DomainList> = {
     onsiteDomains: [
       'forum.effectivealtruism.org',
       'forum-staging.effectivealtruism.org',
-      `localhost:${getCommandLineArguments().port}`,
+      `localhost:${getCommandLineArguments().localhostUrlPort}`,
     ],
     mirrorDomains: ['ea.greaterwrong.com'],
   },
   default: {
     onsiteDomains: [
       new URLClass(siteUrlSetting.get()).host,
-      `localhost:${getCommandLineArguments().port}`,
+      `localhost:${getCommandLineArguments().localhostUrlPort}`,
     ],
     mirrorDomains: [],
   }

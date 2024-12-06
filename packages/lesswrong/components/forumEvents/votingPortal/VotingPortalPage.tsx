@@ -118,6 +118,7 @@ const styles = (theme: ThemeType) => ({
   },
   welcomeButtonDisabled: {
     opacity: 0.6,
+    cursor: "default",
     "&:hover": {
       opacity: 0.6,
     },
@@ -521,6 +522,9 @@ const WelcomeScreen = ({onNext, isTooYoung, classes}: {
   isTooYoung: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
+  const votingOpen = false;
+  const disableVoting = isTooYoung || !votingOpen
+
   const {EAButton} = Components;
   return (
     <div className={classes.welcomeRoot}>
@@ -535,14 +539,14 @@ const WelcomeScreen = ({onNext, isTooYoung, classes}: {
         out more about the candidates <Link to={CANDIDATES_HREF}>here</Link>.
       </div>
       <EAButton
-        onClick={isTooYoung ? undefined : onNext}
+        onClick={disableVoting ? undefined : onNext}
         className={classNames(classes.welcomeButton, {
-          [classes.welcomeButtonDisabled]: isTooYoung,
+          [classes.welcomeButtonDisabled]: disableVoting,
         })}
       >
         {isTooYoung
           ? "Your account is too young to vote in the Donation Election"
-          : "Vote in the Election ->"
+          : votingOpen ? "Vote in the Election ->" : "Voting has closed"
         }
       </EAButton>
       <div>

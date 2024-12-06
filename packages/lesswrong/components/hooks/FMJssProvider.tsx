@@ -1,7 +1,8 @@
-import type { StyleDefinition } from '@/server/styleGeneration';
-import React, { createContext, useMemo, useState } from 'react';
-import { useTheme } from '../themes/useTheme';
-import { StylesContext, StylesContextType } from './useStyles';
+import React, { useMemo, useState } from "react";
+import { useTheme } from "../themes/useTheme";
+import type { StyleDefinition } from "@/server/styleGeneration";
+import { setClientMountedStyles, StylesContext, StylesContextType } from "./useStyles";
+import { isClient } from "@/lib/executionEnvironment";
 
 export const FMJssProvider = ({children}: {
   children: React.ReactNode
@@ -15,7 +16,13 @@ export const FMJssProvider = ({children}: {
   const jssState = useMemo<StylesContextType>(() => ({
     theme, mountedStyles: mountedStyles
   }), [theme, mountedStyles]);
+  
+  if (isClient) {
+    setClientMountedStyles(jssState);
+  }
+  
   return <StylesContext.Provider value={jssState}>
     {children}
   </StylesContext.Provider>
 }
+

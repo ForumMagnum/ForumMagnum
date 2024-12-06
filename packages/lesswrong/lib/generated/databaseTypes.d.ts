@@ -1916,6 +1916,7 @@ interface DbUser extends DbObject {
   linkedinProfileURL: string | null
   facebookProfileURL: string | null
   twitterProfileURL: string | null
+  twitterProfileURLAdmin: string | null
   githubProfileURL: string | null
   profileTagIds: Array<string>
   organizerOfGroupIds: Array<string>

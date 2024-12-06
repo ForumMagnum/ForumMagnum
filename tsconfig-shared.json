@@ -25,11 +25,12 @@
   },
   "include": [
     "packages/lesswrong",
-    "public/lesswrong-editor/src/editorConfigs.js",
+    "ckEditor/src/editorConfigs.js",
     "playwright"
   ],
   "exclude": [
     "node_modules",
+    "packages/lesswrong/viteClient",
     "build"
   ],
   "ts-node": {

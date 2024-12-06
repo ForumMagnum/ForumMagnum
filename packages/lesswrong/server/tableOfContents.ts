@@ -2,7 +2,6 @@ import { Comments } from '../lib/collections/comments/collection';
 import { questionAnswersSortings } from '../lib/collections/comments/views';
 import { Revisions } from '../lib/collections/revisions/collection';
 import { isAF } from '../lib/instanceSettings';
-import { Utils } from '../lib/vulcan-lib';
 import { updateDenormalizedHtmlAttributions } from './tagging/updateDenormalizedHtmlAttributions';
 import { annotateAuthors } from './attributeEdits';
 import { getDefaultViewSelector } from '../lib/utils/viewUtils';
@@ -11,7 +10,7 @@ import { defineQuery } from './utils/serverGraphqlUtil';
 import { parseDocumentFromString } from '../lib/domParser';
 import { FetchedFragment } from './fetchFragment';
 import { getLatestContentsRevision } from '../lib/collections/revisions/helpers';
-
+import { applyCustomArbitalScripts } from './utils/arbital/arbitalCustomScripts';
 
 async function getTocAnswersServer (document: DbPost) {
   if (!document.question) return []
@@ -113,6 +112,8 @@ export const getToCforTag = async ({document, version, context}: {
       html = document.description?.html ?? "";
     }
   }
+
+  html = await applyCustomArbitalScripts(html);
   
   const tableOfContents = extractTableOfContents(parseDocumentFromString(html))
   let tocSections = tableOfContents?.sections || []
@@ -156,6 +157,8 @@ export const getToCforMultiDocument = async ({document, version, context}: {
       html = revision?.html ?? "";
     }
   }
+
+  html = await applyCustomArbitalScripts(html);
   
   const tableOfContents = extractTableOfContents(parseDocumentFromString(html))
   let tocSections = tableOfContents?.sections || []

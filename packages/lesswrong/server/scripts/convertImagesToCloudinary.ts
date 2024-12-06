@@ -59,13 +59,16 @@ async function findAlreadyMovedImage(identifier: string): Promise<string|null> {
  * it will return the existing cloudinary URL.
  */
 export async function moveImageToCloudinary({oldUrl, originDocumentId}: {oldUrl: string, originDocumentId: string}): Promise<string|null> {
-  const upload = async (credentials: CloudinaryCredentials) => await cloudinary.v2.uploader.upload(
-    oldUrl,
-    {
-      folder: `mirroredImages/${originDocumentId}`,
-      ...credentials
-    }
-  );
+  const upload = async (credentials: CloudinaryCredentials) => {
+    console.log(`Uploading ${oldUrl} to Cloudinary`);
+    return await cloudinary.v2.uploader.upload(
+      oldUrl,
+      {
+        folder: `mirroredImages/${originDocumentId}`,
+        ...credentials
+      }
+    );
+  }
 
   return getOrCreateCloudinaryImage({identifier: oldUrl, identifierType: 'originalUrl', upload})
 }
@@ -165,7 +168,7 @@ function urlNeedsMirroring(url: string, filterFn: (url: string) => boolean) {
   }
 }
 
-export async function convertImagesInHTML(html: string, originDocumentId: string, urlFilterFn: (url: string) => boolean = () => true): Promise<{count: number, html: string}> {
+export async function convertImagesInHTML(html: string, originDocumentId: string, urlFilterFn: (url: string) => boolean = () => true, imageUrlsCache?: Record<string,string>): Promise<{count: number, html: string}> {
   const parsedHtml = cheerioParse(html);
   const imgTags = parsedHtml("img").toArray();
   const imgUrls: string[] = [];
@@ -180,8 +183,11 @@ export async function convertImagesInHTML(html: string, originDocumentId: string
   }
 
   // Upload all the images to Cloudinary (slow)
-  const mirrorUrls: Record<string,string> = {};
+  const mirrorUrls: Record<string,string> = imageUrlsCache ?? {};
   await Promise.all(imgUrls.map(async (url) => {
+    if (url in mirrorUrls) {
+      return;
+    }
     // resolve to the url of the image on cloudinary
     const movedImage = await moveImageToCloudinary({oldUrl: url, originDocumentId})
     if (movedImage) {

@@ -14,6 +14,7 @@ import {isFriendlyUI} from '../themes/forumTheme'
 import { postRouteWillDefinitelyReturn200 } from './collections/posts/helpers';
 import { sequenceRouteWillDefinitelyReturn200 } from './collections/sequences/helpers';
 import { tagRouteWillDefinitelyReturn200 } from './collections/tags/helpers';
+import { GUIDE_PATH_PAGES_MAPPING } from './arbital/paths';
 
 const knownTagNames = ['tag', 'topic', 'concept']
 const useShortAllTagsPath = isFriendlyUI;
@@ -346,9 +347,19 @@ addRoute(
   {
     name: 'votesByYear',
     path: '/votesByYear/:year',
-    componentName: 'UserSuggestNominations',
-    title: "Your Past Votes"
+    redirect: ({params}) => `/nominatePosts/${params.year}`
   },
+  {
+    name: 'nominatePosts',
+    path: '/nominatePosts',
+    redirect: () => `/nominatePosts/${REVIEW_YEAR}`
+  },
+  {
+    name: 'nominatePostsByYear',
+    path: '/nominatePosts/:year',
+    title: "Nominate Posts",
+    componentName: "UserSuggestNominations"
+  }
 );
 
 if (taggingNameIsSet.get()) {
@@ -480,7 +491,7 @@ if (taggingNameIsSet.get()) {
     },
     // Temporary arbital routes
     {
-      name: 'tag.arbital.w',
+      name: 'tag.arbital.w.guideRedirect',
       path: '/w/:slug',
       componentName: 'TagPage',
       titleComponentName: 'TagPageTitle',
@@ -488,7 +499,25 @@ if (taggingNameIsSet.get()) {
       previewComponentName: 'TagHoverPreview',
       enableResourcePrefetch: tagRouteWillDefinitelyReturn200,
       background: "white",
+      redirect: (location) => {
+        const { params: { slug }, query } = location;
+        if ('startPath' in query && slug in GUIDE_PATH_PAGES_MAPPING) {
+          const firstPathPageId = GUIDE_PATH_PAGES_MAPPING[slug as keyof typeof GUIDE_PATH_PAGES_MAPPING][0];
+          return `/w/${firstPathPageId}?pathId=${slug}`;
+        }
+        return null;
+      }
     },
+    // {
+    //   name: 'tag.arbital.w',
+    //   path: '/w/:slug',
+    //   componentName: 'TagPage',
+    //   titleComponentName: 'TagPageTitle',
+    //   subtitleComponentName: 'TagPageTitle',
+    //   previewComponentName: 'TagHoverPreview',
+    //   enableResourcePrefetch: tagRouteWillDefinitelyReturn200,
+    //   background: "white",
+    // },
     {
       name: 'tag.arbital.p',
       path: '/p/:slug',
@@ -499,6 +528,7 @@ if (taggingNameIsSet.get()) {
       enableResourcePrefetch: tagRouteWillDefinitelyReturn200,
       background: "white",
     },
+    // End of temporary arbital routes
     {
       name: 'tagDiscussion',
       path: '/tag/:slug/discussion',
@@ -1176,6 +1206,14 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       sunshineSidebar: true,
       hasLeftNavigationColumn: true,
       navigationFooterBar: true,
+    },
+    {
+      name: 'bestoflesswrong',
+      path: '/bestoflesswrong',
+      componentName: 'TopPostsPage',
+      title: "The Best of LessWrong",
+      background: "#f8f4ee",
+      ...leastWrongSubtitle,
     },
     {
       name:'about',

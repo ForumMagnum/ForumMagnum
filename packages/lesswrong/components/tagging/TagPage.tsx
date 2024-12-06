@@ -25,8 +25,18 @@ import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from "./TagPageExpo
 import { useStyles, defineStyles } from "../hooks/useStyles";
 import { HEADER_HEIGHT } from "../common/Header";
 import { MAX_COLUMN_WIDTH } from "../posts/PostsPage/PostsPage";
-import { ToCData } from "@/lib/tableOfContents";
-import qs from "qs";
+import { GUIDE_PATH_PAGES_MAPPING } from "@/lib/arbital/paths";
+import { MAIN_TAB_ID, TagLens, useTagLenses } from "@/lib/arbital/useTagLenses";
+import { quickTakesTagsEnabledSetting } from "@/lib/publicSettings";
+
+const sidePaddingStyle = (theme: ThemeType) => ({
+  paddingLeft: 42,
+  paddingRight: 42,
+  [theme.breakpoints.down('xs')]: {
+    paddingLeft: '8px',
+    paddingRight: '8px',
+  },
+})
 
 const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   rootGivenImage: {
@@ -66,10 +76,7 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   header: {
     paddingTop: 19,
     paddingBottom: 5,
-    [theme.breakpoints.up('md')]: {
-      paddingLeft: 42,
-      paddingRight: 42,
-    },
+    ...sidePaddingStyle(theme),
     background: theme.palette.panelBackground.default,
     borderTopLeftRadius: theme.borderRadius.default,
     borderTopRightRadius: theme.borderRadius.default,
@@ -119,21 +126,14 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   },
   wikiSection: {
     paddingTop: 5,
-    [theme.breakpoints.up('md')]: {
-      paddingLeft: 42,
-      paddingRight: 42,
-    },
-    paddingBottom: 12,
+    ...sidePaddingStyle(theme),
     marginBottom: 24,
     background: theme.palette.panelBackground.default,
     borderBottomLeftRadius: theme.borderRadius.default,
     borderBottomRightRadius: theme.borderRadius.default,
   },
   subHeading: {
-    [theme.breakpoints.up('md')]: {
-      paddingLeft: 42,
-      paddingRight: 42,
-    },
+    ...sidePaddingStyle(theme),
     marginTop: -2,
     background: theme.palette.panelBackground.default,
     ...theme.typography.body2,
@@ -360,15 +360,15 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     marginTop: -120,
     height: 140,
     width: "100%",
-    background: `linear-gradient(0deg, 
-      ${theme.palette.background.pageActiveAreaBackground} 30%,
-      ${theme.palette.panelBackground.translucent} 70%,
-      transparent 100%
-    )`,
+    // background: `linear-gradient(0deg, 
+    //   ${theme.palette.background.pageActiveAreaBackground} 30%,
+    //   ${theme.palette.panelBackground.translucent} 70%,
+    //   transparent 100%
+    // )`,
     opacity: 1,
   },
   subjectsContainer: {
-    overflow: 'hidden',
+    // overflow: 'hidden',
     display: 'flex',
     marginTop: 0,
     marginBottom: 0,
@@ -392,125 +392,110 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
       content: '","',
     },
   },
+  alternativesContainer: {
+    // Add any container-specific styles if needed
+  },
+  alternativesHeader: {
+    position: 'relative',
+    fontSize: '1.0rem',
+    marginBottom: 4,
+    color: theme.palette.grey[600],
+    minWidth: 'fit-content',
+    whiteSpace: 'nowrap',
+    display: 'inline-block',
+    cursor: 'pointer',
+    '&:hover': {
+      '& $alternativesList': {
+        display: 'block',
+      },
+    },
+  },
+  alternativesTitle: {
+    color: theme.palette.grey[600],
+    fontWeight: 550,
+    fontSize: '1.2rem',
+    marginLeft: 4,
+    display: 'inline',
+  },
+  alternativesList: {
+    display: 'block',
+    position: 'absolute',
+    top: '100%',
+    left: 0,
+    background: theme.palette.background.paper,
+    boxShadow: theme.palette.boxShadow.default,
+    borderRadius: theme.borderRadius.default,
+    padding: '16px',
+    zIndex: 1,
+    minWidth: 200,
+  },
+  alternativesSection: {
+    marginBottom: 20,
+  },
+  alternativesSectionTitle: {
+    ...theme.typography.subtitle,
+    fontWeight: 400,
+    fontSize: '1.0rem',
+    fontVariant: 'all-petite-caps',
+    marginBottom: 2,
+  },
+  alternative: {
+    display: 'block',
+    fontSize: '1.0rem',
+    // marginBottom: 4,
+    // color: theme.palette.primary.main,
+  },
+  pathInfo: {
+    // ...theme.typography.body2,
+    // ...theme.typography.commentStyle,
+    // marginBottom: 4,
+    // color: theme.palette.grey[600],
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'end',
+    gap: '16px',
+  },
+  pathNavigationBackButton: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    // padding: '4px 8px 5px 8px',
+  },
+  pathNavigationNextButton: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: theme.palette.panelBackground.darken15,
+    borderRadius: theme.borderRadius.small,
+    padding: '4px 8px 5px 8px',
+  },
+  pathNavigationBackButtonIcon: {
+    width: '16px',
+    height: '16px',
+    marginRight: '4px',
+    marginTop: '3px',
+  },
+  pathNavigationNextButtonIcon: {
+    width: '16px',
+    height: '16px',
+    marginLeft: '4px',
+    marginTop: '3px',
+  },
+  tocContributors: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '4px',
+    marginBottom: 12
+  },
+  tocContributor: {
+    marginLeft: 16,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    color: theme.palette.greyAlpha(0.5),
+  },
+  contributorRatio: {},
   ...tagPageHeaderStyles(theme),
 }));
-
-export interface TagLens {
-  _id: string;
-  collectionName: string;
-  fieldName: string;
-  index: number;
-  contents: TagFragment_description | TagRevisionFragment_description | RevisionDisplay | null;
-  tableOfContents: ToCData | null;
-  parentDocumentId: string;
-  title: string;
-  preview: string | null;
-  tabTitle: string;
-  tabSubtitle: string | null;
-  slug: string;
-  userId: string;
-}
-
-const MAIN_TAB_ID = 'main-tab';
-
-function getDefaultLens(tag: TagPageFragment|TagPageWithRevisionFragment|TagHistoryFragment): TagLens {
-  return {
-    _id: MAIN_TAB_ID,
-    collectionName: 'Tags',
-    fieldName: 'description',
-    index: 0,
-    contents: tag.description,
-    tableOfContents: tag.tableOfContents,
-    parentDocumentId: tag._id,
-    title: tag.name,
-    preview: null,
-    tabTitle: 'Main',
-    tabSubtitle: null,
-    slug: 'main',
-    userId: tag.userId
-  }
-}
-
-interface TagLensInfo {
-  selectedLens?: TagLens;
-  selectedLensId: string;
-  updateSelectedLens: (lensId: string) => void;
-  lenses: TagLens[];
-}
-
-// TODO: get rid of this and use the lens slug when we fix the import to get the correct alias from lens.lensId's pageInfo
-function getImputedSlug(lens: MultiDocumentEdit) {
-  const slugComponents = lens.tabTitle.split(' ');
-
-  if (lens.tabSubtitle) {
-    slugComponents.push(...lens.tabSubtitle.split(' '));
-  }
-
-  return slugComponents.join('_').toLowerCase();
-}
-
-export function getAvailableLenses(tag: TagPageFragment|TagPageWithRevisionFragment|TagHistoryFragment|null) {
-  if (!tag) return [];
-  return [
-    getDefaultLens(tag),
-    ...tag.lenses.map(lens => ({
-      ...lens,
-      index: lens.index + 1,
-      title: lens.title ?? tag.name,
-      slug: getImputedSlug(lens)
-    }))
-  ];
-}
-
-function useTagLenses(tag: TagPageFragment | TagPageWithRevisionFragment | null): TagLensInfo {
-  const { query, location } = useLocation();
-  const navigate = useNavigate();
-  const availableLenses = useMemo(() => getAvailableLenses(tag), [tag]);
-
-  const querySelectedLens = useMemo(() =>
-    availableLenses.find(lens => lens.slug === query.lens),
-    [availableLenses, query.lens]
-  );
-
-  const [selectedLensId, setSelectedLensId] = useState<string>(querySelectedLens?._id ?? MAIN_TAB_ID);
-
-  const selectedLens = useMemo(() =>
-    availableLenses.find(lens => lens._id === selectedLensId),
-    [selectedLensId, availableLenses]
-  );
-
-  const updateSelectedLens = useCallback((lensId: string) => {
-    setSelectedLensId(lensId);
-    const selectedLensSlug = availableLenses.find(lens => lens._id === lensId)?.slug;
-    if (selectedLensSlug) {
-      const defaultLens = availableLenses.find(lens => lens._id === MAIN_TAB_ID);
-      const navigatingToDefaultLens = selectedLensSlug === defaultLens?.slug;
-      const newSearch = navigatingToDefaultLens
-       ? ''
-       : `?${qs.stringify({ lens: selectedLensSlug })}`;
-
-      navigate({ ...location, search: newSearch });
-    }
-  }, [availableLenses, location, navigate]);
-
-  useEffect(() => {
-    if (query.lens) {
-      if (querySelectedLens) {
-        setSelectedLensId(querySelectedLens._id);
-      } else {
-        // If the lens doesn't exist, reset the search query
-        navigate({ ...location, search: '' }, { replace: true });
-      }
-    }
-  }, [query.lens, availableLenses, navigate, location, querySelectedLens]);
-
-  return {
-    selectedLens,
-    selectedLensId,
-    updateSelectedLens,
-    lenses: availableLenses,
-  };
-}
 
 /**
  * If we're on the main tab (or on a tag without any lenses), we want to display the tag name.
@@ -524,6 +509,102 @@ function useDisplayedTagTitle(tag: TagPageFragment | TagPageWithRevisionFragment
   }
 
   return selectedLens.title;
+}
+
+function usePathInfo(tag: TagPageFragment | TagPageWithRevisionFragment | null) {
+  const { query } = useLocation();
+
+  if (!tag) {
+    return undefined;
+  }
+
+  const pathId = query.pathId;
+  const pathPages = pathId ? GUIDE_PATH_PAGES_MAPPING[pathId as keyof typeof GUIDE_PATH_PAGES_MAPPING] : undefined;
+
+  if (!pathPages) {
+    return undefined;
+  }
+
+  const tagSlugs = [tag.slug, ...tag.oldSlugs];
+  let currentPagePathIndex;
+  for (let slug of tagSlugs) {
+    const index = pathPages.indexOf(slug);
+    if (index >= 0) {
+      currentPagePathIndex = index;
+      break;
+    }
+  }
+
+  if (currentPagePathIndex === undefined) {
+    return undefined;
+  }
+
+  const nextPageId = pathPages[currentPagePathIndex + 1];
+  const previousPageId = currentPagePathIndex > 0 ? pathPages[currentPagePathIndex - 1] : undefined;
+  const displayPageIndex = currentPagePathIndex + 1;
+  const pathPageCount = pathPages.length;
+
+  return { displayPageIndex, nextPageId, previousPageId, pathPageCount, pathId };
+}
+
+function getNormalizedContributorRatio(ratio: number) {
+  return parseFloat((ratio * 100).toFixed(0));
+}
+
+function getDisplayedContributorRatio(ratio: number) {
+  return `${getNormalizedContributorRatio(ratio)}%`;
+}
+
+// TODO: maybe move this to the server, so that the user doesn't have to wait for the hooks to run to see the contributors
+function useContributorRatios(description: string, tag: TagPageFragment | TagPageWithRevisionFragment | null) {
+  const [contributorRatios, setContributorRatios] = useState<Record<string, string>>({});
+  const [sortedContributors, setSortedContributors] = useState<AnyBecauseHard[]>([]);
+
+  useEffect(() => {
+    if (!tag?.contributors) {
+      setContributorRatios({});
+      setSortedContributors([]);
+      return;
+    }
+
+    const contributorIds: string[] = tag.contributors.contributors.map(({ user }: { user?: UsersMinimumInfo }) => user?._id) ?? [];
+    const contributorAnnotationClassNames = contributorIds.map(id => `by_${id}`);
+
+    const contributorAnnotations = contributorAnnotationClassNames.map(className => Array.from(document.querySelectorAll(`.${className}`))).flat();
+    const annotationCharacterCounts = Array.from(contributorAnnotations).map(annotation => {
+      if (!annotation.textContent) return [undefined, 0] as const;
+      const contributorClassNames = annotation.className.split(' ').filter(className => className.startsWith('by_'));
+      const contributorId = contributorClassNames[0].split('_')[1];
+      // Remove all whitespace
+      return [contributorId, annotation.textContent.replace(/\s/g, '').length] as const;
+    });
+    const totalCharacterCount = annotationCharacterCounts.reduce((a, b) => a + b[1], 0);
+    const contributorCharacterCounts = annotationCharacterCounts.filter(([_, count]) => count > 0).reduce((acc, [contributorId, count]) => {
+      if (!contributorId) return acc;
+      acc[contributorId] = (acc[contributorId] ?? 0) + count;
+      return acc;
+    }, {} as Record<string, number>);
+    const computedRatios = Object.fromEntries(
+      Object
+        .entries(contributorCharacterCounts)
+        .map(([contributorId, count]) => [contributorId, count / totalCharacterCount])
+    );
+
+    const sortedContributors = [...tag.contributors.contributors]
+      .filter(({ user }) => computedRatios[user._id] && getNormalizedContributorRatio(computedRatios[user._id]) > 0)
+      .sort((a, b) => {
+        return getNormalizedContributorRatio(computedRatios[b.user._id]) - getNormalizedContributorRatio(computedRatios[a.user._id]);
+      });
+
+    const displayedContributorRatios = Object.fromEntries(
+      Object.entries(computedRatios).map(([contributorId, ratio]) => [contributorId, getDisplayedContributorRatio(ratio)])
+    );
+
+    setSortedContributors(sortedContributors);
+    setContributorRatios(displayedContributorRatios);
+  }, [description, tag]);
+
+  return { contributorRatios, sortedContributors };
 }
 
 const PostsListHeading: FC<{
@@ -577,24 +658,40 @@ const LensTab = ({ key, value, label, lens, isSelected, ...tabProps }: {
   );
 };
 
+const EditLensForm = ({lens}: {
+  lens: TagLens,
+}) => {
+  console.log({ prefetchedDocument: lens.originalLensDocument });
+  return <Components.WrappedSmartForm
+    key={lens._id}
+    collectionName="MultiDocuments"
+    documentId={lens._id}
+    queryFragmentName="MultiDocumentEdit"
+    mutationFragmentName="MultiDocumentEdit"
+    {...(lens.originalLensDocument ? { prefetchedDocument: lens.originalLensDocument } : {})}
+  />
+}
+
 const TagPage = () => {
   const {
     PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, Typography,
     PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection,
     TagPageButtonRow, ToCColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
     TagTableOfContents, TagVersionHistoryButton, ContentStyles, CommentsListCondensed,
-    MultiToCLayout, TableOfContents, FormatDate, LWTooltip, HoverPreviewLink,
+    MultiToCLayout, TableOfContents, FormatDate, LWTooltip, HoverPreviewLink, TagsTooltip,
+    ForumIcon,
   } = Components;
   const classes = useStyles(styles);
 
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
+  const navigate = useNavigate();
   
   // Support URLs with ?version=1.2.3 or with ?revision=1.2.3 (we were previously inconsistent, ?version is now preferred)
   const { version: queryVersion, revision: queryRevision } = query;
   const revision = queryVersion ?? queryRevision ?? null;
   
-  const contributorsLimit = 7;
+  const contributorsLimit = 16;
   const { tag, loading: loadingTag } = useTagBySlug(slug, revision ? "TagPageWithRevisionFragment" : "TagPageFragment", {
     extraVariables: revision ? {
       version: 'String',
@@ -609,13 +706,17 @@ const TagPage = () => {
       contributorsLimit,
     },
   });
+
   
   const [truncated, setTruncated] = useState(false)
   const [editing, setEditing] = useState(!!query.edit)
   const [hoveredContributorId, setHoveredContributorId] = useState<string|null>(null);
-  // const [selectedLens, setSelectedLens] = useState<string>('main-tab');
   const { captureEvent } =  useTracking()
   const client = useApolloClient()
+
+  const pathInfo = usePathInfo(tag);
+
+  const { tag: guideTag } = useTagBySlug(pathInfo?.pathId ?? '', 'TagBasicInfo', { skip: !pathInfo?.pathId });
 
   const multiTerms: AnyBecauseTodo = {
     allPages: {view: "allPagesByNewest"},
@@ -660,9 +761,25 @@ const TagPage = () => {
     setTruncated(false)
   }, []);
 
-  const onHoverContributor = useCallback((userId: string) => {
+  const onHoverContributor = useCallback((userId: string | null) => {
     setHoveredContributorId(userId);
   }, []);
+
+  const htmlWithAnchors = selectedLens?.tableOfContents?.html ?? selectedLens?.contents?.html ?? "";
+
+  let description = htmlWithAnchors;
+  // EA Forum wants to truncate much less than LW
+  if (isFriendlyUI) {
+    description = truncated
+      ? truncateTagDescription(htmlWithAnchors, tag?.descriptionTruncationCount)
+      : htmlWithAnchors;
+  } else {
+    description = (truncated && !tag?.wikiOnly)
+    ? truncate(htmlWithAnchors, tag?.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>")
+    : htmlWithAnchors
+  }
+
+  const { contributorRatios, sortedContributors } = useContributorRatios(description, tag);
   
   if (loadingTag)
     return <Loading/>
@@ -691,19 +808,6 @@ const TagPage = () => {
     captureEvent("readMoreClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "wikiSection"})
   }
 
-  const htmlWithAnchors = selectedLens?.tableOfContents?.html ?? selectedLens?.contents?.html ?? "";
-
-  let description = htmlWithAnchors;
-  // EA Forum wants to truncate much less than LW
-  if (isFriendlyUI) {
-    description = truncated
-      ? truncateTagDescription(htmlWithAnchors, tag.descriptionTruncationCount)
-      : htmlWithAnchors;
-  } else {
-    description = (truncated && !tag.wikiOnly)
-    ? truncate(htmlWithAnchors, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>")
-    : htmlWithAnchors
-  }
 
   const headTagDescription = tag.description?.plaintextDescription || `All posts related to ${tag.name}, sorted by relevance`
   
@@ -735,6 +839,35 @@ const TagPage = () => {
     )
     : <></>;
 
+  const pathInfoSection = pathInfo && (
+    <div className={classes.pathInfo}>
+      {/* 
+        * We don't show a button if there's no previous page, since it's not obvious what should happen if the user clicks it.
+        * One might be tempted to have it navigate back in history, but if the user got to this page by clicking "Back" from the next page in the path,
+        * they'd be sent back to the next page instead of the page which started them on the path. Even that only makes sense in the context of the Bayes' Rule guide.
+        */}
+      {pathInfo.previousPageId && <Link
+        className={classes.pathNavigationBackButton}
+        to={`/w/${pathInfo.previousPageId}?pathId=${pathInfo.pathId}`}
+      >
+        <ForumIcon icon="ArrowLeft" className={classes.pathNavigationBackButtonIcon} />
+        Back
+      </Link>}
+      <span>
+        {`You are reading `}
+        <strong>{guideTag?.name ?? ''}</strong>
+        {`, page ${pathInfo.displayPageIndex} of ${pathInfo.pathPageCount}`}
+      </span>
+      <Link
+        className={classes.pathNavigationNextButton}
+        to={`/w/${pathInfo.nextPageId}?pathId=${pathInfo.pathId}`}
+      >
+        Continue
+        <ForumIcon icon="ArrowRight" className={classes.pathNavigationNextButtonIcon} />
+      </Link>
+    </div>
+  );
+
   const tagBodySection = (
     <div id="tagContent" className={classNames(classes.wikiSection,classes.centralColumn)}>
       <AnalyticsContext pageSectionContext="wikiSection">
@@ -742,14 +875,17 @@ const TagPage = () => {
           You are viewing revision {tag.description.version}, last edited by <UsersNameDisplay user={(tag.description as TagRevisionFragment_description).user}/>
         </div>}
         {editing ? <div>
-          <EditTagForm
-            tag={tag}
-            successCallback={ async () => {
-              setEditing(false)
-              await client.resetStore()
-            }}
-            cancelCallback={() => setEditing(false)}
-          />
+          {(selectedLens && selectedLens._id !== MAIN_TAB_ID)
+            ? <EditLensForm key={selectedLens._id} lens={selectedLens} />
+            : <EditTagForm
+                tag={tag}
+                successCallback={ async () => {
+                  setEditing(false)
+                  await client.resetStore()
+                }}
+                cancelCallback={() => setEditing(false)}
+              />
+          }
           <TagVersionHistoryButton tagId={tag._id} />
         </div> :
         <div onClick={clickReadMore}>
@@ -759,6 +895,7 @@ const TagPage = () => {
               description={`tag ${tag.name}`}
               className={classes.description}
             />
+            {pathInfoSection}
           </ContentStyles>
         </div>}
       </AnalyticsContext>
@@ -774,17 +911,18 @@ const TagPage = () => {
       {tag.sequence && <TagIntroSequence tag={tag} />}
       {!tag.wikiOnly && <>
         <AnalyticsContext pageSectionContext="tagsSection">
-          <PostsListHeading tag={tag} query={query} classes={classes} />
           <PostsList2
+            header={<PostsListHeading tag={tag} query={query} classes={classes} />}
             terms={terms}
             enableTotal
             tagId={tag._id}
             itemsPerPage={200}
+            showNoResults={false}
           >
             <AddPostsToTag tag={tag} />
           </PostsList2>
         </AnalyticsContext>
-        <DeferRender ssr={false}>
+        {quickTakesTagsEnabledSetting.get() && <DeferRender ssr={false}>
           <AnalyticsContext pageSectionContext="quickTakesSection">
             <CommentsListCondensed
               label="Quick takes"
@@ -799,7 +937,7 @@ const TagPage = () => {
               hideTag
             />
           </AnalyticsContext>
-        </DeferRender>
+        </DeferRender>}
       </>}
     </div>
   );
@@ -813,12 +951,26 @@ const TagPage = () => {
     />
   );
 
+  const tocContributors = <div className={classes.tocContributors}>
+    {sortedContributors.map(({ user }: { user?: UsersMinimumInfo }, idx: number) => (
+      <span className={classes.tocContributor} key={user?._id} onMouseOver={() => onHoverContributor(user?._id ?? null)} onMouseOut={() => onHoverContributor(null)}>
+        <UsersNameDisplay key={user?._id} user={user} className={classes.contributorName} />
+        {user && <>
+          {' '}
+          ({contributorRatios[user._id] && <span className={classes.contributorRatio}>{contributorRatios[user._id]}</span>})
+        </>}
+      </span>
+    ))}
+  </div>;
+
   const fixedPositionTagToc = (
     <TableOfContents
       sectionData={selectedLens?.tableOfContents ?? tag.tableOfContents}
       title={tag.name}
+      heading={tocContributors}
       onClickSection={expandAll}
       fixedPositionToc
+      hover
     />
   );
 
@@ -830,6 +982,68 @@ const TagPage = () => {
   //     </div>
   //   </ContentStyles>
   // );
+
+  const alternatives = (
+    <ContentStyles contentType="tag" className={classes.alternativesContainer}>
+      <div className={classes.alternativesHeader}>
+        {/* Teach me this */}
+        {/* <span className={classes.alternativesTitle}> slower/faster</span> */}
+
+
+        <div className={classes.alternativesList}>
+
+
+          <div className={classes.alternativesSection}>
+            <div className={classes.alternativesSectionTitle}>Relies on</div>
+            <span className={classes.alternative}>
+              <TagsTooltip placement="left" tagSlug={'reads_algebra'}>
+                <a href={'/tag/reads_algebra'}>Ability to read algebra</a>
+              </TagsTooltip>
+            </span>
+          </div>
+
+          <div className={classes.alternativesSection}>
+            <div className={classes.alternativesSectionTitle}>Subjects</div>
+            <span className={classes.alternative}>
+              <TagsTooltip placement="left" tagSlug={'logical-decision-theories'}>
+                <a href={'/tag/logical-decision-theories'}>Logical decision theories</a>
+              </TagsTooltip>
+            </span>
+            <span className={classes.alternative}>
+              <TagsTooltip placement="left" tagSlug={'causal-decision-theories'}>
+                <a href={'/tag/causal-decision-theories'}>Causal decision theories</a>
+              </TagsTooltip>
+            </span>
+            <span className={classes.alternative}>
+              <TagsTooltip placement="left" tagSlug={'evidential-decision-theories'}>
+                <a href={'/tag/evidential-decision-theories'}>Evidential decision theories</a>
+              </TagsTooltip>
+            </span>
+          </div>
+          
+          <div className={classes.alternativesSection}>
+            <div className={classes.alternativesSectionTitle}>Less technical alternative</div>
+            <span className={classes.alternative}>
+              <TagsTooltip placement="left" tagSlug={'reads_algebra'}>
+                <a href={'/tag/reads_algebra'}>Uncountability: Intuitive Intro</a>
+              </TagsTooltip>
+            </span>
+            {/* Add more slower alternatives as needed */}
+          </div>
+          
+          <div className={classes.alternativesSection}>
+            <div className={classes.alternativesSectionTitle}>More technical alternative</div>
+            <span className={classes.alternative}>
+              <TagsTooltip placement="left" tagSlug={'advanced_algebra'}>
+                <a href={'/tag/advanced_algebra'}>Uncountability (Math 3)</a>
+              </TagsTooltip>
+            </span>
+            {/* Add more faster alternatives as needed */}
+          </div>
+        </div>
+      </div>
+    </ContentStyles>
+  );
 
   const requirementsAndAlternatives = (
     <ContentStyles contentType="tag" className={classes.subjectsContainer}> 
@@ -904,11 +1118,15 @@ const TagPage = () => {
       {tag.contributors && <div className={classes.contributorRow}>
         <div className={classes.contributorNameWrapper}>
           <span>Written by </span>
-          {tag.contributors.contributors
-            .map(({ user }: { user?: UsersMinimumInfo }, idx: number) => (<>
+          {sortedContributors
+            .map(({ user }: { user?: UsersMinimumInfo }, idx: number) => (<span key={user?._id} onMouseOver={() => onHoverContributor(user?._id ?? null)} onMouseOut={() => onHoverContributor(null)}>
               <UsersNameDisplay key={user?._id} user={user} className={classes.contributorName} />
-              {idx < (tag.contributors.contributors.length - 1) ? ', ' : ''}
-            </>))
+              {user && <>
+                {' '}
+                ({contributorRatios[user._id] && <span className={classes.contributorRatio}>{contributorRatios[user._id]}</span>})
+                {idx < (sortedContributors.length - 1) ? ', ' : ''}
+              </>}
+            </span>))
           }
         </div>
         <div className={classes.lastUpdated}>
@@ -942,8 +1160,9 @@ const TagPage = () => {
         hideLabels={true}
         className={classNames(classes.editMenu, classes.nonMobileButtonRow)}
       />
-      {/* {requirementsAndAlternatives} */}
-      {/* {subjects} */}
+      {alternatives}
+      {/* {requirementsandalternatives}
+      {subjects} */}
     </div>
     <div className={classes.rightColumnOverflowFade} />
   </div>);

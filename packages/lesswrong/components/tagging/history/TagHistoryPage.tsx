@@ -5,8 +5,9 @@ import { useLocation } from '../../../lib/routeUtil';
 import { tagGetUrl } from '../../../lib/collections/tags/helpers';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { isFriendlyUI } from '../../../themes/forumTheme';
-import { getAvailableLenses } from '../TagPage';
+import { getAvailableLenses } from '@/lib/arbital/useTagLenses';
 import keyBy from 'lodash/keyBy';
+import { RevealHiddenBlocksContext } from '@/components/editor/conditionalVisibilityBlock/ConditionalVisibilityBlockDisplay';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -36,7 +37,9 @@ const TagHistoryPage = ({classes}: {
   
   return <SingleColumnSection>
     <Link to={tagGetUrl(tag)}><h1 className={classes.title}>{tag.name}</h1></Link>
+
     <div className={classes.feed}>
+    <RevealHiddenBlocksContext.Provider value={true}>
     <MixedTypeFeed
       pageSize={50}
       resolverName="TagHistoryFeed"
@@ -106,6 +109,7 @@ const TagHistoryPage = ({classes}: {
         }
       }}
     />
+    </RevealHiddenBlocksContext.Provider>
     </div>
   </SingleColumnSection>
 }
