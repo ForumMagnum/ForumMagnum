@@ -1002,8 +1002,6 @@ const TagPage = () => {
 
   const { requirements, teaches, lessTechnical, moreTechnical, slower, faster } = tag.arbitalLinkedPages as ArbitalLinkedPages;
 
-  console.log({requirements, teaches, lessTechnical, moreTechnical, slower, faster});
-
   const hasList = (list: TagBasicInfo[] | undefined) => list && list?.length > 0;
 
   const linkedTags = (
