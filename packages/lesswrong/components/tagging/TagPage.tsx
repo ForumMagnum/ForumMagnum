@@ -493,6 +493,7 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     fontFamily: theme.palette.fonts.sansSerifStack,
     color: theme.palette.greyAlpha(0.5),
   },
+  contributorRatio: {},
   ...tagPageHeaderStyles(theme),
 }));
 
@@ -662,6 +663,7 @@ const EditLensForm = ({lens}: {
 }) => {
   console.log({ prefetchedDocument: lens.originalLensDocument });
   return <Components.WrappedSmartForm
+    key={lens._id}
     collectionName="MultiDocuments"
     documentId={lens._id}
     queryFragmentName="MultiDocumentEdit"
@@ -874,7 +876,7 @@ const TagPage = () => {
         </div>}
         {editing ? <div>
           {(selectedLens && selectedLens._id !== MAIN_TAB_ID)
-            ? <EditLensForm lens={selectedLens} />
+            ? <EditLensForm key={selectedLens._id} lens={selectedLens} />
             : <EditTagForm
                 tag={tag}
                 successCallback={ async () => {
