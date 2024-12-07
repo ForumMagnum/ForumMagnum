@@ -5,10 +5,11 @@ import { Revisions } from '../../lib/collections/revisions/collection';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { defineFeedResolver, mergeFeedQueries, fixedResultSubquery, viewBasedSubquery } from '../utils/feedUtil';
 import { MultiDocuments } from '@/lib/collections/multiDocuments/collection';
+import { defaultTagHistorySettings, TagHistorySettings } from '@/components/tagging/history/TagHistoryPage';
 
 defineFeedResolver<Date>({
   name: "TagHistoryFeed",
-  args: "tagId: String!",
+  args: "tagId: String!, options: JSON",
   cutoffTypeGraphQL: "Date",
   resultTypesGraphQL: `
     tagCreated: Tag
@@ -21,10 +22,11 @@ defineFeedResolver<Date>({
     limit?: number,
     cutoff?: Date,
     offset?: number,
-    args: {tagId: string},
+    args: {tagId: string, options?: TagHistorySettings},
     context: ResolverContext
   }) => {
-    const {tagId} = args;
+    const {tagId, options} = args;
+    const historyOptions: TagHistorySettings = {...defaultTagHistorySettings, ...options};
     const {currentUser} = context;
     
     const tagRaw = await Tags.findOne({_id: tagId});
@@ -37,7 +39,9 @@ defineFeedResolver<Date>({
       parentDocumentId: tagId,
       fieldName: "description",
     }).fetch();
-    const lensIds = lenses.map(lens => lens._id);
+    const lensIds = (historyOptions.lensId && historyOptions.lensId !== "all")
+      ? [historyOptions.lensId]
+      : lenses.map(lens => lens._id);
     
     const result = await mergeFeedQueries<SortKeyType>({
       limit, cutoff, offset,
@@ -49,15 +53,15 @@ defineFeedResolver<Date>({
           sortKey: tag.createdAt,
         }),
         // Tag applications
-        viewBasedSubquery({
+        (historyOptions.showTagging ? viewBasedSubquery({
           type: "tagApplied",
           collection: TagRels,
           sortField: "createdAt",
           context,
           selector: {tagId},
-        }),
+        }) : null),
         // Tag revisions
-        viewBasedSubquery({
+        (historyOptions.showEdits ? viewBasedSubquery({
           type: "tagRevision",
           collection: Revisions,
           sortField: "editedAt",
@@ -75,9 +79,9 @@ defineFeedResolver<Date>({
               "changeMetrics.removed": {$gt: 0},
             }]*/
           },
-        }),
+        }) : null),
         // Tag discussion comments
-        viewBasedSubquery({
+        (historyOptions.showComments ? viewBasedSubquery({
           type: "tagDiscussionComment",
           collection: Comments,
           sortField: "postedAt",
@@ -87,9 +91,9 @@ defineFeedResolver<Date>({
             tagId,
             tagCommentType: "DISCUSSION",
           },
-        }),
+        }) : null),
         // Lens edits
-        {
+        (historyOptions.showEdits ? {
           type: "lensRevision",
           getSortKey: (rev: DbRevision) => rev.editedAt,
           doQuery: async (limit: number, cutoff: Date|null): Promise<DbRevision[]> => {
@@ -103,7 +107,7 @@ defineFeedResolver<Date>({
               limit,
             }).fetch();
           },
-        },
+        } : null),
       ],
     });
     return result;
