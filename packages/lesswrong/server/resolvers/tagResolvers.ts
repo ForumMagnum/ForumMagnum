@@ -440,11 +440,13 @@ defineQuery({
 type ContributorWithStats = {
   user: Partial<DbUser>,
   contributionScore: number,
+  contributionVolume: number,
   numCommits: number,
   voteCount: number,
 };
 type ContributorStats = {
   contributionScore: number,
+  contributionVolume: number,
   numCommits: number,
   voteCount: number,
 };
@@ -471,7 +473,7 @@ augmentFieldsDict(Tags, {
           user: usersById[userId],
           ...contributionStatsByUserId[userId]!,
         }));
-        
+
         if (limit) {
           return {
             contributors: take(topContributors, limit),
@@ -566,11 +568,13 @@ async function buildContributorsList(tag: DbTag, version: string|null): Promise<
       const selfVoteAdjustment = selfVoteScoreAdjustmentByUser[userId]
       const excludedPower = selfVoteAdjustment?.excludedPower || 0;
       const excludedVoteCount = selfVoteAdjustment?.excludedVoteCount || 0;
+      const contributionVolume = sumBy(revisionsByThisUser, r=>r.changeMetrics.added + r.changeMetrics.removed);
 
       return {
         contributionScore: totalRevisionScore - excludedPower,
         numCommits: revisionsByThisUser.length,
         voteCount: sumBy(revisionsByThisUser, r=>r.voteCount ?? 0) - excludedVoteCount,
+        contributionVolume,
       };
     }
   );

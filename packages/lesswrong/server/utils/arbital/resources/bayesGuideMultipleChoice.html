@@ -137,13 +137,6 @@
     },
   };
 
-  const pathPages = {
-    '62c': [],
-    '693': [],
-    '62f': [],
-    '61b': [],
-  }
-
   let currentPathId = null;
 
   function handleRadioChange(radio) {
@@ -172,16 +165,58 @@
     startButton.style.display = "block";
   }
 
-  document.querySelectorAll('input[name="preference"]').forEach((radio) => {
-    radio.addEventListener("change", function() {
-      handleRadioChange(this);
+  let currentContainer = null;
+
+  function initializeRadioHandlers() {
+    document.querySelectorAll('input[name="preference"]').forEach((radio) => {
+      radio.addEventListener("change", function() {
+        handleRadioChange(this);
+      });
     });
+
+    const checkedRadio = document.querySelector('input[name="preference"]:checked');
+    if (checkedRadio) {
+      handleRadioChange(checkedRadio);
+    }
+  }
+
+  // Watch for our content being added to or removed from the DOM
+  const observer = new MutationObserver((mutations) => {
+    for (const mutation of mutations) {
+      if (mutation.type !== 'childList') continue;
+      
+      // Check if our current container was removed
+      if (currentContainer && !currentContainer.isConnected) {
+        currentContainer = null;
+      }
+      
+      // Only look for new container if we don't have one
+      if (!currentContainer) {
+        for (const node of mutation.addedNodes) {
+          if (!(node instanceof Element)) continue;
+          
+          const container = node.matches('.question-container') 
+            ? node 
+            : node.querySelector('.question-container');
+            
+          if (container) {
+            currentContainer = container;
+            initializeRadioHandlers();
+            break;
+          }
+        }
+      }
+    }
   });
 
-  const checkedRadio = document.querySelector('input[name="preference"]:checked');
-  if (checkedRadio) {
-    handleRadioChange(checkedRadio);
-  }
+  // Start observing from the document root
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+
+  // Initial setup
+  initializeRadioHandlers();
 
   function startPath() {
     if (currentPathId) {
