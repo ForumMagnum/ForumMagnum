@@ -645,7 +645,7 @@ const EditLensForm = ({lens}: {
   />
 }
 
-const bayesGuideScript = () => {
+/*const bayesGuideScript = () => {
   const pathDescriptions = {
     basic_theoretical: {
       content: `
@@ -856,7 +856,7 @@ const bayesGuideScript = () => {
   }
 };
 
-bayesGuideScript();
+bayesGuideScript();*/
 
 const ContributorsList = ({ contributors, onHoverContributor, endWithComma }: { contributors: TagContributor[], onHoverContributor: (userId: string | null) => void, endWithComma: boolean }) => {
   const { UsersNameDisplay } = Components;
