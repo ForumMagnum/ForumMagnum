@@ -467,7 +467,7 @@ async function buildConversionContext(database: WholeArbitalDatabase, options: A
   const pageInfosById = keyBy(database.pageInfos, pi=>pi.pageId);
   
   const { existingPagesToMove, pagesToConvertToLenses } = await findCollidingWikiPages(database);
-  await renameCollidingWikiPages(existingPagesToMove);
+  // await renameCollidingWikiPages(existingPagesToMove);
 
   //const matchedUsers: Record<string,DbUser|null> = { '2': await resolverContext.loaders.Users.load('nmk3nLpQE89dMRzzN') };
   const matchedUsers: Record<string,DbUser|null> = options.userMatchingFile
@@ -702,14 +702,14 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
         const lensAliasRedirects = database.aliasRedirects.filter(ar => ar.newAlias === lensPageInfo.alias);
         const lensSlug = lensPageInfo.alias;
         // TODO: add lensId(?) to oldSlugs.  (Not sure if it's lensId or pageId)
-        const oldLensSlugs = lensAliasRedirects.map(ar => ar.oldAlias);
         const lensRevisions = database.pages.filter(p => p.pageId === lens.lensId);
         const lensFirstRevision = lensRevisions[0];
-        const lensLiveRevision = liveRevisionsByPageId[lens.pageId];
+        const lensLiveRevision = liveRevisionsByPageId[lens.lensId];
+        const oldLensSlugs = [...lensAliasRedirects.map(ar => ar.oldAlias), lens.lensId];
         const lensTitle = lensLiveRevision.title;
         const lensFirstRevisionCkEditorMarkup = await arbitalMarkdownToCkEditorMarkup({
           markdown: lensFirstRevision.text,
-          pageId: lens.pageId,
+          pageId: lens.lensId,
           conversionContext,
         });
 
@@ -738,7 +738,7 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
                 }
               },
               legacyData: {
-                arbitalPageId: lens.pageId,
+                arbitalPageId: lens.lensId,
               },
             } as Partial<DbMultiDocument>,
             context: resolverContext,
@@ -748,7 +748,7 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
           await Promise.all([
             backDateObj(MultiDocuments, lensObj._id, lensFirstRevision.createdAt),
             backDateAndAddLegacyDataToRevision(lensObj.contents_latest!, lensFirstRevision.createdAt, {
-              arbitalPageId: lens.pageId,
+              arbitalPageId: lens.lensId,
               arbitalEditNumber: lensFirstRevision.edit,
               arbitalMarkdown: lensFirstRevision.text,
             }),

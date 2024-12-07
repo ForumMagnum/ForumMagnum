@@ -147,7 +147,8 @@ export const getToCforMultiDocument = async ({document, version, context}: {
   } else {
     try {
       // TODO: figure out how to denormalize the contributor annotations for multi-documents (like we do for tags); this probably isn't performant
-      html = await annotateAuthors(document._id, "MultiDocuments", "contents");
+      html = (await Revisions.findOne({ documentId: document._id, fieldName: "contents" }, { sort: { editedAt: -1 } }))?.html ?? "";
+      //  await annotateAuthors(document._id, "MultiDocuments", "contents");
     } catch(e) {
       // eslint-disable-next-line no-console
       console.log("Author annotation failed");

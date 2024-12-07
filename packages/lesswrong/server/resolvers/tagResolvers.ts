@@ -521,7 +521,7 @@ augmentFieldsDict(TagRels, {
 async function getContributorsList(tag: DbTag, version: string|null): Promise<ContributorStatsList> {
   if (version)
     return await buildContributorsList(tag, version);
-  else if (tag.contributionStats && Object.values(tag.contributionStats).some(({ contributionVolume }: TagContributor) => contributionVolume))
+  else if (tag.contributionStats && Object.values(tag.contributionStats).some(({ contributionVolume }: ContributorStats) => contributionVolume))
     return tag.contributionStats;
   else
     return await updateDenormalizedContributorsList(tag);
