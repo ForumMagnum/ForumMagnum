@@ -39,13 +39,13 @@ const formatSort = (sorting: PostSortingMode) => {
   return isFriendlyUI ? sort : `Sorted by ${sort}`;
 }
 
-const AllPostsPage = ({classes}: {classes: ClassesType}) => {
+const AllPostsPage = ({classes, defaultHideSettings}: {classes: ClassesType, defaultHideSettings?: boolean}) => {
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const {query} = useLocation();
   const {captureEvent} = useTracking();
 
-  const [showSettings, setShowSettings] = useState<boolean>(!!currentUser?.allPostsOpenSettings);
+  const [showSettings, setShowSettings] = useState<boolean>(defaultHideSettings ? false : !!currentUser?.allPostsOpenSettings);
 
   const toggleSettings = useCallback(() => {
     const newValue = !showSettings;

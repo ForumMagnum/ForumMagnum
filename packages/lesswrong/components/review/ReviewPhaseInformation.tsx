@@ -1,7 +1,6 @@
 import React from 'react';
-import { annualReviewAnnouncementPostPathSetting } from '../../lib/publicSettings';
 import { Link } from '../../lib/reactRouterWrapper';
-import { getNominationPhaseEnd, ReviewPhase, ReviewYear } from '../../lib/reviewUtils';
+import { getNominationPhaseEnd, ReviewPhase, reviewPostPath, ReviewYear } from '../../lib/reviewUtils';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import Card from '@material-ui/core/Card';
@@ -9,12 +8,18 @@ import Card from '@material-ui/core/Card';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     padding: 16,
+    paddingTop: 6,
+    paddingBottom: 6,
     marginBottom: 24,
     ...commentBodyStyles(theme),
     background: theme.palette.panelBackground.default,
     boxShadow: theme.palette.boxShadow.default,
     [theme.breakpoints.down('sm')]: {
       display: "none"
+    },
+    '& p': {
+      marginTop: '.6em',
+      marginBottom: '.6em'
     }
   },
   faqCard: {
@@ -62,10 +67,8 @@ export const ReviewPhaseInformation = ({classes, reviewYear, reviewPhase}: {
       <p><b>If you review 3 posts, you have done your civic duty</b></p>
       <p>Let's be real, there's a hella lotta posts you could review. But if you review three posts, as far as the LessWrong team is concerned you can call it a day and bask in the warm glow of knowing you helped the site reflect upon itself, improving our longterm reward signal.</p>
       <UserReviewsProgressBar reviewYear={reviewYear} />
-      <p><b>Review Prizes</b></p>
-      <p>It's fine to write quick reviews that simply describe how the post has influenced you. But the LessWrong team is also interested in reviews that engage deeply with a post's factual claims, arguments or broader implications. We're offering prizes of $50 - $500 for reviews that add substantive new information.</p>
       <p>
-        Read more details in <Link to={annualReviewAnnouncementPostPathSetting.get()}> this year's review announcement</Link>.
+        <Link to={reviewPostPath}>Learn more</Link>.
       </p>
     </ContentStyles>;
   }
@@ -97,24 +100,19 @@ export const ReviewPhaseInformation = ({classes, reviewYear, reviewPhase}: {
         </FaqCard>
       </p>
       <p>
-        Read more details in <Link to={annualReviewAnnouncementPostPathSetting.get()}> this year's review announcement</Link>.
+        <Link to={reviewPostPath}>Learn more</Link>.
       </p>
     </ContentStyles>
   }
 
   if (reviewPhase === "NOMINATIONS") {
     return <ContentStyles contentType="comment" className={classes.root}>
-        <p>During the <em>Nomination Voting Phase:</em></p>
-        <ul style={{marginLeft: -12}}>
-          <li>Cast <em>Nomination Votes</em> on posts that represent important intellectual progress.</li>
-          <li>Write <em>short reviews</em> that explain why those posts seem important.</li>
-          <li>Posts with at least 1 Nomination Vote will appear on this page, to the right. Posts with at least one review are sorted to the top.</li>
-          <li>Posts with at least 2 positive votes and at least 4 points will proceed to the Review Phase.</li>
-        </ul>
-  
-        <p>On {getNominationPhaseEnd(reviewYear).format("MMM Do")}, you'll see the initial voting results, to help allocate time during <em>the Review Phase</em>.</p>
+      <p>Cast <em>Nomination Votes</em> on posts that represent important intellectual progress.</p>
+      <p>Posts need 2+ votes to proceed.</p>
+      <p><b><em>The Ask</em>: Spend ~30 minutes nominating, and write 2 short reviews about posts you found valuable.</b></p>
+
         
-        <div>
+        {/* <div>
           <p><b>FAQ</b></p>
           <p>
             <FaqCard linkText={<p className={classes.faqQuestion}>How exactly do Nomination Votes work?</p>}>
@@ -142,10 +140,10 @@ export const ReviewPhaseInformation = ({classes, reviewYear, reviewPhase}: {
             </FaqCard>
           </p>
         </div>
-        <br />
+        <br /> */}
         <p>
-          Read more details in <Link to={annualReviewAnnouncementPostPathSetting.get()}> this year's review announcement</Link>.
-        </p>
+        <Link to={reviewPostPath}>Learn more</Link>
+      </p>
     </ContentStyles>
   }
   return <ContentStyles contentType="comment" className={classes.root}>
