@@ -95,9 +95,9 @@
     },
     quick: {
       content: `
-          <p>No time to waste! Let's plunge directly into a single-page abbreviated introduction to Bayes' rule.</p>
+          <p>No time to waste! Let's plunge directly into <a href="/w/693">a single-page abbreviated introduction to Bayes' rule</a>.</p>
       `,
-      pathId: "693",
+      // pathId: "693",
     },
     theoretical: {
       content: `
@@ -162,7 +162,11 @@
     currentPathId = pathDescriptions[pathKey].pathId;
 
     pathDescription.style.display = "block";
-    startButton.style.display = "block";
+    if (currentPathId) {
+      startButton.style.display = "block";
+    } else {
+      startButton.style.display = "none";
+    }
   }
 
   let currentContainer = null;
