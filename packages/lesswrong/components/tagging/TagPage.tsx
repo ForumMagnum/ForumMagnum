@@ -570,6 +570,9 @@ function usePathInfo(tag: TagPageFragment | TagPageWithRevisionFragment | null) 
 // TODO: maybe move this to the server, so that the user doesn't have to wait for the hooks to run to see the contributors
 function useDisplayedContributors(tag: TagPageFragment | TagPageWithRevisionFragment | null) {
   const contributors: TagContributor[] = tag?.contributors.contributors ?? [];
+  if (!contributors.some(({ contributionVolume }) => contributionVolume)) {
+    return { topContributors: contributors, smallContributors: [] };
+  }
   const totalDiffVolume = contributors.reduce((acc: number, contributor: TagContributor) => acc + contributor.contributionVolume, 0);
   const sortedContributors = [...contributors].sort((a, b) => b.contributionVolume - a.contributionVolume);
   const topContributors = sortedContributors.filter(({ contributionVolume }) => contributionVolume / totalDiffVolume > 0.1);
@@ -1107,7 +1110,7 @@ const TagPage = () => {
         <div className={classes.contributorNameWrapper}>
           <span>Written by </span>
           <ContributorsList contributors={topContributors} onHoverContributor={onHoverContributor} endWithComma={smallContributors.length > 0} />
-          <LWTooltip title={<ContributorsList contributors={smallContributors} onHoverContributor={onHoverContributor} endWithComma={false} />} clickable placement="top">et al.</LWTooltip>
+          {smallContributors.length > 0 && <LWTooltip title={<ContributorsList contributors={smallContributors} onHoverContributor={onHoverContributor} endWithComma={false} />} clickable placement="top">et al.</LWTooltip>}
         </div>
         <div className={classes.lastUpdated}>
           {'last updated '}
