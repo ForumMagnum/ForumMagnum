@@ -4,24 +4,19 @@ import { Link } from "@/lib/reactRouterWrapper";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { commentGetPageUrl } from "@/lib/collections/comments/helpers";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
-import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
-import { useCurrentUser } from "../common/withUser";
 import { formatStat } from "../users/EAUserTooltipContent";
+import { tagGetUrl } from "@/lib/collections/tags/helpers";
 import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from "../common/Header";
 import {
   GIVING_SEASON_DESKTOP_WIDTH,
   GIVING_SEASON_MD_WIDTH,
   GIVING_SEASON_MOBILE_WIDTH,
-  getDonateLink,
-  shouldShowLeaderboard,
   useGivingSeasonEvents,
 } from "./useGivingSeasonEvents";
 import classNames from "classnames";
+import moment from "moment";
 import type { Moment } from "moment";
 import type { ForumIconName } from "../common/ForumIcon";
-import { donationElectionVotingOpenSetting } from "@/lib/givingSeason";
-
-const DONATION_ELECTION_HREF = "/posts/2WbDAAtGdyAEfcw6S/donation-election-fund-announcement-matching-rewards-and-faq";
 
 const DOT_SIZE = 12;
 
@@ -171,6 +166,8 @@ const styles = (theme: ThemeType) => ({
     },
   },
   detailsContainer: {
+    transition: "max-height ease-in-out 0.35s",
+    maxHeight: 500,
     width: "100%",
     whiteSpace: "nowrap",
     overflow: "scroll hidden",
@@ -180,6 +177,10 @@ const styles = (theme: ThemeType) => ({
     "&::-webkit-scrollbar": {
       display: "none",
     },
+  },
+  detailsContainerHidden: {
+    minHeight: 1,
+    maxHeight: 1,
   },
   eventDetails: {
     display: "inline-flex",
@@ -197,6 +198,9 @@ const styles = (theme: ThemeType) => ({
         flexBasis: "50%",
       },
     },
+  },
+  simpleEventContainer: {
+    flexGrow: 1,
   },
   eventDate: {
     maxWidth: 470,
@@ -223,93 +227,6 @@ const styles = (theme: ThemeType) => ({
         textDecoration: "underline",
       },
     },
-  },
-  fund: {
-    width: 260,
-    minWidth: 260,
-    padding: 16,
-    marginTop: 8,
-    marginBottom: 24,
-    background: theme.palette.givingSeason.electionFundBackground,
-    borderRadius: theme.borderRadius.default,
-    [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
-      width: "100%",
-      minWidth: "100%",
-      maxWidth: "100%",
-      padding: 8,
-      marginTop: 0,
-    },
-  },
-  fundDetailsContainer: {
-    display: "flex",
-    flexDirection: "column",
-    marginBottom: 4,
-    [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
-      flexDirection: "row",
-      gap: "8px",
-      alignItems: "center",
-      marginBottom: 8,
-    },
-  },
-  fundMobileTitle: {
-    flexGrow: 1,
-    fontSize: 14,
-    fontWeight: 600,
-    lineHeight: "140%",
-    [theme.breakpoints.up(GIVING_SEASON_MOBILE_WIDTH)]: {
-      display: "none",
-    },
-  },
-  fundInfo: {
-    marginBottom: 12,
-    lineHeight: "140%",
-    whiteSpace: "wrap",
-    "& a": {
-      textDecoration: "underline",
-      "&:hover": {
-        textDecoration: "underline",
-      },
-    },
-    [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
-      display: "none",
-    },
-  },
-  fundRaised: {
-    fontSize: 16,
-    fontWeight: 500,
-    lineHeight: "140%",
-    [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
-      fontWeight: 700,
-      textAlign: "right",
-    },
-  },
-  fundBarContainer: {
-    width: "100%",
-    height: 12,
-    marginBottom: 20,
-    background: theme.palette.givingSeason.electionFundBackground,
-    borderRadius: theme.borderRadius.small,
-    overflow: "hidden",
-    [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
-      marginBottom: 12,
-    },
-  },
-  fundBarContainerLarge: {
-    height: 17
-  },
-  fundBar: {
-    height: "100%",
-    background: theme.palette.text.alwaysWhite,
-    transition: "width 0.5s ease",
-  },
-  fundAmount: {
-    fontWeight: 700,
-  },
-  fundButtonContainer: {
-    display: "flex",
-    gap: "12px",
-    width: "100%",
-    textAlign: "center",
   },
   hideAboveMobile: {
     [theme.breakpoints.up(GIVING_SEASON_MOBILE_WIDTH)]: {
@@ -339,20 +256,15 @@ const styles = (theme: ThemeType) => ({
       padding: "8px 12px",
     },
   },
-  buttonWhite: {
-    color: theme.palette.givingSeason.primary,
-    background: theme.palette.text.alwaysWhite,
-    transition: "opacity 0.3s ease",
-    "&:hover": {
-      background: theme.palette.text.alwaysWhite,
-      opacity: 0.85,
-    },
-  },
-  buttonTranslucent: {
+  buttonTranslucentDisabled: {
+    cursor: "not-allowed",
     color: theme.palette.text.alwaysWhite,
     background: theme.palette.givingSeason.electionFundBackground,
     "&:hover": {
-      background: theme.palette.givingSeason.electionFundBackgroundHeavy,
+      background: theme.palette.givingSeason.electionFundBackground,
+    },
+    "& > *": {
+      opacity: 0.5,
     },
   },
   fundVoteButton: {
@@ -366,14 +278,28 @@ const styles = (theme: ThemeType) => ({
       background: theme.palette.givingSeason.electionFundBackgroundHeavy,
     },
   },
-  recentComments: {
-    display: "flex",
-    flexDirection: "column",
-    minWidth: 530,
-    margin: "8px 0 8px 8px",
-    [theme.breakpoints.down(GIVING_SEASON_DESKTOP_WIDTH)]: {
+  topPosts: {
+    marginLeft: 16,
+    [theme.breakpoints.down(GIVING_SEASON_MD_WIDTH)]: {
       display: "none",
     },
+  },
+  topPostsTitle: {
+    marginBottom: 4,
+    fontSize: 18,
+    fontWeight: 600,
+  },
+  topPostsFeed: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "4px",
+    margin: "12px 0",
+    minWidth: 530,
+    maxWidth: 600,
+  },
+  topPostsViewMore: {
+    fontSize: 15,
+    fontWeight: 600,
   },
   feedItem: {
     display: "flex",
@@ -383,33 +309,10 @@ const styles = (theme: ThemeType) => ({
     padding: 8,
     borderRadius: theme.borderRadius.default,
     cursor: "pointer",
+    background: theme.palette.givingSeason.electionFundBackground,
     "&:hover": {
-      background: theme.palette.givingSeason.electionFundBackground,
+      opacity: 0.8,
     },
-  },
-  feedIcon: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: "50%",
-    padding: 4,
-    width: 24,
-    minWidth: 24,
-    maxWidth: 24,
-    height: 24,
-    minHeight: 24,
-    maxHeight: 24,
-    "& svg": {
-      width: 12,
-    },
-  },
-  feedPostIcon: {
-    color: theme.palette.text.alwaysWhite,
-    background: theme.palette.primary.main,
-  },
-  feedCommentIcon: {
-    color: theme.palette.text.alwaysWhite,
-    background: theme.palette.grey[600],
   },
   feedDetailsWrapper: {
     minWidth: 0,
@@ -418,30 +321,20 @@ const styles = (theme: ThemeType) => ({
   feedUser: {
     fontWeight: 600,
   },
-  feedAction: {
-    opacity: 0.7,
-  },
-  feedDate: {
-    opacity: 0.7,
-    whiteSpace: "nowrap",
-    float: "right",
-    marginRight: 12,
-  },
   feedInfo: {
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",
+    marginBottom: 2,
   },
   feedPost: {
-    textDecoration: "underline",
+    fontSize: 16,
     fontWeight: 600,
   },
-  feedPreview: {
+  feedMeta: {
     color: theme.palette.text.alwaysWhite,
     fontWeight: 500,
-    whiteSpace: "nowrap",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
+    opacity: 0.7,
   },
   feedInteraction: {
     display: "inline",
@@ -461,22 +354,13 @@ const styles = (theme: ThemeType) => ({
       flex: 1
     },
   },
-  electionInfoRaised: {
-    display: "flex",
-    gap: "8px",
-    alignItems: "baseline",
-    marginTop: 8,
+  eventHidden: {
+    display: "none",
+  },
+  electionRaised: {
     fontSize: 20,
     fontWeight: 600,
-    marginBottom: 12,
-  },
-  electionInfoAmount: {
-    fontWeight: 700,
-  },
-  matchNotice: {
-    fontSize: 13,
-    fontWeight: 'normal',
-    transform: "translateY(-1px)"
+    marginBottom: 16,
   },
   electionInfoButtonContainer: {
     marginBottom: 4,
@@ -488,9 +372,6 @@ const styles = (theme: ThemeType) => ({
       marginBottom: 16
     },
   },
-  votingClosedTooltip: {
-    marginBottom: 4
-  }
 });
 
 const scrollIntoViewHorizontally = (
@@ -514,18 +395,14 @@ const formatDate = (start: Moment, end: Moment) => {
 
 const FeedItem = ({
   href,
-  icon,
-  iconClassName,
-  action,
   user,
   post,
   date,
-  preview,
   classes,
 }: {
   href: string,
   icon: ForumIconName,
-  iconClassName: string,
+  iconClassName?: string,
   action: string,
   user: UsersMinimumInfo | null,
   post: PostsMinimumInfo | null,
@@ -534,29 +411,12 @@ const FeedItem = ({
   classes: ClassesType<typeof styles>,
 }) => {
   const {onClick} = useClickableCell({href, ignoreLinks: true});
-  const {ForumIcon, UsersName, PostsTooltip, FormatDate} = Components;
+  const {UsersName, PostsTooltip} = Components;
   return (
     <div onClick={onClick} className={classes.feedItem}>
-      <div className={classNames(classes.feedIcon, iconClassName)}>
-        <ForumIcon icon={icon} />
-      </div>
       <div className={classes.feedDetailsWrapper}>
         <div>
-          <FormatDate
-            date={date}
-            tooltip={false}
-            includeAgo
-            className={classes.feedDate}
-          />
           <div className={classes.feedInfo}>
-            <InteractionWrapper className={classes.feedInteraction}>
-              <UsersName
-                user={user}
-                tooltipPlacement="bottom-start"
-                className={classes.feedUser}
-              />
-            </InteractionWrapper>{" "}
-            <span className={classes.feedAction}>{action}</span>{" "}
             <InteractionWrapper className={classes.feedInteraction}>
               <PostsTooltip postId={post?._id} placement="bottom-start">
                 <Link
@@ -569,8 +429,14 @@ const FeedItem = ({
             </InteractionWrapper>
           </div>
         </div>
-        <div className={classes.feedPreview}>
-          {preview}
+        <div className={classes.feedMeta}>
+          <InteractionWrapper className={classes.feedInteraction}>
+            <UsersName
+              user={user}
+              tooltipPlacement="bottom-start"
+              className={classes.feedUser}
+            />
+          </InteractionWrapper>, {moment(date).format("MMM DD")}
         </div>
       </div>
     </div>
@@ -588,11 +454,8 @@ const GivingSeason2024Banner = ({classes}: {
     selectedEvent,
     setSelectedEvent,
     amountRaised,
-    amountTarget,
     leaderboard: leaderboardData
   } = useGivingSeasonEvents();
-  const {currentForumEvent} = useCurrentForumEvent();
-  const currentUser = useCurrentUser();
   const [timelineRef, setTimelineRef] = useState<HTMLDivElement | null>(null);
   const [detailsRef, setDetailsRef] = useState<HTMLDivElement | null>(null);
   const [lastTimelineClick, setLastTimelineClick] = useState<number>();
@@ -601,17 +464,8 @@ const GivingSeason2024Banner = ({classes}: {
   // Note: SECOND_MATCH_START is approximate, we will match based on the amount when we deploy
   const amountRaisedPlusMatched =
     amountRaised + Math.min(amountRaised, 5000) + Math.min(Math.max(amountRaised - SECOND_MATCH_START, 0), 5000);
-  const matchRemaining = Math.max(5000 - (amountRaised - SECOND_MATCH_START), 0)
-  const fundPercent = Math.round((amountRaisedPlusMatched / amountTarget) * 100);
 
-  const votingOpen = donationElectionVotingOpenSetting.get()
-  const isDonationElection = currentEvent?.name === "Donation Election";
-  const showLeaderboard = shouldShowLeaderboard({ currentEvent, voteCounts: leaderboardData });
-  const showRecentComments =
-    !showLeaderboard &&
-    !!currentForumEvent?.tagId &&
-    (currentEvent?.name === "Marginal Funding Week" || isDonationElection);
-
+  /*
   useEffect(() => {
     if (!detailsRef) {
       return;
@@ -631,6 +485,7 @@ const GivingSeason2024Banner = ({classes}: {
     }
     return () => observer.disconnect();
   }, [timelineRef, detailsRef, events, setSelectedEvent]);
+   */
 
   useEffect(() => {
     if (currentEvent && detailsRef && !didInitialScroll.current) {
@@ -653,12 +508,26 @@ const GivingSeason2024Banner = ({classes}: {
       return;
     }
     const id = events.findIndex((event) => event === selectedEvent);
-    timelineRef?.querySelector(`[data-event-id="${id}"]`)?.scrollIntoView({
-      behavior: "smooth",
-      block: "nearest",
-      inline: "nearest",
-    });
+    const elem = timelineRef?.querySelector(`[data-event-id="${id}"]`);
+    if (elem) {
+      scrollIntoViewHorizontally(timelineRef!, elem as HTMLElement);
+    }
   }, [timelineRef, selectedEvent, lastTimelineClick, events]);
+
+  useEffect(() => {
+    if (!detailsRef) {
+      return;
+    }
+    const handler = (ev: MouseEvent) => {
+      ev.preventDefault();
+    }
+    detailsRef.addEventListener("wheel", handler);
+    detailsRef.addEventListener("touchmove", handler);
+    return () => {
+      detailsRef.removeEventListener("wheel", handler);
+      detailsRef.removeEventListener("touchmove", handler);
+    }
+  }, [detailsRef]);
 
   const onClickTimeline = useCallback((index: number) => {
     setLastTimelineClick(Date.now());
@@ -667,9 +536,10 @@ const GivingSeason2024Banner = ({classes}: {
       block: "nearest",
       inline: "start",
     });
-  }, [detailsRef]);
+    setSelectedEvent(events[index] ?? events[0]);
+  }, [detailsRef, events, setSelectedEvent]);
 
-  const {EAButton, MixedTypeFeed, DonationElectionLeaderboard, LWTooltip} = Components;
+  const {EAButton, MixedTypeFeed, DonationElectionLeaderboard} = Components;
   return (
     <div className={classNames(classes.root, selectedEvent.darkText && classes.darkText)}>
       <div className={classes.backgrounds}>
@@ -695,44 +565,44 @@ const GivingSeason2024Banner = ({classes}: {
               onClick={onClickTimeline.bind(null, i)}
               className={classNames(classes.timelineEvent, selectedEvent === event && classes.timelineEventSelected)}
             >
-              {event.name}
+              {event.name === "Intermission" ? "" : event.name}
               {event === currentEvent && <div className={classes.timelineDot} />}
             </div>
           ))}
         </div>
         <div className={classes.mainContainer}>
-          <div className={classes.detailsContainer} ref={setDetailsRef}>
-            {events.map(({ name, description, start, end }, i) => (
-              <div className={classes.eventDetails} data-event-id={i} key={name}>
-                {name === currentEvent?.name && isDonationElection ? (
+          <div ref={setDetailsRef} className={classNames(
+            classes.detailsContainer,
+            selectedEvent.hidden && classes.detailsContainerHidden,
+          )}>
+            {events.map(({
+              name,
+              description,
+              start,
+              end,
+              discussionTagId,
+              discussionTagSlug,
+              hidden,
+            }, i) => (
+              <div
+                className={classNames(
+                  classes.eventDetails,
+                  hidden && classes.eventHidden,
+                )}
+                data-event-id={i}
+                key={name}
+              >
+                {name === "Donation Election" ? (
                   <div className={classes.electionInfoContainer}>
                     <div className={classes.eventDate}>{formatDate(selectedEvent.start, selectedEvent.end)}</div>
                     <div className={classes.eventName}>{name}</div>
                     <div className={classes.eventDescription}>
                       {description}
                     </div>
-                    <div className={classNames(classes.eventDescription, classes.hideAboveMd)}>
-                      <b>${formatStat(Math.round(amountRaisedPlusMatched))} raised.</b> CEA will match the next <b>${formatStat(Math.round(matchRemaining))}</b>.
+                    <div className={classes.electionRaised}>
+                      ${formatStat(Math.round(amountRaisedPlusMatched))} raised
                     </div>
-                    <div className={classNames(classes.electionInfoRaised, classes.hideBelowMd)}>
-                      <span className={classes.electionInfoAmount}>
-                        ${formatStat(Math.round(amountRaisedPlusMatched))}
-                      </span>{" "}
-                      raised
-                      <div className={classes.matchNotice}>
-                        CEA will match the next <b>${formatStat(Math.round(matchRemaining))}</b> donated
-                      </div>
-                    </div>
-                    <div
-                      className={classNames(
-                        classes.fundBarContainer,
-                        classes.fundBarContainerLarge,
-                        classes.hideBelowMd
-                      )}
-                    >
-                      <div style={{ width: `${fundPercent}%` }} className={classes.fundBar} />
-                    </div>
-                    {showLeaderboard && leaderboardData && (
+                    {leaderboardData && (
                       <DonationElectionLeaderboard
                         voteCounts={leaderboardData}
                         className={classes.hideAboveMd}
@@ -741,113 +611,85 @@ const GivingSeason2024Banner = ({classes}: {
                     )}
                     <div className={classes.electionInfoButtonContainer}>
                       <EAButton
-                        href={getDonateLink(currentUser)}
-                        className={classNames(classes.button, classes.buttonLarge, classes.buttonWhite)}
+                        className={classNames(
+                          classes.button,
+                          classes.buttonLarge,
+                          classes.buttonTranslucentDisabled,
+                        )}
                       >
-                        Donate&nbsp;<span className={classes.hideBelowMd}>to the fund</span>
+                        You can no longer vote or donate
                       </EAButton>
-                      <LWTooltip
-                        title={votingOpen ? null : "Voting has closed"}
-                        placement="top"
-                        popperClassName={classes.votingClosedTooltip}
-                      >
-                        <EAButton
-                          href={"/voting-portal"}
-                          className={classNames(classes.button, classes.buttonLarge, classes.buttonTranslucent)}
-                          disabled={!votingOpen}
-                        >
-                          Vote in the election
-                        </EAButton>
-                      </LWTooltip>
                     </div>
                   </div>
                 ) : (
-                  <div>
-                    <div className={classes.eventDate}>{formatDate(start, end)}</div>
-                    <div className={classes.eventName}>{name}</div>
-                    <div className={classes.eventDescription}>{description}</div>
-                  </div>
+                  <>
+                    <div className={classes.simpleEventContainer}>
+                      <div className={classes.eventDate}>{formatDate(start, end)}</div>
+                      <div className={classes.eventName}>{name}</div>
+                      <div className={classes.eventDescription}>{description}</div>
+                    </div>
+                    {discussionTagId &&
+                      <div className={classes.topPosts}>
+                        <div className={classes.topPostsTitle}>Top posts</div>
+                        <MixedTypeFeed
+                          className={classes.topPostsFeed}
+                          firstPageSize={3}
+                          hideLoading
+                          disableLoadMore
+                          resolverName="GivingSeasonTagFeed"
+                          resolverArgs={{ tagId: "String!" }}
+                          resolverArgsValues={{ tagId: discussionTagId }}
+                          sortKeyType="Int"
+                          renderers={{
+                            newPost: {
+                              fragmentName: "PostsList",
+                              render: (post: PostsList) => (
+                                <FeedItem
+                                  href={postGetPageUrl(post)}
+                                  icon="DocumentFilled"
+                                  action="posted"
+                                  user={post.user}
+                                  post={post}
+                                  date={post.postedAt}
+                                  preview={post.contents?.plaintextDescription ?? ""}
+                                  classes={classes}
+                                />
+                              ),
+                            },
+                            newComment: {
+                              fragmentName: "CommentsListWithParentMetadata",
+                              render: (comment: CommentsListWithParentMetadata) => (
+                                <FeedItem
+                                  href={commentGetPageUrl(comment)}
+                                  icon="CommentFilled"
+                                  action="on"
+                                  user={comment.user}
+                                  post={comment.post}
+                                  date={comment.postedAt}
+                                  preview={comment.contents?.plaintextMainText ?? ""}
+                                  classes={classes}
+                                />
+                              ),
+                            },
+                          }}
+                        />
+                        {discussionTagSlug &&
+                          <div className={classes.topPostsViewMore}>
+                            <Link to={tagGetUrl({slug: discussionTagSlug})}>
+                              View more
+                            </Link>
+                          </div>
+                        }
+                      </div>
+                    }
+                  </>
                 )}
-                {name === currentEvent?.name && showRecentComments && (
-                  <MixedTypeFeed
-                    className={classes.recentComments}
-                    firstPageSize={isDonationElection ? 5 : 3}
-                    hideLoading
-                    disableLoadMore
-                    resolverName="GivingSeasonTagFeed"
-                    resolverArgs={{ tagId: "String!" }}
-                    resolverArgsValues={{ tagId: currentForumEvent?.tagId }}
-                    sortKeyType="Date"
-                    renderers={{
-                      newPost: {
-                        fragmentName: "PostsList",
-                        render: (post: PostsList) => (
-                          <FeedItem
-                            href={postGetPageUrl(post)}
-                            icon="DocumentFilled"
-                            iconClassName={classes.feedPostIcon}
-                            action="posted"
-                            user={post.user}
-                            post={post}
-                            date={post.postedAt}
-                            preview={post.contents?.plaintextDescription ?? ""}
-                            classes={classes}
-                          />
-                        ),
-                      },
-                      newComment: {
-                        fragmentName: "CommentsListWithParentMetadata",
-                        render: (comment: CommentsListWithParentMetadata) => (
-                          <FeedItem
-                            href={commentGetPageUrl(comment)}
-                            icon="CommentFilled"
-                            iconClassName={classes.feedCommentIcon}
-                            action="on"
-                            user={comment.user}
-                            post={comment.post}
-                            date={comment.postedAt}
-                            preview={comment.contents?.plaintextMainText ?? ""}
-                            classes={classes}
-                          />
-                        ),
-                      },
-                    }}
-                  />
-                )}
-                {name === currentEvent?.name && showLeaderboard && leaderboardData && (
+                {name === "Donation Election" && leaderboardData && (
                   <DonationElectionLeaderboard voteCounts={leaderboardData} className={classes.hideBelowMd} />
                 )}
               </div>
             ))}
           </div>
-          {!isDonationElection && (
-            <div className={classes.fund}>
-              <div className={classes.fundDetailsContainer}>
-                <div className={classes.fundMobileTitle}>Donation Election Fund</div>
-                <div className={classes.fundInfo}>
-                  Donate to the fund to boost the value of the{" "}
-                  <Link to={DONATION_ELECTION_HREF}>Donation Election</Link>.
-                </div>
-                <div className={classes.fundRaised}>
-                  <span className={classes.fundAmount}>${formatStat(Math.round(amountRaisedPlusMatched))}</span> raised
-                </div>
-              </div>
-              <div className={classes.fundBarContainer}>
-                <div style={{ width: `${fundPercent}%` }} className={classes.fundBar} />
-              </div>
-              <div className={classes.fundButtonContainer}>
-                <EAButton
-                  href={DONATION_ELECTION_HREF}
-                  className={classNames(classes.button, classes.buttonTranslucent, classes.hideAboveMobile)}
-                >
-                  Learn more
-                </EAButton>
-                <EAButton href={getDonateLink(currentUser)} className={classNames(classes.button, classes.buttonWhite)}>
-                  Donate
-                </EAButton>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>
