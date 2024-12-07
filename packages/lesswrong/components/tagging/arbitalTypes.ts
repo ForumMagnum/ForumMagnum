@@ -12,6 +12,7 @@ export interface ArbitalPage {
 export interface TagContributor {
   user: UsersMinimumInfo;
   contributionScore: number;
+  contributionVolume: number;
   numCommits: number;
   voteCount: number;
 }
