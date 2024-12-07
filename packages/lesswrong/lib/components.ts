@@ -1240,3 +1240,5 @@ importComponent("PostsWithApprovedJargonPage", () => require('../components/jarg
 importComponent("PostsListUserCommentedOn", () => require('../components/review/PostsListUserCommentedOn'));
 importComponent("RotatingReviewWinnerSpotlight", () => require('../components/review/RotatingReviewWinnerSpotlight'));
 
+importComponent("FundraisingThermometer", () => require('../components/common/FundraisingThermometer'));
+
