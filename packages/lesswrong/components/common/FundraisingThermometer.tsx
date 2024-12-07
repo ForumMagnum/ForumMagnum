@@ -179,8 +179,8 @@ const FundraisingThermometer: React.FC<FundraisingThermometerProps & { classes: 
   return (
     <div className={classNames(classes.root, onPost && classes.onPost)}>
       <div className={classes.textContainer}>
-        {onPost ? <span className={classNames(classes.header, {[classes.headerLinkIcon]: !onPost, [classes.hideHeaderOnMobile]: onPost})}>{"Fundraiser Progress"}</span> : <LWTooltip title="12,000 words about why you should give us money" placement="top-start">
-          <Link className={classes.header} to={`/posts/${lightconeFundraiserPostId.get()}`}>
+        {onPost ? <span className={classNames(classes.header, {[classes.hideHeaderOnMobile]: onPost})}>{"Fundraiser Progress"}</span> : <LWTooltip title="12,000 words about why you should give us money" placement="top-start">
+          <Link className={classNames(classes.header, classes.headerLinkIcon)} to={`/posts/${lightconeFundraiserPostId.get()}`}>
             Lightcone Infrastructure Fundraiser
           </Link>
         </LWTooltip>}
