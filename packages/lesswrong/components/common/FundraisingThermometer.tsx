@@ -3,9 +3,11 @@ import React, { useEffect, useState } from 'react';
 import { lightconeFundraiserPostId, lightconeFundraiserThermometerBgUrl } from '@/lib/publicSettings';
 import { Link } from '@/lib/reactRouterWrapper';
 import { useFundraiserProgress } from '@/lib/lightconeFundraiser';
+import classNames from 'classnames';
 
 interface FundraisingThermometerProps {
   goalAmount: number;
+  onPost?: boolean;
 }
 
 const styles = (theme: ThemeType) => ({
@@ -54,11 +56,13 @@ const styles = (theme: ThemeType) => ({
     transition: 'filter 0.5s ease-in-out',
   },
   header: {
-    fontSize: '1.6rem',  
+    fontSize: '1.6rem',
     marginTop: 0,
     marginBottom: 0,
     fontFamily: theme.typography.headerStyle.fontFamily,
     transition: 'color 0.2s ease-in-out',
+  },
+  headerLinkIcon: {
     '&:after': {
       content: '""',
       width: 4,
@@ -70,6 +74,11 @@ const styles = (theme: ThemeType) => ({
       marginLeft: 2,
       borderRadius: '50%',
       top: -7
+    }
+  },
+  hideHeaderOnMobile: {
+    [theme.breakpoints.down('xs')]: {
+      display: 'none',
     }
   },
   subheader: {
@@ -146,9 +155,12 @@ const styles = (theme: ThemeType) => ({
     marginTop: 12,
     paddingBottom: 24,
   },
+  onPost: {
+    marginTop: -12,
+  },
 });
 
-const FundraisingThermometer: React.FC<FundraisingThermometerProps & {classes: ClassesType}> = ({ goalAmount, classes }) => {
+const FundraisingThermometer: React.FC<FundraisingThermometerProps & { classes: ClassesType }> = ({ goalAmount, classes, onPost = false }) => {
   const [percentage, currentAmount] = useFundraiserProgress(goalAmount);
   const [viewPercentage, setViewPercentage] = useState(percentage);
   const [viewCurrentAmount, setViewCurrentAmount] = useState(currentAmount);
@@ -165,15 +177,15 @@ const FundraisingThermometer: React.FC<FundraisingThermometerProps & {classes: C
   const { LWTooltip } = Components
 
   return (
-    <div className={classes.root}>
+    <div className={classNames(classes.root, onPost && classes.onPost)}>
       <div className={classes.textContainer}>
-        <LWTooltip title="12,000 words about why you should give us money" placement="top-start">
+        {onPost ? <span className={classNames(classes.header, {[classes.headerLinkIcon]: !onPost, [classes.hideHeaderOnMobile]: onPost})}>{"Fundraiser Progress"}</span> : <LWTooltip title="12,000 words about why you should give us money" placement="top-start">
           <Link className={classes.header} to={`/posts/${lightconeFundraiserPostId.get()}`}>
             Lightcone Infrastructure Fundraiser
           </Link>
-        </LWTooltip>
+        </LWTooltip>}
         <span className={classes.goalText}>
-          <span className={classes.goalTextBold}>Goal 1:</span> 
+          <span className={classes.goalTextBold}>Goal 1:</span>
           <span className={classes.raisedGoalNumber}>${Math.round(viewCurrentAmount).toLocaleString()}</span> of ${goalAmount.toLocaleString()}
         </span>
       </div>
@@ -186,13 +198,13 @@ const FundraisingThermometer: React.FC<FundraisingThermometerProps & {classes: C
           </Link>
         </div>
         <div className={classes.blurredUnfill}></div>
-        <div className={classes.fill} style={{width: `${viewPercentage}%`, backgroundSize: `${100*100/viewPercentage}% auto`}}></div>
+        <div className={classes.fill} style={{ width: `${viewPercentage}%`, backgroundSize: `${100 * 100 / viewPercentage}% auto` }}></div>
       </div>
     </div>
   );
 };
 
-const FundraisingThermometerComponent = registerComponent('FundraisingThermometer', FundraisingThermometer, {styles});
+const FundraisingThermometerComponent = registerComponent('FundraisingThermometer', FundraisingThermometer, { styles });
 
 export default FundraisingThermometerComponent;
 
