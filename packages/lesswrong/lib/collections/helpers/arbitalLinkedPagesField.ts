@@ -28,8 +28,12 @@ export function arbitalLinkedPagesField(options: ArbitalLinkedPagesFieldOptions)
       if (!doc.legacyData?.arbitalPageId) {
         return null;
       }
+      
+      if (collectionName === 'MultiDocuments' && doc.fieldName !== 'description') {
+        return null;
+      }
 
-      const { Tags, ArbitalTagContentRels } = context;
+      const { Tags, ArbitalTagContentRels, MultiDocuments } = context;
 
       const docId = doc._id;
 
@@ -51,16 +55,16 @@ export function arbitalLinkedPagesField(options: ArbitalLinkedPagesFieldOptions)
         pageSpeeds = await ArbitalTagContentRels.find(
           {
             type: 'parent-is-tag-of-child',
-            parentTagId: { $in: [slowerTagId, fasterTagId].filter((id) => id) },
+            parentDocumentId: { $in: [slowerTagId, fasterTagId].filter((id) => id) },
           },
-          { projection: { childTagId: 1, parentTagId: 1 } }
+          { projection: { childDocumentId: 1, parentDocumentId: 1 } }
         ).fetch();
       }
 
       const tagSpeeds: Record<string, number> = {};
       pageSpeeds.forEach((rel) => {
-        const speed = rel.parentTagId === slowerTagId ? -1 : 1;
-        tagSpeeds[rel.childTagId] = speed;
+        const speed = rel.parentDocumentId === slowerTagId ? -1 : 1;
+        tagSpeeds[rel.childDocumentId] = speed;
       });
 
       // Step 3: Get subject pairs where the doc is involved
@@ -68,31 +72,31 @@ export function arbitalLinkedPagesField(options: ArbitalLinkedPagesFieldOptions)
         {
           type: 'parent-taught-by-child',
           isStrong: true,
-          childTagId: docId,
+          childDocumentId: docId,
         },
-        { projection: { parentTagId: 1, level: 1 } }
+        { projection: { parentDocumentId: 1, level: 1 } }
       ).fetch();
 
-      const parentIds = st1.map((rel) => rel.parentTagId);
+      const parentIds = st1.map((rel) => rel.parentDocumentId);
 
       const st2 = await ArbitalTagContentRels.find(
         {
           type: 'parent-taught-by-child',
           isStrong: true,
-          parentTagId: { $in: parentIds },
-          childTagId: { $ne: docId },
+          parentDocumentId: { $in: parentIds },
+          childDocumentId: { $ne: docId },
         },
-        { projection: { parentTagId: 1, childTagId: 1, level: 1 } }
+        { projection: { parentDocumentId: 1, childDocumentId: 1, level: 1 } }
       ).fetch();
 
-      // Build pairs of tags sharing the same parentTagId
+      // Build pairs of tags sharing the same parentDocumentId
       const subjectPairs = [];
       for (const rel1 of st1) {
         for (const rel2 of st2) {
-          if (rel1.parentTagId === rel2.parentTagId) {
+          if (rel1.parentDocumentId === rel2.parentDocumentId) {
             subjectPairs.push({
-              sourceTagId: rel1.childTagId,
-              alternativeTagId: rel2.childTagId,
+              sourceTagId: rel1.childDocumentId,
+              alternativeTagId: rel2.childDocumentId,
               level1: rel1.level,
               level2: rel2.level,
             });
@@ -180,68 +184,128 @@ export function arbitalLinkedPagesField(options: ArbitalLinkedPagesFieldOptions)
       });
 
       // Helper function to fetch tags by IDs
-      async function getTagsByIds(ids: string[]) {
+      async function getDocumentsByIds(ids: string[]) {
+
         if (ids.length === 0) return [];
+
         const tags = await Tags.find(
           { _id: { $in: ids } },
           { projection: { _id: 1, name: 1, slug: 1 } }
         ).fetch();
-        return tags;
+
+        /*
+        We want to return a record that looks like this when the id is "vK7taEyLQXxuN3FBj", confirming fieldName is "description":
+        {
+          _id: "vK7taEyLQXxuN3FBj",
+          parentDocumentId: "Ka9CrdPZZvJn8veED",
+          collectionName: "Tags",
+          fieldName: "description",
+        }
+        */
+
+        //do the same for MultiDocuments
+        const multiDocs = await MultiDocuments.find(
+          { _id: { $in: ids }, fieldName: 'description' },
+          { projection: { parentDocumentId: 1, title: 1, slug: 1 } }
+        ).fetch();
+
+        //make new objects with the name field instead of title
+        const multiDocsWithName = multiDocs.map((doc) => ({
+          _id: doc.parentDocumentId,
+          name: doc.title,
+          slug: doc.slug,
+        }));
+
+        return [...tags, ...multiDocsWithName];
       }
 
       // Step 9: Fetch requirements
       const requirementsRels = await ArbitalTagContentRels.find(
         {
-          childTagId: docId,
+          childDocumentId: docId,
           type: 'parent-is-requirement-of-child',
           isStrong: true,
         },
-        { projection: { parentTagId: 1 } }
+        { projection: { parentDocumentId: 1 } }
       ).fetch();
 
-      const requirementTagIds = requirementsRels.map((rel) => rel.parentTagId);
+      // console.log({
+      //   // remove html fields
+      //   document: {
+      //     _id: doc._id,
+      //     legacyData: doc.legacyData,
+      //     slug: doc.slug,
+      //     oldSlugs: doc.oldSlugs,
+      //     name: doc.name,
+      //   },
+      //   requirementsRels,
+      // });
+
+      const requirementDocumentIds = requirementsRels.map((rel) => rel.parentDocumentId);
 
       // Step 10: Fetch teachings
       const teachesRels = await ArbitalTagContentRels.find(
         {
-          childTagId: docId,
+          childDocumentId: docId,
           type: 'parent-taught-by-child',
           isStrong: true,
         },
-        { projection: { parentTagId: 1 } }
+        { projection: { parentDocumentId: 1 } }
       ).fetch();
 
-      const teachesTagIds = teachesRels.map((rel) => rel.parentTagId);
+
+      const teachesDocumentIds = teachesRels.map((rel) => rel.parentDocumentId);
 
       // Collect all unique tag IDs
-      const allTagIds = new Set<string>([
-        ...alternativeTypeMap.faster,
-        ...alternativeTypeMap.slower,
-        ...alternativeTypeMap.moreTechnical,
-        ...alternativeTypeMap.lessTechnical,
-        ...requirementTagIds,
-        ...teachesTagIds,
+      const allDocumentIds = new Set<string>([
+        // ...alternativeTypeMap.faster,
+        // ...alternativeTypeMap.slower,
+        // ...alternativeTypeMap.moreTechnical,
+        // ...alternativeTypeMap.lessTechnical,
+        ...requirementDocumentIds,
+        // ...teachesDocumentIds,
       ]);
 
-      const allTagsArray = await getTagsByIds(Array.from(allTagIds));
-      const allTags = new Map(allTagsArray.map(tag => [tag._id, tag]));
+      const allDocumentsArray = await getDocumentsByIds(Array.from(allDocumentIds));
+      const allDocuments = new Map(allDocumentsArray.map(doc => [doc._id, doc]));
 
       // Build arrays of tags for each category
-      const fasterTags = alternativeTypeMap.faster.map(id => allTags.get(id)).filter(Boolean);
-      const slowerTags = alternativeTypeMap.slower.map(id => allTags.get(id)).filter(Boolean);
-      const moreTechnicalTags = alternativeTypeMap.moreTechnical.map(id => allTags.get(id)).filter(Boolean);
-      const lessTechnicalTags = alternativeTypeMap.lessTechnical.map(id => allTags.get(id)).filter(Boolean);
-      const requirementsTags = requirementTagIds.map(id => allTags.get(id)).filter(Boolean);
-      const teachesTags = teachesTagIds.map(id => allTags.get(id)).filter(Boolean);
+      const fasterDocuments = alternativeTypeMap.faster.map(id => allDocuments.get(id)).filter(Boolean);
+      const slowerDocuments = alternativeTypeMap.slower.map(id => allDocuments.get(id)).filter(Boolean);
+      const moreTechnicalDocuments = alternativeTypeMap.moreTechnical.map(id => allDocuments.get(id)).filter(Boolean);
+      const lessTechnicalDocuments = alternativeTypeMap.lessTechnical.map(id => allDocuments.get(id)).filter(Boolean);
+      const requirementsDocuments = requirementDocumentIds.map(id => allDocuments.get(id)).filter(Boolean);
+      const teachesDocuments = teachesDocumentIds.map(id => allDocuments.get(id)).filter(Boolean);
+
+      console.log({
+        document: {
+          _id: doc._id,
+          legacyData: doc.legacyData,
+          slug: doc.slug,
+          oldSlugs: doc.oldSlugs,
+          name: doc.name,
+        },
+        requirementsRels,
+        requirementDocumentIds,
+        allDocumentIds,
+        allDocuments,
+
+        // fasterDocuments,
+        // slowerDocuments,
+        // moreTechnicalDocuments,
+        // lessTechnicalDocuments,
+        requirementsDocuments,
+        // teachesDocuments,
+      })
 
       // Return the ArbitalLinkedPages object
       return {
-        faster: fasterTags,
-        slower: slowerTags,
-        moreTechnical: moreTechnicalTags,
-        lessTechnical: lessTechnicalTags,
-        requirements: requirementsTags,
-        teaches: teachesTags,
+        faster: fasterDocuments,
+        slower: slowerDocuments,
+        moreTechnical: moreTechnicalDocuments,
+        lessTechnical: lessTechnicalDocuments,
+        requirements: requirementsDocuments,
+        teaches: teachesDocuments,
       };
     },
     // sqlResolver: ({ field }) => {

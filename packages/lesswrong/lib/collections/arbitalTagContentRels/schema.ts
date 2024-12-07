@@ -1,31 +1,32 @@
-import { foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils';
+import { schemaDefaultValue } from '../../utils/schemaUtils';
 
 const schema: SchemaType<'ArbitalTagContentRels'> = {
-  parentTagId: {
+  parentDocumentId: {
+    type: String,
     nullable: false,
-    ...foreignKeyField({
-      idFieldName: 'parentTagId',
-      resolverName: 'parentTag',
-      collectionName: 'Tags',
-      type: 'Tag',
-      nullable: false,
-    }),
     canRead: ['guests'],
     canCreate: ['members'],
   },
-  childTagId: {
+  childDocumentId: {
+    type: String,
     nullable: false,
-    ...foreignKeyField({
-      idFieldName: 'childTagId',
-      resolverName: 'childTag',
-      collectionName: 'Tags',
-      type: 'Tag',
-      nullable: false,
-    }),
     canRead: ['guests'],
     canCreate: ['members'],
   },
-
+  parentCollectionName: {
+    type: String,
+    nullable: false,
+    allowedValues: ['Tags', 'MultiDocuments'],
+    canRead: ['guests'],
+    canCreate: ['members'],
+  },
+  childCollectionName: {
+    type: String,
+    nullable: false,
+    allowedValues: ['Tags', 'MultiDocuments'],
+    canRead: ['guests'],
+    canCreate: ['members'],
+  },
   // From Arbital schema comment
   // Type of the relationship.
   // parent: parentId is a parent of childId

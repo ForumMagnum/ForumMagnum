@@ -361,8 +361,8 @@ export type ArbitalConversionContext = {
 }
 
 async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: ResolverContext, options: ArbitalImportOptions): Promise<void> {
-  await importWikiPages(database, resolverContext, options);
-  // await importPagePairs(database, resolverContext, options);
+  // await importWikiPages(database, resolverContext, options);
+  await importPagePairs(database, resolverContext, options);
   //await importComments(database, resolverContext, options);
 }
 
@@ -875,7 +875,7 @@ async function importComments(database: WholeArbitalDatabase, resolverContext: R
 
   let importedCommentCount = 0;
   const commentIdsToImport: string[] = [];
-  let lwCommentsById: Record<string,DbComment> = {};
+  let lwCommentsById: Record<string, DbComment> = {};
   
   // Sort comments by creation date so that we only insert a comment after
   // inserting its parent
@@ -1352,7 +1352,6 @@ async function importPagePairs(
 ): Promise<void> {
   const conversionContext = await buildConversionContext(database, options);
   const pageInfosById = conversionContext.pageInfosByPageId;
-  const arbitalTagContentRels: DbArbitalTagContentRel[] = [];
 
   console.log("Importing page pairs");
 
@@ -1375,19 +1374,27 @@ async function importPagePairs(
 
 
     // Map Arbital page IDs to our internal tag IDs
-    const [parentTag, childTag] = await Promise.all([
+    const [parentMultiDoc, childMultiDoc, parentTag, childTag] = await Promise.all([
+      MultiDocuments.findOne({ 'legacyData.arbitalPageId': parentId, fieldName: 'description' }),
+      MultiDocuments.findOne({ 'legacyData.arbitalPageId': childId, fieldName: 'description' }),
       Tags.findOne({ 'legacyData.arbitalPageId': parentId, deleted: false }),
       Tags.findOne({ 'legacyData.arbitalPageId': childId, deleted: false })
     ]);
 
-    if (!parentTag || !childTag) {
+    //use the multiDoc if it exists, otherwise use the tag
+    const parentDoc = parentMultiDoc ?? parentTag;
+    const childDoc = childMultiDoc ?? childTag;
+    const parentCollectionName = parentMultiDoc ? 'MultiDocuments' : 'Tags';
+    const childCollectionName = childMultiDoc ? 'MultiDocuments' : 'Tags';
+
+    if (!parentDoc || !childDoc) {
       continue;
     }
-    // Map Arbital 'type' to our application's types
+
     let mappedType: DbArbitalTagContentRel['type'] | null = null;
     switch (type) {
       case 'requirement':
-        mappedType = 'parent-requires-child';
+        mappedType = 'parent-is-requirement-of-child';
         break;
       case 'subject':
         mappedType = 'parent-taught-by-child';
@@ -1399,14 +1406,23 @@ async function importPagePairs(
         continue;
     }
 
+    console.log(`Importing relationship ${
+      isMultiDocument(parentDoc) ? parentDoc.title : parentDoc.name
+    } -> ${
+      isMultiDocument(childDoc) ? childDoc.title : childDoc.name
+    } with type ${mappedType}`);
+
+
     // Create the ArbitalTagContentRel document
     const pairCreator = conversionContext.matchedUsers[pair.creatorId] ?? conversionContext.defaultUser;
 
     await createMutator({
       collection: ArbitalTagContentRels,
       document: {
-        parentTagId: parentTag._id,
-        childTagId: childTag._id,
+        parentDocumentId: parentDoc._id,
+        childDocumentId: childDoc._id,
+        parentCollectionName,
+        childCollectionName,
         type: mappedType,
         level,
         isStrong: !!isStrong,
@@ -1483,4 +1499,9 @@ Globals.undoDeleteImportedArbitalWikiPages = async () => {
     // We do not modify or remove them
   }
 };
+
+// Add type guards
+function isMultiDocument(doc: DbTag | DbMultiDocument): doc is DbMultiDocument {
+  return 'title' in doc;
+}
 

@@ -2637,6 +2637,7 @@ interface TagHistoryFragment extends TagFragment { // fragment on Tags
   readonly tableOfContents: any,
   readonly user: UsersMinimumInfo|null,
   readonly lenses: Array<MultiDocumentEdit>,
+  readonly arbitalLinkedPages: ArbitalLinkedPagesFragment,
 }
 
 interface TagCreationHistoryFragment extends TagFragment { // fragment on Tags
@@ -4101,8 +4102,10 @@ interface CkEditorUserSessionInfo { // fragment on CkEditorUserSessions
 }
 
 interface ArbitalTagContentRelsDefaultFragment { // fragment on ArbitalTagContentRels
-  readonly parentTagId: string,
-  readonly childTagId: string,
+  readonly parentDocumentId: string,
+  readonly childDocumentId: string,
+  readonly parentCollectionName: "Tags" | "MultiDocuments",
+  readonly childCollectionName: "Tags" | "MultiDocuments",
   readonly type: "parent-taught-by-child" | "parent-is-requirement-of-child" | "parent-is-tag-of-child",
   readonly level: number,
   readonly isStrong: boolean,

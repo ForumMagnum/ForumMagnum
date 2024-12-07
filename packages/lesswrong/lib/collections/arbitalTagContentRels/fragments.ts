@@ -3,8 +3,8 @@ import { registerFragment } from '../../vulcan-lib';
 registerFragment(`
   fragment ArbitalTagContentRelBasicInfo on ArbitalTagContentRel {
     _id
-    parentTagId
-    childTagId
+    parentDocumentId
+    childDocumentId
     type
     level
     isStrong
@@ -15,10 +15,10 @@ registerFragment(`
 registerFragment(`
   fragment ArbitalTagContentRelFragment on ArbitalTagContentRel {
     ...ArbitalTagContentRelBasicInfo
-    parentTag {
+    parentDocument {
       ...TagPreviewFragment
     }
-    childTag {
+    childDocument {
       ...TagPreviewFragment
     }
   }

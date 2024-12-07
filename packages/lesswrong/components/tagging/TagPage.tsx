@@ -670,7 +670,7 @@ const LensTab = ({ key, value, label, lens, isSelected, ...tabProps }: {
 const EditLensForm = ({lens}: {
   lens: TagLens,
 }) => {
-  console.log({ prefetchedDocument: lens.originalLensDocument });
+  // console.log({ prefetchedDocument: lens.originalLensDocument });
   return <Components.WrappedSmartForm
     key={lens._id}
     collectionName="MultiDocuments"
@@ -745,6 +745,18 @@ const TagPage = () => {
 
   const { selectedLensId, selectedLens, updateSelectedLens, lenses } = useTagLenses(tag);
   const displayedTagTitle = useDisplayedTagTitle(tag, lenses, selectedLens);
+
+  // useEffect(() => {
+  //   const { requirements, teaches, lessTechnical, moreTechnical, slower, faster } = selectedLens?.arbitalLinkedPages as ArbitalLinkedPages;
+
+  //   console.log({
+  //     selectedLensTitle: selectedLens?.title,
+  //     selectedLensTabTitle: selectedLens?.tabTitle,
+  //     selectedLensId: selectedLens?._id,
+  //     selectedLensArbitalLinkedPages: selectedLens?.arbitalLinkedPages,
+  //     requirements, teaches, lessTechnical, moreTechnical, slower, faster
+  //   });
+  // }, [selectedLens]);
 
   const tagPositionInList = otherTagsWithNavigation?.findIndex(tagInList => tag?._id === tagInList._id);
   // We have to handle updates to the listPosition explicitly, since we have to deal with three cases
@@ -1000,9 +1012,17 @@ const TagPage = () => {
     </TagsTooltip>
   </div>
 
-  const { requirements, teaches, lessTechnical, moreTechnical, slower, faster } = tag.arbitalLinkedPages as ArbitalLinkedPages;
-
   const hasList = (list: TagBasicInfo[] | undefined) => list && list?.length > 0;
+
+  const { requirements, teaches, lessTechnical, moreTechnical, slower, faster } = selectedLens?.arbitalLinkedPages as ArbitalLinkedPages;
+
+  // console.log({
+    // selectedLensTitle: selectedLens?.title,
+    // selectedLensTabTitleAndSubtitle: selectedLens?.tabTitle + " " + selectedLens?.tabSubtitle,
+    // selectedLensId: selectedLens?._id,
+    // for each list of tagInfos in the ArbitalLinkedPagesFragment, log the name of each tagInfo
+    // selectedLensArbitalLinkedPages: selectedLens?.arbitalLinkedPages
+  // });
 
   const linkedTags = (
     <ContentStyles contentType="tag" className={classes.linkedTagsContainer}>

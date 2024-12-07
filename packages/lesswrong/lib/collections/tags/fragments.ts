@@ -81,6 +81,9 @@ registerFragment(`
     lenses {
       ...MultiDocumentEdit
     }
+    arbitalLinkedPages {
+      ...ArbitalLinkedPagesFragment
+    }
   }
 `);
 

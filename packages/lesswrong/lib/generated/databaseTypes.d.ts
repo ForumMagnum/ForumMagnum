@@ -34,8 +34,10 @@ type ArbitalTagContentRelsCollection = CollectionBase<"ArbitalTagContentRels">;
 
 interface DbArbitalTagContentRel extends DbObject {
   __collectionName?: "ArbitalTagContentRels"
-  parentTagId: string
-  childTagId: string
+  parentDocumentId: string
+  childDocumentId: string
+  parentCollectionName: "Tags" | "MultiDocuments"
+  childCollectionName: "Tags" | "MultiDocuments"
   type: "parent-taught-by-child" | "parent-is-requirement-of-child" | "parent-is-tag-of-child"
   level: number | null
   isStrong: boolean

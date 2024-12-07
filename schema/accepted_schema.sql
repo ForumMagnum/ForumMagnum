@@ -58,8 +58,10 @@ CREATE INDEX IF NOT EXISTS "idx_ArbitalCaches_fetchedAt" ON "ArbitalCaches" USIN
 -- Table "ArbitalTagContentRels"
 CREATE TABLE "ArbitalTagContentRels" (
   _id VARCHAR(27) PRIMARY KEY,
-  "parentTagId" VARCHAR(27) NOT NULL,
-  "childTagId" VARCHAR(27) NOT NULL,
+  "parentDocumentId" TEXT NOT NULL,
+  "childDocumentId" TEXT NOT NULL,
+  "parentCollectionName" TEXT NOT NULL,
+  "childCollectionName" TEXT NOT NULL,
   "type" TEXT NOT NULL,
   "level" DOUBLE PRECISION,
   "isStrong" BOOL NOT NULL DEFAULT FALSE,
