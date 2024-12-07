@@ -27,7 +27,7 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
   const mutationOptions: MutationOptions<T> = {...defaultOptions, ...options};
   const logger = loggerConstructor(`mutations-${collectionName.toLowerCase()}`)
 
-  const mutations: any = {};
+  const mutations: DefaultMutations<T> = {};
 
   if (mutationOptions.create) {
     // mutation for inserting a new document
@@ -183,13 +183,13 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
         });
 
         if (existingDocument) {
-          return await collection.options.mutations.update.mutation(
+          return await collection.options.mutations?.update?.mutation(
             root,
             { selector, data },
             context
           );
         } else {
-          return await collection.options.mutations.create.mutation(root, { data }, context);
+          return await collection.options.mutations?.create?.mutation(root, { data }, context);
         }
       },
     };

@@ -467,7 +467,7 @@ async function buildConversionContext(database: WholeArbitalDatabase, options: A
   const pageInfosById = keyBy(database.pageInfos, pi=>pi.pageId);
   
   const { existingPagesToMove, pagesToConvertToLenses } = await findCollidingWikiPages(database);
-  await renameCollidingWikiPages(existingPagesToMove);
+  // await renameCollidingWikiPages(existingPagesToMove);
 
   //const matchedUsers: Record<string,DbUser|null> = { '2': await resolverContext.loaders.Users.load('nmk3nLpQE89dMRzzN') };
   const matchedUsers: Record<string,DbUser|null> = options.userMatchingFile
@@ -535,6 +535,7 @@ async function buildConversionContext(database: WholeArbitalDatabase, options: A
 async function importWikiPages(database: WholeArbitalDatabase, resolverContext: ResolverContext, options: ArbitalImportOptions): Promise<void> {
   const pagesById = groupBy(database.pages, p=>p.pageId);
   const lensesByPageId = groupBy(database.lenses, l=>l.pageId);
+  const lensIds = new Set(database.lenses.map(l=>l.lensId));
   const summariesByPageId = groupBy(database.pageSummaries, s=>s.pageId);
 
   const conversionContext = await buildConversionContext(database, options);
@@ -561,7 +562,7 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
         if (pagesById[p]) return p;
         throw new Error(`Page title not found: ${p}`)
       })
-    : Object.keys(liveRevisionsByPageId)
+    : Object.keys(liveRevisionsByPageId).filter(pageId => !lensIds.has(pageId))
   console.log(`Importing ${pageIdsToImport.length} pages`)
   
   const alternativesByPageId = computePageAlternatives(database);
@@ -701,14 +702,14 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
         const lensAliasRedirects = database.aliasRedirects.filter(ar => ar.newAlias === lensPageInfo.alias);
         const lensSlug = lensPageInfo.alias;
         // TODO: add lensId(?) to oldSlugs.  (Not sure if it's lensId or pageId)
-        const oldLensSlugs = lensAliasRedirects.map(ar => ar.oldAlias);
         const lensRevisions = database.pages.filter(p => p.pageId === lens.lensId);
         const lensFirstRevision = lensRevisions[0];
-        const lensLiveRevision = liveRevisionsByPageId[lens.pageId];
+        const lensLiveRevision = liveRevisionsByPageId[lens.lensId];
+        const oldLensSlugs = [...lensAliasRedirects.map(ar => ar.oldAlias), lens.lensId];
         const lensTitle = lensLiveRevision.title;
         const lensFirstRevisionCkEditorMarkup = await arbitalMarkdownToCkEditorMarkup({
           markdown: lensFirstRevision.text,
-          pageId: lens.pageId,
+          pageId: lens.lensId,
           conversionContext,
         });
 
@@ -737,7 +738,7 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
                 }
               },
               legacyData: {
-                arbitalPageId: lens.pageId,
+                arbitalPageId: lens.lensId,
               },
             } as Partial<DbMultiDocument>,
             context: resolverContext,
@@ -747,7 +748,7 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
           await Promise.all([
             backDateObj(MultiDocuments, lensObj._id, lensFirstRevision.createdAt),
             backDateAndAddLegacyDataToRevision(lensObj.contents_latest!, lensFirstRevision.createdAt, {
-              arbitalPageId: lens.pageId,
+              arbitalPageId: lens.lensId,
               arbitalEditNumber: lensFirstRevision.edit,
               arbitalMarkdown: lensFirstRevision.text,
             }),
@@ -1340,4 +1341,36 @@ Globals.hideContentFromNonDefaultDomains = async (mysqlConnectionString: string)
     $set: {deleted: true},
   });
 }
+
+async function cleanUpAccidentalLensTags(wholeArbitalDb: WholeArbitalDatabase) {
+  const lensIds = Array.from(new Set(wholeArbitalDb.lenses.map(l => l.lensId)));
+  await executePromiseQueue(lensIds.map(id => () => Tags.rawUpdateOne({
+    "legacyData.arbitalPageId": id,
+    deleted: false,
+  }, {
+    $set: {
+      slug: `deleted-import-${randomId()}`,
+      deleted: true,
+      },
+    })
+  ), 10);
+}
+
+Globals.cleanUpAccidentalLensTags = async (mysqlConnectionString: string) => {
+  const arbitalDb = await connectAndLoadArbitalDatabase(mysqlConnectionString);
+  await cleanUpAccidentalLensTags(arbitalDb);
+};
+
+Globals.checkAccidentalLensTags = async (mysqlConnectionString: string) => {
+  const arbitalDb = await connectAndLoadArbitalDatabase(mysqlConnectionString);
+  const lensIds = Array.from(new Set(arbitalDb.lenses.map(l => l.lensId)));
+  const tags = await executePromiseQueue(lensIds.map(id => () => Tags.findOne({
+    deleted: false,
+    "legacyData.arbitalPageId": id
+  })), 10);
+
+  tags.forEach(tag => {
+    console.log(`${tag?.name} (${tag?.slug}) is an accidental lens tag`);
+  });
+};
 

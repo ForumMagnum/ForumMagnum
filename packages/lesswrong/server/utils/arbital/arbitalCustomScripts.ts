@@ -10,7 +10,7 @@ const getBayesGuideHtml = (() => {
     //   return html;
     // }
 
-    const path = join(__filename, '../../../../packages/lesswrong/server/utils/arbital/resources/bayesGuideMultipleChoice.html');
+    const path = 'packages/lesswrong/server/utils/arbital/resources/bayesGuideMultipleChoice.html';
 
     html = await readFile(path, 'utf8');
     return html;

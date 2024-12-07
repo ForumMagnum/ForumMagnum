@@ -19,6 +19,7 @@ addGraphQLSchema(`
   type TagContributor {
     user: User
     contributionScore: Int!
+    contributionVolume: Int
     numCommits: Int!
     voteCount: Int!
   }
