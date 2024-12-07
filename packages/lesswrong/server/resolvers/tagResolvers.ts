@@ -39,6 +39,7 @@ import { updateMutator } from '../vulcan-lib';
 import { captureException } from '@sentry/core';
 import GraphQLJSON from 'graphql-type-json';
 import { getToCforTag } from '../tableOfContents';
+import { TagContributor } from '@/components/tagging/arbitalTypes';
 
 type SubforumFeedSort = {
   posts: SubquerySortField<DbPost, keyof DbPost>,
@@ -520,7 +521,7 @@ augmentFieldsDict(TagRels, {
 async function getContributorsList(tag: DbTag, version: string|null): Promise<ContributorStatsList> {
   if (version)
     return await buildContributorsList(tag, version);
-  else if (tag.contributionStats)
+  else if (tag.contributionStats && Object.values(tag.contributionStats).some(({ contributionVolume }: TagContributor) => contributionVolume))
     return tag.contributionStats;
   else
     return await updateDenormalizedContributorsList(tag);
