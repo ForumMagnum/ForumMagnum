@@ -98,7 +98,7 @@ export const ReviewsLeaderboard = ({classes, reviews, reviewYear}: {
         </Row>
       </div>
     })}
-    <a className={classes.showAll} onClick={() => setTruncated(!truncated)}>{truncated ? <>Show All Reviewers ({NUM_DEFAULT_REVIEWS}/{sortedUserRows.length})</> : "Show Fewer"}</a>
+    {sortedUserRows.length > NUM_DEFAULT_REVIEWS && <a className={classes.showAll} onClick={() => setTruncated(!truncated)}>{truncated ? <>Show All Reviewers ({NUM_DEFAULT_REVIEWS}/{sortedUserRows.length})</> : "Show Fewer"}</a>}
   </div>
 }
 
