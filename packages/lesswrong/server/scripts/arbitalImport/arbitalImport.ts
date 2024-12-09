@@ -738,7 +738,8 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
                 }
               },
               legacyData: {
-                arbitalPageId: lens.lensId,
+                arbitalPageId: lens.pageId,
+                arbitalLensId: lens.lensId,
               },
             } as Partial<DbMultiDocument>,
             context: resolverContext,
@@ -1374,3 +1375,51 @@ Globals.checkAccidentalLensTags = async (mysqlConnectionString: string) => {
   });
 };
 
+/**
+ * Find imported lenses and change legacyData->>'arbitalPageId' to the lens ID.
+ * Run this to fix an earlier import where that field was populated by the ID
+ * of the page that the lens is on, rather than the lens ID.
+ */
+Globals.updateLensIds = async (mysqlConnectionString: string) => {
+  const arbitalDb = await connectAndLoadArbitalDatabase(mysqlConnectionString);
+  
+  const arbitalWikiPages = await Tags.find({
+    deleted: false,
+    "legacyData.arbitalPageId": {$exists: true},
+  }).fetch();
+  await executePromiseQueue(arbitalWikiPages.map((wikiPage) => async () => {
+    const lenses = await MultiDocuments.find({
+      "legacyData.arbitalPageId": {$exists: true},
+      "parentDocumentId": wikiPage._id,
+      "fieldName": "description",
+    }).fetch();
+    if (!lenses.length) {
+      return;
+    }
+    
+    console.log(`Page ${wikiPage.name} has ${lenses.length} lenses`);
+    for (const lens of lenses) {
+      // Find the corresponding lens ID by matching titles
+      const wikiPageId = wikiPage.legacyData?.arbitalPageId;
+      if (!wikiPageId) throw new Error("Found a wiki page without an arbitalPageId?");
+      const arbitalLenses = arbitalDb.lenses.filter(arbLens => arbLens.pageId === wikiPageId);
+      const matchingArbitalLenses = arbitalLenses.filter(arbLens => arbLens.lensName=== lens.tabTitle && arbLens.lensSubtitle===lens.tabSubtitle);
+      if (matchingArbitalLenses.length !== 1) {
+        console.error(`Didn't find a unique matching lens: found ${matchingArbitalLenses.length} matches`);
+        for (const matchingLens of matchingArbitalLenses) {
+          console.error(`    ${matchingLens.lensId} ${matchingLens.lensName}`);
+        }
+        throw new Error(`Didn't find a unique matching lens`);
+      }
+      const matchingArbitalLens = matchingArbitalLenses[0];
+      console.log(`Lens ${wikiPage.name}/${lens.tabTitle}: Setting lensId=${matchingArbitalLens.lensId}`);
+
+      await MultiDocuments.rawUpdateOne(
+        {_id: lens._id},
+        {$set: {
+          "legacyData.arbitalLensId": matchingArbitalLens.lensId,
+        }},
+      );
+    }
+  }), 10);
+}
