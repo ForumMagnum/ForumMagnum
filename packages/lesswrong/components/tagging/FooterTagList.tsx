@@ -17,6 +17,7 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
 import { AnnualReviewMarketInfo, highlightMarket } from '../../lib/collections/posts/annualReviewMarkets';
 import { stableSortTags } from '../../lib/collections/tags/helpers';
+import { PopperPlacementType } from '@material-ui/core/Popper';
 
 const styles = (theme: ThemeType) => ({
   root: isFriendlyUI ? {
@@ -134,6 +135,7 @@ const FooterTagList = ({
   noBackground = false,
   neverCoreStyling = false,
   tagRight = true,
+  tagTooltipPlacement
 }: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList | SunshinePostsList,
   hideScore?: boolean,
@@ -153,6 +155,7 @@ const FooterTagList = ({
   noBackground?: boolean,
   neverCoreStyling?: boolean,
   tagRight?: boolean,
+  tagTooltipPlacement?: PopperPlacementType
 }) => {
   const [isAwaiting, setIsAwaiting] = useState(false);
   const rootRef = useRef<HTMLSpanElement>(null);
@@ -325,9 +328,9 @@ const FooterTagList = ({
 
   const {Loading, FooterTag, AddTagButton, CoreTagsChecklist, PostsAnnualReviewMarketTag} = Components;
 
-  const tooltipPlacement = useAltAddTagButton ? "bottom-end" : undefined;
+  const addTagTooltipPlacement = useAltAddTagButton ? "bottom-end" : undefined;
 
-  const addTagButton = <AddTagButton onTagSelected={onTagSelected} isVotingContext tooltipPlacement={tooltipPlacement}>
+  const addTagButton = <AddTagButton onTagSelected={onTagSelected} isVotingContext tooltipPlacement={addTagTooltipPlacement}>
     {useAltAddTagButton && <span className={classNames(classes.altAddTagButton, noBackground && classes.noBackground)}>+</span>}
   </AddTagButton>
 
@@ -348,6 +351,7 @@ const FooterTagList = ({
               tag={tag}
               hideScore={hideScore}
               smallText={smallText}
+              tagTooltipPlacement={tagTooltipPlacement}
               highlightAsAutoApplied={highlightAutoApplied && tagRel?.autoApplied}
               link={link}
               noBackground={noBackground}

@@ -640,7 +640,7 @@ function getNewExpansionState(expansionState: Record<string, ExpansionState>, to
 }
 
 const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
-  const { SectionTitle, HeadTags, TopPostsDisplaySettings, ContentStyles } = Components;
+  const { SectionTitle, HeadTags, TopPostsDisplaySettings, ContentStyles, Loading } = Components;
 
   const location = useLocation();
   const { query } = location;
@@ -687,7 +687,7 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
 
   const { currentSortOrder } = getCurrentTopPostDisplaySettings(query);
 
-  const { data } = useQuery(gql`
+  const { data, loading } = useQuery(gql`
     query GetAllReviewWinners {
       GetAllReviewWinners {
         ...PostsTopItemInfo
@@ -764,6 +764,7 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
               {currentSortOrder === 'curated' ? sectionGrid : yearGrid}
             </div>
           </div>
+          {loading && <Loading/>}
           <TopSpotlightsSection classes={classes} 
             yearGroupsInfo={yearGroupsInfo} 
             sectionsInfo={sectionsInfo} 
@@ -790,7 +791,7 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
   const categories = Object.keys(sectionsInfo || {}).sort((a, b) => b.localeCompare(a)) as ReviewWinnerSectionName[]
 
   const [year, setYear] = useState<ReviewWinnerYear|"all">(query.year && reviewWinnerYearSet.has(parseInt(query.year)) ? parseInt(query.year) as ReviewWinnerYear : (query.year === 'all' ? 'all' : 2022))
-  const [category, setCategory] = useState<ReviewWinnerSectionName|'all'>(query.category && reviewWinnerSectionNamesSet.has(query.category) ? query.category as ReviewWinnerSectionName : (query.category === 'all' ? 'all' : "rationality"))
+  const [category, setCategory] = useState<ReviewWinnerSectionName|'all'>(query.category && reviewWinnerSectionNamesSet.has(query.category) ? query.category as ReviewWinnerSectionName : 'all')
 
   useEffect(() => {
     if (query.year) {
