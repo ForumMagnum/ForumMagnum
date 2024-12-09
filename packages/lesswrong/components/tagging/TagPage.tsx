@@ -645,6 +645,13 @@ const EditLensForm = ({lens}: {
   />
 }
 
+function htmlNodeListToArray(nodes: NodeList): Node[] {
+  let ret: Node[] = [];
+  for (let i=0; i<nodes.length; i++)
+    ret.push(nodes.item(i)!);
+  return ret;
+}
+
 const bayesGuideScript = () => {
   const pathDescriptions = {
     basic_theoretical: {
@@ -663,6 +670,7 @@ const bayesGuideScript = () => {
           <p>No time to waste! Let's plunge directly into <a href="/w/693">a single-page abbreviated introduction to Bayes' rule</a>.</p>
       `,
       // pathId: "693",
+      pathId: null,
     },
     theoretical: {
       content: `
@@ -711,7 +719,7 @@ const bayesGuideScript = () => {
     }
   }
 
-  function handleRadioChange(radio) {
+  function handleRadioChange(radio: HTMLInputElement) {
     const wants = radio.dataset.wants?.split(",") || [];
     const notWants = radio.dataset.notWants?.split(",") || [];
 
@@ -728,29 +736,35 @@ const bayesGuideScript = () => {
 
     const pathDescription = document.getElementById("pathDescription");
     const content = pathDescription?.querySelector(".content");
-    const startButton = pathDescription?.querySelector(".start-reading");
+    const startButton = pathDescription?.querySelector(".start-reading") as HTMLElement;
 
-    content.innerHTML = pathDescriptions[pathKey as keyof typeof pathDescriptions].content;
+    if (content) {
+      content.innerHTML = pathDescriptions[pathKey as keyof typeof pathDescriptions].content;
+    }
     currentPathId = pathDescriptions[pathKey as keyof typeof pathDescriptions].pathId;
 
-    pathDescription.style.display = "block";
-    if (currentPathId) {
-      startButton.style.display = "block";
-    } else {
-      startButton.style.display = "none";
+    if (pathDescription) {
+      pathDescription.style.display = "block";
+    }
+    if (startButton) {
+      if (currentPathId) {
+        startButton.style.display = "block";
+      } else {
+        startButton.style.display = "none";
+      }
     }
   }
 
-  let currentContainer = null;
+  let currentContainer: Element|null = null;
 
   function initializeRadioHandlers() {
-    document.querySelectorAll('input[name="preference"]').forEach((radio) => {
+    document.querySelectorAll('input[name="preference"]').forEach((radio: HTMLInputElement) => {
       radio.addEventListener("change", function() {
         handleRadioChange(this);
       });
     });
 
-    const checkedRadio = document.querySelector('input[name="preference"]:checked');
+    const checkedRadio = document.querySelector('input[name="preference"]:checked') as HTMLInputElement|null;
     if (checkedRadio) {
       handleRadioChange(checkedRadio);
     }
@@ -825,7 +839,7 @@ const bayesGuideScript = () => {
         
         // Only look for new container if we don't have one
         if (!currentContainer) {
-          for (const node of mutation.addedNodes) {
+          for (const node of htmlNodeListToArray(mutation.addedNodes)) {
             if (!(node instanceof Element)) continue;
             
             const container = node.matches('.question-container') 
