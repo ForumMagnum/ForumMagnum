@@ -109,7 +109,7 @@ export const ReviewQuickPage = ({classes}: {
     skip: !reviewYear
   });
 
-  const { PostsItem, ReviewVotingExpandedPost, FrontpageReviewWidget, SectionFooter, Loading, ReviewPhaseInformation, ReviewDashboardButtons, KarmaVoteStripe } = Components
+  const { PostsItem, ReviewVotingExpandedPost, FrontpageReviewWidget, SectionFooter, Loading, ReviewPhaseInformation, ReviewDashboardButtons, PostInteractionStripe } = Components
 
   const sortedPostsResults = !!posts ? sortBy(posts, (post1,post2) => {
     return post1.currentUserVote === null
@@ -156,7 +156,7 @@ export const ReviewQuickPage = ({classes}: {
               showKarma={false}
               showPostedAt={false}
             />
-            <KarmaVoteStripe post={post}/>
+            <PostInteractionStripe post={post}/>
           </div>
         })}
       </div>

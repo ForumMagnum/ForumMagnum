@@ -10,7 +10,7 @@ class ElasticController {
 
   private handleError(res: Response, error: Error) {
     // eslint-disable-next-line no-console
-    console.error("Search error:", JSON.stringify(error, null, 2));
+    console.error("Search error:", error, JSON.stringify(error, null, 2));
     res.status(400).send(error.message ?? "An error occurred");
   }
 
