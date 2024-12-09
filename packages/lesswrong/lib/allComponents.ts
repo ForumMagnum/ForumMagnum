@@ -56,6 +56,7 @@ importComponent("EACollectionCard", () => require('../components/ea-forum/EAColl
 importComponent("EAHomeHandbook", () => require('../components/ea-forum/EAHomeHandbook'));
 importComponent("EAHomeRightHandSide", () => require('../components/ea-forum/EAHomeRightHandSide'));
 importComponent("EAForumWrappedPage", () => require('../components/ea-forum/wrapped/EAForumWrappedPage'));
+importComponent("InstagramLandingPage", () => require('../components/ea-forum/InstagramLandingPage'));
 importComponent("EASurveyBanner", () => require('../components/ea-forum/EASurveyBanner'));
 importComponent("EAGBanner", () => require('../components/ea-forum/EAGBanner'));
 importComponent("Digests", () => require('../components/ea-forum/digest/Digests'));
