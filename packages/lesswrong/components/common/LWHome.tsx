@@ -2,12 +2,24 @@ import { combineUrls, Components, getSiteUrl, registerComponent } from '../../li
 import React, { useEffect } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { showReviewOnFrontPageIfActive } from '../../lib/publicSettings';
+import { showReviewOnFrontPageIfActive, lightconeFundraiserThermometerGoalAmount, lightconeFundraiserActive } from '../../lib/publicSettings';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../lib/cookies/cookies';
 import moment from 'moment';
 import { visitorGetsDynamicFrontpage } from '../../lib/betas';
 import { isLW, isAF } from '@/lib/instanceSettings';
+import { useCurrentUser } from './withUser';
+
+const styles = (theme: ThemeType): JssStyles => ({
+  frontpageReviewWidget: {
+    marginTop: 42,
+    marginBottom: 20,
+    [theme.breakpoints.down('xs')]: {
+      marginTop: 24,
+      marginBottom: 10
+    }
+  }
+})
 
 const getStructuredData = () => ({
   "@context": "http://schema.org",
@@ -37,27 +49,33 @@ const getStructuredData = () => ({
   }),
 })
 
-const LWHome = () => {
+const LWHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const { DismissibleSpotlightItem, RecentDiscussionFeed, AnalyticsInViewTracker, FrontpageReviewWidget,
-    SingleColumnSection, FrontpageBestOfLWWidget, EAPopularCommentsSection,
+    SingleColumnSection, FrontpageBestOfLWWidget, EAPopularCommentsSection, FundraisingThermometer,
     QuickTakesSection, LWHomePosts, HeadTags
   } = Components;
+
+  const currentUser = useCurrentUser();
 
   return (
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
           <HeadTags structuredData={getStructuredData()}/>
           <UpdateLastVisitCookie />
-
-          {reviewIsActive() && getReviewPhase() === "RESULTS" && <SingleColumnSection>
-            <FrontpageBestOfLWWidget reviewYear={REVIEW_YEAR}/>
+          {lightconeFundraiserActive.get() && <SingleColumnSection>
+            <FundraisingThermometer goalAmount={lightconeFundraiserThermometerGoalAmount.get()} />
           </SingleColumnSection>}
-          {reviewIsActive() && getReviewPhase() !== "RESULTS" && showReviewOnFrontPageIfActive.get() && <SingleColumnSection>
-            <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
-          </SingleColumnSection>}
-          <SingleColumnSection>
+          {reviewIsActive() && <>
+            {getReviewPhase() === "RESULTS" && <SingleColumnSection>
+              <FrontpageBestOfLWWidget reviewYear={REVIEW_YEAR} />
+            </SingleColumnSection>}
+            {getReviewPhase() !== "RESULTS" && <SingleColumnSection>
+              <FrontpageReviewWidget reviewYear={REVIEW_YEAR} className={classes.frontpageReviewWidget}/>
+            </SingleColumnSection>}
+          </>}
+          {(!reviewIsActive() || !showReviewOnFrontPageIfActive.get()) && <SingleColumnSection>
             <DismissibleSpotlightItem current/>
-          </SingleColumnSection> 
+          </SingleColumnSection>}
           <AnalyticsInViewTracker
             eventProps={{inViewType: "homePosts"}}
             observerProps={{threshold:[0, 0.5, 1]}}
@@ -91,7 +109,7 @@ const UpdateLastVisitCookie = () => {
   return <></>
 }
 
-const LWHomeComponent = registerComponent('LWHome', LWHome);
+const LWHomeComponent = registerComponent('LWHome', LWHome, {styles});
 
 declare global {
   interface ComponentTypes {

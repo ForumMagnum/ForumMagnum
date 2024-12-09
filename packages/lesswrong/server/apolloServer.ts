@@ -1,7 +1,7 @@
 import { ApolloServer } from 'apollo-server-express';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 
-import { isDevelopment, getInstanceSettings, getServerPort, isProduction, isE2E } from '../lib/executionEnvironment';
+import { isDevelopment, getInstanceSettings, getServerPort, isE2E } from '../lib/executionEnvironment';
 import { renderWithCache, getThemeOptionsFromReq } from './vulcan-lib/apollo-ssr/renderPage';
 
 import { pickerMiddleware, addStaticRoute } from './vulcan-lib/staticRoutes';
@@ -22,7 +22,6 @@ import { app } from './expressServer';
 import path from 'path'
 import { getPublicSettings, getPublicSettingsLoaded } from '../lib/settingsCache';
 import { embedAsGlobalVar } from './vulcan-lib/apollo-ssr/renderUtil';
-import { addStripeMiddleware } from './stripeMiddleware';
 import { addAuthMiddlewares, expressSessionSecretSetting } from './authenticationMiddlewares';
 import { addForumSpecificMiddleware } from './forumSpecificMiddleware';
 import { addSentryMiddlewares, logGraphqlQueryStarted, logGraphqlQueryFinished } from './logging';
@@ -57,7 +56,7 @@ import { randomId } from '../lib/random';
 import { addCacheControlMiddleware, responseIsCacheable } from './cacheControlMiddleware';
 import { SSRMetadata } from '../lib/utils/timeUtil';
 import type { RouterLocation } from '../lib/vulcan-lib/routes';
-import { getCookieFromReq } from './utils/httpUtil';
+import { getCookieFromReq, trySetResponseStatus } from './utils/httpUtil';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '@/lib/cookies/cookies';
 import { addAutocompleteEndpoint } from './autocompleteEndpoint';
 import { getSqlClientOrThrow } from './sql/sqlClient';
@@ -82,25 +81,6 @@ const ssrInteractionDisable = isE2E
     </style>
   `
   : "";
-
-/**
- * Try to set the response status, but log an error if the headers have already been sent.
- */
-const trySetResponseStatus = ({ response, status }: { response: express.Response, status: number; }) => {
-  if (!response.headersSent) {
-    response.status(status);
-  } else if (response.statusCode !== status) {
-    const message = `Tried to set status to ${status} but headers have already been sent with status ${response.statusCode}. This may be due to enableResourcePrefetch wrongly being set to true.`;
-    if (isProduction) {
-      // eslint-disable-next-line no-console
-      console.error(message);
-    } else {
-      throw new Error(message);
-    }
-  }
-
-  return response;
-}
 
 /**
  * If allowed, write the prefetchPrefix to the response so the client can start downloading resources
@@ -219,7 +199,6 @@ export function startWebserver() {
 
   addGivingSeasonEndpoints(app);
 
-  addStripeMiddleware(addMiddleware);
   // Most middleware need to run after those added by addAuthMiddlewares, so that they can access the user that passport puts on the request.  Be careful if moving it!
   addAuthMiddlewares(addMiddleware);
   addAdminRoutesMiddleware(addMiddleware);
