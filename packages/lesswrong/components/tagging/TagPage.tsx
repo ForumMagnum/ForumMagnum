@@ -856,7 +856,17 @@ const bayesGuideScript = () => {
   }
 };
 
-bayesGuideScript();
+function addBayesGuideScript() {
+  if (isClient) {
+    if (document.readyState === 'complete') {
+      bayesGuideScript();
+    } else {
+      document.addEventListener('DOMContentLoaded', bayesGuideScript);
+    }
+  }
+}
+
+addBayesGuideScript();
 
 const ContributorsList = ({ contributors, onHoverContributor, endWithComma }: { contributors: TagContributor[], onHoverContributor: (userId: string | null) => void, endWithComma: boolean }) => {
   const { UsersNameDisplay } = Components;
