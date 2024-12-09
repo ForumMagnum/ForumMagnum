@@ -903,15 +903,15 @@ const TagPage = () => {
     },
   });
 
+  const pathInfo = usePathInfo(tag);
+
+  const { tag: guideTag } = useTagBySlug(pathInfo?.pathId ?? '', 'TagBasicInfo', { skip: !pathInfo?.pathId });
+
   const [truncated, setTruncated] = useState(false)
   const [editing, setEditing] = useState(!!query.edit)
   const [hoveredContributorId, setHoveredContributorId] = useState<string|null>(null);
   const { captureEvent } =  useTracking()
   const client = useApolloClient()
-
-  const pathInfo = usePathInfo(tag);
-
-  const { tag: guideTag } = useTagBySlug(pathInfo?.pathId ?? '', 'TagBasicInfo', { skip: !pathInfo?.pathId });
 
   const multiTerms: AnyBecauseTodo = {
     allPages: {view: "allPagesByNewest"},
