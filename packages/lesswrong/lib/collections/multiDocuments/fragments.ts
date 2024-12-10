@@ -17,5 +17,15 @@ registerFragment(`
     contents {
       ...RevisionEdit
     }
+    legacyData
+  }
+`);
+
+registerFragment(`
+  fragment MultiDocumentParentDocument on MultiDocument {
+    ...MultiDocumentEdit
+    parentTag {
+      ...TagBasicInfo
+    }
   }
 `);

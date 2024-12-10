@@ -31,6 +31,7 @@ import { quickTakesTagsEnabledSetting } from "@/lib/publicSettings";
 import { TagContributor } from "./arbitalTypes";
 import { TagEditorContext, TagEditorProvider } from "./TagEditorContext";
 import { isClient } from "@/lib/executionEnvironment";
+import qs from "qs";
 
 const sidePaddingStyle = (theme: ThemeType) => ({
   paddingLeft: 42,
@@ -917,6 +918,18 @@ const TagPage = () => {
 
   const { tag: guideTag } = useTagBySlug(pathInfo?.pathId ?? '', 'TagBasicInfo', { skip: !pathInfo?.pathId });
 
+  const { results: lensWithParentTag } = useMulti({
+    collectionName: 'MultiDocuments',
+    fragmentName: 'MultiDocumentParentDocument',
+    terms: {
+      view: 'lensBySlug',
+      slug: slug,
+    },
+    // Having a limit of 1 makes this fail if we have copies of this lens for deleted tags which don't get returned for permissions reasons
+    // so we get as many as we can and assume that we'll only ever actually get at most one back
+    skip: !slug,
+  });
+
   const [truncated, setTruncated] = useState(false)
   const [editing, setEditing] = useState(!!query.edit)
   const [hoveredContributorId, setHoveredContributorId] = useState<string|null>(null);
@@ -996,6 +1009,16 @@ const TagPage = () => {
   if (loadingTag)
     return <Loading/>
   if (!tag) {
+    const lens = lensWithParentTag?.[0];
+    if (lens?.parentTag) {
+      const baseTagUrl = tagGetUrl(lens.parentTag);
+      const newQuery = {
+        ...query,
+        lens: lens.slug,
+      }
+      const newUrl = `${baseTagUrl}?${qs.stringify(newQuery)}`;
+      return <PermanentRedirect url={newUrl} />
+    }
     return <Error404/>
   }
   // If the slug in our URL is not the same as the slug on the tag, redirect to the canonical slug page
