@@ -37,6 +37,7 @@ async function applyArbitalPathReplacements(html: string) {
 
     const script: string = arbitalScripts[scriptId];
     if (!script) {
+      // eslint-disable-next-line no-console
       console.error(`No script found for id ${scriptId}`);
       return;
     }
