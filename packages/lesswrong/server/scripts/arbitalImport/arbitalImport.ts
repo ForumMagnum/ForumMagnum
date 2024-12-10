@@ -469,7 +469,7 @@ async function buildConversionContext(database: WholeArbitalDatabase, options: A
   const pageInfosById = keyBy(database.pageInfos, pi=>pi.pageId);
   
   const { existingPagesToMove, pagesToConvertToLenses } = await findCollidingWikiPages(database);
-  await renameCollidingWikiPages(existingPagesToMove);
+  // await renameCollidingWikiPages(existingPagesToMove);
 
   //const matchedUsers: Record<string,DbUser|null> = { '2': await resolverContext.loaders.Users.load('nmk3nLpQE89dMRzzN') };
   const matchedUsers: Record<string,DbUser|null> = options.userMatchingFile
@@ -1370,13 +1370,17 @@ async function importPagePairs(
   for (const pair of filteredPagePairs) {
     const { parentId, childId, type, level, isStrong, createdAt } = pair;
 
-    // console.log(`Importing page pair ${pair.id}`);
+    // // console.log(`Importing page pair ${pair.id}`);
+    // if (childId !== '2w1') {
+    //   // console.log(`Skipping page pair ${pair.id} because childId is not 2w1`);
+    //   continue;
+    // }
 
 
     // Map Arbital page IDs to our internal tag IDs
     const [parentMultiDoc, childMultiDoc, parentTag, childTag] = await Promise.all([
-      MultiDocuments.findOne({ 'legacyData.arbitalPageId': parentId, fieldName: 'description' }),
-      MultiDocuments.findOne({ 'legacyData.arbitalPageId': childId, fieldName: 'description' }),
+      MultiDocuments.findOne({ 'legacyData.arbitalLensId': parentId, fieldName: 'description' }),
+      MultiDocuments.findOne({ 'legacyData.arbitalLensId': childId, fieldName: 'description' }),
       Tags.findOne({ 'legacyData.arbitalPageId': parentId, deleted: false }),
       Tags.findOne({ 'legacyData.arbitalPageId': childId, deleted: false })
     ]);
@@ -1387,7 +1391,34 @@ async function importPagePairs(
     const parentCollectionName = parentMultiDoc ? 'MultiDocuments' : 'Tags';
     const childCollectionName = childMultiDoc ? 'MultiDocuments' : 'Tags';
 
+    // if (!parentDoc || !childDoc) {
+    //   console.log(`Skipping page pair ${pair.id} because ${parentDoc ? `parentDoc (${parentId}) is missing` : ''} and/or ${childDoc ? `childDoc (${childId}) is missing` : ''}`);
+    //   console.log({parentMultiDoc, childMultiDoc, parentTagQuickInfo: {name: parentTag?.name, slug: parentTag?.slug, id: parentTag?._id}, childTagQuickInfo: {name: childTag?.name, slug: childTag?.slug, id: childTag?._id}});
+    //   continue;
+    // }
+
     if (!parentDoc || !childDoc) {
+      console.log(`Skipping page pair ${pair.id} because ${
+        !parentDoc ? `parentDoc (${parentId}) is missing` : ''
+      }${
+        !parentDoc && !childDoc ? ' and ' : ''
+      }${
+        !childDoc ? `childDoc (${childId}) is missing` : ''
+      }`);
+      console.log({
+        parentMultiDoc,
+        childMultiDoc,
+        parentTagQuickInfo: {
+          name: parentTag?.name,
+          slug: parentTag?.slug,
+          id: parentTag?._id,
+        },
+        childTagQuickInfo: {
+          name: childTag?.name,
+          slug: childTag?.slug,
+          id: childTag?._id,
+        },
+      });
       continue;
     }
 
