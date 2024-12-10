@@ -9,7 +9,7 @@ import {
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import type { NotificationDisplay } from "../../../lib/notificationTypes";
-import type { NewKarmaChanges } from "../../../lib/collections/users/karmaChangesGraphQL";
+import type { KarmaChanges } from "../../../lib/collections/users/karmaChangesGraphQL";
 import type { KarmaChangeUpdateFrequency } from "../../../lib/collections/users/schema";
 import { useNotificationDisplays } from "./useNotificationDisplays";
 
@@ -78,7 +78,7 @@ const batchingMessages: Record<KarmaChangeUpdateFrequency, string> = {
 };
 
 export const NotificationsPageFeed = ({karmaChanges, classes}: {
-  karmaChanges?: NewKarmaChanges,
+  karmaChanges?: KarmaChanges,
   classes: ClassesType<typeof styles>,
 }) => {
   const [limit, setLimit] = useState(DEFAULT_LIMIT);

@@ -42,7 +42,7 @@ addGraphQLSchema(`
     reactionType: String!
     userId: String
   }
-  type TodaysKarmaChanges {
+  type KarmaChangesSimple {
     posts: [PostKarmaChange]
     comments: [CommentKarmaChange]
     tagRevisions: [RevisionsKarmaChange]
@@ -56,7 +56,7 @@ addGraphQLSchema(`
     posts: [PostKarmaChange]
     comments: [CommentKarmaChange]
     tagRevisions: [RevisionsKarmaChange]
-    todaysKarmaChanges: TodaysKarmaChanges
+    todaysKarmaChanges: KarmaChangesSimple
   }
 `);
 
@@ -132,13 +132,13 @@ export type TagRevisionKarmaChange = KarmaChangeBase & {
 
 export type AnyKarmaChange = PostKarmaChange | CommentKarmaChange | TagRevisionKarmaChange;
 
-export type KarmaChanges = {
+export type KarmaChangesSimple = {
   posts: PostKarmaChange[],
   comments: CommentKarmaChange[],
   tagRevisions: TagRevisionKarmaChange[],
 }
 
-export type NewKarmaChanges = {
+export type KarmaChanges = {
   totalChange: number,
   startDate?: Date,
   endDate?: Date,
@@ -147,5 +147,5 @@ export type NewKarmaChanges = {
   posts: PostKarmaChange[],
   comments: CommentKarmaChange[],
   tagRevisions: TagRevisionKarmaChange[],
-  todaysKarmaChanges?: KarmaChanges,
+  todaysKarmaChanges?: KarmaChangesSimple,
 }

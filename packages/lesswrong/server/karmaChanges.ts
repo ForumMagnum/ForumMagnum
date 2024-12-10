@@ -9,13 +9,13 @@ import { compile as compileHtmlToText } from 'html-to-text'
 import sumBy from 'lodash/sumBy';
 import VotesRepo from './repos/VotesRepo';
 import type {
-  NewKarmaChanges,
+  KarmaChanges,
   KarmaChangesArgs,
   PostKarmaChange,
   CommentKarmaChange,
   TagRevisionKarmaChange,
   AnyKarmaChange,
-  KarmaChanges,
+  KarmaChangesSimple,
 } from '../lib/collections/users/karmaChangesGraphQL';
 import { isFriendlyUI } from '../themes/forumTheme';
 
@@ -35,7 +35,7 @@ const isCommentKarmaChange = (change: AnyKarmaChange): change is CommentKarmaCha
  * calculates the total karma change for that account,
  * and splits the karma changes into buckets by content type.
  */
-const categorizeKarmaChanges = (changes: AnyKarmaChange[]): KarmaChanges & {totalChange: number} => {
+const categorizeKarmaChanges = (changes: AnyKarmaChange[]): KarmaChangesSimple & {totalChange: number} => {
   const posts: PostKarmaChange[] = [];
   const comments: CommentKarmaChange[] = [];
   const tagRevisions: TagRevisionKarmaChange[] = [];
@@ -66,7 +66,7 @@ const getEAKarmaChanges = async (
   args: KarmaChangesArgs,
   nextBatchDate: Date|null,
   updateFrequency: KarmaChangeUpdateFrequency,
-): Promise<NewKarmaChanges> => {
+): Promise<KarmaChanges> => {
   const changes = await votesRepo.getEAKarmaChanges(args);
   const newChanges = categorizeKarmaChanges(changes)
   
@@ -75,7 +75,7 @@ const getEAKarmaChanges = async (
   // in the past 24 hours underneath the ones they got since
   // the last time they checked.
   // This way they don't lose the changes after viewing them once.
-  let todaysKarmaChanges: KarmaChanges|undefined
+  let todaysKarmaChanges: KarmaChangesSimple|undefined
   if (updateFrequency === 'realtime') {
     const yesterday = moment().subtract(1, 'day').toDate()
     if (args.startDate > yesterday) {
@@ -151,7 +151,7 @@ export const getKarmaChanges = async ({user, startDate, endDate, nextBatchDate=n
   nextBatchDate?: Date|null,
   af?: boolean,
   context?: ResolverContext,
-}): Promise<NewKarmaChanges> => {
+}): Promise<KarmaChanges> => {
   if (!user) throw new Error("Missing required argument: user");
   if (!startDate) throw new Error("Missing required argument: startDate");
   if (!endDate) throw new Error("Missing required argument: endDate");

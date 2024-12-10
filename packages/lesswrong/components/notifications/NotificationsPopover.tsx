@@ -6,7 +6,7 @@ import { styles as popoverStyles } from "../common/FriendlyHoverOver";
 import { useNotificationDisplays } from "./NotificationsPage/useNotificationDisplays";
 import { karmaSettingsLink } from "./NotificationsPage/NotificationsPageFeed";
 import type { NotificationDisplay } from "@/lib/notificationTypes";
-import type { NewKarmaChanges } from "@/lib/collections/users/karmaChangesGraphQL";
+import type { KarmaChanges } from "@/lib/collections/users/karmaChangesGraphQL";
 import type { KarmaChangeUpdateFrequency } from "@/lib/collections/users/schema";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { NotificationsPopoverContext, NotifPopoverLink } from "./useNotificationsPopoverContext";
@@ -91,7 +91,7 @@ const getKarmaFrequency = (batchingFrequency: KarmaChangeUpdateFrequency) => {
 const defaultLimit = 20;
 
 const NotificationsPopover = ({karmaChanges, markAllAsRead, closePopover, classes}: {
-  karmaChanges?: NewKarmaChanges,
+  karmaChanges?: KarmaChanges,
   markAllAsRead?: () => void,
   closePopover?: () => void,
   classes: ClassesType<typeof styles>,
