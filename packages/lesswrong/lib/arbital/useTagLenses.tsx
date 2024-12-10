@@ -103,6 +103,10 @@ export function useTagLenses(tag: TagPageFragment | TagPageWithRevisionFragment 
         // If the lens doesn't exist, reset the search query
         navigate({ ...location, search: '' }, { replace: true });
       }
+    } else {
+      // If the lens query param is not set, select the main tab
+      // Generally this is only relevant if the user clicks the back button after navigating to a lens from the main tab
+      setSelectedLensId(MAIN_TAB_ID);
     }
   }, [query.lens, availableLenses, navigate, location, querySelectedLens]);
 
