@@ -1,9 +1,9 @@
 import React from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
-import type { KarmaChanges } from "../../../lib/collections/users/karmaChangesGraphQL";
+import type { KarmaChangesSimple } from "../../../lib/collections/users/karmaChangesGraphQL";
 
 export const NotificationsPageKarmaChangeList = ({karmaChanges}: {
-  karmaChanges?: KarmaChanges,
+  karmaChanges?: KarmaChangesSimple,
 }) => {
   const {NotificationsPageKarmaChange} = Components;
   return (
