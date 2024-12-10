@@ -392,9 +392,6 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
       content: '","',
     },
   },
-  linkedTagsContainer: {
-    // Add any container-specific styles if needed
-  },
   linkedTagsHeader: {
     position: 'relative',
     fontSize: '1.0rem',
@@ -493,44 +490,8 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     fontFamily: theme.palette.fonts.sansSerifStack,
     color: theme.palette.greyAlpha(0.5),
   },
-  unselectedEditForm: {
-    display: 'none',
-  },
-  selectedEditForm: {
-    display: 'block',
-  },
-  descriptionContainerEditing: {
-    display: 'none',
-  },
   contributorRatio: {},
   ...tagPageHeaderStyles(theme),
-  conceptRow: {
-    ...theme.typography.body2,
-    color: theme.palette.grey[600],
-    '& a': {
-      color: theme.palette.primary.main,
-      textDecoration: 'none',
-      '&:hover': {
-        textDecoration: 'underline',
-      },
-    },
-    marginBottom: 8,
-    display: 'flex',
-    flexWrap: 'wrap',
-    gap: 0,
-    '& > div': {
-      display: 'flex',
-      flexWrap: 'wrap',
-      '&:first-child:not(:last-child)': {
-        marginRight: '2px',
-      },
-      '@media (max-width: 600px)': {
-        '&:first-child': {
-          marginRight: 0,
-        },
-      },
-    },
-  },
   mobileRelationships: {
     [theme.breakpoints.up('md')]: {
       display: 'none',
@@ -1153,11 +1114,6 @@ useEffect(() => {
     // Check if they would naturally wrap
     const wrapperWidth = wrapperEl.getBoundingClientRect().width;
     const combinedWidth = requiresRect.width + teachesRect.width;
-    
-    console.log('Wrapper width:', wrapperWidth);
-    console.log('Requires width:', requiresRect.width);
-    console.log('Teaches width:', teachesRect.width);
-    console.log('Combined width:', combinedWidth);
 
     const needsBreak = combinedWidth > wrapperWidth;
 
