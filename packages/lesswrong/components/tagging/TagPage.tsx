@@ -942,7 +942,7 @@ const TagPage = () => {
 
   const { topContributors, smallContributors } = useDisplayedContributors(tag);
   
-  if (loadingTag)
+  if (loadingTag && !tag)
     return <Loading/>
   if (!tag) {
     const lens = lensWithParentTag?.[0];
