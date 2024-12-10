@@ -854,10 +854,6 @@ const TagPage = () => {
     },
   });
 
-  const pathInfo = usePathInfo(tag);
-
-  const { tag: guideTag } = useTagBySlug(pathInfo?.pathId ?? '', 'TagBasicInfo', { skip: !pathInfo?.pathId });
-
   const { results: lensWithParentTag } = useMulti({
     collectionName: 'MultiDocuments',
     fragmentName: 'MultiDocumentParentDocument',

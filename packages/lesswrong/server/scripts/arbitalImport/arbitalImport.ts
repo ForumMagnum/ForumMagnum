@@ -166,6 +166,7 @@ async function createSummariesForPage({ pageId, importedRecordMaps, pageCreator,
       markdown: summary.text,
       pageId,
       conversionContext,
+      convertedPage: summary,
     });
 
     let parentDocumentId: string;
@@ -584,9 +585,11 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
       const pageAliasRedirects = database.aliasRedirects.filter(ar => ar.newAlias === pageInfo.alias);
       const oldSlugs = uniq([pageInfo.alias, pageInfo.pageId, ...pageAliasRedirects.map(ar => ar.oldAlias)]);
 
-      const oldestRevArbitalMarkdown = revisions[0].text;
+      const oldestRev = revisions[0];
+      const oldestRevArbitalMarkdown = oldestRev.text;
       const oldestRevCkEditorMarkup = await arbitalMarkdownToCkEditorMarkup({
-        markdown: oldestRevArbitalMarkdown, pageId, conversionContext
+        markdown: oldestRevArbitalMarkdown, pageId, conversionContext,
+        convertedPage: oldestRev,
       });
       console.log(`Creating wiki page: ${title} (${slug}).  Lenses found: ${lenses.map(l=>l.lensName).join(", ")}`);
 
@@ -711,6 +714,7 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
           markdown: lensFirstRevision.text,
           pageId: lens.lensId,
           conversionContext,
+          convertedPage: lensFirstRevision,
         });
 
         // Create the lens, with the oldest revision
@@ -912,6 +916,7 @@ async function importComments(database: WholeArbitalDatabase, resolverContext: R
       markdown: livePublicRev.text,
       pageId: commentId,
       conversionContext,
+      convertedPage: livePublicRev,
     });
     const lwWikiPageId = wikiPageParentId ? (await Tags.findOne({
       "legacyData.arbitalPageId": wikiPageParentId,
@@ -1024,6 +1029,7 @@ async function importRevisions<N extends CollectionNameString>({
     (rev) => arbitalMarkdownToCkEditorMarkup({
       markdown: rev.text, pageId,
       conversionContext,
+      convertedPage: rev,
     })
   );
   for (let i=0; i<revisions.length-1; i++) {
