@@ -18,8 +18,20 @@ import moment from "moment";
 import type { Moment } from "moment";
 import type { ForumIconName } from "../common/ForumIcon";
 import { GivingSeasonHeart } from "../review/ReviewVotingCanvas";
+import { gql } from "@apollo/client";
 
 const DOT_SIZE = 12;
+
+/** Style to pass pointer events through one element, but not have this affect all children */
+const PASS_THROUGH_POINTER_EVENTS = {
+  pointerEvents: "none",
+  "& > *": {
+    pointerEvents: "all",
+  },
+}
+
+// TODO:
+// - Potentially mess with the header bar, to allow placing hearts there
 
 // Notes (TODO remove):
 // - coords should be normalised, the reference is the div with class GivingSeason2024Banner-root
@@ -61,7 +73,7 @@ const styles = (theme: ThemeType) => ({
     left: 0,
     width: "100%",
     height: "100%",
-    zIndex: -1,
+    zIndex: 0,
     background: theme.palette.text.alwaysWhite,
   },
   background: {
@@ -75,6 +87,7 @@ const styles = (theme: ThemeType) => ({
     backgroundSize: "cover",
     backgroundRepeat: "no-repeat",
     backgroundBlendMode: "darken",
+    overflow: "hidden"
   },
   backgroundActive: {
     opacity: 1,
@@ -201,6 +214,7 @@ const styles = (theme: ThemeType) => ({
     maxHeight: 1,
   },
   eventDetails: {
+    ...PASS_THROUGH_POINTER_EVENTS,
     position: "relative",
     display: "inline-flex",
     verticalAlign: "middle",
@@ -219,6 +233,7 @@ const styles = (theme: ThemeType) => ({
     },
   },
   simpleEventContainer: {
+    ...PASS_THROUGH_POINTER_EVENTS,
     flexGrow: 1,
   },
   eventDate: {
@@ -394,43 +409,174 @@ const styles = (theme: ThemeType) => ({
   heartsContainer: {
     width: "100%",
     height: "100%",
-    opacity: 1
+    position: "absolute"
   },
   heart: {
     color: theme.palette.givingSeason.heart,
     width: 20,
     height: 20,
-    transform: "translate(-10px, -10px)",
+    position: "absolute",
+    transformOrigin: "center",
     // TODO probably smaller on mobile
-  }
-  // heartsContainerHidden: {
-  //   width: "100%",
-  //   height: "100%",
-  //   opacity: 1
-  // }
+  },
+  hoverHeart: {
+    opacity: 0.5,
+    pointerEvents: "none",
+  },
 });
+
+// TODO move these plus the Hearts component to their own file
+// TODO put the heart data on the ForumEvent
+const heartsQuery = gql`
+  query GivingSeasonHeartsQuery($electionName: String!) {
+    GivingSeasonHearts(electionName: $electionName) {
+      userId
+      displayName
+      x
+      y
+      theta
+    }
+  }
+`;
+
+const addHeartMutation = gql`
+  mutation AddGivingSeasonHeart(
+    $electionName: String!,
+    $x: Float!,
+    $y: Float!,
+    $theta: Float!
+  ) {
+    AddGivingSeasonHeart(
+      electionName: $electionName,
+      x: $x,
+      y: $y,
+      theta: $theta
+    ) {
+      userId
+      displayName
+      x
+      y
+      theta
+    }
+  }
+`;
+
+const removeHeartMutation = gql`
+  mutation RemoveGivingSeasonHeart($electionName: String!) {
+    RemoveGivingSeasonHeart(electionName: $electionName) {
+      userId
+      displayName
+      x
+      y
+      theta
+    }
+  }
+`;
 
 const Hearts: FC<{
   classes: ClassesType<typeof styles>;
 }> = ({ classes }) => {
-  // TODO handle null refs
-  // const [style, setStyle] = useState<React.CSSProperties>({});
-  const userHeartRef = useRef<HTMLDivElement | null>(null);
-
   const { ForumIcon, ForumEventCommentForm } = Components;
 
+  const [hoverPos, setHoverPos] = useState<{ x: number; y: number } | null>(
+    null
+  );
+  const [placedHearts, setPlacedHearts] = useState<
+    { x: number; y: number; theta: number }[]
+  >([]);
+
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  const normalizeCoords = useCallback(
+    (clientX: number, clientY: number) => {
+      if (containerRef.current) {
+        const bounds = containerRef.current.getBoundingClientRect();
+        if (
+          clientX > bounds.left &&
+          clientX < bounds.right &&
+          clientY > bounds.top &&
+          clientY < bounds.bottom
+        ) {
+          return {
+            x: (clientX - bounds.left) / bounds.width,
+            y: (clientY - bounds.top) / bounds.height,
+          };
+        }
+      }
+      return null;
+    },
+    [containerRef]
+  );
+
+  const handleMouseMove = useCallback(
+    (event: React.MouseEvent) => {
+      const coords = normalizeCoords(event.clientX, event.clientY);
+      if (coords) {
+        setHoverPos(coords);
+      } else {
+        setHoverPos(null);
+      }
+    },
+    [normalizeCoords]
+  );
+
+  const handleMouseLeave = useCallback(() => {
+    setHoverPos(null);
+  }, []);
+
+  const handleClick = useCallback(
+    (event: React.MouseEvent) => {
+      const coords = normalizeCoords(event.clientX, event.clientY);
+      if (coords) {
+        const theta = (Math.random() * 50) - 25; // Random rotation between -25 and 25 degrees
+        setPlacedHearts((prev) => [...prev, { ...coords, theta }]);
+      }
+    },
+    [normalizeCoords]
+  );
+
   return (
-    <div className={classes.heartsContainer}>
+    <div
+      className={classes.heartsContainer}
+      ref={containerRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      onClick={handleClick}
+    >
+      {hoverPos && (
+        <div
+          className={classNames(classes.heart, classes.hoverHeart)}
+          style={{
+            position: "absolute",
+            left: `${hoverPos.x * 100}%`,
+            top: `${hoverPos.y * 100}%`,
+            transform: "translate(-50%, -50%)",
+          }}
+        >
+          <ForumIcon icon="Heart" />
+        </div>
+      )}
+      {placedHearts.map((heart, index) => (
+        <div
+          key={index}
+          className={classes.heart}
+          style={{
+            left: `${heart.x * 100}%`,
+            top: `${heart.y * 100}%`,
+            transform: `rotate(${heart.theta}deg) translate(-50%, -50%)`,
+          }}
+        >
+          <ForumIcon icon="Heart" />
+        </div>
+      ))}
       {DEBUG_HEARTS.map((heart, index) => (
         <div
           key={index}
           className={classes.heart}
-          ref={index === 4 ? userHeartRef : null}
           style={{
-            position: "absolute",
             left: `${heart.x * 100}%`,
             top: `${heart.y * 100}%`,
-            transform: `rotate(${heart.theta}deg)`,
+            transform: `rotate(${heart.theta}deg) translate(-50%, -50%)`,
           }}
         >
           <ForumIcon icon="Heart" />
@@ -448,6 +594,7 @@ const Hearts: FC<{
     </div>
   );
 };
+
 
 const scrollIntoViewHorizontally = (
   container: HTMLElement,
@@ -628,6 +775,9 @@ const GivingSeason2024Banner = ({classes}: {
           </div>
         ))}
       </div>
+      {/* <div className={classes.backgrounds} style={{ zIndex: 1 }} onMouseMove={(e) => {console.log({e})}}>
+        
+      </div> */}
       <div className={classes.banner}>
         <Link to="/posts/srZEX2r9upbwfnRKw/giving-season-2024-announcement">GIVING SEASON 2024</Link>
       </div>
