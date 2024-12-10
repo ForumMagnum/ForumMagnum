@@ -361,7 +361,7 @@ export type ArbitalConversionContext = {
 }
 
 async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: ResolverContext, options: ArbitalImportOptions): Promise<void> {
-  // await importWikiPages(database, resolverContext, options);
+  await importWikiPages(database, resolverContext, options);
   await importPagePairs(database, resolverContext, options);
   //await importComments(database, resolverContext, options);
 }

@@ -746,18 +746,6 @@ const TagPage = () => {
   const { selectedLensId, selectedLens, updateSelectedLens, lenses } = useTagLenses(tag);
   const displayedTagTitle = useDisplayedTagTitle(tag, lenses, selectedLens);
 
-  // useEffect(() => {
-  //   const { requirements, teaches, lessTechnical, moreTechnical, slower, faster } = selectedLens?.arbitalLinkedPages as ArbitalLinkedPages;
-
-  //   console.log({
-  //     selectedLensTitle: selectedLens?.title,
-  //     selectedLensTabTitle: selectedLens?.tabTitle,
-  //     selectedLensId: selectedLens?._id,
-  //     selectedLensArbitalLinkedPages: selectedLens?.arbitalLinkedPages,
-  //     requirements, teaches, lessTechnical, moreTechnical, slower, faster
-  //   });
-  // }, [selectedLens]);
-
   const tagPositionInList = otherTagsWithNavigation?.findIndex(tagInList => tag?._id === tagInList._id);
   // We have to handle updates to the listPosition explicitly, since we have to deal with three cases
   // 1. Initially the listPosition is -1 because we don't have a list at all yet
@@ -1004,8 +992,6 @@ const TagPage = () => {
   //   </ContentStyles>
   // );
 
-  // console.log({tagName: tag.name, linkedPages: JSON.stringify(tag.arbitalLinkedPages, null, 2)});
-
   const linkedTag = (linkedPage: TagBasicInfo) => <div key={linkedPage.slug} className={classes.linkedTag}>
     <TagsTooltip placement="left" tagSlug={linkedPage.slug}>
       <Link to={tagGetUrl(linkedPage)}>{linkedPage.name}</Link>
@@ -1015,14 +1001,6 @@ const TagPage = () => {
   const hasList = (list: TagBasicInfo[] | undefined) => list && list?.length > 0;
 
   const { requirements, teaches, lessTechnical, moreTechnical, slower, faster } = selectedLens?.arbitalLinkedPages as ArbitalLinkedPages;
-
-  // console.log({
-    // selectedLensTitle: selectedLens?.title,
-    // selectedLensTabTitleAndSubtitle: selectedLens?.tabTitle + " " + selectedLens?.tabSubtitle,
-    // selectedLensId: selectedLens?._id,
-    // for each list of tagInfos in the ArbitalLinkedPagesFragment, log the name of each tagInfo
-    // selectedLensArbitalLinkedPages: selectedLens?.arbitalLinkedPages
-  // });
 
   const linkedTags = (
     <ContentStyles contentType="tag" className={classes.linkedTagsContainer}>
