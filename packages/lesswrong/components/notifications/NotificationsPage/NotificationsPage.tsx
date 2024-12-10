@@ -5,7 +5,7 @@ import { useCurrentUser } from "../../common/withUser";
 import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 import { useUnreadNotifications } from "../../hooks/useUnreadNotifications";
 import { NotificationsPageTabContextProvider } from "./notificationsPageTabs";
-import type { KarmaChanges } from "../../../lib/collections/users/karmaChangesGraphQL";
+import type { NewKarmaChanges } from "../../../lib/collections/users/karmaChangesGraphQL";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -38,7 +38,7 @@ export const NotificationsPage = ({classes}: {
 
   // Save the initial karma changes to display, as they'll be marked as read
   // once the user visits the page and they'll dissapear
-  const karmaChanges = useRef<KarmaChanges>();
+  const karmaChanges = useRef<NewKarmaChanges>();
   if (fetchedKarmaChanges && !karmaChanges.current) {
     karmaChanges.current = fetchedKarmaChanges.karmaChanges;
   }

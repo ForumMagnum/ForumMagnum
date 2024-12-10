@@ -9,12 +9,13 @@ import { compile as compileHtmlToText } from 'html-to-text'
 import sumBy from 'lodash/sumBy';
 import VotesRepo from './repos/VotesRepo';
 import type {
-  KarmaChanges,
+  NewKarmaChanges,
   KarmaChangesArgs,
   PostKarmaChange,
   CommentKarmaChange,
   TagRevisionKarmaChange,
   AnyKarmaChange,
+  KarmaChanges,
 } from '../lib/collections/users/karmaChangesGraphQL';
 import { isFriendlyUI } from '../themes/forumTheme';
 
@@ -29,14 +30,12 @@ const isPostKarmaChange = (change: AnyKarmaChange): change is PostKarmaChange =>
 const isCommentKarmaChange = (change: AnyKarmaChange): change is CommentKarmaChange =>
   "tagCommentType" in change && !!change.tagCommentType;
 
-const getEAKarmaChanges = async (
-  votesRepo: VotesRepo,
-  args: KarmaChangesArgs,
-  nextBatchDate: Date|null,
-  updateFrequency: KarmaChangeUpdateFrequency,
-): Promise<KarmaChanges> => {
-  const changes = await votesRepo.getEAKarmaChanges(args);
-
+/**
+ * Given an array of karma changes on an account's content,
+ * calculates the total karma change for that account,
+ * and splits the karma changes into buckets by content type.
+ */
+const categorizeKarmaChanges = (changes: AnyKarmaChange[]): KarmaChanges & {totalChange: number} => {
   const posts: PostKarmaChange[] = [];
   const comments: CommentKarmaChange[] = [];
   const tagRevisions: TagRevisionKarmaChange[] = [];
@@ -56,16 +55,49 @@ const getEAKarmaChanges = async (
       tagRevisions.push(change);
     }
   }
+  
+  return {
+    totalChange, posts, comments, tagRevisions
+  }
+}
+
+const getEAKarmaChanges = async (
+  votesRepo: VotesRepo,
+  args: KarmaChangesArgs,
+  nextBatchDate: Date|null,
+  updateFrequency: KarmaChangeUpdateFrequency,
+): Promise<NewKarmaChanges> => {
+  const changes = await votesRepo.getEAKarmaChanges(args);
+  const newChanges = categorizeKarmaChanges(changes)
+  
+  // For users with realtime karma notifications,
+  // we also display the rest of the karma changes that they got
+  // in the past 24 hours underneath the ones they got since
+  // the last time they checked.
+  // This way they don't lose the changes after viewing them once.
+  let todaysKarmaChanges: KarmaChanges|undefined
+  if (updateFrequency === 'realtime') {
+    const yesterday = moment().subtract(1, 'day').toDate()
+    if (args.startDate > yesterday) {
+      const todaysChanges = await votesRepo.getEAKarmaChanges({
+        ...args,
+        startDate: yesterday,
+        endDate: args.startDate,
+      })
+      todaysKarmaChanges = categorizeKarmaChanges(todaysChanges)
+    }
+  }
 
   return {
-    totalChange,
+    totalChange: newChanges.totalChange,
     startDate: args.startDate,
     endDate: args.endDate,
     nextBatchDate: nextBatchDate ?? undefined,
     updateFrequency,
-    posts,
-    comments,
-    tagRevisions,
+    posts: newChanges.posts,
+    comments: newChanges.comments,
+    tagRevisions: newChanges.tagRevisions,
+    todaysKarmaChanges,
   };
 }
 
@@ -119,7 +151,7 @@ export const getKarmaChanges = async ({user, startDate, endDate, nextBatchDate=n
   nextBatchDate?: Date|null,
   af?: boolean,
   context?: ResolverContext,
-}): Promise<KarmaChanges> => {
+}): Promise<NewKarmaChanges> => {
   if (!user) throw new Error("Missing required argument: user");
   if (!startDate) throw new Error("Missing required argument: startDate");
   if (!endDate) throw new Error("Missing required argument: endDate");

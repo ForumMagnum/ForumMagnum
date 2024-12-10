@@ -305,6 +305,47 @@ registerFragment(`
         }
         eaAddedReacts
       }
+      todaysKarmaChanges {
+        posts {
+          _id
+          scoreChange
+          title
+          slug
+          addedReacts {
+            reactionType
+            userId
+          }
+          eaAddedReacts
+        }
+        comments {
+          _id
+          scoreChange
+          description
+          postId
+          postTitle
+          postSlug
+          tagSlug
+          tagName
+          tagCommentType
+          addedReacts {
+            reactionType
+            userId
+          }
+          eaAddedReacts
+        }
+        tagRevisions {
+          _id
+          scoreChange
+          tagId
+          tagSlug
+          tagName
+          addedReacts {
+            reactionType
+            userId
+          }
+          eaAddedReacts
+        }
+      }
     }
   }
 `);
