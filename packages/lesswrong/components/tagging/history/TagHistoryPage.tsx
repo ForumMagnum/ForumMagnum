@@ -9,7 +9,6 @@ import { RevealHiddenBlocksContext } from '@/components/editor/conditionalVisibi
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import Checkbox from '@material-ui/core/Checkbox';
 import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
 import { hasWikiLenses } from '@/lib/betas';
 
 const tagPageStyles = defineStyles("TagHistoryPage", (theme: ThemeType): JssStyles => ({
@@ -179,6 +178,7 @@ const TagHistoryFeedSettings = ({expanded, settings, setSettings, lenses}: {
   setSettings: (newSettings: TagHistorySettings) => void
   lenses: TagLens[]
 }) => {
+  const { MenuItem } = Components;
   const classes = useStyles(tagPageStyles);
   if (!expanded) return null;
 
