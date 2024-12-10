@@ -94,23 +94,17 @@ export function useTagLenses(tag: TagPageFragment | TagPageWithRevisionFragment 
 
       navigate({ ...location, search: newSearch });
     }
-  }, [availableLenses, location, navigate]);
+  }, [availableLenses, location, navigate, query]);
 
   useEffect(() => {
-    if (query.lens) {
-      if (tag && !querySelectedLens) {
-        // If the lens doesn't exist, reset the search query
-        navigate(
-          { ...location, search: qs.stringify(omit(query, "lens")) },
-          { replace: true }
-        );
-      }
-    } else {
-      // If the lens query param is not set, select the main tab
-      // Generally this is only relevant if the user clicks the back button after navigating to a lens from the main tab
-      setSelectedLensId(MAIN_TAB_ID);
+    if (query.lens && tag && !querySelectedLens) {
+      // If the lens doesn't exist, reset the search query
+      navigate(
+        { ...location, search: qs.stringify(omit(query, "lens")) },
+        { replace: true }
+      );
     }
-  }, [query.lens, availableLenses, navigate, location, querySelectedLens]);
+  }, [query, availableLenses, navigate, location, querySelectedLens, tag]);
 
   return {
     selectedLens,
