@@ -3908,6 +3908,7 @@ interface MultiDocumentEdit { // fragment on MultiDocuments
   readonly fieldName: string,
   readonly userId: string,
   readonly slug: string,
+  readonly oldSlugs: Array<string>,
   readonly title: string | null,
   readonly tabTitle: string,
   readonly tabSubtitle: string | null,

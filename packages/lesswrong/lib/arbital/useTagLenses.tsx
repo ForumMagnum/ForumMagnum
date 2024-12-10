@@ -19,6 +19,7 @@ export interface TagLens {
   tabTitle: string;
   tabSubtitle: string | null;
   slug: string;
+  oldSlugs: string[];
   userId: string;
   legacyData: AnyBecauseHard;
   originalLensDocument: MultiDocumentEdit | null;
@@ -45,6 +46,7 @@ function getDefaultLens(tag: TagPageFragment|TagPageWithRevisionFragment|TagHist
     tabTitle: 'Main',
     tabSubtitle: null,
     slug: 'main',
+    oldSlugs: [],
     userId: tag.userId,
     legacyData: {},
     originalLensDocument: null,

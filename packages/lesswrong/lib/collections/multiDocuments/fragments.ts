@@ -8,6 +8,7 @@ registerFragment(`
     fieldName
     userId
     slug
+    oldSlugs
     title
     tabTitle
     tabSubtitle
