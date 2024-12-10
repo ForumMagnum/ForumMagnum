@@ -193,15 +193,6 @@ export function arbitalLinkedPagesField(options: ArbitalLinkedPagesFieldOptions)
           { projection: { _id: 1, name: 1, slug: 1 } }
         ).fetch();
 
-        /*
-        We want to return a record that looks like this when the id is "vK7taEyLQXxuN3FBj", confirming fieldName is "description":
-        {
-          _id: "vK7taEyLQXxuN3FBj",
-          parentDocumentId: "Ka9CrdPZZvJn8veED",
-          collectionName: "Tags",
-          fieldName: "description",
-        }
-        */
 
         //do the same for MultiDocuments
         const multiDocs = await MultiDocuments.find(
@@ -213,7 +204,7 @@ export function arbitalLinkedPagesField(options: ArbitalLinkedPagesFieldOptions)
         const multiDocsWithName = multiDocs.map((doc) => ({
           _id: doc.parentDocumentId,
           name: doc.title,
-          slug: doc.slug,
+          slug: doc.slug, // TODO: make this something that works for lenses
         }));
 
         return [...tags, ...multiDocsWithName];
@@ -229,17 +220,6 @@ export function arbitalLinkedPagesField(options: ArbitalLinkedPagesFieldOptions)
         { projection: { parentDocumentId: 1 } }
       ).fetch();
 
-      // console.log({
-      //   // remove html fields
-      //   document: {
-      //     _id: doc._id,
-      //     legacyData: doc.legacyData,
-      //     slug: doc.slug,
-      //     oldSlugs: doc.oldSlugs,
-      //     name: doc.name,
-      //   },
-      //   requirementsRels,
-      // });
 
       const requirementDocumentIds = requirementsRels.map((rel) => rel.parentDocumentId);
 
@@ -258,12 +238,12 @@ export function arbitalLinkedPagesField(options: ArbitalLinkedPagesFieldOptions)
 
       // Collect all unique tag IDs
       const allDocumentIds = new Set<string>([
-        // ...alternativeTypeMap.faster,
-        // ...alternativeTypeMap.slower,
-        // ...alternativeTypeMap.moreTechnical,
-        // ...alternativeTypeMap.lessTechnical,
+        ...alternativeTypeMap.faster,
+        ...alternativeTypeMap.slower,
+        ...alternativeTypeMap.moreTechnical,
+        ...alternativeTypeMap.lessTechnical,
         ...requirementDocumentIds,
-        // ...teachesDocumentIds,
+        ...teachesDocumentIds,
       ]);
 
       const allDocumentsArray = await getDocumentsByIds(Array.from(allDocumentIds));
@@ -276,27 +256,6 @@ export function arbitalLinkedPagesField(options: ArbitalLinkedPagesFieldOptions)
       const lessTechnicalDocuments = alternativeTypeMap.lessTechnical.map(id => allDocuments.get(id)).filter(Boolean);
       const requirementsDocuments = requirementDocumentIds.map(id => allDocuments.get(id)).filter(Boolean);
       const teachesDocuments = teachesDocumentIds.map(id => allDocuments.get(id)).filter(Boolean);
-
-      console.log({
-        document: {
-          _id: doc._id,
-          legacyData: doc.legacyData,
-          slug: doc.slug,
-          oldSlugs: doc.oldSlugs,
-          name: doc.name,
-        },
-        requirementsRels,
-        requirementDocumentIds,
-        allDocumentIds,
-        allDocuments,
-
-        // fasterDocuments,
-        // slowerDocuments,
-        // moreTechnicalDocuments,
-        // lessTechnicalDocuments,
-        requirementsDocuments,
-        // teachesDocuments,
-      })
 
       // Return the ArbitalLinkedPages object
       return {
