@@ -4106,7 +4106,7 @@ interface ArbitalTagContentRelsDefaultFragment { // fragment on ArbitalTagConten
   readonly childDocumentId: string,
   readonly parentCollectionName: "Tags" | "MultiDocuments",
   readonly childCollectionName: "Tags" | "MultiDocuments",
-  readonly type: "parent-taught-by-child" | "parent-is-requirement-of-child" | "parent-is-tag-of-child",
+  readonly type: "parent-taught-by-child" | "parent-is-requirement-of-child" | "parent-is-tag-of-child" | "parent-is-parent-of-child",
   readonly level: number,
   readonly isStrong: boolean,
 }

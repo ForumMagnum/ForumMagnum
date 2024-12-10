@@ -121,6 +121,13 @@ Globals.deleteImportedArbitalUsers = async () => {
   }
 }
 
+Globals.importArbitalPagePairs = async (mysqlConnectionString: string) => {
+  const database = await connectAndLoadArbitalDatabase(mysqlConnectionString);
+  const resolverContext = createAdminContext();
+  const options: ArbitalImportOptions = {};
+  await importPagePairs(database, resolverContext, options);
+}
+
 Globals.replaceAllImportedArbitalData = async (mysqlConnectionString: string, options?: ArbitalImportOptions) => {
   console.log(`Removing previously-imported wiki pages`);
   await Globals.deleteImportedArbitalWikiPages();
@@ -469,7 +476,7 @@ async function buildConversionContext(database: WholeArbitalDatabase, options: A
   const pageInfosById = keyBy(database.pageInfos, pi=>pi.pageId);
   
   const { existingPagesToMove, pagesToConvertToLenses } = await findCollidingWikiPages(database);
-  await renameCollidingWikiPages(existingPagesToMove);
+  // await renameCollidingWikiPages(existingPagesToMove);
 
   //const matchedUsers: Record<string,DbUser|null> = { '2': await resolverContext.loaders.Users.load('nmk3nLpQE89dMRzzN') };
   const matchedUsers: Record<string,DbUser|null> = options.userMatchingFile
@@ -1350,8 +1357,12 @@ async function importPagePairs(
   resolverContext: ResolverContext,
   options: ArbitalImportOptions
 ): Promise<void> {
-  const conversionContext = await buildConversionContext(database, options);
-  const pageInfosById = conversionContext.pageInfosByPageId;
+  // replicating here rather than using buildConversionContext to avoid unintended side effects
+  const pageInfosById = keyBy(database.pageInfos, pi=>pi.pageId);
+  const defaultUser: DbUser|null = await Users.findOne({ username: "arbitalimport" });
+  if (!defaultUser) {
+    throw new Error("There must be a fallback user named arbitalimport to assign edits to");
+  }
 
   console.log("Truncating ArbitalTagContentRels collection");
   await ArbitalTagContentRels.rawRemove({});
@@ -1360,7 +1371,7 @@ async function importPagePairs(
 
   const filteredPagePairs = database.pagePairs.filter(pair => {
     const { parentId, childId, type } = pair;
-    const validType = ['tag', 'subject', 'requirement'].includes(type);
+    const validType = ['tag', 'subject', 'requirement', 'parent'].includes(type);
     const parentInfo = pageInfosById[parentId];
     const childInfo = pageInfosById[childId];
     const pagesExist = parentInfo && childInfo;
@@ -1369,6 +1380,8 @@ async function importPagePairs(
   });
 
   console.log(`Importing ${filteredPagePairs.length} page pairs`);
+
+  const arbitalTagContentRels: Array<Omit<DbArbitalTagContentRel, '_id'>> = [];
 
   for (const pair of filteredPagePairs) {
     const { parentId, childId, type, level, isStrong, createdAt } = pair;
@@ -1426,54 +1439,57 @@ async function importPagePairs(
       case 'tag':
         mappedType = 'parent-is-tag-of-child';
         break;
+      case 'parent':
+        mappedType = 'parent-is-parent-of-child';
+        break;
       default:
         continue;
     }
 
-    console.log(`Importing relationship ${
+    console.log(`Queueing relationship ${
       isMultiDocument(parentDoc) ? parentDoc.title : parentDoc.name
     } -> ${
       isMultiDocument(childDoc) ? childDoc.title : childDoc.name
     } with type ${mappedType}`);
 
 
-    // Create the ArbitalTagContentRel document
-    const pairCreator = conversionContext.matchedUsers[pair.creatorId] ?? conversionContext.defaultUser;
-
-    await createMutator({
-      collection: ArbitalTagContentRels,
-      document: {
-        parentDocumentId: parentDoc._id,
-        childDocumentId: childDoc._id,
-        parentCollectionName,
-        childCollectionName,
-        type: mappedType,
-        level,
-        isStrong: !!isStrong,
-        createdAt,
-        legacyData: {
-          arbitalPagePairId: pair.id,
-        },
+    arbitalTagContentRels.push({
+      parentDocumentId: parentDoc._id,
+      childDocumentId: childDoc._id,
+      parentCollectionName,
+      childCollectionName,
+      type: mappedType,
+      level: mappedType === 'parent-is-parent-of-child' ? 0 : level,
+      isStrong: mappedType === 'parent-is-parent-of-child' ? false : !!isStrong,
+      createdAt,
+      // userId: pairCreator._id,
+      legacyData: {
+        arbitalPagePairId: pair.id,
       },
-      validate: false,
-      context: resolverContext,
-      currentUser: pairCreator,
+      schemaVersion: 1,
     });
   }
 
-  // // Bulk insert the relationships
-  // if (arbitalTagContentRels.length > 0) {
-  //   console.log(`Importing ${arbitalTagContentRels.length} pagePairs into ArbitalTagContentRels`);
-  //   for (const rel of arbitalTagContentRels) {
-  //     await createMutator({
-  //       collection: ArbitalTagContentRels,
-  //       document: rel,
-  //       validate: false,
-  //       context: resolverContext,
-  //       currentUser: null, // Or provide a system user if needed
-  //     });
-  //   }
-  // }
+  // Bulk insert the relationships
+  if (arbitalTagContentRels.length > 0) {
+    console.log(`Bulk importing ${arbitalTagContentRels.length} pagePairs into ArbitalTagContentRels`);
+    
+    // Process in chunks to avoid overwhelming the database
+    const chunkSize = 100;
+    for (let i = 0; i < arbitalTagContentRels.length; i += chunkSize) {
+      const chunk = arbitalTagContentRels.slice(i, i + chunkSize);
+      await Promise.all(chunk.map(rel => 
+        createMutator({
+          collection: ArbitalTagContentRels,
+          document: rel,
+          validate: false,
+          context: resolverContext,
+          currentUser: defaultUser,
+        })
+      ));
+      console.log(`Imported chunk ${Math.floor(i/chunkSize) + 1}/${Math.ceil(arbitalTagContentRels.length/chunkSize)}`);
+    }
+  }
 }
 
 // Function to undo the deletion of imported wiki pages

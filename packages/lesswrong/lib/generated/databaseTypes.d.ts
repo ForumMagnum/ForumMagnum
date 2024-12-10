@@ -38,7 +38,7 @@ interface DbArbitalTagContentRel extends DbObject {
   childDocumentId: string
   parentCollectionName: "Tags" | "MultiDocuments"
   childCollectionName: "Tags" | "MultiDocuments"
-  type: "parent-taught-by-child" | "parent-is-requirement-of-child" | "parent-is-tag-of-child"
+  type: "parent-taught-by-child" | "parent-is-requirement-of-child" | "parent-is-tag-of-child" | "parent-is-parent-of-child"
   level: number | null
   isStrong: boolean
   createdAt: Date

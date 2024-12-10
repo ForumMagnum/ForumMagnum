@@ -46,6 +46,7 @@ const schema: SchemaType<'ArbitalTagContentRels'> = {
       'parent-taught-by-child',
       'parent-is-requirement-of-child',
       'parent-is-tag-of-child',
+      'parent-is-parent-of-child',
     ],
   },
   level: {
