@@ -5,6 +5,7 @@ import { GUIDE_PATH_PAGES_MAPPING } from "@/lib/arbital/paths";
 import { useLocation } from '@/lib/routeUtil';
 import { useTagBySlug } from './useTag';
 import { Link } from '@/lib/reactRouterWrapper';
+import { TagLens } from '@/lib/arbital/useTagLenses';
 
 
 const styles = defineStyles("PathInfo", (theme) => ({
@@ -47,7 +48,7 @@ const styles = defineStyles("PathInfo", (theme) => ({
   },
 }));
 
-function usePathInfo(tag: TagPageFragment | TagPageWithRevisionFragment | null) {
+function usePathInfo(tag: TagPageFragment|TagPageWithRevisionFragment|null, lens: TagLens|null) {
   const { query } = useLocation();
 
   if (!tag) {
@@ -62,8 +63,10 @@ function usePathInfo(tag: TagPageFragment | TagPageWithRevisionFragment | null) 
   }
 
   const tagSlugs = [tag.slug, ...tag.oldSlugs];
+  const lensSlugs = lens ? [lens.slug, ...lens.oldSlugs] : [];
+  const allSlugs = [...tagSlugs, ...lensSlugs];
   let currentPagePathIndex;
-  for (let slug of tagSlugs) {
+  for (let slug of allSlugs) {
     const index = pathPages.indexOf(slug);
     if (index >= 0) {
       currentPagePathIndex = index;
@@ -83,13 +86,14 @@ function usePathInfo(tag: TagPageFragment | TagPageWithRevisionFragment | null) 
   return { displayPageIndex, nextPageId, previousPageId, pathPageCount, pathId };
 }
 
-const PathInfo = ({tag}: {
+const PathInfo = ({tag, lens}: {
   tag: TagPageFragment
+  lens: TagLens|null
 }) => {
   const classes = useStyles(styles);
   const { ForumIcon } = Components;
   
-  const pathInfo = usePathInfo(tag);
+  const pathInfo = usePathInfo(tag, lens);
   const { tag: guideTag } = useTagBySlug(pathInfo?.pathId ?? '', 'TagBasicInfo', { skip: !pathInfo?.pathId });
   
   if (!pathInfo) {

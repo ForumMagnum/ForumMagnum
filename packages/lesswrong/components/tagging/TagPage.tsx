@@ -1044,7 +1044,7 @@ const TagPage = () => {
               description={`tag ${tag.name}`}
               className={classes.description}
             />
-            <PathInfo tag={tag} />
+            <PathInfo tag={tag} lens={selectedLens ?? null} />
           </ContentStyles>
         </div>
       </AnalyticsContext>
