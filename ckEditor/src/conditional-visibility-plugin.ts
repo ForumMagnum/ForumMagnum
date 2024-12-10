@@ -1,7 +1,7 @@
 import { Command, Plugin } from '@ckeditor/ckeditor5-core';
 import { type DowncastConversionApi, type Element, type Writer } from '@ckeditor/ckeditor5-engine';
 import { ButtonView } from '@ckeditor/ckeditor5-ui';
-import { Widget, toWidgetEditable, toWidget } from '@ckeditor/ckeditor5-widget';
+import { Widget } from '@ckeditor/ckeditor5-widget';
 import type { ConditionalVisibilityPluginConfiguration, ConditionalVisibilitySettings } from '../../packages/lesswrong/components/editor/conditionalVisibilityBlock/conditionalVisibility';
 
 // TODO Pick an icon that isn't reusing the collapsible-section icon

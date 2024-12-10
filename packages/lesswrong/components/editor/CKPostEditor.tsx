@@ -27,6 +27,7 @@ import { useSyncCkEditorPlaceholder } from '../hooks/useSyncCkEditorPlaceholder'
 import type { ConditionalVisibilityPluginConfiguration  } from './conditionalVisibilityBlock/conditionalVisibility';
 import { createPortal } from 'react-dom';
 import { CkEditorPortalContext } from './CKEditorPortalProvider';
+import type { CTAButtonPluginConfiguration } from './ctaButton/ctaButton';
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -429,7 +430,17 @@ const CKPostEditor = ({
           setDocumentState={setDocumentState}
         />);
       }
-    }
+    },
+  };
+  const ctaButtonPluginConfiguration: CTAButtonPluginConfiguration = {
+    renderCTAButtonSettingsInto: (element, initialState, setDocumentState) => {
+      if (portalContext) {
+        portalContext.createPortal(element, <Components.EditCTAButtonSettings
+          initialState={initialState}
+          setDocumentState={setDocumentState}
+        />);
+      }
+    },
   };
 
   const {results: anyDialogue} = useMulti({
@@ -521,6 +532,7 @@ const CKPostEditor = ({
     mention: mentionPluginConfiguration,
     dialogues: dialogueConfiguration,
     conditionalVisibility: conditionalVisibilityPluginConfiguration,
+    ctaButton: ctaButtonPluginConfiguration,
     ...cloudinaryConfig,
   };
 

@@ -166,6 +166,7 @@ async function createSummariesForPage({ pageId, importedRecordMaps, pageCreator,
       markdown: summary.text,
       pageId,
       conversionContext,
+      convertedPage: summary,
     });
 
     let parentDocumentId: string;
@@ -584,9 +585,11 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
       const pageAliasRedirects = database.aliasRedirects.filter(ar => ar.newAlias === pageInfo.alias);
       const oldSlugs = uniq([pageInfo.alias, pageInfo.pageId, ...pageAliasRedirects.map(ar => ar.oldAlias)]);
 
-      const oldestRevArbitalMarkdown = revisions[0].text;
+      const oldestRev = revisions[0];
+      const oldestRevArbitalMarkdown = oldestRev.text;
       const oldestRevCkEditorMarkup = await arbitalMarkdownToCkEditorMarkup({
-        markdown: oldestRevArbitalMarkdown, pageId, conversionContext
+        markdown: oldestRevArbitalMarkdown, pageId, conversionContext,
+        convertedPage: oldestRev,
       });
       console.log(`Creating wiki page: ${title} (${slug}).  Lenses found: ${lenses.map(l=>l.lensName).join(", ")}`);
 
@@ -711,6 +714,7 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
           markdown: lensFirstRevision.text,
           pageId: lens.lensId,
           conversionContext,
+          convertedPage: lensFirstRevision,
         });
 
         // Create the lens, with the oldest revision
@@ -738,7 +742,8 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
                 }
               },
               legacyData: {
-                arbitalPageId: lens.lensId,
+                arbitalPageId: lens.pageId,
+                arbitalLensId: lens.lensId,
               },
             } as Partial<DbMultiDocument>,
             context: resolverContext,
@@ -811,6 +816,16 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
         const lwWikiLensIndex = lenses.length > 0
           ? maxBy(lenses, l => l.lensIndex)!.lensIndex + 1
           : 0;
+
+        const lwWikiPageRevisions = await Revisions.find({
+          documentId: lwWikiPage._id,
+          fieldName: "description",
+          collectionName: "Tags",
+        }).fetch();
+        if (!lwWikiPageRevisions.length) {
+          continue;
+        }
+
         const lwWikiLens = (await createMutator({
           collection: MultiDocuments,
           document: {
@@ -834,11 +849,6 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
         })).data;
 
         // Clone revisions on the LW wiki page as revisions on the lens
-        const lwWikiPageRevisions = await Revisions.find({
-          documentId: lwWikiPage._id,
-          fieldName: "description",
-          collectionName: "Tags",
-        }).fetch();
         for (const lwWikiPageRevision of lwWikiPageRevisions) {
           const { _id, ...fieldsToCopy } = lwWikiPageRevision;
           await Revisions.rawInsert({
@@ -911,6 +921,7 @@ async function importComments(database: WholeArbitalDatabase, resolverContext: R
       markdown: livePublicRev.text,
       pageId: commentId,
       conversionContext,
+      convertedPage: livePublicRev,
     });
     const lwWikiPageId = wikiPageParentId ? (await Tags.findOne({
       "legacyData.arbitalPageId": wikiPageParentId,
@@ -1023,6 +1034,7 @@ async function importRevisions<N extends CollectionNameString>({
     (rev) => arbitalMarkdownToCkEditorMarkup({
       markdown: rev.text, pageId,
       conversionContext,
+      convertedPage: rev,
     })
   );
   for (let i=0; i<revisions.length-1; i++) {
@@ -1374,3 +1386,51 @@ Globals.checkAccidentalLensTags = async (mysqlConnectionString: string) => {
   });
 };
 
+/**
+ * Find imported lenses and change legacyData->>'arbitalPageId' to the lens ID.
+ * Run this to fix an earlier import where that field was populated by the ID
+ * of the page that the lens is on, rather than the lens ID.
+ */
+Globals.updateLensIds = async (mysqlConnectionString: string) => {
+  const arbitalDb = await connectAndLoadArbitalDatabase(mysqlConnectionString);
+  
+  const arbitalWikiPages = await Tags.find({
+    deleted: false,
+    "legacyData.arbitalPageId": {$exists: true},
+  }).fetch();
+  await executePromiseQueue(arbitalWikiPages.map((wikiPage) => async () => {
+    const lenses = await MultiDocuments.find({
+      "legacyData.arbitalPageId": {$exists: true},
+      "parentDocumentId": wikiPage._id,
+      "fieldName": "description",
+    }).fetch();
+    if (!lenses.length) {
+      return;
+    }
+    
+    console.log(`Page ${wikiPage.name} has ${lenses.length} lenses`);
+    for (const lens of lenses) {
+      // Find the corresponding lens ID by matching titles
+      const wikiPageId = wikiPage.legacyData?.arbitalPageId;
+      if (!wikiPageId) throw new Error("Found a wiki page without an arbitalPageId?");
+      const arbitalLenses = arbitalDb.lenses.filter(arbLens => arbLens.pageId === wikiPageId);
+      const matchingArbitalLenses = arbitalLenses.filter(arbLens => arbLens.lensName=== lens.tabTitle && arbLens.lensSubtitle===lens.tabSubtitle);
+      if (matchingArbitalLenses.length !== 1) {
+        console.error(`Didn't find a unique matching lens: found ${matchingArbitalLenses.length} matches`);
+        for (const matchingLens of matchingArbitalLenses) {
+          console.error(`    ${matchingLens.lensId} ${matchingLens.lensName}`);
+        }
+        throw new Error(`Didn't find a unique matching lens`);
+      }
+      const matchingArbitalLens = matchingArbitalLenses[0];
+      console.log(`Lens ${wikiPage.name}/${lens.tabTitle}: Setting lensId=${matchingArbitalLens.lensId}`);
+
+      await MultiDocuments.rawUpdateOne(
+        {_id: lens._id},
+        {$set: {
+          "legacyData.arbitalLensId": matchingArbitalLens.lensId,
+        }},
+      );
+    }
+  }), 10);
+}

@@ -19,6 +19,7 @@ export interface TagLens {
   tabSubtitle: string | null;
   slug: string;
   userId: string;
+  legacyData: AnyBecauseHard;
   originalLensDocument: MultiDocumentEdit | null;
 }
 
@@ -44,19 +45,9 @@ function getDefaultLens(tag: TagPageFragment|TagPageWithRevisionFragment|TagHist
     tabSubtitle: null,
     slug: 'main',
     userId: tag.userId,
+    legacyData: {},
     originalLensDocument: null,
   }
-}
-
-// TODO: get rid of this and use the lens slug when we fix the import to get the correct alias from lens.lensId's pageInfo
-function getImputedSlug(lens: MultiDocumentEdit) {
-  const slugComponents = lens.tabTitle.split(' ');
-
-  if (lens.tabSubtitle) {
-    slugComponents.push(...lens.tabSubtitle.split(' '));
-  }
-
-  return slugComponents.join('_').toLowerCase();
 }
 
 export function getAvailableLenses(tag: TagPageFragment|TagPageWithRevisionFragment|TagHistoryFragment|null) {
@@ -67,7 +58,6 @@ export function getAvailableLenses(tag: TagPageFragment|TagPageWithRevisionFragm
       ...lens,
       index: lens.index + 1,
       title: lens.title ?? tag.name,
-      slug: getImputedSlug(lens),
       originalLensDocument: lens,
     }))
   ];
@@ -79,7 +69,8 @@ export function useTagLenses(tag: TagPageFragment | TagPageWithRevisionFragment 
   const availableLenses = useMemo(() => getAvailableLenses(tag), [tag]);
 
   const querySelectedLens = useMemo(() =>
-    availableLenses.find(lens => lens.slug === query.lens),
+    // TODO: maybe we also want to check the oldSlugs?
+    availableLenses.find(lens => lens.slug === query.lens || lens.legacyData?.arbitalPageId === query.lens),
     [availableLenses, query.lens]
   );
 

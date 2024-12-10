@@ -4,6 +4,7 @@ import { makeEditable } from "@/lib/editor/make_editable";
 import schema from "./schema";
 import { ensureIndex } from "@/lib/collectionIndexUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
+import { getRootDocument } from "./helpers";
 
 export const MultiDocuments = createCollection({
   collectionName: 'MultiDocuments',
@@ -53,7 +54,7 @@ export const MultiDocuments = createCollection({
   }),
 });
 
-addUniversalFields({ collection: MultiDocuments });
+addUniversalFields({ collection: MultiDocuments, legacyDataOptions: { canRead: ['guests'] } });
 
 ensureIndex(MultiDocuments, { parentDocumentId: 1, collectionName: 1 });
 ensureIndex(MultiDocuments, { slug: 1 });
@@ -77,3 +78,18 @@ makeEditable({
     },
   },
 });
+
+MultiDocuments.checkAccess = async (user: DbUser | null, multiDocument: DbMultiDocument, context: ResolverContext | null) => {
+  const rootDocumentInfo = await getRootDocument(multiDocument);
+  if (!rootDocumentInfo) {
+    return false;
+  }
+
+  const { document, collection } = rootDocumentInfo;
+
+  if ('checkAccess' in collection && collection.checkAccess) {
+    return collection.checkAccess(user, document, context);
+  }
+
+  return true;
+};

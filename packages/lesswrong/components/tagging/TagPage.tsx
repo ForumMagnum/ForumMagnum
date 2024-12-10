@@ -25,12 +25,12 @@ import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from "./TagPageExpo
 import { useStyles, defineStyles } from "../hooks/useStyles";
 import { HEADER_HEIGHT } from "../common/Header";
 import { MAX_COLUMN_WIDTH } from "../posts/PostsPage/PostsPage";
-import { GUIDE_PATH_PAGES_MAPPING } from "@/lib/arbital/paths";
 import { MAIN_TAB_ID, TagLens, useTagLenses } from "@/lib/arbital/useTagLenses";
 import { quickTakesTagsEnabledSetting } from "@/lib/publicSettings";
 import { TagContributor } from "./arbitalTypes";
 import { TagEditorContext, TagEditorProvider } from "./TagEditorContext";
 import { isClient } from "@/lib/executionEnvironment";
+import qs from "qs";
 
 const sidePaddingStyle = (theme: ThemeType) => ({
   paddingLeft: 42,
@@ -449,43 +449,6 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     // marginBottom: 4,
     // color: theme.palette.primary.main,
   },
-  pathInfo: {
-    // ...theme.typography.body2,
-    // ...theme.typography.commentStyle,
-    // marginBottom: 4,
-    // color: theme.palette.grey[600],
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'end',
-    gap: '16px',
-  },
-  pathNavigationBackButton: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    // padding: '4px 8px 5px 8px',
-  },
-  pathNavigationNextButton: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: theme.palette.panelBackground.darken15,
-    borderRadius: theme.borderRadius.small,
-    padding: '4px 8px 5px 8px',
-  },
-  pathNavigationBackButtonIcon: {
-    width: '16px',
-    height: '16px',
-    marginRight: '4px',
-    marginTop: '3px',
-  },
-  pathNavigationNextButtonIcon: {
-    width: '16px',
-    height: '16px',
-    marginLeft: '4px',
-    marginTop: '3px',
-  },
   tocContributors: {
     display: 'flex',
     flexDirection: 'column',
@@ -522,42 +485,6 @@ function useDisplayedTagTitle(tag: TagPageFragment | TagPageWithRevisionFragment
   }
 
   return selectedLens.title;
-}
-
-function usePathInfo(tag: TagPageFragment | TagPageWithRevisionFragment | null) {
-  const { query } = useLocation();
-
-  if (!tag) {
-    return undefined;
-  }
-
-  const pathId = query.pathId;
-  const pathPages = pathId ? GUIDE_PATH_PAGES_MAPPING[pathId as keyof typeof GUIDE_PATH_PAGES_MAPPING] : undefined;
-
-  if (!pathPages) {
-    return undefined;
-  }
-
-  const tagSlugs = [tag.slug, ...tag.oldSlugs];
-  let currentPagePathIndex;
-  for (let slug of tagSlugs) {
-    const index = pathPages.indexOf(slug);
-    if (index >= 0) {
-      currentPagePathIndex = index;
-      break;
-    }
-  }
-
-  if (currentPagePathIndex === undefined) {
-    return undefined;
-  }
-
-  const nextPageId = currentPagePathIndex < pathPages.length - 1 ? pathPages[currentPagePathIndex + 1] : undefined;
-  const previousPageId = currentPagePathIndex > 0 ? pathPages[currentPagePathIndex - 1] : undefined;
-  const displayPageIndex = currentPagePathIndex + 1;
-  const pathPageCount = pathPages.length;
-
-  return { displayPageIndex, nextPageId, previousPageId, pathPageCount, pathId };
 }
 
 // function getNormalizedContributorRatio(ratio: number) {
@@ -645,7 +572,14 @@ const EditLensForm = ({lens}: {
   />
 }
 
-/*const bayesGuideScript = () => {
+function htmlNodeListToArray(nodes: NodeList): Node[] {
+  let ret: Node[] = [];
+  for (let i=0; i<nodes.length; i++)
+    ret.push(nodes.item(i)!);
+  return ret;
+}
+
+const bayesGuideScript = () => {
   const pathDescriptions = {
     basic_theoretical: {
       content: `
@@ -663,6 +597,7 @@ const EditLensForm = ({lens}: {
           <p>No time to waste! Let's plunge directly into <a href="/w/693">a single-page abbreviated introduction to Bayes' rule</a>.</p>
       `,
       // pathId: "693",
+      pathId: null,
     },
     theoretical: {
       content: `
@@ -711,7 +646,7 @@ const EditLensForm = ({lens}: {
     }
   }
 
-  function handleRadioChange(radio) {
+  function handleRadioChange(radio: HTMLInputElement) {
     const wants = radio.dataset.wants?.split(",") || [];
     const notWants = radio.dataset.notWants?.split(",") || [];
 
@@ -728,29 +663,35 @@ const EditLensForm = ({lens}: {
 
     const pathDescription = document.getElementById("pathDescription");
     const content = pathDescription?.querySelector(".content");
-    const startButton = pathDescription?.querySelector(".start-reading");
+    const startButton = pathDescription?.querySelector(".start-reading") as HTMLElement;
 
-    content.innerHTML = pathDescriptions[pathKey as keyof typeof pathDescriptions].content;
+    if (content) {
+      content.innerHTML = pathDescriptions[pathKey as keyof typeof pathDescriptions].content;
+    }
     currentPathId = pathDescriptions[pathKey as keyof typeof pathDescriptions].pathId;
 
-    pathDescription.style.display = "block";
-    if (currentPathId) {
-      startButton.style.display = "block";
-    } else {
-      startButton.style.display = "none";
+    if (pathDescription) {
+      pathDescription.style.display = "block";
+    }
+    if (startButton) {
+      if (currentPathId) {
+        startButton.style.display = "block";
+      } else {
+        startButton.style.display = "none";
+      }
     }
   }
 
-  let currentContainer = null;
+  let currentContainer: Element|null = null;
 
   function initializeRadioHandlers() {
-    document.querySelectorAll('input[name="preference"]').forEach((radio) => {
+    document.querySelectorAll('input[name="preference"]').forEach((radio: HTMLInputElement) => {
       radio.addEventListener("change", function() {
         handleRadioChange(this);
       });
     });
 
-    const checkedRadio = document.querySelector('input[name="preference"]:checked');
+    const checkedRadio = document.querySelector('input[name="preference"]:checked') as HTMLInputElement|null;
     if (checkedRadio) {
       handleRadioChange(checkedRadio);
     }
@@ -825,7 +766,7 @@ const EditLensForm = ({lens}: {
         
         // Only look for new container if we don't have one
         if (!currentContainer) {
-          for (const node of mutation.addedNodes) {
+          for (const node of htmlNodeListToArray(mutation.addedNodes)) {
             if (!(node instanceof Element)) continue;
             
             const container = node.matches('.question-container') 
@@ -856,7 +797,17 @@ const EditLensForm = ({lens}: {
   }
 };
 
-bayesGuideScript();*/
+function addBayesGuideScript() {
+  if (isClient) {
+    if (document.readyState === 'complete') {
+      bayesGuideScript();
+    } else {
+      document.addEventListener('DOMContentLoaded', bayesGuideScript);
+    }
+  }
+}
+
+addBayesGuideScript();
 
 const ContributorsList = ({ contributors, onHoverContributor, endWithComma }: { contributors: TagContributor[], onHoverContributor: (userId: string | null) => void, endWithComma: boolean }) => {
   const { UsersNameDisplay } = Components;
@@ -873,9 +824,9 @@ const TagPage = () => {
     PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, Typography,
     PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection,
     TagPageButtonRow, ToCColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
-    TagTableOfContents, TagVersionHistoryButton, ContentStyles, CommentsListCondensed,
+    TagTableOfContents, ContentStyles, CommentsListCondensed,
     MultiToCLayout, TableOfContents, FormatDate, LWTooltip, HoverPreviewLink, TagsTooltip,
-    ForumIcon,
+    PathInfo
   } = Components;
   const classes = useStyles(styles);
 
@@ -903,15 +854,23 @@ const TagPage = () => {
     },
   });
 
+  const { results: lensWithParentTag } = useMulti({
+    collectionName: 'MultiDocuments',
+    fragmentName: 'MultiDocumentParentDocument',
+    terms: {
+      view: 'lensBySlug',
+      slug: slug,
+    },
+    // Having a limit of 1 makes this fail if we have copies of this lens for deleted tags which don't get returned for permissions reasons
+    // so we get as many as we can and assume that we'll only ever actually get at most one back
+    skip: !slug,
+  });
+
   const [truncated, setTruncated] = useState(false)
   const [editing, setEditing] = useState(!!query.edit)
   const [hoveredContributorId, setHoveredContributorId] = useState<string|null>(null);
   const { captureEvent } =  useTracking()
   const client = useApolloClient()
-
-  const pathInfo = usePathInfo(tag);
-
-  const { tag: guideTag } = useTagBySlug(pathInfo?.pathId ?? '', 'TagBasicInfo', { skip: !pathInfo?.pathId });
 
   const multiTerms: AnyBecauseTodo = {
     allPages: {view: "allPagesByNewest"},
@@ -986,6 +945,16 @@ const TagPage = () => {
   if (loadingTag)
     return <Loading/>
   if (!tag) {
+    const lens = lensWithParentTag?.[0];
+    if (lens?.parentTag) {
+      const baseTagUrl = tagGetUrl(lens.parentTag);
+      const newQuery = {
+        ...query,
+        lens: lens.slug,
+      }
+      const newUrl = `${baseTagUrl}?${qs.stringify(newQuery)}`;
+      return <PermanentRedirect url={newUrl} />
+    }
     return <Error404/>
   }
   // If the slug in our URL is not the same as the slug on the tag, redirect to the canonical slug page
@@ -1042,35 +1011,6 @@ const TagPage = () => {
     )
     : <></>;
 
-  const pathInfoSection = pathInfo && (
-    <div className={classes.pathInfo}>
-      {/* 
-        * We don't show a button if there's no previous page, since it's not obvious what should happen if the user clicks it.
-        * One might be tempted to have it navigate back in history, but if the user got to this page by clicking "Back" from the next page in the path,
-        * they'd be sent back to the next page instead of the page which started them on the path. Even that only makes sense in the context of the Bayes' Rule guide.
-        */}
-      {pathInfo.previousPageId && <Link
-        className={classes.pathNavigationBackButton}
-        to={`/w/${pathInfo.previousPageId}?pathId=${pathInfo.pathId}`}
-      >
-        <ForumIcon icon="ArrowLeft" className={classes.pathNavigationBackButtonIcon} />
-        Back
-      </Link>}
-      <span>
-        {`You are reading `}
-        <strong>{guideTag?.name ?? ''}</strong>
-        {`, page ${pathInfo.displayPageIndex} of ${pathInfo.pathPageCount}`}
-      </span>
-      {pathInfo.nextPageId && <Link
-        className={classes.pathNavigationNextButton}
-        to={`/w/${pathInfo.nextPageId}?pathId=${pathInfo.pathId}`}
-      >
-        Continue
-        <ForumIcon icon="ArrowRight" className={classes.pathNavigationNextButtonIcon} />
-      </Link>}
-    </div>
-  );
-
   const openInlineEditor = () => {
     setEditing(true);
     // onOpenEditor();
@@ -1104,7 +1044,7 @@ const TagPage = () => {
               description={`tag ${tag.name}`}
               className={classes.description}
             />
-            {pathInfoSection}
+            <PathInfo tag={tag} />
           </ContentStyles>
         </div>
       </AnalyticsContext>
