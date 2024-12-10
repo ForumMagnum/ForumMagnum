@@ -816,6 +816,16 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
         const lwWikiLensIndex = lenses.length > 0
           ? maxBy(lenses, l => l.lensIndex)!.lensIndex + 1
           : 0;
+
+        const lwWikiPageRevisions = await Revisions.find({
+          documentId: lwWikiPage._id,
+          fieldName: "description",
+          collectionName: "Tags",
+        }).fetch();
+        if (!lwWikiPageRevisions.length) {
+          continue;
+        }
+
         const lwWikiLens = (await createMutator({
           collection: MultiDocuments,
           document: {
@@ -839,11 +849,6 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
         })).data;
 
         // Clone revisions on the LW wiki page as revisions on the lens
-        const lwWikiPageRevisions = await Revisions.find({
-          documentId: lwWikiPage._id,
-          fieldName: "description",
-          collectionName: "Tags",
-        }).fetch();
         for (const lwWikiPageRevision of lwWikiPageRevisions) {
           const { _id, ...fieldsToCopy } = lwWikiPageRevision;
           await Revisions.rawInsert({
