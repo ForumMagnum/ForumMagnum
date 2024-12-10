@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState, useMemo } from "react";
 import { useLocation, useNavigate } from "../routeUtil";
 import type { ToCData } from "../tableOfContents";
 import qs from "qs";
+import omit from "lodash/omit";
 
 export const MAIN_TAB_ID = 'main-tab';
 
@@ -74,7 +75,7 @@ export function useTagLenses(tag: TagPageFragment | TagPageWithRevisionFragment 
     [availableLenses, query.lens]
   );
 
-  const [selectedLensId, setSelectedLensId] = useState<string>(querySelectedLens?._id ?? MAIN_TAB_ID);
+  const selectedLensId = querySelectedLens?._id ?? MAIN_TAB_ID;
 
   const selectedLens = useMemo(() =>
     availableLenses.find(lens => lens._id === selectedLensId),
@@ -82,14 +83,14 @@ export function useTagLenses(tag: TagPageFragment | TagPageWithRevisionFragment 
   );
 
   const updateSelectedLens = useCallback((lensId: string) => {
-    setSelectedLensId(lensId);
     const selectedLensSlug = availableLenses.find(lens => lens._id === lensId)?.slug;
     if (selectedLensSlug) {
       const defaultLens = availableLenses.find(lens => lens._id === MAIN_TAB_ID);
       const navigatingToDefaultLens = selectedLensSlug === defaultLens?.slug;
+      const queryWithoutLens = omit(query, "lens");
       const newSearch = navigatingToDefaultLens
-       ? ''
-       : `?${qs.stringify({ lens: selectedLensSlug })}`;
+       ? qs.stringify(queryWithoutLens)
+       : qs.stringify({ lens: selectedLensSlug, ...queryWithoutLens });
 
       navigate({ ...location, search: newSearch });
     }
@@ -97,11 +98,12 @@ export function useTagLenses(tag: TagPageFragment | TagPageWithRevisionFragment 
 
   useEffect(() => {
     if (query.lens) {
-      if (querySelectedLens) {
-        setSelectedLensId(querySelectedLens._id);
-      } else {
+      if (tag && !querySelectedLens) {
         // If the lens doesn't exist, reset the search query
-        navigate({ ...location, search: '' }, { replace: true });
+        navigate(
+          { ...location, search: qs.stringify(omit(query, "lens")) },
+          { replace: true }
+        );
       }
     } else {
       // If the lens query param is not set, select the main tab
