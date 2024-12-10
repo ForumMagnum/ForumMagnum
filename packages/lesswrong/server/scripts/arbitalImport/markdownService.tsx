@@ -7,7 +7,7 @@
 //import app from './angular.ts';
 //import {Editor} from './Markdown.Editor.ts';
 import { Components } from '@/lib/vulcan-lib/components';
-import { DomainsRow, PageInfosRow, WholeArbitalDatabase } from './arbitalSchema';
+import { DomainsRow, PagesRow, PageSummariesRow, PageInfosRow, WholeArbitalDatabase } from './arbitalSchema';
 import type { ArbitalConversionContext } from './arbitalImport';
 import {getSanitizingConverter} from './Markdown.Sanitizer';
 import { getPageUrl } from './urlService';
@@ -19,6 +19,7 @@ import { slugify } from '@/lib/vulcan-lib';
 import { convertImagesInHTML } from '../convertImagesToCloudinary';
 import type { ConditionalVisibilitySettings } from '@/components/editor/conditionalVisibilityBlock/conditionalVisibility';
 import { escapeHtml } from './util';
+import orderBy from 'lodash/orderBy';
 
 
 const anyUrlMatch = /\b((?:[a-z][\w-]+:(?:\/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))/i;
@@ -136,10 +137,11 @@ function parseMultipleChoiceBlock(...args: string[]) {
 // markdownService provides a constructor you can use to create a markdown converter,
 // either for converting markdown to text or editing.
 //app.service('markdownService', function($compile, $timeout, pageService, userService, urlService, stateService) {
-export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, pageId, conversionContext}: {
+export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, pageId, conversionContext, convertedPage}: {
   markdown: string,
   pageId: string,
   conversionContext: ArbitalConversionContext,
+  convertedPage: PagesRow|PageSummariesRow,
 }) {
   if (!pageMarkdown) return "";
   const { slugsByPageId, titlesByPageId, pageInfosByPageId, domainsByPageId } = conversionContext;
@@ -391,7 +393,14 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
     var startPathBlockRegexp = new RegExp('^%start-path\\(\\[' + aliasMatch + '\\]\\)% *(?=\Z|\n)', 'gm');
     converter.hooks.chain('preBlockGamut', function(text: string, runBlockGamut: (s:string)=>string) {
       return text.replace(startPathBlockRegexp, function(whole, alias) {
-        if (!pageInfosByPageId || !domainsByPageId) {
+        const pathPages = getPathPages(alias, conversionContext);
+        if (!pathPages) {
+          return "<div>Path not found</div>"
+        }
+        
+        return pathToCtaButton(pathPages, conversionContext);
+
+        /*if (!pageInfosByPageId || !domainsByPageId) {
           return "<div>Paths aren not currently supported</div>" //TODO
         }
         
@@ -406,7 +415,7 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
           '</a>',
           '\n\n</div>'].join('');
 
-        return html;
+        return html;*/
       });
     });
 
@@ -930,6 +939,13 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
   };*/
   
   const converter = createConverterInternal(null, pageId);
+  
+  const pathForWhichThisPageIsGuide = getPathPages(pageId, conversionContext);
+  if (pathForWhichThisPageIsGuide) {
+    // If this is a guide page, add a Start Reading button tot he bottom
+    pageMarkdown = pageMarkdown + "\n\n%start-path(["+pageId+"])%";
+  }
+  
   const html = converter.makeHtml(pageMarkdown);
   try {
     const {html: htmlWithImagesMoved} = await convertImagesInHTML(html, "arbital", ()=>true, conversionContext.imageUrlsCache);
@@ -973,3 +989,35 @@ function conditionallyVisibleBlockToHTML(settings: ConditionalVisibilitySettings
   const visibilityAttrEscaped = escapeHtml(settingsJsonStr)
   return `<div class="conditionallyVisibleBlock" data-visibility="${visibilityAttrEscaped}">${contentsHtml}</div>`
 }
+
+type PathType = {
+  pathId: string
+  pathPages: string[]
+};
+
+function getPathPages(pathId: string, conversionContext: ArbitalConversionContext): PathType|null {
+  // Check whether this is a guide page
+  const arbitalDb = conversionContext.database;
+  const pathPages = arbitalDb.pathPages.filter(pathpage => pathpage.guideId === pathId);
+  if (!pathPages.length) return null;
+  
+  return {
+    pathId,
+    pathPages: orderBy(pathPages, pp=>pp.pathIndex)
+      .map(pp => pp.pathPageId),
+  };
+}
+
+function pathToCtaButton(path: PathType, conversionContext: ArbitalConversionContext) {
+  const { pathPages, pathId } = path;
+  const slugs = pathPages.map(pageId => conversionContext.slugsByPageId[pageId]);
+  
+  // Version where URL includes a full list of path pages
+  //const url = `/p/${slugs[0]}?path=${slugs.join(",")}`;*/
+  
+  // Version where URL uses Arbital path ID, which hackily maps to a hardcoded list of pages
+  const url = `/p/${slugs[0]}?pathId=${pathId}`;
+  
+  return `<a class="ck-cta-button" href="${url}">Start Reading</a>`;
+}
+

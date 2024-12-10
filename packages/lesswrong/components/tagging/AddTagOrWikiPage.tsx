@@ -36,9 +36,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const AddTag = ({onTagSelected, isVotingContext, classes}: {
-  onTagSelected: (props: {tagId: string, tagName: string}) => void,
+const AddTagOrWikiPage = ({onTagSelected, isVotingContext, onlyTags, classes}: {
+  onTagSelected: (props: {tagId: string, tagName: string, tagSlug: string}) => void,
   isVotingContext?: boolean,
+  onlyTags: boolean,
   classes: ClassesType,
 }) => {
   const {TagSearchHit, DropdownDivider} = Components
@@ -78,7 +79,7 @@ const AddTag = ({onTagSelected, isVotingContext, classes}: {
       <input placeholder="Tag ID" type="text" onKeyPress={ev => {
         if (ev.charCode===13) {
           const id = (ev.target as any).value;
-          onTagSelected({tagId: id, tagName: "Tag"});
+          onTagSelected({tagId: id, tagName: "Tag", tagSlug: id});
           ev.preventDefault();
         }
       }}/>
@@ -96,14 +97,18 @@ const AddTag = ({onTagSelected, isVotingContext, classes}: {
        // @ts-ignore */}
       <SearchBox reset={null} focusShortcuts={[]}/>
       <Configure
-        facetFilters={[["wikiOnly:false"]]}
+        facetFilters={onlyTags ? [["wikiOnly:false"]] : []}
         hitsPerPage={searchOpen ? 12 : 6}
       />
-      <Hits hitComponent={({hit}) =>
+      <Hits hitComponent={({hit}: {hit: any}) =>
         <TagSearchHit
           hit={hit}
           onClick={ev => {
-            onTagSelected({tagId: hit._id, tagName: hit.name});
+            onTagSelected({
+              tagId: hit._id,
+              tagName: hit.name,
+              tagSlug: hit.slug,
+            });
             ev.stopPropagation();
           }}
           isVotingContext={isVotingContext}
@@ -124,10 +129,10 @@ const AddTag = ({onTagSelected, isVotingContext, classes}: {
   </div>
 }
 
-const AddTagComponent = registerComponent("AddTag", AddTag, {styles});
+const AddTagOrWikiPageComponent = registerComponent("AddTagOrWikiPage", AddTagOrWikiPage, {styles});
 
 declare global {
   interface ComponentTypes {
-    AddTag: typeof AddTagComponent
+    AddTagOrWikiPage: typeof AddTagOrWikiPageComponent
   }
 }

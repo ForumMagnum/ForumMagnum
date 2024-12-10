@@ -25,7 +25,6 @@ import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from "./TagPageExpo
 import { useStyles, defineStyles } from "../hooks/useStyles";
 import { HEADER_HEIGHT } from "../common/Header";
 import { MAX_COLUMN_WIDTH } from "../posts/PostsPage/PostsPage";
-import { GUIDE_PATH_PAGES_MAPPING } from "@/lib/arbital/paths";
 import { MAIN_TAB_ID, TagLens, useTagLenses } from "@/lib/arbital/useTagLenses";
 import { quickTakesTagsEnabledSetting } from "@/lib/publicSettings";
 import { TagContributor } from "./arbitalTypes";
@@ -449,43 +448,6 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     // marginBottom: 4,
     // color: theme.palette.primary.main,
   },
-  pathInfo: {
-    // ...theme.typography.body2,
-    // ...theme.typography.commentStyle,
-    // marginBottom: 4,
-    // color: theme.palette.grey[600],
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'end',
-    gap: '16px',
-  },
-  pathNavigationBackButton: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    // padding: '4px 8px 5px 8px',
-  },
-  pathNavigationNextButton: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: theme.palette.panelBackground.darken15,
-    borderRadius: theme.borderRadius.small,
-    padding: '4px 8px 5px 8px',
-  },
-  pathNavigationBackButtonIcon: {
-    width: '16px',
-    height: '16px',
-    marginRight: '4px',
-    marginTop: '3px',
-  },
-  pathNavigationNextButtonIcon: {
-    width: '16px',
-    height: '16px',
-    marginLeft: '4px',
-    marginTop: '3px',
-  },
   tocContributors: {
     display: 'flex',
     flexDirection: 'column',
@@ -522,42 +484,6 @@ function useDisplayedTagTitle(tag: TagPageFragment | TagPageWithRevisionFragment
   }
 
   return selectedLens.title;
-}
-
-function usePathInfo(tag: TagPageFragment | TagPageWithRevisionFragment | null) {
-  const { query } = useLocation();
-
-  if (!tag) {
-    return undefined;
-  }
-
-  const pathId = query.pathId;
-  const pathPages = pathId ? GUIDE_PATH_PAGES_MAPPING[pathId as keyof typeof GUIDE_PATH_PAGES_MAPPING] : undefined;
-
-  if (!pathPages) {
-    return undefined;
-  }
-
-  const tagSlugs = [tag.slug, ...tag.oldSlugs];
-  let currentPagePathIndex;
-  for (let slug of tagSlugs) {
-    const index = pathPages.indexOf(slug);
-    if (index >= 0) {
-      currentPagePathIndex = index;
-      break;
-    }
-  }
-
-  if (currentPagePathIndex === undefined) {
-    return undefined;
-  }
-
-  const nextPageId = currentPagePathIndex < pathPages.length - 1 ? pathPages[currentPagePathIndex + 1] : undefined;
-  const previousPageId = currentPagePathIndex > 0 ? pathPages[currentPagePathIndex - 1] : undefined;
-  const displayPageIndex = currentPagePathIndex + 1;
-  const pathPageCount = pathPages.length;
-
-  return { displayPageIndex, nextPageId, previousPageId, pathPageCount, pathId };
 }
 
 // function getNormalizedContributorRatio(ratio: number) {
@@ -897,9 +823,9 @@ const TagPage = () => {
     PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, Typography,
     PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection,
     TagPageButtonRow, ToCColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
-    TagTableOfContents, TagVersionHistoryButton, ContentStyles, CommentsListCondensed,
+    TagTableOfContents, ContentStyles, CommentsListCondensed,
     MultiToCLayout, TableOfContents, FormatDate, LWTooltip, HoverPreviewLink, TagsTooltip,
-    ForumIcon,
+    PathInfo
   } = Components;
   const classes = useStyles(styles);
 
@@ -932,10 +858,6 @@ const TagPage = () => {
   const [hoveredContributorId, setHoveredContributorId] = useState<string|null>(null);
   const { captureEvent } =  useTracking()
   const client = useApolloClient()
-
-  const pathInfo = usePathInfo(tag);
-
-  const { tag: guideTag } = useTagBySlug(pathInfo?.pathId ?? '', 'TagBasicInfo', { skip: !pathInfo?.pathId });
 
   const multiTerms: AnyBecauseTodo = {
     allPages: {view: "allPagesByNewest"},
@@ -1066,35 +988,6 @@ const TagPage = () => {
     )
     : <></>;
 
-  const pathInfoSection = pathInfo && (
-    <div className={classes.pathInfo}>
-      {/* 
-        * We don't show a button if there's no previous page, since it's not obvious what should happen if the user clicks it.
-        * One might be tempted to have it navigate back in history, but if the user got to this page by clicking "Back" from the next page in the path,
-        * they'd be sent back to the next page instead of the page which started them on the path. Even that only makes sense in the context of the Bayes' Rule guide.
-        */}
-      {pathInfo.previousPageId && <Link
-        className={classes.pathNavigationBackButton}
-        to={`/w/${pathInfo.previousPageId}?pathId=${pathInfo.pathId}`}
-      >
-        <ForumIcon icon="ArrowLeft" className={classes.pathNavigationBackButtonIcon} />
-        Back
-      </Link>}
-      <span>
-        {`You are reading `}
-        <strong>{guideTag?.name ?? ''}</strong>
-        {`, page ${pathInfo.displayPageIndex} of ${pathInfo.pathPageCount}`}
-      </span>
-      {pathInfo.nextPageId && <Link
-        className={classes.pathNavigationNextButton}
-        to={`/w/${pathInfo.nextPageId}?pathId=${pathInfo.pathId}`}
-      >
-        Continue
-        <ForumIcon icon="ArrowRight" className={classes.pathNavigationNextButtonIcon} />
-      </Link>}
-    </div>
-  );
-
   const openInlineEditor = () => {
     setEditing(true);
     // onOpenEditor();
@@ -1128,7 +1021,7 @@ const TagPage = () => {
               description={`tag ${tag.name}`}
               className={classes.description}
             />
-            {pathInfoSection}
+            <PathInfo tag={tag} />
           </ContentStyles>
         </div>
       </AnalyticsContext>
