@@ -27,10 +27,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderRadius: theme.borderRadius[isFriendlyUI ? "default" : "small"],
   },
   plainBackground: {
-    backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
+    // backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
   },
   primaryBackground: {
-    backgroundColor: theme.palette.background.primaryDim,
+    // backgroundColor: theme.palette.background.primaryDim,
   },
   postStyle: theme.typography.postStyle,
   postItem: {
@@ -72,13 +72,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     opacity: 0,
   },
   content :{
-    marginLeft: 4,
-    marginRight: 4,
+    // marginLeft: 4,
+    // marginRight: 4,
     paddingBottom: 1
   },
   commentsList: {
     marginTop: 12,
-    marginLeft: 12,
+    // marginLeft: 12,
     marginBottom: 8,
     [theme.breakpoints.down('sm')]: {
       marginLeft: 0,
@@ -87,11 +87,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   post: {
+    backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
     paddingTop: isFriendlyUI ? 12 : 18,
     paddingLeft: 16,
     paddingRight: 16,
     borderRadius: theme.borderRadius[isFriendlyUI ? "default" : "small"],
     marginBottom: 4,
+    border: '1px solid rgba(72, 94, 144, 0.16)',
     
     [theme.breakpoints.down('xs')]: {
       paddingTop: 16,
