@@ -1360,6 +1360,11 @@ Globals.hideContentFromNonDefaultDomains = async (mysqlConnectionString: string)
   });
 }
 
+
+function isMultiDocument(doc: DbTag | DbMultiDocument): doc is DbMultiDocument {
+  return 'title' in doc;
+}
+
 async function findValidMultiDocument(arbitalLensId: string): Promise<DbMultiDocument | null> {
   const multiDocs = await MultiDocuments.find({ 'legacyData.arbitalLensId': arbitalLensId, fieldName: 'description' }).fetch();
   for (const multiDoc of multiDocs) {
@@ -1557,58 +1562,6 @@ async function importPagePairs(
   }
 }
 
-// Function to undo the deletion of imported wiki pages
-Globals.undoDeleteImportedArbitalWikiPages = async () => {
-  // Find all deleted wiki pages that were originally imported from Arbital
-  const deletedWikiPages = await Tags.find({
-    "legacyData.arbitalPageId": { $exists: true },
-    deleted: true,
-  }).fetch();
-
-  // Group pages by Arbital Page ID to identify duplicates
-  const pagesByArbitalPageId = groupBy(
-    deletedWikiPages,
-    (page) => page.legacyData.arbitalPageId
-  );
-  
-  console.log(`Found ${Object.keys(pagesByArbitalPageId).length} duplicate deleted wiki pages to restore`);
-
-  for (const arbitalPageId in pagesByArbitalPageId) {
-    const pages = pagesByArbitalPageId[arbitalPageId];
-
-    // Select the page with the most recent createdAt
-    const pageToRestore = pages.reduce((a, b) =>
-      a.createdAt > b.createdAt ? a : b
-    );
-
-    console.log(`Restoring page ${pageToRestore.name}`);
-
-    // Reconstruct the slug from the page name
-    const slug = await getUnusedSlugByCollectionName(
-      "Tags",
-      slugify(pageToRestore.name)
-    );
-
-    // Restore the selected page and set the new slug in a single operation
-    await Tags.rawUpdateOne(
-      { _id: pageToRestore._id },
-      {
-        $set: { 
-          deleted: false,
-          slug 
-        }
-      }
-    );
-
-    // Non-restored duplicates are left as is
-    // We do not modify or remove them
-  }
-};
-
-// Add type guards
-function isMultiDocument(doc: DbTag | DbMultiDocument): doc is DbMultiDocument {
-  return 'title' in doc;
-}
 
 async function cleanUpAccidentalLensTags(wholeArbitalDb: WholeArbitalDatabase) {
   const lensIds = Array.from(new Set(wholeArbitalDb.lenses.map(l => l.lensId)));
