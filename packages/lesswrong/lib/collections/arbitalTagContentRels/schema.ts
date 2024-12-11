@@ -53,7 +53,7 @@ const schema: SchemaType<'ArbitalTagContentRels'> = {
     type: Number,
     canRead: ['guests'],
     canCreate: ['admins'],
-    optional: true,
+    ...schemaDefaultValue(0)
   },
   isStrong: {
     type: Boolean,
