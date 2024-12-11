@@ -720,6 +720,52 @@ const TagPage = () => {
   } = Components;
   const classes = useStyles(styles);
 
+    // Add these refs near the other hooks at the top of the component
+  const relationshipsRef = useRef<HTMLDivElement>(null);
+  const requirementsRef = useRef<HTMLDivElement>(null);
+  const teachesRef = useRef<HTMLDivElement>(null);
+
+  // Add this useEffect near the other useEffects
+  useEffect(() => {
+    const adjustLayout = () => {
+      const requiresEl = requirementsRef.current;
+      const teachesEl = teachesRef.current;
+      const wrapperEl = relationshipsRef.current;
+      
+      if (!requiresEl || !teachesEl || !wrapperEl) return;
+
+      // Remove any existing break element
+      const breakElement = wrapperEl.querySelector('.break');
+      if (breakElement) {
+        wrapperEl.removeChild(breakElement);
+      }
+
+      // Check positions
+      const requiresRect = requiresEl.getBoundingClientRect();
+      const teachesRect = teachesEl.getBoundingClientRect();
+
+      // Check if they would naturally wrap
+      const wrapperWidth = wrapperEl.getBoundingClientRect().width;
+      const combinedWidth = requiresRect.width + teachesRect.width;
+
+      const needsBreak = combinedWidth > wrapperWidth;
+
+      if (needsBreak) {
+        const breakDiv = document.createElement('div');
+        breakDiv.className = 'break';
+        breakDiv.style.flexBasis = '100%';
+        breakDiv.style.height = '0';
+        wrapperEl.insertBefore(breakDiv, teachesEl);
+      }
+    };
+
+  // Call immediately and on resize
+  adjustLayout();
+  window.addEventListener('resize', adjustLayout);
+
+  return () => window.removeEventListener('resize', adjustLayout);
+}, []);
+
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const navigate = useNavigate();
@@ -1031,7 +1077,7 @@ const TagPage = () => {
   const { requirements, teaches, lessTechnical, moreTechnical, slower, faster } = selectedLens?.arbitalLinkedPages as ArbitalLinkedPages;
 
   const linkedTags = (
-    <ContentStyles contentType="tag" className={classes.linkedTagsContainer}>
+    <ContentStyles contentType="tag">
       <div className={classes.linkedTagsHeader}>
         <div className={classes.linkedTagsList}>
 
@@ -1086,52 +1132,6 @@ const TagPage = () => {
       </div>
     </ContentStyles>
   );
-
-  // Add these refs near the other hooks at the top of the component
-const relationshipsRef = useRef<HTMLDivElement>(null);
-const requirementsRef = useRef<HTMLDivElement>(null);
-const teachesRef = useRef<HTMLDivElement>(null);
-
-// Add this useEffect near the other useEffects
-useEffect(() => {
-  const adjustLayout = () => {
-    const requiresEl = requirementsRef.current;
-    const teachesEl = teachesRef.current;
-    const wrapperEl = relationshipsRef.current;
-    
-    if (!requiresEl || !teachesEl || !wrapperEl) return;
-
-    // Remove any existing break element
-    const breakElement = wrapperEl.querySelector('.break');
-    if (breakElement) {
-      wrapperEl.removeChild(breakElement);
-    }
-
-    // Check positions
-    const requiresRect = requiresEl.getBoundingClientRect();
-    const teachesRect = teachesEl.getBoundingClientRect();
-
-    // Check if they would naturally wrap
-    const wrapperWidth = wrapperEl.getBoundingClientRect().width;
-    const combinedWidth = requiresRect.width + teachesRect.width;
-
-    const needsBreak = combinedWidth > wrapperWidth;
-
-    if (needsBreak) {
-      const breakDiv = document.createElement('div');
-      breakDiv.className = 'break';
-      breakDiv.style.flexBasis = '100%';
-      breakDiv.style.height = '0';
-      wrapperEl.insertBefore(breakDiv, teachesEl);
-    }
-  };
-
-  // Call immediately and on resize
-  adjustLayout();
-  window.addEventListener('resize', adjustLayout);
-
-  return () => window.removeEventListener('resize', adjustLayout);
-}, []);
 
   const MobileRelationships = (
     <div className={classes.mobileRelationships} ref={relationshipsRef}>
