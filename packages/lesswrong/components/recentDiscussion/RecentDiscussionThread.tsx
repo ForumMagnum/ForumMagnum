@@ -77,7 +77,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 1
   },
   commentsList: {
-    marginTop: 12,
+    // marginTop: 12,
     // marginLeft: 12,
     marginBottom: 8,
     [theme.breakpoints.down('sm')]: {
@@ -90,7 +90,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
     paddingTop: isFriendlyUI ? 12 : 18,
     paddingLeft: 16,
-    paddingRight: 16,
+    paddingRight: 16,,
     borderRadius: theme.borderRadius[isFriendlyUI ? "default" : "small"],
     marginBottom: 4,
     border: '1px solid rgba(72, 94, 144, 0.16)',

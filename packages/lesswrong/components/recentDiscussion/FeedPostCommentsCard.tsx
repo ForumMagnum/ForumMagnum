@@ -31,7 +31,7 @@ const styles = (theme: ThemeType) => ({
     },
   },
   plainBackground: {
-    backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
+    // backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
   },
   cardHeader: {
     display: "flex",
