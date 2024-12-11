@@ -1,6 +1,6 @@
 import { useApolloClient } from "@apollo/client";
 import classNames from 'classnames';
-import React, { FC, Fragment, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { FC, Fragment, useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from "../../lib/betas";
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
@@ -74,7 +74,6 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     },
   },
   header: {
-    paddingTop: 19,
     paddingBottom: 5,
     ...sidePaddingStyle(theme),
     background: theme.palette.panelBackground.default,
@@ -323,6 +322,7 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   lastUpdated: {
     ...theme.typography.body2,
     color: theme.palette.grey[600],
+    fontWeight: 550,
   },
   requirementsAndAlternatives: {
     display: 'flex',
@@ -391,9 +391,6 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     '&:not(:last-child)::after': {
       content: '","',
     },
-  },
-  linkedTagsContainer: {
-    // Add any container-specific styles if needed
   },
   linkedTagsHeader: {
     position: 'relative',
@@ -495,6 +492,37 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   },
   contributorRatio: {},
   ...tagPageHeaderStyles(theme),
+  mobileRelationships: {
+    [theme.breakpoints.up('md')]: {
+      display: 'none',
+    },
+    marginTop: 8,
+    display: 'flex',
+    flexWrap: 'wrap',
+    columnGap: '8px',
+    rowGap: 0,
+    ...theme.typography.body2,
+    '& > div > span:first-child': {
+      color: theme.palette.grey[600],
+    },
+    '& .break': {
+      flexBasis: '100%',
+      height: 0,
+    },
+  },
+  relationshipRow: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    width: 'fit-content',
+    flex: '0 1 auto',
+    minWidth: 'min-content',
+    '& > span:first-child': {
+      fontWeight: 550,
+    },
+    '& a': {
+      color: theme.palette.primary.main,
+    },
+  },
 }));
 
 interface ArbitalLinkedPages {
@@ -691,6 +719,52 @@ const TagPage = () => {
     ForumIcon,
   } = Components;
   const classes = useStyles(styles);
+
+    // Add these refs near the other hooks at the top of the component
+  const relationshipsRef = useRef<HTMLDivElement>(null);
+  const requirementsRef = useRef<HTMLDivElement>(null);
+  const teachesRef = useRef<HTMLDivElement>(null);
+
+  // Add this useEffect near the other useEffects
+  useEffect(() => {
+    const adjustLayout = () => {
+      const requiresEl = requirementsRef.current;
+      const teachesEl = teachesRef.current;
+      const wrapperEl = relationshipsRef.current;
+      
+      if (!requiresEl || !teachesEl || !wrapperEl) return;
+
+      // Remove any existing break element
+      const breakElement = wrapperEl.querySelector('.break');
+      if (breakElement) {
+        wrapperEl.removeChild(breakElement);
+      }
+
+      // Check positions
+      const requiresRect = requiresEl.getBoundingClientRect();
+      const teachesRect = teachesEl.getBoundingClientRect();
+
+      // Check if they would naturally wrap
+      const wrapperWidth = wrapperEl.getBoundingClientRect().width;
+      const combinedWidth = requiresRect.width + teachesRect.width;
+
+      const needsBreak = combinedWidth > wrapperWidth;
+
+      if (needsBreak) {
+        const breakDiv = document.createElement('div');
+        breakDiv.className = 'break';
+        breakDiv.style.flexBasis = '100%';
+        breakDiv.style.height = '0';
+        wrapperEl.insertBefore(breakDiv, teachesEl);
+      }
+    };
+
+  // Call immediately and on resize
+  adjustLayout();
+  window.addEventListener('resize', adjustLayout);
+
+  return () => window.removeEventListener('resize', adjustLayout);
+}, []);
 
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
@@ -1003,7 +1077,7 @@ const TagPage = () => {
   const { requirements, teaches, lessTechnical, moreTechnical, slower, faster } = selectedLens?.arbitalLinkedPages as ArbitalLinkedPages;
 
   const linkedTags = (
-    <ContentStyles contentType="tag" className={classes.linkedTagsContainer}>
+    <ContentStyles contentType="tag">
       <div className={classes.linkedTagsHeader}>
         <div className={classes.linkedTagsList}>
 
@@ -1037,6 +1111,8 @@ const TagPage = () => {
     </ContentStyles>
   );
 
+  
+
   const requirementsAndAlternatives = (
     <ContentStyles contentType="tag" className={classes.subjectsContainer}> 
       <div className={classes.subjectsHeader}>Relies on: </div>
@@ -1056,6 +1132,41 @@ const TagPage = () => {
       </div>
     </ContentStyles>
   );
+
+  const MobileRelationships = (
+    <div className={classes.mobileRelationships} ref={relationshipsRef}>
+          {requirements?.length > 0 && (
+            <div className={classes.relationshipRow} ref={requirementsRef}>
+              <span>Requires:{'\u00A0'}</span>
+              {requirements.map((req, i) => (
+                <Fragment key={req.slug}>
+                  <TagsTooltip tagSlug={req.slug}>
+                    <HoverPreviewLink href={tagGetUrl(req)}>
+                      {req.name}
+                    </HoverPreviewLink>
+                  </TagsTooltip>
+                  {i < requirements.length - 1 && ',\u00A0'}
+                </Fragment>
+              ))}
+            </div>
+          )}
+          {teaches?.length > 0 && (
+            <div className={classes.relationshipRow} ref={teachesRef}>
+              <span>Teaches:{'\u00A0'}</span>
+              {teaches.map((subject, i) => (
+                <Fragment key={subject.slug}>
+                  <TagsTooltip tagSlug={subject.slug}>
+                    <HoverPreviewLink href={tagGetUrl(subject)}>
+                      {subject.name}
+                    </HoverPreviewLink>
+                  </TagsTooltip>
+                  {i < teaches.length - 1 && ',\u00A0'}
+                </Fragment>
+              ))}
+            </div>
+          )}
+    </div>
+  )
 
   const tagHeader = (
     <div className={classNames(classes.header,classes.centralColumn)}>
@@ -1096,7 +1207,7 @@ const TagPage = () => {
         <Typography variant="display3" className={classes.title}>
           {tag.deleted ? "[Deleted] " : ""}{displayedTagTitle}
         </Typography>
-        <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} hideLabels={true} className={classNames(classes.editMenu, classes.mobileButtonRow)} />
+       
         {!tag.wikiOnly && !editing && userHasNewTagSubscriptions(currentUser) &&
           <SubscribeButton
             tag={tag}
@@ -1126,6 +1237,7 @@ const TagPage = () => {
           {selectedLens?.contents?.editedAt && <FormatDate date={selectedLens.contents.editedAt} format="Do MMM YYYY" tooltip={false} />}
         </div>
       </div>}
+      {MobileRelationships}
       {/** Just hardcoding an example for now, since we haven't imported the necessary relationships to derive it dynamically */}
       {/* {requirementsAndAlternatives}
       {subjects} */}
