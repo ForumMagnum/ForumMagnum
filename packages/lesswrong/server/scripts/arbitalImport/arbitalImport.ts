@@ -343,6 +343,11 @@ function computePageAlternatives(database: WholeArbitalDatabase): Record<string,
   return results;
 }
 
+type PagesToConvertToLenses = Array<{
+  tagId: string;
+  arbitalPageId: string;
+}>;
+
 export type ArbitalConversionContext = {
   database: WholeArbitalDatabase,
   matchedUsers: Record<string,DbUser|null>
@@ -353,16 +358,17 @@ export type ArbitalConversionContext = {
   pageInfosByPageId: Record<string, PageInfosRow>,
   domainsByPageId: Record<string, DomainsRow>,
   imageUrlsCache: Record<string,string>,
-  pagesToConvertToLenses: Array<{
-    tagId: string
-    arbitalPageId: string
-  }>,
+  pagesToConvertToLenses: PagesToConvertToLenses,
   liveRevisionsByPageId: Record<string,WholeArbitalDatabase["pages"][0]>,
 }
 
 async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: ResolverContext, options: ArbitalImportOptions): Promise<void> {
-  await importWikiPages(database, resolverContext, options);
-  //await importComments(database, resolverContext, options);
+  const { existingPagesToMove, pagesToConvertToLenses } = await findCollidingWikiPages(database);
+  await renameCollidingWikiPages(existingPagesToMove);
+
+  const conversionContext = await buildConversionContext(database, pagesToConvertToLenses, options);
+  await importWikiPages(database, conversionContext, resolverContext, options);
+  await importComments(database, conversionContext, resolverContext, options);
 }
 
 
@@ -371,19 +377,13 @@ async function findCollidingWikiPages(database: WholeArbitalDatabase): Promise<{
     lwWikiPageSlug: string
     newSlug: string
   }>
-  pagesToConvertToLenses: Array<{
-    tagId: string
-    arbitalPageId: string
-  }>
+  pagesToConvertToLenses: PagesToConvertToLenses
 }> {
   const existingPagesToMove: Array<{
     lwWikiPageSlug: string
     newSlug: string
   }> = [];
-  const pagesToConvertToLenses: Array<{
-    tagId: string
-    arbitalPageId: string
-  }> = [];
+  const pagesToConvertToLenses: PagesToConvertToLenses = [];
 
   const pagesById = groupBy(database.pages, p=>p.pageId);
   const wikiPageIds = database.pageInfos.filter(pi => pi.type === "wiki").map(pi=>pi.pageId);
@@ -463,13 +463,10 @@ async function renameCollidingWikiPages(existingPagesToMove: Array<{
   );
 }
 
-async function buildConversionContext(database: WholeArbitalDatabase, options: ArbitalImportOptions): Promise<ArbitalConversionContext> {
+async function buildConversionContext(database: WholeArbitalDatabase, pagesToConvertToLenses: PagesToConvertToLenses, options: ArbitalImportOptions): Promise<ArbitalConversionContext> {
   const pagesById = groupBy(database.pages, p=>p.pageId);
   const pageInfosById = keyBy(database.pageInfos, pi=>pi.pageId);
   
-  const { existingPagesToMove, pagesToConvertToLenses } = await findCollidingWikiPages(database);
-  // await renameCollidingWikiPages(existingPagesToMove);
-
   //const matchedUsers: Record<string,DbUser|null> = { '2': await resolverContext.loaders.Users.load('nmk3nLpQE89dMRzzN') };
   const matchedUsers: Record<string,DbUser|null> = options.userMatchingFile
     ? await loadUserMatching(options.userMatchingFile)
@@ -533,13 +530,12 @@ async function buildConversionContext(database: WholeArbitalDatabase, options: A
   
 }
 
-async function importWikiPages(database: WholeArbitalDatabase, resolverContext: ResolverContext, options: ArbitalImportOptions): Promise<void> {
+async function importWikiPages(database: WholeArbitalDatabase, conversionContext: ArbitalConversionContext, resolverContext: ResolverContext, options: ArbitalImportOptions): Promise<void> {
   const pagesById = groupBy(database.pages, p=>p.pageId);
   const lensesByPageId = groupBy(database.lenses, l=>l.pageId);
   const lensIds = new Set(database.lenses.map(l=>l.lensId));
   const summariesByPageId = groupBy(database.pageSummaries, s=>s.pageId);
 
-  const conversionContext = await buildConversionContext(database, options);
   const {
     pageInfosByPageId: pageInfosById, slugsByPageId, titlesByPageId,
     pageIdsByTitle, domainsByPageId, matchedUsers, defaultUser, liveRevisionsByPageId,
@@ -874,11 +870,10 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
   }
 }
 
-async function importComments(database: WholeArbitalDatabase, resolverContext: ResolverContext, options: ArbitalImportOptions): Promise<void> {
+async function importComments(database: WholeArbitalDatabase, conversionContext: ArbitalConversionContext, resolverContext: ResolverContext, options: ArbitalImportOptions): Promise<void> {
   const commentPageInfos = database.pageInfos.filter(pi => pi.type === "comment");
   const pageInfosById = keyBy(database.pageInfos, pi=>pi.pageId);
   let irregularComments: {reason: string, commentId: string}[] = [];
-  const conversionContext = await buildConversionContext(database, options);
 
   let importedCommentCount = 0;
   const commentIdsToImport: string[] = [];
