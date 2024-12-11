@@ -121,11 +121,11 @@ Globals.deleteImportedArbitalUsers = async () => {
   }
 }
 
-Globals.importArbitalPagePairs = async (mysqlConnectionString: string) => {
+Globals.importArbitalPagePairs = async (mysqlConnectionString: string, options?: ArbitalImportOptions) => {
   const database = await connectAndLoadArbitalDatabase(mysqlConnectionString);
   const resolverContext = createAdminContext();
-  const options: ArbitalImportOptions = {};
-  await importPagePairs(database, resolverContext, options);
+  // Ensure we pass the options through instead of creating a new empty object
+  await importPagePairs(database, resolverContext, options || {});
 }
 
 Globals.replaceAllImportedArbitalData = async (mysqlConnectionString: string, options?: ArbitalImportOptions) => {
@@ -476,9 +476,9 @@ async function buildConversionContext(database: WholeArbitalDatabase, options: A
   const pageInfosById = keyBy(database.pageInfos, pi=>pi.pageId);
   
   const { existingPagesToMove, pagesToConvertToLenses } = await findCollidingWikiPages(database);
-  // await renameCollidingWikiPages(existingPagesToMove);
+  await renameCollidingWikiPages(existingPagesToMove);
 
-  //const matchedUsers: Record<string,DbUser|null> = { '2': await resolverContext.loaders.Users.load('nmk3nLpQE89dMRzzN') };
+  // const matchedUsers: Record<string,DbUser|null> = { '2': await resolverContext.loaders.Users.load('nmk3nLpQE89dMRzzN') };
   const matchedUsers: Record<string,DbUser|null> = options.userMatchingFile
     ? await loadUserMatching(options.userMatchingFile)
     : {};
@@ -719,7 +719,7 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
         const lensTitle = lensLiveRevision.title;
         const lensFirstRevisionCkEditorMarkup = await arbitalMarkdownToCkEditorMarkup({
           markdown: lensFirstRevision.text,
-          pageId: lens.pageId,
+          pageId: lens.lensId,
           conversionContext,
         });
 
@@ -748,7 +748,7 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
                 }
               },
               legacyData: {
-                arbitalPageId: lens.pageId,
+                arbitalPageId: lens.lensId,
               },
             } as Partial<DbMultiDocument>,
             context: resolverContext,
@@ -758,7 +758,7 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
           await Promise.all([
             backDateObj(MultiDocuments, lensObj._id, lensFirstRevision.createdAt),
             backDateAndAddLegacyDataToRevision(lensObj.contents_latest!, lensFirstRevision.createdAt, {
-              arbitalPageId: lens.pageId,
+              arbitalPageId: lens.lensId,
               arbitalEditNumber: lensFirstRevision.edit,
               arbitalMarkdown: lensFirstRevision.text,
             }),
@@ -1352,6 +1352,17 @@ Globals.hideContentFromNonDefaultDomains = async (mysqlConnectionString: string)
   });
 }
 
+async function findValidMultiDocument(arbitalLensId: string): Promise<DbMultiDocument | null> {
+  const multiDocs = await MultiDocuments.find({ 'legacyData.arbitalLensId': arbitalLensId, fieldName: 'description' }).fetch();
+  for (const multiDoc of multiDocs) {
+    const parentTagExists = await Tags.findOne({ _id: multiDoc.parentDocumentId, deleted: false });
+    if (parentTagExists) {
+      return multiDoc;
+    }
+  }
+  return null;
+}
+
 async function importPagePairs(
   database: WholeArbitalDatabase,
   resolverContext: ResolverContext,
@@ -1371,6 +1382,12 @@ async function importPagePairs(
 
   const filteredPagePairs = database.pagePairs.filter(pair => {
     const { parentId, childId, type } = pair;
+    
+    // First check if we should include this pair based on the pages option
+    if (options.pages && !options.pages.includes(childId)) {
+      return false;
+    }
+    
     const validType = ['tag', 'subject', 'requirement', 'parent'].includes(type);
     const parentInfo = pageInfosById[parentId];
     const childInfo = pageInfosById[childId];
@@ -1386,20 +1403,26 @@ async function importPagePairs(
   for (const pair of filteredPagePairs) {
     const { parentId, childId, type, level, isStrong, createdAt } = pair;
 
-    // console.log(`Importing page pair ${pair.id}`);
+    // Updated code begins here
+    // Function to find a valid MultiDocument associated with a non-deleted Tag
 
 
-    // Map Arbital page IDs to our internal tag IDs
-    const [parentMultiDoc, childMultiDoc, parentTag, childTag] = await Promise.all([
-      MultiDocuments.findOne({ 'legacyData.arbitalLensId': parentId, fieldName: 'description' }),
-      MultiDocuments.findOne({ 'legacyData.arbitalLensId': childId, fieldName: 'description' }),
+    // Find both MultiDocuments and Tags in parallel
+    const [
+      parentMultiDoc,
+      childMultiDoc,
+      parentTagDirect,
+      childTagDirect
+    ] = await Promise.all([
+      findValidMultiDocument(parentId),
+      findValidMultiDocument(childId),
       Tags.findOne({ 'legacyData.arbitalPageId': parentId, deleted: false }),
       Tags.findOne({ 'legacyData.arbitalPageId': childId, deleted: false })
     ]);
 
-    //use the multiDoc if it exists, otherwise use the tag
-    const parentDoc = parentMultiDoc ?? parentTag;
-    const childDoc = childMultiDoc ?? childTag;
+    // Use the MultiDocument if it exists, otherwise use the Tag
+    const parentDoc = parentMultiDoc ?? parentTagDirect;
+    const childDoc = childMultiDoc ?? childTagDirect;
     const parentCollectionName = parentMultiDoc ? 'MultiDocuments' : 'Tags';
     const childCollectionName = childMultiDoc ? 'MultiDocuments' : 'Tags';
 
@@ -1411,20 +1434,6 @@ async function importPagePairs(
       }${
         !childDoc ? `childDoc (${childId}) is missing` : ''
       }`);
-      console.log({
-        parentMultiDoc,
-        childMultiDoc,
-        parentTagQuickInfo: {
-          name: parentTag?.name,
-          slug: parentTag?.slug,
-          id: parentTag?._id,
-        },
-        childTagQuickInfo: {
-          name: childTag?.name,
-          slug: childTag?.slug,
-          id: childTag?._id,
-        },
-      });
       continue;
     }
 
@@ -1462,7 +1471,6 @@ async function importPagePairs(
       level: mappedType === 'parent-is-parent-of-child' ? 0 : level,
       isStrong: mappedType === 'parent-is-parent-of-child' ? false : !!isStrong,
       createdAt,
-      // userId: pairCreator._id,
       legacyData: {
         arbitalPagePairId: pair.id,
       },

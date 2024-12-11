@@ -145,6 +145,9 @@ export function arbitalLinkedPagesField(options: ArbitalLinkedPagesFieldOptions)
         };
       });
 
+      debugInfo.computedAlternativesCount = computedAlternatives.length;
+      debugInfo.computedAlternatives = computedAlternatives;
+
       // Step 6: Determine alternative types
       const alternativeResults = computedAlternatives
         .map((alt) => {
@@ -194,15 +197,14 @@ export function arbitalLinkedPagesField(options: ArbitalLinkedPagesFieldOptions)
         ).fetch();
 
 
-        //do the same for MultiDocuments
         const multiDocs = await MultiDocuments.find(
           { _id: { $in: ids }, fieldName: 'description' },
-          { projection: { parentDocumentId: 1, title: 1, slug: 1 } }
+          { projection: { _id: 1, parentDocumentId: 1, title: 1, slug: 1 } }
         ).fetch();
 
         //make new objects with the name field instead of title
         const multiDocsWithName = multiDocs.map((doc) => ({
-          _id: doc.parentDocumentId,
+          _id: doc._id,
           name: doc.title,
           slug: doc.slug, // TODO: make this something that works for lenses
         }));
