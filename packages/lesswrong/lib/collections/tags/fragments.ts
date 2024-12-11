@@ -252,6 +252,16 @@ registerFragment(`
       name
       slug
     }
+    parents {
+      _id
+      name
+      slug
+    }
+    children {
+      _id
+      name
+      slug
+    }
   }
 `);
 

@@ -13,6 +13,8 @@ addGraphQLSchema(`
     lessTechnical: [Tag]
     requirements: [Tag]
     teaches: [Tag]
+    parents: [Tag]
+    children: [Tag]
   }
 `);
 
@@ -214,7 +216,6 @@ export function arbitalLinkedPagesField(options: ArbitalLinkedPagesFieldOptions)
         {
           childDocumentId: docId,
           type: 'parent-is-requirement-of-child',
-          isStrong: true,
         },
         { projection: { parentDocumentId: 1 } }
       ).fetch();
@@ -227,13 +228,34 @@ export function arbitalLinkedPagesField(options: ArbitalLinkedPagesFieldOptions)
         {
           childDocumentId: docId,
           type: 'parent-taught-by-child',
-          isStrong: true,
         },
         { projection: { parentDocumentId: 1 } }
       ).fetch();
 
 
       const teachesDocumentIds = teachesRels.map((rel) => rel.parentDocumentId);
+
+      // Step X: Fetch parent relationships
+      const parentRels = await ArbitalTagContentRels.find(
+        {
+          childDocumentId: docId,
+          type: 'parent-is-parent-of-child',
+        },
+        { projection: { parentDocumentId: 1 } }
+      ).fetch();
+
+      const parentDocumentIds = parentRels.map((rel) => rel.parentDocumentId);
+
+      // Step Y: Fetch child relationships
+      const childRels = await ArbitalTagContentRels.find(
+        {
+          parentDocumentId: docId,
+          type: 'parent-is-parent-of-child',
+        },
+        { projection: { childDocumentId: 1 } }
+      ).fetch();
+
+      const childDocumentIds = childRels.map((rel) => rel.childDocumentId);
 
       // Collect all unique tag IDs
       const allDocumentIds = new Set<string>([
@@ -243,6 +265,8 @@ export function arbitalLinkedPagesField(options: ArbitalLinkedPagesFieldOptions)
         ...alternativeTypeMap.lessTechnical,
         ...requirementDocumentIds,
         ...teachesDocumentIds,
+        ...parentDocumentIds,
+        ...childDocumentIds,
       ]);
 
       const allDocumentsArray = await getDocumentsByIds(Array.from(allDocumentIds));
@@ -255,6 +279,8 @@ export function arbitalLinkedPagesField(options: ArbitalLinkedPagesFieldOptions)
       const lessTechnicalDocuments = alternativeTypeMap.lessTechnical.map(id => allDocuments.get(id)).filter(Boolean);
       const requirementsDocuments = requirementDocumentIds.map(id => allDocuments.get(id)).filter(Boolean);
       const teachesDocuments = teachesDocumentIds.map(id => allDocuments.get(id)).filter(Boolean);
+      const parentsDocuments = parentDocumentIds.map(id => allDocuments.get(id)).filter(Boolean);
+      const childrenDocuments = childDocumentIds.map(id => allDocuments.get(id)).filter(Boolean);
 
       // Return the ArbitalLinkedPages object
       return {
@@ -264,6 +290,8 @@ export function arbitalLinkedPagesField(options: ArbitalLinkedPagesFieldOptions)
         lessTechnical: lessTechnicalDocuments,
         requirements: requirementsDocuments,
         teaches: teachesDocuments,
+        parents: parentsDocuments,
+        children: childrenDocuments,
       };
     },
     // sqlResolver: ({ field }) => {
