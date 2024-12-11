@@ -525,15 +525,6 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   },
 }));
 
-interface ArbitalLinkedPages {
-  faster: TagBasicInfo[],
-  slower: TagBasicInfo[],
-  moreTechnical: TagBasicInfo[],
-  lessTechnical: TagBasicInfo[],
-  requirements: TagBasicInfo[],
-  teaches: TagBasicInfo[],
-}
-
 /**
  * If we're on the main tab (or on a tag without any lenses), we want to display the tag name.
  * Otherwise, we want to display the selected lens title.
@@ -708,6 +699,157 @@ const EditLensForm = ({lens}: {
     {...(lens.originalLensDocument ? { prefetchedDocument: lens.originalLensDocument } : {})}
   />
 }
+
+interface ArbitalLinkedPage {
+  _id: string,
+  name: string,
+  slug: string,
+}
+
+const ArbitalLinkedPagesRightSidebar = ({arbitalLinkedPages}: {arbitalLinkedPages?: ArbitalLinkedPagesFragment}) => {
+
+  const classes = useStyles(styles);
+
+  if (!arbitalLinkedPages) {
+    return null;
+  }
+
+  const { TagsTooltip, ContentStyles } = Components;
+
+  const linkedPageDisplay = (linkedPage: ArbitalLinkedPage) => <div key={linkedPage.slug} className={classes.linkedTag}>
+    <TagsTooltip placement="left" tagSlug={linkedPage.slug}>
+      <Link to={tagGetUrl(linkedPage)}>{linkedPage.name}</Link>
+    </TagsTooltip>
+  </div>
+
+  const hasList = (list: {_id: string, name: string, slug: string}[] | undefined) => list && list?.length > 0;
+
+  const { requirements, teaches, lessTechnical, moreTechnical, slower, faster } = arbitalLinkedPages;
+
+  return <ContentStyles contentType="tag">
+    <div className={classes.linkedTagsHeader}>
+      <div className={classes.linkedTagsList}>
+
+        {hasList(requirements) && <div className={classes.linkedTagsSection}>
+          <div className={classes.linkedTagsSectionTitle}>Relies on</div>
+          {requirements?.map((linkedPage: ArbitalLinkedPage) => linkedPageDisplay(linkedPage))}
+        </div>}
+        {hasList(teaches) && <div className={classes.linkedTagsSection}>
+          <div className={classes.linkedTagsSectionTitle}>Subjects</div>
+          {teaches?.map((linkedPage: ArbitalLinkedPage) => linkedPageDisplay(linkedPage))}
+        </div>}
+        {hasList(slower) && <div className={classes.linkedTagsSection}>
+          <div className={classes.linkedTagsSectionTitle}>Slower alternatives</div>
+          {slower?.map((linkedPage: ArbitalLinkedPage) => linkedPageDisplay(linkedPage))}
+        </div>}
+        {hasList(lessTechnical) && <div className={classes.linkedTagsSection}>
+          <div className={classes.linkedTagsSectionTitle}>Less technical alternatives</div>
+          {lessTechnical?.map((linkedPage: ArbitalLinkedPage) => linkedPageDisplay(linkedPage))}
+        </div>}
+        {hasList(faster) && <div className={classes.linkedTagsSection}>
+          <div className={classes.linkedTagsSectionTitle}>Faster alternatives</div>
+          {faster?.map((linkedPage: ArbitalLinkedPage) => linkedPageDisplay(linkedPage))}
+        </div>}
+        {hasList(moreTechnical) && <div className={classes.linkedTagsSection}>
+          <div className={classes.linkedTagsSectionTitle}>More technical alternatives</div>
+          {moreTechnical?.map((linkedPage: ArbitalLinkedPage) => linkedPageDisplay(linkedPage))}
+        </div>}
+
+      </div>
+    </div>
+  </ContentStyles>;
+}
+
+const ArbitalLinkedPagesSmallScreen: FC<{
+  arbitalLinkedPages?: ArbitalLinkedPagesFragment,
+}> = ({ arbitalLinkedPages }) => {
+  const classes = useStyles(styles);
+  const relationshipsRef = useRef<HTMLDivElement>(null);
+  const requirementsRef = useRef<HTMLDivElement>(null);
+  const teachesRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const adjustLayout = () => {
+      const requiresEl = requirementsRef.current;
+      const teachesEl = teachesRef.current;
+      const wrapperEl = relationshipsRef.current;
+
+      if (!requiresEl || !teachesEl || !wrapperEl) return;
+
+      // Remove any existing break element
+      const breakElement = wrapperEl.querySelector('.break');
+      if (breakElement) {
+        wrapperEl.removeChild(breakElement);
+      }
+
+      // Check positions
+      const requiresRect = requiresEl.getBoundingClientRect();
+      const teachesRect = teachesEl.getBoundingClientRect();
+
+      // Check if they would naturally wrap
+      const wrapperWidth = wrapperEl.getBoundingClientRect().width;
+      const combinedWidth = requiresRect.width + teachesRect.width;
+
+      const needsBreak = combinedWidth > wrapperWidth;
+
+      if (needsBreak) {
+        const breakDiv = document.createElement('div');
+        breakDiv.className = 'break';
+        breakDiv.style.flexBasis = '100%';
+        breakDiv.style.height = '0';
+        wrapperEl.insertBefore(breakDiv, teachesEl);
+      }
+    };
+
+    // Call immediately and on resize
+    adjustLayout();
+    window.addEventListener('resize', adjustLayout);
+
+    return () => window.removeEventListener('resize', adjustLayout);
+  }, []);
+
+  if (!arbitalLinkedPages) {
+    return null;
+  }
+
+  const { TagsTooltip, HoverPreviewLink } = Components;
+  const { requirements, teaches } = arbitalLinkedPages;
+
+  return (
+    <div className={classes.mobileRelationships} ref={relationshipsRef}>
+      {requirements?.length > 0 && (
+        <div className={classes.relationshipRow} ref={requirementsRef}>
+          <span>Requires:{'\u00A0'}</span>
+          {requirements.map((req: ArbitalLinkedPage, i: number) => (
+            <Fragment key={req.slug}>
+              <TagsTooltip tagSlug={req.slug}>
+                <HoverPreviewLink href={tagGetUrl(req)}>
+                  {req.name}
+                </HoverPreviewLink>
+              </TagsTooltip>
+              {i < requirements.length - 1 && ',\u00A0'}
+            </Fragment>
+          ))}
+        </div>
+      )}
+      {teaches?.length > 0 && (
+        <div className={classes.relationshipRow} ref={teachesRef}>
+          <span>Teaches:{'\u00A0'}</span>
+          {teaches.map((subject: ArbitalLinkedPage, i: number) => (
+            <Fragment key={subject.slug}>
+              <TagsTooltip tagSlug={subject.slug}>
+                <HoverPreviewLink href={tagGetUrl(subject)}>
+                  {subject.name}
+                </HoverPreviewLink>
+              </TagsTooltip>
+              {i < teaches.length - 1 && ',\u00A0'}
+            </Fragment>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const TagPage = () => {
   const {
@@ -1066,51 +1208,6 @@ const TagPage = () => {
   //   </ContentStyles>
   // );
 
-  const linkedTag = (linkedPage: TagBasicInfo) => <div key={linkedPage.slug} className={classes.linkedTag}>
-    <TagsTooltip placement="left" tagSlug={linkedPage.slug}>
-      <Link to={tagGetUrl(linkedPage)}>{linkedPage.name}</Link>
-    </TagsTooltip>
-  </div>
-
-  const hasList = (list: TagBasicInfo[] | undefined) => list && list?.length > 0;
-
-  const { requirements, teaches, lessTechnical, moreTechnical, slower, faster } = selectedLens?.arbitalLinkedPages as ArbitalLinkedPages;
-
-  const linkedTags = (
-    <ContentStyles contentType="tag">
-      <div className={classes.linkedTagsHeader}>
-        <div className={classes.linkedTagsList}>
-
-          {hasList(requirements) && <div className={classes.linkedTagsSection}>
-            <div className={classes.linkedTagsSectionTitle}>Relies on</div>
-            {requirements?.map((linkedPage: TagBasicInfo) => linkedTag(linkedPage))}
-          </div>}
-          {hasList(teaches) && <div className={classes.linkedTagsSection}>
-            <div className={classes.linkedTagsSectionTitle}>Subjects</div>
-            {teaches?.map((linkedPage: TagBasicInfo) => linkedTag(linkedPage))}
-          </div>}
-          {hasList(slower) && <div className={classes.linkedTagsSection}>
-            <div className={classes.linkedTagsSectionTitle}>Slower alternatives</div>
-            {slower?.map((linkedPage: TagBasicInfo) => linkedTag(linkedPage))}
-          </div>}
-          {hasList(lessTechnical) && <div className={classes.linkedTagsSection}>
-            <div className={classes.linkedTagsSectionTitle}>Less technical alternatives</div>
-            {lessTechnical?.map((linkedPage: TagBasicInfo) => linkedTag(linkedPage))}
-          </div>}
-          {hasList(faster) && <div className={classes.linkedTagsSection}>
-            <div className={classes.linkedTagsSectionTitle}>Faster alternatives</div>
-            {faster?.map((linkedPage: TagBasicInfo) => linkedTag(linkedPage))}
-          </div>}
-          {hasList(moreTechnical) && <div className={classes.linkedTagsSection}>
-            <div className={classes.linkedTagsSectionTitle}>More technical alternatives</div>
-            {moreTechnical?.map((linkedPage: TagBasicInfo) => linkedTag(linkedPage))}
-          </div>}
-
-        </div>
-      </div>
-    </ContentStyles>
-  );
-
   
 
   const requirementsAndAlternatives = (
@@ -1132,41 +1229,6 @@ const TagPage = () => {
       </div>
     </ContentStyles>
   );
-
-  const MobileRelationships = (
-    <div className={classes.mobileRelationships} ref={relationshipsRef}>
-          {requirements?.length > 0 && (
-            <div className={classes.relationshipRow} ref={requirementsRef}>
-              <span>Requires:{'\u00A0'}</span>
-              {requirements.map((req, i) => (
-                <Fragment key={req.slug}>
-                  <TagsTooltip tagSlug={req.slug}>
-                    <HoverPreviewLink href={tagGetUrl(req)}>
-                      {req.name}
-                    </HoverPreviewLink>
-                  </TagsTooltip>
-                  {i < requirements.length - 1 && ',\u00A0'}
-                </Fragment>
-              ))}
-            </div>
-          )}
-          {teaches?.length > 0 && (
-            <div className={classes.relationshipRow} ref={teachesRef}>
-              <span>Teaches:{'\u00A0'}</span>
-              {teaches.map((subject, i) => (
-                <Fragment key={subject.slug}>
-                  <TagsTooltip tagSlug={subject.slug}>
-                    <HoverPreviewLink href={tagGetUrl(subject)}>
-                      {subject.name}
-                    </HoverPreviewLink>
-                  </TagsTooltip>
-                  {i < teaches.length - 1 && ',\u00A0'}
-                </Fragment>
-              ))}
-            </div>
-          )}
-    </div>
-  )
 
   const tagHeader = (
     <div className={classNames(classes.header,classes.centralColumn)}>
@@ -1237,7 +1299,7 @@ const TagPage = () => {
           {selectedLens?.contents?.editedAt && <FormatDate date={selectedLens.contents.editedAt} format="Do MMM YYYY" tooltip={false} />}
         </div>
       </div>}
-      {MobileRelationships}
+      <ArbitalLinkedPagesSmallScreen arbitalLinkedPages={selectedLens?.arbitalLinkedPages ?? undefined} />
       {/** Just hardcoding an example for now, since we haven't imported the necessary relationships to derive it dynamically */}
       {/* {requirementsAndAlternatives}
       {subjects} */}
@@ -1264,7 +1326,7 @@ const TagPage = () => {
         hideLabels={true}
         className={classNames(classes.editMenu, classes.nonMobileButtonRow)}
       />
-      {linkedTags}
+      <ArbitalLinkedPagesRightSidebar arbitalLinkedPages={selectedLens?.arbitalLinkedPages ?? undefined} />
       {/* {requirementsandalternatives}
       {subjects} */}
     </div>

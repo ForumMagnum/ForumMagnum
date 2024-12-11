@@ -222,22 +222,34 @@ registerFragment(`
 registerFragment(`
   fragment ArbitalLinkedPagesFragment on ArbitalLinkedPages {
     faster {
-      ...TagBasicInfo
+      _id
+      name
+      slug
     }
     slower {
-      ...TagBasicInfo
+      _id
+      name
+      slug
     }
     moreTechnical {
-      ...TagBasicInfo
+      _id
+      name
+      slug
     }
     lessTechnical {
-      ...TagBasicInfo
+      _id
+      name
+      slug
     }
     requirements {
-      ...TagBasicInfo
+      _id
+      name
+      slug
     }
     teaches {
-      ...TagBasicInfo
+      _id
+      name
+      slug
     }
   }
 `);

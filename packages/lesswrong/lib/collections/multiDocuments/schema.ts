@@ -110,11 +110,6 @@ const schema: SchemaType<"MultiDocuments"> = {
     type: Object,
     canRead: ['guests'],
   },
-  isArbitalImport: resolverOnlyField({
-    type: Boolean,
-    canRead: ['guests'],
-    resolver: (doc: DbMultiDocument) => doc.legacyData?.arbitalPageId !== undefined,
-  }),
   arbitalLinkedPages: arbitalLinkedPagesField({ collectionName: 'MultiDocuments' }),
 };
 
