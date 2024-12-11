@@ -145,9 +145,6 @@ export function arbitalLinkedPagesField(options: ArbitalLinkedPagesFieldOptions)
         };
       });
 
-      debugInfo.computedAlternativesCount = computedAlternatives.length;
-      debugInfo.computedAlternatives = computedAlternatives;
-
       // Step 6: Determine alternative types
       const alternativeResults = computedAlternatives
         .map((alt) => {
