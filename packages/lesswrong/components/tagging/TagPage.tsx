@@ -106,27 +106,22 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     },
   },
   nonMobileButtonRow: {
-    [theme.breakpoints.down('xs')]: {
+    [theme.breakpoints.down('sm')]: {
       // Ensure this takes priority over the properties in TagPageButtonRow
       display: 'none !important',
     },
+    position: 'absolute',
+    top: 74,
+    right: 8,
   },
   mobileButtonRow: {
     [theme.breakpoints.up('md')]: {
       display: 'none !important',
     },
+    marginTop: 8,
+    marginBottom: 8,
   },
-  editMenu: {
-    [theme.breakpoints.down('xs')]: {
-      marginTop: 16,
-      marginBottom: 8,
-    },
-    [theme.breakpoints.up('md')]: {
-      position: 'absolute',
-      top: -36,
-      right: 8,
-    },
-  },
+  editMenu: {},
   wikiSection: {
     paddingTop: 5,
     ...sidePaddingStyle(theme),
@@ -184,7 +179,6 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     },
     [theme.breakpoints.down('sm')]: {
       gap: '2px',
-      padding: 2,
       flexWrap: 'wrap-reverse',
       display: 'flex',
       flexDirection: 'row',
@@ -195,8 +189,8 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     flexDirection: 'column',
     gap: '4px',
     [theme.breakpoints.down('sm')]: {
-      minWidth: '25%',
       maxWidth: '40%',
+      // TODO: maybe have a conditional flex-grow for 2 vs. 3+ lens tabs
       flexGrow: 1,
       gap: '0px',
     },
@@ -227,9 +221,9 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
       height: '100%',
       paddingTop: 2,
       paddingBottom: 2,
-      borderTopLeftRadius: theme.borderRadius.small * 2,
-      borderTopRightRadius: theme.borderRadius.small * 2,
     },
+    borderTopLeftRadius: theme.borderRadius.small * 2,
+    borderTopRightRadius: theme.borderRadius.small * 2,
   },
   tabLabelContainerOverride: {
     paddingLeft: 16,
@@ -284,6 +278,9 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     },
     [theme.breakpoints.up('md')]: {
       borderStyle: 'solid',
+      // These don't work with borderImageSource, maybe TODO
+      // borderTopLeftRadius: theme.borderRadius.small * 2,
+      // borderTopRightRadius: theme.borderRadius.small * 2,
       borderWidth: '1px 1px 0 1px',
       borderImageSource: `linear-gradient(to bottom, 
         ${theme.palette.grey[400]} 0%, 
@@ -1290,13 +1287,6 @@ const TagPage = () => {
 
   const rightColumn = (<div className={classes.rightColumn}>
     <div className={classes.rightColumnContent}>
-      <TagPageButtonRow
-        tag={tag}
-        editing={editing}
-        setEditing={setEditing}
-        hideLabels={true}
-        className={classNames(classes.editMenu, classes.nonMobileButtonRow)}
-      />
       {alternatives}
       {/* {requirementsandalternatives}
       {subjects} */}
@@ -1350,6 +1340,13 @@ const TagPage = () => {
     </div>}
     <div className={tag.bannerImageId ? classes.rootGivenImage : ''}>
       {/* {originalToc} */}
+      <TagPageButtonRow
+        tag={tag}
+        editing={editing}
+        setEditing={setEditing}
+        hideLabels={true}
+        className={classNames(classes.editMenu, classes.nonMobileButtonRow)}
+      />
       {isFriendlyUI ? originalToc : multiColumnToc}
     </div>
   </AnalyticsContext>

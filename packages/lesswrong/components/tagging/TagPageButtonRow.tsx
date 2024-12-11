@@ -15,14 +15,9 @@ import { tagGetHistoryUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma
 const styles = (theme: ThemeType): JssStyles => ({
   buttonsRow: {
     ...theme.typography.body2,
-    marginTop: 2,
-    marginBottom: 16,
     color: theme.palette.grey[700],
     display: "flex",
     flexWrap: "wrap",
-    [theme.breakpoints.down('xs')]: {
-      marginTop: 8,
-    },
     '& svg': {
       height: 20,
       width: 20,
