@@ -5,27 +5,27 @@ const schema: SchemaType<'ArbitalTagContentRels'> = {
     type: String,
     nullable: false,
     canRead: ['guests'],
-    canCreate: ['members'],
+    canCreate: ['admins'],
   },
   childDocumentId: {
     type: String,
     nullable: false,
     canRead: ['guests'],
-    canCreate: ['members'],
+    canCreate: ['admins'],
   },
   parentCollectionName: {
     type: String,
     nullable: false,
     allowedValues: ['Tags', 'MultiDocuments'],
     canRead: ['guests'],
-    canCreate: ['members'],
+    canCreate: ['admins'],
   },
   childCollectionName: {
     type: String,
     nullable: false,
     allowedValues: ['Tags', 'MultiDocuments'],
     canRead: ['guests'],
-    canCreate: ['members'],
+    canCreate: ['admins'],
   },
   // From Arbital schema comment
   // Type of the relationship.
@@ -41,7 +41,7 @@ const schema: SchemaType<'ArbitalTagContentRels'> = {
     type: String,
     nullable: false,
     canRead: ['guests'],
-    canCreate: ['members'],
+    canCreate: ['admins'],
     allowedValues: [
       'parent-taught-by-child',
       'parent-is-requirement-of-child',
@@ -52,13 +52,13 @@ const schema: SchemaType<'ArbitalTagContentRels'> = {
   level: {
     type: Number,
     canRead: ['guests'],
-    canCreate: ['members'],
+    canCreate: ['admins'],
     optional: true,
   },
   isStrong: {
     type: Boolean,
     canRead: ['guests'],
-    canCreate: ['members'],
+    canCreate: ['admins'],
     ...schemaDefaultValue(false),
   },
 };

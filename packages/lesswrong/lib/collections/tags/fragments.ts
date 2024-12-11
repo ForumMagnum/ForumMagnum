@@ -219,6 +219,7 @@ registerFragment(`
   }
 `);
 
+// This matches custom graphql type in arbitalLinkedPagesField.ts that's a resolver field on Tags and MultiDocuments
 registerFragment(`
   fragment ArbitalLinkedPagesFragment on ArbitalLinkedPages {
     faster {
