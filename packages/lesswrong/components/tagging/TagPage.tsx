@@ -5,7 +5,7 @@ import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from "../../lib/betas";
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
 import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
-import { useMulti } from '../../lib/crud/withMulti';
+import { useMulti, UseMultiOptions } from '../../lib/crud/withMulti';
 import { truncate } from '../../lib/editor/ellipsize';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation, useNavigate } from '../../lib/routeUtil';
@@ -31,6 +31,7 @@ import { TagContributor } from "./arbitalTypes";
 import { TagEditorContext, TagEditorProvider } from "./TagEditorContext";
 import { isClient } from "@/lib/executionEnvironment";
 import qs from "qs";
+import { useTagOrLens } from "../hooks/useTagOrLens";
 
 const sidePaddingStyle = (theme: ThemeType) => ({
   paddingLeft: 42,
@@ -834,9 +835,9 @@ const TagPage = () => {
   // Support URLs with ?version=1.2.3 or with ?revision=1.2.3 (we were previously inconsistent, ?version is now preferred)
   const { version: queryVersion, revision: queryRevision } = query;
   const revision = queryVersion ?? queryRevision ?? null;
-  
+
   const contributorsLimit = 16;
-  const { tag, loading: loadingTag } = useTagBySlug(slug, revision ? "TagPageWithRevisionFragment" : "TagPageFragment", {
+  const tagQueryOptions: Partial<UseMultiOptions<"TagPageFragment" | "TagPageWithRevisionFragment", "Tags">> = {
     extraVariables: revision ? {
       version: 'String',
       contributorsLimit: 'Int',
@@ -849,19 +850,11 @@ const TagPage = () => {
     } : {
       contributorsLimit,
     },
-  });
+  };
 
-  const { results: lensWithParentTag } = useMulti({
-    collectionName: 'MultiDocuments',
-    fragmentName: 'MultiDocumentParentDocument',
-    terms: {
-      view: 'lensBySlug',
-      slug: slug,
-    },
-    // Having a limit of 1 makes this fail if we have copies of this lens for deleted tags which don't get returned for permissions reasons
-    // so we get as many as we can and assume that we'll only ever actually get at most one back
-    skip: !slug,
-  });
+  const tagFragmentName = revision ? "TagPageWithRevisionFragment" : "TagPageFragment";
+
+  const { tag, loadingTag, lens, loadingLens } = useTagOrLens(slug, tagFragmentName, tagQueryOptions);
 
   const [truncated, setTruncated] = useState(false)
   const [editing, setEditing] = useState(!!query.edit)
@@ -942,7 +935,9 @@ const TagPage = () => {
   if (loadingTag && !tag)
     return <Loading/>
   if (!tag) {
-    const lens = lensWithParentTag?.[0];
+    if (loadingLens && !lens) {
+      return <Loading/>
+    }
     if (lens?.parentTag) {
       const baseTagUrl = tagGetUrl(lens.parentTag);
       const newQuery = {
