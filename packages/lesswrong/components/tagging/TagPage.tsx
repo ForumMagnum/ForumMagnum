@@ -467,7 +467,7 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   contributorRatio: {},
   ...tagPageHeaderStyles(theme),
   mobileRelationships: {
-    [theme.breakpoints.up('md')]: {
+    [theme.breakpoints.up('lg')]: {
       display: 'none',
     },
     marginTop: 8,
@@ -496,6 +496,9 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     '& a': {
       color: theme.palette.primary.main,
     },
+  },
+  spaceAfterWord: {
+    marginRight: 2,
   },
 }));
 
@@ -658,53 +661,8 @@ const ArbitalLinkedPagesRightSidebar = ({arbitalLinkedPages}: {arbitalLinkedPage
   </ContentStyles>;
 }
 
-const ArbitalLinkedPagesSmallScreen: FC<{
-  arbitalLinkedPages?: ArbitalLinkedPagesFragment,
-}> = ({ arbitalLinkedPages }) => {
+const ArbitalRelationshipsSmallScreen = ({arbitalLinkedPages}: {arbitalLinkedPages?: ArbitalLinkedPagesFragment}) => {
   const classes = useStyles(styles);
-  const relationshipsRef = useRef<HTMLDivElement>(null);
-  const requirementsRef = useRef<HTMLDivElement>(null);
-  const teachesRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const adjustLayout = () => {
-      const requiresEl = requirementsRef.current;
-      const teachesEl = teachesRef.current;
-      const wrapperEl = relationshipsRef.current;
-
-      if (!requiresEl || !teachesEl || !wrapperEl) return;
-
-      // Remove any existing break element
-      const breakElement = wrapperEl.querySelector('.break');
-      if (breakElement) {
-        wrapperEl.removeChild(breakElement);
-      }
-
-      // Check positions
-      const requiresRect = requiresEl.getBoundingClientRect();
-      const teachesRect = teachesEl.getBoundingClientRect();
-
-      // Check if they would naturally wrap
-      const wrapperWidth = wrapperEl.getBoundingClientRect().width;
-      const combinedWidth = requiresRect.width + teachesRect.width;
-
-      const needsBreak = combinedWidth > wrapperWidth;
-
-      if (needsBreak) {
-        const breakDiv = document.createElement('div');
-        breakDiv.className = 'break';
-        breakDiv.style.flexBasis = '100%';
-        breakDiv.style.height = '0';
-        wrapperEl.insertBefore(breakDiv, teachesEl);
-      }
-    };
-
-    // Call immediately and on resize
-    adjustLayout();
-    window.addEventListener('resize', adjustLayout);
-
-    return () => window.removeEventListener('resize', adjustLayout);
-  }, []);
 
   if (!arbitalLinkedPages) {
     return null;
@@ -712,42 +670,42 @@ const ArbitalLinkedPagesSmallScreen: FC<{
 
   const { TagsTooltip, HoverPreviewLink } = Components;
   const { requirements, teaches } = arbitalLinkedPages;
-
+  
   return (
-    <div className={classes.mobileRelationships} ref={relationshipsRef}>
-      {requirements?.length > 0 && (
-        <div className={classes.relationshipRow} ref={requirementsRef}>
-          <span>Requires:{'\u00A0'}</span>
+    <div className={classes.mobileRelationships}>
+      {requirements.length > 0 && (
+        <div className={classes.relationshipRow}>
+          <span className={classes.spaceAfterWord}>{'Requires: '}</span>
           {requirements.map((req: ArbitalLinkedPage, i: number) => (
-            <Fragment key={req.slug}>
+            <span key={req.slug} className={classes.spaceAfterWord}>
               <TagsTooltip tagSlug={req.slug}>
                 <HoverPreviewLink href={tagGetUrl(req)}>
                   {req.name}
                 </HoverPreviewLink>
               </TagsTooltip>
-              {i < requirements.length - 1 && ',\u00A0'}
-            </Fragment>
+              {i < requirements.length - 1 && ', '}
+            </span>
           ))}
         </div>
       )}
-      {teaches?.length > 0 && (
-        <div className={classes.relationshipRow} ref={teachesRef}>
-          <span>Teaches:{'\u00A0'}</span>
+      {teaches.length > 0 && (
+        <div className={classes.relationshipRow}>
+          <span className={classes.spaceAfterWord}>{'Teaches: '}</span>
           {teaches.map((subject: ArbitalLinkedPage, i: number) => (
-            <Fragment key={subject.slug}>
+            <span key={subject.slug} className={classes.spaceAfterWord}>
               <TagsTooltip tagSlug={subject.slug}>
                 <HoverPreviewLink href={tagGetUrl(subject)}>
                   {subject.name}
                 </HoverPreviewLink>
               </TagsTooltip>
-              {i < teaches.length - 1 && ',\u00A0'}
-            </Fragment>
+              {i < teaches.length - 1 && ', '}
+            </span>
           ))}
         </div>
       )}
     </div>
   );
-};
+}
 
 function htmlNodeListToArray(nodes: NodeList): Node[] {
   let ret: Node[] = [];
@@ -1428,7 +1386,7 @@ const TagPage = () => {
           {selectedLens?.contents?.editedAt && <FormatDate date={selectedLens.contents.editedAt} format="Do MMM YYYY" tooltip={false} />}
         </div>
       </div>}
-      <ArbitalLinkedPagesSmallScreen arbitalLinkedPages={selectedLens?.arbitalLinkedPages ?? undefined} />
+      <ArbitalRelationshipsSmallScreen arbitalLinkedPages={selectedLens?.arbitalLinkedPages ?? undefined} />
       {/** Just hardcoding an example for now, since we haven't imported the necessary relationships to derive it dynamically */}
       {/* {requirementsAndAlternatives} */}
       {/* {subjects} */}
