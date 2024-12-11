@@ -23,6 +23,7 @@ export interface TagLens {
   userId: string;
   legacyData: AnyBecauseHard;
   originalLensDocument: MultiDocumentEdit | null;
+  arbitalLinkedPages: ArbitalLinkedPagesFragment | null;
 }
 
 interface TagLensInfo {
@@ -50,6 +51,7 @@ function getDefaultLens(tag: TagPageFragment|TagPageWithRevisionFragment|TagHist
     userId: tag.userId,
     legacyData: {},
     originalLensDocument: null,
+    arbitalLinkedPages: tag.arbitalLinkedPages,
   }
 }
 

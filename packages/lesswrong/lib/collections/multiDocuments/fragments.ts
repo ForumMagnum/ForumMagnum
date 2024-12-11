@@ -18,6 +18,9 @@ registerFragment(`
     contents {
       ...RevisionEdit
     }
+    arbitalLinkedPages {
+      ...ArbitalLinkedPagesFragment
+    }
     legacyData
   }
 `);

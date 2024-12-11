@@ -10,6 +10,7 @@ import keyBy from 'lodash/keyBy';
 import groupBy from 'lodash/groupBy';
 import { createAdminContext, createMutator, slugify, updateMutator } from '@/server/vulcan-lib';
 import Tags from '@/lib/collections/tags/collection';
+import ArbitalTagContentRels from '@/lib/collections/arbitalTagContentRels/collection';
 import { getUnusedSlugByCollectionName, slugIsUsed } from '@/lib/helpers';
 import { randomId } from '@/lib/random';
 import { MultiDocuments } from '@/lib/collections/multiDocuments/collection';
@@ -118,6 +119,13 @@ Globals.deleteImportedArbitalUsers = async () => {
       },
     });
   }
+}
+
+Globals.importArbitalPagePairs = async (mysqlConnectionString: string, options?: ArbitalImportOptions) => {
+  const database = await connectAndLoadArbitalDatabase(mysqlConnectionString);
+  const resolverContext = createAdminContext();
+  // Ensure we pass the options through instead of creating a new empty object
+  await importPagePairs(database, resolverContext, options || {});
 }
 
 Globals.replaceAllImportedArbitalData = async (mysqlConnectionString: string, options?: ArbitalImportOptions) => {
@@ -369,6 +377,7 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
 
   const conversionContext = await buildConversionContext(database, pagesToConvertToLenses, options);
   await importWikiPages(database, conversionContext, resolverContext, options);
+  await importPagePairs(database, resolverContext, options);
   await importComments(database, conversionContext, resolverContext, options);
 }
 
@@ -580,6 +589,8 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
       })
     : Object.keys(liveRevisionsByPageId).filter(pageId => !lensIds.has(pageId))
   console.log(`Importing ${pageIdsToImport.length} pages`)
+
+  console.log("Importing pages with ids:", pageIdsToImport);
   
   const alternativesByPageId = computePageAlternatives(database);
   
@@ -896,7 +907,7 @@ async function importComments(database: WholeArbitalDatabase, conversionContext:
 
   let importedCommentCount = 0;
   const commentIdsToImport: string[] = [];
-  let lwCommentsById: Record<string,DbComment> = {};
+  let lwCommentsById: Record<string, DbComment> = {};
   
   // Sort comments by creation date so that we only insert a comment after
   // inserting its parent
@@ -1367,6 +1378,209 @@ Globals.hideContentFromNonDefaultDomains = async (mysqlConnectionString: string)
     $set: {deleted: true},
   });
 }
+
+
+function isMultiDocument(doc: DbTag | DbMultiDocument): doc is DbMultiDocument {
+  return 'title' in doc;
+}
+
+async function findValidMultiDocument(arbitalLensId: string): Promise<DbMultiDocument | null> {
+  const multiDocs = await MultiDocuments.find({ 'legacyData.arbitalLensId': arbitalLensId, fieldName: 'description' }).fetch();
+  for (const multiDoc of multiDocs) {
+    const parentTagExists = await Tags.findOne({ _id: multiDoc.parentDocumentId, deleted: false });
+    if (parentTagExists) {
+      return multiDoc;
+    }
+  }
+  return null;
+}
+
+// Function to undo the deletion of imported wiki pages
+Globals.undoDeleteImportedArbitalWikiPages = async () => {
+  // Find all deleted wiki pages that were originally imported from Arbital
+  const deletedWikiPages = await Tags.find({
+    "legacyData.arbitalPageId": { $exists: true },
+    deleted: true,
+  }).fetch();
+
+  // Group pages by Arbital Page ID to identify duplicates
+  const pagesByArbitalPageId = groupBy(
+    deletedWikiPages,
+    (page) => page.legacyData.arbitalPageId
+  );
+  
+  console.log(`Found ${Object.keys(pagesByArbitalPageId).length} duplicate deleted wiki pages to restore`);
+
+  for (const arbitalPageId in pagesByArbitalPageId) {
+    const pages = pagesByArbitalPageId[arbitalPageId];
+
+    // Select the page with the most recent createdAt
+    const pageToRestore = pages.reduce((a, b) =>
+      a.createdAt > b.createdAt ? a : b
+    );
+
+    console.log(`Restoring page ${pageToRestore.name}`);
+
+    // Reconstruct the slug from the page name
+    const slug = await getUnusedSlugByCollectionName(
+      "Tags",
+      slugify(pageToRestore.name)
+    );
+
+    // Restore the selected page and set the new slug in a single operation
+    await Tags.rawUpdateOne(
+      { _id: pageToRestore._id },
+      {
+        $set: { 
+          deleted: false,
+          slug 
+        }
+      }
+    );
+
+    // Non-restored duplicates are left as is
+    // We do not modify or remove them
+  }
+};
+
+
+async function importPagePairs(
+  database: WholeArbitalDatabase,
+  resolverContext: ResolverContext,
+  options: ArbitalImportOptions
+): Promise<void> {
+  // replicating here rather than using buildConversionContext to avoid unintended side effects
+  const pageInfosById = keyBy(database.pageInfos, pi=>pi.pageId);
+  const defaultUser: DbUser|null = await Users.findOne({ username: "arbitalimport" });
+  if (!defaultUser) {
+    throw new Error("There must be a fallback user named arbitalimport to assign edits to");
+  }
+
+  console.log("Truncating ArbitalTagContentRels collection");
+  await ArbitalTagContentRels.rawRemove({});
+
+  console.log("Importing page pairs");
+
+  const filteredPagePairs = database.pagePairs.filter(pair => {
+    const { parentId, childId, type } = pair;
+    
+    // First check if we should include this pair based on the pages option
+    if (options.pages && !options.pages.includes(childId)) {
+      return false;
+    }
+    
+    const validType = ['tag', 'subject', 'requirement', 'parent'].includes(type);
+    const parentInfo = pageInfosById[parentId];
+    const childInfo = pageInfosById[childId];
+    const pagesExist = parentInfo && childInfo;
+    const pagesNotDeleted = pagesExist && !parentInfo.isDeleted && !childInfo.isDeleted;
+    return validType && pagesExist && pagesNotDeleted;
+  });
+
+  console.log(`Importing ${filteredPagePairs.length} page pairs`);
+
+  const arbitalTagContentRels: Array<Omit<DbArbitalTagContentRel, '_id'>> = [];
+
+  for (const pair of filteredPagePairs) {
+    const { parentId, childId, type, level, isStrong, createdAt } = pair;
+
+    // Updated code begins here
+    // Function to find a valid MultiDocument associated with a non-deleted Tag
+
+
+    // Find both MultiDocuments and Tags in parallel
+    const [
+      parentMultiDoc,
+      childMultiDoc,
+      parentTagDirect,
+      childTagDirect
+    ] = await Promise.all([
+      findValidMultiDocument(parentId),
+      findValidMultiDocument(childId),
+      Tags.findOne({ 'legacyData.arbitalPageId': parentId, deleted: false }),
+      Tags.findOne({ 'legacyData.arbitalPageId': childId, deleted: false })
+    ]);
+
+    // Use the MultiDocument if it exists, otherwise use the Tag
+    const parentDoc = parentMultiDoc ?? parentTagDirect;
+    const childDoc = childMultiDoc ?? childTagDirect;
+    const parentCollectionName = parentMultiDoc ? 'MultiDocuments' : 'Tags';
+    const childCollectionName = childMultiDoc ? 'MultiDocuments' : 'Tags';
+
+    if (!parentDoc || !childDoc) {
+      console.log(`Skipping page pair ${pair.id} because ${
+        !parentDoc ? `parentDoc (${parentId}) is missing` : ''
+      }${
+        !parentDoc && !childDoc ? ' and ' : ''
+      }${
+        !childDoc ? `childDoc (${childId}) is missing` : ''
+      }`);
+      continue;
+    }
+
+    let mappedType: DbArbitalTagContentRel['type'] | null = null;
+    switch (type) {
+      case 'requirement':
+        mappedType = 'parent-is-requirement-of-child';
+        break;
+      case 'subject':
+        mappedType = 'parent-taught-by-child';
+        break;
+      case 'tag':
+        mappedType = 'parent-is-tag-of-child';
+        break;
+      case 'parent':
+        mappedType = 'parent-is-parent-of-child';
+        break;
+      default:
+        continue;
+    }
+
+    console.log(`Queueing relationship ${
+      isMultiDocument(parentDoc) ? parentDoc.title : parentDoc.name
+    } -> ${
+      isMultiDocument(childDoc) ? childDoc.title : childDoc.name
+    } with type ${mappedType}`);
+
+
+    arbitalTagContentRels.push({
+      parentDocumentId: parentDoc._id,
+      childDocumentId: childDoc._id,
+      parentCollectionName,
+      childCollectionName,
+      type: mappedType,
+      level: mappedType === 'parent-is-parent-of-child' ? 0 : level,
+      isStrong: mappedType === 'parent-is-parent-of-child' ? false : !!isStrong,
+      createdAt,
+      legacyData: {
+        arbitalPagePairId: pair.id,
+      },
+      schemaVersion: 1,
+    });
+  }
+
+  // Bulk insert the relationships
+  if (arbitalTagContentRels.length > 0) {
+    console.log(`Bulk importing ${arbitalTagContentRels.length} pagePairs into ArbitalTagContentRels`);
+    
+    // Process in chunks to avoid overwhelming the database
+    const chunkSize = 100;
+    for (let i = 0; i < arbitalTagContentRels.length; i += chunkSize) {
+      const chunk = arbitalTagContentRels.slice(i, i + chunkSize);
+      await Promise.all(chunk.map(rel => 
+        createMutator({
+          collection: ArbitalTagContentRels,
+          document: rel,
+          validate: false,
+          context: resolverContext,
+          currentUser: defaultUser,
+        })
+      ));
+      console.log(`Imported chunk ${Math.floor(i/chunkSize) + 1}/${Math.ceil(arbitalTagContentRels.length/chunkSize)}`);
+    }
+  }
+}
+
 
 async function cleanUpAccidentalLensTags(wholeArbitalDb: WholeArbitalDatabase) {
   const lensIds = Array.from(new Set(wholeArbitalDb.lenses.map(l => l.lensId)));
