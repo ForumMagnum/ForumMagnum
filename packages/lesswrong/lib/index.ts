@@ -258,6 +258,7 @@ import './collections/sideCommentCaches/fragments';
 // MultiDocuments
 import "./collections/multiDocuments/collection";
 import "./collections/multiDocuments/fragments";
+import "./collections/multiDocuments/views";
 
 // Internationalization
 import './i18n-en-us/en_US';

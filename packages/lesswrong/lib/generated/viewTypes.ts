@@ -40,7 +40,7 @@ type MessagesViewName = "messagesConversation"|"conversationPreview";
 type MigrationsViewName = never
 type ModerationTemplatesViewName = "moderationTemplatesPage"|"moderationTemplatesList";
 type ModeratorActionsViewName = "userModeratorActions"|"restrictionModerationActions";
-type MultiDocumentsViewName = never
+type MultiDocumentsViewName = "lensBySlug";
 type NotificationsViewName = "userNotifications"|"unreadUserNotifications"|"adminAlertNotifications";
 type PageCacheViewName = never
 type PetrovDayActionsViewName = "getAction"|"launchDashboard"|"adminConsole"|"warningConsole";
@@ -128,7 +128,7 @@ interface ViewTermsByCollectionName {
   Migrations: ViewTermsBase
   ModerationTemplates: ModerationTemplatesViewTerms
   ModeratorActions: ModeratorActionsViewTerms
-  MultiDocuments: ViewTermsBase
+  MultiDocuments: MultiDocumentsViewTerms
   Notifications: NotificationsViewTerms
   PageCache: ViewTermsBase
   PetrovDayActions: PetrovDayActionsViewTerms
@@ -175,4 +175,4 @@ interface ViewTermsByCollectionName {
 }
 
 
-type NameOfCollectionWithViews = "AdvisorRequests"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationNotices"|"DialogueChecks"|"DialogueMatchPreferences"|"Digests"|"ElectionVotes"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"JargonTerms"|"LWEvents"|"LlmConversations"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PetrovDayActions"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type NameOfCollectionWithViews = "AdvisorRequests"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationNotices"|"DialogueChecks"|"DialogueMatchPreferences"|"Digests"|"ElectionVotes"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"JargonTerms"|"LWEvents"|"LlmConversations"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PetrovDayActions"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"

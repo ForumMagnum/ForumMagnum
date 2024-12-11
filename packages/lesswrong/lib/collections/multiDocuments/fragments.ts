@@ -8,6 +8,7 @@ registerFragment(`
     fieldName
     userId
     slug
+    oldSlugs
     title
     tabTitle
     tabSubtitle
@@ -17,9 +18,18 @@ registerFragment(`
     contents {
       ...RevisionEdit
     }
-    isArbitalImport
     arbitalLinkedPages {
       ...ArbitalLinkedPagesFragment
+    }
+    legacyData
+  }
+`);
+
+registerFragment(`
+  fragment MultiDocumentParentDocument on MultiDocument {
+    ...MultiDocumentEdit
+    parentTag {
+      ...TagBasicInfo
     }
   }
 `);

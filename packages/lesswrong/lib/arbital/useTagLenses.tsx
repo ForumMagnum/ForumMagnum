@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState, useMemo } from "react";
 import { useLocation, useNavigate } from "../routeUtil";
 import type { ToCData } from "../tableOfContents";
 import qs from "qs";
+import omit from "lodash/omit";
 
 export const MAIN_TAB_ID = 'main-tab';
 
@@ -18,7 +19,9 @@ export interface TagLens {
   tabTitle: string;
   tabSubtitle: string | null;
   slug: string;
+  oldSlugs: string[];
   userId: string;
+  legacyData: AnyBecauseHard;
   originalLensDocument: MultiDocumentEdit | null;
   arbitalLinkedPages: ArbitalLinkedPagesFragment | null;
 }
@@ -44,21 +47,12 @@ function getDefaultLens(tag: TagPageFragment|TagPageWithRevisionFragment|TagHist
     tabTitle: 'Main',
     tabSubtitle: null,
     slug: 'main',
+    oldSlugs: [],
     userId: tag.userId,
+    legacyData: {},
     originalLensDocument: null,
     arbitalLinkedPages: tag.arbitalLinkedPages,
   }
-}
-
-// TODO: get rid of this and use the lens slug when we fix the import to get the correct alias from lens.lensId's pageInfo
-function getImputedSlug(lens: MultiDocumentEdit) {
-  const slugComponents = lens.tabTitle.split(' ');
-
-  if (lens.tabSubtitle) {
-    slugComponents.push(...lens.tabSubtitle.split(' '));
-  }
-
-  return slugComponents.join('_').toLowerCase();
 }
 
 export function getAvailableLenses(tag: TagPageFragment|TagPageWithRevisionFragment|TagHistoryFragment|null) {
@@ -69,7 +63,6 @@ export function getAvailableLenses(tag: TagPageFragment|TagPageWithRevisionFragm
       ...lens,
       index: lens.index + 1,
       title: lens.title ?? tag.name,
-      slug: getImputedSlug(lens),
       originalLensDocument: lens,
     }))
   ];
@@ -81,11 +74,12 @@ export function useTagLenses(tag: TagPageFragment | TagPageWithRevisionFragment 
   const availableLenses = useMemo(() => getAvailableLenses(tag), [tag]);
 
   const querySelectedLens = useMemo(() =>
-    availableLenses.find(lens => lens.slug === query.lens),
+    // TODO: maybe we also want to check the oldSlugs?
+    availableLenses.find(lens => lens.slug === query.lens || lens.legacyData?.arbitalPageId === query.lens),
     [availableLenses, query.lens]
   );
 
-  const [selectedLensId, setSelectedLensId] = useState<string>(querySelectedLens?._id ?? MAIN_TAB_ID);
+  const selectedLensId = querySelectedLens?._id ?? MAIN_TAB_ID;
 
   const selectedLens = useMemo(() =>
     availableLenses.find(lens => lens._id === selectedLensId),
@@ -93,29 +87,28 @@ export function useTagLenses(tag: TagPageFragment | TagPageWithRevisionFragment 
   );
 
   const updateSelectedLens = useCallback((lensId: string) => {
-    setSelectedLensId(lensId);
     const selectedLensSlug = availableLenses.find(lens => lens._id === lensId)?.slug;
     if (selectedLensSlug) {
       const defaultLens = availableLenses.find(lens => lens._id === MAIN_TAB_ID);
       const navigatingToDefaultLens = selectedLensSlug === defaultLens?.slug;
+      const queryWithoutLens = omit(query, "lens");
       const newSearch = navigatingToDefaultLens
-       ? ''
-       : `?${qs.stringify({ lens: selectedLensSlug })}`;
+       ? qs.stringify(queryWithoutLens)
+       : qs.stringify({ lens: selectedLensSlug, ...queryWithoutLens });
 
       navigate({ ...location, search: newSearch });
     }
-  }, [availableLenses, location, navigate]);
+  }, [availableLenses, location, navigate, query]);
 
   useEffect(() => {
-    if (query.lens) {
-      if (querySelectedLens) {
-        setSelectedLensId(querySelectedLens._id);
-      } else {
-        // If the lens doesn't exist, reset the search query
-        navigate({ ...location, search: '' }, { replace: true });
-      }
+    if (query.lens && tag && !querySelectedLens) {
+      // If the lens doesn't exist, reset the search query
+      navigate(
+        { ...location, search: qs.stringify(omit(query, "lens")) },
+        { replace: true }
+      );
     }
-  }, [query.lens, availableLenses, navigate, location, querySelectedLens]);
+  }, [query, availableLenses, navigate, location, querySelectedLens, tag]);
 
   return {
     selectedLens,

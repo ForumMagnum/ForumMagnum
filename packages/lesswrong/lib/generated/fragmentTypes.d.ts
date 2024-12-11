@@ -3920,6 +3920,7 @@ interface MultiDocumentEdit { // fragment on MultiDocuments
   readonly fieldName: string,
   readonly userId: string,
   readonly slug: string,
+  readonly oldSlugs: Array<string>,
   readonly title: string | null,
   readonly tabTitle: string,
   readonly tabSubtitle: string | null,
@@ -3927,8 +3928,12 @@ interface MultiDocumentEdit { // fragment on MultiDocuments
   readonly index: number,
   readonly tableOfContents: any /*{"definitions":[{}]}*/,
   readonly contents: RevisionEdit|null,
-  readonly isArbitalImport: boolean|null,
   readonly arbitalLinkedPages: ArbitalLinkedPagesFragment,
+  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
+}
+
+interface MultiDocumentParentDocument extends MultiDocumentEdit { // fragment on MultiDocuments
+  readonly parentTag: TagBasicInfo|null,
 }
 
 interface ElectionCandidateBasicInfo { // fragment on ElectionCandidates
@@ -4580,6 +4585,7 @@ interface FragmentTypes {
   SideCommentCacheMinimumInfo: SideCommentCacheMinimumInfo
   MultiDocumentsDefaultFragment: MultiDocumentsDefaultFragment
   MultiDocumentEdit: MultiDocumentEdit
+  MultiDocumentParentDocument: MultiDocumentParentDocument
   ElectionCandidateBasicInfo: ElectionCandidateBasicInfo
   ElectionCandidateSimple: ElectionCandidateSimple
   WithVoteElectionCandidate: WithVoteElectionCandidate
@@ -4687,7 +4693,7 @@ interface FragmentTypesByCollection {
   ModerationTemplates: "ModerationTemplatesDefaultFragment"|"ModerationTemplateFragment"
   CurationNotices: "CurationNoticesDefaultFragment"|"CurationNoticesFragment"
   UserRateLimits: "UserRateLimitsDefaultFragment"|"UserRateLimitDisplay"
-  MultiDocuments: "MultiDocumentsDefaultFragment"|"MultiDocumentEdit"
+  MultiDocuments: "MultiDocumentsDefaultFragment"|"MultiDocumentEdit"|"MultiDocumentParentDocument"
   ElicitQuestions: "ElicitQuestionsDefaultFragment"
   ElicitQuestionPredictions: "ElicitQuestionPredictionsDefaultFragment"
   DialogueChecks: "DialogueChecksDefaultFragment"|"DialogueCheckInfo"
@@ -4953,6 +4959,7 @@ interface CollectionNamesByFragmentName {
   SideCommentCacheMinimumInfo: "SideCommentCaches"
   MultiDocumentsDefaultFragment: "MultiDocuments"
   MultiDocumentEdit: "MultiDocuments"
+  MultiDocumentParentDocument: "MultiDocuments"
   ElectionCandidateBasicInfo: "ElectionCandidates"
   ElectionCandidateSimple: "ElectionCandidates"
   WithVoteElectionCandidate: "ElectionCandidates"

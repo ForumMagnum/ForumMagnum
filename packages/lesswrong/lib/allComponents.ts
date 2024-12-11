@@ -140,6 +140,7 @@ importComponent("PresenceList", () => require('../components/editor/PresenceList
 importComponent("ConditionalVisibilityBlockDisplay", () => require('../components/editor/conditionalVisibilityBlock/ConditionalVisibilityBlockDisplay'));
 importComponent("EditConditionalVisibility", () => require('../components/editor/conditionalVisibilityBlock/EditConditionalVisibility'));
 importComponent("ShowBlockVisibilityCondition", () => require('../components/editor/conditionalVisibilityBlock/ShowBlockVisibilityCondition'));
+importComponent("EditCTAButtonSettings", () => require('../components/editor/ctaButton/EditCTAButtonSettings'));
 
 // Generic dropdown menus and items
 importComponent("DropdownMenu", () => require('../components/dropdowns/DropdownMenu'));
@@ -847,7 +848,7 @@ importComponent("RejectContentButton", () => require('../components/sunshineDash
 importComponent("UserRateLimitItem", () => require('../components/sunshineDashboard/UserRateLimitItem'));
 importComponent("AllReactedCommentsPage", () => require('../components/sunshineDashboard/AllReactedCommentsPage'));
 
-importComponent("AddTag", () => require('../components/tagging/AddTag'));
+importComponent("AddTagOrWikiPage", () => require('../components/tagging/AddTagOrWikiPage'));
 importComponent("NewTagsList", () => require('../components/tagging/NewTagsList'));
 importComponent("AddTagButton", () => require('../components/tagging/AddTagButton'));
 importComponent("TagsChecklist", () => require('../components/tagging/TagsChecklist'));
@@ -855,6 +856,7 @@ importComponent("CoreTagsChecklist", () => require('../components/tagging/CoreTa
 importComponent("TagPage", () => require('../components/tagging/TagPage'));
 importComponent("TagPageButtonRow", () => require('../components/tagging/TagPageButtonRow'));
 importComponent("TagPageTitle", () => require('../components/tagging/TagPageTitle'));
+importComponent("PathInfo", () => require('../components/tagging/PathInfo'));
 importComponent("TagTableOfContents", () => require('../components/tagging/TagTableOfContents'));
 importComponent("TagIntroSequence", () => require('../components/tagging/TagIntroSequence'));
 importComponent("TagHistoryPageTitle", () => require('../components/tagging/TagHistoryPageTitle'));

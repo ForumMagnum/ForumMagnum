@@ -10,7 +10,7 @@ const getBayesGuideHtml = (() => {
     //   return html;
     // }
 
-    const path = join(__filename, '../../../../packages/lesswrong/server/utils/arbital/resources/bayesGuideMultipleChoice.html');
+    const path = 'packages/lesswrong/server/utils/arbital/resources/bayesGuideMultipleChoice.html';
 
     html = await readFile(path, 'utf8');
     return html;
@@ -37,6 +37,7 @@ async function applyArbitalPathReplacements(html: string) {
 
     const script: string = arbitalScripts[scriptId];
     if (!script) {
+      // eslint-disable-next-line no-console
       console.error(`No script found for id ${scriptId}`);
       return;
     }

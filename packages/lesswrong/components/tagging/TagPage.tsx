@@ -1,15 +1,15 @@
 import { useApolloClient } from "@apollo/client";
 import classNames from 'classnames';
-import React, { FC, Fragment, useCallback, useEffect, useMemo, useState, useRef } from 'react';
+import React, { FC, Fragment, useCallback, useContext, useEffect, useState, useRef } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from "../../lib/betas";
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
 import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
-import { useMulti } from '../../lib/crud/withMulti';
+import { useMulti, UseMultiOptions } from '../../lib/crud/withMulti';
 import { truncate } from '../../lib/editor/ellipsize';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation, useNavigate } from '../../lib/routeUtil';
-import { useOnSearchHotkey } from '../common/withGlobalKeydown';
+import { useGlobalKeydown, useOnSearchHotkey } from '../common/withGlobalKeydown';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { EditTagForm } from './EditTagPage';
@@ -25,9 +25,13 @@ import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from "./TagPageExpo
 import { useStyles, defineStyles } from "../hooks/useStyles";
 import { HEADER_HEIGHT } from "../common/Header";
 import { MAX_COLUMN_WIDTH } from "../posts/PostsPage/PostsPage";
-import { GUIDE_PATH_PAGES_MAPPING } from "@/lib/arbital/paths";
 import { MAIN_TAB_ID, TagLens, useTagLenses } from "@/lib/arbital/useTagLenses";
 import { quickTakesTagsEnabledSetting } from "@/lib/publicSettings";
+import { TagContributor } from "./arbitalTypes";
+import { TagEditorContext, TagEditorProvider } from "./TagEditorContext";
+import { isClient } from "@/lib/executionEnvironment";
+import qs from "qs";
+import { useTagOrLens } from "../hooks/useTagOrLens";
 
 const sidePaddingStyle = (theme: ThemeType) => ({
   paddingLeft: 42,
@@ -102,27 +106,22 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     },
   },
   nonMobileButtonRow: {
-    [theme.breakpoints.down('xs')]: {
+    [theme.breakpoints.down('sm')]: {
       // Ensure this takes priority over the properties in TagPageButtonRow
       display: 'none !important',
     },
+    position: 'absolute',
+    top: 74,
+    right: 8,
   },
   mobileButtonRow: {
     [theme.breakpoints.up('md')]: {
       display: 'none !important',
     },
+    marginTop: 8,
+    marginBottom: 8,
   },
-  editMenu: {
-    [theme.breakpoints.down('xs')]: {
-      marginTop: 16,
-      marginBottom: 8,
-    },
-    [theme.breakpoints.up('md')]: {
-      position: 'absolute',
-      top: -36,
-      right: 8,
-    },
-  },
+  editMenu: {},
   wikiSection: {
     paddingTop: 5,
     ...sidePaddingStyle(theme),
@@ -180,7 +179,6 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     },
     [theme.breakpoints.down('sm')]: {
       gap: '2px',
-      padding: 2,
       flexWrap: 'wrap-reverse',
       display: 'flex',
       flexDirection: 'row',
@@ -191,8 +189,8 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     flexDirection: 'column',
     gap: '4px',
     [theme.breakpoints.down('sm')]: {
-      minWidth: '25%',
       maxWidth: '40%',
+      // TODO: maybe have a conditional flex-grow for 2 vs. 3+ lens tabs
       flexGrow: 1,
       gap: '0px',
     },
@@ -223,9 +221,9 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
       height: '100%',
       paddingTop: 2,
       paddingBottom: 2,
-      borderTopLeftRadius: theme.borderRadius.small * 2,
-      borderTopRightRadius: theme.borderRadius.small * 2,
     },
+    borderTopLeftRadius: theme.borderRadius.small * 2,
+    borderTopRightRadius: theme.borderRadius.small * 2,
   },
   tabLabelContainerOverride: {
     paddingLeft: 16,
@@ -280,6 +278,9 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     },
     [theme.breakpoints.up('md')]: {
       borderStyle: 'solid',
+      // These don't work with borderImageSource, maybe TODO
+      // borderTopLeftRadius: theme.borderRadius.small * 2,
+      // borderTopRightRadius: theme.borderRadius.small * 2,
       borderWidth: '1px 1px 0 1px',
       borderImageSource: `linear-gradient(to bottom, 
         ${theme.palette.grey[400]} 0%, 
@@ -342,10 +343,11 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     height: 16,
   },
   rightColumn: {
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       display: 'none',
     },
     marginTop: -32,
+    width: 300,
     '&:hover': {
       '& $rightColumnOverflowFade': {
         opacity: 0,
@@ -442,43 +444,6 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     // marginBottom: 4,
     // color: theme.palette.primary.main,
   },
-  pathInfo: {
-    // ...theme.typography.body2,
-    // ...theme.typography.commentStyle,
-    // marginBottom: 4,
-    // color: theme.palette.grey[600],
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'end',
-    gap: '16px',
-  },
-  pathNavigationBackButton: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    // padding: '4px 8px 5px 8px',
-  },
-  pathNavigationNextButton: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: theme.palette.panelBackground.darken15,
-    borderRadius: theme.borderRadius.small,
-    padding: '4px 8px 5px 8px',
-  },
-  pathNavigationBackButtonIcon: {
-    width: '16px',
-    height: '16px',
-    marginRight: '4px',
-    marginTop: '3px',
-  },
-  pathNavigationNextButtonIcon: {
-    width: '16px',
-    height: '16px',
-    marginLeft: '4px',
-    marginTop: '3px',
-  },
   tocContributors: {
     display: 'flex',
     flexDirection: 'column',
@@ -489,6 +454,15 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     marginLeft: 16,
     fontFamily: theme.palette.fonts.sansSerifStack,
     color: theme.palette.greyAlpha(0.5),
+  },
+  unselectedEditForm: {
+    display: 'none',
+  },
+  selectedEditForm: {
+    display: 'block',
+  },
+  descriptionContainerEditing: {
+    display: 'none',
   },
   contributorRatio: {},
   ...tagPageHeaderStyles(theme),
@@ -539,100 +513,25 @@ function useDisplayedTagTitle(tag: TagPageFragment | TagPageWithRevisionFragment
   return selectedLens.title;
 }
 
-function usePathInfo(tag: TagPageFragment | TagPageWithRevisionFragment | null) {
-  const { query } = useLocation();
+// function getNormalizedContributorRatio(ratio: number) {
+//   return parseFloat((ratio * 100).toFixed(0));
+// }
 
-  if (!tag) {
-    return undefined;
-  }
-
-  const pathId = query.pathId;
-  const pathPages = pathId ? GUIDE_PATH_PAGES_MAPPING[pathId as keyof typeof GUIDE_PATH_PAGES_MAPPING] : undefined;
-
-  if (!pathPages) {
-    return undefined;
-  }
-
-  const tagSlugs = [tag.slug, ...tag.oldSlugs];
-  let currentPagePathIndex;
-  for (let slug of tagSlugs) {
-    const index = pathPages.indexOf(slug);
-    if (index >= 0) {
-      currentPagePathIndex = index;
-      break;
-    }
-  }
-
-  if (currentPagePathIndex === undefined) {
-    return undefined;
-  }
-
-  const nextPageId = pathPages[currentPagePathIndex + 1];
-  const previousPageId = currentPagePathIndex > 0 ? pathPages[currentPagePathIndex - 1] : undefined;
-  const displayPageIndex = currentPagePathIndex + 1;
-  const pathPageCount = pathPages.length;
-
-  return { displayPageIndex, nextPageId, previousPageId, pathPageCount, pathId };
-}
-
-function getNormalizedContributorRatio(ratio: number) {
-  return parseFloat((ratio * 100).toFixed(0));
-}
-
-function getDisplayedContributorRatio(ratio: number) {
-  return `${getNormalizedContributorRatio(ratio)}%`;
-}
+// function getDisplayedContributorRatio(ratio: number) {
+//   return `${getNormalizedContributorRatio(ratio)}%`;
+// }
 
 // TODO: maybe move this to the server, so that the user doesn't have to wait for the hooks to run to see the contributors
-function useContributorRatios(description: string, tag: TagPageFragment | TagPageWithRevisionFragment | null) {
-  const [contributorRatios, setContributorRatios] = useState<Record<string, string>>({});
-  const [sortedContributors, setSortedContributors] = useState<AnyBecauseHard[]>([]);
-
-  useEffect(() => {
-    if (!tag?.contributors) {
-      setContributorRatios({});
-      setSortedContributors([]);
-      return;
-    }
-
-    const contributorIds: string[] = tag.contributors.contributors.map(({ user }: { user?: UsersMinimumInfo }) => user?._id) ?? [];
-    const contributorAnnotationClassNames = contributorIds.map(id => `by_${id}`);
-
-    const contributorAnnotations = contributorAnnotationClassNames.map(className => Array.from(document.querySelectorAll(`.${className}`))).flat();
-    const annotationCharacterCounts = Array.from(contributorAnnotations).map(annotation => {
-      if (!annotation.textContent) return [undefined, 0] as const;
-      const contributorClassNames = annotation.className.split(' ').filter(className => className.startsWith('by_'));
-      const contributorId = contributorClassNames[0].split('_')[1];
-      // Remove all whitespace
-      return [contributorId, annotation.textContent.replace(/\s/g, '').length] as const;
-    });
-    const totalCharacterCount = annotationCharacterCounts.reduce((a, b) => a + b[1], 0);
-    const contributorCharacterCounts = annotationCharacterCounts.filter(([_, count]) => count > 0).reduce((acc, [contributorId, count]) => {
-      if (!contributorId) return acc;
-      acc[contributorId] = (acc[contributorId] ?? 0) + count;
-      return acc;
-    }, {} as Record<string, number>);
-    const computedRatios = Object.fromEntries(
-      Object
-        .entries(contributorCharacterCounts)
-        .map(([contributorId, count]) => [contributorId, count / totalCharacterCount])
-    );
-
-    const sortedContributors = [...tag.contributors.contributors]
-      .filter(({ user }) => computedRatios[user._id] && getNormalizedContributorRatio(computedRatios[user._id]) > 0)
-      .sort((a, b) => {
-        return getNormalizedContributorRatio(computedRatios[b.user._id]) - getNormalizedContributorRatio(computedRatios[a.user._id]);
-      });
-
-    const displayedContributorRatios = Object.fromEntries(
-      Object.entries(computedRatios).map(([contributorId, ratio]) => [contributorId, getDisplayedContributorRatio(ratio)])
-    );
-
-    setSortedContributors(sortedContributors);
-    setContributorRatios(displayedContributorRatios);
-  }, [description, tag]);
-
-  return { contributorRatios, sortedContributors };
+function useDisplayedContributors(tag: TagPageFragment | TagPageWithRevisionFragment | null) {
+  const contributors: TagContributor[] = tag?.contributors.contributors ?? [];
+  if (!contributors.some(({ contributionVolume }) => contributionVolume)) {
+    return { topContributors: contributors, smallContributors: [] };
+  }
+  const totalDiffVolume = contributors.reduce((acc: number, contributor: TagContributor) => acc + contributor.contributionVolume, 0);
+  const sortedContributors = [...contributors].sort((a, b) => b.contributionVolume - a.contributionVolume);
+  const topContributors = sortedContributors.filter(({ contributionVolume }) => contributionVolume / totalDiffVolume > 0.1);
+  const smallContributors = sortedContributors.filter(({ contributionVolume }) => contributionVolume / totalDiffVolume <= 0.1);
+  return { topContributors, smallContributors };
 }
 
 const PostsListHeading: FC<{
@@ -689,7 +588,6 @@ const LensTab = ({ key, value, label, lens, isSelected, ...tabProps }: {
 const EditLensForm = ({lens}: {
   lens: TagLens,
 }) => {
-  // console.log({ prefetchedDocument: lens.originalLensDocument });
   return <Components.WrappedSmartForm
     key={lens._id}
     collectionName="MultiDocuments"
@@ -851,14 +749,261 @@ const ArbitalLinkedPagesSmallScreen: FC<{
   );
 };
 
+function htmlNodeListToArray(nodes: NodeList): Node[] {
+  let ret: Node[] = [];
+  for (let i=0; i<nodes.length; i++)
+    ret.push(nodes.item(i)!);
+  return ret;
+}
+
+const bayesGuideScript = () => {
+  const pathDescriptions = {
+    basic_theoretical: {
+      content: `
+          <p>Your path will teach you the basic odds form of Bayes' rule at a reasonable pace. It will contain 3 pages:</p>
+          <ul>
+              <li>Frequency diagrams: A first look at Bayes</li>
+              <li>Waterfall diagrams and relative odds</li>
+              <li>Introduction to Bayes' rule: Odds form</li>
+          </ul>
+      `,
+      pathId: "62c",
+    },
+    quick: {
+      content: `
+          <p>No time to waste! Let's plunge directly into <a href="/w/693">a single-page abbreviated introduction to Bayes' rule</a>.</p>
+      `,
+      // pathId: "693",
+      pathId: null,
+    },
+    theoretical: {
+      content: `
+          <p>Your path will teach you the basic odds form of Bayes' rule at a reasonable pace and then delve into the deep mysteries of the Bayes' Rule! Your path will contain 8 pages:</p>
+          <ul>
+              <li>Frequency diagrams: A first look at Bayes</li>
+              <li>Waterfall diagrams and relative odds</li>
+              <li>Introduction to Bayes' rule: Odds form</li>
+              <li>Belief revision as probability elimination</li>
+              <li>Extraordinary claims require extraordinary evidence</li>
+              <li>Ordinary claims require ordinary evidence</li>
+              <li>Shift towards the hypothesis of least surprise</li>
+              <li>Bayesian view of scientific virtues</li>
+          </ul>
+      `,
+      pathId: "62f",
+    },
+    deep: {
+      content: `
+          <p>Your path will go over all forms of Bayes' Rule, along with developing deep appreciation for its scientific usefulness. Your path will contain 12 pages:</p>
+          <ul>
+              <li>Frequency diagrams: A first look at Bayes</li>
+              <li>Waterfall diagrams and relative odds</li>
+              <li>Introduction to Bayes' rule: Odds form</li>
+              <li>Bayes' rule: Proportional form</li>
+              <li>Extraordinary claims require extraordinary evidence</li>
+              <li>Ordinary claims require ordinary evidence</li>
+              <li>Bayes' rule: Log-odds form</li>
+              <li>Shift towards the hypothesis of least surprise</li>
+              <li>Bayes' rule: Vector form</li>
+              <li>Belief revision as probability elimination</li>
+              <li>Bayes' rule: Probability form</li>
+              <li>Bayesian view of scientific virtues</li>
+          </ul>
+      `,
+      pathId: "61b",
+    },
+  };
+
+
+  let currentPathId: string | null = null;
+
+  function startPath() {
+    if (currentPathId) {
+      window.location.href = `/w/${currentPathId}/?startPath`;
+    }
+  }
+
+  function handleRadioChange(radio: HTMLInputElement) {
+    const wants = radio.dataset.wants?.split(",") || [];
+    const notWants = radio.dataset.notWants?.split(",") || [];
+
+    let pathKey;
+    if (wants.includes("62d") && wants.includes("62f")) {
+      pathKey = "deep";
+    } else if (wants.includes("62d") && notWants.includes("62f")) {
+      pathKey = "quick";
+    } else if (wants.includes("62f") && notWants.includes("62d")) {
+      pathKey = "theoretical";
+    } else {
+      pathKey = "basic_theoretical";
+    }
+
+    const pathDescription = document.getElementById("pathDescription");
+    const content = pathDescription?.querySelector(".content");
+    const startButton = pathDescription?.querySelector(".start-reading") as HTMLElement;
+
+    if (content) {
+      content.innerHTML = pathDescriptions[pathKey as keyof typeof pathDescriptions].content;
+    }
+    currentPathId = pathDescriptions[pathKey as keyof typeof pathDescriptions].pathId;
+
+    if (pathDescription) {
+      pathDescription.style.display = "block";
+    }
+    if (startButton) {
+      if (currentPathId) {
+        startButton.style.display = "block";
+      } else {
+        startButton.style.display = "none";
+      }
+    }
+  }
+
+  let currentContainer: Element|null = null;
+
+  function initializeRadioHandlers() {
+    document.querySelectorAll('input[name="preference"]').forEach((radio: HTMLInputElement) => {
+      radio.addEventListener("change", function() {
+        handleRadioChange(this);
+      });
+    });
+
+    const checkedRadio = document.querySelector('input[name="preference"]:checked') as HTMLInputElement|null;
+    if (checkedRadio) {
+      handleRadioChange(checkedRadio);
+    }
+  }
+
+  if (isClient) {
+    const pathDescriptions = {
+      basic_theoretical: {
+        content: `
+            <p>Your path will teach you the basic odds form of Bayes' rule at a reasonable pace. It will contain 3 pages:</p>
+            <ul>
+                <li>Frequency diagrams: A first look at Bayes</li>
+                <li>Waterfall diagrams and relative odds</li>
+                <li>Introduction to Bayes' rule: Odds form</li>
+            </ul>
+        `,
+        pathId: "62c",
+      },
+      quick: {
+        content: `
+            <p>No time to waste! Let's plunge directly into <a href="/w/693">a single-page abbreviated introduction to Bayes' rule</a>.</p>
+        `,
+        // pathId: "693",
+      },
+      theoretical: {
+        content: `
+            <p>Your path will teach you the basic odds form of Bayes' rule at a reasonable pace and then delve into the deep mysteries of the Bayes' Rule! Your path will contain 8 pages:</p>
+            <ul>
+                <li>Frequency diagrams: A first look at Bayes</li>
+                <li>Waterfall diagrams and relative odds</li>
+                <li>Introduction to Bayes' rule: Odds form</li>
+                <li>Belief revision as probability elimination</li>
+                <li>Extraordinary claims require extraordinary evidence</li>
+                <li>Ordinary claims require ordinary evidence</li>
+                <li>Shift towards the hypothesis of least surprise</li>
+                <li>Bayesian view of scientific virtues</li>
+            </ul>
+        `,
+        pathId: "62f",
+      },
+      deep: {
+        content: `
+            <p>Your path will go over all forms of Bayes' Rule, along with developing deep appreciation for its scientific usefulness. Your path will contain 12 pages:</p>
+            <ul>
+                <li>Frequency diagrams: A first look at Bayes</li>
+                <li>Waterfall diagrams and relative odds</li>
+                <li>Introduction to Bayes' rule: Odds form</li>
+                <li>Bayes' rule: Proportional form</li>
+                <li>Extraordinary claims require extraordinary evidence</li>
+                <li>Ordinary claims require ordinary evidence</li>
+                <li>Bayes' rule: Log-odds form</li>
+                <li>Shift towards the hypothesis of least surprise</li>
+                <li>Bayes' rule: Vector form</li>
+                <li>Belief revision as probability elimination</li>
+                <li>Bayes' rule: Probability form</li>
+                <li>Bayesian view of scientific virtues</li>
+            </ul>
+        `,
+        pathId: "61b",
+      },
+    };
+  
+    // Watch for our content being added to or removed from the DOM
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.type !== 'childList') continue;
+        
+        // Check if our current container was removed
+        if (currentContainer && !currentContainer.isConnected) {
+          currentContainer = null;
+        }
+        
+        // Only look for new container if we don't have one
+        if (!currentContainer) {
+          for (const node of htmlNodeListToArray(mutation.addedNodes)) {
+            if (!(node instanceof Element)) continue;
+            
+            const container = node.matches('.question-container') 
+              ? node 
+              : node.querySelector('.question-container');
+              
+            if (container) {
+              currentContainer = container;
+              initializeRadioHandlers();
+              break;
+            }
+          }
+        }
+      }
+    });
+  
+    // Start observing from the document root
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+  
+    // Initial setup
+    initializeRadioHandlers();
+  
+    Object.assign(window, { startPath });
+    Object.assign(window, { handleRadioChange });
+  }
+};
+
+function addBayesGuideScript() {
+  if (isClient) {
+    if (document.readyState === 'complete') {
+      bayesGuideScript();
+    } else {
+      document.addEventListener('DOMContentLoaded', bayesGuideScript);
+    }
+  }
+}
+
+addBayesGuideScript();
+
+const ContributorsList = ({ contributors, onHoverContributor, endWithComma }: { contributors: TagContributor[], onHoverContributor: (userId: string | null) => void, endWithComma: boolean }) => {
+  const { UsersNameDisplay } = Components;
+  const classes = useStyles(styles);
+
+  return <>{contributors.map(({ user }, idx) => (<span key={user._id} onMouseOver={() => onHoverContributor(user._id)} onMouseOut={() => onHoverContributor(null)}>
+    <UsersNameDisplay user={user} tooltipPlacement="top" className={classes.contributorName} />
+    {endWithComma || idx < contributors.length - 1 ? ', ' : ''}
+  </span>))}</>;
+}
+
 const TagPage = () => {
   const {
     PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, Typography,
     PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection,
     TagPageButtonRow, ToCColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
-    TagTableOfContents, TagVersionHistoryButton, ContentStyles, CommentsListCondensed,
+    TagTableOfContents, ContentStyles, CommentsListCondensed,
     MultiToCLayout, TableOfContents, FormatDate, LWTooltip, HoverPreviewLink, TagsTooltip,
-    ForumIcon,
+    PathInfo
   } = Components;
   const classes = useStyles(styles);
 
@@ -910,14 +1055,14 @@ const TagPage = () => {
 
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
-  const navigate = useNavigate();
+  // const { onOpenEditor } = useContext(TagEditorContext);
   
   // Support URLs with ?version=1.2.3 or with ?revision=1.2.3 (we were previously inconsistent, ?version is now preferred)
   const { version: queryVersion, revision: queryRevision } = query;
   const revision = queryVersion ?? queryRevision ?? null;
-  
+
   const contributorsLimit = 16;
-  const { tag, loading: loadingTag } = useTagBySlug(slug, revision ? "TagPageWithRevisionFragment" : "TagPageFragment", {
+  const tagQueryOptions: Partial<UseMultiOptions<"TagPageFragment" | "TagPageWithRevisionFragment", "Tags">> = {
     extraVariables: revision ? {
       version: 'String',
       contributorsLimit: 'Int',
@@ -930,18 +1075,17 @@ const TagPage = () => {
     } : {
       contributorsLimit,
     },
-  });
+  };
 
-  
+  const tagFragmentName = revision ? "TagPageWithRevisionFragment" : "TagPageFragment";
+
+  const { tag, loadingTag, lens, loadingLens } = useTagOrLens(slug, tagFragmentName, tagQueryOptions);
+
   const [truncated, setTruncated] = useState(false)
   const [editing, setEditing] = useState(!!query.edit)
   const [hoveredContributorId, setHoveredContributorId] = useState<string|null>(null);
   const { captureEvent } =  useTracking()
   const client = useApolloClient()
-
-  const pathInfo = usePathInfo(tag);
-
-  const { tag: guideTag } = useTagBySlug(pathInfo?.pathId ?? '', 'TagBasicInfo', { skip: !pathInfo?.pathId });
 
   const multiTerms: AnyBecauseTodo = {
     allPages: {view: "allPagesByNewest"},
@@ -958,6 +1102,13 @@ const TagPage = () => {
   })
   
   useOnSearchHotkey(() => setTruncated(false));
+
+  useGlobalKeydown((ev) => {
+    // If the user presses escape while editing, we want to cancel the edit
+    if (editing && ev.key === 'Escape') {
+      setEditing(false);
+    }
+  });
 
   const { selectedLensId, selectedLens, updateSelectedLens, lenses } = useTagLenses(tag);
   const displayedTagTitle = useDisplayedTagTitle(tag, lenses, selectedLens);
@@ -1004,12 +1155,25 @@ const TagPage = () => {
     : htmlWithAnchors
   }
 
-  const { contributorRatios, sortedContributors } = useContributorRatios(description, tag);
+  const { topContributors, smallContributors } = useDisplayedContributors(tag);
   
-  if (loadingTag)
+  if (loadingTag && !tag)
     return <Loading/>
-  if (!tag)
+  if (!tag) {
+    if (loadingLens && !lens) {
+      return <Loading/>
+    }
+    if (lens?.parentTag) {
+      const baseTagUrl = tagGetUrl(lens.parentTag);
+      const newQuery = {
+        ...query,
+        lens: lens.slug,
+      }
+      const newUrl = `${baseTagUrl}?${qs.stringify(newQuery)}`;
+      return <PermanentRedirect url={newUrl} />
+    }
     return <Error404/>
+  }
   // If the slug in our URL is not the same as the slug on the tag, redirect to the canonical slug page
   if (tag.oldSlugs?.filter(slug => slug !== tag.slug)?.includes(slug) && !tag.isArbitalImport) {
     return <PermanentRedirect url={tagGetUrl(tag)} />
@@ -1064,34 +1228,10 @@ const TagPage = () => {
     )
     : <></>;
 
-  const pathInfoSection = pathInfo && (
-    <div className={classes.pathInfo}>
-      {/* 
-        * We don't show a button if there's no previous page, since it's not obvious what should happen if the user clicks it.
-        * One might be tempted to have it navigate back in history, but if the user got to this page by clicking "Back" from the next page in the path,
-        * they'd be sent back to the next page instead of the page which started them on the path. Even that only makes sense in the context of the Bayes' Rule guide.
-        */}
-      {pathInfo.previousPageId && <Link
-        className={classes.pathNavigationBackButton}
-        to={`/w/${pathInfo.previousPageId}?pathId=${pathInfo.pathId}`}
-      >
-        <ForumIcon icon="ArrowLeft" className={classes.pathNavigationBackButtonIcon} />
-        Back
-      </Link>}
-      <span>
-        {`You are reading `}
-        <strong>{guideTag?.name ?? ''}</strong>
-        {`, page ${pathInfo.displayPageIndex} of ${pathInfo.pathPageCount}`}
-      </span>
-      <Link
-        className={classes.pathNavigationNextButton}
-        to={`/w/${pathInfo.nextPageId}?pathId=${pathInfo.pathId}`}
-      >
-        Continue
-        <ForumIcon icon="ArrowRight" className={classes.pathNavigationNextButtonIcon} />
-      </Link>
-    </div>
-  );
+  const openInlineEditor = () => {
+    setEditing(true);
+    // onOpenEditor();
+  };
 
   const tagBodySection = (
     <div id="tagContent" className={classNames(classes.wikiSection,classes.centralColumn)}>
@@ -1099,30 +1239,31 @@ const TagPage = () => {
         { revision && tag.description && (tag.description as TagRevisionFragment_description).user && <div className={classes.pastRevisionNotice}>
           You are viewing revision {tag.description.version}, last edited by <UsersNameDisplay user={(tag.description as TagRevisionFragment_description).user}/>
         </div>}
-        {editing ? <div>
-          {(selectedLens && selectedLens._id !== MAIN_TAB_ID)
-            ? <EditLensForm key={selectedLens._id} lens={selectedLens} />
-            : <EditTagForm
-                tag={tag}
-                successCallback={ async () => {
-                  setEditing(false)
-                  await client.resetStore()
-                }}
-                cancelCallback={() => setEditing(false)}
-              />
-          }
-          <TagVersionHistoryButton tagId={tag._id} />
-        </div> :
-        <div onClick={clickReadMore}>
+        {/* <TagEditorProvider> */}
+          <span className={classNames(classes.unselectedEditForm, editing && selectedLens?._id === MAIN_TAB_ID && classes.selectedEditForm)}>
+            <EditTagForm
+              tag={tag}
+              successCallback={ async () => {
+                setEditing(false)
+                await client.resetStore()
+              }}
+              cancelCallback={() => setEditing(false)}
+            />
+          </span>
+          {lenses.filter(lens => lens._id !== MAIN_TAB_ID).map(lens => <span key={lens._id} className={classNames(classes.unselectedEditForm, editing && selectedLens?._id === lens._id && classes.selectedEditForm)}>
+            <EditLensForm key={lens._id} lens={lens} />
+          </span>)}
+        {/* </TagEditorProvider> */}
+        <div className={classNames(editing && classes.descriptionContainerEditing)} onClick={clickReadMore} onDoubleClick={openInlineEditor}>
           <ContentStyles contentType="tag">
             <ContentItemBody
               dangerouslySetInnerHTML={{__html: description||""}}
               description={`tag ${tag.name}`}
               className={classes.description}
             />
-            {pathInfoSection}
+            <PathInfo tag={tag} lens={selectedLens ?? null} />
           </ContentStyles>
-        </div>}
+        </div>
       </AnalyticsContext>
     </div>
   );
@@ -1177,13 +1318,9 @@ const TagPage = () => {
   );
 
   const tocContributors = <div className={classes.tocContributors}>
-    {sortedContributors.map(({ user }: { user?: UsersMinimumInfo }, idx: number) => (
+    {topContributors.map(({ user }: { user?: UsersMinimumInfo }, idx: number) => (
       <span className={classes.tocContributor} key={user?._id} onMouseOver={() => onHoverContributor(user?._id ?? null)} onMouseOut={() => onHoverContributor(null)}>
         <UsersNameDisplay key={user?._id} user={user} className={classes.contributorName} />
-        {user && <>
-          {' '}
-          ({contributorRatios[user._id] && <span className={classes.contributorRatio}>{contributorRatios[user._id]}</span>})
-        </>}
       </span>
     ))}
   </div>;
@@ -1283,16 +1420,8 @@ const TagPage = () => {
       {tag.contributors && <div className={classes.contributorRow}>
         <div className={classes.contributorNameWrapper}>
           <span>Written by </span>
-          {sortedContributors
-            .map(({ user }: { user?: UsersMinimumInfo }, idx: number) => (<span key={user?._id} onMouseOver={() => onHoverContributor(user?._id ?? null)} onMouseOut={() => onHoverContributor(null)}>
-              <UsersNameDisplay key={user?._id} user={user} className={classes.contributorName} />
-              {user && <>
-                {' '}
-                ({contributorRatios[user._id] && <span className={classes.contributorRatio}>{contributorRatios[user._id]}</span>})
-                {idx < (sortedContributors.length - 1) ? ', ' : ''}
-              </>}
-            </span>))
-          }
+          <ContributorsList contributors={topContributors} onHoverContributor={onHoverContributor} endWithComma={smallContributors.length > 0} />
+          {smallContributors.length > 0 && <LWTooltip title={<ContributorsList contributors={smallContributors} onHoverContributor={onHoverContributor} endWithComma={false} />} clickable placement="top">et al.</LWTooltip>}
         </div>
         <div className={classes.lastUpdated}>
           {'last updated '}
@@ -1301,8 +1430,8 @@ const TagPage = () => {
       </div>}
       <ArbitalLinkedPagesSmallScreen arbitalLinkedPages={selectedLens?.arbitalLinkedPages ?? undefined} />
       {/** Just hardcoding an example for now, since we haven't imported the necessary relationships to derive it dynamically */}
-      {/* {requirementsAndAlternatives}
-      {subjects} */}
+      {/* {requirementsAndAlternatives} */}
+      {/* {subjects} */}
     </div>
   );
 
@@ -1319,13 +1448,6 @@ const TagPage = () => {
 
   const rightColumn = (<div className={classes.rightColumn}>
     <div className={classes.rightColumnContent}>
-      <TagPageButtonRow
-        tag={tag}
-        editing={editing}
-        setEditing={setEditing}
-        hideLabels={true}
-        className={classNames(classes.editMenu, classes.nonMobileButtonRow)}
-      />
       <ArbitalLinkedPagesRightSidebar arbitalLinkedPages={selectedLens?.arbitalLinkedPages ?? undefined} />
       {/* {requirementsandalternatives}
       {subjects} */}
@@ -1379,6 +1501,13 @@ const TagPage = () => {
     </div>}
     <div className={tag.bannerImageId ? classes.rootGivenImage : ''}>
       {/* {originalToc} */}
+      <TagPageButtonRow
+        tag={tag}
+        editing={editing}
+        setEditing={setEditing}
+        hideLabels={true}
+        className={classNames(classes.editMenu, classes.nonMobileButtonRow)}
+      />
       {isFriendlyUI ? originalToc : multiColumnToc}
     </div>
   </AnalyticsContext>

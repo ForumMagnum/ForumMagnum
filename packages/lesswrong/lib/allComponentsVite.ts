@@ -194,6 +194,7 @@ import '../components/editor/PresenceList';
 import '../components/editor/conditionalVisibilityBlock/ConditionalVisibilityBlockDisplay';
 import '../components/editor/conditionalVisibilityBlock/EditConditionalVisibility';
 import '../components/editor/conditionalVisibilityBlock/ShowBlockVisibilityCondition';
+import '../components/editor/ctaButton/EditCTAButtonSettings';
 
 // Generic dropdown menus and items
 import '../components/dropdowns/DropdownMenu';
@@ -889,7 +890,7 @@ import '../components/sunshineDashboard/RejectContentButton';
 import '../components/sunshineDashboard/UserRateLimitItem';
 import '../components/sunshineDashboard/AllReactedCommentsPage';
 
-import '../components/tagging/AddTag';
+import '../components/tagging/AddTagOrWikiPage';
 import '../components/tagging/NewTagsList';
 import '../components/tagging/AddTagButton';
 import '../components/tagging/TagsChecklist';
@@ -897,6 +898,7 @@ import '../components/tagging/CoreTagsChecklist';
 import '../components/tagging/TagPage';
 import '../components/tagging/TagPageButtonRow';
 import '../components/tagging/TagPageTitle';
+import '../components/tagging/PathInfo';
 import '../components/tagging/TagTableOfContents';
 import '../components/tagging/TagIntroSequence';
 import '../components/tagging/TagHistoryPageTitle';

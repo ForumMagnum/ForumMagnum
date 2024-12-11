@@ -1,5 +1,5 @@
 import { slugIsUsed } from "@/lib/helpers";
-import { resolverOnlyField, schemaDefaultValue } from "@/lib/utils/schemaUtils";
+import { resolverOnlyField, accessFilterSingle, schemaDefaultValue } from "@/lib/utils/schemaUtils";
 import { getCollection } from "@/lib/vulcan-lib/getCollection";
 import { arbitalLinkedPagesField } from '../helpers/arbitalLinkedPagesField';
 
@@ -88,6 +88,26 @@ const schema: SchemaType<"MultiDocuments"> = {
     canRead: ['guests'],
     nullable: false,
   },
+  parentTag: resolverOnlyField({
+    type: Object,
+    graphQLtype: 'Tag',
+    canRead: ['guests'],
+    resolver: async (multiDocument, _, context) => {
+      const { loaders, currentUser, Tags } = context;
+      if (multiDocument.collectionName !== 'Tags') {
+        return null;
+      }
+
+      const parentTag = await loaders.Tags.load(multiDocument.parentDocumentId);
+      return accessFilterSingle(currentUser, Tags, parentTag, context);
+    },
+    sqlResolver: ({ field, join }) => join({
+      table: 'Tags',
+      type: 'left',
+      on: { _id: field('parentDocumentId') },
+      resolver: (tagField) => tagField('*'),
+    }),
+  }),
   collectionName: {
     type: String,
     canRead: ['guests'],

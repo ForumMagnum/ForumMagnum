@@ -174,6 +174,7 @@ async function createSummariesForPage({ pageId, importedRecordMaps, pageCreator,
       markdown: summary.text,
       pageId,
       conversionContext,
+      convertedPage: summary,
     });
 
     let parentDocumentId: string;
@@ -350,6 +351,11 @@ function computePageAlternatives(database: WholeArbitalDatabase): Record<string,
   return results;
 }
 
+type PagesToConvertToLenses = Array<{
+  tagId: string;
+  arbitalPageId: string;
+}>;
+
 export type ArbitalConversionContext = {
   database: WholeArbitalDatabase,
   matchedUsers: Record<string,DbUser|null>
@@ -360,17 +366,18 @@ export type ArbitalConversionContext = {
   pageInfosByPageId: Record<string, PageInfosRow>,
   domainsByPageId: Record<string, DomainsRow>,
   imageUrlsCache: Record<string,string>,
-  pagesToConvertToLenses: Array<{
-    tagId: string
-    arbitalPageId: string
-  }>,
+  pagesToConvertToLenses: PagesToConvertToLenses,
   liveRevisionsByPageId: Record<string,WholeArbitalDatabase["pages"][0]>,
 }
 
 async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: ResolverContext, options: ArbitalImportOptions): Promise<void> {
-  await importWikiPages(database, resolverContext, options);
+  const { existingPagesToMove, pagesToConvertToLenses } = await findCollidingWikiPages(database);
+  await renameCollidingWikiPages(existingPagesToMove);
+
+  const conversionContext = await buildConversionContext(database, pagesToConvertToLenses, options);
+  await importWikiPages(database, conversionContext, resolverContext, options);
   await importPagePairs(database, resolverContext, options);
-  //await importComments(database, resolverContext, options);
+  await importComments(database, conversionContext, resolverContext, options);
 }
 
 
@@ -379,19 +386,13 @@ async function findCollidingWikiPages(database: WholeArbitalDatabase): Promise<{
     lwWikiPageSlug: string
     newSlug: string
   }>
-  pagesToConvertToLenses: Array<{
-    tagId: string
-    arbitalPageId: string
-  }>
+  pagesToConvertToLenses: PagesToConvertToLenses
 }> {
   const existingPagesToMove: Array<{
     lwWikiPageSlug: string
     newSlug: string
   }> = [];
-  const pagesToConvertToLenses: Array<{
-    tagId: string
-    arbitalPageId: string
-  }> = [];
+  const pagesToConvertToLenses: PagesToConvertToLenses = [];
 
   const pagesById = groupBy(database.pages, p=>p.pageId);
   const wikiPageIds = database.pageInfos.filter(pi => pi.type === "wiki").map(pi=>pi.pageId);
@@ -471,14 +472,11 @@ async function renameCollidingWikiPages(existingPagesToMove: Array<{
   );
 }
 
-async function buildConversionContext(database: WholeArbitalDatabase, options: ArbitalImportOptions): Promise<ArbitalConversionContext> {
+async function buildConversionContext(database: WholeArbitalDatabase, pagesToConvertToLenses: PagesToConvertToLenses, options: ArbitalImportOptions): Promise<ArbitalConversionContext> {
   const pagesById = groupBy(database.pages, p=>p.pageId);
   const pageInfosById = keyBy(database.pageInfos, pi=>pi.pageId);
   
-  const { existingPagesToMove, pagesToConvertToLenses } = await findCollidingWikiPages(database);
-  await renameCollidingWikiPages(existingPagesToMove);
-
-  // const matchedUsers: Record<string,DbUser|null> = { '2': await resolverContext.loaders.Users.load('nmk3nLpQE89dMRzzN') };
+  //const matchedUsers: Record<string,DbUser|null> = { '2': await resolverContext.loaders.Users.load('nmk3nLpQE89dMRzzN') };
   const matchedUsers: Record<string,DbUser|null> = options.userMatchingFile
     ? await loadUserMatching(options.userMatchingFile)
     : {};
@@ -541,12 +539,12 @@ async function buildConversionContext(database: WholeArbitalDatabase, options: A
   
 }
 
-async function importWikiPages(database: WholeArbitalDatabase, resolverContext: ResolverContext, options: ArbitalImportOptions): Promise<void> {
+async function importWikiPages(database: WholeArbitalDatabase, conversionContext: ArbitalConversionContext, resolverContext: ResolverContext, options: ArbitalImportOptions): Promise<void> {
   const pagesById = groupBy(database.pages, p=>p.pageId);
   const lensesByPageId = groupBy(database.lenses, l=>l.pageId);
+  const lensIds = new Set(database.lenses.map(l=>l.lensId));
   const summariesByPageId = groupBy(database.pageSummaries, s=>s.pageId);
 
-  const conversionContext = await buildConversionContext(database, options);
   const {
     pageInfosByPageId: pageInfosById, slugsByPageId, titlesByPageId,
     pageIdsByTitle, domainsByPageId, matchedUsers, defaultUser, liveRevisionsByPageId,
@@ -570,7 +568,7 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
         if (pagesById[p]) return p;
         throw new Error(`Page title not found: ${p}`)
       })
-    : Object.keys(liveRevisionsByPageId)
+    : Object.keys(liveRevisionsByPageId).filter(pageId => !lensIds.has(pageId))
   console.log(`Importing ${pageIdsToImport.length} pages`)
 
   console.log("Importing pages with ids:", pageIdsToImport);
@@ -594,9 +592,11 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
       const pageAliasRedirects = database.aliasRedirects.filter(ar => ar.newAlias === pageInfo.alias);
       const oldSlugs = uniq([pageInfo.alias, pageInfo.pageId, ...pageAliasRedirects.map(ar => ar.oldAlias)]);
 
-      const oldestRevArbitalMarkdown = revisions[0].text;
+      const oldestRev = revisions[0];
+      const oldestRevArbitalMarkdown = oldestRev.text;
       const oldestRevCkEditorMarkup = await arbitalMarkdownToCkEditorMarkup({
-        markdown: oldestRevArbitalMarkdown, pageId, conversionContext
+        markdown: oldestRevArbitalMarkdown, pageId, conversionContext,
+        convertedPage: oldestRev,
       });
       console.log(`Creating wiki page: ${title} (${slug}).  Lenses found: ${lenses.map(l=>l.lensName).join(", ")}`);
 
@@ -712,15 +712,16 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
         const lensAliasRedirects = database.aliasRedirects.filter(ar => ar.newAlias === lensPageInfo.alias);
         const lensSlug = lensPageInfo.alias;
         // TODO: add lensId(?) to oldSlugs.  (Not sure if it's lensId or pageId)
-        const oldLensSlugs = lensAliasRedirects.map(ar => ar.oldAlias);
         const lensRevisions = database.pages.filter(p => p.pageId === lens.lensId);
         const lensFirstRevision = lensRevisions[0];
-        const lensLiveRevision = liveRevisionsByPageId[lens.pageId];
+        const lensLiveRevision = liveRevisionsByPageId[lens.lensId];
+        const oldLensSlugs = [...lensAliasRedirects.map(ar => ar.oldAlias), lens.lensId];
         const lensTitle = lensLiveRevision.title;
         const lensFirstRevisionCkEditorMarkup = await arbitalMarkdownToCkEditorMarkup({
           markdown: lensFirstRevision.text,
           pageId: lens.lensId,
           conversionContext,
+          convertedPage: lensFirstRevision,
         });
 
         // Create the lens, with the oldest revision
@@ -748,7 +749,8 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
                 }
               },
               legacyData: {
-                arbitalPageId: lens.lensId,
+                arbitalPageId: lens.pageId,
+                arbitalLensId: lens.lensId,
               },
             } as Partial<DbMultiDocument>,
             context: resolverContext,
@@ -821,6 +823,16 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
         const lwWikiLensIndex = lenses.length > 0
           ? maxBy(lenses, l => l.lensIndex)!.lensIndex + 1
           : 0;
+
+        const lwWikiPageRevisions = await Revisions.find({
+          documentId: lwWikiPage._id,
+          fieldName: "description",
+          collectionName: "Tags",
+        }).fetch();
+        if (!lwWikiPageRevisions.length) {
+          continue;
+        }
+
         const lwWikiLens = (await createMutator({
           collection: MultiDocuments,
           document: {
@@ -844,11 +856,6 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
         })).data;
 
         // Clone revisions on the LW wiki page as revisions on the lens
-        const lwWikiPageRevisions = await Revisions.find({
-          documentId: lwWikiPage._id,
-          fieldName: "description",
-          collectionName: "Tags",
-        }).fetch();
         for (const lwWikiPageRevision of lwWikiPageRevisions) {
           const { _id, ...fieldsToCopy } = lwWikiPageRevision;
           await Revisions.rawInsert({
@@ -874,11 +881,10 @@ async function importWikiPages(database: WholeArbitalDatabase, resolverContext: 
   }
 }
 
-async function importComments(database: WholeArbitalDatabase, resolverContext: ResolverContext, options: ArbitalImportOptions): Promise<void> {
+async function importComments(database: WholeArbitalDatabase, conversionContext: ArbitalConversionContext, resolverContext: ResolverContext, options: ArbitalImportOptions): Promise<void> {
   const commentPageInfos = database.pageInfos.filter(pi => pi.type === "comment");
   const pageInfosById = keyBy(database.pageInfos, pi=>pi.pageId);
   let irregularComments: {reason: string, commentId: string}[] = [];
-  const conversionContext = await buildConversionContext(database, options);
 
   let importedCommentCount = 0;
   const commentIdsToImport: string[] = [];
@@ -921,6 +927,7 @@ async function importComments(database: WholeArbitalDatabase, resolverContext: R
       markdown: livePublicRev.text,
       pageId: commentId,
       conversionContext,
+      convertedPage: livePublicRev,
     });
     const lwWikiPageId = wikiPageParentId ? (await Tags.findOne({
       "legacyData.arbitalPageId": wikiPageParentId,
@@ -1033,6 +1040,7 @@ async function importRevisions<N extends CollectionNameString>({
     (rev) => arbitalMarkdownToCkEditorMarkup({
       markdown: rev.text, pageId,
       conversionContext,
+      convertedPage: rev,
     })
   );
   for (let i=0; i<revisions.length-1; i++) {
@@ -1363,6 +1371,55 @@ async function findValidMultiDocument(arbitalLensId: string): Promise<DbMultiDoc
   return null;
 }
 
+// Function to undo the deletion of imported wiki pages
+Globals.undoDeleteImportedArbitalWikiPages = async () => {
+  // Find all deleted wiki pages that were originally imported from Arbital
+  const deletedWikiPages = await Tags.find({
+    "legacyData.arbitalPageId": { $exists: true },
+    deleted: true,
+  }).fetch();
+
+  // Group pages by Arbital Page ID to identify duplicates
+  const pagesByArbitalPageId = groupBy(
+    deletedWikiPages,
+    (page) => page.legacyData.arbitalPageId
+  );
+  
+  console.log(`Found ${Object.keys(pagesByArbitalPageId).length} duplicate deleted wiki pages to restore`);
+
+  for (const arbitalPageId in pagesByArbitalPageId) {
+    const pages = pagesByArbitalPageId[arbitalPageId];
+
+    // Select the page with the most recent createdAt
+    const pageToRestore = pages.reduce((a, b) =>
+      a.createdAt > b.createdAt ? a : b
+    );
+
+    console.log(`Restoring page ${pageToRestore.name}`);
+
+    // Reconstruct the slug from the page name
+    const slug = await getUnusedSlugByCollectionName(
+      "Tags",
+      slugify(pageToRestore.name)
+    );
+
+    // Restore the selected page and set the new slug in a single operation
+    await Tags.rawUpdateOne(
+      { _id: pageToRestore._id },
+      {
+        $set: { 
+          deleted: false,
+          slug 
+        }
+      }
+    );
+
+    // Non-restored duplicates are left as is
+    // We do not modify or remove them
+  }
+};
+
+
 async function importPagePairs(
   database: WholeArbitalDatabase,
   resolverContext: ResolverContext,
@@ -1553,3 +1610,83 @@ function isMultiDocument(doc: DbTag | DbMultiDocument): doc is DbMultiDocument {
   return 'title' in doc;
 }
 
+async function cleanUpAccidentalLensTags(wholeArbitalDb: WholeArbitalDatabase) {
+  const lensIds = Array.from(new Set(wholeArbitalDb.lenses.map(l => l.lensId)));
+  await executePromiseQueue(lensIds.map(id => () => Tags.rawUpdateOne({
+    "legacyData.arbitalPageId": id,
+    deleted: false,
+  }, {
+    $set: {
+      slug: `deleted-import-${randomId()}`,
+      deleted: true,
+      },
+    })
+  ), 10);
+}
+
+Globals.cleanUpAccidentalLensTags = async (mysqlConnectionString: string) => {
+  const arbitalDb = await connectAndLoadArbitalDatabase(mysqlConnectionString);
+  await cleanUpAccidentalLensTags(arbitalDb);
+};
+
+Globals.checkAccidentalLensTags = async (mysqlConnectionString: string) => {
+  const arbitalDb = await connectAndLoadArbitalDatabase(mysqlConnectionString);
+  const lensIds = Array.from(new Set(arbitalDb.lenses.map(l => l.lensId)));
+  const tags = await executePromiseQueue(lensIds.map(id => () => Tags.findOne({
+    deleted: false,
+    "legacyData.arbitalPageId": id
+  })), 10);
+
+  tags.forEach(tag => {
+    console.log(`${tag?.name} (${tag?.slug}) is an accidental lens tag`);
+  });
+};
+
+/**
+ * Find imported lenses and change legacyData->>'arbitalPageId' to the lens ID.
+ * Run this to fix an earlier import where that field was populated by the ID
+ * of the page that the lens is on, rather than the lens ID.
+ */
+Globals.updateLensIds = async (mysqlConnectionString: string) => {
+  const arbitalDb = await connectAndLoadArbitalDatabase(mysqlConnectionString);
+  
+  const arbitalWikiPages = await Tags.find({
+    deleted: false,
+    "legacyData.arbitalPageId": {$exists: true},
+  }).fetch();
+  await executePromiseQueue(arbitalWikiPages.map((wikiPage) => async () => {
+    const lenses = await MultiDocuments.find({
+      "legacyData.arbitalPageId": {$exists: true},
+      "parentDocumentId": wikiPage._id,
+      "fieldName": "description",
+    }).fetch();
+    if (!lenses.length) {
+      return;
+    }
+    
+    console.log(`Page ${wikiPage.name} has ${lenses.length} lenses`);
+    for (const lens of lenses) {
+      // Find the corresponding lens ID by matching titles
+      const wikiPageId = wikiPage.legacyData?.arbitalPageId;
+      if (!wikiPageId) throw new Error("Found a wiki page without an arbitalPageId?");
+      const arbitalLenses = arbitalDb.lenses.filter(arbLens => arbLens.pageId === wikiPageId);
+      const matchingArbitalLenses = arbitalLenses.filter(arbLens => arbLens.lensName=== lens.tabTitle && arbLens.lensSubtitle===lens.tabSubtitle);
+      if (matchingArbitalLenses.length !== 1) {
+        console.error(`Didn't find a unique matching lens: found ${matchingArbitalLenses.length} matches`);
+        for (const matchingLens of matchingArbitalLenses) {
+          console.error(`    ${matchingLens.lensId} ${matchingLens.lensName}`);
+        }
+        throw new Error(`Didn't find a unique matching lens`);
+      }
+      const matchingArbitalLens = matchingArbitalLenses[0];
+      console.log(`Lens ${wikiPage.name}/${lens.tabTitle}: Setting lensId=${matchingArbitalLens.lensId}`);
+
+      await MultiDocuments.rawUpdateOne(
+        {_id: lens._id},
+        {$set: {
+          "legacyData.arbitalLensId": matchingArbitalLens.lensId,
+        }},
+      );
+    }
+  }), 10);
+}

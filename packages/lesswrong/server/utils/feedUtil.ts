@@ -3,6 +3,7 @@ import { addGraphQLResolvers, addGraphQLQuery, addGraphQLSchema } from '../../li
 import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { getDefaultViewSelector, mergeSelectors, replaceSpecialFieldSelectors } from '../../lib/utils/viewUtils';
 import { isLWorAF } from '@/lib/instanceSettings';
+import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 
 type FeedSubquery<ResultType extends DbObject, SortKeyType> = {
   type: string,
@@ -141,13 +142,13 @@ export async function mergeFeedQueries<SortKeyType extends number | Date>({limit
   cutoff?: SortKeyType,
   offset?: number,
   sortDirection?: SortDirection,
-  subqueries: Array<FeedSubquery<DbObject, any>>,
+  subqueries: Array<FeedSubquery<DbObject, any>|null>,
 }) {
   sortDirection ??= "desc";
 
   // Perform the subqueries
   const unsortedSubqueryResults = await Promise.all(
-    subqueries.map(async (subquery) => {
+    filterNonnull(subqueries).map(async (subquery) => {
       const subqueryResults = await subquery.doQuery(limit, cutoff)
       return subqueryResults.map((result: DbObject) => ({
         type: subquery.type,

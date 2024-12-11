@@ -273,6 +273,7 @@ registerFragment(`
           ...UsersMinimumInfo
         }
         contributionScore
+        contributionVolume
         numCommits
         voteCount
       }
@@ -313,6 +314,7 @@ registerFragment(`
           ...UsersMinimumInfo
         }
         contributionScore
+        contributionVolume
         numCommits
         voteCount
       }
@@ -336,6 +338,7 @@ registerFragment(`
           ...UsersMinimumInfo
         }
         contributionScore
+        contributionVolume
         numCommits
         voteCount
       }
@@ -418,6 +421,7 @@ registerFragment(`
           ...UsersMinimumInfo
         }
         contributionScore
+        contributionVolume
         numCommits
         voteCount
       }

@@ -60,6 +60,7 @@ async function findAlreadyMovedImage(identifier: string): Promise<string|null> {
  */
 export async function moveImageToCloudinary({oldUrl, originDocumentId}: {oldUrl: string, originDocumentId: string}): Promise<string|null> {
   const upload = async (credentials: CloudinaryCredentials) => {
+    // eslint-disable-next-line no-console
     console.log(`Uploading ${oldUrl} to Cloudinary`);
     return await cloudinary.v2.uploader.upload(
       oldUrl,

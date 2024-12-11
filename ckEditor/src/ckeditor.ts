@@ -139,6 +139,7 @@ const postEditorPlugins = [
 	BlockToolbar,
 	FontFamily,
 	FontSize,
+	CTAButton,
 	ConditionalVisibility,
 	// FontColor,
 	// FontBackgroundColor,
@@ -159,7 +160,7 @@ const collaborativeEditorPlugins = [
 
 type ForumTypeString = "LessWrong"|"AlignmentForum"|"EAForum";
 const siteSpecificPlugins: Partial<Record<ForumTypeString,AnyBecauseTodo[]>> = {
-  EAForum: [CTAButton],
+  EAForum: [],
   LessWrong: [CollapsibleSections],
 };
 
