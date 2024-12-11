@@ -353,6 +353,7 @@ export type ArbitalConversionContext = {
   matchedUsers: Record<string,DbUser|null>
   defaultUser: DbUser,
   slugsByPageId: Record<string,string>
+  linksById: Record<string,string>
   titlesByPageId: Record<string,string>
   pageIdsByTitle: Record<string,string>
   pageInfosByPageId: Record<string, PageInfosRow>,
@@ -484,6 +485,7 @@ async function buildConversionContext(database: WholeArbitalDatabase, pagesToCon
   const domainsByPageId = keyBy(database.domains, d=>d.id);
   
   let slugsByPageId: Record<string,string> = {};
+  let linksById: Record<string,string> = {};
   /*const slugsCachePath = path.join(__dirname, "./slugsByPageId.json");
   let cacheLoaded = false;
   if (fs.existsSync(slugsCachePath)) {
@@ -505,20 +507,37 @@ async function buildConversionContext(database: WholeArbitalDatabase, pagesToCon
         
         // We can assume the slug is available because of the earlier call to
         // renameCollidingWikiPages().
-        slugsByPageId[pageId] = slugify(title);
+        const slug = slugify(title);
+        slugsByPageId[pageId] = slug;
+        linksById[pageId] = `/w/${slug}`;
         /*if (!cacheLoaded) {
           slugsByPageId[pageId] = await getUnusedSlugByCollectionName("Tags", slugify(title));
         }*/
       };
     }), 10
   );
-
+  
   //fs.writeFileSync(slugsCachePath, JSON.stringify(slugsByPageId, null, 2));
   
+  // Determine URLs for links to lensIds
+  for (const lens of database.lenses) {
+    const lensPageInfo = pageInfosById[lens.lensId];
+    if (!lensPageInfo || lensPageInfo.isDeleted) {
+      continue;
+    }
+
+    const lensSlug = lensPageInfo.alias;
+    const pageLink = linksById[lens.pageId];
+    if (pageLink) {
+      linksById[lens.lensId] = `${pageLink}?lens=${lensSlug}`;
+    }
+  }
+
   return {
     database,
     matchedUsers, defaultUser,
     slugsByPageId,
+    linksById,
     titlesByPageId,
     pageIdsByTitle,
     pageInfosByPageId: pageInfosById,
