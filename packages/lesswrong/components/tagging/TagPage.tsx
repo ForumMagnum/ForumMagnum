@@ -1318,7 +1318,7 @@ const TagPage = () => {
         <Typography variant="display3" className={classes.title}>
           {tag.deleted ? "[Deleted] " : ""}{displayedTagTitle}
         </Typography>
-       
+        <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} hideLabels={true} className={classNames(classes.editMenu, classes.mobileButtonRow)} />
         {!tag.wikiOnly && !editing && userHasNewTagSubscriptions(currentUser) &&
           <SubscribeButton
             tag={tag}
