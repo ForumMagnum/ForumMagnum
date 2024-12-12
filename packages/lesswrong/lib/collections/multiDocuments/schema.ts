@@ -1,6 +1,19 @@
 import { slugIsUsed } from "@/lib/helpers";
-import { accessFilterSingle, resolverOnlyField, schemaDefaultValue } from "@/lib/utils/schemaUtils";
+import { resolverOnlyField, accessFilterSingle, schemaDefaultValue } from "@/lib/utils/schemaUtils";
 import { getCollection } from "@/lib/vulcan-lib/getCollection";
+import { arbitalLinkedPagesField } from '../helpers/arbitalLinkedPagesField';
+import { addGraphQLSchema } from "@/lib/vulcan-lib";
+
+addGraphQLSchema(`
+  type MultiDocumentContributor {
+    user: User
+    contributionVolume: Int
+  }
+  type MultiDocumentContributorsList {
+    contributors: [MultiDocumentContributor!]
+    totalCount: Int!
+  }
+`);
 
 const schema: SchemaType<"MultiDocuments"> = {
   // In the case of tag lenses, this is the title displayed in the body of the tag page when the lens is selected.
@@ -128,6 +141,22 @@ const schema: SchemaType<"MultiDocuments"> = {
     // Implemented in multiDocumentResolvers.ts
     type: Object,
     canRead: ['guests'],
+  },
+  arbitalLinkedPages: arbitalLinkedPagesField({ collectionName: 'MultiDocuments' }),
+  contributors: {
+    canRead: ['guests'],
+    type: "MultiDocumentContributorsList",
+    optional: true,
+  },
+  
+  // Denormalized copy of contribution-stats, for the latest revision.
+  contributionStats: {
+    type: Object,
+    optional: true,
+    blackbox: true,
+    hidden: true,
+    canRead: ['guests'],
+    denormalized: true,
   },
 };
 

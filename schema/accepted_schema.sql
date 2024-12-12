@@ -55,6 +55,24 @@ CREATE INDEX IF NOT EXISTS "idx_ArbitalCaches_pageAlias" ON "ArbitalCaches" USIN
 -- Index "idx_ArbitalCaches_fetchedAt"
 CREATE INDEX IF NOT EXISTS "idx_ArbitalCaches_fetchedAt" ON "ArbitalCaches" USING btree ("fetchedAt");
 
+-- Table "ArbitalTagContentRels"
+CREATE TABLE "ArbitalTagContentRels" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "parentDocumentId" TEXT NOT NULL,
+  "childDocumentId" TEXT NOT NULL,
+  "parentCollectionName" TEXT NOT NULL,
+  "childCollectionName" TEXT NOT NULL,
+  "type" TEXT NOT NULL,
+  "level" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "isStrong" BOOL NOT NULL DEFAULT FALSE,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);
+
+-- Index "idx_ArbitalTagContentRels_schemaVersion"
+CREATE INDEX IF NOT EXISTS "idx_ArbitalTagContentRels_schemaVersion" ON "ArbitalTagContentRels" USING btree ("schemaVersion");
+
 -- Table "Bans"
 CREATE TABLE "Bans" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -1255,6 +1273,7 @@ CREATE TABLE "MultiDocuments" (
   "collectionName" TEXT NOT NULL,
   "fieldName" TEXT NOT NULL,
   "index" DOUBLE PRECISION NOT NULL,
+  "contributionStats" JSONB,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB,

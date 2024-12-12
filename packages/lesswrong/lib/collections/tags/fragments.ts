@@ -81,6 +81,9 @@ registerFragment(`
     lenses {
       ...MultiDocumentEdit
     }
+    arbitalLinkedPages {
+      ...ArbitalLinkedPagesFragment
+    }
   }
 `);
 
@@ -216,6 +219,42 @@ registerFragment(`
   }
 `);
 
+// This matches custom graphql type in arbitalLinkedPagesField.ts that's a resolver field on Tags and MultiDocuments
+registerFragment(`
+  fragment ArbitalLinkedPagesFragment on ArbitalLinkedPages {
+    faster {
+      _id
+      name
+      slug
+    }
+    slower {
+      _id
+      name
+      slug
+    }
+    moreTechnical {
+      _id
+      name
+      slug
+    }
+    lessTechnical {
+      _id
+      name
+      slug
+    }
+    requirements {
+      _id
+      name
+      slug
+    }
+    teaches {
+      _id
+      name
+      slug
+    }
+  }
+`);
+
 registerFragment(`
   fragment TagPageFragment on Tag {
     ...TagWithFlagsFragment
@@ -242,7 +281,10 @@ registerFragment(`
     }
     canVoteOnRels
     lenses {
-      ...MultiDocumentEdit
+      ...MultiDocumentWithContributors
+    }
+    arbitalLinkedPages {
+      ...ArbitalLinkedPagesFragment
     }
   }
 `);
@@ -280,7 +322,10 @@ registerFragment(`
     }
     canVoteOnRels
     lenses {
-      ...MultiDocumentEdit
+      ...MultiDocumentWithContributors
+    }
+    arbitalLinkedPages {
+      ...ArbitalLinkedPagesFragment
     }
   }
 `);
@@ -385,3 +430,4 @@ registerFragment(`
     legacyData
   }
 `);
+

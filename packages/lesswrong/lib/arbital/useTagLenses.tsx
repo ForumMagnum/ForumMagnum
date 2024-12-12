@@ -6,6 +6,16 @@ import omit from "lodash/omit";
 
 export const MAIN_TAB_ID = 'main-tab';
 
+export interface DocumentContributorWithStats {
+  user: UsersMinimumInfo;
+  contributionVolume: number;
+}
+
+export interface DocumentContributorsInfo {
+  contributors: DocumentContributorWithStats[];
+  totalCount: number;
+}
+
 export interface TagLens {
   _id: string;
   collectionName: string;
@@ -13,6 +23,7 @@ export interface TagLens {
   index: number;
   contents: TagFragment_description | TagRevisionFragment_description | RevisionDisplay | null;
   tableOfContents: ToCData | null;
+  contributors: DocumentContributorsInfo | null;
   parentDocumentId: string;
   title: string;
   preview: string | null;
@@ -23,6 +34,7 @@ export interface TagLens {
   userId: string;
   legacyData: AnyBecauseHard;
   originalLensDocument: MultiDocumentEdit | null;
+  arbitalLinkedPages: ArbitalLinkedPagesFragment | null;
 }
 
 interface TagLensInfo {
@@ -40,6 +52,7 @@ function getDefaultLens(tag: TagPageFragment|TagPageWithRevisionFragment|TagHist
     index: 0,
     contents: tag.description,
     tableOfContents: tag.tableOfContents,
+    contributors: 'contributors' in tag ? tag.contributors : null,
     parentDocumentId: tag._id,
     title: tag.name,
     preview: null,
@@ -50,6 +63,7 @@ function getDefaultLens(tag: TagPageFragment|TagPageWithRevisionFragment|TagHist
     userId: tag.userId,
     legacyData: {},
     originalLensDocument: null,
+    arbitalLinkedPages: tag.arbitalLinkedPages,
   }
 }
 
@@ -61,6 +75,7 @@ export function getAvailableLenses(tag: TagPageFragment|TagPageWithRevisionFragm
       ...lens,
       index: lens.index + 1,
       title: lens.title ?? tag.name,
+      contributors: 'contributors' in lens ? lens.contributors : null,
       originalLensDocument: lens,
     }))
   ];

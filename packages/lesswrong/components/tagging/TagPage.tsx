@@ -1,6 +1,6 @@
 import { useApolloClient } from "@apollo/client";
 import classNames from 'classnames';
-import React, { FC, Fragment, useCallback, useContext, useEffect, useState } from 'react';
+import React, { FC, Fragment, useCallback, useContext, useEffect, useState, useRef } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from "../../lib/betas";
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
@@ -25,7 +25,7 @@ import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from "./TagPageExpo
 import { useStyles, defineStyles } from "../hooks/useStyles";
 import { HEADER_HEIGHT } from "../common/Header";
 import { MAX_COLUMN_WIDTH } from "../posts/PostsPage/PostsPage";
-import { MAIN_TAB_ID, TagLens, useTagLenses } from "@/lib/arbital/useTagLenses";
+import { DocumentContributorsInfo, DocumentContributorWithStats, MAIN_TAB_ID, TagLens, useTagLenses } from "@/lib/arbital/useTagLenses";
 import { quickTakesTagsEnabledSetting } from "@/lib/publicSettings";
 import { TagContributor } from "./arbitalTypes";
 import { TagEditorContext, TagEditorProvider } from "./TagEditorContext";
@@ -78,7 +78,6 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     },
   },
   header: {
-    paddingTop: 19,
     paddingBottom: 5,
     ...sidePaddingStyle(theme),
     background: theme.palette.panelBackground.default,
@@ -324,6 +323,7 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   lastUpdated: {
     ...theme.typography.body2,
     color: theme.palette.grey[600],
+    fontWeight: 550,
   },
   requirementsAndAlternatives: {
     display: 'flex',
@@ -394,10 +394,7 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
       content: '","',
     },
   },
-  alternativesContainer: {
-    // Add any container-specific styles if needed
-  },
-  alternativesHeader: {
+  linkedTagsHeader: {
     position: 'relative',
     fontSize: '1.0rem',
     marginBottom: 4,
@@ -407,19 +404,19 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     display: 'inline-block',
     cursor: 'pointer',
     '&:hover': {
-      '& $alternativesList': {
+      '& $linkedTagsList': {
         display: 'block',
       },
     },
   },
-  alternativesTitle: {
+  linkedTagsTitle: {
     color: theme.palette.grey[600],
     fontWeight: 550,
     fontSize: '1.2rem',
     marginLeft: 4,
     display: 'inline',
   },
-  alternativesList: {
+  linkedTagsList: {
     display: 'block',
     position: 'absolute',
     top: '100%',
@@ -431,17 +428,17 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     zIndex: 1,
     minWidth: 200,
   },
-  alternativesSection: {
+  linkedTagsSection: {
     marginBottom: 20,
   },
-  alternativesSectionTitle: {
+  linkedTagsSectionTitle: {
     ...theme.typography.subtitle,
     fontWeight: 400,
     fontSize: '1.0rem',
     fontVariant: 'all-petite-caps',
     marginBottom: 2,
   },
-  alternative: {
+  linkedTag: {
     display: 'block',
     fontSize: '1.0rem',
     // marginBottom: 4,
@@ -469,6 +466,40 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   },
   contributorRatio: {},
   ...tagPageHeaderStyles(theme),
+  mobileRelationships: {
+    [theme.breakpoints.up('lg')]: {
+      display: 'none',
+    },
+    marginTop: 8,
+    display: 'flex',
+    flexWrap: 'wrap',
+    columnGap: '8px',
+    rowGap: 0,
+    ...theme.typography.body2,
+    '& > div > span:first-child': {
+      color: theme.palette.grey[600],
+    },
+    '& .break': {
+      flexBasis: '100%',
+      height: 0,
+    },
+  },
+  relationshipRow: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    width: 'fit-content',
+    flex: '0 1 auto',
+    minWidth: 'min-content',
+    '& > span:first-child': {
+      fontWeight: 550,
+    },
+    '& a': {
+      color: theme.palette.primary.main,
+    },
+  },
+  spaceAfterWord: {
+    marginRight: 2,
+  },
 }));
 
 /**
@@ -494,8 +525,8 @@ function useDisplayedTagTitle(tag: TagPageFragment | TagPageWithRevisionFragment
 // }
 
 // TODO: maybe move this to the server, so that the user doesn't have to wait for the hooks to run to see the contributors
-function useDisplayedContributors(tag: TagPageFragment | TagPageWithRevisionFragment | null) {
-  const contributors: TagContributor[] = tag?.contributors.contributors ?? [];
+function useDisplayedContributors(contributorsInfo: DocumentContributorsInfo | null) {
+  const contributors: DocumentContributorWithStats[] = contributorsInfo?.contributors ?? [];
   if (!contributors.some(({ contributionVolume }) => contributionVolume)) {
     return { topContributors: contributors, smallContributors: [] };
   }
@@ -568,6 +599,112 @@ const EditLensForm = ({lens}: {
     mutationFragmentName="MultiDocumentEdit"
     {...(lens.originalLensDocument ? { prefetchedDocument: lens.originalLensDocument } : {})}
   />
+}
+
+interface ArbitalLinkedPage {
+  _id: string,
+  name: string,
+  slug: string,
+}
+
+const ArbitalLinkedPagesRightSidebar = ({arbitalLinkedPages}: {arbitalLinkedPages?: ArbitalLinkedPagesFragment}) => {
+
+  const classes = useStyles(styles);
+
+  if (!arbitalLinkedPages) {
+    return null;
+  }
+
+  const { TagsTooltip, ContentStyles } = Components;
+
+  const linkedPageDisplay = (linkedPage: ArbitalLinkedPage) => <div key={linkedPage.slug} className={classes.linkedTag}>
+    <TagsTooltip placement="left" tagSlug={linkedPage.slug}>
+      <Link to={tagGetUrl(linkedPage)}>{linkedPage.name}</Link>
+    </TagsTooltip>
+  </div>
+
+  const hasList = (list: {_id: string, name: string, slug: string}[] | undefined) => list && list?.length > 0;
+
+  const { requirements, teaches, lessTechnical, moreTechnical, slower, faster } = arbitalLinkedPages;
+
+  return <ContentStyles contentType="tag">
+    <div className={classes.linkedTagsHeader}>
+      <div className={classes.linkedTagsList}>
+
+        {hasList(requirements) && <div className={classes.linkedTagsSection}>
+          <div className={classes.linkedTagsSectionTitle}>Relies on</div>
+          {requirements?.map((linkedPage: ArbitalLinkedPage) => linkedPageDisplay(linkedPage))}
+        </div>}
+        {hasList(teaches) && <div className={classes.linkedTagsSection}>
+          <div className={classes.linkedTagsSectionTitle}>Subjects</div>
+          {teaches?.map((linkedPage: ArbitalLinkedPage) => linkedPageDisplay(linkedPage))}
+        </div>}
+        {hasList(slower) && <div className={classes.linkedTagsSection}>
+          <div className={classes.linkedTagsSectionTitle}>Slower alternatives</div>
+          {slower?.map((linkedPage: ArbitalLinkedPage) => linkedPageDisplay(linkedPage))}
+        </div>}
+        {hasList(lessTechnical) && <div className={classes.linkedTagsSection}>
+          <div className={classes.linkedTagsSectionTitle}>Less technical alternatives</div>
+          {lessTechnical?.map((linkedPage: ArbitalLinkedPage) => linkedPageDisplay(linkedPage))}
+        </div>}
+        {hasList(faster) && <div className={classes.linkedTagsSection}>
+          <div className={classes.linkedTagsSectionTitle}>Faster alternatives</div>
+          {faster?.map((linkedPage: ArbitalLinkedPage) => linkedPageDisplay(linkedPage))}
+        </div>}
+        {hasList(moreTechnical) && <div className={classes.linkedTagsSection}>
+          <div className={classes.linkedTagsSectionTitle}>More technical alternatives</div>
+          {moreTechnical?.map((linkedPage: ArbitalLinkedPage) => linkedPageDisplay(linkedPage))}
+        </div>}
+
+      </div>
+    </div>
+  </ContentStyles>;
+}
+
+const ArbitalRelationshipsSmallScreen = ({arbitalLinkedPages}: {arbitalLinkedPages?: ArbitalLinkedPagesFragment}) => {
+  const classes = useStyles(styles);
+
+  if (!arbitalLinkedPages) {
+    return null;
+  }
+
+  const { TagsTooltip, HoverPreviewLink } = Components;
+  const { requirements, teaches } = arbitalLinkedPages;
+  
+  return (
+    <div className={classes.mobileRelationships}>
+      {requirements.length > 0 && (
+        <div className={classes.relationshipRow}>
+          <span className={classes.spaceAfterWord}>{'Requires: '}</span>
+          {requirements.map((req: ArbitalLinkedPage, i: number) => (
+            <span key={req.slug} className={classes.spaceAfterWord}>
+              <TagsTooltip tagSlug={req.slug}>
+                <HoverPreviewLink href={tagGetUrl(req)}>
+                  {req.name}
+                </HoverPreviewLink>
+              </TagsTooltip>
+              {i < requirements.length - 1 && ', '}
+            </span>
+          ))}
+        </div>
+      )}
+      {teaches.length > 0 && (
+        <div className={classes.relationshipRow}>
+          <span className={classes.spaceAfterWord}>{'Teaches: '}</span>
+          {teaches.map((subject: ArbitalLinkedPage, i: number) => (
+            <span key={subject.slug} className={classes.spaceAfterWord}>
+              <TagsTooltip tagSlug={subject.slug}>
+                <HoverPreviewLink href={tagGetUrl(subject)}>
+                  {subject.name}
+                </HoverPreviewLink>
+              </TagsTooltip>
+              {i < teaches.length - 1 && ', '}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 function htmlNodeListToArray(nodes: NodeList): Node[] {
@@ -807,7 +944,7 @@ function addBayesGuideScript() {
 
 addBayesGuideScript();
 
-const ContributorsList = ({ contributors, onHoverContributor, endWithComma }: { contributors: TagContributor[], onHoverContributor: (userId: string | null) => void, endWithComma: boolean }) => {
+const ContributorsList = ({ contributors, onHoverContributor, endWithComma }: { contributors: DocumentContributorWithStats[], onHoverContributor: (userId: string | null) => void, endWithComma: boolean }) => {
   const { UsersNameDisplay } = Components;
   const classes = useStyles(styles);
 
@@ -930,7 +1067,7 @@ const TagPage = () => {
     : htmlWithAnchors
   }
 
-  const { topContributors, smallContributors } = useDisplayedContributors(tag);
+  const { topContributors, smallContributors } = useDisplayedContributors(selectedLens?.contributors ?? null);
   
   if (loadingTag && !tag)
     return <Loading/>
@@ -1120,67 +1257,7 @@ const TagPage = () => {
   //   </ContentStyles>
   // );
 
-  const alternatives = (
-    <ContentStyles contentType="tag" className={classes.alternativesContainer}>
-      <div className={classes.alternativesHeader}>
-        {/* Teach me this */}
-        {/* <span className={classes.alternativesTitle}> slower/faster</span> */}
-
-
-        <div className={classes.alternativesList}>
-
-
-          <div className={classes.alternativesSection}>
-            <div className={classes.alternativesSectionTitle}>Relies on</div>
-            <span className={classes.alternative}>
-              <TagsTooltip placement="left" tagSlug={'reads_algebra'}>
-                <a href={'/tag/reads_algebra'}>Ability to read algebra</a>
-              </TagsTooltip>
-            </span>
-          </div>
-
-          <div className={classes.alternativesSection}>
-            <div className={classes.alternativesSectionTitle}>Subjects</div>
-            <span className={classes.alternative}>
-              <TagsTooltip placement="left" tagSlug={'logical-decision-theories'}>
-                <a href={'/tag/logical-decision-theories'}>Logical decision theories</a>
-              </TagsTooltip>
-            </span>
-            <span className={classes.alternative}>
-              <TagsTooltip placement="left" tagSlug={'causal-decision-theories'}>
-                <a href={'/tag/causal-decision-theories'}>Causal decision theories</a>
-              </TagsTooltip>
-            </span>
-            <span className={classes.alternative}>
-              <TagsTooltip placement="left" tagSlug={'evidential-decision-theories'}>
-                <a href={'/tag/evidential-decision-theories'}>Evidential decision theories</a>
-              </TagsTooltip>
-            </span>
-          </div>
-          
-          <div className={classes.alternativesSection}>
-            <div className={classes.alternativesSectionTitle}>Less technical alternative</div>
-            <span className={classes.alternative}>
-              <TagsTooltip placement="left" tagSlug={'reads_algebra'}>
-                <a href={'/tag/reads_algebra'}>Uncountability: Intuitive Intro</a>
-              </TagsTooltip>
-            </span>
-            {/* Add more slower alternatives as needed */}
-          </div>
-          
-          <div className={classes.alternativesSection}>
-            <div className={classes.alternativesSectionTitle}>More technical alternative</div>
-            <span className={classes.alternative}>
-              <TagsTooltip placement="left" tagSlug={'advanced_algebra'}>
-                <a href={'/tag/advanced_algebra'}>Uncountability (Math 3)</a>
-              </TagsTooltip>
-            </span>
-            {/* Add more faster alternatives as needed */}
-          </div>
-        </div>
-      </div>
-    </ContentStyles>
-  );
+  
 
   const requirementsAndAlternatives = (
     <ContentStyles contentType="tag" className={classes.subjectsContainer}> 
@@ -1225,7 +1302,7 @@ const TagPage = () => {
             classes={{ flexContainer: classes.lensTabsContainer, indicator: classes.hideMuiTabIndicator }}
           >
             {lenses.map(lens => {
-              const label = <div className={classes.lensLabel}>
+              const label = <div key={lens._id} className={classes.lensLabel}>
                 <span className={classes.lensTitle}>{lens.tabTitle}</span>
                 {lens.tabSubtitle && <span className={classes.lensSubtitle}>{lens.tabSubtitle}</span>}
               </div>;
@@ -1255,14 +1332,26 @@ const TagPage = () => {
       {tag.contributors && <div className={classes.contributorRow}>
         <div className={classes.contributorNameWrapper}>
           <span>Written by </span>
-          <ContributorsList contributors={topContributors} onHoverContributor={onHoverContributor} endWithComma={smallContributors.length > 0} />
-          {smallContributors.length > 0 && <LWTooltip title={<ContributorsList contributors={smallContributors} onHoverContributor={onHoverContributor} endWithComma={false} />} clickable placement="top">et al.</LWTooltip>}
+          <ContributorsList 
+            contributors={topContributors} 
+            onHoverContributor={onHoverContributor} 
+            endWithComma={smallContributors.length > 0} 
+          />
+          {smallContributors.length > 0 && <LWTooltip 
+            title={<ContributorsList contributors={smallContributors} onHoverContributor={onHoverContributor} endWithComma={false} />} 
+            clickable 
+            placement="top"
+          >
+            et al.
+          </LWTooltip>
+          }
         </div>
         <div className={classes.lastUpdated}>
           {'last updated '}
           {selectedLens?.contents?.editedAt && <FormatDate date={selectedLens.contents.editedAt} format="Do MMM YYYY" tooltip={false} />}
         </div>
       </div>}
+      <ArbitalRelationshipsSmallScreen arbitalLinkedPages={selectedLens?.arbitalLinkedPages ?? undefined} />
       {/** Just hardcoding an example for now, since we haven't imported the necessary relationships to derive it dynamically */}
       {/* {requirementsAndAlternatives} */}
       {/* {subjects} */}
@@ -1282,7 +1371,7 @@ const TagPage = () => {
 
   const rightColumn = (<div className={classes.rightColumn}>
     <div className={classes.rightColumnContent}>
-      {alternatives}
+      <ArbitalLinkedPagesRightSidebar arbitalLinkedPages={selectedLens?.arbitalLinkedPages ?? undefined} />
       {/* {requirementsandalternatives}
       {subjects} */}
     </div>

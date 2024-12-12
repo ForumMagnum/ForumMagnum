@@ -18,6 +18,9 @@ registerFragment(`
     contents {
       ...RevisionEdit
     }
+    arbitalLinkedPages {
+      ...ArbitalLinkedPagesFragment
+    }
     legacyData
   }
 `);
@@ -27,6 +30,21 @@ registerFragment(`
     ...MultiDocumentEdit
     parentTag {
       ...TagBasicInfo
+    }
+  }
+`);
+
+registerFragment(`
+  fragment MultiDocumentWithContributors on MultiDocument {
+    ...MultiDocumentEdit
+    contributors(limit: $contributorsLimit, version: $version) {
+      totalCount
+      contributors {
+        user {
+          ...UsersMinimumInfo
+        }
+        contributionVolume
+      }
     }
   }
 `);
