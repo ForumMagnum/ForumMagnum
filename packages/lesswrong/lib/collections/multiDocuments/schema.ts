@@ -21,6 +21,7 @@ const schema: SchemaType<"MultiDocuments"> = {
   title: {
     type: String,
     canRead: ['guests'],
+    canUpdate: ['members'],
     optional: true,
     nullable: true,
   },
@@ -82,11 +83,13 @@ const schema: SchemaType<"MultiDocuments"> = {
   tabTitle: {
     type: String,
     canRead: ['guests'],
+    canUpdate: ['members'],
     nullable: false,
   },
   tabSubtitle: {
     type: String,
     canRead: ['guests'],
+    canUpdate: ['members'],
     optional: true,
     nullable: true,
   },
