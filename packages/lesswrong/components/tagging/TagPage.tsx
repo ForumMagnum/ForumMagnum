@@ -1,6 +1,6 @@
 import { useApolloClient } from "@apollo/client";
 import classNames from 'classnames';
-import React, { FC, Fragment, useCallback, useContext, useEffect, useState, useRef } from 'react';
+import React, { FC, Fragment, useCallback, useContext, useEffect, useState } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from "../../lib/betas";
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
@@ -13,7 +13,6 @@ import { useGlobalKeydown, useOnSearchHotkey } from '../common/withGlobalKeydown
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { EditTagForm } from './EditTagPage';
-import { useTagBySlug } from './useTag';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import truncateTagDescription from "../../lib/utils/truncateTagDescription";
 import { getTagStructuredData } from "./TagPageRouter";
@@ -565,14 +564,6 @@ function useDisplayedTagTitle(tag: TagPageFragment | TagPageWithRevisionFragment
   return selectedLens.title;
 }
 
-// function getNormalizedContributorRatio(ratio: number) {
-//   return parseFloat((ratio * 100).toFixed(0));
-// }
-
-// function getDisplayedContributorRatio(ratio: number) {
-//   return `${getNormalizedContributorRatio(ratio)}%`;
-// }
-
 // TODO: maybe move this to the server, so that the user doesn't have to wait for the hooks to run to see the contributors
 function useDisplayedContributors(contributorsInfo: DocumentContributorsInfo | null) {
   const contributors: DocumentContributorWithStats[] = contributorsInfo?.contributors ?? [];
@@ -640,7 +631,8 @@ const LensTab = ({ key, value, label, lens, isSelected, ...tabProps }: {
 const EditLensForm = ({lens}: {
   lens: TagLens,
 }) => {
-  return <Components.WrappedSmartForm
+  const { WrappedSmartForm } = Components;
+  return <WrappedSmartForm
     key={lens._id}
     collectionName="MultiDocuments"
     documentId={lens._id}
@@ -657,27 +649,50 @@ interface ArbitalLinkedPage {
 }
 
 const LinkedPageDisplay = ({linkedPage, className}: {linkedPage: ArbitalLinkedPage, className?: string}) => {
-
+  const { TagsTooltip } = Components;
   const classes = useStyles(styles);
   return <div key={linkedPage.slug} className={classNames(classes.linkedTag, className)}>
-    <Components.TagsTooltip placement="left" tagSlug={linkedPage.slug}>
+    <TagsTooltip placement="left" tagSlug={linkedPage.slug}>
       <Link to={tagGetUrl(linkedPage)}>{linkedPage.name}</Link>
-    </Components.TagsTooltip>
+    </TagsTooltip>
   </div>
 }
 
-const ArbitalLinkedPagesRightSidebar = ({tag, selectedLens, arbitalLinkedPages}: {tag: TagPageFragment, selectedLens?: TagLens, arbitalLinkedPages?: ArbitalLinkedPagesFragment}) => {
+function hasList(list: ArbitalLinkedPage[] | null): list is ArbitalLinkedPage[] {
+  return !!(list && list?.length > 0);
+}
+
+const LinkedPageListSection = ({ title, linkedPages, children }: {
+  title: string,
+  linkedPages: ArbitalLinkedPage[] | null,
+  children?: React.ReactNode,
+}) => {
+  const classes = useStyles(styles);
+
+  if (!hasList(linkedPages)) {
+    return null;
+  }
+
+  return <div className={classes.linkedTagsSection}>
+    <div className={classes.linkedTagsSectionTitle}>{title}</div>
+    {linkedPages.map((linkedPage) => <LinkedPageDisplay key={linkedPage.slug} linkedPage={linkedPage} />)}
+    {children}
+  </div>
+}
+
+const ArbitalLinkedPagesRightSidebar = ({ tag, selectedLens, arbitalLinkedPages }: {
+  tag: TagPageFragment,
+  selectedLens?: TagLens,
+  arbitalLinkedPages?: ArbitalLinkedPagesFragment,
+}) => {
+  const { ContentStyles } = Components;
+  
   const classes = useStyles(styles);
   const [isChildrenExpanded, setIsChildrenExpanded] = useState(false);
 
   if (!arbitalLinkedPages) {
     return null;
   }
-
-  const { ContentStyles } = Components;
-
-
-  const hasList = (list: {_id: string, name: string, slug: string}[] | undefined) => list && list?.length > 0;
 
   const { requirements, teaches, lessTechnical, moreTechnical, slower, faster, parents, children } = arbitalLinkedPages;
 
@@ -686,42 +701,14 @@ const ArbitalLinkedPagesRightSidebar = ({tag, selectedLens, arbitalLinkedPages}:
   return <ContentStyles contentType="tag">
     <div className={classes.linkedTagsHeader}>
       <div className={classes.linkedTagsList}>
-
-        {hasList(requirements) && <div className={classes.linkedTagsSection}>
-          <div className={classes.linkedTagsSectionTitle}>Relies on</div>
-          {requirements?.map((linkedPage: ArbitalLinkedPage) => <LinkedPageDisplay key={linkedPage.slug} linkedPage={linkedPage} />)}
-        </div>}
-        {hasList(teachesFiltered) && <div className={classes.linkedTagsSection}>
-          <div className={classes.linkedTagsSectionTitle}>Teaches</div>
-          {teachesFiltered?.map((linkedPage: ArbitalLinkedPage) => <LinkedPageDisplay key={linkedPage.slug} linkedPage={linkedPage} />)}
-        </div>}
-        {hasList(slower) && <div className={classes.linkedTagsSection}>
-          <div className={classes.linkedTagsSectionTitle}>Slower alternatives</div>
-          {slower?.map((linkedPage: ArbitalLinkedPage) => <LinkedPageDisplay key={linkedPage.slug} linkedPage={linkedPage} />)}
-        </div>}
-        {hasList(lessTechnical) && <div className={classes.linkedTagsSection}>
-          <div className={classes.linkedTagsSectionTitle}>Less technical alternatives</div>
-          {lessTechnical?.map((linkedPage: ArbitalLinkedPage) => <LinkedPageDisplay key={linkedPage.slug} linkedPage={linkedPage} />)}
-        </div>}
-        {hasList(faster) && <div className={classes.linkedTagsSection}>
-          <div className={classes.linkedTagsSectionTitle}>Faster alternatives</div>
-          {faster?.map((linkedPage: ArbitalLinkedPage) => <LinkedPageDisplay key={linkedPage.slug} linkedPage={linkedPage} />)}
-        </div>}
-        {hasList(moreTechnical) && <div className={classes.linkedTagsSection}>
-          <div className={classes.linkedTagsSectionTitle}>More technical alternatives</div>
-          {moreTechnical?.map((linkedPage: ArbitalLinkedPage) => <LinkedPageDisplay key={linkedPage.slug} linkedPage={linkedPage} />)}
-        </div>}
-        {hasList(parents) && <div className={classes.linkedTagsSection}>
-          <div className={classes.linkedTagsSectionTitle}>Parents</div>
-          {parents?.map((parent: ArbitalLinkedPage) => (
-            <LinkedPageDisplay key={parent.slug} linkedPage={parent} />
-          ))}
-        </div>}
-        {hasList(children) && <div className={classes.linkedTagsSection}>
-          <div className={classes.linkedTagsSectionTitle}>Children</div>
-          {children?.slice(0, isChildrenExpanded ? undefined : 2).map((child: ArbitalLinkedPage) => (
-            <LinkedPageDisplay key={child.slug} linkedPage={child} />
-          ))}
+        <LinkedPageListSection title="Relies on" linkedPages={requirements} />
+        <LinkedPageListSection title="Teaches" linkedPages={teachesFiltered} />
+        <LinkedPageListSection title="Slower alternatives" linkedPages={slower} />
+        <LinkedPageListSection title="Less technical alternatives" linkedPages={lessTechnical} />
+        <LinkedPageListSection title="Faster alternatives" linkedPages={faster} />
+        <LinkedPageListSection title="More technical alternatives" linkedPages={moreTechnical} />
+        <LinkedPageListSection title="Parents" linkedPages={parents} />
+        <LinkedPageListSection title="Children" linkedPages={parents}>
           {!isChildrenExpanded && children?.length > 2 && (
             <div 
               className={classes.linkedTagMore} 
@@ -734,7 +721,7 @@ const ArbitalLinkedPagesRightSidebar = ({tag, selectedLens, arbitalLinkedPages}:
               and {children.length - 2} more
             </div>
           )}
-        </div>}
+        </LinkedPageListSection>
 
       </div>
     </div>
