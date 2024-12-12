@@ -79,15 +79,20 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+/**
+ * Returns whether the current user can edit the tag, and if not, why not.
+ * 
+ * IMPORTANT: this does not return false if the user is logged out.  You need to check that separately.
+ */
 export function useTagEditingRestricted(tag: TagPageWithRevisionFragment | TagPageFragment | null, alreadyEditing: boolean, currentUser: UsersCurrent | null) {
   if (!tag) return { canEdit: false, noEditNotAuthor: false, noEditKarmaTooLow: false };
 
   const restricted = tag.canEditUserIds && tag.canEditUserIds.length > 0;
   const noEditNotAuthor = restricted && (!currentUser || (!currentUser.isAdmin && !tag.canEditUserIds.includes(currentUser._id)));
   const noEditKarmaTooLow = !restricted && currentUser && !tagUserHasSufficientKarma(currentUser, "edit");
-  const canEdit = !alreadyEditing && !noEditKarmaTooLow && !noEditNotAuthor;
+  const editingRestricted = !alreadyEditing && !noEditKarmaTooLow && !noEditNotAuthor;
 
-  return { canEdit, noEditNotAuthor, noEditKarmaTooLow };
+  return { editingRestricted, noEditNotAuthor, noEditKarmaTooLow };
 }
 
 const TagPageButtonRow = ({ tag, editing, setEditing, hideLabels = false, className, classes }: {
@@ -117,7 +122,7 @@ const TagPageButtonRow = ({ tag, editing, setEditing, hideLabels = false, classN
     }
   }
 
-  const { canEdit, noEditNotAuthor, noEditKarmaTooLow } = useTagEditingRestricted(tag, editing, currentUser);
+  const { editingRestricted: canEdit, noEditNotAuthor, noEditKarmaTooLow } = useTagEditingRestricted(tag, editing, currentUser);
 
   const editTooltipHasContent = noEditNotAuthor || noEditKarmaTooLow || numFlags || beginnersGuideContentTag
   const editTooltip = editTooltipHasContent && <>
