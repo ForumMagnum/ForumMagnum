@@ -47,48 +47,28 @@ addGraphQLResolvers({
       })
       return true
     },
-    // AddForumEventSticker: async (
-    //   _root: void,
-    //   {forumEventId, x, y, theta}: {
-    //     forumEventId: string,
-    //     x: number,
-    //     y: number,
-    //     theta: number,
-    //   },
-    //   context: ResolverContext,
-    // ): Promise<GivingSeasonHeart[]> => {
+    AddForumEventSticker: async (
+      _root: void,
+      {forumEventId, x, y, theta}: {
+        forumEventId: string,
+        x: number,
+        y: number,
+        theta: number,
+      },
+      {currentUser, repos}: ResolverContext,
+    ) => {
+      if (!currentUser) {
+        throw new Error("Permission denied");
+      }
 
-
-    //   // TODO
-    //   // if (!context.currentUser) {
-    //   //   throw new Error("Permission denied");
-    //   // }
-    //   // if (
-    //   //   electionName !== 'reviewVoting2022' || 
-    //   //   typeof x !== "number" || x < 0 || x > 1 ||
-    //   //   typeof y !== "number" || y < 0 || y > 1 ||
-    //   //   typeof theta !== "number" || theta < -25 || theta > 25
-    //   // ) {
-    //   //   throw new Error(`Invalid parameters: ${{electionName, x, y, theta}}`);
-    //   // }
-
-    //   // const voteCount = await ReviewVotes.find({
-    //   //   userId: context.currentUser._id,
-    //   //   year: REVIEW_YEAR+""
-    //   // }).count();
-
-    //   // if (voteCount < TARGET_REVIEW_NUM) {
-    //   //   throw new Error(`User has not voted enough times: ${voteCount}`)
-    //   // }
-
-    //   // return context.repos.databaseMetadata.addGivingSeasonHeart(
-    //   //   electionName,
-    //   //   context.currentUser._id,
-    //   //   x,
-    //   //   y,
-    //   //   theta,
-    //   // );
-    // },
+      await repos.forumEvents.addSticker(forumEventId, currentUser._id, {x, y, theta})
+      captureEvent("addForumEventSticker", {
+        forumEventId,
+        userId: currentUser._id,
+        x, y, theta
+      })
+      return true
+    },
     // RemoveForumEventSticker: (
     //   _root: void,
     //   {forumEventId}: {forumEventId: string},
@@ -113,3 +93,4 @@ addGraphQLResolvers({
 
 addGraphQLMutation('AddForumEventVote(forumEventId: String!, x: Float!, delta: Float, postIds: [String]): Boolean')
 addGraphQLMutation('RemoveForumEventVote(forumEventId: String!): Boolean')
+addGraphQLMutation('AddForumEventSticker(forumEventId: String!, x: Float!, y: Float!, theta: Float!): Boolean')
