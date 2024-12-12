@@ -11,8 +11,8 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import SearchIcon from '@material-ui/icons/Search';
 
 // Import the mock data and types
-import wikitagMockupData from './wikitag_mockup_data';
 import { WikiTagMockup, WikiTagNode } from './types'; // Adjust the import path as needed
+import { wikitagMockupData } from './wikitag_mockup_data';
 
 const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
   root: {
@@ -259,7 +259,7 @@ const AllWikiTagsPage = () => {
               pages={filteredTree}
               onHover={handleHover} 
               onClick={handleClick}
-              pinnedWikiTag={pinnedWikiTag}
+              // pinnedWikiTag={pinnedWikiTag}
             />
           </div>
 
