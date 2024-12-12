@@ -745,10 +745,11 @@ const ArbitalRelationshipsSmallScreen = ({arbitalLinkedPages}: {arbitalLinkedPag
     return null;
   }
 
-  const { TagsTooltip, HoverPreviewLink } = Components;
+  const { TagsTooltip } = Components;
   const { requirements, teaches } = arbitalLinkedPages;
   
   return (
+    <Components.ContentStyles contentType="tag">
     <div className={classes.mobileRelationships}>
       {requirements.length > 0 && (
         <div className={classes.relationshipRow}>
