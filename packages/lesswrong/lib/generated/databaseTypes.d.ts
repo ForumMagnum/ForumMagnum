@@ -711,6 +711,7 @@ interface DbMultiDocument extends DbObject {
   collectionName: CollectionNameString
   fieldName: string
   index: number
+  contributionStats: any /*{"definitions":[{"blackbox":true}]}*/
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   contents_latest: string | null

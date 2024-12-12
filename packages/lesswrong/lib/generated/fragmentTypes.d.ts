@@ -2749,7 +2749,7 @@ interface TagPageFragment extends TagWithFlagsFragment { // fragment on Tags
   readonly subforumWelcomeText: TagPageFragment_subforumWelcomeText|null,
   readonly contributors: any,
   readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
-  readonly lenses: Array<MultiDocumentEdit>,
+  readonly lenses: Array<MultiDocumentWithContributors>,
   readonly arbitalLinkedPages: ArbitalLinkedPagesFragment,
 }
 
@@ -2769,7 +2769,7 @@ interface TagPageWithRevisionFragment extends TagWithFlagsAndRevisionFragment { 
   readonly subforumWelcomeText: TagPageWithRevisionFragment_subforumWelcomeText|null,
   readonly contributors: any,
   readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
-  readonly lenses: Array<MultiDocumentEdit>,
+  readonly lenses: Array<MultiDocumentWithContributors>,
   readonly arbitalLinkedPages: ArbitalLinkedPagesFragment,
 }
 
@@ -3913,6 +3913,8 @@ interface MultiDocumentsDefaultFragment { // fragment on MultiDocuments
   readonly fieldName: string,
   readonly index: number,
   readonly tableOfContents: any /*{"definitions":[{}]}*/,
+  readonly contributors: any /*MultiDocumentContributorsList*/,
+  readonly contributionStats: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface MultiDocumentEdit { // fragment on MultiDocuments
@@ -3936,6 +3938,10 @@ interface MultiDocumentEdit { // fragment on MultiDocuments
 
 interface MultiDocumentParentDocument extends MultiDocumentEdit { // fragment on MultiDocuments
   readonly parentTag: TagBasicInfo|null,
+}
+
+interface MultiDocumentWithContributors extends MultiDocumentEdit { // fragment on MultiDocuments
+  readonly contributors: any,
 }
 
 interface ElectionCandidateBasicInfo { // fragment on ElectionCandidates
@@ -4588,6 +4594,7 @@ interface FragmentTypes {
   MultiDocumentsDefaultFragment: MultiDocumentsDefaultFragment
   MultiDocumentEdit: MultiDocumentEdit
   MultiDocumentParentDocument: MultiDocumentParentDocument
+  MultiDocumentWithContributors: MultiDocumentWithContributors
   ElectionCandidateBasicInfo: ElectionCandidateBasicInfo
   ElectionCandidateSimple: ElectionCandidateSimple
   WithVoteElectionCandidate: WithVoteElectionCandidate
@@ -4695,7 +4702,7 @@ interface FragmentTypesByCollection {
   ModerationTemplates: "ModerationTemplatesDefaultFragment"|"ModerationTemplateFragment"
   CurationNotices: "CurationNoticesDefaultFragment"|"CurationNoticesFragment"
   UserRateLimits: "UserRateLimitsDefaultFragment"|"UserRateLimitDisplay"
-  MultiDocuments: "MultiDocumentsDefaultFragment"|"MultiDocumentEdit"|"MultiDocumentParentDocument"
+  MultiDocuments: "MultiDocumentsDefaultFragment"|"MultiDocumentEdit"|"MultiDocumentParentDocument"|"MultiDocumentWithContributors"
   ElicitQuestions: "ElicitQuestionsDefaultFragment"
   ElicitQuestionPredictions: "ElicitQuestionPredictionsDefaultFragment"
   DialogueChecks: "DialogueChecksDefaultFragment"|"DialogueCheckInfo"
@@ -4962,6 +4969,7 @@ interface CollectionNamesByFragmentName {
   MultiDocumentsDefaultFragment: "MultiDocuments"
   MultiDocumentEdit: "MultiDocuments"
   MultiDocumentParentDocument: "MultiDocuments"
+  MultiDocumentWithContributors: "MultiDocuments"
   ElectionCandidateBasicInfo: "ElectionCandidates"
   ElectionCandidateSimple: "ElectionCandidates"
   WithVoteElectionCandidate: "ElectionCandidates"

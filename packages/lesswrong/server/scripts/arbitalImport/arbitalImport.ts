@@ -361,6 +361,7 @@ export type ArbitalConversionContext = {
   matchedUsers: Record<string,DbUser|null>
   defaultUser: DbUser,
   slugsByPageId: Record<string,string>
+  summariesByPageId: Record<string, PageSummariesRow[]>,
   linksById: Record<string,string>
   titlesByPageId: Record<string,string>
   pageIdsByTitle: Record<string,string>
@@ -476,6 +477,7 @@ async function renameCollidingWikiPages(existingPagesToMove: Array<{
 async function buildConversionContext(database: WholeArbitalDatabase, pagesToConvertToLenses: PagesToConvertToLenses, options: ArbitalImportOptions): Promise<ArbitalConversionContext> {
   const pagesById = groupBy(database.pages, p=>p.pageId);
   const pageInfosById = keyBy(database.pageInfos, pi=>pi.pageId);
+  const summariesByPageId = groupBy(database.pageSummaries, s=>s.pageId);
   
   //const matchedUsers: Record<string,DbUser|null> = { '2': await resolverContext.loaders.Users.load('nmk3nLpQE89dMRzzN') };
   const matchedUsers: Record<string,DbUser|null> = options.userMatchingFile
@@ -546,6 +548,7 @@ async function buildConversionContext(database: WholeArbitalDatabase, pagesToCon
     database,
     matchedUsers, defaultUser,
     slugsByPageId,
+    summariesByPageId,
     linksById,
     titlesByPageId,
     pageIdsByTitle,
@@ -562,10 +565,9 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
   const pagesById = groupBy(database.pages, p=>p.pageId);
   const lensesByPageId = groupBy(database.lenses, l=>l.pageId);
   const lensIds = new Set(database.lenses.map(l=>l.lensId));
-  const summariesByPageId = groupBy(database.pageSummaries, s=>s.pageId);
 
   const {
-    pageInfosByPageId: pageInfosById, slugsByPageId, titlesByPageId,
+    pageInfosByPageId: pageInfosById, slugsByPageId, summariesByPageId, titlesByPageId,
     pageIdsByTitle, domainsByPageId, matchedUsers, defaultUser, liveRevisionsByPageId,
     pagesToConvertToLenses,
   } = conversionContext;
@@ -1661,4 +1663,87 @@ Globals.updateLensIds = async (mysqlConnectionString: string) => {
       );
     }
   }), 10);
+}
+
+function isImportablePage(pageId: string, conversionContext: ArbitalConversionContext) {
+  const pageInfo = conversionContext.pageInfosByPageId[pageId];
+  return pageInfo
+    && pageInfo.type === 'wiki'
+    && !pageInfo.isDeleted
+    && pageInfo.seeDomainId === 0;
+}
+
+async function checkDefaultPageSummaries(database: WholeArbitalDatabase) {
+  const conversionContext = await buildConversionContext(database, [], {});
+  const { summariesByPageId, liveRevisionsByPageId } = conversionContext;
+  const lensesByPageId = groupBy(database.lenses, l=>l.pageId);
+  const lensIds = new Set(database.lenses.map(l=>l.lensId));
+
+  const pageIdsToImport = Object.keys(liveRevisionsByPageId).filter(pageId => {
+    return !lensIds.has(pageId) && isImportablePage(pageId, conversionContext);
+  });
+
+  console.log(`Checking ${pageIdsToImport.length} pages for default summaries`);
+
+  const pagesWithNoSummaries: string[] = [];
+  const pagesWithDefaultSummaries: string[] = [];
+  const pagesWithNonDefaultSummaries: string[] = [];
+
+  const lensesWithNoSummaries: string[] = [];
+  const lensesWithDefaultSummaries: string[] = [];
+  const lensesWithNonDefaultSummaries: string[] = [];
+
+  for (const pageId of pageIdsToImport) {
+    const livePage = liveRevisionsByPageId[pageId];
+    const lenses = (lensesByPageId[pageId] ?? []).filter(l => isImportablePage(l.lensId, conversionContext));
+    const summaries = summariesByPageId[pageId];
+
+    if (summaries.length === 0) {
+      pagesWithNoSummaries.push(pageId);
+    } else if (summaries.length === 1) {
+      const [summary] = summaries;
+      
+      if (livePage.text.startsWith(summary.text)) {
+        pagesWithDefaultSummaries.push(pageId);
+      } else {
+        pagesWithNonDefaultSummaries.push(pageId);
+      }
+    } else {
+      pagesWithNonDefaultSummaries.push(pageId);
+    }
+
+    try {
+      for (const lens of lenses) {
+        const lensPage = liveRevisionsByPageId[lens.lensId];
+        const lensSummaries = summariesByPageId[lens.lensId];
+        if (lensSummaries.length === 0) {
+          lensesWithNoSummaries.push(lens.lensId);
+        } else if (lensSummaries.length === 1) {
+          const [summary] = lensSummaries;
+          if (lensPage.text.startsWith(summary.text)) {
+            lensesWithDefaultSummaries.push(lens.lensId);
+          } else {
+            lensesWithNonDefaultSummaries.push(lens.lensId);
+          }
+        } else {
+          lensesWithNonDefaultSummaries.push(lens.lensId);
+        }
+      }
+    } catch (e) {
+      console.error(`Error processing lenses for page ${pageId}: ${e}`, { lenses });
+    }
+  }
+
+  console.log(`Pages with default summaries: ${pagesWithDefaultSummaries.length}`);
+  console.log(`Pages with non-default summaries: ${pagesWithNonDefaultSummaries.length}`);
+  console.log(`Pages with no summaries: ${pagesWithNoSummaries.length}`);
+
+  console.log(`Lenses with default summaries: ${lensesWithDefaultSummaries.length}`);
+  console.log(`Lenses with non-default summaries: ${lensesWithNonDefaultSummaries.length}`);
+  console.log(`Lenses with no summaries: ${lensesWithNoSummaries.length}`);
+}
+
+Globals.checkDefaultPageSummaries = async (mysqlConnectionString: string) => {
+  const arbitalDb = await connectAndLoadArbitalDatabase(mysqlConnectionString);
+  await checkDefaultPageSummaries(arbitalDb);
 }

@@ -1273,6 +1273,7 @@ CREATE TABLE "MultiDocuments" (
   "collectionName" TEXT NOT NULL,
   "fieldName" TEXT NOT NULL,
   "index" DOUBLE PRECISION NOT NULL,
+  "contributionStats" JSONB,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB,
