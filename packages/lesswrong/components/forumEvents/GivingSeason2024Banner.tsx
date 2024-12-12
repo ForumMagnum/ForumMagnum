@@ -21,6 +21,8 @@ import { GivingSeasonHeart } from "../review/ReviewVotingCanvas";
 import { gql, useMutation } from "@apollo/client";
 import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
 import { useMulti } from "@/lib/crud/withMulti";
+import { useCurrentUser } from "../common/withUser";
+import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
 
 const DOT_SIZE = 12;
 
@@ -442,7 +444,6 @@ const removeForumEventStickerQuery = gql`
 type ForumEventStickerData = Record<
   string,
   {
-    commentId: string | null;
     x: number;
     y: number;
     theta: number;
@@ -476,7 +477,7 @@ function stickerDataToArray({
 
       if (!sticker) return undefined;
 
-      const comment = (sticker?.commentId && comments.find((c) => c._id === sticker.commentId)) || null;
+      const comment = comments?.find(comment => comment.userId === user._id) || null
 
       return {
         x: sticker.x,
@@ -495,6 +496,9 @@ const Hearts: FC<{
   const { ForumIcon, ForumEventCommentForm } = Components;
 
   const { currentForumEvent, refetch } = useCurrentForumEvent();
+  // TODO merge with ForumEventPoll
+  const { onSignup } = useLoginPopoverContext();
+  const currentUser = useCurrentUser();
 
   const stickerData: ForumEventStickerData | null = currentForumEvent?.publicData || null;
 
@@ -524,14 +528,12 @@ const Hearts: FC<{
     skip: !currentForumEvent?._id || !users,
   });
 
-  const [addSticker] = useMutation(addForumEventStickerQuery);
-  const [removeSticker] = useMutation(removeForumEventStickerQuery);
-
   const hearts = useMemo(
     () => (users && stickerData ? stickerDataToArray({ data: stickerData, users, comments }) : []),
     [comments, stickerData, users]
   );
 
+  const [commentFormOpen, setCommentFormOpen] = useState(false);
   const [hoverPos, setHoverPos] = useState<{ x: number; y: number } | null>(
     null
   );
@@ -561,6 +563,43 @@ const Hearts: FC<{
     },
     [containerRef]
   );
+
+  const [addSticker] = useMutation(addForumEventStickerQuery);
+  const [removeSticker] = useMutation(removeForumEventStickerQuery);
+
+  const saveStickerPos = useCallback(async (event: React.MouseEvent) => {
+    // When a logged-in user is done dragging their vote, attempt to save it
+    if (currentUser) {
+      // TODO handle null event more gracefully
+      const coords = normalizeCoords(event.clientX, event.clientY);
+
+      if (!coords) return;
+
+      const theta = (Math.random() * 50) - 25; // Random rotation between -25 and 25 degrees
+      const hasVoted = false; // TODO handle hasPlacedSticker properly
+      if (!hasVoted) {
+        // TODO handle null event more gracefully
+        if (currentForumEvent!.post) {
+          setCommentFormOpen(true);
+        }
+
+        // setCurrentUserVote(newVotePos);
+        await addSticker({ variables: {
+          ...coords,
+          theta,
+          // TODO handle null event more gracefully
+          forumEventId: currentForumEvent!._id
+        } });
+        refetch?.();
+
+        return;
+      }
+    // When a logged-out user tries to vote, just show the login modal
+    } else {
+      onSignup()
+      // void clearVote()
+    }
+  }, [currentUser, normalizeCoords, currentForumEvent, addSticker, refetch, onSignup]);
 
   const handleMouseMove = useCallback(
     (event: React.MouseEvent) => {
@@ -595,7 +634,7 @@ const Hearts: FC<{
       ref={containerRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      onClick={handleClick}
+      onClick={saveStickerPos}
     >
       {hoverPos && (
         <div
