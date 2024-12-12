@@ -193,7 +193,7 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
       if (!linkText) {
         console.error(`Could not get link text for page ${alias}`);
       }
-      const url = pageId ? pageIdToUrl(pageId) : `/tag/${slugify(linkText)}`;
+      const url = pageId ? pageIdToUrl(pageId) : `/w/${slugify(linkText)}`;
       return `<a href="${url}">${linkText}</a>`;
     }
     
@@ -295,7 +295,7 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
         }
         return div + runBlockGamut(markdown) + '\n\n</div>';*/
         if (!pageId) {
-          console.warn(`Page ${pageId} referenced in knows-requisite block was not found`);
+          console.warn(`Page ${alias} (${pageId}) referenced in knows-requisite block was not found`);
         }
         return conditionallyVisibleBlockToHTML(
           {type: "knowsRequisite", inverted: !!not, otherPage: pageId ?? ""},
