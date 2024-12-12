@@ -39,6 +39,7 @@ import { updateMutator } from '../vulcan-lib';
 import { captureException } from '@sentry/core';
 import GraphQLJSON from 'graphql-type-json';
 import { getToCforTag } from '../tableOfContents';
+import { TagContributor } from '@/components/tagging/arbitalTypes';
 
 type SubforumFeedSort = {
   posts: SubquerySortField<DbPost, keyof DbPost>,
@@ -404,14 +405,49 @@ addGraphQLQuery('TagUpdatesByUser(userId: String!, limit: Int!, skip: Int!): [Ta
 addGraphQLQuery('RandomTag: Tag!');
 addGraphQLQuery('ActiveTagCount: Int!');
 
+defineQuery({
+  name: "TagPreview",
+  schema: `
+    type TagPreviewWithSummaries {
+      tag: Tag!
+      summaries: [MultiDocument!]!
+    }
+  `,
+  resultType: "TagPreviewWithSummaries",
+  argTypes: "(slug: String!, hash: String)",
+  fn: async (root, { slug, hash }: { slug: string, hash: string | null }, context) => {
+    const { Tags, MultiDocuments, repos, currentUser } = context;
+
+    const tagWithSummaries = await repos.tags.getTagWithSummaries(slug);
+
+    if (!tagWithSummaries) return null;
+
+    const { summaries, ...tag } = tagWithSummaries;
+
+    const [filteredTag, filteredSummaries] = await Promise.all([
+      accessFilterSingle(currentUser, Tags, tag, context),
+      accessFilterMultiple(currentUser, MultiDocuments, summaries, context)
+    ]);
+
+    if (!filteredTag) return null;
+
+    return {
+      tag: filteredTag,
+      summaries: filteredSummaries,
+    };
+  },
+});
+
 type ContributorWithStats = {
   user: Partial<DbUser>,
   contributionScore: number,
+  contributionVolume: number,
   numCommits: number,
   voteCount: number,
 };
 type ContributorStats = {
   contributionScore: number,
+  contributionVolume: number,
   numCommits: number,
   voteCount: number,
 };
@@ -438,7 +474,7 @@ augmentFieldsDict(Tags, {
           user: usersById[userId],
           ...contributionStatsByUserId[userId]!,
         }));
-        
+
         if (limit) {
           return {
             contributors: take(topContributors, limit),
@@ -485,7 +521,7 @@ augmentFieldsDict(TagRels, {
 async function getContributorsList(tag: DbTag, version: string|null): Promise<ContributorStatsList> {
   if (version)
     return await buildContributorsList(tag, version);
-  else if (tag.contributionStats)
+  else if (tag.contributionStats && Object.values(tag.contributionStats).some(({ contributionVolume }: ContributorStats) => contributionVolume))
     return tag.contributionStats;
   else
     return await updateDenormalizedContributorsList(tag);
@@ -533,11 +569,13 @@ async function buildContributorsList(tag: DbTag, version: string|null): Promise<
       const selfVoteAdjustment = selfVoteScoreAdjustmentByUser[userId]
       const excludedPower = selfVoteAdjustment?.excludedPower || 0;
       const excludedVoteCount = selfVoteAdjustment?.excludedVoteCount || 0;
+      const contributionVolume = sumBy(revisionsByThisUser, r=>r.changeMetrics.added + r.changeMetrics.removed);
 
       return {
         contributionScore: totalRevisionScore - excludedPower,
         numCommits: revisionsByThisUser.length,
         voteCount: sumBy(revisionsByThisUser, r=>r.voteCount ?? 0) - excludedVoteCount,
+        contributionVolume,
       };
     }
   );

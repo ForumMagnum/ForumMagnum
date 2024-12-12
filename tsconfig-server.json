@@ -2,6 +2,7 @@
   "extends": "./tsconfig-shared.json",
   "exclude": [
     "packages/lesswrong/client",
+    "packages/lesswrong/viteClient",
     "node_modules",
     "build"
   ],

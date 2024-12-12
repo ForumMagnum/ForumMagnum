@@ -117,7 +117,7 @@ type DomainMembersRow = { //{{_}}
 };
 
 // This table contains all domains and relevant info.
-type DomainsRow = { //{{_}}
+export type DomainsRow = { //{{_}}
   // Domain id.
   id: number;
   // Id of the home page for this domain. FK into pageInfos.
@@ -194,7 +194,7 @@ type LastVisitsRow = { //{{_}}
 };
 
 // This table contains all information about lens relationships.
-type LensesRow = { //{{_}}
+export type LensesRow = { //{{_}}
   // Id of the lens relationships.
   id: number;
   // Id of the page that has the lens. FK into pageInfos.
@@ -304,7 +304,7 @@ type MarksRow = { //{{_}}
 
 // This table contains various information about the pages. This info is not
 // dependent on any specific edit number.
-type PageInfosRow = { //{{_}}
+export type PageInfosRow = { //{{_}}
   // Id of the page the info is for.
   pageId: string;
   // Likeable id for this page. Partial FK into likes.
@@ -322,7 +322,7 @@ type PageInfosRow = { //{{_}}
   // Alias name of the page.
   alias: string;
   // Page's type.
-  type: string;
+  type: "group"|"wiki"|"comment"|"question";
   // How to sort the page's children.
   sortChildrenBy: string;
   // True iff the page has a probability vote.
@@ -386,7 +386,7 @@ type PagePairsRow = { //{{_}}
   // Other way to memorize: for each of the relationships you can add
   // on the relationship tab of the edit page, the page you're editing
   // is the child.
-  type: string;
+  type: "parent"|"tag"|"subject"|"requirement";
   // Id of the user who added this relationships. FK into pages.
   creatorId: string;
   // When this relationship was created.
@@ -407,7 +407,7 @@ type PagePairsRow = { //{{_}}
 
 // This table contains all the edits for all the pages, including the original edit.
 // Each row is one edit for a given page.
-type PagesRow = { //{{_}}
+export type PagesRow = { //{{_}}
   // Id of the page the edit is for.
   pageId: string;
   // The edit (version) number. Always >0.
@@ -454,7 +454,7 @@ type PagesRow = { //{{_}}
 };
 
 // This table contains all the summaries for all the pages.
-type PageSummariesRow = { //{{_}}
+export type PageSummariesRow = { //{{_}}
   // Id of the page the summary is for.
   pageId: string;
   // Name of the summary.

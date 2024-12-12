@@ -345,6 +345,7 @@ declare global {
       onboardingSection: ColorString,
       onboardingPodcast: ColorString,
       placeholderGradient: ColorString,
+      tagLensTab: ColorString,
     },
     boxShadow: {
       default: string,
@@ -476,6 +477,7 @@ declare global {
       contrastInDarkMode: ColorString,
       pageActiveAreaBackground: ColorString,
       translucentBackground: ColorString,
+      translucentBackgroundHeavy: ColorString,
       loginBackdrop: ColorString,
       diffInserted: ColorString,
       diffDeleted: ColorString,
@@ -553,6 +555,11 @@ declare global {
       primary: ColorString,
       electionFundBackground: ColorString,
       electionFundBackgroundHeavy: ColorString,
+      portalPrimary: ColorString,
+      candidateBorder: ColorString,
+      candidateBackground: ColorString,
+      candidateShadow: ColorString,
+      candidateOrder: ColorString,
     },
     namesAttachedReactions: {
       selectedAnti: ColorString,

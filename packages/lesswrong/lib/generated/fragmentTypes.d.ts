@@ -415,6 +415,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly linkedinProfileURL: string,
   readonly facebookProfileURL: string,
   readonly twitterProfileURL: string,
+  readonly twitterProfileURLAdmin: string | null,
   readonly githubProfileURL: string,
   readonly profileTagIds: Array<string>,
   readonly organizerOfGroupIds: Array<string>,
@@ -443,6 +444,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly inactiveSurveyEmailSentAt: Date | null,
   readonly userSurveyEmailSentAt: Date | null,
   readonly givingSeason2024DonatedFlair: boolean,
+  readonly givingSeason2024VotedFlair: boolean,
 }
 
 interface CommentsDefaultFragment { // fragment on Comments
@@ -1129,6 +1131,7 @@ interface PostsTopItemInfo extends PostsMinimumInfo, PostsAuthors { // fragment 
   readonly tags: Array<TagPreviewFragment>,
   readonly reviewWinner: ReviewWinnerTopPostsPage|null,
   readonly spotlight: SpotlightReviewWinner|null,
+  readonly reviews: Array<CommentsList>,
 }
 
 interface PostsTopItemInfo_contents { // fragment on Revisions
@@ -1729,6 +1732,26 @@ interface PostsForAutocomplete_contents { // fragment on Revisions
   readonly markdown: string|null,
 }
 
+interface PostForReviewWinnerItem { // fragment on Posts
+  readonly _id: string,
+  readonly spotlight: PostForReviewWinnerItem_spotlight|null,
+  readonly reviewWinner: PostForReviewWinnerItem_reviewWinner|null,
+}
+
+interface PostForReviewWinnerItem_spotlight { // fragment on Spotlights
+  readonly _id: string,
+}
+
+interface PostForReviewWinnerItem_reviewWinner { // fragment on ReviewWinners
+  readonly _id: string,
+  readonly category: "rationality" | "modeling" | "optimization" | "ai strategy" | "ai safety" | "practical",
+}
+
+interface PostsTwitterAdmin extends PostsListWithVotes { // fragment on Posts
+  readonly user: UsersSocialMediaInfo|null,
+  readonly coauthors: Array<UsersSocialMediaInfo>,
+}
+
 interface CommentsList { // fragment on Comments
   readonly _id: string,
   readonly postId: string,
@@ -1998,6 +2021,7 @@ interface RevisionMetadataWithChangeMetrics extends RevisionMetadata { // fragme
 interface RevisionHistoryEntry extends RevisionMetadata { // fragment on Revisions
   readonly documentId: string,
   readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly user: UsersMinimumInfo|null,
 }
 
@@ -2568,6 +2592,7 @@ interface TagBasicInfo { // fragment on Tags
   readonly deleted: boolean,
   readonly isSubforum: boolean,
   readonly noindex: boolean,
+  readonly isArbitalImport: boolean|null,
 }
 
 interface TagDetailsFragment extends TagBasicInfo { // fragment on Tags
@@ -2608,8 +2633,11 @@ interface TagFragment_description { // fragment on Revisions
   readonly editedAt: Date,
 }
 
-interface TagHistoryFragment extends TagBasicInfo { // fragment on Tags
+interface TagHistoryFragment extends TagFragment { // fragment on Tags
+  readonly tableOfContents: any,
   readonly user: UsersMinimumInfo|null,
+  readonly lenses: Array<MultiDocumentEdit>,
+  readonly arbitalLinkedPages: ArbitalLinkedPagesFragment,
 }
 
 interface TagCreationHistoryFragment extends TagFragment { // fragment on Tags
@@ -2703,6 +2731,15 @@ interface TagWithFlagsAndRevisionFragment extends TagRevisionFragment { // fragm
   readonly tagFlags: Array<TagFlagFragment>,
 }
 
+interface ArbitalLinkedPagesFragment { // fragment on non-collection type
+  readonly faster: any,
+  readonly slower: any,
+  readonly moreTechnical: any,
+  readonly lessTechnical: any,
+  readonly requirements: any,
+  readonly teaches: any,
+}
+
 interface TagPageFragment extends TagWithFlagsFragment { // fragment on Tags
   readonly tableOfContents: any,
   readonly postsDefaultSortOrder: string,
@@ -2710,7 +2747,8 @@ interface TagPageFragment extends TagWithFlagsFragment { // fragment on Tags
   readonly subforumWelcomeText: TagPageFragment_subforumWelcomeText|null,
   readonly contributors: any,
   readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
-  readonly lenses: Array<MultiDocumentEdit>,
+  readonly lenses: Array<MultiDocumentWithContributors>,
+  readonly arbitalLinkedPages: ArbitalLinkedPagesFragment,
 }
 
 interface TagPageFragment_subforumWelcomeText { // fragment on Revisions
@@ -2729,7 +2767,8 @@ interface TagPageWithRevisionFragment extends TagWithFlagsAndRevisionFragment { 
   readonly subforumWelcomeText: TagPageWithRevisionFragment_subforumWelcomeText|null,
   readonly contributors: any,
   readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
-  readonly lenses: Array<MultiDocumentEdit>,
+  readonly lenses: Array<MultiDocumentWithContributors>,
+  readonly arbitalLinkedPages: ArbitalLinkedPagesFragment,
 }
 
 interface TagPageWithRevisionFragment_subforumWelcomeText { // fragment on Revisions
@@ -2777,6 +2816,11 @@ interface TagName { // fragment on Tags
   readonly _id: string,
   readonly name: string,
   readonly slug: string,
+}
+
+interface ExplorePageTagFragment extends TagFragment { // fragment on Tags
+  readonly contributors: any,
+  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface AdvisorRequestsDefaultFragment { // fragment on AdvisorRequests
@@ -2999,6 +3043,7 @@ interface UsersMinimumInfo { // fragment on Users
   readonly tagRevisionCount: number,
   readonly reviewedByUserId: string,
   readonly givingSeason2024DonatedFlair: boolean,
+  readonly givingSeason2024VotedFlair: boolean,
 }
 
 interface UsersProfile extends UsersMinimumInfo, SharedUserBooleans { // fragment on Users
@@ -3519,6 +3564,7 @@ interface UsersEdit extends UsersCurrent { // fragment on Users
   readonly hideFrontpageBook2020Ad: boolean,
   readonly deleted: boolean,
   readonly permanentDeletionRequestedAt: Date | null,
+  readonly twitterProfileURLAdmin: string | null,
 }
 
 interface UsersAdmin { // fragment on Users
@@ -3581,6 +3627,10 @@ interface UserOnboardingAuthor { // fragment on Users
   readonly karma: number,
   readonly jobTitle: string,
   readonly organization: string,
+}
+
+interface UsersSocialMediaInfo extends UsersProfile { // fragment on Users
+  readonly twitterProfileURLAdmin: string | null,
 }
 
 interface PetrovDayLaunchsDefaultFragment { // fragment on PetrovDayLaunchs
@@ -3706,6 +3756,7 @@ interface SpotlightMinimumInfo { // fragment on Spotlights
 
 interface SpotlightReviewWinner extends SpotlightMinimumInfo { // fragment on Spotlights
   readonly description: SpotlightReviewWinner_description|null,
+  readonly sequenceChapters: Array<ChaptersFragment>,
 }
 
 interface SpotlightReviewWinner_description { // fragment on Revisions
@@ -3732,6 +3783,7 @@ interface SpotlightDisplay_document { // fragment on Posts
   readonly title: string,
   readonly slug: string,
   readonly user: SpotlightDisplay_document_user|null,
+  readonly reviews: Array<CommentsList>,
 }
 
 interface SpotlightDisplay_document_user { // fragment on Users
@@ -3844,6 +3896,50 @@ interface SideCommentCacheMinimumInfo { // fragment on SideCommentCaches
   readonly commentsByBlock: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly version: number,
   readonly createdAt: Date,
+}
+
+interface MultiDocumentsDefaultFragment { // fragment on MultiDocuments
+  readonly title: string | null,
+  readonly slug: string,
+  readonly oldSlugs: Array<string>,
+  readonly preview: string | null,
+  readonly tabTitle: string,
+  readonly tabSubtitle: string | null,
+  readonly userId: string,
+  readonly parentDocumentId: string,
+  readonly collectionName: string,
+  readonly fieldName: string,
+  readonly index: number,
+  readonly tableOfContents: any /*{"definitions":[{}]}*/,
+  readonly contributors: any /*MultiDocumentContributorsList*/,
+  readonly contributionStats: any /*{"definitions":[{"blackbox":true}]}*/,
+}
+
+interface MultiDocumentEdit { // fragment on MultiDocuments
+  readonly _id: string,
+  readonly parentDocumentId: string,
+  readonly collectionName: string,
+  readonly fieldName: string,
+  readonly userId: string,
+  readonly slug: string,
+  readonly oldSlugs: Array<string>,
+  readonly title: string | null,
+  readonly tabTitle: string,
+  readonly tabSubtitle: string | null,
+  readonly preview: string | null,
+  readonly index: number,
+  readonly tableOfContents: any /*{"definitions":[{}]}*/,
+  readonly contents: RevisionEdit|null,
+  readonly arbitalLinkedPages: ArbitalLinkedPagesFragment,
+  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
+}
+
+interface MultiDocumentParentDocument extends MultiDocumentEdit { // fragment on MultiDocuments
+  readonly parentTag: TagBasicInfo|null,
+}
+
+interface MultiDocumentWithContributors extends MultiDocumentEdit { // fragment on MultiDocuments
+  readonly contributors: any,
 }
 
 interface ElectionCandidateBasicInfo { // fragment on ElectionCandidates
@@ -4014,6 +4110,16 @@ interface CkEditorUserSessionInfo { // fragment on CkEditorUserSessions
   readonly documentId: string,
   readonly endedAt: Date,
   readonly endedBy: string,
+}
+
+interface ArbitalTagContentRelsDefaultFragment { // fragment on ArbitalTagContentRels
+  readonly parentDocumentId: string,
+  readonly childDocumentId: string,
+  readonly parentCollectionName: "Tags" | "MultiDocuments",
+  readonly childCollectionName: "Tags" | "MultiDocuments",
+  readonly type: "parent-taught-by-child" | "parent-is-requirement-of-child" | "parent-is-tag-of-child" | "parent-is-parent-of-child",
+  readonly level: number,
+  readonly isStrong: boolean,
 }
 
 interface ReviewWinnerEditDisplay { // fragment on ReviewWinners
@@ -4189,34 +4295,6 @@ interface LlmMessagesFragment { // fragment on LlmMessages
   readonly createdAt: Date,
 }
 
-interface MultiDocumentsDefaultFragment { // fragment on MultiDocuments
-  readonly title: string | null,
-  readonly preview: string | null,
-  readonly tabTitle: string,
-  readonly tabSubtitle: string | null,
-  readonly userId: string,
-  readonly parentDocumentId: string,
-  readonly collectionName: string,
-  readonly fieldName: string,
-  readonly index: number,
-  readonly tableOfContents: any /*{"definitions":[{}]}*/,
-}
-
-interface MultiDocumentEdit { // fragment on MultiDocuments
-  readonly _id: string,
-  readonly parentDocumentId: string,
-  readonly collectionName: string,
-  readonly fieldName: string,
-  readonly userId: string,
-  readonly title: string | null,
-  readonly tabTitle: string,
-  readonly tabSubtitle: string | null,
-  readonly preview: string | null,
-  readonly index: number,
-  readonly tableOfContents: any /*{"definitions":[{}]}*/,
-  readonly contents: RevisionEdit|null,
-}
-
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
   readonly post: PostsMinimumInfo|null,
   readonly suggestForAlignmentUserIds: Array<string>,
@@ -4343,6 +4421,8 @@ interface FragmentTypes {
   PostsOriginalContents: PostsOriginalContents
   PostsHTML: PostsHTML
   PostsForAutocomplete: PostsForAutocomplete
+  PostForReviewWinnerItem: PostForReviewWinnerItem
+  PostsTwitterAdmin: PostsTwitterAdmin
   CommentsList: CommentsList
   CommentsListWithTopLevelComment: CommentsListWithTopLevelComment
   ShortformComments: ShortformComments
@@ -4430,6 +4510,7 @@ interface FragmentTypes {
   TagDetailedPreviewFragment: TagDetailedPreviewFragment
   TagWithFlagsFragment: TagWithFlagsFragment
   TagWithFlagsAndRevisionFragment: TagWithFlagsAndRevisionFragment
+  ArbitalLinkedPagesFragment: ArbitalLinkedPagesFragment
   TagPageFragment: TagPageFragment
   AllTagsPageFragment: AllTagsPageFragment
   TagPageWithRevisionFragment: TagPageWithRevisionFragment
@@ -4439,6 +4520,7 @@ interface FragmentTypes {
   SunshineTagFragment: SunshineTagFragment
   UserOnboardingTag: UserOnboardingTag
   TagName: TagName
+  ExplorePageTagFragment: ExplorePageTagFragment
   AdvisorRequestsDefaultFragment: AdvisorRequestsDefaultFragment
   AdvisorRequestsMinimumInfo: AdvisorRequestsMinimumInfo
   UserJobAdsDefaultFragment: UserJobAdsDefaultFragment
@@ -4479,6 +4561,7 @@ interface FragmentTypes {
   UsersCrosspostInfo: UsersCrosspostInfo
   UsersOptedInToDialogueFacilitation: UsersOptedInToDialogueFacilitation
   UserOnboardingAuthor: UserOnboardingAuthor
+  UsersSocialMediaInfo: UsersSocialMediaInfo
   PetrovDayLaunchsDefaultFragment: PetrovDayLaunchsDefaultFragment
   PetrovDayLaunchInfo: PetrovDayLaunchInfo
   PetrovDayActionsDefaultFragment: PetrovDayActionsDefaultFragment
@@ -4506,6 +4589,10 @@ interface FragmentTypes {
   UserRateLimitsDefaultFragment: UserRateLimitsDefaultFragment
   UserRateLimitDisplay: UserRateLimitDisplay
   SideCommentCacheMinimumInfo: SideCommentCacheMinimumInfo
+  MultiDocumentsDefaultFragment: MultiDocumentsDefaultFragment
+  MultiDocumentEdit: MultiDocumentEdit
+  MultiDocumentParentDocument: MultiDocumentParentDocument
+  MultiDocumentWithContributors: MultiDocumentWithContributors
   ElectionCandidateBasicInfo: ElectionCandidateBasicInfo
   ElectionCandidateSimple: ElectionCandidateSimple
   WithVoteElectionCandidate: WithVoteElectionCandidate
@@ -4522,6 +4609,7 @@ interface FragmentTypes {
   DialogueMatchPreferenceInfo: DialogueMatchPreferenceInfo
   CkEditorUserSessionsDefaultFragment: CkEditorUserSessionsDefaultFragment
   CkEditorUserSessionInfo: CkEditorUserSessionInfo
+  ArbitalTagContentRelsDefaultFragment: ArbitalTagContentRelsDefaultFragment
   ReviewWinnerEditDisplay: ReviewWinnerEditDisplay
   ReviewWinnerTopPostsDisplay: ReviewWinnerTopPostsDisplay
   ReviewWinnerAll: ReviewWinnerAll
@@ -4541,8 +4629,6 @@ interface FragmentTypes {
   LlmConversationsWithMessagesFragment: LlmConversationsWithMessagesFragment
   LlmMessagesDefaultFragment: LlmMessagesDefaultFragment
   LlmMessagesFragment: LlmMessagesFragment
-  MultiDocumentsDefaultFragment: MultiDocumentsDefaultFragment
-  MultiDocumentEdit: MultiDocumentEdit
   SuggestAlignmentComment: SuggestAlignmentComment
   SubscribedPostAndCommentsFeed: SubscribedPostAndCommentsFeed
   JargonTerms: JargonTerms
@@ -4554,10 +4640,10 @@ interface FragmentTypesByCollection {
   Collections: "CollectionsDefaultFragment"|"CollectionContinueReadingFragment"|"CollectionsPageFragment"|"CollectionsEditFragment"|"CollectionsBestOfFragment"
   ClientIds: "ClientIdsDefaultFragment"|"ModeratorClientIDInfo"
   Localgroups: "LocalgroupsDefaultFragment"|"localGroupsBase"|"localGroupsHomeFragment"|"localGroupsEdit"|"localGroupsIsOnline"
-  Users: "UsersDefaultFragment"|"SuggestAlignmentUser"|"UsersMinimumInfo"|"UsersProfile"|"UsersCurrent"|"UsersCurrentCommentRateLimit"|"UsersCurrentPostRateLimit"|"UserBookmarkedPosts"|"UserKarmaChanges"|"UsersBannedFromUsersModerationLog"|"SunshineUsersList"|"UserAltAccountsFragment"|"SharedUserBooleans"|"UsersMapEntry"|"UsersEdit"|"UsersAdmin"|"UsersWithReviewInfo"|"UsersProfileEdit"|"UsersCrosspostInfo"|"UsersOptedInToDialogueFacilitation"|"UserOnboardingAuthor"
+  Users: "UsersDefaultFragment"|"SuggestAlignmentUser"|"UsersMinimumInfo"|"UsersProfile"|"UsersCurrent"|"UsersCurrentCommentRateLimit"|"UsersCurrentPostRateLimit"|"UserBookmarkedPosts"|"UserKarmaChanges"|"UsersBannedFromUsersModerationLog"|"SunshineUsersList"|"UserAltAccountsFragment"|"SharedUserBooleans"|"UsersMapEntry"|"UsersEdit"|"UsersAdmin"|"UsersWithReviewInfo"|"UsersProfileEdit"|"UsersCrosspostInfo"|"UsersOptedInToDialogueFacilitation"|"UserOnboardingAuthor"|"UsersSocialMediaInfo"
   Comments: "CommentsDefaultFragment"|"CommentsList"|"CommentsListWithTopLevelComment"|"ShortformComments"|"CommentWithRepliesFragment"|"CommentEdit"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"CommentsListWithParentMetadata"|"StickySubforumCommentFragment"|"WithVoteComment"|"CommentsListWithModerationMetadata"|"CommentsListWithModGPTAnalysis"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"SuggestAlignmentComment"
   UserTagRels: "UserTagRelsDefaultFragment"|"UserTagRelDetails"
-  Tags: "TagsDefaultFragment"|"TagBasicInfo"|"TagDetailsFragment"|"TagFragment"|"TagHistoryFragment"|"TagCreationHistoryFragment"|"TagRevisionFragment"|"TagPreviewFragment"|"TagSectionPreviewFragment"|"TagSubforumFragment"|"TagSubtagFragment"|"TagSubforumSidebarFragment"|"TagDetailedPreviewFragment"|"TagWithFlagsFragment"|"TagWithFlagsAndRevisionFragment"|"TagPageFragment"|"AllTagsPageFragment"|"TagPageWithRevisionFragment"|"TagFullContributorsList"|"TagEditFragment"|"TagRecentDiscussion"|"SunshineTagFragment"|"UserOnboardingTag"|"TagName"
+  Tags: "TagsDefaultFragment"|"TagBasicInfo"|"TagDetailsFragment"|"TagFragment"|"TagHistoryFragment"|"TagCreationHistoryFragment"|"TagRevisionFragment"|"TagPreviewFragment"|"TagSectionPreviewFragment"|"TagSubforumFragment"|"TagSubtagFragment"|"TagSubforumSidebarFragment"|"TagDetailedPreviewFragment"|"TagWithFlagsFragment"|"TagWithFlagsAndRevisionFragment"|"TagPageFragment"|"AllTagsPageFragment"|"TagPageWithRevisionFragment"|"TagFullContributorsList"|"TagEditFragment"|"TagRecentDiscussion"|"SunshineTagFragment"|"UserOnboardingTag"|"TagName"|"ExplorePageTagFragment"
   Conversations: "ConversationsDefaultFragment"|"ConversationsMinimumInfo"|"ConversationsList"|"ConversationsListWithReadStatus"
   CurationEmails: "CurationEmailsDefaultFragment"
   ElectionCandidates: "ElectionCandidatesDefaultFragment"|"ElectionCandidateBasicInfo"|"ElectionCandidateSimple"|"WithVoteElectionCandidate"
@@ -4573,7 +4659,7 @@ interface FragmentTypesByCollection {
   Revisions: "RevisionsDefaultFragment"|"RevisionDisplay"|"RevisionHTML"|"RevisionEdit"|"RevisionMetadata"|"RevisionMetadataWithChangeMetrics"|"RevisionHistoryEntry"|"RevisionTagFragment"|"RecentDiscussionRevisionTagFragment"|"WithVoteRevision"
   PostEmbeddings: "PostEmbeddingsDefaultFragment"
   PostRecommendations: "PostRecommendationsDefaultFragment"
-  Posts: "PostsDefaultFragment"|"PostsMinimumInfo"|"PostsTopItemInfo"|"PostsBase"|"PostsWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsReviewVotingList"|"PostsModerationGuidelines"|"PostsAuthors"|"PostsListBase"|"PostsList"|"PostsListTag"|"PostsListTagWithVotes"|"PostsDetails"|"PostsExpandedHighlight"|"PostsPlaintextDescription"|"PostsRevision"|"PostsRevisionEdit"|"PostsWithNavigationAndRevision"|"PostsWithNavigation"|"PostSequenceNavigation"|"PostsPage"|"PostsEdit"|"PostsEditQueryFragment"|"PostsEditMutationFragment"|"PostsRevisionsList"|"PostsRecentDiscussion"|"ShortformRecentDiscussion"|"UsersBannedFromPostsModerationLog"|"SunshinePostsList"|"WithVotePost"|"HighlightWithHash"|"PostWithDialogueMessage"|"PostSideComments"|"PostWithGeneratedSummary"|"PostsBestOfList"|"PostsRSSFeed"|"PostsOriginalContents"|"PostsHTML"|"PostsForAutocomplete"|"SuggestAlignmentPost"
+  Posts: "PostsDefaultFragment"|"PostsMinimumInfo"|"PostsTopItemInfo"|"PostsBase"|"PostsWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsReviewVotingList"|"PostsModerationGuidelines"|"PostsAuthors"|"PostsListBase"|"PostsList"|"PostsListTag"|"PostsListTagWithVotes"|"PostsDetails"|"PostsExpandedHighlight"|"PostsPlaintextDescription"|"PostsRevision"|"PostsRevisionEdit"|"PostsWithNavigationAndRevision"|"PostsWithNavigation"|"PostSequenceNavigation"|"PostsPage"|"PostsEdit"|"PostsEditQueryFragment"|"PostsEditMutationFragment"|"PostsRevisionsList"|"PostsRecentDiscussion"|"ShortformRecentDiscussion"|"UsersBannedFromPostsModerationLog"|"SunshinePostsList"|"WithVotePost"|"HighlightWithHash"|"PostWithDialogueMessage"|"PostSideComments"|"PostWithGeneratedSummary"|"PostsBestOfList"|"PostsRSSFeed"|"PostsOriginalContents"|"PostsHTML"|"PostsForAutocomplete"|"PostForReviewWinnerItem"|"PostsTwitterAdmin"|"SuggestAlignmentPost"
   RecommendationsCaches: "RecommendationsCachesDefaultFragment"
   ReviewWinners: "ReviewWinnersDefaultFragment"|"ReviewWinnerEditDisplay"|"ReviewWinnerTopPostsDisplay"|"ReviewWinnerAll"|"ReviewWinnerTopPostsPage"
   ReviewWinnerArts: "ReviewWinnerArtsDefaultFragment"|"ReviewWinnerArtImages"
@@ -4595,6 +4681,7 @@ interface FragmentTypesByCollection {
   Bans: "BansDefaultFragment"|"BansAdminPageFragment"
   Chapters: "ChaptersDefaultFragment"|"ChaptersFragment"|"ChaptersEdit"
   ReviewVotes: "ReviewVotesDefaultFragment"|"reviewVoteFragment"|"reviewVoteWithUserAndPost"
+  ArbitalLinkedPageses: "ArbitalLinkedPagesFragment"
   AdvisorRequests: "AdvisorRequestsDefaultFragment"|"AdvisorRequestsMinimumInfo"
   UserJobAds: "UserJobAdsDefaultFragment"|"UserJobAdsMinimumInfo"
   UserEAGDetails: "UserEAGDetailsDefaultFragment"|"UserEAGDetailsMinimumInfo"
@@ -4613,16 +4700,17 @@ interface FragmentTypesByCollection {
   ModerationTemplates: "ModerationTemplatesDefaultFragment"|"ModerationTemplateFragment"
   CurationNotices: "CurationNoticesDefaultFragment"|"CurationNoticesFragment"
   UserRateLimits: "UserRateLimitsDefaultFragment"|"UserRateLimitDisplay"
+  MultiDocuments: "MultiDocumentsDefaultFragment"|"MultiDocumentEdit"|"MultiDocumentParentDocument"|"MultiDocumentWithContributors"
   ElicitQuestions: "ElicitQuestionsDefaultFragment"
   ElicitQuestionPredictions: "ElicitQuestionPredictionsDefaultFragment"
   DialogueChecks: "DialogueChecksDefaultFragment"|"DialogueCheckInfo"
   DialogueMatchPreferences: "DialogueMatchPreferencesDefaultFragment"|"DialogueMatchPreferenceInfo"
   CkEditorUserSessions: "CkEditorUserSessionsDefaultFragment"|"CkEditorUserSessionInfo"
+  ArbitalTagContentRels: "ArbitalTagContentRelsDefaultFragment"
   SurveyQuestions: "SurveyQuestionsDefaultFragment"|"SurveyQuestionMinimumInfo"
   SurveyResponses: "SurveyResponsesDefaultFragment"|"SurveyResponseMinimumInfo"
   LlmConversations: "LlmConversationsDefaultFragment"|"LlmConversationsFragment"|"LlmConversationsViewingPageFragment"|"LlmConversationsWithMessagesFragment"
   LlmMessages: "LlmMessagesDefaultFragment"|"LlmMessagesFragment"
-  MultiDocuments: "MultiDocumentsDefaultFragment"|"MultiDocumentEdit"
   SubscribedPostAndCommentses: "SubscribedPostAndCommentsFeed"
 }
 
@@ -4708,6 +4796,8 @@ interface CollectionNamesByFragmentName {
   PostsOriginalContents: "Posts"
   PostsHTML: "Posts"
   PostsForAutocomplete: "Posts"
+  PostForReviewWinnerItem: "Posts"
+  PostsTwitterAdmin: "Posts"
   CommentsList: "Comments"
   CommentsListWithTopLevelComment: "Comments"
   ShortformComments: "Comments"
@@ -4795,6 +4885,7 @@ interface CollectionNamesByFragmentName {
   TagDetailedPreviewFragment: "Tags"
   TagWithFlagsFragment: "Tags"
   TagWithFlagsAndRevisionFragment: "Tags"
+  ArbitalLinkedPagesFragment: never
   TagPageFragment: "Tags"
   AllTagsPageFragment: "Tags"
   TagPageWithRevisionFragment: "Tags"
@@ -4804,6 +4895,7 @@ interface CollectionNamesByFragmentName {
   SunshineTagFragment: "Tags"
   UserOnboardingTag: "Tags"
   TagName: "Tags"
+  ExplorePageTagFragment: "Tags"
   AdvisorRequestsDefaultFragment: "AdvisorRequests"
   AdvisorRequestsMinimumInfo: "AdvisorRequests"
   UserJobAdsDefaultFragment: "UserJobAds"
@@ -4844,6 +4936,7 @@ interface CollectionNamesByFragmentName {
   UsersCrosspostInfo: "Users"
   UsersOptedInToDialogueFacilitation: "Users"
   UserOnboardingAuthor: "Users"
+  UsersSocialMediaInfo: "Users"
   PetrovDayLaunchsDefaultFragment: "PetrovDayLaunchs"
   PetrovDayLaunchInfo: "PetrovDayLaunchs"
   PetrovDayActionsDefaultFragment: "PetrovDayActions"
@@ -4871,6 +4964,10 @@ interface CollectionNamesByFragmentName {
   UserRateLimitsDefaultFragment: "UserRateLimits"
   UserRateLimitDisplay: "UserRateLimits"
   SideCommentCacheMinimumInfo: "SideCommentCaches"
+  MultiDocumentsDefaultFragment: "MultiDocuments"
+  MultiDocumentEdit: "MultiDocuments"
+  MultiDocumentParentDocument: "MultiDocuments"
+  MultiDocumentWithContributors: "MultiDocuments"
   ElectionCandidateBasicInfo: "ElectionCandidates"
   ElectionCandidateSimple: "ElectionCandidates"
   WithVoteElectionCandidate: "ElectionCandidates"
@@ -4887,6 +4984,7 @@ interface CollectionNamesByFragmentName {
   DialogueMatchPreferenceInfo: "DialogueMatchPreferences"
   CkEditorUserSessionsDefaultFragment: "CkEditorUserSessions"
   CkEditorUserSessionInfo: "CkEditorUserSessions"
+  ArbitalTagContentRelsDefaultFragment: "ArbitalTagContentRels"
   ReviewWinnerEditDisplay: "ReviewWinners"
   ReviewWinnerTopPostsDisplay: "ReviewWinners"
   ReviewWinnerAll: "ReviewWinners"
@@ -4906,8 +5004,6 @@ interface CollectionNamesByFragmentName {
   LlmConversationsWithMessagesFragment: "LlmConversations"
   LlmMessagesDefaultFragment: "LlmMessages"
   LlmMessagesFragment: "LlmMessages"
-  MultiDocumentsDefaultFragment: "MultiDocuments"
-  MultiDocumentEdit: "MultiDocuments"
   SuggestAlignmentComment: "Comments"
   SubscribedPostAndCommentsFeed: never
   JargonTerms: "JargonTerms"
@@ -4915,9 +5011,9 @@ interface CollectionNamesByFragmentName {
   JargonTermsWithPostInfo: "JargonTerms"
 }
 
-type CollectionNameString = "AdvisorRequests"|"ArbitalCaches"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"JargonTerms"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PageCache"|"PetrovDayActions"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Sessions"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"SurveyQuestions"|"SurveyResponses"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameString = "AdvisorRequests"|"ArbitalCaches"|"ArbitalTagContentRels"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"JargonTerms"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PageCache"|"PetrovDayActions"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Sessions"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"SurveyQuestions"|"SurveyResponses"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
 
-type CollectionNameWithCreatedAt = "AdvisorRequests"|"ArbitalCaches"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"JargonTerms"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PageCache"|"PetrovDayActions"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"SurveyQuestions"|"SurveyResponses"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameWithCreatedAt = "AdvisorRequests"|"ArbitalCaches"|"ArbitalTagContentRels"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"JargonTerms"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PageCache"|"PetrovDayActions"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"SurveyQuestions"|"SurveyResponses"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
 
-type CollectionNameWithSlug = "Collections"|"GardenCodes"|"Posts"|"TagFlags"|"Tags"|"Users"
+type CollectionNameWithSlug = "Collections"|"GardenCodes"|"MultiDocuments"|"Posts"|"TagFlags"|"Tags"|"Users"
 

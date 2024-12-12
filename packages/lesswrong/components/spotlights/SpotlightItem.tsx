@@ -48,6 +48,7 @@ const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: 12,
     boxShadow: theme.palette.boxShadow.default,
+    overflow: "hidden", // prevent background image from overflowing if we get styling mismatches in the future, since it depends on the exact height of the review SingleLineComment
     // TODO these were added to fix an urgent bug, hence the forum gating. Maybe they could be un-gated
     ...(isFriendlyUI && {
       maxWidth: SECTION_WIDTH,
@@ -62,7 +63,6 @@ const styles = (theme: ThemeType) => ({
   spotlightItem: {
     position: "relative",
     borderRadius: theme.borderRadius.default,
-    background: theme.palette.panelBackground.default,
     '&:hover': {
       boxShadow: theme.palette.boxShadow.sequencesGridItemHover,
     },
@@ -71,7 +71,12 @@ const styles = (theme: ThemeType) => ({
     },
     '&:hover $closeButton': {
       color: theme.palette.grey[100],
+      background: theme.palette.panelBackground.default,
     }
+  },
+  contentContainer: {
+    position: "relative",
+    background: theme.palette.panelBackground.default,
   },
   spotlightFadeBackground: {
     background: "var(--spotlight-fade)",
@@ -335,10 +340,43 @@ const styles = (theme: ThemeType) => ({
     width: "100%",
     height: "100%",
     overflow: "hidden",
+    [theme.breakpoints.down('xs')]: {
+      height: "100% !important",
+    }
   },
   reverseIcon: {
     transform: "rotate(180deg)",
   },
+  reviews: {
+    width: "100%",
+    maxWidth: SECTION_WIDTH,
+    borderTop: theme.palette.border.extraFaint,
+    background: theme.palette.panelBackground.default,
+    [theme.breakpoints.down('xs')]: {
+      display: "none",
+    }
+  },
+  review: {
+    '&& .CommentFrame-node': {
+      border: "none",
+      margin: 0,
+    },
+    '& .SingleLineComment-commentInfo': {
+      paddingLeft: 13,
+      backgroundColor: theme.palette.background.translucentBackgroundHeavy,
+      borderRadius: 0
+    },
+    '& .CommentsItem-root': {
+      borderBottom: theme.palette.border.extraFaint,
+      backgroundColor: theme.palette.background.pageActiveAreaBackground,
+      '&:last-child': {
+        borderTop: theme.palette.border.extraFaint,
+      }
+    },
+    '& .comments-node-root': {
+      backgroundColor: 'unset',
+    },
+  }
 });
 
 export const SpotlightItem = ({
@@ -350,6 +388,7 @@ export const SpotlightItem = ({
   isDraftProcessing,
   className,
   classes,
+  children,
 }: {
   spotlight: SpotlightDisplay,
   showAdminInfo?: boolean,
@@ -360,6 +399,7 @@ export const SpotlightItem = ({
   isDraftProcessing?: boolean,
   className?: string,
   classes: ClassesType<typeof styles>,
+  children?: React.ReactNode,
 }) => {
   const currentUser = useCurrentUser()
 
@@ -425,7 +465,7 @@ export const SpotlightItem = ({
   const {
     MetaInfo, FormatDate, AnalyticsTracker, ContentItemBody, CloudinaryImage2,
     WrappedSmartForm, SpotlightEditorStyles, SpotlightStartOrContinueReading,
-    Typography, LWTooltip, ForumIcon,
+    Typography, LWTooltip, ForumIcon, CommentsNode
   } = Components
 
   const subtitleComponent = spotlight.subtitleUrl ? <Link to={spotlight.subtitleUrl}>{spotlight.customSubtitle}</Link> : spotlight.customSubtitle
@@ -439,57 +479,64 @@ export const SpotlightItem = ({
       <div className={classNames(classes.spotlightItem, {
         [classes.spotlightFadeBackground]: !!spotlight.imageFadeColor,
       })}>
-        <div className={classNames(classes.content, {[classes.postPadding]: spotlight.documentType === "Post"})}>
-          <div className={classes.title}>
-            <Link to={url}>
-              {spotlight.customTitle ?? spotlight.document.title}
-            </Link>
-            <span className={classes.editDescriptionButton}>
-              {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
-                <EditIcon className={classes.adminButtonIcon} onClick={() => setEditDescription(!editDescription)}/>
-              </LWTooltip>}
-            </span>
-          </div>
-          {spotlight.customSubtitle && showSubtitle && <div className={classes.subtitle}>
-            {subtitleComponent}
-          </div>}
-          {(spotlight.description?.html || isBookUI) && <div className={classes.description}>
-            {editDescription ? 
-              <div className={classes.editDescription}>
-                <WrappedSmartForm
-                  collectionName="Spotlights"
-                  fields={['description']}
-                  documentId={spotlight._id}
-                  mutationFragment={getFragment('SpotlightEditQueryFragment')}
-                  queryFragment={getFragment('SpotlightEditQueryFragment')}
-                  successCallback={() => { setEditDescription(false); void handleUndraftSpotlight() }}
+        <div className={classes.contentContainer}>
+          <div className={classNames(classes.content, {[classes.postPadding]: spotlight.documentType === "Post"})}>
+            <div className={classes.title}>
+              <Link to={url}>
+                {spotlight.customTitle ?? spotlight.document.title}
+              </Link>
+              <span className={classes.editDescriptionButton}>
+                {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
+                  <EditIcon className={classes.adminButtonIcon} onClick={() => setEditDescription(!editDescription)}/>
+                </LWTooltip>}
+              </span>
+            </div>
+            {spotlight.customSubtitle && showSubtitle && <div className={classes.subtitle}>
+              {subtitleComponent}
+            </div>}
+            {(spotlight.description?.html || isBookUI) && <div className={classes.description}>
+              {editDescription ? 
+                <div className={classes.editDescription}>
+                  <WrappedSmartForm
+                    collectionName="Spotlights"
+                    fields={['description']}
+                    documentId={spotlight._id}
+                    mutationFragment={getFragment('SpotlightEditQueryFragment')}
+                    queryFragment={getFragment('SpotlightEditQueryFragment')}
+                    successCallback={() => { setEditDescription(false); void handleUndraftSpotlight() }}
+                  />
+                </div>
+                :
+                <ContentItemBody
+                  dangerouslySetInnerHTML={{__html: spotlight.description?.html ?? ''}}
+                  description={`${spotlight.documentType} ${spotlight.document._id}`}
                 />
-              </div>
-              :
-              <ContentItemBody
-                dangerouslySetInnerHTML={{__html: spotlight.description?.html ?? ''}}
-                description={`${spotlight.documentType} ${spotlight.document._id}`}
-              />
-            }
+              }
+            </div>}
+            {spotlight.showAuthor && spotlight.document.user && <Typography variant='body2' className={classes.author}>
+              by <Link className={classes.authorName} to={userGetProfileUrlFromSlug(spotlight.document.user.slug)}>{spotlight.document.user.displayName}</Link>
+            </Typography>}
+            <SpotlightStartOrContinueReading spotlight={spotlight} className={classes.startOrContinue} />
+          </div>
+          {spotlight.spotlightSplashImageUrl && <div className={classes.splashImageContainer} style={{height: `calc(100% + ${(spotlight.document?.reviews?.length ?? 0) * 30}px)`}}>
+            <img src={spotlight.spotlightSplashImageUrl} className={classNames(classes.image, classes.imageFade, classes.splashImage)}/>
           </div>}
-          {spotlight.showAuthor && spotlight.document.user && <Typography variant='body2' className={classes.author}>
-            by <Link className={classes.authorName} to={userGetProfileUrlFromSlug(spotlight.document.user.slug)}>{spotlight.document.user.displayName}</Link>
-          </Typography>}
-          <SpotlightStartOrContinueReading spotlight={spotlight} className={classes.startOrContinue} />
+          {spotlight.spotlightImageId && <CloudinaryImage2
+            publicId={spotlight.spotlightImageId}
+            darkPublicId={spotlight.spotlightDarkImageId}
+            className={classNames(classes.image, {
+              [classes.imageFade]: spotlight.imageFade && !spotlight.imageFadeColor,
+              [classes.imageFadeCustom]: spotlight.imageFade && spotlight.imageFadeColor,
+            })}
+            imgProps={{w: "500"}}
+            loading="lazy"
+          />}
         </div>
-        {spotlight.spotlightSplashImageUrl && <div className={classes.splashImageContainer}>
-          <img src={spotlight.spotlightSplashImageUrl} className={classNames(classes.image, classes.imageFade, classes.splashImage)}/>
-        </div>}
-        {spotlight.spotlightImageId && <CloudinaryImage2
-          publicId={spotlight.spotlightImageId}
-          darkPublicId={spotlight.spotlightDarkImageId}
-          className={classNames(classes.image, {
-            [classes.imageFade]: spotlight.imageFade && !spotlight.imageFadeColor,
-            [classes.imageFadeCustom]: spotlight.imageFade && spotlight.imageFadeColor,
-          })}
-          imgProps={{w: "500"}}
-          loading="lazy"
-        />}
+        <div className={classes.reviews}>
+          {spotlight.document?.reviews?.map(review => <div key={review._id} className={classes.review}>
+            <CommentsNode comment={review} treeOptions={{singleLineCollapse: true, forceSingleLine: true, hideSingleLineMeta: true}} nestingLevel={1}/>
+          </div>)}
+        </div>
         {hideBanner && (
           isFriendlyUI
             ? (

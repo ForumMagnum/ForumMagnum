@@ -170,6 +170,16 @@ const youtubePreviewStyles = (theme: ThemeType): JssStyles => ({
   }
 })
 
+const lwartifactsPreviewStyles = (theme: ThemeType): JssStyles => ({
+  '& figure.media div[data-oembed-url*="lwartifacts.vercel.app"]': {
+    '& iframe': {
+      width: '100%',
+      height: 525,
+      border: 'none'
+    }
+  }
+})
+
 const tableStyles = (theme: ThemeType): JssStyles => ({
   borderCollapse: "collapse",
   borderSpacing: 0,
@@ -335,9 +345,17 @@ const collapsibleSectionStyles = (theme: ThemeType): JssStyles => ({
   }
 });
 
+const conditionallyVisibleBlockStyles = (theme: ThemeType): JssStyles => ({
+  "& .conditionallyVisibleBlock": {
+    border: theme.palette.border.normal,
+    borderRadius: 4,
+    padding: 8,
+  },
+});
+
 // Calling requireCssVar results in the variable being defined in the stylesheet
 // (e.g. --palette-fonts-sansSerifStack). These are required for use in styles that
-// are within the ckeditor bundle (in public/lesswrong-editor/src/ckeditor5-cta-button/ctaform.css)
+// are within the ckeditor bundle (in ckEditor/src/ckeditor5-cta-button/ctaform.css)
 requireCssVar("palette", "fonts", "sansSerifStack")
 requireCssVar("palette", "panelBackground", "default")
 requireCssVar("palette", "error", "main")
@@ -533,8 +551,10 @@ export const postBodyStyles = (theme: ThemeType): JssStyles => {
     ...estimakerPreviewStyles(theme),
     ...viewpointsPreviewStyles(theme),
     ...youtubePreviewStyles(theme),
+    ...lwartifactsPreviewStyles(theme),
     ...footnoteStyles(theme),
     ...collapsibleSectionStyles(theme),
+    ...conditionallyVisibleBlockStyles(theme),
     ...ctaButtonStyles(theme),
     // Used for R:A-Z imports as well as markdown-it-footnotes
     '& .footnotes': {

@@ -44,7 +44,7 @@ export type Route = {
   subtitleLink?: string,
   subtitleComponentName?: keyof ComponentTypes,
   description?: string,
-  redirect?: (location: RouterLocation) => string,
+  redirect?: (location: RouterLocation) => string | null,
   getPingback?: (parsedUrl: RouterLocation) => Promise<PingbackDocument|null> | PingbackDocument|null,
   previewComponentName?: keyof ComponentTypes,
   _id?: string|null,

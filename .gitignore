@@ -77,6 +77,7 @@ build*
 !buildUtil.js
 yarn-error.log
 public/lesswrong-editor/obj
+ckEditor/obj
 
 # Created by @shelf/jest-mongodb
 globalConfig.json

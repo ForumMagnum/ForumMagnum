@@ -7,6 +7,8 @@ registerFragment(`
     collectionName
     fieldName
     userId
+    slug
+    oldSlugs
     title
     tabTitle
     tabSubtitle
@@ -15,6 +17,34 @@ registerFragment(`
     tableOfContents
     contents {
       ...RevisionEdit
+    }
+    arbitalLinkedPages {
+      ...ArbitalLinkedPagesFragment
+    }
+    legacyData
+  }
+`);
+
+registerFragment(`
+  fragment MultiDocumentParentDocument on MultiDocument {
+    ...MultiDocumentEdit
+    parentTag {
+      ...TagBasicInfo
+    }
+  }
+`);
+
+registerFragment(`
+  fragment MultiDocumentWithContributors on MultiDocument {
+    ...MultiDocumentEdit
+    contributors(limit: $contributorsLimit, version: $version) {
+      totalCount
+      contributors {
+        user {
+          ...UsersMinimumInfo
+        }
+        contributionVolume
+      }
     }
   }
 `);

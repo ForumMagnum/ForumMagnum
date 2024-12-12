@@ -1,5 +1,5 @@
 /**
- * Usage: yarn migrate up|down|pending|executed [dev|staging|prod] [forumType]
+ * Usage: yarn migrate up|down|pending|executed [dev|local|staging|prod] [forumType]
  *
  * If no environment is specified, you can use the environment variables PG_URL
  * and SETTINGS_FILE
@@ -108,15 +108,18 @@ const settingsFileName = (mode: string, forumType: ForumType) => {
   if (forumType === 'lw') {
     if (mode === 'prod') {
       return 'settings-production-lesswrong.json';
+    } else if (mode === 'local') {
+      return 'settings-local-dev-localdb.json'
+    } else {
+      return 'settings-local-dev-devdb.json'
     }
-    return 'settings-local-dev-devdb.json'
   }
   return `settings-${mode}.json`;
 };
 
 (async () => {
   const command = process.argv[2];
-  if (["dev", "development", "staging", "production", "prod"].includes(command)) {
+  if (["dev", "local", "development", "staging", "production", "prod"].includes(command)) {
     console.error("Please specify the command before the mode");
     process.exit(1);
   }
@@ -147,7 +150,7 @@ const settingsFileName = (mode: string, forumType: ForumType) => {
 
   await startSshTunnel(databaseConfig(mode, forumType).sshTunnelCommand);
 
-  if (["dev", "staging", "prod", "xpost"].includes(mode)) {
+  if (["dev", "local", "staging", "prod", "xpost"].includes(mode)) {
     console.log('Running migrations in mode', mode);
     args.settingsFileName = settingsFilePath(settingsFileName(mode, forumType), forumType);
     if (command !== "create") {

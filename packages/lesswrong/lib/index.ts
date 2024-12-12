@@ -255,6 +255,11 @@ import './collections/postEmbeddings/collection';
 import './collections/sideCommentCaches/collection';
 import './collections/sideCommentCaches/fragments';
 
+// MultiDocuments
+import "./collections/multiDocuments/collection";
+import "./collections/multiDocuments/fragments";
+import "./collections/multiDocuments/views";
+
 // Internationalization
 import './i18n-en-us/en_US';
 
@@ -313,12 +318,14 @@ import './collections/dialogueMatchPreferences/views';
 import './collections/ckEditorUserSessions/collection';
 import './collections/ckEditorUserSessions/fragments';
 
-// Arbital link cache
+// Arbital
 import './collections/arbitalCache/collection';
+import './collections/arbitalTagContentRels/collection';
 
 // Review winners
 import './collections/reviewWinners/collection';
 import './collections/reviewWinners/fragments';
+import './collections/reviewWinners/views';
 
 // Review winners
 import './collections/reviewWinnerArts/collection';
@@ -353,10 +360,6 @@ import "./collections/llmConversations/fragments";
 import "./collections/llmConversations/views";
 import "./collections/llmMessages/collection";
 import "./collections/llmMessages/fragments";
-
-// MultiDocuments
-import "./collections/multiDocuments/collection";
-import "./collections/multiDocuments/fragments";
 
 // Alignment Forum
 import './alignment-forum/permissions';

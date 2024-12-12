@@ -24,6 +24,10 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { cloudinaryConfig } from '../../lib/editor/cloudinaryConfig'
 import CKEditor from '../../lib/vendor/ckeditor5-react/ckeditor';
 import { useSyncCkEditorPlaceholder } from '../hooks/useSyncCkEditorPlaceholder';
+import type { ConditionalVisibilityPluginConfiguration  } from './conditionalVisibilityBlock/conditionalVisibility';
+import { createPortal } from 'react-dom';
+import { CkEditorPortalContext } from './CKEditorPortalProvider';
+import type { CTAButtonPluginConfiguration } from './ctaButton/ctaButton';
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -366,6 +370,7 @@ const CKPostEditor = ({
   const post = (document as PostsEdit);
   const isBlockOwnershipMode = isCollaborative && post.collabEditorDialogue;
   const { EditorTopBar, DialogueEditorGuidelines, DialogueEditorFeedback } = Components;
+  const portalContext = useContext(CkEditorPortalContext);
   
   const getInitialCollaborationMode = () => {
     if (!isCollaborative || !accessLevel) return "Editing";
@@ -416,6 +421,27 @@ const CKPostEditor = ({
   }
   
   const dialogueConfiguration = { dialogueParticipantNotificationCallback }
+  
+  const conditionalVisibilityPluginConfiguration: ConditionalVisibilityPluginConfiguration = {
+    renderConditionalVisibilitySettingsInto: (element, initialState, setDocumentState) => {
+      if (portalContext) {
+        portalContext.createPortal(element, <Components.EditConditionalVisibility
+          initialState={initialState}
+          setDocumentState={setDocumentState}
+        />);
+      }
+    },
+  };
+  const ctaButtonPluginConfiguration: CTAButtonPluginConfiguration = {
+    renderCTAButtonSettingsInto: (element, initialState, setDocumentState) => {
+      if (portalContext) {
+        portalContext.createPortal(element, <Components.EditCTAButtonSettings
+          initialState={initialState}
+          setDocumentState={setDocumentState}
+        />);
+      }
+    },
+  };
 
   const {results: anyDialogue} = useMulti({
     collectionName: "Posts",
@@ -505,6 +531,8 @@ const CKPostEditor = ({
     placeholder: actualPlaceholder,
     mention: mentionPluginConfiguration,
     dialogues: dialogueConfiguration,
+    conditionalVisibility: conditionalVisibilityPluginConfiguration,
+    ctaButton: ctaButtonPluginConfiguration,
     ...cloudinaryConfig,
   };
 

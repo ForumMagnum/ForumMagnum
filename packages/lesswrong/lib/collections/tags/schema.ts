@@ -14,11 +14,13 @@ import { permissionGroups } from '../../permissions';
 import type { TagCommentType } from '../comments/types';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 import { getUnusedSlugByCollectionName, slugIsUsed } from '@/lib/helpers';
+import { arbitalLinkedPagesField } from '../helpers/arbitalLinkedPagesField';
 
 addGraphQLSchema(`
   type TagContributor {
     user: User
     contributionScore: Int!
+    contributionVolume: Int
     numCommits: Int!
     voteCount: Int!
   }
@@ -700,6 +702,15 @@ const schema: SchemaType<"Tags"> = {
     type: Object,
     optional: true,
   },
+
+  isArbitalImport: resolverOnlyField({
+    type: Boolean,
+    canRead: ['guests'],
+    resolver: (tag: DbTag) => tag.legacyData?.arbitalPageId !== undefined,
+  }),
+
+  arbitalLinkedPages: arbitalLinkedPagesField({ collectionName: 'Tags' }),
+  
 }
 
 export default schema;

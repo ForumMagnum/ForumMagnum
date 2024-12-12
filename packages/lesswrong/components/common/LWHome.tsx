@@ -55,9 +55,9 @@ const LWHome = () => {
           {reviewIsActive() && getReviewPhase() !== "RESULTS" && showReviewOnFrontPageIfActive.get() && <SingleColumnSection>
             <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
           </SingleColumnSection>}
-          <SingleColumnSection>
+          {(!reviewIsActive() || !showReviewOnFrontPageIfActive.get()) && <SingleColumnSection>
             <DismissibleSpotlightItem current/>
-          </SingleColumnSection> 
+          </SingleColumnSection>}
           <AnalyticsInViewTracker
             eventProps={{inViewType: "homePosts"}}
             observerProps={{threshold:[0, 0.5, 1]}}

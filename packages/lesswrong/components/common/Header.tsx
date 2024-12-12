@@ -329,6 +329,7 @@ const Header = ({
     currentForumEvent?.customComponent === "GivingSeason2024Banner" &&
     (currentRoute?.name === "home" || currentRoute?.name === "posts.single");
   const {events, selectedEvent, currentEvent} = useGivingSeasonEvents();
+  const isVotingPortal = currentRoute?.name === "VotingPortal";
 
   const {
     SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
@@ -547,7 +548,7 @@ const Header = ({
           })}
           onUnfix={() => setUnFixed(true)}
           onUnpin={() => setUnFixed(false)}
-          disable={stayAtTop}
+          disable={stayAtTop || isVotingPortal}
         >
           <header
             className={classNames(

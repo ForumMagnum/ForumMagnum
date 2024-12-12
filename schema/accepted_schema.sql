@@ -55,6 +55,24 @@ CREATE INDEX IF NOT EXISTS "idx_ArbitalCaches_pageAlias" ON "ArbitalCaches" USIN
 -- Index "idx_ArbitalCaches_fetchedAt"
 CREATE INDEX IF NOT EXISTS "idx_ArbitalCaches_fetchedAt" ON "ArbitalCaches" USING btree ("fetchedAt");
 
+-- Table "ArbitalTagContentRels"
+CREATE TABLE "ArbitalTagContentRels" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "parentDocumentId" TEXT NOT NULL,
+  "childDocumentId" TEXT NOT NULL,
+  "parentCollectionName" TEXT NOT NULL,
+  "childCollectionName" TEXT NOT NULL,
+  "type" TEXT NOT NULL,
+  "level" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "isStrong" BOOL NOT NULL DEFAULT FALSE,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);
+
+-- Index "idx_ArbitalTagContentRels_schemaVersion"
+CREATE INDEX IF NOT EXISTS "idx_ArbitalTagContentRels_schemaVersion" ON "ArbitalTagContentRels" USING btree ("schemaVersion");
+
 -- Table "Bans"
 CREATE TABLE "Bans" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -1245,14 +1263,17 @@ CREATE INDEX IF NOT EXISTS "idx_ModeratorActions_type_createdAt_endedAt" ON "Mod
 CREATE TABLE "MultiDocuments" (
   _id VARCHAR(27) PRIMARY KEY,
   "title" TEXT,
+  "slug" TEXT NOT NULL,
+  "oldSlugs" TEXT[] NOT NULL DEFAULT '{}',
   "preview" TEXT,
-  "tabTitle" TEXT,
+  "tabTitle" TEXT NOT NULL,
   "tabSubtitle" TEXT,
-  "userId" TEXT,
-  "parentDocumentId" TEXT,
-  "collectionName" TEXT,
-  "fieldName" TEXT,
-  "index" DOUBLE PRECISION,
+  "userId" TEXT NOT NULL,
+  "parentDocumentId" TEXT NOT NULL,
+  "collectionName" TEXT NOT NULL,
+  "fieldName" TEXT NOT NULL,
+  "index" DOUBLE PRECISION NOT NULL,
+  "contributionStats" JSONB,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB,
@@ -1264,6 +1285,12 @@ CREATE INDEX IF NOT EXISTS "idx_MultiDocuments_schemaVersion" ON "MultiDocuments
 
 -- Index "idx_MultiDocuments_parentDocumentId_collectionName"
 CREATE INDEX IF NOT EXISTS "idx_MultiDocuments_parentDocumentId_collectionName" ON "MultiDocuments" USING btree ("parentDocumentId", "collectionName");
+
+-- Index "idx_MultiDocuments_slug"
+CREATE INDEX IF NOT EXISTS "idx_MultiDocuments_slug" ON "MultiDocuments" USING btree ("slug");
+
+-- Index "idx_MultiDocuments_oldSlugs"
+CREATE INDEX IF NOT EXISTS "idx_MultiDocuments_oldSlugs" ON "MultiDocuments" USING gin ("oldSlugs");
 
 -- Table "Notifications"
 CREATE TABLE "Notifications" (
@@ -2961,6 +2988,9 @@ CREATE INDEX IF NOT EXISTS "idx_Tags_deleted_adminOnly_tagFlagsIds" ON "Tags" US
 -- Index "idx_Tags_name"
 CREATE INDEX IF NOT EXISTS "idx_Tags_name" ON "Tags" USING btree ("name");
 
+-- Index "idx_Tags_name_legacyData__arbitalPageId"
+CREATE INDEX IF NOT EXISTS "idx_Tags_name_legacyData__arbitalPageId" ON "Tags" USING gin ("name", ("legacyData" -> 'arbitalPageId'));
+
 -- Index "idx_Tags_parentTagId"
 CREATE INDEX IF NOT EXISTS "idx_Tags_parentTagId" ON "Tags" USING btree ("parentTagId");
 
@@ -3327,6 +3357,7 @@ CREATE TABLE "Users" (
   "linkedinProfileURL" TEXT,
   "facebookProfileURL" TEXT,
   "twitterProfileURL" TEXT,
+  "twitterProfileURLAdmin" TEXT,
   "githubProfileURL" TEXT,
   "profileTagIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
   "organizerOfGroupIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
@@ -3352,6 +3383,7 @@ CREATE TABLE "Users" (
   "inactiveSurveyEmailSentAt" TIMESTAMPTZ,
   "userSurveyEmailSentAt" TIMESTAMPTZ,
   "givingSeason2024DonatedFlair" BOOL NOT NULL DEFAULT FALSE,
+  "givingSeason2024VotedFlair" BOOL NOT NULL DEFAULT FALSE,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB,

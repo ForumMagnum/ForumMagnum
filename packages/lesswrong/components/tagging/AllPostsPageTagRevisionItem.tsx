@@ -27,7 +27,7 @@ const AllPostsPageTagRevisionItem = ({tag, revisionId, documentId, classes}: {
   const {document: revision, loading} = useSingle({
     documentId: revisionId,
     collectionName: "Revisions",
-    fragmentName: "RevisionMetadataWithChangeMetrics",
+    fragmentName: "RevisionHistoryEntry",
     fetchPolicy: 'cache-then-network' as any, //TODO
   });
   

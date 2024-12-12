@@ -130,6 +130,7 @@ export function registerComponent<PropType>(name: string, rawComponent: React.Co
   };
   
   if (enableVite) {
+    delete PreparedComponents[name as keyof ComponentTypes];
     return Components[name as keyof ComponentTypes] as React.ComponentType<Omit<PropType,"classes">>;
   }
   

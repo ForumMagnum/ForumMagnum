@@ -29,7 +29,7 @@ const TagPageRevisionSelect = ({ classes }: {
     },
     fetchPolicy: "cache-then-network" as any,
     collectionName: "Revisions",
-    fragmentName: "RevisionMetadataWithChangeMetrics",
+    fragmentName: "RevisionHistoryEntry",
     enableTotal: true,
     itemsPerPage: 30,
   });

@@ -19,6 +19,7 @@ registerFragment(`
     deleted
     isSubforum
     noindex
+    isArbitalImport
   }
 `);
 
@@ -72,9 +73,16 @@ registerFragment(`
 
 registerFragment(`
   fragment TagHistoryFragment on Tag {
-    ...TagBasicInfo
+    ...TagFragment
+    tableOfContents
     user {
       ...UsersMinimumInfo
+    }
+    lenses {
+      ...MultiDocumentEdit
+    }
+    arbitalLinkedPages {
+      ...ArbitalLinkedPagesFragment
     }
   }
 `);
@@ -211,6 +219,42 @@ registerFragment(`
   }
 `);
 
+// This matches custom graphql type in arbitalLinkedPagesField.ts that's a resolver field on Tags and MultiDocuments
+registerFragment(`
+  fragment ArbitalLinkedPagesFragment on ArbitalLinkedPages {
+    faster {
+      _id
+      name
+      slug
+    }
+    slower {
+      _id
+      name
+      slug
+    }
+    moreTechnical {
+      _id
+      name
+      slug
+    }
+    lessTechnical {
+      _id
+      name
+      slug
+    }
+    requirements {
+      _id
+      name
+      slug
+    }
+    teaches {
+      _id
+      name
+      slug
+    }
+  }
+`);
+
 registerFragment(`
   fragment TagPageFragment on Tag {
     ...TagWithFlagsFragment
@@ -230,13 +274,17 @@ registerFragment(`
           ...UsersMinimumInfo
         }
         contributionScore
+        contributionVolume
         numCommits
         voteCount
       }
     }
     canVoteOnRels
     lenses {
-      ...MultiDocumentEdit
+      ...MultiDocumentWithContributors
+    }
+    arbitalLinkedPages {
+      ...ArbitalLinkedPagesFragment
     }
   }
 `);
@@ -267,13 +315,17 @@ registerFragment(`
           ...UsersMinimumInfo
         }
         contributionScore
+        contributionVolume
         numCommits
         voteCount
       }
     }
     canVoteOnRels
     lenses {
-      ...MultiDocumentEdit
+      ...MultiDocumentWithContributors
+    }
+    arbitalLinkedPages {
+      ...ArbitalLinkedPagesFragment
     }
   }
 `);
@@ -287,6 +339,7 @@ registerFragment(`
           ...UsersMinimumInfo
         }
         contributionScore
+        contributionVolume
         numCommits
         voteCount
       }
@@ -358,3 +411,23 @@ registerFragment(`
     slug
   }
 `);
+
+registerFragment(`
+  fragment ExplorePageTagFragment on Tag {
+    ...TagFragment
+    contributors(limit: $contributorsLimit) {
+      totalCount
+      contributors {
+        user {
+          ...UsersMinimumInfo
+        }
+        contributionScore
+        contributionVolume
+        numCommits
+        voteCount
+      }
+    }
+    legacyData
+  }
+`);
+
