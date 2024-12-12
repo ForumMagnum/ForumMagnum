@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect, useRef, useState } from "react";
+import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { Link } from "@/lib/reactRouterWrapper";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
@@ -18,7 +18,9 @@ import moment from "moment";
 import type { Moment } from "moment";
 import type { ForumIconName } from "../common/ForumIcon";
 import { GivingSeasonHeart } from "../review/ReviewVotingCanvas";
-import { gql } from "@apollo/client";
+import { gql, useMutation } from "@apollo/client";
+import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
+import { useMulti } from "@/lib/crud/withMulti";
 
 const DOT_SIZE = 12;
 
@@ -425,58 +427,110 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-// TODO move these plus the Hearts component to their own file
-// TODO put the heart data on the ForumEvent
-const heartsQuery = gql`
-  query GivingSeasonHeartsQuery($electionName: String!) {
-    GivingSeasonHearts(electionName: $electionName) {
-      userId
-      displayName
-      x
-      y
-      theta
-    }
+const addForumEventStickerQuery = gql`
+  mutation AddForumEventSticker($forumEventId: String!, $x: Float!, $delta: Float, $postIds: [String]) {
+    AddForumEventSticker(forumEventId: $forumEventId, x: $x, y: $y, theta: $theta)
+  }
+`;
+const removeForumEventStickerQuery = gql`
+  mutation RemoveForumEventSticker($forumEventId: String!) {
+    RemoveForumEventSticker(forumEventId: $forumEventId)
   }
 `;
 
-const addHeartMutation = gql`
-  mutation AddGivingSeasonHeart(
-    $electionName: String!,
-    $x: Float!,
-    $y: Float!,
-    $theta: Float!
-  ) {
-    AddGivingSeasonHeart(
-      electionName: $electionName,
-      x: $x,
-      y: $y,
-      theta: $theta
-    ) {
-      userId
-      displayName
-      x
-      y
-      theta
-    }
-  }
-`;
 
-const removeHeartMutation = gql`
-  mutation RemoveGivingSeasonHeart($electionName: String!) {
-    RemoveGivingSeasonHeart(electionName: $electionName) {
-      userId
-      displayName
-      x
-      y
-      theta
-    }
+type ForumEventStickerData = Record<
+  string,
+  {
+    commentId: string | null;
+    x: number;
+    y: number;
+    theta: number;
   }
-`;
+>;
+
+type ForumEventStickerDisplay = {
+  x: number;
+  y: number;
+  theta: number;
+  user: UsersMinimumInfo;
+  comment: ShortformComments | null;
+};
+
+function stickerDataToArray({
+  data,
+  users,
+  comments,
+}: {
+  data: ForumEventStickerData;
+  users: UsersMinimumInfo[];
+  comments: ShortformComments[] | undefined;
+}): ForumEventStickerDisplay[] {
+  if (!users || !comments) {
+    return [];
+  }
+
+  return users
+    .map((user) => {
+      const sticker = data[user._id];
+
+      if (!sticker) return undefined;
+
+      const comment = (sticker?.commentId && comments.find((c) => c._id === sticker.commentId)) || null;
+
+      return {
+        x: sticker.x,
+        y: sticker.y,
+        theta: sticker.theta,
+        user,
+        comment,
+      };
+    })
+    .filter((sticker) => !!sticker) as ForumEventStickerDisplay[];
+}
 
 const Hearts: FC<{
   classes: ClassesType<typeof styles>;
 }> = ({ classes }) => {
   const { ForumIcon, ForumEventCommentForm } = Components;
+
+  const { currentForumEvent, refetch } = useCurrentForumEvent();
+
+  const stickerData: ForumEventStickerData | null = currentForumEvent?.publicData || null;
+
+  const { results: users } = useMulti({
+    terms: {
+      view: 'usersByUserIds',
+      userIds: stickerData
+        ? Object.keys(stickerData)
+        : [],
+      limit: 1000,
+    },
+    collectionName: "Users",
+    fragmentName: 'UsersMinimumInfo',
+    enableTotal: false,
+    skip: !stickerData,
+  });
+  const { results: comments, refetch: refetchComments } = useMulti({
+    terms: {
+      view: 'forumEventComments',
+      forumEventId: currentForumEvent?._id,
+      limit: 1000,
+    },
+    collectionName: "Comments",
+    fragmentName: 'ShortformComments',
+    enableTotal: false,
+    // Don't run on the first pass, to speed up SSR
+    skip: !currentForumEvent?._id || !users,
+  });
+
+  const [addSticker] = useMutation(addForumEventStickerQuery);
+  const [removeSticker] = useMutation(removeForumEventStickerQuery);
+
+  const hearts = useMemo(
+    () => (users && stickerData ? stickerDataToArray({ data: stickerData, users, comments }) : []),
+    [comments, stickerData, users]
+  );
 
   const [hoverPos, setHoverPos] = useState<{ x: number; y: number } | null>(
     null
@@ -556,7 +610,7 @@ const Hearts: FC<{
           <ForumIcon icon="Heart" />
         </div>
       )}
-      {placedHearts.map((heart, index) => (
+      {/* {placedHearts.map((heart, index) => (
         <div
           key={index}
           className={classes.heart}
@@ -570,6 +624,19 @@ const Hearts: FC<{
         </div>
       ))}
       {DEBUG_HEARTS.map((heart, index) => (
+        <div
+          key={index}
+          className={classes.heart}
+          style={{
+            left: `${heart.x * 100}%`,
+            top: `${heart.y * 100}%`,
+            transform: `rotate(${heart.theta}deg) translate(-50%, -50%)`,
+          }}
+        >
+          <ForumIcon icon="Heart" />
+        </div>
+      ))} */}
+      {hearts.map((heart, index) => (
         <div
           key={index}
           className={classes.heart}
