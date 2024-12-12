@@ -44,7 +44,7 @@ interface TagLensInfo {
   lenses: TagLens[];
 }
 
-function getDefaultLens(tag: TagPageFragment|TagPageWithRevisionFragment|TagHistoryFragment): TagLens {
+function getDefaultLens(tag: TagPageWithArbitalContentFragment | TagPageRevisionWithArbitalContentFragment | TagHistoryFragment): TagLens {
   return {
     _id: MAIN_TAB_ID,
     collectionName: 'Tags',
@@ -67,7 +67,7 @@ function getDefaultLens(tag: TagPageFragment|TagPageWithRevisionFragment|TagHist
   }
 }
 
-export function getAvailableLenses(tag: TagPageFragment|TagPageWithRevisionFragment|TagHistoryFragment|null) {
+export function getAvailableLenses(tag: TagPageWithArbitalContentFragment | TagPageRevisionWithArbitalContentFragment | TagHistoryFragment | null) {
   if (!tag) return [];
   return [
     getDefaultLens(tag),
@@ -81,7 +81,7 @@ export function getAvailableLenses(tag: TagPageFragment|TagPageWithRevisionFragm
   ];
 }
 
-export function useTagLenses(tag: TagPageFragment | TagPageWithRevisionFragment | null): TagLensInfo {
+export function useTagLenses(tag: TagPageWithArbitalContentFragment | TagPageRevisionWithArbitalContentFragment | null): TagLensInfo {
   const { query, location } = useLocation();
   const navigate = useNavigate();
   const availableLenses = useMemo(() => getAvailableLenses(tag), [tag]);

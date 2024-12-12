@@ -32,6 +32,7 @@ import { isClient } from "@/lib/executionEnvironment";
 import qs from "qs";
 import { useTagOrLens } from "../hooks/useTagOrLens";
 import { useTagEditingRestricted } from "./TagPageButtonRow";
+import { useMultiClickHandler } from "../hooks/useMultiClickHandler";
 
 const sidePaddingStyle = (theme: ThemeType) => ({
   paddingLeft: 42,
@@ -501,7 +502,7 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     },
   },
   spaceAfterWord: {
-    marginRight: 2,
+    marginRight: 3,
   },
   parentsAndChildrenSmallScreensRoot: {
     [theme.breakpoints.up('md')]: {
@@ -1081,22 +1082,18 @@ const TagPage = () => {
   const revision = queryVersion ?? queryRevision ?? null;
 
   const contributorsLimit = 16;
-  const tagQueryOptions: Partial<UseMultiOptions<"TagPageFragment" | "TagPageWithRevisionFragment", "Tags">> = {
-    extraVariables: revision ? {
-      version: 'String',
-      contributorsLimit: 'Int',
-    } : {
+  const tagQueryOptions: Partial<UseMultiOptions<"TagPageWithArbitalContentFragment" | "TagPageRevisionWithArbitalContentFragment", "Tags">> = {
+    extraVariables: {
+      ...(revision ? { version: 'String' } : {}),
       contributorsLimit: 'Int',
     },
-    extraVariablesValues: revision ? {
-      version: revision,
-      contributorsLimit,
-    } : {
+    extraVariablesValues: {
+      ...(revision ? { version: revision } : {}),
       contributorsLimit,
     },
   };
 
-  const tagFragmentName = revision ? "TagPageWithRevisionFragment" : "TagPageFragment";
+  const tagFragmentName = revision ? "TagPageRevisionWithArbitalContentFragment" : "TagPageWithArbitalContentFragment";
 
   const { tag, loadingTag, lens, loadingLens } = useTagOrLens(slug, tagFragmentName, tagQueryOptions);
 
@@ -1107,6 +1104,19 @@ const TagPage = () => {
   const client = useApolloClient()
 
   const { canEdit } = useTagEditingRestricted(tag, editing, currentUser);
+
+  const openInlineEditor = () => {
+    if (currentUser && canEdit) {
+      setEditing(true);
+    }
+    // onOpenEditor();
+  };
+
+  const handleTripleClick = useMultiClickHandler({
+    clickCount: 3,
+    timeout: 300,
+    onMultiClick: openInlineEditor,
+  });
 
   const multiTerms: AnyBecauseTodo = {
     allPages: {view: "allPagesByNewest"},
@@ -1218,7 +1228,6 @@ const TagPage = () => {
     captureEvent("readMoreClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "wikiSection"})
   }
 
-
   const headTagDescription = tag.description?.plaintextDescription || `All posts related to ${tag.name}, sorted by relevance`
   
   const tagFlagItemType: AnyBecauseTodo = {
@@ -1249,13 +1258,6 @@ const TagPage = () => {
     )
     : <></>;
 
-  const openInlineEditor = () => {
-    if (currentUser && canEdit) {
-      setEditing(true);
-    }
-    // onOpenEditor();
-  };
-
   const tagBodySection = (
     <div id="tagContent" className={classNames(classes.wikiSection,classes.centralColumn)}>
       <AnalyticsContext pageSectionContext="wikiSection">
@@ -1277,7 +1279,14 @@ const TagPage = () => {
             <EditLensForm key={lens._id} lens={lens} />
           </span>)}
         {/* </TagEditorProvider> */}
-        <div className={classNames(editing && classes.descriptionContainerEditing)} onClick={clickReadMore} onDoubleClick={openInlineEditor}>
+        <div
+          className={classNames(editing && classes.descriptionContainerEditing)}
+          onClick={(e) => {
+            handleTripleClick(e);
+            clickReadMore();
+          }}
+          // onDoubleClick={openInlineEditor}
+        >
           <ContentStyles contentType="tag">
             <ContentItemBody
               dangerouslySetInnerHTML={{__html: description||""}}
@@ -1362,37 +1371,6 @@ const TagPage = () => {
     />
   );
 
-  // const requirementsAndAlternatives = (
-  //   <ContentStyles contentType="tag" className={classNames(classes.requirementsAndAlternatives)}>
-  //     <div className={classes.relationshipPill}>
-  //       {'Relies on: '}
-  //       <HoverPreviewLink href={'/tag/reads_algebra'} >Ability to read algebra</HoverPreviewLink>
-  //     </div>
-  //   </ContentStyles>
-  // );
-
-  
-
-  const requirementsAndAlternatives = (
-    <ContentStyles contentType="tag" className={classes.subjectsContainer}> 
-      <div className={classes.subjectsHeader}>Relies on: </div>
-      <div className={classes.subjectsList}>
-        <span className={classes.subject}><HoverPreviewLink href={'/tag/reads_algebra'} >Ability to read algebra</HoverPreviewLink></span>
-      </div>
-    </ContentStyles>
-  );
-
-  const subjects = (
-    <ContentStyles contentType="tag" className={classes.subjectsContainer}> 
-      <div className={classes.subjectsHeader}>Subjects: </div>
-      <div className={classes.subjectsList}>
-        <span className={classes.subject}><HoverPreviewLink href={'/tag/logical-decision-theories'}>Logical decision theories</HoverPreviewLink></span>
-        <span className={classes.subject}><HoverPreviewLink href={'/tag/causal-decision-theories'}>Causal decision theories</HoverPreviewLink></span>
-        <span className={classes.subject}><HoverPreviewLink href={'/tag/evidential-decision-theories'}>Evidential decision theories</HoverPreviewLink></span>
-      </div>
-    </ContentStyles>
-  );
-
   const tagHeader = (
     <div className={classNames(classes.header,classes.centralColumn)}>
       {query.flagId && <span>
@@ -1466,9 +1444,6 @@ const TagPage = () => {
         </div>
       </div>}
       <ArbitalRelationshipsSmallScreen arbitalLinkedPages={selectedLens?.arbitalLinkedPages ?? undefined} />
-      {/** Just hardcoding an example for now, since we haven't imported the necessary relationships to derive it dynamically */}
-      {/* {requirementsAndAlternatives} */}
-      {/* {subjects} */}
     </div>
   );
 
@@ -1486,8 +1461,6 @@ const TagPage = () => {
   const rightColumn = (<div className={classes.rightColumn}>
     <div className={classes.rightColumnContent}>
       <ArbitalLinkedPagesRightSidebar tag={tag} selectedLens={selectedLens} arbitalLinkedPages={selectedLens?.arbitalLinkedPages ?? undefined} />
-      {/* {requirementsandalternatives}
-      {subjects} */}
     </div>
     <div className={classes.rightColumnOverflowFade} />
   </div>);

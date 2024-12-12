@@ -37,7 +37,7 @@ registerFragment(`
 registerFragment(`
   fragment MultiDocumentWithContributors on MultiDocument {
     ...MultiDocumentEdit
-    contributors(limit: $contributorsLimit, version: $version) {
+    contributors {
       totalCount
       contributors {
         user {

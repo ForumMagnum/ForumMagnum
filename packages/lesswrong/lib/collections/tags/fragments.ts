@@ -266,6 +266,17 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment TagPageArbitalContentFragment on Tag {
+    lenses {
+      ...MultiDocumentWithContributors
+    }
+    arbitalLinkedPages {
+      ...ArbitalLinkedPagesFragment
+    }
+  }
+`);
+
+registerFragment(`
   fragment TagPageFragment on Tag {
     ...TagWithFlagsFragment
     tableOfContents
@@ -290,13 +301,14 @@ registerFragment(`
       }
     }
     canVoteOnRels
-    lenses {
-      ...MultiDocumentWithContributors
-    }
-    arbitalLinkedPages {
-      ...ArbitalLinkedPagesFragment
-    }
   }
+`);
+
+registerFragment(`
+  fragment TagPageWithArbitalContentFragment on Tag {
+    ...TagPageFragment
+    ...TagPageArbitalContentFragment
+  }  
 `);
 
 registerFragment(`
@@ -331,13 +343,14 @@ registerFragment(`
       }
     }
     canVoteOnRels
-    lenses {
-      ...MultiDocumentWithContributors
-    }
-    arbitalLinkedPages {
-      ...ArbitalLinkedPagesFragment
-    }
   }
+`);
+
+registerFragment(`
+  fragment TagPageRevisionWithArbitalContentFragment on Tag {
+    ...TagPageWithRevisionFragment
+    ...TagPageArbitalContentFragment
+  }  
 `);
 
 registerFragment(`

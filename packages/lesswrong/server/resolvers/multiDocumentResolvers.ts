@@ -11,15 +11,16 @@ import { compareVersionNumbers } from "@/lib/editor/utils";
 import { loadByIds } from "@/lib/loaders";
 import keyBy from "lodash/keyBy";
 import orderBy from "lodash/orderBy";
-import take from "lodash/take";
 
 type LensContributorWithStats = {
   user: Partial<DbUser>,
   contributionVolume: number,
 };
+
 type LensContributorStats = {
   contributionVolume: number,
 };
+
 type LensContributorStatsMap = Partial<Record<string,LensContributorStats>>;
 
 export async function updateDenormalizedContributorsList(multiDoc: DbMultiDocument): Promise<LensContributorStatsMap> {
@@ -78,14 +79,14 @@ async function buildContributorsList(multiDoc: DbMultiDocument, version: string|
 augmentFieldsDict(MultiDocuments, {
   contributors: {
     resolveAs: {
-      arguments: 'limit: Int, version: String',
+      arguments: 'multiDocumentVersion: String',
       type: "MultiDocumentContributorsList",
-      resolver: async (multiDoc: DbMultiDocument, {limit, version}: {limit?: number, version?: string}, context: ResolverContext): Promise<{
+      resolver: async (multiDoc: DbMultiDocument, { multiDocumentVersion: version }: { multiDocumentVersion: string | null }, context: ResolverContext): Promise<{
         contributors: LensContributorWithStats[],
         totalCount: number,
       }> => {
         const { Users } = context;
-        const contributionStatsByUserId = await getContributorsList(multiDoc, version||null);
+        const contributionStatsByUserId = await getContributorsList(multiDoc, version);
         const contributorUserIds = Object.keys(contributionStatsByUserId);
         const contributorUsersUnfiltered = await loadByIds(context, "Users", contributorUserIds);
         const contributorUsers = await accessFilterMultiple(context.currentUser, Users, contributorUsersUnfiltered, context);
@@ -98,26 +99,19 @@ augmentFieldsDict(MultiDocuments, {
           ...contributionStatsByUserId[userId]!,
         }));
 
-        if (limit) {
-          return {
-            contributors: take(contributorsWithStats, limit),
-            totalCount: contributorsWithStats.length,
-          }
-        } else {
-          return {
-            contributors: contributorsWithStats,
-            totalCount: contributorsWithStats.length,
-          }
+        return {
+          contributors: contributorsWithStats,
+          totalCount: contributorsWithStats.length,
         }
       }
     }
   },
   tableOfContents: {
     resolveAs: {
-      arguments: 'version: String',
+      arguments: 'multiDocumentVersion: String',
       type: GraphQLJSON,
-      resolver: async (document: DbMultiDocument, args: { version: string | null }, context: ResolverContext) => {
-        return await getToCforMultiDocument({ document, version: args.version, context });
+      resolver: async (document: DbMultiDocument, { multiDocumentVersion: version }: { multiDocumentVersion: string | null }, context: ResolverContext) => {
+        return await getToCforMultiDocument({ document, version, context });
       },
     },
   },
