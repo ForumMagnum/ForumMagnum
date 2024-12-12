@@ -2738,6 +2738,8 @@ interface ArbitalLinkedPagesFragment { // fragment on non-collection type
   readonly lessTechnical: any,
   readonly requirements: any,
   readonly teaches: any,
+  readonly parents: any,
+  readonly children: any,
 }
 
 interface TagPageFragment extends TagWithFlagsFragment { // fragment on Tags
