@@ -201,8 +201,14 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
       return (alias in slugsByPageId) ? alias : null;
     }
     function pageIdToUrl(pageId: string): string {
-      const slug = slugsByPageId[pageId];
-      return `/tag/${slug}`;
+      if (conversionContext.linksById[pageId]) {
+        return conversionContext.linksById[pageId];
+      } else if (slugsByPageId[pageId]) {
+        return `/w/${slugsByPageId[pageId]}`;
+      } else {
+        console.error(`Link points to pageId that was not found: ${pageId}`);
+        return "";
+      }
     }
     function pageIdToTitle(pageId: string, prefix: string): string {
       return getCasedText(titlesByPageId[pageId], prefix);
