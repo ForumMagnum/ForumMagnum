@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { CTAButtonSettings } from './ctaButton';
@@ -25,8 +25,25 @@ const styles = defineStyles("EditCTAButtonSettings", (theme: ThemeType) => ({
   modeSelected: {
     textDecoration: "underline",
   },
+  label: {
+    marginTop: 16,
+  },
   input: {
     marginLeft: 8,
+  },
+  readingList: {
+    marginLeft: 8,
+    lineHeight: "15px",
+  },
+  readingListItem: {
+    display: "flex",
+  },
+  readingListItemName: {
+    flexGrow: 1,
+  },
+  removeButton: {
+    flexGrow: 0,
+    cursor: "pointer",
   },
 }));
 
@@ -63,18 +80,19 @@ const EditCTAButtonSettings = ({initialState, setDocumentState}: {
     
     <div>Button Text</div>
     <Input className={classes.input} value={state.buttonText} onChange={ev =>
-      setState(st => ({...state, buttonText: ev.target.value}))
+      changeValue(({...state, buttonText: ev.target.value}))
     } />
     
     {(selectedTab === "url") && <>
-      <div>Link</div>
-      <Input className={classes.input} value={state.buttonText} onChange={ev => {
+      <div className={classes.label}>Link</div>
+      <Input className={classes.input} value={state.linkTo} onChange={ev => {
         if (selectedTabState === null) setSelectedTab("url");
-        setState({...state, linkTo: ev.target.value})
+        changeValue({...state, linkTo: ev.target.value})
       }}/>
     </>}
 
     {(selectedTab === "path") && <>
+      <div className={classes.label}>Reading List</div>
       <EditReadingList state={state} changeValue={changeValue} />
     </>}
   </div>
@@ -99,18 +117,27 @@ const EditReadingList = ({state, changeValue}: {
       changeValue({...state, linkTo: ""});
     }
   }
+  
+  const [searchBoxKey, setSearchBoxKey] = useState(0);
+  const clearSearchBox = useCallback(() => {
+    setSearchBoxKey(k => k+1);
+  }, []);
 
-  return <div>
-    <div>Reading List</div>
-    
+  return <div className={classes.readingList}>
     <SortableReadingList
       value={pages}
       setValue={(newValue: string[]) => changePages(newValue)}
       classes={classes}
     />
     <Components.AddTagOrWikiPage
+      key={searchBoxKey}
       onlyTags={false}
-      onTagSelected={({tagSlug}) => changePages([...pages, tagSlug])}
+      onTagSelected={({tagSlug}) => {
+        changePages([...pages, tagSlug]);
+        clearSearchBox();
+      }}
+      numSuggestions={0}
+      showAllTagsAndCreateTags={false}
     />
   </div>
 }
@@ -124,9 +151,9 @@ const ReadingListItem = ({contents, removeItem}: {
   if (!tag) {
     return <Components.Loading />
   }
-  return <div>
-    <div>{tag.name}</div>
-    <div onClick={() => removeItem(contents)}>X</div>
+  return <div className={classes.readingListItem}>
+    <div className={classes.readingListItemName}>{tag.name}</div>
+    <div className={classes.removeButton} onClick={() => removeItem(contents)}>X</div>
   </div>
 }
 const SortableReadingList = makeSortableListComponent({

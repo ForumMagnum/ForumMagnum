@@ -2,15 +2,11 @@ import Plugin from "@ckeditor/ckeditor5-core/src/plugin";
 import ClickObserver from "@ckeditor/ckeditor5-engine/src/view/observer/clickobserver";
 import ContextualBalloon from "@ckeditor/ckeditor5-ui/src/panel/balloon/contextualballoon";
 import clickOutsideHandler from "@ckeditor/ckeditor5-ui/src/bindings/clickoutsidehandler";
-
 import View from "@ckeditor/ckeditor5-ui/src/view";
-
-import KeystrokeHandler from "@ckeditor/ckeditor5-utils/src/keystrokehandler";
-import FocusCycler from "@ckeditor/ckeditor5-ui/src/focuscycler";
 
 import type { Editor } from "@ckeditor/ckeditor5-core";
 import type { Locale } from "@ckeditor/ckeditor5-utils";
-import type { Element } from "@ckeditor/ckeditor5-engine";
+import { Element, Text } from "@ckeditor/ckeditor5-engine";
 
 
 import './ctaform.css';
@@ -18,17 +14,13 @@ import type { CTAButtonPluginConfiguration, CTAButtonSettings } from '../../../p
 
 class MainFormView extends View {
   editor: Editor
-  selectedElement: AnyBecauseTodo
-  buttonTextView: AnyBecauseTodo
-  linkToView: AnyBecauseTodo
-  keystrokes: KeystrokeHandler
-  _focusCycler: FocusCycler
-  label: AnyBecauseTodo
+  selectedElement: Element
   locale: Locale
 
-  constructor(locale: Locale, editor: Editor) {
+  constructor(locale: Locale, editor: Editor, selectedElement: Element) {
     super(locale);
     this.editor = editor;
+    this.selectedElement = selectedElement;
 
     // Add UI elements to template
     this.setTemplate({
@@ -44,9 +36,32 @@ class MainFormView extends View {
   render() {
     super.render();
     const config = this.editor.config.get('ctaButton') as CTAButtonPluginConfiguration;
-    const initialState: CTAButtonSettings = {buttonText: "asdf", linkTo: "1234"}; //TODO
-    const setDocumentState =  (newState: CTAButtonSettings) => {}; //TODO
-    config.renderCTAButtonSettingsInto(this.element, initialState, setDocumentState);
+    
+    let buttonText = "";
+    for (const node of this.selectedElement.getChildren()) {
+      if (node instanceof Text) {
+        buttonText += (node as Text).data;
+      }
+    }
+    
+    const href = this.selectedElement.getAttribute("href");
+    const initialState: CTAButtonSettings = {
+      buttonText,
+      linkTo: href ? String(href) : ""
+    };
+    console.log(`MainFormView.render(): ${JSON.stringify(initialState)}`);
+    config.renderCTAButtonSettingsInto(this.element, initialState, (newState) => this._updateState(newState));
+  }
+  
+  _updateState(newState: CTAButtonSettings) {
+    console.log(`Updating CTA button: ${JSON.stringify(newState)}`); // TODO
+    this.editor.model.change(changeWriter => {
+      changeWriter.setAttribute("href", newState.linkTo, this.selectedElement);
+      const oldTextRange = changeWriter.createRangeIn(this.selectedElement);
+      changeWriter.remove(oldTextRange);
+      const newTextPos = changeWriter.createPositionAt(this.selectedElement, 0);
+      changeWriter.insertText(newState.buttonText, newTextPos);
+    });
   }
 }
 
@@ -75,7 +90,9 @@ export default class CTAButtonForm extends Plugin {
 
   destroy() {
     super.destroy();
-    this.formView.destroy();
+    if (this.formView) {
+      this.formView.destroy();
+    }
   }
 
   _showUI(selectedElement: Element) {
@@ -89,7 +106,7 @@ export default class CTAButtonForm extends Plugin {
     }
 
     const editor = this.editor;
-    this.formView = new MainFormView(editor.locale, editor);
+    this.formView = new MainFormView(editor.locale, editor, selectedElement);
     this._balloon.add({
       view: this.formView,
       position: this._getBalloonPositionData(),
