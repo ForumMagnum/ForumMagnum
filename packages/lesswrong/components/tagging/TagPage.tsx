@@ -542,6 +542,7 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     },
   },
   linkedTagMore: {
+    color: theme.palette.grey[550],
     cursor: 'pointer',
     '&:hover': {
       opacity: 0.7,
