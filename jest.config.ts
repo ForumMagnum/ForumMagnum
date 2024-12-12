@@ -71,6 +71,7 @@ export default {
     bundleIsE2E: false,
     bundleIsProduction: false,
     bundleIsMigrations: false,
+    enableVite: false,
     defaultSiteAbsoluteUrl: "",
   },
 
