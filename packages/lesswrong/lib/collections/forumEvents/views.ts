@@ -32,8 +32,10 @@ ForumEvents.addView("currentForumEvent", (_terms: ForumEventsViewTerms) => {
   const now = new Date();
   return {
     selector: {
-      startDate: {$lt: now},
-      endDate: {$gt: now},
+      // startDate: {$lt: now},
+      // endDate: {$gt: now},
+      // TODO revert
+      title: "Donation Celebration"
     },
     options: {
       sort: {createdAt: 1},
