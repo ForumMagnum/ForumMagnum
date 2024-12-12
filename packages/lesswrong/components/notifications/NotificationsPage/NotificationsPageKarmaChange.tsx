@@ -159,6 +159,7 @@ export const NotificationsPageKarmaChange = ({
           <PostsTooltip
             postId={commentKarmaChange.postId}
             commentId={commentKarmaChange._id}
+            clickable
           >
             <NotifPopoverLink
               to={commentGetPageUrlFromIds({
@@ -171,7 +172,7 @@ export const NotificationsPageKarmaChange = ({
             </NotifPopoverLink>
           </PostsTooltip>
           {" "}on{" "}
-          <PostsTooltip postId={commentKarmaChange.postId}>
+          <PostsTooltip postId={commentKarmaChange.postId} clickable>
             <NotifPopoverLink
               to={postGetPageUrl({_id: postId, slug: postSlug})}
               className={classes.link}
