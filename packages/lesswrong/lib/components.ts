@@ -305,7 +305,6 @@ importComponent("LWTooltip", () => require('../components/common/LWTooltip'));
 importComponent("HoverOver", () => require('../components/common/HoverOver'));
 importComponent("FriendlyHoverOver", () => require('../components/common/FriendlyHoverOver'));
 importComponent("NewFeatureTooltip", () => require('../components/common/NewFeatureTooltip'));
-importComponent("NewFeaturePulse", () => require('../components/common/NewFeaturePulse'));
 importComponent("Typography", () => require('../components/common/Typography'));
 importComponent("WarningBanner", () => require('../components/common/WarningBanner'));
 importComponent("PopperCard", () => require('../components/common/PopperCard'));
