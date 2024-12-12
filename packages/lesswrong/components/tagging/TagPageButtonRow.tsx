@@ -90,9 +90,9 @@ export function useTagEditingRestricted(tag: TagPageWithRevisionFragment | TagPa
   const restricted = tag.canEditUserIds && tag.canEditUserIds.length > 0;
   const noEditNotAuthor = restricted && (!currentUser || (!currentUser.isAdmin && !tag.canEditUserIds.includes(currentUser._id)));
   const noEditKarmaTooLow = !restricted && currentUser && !tagUserHasSufficientKarma(currentUser, "edit");
-  const editingRestricted = !alreadyEditing && !noEditKarmaTooLow && !noEditNotAuthor;
+  const canEdit = !alreadyEditing && !noEditKarmaTooLow && !noEditNotAuthor;
 
-  return { editingRestricted, noEditNotAuthor, noEditKarmaTooLow };
+  return { canEdit, noEditNotAuthor, noEditKarmaTooLow };
 }
 
 const TagPageButtonRow = ({ tag, editing, setEditing, hideLabels = false, className, classes }: {
@@ -122,7 +122,7 @@ const TagPageButtonRow = ({ tag, editing, setEditing, hideLabels = false, classN
     }
   }
 
-  const { editingRestricted: canEdit, noEditNotAuthor, noEditKarmaTooLow } = useTagEditingRestricted(tag, editing, currentUser);
+  const { canEdit, noEditNotAuthor, noEditKarmaTooLow } = useTagEditingRestricted(tag, editing, currentUser);
 
   const editTooltipHasContent = noEditNotAuthor || noEditKarmaTooLow || numFlags || beginnersGuideContentTag
   const editTooltip = editTooltipHasContent && <>

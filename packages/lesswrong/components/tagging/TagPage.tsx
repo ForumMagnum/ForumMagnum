@@ -1119,7 +1119,7 @@ const TagPage = () => {
   const { captureEvent } =  useTracking()
   const client = useApolloClient()
 
-  const { editingRestricted } = useTagEditingRestricted(tag, editing, currentUser);
+  const { canEdit } = useTagEditingRestricted(tag, editing, currentUser);
 
   const multiTerms: AnyBecauseTodo = {
     allPages: {view: "allPagesByNewest"},
@@ -1263,7 +1263,7 @@ const TagPage = () => {
     : <></>;
 
   const openInlineEditor = () => {
-    if (currentUser && !editingRestricted) {
+    if (currentUser && canEdit) {
       setEditing(true);
     }
     // onOpenEditor();
