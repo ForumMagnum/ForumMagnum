@@ -32,6 +32,7 @@ import { TagEditorContext, TagEditorProvider } from "./TagEditorContext";
 import { isClient } from "@/lib/executionEnvironment";
 import qs from "qs";
 import { useTagOrLens } from "../hooks/useTagOrLens";
+import { useTagEditingRestricted } from "./TagPageButtonRow";
 
 const sidePaddingStyle = (theme: ThemeType) => ({
   paddingLeft: 42,
@@ -1118,6 +1119,8 @@ const TagPage = () => {
   const { captureEvent } =  useTracking()
   const client = useApolloClient()
 
+  const { editingRestricted } = useTagEditingRestricted(tag, editing, currentUser);
+
   const multiTerms: AnyBecauseTodo = {
     allPages: {view: "allPagesByNewest"},
     myPages: {view: "userTags", userId: currentUser?._id},
@@ -1260,7 +1263,9 @@ const TagPage = () => {
     : <></>;
 
   const openInlineEditor = () => {
-    setEditing(true);
+    if (currentUser && !editingRestricted) {
+      setEditing(true);
+    }
     // onOpenEditor();
   };
 
