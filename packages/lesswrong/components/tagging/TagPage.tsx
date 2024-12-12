@@ -1062,7 +1062,6 @@ const ParentsAndChildrenSmallScreen: FC<{ arbitalLinkedPages?: ArbitalLinkedPage
                 e.stopPropagation();
                 setIsChildrenExpanded(true);
               }}
-              style={{ cursor: 'pointer' }}
             >
               and {children.length - 2} more
             </div>
