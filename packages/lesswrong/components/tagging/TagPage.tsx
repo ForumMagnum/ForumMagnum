@@ -542,8 +542,10 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     },
   },
   linkedTagMore: {
-    color: theme.palette.link.color,
-    // fontStyle: 'italic',
+    cursor: 'pointer',
+    '&:hover': {
+      opacity: 0.7,
+    },  
   },
 }));
 
@@ -726,7 +728,6 @@ const ArbitalLinkedPagesRightSidebar = ({tag, selectedLens, arbitalLinkedPages}:
                 e.stopPropagation();
                 setIsChildrenExpanded(true);
               }}
-              style={{ cursor: 'pointer' }}
             >
               and {children.length - 2} more
             </div>
@@ -745,40 +746,40 @@ const ArbitalRelationshipsSmallScreen = ({arbitalLinkedPages}: {arbitalLinkedPag
     return null;
   }
 
-  const { TagsTooltip } = Components;
+  const { TagsTooltip, ContentStyles } = Components;
   const { requirements, teaches } = arbitalLinkedPages;
   
   return (
-    <Components.ContentStyles contentType="tag">
-    <div className={classes.mobileRelationships}>
-      {requirements.length > 0 && (
-        <div className={classes.relationshipRow}>
-          <span className={classes.spaceAfterWord}>{'Requires: '}</span>
-          {requirements.map((req: ArbitalLinkedPage, i: number) => (
-            <span key={req.slug} className={classes.spaceAfterWord}>
-              <TagsTooltip tagSlug={req.slug}>
+    <ContentStyles contentType="tag">
+      <div className={classes.mobileRelationships}>
+        {requirements.length > 0 && (
+          <div className={classes.relationshipRow}>
+            <span className={classes.spaceAfterWord}>{'Requires: '}</span>
+            {requirements.map((req: ArbitalLinkedPage, i: number) => (
+              <span key={req.slug} className={classes.spaceAfterWord}>
+                <TagsTooltip tagSlug={req.slug}>
                   <Link to={tagGetUrl(req)}>{req.name}</Link>
-              </TagsTooltip>
-              {i < requirements.length - 1 && ', '}
-            </span>
-          ))}
-        </div>
-      )}
-      {teaches.length > 0 && (
-        <div className={classes.relationshipRow}>
-          <span className={classes.spaceAfterWord}>{'Teaches: '}</span>
-          {teaches.map((subject: ArbitalLinkedPage, i: number) => (
-            <span key={subject.slug} className={classes.spaceAfterWord}>
-              <TagsTooltip tagSlug={subject.slug}>
-                <Link to={tagGetUrl(subject)}>{subject.name}</Link>
-              </TagsTooltip>
-              {i < teaches.length - 1 && ', '}
-            </span>
-          ))}
-        </div>
-      )}
-    </div>
-  </Components.ContentStyles>
+                </TagsTooltip>
+                {i < requirements.length - 1 && ', '}
+              </span>
+            ))}
+          </div>
+        )}
+        {teaches.length > 0 && (
+          <div className={classes.relationshipRow}>
+            <span className={classes.spaceAfterWord}>{'Teaches: '}</span>
+            {teaches.map((subject: ArbitalLinkedPage, i: number) => (
+              <span key={subject.slug} className={classes.spaceAfterWord}>
+                <TagsTooltip tagSlug={subject.slug}>
+                  <Link to={tagGetUrl(subject)}>{subject.name}</Link>
+                </TagsTooltip>
+                {i < teaches.length - 1 && ', '}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+    </ContentStyles>
   );
 }
 
@@ -1296,7 +1297,7 @@ const TagPage = () => {
         </div>
       </AnalyticsContext>
       <AnalyticsContext pageSectionContext="parentsAndChildrenSmallScreenNavigationButtons">
-        <ParentsAndChildrenSmallScreen arbitalLinkedPages={selectedLens?.arbitalLinkedPages ?? undefined} tagOrLensName={selectedLens?.title ??tag.name} />
+        <ParentsAndChildrenSmallScreen arbitalLinkedPages={selectedLens?.arbitalLinkedPages ?? undefined} tagOrLensName={selectedLens?.title ?? tag.name} />
       </AnalyticsContext>
     </div>
   );

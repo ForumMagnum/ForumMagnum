@@ -63,7 +63,7 @@ CREATE TABLE "ArbitalTagContentRels" (
   "parentCollectionName" TEXT NOT NULL,
   "childCollectionName" TEXT NOT NULL,
   "type" TEXT NOT NULL,
-  "level" DOUBLE PRECISION,
+  "level" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "isStrong" BOOL NOT NULL DEFAULT FALSE,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
