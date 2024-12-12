@@ -311,8 +311,6 @@ const WikiTagItem = ({ page, nestingLevel, options = {} }: WikiTagItemProps) => 
 
   const hasChildren = page.children && page.children.length > 0;
 
-  const oneLinerText = page.description_html || "filler text will be invisible";
-
   const wordCountFormatted = `${page.description_length / 6 >= 100 ? `${(page.description_length / 6 / 1000).toFixed(1)}k ` : Math.round(page.description_length / 6)} words`;
 
   const commentCountNode = !!(page.viewCount && page.viewCount > 0) && (
@@ -365,8 +363,8 @@ const WikiTagItem = ({ page, nestingLevel, options = {} }: WikiTagItemProps) => 
         <WikiTagNestedList 
           pages={page.children} 
           nestingLevel={nestingLevel + 1}
-          options={options}  // Pass all options down
-          className={classes.children}
+          // options={options}  // Pass all options down
+          // className={classes.children}
         />
       )}
     </div>

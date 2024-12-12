@@ -36,7 +36,7 @@ interface WikiTagNestedListProps {
 const WikiTagNestedList = ({
   pages,
   nestingLevel = 0,
-  maxInitialShow = 5,
+  maxInitialShow = 40,
   totalChildrenCount,
   onHover,
   onClick,

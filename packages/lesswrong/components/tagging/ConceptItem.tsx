@@ -46,13 +46,14 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     alignItems: "flex-start",
   },
   item: {
+    cursor: "pointer",
     backgroundColor: "white",
     height: 32,
     width: ITEM_WIDTH,
     maxWidth: ITEM_WIDTH,
     // overflow: "hidden",
     borderRadius: theme.borderRadius.default,
-    padding: "1px 16px",
+    padding: "1px 14px 1px 8px",
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
@@ -66,17 +67,27 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
       backgroundColor: theme.palette.grey[200],
     },
   },
+  wikiItem: {
+    backgroundColor: theme.palette.grey[100],
+  },
 
   leftSideItems: {
     display: "flex",
     maxWidth: `calc(${ITEM_WIDTH}px - 32px)`,
     alignItems: "center",
-    gap: "8px",
+    // gap: "8px",
     overflow: "hidden",
     flexGrow: 1,
     flexShrink: 1,
     flexBasis: 0,
     minWidth: 0,
+  },
+  baseScore: {
+    minWidth: 20,
+    fontSize: 13,
+    color: theme.palette.grey[700],
+    alignItems: "center",
+    justifyContent: "flex-start",
   },
   title: {
     fontWeight: 400,
@@ -90,7 +101,8 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     whiteSpace: "nowrap",
     minWidth: 0,
     opacity: 0.95,
-    marginBottom: 4,
+    marginBottom: 2,
+    
   },
   rightSideItems: {
     display: "flex",
@@ -303,6 +315,7 @@ interface WikiTagMockup {
   description_length: number;
   viewCount?: number;
   parentTagId?: string | null;
+  baseScore: number;
 }
 
 interface WikiTagNode extends WikiTagMockup {
@@ -325,29 +338,10 @@ const ConceptItem = ({ wikitag, nestingLevel, index, onHover, onClick, pinnedWik
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
   const [showingAllChildren, setShowingAllChildren] = useState(false);
 
-  const { ForumIcon } = Components;
+  const { ForumIcon, TagsTooltip } = Components;
 
   const toggleCollapse = () => {
     setCollapsed(!collapsed);
-  };
-
-  const handleMouseEnter = () => {
-    if (onHover) {
-      onHover(wikitag);
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (onHover) {
-      onHover(null);
-    }
-  };
-
-  const handleClick = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent event from bubbling up to background
-    if (onClick) {
-      onClick(wikitag);
-    }
   };
 
   const hasChildren = wikitag.children && wikitag.children.length > 0;
@@ -370,29 +364,33 @@ const ConceptItem = ({ wikitag, nestingLevel, index, onHover, onClick, pinnedWik
     />
   </div>
 
+  const isWikiItem = wikitag.description_length > 1000;
   // regularItem
-  const regularItem =  <div className={classNames(classes.item, { [classes.itemPinned]: isPinned })}>
-    {collapseToggle}
-    <div className={classes.leftSideItems}>
-      <div className={classNames(classes.title)}>
-        {/* <TagsTooltip tagSlug={wikitag.slug} hash={wikitag.slug}> */}
-        {wikitag.name}
-      {/* </TagsTooltip> */}
+  const regularItem = <TagsTooltip tagSlug={wikitag.slug} hash={wikitag.slug} noPrefetch previewPostCount={0}>
+    <div className={classNames(classes.item, { [classes.itemPinned]: isPinned, [classes.wikiItem]: isWikiItem })} >
+      {collapseToggle}
+      <div className={classes.leftSideItems}>
+        <div className={classes.baseScore}>
+          {wikitag.baseScore}
+        </div>
+        <div className={classNames(classes.title)}>
+          {wikitag.name}
+        </div>
+        {/* <div className={classes.wordCount}>{wordCountFormatted}</div> */}
       </div>
-      {/* <div className={classes.wordCount}>{wordCountFormatted}</div> */}
-    </div>
-    {/* <div className={classes.clickToPin}>Click to pin</div> */}
-    <div className={classes.rightSideItems}>
-      {/* <div className={classes.wordCount}>
-        <EditOutlinedIcon className={classes.icons} />
-        {wordCountFormatted}
-      </div> */}
-      <div className={classes.postCount}>
-        <DescriptionIcon className={classes.icons} />
-        {wikitag.postCount}
+      {/* <div className={classes.clickToPin}>Click to pin</div> */}
+      <div className={classes.rightSideItems}>
+        {/* <div className={classes.wordCount}>
+          <EditOutlinedIcon className={classes.icons} />
+          {wordCountFormatted}
+        </div> */}
+        <div className={classes.postCount}>
+          <DescriptionIcon className={classes.icons} />
+          {wikitag.postCount}
+        </div>
       </div>
     </div>
-  </div>
+  </TagsTooltip>
 
   // titleItem
   const titleItem = <div className={classes.titleItem}>
@@ -432,9 +430,6 @@ const ConceptItem = ({ wikitag, nestingLevel, index, onHover, onClick, pinnedWik
   return (
     <div 
       className={classNames(classes.root, {[classes.titleItemRoot]: nestingLevel === 0})}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onClick={handleClick}
     >
       {itemToRender}
 
@@ -443,7 +438,9 @@ const ConceptItem = ({ wikitag, nestingLevel, index, onHover, onClick, pinnedWik
         <div className={classes.children}>
           <div className={classes.childrenList}>
             {wikitag.children
-              .slice(0, showingAllChildren ? undefined : 6)
+              .slice(0, showingAllChildren ? undefined : 50)
+              //if nesting level is 2 or greater, sort by baseScore descending
+              .sort((a, b) => b.baseScore - a.baseScore)
               .map((childPage, idx) => (
                 <ConceptItem
                   key={childPage._id}
@@ -456,7 +453,7 @@ const ConceptItem = ({ wikitag, nestingLevel, index, onHover, onClick, pinnedWik
                 />
             ))}
           </div>
-          {!showingAllChildren && wikitag.children.length > 6 && (
+          {!showingAllChildren && wikitag.children.length > 50 && (
             <div 
               className={classes.showMoreChildren}
               onClick={handleShowMore}

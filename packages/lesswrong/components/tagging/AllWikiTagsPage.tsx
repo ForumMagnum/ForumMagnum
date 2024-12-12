@@ -107,9 +107,16 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
   },
 }))
 
+// Helper function to generate baseScore
+function generateBaseScore(description_length: number, postCount: number): number {
+  const baseComponent = Math.sqrt((description_length / 100) + (postCount / 2));
+  const random = Math.pow(Math.abs(Math.sin(description_length * 0.1 + postCount * 0.3)), 2) * 8;
+  return Math.min(Math.round(baseComponent + random), 25);
+}
+
 // Define the buildTree function here
 function buildTree(
-  items: WikiTagMockup[], 
+  items: Omit<WikiTagMockup, 'baseScore'>[], 
   _id: string | null = null, 
   depth = 0, 
   seen: Set<string> = new Set()
@@ -133,13 +140,19 @@ function buildTree(
     // Add current item to seen set
     seen.add(item._id);
 
+    // Add baseScore to the item
+    const itemWithScore = {
+      ...item,
+      baseScore: generateBaseScore(item.description_length, item.postCount)
+    };
+
     if (depth === 1) {
       // Skip level 1 items and process their children
       return buildTree(items, item._id, depth + 1, new Set(seen));
     } else {
       // Normal processing for other levels
       const children = buildTree(items, item._id, depth + 1, new Set(seen));
-      return [{ ...item, children }];
+      return [{ ...itemWithScore, children }];
     }
   });
 }
@@ -186,7 +199,7 @@ const AllWikiTagsPage = () => {
 
   // Move the tree-building and sorting logic here
   const sortedTree = useMemo(() => {
-    const tree = buildTree(wikitagMockupData as WikiTagMockup[], null, 0);
+    const tree = buildTree(wikitagMockupData as Omit<WikiTagMockup, 'baseScore'>[], null, 0);
     
     return tree.sort((a, b) => {
       const indexA = prioritySlugs.indexOf(a.slug as typeof prioritySlugs[number]);
@@ -199,8 +212,8 @@ const AllWikiTagsPage = () => {
       // If only one item is in priority list, it goes first
       if (indexA !== -1) return -1;
       if (indexB !== -1) return 1;
-      // For all other items, sort by viewCount
-      return (b.viewCount ?? 0) - (a.viewCount ?? 0);
+      // For all other items, sort by baseScore
+      return b.baseScore - a.baseScore;
     });
   }, [prioritySlugs]);
 
