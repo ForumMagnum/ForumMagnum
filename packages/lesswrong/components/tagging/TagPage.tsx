@@ -437,10 +437,13 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     fontSize: '1.0rem',
     fontVariant: 'all-petite-caps',
     marginBottom: 2,
+    whiteSpace: 'nowrap',
   },
   linkedTag: {
     display: 'block',
     fontSize: '1.0rem',
+    whiteSpace: 'nowrap',
+
     // marginBottom: 4,
     // color: theme.palette.primary.main,
   },
@@ -496,6 +499,48 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     '& a': {
       color: theme.palette.primary.main,
     },
+  },
+  parentsAndChildrenSmallScreensRoot: {
+    [theme.breakpoints.up('md')]: {
+      display: 'none',
+    },
+  },
+  parentChildRelationships: {
+    ...theme.typography.body2,
+    color: theme.palette.grey[600],
+    display: 'flex',
+    flexDirection: 'column',
+    lineHeight: 'inherit',
+    marginTop: 32,
+    paddingTop: 20,
+    gap: '4px',
+    fontFamily: theme.palette.fonts.sansSerifStack,
+  },
+  parentsOrChildrensSection: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  parentsOrChildrensSectionTitle: {
+    fontWeight: 550,
+    marginRight: 4,
+    color: theme.palette.grey[600],
+    whiteSpace: 'nowrap',
+  },
+  parentOrChild: {
+    fontSize: 'unset',
+    fontWeight: 400,
+    whiteSpace: 'nowrap',
+    display: 'inline-flex',
+    alignItems: 'center',
+    '&:not(:last-child)::after': {
+      content: '", "',
+      marginRight: '4px',
+    },
+  },
+  linkedTagMore: {
+    color: theme.palette.link.color,
+    // fontStyle: 'italic',
   },
 }));
 
@@ -604,25 +649,32 @@ interface ArbitalLinkedPage {
   slug: string,
 }
 
-const ArbitalLinkedPagesRightSidebar = ({arbitalLinkedPages}: {arbitalLinkedPages?: ArbitalLinkedPagesFragment}) => {
+const LinkedPageDisplay = ({linkedPage, className}: {linkedPage: ArbitalLinkedPage, className?: string}) => {
 
   const classes = useStyles(styles);
+  return <div key={linkedPage.slug} className={classNames(classes.linkedTag, className)}>
+    <Components.TagsTooltip placement="left" tagSlug={linkedPage.slug}>
+      <Link to={tagGetUrl(linkedPage)}>{linkedPage.name}</Link>
+    </Components.TagsTooltip>
+  </div>
+}
+
+const ArbitalLinkedPagesRightSidebar = ({tag, selectedLens, arbitalLinkedPages}: {tag: TagPageFragment, selectedLens?: TagLens, arbitalLinkedPages?: ArbitalLinkedPagesFragment}) => {
+  const classes = useStyles(styles);
+  const [isChildrenExpanded, setIsChildrenExpanded] = useState(false);
 
   if (!arbitalLinkedPages) {
     return null;
   }
 
-  const { TagsTooltip, ContentStyles } = Components;
+  const { ContentStyles } = Components;
 
-  const linkedPageDisplay = (linkedPage: ArbitalLinkedPage) => <div key={linkedPage.slug} className={classes.linkedTag}>
-    <TagsTooltip placement="left" tagSlug={linkedPage.slug}>
-      <Link to={tagGetUrl(linkedPage)}>{linkedPage.name}</Link>
-    </TagsTooltip>
-  </div>
 
   const hasList = (list: {_id: string, name: string, slug: string}[] | undefined) => list && list?.length > 0;
 
-  const { requirements, teaches, lessTechnical, moreTechnical, slower, faster } = arbitalLinkedPages;
+  const { requirements, teaches, lessTechnical, moreTechnical, slower, faster, parents, children } = arbitalLinkedPages;
+
+  const teachesFiltered = teaches?.filter((linkedPage: ArbitalLinkedPage) => linkedPage.slug !== selectedLens?.slug && linkedPage.slug !== tag.slug);
 
   return <ContentStyles contentType="tag">
     <div className={classes.linkedTagsHeader}>
@@ -630,27 +682,52 @@ const ArbitalLinkedPagesRightSidebar = ({arbitalLinkedPages}: {arbitalLinkedPage
 
         {hasList(requirements) && <div className={classes.linkedTagsSection}>
           <div className={classes.linkedTagsSectionTitle}>Relies on</div>
-          {requirements?.map((linkedPage: ArbitalLinkedPage) => linkedPageDisplay(linkedPage))}
+          {requirements?.map((linkedPage: ArbitalLinkedPage) => <LinkedPageDisplay key={linkedPage.slug} linkedPage={linkedPage} />)}
         </div>}
-        {hasList(teaches) && <div className={classes.linkedTagsSection}>
-          <div className={classes.linkedTagsSectionTitle}>Subjects</div>
-          {teaches?.map((linkedPage: ArbitalLinkedPage) => linkedPageDisplay(linkedPage))}
+        {hasList(teachesFiltered) && <div className={classes.linkedTagsSection}>
+          <div className={classes.linkedTagsSectionTitle}>Teaches</div>
+          {teachesFiltered?.map((linkedPage: ArbitalLinkedPage) => <LinkedPageDisplay key={linkedPage.slug} linkedPage={linkedPage} />)}
         </div>}
         {hasList(slower) && <div className={classes.linkedTagsSection}>
           <div className={classes.linkedTagsSectionTitle}>Slower alternatives</div>
-          {slower?.map((linkedPage: ArbitalLinkedPage) => linkedPageDisplay(linkedPage))}
+          {slower?.map((linkedPage: ArbitalLinkedPage) => <LinkedPageDisplay key={linkedPage.slug} linkedPage={linkedPage} />)}
         </div>}
         {hasList(lessTechnical) && <div className={classes.linkedTagsSection}>
           <div className={classes.linkedTagsSectionTitle}>Less technical alternatives</div>
-          {lessTechnical?.map((linkedPage: ArbitalLinkedPage) => linkedPageDisplay(linkedPage))}
+          {lessTechnical?.map((linkedPage: ArbitalLinkedPage) => <LinkedPageDisplay key={linkedPage.slug} linkedPage={linkedPage} />)}
         </div>}
         {hasList(faster) && <div className={classes.linkedTagsSection}>
           <div className={classes.linkedTagsSectionTitle}>Faster alternatives</div>
-          {faster?.map((linkedPage: ArbitalLinkedPage) => linkedPageDisplay(linkedPage))}
+          {faster?.map((linkedPage: ArbitalLinkedPage) => <LinkedPageDisplay key={linkedPage.slug} linkedPage={linkedPage} />)}
         </div>}
         {hasList(moreTechnical) && <div className={classes.linkedTagsSection}>
           <div className={classes.linkedTagsSectionTitle}>More technical alternatives</div>
-          {moreTechnical?.map((linkedPage: ArbitalLinkedPage) => linkedPageDisplay(linkedPage))}
+          {moreTechnical?.map((linkedPage: ArbitalLinkedPage) => <LinkedPageDisplay key={linkedPage.slug} linkedPage={linkedPage} />)}
+        </div>}
+        {hasList(parents) && <div className={classes.linkedTagsSection}>
+          <div className={classes.linkedTagsSectionTitle}>Parents</div>
+          {parents?.map((parent: ArbitalLinkedPage) => (
+            <LinkedPageDisplay key={parent.slug} linkedPage={parent} />
+          ))}
+        </div>}
+        {hasList(children) && <div className={classes.linkedTagsSection}>
+          <div className={classes.linkedTagsSectionTitle}>Children</div>
+          {children?.slice(0, isChildrenExpanded ? undefined : 2).map((child: ArbitalLinkedPage) => (
+            <LinkedPageDisplay key={child.slug} linkedPage={child} />
+          ))}
+          {!isChildrenExpanded && children?.length > 2 && (
+            <div 
+              className={classes.linkedTagMore} 
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsChildrenExpanded(true);
+              }}
+              style={{ cursor: 'pointer' }}
+            >
+              and {children.length - 2} more
+            </div>
+          )}
         </div>}
 
       </div>
@@ -714,16 +791,15 @@ const ArbitalLinkedPagesSmallScreen: FC<{
   const { requirements, teaches } = arbitalLinkedPages;
 
   return (
-    <div className={classes.mobileRelationships} ref={relationshipsRef}>
-      {requirements?.length > 0 && (
-        <div className={classes.relationshipRow} ref={requirementsRef}>
+    <Components.ContentStyles contentType="tag">
+      <div className={classes.mobileRelationships} ref={relationshipsRef}>
+        {requirements?.length > 0 && (
+          <div className={classes.relationshipRow} ref={requirementsRef}>
           <span>Requires:{'\u00A0'}</span>
           {requirements.map((req: ArbitalLinkedPage, i: number) => (
             <Fragment key={req.slug}>
               <TagsTooltip tagSlug={req.slug}>
-                <HoverPreviewLink href={tagGetUrl(req)}>
-                  {req.name}
-                </HoverPreviewLink>
+                  <Link to={tagGetUrl(req)}>{req.name}</Link>
               </TagsTooltip>
               {i < requirements.length - 1 && ',\u00A0'}
             </Fragment>
@@ -736,9 +812,7 @@ const ArbitalLinkedPagesSmallScreen: FC<{
           {teaches.map((subject: ArbitalLinkedPage, i: number) => (
             <Fragment key={subject.slug}>
               <TagsTooltip tagSlug={subject.slug}>
-                <HoverPreviewLink href={tagGetUrl(subject)}>
-                  {subject.name}
-                </HoverPreviewLink>
+                <Link to={tagGetUrl(subject)}>{subject.name}</Link>
               </TagsTooltip>
               {i < teaches.length - 1 && ',\u00A0'}
             </Fragment>
@@ -746,6 +820,7 @@ const ArbitalLinkedPagesSmallScreen: FC<{
         </div>
       )}
     </div>
+  </Components.ContentStyles>
   );
 };
 
@@ -995,6 +1070,49 @@ const ContributorsList = ({ contributors, onHoverContributor, endWithComma }: { 
     {endWithComma || idx < contributors.length - 1 ? ', ' : ''}
   </span>))}</>;
 }
+
+const ParentsAndChildrenSmallScreen: FC<{ arbitalLinkedPages?: ArbitalLinkedPagesFragment, tagOrLensName: string }> = ({ arbitalLinkedPages, tagOrLensName }) => {
+  const classes = useStyles(styles);
+  const parents: ArbitalLinkedPage[] = arbitalLinkedPages?.parents ?? [];
+  const children: ArbitalLinkedPage[] = arbitalLinkedPages?.children ?? [];
+  const [isChildrenExpanded, setIsChildrenExpanded] = useState(false);
+
+  const { ContentStyles } = Components;
+
+  if (parents.length === 0 && children.length === 0) return null;
+
+  return (
+    <ContentStyles contentType="tag" className={classes.parentsAndChildrenSmallScreensRoot}>
+      <div className={classes.parentChildRelationships}>
+        {parents.length > 0 && <div className={classes.parentsOrChildrensSection}>
+          <div className={classes.parentsOrChildrensSectionTitle}>Parents:</div>
+          {parents.map((parent: ArbitalLinkedPage) => (
+            <LinkedPageDisplay key={parent.slug} linkedPage={parent} className={classes.parentOrChild} />
+          ))}
+        </div>}
+        {children.length > 0 && <div className={classes.parentsOrChildrensSection}>
+          <div className={classes.parentsOrChildrensSectionTitle}>Children:</div>
+          {children.slice(0, isChildrenExpanded ? undefined : 2).map((child: ArbitalLinkedPage) => (
+            <LinkedPageDisplay key={child.slug} linkedPage={child} className={classes.parentOrChild} />
+          ))}
+          {!isChildrenExpanded && children.length > 2 && (
+            <div 
+              className={classes.linkedTagMore}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsChildrenExpanded(true);
+              }}
+              style={{ cursor: 'pointer' }}
+            >
+              and {children.length - 2} more
+            </div>
+          )}
+        </div>}
+      </div>
+    </ContentStyles>
+  );
+};
 
 const TagPage = () => {
   const {
@@ -1265,6 +1383,9 @@ const TagPage = () => {
           </ContentStyles>
         </div>
       </AnalyticsContext>
+      <AnalyticsContext pageSectionContext="parentsAndChildrenSmallScreenNavigationButtons">
+        <ParentsAndChildrenSmallScreen arbitalLinkedPages={selectedLens?.arbitalLinkedPages ?? undefined} tagOrLensName={selectedLens?.title ??tag.name} />
+      </AnalyticsContext>
     </div>
   );
 
@@ -1448,7 +1569,7 @@ const TagPage = () => {
 
   const rightColumn = (<div className={classes.rightColumn}>
     <div className={classes.rightColumnContent}>
-      <ArbitalLinkedPagesRightSidebar arbitalLinkedPages={selectedLens?.arbitalLinkedPages ?? undefined} />
+      <ArbitalLinkedPagesRightSidebar tag={tag} selectedLens={selectedLens} arbitalLinkedPages={selectedLens?.arbitalLinkedPages ?? undefined} />
       {/* {requirementsandalternatives}
       {subjects} */}
     </div>
