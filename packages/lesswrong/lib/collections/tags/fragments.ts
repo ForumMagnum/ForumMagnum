@@ -281,7 +281,7 @@ registerFragment(`
     }
     canVoteOnRels
     lenses {
-      ...MultiDocumentEdit
+      ...MultiDocumentWithContributors
     }
     arbitalLinkedPages {
       ...ArbitalLinkedPagesFragment
@@ -322,7 +322,7 @@ registerFragment(`
     }
     canVoteOnRels
     lenses {
-      ...MultiDocumentEdit
+      ...MultiDocumentWithContributors
     }
     arbitalLinkedPages {
       ...ArbitalLinkedPagesFragment

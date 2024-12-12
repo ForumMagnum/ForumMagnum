@@ -25,7 +25,7 @@ import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from "./TagPageExpo
 import { useStyles, defineStyles } from "../hooks/useStyles";
 import { HEADER_HEIGHT } from "../common/Header";
 import { MAX_COLUMN_WIDTH } from "../posts/PostsPage/PostsPage";
-import { MAIN_TAB_ID, TagLens, useTagLenses } from "@/lib/arbital/useTagLenses";
+import { DocumentContributorsInfo, DocumentContributorWithStats, MAIN_TAB_ID, TagLens, useTagLenses } from "@/lib/arbital/useTagLenses";
 import { quickTakesTagsEnabledSetting } from "@/lib/publicSettings";
 import { TagContributor } from "./arbitalTypes";
 import { TagEditorContext, TagEditorProvider } from "./TagEditorContext";
@@ -525,8 +525,8 @@ function useDisplayedTagTitle(tag: TagPageFragment | TagPageWithRevisionFragment
 // }
 
 // TODO: maybe move this to the server, so that the user doesn't have to wait for the hooks to run to see the contributors
-function useDisplayedContributors(tag: TagPageFragment | TagPageWithRevisionFragment | null) {
-  const contributors: TagContributor[] = tag?.contributors.contributors ?? [];
+function useDisplayedContributors(contributorsInfo: DocumentContributorsInfo | null) {
+  const contributors: DocumentContributorWithStats[] = contributorsInfo?.contributors ?? [];
   if (!contributors.some(({ contributionVolume }) => contributionVolume)) {
     return { topContributors: contributors, smallContributors: [] };
   }
@@ -944,7 +944,7 @@ function addBayesGuideScript() {
 
 addBayesGuideScript();
 
-const ContributorsList = ({ contributors, onHoverContributor, endWithComma }: { contributors: TagContributor[], onHoverContributor: (userId: string | null) => void, endWithComma: boolean }) => {
+const ContributorsList = ({ contributors, onHoverContributor, endWithComma }: { contributors: DocumentContributorWithStats[], onHoverContributor: (userId: string | null) => void, endWithComma: boolean }) => {
   const { UsersNameDisplay } = Components;
   const classes = useStyles(styles);
 
@@ -1067,7 +1067,7 @@ const TagPage = () => {
     : htmlWithAnchors
   }
 
-  const { topContributors, smallContributors } = useDisplayedContributors(tag);
+  const { topContributors, smallContributors } = useDisplayedContributors(selectedLens?.contributors ?? null);
   
   if (loadingTag && !tag)
     return <Loading/>
@@ -1332,8 +1332,19 @@ const TagPage = () => {
       {tag.contributors && <div className={classes.contributorRow}>
         <div className={classes.contributorNameWrapper}>
           <span>Written by </span>
-          <ContributorsList contributors={topContributors} onHoverContributor={onHoverContributor} endWithComma={smallContributors.length > 0} />
-          {smallContributors.length > 0 && <LWTooltip title={<ContributorsList contributors={smallContributors} onHoverContributor={onHoverContributor} endWithComma={false} />} clickable placement="top">et al.</LWTooltip>}
+          <ContributorsList 
+            contributors={topContributors} 
+            onHoverContributor={onHoverContributor} 
+            endWithComma={smallContributors.length > 0} 
+          />
+          {smallContributors.length > 0 && <LWTooltip 
+            title={<ContributorsList contributors={smallContributors} onHoverContributor={onHoverContributor} endWithComma={false} />} 
+            clickable 
+            placement="top"
+          >
+            et al.
+          </LWTooltip>
+          }
         </div>
         <div className={classes.lastUpdated}>
           {'last updated '}

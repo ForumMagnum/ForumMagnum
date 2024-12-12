@@ -33,3 +33,18 @@ registerFragment(`
     }
   }
 `);
+
+registerFragment(`
+  fragment MultiDocumentWithContributors on MultiDocument {
+    ...MultiDocumentEdit
+    contributors(limit: $contributorsLimit, version: $version) {
+      totalCount
+      contributors {
+        user {
+          ...UsersMinimumInfo
+        }
+        contributionVolume
+      }
+    }
+  }
+`);
