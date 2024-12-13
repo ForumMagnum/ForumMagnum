@@ -8,7 +8,7 @@ import DescriptionIcon from '@material-ui/icons/Description';
 import TagIcon from '@material-ui/icons/LocalOffer';
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 
-const ITEM_WIDTH = 300;
+const ITEM_WIDTH = 400;
 
 
 const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
@@ -45,40 +45,38 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     display: "flex",
     flexDirection: "column",
     alignItems: "flex-start",
+    // marginBottom: 6,
   },
   item: {
     cursor: "pointer",
-    backgroundColor: "white",
-    height: 32,
+    minHeight: 16,
     width: ITEM_WIDTH,
     maxWidth: ITEM_WIDTH,
-    // overflow: "hidden",
     borderRadius: theme.borderRadius.default,
-    padding: "1px 14px 1px 8px",
+    padding: "2px 14px 2px 8px",
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    // marginBottom: 4,
-    boxShadow: "0 1px 5px rgba(0,0,0,.075)",
-    "&:hover .ConceptItem-wordCount": {
-      opacity: 1,
-    },
-    transition: "background-color 0.1s ease",
-    "&:hover": {
-      backgroundColor: theme.palette.grey[200],
-    },
+    // backgroundColor: "white",
+    // boxShadow: "0 1px 5px rgba(0,0,0,.075)",
+    // "&:hover .ConceptItem-wordCount": {
+    //   opacity: 1,
+    // },
+    // transition: "background-color 0.1s ease",
+    // "&:hover": {
+    //   backgroundColor: theme.palette.grey[200],
+    // },
   },
   wikiItem: {
-    backgroundColor: theme.palette.grey[100],
+    // backgroundColor: theme.palette.grey[100],
     // fontWeight: 700,
   },
   titleWikiItem: {
-    fontWeight: 600,
+    // fontWeight: 500,
   },
 
   leftSideItems: {
     display: "flex",
-    maxWidth: `calc(${ITEM_WIDTH}px - 32px)`,
     alignItems: "center",
     // gap: "8px",
     overflow: "hidden",
@@ -95,19 +93,52 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     justifyContent: "flex-start",
   },
   title: {
-    // fontWeight: 400,
+    fontWeight: 400,
     flexGrow: 1,
     flexShrink: 1,
     flexBasis: 0,
     fontSize: 13,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
+    // overflow: "hidden",
     minWidth: 0,
     opacity: 0.95,
-    marginBottom: 2,
-    
+    marginBottom: 1,
+    display: "flex",
+    alignItems: "baseline",
+    gap: "4px",
+    lineHeight: "1.4",
+  },
+  titleText: {
+    wordBreak: "break-word",
+    WebkitLineClamp: 1,
+    WebkitBoxOrient: "vertical",
+    display: "-webkit-box",
+    overflow: "ellipsis",
+    '&:hover': {
+      overflow: "visible",
+      width: 500,
+      backgroundColor: theme.palette.background.default,
+    },
+  },
+  karma: {
+    fontSize: 12,
+    color: theme.palette.grey[700],
+    width: 20,
+    marginBottom: 0,
+    textAlign: "left",
+  },
+  postCount: {
+    fontSize: 10,
+    color: theme.palette.grey[600],
+    display: "flex",
+    alignItems: "center",
+    gap: "2px",
+    whiteSpace: "nowrap",
+    marginTop: 0,
+    opacity: 0.9,
+  },
+  postCountNumber: {
+    marginTop: 0,
   },
   rightSideItems: {
     display: "flex",
@@ -117,15 +148,6 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     alignItems: "center",
     gap: "4px",
     color: theme.palette.grey[600],
-  },
-  postCount: {
-    width: 20,
-    fontSize: 11,
-    color: theme.palette.grey[600],
-    display: "flex",
-    alignItems: "center",
-    // justifyContent: "flex-end",
-    // gap: "1px",
   },
   wordCount: {
     width: 40,
@@ -142,7 +164,6 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     marginRight: 2,
     // position: "relative",
   },
-
 
 
   titleItemRoot: {
@@ -213,7 +234,6 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
 
 
 
-
   collapse: {
     marginRight: 7,
     opacity: 0.5,
@@ -250,13 +270,14 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     width: "100%",
     display: "flex",
     flexWrap: "wrap",
-    gap: "12px",
+    gap: "8px",
+    rowGap: "24px",
     maxWidth: ITEM_WIDTH * 4 + 36,
   },
   column: {
     display: "flex",
     flexDirection: "column",
-    gap: "6px",
+    // gap: "1px",
     width: ITEM_WIDTH,
     flex: "0 0 auto",
   },
@@ -385,37 +406,38 @@ const ConceptItem = ({ wikitag, nestingLevel, index, onHover, onClick, pinnedWik
     <div className={classNames(classes.item, { [classes.itemPinned]: isPinned, [classes.wikiItem]: isWikiItem })} >
       {collapseToggle}
       <div className={classes.leftSideItems}>
-        <div className={classes.baseScore}>
-          {wikitag.baseScore}
-        </div>
+        <div className={classes.karma}>{wikitag.baseScore || 0}</div>
         <div className={classNames(classes.title, { [classes.titleWikiItem]: isWikiItem })}>
-          {wikitag.name}
+          <span className={classes.titleText}>{wikitag.name}</span>
+          {wikitag.postCount > 0 && <span className={classes.postCount}>
+            (<span className={classes.postCountNumber}>{wikitag.postCount}</span>)
+          </span>}
         </div>
         {/* <div className={classes.wordCount}>{wordCountFormatted}</div> */}
       </div>
       {/* <div className={classes.clickToPin}>Click to pin</div> */}
-      <div className={classes.rightSideItems}>
+      {/* <div className={classes.rightSideItems}> */}
         {/* <div className={classes.wordCount}>
           <EditOutlinedIcon className={classes.icons} />
           {wordCountFormatted}
         </div> */}
-        <div className={classes.postCount}>
+        {/* <div className={classes.postCount}>
           <DescriptionIcon className={classes.icons} />
           {wikitag.postCount}
-        </div>
-      </div>
+        </div> */}
+      {/* </div> */}
     </div>
   </TagsTooltip>
 
   // titleItem
   const titleItem = <div className={classes.titleItem}>
     {collapseToggle}
-    {/* <div className={classes.leftSideItems}> */}
+    <div className={classes.leftSideItems}>
       <div className={classes.titleItemTitle}>
         {wikitag.name}
       </div>
-    {/* </div> */}
-    <div className={classes.titlePostCount}>{wikitag.postCount} posts</div>
+      <div className={classes.titlePostCount}>{wikitag.postCount} posts</div>
+    </div>
   </div>
 
   // groupingItem
@@ -448,8 +470,8 @@ const ConceptItem = ({ wikitag, nestingLevel, index, onHover, onClick, pinnedWik
   };
 
   // Constants
-  const ITEMS_PER_COLUMN = 6;
-  const MAX_INITIAL_COLUMNS = 4; // Adjust as needed
+  const ITEMS_PER_COLUMN = 8;
+  const MAX_INITIAL_COLUMNS = 3; // Adjust as needed
   const MAX_INITIAL_ITEMS = ITEMS_PER_COLUMN * MAX_INITIAL_COLUMNS; // Calculate based on columns
 
   // Calculate the number of items to show

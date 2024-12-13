@@ -139,6 +139,7 @@ registerFragment(`
       htmlHighlight
     }
     canVoteOnRels
+    isArbitalImport
   }
 `);
 

@@ -2672,6 +2672,7 @@ interface TagPreviewFragment extends TagBasicInfo { // fragment on Tags
   readonly subTags: Array<TagBasicInfo>,
   readonly description: TagPreviewFragment_description|null,
   readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
+  readonly isArbitalImport: boolean|null,
 }
 
 interface TagPreviewFragment_description { // fragment on Revisions

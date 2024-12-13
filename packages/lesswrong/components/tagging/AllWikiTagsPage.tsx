@@ -17,25 +17,33 @@ import { wikitagMockupData } from './wikitag_mockup_data';
 const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
   root: {
     padding: "0 100px",
-    // maxWidth: 1000,
+    maxWidth: 1100,
+    margin: "0 auto",
+    position: 'relative',
   },
   topSection: {
-    marginBottom: 60,
+    marginBottom: 20,
     display: "flex",
-    alignItems: "center",
+    flexDirection: "column",
     gap: "32px",
-    height: 60,
+  },
+  mainRow: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: "16px",
   },
   titleSection: {
     flex: "0 0 auto",
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '8px',
   },
   addTagSection: {
-    marginLeft: "auto",
-    flex: "0 0 auto",
-    display: "flex",
-    alignItems: "center",
-    height: "100%",
-    marginBottom: 10,
+    position: 'absolute',
+    top: 78,
+    right: 20,
   },
   addTagButton: {
     marginBottom: -10,
@@ -56,21 +64,18 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
     width: "100%",
     margin: "0 auto",
     height: "100%",
+    maxWidth: 600,
   },
   searchIcon: {
-    // position: 'absolute',
-    // right: '15px',
-    // top: '50%',
-    // transform: 'translateY(-70%)',
     color: theme.palette.grey[500],
-    marginLeft: -25,
+    marginLeft: -35,
   },
   searchBar: {
     width: "100%",
     padding: 12,
     fontSize: "1.4rem",
     boxSizing: "border-box",
-    borderRadius: 0,
+    borderRadius: 12
   },
   mainContent: {
     display: "flex",
@@ -132,9 +137,9 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
 
 // Helper function to generate baseScore
 function generateBaseScore(description_length: number, postCount: number): number {
-  const baseComponent = Math.sqrt((description_length / 100) + (postCount / 2));
+  const baseComponent = Math.sqrt((description_length / 100)); // + (postCount / 2));
   const random = Math.pow(Math.abs(Math.sin(description_length * 0.1 + postCount * 0.3)), 2) * 8;
-  return Math.min(Math.round(baseComponent + random), 25);
+  return Math.round(baseComponent + random);
 }
 
 // Define the buildTree function here
@@ -144,38 +149,36 @@ function buildTree(
   depth = 0, 
   seen: Set<string> = new Set()
 ): WikiTagNode[] {
-  // Prevent excessive recursion
   if (depth > 5) {
     console.warn('Maximum depth exceeded in buildTree');
     return [];
   }
 
-  // Filter items where parentTagId matches the current _id
   const filteredItems = items.filter(item => item.parentTagId === _id);
+  
+  // Add baseScore to all items first
+  const itemsWithScore = filteredItems.map(item => ({
+    ...item,
+    baseScore: generateBaseScore(item.description_length, item.postCount)
+  }));
 
-  return filteredItems.flatMap(item => {
-    // Check for circular references
+  // Sort items by baseScore before processing
+  const sortedItems = itemsWithScore.sort((a, b) => b.baseScore - a.baseScore);
+
+  return sortedItems.flatMap(item => {
     if (seen.has(item._id)) {
       console.warn(`Circular reference detected for item ${item._id}`);
       return [];
     }
 
-    // Add current item to seen set
     seen.add(item._id);
 
-    // Add baseScore to the item
-    const itemWithScore = {
-      ...item,
-      baseScore: generateBaseScore(item.description_length, item.postCount)
-    };
-
     if (depth === 1) {
-      // Skip level 1 items and process their children
       return buildTree(items, item._id, depth + 1, new Set(seen));
     } else {
-      // Normal processing for other levels
-      const children = buildTree(items, item._id, depth + 1, new Set(seen));
-      return [{ ...itemWithScore, children }];
+      const children = buildTree(items, item._id, depth + 1, new Set(seen))
+        .sort((a, b) => b.baseScore - a.baseScore); // Sort children by baseScore
+      return [{ ...item, children }];
     }
   });
 }
@@ -252,68 +255,66 @@ const AllWikiTagsPage = () => {
 
   return (
     <AnalyticsContext pageContext="allWikiTagsPage">
-      <div className={classes.root} onClick={handleBackgroundClick}>
-
-        {/* <div>CURRENTLY SET WIKITAG: {pinnedWikiTag?.name}</div>
-        <div>CURRENTLY HOVERED WIKITAG: {selectedWikiTag?.name}</div> */}
-
-
-        <div className={classes.topSection}>
-          <div className={classes.titleSection}>
-            <div className={classes.titleClass}>Concepts</div>
-          </div>
-          
-          <div className={classes.searchContainer}>
-            <input
-              type="text"
-              className={classes.searchBar}
-              placeholder="What would you like to read about?"
-            />
-            <SearchIcon className={classes.searchIcon} />
-          </div>
-
-          <div className={classes.addTagSection}>
-            <SectionButton>
-              {currentUser && tagUserHasSufficientKarma(currentUser, "new") && <LWTooltip title="A WikiTag is a combination of a wiki page and a tag. It has either a wiki entry, a list of posts with that tag, or both!">
-                <Link
-                  to={tagCreateUrl}
-                  className={classes.addTagButton}
-                >
-                  <AddBoxIcon/>
-                  New WikiTag
-                </Link>
-              </LWTooltip>}
-              {!currentUser && <a 
-                onClick={(ev) => {
-                  openDialog({
-                    componentName: "LoginPopup",
-                    componentProps: {}
-                  });
-                  ev.preventDefault();
-                }}
+      <div>
+        <div className={classes.addTagSection}>
+          <SectionButton>
+            {currentUser && tagUserHasSufficientKarma(currentUser, "new") && <LWTooltip title="A WikiTag is a combination of a wiki page and a tag. It has either a wiki entry, a list of posts with that tag, or both!">
+              <Link
+                to={tagCreateUrl}
                 className={classes.addTagButton}
               >
                 <AddBoxIcon/>
-                New Wiki Page
-              </a>}
-            </SectionButton>
-          </div>
+                New WikiTag
+              </Link>
+            </LWTooltip>}
+            {!currentUser && <a 
+              onClick={(ev) => {
+                openDialog({
+                  componentName: "LoginPopup",
+                  componentProps: {}
+                });
+                ev.preventDefault();
+              }}
+              className={classes.addTagButton}
+            >
+              <AddBoxIcon/>
+              New Wiki Page
+            </a>}
+          </SectionButton>
         </div>
-        <div className={classes.mainContent} onClick={handleBackgroundClick}>
-
-
-          <div className={classes.wikiTagNestedList}>
-            <WikiTagNestedList 
-              pages={filteredTree}
-              onHover={handleHover} 
-              onClick={handleClick}
-              // pinnedWikiTag={pinnedWikiTag}
-            />
+        <div className={classes.root} onClick={handleBackgroundClick}>
+          <div className={classes.topSection}>
+            <div className={classes.mainRow}>
+              <div className={classes.titleSection}>
+                <div className={classes.titleClass}>Concepts</div>
+              </div>
+              <div className={classes.searchContainer}>
+                <input
+                  type="text"
+                  className={classes.searchBar}
+                  placeholder="What would you like to understand?"
+                />
+                <SearchIcon className={classes.searchIcon} />
+              </div>
+            </div>
           </div>
+          
+          <div className={classes.mainContent} onClick={handleBackgroundClick}>
+
+
+            <div className={classes.wikiTagNestedList}>
+              <WikiTagNestedList 
+                pages={filteredTree}
+                onHover={handleHover} 
+                onClick={handleClick}
+                // pinnedWikiTag={pinnedWikiTag}
+              />
+            </div>
 
 
 
 
+          </div>
         </div>
       </div>
     </AnalyticsContext>
