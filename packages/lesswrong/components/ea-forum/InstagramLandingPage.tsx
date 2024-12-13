@@ -23,6 +23,7 @@ const styles = (theme: ThemeType) => ({
 
 const postIds = [
   'ZhNaizQgYY9dXdQkM', // Intro to EA
+  'hKfXxfkQ8XCT5ZBRX', // AGB AMA
   '9pkjXwe2nFun32hR2', // mirror bacteria
   '3ZSG22tDuDLxTLY4n', // Allan AMA
   'mEQTxDGp4MxMSZA74', // Still donating half
