@@ -34,7 +34,6 @@ function generateAllComponentsVite(): string {
       .filter(f => f.endsWith(".tsx"))
       .map(f => {
         const relativePath = f.replace('packages/lesswrong/components/', '../../components/');
-        console.log(`${f} relativizes to ${relativePath}`);
         return `import "${relativePath}"`;
       })
       .join("\n")
