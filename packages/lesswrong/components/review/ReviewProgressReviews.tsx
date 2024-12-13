@@ -32,7 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-export const UserReviewsProgressBar = ({classes, reviewYear}: {
+export const ReviewProgressReviews = ({classes, reviewYear}: {
   classes: ClassesType,
   reviewYear: ReviewYear
 }) => {
@@ -76,11 +76,11 @@ export const UserReviewsProgressBar = ({classes, reviewYear}: {
   </LWTooltip>
 }
 
-const UserReviewsProgressBarComponent = registerComponent('UserReviewsProgressBar', UserReviewsProgressBar, {styles});
+const ReviewProgressReviewsComponent = registerComponent('ReviewProgressReviews', ReviewProgressReviews, {styles});
 
 declare global {
   interface ComponentTypes {
-    UserReviewsProgressBar: typeof UserReviewsProgressBarComponent
+    ReviewProgressReviews: typeof ReviewProgressReviewsComponent
   }
 }
 
