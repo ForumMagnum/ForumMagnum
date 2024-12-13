@@ -227,7 +227,6 @@ export type ForumIconName =
   "NarrowArrowUp" |
   "Plus" |
   "Check" |
-  "CheckOutlined" |
   "CheckCircle" |
   "CheckSmall" |
   "Card" |
