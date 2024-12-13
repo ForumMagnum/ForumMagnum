@@ -20,21 +20,42 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
     // maxWidth: 1000,
   },
   topSection: {
-    marginBottom: 32,
+    marginBottom: 60,
+    display: "flex",
+    alignItems: "center",
+    gap: "32px",
+    height: 60,
+  },
+  titleSection: {
+    flex: "0 0 auto",
+  },
+  addTagSection: {
+    marginLeft: "auto",
+    flex: "0 0 auto",
+    display: "flex",
+    alignItems: "center",
+    height: "100%",
+    marginBottom: 10,
   },
   addTagButton: {
-    verticalAlign: "middle",
+    marginBottom: -10,
+    display: 'flex',
+    alignItems: 'center',
+    '& svg': {
+      marginRight: 4,
+    }
   },
   titleClass: {
     fontSize: "4rem",
-    fontWeight: 500,
-    marginBottom: 32,
+    fontWeight: 300,
+    marginBottom: 8,
   },
   searchContainer: {
     display: "flex",
     alignItems: "center",
-    width: 400,
-    // marginTop: theme.spacing.unit * 4,
+    width: "100%",
+    margin: "0 auto",
+    height: "100%",
   },
   searchIcon: {
     // position: 'absolute',
@@ -46,9 +67,10 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
   },
   searchBar: {
     width: "100%",
-    padding: 8,
-    fontSize: "1.0rem",
+    padding: 12,
+    fontSize: "1.4rem",
     boxSizing: "border-box",
+    borderRadius: 0,
   },
   mainContent: {
     display: "flex",
@@ -167,6 +189,8 @@ const AllWikiTagsPage = () => {
   const [selectedWikiTag, setSelectedWikiTag] = useState<WikiTagMockup | null>(null);
   const [pinnedWikiTag, setPinnedWikiTag] = useState<WikiTagMockup | null>(null);
 
+  const { LWTooltip } = Components;
+
   const handleHover = (wikitag: WikiTagMockup | null) => {
     if (!pinnedWikiTag && wikitag && (wikitag.description_length > 0 || wikitag.postCount > 0)) {
       setSelectedWikiTag(wikitag);
@@ -235,35 +259,45 @@ const AllWikiTagsPage = () => {
 
 
         <div className={classes.topSection}>
-            <SectionTitle title="Concepts" titleClassName={classes.titleClass}>
-              <SectionButton>
-                {currentUser && tagUserHasSufficientKarma(currentUser, "new") && <Link
+          <div className={classes.titleSection}>
+            <div className={classes.titleClass}>Concepts</div>
+          </div>
+          
+          <div className={classes.searchContainer}>
+            <input
+              type="text"
+              className={classes.searchBar}
+              placeholder="What would you like to read about?"
+            />
+            <SearchIcon className={classes.searchIcon} />
+          </div>
+
+          <div className={classes.addTagSection}>
+            <SectionButton>
+              {currentUser && tagUserHasSufficientKarma(currentUser, "new") && <LWTooltip title="A WikiTag is a combination of a wiki page and a tag. It has either a wiki entry, a list of posts with that tag, or both!">
+                <Link
                   to={tagCreateUrl}
+                  className={classes.addTagButton}
                 >
-                  <AddBoxIcon className={classes.addTagButton}/>
-                  New {taggingNameCapitalSetting.get()}
-                </Link>}
-                {!currentUser && <a onClick={(ev) => {
+                  <AddBoxIcon/>
+                  New WikiTag
+                </Link>
+              </LWTooltip>}
+              {!currentUser && <a 
+                onClick={(ev) => {
                   openDialog({
                     componentName: "LoginPopup",
                     componentProps: {}
                   });
                   ev.preventDefault();
-                }}>
-                  <AddBoxIcon className={classes.addTagButton}/>
-                  New {taggingNameCapitalSetting.get()}
-                </a>}
-              </SectionButton>
-            </SectionTitle>
-
-            <div className={classes.searchContainer}>
-              <input
-                type="text"
-                className={classes.searchBar}
-                placeholder="What would you like to read about?"
-              />
-              <SearchIcon className={classes.searchIcon} />
-            </div>
+                }}
+                className={classes.addTagButton}
+              >
+                <AddBoxIcon/>
+                New Wiki Page
+              </a>}
+            </SectionButton>
+          </div>
         </div>
         <div className={classes.mainContent} onClick={handleBackgroundClick}>
 

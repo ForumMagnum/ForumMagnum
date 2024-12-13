@@ -69,7 +69,7 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     },
   },
   wikiItem: {
-    // backgroundColor: theme.palette.grey[50],
+    backgroundColor: theme.palette.grey[100],
     // fontWeight: 700,
   },
   titleWikiItem: {
@@ -379,7 +379,7 @@ const ConceptItem = ({ wikitag, nestingLevel, index, onHover, onClick, pinnedWik
     />
   </div>
 
-  const isWikiItem = wikitag.description_length > 1000;
+  const isWikiItem = wikitag.description_length > 2000;
   // regularItem
   const regularItem = <TagsTooltip tagSlug={wikitag.slug} hash={wikitag.slug} noPrefetch previewPostCount={0}>
     <div className={classNames(classes.item, { [classes.itemPinned]: isPinned, [classes.wikiItem]: isWikiItem })} >
