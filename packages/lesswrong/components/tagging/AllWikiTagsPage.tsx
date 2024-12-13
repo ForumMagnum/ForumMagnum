@@ -13,6 +13,7 @@ import SearchIcon from '@material-ui/icons/Search';
 // Import the mock data and types
 import { WikiTagMockup, WikiTagNode } from './types'; // Adjust the import path as needed
 import { wikitagMockupData } from './wikitag_mockup_data';
+import classNames from 'classnames';
 
 const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
   root: {
@@ -43,8 +44,13 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
   },
   addTagSection: {
     position: 'absolute',
-    top: 78,
     right: 20,
+  },
+  addTagSectionWithArbital: {
+    top: 140,
+  },
+  addTagSectionWithoutArbital: {
+    top: 78,
   },
   addTagButton: {
     marginBottom: -10,
@@ -141,6 +147,29 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
     //don't wrap
     whiteSpace: 'nowrap',
     flexShrink: 0,
+  },
+  arbitalNotice: {
+    height: 64,
+    width: '100%',
+    backgroundColor: 'rgb(0, 77, 64)',
+    borderBottom: '1px solid rgba(0, 0, 0, 0.2)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: 'white',
+    fontSize: '1.2rem',
+    cursor: 'pointer',
+    padding: '0 20px',
+    textAlign: 'center',
+    marginTop: '-50px',
+    '&:hover': {
+      backgroundColor: 'rgb(0, 150, 136)'
+    }
+  },
+  arbitalLogo: {
+    height: '40px',
+    position: 'absolute',
+    left: 10,
   },
 }))
 
@@ -249,10 +278,23 @@ const AllWikiTagsPage = () => {
     [sortedTree, prioritySlugs]
   );
 
+  const arbitalLink = false;
+  
   return (
     <AnalyticsContext pageContext="allWikiTagsPage">
       <div>
-      <div className={classes.addTagSection}>
+        {arbitalLink && <div className={classes.arbitalNotice}>
+          <img 
+            src="https://res.cloudinary.com/dq3pms5lt/image/upload/v1731627638/Arbital_qwot9z.png"
+            alt="Arbital Logo"
+            className={classes.arbitalLogo}
+          />
+          You clicked on a link to Arbital. All Arbital content can now be found on LessWrong. Click here to learn more.
+        </div>}
+        <div className={classNames(
+          classes.addTagSection, 
+          arbitalLink ? classes.addTagSectionWithArbital : classes.addTagSectionWithoutArbital
+        )}>
           <SectionButton>
             {currentUser && tagUserHasSufficientKarma(currentUser, "new") && <Link
               to={tagCreateUrl}
@@ -276,22 +318,20 @@ const AllWikiTagsPage = () => {
             </a>}
           </SectionButton>
         </div>
-      <div className={classes.root} onClick={handleBackgroundClick}>
-        
-
-        <div className={classes.topSection}>
-          <div className={classes.mainRow}>
-            <SectionTitle title="Concepts" titleClassName={classes.titleClass} />
-            <div className={classes.searchContainer}>
-              <input
-                type="text"
-                className={classes.searchBar}
-                placeholder="What would you like to understand?"
-              />
-              <SearchIcon className={classes.searchIcon} />
+        <div className={classes.root} onClick={handleBackgroundClick}>
+          <div className={classes.topSection}>
+            <div className={classes.mainRow}>
+              <SectionTitle title="Concepts" titleClassName={classes.titleClass} />
+              <div className={classes.searchContainer}>
+                <input
+                  type="text"
+                  className={classes.searchBar}
+                  placeholder="What would you like to understand?"
+                />
+                <SearchIcon className={classes.searchIcon} />
+              </div>
             </div>
           </div>
-        </div>
 
         <div className={classes.mainContent} onClick={handleBackgroundClick}>
           <div className={classes.wikiTagNestedList}>

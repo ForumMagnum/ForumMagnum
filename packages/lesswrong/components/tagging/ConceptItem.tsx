@@ -49,25 +49,12 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     WebkitColumnBreakInside: "avoid",
   },
   item: {
-    // backgroundColor: "white",
-    // height: 32,
     width: ITEM_WIDTH,
-    // maxWidth: ITEM_WIDTH,
-    // overflow: "hidden",
     borderRadius: theme.borderRadius.default,
     padding: "1px 16px",
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    // marginBottom: 4,
-    // boxShadow: "0 1px 5px rgba(0,0,0,.075)",
-    // "&:hover .ConceptItem-wordCount": {
-    //   opacity: 1,
-    // },
-    // transition: "background-color 0.1s ease",
-    // "&:hover": {
-    //   backgroundColor: theme.palette.grey[200],
-    // },
   },
 
   leftSideItems: {
@@ -144,13 +131,11 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     width: '100%',
   },
   titleItem: {
-    marginBottom: -8,
-    backgroundColor: "unset",
-    width: '100%',
+    width: "100%",
+    padding: "1px 16px",
     display: "flex",
     alignItems: "center",
-    gap: "12px",
-    justifyContent: "flex-start",
+    justifyContent: "space-between",
   },
   titleItemTitle: {
     fontWeight: 600,
