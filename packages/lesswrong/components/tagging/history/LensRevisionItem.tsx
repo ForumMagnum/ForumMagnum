@@ -21,7 +21,7 @@ const styles = defineStyles("LensRevisionItem", (theme: ThemeType) => ({
 const LensRevisionItem = ({tag, collapsed, lens, revision, noContainer = false}: {
   tag: TagBasicInfo,
   collapsed?: boolean,
-  lens: MultiDocumentEdit | TagLens,
+  lens: MultiDocumentContentDisplay | TagLens,
   revision: RevisionHistoryEntry,
   noContainer?: boolean,
 }) => {

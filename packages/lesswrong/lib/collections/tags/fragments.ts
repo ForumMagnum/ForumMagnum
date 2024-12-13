@@ -79,10 +79,7 @@ registerFragment(`
       ...UsersMinimumInfo
     }
     lenses {
-      ...MultiDocumentEdit
-    }
-    arbitalLinkedPages {
-      ...ArbitalLinkedPagesFragment
+      ...MultiDocumentContentDisplay
     }
   }
 `);

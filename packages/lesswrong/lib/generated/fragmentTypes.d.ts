@@ -2638,8 +2638,7 @@ interface TagFragment_description { // fragment on Revisions
 interface TagHistoryFragment extends TagFragment { // fragment on Tags
   readonly tableOfContents: any,
   readonly user: UsersMinimumInfo|null,
-  readonly lenses: Array<MultiDocumentEdit>,
-  readonly arbitalLinkedPages: ArbitalLinkedPagesFragment,
+  readonly lenses: Array<MultiDocumentContentDisplay>,
 }
 
 interface TagCreationHistoryFragment extends TagFragment { // fragment on Tags
@@ -3926,7 +3925,7 @@ interface MultiDocumentsDefaultFragment { // fragment on MultiDocuments
   readonly contributionStats: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
-interface MultiDocumentEdit { // fragment on MultiDocuments
+interface MultiDocumentContentDisplay { // fragment on MultiDocuments
   readonly _id: string,
   readonly parentDocumentId: string,
   readonly collectionName: string,
@@ -3941,8 +3940,11 @@ interface MultiDocumentEdit { // fragment on MultiDocuments
   readonly index: number,
   readonly tableOfContents: any /*{"definitions":[{}]}*/,
   readonly contents: RevisionEdit|null,
-  readonly arbitalLinkedPages: ArbitalLinkedPagesFragment,
   readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
+}
+
+interface MultiDocumentEdit extends MultiDocumentContentDisplay { // fragment on MultiDocuments
+  readonly arbitalLinkedPages: ArbitalLinkedPagesFragment,
 }
 
 interface MultiDocumentParentDocument extends MultiDocumentEdit { // fragment on MultiDocuments
@@ -4604,6 +4606,7 @@ interface FragmentTypes {
   UserRateLimitDisplay: UserRateLimitDisplay
   SideCommentCacheMinimumInfo: SideCommentCacheMinimumInfo
   MultiDocumentsDefaultFragment: MultiDocumentsDefaultFragment
+  MultiDocumentContentDisplay: MultiDocumentContentDisplay
   MultiDocumentEdit: MultiDocumentEdit
   MultiDocumentParentDocument: MultiDocumentParentDocument
   MultiDocumentWithContributors: MultiDocumentWithContributors
@@ -4714,7 +4717,7 @@ interface FragmentTypesByCollection {
   ModerationTemplates: "ModerationTemplatesDefaultFragment"|"ModerationTemplateFragment"
   CurationNotices: "CurationNoticesDefaultFragment"|"CurationNoticesFragment"
   UserRateLimits: "UserRateLimitsDefaultFragment"|"UserRateLimitDisplay"
-  MultiDocuments: "MultiDocumentsDefaultFragment"|"MultiDocumentEdit"|"MultiDocumentParentDocument"|"MultiDocumentWithContributors"
+  MultiDocuments: "MultiDocumentsDefaultFragment"|"MultiDocumentContentDisplay"|"MultiDocumentEdit"|"MultiDocumentParentDocument"|"MultiDocumentWithContributors"
   ElicitQuestions: "ElicitQuestionsDefaultFragment"
   ElicitQuestionPredictions: "ElicitQuestionPredictionsDefaultFragment"
   DialogueChecks: "DialogueChecksDefaultFragment"|"DialogueCheckInfo"
@@ -4982,6 +4985,7 @@ interface CollectionNamesByFragmentName {
   UserRateLimitDisplay: "UserRateLimits"
   SideCommentCacheMinimumInfo: "SideCommentCaches"
   MultiDocumentsDefaultFragment: "MultiDocuments"
+  MultiDocumentContentDisplay: "MultiDocuments"
   MultiDocumentEdit: "MultiDocuments"
   MultiDocumentParentDocument: "MultiDocuments"
   MultiDocumentWithContributors: "MultiDocuments"

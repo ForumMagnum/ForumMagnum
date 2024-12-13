@@ -33,7 +33,7 @@ export interface TagLens {
   oldSlugs: string[];
   userId: string;
   legacyData: AnyBecauseHard;
-  originalLensDocument: MultiDocumentEdit | null;
+  originalLensDocument: MultiDocumentContentDisplay | MultiDocumentWithContributors | null;
   arbitalLinkedPages: ArbitalLinkedPagesFragment | null;
 }
 
@@ -63,7 +63,7 @@ function getDefaultLens(tag: TagPageWithArbitalContentFragment | TagPageRevision
     userId: tag.userId,
     legacyData: {},
     originalLensDocument: null,
-    arbitalLinkedPages: tag.arbitalLinkedPages,
+    arbitalLinkedPages: 'arbitalLinkedPages' in tag ? tag.arbitalLinkedPages : null,
   }
 }
 
@@ -76,6 +76,7 @@ export function getAvailableLenses(tag: TagPageWithArbitalContentFragment | TagP
       index: lens.index + 1,
       title: lens.title ?? tag.name,
       contributors: 'contributors' in lens ? lens.contributors : null,
+      arbitalLinkedPages: 'arbitalLinkedPages' in lens ? lens.arbitalLinkedPages : null,
       originalLensDocument: lens,
     }))
   ];

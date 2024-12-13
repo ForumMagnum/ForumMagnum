@@ -26,7 +26,7 @@ const styles = (theme: ThemeType) => ({
 
 const TagRevisionItemShortMetadata = ({tag, lens, revision, classes}: {
   tag: TagBasicInfo,
-  lens?: MultiDocumentEdit | TagLens,
+  lens?: MultiDocumentContentDisplay | TagLens,
   revision: RevisionHistoryEntry,
   classes: ClassesType,
 }) => {

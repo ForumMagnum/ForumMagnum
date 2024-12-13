@@ -1,8 +1,8 @@
 import { registerFragment } from '../../vulcan-lib';
 
 registerFragment(`
-  fragment MultiDocumentEdit on MultiDocument {
-    _id
+  fragment MultiDocumentContentDisplay on MultiDocument {
+        _id
     parentDocumentId
     collectionName
     fieldName
@@ -18,10 +18,16 @@ registerFragment(`
     contents {
       ...RevisionEdit
     }
+    legacyData
+  }
+`);
+
+registerFragment(`
+  fragment MultiDocumentEdit on MultiDocument {
+    ...MultiDocumentContentDisplay
     arbitalLinkedPages {
       ...ArbitalLinkedPagesFragment
     }
-    legacyData
   }
 `);
 
