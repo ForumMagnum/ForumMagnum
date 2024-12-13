@@ -69,28 +69,26 @@ addGraphQLResolvers({
       })
       return true
     },
-    // RemoveForumEventSticker: (
-    //   _root: void,
-    //   {forumEventId}: {forumEventId: string},
-    //   context: ResolverContext,
-    // ) => {
-    //   // TODO
-    //   // if (!context.currentUser) {
-    //   //   throw new Error("Permission denied");
-    //   // }
+    RemoveForumEventSticker: async (
+      _root: void,
+      {forumEventId}: {forumEventId: string},
+      {currentUser, repos}: ResolverContext,
+    ) => {
+      if (!currentUser) {
+        throw new Error("Permission denied");
+      }
 
-    //   // if (electionName !== 'reviewVoting2022') {
-    //   //   throw new Error('Invalid electionName!');
-    //   // }
-
-    //   // return context.repos.databaseMetadata.removeGivingSeasonHeart(
-    //   //   electionName,
-    //   //   context.currentUser._id,
-    //   // );
-    // },
+      await repos.forumEvents.removeSticker(forumEventId, currentUser._id)
+      captureEvent("addForumEventSticker", {
+        forumEventId,
+        userId: currentUser._id
+      })
+      return true;
+    },
   },
 })
 
 addGraphQLMutation('AddForumEventVote(forumEventId: String!, x: Float!, delta: Float, postIds: [String]): Boolean')
 addGraphQLMutation('RemoveForumEventVote(forumEventId: String!): Boolean')
 addGraphQLMutation('AddForumEventSticker(forumEventId: String!, x: Float!, y: Float!, theta: Float!): Boolean')
+addGraphQLMutation('RemoveForumEventSticker(forumEventId: String!): Boolean')

@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { Link } from "@/lib/reactRouterWrapper";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
@@ -17,12 +17,6 @@ import classNames from "classnames";
 import moment from "moment";
 import type { Moment } from "moment";
 import type { ForumIconName } from "../common/ForumIcon";
-import { GivingSeasonHeart } from "../review/ReviewVotingCanvas";
-import { gql, useMutation } from "@apollo/client";
-import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
-import { useMulti } from "@/lib/crud/withMulti";
-import { useCurrentUser } from "../common/withUser";
-import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
 
 const DOT_SIZE = 12;
 
@@ -33,26 +27,6 @@ const PASS_THROUGH_POINTER_EVENTS = {
     pointerEvents: "all",
   },
 }
-
-// TODO:
-// - Potentially mess with the header bar, to allow placing hearts there
-
-// Notes (TODO remove):
-// - coords should be normalised, the reference is the div with class GivingSeason2024Banner-root
-// - when displaying, stick the hearts to the eventDetails container for the Donation Celebration
-//   - This means
-//
-const DEBUG_HEARTS: GivingSeasonHeart[] = [
-  { userId: "1", displayName: "User1", x: 0, y: 0, theta: 0 },
-  { userId: "2", displayName: "User2", x: 0.5, y: 0, theta: 0 },
-  { userId: "3", displayName: "User3", x: 1, y: 0, theta: 0 },
-  { userId: "4", displayName: "User4", x: 0, y: 0.5, theta: 0 },
-  { userId: "5", displayName: "User5", x: 0.5, y: 0.5, theta: 0 },
-  { userId: "6", displayName: "User6", x: 1, y: 0.5, theta: 0 },
-  { userId: "7", displayName: "User7", x: 0, y: 1, theta: 0 },
-  { userId: "8", displayName: "User8", x: 0.5, y: 1, theta: 0 },
-  { userId: "9", displayName: "User9", x: 1, y: 1, theta: 0 }
-];
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -92,6 +66,33 @@ const styles = (theme: ThemeType) => ({
     backgroundRepeat: "no-repeat",
     backgroundBlendMode: "darken",
     overflow: "hidden"
+  },
+  mainContainer: {
+    ...PASS_THROUGH_POINTER_EVENTS,
+    position: "relative",
+    display: "flex",
+    flexDirection: "row",
+    gap: "8px",
+    alignItems: "center",
+    [theme.breakpoints.down(GIVING_SEASON_DESKTOP_WIDTH)]: {
+      padding: "0 24px",
+    },
+    [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
+      flexDirection: "column",
+    },
+  },
+  mobileOverlay: {
+    ...PASS_THROUGH_POINTER_EVENTS,
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+    opacity: 0,
+    transition: "opacity 0.5s ease",
+    // Translucent gradient so the text is readable over the hearts on mobile
+    background: "linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.3) 25%, rgba(255, 255, 255, 0.3) 75%, rgba(255, 255, 255, 0) 100%)",
+    [theme.breakpoints.up(GIVING_SEASON_MOBILE_WIDTH)]: {
+      display: "none"
+    },
   },
   backgroundActive: {
     opacity: 1,
@@ -188,19 +189,8 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.text.alwaysWhite,
     transition: "background 0.5s ease",
   },
-  mainContainer: {
-    display: "flex",
-    flexDirection: "row",
-    gap: "8px",
-    alignItems: "center",
-    [theme.breakpoints.down(GIVING_SEASON_DESKTOP_WIDTH)]: {
-      padding: "0 24px",
-    },
-    [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
-      flexDirection: "column",
-    },
-  },
   detailsContainer: {
+    ...PASS_THROUGH_POINTER_EVENTS,
     transition: "max-height ease-in-out 0.35s",
     maxHeight: 500,
     width: "100%",
@@ -245,6 +235,7 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 8,
   },
   eventName: {
+    width: "fit-content",
     maxWidth: 640,
     fontSize: 40,
     fontWeight: 700,
@@ -409,297 +400,8 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
       marginBottom: 16
     },
-  },
-  heartsContainer: {
-    width: "100%",
-    height: "100%",
-    position: "absolute"
-  },
-  heart: {
-    color: theme.palette.givingSeason.heart,
-    width: 20,
-    height: 20,
-    position: "absolute",
-    transformOrigin: "center",
-    // TODO probably smaller on mobile
-  },
-  hoverHeart: {
-    opacity: 0.5,
-    pointerEvents: "none",
-  },
+  }
 });
-
-const addForumEventStickerQuery = gql`
-  mutation AddForumEventSticker($forumEventId: String!, $x: Float!, $delta: Float, $postIds: [String]) {
-    AddForumEventSticker(forumEventId: $forumEventId, x: $x, y: $y, theta: $theta)
-  }
-`;
-const removeForumEventStickerQuery = gql`
-  mutation RemoveForumEventSticker($forumEventId: String!) {
-    RemoveForumEventSticker(forumEventId: $forumEventId)
-  }
-`;
-
-
-type ForumEventStickerData = Record<
-  string,
-  {
-    x: number;
-    y: number;
-    theta: number;
-  }
->;
-
-type ForumEventStickerDisplay = {
-  x: number;
-  y: number;
-  theta: number;
-  user: UsersMinimumInfo;
-  comment: ShortformComments | null;
-};
-
-function stickerDataToArray({
-  data,
-  users,
-  comments,
-}: {
-  data: ForumEventStickerData;
-  users: UsersMinimumInfo[];
-  comments: ShortformComments[] | undefined;
-}): ForumEventStickerDisplay[] {
-  if (!users || !comments) {
-    return [];
-  }
-
-  return users
-    .map((user) => {
-      const sticker = data[user._id];
-
-      if (!sticker) return undefined;
-
-      const comment = comments?.find(comment => comment.userId === user._id) || null
-
-      return {
-        x: sticker.x,
-        y: sticker.y,
-        theta: sticker.theta,
-        user,
-        comment,
-      };
-    })
-    .filter((sticker) => !!sticker) as ForumEventStickerDisplay[];
-}
-
-const Hearts: FC<{
-  classes: ClassesType<typeof styles>;
-}> = ({ classes }) => {
-  const { ForumIcon, ForumEventCommentForm } = Components;
-
-  const { currentForumEvent, refetch } = useCurrentForumEvent();
-  // TODO merge with ForumEventPoll
-  const { onSignup } = useLoginPopoverContext();
-  const currentUser = useCurrentUser();
-
-  const stickerData: ForumEventStickerData | null = currentForumEvent?.publicData || null;
-
-  const { results: users } = useMulti({
-    terms: {
-      view: 'usersByUserIds',
-      userIds: stickerData
-        ? Object.keys(stickerData)
-        : [],
-      limit: 1000,
-    },
-    collectionName: "Users",
-    fragmentName: 'UsersMinimumInfo',
-    enableTotal: false,
-    skip: !stickerData,
-  });
-  const { results: comments, refetch: refetchComments } = useMulti({
-    terms: {
-      view: 'forumEventComments',
-      forumEventId: currentForumEvent?._id,
-      limit: 1000,
-    },
-    collectionName: "Comments",
-    fragmentName: 'ShortformComments',
-    enableTotal: false,
-    // Don't run on the first pass, to speed up SSR
-    skip: !currentForumEvent?._id || !users,
-  });
-
-  const hearts = useMemo(
-    () => (users && stickerData ? stickerDataToArray({ data: stickerData, users, comments }) : []),
-    [comments, stickerData, users]
-  );
-
-  const [commentFormOpen, setCommentFormOpen] = useState(false);
-  const [hoverPos, setHoverPos] = useState<{ x: number; y: number } | null>(
-    null
-  );
-  const [placedHearts, setPlacedHearts] = useState<
-    { x: number; y: number; theta: number }[]
-  >([]);
-
-  const containerRef = useRef<HTMLDivElement | null>(null);
-
-  const normalizeCoords = useCallback(
-    (clientX: number, clientY: number) => {
-      if (containerRef.current) {
-        const bounds = containerRef.current.getBoundingClientRect();
-        if (
-          clientX > bounds.left &&
-          clientX < bounds.right &&
-          clientY > bounds.top &&
-          clientY < bounds.bottom
-        ) {
-          return {
-            x: (clientX - bounds.left) / bounds.width,
-            y: (clientY - bounds.top) / bounds.height,
-          };
-        }
-      }
-      return null;
-    },
-    [containerRef]
-  );
-
-  const [addSticker] = useMutation(addForumEventStickerQuery);
-  const [removeSticker] = useMutation(removeForumEventStickerQuery);
-
-  const saveStickerPos = useCallback(async (event: React.MouseEvent) => {
-    // When a logged-in user is done dragging their vote, attempt to save it
-    if (currentUser) {
-      // TODO handle null event more gracefully
-      const coords = normalizeCoords(event.clientX, event.clientY);
-
-      if (!coords) return;
-
-      const theta = (Math.random() * 50) - 25; // Random rotation between -25 and 25 degrees
-      const hasVoted = false; // TODO handle hasPlacedSticker properly
-      if (!hasVoted) {
-        // TODO handle null event more gracefully
-        if (currentForumEvent!.post) {
-          setCommentFormOpen(true);
-        }
-
-        // setCurrentUserVote(newVotePos);
-        await addSticker({ variables: {
-          ...coords,
-          theta,
-          // TODO handle null event more gracefully
-          forumEventId: currentForumEvent!._id
-        } });
-        refetch?.();
-
-        return;
-      }
-    // When a logged-out user tries to vote, just show the login modal
-    } else {
-      onSignup()
-      // void clearVote()
-    }
-  }, [currentUser, normalizeCoords, currentForumEvent, addSticker, refetch, onSignup]);
-
-  const handleMouseMove = useCallback(
-    (event: React.MouseEvent) => {
-      const coords = normalizeCoords(event.clientX, event.clientY);
-      if (coords) {
-        setHoverPos(coords);
-      } else {
-        setHoverPos(null);
-      }
-    },
-    [normalizeCoords]
-  );
-
-  const handleMouseLeave = useCallback(() => {
-    setHoverPos(null);
-  }, []);
-
-  const handleClick = useCallback(
-    (event: React.MouseEvent) => {
-      const coords = normalizeCoords(event.clientX, event.clientY);
-      if (coords) {
-        const theta = (Math.random() * 50) - 25; // Random rotation between -25 and 25 degrees
-        setPlacedHearts((prev) => [...prev, { ...coords, theta }]);
-      }
-    },
-    [normalizeCoords]
-  );
-
-  return (
-    <div
-      className={classes.heartsContainer}
-      ref={containerRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      onClick={saveStickerPos}
-    >
-      {hoverPos && (
-        <div
-          className={classNames(classes.heart, classes.hoverHeart)}
-          style={{
-            position: "absolute",
-            left: `${hoverPos.x * 100}%`,
-            top: `${hoverPos.y * 100}%`,
-            transform: "translate(-50%, -50%)",
-          }}
-        >
-          <ForumIcon icon="Heart" />
-        </div>
-      )}
-      {/* {placedHearts.map((heart, index) => (
-        <div
-          key={index}
-          className={classes.heart}
-          style={{
-            left: `${heart.x * 100}%`,
-            top: `${heart.y * 100}%`,
-            transform: `rotate(${heart.theta}deg) translate(-50%, -50%)`,
-          }}
-        >
-          <ForumIcon icon="Heart" />
-        </div>
-      ))}
-      {DEBUG_HEARTS.map((heart, index) => (
-        <div
-          key={index}
-          className={classes.heart}
-          style={{
-            left: `${heart.x * 100}%`,
-            top: `${heart.y * 100}%`,
-            transform: `rotate(${heart.theta}deg) translate(-50%, -50%)`,
-          }}
-        >
-          <ForumIcon icon="Heart" />
-        </div>
-      ))} */}
-      {hearts.map((heart, index) => (
-        <div
-          key={index}
-          className={classes.heart}
-          style={{
-            left: `${heart.x * 100}%`,
-            top: `${heart.y * 100}%`,
-            transform: `rotate(${heart.theta}deg) translate(-50%, -50%)`,
-          }}
-        >
-          <ForumIcon icon="Heart" />
-        </div>
-      ))}
-      {/* <ForumEventCommentForm
-        open={commentFormOpen}
-        comment={currentUserComment}
-        forumEventId={event._id}
-        onClose={() => setCommentFormOpen(false)}
-        refetch={refetchComments}
-        anchorEl={userVoteRef.current}
-        post={event.post}
-      /> */}
-    </div>
-  );
-};
 
 
 const scrollIntoViewHorizontally = (
@@ -867,7 +569,8 @@ const GivingSeason2024Banner = ({classes}: {
     setSelectedEvent(events[index] ?? events[0]);
   }, [detailsRef, events, setSelectedEvent]);
 
-  const {EAButton, MixedTypeFeed, DonationElectionLeaderboard} = Components;
+  const {EAButton, MixedTypeFeed, ForumEventStickers, DonationElectionLeaderboard} = Components;
+
   return (
     <div className={classNames(classes.root, selectedEvent.darkText && classes.darkText)}>
       <div className={classes.backgrounds}>
@@ -877,13 +580,10 @@ const GivingSeason2024Banner = ({classes}: {
             style={{ backgroundImage: `url(${background})` }}
             className={classNames(classes.background, name === selectedEvent.name && classes.backgroundActive)}
           >
-            {name === "Donation Celebration" && <Hearts classes={classes} />}
+            {name === "Donation Celebration" && <ForumEventStickers interactive={name === selectedEvent.name} />}
           </div>
         ))}
       </div>
-      {/* <div className={classes.backgrounds} style={{ zIndex: 1 }} onMouseMove={(e) => {console.log({e})}}>
-        
-      </div> */}
       <div className={classes.banner}>
         <Link to="/posts/srZEX2r9upbwfnRKw/giving-season-2024-announcement">GIVING SEASON 2024</Link>
       </div>
@@ -905,6 +605,7 @@ const GivingSeason2024Banner = ({classes}: {
           ))}
         </div>
         <div className={classes.mainContainer}>
+          <div className={classNames(classes.mobileOverlay, {[classes.backgroundActive]: selectedEvent.name === "Donation Celebration"})} />
           <div ref={setDetailsRef} className={classNames(
             classes.detailsContainer,
             selectedEvent.hidden && classes.detailsContainerHidden,

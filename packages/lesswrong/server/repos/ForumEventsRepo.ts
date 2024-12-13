@@ -35,17 +35,6 @@ class ForumEventsRepo extends AbstractRepo<"ForumEvents"> {
     `, [userId, _id])
   }
 
-  // TODO these are currently exactly the same as above, refactor to support versioning
-  async getUserSticker(_id: string, userId: string) {
-    const res = await this.getRawDb().oneOrNone(`
-      -- ForumEventsRepo.getUserVote
-      SELECT "publicData"->$2 as vote
-      FROM "ForumEvents"
-      WHERE "_id" = $1
-    `, [_id, userId])
-    return res ? res.vote : null
-  }
-
   async addSticker(_id: string, userId: string, voteData: Json) {
     return this.none(`
       -- ForumEventsRepo.addVote
