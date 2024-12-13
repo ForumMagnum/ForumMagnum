@@ -258,6 +258,50 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment KarmaChangesByContent on IKarmaChanges {
+    posts {
+      _id
+      scoreChange
+      title
+      slug
+      addedReacts {
+        reactionType
+        userId
+      }
+      eaAddedReacts
+    }
+    comments {
+      _id
+      scoreChange
+      description
+      postId
+      postTitle
+      postSlug
+      tagSlug
+      tagName
+      tagCommentType
+      addedReacts {
+        reactionType
+        userId
+      }
+      eaAddedReacts
+    }
+    tagRevisions {
+      _id
+      scoreChange
+      tagId
+      tagSlug
+      tagName
+      addedReacts {
+        reactionType
+        userId
+      }
+      eaAddedReacts
+    }
+  }
+`);
+
+registerFragment(`
   fragment UserKarmaChanges on User {
     _id
     karmaChanges {
@@ -266,85 +310,9 @@ registerFragment(`
       startDate
       endDate
       nextBatchDate
-      posts {
-        _id
-        scoreChange
-        title
-        slug
-        addedReacts {
-          reactionType
-          userId
-        }
-        eaAddedReacts
-      }
-      comments {
-        _id
-        scoreChange
-        description
-        postId
-        postTitle
-        postSlug
-        tagSlug
-        tagName
-        tagCommentType
-        addedReacts {
-          reactionType
-          userId
-        }
-        eaAddedReacts
-      }
-      tagRevisions {
-        _id
-        scoreChange
-        tagId
-        tagSlug
-        tagName
-        addedReacts {
-          reactionType
-          userId
-        }
-        eaAddedReacts
-      }
+      ...KarmaChangesByContent
       todaysKarmaChanges {
-        posts {
-          _id
-          scoreChange
-          title
-          slug
-          addedReacts {
-            reactionType
-            userId
-          }
-          eaAddedReacts
-        }
-        comments {
-          _id
-          scoreChange
-          description
-          postId
-          postTitle
-          postSlug
-          tagSlug
-          tagName
-          tagCommentType
-          addedReacts {
-            reactionType
-            userId
-          }
-          eaAddedReacts
-        }
-        tagRevisions {
-          _id
-          scoreChange
-          tagId
-          tagSlug
-          tagName
-          addedReacts {
-            reactionType
-            userId
-          }
-          eaAddedReacts
-        }
+        ...KarmaChangesByContent
       }
     }
   }

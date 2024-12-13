@@ -42,12 +42,17 @@ addGraphQLSchema(`
     reactionType: String!
     userId: String
   }
-  type KarmaChangesSimple {
+  interface IKarmaChanges {
     posts: [PostKarmaChange]
     comments: [CommentKarmaChange]
     tagRevisions: [RevisionsKarmaChange]
   }
-  type KarmaChanges {
+  type KarmaChangesSimple implements IKarmaChanges {
+    posts: [PostKarmaChange]
+    comments: [CommentKarmaChange]
+    tagRevisions: [RevisionsKarmaChange]
+  }
+  type KarmaChanges implements IKarmaChanges {
     totalChange: Int
     startDate: Date
     endDate: Date
