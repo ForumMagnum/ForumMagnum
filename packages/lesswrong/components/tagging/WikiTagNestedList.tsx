@@ -7,11 +7,12 @@ import { WikiTagNode } from './types'; // Adjust the import path as needed
 
 const styles = defineStyles("WikiTagNestedList", (theme: ThemeType) => ({
   root: {
-    // Styles for the root element if needed
+    width: "100%",
   },
   childrenList: {
     display: "flex",
     flexDirection: "column",
+    width: "100%",
   },
   showMoreChildren: {
     fontSize: 12,
@@ -20,6 +21,7 @@ const styles = defineStyles("WikiTagNestedList", (theme: ThemeType) => ({
     marginBottom: 8,
     marginTop: 2,
     marginLeft: 16,
+    width: "100%",
   },
 }));
 

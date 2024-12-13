@@ -7,7 +7,8 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import DescriptionIcon from '@material-ui/icons/Description';
 import TagIcon from '@material-ui/icons/LocalOffer';
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
-const ITEM_WIDTH = 250;
+
+const ITEM_WIDTH = 300;
 
 
 const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
@@ -68,7 +69,11 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     },
   },
   wikiItem: {
-    backgroundColor: theme.palette.grey[100],
+    // backgroundColor: theme.palette.grey[50],
+    // fontWeight: 700,
+  },
+  titleWikiItem: {
+    fontWeight: 600,
   },
 
   leftSideItems: {
@@ -90,7 +95,7 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     justifyContent: "flex-start",
   },
   title: {
-    fontWeight: 400,
+    // fontWeight: 400,
     flexGrow: 1,
     flexShrink: 1,
     flexBasis: 0,
@@ -234,35 +239,36 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
   },
   children: {
     marginLeft: 16,
-    width: `calc(100% - 16px)`,
+    width: "calc(100vw - 32px)",
+  },
+  childrenContainer: {
+    width: "100%",
+    position: "relative",
   },
   childrenList: {
     marginTop: 12,
-    maxWidth: "100%",
-    display: "grid",
-    gridTemplateRows: "repeat(12, min-content)", // 8 items per column
-    gridAutoFlow: "dense",
-    width: "fit-content",
-    rowGap: "4px",
-    columnGap: "12px",
-    // Creates columns of ITEM_WIDTH, up to 4 columns
-    gridTemplateColumns: `repeat(6, ${ITEM_WIDTH}px)`,
-    // Force a break after every 32 items (8 rows × 4 columns)
-    "& > *:nth-child(32n+1)": {
-      gridColumnStart: 1,
-    },
+    width: "100%",
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "12px",
+    maxWidth: ITEM_WIDTH * 4 + 36,
+  },
+  column: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "6px",
+    width: ITEM_WIDTH,
+    flex: "0 0 auto",
   },
   showMoreChildren: {
-    fontSize: 10,
+    fontSize: "1.0rem",
     fontWeight: 400,
     color: "#426c46",
     marginBottom: 8,
-    marginTop: 0,
-    //position self to the right
-    marginLeft: 'auto',
-    display: "flex",
-    justifyContent: "flex-end",
-
+    marginTop: 12,
+    width: "100%",
+    textAlign: "left",
+    cursor: "pointer",
   },
   collapseInvisible: {
     opacity: 0,
@@ -332,6 +338,15 @@ interface ConceptItemProps {
 }
   
 
+// Helper function to split items into columns
+function splitIntoColumns(items: WikiTagNode[], itemsPerColumn = 12): WikiTagNode[][] {
+  const columns: WikiTagNode[][] = [];
+  for (let i = 0; i < items.length; i += itemsPerColumn) {
+    columns.push(items.slice(i, i + itemsPerColumn));
+  }
+  return columns;
+}
+
 const ConceptItem = ({ wikitag, nestingLevel, index, onHover, onClick, pinnedWikiTag }: ConceptItemProps) => {
   const classes = useStyles(styles);
   const defaultCollapsed = index !== undefined && index >= 3 && index < 6;
@@ -373,7 +388,7 @@ const ConceptItem = ({ wikitag, nestingLevel, index, onHover, onClick, pinnedWik
         <div className={classes.baseScore}>
           {wikitag.baseScore}
         </div>
-        <div className={classNames(classes.title)}>
+        <div className={classNames(classes.title, { [classes.titleWikiItem]: isWikiItem })}>
           {wikitag.name}
         </div>
         {/* <div className={classes.wordCount}>{wordCountFormatted}</div> */}
@@ -427,6 +442,32 @@ const ConceptItem = ({ wikitag, nestingLevel, index, onHover, onClick, pinnedWik
     setShowingAllChildren(true);
   };
 
+  const handleShowLess = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowingAllChildren(false);
+  };
+
+  // Constants
+  const ITEMS_PER_COLUMN = 6;
+  const MAX_INITIAL_COLUMNS = 4; // Adjust as needed
+  const MAX_INITIAL_ITEMS = ITEMS_PER_COLUMN * MAX_INITIAL_COLUMNS; // Calculate based on columns
+
+  // Calculate the number of items to show
+  const totalChildren = wikitag.children.length;
+  const showingAllItems = showingAllChildren || totalChildren <= MAX_INITIAL_ITEMS;
+
+  const itemsToShowCount = showingAllItems
+    ? totalChildren
+    : MAX_INITIAL_ITEMS; // Simplified to always show exactly 48 items initially
+
+  // Sort and slice the children
+  const sortedChildren = wikitag.children
+    .slice(0, itemsToShowCount)
+    .sort((a, b) => b.baseScore - a.baseScore);
+
+  // Split into columns
+  const columns = splitIntoColumns(sortedChildren, ITEMS_PER_COLUMN);
+
   return (
     <div 
       className={classNames(classes.root, {[classes.titleItemRoot]: nestingLevel === 0})}
@@ -436,31 +477,36 @@ const ConceptItem = ({ wikitag, nestingLevel, index, onHover, onClick, pinnedWik
       {/* Render Children */}
       {!collapsed && hasChildren && (
         <div className={classes.children}>
-          <div className={classes.childrenList}>
-            {wikitag.children
-              .slice(0, showingAllChildren ? undefined : 50)
-              //if nesting level is 2 or greater, sort by baseScore descending
-              .sort((a, b) => b.baseScore - a.baseScore)
-              .map((childPage, idx) => (
-                <ConceptItem
-                  key={childPage._id}
-                  wikitag={childPage}
-                  nestingLevel={nestingLevel + 1}
-                  index={idx}
-                  onHover={onHover}
-                  onClick={onClick}
-                  pinnedWikiTag={pinnedWikiTag}
-                />
-            ))}
-          </div>
-          {!showingAllChildren && wikitag.children.length > 50 && (
-            <div 
-              className={classes.showMoreChildren}
-              onClick={handleShowMore}
-            >
-              {`Show ${wikitag.children.length - 6} more`}
+          <div className={classes.childrenContainer}>
+            <div className={classes.childrenList}>
+              {columns.map((columnItems, columnIndex) => (
+                <div key={columnIndex} className={classes.column}>
+                  {columnItems.map((childPage, idx) => (
+                    <ConceptItem
+                      key={childPage._id}
+                      wikitag={childPage}
+                      nestingLevel={nestingLevel + 1}
+                      index={idx}
+                      onHover={onHover}
+                      onClick={onClick}
+                      pinnedWikiTag={pinnedWikiTag}
+                    />
+                  ))}
+                </div>
+              ))}
             </div>
-          )}
+            {wikitag.children.length > MAX_INITIAL_ITEMS && (
+              <div 
+                className={classes.showMoreChildren}
+                onClick={showingAllChildren ? handleShowLess : handleShowMore}
+              >
+                {showingAllChildren 
+                  ? "Show less"
+                  : `Show ${wikitag.children.length - itemsToShowCount} more`
+                }
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>

@@ -17,7 +17,7 @@ import { wikitagMockupData } from './wikitag_mockup_data';
 const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
   root: {
     padding: "0 100px",
-    maxWidth: 1000,
+    // maxWidth: 1000,
   },
   topSection: {
     marginBottom: 32,
@@ -54,11 +54,12 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
     display: "flex",
     gap: "32px",
     flexGrow: 1,
+    width: "100%",
     // overflow: 'hidden',
   },
   wikiTagNestedList: {
     flexShrink: 0,
-    width: 300,
+    width: "100%",
     // overflowY: 'auto',
   },
   wikitagName: {
