@@ -638,5 +638,8 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     color2: "#404040",
     color3: "#998080",
     color4: "#504040",
-  }
+  },
+  fundraisingThermometer: {
+    shadow: '#222',
+  },
 })
