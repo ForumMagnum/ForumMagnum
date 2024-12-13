@@ -486,6 +486,7 @@ importComponent("PostsList2", () => require('../components/posts/PostsList2'));
 importComponent("PostsListViewToggle", () => require('../components/posts/PostsListViewToggle'));
 importComponent("ResolverPostsList", () => require('../components/posts/ResolverPostsList'));
 importComponent("PostsByVote", () => require('../components/posts/PostsByVote'));
+importComponent("LWPostsByVote", () => require('../components/posts/LWPostsByVote'));
 importComponent("PostsByVoteWrapper", () => require('../components/posts/PostsByVoteWrapper'));
 importComponent("PostsTimeBlock", () => require('../components/posts/PostsTimeBlock'));
 importComponent("PostsNewForm", () => require('../components/posts/PostsNewForm'));
