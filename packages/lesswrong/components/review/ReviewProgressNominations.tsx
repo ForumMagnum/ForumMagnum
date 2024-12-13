@@ -62,10 +62,10 @@ export const ReviewProgressNominations = ({classes, reviewYear = REVIEW_YEAR}: {
     const uncheckedReviews = TARGET_REVIEWS_NUM - Math.min(totalReviews, TARGET_REVIEWS_NUM)
 
     const reviewsTooltip = <div>
-      <p><em>{totalReviews ? `You've written ${totalReviews} reviews${totalReviews >= TARGET_REVIEWS_NUM ? "!" : "."}` : "You haven't written any reviews yet."}</em></p>
       {totalReviews < TARGET_REVIEWS_NUM && <>
-        <div>Write {TARGET_REVIEWS_NUM} short reviews about why a post was valuable.</div>
+        <div>It'll help if you write {TARGET_REVIEWS_NUM} short reviews about why a post was valuable to you.</div>
       </>}
+      <p><em>{totalReviews ? `You've written ${totalReviews} reviews${totalReviews >= TARGET_REVIEWS_NUM ? "!" : "."}` : "You haven't written any reviews yet."}</em></p>
     </div>
   
     return <LWTooltip title={reviewsTooltip} placement="top">
