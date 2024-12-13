@@ -104,7 +104,6 @@ import MuiSettingsIcon from "@material-ui/icons/Settings";
 import MuiEmailIcon from "@material-ui/icons/Email";
 import MuiPuzzleIcon from "@material-ui/icons/Extension";
 import MuiCheckIcon from "@material-ui/icons/Check";
-import MuiCheckOutlinedIcon from "@material-ui/icons/CheckCircleOutline";
 import MuiEllipsisVerticalIcon from "@material-ui/icons/MoreVert";
 import MuiShareIcon from "@material-ui/icons/Share";
 import MuiSearchIcon from '@material-ui/icons/Search';
@@ -367,7 +366,6 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     DocumentFilled: DocumentIcon,
     Puzzle: MuiPuzzleIcon,
     Check: MuiCheckIcon,
-    CheckOutlined: MuiCheckOutlinedIcon,
     CheckCircle: CheckCircleIcon,
     CheckSmall: CheckSmallIcon,
     Card: CardIcon,
@@ -493,7 +491,6 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     DocumentFilled: DocumentIcon,
     Puzzle: PuzzleIcon,
     Check: CheckIcon,
-    CheckOutlined: MuiCheckOutlinedIcon,
     CheckCircle: CheckCircleIcon,
     CheckSmall: CheckSmallIcon,
     Card: CardIcon,
