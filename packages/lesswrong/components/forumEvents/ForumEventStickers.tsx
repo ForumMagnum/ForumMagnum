@@ -12,6 +12,7 @@ import { useHover } from "../common/withHover";
 import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { Link } from "@/lib/reactRouterWrapper";
+import { InteractionWrapper } from "../common/useClickableCell";
 
 const styles = (theme: ThemeType) => ({
   heartsContainer: {
@@ -169,38 +170,40 @@ const ForumEventSticker = React.forwardRef<
   if (!isDesktop) return null;
 
   return (
-    <div
-      className={classNames(classes.heart, className)}
-      ref={ref}
-      style={{
-        left: `${x * 100}%`,
-        top: `${y * 100}%`,
-        transform: `rotate(${theta}deg) translate(-50%, -50%)`,
-      }}
-      {...eventHandlers}
-    >
-      {/* onPointerDown rather than onClick because the button is very small */}
-      {onClear && (
-        <div className={classes.clearSticker} onPointerDown={onClear}>
-          {/* <ForumIcon icon="Close" /> */}
-          <div className={classes.cross}>&times;</div>
-        </div>
-      )}
-      <ForumIcon icon={icon} />
-      {!tooltipDisabled && user && comment && popperOpen && (
-        <ForumEventResultPopper
-          anchorEl={anchorEl}
-          user={user}
-          comment={comment}
-          captureEvent={captureEvent}
-          setIsPinned={setIsPinned}
-          isPinned={isPinned}
-          newRepliesCount={newRepliesCount}
-          setNewRepliesCount={setNewRepliesCount}
-          className={classes.commentPopper}
-        />
-      )}
-    </div>
+    <InteractionWrapper>
+      <div
+        className={classNames(classes.heart, className)}
+        ref={ref}
+        style={{
+          left: `${x * 100}%`,
+          top: `${y * 100}%`,
+          transform: `rotate(${theta}deg) translate(-50%, -50%)`,
+        }}
+        {...eventHandlers}
+      >
+        {/* onPointerDown rather than onClick because the button is very small */}
+        {onClear && (
+          <div className={classes.clearSticker} onPointerDown={onClear}>
+            <div className={classes.cross}>&times;</div>
+          </div>
+        )}
+        <ForumIcon icon={icon} />
+        {/* TODO this doesn't work well on mobile */}
+        {!tooltipDisabled && user && comment && popperOpen && (
+          <ForumEventResultPopper
+            anchorEl={anchorEl}
+            user={user}
+            comment={comment}
+            captureEvent={captureEvent}
+            setIsPinned={setIsPinned}
+            isPinned={isPinned}
+            newRepliesCount={newRepliesCount}
+            setNewRepliesCount={setNewRepliesCount}
+            className={classes.commentPopper}
+          />
+        )}
+      </div>
+    </InteractionWrapper>
   );
 });
 
