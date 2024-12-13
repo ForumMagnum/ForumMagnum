@@ -6,10 +6,10 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import classNames from 'classnames';
 import { forumTitleSetting } from '../../lib/instanceSettings';
-import { annualReviewAnnouncementPostPathSetting } from '../../lib/publicSettings';
 import moment from 'moment';
-import { eligibleToNominate, getReviewPhase, getReviewTitle, ReviewYear, REVIEW_NAME_IN_SITU, REVIEW_YEAR, getResultsPhaseEnd, getNominationPhaseEnd, getReviewPhaseEnd, getReviewStart } from '../../lib/reviewUtils';
-
+import { eligibleToNominate, getReviewPhase, getReviewTitle, ReviewYear, REVIEW_NAME_IN_SITU, REVIEW_YEAR, getResultsPhaseEnd, getNominationPhaseEnd, getReviewPhaseEnd, getReviewStart, reviewPostPath } from '../../lib/reviewUtils';
+import { allPostsParams } from './NominationsPage';
+import qs from 'qs';
 const commonActionButtonStyle = (theme: ThemeType) => ({
   paddingTop: 7,
   paddingBottom: 7,
@@ -27,6 +27,26 @@ const commonActionButtonStyle = (theme: ThemeType) => ({
 })
 
 const styles = (theme: ThemeType): JssStyles => ({
+  sectionTitle: {
+    alignItems: 'flex-end',
+    marginBottom: 12,
+  },
+  reviewtitle: {
+    fontSize: "1.5rem",
+    fontVariant: "small-caps",
+    fontFamily: theme.typography.postStyle.fontFamily,
+    fontVariantNumeric: "normal",
+    color: theme.palette.grey[600],
+    marginBottom: 0,
+  },
+  reviewSectionTitle: {
+  marginBottom: -2
+  },
+  reviewPhaseTitle: {
+    fontSize: "3rem",
+    marginTop: -4,
+    marginBottom: 0
+  },
   learnMore: {
     color: theme.palette.lwTertiary.main
   },
@@ -190,7 +210,7 @@ export function ReviewOverviewTooltip() {
   </div>
 }
 
-const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {classes: ClassesType, showFrontpageItems?: boolean, reviewYear: ReviewYear}) => {
+const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, className}: {classes: ClassesType, showFrontpageItems?: boolean, reviewYear: ReviewYear, className?: string}) => {
   const { SectionTitle, SettingsButton, LWTooltip, PostsList2, UserReviewsProgressBar, ReviewVotingProgressBar, FrontpageBestOfLWWidget } = Components
   const currentUser = useCurrentUser();
 
@@ -233,7 +253,6 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
       {activeRange === "REVIEWS" && <div><em>{voteEndDate.fromNow()} remaining</em></div>}
     </>
 
-  const reviewPostPath = '/posts/pudQtkre7f9GLmb2b/the-2023-lesswrong-review-reflecting-on-ourselves'
   if (!reviewPostPath) {
     // eslint-disable-next-line no-console
     console.error("No review announcement post path set")
@@ -252,7 +271,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
     </div>
     <div className={classes.reviewBlock}>     
       <LWTooltip placement="bottom-start" title={reviewTooltip} className={classNames(classes.progress, {[classes.activeProgress]: activeRange === "REVIEWS"})}>
-        <div className={classNames(classes.blockText, classes.blockLabel)}>Reviews</div>
+        <div className={classNames(classes.blockText, classes.blockLabel)}>Discussion</div>
         <div className={classNames(classes.blockText, classes.hideOnMobile)}>{reviewEndDate.format('MMM Do')}</div>
         {activeRange === "REVIEWS" && <div className={classes.coloredProgress} style={{width: `${dateFraction(currentDate, nominationEndDate, reviewEndDate)}%`}}/>}
       </LWTooltip>   
@@ -266,6 +285,8 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
     </div>
   </div>
 
+
+  const nominatePostsLink = `/nominatePosts/${reviewYear}?${qs.stringify(allPostsParams(reviewYear))}`
   const nominationPhaseButtons = <div className={classes.actionButtonRow}>
     {/* Ray said this wasn't needed any more (and had styling issue), but leaving here so people know this component, <LatestReview> exists and could be used in the future. */}
     {/* {showFrontpageItems && !isLastDay(nominationEndDate) && <LatestReview/>} */}
@@ -274,7 +295,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
       <div>(posts need two votes to proceed)</div>
     </span>}
     <LWTooltip className={classes.buttonWrapper} title={`Look over your favorite posts from ${reviewYear}, and nominate the ones that stand the tests of time.`}>
-      <Link to={`/nominatePosts/${reviewYear}`} className={classes.actionButton}>
+      <Link to={nominatePostsLink} className={classes.actionButton}>
         Nominate Posts
       </Link>
     </LWTooltip>
@@ -356,19 +377,24 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
 
   return (
     <AnalyticsContext pageSectionContext="frontpageReviewWidget">
-      <div>
-        <SectionTitle 
+      <div className={className}>
+        <SectionTitle rootClassName={classes.sectionTitle} titleClassName={classes.reviewSectionTitle}
           title={<LWTooltip title={<ReviewOverviewTooltip/>} placement="bottom-start">
             <Link to={"/reviewVoting"}>
-              {getReviewTitle(reviewYear)}
+              <h3 className={classes.reviewtitle}>{getReviewTitle(reviewYear)}</h3>
+              <h1 className={classes.reviewPhaseTitle}>
+                {activeRange === "NOMINATIONS" && "Nomination Voting"}
+                {activeRange === "REVIEWS" && "Discussion Phase"}
+                {activeRange === "VOTING" && "Final Voting"}
+              </h1>
             </Link>
           </LWTooltip>}
         >
-          <LWTooltip title={<ReviewOverviewTooltip/>} className={classes.hideOnMobile}>
+          {showFrontpageItems && <LWTooltip title={<ReviewOverviewTooltip/>} className={classes.hideOnMobile}>
             <Link to={reviewPostPath || ""}>
-              <SettingsButton showIcon={false} label={`How does the ${REVIEW_NAME_IN_SITU} work?`}/>
+              <SettingsButton showIcon={false} label={`What is this?`}/>
             </Link>
-          </LWTooltip>
+          </LWTooltip>}
         </SectionTitle>
 
         {reviewTimeline}
