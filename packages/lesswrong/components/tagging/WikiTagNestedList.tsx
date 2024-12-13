@@ -12,8 +12,6 @@ const styles = defineStyles("WikiTagNestedList", (theme: ThemeType) => ({
   childrenList: {
     display: "flex",
     flexDirection: "column",
-    // maxWidth: 800,
-    margin: "0 auto",
   },
   showMoreChildren: {
     fontSize: 12,

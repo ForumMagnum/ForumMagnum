@@ -44,6 +44,9 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     display: "flex",
     flexDirection: "column",
     alignItems: "flex-start",
+    breakInside: "avoid-column",
+    pageBreakInside: "avoid",
+    WebkitColumnBreakInside: "avoid",
   },
   item: {
     // backgroundColor: "white",
@@ -70,7 +73,7 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
   leftSideItems: {
     display: "flex",
     maxWidth: `calc(${ITEM_WIDTH}px - 32px)`,
-    alignItems: "center",
+    alignItems: "flex-start",
     gap: "8px",
     overflow: "hidden",
     flexGrow: 1,
@@ -232,11 +235,9 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
   childrenList: {
     marginTop: 12,
     maxWidth: "100%",
-    display: "flex",
-    flexWrap: "wrap",
     width: "100%",
-    justifyContent: "flex-start",
-    // gap: "4px 12px",
+    columnCount: 3,
+    columnGap: 16,
   },
   showMoreChildren: {
     fontSize: 10,
@@ -417,7 +418,7 @@ const ConceptItem = ({ wikitag, nestingLevel, index, onHover, onClick, pinnedWik
           <div className={classes.titleItemTitle}>
             {wikitag.name}
           </div>
-          {!showingAllChildren && wikitag.children.length > 18 && (
+          {!showingAllChildren && wikitag.children.length > 24 && (
             <div 
               className={classes.showMoreChildren}
               onClick={(e) => {
@@ -426,7 +427,7 @@ const ConceptItem = ({ wikitag, nestingLevel, index, onHover, onClick, pinnedWik
                 handleShowMore(e);
               }}
             >
-              {`(Show ${wikitag.children.length - 18} more)`}
+              {`(Show ${wikitag.children.length - 24} more)`}
             </div>
           )}
         </div>
@@ -473,7 +474,7 @@ const ConceptItem = ({ wikitag, nestingLevel, index, onHover, onClick, pinnedWik
         <div className={classes.children}>
           <div className={classes.childrenList}>
             {wikitag.children
-              .slice(0, showingAllChildren ? undefined : 18)
+              .slice(0, showingAllChildren ? undefined : 24)
               .map((childPage, idx) => {
                 // Generate a random decrease between 1 and 3
                 const randomDecrease = Math.floor(Math.random() * 3) + 1;

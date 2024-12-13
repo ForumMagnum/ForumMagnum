@@ -19,24 +19,32 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
     padding: "0 100px",
     maxWidth: 1100,
     margin: "0 auto",
+    position: 'relative',
   },
   topSection: {
-    marginBottom: 60,
+    marginBottom: 20,
     display: "flex",
-    alignItems: "center",
+    flexDirection: "column",
     gap: "32px",
-    height: 60,
+  },
+  mainRow: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: "16px",
+    
   },
   titleSection: {
     flex: "0 0 auto",
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '8px',
   },
   addTagSection: {
-    marginLeft: "auto",
-    flex: "0 0 auto",
-    display: "flex",
-    alignItems: "center",
-    height: "100%",
-    marginBottom: 10,
+    position: 'absolute',
+    top: 78,
+    right: 20,
   },
   addTagButton: {
     marginBottom: -10,
@@ -49,7 +57,7 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
   titleClass: {
     fontSize: "4rem",
     fontWeight: 500,
-    marginBottom: 20,
+    // marginBottom: 20,
     lineHeight: 1,
   },
   searchContainer: {
@@ -58,6 +66,7 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
     width: "100%",
     margin: "0 auto",
     height: "100%",
+    maxWidth: 600,
   },
   searchIcon: {
     // position: 'absolute',
@@ -242,53 +251,49 @@ const AllWikiTagsPage = () => {
 
   return (
     <AnalyticsContext pageContext="allWikiTagsPage">
+      <div>
+      <div className={classes.addTagSection}>
+          <SectionButton>
+            {currentUser && tagUserHasSufficientKarma(currentUser, "new") && <Link
+              to={tagCreateUrl}
+              className={classes.addTagButton}
+            >
+              <AddBoxIcon/>
+              New Wiki Page
+            </Link>}
+            {!currentUser && <a 
+              onClick={(ev) => {
+                openDialog({
+                  componentName: "LoginPopup",
+                  componentProps: {}
+                });
+                ev.preventDefault();
+              }}
+              className={classes.addTagButton}
+            >
+              <AddBoxIcon/>
+              New Wiki Page
+            </a>}
+          </SectionButton>
+        </div>
       <div className={classes.root} onClick={handleBackgroundClick}>
-
-        {/* <div>CURRENTLY SET WIKITAG: {pinnedWikiTag?.name}</div>
-        <div>CURRENTLY HOVERED WIKITAG: {selectedWikiTag?.name}</div> */}
+        
 
         <div className={classes.topSection}>
-          <div className={classes.titleSection}>
+          <div className={classes.mainRow}>
             <SectionTitle title="Concepts" titleClassName={classes.titleClass} />
-          </div>
-          
-          <div className={classes.searchContainer}>
-            <input
-              type="text"
-              className={classes.searchBar}
-              placeholder="What would you like to read about?"
-            />
-            <SearchIcon className={classes.searchIcon} />
-          </div>
-
-          <div className={classes.addTagSection}>
-            <SectionButton>
-              {currentUser && tagUserHasSufficientKarma(currentUser, "new") && <Link
-                to={tagCreateUrl}
-                className={classes.addTagButton}
-              >
-                <AddBoxIcon/>
-                New Wiki Page
-              </Link>}
-              {!currentUser && <a 
-                onClick={(ev) => {
-                  openDialog({
-                    componentName: "LoginPopup",
-                    componentProps: {}
-                  });
-                  ev.preventDefault();
-                }}
-                className={classes.addTagButton}
-              >
-                <AddBoxIcon/>
-                New Wiki Page
-              </a>}
-            </SectionButton>
+            <div className={classes.searchContainer}>
+              <input
+                type="text"
+                className={classes.searchBar}
+                placeholder="What would you like to understand?"
+              />
+              <SearchIcon className={classes.searchIcon} />
+            </div>
           </div>
         </div>
+
         <div className={classes.mainContent} onClick={handleBackgroundClick}>
-
-
           <div className={classes.wikiTagNestedList}>
             <WikiTagNestedList 
               pages={filteredTree}
@@ -297,11 +302,8 @@ const AllWikiTagsPage = () => {
               // pinnedWikiTag={pinnedWikiTag}
             />
           </div>
-
-
-
-
         </div>
+      </div>
       </div>
     </AnalyticsContext>
   );
