@@ -48,7 +48,7 @@ const SunshineCuratedSuggestionsList = ({ terms, belowFold, classes, setCuration
       ...terms, audioOnly
     },
     collectionName: "Posts",
-    fragmentName: 'SunshineCurationPostsList',
+    fragmentName: 'PostsList',
     enableTotal: true,
     itemsPerPage: 60
   });

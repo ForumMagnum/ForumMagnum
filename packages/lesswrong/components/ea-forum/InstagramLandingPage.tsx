@@ -23,7 +23,6 @@ const styles = (theme: ThemeType) => ({
 
 const postIds = [
   'ZhNaizQgYY9dXdQkM', // Intro to EA
-  '3ZSG22tDuDLxTLY4n', // Allan AMA
   'mEQTxDGp4MxMSZA74', // Still donation half
   'k8NLM6QoEjMkEGEmG', // Donation election results
   'SDJKMbvuLyppJNiGD', // RP
@@ -31,13 +30,6 @@ const postIds = [
   'ZYktdzJRMsp2JhwYg', // AMF
   'aYxuFeCcqRvaszHPb', // PauseAI
   'pEtxF6fJr5M6H5fbC', // WAI
-  '9fuJgLik6FNtgrDAD', // Arthropoda Foundation
-  'hcpA7ufW6zZzeFaT4', // ORCG
-  'XmtyNTS8eaT2PMzx4', // NAO
-  'HXqzmahbjJwwiX9Si', // ARMoR
-  'rsRDu3u3wF6ctcQPn', // THL
-  'CmAWaNXxJmmhLnuAi', // THL UK
-  'kt2XH8htHGEsC3GSc', // Legal Impact for Chickens
 ]
 
 /**
@@ -68,7 +60,6 @@ const InstagramLandingPage = ({ classes }: { classes: ClassesType<typeof styles>
       post={post}
       showKarma={false}
       showIcons={false}
-      hideTag={true}
     />
   ))
 

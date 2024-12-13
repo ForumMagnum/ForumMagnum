@@ -3111,24 +3111,6 @@ const schema: SchemaType<"Posts"> = {
     canUpdate: [userOwns, "admins"],
     ...schemaDefaultValue(false)
   },
-
-  curationNotices: resolverOnlyField({
-    type: Array,
-    graphQLtype: '[CurationNotice]',
-    canRead: ['guests'],
-    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
-      const { currentUser, CurationNotices } = context;
-      const curationNotices = await CurationNotices.find({
-        postId: post._id,
-        deleted: { $ne: true },
-      }).fetch();
-      return await accessFilterMultiple(currentUser, CurationNotices, curationNotices, context);
-    }
-  }),
-  'curationNotices.$': {
-    type: Object,
-    foreignKey: 'CurationNotices',
-  },
   // reviews that appear on SpotlightItem
   reviews: resolverOnlyField({
     type: Array,

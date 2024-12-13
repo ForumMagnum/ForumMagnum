@@ -720,11 +720,9 @@ const ManifoldPreviewComponent = registerComponent('ManifoldPreview', ManifoldPr
 
 const neuronpediaStyles = (theme: ThemeType) => ({
   iframeStyling: {
-    width: "100%",
-    height: 360,
-    border: "1px solid",
-    borderColor: theme.palette.grey[300],
-    borderRadius: 6,
+    width: 580,
+    height: 240,
+    border: "none",
     maxWidth: 639,
   },
   ...linkStyle(theme),
@@ -754,7 +752,7 @@ const NeuronpediaPreview = ({classes, href, id, children}: {
   const slug = results[results.length - 1]
   
   // if it's an embed just use that url, otherwise add the embed query
-  const url = isEmbed ? href : `https://neuronpedia.org/${slug}?embed=true`;
+  const url = isEmbed ? href : `https://neuronpedia.org/${slug}?embed=true&embedexplanation=true&embedplots=true`;
 
   return (
     <AnalyticsTracker eventType="link" eventProps={{ to: href }}>
