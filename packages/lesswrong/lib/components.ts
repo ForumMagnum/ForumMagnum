@@ -293,6 +293,7 @@ importComponent("Sparkline", () => require('../components/common/Sparkline'));
 importComponent(["SideItem","SideItemsSidebar","SideItemsContainer"], () => require('../components/contents/SideItems'));
 importComponent("SideItemLine", () => require('../components/contents/SideItemLine'));
 importComponent("FrontpageBestOfLWWidget", () => require('../components/review/FrontpageBestOfLWWidget'));
+importComponent("AnnualReviewPage", () => require('../components/review/AnnualReviewPage'));
 
 importComponent("CompareRevisions", () => require('../components/revisions/CompareRevisions'));
 importComponent("RevisionSelect", () => require('../components/revisions/RevisionSelect'));
@@ -485,8 +486,8 @@ importComponent("PostsList2", () => require('../components/posts/PostsList2'));
 importComponent("PostsListViewToggle", () => require('../components/posts/PostsListViewToggle'));
 importComponent("ResolverPostsList", () => require('../components/posts/ResolverPostsList'));
 importComponent("PostsByVote", () => require('../components/posts/PostsByVote'));
+importComponent("LWPostsByVote", () => require('../components/posts/LWPostsByVote'));
 importComponent("PostsByVoteWrapper", () => require('../components/posts/PostsByVoteWrapper'));
-importComponent("UserSuggestNominations", () => require('../components/posts/UserSuggestNominations'));
 importComponent("PostsTimeBlock", () => require('../components/posts/PostsTimeBlock'));
 importComponent("PostsNewForm", () => require('../components/posts/PostsNewForm'));
 importComponent("PostsEditForm", () => require('../components/posts/PostsEditForm'));
@@ -1110,6 +1111,7 @@ importComponent("ReviewVotingProgressBar", () => require('../components/review/R
 importComponent("ReviewVotingPageMenu", () => require('../components/review/ReviewVotingPageMenu'));
 importComponent("ReviewVotingCanvas", () => require('../components/review/ReviewVotingCanvas'));
 importComponent("FrontpageReviewWidget", () => require('../components/review/FrontpageReviewWidget'));
+importComponent("NominationsPage", () => require('../components/review/NominationsPage'));
 // importComponent("FrontpageVotingPhase", () => require('../components/review/FrontpageVotingPhase'));
 importComponent("PostsItemReviewVote", () => require('../components/review/PostsItemReviewVote'));
 importComponent("ReviewHeaderTitle", () => require('../components/review/ReviewHeaderTitle'));
@@ -1239,4 +1241,8 @@ importComponent("EditUserJargonSettings", () => require('../components/jargon/Ed
 importComponent("PostsWithApprovedJargonPage", () => require('../components/jargon/PostsWithApprovedJargonPage'));
 importComponent("PostsListUserCommentedOn", () => require('../components/review/PostsListUserCommentedOn'));
 importComponent("RotatingReviewWinnerSpotlight", () => require('../components/review/RotatingReviewWinnerSpotlight'));
+
+importComponent("ExternalPostImporter", () => require('../components/posts/ExternalPostImporter'));
+
+importComponent("FundraisingThermometer", () => require('../components/common/FundraisingThermometer'));
 

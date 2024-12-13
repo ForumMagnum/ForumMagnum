@@ -34,6 +34,7 @@ export function getReviewTitle(reviewYear: ReviewYear): string {
 export function getReviewShortTitle(reviewYear: ReviewYear): string {
   return `${reviewYear} Review`
 }
+export const reviewPostPath = "/posts/pudQtkre7f9GLmb2b/the-2023-lesswrong-review-the-basic-ask"
 
 const reviewPhases = new TupleSet(['UNSTARTED', 'NOMINATIONS', 'REVIEWS', 'VOTING', 'RESULTS', 'COMPLETE'] as const);
 export type ReviewPhase = UnionOf<typeof reviewPhases>;
@@ -50,13 +51,21 @@ export function getReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
 
 const TIMEZONE_OFFSET = 8 // Pacific Time
 
+export function getReviewPeriodStart(reviewYear: ReviewYear = REVIEW_YEAR) {
+  return moment.utc(`${reviewYear}-01-01`).add(TIMEZONE_OFFSET, 'hours')
+}
+export function getReviewPeriodEnd(reviewYear: ReviewYear = REVIEW_YEAR) {
+  return moment.utc(`${reviewYear+1}-01-01`).add(TIMEZONE_OFFSET, 'hours')
+}
+
+
 export const getReviewStart = (reviewYear: ReviewYear) => {
   const startDateString = isDevelopment
-    ? `${reviewYear+1}-11-15` // we typically start testing the next year's review in November of the current year
-    : `${reviewYear+1}-12-03`;
+    ? `${reviewYear+1}-11-30` // we typically start testing the next year's review in November of the current year
+    : `${reviewYear+1}-12-02`;
   return moment.utc(startDateString).add(TIMEZONE_OFFSET, 'hours');
 };
-export const getNominationPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+1}-12-14`).add(TIMEZONE_OFFSET, 'hours')
+export const getNominationPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+1}-12-16`).add(TIMEZONE_OFFSET, 'hours')
 export const getReviewPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-01-15`).add(TIMEZONE_OFFSET, 'hours')
 export const getVotingPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-02-01`).add(TIMEZONE_OFFSET, 'hours')
 export const getResultsPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-02-06`).add(TIMEZONE_OFFSET, 'hours')
@@ -65,7 +74,6 @@ function recomputeReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
   if (reviewYear && reviewYear !== REVIEW_YEAR) {
     return "COMPLETE"
   }
-
   const currentDate = moment.utc()
   const reviewStart = getReviewStart(REVIEW_YEAR)
   if (currentDate < reviewStart) return "UNSTARTED"
