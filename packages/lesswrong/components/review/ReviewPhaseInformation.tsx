@@ -5,6 +5,7 @@ import { getNominationPhaseEnd, ReviewPhase, ReviewYear } from '../../lib/review
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import Card from '@material-ui/core/Card';
+import { ReviewProgressReviews } from './ReviewProgressReviews';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -35,7 +36,7 @@ export const ReviewPhaseInformation = ({classes, reviewYear, reviewPhase}: {
   reviewPhase: ReviewPhase
 }) => {
 
-  const { UserReviewsProgressBar, ContentStyles, LWTooltip, ReviewVotingProgressBar } = Components
+  const { ReviewProgressReviews, ContentStyles, LWTooltip, ReviewProgressVoting } = Components
 
 
   // FIXME: Unstable component will lose state on rerender
@@ -61,7 +62,7 @@ export const ReviewPhaseInformation = ({classes, reviewYear, reviewPhase}: {
       <p>In the right-column are posts which were upvoted during the Nomination Voting Phase, but which haven't gotten a review yet. Write reviews for any posts which you benefited from, or you think you might have something informative to say about.</p>
       <p><b>If you review 3 posts, you have done your civic duty</b></p>
       <p>Let's be real, there's a hella lotta posts you could review. But if you review three posts, as far as the LessWrong team is concerned you can call it a day and bask in the warm glow of knowing you helped the site reflect upon itself, improving our longterm reward signal.</p>
-      <UserReviewsProgressBar reviewYear={reviewYear} />
+      <ReviewProgressReviews reviewYear={reviewYear} />
       <p><b>Review Prizes</b></p>
       <p>It's fine to write quick reviews that simply describe how the post has influenced you. But the LessWrong team is also interested in reviews that engage deeply with a post's factual claims, arguments or broader implications. We're offering prizes of $50 - $500 for reviews that add substantive new information.</p>
       <p>
@@ -76,7 +77,7 @@ export const ReviewPhaseInformation = ({classes, reviewYear, reviewPhase}: {
       <p>We just spent a month reviewing posts. Now it's time to look at posts that got at least one review, look over any reviews you think might have useful context, and cast your final vote.</p>
       <p>Vote positively for posts that you think have stood the tests of time as particularly important. Vote negatively for posts you think are misleading, harmful, or seem overrated/unimportant.</p>
       <p>
-        <ReviewVotingProgressBar reviewYear={reviewYear} />
+        <ReviewProgressVoting reviewYear={reviewYear} />
       </p>
       <p><b>FAQ</b></p>
       <p>

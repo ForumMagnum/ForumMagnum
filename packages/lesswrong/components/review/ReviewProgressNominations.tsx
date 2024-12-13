@@ -1,21 +1,81 @@
 // TODO: Import component in components.ts
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
-import { useTracking } from "../../lib/analyticsEvents";
+import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { REVIEW_YEAR, ReviewYear } from '@/lib/reviewUtils';
+import { useCurrentUser } from '../common/withUser';
+import { useMulti } from '@/lib/crud/withMulti';
+import range from 'lodash/range';
+
 
 const styles = (theme: ThemeType) => ({
   root: {
-
+    display: "flex",
+    alignItems: "center",
+    marginRight: 4
+  },
+  reviewIcon: {
+    width: 12,
+    height: 12,
+    backgroundColor: theme.palette.primary.light,
+    border: `1px solid ${theme.palette.primary.main}`,
+    borderRadius: 2,
+    marginLeft: 14,
+    transform: "rotate(45deg)"
+  },
+  emptyReviewIcon: {
+    width: 12,
+    height: 12,
+    border: `1px solid ${theme.palette.grey[400]}`,
+    borderRadius: 2,
+    marginLeft: 14,
+    transform: "rotate(45deg)"
   }
 });
 
-export const ReviewProgressNominations = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
-  const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
-  return <div className={classes.root}>
+const TARGET_REVIEWS_NUM = 2
 
-  </div>;
+export const ReviewProgressNominations = ({classes, reviewYear = REVIEW_YEAR}: {
+    classes: ClassesType,
+    reviewYear: ReviewYear
+  }) => {
+
+  
+    const currentUser = useCurrentUser()
+  
+    const { LWTooltip, ForumIcon } = Components
+  
+    const { results: reviewsResults, totalCount: reviewsTotalCount } = useMulti({
+      terms: {
+        view: "reviews",
+        userId: currentUser?._id,
+        reviewYear
+      },
+      collectionName: "Comments",
+      fragmentName: 'CommentsListWithParentMetadata',
+      enableTotal: true,
+      skip: !currentUser,
+      limit: TARGET_REVIEWS_NUM
+    });
+  
+    const totalReviews = reviewsTotalCount || 0
+  
+    const uncheckedReviews = TARGET_REVIEWS_NUM - Math.min(totalReviews, TARGET_REVIEWS_NUM)
+
+    const reviewsTooltip = <div>
+      <p><em>{totalReviews ? `You've written ${totalReviews} reviews${totalReviews >= TARGET_REVIEWS_NUM ? "!" : "."}` : "You haven't written any reviews yet."}</em></p>
+      {totalReviews < TARGET_REVIEWS_NUM && <>
+        <div>Write {TARGET_REVIEWS_NUM} short reviews about why a post was valuable.</div>
+      </>}
+    </div>
+  
+    return <LWTooltip title={reviewsTooltip} placement="top">
+        <div className={classes.root}>
+          {reviewsResults?.map(review => {
+          return <div className={classes.reviewIcon} key={review._id}/>
+        })}
+        {range(0, uncheckedReviews).map(a => <div className={classes.emptyReviewIcon} key={a}/>) }
+        </div>
+      </LWTooltip>
 }
 
 const ReviewProgressNominationsComponent = registerComponent('ReviewProgressNominations', ReviewProgressNominations, {styles});
