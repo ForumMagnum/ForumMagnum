@@ -557,7 +557,7 @@ async function createViteProxyServer(backend: RunningServer) {
         "@/server": "/packages/lesswrong/stubs/server",
         "@/client/importCkEditor": "/packages/lesswrong/viteClient/importCkEditorVite",
         "@/client": "/packages/lesswrong/client",
-        "@/allComponents": "/packages/lesswrong/lib/allComponentsVite",
+        "@/allComponents": "/packages/lesswrong/lib/generated/allComponentsVite",
         "@": "/packages/lesswrong",
         
         // nodejs modules that aren't available on the client, which have
