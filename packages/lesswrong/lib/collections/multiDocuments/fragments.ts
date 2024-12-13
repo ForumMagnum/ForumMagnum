@@ -29,7 +29,7 @@ registerFragment(`
   fragment MultiDocumentParentDocument on MultiDocument {
     ...MultiDocumentEdit
     parentTag {
-      ...TagBasicInfo
+      ...TagHistoryFragment
     }
   }
 `);

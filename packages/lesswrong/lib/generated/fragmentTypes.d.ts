@@ -2020,13 +2020,15 @@ interface RevisionMetadataWithChangeMetrics extends RevisionMetadata { // fragme
 
 interface RevisionHistoryEntry extends RevisionMetadata { // fragment on Revisions
   readonly documentId: string,
+  readonly collectionName: string,
   readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly user: UsersMinimumInfo|null,
 }
 
 interface RevisionTagFragment extends RevisionHistoryEntry { // fragment on Revisions
-  readonly tag: TagBasicInfo|null,
+  readonly tag: TagHistoryFragment|null,
+  readonly lens: MultiDocumentParentDocument|null,
 }
 
 interface RecentDiscussionRevisionTagFragment extends RevisionHistoryEntry { // fragment on Revisions
@@ -3944,7 +3946,7 @@ interface MultiDocumentEdit { // fragment on MultiDocuments
 }
 
 interface MultiDocumentParentDocument extends MultiDocumentEdit { // fragment on MultiDocuments
-  readonly parentTag: TagBasicInfo|null,
+  readonly parentTag: TagHistoryFragment|null,
 }
 
 interface MultiDocumentWithContributors extends MultiDocumentEdit { // fragment on MultiDocuments

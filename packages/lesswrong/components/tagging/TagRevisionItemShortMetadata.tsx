@@ -26,7 +26,7 @@ const styles = (theme: ThemeType) => ({
 
 const TagRevisionItemShortMetadata = ({tag, lens, revision, classes}: {
   tag: TagBasicInfo,
-  lens?: TagLens,
+  lens?: MultiDocumentEdit | TagLens,
   revision: RevisionHistoryEntry,
   classes: ClassesType,
 }) => {
@@ -44,7 +44,8 @@ const TagRevisionItemShortMetadata = ({tag, lens, revision, classes}: {
   }
   
   return <>
-    {lens && <div>Lens {lens.tabTitle}</div>}
+    {/* TODO: should we link to the lens via the lens title? */}
+    {lens && <div>Lens: {lens.tabTitle}</div>}
     <span className={classes.username}>
       <UsersName documentId={revision.userId}/>
     </span>
