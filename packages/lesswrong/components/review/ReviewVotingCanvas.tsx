@@ -8,7 +8,7 @@ import { useCurrentUser } from "../common/withUser";
 import { useLocation } from "../../lib/routeUtil";
 import { useMulti } from "../../lib/crud/withMulti";
 import { REVIEW_YEAR, eligibleToNominate } from "../../lib/reviewUtils";
-import { TARGET_REVIEW_NUM } from "./ReviewVotingProgressBar";
+import { TARGET_REVIEW_NUM } from "./ReviewProgressVotingtsx";
 import { useMessages } from "../common/withMessages";
 import DeferRender from "../common/DeferRender";
 

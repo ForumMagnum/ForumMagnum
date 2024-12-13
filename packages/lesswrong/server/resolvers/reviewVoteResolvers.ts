@@ -6,7 +6,7 @@ import { Posts } from '../../lib/collections/posts/collection'
 import { ReviewVotes } from '../../lib/collections/reviewVotes/collection'
 import { GivingSeasonHeart } from "../../components/review/ReviewVotingCanvas";
 import { REVIEW_YEAR } from '../../lib/reviewUtils';
-import { TARGET_REVIEW_NUM } from '../../components/review/ReviewVotingProgressBar';
+import { TARGET_REVIEW_NUM } from '../../components/review/ReviewProgressVotingtsx';
 
 addGraphQLResolvers({
   Mutation: {
