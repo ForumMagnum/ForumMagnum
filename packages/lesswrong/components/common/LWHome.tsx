@@ -73,7 +73,8 @@ const LWHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
               <FrontpageReviewWidget reviewYear={REVIEW_YEAR} className={classes.frontpageReviewWidget}/>
             </SingleColumnSection>}
           </>}
-          {(!reviewIsActive() || !showReviewOnFrontPageIfActive.get()) && <SingleColumnSection>
+          {(!reviewIsActive() || !showReviewOnFrontPageIfActive.get()) && !lightconeFundraiserActive.get() && <SingleColumnSection>
+
             <DismissibleSpotlightItem current/>
           </SingleColumnSection>}
           <AnalyticsInViewTracker

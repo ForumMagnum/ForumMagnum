@@ -323,6 +323,15 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment SunshineCurationPostsList on Post {
+    ...PostsList
+    curationNotices {
+      ...CurationNoticesFragment
+    }
+  }
+`)
+
+registerFragment(`
   fragment PostsListTag on Post {
     ...PostsList
     tagRel(tagId: $tagId) {
