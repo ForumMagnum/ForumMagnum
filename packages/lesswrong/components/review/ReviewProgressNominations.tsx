@@ -65,7 +65,7 @@ export const ReviewProgressNominations = ({classes, reviewYear = REVIEW_YEAR}: {
       {totalReviews < TARGET_REVIEWS_NUM && <>
         <div>It'll help if you write {TARGET_REVIEWS_NUM} short reviews about why a post was valuable to you.</div>
       </>}
-      <p><em>{totalReviews ? `You've written ${totalReviews} reviews${totalReviews >= TARGET_REVIEWS_NUM ? "!" : "."}` : "You haven't written any reviews yet."}</em></p>
+      <p><em>{totalReviews ? `You've written ${totalReviews} review${totalReviews !== 1 ? "s" : ""}${totalReviews >= TARGET_REVIEWS_NUM ? "!" : "."}` : "You haven't written any reviews yet."}</em></p>
     </div>
   
     return <LWTooltip title={reviewsTooltip} placement="top">
