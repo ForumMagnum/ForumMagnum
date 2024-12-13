@@ -12,6 +12,8 @@ const styles = defineStyles("WikiTagNestedList", (theme: ThemeType) => ({
   childrenList: {
     display: "flex",
     flexDirection: "column",
+    // maxWidth: 800,
+    margin: "0 auto",
   },
   showMoreChildren: {
     fontSize: 12,
@@ -36,7 +38,7 @@ interface WikiTagNestedListProps {
 const WikiTagNestedList = ({
   pages,
   nestingLevel = 0,
-  maxInitialShow = 5,
+  maxInitialShow = 20,
   totalChildrenCount,
   onHover,
   onClick,
@@ -47,11 +49,12 @@ const WikiTagNestedList = ({
 
   return (
     <div className={classes.childrenList}>
-      {pages.slice(0, maxInitialShow).map(page => (
+      {pages.slice(0, maxInitialShow).map((page, index) => (
         <ConceptItem 
           key={page._id} 
           wikitag={page} 
           nestingLevel={nestingLevel} 
+          score={200 - index}
           onHover={onHover}
           onClick={onClick}
           pinnedWikiTag={pinnedWikiTag}

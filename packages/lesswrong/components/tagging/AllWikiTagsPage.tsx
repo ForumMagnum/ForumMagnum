@@ -17,24 +17,47 @@ import { wikitagMockupData } from './wikitag_mockup_data';
 const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
   root: {
     padding: "0 100px",
-    maxWidth: 1000,
+    maxWidth: 1100,
+    margin: "0 auto",
   },
   topSection: {
-    marginBottom: 32,
+    marginBottom: 60,
+    display: "flex",
+    alignItems: "center",
+    gap: "32px",
+    height: 60,
+  },
+  titleSection: {
+    flex: "0 0 auto",
+  },
+  addTagSection: {
+    marginLeft: "auto",
+    flex: "0 0 auto",
+    display: "flex",
+    alignItems: "center",
+    height: "100%",
+    marginBottom: 10,
   },
   addTagButton: {
-    verticalAlign: "middle",
+    marginBottom: -10,
+    display: 'flex',
+    alignItems: 'center',
+    '& svg': {
+      marginRight: 4,
+    }
   },
   titleClass: {
     fontSize: "4rem",
     fontWeight: 500,
-    marginBottom: 32,
+    marginBottom: 20,
+    lineHeight: 1,
   },
   searchContainer: {
     display: "flex",
     alignItems: "center",
-    width: 400,
-    // marginTop: theme.spacing.unit * 4,
+    width: "100%",
+    margin: "0 auto",
+    height: "100%",
   },
   searchIcon: {
     // position: 'absolute',
@@ -42,24 +65,29 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
     // top: '50%',
     // transform: 'translateY(-70%)',
     color: theme.palette.grey[500],
-    marginLeft: -25,
+    marginLeft: -35,
   },
   searchBar: {
     width: "100%",
-    padding: 8,
-    fontSize: "1.0rem",
+    padding: 12,
+    fontSize: "1.4rem",
     boxSizing: "border-box",
+    borderRadius: 24,
+    // border: `1px solid ${theme.palette.grey[400]}`,
+    // "&:focus": {
+    //   outline: "none",
+    //   border: `1px solid ${theme.palette.grey[600]}`,
+    // }
   },
   mainContent: {
     display: "flex",
-    gap: "32px",
     flexGrow: 1,
-    // overflow: 'hidden',
+    width: "100%",
+    justifyContent: "center",
   },
   wikiTagNestedList: {
-    flexShrink: 0,
-    width: 300,
-    // overflowY: 'auto',
+    width: "100%",
+    maxWidth: 1000,
   },
   wikitagName: {
     fontSize: "1.5rem",
@@ -219,37 +247,44 @@ const AllWikiTagsPage = () => {
         {/* <div>CURRENTLY SET WIKITAG: {pinnedWikiTag?.name}</div>
         <div>CURRENTLY HOVERED WIKITAG: {selectedWikiTag?.name}</div> */}
 
-
         <div className={classes.topSection}>
-            <SectionTitle title="Concepts" titleClassName={classes.titleClass}>
-              <SectionButton>
-                {currentUser && tagUserHasSufficientKarma(currentUser, "new") && <Link
-                  to={tagCreateUrl}
-                >
-                  <AddBoxIcon className={classes.addTagButton}/>
-                  New {taggingNameCapitalSetting.get()}
-                </Link>}
-                {!currentUser && <a onClick={(ev) => {
+          <div className={classes.titleSection}>
+            <SectionTitle title="Concepts" titleClassName={classes.titleClass} />
+          </div>
+          
+          <div className={classes.searchContainer}>
+            <input
+              type="text"
+              className={classes.searchBar}
+              placeholder="What would you like to read about?"
+            />
+            <SearchIcon className={classes.searchIcon} />
+          </div>
+
+          <div className={classes.addTagSection}>
+            <SectionButton>
+              {currentUser && tagUserHasSufficientKarma(currentUser, "new") && <Link
+                to={tagCreateUrl}
+                className={classes.addTagButton}
+              >
+                <AddBoxIcon/>
+                New Wiki Page
+              </Link>}
+              {!currentUser && <a 
+                onClick={(ev) => {
                   openDialog({
                     componentName: "LoginPopup",
                     componentProps: {}
                   });
                   ev.preventDefault();
-                }}>
-                  <AddBoxIcon className={classes.addTagButton}/>
-                  New {taggingNameCapitalSetting.get()}
-                </a>}
-              </SectionButton>
-            </SectionTitle>
-
-            <div className={classes.searchContainer}>
-              <input
-                type="text"
-                className={classes.searchBar}
-                placeholder="What would you like to read about?"
-              />
-              <SearchIcon className={classes.searchIcon} />
-            </div>
+                }}
+                className={classes.addTagButton}
+              >
+                <AddBoxIcon/>
+                New Wiki Page
+              </a>}
+            </SectionButton>
+          </div>
         </div>
         <div className={classes.mainContent} onClick={handleBackgroundClick}>
 

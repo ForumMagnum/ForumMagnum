@@ -7,7 +7,8 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import DescriptionIcon from '@material-ui/icons/Description';
 import TagIcon from '@material-ui/icons/LocalOffer';
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
-const ITEM_WIDTH = 250;
+import { Link } from '../../lib/reactRouterWrapper';
+const ITEM_WIDTH = 300;
 
 
 const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
@@ -39,17 +40,16 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     whiteSpace: "nowrap",
   },
   root: {
-    maxWidth: ITEM_WIDTH,
     fontFamily: theme.palette.fonts.sansSerifStack,
     display: "flex",
     flexDirection: "column",
     alignItems: "flex-start",
   },
   item: {
-    backgroundColor: "white",
-    height: 32,
+    // backgroundColor: "white",
+    // height: 32,
     width: ITEM_WIDTH,
-    maxWidth: ITEM_WIDTH,
+    // maxWidth: ITEM_WIDTH,
     // overflow: "hidden",
     borderRadius: theme.borderRadius.default,
     padding: "1px 16px",
@@ -57,14 +57,14 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     alignItems: "center",
     justifyContent: "space-between",
     // marginBottom: 4,
-    boxShadow: "0 1px 5px rgba(0,0,0,.075)",
-    "&:hover .ConceptItem-wordCount": {
-      opacity: 1,
-    },
-    transition: "background-color 0.1s ease",
-    "&:hover": {
-      backgroundColor: theme.palette.grey[200],
-    },
+    // boxShadow: "0 1px 5px rgba(0,0,0,.075)",
+    // "&:hover .ConceptItem-wordCount": {
+    //   opacity: 1,
+    // },
+    // transition: "background-color 0.1s ease",
+    // "&:hover": {
+    //   backgroundColor: theme.palette.grey[200],
+    // },
   },
 
   leftSideItems: {
@@ -86,11 +86,21 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     fontSize: 13,
     fontFamily: theme.palette.fonts.sansSerifStack,
     overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
     minWidth: 0,
     opacity: 0.95,
     marginBottom: 4,
+    display: "flex",
+    alignItems: "center",
+    gap: "4px",
+    // fontVariant: "small-caps",
+  },
+  titleText: {
+    wordBreak: "break-word",
+    lineHeight: "1.2",
+    WebkitLineClamp: 2,
+    WebkitBoxOrient: "vertical",
+    display: "-webkit-box",
+    overflow: "hidden",
   },
   rightSideItems: {
     display: "flex",
@@ -102,13 +112,12 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     color: theme.palette.grey[600],
   },
   postCount: {
-    width: 20,
     fontSize: 11,
     color: theme.palette.grey[600],
     display: "flex",
     alignItems: "center",
-    // justifyContent: "flex-end",
-    // gap: "1px",
+    gap: "2px",
+    whiteSpace: "nowrap",
   },
   wordCount: {
     width: 40,
@@ -122,14 +131,14 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     height: "0.8rem",
     width: "0.8rem",
     opacity: 0.5,
-    marginRight: 2,
-    // position: "relative",
+    marginTop: 3,
   },
 
 
 
   titleItemRoot: {
     marginBottom: 12,
+    width: '100%',
   },
   titleItem: {
     marginBottom: -8,
@@ -137,10 +146,8 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     width: '100%',
     display: "flex",
     alignItems: "center",
+    gap: "12px",
     justifyContent: "flex-start",
-    "&:hover $titlePostCount": {
-      opacity: 1,
-    },
   },
   titleItemTitle: {
     fontWeight: 600,
@@ -197,8 +204,7 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
 
 
 
-  collapse: {
-    marginRight: 7,
+  collapse: {    marginRight: 7,
     opacity: 0.5,
     display: "flex",
     verticalAlign: "middle",
@@ -221,36 +227,25 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     transform: 'translateY(0.75px)',
   },
   children: {
-    marginLeft: 16,
-    width: `calc(100% - 16px)`,
+    // marginLeft: 16,
   },
   childrenList: {
     marginTop: 12,
     maxWidth: "100%",
-    display: "grid",
-    gridTemplateRows: "repeat(12, min-content)", // 8 items per column
-    gridAutoFlow: "dense",
-    width: "fit-content",
-    rowGap: "4px",
-    columnGap: "12px",
-    // Creates columns of ITEM_WIDTH, up to 4 columns
-    gridTemplateColumns: `repeat(6, ${ITEM_WIDTH}px)`,
-    // Force a break after every 32 items (8 rows × 4 columns)
-    "& > *:nth-child(32n+1)": {
-      gridColumnStart: 1,
-    },
+    display: "flex",
+    flexWrap: "wrap",
+    width: "100%",
+    justifyContent: "flex-start",
+    // gap: "4px 12px",
   },
   showMoreChildren: {
     fontSize: 10,
     fontWeight: 400,
-    color: "#426c46",
-    marginBottom: 8,
-    marginTop: 0,
-    //position self to the right
-    marginLeft: 'auto',
-    display: "flex",
-    justifyContent: "flex-end",
-
+    color: "gray",
+    cursor: "pointer",
+    '&:hover': {
+      textDecoration: 'underline',
+    },
   },
   collapseInvisible: {
     opacity: 0,
@@ -290,6 +285,22 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
       backgroundColor: theme.palette.grey[900],
     },
   },
+  karma: {
+    fontSize: 11,
+    color: theme.palette.grey[600],
+    width: 20,
+    marginBottom: 4,
+  },
+  link: {
+    color: 'inherit',
+    textDecoration: 'none',
+    '&:hover': {
+      textDecoration: 'none',
+    },
+  },
+  postCountNumber: {
+    marginTop: 1,
+  },
 }));
 
 
@@ -313,19 +324,20 @@ interface ConceptItemProps {
   wikitag: WikiTagNode;
   nestingLevel: number;
   index?: number;
+  score?: number;  // Add this line
   onHover?: (wikitag: WikiTagMockup | null) => void;
   onClick?: (wikitag: WikiTagMockup) => void;
   pinnedWikiTag?: WikiTagMockup | null;
 }
   
 
-const ConceptItem = ({ wikitag, nestingLevel, index, onHover, onClick, pinnedWikiTag }: ConceptItemProps) => {
+const ConceptItem = ({ wikitag, nestingLevel, index, onHover, onClick, pinnedWikiTag, score }: ConceptItemProps) => {
   const classes = useStyles(styles);
   const defaultCollapsed = index !== undefined && index >= 3 && index < 6;
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
   const [showingAllChildren, setShowingAllChildren] = useState(false);
 
-  const { ForumIcon } = Components;
+  const { ForumIcon, TagHoverPreview } = Components;
 
   const toggleCollapse = () => {
     setCollapsed(!collapsed);
@@ -371,39 +383,57 @@ const ConceptItem = ({ wikitag, nestingLevel, index, onHover, onClick, pinnedWik
   </div>
 
   // regularItem
-  const regularItem =  <div className={classNames(classes.item, { [classes.itemPinned]: isPinned })}>
-    {collapseToggle}
-    <div className={classes.leftSideItems}>
-      <div className={classNames(classes.title)}>
-        {/* <TagsTooltip tagSlug={wikitag.slug} hash={wikitag.slug}> */}
-        {wikitag.name}
-      {/* </TagsTooltip> */}
+  const regularItem = (
+    <TagHoverPreview
+      href={`/tag/${wikitag.slug}`}
+      targetLocation={{ params: { slug: wikitag.slug }, hash: '', query: {} } as RouterLocation}
+    >
+      <div className={classNames(classes.item, { [classes.itemPinned]: isPinned })}>
+        {/* {collapseToggle} */}
+        <div className={classes.leftSideItems}>
+          {<div className={classes.karma}>{score || 0}</div>}
+          <div className={classNames(classes.title)}>
+            <span className={classes.titleText}>{wikitag.name}</span>
+            {wikitag.postCount > 0 && <span className={classes.postCount}>
+              ( <span className={classes.postCountNumber}>{wikitag.postCount}</span>)
+            </span>}
+          </div>
+        </div>
+        <div className={classes.rightSideItems}>
+          {/* Remove the post count from here */}
+        </div>
       </div>
-      {/* <div className={classes.wordCount}>{wordCountFormatted}</div> */}
-    </div>
-    {/* <div className={classes.clickToPin}>Click to pin</div> */}
-    <div className={classes.rightSideItems}>
-      {/* <div className={classes.wordCount}>
-        <EditOutlinedIcon className={classes.icons} />
-        {wordCountFormatted}
-      </div> */}
-      <div className={classes.postCount}>
-        <DescriptionIcon className={classes.icons} />
-        {wikitag.postCount}
-      </div>
-    </div>
-  </div>
+    </TagHoverPreview>
+  );
 
   // titleItem
-  const titleItem = <div className={classes.titleItem}>
-    {collapseToggle}
-    {/* <div className={classes.leftSideItems}> */}
-      <div className={classes.titleItemTitle}>
-        {wikitag.name}
+  const titleItem = (
+    <TagHoverPreview
+      href={`/tag/${wikitag.slug}`}
+      targetLocation={{ params: { slug: wikitag.slug }, hash: '', query: {} } as RouterLocation}
+    >
+      <div className={classes.titleItem}>
+        <div style={{display: 'flex', alignItems: 'center'}}>
+          <div className={classes.titleItemTitle}>
+            {wikitag.name}
+          </div>
+          {!showingAllChildren && wikitag.children.length > 18 && (
+            <div 
+              className={classes.showMoreChildren}
+              onClick={(e) => {
+                e.preventDefault(); // Prevent navigation
+                e.stopPropagation();
+                handleShowMore(e);
+              }}
+            >
+              {`(Show ${wikitag.children.length - 18} more)`}
+            </div>
+          )}
+        </div>
+        <div className={classes.titlePostCount}>{wikitag.postCount} posts</div>
       </div>
-    {/* </div> */}
-    <div className={classes.titlePostCount}>{wikitag.postCount} posts</div>
-  </div>
+    </TagHoverPreview>
+  );
 
   // groupingItem
   // const groupingItem = <div className={classes.groupingItem}>
@@ -443,27 +473,26 @@ const ConceptItem = ({ wikitag, nestingLevel, index, onHover, onClick, pinnedWik
         <div className={classes.children}>
           <div className={classes.childrenList}>
             {wikitag.children
-              .slice(0, showingAllChildren ? undefined : 6)
-              .map((childPage, idx) => (
-                <ConceptItem
-                  key={childPage._id}
-                  wikitag={childPage}
-                  nestingLevel={nestingLevel + 1}
-                  index={idx}
-                  onHover={onHover}
-                  onClick={onClick}
-                  pinnedWikiTag={pinnedWikiTag}
-                />
-            ))}
+              .slice(0, showingAllChildren ? undefined : 18)
+              .map((childPage, idx) => {
+                // Generate a random decrease between 1 and 3
+                const randomDecrease = Math.floor(Math.random() * 3) + 1;
+                const childScore = score ? Math.max(0, score - (idx * randomDecrease)) : 0;
+                
+                return (
+                  <ConceptItem
+                    key={childPage._id}
+                    wikitag={childPage}
+                    nestingLevel={nestingLevel + 1}
+                    index={idx}
+                    score={childScore}
+                    onHover={onHover}
+                    onClick={onClick}
+                    pinnedWikiTag={pinnedWikiTag}
+                  />
+                );
+              })}
           </div>
-          {!showingAllChildren && wikitag.children.length > 6 && (
-            <div 
-              className={classes.showMoreChildren}
-              onClick={handleShowMore}
-            >
-              {`Show ${wikitag.children.length - 6} more`}
-            </div>
-          )}
         </div>
       )}
     </div>
