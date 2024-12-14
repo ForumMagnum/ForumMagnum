@@ -121,6 +121,7 @@ const TagPreview = ({
   hash,
   showCount=true,
   hideRelatedTags,
+  hideDescription=false,
   postCount=6,
   autoApplied=false,
 }: {
@@ -128,6 +129,7 @@ const TagPreview = ({
   hash?: string,
   showCount?: boolean,
   hideRelatedTags?: boolean,
+  hideDescription?: boolean,
   postCount?: number,
   autoApplied?: boolean,
 }) => {
@@ -178,7 +180,7 @@ const TagPreview = ({
       : taggingNameCapitalSetting.get()
   );
 
-  const hasDescription = !!getTagDescriptionHtml(tag);
+  const hasDescription = !!getTagDescriptionHtml(tag) && !hideDescription;
 
   const arbitalImport = tag.isArbitalImport;
 
@@ -195,13 +197,13 @@ const TagPreview = ({
         [classes.nonArbitalPadding]: !arbitalImport
       })}>
         {arbitalImport && <Link className={classes.arbitalTitle} to={`/tag/${tag.slug}`}>{tag.name}</Link>}
-        <div className={classes.descriptionTop}>
+        {hasDescription && <div className={classes.descriptionTop}>
           <TagPreviewDescription 
             tag={tag} 
             hash={hash} 
             {...(tag.summaries?.length ? { activeTab } : {})}
           />
-        </div>
+        </div>}
         {showRelatedTags &&
           <div className={classes.relatedTags}>
             {tag.parentTag &&

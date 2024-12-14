@@ -10,15 +10,22 @@ import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/t
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import SearchIcon from '@material-ui/icons/Search';
 
+// Import InstantSearch components and utilities
+import { InstantSearch } from '../../lib/utils/componentsWithChildren';
+import { SearchBox } from 'react-instantsearch-dom';
+import { connectStateResults } from 'react-instantsearch-dom';
+import { getSearchIndexName, getSearchClient, isSearchEnabled } from '../../lib/search/searchUtil';
+
 // Import the mock data and types
 import { WikiTagMockup, WikiTagNode } from './types'; // Adjust the import path as needed
 import { wikitagMockupData } from './wikitag_mockup_data';
 
 const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
   root: {
-    padding: "0 100px",
+    // padding: "0 100px",
     maxWidth: 1100,
-    margin: "0 auto",
+    // margin: "0 auto",
+    marginLeft: 100,
     position: 'relative',
   },
   topSection: {
@@ -29,16 +36,16 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
   },
   mainRow: {
     display: "flex",
-    flexDirection: "column",
+    flexDirection: "row",
     alignItems: "center",
-    gap: "16px",
+    gap: "32px",
+    width: "100%",
   },
   titleSection: {
-    flex: "0 0 auto",
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center',
     gap: '8px',
+    flexShrink: 0,
   },
   addTagSection: {
     position: 'absolute',
@@ -56,26 +63,76 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
   titleClass: {
     fontSize: "4rem",
     fontWeight: 300,
-    marginBottom: 8,
+    marginBottom: 0,
   },
   searchContainer: {
     display: "flex",
-    alignItems: "center",
+    flexDirection: "column",
+    alignItems: "flex-start",
     width: "100%",
-    margin: "0 auto",
     height: "100%",
     maxWidth: 600,
+    position: "relative",
+  },
+  searchInputArea: {
+    display: "block",
+    position: "relative",
+    width: "100%",
+    height: 48,
+    marginBottom: 24,
+
+    "& .ais-SearchBox": {
+      display: 'inline-block',
+      position: 'relative',
+      width: '100%',
+      height: 46,
+      whiteSpace: 'nowrap',
+      boxSizing: 'border-box',
+      fontSize: 14,
+    },
+    "& .ais-SearchBox-form": {
+      height: '100%'
+    },
+    "& .ais-SearchBox-submit": {
+      display: "none"
+    },
+    "& .ais-SearchBox-reset": {
+      position: "absolute",
+      top: "50%",
+      right: 12,
+      transform: "translateY(-50%)",
+      border: "none",
+      background: "none",
+      cursor: "pointer",
+      opacity: 0.8,
+      padding: 4,
+      "&:hover": {
+        color: theme.palette.grey[700]
+      }
+    },
+    "& .ais-SearchBox-input": {
+      height: "100%",
+      width: "100%",
+      padding: "12px 48px",
+      paddingRight: 40, // Make room for the reset button
+      verticalAlign: "bottom",
+      borderStyle: "none",
+      boxShadow: "none",
+      backgroundColor: "white",
+      fontSize: '1.4rem',
+      "-webkit-appearance": "none",
+      cursor: "text",
+      borderRadius: 12,
+    },
   },
   searchIcon: {
     color: theme.palette.grey[500],
-    marginLeft: -35,
-  },
-  searchBar: {
-    width: "100%",
-    padding: 12,
-    fontSize: "1.4rem",
-    boxSizing: "border-box",
-    borderRadius: 12
+    position: 'absolute',
+    left: 12,
+    top: '50%',
+    transform: 'translateY(-50%)',
+    zIndex: 1,
+    pointerEvents: 'none',
   },
   mainContent: {
     display: "flex",
@@ -87,7 +144,9 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
   wikiTagNestedList: {
     flexShrink: 0,
     width: "100%",
-    // overflowY: 'auto',
+    marginLeft: 0,
+    maxWidth: 600,
+    alignSelf: "flex-start",
   },
   wikitagName: {
     fontSize: "1.5rem",
@@ -183,6 +242,31 @@ function buildTree(
   });
 }
 
+// Function to filter the tree based on tag IDs, but skip first level filtering
+function filterTreeByTagIds(
+  tree: WikiTagNode[], 
+  tagIds: string[], 
+  depth = 0
+): WikiTagNode[] {
+  return tree
+    .map(node => {
+      // At depth 0 (first level), don't filter out any nodes
+      const hasHit = depth === 0 ? true : tagIds.includes(node._id);
+      
+      let children: WikiTagNode[] = [];
+      if (node.children) {
+        // Always pass depth + 1 to children
+        children = filterTreeByTagIds(node.children, tagIds, depth + 1);
+      }
+      
+      if (hasHit || children.length > 0) {
+        return { ...node, children };
+      }
+      return null;
+    })
+    .filter(node => node !== null) as WikiTagNode[];
+}
+
 const AllWikiTagsPage = () => {
   const classes = useStyles(styles);
   const { openDialog } = useDialog();
@@ -193,6 +277,14 @@ const AllWikiTagsPage = () => {
   const [pinnedWikiTag, setPinnedWikiTag] = useState<WikiTagMockup | null>(null);
 
   const { LWTooltip } = Components;
+
+  // State variable for the current search query
+  const [currentQuery, setCurrentQuery] = useState('');
+
+  // Function to handle search state changes
+  const handleSearchStateChange = (searchState: any): void => {
+    setCurrentQuery(searchState.query);
+  };
 
   const handleHover = (wikitag: WikiTagMockup | null) => {
     if (!pinnedWikiTag && wikitag && (wikitag.description_length > 0 || wikitag.postCount > 0)) {
@@ -225,14 +317,59 @@ const AllWikiTagsPage = () => {
     'world-optimization', 'practical', 'community', 'site-meta'
   ] as const, []);
 
+  // Create the artificial "Uncategorized" tags
+  const uncategorizedRootTag: Omit<WikiTagMockup, 'baseScore'> = {
+    _id: 'uncategorized-root',
+    name: 'Uncategorized',
+    slug: 'uncategorized-root',
+    description_length: 0,
+    description_html: '',
+    postCount: 0,
+    parentTagId: null,
+  };
+
+  const uncategorizedChildTag: Omit<WikiTagMockup, 'baseScore'> = {
+    _id: 'uncategorized-child',
+    name: 'Uncategorized',
+    slug: 'uncategorized',
+    description_length: 0,
+    description_html: '',
+    postCount: 0,
+    parentTagId: 'uncategorized-root',
+  };
+
+  // Adjust items to assign unparented tags (excluding priority tags) to the "Uncategorized" child
+  const adjustedItems = wikitagMockupData.map(item => {
+    if (!item.parentTagId) {
+      if (prioritySlugs.includes(item.slug as typeof prioritySlugs[number])) {
+        // Keep priority tags at root level
+        return item;
+      } else {
+        // Assign non-priority unparented tags to 'uncategorized-child'
+        return {
+          ...item,
+          parentTagId: 'uncategorized-child',
+        };
+      }
+    }
+    return item;
+  });
+
+  // Add the artificial "Uncategorized" tags to the items list
+  const itemsWithUncategorized = [
+    ...adjustedItems,
+    uncategorizedRootTag,
+    uncategorizedChildTag,
+  ];
+
   // Move the tree-building and sorting logic here
   const sortedTree = useMemo(() => {
-    const tree = buildTree(wikitagMockupData as Omit<WikiTagMockup, 'baseScore'>[], null, 0);
-    
+    const tree = buildTree(itemsWithUncategorized as Omit<WikiTagMockup, 'baseScore'>[], null, 0);
+
     return tree.sort((a, b) => {
       const indexA = prioritySlugs.indexOf(a.slug as typeof prioritySlugs[number]);
       const indexB = prioritySlugs.indexOf(b.slug as typeof prioritySlugs[number]);
-      
+
       // If both items are in the priority list, sort by priority
       if (indexA !== -1 && indexB !== -1) {
         return indexA - indexB;
@@ -240,18 +377,39 @@ const AllWikiTagsPage = () => {
       // If only one item is in priority list, it goes first
       if (indexA !== -1) return -1;
       if (indexB !== -1) return 1;
+      // Ensure "Uncategorized" is placed at the end
+      if (a.slug === 'uncategorized-root') return 1;
+      if (b.slug === 'uncategorized-root') return -1;
       // For all other items, sort by baseScore
       return b.baseScore - a.baseScore;
     });
   }, [prioritySlugs]);
 
-  // Filter the tree to only show priority items at the root level
-  const filteredTree = useMemo(() => 
-    sortedTree.filter(wikitag => 
-      prioritySlugs.includes(wikitag.slug as typeof prioritySlugs[number])
-    ), 
-    [sortedTree, prioritySlugs]
-  );
+  // Component to access search results
+  const CustomStateResults = connectStateResults(({ searchResults }) => {
+    const hits = (searchResults && searchResults.hits) || [];
+    const tagIds = hits.map(hit => hit.objectID);
+
+    // First filter by priority slugs at the root level
+    const priorityFilteredTree = sortedTree.filter(wikitag => 
+      prioritySlugs.includes(wikitag.slug as typeof prioritySlugs[number]) || wikitag.slug === 'uncategorized-root'
+    );
+
+    // Then apply search filtering if there's a query
+    const filteredTags = currentQuery 
+      ? filterTreeByTagIds(priorityFilteredTree, tagIds, 0)
+      : priorityFilteredTree;
+
+    return (
+      <div className={classes.wikiTagNestedList}>
+        <WikiTagNestedList
+          pages={filteredTags}
+          onHover={handleHover}
+          onClick={handleClick}
+        />
+      </div>
+    );
+  });
 
   return (
     <AnalyticsContext pageContext="allWikiTagsPage">
@@ -284,42 +442,33 @@ const AllWikiTagsPage = () => {
         </div>
         <div className={classes.root} onClick={handleBackgroundClick}>
           <div className={classes.topSection}>
-            <div className={classes.mainRow}>
-              <div className={classes.titleSection}>
-                <div className={classes.titleClass}>Concepts</div>
-              </div>
-              <div className={classes.searchContainer}>
-                <input
-                  type="text"
-                  className={classes.searchBar}
-                  placeholder="What would you like to understand?"
-                />
-                <SearchIcon className={classes.searchIcon} />
-              </div>
+            <div className={classes.titleSection}>
+              <div className={classes.titleClass}>Concepts</div>
+            </div>
+
+            <div className={classes.searchContainer}>
+              <InstantSearch
+                indexName={getSearchIndexName('Tags')}
+                searchClient={getSearchClient()}
+                onSearchStateChange={handleSearchStateChange}
+              >
+                <div className={classes.searchInputArea}>
+                  <SearchIcon className={classes.searchIcon} />
+                  <SearchBox 
+                    translations={{ placeholder: 'What would you like to read about?' }}
+                  />
+                </div>
+                <CustomStateResults />
+              </InstantSearch>
             </div>
           </div>
-          
-          <div className={classes.mainContent} onClick={handleBackgroundClick}>
-
-
-            <div className={classes.wikiTagNestedList}>
-              <WikiTagNestedList 
-                pages={filteredTree}
-                onHover={handleHover} 
-                onClick={handleClick}
-                // pinnedWikiTag={pinnedWikiTag}
-              />
-            </div>
-
-
-
-
+          <div className={classes.mainContent}>
           </div>
         </div>
       </div>
     </AnalyticsContext>
   );
-}
+};
 
 const AllWikiTagsPageComponent = registerComponent("AllWikiTagsPage", AllWikiTagsPage);
 
@@ -327,6 +476,6 @@ export default AllWikiTagsPageComponent;
 
 declare global {
   interface ComponentTypes {
-    AllWikiTagsPage: typeof AllWikiTagsPageComponent
+        AllWikiTagsPage: typeof AllWikiTagsPageComponent
   }
 }

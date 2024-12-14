@@ -114,11 +114,11 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     WebkitBoxOrient: "vertical",
     display: "-webkit-box",
     overflow: "ellipsis",
-    '&:hover': {
-      overflow: "visible",
-      width: 500,
-      backgroundColor: theme.palette.background.default,
-    },
+    // '&:hover': {
+    //   overflow: "visible",
+    //   width: 500,
+    //   backgroundColor: theme.palette.background.default,
+    // },
   },
   karma: {
     fontSize: 12,
@@ -135,6 +135,7 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     gap: "2px",
     whiteSpace: "nowrap",
     marginTop: 0,
+    marginLeft: 2,
     opacity: 0.9,
   },
   postCountNumber: {
@@ -167,18 +168,18 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
 
 
   titleItemRoot: {
-    marginBottom: 12,
+    marginBottom: 24,
   },
   titleItem: {
-    marginBottom: -8,
+    marginBottom: -16,
     backgroundColor: "unset",
     width: '100%',
     display: "flex",
     alignItems: "center",
     justifyContent: "flex-start",
-    "&:hover $titlePostCount": {
-      opacity: 1,
-    },
+    // "&:hover $titlePostCount": {
+    //   opacity: 1,
+    // },
   },
   titleItemTitle: {
     fontWeight: 600,
@@ -236,7 +237,7 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
 
   collapse: {
     marginRight: 7,
-    opacity: 0.5,
+    opacity: 0,
     display: "flex",
     verticalAlign: "middle",
     // make the cursor change to pointer
@@ -258,8 +259,8 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     transform: 'translateY(0.75px)',
   },
   children: {
-    marginLeft: 16,
-    width: "calc(100vw - 32px)",
+    marginLeft: 8,
+    width: "calc(100vw - 16px)",
   },
   childrenContainer: {
     width: "100%",
@@ -282,14 +283,29 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     flex: "0 0 auto",
   },
   showMoreChildren: {
-    fontSize: "1.0rem",
-    fontWeight: 400,
-    color: "#426c46",
     marginBottom: 8,
-    marginTop: 12,
+    marginTop: 8,
     width: "100%",
     textAlign: "left",
     cursor: "pointer",
+    fontSize: 12,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontVariant: "normal",
+    color: theme.palette.grey[600],
+    fontWeight: 500,
+    marginLeft: 8, // Adjust spacing as needed
+    // marginBottom: 14,
+  },
+  showMoreChildrenInline: {
+    fontSize: 11,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontVariant: "normal",
+    color: theme.palette.grey[600],
+    fontWeight: 400,
+    marginLeft: 8, // Adjust spacing as needed
+    // marginBottom: 14,
+    cursor: "pointer",
+    display: "inline", // Ensure it appears inline with the title
   },
   collapseInvisible: {
     opacity: 0,
@@ -328,6 +344,15 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     "&:hover": {
       backgroundColor: theme.palette.grey[900],
     },
+  },
+  tooltipHoverTitle: {
+    margin: '0 24px',
+    // marginRight: 32,
+  },
+  tooltipHoverPostCount: {
+    // margin: '0 32px',
+    // margin: 16,
+    // marginLeft: 64,
   },
 }));
 
@@ -378,96 +403,15 @@ const ConceptItem = ({ wikitag, nestingLevel, index, onHover, onClick, pinnedWik
 
   const toggleCollapse = () => {
     setCollapsed(!collapsed);
+    if (collapsed) {
+      setShowingAllChildren(false);
+    }
   };
 
   const hasChildren = wikitag.children && wikitag.children.length > 0;
   const isPinned = pinnedWikiTag?._id === wikitag._id;
 
-  const numDirectChildren = wikitag.children?.length;
-  // get the post count of this wikitag and all its descendants
-  const fullDescendantCount = wikitag.postCount + wikitag.children?.reduce((acc, child) => acc + child.postCount, 0);
-  // const wordCountFormatted = `${wikitag.description_length/6 >= 100 ? `${(wikitag.description_length/6/1000).toFixed(1)}k ` : Math.round(wikitag.description_length/6)}`;
-  const wordCountFormatted = `${Math.round(wikitag.description_length/6)}`;
-  
-  const collapseToggle = hasChildren && <div className={classNames(classes.collapse, {[classes.collapseInvisible]: !hasChildren})} 
-       onClick={hasChildren ? toggleCollapse : undefined}>
-    <ForumIcon
-      icon="SoftUpArrow"
-      className={classNames(
-        classes.collapseChevron,
-        !collapsed && classes.collapseChevronOpen
-      )}
-    />
-  </div>
-
-  const isWikiItem = wikitag.description_length > 2000;
-  // regularItem
-  const regularItem = <TagsTooltip tagSlug={wikitag.slug} hash={wikitag.slug} noPrefetch previewPostCount={0}>
-    <div className={classNames(classes.item, { [classes.itemPinned]: isPinned, [classes.wikiItem]: isWikiItem })} >
-      {collapseToggle}
-      <div className={classes.leftSideItems}>
-        <div className={classes.karma}>{wikitag.baseScore || 0}</div>
-        <div className={classNames(classes.title, { [classes.titleWikiItem]: isWikiItem })}>
-          <span className={classes.titleText}>{wikitag.name}</span>
-          {wikitag.postCount > 0 && <span className={classes.postCount}>
-            (<span className={classes.postCountNumber}>{wikitag.postCount}</span>)
-          </span>}
-        </div>
-        {/* <div className={classes.wordCount}>{wordCountFormatted}</div> */}
-      </div>
-      {/* <div className={classes.clickToPin}>Click to pin</div> */}
-      {/* <div className={classes.rightSideItems}> */}
-        {/* <div className={classes.wordCount}>
-          <EditOutlinedIcon className={classes.icons} />
-          {wordCountFormatted}
-        </div> */}
-        {/* <div className={classes.postCount}>
-          <DescriptionIcon className={classes.icons} />
-          {wikitag.postCount}
-        </div> */}
-      {/* </div> */}
-    </div>
-  </TagsTooltip>
-
-  // titleItem
-  const titleItem = <div className={classes.titleItem}>
-    {collapseToggle}
-    <div className={classes.leftSideItems}>
-      <div className={classes.titleItemTitle}>
-        {wikitag.name}
-      </div>
-      <div className={classes.titlePostCount}>{wikitag.postCount} posts</div>
-    </div>
-  </div>
-
-  // groupingItem
-  // const groupingItem = <div className={classes.groupingItem}>
-  //   {collapseToggle}
-  //   <div className={classes.leftSideItems}>
-  //     <div className={classes.groupingTitle}>
-  //       {wikitag.name}
-  //     </div>
-  //   </div>
-  //   <div className={classes.groupingRightSideItems}>
-  //     {collapsed && <div className={classes.groupingItemChildrenCount}>{numDirectChildren} tags</div>}  
-  //   </div>
-  // </div>
-        
-  // if item is nesting level 0, render titleItem instead of regularItem
-  // if item is nesting level 1, render groupingItem instead of regularItem
-  // otherwise, render regularItem
-
-  const itemToRender = nestingLevel === 0 ? titleItem : regularItem;
-
-  const handleShowMore = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setShowingAllChildren(true);
-  };
-
-  const handleShowLess = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setShowingAllChildren(false);
-  };
+  const totalChildren = wikitag.children?.length || 0;
 
   // Constants
   const ITEMS_PER_COLUMN = 8;
@@ -475,24 +419,129 @@ const ConceptItem = ({ wikitag, nestingLevel, index, onHover, onClick, pinnedWik
   const MAX_INITIAL_ITEMS = ITEMS_PER_COLUMN * MAX_INITIAL_COLUMNS; // Calculate based on columns
 
   // Calculate the number of items to show
-  const totalChildren = wikitag.children.length;
   const showingAllItems = showingAllChildren || totalChildren <= MAX_INITIAL_ITEMS;
 
   const itemsToShowCount = showingAllItems
     ? totalChildren
-    : MAX_INITIAL_ITEMS; // Simplified to always show exactly 48 items initially
+    : MAX_INITIAL_ITEMS;
 
   // Sort and slice the children
   const sortedChildren = wikitag.children
-    .slice(0, itemsToShowCount)
-    .sort((a, b) => b.baseScore - a.baseScore);
+    .sort((a, b) => (b.baseScore || 0) - (a.baseScore || 0))
+    .slice(0, itemsToShowCount);
 
   // Split into columns
   const columns = splitIntoColumns(sortedChildren, ITEMS_PER_COLUMN);
 
+  const remainingItems = totalChildren - itemsToShowCount;
+
+  // Define the Show More/Less button
+  const showMoreButton = (
+    <div
+      className={classes.showMoreChildren}
+      onClick={(e) => {
+        e.stopPropagation();
+        if (collapsed) {
+          setCollapsed(false);
+        } else if (!showingAllItems) {
+          setShowingAllChildren(true);
+        } else {
+          // If all items are shown, clicking "Show less" should reset
+          setShowingAllChildren(false);
+        }
+      }}
+    >
+      {collapsed
+        ? `Show ${totalChildren} more`
+        : !showingAllItems
+          ? `Show ${remainingItems} more`
+          : 'Show less'
+      }
+    </div>
+  );
+
+  // Collapse toggle with consistent spacing
+  const collapseToggle = (
+    <div
+      className={classNames(classes.collapse)}
+      onClick={hasChildren ? toggleCollapse : undefined}
+      style={{ visibility: hasChildren ? 'visible' : 'hidden' }}
+    >
+      <ForumIcon
+        icon="SoftUpArrow"
+        className={classNames(
+          classes.collapseChevron,
+          !collapsed && classes.collapseChevronOpen
+        )}
+      />
+    </div>
+  );
+
+  const isWikiItem = wikitag.description_length > 2000;
+
+  // Title item (for nestingLevel === 0)
+  const titleItem = (
+    <div className={classes.titleItem}>
+      {/* {collapseToggle} */}
+      <div className={classes.leftSideItems}>
+        <div className={classes.titleItemTitle}>
+          {wikitag.name}
+        </div>
+        <div className={classes.titlePostCount}>{wikitag.postCount} posts</div>
+      </div>
+    </div>
+  );
+
+  // Regular item (for nestingLevel > 0)
+  const regularItem = (
+    // <TagsTooltip tagSlug={wikitag.slug} hash={wikitag.slug} noPrefetch previewPostCount={0}>
+      <div
+        className={classNames(classes.item, {
+          [classes.itemPinned]: isPinned,
+          [classes.wikiItem]: isWikiItem,
+        })}
+      >
+        {/* {collapseToggle} */}
+        <div className={classes.leftSideItems}>
+          <div className={classes.karma}>{wikitag.baseScore || 0}</div>
+          <div className={classNames(classes.title, { [classes.titleWikiItem]: isWikiItem })}>
+            <TagsTooltip
+              tagSlug={wikitag.slug}
+              hash={wikitag.slug}
+              noPrefetch
+              previewPostCount={0}
+              placement='right-start'
+              popperClassName={classes.tooltipHoverTitle}
+            >
+              <span className={classes.titleText}>{wikitag.name}</span>
+            </TagsTooltip>
+            {wikitag.postCount > 0 && (
+              <span className={classes.postCount}>
+                <TagsTooltip
+                  tagSlug={wikitag.slug}
+                  hash={wikitag.slug}
+                  noPrefetch
+                  previewPostCount={8}
+                  hideDescription
+                  placement='bottom-start'
+                  popperClassName={classes.tooltipHoverPostCount}
+                >
+                  (<span className={classes.postCountNumber}>{wikitag.postCount}</span>)
+                </TagsTooltip>
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+    // </TagsTooltip>
+  );
+
+  // Decide which item to render
+  const itemToRender = nestingLevel === 0 ? titleItem : regularItem;
+
   return (
-    <div 
-      className={classNames(classes.root, {[classes.titleItemRoot]: nestingLevel === 0})}
+    <div
+      className={classNames(classes.root, { [classes.titleItemRoot]: nestingLevel === 0 })}
     >
       {itemToRender}
 
@@ -517,14 +566,22 @@ const ConceptItem = ({ wikitag, nestingLevel, index, onHover, onClick, pinnedWik
                 </div>
               ))}
             </div>
-            {wikitag.children.length > MAX_INITIAL_ITEMS && (
-              <div 
+            {/* Show "Show more"/"Show less" button for all nesting levels */}
+            {hasChildren && totalChildren > MAX_INITIAL_ITEMS && (
+              <div
                 className={classes.showMoreChildren}
-                onClick={showingAllChildren ? handleShowLess : handleShowMore}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (!showingAllItems) {
+                    setShowingAllChildren(true);
+                  } else {
+                    setShowingAllChildren(false);
+                  }
+                }}
               >
-                {showingAllChildren 
-                  ? "Show less"
-                  : `Show ${wikitag.children.length - itemsToShowCount} more`
+                {!showingAllItems
+                  ? `Show ${remainingItems} more`
+                  : 'Show less'
                 }
               </div>
             )}

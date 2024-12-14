@@ -60,7 +60,7 @@ const TagPreviewDescription = ({tag, hash, classes, activeTab}: {
     return (
       <TagExcerpt
         tag={tag}
-        lines={4}
+        lines={12}
         hideMultimedia
         hideMoreLink
       />
