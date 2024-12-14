@@ -964,6 +964,7 @@ import '../components/tagging/SingleLineTagUpdates';
 import '../components/tagging/WikiTagItem';
 import '../components/tagging/WikiTagNestedList';
 import '../components/tagging/ArbitalExplorePage';
+import '../components/tagging/SummariesEditForm';
 
 // Subforums
 import '../components/tagging/TagPageRouter';

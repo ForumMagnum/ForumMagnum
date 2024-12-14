@@ -24,6 +24,7 @@ const schema: SchemaType<"MultiDocuments"> = {
     canUpdate: ['members'],
     optional: true,
     nullable: true,
+    order: 0,
   },
   slug: {
     type: String,
@@ -85,6 +86,7 @@ const schema: SchemaType<"MultiDocuments"> = {
     canRead: ['guests'],
     canUpdate: ['members'],
     nullable: false,
+    order: 10,
   },
   tabSubtitle: {
     type: String,
@@ -92,6 +94,7 @@ const schema: SchemaType<"MultiDocuments"> = {
     canUpdate: ['members'],
     optional: true,
     nullable: true,
+    order: 20,
   },
   userId: {
     type: String,

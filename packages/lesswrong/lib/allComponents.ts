@@ -886,7 +886,6 @@ importComponent("AllPostsPageTagRevisionItem", () => require('../components/tagg
 importComponent("PostsTagsList", () => require('../components/tagging/PostsTagsList'));
 
 
-
 importComponent("TagsListItem", () => require('../components/tagging/TagsListItem'));
 importComponent("ChangeMetricsDisplay", () => require('../components/tagging/ChangeMetricsDisplay'));
 importComponent("NewTagItem", () => require('../components/tagging/NewTagItem'));
@@ -922,6 +921,7 @@ importComponent("SingleLineTagUpdates", () => require('../components/tagging/Sin
 importComponent("WikiTagItem", () => require('../components/tagging/WikiTagItem'));
 importComponent("WikiTagNestedList", () => require('../components/tagging/WikiTagNestedList'));
 importComponent("ArbitalExplorePage", () => require('../components/tagging/ArbitalExplorePage'));
+importComponent("SummariesEditForm", () => require('../components/tagging/SummariesEditForm'));
 
 // Subforums
 importComponent("TagPageRouter", () => require('../components/tagging/TagPageRouter'));
