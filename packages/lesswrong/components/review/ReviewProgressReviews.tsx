@@ -32,7 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-export const UserReviewsProgressBar = ({classes, reviewYear}: {
+export const ReviewProgressReviews = ({classes, reviewYear}: {
   classes: ClassesType,
   reviewYear: ReviewYear
 }) => {
@@ -62,10 +62,10 @@ export const UserReviewsProgressBar = ({classes, reviewYear}: {
   const uncheckedBoxes = TARGET_NUM - Math.min(totalReviews, TARGET_NUM)
 
   return <LWTooltip title={<div>
-      <p><em>{totalReviews ? `You've written ${totalReviews} reviews${totalReviews >= TARGET_NUM ? "!" : "."}` : "You haven't written any reviews yet."}</em></p>
       {totalReviews < TARGET_NUM && <>
-      <div>It'd be helpful if you did {TARGET_NUM} reviews! They can be short!</div>
-      <div>If they're especially good, the LessWrong team will give you a $50-$500 prize.</div></>}
+      <div>It'd be helpful if you wrote {TARGET_NUM} reviews, that help inform readers.</div>
+      </>}
+      <p><em>{totalReviews ? `You've written ${totalReviews} reviews${totalReviews >= TARGET_NUM ? "!" : "."}` : "You haven't written any reviews yet."}</em></p>
     </div>} placement="top">
     <div className={classes.root}>
       {reviewsResults.map(review => {
@@ -76,11 +76,11 @@ export const UserReviewsProgressBar = ({classes, reviewYear}: {
   </LWTooltip>
 }
 
-const UserReviewsProgressBarComponent = registerComponent('UserReviewsProgressBar', UserReviewsProgressBar, {styles});
+const ReviewProgressReviewsComponent = registerComponent('ReviewProgressReviews', ReviewProgressReviews, {styles});
 
 declare global {
   interface ComponentTypes {
-    UserReviewsProgressBar: typeof UserReviewsProgressBarComponent
+    ReviewProgressReviews: typeof ReviewProgressReviewsComponent
   }
 }
 
