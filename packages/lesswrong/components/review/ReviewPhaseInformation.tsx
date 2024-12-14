@@ -61,7 +61,7 @@ export const ReviewPhaseInformation = ({classes, reviewYear, reviewPhase}: {
 
   if (reviewPhase === "REVIEWS") {
     return <ContentStyles contentType="comment" className={classes.root}>
-      <b>Posts need at least 1 review to enter the Final Voting Phase</b>
+      <p>Posts need at least 1 review to enter the Final Voting Phase</p>
       <p>In the right-column are posts which were upvoted during the Nomination Voting Phase, but which haven't gotten a review yet. Write reviews for any posts which you benefited from, or you think you might have something informative to say about.</p>
       <p><b>If you review 3 posts, you have done your civic duty</b></p>
       <p>Let's be real, there's a hella lotta posts you could review. But if you review three posts, as far as the LessWrong team is concerned you can call it a day and bask in the warm glow of knowing you helped the site reflect upon itself, improving our longterm reward signal.</p>
