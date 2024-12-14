@@ -247,7 +247,7 @@ addRoute(
   {
     name: 'reviewQuickPage',
     path: '/reviewQuickPage',
-    componentName: 'ReviewQuickPage',
+    componentName: 'QuickReviewPage',
     title: "Review Quick Page",
     subtitle: "Quick Review Page"
   },

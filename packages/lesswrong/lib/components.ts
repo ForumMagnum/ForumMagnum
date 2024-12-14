@@ -1102,7 +1102,8 @@ importComponent("DismissibleSpotlightItem", () => require('../components/spotlig
 
 // Review Components
 // importComponent("FrontpageNominationPhase", () => require('../components/review/FrontpageNominationPhase'));
-importComponent("ReviewQuickPage", () => require('../components/review/ReviewQuickPage'));
+importComponent("QuickReviewPage", () => require('../components/review/QuickReviewPage'));
+importComponent("QuickReviewPage2022", () => require('../components/review/QuickReviewPage2022'));
 importComponent("NewLongformReviewForm", () => require('../components/review/NewLongformReviewForm'));
 importComponent("ReviewDashboardButtons", () => require('../components/review/ReviewDashboardButtons'));
 importComponent("ReviewPhaseInformation", () => require('../components/review/ReviewPhaseInformation'));

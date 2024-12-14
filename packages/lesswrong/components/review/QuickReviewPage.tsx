@@ -87,7 +87,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-export const ReviewQuickPage = ({classes}: {
+export const QuickReviewPage = ({classes}: {
   classes: ClassesType,
 }) => {
   const reviewYear = REVIEW_YEAR
@@ -109,7 +109,7 @@ export const ReviewQuickPage = ({classes}: {
     skip: !reviewYear
   });
 
-  const { PostsItem, ReviewVotingExpandedPost, FrontpageReviewWidget, SectionFooter, Loading, ReviewPhaseInformation, ReviewDashboardButtons, PostInteractionStripe } = Components
+  const { PostsItem, SectionFooter, Loading, PostInteractionStripe } = Components
 
   const sortedPostsResults = !!posts ? sortBy(posts, (post1,post2) => {
     return post1.currentUserVote === null
@@ -127,24 +127,7 @@ export const ReviewQuickPage = ({classes}: {
 
   const loadMoreText = preferredHeadingCase("Load More");
 
-  return <div className={classes.grid}>
-    <div className={classes.leftColumn}>
-      {!expandedPost && <div>
-        <FrontpageReviewWidget showFrontpageItems={false} reviewYear={reviewYear}/>
-        <ReviewPhaseInformation reviewYear={reviewYear} reviewPhase={"REVIEWS"}/>
-        <ReviewDashboardButtons 
-          reviewYear={reviewYear} 
-          reviewPhase={getReviewPhase()}
-          showAdvancedDashboard
-        />
-      </div>}
-      {expandedPost && <ReviewVotingExpandedPost
-        showReviewButton={false}
-        post={expandedPost}
-        setExpandedPost={setExpandedPost}
-      />}
-    </div>
-    <div className={classes.rightColumn}>
+  return <div>
       <div className={classes.menu}>
         Top Unreviewed Posts
       </div>
@@ -167,13 +150,12 @@ export const ReviewQuickPage = ({classes}: {
         </div>
       </SectionFooter>
     </div>
-  </div>;
 }
 
-const ReviewQuickPageComponent = registerComponent('ReviewQuickPage', ReviewQuickPage, {styles});
+const QuickReviewPageComponent = registerComponent('QuickReviewPage', QuickReviewPage, {styles});
 
 declare global {
   interface ComponentTypes {
-    ReviewQuickPage: typeof ReviewQuickPageComponent
+    QuickReviewPage: typeof QuickReviewPageComponent
   }
 }
