@@ -49,9 +49,7 @@ export function getReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
   }
 }
 
-const TIMEZONE_OFFSET = isDevelopment 
-  ? -24*5
-  : 8 // Pacific Time
+const TIMEZONE_OFFSET = 8 // Pacific Time
 
 export function getReviewPeriodStart(reviewYear: ReviewYear = REVIEW_YEAR) {
   return moment.utc(`${reviewYear}-01-01`).add(TIMEZONE_OFFSET, 'hours')
@@ -60,7 +58,13 @@ export function getReviewPeriodEnd(reviewYear: ReviewYear = REVIEW_YEAR) {
   return moment.utc(`${reviewYear+1}-01-01`).add(TIMEZONE_OFFSET, 'hours')
 }
 
-export const getReviewStart = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+1}-12-01`).add(TIMEZONE_OFFSET, 'hours')
+
+export const getReviewStart = (reviewYear: ReviewYear) => {
+  const startDateString = isDevelopment
+    ? `${reviewYear+1}-11-30` // we typically start testing the next year's review in November of the current year
+    : `${reviewYear+1}-12-02`;
+  return moment.utc(startDateString).add(TIMEZONE_OFFSET, 'hours');
+};
 export const getNominationPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+1}-12-16`).add(TIMEZONE_OFFSET, 'hours')
 export const getReviewPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-01-16`).add(TIMEZONE_OFFSET, 'hours')
 export const getVotingPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-02-01`).add(TIMEZONE_OFFSET, 'hours')
