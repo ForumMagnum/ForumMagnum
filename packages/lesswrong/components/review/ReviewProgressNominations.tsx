@@ -34,10 +34,9 @@ const styles = (theme: ThemeType) => ({
 const TARGET_REVIEWS_NUM = 2
 
 export const ReviewProgressNominations = ({classes, reviewYear = REVIEW_YEAR}: {
-    classes: ClassesType,
+    classes: ClassesType<typeof styles>,
     reviewYear: ReviewYear
   }) => {
-
 
     const currentUser = useCurrentUser()
 
@@ -56,7 +55,7 @@ export const ReviewProgressNominations = ({classes, reviewYear = REVIEW_YEAR}: {
       limit: TARGET_REVIEWS_NUM
     });
 
-    const totalReviews = reviewsTotalCount || 0
+    const totalReviews = reviewsTotalCount ?? 0
 
     const uncheckedReviews = TARGET_REVIEWS_NUM - Math.min(totalReviews, TARGET_REVIEWS_NUM)
 
