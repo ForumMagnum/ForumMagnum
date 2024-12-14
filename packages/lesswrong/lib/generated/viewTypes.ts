@@ -1,5 +1,6 @@
 type AdvisorRequestsViewName = "requestsByUser";
 type ArbitalCachesViewName = never
+type ArbitalTagContentRelsViewName = never
 type BansViewName = never
 type BooksViewName = never
 type ChaptersViewName = "SequenceChapters";
@@ -72,7 +73,7 @@ type SurveySchedulesViewName = "surveySchedulesByCreatedAt";
 type SurveysViewName = "surveysByCreatedAt";
 type TagFlagsViewName = "allTagFlags";
 type TagRelsViewName = "postsWithTag"|"tagsOnPost";
-type TagsViewName = "tagsByTagIds"|"allTagsAlphabetical"|"userTags"|"currentUserSubforums"|"allPagesByNewest"|"allTagsHierarchical"|"tagBySlug"|"coreTags"|"postTypeTags"|"coreAndSubforumTags"|"newTags"|"unreviewedTags"|"suggestedFilterTags"|"allLWWikiTags"|"unprocessedLWWikiTags"|"tagsByTagFlag"|"allPublicTags"|"allArbitalTags";
+type TagsViewName = "tagsByTagIds"|"allTagsAlphabetical"|"userTags"|"currentUserSubforums"|"allPagesByNewest"|"allTagsHierarchical"|"tagBySlug"|"coreTags"|"postTypeTags"|"coreAndSubforumTags"|"newTags"|"unreviewedTags"|"suggestedFilterTags"|"allLWWikiTags"|"unprocessedLWWikiTags"|"tagsByTagFlag"|"allPublicTags"|"allArbitalTags"|"pingbackWikiPages";
 type TweetsViewName = never
 type TypingIndicatorsViewName = never
 type UserActivitiesViewName = never
@@ -87,6 +88,7 @@ type VotesViewName = "tagVotes"|"userPostVotes"|"userVotes";
 interface ViewTermsByCollectionName {
   AdvisorRequests: AdvisorRequestsViewTerms
   ArbitalCaches: ViewTermsBase
+  ArbitalTagContentRels: ViewTermsBase
   Bans: ViewTermsBase
   Books: ViewTermsBase
   Chapters: ChaptersViewTerms

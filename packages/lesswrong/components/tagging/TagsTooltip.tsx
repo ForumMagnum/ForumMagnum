@@ -5,6 +5,8 @@ import { isFriendlyUI } from "../../themes/forumTheme";
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from "classnames";
 import { PopperPlacementType } from "@material-ui/core/Popper";
+import { defineStyles, useStyles } from "../hooks/useStyles";
+import { inferRedLinkTitle, useRedLinkPingbacks } from "./RedlinkTagPage";
 
 type PreviewableTag =
   TagPreviewFragment |
@@ -51,7 +53,7 @@ const DefaultPreviewWrapper: TagsTooltipPreviewWrapper = ({children}) => (
   <>{children}</>
 );
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagsTooltip", theme => ({
   tooltip: isFriendlyUI
     ? {}
     : {
@@ -86,32 +88,35 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 4,
     color: theme.palette.text.secondary,
   },
-});
+}));
 
-const RedLinkTooltip = ({ classes, ...tagsTooltipProps }: TagsTooltipTag & { classes: ClassesType<typeof styles> }) => {
-  const { Typography, ContentStyles, TagHoverPreview } = Components;
-  const derivedTitle = tagsTooltipProps.tagSlug!.split('_').map((word, idx) => {
-    if (idx === 0) {
-      return word.charAt(0).toUpperCase() + word.slice(1);
-    }
-    return word;
-  }).join(' ');
+const RedLinkTooltip = ({ tag, slug }: {
+  tag: TagBasicInfo | null
+  slug?: string
+}) => {
+  const classes = useStyles(styles);
+  const { Typography, ContentStyles, TagHoverPreview, Loading } = Components;
+  const { results: pingbacks, loading: loadingPingbacks } = useRedLinkPingbacks(tag?._id);
+  const title = inferRedLinkTitle(tag, slug??null);
 
   return <div className={classes.redLinkTooltip}>
     <Typography variant='title'>
-      {derivedTitle}
+      {title}
     </Typography>
     {/* TODO: this is a hardcoded example; when we implement the backend for red links we should fix this */}
     <ContentStyles contentType='tag'>
-      This red link was used on one 1 other page:
+      This red link was used on {pingbacks ? pingbacks.length : <Loading/>} page{pingbacks ? (pingbacks.length > 1 ? "s" : "") : "(s)"}:
       <ul>
-        <li>
-          <TagHoverPreview targetLocation={{ params: { slug: 'nash_equilibrium' }, hash: '', query: {} } as AnyBecauseTodo} href='/tag/nash_equilibrium' noPrefetch>
-            <Link to={`/tag/nash_equilibrium`}>
-              Nash Equilibrium
+        {pingbacks?.map(pingback => <li>
+          <TagHoverPreview
+            targetLocation={{ params: { slug: 'nash_equilibrium' }, hash: '', query: {} } as AnyBecauseTodo}
+            href='/tag/nash_equilibrium' noPrefetch
+          >
+            <Link to={`/w/${pingback.slug}`}>
+              {pingback.name}
             </Link>
           </TagHoverPreview>
-        </li>
+        </li>)}
       </ul>
     </ContentStyles>
     <ContentStyles contentType='tag' className={classes.redLinkTooltipTitle}>
@@ -134,7 +139,6 @@ const TagsTooltip = ({
   popperClassName,
   isRedLink,
   children,
-  classes,
   ...tagsTooltipProps
 }: TagsTooltipTag & {
   tagRel?: TagRelMinimumFragment
@@ -150,12 +154,12 @@ const TagsTooltip = ({
   popperClassName?: string,
   isRedLink?: boolean,
   children: ReactNode,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [everHovered, setEverHovered] = useState(false);
   const { tag, loading } = useTagsTooltipTag(
     tagsTooltipProps, hash,
-    (noPrefetch && !everHovered) || isRedLink
+    (noPrefetch && !everHovered)
   );
 
   const { HoverOver, Loading, TagRelCard, TagPreview } = Components;
@@ -165,13 +169,13 @@ const TagsTooltip = ({
         <PreviewWrapper tag={tag} loading={loading}>
           {loading && <Loading className={classes.loading}/>}
           {!loading && tagRel && <TagRelCard tagRel={tagRel}/>}
-          {!loading && !tagRel && tag && <TagPreview
+          {!loading && !tagRel && tag && !isRedLink && <TagPreview
             tag={tag}
             hash={hash}
             postCount={previewPostCount}
             hideRelatedTags={hideRelatedTags}
           />}
-          {isRedLink && <RedLinkTooltip classes={classes} {...tagsTooltipProps} />}
+          {isRedLink && <RedLinkTooltip tag={tag} slug={tagsTooltipProps.tagSlug} />}
         </PreviewWrapper>
       }
       clickable
@@ -194,11 +198,7 @@ const TagsTooltip = ({
   );
 }
 
-const TagsTooltipComponent = registerComponent(
-  "TagsTooltip",
-  TagsTooltip,
-  {styles},
-);
+const TagsTooltipComponent = registerComponent("TagsTooltip", TagsTooltip);
 
 declare global {
   interface ComponentTypes {

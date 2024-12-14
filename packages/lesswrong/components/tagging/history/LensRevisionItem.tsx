@@ -9,20 +9,24 @@ const styles = defineStyles("LensRevisionItem", (theme: ThemeType) => ({
   container: {
     background: theme.palette.panelBackground.default,
     border: theme.palette.border.commentBorder,
-    padding: 12,
+    padding: '4px 12px 12px 12px',
     borderRadius:3,
     marginBottom: 16,
   },
+  contentStyle: {
+    marginTop: 0,
+  }
 }));
 
-const LensRevisionItem = ({tag, collapsed, lens, revision}: {
+const LensRevisionItem = ({tag, collapsed, lens, revision, noContainer = false}: {
   tag: TagBasicInfo,
   collapsed?: boolean,
-  lens: TagLens,
+  lens: MultiDocumentContentDisplay | TagLens,
   revision: RevisionHistoryEntry,
+  noContainer?: boolean,
 }) => {
   const classes = useStyles(styles);
-  const { CompareRevisions, TagRevisionItemFullMetadata, TagRevisionItemShortMetadata, TagDiscussionButton, ContentStyles } = Components
+  const { CompareRevisions, TagRevisionItemShortMetadata, ContentStyles } = Components
   const documentId = lens._id;
 
   const [expanded, setExpanded] = useState(false);
@@ -35,10 +39,9 @@ const LensRevisionItem = ({tag, collapsed, lens, revision}: {
     </Components.SingleLineFeedEvent>
   }
 
-  return <div className={classes.container}>
-    <div><TagRevisionItemShortMetadata tag={tag} revision={revision} lens={lens} /></div>
-
-    <ContentStyles contentType="comment">
+  return <div className={classNames(!noContainer && classes.container)}>
+    <ContentStyles contentType="comment" className={classes.contentStyle}>
+      <div><TagRevisionItemShortMetadata tag={tag} revision={revision} lens={lens} /></div>
       <CompareRevisions
         trim={true}
         collectionName="MultiDocuments" fieldName="contents"

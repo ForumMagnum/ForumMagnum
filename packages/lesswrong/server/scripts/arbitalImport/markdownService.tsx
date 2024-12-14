@@ -189,20 +189,36 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
       const pageId = pageAliasToPageId(trimmedAlias);
       const linkText = (options.text && options.text.length>0)
         ? options.text
-        : (pageId ? pageIdToTitle(pageId, firstAliasChar) : getCasedText(firstAliasChar, trimmedAlias));
+        : (pageId ? pageIdToTitle(pageId, firstAliasChar) : getCasedText(trimmedAlias, firstAliasChar));
       if (!linkText) {
         console.error(`Could not get link text for page ${alias}`);
       }
-      const url = pageId ? pageIdToUrl(pageId) : `/tag/${slugify(linkText)}`;
-      return `<a href="${url}">${linkText}</a>`;
+      
+      if (pageId) {
+        const url = pageIdToUrl(pageId);
+        return `<a href="${url}">${linkText}</a>`;
+      } else {
+        const url = `/w/${slugify(linkText)}`;
+        conversionContext.outRedLinks.push({
+          slug: slugify(linkText),
+          title: linkText,
+        });
+        return `<a href="${url}">${linkText}</a>`;
+      }
     }
     
     function pageAliasToPageId(alias: string): string|null {
       return (alias in slugsByPageId) ? alias : null;
     }
     function pageIdToUrl(pageId: string): string {
-      const slug = slugsByPageId[pageId];
-      return `/tag/${slug}`;
+      if (conversionContext.linksById[pageId]) {
+        return conversionContext.linksById[pageId];
+      } else if (slugsByPageId[pageId]) {
+        return `/w/${slugsByPageId[pageId]}`;
+      } else {
+        console.error(`Link points to pageId that was not found: ${pageId}`);
+        return "";
+      }
     }
     function pageIdToTitle(pageId: string, prefix: string): string {
       return getCasedText(titlesByPageId[pageId], prefix);
@@ -289,7 +305,7 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
         }
         return div + runBlockGamut(markdown) + '\n\n</div>';*/
         if (!pageId) {
-          console.warn(`Page ${pageId} referenced in knows-requisite block was not found`);
+          console.warn(`Page ${alias} (${pageId}) referenced in knows-requisite block was not found`);
         }
         return conditionallyVisibleBlockToHTML(
           {type: "knowsRequisite", inverted: !!not, otherPage: pageId ?? ""},

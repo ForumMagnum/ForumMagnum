@@ -102,7 +102,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users, changeMetrics, lastRevisedAt, classes}: {
-  tag: TagBasicInfo,
+  tag: TagHistoryFragment,
   revisionIds: string[],
   commentCount?: number,
   commentIds?: string[],

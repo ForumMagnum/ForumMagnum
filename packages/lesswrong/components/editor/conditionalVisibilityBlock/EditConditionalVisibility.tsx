@@ -33,7 +33,10 @@ export const EditConditionalVisibility = ({initialState, setDocumentState}: Edit
   const mode = conditionalVisibilityModes[state.type];
   const { MenuItem } = Components;
 
-  return <div className={classes.root} contentEditable={false}>
+  return <div
+    className={classes.root} contentEditable={false}
+    data-cke-ignore-events={true}
+  >
     <Select
       value={state.type}
       onChange={(e) => {
@@ -71,11 +74,10 @@ export const EditConditionalVisibility = ({initialState, setDocumentState}: Edit
       <Input
         className={classes.inputPageId}
         value={state.otherPage}
-        placeholder="Page ID"
+        placeholder="Page slug or ID"
         onChange={ev => {
           changeValue({...state, otherPage: ev.target.value});
         }}
-        onClick={ev => ev.stopPropagation()}
       />
     }
   </div>

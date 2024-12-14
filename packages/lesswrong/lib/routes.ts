@@ -5,7 +5,7 @@ import { REVIEW_YEAR } from './reviewUtils';
 import { forumSelect } from './forumTypeUtils';
 import pickBy from 'lodash/pickBy';
 import qs from 'qs';
-import { getPostPingbackById, getPostPingbackByLegacyId, getPostPingbackBySlug, getUserPingbackBySlug } from './pingback';
+import { getPostPingbackById, getPostPingbackByLegacyId, getPostPingbackBySlug, getTagPingbackBySlug, getUserPingbackBySlug } from './pingback';
 import { eaSequencesHomeDescription } from '../components/ea-forum/EASequencesHome';
 import { pluralize } from './vulcan-lib';
 import { forumSpecificRoutes } from './forumSpecificRoutes';
@@ -377,6 +377,7 @@ if (taggingNameIsSet.get()) {
       name: 'tagsSingleRedirectCustomName',
       path: '/tag/:slug',
       redirect: ({ params }) => `/${taggingNamePluralSetting.get()}/${params.slug}`,
+      getPingback: (parsedUrl) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug),
     },
     {
       name: 'tagDiscussionCustomName',
@@ -506,7 +507,8 @@ if (taggingNameIsSet.get()) {
           return `/w/${firstPathPageId}?pathId=${slug}`;
         }
         return null;
-      }
+      },
+      getPingback: (parsedUrl) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug),
     },
     // {
     //   name: 'tag.arbital.w',
@@ -517,6 +519,7 @@ if (taggingNameIsSet.get()) {
     //   previewComponentName: 'TagHoverPreview',
     //   enableResourcePrefetch: tagRouteWillDefinitelyReturn200,
     //   background: "white",
+    //  getPingback: (parsedUrl) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug),
     // },
     {
       name: 'tag.arbital.p',
@@ -527,6 +530,7 @@ if (taggingNameIsSet.get()) {
       previewComponentName: 'TagHoverPreview',
       enableResourcePrefetch: tagRouteWillDefinitelyReturn200,
       background: "white",
+      getPingback: (parsedUrl) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug),
     },
     // End of temporary arbital routes
     {
@@ -536,7 +540,8 @@ if (taggingNameIsSet.get()) {
       titleComponentName: 'TagPageTitle',
       subtitleComponentName: 'TagPageTitle',
       previewComponentName: 'TagHoverPreview',
-      background: "white"
+      background: "white",
+      getPingback: (parsedUrl) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug),
     },
     {
       name: 'tagHistory',
@@ -838,6 +843,13 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       path: '/wrapped/:year?',
       componentName: 'EAForumWrappedPage',
       title: 'EA Forum Wrapped',
+      noFooter: true,
+    },
+    {
+      name: 'Instagram landing page',
+      path: '/instagram',
+      componentName: 'InstagramLandingPage',
+      title: 'Instagram Links',
       noFooter: true,
     },
     {
@@ -1524,7 +1536,8 @@ if (hasEventsSetting.get()) {
       subtitle: forumTypeSetting.get() === 'EAForum' ? 'Events' : 'Community',
       subtitleLink: forumTypeSetting.get() === 'EAForum' ? '/events' : communityPath,
       getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
-      background: postBackground
+      background: postBackground,
+      noFooter: hasPostRecommendations,
     },
     {
       name: 'groups.post',
@@ -1534,6 +1547,7 @@ if (hasEventsSetting.get()) {
       background: postBackground,
       ...communitySubtitle,
       getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
+      noFooter: hasPostRecommendations,
     },
   );
 }
@@ -1722,6 +1736,7 @@ addRoute(
     titleComponentName: 'PostsPageHeaderTitle',
     previewComponentName: "PostCommentLinkPreviewGreaterWrong",
     noIndex: true,
+    noFooter: hasPostRecommendations,
     // TODO: Handle pingbacks leading to comments.
   }
 );

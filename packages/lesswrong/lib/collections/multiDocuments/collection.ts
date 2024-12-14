@@ -67,6 +67,7 @@ makeEditable({
     commentStyles: true,
     normalized: true,
     revisionsHaveCommitMessages: true,
+    pingbacks: true,
     permissions: {
       canRead: ['guests'],
       canUpdate: ['members'],

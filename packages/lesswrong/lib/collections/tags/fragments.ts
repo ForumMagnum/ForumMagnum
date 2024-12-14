@@ -20,6 +20,7 @@ registerFragment(`
     isSubforum
     noindex
     isArbitalImport
+    isPlaceholderPage
   }
 `);
 
@@ -79,7 +80,7 @@ registerFragment(`
       ...UsersMinimumInfo
     }
     lenses {
-      ...MultiDocumentEdit
+      ...MultiDocumentContentDisplay
     }
   }
 `);
@@ -216,6 +217,63 @@ registerFragment(`
   }
 `);
 
+// This matches custom graphql type in arbitalLinkedPagesField.ts that's a resolver field on Tags and MultiDocuments
+registerFragment(`
+  fragment ArbitalLinkedPagesFragment on ArbitalLinkedPages {
+    faster {
+      _id
+      name
+      slug
+    }
+    slower {
+      _id
+      name
+      slug
+    }
+    moreTechnical {
+      _id
+      name
+      slug
+    }
+    lessTechnical {
+      _id
+      name
+      slug
+    }
+    requirements {
+      _id
+      name
+      slug
+    }
+    teaches {
+      _id
+      name
+      slug
+    }
+    parents {
+      _id
+      name
+      slug
+    }
+    children {
+      _id
+      name
+      slug
+    }
+  }
+`);
+
+registerFragment(`
+  fragment TagPageArbitalContentFragment on Tag {
+    lenses {
+      ...MultiDocumentWithContributors
+    }
+    arbitalLinkedPages {
+      ...ArbitalLinkedPagesFragment
+    }
+  }
+`);
+
 registerFragment(`
   fragment TagPageFragment on Tag {
     ...TagWithFlagsFragment
@@ -241,10 +299,14 @@ registerFragment(`
       }
     }
     canVoteOnRels
-    lenses {
-      ...MultiDocumentEdit
-    }
   }
+`);
+
+registerFragment(`
+  fragment TagPageWithArbitalContentFragment on Tag {
+    ...TagPageFragment
+    ...TagPageArbitalContentFragment
+  }  
 `);
 
 registerFragment(`
@@ -279,10 +341,14 @@ registerFragment(`
       }
     }
     canVoteOnRels
-    lenses {
-      ...MultiDocumentEdit
-    }
   }
+`);
+
+registerFragment(`
+  fragment TagPageRevisionWithArbitalContentFragment on Tag {
+    ...TagPageWithRevisionFragment
+    ...TagPageArbitalContentFragment
+  }  
 `);
 
 registerFragment(`
@@ -385,3 +451,4 @@ registerFragment(`
     legacyData
   }
 `);
+
