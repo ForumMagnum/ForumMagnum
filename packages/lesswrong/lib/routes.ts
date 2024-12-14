@@ -5,7 +5,7 @@ import { REVIEW_YEAR } from './reviewUtils';
 import { forumSelect } from './forumTypeUtils';
 import pickBy from 'lodash/pickBy';
 import qs from 'qs';
-import { getPostPingbackById, getPostPingbackByLegacyId, getPostPingbackBySlug, getUserPingbackBySlug } from './pingback';
+import { getPostPingbackById, getPostPingbackByLegacyId, getPostPingbackBySlug, getTagPingbackBySlug, getUserPingbackBySlug } from './pingback';
 import { eaSequencesHomeDescription } from '../components/ea-forum/EASequencesHome';
 import { pluralize } from './vulcan-lib';
 import { forumSpecificRoutes } from './forumSpecificRoutes';
@@ -377,6 +377,7 @@ if (taggingNameIsSet.get()) {
       name: 'tagsSingleRedirectCustomName',
       path: '/tag/:slug',
       redirect: ({ params }) => `/${taggingNamePluralSetting.get()}/${params.slug}`,
+      getPingback: (parsedUrl) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug),
     },
     {
       name: 'tagDiscussionCustomName',
@@ -506,7 +507,8 @@ if (taggingNameIsSet.get()) {
           return `/w/${firstPathPageId}?pathId=${slug}`;
         }
         return null;
-      }
+      },
+      getPingback: (parsedUrl) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug),
     },
     // {
     //   name: 'tag.arbital.w',
@@ -517,6 +519,7 @@ if (taggingNameIsSet.get()) {
     //   previewComponentName: 'TagHoverPreview',
     //   enableResourcePrefetch: tagRouteWillDefinitelyReturn200,
     //   background: "white",
+    //  getPingback: (parsedUrl) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug),
     // },
     {
       name: 'tag.arbital.p',
@@ -527,6 +530,7 @@ if (taggingNameIsSet.get()) {
       previewComponentName: 'TagHoverPreview',
       enableResourcePrefetch: tagRouteWillDefinitelyReturn200,
       background: "white",
+      getPingback: (parsedUrl) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug),
     },
     // End of temporary arbital routes
     {
@@ -536,7 +540,8 @@ if (taggingNameIsSet.get()) {
       titleComponentName: 'TagPageTitle',
       subtitleComponentName: 'TagPageTitle',
       previewComponentName: 'TagHoverPreview',
-      background: "white"
+      background: "white",
+      getPingback: (parsedUrl) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug),
     },
     {
       name: 'tagHistory',

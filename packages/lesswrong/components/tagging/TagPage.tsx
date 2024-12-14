@@ -1203,8 +1203,11 @@ const TagPage = () => {
       const newUrl = `${baseTagUrl}?${qs.stringify(newQuery)}`;
       return <PermanentRedirect url={newUrl} />
     }
-    return <Error404/>
   }
+  if (!tag || tag.isPlaceholderPage) {
+    return <Components.RedlinkTagPage tag={tag} slug={slug} />
+  }
+
   // If the slug in our URL is not the same as the slug on the tag, redirect to the canonical slug page
   if (tag.oldSlugs?.filter(slug => slug !== tag.slug)?.includes(slug) && !tag.isArbitalImport) {
     return <PermanentRedirect url={tagGetUrl(tag)} />

@@ -65,6 +65,7 @@ makeEditable({
   options: {
     commentStyles: true,
     fieldName: "description",
+    pingbacks: true,
     getLocalStorageId: (tag, name) => {
       if (tag._id) { return {id: `tag:${tag._id}`, verify:true} }
       return {id: `tag:create`, verify:true}

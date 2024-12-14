@@ -564,6 +564,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly autoTagModel: string | null,
   readonly autoTagPrompt: string | null,
   readonly noindex: boolean,
+  readonly isPlaceholderPage: boolean,
 }
 
 interface ConversationsDefaultFragment { // fragment on Conversations
@@ -2599,6 +2600,7 @@ interface TagBasicInfo { // fragment on Tags
   readonly isSubforum: boolean,
   readonly noindex: boolean,
   readonly isArbitalImport: boolean|null,
+  readonly isPlaceholderPage: boolean,
 }
 
 interface TagDetailsFragment extends TagBasicInfo { // fragment on Tags

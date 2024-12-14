@@ -715,6 +715,7 @@ interface DbMultiDocument extends DbObject {
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   contents_latest: string | null
+  pingbacks: any /*{"definitions":[{}]}*/
 }
 
 type NotificationsCollection = CollectionBase<"Notifications">;
@@ -1456,10 +1457,12 @@ interface DbTag extends DbObject {
   autoTagModel: string | null
   autoTagPrompt: string | null
   noindex: boolean
+  isPlaceholderPage: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   description: EditableFieldContents | null
   description_latest: string | null
+  pingbacks: any /*{"definitions":[{}]}*/
   subforumWelcomeText: EditableFieldContents | null
   subforumWelcomeText_latest: string | null
   moderationGuidelines: EditableFieldContents | null

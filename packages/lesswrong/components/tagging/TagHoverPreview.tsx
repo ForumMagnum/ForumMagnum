@@ -50,7 +50,7 @@ const TagHoverPreview = ({
   // Remove showPostCount and useTagName query parameters from the link, if present
   const linkTarget = normalizeTagLink(href);
 
-  const isRedLink = !tag && !noPrefetch && !loading;
+  const isRedLink = (!tag && !noPrefetch && !loading) || tag?.isPlaceholderPage;
 
   const {TagsTooltip} = Components;
   const isRead = tag?.isRead;
