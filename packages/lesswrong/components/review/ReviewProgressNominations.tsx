@@ -38,7 +38,6 @@ export const ReviewProgressNominations = ({classes, reviewYear = REVIEW_YEAR}: {
     reviewYear: ReviewYear
   }) => {
 
-
     const currentUser = useCurrentUser()
 
     const { LWTooltip, ForumIcon } = Components
