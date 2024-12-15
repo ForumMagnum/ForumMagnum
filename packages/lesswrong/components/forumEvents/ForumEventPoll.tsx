@@ -290,6 +290,11 @@ const styles = (theme: ThemeType) => ({
       display: "flex",
     },
   },
+  commentForm: {
+    [`@media(max-width: ${POLL_MAX_WIDTH}px)`]: {
+      display: 'none'
+    },
+  }
 });
 
 export type ForumEventVoteData = {
@@ -808,6 +813,7 @@ export const ForumEventPoll = ({
                           , and show next to your avatar on this banner.
                         </div>
                       </>)}
+                      className={classes.commentForm}
                     />
                   )}
                 </AnalyticsContext>

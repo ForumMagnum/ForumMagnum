@@ -6,30 +6,17 @@ import { useCurrentUser } from "../common/withUser";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
 import classNames from "classnames";
-import { ForumIconName } from "../common/ForumIcon";
-import { useTracking } from "@/lib/analyticsEvents";
-import { useHover } from "../common/withHover";
 import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { Link } from "@/lib/reactRouterWrapper";
 import { InteractionWrapper } from "../common/useClickableCell";
+import { useIsAboveBreakpoint } from "../hooks/useScreenWidth";
 
 const styles = (theme: ThemeType) => ({
   heartsContainer: {
     width: "100%",
     height: "100%",
     position: "absolute",
-  },
-  heart: {
-    color: theme.palette.givingSeason.heart,
-    position: "absolute",
-    transformOrigin: "center",
-    "& svg": {
-      fontSize: 20,
-      [theme.breakpoints.down('xs')]: {
-        fontSize: 16
-      },
-    }
   },
   hoverHeart: {
     opacity: 0.5,
@@ -38,35 +25,15 @@ const styles = (theme: ThemeType) => ({
       display: "none"
     },
   },
-  clearSticker: {
-    top: -1,
-    right: -3,
+  placeHeartButton: {
     position: "absolute",
-    backgroundColor: `color-mix(in oklab, ${theme.palette.text.alwaysBlack} 65%, ${theme.palette.text.alwaysWhite} 35%)`,
-    padding: 2,
-    borderRadius: "50%",
     cursor: "pointer",
-    width: 10,
-    height: 10,
-    fontSize: 9,
+    fontWeight: 600,
+    bottom: 12,
+    left: 24,
     "&:hover": {
-      backgroundColor: theme.palette.text.alwaysBlack,
+      opacity: 0.8,
     },
-    [theme.breakpoints.down('xs')]: {
-      top: -2,
-      right: -4,
-    },
-  },
-  cross: {
-    color: theme.palette.text.alwaysWhite,
-    opacity: 0.8,
-    position: "absolute",
-    fontSize: 12,
-    top: -4,
-    left: 1
-  },
-  commentPopper: {
-    margin: "0 8px"
   }
 });
 
@@ -136,86 +103,18 @@ function stickerDataToArray({
   return { currentUserHeart, otherHearts };
 }
 
-type ForumEventStickerProps = {
-  x: number;
-  y: number;
-  theta: number;
-  user?: UsersMinimumInfo;
-  comment?: ShortformComments | null;
-  icon?: ForumIconName;
-  tooltipDisabled?: boolean;
-  onClear?: () => void;
-  className?: string;
-};
-const ForumEventSticker = React.forwardRef<
-  HTMLDivElement,
-  ForumEventStickerProps & { classes: ClassesType<typeof styles> }
->(({ x, y, theta, user, comment, icon = "Heart", tooltipDisabled, onClear, className, classes }, ref) => {
-  const { ForumIcon, ForumEventResultPopper } = Components;
-
-  // TODO de-dup with ForumEventResultIcon
-  // TODO decide on a width to stop showing them
-  const isDesktop = true;
-
-  const { captureEvent } = useTracking();
-  const { currentForumEvent } = useCurrentForumEvent();
-
-  const { eventHandlers, hover, anchorEl } = useHover();
-
-  const [isPinned, setIsPinned] = useState(false);
-  const [newRepliesCount, setNewRepliesCount] = useState(0);
-
-  const popperOpen = hover || isPinned;
-
-  if (!isDesktop) return null;
-
-  return (
-    <InteractionWrapper>
-      <div
-        className={classNames(classes.heart, className)}
-        ref={ref}
-        style={{
-          left: `${x * 100}%`,
-          top: `${y * 100}%`,
-          transform: `rotate(${theta}deg) translate(-50%, -50%)`,
-        }}
-        {...eventHandlers}
-      >
-        {/* onPointerDown rather than onClick because the button is very small */}
-        {onClear && (
-          <div className={classes.clearSticker} onPointerDown={onClear}>
-            <div className={classes.cross}>&times;</div>
-          </div>
-        )}
-        <ForumIcon icon={icon} />
-        {/* TODO this doesn't work well on mobile */}
-        {!tooltipDisabled && user && comment && popperOpen && (
-          <ForumEventResultPopper
-            anchorEl={anchorEl}
-            user={user}
-            comment={comment}
-            captureEvent={captureEvent}
-            setIsPinned={setIsPinned}
-            isPinned={isPinned}
-            newRepliesCount={newRepliesCount}
-            setNewRepliesCount={setNewRepliesCount}
-            className={classes.commentPopper}
-          />
-        )}
-      </div>
-    </InteractionWrapper>
-  );
-});
-
 const ForumEventStickers: FC<{
   interactive: boolean;
   classes: ClassesType<typeof styles>;
 }> = ({ interactive, classes }) => {
-  const { ForumEventCommentForm } = Components;
+  const { ForumEventCommentForm, ForumEventSticker } = Components;
 
   const { currentForumEvent, refetch } = useCurrentForumEvent();
   const { onSignup } = useLoginPopoverContext();
   const currentUser = useCurrentUser();
+
+  const isDesktop = useIsAboveBreakpoint("sm");
+  const [mobilePlacingHeart, setMobilePlacingHeart] = useState(false)
 
   const stickerData: ForumEventStickerData | null = currentForumEvent?.publicData || null;
 
@@ -284,13 +183,12 @@ const ForumEventStickers: FC<{
   const [addSticker] = useMutation(addForumEventStickerQuery);
   const [removeSticker] = useMutation(removeForumEventStickerQuery);
 
-  const showHoverHeart = !currentUserHeart;
+  const allowPlacingHeart = !currentUserHeart && (isDesktop || mobilePlacingHeart);
 
   const saveStickerPos = useCallback(
     async (event: React.MouseEvent) => {
-      if (!currentForumEvent) return;
+      if (!currentForumEvent || !allowPlacingHeart) return;
 
-      // When a logged-in user is done dragging their vote, attempt to save it
       if (currentUser) {
         const coords = normalizeCoords(event.clientX, event.clientY);
 
@@ -300,9 +198,6 @@ const ForumEventStickers: FC<{
           setCommentFormOpen(true);
         }
 
-        console.log("Adding sticker", { coords });
-
-        // setCurrentUserVote(newVotePos);
         await addSticker({
           variables: {
             ...coords,
@@ -310,13 +205,13 @@ const ForumEventStickers: FC<{
             forumEventId: currentForumEvent._id,
           },
         });
-        // TODO handle the user's vote changing faster than this
+        setMobilePlacingHeart(false);
         refetch?.();
       } else {
         onSignup();
       }
     },
-    [currentForumEvent, currentUser, normalizeCoords, currentUserHeart, addSticker, hoverTheta, refetch, onSignup]
+    [currentForumEvent, allowPlacingHeart, currentUser, normalizeCoords, currentUserHeart, addSticker, hoverTheta, refetch, onSignup]
   );
 
   const clearSticker = useCallback(async () => {
@@ -328,7 +223,7 @@ const ForumEventStickers: FC<{
 
   const handleMouseMove = useCallback(
     (event: React.MouseEvent) => {
-      if (!showHoverHeart) return;
+      if (!allowPlacingHeart) return;
 
       const coords = normalizeCoords(event.clientX, event.clientY);
       if (coords) {
@@ -337,14 +232,14 @@ const ForumEventStickers: FC<{
         setHoverPos(null);
       }
     },
-    [normalizeCoords, showHoverHeart]
+    [normalizeCoords, allowPlacingHeart]
   );
 
   const handleMouseLeave = useCallback(() => {
-    if (!showHoverHeart) return;
+    if (!allowPlacingHeart) return;
 
     setHoverPos(null);
-  }, [showHoverHeart]);
+  }, [allowPlacingHeart]);
 
   if (!currentForumEvent) return null;
 
@@ -360,14 +255,13 @@ const ForumEventStickers: FC<{
           onClick: saveStickerPos,
         })}
       >
-        {showHoverHeart && hoverPos && (
+        {allowPlacingHeart && hoverPos && (
           <ForumEventSticker
             x={hoverPos.x}
             y={hoverPos.y}
             theta={hoverTheta}
             icon="Heart"
-            className={classNames(classes.heart, classes.hoverHeart)}
-            classes={classes}
+            className={classes.hoverHeart}
           />
         )}
         {currentUserHeart && (
@@ -375,21 +269,20 @@ const ForumEventStickers: FC<{
             {...currentUserHeart}
             tooltipDisabled={commentFormOpen}
             icon="Heart"
-            className={classes.heart}
             ref={setUserVoteRef}
             onClear={clearSticker}
-            classes={classes}
           />
         )}
         {otherHearts.map((heart, index) => (
-          <ForumEventSticker
-            key={index}
-            {...heart}
-            icon="Heart"
-            className={classes.heart}
-            classes={classes}
-          />
+          <ForumEventSticker key={index} {...heart} icon="Heart" />
         ))}
+        {!isDesktop && !currentUserHeart && (
+          <InteractionWrapper>
+            <div className={classes.placeHeartButton} onClick={() => setMobilePlacingHeart(!mobilePlacingHeart)}>
+              {mobilePlacingHeart ? "...placing heart (click to cancel)" : "+ Place heart"}
+            </div>
+          </InteractionWrapper>
+        )}
       </div>
       {currentForumEvent.post && (
         <ForumEventCommentForm
@@ -401,15 +294,25 @@ const ForumEventStickers: FC<{
           anchorEl={userVoteRef}
           post={currentForumEvent.post}
           title="Where did you donate this year?"
-          subtitle={(post, comment) => (<>
-            <div>
-              Your response will appear as a comment on{" "}
-              <Link to={comment ? commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id}) : postGetPageUrl(post)} target="_blank" rel="noopener noreferrer">
-                this post
-              </Link>
-              , and show on hover on this banner.
-            </div>
-          </>)}
+          subtitle={(post, comment) => (
+            <>
+              <div>
+                Your response will appear as a comment on{" "}
+                <Link
+                  to={
+                    comment
+                      ? commentGetPageUrlFromIds({ postId: comment.postId, commentId: comment._id })
+                      : postGetPageUrl(post)
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  this post
+                </Link>
+                , and show on hover on this banner.
+              </div>
+            </>
+          )}
         />
       )}
     </>

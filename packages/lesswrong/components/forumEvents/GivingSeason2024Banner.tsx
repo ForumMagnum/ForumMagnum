@@ -233,6 +233,7 @@ const styles = (theme: ThemeType) => ({
   eventDate: {
     maxWidth: 470,
     marginBottom: 8,
+    width: "fit-content"
   },
   eventName: {
     width: "fit-content",

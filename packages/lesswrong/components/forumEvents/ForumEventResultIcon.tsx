@@ -1,11 +1,6 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import classNames from 'classnames';
 import { useHover } from '../common/withHover';
-import { formatRole } from '../users/EAUserTooltipContent';
-import { Link } from '@/lib/reactRouterWrapper';
-import { commentGetPageUrlFromIds } from '@/lib/collections/comments/helpers';
-import { userGetProfileUrl } from '@/lib/collections/users/helpers';
 import { useIsAboveScreenWidth } from '../hooks/useScreenWidth';
 import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
 import { useCurrentForumEvent } from '../hooks/useCurrentForumEvent';

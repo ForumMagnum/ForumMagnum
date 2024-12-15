@@ -1,0 +1,127 @@
+import React, { useState } from "react";
+import { Components, registerComponent } from "@/lib/vulcan-lib";
+import classNames from "classnames";
+import { ForumIconName } from "../common/ForumIcon";
+import { useTracking } from "@/lib/analyticsEvents";
+import { useHover } from "../common/withHover";
+import { InteractionWrapper } from "../common/useClickableCell";
+
+const styles = (theme: ThemeType) => ({
+  heart: {
+    color: theme.palette.givingSeason.heart,
+    position: "absolute",
+    transformOrigin: "center",
+    "& svg": {
+      fontSize: 20,
+      [theme.breakpoints.down('xs')]: {
+        fontSize: 16
+      },
+    }
+  },
+  clearSticker: {
+    top: -1,
+    right: -3,
+    position: "absolute",
+    backgroundColor: `color-mix(in oklab, ${theme.palette.text.alwaysBlack} 65%, ${theme.palette.text.alwaysWhite} 35%)`,
+    padding: 2,
+    borderRadius: "50%",
+    cursor: "pointer",
+    width: 10,
+    height: 10,
+    fontSize: 9,
+    "&:hover": {
+      backgroundColor: theme.palette.text.alwaysBlack,
+    },
+    [theme.breakpoints.down('xs')]: {
+      top: -2,
+      right: -4,
+    },
+  },
+  cross: {
+    color: theme.palette.text.alwaysWhite,
+    opacity: 0.8,
+    position: "absolute",
+    fontSize: 12,
+    top: -4,
+    left: 1
+  },
+  commentPopper: {
+    margin: "0 8px",
+  },
+});
+
+type ForumEventStickerProps = {
+  x: number;
+  y: number;
+  theta: number;
+  user?: UsersMinimumInfo;
+  comment?: ShortformComments | null;
+  icon?: ForumIconName;
+  tooltipDisabled?: boolean;
+  onClear?: () => void;
+  className?: string;
+};
+const ForumEventSticker = React.forwardRef<
+  HTMLDivElement,
+  ForumEventStickerProps & { classes: ClassesType<typeof styles> }
+>(({ x, y, theta, user, comment, icon = "Heart", tooltipDisabled, onClear, className, classes }, ref) => {
+  const { ForumIcon, ForumEventResultPopper } = Components;
+
+  const { captureEvent } = useTracking();
+
+  const { eventHandlers, hover, anchorEl } = useHover();
+
+  const [isPinned, setIsPinned] = useState(false);
+  const [newRepliesCount, setNewRepliesCount] = useState(0);
+
+  const popperOpen = hover || isPinned;
+
+  return (
+    <InteractionWrapper>
+      <div
+        className={classNames(classes.heart, className)}
+        ref={ref}
+        style={{
+          left: `${x * 100}%`,
+          top: `${y * 100}%`,
+          transform: `rotate(${theta}deg) translate(-50%, -50%)`,
+        }}
+        {...eventHandlers}
+      >
+        {/* onPointerDown rather than onClick because the button is very small */}
+        {onClear && (
+          <div className={classes.clearSticker} onPointerDown={onClear}>
+            <div className={classes.cross}>&times;</div>
+          </div>
+        )}
+        <ForumIcon icon={icon} />
+        {/* TODO this doesn't work well on mobile */}
+        {!tooltipDisabled && user && comment && popperOpen && (
+          <ForumEventResultPopper
+            anchorEl={anchorEl}
+            user={user}
+            comment={comment}
+            captureEvent={captureEvent}
+            setIsPinned={setIsPinned}
+            isPinned={isPinned}
+            newRepliesCount={newRepliesCount}
+            setNewRepliesCount={setNewRepliesCount}
+            placement="bottom"
+            className={classes.commentPopper}
+          />
+        )}
+      </div>
+    </InteractionWrapper>
+  );
+});
+
+
+const ForumEventStickerComponent = registerComponent( 'ForumEventSticker', ForumEventSticker, {styles});
+
+export default ForumEventStickerComponent;
+
+declare global {
+  interface ComponentTypes {
+    ForumEventSticker: typeof ForumEventStickerComponent;
+  }
+}

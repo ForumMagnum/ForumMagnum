@@ -6,6 +6,7 @@ import { Link } from '@/lib/reactRouterWrapper';
 import { commentGetPageUrlFromIds } from '@/lib/collections/comments/helpers';
 import { userGetProfileUrl } from '@/lib/collections/users/helpers';
 import { InteractionWrapper } from '../common/useClickableCell';
+import { PopperPlacementType } from '@material-ui/core/Popper';
 
 const styles = (theme: ThemeType) => ({
   popperContent: {
@@ -15,7 +16,7 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 500,
     lineHeight: "140%",
     padding: 16,
-    width: 380,
+    maxWidth: 380,
     maxHeight: 1000,
     color: theme.palette.grey[600],
     backgroundColor: theme.palette.background.paper,
@@ -48,7 +49,7 @@ const styles = (theme: ThemeType) => ({
   displayNameRow: {
     display: "flex",
     justifyContent: "space-between",
-    gap: "8px"
+    gap: "16px"
   },
   displayName: {
     fontSize: "1.3rem",
@@ -103,6 +104,7 @@ const ForumEventResultPopper = ({
   isPinned,
   newRepliesCount,
   setNewRepliesCount,
+  placement="right-start",
   className,
   classes,
 }: {
@@ -114,6 +116,7 @@ const ForumEventResultPopper = ({
   isPinned: boolean;
   newRepliesCount: number;
   setNewRepliesCount: React.Dispatch<React.SetStateAction<number>>;
+  placement?: PopperPlacementType | undefined;
   className?: string;
   classes: ClassesType<typeof styles>;
 }) => {
@@ -148,8 +151,8 @@ const ForumEventResultPopper = ({
       open={true}
       anchorEl={anchorEl}
       clickable={true}
-      allowOverflow={false}
-      placement={"right-start"}
+      flip={true}
+      placement={placement}
     >
       <LWClickAwayListener onClickAway={() => setIsPinned(false)}>
         <InteractionWrapper>

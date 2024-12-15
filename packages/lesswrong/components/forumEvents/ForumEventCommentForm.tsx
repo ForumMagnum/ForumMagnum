@@ -1,12 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useMessages } from '../common/withMessages';
-import { Link } from '@/lib/reactRouterWrapper';
-import { postGetPageUrl } from '@/lib/collections/posts/helpers';
-import { commentGetPageUrlFromIds } from '@/lib/collections/comments/helpers';
 import { State } from '@popperjs/core/lib/types';
-import { useIsAboveScreenWidth } from '../hooks/useScreenWidth';
-import { POLL_MAX_WIDTH } from './ForumEventPoll';
 
 const WIDTH = 350;
 
@@ -107,6 +102,7 @@ const ForumEventCommentForm = ({
   title,
   subtitle,
   successMessage="Comment posted successfully",
+  className,
   classes,
 }: {
   open: boolean;
@@ -119,11 +115,10 @@ const ForumEventCommentForm = ({
   title: ((post: PostsMinimumInfo, comment: ShortformComments | null) => React.ReactNode) | React.ReactNode;
   subtitle: ((post: PostsMinimumInfo, comment: ShortformComments | null) => React.ReactNode) | React.ReactNode;
   successMessage?: string;
+  className?: string;
   classes: ClassesType<typeof styles>;
 }) => {
   const { CommentsNewForm, LWPopper, ForumIcon, CommentsEditForm, CommentBody } = Components;
-
-  const isDesktop = useIsAboveScreenWidth(POLL_MAX_WIDTH);
 
   const [editFormOpen, setEditFormOpen] = useState(false);
   const { flash } = useMessages();
@@ -153,14 +148,12 @@ const ForumEventCommentForm = ({
     };
   }, []);
 
-  if (!open || !anchorEl?.isConnected || !isDesktop) {
+  if (!open || !anchorEl?.isConnected) {
     return null;
   }
 
-  const debateWeekLink = comment ? commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id}) : postGetPageUrl(post)
-
   return (
-    <LWPopper open={open} anchorEl={anchorEl} placement="bottom" allowOverflow={false} updateRef={updatePopperRef}>
+    <LWPopper open={open} anchorEl={anchorEl} placement="bottom" allowOverflow={false} updateRef={updatePopperRef} className={className}>
       <div className={classes.popperContent}>
         <div className={classes.triangle}></div>
         <ForumIcon icon="Close" className={classes.closeIcon} onClick={onClose} />

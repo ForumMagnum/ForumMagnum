@@ -782,6 +782,7 @@ importComponent("ForumEventResultIcon", () => require('../components/forumEvents
 importComponent("ForumEventResultPopper", () => require('../components/forumEvents/ForumEventResultPopper'));
 importComponent("GivingSeason2024Banner", () => require('../components/forumEvents/GivingSeason2024Banner'));
 importComponent("ForumEventStickers", () => require('../components/forumEvents/ForumEventStickers.tsx'));
+importComponent("ForumEventSticker", () => require('../components/forumEvents/ForumEventSticker.tsx'));
 importComponent("DonationElectionLeaderboard", () => require('../components/forumEvents/DonationElectionLeaderboard'));
 importComponent("VotingPortalPage", () => require('../components/forumEvents/votingPortal/VotingPortalPage'));
 importComponent("AdminElectionCandidates", () => require('../components/forumEvents/votingPortal/AdminElectionCandidates'));
