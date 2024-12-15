@@ -89,7 +89,7 @@ const styles = (theme: ThemeType) => ({
     opacity: 0,
     transition: "opacity 0.5s ease",
     // Translucent gradient so the text is readable over the hearts on mobile
-    background: "linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.3) 25%, rgba(255, 255, 255, 0.3) 75%, rgba(255, 255, 255, 0) 100%)",
+    background: theme.palette.givingSeason.mobileBannerOverlay,
     [theme.breakpoints.up(GIVING_SEASON_MOBILE_WIDTH)]: {
       display: "none"
     },
