@@ -110,8 +110,6 @@ const LWPopper = ({
   if (anchorEl && !anchorEl.isConnected) {
     return null;
   }
-
-  console.log({flipModifier, preventOverflowModifier})
   
   // We use createPortal here to avoid having to deal with overflow problems and styling from the current child
   // context, by placing the Popper element directly into the document root

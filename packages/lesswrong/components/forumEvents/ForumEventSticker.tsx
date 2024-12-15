@@ -65,7 +65,7 @@ const ForumEventSticker = React.forwardRef<
   HTMLDivElement,
   ForumEventStickerProps & { classes: ClassesType<typeof styles> }
 >(({ x, y, theta, user, comment, icon = "Heart", tooltipDisabled, onClear, className, classes }, ref) => {
-  const { ForumIcon, ForumEventResultPopper } = Components;
+  const { ForumIcon, ForumEventResultPopper, LWTooltip, UsersNameDisplay } = Components;
 
   const { captureEvent } = useTracking();
 
@@ -88,14 +88,15 @@ const ForumEventSticker = React.forwardRef<
         }}
         {...eventHandlers}
       >
-        {/* onPointerDown rather than onClick because the button is very small */}
-        {onClear && (
-          <div className={classes.clearSticker} onPointerDown={onClear}>
-            <div className={classes.cross}>&times;</div>
-          </div>
-        )}
-        <ForumIcon icon={icon} />
-        {/* TODO this doesn't work well on mobile */}
+        <LWTooltip title={<UsersNameDisplay user={user} />} disabled={!!(user && comment)} placement="bottom">
+          {/* onPointerDown rather than onClick because the button is very small */}
+          {onClear && (
+            <div className={classes.clearSticker} onPointerDown={onClear}>
+              <div className={classes.cross}>&times;</div>
+            </div>
+          )}
+          <ForumIcon icon={icon} />
+        </LWTooltip>
         {!tooltipDisabled && user && comment && popperOpen && (
           <ForumEventResultPopper
             anchorEl={anchorEl}
@@ -117,8 +118,6 @@ const ForumEventSticker = React.forwardRef<
 
 
 const ForumEventStickerComponent = registerComponent( 'ForumEventSticker', ForumEventSticker, {styles});
-
-export default ForumEventStickerComponent;
 
 declare global {
   interface ComponentTypes {

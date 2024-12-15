@@ -48,7 +48,6 @@ const removeForumEventStickerQuery = gql`
   }
 `;
 
-// TODO use these on the backend
 type ForumEventStickerData = Record<
   string,
   {
@@ -320,8 +319,6 @@ const ForumEventStickers: FC<{
 };
 
 const ForumEventStickersComponent = registerComponent( 'ForumEventStickers', ForumEventStickers, {styles});
-
-export default ForumEventStickersComponent;
 
 declare global {
   interface ComponentTypes {
