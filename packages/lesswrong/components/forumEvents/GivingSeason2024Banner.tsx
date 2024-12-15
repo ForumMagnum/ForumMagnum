@@ -189,6 +189,14 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.text.alwaysWhite,
     transition: "background 0.5s ease",
   },
+  timelineHeart: {
+    position: "absolute",
+    top: -23.5,
+    left: `calc(50% - ${(DOT_SIZE * 1.5) / 2}px)`,
+    width: DOT_SIZE * 1.5,
+    height: DOT_SIZE * 1.5,
+    transition: "background 0.5s ease",
+  },
   detailsContainer: {
     ...PASS_THROUGH_POINTER_EVENTS,
     transition: "max-height ease-in-out 0.35s",
@@ -570,7 +578,7 @@ const GivingSeason2024Banner = ({classes}: {
     setSelectedEvent(events[index] ?? events[0]);
   }, [detailsRef, events, setSelectedEvent]);
 
-  const {EAButton, MixedTypeFeed, ForumEventStickers, DonationElectionLeaderboard} = Components;
+  const {EAButton, MixedTypeFeed, ForumEventStickers, DonationElectionLeaderboard, ForumIcon} = Components;
 
   return (
     <div className={classNames(classes.root, selectedEvent.darkText && classes.darkText)}>
@@ -600,8 +608,7 @@ const GivingSeason2024Banner = ({classes}: {
               className={classNames(classes.timelineEvent, selectedEvent === event && classes.timelineEventSelected)}
             >
               {event.name === "Intermission" ? "" : event.name}
-              {/* TODO use heart for donation celebration */}
-              {event === currentEvent && <div className={classes.timelineDot} />}
+              {event === currentEvent && (event.name === "Donation Celebration" ? <ForumIcon className={classes.timelineHeart} icon="Heart" /> : <div className={classes.timelineDot} />)}
             </div>
           ))}
         </div>

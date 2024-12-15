@@ -79,7 +79,7 @@ addGraphQLResolvers({
       }
 
       await repos.forumEvents.removeSticker(forumEventId, currentUser._id)
-      captureEvent("addForumEventSticker", {
+      captureEvent("removeForumEventSticker", {
         forumEventId,
         userId: currentUser._id
       })

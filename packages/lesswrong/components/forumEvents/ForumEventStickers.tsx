@@ -11,6 +11,7 @@ import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { Link } from "@/lib/reactRouterWrapper";
 import { InteractionWrapper } from "../common/useClickableCell";
 import { useIsAboveBreakpoint } from "../hooks/useScreenWidth";
+import { AnalyticsContext } from "@/lib/analyticsEvents";
 
 const styles = (theme: ThemeType) => ({
   heartsContainer: {
@@ -243,8 +244,7 @@ const ForumEventStickers: FC<{
   if (!currentForumEvent) return null;
 
   return (
-    // TODO analytics
-    <>
+    <AnalyticsContext pageElementContext="forumEventStickers">
       <div
         className={classes.heartsContainer}
         ref={containerRef}
@@ -314,7 +314,7 @@ const ForumEventStickers: FC<{
           )}
         />
       )}
-    </>
+    </AnalyticsContext>
   );
 };
 
