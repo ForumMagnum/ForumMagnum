@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useLocation, useNavigate } from '../../lib/routeUtil';
-import { getReviewPeriodStart, getReviewPeriodEnd, getReviewPhase, getReviewYearFromString } from '@/lib/reviewUtils';
+import { getReviewPhase, getReviewYearFromString } from '@/lib/reviewUtils';
 import { useCurrentUser } from '../common/withUser';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
@@ -116,20 +116,22 @@ const styles = (theme: ThemeType) => ({
 export const AnnualReviewPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { SingleColumnSection, FrontpageReviewWidget, ReviewVotingPage, NominationsPage, ReviewVotingExpandedPost, ReviewsPage, ReviewPhaseInformation } = Components
+  const { SingleColumnSection, FrontpageReviewWidget, ReviewVotingPage, NominationsPage, ReviewVotingExpandedPost, ReviewsPage, ReviewPhaseInformation, QuickReviewPage } = Components
   const currentUser = useCurrentUser()
   const navigate = useNavigate()
   const { params, query, location } = useLocation()
   const reviewYear = getReviewYearFromString(params.year)
 
   // Derive activeTab from the current pathname
-  let activeTab: 'reviewVoting' | 'nominatePosts' | 'reviews' | null = null;
+  let activeTab: 'reviewVoting' | 'nominatePosts' | 'reviews' | 'quickReview' | null = null;
   if (location.pathname.includes('reviewVoting')) {
     activeTab = 'reviewVoting';
   } else if (location.pathname.includes('nominatePosts')) {
     activeTab = 'nominatePosts';
   } else if (location.pathname.includes('reviews')) {
     activeTab = 'reviews';
+  } else if (location.pathname.includes('quickReview')) {
+    activeTab = 'quickReview';
   }
 
   const handleChangeTab = (e: React.ChangeEvent<{}>, value: string) => {
@@ -144,6 +146,8 @@ export const AnnualReviewPage = ({classes}: {
       newQuery = { ...newQuery, tab: 'all', ...allPostsParams(reviewYear) };
     } else if (value === 'reviews') {
       newPathname = `/reviews/${reviewYear}`;
+    } else if (value === 'quickReview') {
+      newPathname = `/quickReview/${reviewYear}`;
     }
 
     navigate({
@@ -181,13 +185,13 @@ export const AnnualReviewPage = ({classes}: {
             fullWidth
             className={classes.tabs}
           >
-            <Tab
+            {reviewPhase === 'NOMINATIONS' && <Tab
               label="Find Posts to Nominate"
               value="nominatePosts"
               className={classes.tab}
-            />
+            />}
             <Tab
-              label="Vote on Nominated Posts"
+              label={reviewPhase === 'NOMINATIONS' ? "Vote on Nominated Posts" : "Advanced Voting"}
               value="reviewVoting"
               className={classes.tab}
             />
@@ -196,11 +200,17 @@ export const AnnualReviewPage = ({classes}: {
               value="reviews"
               className={classes.tab}
             />}
+            {reviewPhase === 'REVIEWS' && <Tab
+              label="Quick Review"
+              value="quickReview"
+              className={classes.tab}
+            />}
         </Tabs>
         <div className={classes.tabsContainer}>
           {activeTab === 'nominatePosts' && <NominationsPage reviewYear={reviewYear}/>}
           {activeTab === 'reviewVoting' && <ReviewVotingPage reviewYear={reviewYear} expandedPost={expandedPost} setExpandedPost={setExpandedPost}/>}
           {activeTab === 'reviews' && <ReviewsPage reviewYear={reviewYear} />}
+          {activeTab === 'quickReview' && <QuickReviewPage reviewYear={reviewYear} />}
         </div>
     </div>
   </div>

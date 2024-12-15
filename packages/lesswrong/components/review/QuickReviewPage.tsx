@@ -1,63 +1,16 @@
 import React, { useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
-import { getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
+import { getReviewPhase, REVIEW_YEAR, ReviewYear } from '../../lib/reviewUtils';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import sortBy from 'lodash/sortBy';
 import { preferredHeadingCase } from '../../themes/forumTheme';
+import { getVotePower } from '@/lib/voting/vote';
+import { useCurrentUser } from '../common/withUser';
 
 
 const styles = (theme: ThemeType): JssStyles => ({
-  grid: {
-    display: 'grid',
-    gridTemplateColumns: `
-      minmax(10px, 0.5fr) minmax(100px, 740px) minmax(30px, 0.5fr) minmax(300px, 740px) minmax(30px, 0.5fr)
-    `,
-    gridTemplateAreas: `
-    "... leftColumn ... rightColumn ..."
-    `,
-    paddingBottom: 175,
-    alignItems: "start",
-    [theme.breakpoints.down('sm')]: {
-      display: "block"
-    }
-  },
-  leftColumn: {
-    gridArea: "leftColumn",
-    position: "sticky",
-    top: 72,
-    paddingLeft: 24,
-    paddingRight: 36,
-    [theme.breakpoints.down('sm')]: {
-      gridArea: "unset",
-      paddingLeft: 0,
-      paddingRight: 0,
-      overflow: "unset",
-      height: "unset",
-      position: "unset"
-    }
-  },
-  rightColumn: {
-    gridArea: "rightColumn",
-    [theme.breakpoints.down('sm')]: {
-      gridArea: "unset"
-    },
-  },
-  root: {
-    display: "flex"
-  },
-  menu: {
-    position: "sticky",
-    top:0,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    ...theme.typography.body2,
-    backgroundColor: theme.palette.panelBackground.default,
-    zIndex: theme.zIndexes.reviewVotingMenu,
-    padding: 10,
-    marginBottom: 2,
-    // background: theme.palette.grey[310],
-    flexWrap: "wrap"
+  root: { 
+    marginBottom: -20
   },
   sortingOptions: {
     whiteSpace: "pre",
@@ -87,19 +40,20 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-export const QuickReviewPage = ({classes}: {
+export const QuickReviewPage = ({classes, reviewYear}: {
   classes: ClassesType,
+  reviewYear: ReviewYear
 }) => {
-  const reviewYear = REVIEW_YEAR
   const [expandedPost, setExpandedPost] = useState<PostsReviewVotingList|null>(null)
   const [truncatePosts, setTruncatePosts] = useState<boolean>(true)
+  const currentUser = useCurrentUser()
 
   const { results: posts, loadMore, loading, totalCount } = useMulti({
     terms: {
       view: "reviewQuickPage",
       before: `${reviewYear+1}-01-01`,
       after: `${reviewYear}-01-01`,
-      limit: 25,
+      limit: 60,
     },
     collectionName: "Posts",
     fragmentName: 'PostsReviewVotingList',
@@ -111,8 +65,20 @@ export const QuickReviewPage = ({classes}: {
 
   const { PostsItem, SectionFooter, Loading, PostInteractionStripe } = Components
 
-  const sortedPostsResults = !!posts ? sortBy(posts, (post1,post2) => {
-    return post1.currentUserVote === null
+  const sortedPostsResults = !!posts ? [...posts].sort((post1, post2) => {
+    const post1QuadraticScore = post1.currentUserReviewVote?.quadraticScore ?? 0
+    const post2QuadraticScore = post2.currentUserReviewVote?.quadraticScore ?? 0
+    const post1KarmaVote = post1.currentUserVote
+      ? getVotePower({ user: currentUser!, voteType: post1.currentUserVote, document: post1 })
+      : 0;
+    const post2KarmaVote = post2.currentUserVote
+      ? getVotePower({ user: currentUser!, voteType: post2.currentUserVote, document: post2 })
+      : 0;
+    const post1ReadStatus = post1.lastVisitedAt ? 1 : 0
+    const post2ReadStatus = post2.lastVisitedAt ? 1 : 0
+
+    // Sort by karma vote, then quadratic score
+    return post2ReadStatus - post1ReadStatus || post2KarmaVote - post1KarmaVote || post2QuadraticScore - post1QuadraticScore || post2.baseScore - post1.baseScore
   }) : []
 
   const truncatedPostsResults = truncatePosts ? sortedPostsResults.slice(0,12) : sortedPostsResults
@@ -127,10 +93,7 @@ export const QuickReviewPage = ({classes}: {
 
   const loadMoreText = preferredHeadingCase("Load More");
 
-  return <div>
-      <div className={classes.menu}>
-        Top Unreviewed Posts
-      </div>
+  return <div className={classes.root}>
       <div className={loading ? classes.loading : undefined}>
         {truncatedPostsResults.map(post => {
           return <div key={post._id} onClick={() => setExpandedPost(post)} className={classes.postRoot}>
