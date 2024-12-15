@@ -44,23 +44,6 @@ const styles = (theme: ThemeType) => ({
     width: "100% !important",
     height: "unset !important",
   },
-  popperContent: {
-    margin: "0 12px",
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: 13,
-    fontWeight: 500,
-    lineHeight: '140%',
-    padding: 16,
-    width: 380,
-    maxHeight: 1000,
-    color: theme.palette.grey[600],
-    backgroundColor: theme.palette.background.paper,
-    borderRadius: theme.borderRadius.default,
-    boxShadow: theme.palette.boxShadow.eaCard,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: "10px",
-  },
 });
 
 export type ForumEventVoteDisplay = {

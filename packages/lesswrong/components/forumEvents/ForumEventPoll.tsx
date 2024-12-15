@@ -802,7 +802,6 @@ export const ForumEventPoll = ({
                       refetch={refetchComments}
                       anchorEl={userVoteRef.current}
                       post={event.post}
-                      // TODO test
                       title="What made you vote this way?"
                       subtitle={(post, comment) => (<>
                         <div>
