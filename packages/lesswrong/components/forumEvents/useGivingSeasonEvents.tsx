@@ -106,7 +106,6 @@ const events: GivingSeasonEvent[] = [
   },
   {
     name: "Donation Celebration",
-    // TODO change description
     description: <>
       When the donation celebration starts, you’ll be able to add a heart to{" "}
       the banner showing that you’ve done your annual donations.
