@@ -153,7 +153,7 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
     terms: {view: "usersMapLocations"},
     collectionName: "Users",
     fragmentName: "UsersMapEntry",
-    limit: 500,
+    limit: 5000,
     skip: !showUsers
   })
 
@@ -215,9 +215,9 @@ const PersonalMapLocationMarkers = ({users, handleClick, handleClose, openWindow
   const { StyledMapPopup } = Components
   
   const mapLocations = filterNonnull(users.map(user => {
-    const location = user.mapLocation
-    if (!location?.geometry?.location?.lat || !location?.geometry?.location?.lng) return null
-    const { geometry: {location: {lat, lng}}} = location
+    const location = user.mapLocationLatLng
+    if (!location?.lat || !location?.lng) return null
+    const {lat, lng} = location
     return {
       lat, lng,
       data: user,
