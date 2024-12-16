@@ -9,6 +9,8 @@ import DescriptionIcon from '@material-ui/icons/Description';
 import TagIcon from '@material-ui/icons/LocalOffer';
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import { WikiTagMockup, WikiTagNode } from './types';
+import { Link } from 'react-router-dom';
+import { tagGetUrl } from '@/lib/collections/tags/helpers';
 
 const ITEM_WIDTH = 400;
 
@@ -486,7 +488,11 @@ const ConceptItem = ({
               placement='right-start'
               popperClassName={classes.tooltipHoverTitle}
             >
-              <span className={classNames(classes.titleText, { [classes.arbitalGreenColor]: wikitag.isArbitalImport })}>{wikitag.name}</span>
+              <span className={classNames(classes.titleText, { [classes.arbitalGreenColor]: wikitag.isArbitalImport })}>
+                <Link to={tagGetUrl({slug: wikitag.slug})}>
+                  {wikitag.name}
+                </Link>
+                </span>
             </TagsTooltip>
             {wikitag.postCount > 0 && (
               <span className={classes.postCount}>
