@@ -20,6 +20,14 @@ import type { ForumIconName } from "../common/ForumIcon";
 
 const DOT_SIZE = 12;
 
+/** Style to pass pointer events through one element, but not have this affect all children */
+const PASS_THROUGH_POINTER_EVENTS = {
+  pointerEvents: "none",
+  "& > *": {
+    pointerEvents: "all",
+  },
+}
+
 const styles = (theme: ThemeType) => ({
   root: {
     width: "100vw",
@@ -43,7 +51,7 @@ const styles = (theme: ThemeType) => ({
     left: 0,
     width: "100%",
     height: "100%",
-    zIndex: -1,
+    zIndex: 0,
     background: theme.palette.text.alwaysWhite,
   },
   background: {
@@ -57,6 +65,34 @@ const styles = (theme: ThemeType) => ({
     backgroundSize: "cover",
     backgroundRepeat: "no-repeat",
     backgroundBlendMode: "darken",
+    overflow: "hidden"
+  },
+  mainContainer: {
+    ...PASS_THROUGH_POINTER_EVENTS,
+    position: "relative",
+    display: "flex",
+    flexDirection: "row",
+    gap: "8px",
+    alignItems: "center",
+    [theme.breakpoints.down(GIVING_SEASON_DESKTOP_WIDTH)]: {
+      padding: "0 24px",
+    },
+    [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
+      flexDirection: "column",
+    },
+  },
+  mobileOverlay: {
+    ...PASS_THROUGH_POINTER_EVENTS,
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+    opacity: 0,
+    transition: "opacity 0.5s ease",
+    // Translucent gradient so the text is readable over the hearts on mobile
+    background: theme.palette.givingSeason.mobileBannerOverlay,
+    [theme.breakpoints.up(GIVING_SEASON_MOBILE_WIDTH)]: {
+      display: "none"
+    },
   },
   backgroundActive: {
     opacity: 1,
@@ -153,19 +189,16 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.text.alwaysWhite,
     transition: "background 0.5s ease",
   },
-  mainContainer: {
-    display: "flex",
-    flexDirection: "row",
-    gap: "8px",
-    alignItems: "center",
-    [theme.breakpoints.down(GIVING_SEASON_DESKTOP_WIDTH)]: {
-      padding: "0 24px",
-    },
-    [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
-      flexDirection: "column",
-    },
+  timelineHeart: {
+    position: "absolute",
+    top: -23.5,
+    left: `calc(50% - ${(DOT_SIZE * 1.5) / 2}px)`,
+    width: DOT_SIZE * 1.5,
+    height: DOT_SIZE * 1.5,
+    transition: "background 0.5s ease",
   },
   detailsContainer: {
+    ...PASS_THROUGH_POINTER_EVENTS,
     transition: "max-height ease-in-out 0.35s",
     maxHeight: 500,
     width: "100%",
@@ -183,6 +216,8 @@ const styles = (theme: ThemeType) => ({
     maxHeight: 1,
   },
   eventDetails: {
+    ...PASS_THROUGH_POINTER_EVENTS,
+    position: "relative",
     display: "inline-flex",
     verticalAlign: "middle",
     width: "100%",
@@ -200,13 +235,16 @@ const styles = (theme: ThemeType) => ({
     },
   },
   simpleEventContainer: {
+    ...PASS_THROUGH_POINTER_EVENTS,
     flexGrow: 1,
   },
   eventDate: {
     maxWidth: 470,
     marginBottom: 8,
+    width: "fit-content"
   },
   eventName: {
+    width: "fit-content",
     maxWidth: 640,
     fontSize: 40,
     fontWeight: 700,
@@ -371,8 +409,9 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
       marginBottom: 16
     },
-  },
+  }
 });
+
 
 const scrollIntoViewHorizontally = (
   container: HTMLElement,
@@ -521,7 +560,8 @@ const GivingSeason2024Banner = ({classes}: {
     });
   }, [detailsRef]);
 
-  const {EAButton, MixedTypeFeed, DonationElectionLeaderboard} = Components;
+  const {EAButton, MixedTypeFeed, ForumEventStickers, DonationElectionLeaderboard, ForumIcon} = Components;
+
   return (
     <div className={classNames(classes.root, selectedEvent.darkText && classes.darkText)}>
       <div className={classes.backgrounds}>
@@ -530,7 +570,9 @@ const GivingSeason2024Banner = ({classes}: {
             key={name}
             style={{ backgroundImage: `url(${background})` }}
             className={classNames(classes.background, name === selectedEvent.name && classes.backgroundActive)}
-          />
+          >
+            {name === "Donation Celebration" && <ForumEventStickers interactive={name === selectedEvent.name} />}
+          </div>
         ))}
       </div>
       <div className={classes.banner}>
@@ -548,11 +590,12 @@ const GivingSeason2024Banner = ({classes}: {
               className={classNames(classes.timelineEvent, selectedEvent === event && classes.timelineEventSelected)}
             >
               {event.name === "Intermission" ? "" : event.name}
-              {event === currentEvent && <div className={classes.timelineDot} />}
+              {event === currentEvent && (event.name === "Donation Celebration" ? <ForumIcon className={classes.timelineHeart} icon="Heart" /> : <div className={classes.timelineDot} />)}
             </div>
           ))}
         </div>
         <div className={classes.mainContainer}>
+          <div className={classNames(classes.mobileOverlay, {[classes.backgroundActive]: selectedEvent.name === "Donation Celebration"})} />
           <div ref={setDetailsRef} className={classNames(
             classes.detailsContainer,
             selectedEvent.hidden && classes.detailsContainerHidden,
