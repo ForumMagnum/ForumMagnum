@@ -3979,6 +3979,7 @@ interface ElicitQuestionPredictionsDefaultFragment { // fragment on ElicitQuesti
   readonly sourceUrl: string | null,
   readonly sourceId: string | null,
   readonly binaryQuestionId: string,
+  readonly isDeleted: boolean,
 }
 
 interface DialogueChecksDefaultFragment { // fragment on DialogueChecks
