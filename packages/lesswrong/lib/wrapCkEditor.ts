@@ -1,11 +1,5 @@
-import { ForumTypeString } from "./instanceSettings";
-
-export const getCkEditor = (forumType: ForumTypeString) => {
-  const ckEditor = bundleIsServer ? {} : require('../../../public/lesswrong-editor/build/ckeditor');
-
-  const { EditorWatchdog, getCommentEditor, getPostEditor, getPostEditorCollaboration } = ckEditor;
-  return { EditorWatchdog, getCommentEditor, getPostEditor, getPostEditorCollaboration };
-}
+import { getCkEditor } from "@/client/importCkEditor";
+import type { ForumTypeString } from "./instanceSettings";
 
 let commentEditor: any = null;
 export const getCkCommentEditor = (forumType: ForumTypeString) => {

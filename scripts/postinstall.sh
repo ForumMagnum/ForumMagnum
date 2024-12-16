@@ -93,3 +93,7 @@ if [ -e /proc/sys/fs/inotify/max_user_watches ]; then
 else
   echo 'N/A'
 fi
+
+echo 'Running yarn install in ckEditor/'
+(cd ckEditor && yarn install)
+
