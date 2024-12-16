@@ -485,7 +485,6 @@ const ConceptItem = ({
               hash={wikitag.slug}
               noPrefetch
               previewPostCount={0}
-              placement='right-start'
               popperClassName={classes.tooltipHoverTitle}
             >
               <span className={classNames(classes.titleText, { [classes.arbitalGreenColor]: wikitag.isArbitalImport })}>
