@@ -465,7 +465,6 @@ const GivingSeason2024Banner = ({classes}: {
   const amountRaisedPlusMatched =
     amountRaised + Math.min(amountRaised, 5000) + Math.min(Math.max(amountRaised - SECOND_MATCH_START, 0), 5000);
 
-  /*
   useEffect(() => {
     if (!detailsRef) {
       return;
@@ -485,7 +484,6 @@ const GivingSeason2024Banner = ({classes}: {
     }
     return () => observer.disconnect();
   }, [timelineRef, detailsRef, events, setSelectedEvent]);
-   */
 
   useEffect(() => {
     if (currentEvent && detailsRef && !didInitialScroll.current) {
@@ -514,21 +512,6 @@ const GivingSeason2024Banner = ({classes}: {
     }
   }, [timelineRef, selectedEvent, lastTimelineClick, events]);
 
-  useEffect(() => {
-    if (!detailsRef) {
-      return;
-    }
-    const handler = (ev: MouseEvent) => {
-      ev.preventDefault();
-    }
-    detailsRef.addEventListener("wheel", handler);
-    detailsRef.addEventListener("touchmove", handler);
-    return () => {
-      detailsRef.removeEventListener("wheel", handler);
-      detailsRef.removeEventListener("touchmove", handler);
-    }
-  }, [detailsRef]);
-
   const onClickTimeline = useCallback((index: number) => {
     setLastTimelineClick(Date.now());
     detailsRef?.querySelector(`[data-event-id="${index}"]`)?.scrollIntoView({
@@ -536,8 +519,7 @@ const GivingSeason2024Banner = ({classes}: {
       block: "nearest",
       inline: "start",
     });
-    setSelectedEvent(events[index] ?? events[0]);
-  }, [detailsRef, events, setSelectedEvent]);
+  }, [detailsRef]);
 
   const {EAButton, MixedTypeFeed, DonationElectionLeaderboard} = Components;
   return (
