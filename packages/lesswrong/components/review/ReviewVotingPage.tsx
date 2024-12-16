@@ -301,6 +301,8 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
 
         if (post1Score < post2Score) return 1
         if (post1Score > post2Score) return -1
+        if (post1Has2PrelimVotes && !post2Has2PrelimVotes) return -1
+        if (!post1Has2PrelimVotes && post2Has2PrelimVotes) return 1
         if (post1NotKarmaVoted && !post2NotKarmaVoted) return 1
         if (post2NotKarmaVoted && !post1NotKarmaVoted) return -1
         if (post1KarmaVote < post2KarmaVote) return 1;
@@ -309,8 +311,6 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
         if (post2Read && !post1Read) return 1
         if (post1isCurrentUsers && !post2isCurrentUsers) return -1
         if (post2isCurrentUsers && !post1isCurrentUsers) return 1
-        if (post1Has2PrelimVotes && !post2Has2PrelimVotes) return -1
-        if (!post1Has2PrelimVotes && post2Has2PrelimVotes) return 1
         if (permuted1 < permuted2) return -1;
         if (permuted1 > permuted2) return 1;
         return 0

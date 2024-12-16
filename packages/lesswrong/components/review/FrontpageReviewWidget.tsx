@@ -211,7 +211,7 @@ export function ReviewOverviewTooltip() {
 }
 
 const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, className}: {classes: ClassesType, showFrontpageItems?: boolean, reviewYear: ReviewYear, className?: string}) => {
-  const { SectionTitle, SettingsButton, LWTooltip, PostsList2, UserReviewsProgressBar, ReviewVotingProgressBar, FrontpageBestOfLWWidget } = Components
+  const { SectionTitle, SettingsButton, LWTooltip, PostsList2, ReviewProgressReviews, ReviewProgressVoting, ReviewProgressNominations, FrontpageBestOfLWWidget } = Components
   const currentUser = useCurrentUser();
 
   const nominationStartDate = getReviewStart(reviewYear)
@@ -288,8 +288,9 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, cl
 
   const nominatePostsLink = `/nominatePosts/${reviewYear}?${qs.stringify(allPostsParams(reviewYear))}`
   const nominationPhaseButtons = <div className={classes.actionButtonRow}>
-    {/* Ray said this wasn't needed any more (and had styling issue), but leaving here so people know this component, <LatestReview> exists and could be used in the future. */}
-    {/* {showFrontpageItems && !isLastDay(nominationEndDate) && <LatestReview/>} */}
+    {currentUser && currentUser.karma >= 1000 && <span className={classes.reviewProgressBar}>
+      <ReviewProgressNominations reviewYear={REVIEW_YEAR}/>
+    </span>}
     {showFrontpageItems && isLastDay(nominationEndDate) && <span className={classNames(classes.nominationTimeRemaining, classes.timeRemaining)}>
       <div>{nominationEndDate.fromNow()} remaining to cast nomination votes</div>
       <div>(posts need two votes to proceed)</div>
@@ -316,7 +317,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, cl
 
   const reviewPhaseButtons = <div className={classes.actionButtonRow}>
     {currentUser && currentUser.karma >= 1000 && <span className={classes.reviewProgressBar}>
-      <UserReviewsProgressBar reviewYear={reviewYear}/>
+      <ReviewProgressReviews reviewYear={reviewYear}/>
     </span>}
     <LWTooltip title="A list of all reviews, with the top review-commenters ranked by total karma">
       <Link to={"/reviews"} className={classes.actionButton}>
@@ -329,7 +330,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, cl
       </Link>
     </LWTooltip>
     <LWTooltip title="Find a top unreviewed post, and review it">
-      <Link to={"/reviewQuickPage"} className={classes.actionButtonCTA}>
+      <Link to={`/quickReview/${reviewYear}`} className={classes.actionButtonCTA}>
         Quick Review
       </Link>
     </LWTooltip>
@@ -341,7 +342,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, cl
 
   const votingPhaseButtons = <div className={classes.actionButtonRow}>
     {currentUser && currentUser.karma >= 1000 && <span className={classes.reviewProgressBar}>
-      <ReviewVotingProgressBar reviewYear={REVIEW_YEAR}/>
+      <ReviewProgressVoting reviewYear={REVIEW_YEAR}/>
     </span>}
     <LWTooltip title="A list of all reviews, with the top review-commenters ranked by total karma">
       <Link to={"/reviews"} className={classes.actionButton}>

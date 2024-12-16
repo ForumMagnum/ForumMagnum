@@ -1102,12 +1102,14 @@ importComponent("DismissibleSpotlightItem", () => require('../components/spotlig
 
 // Review Components
 // importComponent("FrontpageNominationPhase", () => require('../components/review/FrontpageNominationPhase'));
-importComponent("ReviewQuickPage", () => require('../components/review/ReviewQuickPage'));
+importComponent("QuickReviewPage", () => require('../components/review/QuickReviewPage'));
+importComponent("QuickReviewPage2022", () => require('../components/review/QuickReviewPage2022'));
 importComponent("NewLongformReviewForm", () => require('../components/review/NewLongformReviewForm'));
 importComponent("ReviewDashboardButtons", () => require('../components/review/ReviewDashboardButtons'));
 importComponent("ReviewPhaseInformation", () => require('../components/review/ReviewPhaseInformation'));
-importComponent("UserReviewsProgressBar", () => require('../components/review/UserReviewsProgressBar'));
-importComponent("ReviewVotingProgressBar", () => require('../components/review/ReviewVotingProgressBar'));
+importComponent("ReviewProgressReviews", () => require('../components/review/ReviewProgressReviews'));
+importComponent("ReviewProgressVoting", () => require('../components/review/ReviewProgressVoting'));
+importComponent("ReviewProgressNominations", () => require('../components/review/ReviewProgressNominations'));
 importComponent("ReviewVotingPageMenu", () => require('../components/review/ReviewVotingPageMenu'));
 importComponent("ReviewVotingCanvas", () => require('../components/review/ReviewVotingCanvas'));
 importComponent("FrontpageReviewWidget", () => require('../components/review/FrontpageReviewWidget'));
