@@ -16,6 +16,7 @@ import { getAnalyticsConnection } from "../analytics/postgresConnection";
 import { eaEmojiPalette } from '../../lib/voting/eaEmojiPalette';
 import { postStatuses } from '../../lib/collections/posts/constants';
 import { getConfirmedCoauthorIds, userIsPostCoauthor } from '../../lib/collections/posts/helpers';
+import { isWrappedYear } from '@/components/ea-forum/wrapped/hooks';
 
 
 addGraphQLSchema(`
@@ -109,7 +110,7 @@ addGraphQLResolvers({
     // - Your overall karma change this year was X (Y from comments, Z from posts)
     // - Others gave you X [most received react] reacts
     // - And X reacts in total (X insightful, Y helpful, Z changed my mind)
-    async UserWrappedDataByYear(root: void, {userId, year}: {userId: string, year: number}, context: ResolverContext) {
+    async UserWrappedDataByYear(_root: void, {userId, year}: {userId: string, year: number}, context: ResolverContext) {
       const { currentUser } = context
       const user = await Users.findOne({_id: userId})
 
@@ -117,10 +118,9 @@ addGraphQLResolvers({
       if (!userId || !currentUser || !user || !userCanEditUser(currentUser, user)) {
         throw new Error('Not authorized')
       }
-      
-      // Currently we only have data for 2022 and 2023
-      if (![2022, 2023].includes(year)) {
-        throw new Error('Only 2022 and 2023 are supported')
+
+      if (!isWrappedYear(year)) {
+        throw new Error(`${year} is not a valid wrapped year`)
       }
 
       // Get all the user's posts read for the given year

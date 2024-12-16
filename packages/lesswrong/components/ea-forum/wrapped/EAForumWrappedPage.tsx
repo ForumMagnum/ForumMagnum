@@ -2,7 +2,7 @@ import React, { Fragment, useCallback, useEffect, useRef, useState } from "react
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { useCurrentUser } from "../../common/withUser";
 import { AnalyticsContext, useIsInView, useTracking } from "../../../lib/analyticsEvents";
-import { WrappedDataByYear, WrappedMostReadAuthor, WrappedMostReadTopic, WrappedReceivedReact, WrappedRelativeMostReadCoreTopic, WrappedTopComment, WrappedTopPost, WrappedTopShortform, useForumWrapped } from "./hooks";
+import { WrappedDataByYear, WrappedMostReadAuthor, WrappedMostReadTopic, WrappedReceivedReact, WrappedRelativeMostReadCoreTopic, WrappedTopComment, WrappedTopPost, WrappedTopShortform, WrappedYear, isWrappedYear, useForumWrapped } from "./hooks";
 import classNames from "classnames";
 import range from "lodash/range";
 import moment from "moment";
@@ -27,10 +27,8 @@ import { CloudinaryPropsType, makeCloudinaryImageUrl } from "../../common/Cloudi
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
 import { HeartReactionIcon } from "../../icons/reactions/HeartReactionIcon";
 import { tagGetUrl } from "../../../lib/collections/tags/helpers";
-import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 import { TagCommentType } from "../../../lib/collections/comments/types";
 import { useLocation } from "../../../lib/routeUtil";
-import { TupleSet, UnionOf } from "../../../lib/utils/typeGuardUtils";
 import DeferRender from "@/components/common/DeferRender";
 
 const socialImageProps: CloudinaryPropsType = {
@@ -685,10 +683,6 @@ const styles = (theme: ThemeType) => ({
   mt100: { marginTop: 100 },
 })
 
-// The backend data currently only supports 2022 and 2023 - see UserWrappedDataByYear() for more details
-const wrappedYears = new TupleSet([2022, 2023] as const)
-type WrappedYear = UnionOf<typeof wrappedYears>
-
 type ReceivedReact = {
   top: string,
   left: string,
@@ -747,7 +741,10 @@ const ENGAGEMENT_CHART_DATA: Record<WrappedYear, EngagementDataPoint[]> = {
     {hours: 80, count: 2},
     {hours: 113, count: 1},
     {hours: 525, count: 1},
-  ]
+  ],
+  2024: [
+    {hours: 0, count: 878},
+  ],
 }
 
 /**
@@ -1601,18 +1598,13 @@ const MostValuablePostsSection = ({year, classes}: {
   </AnalyticsContext>
 }
 
-/**
- * This is the primary page component for EA Forum Wrapped 2023.
- * We also made it functional for 2022.
- */
 const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
   const { pathname, params } = useLocation()
   const currentUser = useCurrentUser()
-  const updateCurrentUser = useUpdateCurrentUser();
-  const { setNode, entry, node } = useIsInView();
-  
-  const paramYear = ['2022','2023'].includes(params.year) ? parseInt(params.year) : 2023
-  const year: WrappedYear = wrappedYears.has(paramYear) ? paramYear : 2023
+  const { setNode, node } = useIsInView();
+
+  const rawYear = parseInt(params.year);
+  const year = isWrappedYear(rawYear) ? rawYear : 2024;
 
   const { data } = useForumWrapped({
     userId: currentUser?._id,
@@ -1624,7 +1616,7 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
   }, [node]);
 
   const { HeadTags, ForumIcon, CloudinaryImage2 } = Components
-  
+
   // If there's no logged in user, prompt them to login
   if (!currentUser) {
     return <AnalyticsContext pageContext="eaYearWrapped">
