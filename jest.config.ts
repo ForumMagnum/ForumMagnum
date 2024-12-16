@@ -214,7 +214,7 @@ export default {
   // changes. If we've done *that* upgrade, this block might no longer be
   // necessary.
   transformIgnorePatterns: [
-    "/node_modules/(?!react-instantsearch)",
+    "/node_modules/(?!(react-instantsearch|@extractus|bellajs)/)"
   ],
 
   // An array of regexp pattern strings that are matched against all modules before the module loader will automatically return a mock for them

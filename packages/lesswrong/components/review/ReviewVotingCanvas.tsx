@@ -8,7 +8,7 @@ import { useCurrentUser } from "../common/withUser";
 import { useLocation } from "../../lib/routeUtil";
 import { useMulti } from "../../lib/crud/withMulti";
 import { REVIEW_YEAR, eligibleToNominate } from "../../lib/reviewUtils";
-import { TARGET_REVIEW_NUM } from "./ReviewVotingProgressBar";
+import { TARGET_REVIEW_VOTING_NUM } from "./ReviewProgressVoting";
 import { useMessages } from "../common/withMessages";
 import DeferRender from "../common/DeferRender";
 
@@ -363,11 +363,11 @@ const ReviewVotingCanvas = ({
     fragmentName: 'reviewVoteFragment',
     enableTotal: true,
     skip: !currentUser,
-    limit: TARGET_REVIEW_NUM
+    limit: TARGET_REVIEW_VOTING_NUM
   });
 
   const {flash} = useMessages();
-  const userHasVotedEnough = (totalCount || 0) >= TARGET_REVIEW_NUM;
+  const userHasVotedEnough = (totalCount || 0) >= TARGET_REVIEW_VOTING_NUM;
 
   const onClick = useCallback(async ({target, clientX, clientY}: MouseEvent) => {
     if (isValidTarget(target)) {
