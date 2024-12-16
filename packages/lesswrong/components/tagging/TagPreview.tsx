@@ -29,7 +29,7 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
     paddingRight: 16,
   },
   nonTabPadding: {
-    paddingTop: 16,
+    // paddingTop: 16,
     paddingLeft: 16,
     paddingRight: 16,
     maxHeight: 400,
@@ -112,7 +112,7 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
     },
   },
   descriptionTop: {
-    marginTop: 16,
+    // marginTop: 16,
   },
 }));
 
@@ -182,7 +182,8 @@ const TagPreview = ({
 
   const hasDescription = !!getTagDescriptionHtml(tag) && !hideDescription;
 
-  const arbitalImport = tag.isArbitalImport;
+  // const arbitalImport = tag.isArbitalImport;
+  const arbitalImport = true;
 
   const { TagPreviewDescription, TagSmallPostLink, Loading } = Components;
   return (
@@ -196,7 +197,7 @@ const TagPreview = ({
         [classes.nonTabPadding]: arbitalImport,
         [classes.nonArbitalPadding]: !arbitalImport
       })}>
-        {arbitalImport && <Link className={classes.arbitalTitle} to={`/tag/${tag.slug}`}>{tag.name}</Link>}
+        {/* {arbitalImport && <Link className={classes.arbitalTitle} to={`/tag/${tag.slug}`}>{tag.name}</Link>} */}
         {hasDescription && <div className={classes.descriptionTop}>
           <TagPreviewDescription 
             tag={tag} 
@@ -239,7 +240,7 @@ const TagPreview = ({
             }
           </div>
         }
-        {showPosts && !tag.wikiOnly && !arbitalImport &&
+        {showPosts && !tag.wikiOnly &&
           <>
             {results
               ? (

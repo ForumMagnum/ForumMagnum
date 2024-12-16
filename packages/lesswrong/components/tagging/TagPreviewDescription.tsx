@@ -88,8 +88,10 @@ const TagPreviewDescription = ({tag, hash, classes, activeTab}: {
   const tagUrl = tagGetUrl(tag, undefined, undefined, hash);
   const hashLinkOnClick = getHashLinkOnClick({ to: tagUrl, id: 'read-more-button' });
 
+  const { ContentItemBody, ContentStyles } = Components;
+
   if (activeTab !== undefined && tag.summaries) {
-    const {ContentItemBody, ContentStyles} = Components;
+    
     return <div
       onClick={(ev: React.MouseEvent) => {
         if ((ev.target as any)?.className==="read-more-button") {
@@ -108,6 +110,15 @@ const TagPreviewDescription = ({tag, hash, classes, activeTab}: {
       </ContentStyles>
     </div>
   }
+
+  // Just post the full description
+  return <ContentStyles contentType="comment">
+    <ContentItemBody
+      className={classes.root}
+      dangerouslySetInnerHTML={{__html: getTagDescriptionHtmlHighlight(tag) ?? ''}}
+      description={`tag ${tag.name}`}
+    />
+  </ContentStyles>
 
   if (highlight) {
     const {ContentItemBody, ContentStyles} = Components;

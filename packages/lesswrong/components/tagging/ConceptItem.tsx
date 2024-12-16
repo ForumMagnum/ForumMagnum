@@ -510,7 +510,6 @@ const ConceptItem = ({ wikitag, nestingLevel, index, onHover, onClick, pinnedWik
               hash={wikitag.slug}
               noPrefetch
               previewPostCount={0}
-              placement='right-start'
               popperClassName={classes.tooltipHoverTitle}
             >
               <span className={classes.titleText}>{wikitag.name}</span>
