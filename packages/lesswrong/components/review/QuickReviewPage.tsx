@@ -8,7 +8,7 @@ import { getVotePower } from '@/lib/voting/vote';
 import { useCurrentUser } from '../common/withUser';
 
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: { 
     marginBottom: -20
   },
@@ -41,7 +41,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const QuickReviewPage = ({classes, reviewYear}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   reviewYear: ReviewYear
 }) => {
   const [expandedPost, setExpandedPost] = useState<PostsReviewVotingList|null>(null)
@@ -65,7 +65,7 @@ export const QuickReviewPage = ({classes, reviewYear}: {
 
   const { PostsItem, SectionFooter, Loading, PostInteractionStripe } = Components
 
-  const sortedPostsResults = !!posts ? [...posts].sort((post1, post2) => {
+  function comparePosts(post1: PostsReviewVotingList, post2: PostsReviewVotingList) {
     const post1QuadraticScore = post1.currentUserReviewVote?.quadraticScore ?? 0
     const post2QuadraticScore = post2.currentUserReviewVote?.quadraticScore ?? 0
     const post1KarmaVote = post1.currentUserVote
@@ -77,9 +77,19 @@ export const QuickReviewPage = ({classes, reviewYear}: {
     const post1ReadStatus = post1.lastVisitedAt ? 1 : 0
     const post2ReadStatus = post2.lastVisitedAt ? 1 : 0
 
-    // Sort by karma vote, then quadratic score
-    return post2ReadStatus - post1ReadStatus || post2KarmaVote - post1KarmaVote || post2QuadraticScore - post1QuadraticScore || post2.baseScore - post1.baseScore
-  }) : []
+    if (post2ReadStatus - post1ReadStatus) {
+        return post2ReadStatus - post1ReadStatus;
+    }
+    if (post2KarmaVote - post1KarmaVote) {
+        return post2KarmaVote - post1KarmaVote;
+    }
+    if (post2QuadraticScore - post1QuadraticScore) {
+        return post2QuadraticScore - post1QuadraticScore;
+    }
+    return post2.baseScore - post1.baseScore;
+  }
+
+  const sortedPostsResults = !!posts ? [...posts].sort(comparePosts) : []
 
   const truncatedPostsResults = truncatePosts ? sortedPostsResults.slice(0,12) : sortedPostsResults
 
