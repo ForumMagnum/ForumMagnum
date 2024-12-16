@@ -247,9 +247,21 @@ addRoute(
   {
     name: 'reviewQuickPage',
     path: '/reviewQuickPage',
-    componentName: 'ReviewQuickPage',
+    redirect: () => `/quickReview/${REVIEW_YEAR}`
+  },
+
+  {
+    name: 'quickReview',
+    path: '/quickReview/:year',
+    componentName: 'AnnualReviewPage',
     title: "Review Quick Page",
     subtitle: "Quick Review Page"
+  },
+
+  {
+    name: 'quickReviewRedirect',
+    path: '/quickReview',
+    redirect: () => `/quickReview/${REVIEW_YEAR}`
   },
 
   {

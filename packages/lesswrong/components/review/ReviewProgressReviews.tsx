@@ -6,6 +6,7 @@ import { useCurrentUser } from '../common/withUser';
 import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import CheckBoxTwoToneIcon from '@material-ui/icons/CheckBoxTwoTone';
 import range from 'lodash/range';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -24,7 +25,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   filledIcon: {
     width: 20,
-    color: theme.palette.primary.main,
+    color: theme.palette.grey[600],
   },
   extraIcon: {
     width: 22,
@@ -58,18 +59,19 @@ export const ReviewProgressReviews = ({classes, reviewYear}: {
   if (!reviewsResults) return null
 
   const totalReviews = totalCount || 0
+  const totalHighlightedReviews = reviewsResults.filter(review => review.baseScore >= 10).length
+  const reviewCountMessage = totalHighlightedReviews ? `(${totalHighlightedReviews} of your reviews got 10+ karma)` : "(None with 10+ karma yet)"
 
   const uncheckedBoxes = TARGET_NUM - Math.min(totalReviews, TARGET_NUM)
 
   return <LWTooltip title={<div>
-      {totalReviews < TARGET_NUM && <>
-      <div>It'd be helpful if you wrote {TARGET_NUM} reviews, that help inform readers.</div>
-      </>}
-      <p><em>{totalReviews ? `You've written ${totalReviews} reviews${totalReviews >= TARGET_NUM ? "!" : "."}` : "You haven't written any reviews yet."}</em></p>
+      {totalReviews < TARGET_NUM &&
+      <div>Help inform voters by writing {TARGET_NUM} reviews. Reviews with 10+ karma will appear on the Best of LessWrong page.</div>}
+      <p><em>{totalReviews ? `You've written ${totalReviews} review${totalReviews === 1 ? "" : "s"}${totalReviews >= TARGET_NUM ? "!" : "."} ${reviewCountMessage}` : "You haven't written any reviews yet."}</em></p>
     </div>} placement="top">
     <div className={classes.root}>
       {reviewsResults.map(review => {
-        return <CheckBoxTwoToneIcon className={classes.filledIcon} key={review._id}/>
+        return <CheckBoxTwoToneIcon className={classNames(classes.filledIcon, {[classes.highlightedIcon]: review.baseScore >= 10})} key={review._id}/>
       })}
       {range(0, uncheckedBoxes).map(a => <CheckBoxOutlineBlankIcon className={classes.icon} key={`${currentUser?._id}`}/>) }
     </div>
