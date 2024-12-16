@@ -12,8 +12,7 @@ import SearchIcon from '@material-ui/icons/Search';
 
 // Import InstantSearch components and utilities
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
-import { SearchBox } from 'react-instantsearch-dom';
-import { connectStateResults } from 'react-instantsearch-dom';
+import { SearchBox, connectStateResults } from 'react-instantsearch-dom';
 import { getSearchIndexName, getSearchClient, isSearchEnabled } from '../../lib/search/searchUtil';
 
 // Import the mock data and types
