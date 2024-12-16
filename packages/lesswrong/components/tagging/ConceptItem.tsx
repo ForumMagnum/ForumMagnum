@@ -4,12 +4,16 @@ import { Components, RouterLocation, registerComponent   } from '../../lib/vulca
 import { isFriendlyUI } from '@/themes/forumTheme';
 import CommentIcon from '@material-ui/icons/ModeComment';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { ArbitalLogo } from '../icons/ArbitalLogo';
 import DescriptionIcon from '@material-ui/icons/Description';
 import TagIcon from '@material-ui/icons/LocalOffer';
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
+import { WikiTagMockup, WikiTagNode } from './types';
 
 const ITEM_WIDTH = 400;
 
+
+const ARBITAL_GREEN_DARK = "#004d40"
 
 const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
 
@@ -105,7 +109,6 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     marginBottom: 1,
     display: "flex",
     alignItems: "baseline",
-    gap: "4px",
     lineHeight: "1.4",
   },
   titleText: {
@@ -135,7 +138,7 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     gap: "2px",
     whiteSpace: "nowrap",
     marginTop: 0,
-    marginLeft: 2,
+    marginLeft: 6,
     opacity: 0.9,
   },
   postCountNumber: {
@@ -354,25 +357,25 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     // margin: 16,
     // marginLeft: 64,
   },
+  arbitalIcon: {
+    height: 10,
+    width: 10,
+    // color: theme.palette.primary.dark,
+    // color: theme.palette.grey[500],
+    color: ARBITAL_GREEN_DARK,
+    // opacity: 0.9,
+    marginLeft: 4,
+    position: "relative",
+    // top: 1,
+    // backgroundColor: "darkgreen",
+    // marginBottom: -5,
+  },
+  arbitalGreenColor: {
+    color: ARBITAL_GREEN_DARK,
+  },
 }));
 
 
-interface WikiTagMockup {
-  "coreTag"?: string;
-  _id: string;
-  name: string;
-  slug: string;
-  postCount: number;
-  description_html: string;
-  description_length: number;
-  viewCount?: number;
-  parentTagId?: string | null;
-  baseScore: number;
-}
-
-interface WikiTagNode extends WikiTagMockup {
-  children: WikiTagNode[];
-}
 
 interface ConceptItemProps {
   wikitag: WikiTagNode;
@@ -381,6 +384,7 @@ interface ConceptItemProps {
   onHover?: (wikitag: WikiTagMockup | null) => void;
   onClick?: (wikitag: WikiTagMockup) => void;
   pinnedWikiTag?: WikiTagMockup | null;
+  showArbitalIcon?: boolean;
 }
   
 
@@ -393,13 +397,21 @@ function splitIntoColumns(items: WikiTagNode[], itemsPerColumn = 12): WikiTagNod
   return columns;
 }
 
-const ConceptItem = ({ wikitag, nestingLevel, index, onHover, onClick, pinnedWikiTag }: ConceptItemProps) => {
+const ConceptItem = ({
+  wikitag,
+  nestingLevel,
+  index,
+  onHover,
+  onClick,
+  pinnedWikiTag,
+  showArbitalIcon
+}: ConceptItemProps) => {
   const classes = useStyles(styles);
   const defaultCollapsed = index !== undefined && index >= 3 && index < 6;
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
   const [showingAllChildren, setShowingAllChildren] = useState(false);
 
-  const { ForumIcon, TagsTooltip } = Components;
+  const { ForumIcon, TagsTooltip, LWTooltip } = Components;
 
   const toggleCollapse = () => {
     setCollapsed(!collapsed);
@@ -435,48 +447,6 @@ const ConceptItem = ({ wikitag, nestingLevel, index, onHover, onClick, pinnedWik
 
   const remainingItems = totalChildren - itemsToShowCount;
 
-  // Define the Show More/Less button
-  const showMoreButton = (
-    <div
-      className={classes.showMoreChildren}
-      onClick={(e) => {
-        e.stopPropagation();
-        if (collapsed) {
-          setCollapsed(false);
-        } else if (!showingAllItems) {
-          setShowingAllChildren(true);
-        } else {
-          // If all items are shown, clicking "Show less" should reset
-          setShowingAllChildren(false);
-        }
-      }}
-    >
-      {collapsed
-        ? `Show ${totalChildren} more`
-        : !showingAllItems
-          ? `Show ${remainingItems} more`
-          : 'Show less'
-      }
-    </div>
-  );
-
-  // Collapse toggle with consistent spacing
-  const collapseToggle = (
-    <div
-      className={classNames(classes.collapse)}
-      onClick={hasChildren ? toggleCollapse : undefined}
-      style={{ visibility: hasChildren ? 'visible' : 'hidden' }}
-    >
-      <ForumIcon
-        icon="SoftUpArrow"
-        className={classNames(
-          classes.collapseChevron,
-          !collapsed && classes.collapseChevronOpen
-        )}
-      />
-    </div>
-  );
-
   const isWikiItem = wikitag.description_length > 2000;
 
   // Title item (for nestingLevel === 0)
@@ -504,6 +474,9 @@ const ConceptItem = ({ wikitag, nestingLevel, index, onHover, onClick, pinnedWik
         {/* {collapseToggle} */}
         <div className={classes.leftSideItems}>
           <div className={classes.karma}>{wikitag.baseScore || 0}</div>
+          {/* {showArbitalIcon && wikitag.isArbitalImport && <LWTooltip title="This content was imported in part or entirely from Arbital.com" placement="right-start">
+            <ArbitalLogo className={classes.arbitalIcon} strokeWidth={0.7} />
+          </LWTooltip>} */}
           <div className={classNames(classes.title, { [classes.titleWikiItem]: isWikiItem })}>
             <TagsTooltip
               tagSlug={wikitag.slug}
@@ -513,7 +486,7 @@ const ConceptItem = ({ wikitag, nestingLevel, index, onHover, onClick, pinnedWik
               placement='right-start'
               popperClassName={classes.tooltipHoverTitle}
             >
-              <span className={classes.titleText}>{wikitag.name}</span>
+              <span className={classNames(classes.titleText, { [classes.arbitalGreenColor]: wikitag.isArbitalImport })}>{wikitag.name}</span>
             </TagsTooltip>
             {wikitag.postCount > 0 && (
               <span className={classes.postCount}>
@@ -530,6 +503,9 @@ const ConceptItem = ({ wikitag, nestingLevel, index, onHover, onClick, pinnedWik
                 </TagsTooltip>
               </span>
             )}
+            {showArbitalIcon && wikitag.isArbitalImport && <LWTooltip title="This content was imported in part or entirely from Arbital.com" placement="right-start">
+              <ArbitalLogo className={classes.arbitalIcon} strokeWidth={0.7} />
+            </LWTooltip>}
           </div>
         </div>
       </div>
@@ -561,6 +537,7 @@ const ConceptItem = ({ wikitag, nestingLevel, index, onHover, onClick, pinnedWik
                       onHover={onHover}
                       onClick={onClick}
                       pinnedWikiTag={pinnedWikiTag}
+                      showArbitalIcon={showArbitalIcon}
                     />
                   ))}
                 </div>

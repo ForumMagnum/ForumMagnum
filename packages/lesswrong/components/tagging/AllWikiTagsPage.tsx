@@ -16,6 +16,10 @@ import { getSearchIndexName, getSearchClient, isSearchEnabled } from '../../lib/
 // Import the mock data and types
 import { WikiTagMockup, WikiTagNode } from './types'; // Adjust the import path as needed
 import { wikitagMockupData } from './wikitag_mockup_data';
+import { useSingle } from '@/lib/crud/withSingle';
+import { ArbitalLogo } from '../icons/ArbitalLogo';
+
+const ARBITAL_GREEN_DARK = "#004d40"
 
 const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
   root: {
@@ -189,6 +193,46 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
     whiteSpace: 'nowrap',
     flexShrink: 0,
   },
+  arbitalRedirectNotice: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: '16px',
+    padding: "16px",
+    borderRadius: 12,
+    backgroundColor: ARBITAL_GREEN_DARK,
+    color: "white",
+    marginBottom: 24,
+  },
+  arbitalRedirectNoticeContent: {
+    flexGrow: 1,
+    color: "white",
+  },
+  arbitalLogo: {
+    width: 100,
+    // don't hide overflow
+    overflow: 'visible',
+    padding: 8
+  },
+  dismissButtonContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    alignSelf: 'stretch',
+  },
+  dismissButton: {
+    background: 'transparent',
+    border: 'none',
+    fontSize: '2rem',
+    cursor: 'pointer',
+    color: 'white',
+    '&:hover': {
+      color: theme.palette.grey[300],
+    },
+    '&:focus': {
+      outline: 'none',
+    },
+  },
 }))
 
 // Helper function to generate baseScore
@@ -264,12 +308,45 @@ function filterTreeByTagIds(
     .filter(node => node !== null) as WikiTagNode[];
 }
 
+const ArbitalRedirectNotice = ({ classes, onDismiss }: {
+  classes: ClassesType,
+  onDismiss: () => void,
+}) => {
+  const { ContentStyles, ContentItemBody, Loading } = Components
+
+  // TODO: put in database setting?
+  const documentId = "nDavoyZ2EobkpZNAs"
+
+  const { document, loading } = useSingle({
+    documentId,
+    collectionName: "Comments",
+    fragmentName: "CommentsList",
+    skip: !documentId
+  });
+
+  const { html = "" } = document?.contents || {}
+
+  return (
+    <div className={classes.arbitalRedirectNotice}>
+      <ArbitalLogo className={classes.arbitalLogo} />
+      <ContentStyles contentType="comment" className={classes.arbitalRedirectNoticeContent}>
+        {loading && <Loading />}
+        {html && <ContentItemBody dangerouslySetInnerHTML={{ __html: html }} />}
+        {!html && !loading && <div><em>You have been redirected from Arbital.com</em></div>}
+      </ContentStyles>
+      <div className={classes.dismissButtonContainer}>
+        <button className={classes.dismissButton} onClick={onDismiss}>×</button>
+      </div>
+    </div>
+  );
+}
+
 const AllWikiTagsPage = () => {
   const classes = useStyles(styles);
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
 
-  const { SectionButton, SectionTitle, WikiTagNestedList } = Components;
+  const { SectionButton, WikiTagNestedList } = Components;
   const [selectedWikiTag, setSelectedWikiTag] = useState<WikiTagMockup | null>(null);
   const [pinnedWikiTag, setPinnedWikiTag] = useState<WikiTagMockup | null>(null);
 
@@ -397,6 +474,8 @@ const AllWikiTagsPage = () => {
       prioritySlugs.includes(wikitag.slug as typeof prioritySlugs[number]) || wikitag.slug === 'uncategorized-root'
     );
 
+    console.log("hits", hits)
+
     // Then apply search filtering if there's a query
     const filteredTags = currentQuery 
       ? filterTreeByTagIds(priorityFilteredTree, tagIds, 0)
@@ -408,10 +487,14 @@ const AllWikiTagsPage = () => {
           pages={filteredTags}
           onHover={handleHover}
           onClick={handleClick}
+          showArbitalIcons={isArbitalRedirect}
         />
       </div>
     );
   });
+
+  // Add state to control visibility of the notice
+  const [showArbitalRedirectNotice, setShowArbitalRedirectNotice] = useState(isArbitalRedirect);
 
   return (
     <AnalyticsContext pageContext="allWikiTagsPage">
@@ -460,6 +543,12 @@ const AllWikiTagsPage = () => {
                     translations={{ placeholder: 'What would you like to read about?' }}
                   />
                 </div>
+                {isArbitalRedirect && showArbitalRedirectNotice && (
+                  <ArbitalRedirectNotice
+                    classes={classes}
+                    onDismiss={() => setShowArbitalRedirectNotice(false)}
+                  />
+                )}
                 <CustomStateResults />
               </InstantSearch>
             </div>
