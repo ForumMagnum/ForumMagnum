@@ -330,7 +330,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, cl
       </Link>
     </LWTooltip>
     <LWTooltip title="Find a top unreviewed post, and review it">
-      <Link to={"/reviewQuickPage"} className={classes.actionButtonCTA}>
+      <Link to={`/quickReview/${reviewYear}`} className={classes.actionButtonCTA}>
         Quick Review
       </Link>
     </LWTooltip>
