@@ -3,14 +3,12 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
+import { useLocation } from '../../lib/routeUtil';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import { useDialog } from '../common/withDialog';
-import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import SearchIcon from '@material-ui/icons/Search';
-
-// Import InstantSearch components and utilities
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { SearchBox, connectStateResults } from 'react-instantsearch-dom';
 import { getSearchIndexName, getSearchClient, isSearchEnabled } from '../../lib/search/searchUtil';
@@ -274,6 +272,11 @@ const AllWikiTagsPage = () => {
   const { SectionButton, SectionTitle, WikiTagNestedList } = Components;
   const [selectedWikiTag, setSelectedWikiTag] = useState<WikiTagMockup | null>(null);
   const [pinnedWikiTag, setPinnedWikiTag] = useState<WikiTagMockup | null>(null);
+
+  const { query } = useLocation();
+
+  const isArbitalRedirect = query.ref === 'arbital';
+  console.log('isArbitalRedirect', isArbitalRedirect);
 
   const { LWTooltip } = Components;
 
