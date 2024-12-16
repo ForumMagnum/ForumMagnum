@@ -20,6 +20,7 @@ registerFragment(`
     isSubforum
     noindex
     isArbitalImport
+    isPlaceholderPage
   }
 `);
 
@@ -79,10 +80,7 @@ registerFragment(`
       ...UsersMinimumInfo
     }
     lenses {
-      ...MultiDocumentEdit
-    }
-    arbitalLinkedPages {
-      ...ArbitalLinkedPagesFragment
+      ...MultiDocumentContentDisplay
     }
   }
 `);
@@ -253,6 +251,27 @@ registerFragment(`
       name
       slug
     }
+    parents {
+      _id
+      name
+      slug
+    }
+    children {
+      _id
+      name
+      slug
+    }
+  }
+`);
+
+registerFragment(`
+  fragment TagPageArbitalContentFragment on Tag {
+    lenses {
+      ...MultiDocumentWithContributors
+    }
+    arbitalLinkedPages {
+      ...ArbitalLinkedPagesFragment
+    }
   }
 `);
 
@@ -281,13 +300,14 @@ registerFragment(`
       }
     }
     canVoteOnRels
-    lenses {
-      ...MultiDocumentWithContributors
-    }
-    arbitalLinkedPages {
-      ...ArbitalLinkedPagesFragment
-    }
   }
+`);
+
+registerFragment(`
+  fragment TagPageWithArbitalContentFragment on Tag {
+    ...TagPageFragment
+    ...TagPageArbitalContentFragment
+  }  
 `);
 
 registerFragment(`
@@ -322,13 +342,14 @@ registerFragment(`
       }
     }
     canVoteOnRels
-    lenses {
-      ...MultiDocumentWithContributors
-    }
-    arbitalLinkedPages {
-      ...ArbitalLinkedPagesFragment
-    }
   }
+`);
+
+registerFragment(`
+  fragment TagPageRevisionWithArbitalContentFragment on Tag {
+    ...TagPageWithRevisionFragment
+    ...TagPageArbitalContentFragment
+  }  
 `);
 
 registerFragment(`

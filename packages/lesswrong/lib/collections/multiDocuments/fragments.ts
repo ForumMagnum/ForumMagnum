@@ -1,8 +1,8 @@
 import { registerFragment } from '../../vulcan-lib';
 
 registerFragment(`
-  fragment MultiDocumentEdit on MultiDocument {
-    _id
+  fragment MultiDocumentContentDisplay on MultiDocument {
+        _id
     parentDocumentId
     collectionName
     fieldName
@@ -18,10 +18,19 @@ registerFragment(`
     contents {
       ...RevisionEdit
     }
+    legacyData
+  }
+`);
+
+registerFragment(`
+  fragment MultiDocumentEdit on MultiDocument {
+    ...MultiDocumentContentDisplay
     arbitalLinkedPages {
       ...ArbitalLinkedPagesFragment
     }
-    legacyData
+    summaries {
+      ...MultiDocumentContentDisplay
+    }
   }
 `);
 
@@ -29,7 +38,7 @@ registerFragment(`
   fragment MultiDocumentParentDocument on MultiDocument {
     ...MultiDocumentEdit
     parentTag {
-      ...TagBasicInfo
+      ...TagHistoryFragment
     }
   }
 `);
@@ -37,7 +46,7 @@ registerFragment(`
 registerFragment(`
   fragment MultiDocumentWithContributors on MultiDocument {
     ...MultiDocumentEdit
-    contributors(limit: $contributorsLimit, version: $version) {
+    contributors {
       totalCount
       contributors {
         user {

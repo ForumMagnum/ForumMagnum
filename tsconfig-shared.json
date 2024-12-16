@@ -20,7 +20,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./packages/lesswrong/*"],
-      "@/allComponents": ["./packages/lesswrong/lib/allComponents.ts"]
+      "@/allComponents": ["./packages/lesswrong/lib/generated/allComponents.ts"]
     }
   },
   "include": [

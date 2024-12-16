@@ -10,7 +10,7 @@
     "paths": {
       "@/client/*": ["./packages/lesswrong/client/*"],
       "@/server/*": ["./packages/lesswrong/stubs/server/*"],
-      "@/allComponents": ["./packages/lesswrong/lib/allComponents.ts"],
+      "@/allComponents": ["./packages/lesswrong/lib/generated/allComponents.ts"],
       "@/*": ["./packages/lesswrong/*"]
     }
   }

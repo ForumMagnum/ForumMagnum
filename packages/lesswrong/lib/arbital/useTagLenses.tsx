@@ -33,7 +33,7 @@ export interface TagLens {
   oldSlugs: string[];
   userId: string;
   legacyData: AnyBecauseHard;
-  originalLensDocument: MultiDocumentEdit | null;
+  originalLensDocument: MultiDocumentContentDisplay | MultiDocumentWithContributors | null;
   arbitalLinkedPages: ArbitalLinkedPagesFragment | null;
 }
 
@@ -44,7 +44,7 @@ interface TagLensInfo {
   lenses: TagLens[];
 }
 
-function getDefaultLens(tag: TagPageFragment|TagPageWithRevisionFragment|TagHistoryFragment): TagLens {
+function getDefaultLens(tag: TagPageWithArbitalContentFragment | TagPageRevisionWithArbitalContentFragment | TagHistoryFragment): TagLens {
   return {
     _id: MAIN_TAB_ID,
     collectionName: 'Tags',
@@ -63,12 +63,12 @@ function getDefaultLens(tag: TagPageFragment|TagPageWithRevisionFragment|TagHist
     userId: tag.userId,
     legacyData: {},
     originalLensDocument: null,
-    arbitalLinkedPages: tag.arbitalLinkedPages,
+    arbitalLinkedPages: 'arbitalLinkedPages' in tag ? tag.arbitalLinkedPages : null,
   }
 }
 
-export function getAvailableLenses(tag: TagPageFragment|TagPageWithRevisionFragment|TagHistoryFragment|null) {
-  if (!tag) return [];
+export function getAvailableLenses(tag: TagPageWithArbitalContentFragment | TagPageRevisionWithArbitalContentFragment | TagHistoryFragment | null): TagLens[] {
+  if (!tag?.lenses) return [];
   return [
     getDefaultLens(tag),
     ...tag.lenses.map(lens => ({
@@ -76,12 +76,13 @@ export function getAvailableLenses(tag: TagPageFragment|TagPageWithRevisionFragm
       index: lens.index + 1,
       title: lens.title ?? tag.name,
       contributors: 'contributors' in lens ? lens.contributors : null,
+      arbitalLinkedPages: 'arbitalLinkedPages' in lens ? lens.arbitalLinkedPages : null,
       originalLensDocument: lens,
     }))
   ];
 }
 
-export function useTagLenses(tag: TagPageFragment | TagPageWithRevisionFragment | null): TagLensInfo {
+export function useTagLenses(tag: TagPageWithArbitalContentFragment | TagPageRevisionWithArbitalContentFragment | null): TagLensInfo {
   const { query, location } = useLocation();
   const navigate = useNavigate();
   const availableLenses = useMemo(() => getAvailableLenses(tag), [tag]);
@@ -105,6 +106,7 @@ export function useTagLenses(tag: TagPageFragment | TagPageWithRevisionFragment 
       const defaultLens = availableLenses.find(lens => lens._id === MAIN_TAB_ID);
       const navigatingToDefaultLens = selectedLensSlug === defaultLens?.slug;
       const queryWithoutLens = omit(query, "lens");
+      // TODO: strip out version/revision query params if we're switching to a lens, since keeping the same revision when switching lenses doesn't make sense
       const newSearch = navigatingToDefaultLens
        ? qs.stringify(queryWithoutLens)
        : qs.stringify({ lens: selectedLensSlug, ...queryWithoutLens });

@@ -26,7 +26,7 @@ const TagEditsTimeBlock = ({before, after, reportEmpty, classes}: {
     query getTagUpdates($before: Date!, $after: Date!) {
       TagUpdatesInTimeBlock(before: $before, after: $after) {
         tag {
-          ...TagBasicInfo
+          ...TagHistoryFragment
         }
         revisionIds
         commentCount
@@ -40,8 +40,7 @@ const TagEditsTimeBlock = ({before, after, reportEmpty, classes}: {
         }
       }
     }
-    ${fragmentTextForQuery('TagBasicInfo')}
-    ${fragmentTextForQuery('UsersMinimumInfo')}
+    ${fragmentTextForQuery(['TagHistoryFragment', 'UsersMinimumInfo'])}
   `, {
     variables: {
       before, after,

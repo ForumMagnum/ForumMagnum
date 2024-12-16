@@ -189,12 +189,22 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
       const pageId = pageAliasToPageId(trimmedAlias);
       const linkText = (options.text && options.text.length>0)
         ? options.text
-        : (pageId ? pageIdToTitle(pageId, firstAliasChar) : getCasedText(firstAliasChar, trimmedAlias));
+        : (pageId ? pageIdToTitle(pageId, firstAliasChar) : getCasedText(trimmedAlias, firstAliasChar));
       if (!linkText) {
         console.error(`Could not get link text for page ${alias}`);
       }
-      const url = pageId ? pageIdToUrl(pageId) : `/w/${slugify(linkText)}`;
-      return `<a href="${url}">${linkText}</a>`;
+      
+      if (pageId) {
+        const url = pageIdToUrl(pageId);
+        return `<a href="${url}">${linkText}</a>`;
+      } else {
+        const url = `/w/${slugify(linkText)}`;
+        conversionContext.outRedLinks.push({
+          slug: slugify(linkText),
+          title: linkText,
+        });
+        return `<a href="${url}">${linkText}</a>`;
+      }
     }
     
     function pageAliasToPageId(alias: string): string|null {

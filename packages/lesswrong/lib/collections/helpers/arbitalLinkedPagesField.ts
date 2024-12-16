@@ -13,6 +13,8 @@ addGraphQLSchema(`
     lessTechnical: [Tag]
     requirements: [Tag]
     teaches: [Tag]
+    parents: [Tag]
+    children: [Tag]
   }
 `);
 
@@ -209,31 +211,37 @@ export function arbitalLinkedPagesField(options: ArbitalLinkedPagesFieldOptions)
         return [...tags, ...multiDocsWithName];
       }
 
-      // Step 9: Fetch requirements
-      const requirementsRels = await ArbitalTagContentRels.find(
-        {
-          childDocumentId: docId,
-          type: 'parent-is-requirement-of-child',
-          isStrong: true,
-        },
-        { projection: { parentDocumentId: 1 } }
-      ).fetch();
+      // Combine multiple relationship queries into one parallel operation
+      const [combinedParentRels, childRels] = await Promise.all([
+        ArbitalTagContentRels.find(
+          {
+            childDocumentId: docId,
+            type: { $in: [
+              'parent-is-requirement-of-child',
+              'parent-taught-by-child',
+              'parent-is-parent-of-child'
+            ]},
+          },
+          { projection: { parentDocumentId: 1, type: 1 } }
+        ).fetch(),
+        ArbitalTagContentRels.find(
+          {
+            parentDocumentId: docId,
+            type: 'parent-is-parent-of-child',
+          },
+          { projection: { childDocumentId: 1 } }
+        ).fetch()
+      ]);
 
+      // Separate the combined results by type
+      const requirementsRels = combinedParentRels.filter(rel => rel.type === 'parent-is-requirement-of-child');
+      const teachesRels = combinedParentRels.filter(rel => rel.type === 'parent-taught-by-child');
+      const parentRels = combinedParentRels.filter(rel => rel.type === 'parent-is-parent-of-child');
 
-      const requirementDocumentIds = requirementsRels.map((rel) => rel.parentDocumentId);
-
-      // Step 10: Fetch teachings
-      const teachesRels = await ArbitalTagContentRels.find(
-        {
-          childDocumentId: docId,
-          type: 'parent-taught-by-child',
-          isStrong: true,
-        },
-        { projection: { parentDocumentId: 1 } }
-      ).fetch();
-
-
-      const teachesDocumentIds = teachesRels.map((rel) => rel.parentDocumentId);
+      const requirementDocumentIds = requirementsRels.map(rel => rel.parentDocumentId);
+      const teachesDocumentIds = teachesRels.map(rel => rel.parentDocumentId);
+      const parentDocumentIds = parentRels.map(rel => rel.parentDocumentId);
+      const childDocumentIds = childRels.map(rel => rel.childDocumentId);
 
       // Collect all unique tag IDs
       const allDocumentIds = new Set<string>([
@@ -243,6 +251,8 @@ export function arbitalLinkedPagesField(options: ArbitalLinkedPagesFieldOptions)
         ...alternativeTypeMap.lessTechnical,
         ...requirementDocumentIds,
         ...teachesDocumentIds,
+        ...parentDocumentIds,
+        ...childDocumentIds,
       ]);
 
       const allDocumentsArray = await getDocumentsByIds(Array.from(allDocumentIds));
@@ -255,6 +265,8 @@ export function arbitalLinkedPagesField(options: ArbitalLinkedPagesFieldOptions)
       const lessTechnicalDocuments = alternativeTypeMap.lessTechnical.map(id => allDocuments.get(id)).filter(Boolean);
       const requirementsDocuments = requirementDocumentIds.map(id => allDocuments.get(id)).filter(Boolean);
       const teachesDocuments = teachesDocumentIds.map(id => allDocuments.get(id)).filter(Boolean);
+      const parentsDocuments = parentDocumentIds.map(id => allDocuments.get(id)).filter(Boolean);
+      const childrenDocuments = childDocumentIds.map(id => allDocuments.get(id)).filter(Boolean);
 
       // Return the ArbitalLinkedPages object
       return {
@@ -264,6 +276,8 @@ export function arbitalLinkedPagesField(options: ArbitalLinkedPagesFieldOptions)
         lessTechnical: lessTechnicalDocuments,
         requirements: requirementsDocuments,
         teaches: teachesDocuments,
+        parents: parentsDocuments,
+        children: childrenDocuments,
       };
     },
     // sqlResolver: ({ field }) => {
