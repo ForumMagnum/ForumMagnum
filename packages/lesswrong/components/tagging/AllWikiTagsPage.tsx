@@ -10,8 +10,7 @@ import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/t
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import SearchIcon from '@material-ui/icons/Search';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
-import { SearchBox } from 'react-instantsearch-dom';
-import { connectStateResults } from 'react-instantsearch-dom';
+import { SearchBox, connectStateResults } from 'react-instantsearch-dom';
 import { getSearchIndexName, getSearchClient, isSearchEnabled } from '../../lib/search/searchUtil';
 
 // Import the mock data and types
