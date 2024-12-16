@@ -703,6 +703,20 @@ const schema: SchemaType<"Tags"> = {
     type: Object,
     optional: true,
   },
+  
+  /**
+   * Placeholder pages are pages that have been linked to, but haven't properly
+   * been created. This is the same as Arbital redlinks. They semi-exist as
+   * wiki pages so that they can have pingbacks (which are used to see how many
+   * pages are linking to them), and so you can vote on creating them.
+   */
+  isPlaceholderPage: {
+    type: Boolean,
+    optional: true,
+    hidden: true,
+    canRead: ['guests'],
+    ...schemaDefaultValue(false),
+  },
 
   ...summariesField('Tags', { group: formGroups.summaries }),
 

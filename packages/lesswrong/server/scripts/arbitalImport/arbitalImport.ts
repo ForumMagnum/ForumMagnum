@@ -26,6 +26,7 @@ import { runSqlQuery } from '@/server/sql/sqlClient';
 import { Comments } from '@/lib/collections/comments';
 import uniq from 'lodash/uniq';
 import maxBy from 'lodash/maxBy';
+import { recomputePingbacks } from '@/server/pingbacks';
 
 type ArbitalImportOptions = {
   /**
@@ -131,6 +132,7 @@ Globals.importArbitalPagePairs = async (mysqlConnectionString: string, options?:
 Globals.replaceAllImportedArbitalData = async (mysqlConnectionString: string, options?: ArbitalImportOptions) => {
   console.log(`Removing previously-imported wiki pages`);
   await Globals.deleteImportedArbitalWikiPages();
+  await Globals.deleteRedLinkPlaceholders();
   console.log(`Importing Arbital content`);
   await Globals.importArbitalDb(mysqlConnectionString, options);
 }
@@ -356,6 +358,11 @@ type PagesToConvertToLenses = Array<{
   arbitalPageId: string;
 }>;
 
+type RedLinksSet = Array<{
+  slug: string
+  title: string
+}>;
+
 export type ArbitalConversionContext = {
   database: WholeArbitalDatabase,
   matchedUsers: Record<string,DbUser|null>
@@ -370,6 +377,7 @@ export type ArbitalConversionContext = {
   imageUrlsCache: Record<string,string>,
   pagesToConvertToLenses: PagesToConvertToLenses,
   liveRevisionsByPageId: Record<string,WholeArbitalDatabase["pages"][0]>,
+  outRedLinks: RedLinksSet
 }
 
 async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: ResolverContext, options: ArbitalImportOptions): Promise<void> {
@@ -377,9 +385,19 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
   await renameCollidingWikiPages(existingPagesToMove);
 
   const conversionContext = await buildConversionContext(database, pagesToConvertToLenses, options);
+  //const conversionContext = await buildConversionContext(database, [], options);
   await importWikiPages(database, conversionContext, resolverContext, options);
-  await importPagePairs(database, resolverContext, options);
-  await importComments(database, conversionContext, resolverContext, options);
+  
+  const redLinks = conversionContext.outRedLinks;
+  fs.writeFileSync("redLinksCache.json", JSON.stringify(redLinks));
+  
+  //const redLinks = JSON.parse(fs.readFileSync("redLinksCache.json", 'utf-8'));
+  await createRedLinkPlaceholders(redLinks, conversionContext);
+  
+  await recomputePingbacks("Tags");
+  await recomputePingbacks("MultiDocuments");
+  //await importPagePairs(database, resolverContext, options);
+  //await importComments(database, conversionContext, resolverContext, options);
 }
 
 
@@ -557,6 +575,7 @@ async function buildConversionContext(database: WholeArbitalDatabase, pagesToCon
     liveRevisionsByPageId,
     pagesToConvertToLenses,
     imageUrlsCache: {},
+    outRedLinks: [],
   };
   
 }
@@ -992,6 +1011,57 @@ async function importComments(database: WholeArbitalDatabase, conversionContext:
     .map((reason) => `${irregularCommentsByReason[reason].length}: ${reason}`)
     .join("\n")
   );
+}
+
+async function createRedLinkPlaceholders(redLinks: RedLinksSet, conversionContext: ArbitalConversionContext) {
+  console.log("Creating placeholders for redlinks");
+  
+  // Group red-links by slug
+  const redLinksBySlug = groupBy(redLinks, redLink=>redLink.slug);
+  for (const slug of Object.keys(redLinksBySlug)) {
+    // Check whether the red-links all agree on the title and warn if not
+    const possibleTitles = redLinksBySlug[slug].map(r=>r.title);
+    const selectedTitle = possibleTitles[0]; // TODO
+    const capitalizedTitle = selectedTitle.substring(0,1).toUpperCase() + selectedTitle.substring(1);
+    
+    // Create the page
+    console.log(`Creating redlink placeholder page ${slug}: ${selectedTitle}`);
+    await createMutator({
+      collection: Tags,
+      document: {
+        name: capitalizedTitle,
+        slug,
+        description: {
+          originalContents: {
+            type: "ckEditorMarkup",
+            data: "",
+          }
+        },
+        isPlaceholderPage: true,
+        wikiOnly: true,
+      },
+      currentUser: conversionContext.defaultUser,
+      validate: false,
+    });
+  }
+}
+
+Globals.deleteRedLinkPlaceholders = async (conversionContext: ArbitalConversionContext) => {
+  const redLinPlaceholderPagesToDelete = await Tags.find({
+    "legacyData.arbitalPageId": {$exists: true},
+    isPlaceholderPage: true,
+    deleted: false,
+  }).fetch();
+  for (const wikiPage of redLinPlaceholderPagesToDelete) {
+    await Tags.rawUpdateOne({
+      _id: wikiPage._id,
+    }, {
+      "$set": {
+        slug: `deleted-import-${randomId()}`,
+        deleted: true,
+      },
+    });
+  }
 }
 
 

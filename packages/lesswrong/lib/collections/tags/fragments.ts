@@ -20,6 +20,7 @@ registerFragment(`
     isSubforum
     noindex
     isArbitalImport
+    isPlaceholderPage
   }
 `);
 

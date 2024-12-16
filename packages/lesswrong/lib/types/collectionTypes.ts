@@ -434,4 +434,7 @@ type DeleteMutatorParams<N extends CollectionNameString> = {
 };
 type DeleteMutator = <N extends CollectionNameString>(args: DeleteMutatorParams<N>) => Promise<{data: ObjectsByCollectionName[N]}>
 
+type CollectionNameWithPingbacks = {
+  [K in CollectionNameString]: 'pingbacks' extends keyof ObjectsByCollectionName[K] ? K : never
+}[CollectionNameString];
 }

@@ -1277,7 +1277,8 @@ CREATE TABLE "MultiDocuments" (
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB,
-  "contents_latest" TEXT
+  "contents_latest" TEXT,
+  "pingbacks" JSONB
 );
 
 -- Index "idx_MultiDocuments_schemaVersion"
@@ -2919,11 +2920,13 @@ CREATE TABLE "Tags" (
   "autoTagModel" TEXT,
   "autoTagPrompt" TEXT,
   "noindex" BOOL NOT NULL DEFAULT FALSE,
+  "isPlaceholderPage" BOOL NOT NULL DEFAULT FALSE,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB,
   "description" JSONB,
   "description_latest" TEXT,
+  "pingbacks" JSONB,
   "subforumWelcomeText" JSONB,
   "subforumWelcomeText_latest" TEXT,
   "moderationGuidelines" JSONB,
@@ -2990,6 +2993,9 @@ CREATE INDEX IF NOT EXISTS "idx_Tags_name" ON "Tags" USING btree ("name");
 
 -- Index "idx_Tags_name_legacyData__arbitalPageId"
 CREATE INDEX IF NOT EXISTS "idx_Tags_name_legacyData__arbitalPageId" ON "Tags" USING gin ("name", ("legacyData" -> 'arbitalPageId'));
+
+-- Index "idx_Tags_pingbacks__Tags_baseScore"
+CREATE INDEX IF NOT EXISTS "idx_Tags_pingbacks__Tags_baseScore" ON "Tags" USING gin (("pingbacks" -> 'Tags'), "baseScore");
 
 -- Index "idx_Tags_parentTagId"
 CREATE INDEX IF NOT EXISTS "idx_Tags_parentTagId" ON "Tags" USING btree ("parentTagId");
