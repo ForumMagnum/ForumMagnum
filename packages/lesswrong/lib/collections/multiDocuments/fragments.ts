@@ -28,6 +28,9 @@ registerFragment(`
     arbitalLinkedPages {
       ...ArbitalLinkedPagesFragment
     }
+    summaries {
+      ...MultiDocumentContentDisplay
+    }
   }
 `);
 

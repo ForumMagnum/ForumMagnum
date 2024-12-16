@@ -15,6 +15,7 @@ import type { TagCommentType } from '../comments/types';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 import { getUnusedSlugByCollectionName, slugIsUsed } from '@/lib/helpers';
 import { arbitalLinkedPagesField } from '../helpers/arbitalLinkedPagesField';
+import { summariesField } from '../helpers/summariesField';
 
 addGraphQLSchema(`
   type TagContributor {
@@ -703,45 +704,47 @@ const schema: SchemaType<"Tags"> = {
     optional: true,
   },
 
-  summaries: resolverOnlyField({
-    type: Array,
-    graphQLtype: '[MultiDocument!]!',
-    canRead: ['guests'],
-    control: "SummariesEditForm",
-    group: formGroups.summaries,
-    resolver: async (tag: DbTag, args: void, context: ResolverContext) => {
-      const { MultiDocuments, Revisions } = context;
-      const multiDocuments = await MultiDocuments.find({ parentDocumentId: tag._id, collectionName: 'Tags', fieldName: 'summary' }, { sort: { index: 1 } }).fetch();
-      const revisions = await Revisions.find({ _id: { $in: multiDocuments.map(md => md.contents_latest) } }).fetch();
+  ...summariesField('Tags', { group: formGroups.summaries }),
 
-      return multiDocuments.map(md => ({
-        ...md,
-        contents: revisions.find(r => r._id === md.contents_latest),
-      }));
-    },
-    sqlResolver: ({ field }) => `(
-      SELECT ARRAY_AGG(
-        JSONB_SET(
-          TO_JSONB(md.*),
-          '{contents}'::TEXT[],
-          TO_JSONB(r.*),
-          true
-        )
-        ORDER BY md."index" ASC
-      ) AS contents
-      FROM "MultiDocuments" md
-      LEFT JOIN "Revisions" r
-      ON r._id = md.contents_latest
-      WHERE md."parentDocumentId" = ${field("_id")}
-      AND md."collectionName" = 'Tags'
-      AND md."fieldName" = 'summary'
-      LIMIT 1
-    )`,
-  }),
-  'summaries.$': {
-    type: Object,
-    optional: true,
-  },
+  // summaries: resolverOnlyField({
+  //   type: Array,
+  //   graphQLtype: '[MultiDocument!]!',
+  //   canRead: ['guests'],
+  //   control: "SummariesEditForm",
+  //   group: formGroups.summaries,
+  //   resolver: async (tag: DbTag, args: void, context: ResolverContext) => {
+  //     const { MultiDocuments, Revisions } = context;
+  //     const multiDocuments = await MultiDocuments.find({ parentDocumentId: tag._id, collectionName: 'Tags', fieldName: 'summary' }, { sort: { index: 1 } }).fetch();
+  //     const revisions = await Revisions.find({ _id: { $in: multiDocuments.map(md => md.contents_latest) } }).fetch();
+
+  //     return multiDocuments.map(md => ({
+  //       ...md,
+  //       contents: revisions.find(r => r._id === md.contents_latest),
+  //     }));
+  //   },
+  //   sqlResolver: ({ field }) => `(
+  //     SELECT ARRAY_AGG(
+  //       JSONB_SET(
+  //         TO_JSONB(md.*),
+  //         '{contents}'::TEXT[],
+  //         TO_JSONB(r.*),
+  //         true
+  //       )
+  //       ORDER BY md."index" ASC
+  //     ) AS contents
+  //     FROM "MultiDocuments" md
+  //     LEFT JOIN "Revisions" r
+  //     ON r._id = md.contents_latest
+  //     WHERE md."parentDocumentId" = ${field("_id")}
+  //     AND md."collectionName" = 'Tags'
+  //     AND md."fieldName" = 'summary'
+  //     LIMIT 1
+  //   )`,
+  // }),
+  // 'summaries.$': {
+  //   type: Object,
+  //   optional: true,
+  // },
 
   isArbitalImport: resolverOnlyField({
     type: Boolean,

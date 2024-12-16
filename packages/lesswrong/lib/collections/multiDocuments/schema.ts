@@ -3,6 +3,8 @@ import { resolverOnlyField, accessFilterSingle, schemaDefaultValue } from "@/lib
 import { getCollection } from "@/lib/vulcan-lib/getCollection";
 import { arbitalLinkedPagesField } from '../helpers/arbitalLinkedPagesField';
 import { addGraphQLSchema } from "@/lib/vulcan-lib";
+import { summariesField } from "../helpers/summariesField";
+import { formGroups } from "./formGroups";
 
 addGraphQLSchema(`
   type MultiDocumentContributor {
@@ -24,7 +26,7 @@ const schema: SchemaType<"MultiDocuments"> = {
     canUpdate: ['members'],
     optional: true,
     nullable: true,
-    order: 0,
+    order: 5,
   },
   slug: {
     type: String,
@@ -143,12 +145,13 @@ const schema: SchemaType<"MultiDocuments"> = {
     canRead: ['guests'],
     nullable: false,
   },
+
   tableOfContents: {
     // Implemented in multiDocumentResolvers.ts
     type: Object,
     canRead: ['guests'],
   },
-  arbitalLinkedPages: arbitalLinkedPagesField({ collectionName: 'MultiDocuments' }),
+
   contributors: {
     canRead: ['guests'],
     type: "MultiDocumentContributorsList",
@@ -164,6 +167,10 @@ const schema: SchemaType<"MultiDocuments"> = {
     canRead: ['guests'],
     denormalized: true,
   },
+
+  arbitalLinkedPages: arbitalLinkedPagesField({ collectionName: 'MultiDocuments' }),
+
+  ...summariesField('MultiDocuments', { group: formGroups.summaries}),
 };
 
 export default schema;

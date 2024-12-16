@@ -142,11 +142,9 @@ const SummaryEditorRow = ({ summary, refetch }: {
         prefetchedDocument={summary}
         successCallback={() => {
           setEdit(false);
-          // This is a horrible performance hack to get around the problem where we:
-          // 1. Keep the form itself mounted, to make clicking into it very fast
-          // 2. Use a prefetched document, also for speed
-          // 3. 
-          // void refetch().then(() => setMountKey(mountKey + 1));
+          // This is a horrible hack to get around the problem where, because we initialize the page with the form mounted for snappy click-through,
+          // clicking into the form a second time after editing a summary leaves us with an empty form.  (I still haven't figured out exactly why.)
+          void refetch().then(() => setMountKey(mountKey + 1));
         }}
         cancelCallback={() => setEdit(false)}
         formComponents={{ FormSubmit: SummarySubmitButtons }}
@@ -158,7 +156,7 @@ const SummaryEditorRow = ({ summary, refetch }: {
 
 const SummariesEditForm = ({ document }: {
   // TODO: make this accept either a tag or a lens
-  document: TagPageWithArbitalContentFragment,
+  document: TagPageWithArbitalContentFragment | MultiDocumentContentDisplay,
 }) => {
   const classes = useStyles(styles);
   const { results, refetch } = useMulti({
