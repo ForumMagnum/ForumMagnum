@@ -1,6 +1,16 @@
 import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
 import { gql, useQuery } from "@apollo/client";
 
+// When adding a new year you'll need to run the server command to update the
+// analytics views:
+//   ./scripts/serverShellCommand.sh "Globals.triggerWrappedRefresh()"
+const wrappedYears = new TupleSet([2022, 2023, 2024] as const)
+
+export type WrappedYear = UnionOf<typeof wrappedYears>
+
+export const isWrappedYear = (year: number): year is WrappedYear =>
+  wrappedYears.has(year);
+
 export type WrappedMostReadTopic = {
   name: string;
   shortName: string;
@@ -176,10 +186,3 @@ export const useForumWrapped = ({ userId, year }: { userId?: string | null; year
 
   return { data: data?.UserWrappedDataByYear, loading };
 };
-
-const wrappedYears = new TupleSet([2022, 2023, 2024] as const)
-
-export type WrappedYear = UnionOf<typeof wrappedYears>
-
-export const isWrappedYear = (year: number): year is WrappedYear =>
-  wrappedYears.has(year);

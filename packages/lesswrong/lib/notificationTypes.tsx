@@ -659,7 +659,7 @@ export const WrappedNotification = registerNotificationType({
   userSettingField: "notificationPrivateMessage",
   allowedChannels: ["onsite", "email", "both"],
   async getMessage() {
-    return "Check out your EA Forum 2023 Wrapped"
+    return "Check out your 2024 EA Forum Wrapped"
   },
   getIcon() {
     return <GiftIcon style={flatIconStyles}/>
@@ -668,7 +668,7 @@ export const WrappedNotification = registerNotificationType({
     return "/wrapped"
   },
   Display: ({notification: {link}}) => <>
-    Check out your 2022 <Link to={link}>EA Forum Wrapped</Link>
+    Check out your 2024 <Link to={link}>EA Forum Wrapped</Link>
   </>,
 });
 
