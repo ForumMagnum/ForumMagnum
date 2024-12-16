@@ -963,7 +963,6 @@ importComponent("AllPostsPageTagRevisionItem", () => require("../../components/t
 importComponent("AllTagsAlphabetical", () => require("../../components/tagging/AllTagsAlphabetical.tsx"));
 importComponent("AllTagsPage", () => require("../../components/tagging/AllTagsPage.tsx"));
 importComponent("AllWikiTagsPage", () => require("../../components/tagging/AllWikiTagsPage.tsx"));
-importComponent("AllWikiTagsPageWithViewer", () => require("../../components/tagging/AllWikiTagsPageWithViewer.tsx"));
 importComponent("ArbitalExplorePage", () => require("../../components/tagging/ArbitalExplorePage.tsx"));
 importComponent("ChangeMetricsDisplay", () => require("../../components/tagging/ChangeMetricsDisplay.tsx"));
 importComponent("ConceptItem", () => require("../../components/tagging/ConceptItem.tsx"));
