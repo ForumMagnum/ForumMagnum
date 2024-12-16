@@ -26,6 +26,7 @@ registerFragment(`
     tagRevisionCount
     reviewedByUserId
     givingSeason2024DonatedFlair
+    givingSeason2024VotedFlair
   }
 `);
 
@@ -516,6 +517,8 @@ registerFragment(`
 
     deleted
     permanentDeletionRequestedAt
+
+    twitterProfileURLAdmin
   }
 `)
 
@@ -599,5 +602,12 @@ registerFragment(`
     karma
     jobTitle
     organization
+  }
+`);
+
+registerFragment(`
+  fragment UsersSocialMediaInfo on User {
+    ...UsersProfile
+    twitterProfileURLAdmin
   }
 `);

@@ -118,7 +118,10 @@ declare global {
       color2: ColorString,
       color3: ColorString,
       color4: ColorString,
-    }
+    },
+    fundraisingThermometer: {
+      shadow: ColorString,
+    },
     text: {
       primary: ColorString,
       secondary: ColorString
@@ -476,6 +479,7 @@ declare global {
       contrastInDarkMode: ColorString,
       pageActiveAreaBackground: ColorString,
       translucentBackground: ColorString,
+      translucentBackgroundHeavy: ColorString,
       loginBackdrop: ColorString,
       diffInserted: ColorString,
       diffDeleted: ColorString,
@@ -552,6 +556,12 @@ declare global {
     givingSeason: {
       primary: ColorString,
       electionFundBackground: ColorString,
+      electionFundBackgroundHeavy: ColorString,
+      portalPrimary: ColorString,
+      candidateBorder: ColorString,
+      candidateBackground: ColorString,
+      candidateShadow: ColorString,
+      candidateOrder: ColorString,
     },
     namesAttachedReactions: {
       selectedAnti: ColorString,

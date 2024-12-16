@@ -26,6 +26,18 @@ registerFragment(`
 `)
 
 registerFragment(`
+  fragment SpotlightReviewWinner on Spotlight {
+    ...SpotlightMinimumInfo
+    description {
+      html
+    }
+    sequenceChapters {
+      ...ChaptersFragment
+    }
+  }
+`);
+
+registerFragment(`
   fragment SpotlightHeaderEventSubtitle on Spotlight {
     ...SpotlightMinimumInfo
     document {
@@ -46,6 +58,9 @@ registerFragment(`
         displayName
         slug
       }
+      reviews {
+        ...CommentsList
+      }
     }
     sequenceChapters {
       ...ChaptersFragment
@@ -55,6 +70,7 @@ registerFragment(`
     }
   }
 `);
+
 
 registerFragment(`
   fragment SpotlightEditQueryFragment on Spotlight {

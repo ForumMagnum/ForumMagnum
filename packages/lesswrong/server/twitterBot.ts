@@ -89,13 +89,10 @@ async function runTwitterBot() {
   const repo = new TweetsRepo();
   const logger = loggerConstructor("twitter-bot");
 
-  // Get posts that have crossed `twitterBotKarmaThresholdSetting` in the last
-  // 7 days, and haven't already been tweeted. Then tweet the top one.
-  const since = new Date(Date.now() - (7 * 24 * 60 * 60 * 1000));
   const threshold = twitterBotKarmaThresholdSetting.get();
 
   logger(`Checking for posts newly crossing ${threshold} karma`);
-  const postIds = await repo.getUntweetedPostsCrossingKarmaThreshold({ since, threshold });
+  const postIds = await repo.getUntweetedPostsCrossingKarmaThreshold({ limit: 20, threshold });
 
   if (postIds.length < 1) {
     logger(`No posts found, returning`);

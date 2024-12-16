@@ -1,17 +1,22 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { Link } from "@/lib/reactRouterWrapper";
-import { useCurrentUser } from "../common/withUser";
+import { postGetPageUrl } from "@/lib/collections/posts/helpers";
+import { commentGetPageUrl } from "@/lib/collections/comments/helpers";
+import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
 import { formatStat } from "../users/EAUserTooltipContent";
+import { tagGetUrl } from "@/lib/collections/tags/helpers";
 import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from "../common/Header";
 import {
   GIVING_SEASON_DESKTOP_WIDTH,
+  GIVING_SEASON_MD_WIDTH,
   GIVING_SEASON_MOBILE_WIDTH,
-  getDonateLink,
   useGivingSeasonEvents,
 } from "./useGivingSeasonEvents";
 import classNames from "classnames";
+import moment from "moment";
 import type { Moment } from "moment";
+import type { ForumIconName } from "../common/ForumIcon";
 
 const DOT_SIZE = 12;
 
@@ -106,7 +111,6 @@ const styles = (theme: ThemeType) => ({
   timelineEvent: {
     cursor: "pointer",
     position: "relative",
-    zIndex: theme.zIndexes.header + 1,
     margin: "12px 0",
     fontWeight: 400,
     whiteSpace: "nowrap",
@@ -151,12 +155,20 @@ const styles = (theme: ThemeType) => ({
   },
   mainContainer: {
     display: "flex",
+    flexDirection: "row",
+    gap: "8px",
     alignItems: "center",
     [theme.breakpoints.down(GIVING_SEASON_DESKTOP_WIDTH)]: {
       padding: "0 24px",
     },
+    [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
+      flexDirection: "column",
+    },
   },
   detailsContainer: {
+    transition: "max-height ease-in-out 0.35s",
+    maxHeight: 500,
+    width: "100%",
     whiteSpace: "nowrap",
     overflow: "scroll hidden",
     scrollSnapType: "x mandatory",
@@ -166,17 +178,29 @@ const styles = (theme: ThemeType) => ({
       display: "none",
     },
   },
+  detailsContainerHidden: {
+    minHeight: 1,
+    maxHeight: 1,
+  },
   eventDetails: {
-    display: "inline-block",
+    display: "inline-flex",
     verticalAlign: "middle",
     width: "100%",
     scrollSnapAlign: "start",
     paddingTop: 24,
     paddingBottom: 40,
     [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
-      paddingTop: 12,
-      paddingBottom: 24,
+      paddingTop: 8,
+      paddingBottom: 8,
     },
+    [theme.breakpoints.up(GIVING_SEASON_DESKTOP_WIDTH)]: {
+      "& > *": {
+        flexBasis: "50%",
+      },
+    },
+  },
+  simpleEventContainer: {
+    flexGrow: 1,
   },
   eventDate: {
     maxWidth: 470,
@@ -188,11 +212,15 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 700,
     marginBottom: 12,
     whiteSpace: "wrap",
+    [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
+      fontSize: 32,
+    },
   },
   eventDescription: {
     maxWidth: 470,
     lineHeight: "140%",
     whiteSpace: "wrap",
+    marginBottom: 16,
     "& a": {
       textDecoration: "underline",
       "&:hover": {
@@ -200,73 +228,222 @@ const styles = (theme: ThemeType) => ({
       },
     },
   },
-  fund: {
-    width: 260,
-    minWidth: 260,
-    padding: 16,
-    marginTop: 8,
-    marginBottom: 24,
-    background: theme.palette.givingSeason.electionFundBackground,
-    borderRadius: theme.borderRadius.default,
+  hideAboveMobile: {
+    [theme.breakpoints.up(GIVING_SEASON_MOBILE_WIDTH)]: {
+      display: "none !important",
+    },
+  },
+  hideAboveMd: {
+    [theme.breakpoints.up(GIVING_SEASON_MD_WIDTH)]: {
+      display: "none !important",
+    },
+  },
+  hideBelowMd: {
+    [theme.breakpoints.down(GIVING_SEASON_MD_WIDTH)]: {
+      display: "none !important",
+    },
+  },
+  button: {
+    flexGrow: 1,
+    fontSize: 14,
+    fontWeight: 600,
+    transition: "background 0.3s ease",
+    textAlign: "center",
+  },
+  buttonLarge: {
+    padding: "12px 24px",
     [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
+      padding: "8px 12px",
+    },
+  },
+  buttonTranslucentDisabled: {
+    cursor: "not-allowed",
+    color: theme.palette.text.alwaysWhite,
+    background: theme.palette.givingSeason.electionFundBackground,
+    "&:hover": {
+      background: theme.palette.givingSeason.electionFundBackground,
+    },
+    "& > *": {
+      opacity: 0.5,
+    },
+  },
+  fundVoteButton: {
+    width: "100%",
+    fontSize: 14,
+    fontWeight: 600,
+    color: theme.palette.text.alwaysWhite,
+    background: theme.palette.givingSeason.electionFundBackground,
+    transition: "background 0.3s ease",
+    "&:hover": {
+      background: theme.palette.givingSeason.electionFundBackgroundHeavy,
+    },
+  },
+  topPosts: {
+    marginLeft: 16,
+    [theme.breakpoints.down(GIVING_SEASON_MD_WIDTH)]: {
       display: "none",
     },
   },
-  fundTitle: {
+  topPostsTitle: {
+    marginBottom: 4,
     fontSize: 18,
-    fontWeight: 700,
-    letterSpacing: "-0.18px",
-    marginBottom: 12,
+    fontWeight: 600,
   },
-  fundInfo: {
-    marginBottom: 12,
+  topPostsFeed: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "4px",
+    margin: "12px 0",
+    minWidth: 530,
+    maxWidth: 600,
+  },
+  topPostsViewMore: {
+    fontSize: 15,
+    fontWeight: 600,
+  },
+  feedItem: {
+    display: "flex",
+    gap: "8px",
+    fontSize: 14,
     lineHeight: "140%",
-    whiteSpace: "wrap",
-    "& a": {
-      textDecoration: "underline",
-      "&:hover": {
-        textDecoration: "underline",
-      },
+    padding: 8,
+    borderRadius: theme.borderRadius.default,
+    cursor: "pointer",
+    background: theme.palette.givingSeason.electionFundBackground,
+    "&:hover": {
+      opacity: 0.8,
     },
   },
-  fundRaised: {
-    fontSize: 16,
-    fontWeight: 500,
-    lineHeight: "140%",
-    marginBottom: 4,
-  },
-  fundBarContainer: {
+  feedDetailsWrapper: {
+    minWidth: 0,
     width: "100%",
-    height: 12,
-    marginBottom: 20,
-    background: theme.palette.givingSeason.electionFundBackground,
-    borderRadius: theme.borderRadius.small,
+  },
+  feedUser: {
+    fontWeight: 600,
+  },
+  feedInfo: {
+    whiteSpace: "nowrap",
     overflow: "hidden",
+    textOverflow: "ellipsis",
+    marginBottom: 2,
   },
-  fundBar: {
-    height: "100%",
-    background: theme.palette.text.alwaysWhite,
-    transition: "width 0.5s ease",
+  feedPost: {
+    fontSize: 16,
+    fontWeight: 600,
   },
-  fundAmount: {
-    fontWeight: 700,
+  feedMeta: {
+    color: theme.palette.text.alwaysWhite,
+    fontWeight: 500,
+    opacity: 0.7,
   },
-  donateButton: {
+  feedInteraction: {
+    display: "inline",
+  },
+  electionInfoContainer: {
+    display: "flex",
+    flexDirection: "column",
+    textAlign: "left",
+    padding: "0px 48px 0px 0px",
+    borderRadius: theme.borderRadius.default,
+    width: 600,
+    maxWidth: "100%",
+    margin: "0 auto 0 0",
+    flexBasis: "35%",
+    [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
+      padding: 0,
+      flex: 1
+    },
+  },
+  eventHidden: {
+    display: "none",
+  },
+  electionRaised: {
+    fontSize: 20,
+    fontWeight: 600,
+    marginBottom: 16,
+  },
+  electionInfoButtonContainer: {
+    marginBottom: 4,
+    display: "flex",
+    justifyContent: "center",
+    gap: "16px",
     width: "100%",
-    color: theme.palette.givingSeason.primary,
-    background: theme.palette.text.alwaysWhite,
-    transition: "opacity 0.3s ease",
-    "&:hover": {
-      background: theme.palette.text.alwaysWhite,
-      opacity: 0.85,
+    [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
+      marginBottom: 16
     },
   },
 });
+
+const scrollIntoViewHorizontally = (
+  container: HTMLElement,
+  child: HTMLElement,
+) => {
+  const child_offsetRight = child.offsetLeft + child.offsetWidth;
+  const container_scrollRight = container.scrollLeft + container.offsetWidth;
+
+  if (container.scrollLeft > child.offsetLeft) {
+    container.scrollLeft = child.offsetLeft;
+  } else if (container_scrollRight < child_offsetRight) {
+    container.scrollLeft += child_offsetRight - container_scrollRight;
+  }
+};
 
 const formatDate = (start: Moment, end: Moment) => {
   const endFormat = start.month() === end.month() ? "D" : "MMM D";
   return `${start.format("MMM D")} - ${end.format(endFormat)}`;
 }
+
+const FeedItem = ({
+  href,
+  user,
+  post,
+  date,
+  classes,
+}: {
+  href: string,
+  icon: ForumIconName,
+  iconClassName?: string,
+  action: string,
+  user: UsersMinimumInfo | null,
+  post: PostsMinimumInfo | null,
+  date: Date,
+  preview: string,
+  classes: ClassesType<typeof styles>,
+}) => {
+  const {onClick} = useClickableCell({href, ignoreLinks: true});
+  const {UsersName, PostsTooltip} = Components;
+  return (
+    <div onClick={onClick} className={classes.feedItem}>
+      <div className={classes.feedDetailsWrapper}>
+        <div>
+          <div className={classes.feedInfo}>
+            <InteractionWrapper className={classes.feedInteraction}>
+              <PostsTooltip postId={post?._id} placement="bottom-start">
+                <Link
+                  to={post ? postGetPageUrl(post) : "#"}
+                  className={classes.feedPost}
+                >
+                  {post?.title}
+                </Link>
+              </PostsTooltip>
+            </InteractionWrapper>
+          </div>
+        </div>
+        <div className={classes.feedMeta}>
+          <InteractionWrapper className={classes.feedInteraction}>
+            <UsersName
+              user={user}
+              tooltipPlacement="bottom-start"
+              className={classes.feedUser}
+            />
+          </InteractionWrapper>, {moment(date).format("MMM DD")}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const SECOND_MATCH_START = 9509;
 
 const GivingSeason2024Banner = ({classes}: {
   classes: ClassesType<typeof styles>,
@@ -277,16 +454,16 @@ const GivingSeason2024Banner = ({classes}: {
     selectedEvent,
     setSelectedEvent,
     amountRaised,
-    amountTarget,
+    leaderboard: leaderboardData
   } = useGivingSeasonEvents();
-  const currentUser = useCurrentUser();
   const [timelineRef, setTimelineRef] = useState<HTMLDivElement | null>(null);
   const [detailsRef, setDetailsRef] = useState<HTMLDivElement | null>(null);
   const [lastTimelineClick, setLastTimelineClick] = useState<number>();
   const didInitialScroll = useRef(false);
 
-  const amountRaisedPlusMatched = amountRaised + Math.min(amountRaised, 5000);
-  const fundPercent = Math.round((amountRaisedPlusMatched / amountTarget) * 100);
+  // Note: SECOND_MATCH_START is approximate, we will match based on the amount when we deploy
+  const amountRaisedPlusMatched =
+    amountRaised + Math.min(amountRaised, 5000) + Math.min(Math.max(amountRaised - SECOND_MATCH_START, 0), 5000);
 
   useEffect(() => {
     if (!detailsRef) {
@@ -309,61 +486,55 @@ const GivingSeason2024Banner = ({classes}: {
   }, [timelineRef, detailsRef, events, setSelectedEvent]);
 
   useEffect(() => {
+    if (currentEvent && detailsRef && !didInitialScroll.current) {
+      didInitialScroll.current = true;
+      setTimeout(() => {
+        setLastTimelineClick(Date.now());
+        const index = events.findIndex(({name}) => name === currentEvent.name);
+        const elem = detailsRef?.querySelector(`[data-event-id="${index}"]`);
+        if (detailsRef && elem) {
+          scrollIntoViewHorizontally(detailsRef, elem as HTMLElement);
+        }
+      }, 0);
+    }
+  }, [events, currentEvent, detailsRef]);
+
+  useEffect(() => {
     // Disable for a short period after clicking an event to prevent spurious
     // scrolling on mobile
     if (lastTimelineClick && Date.now() - lastTimelineClick < 150) {
       return;
     }
     const id = events.findIndex((event) => event === selectedEvent);
-    setTimeout(() => {
-      timelineRef?.querySelector(`[data-event-id="${id}"]`)?.scrollIntoView({
-        behavior: "smooth",
-        block: "nearest",
-        inline: "nearest",
-      });
-    }, 0);
+    const elem = timelineRef?.querySelector(`[data-event-id="${id}"]`);
+    if (elem) {
+      scrollIntoViewHorizontally(timelineRef!, elem as HTMLElement);
+    }
   }, [timelineRef, selectedEvent, lastTimelineClick, events]);
 
   const onClickTimeline = useCallback((index: number) => {
     setLastTimelineClick(Date.now());
-    setTimeout(() => {
-      detailsRef?.querySelector(`[data-event-id="${index}"]`)?.scrollIntoView({
-        behavior: "smooth",
-        block: "nearest",
-        inline: "start",
-      });
-    }, 0);
+    detailsRef?.querySelector(`[data-event-id="${index}"]`)?.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline: "start",
+    });
   }, [detailsRef]);
 
-  useEffect(() => {
-    if (currentEvent && detailsRef && !didInitialScroll.current) {
-      didInitialScroll.current = true;
-      onClickTimeline(events.findIndex(({name}) => name === currentEvent.name));
-    }
-  }, [events, onClickTimeline, currentEvent, detailsRef]);
-
-  const {EAButton} = Components;
+  const {EAButton, MixedTypeFeed, DonationElectionLeaderboard} = Components;
   return (
-    <div className={classNames(
-      classes.root,
-      selectedEvent.darkText && classes.darkText,
-    )}>
+    <div className={classNames(classes.root, selectedEvent.darkText && classes.darkText)}>
       <div className={classes.backgrounds}>
-        {events.map(({name, background}) => (
+        {events.map(({ name, background }) => (
           <div
             key={name}
-            style={{backgroundImage: `url(${background})`}}
-            className={classNames(
-              classes.background,
-              name === selectedEvent.name && classes.backgroundActive,
-            )}
+            style={{ backgroundImage: `url(${background})` }}
+            className={classNames(classes.background, name === selectedEvent.name && classes.backgroundActive)}
           />
         ))}
       </div>
       <div className={classes.banner}>
-        <Link to="/posts/srZEX2r9upbwfnRKw/giving-season-2024-announcement">
-          GIVING SEASON 2024
-        </Link>
+        <Link to="/posts/srZEX2r9upbwfnRKw/giving-season-2024-announcement">GIVING SEASON 2024</Link>
       </div>
       <div className={classes.line} />
       <div className={classes.content}>
@@ -374,52 +545,132 @@ const GivingSeason2024Banner = ({classes}: {
               data-event-id={i}
               data-title={event.name}
               onClick={onClickTimeline.bind(null, i)}
-              className={classNames(
-                classes.timelineEvent,
-                selectedEvent === event && classes.timelineEventSelected,
-              )}
+              className={classNames(classes.timelineEvent, selectedEvent === event && classes.timelineEventSelected)}
             >
-              {event.name}
-              {event === currentEvent &&
-                <div className={classes.timelineDot} />
-              }
+              {event.name === "Intermission" ? "" : event.name}
+              {event === currentEvent && <div className={classes.timelineDot} />}
             </div>
           ))}
         </div>
         <div className={classes.mainContainer}>
-          <div className={classes.detailsContainer} ref={setDetailsRef}>
-            {events.map(({name, description, start, end}, i) => (
-              <div className={classes.eventDetails} data-event-id={i} key={name}>
-                <div className={classes.eventDate}>{formatDate(start, end)}</div>
-                <div className={classes.eventName}>{name}</div>
-                <div className={classes.eventDescription}>{description}</div>
+          <div ref={setDetailsRef} className={classNames(
+            classes.detailsContainer,
+            selectedEvent.hidden && classes.detailsContainerHidden,
+          )}>
+            {events.map(({
+              name,
+              description,
+              start,
+              end,
+              discussionTagId,
+              discussionTagSlug,
+              hidden,
+            }, i) => (
+              <div
+                className={classNames(
+                  classes.eventDetails,
+                  hidden && classes.eventHidden,
+                )}
+                data-event-id={i}
+                key={name}
+              >
+                {name === "Donation Election" ? (
+                  <div className={classes.electionInfoContainer}>
+                    <div className={classes.eventDate}>{formatDate(selectedEvent.start, selectedEvent.end)}</div>
+                    <div className={classes.eventName}>{name}</div>
+                    <div className={classes.eventDescription}>
+                      {description}
+                    </div>
+                    <div className={classes.electionRaised}>
+                      ${formatStat(Math.round(amountRaisedPlusMatched))} raised
+                    </div>
+                    {leaderboardData && (
+                      <DonationElectionLeaderboard
+                        voteCounts={leaderboardData}
+                        className={classes.hideAboveMd}
+                        hideHeader
+                      />
+                    )}
+                    <div className={classes.electionInfoButtonContainer}>
+                      <EAButton
+                        className={classNames(
+                          classes.button,
+                          classes.buttonLarge,
+                          classes.buttonTranslucentDisabled,
+                        )}
+                      >
+                        You can no longer vote or donate
+                      </EAButton>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className={classes.simpleEventContainer}>
+                      <div className={classes.eventDate}>{formatDate(start, end)}</div>
+                      <div className={classes.eventName}>{name}</div>
+                      <div className={classes.eventDescription}>{description}</div>
+                    </div>
+                    {discussionTagId &&
+                      <div className={classes.topPosts}>
+                        <div className={classes.topPostsTitle}>Top posts</div>
+                        <MixedTypeFeed
+                          className={classes.topPostsFeed}
+                          firstPageSize={3}
+                          hideLoading
+                          disableLoadMore
+                          resolverName="GivingSeasonTagFeed"
+                          resolverArgs={{ tagId: "String!" }}
+                          resolverArgsValues={{ tagId: discussionTagId }}
+                          sortKeyType="Int"
+                          renderers={{
+                            newPost: {
+                              fragmentName: "PostsList",
+                              render: (post: PostsList) => (
+                                <FeedItem
+                                  href={postGetPageUrl(post)}
+                                  icon="DocumentFilled"
+                                  action="posted"
+                                  user={post.user}
+                                  post={post}
+                                  date={post.postedAt}
+                                  preview={post.contents?.plaintextDescription ?? ""}
+                                  classes={classes}
+                                />
+                              ),
+                            },
+                            newComment: {
+                              fragmentName: "CommentsListWithParentMetadata",
+                              render: (comment: CommentsListWithParentMetadata) => (
+                                <FeedItem
+                                  href={commentGetPageUrl(comment)}
+                                  icon="CommentFilled"
+                                  action="on"
+                                  user={comment.user}
+                                  post={comment.post}
+                                  date={comment.postedAt}
+                                  preview={comment.contents?.plaintextMainText ?? ""}
+                                  classes={classes}
+                                />
+                              ),
+                            },
+                          }}
+                        />
+                        {discussionTagSlug &&
+                          <div className={classes.topPostsViewMore}>
+                            <Link to={tagGetUrl({slug: discussionTagSlug})}>
+                              View more
+                            </Link>
+                          </div>
+                        }
+                      </div>
+                    }
+                  </>
+                )}
+                {name === "Donation Election" && leaderboardData && (
+                  <DonationElectionLeaderboard voteCounts={leaderboardData} className={classes.hideBelowMd} />
+                )}
               </div>
             ))}
-          </div>
-          <div className={classes.fund}>
-            <div className={classes.fundInfo}>
-              Donate to the fund to boost the value of the{" "}
-              <Link to="/posts/2WbDAAtGdyAEfcw6S/donation-election-fund-announcement-matching-rewards-and-faq">
-                Donation Election
-              </Link>.
-            </div>
-            <div className={classes.fundRaised}>
-              <span className={classes.fundAmount}>
-                ${formatStat(Math.round(amountRaisedPlusMatched))}
-              </span> raised
-            </div>
-            <div className={classes.fundBarContainer}>
-              <div
-                style={{width: `${fundPercent}%`}}
-                className={classes.fundBar}
-              />
-            </div>
-            <EAButton
-              href={getDonateLink(currentUser)}
-              className={classes.donateButton}
-            >
-              Donate
-            </EAButton>
           </div>
         </div>
       </div>

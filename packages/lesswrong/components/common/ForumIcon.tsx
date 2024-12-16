@@ -8,6 +8,7 @@ import SparklesIcon from "@heroicons/react/24/solid/SparklesIcon";
 import StarIcon from "@heroicons/react/24/solid/StarIcon";
 import StarOutlineIcon from "@heroicons/react/24/outline/StarIcon";
 import UserIcon from "@heroicons/react/24/solid/UserIcon";
+import UserOutlineIcon from "@heroicons/react/24/outline/UserIcon";
 import UserCircleIcon from "@heroicons/react/24/outline/UserCircleIcon";
 import UsersIcon from "@heroicons/react/24/solid/UsersIcon";
 import UsersOutlineIcon from "@heroicons/react/24/outline/UsersIcon";
@@ -156,6 +157,7 @@ import { TickReactionIcon } from "../icons/reactions/TickReactionIcon";
 import { CrossReactionIcon } from "../icons/reactions/CrossReactionIcon";
 import { CrossReactionCapIcon } from "../icons/CrossReactionCapIcon";
 import { GivingHandIcon } from "../icons/GivingHandIcon";
+import { DictionaryIcon } from "../icons/Dictionary";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -175,6 +177,7 @@ export type ForumIconName =
   "KarmaOutline" |
   "Star" |
   "User" |
+  "UserOutline" |
   "UserCircle" |
   "Users" |
   "UsersOutline" |
@@ -284,7 +287,8 @@ export type ForumIconName =
   "FullscreenExit" |
   "TickReaction" |
   "CrossReaction" |
-  "CrossReactionCap";
+  "CrossReactionCap" |
+  "Dictionary";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   LWAF: {
@@ -299,6 +303,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     KarmaOutline: MuiStarBorderIcon,
     Star: MuiStarIcon,
     User: MuiPersonIcon,
+    UserOutline: UserOutlineIcon,
     UserCircle: UserCircleIcon,
     Users: MuiPeopleIcon,
     UsersOutline: UsersOutlineIcon,
@@ -408,7 +413,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     FullscreenExit: FullscreenExitIcon,
     TickReaction: TickReactionIcon,
     CrossReaction: CrossReactionIcon,
-    CrossReactionCap: CrossReactionCapIcon
+    CrossReactionCap: CrossReactionCapIcon,
+    Dictionary: DictionaryIcon
   },
   default: {
     VolumeUp: SpeakerWaveIcon,
@@ -422,6 +428,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     KarmaOutline: StarOutlineIcon,
     Star: StarIcon,
     User: UserIcon,
+    UserOutline: UserOutlineIcon,
     UserCircle: UserCircleIcon,
     Users: UsersIcon,
     UsersOutline: UsersOutlineIcon,
@@ -531,7 +538,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     FullscreenExit: FullscreenExitIcon,
     TickReaction: TickReactionIcon,
     CrossReaction: CrossReactionIcon,
-    CrossReactionCap: CrossReactionCapIcon
+    CrossReactionCap: CrossReactionCapIcon,
+    Dictionary: DictionaryIcon,
   },
 };
 

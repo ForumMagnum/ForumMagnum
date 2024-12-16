@@ -17,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   cta: {
     background: theme.palette.primary.main,
     opacity: .7,
-    color: "white",
+    color: theme.palette.text.invertedBackgroundText,
     paddingTop: 6,
     paddingBottom: 6,
     paddingLeft: 12,

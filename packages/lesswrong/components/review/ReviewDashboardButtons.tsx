@@ -1,5 +1,4 @@
 import React from 'react';
-import { annualReviewAnnouncementPostPathSetting } from '../../lib/publicSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import { ReviewPhase, ReviewYear } from '../../lib/reviewUtils';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
@@ -55,7 +54,7 @@ export const ReviewDashboardButtons = ({classes, reviewYear, reviewPhase, showAd
         </LWTooltip>}
         {reviewPhase === "NOMINATIONS" && <LWTooltip title={`Look over your upvotes from ${reviewYear}. (This is most useful during the nomination phase, but you may still enjoy looking them over in the latter phases to help compare)`}>
           <Link to={`/votesByYear/${reviewYear}`}>
-            Your {reviewYear} Upvotes
+            Nominate Posts
           </Link>
         </LWTooltip>}
         <LWTooltip title={`Look at all reviews (from this year or other years)`}>

@@ -111,7 +111,7 @@ const styles = (theme: ThemeType): JssStyles => ({
         minmax(0, min-content)
         minmax(0, 1fr)
         minmax(0, min-content)
-        minmax(0, ${isLW ? 7 : 1}fr)
+        minmax(0, ${isLWorAF ? 7 : 1}fr)
         minmax(0, min-content)
       `,
     },
@@ -431,6 +431,8 @@ const Layout = ({currentUser, children, classes}: {
   // For the EAF Wrapped page, we change the header's background color to a dark blue.
   if (pathname.startsWith('/wrapped')) {
     headerBackgroundColor = wrappedBackgroundColor;
+  } else if (pathname.startsWith("/voting-portal")) {
+    headerBackgroundColor = "transparent";
   } else if (blackBarTitle.get()) {
     headerBackgroundColor = 'rgba(0, 0, 0, 0.7)';
   }

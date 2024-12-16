@@ -9,6 +9,9 @@ import { commentDefaultToAlignment } from '@/lib/collections/comments/helpers';
 import { User } from '@sentry/node';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import { useOptimisticToggle } from '../hooks/useOptimisticToggle';
+import { Link } from '@/lib/reactRouterWrapper';
+import { postGetPageUrl } from '@/lib/collections/posts/helpers';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -79,6 +82,10 @@ const styles = (theme: ThemeType) => ({
   },
   commentBody: {
     ...commentBodyStyles(theme)
+  },
+  publishButtonDisabled: {
+    color: theme.palette.grey[500],
+    cursor: "not-allowed",
   }
 });
 
@@ -90,7 +97,7 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
 
 
   const [edit, setEdit] = useState<boolean>(false)
-
+  const [clickedPushing, setClickedPushing] = useState<boolean>(false)
   const { create } = useCreate({
     collectionName: "Comments",
     fragmentName: 'CommentsList'
@@ -108,6 +115,8 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
 
   const publishCommentAndCurate = async (curationNotice: CurationNoticesFragment) => {
     const { contents, postId, userId } = curationNotice;
+    if (clickedPushing) return;
+    setClickedPushing(true)
 
     if (!contents) throw Error("Curation notice is missing contents")
 
@@ -161,7 +170,7 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
       : <>
         <div className={classes.meta}>
           <div>
-            <span className={classes.postTitle}>{curationNotice.post?.title}</span>
+            <Link to={postGetPageUrl(curationNotice.post)} className={classes.postTitle}>{curationNotice.post?.title}</Link>
             <span className={classes.username}>Curation by {curationNotice.user?.displayName}</span>
           </div>
         </div>
@@ -174,7 +183,9 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
         <ContentItemBody dangerouslySetInnerHTML={{__html: curationNotice.contents?.html ?? ''}} className={classes.commentBody}/>
         {!curationNotice.commentId && <div
           onClick={() => publishCommentAndCurate(curationNotice)}
-          className={classes.publishButton}
+          className={classNames(classes.publishButton, {
+            [classes.publishButtonDisabled]: clickedPushing,
+          })}
         >
           Publish & Curate
         </div>}

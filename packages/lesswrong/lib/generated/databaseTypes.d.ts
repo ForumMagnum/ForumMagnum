@@ -1896,6 +1896,7 @@ interface DbUser extends DbObject {
   linkedinProfileURL: string | null
   facebookProfileURL: string | null
   twitterProfileURL: string | null
+  twitterProfileURLAdmin: string | null
   githubProfileURL: string | null
   profileTagIds: Array<string>
   organizerOfGroupIds: Array<string>
@@ -1921,6 +1922,7 @@ interface DbUser extends DbObject {
   inactiveSurveyEmailSentAt: Date | null
   userSurveyEmailSentAt: Date | null
   givingSeason2024DonatedFlair: boolean
+  givingSeason2024VotedFlair: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   moderationGuidelines: EditableFieldContents | null

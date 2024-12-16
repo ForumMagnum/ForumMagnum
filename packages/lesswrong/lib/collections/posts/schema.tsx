@@ -1238,6 +1238,35 @@ const schema: SchemaType<"Posts"> = {
     })
   }),
 
+  spotlight: resolverOnlyField({
+    type: "Spotlight",
+    graphQLtype: "Spotlight",
+    canRead: ['guests'],
+    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+      const { currentUser, Spotlights } = context;
+      const spotlight = await getWithLoader(context, Spotlights,
+        "postSpotlight",
+        {
+          documentId: post._id,
+          draft: false,
+          deletedDraft: false
+        },
+        "documentId", post._id
+      );
+      return accessFilterSingle(currentUser, Spotlights, spotlight[0], context);
+    },
+    sqlResolver: ({field, join}) => join({
+      table: "Spotlights",
+      type: "left",
+      on: {
+        documentId: field("_id"),
+        draft: "false",
+        deletedDraft: "false"
+      },
+      resolver: (spotlightsField) => spotlightsField("*"),
+    })
+  }),
+
   votingSystem: {
     type: String,
     optional: true,
@@ -3079,8 +3108,41 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     hidden: true,
     canRead: ['members'],
-    canUpdate: [userOwns],
+    canUpdate: [userOwns, "admins"],
     ...schemaDefaultValue(false)
+  },
+
+  curationNotices: resolverOnlyField({
+    type: Array,
+    graphQLtype: '[CurationNotice]',
+    canRead: ['guests'],
+    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+      const { currentUser, CurationNotices } = context;
+      const curationNotices = await CurationNotices.find({
+        postId: post._id,
+        deleted: { $ne: true },
+      }).fetch();
+      return await accessFilterMultiple(currentUser, CurationNotices, curationNotices, context);
+    }
+  }),
+  'curationNotices.$': {
+    type: Object,
+    foreignKey: 'CurationNotices',
+  },
+  // reviews that appear on SpotlightItem
+  reviews: resolverOnlyField({
+    type: Array,
+    graphQLtype: "[Comment]",
+    canRead: ['guests'],
+    resolver: async (post: DbPost, args: {}, context: ResolverContext) => {
+      const { currentUser, Comments } = context;
+      const reviews = await context.Comments.find({postId: post._id, baseScore: {$gte: 10}, reviewingForReview: {$ne: null}}, {sort: {baseScore: -1}, limit: 2}).fetch();
+      return await accessFilterMultiple(currentUser, Comments, reviews, context);
+    }
+  }),
+  'reviews.$': {
+    type: Object,
+    foreignKey: 'Comments',
   },
 };
 

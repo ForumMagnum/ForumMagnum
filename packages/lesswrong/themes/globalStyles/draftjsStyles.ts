@@ -6,7 +6,7 @@ const draftJsButtonFontWeight = isFriendlyUI ? 600 : "inherit";
 // Styles used by DraftJS and its plugins. It's unclear which of these are
 // actually in use.
 //
-export default (theme: ThemeType): string => `
+export default (): string => `
 /**
  * Draft v0.10.5
  *
