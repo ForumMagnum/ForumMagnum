@@ -35,7 +35,7 @@ import { getDefaultViewSelector } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 import SideCommentCaches from '../sideCommentCaches/collection';
-import { hasSideComments, hasSidenotes } from '../../betas';
+import { hasSideComments, hasSidenotes, userCanCreateAndEditJargonTerms, userCanViewJargonTerms, userCanViewUnapprovedJargonTerms } from '../../betas';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { getPostReviewWinnerInfo } from '../reviewWinners/cache';
 import { stableSortTags } from '../tags/helpers';
@@ -842,6 +842,42 @@ const schema: SchemaType<"Posts"> = {
     hidden: !isLWorAF
   },
 
+  // We get this to show up in the PostsEditForm by adding it to the addFields array
+  // Trying to do that by having `canUpdate` doesn't work because it then tries to validate the jargon terms in the glossary, and barfs
+  glossary: resolverOnlyField({
+    type: Array,
+    graphQLtype: '[JargonTerm!]!',
+    optional: true,
+    canRead: ['guests'],
+    control: "GlossaryEditFormWrapper",
+    group: formGroups.glossary,
+    hidden: ({currentUser}) => !userCanCreateAndEditJargonTerms(currentUser),
+
+    resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<Partial<DbJargonTerm>[]> => {
+      // Forum-gating/beta-gating is done here, rather than just client side,
+      // so that users don't have to download the glossary if it isn't going
+      // to be displayed.
+      if (!userCanViewJargonTerms(context.currentUser)) {
+        return [];
+      }
+
+      const jargonTerms = await context.JargonTerms.find({ postId: post._id }, { sort: { term: 1 }}).fetch();
+
+      return await accessFilterMultiple(context.currentUser, context.JargonTerms, jargonTerms, context);
+    },
+    sqlResolver: ({ field, currentUserField }) => `(
+      SELECT ARRAY_AGG(ROW_TO_JSON(jt.*) ORDER BY jt."term" ASC)
+      FROM "JargonTerms" jt
+      WHERE jt."postId" = ${field('_id')}
+      LIMIT 1
+    )`
+  }),
+  
+  'glossary.$': {
+    type: Object,
+    optional: true,
+  },
+
   // The various reviewVoteScore and reviewVotes fields are for caching the results of the updateQuadraticVotes migration (which calculates the score of posts during the LessWrong Review)
   reviewVoteScoreAF: {
     type: Number, 
@@ -1210,6 +1246,35 @@ const schema: SchemaType<"Posts"> = {
         postId: field("_id"),
       },
       resolver: (reviewWinnersField) => reviewWinnersField("*"),
+    })
+  }),
+
+  spotlight: resolverOnlyField({
+    type: "Spotlight",
+    graphQLtype: "Spotlight",
+    canRead: ['guests'],
+    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+      const { currentUser, Spotlights } = context;
+      const spotlight = await getWithLoader(context, Spotlights,
+        "postSpotlight",
+        {
+          documentId: post._id,
+          draft: false,
+          deletedDraft: false
+        },
+        "documentId", post._id
+      );
+      return accessFilterSingle(currentUser, Spotlights, spotlight[0], context);
+    },
+    sqlResolver: ({field, join}) => join({
+      table: "Spotlights",
+      type: "left",
+      on: {
+        documentId: field("_id"),
+        draft: "false",
+        deletedDraft: "false"
+      },
+      resolver: (spotlightsField) => spotlightsField("*"),
     })
   }),
 
@@ -3048,7 +3113,48 @@ const schema: SchemaType<"Posts"> = {
     label: "stale-while-revalidate caching enabled",
     group: formGroups.adminOptions,
     ...schemaDefaultValue(false),
-  }
+  },
+  generateDraftJargon: {
+    type: Boolean,
+    optional: true,
+    hidden: true,
+    canRead: ['members'],
+    canUpdate: [userOwns, "admins"],
+    ...schemaDefaultValue(false)
+  },
+
+  curationNotices: resolverOnlyField({
+    type: Array,
+    graphQLtype: '[CurationNotice]',
+    canRead: ['guests'],
+    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+      const { currentUser, CurationNotices } = context;
+      const curationNotices = await CurationNotices.find({
+        postId: post._id,
+        deleted: { $ne: true },
+      }).fetch();
+      return await accessFilterMultiple(currentUser, CurationNotices, curationNotices, context);
+    }
+  }),
+  'curationNotices.$': {
+    type: Object,
+    foreignKey: 'CurationNotices',
+  },
+  // reviews that appear on SpotlightItem
+  reviews: resolverOnlyField({
+    type: Array,
+    graphQLtype: "[Comment]",
+    canRead: ['guests'],
+    resolver: async (post: DbPost, args: {}, context: ResolverContext) => {
+      const { currentUser, Comments } = context;
+      const reviews = await context.Comments.find({postId: post._id, baseScore: {$gte: 10}, reviewingForReview: {$ne: null}}, {sort: {baseScore: -1}, limit: 2}).fetch();
+      return await accessFilterMultiple(currentUser, Comments, reviews, context);
+    }
+  }),
+  'reviews.$': {
+    type: Object,
+    foreignKey: 'Comments',
+  },
 };
 
 export default schema;

@@ -65,11 +65,11 @@ export interface VotingSystem<ExtendedVoteType=any, ExtendedScoreType=any> {
   getCommentHighlights?: (props: {
     comment: CommentsList
     voteProps: VotingProps<VoteableTypeClient>
-  }) => Record<string, ContentReplacedSubstringComponentInfo>
+  }) => ContentReplacedSubstringComponentInfo[]
   getPostHighlights?: (props: {
     post: PostsBase
     voteProps: VotingProps<VoteableTypeClient>
-  }) => Record<string, ContentReplacedSubstringComponentInfo>
+  }) => ContentReplacedSubstringComponentInfo[]
 }
 
 const votingSystems: Partial<Record<string,VotingSystem>> = {};
@@ -229,11 +229,11 @@ registerVotingSystem({
   },
 });
 
-export type EmojiReaction = {
+export type EmojiReactionType = {
   name: string,
   icon: string,
 }
-export const emojiReactions: EmojiReaction[] = [
+export const emojiReactions: EmojiReactionType[] = [
   {name: "raised-hands", icon: "🙌"},
   {name: "enthusiasm", icon: "🎉"},
   {name: "empathy", icon: "❤️"},

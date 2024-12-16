@@ -302,6 +302,7 @@ Comments.addView("postLWComments", (terms: CommentsViewTerms) => {
 
 export const profileCommentsSortings: Partial<Record<CommentSortingMode,MongoSelector<DbComment>>> = {
   "new" :  { isPinnedOnProfile: -1, postedAt: -1},
+  "magic": { score: -1 },
   "top" : { baseScore: -1},
   "old": {postedAt: 1},
   "recentComments": { lastSubthreadActivity: -1 },
@@ -538,14 +539,16 @@ Comments.addView('shortform', (terms: CommentsViewTerms) => {
   };
 });
 
-Comments.addView('shortformFrontpage', (terms: CommentsViewTerms) => {
+Comments.addView('shortformFrontpage', (terms: CommentsViewTerms, _, context?: ResolverContext) => {
   const twoHoursAgo = moment().subtract(2, 'hours').toDate();
   const maxAgeDays = terms.maxAgeDays ?? 5;
+  const currentUserId = context?.currentUser?._id;
   return {
     selector: {
       shortform: true,
       shortformFrontpage: true,
       deleted: false,
+      rejected: {$ne: true},
       parentCommentId: viewFieldNullOrMissing,
       createdAt: {$gt: moment().subtract(maxAgeDays, 'days').toDate()},
       $and: [
@@ -559,6 +562,12 @@ Comments.addView('shortformFrontpage', (terms: CommentsViewTerms) => {
             relevantTagIds: terms.relevantTagId,
           }
           : {},
+        {
+          $or: [
+            {authorIsUnreviewed: false},
+            {userId: currentUserId},
+          ]
+        },
       ],
       // Quick takes older than 2 hours must have at least 1 karma, quick takes
       // younger than 2 hours must have at least -5 karma

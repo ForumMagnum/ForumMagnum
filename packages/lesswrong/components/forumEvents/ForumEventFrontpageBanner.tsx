@@ -1,4 +1,4 @@
-import React, { CSSProperties } from "react";
+import React, { CSSProperties, FC } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
 import moment from "moment";
@@ -339,7 +339,21 @@ export const ForumEventFrontpageBanner = ({classes}: {
     return null;
   }
 
-  if (currentForumEvent.includesPoll) {
+  const {customComponent, includesPoll} = currentForumEvent;
+  if (customComponent) {
+    const CustomComponent = Components[customComponent as keyof ComponentTypes] as FC;
+    if (CustomComponent) {
+      return (
+        <AnalyticsContext
+          pageSectionContext="forumEventFrontpageBannerCustom"
+          componentName={customComponent}
+        >
+          <CustomComponent />
+        </AnalyticsContext>
+      );
+    }
+  }
+  if (includesPoll) {
     return <ForumEventFrontpageBannerWithPoll classes={classes} />
   }
   return <ForumEventFrontpageBannerBasic classes={classes} />

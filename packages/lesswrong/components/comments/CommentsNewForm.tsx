@@ -187,6 +187,7 @@ const CommentSubmit = ({
   cancelCallback,
   loading,
   submitLabel = "Submit",
+  className,
   classes,
 }: {
   isMinimalist: boolean;
@@ -197,6 +198,7 @@ const CommentSubmit = ({
   cancelCallback?: CommentCancelCallback;
   loading: boolean;
   submitLabel?: React.ReactNode;
+  className?: string,
   classes: ClassesType<typeof styles>;
 }) => {
   const { Loading } = Components;
@@ -214,7 +216,7 @@ const CommentSubmit = ({
 
   return (
     <div
-      className={classNames(classes.submit, {
+      className={classNames(classes.submit, className, {
         [classes.submitMinimalist]: isMinimalist,
         [classes.submitQuickTakes]: isQuickTake && !(quickTakesSubmitButtonAtBottom && isFriendlyUI),
         [classes.submitQuickTakesButtonAtBottom]: isQuickTake && quickTakesSubmitButtonAtBottom,

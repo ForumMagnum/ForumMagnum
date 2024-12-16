@@ -31,12 +31,14 @@ export type LWTooltipProps = {
   hideOnTouchScreens?: boolean,
   className?: string,
   analyticsProps?: AnalyticsProps,
+  otherEventProps?: Record<string, Json | undefined>,
   titleClassName?: string
   popperClassName?: string,
   onShow?: () => void,
   onHide?: () => void,
   children?: ReactNode,
   classes: ClassesType,
+  forceOpen?: boolean,
 }
 
 const LWTooltip = ({
@@ -50,6 +52,7 @@ const LWTooltip = ({
   disabled=false,
   hideOnTouchScreens=false,
   analyticsProps,
+  otherEventProps,
   titleClassName,
   popperClassName,
   onShow,
@@ -57,6 +60,7 @@ const LWTooltip = ({
   children,
   className,
   classes,
+  forceOpen,
 }: LWTooltipProps) => {
   const { LWPopper } = Components
   const { hover, everHovered, anchorEl, eventHandlers } = useHover({
@@ -64,6 +68,7 @@ const LWTooltip = ({
       pageElementContext: "tooltipHovered", // Can be overwritten by analyticsProps
       title: typeof title === "string" ? title : undefined,
       ...analyticsProps,
+      ...otherEventProps,
     },
     onEnter: onShow,
     onLeave: onHide,
@@ -80,7 +85,7 @@ const LWTooltip = ({
          can have a closing animation if applicable. */ }
     {everHovered && <LWPopper
       placement={placement}
-      open={hover && !disabled}
+      open={forceOpen || (hover && !disabled)}
       anchorEl={anchorEl}
       tooltip={tooltip}
       allowOverflow={!flip}

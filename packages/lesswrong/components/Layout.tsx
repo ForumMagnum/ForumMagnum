@@ -36,6 +36,7 @@ import { LoginPopoverContextProvider } from './hooks/useLoginPopoverContext';
 import DeferRender from './common/DeferRender';
 import { userHasLlmChat } from '@/lib/betas';
 import { AutosaveEditorStateContext } from './editor/EditorFormComponent';
+import { GivingSeasonEventsProvider } from './forumEvents/useGivingSeasonEvents';
 
 const STICKY_SECTION_TOP_MARGIN = 20;
 
@@ -110,7 +111,7 @@ const styles = (theme: ThemeType): JssStyles => ({
         minmax(0, min-content)
         minmax(0, 1fr)
         minmax(0, min-content)
-        minmax(0, ${isLW ? 7 : 1}fr)
+        minmax(0, ${isLWorAF ? 7 : 1}fr)
         minmax(0, min-content)
       `,
     },
@@ -430,6 +431,8 @@ const Layout = ({currentUser, children, classes}: {
   // For the EAF Wrapped page, we change the header's background color to a dark blue.
   if (pathname.startsWith('/wrapped')) {
     headerBackgroundColor = wrappedBackgroundColor;
+  } else if (pathname.startsWith("/voting-portal")) {
+    headerBackgroundColor = "transparent";
   } else if (blackBarTitle.get()) {
     headerBackgroundColor = 'rgba(0, 0, 0, 0.7)';
   }
@@ -501,6 +504,7 @@ const Layout = ({currentUser, children, classes}: {
       <DisableNoKibitzContext.Provider value={noKibitzContext}>
       <CommentOnSelectionPageWrapper>
       <CurrentForumEventProvider>
+      <GivingSeasonEventsProvider>
         <div className={classNames(
           "wrapper",
           {'alignment-forum': isAF, [classes.fullscreen]: currentRoute?.fullscreen, [classes.wrapper]: isLWorAF}
@@ -621,6 +625,7 @@ const Layout = ({currentUser, children, classes}: {
             </CommentBoxManager>
           </DialogManager>
         </div>
+      </GivingSeasonEventsProvider>
       </CurrentForumEventProvider>
       </CommentOnSelectionPageWrapper>
       </DisableNoKibitzContext.Provider>

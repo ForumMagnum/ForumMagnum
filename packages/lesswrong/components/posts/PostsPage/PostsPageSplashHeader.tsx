@@ -365,7 +365,7 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
   toggleEmbeddedPlayer?: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { UsersName, CommentBody, LWPopper, ImageCropPreview, SplashHeaderImageOptions, PostsAudioPlayerWrapper, LWPostsPageHeaderTopRight } = Components;
+  const { UsersName, CommentBody, LWPopper, ImageCropPreview, SplashHeaderImageOptions, PostsAudioPlayerWrapper, LWPostsPageHeaderTopRight, FormatDate } = Components;
   
   const { selectedImageInfo } = useImageContext();
   const { setToCVisible } = useContext(SidebarsContext)!;
@@ -446,10 +446,13 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
   const topLeftSection = (
     <div className={classes.leftSection}>
       <Link className={classes.reviewNavigation} to="/leastwrong?sort=year">
-        Ranked #{post.reviewWinner.reviewRanking + 1} of {post.reviewWinner.competitorCount} posts in {post.reviewWinner.reviewYear}
+        {/* Ranked #{post.reviewWinner.reviewRanking + 1} of {post.reviewWinner.competitorCount} posts in {post.reviewWinner.reviewYear} */}
+        <FormatDate date={post.postedAt} format="MMMM DD, YYYY" tooltip={false}/>
+        <em> (Ranked #{post.reviewWinner.reviewRanking + 1} of {post.reviewWinner.competitorCount} posts)</em>
       </Link>
       <Link className={classes.reviewNavigationMobile} to="/leastwrong?sort=year">
-        #{post.reviewWinner.reviewRanking + 1} in {post.reviewWinner.reviewYear} Review
+        <FormatDate date={post.postedAt} format="MMMM DD, YYYY" tooltip={false}/>
+        <em> (#{post.reviewWinner.reviewRanking + 1} of {post.reviewWinner.competitorCount})</em>
       </Link>
     </div>
   );

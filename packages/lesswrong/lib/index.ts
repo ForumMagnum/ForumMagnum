@@ -262,7 +262,7 @@ import './i18n-en-us/en_US';
 import './helpers'
 import './routes';
 
-import './components';
+import '@/allComponents';
 
 // PostRelation
 import './collections/postRelations';
@@ -319,6 +319,7 @@ import './collections/arbitalCache/collection';
 // Review winners
 import './collections/reviewWinners/collection';
 import './collections/reviewWinners/fragments';
+import './collections/reviewWinners/views';
 
 // Review winners
 import './collections/reviewWinnerArts/collection';
@@ -376,3 +377,8 @@ import './rateLimits/constants';
 import './rateLimits/types';
 
 import './subscribedUsersFeed';
+
+import './collections/jargonTerms/collection';
+import './collections/jargonTerms/views';
+import './collections/jargonTerms/fragments';
+import './collections/jargonTerms/schema';

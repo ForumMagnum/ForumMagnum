@@ -1,8 +1,10 @@
-import { isServer, isDevelopment, isAnyTest, getInstanceSettings, getAbsoluteUrl, isE2E } from './executionEnvironment';
+import { isServer, isDevelopment, isAnyTest, isE2E } from './executionEnvironment';
 import { pluralize } from './vulcan-lib/pluralize';
 import startCase from 'lodash/startCase' // AKA: capitalize, titleCase
 import { TupleSet, UnionOf } from './utils/typeGuardUtils';
 import {initializeSetting} from './settingsCache'
+import { getInstanceSettings } from './getInstanceSettings';
+import { getCommandLineArguments } from '@/server/commandLine';
 
 const getNestedProperty = function (obj: AnyBecauseTodo, desc: AnyBecauseTodo) {
   var arr = desc.split('.');
@@ -148,7 +150,14 @@ export const hasRejectedContentSectionSetting = new PublicInstanceSetting<boolea
 export const sentryUrlSetting = new PublicInstanceSetting<string|null>('sentry.url', null, "warning"); // DSN URL
 export const sentryEnvironmentSetting = new PublicInstanceSetting<string|null>('sentry.environment', null, "warning"); // Environment, i.e. "development"
 export const sentryReleaseSetting = new PublicInstanceSetting<string|null>('sentry.release', null, "warning") // Current release, i.e. hash of lattest commit
-export const siteUrlSetting = new PublicInstanceSetting<string>('siteUrl', getAbsoluteUrl(), "optional")
+const getDefaultAbsoluteUrl = (): string => {
+  if (defaultSiteAbsoluteUrl?.length>0) {
+    return defaultSiteAbsoluteUrl;
+  } else {
+    return `http://localhost:${getCommandLineArguments().localhostUrlPort}/`
+  }
+}
+export const siteUrlSetting = new PublicInstanceSetting<string>('siteUrl', getDefaultAbsoluteUrl(), "optional")
 
 // FM Crossposting
 export const fmCrosspostSiteNameSetting = new PublicInstanceSetting<string|null>("fmCrosspost.siteName", null, "optional");
@@ -280,6 +289,8 @@ export const isBotSiteSetting = new PublicInstanceSetting<boolean>('botSite.isBo
 export const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId', 'bJ2haLkcGeLtTWaD5', "warning") // Post ID for the /about route
 
 export const anthropicApiKey = new PublicInstanceSetting<string>('anthropic.claudeTestKey', "LessWrong", "optional")
+
+export const jargonBotClaudeKey = new PublicInstanceSetting<string>('anthropic.jargonBotClaudeKey', "", "optional")
 
 export const hyperbolicApiKey = new PublicInstanceSetting<string>('hyperbolic.apiKey', "", "optional")
 

@@ -48,6 +48,12 @@ registerFragment(`
     reviewWinner {
       ...ReviewWinnerTopPostsPage
     }
+    spotlight {
+      ...SpotlightReviewWinner
+    }
+    reviews {
+      ...CommentsList
+    }
   }
 `);
 
@@ -318,6 +324,15 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment SunshineCurationPostsList on Post {
+    ...PostsList
+    curationNotices {
+      ...CurationNoticesFragment
+    }
+  }
+`)
+
+registerFragment(`
   fragment PostsListTag on Post {
     ...PostsList
     tagRel(tagId: $tagId) {
@@ -427,6 +442,11 @@ registerFragment(`
 
     # Crossposting
     fmCrosspost
+
+    # Jargon Terms
+    glossary {
+      ...JargonTermsPost
+    }
   }
 `);
 
@@ -517,23 +537,13 @@ registerFragment(`
       ...SequencesPageFragment
     }
     prevPost(sequenceId: $sequenceId) {
-      _id
-      title
-      slug
-      commentCount
-      afCommentCount
-      baseScore
+      ...PostsListWithVotes
       sequence(sequenceId: $sequenceId, prevOrNext: "prev") {
         _id
       }
     }
     nextPost(sequenceId: $sequenceId) {
-      _id
-      title
-      slug
-      commentCount
-      afCommentCount
-      baseScore
+      ...PostsListWithVotes
       sequence(sequenceId: $sequenceId, prevOrNext: "next") {
         _id
       }
@@ -590,6 +600,7 @@ registerFragment(`
     coauthors {
       ...UsersMinimumInfo
     }
+    generateDraftJargon
   }
 `);
 
@@ -832,6 +843,31 @@ registerFragment(`
     }
     contents {
       markdown
+    }
+  }
+`)
+
+registerFragment(`
+  fragment PostForReviewWinnerItem on Post {
+    _id
+    spotlight {
+      _id
+    }
+    reviewWinner {
+      _id
+      category
+    }
+  }
+`)
+
+registerFragment(`
+  fragment PostsTwitterAdmin on Post {
+    ...PostsListWithVotes
+    user {
+      ...UsersSocialMediaInfo
+    }
+    coauthors {
+      ...UsersSocialMediaInfo
     }
   }
 `)

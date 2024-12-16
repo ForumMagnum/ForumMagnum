@@ -7,7 +7,7 @@ import { useCurrentUser } from '../common/withUser';
 import { createStyles } from '@material-ui/core/styles';
 import qs from 'qs'
 import { userCanDo, userIsAdmin } from '../../lib/vulcan-users';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import { useMulti } from '../../lib/crud/withMulti';
 import Button from '@material-ui/core/Button';
 import { FacebookIcon, MeetupIcon, RoundFacebookIcon, SlackIcon } from './GroupLinks';

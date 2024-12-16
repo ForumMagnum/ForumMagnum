@@ -8,6 +8,7 @@ import SparklesIcon from "@heroicons/react/24/solid/SparklesIcon";
 import StarIcon from "@heroicons/react/24/solid/StarIcon";
 import StarOutlineIcon from "@heroicons/react/24/outline/StarIcon";
 import UserIcon from "@heroicons/react/24/solid/UserIcon";
+import UserOutlineIcon from "@heroicons/react/24/outline/UserIcon";
 import UserCircleIcon from "@heroicons/react/24/outline/UserCircleIcon";
 import UsersIcon from "@heroicons/react/24/solid/UsersIcon";
 import UsersOutlineIcon from "@heroicons/react/24/outline/UsersIcon";
@@ -70,6 +71,7 @@ import BookOpenIcon from "@heroicons/react/24/outline/BookOpenIcon";
 import ComputerDesktopIcon from "@heroicons/react/24/outline/ComputerDesktopIcon";
 import ArrowRightIcon from "@heroicons/react/24/solid/ArrowRightIcon";
 import ArrowRightOutlineIcon from "@heroicons/react/24/outline/PaperAirplaneIcon";
+import ArrowLeftIcon from "@heroicons/react/24/solid/ArrowLeftIcon";
 import ArrowCircleIcon from "@heroicons/react/20/solid/ArrowPathRoundedSquareIcon";
 import FunnelIcon from "@heroicons/react/24/outline/FunnelIcon";
 import BarsArrowDown from "@heroicons/react/24/outline/BarsArrowDownIcon";
@@ -79,7 +81,6 @@ import InformationCircleIcon from '@heroicons/react/24/solid/InformationCircleIc
 import ArrowDownOnSquareIcon from '@heroicons/react/24/outline/ArrowDownOnSquareIcon';
 import ChevronUpDownIcon from "@heroicons/react/24/outline/ChevronUpDownIcon";
 import ArrowsUpDownIcon from "@heroicons/react/20/solid/ArrowsUpDownIcon";
-import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
 import MuiBookmarksIcon from "@material-ui/icons/Bookmarks";
@@ -109,7 +110,6 @@ import MuiSearchIcon from '@material-ui/icons/Search';
 import MuiMenuIcon from "@material-ui/icons/Menu";
 import MuiForumIcon from '@material-ui/icons/Forum';
 import MuiVoteIcon from '@material-ui/icons/HowToVote'
-import MuiCommentIcon from '@material-ui/icons/ModeComment';
 import MuiNotInterestedIcon from '@material-ui/icons/NotInterested';
 import MuiExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import MuiExpandLessIcon from "@material-ui/icons/ExpandLess";
@@ -153,6 +153,11 @@ import { CheckSmallIcon } from "../icons/CheckSmallIcon";
 import { FilterBarsIcon } from "../icons/FilterBarsIcon";
 import { EAEnvelopeIcon } from "../icons/EAEnvelopeIcon";
 import { RobotIcon } from '../icons/RobotIcon';
+import { TickReactionIcon } from "../icons/reactions/TickReactionIcon";
+import { CrossReactionIcon } from "../icons/reactions/CrossReactionIcon";
+import { CrossReactionCapIcon } from "../icons/CrossReactionCapIcon";
+import { GivingHandIcon } from "../icons/GivingHandIcon";
+import { DictionaryIcon } from "../icons/Dictionary";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -162,6 +167,7 @@ import { RobotIcon } from '../icons/RobotIcon';
  */
 export type ForumIconName =
   "VolumeUp" |
+  "GivingHand" |
   "BookOpen" |
   "Bookmark" |
   "BookmarkBorder" |
@@ -171,6 +177,7 @@ export type ForumIconName =
   "KarmaOutline" |
   "Star" |
   "User" |
+  "UserOutline" |
   "UserCircle" |
   "Users" |
   "UsersOutline" |
@@ -237,6 +244,7 @@ export type ForumIconName =
   "Document" |
   "DocumentFilled" |
   "SoftUpArrow" |
+  "ArrowLeft" |
   "ArrowRight" |
   "ArrowRightOutline" |
   "ArrowCircle" |
@@ -276,12 +284,16 @@ export type ForumIconName =
   "Undo" |
   "Clear" |
   "Fullscreen" |
-  "FullscreenExit"
-  ;
+  "FullscreenExit" |
+  "TickReaction" |
+  "CrossReaction" |
+  "CrossReactionCap" |
+  "Dictionary";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   LWAF: {
     VolumeUp: SpeakerWaveIcon,
+    GivingHand: GivingHandIcon,
     BookOpen: BookOpenIcon,
     Bookmark: MuiBookmarkIcon,
     BookmarkBorder: MuiBookmarkBorderIcon,
@@ -291,6 +303,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     KarmaOutline: MuiStarBorderIcon,
     Star: MuiStarIcon,
     User: MuiPersonIcon,
+    UserOutline: UserOutlineIcon,
     UserCircle: UserCircleIcon,
     Users: MuiPeopleIcon,
     UsersOutline: UsersOutlineIcon,
@@ -358,6 +371,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     List: ListIcon,
     SoftUpArrow: SoftUpArrowIcon,
     ArrowRight: ArrowRightIcon,
+    ArrowLeft: ArrowLeftIcon,
     ArrowRightOutline: ArrowRightOutlineIcon,
     ArrowCircle: ArrowCircleIcon,
     EllipsisVertical: MuiEllipsisVerticalIcon,
@@ -396,10 +410,15 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Undo: UndoIcon,
     Clear: ClearIcon,
     Fullscreen: FullscreenIcon,
-    FullscreenExit: FullscreenExitIcon
+    FullscreenExit: FullscreenExitIcon,
+    TickReaction: TickReactionIcon,
+    CrossReaction: CrossReactionIcon,
+    CrossReactionCap: CrossReactionCapIcon,
+    Dictionary: DictionaryIcon
   },
   default: {
     VolumeUp: SpeakerWaveIcon,
+    GivingHand: GivingHandIcon,
     BookOpen: BookOpenIcon,
     Bookmark: BookmarkIcon,
     BookmarkBorder: BookmarkOutlineIcon,
@@ -409,6 +428,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     KarmaOutline: StarOutlineIcon,
     Star: StarIcon,
     User: UserIcon,
+    UserOutline: UserOutlineIcon,
     UserCircle: UserCircleIcon,
     Users: UsersIcon,
     UsersOutline: UsersOutlineIcon,
@@ -475,6 +495,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Card: CardIcon,
     List: ListIcon,
     SoftUpArrow: SoftUpArrowIcon,
+    ArrowLeft: ArrowLeftIcon,
     ArrowRight: ArrowRightIcon,
     ArrowRightOutline: ArrowRightOutlineIcon,
     ArrowCircle: ArrowCircleIcon,
@@ -514,7 +535,11 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Undo: UndoIcon,
     Clear: ClearIcon,
     Fullscreen: FullscreenIcon,
-    FullscreenExit: FullscreenExitIcon
+    FullscreenExit: FullscreenExitIcon,
+    TickReaction: TickReactionIcon,
+    CrossReaction: CrossReactionIcon,
+    CrossReactionCap: CrossReactionCapIcon,
+    Dictionary: DictionaryIcon,
   },
 };
 
