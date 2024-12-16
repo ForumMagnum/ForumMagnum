@@ -3,7 +3,7 @@
 Run a GraphQL request from the server with the proper context
 
 */
-import { DocumentNode, graphql, GraphQLError, print } from 'graphql';
+import { DocumentNode, graphql, GraphQLError, print, ExecutionResult } from 'graphql';
 import { localeSetting } from '../../lib/publicSettings';
 import { getExecutableSchema } from './apollo-server/initGraphQL';
 import { generateDataLoaders } from './apollo-server/context';
@@ -41,7 +41,7 @@ export const runQuery = async <T = Record<string, any>>(query: string | Document
     : print(query)
 
   // see http://graphql.org/graphql-js/graphql/#graphql
-  const result = await graphql<T>(executableSchema, stringQuery, {}, queryContext, variables);
+  const result = await graphql(executableSchema, stringQuery, {}, queryContext, variables) as ExecutionResult<T>;
 
   if (result.errors) {
     onGraphQLError(result.errors);

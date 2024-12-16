@@ -84,14 +84,6 @@ const events: GivingSeasonEvent[] = [
     background: "https://res.cloudinary.com/cea/image/upload/v1730143996/Rectangle_5069.jpg",
   },
   {
-    name: "Intermission",
-    description: null,
-    start: moment("2024-12-03").utc(),
-    end: moment("2024-12-16").utc(),
-    background: "https://res.cloudinary.com/cea/image/upload/v1730143996/Rectangle_5069.jpg",
-    hidden: true,
-  },
-  {
     name: "Pledge Highlight",
     description: <>
       A week to post about your experience with pledging, and to discuss the{" "}
