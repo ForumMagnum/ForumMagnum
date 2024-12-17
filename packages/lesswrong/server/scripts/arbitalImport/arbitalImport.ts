@@ -525,6 +525,10 @@ async function buildConversionContext(database: WholeArbitalDatabase, pagesToCon
   await executePromiseQueue(wikiPageIds
     .filter(pageId => pagesById[pageId]?.some(revision => revision.isLiveEdit))
     .map(pageId => {
+      const pageInfo = pageInfosById[pageId];
+      if (pageInfo.isDeleted) return;
+      if (pageInfo.seeDomainId !== 0) return;
+      
       const revisions = pagesById[pageId] ?? [];
       const liveRevision = revisions.filter(r => r.isLiveEdit)[0];
       const title = liveRevision.title;
