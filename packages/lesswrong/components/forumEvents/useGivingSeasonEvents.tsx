@@ -94,6 +94,8 @@ const events: GivingSeasonEvent[] = [
     </>,
     start: moment("2024-12-16").utc(),
     end: moment("2024-12-22").utc(),
+    discussionTagId: "t3WrEa22KkcpddbGD",
+    discussionTagSlug: "pledge-highlight-week",
     background: "https://res.cloudinary.com/cea/image/upload/v1730143996/Rectangle_5072.jpg",
   },
   {
