@@ -271,9 +271,6 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
       backgroundColor: theme.palette.grey[900],
     },
   },
-  tooltipHoverTitle: {
-    margin: '0 24px',
-  },
   tooltipHoverPostCount: {},
   arbitalIcon: {
     height: 10,
@@ -399,7 +396,6 @@ const ConceptItem = ({
             noPrefetch
             previewPostCount={0}
             placement='right-start'
-            popperClassName={classes.tooltipHoverTitle}
           >
             <span className={classNames(classes.titleText, { [classes.arbitalGreenColor]: wikitag.isArbitalImport && showArbitalIcon })}>
               <Link to={tagGetUrl({slug: wikitag.slug})}>

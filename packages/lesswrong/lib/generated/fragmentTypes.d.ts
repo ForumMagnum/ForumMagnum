@@ -2846,6 +2846,7 @@ interface AllTagsPageCacheFragment { // fragment on Tags
   readonly slug: string,
   readonly postCount: number,
   readonly description: AllTagsPageCacheFragment_description|null,
+  readonly isArbitalImport: boolean|null,
   readonly coreTagId: string|null,
 }
 

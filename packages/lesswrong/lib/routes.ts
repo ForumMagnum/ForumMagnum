@@ -372,7 +372,6 @@ if (taggingNameIsSet.get()) {
       subtitleComponentName: 'TagPageTitle',
       previewComponentName: 'TagHoverPreview',
       enableResourcePrefetch: tagRouteWillDefinitelyReturn200,
-      // background: "g",
     },
     {
       name: 'tagsSingleRedirectCustomName',
