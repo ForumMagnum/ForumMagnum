@@ -572,8 +572,8 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   eventsHomeLoadMoreHover: '#085d6c',
 
   wrapped: {
-    background: '#072C47',
-    highlightText: '#FFC443',
+    background: '#151515',
+    highlightText: '#F09554',
     secondaryText: '#008DAC',
     tertiaryText: "rgba(255, 255, 255, 0.50)",
     black: '#212121',

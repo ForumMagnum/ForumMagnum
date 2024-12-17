@@ -1,7 +1,7 @@
-import React, { Fragment, useCallback, useEffect, useRef, useState } from "react"
+import React, { Fragment, useEffect, useRef, useState } from "react"
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { useCurrentUser } from "../../common/withUser";
-import { AnalyticsContext, useIsInView, useTracking } from "../../../lib/analyticsEvents";
+import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import { WrappedDataByYear, WrappedMostReadAuthor, WrappedMostReadTopic, WrappedReceivedReact, WrappedRelativeMostReadCoreTopic, WrappedTopComment, WrappedTopPost, WrappedTopShortform, WrappedYear, isWrappedYear, useForumWrapped } from "./hooks";
 import classNames from "classnames";
 import range from "lodash/range";
@@ -126,19 +126,6 @@ const styles = (theme: ThemeType) => ({
     flexDirection: 'column',
     alignItems: 'center',
     gap: '8px',
-  },
-  skipToSummaryBtn: {
-    background: 'none',
-    fontSize: 16,
-    lineHeight: 'normal',
-    fontWeight: 600,
-    letterSpacing: '1px',
-    color: theme.palette.text.alwaysWhite,
-    padding: 0,
-    margin: '40px auto 0',
-    '&:hover': {
-      opacity: 0.7
-    }
   },
   heartIcon: {
     marginLeft: 1,
@@ -771,7 +758,7 @@ const getUserProfileLink = (slug: string, year: WrappedYear) => `${userGetProfil
  */
 const Post = ({post, classes}: {
   post: WrappedTopPost|PostsListWithVotesAndSequence,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const authorExpandContainer = useRef(null);
   const postLink = postGetPageUrl(post)
@@ -820,7 +807,7 @@ const Post = ({post, classes}: {
  */
 const Comment = ({comment, classes}: {
   comment: WrappedTopComment|WrappedTopShortform,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser()
   
@@ -899,7 +886,7 @@ const KarmaChangeXAxis = () => {
 const EngagementPercentileSection = ({data, year, classes}: {
   data: WrappedDataByYear,
   year: WrappedYear,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   // This is the x-axis position for the "you" arrow mark on the engagement chart.
   // The highest value on the x-axis is ~530 hours.
@@ -940,7 +927,7 @@ const EngagementPercentileSection = ({data, year, classes}: {
 const EngagementHoursSection = ({engagementHours, year, classes}: {
   engagementHours: number,
   year: WrappedYear,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   return <AnalyticsContext pageSectionContext="engagementHours">
     <section className={classes.section}>
@@ -973,7 +960,7 @@ const EngagementHoursSection = ({engagementHours, year, classes}: {
 const DaysVisitedSection = ({daysVisited, year, classes}: {
   daysVisited: string[],
   year: WrappedYear,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   return <AnalyticsContext pageSectionContext="daysVisited">
     <section className={classes.section}>
@@ -1011,7 +998,7 @@ const DaysVisitedSection = ({daysVisited, year, classes}: {
  */
 const MostReadTopicsSection = ({mostReadTopics, classes}: {
   mostReadTopics: WrappedMostReadTopic[],
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   if (!mostReadTopics.length) return null;
   
@@ -1054,7 +1041,7 @@ const MostReadTopicsSection = ({mostReadTopics, classes}: {
  */
 const RelativeMostReadTopicsSection = ({relativeMostReadCoreTopics, classes}: {
   relativeMostReadCoreTopics: WrappedRelativeMostReadCoreTopic[],
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const relativeMostReadTopics = relativeMostReadCoreTopics.map(topic => {
     return {
@@ -1120,7 +1107,7 @@ const RelativeMostReadTopicsSection = ({relativeMostReadCoreTopics, classes}: {
 const MostReadAuthorsSection = ({authors, year, classes}: {
   authors: WrappedMostReadAuthor[],
   year: WrappedYear,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   if (!authors.length) return null;
 
@@ -1156,7 +1143,7 @@ const MostReadAuthorsSection = ({authors, year, classes}: {
 const ThankAuthorSection = ({authors, year, classes}: {
   authors: WrappedMostReadAuthor[],
   year: WrappedYear,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser()
   const { captureEvent } = useTracking();
@@ -1213,7 +1200,7 @@ const ThankAuthorSection = ({authors, year, classes}: {
 const TopPostSection = ({data, year, classes}: {
   data: WrappedDataByYear,
   year: WrappedYear,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   if (!data.topPosts?.length) return null;
   // Only show this section if their top post got 10 karma
@@ -1254,7 +1241,7 @@ const TopPostSection = ({data, year, classes}: {
 const TopCommentSection = ({data, year, classes}: {
   data: WrappedDataByYear,
   year: WrappedYear,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   if (!data.topComment) return null;
   // Only show this section if their top comment has >0 karma
@@ -1284,7 +1271,7 @@ const TopCommentSection = ({data, year, classes}: {
 const TopQuickTakeSection = ({data, year, classes}: {
   data: WrappedDataByYear,
   year: WrappedYear,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   if (!data.topShortform) return null;
   // Only show this section if their top quick take has >0 karma
@@ -1313,7 +1300,7 @@ const TopQuickTakeSection = ({data, year, classes}: {
  */
 const KarmaChangeSection = ({data, classes}: {
   data: WrappedDataByYear,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   // If the user hasn't written anything and their karma change is 0, hide the karma change section
   const hasWrittenContent = !!data.topPosts?.length || data.topComment || data.topShortform
@@ -1347,7 +1334,7 @@ const KarmaChangeSection = ({data, classes}: {
  */
 const ReactsReceivedSection = ({receivedReacts, classes}: {
   receivedReacts: WrappedReceivedReact[],
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   // Randomly display all the reacts the user received in the background
   const placeBackgroundReacts = (reacts: WrappedReceivedReact[]) => {
@@ -1414,7 +1401,7 @@ const ReactsReceivedSection = ({receivedReacts, classes}: {
  */
 const ThankYouSection = ({year, classes}: {
   year: WrappedYear,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   return <AnalyticsContext pageSectionContext="thankYou">
     <section className={classes.section}>
@@ -1438,18 +1425,17 @@ const ThankYouSection = ({year, classes}: {
 /**
  * Section that displays a screenshottable summary of the user's Wrapped data
  */
-const SummarySection = ({data, year, setRef, classes}: {
+const SummarySection = ({data, year, classes}: {
   data: WrappedDataByYear,
   year: WrappedYear,
-  setRef: (el: HTMLElement) => void,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser()
-  
+
   const { UsersProfileImage, CoreTagIcon } = Components
 
   return <AnalyticsContext pageSectionContext="summary">
-    <section className={classes.section} ref={setRef}>
+    <section className={classes.section}>
       <p className={classNames(classes.text, classes.m0)}>Effective Altruism Forum</p>
       <h1 className={classNames(classes.heading2, classes.mt10)}>
         <span className={classes.nowrap}>{currentUser?.displayName}’s</span>{" "}
@@ -1538,7 +1524,7 @@ const SummarySection = ({data, year, setRef, classes}: {
  * Section that displays some recommended posts to the user
  */
 const RecommendationsSection = ({classes}: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   return <AnalyticsContext pageSectionContext="recommendations">
     <section className={classes.section}>
@@ -1568,7 +1554,7 @@ const RecommendationsSection = ({classes}: {
  */
 const MostValuablePostsSection = ({year, classes}: {
   year: WrappedYear,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { ForumIcon, PostsByVoteWrapper } = Components
   
@@ -1598,10 +1584,9 @@ const MostValuablePostsSection = ({year, classes}: {
   </AnalyticsContext>
 }
 
-const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
+const EAForumWrappedPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const { pathname, params } = useLocation()
   const currentUser = useCurrentUser()
-  const { setNode, node } = useIsInView();
 
   const rawYear = parseInt(params.year);
   const year = isWrappedYear(rawYear) ? rawYear : 2024;
@@ -1611,11 +1596,7 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
     year
   })
 
-  const skipToSummary = useCallback(() => {
-    node?.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
-  }, [node]);
-
-  const { HeadTags, ForumIcon, CloudinaryImage2 } = Components
+  const { HeadTags, CloudinaryImage2 } = Components
 
   // If there's no logged in user, prompt them to login
   if (!currentUser) {
@@ -1669,14 +1650,10 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
   return (
     <AnalyticsContext pageContext="eaYearWrapped">
       <main className={classes.root}>
-        
+
         <AnalyticsContext pageSectionContext="top">
           <section className={classes.section}>
             <h1 className={classes.heading1}>Your {year} Wrapped</h1>
-            <button className={classNames(classes.summaryLinkWrapper, classes.skipToSummaryBtn)} onClick={skipToSummary}>
-              Skip to summary
-              <ForumIcon icon="NarrowArrowDown" />
-            </button>
             <CloudinaryImage2
               publicId="2023_wrapped"
               wrapperClassName={classNames(classes.imgWrapper, classes.mt60)}
@@ -1684,7 +1661,7 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
             />
           </section>
         </AnalyticsContext>
-        
+
         <EngagementPercentileSection data={data} year={year} classes={classes} />
         <EngagementHoursSection engagementHours={(data.totalSeconds / 3600)} year={year} classes={classes} />
         <DaysVisitedSection daysVisited={data.daysVisited} year={year} classes={classes} />
@@ -1698,7 +1675,7 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
         <KarmaChangeSection data={data} classes={classes} />
         <ReactsReceivedSection receivedReacts={data.mostReceivedReacts} classes={classes} />
         <ThankYouSection year={year} classes={classes} />
-        <SummarySection data={data} year={year} setRef={setNode} classes={classes} />
+        <SummarySection data={data} year={year} classes={classes} />
         <RecommendationsSection classes={classes} />
         <MostValuablePostsSection year={year} classes={classes} />
 
