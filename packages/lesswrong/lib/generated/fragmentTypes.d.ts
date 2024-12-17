@@ -3262,12 +3262,6 @@ interface UserBookmarkedPosts { // fragment on Users
   readonly bookmarkedPosts: Array<PostsList>,
 }
 
-interface KarmaChangesByContent { // fragment on non-collection type
-  readonly posts: any,
-  readonly comments: any,
-  readonly tagRevisions: any,
-}
-
 interface UserKarmaChanges { // fragment on Users
   readonly _id: string,
   readonly karmaChanges: any,
@@ -4473,7 +4467,6 @@ interface FragmentTypes {
   UsersCurrentCommentRateLimit: UsersCurrentCommentRateLimit
   UsersCurrentPostRateLimit: UsersCurrentPostRateLimit
   UserBookmarkedPosts: UserBookmarkedPosts
-  KarmaChangesByContent: KarmaChangesByContent
   UserKarmaChanges: UserKarmaChanges
   UsersBannedFromUsersModerationLog: UsersBannedFromUsersModerationLog
   SunshineUsersList: SunshineUsersList
@@ -4611,7 +4604,6 @@ interface FragmentTypesByCollection {
   Subscriptions: "SubscriptionsDefaultFragment"|"SubscriptionState"
   Podcasts: "PodcastsDefaultFragment"|"PodcastSelect"
   PodcastEpisodes: "PodcastEpisodesDefaultFragment"|"PodcastEpisodeFull"
-  IKarmaChangeses: "KarmaChangesByContent"
   PetrovDayLaunchs: "PetrovDayLaunchsDefaultFragment"|"PetrovDayLaunchInfo"
   PetrovDayActions: "PetrovDayActionsDefaultFragment"|"PetrovDayActionInfo"
   FeaturedResources: "FeaturedResourcesDefaultFragment"|"FeaturedResourcesFragment"
@@ -4840,7 +4832,6 @@ interface CollectionNamesByFragmentName {
   UsersCurrentCommentRateLimit: "Users"
   UsersCurrentPostRateLimit: "Users"
   UserBookmarkedPosts: "Users"
-  KarmaChangesByContent: never
   UserKarmaChanges: "Users"
   UsersBannedFromUsersModerationLog: "Users"
   SunshineUsersList: "Users"

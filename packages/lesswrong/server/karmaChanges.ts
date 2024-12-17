@@ -34,8 +34,10 @@ const isCommentKarmaChange = (change: AnyKarmaChange): change is CommentKarmaCha
  * Given an array of karma changes on an account's content,
  * calculates the total karma change for that account,
  * and splits the karma changes into buckets by content type.
+ *
+ * Takes an optional _id suffix to separately identify these changes.
  */
-const categorizeKarmaChanges = (changes: AnyKarmaChange[]): KarmaChangesSimple & {totalChange: number} => {
+const categorizeKarmaChanges = (changes: AnyKarmaChange[], suffix?: string): KarmaChangesSimple & {totalChange: number} => {
   const posts: PostKarmaChange[] = [];
   const comments: CommentKarmaChange[] = [];
   const tagRevisions: TagRevisionKarmaChange[] = [];
@@ -43,6 +45,9 @@ const categorizeKarmaChanges = (changes: AnyKarmaChange[]): KarmaChangesSimple &
 
   for (const change of changes) {
     totalChange += change.scoreChange;
+    if (suffix) {
+      change._id += suffix
+    }
     if (isPostKarmaChange(change)) {
       posts.push(change);
     } else if (isCommentKarmaChange(change)) {
@@ -84,7 +89,7 @@ const getEAKarmaChanges = async (
         startDate: yesterday,
         endDate: args.startDate,
       })
-      todaysKarmaChanges = categorizeKarmaChanges(todaysChanges)
+      todaysKarmaChanges = categorizeKarmaChanges(todaysChanges, '-today')
     }
   }
 

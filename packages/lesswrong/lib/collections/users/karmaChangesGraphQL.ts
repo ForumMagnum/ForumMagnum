@@ -11,6 +11,7 @@ addGraphQLSchema(`
   type PostKarmaChange {
     _id: String
     scoreChange: Int
+    postId: String
     title: String
     slug: String
     addedReacts: [ReactionChange!]
@@ -19,6 +20,7 @@ addGraphQLSchema(`
   type CommentKarmaChange {
     _id: String
     scoreChange: Int
+    commentId: String
     description: String
     postId: String
     postTitle: String
@@ -42,17 +44,12 @@ addGraphQLSchema(`
     reactionType: String!
     userId: String
   }
-  interface IKarmaChanges {
+  type KarmaChangesSimple {
     posts: [PostKarmaChange]
     comments: [CommentKarmaChange]
     tagRevisions: [RevisionsKarmaChange]
   }
-  type KarmaChangesSimple implements IKarmaChanges {
-    posts: [PostKarmaChange]
-    comments: [CommentKarmaChange]
-    tagRevisions: [RevisionsKarmaChange]
-  }
-  type KarmaChanges implements IKarmaChanges {
+  type KarmaChanges {
     totalChange: Int
     startDate: Date
     endDate: Date
@@ -110,6 +107,7 @@ export type KarmaChangeBase = {
 }
 
 export type CommentKarmaChange = KarmaChangeBase & {
+  commentId: string,
   description?: string,
   postId?: string,
   postTitle: string,
@@ -123,6 +121,7 @@ export type CommentKarmaChange = KarmaChangeBase & {
 }
 
 export type PostKarmaChange = KarmaChangeBase & {
+  postId: string,
   title: string,
   slug: string,
 }
