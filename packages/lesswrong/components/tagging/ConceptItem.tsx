@@ -12,7 +12,7 @@ import { WikiTagMockup, WikiTagNode } from './types';
 import { Link } from 'react-router-dom';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
 
-const ITEM_WIDTH = 400;
+const ITEM_WIDTH = 300;
 
 
 const ARBITAL_GREEN_DARK = "#004d40"
@@ -59,7 +59,8 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     width: ITEM_WIDTH,
     maxWidth: ITEM_WIDTH,
     borderRadius: theme.borderRadius.default,
-    padding: "2px 14px 2px 8px",
+    padding: "2px 0px",
+    paddingLeft: '2px',
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
@@ -176,7 +177,6 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     marginBottom: 24,
   },
   titleItem: {
-    marginBottom: -16,
     backgroundColor: "unset",
     width: '100%',
     display: "flex",
@@ -264,7 +264,6 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     transform: 'translateY(0.75px)',
   },
   children: {
-    marginLeft: 8,
     width: "calc(100vw - 16px)",
   },
   childrenContainer: {
@@ -272,7 +271,6 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     position: "relative",
   },
   childrenList: {
-    marginTop: 12,
     width: "100%",
     display: "flex",
     flexWrap: "wrap",

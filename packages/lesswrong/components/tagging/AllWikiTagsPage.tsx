@@ -24,9 +24,10 @@ const ARBITAL_GREEN_DARK = "#004d40"
 const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
   root: {
     // padding: "0 100px",
-    maxWidth: 1100,
+    maxWidth: 900,
     // margin: "0 auto",
-    marginLeft: 100,
+    margin: "0 auto",
+    // marginLeft: 100,
     position: 'relative',
   },
   topSection: {
