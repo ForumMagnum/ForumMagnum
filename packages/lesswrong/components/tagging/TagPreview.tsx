@@ -182,22 +182,15 @@ const TagPreview = ({
 
   const hasDescription = !!getTagDescriptionHtml(tag) && !hideDescription;
 
-  // const arbitalImport = tag.isArbitalImport;
-  const arbitalImport = true;
-
   const { TagPreviewDescription, TagSmallPostLink, Loading } = Components;
   return (
     <div className={classNames(classes.root, {
       [classes.rootEAWidth]: isFriendlyUI && hasDescription,
     })}>
-      {arbitalImport && multipleSummaries && <div className={classes.tabsContainer}>
+      {multipleSummaries && <div className={classes.tabsContainer}>
        {summaryTabs}
       </div>}
-      <div className={classNames({
-        [classes.nonTabPadding]: arbitalImport,
-        [classes.nonArbitalPadding]: !arbitalImport
-      })}>
-        {/* {arbitalImport && <Link className={classes.arbitalTitle} to={`/tag/${tag.slug}`}>{tag.name}</Link>} */}
+      <div className={classes.nonTabPadding}>
         {hasDescription && <div className={classes.descriptionTop}>
           <TagPreviewDescription 
             tag={tag} 

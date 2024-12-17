@@ -1147,10 +1147,6 @@ const TagPage = () => {
   const { selectedLensId, selectedLens, updateSelectedLens, lenses } = useTagLenses(tag);
   const displayedTagTitle = useDisplayedTagTitle(tag, lenses, selectedLens);
 
-  // if (!tag || !secondTabTag || !thirdTabTag) {
-  //   return <Loading />
-  // }
-
   const tagPositionInList = otherTagsWithNavigation?.findIndex(tagInList => tag?._id === tagInList._id);
   // We have to handle updates to the listPosition explicitly, since we have to deal with three cases
   // 1. Initially the listPosition is -1 because we don't have a list at all yet
@@ -1295,7 +1291,6 @@ const TagPage = () => {
             handleTripleClick(e);
             clickReadMore();
           }}
-          // onDoubleClick={openInlineEditor}
         >
           <ContentStyles contentType="tag">
             <ContentItemBody
@@ -1432,7 +1427,7 @@ const TagPage = () => {
         }
       </div>
       {tag.contributors && <div className={classes.contributorRow}>
-        {/* <div className={classes.contributorNameWrapper}>
+        <div className={classes.contributorNameWrapper}>
           <span>Written by </span>
           <ContributorsList 
             contributors={topContributors} 
@@ -1451,7 +1446,7 @@ const TagPage = () => {
         <div className={classes.lastUpdated}>
           {'last updated '}
           {selectedLens?.contents?.editedAt && <FormatDate date={selectedLens.contents.editedAt} format="Do MMM YYYY" tooltip={false} />}
-        </div> */}
+        </div>
       </div>}
       <ArbitalRelationshipsSmallScreen arbitalLinkedPages={selectedLens?.arbitalLinkedPages ?? undefined} />
     </div>

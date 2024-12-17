@@ -91,7 +91,6 @@ const TagPreviewDescription = ({tag, hash, classes, activeTab}: {
   const { ContentItemBody, ContentStyles } = Components;
 
   if (activeTab !== undefined && tag.summaries) {
-    
     return <div
       onClick={(ev: React.MouseEvent) => {
         if ((ev.target as any)?.className==="read-more-button") {
