@@ -57,7 +57,7 @@ const styles = defineStyles("TagsTooltip", theme => ({
   tooltip: isFriendlyUI
     ? {}
     : {
-      padding: "4px 0 0 0",
+      padding: 0,
       background: theme.palette.panelBackground.default,
       boxShadow: theme.palette.boxShadow.lwTagHoverOver,
     },
