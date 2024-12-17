@@ -1444,11 +1444,12 @@ Globals.hideContentFromNonDefaultDomains = async (mysqlConnectionString: string)
   const pageIdsToDelete = arbitalDb.pageInfos.filter(pi => pi.seeDomainId !== 0).map(pi => pi.pageId);
   console.log(`Will delete ${pageIdsToDelete.length} pages`);
   
-  const result = await Tags.rawUpdateMany({
-    "legacyData.arbitalPageId": {$in: pageIdsToDelete}
-  }, {
-    $set: {deleted: true},
-  });
+  await executePromiseQueue(pageIdsToDelete.map((pageId) => async () => {
+    await Tags.rawUpdateMany(
+      { "legacyData.arbitalPageId": pageId },
+      { $set: { deleted: true }}
+    );
+  }), 10);
 }
 
 
