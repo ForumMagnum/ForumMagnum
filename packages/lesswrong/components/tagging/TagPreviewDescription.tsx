@@ -40,7 +40,7 @@ const getTagParagraphTruncationCount = (tag: TagPreviewFragment | TagSectionPrev
   if (!tag.description || 'htmlHighlight' in tag.description) return 1;
 
   // Show two paragraphs for links to tag section headers
-  return 2;
+  return 8;
 }
 
 const TagPreviewDescription = ({tag, hash, classes, activeTab}: {
@@ -91,7 +91,6 @@ const TagPreviewDescription = ({tag, hash, classes, activeTab}: {
   const { ContentItemBody, ContentStyles } = Components;
 
   if (activeTab !== undefined && tag.summaries) {
-    
     return <div
       onClick={(ev: React.MouseEvent) => {
         if ((ev.target as any)?.className==="read-more-button") {
@@ -110,15 +109,6 @@ const TagPreviewDescription = ({tag, hash, classes, activeTab}: {
       </ContentStyles>
     </div>
   }
-
-  // Just post the full description
-  return <ContentStyles contentType="comment">
-    <ContentItemBody
-      className={classes.root}
-      dangerouslySetInnerHTML={{__html: getTagDescriptionHtmlHighlight(tag) ?? ''}}
-      description={`tag ${tag.name}`}
-    />
-  </ContentStyles>
 
   if (highlight) {
     const {ContentItemBody, ContentStyles} = Components;

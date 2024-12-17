@@ -266,6 +266,7 @@ const uncategorizedRootTag = {
   postCount: 0,
   coreTagId: null,
   parentTagId: null,
+  isArbitalImport: false,
 };
 
 const uncategorizedChildTag = {
@@ -279,6 +280,7 @@ const uncategorizedChildTag = {
   postCount: 0,
   coreTagId: 'uncategorized-root',
   parentTagId: 'uncategorized-root',
+  isArbitalImport: false,
 };
 
 const prioritySlugs = [

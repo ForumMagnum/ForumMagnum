@@ -192,7 +192,8 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     transform: 'translateY(0.75px)',
   },
   children: {
-    width: "calc(100vw - 16px)",
+    // TODO: come back to this and figure out a better way to handle it, maybe
+    width: "min(950px, 100vw - 16px)",
   },
   childrenContainer: {
     width: "100%",
@@ -204,6 +205,9 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     gap: "8px",
     rowGap: "24px",
     maxWidth: (ITEM_WIDTH * 4) + 36,
+  },
+  childrenListWrapped: {
+    flexWrap: "wrap",
   },
   column: {
     display: "flex",
@@ -251,7 +255,6 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     "&:hover": {
       opacity: 1,
     },
-
   },
   itemPinned: {
     backgroundColor: theme.palette.grey[800],
@@ -270,9 +273,6 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     "&:hover": {
       backgroundColor: theme.palette.grey[900],
     },
-  },
-  tooltipHoverTitle: {
-    margin: '0 24px',
   },
   tooltipHoverPostCount: {},
   arbitalIcon: {
@@ -399,7 +399,6 @@ const ConceptItem = ({
             noPrefetch
             previewPostCount={0}
             placement='right-start'
-            popperClassName={classes.tooltipHoverTitle}
           >
             <span className={classNames(classes.titleText, { [classes.arbitalGreenColor]: wikitag.isArbitalImport && showArbitalIcon })}>
               <Link to={tagGetUrl({slug: wikitag.slug})}>
@@ -443,7 +442,7 @@ const ConceptItem = ({
       {!collapsed && hasChildren && (
         <div className={classes.children}>
           <div className={classes.childrenContainer}>
-            <div className={classNames(classes.childrenList)} style={{forceWrap: showingAllChildren}}>
+            <div className={classNames(classes.childrenList, showingAllChildren && classes.childrenListWrapped)}>
               {columns.slice(0, showingAllChildren ? columns.length : visibleColumns).map((columnItems, columnIndex) => (
                 <div key={columnIndex} className={classes.column}>
                   {columnItems.map((childPage, idx) => (
