@@ -201,12 +201,23 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
     padding: "16px",
     borderRadius: 12,
     backgroundColor: ARBITAL_GREEN_DARK,
-    color: "white",
     marginBottom: 24,
-  },
-  arbitalRedirectNoticeContent: {
-    flexGrow: 1,
+    // fontFamily: theme.palette.fonts.sansSerifStack,
+    // make <a> children have the following styles
+    ...theme.typography.commentStyle,
     color: "white",
+    "& a": {
+      color: "white",
+      //dotted underline
+      textDecoration: "underline",
+      textDecorationStyle: "dotted",
+    },
+    '&& h2': {
+      fontSize: '1.7rem',
+      marginTop: '0rem',
+      marginBottom: '.5rem',
+      fontWeight:500,
+    },
   },
   arbitalLogo: {
     width: 100,
@@ -329,11 +340,11 @@ const ArbitalRedirectNotice = ({ classes, onDismiss }: {
   return (
     <div className={classes.arbitalRedirectNotice}>
       <ArbitalLogo className={classes.arbitalLogo} />
-      <ContentStyles contentType="comment" className={classes.arbitalRedirectNoticeContent}>
+      <div className={classes.arbitalRedirectNoticeContent}>
         {loading && <Loading />}
-        {html && <ContentItemBody dangerouslySetInnerHTML={{ __html: html }} />}
+        {html && <div dangerouslySetInnerHTML={{ __html: html }} />}
         {!html && !loading && <div><em>You have been redirected from Arbital.com</em></div>}
-      </ContentStyles>
+      </div>
       <div className={classes.dismissButtonContainer}>
         <button className={classes.dismissButton} onClick={onDismiss}>×</button>
       </div>
@@ -539,7 +550,7 @@ const AllWikiTagsPage = () => {
                 onSearchStateChange={handleSearchStateChange}
               >
                 <div className={classes.searchInputArea}>
-                  <Configure hitsPerPage={1000} />
+                  <Configure hitsPerPage={200} />
                   <SearchIcon className={classes.searchIcon} />
                   <SearchBox 
                     translations={{ placeholder: 'What would you like to read about?' }}
