@@ -20,6 +20,7 @@ export const EditTagForm = ({tag, successCallback, cancelCallback}: {
     mutationFragment={getFragment('TagWithFlagsFragment')}
     successCallback={successCallback}
     cancelCallback={cancelCallback}
+    addFields={['summaries']}
   />
 }
 

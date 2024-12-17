@@ -640,6 +640,7 @@ const EditLensForm = ({lens}: {
     queryFragmentName="MultiDocumentEdit"
     mutationFragmentName="MultiDocumentEdit"
     {...(lens.originalLensDocument ? { prefetchedDocument: lens.originalLensDocument } : {})}
+    addFields={['summaries']}
   />
 }
 

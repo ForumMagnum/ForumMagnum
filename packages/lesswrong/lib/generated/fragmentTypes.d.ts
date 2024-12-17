@@ -3951,6 +3951,7 @@ interface MultiDocumentContentDisplay { // fragment on MultiDocuments
 
 interface MultiDocumentEdit extends MultiDocumentContentDisplay { // fragment on MultiDocuments
   readonly arbitalLinkedPages: ArbitalLinkedPagesFragment,
+  readonly summaries: Array<MultiDocumentContentDisplay>,
 }
 
 interface MultiDocumentParentDocument extends MultiDocumentEdit { // fragment on MultiDocuments

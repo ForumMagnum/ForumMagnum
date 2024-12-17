@@ -67,7 +67,7 @@ function getDefaultLens(tag: TagPageWithArbitalContentFragment | TagPageRevision
   }
 }
 
-export function getAvailableLenses(tag: TagPageWithArbitalContentFragment | TagPageRevisionWithArbitalContentFragment | TagHistoryFragment | null) {
+export function getAvailableLenses(tag: TagPageWithArbitalContentFragment | TagPageRevisionWithArbitalContentFragment | TagHistoryFragment | null): TagLens[] {
   if (!tag?.lenses) return [];
   return [
     getDefaultLens(tag),
