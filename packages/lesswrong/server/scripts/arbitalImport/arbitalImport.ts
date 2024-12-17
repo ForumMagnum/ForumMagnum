@@ -528,11 +528,16 @@ async function buildConversionContext(database: WholeArbitalDatabase, pagesToCon
   await executePromiseQueue(wikiPageIds
     .filter(pageId => pagesById[pageId]?.some(revision => revision.isLiveEdit))
     .map(pageId => {
+      const pageInfo = pageInfosById[pageId];
+      
       const revisions = pagesById[pageId] ?? [];
       const liveRevision = revisions.filter(r => r.isLiveEdit)[0];
       const title = liveRevision.title;
       
       return async () => {
+        if (pageInfo.isDeleted) return;
+        if (pageInfo.seeDomainId !== 0) return;
+
         pageIdsByTitle[title] = pageId;
         titlesByPageId[pageId] = title;
         liveRevisionsByPageId[pageId] = liveRevision;
@@ -1447,11 +1452,12 @@ Globals.hideContentFromNonDefaultDomains = async (mysqlConnectionString: string)
   const pageIdsToDelete = arbitalDb.pageInfos.filter(pi => pi.seeDomainId !== 0).map(pi => pi.pageId);
   console.log(`Will delete ${pageIdsToDelete.length} pages`);
   
-  const result = await Tags.rawUpdateMany({
-    "legacyData.arbitalPageId": {$in: pageIdsToDelete}
-  }, {
-    $set: {deleted: true},
-  });
+  await executePromiseQueue(pageIdsToDelete.map((pageId) => async () => {
+    await Tags.rawUpdateMany(
+      { "legacyData.arbitalPageId": pageId },
+      { $set: { deleted: true }}
+    );
+  }), 10);
 }
 
 
