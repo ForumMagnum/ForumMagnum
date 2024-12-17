@@ -1,7 +1,7 @@
 import { googleTagManagerIdSetting } from '../lib/publicSettings';
 
 
-function googleTagManagerInit() {
+export function googleTagManagerInit() {
   const googleTagManagerId = googleTagManagerIdSetting.get()
   if (googleTagManagerId) {
     (function (w: any, d: any, s: any, l: any, i: any) {
@@ -25,4 +25,3 @@ function googleTagManagerInit() {
   }
 }
 
-googleTagManagerInit();

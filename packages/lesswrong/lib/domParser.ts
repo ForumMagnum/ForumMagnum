@@ -1,10 +1,5 @@
 import type { DOMWindow } from "jsdom";
-import { isServer } from "./executionEnvironment";
-
-// Note: isServer is defined as `const isServer = bundleIsServer`, but checking
-// against isServer here isn't sufficient to prevent the require from making it
-// into the client bundle.
-const { parseHTML = null } = bundleIsServer ? require('linkedom') : {};
+import { parseHTML } from "@/server/utils/wrapLinkedom";
 
 /**
  * A window type that works with jsdom or the browser window
@@ -18,7 +13,7 @@ export function parseDocumentFromString(html: string): {
   document: Document;
   window: WindowType;
 } {
-  if (isServer) {
+  if (bundleIsServer) {
     const { document, window } = parseHTML(`<html><body>${html}</body></html>`);
     return { document, window };
   } else {
