@@ -1,5 +1,4 @@
-import bowser from 'bowser';
-import { isClient, isServer } from '../../executionEnvironment';
+import { isServer } from '../../executionEnvironment';
 import {forumTypeSetting, isEAForum, verifyEmailsSetting} from '../../instanceSettings'
 import { combineUrls, getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissions';
@@ -10,7 +9,6 @@ import { Components } from '../../vulcan-lib/components';
 import type { PermissionResult } from '../../make_voteable';
 import { DatabasePublicSetting } from '../../publicSettings';
 import { hasAuthorModeration } from '../../betas';
-import { isFriendlyUI } from '@/themes/forumTheme';
 
 const newUserIconKarmaThresholdSetting = new DatabasePublicSetting<number|null>('newUserIconKarmaThreshold', null)
 
@@ -369,22 +367,7 @@ export const userGetAnalyticsUrl = (user: {slug: string}, isAbsolute=false): str
 }
 
 
-
-const clientRequiresMarkdown = (): boolean => {
-  if (isClient &&
-      window &&
-      window.navigator &&
-      window.navigator.userAgent) {
-
-      return (bowser.mobile || bowser.tablet)
-  }
-  return false
-}
-
 export const userUseMarkdownPostEditor = (user: UsersCurrent|null): boolean => {
-  if (!isFriendlyUI && clientRequiresMarkdown()) {
-    return true
-  }
   if (!user) {
     return false;
   }
