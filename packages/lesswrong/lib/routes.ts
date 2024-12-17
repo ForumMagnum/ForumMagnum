@@ -377,6 +377,7 @@ if (taggingNameIsSet.get()) {
       name: 'tagsSingleRedirectCustomName',
       path: '/tag/:slug',
       redirect: ({ params }) => `/${taggingNamePluralSetting.get()}/${params.slug}`,
+      background: "#fffeee",
       getPingback: (parsedUrl) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug),
     },
     {
@@ -386,7 +387,7 @@ if (taggingNameIsSet.get()) {
       titleComponentName: 'TagPageTitle',
       subtitleComponentName: 'TagPageTitle',
       previewComponentName: 'TagHoverPreview',
-      background: "white",
+      // background: "white",
       noIndex: true,
     },
     {
@@ -598,7 +599,7 @@ addRoute(
   {
     name: 'tagsAll',
     path: getAllTagsPath(),
-    componentName: isEAForum ? 'EAAllTagsPage' : 'AllTagsPage',
+    componentName: isEAForum ? 'EAAllTagsPage' : 'AllWikiTagsPage',
     title: isEAForum ? `${taggingNamePluralCapitalSetting.get()} — Main Page` : "Concepts Portal",
     description: isEAForum ? `Browse the core ${taggingNamePluralSetting.get()} discussed on the EA Forum and an organised wiki of key ${taggingNameSetting.get()} pages` : undefined,
     hasLeftNavigationColumn: false,

@@ -396,7 +396,10 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
   
   await recomputePingbacks("Tags");
   await recomputePingbacks("MultiDocuments");
-  //await importPagePairs(database, resolverContext, options);
+
+  // This needs to be rerun whenever the page import is run
+  await importPagePairs(database, resolverContext, options);
+
   //await importComments(database, conversionContext, resolverContext, options);
 }
 
@@ -525,11 +528,16 @@ async function buildConversionContext(database: WholeArbitalDatabase, pagesToCon
   await executePromiseQueue(wikiPageIds
     .filter(pageId => pagesById[pageId]?.some(revision => revision.isLiveEdit))
     .map(pageId => {
+      const pageInfo = pageInfosById[pageId];
+      
       const revisions = pagesById[pageId] ?? [];
       const liveRevision = revisions.filter(r => r.isLiveEdit)[0];
       const title = liveRevision.title;
       
       return async () => {
+        if (pageInfo.isDeleted) return;
+        if (pageInfo.seeDomainId !== 0) return;
+
         pageIdsByTitle[title] = pageId;
         titlesByPageId[pageId] = title;
         liveRevisionsByPageId[pageId] = liveRevision;
@@ -1444,11 +1452,12 @@ Globals.hideContentFromNonDefaultDomains = async (mysqlConnectionString: string)
   const pageIdsToDelete = arbitalDb.pageInfos.filter(pi => pi.seeDomainId !== 0).map(pi => pi.pageId);
   console.log(`Will delete ${pageIdsToDelete.length} pages`);
   
-  const result = await Tags.rawUpdateMany({
-    "legacyData.arbitalPageId": {$in: pageIdsToDelete}
-  }, {
-    $set: {deleted: true},
-  });
+  await executePromiseQueue(pageIdsToDelete.map((pageId) => async () => {
+    await Tags.rawUpdateMany(
+      { "legacyData.arbitalPageId": pageId },
+      { $set: { deleted: true }}
+    );
+  }), 10);
 }
 
 
@@ -1521,9 +1530,9 @@ async function importPagePairs(
   resolverContext: ResolverContext,
   options: ArbitalImportOptions
 ): Promise<void> {
-  // replicating here rather than using buildConversionContext to avoid unintended side effects
-  const pageInfosById = keyBy(database.pageInfos, pi=>pi.pageId);
-  const defaultUser: DbUser|null = await Users.findOne({ username: "arbitalimport" });
+  // Replicating here rather than using buildConversionContext to avoid unintended side effects
+  const pageInfosById = keyBy(database.pageInfos, pi => pi.pageId);
+  const defaultUser: DbUser | null = await Users.findOne({ username: "arbitalimport" });
   if (!defaultUser) {
     throw new Error("There must be a fallback user named arbitalimport to assign edits to");
   }
@@ -1535,18 +1544,20 @@ async function importPagePairs(
 
   const filteredPagePairs = database.pagePairs.filter(pair => {
     const { parentId, childId, type } = pair;
-    
+
     // First check if we should include this pair based on the pages option
     if (options.pages && !options.pages.includes(childId)) {
       return false;
     }
-    
+
     const validType = ['tag', 'subject', 'requirement', 'parent'].includes(type);
     const parentInfo = pageInfosById[parentId];
     const childInfo = pageInfosById[childId];
     const pagesExist = parentInfo && childInfo;
     const pagesNotDeleted = pagesExist && !parentInfo.isDeleted && !childInfo.isDeleted;
-    return validType && pagesExist && pagesNotDeleted;
+    const pagesAreWikis = pagesExist && parentInfo.type === 'wiki' && childInfo.type === 'wiki';
+
+    return validType && pagesExist && pagesNotDeleted && pagesAreWikis;
   });
 
   console.log(`Importing ${filteredPagePairs.length} page pairs`);
@@ -1816,4 +1827,63 @@ async function checkDefaultPageSummaries(database: WholeArbitalDatabase) {
 Globals.checkDefaultPageSummaries = async (mysqlConnectionString: string) => {
   const arbitalDb = await connectAndLoadArbitalDatabase(mysqlConnectionString);
   await checkDefaultPageSummaries(arbitalDb);
+}
+
+function loadCoreTagAssignmentsCsv() {
+  const csvStr = fs.readFileSync('/Users/robert/Downloads/core_tag_assignments.csv', 'utf-8');
+  const parsedCsv = Papa.parse(csvStr, {
+    delimiter: ',',
+    header: true,
+    skipEmptyLines: true,
+  });
+  if (parsedCsv.errors?.length > 0) {
+    for (const error of parsedCsv.errors) {
+      console.error(`${error.row}: ${error.message}`);
+    }
+    throw new Error("Error parsing CSV");
+  }
+  return parsedCsv;
+}
+
+interface TagAssignment {
+  _id: string;
+  coreTagNames: string[];
+}
+
+Globals.loadCoreTagAssignmentsCsv = async () => {
+  await ArbitalTagContentRels.rawRemove({ 'legacyData.coreTagAssignment': true });
+
+  const coreTags = await Tags.find({ core: true }).fetch();
+  const coreTagNames = new Set(coreTags.map(ct => ct.name));
+  const coreTagIdsByName = Object.fromEntries(coreTags.map(ct => [ct.name, ct._id]));
+
+  const { data } = loadCoreTagAssignmentsCsv();
+  const tagAssignments: TagAssignment[] = data.map((row: AnyBecauseIsInput) => {
+    return {
+      _id: row._id,
+      coreTagNames: row['Core Tag'].split(', '),
+    };
+  });
+
+  const filteredTagAssignments = tagAssignments.filter(ta => ta.coreTagNames.every(tag => coreTagNames.has(tag)));
+
+  const tagAssignmentInserts: MongoBulkInsert<DbArbitalTagContentRel>[] = filteredTagAssignments.flatMap(ta => ta.coreTagNames.map(tag => ({
+    document: {
+      _id: randomId(),
+      parentDocumentId: coreTagIdsByName[tag],
+      childDocumentId: ta._id,
+      parentCollectionName: 'Tags',
+      childCollectionName: 'Tags',
+      type: 'parent-is-tag-of-child',
+      level: 0,
+      isStrong: true,
+      createdAt: new Date(),
+      legacyData: { coreTagAssignment: true },
+      schemaVersion: 1,
+    },
+  })));
+
+  console.log(`Inserting ${tagAssignmentInserts.length} tag assignments`);
+
+  await ArbitalTagContentRels.rawCollection().bulkWrite(tagAssignmentInserts.map(insert => ({ insertOne: insert })));
 }

@@ -1,11 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import CommentIcon from '@material-ui/icons/ModeComment';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { Link } from '@/lib/reactRouterWrapper';
-import type { ArbitalPage, ArbitalPageWithMatchedData, ArbitalPageNode } from './arbitalTypes';
-// Import styles as needed
+import { WikiTagNode } from './types';
 
 const KARMA_WIDTH = 50;
 const SECTION_WIDTH = 768;
@@ -141,7 +139,6 @@ const styles = defineStyles("WikiTagItem", (theme: ThemeType) => ({
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
-    // marginRight: 10,
     opacity: 0.95
   },
   titleLink: {
@@ -180,7 +177,6 @@ const styles = defineStyles("WikiTagItem", (theme: ThemeType) => ({
   oneLiner: {
     fontSize: 12,
     color: theme.palette.grey[600],
-    //text overflow ellipsis
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
@@ -248,12 +244,6 @@ const styles = defineStyles("WikiTagItem", (theme: ThemeType) => ({
   childrenList: {
     display: "flex",
     flexDirection: "column",
-    // doesn't work
-    // "&:last-child": {
-    //   "& .WikiTagItem-item": {  // or use classes.item if you prefer
-    //     boxShadow: "0 2px 8px rgba(0,0,0,1)",
-    //   },
-    // },
   },
   showMoreChildren: {
     fontSize: 12,
@@ -269,22 +259,19 @@ const styles = defineStyles("WikiTagItem", (theme: ThemeType) => ({
   },
   oneLinerInvisible: {
     display: 'none',
-    // opacity: 0,
-    // pointerEvents: "none",
   },
   contributorTooltip: {
     whiteSpace: 'nowrap',
-
-    // color: theme.palette.grey[600],
   },
 }));
 
 interface WikiTagItemProps {
-  page: ArbitalPageNode;
+  page: WikiTagNode;
   nestingLevel: number;
   options?: {
-    sort?: (a: ArbitalPageNode, b: ArbitalPageNode) => number;
+    sort?: (a: WikiTagNode, b: WikiTagNode) => number;
     defaultCollapseAfterLevel?: number;
+    // Future options can be added here
   };
   className?: string;
 }
@@ -292,23 +279,12 @@ interface WikiTagItemProps {
 const WikiTagItem = ({ page, nestingLevel, options = {} }: WikiTagItemProps) => {
   const classes = useStyles(styles);
 
-  if (nestingLevel < 1 ) {
-    // console.log({nestingLevel, options, defaultCollapseAfterLevel: options.defaultCollapseAfterLevel});
-  }
-
   const [collapsed, setCollapsed] = useState(
     options.defaultCollapseAfterLevel !== undefined && 
     nestingLevel >= options.defaultCollapseAfterLevel
   );
 
-  useEffect(() => {
-    setCollapsed(
-      options.defaultCollapseAfterLevel !== undefined && 
-      nestingLevel >= options.defaultCollapseAfterLevel
-    );
-  }, [options.defaultCollapseAfterLevel, nestingLevel]);
-
-  const { ForumIcon, LWTooltip, TagsTooltip, WikiTagNestedList } = Components;
+  const { ForumIcon, TagsTooltip, WikiTagNestedList } = Components;
 
   const toggleCollapse = () => {
     setCollapsed(!collapsed);
@@ -316,87 +292,46 @@ const WikiTagItem = ({ page, nestingLevel, options = {} }: WikiTagItemProps) => 
 
   const hasChildren = page.children && page.children.length > 0;
 
-  const oneLinerText = page.oneLiner || "filler text will be invisible";
+  const descriptionLength = page.description?.html?.length ?? 0;
 
-  const wordCountFormatted = `${page.text_length / 6 >= 100 ? `${(page.text_length / 6 / 1000).toFixed(1)}k ` : Math.round(page.text_length / 6)} words`;
-
-  const commentCountNode = !!(page.commentCount && page.commentCount > 0) && (
-    <div className={classes.commentsIconSmall}>
-      <CommentIcon className={classes.commentCountIcon} />
-      <div className={classes.commentCount}>{page.commentCount}</div>
-    </div>
-  );
-
-  const contributors = page.contributors?.contributors || [];
-
-  const contributorsList = contributors.length === 1 
-    ? `${contributors[0].numCommits} commit${contributors[0].numCommits === 1 ? '' : 's'}`
-    : [...contributors]
-      .sort((a, b) => b.numCommits - a.numCommits)
-      .map(({ user, numCommits }) => (
-        <div className={classes.contributorTooltip} key={user?._id}>{`${user?.displayName} (${numCommits} commit${numCommits === 1 ? '' : 's'})`}</div>
-      ))
-
-  const topContributor = contributors.find((contributor) => contributor.numCommits === Math.max(...contributors.map((contributor) => contributor.numCommits)));
+  const wordCountFormatted = `${descriptionLength / 6 >= 100 ? `${(descriptionLength / 6 / 1000).toFixed(1)}k ` : Math.round(descriptionLength / 6)} words`;
 
   return (
     <div className={classes.root}>
-      <div className={classes.item}>
-        <div
-          className={classNames(classes.collapse, { [classes.collapseInvisible]: !hasChildren })}
-          onClick={hasChildren ? toggleCollapse : undefined}
-        >
-          <ForumIcon
-            icon="SoftUpArrow"
-            className={classNames(
-              classes.collapseChevron,
-              !collapsed && classes.collapseChevronOpen
-            )}
-          />
-        </div>
-        <TagsTooltip tagSlug={page.newSlug || page.title} noPrefetch className={classes.tooltip}>
+      <TagsTooltip tagSlug={page.slug} noPrefetch className={classes.tooltip}>
+        <div className={classes.item}>
+          <div
+            className={classNames(classes.collapse, { [classes.collapseInvisible]: !hasChildren })}
+            onClick={hasChildren ? toggleCollapse : undefined}
+          >
+            <ForumIcon
+              icon="SoftUpArrow"
+              className={classNames(
+                classes.collapseChevron,
+                !collapsed && classes.collapseChevronOpen
+              )}
+            />
+          </div>
           {/* Title and One-liner */}
           <div className={classes.titleAndOneLiner}>
             <div className={classes.titleRow}>
               <div className={classes.leftSideItems}>
                 <div className={classes.title}>
-                  {page.newSlug ? (
-                    <Link to={`/tag/${page.newSlug}`} doOnDown={true} className={classes.titleLink}>
-                      {page.title}
-                    </Link>
-                  ) : (
-                    <a href={`https://arbital.com/wiki/${page.pageId}`} target="_blank" rel="noopener noreferrer">
-                      {page.title}
-                    </a>
-                  )}
+                  <Link to={`/tag/${page.slug}`} doOnDown={true} className={classes.titleLink}>
+                    {page.name}
+                  </Link>
                 </div>
                 <div className={classes.wordCount}>{wordCountFormatted}</div>
               </div>
             </div>
-            <div
-              className={classNames(classes.oneLiner, {
-                [classes.oneLinerInvisible]: !page.oneLiner,
-              })}
-            >
-              {oneLinerText}
-            </div>
           </div>
-        </TagsTooltip>
-        <div className={classes.rightSideItems}>
-          {commentCountNode}
-          <LWTooltip title={contributorsList}>
-            <div className={classes.mainAuthor}>{topContributor?.user?.displayName}</div>
-          </LWTooltip>
         </div>
-      </div>
+      </TagsTooltip>
 
-      {/* Render Children using WikiTagNestedList */}
       {!collapsed && hasChildren && (
         <WikiTagNestedList 
           pages={page.children} 
           nestingLevel={nestingLevel + 1}
-          options={options}  // Pass all options down
-          className={classes.children}
         />
       )}
     </div>
