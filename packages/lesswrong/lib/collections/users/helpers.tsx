@@ -10,6 +10,7 @@ import { Components } from '../../vulcan-lib/components';
 import type { PermissionResult } from '../../make_voteable';
 import { DatabasePublicSetting } from '../../publicSettings';
 import { hasAuthorModeration } from '../../betas';
+import { isFriendlyUI } from '@/themes/forumTheme';
 
 const newUserIconKarmaThresholdSetting = new DatabasePublicSetting<number|null>('newUserIconKarmaThreshold', null)
 
@@ -381,7 +382,7 @@ const clientRequiresMarkdown = (): boolean => {
 }
 
 export const userUseMarkdownPostEditor = (user: UsersCurrent|null): boolean => {
-  if (clientRequiresMarkdown()) {
+  if (!isFriendlyUI && clientRequiresMarkdown()) {
     return true
   }
   if (!user) {
