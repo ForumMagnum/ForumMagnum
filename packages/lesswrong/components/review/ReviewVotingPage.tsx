@@ -344,6 +344,14 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
       break;
   }
 
+  const handlePostClick = (post: PostsReviewVotingList) => {
+    if (expandedPost?._id === post._id) {
+      setExpandedPost(null)
+    } else {
+      setExpandedPost(post)
+    }
+  }
+
   return (
     <AnalyticsContext pageContext="ReviewVotingPage">
     <div className={classes.root}>
@@ -374,7 +382,6 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
               type: "QUALITATIVE" as const
             } : null
             return <div key={post._id} onClick={()=>{
-              setExpandedPost(expandedPost === post ? null : post)
               captureEvent(undefined, {eventSubType: "voteTableRowClicked", postId: post._id})}}
             >
               <ReviewVoteTableRow
@@ -384,6 +391,7 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
                 dispatch={dispatchQualitativeVote}
                 currentVote={currentVote}
                 expandedPostId={expandedPost?._id}
+                setExpandedPost={handlePostClick}
                 reviewPhase={reviewPhase}
                 reviewYear={reviewYear}
                 voteTooltip={voteTooltip}
