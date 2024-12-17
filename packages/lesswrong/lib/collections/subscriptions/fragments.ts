@@ -12,3 +12,11 @@ registerFragment(`
     type
   }
 `);
+
+registerFragment(`
+  fragment MembersOfGroupFragment on Subscription {
+    user {
+      ...UsersMinimumInfo
+    }
+  }
+`);
