@@ -642,3 +642,30 @@ export async function updateDenormalizedContributorsList(tag: DbTag): Promise<Co
   
   return contributionStats;
 }
+
+interface AllTagsPageCache {
+  tags: DbTag[];
+  lastUpdatedAt: Date;
+}
+
+const ALL_TAGS_PAGE_CACHE: AllTagsPageCache = {
+  tags: [],
+  lastUpdatedAt: new Date(0),
+};
+
+async function updateAllTagsPageCache(context: ResolverContext) {
+  const tags = await context.repos.tags.getAllTagsForCache();
+  ALL_TAGS_PAGE_CACHE.tags = tags;
+  ALL_TAGS_PAGE_CACHE.lastUpdatedAt = new Date();
+}
+
+defineQuery({
+  name: "AllTags",
+  resultType: "[Tag!]!",
+  fn: async (root, args, context) => {
+    if (moment(ALL_TAGS_PAGE_CACHE.lastUpdatedAt).isBefore(moment(new Date()).subtract(1, 'hour'))) {
+      await updateAllTagsPageCache(context);
+    }
+    return ALL_TAGS_PAGE_CACHE.tags;
+  },
+});

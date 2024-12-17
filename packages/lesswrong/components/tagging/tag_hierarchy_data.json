@@ -1,0 +1,1747 @@
+[
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-theory-concepts",
+    "slug": "anticipated-experiences"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-theory-concepts",
+    "slug": "aumann-s-agreement-theorem"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-theory-concepts",
+    "slug": "bayes-theorem"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-theory-concepts",
+    "slug": "bounded-rationality"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-theory-concepts",
+    "slug": "conservation-of-expected-evidence"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-theory-concepts",
+    "slug": "contrarianism"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-theory-concepts",
+    "slug": "decision-theory"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-theory-concepts",
+    "slug": "epistemology"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-theory-concepts",
+    "slug": "game-theory"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-theory-concepts",
+    "slug": "gears-level"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-theory-concepts",
+    "slug": "hansonian-pre-rationality"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-theory-concepts",
+    "slug": "infra-bayesianism"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-theory-concepts",
+    "slug": "law-thinking"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-theory-concepts",
+    "slug": "map-and-territory"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-theory-concepts",
+    "slug": "newcomb-s-problem"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-theory-concepts",
+    "slug": "occam-s-razor"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-theory-concepts",
+    "slug": "robust-agents"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-theory-concepts",
+    "slug": "solomonoff-induction"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-theory-concepts",
+    "slug": "truth-semantics-and-meaning"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-theory-concepts",
+    "slug": "utility-functions"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-applied-topics",
+    "slug": "alief"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-applied-topics",
+    "slug": "betting"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-applied-topics",
+    "slug": "cached-thoughts"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-applied-topics",
+    "slug": "calibration"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-applied-topics",
+    "slug": "dark-arts"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-applied-topics",
+    "slug": "empiricism"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-applied-topics",
+    "slug": "epistemic-modesty"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-applied-topics",
+    "slug": "forecasting-and-prediction"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-applied-topics",
+    "slug": "group-rationality"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-applied-topics",
+    "slug": "identity"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-applied-topics",
+    "slug": "inside-outside-view"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-applied-topics",
+    "slug": "introspection"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-applied-topics",
+    "slug": "intuition"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-applied-topics",
+    "slug": "practice-and-philosophy-of-science"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-applied-topics",
+    "slug": "scholarship-and-learning"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-applied-topics",
+    "slug": "taking-ideas-seriously"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-applied-topics",
+    "slug": "value-of-information"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-failure-modes",
+    "slug": "affect-heuristic"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-failure-modes",
+    "slug": "aversion-ugh-fields"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-failure-modes",
+    "slug": "bucket-errors"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-failure-modes",
+    "slug": "compartmentalization"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-failure-modes",
+    "slug": "confirmation-bias"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-failure-modes",
+    "slug": "logical-fallacies"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-failure-modes",
+    "slug": "goodhart-s-law"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-failure-modes",
+    "slug": "groupthink"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-failure-modes",
+    "slug": "heuristics-and-biases"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-failure-modes",
+    "slug": "mind-projection-fallacy"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-failure-modes",
+    "slug": "motivated-reasoning"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-failure-modes",
+    "slug": "pica"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-failure-modes",
+    "slug": "pitfalls-of-rationality"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-failure-modes",
+    "slug": "rationalization"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-failure-modes",
+    "slug": "self-deception"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-failure-modes",
+    "slug": "sunk-cost-fallacy"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-communication",
+    "slug": "common-knowledge"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-communication",
+    "slug": "conversation-topic"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-communication",
+    "slug": "decoupling-vs-contextualizing"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-communication",
+    "slug": "disagreement"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-communication",
+    "slug": "distillation-and-pedagogy"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-communication",
+    "slug": "double-crux"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-communication",
+    "slug": "good-explanations-advice"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-communication",
+    "slug": "ideological-turing-tests"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-communication",
+    "slug": "inferential-distance"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-communication",
+    "slug": "information-cascades"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-communication",
+    "slug": "memetic-immune-system"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-communication",
+    "slug": "philosophy-of-language"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-communication",
+    "slug": "steelmanning"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-techniques",
+    "slug": "double-crux"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-techniques",
+    "slug": "fermi-estimation"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-techniques",
+    "slug": "focusing"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-techniques",
+    "slug": "goal-factoring"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-techniques",
+    "slug": "internal-double-crux"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-techniques",
+    "slug": "hamming-questions"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-techniques",
+    "slug": "murphyjitsu"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-techniques",
+    "slug": "noticing"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-techniques",
+    "slug": "techniques"
+  },
+  {
+    "core-tag": "Rationality",
+    "sub-grouping": "rationality-techniques",
+    "slug": "trigger-action-planning"
+  },
+  {
+    "core-tag": "AI",
+      "sub-grouping": "ai-basic-alignment-theory",
+    "slug": "aixi"
+  },
+{
+  "core-tag": "AI",
+    "sub-grouping": "ai-basic-alignment-theory",
+    "slug": "coherent-extrapolated-volition"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-basic-alignment-theory",
+    "slug": "complexity-of-value"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-basic-alignment-theory",
+    "slug": "corrigibility"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-basic-alignment-theory",
+    "slug": "deceptive-alignment"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-basic-alignment-theory",
+    "slug": "decision-theory"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-basic-alignment-theory",
+    "slug": "embedded-agency"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-basic-alignment-theory",
+    "slug": "fixed-point-theorems"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-basic-alignment-theory",
+    "slug": "goodhart-s-law"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-basic-alignment-theory",
+    "slug": "goal-directedness"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-basic-alignment-theory",
+    "slug": "gradient-hacking"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-basic-alignment-theory",
+    "slug": "infra-bayesianism"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-basic-alignment-theory",
+    "slug": "inner-alignment"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-basic-alignment-theory",
+    "slug": "instrumental-convergence"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-basic-alignment-theory",
+    "slug": "intelligence-explosion"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-basic-alignment-theory",
+    "slug": "logical-induction"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-basic-alignment-theory",
+    "slug": "logical-uncertainty"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-basic-alignment-theory",
+    "slug": "mesa-optimization"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-basic-alignment-theory",
+    "slug": "multipolar-scenarios"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-basic-alignment-theory",
+    "slug": "myopia"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-basic-alignment-theory",
+    "slug": "newcomb-s-problem"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-basic-alignment-theory",
+    "slug": "optimization"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-basic-alignment-theory",
+    "slug": "orthogonality-thesis"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-basic-alignment-theory",
+    "slug": "outer-alignment"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-basic-alignment-theory",
+    "slug": "paperclip-maximizer"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-basic-alignment-theory",
+    "slug": "power-seeking-ai"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-basic-alignment-theory",
+    "slug": "recursive-self-improvement"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-basic-alignment-theory",
+    "slug": "simulator-theory"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-basic-alignment-theory",
+    "slug": "sharp-left-turn"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-basic-alignment-theory",
+    "slug": "solomonoff-induction"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-basic-alignment-theory",
+    "slug": "superintelligence"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-basic-alignment-theory",
+    "slug": "symbol-grounding"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-basic-alignment-theory",
+    "slug": "transformative-ai"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-basic-alignment-theory",
+    "slug": "treacherous-turn"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-basic-alignment-theory",
+    "slug": "utility-functions"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-basic-alignment-theory",
+    "slug": "whole-brain-emulation"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-engineering-alignment",
+    "slug": "agent-foundations"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-engineering-alignment",
+    "slug": "ai-assisted-alignment"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-engineering-alignment",
+    "slug": "ai-boxing-containment"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-engineering-alignment",
+    "slug": "conservatism-ai"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-engineering-alignment",
+    "slug": "ai-safety-via-debate"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-engineering-alignment",
+    "slug": "eliciting-latent-knowledge-elk"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-engineering-alignment",
+    "slug": "factored-cognition"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-engineering-alignment",
+    "slug": "hch"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-engineering-alignment",
+    "slug": "impact-measures"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-engineering-alignment",
+    "slug": "inverse-reinforcement-learning"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-engineering-alignment",
+    "slug": "iterated-amplification"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-engineering-alignment",
+    "slug": "mild-optimization"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-engineering-alignment",
+    "slug": "oracle-ai"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-engineering-alignment",
+    "slug": "reward-functions"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-engineering-alignment",
+    "slug": "rlhf"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-engineering-alignment",
+    "slug": "shard-theory"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-engineering-alignment",
+    "slug": "tool-ai"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-engineering-alignment",
+    "slug": "transparency-interpretability-ml-and-ai"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-engineering-alignment",
+    "slug": "tripwire"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-engineering-alignment",
+    "slug": "value-learning"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-organizations",
+    "slug": "ai-safety-camp"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-organizations",
+    "slug": "alignment-research-center"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-organizations",
+    "slug": "anthropic"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-organizations",
+    "slug": "apart-research"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-organizations",
+    "slug": "axrp"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-organizations",
+    "slug": "centre-for-human-compatible-ai"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-organizations",
+    "slug": "conjecture-org"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-organizations",
+    "slug": "alpha-algorithm-family"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-organizations",
+    "slug": "encultured-ai-org"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-organizations",
+    "slug": "future-of-humanity-institute"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-organizations",
+    "slug": "future-of-life-institute-fli"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-organizations",
+    "slug": "machine-intelligence-research-institute-miri"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-organizations",
+    "slug": "openai"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-organizations",
+    "slug": "ought"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-organizations",
+    "slug": "seri-mats"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-strategy",
+    "slug": "ai-alignment-fieldbuilding"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-strategy",
+    "slug": "ai-governance"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-strategy",
+    "slug": "ai-persuasion"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-strategy",
+    "slug": "ai-risk"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-strategy",
+    "slug": "ai-risk-concrete-stories"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-strategy",
+    "slug": "ai-safety-public-materials"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-strategy",
+    "slug": "ai-services-cais"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-strategy",
+    "slug": "ai-success-models"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-strategy",
+    "slug": "ai-takeoff"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-strategy",
+    "slug": "ai-timelines"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-strategy",
+    "slug": "computing-overhang"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-strategy",
+    "slug": "regulation-and-ai-risk"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-strategy",
+    "slug": "restrain-ai-development"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-other",
+    "slug": "ai-alignment-intro-materials"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-other",
+    "slug": "ai-capabilities"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-other",
+    "slug": "ai-questions-open-thread"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-other",
+    "slug": "compute"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-other",
+    "slug": "dall-e"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-other",
+    "slug": "gpt"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-other",
+    "slug": "language-models"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-other",
+    "slug": "machine-learning"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-other",
+    "slug": "narrow-ai"
+  },
+  {
+    "core-tag": "AI",
+    "sub-grouping": "ai-other",
+    "slug": "neuromorphic-ai"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-mathematical-sciences",
+    "slug": "abstraction"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-mathematical-sciences",
+    "slug": "anthropics"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-mathematical-sciences",
+    "slug": "category-theory"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-mathematical-sciences",
+    "slug": "causality"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-mathematical-sciences",
+    "slug": "computer-science"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-mathematical-sciences",
+    "slug": "free-energy-principle"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-mathematical-sciences",
+    "slug": "game-theory"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-mathematical-sciences",
+    "slug": "decision-theory"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-mathematical-sciences",
+    "slug": "information-theory"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-mathematical-sciences",
+    "slug": "logic-and-mathematics"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-mathematical-sciences",
+    "slug": "probability-and-statistics"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-mathematical-sciences",
+    "slug": "prisoner-s-dilemma"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-mathematical-sciences",
+    "slug": "sleeping-beauty-paradox"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-general-science",
+    "slug": "machine-learning"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-general-science",
+    "slug": "nanotechnology"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-general-science",
+    "slug": "physics"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-general-science",
+    "slug": "programming"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-general-science",
+    "slug": "space-exploration-and-colonization"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-general-science",
+    "slug": "simulation-hypothesis"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-general-science",
+    "slug": "great-filter"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-social-economic",
+    "slug": "economics"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-social-economic",
+    "slug": "financial-investing"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-social-economic",
+    "slug": "history"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-social-economic",
+    "slug": "politics"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-social-economic",
+    "slug": "progress-studies"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-social-economic",
+    "slug": "social-and-cultural-dynamics"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-social-economic",
+    "slug": "conflict-vs-mistake"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-social-economic",
+    "slug": "cost-disease"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-social-economic",
+    "slug": "efficient-market-hypothesis"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-social-economic",
+    "slug": "industrial-revolution"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-social-economic",
+    "slug": "moral-mazes"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-social-economic",
+    "slug": "signaling"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-social-economic",
+    "slug": "social-reality"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-social-economic",
+    "slug": "social-status"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-biological-psychological",
+    "slug": "aging"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-biological-psychological",
+    "slug": "biology"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-biological-psychological",
+    "slug": "consciousness"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-biological-psychological",
+    "slug": "evolution"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-biological-psychological",
+    "slug": "evolutionary-psychology"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-biological-psychological",
+    "slug": "medicine"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-biological-psychological",
+    "slug": "neuroscience"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-biological-psychological",
+    "slug": "qualia"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-biological-psychological",
+    "slug": "coronavirus"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-biological-psychological",
+    "slug": "general-intelligence"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-biological-psychological",
+    "slug": "iq-g-factor"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-biological-psychological",
+    "slug": "neocortex"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-practice",
+    "slug": "epistemic-review"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-practice",
+    "slug": "expertise"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-practice",
+    "slug": "gears-level"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-practice",
+    "slug": "falsifiability"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-practice",
+    "slug": "fermi-estimation"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-practice",
+    "slug": "forecasting-and-prediction"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-practice",
+    "slug": "forecasts-lists-of"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-practice",
+    "slug": "inside-outside-view"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-practice",
+    "slug": "intellectual-progress"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-practice",
+    "slug": "intellectual-progress-individual-level"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-practice",
+    "slug": "jargon-meta"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-practice",
+    "slug": "practice-and-philosophy-of-science"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-practice",
+    "slug": "prediction-markets"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-practice",
+    "slug": "reductionism"
+  },
+  {
+    "core-tag": "World Modeling",
+    "sub-grouping": "world-modeling-practice",
+    "slug": "replicability"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-moral-theory",
+    "slug": "altruism"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-moral-theory",
+    "slug": "consequentialism"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-moral-theory",
+    "slug": "deontology"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-moral-theory",
+    "slug": "ethics-and-morality"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-moral-theory",
+    "slug": "metaethics"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-moral-theory",
+    "slug": "moral-uncertainty"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-moral-theory",
+    "slug": "trolley-problem"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-causes",
+    "slug": "aging"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-causes",
+    "slug": "animal-welfare"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-causes",
+    "slug": "climate-change"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-causes",
+    "slug": "existential-risk"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-causes",
+    "slug": "futurism"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-causes",
+    "slug": "intellectual-progress"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-causes",
+    "slug": "mind-uploading"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-causes",
+    "slug": "life-extension"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-causes",
+    "slug": "risks-of-astronomical-suffering-s-risks"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-causes",
+    "slug": "transhumanism"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-causes",
+    "slug": "voting-theory"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-working-with-humans",
+    "slug": "coalitional-instincts"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-working-with-humans",
+    "slug": "common-knowledge"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-working-with-humans",
+    "slug": "coordination-cooperation"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-working-with-humans",
+    "slug": "game-theory"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-working-with-humans",
+    "slug": "group-rationality"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-working-with-humans",
+    "slug": "institution-design"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-working-with-humans",
+    "slug": "moloch"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-working-with-humans",
+    "slug": "organizational-design-and-culture"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-working-with-humans",
+    "slug": "signaling"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-working-with-humans",
+    "slug": "simulacrum-levels"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-working-with-humans",
+    "slug": "social-status"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-applied-topics",
+    "slug": "acausal-trade"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-applied-topics",
+    "slug": "blackmail"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-applied-topics",
+    "slug": "censorship"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-applied-topics",
+    "slug": "chesterton-s-fence"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-applied-topics",
+    "slug": "death"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-applied-topics",
+    "slug": "deception"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-applied-topics",
+    "slug": "honesty"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-applied-topics",
+    "slug": "hypocrisy"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-applied-topics",
+    "slug": "information-hazards"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-applied-topics",
+    "slug": "meta-honesty"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-applied-topics",
+    "slug": "pascal-s-mugging"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-applied-topics",
+    "slug": "privacy"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-applied-topics",
+    "slug": "war"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-value-virtue",
+    "slug": "ambition"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-value-virtue",
+    "slug": "art"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-value-virtue",
+    "slug": "aesthetics"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-value-virtue",
+    "slug": "complexity-of-value"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-value-virtue",
+    "slug": "courage"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-value-virtue",
+    "slug": "fun-theory"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-value-virtue",
+    "slug": "principles"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-value-virtue",
+    "slug": "suffering"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-value-virtue",
+    "slug": "superstimuli"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-value-virtue",
+    "slug": "wireheading"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-meta",
+    "slug": "80-000-hours"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-meta",
+    "slug": "cause-prioritization"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-meta",
+    "slug": "center-on-long-term-risk-clr"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-meta",
+    "slug": "effective-altruism"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-meta",
+    "slug": "givewell"
+  },
+  {
+    "core-tag": "World Optimization",
+    "sub-grouping": "world-optimization-meta",
+    "slug": "heroic-responsibility"
+  },
+  {
+    "core-tag": "Community",
+    "sub-grouping": "community-all",
+    "slug": "bounties-active"
+  },
+  {
+    "core-tag": "Community",
+    "sub-grouping": "community-all",
+    "slug": "grants-and-fundraising-opportunities"
+  },
+  {
+    "core-tag": "Community",
+    "sub-grouping": "community-all",
+    "slug": "growth-stories"
+  },
+  {
+    "core-tag": "Community",
+    "sub-grouping": "community-all",
+    "slug": "online-socialization"
+  },
+  {
+    "core-tag": "Community",
+    "sub-grouping": "community-all",
+    "slug": "petrov-day"
+  },
+  {
+    "core-tag": "Community",
+    "sub-grouping": "community-all",
+    "slug": "public-discourse"
+  },
+  {
+    "core-tag": "Community",
+    "sub-grouping": "community-all",
+    "slug": "reading-group"
+  },
+  {
+    "core-tag": "Community",
+    "sub-grouping": "community-all",
+    "slug": "research-agendas"
+  },
+  {
+    "core-tag": "Community",
+    "sub-grouping": "community-all",
+    "slug": "ritual"
+  },
+  {
+    "core-tag": "Community",
+    "sub-grouping": "community-all",
+    "slug": "solstice-celebration"
+  },
+  {
+    "core-tag": "Community",
+    "sub-grouping": "community-lesswrong",
+    "slug": "events-community"
+  },
+  {
+    "core-tag": "Community",
+    "sub-grouping": "community-lesswrong",
+    "slug": "site-meta"
+  },
+  {
+    "core-tag": "Community",
+    "sub-grouping": "community-lesswrong",
+    "slug": "greaterwrong-meta"
+  },
+  {
+    "core-tag": "Community",
+    "sub-grouping": "community-lesswrong",
+    "slug": "intellectual-progress-via-lesswrong"
+  },
+  {
+    "core-tag": "Community",
+    "sub-grouping": "community-lesswrong",
+    "slug": "lesswrong-events"
+  },
+  {
+    "core-tag": "Community",
+    "sub-grouping": "community-lesswrong",
+    "slug": "lw-moderation"
+  },
+  {
+    "core-tag": "Community",
+    "sub-grouping": "community-lesswrong",
+    "slug": "meetups-topic"
+  },
+  {
+    "core-tag": "Community",
+    "sub-grouping": "community-lesswrong",
+    "slug": "moderation-topic"
+  },
+  {
+    "core-tag": "Community",
+    "sub-grouping": "community-lesswrong",
+    "slug": "the-sf-bay-area"
+  },
+  {
+    "core-tag": "Community",
+    "sub-grouping": "community-lesswrong",
+    "slug": "tagging"
+  },
+  {
+    "core-tag": "Practical",
+    "sub-grouping": "practical-domains-wellbeing",
+    "slug": "careers"
+  },
+  {
+    "core-tag": "Practical",
+    "sub-grouping": "practical-domains-wellbeing",
+    "slug": "emotions"
+  },
+  {
+    "core-tag": "Practical",
+    "sub-grouping": "practical-domains-wellbeing",
+    "slug": "exercise-physical"
+  },
+  {
+    "core-tag": "Practical",
+    "sub-grouping": "practical-domains-wellbeing",
+    "slug": "financial-investing"
+  },
+  {
+    "core-tag": "Practical",
+    "sub-grouping": "practical-domains-wellbeing",
+    "slug": "gratitude"
+  },
+  {
+    "core-tag": "Practical",
+    "sub-grouping": "practical-domains-wellbeing",
+    "slug": "happiness-1"
+  },
+  {
+    "core-tag": "Practical",
+    "sub-grouping": "practical-domains-wellbeing",
+    "slug": "human-bodies"
+  },
+  {
+    "core-tag": "Practical",
+    "sub-grouping": "practical-domains-wellbeing",
+    "slug": "nutrition"
+  },
+  {
+    "core-tag": "Practical",
+    "sub-grouping": "practical-domains-wellbeing",
+    "slug": "parenting"
+  },
+  {
+    "core-tag": "Practical",
+    "sub-grouping": "practical-domains-wellbeing",
+    "slug": "slack"
+  },
+  {
+    "core-tag": "Practical",
+    "sub-grouping": "practical-domains-wellbeing",
+    "slug": "sleep"
+  },
+  {
+    "core-tag": "Practical",
+    "sub-grouping": "practical-domains-wellbeing",
+    "slug": "well-being"
+  },
+  {
+    "core-tag": "Practical",
+    "sub-grouping": "practical-skills-techniques",
+    "slug": "cryonics"
+  },
+  {
+    "core-tag": "Practical",
+    "sub-grouping": "practical-skills-techniques",
+    "slug": "emotions"
+  },
+  {
+    "core-tag": "Practical",
+    "sub-grouping": "practical-skills-techniques",
+    "slug": "goal-factoring"
+  },
+  {
+    "core-tag": "Practical",
+    "sub-grouping": "practical-skills-techniques",
+    "slug": "habits"
+  },
+  {
+    "core-tag": "Practical",
+    "sub-grouping": "practical-skills-techniques",
+    "slug": "hamming-questions"
+  },
+  {
+    "core-tag": "Practical",
+    "sub-grouping": "practical-skills-techniques",
+    "slug": "intellectual-progress-individual-level"
+  },
+  {
+    "core-tag": "Practical",
+    "sub-grouping": "practical-skills-techniques",
+    "slug": "life-improvements"
+  },
+  {
+    "core-tag": "Practical",
+    "sub-grouping": "practical-skills-techniques",
+    "slug": "meditation"
+  },
+  {
+    "core-tag": "Practical",
+    "sub-grouping": "practical-skills-techniques",
+    "slug": "more-dakka"
+  },
+  {
+    "core-tag": "Practical",
+    "sub-grouping": "practical-skills-techniques",
+    "slug": "note-taking"
+  },
+  {
+    "core-tag": "Practical",
+    "sub-grouping": "practical-skills-techniques",
+    "slug": "planning-and-decision-making"
+  },
+  {
+    "core-tag": "Practical",
+    "sub-grouping": "practical-skills-techniques",
+    "slug": "sabbath"
+  },
+  {
+    "core-tag": "Practical",
+    "sub-grouping": "practical-skills-techniques",
+    "slug": "self-experimentation"
+  },
+  {
+    "core-tag": "Practical",
+    "sub-grouping": "practical-skills-techniques",
+    "slug": "skill-building"
+  },
+  {
+    "core-tag": "Practical",
+    "sub-grouping": "practical-skills-techniques",
+    "slug": "software-tools"
+  },
+  {
+    "core-tag": "Practical",
+    "sub-grouping": "practical-skills-techniques",
+    "slug": "spaced-repetition"
+  },
+  {
+    "core-tag": "Practical",
+    "sub-grouping": "practical-skills-techniques",
+    "slug": "virtues-instrumental"
+  },
+  {
+    "core-tag": "Practical",
+    "sub-grouping": "practical-productivity",
+    "slug": "akrasia"
+  },
+  {
+    "core-tag": "Practical",
+    "sub-grouping": "practical-productivity",
+    "slug": "attention"
+  },
+  {
+    "core-tag": "Practical",
+    "sub-grouping": "practical-productivity",
+    "slug": "motivations"
+  },
+  {
+    "core-tag": "Practical",
+    "sub-grouping": "practical-productivity",
+    "slug": "prioritization"
+  },
+  {
+    "core-tag": "Practical",
+    "sub-grouping": "practical-productivity",
+    "slug": "procrastination"
+  },
+  {
+    "core-tag": "Practical",
+    "sub-grouping": "practical-productivity",
+    "slug": "productivity"
+  },
+  {
+    "core-tag": "Practical",
+    "sub-grouping": "practical-productivity",
+    "slug": "willpower"
+  },
+  {
+    "core-tag": "Practical",
+    "sub-grouping": "practical-interpersonal",
+    "slug": "circling"
+  },
+  {
+    "core-tag": "Practical",
+    "sub-grouping": "practical-interpersonal",
+    "slug": "conversation-topic"
+  },
+  {
+    "core-tag": "Practical",
+    "sub-grouping": "practical-interpersonal",
+    "slug": "communication-cultures"
+  },
+  {
+    "core-tag": "Practical",
+    "sub-grouping": "practical-interpersonal",
+    "slug": "relationships-interpersonal"
+  }
+]

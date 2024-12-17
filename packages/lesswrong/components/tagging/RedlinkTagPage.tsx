@@ -2,10 +2,18 @@ import React from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useMulti } from '@/lib/crud/withMulti';
-import { Link } from '../../lib/reactRouterWrapper';
+import { Link, useNavigate } from '../../lib/reactRouterWrapper';
+import Button from '@material-ui/core/Button';
 
 const styles = defineStyles("RedlinkTagPage", theme => ({
   title: {
+    marginBottom: 16,
+  },
+  pingbacksList: {
+    marginBottom: "32px",
+  },
+  createButton: {
+    padding: 8,
   },
 }));
 
@@ -38,22 +46,43 @@ const RedlinkTagPage = ({tag, slug}: {
   slug?: string
 }) => {
   const classes = useStyles(styles);
-  const { SingleColumnSection } = Components;
-  const { results: pingbacks, loading } = useRedLinkPingbacks(tag?._id);
-  const title = inferRedLinkTitle(tag, slug??null);
+  const { SingleColumnSection, Typography, ContentStyles } = Components;
+  const { results: pingbacks, loading: pingbacksLoading, error: pingbacksError } = useRedLinkPingbacks(tag?._id);
+  const navigate = useNavigate();
+  const title = capitalizeFirstLetter(inferRedLinkTitle(tag, slug??null) ?? "Unnamed");
+
+  const createPageUrl = `/tag/create?name=${encodeURIComponent(title)}&type=wiki`
+  function createPage() {
+    navigate(createPageUrl);
+  }
 
   return <SingleColumnSection>
-    <Link className={classes.title} to={`/w/${tag?.slug ?? slug}`}>{title}</Link>
+    <Typography variant="display3">
+      <Link className={classes.title} to={`/w/${tag?.slug ?? slug}`}>{title}</Link>
+    </Typography>
 
-    <p>This wiki page has not been created yet.</p>
-    
-    {pingbacks && <>
-      <p>These wiki pages link to this page:</p>
+    <ContentStyles contentType="tag">
+      <p>This wiki page has not been created yet.</p>
       
-      <ul>
-        {pingbacks?.map(t => <li key={t._id}>{t.name}</li>)}
-      </ul>
-    </>}
+      {pingbacks && <>
+        <p>These wiki pages link to this page:</p>
+        
+        <ul className={classes.pingbacksList}>
+          {pingbacks?.map(t => <li key={t._id}>
+            <Link to={`/w/${t.slug}`}>{t.name}</Link>
+          </li>)}
+        </ul>
+      </>}
+      {!pingbacks?.length && !pingbacksLoading && !pingbacksError && <p>
+        There are no wiki pages linking to this page.
+      </p>}
+    </ContentStyles>
+    
+    <Link to={createPageUrl}>
+      <Button className={classes.createButton} variant="contained" color="primary">
+        Create Page
+      </Button>
+    </Link>
   </SingleColumnSection>
 }
 

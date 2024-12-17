@@ -107,7 +107,7 @@ const RedLinkTooltip = ({ tag, slug }: {
     <ContentStyles contentType='tag'>
       This red link was used on {pingbacks ? pingbacks.length : <Loading/>} page{pingbacks ? (pingbacks.length > 1 ? "s" : "") : "(s)"}:
       <ul>
-        {pingbacks?.map(pingback => <li>
+        {pingbacks?.map(pingback => <li key={pingback._id}>
           <TagHoverPreview
             targetLocation={{ params: { slug: 'nash_equilibrium' }, hash: '', query: {} } as AnyBecauseTodo}
             href='/tag/nash_equilibrium' noPrefetch
@@ -129,6 +129,7 @@ const TagsTooltip = ({
   tagRel,
   hash,
   previewPostCount = 6,
+  hideDescription = false,
   hideRelatedTags,
   noPrefetch,
   PreviewWrapper = DefaultPreviewWrapper,
@@ -145,6 +146,7 @@ const TagsTooltip = ({
   hash?: string,
   previewPostCount?: number,
   hideRelatedTags?: boolean,
+  hideDescription?: boolean,
   noPrefetch?: boolean,
   PreviewWrapper?: TagsTooltipPreviewWrapper,
   As?: keyof JSX.IntrinsicElements,
@@ -174,6 +176,7 @@ const TagsTooltip = ({
             hash={hash}
             postCount={previewPostCount}
             hideRelatedTags={hideRelatedTags}
+            hideDescription={hideDescription}
           />}
           {isRedLink && <RedLinkTooltip tag={tag} slug={tagsTooltipProps.tagSlug} />}
         </PreviewWrapper>

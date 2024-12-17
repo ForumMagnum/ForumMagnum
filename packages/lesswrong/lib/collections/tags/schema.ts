@@ -15,6 +15,7 @@ import type { TagCommentType } from '../comments/types';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 import { getUnusedSlugByCollectionName, slugIsUsed } from '@/lib/helpers';
 import { arbitalLinkedPagesField } from '../helpers/arbitalLinkedPagesField';
+import { summariesField } from '../helpers/summariesField';
 
 addGraphQLSchema(`
   type TagContributor {
@@ -714,8 +715,11 @@ const schema: SchemaType<"Tags"> = {
     optional: true,
     hidden: true,
     canRead: ['guests'],
+    canUpdate: ['members'],
     ...schemaDefaultValue(false),
   },
+
+  ...summariesField('Tags', { group: formGroups.summaries }),
 
   isArbitalImport: resolverOnlyField({
     type: Boolean,
@@ -724,7 +728,19 @@ const schema: SchemaType<"Tags"> = {
   }),
 
   arbitalLinkedPages: arbitalLinkedPagesField({ collectionName: 'Tags' }),
-  
+
+  coreTagId: resolverOnlyField({
+    type: String,
+    canRead: ['guests'],
+    resolver: async (tag, args, context) => {
+      // TODO: This is a temporary hack to just return the value we've cached; we should do something less dumb
+      if ('coreTagId' in tag) return tag.coreTagId;
+      const { ArbitalTagContentRels } = context;
+      // This is incorrect; we should be fetching the value from the cache
+      const rel = await ArbitalTagContentRels.findOne({ childDocumentId: tag._id, type: 'parent-is-tag-of-child' });
+      return rel?.parentDocumentId;
+    },
+  }),
 }
 
 export default schema;

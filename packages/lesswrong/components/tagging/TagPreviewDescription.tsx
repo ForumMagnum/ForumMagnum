@@ -40,7 +40,7 @@ const getTagParagraphTruncationCount = (tag: TagPreviewFragment | TagSectionPrev
   if (!tag.description || 'htmlHighlight' in tag.description) return 1;
 
   // Show two paragraphs for links to tag section headers
-  return 2;
+  return 8;
 }
 
 const TagPreviewDescription = ({tag, hash, classes, activeTab}: {
@@ -60,7 +60,7 @@ const TagPreviewDescription = ({tag, hash, classes, activeTab}: {
     return (
       <TagExcerpt
         tag={tag}
-        lines={4}
+        lines={12}
         hideMultimedia
         hideMoreLink
       />
@@ -88,8 +88,9 @@ const TagPreviewDescription = ({tag, hash, classes, activeTab}: {
   const tagUrl = tagGetUrl(tag, undefined, undefined, hash);
   const hashLinkOnClick = getHashLinkOnClick({ to: tagUrl, id: 'read-more-button' });
 
+  const { ContentItemBody, ContentStyles } = Components;
+
   if (activeTab !== undefined && tag.summaries) {
-    const {ContentItemBody, ContentStyles} = Components;
     return <div
       onClick={(ev: React.MouseEvent) => {
         if ((ev.target as any)?.className==="read-more-button") {
