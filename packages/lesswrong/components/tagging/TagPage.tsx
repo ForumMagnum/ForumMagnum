@@ -666,10 +666,11 @@ function hasList(list: ArbitalLinkedPage[] | null): list is ArbitalLinkedPage[] 
   return !!(list && list?.length > 0);
 }
 
-const LinkedPageListSection = ({ title, linkedPages, children }: {
+const LinkedPageListSection = ({ title, linkedPages, children, limit=undefined }: {
   title: string,
   linkedPages: ArbitalLinkedPage[] | null,
   children?: React.ReactNode,
+  limit?: number,
 }) => {
   const classes = useStyles(styles);
 
@@ -679,7 +680,7 @@ const LinkedPageListSection = ({ title, linkedPages, children }: {
 
   return <div className={classes.linkedTagsSection}>
     <div className={classes.linkedTagsSectionTitle}>{title}</div>
-    {linkedPages.map((linkedPage) => <LinkedPageDisplay key={linkedPage.slug} linkedPage={linkedPage} />)}
+    {linkedPages.slice(0, limit).map((linkedPage) => <LinkedPageDisplay key={linkedPage.slug} linkedPage={linkedPage} />)}
     {children}
   </div>
 }
@@ -701,6 +702,7 @@ const ArbitalLinkedPagesRightSidebar = ({ tag, selectedLens, arbitalLinkedPages 
   const { requirements, teaches, lessTechnical, moreTechnical, slower, faster, parents, children } = arbitalLinkedPages;
 
   const teachesFiltered = teaches?.filter((linkedPage: ArbitalLinkedPage) => linkedPage.slug !== selectedLens?.slug && linkedPage.slug !== tag.slug);
+  const childrenDefaultLimitToShow = 4;
 
   return <ContentStyles contentType="tag">
     <div className={classes.linkedTagsHeader}>
@@ -712,8 +714,8 @@ const ArbitalLinkedPagesRightSidebar = ({ tag, selectedLens, arbitalLinkedPages 
         <LinkedPageListSection title="Faster alternatives" linkedPages={faster} />
         <LinkedPageListSection title="More technical alternatives" linkedPages={moreTechnical} />
         <LinkedPageListSection title="Parents" linkedPages={parents} />
-        <LinkedPageListSection title="Children" linkedPages={parents}>
-          {!isChildrenExpanded && children?.length > 2 && (
+        <LinkedPageListSection title="Children" linkedPages={children} limit={isChildrenExpanded ? undefined : childrenDefaultLimitToShow}>
+          {!isChildrenExpanded && children?.length > childrenDefaultLimitToShow && (
             <div 
               className={classes.linkedTagMore} 
               onClick={(e) => {
@@ -722,7 +724,7 @@ const ArbitalLinkedPagesRightSidebar = ({ tag, selectedLens, arbitalLinkedPages 
                 setIsChildrenExpanded(true);
               }}
             >
-              and {children.length - 2} more
+              and {children.length - childrenDefaultLimitToShow} more
             </div>
           )}
         </LinkedPageListSection>
