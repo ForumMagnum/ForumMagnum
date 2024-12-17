@@ -10,18 +10,22 @@ import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/t
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import SearchIcon from '@material-ui/icons/Search';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
-import { SearchBox, connectStateResults } from 'react-instantsearch-dom';
-import { getSearchIndexName, getSearchClient, isSearchEnabled } from '../../lib/search/searchUtil';
-
-// Import the mock data and types
-import { WikiTagNode } from './types'; // Adjust the import path as needed
+import { Configure, SearchBox, connectStateResults } from 'react-instantsearch-dom';
+import { getSearchIndexName, getSearchClient } from '../../lib/search/searchUtil';
+import { WikiTagNode } from './types';
+import { useSingle } from '@/lib/crud/withSingle';
+import { ArbitalLogo } from '../icons/ArbitalLogo';
 import { gql, useQuery } from '@apollo/client';
+
+const ARBITAL_GREEN_DARK = "#004d40"
 
 const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
   root: {
-    maxWidth: 1100,
-    marginLeft: 100,
+    maxWidth: 900,
+    margin: "0 auto",
     position: 'relative',
+    paddingLeft: 10,
+    paddingRight: 10,
   },
   topSection: {
     marginBottom: 20,
@@ -53,6 +57,11 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
     alignItems: 'center',
     '& svg': {
       marginRight: 4,
+    },
+    '& span': {
+      '@media (max-width: 400px)': {
+        display: 'none',
+      },
     }
   },
   titleClass: {
@@ -184,6 +193,57 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
     whiteSpace: 'nowrap',
     flexShrink: 0,
   },
+  arbitalRedirectNotice: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: '16px',
+    padding: "16px",
+    borderRadius: 12,
+    backgroundColor: ARBITAL_GREEN_DARK,
+    marginBottom: 24,
+    // fontFamily: theme.palette.fonts.sansSerifStack,
+    // make <a> children have the following styles
+    ...theme.typography.commentStyle,
+    color: "white",
+    "& a": {
+      color: "white",
+      //dotted underline
+      textDecoration: "underline",
+      textDecorationStyle: "dotted",
+    },
+    '&& h2': {
+      fontSize: '1.7rem',
+      marginTop: '0rem',
+      marginBottom: '.5rem',
+      fontWeight:500,
+    },
+  },
+  arbitalLogo: {
+    width: 100,
+    // don't hide overflow
+    overflow: 'visible',
+    padding: 8
+  },
+  dismissButtonContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    alignSelf: 'stretch',
+  },
+  dismissButton: {
+    background: 'transparent',
+    border: 'none',
+    fontSize: '2rem',
+    cursor: 'pointer',
+    color: 'white',
+    '&:hover': {
+      color: theme.palette.grey[300],
+    },
+    '&:focus': {
+      outline: 'none',
+    },
+  },
 }))
 
 // Helper function to generate baseScore
@@ -309,12 +369,45 @@ const allTagsQuery = gql`
   ${fragmentTextForQuery('AllTagsPageCacheFragment')}
 `;
 
+const ArbitalRedirectNotice = ({ classes, onDismiss }: {
+  classes: ClassesType,
+  onDismiss: () => void,
+}) => {
+  const { ContentStyles, ContentItemBody, Loading } = Components
+
+  // TODO: put in database setting?
+  const documentId = "nDavoyZ2EobkpZNAs"
+
+  const { document, loading } = useSingle({
+    documentId,
+    collectionName: "Comments",
+    fragmentName: "CommentsList",
+    skip: !documentId
+  });
+
+  const { html = "" } = document?.contents || {}
+
+  return (
+    <div className={classes.arbitalRedirectNotice}>
+      <ArbitalLogo className={classes.arbitalLogo} />
+      <div className={classes.arbitalRedirectNoticeContent}>
+        {loading && <Loading />}
+        {html && <div dangerouslySetInnerHTML={{ __html: html }} />}
+        {!html && !loading && <div><em>You have been redirected from Arbital.com</em></div>}
+      </div>
+      <div className={classes.dismissButtonContainer}>
+        <button className={classes.dismissButton} onClick={onDismiss}>×</button>
+      </div>
+    </div>
+  );
+}
+
 const AllWikiTagsPage = () => {
   const classes = useStyles(styles);
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
 
-  const { SectionButton, SectionTitle, WikiTagNestedList } = Components;
+  const { SectionButton, WikiTagNestedList } = Components;
   const [selectedWikiTag, setSelectedWikiTag] = useState<WikiTagNode | null>(null);
   const [pinnedWikiTag, setPinnedWikiTag] = useState<WikiTagNode | null>(null);
 
@@ -424,10 +517,14 @@ const AllWikiTagsPage = () => {
           pages={filteredTags}
           onHover={handleHover}
           onClick={handleClick}
+          showArbitalIcons={isArbitalRedirect}
         />
       </div>
     );
   });
+
+  // Add state to control visibility of the notice
+  const [showArbitalRedirectNotice, setShowArbitalRedirectNotice] = useState(isArbitalRedirect);
 
   return (
     <AnalyticsContext pageContext="allWikiTagsPage">
@@ -440,7 +537,7 @@ const AllWikiTagsPage = () => {
                 className={classes.addTagButton}
               >
                 <AddBoxIcon/>
-                New WikiTag
+                <span>New WikiTag</span>
               </Link>
             </LWTooltip>}
             {!currentUser && <a 
@@ -454,7 +551,7 @@ const AllWikiTagsPage = () => {
               className={classes.addTagButton}
             >
               <AddBoxIcon/>
-              New Wiki Page
+              <span>New Wiki Page</span>
             </a>}
           </SectionButton>
         </div>
@@ -471,11 +568,18 @@ const AllWikiTagsPage = () => {
                 onSearchStateChange={handleSearchStateChange}
               >
                 <div className={classes.searchInputArea}>
+                  <Configure hitsPerPage={200} />
                   <SearchIcon className={classes.searchIcon} />
                   <SearchBox 
                     translations={{ placeholder: 'What would you like to read about?' }}
                   />
                 </div>
+                {isArbitalRedirect && showArbitalRedirectNotice && (
+                  <ArbitalRedirectNotice
+                    classes={classes}
+                    onDismiss={() => setShowArbitalRedirectNotice(false)}
+                  />
+                )}
                 <CustomStateResults />
               </InstantSearch>
             </div>

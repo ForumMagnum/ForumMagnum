@@ -3,9 +3,15 @@ import classNames from 'classnames';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { WikiTagNode } from './types';
+import { ArbitalLogo } from '../icons/ArbitalLogo';
+import { Link } from '@/lib/reactRouterWrapper';
+import { tagGetUrl } from '@/lib/collections/tags/helpers';
+import { useWindowSize } from "@/components/hooks/useScreenWidth";
 
-const ITEM_WIDTH = 400;
+const ITEM_WIDTH = 300;
+const COLUMN_GAP = 8;
 
+const ARBITAL_GREEN_DARK = "#004d40"
 
 const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
 
@@ -48,7 +54,8 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     width: ITEM_WIDTH,
     maxWidth: ITEM_WIDTH,
     borderRadius: theme.borderRadius.default,
-    padding: "2px 14px 2px 8px",
+    padding: "2px 0px",
+    paddingLeft: '2px',
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
@@ -84,7 +91,6 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     marginBottom: 1,
     display: "flex",
     alignItems: "baseline",
-    gap: "4px",
     lineHeight: "1.4",
   },
   titleText: {
@@ -109,7 +115,7 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     gap: "2px",
     whiteSpace: "nowrap",
     marginTop: 0,
-    marginLeft: 2,
+    marginLeft: 6,
     opacity: 0.9,
   },
   postCountNumber: {
@@ -142,7 +148,6 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     marginBottom: 24,
   },
   titleItem: {
-    marginBottom: -16,
     backgroundColor: "unset",
     width: '100%',
     display: "flex",
@@ -187,7 +192,6 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     transform: 'translateY(0.75px)',
   },
   children: {
-    marginLeft: 8,
     width: "calc(100vw - 16px)",
   },
   childrenContainer: {
@@ -195,10 +199,8 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     position: "relative",
   },
   childrenList: {
-    marginTop: 12,
     width: "100%",
     display: "flex",
-    flexWrap: "wrap",
     gap: "8px",
     rowGap: "24px",
     maxWidth: (ITEM_WIDTH * 4) + 36,
@@ -273,6 +275,16 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     margin: '0 24px',
   },
   tooltipHoverPostCount: {},
+  arbitalIcon: {
+    height: 10,
+    width: 10,
+    color: ARBITAL_GREEN_DARK,
+    marginLeft: 4,
+    position: "relative",
+  },
+  arbitalGreenColor: {
+    color: ARBITAL_GREEN_DARK,
+  },
 }));
 
 interface ConceptItemProps {
@@ -282,6 +294,7 @@ interface ConceptItemProps {
   onHover?: (wikitag: WikiTagNode | null) => void;
   onClick?: (wikitag: WikiTagNode) => void;
   pinnedWikiTag?: WikiTagNode | null;
+  showArbitalIcon?: boolean;
 }
   
 
@@ -294,13 +307,21 @@ function splitIntoColumns(items: WikiTagNode[], itemsPerColumn = 12): WikiTagNod
   return columns;
 }
 
-const ConceptItem = ({ wikitag, nestingLevel, index, onHover, onClick, pinnedWikiTag }: ConceptItemProps) => {
+const ConceptItem = ({
+  wikitag,
+  nestingLevel,
+  index,
+  onHover,
+  onClick,
+  pinnedWikiTag,
+  showArbitalIcon
+}: ConceptItemProps) => {
   const classes = useStyles(styles);
   const defaultCollapsed = index !== undefined && index >= 3 && index < 6;
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
   const [showingAllChildren, setShowingAllChildren] = useState(false);
 
-  const { ForumIcon, TagsTooltip } = Components;
+  const { ForumIcon, TagsTooltip, LWTooltip } = Components;
 
   const toggleCollapse = () => {
     setCollapsed(!collapsed);
@@ -322,61 +343,29 @@ const ConceptItem = ({ wikitag, nestingLevel, index, onHover, onClick, pinnedWik
   // Calculate the number of items to show
   const showingAllItems = showingAllChildren || totalChildren <= MAX_INITIAL_ITEMS;
 
+  // First calculate visible columns and itemsToShowCount
+  const windowSize = useWindowSize();
+  const calculateVisibleColumns = () => {
+    const availableWidth = windowSize.width - 32;
+    const columnsWithGaps = Math.floor(availableWidth / (ITEM_WIDTH + COLUMN_GAP));
+    // Ensure at least 1 column is shown
+    return Math.max(1, Math.min(columnsWithGaps, MAX_INITIAL_COLUMNS));
+  };
+  const visibleColumns = calculateVisibleColumns();
+  
   const itemsToShowCount = showingAllItems
     ? totalChildren
-    : MAX_INITIAL_ITEMS;
+    : visibleColumns * ITEMS_PER_COLUMN;
 
-  // Sort and slice the children
+  // Then use itemsToShowCount to sort and slice the children
   const sortedChildren = wikitag.children
     .sort((a, b) => (b.baseScore || 0) - (a.baseScore || 0))
     .slice(0, itemsToShowCount);
 
-  // Split into columns
+  // Then split into columns
   const columns = splitIntoColumns(sortedChildren, ITEMS_PER_COLUMN);
 
   const remainingItems = totalChildren - itemsToShowCount;
-
-  // Define the Show More/Less button
-  const showMoreButton = (
-    <div
-      className={classes.showMoreChildren}
-      onClick={(e) => {
-        e.stopPropagation();
-        if (collapsed) {
-          setCollapsed(false);
-        } else if (!showingAllItems) {
-          setShowingAllChildren(true);
-        } else {
-          // If all items are shown, clicking "Show less" should reset
-          setShowingAllChildren(false);
-        }
-      }}
-    >
-      {collapsed
-        ? `Show ${totalChildren} more`
-        : !showingAllItems
-          ? `Show ${remainingItems} more`
-          : 'Show less'
-      }
-    </div>
-  );
-
-  // Collapse toggle with consistent spacing
-  const collapseToggle = (
-    <div
-      className={classNames(classes.collapse)}
-      onClick={hasChildren ? toggleCollapse : undefined}
-      style={{ visibility: hasChildren ? 'visible' : 'hidden' }}
-    >
-      <ForumIcon
-        icon="SoftUpArrow"
-        className={classNames(
-          classes.collapseChevron,
-          !collapsed && classes.collapseChevronOpen
-        )}
-      />
-    </div>
-  );
 
   const isWikiItem = (wikitag.description?.html?.length ?? 0) > 2000;
 
@@ -412,7 +401,11 @@ const ConceptItem = ({ wikitag, nestingLevel, index, onHover, onClick, pinnedWik
             placement='right-start'
             popperClassName={classes.tooltipHoverTitle}
           >
-            <span className={classes.titleText}>{wikitag.name}</span>
+            <span className={classNames(classes.titleText, { [classes.arbitalGreenColor]: wikitag.isArbitalImport && showArbitalIcon })}>
+              <Link to={tagGetUrl({slug: wikitag.slug})}>
+                {wikitag.name}
+              </Link>
+            </span>
           </TagsTooltip>
           {wikitag.postCount > 0 && (
             <span className={classes.postCount}>
@@ -429,6 +422,9 @@ const ConceptItem = ({ wikitag, nestingLevel, index, onHover, onClick, pinnedWik
               </TagsTooltip>
             </span>
           )}
+          {showArbitalIcon && wikitag.isArbitalImport && <LWTooltip title="This content was imported in part or entirely from Arbital.com" placement="right-start">
+            <ArbitalLogo className={classes.arbitalIcon} strokeWidth={0.7} />
+          </LWTooltip>}
         </div>
       </div>
     </div>
@@ -447,8 +443,8 @@ const ConceptItem = ({ wikitag, nestingLevel, index, onHover, onClick, pinnedWik
       {!collapsed && hasChildren && (
         <div className={classes.children}>
           <div className={classes.childrenContainer}>
-            <div className={classes.childrenList}>
-              {columns.map((columnItems, columnIndex) => (
+            <div className={classNames(classes.childrenList)} style={{forceWrap: showingAllChildren}}>
+              {columns.slice(0, showingAllChildren ? columns.length : visibleColumns).map((columnItems, columnIndex) => (
                 <div key={columnIndex} className={classes.column}>
                   {columnItems.map((childPage, idx) => (
                     <ConceptItem
@@ -459,26 +455,23 @@ const ConceptItem = ({ wikitag, nestingLevel, index, onHover, onClick, pinnedWik
                       onHover={onHover}
                       onClick={onClick}
                       pinnedWikiTag={pinnedWikiTag}
+                      showArbitalIcon={showArbitalIcon}
                     />
                   ))}
                 </div>
               ))}
             </div>
-            {/* Show "Show more"/"Show less" button for all nesting levels */}
-            {hasChildren && totalChildren > MAX_INITIAL_ITEMS && (
+            {/* Update the show more button text */}
+            {hasChildren && totalChildren > itemsToShowCount && (
               <div
                 className={classes.showMoreChildren}
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (!showingAllItems) {
-                    setShowingAllChildren(true);
-                  } else {
-                    setShowingAllChildren(false);
-                  }
+                  setShowingAllChildren(!showingAllChildren);
                 }}
               >
-                {!showingAllItems
-                  ? `Show ${remainingItems} more`
+                {!showingAllChildren
+                  ? `Show ${totalChildren - itemsToShowCount} more`
                   : 'Show less'
                 }
               </div>

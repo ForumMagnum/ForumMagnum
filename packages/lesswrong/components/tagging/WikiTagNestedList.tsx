@@ -33,6 +33,7 @@ interface WikiTagNestedListProps {
   onHover?: (wikitag: WikiTagNode | null) => void;
   onClick?: (wikitag: WikiTagNode) => void;
   pinnedWikiTag?: WikiTagNode | null;
+  showArbitalIcons?: boolean;
 }
 
 const WikiTagNestedList = ({
@@ -42,10 +43,13 @@ const WikiTagNestedList = ({
   totalChildrenCount,
   onHover,
   onClick,
-  pinnedWikiTag
+  pinnedWikiTag,
+  showArbitalIcons = false,
 }: WikiTagNestedListProps) => {
   const { ConceptItem } = Components;
   const classes = useStyles(styles);
+
+  console.log("in wikitagnestedlist", showArbitalIcons)
 
   return (
     <div className={classes.childrenList}>
@@ -57,6 +61,7 @@ const WikiTagNestedList = ({
           onHover={onHover}
           onClick={onClick}
           pinnedWikiTag={pinnedWikiTag}
+          showArbitalIcon={showArbitalIcons}
         />
       ))}
       {pages.length > maxInitialShow && (

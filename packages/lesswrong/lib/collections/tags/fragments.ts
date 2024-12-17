@@ -463,6 +463,7 @@ registerFragment(`
       _id
       html
     }
+    isArbitalImport
     coreTagId
   }
 `);

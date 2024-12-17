@@ -8,6 +8,8 @@ export interface WikiTagMockup {
   description_length: number;
   viewCount?: number;
   parentTagId?: string | null;
+  coreTag?: string;
+  isArbitalImport?: boolean;
 }
 
 export interface WikiTagNode extends AllTagsPageCacheFragment {
