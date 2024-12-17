@@ -458,6 +458,7 @@ registerFragment(`
     _id
     name
     slug
+    oldSlugs
     postCount
     description {
       _id
