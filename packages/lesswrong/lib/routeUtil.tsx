@@ -1,4 +1,4 @@
-import { isServer, getServerPort } from './executionEnvironment';
+import { isServer } from './executionEnvironment';
 import qs from 'qs';
 import React, { useCallback, useContext } from 'react';
 import { LocationContext, ServerRequestStatusContext, SubscribeLocationContext, ServerRequestStatusContextType, NavigationContext } from './vulcan-core/appContext';
@@ -7,6 +7,8 @@ import * as _ from 'underscore';
 import { ForumOptions, forumSelect } from './forumTypeUtils';
 import type { LocationDescriptor } from 'history';
 import {siteUrlSetting} from './instanceSettings'
+import { getUrlClass } from '@/server/utils/getUrlClass';
+import { getCommandLineArguments } from '@/server/commandLine';
 
 // React Hook which returns the page location (parsed URL and route).
 // Return value contains:
@@ -88,14 +90,6 @@ export const withLocation = (WrappedComponent: any) => {
   );
 }
 
-export const getUrlClass = (): typeof URL => {
-  if (isServer) {
-    return require('url').URL
-  } else {
-    return URL
-  }
-}
-
 // Given a URL which might or might not have query parameters, return a URL in
 // which any query parameters found in queryParameterBlacklist are removed.
 export const removeUrlParameters = (url: string, queryParameterBlacklist: string[]): string => {
@@ -126,7 +120,7 @@ const LwAfDomainWhitelist: DomainList = {
     "lessestwrong.com",
     "alignmentforum.org",
     "alignment-forum.com",
-    `localhost:${getServerPort()}`,
+    `localhost:${getCommandLineArguments().localhostUrlPort}`,
   ],
   mirrorDomains: [
     "greaterwrong.com",
@@ -141,14 +135,14 @@ const forumDomainWhitelist: ForumOptions<DomainList> = {
     onsiteDomains: [
       'forum.effectivealtruism.org',
       'forum-staging.effectivealtruism.org',
-      `localhost:${getServerPort()}`,
+      `localhost:${getCommandLineArguments().localhostUrlPort}`,
     ],
     mirrorDomains: ['ea.greaterwrong.com'],
   },
   default: {
     onsiteDomains: [
       new URLClass(siteUrlSetting.get()).host,
-      `localhost:${getServerPort()}`,
+      `localhost:${getCommandLineArguments().localhostUrlPort}`,
     ],
     mirrorDomains: [],
   }

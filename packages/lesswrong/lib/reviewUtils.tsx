@@ -137,9 +137,9 @@ export function postIsVoteable (post: PostsBase) {
 }
 
 
-export function canNominate (currentUser: UsersCurrent|null, post: PostsBase) {
+export function canNominate (currentUser: UsersCurrent|null, post: PostsListBase) {
   if (!eligibleToNominate(currentUser)) return false
-  if (post.userId === currentUser!._id) return false
+  if (currentUser && (post.userId === currentUser._id || post.coauthors?.map(author => author?._id).includes(currentUser._id))) return false
   if (!postIsVoteable(post)) return false
   return (postEligibleForReview(post))
 }
