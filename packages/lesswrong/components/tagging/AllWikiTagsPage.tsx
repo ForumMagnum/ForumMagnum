@@ -23,12 +23,11 @@ const ARBITAL_GREEN_DARK = "#004d40"
 
 const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
   root: {
-    // padding: "0 100px",
     maxWidth: 900,
-    // margin: "0 auto",
     margin: "0 auto",
-    // marginLeft: 100,
     position: 'relative',
+    paddingLeft: 10,
+    paddingRight: 10,
   },
   topSection: {
     marginBottom: 20,
@@ -60,6 +59,11 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
     alignItems: 'center',
     '& svg': {
       marginRight: 4,
+    },
+    '& span': {
+      '@media (max-width: 400px)': {
+        display: 'none',
+      },
     }
   },
   titleClass: {
@@ -509,7 +513,7 @@ const AllWikiTagsPage = () => {
                 className={classes.addTagButton}
               >
                 <AddBoxIcon/>
-                New WikiTag
+                <span>New WikiTag</span>
               </Link>
             </LWTooltip>}
             {!currentUser && <a 
@@ -523,7 +527,7 @@ const AllWikiTagsPage = () => {
               className={classes.addTagButton}
             >
               <AddBoxIcon/>
-              New Wiki Page
+              <span>New Wiki Page</span>
             </a>}
           </SectionButton>
         </div>
