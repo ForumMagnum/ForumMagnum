@@ -159,14 +159,14 @@ const hasUnreadComments = (visitedDate: Date|null, lastCommentedAt: Date | null)
   return visitedDate < lastCommentedAt
 }
 
-const ReviewVoteTableRow = ({ post, dispatch, costTotal, classes, expandedPostId, setExpandedPost, currentVote, showKarmaVotes, reviewPhase, reviewYear, voteTooltip }: {
+const ReviewVoteTableRow = ({ post, dispatch, costTotal, classes, expandedPostId, handleSetExpandedPost, currentVote, showKarmaVotes, reviewPhase, reviewYear, voteTooltip }: {
   post: PostsReviewVotingList,
   costTotal?: number,
   dispatch: React.Dispatch<SyntheticQualitativeVote>,
   showKarmaVotes: boolean,
   classes: ClassesType,
   expandedPostId?: string|null,
-  setExpandedPost: (post: PostsReviewVotingList) => void,
+  handleSetExpandedPost: (post: PostsReviewVotingList) => void,
   currentVote: SyntheticQualitativeVote|null,
   reviewPhase: ReviewPhase,
   reviewYear: ReviewYear,
@@ -233,7 +233,7 @@ const ReviewVoteTableRow = ({ post, dispatch, costTotal, classes, expandedPostId
     <div className={classNames(classes.root, {[classes.expanded]: expanded, [classes.votingPhase]: reviewPhase === "VOTING" })} onClick={markAsRead}>
       {showKarmaVotes && <PostInteractionStripe post={post}/>}
       <div className={classNames(classes.postVote, {[classes.postVoteVotingPhase]: reviewPhase === "VOTING"})}>
-        <div className={classNames(classes.post, {[classes.postVotingPhase]: reviewPhase === "VOTING"})} onClick={() => setExpandedPost(post)}>
+        <div className={classNames(classes.post, {[classes.postVotingPhase]: reviewPhase === "VOTING"})} onClick={() => handleSetExpandedPost(post)}>
           <PostsTooltip post={post} flip={false}>
             <PostsTitle post={post} showIcons={false} wrap curatedIconLeft={false} />
           </PostsTooltip>
@@ -252,7 +252,7 @@ const ReviewVoteTableRow = ({ post, dispatch, costTotal, classes, expandedPostId
             post={post}
           />
         </div>}
-        <div className={classes.commentsCount} onClick={() => expandedPostId === post._id ? setExpandedPost(null) : setExpandedPost(post)}>
+        <div className={classes.commentsCount} onClick={() => handleSetExpandedPost(post)}>
           <PostsItemComments
             small={false}
             commentCount={postGetCommentCount(post)}

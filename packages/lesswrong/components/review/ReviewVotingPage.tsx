@@ -344,7 +344,7 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
       break;
   }
 
-  const handlePostClick = (post: PostsReviewVotingList) => {
+  const handleSetExpandedPost = (post: PostsReviewVotingList) => {
     if (expandedPost?._id === post._id) {
       setExpandedPost(null)
     } else {
@@ -391,7 +391,7 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
                 dispatch={dispatchQualitativeVote}
                 currentVote={currentVote}
                 expandedPostId={expandedPost?._id}
-                setExpandedPost={handlePostClick}
+                handleSetExpandedPost={handleSetExpandedPost}
                 reviewPhase={reviewPhase}
                 reviewYear={reviewYear}
                 voteTooltip={voteTooltip}
