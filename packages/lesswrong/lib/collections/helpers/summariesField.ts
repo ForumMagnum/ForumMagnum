@@ -14,8 +14,6 @@ export function summariesField<T extends CollectionNameString>(collectionName: T
         const multiDocuments = await MultiDocuments.find({ parentDocumentId: doc._id, collectionName, fieldName: 'summary' }, { sort: { index: 1 } }).fetch();
         const revisions = await Revisions.find({ _id: { $in: multiDocuments.map(md => md.contents_latest) } }).fetch();
 
-        console.log('multiDocuments', multiDocuments);
-  
         return multiDocuments.map(md => ({
           ...md,
           contents: revisions.find(r => r._id === md.contents_latest),

@@ -107,7 +107,7 @@ const RedLinkTooltip = ({ tag, slug }: {
     <ContentStyles contentType='tag'>
       This red link was used on {pingbacks ? pingbacks.length : <Loading/>} page{pingbacks ? (pingbacks.length > 1 ? "s" : "") : "(s)"}:
       <ul>
-        {pingbacks?.map(pingback => <li>
+        {pingbacks?.map(pingback => <li key={pingback._id}>
           <TagHoverPreview
             targetLocation={{ params: { slug: 'nash_equilibrium' }, hash: '', query: {} } as AnyBecauseTodo}
             href='/tag/nash_equilibrium' noPrefetch
