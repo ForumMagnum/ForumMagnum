@@ -10,7 +10,7 @@ import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/t
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import SearchIcon from '@material-ui/icons/Search';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
-import { SearchBox, connectStateResults } from 'react-instantsearch-dom';
+import { Configure, SearchBox, connectStateResults } from 'react-instantsearch-dom';
 import { getSearchIndexName, getSearchClient, isSearchEnabled } from '../../lib/search/searchUtil';
 
 // Import the mock data and types
@@ -470,12 +470,13 @@ const AllWikiTagsPage = () => {
     const hits = (searchResults && searchResults.hits) || [];
     const tagIds = hits.map(hit => hit.objectID);
 
+    console.log("hits", hits)
+
     // First filter by priority slugs at the root level
     const priorityFilteredTree = sortedTree.filter(wikitag => 
       prioritySlugs.includes(wikitag.slug as typeof prioritySlugs[number]) || wikitag.slug === 'uncategorized-root'
     );
 
-    console.log("hits", hits)
 
     // Then apply search filtering if there's a query
     const filteredTags = currentQuery 
@@ -539,6 +540,7 @@ const AllWikiTagsPage = () => {
                 onSearchStateChange={handleSearchStateChange}
               >
                 <div className={classes.searchInputArea}>
+                  <Configure hitsPerPage={1000} />
                   <SearchIcon className={classes.searchIcon} />
                   <SearchBox 
                     translations={{ placeholder: 'What would you like to read about?' }}
