@@ -10,7 +10,7 @@ WORKDIR /usr/src/app
 # triggering re-install
 COPY package.json package.json
 COPY yarn.lock yarn.lock
-COPY public/lesswrong-editor public/lesswrong-editor
+COPY ckEditor ckEditor
 COPY scripts/postinstall.sh scripts/postinstall.sh
 # clear the cache -- it's not useful and it adds to the time docker takes to
 # save the layer diff

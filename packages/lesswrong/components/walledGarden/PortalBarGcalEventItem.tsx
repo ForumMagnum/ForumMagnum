@@ -1,7 +1,7 @@
 import React from 'react'
 import moment from 'moment';
 import {registerComponent, Components } from '../../lib/vulcan-lib';
-import { getUrlClass } from '../../lib/routeUtil';
+import { getUrlClass } from '@/server/utils/getUrlClass';
 
 export const eventRoot = (theme: ThemeType) => ({
   ...theme.typography.commentStyle,
