@@ -456,6 +456,7 @@ registerFragment(`
 registerFragment(`
   fragment AllTagsPageCacheFragment on Tag {
     _id
+    core
     name
     slug
     oldSlugs

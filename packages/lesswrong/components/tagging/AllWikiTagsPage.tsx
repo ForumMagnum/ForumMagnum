@@ -258,6 +258,7 @@ function generateBaseScore(description_length: number, postCount: number): numbe
 // Create the artificial "Uncategorized" tags
 const uncategorizedRootTag = {
   _id: 'uncategorized-root',
+  core: true,
   name: 'Uncategorized',
   slug: 'uncategorized-root',
   oldSlugs: [],
@@ -287,7 +288,7 @@ const uncategorizedChildTag = {
 };
 
 const prioritySlugs = [
-  'rationality', 'ai', 'world-modeling', 
+  'rationality-1', 'ai', 'world-modeling', 
   'world-optimization', 'practical', 'community', 'site-meta'
 ] as const;
 
@@ -305,6 +306,10 @@ function buildTree(
   }
 
   const filteredItems = items.filter(item => item.parentTagId === _id);
+
+  if (depth === 1) {
+    console.log({ filteredItems });
+  }
   
   // Add baseScore to all items first
   const itemsWithScore = filteredItems.map(item => ({
@@ -447,7 +452,7 @@ const AllWikiTagsPage = () => {
     }
   };
 
-  const priorityTagIds = filterNonnull(prioritySlugs.map(slug => tags.find(tag => slug === tag.slug || tag.oldSlugs?.includes(slug)))).map(tag => tag._id);
+  const priorityTagIds = filterNonnull(prioritySlugs.map(slug => tags.find(tag => slug === (tag.slug || tag.oldSlugs?.includes(slug)) && tag.core ))).map(tag => tag._id);
 
   console.log({ priorityTagIds });
 

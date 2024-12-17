@@ -2842,6 +2842,7 @@ interface ExplorePageTagFragment extends TagFragment { // fragment on Tags
 
 interface AllTagsPageCacheFragment { // fragment on Tags
   readonly _id: string,
+  readonly core: boolean,
   readonly name: string,
   readonly slug: string,
   readonly oldSlugs: Array<string>,
