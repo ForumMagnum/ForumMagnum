@@ -60,6 +60,7 @@ registerFragment(`
 registerFragment(`
   fragment PostsBase on Post {
     ...PostsMinimumInfo
+    ...PostsAuthors
     
     # Core fields
     url
@@ -275,7 +276,6 @@ registerFragment(`
 registerFragment(`
   fragment PostsListBase on Post {
     ...PostsBase
-    ...PostsAuthors
     readTimeMinutes
     rejectedReason
     customHighlight {

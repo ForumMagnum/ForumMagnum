@@ -1146,7 +1146,7 @@ interface PostsTopItemInfo_customHighlight { // fragment on Revisions
   readonly html: string,
 }
 
-interface PostsBase extends PostsMinimumInfo { // fragment on Posts
+interface PostsBase extends PostsMinimumInfo, PostsAuthors { // fragment on Posts
   readonly url: string,
   readonly postedAt: Date,
   readonly createdAt: Date,
@@ -1318,7 +1318,7 @@ interface PostsAuthors_user extends UsersMinimumInfo { // fragment on Users
   readonly moderatorAssistance: boolean,
 }
 
-interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
+interface PostsListBase extends PostsBase { // fragment on Posts
   readonly readTimeMinutes: number,
   readonly rejectedReason: string | null,
   readonly customHighlight: PostsListBase_customHighlight|null,
