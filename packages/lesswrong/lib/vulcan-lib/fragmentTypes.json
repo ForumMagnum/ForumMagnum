@@ -2,6 +2,18 @@
   "__schema": {
     "types": [
       {
+        "kind": "INTERFACE",
+        "name": "IKarmaChanges",
+        "possibleTypes": [
+          {
+            "name": "KarmaChanges"
+          },
+          {
+            "name": "KarmaChangesSimple"
+          }
+        ]
+      },
+      {
         "kind": "UNION",
         "name": "Voteable",
         "possibleTypes": [
