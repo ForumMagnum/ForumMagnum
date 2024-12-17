@@ -720,46 +720,6 @@ const schema: SchemaType<"Tags"> = {
 
   ...summariesField('Tags', { group: formGroups.summaries }),
 
-  // summaries: resolverOnlyField({
-  //   type: Array,
-  //   graphQLtype: '[MultiDocument!]!',
-  //   canRead: ['guests'],
-  //   control: "SummariesEditForm",
-  //   group: formGroups.summaries,
-  //   resolver: async (tag: DbTag, args: void, context: ResolverContext) => {
-  //     const { MultiDocuments, Revisions } = context;
-  //     const multiDocuments = await MultiDocuments.find({ parentDocumentId: tag._id, collectionName: 'Tags', fieldName: 'summary' }, { sort: { index: 1 } }).fetch();
-  //     const revisions = await Revisions.find({ _id: { $in: multiDocuments.map(md => md.contents_latest) } }).fetch();
-
-  //     return multiDocuments.map(md => ({
-  //       ...md,
-  //       contents: revisions.find(r => r._id === md.contents_latest),
-  //     }));
-  //   },
-  //   sqlResolver: ({ field }) => `(
-  //     SELECT ARRAY_AGG(
-  //       JSONB_SET(
-  //         TO_JSONB(md.*),
-  //         '{contents}'::TEXT[],
-  //         TO_JSONB(r.*),
-  //         true
-  //       )
-  //       ORDER BY md."index" ASC
-  //     ) AS contents
-  //     FROM "MultiDocuments" md
-  //     LEFT JOIN "Revisions" r
-  //     ON r._id = md.contents_latest
-  //     WHERE md."parentDocumentId" = ${field("_id")}
-  //     AND md."collectionName" = 'Tags'
-  //     AND md."fieldName" = 'summary'
-  //     LIMIT 1
-  //   )`,
-  // }),
-  // 'summaries.$': {
-  //   type: Object,
-  //   optional: true,
-  // },
-
   isArbitalImport: resolverOnlyField({
     type: Boolean,
     canRead: ['guests'],
@@ -767,6 +727,19 @@ const schema: SchemaType<"Tags"> = {
   }),
 
   arbitalLinkedPages: arbitalLinkedPagesField({ collectionName: 'Tags' }),
+
+  coreTagId: resolverOnlyField({
+    type: String,
+    canRead: ['guests'],
+    resolver: async (tag, args, context) => {
+      // TODO: This is a temporary hack to just return the value we've cached; we should do something less dumb
+      if ('coreTagId' in tag) return tag.coreTagId;
+      const { ArbitalTagContentRels } = context;
+      // This is incorrect; we should be fetching the value from the cache
+      const rel = await ArbitalTagContentRels.findOne({ childDocumentId: tag._id, type: 'parent-is-tag-of-child' });
+      return rel?.parentDocumentId;
+    },
+  }),
 }
 
 export default schema;

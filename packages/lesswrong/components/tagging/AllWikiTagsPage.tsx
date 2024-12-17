@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent, Components, fragmentTextForQuery } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
@@ -14,14 +14,12 @@ import { SearchBox, connectStateResults } from 'react-instantsearch-dom';
 import { getSearchIndexName, getSearchClient, isSearchEnabled } from '../../lib/search/searchUtil';
 
 // Import the mock data and types
-import { WikiTagMockup, WikiTagNode } from './types'; // Adjust the import path as needed
-import { wikitagMockupData } from './wikitag_mockup_data';
+import { WikiTagNode } from './types'; // Adjust the import path as needed
+import { gql, useQuery } from '@apollo/client';
 
 const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
   root: {
-    // padding: "0 100px",
     maxWidth: 1100,
-    // margin: "0 auto",
     marginLeft: 100,
     position: 'relative',
   },
@@ -111,7 +109,7 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
       height: "100%",
       width: "100%",
       padding: "12px 48px",
-      paddingRight: 40, // Make room for the reset button
+      paddingRight: 40,
       verticalAlign: "bottom",
       borderStyle: "none",
       boxShadow: "none",
@@ -136,7 +134,6 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
     gap: "32px",
     flexGrow: 1,
     width: "100%",
-    // overflow: 'hidden',
   },
   wikiTagNestedList: {
     flexShrink: 0,
@@ -148,7 +145,6 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
   wikitagName: {
     fontSize: "1.5rem",
     fontWeight: 700,
-    // fontFamily: theme.palette.fonts.serifStack,
     marginBottom: 16,
   },
   viewer: {
@@ -185,7 +181,6 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
     color: theme.palette.grey[700],
     fontSize: '1.2rem',
     fontStyle: 'italic',
-    //don't wrap
     whiteSpace: 'nowrap',
     flexShrink: 0,
   },
@@ -194,18 +189,62 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
 // Helper function to generate baseScore
 function generateBaseScore(description_length: number, postCount: number): number {
   const baseComponent = Math.sqrt((description_length / 100)); // + (postCount / 2));
-  const random = Math.pow(Math.abs(Math.sin(description_length * 0.1 + postCount * 0.3)), 2) * 8;
+  const random = Math.pow(Math.abs(Math.sin((description_length * 0.1) + (postCount * 0.3))), 2) * 8;
   return Math.round(baseComponent + random);
 }
 
+
+// Create the artificial "Uncategorized" tags
+const uncategorizedRootTag = {
+  _id: 'uncategorized-root',
+  name: 'Uncategorized',
+  slug: 'uncategorized-root',
+  description: {
+    _id: 'uncategorized-root',
+    html: '',
+  },
+  postCount: 0,
+  coreTagId: null,
+  parentTagId: null,
+};
+
+const uncategorizedChildTag = {
+  _id: 'uncategorized-child',
+  name: 'Uncategorized',
+  slug: 'uncategorized',
+  description: {
+    _id: 'uncategorized-child',
+    html: '',
+  },
+  postCount: 0,
+  coreTagId: 'uncategorized-root',
+  parentTagId: 'uncategorized-root',
+};
+
+const prioritySlugs = [
+  'rationality', 'ai', 'world-modeling', 
+  'world-optimization', 'practical', 'community', 'site-meta'
+] as const;
+
+const priorityTagIds = [
+  'Ng8Gice9KNkncxqcj',
+  'sYm3HiWcfZvrGu3ui',
+  '3uE2pXvbcnS9nnZRE',
+  'xexCWMyds6QLWognu',
+  'fkABsGCJZ6y9qConW',
+  'izp6eeJJEg9v5zcur',
+  'MfpEPj6kJneT9gWT6',
+] as const;
+
 // Define the buildTree function here
 function buildTree(
-  items: Omit<WikiTagMockup, 'baseScore'>[], 
+  items: (AllTagsPageCacheFragment & { parentTagId: string | null })[],
   _id: string | null = null, 
   depth = 0, 
   seen: Set<string> = new Set()
 ): WikiTagNode[] {
   if (depth > 5) {
+    // eslint-disable-next-line no-console
     console.warn('Maximum depth exceeded in buildTree');
     return [];
   }
@@ -215,7 +254,7 @@ function buildTree(
   // Add baseScore to all items first
   const itemsWithScore = filteredItems.map(item => ({
     ...item,
-    baseScore: generateBaseScore(item.description_length, item.postCount)
+    baseScore: generateBaseScore(item.description?.html?.length ?? 0, item.postCount)
   }));
 
   // Sort items by baseScore before processing
@@ -223,19 +262,16 @@ function buildTree(
 
   return sortedItems.flatMap(item => {
     if (seen.has(item._id)) {
-      console.warn(`Circular reference detected for item ${item._id}`);
+      // eslint-disable-next-line no-console
+      console.warn(`Circular reference detected for item ${item.name} (${item._id})`);
       return [];
     }
 
     seen.add(item._id);
 
-    if (depth === 1) {
-      return buildTree(items, item._id, depth + 1, new Set(seen));
-    } else {
-      const children = buildTree(items, item._id, depth + 1, new Set(seen))
-        .sort((a, b) => b.baseScore - a.baseScore); // Sort children by baseScore
-      return [{ ...item, children }];
-    }
+    const children = buildTree(items, item._id, depth + 1, new Set(seen)).sort((a, b) => b.baseScore - a.baseScore);
+
+    return [{ ...item, children }];
   });
 }
 
@@ -264,19 +300,31 @@ function filterTreeByTagIds(
     .filter(node => node !== null) as WikiTagNode[];
 }
 
+const allTagsQuery = gql`
+  query AllTagsQuery {
+    AllTags {
+      ...AllTagsPageCacheFragment
+    }
+  }
+  ${fragmentTextForQuery('AllTagsPageCacheFragment')}
+`;
+
 const AllWikiTagsPage = () => {
   const classes = useStyles(styles);
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
 
   const { SectionButton, SectionTitle, WikiTagNestedList } = Components;
-  const [selectedWikiTag, setSelectedWikiTag] = useState<WikiTagMockup | null>(null);
-  const [pinnedWikiTag, setPinnedWikiTag] = useState<WikiTagMockup | null>(null);
+  const [selectedWikiTag, setSelectedWikiTag] = useState<WikiTagNode | null>(null);
+  const [pinnedWikiTag, setPinnedWikiTag] = useState<WikiTagNode | null>(null);
 
   const { query } = useLocation();
 
+  const { data } = useQuery(allTagsQuery, { ssr: true });
+
+  const tags: AllTagsPageCacheFragment[] = data?.AllTags ?? [];
+
   const isArbitalRedirect = query.ref === 'arbital';
-  console.log('isArbitalRedirect', isArbitalRedirect);
 
   const { LWTooltip } = Components;
 
@@ -288,17 +336,17 @@ const AllWikiTagsPage = () => {
     setCurrentQuery(searchState.query);
   };
 
-  const handleHover = (wikitag: WikiTagMockup | null) => {
-    if (!pinnedWikiTag && wikitag && (wikitag.description_length > 0 || wikitag.postCount > 0)) {
+  const handleHover = (wikitag: WikiTagNode | null) => {
+    if (!pinnedWikiTag && wikitag && ((wikitag.description?.html?.length ?? 0) > 0 || wikitag.postCount > 0)) {
       setSelectedWikiTag(wikitag);
     }
   };
 
-  const handleClick = (wikitag: WikiTagMockup) => {
+  const handleClick = (wikitag: WikiTagNode) => {
     if (pinnedWikiTag && pinnedWikiTag._id === wikitag._id) {
       setPinnedWikiTag(null);
       setSelectedWikiTag(null);
-    } else if (wikitag.description_length > 0 || wikitag.postCount > 0) {
+    } else if ((wikitag.description?.html?.length ?? 0) > 0 || wikitag.postCount > 0) {
       setPinnedWikiTag(wikitag);
       setSelectedWikiTag(wikitag);
     }
@@ -311,62 +359,30 @@ const AllWikiTagsPage = () => {
     }
   };
 
-  // Remove leading and trailing `"` and \n from the html
-  const cleanedHtml = selectedWikiTag?.description_html?.replace(/^"|"$/g, '').replace(/\\n/g, '') ?? '';
-
-  const prioritySlugs = useMemo(() => [
-    'rationality', 'ai', 'world-modeling', 
-    'world-optimization', 'practical', 'community', 'site-meta'
-  ] as const, []);
-
-  // Create the artificial "Uncategorized" tags
-  const uncategorizedRootTag: Omit<WikiTagMockup, 'baseScore'> = {
-    _id: 'uncategorized-root',
-    name: 'Uncategorized',
-    slug: 'uncategorized-root',
-    description_length: 0,
-    description_html: '',
-    postCount: 0,
-    parentTagId: null,
-  };
-
-  const uncategorizedChildTag: Omit<WikiTagMockup, 'baseScore'> = {
-    _id: 'uncategorized-child',
-    name: 'Uncategorized',
-    slug: 'uncategorized',
-    description_length: 0,
-    description_html: '',
-    postCount: 0,
-    parentTagId: 'uncategorized-root',
-  };
-
-  // Adjust items to assign unparented tags (excluding priority tags) to the "Uncategorized" child
-  const adjustedItems = wikitagMockupData.map(item => {
-    if (!item.parentTagId) {
-      if (prioritySlugs.includes(item.slug as typeof prioritySlugs[number])) {
-        // Keep priority tags at root level
-        return item;
-      } else {
-        // Assign non-priority unparented tags to 'uncategorized-child'
-        return {
-          ...item,
-          parentTagId: 'uncategorized-child',
-        };
-      }
+  const adjustedItems = tags.map(tag => {
+    if (priorityTagIds.includes(tag._id as typeof priorityTagIds[number])) {
+      return {
+        ...tag,
+        parentTagId: null,
+      };
     }
-    return item;
+
+    return {
+      ...tag,
+      parentTagId: tag.coreTagId ? tag.coreTagId : 'uncategorized-child',
+    };
   });
 
   // Add the artificial "Uncategorized" tags to the items list
-  const itemsWithUncategorized = [
+  const itemsWithUncategorized = useMemo(() => [
     ...adjustedItems,
     uncategorizedRootTag,
     uncategorizedChildTag,
-  ];
+  ], [adjustedItems]);
 
   // Move the tree-building and sorting logic here
   const sortedTree = useMemo(() => {
-    const tree = buildTree(itemsWithUncategorized as Omit<WikiTagMockup, 'baseScore'>[], null, 0);
+    const tree = buildTree(itemsWithUncategorized, null, 0);
 
     return tree.sort((a, b) => {
       const indexA = prioritySlugs.indexOf(a.slug as typeof prioritySlugs[number]);
@@ -385,7 +401,7 @@ const AllWikiTagsPage = () => {
       // For all other items, sort by baseScore
       return b.baseScore - a.baseScore;
     });
-  }, [prioritySlugs]);
+  }, [itemsWithUncategorized]);
 
   // Component to access search results
   const CustomStateResults = connectStateResults(({ searchResults }) => {
@@ -394,7 +410,7 @@ const AllWikiTagsPage = () => {
 
     // First filter by priority slugs at the root level
     const priorityFilteredTree = sortedTree.filter(wikitag => 
-      prioritySlugs.includes(wikitag.slug as typeof prioritySlugs[number]) || wikitag.slug === 'uncategorized-root'
+      priorityTagIds.includes(wikitag._id as typeof priorityTagIds[number]) || wikitag.slug === 'uncategorized-root'
     );
 
     // Then apply search filtering if there's a query
@@ -478,6 +494,6 @@ export default AllWikiTagsPageComponent;
 
 declare global {
   interface ComponentTypes {
-        AllWikiTagsPage: typeof AllWikiTagsPageComponent
+    AllWikiTagsPage: typeof AllWikiTagsPageComponent
   }
 }

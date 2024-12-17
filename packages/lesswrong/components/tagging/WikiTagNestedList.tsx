@@ -61,7 +61,7 @@ const WikiTagNestedList = ({
       ))}
       {pages.length > maxInitialShow && (
         <div className={classes.showMoreChildren}>
-          {`Show more (${totalChildrenCount ?? pages.length - maxInitialShow} nested pages)`}
+          {`Show more (${(totalChildrenCount ?? pages.length) - maxInitialShow} nested pages)`}
         </div>
       )}
     </div>

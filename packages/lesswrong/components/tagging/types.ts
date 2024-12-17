@@ -10,6 +10,8 @@ export interface WikiTagMockup {
   parentTagId?: string | null;
 }
 
-export interface WikiTagNode extends WikiTagMockup {
+export interface WikiTagNode extends AllTagsPageCacheFragment {
+  parentTagId: string | null;
+  baseScore: number;
   children: WikiTagNode[];
-} 
+}

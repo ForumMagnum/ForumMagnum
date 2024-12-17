@@ -1,12 +1,9 @@
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import CommentIcon from '@material-ui/icons/ModeComment';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { Link } from '@/lib/reactRouterWrapper';
-import type { ArbitalPage, ArbitalPageWithMatchedData, ArbitalPageNode } from './arbitalTypes';
 import { WikiTagNode } from './types';
-// Import styles as needed
 
 const KARMA_WIDTH = 50;
 const SECTION_WIDTH = 768;
@@ -142,7 +139,6 @@ const styles = defineStyles("WikiTagItem", (theme: ThemeType) => ({
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
-    // marginRight: 10,
     opacity: 0.95
   },
   titleLink: {
@@ -181,7 +177,6 @@ const styles = defineStyles("WikiTagItem", (theme: ThemeType) => ({
   oneLiner: {
     fontSize: 12,
     color: theme.palette.grey[600],
-    //text overflow ellipsis
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
@@ -249,12 +244,6 @@ const styles = defineStyles("WikiTagItem", (theme: ThemeType) => ({
   childrenList: {
     display: "flex",
     flexDirection: "column",
-    // doesn't work
-    // "&:last-child": {
-    //   "& .WikiTagItem-item": {  // or use classes.item if you prefer
-    //     boxShadow: "0 2px 8px rgba(0,0,0,1)",
-    //   },
-    // },
   },
   showMoreChildren: {
     fontSize: 12,
@@ -270,13 +259,9 @@ const styles = defineStyles("WikiTagItem", (theme: ThemeType) => ({
   },
   oneLinerInvisible: {
     display: 'none',
-    // opacity: 0,
-    // pointerEvents: "none",
   },
   contributorTooltip: {
     whiteSpace: 'nowrap',
-
-    // color: theme.palette.grey[600],
   },
 }));
 
@@ -294,16 +279,12 @@ interface WikiTagItemProps {
 const WikiTagItem = ({ page, nestingLevel, options = {} }: WikiTagItemProps) => {
   const classes = useStyles(styles);
 
-  if (nestingLevel < 2 ) {
-    console.log({nestingLevel, options, defaultCollapseAfterLevel: options.defaultCollapseAfterLevel});
-  }
-
   const [collapsed, setCollapsed] = useState(
     options.defaultCollapseAfterLevel !== undefined && 
     nestingLevel >= options.defaultCollapseAfterLevel
   );
 
-  const { ForumIcon, LWTooltip, TagsTooltip, WikiTagNestedList } = Components;
+  const { ForumIcon, TagsTooltip, WikiTagNestedList } = Components;
 
   const toggleCollapse = () => {
     setCollapsed(!collapsed);
@@ -311,14 +292,9 @@ const WikiTagItem = ({ page, nestingLevel, options = {} }: WikiTagItemProps) => 
 
   const hasChildren = page.children && page.children.length > 0;
 
-  const wordCountFormatted = `${page.description_length / 6 >= 100 ? `${(page.description_length / 6 / 1000).toFixed(1)}k ` : Math.round(page.description_length / 6)} words`;
+  const descriptionLength = page.description?.html?.length ?? 0;
 
-  const commentCountNode = !!(page.viewCount && page.viewCount > 0) && (
-    <div className={classes.commentsIconSmall}>
-      <CommentIcon className={classes.commentCountIcon} />
-      <div className={classes.commentCount}>{page.viewCount}</div>
-    </div>
-  );
+  const wordCountFormatted = `${descriptionLength / 6 >= 100 ? `${(descriptionLength / 6 / 1000).toFixed(1)}k ` : Math.round(descriptionLength / 6)} words`;
 
   return (
     <div className={classes.root}>
@@ -348,23 +324,14 @@ const WikiTagItem = ({ page, nestingLevel, options = {} }: WikiTagItemProps) => 
                 <div className={classes.wordCount}>{wordCountFormatted}</div>
               </div>
             </div>
-            {/* <div className={classNames(classes.oneLiner, { [classes.oneLinerInvisible]: !page.description_html, })} >
-              {oneLinerText}
-            </div> */}
-          </div>
-          <div className={classes.rightSideItems}>
-            {commentCountNode}
           </div>
         </div>
       </TagsTooltip>
 
-      {/* Render Children using WikiTagNestedList */}
       {!collapsed && hasChildren && (
         <WikiTagNestedList 
           pages={page.children} 
           nestingLevel={nestingLevel + 1}
-          // options={options}  // Pass all options down
-          // className={classes.children}
         />
       )}
     </div>

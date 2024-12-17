@@ -1817,3 +1817,62 @@ Globals.checkDefaultPageSummaries = async (mysqlConnectionString: string) => {
   const arbitalDb = await connectAndLoadArbitalDatabase(mysqlConnectionString);
   await checkDefaultPageSummaries(arbitalDb);
 }
+
+function loadCoreTagAssignmentsCsv() {
+  const csvStr = fs.readFileSync('/Users/robert/Downloads/core_tag_assignments.csv', 'utf-8');
+  const parsedCsv = Papa.parse(csvStr, {
+    delimiter: ',',
+    header: true,
+    skipEmptyLines: true,
+  });
+  if (parsedCsv.errors?.length > 0) {
+    for (const error of parsedCsv.errors) {
+      console.error(`${error.row}: ${error.message}`);
+    }
+    throw new Error("Error parsing CSV");
+  }
+  return parsedCsv;
+}
+
+interface TagAssignment {
+  _id: string;
+  coreTagNames: string[];
+}
+
+Globals.loadCoreTagAssignmentsCsv = async () => {
+  await ArbitalTagContentRels.rawRemove({ 'legacyData.coreTagAssignment': true });
+
+  const coreTags = await Tags.find({ core: true }).fetch();
+  const coreTagNames = new Set(coreTags.map(ct => ct.name));
+  const coreTagIdsByName = Object.fromEntries(coreTags.map(ct => [ct.name, ct._id]));
+
+  const { data } = loadCoreTagAssignmentsCsv();
+  const tagAssignments: TagAssignment[] = data.map((row: AnyBecauseIsInput) => {
+    return {
+      _id: row._id,
+      coreTagNames: row['Core Tag'].split(', '),
+    };
+  });
+
+  const filteredTagAssignments = tagAssignments.filter(ta => ta.coreTagNames.every(tag => coreTagNames.has(tag)));
+
+  const tagAssignmentInserts: MongoBulkInsert<DbArbitalTagContentRel>[] = filteredTagAssignments.flatMap(ta => ta.coreTagNames.map(tag => ({
+    document: {
+      _id: randomId(),
+      parentDocumentId: coreTagIdsByName[tag],
+      childDocumentId: ta._id,
+      parentCollectionName: 'Tags',
+      childCollectionName: 'Tags',
+      type: 'parent-is-tag-of-child',
+      level: 0,
+      isStrong: true,
+      createdAt: new Date(),
+      legacyData: { coreTagAssignment: true },
+      schemaVersion: 1,
+    },
+  })));
+
+  console.log(`Inserting ${tagAssignmentInserts.length} tag assignments`);
+
+  await ArbitalTagContentRels.rawCollection().bulkWrite(tagAssignmentInserts.map(insert => ({ insertOne: insert })));
+}

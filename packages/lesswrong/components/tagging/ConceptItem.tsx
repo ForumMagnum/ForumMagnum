@@ -1,12 +1,8 @@
 import React, { useState } from 'react';
 import classNames from 'classnames';
-import { Components, RouterLocation, registerComponent   } from '../../lib/vulcan-lib';
-import { isFriendlyUI } from '@/themes/forumTheme';
-import CommentIcon from '@material-ui/icons/ModeComment';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import DescriptionIcon from '@material-ui/icons/Description';
-import TagIcon from '@material-ui/icons/LocalOffer';
-import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
+import { WikiTagNode } from './types';
 
 const ITEM_WIDTH = 400;
 
@@ -45,7 +41,6 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     display: "flex",
     flexDirection: "column",
     alignItems: "flex-start",
-    // marginBottom: 6,
   },
   item: {
     cursor: "pointer",
@@ -57,28 +52,13 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    // backgroundColor: "white",
-    // boxShadow: "0 1px 5px rgba(0,0,0,.075)",
-    // "&:hover .ConceptItem-wordCount": {
-    //   opacity: 1,
-    // },
-    // transition: "background-color 0.1s ease",
-    // "&:hover": {
-    //   backgroundColor: theme.palette.grey[200],
-    // },
   },
-  wikiItem: {
-    // backgroundColor: theme.palette.grey[100],
-    // fontWeight: 700,
-  },
-  titleWikiItem: {
-    // fontWeight: 500,
-  },
+  wikiItem: {},
+  titleWikiItem: {},
 
   leftSideItems: {
     display: "flex",
     alignItems: "center",
-    // gap: "8px",
     overflow: "hidden",
     flexGrow: 1,
     flexShrink: 1,
@@ -99,7 +79,6 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     flexBasis: 0,
     fontSize: 13,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    // overflow: "hidden",
     minWidth: 0,
     opacity: 0.95,
     marginBottom: 1,
@@ -114,11 +93,6 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     WebkitBoxOrient: "vertical",
     display: "-webkit-box",
     overflow: "ellipsis",
-    // '&:hover': {
-    //   overflow: "visible",
-    //   width: 500,
-    //   backgroundColor: theme.palette.background.default,
-    // },
   },
   karma: {
     fontSize: 12,
@@ -156,16 +130,13 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     color: theme.palette.grey[600],
     display: "flex",
     alignItems: "center",
-    // gap: "2px",
   },
   icons: {
     height: "0.8rem",
     width: "0.8rem",
     opacity: 0.5,
     marginRight: 2,
-    // position: "relative",
   },
-
 
   titleItemRoot: {
     marginBottom: 24,
@@ -177,9 +148,6 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "flex-start",
-    // "&:hover $titlePostCount": {
-    //   opacity: 1,
-    // },
   },
   titleItemTitle: {
     fontWeight: 600,
@@ -195,46 +163,6 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     opacity: 0,
     transition: "opacity 0.1s ease",
   },
-  // groupingItem: {
-  //   backgroundColor: "unset",
-  //   width: '100%',
-  //   // borderRadius: theme.borderRadius.default,
-  //   // padding: "0px 8px",
-  //   display: "flex",
-  //   alignItems: "center",
-  //   justifyContent: "space-between",
-  //   // marginBottom: 4,
-  //   // boxShadow: "0 1px 5px rgba(0,0,0,.075)",
-  //   // "&:hover .ConceptItem-wordCount": {
-  //   //   opacity: 1,
-  //   // },
-  // },
-  // groupingTitle: {
-  //   fontWeight: 700,
-  //   fontSize: 10,
-  //   marginBottom: 4,
-  //   fontVariant: "all-petite-caps",
-  // },
-  // groupingRightSideItems: {
-  //   display: "flex",
-  //   flexGrow: 0,
-  //   flexShrink: 0,
-  //   flexBasis: "auto",
-  //   alignItems: "center",
-  //   gap: "4px",
-  //   // color: theme.palette.grey[600],
-  // },
-  // groupingItemChildrenCount: {
-  //   fontSize: 9,
-  //   fontWeight: 400,
-  //   marginRight: 2,
-  //   marginBottom: 3,
-  //   color: theme.palette.grey[600],
-  // },
-
-
-
-
   collapse: {
     marginRight: 7,
     opacity: 0,
@@ -273,12 +201,11 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     flexWrap: "wrap",
     gap: "8px",
     rowGap: "24px",
-    maxWidth: ITEM_WIDTH * 4 + 36,
+    maxWidth: (ITEM_WIDTH * 4) + 36,
   },
   column: {
     display: "flex",
     flexDirection: "column",
-    // gap: "1px",
     width: ITEM_WIDTH,
     flex: "0 0 auto",
   },
@@ -293,8 +220,7 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     fontVariant: "normal",
     color: theme.palette.grey[600],
     fontWeight: 500,
-    marginLeft: 8, // Adjust spacing as needed
-    // marginBottom: 14,
+    marginLeft: 8,
   },
   showMoreChildrenInline: {
     fontSize: 11,
@@ -302,10 +228,9 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     fontVariant: "normal",
     color: theme.palette.grey[600],
     fontWeight: 400,
-    marginLeft: 8, // Adjust spacing as needed
-    // marginBottom: 14,
+    marginLeft: 8,
     cursor: "pointer",
-    display: "inline", // Ensure it appears inline with the title
+    display: "inline",
   },
   collapseInvisible: {
     opacity: 0,
@@ -318,7 +243,6 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
   clickToPin: {
     fontSize: 11,
     color: theme.palette.primary.main,
-    // fontWeight: 700,
     cursor: "pointer",
     opacity: 0,
     transition: "opacity 0.05s ease",
@@ -347,40 +271,17 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
   },
   tooltipHoverTitle: {
     margin: '0 24px',
-    // marginRight: 32,
   },
-  tooltipHoverPostCount: {
-    // margin: '0 32px',
-    // margin: 16,
-    // marginLeft: 64,
-  },
+  tooltipHoverPostCount: {},
 }));
-
-
-interface WikiTagMockup {
-  "coreTag"?: string;
-  _id: string;
-  name: string;
-  slug: string;
-  postCount: number;
-  description_html: string;
-  description_length: number;
-  viewCount?: number;
-  parentTagId?: string | null;
-  baseScore: number;
-}
-
-interface WikiTagNode extends WikiTagMockup {
-  children: WikiTagNode[];
-}
 
 interface ConceptItemProps {
   wikitag: WikiTagNode;
   nestingLevel: number;
   index?: number;
-  onHover?: (wikitag: WikiTagMockup | null) => void;
-  onClick?: (wikitag: WikiTagMockup) => void;
-  pinnedWikiTag?: WikiTagMockup | null;
+  onHover?: (wikitag: WikiTagNode | null) => void;
+  onClick?: (wikitag: WikiTagNode) => void;
+  pinnedWikiTag?: WikiTagNode | null;
 }
   
 
@@ -477,7 +378,7 @@ const ConceptItem = ({ wikitag, nestingLevel, index, onHover, onClick, pinnedWik
     </div>
   );
 
-  const isWikiItem = wikitag.description_length > 2000;
+  const isWikiItem = (wikitag.description?.html?.length ?? 0) > 2000;
 
   // Title item (for nestingLevel === 0)
   const titleItem = (
@@ -494,46 +395,43 @@ const ConceptItem = ({ wikitag, nestingLevel, index, onHover, onClick, pinnedWik
 
   // Regular item (for nestingLevel > 0)
   const regularItem = (
-    // <TagsTooltip tagSlug={wikitag.slug} hash={wikitag.slug} noPrefetch previewPostCount={0}>
-      <div
-        className={classNames(classes.item, {
-          [classes.itemPinned]: isPinned,
-          [classes.wikiItem]: isWikiItem,
-        })}
-      >
-        {/* {collapseToggle} */}
-        <div className={classes.leftSideItems}>
-          <div className={classes.karma}>{wikitag.baseScore || 0}</div>
-          <div className={classNames(classes.title, { [classes.titleWikiItem]: isWikiItem })}>
-            <TagsTooltip
-              tagSlug={wikitag.slug}
-              hash={wikitag.slug}
-              noPrefetch
-              previewPostCount={0}
-              placement='right-start'
-              popperClassName={classes.tooltipHoverTitle}
-            >
-              <span className={classes.titleText}>{wikitag.name}</span>
-            </TagsTooltip>
-            {wikitag.postCount > 0 && (
-              <span className={classes.postCount}>
-                <TagsTooltip
-                  tagSlug={wikitag.slug}
-                  hash={wikitag.slug}
-                  noPrefetch
-                  previewPostCount={8}
-                  hideDescription
-                  placement='bottom-start'
-                  popperClassName={classes.tooltipHoverPostCount}
-                >
-                  (<span className={classes.postCountNumber}>{wikitag.postCount}</span>)
-                </TagsTooltip>
-              </span>
-            )}
-          </div>
+    <div
+      className={classNames(classes.item, {
+        [classes.itemPinned]: isPinned,
+        [classes.wikiItem]: isWikiItem,
+      })}
+    >
+      <div className={classes.leftSideItems}>
+        <div className={classes.karma}>{wikitag.baseScore || 0}</div>
+        <div className={classNames(classes.title, { [classes.titleWikiItem]: isWikiItem })}>
+          <TagsTooltip
+            tagSlug={wikitag.slug}
+            hash={wikitag.slug}
+            noPrefetch
+            previewPostCount={0}
+            placement='right-start'
+            popperClassName={classes.tooltipHoverTitle}
+          >
+            <span className={classes.titleText}>{wikitag.name}</span>
+          </TagsTooltip>
+          {wikitag.postCount > 0 && (
+            <span className={classes.postCount}>
+              <TagsTooltip
+                tagSlug={wikitag.slug}
+                hash={wikitag.slug}
+                noPrefetch
+                previewPostCount={8}
+                hideDescription
+                placement='bottom-start'
+                popperClassName={classes.tooltipHoverPostCount}
+              >
+                (<span className={classes.postCountNumber}>{wikitag.postCount}</span>)
+              </TagsTooltip>
+            </span>
+          )}
         </div>
       </div>
-    // </TagsTooltip>
+    </div>
   );
 
   // Decide which item to render
