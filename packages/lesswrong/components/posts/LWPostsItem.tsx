@@ -353,7 +353,7 @@ export const styles = (theme: ThemeType) => ({
     top: -2,
     fontSize: "1rem",
     fontWeight: 300,
-    color: "rgba(0, 0, 0, .9)",
+    color: theme.palette.greyAlpha(0.9),
   },
 })
 
