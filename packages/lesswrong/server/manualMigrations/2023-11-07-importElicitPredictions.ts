@@ -32,6 +32,7 @@ const apiPredictionToDBQuestion = (prediction: ElicitPredictionData, questionId:
   sourceUrl: prediction.sourceUrl,
   sourceId: prediction.sourceId,
   binaryQuestionId: questionId,
+  isDeleted: false,
 })
 
 registerMigration({

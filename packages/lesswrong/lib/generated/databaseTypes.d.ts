@@ -426,6 +426,7 @@ interface DbElicitQuestionPrediction extends DbObject {
   sourceUrl: string | null
   sourceId: string | null
   binaryQuestionId: string
+  isDeleted: boolean
 }
 
 type ElicitQuestionsCollection = CollectionBase<"ElicitQuestions">;

@@ -312,6 +312,7 @@ export const styles = (theme: ThemeType) => ({
     fontSize: '1.4rem',
     fontWeight: 600,
     marginLeft: theme.spacing.unit,
+    marginBottom: 1.5,
   },
 });
 

@@ -1,8 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 
-const PostsByVote = ({postIds, year, limit, showMostValuableCheckbox=false, hideEmptyStateText=false, postItemClassName}: {
+const styles = (theme: ThemeType): JssStyles => ({
+  checkboxRow: {
+    display: 'flex',
+    justifyContent: 'space-around',
+    marginBottom: 24
+  }
+})
+
+const LWPostsByVote = ({classes, postIds, year, limit, showMostValuableCheckbox=false, hideEmptyStateText=false, postItemClassName}: {
   classes: ClassesType,
   postIds: Array<string>,
   year: number | '≤2020',
@@ -11,7 +19,9 @@ const PostsByVote = ({postIds, year, limit, showMostValuableCheckbox=false, hide
   hideEmptyStateText?: boolean,
   postItemClassName?: string,
 }) => {
-  const { PostsItem, ErrorBoundary, Loading, Typography, LoadMore } = Components
+  const { PostsItem, ErrorBoundary, Loading, Typography, LoadMore, SectionFooterCheckbox, LWTooltip } = Components
+  const [requiredUnnominated, setRequiredUnnominated] = useState(true)
+  const [requiredFrontpage, setRequiredFrontpage] = useState(true)
 
   const before = year === '≤2020' ? '2021-01-01' : `${year + 1}-01-01`
   const after = `${year}-01-01`
@@ -20,6 +30,8 @@ const PostsByVote = ({postIds, year, limit, showMostValuableCheckbox=false, hide
     terms: {
       view: "nominatablePostsByVote",
       postIds,
+      requiredUnnominated,
+      requiredFrontpage,
       before,
       ...(year === '≤2020' ? {} : {after}),
     },
@@ -36,6 +48,14 @@ const PostsByVote = ({postIds, year, limit, showMostValuableCheckbox=false, hide
 
   return <ErrorBoundary>
     <div>
+      <div className={classes.checkboxRow}>
+        <LWTooltip title="Only show posts that don't have 2+ nomination votes yet.">
+          <SectionFooterCheckbox value={requiredUnnominated} onClick={() => setRequiredUnnominated(!requiredUnnominated)} label="Required unnominated" />
+        </LWTooltip>
+        <LWTooltip title="Only show frontpage posts (frontpage posts filtered for 'timelessness').">
+          <SectionFooterCheckbox value={requiredFrontpage} onClick={() => setRequiredFrontpage(!requiredFrontpage)} label="Required frontpage" />
+        </LWTooltip>
+      </div>
       {posts.map(post => {
         return <PostsItem key={post._id} post={post} showMostValuableCheckbox={showMostValuableCheckbox} className={postItemClassName} />
       })}
@@ -44,10 +64,10 @@ const PostsByVote = ({postIds, year, limit, showMostValuableCheckbox=false, hide
   </ErrorBoundary>
 }
 
-const PostsByVoteComponent = registerComponent("PostsByVote", PostsByVote);
+const LWPostsByVoteComponent = registerComponent("LWPostsByVote", LWPostsByVote, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostsByVote: typeof PostsByVoteComponent
+    LWPostsByVote: typeof LWPostsByVoteComponent
   }
 }
