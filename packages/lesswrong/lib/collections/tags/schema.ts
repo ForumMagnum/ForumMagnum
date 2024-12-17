@@ -715,6 +715,7 @@ const schema: SchemaType<"Tags"> = {
     optional: true,
     hidden: true,
     canRead: ['guests'],
+    canUpdate: ['members'],
     ...schemaDefaultValue(false),
   },
 
