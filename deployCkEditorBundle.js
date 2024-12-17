@@ -18,6 +18,7 @@ const initGlobals = (args, isProd) => {
   global.bundleIsE2E = false;
   global.bundleIsProduction = isProd;
   global.bundleIsMigrations = true;
+  global.enableVite = false;
   global.defaultSiteAbsoluteUrl = "";
   global.serverPort = 5001;
   global.estrellaPid = -1;
