@@ -396,7 +396,10 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
   
   await recomputePingbacks("Tags");
   await recomputePingbacks("MultiDocuments");
-  //await importPagePairs(database, resolverContext, options);
+
+  // This needs to be rerun whenever the page import is run
+  await importPagePairs(database, resolverContext, options);
+
   //await importComments(database, conversionContext, resolverContext, options);
 }
 
@@ -1521,9 +1524,9 @@ async function importPagePairs(
   resolverContext: ResolverContext,
   options: ArbitalImportOptions
 ): Promise<void> {
-  // replicating here rather than using buildConversionContext to avoid unintended side effects
-  const pageInfosById = keyBy(database.pageInfos, pi=>pi.pageId);
-  const defaultUser: DbUser|null = await Users.findOne({ username: "arbitalimport" });
+  // Replicating here rather than using buildConversionContext to avoid unintended side effects
+  const pageInfosById = keyBy(database.pageInfos, pi => pi.pageId);
+  const defaultUser: DbUser | null = await Users.findOne({ username: "arbitalimport" });
   if (!defaultUser) {
     throw new Error("There must be a fallback user named arbitalimport to assign edits to");
   }
@@ -1535,18 +1538,20 @@ async function importPagePairs(
 
   const filteredPagePairs = database.pagePairs.filter(pair => {
     const { parentId, childId, type } = pair;
-    
+
     // First check if we should include this pair based on the pages option
     if (options.pages && !options.pages.includes(childId)) {
       return false;
     }
-    
+
     const validType = ['tag', 'subject', 'requirement', 'parent'].includes(type);
     const parentInfo = pageInfosById[parentId];
     const childInfo = pageInfosById[childId];
     const pagesExist = parentInfo && childInfo;
     const pagesNotDeleted = pagesExist && !parentInfo.isDeleted && !childInfo.isDeleted;
-    return validType && pagesExist && pagesNotDeleted;
+    const pagesAreWikis = pagesExist && parentInfo.type === 'wiki' && childInfo.type === 'wiki';
+
+    return validType && pagesExist && pagesNotDeleted && pagesAreWikis;
   });
 
   console.log(`Importing ${filteredPagePairs.length} page pairs`);
