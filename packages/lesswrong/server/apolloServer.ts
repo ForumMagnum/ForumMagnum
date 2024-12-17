@@ -161,6 +161,15 @@ export function startWebserver() {
   const config = { path: '/graphql' };
   const expressSessionSecret = expressSessionSecretSetting.get()
 
+  if (enableVite) {
+    // When vite is running the backend is proxied which means we have to
+    // enable CORS for API routes to work
+    app.use((_req, res, next) => {
+      res.set("Access-Control-Allow-Origin", "*");
+      next();
+    });
+  }
+
   app.use(universalCookiesMiddleware());
 
   // Required for passport-auth0, and for login redirects
