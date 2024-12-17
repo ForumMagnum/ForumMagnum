@@ -11,9 +11,10 @@ import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import { WikiTagMockup, WikiTagNode } from './types';
 import { Link } from '@/lib/reactRouterWrapper';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
+import { useWindowSize } from "@/components/hooks/useScreenWidth";
 
-const ITEM_WIDTH = 400;
-
+const ITEM_WIDTH = 300;
+const COLUMN_GAP = 8;
 
 const ARBITAL_GREEN_DARK = "#004d40"
 
@@ -59,7 +60,8 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     width: ITEM_WIDTH,
     maxWidth: ITEM_WIDTH,
     borderRadius: theme.borderRadius.default,
-    padding: "2px 14px 2px 8px",
+    padding: "2px 0px",
+    paddingLeft: '2px',
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
@@ -176,7 +178,6 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     marginBottom: 24,
   },
   titleItem: {
-    marginBottom: -16,
     backgroundColor: "unset",
     width: '100%',
     display: "flex",
@@ -264,7 +265,6 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     transform: 'translateY(0.75px)',
   },
   children: {
-    marginLeft: 8,
     width: "calc(100vw - 16px)",
   },
   childrenContainer: {
@@ -272,13 +272,13 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     position: "relative",
   },
   childrenList: {
-    marginTop: 12,
     width: "100%",
     display: "flex",
-    flexWrap: "wrap",
+    flexWrap: ({forceWrap}: {forceWrap?: boolean}) => forceWrap ? "wrap" : "nowrap",
     gap: "8px",
     rowGap: "24px",
     maxWidth: ITEM_WIDTH * 4 + 36,
+    overflow: ({forceWrap}: {forceWrap?: boolean}) => forceWrap ? "visible" : "hidden",
   },
   column: {
     display: "flex",
@@ -435,16 +435,26 @@ const ConceptItem = ({
   // Calculate the number of items to show
   const showingAllItems = showingAllChildren || totalChildren <= MAX_INITIAL_ITEMS;
 
+  // First calculate visible columns and itemsToShowCount
+  const windowSize = useWindowSize();
+  const calculateVisibleColumns = () => {
+    const availableWidth = windowSize.width - 32;
+    const columnsWithGaps = Math.floor(availableWidth / (ITEM_WIDTH + COLUMN_GAP));
+    // Ensure at least 1 column is shown
+    return Math.max(1, Math.min(columnsWithGaps, MAX_INITIAL_COLUMNS));
+  };
+  const visibleColumns = calculateVisibleColumns();
+  
   const itemsToShowCount = showingAllItems
     ? totalChildren
-    : MAX_INITIAL_ITEMS;
+    : visibleColumns * ITEMS_PER_COLUMN;
 
-  // Sort and slice the children
+  // Then use itemsToShowCount to sort and slice the children
   const sortedChildren = wikitag.children
     .sort((a, b) => (b.baseScore || 0) - (a.baseScore || 0))
     .slice(0, itemsToShowCount);
 
-  // Split into columns
+  // Then split into columns
   const columns = splitIntoColumns(sortedChildren, ITEMS_PER_COLUMN);
 
   const remainingItems = totalChildren - itemsToShowCount;
@@ -530,8 +540,8 @@ const ConceptItem = ({
       {!collapsed && hasChildren && (
         <div className={classes.children}>
           <div className={classes.childrenContainer}>
-            <div className={classes.childrenList}>
-              {columns.map((columnItems, columnIndex) => (
+            <div className={classNames(classes.childrenList)} style={{forceWrap: showingAllChildren}}>
+              {columns.slice(0, showingAllChildren ? columns.length : visibleColumns).map((columnItems, columnIndex) => (
                 <div key={columnIndex} className={classes.column}>
                   {columnItems.map((childPage, idx) => (
                     <ConceptItem
@@ -548,21 +558,17 @@ const ConceptItem = ({
                 </div>
               ))}
             </div>
-            {/* Show "Show more"/"Show less" button for all nesting levels */}
-            {hasChildren && totalChildren > MAX_INITIAL_ITEMS && (
+            {/* Update the show more button text */}
+            {hasChildren && totalChildren > itemsToShowCount && (
               <div
                 className={classes.showMoreChildren}
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (!showingAllItems) {
-                    setShowingAllChildren(true);
-                  } else {
-                    setShowingAllChildren(false);
-                  }
+                  setShowingAllChildren(!showingAllChildren);
                 }}
               >
-                {!showingAllItems
-                  ? `Show ${remainingItems} more`
+                {!showingAllChildren
+                  ? `Show ${totalChildren - itemsToShowCount} more`
                   : 'Show less'
                 }
               </div>
