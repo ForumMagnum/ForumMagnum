@@ -306,10 +306,6 @@ function buildTree(
   }
 
   const filteredItems = items.filter(item => item.parentTagId === _id);
-
-  if (depth === 1) {
-    console.log({ filteredItems });
-  }
   
   // Add baseScore to all items first
   const itemsWithScore = filteredItems.map(item => ({
@@ -452,9 +448,7 @@ const AllWikiTagsPage = () => {
     }
   };
 
-  const priorityTagIds = filterNonnull(prioritySlugs.map(slug => tags.find(tag => slug === (tag.slug || tag.oldSlugs?.includes(slug)) && tag.core ))).map(tag => tag._id);
-
-  console.log({ priorityTagIds });
+  const priorityTagIds = filterNonnull(prioritySlugs.map(slug => tags.find(tag => slug === (tag.slug || tag.oldSlugs?.includes(slug)) && tag.core))).map(tag => tag._id);
 
   const adjustedItems = tags.map(tag => {
     if (priorityTagIds.includes(tag._id as typeof priorityTagIds[number])) {

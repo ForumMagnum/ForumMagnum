@@ -1846,7 +1846,7 @@ function loadCoreTagAssignmentsCsv() {
 }
 
 interface TagAssignment {
-  _id: string;
+  slug: string;
   coreTagNames: string[];
 }
 
@@ -1860,10 +1860,13 @@ Globals.loadCoreTagAssignmentsCsv = async () => {
   const { data } = loadCoreTagAssignmentsCsv();
   const tagAssignments: TagAssignment[] = data.map((row: AnyBecauseIsInput) => {
     return {
-      _id: row._id,
+      slug: row.slug,
       coreTagNames: row['Core Tag'].split(', '),
     };
   });
+  
+  const tagAssignmentIds = await Tags.find({ slug: {$in: tagAssignments.map(ta => ta.slug) }}).fetch();
+  const tagAssignmentIdsBySlug = Object.fromEntries(tagAssignmentIds.map(ta => [ta.slug, ta._id]));
 
   const filteredTagAssignments = tagAssignments.filter(ta => ta.coreTagNames.every(tag => coreTagNames.has(tag)));
 
@@ -1871,7 +1874,7 @@ Globals.loadCoreTagAssignmentsCsv = async () => {
     document: {
       _id: randomId(),
       parentDocumentId: coreTagIdsByName[tag],
-      childDocumentId: ta._id,
+      childDocumentId: tagAssignmentIdsBySlug[ta.slug],
       parentCollectionName: 'Tags',
       childCollectionName: 'Tags',
       type: 'parent-is-tag-of-child',
