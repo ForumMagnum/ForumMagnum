@@ -123,14 +123,14 @@ class TagsRepo extends AbstractRepo<"Tags"> {
         WHERE core IS TRUE
       )
       SELECT
-        t1.*,
-        (ARRAY_AGG(t2."_id") FILTER (WHERE t2._id IN (SELECT _id FROM core_tag_ids)))[1] AS "coreTagId"
-      FROM "Tags" t1
+        t_child.*,
+        (ARRAY_AGG(t_parent."_id") FILTER (WHERE t_parent._id IN (SELECT _id FROM core_tag_ids)))[1] AS "coreTagId"
+      FROM "Tags" t_child
       LEFT JOIN "ArbitalTagContentRels" acr
-      ON t1._id = acr."childDocumentId"
-      LEFT JOIN core_tag_ids t2
-      ON t2._id = acr."parentDocumentId"
-      WHERE t1.deleted IS FALSE
+      ON t_child._id = acr."childDocumentId"
+      LEFT JOIN core_tag_ids t_parent
+      ON t_parent._id = acr."parentDocumentId"
+      WHERE t_child.deleted IS FALSE
       AND (
         acr IS NULL
         OR (
@@ -138,7 +138,7 @@ class TagsRepo extends AbstractRepo<"Tags"> {
           AND acr."type" = 'parent-is-tag-of-child'
         )
       )
-      GROUP BY t1._id
+      GROUP BY t_child._id
     `);
   }
 }

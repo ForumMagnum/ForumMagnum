@@ -16,6 +16,7 @@ import { WikiTagNode } from './types';
 import { useSingle } from '@/lib/crud/withSingle';
 import { ArbitalLogo } from '../icons/ArbitalLogo';
 import { gql, useQuery } from '@apollo/client';
+import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 
 const ARBITAL_GREEN_DARK = "#004d40"
 
@@ -257,8 +258,10 @@ function generateBaseScore(description_length: number, postCount: number): numbe
 // Create the artificial "Uncategorized" tags
 const uncategorizedRootTag = {
   _id: 'uncategorized-root',
+  core: true,
   name: 'Uncategorized',
   slug: 'uncategorized-root',
+  oldSlugs: [],
   description: {
     _id: 'uncategorized-root',
     html: '',
@@ -273,6 +276,7 @@ const uncategorizedChildTag = {
   _id: 'uncategorized-child',
   name: 'Uncategorized',
   slug: 'uncategorized',
+  oldSlugs: [],
   description: {
     _id: 'uncategorized-child',
     html: '',
@@ -284,18 +288,8 @@ const uncategorizedChildTag = {
 };
 
 const prioritySlugs = [
-  'rationality', 'ai', 'world-modeling', 
+  'rationality-1', 'ai', 'world-modeling', 
   'world-optimization', 'practical', 'community', 'site-meta'
-] as const;
-
-const priorityTagIds = [
-  'Ng8Gice9KNkncxqcj',
-  'sYm3HiWcfZvrGu3ui',
-  '3uE2pXvbcnS9nnZRE',
-  'xexCWMyds6QLWognu',
-  'fkABsGCJZ6y9qConW',
-  'izp6eeJJEg9v5zcur',
-  'MfpEPj6kJneT9gWT6',
 ] as const;
 
 // Define the buildTree function here
@@ -454,6 +448,8 @@ const AllWikiTagsPage = () => {
     }
   };
 
+  const priorityTagIds = filterNonnull(prioritySlugs.map(slug => tags.find(tag => slug === (tag.slug || tag.oldSlugs?.includes(slug)) && tag.core))).map(tag => tag._id);
+
   const adjustedItems = tags.map(tag => {
     if (priorityTagIds.includes(tag._id as typeof priorityTagIds[number])) {
       return {
@@ -464,7 +460,7 @@ const AllWikiTagsPage = () => {
 
     return {
       ...tag,
-      parentTagId: tag.coreTagId ? tag.coreTagId : 'uncategorized-child',
+      parentTagId: tag.coreTagId ? tag.coreTagId : 'uncategorized-root',
     };
   });
 
@@ -472,7 +468,6 @@ const AllWikiTagsPage = () => {
   const itemsWithUncategorized = useMemo(() => [
     ...adjustedItems,
     uncategorizedRootTag,
-    uncategorizedChildTag,
   ], [adjustedItems]);
 
   // Move the tree-building and sorting logic here
