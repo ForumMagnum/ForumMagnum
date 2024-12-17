@@ -36,6 +36,7 @@ type GivingSeasonEvent = {
   end: Moment,
   discussionTagId?: string,
   discussionTagSlug?: string,
+  feedIncludesComments?: boolean,
   background: string,
   darkText?: boolean,
   hidden?: boolean,
@@ -94,8 +95,9 @@ const events: GivingSeasonEvent[] = [
     </>,
     start: moment("2024-12-16").utc(),
     end: moment("2024-12-22").utc(),
-    discussionTagId: "t3WrEa22KkcpddbGD",
+    discussionTagId: isProduction ? "t3WrEa22KkcpddbGD" : "m6ih6JaPyAX4DfWTB",
     discussionTagSlug: "pledge-highlight-week",
+    feedIncludesComments: true,
     background: "https://res.cloudinary.com/cea/image/upload/v1730143996/Rectangle_5072.jpg",
   },
   {
