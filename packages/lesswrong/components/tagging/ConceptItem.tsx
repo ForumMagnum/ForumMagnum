@@ -375,7 +375,17 @@ const ConceptItem = ({
       {/* {collapseToggle} */}
       <div className={classes.leftSideItems}>
         <div className={classes.titleItemTitle}>
-          {wikitag.name}
+          <TagsTooltip
+            tagSlug={wikitag.slug}
+            hash={wikitag.slug}
+            noPrefetch
+            previewPostCount={0}
+            placement='right-start'
+          >
+            <Link to={tagGetUrl({slug: wikitag.slug})}>
+              {wikitag.name}
+            </Link>
+          </TagsTooltip>
         </div>
         <div className={classes.titlePostCount}>{wikitag.postCount} posts</div>
       </div>
