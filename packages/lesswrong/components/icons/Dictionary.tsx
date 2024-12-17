@@ -22,6 +22,3 @@ export const DictionaryIcon = (props: React.HTMLAttributes<SVGElement>) => {
     </svg>
   );
 };
-
-registerComponent('DictionaryIcon', DictionaryIcon);
-
