@@ -109,6 +109,8 @@ class TagsRepo extends AbstractRepo<"Tags"> {
       FROM matching_tags t
       LEFT JOIN "MultiDocuments" md
       ON md."parentDocumentId" = t."_id" AND md."fieldName" = 'summary'
+      -- TODO: figure out a more principled fix for the problem we can have multiple tags or lenses with the same slug/oldSlugs
+      LIMIT 1
     `, [slug]);
   }
 }

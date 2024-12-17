@@ -39,7 +39,6 @@ import { updateMutator } from '../vulcan-lib';
 import { captureException } from '@sentry/core';
 import GraphQLJSON from 'graphql-type-json';
 import { getToCforTag } from '../tableOfContents';
-import { TagContributor } from '@/components/tagging/arbitalTypes';
 
 type SubforumFeedSort = {
   posts: SubquerySortField<DbPost, keyof DbPost>,
@@ -159,6 +158,50 @@ addGraphQLSchema(`
     users: [User!]
   }
 `);
+
+async function getRevisionAndCommentUsers(revisions: DbRevision[], rootComments: DbComment[], context: ResolverContext) {
+  const revisionUserIds = revisions.map(tr => tr.userId);
+  const commentUserIds = rootComments.map(rc => rc.userId);
+  const userIds = filterNonnull(_.uniq([...revisionUserIds, ...commentUserIds]));
+
+  const usersAll = await loadByIds(context, "Users", userIds);
+  const users = await accessFilterMultiple(context.currentUser, Users, usersAll, context);
+
+  return keyBy(users, u => u._id);
+}
+
+async function getMultiDocumentsByTagId(revisions: DbRevision[], context: ResolverContext) {
+  const { MultiDocuments } = context;
+
+  const revisionMultiDocumentIds = revisions.filter(r=>r.collectionName==="MultiDocuments").map(r=>r.documentId);
+  const multiDocumentIds = filterNonnull(_.uniq(revisionMultiDocumentIds));
+
+  const multiDocumentsUnfiltered = await loadByIds(context, "MultiDocuments", multiDocumentIds);
+  const multiDocuments = await accessFilterMultiple(context.currentUser, MultiDocuments, multiDocumentsUnfiltered, context);
+
+  const lenses = multiDocuments.filter(md=>md.fieldName === "description" && md.collectionName === "Tags");
+  const summaries = multiDocuments.filter(md=>md.fieldName === "summary");
+
+  const lensesByTagId = groupBy(lenses, md => md.parentDocumentId);
+  const summariesByTagId = groupBy(summaries, md => md.parentDocumentId);
+
+  const lensIdsByTagId = mapValues(lensesByTagId, lenses => lenses.map(l => l._id!));
+  const summaryIdsByTagId = mapValues(summariesByTagId, summaries => summaries.map(s => s._id!));
+
+  return { lensIdsByTagId, summaryIdsByTagId };
+}
+
+async function getTopLevelTags(revisions: DbRevision[], rootComments: DbComment[], lensIdsByTagId: Record<string, string[]>, summaryIdsByTagId: Record<string, string[]>, context: ResolverContext) {
+  const revisionTagIds = revisions.filter(r=>r.collectionName==="Tags").map(r=>r.documentId);
+  const commentTagIds = rootComments.map(c=>c.tagId);
+  const tagIds = [...revisionTagIds, ...commentTagIds];
+  const lensTagIds = Object.keys(lensIdsByTagId);
+  const summaryTagIds = Object.keys(summaryIdsByTagId);
+  const topLevelTagIds = filterNonnull(_.uniq([...tagIds, ...lensTagIds, ...summaryTagIds]));
+
+  const tagsUnfiltered = await loadByIds(context, "Tags", topLevelTagIds);
+  return await accessFilterMultiple(context.currentUser, Tags, tagsUnfiltered, context);
+}
 
 addGraphQLResolvers({
   Mutation: {
@@ -299,14 +342,19 @@ addGraphQLResolvers({
         throw new Error("TagUpdatesInTimeBlock limited to a one-day interval");
       
       // Get revisions to tags in the given time interval
-      const tagRevisions = await Revisions.find({
-        collectionName: "Tags",
-        fieldName: "description",
-        editedAt: {$lt: before, $gt: after},
-        $or: [
-          {"changeMetrics.added": {$gt: 0}},
-          {"changeMetrics.removed": {$gt: 0}}
-        ],
+      const revisions = await Revisions.find({
+        $and: [{
+          $or: [
+            { collectionName: "Tags", fieldName: "description" },
+            { collectionName: "MultiDocuments", fieldName: "contents" },
+          ],
+        }, {
+          $or: [
+            { "changeMetrics.added": {$gt: 0} },
+            { "changeMetrics.removed": {$gt: 0} }
+          ]
+        }],
+        editedAt: { $lt: before, $gt: after },
       }).fetch();
       
       // Get root comments on tags in the given time interval
@@ -318,27 +366,28 @@ addGraphQLResolvers({
         tagCommentType: "DISCUSSION",
       }).fetch();
       
-      const userIds = filterNonnull(_.uniq([...tagRevisions.map(tr => tr.userId), ...rootComments.map(rc => rc.userId)]))
-      const usersAll = await loadByIds(context, "Users", userIds)
-      const users = await accessFilterMultiple(context.currentUser, Users, usersAll, context)
-      const usersById = keyBy(users, u => u._id);
-      
-      // Get the tags themselves
-      const tagIds = filterNonnull(_.uniq([...tagRevisions.map(r=>r.documentId), ...rootComments.map(c=>c.tagId)]))
-      const tagsUnfiltered = await loadByIds(context, "Tags", tagIds);
-      const tags = await accessFilterMultiple(context.currentUser, Tags, tagsUnfiltered, context);
-      
+      const [usersById, { lensIdsByTagId, summaryIdsByTagId }] = await Promise.all([
+        getRevisionAndCommentUsers(revisions, rootComments, context),
+        getMultiDocumentsByTagId(revisions, context),
+      ]);
+
+      const tags = await getTopLevelTags(revisions, rootComments, lensIdsByTagId, summaryIdsByTagId, context);
+
       return tags.map(tag => {
-        const relevantRevisions = _.filter(tagRevisions, rev=>rev.documentId===tag._id);
-        const relevantRootComments = _.filter(rootComments, c=>c.tagId===tag._id);
-        const relevantUsersIds = filterNonnull(_.uniq([...relevantRevisions.map(tr => tr.userId), ...relevantRootComments.map(rc => rc.userId)]))
-        const relevantUsers = _.map(relevantUsersIds, userId=>usersById[userId]);
+        const relevantTagRevisions = revisions.filter(rev=>rev.documentId===tag._id);
+        const relevantLensRevisions = revisions.filter(rev=>lensIdsByTagId[tag._id!]?.includes(rev.documentId!));
+        const relevantSummaryRevisions = revisions.filter(rev=>summaryIdsByTagId[tag._id!]?.includes(rev.documentId!));
+        const relevantRevisions = [...relevantTagRevisions, ...relevantLensRevisions, ...relevantSummaryRevisions];
+
+        const relevantRootComments = rootComments.filter(c=>c.tagId===tag._id);
+        const relevantUsersIds = filterNonnull(_.uniq([...relevantTagRevisions.map(tr => tr.userId), ...relevantRootComments.map(rc => rc.userId)]));
+        const relevantUsers = relevantUsersIds.map(userId=>usersById[userId]);
         
         return {
           tag,
-          revisionIds: _.map(relevantRevisions, r=>r._id),
+          revisionIds: relevantRevisions.map(r=>r._id),
           commentCount: relevantRootComments.length + sumBy(relevantRootComments, c=>c.descendentCount),
-          commentIds: _.map(relevantRootComments, c=>c._id),
+          commentIds: relevantRootComments.map(c=>c._id),
           lastRevisedAt: relevantRevisions.length>0 ? _.max(relevantRevisions, r=>r.editedAt).editedAt : null,
           lastCommentedAt: relevantRootComments.length>0 ? _.max(relevantRootComments, c=>c.lastSubthreadActivity).lastSubthreadActivity : null,
           added: sumBy(relevantRevisions, r=>r.changeMetrics.added),

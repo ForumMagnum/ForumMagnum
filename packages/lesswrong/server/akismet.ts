@@ -93,6 +93,11 @@ async function checkForAkismetSpam({document, type}: AnyBecauseTodo) {
 
 getCollectionHooks("Comments").newAfter.add(async function checkCommentForSpamWithAkismet(comment: DbComment, currentUser: DbUser|null) {
     if (!currentUser) throw new Error("Submitted comment has no associated user");
+    
+    // Don't spam-check imported comments
+    if (comment.legacyData?.arbitalPageId) {
+      return comment;
+    }
 
     const unreviewedUser = !currentUser.reviewedByUserId;
     

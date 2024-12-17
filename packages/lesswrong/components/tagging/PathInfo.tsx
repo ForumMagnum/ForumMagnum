@@ -6,33 +6,34 @@ import { useLocation } from '@/lib/routeUtil';
 import { useTagBySlug } from './useTag';
 import { Link } from '@/lib/reactRouterWrapper';
 import { TagLens } from '@/lib/arbital/useTagLenses';
+import { useTagOrLens } from '../hooks/useTagOrLens';
 
 
 const styles = defineStyles("PathInfo", (theme) => ({
   pathInfo: {
-    // ...theme.typography.body2,
-    // ...theme.typography.commentStyle,
-    // marginBottom: 4,
-    // color: theme.palette.grey[600],
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'end',
     gap: '16px',
+    marginTop: 24,
   },
   pathNavigationBackButton: {
     display: 'flex',
+    flexShrink: 0,
     flexDirection: 'row',
     alignItems: 'center',
-    // padding: '4px 8px 5px 8px',
+    color: `${theme.palette.greyAlpha(.5)} !important`,
   },
   pathNavigationNextButton: {
     display: 'flex',
+    flexShrink: 0,
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: theme.palette.panelBackground.darken15,
     borderRadius: theme.borderRadius.small,
     padding: '4px 8px 5px 8px',
+    color: `${theme.palette.greyAlpha(.7)} !important`,
   },
   pathNavigationBackButtonIcon: {
     width: '16px',
@@ -94,7 +95,10 @@ const PathInfo = ({tag, lens}: {
   const { ForumIcon } = Components;
   
   const pathInfo = usePathInfo(tag, lens);
-  const { tag: guideTag } = useTagBySlug(pathInfo?.pathId ?? '', 'TagBasicInfo', { skip: !pathInfo?.pathId });
+
+  const { tag: guideTag, lens: guideLens } = useTagOrLens(pathInfo?.pathId ?? '', 'TagBasicInfo', { skip: !pathInfo?.pathId });
+
+  const guidePageName = guideTag?.name ?? guideLens?.title;
   
   if (!pathInfo) {
     return null;
@@ -115,7 +119,7 @@ const PathInfo = ({tag, lens}: {
     </Link>}
     <span>
       {`You are reading `}
-      <strong>{guideTag?.name ?? ''}</strong>
+      <strong>{guidePageName}</strong>
       {`, page ${pathInfo.displayPageIndex} of ${pathInfo.pathPageCount}`}
     </span>
     {pathInfo.nextPageId && <Link

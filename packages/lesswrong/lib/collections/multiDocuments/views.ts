@@ -6,9 +6,15 @@ declare global {
     slug: string
   }
 
-  type MultiDocumentsViewTerms = Omit<ViewTermsBase, 'view'> & (LensBySlugViewTerms | {
+  interface SummariesByParentIdViewTerms {
+    view: 'summariesByParentId',
+    parentDocumentId: string
+  }
+
+  type MultiDocumentsViewTerms = Omit<ViewTermsBase, 'view'> & (LensBySlugViewTerms | SummariesByParentIdViewTerms | {
     view?: undefined,
-    slug?: undefined
+    slug?: undefined,
+    parentDocumentId?: undefined
   });
 }
 
@@ -22,6 +28,20 @@ MultiDocuments.addView("lensBySlug", function (terms: LensBySlugViewTerms) {
       ],
       collectionName: "Tags",
       fieldName: "description",
+    },
+  };
+});
+
+MultiDocuments.addView("summariesByParentId", function (terms: SummariesByParentIdViewTerms) {
+  return {
+    selector: {
+      fieldName: 'summary',
+      parentDocumentId: terms.parentDocumentId,
+    },
+    options: {
+      sort: {
+        index: 1
+      },
     },
   };
 });

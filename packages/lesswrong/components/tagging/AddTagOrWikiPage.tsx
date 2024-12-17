@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useRef } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { SearchBox, Hits, Configure } from 'react-instantsearch-dom';
@@ -36,10 +36,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const AddTagOrWikiPage = ({onTagSelected, isVotingContext, onlyTags, classes}: {
+const AddTagOrWikiPage = ({onTagSelected, isVotingContext, onlyTags, numSuggestions=6, showAllTagsAndCreateTags=true, classes}: {
   onTagSelected: (props: {tagId: string, tagName: string, tagSlug: string}) => void,
   isVotingContext?: boolean,
   onlyTags: boolean,
+  numSuggestions?: number,
+  showAllTagsAndCreateTags?: boolean,
   classes: ClassesType,
 }) => {
   const {TagSearchHit, DropdownDivider} = Components
@@ -48,6 +50,7 @@ const AddTagOrWikiPage = ({onTagSelected, isVotingContext, onlyTags, classes}: {
   const searchStateChanged = React.useCallback((searchState: SearchState) => {
     setSearchOpen((searchState.query?.length ?? 0) > 0);
   }, []);
+  const inputRef = useRef<HTMLInputElement>();
 
   // When this appears, yield to the event loop once, use getElementsByTagName
   // to find the search input text box, then focus it.
@@ -79,7 +82,11 @@ const AddTagOrWikiPage = ({onTagSelected, isVotingContext, onlyTags, classes}: {
       <input placeholder="Tag ID" type="text" onKeyPress={ev => {
         if (ev.charCode===13) {
           const id = (ev.target as any).value;
-          onTagSelected({tagId: id, tagName: "Tag", tagSlug: id});
+          onTagSelected({
+            tagId: id,
+            tagName: "Tag",
+            tagSlug: id,
+          });
           ev.preventDefault();
         }
       }}/>
@@ -95,10 +102,10 @@ const AddTagOrWikiPage = ({onTagSelected, isVotingContext, onlyTags, classes}: {
       {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
         * null is the only option that actually suppresses the extra X button.
        // @ts-ignore */}
-      <SearchBox reset={null} focusShortcuts={[]}/>
+      <SearchBox inputRef={inputRef} reset={null} focusShortcuts={[]}/>
       <Configure
         facetFilters={onlyTags ? [["wikiOnly:false"]] : []}
-        hitsPerPage={searchOpen ? 12 : 6}
+        hitsPerPage={searchOpen ? 12 : numSuggestions}
       />
       <Hits hitComponent={({hit}: {hit: any}) =>
         <TagSearchHit
@@ -115,17 +122,19 @@ const AddTagOrWikiPage = ({onTagSelected, isVotingContext, onlyTags, classes}: {
         />
       }/>
     </InstantSearch>
-    <DropdownDivider />
-    <Link target="_blank" to={getAllTagsPath()} className={classes.newTag}>
-      All {taggingNamePluralCapitalSetting.get()}
-    </Link>
-    {userCanCreateTags(currentUser) && tagUserHasSufficientKarma(currentUser, "new") && <Link
-      target="_blank"
-      to={tagCreateUrl}
-      className={classes.newTag}
-    >
-      Create {taggingNameCapitalSetting.get()}
-    </Link>}
+    {showAllTagsAndCreateTags && <>
+      <DropdownDivider />
+      <Link target="_blank" to={getAllTagsPath()} className={classes.newTag}>
+        All {taggingNamePluralCapitalSetting.get()}
+      </Link>
+      {userCanCreateTags(currentUser) && tagUserHasSufficientKarma(currentUser, "new") && <Link
+        target="_blank"
+        to={tagCreateUrl}
+        className={classes.newTag}
+      >
+        Create {taggingNameCapitalSetting.get()}
+      </Link>}
+    </>}
   </div>
 }
 

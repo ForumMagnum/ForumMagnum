@@ -64,9 +64,11 @@ makeEditable({
   collection: MultiDocuments,
   options: {
     fieldName: "contents",
+    order: 30,
     commentStyles: true,
     normalized: true,
     revisionsHaveCommitMessages: true,
+    pingbacks: true,
     permissions: {
       canRead: ['guests'],
       canUpdate: ['members'],

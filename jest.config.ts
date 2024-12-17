@@ -71,6 +71,7 @@ export default {
     bundleIsE2E: false,
     bundleIsProduction: false,
     bundleIsMigrations: false,
+    enableVite: false,
     defaultSiteAbsoluteUrl: "",
   },
 
@@ -191,7 +192,7 @@ export default {
 
   moduleNameMapper: {
     // Should match "paths" in tsconfig.json
-    "@/allComponents": "<rootDir>/packages/lesswrong/lib/allComponents",
+    "@/allComponents": "<rootDir>/packages/lesswrong/lib/generated/allComponents",
     "@/client/(.*)": "<rootDir>/packages/lesswrong/stubs/client/$1",
     "@/(.*)": "<rootDir>/packages/lesswrong/$1",
     // An incantation found at https://github.com/axios/axios/issues/5101

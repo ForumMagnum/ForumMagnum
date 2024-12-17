@@ -22,7 +22,6 @@ import { app } from './expressServer';
 import path from 'path'
 import { getPublicSettings, getPublicSettingsLoaded } from '../lib/settingsCache';
 import { embedAsGlobalVar } from './vulcan-lib/apollo-ssr/renderUtil';
-import { addStripeMiddleware } from './stripeMiddleware';
 import { addAuthMiddlewares, expressSessionSecretSetting } from './authenticationMiddlewares';
 import { addForumSpecificMiddleware } from './forumSpecificMiddleware';
 import { addSentryMiddlewares, logGraphqlQueryStarted, logGraphqlQueryFinished } from './logging';
@@ -65,6 +64,7 @@ import { addLlmChatEndpoint } from './resolvers/anthropicResolvers';
 import { getInstanceSettings } from '@/lib/getInstanceSettings';
 import { addGivingSeasonEndpoints } from './givingSeason/webhook';
 import { getCommandLineArguments } from './commandLine';
+import { makeAbsolute } from '@/lib/vulcan-lib/utils';
 
 /**
  * End-to-end tests automate interactions with the page. If we try to, for
@@ -202,7 +202,6 @@ export function startWebserver() {
 
   addGivingSeasonEndpoints(app);
 
-  addStripeMiddleware(addMiddleware);
   // Most middleware need to run after those added by addAuthMiddlewares, so that they can access the user that passport puts on the request.  Be careful if moving it!
   addAuthMiddlewares(addMiddleware);
   addAdminRoutesMiddleware(addMiddleware);
@@ -466,7 +465,7 @@ export function startWebserver() {
     if (redirectUrl) {
       // eslint-disable-next-line no-console
       console.log(`Redirecting to ${redirectUrl}`);
-      trySetResponseStatus({ response, status: status || 301 }).redirect(redirectUrl);
+      trySetResponseStatus({ response, status: status || 301 }).redirect(makeAbsolute(redirectUrl));
     } else {
       trySetResponseStatus({ response, status: status || 200 });
       const ssrMetadata: SSRMetadata = {
