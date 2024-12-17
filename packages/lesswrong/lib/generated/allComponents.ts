@@ -272,6 +272,7 @@ importComponent("ShortformDropdownItem", () => require("../../components/dropdow
 importComponent("SuggestAlignmentPostDropdownItem", () => require("../../components/dropdowns/posts/SuggestAlignmentPostDropdownItem.tsx"));
 importComponent("SuggestCuratedDropdownItem", () => require("../../components/dropdowns/posts/SuggestCuratedDropdownItem.tsx"));
 importComponent("SummarizeDropdownItem", () => require("../../components/dropdowns/posts/SummarizeDropdownItem.tsx"));
+importComponent("WithdrawFromReviewDropdownItem", () => require("../../components/dropdowns/posts/WithdrawFromReviewDropDownItem.tsx"));
 importComponent("EABestOfPage", () => require("../../components/ea-forum/EABestOfPage.tsx"));
 importComponent("EAButton", () => require("../../components/ea-forum/EAButton.tsx"));
 importComponent("EACollectionCard", () => require("../../components/ea-forum/EACollectionCard.tsx"));
