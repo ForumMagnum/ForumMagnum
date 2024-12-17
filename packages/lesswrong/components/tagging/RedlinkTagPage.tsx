@@ -39,7 +39,7 @@ const RedlinkTagPage = ({tag, slug}: {
 }) => {
   const classes = useStyles(styles);
   const { SingleColumnSection } = Components;
-  const { results: pingbacks, loading } = useRedLinkPingbacks(tag?._id);
+  const { results: pingbacks, loading: pingbacksLoading, error: pingbacksError } = useRedLinkPingbacks(tag?._id);
   const title = inferRedLinkTitle(tag, slug??null);
 
   return <SingleColumnSection>
@@ -54,6 +54,9 @@ const RedlinkTagPage = ({tag, slug}: {
         {pingbacks?.map(t => <li key={t._id}>{t.name}</li>)}
       </ul>
     </>}
+    {!pingbacks?.length && !pingbacksLoading && !pingbacksError && <p>
+      There are no wiki pages linking to this page.
+    </p>}
   </SingleColumnSection>
 }
 
