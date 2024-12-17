@@ -15,7 +15,7 @@ import classNames from 'classnames';
 import * as _ from 'underscore';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "inline-block",
     verticalAlign: "top",
@@ -75,7 +75,6 @@ const NotificationsMenu = ({open, setIsOpen, hasOpened, classes}: {
   const {unreadPrivateMessages} = useUnreadNotifications();
   const [tab,setTab] = useState(0);
 
-  const [lastNotificationsCheck] = useState(currentUser?.lastNotificationsCheck ?? "");
   if (!currentUser) {
     return null;
   }
