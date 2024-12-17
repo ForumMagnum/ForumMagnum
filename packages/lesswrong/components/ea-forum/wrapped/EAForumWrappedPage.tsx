@@ -6,8 +6,7 @@ import { WrappedDataByYear, WrappedMostReadAuthor, WrappedMostReadTopic, Wrapped
 import classNames from "classnames";
 import range from "lodash/range";
 import moment from "moment";
-import { BarChart, Bar, ResponsiveContainer, YAxis, XAxis, AreaChart, Area, LineChart, Line } from "recharts";
-import { requireCssVar } from "../../../themes/cssVars";
+import { BarChart, Bar, ResponsiveContainer, YAxis, XAxis, AreaChart, Area } from "recharts";
 import { drawnArrow } from "../../icons/drawnArrow";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { userGetProfileUrlFromSlug } from "../../../lib/collections/users/helpers";
@@ -30,6 +29,7 @@ import { tagGetUrl } from "../../../lib/collections/tags/helpers";
 import { TagCommentType } from "../../../lib/collections/comments/types";
 import { useLocation } from "../../../lib/routeUtil";
 import DeferRender from "@/components/common/DeferRender";
+import { formatPercentile, wrappedHighlightColor, wrappedSecondaryColor } from "./wrappedHelpers";
 
 const socialImageProps: CloudinaryPropsType = {
   dpr: "auto",
@@ -47,28 +47,14 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.wrapped.background,
     color: theme.palette.text.alwaysWhite,
     fontFamily: theme.typography.fontFamily,
+    fontSize: 14,
+    fontWeight: 500,
     textAlign: 'center',
     marginTop: -theme.spacing.mainLayoutPaddingTop - HEADER_HEIGHT, // compensate for the padding added in Layout.tsx and the site header, so that section starts at the top of the page
     [theme.breakpoints.down('sm')]: {
       marginLeft: -8,
       marginRight: -8,
     },
-  },
-  loginWrapper: {
-    marginTop: 30
-  },
-  loginText: {
-    display: 'inline-block',
-    width: '100%',
-    maxWidth: 600,
-    fontSize: 16,
-    lineHeight: '24px',
-    fontWeight: 500,
-    margin: '0 auto',
-  },
-  loginImgWrapper: {
-    display: 'inline-block',
-    margin: '30px auto 0'
   },
   '@keyframes section-scroll-animation': {
     '0%': {
@@ -184,18 +170,6 @@ const styles = (theme: ThemeType) => ({
     maxWidth: 400,
     padding: '0 10px', // extra padding because the chart labels can overflow
     margin: '40px auto 0',
-  },
-  engagementChartMark: {
-    position: 'absolute',
-    bottom: -42,
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    gap: '2px',
-    color: theme.palette.text.alwaysWhite,
-  },
-  engagementChartArrow: {
-    transform: 'rotate(135deg)',
   },
   relativeTopicsChartMarkYou: {
     position: 'absolute',
@@ -663,71 +637,6 @@ type ReceivedReact = {
   Component: React.ComponentType
 }
 
-const wrappedHighlightColor = requireCssVar("palette", "wrapped", "highlightText")
-const wrappedSecondaryColor = requireCssVar("palette", "wrapped", "secondaryText")
-
-// A sample of data to approximate the real graph
-type EngagementDataPoint = {
-  hours: number,
-  count: number
-}
-const ENGAGEMENT_CHART_DATA: Record<WrappedYear, EngagementDataPoint[]> = {
-  2022: [
-    {hours: 0, count: 915},
-    {hours: 1, count: 1687},
-    {hours: 2, count: 770},
-    {hours: 3, count: 467},
-    {hours: 4, count: 346},
-    {hours: 5, count: 258},
-    {hours: 8, count: 142},
-    {hours: 10, count: 115},
-    {hours: 12, count: 92},
-    {hours: 14, count: 72},
-    {hours: 18, count: 42},
-    {hours: 22, count: 37},
-    {hours: 26, count: 34},
-    {hours: 35, count: 22},
-    {hours: 48, count: 7},
-    {hours: 59, count: 6},
-    {hours: 70, count: 1},
-    {hours: 80, count: 4},
-    {hours: 113, count: 1},
-    {hours: 445, count: 1},
-  ],
-  2023: [
-    {hours: 0, count: 878},
-    {hours: 1, count: 1857},
-    {hours: 2, count: 884},
-    {hours: 3, count: 522},
-    {hours: 4, count: 393},
-    {hours: 5, count: 309},
-    {hours: 8, count: 197},
-    {hours: 10, count: 135},
-    {hours: 12, count: 102},
-    {hours: 14, count: 97},
-    {hours: 18, count: 63},
-    {hours: 22, count: 39},
-    {hours: 26, count: 20},
-    {hours: 35, count: 14},
-    {hours: 48, count: 8},
-    {hours: 59, count: 6},
-    {hours: 70, count: 2},
-    {hours: 80, count: 2},
-    {hours: 113, count: 1},
-    {hours: 525, count: 1},
-  ],
-  2024: [
-    {hours: 0, count: 878},
-  ],
-}
-
-/**
- * Formats the percentile as an integer > 0
- */
-const formattedPercentile = (percentile: number) => (
-  Math.ceil((1 - percentile) * 100) || 1
-)
-
 /**
  * Formats the karma change number as a string with a + or -
  */
@@ -865,79 +774,6 @@ const KarmaChangeXAxis = () => {
     <text y="100%" fontSize={12} fill="#FFF" textAnchor="start">Jan</text>
     <text x="100%" y="100%" fontSize={12} fill="#FFF" textAnchor="end">Dec</text>
   </>
-}
-
-/**
- * Section that displays the user's engagement relative to other users
- */
-const EngagementPercentileSection = ({data, year, classes}: {
-  data: WrappedDataByYear,
-  year: WrappedYear,
-  classes: ClassesType<typeof styles>
-}) => {
-  // This is the x-axis position for the "you" arrow mark on the engagement chart.
-  // The highest value on the x-axis is ~530 hours.
-  // We multiply by 97.5 instead of 100 to account for the chart being less than the total width.
-  // We shift everything by 8px to account for the space that the y-axis takes up.
-  const engagementHours = (data.totalSeconds / 3600)
-  const markPosition = `calc(${97.5 * engagementHours / 530}% + 8px)`
-  const xMax = year === 2022 ? 450 : 530
-
-  return <AnalyticsContext pageSectionContext="engagementPercentile">
-    <section className={classes.section}>
-      <h1 className={classes.heading3}>
-        You’re a top <span className={classes.highlight}>{formattedPercentile(data.engagementPercentile)}%</span> reader of the EA Forum
-      </h1>
-      <p className={classNames(classes.textRow, classes.text, classes.mt16)}>You read {data.postsReadCount} posts this year</p>
-      <div className={classes.chart}>
-        <aside className={classes.engagementChartMark} style={{left: markPosition}}>
-          <div className={classes.engagementChartArrow}>
-            {drawnArrow}
-          </div>
-          you
-        </aside>
-        <ResponsiveContainer width="100%" height={200}>
-          <LineChart width={350} height={200} data={ENGAGEMENT_CHART_DATA[year]}>
-            <YAxis dataKey="count" tick={false} axisLine={{strokeWidth: 2, stroke: '#FFF'}} width={2} />
-            <XAxis dataKey="hours" tick={false} axisLine={{strokeWidth: 2, stroke: '#FFF'}} height={2} scale="linear" type="number" domain={[0, xMax]} />
-            <Line dataKey="count" dot={false} stroke={wrappedHighlightColor} strokeWidth={2} />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-    </section>
-  </AnalyticsContext>
-}
-
-/**
- * Section that displays the user's hours of engagement
- */
-const EngagementHoursSection = ({engagementHours, year, classes}: {
-  engagementHours: number,
-  year: WrappedYear,
-  classes: ClassesType<typeof styles>
-}) => {
-  return <AnalyticsContext pageSectionContext="engagementHours">
-    <section className={classes.section}>
-      <h1 className={classes.heading3}>
-        You spent <span className={classes.highlight}>{engagementHours.toFixed(1)}</span> hours on the EA Forum in {year}
-      </h1>
-      <p className={classNames(classes.textRow, classes.text, classes.mt70)}>Which is about the same as...</p>
-      <div className={classNames(classes.stats, classes.mt30)}>
-        <article className={classes.stat}>
-          <div className={classes.heading3}>{(engagementHours / 3.5).toFixed(1)}</div>
-          <div className={classes.statLabel}>episodes of the 80,000 hours podcast</div>
-        </article>
-        <article className={classes.stat}>
-          <div className={classes.heading3}>{(engagementHours / 25).toFixed(1)}</div>
-          <div className={classes.statLabel}>EAG(x) conferences</div>
-        </article>
-        <article className={classes.stat}>
-          <div className={classes.heading3}>{(engagementHours / 4320).toFixed(3)}</div>
-          <div className={classes.statLabel}>Llama 2s trained</div>
-        </article>
-      </div>
-    </section>
-  </AnalyticsContext>
 }
 
 /**
@@ -1194,7 +1030,7 @@ const TopPostSection = ({data, year, classes}: {
   const topPost = data.topPosts[0]
   if (topPost.baseScore < 10) return null;
   
-  const percentile = formattedPercentile(data.authorPercentile)
+  const percentile = formatPercentile(data.authorPercentile)
   
   return <AnalyticsContext pageSectionContext="topPost">
     <section className={classes.section}>
@@ -1234,7 +1070,7 @@ const TopCommentSection = ({data, year, classes}: {
   // Only show this section if their top comment has >0 karma
   if (data.topComment.baseScore < 1) return null;
   
-  const percentile = formattedPercentile(data.commenterPercentile)
+  const percentile = formatPercentile(data.commenterPercentile)
   
   return <AnalyticsContext pageSectionContext="topComment">
     <section className={classes.section}>
@@ -1264,7 +1100,7 @@ const TopQuickTakeSection = ({data, year, classes}: {
   // Only show this section if their top quick take has >0 karma
   if (data.topShortform.baseScore < 1) return null;
   
-  const percentile = formattedPercentile(data.shortformPercentile)
+  const percentile = formatPercentile(data.shortformPercentile)
 
   return <AnalyticsContext pageSectionContext="topQuickTake">
     <section className={classes.section}>
@@ -1432,7 +1268,7 @@ const SummarySection = ({data, year, classes}: {
         <div className={classes.summaryBoxRow}>
           <div className={classes.summaryBox}>
             <article>
-              <div className={classes.heading4}>{formattedPercentile(data.engagementPercentile)}%</div>
+              <div className={classes.heading4}>{formatPercentile(data.engagementPercentile)}%</div>
               <div className={classes.statLabel}>Top reader</div>
             </article>
           </div>
@@ -1589,7 +1425,9 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
   const isTooYoung = userCreatedAt.isAfter(endOfYear, "date");
   const hasWrapped = !isLoggedOut && !isTooYoung;
 
-  const {HeadTags, WrappedWelcomeSection} = Components;
+  const {
+    HeadTags, WrappedWelcomeSection, WrappedTimeSpentSection,
+  } = Components;
   return (
     <AnalyticsContext pageContext="eaYearWrapped" reviewYear={String(year)}>
       <main className={classes.root}>
@@ -1600,8 +1438,7 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
         <WrappedWelcomeSection year={year} isTooYoung={isTooYoung} />
         {hasWrapped && data &&
           <>
-            <EngagementPercentileSection data={data} year={year} classes={classes} />
-            <EngagementHoursSection engagementHours={(data.totalSeconds / 3600)} year={year} classes={classes} />
+            <WrappedTimeSpentSection data={data} year={year} />
             <DaysVisitedSection daysVisited={data.daysVisited} year={year} classes={classes} />
             <MostReadTopicsSection mostReadTopics={data.mostReadTopics} classes={classes} />
             <RelativeMostReadTopicsSection relativeMostReadCoreTopics={data.relativeMostReadCoreTopics} classes={classes} />

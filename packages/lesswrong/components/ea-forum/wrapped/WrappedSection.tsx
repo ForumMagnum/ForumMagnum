@@ -54,9 +54,9 @@ const WrappedSection = ({pageSectionContext, children, classes}: {
 }) => {
   return (
     <AnalyticsContext pageSectionContext={pageSectionContext}>
-      <div className={classes.root}>
+      <section className={classes.root}>
         {children}
-      </div>
+      </section>
     </AnalyticsContext>
   );
 }
