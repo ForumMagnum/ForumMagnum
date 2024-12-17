@@ -374,12 +374,13 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
               type: "QUALITATIVE" as const
             } : null
             return <div key={post._id} onClick={()=>{
-              setExpandedPost(expandedPost === post ? null : post)
-              captureEvent(undefined, {eventSubType: "voteTableRowClicked", postId: post._id})}}
+              captureEvent(undefined, {eventSubType: "voteTableRowClicked", postId: post._id})
+            }}
             >
               <ReviewVoteTableRow
                 post={post}
                 costTotal={costTotal}
+                setExpandedPost={setExpandedPost}
                 showKarmaVotes={showKarmaVotes}
                 dispatch={dispatchQualitativeVote}
                 currentVote={currentVote}

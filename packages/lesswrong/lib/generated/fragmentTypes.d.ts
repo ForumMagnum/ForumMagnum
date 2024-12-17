@@ -781,6 +781,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly reviewCount: number,
   readonly reviewVoteCount: number,
   readonly positiveReviewVoteCount: number,
+  readonly withdrawFromReview: boolean,
   readonly manifoldReviewMarketId: string | null,
   readonly annualReviewMarketProbability: number|null,
   readonly annualReviewMarketIsResolved: boolean|null,
@@ -1330,6 +1331,7 @@ interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
   readonly unreadDebateResponseCount: number,
   readonly dialogTooltipPreview: string|null,
   readonly disableSidenotes: boolean,
+  readonly withdrawFromReview: boolean,
 }
 
 interface PostsListBase_customHighlight { // fragment on Revisions

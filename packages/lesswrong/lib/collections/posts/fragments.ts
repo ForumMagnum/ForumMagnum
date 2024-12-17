@@ -304,6 +304,7 @@ registerFragment(`
     unreadDebateResponseCount
     dialogTooltipPreview
     disableSidenotes
+    withdrawFromReview
   }
 `);
 

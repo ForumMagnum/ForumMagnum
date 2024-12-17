@@ -1524,6 +1524,7 @@ CREATE TABLE "Posts" (
   "reviewCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "reviewVoteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "positiveReviewVoteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "withdrawFromReview" BOOL,
   "manifoldReviewMarketId" TEXT,
   "reviewVoteScoreAF" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "reviewVotesAF" DOUBLE PRECISION[] NOT NULL DEFAULT '{}',

@@ -883,6 +883,7 @@ interface DbPost extends DbObject {
   reviewCount: number
   reviewVoteCount: number
   positiveReviewVoteCount: number
+  withdrawFromReview: boolean | null
   manifoldReviewMarketId: string | null
   reviewVoteScoreAF: number
   reviewVotesAF: Array<number>

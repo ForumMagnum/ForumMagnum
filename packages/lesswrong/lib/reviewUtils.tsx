@@ -85,7 +85,6 @@ function recomputeReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
   if (currentDate < reviewEnd) return "RESULTS"
   return "COMPLETE"
 }
-
 // The number of positive review votes required for a post to appear in the ReviewVotingPage  
 // during the nominations phase
 export const INITIAL_VOTECOUNT_THRESHOLD = 1
@@ -125,6 +124,22 @@ export function eligibleToNominate (currentUser: UsersCurrent|DbUser|null) {
   return true
 }
 
+export function canWithdrawFromReview(currentUser: UsersCurrent|DbUser|null, document: DbPost|PostsListBase) {
+  if (!currentUser) return false
+
+  // we're doing this instead of userOwns because a) there's a dependency cycle if we import userOwns here, and b) I want this function self-contained
+  const userIsAuthor = document.userId === currentUser._id
+
+  const nominationStart = getReviewStart(REVIEW_YEAR)
+  const votingEnd = getVotingPhaseEnd(REVIEW_YEAR) // works till the end of the Review Phase
+  const duringReviewPeriod = moment.utc(document.postedAt).isAfter(nominationStart) && moment.utc(document.postedAt).isBefore(votingEnd)
+
+  const postedAt = moment.utc(document.postedAt)
+  const postCreateInReviewPeriod = postedAt.isAfter(`${REVIEW_YEAR}-01-01`) && postedAt.isBefore(`${REVIEW_YEAR+1}-01-01`)
+
+  return userIsAuthor && postCreateInReviewPeriod && duringReviewPeriod
+}
+
 export function postEligibleForReview (post: PostsBase) {
   if (moment.utc(post.postedAt) > moment.utc(`${REVIEW_YEAR+1}-01-01`)) return false
   if (isLWorAF && moment.utc(post.postedAt) < moment.utc(`${REVIEW_YEAR}-01-01`)) return false
@@ -135,7 +150,6 @@ export function postIsVoteable (post: PostsBase) {
   return getReviewPhase() === "NOMINATIONS" || post.positiveReviewVoteCount >= REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD
 
 }
-
 
 export function canNominate (currentUser: UsersCurrent|null, post: PostsBase) {
   if (!eligibleToNominate(currentUser)) return false

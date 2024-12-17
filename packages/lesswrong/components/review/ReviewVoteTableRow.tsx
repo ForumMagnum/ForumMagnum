@@ -46,6 +46,10 @@ const styles = (theme: ThemeType) => ({
       flexWrap: "wrap",
     }
   },
+  postInfo: {
+    display: "flex",
+    alignItems: "center",
+  },
   postVoteVotingPhase: {
     flexWrap: "wrap",
   },
@@ -159,13 +163,14 @@ const hasUnreadComments = (visitedDate: Date|null, lastCommentedAt: Date | null)
   return visitedDate < lastCommentedAt
 }
 
-const ReviewVoteTableRow = ({ post, dispatch, costTotal, classes, expandedPostId, currentVote, showKarmaVotes, reviewPhase, reviewYear, voteTooltip }: {
+const ReviewVoteTableRow = ({ post, dispatch, costTotal, classes, expandedPostId, currentVote, showKarmaVotes, reviewPhase, reviewYear, voteTooltip, setExpandedPost }: {
   post: PostsReviewVotingList,
   costTotal?: number,
   dispatch: React.Dispatch<SyntheticQualitativeVote>,
   showKarmaVotes: boolean,
   classes: ClassesType,
   expandedPostId?: string|null,
+  setExpandedPost: (post: PostsReviewVotingList) => void,
   currentVote: SyntheticQualitativeVote|null,
   reviewPhase: ReviewPhase,
   reviewYear: ReviewYear,
@@ -232,32 +237,34 @@ const ReviewVoteTableRow = ({ post, dispatch, costTotal, classes, expandedPostId
     <div className={classNames(classes.root, {[classes.expanded]: expanded, [classes.votingPhase]: reviewPhase === "VOTING" })} onClick={markAsRead}>
       {showKarmaVotes && <PostInteractionStripe post={post}/>}
       <div className={classNames(classes.postVote, {[classes.postVoteVotingPhase]: reviewPhase === "VOTING"})}>
-        <div className={classNames(classes.post, {[classes.postVotingPhase]: reviewPhase === "VOTING"})}>
-          <PostsTooltip post={post} flip={false}>
-            <PostsTitle post={post} showIcons={false} wrap curatedIconLeft={false} />
-          </PostsTooltip>
-        </div>
-        {reviewPhase === "VOTING" && <div className={classes.reviews}>
-          <ReviewPostComments
-            singleLine
-            hideReviewVoteButtons
-            singleLineCollapse
-            placeholderCount={post.reviewCount}
-            terms={{
-              view: "reviews",
-              reviewYear: reviewYear, 
-              postId: post._id
-            }}
-            post={post}
-          />
-        </div>}
-        <div className={classes.commentsCount}>
-          <PostsItemComments
-            small={false}
-            commentCount={postGetCommentCount(post)}
-            unreadComments={unreadComments}
-            newPromotedComments={false}
-          />
+        <div onClick={() => setExpandedPost(post)} className={classes.postInfo}>
+          <div className={classNames(classes.post, {[classes.postVotingPhase]: reviewPhase === "VOTING"})}>
+            <PostsTooltip post={post} flip={false}>
+              <PostsTitle post={post} showIcons={false} wrap curatedIconLeft={false} />
+            </PostsTooltip>
+          </div>
+          {reviewPhase === "VOTING" && <div className={classes.reviews}>
+            <ReviewPostComments
+              singleLine
+              hideReviewVoteButtons
+              singleLineCollapse
+              placeholderCount={post.reviewCount}
+              terms={{
+                view: "reviews",
+                reviewYear: reviewYear, 
+                postId: post._id
+              }}
+              post={post}
+            />
+          </div>}
+          <div className={classes.commentsCount}>
+            <PostsItemComments
+              small={false}
+              commentCount={postGetCommentCount(post)}
+              unreadComments={unreadComments}
+              newPromotedComments={false}
+            />
+          </div>
         </div>
         {reviewPhase === "NOMINATIONS" && <PostsItem2MetaInfo className={classes.count}>
           <LWTooltip title={<div>

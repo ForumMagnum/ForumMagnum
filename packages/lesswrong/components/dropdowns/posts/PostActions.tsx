@@ -35,7 +35,7 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
     EditTagsDropdownItem, EditPostDropdownItem, DuplicateEventDropdownItem,
     PostAnalyticsDropdownItem, ExcludeFromRecommendationsDropdownItem,
     ApproveNewUserDropdownItem, SharePostSubmenu, PostSubscriptionsDropdownItem,
-    DislikeRecommendationDropdownItem
+    DislikeRecommendationDropdownItem, WithdrawFromReviewDropdownItem
   } = Components;
 
   if (!post) return null;
@@ -75,6 +75,7 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
       <ApproveNewUserDropdownItem post={post} />
       <SuggestAlignmentPostDropdownItem post={post}/>
       <MoveToAlignmentPostDropdownItem post={post}/>
+      <WithdrawFromReviewDropdownItem post={post}/>
     </DropdownMenu>
   );
 }

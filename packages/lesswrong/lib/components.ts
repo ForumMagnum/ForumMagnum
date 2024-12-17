@@ -175,6 +175,7 @@ importComponent("EditPostDropdownItem", () => require('../components/dropdowns/p
 importComponent("EditPostDropdownItem", () => require('../components/dropdowns/posts/EditPostDropdownItem'));
 importComponent("ExcludeFromRecommendationsDropdownItem", () => require('../components/dropdowns/posts/ExcludeFromRecommendationsDropdownItem'));
 importComponent("PostAnalyticsDropdownItem", () => require('../components/dropdowns/posts/PostAnalyticsDropdownItem'));
+importComponent("WithdrawFromReviewDropdownItem", () => require('../components/dropdowns/posts/WithdrawFromReviewDropDownItem'));
 
 // Comment dropdown items
 importComponent("CommentsMenu", () => require('../components/dropdowns/comments/CommentsMenu'));

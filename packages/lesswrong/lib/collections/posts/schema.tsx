@@ -42,6 +42,7 @@ import { stableSortTags } from '../tags/helpers';
 import { getLatestContentsRevision } from '../revisions/helpers';
 import { marketInfoLoader } from './annualReviewMarkets';
 import { getUnusedSlugByCollectionName } from '@/lib/helpers';
+import { canWithdrawFromReview } from '@/lib/reviewUtils';
 
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
@@ -783,7 +784,15 @@ const schema: SchemaType<"Posts"> = {
       foreignFieldName: "postId",
       filterFn: vote => vote.qualitativeScore > DEFAULT_QUALITATIVE_VOTE || vote.quadraticScore > 0
     }),
+  canRead: ['guests'],
+  },
+
+  withdrawFromReview: {
+    type: Boolean,
+    optional: true,
     canRead: ['guests'],
+    canUpdate: (currentUser, document) => canWithdrawFromReview(currentUser, document),
+    hidden: true,
   },
 
   manifoldReviewMarketId: {
