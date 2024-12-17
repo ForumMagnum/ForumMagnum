@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useRef, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { useCurrentUser } from "../../common/withUser";
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
@@ -146,23 +146,6 @@ const styles = (theme: ThemeType) => ({
     lineHeight: '17px',
     fontWeight: 500,
     marginTop: 8
-  },
-  calendar: {
-    maxWidth: 600,
-    display: 'inline-grid',
-    gridTemplateColumns: "repeat(31, 6px)",
-    gridTemplateRows: "repeat(12, 6px)",
-    gap: '4px',
-    margin: '40px auto 0',
-  },
-  calendarDot: {
-    height: 6,
-    width: 6,
-    backgroundColor: theme.palette.wrapped.darkDot,
-    borderRadius: '50%'
-  },
-  calendarDotActive: {
-    backgroundColor: theme.palette.text.alwaysWhite,
   },
   topicsChart: {
     position: 'relative',
@@ -777,46 +760,6 @@ const KarmaChangeXAxis = () => {
 }
 
 /**
- * Section that displays the calendar of days that the user visited the forum,
- * visualized as 12 rows of dots, with the visited days' dots being white
- */
-const DaysVisitedSection = ({daysVisited, year, classes}: {
-  daysVisited: string[],
-  year: WrappedYear,
-  classes: ClassesType<typeof styles>
-}) => {
-  return <AnalyticsContext pageSectionContext="daysVisited">
-    <section className={classes.section}>
-      <h1 className={classes.heading3}>
-        You visited the EA Forum on <span className={classes.highlight}>{daysVisited.length}</span> days in {year}
-      </h1>
-      <p className={classNames(classes.textRow, classes.text, classes.mt16)}>
-        (You may have visited more times while logged out)
-      </p>
-      <div className={classes.calendar}>
-        {range(0, 12).map((month: number) => {
-          const daysInMonth = moment(`${year}-${month+1}`, 'YYYY-M').daysInMonth()
-          return <Fragment key={`month-${month}`}>
-            {range(0, daysInMonth).map(day => {
-              const date = moment(`${year}-${month+1}-${day+1}`, 'YYYY-M-D')
-              return <div
-                key={`month-${month}-day-${day}`}
-                className={classNames(classes.calendarDot, {
-                  [classes.calendarDotActive]: daysVisited.some(d => moment(d).isSame(date))
-                })}
-              ></div>
-            })}
-            {range(daysInMonth, 31).map(day => {
-              return <div key={`month-${month}-day-${day}`}></div>
-            })}
-          </Fragment>
-        })}
-      </div>
-    </section>
-  </AnalyticsContext>
-}
-
-/**
  * Section that displays a list of the user's most-read topics
  */
 const MostReadTopicsSection = ({mostReadTopics, classes}: {
@@ -1427,6 +1370,7 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
 
   const {
     HeadTags, WrappedWelcomeSection, WrappedTimeSpentSection,
+    WrappedDaysVisitedSection,
   } = Components;
   return (
     <AnalyticsContext pageContext="eaYearWrapped" reviewYear={String(year)}>
@@ -1439,7 +1383,7 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
         {hasWrapped && data &&
           <>
             <WrappedTimeSpentSection data={data} year={year} />
-            <DaysVisitedSection daysVisited={data.daysVisited} year={year} classes={classes} />
+            <WrappedDaysVisitedSection daysVisited={data.daysVisited} year={year} />
             <MostReadTopicsSection mostReadTopics={data.mostReadTopics} classes={classes} />
             <RelativeMostReadTopicsSection relativeMostReadCoreTopics={data.relativeMostReadCoreTopics} classes={classes} />
             <MostReadAuthorsSection authors={data.mostReadAuthors} year={year} classes={classes} />
