@@ -137,13 +137,6 @@ const styles = (theme: ThemeType) => ({
   lightbulbIcon: {
     width: 120,
   },
-  imgWrapper: {
-    display: 'inline-block',
-  },
-  img: {
-    maxWidth: 'min(80vw, 400px)',
-    maxHeight: '50vh',
-  },
   chart: {
     position: 'relative',
     width: '100%',
@@ -597,12 +590,6 @@ const styles = (theme: ThemeType) => ({
     '& .PostsItem2MetaInfo-metaInfo': {
       color: theme.palette.wrapped.grey,
     },
-  },
-  heading1: {
-    fontSize: 50,
-    lineHeight: '55px',
-    fontWeight: 700,
-    margin: 0
   },
   heading2: {
     fontSize: 32,
@@ -1585,100 +1572,52 @@ const MostValuablePostsSection = ({year, classes}: {
 }
 
 const EAForumWrappedPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
-  const { pathname, params } = useLocation()
-  const currentUser = useCurrentUser()
+  const {params} = useLocation();
+  const currentUser = useCurrentUser();
 
   const rawYear = parseInt(params.year);
   const year = isWrappedYear(rawYear) ? rawYear : 2024;
 
-  const { data } = useForumWrapped({
+  const {data} = useForumWrapped({
     userId: currentUser?._id,
-    year
-  })
+    year,
+  });
 
-  const { HeadTags, CloudinaryImage2 } = Components
+  const isLoggedOut = !currentUser;
+  const userCreatedAt = moment(currentUser?.createdAt);
+  const endOfYear = moment(`${year}-12-31`, "YYYY-MM-DD");
+  const isTooYoung = userCreatedAt.isAfter(endOfYear, "date");
+  const hasWrapped = !isLoggedOut && !isTooYoung;
 
-  // If there's no logged in user, prompt them to login
-  if (!currentUser) {
-    return <AnalyticsContext pageContext="eaYearWrapped">
-      <HeadTags
-        title={`EA Forum ${year} Wrapped`}
-        image={makeCloudinaryImageUrl('2023_wrapped_wide', socialImageProps)}
-      />
-      <main className={classes.root}>
-        <section className={classes.section}>
-          <h1 className={classes.heading1}>Your {year} Wrapped</h1>
-          <div className={classes.loginWrapper}>
-            <p className={classes.loginText}>
-              <a href={`/auth/auth0?returnTo=${encodeURIComponent(pathname)}`} className={classes.link}>
-                Login
-              </a>{" "}
-              to see your {year} data, or{" "}
-              <a href={`/auth/auth0?screen_hint=signup&returnTo=${encodeURIComponent(pathname)}`} className={classes.link}>
-                Sign up
-              </a>{" "}
-              to get ready for next year
-            </p>
-          </div>
-          <CloudinaryImage2 publicId="2023_wrapped" wrapperClassName={classes.loginImgWrapper} className={classes.img} />
-        </section>
-      </main>
-    </AnalyticsContext>
-  }
-
-  // If the user's account was created after year, show this message
-  const userCreatedAt = moment(currentUser.createdAt)
-  const endOfYear = moment(`${year}-12-31`, "YYYY-MM-DD")
-  if (userCreatedAt.isAfter(endOfYear, 'date')) {
-    return <AnalyticsContext pageContext="eaYearWrapped">
-      <main className={classes.root}>
-        <section className={classes.section}>
-          <h1 className={classes.heading1}>Your {year} Wrapped</h1>
-          <div className={classes.loginWrapper}>
-            <p className={classes.loginText}>
-              Looks like you didn't have an account in {year} - check back in at the end of this year!
-            </p>
-          </div>
-          <CloudinaryImage2 publicId="2023_wrapped" wrapperClassName={classes.loginImgWrapper} className={classes.img} />
-        </section>
-      </main>
-    </AnalyticsContext>
-  }
-
-  if (!data) return null;
-
+  const {HeadTags, WrappedWelcomeSection} = Components;
   return (
-    <AnalyticsContext pageContext="eaYearWrapped">
+    <AnalyticsContext pageContext="eaYearWrapped" reviewYear={String(year)}>
       <main className={classes.root}>
-
-        <AnalyticsContext pageSectionContext="top">
-          <section className={classes.section}>
-            <h1 className={classes.heading1}>Your {year} Wrapped</h1>
-            <CloudinaryImage2
-              publicId="2023_wrapped"
-              wrapperClassName={classNames(classes.imgWrapper, classes.mt60)}
-              className={classes.img}
-            />
-          </section>
-        </AnalyticsContext>
-
-        <EngagementPercentileSection data={data} year={year} classes={classes} />
-        <EngagementHoursSection engagementHours={(data.totalSeconds / 3600)} year={year} classes={classes} />
-        <DaysVisitedSection daysVisited={data.daysVisited} year={year} classes={classes} />
-        <MostReadTopicsSection mostReadTopics={data.mostReadTopics} classes={classes} />
-        <RelativeMostReadTopicsSection relativeMostReadCoreTopics={data.relativeMostReadCoreTopics} classes={classes} />
-        <MostReadAuthorsSection authors={data.mostReadAuthors} year={year} classes={classes} />
-        <ThankAuthorSection authors={data.mostReadAuthors} year={year} classes={classes} />
-        <TopPostSection data={data} year={year} classes={classes} />
-        <TopCommentSection data={data} year={year} classes={classes} />
-        <TopQuickTakeSection data={data} year={year} classes={classes} />
-        <KarmaChangeSection data={data} classes={classes} />
-        <ReactsReceivedSection receivedReacts={data.mostReceivedReacts} classes={classes} />
-        <ThankYouSection year={year} classes={classes} />
-        <SummarySection data={data} year={year} classes={classes} />
-        <RecommendationsSection classes={classes} />
-        <MostValuablePostsSection year={year} classes={classes} />
-
+        <HeadTags
+          title={`EA Forum Wrapped ${year}`}
+          image={makeCloudinaryImageUrl("2023_wrapped_wide", socialImageProps)}
+        />
+        <WrappedWelcomeSection year={year} isTooYoung={isTooYoung} />
+        {hasWrapped && data &&
+          <>
+            <EngagementPercentileSection data={data} year={year} classes={classes} />
+            <EngagementHoursSection engagementHours={(data.totalSeconds / 3600)} year={year} classes={classes} />
+            <DaysVisitedSection daysVisited={data.daysVisited} year={year} classes={classes} />
+            <MostReadTopicsSection mostReadTopics={data.mostReadTopics} classes={classes} />
+            <RelativeMostReadTopicsSection relativeMostReadCoreTopics={data.relativeMostReadCoreTopics} classes={classes} />
+            <MostReadAuthorsSection authors={data.mostReadAuthors} year={year} classes={classes} />
+            <ThankAuthorSection authors={data.mostReadAuthors} year={year} classes={classes} />
+            <TopPostSection data={data} year={year} classes={classes} />
+            <TopCommentSection data={data} year={year} classes={classes} />
+            <TopQuickTakeSection data={data} year={year} classes={classes} />
+            <KarmaChangeSection data={data} classes={classes} />
+            <ReactsReceivedSection receivedReacts={data.mostReceivedReacts} classes={classes} />
+            <ThankYouSection year={year} classes={classes} />
+            <SummarySection data={data} year={year} classes={classes} />
+            <RecommendationsSection classes={classes} />
+            <MostValuablePostsSection year={year} classes={classes} />
+          </>
+        }
       </main>
     </AnalyticsContext>
   )
