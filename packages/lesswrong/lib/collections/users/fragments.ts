@@ -269,6 +269,7 @@ registerFragment(`
       posts {
         _id
         scoreChange
+        postId
         title
         slug
         addedReacts {
@@ -280,6 +281,7 @@ registerFragment(`
       comments {
         _id
         scoreChange
+        commentId
         description
         postId
         postTitle
@@ -309,6 +311,7 @@ registerFragment(`
         posts {
           _id
           scoreChange
+          postId
           title
           slug
           addedReacts {
@@ -320,6 +323,7 @@ registerFragment(`
         comments {
           _id
           scoreChange
+          commentId
           description
           postId
           postTitle

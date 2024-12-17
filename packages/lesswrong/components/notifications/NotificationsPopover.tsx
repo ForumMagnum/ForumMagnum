@@ -222,6 +222,7 @@ const NotificationsPopover = ({karmaChanges, markAllAsRead, closePopover, classe
                     <div className={classes.karmaSubsectionTitle}>Today</div>
                     <NotificationsPageKarmaChangeList
                       karmaChanges={todaysKarmaChanges}
+                      truncateAt={3}
                     />
                   </div>
                 }
