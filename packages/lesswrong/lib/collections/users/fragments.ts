@@ -25,8 +25,6 @@ registerFragment(`
     spamRiskScore
     tagRevisionCount
     reviewedByUserId
-    givingSeason2024DonatedFlair
-    givingSeason2024VotedFlair
   }
 `);
 
@@ -269,6 +267,7 @@ registerFragment(`
       posts {
         _id
         scoreChange
+        postId
         title
         slug
         addedReacts {
@@ -280,6 +279,7 @@ registerFragment(`
       comments {
         _id
         scoreChange
+        commentId
         description
         postId
         postTitle
@@ -304,6 +304,49 @@ registerFragment(`
           userId
         }
         eaAddedReacts
+      }
+      todaysKarmaChanges {
+        posts {
+          _id
+          scoreChange
+          postId
+          title
+          slug
+          addedReacts {
+            reactionType
+            userId
+          }
+          eaAddedReacts
+        }
+        comments {
+          _id
+          scoreChange
+          commentId
+          description
+          postId
+          postTitle
+          postSlug
+          tagSlug
+          tagName
+          tagCommentType
+          addedReacts {
+            reactionType
+            userId
+          }
+          eaAddedReacts
+        }
+        tagRevisions {
+          _id
+          scoreChange
+          tagId
+          tagSlug
+          tagName
+          addedReacts {
+            reactionType
+            userId
+          }
+          eaAddedReacts
+        }
       }
     }
   }
