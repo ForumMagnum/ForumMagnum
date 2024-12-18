@@ -8,7 +8,7 @@ import classNames from "classnames";
 import { FormDisplayMode } from "../comments/CommentsNewForm";
 import {isFriendlyUI} from '../../themes/forumTheme'
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
   },
@@ -77,17 +77,19 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const MessagesNewForm = ({
-  classes,
   conversationId,
   templateQueries,
   successEvent,
+  submitLabel,
   formStyle="default",
+  classes,
 }: {
-  classes: ClassesType;
   conversationId: string;
   templateQueries?: TemplateQueryStrings;
   successEvent: () => void;
+  submitLabel?: string,
   formStyle?: FormDisplayMode;
+  classes: ClassesType<typeof styles>;
 }) => {
   const { WrappedSmartForm, Loading, ForumIcon, Error404 } = Components;
   const [loading, setLoading] = useState(false);
@@ -112,7 +114,7 @@ export const MessagesNewForm = ({
           <Button
             type="submit"
             id="new-message-submit"
-            className={classNames("primary-form-submit-button", formButtonClass, classes.submitButton)}
+            className={classNames("primary-form-submit-button", formButtonClass)}
           >
             {loading ? <Loading /> : isMinimalist ? <ForumIcon icon="ArrowRightOutline" /> : submitLabel}
           </Button>
@@ -124,7 +126,6 @@ export const MessagesNewForm = ({
       Loading,
       classes.formButton,
       classes.formButtonMinimalist,
-      classes.submitButton,
       classes.submitMinimalist,
       isMinimalist,
       loading,
@@ -143,6 +144,7 @@ export const MessagesNewForm = ({
     <div className={isMinimalist ? classes.rootMinimalist : classes.root}>
       <WrappedSmartForm
         collectionName="Messages"
+        submitLabel={submitLabel}
         successCallback={() => {
           setLoading(false);
           return successEvent();

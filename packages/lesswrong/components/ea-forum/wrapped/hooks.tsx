@@ -1,6 +1,7 @@
 import React, { FC, ReactNode, createContext, useCallback, useContext, useState } from "react";
 import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
 import { gql, useQuery } from "@apollo/client";
+import { useRecommendations } from "@/components/recommendations/withRecommendations";
 
 // When adding a new year you'll need to run the server command to update the
 // analytics views:
@@ -192,11 +193,13 @@ type ForumWrappedContext = {
   year: WrappedYear,
   data: WrappedDataByYear,
   currentUser: UsersCurrent,
+  personality: string,
   totalSections: number,
   currentSection: number,
   goToPreviousSection: () => void,
   goToNextSection: () => void,
   CurrentSection: FC,
+  recommendations: PostsListWithVotesAndSequence[],
 }
 
 const forumWrappedContext = createContext<ForumWrappedContext | null>(null);
@@ -216,16 +219,28 @@ export const ForumWrappedProvider = ({year, data, currentUser, sections, childre
   const goToNextSection = useCallback(() => {
     setCurrentSection((current) => Math.min(current + 1, lastSectionIndex));
   }, [lastSectionIndex]);
+
+  const {recommendations} = useRecommendations({
+    algorithm: {
+      strategy: {name: "bestOf", postId: ""},
+      count: 5,
+      disableFallbacks: true,
+    },
+    ssr: false,
+  });
+
   return (
     <forumWrappedContext.Provider value={{
       year,
       data,
       currentUser,
+      personality: "Helpful online one hit wonder",
       totalSections: sections.length,
       currentSection,
       goToPreviousSection,
       goToNextSection,
       CurrentSection: sections[currentSection],
+      recommendations: recommendations ?? [],
     }}>
       {children}
     </forumWrappedContext.Provider>

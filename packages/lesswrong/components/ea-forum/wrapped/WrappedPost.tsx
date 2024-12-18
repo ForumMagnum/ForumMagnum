@@ -13,15 +13,15 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center",
     gap: "12px",
     width: "100%",
-    minHeight: 56,
-    background: theme.palette.text.alwaysWhite,
-    color: theme.palette.wrapped.black,
+    minHeight: 50,
+    background: theme.palette.wrapped.panelBackground,
+    color: theme.palette.text.alwaysWhite,
     fontSize: 14,
     lineHeight: "normal",
     fontWeight: 600,
     textAlign: "left",
     borderRadius: theme.borderRadius.default,
-    padding: "12px",
+    padding: "8px 12px",
     cursor: "pointer",
     "&:hover": {
       opacity: 0.9,
@@ -33,33 +33,39 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    color: theme.palette.wrapped.grey,
+    color: theme.palette.wrapped.postScore,
   },
   voteArrow: {
-    color: theme.palette.wrapped.postScoreArrow,
+    color: theme.palette.wrapped.postScore,
     margin: "-6px 0 2px 0",
   },
   titleAndMeta: {
     flexGrow: 1,
   },
-  title: {
+  titleWrapper: {
     lineHeight: "19px",
     overflow: "hidden",
     display: "-webkit-box",
     "-webkit-box-orient": "vertical",
     "-webkit-line-clamp": 2,
   },
+  title: {
+    "&:hover": {
+      opacity: 1,
+    },
+  },
   metaRow: {
     display: "flex",
   },
   meta: {
-    color: theme.palette.wrapped.grey,
+    color: theme.palette.wrapped.postScore,
     fontSize: 12,
     fontWeight: 500,
     marginTop: 2,
   },
   bookmarkIcon: {
     fontSize: 18,
+    color: theme.palette.wrapped.postScore,
   },
 });
 
@@ -78,7 +84,7 @@ const WrappedPost = ({post, classes}: {
 
   const titleNode = (
     <InteractionWrapper>
-      <Link to={postLink}>{post.title}</Link>
+      <Link to={postLink} className={classes.title}>{post.title}</Link>
     </InteractionWrapper>
   );
 
@@ -96,7 +102,7 @@ const WrappedPost = ({post, classes}: {
         {post.baseScore}
       </div>
       <div className={classes.titleAndMeta}>
-        <div className={classes.title}>
+        <div className={classes.titleWrapper}>
           {isRecommendedPost
             ? (
               <PostsItemTooltipWrapper post={post}>

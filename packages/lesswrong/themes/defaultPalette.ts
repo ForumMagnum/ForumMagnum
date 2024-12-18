@@ -582,7 +582,8 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     darkDot: "rgba(255, 255, 255, 0.40)",
     panelBackground: "rgba(255, 255, 255, 0.10)",
     panelBackgroundDark: "rgba(255, 255, 255, 0.05)",
-    postScoreArrow: '#BCBCBC',
+    postScore: '#BCBCBC',
+    summary: "#006335",
   },
   givingSeason: {
     primary: "#8A0003",

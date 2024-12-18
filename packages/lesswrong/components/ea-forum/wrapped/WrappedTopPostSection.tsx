@@ -9,7 +9,11 @@ const styles = (_theme: ThemeType) => ({
     flexDirection: "column",
     width: "100%",
     maxWidth: 380,
-    margin: "24px auto 0",
+    margin: "24px auto",
+  },
+  container: {
+    width: "100%",
+    marginBottom: 24,
   },
   nextTopPosts: {
     display: "flex",
@@ -38,7 +42,7 @@ const WrappedTopPostSection = ({classes}: {
     return null;
   }
 
-  const percentile = formatPercentile(data.authorPercentile)
+  const percentile = formatPercentile(data.authorPercentile);
 
   const {WrappedSection, WrappedHeading, WrappedPost} = Components;
   return (
@@ -50,7 +54,7 @@ const WrappedTopPostSection = ({classes}: {
         <WrappedPost post={data.topPosts[0]} />
       </div>
       {data.topPosts.length > 1 &&
-        <>
+        <div className={classes.container}>
           <div>
             Other posts you wrote this year...
           </div>
@@ -59,16 +63,15 @@ const WrappedTopPostSection = ({classes}: {
               <WrappedPost key={post._id} post={post} />
             ))}
           </div>
-        </>
+        </div>
       }
       <div>
-        You wrote {data.postCount} post{data.postCount === 1 ? '' : 's'} in total
-        this year.
+        You wrote {data.postCount} post{data.postCount === 1 ? '' : 's'} in
+        total this year.
         {percentile < 100 &&
           ` This means you're in the top ${percentile}% of post authors.`
         }
       </div>
-
     </WrappedSection>
   );
 }

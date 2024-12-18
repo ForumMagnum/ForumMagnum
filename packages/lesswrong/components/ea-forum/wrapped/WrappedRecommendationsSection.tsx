@@ -1,9 +1,27 @@
-import React, { FC } from "react";
+import React from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
-import DeferRender from "@/components/common/DeferRender";
+import { useForumWrappedContext } from "./hooks";
+import { drawnArrow } from "@/components/icons/drawnArrow";
 
 const styles = (theme: ThemeType) => ({
-  recommendedPosts: {
+  arrowContainer: {
+    width: "100%",
+    height: 3,
+    position: "relative",
+  },
+  saveForLater: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    transform: "translateX(14px)",
+  },
+  saveForLaterText: {
+    transform: "translateX(-40px)",
+  },
+  arrow: {
+    transform: "rotate(-50deg)",
+  },
+  posts: {
     display: "flex",
     flexDirection: "column",
     gap: "8px",
@@ -16,34 +34,32 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const ListItem: FC<{
-  post: PostsListWithVotesAndSequence,
-  translucentBackground?: boolean,
-}> = ({post}) => <Components.WrappedPost post={post} />;
-
 /**
  * Section that displays some recommended posts to the user
  */
 const WrappedRecommendationsSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {WrappedSection, WrappedHeading, RecommendationsList} = Components;
+  const {recommendations} = useForumWrappedContext();
+  const {WrappedSection, WrappedHeading, WrappedPost} = Components;
   return (
     <WrappedSection pageSectionContext="recommendations">
       <WrappedHeading>
         Posts you missed that we think you’ll enjoy
       </WrappedHeading>
-      <DeferRender ssr={false}>
-        <RecommendationsList
-          algorithm={{
-            strategy: {name: "bestOf", postId: ""},
-            count: 5,
-            disableFallbacks: true,
-          }}
-          ListItem={ListItem}
-          className={classes.recommendedPosts}
-        />
-      </DeferRender>
+      <div className={classes.arrowContainer}>
+        <aside className={classes.saveForLater}>
+          <div className={classes.saveForLaterText}>Save for later</div>
+          <div className={classes.arrow}>{drawnArrow}</div>
+        </aside>
+      </div>
+      {recommendations.length > 0 &&
+        <div className={classes.posts}>
+          {recommendations.map((post) => (
+            <WrappedPost post={post} key={post._id} />
+          ))}
+        </div>
+      }
     </WrappedSection>
   );
 }

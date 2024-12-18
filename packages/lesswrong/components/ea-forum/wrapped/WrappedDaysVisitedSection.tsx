@@ -12,7 +12,7 @@ const styles = (theme: ThemeType) => ({
     gridTemplateColumns: "repeat(31, 6px)",
     gridTemplateRows: "repeat(12, 6px)",
     gap: "4px",
-    margin: "40px auto 0",
+    margin: "60px auto 0",
   },
   calendarDot: {
     height: 6,

@@ -2,20 +2,21 @@ import React from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { useForumWrappedContext } from "./hooks";
 import DeferRender from "@/components/common/DeferRender";
-import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
-  mvpColLabels: {
+  labels: {
     width: "100%",
     maxWidth: 500,
     display: "flex",
     justifyContent: "space-between",
+    marginTop: 30,
+    marginBottom: 10,
   },
-  mvpUpvotesLabel: {
+  upvotesLabel: {
     fontSize: 16,
     fontWeight: 600,
   },
-  mvpHeartLabel: {
+  heartLabel: {
     display: "flex",
     alignItems: "center",
     gap: "4px",
@@ -23,10 +24,10 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 500,
     paddingRight: 20,
   },
-  mvpHeartIcon: {
+  heartIcon: {
     fontSize: 16,
   },
-  mvpList: {
+  list: {
     width: "100%",
     maxWidth: 500,
     textAlign: "left",
@@ -37,7 +38,7 @@ const styles = (theme: ThemeType) => ({
       margin: "10px 0 0",
     },
   },
-  mvpPostItem: {
+  postItem: {
     marginBottom: 4,
     "& .EAPostsItem-expandedCommentsWrapper": {
       background: theme.palette.text.alwaysWhite,
@@ -64,7 +65,7 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.wrapped.grey,
     },
     "& .EAKarmaDisplay-voteArrow": {
-      color: theme.palette.wrapped.postScoreArrow,
+      color: theme.palette.wrapped.postScore,
     },
     "& .EAPostMeta-root": {
       color: theme.palette.wrapped.grey,
@@ -72,12 +73,6 @@ const styles = (theme: ThemeType) => ({
     "& .PostsItem2MetaInfo-metaInfo": {
       color: theme.palette.wrapped.grey,
     },
-  },
-  mt10: {
-    marginTop: 10,
-  },
-  mt30: {
-    marginTop: 30,
   },
 });
 
@@ -95,19 +90,19 @@ const WrappedMostValuablePostsSection = ({classes}: {
         Look back at everything you upvoted - what did you find most valuable?
         Your answers will help us encourage more of the most valuable content.
       </div>
-      <div className={classNames(classes.mvpColLabels, classes.mt30)}>
-        <div className={classes.mvpUpvotesLabel}>Your upvotes</div>
-        <div className={classes.mvpHeartLabel}>
+      <div className={classes.labels}>
+        <div className={classes.upvotesLabel}>Your upvotes</div>
+        <div className={classes.heartLabel}>
           Most valuable
-          <ForumIcon icon="HeartOutline" className={classes.mvpHeartIcon} />
+          <ForumIcon icon="HeartOutline" className={classes.heartIcon} />
         </div>
       </div>
       <DeferRender ssr={false}>
-        <div className={classNames(classes.mvpList, classes.mt10)}>
+        <div className={classes.list}>
           <PostsByVoteWrapper
             voteType="bigUpvote"
             year={year}
-            postItemClassName={classes.mvpPostItem}
+            postItemClassName={classes.postItem}
             showMostValuableCheckbox
             hideEmptyStateText
           />
@@ -115,7 +110,7 @@ const WrappedMostValuablePostsSection = ({classes}: {
             voteType="smallUpvote"
             year={year}
             limit={10}
-            postItemClassName={classes.mvpPostItem}
+            postItemClassName={classes.postItem}
             showMostValuableCheckbox
             hideEmptyStateText
           />

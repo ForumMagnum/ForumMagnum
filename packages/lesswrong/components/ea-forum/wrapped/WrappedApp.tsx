@@ -14,7 +14,7 @@ const styles = (theme: ThemeType) => ({
   },
   app: {
     display: "flex",
-    alignItems: "center",
+    alignItems: "flex-start",
     justifyContent: "center",
     width: "100%",
     flexGrow: 1,

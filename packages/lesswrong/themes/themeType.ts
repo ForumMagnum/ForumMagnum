@@ -551,7 +551,8 @@ declare global {
       darkDot: ColorString,
       panelBackground: ColorString,
       panelBackgroundDark: ColorString,
-      postScoreArrow: ColorString,
+      postScore: ColorString,
+      summary: ColorString,
     },
     givingSeason: {
       primary: ColorString,

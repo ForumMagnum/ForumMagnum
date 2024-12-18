@@ -6,9 +6,13 @@ import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { ExpandedDate } from "@/components/common/FormatDate";
 import { SoftUpArrowIcon } from "@/components/icons/softUpArrowIcon";
 import { htmlToTextDefault } from "@/lib/htmlToText";
-import { WrappedTopComment, WrappedTopShortform, useForumWrappedContext } from "./hooks";
-import moment from "moment";
+import {
+  WrappedTopComment,
+  WrappedTopShortform,
+  useForumWrappedContext,
+} from "./hooks";
 import type { TagCommentType } from "@/lib/collections/comments/types";
+import moment from "moment";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -32,20 +36,16 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     flexWrap: "wrap",
     alignItems: "center",
-    gap: "3px 16px",
+    gap: "2px 8px",
     color: theme.palette.wrapped.darkGrey,
     "& .EAReactsSection-button": {
       color: theme.palette.wrapped.darkGrey,
     },
   },
-  authorAndDate: {
-    display: "flex",
-    alignItems: "center",
-    gap: "6px",
-  },
   author: {
     fontSize: 14,
     fontWeight: 600,
+    whiteSpace: "nowrap",
   },
   date: {
     color: theme.palette.wrapped.grey,
@@ -55,6 +55,7 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     gap: "6px",
+    pointerEvents: "none",
   },
   karma: {
     display: "flex",
@@ -67,16 +68,6 @@ const styles = (theme: ThemeType) => ({
   },
   reacts: {
     display: "flex",
-  },
-  link: {
-    flexGrow: 1,
-    textAlign: "right",
-    paddingLeft: 10,
-  },
-  linkIcon: {
-    fontSize: 14,
-    color: theme.palette.wrapped.grey,
-    transform: "translateY(1px)",
   },
   body: {
     color: theme.palette.wrapped.black,
@@ -107,7 +98,7 @@ const WrappedComment = ({comment, classes}: {
     },
   });
 
-  const {LWTooltip, EAReactsSection, ContentStyles, ForumIcon} = Components;
+  const {LWTooltip, EAReactsSection, UserTooltip, ContentStyles} = Components;
   return (
     <article className={classes.root}>
       {"postTitle" in comment &&
@@ -118,40 +109,33 @@ const WrappedComment = ({comment, classes}: {
         </div>
       }
       <div className={classes.meta}>
-        <div className={classes.authorAndDate}>
-          <div className={classes.author}>
+        <div className={classes.author}>
+          <UserTooltip user={currentUser} placement="bottom">
             {currentUser?.displayName}
-          </div>
-          <div className={classes.date}>
-            <LWTooltip
-              placement="right"
-              title={<ExpandedDate date={comment.postedAt} />}
-            >
-              <CommentLinkWrapper>
-                {moment(new Date(comment.postedAt)).fromNow()}
-              </CommentLinkWrapper>
-            </LWTooltip>
-          </div>
+          </UserTooltip>
         </div>
-        <div className={classes.score}>
-          <div className={classes.karma}>
-            <div className={classes.voteArrow}>
-              <SoftUpArrowIcon />
-            </div>
-            {comment.baseScore}
-          </div>
-          <div className={classes.reacts}>
-            <EAReactsSection
-              document={comment}
-              voteProps={{document: comment}}
-              viewOnly
-            />
-          </div>
-          <div className={classes.link}>
+        <div className={classes.date}>
+          <LWTooltip
+            placement="right"
+            title={<ExpandedDate date={comment.postedAt} />}
+          >
             <CommentLinkWrapper>
-              <ForumIcon icon="Link" className={classes.linkIcon} />
+              {moment(new Date(comment.postedAt)).fromNow()}
             </CommentLinkWrapper>
+          </LWTooltip>
+        </div>
+        <div className={classes.karma}>
+          <div className={classes.voteArrow}>
+            <SoftUpArrowIcon />
           </div>
+          {comment.baseScore}
+        </div>
+        <div className={classes.reacts}>
+          <EAReactsSection
+            document={comment}
+            voteProps={{document: comment}}
+            viewOnly
+          />
         </div>
       </div>
       <ContentStyles contentType="comment">

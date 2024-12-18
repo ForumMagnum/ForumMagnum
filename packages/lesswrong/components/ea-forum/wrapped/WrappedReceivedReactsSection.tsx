@@ -4,11 +4,11 @@ import { isClient } from "@/lib/executionEnvironment";
 import { eaEmojiPalette } from "@/lib/voting/eaEmojiPalette";
 import { WrappedReceivedReact, useForumWrappedContext } from "./hooks";
 import range from "lodash/range";
-import classNames from "classnames";
 
 type ReceivedReact = {
   top: string,
   left: string,
+  transform: string,
   Component: ComponentType,
 }
 
@@ -23,9 +23,10 @@ const placeBackgroundReacts = (reacts?: WrappedReceivedReact[]) => {
     )?.Component;
     if (Component) {
       // Only go to 96% to prevent causing a horizontal scroll
-      range(0, next.count).forEach(_ => prev.push({
+      range(0, next.count).forEach((_) => prev.push({
         top: `${Math.random() * 96}%`,
         left: `${Math.random() * 96}%`,
+        transform: `rotate(${(Math.random() * 50) - 25}deg)`,
         Component,
       }));
     }
@@ -34,14 +35,14 @@ const placeBackgroundReacts = (reacts?: WrappedReceivedReact[]) => {
 }
 
 const styles = (theme: ThemeType) => ({
-  heading: {
-    position: "relative",
-    zIndex: 2,
-  },
   backgroundReact: {
     position: "absolute",
     zIndex: 1,
     color: theme.palette.primary.main,
+  },
+  heading: {
+    position: "relative",
+    zIndex: 2,
   },
   reactsReceivedContents: {
     position: "relative",
@@ -51,16 +52,36 @@ const styles = (theme: ThemeType) => ({
     maxWidth: 400,
     background: theme.palette.wrapped.panelBackgroundDark,
     borderRadius: theme.borderRadius.default,
-    padding: "16px",
+    padding: 16,
     margin: "30px auto 0",
   },
-
-  stats: {},
-  stat: {},
-  statLabel: {},
-  mt26: {},
-  heading3: {},
-  heading5: {},
+  subheading: {
+    fontSize: 16,
+    fontWeight: 600,
+    lineHeight: "140%",
+    marginBottom: 24,
+  },
+  stats: {
+    display: "flex",
+    justifyContent: "space-between",
+    flexWrap: "wrap",
+  },
+  stat: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: "8px",
+    width: 94,
+  },
+  statCount: {
+    fontSize: 28,
+    fontWeight: 700,
+    letterSpacing: "-0.56px",
+  },
+  statName: {
+    fontSize: 13,
+    fontWeight: 500,
+  },
 });
 
 const WrappedReceivedReactsSection = ({classes}: {
@@ -82,9 +103,13 @@ const WrappedReceivedReactsSection = ({classes}: {
 
   const {WrappedSection, WrappedHeading} = Components;
   return (
-    <WrappedSection pageSectionContext="reactsReceived">
-      {allReactsReceived?.map(({top, left, Component}, i) => (
-        <div key={i} className={classes.backgroundReact} style={{top, left}}>
+    <WrappedSection pageSectionContext="reactsReceived" fullHeight>
+      {allReactsReceived?.map(({top, left, transform, Component}, i) => (
+        <div
+          key={i}
+          className={classes.backgroundReact}
+          style={{top, left, transform}}
+        >
           <Component />
         </div>
       ))}
@@ -97,16 +122,16 @@ const WrappedReceivedReactsSection = ({classes}: {
       </WrappedHeading>
       {mostReceivedReacts.length > 1 && (
         <div className={classes.otherReacts}>
-          <p className={classes.heading5}>
-            ... and {totalReactsReceived} reacts in total:
-          </p>
-          <div className={classNames(classes.stats, classes.mt26)}>
-            {mostReceivedReacts.slice(1).map(react => {
-              return <article key={react.name} className={classes.stat}>
-                <div className={classes.heading3}>{react.count}</div>
-                <div className={classes.statLabel}>{react.name}</div>
+          <div className={classes.subheading}>
+            ...and {totalReactsReceived} reacts in total:
+          </div>
+          <div className={classes.stats}>
+            {mostReceivedReacts.slice(1).map(({name, count}) => (
+              <article key={name} className={classes.stat}>
+                <div className={classes.statCount}>{count}</div>
+                <div className={classes.statName}>{name}</div>
               </article>
-            })}
+            ))}
           </div>
         </div>
       )}

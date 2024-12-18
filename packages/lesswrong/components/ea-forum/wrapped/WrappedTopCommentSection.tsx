@@ -9,7 +9,7 @@ const styles = (_theme: ThemeType) => ({
     flexDirection: "column",
     width: "100%",
     maxWidth: 380,
-    margin: "24px auto 0",
+    margin: "24px auto",
   },
 });
 
@@ -38,8 +38,8 @@ const WrappedTopCommentSection = ({classes}: {
         <WrappedComment comment={data.topComment} />
       </div>
       <div>
-        You wrote {data.commentCount} comment{data.commentCount === 1 ? "" : "s"}{" "}
-        in total this year.
+        You wrote {data.commentCount}{" "}
+        comment{data.commentCount === 1 ? "" : "s"} in total this year.
         {percentile < 100 &&
           ` This means you're in the top ${percentile}% of commenters.`
         }

@@ -1,7 +1,7 @@
 import React from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { wrappedHighlightColor, wrappedWhiteColor } from "./wrappedHelpers";
-import { Bar, BarChart, ResponsiveContainer, YAxis } from "recharts";
+import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import { useForumWrappedContext } from "./hooks";
 
 const styles = (_theme: ThemeType) => ({
@@ -9,7 +9,7 @@ const styles = (_theme: ThemeType) => ({
     position: "relative",
     width: "100%",
     maxWidth: 400,
-    padding: "0 10px", // extra padding because the chart labels can overflow
+    padding: "0 10px", // Extra padding because the chart labels can overflow
     margin: "40px auto 0",
   },
 });
@@ -29,7 +29,7 @@ const WrappedMostReadTopicsSection = ({classes}: {
   const topics = mostReadTopics.map((topic, i) => {
     return {
       ...topic,
-      fill: i === 0 ? wrappedHighlightColor : wrappedWhiteColor,
+      fill: i === 0 ? wrappedHighlightColor : "#fff",
     }
   });
 
@@ -59,7 +59,7 @@ const WrappedMostReadTopicsSection = ({classes}: {
               tick={{fill: wrappedWhiteColor}}
               tickMargin={10}
             />
-            <YAxis dataKey="count" type="number" hide />
+            <XAxis dataKey="count" type="number" hide />
             <Bar dataKey="count" />
           </BarChart>
         </ResponsiveContainer>

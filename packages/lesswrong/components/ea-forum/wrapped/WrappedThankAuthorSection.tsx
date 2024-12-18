@@ -8,6 +8,9 @@ import { Link } from "@/lib/reactRouterWrapper";
 import { useForumWrappedContext } from "./hooks";
 
 const styles = (theme: ThemeType) => ({
+  heading: {
+    marginBottom: 40,
+  },
   messageAuthor: {
     display: "flex",
     flexDirection: "column",
@@ -25,6 +28,9 @@ const styles = (theme: ThemeType) => ({
     lineHeight: "normal",
     fontWeight: 500,
     color: theme.palette.wrapped.tertiaryText,
+  },
+  authorName: {
+    color: theme.palette.text.alwaysWhite,
   },
   newMessageForm: {
     background: theme.palette.wrapped.panelBackground,
@@ -105,7 +111,7 @@ const WrappedThankAuthorSection = ({classes}: {
   } = Components;
   return (
     <WrappedSection pageSectionContext="thankAuthor">
-      <WrappedHeading>
+      <WrappedHeading className={classes.heading}>
         You’re in the top <em>{topAuthorPercentByEngagementPercentile}%</em>{" "}
         of {displayName}’s readers
       </WrappedHeading>
@@ -118,7 +124,7 @@ const WrappedThankAuthorSection = ({classes}: {
           <div>
             <UsersProfileImage size={24} user={topAuthorByEngagementPercentile} />
           </div>
-          <div>
+          <div className={classes.authorName}>
             <Link to={getUserProfileLink(slug, year)}>
               {displayName}
             </Link>
@@ -128,6 +134,7 @@ const WrappedThankAuthorSection = ({classes}: {
           <MessagesNewForm
             conversationId={conversation._id}
             successEvent={onSuccess}
+            submitLabel="Send"
           />
         </div>
       </div>

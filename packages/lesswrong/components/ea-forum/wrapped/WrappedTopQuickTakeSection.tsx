@@ -9,7 +9,7 @@ const styles = (_theme: ThemeType) => ({
     flexDirection: "column",
     width: "100%",
     maxWidth: 380,
-    margin: "24px auto 0",
+    margin: "24px auto",
   },
 });
 
