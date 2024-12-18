@@ -324,6 +324,7 @@ importComponent("EAUsersProfileImage", () => require("../../components/ea-forum/
 importComponent("EAUsersProfileLinks", () => require("../../components/ea-forum/users/EAUsersProfileLinks.tsx"));
 importComponent("EAUsersProfileTabbedSection", () => require("../../components/ea-forum/users/modules/EAUsersProfileTabbedSection.tsx"));
 importComponent("EAForumWrappedPage", () => require("../../components/ea-forum/wrapped/EAForumWrappedPage.tsx"));
+importComponent("WrappedApp", () => require("../../components/ea-forum/wrapped/WrappedApp.tsx"));
 importComponent("WrappedComment", () => require("../../components/ea-forum/wrapped/WrappedComment.tsx"));
 importComponent("WrappedDaysVisitedSection", () => require("../../components/ea-forum/wrapped/WrappedDaysVisitedSection.tsx"));
 importComponent("WrappedHeading", () => require("../../components/ea-forum/wrapped/WrappedHeading.tsx"));

@@ -13,7 +13,6 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.wrapped.highlightText,
   },
   imgWrapper: {
-    marginTop: 60,
     display: "inline-block",
   },
   img: {

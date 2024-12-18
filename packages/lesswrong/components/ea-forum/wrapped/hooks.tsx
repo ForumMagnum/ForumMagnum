@@ -1,4 +1,4 @@
-import React, { ReactNode, createContext, useContext } from "react";
+import React, { FC, ReactNode, createContext, useCallback, useContext, useState } from "react";
 import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
 import { gql, useQuery } from "@apollo/client";
 
@@ -192,18 +192,41 @@ type ForumWrappedContext = {
   year: WrappedYear,
   data: WrappedDataByYear,
   currentUser: UsersCurrent,
+  totalSections: number,
+  currentSection: number,
+  goToPreviousSection: () => void,
+  goToNextSection: () => void,
+  CurrentSection: FC,
 }
 
 const forumWrappedContext = createContext<ForumWrappedContext | null>(null);
 
-export const ForumWrappedProvider = ({year, data, currentUser, children}: {
+export const ForumWrappedProvider = ({year, data, currentUser, sections, children}: {
   year: WrappedYear,
   data: WrappedDataByYear,
   currentUser: UsersCurrent,
+  sections: FC[],
   children: ReactNode,
 }) => {
+  const [currentSection, setCurrentSection] = useState(0);
+  const lastSectionIndex = sections.length - 1;
+  const goToPreviousSection = useCallback(() => {
+    setCurrentSection((current) => Math.max(current - 1, 0));
+  }, []);
+  const goToNextSection = useCallback(() => {
+    setCurrentSection((current) => Math.min(current + 1, lastSectionIndex));
+  }, [lastSectionIndex]);
   return (
-    <forumWrappedContext.Provider value={{year, data, currentUser}}>
+    <forumWrappedContext.Provider value={{
+      year,
+      data,
+      currentUser,
+      totalSections: sections.length,
+      currentSection,
+      goToPreviousSection,
+      goToNextSection,
+      CurrentSection: sections[currentSection],
+    }}>
       {children}
     </forumWrappedContext.Provider>
   );

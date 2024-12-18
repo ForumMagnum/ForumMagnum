@@ -1,8 +1,8 @@
-import React from "react"
+import React, { FC } from "react"
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { useLocation } from "@/lib/routeUtil";
-import { HEADER_HEIGHT } from "@/components/common/Header";
+import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from "@/components/common/Header";
 import { useCurrentUser } from "@/components/common/withUser";
 import { makeCloudinaryImageUrl } from "@/components/common/CloudinaryImage2";
 import { ForumWrappedProvider, isWrappedYear, useForumWrapped } from "./hooks";
@@ -10,17 +10,26 @@ import moment from "moment";
 
 const styles = (theme: ThemeType) => ({
   root: {
-    minHeight: '100vh',
+    minHeight: "100vh",
+    maxHeight: "100vh",
+    height: "100vh",
+    overflow: "hidden",
     background: theme.palette.wrapped.background,
     color: theme.palette.text.alwaysWhite,
     fontFamily: theme.typography.fontFamily,
     fontSize: 14,
     fontWeight: 500,
-    textAlign: 'center',
+    textAlign: "center",
     // Compensate for the padding added in Layout.tsx and the site header, so
     // that section starts at the top of the page
-    marginTop: -theme.spacing.mainLayoutPaddingTop - HEADER_HEIGHT,
-    [theme.breakpoints.down('sm')]: {
+    marginTop: -HEADER_HEIGHT - theme.spacing.mainLayoutPaddingTop,
+    [theme.breakpoints.down("md")]: {
+      marginTop: -HEADER_HEIGHT,
+    },
+    [theme.breakpoints.down("xs")]: {
+      marginTop: -MOBILE_HEADER_HEIGHT,
+    },
+    [theme.breakpoints.down("sm")]: {
       marginLeft: -8,
       marginRight: -8,
     },
@@ -44,15 +53,27 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
   const endOfYear = moment(`${year}-12-31`, "YYYY-MM-DD");
   const isTooYoung = userCreatedAt.isAfter(endOfYear, "date");
 
-  const {
-    HeadTags, WrappedSection, WrappedWelcomeSection, WrappedTimeSpentSection,
-    WrappedDaysVisitedSection, WrappedMostReadTopicsSection, WrappedHeading,
-    WrappedRelativeMostReadTopicsSection, WrappedMostReadAuthorSection, LoginForm,
-    WrappedThankAuthorSection, WrappedPersonalitySection, WrappedTopPostSection,
-    WrappedTopCommentSection, WrappedTopQuickTakeSection, WrappedKarmaChangeSection,
-    WrappedReceivedReactsSection, WrappedThankYouSection, WrappedSummarySection,
-    WrappedRecommendationsSection, WrappedMostValuablePostsSection,
-  } = Components;
+  const sections = [
+    Components.WrappedWelcomeSection,
+    Components.WrappedTimeSpentSection,
+    Components.WrappedDaysVisitedSection,
+    Components.WrappedMostReadTopicsSection,
+    Components.WrappedRelativeMostReadTopicsSection,
+    Components.WrappedMostReadAuthorSection,
+    Components.WrappedThankAuthorSection,
+    Components.WrappedPersonalitySection,
+    Components.WrappedTopPostSection,
+    Components.WrappedTopCommentSection,
+    Components.WrappedTopQuickTakeSection,
+    Components.WrappedKarmaChangeSection,
+    Components.WrappedReceivedReactsSection,
+    Components.WrappedThankYouSection,
+    Components.WrappedSummarySection,
+    Components.WrappedRecommendationsSection,
+    Components.WrappedMostValuablePostsSection,
+  ] as FC[];
+
+  const {HeadTags, WrappedSection, WrappedHeading,LoginForm, WrappedApp} = Components;
   return (
     <AnalyticsContext pageContext="eaYearWrapped" reviewYear={String(year)}>
       <main className={classes.root}>
@@ -82,30 +103,19 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
               {year} EA Forum <em>Wrapped</em>
             </WrappedHeading>
             <div>
-              Looks like you didn't have an account in {year} - check back in at
-              the end of this year
+              Looks like you didn't have an account in {year} - check back in
+              at the end of this year
             </div>
           </WrappedSection>
         }
         {!isLoggedOut && !isTooYoung && data &&
-          <ForumWrappedProvider year={year} data={data} currentUser={currentUser}>
-            <WrappedWelcomeSection />
-            <WrappedTimeSpentSection />
-            <WrappedDaysVisitedSection />
-            <WrappedMostReadTopicsSection />
-            <WrappedRelativeMostReadTopicsSection />
-            <WrappedMostReadAuthorSection />
-            <WrappedThankAuthorSection />
-            <WrappedPersonalitySection />
-            <WrappedTopPostSection />
-            <WrappedTopCommentSection />
-            <WrappedTopQuickTakeSection />
-            <WrappedKarmaChangeSection />
-            <WrappedReceivedReactsSection />
-            <WrappedThankYouSection />
-            <WrappedSummarySection />
-            <WrappedRecommendationsSection />
-            <WrappedMostValuablePostsSection />
+          <ForumWrappedProvider
+            year={year}
+            data={data}
+            currentUser={currentUser}
+            sections={sections}
+          >
+            <WrappedApp />
           </ForumWrappedProvider>
         }
       </main>
