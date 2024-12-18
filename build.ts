@@ -447,7 +447,6 @@ async function main() {
   let serverCli: string[] = [
     "node",
     ...(!isProduction ? ["--inspect"] : []),
-    "-r", "source-map-support/register",
     "--", `${getOutputDir()}/server/js/serverBundle.js`,
     "--settings", settingsFile,
     ...(opts.shell ? ["--shell"] : []),
