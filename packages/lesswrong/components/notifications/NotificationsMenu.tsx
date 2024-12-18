@@ -40,16 +40,21 @@ const styles = (theme: ThemeType) => ({
   },
   icon: {
     color: theme.palette.icon.slightlyDim,
+    "$tabLabel:hover &": {
+      color: theme.palette.greyAlpha(1.0),
+    },
   },
-  hideButton: {
+  cancel: {
     position: "absolute",
     top: 0,
     right: 5,
-  },
-  cancel: {
-    color: theme.palette.icon.dim5,
     margin: "10px",
     cursor: "pointer",
+
+    color: theme.palette.icon.dim5,
+    "&:hover": {
+      color: theme.palette.icon.normal,
+    },
   },
   tabBar: {
     background: theme.palette.panelBackground.notificationMenuTabBar,
@@ -155,7 +160,7 @@ const NotificationsMenu = ({open, setIsOpen, hasOpened, classes}: {
                 */}
               <Tab className={classes.hiddenTab} />
             </Tabs>
-            <ClearIcon className={classNames(classes.hideButton, classes.cancel)} onClick={() => setIsOpen(false)} />
+            <ClearIcon className={classes.cancel} onClick={() => setIsOpen(false)} />
             <Components.NotificationsList terms={{...notificationTerms, userId: currentUser._id}} currentUser={currentUser}/>
           </div>}
         </SwipeableDrawer>}
