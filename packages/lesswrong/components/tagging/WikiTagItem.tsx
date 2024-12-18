@@ -1,3 +1,4 @@
+// TODO: this file might be unused, delete it if so
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
@@ -271,7 +272,6 @@ interface WikiTagItemProps {
   options?: {
     sort?: (a: WikiTagNode, b: WikiTagNode) => number;
     defaultCollapseAfterLevel?: number;
-    // Future options can be added here
   };
   className?: string;
 }

@@ -34,13 +34,6 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
     flexDirection: "column",
     gap: "32px",
   },
-  mainRow: {
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: "32px",
-    width: "100%",
-  },
   titleSection: {
     display: 'flex',
     flexDirection: 'column',
@@ -152,48 +145,6 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
     maxWidth: 600,
     alignSelf: "flex-start",
   },
-  wikitagName: {
-    fontSize: "1.5rem",
-    fontWeight: 700,
-    marginBottom: 16,
-  },
-  viewer: {
-    flexShrink: 0,
-    width: '100%',
-    maxWidth: 600,
-    padding: "24px 42px",
-    backgroundColor: "white",
-    display: 'flex',
-    flexDirection: 'column',
-    position: 'sticky',
-    top: 80,
-    height: '100vh',
-    overflowY: 'auto',
-  },
-  viewerContent: {
-    flexGrow: 1,
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  wikitagDescription: {
-    fontSize: "1rem",
-    fontWeight: 400,
-    flexGrow: 1,
-    overflowY: 'auto',
-  },
-  wikitagHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  pinMessage: {
-    color: theme.palette.grey[700],
-    fontSize: '1.2rem',
-    fontStyle: 'italic',
-    whiteSpace: 'nowrap',
-    flexShrink: 0,
-  },
   arbitalRedirectNotice: {
     display: 'flex',
     flexDirection: 'row',
@@ -287,6 +238,7 @@ const uncategorizedChildTag = {
   isArbitalImport: false,
 };
 
+// TODO: we really need to figure out a better way to handle this than slugs, especially with the merged rationality page
 const prioritySlugs = [
   'rationality-1', 'ai', 'world-modeling', 
   'world-optimization', 'practical', 'community', 'site-meta'

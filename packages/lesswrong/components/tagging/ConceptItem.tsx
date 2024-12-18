@@ -14,32 +14,6 @@ const COLUMN_GAP = 8;
 const ARBITAL_GREEN_DARK = "#004d40"
 
 const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
-  details: {
-    flexGrow: 1,
-    minWidth: 0, // flexbox black magic
-  },
-  titleWrapper: {
-    display: "inline",
-  },
-
-  titleCardView: {
-    // When card view is active, *all* post items change font weight,
-    // even those that are not a card, so that all titles are consistent.
-    fontWeight: 700,
-  },
-  titleCard: {
-    display: "-webkit-box",
-    "-webkit-box-orient": "vertical",
-    "-webkit-line-clamp": 2,
-    [theme.breakpoints.down("xs")]: {
-      "-webkit-line-clamp": 3,
-    },
-  },
-  meta: {
-    display: "flex",
-    alignItems: "center",
-    whiteSpace: "nowrap",
-  },
   root: {
     maxWidth: ITEM_WIDTH,
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -61,7 +35,6 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
   },
   wikiItem: {},
   titleWikiItem: {},
-
   leftSideItems: {
     display: "flex",
     alignItems: "center",
@@ -70,13 +43,6 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     flexShrink: 1,
     flexBasis: 0,
     minWidth: 0,
-  },
-  baseScore: {
-    minWidth: 20,
-    fontSize: 13,
-    color: theme.palette.grey[700],
-    alignItems: "center",
-    justifyContent: "flex-start",
   },
   title: {
     fontWeight: 400,
@@ -120,29 +86,6 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
   postCountNumber: {
     marginTop: 0,
   },
-  rightSideItems: {
-    display: "flex",
-    flexGrow: 0,
-    flexShrink: 0,
-    flexBasis: "auto",
-    alignItems: "center",
-    gap: "4px",
-    color: theme.palette.grey[600],
-  },
-  wordCount: {
-    width: 40,
-    fontSize: 11,
-    color: theme.palette.grey[600],
-    display: "flex",
-    alignItems: "center",
-  },
-  icons: {
-    height: "0.8rem",
-    width: "0.8rem",
-    opacity: 0.5,
-    marginRight: 2,
-  },
-
   titleItemRoot: {
     marginBottom: 24,
   },
@@ -166,18 +109,6 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     color: theme.palette.grey[700],
     opacity: 0,
     transition: "opacity 0.1s ease",
-  },
-  collapse: {
-    marginRight: 7,
-    opacity: 0,
-    display: "flex",
-    verticalAlign: "middle",
-    // make the cursor change to pointer
-    cursor: "pointer",
-
-    "& span": {
-      fontFamily: "monospace",
-    },
   },
   children: {
     // TODO: come back to this and figure out a better way to handle it, especially for multiple screen widths
@@ -215,20 +146,6 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     color: theme.palette.grey[600],
     fontWeight: 500,
     marginLeft: 8,
-  },
-  childrenCount: {
-    fontSize: 11,
-    color: theme.palette.grey[600],
-  },
-  clickToPin: {
-    fontSize: 11,
-    color: theme.palette.primary.main,
-    cursor: "pointer",
-    opacity: 0,
-    transition: "opacity 0.05s ease",
-    "&:hover": {
-      opacity: 1,
-    },
   },
   tooltipHoverPostCount: {},
   arbitalIcon: {

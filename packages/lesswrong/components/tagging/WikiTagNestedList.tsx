@@ -15,6 +15,7 @@ const styles = defineStyles("WikiTagNestedList", (theme: ThemeType) => ({
   showMoreChildren: {
     fontSize: 12,
     fontWeight: 400,
+    // TODO: put this into a theme
     color: "#426c46",
     marginBottom: 8,
     marginTop: 2,
