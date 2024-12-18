@@ -2,7 +2,7 @@ import React, { memo, ComponentType, MouseEventHandler, CSSProperties } from "re
 import { registerComponent } from "../../lib/vulcan-lib";
 import { forumSelect, ForumOptions } from "../../lib/forumTypeUtils";
 import classNames from "classnames";
-import SpeakerWaveIcon from "@heroicons/react/24/outline/SpeakerWaveIcon";
+import { SpeakerWaveIcon } from "../icons/speakerWaveIcon";
 import BookmarkIcon from "@heroicons/react/24/solid/BookmarkIcon";
 import SparklesIcon from "@heroicons/react/24/solid/SparklesIcon";
 import StarIcon from "@heroicons/react/24/solid/StarIcon";
