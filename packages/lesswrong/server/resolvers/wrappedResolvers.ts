@@ -17,6 +17,7 @@ import { eaEmojiPalette } from '../../lib/voting/eaEmojiPalette';
 import { postStatuses } from '../../lib/collections/posts/constants';
 import { getConfirmedCoauthorIds, userIsPostCoauthor } from '../../lib/collections/posts/helpers';
 import { isWrappedYear } from '@/components/ea-forum/wrapped/hooks';
+import type { KarmaChangeBase } from '@/lib/collections/users/karmaChangesGraphQL';
 
 
 addGraphQLSchema(`
@@ -174,6 +175,7 @@ addGraphQLResolvers({
         shortformAuthorshipStats,
         readAuthorStats,
         readCoreTagStats,
+        reactCounts,
       ] = await Promise.all([
         Users.find(
           {
@@ -234,6 +236,7 @@ addGraphQLResolvers({
         context.repos.comments.getAuthorshipStats({ userId: user._id, year, shortform: true }),
         readAuthorStatsPromise,
         context.repos.posts.getReadCoreTagStats({ userId: user._id, year }),
+        context.repos.votes.getEAWrappedReactions(userId, start, end),
       ]);
 
       const [postKarmaChanges, commentKarmaChanges] = await Promise.all([
@@ -275,36 +278,25 @@ addGraphQLResolvers({
         }
       })
 
-      let totalKarmaChange
-      let mostReceivedReacts: { name: string, count: number }[] = []
-      if (context.repos?.votes) {
-        const karmaQueryArgs = {
-          userId: user._id,
-          startDate: start,
-          endDate: end,
-          af: false,
-          showNegative: true
-        }
-        const {changedComments, changedPosts, changedTagRevisions} = await context.repos.votes.getLWKarmaChanges(karmaQueryArgs);
-        totalKarmaChange =
-          sumBy(changedPosts, (doc: any)=>doc.scoreChange)
-        + sumBy(changedComments, (doc: any)=>doc.scoreChange)
-        + sumBy(changedTagRevisions, (doc: any)=>doc.scoreChange)
+      const karmaChanges = await context.repos.votes.getEAKarmaChanges({
+        userId: user._id,
+        startDate: start,
+        endDate: end,
+        af: false,
+        showNegative: true,
+      });
+      const totalKarmaChange = sumBy(
+        karmaChanges,
+        (doc: KarmaChangeBase) => doc.scoreChange,
+      );
 
-        const allAddedReacts = [
-          ...changedComments.map(({ addedReacts }) => addedReacts).flat(),
-          ...changedPosts.map(({ addedReacts }) => addedReacts).flat(),
-        ].flat();
-
-        const reactCounts = countBy(allAddedReacts, 'reactionType');
-        // We're ignoring agree and disagree reacts.
-        delete reactCounts.agree;
-        delete reactCounts.disagree;
-        mostReceivedReacts = (sortBy(entries(reactCounts), last) as [string, number][]).reverse().map(([name, count]) => ({
-          name: eaEmojiPalette.find(emoji => emoji.name === name)?.label ?? '',
-          count
-        }));
-      }
+      const mostReceivedReacts: { name: string, count: number }[] =
+        (sortBy(entries(reactCounts ?? {}), last) as [string, number][])
+          .reverse()
+          .map(([name, count]) => ({
+            name: eaEmojiPalette.find(emoji => emoji.name === name)?.label ?? '',
+            count,
+          }));
 
       const { engagementPercentile, totalSeconds, daysVisited }  = await getEngagement(user._id, year);
       const mostReadTopics = topTags
