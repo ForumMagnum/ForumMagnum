@@ -90,45 +90,32 @@ const TagPreviewDescription = ({tag, hash, classes, activeTab}: {
 
   const { ContentItemBody, ContentStyles } = Components;
 
+  let html: string | undefined;
+
   if (activeTab !== undefined && tag.summaries) {
-    return <div
-      onClick={(ev: React.MouseEvent) => {
-        if ((ev.target as any)?.className==="read-more-button") {
-          ev.preventDefault();
-          navigate(tagUrl);
-          hashLinkOnClick(ev as React.MouseEvent<HTMLAnchorElement>);
-        }
-      }}
-    >
-      <ContentStyles contentType="comment">
-        <ContentItemBody
-          className={classes.root}
-          dangerouslySetInnerHTML={{__html: tag.summaries[activeTab].contents?.html ?? 'this is not working'}}
-          description={`tag ${tag.name}`}
-        />
-      </ContentStyles>
-    </div>
+    html = (tag.summaries[activeTab].contents?.html) ?? 'this is not working'
+  } else {
+    html = highlight;
   }
 
-  if (highlight) {
-    const {ContentItemBody, ContentStyles} = Components;
+  if (html) {
     return <div
-      onClick={(ev: React.MouseEvent) => {
-        if ((ev.target as any)?.className==="read-more-button") {
-          ev.preventDefault();
-          navigate(tagUrl);
-          hashLinkOnClick(ev as React.MouseEvent<HTMLAnchorElement>);
-        }
-      }}
-    >
-      <ContentStyles contentType="comment">
-        <ContentItemBody
-          className={classes.root}
-          dangerouslySetInnerHTML={{__html: highlight}}
-          description={`tag ${tag.name}`}
-        />
-      </ContentStyles>
-    </div>
+    onClick={(ev: React.MouseEvent) => {
+      if ((ev.target as any)?.className==="read-more-button") {
+        ev.preventDefault();
+        navigate(tagUrl);
+        hashLinkOnClick(ev as React.MouseEvent<HTMLAnchorElement>);
+      }
+    }}
+  >
+    <ContentStyles contentType="comment">
+      <ContentItemBody
+        className={classes.root}
+        dangerouslySetInnerHTML={{__html: html}}
+        description={`tag ${tag.name}`}
+      />
+    </ContentStyles>
+  </div>
   }
 
   // TODO: This hacky code path that we never hit is Times New Roman

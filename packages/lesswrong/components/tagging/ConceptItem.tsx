@@ -377,7 +377,6 @@ const ConceptItem = ({
         <div className={classes.titleItemTitle}>
           <TagsTooltip
             tagSlug={wikitag.slug}
-            hash={wikitag.slug}
             noPrefetch
             previewPostCount={0}
             placement='right-start'
@@ -405,7 +404,6 @@ const ConceptItem = ({
         <div className={classNames(classes.title, { [classes.titleWikiItem]: isWikiItem })}>
           <TagsTooltip
             tagSlug={wikitag.slug}
-            hash={wikitag.slug}
             noPrefetch
             previewPostCount={0}
             placement='right-start'
@@ -420,7 +418,6 @@ const ConceptItem = ({
             <span className={classes.postCount}>
               <TagsTooltip
                 tagSlug={wikitag.slug}
-                hash={wikitag.slug}
                 noPrefetch
                 previewPostCount={8}
                 hideDescription
