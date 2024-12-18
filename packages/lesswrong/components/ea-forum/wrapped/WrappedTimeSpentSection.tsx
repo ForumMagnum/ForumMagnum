@@ -2,7 +2,7 @@ import React from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { ResponsiveContainer, YAxis, XAxis, LineChart, Line } from "recharts";
 import type { WrappedDataByYear, WrappedYear } from "./hooks";
-import { formatPercentile, wrappedHighlightColor } from "./wrappedHelpers";
+import { formatPercentile, wrappedHighlightColor, wrappedWhiteColor } from "./wrappedHelpers";
 
 // A sample of data to approximate the real graph
 type EngagementDataPoint = {
@@ -93,13 +93,13 @@ const WrappedTimeSpentSection = ({data, year, classes}: {
             <YAxis
               dataKey="count"
               tick={false}
-              axisLine={{strokeWidth: 2, stroke: "#FFF"}}
+              axisLine={{strokeWidth: 2, stroke: wrappedWhiteColor}}
               width={2}
             />
             <XAxis
               dataKey="hours"
               tick={false}
-              axisLine={{strokeWidth: 2, stroke: '#FFF'}}
+              axisLine={{strokeWidth: 2, stroke: wrappedWhiteColor}}
               height={2}
               scale="linear"
               type="number"

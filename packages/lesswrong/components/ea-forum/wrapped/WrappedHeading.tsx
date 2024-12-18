@@ -1,5 +1,6 @@
 import React, { ReactNode } from "react";
 import { registerComponent } from "@/lib/vulcan-lib";
+import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -18,12 +19,13 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const WrappedHeading = ({children, classes}: {
+const WrappedHeading = ({children, className, classes}: {
   children: ReactNode,
+  className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
   return (
-    <h2 className={classes.root}>
+    <h2 className={classNames(classes.root, className)}>
       {children}
     </h2>
   );

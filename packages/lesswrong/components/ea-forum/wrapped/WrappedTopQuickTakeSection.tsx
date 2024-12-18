@@ -1,0 +1,66 @@
+import React from "react";
+import { Components, registerComponent } from "@/lib/vulcan-lib";
+import { formatPercentile } from "./wrappedHelpers";
+import type { WrappedDataByYear, WrappedYear } from "./hooks";
+
+const styles = (_theme: ThemeType) => ({
+  topQuickTake: {
+    display: "flex",
+    flexDirection: "column",
+    width: "100%",
+    maxWidth: 380,
+    margin: "24px auto 0",
+  },
+});
+
+/**
+ * Section that displays the user's highest-karma quick take (shortform) plus
+ * other data on their quick takes
+ */
+const WrappedTopQuickTakeSection = ({data, year, classes}: {
+  data: WrappedDataByYear,
+  year: WrappedYear,
+  classes: ClassesType<typeof styles>,
+}) => {
+  if (!data.topShortform) {
+    return null;
+  }
+
+  // Only show this section if their top quick take has >0 karma
+  if (data.topShortform.baseScore < 1) {
+    return null;
+  }
+
+  const percentile = formatPercentile(data.shortformPercentile);
+
+  const {WrappedSection, WrappedHeading, WrappedComment} = Components;
+  return (
+    <WrappedSection pageSectionContext="topQuickTake">
+      <WrappedHeading>
+        Your highest-karma <em>Quick take</em> in {year}
+      </WrappedHeading>
+      <div className={classes.topQuickTake}>
+        <WrappedComment comment={data.topShortform} />
+      </div>
+      <div>
+        You wrote {data.shortformCount} quick{" "}
+        take{data.shortformCount === 1 ? "" : "s"} in total this year.
+        {percentile < 100 &&
+          ` This means you're in the top ${percentile}% of quick take authors.`
+        }
+      </div>
+    </WrappedSection>
+  );
+}
+
+const WrappedTopQuickTakeSectionComponent = registerComponent(
+  "WrappedTopQuickTakeSection",
+  WrappedTopQuickTakeSection,
+  {styles},
+);
+
+declare global {
+  interface ComponentTypes {
+    WrappedTopQuickTakeSection: typeof WrappedTopQuickTakeSectionComponent
+  }
+}

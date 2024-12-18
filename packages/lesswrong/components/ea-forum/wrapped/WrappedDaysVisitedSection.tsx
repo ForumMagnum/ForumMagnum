@@ -53,7 +53,7 @@ const Month: FC<{
   return (
     <Fragment key={month}>
       {range(0, daysInMonth).map((day) => (
-        <Day {...{daysVisited, year, month, day, classes}} />
+        <Day {...{daysVisited, year, month, day, classes}} key={day} />
       ))}
       {range(daysInMonth, 31).map((day) => (
         <div key={`${month}-${day}`} />
@@ -79,7 +79,7 @@ const WrappedDaysVisitedSection = ({daysVisited, year, classes}: {
       </WrappedHeading>
       <div className={classes.calendar}>
         {range(0, 12).map((month: number) => (
-          <Month {...{daysVisited, year, month, classes}} />
+          <Month {...{daysVisited, year, month, classes}} key={month} />
         ))}
       </div>
     </WrappedSection>
