@@ -121,7 +121,7 @@ import ClearIcon from '@material-ui/icons/Clear';
 import FullscreenIcon from '@material-ui/icons/Fullscreen';
 import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
 import MuiArrowDownRightIcon from '@material-ui/icons/SubdirectoryArrowRight';
-
+import MuiDragIndicatorIcon from '@material-ui/icons/DragIndicator';
 
 /**
  * ForumIcon can be used with custom SVG elements but you MUST pass through
@@ -291,7 +291,8 @@ export type ForumIconName =
   "CrossReaction" |
   "CrossReactionCap" |
   "Dictionary" |
-  "ArrowDownRight";
+  "ArrowDownRight" |
+  "DragIndicator";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   LWAF: {
@@ -419,6 +420,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     CrossReactionCap: CrossReactionCapIcon,
     Dictionary: DictionaryIcon,
     ArrowDownRight: MuiArrowDownRightIcon,
+    DragIndicator: MuiDragIndicatorIcon,
   },
   default: {
     VolumeUp: SpeakerWaveIcon,
@@ -545,6 +547,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     CrossReactionCap: CrossReactionCapIcon,
     Dictionary: DictionaryIcon,
     ArrowDownRight: ArrowDownRightIcon,
+    DragIndicator: MuiDragIndicatorIcon,
   },
 };
 

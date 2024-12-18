@@ -87,7 +87,9 @@ const schema: SchemaType<"MultiDocuments"> = {
     type: String,
     canRead: ['guests'],
     canUpdate: ['members'],
+    canCreate: ['members'],
     nullable: false,
+    label: "Summary Title",
     order: 10,
   },
   tabSubtitle: {
@@ -144,6 +146,15 @@ const schema: SchemaType<"MultiDocuments"> = {
     type: Number,
     canRead: ['guests'],
     nullable: false,
+    onCreate: async ({ newDocument, context }) => {
+      const { MultiDocuments } = context;
+      const { parentDocumentId } = newDocument;
+      
+      const otherSummaries = await MultiDocuments.find({ parentDocumentId, fieldName: 'summary' }, undefined, { index: 1 }).fetch();
+      const otherSummaryIndexes = otherSummaries.map(summary => summary.index);
+      const newIndex = Math.max(...otherSummaryIndexes) + 1;
+      return newIndex;
+    }
   },
 
   tableOfContents: {
