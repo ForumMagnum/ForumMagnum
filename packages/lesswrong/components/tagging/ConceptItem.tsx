@@ -168,7 +168,6 @@ interface ConceptItemProps {
   onClick?: (wikitag: WikiTagNode) => void;
   showArbitalIcon?: boolean;
 }
-  
 
 // Helper function to split items into columns
 function splitIntoColumns(items: WikiTagNode[], itemsPerColumn = 12): WikiTagNode[][] {
@@ -188,18 +187,10 @@ const ConceptItem = ({
   showArbitalIcon
 }: ConceptItemProps) => {
   const classes = useStyles(styles);
-  const defaultCollapsed = index !== undefined && index >= 3 && index < 6;
-  const [collapsed, setCollapsed] = useState(defaultCollapsed);
+  const collapsed = index !== undefined && index >= 3 && index < 6;
   const [showingAllChildren, setShowingAllChildren] = useState(false);
 
-  const { ForumIcon, TagsTooltip, LWTooltip } = Components;
-
-  const toggleCollapse = () => {
-    setCollapsed(!collapsed);
-    if (collapsed) {
-      setShowingAllChildren(false);
-    }
-  };
+  const { TagsTooltip, LWTooltip } = Components;
 
   const hasChildren = wikitag.children && wikitag.children.length > 0;
 
@@ -235,6 +226,7 @@ const ConceptItem = ({
   // Then split into columns
   const columns = splitIntoColumns(sortedChildren, ITEMS_PER_COLUMN);
 
+  // TODO: I currently think this doesn't do anything, since the only things that depend on it are empty styles.  Also whatever it's measuring is not `isWikiItem`.
   const isWikiItem = (wikitag.description?.html?.length ?? 0) > 2000;
 
   // Title item (for nestingLevel === 0)
@@ -305,6 +297,8 @@ const ConceptItem = ({
   // Decide which item to render
   const itemToRender = nestingLevel === 0 ? titleItem : regularItem;
 
+  const displayedColumns = showingAllChildren ? columns.length : visibleColumns;
+
   return (
     <div
       className={classNames(classes.root, { [classes.titleItemRoot]: nestingLevel === 0 })}
@@ -316,7 +310,7 @@ const ConceptItem = ({
         <div className={classes.children}>
           <div className={classes.childrenContainer}>
             <div className={classNames(classes.childrenList, showingAllChildren && classes.childrenListWrapped)}>
-              {columns.slice(0, showingAllChildren ? columns.length : visibleColumns).map((columnItems, columnIndex) => (
+              {columns.slice(0, displayedColumns).map((columnItems, columnIndex) => (
                 <div key={columnIndex} className={classes.column}>
                   {columnItems.map((childPage, idx) => (
                     <ConceptItem
@@ -363,7 +357,3 @@ declare global {
     ConceptItem: typeof ConceptItemComponent
   }
 }
-function useRouter(): { location: any; } {
-  throw new Error('Function not implemented.');
-}
-
