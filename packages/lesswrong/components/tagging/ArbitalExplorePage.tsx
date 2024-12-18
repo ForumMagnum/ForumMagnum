@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { arbitalPageData } from './ArbitalMockupData';
+// import { arbitalPageData } from './ArbitalMockupData';
 import { useMulti } from '@/lib/crud/withMulti';
 import type { ArbitalPage, ArbitalPageNode } from './arbitalTypes';
 
@@ -58,81 +58,83 @@ const ArbitalExplorePage = () => {
 
   // Filter arbitalPageData to only include pages present in arbitalPages query
   // and add the newSlug to each page
-  const arbitalPageDataFiltered = arbitalPageData
-    .map(page => {
-      const matchedTag = arbitalPages.find(result =>
-        result.legacyData.arbitalPageId === page.pageId
-      );
-      return {
-        ...page,
-        newSlug: matchedTag?.slug,
-        contributors: matchedTag?.contributors,
-      };
-    });
+  // const arbitalPageDataFiltered = arbitalPageData
+  //   .map((page: ArbitalPage) => {
+  //     const matchedTag = arbitalPages.find(result =>
+  //       result.legacyData.arbitalPageId === page.pageId
+  //     );
+  //     return {
+  //       ...page,
+  //       newSlug: matchedTag?.slug,
+  //       contributors: matchedTag?.contributors,
+  //     };
+  //   });
 
-  const tree = buildTree(arbitalPageDataFiltered);
+  // const tree = buildTree(arbitalPageDataFiltered);
 
-  // Find nodes for "AI alignment" and "Mathematics"
-  const alignmentNode = tree.find(node => node.title === "AI alignment");
-  const mathematicsNode = tree.find(node => node.title === "Mathematics");
+  // // Find nodes for "AI alignment" and "Mathematics"
+  // const alignmentNode = tree.find(node => node.title === "AI alignment");
+  // const mathematicsNode = tree.find(node => node.title === "Mathematics");
 
-  // Collect other nodes excluding "AI alignment", "Mathematics", and "Arbital"
-  const otherNodes = tree.filter(
-    node =>
-      node.title !== "AI alignment" &&
-      node.title !== "Mathematics" &&
-      node.title !== "Arbital"
-  );
+  // // Collect other nodes excluding "AI alignment", "Mathematics", and "Arbital"
+  // const otherNodes = tree.filter(
+  //   node =>
+  //     node.title !== "AI alignment" &&
+  //     node.title !== "Mathematics" &&
+  //     node.title !== "Arbital"
+  // );
 
-  // Create the "Other" node with its children
-  const otherNode: ArbitalPageNode = {
-    pageId: "other",
-    title: "Other",
-    oneLiner: "Other pages that don't fit in the other two categories",
-    parentPageId: null,
-    relationship_type: null,
-    text_length: 0,
-    authorName: "",
-    commentCount: 0,
-    children: otherNodes,
-  };
+  // // Create the "Other" node with its children
+  // const otherNode: ArbitalPageNode = {
+  //   pageId: "other",
+  //   title: "Other",
+  //   oneLiner: "Other pages that don't fit in the other two categories",
+  //   parentPageId: null,
+  //   relationship_type: null,
+  //   text_length: 0,
+  //   authorName: "",
+  //   commentCount: 0,
+  //   children: otherNodes,
+  // };
 
-  // Assemble the actualTree in the desired order
-  const actualTree = [alignmentNode, mathematicsNode, otherNode].filter(
-    (node): node is ArbitalPageNode => node !== undefined
-  );
+  // // Assemble the actualTree in the desired order
+  // const actualTree = [alignmentNode, mathematicsNode, otherNode].filter(
+  //   (node): node is ArbitalPageNode => node !== undefined
+  // );
 
-  const collapseLevelOptions = [
-    { value: 0, label: 'Collapse All' },
-    { value: 1, label: 'Collapse to Level 1' },
-    { value: 2, label: 'Collapse to Level 2' },
-    { value: 3, label: 'Collapse to Level 3' },
-    { value: 9999, label: 'Expand All' },
-  ];
+  // const collapseLevelOptions = [
+  //   { value: 0, label: 'Collapse All' },
+  //   { value: 1, label: 'Collapse to Level 1' },
+  //   { value: 2, label: 'Collapse to Level 2' },
+  //   { value: 3, label: 'Collapse to Level 3' },
+  //   { value: 9999, label: 'Expand All' },
+  // ];
 
-  const defaultCollapseLevel = 2
-  const selectedOption = collapseLevelOptions.find(option => option.value === defaultCollapseAfterLevel) || collapseLevelOptions[defaultCollapseLevel];
+  // const defaultCollapseLevel = 2
+  // const selectedOption = collapseLevelOptions.find(option => option.value === defaultCollapseAfterLevel) || collapseLevelOptions[defaultCollapseLevel];
 
-  const handleSelect = (option: { value: number; label: string }) => {
-    setDefaultCollapseAfterLevel(option.value);
-  };
+  // const handleSelect = (option: { value: number; label: string }) => {
+  //   setDefaultCollapseAfterLevel(option.value);
+  // };
 
-  return (
-    <div className={classes.root}>
-      <div className={classes.centralColumn}>
-        <div className={classes.selectorContainer}>
-          <InlineSelect options={collapseLevelOptions} selected={selectedOption} handleSelect={handleSelect} />
-        </div>
-        <WikiTagNestedList 
-          pages={actualTree} 
-          nestingLevel={0} 
-          options={{
-            defaultCollapseAfterLevel: selectedOption.value,
-          }}
-        />
-      </div>
-    </div>
-  );
+  return null;
+
+  // return (
+  //   <div className={classes.root}>
+  //     <div className={classes.centralColumn}>
+  //       <div className={classes.selectorContainer}>
+  //         <InlineSelect options={collapseLevelOptions} selected={selectedOption} handleSelect={handleSelect} />
+  //       </div>
+  //       <WikiTagNestedList 
+  //         pages={actualTree} 
+  //         nestingLevel={0} 
+  //         options={{
+  //           defaultCollapseAfterLevel: selectedOption.value,
+  //         }}
+  //       />
+  //     </div>
+  //   </div>
+  // );
 };
 
 const ArbitalExplorePageComponent = registerComponent('ArbitalExplorePage', ArbitalExplorePage);

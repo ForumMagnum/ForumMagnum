@@ -137,6 +137,7 @@ registerFragment(`
       htmlHighlight
     }
     canVoteOnRels
+    isArbitalImport
   }
 `);
 
@@ -452,3 +453,19 @@ registerFragment(`
   }
 `);
 
+registerFragment(`
+  fragment AllTagsPageCacheFragment on Tag {
+    _id
+    core
+    name
+    slug
+    oldSlugs
+    postCount
+    description {
+      _id
+      html
+    }
+    isArbitalImport
+    coreTagId
+  }
+`);
