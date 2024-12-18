@@ -30,9 +30,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-export const TARGET_REVIEW_NUM = 6
+export const TARGET_REVIEW_VOTING_NUM = 6
 
-export const ReviewVotingProgressBar = ({classes, reviewYear}: {
+export const ReviewProgressVoting = ({classes, reviewYear}: {
   classes: ClassesType,
   reviewYear: ReviewYear
 }) => {
@@ -51,18 +51,18 @@ export const ReviewVotingProgressBar = ({classes, reviewYear}: {
     fragmentName: 'reviewVoteFragment',
     enableTotal: true,
     skip: !currentUser,
-    limit: TARGET_REVIEW_NUM
+    limit: TARGET_REVIEW_VOTING_NUM
   });
 
   if (!reviewsResults) return null
 
   const totalVotes = totalCount || 0
-  const uncheckedBoxes = TARGET_REVIEW_NUM - Math.min(totalVotes, TARGET_REVIEW_NUM)
+  const uncheckedBoxes = TARGET_REVIEW_VOTING_NUM - Math.min(totalVotes, TARGET_REVIEW_VOTING_NUM)
 
   return <div><LWTooltip title={<div>
-    <p><em>{totalVotes ? `You've voted on ${totalVotes} posts in the ${reviewYear} Review${totalVotes >= TARGET_REVIEW_NUM ? "!" : "."}` : "You haven't voted on any posts yet."}</em></p>
-    {totalVotes < TARGET_REVIEW_NUM && <>
-    <div>It'd be helpful if you voted on at least {TARGET_REVIEW_NUM} posts. More votes from established users improves the signal/noise of the review vote. (If there weren't {TARGET_REVIEW_NUM} posts you found longterm valuable, it's fine to vote "0").</div></>}</div>} placement="top">
+    <p><em>{totalVotes ? `You've voted on ${totalVotes} posts in the ${reviewYear} Review${totalVotes >= TARGET_REVIEW_VOTING_NUM ? "!" : "."}` : "You haven't voted on any posts yet."}</em></p>
+    {totalVotes < TARGET_REVIEW_VOTING_NUM && <>
+    <div>It'd be helpful if you voted on at least {TARGET_REVIEW_VOTING_NUM} posts. More votes from established users improves the signal/noise of the review vote. (If there weren't {TARGET_REVIEW_VOTING_NUM} posts you found longterm valuable, it's fine to vote "0").</div></>}</div>} placement="top">
   <div className={classes.root}>
     {reviewsResults.map(review => {
       return <div className={classes.filledIcon} key={review._id}/>
@@ -72,11 +72,11 @@ export const ReviewVotingProgressBar = ({classes, reviewYear}: {
 </LWTooltip></div>
 }
 
-const ReviewVotingProgressBarComponent = registerComponent('ReviewVotingProgressBar', ReviewVotingProgressBar, {styles});
+const ReviewProgressVotingComponent = registerComponent('ReviewProgressVoting', ReviewProgressVoting, {styles});
 
 declare global {
   interface ComponentTypes {
-    ReviewVotingProgressBar: typeof ReviewVotingProgressBarComponent
+    ReviewProgressVoting: typeof ReviewProgressVotingComponent
   }
 }
 
