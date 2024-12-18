@@ -56,6 +56,11 @@ type ArbitalImportOptions = {
   userMatchingFile?: string
   
   skipImportingPages?: boolean
+
+  /**
+   * 
+   */
+  coreTagAssignmentsFile?: string
 }
 const defaultArbitalImportOptions: ArbitalImportOptions = {};
 
@@ -399,6 +404,10 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
 
   // This needs to be rerun whenever the page import is run
   await importPagePairs(database, resolverContext, options);
+
+  if (options.coreTagAssignmentsFile) {
+    await importCoreTagAssignments(options.coreTagAssignmentsFile);
+  }
 
   //await importComments(database, conversionContext, resolverContext, options);
 }
@@ -1829,8 +1838,13 @@ Globals.checkDefaultPageSummaries = async (mysqlConnectionString: string) => {
   await checkDefaultPageSummaries(arbitalDb);
 }
 
-function loadCoreTagAssignmentsCsv() {
-  const csvStr = fs.readFileSync('/Users/robert/Downloads/core_tag_assignments.csv', 'utf-8');
+interface TagAssignment {
+  slug: string;
+  coreTagNames: string[];
+}
+
+function loadCoreTagAssignmentsCsv(filename: string) {
+  const csvStr = fs.readFileSync(filename, 'utf-8');
   const parsedCsv = Papa.parse(csvStr, {
     delimiter: ',',
     header: true,
@@ -1845,19 +1859,14 @@ function loadCoreTagAssignmentsCsv() {
   return parsedCsv;
 }
 
-interface TagAssignment {
-  slug: string;
-  coreTagNames: string[];
-}
-
-Globals.loadCoreTagAssignmentsCsv = async () => {
+async function importCoreTagAssignments(coreTagAssignmentsFile: string) {
   await ArbitalTagContentRels.rawRemove({ 'legacyData.coreTagAssignment': true });
 
   const coreTags = await Tags.find({ core: true }).fetch();
   const coreTagNames = new Set(coreTags.map(ct => ct.name));
   const coreTagIdsByName = Object.fromEntries(coreTags.map(ct => [ct.name, ct._id]));
 
-  const { data } = loadCoreTagAssignmentsCsv();
+  const { data } = loadCoreTagAssignmentsCsv(coreTagAssignmentsFile);
   const tagAssignments: TagAssignment[] = data.map((row: AnyBecauseIsInput) => {
     return {
       slug: row.slug,
@@ -1890,3 +1899,5 @@ Globals.loadCoreTagAssignmentsCsv = async () => {
 
   await ArbitalTagContentRels.rawCollection().bulkWrite(tagAssignmentInserts.map(insert => ({ insertOne: insert })));
 }
+
+Globals.importCoreTagAssignments = importCoreTagAssignments;

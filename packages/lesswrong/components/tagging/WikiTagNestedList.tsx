@@ -1,9 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-
-// Import the shared types
-import { WikiTagNode } from './types'; // Adjust the import path as needed
+import type { WikiTagNode } from './types';
 
 const styles = defineStyles("WikiTagNestedList", (theme: ThemeType) => ({
   root: {
@@ -32,7 +30,6 @@ interface WikiTagNestedListProps {
   totalChildrenCount?: number;
   onHover?: (wikitag: WikiTagNode | null) => void;
   onClick?: (wikitag: WikiTagNode) => void;
-  pinnedWikiTag?: WikiTagNode | null;
   showArbitalIcons?: boolean;
 }
 
@@ -43,13 +40,10 @@ const WikiTagNestedList = ({
   totalChildrenCount,
   onHover,
   onClick,
-  pinnedWikiTag,
   showArbitalIcons = false,
 }: WikiTagNestedListProps) => {
   const { ConceptItem } = Components;
   const classes = useStyles(styles);
-
-  console.log("in wikitagnestedlist", showArbitalIcons)
 
   return (
     <div className={classes.childrenList}>
@@ -60,7 +54,6 @@ const WikiTagNestedList = ({
           nestingLevel={nestingLevel} 
           onHover={onHover}
           onClick={onClick}
-          pinnedWikiTag={pinnedWikiTag}
           showArbitalIcon={showArbitalIcons}
         />
       ))}

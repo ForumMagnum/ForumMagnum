@@ -29,7 +29,6 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
     paddingRight: 16,
   },
   nonTabPadding: {
-    // paddingTop: 16,
     paddingLeft: 16,
     paddingRight: 16,
     maxHeight: 400,
@@ -112,7 +111,7 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
     },
   },
   descriptionTop: {
-    // marginTop: 16,
+    ...(isFriendlyUI && { marginTop: 16 }),
   },
 }));
 

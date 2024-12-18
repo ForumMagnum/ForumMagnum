@@ -14,7 +14,6 @@ const COLUMN_GAP = 8;
 const ARBITAL_GREEN_DARK = "#004d40"
 
 const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
-
   details: {
     flexGrow: 1,
     minWidth: 0, // flexbox black magic
@@ -180,19 +179,8 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
       fontFamily: "monospace",
     },
   },
-  collapseChevron: {
-    width: 10,
-    transition: "transform 0.2s",
-    transform: "rotate(90deg)",
-  },
-  collapseChevronOpen: {
-    transform: "rotate(180deg)",
-  },
-  collapseCharacter: {
-    transform: 'translateY(0.75px)',
-  },
   children: {
-    // TODO: come back to this and figure out a better way to handle it, maybe
+    // TODO: come back to this and figure out a better way to handle it, especially for multiple screen widths
     width: "min(950px, 100vw - 16px)",
   },
   childrenContainer: {
@@ -228,20 +216,6 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     fontWeight: 500,
     marginLeft: 8,
   },
-  showMoreChildrenInline: {
-    fontSize: 11,
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    fontVariant: "normal",
-    color: theme.palette.grey[600],
-    fontWeight: 400,
-    marginLeft: 8,
-    cursor: "pointer",
-    display: "inline",
-  },
-  collapseInvisible: {
-    opacity: 0,
-    pointerEvents: "none",
-  },
   childrenCount: {
     fontSize: 11,
     color: theme.palette.grey[600],
@@ -254,24 +228,6 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     transition: "opacity 0.05s ease",
     "&:hover": {
       opacity: 1,
-    },
-  },
-  itemPinned: {
-    backgroundColor: theme.palette.grey[800],
-    "& $title": {
-      color: theme.palette.grey[100],
-    },
-    "& $rightSideItems": {
-      color: theme.palette.grey[300],
-    },
-    "& $icons": {
-      opacity: 0.7,
-    },
-    "& $clickToPin": {
-      color: theme.palette.grey[300],
-    },
-    "&:hover": {
-      backgroundColor: theme.palette.grey[900],
     },
   },
   tooltipHoverPostCount: {},
@@ -293,7 +249,6 @@ interface ConceptItemProps {
   index?: number;
   onHover?: (wikitag: WikiTagNode | null) => void;
   onClick?: (wikitag: WikiTagNode) => void;
-  pinnedWikiTag?: WikiTagNode | null;
   showArbitalIcon?: boolean;
 }
   
@@ -313,7 +268,6 @@ const ConceptItem = ({
   index,
   onHover,
   onClick,
-  pinnedWikiTag,
   showArbitalIcon
 }: ConceptItemProps) => {
   const classes = useStyles(styles);
@@ -331,7 +285,6 @@ const ConceptItem = ({
   };
 
   const hasChildren = wikitag.children && wikitag.children.length > 0;
-  const isPinned = pinnedWikiTag?._id === wikitag._id;
 
   const totalChildren = wikitag.children?.length || 0;
 
@@ -365,19 +318,15 @@ const ConceptItem = ({
   // Then split into columns
   const columns = splitIntoColumns(sortedChildren, ITEMS_PER_COLUMN);
 
-  const remainingItems = totalChildren - itemsToShowCount;
-
   const isWikiItem = (wikitag.description?.html?.length ?? 0) > 2000;
 
   // Title item (for nestingLevel === 0)
   const titleItem = (
     <div className={classes.titleItem}>
-      {/* {collapseToggle} */}
       <div className={classes.leftSideItems}>
         <div className={classes.titleItemTitle}>
           <TagsTooltip
             tagSlug={wikitag.slug}
-            hash={wikitag.slug}
             noPrefetch
             previewPostCount={0}
             placement='right-start'
@@ -396,7 +345,6 @@ const ConceptItem = ({
   const regularItem = (
     <div
       className={classNames(classes.item, {
-        [classes.itemPinned]: isPinned,
         [classes.wikiItem]: isWikiItem,
       })}
     >
@@ -405,7 +353,6 @@ const ConceptItem = ({
         <div className={classNames(classes.title, { [classes.titleWikiItem]: isWikiItem })}>
           <TagsTooltip
             tagSlug={wikitag.slug}
-            hash={wikitag.slug}
             noPrefetch
             previewPostCount={0}
             placement='right-start'
@@ -420,7 +367,6 @@ const ConceptItem = ({
             <span className={classes.postCount}>
               <TagsTooltip
                 tagSlug={wikitag.slug}
-                hash={wikitag.slug}
                 noPrefetch
                 previewPostCount={8}
                 hideDescription
@@ -463,7 +409,6 @@ const ConceptItem = ({
                       index={idx}
                       onHover={onHover}
                       onClick={onClick}
-                      pinnedWikiTag={pinnedWikiTag}
                       showArbitalIcon={showArbitalIcon}
                     />
                   ))}

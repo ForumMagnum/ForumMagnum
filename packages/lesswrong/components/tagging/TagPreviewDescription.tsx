@@ -60,7 +60,7 @@ const TagPreviewDescription = ({tag, hash, classes, activeTab}: {
     return (
       <TagExcerpt
         tag={tag}
-        lines={12}
+        lines={4}
         hideMultimedia
         hideMoreLink
       />
@@ -111,7 +111,6 @@ const TagPreviewDescription = ({tag, hash, classes, activeTab}: {
   }
 
   if (highlight) {
-    const {ContentItemBody, ContentStyles} = Components;
     return <div
       onClick={(ev: React.MouseEvent) => {
         if ((ev.target as any)?.className==="read-more-button") {

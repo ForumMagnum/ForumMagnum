@@ -666,7 +666,7 @@ function hasList(list: ArbitalLinkedPage[] | null): list is ArbitalLinkedPage[] 
   return !!(list && list?.length > 0);
 }
 
-const LinkedPageListSection = ({ title, linkedPages, children, limit=undefined }: {
+const LinkedPageListSection = ({ title, linkedPages, children, limit }: {
   title: string,
   linkedPages: ArbitalLinkedPage[] | null,
   children?: React.ReactNode,
