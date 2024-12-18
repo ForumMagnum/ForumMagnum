@@ -63,11 +63,15 @@ const styles = defineStyles("SummariesEditForm", (theme: ThemeType) => ({
     '&:hover $editIcon': {
       color: theme.palette.grey[900],
     },
+    // When editing, hide the summary title label
+    '& .MuiInputLabel-shrink': {
+      display: 'none',
+    },
   },
   editing: {},
   summaryContentStylesWrapper: {
     maxWidth: '100%',
-    marginTop: 2,
+    marginTop: 4,
     marginBottom: 0,
   },
   summaryContent: {
