@@ -1,15 +1,14 @@
 import React from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
-import { useCurrentUser } from "@/components/common/withUser";
 import { useCommentLink } from "@/components/comments/CommentsItem/useCommentLink";
 import { Link } from "@/lib/reactRouterWrapper";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { ExpandedDate } from "@/components/common/FormatDate";
 import { SoftUpArrowIcon } from "@/components/icons/softUpArrowIcon";
 import { htmlToTextDefault } from "@/lib/htmlToText";
+import { WrappedTopComment, WrappedTopShortform, useForumWrappedContext } from "./hooks";
 import moment from "moment";
 import type { TagCommentType } from "@/lib/collections/comments/types";
-import type { WrappedTopComment, WrappedTopShortform } from "./hooks";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -95,7 +94,7 @@ const WrappedComment = ({comment, classes}: {
   comment: WrappedTopComment | WrappedTopShortform,
   classes: ClassesType<typeof styles>,
 }) => {
-  const currentUser = useCurrentUser();
+  const {currentUser} = useForumWrappedContext();
 
   const CommentLinkWrapper = useCommentLink({
     comment: {

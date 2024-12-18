@@ -191,17 +191,19 @@ export const useForumWrapped = ({ userId, year }: { userId?: string | null; year
 type ForumWrappedContext = {
   year: WrappedYear,
   data: WrappedDataByYear,
+  currentUser: UsersCurrent,
 }
 
 const forumWrappedContext = createContext<ForumWrappedContext | null>(null);
 
-export const ForumWrappedProvider = ({year, data, children}: {
+export const ForumWrappedProvider = ({year, data, currentUser, children}: {
   year: WrappedYear,
   data: WrappedDataByYear,
+  currentUser: UsersCurrent,
   children: ReactNode,
 }) => {
   return (
-    <forumWrappedContext.Provider value={{year, data}}>
+    <forumWrappedContext.Provider value={{year, data, currentUser}}>
       {children}
     </forumWrappedContext.Provider>
   );

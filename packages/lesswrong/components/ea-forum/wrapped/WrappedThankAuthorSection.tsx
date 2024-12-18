@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect } from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
-import { useCurrentUser } from "@/components/common/withUser";
 import { useTracking } from "@/lib/analyticsEvents";
 import { useInitiateConversation } from "@/components/hooks/useInitiateConversation";
 import { userCanStartConversations } from "@/lib/collections/conversations/collection";
@@ -61,8 +60,7 @@ const styles = (theme: ThemeType) => ({
 const WrappedThankAuthorSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {year, data: {mostReadAuthors}} = useForumWrappedContext();
-  const currentUser = useCurrentUser();
+  const {year, data: {mostReadAuthors}, currentUser} = useForumWrappedContext();
   const {captureEvent} = useTracking();
 
   const topAuthorByEngagementPercentile = [...mostReadAuthors].sort(

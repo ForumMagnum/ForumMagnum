@@ -1,6 +1,5 @@
 import React from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
-import { useCurrentUser } from "@/components/common/withUser";
 import { useForumWrappedContext } from "./hooks";
 import { lightbulbIcon } from "@/components/icons/lightbulbIcon";
 
@@ -12,8 +11,7 @@ const styles = (_theme: ThemeType) => ({
 const WrappedThankYouSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {year} = useForumWrappedContext();
-  const currentUser = useCurrentUser();
+  const {year, currentUser} = useForumWrappedContext();
   const {WrappedSection, WrappedHeading, ForumIcon} = Components;
   return (
     <WrappedSection pageSectionContext="thankYou">

@@ -1,7 +1,6 @@
 import React from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
-import { useCurrentUser } from "@/components/common/withUser";
-import type { WrappedYear } from "./hooks";
+import { useForumWrappedContext } from "./hooks";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -35,35 +34,17 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const WrappedWelcomeSection = ({year, isTooYoung, classes}: {
-  year: WrappedYear,
-  isTooYoung?: boolean,
+const WrappedWelcomeSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const currentUser = useCurrentUser();
-  const welcome = currentUser?.displayName
-    ? `Hi ${currentUser.displayName}`
-    : "Hi";
-  const {WrappedSection, CloudinaryImage2, LoginForm} = Components;
+  const {year, currentUser} = useForumWrappedContext();
+  const {WrappedSection, CloudinaryImage2} = Components;
   return (
     <WrappedSection pageSectionContext="top">
       <h1 className={classes.root}>
-        {welcome}, this is your {year}{" "}
+        Hi {currentUser.displayName}, this is your {year}{" "}
         <span className={classes.wrapped}>Wrapped</span>
       </h1>
-      {!currentUser &&
-        <div className={classes.messageWrapper}>
-          <LoginForm />
-        </div>
-      }
-      {isTooYoung &&
-        <div className={classes.messageWrapper}>
-          <div className={classes.messageText}>
-            Looks like you didn't have an account in {year} - check back in at
-            the end of this year
-          </div>
-        </div>
-      }
       <CloudinaryImage2
         publicId="2023_wrapped"
         wrapperClassName={classes.imgWrapper}

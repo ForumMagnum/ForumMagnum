@@ -43,12 +43,11 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
   const userCreatedAt = moment(currentUser?.createdAt);
   const endOfYear = moment(`${year}-12-31`, "YYYY-MM-DD");
   const isTooYoung = userCreatedAt.isAfter(endOfYear, "date");
-  const hasWrapped = !isLoggedOut && !isTooYoung;
 
   const {
-    HeadTags, WrappedWelcomeSection, WrappedTimeSpentSection,
-    WrappedDaysVisitedSection, WrappedMostReadTopicsSection,
-    WrappedRelativeMostReadTopicsSection, WrappedMostReadAuthorSection,
+    HeadTags, WrappedSection, WrappedWelcomeSection, WrappedTimeSpentSection,
+    WrappedDaysVisitedSection, WrappedMostReadTopicsSection, WrappedHeading,
+    WrappedRelativeMostReadTopicsSection, WrappedMostReadAuthorSection, LoginForm,
     WrappedThankAuthorSection, WrappedPersonalitySection, WrappedTopPostSection,
     WrappedTopCommentSection, WrappedTopQuickTakeSection, WrappedKarmaChangeSection,
     WrappedReceivedReactsSection, WrappedThankYouSection, WrappedSummarySection,
@@ -69,9 +68,28 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
             f: "auto",
           })}
         />
-        <WrappedWelcomeSection year={year} isTooYoung={isTooYoung} />
-        {hasWrapped && data &&
-          <ForumWrappedProvider year={year} data={data}>
+        {isLoggedOut &&
+          <WrappedSection pageSectionContext="loggedOut">
+            <WrappedHeading>
+              Login to view your {year} EA Forum <em>Wrapped</em>
+            </WrappedHeading>
+            <LoginForm />
+          </WrappedSection>
+        }
+        {isTooYoung &&
+          <WrappedSection pageSectionContext="tooYoung">
+            <WrappedHeading>
+              {year} EA Forum <em>Wrapped</em>
+            </WrappedHeading>
+            <div>
+              Looks like you didn't have an account in {year} - check back in at
+              the end of this year
+            </div>
+          </WrappedSection>
+        }
+        {!isLoggedOut && !isTooYoung && data &&
+          <ForumWrappedProvider year={year} data={data} currentUser={currentUser}>
+            <WrappedWelcomeSection />
             <WrappedTimeSpentSection />
             <WrappedDaysVisitedSection />
             <WrappedMostReadTopicsSection />
