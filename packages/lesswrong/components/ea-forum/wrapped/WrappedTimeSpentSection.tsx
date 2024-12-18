@@ -1,8 +1,12 @@
 import React from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { ResponsiveContainer, YAxis, XAxis, LineChart, Line } from "recharts";
-import type { WrappedDataByYear, WrappedYear } from "./hooks";
-import { formatPercentile, wrappedHighlightColor, wrappedWhiteColor } from "./wrappedHelpers";
+import { WrappedYear, useForumWrappedContext } from "./hooks";
+import {
+  formatPercentile,
+  wrappedHighlightColor,
+  wrappedWhiteColor,
+} from "./wrappedHelpers";
 
 // A sample of data to approximate the real graph
 type EngagementDataPoint = {
@@ -69,11 +73,10 @@ const styles = (_theme: ThemeType) => ({
   },
 });
 
-const WrappedTimeSpentSection = ({data, year, classes}: {
-  data: WrappedDataByYear,
-  year: WrappedYear,
+const WrappedTimeSpentSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
+  const {year, data} = useForumWrappedContext();
   const formattedPercentile = formatPercentile(data.engagementPercentile);
   // const markPosition = `calc(${97.5 * engagementHours / 530}% + 8px)`
   const engagementHours = (data.totalSeconds / 3600).toFixed(1);

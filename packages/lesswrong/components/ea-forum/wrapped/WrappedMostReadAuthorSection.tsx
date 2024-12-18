@@ -2,7 +2,7 @@ import React from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { Link } from "@/lib/reactRouterWrapper";
 import { getUserProfileLink } from "./wrappedHelpers";
-import type { WrappedMostReadAuthor, WrappedYear } from "./hooks";
+import { useForumWrappedContext } from "./hooks";
 
 const styles = (theme: ThemeType) => ({
   authors: {
@@ -35,25 +35,23 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const WrappedMostReadAuthorSection = ({authors, postCount, year, classes}: {
-  authors: WrappedMostReadAuthor[],
-  postCount: number,
-  year: WrappedYear,
+const WrappedMostReadAuthorSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
+  const {year, data: {mostReadAuthors, postCount}} = useForumWrappedContext();
   const {WrappedSection, WrappedHeading} = Components;
   return (
     <WrappedSection pageSectionContext="mostReadAuthors">
       <WrappedHeading>
         You read {postCount} posts this year
       </WrappedHeading>
-      {authors[0]?.displayName &&
+      {mostReadAuthors[0]?.displayName &&
         <div>
-          Your most read author was {authors[0].displayName}
+          Your most read author was {mostReadAuthors[0].displayName}
         </div>
       }
       <div className={classes.authors}>
-        {authors.map(author => {
+        {mostReadAuthors.map((author) => {
           return <article key={author.slug} className={classes.author}>
             <Components.UsersProfileImage size={40} user={author} />
             <div>

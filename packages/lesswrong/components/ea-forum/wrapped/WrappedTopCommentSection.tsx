@@ -1,7 +1,7 @@
 import React from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { formatPercentile } from "./wrappedHelpers";
-import type { WrappedDataByYear, WrappedYear } from "./hooks";
+import { useForumWrappedContext } from "./hooks";
 
 const styles = (_theme: ThemeType) => ({
   topComment: {
@@ -13,11 +13,10 @@ const styles = (_theme: ThemeType) => ({
   },
 });
 
-const WrappedTopCommentSection = ({data, year, classes}: {
-  data: WrappedDataByYear,
-  year: WrappedYear,
+const WrappedTopCommentSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
+  const {year, data} = useForumWrappedContext();
   if (!data.topComment) {
     return null;
   }

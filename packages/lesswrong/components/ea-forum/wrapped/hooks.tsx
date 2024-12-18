@@ -1,3 +1,4 @@
+import React, { ReactNode, createContext, useContext } from "react";
 import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
 import { gql, useQuery } from "@apollo/client";
 
@@ -186,3 +187,30 @@ export const useForumWrapped = ({ userId, year }: { userId?: string | null; year
 
   return { data: data?.UserWrappedDataByYear, loading };
 };
+
+type ForumWrappedContext = {
+  year: WrappedYear,
+  data: WrappedDataByYear,
+}
+
+const forumWrappedContext = createContext<ForumWrappedContext | null>(null);
+
+export const ForumWrappedProvider = ({year, data, children}: {
+  year: WrappedYear,
+  data: WrappedDataByYear,
+  children: ReactNode,
+}) => {
+  return (
+    <forumWrappedContext.Provider value={{year, data}}>
+      {children}
+    </forumWrappedContext.Provider>
+  );
+}
+
+export const useForumWrappedContext = () => {
+  const context = useContext(forumWrappedContext);
+  if (!context) {
+    throw new Error("Using forum wrapped context outside of provider");
+  }
+  return context;
+}

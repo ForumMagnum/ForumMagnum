@@ -2,13 +2,13 @@ import React from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { Link } from "@/lib/reactRouterWrapper";
 import { tagGetUrl } from "@/lib/collections/tags/helpers";
+import { useForumWrappedContext } from "./hooks";
 import {
   formatPercentile,
   formattedKarmaChangeText,
   getUserProfileLink,
 } from "./wrappedHelpers";
 import classNames from "classnames";
-import type { WrappedDataByYear, WrappedYear } from "./hooks";
 
 const styles = (theme: ThemeType) => ({
   summary: {
@@ -79,11 +79,10 @@ const styles = (theme: ThemeType) => ({
 /**
  * Section that displays a screenshottable summary of the user's Wrapped data
  */
-const WrappedSummarySection = ({data, year, classes}: {
-  data: WrappedDataByYear,
-  year: WrappedYear,
+const WrappedSummarySection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
+  const {year, data} = useForumWrappedContext();
   const {WrappedSection, UsersProfileImage, CoreTagIcon} = Components;
   return (
     <WrappedSection pageSectionContext="summary">

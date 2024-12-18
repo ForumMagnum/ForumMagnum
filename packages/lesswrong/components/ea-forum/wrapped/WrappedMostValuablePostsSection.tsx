@@ -1,8 +1,8 @@
 import React from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
+import { useForumWrappedContext } from "./hooks";
 import DeferRender from "@/components/common/DeferRender";
 import classNames from "classnames";
-import type { WrappedYear } from "./hooks";
 
 const styles = (theme: ThemeType) => ({
   mvpColLabels: {
@@ -81,10 +81,10 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const WrappedMostValuablePostsSection = ({year, classes}: {
-  year: WrappedYear,
+const WrappedMostValuablePostsSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
+  const {year} = useForumWrappedContext();
   const {WrappedSection, WrappedHeading, ForumIcon, PostsByVoteWrapper} = Components;
   return (
     <WrappedSection pageSectionContext="mostValuablePosts">

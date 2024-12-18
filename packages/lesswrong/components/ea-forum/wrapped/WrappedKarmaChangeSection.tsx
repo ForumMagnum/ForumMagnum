@@ -1,13 +1,13 @@
 import React from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { Area, AreaChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
+import { useForumWrappedContext } from "./hooks";
 import {
   formattedKarmaChangeText,
   wrappedHighlightColor,
   wrappedSecondaryColor,
   wrappedWhiteColor,
 } from "./wrappedHelpers";
-import type { WrappedDataByYear } from "./hooks";
 
 const styles = (theme: ThemeType) => ({
   chart: {
@@ -37,10 +37,11 @@ const styles = (theme: ThemeType) => ({
 /**
  * Section that displays the user's overall karma change and accompanying chart
  */
-const WrappedKarmaChangeSection = ({data, classes}: {
-  data: WrappedDataByYear,
+const WrappedKarmaChangeSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
+  const {data} = useForumWrappedContext();
+
   // If the user hasn't written anything and their karma change is 0, hide the
   // karma change section
   const hasWrittenContent = !!data.topPosts?.length ||

@@ -1,7 +1,7 @@
 import React from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { formatPercentile } from "./wrappedHelpers";
-import type { WrappedDataByYear, WrappedYear } from "./hooks";
+import { useForumWrappedContext } from "./hooks";
 
 const styles = (_theme: ThemeType) => ({
   topPost: {
@@ -24,11 +24,10 @@ const styles = (_theme: ThemeType) => ({
 /**
  * Section that displays the user's highest-karma post plus other data on their posts
  */
-const WrappedTopPostSection = ({data, year, classes}: {
-  data: WrappedDataByYear,
-  year: WrappedYear,
+const WrappedTopPostSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
+  const {year, data} = useForumWrappedContext();
   if (!data.topPosts?.length) {
     return null;
   }

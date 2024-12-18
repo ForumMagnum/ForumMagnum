@@ -6,7 +6,7 @@ import { useInitiateConversation } from "@/components/hooks/useInitiateConversat
 import { userCanStartConversations } from "@/lib/collections/conversations/collection";
 import { getUserProfileLink } from "./wrappedHelpers";
 import { Link } from "@/lib/reactRouterWrapper";
-import type { WrappedMostReadAuthor, WrappedYear } from "./hooks";
+import { useForumWrappedContext } from "./hooks";
 
 const styles = (theme: ThemeType) => ({
   messageAuthor: {
@@ -58,15 +58,14 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const WrappedThankAuthorSection = ({authors, year, classes}: {
-  authors: WrappedMostReadAuthor[],
-  year: WrappedYear,
+const WrappedThankAuthorSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
+  const {year, data: {mostReadAuthors}} = useForumWrappedContext();
   const currentUser = useCurrentUser();
   const {captureEvent} = useTracking();
 
-  const topAuthorByEngagementPercentile = [...authors].sort(
+  const topAuthorByEngagementPercentile = [...mostReadAuthors].sort(
     (a, b) => b.engagementPercentile - a.engagementPercentile,
   )[0];
   const topAuthorPercentByEngagementPercentile = (

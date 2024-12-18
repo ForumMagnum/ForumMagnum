@@ -2,7 +2,7 @@ import React from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { wrappedHighlightColor, wrappedWhiteColor } from "./wrappedHelpers";
 import { Bar, BarChart, ResponsiveContainer, YAxis } from "recharts";
-import type { WrappedMostReadTopic } from "./hooks";
+import { useForumWrappedContext } from "./hooks";
 
 const styles = (_theme: ThemeType) => ({
   chart: {
@@ -17,10 +17,10 @@ const styles = (_theme: ThemeType) => ({
 /**
  * Section that displays a list of the user's most-read topics
  */
-const WrappedMostReadTopicsSection = ({mostReadTopics, classes}: {
-  mostReadTopics: WrappedMostReadTopic[],
+const WrappedMostReadTopicsSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
+  const {data: {mostReadTopics}} = useForumWrappedContext();
   if (!mostReadTopics.length) {
     return null;
   }

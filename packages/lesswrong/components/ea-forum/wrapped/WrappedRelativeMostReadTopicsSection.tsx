@@ -3,7 +3,7 @@ import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { wrappedHighlightColor, wrappedWhiteColor } from "./wrappedHelpers";
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import { drawnArrow } from "@/components/icons/drawnArrow";
-import type { WrappedRelativeMostReadCoreTopic } from "./hooks";
+import { useForumWrappedContext } from "./hooks";
 
 const styles = (theme: ThemeType) => ({
   chart: {
@@ -39,15 +39,13 @@ const styles = (theme: ThemeType) => ({
 });
 
 /**
- * Section that displays a list of the core topics that the user has read more relative to the avg
+ * Section that displays a list of the core topics that the user has read more 
+ * relative to the avg
  */
-const WrappedRelativeMostReadTopicsSection = ({
-  relativeMostReadCoreTopics,
-  classes,
-}: {
-  relativeMostReadCoreTopics: WrappedRelativeMostReadCoreTopic[],
+const WrappedRelativeMostReadTopicsSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
+  const {data: {relativeMostReadCoreTopics}} = useForumWrappedContext();
   if (!relativeMostReadCoreTopics.length) {
     return null;
   }

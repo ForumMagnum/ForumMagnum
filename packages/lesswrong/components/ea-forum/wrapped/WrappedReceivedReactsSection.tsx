@@ -2,8 +2,8 @@ import React, { ComponentType, useMemo } from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { isClient } from "@/lib/executionEnvironment";
 import { eaEmojiPalette } from "@/lib/voting/eaEmojiPalette";
+import { WrappedReceivedReact, useForumWrappedContext } from "./hooks";
 import range from "lodash/range";
-import type { WrappedReceivedReact } from "./hooks";
 import classNames from "classnames";
 
 type ReceivedReact = {
@@ -63,16 +63,16 @@ const styles = (theme: ThemeType) => ({
   heading5: {},
 });
 
-const WrappedReceivedReactsSection = ({receivedReacts, classes}: {
-  receivedReacts: WrappedReceivedReact[],
+const WrappedReceivedReactsSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
+  const {data: {mostReceivedReacts}} = useForumWrappedContext();
   const allReactsReceived = useMemo(
-    () => placeBackgroundReacts(receivedReacts),
-    [receivedReacts],
+    () => placeBackgroundReacts(mostReceivedReacts),
+    [mostReceivedReacts],
   );
 
-  const totalReactsReceived = receivedReacts.reduce(
+  const totalReactsReceived = mostReceivedReacts.reduce(
     (prev, next) => prev + next.count,
     0,
   );
@@ -91,15 +91,17 @@ const WrappedReceivedReactsSection = ({receivedReacts, classes}: {
       <WrappedHeading className={classes.heading}>
         Others gave you{" "}
         <em>
-          {receivedReacts[0].count} {receivedReacts[0].name}
+          {mostReceivedReacts[0].count} {mostReceivedReacts[0].name}
         </em>{" "}
-        reacts{receivedReacts.length > 1 ? "..." : ""}
+        reacts{mostReceivedReacts.length > 1 ? "..." : ""}
       </WrappedHeading>
-      {receivedReacts.length > 1 && (
+      {mostReceivedReacts.length > 1 && (
         <div className={classes.otherReacts}>
-          <p className={classes.heading5}>... and {totalReactsReceived} reacts in total:</p>
+          <p className={classes.heading5}>
+            ... and {totalReactsReceived} reacts in total:
+          </p>
           <div className={classNames(classes.stats, classes.mt26)}>
-            {receivedReacts.slice(1).map(react => {
+            {mostReceivedReacts.slice(1).map(react => {
               return <article key={react.name} className={classes.stat}>
                 <div className={classes.heading3}>{react.count}</div>
                 <div className={classes.statLabel}>{react.name}</div>

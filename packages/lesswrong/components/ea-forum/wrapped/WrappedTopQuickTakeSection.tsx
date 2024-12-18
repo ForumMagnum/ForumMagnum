@@ -1,7 +1,7 @@
 import React from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { formatPercentile } from "./wrappedHelpers";
-import type { WrappedDataByYear, WrappedYear } from "./hooks";
+import { useForumWrappedContext } from "./hooks";
 
 const styles = (_theme: ThemeType) => ({
   topQuickTake: {
@@ -17,11 +17,10 @@ const styles = (_theme: ThemeType) => ({
  * Section that displays the user's highest-karma quick take (shortform) plus
  * other data on their quick takes
  */
-const WrappedTopQuickTakeSection = ({data, year, classes}: {
-  data: WrappedDataByYear,
-  year: WrappedYear,
+const WrappedTopQuickTakeSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
+  const {year, data} = useForumWrappedContext();
   if (!data.topShortform) {
     return null;
   }

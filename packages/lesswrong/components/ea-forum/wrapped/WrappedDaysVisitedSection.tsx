@@ -1,9 +1,9 @@
 import React, { FC, Fragment } from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
+import { WrappedYear, useForumWrappedContext } from "./hooks";
 import range from "lodash/range";
 import moment from "moment";
 import classNames from "classnames";
-import type { WrappedYear } from "./hooks";
 
 const styles = (theme: ThemeType) => ({
   calendar: {
@@ -66,11 +66,10 @@ const Month: FC<{
  * Section that displays the calendar of days that the user visited the forum,
  * visualized as 12 rows of dots, with the visited days' dots being white
  */
-const WrappedDaysVisitedSection = ({daysVisited, year, classes}: {
-  daysVisited: string[],
-  year: WrappedYear,
+const WrappedDaysVisitedSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
+  const {year, data: {daysVisited}} = useForumWrappedContext();
   const {WrappedSection, WrappedHeading} = Components;
   return (
     <WrappedSection pageSectionContext="daysVisited">
