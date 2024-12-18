@@ -158,6 +158,7 @@ import { CrossReactionIcon } from "../icons/reactions/CrossReactionIcon";
 import { CrossReactionCapIcon } from "../icons/CrossReactionCapIcon";
 import { GivingHandIcon } from "../icons/GivingHandIcon";
 import { DictionaryIcon } from "../icons/Dictionary";
+import { defineStyles, useStyles } from "../hooks/useStyles";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -543,22 +544,22 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   },
 };
 
-export type IconProps = {
-  className: string,
+type IconProps = {
+  className?: string,
   onClick?: MouseEventHandler<SVGElement>,
   onMouseDown?: MouseEventHandler<SVGElement>,
 }
 
-export type IconComponent = ComponentType<Partial<IconProps>>;
+type IconComponent = ComponentType<Partial<IconProps>>;
 
-const styles = (_: ThemeType) => ({
+const styles = defineStyles("ForumIcon", (_: ThemeType) => ({
   root: {
     userSelect: "none",
-    width: "1em",
-    height: "1em",
     display: "inline-block",
     flexShrink: 0,
-    fontSize: 24,
+    width: "var(--icon-size, 1em)",
+    height: "var(--icon-size, 1em)",
+    fontSize: "var(--icon-size, 24px)",
   },
   linkRotation: {
     transform: "rotate(-45deg)",
@@ -566,9 +567,11 @@ const styles = (_: ThemeType) => ({
       marginRight: 12
     }
   },
+}), {
+  stylePriority: -2,
 });
 
-type IconClassName = keyof ClassesType<typeof styles>;
+type IconClassName = "root"|"linkRotation"
 
 // This is a map from forum types to icon names to keys in the `styles` object.
 const CUSTOM_CLASSES: ForumOptions<Partial<Record<ForumIconName, IconClassName>>> = {
@@ -579,19 +582,36 @@ const CUSTOM_CLASSES: ForumOptions<Partial<Record<ForumIconName, IconClassName>>
   },
 };
 
-export type ForumIconProps = Partial<IconProps> & {
+type ForumIconProps = IconProps & {
   icon: ForumIconName,
   noDefaultStyles?: boolean,
   style?: CSSProperties,
 };
 
+/**
+ * An icon, drawn from a table of icons with some forum/theme-specific variants.
+ *
+ * WARNING: There is a Safari-specific bug, which affects what styles you can
+ * safely use in a `className` that you pass in. Historically, the default was
+ * that an icon had a default fontSize of 24px and a default width and height
+ * of 1em, which is equal to the font size, so you could override fontSize alone
+ * to get a square icon of any size. Unfortunately, in Safari, an `em` on an
+ * SVG is an inconsistent unit which fails to scale with the zoom level.
+ *
+ * In the common case of a square icon, you can override the CSS variable
+ * --icon-size and this will adjust all three attributes at once. Eg:
+ *     myClassname: {
+ *       "--icon-size": "18px"
+ *     }
+ * Note that you must specify the unit (px); a number alone will not work.
+ */
 const ForumIcon = ({
   icon,
   noDefaultStyles,
   className,
-  classes,
   ...props
-}: ForumIconProps & {classes: ClassesType<typeof styles>}) => {
+}: ForumIconProps) => {
+  const classes = useStyles(styles);
   const icons = forumSelect(ICONS);
   const Icon = icons[icon] ?? ICONS.default[icon];
   if (!Icon) {
@@ -602,17 +622,17 @@ const ForumIcon = ({
 
   const customClassKey = forumSelect(CUSTOM_CLASSES)[icon];
   const customClass = customClassKey ? classes[customClassKey] : undefined;
-  const fullClassName = classNames(className, {
-    [classes.root]: !noDefaultStyles,
-    [customClass as AnyBecauseHard]: !noDefaultStyles && customClass,
-  });
+  const fullClassName = classNames(
+    className,
+    !noDefaultStyles && classes.root,
+    !noDefaultStyles && customClass
+  );
 
   return <Icon className={fullClassName} {...props} />;
 }
 
-const ForumIconComponent = registerComponent("ForumIcon", memo(ForumIcon), {
-  styles,
-  stylePriority: -2,
+const ForumIconComponent = registerComponent("ForumIcon", ForumIcon, {
+  areEqual: "auto",
 });
 
 declare global {
