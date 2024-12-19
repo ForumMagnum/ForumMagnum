@@ -1887,11 +1887,12 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     resolver: (user: DbUser, _args: void, _context: ResolverContext) => {
       const mapLocation = user.mapLocation;
-      if (!mapLocation) return null;
-      return {
-        lat: mapLocation.geometry?.location?.lat,
-        lng: mapLocation.geometry?.location?.lng,
-      };
+      if (!mapLocation?.geometry?.location) return null;
+
+      const { lat, lng } = mapLocation.geometry.location;
+      if (typeof lat !== 'number' || typeof lng !== 'number') return null;
+      
+      return { lat, lng };
     }
   }),
 
