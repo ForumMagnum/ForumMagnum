@@ -214,8 +214,9 @@ const uncategorizedRootTag = {
   slug: 'uncategorized-root',
   oldSlugs: [],
   description: {
-    _id: 'uncategorized-root',
-    html: '',
+    wordCount: 0,
+    // _id: 'uncategorized-root',
+    // html: '',
   },
   postCount: 0,
   coreTagId: null,
@@ -262,7 +263,7 @@ function buildTree(
   // Add baseScore to all items first
   const itemsWithScore = filteredItems.map(item => ({
     ...item,
-    baseScore: generateBaseScore(item.description?.html?.length ?? 0, item.postCount)
+    baseScore: generateBaseScore((item.description?.wordCount ?? 0) * 6, item.postCount)
   }));
 
   // Sort items by baseScore before processing
@@ -377,21 +378,21 @@ const AllWikiTagsPage = () => {
     setCurrentQuery(searchState.query);
   };
 
-  const handleHover = (wikitag: WikiTagNode | null) => {
-    if (!pinnedWikiTag && wikitag && ((wikitag.description?.html?.length ?? 0) > 0 || wikitag.postCount > 0)) {
-      setSelectedWikiTag(wikitag);
-    }
-  };
+  // const handleHover = (wikitag: WikiTagNode | null) => {
+  //   if (!pinnedWikiTag && wikitag && ((wikitag.description?.html?.length ?? 0) > 0 || wikitag.postCount > 0)) {
+  //     setSelectedWikiTag(wikitag);
+  //   }
+  // };
 
-  const handleClick = (wikitag: WikiTagNode) => {
-    if (pinnedWikiTag && pinnedWikiTag._id === wikitag._id) {
-      setPinnedWikiTag(null);
-      setSelectedWikiTag(null);
-    } else if ((wikitag.description?.html?.length ?? 0) > 0 || wikitag.postCount > 0) {
-      setPinnedWikiTag(wikitag);
-      setSelectedWikiTag(wikitag);
-    }
-  };
+  // const handleClick = (wikitag: WikiTagNode) => {
+  //   if (pinnedWikiTag && pinnedWikiTag._id === wikitag._id) {
+  //     setPinnedWikiTag(null);
+  //     setSelectedWikiTag(null);
+  //   } else if ((wikitag.description?.html?.length ?? 0) > 0 || wikitag.postCount > 0) {
+  //     setPinnedWikiTag(wikitag);
+  //     setSelectedWikiTag(wikitag);
+  //   }
+  // };
 
   const handleBackgroundClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
@@ -464,8 +465,8 @@ const AllWikiTagsPage = () => {
       <div className={classes.wikiTagNestedList}>
         <WikiTagNestedList
           pages={filteredTags}
-          onHover={handleHover}
-          onClick={handleClick}
+          // onHover={handleHover}
+          // onClick={handleClick}
           showArbitalIcons={isArbitalRedirect}
         />
       </div>

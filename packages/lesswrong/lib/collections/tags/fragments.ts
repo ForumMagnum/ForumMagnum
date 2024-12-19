@@ -462,8 +462,7 @@ registerFragment(`
     oldSlugs
     postCount
     description {
-      _id
-      html
+      wordCount
     }
     isArbitalImport
     coreTagId

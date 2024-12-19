@@ -2854,8 +2854,7 @@ interface AllTagsPageCacheFragment { // fragment on Tags
 }
 
 interface AllTagsPageCacheFragment_description { // fragment on Revisions
-  readonly _id: string,
-  readonly html: string,
+  readonly wordCount: number,
 }
 
 interface AdvisorRequestsDefaultFragment { // fragment on AdvisorRequests
