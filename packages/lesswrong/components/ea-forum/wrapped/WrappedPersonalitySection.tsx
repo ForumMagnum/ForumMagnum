@@ -33,6 +33,9 @@ const styles = (theme: ThemeType) => ({
   content: {
     position: "relative",
   },
+  bottomMargin: {
+    marginBottom: 2,
+  },
 });
 
 const WrappedPersonalitySection = ({classes}: {
@@ -76,7 +79,7 @@ const WrappedPersonalitySection = ({classes}: {
         }
         {!isThinking &&
           <>
-            <div>
+            <div className={classes.bottomMargin}>
               Your EA Forum personality is
             </div>
             <WrappedHeading>
