@@ -31,18 +31,21 @@ const WrappedSection = ({
   align = "center",
   fullHeight,
   children,
+  className,
   classes,
 }: {
   pageSectionContext: string,
   align?: "left" | "center",
   fullHeight?: boolean,
   children?: ReactNode,
+  className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
   return (
     <AnalyticsContext pageSectionContext={pageSectionContext}>
       <section className={classNames(
         classes.root,
+        className,
         align === "left" && classes.left,
         align === "center" && classes.center,
         fullHeight && classes.fullHeight,

@@ -542,6 +542,7 @@ declare global {
 
     wrapped: {
       background: ColorString,
+      darkBackground: ColorString,
       highlightText: ColorString,
       secondaryText: ColorString,
       tertiaryText: ColorString,
@@ -552,7 +553,10 @@ declare global {
       panelBackground: ColorString,
       panelBackgroundDark: ColorString,
       postScore: ColorString,
-      summary: ColorString,
+      personalityGrey: ColorString,
+      personalityRed: ColorString,
+      personalityBlue: ColorString,
+      personalityGreen: ColorString,
     },
     givingSeason: {
       primary: ColorString,

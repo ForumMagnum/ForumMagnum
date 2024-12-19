@@ -573,6 +573,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
 
   wrapped: {
     background: '#151515',
+    darkBackground: "#000",
     highlightText: '#F09554',
     secondaryText: '#008DAC',
     tertiaryText: "rgba(255, 255, 255, 0.50)",
@@ -583,7 +584,10 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     panelBackground: "rgba(255, 255, 255, 0.10)",
     panelBackgroundDark: "rgba(255, 255, 255, 0.05)",
     postScore: '#BCBCBC',
-    summary: "#006335",
+    personalityGrey: "#585858",
+    personalityRed: "#9e011a",
+    personalityBlue: "#165088",
+    personalityGreen: "#006336",
   },
   givingSeason: {
     primary: "#8A0003",

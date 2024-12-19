@@ -2,21 +2,37 @@ import React from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { Link } from "@/lib/reactRouterWrapper";
 import { tagGetUrl } from "@/lib/collections/tags/helpers";
-import { useForumWrappedContext } from "./hooks";
 import { lightbulbIcon } from "@/components/icons/lightbulbIcon";
 import { getUserProfileLink } from "./wrappedHelpers";
+import { useForumWrappedContext } from "./hooks";
+import { getWrappedVideo } from "./videos";
+import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
   root: {
     width: "100%",
     maxWidth: 500,
     padding: 24,
-    background: theme.palette.wrapped.summary,
     color: theme.palette.text.alwaysWhite,
     display: "flex",
     flexDirection: "column",
     gap: "20px",
     textAlign: "left",
+  },
+  black: {
+    background: theme.palette.wrapped.darkBackground,
+  },
+  grey: {
+    background: theme.palette.wrapped.personalityGrey,
+  },
+  red: {
+    background: theme.palette.wrapped.personalityRed,
+  },
+  blue: {
+    background: theme.palette.wrapped.personalityBlue,
+  },
+  green: {
+    background: theme.palette.wrapped.personalityGreen,
   },
   row: {
     display: "flex",
@@ -85,10 +101,12 @@ const WrappedSummarySection = ({classes}: {
     year,
     data: {totalSeconds, postCount, mostReadAuthors, mostReadTopics, personality},
   } = useForumWrappedContext();
+  const {color} = getWrappedVideo(personality);
+  const hoursSpent = (totalSeconds / 3600).toFixed(1)
   const {WrappedSection, UsersProfileImage, CoreTagIcon} = Components;
   return (
     <WrappedSection pageSectionContext="summary">
-      <div className={classes.root}>
+      <div className={classNames(classes.root, classes[color])}>
         <div>
           <div className={classes.heading}>EA Forum personality</div>
           <div className={classes.personality}>{personality}</div>
@@ -96,7 +114,7 @@ const WrappedSummarySection = ({classes}: {
         <div className={classes.row}>
           <div>
             <div className={classes.heading}>Hours spent</div>
-            <div className={classes.stat}>{(totalSeconds / 3600).toFixed(1)}</div>
+            <div className={classes.stat}>{hoursSpent}</div>
           </div>
           <div>
             <div className={classes.heading}>Posts read</div>
