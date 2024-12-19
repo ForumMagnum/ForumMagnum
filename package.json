@@ -224,6 +224,7 @@
     "hot-shots": "^10.0.0",
     "html-lexer": "^0.4.1",
     "html-to-text": "^9.0.3",
+    "html2canvas": "^1.4.1",
     "htmlparser2": "^3.9.2",
     "intercom-client": "^5.0.0",
     "intl": "^1.2.4",
