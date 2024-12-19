@@ -1,5 +1,6 @@
-import React from "react";
+import React, { RefObject, useCallback } from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
+import html2canvas from "html2canvas";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -21,12 +22,39 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const WrappedShareButton = ({classes}: {
+const WrappedShareButton = ({screenshotRef, classes}: {
+  screenshotRef: RefObject<HTMLElement>,
   classes: ClassesType<typeof styles>,
 }) => {
+  const onClick = useCallback(async () => {
+    const target = screenshotRef.current;
+    if (target) {
+      const fileName = "My2024EAForumWrapped.png";
+      const canvasElement = await html2canvas(target);
+      const dataUrl = canvasElement.toDataURL("image/png");
+      if (!!navigator.canShare) {
+        const data = await fetch(dataUrl);
+        const blob = await data.blob();
+        const file = new File([blob], fileName, {
+          type: blob.type,
+          lastModified: new Date().getTime(),
+        });
+        const sharingOptions = {files: [file]};
+        if (navigator.canShare(sharingOptions)) {
+          await navigator.share({files: [file]});
+          return;
+        }
+      }
+      const link = document.createElement("a");
+      link.download = fileName;
+      link.href = dataUrl;
+      link.click();
+    }
+  }, [screenshotRef]);
+
   const {ForumIcon} = Components;
   return (
-    <button className={classes.root}>
+    <button className={classes.root} onClick={onClick}>
       <ForumIcon icon="Share" className={classes.icon} /> Share
     </button>
   );

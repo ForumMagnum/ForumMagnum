@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { Link } from "@/lib/reactRouterWrapper";
 import { tagGetUrl } from "@/lib/collections/tags/helpers";
@@ -103,13 +103,14 @@ const WrappedSummarySection = ({classes}: {
     data: {totalSeconds, postCount, mostReadAuthors, mostReadTopics, personality},
   } = useForumWrappedContext();
   const {color} = getWrappedVideo(personality);
+  const screenshotRef = useRef<HTMLDivElement>(null);
   const hoursSpent = (totalSeconds / 3600).toFixed(1)
   const {
     WrappedSection, UsersProfileImage, CoreTagIcon, WrappedShareButton,
   } = Components;
   return (
     <WrappedSection pageSectionContext="summary">
-      <div className={classNames(classes.root, classes[color])}>
+      <div className={classNames(classes.root, classes[color])} ref={screenshotRef}>
         <div>
           <div className={classes.heading}>EA Forum personality</div>
           <div className={classes.personality}>{personality}</div>
@@ -163,7 +164,7 @@ const WrappedSummarySection = ({classes}: {
         </div>
       </div>
       <div>
-        <WrappedShareButton />
+        <WrappedShareButton screenshotRef={screenshotRef} />
       </div>
     </WrappedSection>
   );
