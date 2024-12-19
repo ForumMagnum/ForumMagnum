@@ -18,11 +18,12 @@ const initGlobals = (args, isProd) => {
   global.bundleIsE2E = false;
   global.bundleIsProduction = isProd;
   global.bundleIsMigrations = true;
+  global.enableVite = false;
   global.defaultSiteAbsoluteUrl = "";
   global.serverPort = 5001;
   global.estrellaPid = -1;
 
-  const { getInstanceSettings } = require("./packages/lesswrong/lib/executionEnvironment");
+  const { getInstanceSettings } = require("./packages/lesswrong/lib/getInstanceSettings");
   getInstanceSettings(args); // These args will be cached for later
 }
 
@@ -122,7 +123,7 @@ const settingsFileName = (mode, forumType) => {
     const { exists } = await checkEditorBundle(ckEditorBundleVersion);
     if (!exists) {
       console.log(`ckEditor bundle version ${ckEditorBundleVersion} not yet uploaded; building now`);
-      await execAsync(`cd public/lesswrong-editor && yarn && yarn build`);
+      await execAsync(`cd ckEditor && yarn && yarn build`);
       await uploadEditorBundle(ckEditorBundleVersion);
     }
   } catch (e) {

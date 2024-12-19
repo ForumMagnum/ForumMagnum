@@ -1,12 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useMessages } from '../common/withMessages';
-import { Link } from '@/lib/reactRouterWrapper';
-import { postGetPageUrl } from '@/lib/collections/posts/helpers';
-import { commentGetPageUrlFromIds } from '@/lib/collections/comments/helpers';
 import { State } from '@popperjs/core/lib/types';
-import { useIsAboveScreenWidth } from '../hooks/useScreenWidth';
-import { POLL_MAX_WIDTH } from './ForumEventPoll';
 
 const WIDTH = 350;
 
@@ -57,17 +52,20 @@ const styles = (theme: ThemeType) => ({
       margin: 0
     }
   },
-  link: {
-    textDecoration: 'underline',
-    textUnderlineOffset: '3px',
-    '&:hover': {
+  header: {
+    '& a': {
       textDecoration: 'underline',
+      textUnderlineOffset: '3px',
+      '&:hover': {
+        textDecoration: 'underline',
+      }
     }
   },
   title: {
     color: theme.palette.grey[1000],
     fontSize: 16,
-    fontWeight: 700
+    fontWeight: 700,
+    marginBottom: 12
   },
   triangle: {
     position: 'absolute',
@@ -101,6 +99,10 @@ const ForumEventCommentForm = ({
   refetch,
   onClose,
   anchorEl,
+  title,
+  subtitle,
+  successMessage="Comment posted",
+  className,
   classes,
 }: {
   open: boolean;
@@ -110,21 +112,23 @@ const ForumEventCommentForm = ({
   post: PostsMinimumInfo;
   onClose: () => void;
   refetch: () => Promise<void>;
+  title: ((post: PostsMinimumInfo, comment: ShortformComments | null) => React.ReactNode) | React.ReactNode;
+  subtitle: ((post: PostsMinimumInfo, comment: ShortformComments | null) => React.ReactNode) | React.ReactNode;
+  successMessage?: string;
+  className?: string;
   classes: ClassesType<typeof styles>;
 }) => {
   const { CommentsNewForm, LWPopper, ForumIcon, CommentsEditForm, CommentBody } = Components;
-
-  const isDesktop = useIsAboveScreenWidth(POLL_MAX_WIDTH);
 
   const [editFormOpen, setEditFormOpen] = useState(false);
   const { flash } = useMessages();
   const updatePopperRef = useRef<(() => Promise<Partial<State>>) | undefined>(undefined);
 
   const onSubmit = useCallback(async () => {
-    flash("Success! Open the results to view everyone's votes and comments.")
+    flash(successMessage)
     await refetch();
     onClose();
-  }, [flash, onClose, refetch])
+  }, [flash, onClose, refetch, successMessage])
 
   useEffect(() => {
     const updatePopperPos = () => {
@@ -144,24 +148,18 @@ const ForumEventCommentForm = ({
     };
   }, []);
 
-  if (!open || !anchorEl?.isConnected || !isDesktop) {
+  if (!open || !anchorEl?.isConnected) {
     return null;
   }
 
-  const debateWeekLink = comment ? commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id}) : postGetPageUrl(post)
-
   return (
-    <LWPopper open={open} anchorEl={anchorEl} placement="bottom" allowOverflow={false} updateRef={updatePopperRef}>
+    <LWPopper open={open} anchorEl={anchorEl} placement="bottom" allowOverflow={false} updateRef={updatePopperRef} className={className}>
       <div className={classes.popperContent}>
         <div className={classes.triangle}></div>
         <ForumIcon icon="Close" className={classes.closeIcon} onClick={onClose} />
-        <div className={classes.title}>What made you vote this way?</div>
-        <div>
-          Your response will appear as a comment on{" "}
-          <Link to={debateWeekLink} target="_blank" rel="noopener noreferrer" className={classes.link}>
-            this Debate Week post
-          </Link>
-          , and show next to your avatar on this banner.
+        <div className={classes.header}>
+          <div className={classes.title}>{typeof title === 'function' ? title(post, comment) : title}</div>
+          {typeof subtitle === 'function' ? subtitle(post, comment) : subtitle}
         </div>
         {!comment && !editFormOpen && (
           <CommentsNewForm
@@ -173,6 +171,7 @@ const ForumEventCommentForm = ({
             prefilledProps={{
               forumEventId,
             }}
+            cancelLabel={"Skip"}
             className={classes.commentForm}
           />
         )}

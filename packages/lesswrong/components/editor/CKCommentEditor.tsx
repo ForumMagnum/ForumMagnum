@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { ckEditorBundleVersion, getCkCommentEditor } from '../../lib/wrapCkEditor';
 import { generateTokenRequest } from '../../lib/ckEditorUtils';
 import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib/publicSettings'
-import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting, forumTypeSetting } from '../../lib/instanceSettings';
+import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting, forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import { defaultEditorPlaceholder } from '../../lib/editor/make_editable';
 import { mentionPluginConfiguration } from "../../lib/editor/mentionsConfig";
 import { cloudinaryConfig } from '../../lib/editor/cloudinaryConfig'
@@ -13,6 +13,28 @@ import { useSyncCkEditorPlaceholder } from '../hooks/useSyncCkEditorPlaceholder'
 
 // Uncomment the import and the line below to activate the debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
+
+const commentEditorToolbarConfig = {
+  toolbar: [
+    'heading',
+    '|',
+    'bold',
+    'italic',
+    'strikethrough',
+    '|',
+    'link',
+    '|',
+    'blockQuote',
+    'bulletedList',
+    'numberedList',
+    '|',
+    'math',
+    // Similar to the post editor, we don't have the collapsible sections plugin in the selected-text toolbar,
+    // because the behavior of creating a collapsible section while text is selected is non-obvious and we want to fix it first
+    ...(isEAForum ? ['ctaButtonToolbarItem'] : []),
+    'footnote',
+  ],
+};
 
 const CKCommentEditor = ({
   data,
@@ -35,13 +57,14 @@ const CKCommentEditor = ({
 }) => {
   const webSocketUrl = ckEditorWebsocketUrlOverrideSetting.get() || ckEditorWebsocketUrlSetting.get();
   const ckEditorCloudConfigured = !!webSocketUrl;
-  const CommentEditor = getCkCommentEditor(forumTypeSetting.get());
+  const CommentEditor = getCkCommentEditor();
 
   const [editorObject, setEditorObject] = useState<Editor | null>(null);
 
   const actualPlaceholder = placeholder ?? defaultEditorPlaceholder;
 
   const editorConfig = {
+    ...commentEditorToolbarConfig,
     cloudServices: ckEditorCloudConfigured ? {
       // A tokenUrl token is needed here in order for image upload to work.
       // (It's accessible via drag-and-drop onto the comment box, and is

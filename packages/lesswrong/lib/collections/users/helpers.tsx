@@ -340,7 +340,7 @@ export function getDatadogUser (user: UsersCurrent | UsersEdit | DbUser): Datado
 }
 
 // Replaces Users.getProfileUrl from the vulcan-users package.
-export const userGetProfileUrl = (user: DbUser|UsersMinimumInfo|SearchUser|null, isAbsolute=false): string => {
+export const userGetProfileUrl = (user: DbUser|UsersMinimumInfo|SearchUser|UsersMapEntry|null, isAbsolute=false): string => {
   if (!user) return "";
   
   if (user.slug) {
