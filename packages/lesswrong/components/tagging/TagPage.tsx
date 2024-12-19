@@ -172,7 +172,9 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   nextLink: {
     ...theme.typography.commentStyle
   },
-  description: {},
+  description: {
+    lineHeight: "21px",
+  },
   lensTabsContainer: {
     gap: '4px',
     [theme.breakpoints.up('md')]: {
@@ -664,10 +666,11 @@ function hasList(list: ArbitalLinkedPage[] | null): list is ArbitalLinkedPage[] 
   return !!(list && list?.length > 0);
 }
 
-const LinkedPageListSection = ({ title, linkedPages, children }: {
+const LinkedPageListSection = ({ title, linkedPages, children, limit }: {
   title: string,
   linkedPages: ArbitalLinkedPage[] | null,
   children?: React.ReactNode,
+  limit?: number,
 }) => {
   const classes = useStyles(styles);
 
@@ -677,7 +680,7 @@ const LinkedPageListSection = ({ title, linkedPages, children }: {
 
   return <div className={classes.linkedTagsSection}>
     <div className={classes.linkedTagsSectionTitle}>{title}</div>
-    {linkedPages.map((linkedPage) => <LinkedPageDisplay key={linkedPage.slug} linkedPage={linkedPage} />)}
+    {linkedPages.slice(0, limit).map((linkedPage) => <LinkedPageDisplay key={linkedPage.slug} linkedPage={linkedPage} />)}
     {children}
   </div>
 }
@@ -699,6 +702,7 @@ const ArbitalLinkedPagesRightSidebar = ({ tag, selectedLens, arbitalLinkedPages 
   const { requirements, teaches, lessTechnical, moreTechnical, slower, faster, parents, children } = arbitalLinkedPages;
 
   const teachesFiltered = teaches?.filter((linkedPage: ArbitalLinkedPage) => linkedPage.slug !== selectedLens?.slug && linkedPage.slug !== tag.slug);
+  const childrenDefaultLimitToShow = 4;
 
   return <ContentStyles contentType="tag">
     <div className={classes.linkedTagsHeader}>
@@ -710,8 +714,8 @@ const ArbitalLinkedPagesRightSidebar = ({ tag, selectedLens, arbitalLinkedPages 
         <LinkedPageListSection title="Faster alternatives" linkedPages={faster} />
         <LinkedPageListSection title="More technical alternatives" linkedPages={moreTechnical} />
         <LinkedPageListSection title="Parents" linkedPages={parents} />
-        <LinkedPageListSection title="Children" linkedPages={parents}>
-          {!isChildrenExpanded && children?.length > 2 && (
+        <LinkedPageListSection title="Children" linkedPages={children} limit={isChildrenExpanded ? undefined : childrenDefaultLimitToShow}>
+          {!isChildrenExpanded && children?.length > childrenDefaultLimitToShow && (
             <div 
               className={classes.linkedTagMore} 
               onClick={(e) => {
@@ -720,7 +724,7 @@ const ArbitalLinkedPagesRightSidebar = ({ tag, selectedLens, arbitalLinkedPages 
                 setIsChildrenExpanded(true);
               }}
             >
-              and {children.length - 2} more
+              and {children.length - childrenDefaultLimitToShow} more
             </div>
           )}
         </LinkedPageListSection>
@@ -781,235 +785,131 @@ function htmlNodeListToArray(nodes: NodeList): Node[] {
   return ret;
 }
 
-const bayesGuideScript = () => {
-  const pathDescriptions = {
-    basic_theoretical: {
-      content: `
-          <p>Your path will teach you the basic odds form of Bayes' rule at a reasonable pace. It will contain 3 pages:</p>
-          <ul>
-              <li>Frequency diagrams: A first look at Bayes</li>
-              <li>Waterfall diagrams and relative odds</li>
-              <li>Introduction to Bayes' rule: Odds form</li>
-          </ul>
-      `,
-      pathId: "62c",
-    },
-    quick: {
-      content: `
-          <p>No time to waste! Let's plunge directly into <a href="/w/693">a single-page abbreviated introduction to Bayes' rule</a>.</p>
-      `,
-      // pathId: "693",
-      pathId: null,
-    },
-    theoretical: {
-      content: `
-          <p>Your path will teach you the basic odds form of Bayes' rule at a reasonable pace and then delve into the deep mysteries of the Bayes' Rule! Your path will contain 8 pages:</p>
-          <ul>
-              <li>Frequency diagrams: A first look at Bayes</li>
-              <li>Waterfall diagrams and relative odds</li>
-              <li>Introduction to Bayes' rule: Odds form</li>
-              <li>Belief revision as probability elimination</li>
-              <li>Extraordinary claims require extraordinary evidence</li>
-              <li>Ordinary claims require ordinary evidence</li>
-              <li>Shift towards the hypothesis of least surprise</li>
-              <li>Bayesian view of scientific virtues</li>
-          </ul>
-      `,
-      pathId: "62f",
-    },
-    deep: {
-      content: `
-          <p>Your path will go over all forms of Bayes' Rule, along with developing deep appreciation for its scientific usefulness. Your path will contain 12 pages:</p>
-          <ul>
-              <li>Frequency diagrams: A first look at Bayes</li>
-              <li>Waterfall diagrams and relative odds</li>
-              <li>Introduction to Bayes' rule: Odds form</li>
-              <li>Bayes' rule: Proportional form</li>
-              <li>Extraordinary claims require extraordinary evidence</li>
-              <li>Ordinary claims require ordinary evidence</li>
-              <li>Bayes' rule: Log-odds form</li>
-              <li>Shift towards the hypothesis of least surprise</li>
-              <li>Bayes' rule: Vector form</li>
-              <li>Belief revision as probability elimination</li>
-              <li>Bayes' rule: Probability form</li>
-              <li>Bayesian view of scientific virtues</li>
-          </ul>
-      `,
-      pathId: "61b",
-    },
-  };
-
-
-  let currentPathId: string | null = null;
-
-  function startPath() {
-    if (currentPathId) {
-      window.location.href = `/w/${currentPathId}/?startPath`;
-    }
-  }
-
-  function handleRadioChange(radio: HTMLInputElement) {
-    const wants = radio.dataset.wants?.split(",") || [];
-    const notWants = radio.dataset.notWants?.split(",") || [];
-
-    let pathKey;
-    if (wants.includes("62d") && wants.includes("62f")) {
-      pathKey = "deep";
-    } else if (wants.includes("62d") && notWants.includes("62f")) {
-      pathKey = "quick";
-    } else if (wants.includes("62f") && notWants.includes("62d")) {
-      pathKey = "theoretical";
-    } else {
-      pathKey = "basic_theoretical";
-    }
-
-    const pathDescription = document.getElementById("pathDescription");
-    const content = pathDescription?.querySelector(".content");
-    const startButton = pathDescription?.querySelector(".start-reading") as HTMLElement;
-
-    if (content) {
-      content.innerHTML = pathDescriptions[pathKey as keyof typeof pathDescriptions].content;
-    }
-    currentPathId = pathDescriptions[pathKey as keyof typeof pathDescriptions].pathId;
-
-    if (pathDescription) {
-      pathDescription.style.display = "block";
-    }
-    if (startButton) {
-      if (currentPathId) {
-        startButton.style.display = "block";
-      } else {
-        startButton.style.display = "none";
-      }
-    }
-  }
-
-  let currentContainer: Element|null = null;
-
-  function initializeRadioHandlers() {
-    document.querySelectorAll('input[name="preference"]').forEach((radio: HTMLInputElement) => {
-      radio.addEventListener("change", function() {
-        handleRadioChange(this);
-      });
-    });
-
-    const checkedRadio = document.querySelector('input[name="preference"]:checked') as HTMLInputElement|null;
-    if (checkedRadio) {
-      handleRadioChange(checkedRadio);
-    }
-  }
-
-  if (isClient) {
-    const pathDescriptions = {
-      basic_theoretical: {
-        content: `
-            <p>Your path will teach you the basic odds form of Bayes' rule at a reasonable pace. It will contain 3 pages:</p>
-            <ul>
-                <li>Frequency diagrams: A first look at Bayes</li>
-                <li>Waterfall diagrams and relative odds</li>
-                <li>Introduction to Bayes' rule: Odds form</li>
-            </ul>
-        `,
-        pathId: "62c",
-      },
-      quick: {
-        content: `
-            <p>No time to waste! Let's plunge directly into <a href="/w/693">a single-page abbreviated introduction to Bayes' rule</a>.</p>
-        `,
-        // pathId: "693",
-      },
-      theoretical: {
-        content: `
-            <p>Your path will teach you the basic odds form of Bayes' rule at a reasonable pace and then delve into the deep mysteries of the Bayes' Rule! Your path will contain 8 pages:</p>
-            <ul>
-                <li>Frequency diagrams: A first look at Bayes</li>
-                <li>Waterfall diagrams and relative odds</li>
-                <li>Introduction to Bayes' rule: Odds form</li>
-                <li>Belief revision as probability elimination</li>
-                <li>Extraordinary claims require extraordinary evidence</li>
-                <li>Ordinary claims require ordinary evidence</li>
-                <li>Shift towards the hypothesis of least surprise</li>
-                <li>Bayesian view of scientific virtues</li>
-            </ul>
-        `,
-        pathId: "62f",
-      },
-      deep: {
-        content: `
-            <p>Your path will go over all forms of Bayes' Rule, along with developing deep appreciation for its scientific usefulness. Your path will contain 12 pages:</p>
-            <ul>
-                <li>Frequency diagrams: A first look at Bayes</li>
-                <li>Waterfall diagrams and relative odds</li>
-                <li>Introduction to Bayes' rule: Odds form</li>
-                <li>Bayes' rule: Proportional form</li>
-                <li>Extraordinary claims require extraordinary evidence</li>
-                <li>Ordinary claims require ordinary evidence</li>
-                <li>Bayes' rule: Log-odds form</li>
-                <li>Shift towards the hypothesis of least surprise</li>
-                <li>Bayes' rule: Vector form</li>
-                <li>Belief revision as probability elimination</li>
-                <li>Bayes' rule: Probability form</li>
-                <li>Bayesian view of scientific virtues</li>
-            </ul>
-        `,
-        pathId: "61b",
-      },
-    };
-  
-    // Watch for our content being added to or removed from the DOM
-    const observer = new MutationObserver((mutations) => {
-      for (const mutation of mutations) {
-        if (mutation.type !== 'childList') continue;
-        
-        // Check if our current container was removed
-        if (currentContainer && !currentContainer.isConnected) {
-          currentContainer = null;
-        }
-        
-        // Only look for new container if we don't have one
-        if (!currentContainer) {
-          for (const node of htmlNodeListToArray(mutation.addedNodes)) {
-            if (!(node instanceof Element)) continue;
-            
-            const container = node.matches('.question-container') 
-              ? node 
-              : node.querySelector('.question-container');
-              
-            if (container) {
-              currentContainer = container;
-              initializeRadioHandlers();
-              break;
-            }
-          }
-        }
-      }
-    });
-  
-    // Start observing from the document root
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true
-    });
-  
-    // Initial setup
-    initializeRadioHandlers();
-  
-    Object.assign(window, { startPath });
-    Object.assign(window, { handleRadioChange });
-  }
+const pathDescriptions = {
+  basic_theoretical: {
+    content: `
+        <p>Your path will teach you the basic odds form of Bayes' rule at a reasonable pace. It will contain 3 pages:</p>
+        <ul>
+            <li>Frequency diagrams: A first look at Bayes</li>
+            <li>Waterfall diagrams and relative odds</li>
+            <li>Introduction to Bayes' rule: Odds form</li>
+        </ul>
+    `,
+    pathId: "62c",
+  },
+  quick: {
+    content: `
+        <p>No time to waste! Let's plunge directly into <a href="/w/693">a single-page abbreviated introduction to Bayes' rule</a>.</p>
+    `,
+    // pathId: "693",
+    pathId: null,
+  },
+  theoretical: {
+    content: `
+        <p>Your path will teach you the basic odds form of Bayes' rule at a reasonable pace and then delve into the deep mysteries of the Bayes' Rule! Your path will contain 8 pages:</p>
+        <ul>
+            <li>Frequency diagrams: A first look at Bayes</li>
+            <li>Waterfall diagrams and relative odds</li>
+            <li>Introduction to Bayes' rule: Odds form</li>
+            <li>Belief revision as probability elimination</li>
+            <li>Extraordinary claims require extraordinary evidence</li>
+            <li>Ordinary claims require ordinary evidence</li>
+            <li>Shift towards the hypothesis of least surprise</li>
+            <li>Bayesian view of scientific virtues</li>
+        </ul>
+    `,
+    pathId: "62f",
+  },
+  deep: {
+    content: `
+        <p>Your path will go over all forms of Bayes' Rule, along with developing deep appreciation for its scientific usefulness. Your path will contain 12 pages:</p>
+        <ul>
+            <li>Frequency diagrams: A first look at Bayes</li>
+            <li>Waterfall diagrams and relative odds</li>
+            <li>Introduction to Bayes' rule: Odds form</li>
+            <li>Bayes' rule: Proportional form</li>
+            <li>Extraordinary claims require extraordinary evidence</li>
+            <li>Ordinary claims require ordinary evidence</li>
+            <li>Bayes' rule: Log-odds form</li>
+            <li>Shift towards the hypothesis of least surprise</li>
+            <li>Bayes' rule: Vector form</li>
+            <li>Belief revision as probability elimination</li>
+            <li>Bayes' rule: Probability form</li>
+            <li>Bayesian view of scientific virtues</li>
+        </ul>
+    `,
+    pathId: "61b",
+  },
 };
 
-function addBayesGuideScript() {
-  if (isClient) {
-    if (document.readyState === 'complete') {
-      bayesGuideScript();
+
+let currentPathId: string | null = null;
+
+function startPath() {
+  if (currentPathId) {
+    window.location.href = `/w/${currentPathId}/?startPath`;
+  }
+}
+
+function handleRadioChange(radio: HTMLInputElement) {
+  const wants = radio.dataset.wants?.split(",") || [];
+  const notWants = radio.dataset.notWants?.split(",") || [];
+
+  let pathKey;
+  if (wants.includes("62d") && wants.includes("62f")) {
+    pathKey = "deep";
+  } else if (wants.includes("62d") && notWants.includes("62f")) {
+    pathKey = "quick";
+  } else if (wants.includes("62f") && notWants.includes("62d")) {
+    pathKey = "theoretical";
+  } else {
+    pathKey = "basic_theoretical";
+  }
+
+  const pathDescription = document.getElementById("pathDescription");
+  const content = pathDescription?.querySelector(".content");
+  const startButton = pathDescription?.querySelector(".start-reading") as HTMLElement;
+
+  if (content) {
+    content.innerHTML = pathDescriptions[pathKey as keyof typeof pathDescriptions].content;
+  }
+  currentPathId = pathDescriptions[pathKey as keyof typeof pathDescriptions].pathId;
+
+  if (pathDescription) {
+    pathDescription.style.display = "block";
+  }
+  if (startButton) {
+    if (currentPathId) {
+      startButton.style.display = "block";
     } else {
-      document.addEventListener('DOMContentLoaded', bayesGuideScript);
+      startButton.style.display = "none";
     }
   }
 }
 
-addBayesGuideScript();
+function initializeRadioHandlers() {
+  const cleanupFunctions: (() => void)[] = [];
+  const radioElements = Array.from(document.querySelectorAll('input[name="preference"]'));
+  radioElements.forEach((radio: HTMLInputElement) => {
+    const listenerFunction = function() {
+      handleRadioChange(radio);
+    }
+    radio.addEventListener("change", listenerFunction);
+    cleanupFunctions.push(() => radio.removeEventListener("change", listenerFunction));
+  });
+
+  const checkedRadio = document.querySelector('input[name="preference"]:checked') as HTMLInputElement|null;
+  if (checkedRadio) {
+    handleRadioChange(checkedRadio);
+  }
+
+  return () => cleanupFunctions.forEach((cleanup) => cleanup());
+}
+
+if (isClient) {
+  Object.assign(window, { startPath });
+  Object.assign(window, { handleRadioChange });
+}
 
 const ContributorsList = ({ contributors, onHoverContributor, endWithComma }: { contributors: DocumentContributorWithStats[], onHoverContributor: (userId: string | null) => void, endWithComma: boolean }) => {
   const { UsersNameDisplay } = Components;
@@ -1132,7 +1032,7 @@ const TagPage = () => {
     limit: 1500,
     skip: !query.flagId
   })
-  
+
   useOnSearchHotkey(() => setTruncated(false));
 
   useGlobalKeydown((ev) => {
@@ -1269,6 +1169,7 @@ const TagPage = () => {
           You are viewing revision {tag.description.version}, last edited by <UsersNameDisplay user={(tag.description as TagRevisionFragment_description).user}/>
         </div>}
         {/* <TagEditorProvider> */}
+        <DeferRender ssr={false}>
           <span className={classNames(classes.unselectedEditForm, editing && selectedLens?._id === MAIN_TAB_ID && classes.selectedEditForm)}>
             <EditTagForm
               tag={tag}
@@ -1282,6 +1183,7 @@ const TagPage = () => {
           {lenses.filter(lens => lens._id !== MAIN_TAB_ID).map(lens => <span key={lens._id} className={classNames(classes.unselectedEditForm, editing && selectedLens?._id === lens._id && classes.selectedEditForm)}>
             <EditLensForm key={lens._id} lens={lens} />
           </span>)}
+        </DeferRender>
         {/* </TagEditorProvider> */}
         <div
           className={classNames(editing && classes.descriptionContainerEditing)}
@@ -1289,13 +1191,13 @@ const TagPage = () => {
             handleTripleClick(e);
             clickReadMore();
           }}
-          // onDoubleClick={openInlineEditor}
         >
           <ContentStyles contentType="tag">
             <ContentItemBody
               dangerouslySetInnerHTML={{__html: description||""}}
               description={`tag ${tag.name}`}
               className={classes.description}
+              onContentReady={initializeRadioHandlers}
             />
             <PathInfo tag={tag} lens={selectedLens ?? null} />
           </ContentStyles>

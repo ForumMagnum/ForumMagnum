@@ -113,6 +113,34 @@ class TagsRepo extends AbstractRepo<"Tags"> {
       LIMIT 1
     `, [slug]);
   }
+
+  async getAllTagsForCache(): Promise<(DbTag & { coreTagId: string, summaries: DbMultiDocument[] })[]> {
+    return this.getRawDb().any(`
+      -- TagsRepo.getAllTagsForCache
+      WITH core_tag_ids AS (
+        SELECT _id
+        FROM "Tags"
+        WHERE core IS TRUE
+      )
+      SELECT
+        t_child.*,
+        (ARRAY_AGG(t_parent."_id") FILTER (WHERE t_parent._id IN (SELECT _id FROM core_tag_ids)))[1] AS "coreTagId"
+      FROM "Tags" t_child
+      LEFT JOIN "ArbitalTagContentRels" acr
+      ON t_child._id = acr."childDocumentId"
+      LEFT JOIN core_tag_ids t_parent
+      ON t_parent._id = acr."parentDocumentId"
+      WHERE t_child.deleted IS FALSE
+      AND (
+        acr IS NULL
+        OR (
+          acr."parentCollectionName" = 'Tags'
+          AND acr."type" = 'parent-is-tag-of-child'
+        )
+      )
+      GROUP BY t_child._id
+    `);
+  }
 }
 
 recordPerfMetrics(TagsRepo);
