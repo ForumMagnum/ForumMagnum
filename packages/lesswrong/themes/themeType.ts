@@ -283,7 +283,6 @@ declare global {
       primaryTranslucent: string,
       dashed500: string,
       mentionsBaloon: string,
-      wrappedSummary: string,
       eaButtonGreyOutline: string,
     },
     panelBackground: {
@@ -557,6 +556,7 @@ declare global {
       personalityRed: ColorString,
       personalityBlue: ColorString,
       personalityGreen: ColorString,
+      notification: ColorString,
     },
     givingSeason: {
       primary: ColorString,

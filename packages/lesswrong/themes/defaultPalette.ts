@@ -318,7 +318,6 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     primaryTranslucent: 'rgba(12,134,155,.7)',
     dashed500: `dashed 1px ${shades.grey[500]}`,
     mentionsBaloon: "#c4c4c4",
-    wrappedSummary: "2px solid rgba(255, 168, 50, 0.6)",
     eaButtonGreyOutline: "#BCC1C9",
   },
   background: {
@@ -588,6 +587,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     personalityRed: "#9e011a",
     personalityBlue: "#165088",
     personalityGreen: "#006336",
+    notification: "#e05200",
   },
   givingSeason: {
     primary: "#8A0003",

@@ -50,6 +50,9 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: "transparent",
     transform: "scale(1.5)",
   },
+  iconWrapped: {
+    backgroundColor: theme.palette.wrapped.notification,
+  },
   iconTooltip: {
     background: theme.palette.panelBackground.tooltipBackground2,
   },
@@ -72,7 +75,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export type IconVariant = "primary" | "grey" | "yellow" | "clear";
+export type IconVariant = "primary" | "grey" | "yellow" | "clear" | "wrapped";
 
 export const NotificationsPageItem = ({
   Icon,
@@ -119,6 +122,7 @@ export const NotificationsPageItem = ({
             iconVariant === "grey" && classes.iconGrey,
             iconVariant === "yellow" && classes.iconYellow,
             iconVariant === "clear" && classes.iconClear,
+            iconVariant === "wrapped" && classes.iconWrapped,
             iconClassName,
           )}>
             <LWTooltip

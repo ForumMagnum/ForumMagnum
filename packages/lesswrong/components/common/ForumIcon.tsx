@@ -12,6 +12,7 @@ import UserOutlineIcon from "@heroicons/react/24/outline/UserIcon";
 import UserCircleIcon from "@heroicons/react/24/outline/UserCircleIcon";
 import UsersIcon from "@heroicons/react/24/solid/UsersIcon";
 import UsersOutlineIcon from "@heroicons/react/24/outline/UsersIcon";
+import GiftIcon from "@heroicons/react/24/solid/GiftIcon";
 import BellIcon from "@heroicons/react/24/solid/BellIcon";
 import BellAlertIcon from "@heroicons/react/24/solid/BellAlertIcon";
 import LinkIcon from "@heroicons/react/20/solid/LinkIcon";
@@ -181,6 +182,7 @@ export type ForumIconName =
   "UserCircle" |
   "Users" |
   "UsersOutline" |
+  "Gift" |
   "Bell" |
   "BellAlert" |
   "BellBorder" |
@@ -307,6 +309,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     UserCircle: UserCircleIcon,
     Users: MuiPeopleIcon,
     UsersOutline: UsersOutlineIcon,
+    Gift: GiftIcon,
     Bell: MuiNotificationsIcon,
     BellAlert: BellAlertIcon,
     BellBorder: MuiBellBorderIcon,
@@ -432,6 +435,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     UserCircle: UserCircleIcon,
     Users: UsersIcon,
     UsersOutline: UsersOutlineIcon,
+    Gift: GiftIcon,
     Bell: BellIcon,
     BellAlert: BellAlertIcon,
     BellBorder: BellOutlineIcon,
