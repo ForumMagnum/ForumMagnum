@@ -219,14 +219,14 @@ const styles = (theme: ThemeType) => ({
     ...PASS_THROUGH_POINTER_EVENTS,
     position: "relative",
     display: "inline-flex",
+    flexDirection: "row",
     verticalAlign: "middle",
     width: "100%",
     scrollSnapAlign: "start",
     paddingTop: 24,
     paddingBottom: 40,
-    [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
-      paddingTop: 8,
-      paddingBottom: 8,
+    [theme.breakpoints.down(GIVING_SEASON_MD_WIDTH)]: {
+      flexDirection: "column",
     },
     [theme.breakpoints.up(GIVING_SEASON_DESKTOP_WIDTH)]: {
       "& > *": {
@@ -317,23 +317,25 @@ const styles = (theme: ThemeType) => ({
     },
   },
   topPosts: {
-    marginLeft: 16,
-    [theme.breakpoints.down(GIVING_SEASON_MD_WIDTH)]: {
-      display: "none",
+    [theme.breakpoints.up(GIVING_SEASON_MD_WIDTH)]: {
+      marginLeft: 16,
     },
   },
   topPostsTitle: {
     marginBottom: 4,
     fontSize: 18,
     fontWeight: 600,
+    [theme.breakpoints.down(GIVING_SEASON_MD_WIDTH)]: {
+      display: "none",
+    },
   },
   topPostsFeed: {
     display: "flex",
     flexDirection: "column",
     gap: "4px",
     margin: "12px 0",
-    minWidth: 530,
-    maxWidth: 600,
+    width: 530,
+    maxWidth: "100%",
   },
   topPostsViewMore: {
     fontSize: 15,
@@ -352,9 +354,30 @@ const styles = (theme: ThemeType) => ({
       opacity: 0.8,
     },
   },
+  feedDiscussionItem: {
+    display: "flex",
+    gap: "8px",
+    fontSize: 14,
+    lineHeight: "140%",
+    padding: 8,
+    borderRadius: theme.borderRadius.default,
+    cursor: "pointer",
+    "&:hover": {
+      background: theme.palette.givingSeason.electionFundBackground,
+    },
+  },
   feedDetailsWrapper: {
     minWidth: 0,
     width: "100%",
+  },
+  feedAction: {
+    opacity: 0.7,
+  },
+  feedDate: {
+    opacity: 0.7,
+    whiteSpace: "nowrap",
+    float: "right",
+    marginRight: 12,
   },
   feedUser: {
     fontWeight: 600,
@@ -365,14 +388,54 @@ const styles = (theme: ThemeType) => ({
     textOverflow: "ellipsis",
     marginBottom: 2,
   },
+  feedDiscussionInfo: {
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+  },
   feedPost: {
     fontSize: 16,
     fontWeight: 600,
+  },
+  feedDiscussionPost: {
+    textDecoration: "underline",
+    fontWeight: 600,
+  },
+  feedPreview: {
+    color: theme.palette.text.alwaysWhite,
+    fontWeight: 500,
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
   },
   feedMeta: {
     color: theme.palette.text.alwaysWhite,
     fontWeight: 500,
     opacity: 0.7,
+  },
+  feedIcon: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: "50%",
+    padding: 4,
+    width: 24,
+    minWidth: 24,
+    maxWidth: 24,
+    height: 24,
+    minHeight: 24,
+    maxHeight: 24,
+    "& svg": {
+      width: 12,
+    },
+  },
+  feedPostIcon: {
+    color: theme.palette.text.alwaysWhite,
+    background: theme.palette.primary.main,
+  },
+  feedCommentIcon: {
+    color: theme.palette.text.alwaysWhite,
+    background: theme.palette.grey[600],
   },
   feedInteraction: {
     display: "inline",
@@ -432,7 +495,7 @@ const formatDate = (start: Moment, end: Moment) => {
   return `${start.format("MMM D")} - ${end.format(endFormat)}`;
 }
 
-const FeedItem = ({
+const TopPostsFeedItem = ({
   href,
   user,
   post,
@@ -440,13 +503,9 @@ const FeedItem = ({
   classes,
 }: {
   href: string,
-  icon: ForumIconName,
-  iconClassName?: string,
-  action: string,
   user: UsersMinimumInfo | null,
   post: PostsMinimumInfo | null,
   date: Date,
-  preview: string,
   classes: ClassesType<typeof styles>,
 }) => {
   const {onClick} = useClickableCell({href, ignoreLinks: true});
@@ -482,6 +541,71 @@ const FeedItem = ({
   );
 }
 
+const DiscussionFeedItem = ({
+  href,
+  icon,
+  iconClassName,
+  action,
+  user,
+  post,
+  date,
+  preview,
+  classes,
+}: {
+  href: string,
+  icon: ForumIconName,
+  iconClassName: string,
+  action: string,
+  user: UsersMinimumInfo | null,
+  post: PostsMinimumInfo | null,
+  date: Date,
+  preview: string,
+  classes: ClassesType<typeof styles>,
+}) => {
+  const {onClick} = useClickableCell({href, ignoreLinks: true});
+  const {ForumIcon, UsersName, PostsTooltip, FormatDate} = Components;
+  return (
+    <div onClick={onClick} className={classes.feedDiscussionItem}>
+      <div className={classNames(classes.feedIcon, iconClassName)}>
+        <ForumIcon icon={icon} />
+      </div>
+      <div className={classes.feedDetailsWrapper}>
+        <div>
+          <FormatDate
+            date={date}
+            tooltip={false}
+            includeAgo
+            className={classes.feedDate}
+          />
+          <div className={classes.feedDiscussionInfo}>
+            <InteractionWrapper className={classes.feedInteraction}>
+              <UsersName
+                user={user}
+                tooltipPlacement="bottom-start"
+                className={classes.feedUser}
+              />
+            </InteractionWrapper>{" "}
+            <span className={classes.feedAction}>{action}</span>{" "}
+            <InteractionWrapper className={classes.feedInteraction}>
+              <PostsTooltip postId={post?._id} placement="bottom-start">
+                <Link
+                  to={post ? postGetPageUrl(post) : "#"}
+                  className={classes.feedDiscussionPost}
+                >
+                  {post?.title}
+                </Link>
+              </PostsTooltip>
+            </InteractionWrapper>
+          </div>
+          <div className={classes.feedPreview}>
+            {preview}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const SECOND_MATCH_START = 9509;
 
 const DONATION_CELEBRATION_ACTIVE_DESC = <>
@@ -509,7 +633,6 @@ const GivingSeason2024Banner = ({classes}: {
   const amountRaisedPlusMatched =
     amountRaised + Math.min(amountRaised, 5000) + Math.min(Math.max(amountRaised - SECOND_MATCH_START, 0), 5000);
 
-  /*
   useEffect(() => {
     if (!detailsRef) {
       return;
@@ -529,7 +652,6 @@ const GivingSeason2024Banner = ({classes}: {
     }
     return () => observer.disconnect();
   }, [timelineRef, detailsRef, events, setSelectedEvent]);
-   */
 
   useEffect(() => {
     if (currentEvent && detailsRef && !didInitialScroll.current) {
@@ -558,21 +680,6 @@ const GivingSeason2024Banner = ({classes}: {
     }
   }, [timelineRef, selectedEvent, lastTimelineClick, events]);
 
-  useEffect(() => {
-    if (!detailsRef) {
-      return;
-    }
-    const handler = (ev: MouseEvent) => {
-      ev.preventDefault();
-    }
-    detailsRef.addEventListener("wheel", handler);
-    detailsRef.addEventListener("touchmove", handler);
-    return () => {
-      detailsRef.removeEventListener("wheel", handler);
-      detailsRef.removeEventListener("touchmove", handler);
-    }
-  }, [detailsRef]);
-
   const onClickTimeline = useCallback((index: number) => {
     setLastTimelineClick(Date.now());
     detailsRef?.querySelector(`[data-event-id="${index}"]`)?.scrollIntoView({
@@ -580,8 +687,7 @@ const GivingSeason2024Banner = ({classes}: {
       block: "nearest",
       inline: "start",
     });
-    setSelectedEvent(events[index] ?? events[0]);
-  }, [detailsRef, events, setSelectedEvent]);
+  }, [detailsRef]);
 
   const {EAButton, MixedTypeFeed, ForumEventStickers, DonationElectionLeaderboard, ForumIcon} = Components;
 
@@ -632,6 +738,7 @@ const GivingSeason2024Banner = ({classes}: {
               end,
               discussionTagId,
               discussionTagSlug,
+              feedIncludesComments,
               hidden,
             }, i) => (
               <div
@@ -678,60 +785,104 @@ const GivingSeason2024Banner = ({classes}: {
                       <div className={classes.eventName}>{name}</div>
                       <div className={classes.eventDescription}>{name === "Donation Celebration" && isDonationCelebration ? DONATION_CELEBRATION_ACTIVE_DESC : description}</div>
                     </div>
-                    {discussionTagId &&
-                      <div className={classes.topPosts}>
-                        <div className={classes.topPostsTitle}>Top posts</div>
-                        <MixedTypeFeed
-                          className={classes.topPostsFeed}
-                          firstPageSize={3}
-                          hideLoading
-                          disableLoadMore
-                          resolverName="GivingSeasonTagFeed"
-                          resolverArgs={{ tagId: "String!" }}
-                          resolverArgsValues={{ tagId: discussionTagId }}
-                          sortKeyType="Int"
-                          renderers={{
-                            newPost: {
-                              fragmentName: "PostsList",
-                              render: (post: PostsList) => (
-                                <FeedItem
-                                  href={postGetPageUrl(post)}
-                                  icon="DocumentFilled"
-                                  action="posted"
-                                  user={post.user}
-                                  post={post}
-                                  date={post.postedAt}
-                                  preview={post.contents?.plaintextDescription ?? ""}
-                                  classes={classes}
-                                />
-                              ),
-                            },
-                            newComment: {
-                              fragmentName: "CommentsListWithParentMetadata",
-                              render: (comment: CommentsListWithParentMetadata) => (
-                                <FeedItem
-                                  href={commentGetPageUrl(comment)}
-                                  icon="CommentFilled"
-                                  action="on"
-                                  user={comment.user}
-                                  post={comment.post}
-                                  date={comment.postedAt}
-                                  preview={comment.contents?.plaintextMainText ?? ""}
-                                  classes={classes}
-                                />
-                              ),
-                            },
-                          }}
-                        />
-                        {discussionTagSlug &&
-                          <div className={classes.topPostsViewMore}>
-                            <Link to={tagGetUrl({slug: discussionTagSlug})}>
-                              View more
-                            </Link>
+                    {discussionTagId && (
+                      feedIncludesComments
+                        ? (
+                          <div className={classes.topPosts}>
+                            <MixedTypeFeed
+                              className={classes.topPostsFeed}
+                              firstPageSize={3}
+                              hideLoading
+                              disableLoadMore
+                              resolverName="GivingSeasonTagFeedWithComments"
+                              resolverArgs={{ tagId: "String!" }}
+                              resolverArgsValues={{ tagId: discussionTagId }}
+                              sortKeyType="Date"
+                              renderers={{
+                                newPost: {
+                                  fragmentName: "PostsList",
+                                  render: (post: PostsList) => (
+                                    <DiscussionFeedItem
+                                      href={postGetPageUrl(post)}
+                                      icon="DocumentFilled"
+                                      iconClassName={classes.feedPostIcon}
+                                      action="posted"
+                                      user={post.user}
+                                      post={post}
+                                      date={post.postedAt}
+                                      preview={
+                                        post.contents?.plaintextDescription ?? ""
+                                      }
+                                      classes={classes}
+                                    />
+                                  ),
+                                },
+                                newComment: {
+                                  fragmentName: "CommentsListWithParentMetadata",
+                                  render: (comment: CommentsListWithParentMetadata) => (
+                                    <DiscussionFeedItem
+                                      href={commentGetPageUrl(comment)}
+                                      icon="CommentFilled"
+                                      iconClassName={classes.feedCommentIcon}
+                                      action="on"
+                                      user={comment.user}
+                                      post={comment.post}
+                                      date={comment.postedAt}
+                                      preview={
+                                        comment.contents?.plaintextMainText ?? ""
+                                      }
+                                      classes={classes}
+                                    />
+                                  ),
+                                },
+                              }}
+                            />
+                            {discussionTagSlug &&
+                              <div className={classes.topPostsViewMore}>
+                                <Link to={tagGetUrl({slug: discussionTagSlug})}>
+                                  View more
+                                </Link>
+                              </div>
+                            }
                           </div>
-                        }
-                      </div>
-                    }
+                        )
+                        : (
+                          <div className={classes.topPosts}>
+                            <div className={classes.topPostsTitle}>Top posts</div>
+                            <MixedTypeFeed
+                              className={classes.topPostsFeed}
+                              firstPageSize={3}
+                              hideLoading
+                              disableLoadMore
+                              resolverName="GivingSeasonTagFeed"
+                              resolverArgs={{ tagId: "String!" }}
+                              resolverArgsValues={{ tagId: discussionTagId }}
+                              sortKeyType="Int"
+                              renderers={{
+                                newPost: {
+                                  fragmentName: "PostsList",
+                                  render: (post: PostsList) => (
+                                    <TopPostsFeedItem
+                                      href={postGetPageUrl(post)}
+                                      user={post.user}
+                                      post={post}
+                                      date={post.postedAt}
+                                      classes={classes}
+                                    />
+                                  ),
+                                },
+                              }}
+                            />
+                            {discussionTagSlug &&
+                              <div className={classes.topPostsViewMore}>
+                                <Link to={tagGetUrl({slug: discussionTagSlug})}>
+                                  View more
+                                </Link>
+                              </div>
+                            }
+                          </div>
+                        )
+                    )}
                   </>
                 )}
                 {name === "Donation Election" && leaderboardData && (

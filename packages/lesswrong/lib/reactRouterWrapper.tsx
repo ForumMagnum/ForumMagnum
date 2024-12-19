@@ -5,9 +5,10 @@ import * as reactRouter from 'react-router';
 // eslint-disable-next-line no-restricted-imports
 import * as reactRouterDom from 'react-router-dom';
 import { HashLink, HashLinkProps } from "../components/common/HashLink";
-import { classifyHost, getUrlClass } from './routeUtil';
+import { classifyHost } from './routeUtil';
 import { parseQuery } from './vulcan-core/appContext'
 import qs from 'qs'
+import { getUrlClass } from '@/server/utils/getUrlClass';
 
 export type LinkProps = {
   to?: HashLinkProps['to']|null
@@ -89,4 +90,4 @@ function isOffsiteLink(url: string): boolean {
 }
 
 export const Redirect = reactRouter.Redirect;
-export { useNavigate, NavigateFunction } from './routeUtil';
+export { useNavigate } from './routeUtil';

@@ -241,16 +241,27 @@ addRoute(
     name:'reviewVotingByYear',
     path: '/reviewVoting/:year',
     title: "Review Voting",
-    componentName: "ReviewVotingPage",
-    subtitleComponentName: "ReviewHeaderTitle"
+    componentName: "AnnualReviewPage"
   },
 
   {
     name: 'reviewQuickPage',
     path: '/reviewQuickPage',
-    componentName: 'ReviewQuickPage',
+    redirect: () => `/quickReview/${REVIEW_YEAR}`
+  },
+
+  {
+    name: 'quickReview',
+    path: '/quickReview/:year',
+    componentName: 'AnnualReviewPage',
     title: "Review Quick Page",
     subtitle: "Quick Review Page"
+  },
+
+  {
+    name: 'quickReviewRedirect',
+    path: '/quickReview',
+    redirect: () => `/quickReview/${REVIEW_YEAR}`
   },
 
   {
@@ -357,7 +368,7 @@ addRoute(
     name: 'nominatePostsByYear',
     path: '/nominatePosts/:year',
     title: "Nominate Posts",
-    componentName: "UserSuggestNominations"
+    componentName: "AnnualReviewPage"
   }
 );
 
@@ -786,6 +797,13 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       path: '/wrapped/:year?',
       componentName: 'EAForumWrappedPage',
       title: 'EA Forum Wrapped',
+      noFooter: true,
+    },
+    {
+      name: 'Instagram landing page',
+      path: '/instagram',
+      componentName: 'InstagramLandingPage',
+      title: 'Instagram Links',
       noFooter: true,
     },
     {
@@ -1746,10 +1764,8 @@ addRoute(
   {
     name: 'reviews',
     path:'/reviews/:year',
-    componentName: 'ReviewsPage',
+    componentName: 'AnnualReviewPage',
     title: "Reviews",
-    hasLeftNavigationColumn: true,
-    navigationFooterBar: true,
   },
   {
     name: 'reviewAdmin',

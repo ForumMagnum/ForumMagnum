@@ -48,7 +48,7 @@ describe('JSS', () => {
     
     if (nonPaletteColors.length > 0) {
       // eslint-disable-next-line no-console
-      console.error(`No-palette colors in JSS styles:\n${nonPaletteColors.join("\n")}`);
+      console.error(`Non-palette colors in JSS styles:\n${nonPaletteColors.join("\n")}`);
       nonPaletteColors.length.should.equal(0);
     }
   });

@@ -167,6 +167,7 @@ registerFragment(`
       name
       organizerIds
     }
+    rsvpCounts
 
     podcastEpisodeId
     forceAllowType3Audio
@@ -321,6 +322,15 @@ registerFragment(`
     fmCrosspost
   }
 `);
+
+registerFragment(`
+  fragment SunshineCurationPostsList on Post {
+    ...PostsList
+    curationNotices {
+      ...CurationNoticesFragment
+    }
+  }
+`)
 
 registerFragment(`
   fragment PostsListTag on Post {
