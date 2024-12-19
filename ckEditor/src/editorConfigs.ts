@@ -146,46 +146,6 @@ const embedConfig = {
 };
 
 export const postEditorConfig = {
-	blockToolbar: {
-		items: [
-			'imageUpload',
-			'insertTable',
-			'horizontalLine',
-			'mathDisplay',
-			'mediaEmbed',
-			'ctaButtonToolbarItem',
-			'footnote',
-			'collapsibleSectionButton',
-		],
-		
-		/* At some point the default icon for the block toolbar changed from a
-		 * pilcrow to a drag handle. Change it back. */
-		icon: 'pilcrow'
-	},
-	toolbar: {
-		items: [
-			'restyledCommentButton',
-			'|',
-			'heading',
-			'|',
-			'bold',
-			'italic',
-			'strikethrough',
-			'|',
-			'link',
-			'|',
-			'blockQuote',
-			'bulletedList',
-			'numberedList',
-			'codeBlock',
-			'|',
-			'trackChanges',
-			'math',
-			'ctaButtonToolbarItem',
-			'footnote'
-		],
-		shouldNotGroupWhenFull: true,
-	},
 	image: {
 		toolbar: [
 			'imageTextAlternative',
@@ -206,23 +166,6 @@ export const postEditorConfig = {
 };
 
 export const commentEditorConfig = {
-	toolbar: [
-		'heading',
-		'|',
-		'bold',
-		'italic',
-		'strikethrough',
-		'|',
-		'link',
-		'|',
-		'blockQuote',
-		'bulletedList',
-		'numberedList',
-		'|',
-		'math',
-		'ctaButtonToolbarItem',
-		'footnote',
-	],
 	image: {
 		toolbar: [
 			'imageTextAlternative'
