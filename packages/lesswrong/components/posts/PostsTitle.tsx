@@ -53,7 +53,7 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.primary.main,
     }
     : {
-      fontSize: "1.2rem",
+      "--icon-size": "1.2rem",
     },
   primaryIcon: {
     color: theme.palette.icon.dim55,

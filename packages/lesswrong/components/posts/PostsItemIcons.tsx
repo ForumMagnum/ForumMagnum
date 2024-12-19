@@ -29,14 +29,15 @@ const styles = (theme: ThemeType) => ({
     // note: the specificity seems necessary to successfully override the OmegaIcon styling.
     // not sure if this is best way to do this
     '&&': {
-      fontSize: "1.2rem",
+      "--icon-size": "15.6px",
+      fontSize: "15.6px",
       color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.icon.dim4,
       position: "relative",
       top: 3,
     },
   },
   curatedIcon: {
-    fontSize: "1.2rem",
+    "--icon-size": "15.6px",
     color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.icon.dim4,
     position: "relative",
     top: isFriendlyUI ? 2 : 3,
@@ -45,7 +46,7 @@ const styles = (theme: ThemeType) => ({
     color: isFriendlyUI ? theme.palette.icon.yellow : theme.palette.primary.main,
   },
   question: {
-    fontSize: "1.2rem",
+    "--icon-size": "15.6px",
     color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.icon.dim4,
     fontWeight: '600'
   },
@@ -56,14 +57,13 @@ const styles = (theme: ThemeType) => ({
   },
   linkIcon: {
     position: "relative",
+    "--icon-size": "15.6px",
     ...(isFriendlyUI
       ? {
-        fontSize: "1.2rem",
         top: 1,
         color: theme.palette.grey[600],
       }
       : {
-        fontSize: "1.2rem",
         top: 3,
         color: theme.palette.icon.dim4,
       }),
