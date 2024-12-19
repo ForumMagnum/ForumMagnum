@@ -216,8 +216,11 @@ const PersonalMapLocationMarkers = ({users, handleClick, handleClose, openWindow
   
   const mapLocations = filterNonnull(users.map(user => {
     const location = user.mapLocationLatLng
-    if (!location?.lat || !location?.lng) return null
+    if (!location) return null
+    
     const {lat, lng} = location
+    if (typeof lat !== 'number' || typeof lng !== 'number') return null
+    
     return {
       lat, lng,
       data: user,
