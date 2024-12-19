@@ -4,7 +4,7 @@ import { ckEditorBundleVersion, getCkPostEditor } from '../../lib/wrapCkEditor';
 import { getCKEditorDocumentId, generateTokenRequest} from '../../lib/ckEditorUtils'
 import { CollaborativeEditingAccessLevel, accessLevelCan } from '../../lib/collections/posts/collabEditingPermissions';
 import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib/publicSettings'
-import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting, forumTypeSetting } from '../../lib/instanceSettings';
+import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting, forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import { CollaborationMode } from './EditorTopBar';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { defaultEditorPlaceholder } from '../../lib/editor/make_editable';
@@ -329,6 +329,51 @@ export type ConnectedUserInfo = {
 
 const readOnlyPermissionsLock = Symbol("ckEditorReadOnlyPermissions");
 
+const postEditorToolbarConfig = {
+  blockToolbar: {
+    items: [
+      'imageUpload',
+      'insertTable',
+      'horizontalLine',
+      'mathDisplay',
+      'mediaEmbed',
+      ...(isEAForum ? ['ctaButtonToolbarItem'] : ['collapsibleSectionButton']),
+      ...(isLWorAF ? ['conditionallyVisibleSectionButton'] : []),
+      'footnote',
+    ],
+    
+    /* At some point the default icon for the block toolbar changed from a
+     * pilcrow to a drag handle. Change it back. */
+    icon: 'pilcrow'
+  },
+  toolbar: {
+    items: [
+      'restyledCommentButton',
+      '|',
+      'heading',
+      '|',
+      'bold',
+      'italic',
+      'strikethrough',
+      '|',
+      'link',
+      '|',
+      'blockQuote',
+      'bulletedList',
+      'numberedList',
+      'codeBlock',
+      '|',
+      'trackChanges',
+      'math',
+      // We don't have the collapsible sections plugin in the selected-text toolbar yet,
+      // because the behavior of creating a collapsible section is non-obvious and we want to fix it first
+      ...(isEAForum ? ['ctaButtonToolbarItem'] : []),
+      'footnote'
+    ],
+    shouldNotGroupWhenFull: true,
+  },
+};
+
 const CKPostEditor = ({
   data,
   collectionName,
@@ -494,14 +539,7 @@ const CKPostEditor = ({
   // added to the EditorConfig type via augmentations, but we don't get those
   // augmentations because we're only importing those in the CkEditor bundle.
   const editorConfig: AnyBecauseHard = {
-    ...(post.collabEditorDialogue ? {blockToolbar: [
-      'imageUpload',
-      'insertTable',
-      'horizontalLine',
-      'mathDisplay',
-      'mediaEmbed',
-      'footnote',
-    ]} : {}),
+    ...postEditorToolbarConfig,
     autosave: {
       save (editor: any) {
         return onSave && onSave(editor.getData())
@@ -573,7 +611,7 @@ const CKPostEditor = ({
       ref={editorRef}
       onChange={onChange}
       onFocus={onFocus}
-      editor={getCkPostEditor(!!isCollaborative, forumTypeSetting.get())}
+      editor={getCkPostEditor(!!isCollaborative)}
       data={data}
       isCollaborative={!!isCollaborative}
       onReady={(editor: Editor) => {
