@@ -3,7 +3,7 @@ import Votes from "../../lib/collections/votes/collection";
 import type { RecentVoteInfo } from "../../lib/rateLimits/types";
 import groupBy from "lodash/groupBy";
 import { NamesAttachedReactionsVote } from "../../lib/voting/namesAttachedReactions";
-import { getEAEmojisForKarmaChanges } from "../../lib/voting/eaEmojiPalette";
+import { eaEmojiPalette, getEAEmojisForKarmaChanges } from "../../lib/voting/eaEmojiPalette";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import type {
   AnyKarmaChange,
@@ -664,6 +664,42 @@ class VotesRepo extends AbstractRepo<"Votes"> {
       GROUP BY c."userId"
       ORDER BY "longtermScore" DESC
     `, [userId]);
+  }
+
+  getEAWrappedReactsReceived(userId: string, start: Date, end: Date) {
+    const fields = eaEmojiPalette.map(({name}) =>
+      `COUNT(*) FILTER (WHERE ("extendedVoteType"->'${name}')::BOOLEAN) AS "${name}"`,
+    );
+    return this.getRawDb().oneOrNone(`
+      -- VotesRepo.getEAWrappedReactsReceived
+      SELECT ${fields.join(", ")}
+      FROM "Votes"
+      WHERE
+        "authorIds" @> ARRAY[$1::VARCHAR]
+        AND "votedAt" >= $2
+        AND "votedAt" < $3
+        AND "cancelled" IS NOT TRUE
+        AND "isUnvote" IS NOT TRUE
+        AND "extendedVoteType" IS NOT NULL
+    `, [userId, start, end]);
+  }
+
+  getEAWrappedReactsGiven(userId: string, start: Date, end: Date) {
+    const fields = eaEmojiPalette.map(({name}) =>
+      `COUNT(*) FILTER (WHERE ("extendedVoteType"->'${name}')::BOOLEAN) AS "${name}"`,
+    );
+    return this.getRawDb().oneOrNone(`
+      -- VotesRepo.getEAWrappedReactsGiven
+      SELECT ${fields.join(", ")}
+      FROM "Votes"
+      WHERE
+        "userId" = $1
+        AND "votedAt" >= $2
+        AND "votedAt" < $3
+        AND "cancelled" IS NOT TRUE
+        AND "isUnvote" IS NOT TRUE
+        AND "extendedVoteType" IS NOT NULL
+    `, [userId, start, end]);
   }
 }
 

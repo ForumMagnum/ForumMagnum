@@ -9,6 +9,7 @@ import entries from 'lodash/fp/entries';
 import sortBy from 'lodash/sortBy';
 import last from 'lodash/fp/last';
 import range from 'lodash/range';
+import sum from 'lodash/sum';
 import Tags from '../../lib/collections/tags/collection';
 import Comments from '../../lib/collections/comments/collection';
 import sumBy from 'lodash/sumBy';
@@ -16,7 +17,87 @@ import { getAnalyticsConnection } from "../analytics/postgresConnection";
 import { eaEmojiPalette } from '../../lib/voting/eaEmojiPalette';
 import { postStatuses } from '../../lib/collections/posts/constants';
 import { getConfirmedCoauthorIds, userIsPostCoauthor } from '../../lib/collections/posts/helpers';
+import { isWrappedYear } from '@/components/ea-forum/wrapped/hooks';
+import type { KarmaChangeBase } from '@/lib/collections/users/karmaChangesGraphQL';
 
+class WrappedPersonality {
+  private parts: string[] = [];
+
+  constructor({
+    reactsReceived,
+    reactsGiven,
+    engagementPercentile,
+    totalKarmaChange,
+    postsWritten,
+    commentsWritten,
+    topPost,
+    topComment,
+  }: {
+    reactsReceived: Record<string, number>,
+    reactsGiven: Record<string, number>,
+    engagementPercentile: number,
+    totalKarmaChange: number,
+    postsWritten: number,
+    commentsWritten: number,
+    topPost: DbPost | null,
+    topComment: DbComment | null,
+  }) {
+    // Choose the first adjective based on reacts
+    const totalReactsReceived = sum(Object.values(reactsReceived));
+    const totalReactsGiven = sum(Object.values(reactsReceived));
+    if (totalReactsReceived === 0 && totalReactsGiven === 0) {
+      this.parts.push("Stoic");
+    } else if (totalReactsReceived < totalReactsGiven) {
+      switch (last(sortBy(entries(reactsGiven), last))?.[0]) {
+        case "love":         this.parts.push("Loving");      break;
+        case "helpful":      this.parts.push("Grateful");    break;
+        case "insightful":   this.parts.push("Curious");     break;
+        case "changed-mind": this.parts.push("Open-Minded"); break;
+      }
+    } else {
+      switch (last(sortBy(entries(reactsReceived), last))?.[0]) {
+        case "love":         this.parts.push("Beloved");     break;
+        case "helpful":      this.parts.push("Helpful");     break;
+        case "insightful":   this.parts.push("Insightful");  break;
+        case "changed-mind": this.parts.push("Influential"); break;
+      }
+    }
+
+    // Choose the second adjective based on engagement
+    if (engagementPercentile >= 0.9) {
+      this.parts.push("Online");
+    } else if (engagementPercentile >= 0.3) {
+      this.parts.push("Measured");
+    } else {
+      this.parts.push("Occasional");
+    }
+
+    // Choose the noun
+    if (totalKarmaChange >= 1000) {
+      this.parts.push("Karma Farmer");
+    } else if (
+      engagementPercentile >= 0.9 &&
+      postsWritten === 0 &&
+      commentsWritten < 5
+    ) {
+      this.parts.push("Lurker");
+    } else if (
+      totalKarmaChange > 0 &&
+      (
+        (topPost?.baseScore ?? 0) >= 0.75 * totalKarmaChange ||
+        (topComment?.baseScore ?? 0) >= 0.75 * totalKarmaChange
+      )
+    ) {
+      this.parts.push("One-Hit Wonder");
+    } else {
+      this.parts.push("Forum User");
+    }
+  }
+
+  toString() {
+    return this.parts.join(" ");
+  }
+}
 
 addGraphQLSchema(`
   type MostReadTopic {
@@ -82,6 +163,7 @@ addGraphQLSchema(`
     karmaChange: Int,
     combinedKarmaVals: [CombinedKarmaVals],
     mostReceivedReacts: [MostReceivedReact],
+    personality: String!,
   }
 `);
 
@@ -109,7 +191,7 @@ addGraphQLResolvers({
     // - Your overall karma change this year was X (Y from comments, Z from posts)
     // - Others gave you X [most received react] reacts
     // - And X reacts in total (X insightful, Y helpful, Z changed my mind)
-    async UserWrappedDataByYear(root: void, {userId, year}: {userId: string, year: number}, context: ResolverContext) {
+    async UserWrappedDataByYear(_root: void, {userId, year}: {userId: string, year: number}, context: ResolverContext) {
       const { currentUser } = context
       const user = await Users.findOne({_id: userId})
 
@@ -117,10 +199,9 @@ addGraphQLResolvers({
       if (!userId || !currentUser || !user || !userCanEditUser(currentUser, user)) {
         throw new Error('Not authorized')
       }
-      
-      // Currently we only have data for 2022 and 2023
-      if (![2022, 2023].includes(year)) {
-        throw new Error('Only 2022 and 2023 are supported')
+
+      if (!isWrappedYear(year)) {
+        throw new Error(`${year} is not a valid wrapped year`)
       }
 
       // Get all the user's posts read for the given year
@@ -174,6 +255,8 @@ addGraphQLResolvers({
         shortformAuthorshipStats,
         readAuthorStats,
         readCoreTagStats,
+        reactsReceived,
+        reactsGiven,
       ] = await Promise.all([
         Users.find(
           {
@@ -234,6 +317,8 @@ addGraphQLResolvers({
         context.repos.comments.getAuthorshipStats({ userId: user._id, year, shortform: true }),
         readAuthorStatsPromise,
         context.repos.posts.getReadCoreTagStats({ userId: user._id, year }),
+        context.repos.votes.getEAWrappedReactsReceived(userId, start, end),
+        context.repos.votes.getEAWrappedReactsGiven(userId, start, end),
       ]);
 
       const [postKarmaChanges, commentKarmaChanges] = await Promise.all([
@@ -275,36 +360,25 @@ addGraphQLResolvers({
         }
       })
 
-      let totalKarmaChange
-      let mostReceivedReacts: { name: string, count: number }[] = []
-      if (context.repos?.votes) {
-        const karmaQueryArgs = {
-          userId: user._id,
-          startDate: start,
-          endDate: end,
-          af: false,
-          showNegative: true
-        }
-        const {changedComments, changedPosts, changedTagRevisions} = await context.repos.votes.getLWKarmaChanges(karmaQueryArgs);
-        totalKarmaChange =
-          sumBy(changedPosts, (doc: any)=>doc.scoreChange)
-        + sumBy(changedComments, (doc: any)=>doc.scoreChange)
-        + sumBy(changedTagRevisions, (doc: any)=>doc.scoreChange)
+      const karmaChanges = await context.repos.votes.getEAKarmaChanges({
+        userId: user._id,
+        startDate: start,
+        endDate: end,
+        af: false,
+        showNegative: true,
+      });
+      const totalKarmaChange = sumBy(
+        karmaChanges,
+        (doc: KarmaChangeBase) => doc.scoreChange,
+      );
 
-        const allAddedReacts = [
-          ...changedComments.map(({ addedReacts }) => addedReacts).flat(),
-          ...changedPosts.map(({ addedReacts }) => addedReacts).flat(),
-        ].flat();
-
-        const reactCounts = countBy(allAddedReacts, 'reactionType');
-        // We're ignoring agree and disagree reacts.
-        delete reactCounts.agree;
-        delete reactCounts.disagree;
-        mostReceivedReacts = (sortBy(entries(reactCounts), last) as [string, number][]).reverse().map(([name, count]) => ({
-          name: eaEmojiPalette.find(emoji => emoji.name === name)?.label ?? '',
-          count
-        }));
-      }
+      const mostReceivedReacts: { name: string, count: number }[] =
+        (sortBy(entries(reactsReceived ?? {}), last) as [string, number][])
+          .reverse()
+          .map(([name, count]) => ({
+            name: eaEmojiPalette.find(emoji => emoji.name === name)?.label ?? '',
+            count,
+          }));
 
       const { engagementPercentile, totalSeconds, daysVisited }  = await getEngagement(user._id, year);
       const mostReadTopics = topTags
@@ -348,6 +422,17 @@ addGraphQLResolvers({
         }
       }
 
+      const personality = new WrappedPersonality({
+        reactsReceived,
+        reactsGiven,
+        engagementPercentile,
+        totalKarmaChange,
+        postsWritten: postAuthorshipStats.totalCount,
+        commentsWritten: commentAuthorshipStats.totalCount,
+        topPost: userPosts[0] ?? null,
+        topComment,
+      });
+
       const results: AnyBecauseTodo = {
         engagementPercentile,
         postsReadCount: posts.length,
@@ -368,8 +453,9 @@ addGraphQLResolvers({
         karmaChange: totalKarmaChange,
         combinedKarmaVals: combinedKarmaVals,
         mostReceivedReacts,
-      }
-      return results
+        personality: personality.toString(),
+      };
+      return results;
     },
   },
 })
