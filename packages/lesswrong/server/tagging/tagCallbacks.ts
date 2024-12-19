@@ -3,7 +3,7 @@ import { TagRels } from '../../lib/collections/tagRels/collection';
 import { Posts } from '../../lib/collections/posts/collection';
 import Users from '../../lib/collections/users/collection';
 import { getCollectionHooks } from '../mutationCallbacks';
-import { updateDenormalizedContributorsList } from '../resolvers/tagResolvers';
+import { updateDenormalizedContributorsList } from '../utils/contributorsUtil';
 import { taggingNameSetting } from '../../lib/instanceSettings';
 import { updateMutator } from '../vulcan-lib';
 import { updatePostDenormalizedTags } from './helpers';
@@ -155,11 +155,11 @@ export function voteUpdatePostDenormalizedTags({newDocument}: {newDocument: Vote
   void updatePostDenormalizedTags(postId);
 }
 
-export async function recomputeContributorScoresFor(votedRevision: DbRevision, vote: DbVote) {
+export async function recomputeContributorScoresFor(votedRevision: DbRevision, vote: DbVote, collectionName: CollectionNameString) {
   if (vote.collectionName !== "Revisions") return;
-  if (votedRevision.collectionName !== "Tags") return;
+  if (votedRevision.collectionName !== "Tags" && votedRevision.collectionName !== "MultiDocuments") return;
   
   const tag = await Tags.findOne({_id: votedRevision.documentId});
   if (!tag) return;
-  await updateDenormalizedContributorsList(tag);
+  await updateDenormalizedContributorsList({ document: tag, collectionName, fieldName: votedRevision.collectionName === "Tags" ? "description" : "contents" });
 }

@@ -8,7 +8,8 @@ export const MAIN_TAB_ID = 'main-tab';
 
 export interface DocumentContributorWithStats {
   user: UsersMinimumInfo;
-  contributionVolume: number;
+  currentAttributionCharCount: number;
+  contributionScore: number;
 }
 
 export interface DocumentContributorsInfo {

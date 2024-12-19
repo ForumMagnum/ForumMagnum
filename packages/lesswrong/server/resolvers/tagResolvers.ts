@@ -7,9 +7,6 @@ import { TagRels } from '../../lib/collections/tagRels/collection';
 import { Users } from '../../lib/collections/users/collection';
 import { Posts } from '../../lib/collections/posts';
 import { augmentFieldsDict, accessFilterMultiple, accessFilterSingle } from '../../lib/utils/schemaUtils';
-import { compareVersionNumbers } from '../../lib/editor/utils';
-import { toDictionary } from '../../lib/utils/toDictionary';
-import { loadByIds } from '../../lib/loaders';
 import moment from 'moment';
 import sumBy from 'lodash/sumBy';
 import groupBy from 'lodash/groupBy';
@@ -39,7 +36,8 @@ import { updateMutator } from '../vulcan-lib';
 import { captureException } from '@sentry/core';
 import GraphQLJSON from 'graphql-type-json';
 import { getToCforTag } from '../tableOfContents';
-import { computeAttributions } from '../attributeEdits';
+import { contributorsField } from '../utils/contributorsFieldHelper';
+import { loadByIds } from '@/lib/loaders';
 
 type SubforumFeedSort = {
   posts: SubquerySortField<DbPost, keyof DbPost>,
@@ -488,57 +486,13 @@ defineQuery({
   },
 });
 
-type ContributorWithStats = {
-  user: Partial<DbUser>,
-  contributionScore: number,
-  numCommits: number,
-  voteCount: number,
-  currentAttributionCharCount: number,
-};
-type ContributorStats = {
-  contributionScore: number,
-  numCommits: number,
-  voteCount: number,
-  currentAttributionCharCount: number,
-};
-type ContributorStatsList = Partial<Record<string,ContributorStats>>;
-
 augmentFieldsDict(Tags, {
-  contributors: {
-    resolveAs: {
-      arguments: 'limit: Int, version: String',
-      type: "TagContributorsList",
-      resolver: async (tag: DbTag, {limit, version}: {limit?: number, version?: string}, context: ResolverContext): Promise<{
-        contributors: ContributorWithStats[],
-        totalCount: number,
-      }> => {
-        const contributionStatsByUserId = await getContributorsList(tag, version||null);
-        const contributorUserIds = Object.keys(contributionStatsByUserId);
-        const contributorUsersUnfiltered = await loadByIds(context, "Users", contributorUserIds);
-        const contributorUsers = await accessFilterMultiple(context.currentUser, Users, contributorUsersUnfiltered, context);
-        const usersById = keyBy(contributorUsers, u => u._id) as Record<string, Partial<DbUser>>;
-  
-        const sortedContributors = orderBy(contributorUserIds, userId => -contributionStatsByUserId[userId]!.currentAttributionCharCount);
-        
-        const topContributors: ContributorWithStats[] = sortedContributors.map(userId => ({
-          user: usersById[userId],
-          ...contributionStatsByUserId[userId]!,
-        }));
-
-        if (limit) {
-          return {
-            contributors: take(topContributors, limit),
-            totalCount: topContributors.length,
-          }
-        } else {
-          return {
-            contributors: topContributors,
-            totalCount: topContributors.length,
-          }
-        }
-      }
-    }
-  },
+  contributors: contributorsField({
+    collectionName: 'Tags',
+    fieldName: 'description',
+    graphQLType: 'TagContributorsList',
+    arguments: 'limit: Int, version: String',
+  }),
   tableOfContents: {
     resolveAs: {
       arguments: 'version: String',
@@ -567,103 +521,6 @@ augmentFieldsDict(TagRels, {
     },
   },
 });
-
-async function getContributorsList(tag: DbTag, version: string|null): Promise<ContributorStatsList> {
-  // Force rebuild instead of using cache
-  return await buildContributorsList(tag, version);
-  
-  // Original code:
-  // if (version)
-  //   return await buildContributorsList(tag, version);
-  // else if (tag.contributionStats && Object.values(tag.contributionStats).some(({ contributionVolume }: ContributorStats) => contributionVolume))
-  //   return tag.contributionStats;
-  // else
-  //   return await updateDenormalizedContributorsList(tag);
-}
-
-async function buildContributorsList(tag: DbTag, version: string|null): Promise<ContributorStatsList> {
-  if (!tag?._id) throw new Error("Invalid tag");
-
-  // Use computeAttributions to get the attributions
-  const { attributions } = await computeAttributions(
-    tag._id,
-    "Tags",
-    "description",
-    version
-  );
-
-  // Count current character contributions
-  const currentCharContribution: Record<string, number> = {};
-
-  for (const userId of attributions) {
-    if (userId) {
-      currentCharContribution[userId] = (currentCharContribution[userId] || 0) + 1;
-    }
-  }
-
-  const tagRevisions: DbRevision[] = await Revisions.find({
-    collectionName: "Tags",
-    fieldName: "description",
-    documentId: tag._id,
-    $or: [
-      { "changeMetrics.added": { $gt: 0 } },
-      { "changeMetrics.removed": { $gt: 0 } },
-    ],
-  }).fetch();
-  
-  const selfVotes = await new VotesRepo().getSelfVotes(tagRevisions.map(r => r._id));
-  const selfVotesByUser = groupBy(selfVotes, v=>v.userId);
-  const selfVoteScoreAdjustmentByUser = mapValues(selfVotesByUser,
-    selfVotes => {
-      const totalSelfVotePower = sumBy(selfVotes, v=>v.power)
-      const strongestSelfVote = _.max(selfVotes, v=>v.power)?.power
-      const numSelfVotes = selfVotes.length;
-      return {
-        excludedPower: totalSelfVotePower - strongestSelfVote,
-        excludedVoteCount: numSelfVotes>0 ? (numSelfVotes-1) : 0,
-      };
-    }
-  );
-  
-  const filteredTagRevisions = version
-    ? _.filter(tagRevisions, r=>compareVersionNumbers(version, r.version)>=0)
-    : tagRevisions;
-  
-  const revisionsByUserId: Record<string,DbRevision[]> = groupBy(filteredTagRevisions, r=>r.userId);
-  const contributorUserIds: string[] = Object.keys(revisionsByUserId);
-  const contributionStatsByUserId: Partial<Record<string, ContributorStats>> = toDictionary(
-    contributorUserIds,
-    (userId) => userId,
-    (userId) => {
-      const revisionsByThisUser = filter(tagRevisions, (r) => r.userId === userId);
-      const totalRevisionScore = sumBy(revisionsByUserId[userId], (r) => r.baseScore) || 0;
-      const selfVoteAdjustment = selfVoteScoreAdjustmentByUser[userId];
-      const excludedPower = selfVoteAdjustment?.excludedPower || 0;
-      const excludedVoteCount = selfVoteAdjustment?.excludedVoteCount || 0;
-      const charsContributed = currentCharContribution[userId] || 0;
-
-      return {
-        contributionScore: totalRevisionScore - excludedPower,
-        numCommits: revisionsByThisUser.length,
-        voteCount: sumBy(revisionsByThisUser, (r) => r.voteCount ?? 0) - excludedVoteCount,
-        currentAttributionCharCount: charsContributed,
-      };
-    }
-  );
-  return contributionStatsByUserId;
-}
-
-export async function updateDenormalizedContributorsList(tag: DbTag): Promise<ContributorStatsList> {
-  const contributionStats = await buildContributorsList(tag, null);
-  
-  if (JSON.stringify(tag.contributionStats) !== JSON.stringify(contributionStats)) {
-    await Tags.rawUpdateOne({_id: tag._id}, {$set: {
-      contributionStats: contributionStats,
-    }});
-  }
-  
-  return contributionStats;
-}
 
 interface AllTagsPageCache {
   tags: DbTag[];

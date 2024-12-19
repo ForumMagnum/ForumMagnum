@@ -30,10 +30,11 @@ export async function onVoteCancel(newDocument: DbVoteableType, vote: DbVote, co
   void revokeUserAFKarmaForCancelledVote({newDocument, vote});
   
   
+  // TODO: Remove if we stop using contributorScores
   if (vote.collectionName === "Revisions") {
     const rev = (newDocument as DbRevision);
-    if (rev.collectionName === "Tags") {
-      await recomputeContributorScoresFor(newDocument as DbRevision, vote);
+    if (rev.collectionName === "Tags" || rev.collectionName === "MultiDocuments") {
+      await recomputeContributorScoresFor(newDocument as DbRevision, vote, rev.collectionName);
     }
   }
 }
@@ -45,10 +46,11 @@ export async function onCastVoteAsync(voteDocTuple: VoteDocTuple, collection: Co
   void voteUpdatePostDenormalizedTags(voteDocTuple);
 
   const { vote, newDocument } = voteDocTuple;
+  // TODO: Remove if we stop using contributorScores
   if (vote.collectionName === "Revisions") {
     const rev = (newDocument as DbRevision);
-    if (rev.collectionName === "Tags") {
-      await recomputeContributorScoresFor(newDocument as DbRevision, vote);
+    if (rev.collectionName === "Tags" || rev.collectionName === "MultiDocuments") {
+      await recomputeContributorScoresFor(newDocument as DbRevision, vote, rev.collectionName);
     }
   }
 

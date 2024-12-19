@@ -6,17 +6,6 @@ import { addGraphQLSchema } from "@/lib/vulcan-lib";
 import { summariesField } from "../helpers/summariesField";
 import { formGroups } from "./formGroups";
 
-addGraphQLSchema(`
-  type MultiDocumentContributor {
-    user: User
-    contributionVolume: Int
-  }
-  type MultiDocumentContributorsList {
-    contributors: [MultiDocumentContributor!]
-    totalCount: Int!
-  }
-`);
-
 const schema: SchemaType<"MultiDocuments"> = {
   // In the case of tag lenses, this is the title displayed in the body of the tag page when the lens is selected.
   // In the case of summaries, we don't have a title that needs to be in the "body"; we just use the tab title in the summary tab.
@@ -165,7 +154,8 @@ const schema: SchemaType<"MultiDocuments"> = {
 
   contributors: {
     canRead: ['guests'],
-    type: "MultiDocumentContributorsList",
+    // is in essence the same type for tag main pages and lenses
+    type: "TagContributorsList",
     optional: true,
   },
   
@@ -180,6 +170,14 @@ const schema: SchemaType<"MultiDocuments"> = {
   },
 
   arbitalLinkedPages: arbitalLinkedPagesField({ collectionName: 'MultiDocuments' }),
+
+  htmlWithContributorAnnotations: {
+    type: String,
+    canRead: ['guests'],
+    optional: true,
+    hidden: true,
+    denormalized: true,
+  },
 
   ...summariesField('MultiDocuments', { group: formGroups.summaries}),
 };

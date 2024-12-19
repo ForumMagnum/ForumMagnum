@@ -3948,8 +3948,9 @@ interface MultiDocumentsDefaultFragment { // fragment on MultiDocuments
   readonly fieldName: string,
   readonly index: number,
   readonly tableOfContents: any /*{"definitions":[{}]}*/,
-  readonly contributors: any /*MultiDocumentContributorsList*/,
+  readonly contributors: any /*TagContributorsList*/,
   readonly contributionStats: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly htmlWithContributorAnnotations: string,
 }
 
 interface MultiDocumentContentDisplay { // fragment on MultiDocuments
