@@ -18,6 +18,7 @@ const styles = (theme: ThemeType) => ({
     flexDirection: "column",
     gap: "20px",
     textAlign: "left",
+    marginBottom: 12,
   },
   black: {
     background: theme.palette.wrapped.darkBackground,
@@ -103,7 +104,9 @@ const WrappedSummarySection = ({classes}: {
   } = useForumWrappedContext();
   const {color} = getWrappedVideo(personality);
   const hoursSpent = (totalSeconds / 3600).toFixed(1)
-  const {WrappedSection, UsersProfileImage, CoreTagIcon} = Components;
+  const {
+    WrappedSection, UsersProfileImage, CoreTagIcon, WrappedShareButton,
+  } = Components;
   return (
     <WrappedSection pageSectionContext="summary">
       <div className={classNames(classes.root, classes[color])}>
@@ -158,6 +161,9 @@ const WrappedSummarySection = ({classes}: {
           <div>{lightbulbIcon}</div>
           <div>forum.effectivealtruism.org/wrapped</div>
         </div>
+      </div>
+      <div>
+        <WrappedShareButton />
       </div>
     </WrappedSection>
   );

@@ -338,6 +338,7 @@ importComponent("WrappedReceivedReactsSection", () => require("../../components/
 importComponent("WrappedRecommendationsSection", () => require("../../components/ea-forum/wrapped/WrappedRecommendationsSection.tsx"));
 importComponent("WrappedRelativeMostReadTopicsSection", () => require("../../components/ea-forum/wrapped/WrappedRelativeMostReadTopicsSection.tsx"));
 importComponent("WrappedSection", () => require("../../components/ea-forum/wrapped/WrappedSection.tsx"));
+importComponent("WrappedShareButton", () => require("../../components/ea-forum/wrapped/WrappedShareButton.tsx"));
 importComponent("WrappedSummarySection", () => require("../../components/ea-forum/wrapped/WrappedSummarySection.tsx"));
 importComponent("WrappedThankAuthorSection", () => require("../../components/ea-forum/wrapped/WrappedThankAuthorSection.tsx"));
 importComponent("WrappedThankYouSection", () => require("../../components/ea-forum/wrapped/WrappedThankYouSection.tsx"));
