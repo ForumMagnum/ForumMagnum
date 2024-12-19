@@ -768,12 +768,12 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
         }
 
         const lensAliasRedirects = database.aliasRedirects.filter(ar => ar.newAlias === lensPageInfo.alias);
-        const lensSlug = lensPageInfo.alias;
+        const lensSlug = slugsByPageId[lens.lensId];
         // TODO: add lensId(?) to oldSlugs.  (Not sure if it's lensId or pageId)
         const lensRevisions = database.pages.filter(p => p.pageId === lens.lensId);
         const lensFirstRevision = lensRevisions[0];
         const lensLiveRevision = liveRevisionsByPageId[lens.lensId];
-        const oldLensSlugs = [...lensAliasRedirects.map(ar => ar.oldAlias), lens.lensId];
+        const oldLensSlugs = [lensPageInfo.alias, ...lensAliasRedirects.map(ar => ar.oldAlias), lens.lensId];
         const lensTitle = lensLiveRevision.title;
         const lensFirstRevisionCkEditorMarkup = await arbitalMarkdownToCkEditorMarkup({
           markdown: lensFirstRevision.text,
