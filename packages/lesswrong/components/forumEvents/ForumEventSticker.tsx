@@ -7,7 +7,7 @@ import { useHover } from "../common/withHover";
 import { InteractionWrapper } from "../common/useClickableCell";
 
 const styles = (theme: ThemeType) => ({
-  heart: {
+  sticker: {
     color: theme.palette.givingSeason.heart,
     position: "absolute",
     transformOrigin: "center",
@@ -17,6 +17,13 @@ const styles = (theme: ThemeType) => ({
         fontSize: 16
       },
     }
+  },
+  hoverSticker: {
+    opacity: 0.5,
+    cursor: "none",
+    [theme.breakpoints.down('xs')]: {
+      display: "none"
+    },
   },
   clearSticker: {
     top: -1,
@@ -60,13 +67,15 @@ type ForumEventStickerProps = {
   icon?: ForumIconName;
   tooltipDisabled?: boolean;
   onClear?: () => void;
-  className?: string;
+  saveStickerPos?: (event: React.MouseEvent) => void;
 };
 const ForumEventSticker = React.forwardRef<
   HTMLDivElement,
   ForumEventStickerProps & { classes: ClassesType<typeof styles> }
->(({ x, y, theta, user, comment, icon = "Heart", tooltipDisabled, onClear, className, classes }, ref) => {
+>(({ x, y, theta, user, comment, icon = "Heart", tooltipDisabled, onClear, saveStickerPos, classes }, ref) => {
   const { ForumIcon, ForumEventResultPopper, LWTooltip, UsersNameDisplay } = Components;
+
+  const isHoverSticker = !!saveStickerPos;
 
   const { captureEvent } = useTracking();
 
@@ -80,7 +89,7 @@ const ForumEventSticker = React.forwardRef<
   return (
     <InteractionWrapper>
       <div
-        className={classNames(classes.heart, className)}
+        className={classNames(classes.sticker, {[classes.hoverSticker]: isHoverSticker})}
         ref={ref}
         style={{
           left: `${x * 100}%`,
@@ -88,17 +97,18 @@ const ForumEventSticker = React.forwardRef<
           transform: `rotate(${theta}deg) translate(-50%, -50%)`,
         }}
         {...eventHandlers}
+        onClick={saveStickerPos}
       >
-        <LWTooltip title={<UsersNameDisplay user={user} />} disabled={!!(user && comment)} placement="bottom">
+        <LWTooltip title={<UsersNameDisplay user={user} />} disabled={!!(user && comment) || isHoverSticker} placement="bottom">
           {/* onPointerDown rather than onClick because the button is very small */}
-          {onClear && (
+          {!isHoverSticker && onClear && (
             <div className={classes.clearSticker} onPointerDown={onClear}>
               <div className={classes.cross}>&times;</div>
             </div>
           )}
           <ForumIcon icon={icon} />
         </LWTooltip>
-        {!tooltipDisabled && user && comment && popperOpen && (
+        {!isHoverSticker && !tooltipDisabled && user && comment && popperOpen && (
           <ForumEventResultPopper
             anchorEl={anchorEl}
             user={user}

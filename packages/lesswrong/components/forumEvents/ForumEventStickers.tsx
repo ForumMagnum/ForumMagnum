@@ -18,13 +18,6 @@ const styles = (theme: ThemeType) => ({
     height: "100%",
     position: "absolute",
   },
-  hoverHeart: {
-    opacity: 0.5,
-    pointerEvents: "none",
-    [theme.breakpoints.down('xs')]: {
-      display: "none"
-    },
-  },
   placeHeartButton: {
     position: "absolute",
     cursor: "pointer",
@@ -267,7 +260,7 @@ const ForumEventStickers: FC<{
             y={hoverPos.y}
             theta={hoverTheta}
             icon="Heart"
-            className={classes.hoverHeart}
+            saveStickerPos={saveStickerPos}
           />
         )}
         {currentUserSticker && (
