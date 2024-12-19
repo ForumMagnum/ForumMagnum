@@ -39,8 +39,6 @@ const WikiTagNestedList = ({
   nestingLevel = 0,
   maxInitialShow = 40,
   totalChildrenCount,
-  // onHover,
-  // onClick,
   showArbitalIcons = false,
 }: WikiTagNestedListProps) => {
   const { ConceptItem } = Components;
@@ -52,9 +50,7 @@ const WikiTagNestedList = ({
         <ConceptItem 
           key={page._id} 
           wikitag={page} 
-          nestingLevel={nestingLevel} 
-          // onHover={onHover}
-          // onClick={onClick}
+          nestingLevel={nestingLevel}
           showArbitalIcon={showArbitalIcons}
         />
       ))}

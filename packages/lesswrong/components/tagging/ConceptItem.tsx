@@ -182,8 +182,6 @@ const ConceptItem = ({
   wikitag,
   nestingLevel,
   index,
-  // onHover,
-  // onClick,
   showArbitalIcon
 }: ConceptItemProps) => {
   const classes = useStyles(styles);
@@ -225,9 +223,6 @@ const ConceptItem = ({
 
   // Then split into columns
   const columns = splitIntoColumns(sortedChildren, ITEMS_PER_COLUMN);
-
-  // TODO: I currently think this doesn't do anything, since the only things that depend on it are empty styles.  Also whatever it's measuring is not `isWikiItem`.
-  // const isWikiItem = (wikitag.description?.html?.length ?? 0) > 2000;
 
   // Title item (for nestingLevel === 0)
   const titleItem = (

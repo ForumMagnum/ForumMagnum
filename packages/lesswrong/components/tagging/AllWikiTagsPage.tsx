@@ -205,7 +205,6 @@ function generateBaseScore(description_length: number, postCount: number): numbe
   return Math.round(baseComponent + random);
 }
 
-
 // Create the artificial "Uncategorized" tags
 const uncategorizedRootTag = {
   _id: 'uncategorized-root',
@@ -221,21 +220,6 @@ const uncategorizedRootTag = {
   postCount: 0,
   coreTagId: null,
   parentTagId: null,
-  isArbitalImport: false,
-};
-
-const uncategorizedChildTag = {
-  _id: 'uncategorized-child',
-  name: 'Uncategorized',
-  slug: 'uncategorized',
-  oldSlugs: [],
-  description: {
-    _id: 'uncategorized-child',
-    html: '',
-  },
-  postCount: 0,
-  coreTagId: 'uncategorized-root',
-  parentTagId: 'uncategorized-root',
   isArbitalImport: false,
 };
 
@@ -309,6 +293,10 @@ function filterTreeByTagIds(
     .filter(node => node !== null) as WikiTagNode[];
 }
 
+function isMatchingCoreTag(tag: AllTagsPageCacheFragment, slug: string): boolean {
+  return tag.core && (slug === tag.slug || tag.oldSlugs?.includes(slug));
+}
+
 const allTagsQuery = gql`
   query AllTagsQuery {
     AllTags {
@@ -322,7 +310,7 @@ const ArbitalRedirectNotice = ({ classes, onDismiss }: {
   classes: ClassesType,
   onDismiss: () => void,
 }) => {
-  const { ContentStyles, ContentItemBody, Loading } = Components
+  const { Loading } = Components
 
   // TODO: put in database setting?
   const documentId = "nDavoyZ2EobkpZNAs"
@@ -356,52 +344,26 @@ const AllWikiTagsPage = () => {
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
 
-  const { SectionButton, WikiTagNestedList } = Components;
-  const [selectedWikiTag, setSelectedWikiTag] = useState<WikiTagNode | null>(null);
-  const [pinnedWikiTag, setPinnedWikiTag] = useState<WikiTagNode | null>(null);
+  const { SectionButton, WikiTagNestedList, LWTooltip } = Components;
 
   const { query } = useLocation();
-
-  const { data } = useQuery(allTagsQuery, { ssr: true });
-
-  const tags: AllTagsPageCacheFragment[] = data?.AllTags ?? [];
-
   const isArbitalRedirect = query.ref === 'arbital';
 
-  const { LWTooltip } = Components;
+  const { data } = useQuery(allTagsQuery, { ssr: true });
+  const tags: AllTagsPageCacheFragment[] = data?.AllTags ?? [];
 
   // State variable for the current search query
   const [currentQuery, setCurrentQuery] = useState('');
+  const [showArbitalRedirectNotice, setShowArbitalRedirectNotice] = useState(isArbitalRedirect);
 
   // Function to handle search state changes
   const handleSearchStateChange = (searchState: any): void => {
     setCurrentQuery(searchState.query);
   };
 
-  // const handleHover = (wikitag: WikiTagNode | null) => {
-  //   if (!pinnedWikiTag && wikitag && ((wikitag.description?.html?.length ?? 0) > 0 || wikitag.postCount > 0)) {
-  //     setSelectedWikiTag(wikitag);
-  //   }
-  // };
-
-  // const handleClick = (wikitag: WikiTagNode) => {
-  //   if (pinnedWikiTag && pinnedWikiTag._id === wikitag._id) {
-  //     setPinnedWikiTag(null);
-  //     setSelectedWikiTag(null);
-  //   } else if ((wikitag.description?.html?.length ?? 0) > 0 || wikitag.postCount > 0) {
-  //     setPinnedWikiTag(wikitag);
-  //     setSelectedWikiTag(wikitag);
-  //   }
-  // };
-
-  const handleBackgroundClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      setPinnedWikiTag(null);
-      setSelectedWikiTag(null);
-    }
-  };
-
-  const priorityTagIds = filterNonnull(prioritySlugs.map(slug => tags.find(tag => slug === (tag.slug || tag.oldSlugs?.includes(slug)) && tag.core))).map(tag => tag._id);
+  const priorityTagIds = filterNonnull(
+    prioritySlugs.map(slug => tags.find(tag => isMatchingCoreTag(tag, slug)))
+  ).map(tag => tag._id);
 
   const adjustedItems = tags.map(tag => {
     if (priorityTagIds.includes(tag._id as typeof priorityTagIds[number])) {
@@ -465,16 +427,12 @@ const AllWikiTagsPage = () => {
       <div className={classes.wikiTagNestedList}>
         <WikiTagNestedList
           pages={filteredTags}
-          // onHover={handleHover}
-          // onClick={handleClick}
           showArbitalIcons={isArbitalRedirect}
         />
       </div>
     );
   });
 
-  // Add state to control visibility of the notice
-  const [showArbitalRedirectNotice, setShowArbitalRedirectNotice] = useState(isArbitalRedirect);
 
   return (
     <AnalyticsContext pageContext="allWikiTagsPage">
@@ -505,7 +463,7 @@ const AllWikiTagsPage = () => {
             </a>}
           </SectionButton>
         </div>
-        <div className={classes.root} onClick={handleBackgroundClick}>
+        <div className={classes.root}>
           <div className={classes.topSection}>
             <div className={classes.titleSection}>
               <div className={classes.titleClass}>Concepts</div>
