@@ -1,4 +1,17 @@
+import React, { FC, ReactNode, createContext, useCallback, useContext, useState } from "react";
+import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
 import { gql, useQuery } from "@apollo/client";
+import { useRecommendations } from "@/components/recommendations/withRecommendations";
+
+// When adding a new year you'll need to run the server command to update the
+// analytics views:
+//   ./scripts/serverShellCommand.sh "Globals.triggerWrappedRefresh()"
+const wrappedYears = new TupleSet([2022, 2023, 2024] as const)
+
+export type WrappedYear = UnionOf<typeof wrappedYears>
+
+export const isWrappedYear = (year: number): year is WrappedYear =>
+  wrappedYears.has(year);
 
 export type WrappedMostReadTopic = {
   name: string;
@@ -78,6 +91,7 @@ export type WrappedDataByYear = {
     commentKarma: number;
   }[];
   mostReceivedReacts: WrappedReceivedReact[];
+  personality: string,
 };
 
 type WrappedDataQueryResult = {
@@ -156,6 +170,7 @@ const query = gql`
         name
         count
       }
+      personality
     }
   }
 `;
@@ -175,3 +190,67 @@ export const useForumWrapped = ({ userId, year }: { userId?: string | null; year
 
   return { data: data?.UserWrappedDataByYear, loading };
 };
+
+type ForumWrappedContext = {
+  year: WrappedYear,
+  data: WrappedDataByYear,
+  currentUser: UsersCurrent,
+  totalSections: number,
+  currentSection: number,
+  goToPreviousSection: () => void,
+  goToNextSection: () => void,
+  CurrentSection: FC,
+  recommendations: PostsListWithVotesAndSequence[],
+}
+
+const forumWrappedContext = createContext<ForumWrappedContext | null>(null);
+
+export const ForumWrappedProvider = ({year, data, currentUser, sections, children}: {
+  year: WrappedYear,
+  data: WrappedDataByYear,
+  currentUser: UsersCurrent,
+  sections: FC[],
+  children: ReactNode,
+}) => {
+  const [currentSection, setCurrentSection] = useState(0);
+  const lastSectionIndex = sections.length - 1;
+  const goToPreviousSection = useCallback(() => {
+    setCurrentSection((current) => Math.max(current - 1, 0));
+  }, []);
+  const goToNextSection = useCallback(() => {
+    setCurrentSection((current) => Math.min(current + 1, lastSectionIndex));
+  }, [lastSectionIndex]);
+
+  const {recommendations} = useRecommendations({
+    algorithm: {
+      strategy: {name: "bestOf", postId: ""},
+      count: 5,
+      disableFallbacks: true,
+    },
+    ssr: false,
+  });
+
+  return (
+    <forumWrappedContext.Provider value={{
+      year,
+      data,
+      currentUser,
+      totalSections: sections.length,
+      currentSection,
+      goToPreviousSection,
+      goToNextSection,
+      CurrentSection: sections[currentSection],
+      recommendations: recommendations ?? [],
+    }}>
+      {children}
+    </forumWrappedContext.Provider>
+  );
+}
+
+export const useForumWrappedContext = () => {
+  const context = useContext(forumWrappedContext);
+  if (!context) {
+    throw new Error("Using forum wrapped context outside of provider");
+  }
+  return context;
+}

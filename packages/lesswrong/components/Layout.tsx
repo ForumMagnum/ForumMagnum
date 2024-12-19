@@ -4,7 +4,7 @@ import { useUpdate } from '../lib/crud/withUpdate';
 import classNames from 'classnames'
 import { useTheme } from './themes/useTheme';
 import { useLocation } from '../lib/routeUtil';
-import { AnalyticsContext, useTracking } from '../lib/analyticsEvents'
+import { AnalyticsContext } from '../lib/analyticsEvents'
 import { UserContext } from './common/withUser';
 import { TimezoneWrapper } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
@@ -14,7 +14,6 @@ import { commentBodyStyles, pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, blackBarTitle, googleTagManagerIdSetting } from '../lib/publicSettings';
 import { isAF, isEAForum, isLW, isLWorAF } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
-import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { userCanDo } from '../lib/vulcan-users/permissions';
 import { Helmet } from '../lib/utils/componentsWithChildren';
 import { DisableNoKibitzContext } from './users/UsersNameDisplay';
@@ -399,9 +398,7 @@ const Layout = ({currentUser, children, classes}: {
   // <body> is outside the React tree entirely. An alternative way to do this would be to change
   // overflow properties so that `<body>` isn't scrollable but a `<div>` in here is.)
   const useWhiteBackground = currentRoute?.background === "white";
-  
-  const { captureEvent } = useTracking();
-  
+
   useEffect(() => {
     const isWhite = document.body.classList.contains(classes.whiteBackground);
     if (isWhite !== useWhiteBackground) {
@@ -427,9 +424,11 @@ const Layout = ({currentUser, children, classes}: {
     [autosaveEditorState, setAutosaveEditorState]
   );
 
+  const isWrapped = pathname.startsWith('/wrapped');
+
   let headerBackgroundColor: ColorString;
   // For the EAF Wrapped page, we change the header's background color to a dark blue.
-  if (pathname.startsWith('/wrapped')) {
+  if (isWrapped) {
     headerBackgroundColor = wrappedBackgroundColor;
   } else if (pathname.startsWith("/voting-portal")) {
     headerBackgroundColor = "transparent";
@@ -447,7 +446,6 @@ const Layout = ({currentUser, children, classes}: {
       AnalyticsClient,
       AnalyticsPageInitializer,
       NavigationEventSender,
-      PetrovGameWrapper,
       EAOnboardingFlow,
       BasicOnboardingFlow,
       CommentOnSelectionPageWrapper,
@@ -552,7 +550,7 @@ const Layout = ({currentUser, children, classes}: {
                 [classes.fullscreenBodyWrapper]: currentRoute?.fullscreen,
               }
               )}>
-                {isFriendlyUI && <AdminToggle />}
+                {isFriendlyUI && !isWrapped && <AdminToggle />}
                 {standaloneNavigation &&
                   <StickyWrapper
                     eaHomeLayout={friendlyHomeLayout}
