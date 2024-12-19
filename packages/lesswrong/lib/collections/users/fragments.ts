@@ -436,19 +436,18 @@ registerFragment(`
   }
 `)
 
+// Fragment used for the map markers on /community. This is a much-larger-than-
+// usual number of users, so keep this fragment minimal.
 registerFragment(`
   fragment UsersMapEntry on User {
-    ...UsersMinimumInfo
-    createdAt
-    isAdmin
-    groups
-    location
-    googleLocation
-    mapLocation
+    _id
+    displayName
+    username
+    fullName
+    slug
+    mapLocationLatLng { lat lng }
     mapLocationSet
-    mapMarkerText
     htmlMapMarkerText
-    mongoLocation
   }
 `);
 
