@@ -51,6 +51,7 @@ const styles = (theme: ThemeType) => ({
     flexGrow: 1,
     height: 4,
     background: theme.palette.text.alwaysWhite,
+    borderRadius: 2,
   },
   navSectionUnviewed: {
     opacity: 0.3,
