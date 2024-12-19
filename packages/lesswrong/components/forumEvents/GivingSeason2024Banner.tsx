@@ -484,6 +484,11 @@ const FeedItem = ({
 
 const SECOND_MATCH_START = 9509;
 
+const DONATION_CELEBRATION_ACTIVE_DESC = <>
+  Add a heart to the banner to show that you’ve completed your annual donations. You can also comment saying where
+  you donated.
+</>;
+
 const GivingSeason2024Banner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
@@ -580,6 +585,8 @@ const GivingSeason2024Banner = ({classes}: {
 
   const {EAButton, MixedTypeFeed, ForumEventStickers, DonationElectionLeaderboard, ForumIcon} = Components;
 
+  const isDonationCelebration = currentEvent?.name === "Donation Celebration";
+
   return (
     <div className={classNames(classes.root, selectedEvent.darkText && classes.darkText)}>
       <div className={classes.backgrounds}>
@@ -589,7 +596,7 @@ const GivingSeason2024Banner = ({classes}: {
             style={{ backgroundImage: `url(${background})` }}
             className={classNames(classes.background, name === selectedEvent.name && classes.backgroundActive)}
           >
-            {name === "Donation Celebration" && <ForumEventStickers interactive={name === selectedEvent.name} />}
+            {name === "Donation Celebration" && <ForumEventStickers interactive={isDonationCelebration} />}
           </div>
         ))}
       </div>
@@ -669,7 +676,7 @@ const GivingSeason2024Banner = ({classes}: {
                     <div className={classes.simpleEventContainer}>
                       <div className={classes.eventDate}>{formatDate(start, end)}</div>
                       <div className={classes.eventName}>{name}</div>
-                      <div className={classes.eventDescription}>{description}</div>
+                      <div className={classes.eventDescription}>{name === "Donation Celebration" && isDonationCelebration ? DONATION_CELEBRATION_ACTIVE_DESC : description}</div>
                     </div>
                     {discussionTagId &&
                       <div className={classes.topPosts}>

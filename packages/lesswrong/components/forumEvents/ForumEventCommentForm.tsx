@@ -171,6 +171,7 @@ const ForumEventCommentForm = ({
             prefilledProps={{
               forumEventId,
             }}
+            cancelLabel={"Skip"}
             className={classes.commentForm}
           />
         )}

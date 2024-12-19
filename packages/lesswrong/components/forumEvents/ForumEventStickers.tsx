@@ -5,7 +5,6 @@ import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
 import { useCurrentUser } from "../common/withUser";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
-import classNames from "classnames";
 import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { Link } from "@/lib/reactRouterWrapper";
@@ -278,7 +277,7 @@ const ForumEventStickers: FC<{
         {!isDesktop && !currentUserHeart && (
           <InteractionWrapper>
             <div className={classes.placeHeartButton} onClick={() => setMobilePlacingHeart(!mobilePlacingHeart)}>
-              {mobilePlacingHeart ? "...placing heart (click to cancel)" : "+ Place heart"}
+              {!!interactive && (mobilePlacingHeart ? "Tap the banner to add a heart, or tap here to cancel" : "+ Add heart")}
             </div>
           </InteractionWrapper>
         )}

@@ -26,8 +26,8 @@ const styles = (theme: ThemeType) => ({
     padding: 2,
     borderRadius: "50%",
     cursor: "pointer",
-    width: 10,
-    height: 10,
+    width: 11,
+    height: 11,
     fontSize: 9,
     "&:hover": {
       backgroundColor: theme.palette.text.alwaysBlack,
@@ -42,8 +42,8 @@ const styles = (theme: ThemeType) => ({
     opacity: 0.8,
     position: "absolute",
     fontSize: 12,
-    top: -4,
-    left: 1
+    top: -3,
+    left: "1.7px"
   },
   commentPopper: {
     margin: "0 8px",
