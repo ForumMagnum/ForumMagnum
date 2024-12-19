@@ -13,7 +13,7 @@ import { useIsAboveBreakpoint } from "../hooks/useScreenWidth";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 
 const styles = (theme: ThemeType) => ({
-  heartsContainer: {
+  stickersContainer: {
     width: "100%",
     height: "100%",
     position: "absolute",
@@ -75,12 +75,12 @@ function stickerDataToArray({
   users: UsersMinimumInfo[] | undefined;
   comments: ShortformComments[] | undefined;
   currentUser: UsersCurrent | null;
-}): { currentUserHeart: ForumEventStickerDisplay | null, otherHearts: ForumEventStickerDisplay[] } {
+}): { currentUserSticker: ForumEventStickerDisplay | null, otherStickers: ForumEventStickerDisplay[] } {
   if (!users || !data) {
-    return { currentUserHeart: null, otherHearts: [] };
+    return { currentUserSticker: null, otherStickers: [] };
   }
 
-  const allHearts = users
+  const allStickers = users
     .map((user) => {
       const sticker = data[user._id];
       if (!sticker) return undefined;
@@ -96,10 +96,10 @@ function stickerDataToArray({
     })
     .filter((sticker) => !!sticker) as ForumEventStickerDisplay[];
 
-  const currentUserHeart = allHearts.find(heart => currentUser && heart.user._id === currentUser._id) || null;
-  const otherHearts = allHearts.filter(heart => !currentUser || heart.user._id !== currentUser._id);
+  const currentUserSticker = allStickers.find(heart => currentUser && heart.user._id === currentUser._id) || null;
+  const otherStickers = allStickers.filter(heart => !currentUser || heart.user._id !== currentUser._id);
 
-  return { currentUserHeart, otherHearts };
+  return { currentUserSticker, otherStickers };
 }
 
 const ForumEventStickers: FC<{
@@ -113,7 +113,7 @@ const ForumEventStickers: FC<{
   const currentUser = useCurrentUser();
 
   const isDesktop = useIsAboveBreakpoint("sm");
-  const [mobilePlacingHeart, setMobilePlacingHeart] = useState(false)
+  const [mobilePlacingSticker, setMobilePlacingSticker] = useState(false)
 
   const stickerData: ForumEventStickerData | null = currentForumEvent?.publicData || null;
 
@@ -143,7 +143,7 @@ const ForumEventStickers: FC<{
     skip: !currentForumEvent?._id || !users,
   });
 
-  const { currentUserHeart, otherHearts } = useMemo(
+  const { currentUserSticker, otherStickers } = useMemo(
     () => stickerDataToArray({ data: stickerData, users, comments, currentUser }),
     [comments, currentUser, stickerData, users]
   );
@@ -182,16 +182,16 @@ const ForumEventStickers: FC<{
   const [addSticker] = useMutation(addForumEventStickerQuery);
   const [removeSticker] = useMutation(removeForumEventStickerQuery);
 
-  const allowPlacingHeart = !currentUserHeart && (isDesktop || mobilePlacingHeart);
+  const allowPlacingSticker = !currentUserSticker && (isDesktop || mobilePlacingSticker);
 
   const saveStickerPos = useCallback(
     async (event: React.MouseEvent) => {
-      if (!currentForumEvent || !allowPlacingHeart) return;
+      if (!currentForumEvent || !allowPlacingSticker) return;
 
       if (currentUser) {
         const coords = normalizeCoords(event.clientX, event.clientY);
 
-        if (!coords || currentUserHeart) return;
+        if (!coords || currentUserSticker) return;
 
         if (currentForumEvent.post) {
           setCommentFormOpen(true);
@@ -204,13 +204,13 @@ const ForumEventStickers: FC<{
             forumEventId: currentForumEvent._id,
           },
         });
-        setMobilePlacingHeart(false);
+        setMobilePlacingSticker(false);
         refetch?.();
       } else {
         onSignup();
       }
     },
-    [currentForumEvent, allowPlacingHeart, currentUser, normalizeCoords, currentUserHeart, addSticker, hoverTheta, refetch, onSignup]
+    [currentForumEvent, allowPlacingSticker, currentUser, normalizeCoords, currentUserSticker, addSticker, hoverTheta, refetch, onSignup]
   );
 
   const clearSticker = useCallback(async () => {
@@ -222,7 +222,7 @@ const ForumEventStickers: FC<{
 
   const handleMouseMove = useCallback(
     (event: React.MouseEvent) => {
-      if (!allowPlacingHeart) return;
+      if (!allowPlacingSticker) return;
 
       const coords = normalizeCoords(event.clientX, event.clientY);
       if (coords) {
@@ -231,21 +231,21 @@ const ForumEventStickers: FC<{
         setHoverPos(null);
       }
     },
-    [normalizeCoords, allowPlacingHeart]
+    [normalizeCoords, allowPlacingSticker]
   );
 
   const handleMouseLeave = useCallback(() => {
-    if (!allowPlacingHeart) return;
+    if (!allowPlacingSticker) return;
 
     setHoverPos(null);
-  }, [allowPlacingHeart]);
+  }, [allowPlacingSticker]);
 
   if (!currentForumEvent) return null;
 
   return (
     <AnalyticsContext pageElementContext="forumEventStickers">
       <div
-        className={classes.heartsContainer}
+        className={classes.stickersContainer}
         ref={containerRef}
         {...(interactive && {
           onMouseMove: handleMouseMove,
@@ -253,7 +253,7 @@ const ForumEventStickers: FC<{
           onClick: saveStickerPos,
         })}
       >
-        {allowPlacingHeart && hoverPos && (
+        {allowPlacingSticker && hoverPos && (
           <ForumEventSticker
             x={hoverPos.x}
             y={hoverPos.y}
@@ -262,22 +262,22 @@ const ForumEventStickers: FC<{
             className={classes.hoverHeart}
           />
         )}
-        {currentUserHeart && (
+        {currentUserSticker && (
           <ForumEventSticker
-            {...currentUserHeart}
+            {...currentUserSticker}
             tooltipDisabled={commentFormOpen}
             icon="Heart"
             ref={setUserVoteRef}
             onClear={clearSticker}
           />
         )}
-        {otherHearts.map((heart, index) => (
+        {otherStickers.map((heart, index) => (
           <ForumEventSticker key={index} {...heart} icon="Heart" />
         ))}
-        {!isDesktop && !currentUserHeart && (
+        {!isDesktop && !currentUserSticker && (
           <InteractionWrapper>
-            <div className={classes.placeHeartButton} onClick={() => setMobilePlacingHeart(!mobilePlacingHeart)}>
-              {!!interactive && (mobilePlacingHeart ? "Tap the banner to add a heart, or tap here to cancel" : "+ Add heart")}
+            <div className={classes.placeHeartButton} onClick={() => setMobilePlacingSticker(!mobilePlacingSticker)}>
+              {!!interactive && (mobilePlacingSticker ? "Tap the banner to add a heart, or tap here to cancel" : "+ Add heart")}
             </div>
           </InteractionWrapper>
         )}
@@ -285,7 +285,7 @@ const ForumEventStickers: FC<{
       {currentForumEvent.post && (
         <ForumEventCommentForm
           open={commentFormOpen}
-          comment={currentUserHeart?.comment || null}
+          comment={currentUserSticker?.comment || null}
           forumEventId={currentForumEvent._id}
           onClose={() => setCommentFormOpen(false)}
           refetch={refetchComments}

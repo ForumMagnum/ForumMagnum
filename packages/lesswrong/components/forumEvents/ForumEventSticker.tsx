@@ -29,6 +29,7 @@ const styles = (theme: ThemeType) => ({
     width: 11,
     height: 11,
     fontSize: 9,
+    userSelect: "none",
     "&:hover": {
       backgroundColor: theme.palette.text.alwaysBlack,
     },

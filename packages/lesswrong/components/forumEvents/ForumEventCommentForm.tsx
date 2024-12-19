@@ -101,7 +101,7 @@ const ForumEventCommentForm = ({
   anchorEl,
   title,
   subtitle,
-  successMessage="Comment posted successfully",
+  successMessage="Comment posted",
   className,
   classes,
 }: {

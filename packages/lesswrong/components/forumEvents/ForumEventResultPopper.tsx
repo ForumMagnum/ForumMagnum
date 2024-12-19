@@ -52,6 +52,7 @@ const styles = (theme: ThemeType) => ({
     gap: "16px"
   },
   displayName: {
+    paddingBottom: 1,
     fontSize: "1.3rem",
     fontWeight: 600,
     color: theme.palette.grey["A400"],
@@ -194,6 +195,7 @@ const ForumEventResultPopper = ({
                 to={commentGetPageUrlFromIds({ postId: comment.postId, commentId: comment._id })}
                 target="_blank"
                 rel="noopener noreferrer"
+                className={classes.replyButton}
               >
                 Go to thread {replyString}
               </Link>
