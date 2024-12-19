@@ -143,9 +143,17 @@ const ForumEventStickers: FC<{
     skip: !currentForumEvent?._id || !users,
   });
 
+  // Maintain a ref that keeps the previous value of `users` when it is currently undefined, to avoid the stickers flickering
+  const displayUsersRef = useRef<UsersMinimumInfo[] | undefined>(users);
+
+  if (users && displayUsersRef.current !== users) {
+    displayUsersRef.current = users;
+  }
+
   const { currentUserSticker, otherStickers } = useMemo(
-    () => stickerDataToArray({ data: stickerData, users, comments, currentUser }),
-    [comments, currentUser, stickerData, users]
+    () => stickerDataToArray({ data: stickerData, users: displayUsersRef.current, comments, currentUser }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [comments, currentUser, stickerData, displayUsersRef.current]
   );
 
   const [commentFormOpen, setCommentFormOpen] = useState(false);
