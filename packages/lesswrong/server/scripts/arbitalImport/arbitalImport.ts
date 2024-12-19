@@ -143,9 +143,9 @@ Globals.replaceAllImportedArbitalData = async (mysqlConnectionString: string, op
 }
 
 function summaryNameToSortOrder(name: string): number {
-  if (name === 'Brief') return 0;
-  if (name === 'Summary') return 1;
-  if (name === 'Technical') return 2;
+  if (name.toLowerCase() === 'brief') return 0;
+  if (name.toLowerCase() === 'summary') return 1;
+  if (name.toLowerCase() === 'technical') return 2;
   return 3;
 }
 
@@ -214,6 +214,7 @@ async function createSummariesForPage({ pageId, importedRecordMaps, pageCreator,
           }
         },
         legacyData: {
+          arbitalSummaryName: summary.name,
           arbitalPageId: summary.pageId,
         },
       } as AnyBecauseHard,
@@ -861,7 +862,7 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
         }*/
 
         await createSummariesForPage({
-          pageId,
+          pageId: lens.lensId,
           importedRecordMaps,
           conversionContext,
           pageCreator,
