@@ -50,8 +50,26 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: "transparent",
     transform: "scale(1.5)",
   },
+  "@keyframes wrapped-notification-shimmer": {
+    from: {
+      backgroundPosition: "right",
+    },
+    to: {
+      backgroundPosition: "left",
+    },
+  },
   iconWrapped: {
-    backgroundColor: theme.palette.wrapped.notification,
+    background: `linear-gradient(
+      -75deg,
+      ${theme.palette.wrapped.notification} 33%,
+      ${theme.palette.wrapped.highlightText} 50%,
+      ${theme.palette.wrapped.notification} 66%
+    ) ${theme.palette.wrapped.notification}`,
+    backgroundSize: "300% 100%",
+    animation: "wrapped-notification-shimmer 2s infinite",
+    "& svg": {
+      transform: "translateY(-1px)",
+    },
   },
   iconTooltip: {
     background: theme.palette.panelBackground.tooltipBackground2,
