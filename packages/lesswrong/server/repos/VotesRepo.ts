@@ -663,16 +663,34 @@ class VotesRepo extends AbstractRepo<"Votes"> {
     `, [userId]);
   }
 
-  getEAWrappedReactions(userId: string, start: Date, end: Date) {
+  getEAWrappedReactsReceived(userId: string, start: Date, end: Date) {
     const fields = eaEmojiPalette.map(({name}) =>
       `COUNT(*) FILTER (WHERE ("extendedVoteType"->'${name}')::BOOLEAN) AS "${name}"`,
     );
     return this.getRawDb().oneOrNone(`
-      -- VotesRepo.getEAWrappedReactions
+      -- VotesRepo.getEAWrappedReactsReceived
       SELECT ${fields.join(", ")}
       FROM "Votes"
       WHERE
         "authorIds" @> ARRAY[$1::VARCHAR]
+        AND "votedAt" >= $2
+        AND "votedAt" < $3
+        AND "cancelled" IS NOT TRUE
+        AND "isUnvote" IS NOT TRUE
+        AND "extendedVoteType" IS NOT NULL
+    `, [userId, start, end]);
+  }
+
+  getEAWrappedReactsGiven(userId: string, start: Date, end: Date) {
+    const fields = eaEmojiPalette.map(({name}) =>
+      `COUNT(*) FILTER (WHERE ("extendedVoteType"->'${name}')::BOOLEAN) AS "${name}"`,
+    );
+    return this.getRawDb().oneOrNone(`
+      -- VotesRepo.getEAWrappedReactsGiven
+      SELECT ${fields.join(", ")}
+      FROM "Votes"
+      WHERE
+        "userId" = $1
         AND "votedAt" >= $2
         AND "votedAt" < $3
         AND "cancelled" IS NOT TRUE

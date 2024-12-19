@@ -83,8 +83,7 @@ const WrappedSummarySection = ({classes}: {
 }) => {
   const {
     year,
-    data: {totalSeconds, postCount, mostReadAuthors, mostReadTopics},
-    personality,
+    data: {totalSeconds, postCount, mostReadAuthors, mostReadTopics, personality},
   } = useForumWrappedContext();
   const {WrappedSection, UsersProfileImage, CoreTagIcon} = Components;
   return (

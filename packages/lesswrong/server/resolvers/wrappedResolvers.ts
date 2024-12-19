@@ -9,6 +9,7 @@ import entries from 'lodash/fp/entries';
 import sortBy from 'lodash/sortBy';
 import last from 'lodash/fp/last';
 import range from 'lodash/range';
+import sum from 'lodash/sum';
 import Tags from '../../lib/collections/tags/collection';
 import Comments from '../../lib/collections/comments/collection';
 import sumBy from 'lodash/sumBy';
@@ -19,6 +20,84 @@ import { getConfirmedCoauthorIds, userIsPostCoauthor } from '../../lib/collectio
 import { isWrappedYear } from '@/components/ea-forum/wrapped/hooks';
 import type { KarmaChangeBase } from '@/lib/collections/users/karmaChangesGraphQL';
 
+class WrappedPersonality {
+  private parts: string[] = [];
+
+  constructor({
+    reactsReceived,
+    reactsGiven,
+    engagementPercentile,
+    totalKarmaChange,
+    postsWritten,
+    commentsWritten,
+    topPost,
+    topComment,
+  }: {
+    reactsReceived: Record<string, number>,
+    reactsGiven: Record<string, number>,
+    engagementPercentile: number,
+    totalKarmaChange: number,
+    postsWritten: number,
+    commentsWritten: number,
+    topPost: DbPost | null,
+    topComment: DbComment | null,
+  }) {
+    // Choose the first adjective based on reacts
+    const totalReactsReceived = sum(Object.values(reactsReceived));
+    const totalReactsGiven = sum(Object.values(reactsReceived));
+    if (totalReactsReceived === 0 && totalReactsGiven === 0) {
+      this.parts.push("Stoic");
+    } else if (totalReactsReceived < totalReactsGiven) {
+      switch (last(sortBy(entries(reactsGiven), last))?.[0]) {
+        case "love":         this.parts.push("Loving");      break;
+        case "helpful":      this.parts.push("Grateful");    break;
+        case "insightful":   this.parts.push("Curious");     break;
+        case "changed-mind": this.parts.push("Open-Minded"); break;
+      }
+    } else {
+      switch (last(sortBy(entries(reactsReceived), last))?.[0]) {
+        case "love":         this.parts.push("Beloved");     break;
+        case "helpful":      this.parts.push("Helpful");     break;
+        case "insightful":   this.parts.push("Insightful");  break;
+        case "changed-mind": this.parts.push("Influential"); break;
+      }
+    }
+
+    // Choose the second adjective based on engagement
+    if (engagementPercentile >= 0.9) {
+      this.parts.push("Online");
+    } else if (engagementPercentile >= 0.3) {
+      this.parts.push("Measured");
+    } else {
+      this.parts.push("Occasional");
+    }
+
+    // Choose the noun
+    if (totalKarmaChange >= 1000) {
+      this.parts.push("Karma Farmer");
+    } else if (
+      engagementPercentile >= 0.9 &&
+      postsWritten === 0 &&
+      commentsWritten < 5
+    ) {
+      this.parts.push("Lurker");
+    } else if (
+      totalKarmaChange > 0 &&
+      (
+        (topPost?.baseScore ?? 0) >= 0.75 * totalKarmaChange ||
+        (topComment?.baseScore ?? 0) >= 0.75 * totalKarmaChange
+      )
+    ) {
+      this.parts.push("One-Hit Wonder");
+    } else {
+      this.parts.push("Forum User");
+    }
+  }
+
+  toString() {
+    return this.parts.join(" ");
+  }
+}
 
 addGraphQLSchema(`
   type MostReadTopic {
@@ -84,6 +163,7 @@ addGraphQLSchema(`
     karmaChange: Int,
     combinedKarmaVals: [CombinedKarmaVals],
     mostReceivedReacts: [MostReceivedReact],
+    personality: String!,
   }
 `);
 
@@ -175,7 +255,8 @@ addGraphQLResolvers({
         shortformAuthorshipStats,
         readAuthorStats,
         readCoreTagStats,
-        reactCounts,
+        reactsReceived,
+        reactsGiven,
       ] = await Promise.all([
         Users.find(
           {
@@ -236,7 +317,8 @@ addGraphQLResolvers({
         context.repos.comments.getAuthorshipStats({ userId: user._id, year, shortform: true }),
         readAuthorStatsPromise,
         context.repos.posts.getReadCoreTagStats({ userId: user._id, year }),
-        context.repos.votes.getEAWrappedReactions(userId, start, end),
+        context.repos.votes.getEAWrappedReactsReceived(userId, start, end),
+        context.repos.votes.getEAWrappedReactsGiven(userId, start, end),
       ]);
 
       const [postKarmaChanges, commentKarmaChanges] = await Promise.all([
@@ -291,7 +373,7 @@ addGraphQLResolvers({
       );
 
       const mostReceivedReacts: { name: string, count: number }[] =
-        (sortBy(entries(reactCounts ?? {}), last) as [string, number][])
+        (sortBy(entries(reactsReceived ?? {}), last) as [string, number][])
           .reverse()
           .map(([name, count]) => ({
             name: eaEmojiPalette.find(emoji => emoji.name === name)?.label ?? '',
@@ -340,6 +422,17 @@ addGraphQLResolvers({
         }
       }
 
+      const personality = new WrappedPersonality({
+        reactsReceived,
+        reactsGiven,
+        engagementPercentile,
+        totalKarmaChange,
+        postsWritten: postAuthorshipStats.totalCount,
+        commentsWritten: commentAuthorshipStats.totalCount,
+        topPost: userPosts[0] ?? null,
+        topComment,
+      });
+
       const results: AnyBecauseTodo = {
         engagementPercentile,
         postsReadCount: posts.length,
@@ -360,8 +453,9 @@ addGraphQLResolvers({
         karmaChange: totalKarmaChange,
         combinedKarmaVals: combinedKarmaVals,
         mostReceivedReacts,
-      }
-      return results
+        personality: personality.toString(),
+      };
+      return results;
     },
   },
 })

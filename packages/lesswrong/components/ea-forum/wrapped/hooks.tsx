@@ -91,6 +91,7 @@ export type WrappedDataByYear = {
     commentKarma: number;
   }[];
   mostReceivedReacts: WrappedReceivedReact[];
+  personality: string,
 };
 
 type WrappedDataQueryResult = {
@@ -169,6 +170,7 @@ const query = gql`
         name
         count
       }
+      personality
     }
   }
 `;
@@ -193,7 +195,6 @@ type ForumWrappedContext = {
   year: WrappedYear,
   data: WrappedDataByYear,
   currentUser: UsersCurrent,
-  personality: string,
   totalSections: number,
   currentSection: number,
   goToPreviousSection: () => void,
@@ -234,7 +235,6 @@ export const ForumWrappedProvider = ({year, data, currentUser, sections, childre
       year,
       data,
       currentUser,
-      personality: "Helpful online one hit wonder",
       totalSections: sections.length,
       currentSection,
       goToPreviousSection,
