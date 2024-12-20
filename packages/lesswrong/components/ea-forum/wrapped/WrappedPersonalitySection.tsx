@@ -116,7 +116,7 @@ const WrappedPersonalitySection = ({classes}: {
   }, [videoRef]);
 
   useEffect(() => {
-    videoRef.current?.play();
+    void videoRef.current?.play();
   }, [videoRef]);
 
   const {WrappedSection, WrappedHeading, WrappedShareButton} = Components;

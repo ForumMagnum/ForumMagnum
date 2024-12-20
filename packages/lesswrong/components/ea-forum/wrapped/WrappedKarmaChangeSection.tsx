@@ -41,20 +41,6 @@ const WrappedKarmaChangeSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {data} = useForumWrappedContext();
-
-  // If the user hasn't written anything and their karma change is 0, hide the
-  // karma change section
-  const hasWrittenContent = !!data.topPosts?.length ||
-    data.topComment ||
-    data.topShortform;
-
-  if (
-    data.karmaChange === undefined ||
-    (!hasWrittenContent && data.karmaChange === 0)
-  ) {
-    return null;
-  }
-
   const {WrappedSection, WrappedHeading} = Components;
   return (
     <WrappedSection pageSectionContext="karmaChange">

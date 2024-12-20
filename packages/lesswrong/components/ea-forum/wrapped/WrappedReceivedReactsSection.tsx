@@ -4,6 +4,7 @@ import { isClient } from "@/lib/executionEnvironment";
 import { eaEmojiPalette } from "@/lib/voting/eaEmojiPalette";
 import { WrappedReceivedReact, useForumWrappedContext } from "./hooks";
 import range from "lodash/range";
+import { getTotalReactsReceived } from "./wrappedHelpers";
 
 type ReceivedReact = {
   top: string,
@@ -87,19 +88,13 @@ const styles = (theme: ThemeType) => ({
 const WrappedReceivedReactsSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {data: {mostReceivedReacts}} = useForumWrappedContext();
+  const {data} = useForumWrappedContext();
+  const {mostReceivedReacts} = data;
   const allReactsReceived = useMemo(
     () => placeBackgroundReacts(mostReceivedReacts),
     [mostReceivedReacts],
   );
-
-  const totalReactsReceived = mostReceivedReacts.reduce(
-    (prev, next) => prev + next.count,
-    0,
-  );
-  if (totalReactsReceived <= 5) {
-    return null;
-  }
+  const totalReactsReceived = getTotalReactsReceived(data);
 
   const {WrappedSection, WrappedHeading} = Components;
   return (

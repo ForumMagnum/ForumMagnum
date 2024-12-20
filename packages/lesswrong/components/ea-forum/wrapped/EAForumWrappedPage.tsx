@@ -1,4 +1,4 @@
-import React, { FC } from "react"
+import React from "react"
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { useLocation } from "@/lib/routeUtil";
@@ -56,26 +56,6 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
   const endOfYear = moment(`${year}-12-31`, "YYYY-MM-DD");
   const isTooYoung = userCreatedAt.isAfter(endOfYear, "date");
 
-  const sections = [
-    Components.WrappedWelcomeSection,
-    Components.WrappedTimeSpentSection,
-    Components.WrappedDaysVisitedSection,
-    Components.WrappedMostReadTopicsSection,
-    Components.WrappedRelativeMostReadTopicsSection,
-    Components.WrappedMostReadAuthorSection,
-    Components.WrappedThankAuthorSection,
-    Components.WrappedPersonalitySection,
-    Components.WrappedTopPostSection,
-    Components.WrappedTopCommentSection,
-    Components.WrappedTopQuickTakeSection,
-    Components.WrappedKarmaChangeSection,
-    Components.WrappedReceivedReactsSection,
-    Components.WrappedThankYouSection,
-    Components.WrappedSummarySection,
-    Components.WrappedRecommendationsSection,
-    Components.WrappedMostValuablePostsSection,
-  ] as FC[];
-
   const {HeadTags, WrappedSection, WrappedHeading,LoginForm, WrappedApp} = Components;
   return (
     <AnalyticsContext pageContext="eaYearWrapped" reviewYear={String(year)}>
@@ -116,7 +96,6 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
             year={year}
             data={data}
             currentUser={currentUser}
-            sections={sections}
           >
             <WrappedApp />
           </ForumWrappedProvider>

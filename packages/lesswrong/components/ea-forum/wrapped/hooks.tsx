@@ -1,5 +1,5 @@
 import React, {
-  FC,
+  ComponentType,
   ReactNode,
   RefObject,
   createContext,
@@ -8,9 +8,12 @@ import React, {
   useRef,
   useState,
 } from "react";
+import { Components } from "@/lib/vulcan-lib";
 import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
 import { gql, useQuery } from "@apollo/client";
 import { useRecommendations } from "@/components/recommendations/withRecommendations";
+import { getTopAuthor, getTotalReactsReceived } from "./wrappedHelpers";
+import { userCanStartConversations } from "@/lib/collections/conversations/collection";
 
 // When adding a new year you'll need to run the server command to update the
 // analytics views:
@@ -200,6 +203,79 @@ export const useForumWrapped = ({ userId, year }: { userId?: string | null; year
   return { data: data?.UserWrappedDataByYear, loading };
 };
 
+type WrappedSection = {
+  component: ComponentType,
+  predicate?: (data: WrappedDataByYear, currentUser: UsersCurrent) => boolean,
+};
+
+const allSections: WrappedSection[] = [
+  {component: Components.WrappedWelcomeSection},
+  {
+    component: Components.WrappedTimeSpentSection,
+    predicate: (data) => data.totalSeconds > 300,
+  },
+  {
+    component: Components.WrappedDaysVisitedSection,
+    predicate: (data) => data.daysVisited.length > 0,
+  },
+  {
+    component: Components.WrappedMostReadTopicsSection,
+    predicate: (data) => data.mostReadTopics.length > 0,
+  },
+  {
+    component: Components.WrappedRelativeMostReadTopicsSection,
+    predicate: (data) => data.relativeMostReadCoreTopics.length > 0,
+  },
+  {
+    component: Components.WrappedMostReadAuthorSection,
+    predicate: (data) => data.mostReadAuthors.length > 0,
+  },
+  {
+    component: Components.WrappedThankAuthorSection,
+    predicate: (data, currentUser) => {
+      const {
+        topAuthorByEngagementPercentile,
+        topAuthorPercentByEngagementPercentile,
+      } = getTopAuthor(data);
+      return !!topAuthorByEngagementPercentile &&
+        topAuthorPercentByEngagementPercentile <= 10 &&
+        userCanStartConversations(currentUser);
+    },
+  },
+  {component: Components.WrappedPersonalitySection},
+  {
+    component: Components.WrappedTopPostSection,
+    predicate: (data) =>
+      !!data.topPosts &&
+      data.topPosts.length > 0 &&
+      data.topPosts[0].baseScore >= 10,
+  },
+  {
+    component: Components.WrappedTopCommentSection,
+    predicate: (data) =>
+      !!data.topComment &&
+      data.topComment.baseScore > 0,
+  },
+  {
+    component: Components.WrappedTopQuickTakeSection,
+    predicate: (data) =>
+      !!data.topShortform &&
+      data.topShortform.baseScore > 0,
+  },
+  {
+    component: Components.WrappedKarmaChangeSection,
+    predicate: (data) => !!data.karmaChange,
+  },
+  {
+    component: Components.WrappedReceivedReactsSection,
+    predicate: (data) => getTotalReactsReceived(data) > 5,
+  },
+  {component: Components.WrappedThankYouSection},
+  {component: Components.WrappedSummarySection},
+  {component: Components.WrappedRecommendationsSection},
+  {component: Components.WrappedMostValuablePostsSection},
+];
+
 type ForumWrappedContext = {
   year: WrappedYear,
   data: WrappedDataByYear,
@@ -208,7 +284,7 @@ type ForumWrappedContext = {
   currentSection: number,
   goToPreviousSection: () => void,
   goToNextSection: () => void,
-  CurrentSection: FC,
+  CurrentSection: ComponentType,
   recommendations: PostsListWithVotesAndSequence[],
   thinkingVideoRef: RefObject<HTMLVideoElement>,
   personalityVideoRef: RefObject<HTMLVideoElement>,
@@ -220,16 +296,19 @@ export const ForumWrappedProvider = ({
   year,
   data,
   currentUser,
-  sections,
   children,
 }: {
   year: WrappedYear,
   data: WrappedDataByYear,
   currentUser: UsersCurrent,
-  sections: FC[],
   children: ReactNode,
 }) => {
   const [currentSection, setCurrentSection] = useState(0);
+
+  const sections = allSections.filter((section) => {
+    return section.predicate ? section.predicate(data, currentUser) : true;
+  });
+
   const lastSectionIndex = sections.length - 1;
   const goToPreviousSection = useCallback(() => {
     setCurrentSection((current) => Math.max(current - 1, 0));
@@ -259,7 +338,7 @@ export const ForumWrappedProvider = ({
       currentSection,
       goToPreviousSection,
       goToNextSection,
-      CurrentSection: sections[currentSection],
+      CurrentSection: sections[currentSection].component,
       recommendations: recommendations ?? [],
       thinkingVideoRef,
       personalityVideoRef,

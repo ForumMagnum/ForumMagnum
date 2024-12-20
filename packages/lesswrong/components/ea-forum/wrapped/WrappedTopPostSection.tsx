@@ -32,18 +32,7 @@ const WrappedTopPostSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {year, data} = useForumWrappedContext();
-  if (!data.topPosts?.length) {
-    return null;
-  }
-
-  // Only show this section if their top post got 10 karma
-  const topPost = data.topPosts[0];
-  if (topPost.baseScore < 10) {
-    return null;
-  }
-
   const percentile = formatPercentile(data.authorPercentile);
-
   const {WrappedSection, WrappedHeading, WrappedPost} = Components;
   return (
     <WrappedSection pageSectionContext="topPost">

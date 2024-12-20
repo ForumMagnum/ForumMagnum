@@ -21,17 +21,7 @@ const WrappedTopQuickTakeSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {year, data} = useForumWrappedContext();
-  if (!data.topShortform) {
-    return null;
-  }
-
-  // Only show this section if their top quick take has >0 karma
-  if (data.topShortform.baseScore < 1) {
-    return null;
-  }
-
   const percentile = formatPercentile(data.shortformPercentile);
-
   const {WrappedSection, WrappedHeading, WrappedComment} = Components;
   return (
     <WrappedSection pageSectionContext="topQuickTake">

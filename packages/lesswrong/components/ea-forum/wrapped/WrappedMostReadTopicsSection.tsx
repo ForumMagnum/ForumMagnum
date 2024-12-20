@@ -21,9 +21,6 @@ const WrappedMostReadTopicsSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {data: {mostReadTopics}} = useForumWrappedContext();
-  if (!mostReadTopics.length) {
-    return null;
-  }
 
   // The top bar is highlighted, the rest are white
   const topics = mostReadTopics.map((topic, i) => {

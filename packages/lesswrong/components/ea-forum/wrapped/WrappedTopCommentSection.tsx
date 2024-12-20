@@ -17,17 +17,7 @@ const WrappedTopCommentSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {year, data} = useForumWrappedContext();
-  if (!data.topComment) {
-    return null;
-  }
-
-  // Only show this section if their top comment has >0 karma
-  if (data.topComment.baseScore < 1) {
-    return null;
-  }
-
   const percentile = formatPercentile(data.commenterPercentile);
-
   const {WrappedSection, WrappedHeading, WrappedComment} = Components;
   return (
     <WrappedSection pageSectionContext="topComment">

@@ -2,8 +2,7 @@ import React, { useCallback, useEffect } from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { useTracking } from "@/lib/analyticsEvents";
 import { useInitiateConversation } from "@/components/hooks/useInitiateConversation";
-import { userCanStartConversations } from "@/lib/collections/conversations/collection";
-import { getUserProfileLink } from "./wrappedHelpers";
+import { getTopAuthor, getUserProfileLink } from "./wrappedHelpers";
 import { Link } from "@/lib/reactRouterWrapper";
 import { useForumWrappedContext } from "./hooks";
 
@@ -66,27 +65,18 @@ const styles = (theme: ThemeType) => ({
 const WrappedThankAuthorSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {year, data: {mostReadAuthors}, currentUser} = useForumWrappedContext();
+  const {year, data, currentUser} = useForumWrappedContext();
   const {captureEvent} = useTracking();
 
-  const topAuthorByEngagementPercentile = [...mostReadAuthors].sort(
-    (a, b) => b.engagementPercentile - a.engagementPercentile,
-  )[0];
-  const topAuthorPercentByEngagementPercentile = (
-    topAuthorByEngagementPercentile &&
-    Math.ceil(100 * (1 - topAuthorByEngagementPercentile.engagementPercentile))
-  ) || 1;
-  const showThankAuthor = currentUser &&
-    topAuthorByEngagementPercentile &&
-    topAuthorPercentByEngagementPercentile <= 10 &&
-    userCanStartConversations(currentUser);
+  const {
+    topAuthorByEngagementPercentile,
+    topAuthorPercentByEngagementPercentile,
+  } = getTopAuthor(data);
 
   const {conversation, initiateConversation} = useInitiateConversation();
   useEffect(() => {
-    if (showThankAuthor) {
-      initiateConversation([topAuthorByEngagementPercentile._id]);
-    }
-  }, [showThankAuthor, initiateConversation, topAuthorByEngagementPercentile]);
+    initiateConversation([topAuthorByEngagementPercentile._id]);
+  }, [initiateConversation, topAuthorByEngagementPercentile]);
 
   const onSuccess = useCallback(() => {
     if (conversation && currentUser) {
@@ -100,14 +90,10 @@ const WrappedThankAuthorSection = ({classes}: {
     }
   }, [captureEvent, conversation, currentUser, year]);
 
-  if (!showThankAuthor || !conversation) {
-    return null;
-  }
-
   const {displayName, slug} = topAuthorByEngagementPercentile;
 
   const {
-    WrappedSection, WrappedHeading, UsersProfileImage, MessagesNewForm,
+    WrappedSection, WrappedHeading, UsersProfileImage, MessagesNewForm, Loading,
   } = Components;
   return (
     <WrappedSection pageSectionContext="thankAuthor">
@@ -130,13 +116,20 @@ const WrappedThankAuthorSection = ({classes}: {
             </Link>
           </div>
         </div>
-        <div className={classes.newMessageForm}>
-          <MessagesNewForm
-            conversationId={conversation._id}
-            successEvent={onSuccess}
-            submitLabel="Send"
-          />
-        </div>
+        {conversation
+          ? (
+            <div className={classes.newMessageForm}>
+              <MessagesNewForm
+                conversationId={conversation._id}
+                successEvent={onSuccess}
+                submitLabel="Send"
+              />
+            </div>
+          )
+          : (
+            <Loading />
+          )
+        }
       </div>
     </WrappedSection>
   );

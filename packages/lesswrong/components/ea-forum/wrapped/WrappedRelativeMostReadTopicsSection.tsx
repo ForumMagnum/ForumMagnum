@@ -46,9 +46,6 @@ const WrappedRelativeMostReadTopicsSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {data: {relativeMostReadCoreTopics}} = useForumWrappedContext();
-  if (!relativeMostReadCoreTopics.length) {
-    return null;
-  }
 
   const relativeMostReadTopics = relativeMostReadCoreTopics.map(topic => {
     return {
