@@ -50,16 +50,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     textAlign: "center",
     padding: theme.spacing.unit*2,
     paddingBottom: theme.spacing.unit*6
-  },
-  reviewButton: {
-    border: `solid 1px ${theme.palette.primary.main}`,
-    paddingLeft: theme.spacing.unit*2,
-    paddingRight: theme.spacing.unit*2,
-    paddingTop: theme.spacing.unit,
-    paddingBottom: theme.spacing.unit,
-    marginTop: theme.spacing.unit,
-    display: "inline-block",
-    borderRadius: 3
   }
 });
 
@@ -75,16 +65,11 @@ const PostBodyPrefix = ({post, query, classes}: {
   query?: any,
   classes: ClassesType,
 }) => {
-  const { AlignmentPendingApprovalMessage, LinkPostMessage, PostsRevisionMessage, LWTooltip, ReviewVotingWidget, ReviewPostButton, ContentItemBody, ContentStyles } = Components;
+  const { AlignmentPendingApprovalMessage, LinkPostMessage, PostsRevisionMessage, LWTooltip, ContentItemBody, ContentStyles, PostPageReviewButton } = Components;
   const currentUser = useCurrentUser();
 
   return <>
-    {reviewIsActive() && postEligibleForReview(post) && postIsVoteable(post) && <div className={classes.reviewVoting}>
-      {canNominate(currentUser, post) && <ReviewVotingWidget post={post}/>}
-      <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={`Write up your thoughts on what was good about a post, how it could be improved, and how you think stands the tests of time as part of the broader ${forumTitleSetting.get()} conversation`} placement="bottom">
-        <div className={classes.reviewButton}>Review</div>
-      </LWTooltip>}/>
-    </div>}
+    {reviewIsActive() && <PostPageReviewButton post={post} />}
 
     <AlignmentPendingApprovalMessage post={post} />
 
