@@ -584,7 +584,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     panelBackgroundDark: "rgba(255, 255, 255, 0.05)",
     postScore: '#BCBCBC',
     personalityGrey: "#585858",
-    personalityRed: "#9e011a",
+    personalityRed: "#ad0112",
     personalityBlue: "#165088",
     personalityGreen: "#006336",
     notification: "#e05200",

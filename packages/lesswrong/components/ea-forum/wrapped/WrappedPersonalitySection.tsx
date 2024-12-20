@@ -97,17 +97,25 @@ const WrappedPersonalitySection = ({classes}: {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
     const video = videoRef.current;
-    if (canvas && ctx && video) {
+    const container = screenshotRef.current;
+    if (canvas && ctx && video && container) {
       const doFrame = () => {
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        // Bad alpha blending causes a 1-pixel pseudo border around the canvas.
+        // To get around scale up slightly and move the outer-most pixel
+        // outside of the canvas. (Sorry)
+        ctx.drawImage(video, -1, -1, canvas.width + 2, canvas.height + 2);
         requestAnimationFrame(doFrame);
       }
       const handler = () => {
         const {videoWidth, videoHeight} = video;
-        const aspect = videoWidth / videoHeight;
-        const width = window.innerWidth;
-        const height = width / aspect;
-        setSize({width, height});
+        const {clientWidth, clientHeight} = container;
+        const scaleByWidth = clientWidth / videoWidth;
+        const scaleByHeight = clientHeight / videoHeight;
+        const scaleFactor = Math.min(scaleByWidth, scaleByHeight);
+        setSize({
+          width: videoWidth * scaleFactor,
+          height: videoHeight * scaleFactor,
+        });
         requestAnimationFrame(doFrame);
       }
       video.addEventListener("play", handler);

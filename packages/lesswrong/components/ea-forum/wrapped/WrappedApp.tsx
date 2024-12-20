@@ -13,26 +13,28 @@ const styles = (theme: ThemeType) => ({
   app: {
     position: "relative",
     display: "flex",
-    alignItems: "flex-start",
-    justifyContent: "center",
+    flexDirection: "column",
     width: "100%",
-    flexGrow: 1,
+    height: "100%",
     overflow: "hidden auto",
-    "& > *": {
-      maxWidth: 700,
-    },
   },
   offscreenVideos: {
     position: "absolute",
     left: -10000,
     top: -10000,
   },
-  nav: {
+  navContainer: {
     position: "fixed",
     bottom: 0,
     padding: 16,
     width: "100vw",
-    maxWidth: 500,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  nav: {
+    width: 500,
+    maxWidth: "100%",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -110,18 +112,20 @@ const WrappedApp = ({classes}: {
         <CurrentSection />
       </div>
       {currentSection > 0 &&
-        <div className={classes.nav}>
-          <div className={classes.navButton} onClick={goToPreviousSection}>
-            <ForumIcon icon="ChevronLeft" />
-          </div>
-          {range(1, totalSections).map((i) => (
-            <div key={i} className={classNames(
-              classes.navSection,
-              i > currentSection && classes.navSectionUnviewed,
-            )} />
-          ))}
-          <div className={classes.navButton} onClick={goToNextSection}>
-            <ForumIcon icon="ChevronRight" />
+        <div className={classes.navContainer}>
+          <div className={classes.nav}>
+            <div className={classes.navButton} onClick={goToPreviousSection}>
+              <ForumIcon icon="ChevronLeft" />
+            </div>
+            {range(1, totalSections).map((i) => (
+              <div key={i} className={classNames(
+                classes.navSection,
+                i > currentSection && classes.navSectionUnviewed,
+              )} />
+            ))}
+            <div className={classes.navButton} onClick={goToNextSection}>
+              <ForumIcon icon="ChevronRight" />
+            </div>
           </div>
         </div>
       }
