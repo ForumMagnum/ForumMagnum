@@ -52,7 +52,7 @@ registerFragment(`
         user {
           ...UsersMinimumInfo
         }
-        contributionVolume
+        currentAttributionCharCount
       }
     }
   }

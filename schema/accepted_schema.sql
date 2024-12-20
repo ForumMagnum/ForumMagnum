@@ -1275,6 +1275,7 @@ CREATE TABLE "MultiDocuments" (
   "fieldName" TEXT NOT NULL,
   "index" DOUBLE PRECISION NOT NULL,
   "contributionStats" JSONB,
+  "htmlWithContributorAnnotations" TEXT,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB,
