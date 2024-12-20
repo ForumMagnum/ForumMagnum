@@ -134,6 +134,12 @@ function parseMultipleChoiceBlock(...args: string[]) {
   return { result, requisites };
 }
 
+const visualizationHtmlMap: Record<string, string> = {
+  "log-length-demo": '<figure class="media"><div data-oembed-url="https://lwartifacts.vercel.app/artifacts/logarithm-growing-calculator"><div data-lwartifacts-id="lwartifacts.vercel.app/artifacts/logarithm-growing-calculator" class="lwartifacts-preview"><iframe style="height: 500px; width: 100%; border: none;" src="https://lwartifacts.vercel.app/artifacts/logarithm-growing-calculator"></div></iframe></div></div></figure>',
+  "log-length-animation": '<figure class="media"><div data-oembed-url="https://lwartifacts.vercel.app/artifacts/logarithm-growing"><div data-lwartifacts-id="lwartifacts.vercel.app/artifacts/logarithm-growing" class="lwartifacts-preview"><iframe style="height: 500px; width: 100%; border: none;" src="https://lwartifacts.vercel.app/artifacts/logarithm-growing"></div></iframe></div></div></figure>',
+  "log-graph-demo": '<figure class="media"><div data-oembed-url="https://lwartifacts.vercel.app/artifacts/logarithm-lattice"><div data-lwartifacts-id="lwartifacts.vercel.app/artifacts/logarithm-lattice" class="lwartifacts-preview"><iframe style="height: 500px; width: 100%; border: none;" src="https://lwartifacts.vercel.app/artifacts/logarithm-lattice"></div></iframe></div></div></figure>'
+}
+
 // markdownService provides a constructor you can use to create a markdown converter,
 // either for converting markdown to text or editing.
 //app.service('markdownService', function($compile, $timeout, pageService, userService, urlService, stateService) {
@@ -545,9 +551,11 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
     // Process [visualization(log-graph-demo):] block.
     var vizBlockRegexp = new RegExp('^\\[visualization\\(([^)]+)\\):\\] *(?=\Z|\n\Z|\n\n)', 'gm');
     converter.hooks.chain('preBlockGamut', function(text: string, runBlockGamut: (s:string)=>string) {
-      // TODO
       return text.replace(vizBlockRegexp, function(whole, name) {
-        return '<div class=\'react-demo\' data-demo-name="' + name + '">\n\n</div>';
+        const replacementHtml = visualizationHtmlMap[name];
+        if (replacementHtml) return replacementHtml;
+        console.error(`Visualization ${name} doesn't exist`);
+        return whole;
       });
     });
 
