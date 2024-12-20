@@ -344,6 +344,46 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       percentile: result?.percentile ?? 0,
     };
   }
+
+  /**
+   * Count the number of discussions started for EA Forum Wrapped
+   * We count a "discussion" as a comment with at least 5 descendants or a post
+   * with at least 5 comments
+   */
+  async getEAWrappedDiscussionsStarted(
+    userId: string,
+    start: Date,
+    end: Date,
+  ): Promise<number> {
+    const result = await this.getRawDb().oneOrNone(`
+      -- CommentsRepo.getEAWrappedDiscussionsStarted
+      SELECT SUM("count")
+      FROM (
+        SELECT COUNT(c.*)
+        FROM "Comments" c
+        INNER JOIN "Posts" p ON
+          c."postId" = p."_id"
+        WHERE
+          c."userId" = $1
+          AND c."createdAt" > $2
+          AND c."createdAt" < $3
+          AND c."descendentCount" >= 5
+          AND c."deleted" IS NOT TRUE
+          AND c."deletedPublic" IS NOT TRUE
+          AND ${getViewablePostsSelector("p")}
+        UNION
+        SELECT COUNT(p.*)
+        FROM "Posts" p
+        WHERE
+          p."userId" = $1
+          AND p."postedAt" > $2
+          AND p."postedAt" < $3
+          AND p."commentCount" >= 5
+          AND ${getViewablePostsSelector("p")}
+      ) q
+    `, [userId, start, end]);
+    return result?.discussionCount ?? 0;
+  }
 }
 
 recordPerfMetrics(CommentsRepo);

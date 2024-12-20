@@ -4,13 +4,14 @@ import { getWrappedDataByYear } from "./wrappedDataByYear";
 import { getAdminTeamAccount } from "../callbacks/commentCallbacks";
 import { getAllRepos } from "../repos";
 import type { WrappedYear } from "@/components/ea-forum/wrapped/hooks";
+import sampleSize from "lodash/fp/sampleSize";
 import chunk from "lodash/chunk";
 
 const getRelevantUsers = async (year: WrappedYear, totalUsers?: number) => {
   const users = await getWrappedUsers(year);
   // eslint-disable-next-line no-console
   console.log(`Found ${users.length} relevant users`);
-  return totalUsers ? users.slice(0, totalUsers) : users;
+  return totalUsers ? sampleSize(totalUsers, users) : users;
 }
 
 const sampleWrappedPersonalities = async (
@@ -22,18 +23,34 @@ const sampleWrappedPersonalities = async (
   const users = await getRelevantUsers(year, totalUsers);
   const chunks = chunk(users, 10);
 
-  const results: {_id: string, personality: string}[] = [];
+  const results: {
+    _id: string,
+    adjective1: string,
+    adjective2: string,
+    noun: string,
+  }[] = [];
   for (const users of chunks) {
     const data = await Promise.all(users.map(
       (user) => getWrappedDataByYear(currentUser, user._id, year, repos),
     ));
     for (let i = 0; i < data.length; i++) {
-      results.push({_id: users[i]._id, personality: data[i].personality});
+      const user = users[i];
+      const personality = data[i].personality;
+      const [adjective1, adjective2, ...rest] = personality.split(" ");
+      const noun = rest.join(" ");
+      results.push({
+        _id: user._id,
+        adjective1,
+        adjective2,
+        noun,
+      });
     }
   }
 
   const csv = results
-    .map(({_id, personality}) => `${_id},${personality}`)
+    .map(({_id, adjective1, adjective2, noun}) =>
+      `${_id},${adjective1},${adjective2},${noun}`,
+    )
     .join("\n");
   // eslint-disable-next-line no-console
   console.log(csv);

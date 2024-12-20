@@ -15,6 +15,7 @@ export class WrappedPersonality {
     commentsWritten,
     topPost,
     topComment,
+    discussionsStarted,
   }: {
     reactsReceived: Record<string, number>,
     reactsGiven: Record<string, number>,
@@ -24,6 +25,7 @@ export class WrappedPersonality {
     commentsWritten: number,
     topPost: DbPost | null,
     topComment: DbComment | null,
+    discussionsStarted: number,
   }) {
     // Choose the first adjective based on reacts
     const totalReactsReceived = sum(Object.values(reactsReceived));
@@ -47,23 +49,19 @@ export class WrappedPersonality {
     }
 
     // Choose the second adjective based on engagement
-    if (engagementPercentile >= 0.9) {
+    if (engagementPercentile >= 0.75) {
       this.parts.push("Online");
-    } else if (engagementPercentile >= 0.3) {
+    } else if (engagementPercentile >= 0.25) {
       this.parts.push("Measured");
     } else {
       this.parts.push("Occasional");
     }
 
     // Choose the noun
-    if (totalKarmaChange >= 1000) {
+    if (totalKarmaChange >= 500) {
       this.parts.push("Karma Farmer");
-    } else if (
-      engagementPercentile >= 0.9 &&
-      postsWritten === 0 &&
-      commentsWritten < 5
-    ) {
-      this.parts.push("Lurker");
+    } else if (discussionsStarted >= 3) {
+      this.parts.push("Conversation Starter");
     } else if (
       totalKarmaChange > 0 &&
       (
@@ -72,8 +70,14 @@ export class WrappedPersonality {
       )
     ) {
       this.parts.push("One-Hit Wonder");
+    } else if (
+      engagementPercentile >= 0.9 &&
+      postsWritten === 0 &&
+      commentsWritten < 5
+    ) {
+      this.parts.push("Lurker");
     } else {
-      this.parts.push("Forum User");
+      this.parts.push("Visitor");
     }
   }
 

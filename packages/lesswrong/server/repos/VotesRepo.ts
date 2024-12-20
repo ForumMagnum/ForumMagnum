@@ -666,11 +666,15 @@ class VotesRepo extends AbstractRepo<"Votes"> {
     `, [userId]);
   }
 
-  getEAWrappedReactsReceived(userId: string, start: Date, end: Date) {
+  async getEAWrappedReactsReceived(
+    userId: string,
+    start: Date,
+    end: Date,
+  ): Promise<Record<string, number>> {
     const fields = eaEmojiPalette.map(({name}) =>
       `COUNT(*) FILTER (WHERE ("extendedVoteType"->'${name}')::BOOLEAN) AS "${name}"`,
     );
-    return this.getRawDb().oneOrNone(`
+    const result = await this.getRawDb().oneOrNone(`
       -- VotesRepo.getEAWrappedReactsReceived
       SELECT ${fields.join(", ")}
       FROM "Votes"
@@ -682,13 +686,24 @@ class VotesRepo extends AbstractRepo<"Votes"> {
         AND "isUnvote" IS NOT TRUE
         AND "extendedVoteType" IS NOT NULL
     `, [userId, start, end]);
+    if (!result) {
+      return {};
+    }
+    for (const key in result) {
+      result[key] = parseInt(result[key]);
+    }
+    return result;
   }
 
-  getEAWrappedReactsGiven(userId: string, start: Date, end: Date) {
+  async getEAWrappedReactsGiven(
+    userId: string,
+    start: Date,
+    end: Date,
+  ): Promise<Record<string, number>> {
     const fields = eaEmojiPalette.map(({name}) =>
       `COUNT(*) FILTER (WHERE ("extendedVoteType"->'${name}')::BOOLEAN) AS "${name}"`,
     );
-    return this.getRawDb().oneOrNone(`
+    const result = await this.getRawDb().oneOrNone(`
       -- VotesRepo.getEAWrappedReactsGiven
       SELECT ${fields.join(", ")}
       FROM "Votes"
@@ -700,6 +715,13 @@ class VotesRepo extends AbstractRepo<"Votes"> {
         AND "isUnvote" IS NOT TRUE
         AND "extendedVoteType" IS NOT NULL
     `, [userId, start, end]);
+    if (!result) {
+      return {};
+    }
+    for (const key in result) {
+      result[key] = parseInt(result[key]);
+    }
+    return result;
   }
 }
 

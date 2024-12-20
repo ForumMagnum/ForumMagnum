@@ -128,6 +128,7 @@ export const getWrappedDataByYear = async (
     readCoreTagStats,
     reactsReceived,
     reactsGiven,
+    discussionsStarted,
   ] = await Promise.all([
     Users.find(
       {
@@ -190,6 +191,7 @@ export const getWrappedDataByYear = async (
     repos.posts.getReadCoreTagStats({ userId: user._id, year }),
     repos.votes.getEAWrappedReactsReceived(userId, start, end),
     repos.votes.getEAWrappedReactsGiven(userId, start, end),
+    repos.comments.getEAWrappedDiscussionsStarted(userId, start, end),
   ]);
 
   const [postKarmaChanges, commentKarmaChanges] = await Promise.all([
@@ -306,6 +308,7 @@ export const getWrappedDataByYear = async (
     commentsWritten: commentAuthorshipStats.totalCount,
     topPost: userPosts[0] ?? null,
     topComment,
+    discussionsStarted,
   });
 
   const results: AnyBecauseTodo = {
@@ -314,7 +317,9 @@ export const getWrappedDataByYear = async (
     totalSeconds,
     daysVisited,
     mostReadTopics,
-    relativeMostReadCoreTopics: readCoreTagStats.filter(stat => stat.readLikelihoodRatio > 0),
+    relativeMostReadCoreTopics: readCoreTagStats.filter(
+      (stat) => stat.readLikelihoodRatio > 0,
+    ),
     mostReadAuthors,
     topPosts: userPosts.slice(0,4) ?? null,
     postCount: postAuthorshipStats.totalCount,
