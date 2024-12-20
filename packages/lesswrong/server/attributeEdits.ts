@@ -54,7 +54,10 @@ export async function computeAttributions(
   // attributions.
   filteredRevs = filter(filteredRevs, (r, i) => i === 0 || i === filteredRevs.length - 1 || filteredRevs[i + 1].userId !== r.userId);
 
-  // Identify commits that are reverts
+  // Identify commits that are reverts (text exactly matches a prior rev) and
+  // skip over everything in between the reverted-to rev and the revert (which
+  // is likely deleting and then restoring stuff, which should not be attributed
+  // to the person who did the restore).
   let isReverted: boolean[] = _.times(filteredRevs.length, () => false);
   for (let i = 0; i < filteredRevs.length; i++) {
     for (let j = i - 1; j >= 0; j--) {

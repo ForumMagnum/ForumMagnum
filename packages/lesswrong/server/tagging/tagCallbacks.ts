@@ -8,6 +8,7 @@ import { taggingNameSetting } from '../../lib/instanceSettings';
 import { updateMutator } from '../vulcan-lib';
 import { updatePostDenormalizedTags } from './helpers';
 import { elasticSyncDocument } from '../search/elastic/elasticCallbacks';
+import { MultiDocuments } from '@/lib/collections/multiDocuments/collection';
 
 function isValidTagName(name: string) {
   if (!name || !name.length)
@@ -160,6 +161,8 @@ export async function recomputeContributorScoresFor(votedRevision: DbRevision, v
   if (votedRevision.collectionName !== "Tags" && votedRevision.collectionName !== "MultiDocuments") return;
   
   const tag = await Tags.findOne({_id: votedRevision.documentId});
-  if (!tag) return;
-  await updateDenormalizedContributorsList({ document: tag, collectionName, fieldName: votedRevision.collectionName === "Tags" ? "description" : "contents" });
+  const multiDocument = tag ? null : await MultiDocuments.findOne({_id: votedRevision.documentId});
+  const document = tag || multiDocument;
+  if (!document) return;
+  await updateDenormalizedContributorsList({ document, collectionName, fieldName: votedRevision.collectionName === "Tags" ? "description" : "contents" });
 }

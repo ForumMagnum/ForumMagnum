@@ -11,6 +11,7 @@ import { parseDocumentFromString } from '../lib/domParser';
 import { FetchedFragment } from './fetchFragment';
 import { getLatestContentsRevision } from '../lib/collections/revisions/helpers';
 import { applyCustomArbitalScripts } from './utils/arbital/arbitalCustomScripts';
+import { editableCollectionsFields } from '@/lib/editor/make_editable';
 
 async function getTocAnswersServer (document: DbPost) {
   if (!document.question) return []
@@ -48,12 +49,17 @@ async function getHtmlWithContributorAnnotations({
   version,
   context,
 }: {
-  document: any,
+  document: DbTag|DbMultiDocument,
   collectionName: CollectionNameString,
   fieldName: string,
   version: string | null,
   context: ResolverContext,
 }) {
+  if (!(fieldName in editableCollectionsFields[collectionName])) {
+    console.error(`Field ${fieldName} not in editableCollectionsFields[${collectionName}]`);
+    return null;
+  }
+
   if (version) {
     try {
       const html = await annotateAuthors(document._id, collectionName, fieldName, version);
@@ -82,7 +88,8 @@ async function getHtmlWithContributorAnnotations({
       console.log("Author annotation failed");
       // eslint-disable-next-line no-console
       console.log(e);
-      return document[fieldName]?.html ?? "";
+      // already validated fieldName is in editableCollectionsFields[collectionName]
+      return (document as any)[fieldName]?.html ?? "";
     }
   }
 }

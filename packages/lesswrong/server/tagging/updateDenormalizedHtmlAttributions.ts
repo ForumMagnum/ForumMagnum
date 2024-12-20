@@ -2,9 +2,9 @@ import { annotateAuthors } from '../attributeEdits';
 import { getCollection } from '../vulcan-lib';
 
 export async function updateDenormalizedHtmlAttributions(
-  document: any,
+  document: DbTag|DbMultiDocument,
   collectionName: CollectionNameString,
-  fieldName = 'description'
+  fieldName: string,
 ) {
   const html = await annotateAuthors(document._id, collectionName, fieldName);
   const collection = getCollection(collectionName);

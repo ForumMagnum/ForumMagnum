@@ -576,21 +576,12 @@ function useDisplayedContributors(contributorsInfo: DocumentContributorsInfo | n
 
   const totalAttributionChars = contributors.reduce( (acc: number, contributor: DocumentContributorWithStats) => acc + (contributor.currentAttributionCharCount ?? 0), 0);
 
-  // TODO: Remove when done refining this logic
-  // console.log({totalAttributionChars, contributorsAndStats: contributors.map(c => ({
-  //   userDeleted: c.user?.deleted,
-  //   userName: c.user?.displayName ?? c.user?.username,
-  //   userSlug: c.user?.slug,
-  //   currentAttributionCharCount: c.currentAttributionCharCount,
-  //   contributionFraction: Number((c.currentAttributionCharCount / totalAttributionChars).toFixed(3))
-  // }))});
-
   if (totalAttributionChars === 0) {
     return { topContributors: contributors, smallContributors: [] };
   }
 
-  const sortedContributors = [...contributors].sort( (a, b) => (b.currentAttributionCharCount ?? 0) - (a.currentAttributionCharCount ?? 0));
-  const initialTopContributors = sortedContributors.filter( ({ currentAttributionCharCount }) => ((currentAttributionCharCount ?? 0) / totalAttributionChars) > 0.1);
+  const sortedContributors = [...contributors].sort((a, b) => (b.currentAttributionCharCount ?? 0) - (a.currentAttributionCharCount ?? 0));
+  const initialTopContributors = sortedContributors.filter(({ currentAttributionCharCount }) => ((currentAttributionCharCount ?? 0) / totalAttributionChars) > 0.1);
   const topContributors = initialTopContributors.length <= 3 
     ? sortedContributors.filter( ({ currentAttributionCharCount }) => ((currentAttributionCharCount ?? 0) / totalAttributionChars) > 0.05)
     : initialTopContributors;
