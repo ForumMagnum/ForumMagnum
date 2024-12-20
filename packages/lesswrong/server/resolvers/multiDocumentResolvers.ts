@@ -12,9 +12,6 @@ augmentFieldsDict(MultiDocuments, {
   contributors: contributorsField({
     collectionName: 'MultiDocuments',
     fieldName: 'contents',
-    // is in essence the same type for tag main pages and lenses
-    graphQLType: 'TagContributorsList',
-    arguments: 'limit: Int, multiDocumentVersion: String',
   }),
   tableOfContents: {
     resolveAs: {

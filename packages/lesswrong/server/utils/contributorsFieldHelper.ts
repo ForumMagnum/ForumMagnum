@@ -9,17 +9,15 @@ import take from 'lodash/take';
 interface ContributorsFieldOptions {
   collectionName: 'Tags' | 'MultiDocuments';
   fieldName: string;
-  graphQLType: string;
-  arguments?: string;
 }
 
 export function contributorsField(options: ContributorsFieldOptions) {
-  const { collectionName, fieldName, graphQLType, arguments: graphqlArgs } = options;
+  const { collectionName, fieldName } = options;
 
   return {
     resolveAs: {
-      type: graphQLType,
-      arguments: graphqlArgs || 'limit: Int, version: String',
+      type: 'TagContributorsList',
+      arguments: 'limit: Int, version: String',
       resolver: async (
         document: any,
         { limit, version }: { limit?: number; version?: string },

@@ -40,6 +40,7 @@ afterCreateRevisionCallback.add(async ({revisionID}) => {
   
   const tag = await Tags.findOne({_id: revision.documentId});
   const multiDoc = tag ? null : await MultiDocuments.findOne({_id: revision.documentId});
-  if (!tag && !multiDoc) return;
-  await updateDenormalizedHtmlAttributions(tag || multiDoc, revision.collectionName);
+  const document = tag || multiDoc;
+  if (!document || !revision.fieldName) return;
+  await updateDenormalizedHtmlAttributions(document, revision.collectionName, revision.fieldName);
 });

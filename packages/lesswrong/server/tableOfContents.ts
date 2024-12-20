@@ -55,8 +55,9 @@ async function getHtmlWithContributorAnnotations({
   version: string | null,
   context: ResolverContext,
 }) {
-  if (!(fieldName in editableCollectionsFields[collectionName])) {
-    console.error(`Field ${fieldName} not in editableCollectionsFields[${collectionName}]`);
+  if (!editableCollectionsFields[collectionName].includes(fieldName)) {
+    // eslint-disable-next-line no-console
+    console.log(`Author annotation failed: Field ${fieldName} not in editableCollectionsFields[${collectionName}]`);
     return null;
   }
 

@@ -490,8 +490,6 @@ augmentFieldsDict(Tags, {
   contributors: contributorsField({
     collectionName: 'Tags',
     fieldName: 'description',
-    graphQLType: 'TagContributorsList',
-    arguments: 'limit: Int, version: String',
   }),
   tableOfContents: {
     resolveAs: {
