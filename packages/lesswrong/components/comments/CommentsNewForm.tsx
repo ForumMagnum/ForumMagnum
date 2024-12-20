@@ -187,6 +187,7 @@ const CommentSubmit = ({
   cancelCallback,
   loading,
   submitLabel = "Submit",
+  cancelLabel = "Cancel",
   className,
   classes,
 }: {
@@ -198,6 +199,7 @@ const CommentSubmit = ({
   cancelCallback?: CommentCancelCallback;
   loading: boolean;
   submitLabel?: React.ReactNode;
+  cancelLabel?: React.ReactNode;
   className?: string,
   classes: ClassesType<typeof styles>;
 }) => {
@@ -228,7 +230,7 @@ const CommentSubmit = ({
           className={classNames(formButtonClass, classes.cancelButton)}
           {...cancelBtnProps}
         >
-          Cancel
+          {cancelLabel}
         </Button>
       )}
       <Button
@@ -270,6 +272,7 @@ export type CommentsNewFormProps = {
   overrideHintText?: string,
   quickTakesSubmitButtonAtBottom?: boolean,
   isAnswer?: boolean,
+  cancelLabel?: string,
   className?: string,
   classes: ClassesType<typeof styles>,
 }
@@ -292,6 +295,7 @@ const CommentsNewForm = ({
   overrideHintText,
   quickTakesSubmitButtonAtBottom,
   isAnswer,
+  cancelLabel,
   className,
   classes,
 }: CommentsNewFormProps) => {
@@ -517,6 +521,7 @@ const CommentsNewForm = ({
                 ...formProps,
                 ...answerFormProps,
               }}
+              cancelLabel={cancelLabel}
               submitLabel={getSubmitLabel(isQuickTake, isAnswer)}
             />
           </div>
