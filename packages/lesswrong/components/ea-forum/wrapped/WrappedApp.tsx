@@ -109,20 +109,22 @@ const WrappedApp = ({classes}: {
         </div>
         <CurrentSection />
       </div>
-      <div className={classes.nav}>
-        <div className={classes.navButton} onClick={goToPreviousSection}>
-          <ForumIcon icon="ChevronLeft" />
+      {currentSection > 0 &&
+        <div className={classes.nav}>
+          <div className={classes.navButton} onClick={goToPreviousSection}>
+            <ForumIcon icon="ChevronLeft" />
+          </div>
+          {range(1, totalSections).map((i) => (
+            <div key={i} className={classNames(
+              classes.navSection,
+              i > currentSection && classes.navSectionUnviewed,
+            )} />
+          ))}
+          <div className={classes.navButton} onClick={goToNextSection}>
+            <ForumIcon icon="ChevronRight" />
+          </div>
         </div>
-        {range(0, totalSections).map((i) => (
-          <div key={i} className={classNames(
-            classes.navSection,
-            i > currentSection && classes.navSectionUnviewed,
-          )} />
-        ))}
-        <div className={classes.navButton} onClick={goToNextSection}>
-          <ForumIcon icon="ChevronRight" />
-        </div>
-      </div>
+      }
     </div>
   );
 }
