@@ -101,7 +101,7 @@ const WrappedPersonalitySection = ({classes}: {
     if (canvas && ctx && video && container) {
       const doFrame = () => {
         // Bad alpha blending causes a 1-pixel pseudo border around the canvas.
-        // To get around scale up slightly and move the outer-most pixel
+        // To get around this we scale up slightly and move the outer-most pixel
         // outside of the canvas. (Sorry)
         ctx.drawImage(video, -1, -1, canvas.width + 2, canvas.height + 2);
         requestAnimationFrame(doFrame);

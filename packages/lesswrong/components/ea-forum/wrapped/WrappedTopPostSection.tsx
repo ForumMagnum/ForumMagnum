@@ -55,7 +55,7 @@ const WrappedTopPostSection = ({classes}: {
         </div>
       }
       <div>
-        You wrote {data.postCount} post{data.postCount === 1 ? '' : 's'} in
+        You wrote {data.postCount} post{data.postCount === 1 ? "" : "s"} in
         total this year.
         {percentile < 100 &&
           ` This means you're in the top ${percentile}% of post authors.`
