@@ -723,6 +723,36 @@ class VotesRepo extends AbstractRepo<"Votes"> {
     }
     return result;
   }
+
+  async getEAWrappedAgreements(
+    userId: string,
+    start: Date,
+    end: Date,
+  ): Promise<Record<"agree" | "disagree", number>> {
+    const result = await this.getRawDb().oneOrNone(`
+      -- VotesRepo.getEAWrappedAgreements
+      SELECT
+        COUNT(*) FILTER
+          (WHERE ("extendedVoteType"->'agree')::BOOLEAN IS TRUE) AS "agree",
+        COUNT(*) FILTER
+          (WHERE ("extendedVoteType"->'disagree')::BOOLEAN IS TRUE) AS "disagree"
+      FROM "Votes"
+      WHERE
+        "userId" = $1
+        AND "votedAt" >= $2
+        AND "votedAt" < $3
+        AND "cancelled" IS NOT TRUE
+        AND "isUnvote" IS NOT TRUE
+        AND "extendedVoteType" IS NOT NULL
+    `, [userId, start, end]);
+    if (!result) {
+      return {agree: 0, disagree: 0};
+    }
+    for (const key in result) {
+      result[key] = parseInt(result[key]) || 0;
+    }
+    return result;
+  }
 }
 
 recordPerfMetrics(VotesRepo);

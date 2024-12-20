@@ -357,9 +357,9 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
   ): Promise<number> {
     const result = await this.getRawDb().oneOrNone(`
       -- CommentsRepo.getEAWrappedDiscussionsStarted
-      SELECT SUM("count")
+      SELECT SUM("count")::INTEGER AS "discussionCount"
       FROM (
-        SELECT COUNT(c.*)
+        SELECT COUNT(c.*) AS "count"
         FROM "Comments" c
         INNER JOIN "Posts" p ON
           c."postId" = p."_id"
@@ -372,7 +372,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
           AND c."deletedPublic" IS NOT TRUE
           AND ${getViewablePostsSelector("p")}
         UNION
-        SELECT COUNT(p.*)
+        SELECT COUNT(p.*) AS "count"
         FROM "Posts" p
         WHERE
           p."userId" = $1

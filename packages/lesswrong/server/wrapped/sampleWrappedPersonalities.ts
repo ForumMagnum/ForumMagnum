@@ -1,6 +1,7 @@
 import { Globals } from "@/lib/vulcan-lib";
 import { getWrappedUsers } from "./sendWrappedNotifications";
 import { getWrappedDataByYear } from "./wrappedDataByYear";
+import { getWrappedEngagement } from "./wrappedEngagment";
 import { getAdminTeamAccount } from "../callbacks/commentCallbacks";
 import { getAllRepos } from "../repos";
 import type { WrappedYear } from "@/components/ea-forum/wrapped/hooks";
@@ -57,3 +58,17 @@ const sampleWrappedPersonalities = async (
 }
 
 Globals.sampleWrappedPersonalities = sampleWrappedPersonalities;
+
+const sampleWrappedEngagement = async (
+  year: WrappedYear,
+  totalUsers?: number,
+) => {
+  const users = await getRelevantUsers(year, totalUsers);
+  for (const user of users) {
+    const engagement = await getWrappedEngagement(user._id, year);
+    // eslint-disable-next-line no-console
+    console.log("Percentile", user._id, engagement.engagementPercentile);
+  }
+}
+
+Globals.sampleWrappedEngagement = sampleWrappedEngagement;

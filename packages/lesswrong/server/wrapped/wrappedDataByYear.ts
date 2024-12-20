@@ -128,6 +128,7 @@ export const getWrappedDataByYear = async (
     readCoreTagStats,
     reactsReceived,
     reactsGiven,
+    agreements,
     discussionsStarted,
   ] = await Promise.all([
     Users.find(
@@ -191,6 +192,7 @@ export const getWrappedDataByYear = async (
     repos.posts.getReadCoreTagStats({ userId: user._id, year }),
     repos.votes.getEAWrappedReactsReceived(userId, start, end),
     repos.votes.getEAWrappedReactsGiven(userId, start, end),
+    repos.votes.getEAWrappedAgreements(userId, start, end),
     repos.comments.getEAWrappedDiscussionsStarted(userId, start, end),
   ]);
 
@@ -225,7 +227,7 @@ export const getWrappedDataByYear = async (
         // ignore
       }
     }
-    
+
     return {
       date: day.toDate(),
       postKarma,
@@ -302,6 +304,7 @@ export const getWrappedDataByYear = async (
   const personality = new WrappedPersonality({
     reactsReceived,
     reactsGiven,
+    agreements,
     engagementPercentile,
     totalKarmaChange,
     postsWritten: postAuthorshipStats.totalCount,

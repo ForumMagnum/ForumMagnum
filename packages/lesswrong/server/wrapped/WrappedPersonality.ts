@@ -9,6 +9,7 @@ export class WrappedPersonality {
   constructor({
     reactsReceived,
     reactsGiven,
+    agreements,
     engagementPercentile,
     totalKarmaChange,
     postsWritten,
@@ -19,6 +20,7 @@ export class WrappedPersonality {
   }: {
     reactsReceived: Record<string, number>,
     reactsGiven: Record<string, number>,
+    agreements: Record<"agree" | "disagree", number>,
     engagementPercentile: number,
     totalKarmaChange: number,
     postsWritten: number,
@@ -31,7 +33,11 @@ export class WrappedPersonality {
     const totalReactsReceived = sum(Object.values(reactsReceived));
     const totalReactsGiven = sum(Object.values(reactsReceived));
     if (totalReactsReceived === 0 && totalReactsGiven === 0) {
-      this.parts.push("Stoic");
+      if (agreements.agree && agreements.agree > agreements.disagree) {
+        this.parts.push("Agreeable");
+      } else {
+        this.parts.push("Stoic");
+      }
     } else if (totalReactsReceived < totalReactsGiven) {
       switch (last(sortBy(entries(reactsGiven), last))?.[0]) {
         case "love":         this.parts.push("Loving");      break;
@@ -62,6 +68,11 @@ export class WrappedPersonality {
       this.parts.push("Karma Farmer");
     } else if (discussionsStarted >= 3) {
       this.parts.push("Conversation Starter");
+    } else if (
+      agreements.disagree &&
+      agreements.disagree >= agreements.agree * 2
+    ) {
+      this.parts.push("Contrarian");
     } else if (
       totalKarmaChange > 0 &&
       (
