@@ -570,13 +570,23 @@ function useDisplayedTagTitle(tag: TagPageFragment | TagPageWithRevisionFragment
 // TODO: maybe move this to the server, so that the user doesn't have to wait for the hooks to run to see the contributors
 function useDisplayedContributors(contributorsInfo: DocumentContributorsInfo | null) {
   const contributors: DocumentContributorWithStats[] = contributorsInfo?.contributors ?? [];
-  if (!contributors.some(({ contributionVolume }) => contributionVolume)) {
+  if (!contributors.some(({ currentAttributionCharCount }) => currentAttributionCharCount)) {
     return { topContributors: contributors, smallContributors: [] };
   }
-  const totalDiffVolume = contributors.reduce((acc: number, contributor: TagContributor) => acc + contributor.contributionVolume, 0);
-  const sortedContributors = [...contributors].sort((a, b) => b.contributionVolume - a.contributionVolume);
-  const topContributors = sortedContributors.filter(({ contributionVolume }) => contributionVolume / totalDiffVolume > 0.1);
-  const smallContributors = sortedContributors.filter(({ contributionVolume }) => contributionVolume / totalDiffVolume <= 0.1);
+
+  const totalAttributionChars = contributors.reduce( (acc: number, contributor: DocumentContributorWithStats) => acc + (contributor.currentAttributionCharCount ?? 0), 0);
+
+  if (totalAttributionChars === 0) {
+    return { topContributors: contributors, smallContributors: [] };
+  }
+
+  const sortedContributors = [...contributors].sort((a, b) => (b.currentAttributionCharCount ?? 0) - (a.currentAttributionCharCount ?? 0));
+  const initialTopContributors = sortedContributors.filter(({ currentAttributionCharCount }) => ((currentAttributionCharCount ?? 0) / totalAttributionChars) > 0.1);
+  const topContributors = initialTopContributors.length <= 3 
+    ? sortedContributors.filter( ({ currentAttributionCharCount }) => ((currentAttributionCharCount ?? 0) / totalAttributionChars) > 0.05)
+    : initialTopContributors;
+  const smallContributors = sortedContributors.filter(contributor => !topContributors.includes(contributor));
+
   return { topContributors, smallContributors };
 }
 

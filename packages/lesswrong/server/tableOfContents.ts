@@ -11,6 +11,7 @@ import { parseDocumentFromString } from '../lib/domParser';
 import { FetchedFragment } from './fetchFragment';
 import { getLatestContentsRevision } from '../lib/collections/revisions/helpers';
 import { applyCustomArbitalScripts } from './utils/arbital/arbitalCustomScripts';
+import { editableCollectionsFields } from '@/lib/editor/make_editable';
 
 async function getTocAnswersServer (document: DbPost) {
   if (!document.question) return []
@@ -39,6 +40,59 @@ async function getTocCommentsServer (document: DbPost) {
   }
   const commentCount = await Comments.find(commentSelector).count()
   return getTocComments({post: document, commentCount})
+}
+
+async function getHtmlWithContributorAnnotations({
+  document,
+  collectionName,
+  fieldName,
+  version,
+  context,
+}: {
+  document: DbTag|DbMultiDocument,
+  collectionName: CollectionNameString,
+  fieldName: string,
+  version: string | null,
+  context: ResolverContext,
+}) {
+  if (!editableCollectionsFields[collectionName].includes(fieldName)) {
+    // eslint-disable-next-line no-console
+    console.log(`Author annotation failed: Field ${fieldName} not in editableCollectionsFields[${collectionName}]`);
+    return null;
+  }
+
+  if (version) {
+    try {
+      const html = await annotateAuthors(document._id, collectionName, fieldName, version);
+      return html;
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.log("Author annotation failed");
+      // eslint-disable-next-line no-console
+      console.log(e);
+      const revision = await Revisions.findOne({ documentId: document._id, version, fieldName });
+      if (!revision?.html) return null;
+      if (!await Revisions.checkAccess(context.currentUser, revision, context))
+        return null;
+      return revision.html;
+    }
+  } else {
+    try {
+      if (document.htmlWithContributorAnnotations) {
+        return document.htmlWithContributorAnnotations;
+      } else {
+        const html = await updateDenormalizedHtmlAttributions(document, collectionName, fieldName);
+        return html;
+      }
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.log("Author annotation failed");
+      // eslint-disable-next-line no-console
+      console.log(e);
+      // already validated fieldName is in editableCollectionsFields[collectionName]
+      return (document as any)[fieldName]?.html ?? "";
+    }
+  }
 }
 
 export const getToCforPost = async ({document, version, context}: {
@@ -83,35 +137,15 @@ export const getToCforTag = async ({document, version, context}: {
   context: ResolverContext,
 }): Promise<ToCData|null> => {
   let html: string;
-  if (version) {
-    try {
-      html = await annotateAuthors(document._id, "Tags", "description", version);
-    } catch(e) {
-      // eslint-disable-next-line no-console
-      console.log("Author annotation failed");
-      // eslint-disable-next-line no-console
-      console.log(e);
-      const revision = await Revisions.findOne({documentId: document._id, version, fieldName: "description"})
-      if (!revision?.html) return null;
-      if (!await Revisions.checkAccess(context.currentUser, revision, context))
-        return null;
-      html = revision.html;
-    }
-  } else {
-    try {
-      if (document.htmlWithContributorAnnotations) {
-        html = document.htmlWithContributorAnnotations;
-      } else {
-        html = await updateDenormalizedHtmlAttributions(document);
-      }
-    } catch(e) {
-      // eslint-disable-next-line no-console
-      console.log("Author annotation failed");
-      // eslint-disable-next-line no-console
-      console.log(e);
-      html = document.description?.html ?? "";
-    }
-  }
+  html = await getHtmlWithContributorAnnotations({
+    document,
+    collectionName: 'Tags',
+    fieldName: 'description',
+    version,
+    context,
+  });
+
+  if (!html) return null;
 
   html = await applyCustomArbitalScripts(html);
   
@@ -130,34 +164,15 @@ export const getToCforMultiDocument = async ({document, version, context}: {
   context: ResolverContext,
 }): Promise<ToCData | null> => {
   let html: string;
-  if (version) {
-    try {
-      html = await annotateAuthors(document._id, "MultiDocuments", "contents", version);
-    } catch(e) {
-      // eslint-disable-next-line no-console
-      console.log("Author annotation failed");
-      // eslint-disable-next-line no-console
-      console.log(e);
-      const revision = await Revisions.findOne({documentId: document._id, version, fieldName: "contents"})
-      if (!revision?.html) return null;
-      if (!await Revisions.checkAccess(context.currentUser, revision, context))
-        return null;
-      html = revision.html;
-    }
-  } else {
-    try {
-      // TODO: figure out how to denormalize the contributor annotations for multi-documents (like we do for tags); this probably isn't performant
-      html = (await Revisions.findOne({ documentId: document._id, fieldName: "contents" }, { sort: { editedAt: -1 } }))?.html ?? "";
-      //  await annotateAuthors(document._id, "MultiDocuments", "contents");
-    } catch(e) {
-      // eslint-disable-next-line no-console
-      console.log("Author annotation failed");
-      // eslint-disable-next-line no-console
-      console.log(e);
-      const revision = await getLatestContentsRevision(document, context);
-      html = revision?.html ?? "";
-    }
-  }
+  html = await getHtmlWithContributorAnnotations({
+    document,
+    collectionName: 'MultiDocuments',
+    fieldName: 'contents',
+    version,
+    context,
+  });
+
+  if (!html) return null;
 
   html = await applyCustomArbitalScripts(html);
   

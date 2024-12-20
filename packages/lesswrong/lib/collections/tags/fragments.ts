@@ -294,7 +294,7 @@ registerFragment(`
           ...UsersMinimumInfo
         }
         contributionScore
-        contributionVolume
+        currentAttributionCharCount
         numCommits
         voteCount
       }
@@ -336,7 +336,7 @@ registerFragment(`
           ...UsersMinimumInfo
         }
         contributionScore
-        contributionVolume
+        currentAttributionCharCount
         numCommits
         voteCount
       }
@@ -361,7 +361,7 @@ registerFragment(`
           ...UsersMinimumInfo
         }
         contributionScore
-        contributionVolume
+        currentAttributionCharCount
         numCommits
         voteCount
       }
@@ -444,7 +444,7 @@ registerFragment(`
           ...UsersMinimumInfo
         }
         contributionScore
-        contributionVolume
+        currentAttributionCharCount
         numCommits
         voteCount
       }

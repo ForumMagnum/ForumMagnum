@@ -1,5 +1,5 @@
 import "./integrationTestSetup";
-import { updateDenormalizedContributorsList } from '../server/resolvers/tagResolvers';
+import { updateDenormalizedContributorsList } from '../server/utils/contributorsUtil';
 import { createDummyUser, createDummyTag, createDummyRevision, waitUntilCallbacksFinished } from './utils';
 import { performVoteServer } from '../server/voteServer';
 import Tags from '../lib/collections/tags/collection';
@@ -21,7 +21,7 @@ describe('Tagging', function() {
       });
       await performVoteServer({ documentId: revision._id, voteType: 'smallUpvote', collection: Revisions, user, skipRateLimits: false });
       await performVoteServer({ documentId: revision._id, voteType: 'smallUpvote', collection: Revisions, user: voter, skipRateLimits: false });
-      await updateDenormalizedContributorsList(tag);
+      await updateDenormalizedContributorsList({ document: tag, collectionName: 'Tags', fieldName: 'description' });
       await waitUntilCallbacksFinished();
       const updatedTag = await Tags.find({_id: tag._id}).fetch();
       const stats = (updatedTag[0] as any).contributionStats;
