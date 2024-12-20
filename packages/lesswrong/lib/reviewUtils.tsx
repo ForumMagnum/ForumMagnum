@@ -128,20 +128,19 @@ export function eligibleToNominate (currentUser: UsersCurrent|DbUser|null) {
 export function postEligibleForReview (post: PostsBase) {
   if (moment.utc(post.postedAt) > moment.utc(`${REVIEW_YEAR+1}-01-01`)) return false
   if (isLWorAF && moment.utc(post.postedAt) < moment.utc(`${REVIEW_YEAR}-01-01`)) return false
-  if (!post.shortform) return false
+  if (post.shortform) return false
   return true
 }
 
-export function postIsVoteable (post: PostsBase) {
-  return getReviewPhase() === "NOMINATIONS" || post.positiveReviewVoteCount >= REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD
-
-}
+// export function postIsVoteable (post: PostsBase) {
+//   return getReviewPhase() === "NOMINATIONS" || post.positiveReviewVoteCount >= REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD
+// }
 
 
 export function canNominate (currentUser: UsersCurrent|null, post: PostsListBase) {
   if (!eligibleToNominate(currentUser)) return false
   if (currentUser && (post.userId === currentUser._id || post.coauthors?.map(author => author?._id).includes(currentUser._id))) return false
-  if (!postIsVoteable(post)) return false
+  // if (!postIsVoteable(post)) return false
   return (postEligibleForReview(post))
 }
 

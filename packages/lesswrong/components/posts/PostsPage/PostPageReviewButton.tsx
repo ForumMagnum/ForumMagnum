@@ -28,7 +28,7 @@ function PostPageReviewButton({post}: {post: PostsWithNavigation|PostsWithNaviga
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
 
-  if (!postEligibleForReview(post) || !postIsVoteable(post)) return null;
+  // if (!postEligibleForReview(post)) return null;
 
   const { ReviewVotingWidget, ReviewPostButton, LWTooltip } = Components;
 
