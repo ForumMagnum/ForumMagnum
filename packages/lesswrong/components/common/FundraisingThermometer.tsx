@@ -1,14 +1,25 @@
-import { registerComponent } from '@/lib/vulcan-lib';
+import { Components, registerComponent } from '@/lib/vulcan-lib';
 import React, { useEffect, useState } from 'react';
-import { lightconeFundraiserPostId, lightconeFundraiserThermometerBgUrl, lightconeFundraiserUnsyncedAmount } from '@/lib/publicSettings';
+import { lightconeFundraiserPostId, lightconeFundraiserThermometerBgUrl } from '@/lib/publicSettings';
 import { Link } from '@/lib/reactRouterWrapper';
 import { useFundraiserProgress } from '@/lib/lightconeFundraiser';
+import classNames from 'classnames';
 
 interface FundraisingThermometerProps {
   goalAmount: number;
+  onPost?: boolean;
 }
 
 const styles = (theme: ThemeType) => ({
+  root: {
+    '&:hover $header': {
+      color: theme.palette.review.winner,
+      textShadow: `0px 0px 1px ${theme.palette.review.winner}`,
+      '&:after': {
+        border: `1px solid ${theme.palette.review.winner}`,
+      }
+    }
+  },
   thermometer: {
     width: '100%',
     aspectRatio: '765 / 100',
@@ -17,8 +28,11 @@ const styles = (theme: ThemeType) => ({
     overflow: 'hidden',
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'center',
     alignItems: 'center',
+    '&:hover $fundraiserHeaderDonateButton': {
+      background: theme.palette.inverseGreyAlpha(0.25),
+      color: theme.palette.text.alwaysWhite,
+    },
   },
   fill: {
     position: 'absolute',
@@ -42,9 +56,30 @@ const styles = (theme: ThemeType) => ({
     transition: 'filter 0.5s ease-in-out',
   },
   header: {
-    fontSize: '2rem',
+    fontSize: '1.6rem',
+    marginTop: 0,
     marginBottom: 0,
     fontFamily: theme.typography.headerStyle.fontFamily,
+    transition: 'color 0.2s ease-in-out',
+  },
+  headerLinkIcon: {
+    '&:after': {
+      content: '""',
+      width: 4,
+      height: 4,
+      background: theme.palette.background.default,
+      border: `1px solid ${theme.palette.grey[800]}`,
+      display: 'inline-block',
+      position: 'relative',
+      marginLeft: 2,
+      borderRadius: '50%',
+      top: -7
+    }
+  },
+  hideHeaderOnMobile: {
+    [theme.breakpoints.down('xs')]: {
+      display: 'none',
+    }
   },
   subheader: {
     color: theme.palette.review.winner,
@@ -57,20 +92,43 @@ const styles = (theme: ThemeType) => ({
     width: '100%',
     fontFamily: theme.typography.body2.fontFamily,
     fontSize: '1.2rem',
+    paddingBottom: 6,
+    textShadow: `0px 0px 20px ${theme.palette.background.default}, 0px 0px 30px ${theme.palette.background.default}, 0px 0px 40px ${theme.palette.background.default}, 0px 0px 50px ${theme.palette.background.default}`,
+    alignItems: 'flex-end',
+    backdropFilter: 'blur(3px)',
+    [theme.breakpoints.down('xs')]: {
+      flexDirection: 'column',
+      alignItems: 'flex-start',
+    }
   },
   raisedTextBold: {
     fontWeight: 'bold',
+    fontFamily: theme.typography.headerStyle.fontFamily,
   },
   goalTextBold: {
     fontWeight: 'bold',
+    fontFamily: theme.typography.headerStyle.fontFamily,
+    marginRight: 6
   },
   raisedGoalNumber: {
     color: theme.palette.review.winner,
   },
   fundraiserHeader: {
     display: 'flex',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
     alignItems: 'center',
+    color: theme.palette.background.pageActiveAreaBackground,
+    zIndex: 1,
+    position: 'relative',
+    width: '100%',
+    height: '100%',
+    padding: '0 24px',
+  },
+  fundraiserDonateText: {
+    '&:hover': {
+      textDecoration: 'none',
+      opacity: 'unset'
+    },
   },
   fundraiserHeaderDonateButton: {
     padding: '10px 20px',
@@ -79,13 +137,30 @@ const styles = (theme: ThemeType) => ({
     fontSize: '1.6rem',
     fontWeight: 'bold',
     fontFamily: theme.typography.headerStyle.fontFamily,
-    color: theme.palette.review.winner,
-    background: theme.palette.inverseGreyAlpha(0.35),
-    backdropFilter: 'blur(3px)',
+    color: theme.palette.grey[500],
+    transition: 'background 0.2s ease-in-out, color 0.2s ease-in-out',
+    '&:hover': {
+      background: `${theme.palette.inverseGreyAlpha(0.8)} !important`,
+      boxShadow: `0px 0px 10px ${theme.palette.inverseGreyAlpha(0.5)}`,
+      color: theme.palette.text.alwaysWhite,
+    },
+    [theme.breakpoints.down('xs')]: {
+      color: theme.palette.text.alwaysWhite,
+    },
+  },
+  learnMoreContainer: {
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'flex-end',
+    marginTop: 12,
+    paddingBottom: 24,
+  },
+  onPost: {
+    marginTop: -12,
   },
 });
 
-const FundraisingThermometer: React.FC<FundraisingThermometerProps & {classes: ClassesType}> = ({ goalAmount, classes }) => {
+const FundraisingThermometer: React.FC<FundraisingThermometerProps & { classes: ClassesType }> = ({ goalAmount, classes, onPost = false }) => {
   const [percentage, currentAmount] = useFundraiserProgress(goalAmount);
   const [viewPercentage, setViewPercentage] = useState(percentage);
   const [viewCurrentAmount, setViewCurrentAmount] = useState(currentAmount);
@@ -99,35 +174,37 @@ const FundraisingThermometer: React.FC<FundraisingThermometerProps & {classes: C
     return () => clearInterval(interval);
   }, [percentage, currentAmount])
 
+  const { LWTooltip } = Components
 
   return (
-    <div className={classes.fundraiserContainer}>
-      <div className={classes.fundraiserHeader}>
-        <div className={classes.fundraiserHeaderText}>
-          <h2 className={classes.header}><Link to={`/posts/${lightconeFundraiserPostId.get()}`}>Lightcone Infrastructure fundraiser progress</Link></h2>
-          <h3 className={classes.subheader}>Goal 1: May</h3>
-        </div>
-        <Link className={classes.fundraiserDonateText} to="https://lightconeinfrastructure.com/donate">
-          <div className={classes.fundraiserHeaderDonateButton}>
-            Donate
-          </div>
-        </Link>
-      </div>
-      <Link className={classes.thermometerLink} to={`/posts/${lightconeFundraiserPostId.get()}`}>
-        <div className={classes.thermometer}>
-          <div className={classes.blurredUnfill}></div>
-          <div className={classes.fill} style={{width: `${viewPercentage}%`, backgroundSize: `${100*100/viewPercentage}% auto`}}></div>
-        </div>
-      </Link>
+    <div className={classNames(classes.root, onPost && classes.onPost)}>
       <div className={classes.textContainer}>
-        <span className={classes.raisedText}><span className={classes.raisedTextBold}>Raised:</span> <span className={classes.raisedGoalNumber}>${Math.round(viewCurrentAmount).toLocaleString()}</span></span>
-        <span className={classes.goalText}><span className={classes.goalTextBold}>Goal:</span> <span className={classes.raisedGoalNumber}>${goalAmount.toLocaleString()}</span></span>
+        {onPost ? <span className={classNames(classes.header, {[classes.hideHeaderOnMobile]: onPost})}>{"Fundraiser Progress"}</span> : <LWTooltip title="12,000 words about why you should give us money" placement="top-start">
+          <Link className={classNames(classes.header, classes.headerLinkIcon)} to={`/posts/${lightconeFundraiserPostId.get()}`}>
+            Lightcone Infrastructure Fundraiser
+          </Link>
+        </LWTooltip>}
+        <span className={classes.goalText}>
+          <span className={classes.goalTextBold}>Goal 1:</span>
+          <span className={classes.raisedGoalNumber}>${Math.round(viewCurrentAmount).toLocaleString()}</span> of ${goalAmount.toLocaleString()}
+        </span>
+      </div>
+      <div className={classes.thermometer}>
+        <div className={classes.fundraiserHeader}>
+          <Link className={classes.fundraiserDonateText} to="https://lightconeinfrastructure.com/donate">
+            <div className={classes.fundraiserHeaderDonateButton}>
+              Donate
+            </div>
+          </Link>
+        </div>
+        <div className={classes.blurredUnfill}></div>
+        <div className={classes.fill} style={{ width: `${viewPercentage}%`, backgroundSize: `${100 * 100 / viewPercentage}% auto` }}></div>
       </div>
     </div>
   );
 };
 
-const FundraisingThermometerComponent = registerComponent('FundraisingThermometer', FundraisingThermometer, {styles});
+const FundraisingThermometerComponent = registerComponent('FundraisingThermometer', FundraisingThermometer, { styles });
 
 export default FundraisingThermometerComponent;
 

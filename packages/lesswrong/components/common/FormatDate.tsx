@@ -1,6 +1,6 @@
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React, { useContext } from 'react';
-import moment from 'moment';
+import moment from 'moment-timezone';
 import { useTimezone } from '../common/withTimezone';
 import { EnvironmentOverrideContext, useCurrentTime } from '../../lib/utils/timeUtil';
 import { formatRelative } from '../../lib/utils/timeFormat';

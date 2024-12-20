@@ -793,7 +793,7 @@ const ThankYouScreen = ({
   const updateCurrentUser = useUpdateCurrentUser();
   const {captureEvent} = useTracking();
   const [addFlair, setAddFlair] = useState(
-    currentUser.givingSeason2024VotedFlair ?? false,
+    false,
   );
   const [confetti, setConfetti] = useState(true);
   const {width, height} = useWindowSize();

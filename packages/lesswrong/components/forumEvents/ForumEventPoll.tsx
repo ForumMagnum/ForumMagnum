@@ -12,6 +12,9 @@ import range from "lodash/range";
 import sortBy from "lodash/sortBy";
 import DeferRender from "../common/DeferRender";
 import type { ForumEventVoteDisplay } from "./ForumEventResultIcon";
+import { Link } from "@/lib/reactRouterWrapper";
+import { postGetPageUrl } from "@/lib/collections/posts/helpers";
+import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 
 export const POLL_MAX_WIDTH = 800;
 const SLIDER_MAX_WIDTH = 1120;
@@ -287,6 +290,11 @@ const styles = (theme: ThemeType) => ({
       display: "flex",
     },
   },
+  commentForm: {
+    [`@media(max-width: ${POLL_MAX_WIDTH}px)`]: {
+      display: 'none'
+    },
+  }
 });
 
 export type ForumEventVoteData = {
@@ -788,11 +796,23 @@ export const ForumEventPoll = ({
                     <ForumEventCommentForm
                       open={commentFormOpen}
                       comment={currentUserComment}
+                      successMessage="Success! Open the results to view everyone's votes and comments."
                       forumEventId={event._id}
                       onClose={() => setCommentFormOpen(false)}
                       refetch={refetchComments}
                       anchorEl={userVoteRef.current}
                       post={event.post}
+                      title="What made you vote this way?"
+                      subtitle={(post, comment) => (<>
+                        <div>
+                          Your response will appear as a comment on{" "}
+                          <Link to={comment ? commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id}) : postGetPageUrl(post)} target="_blank" rel="noopener noreferrer">
+                            this Debate Week post
+                          </Link>
+                          , and show next to your avatar on this banner.
+                        </div>
+                      </>)}
+                      className={classes.commentForm}
                     />
                   )}
                 </AnalyticsContext>

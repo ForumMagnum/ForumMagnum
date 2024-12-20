@@ -1,5 +1,5 @@
 import SimpleSchema from 'simpl-schema';
-import { slugify, getNestedProperty } from '../../vulcan-lib';
+import { slugify, getNestedProperty, addGraphQLSchema } from '../../vulcan-lib';
 import {userGetProfileUrl, getUserEmail, userOwnsAndInGroup, SOCIAL_MEDIA_PROFILE_FIELDS, getAuth0Provider } from "./helpers";
 import { userGetEditUrl } from '../../vulcan-users/helpers';
 import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../vulcan-users/permissions';
@@ -307,6 +307,25 @@ export const PROGRAM_PARTICIPATION = [
 ]
 
 export type RateLimitReason = "moderator"|"lowKarma"|"downvoteRatio"|"universal"
+
+type LatLng = {
+  lat: number
+  lng: number
+};
+const latLng = new SimpleSchema({
+  lat: {
+    type: Number,
+  },
+  lng: {
+    type: Number,
+  },
+});
+addGraphQLSchema(`
+  type LatLng {
+    lat: Float!
+    lng: Float!
+  }
+`);
 
 /**
  * @summary Users schema
@@ -1860,6 +1879,22 @@ const schema: SchemaType<"Users"> = {
     optional: true,
     hidden: isEAForum
   },
+  
+  mapLocationLatLng: resolverOnlyField({
+    type: latLng,
+    graphQLtype: "LatLng",
+    typescriptType: "LatLng",
+    canRead: ['guests'],
+    resolver: (user: DbUser, _args: void, _context: ResolverContext) => {
+      const mapLocation = user.mapLocation;
+      if (!mapLocation?.geometry?.location) return null;
+
+      const { lat, lng } = mapLocation.geometry.location;
+      if (typeof lat !== 'number' || typeof lng !== 'number') return null;
+      
+      return { lat, lng };
+    }
+  }),
 
   mapLocationSet: {
     type: Boolean,

@@ -6,7 +6,7 @@ import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissi
 import React, { useEffect, useState } from 'react';
 import * as _ from 'underscore';
 import { getBrowserLocalStorage } from '../../../components/editor/localStorageHandlers';
-import { Components } from '../../vulcan-lib';
+import { Components } from '../../vulcan-lib/components';
 import type { PermissionResult } from '../../make_voteable';
 import { DatabasePublicSetting } from '../../publicSettings';
 import { hasAuthorModeration } from '../../betas';
@@ -340,7 +340,7 @@ export function getDatadogUser (user: UsersCurrent | UsersEdit | DbUser): Datado
 }
 
 // Replaces Users.getProfileUrl from the vulcan-users package.
-export const userGetProfileUrl = (user: DbUser|UsersMinimumInfo|SearchUser|null, isAbsolute=false): string => {
+export const userGetProfileUrl = (user: DbUser|UsersMinimumInfo|SearchUser|UsersMapEntry|null, isAbsolute=false): string => {
   if (!user) return "";
   
   if (user.slug) {

@@ -36,6 +36,7 @@ type GivingSeasonEvent = {
   end: Moment,
   discussionTagId?: string,
   discussionTagSlug?: string,
+  feedIncludesComments?: boolean,
   background: string,
   darkText?: boolean,
   hidden?: boolean,
@@ -84,14 +85,6 @@ const events: GivingSeasonEvent[] = [
     background: "https://res.cloudinary.com/cea/image/upload/v1730143996/Rectangle_5069.jpg",
   },
   {
-    name: "Intermission",
-    description: null,
-    start: moment("2024-12-03").utc(),
-    end: moment("2024-12-16").utc(),
-    background: "https://res.cloudinary.com/cea/image/upload/v1730143996/Rectangle_5069.jpg",
-    hidden: true,
-  },
-  {
     name: "Pledge Highlight",
     description: <>
       A week to post about your experience with pledging, and to discuss the{" "}
@@ -102,6 +95,9 @@ const events: GivingSeasonEvent[] = [
     </>,
     start: moment("2024-12-16").utc(),
     end: moment("2024-12-22").utc(),
+    discussionTagId: isProduction ? "t3WrEa22KkcpddbGD" : "m6ih6JaPyAX4DfWTB",
+    discussionTagSlug: "pledge-highlight-week",
+    feedIncludesComments: true,
     background: "https://res.cloudinary.com/cea/image/upload/v1730143996/Rectangle_5072.jpg",
   },
   {

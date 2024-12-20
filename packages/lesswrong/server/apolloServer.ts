@@ -1,7 +1,7 @@
 import { ApolloServer } from 'apollo-server-express';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 
-import { isDevelopment, getInstanceSettings, getServerPort, isE2E } from '../lib/executionEnvironment';
+import { isDevelopment, isE2E } from '../lib/executionEnvironment';
 import { renderWithCache, getThemeOptionsFromReq } from './vulcan-lib/apollo-ssr/renderPage';
 
 import { pickerMiddleware, addStaticRoute } from './vulcan-lib/staticRoutes';
@@ -61,7 +61,9 @@ import { LAST_VISITED_FRONTPAGE_COOKIE } from '@/lib/cookies/cookies';
 import { addAutocompleteEndpoint } from './autocompleteEndpoint';
 import { getSqlClientOrThrow } from './sql/sqlClient';
 import { addLlmChatEndpoint } from './resolvers/anthropicResolvers';
+import { getInstanceSettings } from '@/lib/getInstanceSettings';
 import { addGivingSeasonEndpoints } from './givingSeason/webhook';
+import { getCommandLineArguments } from './commandLine';
 
 /**
  * End-to-end tests automate interactions with the page. If we try to, for
@@ -158,6 +160,15 @@ export function startWebserver() {
   const addMiddleware: AddMiddlewareType = (...args: any[]) => app.use(...args);
   const config = { path: '/graphql' };
   const expressSessionSecret = expressSessionSecretSetting.get()
+
+  if (enableVite) {
+    // When vite is running the backend is proxied which means we have to
+    // enable CORS for API routes to work
+    app.use((_req, res, next) => {
+      res.set("Access-Control-Allow-Origin", "*");
+      next();
+    });
+  }
 
   app.use(universalCookiesMiddleware());
 
@@ -337,13 +348,13 @@ export function startWebserver() {
   if (testServerSetting.get()) {
     app.post('/api/quit', (_req, res) => {
       res.status(202).send('Quiting server');
-      process.kill(estrellaPid, 'SIGQUIT');
+      process.kill(buildProcessPid, 'SIGQUIT');
     })
   }
 
   addServerSentEventsEndpoint(app);
   addAutocompleteEndpoint(app);
-
+  
   app.get('/node_modules/*', (req, res) => {
     // Under some circumstances (I'm not sure exactly what the trigger is), the
     // Chrome JS debugger tries to load a bunch of /node_modules/... paths
@@ -373,7 +384,9 @@ export function startWebserver() {
     const publicSettingsHeader = embedAsGlobalVar("publicSettings", getPublicSettings())
 
     const bundleHash = getClientBundle().resource.hash;
-    const clientScript = `<script async src="/js/bundle.js?hash=${bundleHash}"></script>`
+    const clientScript = enableVite
+      ? ""
+      : `<script async src="/js/bundle.js?hash=${bundleHash}"></script>`
     const instanceSettingsHeader = embedAsGlobalVar("publicInstanceSettings", getInstanceSettings().public);
 
     // Check whether the requested route has enableResourcePrefetch. If it does,
@@ -488,11 +501,11 @@ export function startWebserver() {
   })
 
   // Start Server
-  const port = getServerPort();
+  const listenPort = getCommandLineArguments().listenPort;
   const env = process.env.NODE_ENV || 'production'
-  const server = app.listen({ port }, () => {
+  const server = app.listen({ port: listenPort }, () => {
     // eslint-disable-next-line no-console
-    return console.info(`Server running on http://localhost:${port} [${env}]`)
+    return console.info(`Server running on http://localhost:${listenPort} [${env}]`)
   })
   server.keepAliveTimeout = 120000;
   

@@ -9,6 +9,7 @@ import ElectionVotes from "@/lib/collections/electionVotes/collection";
 import { ACTIVE_DONATION_ELECTION } from "@/lib/givingSeason";
 import { instantRunoffAllPossibleResults, IRVote } from "@/lib/givingSeason/instantRunoff";
 import { memoizeWithExpiration } from "@/lib/utils/memoizeWithExpiration";
+import { Comments } from "@/lib/collections/comments";
 
 const getVoteCounts = async () => {
   const dbVotes = await ElectionVotes.find({ electionName: ACTIVE_DONATION_ELECTION }).fetch();
@@ -96,7 +97,6 @@ defineFeedResolver<number>({
   cutoffTypeGraphQL: "Int",
   resultTypesGraphQL: `
     newPost: Post
-    newComment: Comment
   `,
   resolver: async ({limit = 3, cutoff, offset, args, context}: {
     limit?: number,
@@ -106,7 +106,6 @@ defineFeedResolver<number>({
     context: ResolverContext
   }) => {
     const {tagId} = args;
-    // const relevantPostIds = await context.repos.posts.getViewablePostsIdsWithTag(tagId);
     return mergeFeedQueries<number>({
       limit,
       cutoff,
@@ -119,10 +118,44 @@ defineFeedResolver<number>({
           context,
           selector: {
             [`tagRelevance.${tagId}`]: {$gte: 1},
-            // _id: {$in: relevantPostIds},
           },
         }),
-        /*
+      ],
+    });
+  }
+});
+
+defineFeedResolver<Date>({
+  name: "GivingSeasonTagFeedWithComments",
+  args: "tagId: String!",
+  cutoffTypeGraphQL: "Date",
+  resultTypesGraphQL: `
+    newPost: Post
+    newComment: Comment
+  `,
+  resolver: async ({limit = 3, cutoff, offset, args, context}: {
+    limit?: number,
+    cutoff?: Date,
+    offset?: number,
+    args: {tagId: string},
+    context: ResolverContext
+  }) => {
+    const {tagId} = args;
+    const relevantPostIds = await context.repos.posts.getViewablePostsIdsWithTag(tagId);
+    return mergeFeedQueries<Date>({
+      limit,
+      cutoff,
+      offset,
+      subqueries: [
+        viewBasedSubquery({
+          type: "newPost",
+          collection: Posts,
+          sortField: "createdAt",
+          context,
+          selector: {
+            _id: {$in: relevantPostIds},
+          },
+        }),
         viewBasedSubquery({
           type: "newComment",
           collection: Comments,
@@ -133,7 +166,6 @@ defineFeedResolver<number>({
             baseScore: {$gte: 5},
           },
         }),
-         */
       ],
     });
   }
