@@ -9,9 +9,6 @@ const styles = (theme: ThemeType) => ({
   root: {
     width: "100%",
     height: "100%",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
   },
   app: {
     position: "relative",
@@ -31,6 +28,8 @@ const styles = (theme: ThemeType) => ({
     top: -10000,
   },
   nav: {
+    position: "fixed",
+    bottom: 0,
     padding: 16,
     width: "100vw",
     maxWidth: 500,

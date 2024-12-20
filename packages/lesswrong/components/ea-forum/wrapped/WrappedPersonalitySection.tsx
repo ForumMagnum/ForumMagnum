@@ -51,7 +51,7 @@ const styles = (theme: ThemeType) => ({
   },
   share: {
     position: "fixed",
-    bottom: 66,
+    bottom: 50,
     left: `calc(50% - ${WRAPPED_SHARE_BUTTON_WIDTH / 2}px)`,
     transition: "opacity 0.5s ease-in-out",
   },
