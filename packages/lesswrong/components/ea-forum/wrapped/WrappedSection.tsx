@@ -9,6 +9,8 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     flexDirection: "column",
     justifyContent: "flex-start",
+  },
+  padding: {
     padding: 40,
     [theme.breakpoints.down("sm")]: {
       paddingLeft: 20,
@@ -30,6 +32,7 @@ const WrappedSection = ({
   pageSectionContext,
   align = "center",
   fullHeight,
+  noPadding,
   children,
   className,
   classes,
@@ -37,6 +40,7 @@ const WrappedSection = ({
   pageSectionContext: string,
   align?: "left" | "center",
   fullHeight?: boolean,
+  noPadding?: boolean,
   children?: ReactNode,
   className?: string,
   classes: ClassesType<typeof styles>,
@@ -46,6 +50,7 @@ const WrappedSection = ({
       <section className={classNames(
         classes.root,
         className,
+        !noPadding && classes.padding,
         align === "left" && classes.left,
         align === "center" && classes.center,
         fullHeight && classes.fullHeight,

@@ -1,11 +1,15 @@
 import React, { RefObject, useCallback } from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import html2canvas from "html2canvas";
+import classNames from "classnames";
+
+export const WRAPPED_SHARE_BUTTON_WIDTH = 100;
 
 const styles = (theme: ThemeType) => ({
   root: {
     background: theme.palette.text.alwaysWhite,
     color: theme.palette.text.alwaysBlack,
+    width: WRAPPED_SHARE_BUTTON_WIDTH,
     fontSize: 14,
     fontWeight: 600,
     display: "flex",
@@ -14,7 +18,7 @@ const styles = (theme: ThemeType) => ({
     padding: "6px 16px",
     borderRadius: 100,
     "&:hover": {
-      opacity: 0.8,
+      filter: "brightness(0.8)",
     },
   },
   icon: {
@@ -22,15 +26,20 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const WrappedShareButton = ({screenshotRef, classes}: {
+const WrappedShareButton = ({name, screenshotRef, className, classes}: {
+  name: string,
   screenshotRef: RefObject<HTMLElement>,
+  className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
   const onClick = useCallback(async () => {
     const target = screenshotRef.current;
     if (target) {
-      const fileName = "My2024EAForumWrapped.png";
-      const canvasElement = await html2canvas(target);
+      const fileName = `My2024EAForumWrapped-${name}.png`;
+      const canvasElement = await html2canvas(target, {
+        allowTaint: true,
+        useCORS: true,
+      });
       const dataUrl = canvasElement.toDataURL("image/png");
       if (!!navigator.canShare) {
         const data = await fetch(dataUrl);
@@ -41,7 +50,7 @@ const WrappedShareButton = ({screenshotRef, classes}: {
         });
         const sharingOptions = {files: [file]};
         if (navigator.canShare(sharingOptions)) {
-          await navigator.share({files: [file]});
+          await navigator.share(sharingOptions);
           return;
         }
       }
@@ -50,11 +59,11 @@ const WrappedShareButton = ({screenshotRef, classes}: {
       link.href = dataUrl;
       link.click();
     }
-  }, [screenshotRef]);
+  }, [name, screenshotRef]);
 
   const {ForumIcon} = Components;
   return (
-    <button className={classes.root} onClick={onClick}>
+    <button className={classNames(classes.root, className)} onClick={onClick}>
       <ForumIcon icon="Share" className={classes.icon} /> Share
     </button>
   );

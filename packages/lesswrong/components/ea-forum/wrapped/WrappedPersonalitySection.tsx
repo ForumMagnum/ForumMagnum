@@ -1,13 +1,20 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
+import { WRAPPED_SHARE_BUTTON_WIDTH } from "./WrappedShareButton";
 import { useForumWrappedContext } from "./hooks";
 import { getWrappedVideo } from "./videos";
 import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
   root: {
-    position: "relative",
+    width: "100%",
     minHeight: "100%",
+  },
+  container: {
+    position: "relative",
+    width: "100%",
+    minHeight: "100%",
+    overflowX: "hidden",
   },
   black: {
     background: theme.palette.wrapped.darkBackground,
@@ -24,70 +31,135 @@ const styles = (theme: ThemeType) => ({
   green: {
     background: theme.palette.wrapped.personalityGreen,
   },
+  canvas: {
+    maxWidth: "100%",
+  },
   video: {
+    position: "absolute",
+    top: -10000,
+    left: -10000,
+  },
+  content: {
     position: "absolute",
     top: 0,
     left: 0,
+    padding: 40,
     width: "100%",
-  },
-  content: {
-    position: "relative",
   },
   bottomMargin: {
     marginBottom: 2,
+  },
+  share: {
+    position: "fixed",
+    bottom: 66,
+    left: `calc(50% - ${WRAPPED_SHARE_BUTTON_WIDTH / 2}px)`,
+    transition: "opacity 0.5s ease-in-out",
+  },
+  shareHidden: {
+    opacity: 0,
+    pointerEvents: "none",
   },
 });
 
 const WrappedPersonalitySection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {data: {personality}} = useForumWrappedContext();
+  const {
+    data: {personality},
+    thinkingVideoRef,
+    personalityVideoRef,
+  } = useForumWrappedContext();
   const [video, setVideo] = useState(() => getWrappedVideo("thinking"));
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isFinished, setIsFinished] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const screenshotRef = useRef<HTMLDivElement>(null);
+  const [size, setSize] = useState({width: 200, height: 200});
 
   const isThinking = video.animation === "thinking";
+  const videoRef = isThinking ? thinkingVideoRef : personalityVideoRef;
 
   useEffect(() => {
     const elem = videoRef.current;
-    if (elem && isThinking) {
+    if (elem) {
       const handler = () => {
-        setVideo(getWrappedVideo(personality));
+        if (isThinking) {
+          setVideo(getWrappedVideo(personality));
+        } else {
+          setIsFinished(true);
+        }
       }
       elem.addEventListener("ended", handler);
       return () => elem.removeEventListener("ended", handler);
     }
-  }, [isThinking, personality]);
+  }, [videoRef, isThinking, personality]);
 
-  const {WrappedSection, WrappedHeading} = Components;
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext("2d");
+    const video = videoRef.current;
+    if (canvas && ctx && video) {
+      const doFrame = () => {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        requestAnimationFrame(doFrame);
+      }
+      const handler = () => {
+        const {videoWidth, videoHeight} = video;
+        const aspect = videoWidth / videoHeight;
+        const width = window.innerWidth;
+        const height = width / aspect;
+        setSize({width, height});
+        requestAnimationFrame(doFrame);
+      }
+      video.addEventListener("play", handler);
+      return () => video.removeEventListener("play", handler);
+    }
+  }, [videoRef]);
+
+  useEffect(() => {
+    videoRef.current?.play();
+  }, [videoRef]);
+
+  const {WrappedSection, WrappedHeading, WrappedShareButton} = Components;
   return (
     <WrappedSection
       pageSectionContext="personality"
       className={classNames(classes.root, classes[video.color])}
+      noPadding
     >
-      <video
-        src={video.src}
-        ref={videoRef}
-        className={classes.video}
-        autoPlay
-        muted
-      />
-      <div className={classes.content}>
-        {isThinking &&
-          <WrappedHeading>
-            Your EA Forum personality is...
-          </WrappedHeading>
-        }
-        {!isThinking &&
-          <>
-            <div className={classes.bottomMargin}>
-              Your EA Forum personality is
-            </div>
+      <div
+        ref={screenshotRef}
+        className={classNames(classes.container, classes[video.color])}
+      >
+        <canvas
+          ref={canvasRef}
+          width={videoRef.current?.videoWidth}
+          height={videoRef.current?.videoHeight}
+          style={{width: size.width, height: size.height}}
+          className={classes.canvas}
+        />
+        <div className={classes.content}>
+          {isThinking &&
             <WrappedHeading>
-              {personality}
+              Your EA Forum personality is...
             </WrappedHeading>
-          </>
-        }
+          }
+          {!isThinking &&
+            <>
+              <div className={classes.bottomMargin}>
+                Your EA Forum personality is
+              </div>
+              <WrappedHeading>
+                {personality}
+              </WrappedHeading>
+            </>
+          }
+        </div>
       </div>
+      <WrappedShareButton
+        name="Personality"
+        screenshotRef={screenshotRef}
+        className={classNames(classes.share, !isFinished && classes.shareHidden)}
+      />
     </WrappedSection>
   );
 }

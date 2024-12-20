@@ -28,7 +28,7 @@ const chooseColor = (personality: string) => {
 }
 
 const prefix = (file: string) =>
-    `https://res.cloudinary.com/cea/video/upload/v1734615259/wrapped-2024/${file}`;
+  `https://res.cloudinary.com/cea/video/upload/v1734615259/wrapped-2024/${file}`;
 
 type WrappedColor = "grey" | "red" | "blue" | "green" | "black";
 

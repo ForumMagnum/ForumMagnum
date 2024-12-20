@@ -1,6 +1,7 @@
 import React from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { useForumWrappedContext } from "./hooks";
+import { getWrappedVideo } from "./videos";
 import range from "lodash/range";
 import classNames from "classnames";
 
@@ -13,6 +14,7 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center",
   },
   app: {
+    position: "relative",
     display: "flex",
     alignItems: "flex-start",
     justifyContent: "center",
@@ -22,6 +24,11 @@ const styles = (theme: ThemeType) => ({
     "& > *": {
       maxWidth: 700,
     },
+  },
+  offscreenVideos: {
+    position: "absolute",
+    left: -10000,
+    top: -10000,
   },
   nav: {
     padding: 16,
@@ -62,16 +69,33 @@ const WrappedApp = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {
+    data: {personality},
     totalSections,
     currentSection,
     goToPreviousSection,
     goToNextSection,
     CurrentSection,
+    thinkingVideoRef,
+    personalityVideoRef,
   } = useForumWrappedContext();
   const {ForumIcon} = Components;
   return (
     <div className={classes.root}>
       <div className={classes.app}>
+        <div className={classes.offscreenVideos}>
+          <video
+            src={getWrappedVideo("thinking").src}
+            ref={thinkingVideoRef}
+            muted
+            crossOrigin="anonymous"
+          />
+          <video
+            src={getWrappedVideo(personality).src}
+            ref={personalityVideoRef}
+            muted
+            crossOrigin="anonymous"
+          />
+        </div>
         <CurrentSection />
       </div>
       <div className={classes.nav}>

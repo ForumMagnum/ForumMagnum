@@ -1,4 +1,13 @@
-import React, { FC, ReactNode, createContext, useCallback, useContext, useState } from "react";
+import React, {
+  FC,
+  ReactNode,
+  RefObject,
+  createContext,
+  useCallback,
+  useContext,
+  useRef,
+  useState,
+} from "react";
 import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
 import { gql, useQuery } from "@apollo/client";
 import { useRecommendations } from "@/components/recommendations/withRecommendations";
@@ -201,11 +210,19 @@ type ForumWrappedContext = {
   goToNextSection: () => void,
   CurrentSection: FC,
   recommendations: PostsListWithVotesAndSequence[],
+  thinkingVideoRef: RefObject<HTMLVideoElement>,
+  personalityVideoRef: RefObject<HTMLVideoElement>,
 }
 
 const forumWrappedContext = createContext<ForumWrappedContext | null>(null);
 
-export const ForumWrappedProvider = ({year, data, currentUser, sections, children}: {
+export const ForumWrappedProvider = ({
+  year,
+  data,
+  currentUser,
+  sections,
+  children,
+}: {
   year: WrappedYear,
   data: WrappedDataByYear,
   currentUser: UsersCurrent,
@@ -230,6 +247,9 @@ export const ForumWrappedProvider = ({year, data, currentUser, sections, childre
     ssr: false,
   });
 
+  const thinkingVideoRef = useRef<HTMLVideoElement>(null);
+  const personalityVideoRef = useRef<HTMLVideoElement>(null);
+
   return (
     <forumWrappedContext.Provider value={{
       year,
@@ -241,6 +261,8 @@ export const ForumWrappedProvider = ({year, data, currentUser, sections, childre
       goToNextSection,
       CurrentSection: sections[currentSection],
       recommendations: recommendations ?? [],
+      thinkingVideoRef,
+      personalityVideoRef,
     }}>
       {children}
     </forumWrappedContext.Provider>

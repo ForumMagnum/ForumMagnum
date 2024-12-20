@@ -164,7 +164,7 @@ const WrappedSummarySection = ({classes}: {
         </div>
       </div>
       <div>
-        <WrappedShareButton screenshotRef={screenshotRef} />
+        <WrappedShareButton name="Summary" screenshotRef={screenshotRef} />
       </div>
     </WrappedSection>
   );
