@@ -147,7 +147,7 @@ const ImportedPostEditor = ({
       <Components.ContentStyles contentType="post">
         <CKEditor
           isCollaborative={false}
-          editor={getCkPostEditor(false)}
+          editor={getCkPostEditor(false, forumTypeSetting.get())}
           data={editorValue}
           ref={ckEditorRef}
           config={{
@@ -185,7 +185,7 @@ const CommentEditor = ({
       <Components.ContentStyles contentType="comment">
         <CKEditor
           isCollaborative={false}
-          editor={getCkCommentEditor()}
+          editor={getCkCommentEditor(forumTypeSetting.get())}
           data={commentValue}
           ref={ckEditorRef}
           config={{

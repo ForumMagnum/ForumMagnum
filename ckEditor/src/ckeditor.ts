@@ -130,9 +130,7 @@ const sharedPlugins = [
 	UrlValidator,
 	RemoveRedirect,
 	CloudinaryAdapterPlugin,
-	LLMAutocomplete,
-	CTAButton,
-	CollapsibleSections,
+	LLMAutocomplete
 ];
 
 const postEditorPlugins = [
@@ -157,25 +155,31 @@ const collaborativeEditorPlugins = [
 	DialogueCommentBox
 ];
 
+type ForumTypeString = "LessWrong"|"AlignmentForum"|"EAForum";
+const siteSpecificPlugins: Partial<Record<ForumTypeString,AnyBecauseTodo[]>> = {
+  EAForum: [CTAButton],
+  LessWrong: [CollapsibleSections],
+};
 
-export function getPostEditor() {
+export function getPostEditor(forumType: ForumTypeString) {
   class PostEditor extends BalloonBlockEditorBase {}
-  PostEditor.builtinPlugins = [ ...postEditorPlugins];
+  PostEditor.builtinPlugins = [ ...postEditorPlugins, ...(forumType in siteSpecificPlugins ? siteSpecificPlugins[forumType] : [])];
   PostEditor.defaultConfig = { ...postEditorConfig };
   return PostEditor;
 }
 
-// NOTE: do not attempt to forum-gate plugins being added to the bundle; it will break things
-export function getPostEditorCollaboration() {
+// NOTE: Site-specific plugins might not match between client and server. If making a site-specific plugin that needs
+// to be included in the uploaded cloud bundle, then revisit this and get forumType plumbed into that.
+export function getPostEditorCollaboration(forumType: ForumTypeString) {
   class PostEditorCollaboration extends BalloonBlockEditorBase {}
-  PostEditorCollaboration.builtinPlugins = [ ...collaborativeEditorPlugins];
+  PostEditorCollaboration.builtinPlugins = [ ...collaborativeEditorPlugins, ...(forumType in siteSpecificPlugins ? siteSpecificPlugins[forumType] : [])];
   PostEditorCollaboration.defaultConfig = { ...postEditorConfig };
   return PostEditorCollaboration;
 }
 
-export function getCommentEditor() {
+export function getCommentEditor(forumType: ForumTypeString) {
   class CommentEditor extends BalloonBlockEditorBase {}
-  CommentEditor.builtinPlugins = [ ...sharedPlugins];
+  CommentEditor.builtinPlugins = [ ...sharedPlugins, ...(forumType in siteSpecificPlugins ? siteSpecificPlugins[forumType] : [])];
   CommentEditor.defaultConfig = { ...commentEditorConfig };
   return CommentEditor;
 }
