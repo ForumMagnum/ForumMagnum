@@ -323,7 +323,10 @@ export const styles = (theme: ThemeType) => ({
     marginLeft: 8
   },
   reviewPostButton: {
-    marginLeft: 10
+    marginLeft: 10,
+    [theme.breakpoints.down('xs')]: {
+      marginRight: -8,
+    }
   },
   unreadDebateResponsesIcon: {
     height: 14,
