@@ -124,7 +124,12 @@ const WrappedPersonalitySection = ({classes}: {
   }, [videoRef]);
 
   useEffect(() => {
-    void videoRef.current?.play();
+    const video = videoRef.current;
+    if (video) {
+      video.pause();
+      video.currentTime = 0;
+      void video.play();
+    }
   }, [videoRef]);
 
   const {WrappedSection, WrappedHeading, WrappedShareButton} = Components;
