@@ -1,7 +1,6 @@
 import React from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { useForumWrappedContext } from "./hooks";
-import DeferRender from "@/components/common/DeferRender";
 
 const styles = (theme: ThemeType) => ({
   labels: {
@@ -26,6 +25,11 @@ const styles = (theme: ThemeType) => ({
   },
   heartIcon: {
     fontSize: 16,
+  },
+  container: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
   },
   list: {
     width: "100%",
@@ -90,14 +94,14 @@ const WrappedMostValuablePostsSection = ({classes}: {
         Look back at everything you upvoted - what did you find most valuable?
         Your answers will help us encourage more of the most valuable content.
       </div>
-      <div className={classes.labels}>
-        <div className={classes.upvotesLabel}>Your upvotes</div>
-        <div className={classes.heartLabel}>
-          Most valuable
-          <ForumIcon icon="HeartOutline" className={classes.heartIcon} />
+      <div className={classes.container}>
+        <div className={classes.labels}>
+          <div className={classes.upvotesLabel}>Your upvotes</div>
+          <div className={classes.heartLabel}>
+            Most valuable
+            <ForumIcon icon="HeartOutline" className={classes.heartIcon} />
+          </div>
         </div>
-      </div>
-      <DeferRender ssr={false}>
         <div className={classes.list}>
           <PostsByVoteWrapper
             voteType="bigUpvote"
@@ -115,7 +119,7 @@ const WrappedMostValuablePostsSection = ({classes}: {
             hideEmptyStateText
           />
         </div>
-      </DeferRender>
+      </div>
     </WrappedSection>
   );
 }

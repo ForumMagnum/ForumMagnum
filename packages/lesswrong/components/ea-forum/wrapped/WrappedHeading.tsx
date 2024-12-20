@@ -10,6 +10,7 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 700,
     lineHeight: "110%",
     letterSpacing: "-1.6px",
+    wordBreak: "break-word",
     marginTop: 0,
     marginBottom: 16,
     "& em": {

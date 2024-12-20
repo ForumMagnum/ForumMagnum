@@ -3,6 +3,12 @@ import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { useForumWrappedContext } from "./hooks";
 
 const styles = (theme: ThemeType) => ({
+  container: {
+    margin: "40px auto 0",
+    [theme.breakpoints.up("sm")]: {
+      width: 600,
+    },
+  },
   heading: {
     fontSize: 54,
     fontWeight: 700,
@@ -50,13 +56,15 @@ const WrappedWelcomeSection = ({classes}: {
   const {WrappedSection, ForumIcon} = Components;
   return (
     <WrappedSection pageSectionContext="top" align="left">
-      <h1 className={classes.heading}>
-        Hi {currentUser.displayName}, this is your {year} EA Forum{" "}
-        <span className={classes.wrapped}>Wrapped</span>
-      </h1>
-      <button onClick={goToNextSection} className={classes.button}>
-        Get started <ForumIcon icon="ChevronRight" />
-      </button>
+      <div className={classes.container}>
+        <h1 className={classes.heading}>
+          Hi {currentUser.displayName}, this is your {year} EA Forum{" "}
+          <span className={classes.wrapped}>Wrapped</span>
+        </h1>
+        <button onClick={goToNextSection} className={classes.button}>
+          Get started <ForumIcon icon="ChevronRight" />
+        </button>
+      </div>
     </WrappedSection>
   );
 }

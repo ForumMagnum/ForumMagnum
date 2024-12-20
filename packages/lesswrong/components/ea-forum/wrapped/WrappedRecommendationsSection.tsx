@@ -4,10 +4,24 @@ import { useForumWrappedContext } from "./hooks";
 import { drawnArrow } from "@/components/icons/drawnArrow";
 
 const styles = (theme: ThemeType) => ({
+  posts: {
+    position: "relative",
+    display: "flex",
+    flexDirection: "column",
+    gap: "8px",
+    width: "100%",
+    maxWidth: 380,
+    margin: "60px auto 0",
+    "& .RecommendationsList-noMoreMessage": {
+      color: theme.palette.text.alwaysWhite,
+    },
+  },
   arrowContainer: {
+    position: "absolute",
+    top: -44,
+    right: 0,
     width: "100%",
     height: 3,
-    position: "relative",
   },
   saveForLater: {
     position: "absolute",
@@ -20,17 +34,6 @@ const styles = (theme: ThemeType) => ({
   },
   arrow: {
     transform: "rotate(-50deg)",
-  },
-  posts: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "8px",
-    width: "100%",
-    maxWidth: 380,
-    margin: "40px auto 0",
-    "& .RecommendationsList-noMoreMessage": {
-      color: theme.palette.text.alwaysWhite,
-    },
   },
 });
 
@@ -47,14 +50,14 @@ const WrappedRecommendationsSection = ({classes}: {
       <WrappedHeading>
         Posts you missed that we think you’ll enjoy
       </WrappedHeading>
-      <div className={classes.arrowContainer}>
-        <aside className={classes.saveForLater}>
-          <div className={classes.saveForLaterText}>Save for later</div>
-          <div className={classes.arrow}>{drawnArrow}</div>
-        </aside>
-      </div>
       {recommendations.length > 0 &&
         <div className={classes.posts}>
+          <div className={classes.arrowContainer}>
+            <aside className={classes.saveForLater}>
+              <div className={classes.saveForLaterText}>Save for later</div>
+              <div className={classes.arrow}>{drawnArrow}</div>
+            </aside>
+          </div>
           {recommendations.map((post) => (
             <WrappedPost post={post} key={post._id} />
           ))}

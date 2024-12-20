@@ -18,7 +18,11 @@ const styles = (theme: ThemeType) => ({
     flexDirection: "column",
     gap: "20px",
     textAlign: "left",
-    marginBottom: 12,
+    margin: "0 auto 20px",
+    [theme.breakpoints.up("md")]: {
+      marginTop: 40,
+      marginBottom: 40,
+    },
   },
   black: {
     background: theme.palette.wrapped.darkBackground,
@@ -80,6 +84,7 @@ const styles = (theme: ThemeType) => ({
     flexDirection: "row",
     gap: "4px",
     alignItems: "center",
+    justifyContent: "center",
     textTransform: "uppercase",
     fontSize: 13,
     fontWeight: 500,
@@ -89,6 +94,10 @@ const styles = (theme: ThemeType) => ({
       marginLeft: -12,
       width: 32,
     },
+  },
+  shareContainer: {
+    display: "flex",
+    justifyContent: "center",
   },
 });
 
@@ -163,7 +172,7 @@ const WrappedSummarySection = ({classes}: {
           <div>forum.effectivealtruism.org/wrapped</div>
         </div>
       </div>
-      <div>
+      <div className={classes.shareContainer}>
         <WrappedShareButton name="Summary" screenshotRef={screenshotRef} />
       </div>
     </WrappedSection>

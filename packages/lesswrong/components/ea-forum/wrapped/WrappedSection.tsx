@@ -13,7 +13,7 @@ const styles = (theme: ThemeType) => ({
   },
   container: {
     width: 700,
-    maxWidth: "100vw",
+    maxWidth: "100%",
     minHeight: "100%",
     margin: "0 auto",
   },
