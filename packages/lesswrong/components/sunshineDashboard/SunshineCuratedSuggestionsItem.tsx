@@ -9,6 +9,7 @@ import { useHover } from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary'
 import * as _ from 'underscore';
 import classNames from 'classnames';
+import { isFriendlyUI } from '@/themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   audioIcon: {
@@ -18,13 +19,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     top: 2
   },
-  postTitle: {
+  postTitle: isFriendlyUI ? {} : {
     ...theme.typography.body2,
     ...theme.typography.postStyle,
     fontSize: "1rem",
     fontWeight: 500,
   },
-  titleWithCurationNotice: {
+  titleWithCurationNotice: isFriendlyUI ? {} : {
     color: 'green',
     fontWeight: 600,
   },

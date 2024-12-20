@@ -188,6 +188,7 @@ class VotesRepo extends AbstractRepo<"Votes"> {
       if (votedContent.collectionName==="Comments") {
         changedComments.push({
           ...change,
+          commentId: votedContent._id,
           description: votedContent.commentHtml,
           postId: votedContent.commentPostId,
           postTitle: votedContent.commentPostTitle,
@@ -199,6 +200,7 @@ class VotesRepo extends AbstractRepo<"Votes"> {
       } else if (votedContent.collectionName==="Posts") {
         changedPosts.push({
           ...change,
+          postId: votedContent._id,
           title: votedContent.postTitle,
           slug: votedContent.postSlug,
         });
@@ -332,7 +334,8 @@ class VotesRepo extends AbstractRepo<"Votes"> {
         ARRAY[]::TEXT[] "addedReacts",
         post."title",
         post."slug",
-        comment."postId",
+        comment._id "commentId",
+        COALESCE(comment."postId", post._id) "postId",
         comment."tagCommentType",
         comment."contents"->>'html' "description",
         comment_post."title" "postTitle",
