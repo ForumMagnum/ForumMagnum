@@ -325,9 +325,9 @@ const FooterTagList = ({
 
   const {Loading, FooterTag, AddTagButton, CoreTagsChecklist, PostsAnnualReviewMarketTag} = Components;
 
-  const tooltipPlacement = useAltAddTagButton ? "bottom-end" : undefined;
+  const menuPlacement = useAltAddTagButton ? "bottom-end" : undefined;
 
-  const addTagButton = <AddTagButton onTagSelected={onTagSelected} isVotingContext tooltipPlacement={tooltipPlacement}>
+  const addTagButton = <AddTagButton onTagSelected={onTagSelected} isVotingContext menuPlacement={menuPlacement}>
     {useAltAddTagButton && <span className={classNames(classes.altAddTagButton, noBackground && classes.noBackground)}>+</span>}
   </AddTagButton>
 

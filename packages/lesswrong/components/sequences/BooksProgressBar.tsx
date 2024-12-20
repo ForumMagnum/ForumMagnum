@@ -95,7 +95,7 @@ const BooksProgressBar = ({ book, classes }: {
     <div className={classNames(classes.sequence, classes.progressText)}>
       <LWTooltip title={postsReadTooltip}>{postsReadText}</LWTooltip>
       <LoginToTrack className={classes.loginText}>
-        login to track progress
+        log in to track progress
       </LoginToTrack>
     </div>
   </div>;

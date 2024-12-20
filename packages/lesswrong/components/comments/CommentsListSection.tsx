@@ -39,9 +39,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[600],
     marginLeft: 10
   },
-  inline: {
+  commentSorting: {
     display: 'inline',
     color: theme.palette.text.secondary,
+    marginRight: 12,
   },
   clickToHighlightNewSince: {
     display: 'inline',
@@ -177,7 +178,7 @@ const CommentsListSection = ({
       <Typography
         variant="body2"
         component='span'
-        className={classes.inline}
+        className={classes.commentSorting}
       >
         {commentSortNode}
       </Typography>
