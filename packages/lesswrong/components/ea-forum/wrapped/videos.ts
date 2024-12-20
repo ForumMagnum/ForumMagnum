@@ -11,17 +11,20 @@ const chooseAnimation = (personality: string) => {
   if (personality.indexOf("contrarian") >= 0) {
     return "contrarian";
   }
+  if (personality.indexOf("visitor") >= 0) {
+    return "Visitor";
+  }
   return "one-hit";
 }
 
 const chooseColor = (personality: string) => {
-  if (personality.indexOf("stoic") >= 0) {
+  if (personality.indexOf("stoic") >= 0 || personality.indexOf("agreeable") >= 0) {
     return "grey";
   }
-  if (personality.indexOf("beloved") >= 0) {
+  if (personality.indexOf("beloved") >= 0 || personality.indexOf("loving") >= 0) {
     return "red";
   }
-  if (personality.indexOf("insightful") >= 0) {
+  if (personality.indexOf("insightful") >= 0 || personality.indexOf("curious") >= 0) {
     return "blue";
   }
   return "green";
