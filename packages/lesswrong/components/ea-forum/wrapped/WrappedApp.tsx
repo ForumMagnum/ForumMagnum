@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { useForumWrappedContext } from "./hooks";
 import { getWrappedVideo } from "./videos";
@@ -78,6 +78,18 @@ const WrappedApp = ({classes}: {
     thinkingVideoRef,
     personalityVideoRef,
   } = useForumWrappedContext();
+
+  useEffect(() => {
+    const handler = (ev: KeyboardEvent) => {
+      switch (ev.key) {
+        case "ArrowLeft":  goToPreviousSection(); break;
+        case "ArrowRight": goToNextSection();     break;
+      }
+    }
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [goToPreviousSection, goToNextSection]);
+
   const {ForumIcon} = Components;
   return (
     <div className={classes.root}>
