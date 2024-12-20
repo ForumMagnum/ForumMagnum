@@ -9,7 +9,8 @@ const styles = defineStyles("PostPageReviewButton", (theme: ThemeType) => ({
   reviewVoting: {
     display: "flex",
     flexDirection: "column",
-    alignItems: "flex-start",
+    justifyContent: "center",
+    alignItems: "center",
   },
   reviewButton: {
     border: `solid 1px ${theme.palette.primary.main}`,

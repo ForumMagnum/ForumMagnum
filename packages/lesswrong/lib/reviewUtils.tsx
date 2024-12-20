@@ -128,6 +128,7 @@ export function eligibleToNominate (currentUser: UsersCurrent|DbUser|null) {
 export function postEligibleForReview (post: PostsBase) {
   if (moment.utc(post.postedAt) > moment.utc(`${REVIEW_YEAR+1}-01-01`)) return false
   if (isLWorAF && moment.utc(post.postedAt) < moment.utc(`${REVIEW_YEAR}-01-01`)) return false
+  if (!post.shortform) return false
   return true
 }
 

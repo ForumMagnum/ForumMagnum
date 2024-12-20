@@ -1,9 +1,9 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import Info from '@material-ui/icons/Info';
-import { forumTitleSetting, siteNameWithArticleSetting } from '../../../lib/instanceSettings';
+import { siteNameWithArticleSetting } from '../../../lib/instanceSettings';
 import { useCurrentUser } from '../../common/withUser';
-import { canNominate, postEligibleForReview, postIsVoteable, reviewIsActive, REVIEW_YEAR } from '../../../lib/reviewUtils';
+import { reviewIsActive } from '../../../lib/reviewUtils';
 import { forumSelect } from "../../../lib/forumTypeUtils";
 import { Link } from '../../../lib/reactRouterWrapper';
 import { isFriendlyUI } from '../../../themes/forumTheme';
@@ -47,7 +47,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.icon.dim2,
   },
   reviewVoting: {
-    textAlign: "center",
     padding: theme.spacing.unit*2,
     paddingBottom: theme.spacing.unit*6
   }
@@ -69,7 +68,9 @@ const PostBodyPrefix = ({post, query, classes}: {
   const currentUser = useCurrentUser();
 
   return <>
-    {reviewIsActive() && <PostPageReviewButton post={post} />}
+    {reviewIsActive() && <div className={classes.reviewVoting}>
+      <PostPageReviewButton post={post} />
+    </div>}
 
     <AlignmentPendingApprovalMessage post={post} />
 
