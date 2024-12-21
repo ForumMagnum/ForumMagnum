@@ -168,7 +168,7 @@ export const EAOnboardingUserStage = ({classes, icon = lightbulbIcon}: {
               terms of use
             </Link>, including my content being available under a{" "}
             <Link to={links.license} target="_blank" rel="noopener noreferrer">
-              CC -BY
+              Creative Commons Attribution 4.0
             </Link> license.
           </div>
         </div>
