@@ -11,7 +11,7 @@ export const TosLink: FC<PropsWithChildren<{}>> = ({children}) =>
 
 export const LicenseLink: FC<PropsWithChildren<{}>> = ({children}) =>
   <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">
-    {children ?? "CC-BY"}
+    {children ?? "Creative Commons Attribution 4.0"}
   </a>
 
 const styles = (theme: ThemeType) => ({
