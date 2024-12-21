@@ -124,6 +124,7 @@ export default class NotificationsRepo extends AbstractRepo<"Notifications"> {
         n."link",
         n."message",
         n."createdAt",
+        n."extraData",
         tr."_id" "tagRelId",
         COALESCE(
           ${buildNotificationPost("p", "pr", "pu", "pl")},
@@ -190,7 +191,7 @@ export default class NotificationsRepo extends AbstractRepo<"Notifications"> {
         n."emailed" IS NOT TRUE AND
         n."waitingForBatch" IS NOT TRUE AND
         ${type ? `n."type" = $(type) AND` : ""}
-        ${includeMessages ? "": `n."documentType" <> 'message' AND`}
+        ${includeMessages ? "": `COALESCE(n."documentType", '') <> 'message' AND`}
         NOT COALESCE(p."deletedDraft", FALSE) AND
         NOT COALESCE(pu."deleted", FALSE) AND
         NOT COALESCE(pl."deleted", FALSE) AND

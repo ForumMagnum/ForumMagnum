@@ -38,6 +38,9 @@ export const getDisplayConfig = ({
         ? {Icon: "CommentFilled", iconVariant: "primary"}
         : {Icon: "DocumentFilled", iconVariant: "grey"}
       ),
+      ...(type === "wrapped" &&
+        {Icon: "Gift", iconVariant: "wrapped"}
+      ),
     };
   } catch (e) {
     // eslint-disable-next-line no-console

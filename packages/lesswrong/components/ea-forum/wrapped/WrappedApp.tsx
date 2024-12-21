@@ -1,0 +1,146 @@
+import React, { useEffect } from "react";
+import { Components, registerComponent } from "@/lib/vulcan-lib";
+import { useForumWrappedContext } from "./hooks";
+import { getWrappedVideo } from "./videos";
+import range from "lodash/range";
+import classNames from "classnames";
+
+const styles = (theme: ThemeType) => ({
+  root: {
+    width: "100%",
+    height: "100%",
+  },
+  app: {
+    position: "relative",
+    display: "flex",
+    flexDirection: "column",
+    width: "100%",
+    height: "100%",
+    overflow: "hidden auto",
+  },
+  offscreenVideos: {
+    position: "absolute",
+    left: -10000,
+    top: -10000,
+  },
+  navContainer: {
+    position: "fixed",
+    bottom: 0,
+    padding: 16,
+    width: "100vw",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  nav: {
+    width: 500,
+    maxWidth: "100%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "6px",
+  },
+  navButton: {
+    cursor: "pointer",
+    padding: 2,
+    color: theme.palette.text.alwaysWhite,
+    border: `1px solid ${theme.palette.text.alwaysWhite}`,
+    borderRadius: "50%",
+    aspectRatio: "1/1",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    "& svg": {
+      width: 16,
+      height: 16,
+    },
+  },
+  navSection: {
+    flexGrow: 1,
+    height: 4,
+    background: theme.palette.text.alwaysWhite,
+    borderRadius: 2,
+  },
+  navSectionUnviewed: {
+    opacity: 0.3,
+  },
+});
+
+const WrappedApp = ({classes}: {
+  classes: ClassesType<typeof styles>,
+}) => {
+  const {
+    data: {personality},
+    totalSections,
+    currentSection,
+    goToPreviousSection,
+    goToNextSection,
+    CurrentSection,
+    thinkingVideoRef,
+    personalityVideoRef,
+  } = useForumWrappedContext();
+
+  useEffect(() => {
+    const handler = (ev: KeyboardEvent) => {
+      switch (ev.key) {
+        case "ArrowLeft":  goToPreviousSection(); break;
+        case "ArrowRight": goToNextSection();     break;
+      }
+    }
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [goToPreviousSection, goToNextSection]);
+
+  const {ForumIcon} = Components;
+  return (
+    <div className={classes.root}>
+      <div className={classes.app}>
+        <div className={classes.offscreenVideos}>
+          <video
+            src={getWrappedVideo("thinking").src}
+            ref={thinkingVideoRef}
+            muted
+            crossOrigin="anonymous"
+          />
+          <video
+            src={getWrappedVideo(personality).src}
+            ref={personalityVideoRef}
+            muted
+            crossOrigin="anonymous"
+          />
+        </div>
+        <CurrentSection />
+      </div>
+      {currentSection > 0 &&
+        <div className={classes.navContainer}>
+          <div className={classes.nav}>
+            <div className={classes.navButton} onClick={goToPreviousSection}>
+              <ForumIcon icon="ChevronLeft" />
+            </div>
+            {range(1, totalSections).map((i) => (
+              <div key={i} className={classNames(
+                classes.navSection,
+                i > currentSection && classes.navSectionUnviewed,
+              )} />
+            ))}
+            <div className={classes.navButton} onClick={goToNextSection}>
+              <ForumIcon icon="ChevronRight" />
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  );
+}
+
+const WrappedAppComponent = registerComponent(
+  "WrappedApp",
+  WrappedApp,
+  {styles},
+);
+
+declare global {
+  interface ComponentTypes {
+    WrappedApp: typeof WrappedAppComponent
+  }
+}

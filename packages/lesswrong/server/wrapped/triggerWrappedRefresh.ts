@@ -30,7 +30,7 @@ WITH normalized AS (
     raw
   WHERE
     raw.event_type = 'timerEvent'
-    AND raw.environment = 'production'
+    AND raw.environment = 'production' -- Comment out if running on dev db
     -- DEBUG: Uncomment below to run over a shorter time period for faster testing
     -- AND raw."timestamp" >= '2023-12-01 00:00:00'::timestamp WITHOUT time zone
     AND raw."timestamp" >= '2022-01-01 00:00:00'::timestamp WITHOUT time zone
