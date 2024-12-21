@@ -132,15 +132,13 @@ export function postEligibleForReview (post: PostsBase) {
   return true
 }
 
-// export function postIsVoteable (post: PostsBase) {
-//   return getReviewPhase() === "NOMINATIONS" || post.positiveReviewVoteCount >= REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD
-// }
-
+export function postPassedNomination (post: PostsBase) {
+  return getReviewPhase() === "NOMINATIONS" || post.positiveReviewVoteCount >= REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD
+}
 
 export function canNominate (currentUser: UsersCurrent|null, post: PostsListBase) {
   if (!eligibleToNominate(currentUser)) return false
   if (currentUser && (post.userId === currentUser._id || post.coauthors?.map(author => author?._id).includes(currentUser._id))) return false
-  // if (!postIsVoteable(post)) return false
   return (postEligibleForReview(post))
 }
 

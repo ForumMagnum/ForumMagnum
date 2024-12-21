@@ -1,6 +1,6 @@
 import React from "react";
 import { forumTitleSetting } from "@/lib/instanceSettings";
-import { canNominate, REVIEW_YEAR, postEligibleForReview, postIsVoteable } from "@/lib/reviewUtils";
+import { canNominate, REVIEW_YEAR, postEligibleForReview, postPassedNomination } from "@/lib/reviewUtils";
 import { useCurrentUser } from "@/components/common/withUser";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
@@ -35,9 +35,9 @@ function PostPageReviewButton({post}: {post: PostsWithNavigation|PostsWithNaviga
   return (
     <div className={classes.reviewVoting}>
       {canNominate(currentUser, post) && <ReviewVotingWidget post={post}/>}
-      <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={`Write up your thoughts on what was good about a post, how it could be improved, and how you think stands the tests of time as part of the broader ${forumTitleSetting.get()} conversation`} placement="bottom">
+      {postPassedNomination(post) && <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={`Write up your thoughts on what was good about a post, how it could be improved, and how you think stands the tests of time as part of the broader ${forumTitleSetting.get()} conversation`} placement="bottom">
         <div className={classes.reviewButton}>Review</div>
-      </LWTooltip>}/>
+      </LWTooltip>}/>}
     </div>
   )
 }
