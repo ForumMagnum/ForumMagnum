@@ -43,6 +43,7 @@ import { SideItemVisibilityContextProvider } from '@/components/dropdowns/posts/
 import { LW_POST_PAGE_PADDING } from './LWPostsPageHeader';
 import { useCommentLinkState } from '@/components/comments/CommentsItem/useCommentLink';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
+import { reviewIsActive } from '@/lib/reviewUtils';
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
 export const MAX_COLUMN_WIDTH = 720
@@ -401,6 +402,10 @@ export const styles = (theme: ThemeType) => ({
     fontSize: isFriendlyUI ? undefined : theme.typography.body2.fontSize,
     cursor: 'default'
   },
+  reviewVoting: {
+    marginTop: 60,
+    marginBottom: -20 // to account or voting UI padding
+  }
 })
 
 const getDebateResponseBlocks = (responses: CommentsList[], replies: CommentsList[]) => responses.map(debateResponse => ({
@@ -589,7 +594,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     PostsPageQuestionContent, AFUnreviewedCommentCount, CommentsListSection, CommentsTableOfContents,
     StickyDigestAd, PostsPageSplashHeader, PostsAudioPlayerWrapper, AttributionInViewTracker,
     ForumEventPostPagePollSection, NotifyMeButton, LWTooltip, PostsPageDate,
-    PostFixedPositionToCHeading, SingleColumnSection, FundraisingThermometer
+    PostFixedPositionToCHeading, SingleColumnSection, FundraisingThermometer, PostPageReviewButton
   } = Components
 
   useEffect(() => {
@@ -920,6 +925,9 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     </div>
   const betweenPostAndCommentsSection =
     <div className={classNames(classes.centralColumn, classes.betweenPostAndComments)}>
+      {reviewIsActive() && <div className={classes.reviewVoting}>
+        <PostPageReviewButton post={post} />
+      </div>}
       <PostsPagePostFooter post={post} sequenceId={sequenceId} />
       <DeferRender ssr={false}>
         <ForumEventPostPagePollSection postId={post._id} />
