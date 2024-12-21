@@ -35,9 +35,9 @@ function PostPageReviewButton({post}: {post: PostsWithNavigation|PostsWithNaviga
   return (
     <div className={classes.reviewVoting}>
       {canNominate(currentUser, post) && <ReviewVotingWidget post={post}/>}
-      {postPassedNomination(post) && <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={`Write up your thoughts on what was good about a post, how it could be improved, and how you think stands the tests of time as part of the broader ${forumTitleSetting.get()} conversation`} placement="bottom">
+      <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={`Write up your thoughts on what was good about a post, how it could be improved, and how you think stands the tests of time as part of the broader ${forumTitleSetting.get()} conversation`} placement="bottom">
         <div className={classes.reviewButton}>Review</div>
-      </LWTooltip>}/>}
+      </LWTooltip>}/>
     </div>
   )
 }
