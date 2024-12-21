@@ -940,6 +940,7 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
 }
 
 async function importComments(database: WholeArbitalDatabase, conversionContext: ArbitalConversionContext, resolverContext: ResolverContext, options: ArbitalImportOptions): Promise<void> {
+  const lensesByLensId = keyBy(database.lenses, l=>l.lensId);
   const commentPageInfos = database.pageInfos.filter(pi => pi.type === "comment");
   const pageInfosById = keyBy(database.pageInfos, pi=>pi.pageId);
   let irregularComments: {reason: string, commentId: string}[] = [];
@@ -972,11 +973,17 @@ async function importComments(database: WholeArbitalDatabase, conversionContext:
       irregularComments.push({reason: "Has a parent that doesn't exist", commentId});
       continue;
     }
-    const wikiPageParentId = parentIds.find(parentId => pageInfosById[parentId]?.type === "wiki")
+    let wikiPageParentId = parentIds.find(parentId => pageInfosById[parentId]?.type === "wiki")
     const parentCommentId = parentIds.find(parentId => pageInfosById[parentId]?.type === "comment")
     if (!wikiPageParentId) {
       irregularComments.push({reason: "Not a reply to a wiki page", commentId});
       continue;
+    }
+
+    if (lensesByLensId[wikiPageParentId]) {
+      // If the parent is a lens, then the comment is a reply to a lens.
+      // We don't plan on supporting replies to lenses, so instead reassign to the top-level page
+      wikiPageParentId = lensesByLensId[wikiPageParentId].pageId;
     }
     
     commentIdsToImport.push(commentId);
