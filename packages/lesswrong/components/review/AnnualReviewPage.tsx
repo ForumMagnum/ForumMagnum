@@ -37,7 +37,12 @@ const styles = (theme: ThemeType) => ({
     height: "90vh",
     paddingLeft: 24,
     paddingRight: 36,
-    overflow: "scroll",
+    overflow: "hidden",
+    msOverflowStyle: "none",
+    scrollbarWidth: "none",
+    "&::-webkit-scrollbar": {
+      display: "none"
+    },
     [theme.breakpoints.down('sm')]: {
       paddingLeft: 0,
       paddingRight: 0,

@@ -105,12 +105,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: theme.palette.primary.main,
     border: `solid 1px ${theme.palette.primary.main}`,
     color: theme.palette.text.invertedBackgroundText,
-    ...commonActionButtonStyle(theme),
+    ...commonActionButtonStyle(theme),  
+    textAlign: 'center',
   },
   actionButton: {
     border: `solid 1px ${theme.palette.grey[400]}`,
     color: theme.palette.grey[600],
     ...commonActionButtonStyle(theme),
+    textAlign: 'center',
   },
   adminButton: {
     border: `solid 1px ${theme.palette.review.adminButton}`,

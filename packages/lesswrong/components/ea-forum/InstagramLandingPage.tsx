@@ -23,7 +23,9 @@ const styles = (theme: ThemeType) => ({
 
 const postIds = [
   'ZhNaizQgYY9dXdQkM', // Intro to EA
+  's9dyyge6uLG5ScwEp', // It looks like there are some good funding opportunities in AI safety right now
   'sEsguXTiKBA6LzX55', // Takes on "Alignment faking in llms"
+  'vHiDeQnCepvwnv8Fm', // AWF AMA
   '5zzbzbYZcocoLnLif', // There is no EA sorting hat
   '4P2qKX7wegdEgMMnb', // GWWC AMA
   'hKfXxfkQ8XCT5ZBRX', // AGB AMA
