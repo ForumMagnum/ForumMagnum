@@ -73,7 +73,7 @@ const newUserCompleteProfileMutation = gql`
 const links = {
   username: "https://jimpix.co.uk/words/random-username-generator.asp",
   termsOfUse: "/termsOfUse",
-  license: "https://creativecommons.org/licenses/by/2.0/",
+  license: "https://creativecommons.org/licenses/by/4.0/",
 } as const;
 
 const displayNameTakenQuery = gql`
