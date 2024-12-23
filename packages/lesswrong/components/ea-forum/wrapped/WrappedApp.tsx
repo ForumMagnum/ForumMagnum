@@ -42,7 +42,7 @@ const styles = (theme: ThemeType) => ({
   },
   navButton: {
     cursor: "pointer",
-    padding: 2,
+    padding: 6,
     color: theme.palette.text.alwaysWhite,
     border: `1px solid ${theme.palette.text.alwaysWhite}`,
     borderRadius: "50%",
