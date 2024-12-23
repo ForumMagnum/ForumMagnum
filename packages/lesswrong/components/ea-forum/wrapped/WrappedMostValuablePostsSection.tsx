@@ -51,15 +51,18 @@ const WrappedMostValuablePostsSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {year} = useForumWrappedContext();
-  const {WrappedSection, WrappedHeading, ForumIcon, PostsByVoteWrapper} = Components;
+  const {
+    WrappedSection, WrappedHeading, ForumIcon, PostsByVoteWrapper,
+  } = Components;
   return (
     <WrappedSection pageSectionContext="mostValuablePosts">
       <WrappedHeading>
         Take a moment to reflect on {year}
       </WrappedHeading>
       <div>
-        Look back at everything you upvoted - what did you find most valuable?
-        Your answers will help us encourage more of the most valuable content.
+        Look back at everything you upvoted - <strong>what did you find most
+        valuable?</strong> Your answers will help us encourage more of the most
+        valuable content.
       </div>
       <div className={classes.container}>
         <div className={classes.labels}>
