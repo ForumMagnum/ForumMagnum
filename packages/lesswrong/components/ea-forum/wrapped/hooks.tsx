@@ -229,7 +229,7 @@ const allSections: WrappedSection[] = [
   },
   {
     component: Components.WrappedMostReadAuthorSection,
-    predicate: (data) => data.mostReadAuthors.length > 0,
+    predicate: (data) => data.postsReadCount > 0 && data.mostReadAuthors.length > 0,
   },
   {
     component: Components.WrappedThankAuthorSection,

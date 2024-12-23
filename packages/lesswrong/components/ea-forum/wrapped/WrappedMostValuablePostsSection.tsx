@@ -2,7 +2,7 @@ import React from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { useForumWrappedContext } from "./hooks";
 
-const styles = (theme: ThemeType) => ({
+const styles = (_theme: ThemeType) => ({
   labels: {
     width: "100%",
     maxWidth: 500,
@@ -38,12 +38,7 @@ const styles = (theme: ThemeType) => ({
     width: "100%",
     maxWidth: 500,
     textAlign: "left",
-    "& .LoadMore-root": {
-      color: theme.palette.text.alwaysWhite,
-    },
-    "& .Loading-spinner": {
-      margin: "10px 0 0",
-    },
+    marginBottom: 60,
   },
 });
 

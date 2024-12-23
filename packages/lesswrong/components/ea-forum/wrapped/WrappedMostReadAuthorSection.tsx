@@ -38,12 +38,12 @@ const styles = (theme: ThemeType) => ({
 const WrappedMostReadAuthorSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {year, data: {mostReadAuthors, postCount}} = useForumWrappedContext();
+  const {year, data: {mostReadAuthors, postsReadCount}} = useForumWrappedContext();
   const {WrappedSection, WrappedHeading} = Components;
   return (
     <WrappedSection pageSectionContext="mostReadAuthors">
       <WrappedHeading>
-        You read <em>{postCount}</em> posts this year
+        You read <em>{postsReadCount}</em> posts this year
       </WrappedHeading>
       {mostReadAuthors[0]?.displayName &&
         <div>

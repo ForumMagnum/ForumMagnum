@@ -18,7 +18,7 @@ const styles = (theme: ThemeType) => ({
     flexDirection: "column",
     gap: "20px",
     textAlign: "left",
-    margin: "0 auto 20px",
+    margin: "0 auto 40px",
     [theme.breakpoints.up("md")]: {
       marginTop: 40,
       marginBottom: 40,
