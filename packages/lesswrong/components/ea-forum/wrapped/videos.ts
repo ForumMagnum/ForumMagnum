@@ -30,13 +30,14 @@ const chooseColor = (personality: string) => {
   return "green";
 }
 
-const prefix = (file: string) =>
-  `https://res.cloudinary.com/cea/video/upload/v1734615259/wrapped-2024/${file}`;
+const prefix = (file: string, type: "video" | "image") =>
+  `https://res.cloudinary.com/cea/${type}/upload/v1734615259/wrapped-2024/${file}`;
 
 type WrappedColor = "grey" | "red" | "blue" | "green" | "black";
 
 type WrappedVideo = {
   animation: string,
+  frame: string,
   color: WrappedColor,
   src: string,
 }
@@ -46,7 +47,8 @@ export const getWrappedVideo = (personality: string): WrappedVideo => {
     return {
       animation: "thinking",
       color: "black",
-      src: prefix("Bulby-thinking.mp4"),
+      src: prefix("Bulby-thinking.mp4", "video"),
+      frame: prefix("Bulby-thinking-frame.jpg", "image"),
     };
   }
   personality = personality.toLowerCase();
@@ -55,6 +57,7 @@ export const getWrappedVideo = (personality: string): WrappedVideo => {
   return {
     animation,
     color,
-    src: prefix(`${animation}-${color}.mp4`),
+    src: prefix(`${animation}-${color}.mp4`, "video"),
+    frame: prefix(`${animation}-${color}-frame.jpg`, "image"),
   };
 }

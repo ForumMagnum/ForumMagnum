@@ -44,6 +44,26 @@ const styles = (theme: ThemeType) => ({
     flexDirection: "row",
     gap: "22px",
   },
+  imageContainer: {
+    display: "flex",
+    justifyContent: "center",
+  },
+  image: {
+    height: 140,
+    // I'm so sorry about this hack :(
+    //
+    // The videos were exported with the wrong color space (they should've been
+    // sRGB) so the colors don't quite match up. We should probably fix this
+    // next year.
+    //
+    // When we display the videos on the personality page we manually matched
+    // the colors, but the static screenshots were exported with an ffmpeg
+    // script[1] that exported the colors _correctly_, so we have to manually
+    // correct here.
+    //
+    // ^[1]: ffmpeg -sseof -3 -i ./contrarian-green.mp4 -update 1 -q:v 1 contrarian-green.jpg
+    filter: "brightness(1.1)",
+  },
   heading: {
     fontSize: 13,
     fontWeight: 500,
@@ -111,7 +131,7 @@ const WrappedSummarySection = ({classes}: {
     year,
     data: {totalSeconds, postCount, mostReadAuthors, mostReadTopics, personality},
   } = useForumWrappedContext();
-  const {color} = getWrappedVideo(personality);
+  const {color, frame} = getWrappedVideo(personality);
   const screenshotRef = useRef<HTMLDivElement>(null);
   const hoursSpent = (totalSeconds / 3600).toFixed(1)
   const {
@@ -121,6 +141,9 @@ const WrappedSummarySection = ({classes}: {
     <WrappedSection pageSectionContext="summary">
       <div className={classNames(classes.root, classes[color])} ref={screenshotRef}>
         <div>
+          <div className={classes.imageContainer}>
+            <img src={frame} className={classes.image} />
+          </div>
           <div className={classes.heading}>EA Forum personality</div>
           <div className={classes.personality}>{personality}</div>
         </div>
