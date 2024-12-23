@@ -2,7 +2,7 @@ import React from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { useForumWrappedContext } from "./hooks";
 
-const styles = (theme: ThemeType) => ({
+const styles = (_theme: ThemeType) => ({
   textRow: {
     maxWidth: 500,
     textWrap: 'pretty',
@@ -43,27 +43,28 @@ const styles = (theme: ThemeType) => ({
     width: "100%",
     maxWidth: 500,
     textAlign: "left",
-    "& .LoadMore-root": {
-      color: theme.palette.text.alwaysWhite,
-    },
-    "& .Loading-spinner": {
-      margin: "10px 0 0",
-    },
+    marginBottom: 60,
   },
 });
 
 const WrappedMostValuablePostsSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {year} = useForumWrappedContext();
-  const {WrappedSection, WrappedHeading, ForumIcon, PostsByVoteWrapper} = Components;
+  const {
+    year,
+    mostValuablePosts,
+    mostValuablePostsLoading,
+  } = useForumWrappedContext();
+  const {
+    WrappedSection, WrappedHeading, ForumIcon, WrappedPost, Loading,
+  } = Components;
   return (
     <WrappedSection pageSectionContext="mostValuablePosts">
       <WrappedHeading>
         Take a moment to reflect on {year}
       </WrappedHeading>
       <div className={classes.textRow}>
-        Look back at everything you upvoted &#8212; what did you find most valuable?
+        Look back at everything you upvoted &#8212; <strong>what did you find most valuable?</strong>
         Your answers will help us encourage more of the most valuable content.
       </div>
       <div className={classes.container}>
@@ -75,19 +76,10 @@ const WrappedMostValuablePostsSection = ({classes}: {
           </div>
         </div>
         <div className={classes.list}>
-          <PostsByVoteWrapper
-            voteType="bigUpvote"
-            year={year}
-            showMostValuableCheckbox
-            hideEmptyStateText
-          />
-          <PostsByVoteWrapper
-            voteType="smallUpvote"
-            year={year}
-            limit={10}
-            showMostValuableCheckbox
-            hideEmptyStateText
-          />
+          {mostValuablePostsLoading && <Loading />}
+          {mostValuablePosts.map((post) => (
+            <WrappedPost key={post._id} post={post} showMostValuableCheckbox />
+          ))}
         </div>
       </div>
     </WrappedSection>

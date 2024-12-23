@@ -14,6 +14,7 @@ import { gql, useQuery } from "@apollo/client";
 import { useRecommendations } from "@/components/recommendations/withRecommendations";
 import { getTopAuthor, getTotalReactsReceived } from "./wrappedHelpers";
 import { userCanStartConversations } from "@/lib/collections/conversations/collection";
+import { useMulti } from "@/lib/crud/withMulti";
 
 // When adding a new year you'll need to run the server command to update the
 // analytics views:
@@ -228,7 +229,7 @@ const allSections: WrappedSection[] = [
   },
   {
     component: Components.WrappedMostReadAuthorSection,
-    predicate: (data) => data.mostReadAuthors.length > 0,
+    predicate: (data) => data.postsReadCount > 0 && data.mostReadAuthors.length > 0,
   },
   {
     component: Components.WrappedThankAuthorSection,
@@ -286,11 +287,30 @@ type ForumWrappedContext = {
   goToNextSection: () => void,
   CurrentSection: ComponentType,
   recommendations: PostsListWithVotesAndSequence[],
+  mostValuablePosts: PostsListWithVotes[],
+  mostValuablePostsLoading: boolean,
   thinkingVideoRef: RefObject<HTMLVideoElement>,
   personalityVideoRef: RefObject<HTMLVideoElement>,
 }
 
 const forumWrappedContext = createContext<ForumWrappedContext | null>(null);
+
+const useVotes = (year: WrappedYear, voteType: string) => {
+  const {results} = useMulti({
+    terms: {
+      view: "userPostVotes",
+      collectionName: "Posts",
+      voteType,
+      after: `${year}-01-01`,
+      before: `${year + 1}-01-01`,
+    },
+    collectionName: "Votes",
+    fragmentName: "UserVotes",
+    limit: 10,
+    ssr: false,
+  });
+  return (results ?? []).map(({documentId}) => documentId);
+}
 
 export const ForumWrappedProvider = ({
   year,
@@ -326,6 +346,21 @@ export const ForumWrappedProvider = ({
     ssr: false,
   });
 
+  const bigUpvotePostIds = useVotes(year, "bigUpvote");
+  const smallUpvotePostIds = useVotes(year, "smallUpvote");
+
+  const {
+    results: mostValuablePosts = [],
+    loading: mostValuablePostsLoading,
+  } = useMulti({
+    terms: {
+      view: "nominatablePostsByVote",
+      postIds: [...bigUpvotePostIds, ...smallUpvotePostIds],
+    },
+    collectionName: "Posts",
+    fragmentName: "PostsListWithVotes",
+  });
+
   const thinkingVideoRef = useRef<HTMLVideoElement>(null);
   const personalityVideoRef = useRef<HTMLVideoElement>(null);
 
@@ -340,6 +375,8 @@ export const ForumWrappedProvider = ({
       goToNextSection,
       CurrentSection: sections[currentSection].component,
       recommendations: recommendations ?? [],
+      mostValuablePosts,
+      mostValuablePostsLoading,
       thinkingVideoRef,
       personalityVideoRef,
     }}>

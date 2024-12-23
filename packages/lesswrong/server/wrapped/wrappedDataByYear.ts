@@ -86,7 +86,7 @@ export const getWrappedDataByYear = async (
       hasCoauthorPermission: 1,
       tagRelevance: 1,
     }).fetch()
-  ).filter((post) => !userIsPostCoauthor(user, post));
+  ).filter((post) => post.userId !== user._id && !userIsPostCoauthor(user, post));
 
   // Get the top 5 authors that the user has read
   const userIds = posts.flatMap(
@@ -338,7 +338,7 @@ export const getWrappedDataByYear = async (
     karmaChange: totalKarmaChange,
     combinedKarmaVals: combinedKarmaVals,
     mostReceivedReacts,
-    personality: personality.toString(),
+    personality: "Insightful Online Lurker",
   };
   return results;
 }

@@ -16,9 +16,7 @@ const styles = (theme: ThemeType) => ({
     minHeight: "100%",
     overflowX: "hidden",
   },
-  black: {
-    background: theme.palette.wrapped.darkBackground,
-  },
+  transparent: {},
   grey: {
     background: theme.palette.wrapped.personalityGrey,
   },
@@ -147,7 +145,11 @@ const WrappedPersonalitySection = ({classes}: {
           ref={canvasRef}
           width={videoRef.current?.videoWidth}
           height={videoRef.current?.videoHeight}
-          style={{width: size.width, height: size.height}}
+          style={{
+            width: size.width,
+            height: size.height,
+            filter: `brightness(${video.brightness})`,
+          }}
           className={classes.canvas}
         />
         <div className={classes.content}>

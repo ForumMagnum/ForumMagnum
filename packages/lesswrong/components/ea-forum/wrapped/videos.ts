@@ -1,4 +1,13 @@
-const chooseAnimation = (personality: string) => {
+type WrappedAnimation =
+  "thinking" |
+  "lurker" |
+  "Karma-farmer" |
+  "convstarter" |
+  "contrarian" |
+  "Visitor" |
+  "one-hit";
+
+const chooseAnimation = (personality: string): WrappedAnimation => {
   if (personality.indexOf("lurker") >= 0) {
     return "lurker";
   }
@@ -17,7 +26,9 @@ const chooseAnimation = (personality: string) => {
   return "one-hit";
 }
 
-const chooseColor = (personality: string) => {
+type WrappedColor = "grey" | "red" | "blue" | "green" | "transparent";
+
+const chooseColor = (personality: string): WrappedColor => {
   if (personality.indexOf("stoic") >= 0 || personality.indexOf("agreeable") >= 0) {
     return "grey";
   }
@@ -30,23 +41,60 @@ const chooseColor = (personality: string) => {
   return "green";
 }
 
-const prefix = (file: string) =>
-  `https://res.cloudinary.com/cea/video/upload/v1734615259/wrapped-2024/${file}`;
+// The videos are encoded in the bt709 color space but the browser expects sRGB.
+// I don't want to talk about it.
+const brightnesses: Record<WrappedColor, Partial<Record<WrappedAnimation, number>>> = {
+  grey: {},
+  red: {
+    convstarter: 0.92,
+    lurker: 0.92,
+    contrarian: 1.068,
+    Visitor: 1.068,
+  },
+  blue: {
+    convstarter: 0.97,
+    "Karma-farmer": 0.99,
+    lurker: 0.95,
+  },
+  green: {
+    lurker: 0.98,
+    Visitor: 1.01,
+  },
+  transparent: {},
+};
 
-type WrappedColor = "grey" | "red" | "blue" | "green" | "black";
+const prefix = (file: string, type: "video" | "image") =>
+  `https://res.cloudinary.com/cea/${type}/upload/v1734615259/wrapped-2024/${file}`;
 
 type WrappedVideo = {
-  animation: string,
+  /** The name of the animation */
+  animation: WrappedAnimation,
+  /** The background color of the animation */
   color: WrappedColor,
+  /**
+   * This is be the cloudinary URL of the video file
+   * Before uploading cloudinary you should ensure that the video uses an sRGB
+   * color profile with:
+   *   ffmpeg -i input.mp4 -color_trc iec61966_2_1 output.mp4
+   */
   src: string,
+  /**
+   * This is be the cloudinary URL of a static image of the last frame of the
+   * video. This can be generated with:
+   *   ffmpeg -sseof -3 -i input.mp4 -update 1 -q:v 1 output.jpg
+   */
+  frame: string,
+  brightness: number,
 }
 
 export const getWrappedVideo = (personality: string): WrappedVideo => {
   if (personality === "thinking") {
     return {
       animation: "thinking",
-      color: "black",
-      src: prefix("Bulby-thinking.mp4"),
+      color: "transparent",
+      src: prefix("Bulby-thinking-151515.mp4", "video"),
+      frame: prefix("Bulby-thinking-frame.jpg", "image"),
+      brightness: 1,
     };
   }
   personality = personality.toLowerCase();
@@ -55,6 +103,8 @@ export const getWrappedVideo = (personality: string): WrappedVideo => {
   return {
     animation,
     color,
-    src: prefix(`${animation}-${color}.mp4`),
+    src: prefix(`${animation}-${color}.mp4`, "video"),
+    frame: prefix(`${animation}-${color}-frame.jpg`, "image"),
+    brightness: brightnesses[color]?.[animation] ?? 1,
   };
 }

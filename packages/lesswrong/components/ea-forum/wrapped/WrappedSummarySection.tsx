@@ -24,9 +24,7 @@ const styles = (theme: ThemeType) => ({
       marginBottom: 40,
     },
   },
-  black: {
-    background: theme.palette.wrapped.background,
-  },
+  transparent: {},
   grey: {
     background: theme.palette.wrapped.personalityGrey,
   },
@@ -43,6 +41,13 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     flexDirection: "row",
     gap: "22px",
+  },
+  imageContainer: {
+    display: "flex",
+    justifyContent: "center",
+  },
+  image: {
+    height: 140,
   },
   heading: {
     fontSize: 13,
@@ -99,6 +104,7 @@ const styles = (theme: ThemeType) => ({
   shareContainer: {
     display: "flex",
     justifyContent: "center",
+    marginBottom: 40,
   },
 });
 
@@ -112,7 +118,7 @@ const WrappedSummarySection = ({classes}: {
     year,
     data: {totalSeconds, postCount, mostReadAuthors, mostReadTopics, personality},
   } = useForumWrappedContext();
-  const {color} = getWrappedVideo(personality);
+  const {color, frame, brightness} = getWrappedVideo(personality);
   const screenshotRef = useRef<HTMLDivElement>(null);
   const hoursSpent = (totalSeconds / 3600).toFixed(1)
   const {
@@ -122,6 +128,13 @@ const WrappedSummarySection = ({classes}: {
     <WrappedSection pageSectionContext="summary">
       <div className={classNames(classes.root, classes[color])} ref={screenshotRef}>
         <div>
+          <div className={classes.imageContainer}>
+            <img
+              src={frame}
+              className={classes.image}
+              style={{filter: `brightness(${brightness})`}}
+            />
+          </div>
           <div className={classes.heading}>EA Forum personality</div>
           <div className={classes.personality}>{personality}</div>
         </div>

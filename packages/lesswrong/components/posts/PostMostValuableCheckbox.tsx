@@ -8,7 +8,7 @@ import { useCurrentUser } from '../common/withUser';
 const styles = (theme: ThemeType) => ({
   root: {
     cursor: "pointer",
-    color: theme.palette.grey[800],
+    color: theme.palette.text.alwaysWhite,
     fontSize: 32,
     padding: 6,
     "&:hover": {
@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => ({
  * they found particularly valuable.
  */
 export const PostMostValuableCheckbox = ({post, classes}: {
-  post: PostsBase,
+  post: Pick<PostsBase, "_id">,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser()

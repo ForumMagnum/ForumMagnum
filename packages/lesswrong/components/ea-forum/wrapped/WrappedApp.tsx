@@ -42,7 +42,7 @@ const styles = (theme: ThemeType) => ({
   },
   navButton: {
     cursor: "pointer",
-    padding: 2,
+    padding: 6,
     color: theme.palette.text.alwaysWhite,
     border: `1px solid ${theme.palette.text.alwaysWhite}`,
     borderRadius: "50%",
@@ -96,6 +96,7 @@ const WrappedApp = ({classes}: {
     <div className={classes.root}>
       <div className={classes.app}>
         <div className={classes.offscreenVideos}>
+          {/* Preload videos offscreen so they'll be ready when we need them */}
           <video
             src={getWrappedVideo("thinking").src}
             ref={thinkingVideoRef}
