@@ -18,15 +18,13 @@ const styles = (theme: ThemeType) => ({
     flexDirection: "column",
     gap: "20px",
     textAlign: "left",
-    margin: "0 auto 40px",
+    margin: "0 auto 20px",
     [theme.breakpoints.up("md")]: {
       marginTop: 40,
       marginBottom: 40,
     },
   },
-  black: {
-    background: theme.palette.wrapped.background,
-  },
+  transparent: {},
   grey: {
     background: theme.palette.wrapped.personalityGrey,
   },
@@ -50,19 +48,6 @@ const styles = (theme: ThemeType) => ({
   },
   image: {
     height: 140,
-    // I'm so sorry about this hack :(
-    //
-    // The videos were exported with the wrong color space (they should've been
-    // sRGB) so the colors don't quite match up. We should probably fix this
-    // next year.
-    //
-    // When we display the videos on the personality page we manually matched
-    // the colors, but the static screenshots were exported with an ffmpeg
-    // script[1] that exported the colors _correctly_, so we have to manually
-    // correct here.
-    //
-    // ^[1]: ffmpeg -sseof -3 -i ./contrarian-green.mp4 -update 1 -q:v 1 contrarian-green.jpg
-    filter: "brightness(1.1)",
   },
   heading: {
     fontSize: 13,
@@ -118,6 +103,7 @@ const styles = (theme: ThemeType) => ({
   shareContainer: {
     display: "flex",
     justifyContent: "center",
+    marginBottom: 40,
   },
 });
 
@@ -131,7 +117,7 @@ const WrappedSummarySection = ({classes}: {
     year,
     data: {totalSeconds, postCount, mostReadAuthors, mostReadTopics, personality},
   } = useForumWrappedContext();
-  const {color, frame} = getWrappedVideo(personality);
+  const {color, frame, brightness} = getWrappedVideo(personality);
   const screenshotRef = useRef<HTMLDivElement>(null);
   const hoursSpent = (totalSeconds / 3600).toFixed(1)
   const {
@@ -142,7 +128,11 @@ const WrappedSummarySection = ({classes}: {
       <div className={classNames(classes.root, classes[color])} ref={screenshotRef}>
         <div>
           <div className={classes.imageContainer}>
-            <img src={frame} className={classes.image} />
+            <img
+              src={frame}
+              className={classes.image}
+              style={{filter: `brightness(${brightness})`}}
+            />
           </div>
           <div className={classes.heading}>EA Forum personality</div>
           <div className={classes.personality}>{personality}</div>
