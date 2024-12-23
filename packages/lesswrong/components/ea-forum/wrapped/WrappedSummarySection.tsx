@@ -51,6 +51,7 @@ const styles = (theme: ThemeType) => ({
   },
   personality: {
     fontSize: 24,
+    lineHeight: '30px',
     fontWeight: 700,
     letterSpacing: "-0.48px",
   },

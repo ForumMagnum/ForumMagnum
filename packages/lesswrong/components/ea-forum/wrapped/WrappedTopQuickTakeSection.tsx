@@ -11,6 +11,11 @@ const styles = (_theme: ThemeType) => ({
     maxWidth: 380,
     margin: "24px auto",
   },
+  textRow: {
+    maxWidth: 500,
+    textWrap: 'pretty',
+    margin: '0 auto',
+  },
 });
 
 /**
@@ -26,12 +31,12 @@ const WrappedTopQuickTakeSection = ({classes}: {
   return (
     <WrappedSection pageSectionContext="topQuickTake">
       <WrappedHeading>
-        Your highest-karma <em>Quick take</em> in {year}
+        Your highest-karma <em>quick take</em> in {year}
       </WrappedHeading>
       <div className={classes.topQuickTake}>
         <WrappedComment comment={data.topShortform} />
       </div>
-      <div>
+      <div className={classes.textRow}>
         You wrote {data.shortformCount} quick{" "}
         take{data.shortformCount === 1 ? "" : "s"} in total this year.
         {percentile < 100 &&

@@ -3,6 +3,11 @@ import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { useForumWrappedContext } from "./hooks";
 
 const styles = (theme: ThemeType) => ({
+  textRow: {
+    maxWidth: 500,
+    textWrap: 'pretty',
+    margin: '0 auto',
+  },
   labels: {
     width: "100%",
     maxWidth: 500,
@@ -57,8 +62,8 @@ const WrappedMostValuablePostsSection = ({classes}: {
       <WrappedHeading>
         Take a moment to reflect on {year}
       </WrappedHeading>
-      <div>
-        Look back at everything you upvoted - what did you find most valuable?
+      <div className={classes.textRow}>
+        Look back at everything you upvoted &#8212; what did you find most valuable?
         Your answers will help us encourage more of the most valuable content.
       </div>
       <div className={classes.container}>

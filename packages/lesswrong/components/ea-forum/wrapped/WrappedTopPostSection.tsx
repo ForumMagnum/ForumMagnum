@@ -23,6 +23,11 @@ const styles = (_theme: ThemeType) => ({
     maxWidth: 380,
     margin: "10px auto 0",
   },
+  textRow: {
+    maxWidth: 500,
+    textWrap: 'pretty',
+    margin: '0 auto',
+  },
 });
 
 /**
@@ -54,7 +59,7 @@ const WrappedTopPostSection = ({classes}: {
           </div>
         </div>
       }
-      <div>
+      <div className={classes.textRow}>
         You wrote {data.postCount} post{data.postCount === 1 ? "" : "s"} in
         total this year.
         {percentile < 100 &&

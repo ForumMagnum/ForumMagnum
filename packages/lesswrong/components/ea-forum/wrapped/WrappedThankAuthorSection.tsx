@@ -102,7 +102,7 @@ const WrappedThankAuthorSection = ({classes}: {
         of {displayName}’s readers
       </WrappedHeading>
       <div>
-        Want to say thanks?
+        Want to say thanks? Send a DM below
       </div>
       <div className={classes.messageAuthor}>
         <div className={classes.topAuthorInfo}>

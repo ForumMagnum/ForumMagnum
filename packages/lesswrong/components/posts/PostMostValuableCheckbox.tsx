@@ -8,7 +8,7 @@ import { useCurrentUser } from '../common/withUser';
 const styles = (theme: ThemeType) => ({
   root: {
     cursor: "pointer",
-    color: theme.palette.text.alwaysWhite,
+    color: theme.palette.grey[800],
     fontSize: 32,
     padding: 6,
     "&:hover": {

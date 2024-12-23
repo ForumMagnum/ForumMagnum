@@ -67,6 +67,7 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
   },
   body: {
+    color: theme.palette.wrapped.metaText,
     overflow: "hidden",
     display: "-webkit-box",
     "-webkit-box-orient": "vertical",

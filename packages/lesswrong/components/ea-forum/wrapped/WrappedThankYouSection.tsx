@@ -1,11 +1,28 @@
 import React from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { useForumWrappedContext } from "./hooks";
+import { HeartReactionIcon } from "@/components/icons/reactions/HeartReactionIcon";
+import { lightbulbIcon } from "@/components/icons/lightbulbIcon";
 
 const styles = (_theme: ThemeType) => ({
   root: {
     maxWidth: 480,
     margin: "60px auto 0",
+  },
+  heartIcon: {
+    marginLeft: 6,
+    '& svg': {
+      width: 32,
+      height: 30
+    }
+  },
+  textRow: {
+    maxWidth: 500,
+    textWrap: 'pretty',
+  },
+  lightbulbIcon: {
+    width: 120,
+    margin: '50px auto 0',
   },
 });
 
@@ -18,11 +35,13 @@ const WrappedThankYouSection = ({classes}: {
     <WrappedSection pageSectionContext="thankYou">
       <div className={classes.root}>
         <WrappedHeading>
-          Thanks for being part of the EA Forum {currentUser?.displayName}
+          Thank you! <span className={classes.heartIcon}><HeartReactionIcon /></span>
         </WrappedHeading>
-        <div>
-          You’re helping the community think about how to do the most good in
-          the world
+        <div className={classes.textRow}>
+          Thanks for joining us on the EA Forum and helping us think about how to improve the world.
+        </div>
+        <div className={classes.lightbulbIcon}>
+          {lightbulbIcon}
         </div>
       </div>
     </WrappedSection>

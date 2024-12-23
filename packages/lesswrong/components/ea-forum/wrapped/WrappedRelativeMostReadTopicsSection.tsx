@@ -61,8 +61,8 @@ const WrappedRelativeMostReadTopicsSection = ({classes}: {
   return (
     <WrappedSection pageSectionContext="relativeMostReadTopics">
       <WrappedHeading>
-        You spent more time on <em>{relativeMostReadTopics[0].tagName}</em>{" "}
-        than other users
+        You read more <em>{relativeMostReadTopics[0].tagName}</em>{" "}
+        posts than average
       </WrappedHeading>
       <div className={classes.chart}>
         <aside className={classes.markYou}>

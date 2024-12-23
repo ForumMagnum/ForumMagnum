@@ -11,6 +11,11 @@ const styles = (_theme: ThemeType) => ({
     maxWidth: 380,
     margin: "24px auto",
   },
+  textRow: {
+    maxWidth: 500,
+    textWrap: 'pretty',
+    margin: '0 auto',
+  },
 });
 
 const WrappedTopCommentSection = ({classes}: {
@@ -27,7 +32,7 @@ const WrappedTopCommentSection = ({classes}: {
       <div className={classes.topComment}>
         <WrappedComment comment={data.topComment} />
       </div>
-      <div>
+      <div className={classes.textRow}>
         You wrote {data.commentCount}{" "}
         comment{data.commentCount === 1 ? "" : "s"} in total this year.
         {percentile < 100 &&

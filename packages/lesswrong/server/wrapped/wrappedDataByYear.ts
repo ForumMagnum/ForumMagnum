@@ -108,10 +108,10 @@ export const getWrappedDataByYear = async (
     }))
   );
 
-  // Get the top 4 topics that the user has read (filtering out Community)
+  // Get the top 15 topics that the user has read (will be filtered down to 4 later)
   const tagIds = posts.flatMap(p => Object.keys(p.tagRelevance ?? {}) ?? []);
   const tagCounts = countBy(tagIds);
-  const topTags = sortBy(entries(tagCounts), last).slice(-4).map((tag) => tag![0]);
+  const topTags = sortBy(entries(tagCounts), last).slice(-15).map((tag) => tag![0]);
 
   // Get the number of posts, comments, and shortforms that the user posted
   // this year, including which were the most popular
@@ -140,6 +140,7 @@ export const getWrappedDataByYear = async (
     Tags.find(
       {
         _id: { $in: topTags },
+        isPostType: false, // exclude post type topics like "Announcements"
       },
       { projection: { name: 1, shortName: 1, slug: 1 } }
     ).fetch(),
@@ -273,7 +274,8 @@ export const getWrappedDataByYear = async (
           }
         : null;
     })
-    .filter((t) => !!t);
+    .filter((t) => !!t)
+    .slice(0, 4);
 
   const mostReadAuthors = topAuthors.reverse().map(async id => {
     const author = authors.find(a => a._id === id)

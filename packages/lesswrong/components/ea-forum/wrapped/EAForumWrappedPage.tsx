@@ -18,6 +18,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.text.alwaysWhite,
     fontFamily: theme.typography.fontFamily,
     fontSize: 14,
+    lineHeight: '21px',
     fontWeight: 500,
     textAlign: "center",
     // Compensate for the padding added in Layout.tsx and the site header, so

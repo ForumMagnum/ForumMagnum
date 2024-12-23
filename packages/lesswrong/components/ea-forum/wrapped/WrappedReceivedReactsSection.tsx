@@ -23,10 +23,9 @@ const placeBackgroundReacts = (reacts?: WrappedReceivedReact[]) => {
       (emoji) => emoji.label === next.name,
     )?.Component;
     if (Component) {
-      // Only go to 96% to prevent causing a horizontal scroll
       range(0, next.count).forEach((_) => prev.push({
-        top: `${Math.random() * 96}%`,
-        left: `${Math.random() * 96}%`,
+        top: `${Math.random() * 90}%`, // only go to 90% to avoid overlapping the bottom nav
+        left: `${Math.random() * 94}%`, // only go to 94% to prevent causing a horizontal scroll
         transform: `rotate(${(Math.random() * 50) - 25}deg)`,
         Component,
       }));
@@ -49,6 +48,8 @@ const styles = (theme: ThemeType) => ({
     position: "relative",
   },
   otherReacts: {
+    position: "relative",
+    zIndex: 2,
     width: "100%",
     maxWidth: 400,
     background: theme.palette.wrapped.panelBackgroundDark,
