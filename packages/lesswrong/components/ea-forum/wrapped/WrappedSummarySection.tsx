@@ -25,7 +25,7 @@ const styles = (theme: ThemeType) => ({
     },
   },
   black: {
-    background: theme.palette.wrapped.darkBackground,
+    background: theme.palette.wrapped.background,
   },
   grey: {
     background: theme.palette.wrapped.personalityGrey,

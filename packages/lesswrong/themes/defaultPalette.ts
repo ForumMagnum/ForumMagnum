@@ -589,6 +589,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     personalityGreen: "#006336",
     notification: "#e05200",
     emptyPath: "#494949",
+    metaText: "#b3b3b3",
   },
   givingSeason: {
     primary: "#8A0003",

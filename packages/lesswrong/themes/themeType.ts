@@ -558,6 +558,7 @@ declare global {
       personalityGreen: ColorString,
       notification: ColorString,
       emptyPath: ColorString,
+      metaText: ColorString,
     },
     givingSeason: {
       primary: ColorString,

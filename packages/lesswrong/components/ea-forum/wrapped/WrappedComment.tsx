@@ -16,16 +16,16 @@ import moment from "moment";
 
 const styles = (theme: ThemeType) => ({
   root: {
-    color: theme.palette.wrapped.black,
-    background: theme.palette.text.alwaysWhite,
+    background: theme.palette.wrapped.darkBackground,
     textAlign: "left",
+    border: `1px solid ${theme.palette.wrapped.black}`,
     borderRadius: theme.borderRadius.default,
     padding: "8px 12px",
   },
   postTitle: {
     fontSize: 12,
     lineHeight: "17px",
-    color: theme.palette.wrapped.grey,
+    color: theme.palette.wrapped.metaText,
     marginBottom: 6,
     overflow: "hidden",
     display: "-webkit-box",
@@ -37,18 +37,16 @@ const styles = (theme: ThemeType) => ({
     flexWrap: "wrap",
     alignItems: "center",
     gap: "2px 8px",
-    color: theme.palette.wrapped.darkGrey,
+    color: theme.palette.wrapped.metaText,
     "& .EAReactsSection-button": {
-      color: theme.palette.wrapped.darkGrey,
+      color: theme.palette.wrapped.metaText,
     },
   },
   author: {
+    color: theme.palette.text.alwaysWhite,
     fontSize: 14,
     fontWeight: 600,
     whiteSpace: "nowrap",
-  },
-  date: {
-    color: theme.palette.wrapped.grey,
   },
   score: {
     flexGrow: 1,
@@ -63,14 +61,12 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 500,
   },
   voteArrow: {
-    color: theme.palette.wrapped.grey,
     transform: "translateY(-2px)",
   },
   reacts: {
     display: "flex",
   },
   body: {
-    color: theme.palette.wrapped.black,
     overflow: "hidden",
     display: "-webkit-box",
     "-webkit-box-orient": "vertical",
@@ -114,7 +110,7 @@ const WrappedComment = ({comment, classes}: {
             {currentUser?.displayName}
           </UserTooltip>
         </div>
-        <div className={classes.date}>
+        <div>
           <LWTooltip
             placement="right"
             title={<ExpandedDate date={comment.postedAt} />}
