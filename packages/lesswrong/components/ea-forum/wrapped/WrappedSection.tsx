@@ -35,6 +35,11 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
+/**
+ * Wrapped component for all wrapped sections. It is _not_ safe to use
+ * ForumWrappedContext here as this component is also used when the page is
+ * still loading.
+ */
 const WrappedSection = ({
   pageSectionContext,
   align = "center",

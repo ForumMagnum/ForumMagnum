@@ -3,23 +3,6 @@ import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { useForumWrappedContext } from "./hooks";
 
 const styles = (theme: ThemeType) => ({
-  container: {
-    margin: "40px auto 0",
-    [theme.breakpoints.up("sm")]: {
-      width: 600,
-    },
-  },
-  heading: {
-    fontSize: 54,
-    fontWeight: 700,
-    lineHeight: "110%",
-    letterSpacing: "-2.7px",
-    textAlign: "left",
-    marginTop: 0,
-  },
-  wrapped: {
-    color: theme.palette.wrapped.highlightText,
-  },
   button: {
     display: "flex",
     alignItems: "center",
@@ -53,19 +36,13 @@ const WrappedWelcomeSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {year, currentUser, goToNextSection} = useForumWrappedContext();
-  const {WrappedSection, ForumIcon} = Components;
+  const {WrappedWelcomeMessage, ForumIcon} = Components;
   return (
-    <WrappedSection pageSectionContext="top" align="left">
-      <div className={classes.container}>
-        <h1 className={classes.heading}>
-          Hi {currentUser.displayName}, this is your {year} EA Forum{" "}
-          <span className={classes.wrapped}>Wrapped</span>
-        </h1>
-        <button onClick={goToNextSection} className={classes.button}>
-          Get started <ForumIcon icon="ChevronRight" />
-        </button>
-      </div>
-    </WrappedSection>
+    <WrappedWelcomeMessage currentUser={currentUser} year={year}>
+      <button onClick={goToNextSection} className={classes.button}>
+        Get started <ForumIcon icon="ChevronRight" />
+      </button>
+    </WrappedWelcomeMessage>
   );
 }
 

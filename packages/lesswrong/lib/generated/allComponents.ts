@@ -346,6 +346,7 @@ importComponent("WrappedTimeSpentSection", () => require("../../components/ea-fo
 importComponent("WrappedTopCommentSection", () => require("../../components/ea-forum/wrapped/WrappedTopCommentSection.tsx"));
 importComponent("WrappedTopPostSection", () => require("../../components/ea-forum/wrapped/WrappedTopPostSection.tsx"));
 importComponent("WrappedTopQuickTakeSection", () => require("../../components/ea-forum/wrapped/WrappedTopQuickTakeSection.tsx"));
+importComponent("WrappedWelcomeMessage", () => require("../../components/ea-forum/wrapped/WrappedWelcomeMessage.tsx"));
 importComponent("WrappedWelcomeSection", () => require("../../components/ea-forum/wrapped/WrappedWelcomeSection.tsx"));
 importComponent("CKCommentEditor", () => require("../../components/editor/CKCommentEditor.tsx"));
 importComponent("CKPostEditor", () => require("../../components/editor/CKPostEditor.tsx"));

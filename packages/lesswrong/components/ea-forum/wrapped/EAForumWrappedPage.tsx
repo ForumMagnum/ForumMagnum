@@ -56,7 +56,10 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
   const endOfYear = moment(`${year}-12-31`, "YYYY-MM-DD");
   const isTooYoung = userCreatedAt.isAfter(endOfYear, "date");
 
-  const {HeadTags, WrappedSection, WrappedHeading,LoginForm, WrappedApp} = Components;
+  const {
+    HeadTags, WrappedSection, WrappedHeading,LoginForm, WrappedApp, Loading,
+    WrappedWelcomeMessage,
+  } = Components;
   return (
     <AnalyticsContext pageContext="eaYearWrapped" reviewYear={String(year)}>
       <main className={classes.root}>
@@ -90,6 +93,11 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
               at the end of this year
             </div>
           </WrappedSection>
+        }
+        {!isLoggedOut && !isTooYoung && !data &&
+          <WrappedWelcomeMessage currentUser={currentUser} year={year}>
+            <Loading />
+          </WrappedWelcomeMessage>
         }
         {!isLoggedOut && !isTooYoung && data &&
           <ForumWrappedProvider
