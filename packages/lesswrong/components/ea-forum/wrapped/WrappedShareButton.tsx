@@ -2,6 +2,7 @@ import React, { RefObject, useCallback } from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import html2canvas from "html2canvas";
 import classNames from "classnames";
+import { isMobile } from "@/lib/utils/isMobile";
 
 export const WRAPPED_SHARE_BUTTON_WIDTH = 100;
 
@@ -41,7 +42,7 @@ const WrappedShareButton = ({name, screenshotRef, className, classes}: {
         useCORS: true,
       });
       const dataUrl = canvasElement.toDataURL("image/png");
-      if (!!navigator.canShare) {
+      if (isMobile() && !!navigator.canShare) {
         const data = await fetch(dataUrl);
         const blob = await data.blob();
         const file = new File([blob], fileName, {
