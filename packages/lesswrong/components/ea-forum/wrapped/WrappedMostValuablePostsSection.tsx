@@ -50,10 +50,8 @@ const styles = (theme: ThemeType) => ({
 const WrappedMostValuablePostsSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {year} = useForumWrappedContext();
-  const {
-    WrappedSection, WrappedHeading, ForumIcon, PostsByVoteWrapper,
-  } = Components;
+  const {year, bigUpvotePostIds, smallUpvotePostIds} = useForumWrappedContext();
+  const {WrappedSection, WrappedHeading, ForumIcon, PostsByVote} = Components;
   return (
     <WrappedSection pageSectionContext="mostValuablePosts">
       <WrappedHeading>
@@ -73,16 +71,15 @@ const WrappedMostValuablePostsSection = ({classes}: {
           </div>
         </div>
         <div className={classes.list}>
-          <PostsByVoteWrapper
-            voteType="bigUpvote"
+          <PostsByVote
+            postIds={bigUpvotePostIds}
             year={year}
             showMostValuableCheckbox
             hideEmptyStateText
           />
-          <PostsByVoteWrapper
-            voteType="smallUpvote"
+          <PostsByVote
+            postIds={smallUpvotePostIds}
             year={year}
-            limit={10}
             showMostValuableCheckbox
             hideEmptyStateText
           />
