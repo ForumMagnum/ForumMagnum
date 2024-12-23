@@ -652,6 +652,7 @@ importComponent("PostAuthorCard", () => require("../../components/posts/PostsPag
 importComponent("PostBody", () => require("../../components/posts/PostsPage/PostBody.tsx"));
 importComponent("PostBodyPrefix", () => require("../../components/posts/PostsPage/PostBodyPrefix.tsx"));
 importComponent("PostCoauthorRequest", () => require("../../components/posts/PostsPage/PostCoauthorRequest.tsx"));
+importComponent("PostPageReviewButton", () => require("../../components/posts/PostsPage/PostPageReviewButton.tsx"));
 importComponent("PostsAudioPlayerWrapper", () => require("../../components/posts/PostsPage/PostsAudioPlayerWrapper.tsx"));
 importComponent("PostsAuthors", () => require("../../components/posts/PostsPage/PostsAuthors.tsx"));
 importComponent("PostsCoauthor", () => require("../../components/posts/PostsPage/PostsCoauthor.tsx"));
