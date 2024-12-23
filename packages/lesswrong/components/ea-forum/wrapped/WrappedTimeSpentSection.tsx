@@ -39,17 +39,17 @@ const styles = (theme: ThemeType) => ({
 const WrappedTimeSpentSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {year, data} = useForumWrappedContext();
+  const {data} = useForumWrappedContext();
   const formattedPercentile = formatPercentile(data.engagementPercentile);
   const engagementHours = (data.totalSeconds / 3600).toFixed(1);
   const {WrappedSection, WrappedHeading} = Components;
   return (
     <WrappedSection pageSectionContext="engagementPercentile">
       <WrappedHeading>
-        You spent <em>{engagementHours}</em> hours on the EA Forum in {year}
+        You're a top <em>{formattedPercentile}%</em> reader of the EA Forum
       </WrappedHeading>
       <div>
-        That puts you in the top {formattedPercentile}% of Forum users
+        You spent {engagementHours} hours on the Forum this year
       </div>
       <div className={classes.chartContainer}>
         <div className={classes.chart}>
