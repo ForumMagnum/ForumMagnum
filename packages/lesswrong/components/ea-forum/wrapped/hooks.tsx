@@ -287,8 +287,8 @@ type ForumWrappedContext = {
   goToNextSection: () => void,
   CurrentSection: ComponentType,
   recommendations: PostsListWithVotesAndSequence[],
-  bigUpvotePostIds: string[],
-  smallUpvotePostIds: string[],
+  mostValuablePosts: PostsListWithVotes[],
+  mostValuablePostsLoading: boolean,
   thinkingVideoRef: RefObject<HTMLVideoElement>,
   personalityVideoRef: RefObject<HTMLVideoElement>,
 }
@@ -349,6 +349,18 @@ export const ForumWrappedProvider = ({
   const bigUpvotePostIds = useVotes(year, "bigUpvote");
   const smallUpvotePostIds = useVotes(year, "smallUpvote");
 
+  const {
+    results: mostValuablePosts = [],
+    loading: mostValuablePostsLoading,
+  } = useMulti({
+    terms: {
+      view: "nominatablePostsByVote",
+      postIds: [...bigUpvotePostIds, ...smallUpvotePostIds],
+    },
+    collectionName: "Posts",
+    fragmentName: "PostsListWithVotes",
+  });
+
   const thinkingVideoRef = useRef<HTMLVideoElement>(null);
   const personalityVideoRef = useRef<HTMLVideoElement>(null);
 
@@ -363,8 +375,8 @@ export const ForumWrappedProvider = ({
       goToNextSection,
       CurrentSection: sections[currentSection].component,
       recommendations: recommendations ?? [],
-      bigUpvotePostIds,
-      smallUpvotePostIds,
+      mostValuablePosts,
+      mostValuablePostsLoading,
       thinkingVideoRef,
       personalityVideoRef,
     }}>

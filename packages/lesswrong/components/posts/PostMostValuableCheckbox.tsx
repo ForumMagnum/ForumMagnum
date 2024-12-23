@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => ({
  * they found particularly valuable.
  */
 export const PostMostValuableCheckbox = ({post, classes}: {
-  post: PostsBase,
+  post: Pick<PostsBase, "_id">,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser()

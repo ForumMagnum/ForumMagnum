@@ -69,8 +69,9 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const WrappedPost = ({post, classes}: {
-  post: WrappedTopPost | PostsListWithVotesAndSequence,
+const WrappedPost = ({post, showMostValuableCheckbox, classes}: {
+  post: WrappedTopPost | PostsListWithVotes,
+  showMostValuableCheckbox?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
   const authorExpandContainer = useRef(null);
@@ -92,7 +93,10 @@ const WrappedPost = ({post, classes}: {
     ? ""
     : `, ${post.readTimeMinutes ?? 1} min read`;
 
-  const {PostsItemTooltipWrapper, TruncatedAuthorsList, BookmarkButton} = Components;
+  const {
+    PostsItemTooltipWrapper, TruncatedAuthorsList, PostMostValuableCheckbox,
+    BookmarkButton,
+  } = Components;
   return (
     <article className={classes.root} ref={authorExpandContainer} onClick={onClick}>
       <div className={classes.score}>
@@ -127,9 +131,14 @@ const WrappedPost = ({post, classes}: {
           </div>
         }
       </div>
-      {isRecommendedPost &&
+      {isRecommendedPost && !showMostValuableCheckbox &&
         <InteractionWrapper>
           <BookmarkButton post={post} className={classes.bookmarkIcon} />
+        </InteractionWrapper>
+      }
+      {showMostValuableCheckbox &&
+        <InteractionWrapper>
+          <PostMostValuableCheckbox post={post} />
         </InteractionWrapper>
       }
     </article>

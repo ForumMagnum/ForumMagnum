@@ -50,8 +50,14 @@ const styles = (theme: ThemeType) => ({
 const WrappedMostValuablePostsSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {year, bigUpvotePostIds, smallUpvotePostIds} = useForumWrappedContext();
-  const {WrappedSection, WrappedHeading, ForumIcon, PostsByVote} = Components;
+  const {
+    year,
+    mostValuablePosts,
+    mostValuablePostsLoading,
+  } = useForumWrappedContext();
+  const {
+    WrappedSection, WrappedHeading, ForumIcon, WrappedPost, Loading,
+  } = Components;
   return (
     <WrappedSection pageSectionContext="mostValuablePosts">
       <WrappedHeading>
@@ -71,18 +77,10 @@ const WrappedMostValuablePostsSection = ({classes}: {
           </div>
         </div>
         <div className={classes.list}>
-          <PostsByVote
-            postIds={bigUpvotePostIds}
-            year={year}
-            showMostValuableCheckbox
-            hideEmptyStateText
-          />
-          <PostsByVote
-            postIds={smallUpvotePostIds}
-            year={year}
-            showMostValuableCheckbox
-            hideEmptyStateText
-          />
+          {mostValuablePostsLoading && <Loading />}
+          {mostValuablePosts.map((post) => (
+            <WrappedPost key={post._id} post={post} showMostValuableCheckbox />
+          ))}
         </div>
       </div>
     </WrappedSection>
