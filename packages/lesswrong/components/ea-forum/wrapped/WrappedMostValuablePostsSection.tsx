@@ -32,6 +32,9 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center",
   },
   list: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "4px",
     width: "100%",
     maxWidth: 500,
     textAlign: "left",
@@ -40,42 +43,6 @@ const styles = (theme: ThemeType) => ({
     },
     "& .Loading-spinner": {
       margin: "10px 0 0",
-    },
-  },
-  postItem: {
-    marginBottom: 4,
-    "& .EAPostsItem-expandedCommentsWrapper": {
-      background: theme.palette.text.alwaysWhite,
-      border: "none",
-      "&:hover": {
-        background: theme.palette.text.alwaysWhite,
-        border: "none",
-        opacity: 0.9,
-      },
-    },
-    "& .PostsTitle-root": {
-      color: theme.palette.wrapped.black,
-    },
-    "& .PostsTitle-read": {
-      color: theme.palette.wrapped.black,
-    },
-    "& .PostsItemIcons-icon": {
-      color: theme.palette.wrapped.grey,
-    },
-    "& .PostsItemIcons-linkIcon": {
-      color: theme.palette.wrapped.grey,
-    },
-    "& .EAKarmaDisplay-root": {
-      color: theme.palette.wrapped.grey,
-    },
-    "& .EAKarmaDisplay-voteArrow": {
-      color: theme.palette.wrapped.postScore,
-    },
-    "& .EAPostMeta-root": {
-      color: theme.palette.wrapped.grey,
-    },
-    "& .PostsItem2MetaInfo-metaInfo": {
-      color: theme.palette.wrapped.grey,
     },
   },
 });
@@ -106,7 +73,6 @@ const WrappedMostValuablePostsSection = ({classes}: {
           <PostsByVoteWrapper
             voteType="bigUpvote"
             year={year}
-            postItemClassName={classes.postItem}
             showMostValuableCheckbox
             hideEmptyStateText
           />
@@ -114,7 +80,6 @@ const WrappedMostValuablePostsSection = ({classes}: {
             voteType="smallUpvote"
             year={year}
             limit={10}
-            postItemClassName={classes.postItem}
             showMostValuableCheckbox
             hideEmptyStateText
           />
