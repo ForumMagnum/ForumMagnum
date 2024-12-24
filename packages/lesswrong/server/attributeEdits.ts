@@ -30,9 +30,7 @@ export async function computeAttributions(
   upToVersion?: string | null
 ): Promise<{ finalHtml: string; attributions: EditAttributions }> {
   const revs = await Revisions.find({
-    documentId,
-    collectionName,
-    fieldName,
+    documentId, collectionName, fieldName
   }).fetch();
   if (!revs.length) return { finalHtml: "", attributions: [] };
 

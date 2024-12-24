@@ -2,7 +2,8 @@ import { Comments } from '../lib/collections/comments/collection';
 import { questionAnswersSortings } from '../lib/collections/comments/views';
 import { Revisions } from '../lib/collections/revisions/collection';
 import { isAF } from '../lib/instanceSettings';
-import { updateDenormalizedHtmlAttributions } from './tagging/updateDenormalizedHtmlAttributions';
+import { updateDenormalizedHtmlAttributions, UpdateDenormalizedHtmlAttributionsOptions } from './tagging/updateDenormalizedHtmlAttributions';
+
 import { annotateAuthors } from './attributeEdits';
 import { getDefaultViewSelector } from '../lib/utils/viewUtils';
 import { extractTableOfContents, getTocAnswers, getTocComments, shouldShowTableOfContents, ToCData } from '../lib/tableOfContents';
@@ -12,7 +13,6 @@ import { FetchedFragment } from './fetchFragment';
 import { getLatestContentsRevision } from '../lib/collections/revisions/helpers';
 import { applyCustomArbitalScripts } from './utils/arbital/arbitalCustomScripts';
 import { editableCollectionsFields } from '@/lib/editor/make_editable';
-
 async function getTocAnswersServer (document: DbPost) {
   if (!document.question) return []
 
@@ -48,10 +48,7 @@ async function getHtmlWithContributorAnnotations({
   fieldName,
   version,
   context,
-}: {
-  document: DbTag|DbMultiDocument,
-  collectionName: CollectionNameString,
-  fieldName: string,
+}: UpdateDenormalizedHtmlAttributionsOptions & {
   version: string | null,
   context: ResolverContext,
 }) {
@@ -81,7 +78,10 @@ async function getHtmlWithContributorAnnotations({
       if (document.htmlWithContributorAnnotations) {
         return document.htmlWithContributorAnnotations;
       } else {
-        const html = await updateDenormalizedHtmlAttributions(document, collectionName, fieldName);
+        const updateOptions: UpdateDenormalizedHtmlAttributionsOptions = collectionName === 'Tags'
+          ? {document, collectionName: 'Tags', fieldName: 'description'}
+          : {document, collectionName: 'MultiDocuments', fieldName: 'contents'};
+        const html = await updateDenormalizedHtmlAttributions(updateOptions);
         return html;
       }
     } catch (e) {

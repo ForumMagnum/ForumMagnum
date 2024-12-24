@@ -678,17 +678,40 @@ const schema: SchemaType<"Tags"> = {
         { sort: { index: 1 } }
       ).fetch();
 
-      return Promise.all(multiDocuments.map(async md => {
-        let contents;
-        if (md.slug === lensSlug && version) {
-          // Fetch the specified version of the contents
-          contents = await Revisions.findOne({ documentId: md._id, version });
-        } else {
-          // Fetch the latest contents
-          contents = await Revisions.findOne({ _id: md.contents_latest });
+      let revisions;
+      if (version && lensSlug) {
+        // Find the MultiDocument with the matching slug or oldSlug
+        const versionedLens = multiDocuments.find(md => (md.slug === lensSlug) || (md.oldSlugs && md.oldSlugs.includes(lensSlug)));
+        
+        if (versionedLens) {
+          const versionedLensId = versionedLens._id;
+          const nonVersionedLensRevisionIds = multiDocuments
+            .filter(md => md._id !== versionedLensId)
+            .map(md => md.contents_latest);
+
+          const selector = {
+            $or: [
+              { documentId: versionedLensId, version },
+              { _id: { $in: nonVersionedLensRevisionIds } },
+            ],
+          };
+
+          revisions = await Revisions.find(selector).fetch();
         }
-        return await accessFilterMultiple(context.currentUser, MultiDocuments, [{ ...md, contents, }], context);
+      }
+
+      if (!revisions) {
+        const revisionIds = multiDocuments.map(md => md.contents_latest);
+        revisions = await Revisions.find({ _id: { $in: revisionIds } }).fetch();
+      }
+
+      const revisionsById = new Map(revisions.map(rev => [rev.documentId || rev._id, rev]));
+      const unfilteredResults = multiDocuments.map(md => ({
+        ...md,
+        contents: revisionsById.get(md._id),
       }));
+
+      return await accessFilterMultiple(context.currentUser, MultiDocuments, unfilteredResults, context);
     },
     sqlResolver: ({ field, resolverArg }) => {
       return `(
@@ -704,7 +727,10 @@ const schema: SchemaType<"Tags"> = {
         FROM "MultiDocuments" md
         LEFT JOIN "Revisions" r
           ON r._id = CASE
-            WHEN md.slug = ${resolverArg("lensSlug")}::TEXT AND ${resolverArg("version")}::TEXT IS NOT NULL THEN (
+            WHEN (
+              md.slug = ${resolverArg("lensSlug")}::TEXT OR
+              (md."oldSlugs" IS NOT NULL AND ${resolverArg("lensSlug")}::TEXT = ANY ( SELECT jsonb_array_elements_text(md."oldSlugs")))
+            ) AND ${resolverArg("version")}::TEXT IS NOT NULL THEN (
               SELECT r._id FROM "Revisions" r
               WHERE r."documentId" = md._id 
               AND r.version = ${resolverArg("version")}::TEXT 

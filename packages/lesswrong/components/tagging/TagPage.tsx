@@ -567,6 +567,11 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     },
 }));
 
+type ArbitalTagPageFragmentNames =
+  | "TagPageWithArbitalContentFragment"
+  | "TagPageRevisionWithArbitalContentFragment"
+  | "TagPageWithArbitalContentAndLensRevisionFragment";
+
 /**
  * If we're on the main tab (or on a tag without any lenses), we want to display the tag name.
  * Otherwise, we want to display the selected lens title.
@@ -1091,30 +1096,20 @@ const ParentsAndChildrenSmallScreen: FC<{ arbitalLinkedPages?: ArbitalLinkedPage
   );
 };
 
-const TagPage = () => {
-  const {
-    PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, Typography,
-    PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection,
-    TagPageButtonRow, ToCColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
-    TagTableOfContents, ContentStyles, CommentsListCondensed,
-    MultiToCLayout, TableOfContents, FormatDate, LWTooltip, HoverPreviewLink, TagsTooltip,
-    PathInfo
-  } = Components;
-  const classes = useStyles(styles);
-
-  const currentUser = useCurrentUser();
-  const { query, params: { slug } } = useLocation();
-  const { lens: lensSlug } = query;
-  // const { onOpenEditor } = useContext(TagEditorContext);
-  
-  // Support URLs with ?version=1.2.3 or with ?revision=1.2.3 (we were previously inconsistent, ?version is now preferred)
-  const { version: queryVersion, revision: queryRevision } = query;
-  const revision = queryVersion ?? queryRevision ?? null;
-
-  const contributorsLimit = 16;
-
-  let tagFragmentName: FragmentTypesByCollection['Tags'] = "TagPageWithArbitalContentFragment";
-  let tagQueryOptions: Partial<UseMultiOptions<"TagPageWithArbitalContentFragment" | "TagPageRevisionWithArbitalContentFragment" | "TagPageWithArbitalContentAndLensRevisionFragment", "Tags">> = {
+function getTagQueryOptions(
+  revision: string | null,
+  lensSlug: string | null,
+  contributorsLimit: number
+): {
+  tagFragmentName: ArbitalTagPageFragmentNames;
+  tagQueryOptions: Partial<
+    UseMultiOptions< ArbitalTagPageFragmentNames, "Tags" >
+  >;
+} {
+  let tagFragmentName: ArbitalTagPageFragmentNames = "TagPageWithArbitalContentFragment";
+  let tagQueryOptions: Partial<
+    UseMultiOptions< ArbitalTagPageFragmentNames, "Tags" >
+  > = {
     extraVariables: {
       contributorsLimit: 'Int',
     },
@@ -1153,6 +1148,32 @@ const TagPage = () => {
     };
   }
 
+  return { tagFragmentName, tagQueryOptions };
+}
+
+const TagPage = () => {
+  const {
+    PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, Typography,
+    PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection,
+    TagPageButtonRow, ToCColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
+    TagTableOfContents, ContentStyles, CommentsListCondensed,
+    MultiToCLayout, TableOfContents, FormatDate, LWTooltip, HoverPreviewLink, TagsTooltip,
+    PathInfo
+  } = Components;
+  const classes = useStyles(styles);
+
+  const currentUser = useCurrentUser();
+  const { query, params: { slug } } = useLocation();
+  const { lens: lensSlug } = query;
+  // const { onOpenEditor } = useContext(TagEditorContext);
+  
+  // Support URLs with ?version=1.2.3 or with ?revision=1.2.3 (we were previously inconsistent, ?version is now preferred)
+  const { version: queryVersion, revision: queryRevision } = query;
+  const revision = queryVersion ?? queryRevision ?? null;
+
+  const contributorsLimit = 16;
+
+  const { tagFragmentName, tagQueryOptions } = getTagQueryOptions(revision, lensSlug, contributorsLimit);
   const { tag, loadingTag, lens, loadingLens } = useTagOrLens(slug, tagFragmentName, tagQueryOptions);
 
   const [truncated, setTruncated] = useState(false)

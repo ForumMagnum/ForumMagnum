@@ -37,10 +37,14 @@ afterCreateRevisionCallback.add(async ({revisionID}) => {
   const revision = await Revisions.findOne({_id: revisionID});
   if (!revision) return;
   if (revision.collectionName !== 'Tags' && revision.collectionName !== 'MultiDocuments') return;
-  
-  const tag = await Tags.findOne({_id: revision.documentId});
-  const multiDoc = tag ? null : await MultiDocuments.findOne({_id: revision.documentId});
-  const document = tag || multiDoc;
-  if (!document || !revision.fieldName) return;
-  await updateDenormalizedHtmlAttributions(document, revision.collectionName, revision.fieldName);
+
+  if (revision.collectionName === 'Tags') {
+    const tag = await Tags.findOne({_id: revision.documentId});
+    if (!tag) return;
+    await updateDenormalizedHtmlAttributions({ document: tag, collectionName: 'Tags', fieldName: 'description' });
+  } else if (revision.collectionName === 'MultiDocuments') {
+    const multiDoc = await MultiDocuments.findOne({_id: revision.documentId});
+    if (!multiDoc) return;
+    await updateDenormalizedHtmlAttributions({ document: multiDoc, collectionName: 'MultiDocuments', fieldName: 'contents' });
+  }
 });
