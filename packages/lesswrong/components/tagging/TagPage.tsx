@@ -1,6 +1,6 @@
 import { useApolloClient } from "@apollo/client";
 import classNames from 'classnames';
-import React, { FC, Fragment, useCallback, useContext, useEffect, useState } from 'react';
+import React, { FC, Fragment, useCallback, useEffect, useState } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from "../../lib/betas";
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
@@ -8,7 +8,7 @@ import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from
 import { useMulti, UseMultiOptions } from '../../lib/crud/withMulti';
 import { truncate } from '../../lib/editor/ellipsize';
 import { Link } from '../../lib/reactRouterWrapper';
-import { useLocation, useNavigate } from '../../lib/routeUtil';
+import { useLocation } from '../../lib/routeUtil';
 import { useGlobalKeydown, useOnSearchHotkey } from '../common/withGlobalKeydown';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
@@ -631,8 +631,9 @@ const LensTab = ({ key, value, label, lens, isSelected, ...tabProps }: {
   );
 };
 
-const EditLensForm = ({lens}: {
+const EditLensForm = ({lens, setFormDirty}: {
   lens: TagLens,
+  setFormDirty: (dirty: boolean) => void,
 }) => {
   const { WrappedSmartForm } = Components;
   return <WrappedSmartForm
@@ -643,6 +644,10 @@ const EditLensForm = ({lens}: {
     mutationFragmentName="MultiDocumentEdit"
     {...(lens.originalLensDocument ? { prefetchedDocument: lens.originalLensDocument } : {})}
     addFields={['summaries']}
+    warnUnsavedChanges={true}
+    changeCallback={() => {
+      setFormDirty(true);
+    }}
   />
 }
 
@@ -981,6 +986,23 @@ const TagPage = () => {
   // Support URLs with ?version=1.2.3 or with ?revision=1.2.3 (we were previously inconsistent, ?version is now preferred)
   const { version: queryVersion, revision: queryRevision } = query;
   const revision = queryVersion ?? queryRevision ?? null;
+  const [editing, _setEditing] = useState(!!query.edit);
+  const [formDirty, setFormDirty] = useState(false);
+
+  // Usually, we want to warn the user before closing the editor when they have unsaved changes
+  // There are some exceptions; in those cases, we can pass warnBeforeClosing=false
+  const setEditing = useCallback((editing: boolean, warnBeforeClosing = true) => {
+    _setEditing((previouslyEditing) => {
+      if (!editing && previouslyEditing && warnBeforeClosing && formDirty) {
+        const confirmed = confirm("Discard changes?");
+        if (!confirmed) {
+          return previouslyEditing;
+        }
+      }
+      setFormDirty(false);
+      return editing;
+    })
+  }, [formDirty]);
 
   const contributorsLimit = 16;
   const tagQueryOptions: Partial<UseMultiOptions<"TagPageWithArbitalContentFragment" | "TagPageRevisionWithArbitalContentFragment", "Tags">> = {
@@ -999,7 +1021,6 @@ const TagPage = () => {
   const { tag, loadingTag, lens, loadingLens } = useTagOrLens(slug, tagFragmentName, tagQueryOptions);
 
   const [truncated, setTruncated] = useState(false)
-  const [editing, setEditing] = useState(!!query.edit)
   const [hoveredContributorId, setHoveredContributorId] = useState<string|null>(null);
   const { captureEvent } =  useTracking()
   const client = useApolloClient()
@@ -1045,6 +1066,13 @@ const TagPage = () => {
   const { selectedLensId, selectedLens, updateSelectedLens, lenses } = useTagLenses(tag);
   const displayedTagTitle = useDisplayedTagTitle(tag, lenses, selectedLens);
 
+  const switchLens = useCallback((lensId: string) => {
+    // We don't want to warn before closing the editor using this mechanism when switching lenses
+    // because we already do it inside of Form.tsx because of the route change
+    setEditing(false, false);
+    updateSelectedLens(lensId);
+  }, [setEditing, updateSelectedLens]);
+
   const tagPositionInList = otherTagsWithNavigation?.findIndex(tagInList => tag?._id === tagInList._id);
   // We have to handle updates to the listPosition explicitly, since we have to deal with three cases
   // 1. Initially the listPosition is -1 because we don't have a list at all yet
@@ -1088,7 +1116,7 @@ const TagPage = () => {
   }
 
   const { topContributors, smallContributors } = useDisplayedContributors(selectedLens?.contributors ?? null);
-  
+
   if (loadingTag && !tag)
     return <Loading/>
   if (!tag) {
@@ -1162,6 +1190,30 @@ const TagPage = () => {
     )
     : <></>;
 
+  let editForm;
+  if (selectedLens?._id === MAIN_TAB_ID) {
+    editForm = (
+      <span className={classNames(classes.unselectedEditForm, editing && classes.selectedEditForm)}>
+        <EditTagForm
+          tag={tag}
+          warnUnsavedChanges={true}
+          successCallback={async () => {
+            setEditing(false);
+            await client.resetStore();
+          }}
+          cancelCallback={() => setEditing(false)}
+          changeCallback={() => setFormDirty(true)}
+        />
+      </span>
+    );
+  } else if (selectedLens) {
+    editForm = (
+      <span className={classNames(classes.unselectedEditForm, editing && classes.selectedEditForm)}>
+        <EditLensForm lens={selectedLens} setFormDirty={setFormDirty} />
+      </span>
+    );
+  }
+
   const tagBodySection = (
     <div id="tagContent" className={classNames(classes.wikiSection,classes.centralColumn)}>
       <AnalyticsContext pageSectionContext="wikiSection">
@@ -1170,19 +1222,7 @@ const TagPage = () => {
         </div>}
         {/* <TagEditorProvider> */}
         <DeferRender ssr={false}>
-          <span className={classNames(classes.unselectedEditForm, editing && selectedLens?._id === MAIN_TAB_ID && classes.selectedEditForm)}>
-            <EditTagForm
-              tag={tag}
-              successCallback={ async () => {
-                setEditing(false)
-                await client.resetStore()
-              }}
-              cancelCallback={() => setEditing(false)}
-            />
-          </span>
-          {lenses.filter(lens => lens._id !== MAIN_TAB_ID).map(lens => <span key={lens._id} className={classNames(classes.unselectedEditForm, editing && selectedLens?._id === lens._id && classes.selectedEditForm)}>
-            <EditLensForm key={lens._id} lens={lens} />
-          </span>)}
+          {editForm}
         </DeferRender>
         {/* </TagEditorProvider> */}
         <div
@@ -1296,7 +1336,7 @@ const TagPage = () => {
         ?  (
           <Tabs
             value={selectedLens?._id}
-            onChange={(e, newLensId) => updateSelectedLens(newLensId)}
+            onChange={(e, newLensId) => switchLens(newLensId)}
             classes={{ flexContainer: classes.lensTabsContainer, indicator: classes.hideMuiTabIndicator }}
           >
             {lenses.map(lens => {
