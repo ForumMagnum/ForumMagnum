@@ -4,7 +4,7 @@ import React, { FC, Fragment, useCallback, useContext, useEffect, useState } fro
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from "../../lib/betas";
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
-import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import { tagGetHistoryUrl, tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { useMulti, UseMultiOptions } from '../../lib/crud/withMulti';
 import { truncate } from '../../lib/editor/ellipsize';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -33,6 +33,7 @@ import qs from "qs";
 import { useTagOrLens } from "../hooks/useTagOrLens";
 import { useTagEditingRestricted } from "./TagPageButtonRow";
 import { useMultiClickHandler } from "../hooks/useMultiClickHandler";
+import HistoryIcon from '@material-ui/icons/History';
 
 const sidePaddingStyle = (theme: ThemeType) => ({
   paddingLeft: 42,
@@ -549,8 +550,21 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     cursor: 'pointer',
     '&:hover': {
       opacity: 0.7,
-    },  
-  },
+      },  
+    },
+    revisionNotice: {
+      ...theme.typography.body2,
+      display: 'flex',
+      alignItems: 'center',
+      color: theme.palette.error.dark,
+      fontWeight: 550,
+      marginBottom: 16,
+    },
+    historyIcon: {
+      height: 18,
+      width: 18,
+      marginRight: 4,
+    },
 }));
 
 /**
@@ -1090,6 +1104,7 @@ const TagPage = () => {
 
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
+  const { lens: lensSlug } = query;
   // const { onOpenEditor } = useContext(TagEditorContext);
   
   // Support URLs with ?version=1.2.3 or with ?revision=1.2.3 (we were previously inconsistent, ?version is now preferred)
@@ -1097,18 +1112,46 @@ const TagPage = () => {
   const revision = queryVersion ?? queryRevision ?? null;
 
   const contributorsLimit = 16;
-  const tagQueryOptions: Partial<UseMultiOptions<"TagPageWithArbitalContentFragment" | "TagPageRevisionWithArbitalContentFragment", "Tags">> = {
+
+  let tagFragmentName: FragmentTypesByCollection['Tags'] = "TagPageWithArbitalContentFragment";
+  let tagQueryOptions: Partial<UseMultiOptions<"TagPageWithArbitalContentFragment" | "TagPageRevisionWithArbitalContentFragment" | "TagPageWithArbitalContentAndLensRevisionFragment", "Tags">> = {
     extraVariables: {
-      ...(revision ? { version: 'String' } : {}),
       contributorsLimit: 'Int',
     },
     extraVariablesValues: {
-      ...(revision ? { version: revision } : {}),
       contributorsLimit,
     },
   };
 
-  const tagFragmentName = revision ? "TagPageRevisionWithArbitalContentFragment" : "TagPageWithArbitalContentFragment";
+  if (revision && !lensSlug) {
+    tagFragmentName = "TagPageRevisionWithArbitalContentFragment";
+    tagQueryOptions = {
+      extraVariables: {
+        version: 'String',
+        contributorsLimit: 'Int',
+      },
+      extraVariablesValues: {
+        version: revision,
+        contributorsLimit,
+      },
+    };
+  }
+
+  if (revision && lensSlug) {
+    tagFragmentName = "TagPageWithArbitalContentAndLensRevisionFragment";
+    tagQueryOptions = {
+      extraVariables: {
+        version: 'String',
+        lensSlug: 'String',
+        contributorsLimit: 'Int',
+      },
+      extraVariablesValues: {
+        version: revision,
+        lensSlug,
+        contributorsLimit,
+      },
+    };
+  }
 
   const { tag, loadingTag, lens, loadingLens } = useTagOrLens(slug, tagFragmentName, tagQueryOptions);
 
@@ -1403,6 +1446,11 @@ const TagPage = () => {
             Next Tag ({nextTag.name})
         </Link></span>}
       </span>}
+      {revision && <Link to={tagGetUrl(tag, {lens: selectedLens?.slug})} className={classes.revisionNotice}>
+        <HistoryIcon className={classes.historyIcon} />
+        You are viewing version {revision} of this page.
+        Click here to view the latest version.
+      </Link>}
       {lenses.length > 1
         ?  (
           <Tabs

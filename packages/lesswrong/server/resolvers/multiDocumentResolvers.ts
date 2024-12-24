@@ -15,9 +15,9 @@ augmentFieldsDict(MultiDocuments, {
   }),
   tableOfContents: {
     resolveAs: {
-      arguments: 'multiDocumentVersion: String',
+      arguments: 'version: String',
       type: GraphQLJSON,
-      resolver: async (document: DbMultiDocument, { multiDocumentVersion: version }: { multiDocumentVersion: string | null }, context: ResolverContext) => {
+      resolver: async (document: DbMultiDocument, { version }: { version: string | null }, context: ResolverContext) => {
         return await getToCforMultiDocument({ document, version, context });
       },
     },

@@ -1,8 +1,8 @@
 import { registerFragment } from '../../vulcan-lib';
 
 registerFragment(`
-  fragment MultiDocumentContentDisplay on MultiDocument {
-        _id
+  fragment MultiDocumentMinimumInfo on MultiDocument {
+    _id
     parentDocumentId
     collectionName
     fieldName
@@ -14,11 +14,17 @@ registerFragment(`
     tabSubtitle
     preview
     index
+    legacyData
+  }
+`);
+
+registerFragment(`
+  fragment MultiDocumentContentDisplay on MultiDocument {
+    ...MultiDocumentMinimumInfo
     tableOfContents
     contents {
       ...RevisionEdit
     }
-    legacyData
   }
 `);
 
@@ -54,6 +60,35 @@ registerFragment(`
         }
         currentAttributionCharCount
       }
+    }
+  }
+`);
+
+registerFragment(`
+  fragment MultiDocumentRevision on MultiDocument {
+    ...MultiDocumentMinimumInfo
+    contents(version: $version) {
+      ...RevisionEdit
+    }
+    tableOfContents(version: $version)
+  }
+`);
+
+registerFragment(`
+  fragment MultiDocumentWithContributorsRevision on MultiDocument {
+    ...MultiDocumentRevision
+    contributors(version: $version) {
+      totalCount
+      contributors {
+        user {
+          ...UsersMinimumInfo
+        }
+        currentAttributionCharCount
+        contributionScore
+      }
+    }
+    arbitalLinkedPages {
+      ...ArbitalLinkedPagesFragment
     }
   }
 `);

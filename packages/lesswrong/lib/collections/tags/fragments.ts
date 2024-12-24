@@ -469,3 +469,15 @@ registerFragment(`
     coreTagId
   }
 `);
+
+registerFragment(`
+  fragment TagPageWithArbitalContentAndLensRevisionFragment on Tag {
+    ...TagPageFragment
+    arbitalLinkedPages {
+      ...ArbitalLinkedPagesFragment
+    }
+    lenses(lensSlug: $lensSlug, version: $version) {
+      ...MultiDocumentWithContributorsRevision
+    }
+  }
+`);
