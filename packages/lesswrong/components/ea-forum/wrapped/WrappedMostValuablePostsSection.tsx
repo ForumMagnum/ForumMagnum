@@ -64,8 +64,9 @@ const WrappedMostValuablePostsSection = ({classes}: {
         Take a moment to reflect on {year}
       </WrappedHeading>
       <div className={classes.textRow}>
-        Look back at everything you upvoted &#8212; <strong>what did you find most valuable?</strong>
-        Your answers will help us encourage more of the most valuable content.
+        Look back at everything you upvoted &#8212; <strong>what did you find
+        most valuable?</strong> Your answers will help us encourage more of the
+        most valuable content.
       </div>
       <div className={classes.container}>
         <div className={classes.labels}>
