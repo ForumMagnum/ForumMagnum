@@ -29,8 +29,8 @@ interface WikiTagNestedListProps {
   nestingLevel?: number;
   maxInitialShow?: number;
   totalChildrenCount?: number;
-  onHover?: (wikitag: WikiTagNode | null) => void;
-  onClick?: (wikitag: WikiTagNode) => void;
+  // onHover?: (wikitag: WikiTagNode | null) => void;
+  // onClick?: (wikitag: WikiTagNode) => void;
   showArbitalIcons?: boolean;
 }
 
@@ -39,8 +39,6 @@ const WikiTagNestedList = ({
   nestingLevel = 0,
   maxInitialShow = 40,
   totalChildrenCount,
-  onHover,
-  onClick,
   showArbitalIcons = false,
 }: WikiTagNestedListProps) => {
   const { ConceptItem } = Components;
@@ -52,9 +50,7 @@ const WikiTagNestedList = ({
         <ConceptItem 
           key={page._id} 
           wikitag={page} 
-          nestingLevel={nestingLevel} 
-          onHover={onHover}
-          onClick={onClick}
+          nestingLevel={nestingLevel}
           showArbitalIcon={showArbitalIcons}
         />
       ))}

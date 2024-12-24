@@ -725,23 +725,22 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
    * Check if we must warn user on unsaved change
    */
   getWarnUnsavedChanges = () => {
-    return false
+    return this.props.warnUnsavedChanges
   }
 
   // check for route change, prevent form content loss
   checkRouteChange = () => {
     // TODO FIXME: This was a casualty of upgrading react router v5->v6
-    /*
+    
     // @see https://github.com/ReactTraining/react-router/issues/4635#issuecomment-297828995
     // @see https://github.com/ReactTraining/history#blocking-transitions
     if (this.getWarnUnsavedChanges()) {
-      this.unblock = this.props.history.block((location: AnyBecauseTodo, action: AnyBecauseTodo) => {
+      this.unblock = this.props.history?.block((location: AnyBecauseTodo, action: AnyBecauseTodo) => {
         // return the message that will pop into a window.confirm alert
         // if returns nothing, the message won't appear and the user won't be blocked
         return this.handleRouteLeave();
       });
     }
-     */
   }
   // check for browser closing
   checkBrowserClosing = () => {

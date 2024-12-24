@@ -7,10 +7,12 @@ import { useApolloClient } from "@apollo/client";
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { useNavigate } from '../../lib/reactRouterWrapper';
 
-export const EditTagForm = ({tag, successCallback, cancelCallback}: {
+export const EditTagForm = ({tag, successCallback, cancelCallback, changeCallback, warnUnsavedChanges}: {
   tag: TagFragment,
   successCallback?: any,
-  cancelCallback?: any
+  cancelCallback?: any,
+  changeCallback?: any,
+  warnUnsavedChanges?: boolean,
 }) => {
   return <Components.WrappedSmartForm
     key={`${tag?._id}_${tag?.description?.version}`}
@@ -21,6 +23,8 @@ export const EditTagForm = ({tag, successCallback, cancelCallback}: {
     successCallback={successCallback}
     cancelCallback={cancelCallback}
     addFields={['summaries']}
+    warnUnsavedChanges={warnUnsavedChanges}
+    changeCallback={changeCallback}
   />
 }
 

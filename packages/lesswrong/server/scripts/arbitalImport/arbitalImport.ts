@@ -143,9 +143,9 @@ Globals.replaceAllImportedArbitalData = async (mysqlConnectionString: string, op
 }
 
 function summaryNameToSortOrder(name: string): number {
-  if (name === 'Brief') return 0;
-  if (name === 'Summary') return 1;
-  if (name === 'Technical') return 2;
+  if (name.toLowerCase() === 'brief') return 0;
+  if (name.toLowerCase() === 'summary') return 1;
+  if (name.toLowerCase() === 'technical') return 2;
   return 3;
 }
 
@@ -214,6 +214,7 @@ async function createSummariesForPage({ pageId, importedRecordMaps, pageCreator,
           }
         },
         legacyData: {
+          arbitalSummaryName: summary.name,
           arbitalPageId: summary.pageId,
         },
       } as AnyBecauseHard,
@@ -767,12 +768,12 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
         }
 
         const lensAliasRedirects = database.aliasRedirects.filter(ar => ar.newAlias === lensPageInfo.alias);
-        const lensSlug = lensPageInfo.alias;
+        const lensSlug = slugsByPageId[lens.lensId];
         // TODO: add lensId(?) to oldSlugs.  (Not sure if it's lensId or pageId)
         const lensRevisions = database.pages.filter(p => p.pageId === lens.lensId);
         const lensFirstRevision = lensRevisions[0];
         const lensLiveRevision = liveRevisionsByPageId[lens.lensId];
-        const oldLensSlugs = [...lensAliasRedirects.map(ar => ar.oldAlias), lens.lensId];
+        const oldLensSlugs = [lensPageInfo.alias, ...lensAliasRedirects.map(ar => ar.oldAlias), lens.lensId];
         const lensTitle = lensLiveRevision.title;
         const lensFirstRevisionCkEditorMarkup = await arbitalMarkdownToCkEditorMarkup({
           markdown: lensFirstRevision.text,
@@ -861,7 +862,7 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
         }*/
 
         await createSummariesForPage({
-          pageId,
+          pageId: lens.lensId,
           importedRecordMaps,
           conversionContext,
           pageCreator,
@@ -939,6 +940,7 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
 }
 
 async function importComments(database: WholeArbitalDatabase, conversionContext: ArbitalConversionContext, resolverContext: ResolverContext, options: ArbitalImportOptions): Promise<void> {
+  const lensesByLensId = keyBy(database.lenses, l=>l.lensId);
   const commentPageInfos = database.pageInfos.filter(pi => pi.type === "comment");
   const pageInfosById = keyBy(database.pageInfos, pi=>pi.pageId);
   let irregularComments: {reason: string, commentId: string}[] = [];
@@ -971,11 +973,17 @@ async function importComments(database: WholeArbitalDatabase, conversionContext:
       irregularComments.push({reason: "Has a parent that doesn't exist", commentId});
       continue;
     }
-    const wikiPageParentId = parentIds.find(parentId => pageInfosById[parentId]?.type === "wiki")
+    let wikiPageParentId = parentIds.find(parentId => pageInfosById[parentId]?.type === "wiki")
     const parentCommentId = parentIds.find(parentId => pageInfosById[parentId]?.type === "comment")
     if (!wikiPageParentId) {
       irregularComments.push({reason: "Not a reply to a wiki page", commentId});
       continue;
+    }
+
+    if (lensesByLensId[wikiPageParentId]) {
+      // If the parent is a lens, then the comment is a reply to a lens.
+      // We don't plan on supporting replies to lenses, so instead reassign to the top-level page
+      wikiPageParentId = lensesByLensId[wikiPageParentId].pageId;
     }
     
     commentIdsToImport.push(commentId);

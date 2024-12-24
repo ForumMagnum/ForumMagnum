@@ -164,8 +164,8 @@ interface ConceptItemProps {
   wikitag: WikiTagNode;
   nestingLevel: number;
   index?: number;
-  onHover?: (wikitag: WikiTagNode | null) => void;
-  onClick?: (wikitag: WikiTagNode) => void;
+  // onHover?: (wikitag: WikiTagNode | null) => void;
+  // onClick?: (wikitag: WikiTagNode) => void;
   showArbitalIcon?: boolean;
 }
 
@@ -182,8 +182,6 @@ const ConceptItem = ({
   wikitag,
   nestingLevel,
   index,
-  onHover,
-  onClick,
   showArbitalIcon
 }: ConceptItemProps) => {
   const classes = useStyles(styles);
@@ -226,9 +224,6 @@ const ConceptItem = ({
   // Then split into columns
   const columns = splitIntoColumns(sortedChildren, ITEMS_PER_COLUMN);
 
-  // TODO: I currently think this doesn't do anything, since the only things that depend on it are empty styles.  Also whatever it's measuring is not `isWikiItem`.
-  const isWikiItem = (wikitag.description?.html?.length ?? 0) > 2000;
-
   // Title item (for nestingLevel === 0)
   const titleItem = (
     <div className={classes.titleItem}>
@@ -253,13 +248,11 @@ const ConceptItem = ({
   // Regular item (for nestingLevel > 0)
   const regularItem = (
     <div
-      className={classNames(classes.item, {
-        [classes.wikiItem]: isWikiItem,
-      })}
+      className={classes.item}
     >
       <div className={classes.leftSideItems}>
         <div className={classes.karma}>{wikitag.baseScore || 0}</div>
-        <div className={classNames(classes.title, { [classes.titleWikiItem]: isWikiItem })}>
+        <div className={classes.title}>
           <TagsTooltip
             tagSlug={wikitag.slug}
             noPrefetch
@@ -318,8 +311,8 @@ const ConceptItem = ({
                       wikitag={childPage}
                       nestingLevel={nestingLevel + 1}
                       index={idx}
-                      onHover={onHover}
-                      onClick={onClick}
+                      // onHover={onHover}
+                      // onClick={onClick}
                       showArbitalIcon={showArbitalIcon}
                     />
                   ))}

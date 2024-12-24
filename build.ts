@@ -557,6 +557,7 @@ async function createViteProxyServer(backend: RunningServer) {
         "@/server": "/packages/lesswrong/stubs/server",
         "@/client/importCkEditor": "/packages/lesswrong/viteClient/importCkEditorVite",
         "@/client": "/packages/lesswrong/client",
+        "@/viteClient": "/packages/lesswrong/viteClient",
         "@/allComponents": "/packages/lesswrong/lib/generated/allComponentsVite",
         "@": "/packages/lesswrong",
         

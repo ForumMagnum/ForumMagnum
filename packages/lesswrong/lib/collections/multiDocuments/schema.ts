@@ -145,6 +145,7 @@ const schema: SchemaType<"MultiDocuments"> = {
   index: {
     type: Number,
     canRead: ['guests'],
+    canUpdate: ['members'],
     nullable: false,
     onCreate: async ({ newDocument, context }) => {
       const { MultiDocuments } = context;

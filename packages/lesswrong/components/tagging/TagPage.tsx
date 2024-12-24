@@ -1,6 +1,6 @@
 import { useApolloClient } from "@apollo/client";
 import classNames from 'classnames';
-import React, { FC, Fragment, useCallback, useContext, useEffect, useState } from 'react';
+import React, { FC, Fragment, useCallback, useEffect, useState } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from "../../lib/betas";
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
@@ -8,7 +8,7 @@ import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from
 import { useMulti, UseMultiOptions } from '../../lib/crud/withMulti';
 import { truncate } from '../../lib/editor/ellipsize';
 import { Link } from '../../lib/reactRouterWrapper';
-import { useLocation, useNavigate } from '../../lib/routeUtil';
+import { useLocation } from '../../lib/routeUtil';
 import { useGlobalKeydown, useOnSearchHotkey } from '../common/withGlobalKeydown';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
@@ -631,8 +631,9 @@ const LensTab = ({ key, value, label, lens, isSelected, ...tabProps }: {
   );
 };
 
-const EditLensForm = ({lens}: {
+const EditLensForm = ({lens, setFormDirty}: {
   lens: TagLens,
+  setFormDirty: (dirty: boolean) => void,
 }) => {
   const { WrappedSmartForm } = Components;
   return <WrappedSmartForm
@@ -643,6 +644,10 @@ const EditLensForm = ({lens}: {
     mutationFragmentName="MultiDocumentEdit"
     {...(lens.originalLensDocument ? { prefetchedDocument: lens.originalLensDocument } : {})}
     addFields={['summaries']}
+    warnUnsavedChanges={true}
+    changeCallback={() => {
+      setFormDirty(true);
+    }}
   />
 }
 
@@ -785,235 +790,131 @@ function htmlNodeListToArray(nodes: NodeList): Node[] {
   return ret;
 }
 
-const bayesGuideScript = () => {
-  const pathDescriptions = {
-    basic_theoretical: {
-      content: `
-          <p>Your path will teach you the basic odds form of Bayes' rule at a reasonable pace. It will contain 3 pages:</p>
-          <ul>
-              <li>Frequency diagrams: A first look at Bayes</li>
-              <li>Waterfall diagrams and relative odds</li>
-              <li>Introduction to Bayes' rule: Odds form</li>
-          </ul>
-      `,
-      pathId: "62c",
-    },
-    quick: {
-      content: `
-          <p>No time to waste! Let's plunge directly into <a href="/w/693">a single-page abbreviated introduction to Bayes' rule</a>.</p>
-      `,
-      // pathId: "693",
-      pathId: null,
-    },
-    theoretical: {
-      content: `
-          <p>Your path will teach you the basic odds form of Bayes' rule at a reasonable pace and then delve into the deep mysteries of the Bayes' Rule! Your path will contain 8 pages:</p>
-          <ul>
-              <li>Frequency diagrams: A first look at Bayes</li>
-              <li>Waterfall diagrams and relative odds</li>
-              <li>Introduction to Bayes' rule: Odds form</li>
-              <li>Belief revision as probability elimination</li>
-              <li>Extraordinary claims require extraordinary evidence</li>
-              <li>Ordinary claims require ordinary evidence</li>
-              <li>Shift towards the hypothesis of least surprise</li>
-              <li>Bayesian view of scientific virtues</li>
-          </ul>
-      `,
-      pathId: "62f",
-    },
-    deep: {
-      content: `
-          <p>Your path will go over all forms of Bayes' Rule, along with developing deep appreciation for its scientific usefulness. Your path will contain 12 pages:</p>
-          <ul>
-              <li>Frequency diagrams: A first look at Bayes</li>
-              <li>Waterfall diagrams and relative odds</li>
-              <li>Introduction to Bayes' rule: Odds form</li>
-              <li>Bayes' rule: Proportional form</li>
-              <li>Extraordinary claims require extraordinary evidence</li>
-              <li>Ordinary claims require ordinary evidence</li>
-              <li>Bayes' rule: Log-odds form</li>
-              <li>Shift towards the hypothesis of least surprise</li>
-              <li>Bayes' rule: Vector form</li>
-              <li>Belief revision as probability elimination</li>
-              <li>Bayes' rule: Probability form</li>
-              <li>Bayesian view of scientific virtues</li>
-          </ul>
-      `,
-      pathId: "61b",
-    },
-  };
-
-
-  let currentPathId: string | null = null;
-
-  function startPath() {
-    if (currentPathId) {
-      window.location.href = `/w/${currentPathId}/?startPath`;
-    }
-  }
-
-  function handleRadioChange(radio: HTMLInputElement) {
-    const wants = radio.dataset.wants?.split(",") || [];
-    const notWants = radio.dataset.notWants?.split(",") || [];
-
-    let pathKey;
-    if (wants.includes("62d") && wants.includes("62f")) {
-      pathKey = "deep";
-    } else if (wants.includes("62d") && notWants.includes("62f")) {
-      pathKey = "quick";
-    } else if (wants.includes("62f") && notWants.includes("62d")) {
-      pathKey = "theoretical";
-    } else {
-      pathKey = "basic_theoretical";
-    }
-
-    const pathDescription = document.getElementById("pathDescription");
-    const content = pathDescription?.querySelector(".content");
-    const startButton = pathDescription?.querySelector(".start-reading") as HTMLElement;
-
-    if (content) {
-      content.innerHTML = pathDescriptions[pathKey as keyof typeof pathDescriptions].content;
-    }
-    currentPathId = pathDescriptions[pathKey as keyof typeof pathDescriptions].pathId;
-
-    if (pathDescription) {
-      pathDescription.style.display = "block";
-    }
-    if (startButton) {
-      if (currentPathId) {
-        startButton.style.display = "block";
-      } else {
-        startButton.style.display = "none";
-      }
-    }
-  }
-
-  let currentContainer: Element|null = null;
-
-  function initializeRadioHandlers() {
-    document.querySelectorAll('input[name="preference"]').forEach((radio: HTMLInputElement) => {
-      radio.addEventListener("change", function() {
-        handleRadioChange(this);
-      });
-    });
-
-    const checkedRadio = document.querySelector('input[name="preference"]:checked') as HTMLInputElement|null;
-    if (checkedRadio) {
-      handleRadioChange(checkedRadio);
-    }
-  }
-
-  if (isClient) {
-    const pathDescriptions = {
-      basic_theoretical: {
-        content: `
-            <p>Your path will teach you the basic odds form of Bayes' rule at a reasonable pace. It will contain 3 pages:</p>
-            <ul>
-                <li>Frequency diagrams: A first look at Bayes</li>
-                <li>Waterfall diagrams and relative odds</li>
-                <li>Introduction to Bayes' rule: Odds form</li>
-            </ul>
-        `,
-        pathId: "62c",
-      },
-      quick: {
-        content: `
-            <p>No time to waste! Let's plunge directly into <a href="/w/693">a single-page abbreviated introduction to Bayes' rule</a>.</p>
-        `,
-        // pathId: "693",
-      },
-      theoretical: {
-        content: `
-            <p>Your path will teach you the basic odds form of Bayes' rule at a reasonable pace and then delve into the deep mysteries of the Bayes' Rule! Your path will contain 8 pages:</p>
-            <ul>
-                <li>Frequency diagrams: A first look at Bayes</li>
-                <li>Waterfall diagrams and relative odds</li>
-                <li>Introduction to Bayes' rule: Odds form</li>
-                <li>Belief revision as probability elimination</li>
-                <li>Extraordinary claims require extraordinary evidence</li>
-                <li>Ordinary claims require ordinary evidence</li>
-                <li>Shift towards the hypothesis of least surprise</li>
-                <li>Bayesian view of scientific virtues</li>
-            </ul>
-        `,
-        pathId: "62f",
-      },
-      deep: {
-        content: `
-            <p>Your path will go over all forms of Bayes' Rule, along with developing deep appreciation for its scientific usefulness. Your path will contain 12 pages:</p>
-            <ul>
-                <li>Frequency diagrams: A first look at Bayes</li>
-                <li>Waterfall diagrams and relative odds</li>
-                <li>Introduction to Bayes' rule: Odds form</li>
-                <li>Bayes' rule: Proportional form</li>
-                <li>Extraordinary claims require extraordinary evidence</li>
-                <li>Ordinary claims require ordinary evidence</li>
-                <li>Bayes' rule: Log-odds form</li>
-                <li>Shift towards the hypothesis of least surprise</li>
-                <li>Bayes' rule: Vector form</li>
-                <li>Belief revision as probability elimination</li>
-                <li>Bayes' rule: Probability form</li>
-                <li>Bayesian view of scientific virtues</li>
-            </ul>
-        `,
-        pathId: "61b",
-      },
-    };
-  
-    // Watch for our content being added to or removed from the DOM
-    const observer = new MutationObserver((mutations) => {
-      for (const mutation of mutations) {
-        if (mutation.type !== 'childList') continue;
-        
-        // Check if our current container was removed
-        if (currentContainer && !currentContainer.isConnected) {
-          currentContainer = null;
-        }
-        
-        // Only look for new container if we don't have one
-        if (!currentContainer) {
-          for (const node of htmlNodeListToArray(mutation.addedNodes)) {
-            if (!(node instanceof Element)) continue;
-            
-            const container = node.matches('.question-container') 
-              ? node 
-              : node.querySelector('.question-container');
-              
-            if (container) {
-              currentContainer = container;
-              initializeRadioHandlers();
-              break;
-            }
-          }
-        }
-      }
-    });
-  
-    // Start observing from the document root
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true
-    });
-  
-    // Initial setup
-    initializeRadioHandlers();
-  
-    Object.assign(window, { startPath });
-    Object.assign(window, { handleRadioChange });
-  }
+const pathDescriptions = {
+  basic_theoretical: {
+    content: `
+        <p>Your path will teach you the basic odds form of Bayes' rule at a reasonable pace. It will contain 3 pages:</p>
+        <ul>
+            <li>Frequency diagrams: A first look at Bayes</li>
+            <li>Waterfall diagrams and relative odds</li>
+            <li>Introduction to Bayes' rule: Odds form</li>
+        </ul>
+    `,
+    pathId: "62c",
+  },
+  quick: {
+    content: `
+        <p>No time to waste! Let's plunge directly into <a href="/w/693">a single-page abbreviated introduction to Bayes' rule</a>.</p>
+    `,
+    // pathId: "693",
+    pathId: null,
+  },
+  theoretical: {
+    content: `
+        <p>Your path will teach you the basic odds form of Bayes' rule at a reasonable pace and then delve into the deep mysteries of the Bayes' Rule! Your path will contain 8 pages:</p>
+        <ul>
+            <li>Frequency diagrams: A first look at Bayes</li>
+            <li>Waterfall diagrams and relative odds</li>
+            <li>Introduction to Bayes' rule: Odds form</li>
+            <li>Belief revision as probability elimination</li>
+            <li>Extraordinary claims require extraordinary evidence</li>
+            <li>Ordinary claims require ordinary evidence</li>
+            <li>Shift towards the hypothesis of least surprise</li>
+            <li>Bayesian view of scientific virtues</li>
+        </ul>
+    `,
+    pathId: "62f",
+  },
+  deep: {
+    content: `
+        <p>Your path will go over all forms of Bayes' Rule, along with developing deep appreciation for its scientific usefulness. Your path will contain 12 pages:</p>
+        <ul>
+            <li>Frequency diagrams: A first look at Bayes</li>
+            <li>Waterfall diagrams and relative odds</li>
+            <li>Introduction to Bayes' rule: Odds form</li>
+            <li>Bayes' rule: Proportional form</li>
+            <li>Extraordinary claims require extraordinary evidence</li>
+            <li>Ordinary claims require ordinary evidence</li>
+            <li>Bayes' rule: Log-odds form</li>
+            <li>Shift towards the hypothesis of least surprise</li>
+            <li>Bayes' rule: Vector form</li>
+            <li>Belief revision as probability elimination</li>
+            <li>Bayes' rule: Probability form</li>
+            <li>Bayesian view of scientific virtues</li>
+        </ul>
+    `,
+    pathId: "61b",
+  },
 };
 
-function addBayesGuideScript() {
-  if (isClient) {
-    if (document.readyState === 'complete') {
-      bayesGuideScript();
+
+let currentPathId: string | null = null;
+
+function startPath() {
+  if (currentPathId) {
+    window.location.href = `/w/${currentPathId}/?startPath`;
+  }
+}
+
+function handleRadioChange(radio: HTMLInputElement) {
+  const wants = radio.dataset.wants?.split(",") || [];
+  const notWants = radio.dataset.notWants?.split(",") || [];
+
+  let pathKey;
+  if (wants.includes("62d") && wants.includes("62f")) {
+    pathKey = "deep";
+  } else if (wants.includes("62d") && notWants.includes("62f")) {
+    pathKey = "quick";
+  } else if (wants.includes("62f") && notWants.includes("62d")) {
+    pathKey = "theoretical";
+  } else {
+    pathKey = "basic_theoretical";
+  }
+
+  const pathDescription = document.getElementById("pathDescription");
+  const content = pathDescription?.querySelector(".content");
+  const startButton = pathDescription?.querySelector(".start-reading") as HTMLElement;
+
+  if (content) {
+    content.innerHTML = pathDescriptions[pathKey as keyof typeof pathDescriptions].content;
+  }
+  currentPathId = pathDescriptions[pathKey as keyof typeof pathDescriptions].pathId;
+
+  if (pathDescription) {
+    pathDescription.style.display = "block";
+  }
+  if (startButton) {
+    if (currentPathId) {
+      startButton.style.display = "block";
     } else {
-      document.addEventListener('DOMContentLoaded', bayesGuideScript);
+      startButton.style.display = "none";
     }
   }
 }
 
-addBayesGuideScript();
+function initializeRadioHandlers() {
+  const cleanupFunctions: (() => void)[] = [];
+  const radioElements = Array.from(document.querySelectorAll('input[name="preference"]'));
+  radioElements.forEach((radio: HTMLInputElement) => {
+    const listenerFunction = function() {
+      handleRadioChange(radio);
+    }
+    radio.addEventListener("change", listenerFunction);
+    cleanupFunctions.push(() => radio.removeEventListener("change", listenerFunction));
+  });
+
+  const checkedRadio = document.querySelector('input[name="preference"]:checked') as HTMLInputElement|null;
+  if (checkedRadio) {
+    handleRadioChange(checkedRadio);
+  }
+
+  return () => cleanupFunctions.forEach((cleanup) => cleanup());
+}
+
+if (isClient) {
+  Object.assign(window, { startPath });
+  Object.assign(window, { handleRadioChange });
+}
 
 const ContributorsList = ({ contributors, onHoverContributor, endWithComma }: { contributors: DocumentContributorWithStats[], onHoverContributor: (userId: string | null) => void, endWithComma: boolean }) => {
   const { UsersNameDisplay } = Components;
@@ -1085,6 +986,23 @@ const TagPage = () => {
   // Support URLs with ?version=1.2.3 or with ?revision=1.2.3 (we were previously inconsistent, ?version is now preferred)
   const { version: queryVersion, revision: queryRevision } = query;
   const revision = queryVersion ?? queryRevision ?? null;
+  const [editing, _setEditing] = useState(!!query.edit);
+  const [formDirty, setFormDirty] = useState(false);
+
+  // Usually, we want to warn the user before closing the editor when they have unsaved changes
+  // There are some exceptions; in those cases, we can pass warnBeforeClosing=false
+  const setEditing = useCallback((editing: boolean, warnBeforeClosing = true) => {
+    _setEditing((previouslyEditing) => {
+      if (!editing && previouslyEditing && warnBeforeClosing && formDirty) {
+        const confirmed = confirm("Discard changes?");
+        if (!confirmed) {
+          return previouslyEditing;
+        }
+      }
+      setFormDirty(false);
+      return editing;
+    })
+  }, [formDirty]);
 
   const contributorsLimit = 16;
   const tagQueryOptions: Partial<UseMultiOptions<"TagPageWithArbitalContentFragment" | "TagPageRevisionWithArbitalContentFragment", "Tags">> = {
@@ -1103,7 +1021,6 @@ const TagPage = () => {
   const { tag, loadingTag, lens, loadingLens } = useTagOrLens(slug, tagFragmentName, tagQueryOptions);
 
   const [truncated, setTruncated] = useState(false)
-  const [editing, setEditing] = useState(!!query.edit)
   const [hoveredContributorId, setHoveredContributorId] = useState<string|null>(null);
   const { captureEvent } =  useTracking()
   const client = useApolloClient()
@@ -1149,6 +1066,13 @@ const TagPage = () => {
   const { selectedLensId, selectedLens, updateSelectedLens, lenses } = useTagLenses(tag);
   const displayedTagTitle = useDisplayedTagTitle(tag, lenses, selectedLens);
 
+  const switchLens = useCallback((lensId: string) => {
+    // We don't want to warn before closing the editor using this mechanism when switching lenses
+    // because we already do it inside of Form.tsx because of the route change
+    setEditing(false, false);
+    updateSelectedLens(lensId);
+  }, [setEditing, updateSelectedLens]);
+
   const tagPositionInList = otherTagsWithNavigation?.findIndex(tagInList => tag?._id === tagInList._id);
   // We have to handle updates to the listPosition explicitly, since we have to deal with three cases
   // 1. Initially the listPosition is -1 because we don't have a list at all yet
@@ -1192,7 +1116,7 @@ const TagPage = () => {
   }
 
   const { topContributors, smallContributors } = useDisplayedContributors(selectedLens?.contributors ?? null);
-  
+
   if (loadingTag && !tag)
     return <Loading/>
   if (!tag) {
@@ -1266,6 +1190,30 @@ const TagPage = () => {
     )
     : <></>;
 
+  let editForm;
+  if (selectedLens?._id === MAIN_TAB_ID) {
+    editForm = (
+      <span className={classNames(classes.unselectedEditForm, editing && classes.selectedEditForm)}>
+        <EditTagForm
+          tag={tag}
+          warnUnsavedChanges={true}
+          successCallback={async () => {
+            setEditing(false);
+            await client.resetStore();
+          }}
+          cancelCallback={() => setEditing(false)}
+          changeCallback={() => setFormDirty(true)}
+        />
+      </span>
+    );
+  } else if (selectedLens) {
+    editForm = (
+      <span className={classNames(classes.unselectedEditForm, editing && classes.selectedEditForm)}>
+        <EditLensForm lens={selectedLens} setFormDirty={setFormDirty} />
+      </span>
+    );
+  }
+
   const tagBodySection = (
     <div id="tagContent" className={classNames(classes.wikiSection,classes.centralColumn)}>
       <AnalyticsContext pageSectionContext="wikiSection">
@@ -1273,19 +1221,9 @@ const TagPage = () => {
           You are viewing revision {tag.description.version}, last edited by <UsersNameDisplay user={(tag.description as TagRevisionFragment_description).user}/>
         </div>}
         {/* <TagEditorProvider> */}
-          <span className={classNames(classes.unselectedEditForm, editing && selectedLens?._id === MAIN_TAB_ID && classes.selectedEditForm)}>
-            <EditTagForm
-              tag={tag}
-              successCallback={ async () => {
-                setEditing(false)
-                await client.resetStore()
-              }}
-              cancelCallback={() => setEditing(false)}
-            />
-          </span>
-          {lenses.filter(lens => lens._id !== MAIN_TAB_ID).map(lens => <span key={lens._id} className={classNames(classes.unselectedEditForm, editing && selectedLens?._id === lens._id && classes.selectedEditForm)}>
-            <EditLensForm key={lens._id} lens={lens} />
-          </span>)}
+        <DeferRender ssr={false}>
+          {editForm}
+        </DeferRender>
         {/* </TagEditorProvider> */}
         <div
           className={classNames(editing && classes.descriptionContainerEditing)}
@@ -1299,6 +1237,7 @@ const TagPage = () => {
               dangerouslySetInnerHTML={{__html: description||""}}
               description={`tag ${tag.name}`}
               className={classes.description}
+              onContentReady={initializeRadioHandlers}
             />
             <PathInfo tag={tag} lens={selectedLens ?? null} />
           </ContentStyles>
@@ -1397,7 +1336,7 @@ const TagPage = () => {
         ?  (
           <Tabs
             value={selectedLens?._id}
-            onChange={(e, newLensId) => updateSelectedLens(newLensId)}
+            onChange={(e, newLensId) => switchLens(newLensId)}
             classes={{ flexContainer: classes.lensTabsContainer, indicator: classes.hideMuiTabIndicator }}
           >
             {lenses.map(lens => {

@@ -2854,8 +2854,7 @@ interface AllTagsPageCacheFragment { // fragment on Tags
 }
 
 interface AllTagsPageCacheFragment_description { // fragment on Revisions
-  readonly _id: string,
-  readonly html: string,
+  readonly wordCount: number,
 }
 
 interface AdvisorRequestsDefaultFragment { // fragment on AdvisorRequests
@@ -3400,17 +3399,15 @@ interface SharedUserBooleans { // fragment on Users
   readonly usernameUnset: boolean,
 }
 
-interface UsersMapEntry extends UsersMinimumInfo { // fragment on Users
-  readonly createdAt: Date,
-  readonly isAdmin: boolean,
-  readonly groups: Array<string>,
-  readonly location: string,
-  readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly mapLocation: any /*{"definitions":[{"blackbox":true}]}*/,
+interface UsersMapEntry { // fragment on Users
+  readonly _id: string,
+  readonly displayName: string,
+  readonly username: string,
+  readonly fullName: string,
+  readonly slug: string,
+  readonly mapLocationLatLng: any,
   readonly mapLocationSet: boolean,
-  readonly mapMarkerText: string,
   readonly htmlMapMarkerText: string,
-  readonly mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface UsersEdit extends UsersCurrent { // fragment on Users
