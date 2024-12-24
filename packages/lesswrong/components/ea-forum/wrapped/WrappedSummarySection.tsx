@@ -19,7 +19,7 @@ const styles = (theme: ThemeType) => ({
     gap: "20px",
     textAlign: "left",
     margin: "0 auto 20px",
-    [theme.breakpoints.up("md")]: {
+    [theme.breakpoints.up("lg")]: {
       marginTop: 40,
       marginBottom: 40,
     },
