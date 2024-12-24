@@ -729,7 +729,9 @@ const schema: SchemaType<"Tags"> = {
           ON r._id = CASE
             WHEN (
               md.slug = ${resolverArg("lensSlug")}::TEXT OR
-              (md."oldSlugs" IS NOT NULL AND ${resolverArg("lensSlug")}::TEXT = ANY ( SELECT jsonb_array_elements_text(md."oldSlugs")))
+              ( md."oldSlugs" IS NOT NULL AND
+                ${resolverArg("lensSlug")}::TEXT = ANY (md."oldSlugs")
+              )
             ) AND ${resolverArg("version")}::TEXT IS NOT NULL THEN (
               SELECT r._id FROM "Revisions" r
               WHERE r."documentId" = md._id 
