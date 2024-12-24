@@ -86,7 +86,7 @@ const TagHistoryPage = () => {
     <div className={classes.feed}>
     <RevealHiddenBlocksContext.Provider value={true}>
     <MixedTypeFeed
-      pageSize={50}
+      pageSize={25}
       resolverName="TagHistoryFeed"
       resolverArgs={{
         tagId: "String!",

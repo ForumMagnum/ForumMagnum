@@ -7,7 +7,7 @@ import Users from "../users/collection";
 import { isFriendlyUI } from "../../../themes/forumTheme";
 import type { RouterLocation } from '../../vulcan-lib/routes';
 import type { Request, Response } from 'express';
-import { TagLens } from "@/lib/arbital/useTagLenses";
+import type { TagLens } from "@/lib/arbital/useTagLenses";
 
 export const tagMinimumKarmaPermissions = forumSelect({
   // Topic spampocalypse defense
@@ -73,6 +73,7 @@ export const tagGetCommentLink = ({tagSlug, commentId, tagCommentType = "DISCUSS
   return commentId ? `${base}${base.includes('?') ? "&" : "?"}commentId=${commentId}` : base
 }
 
+// TODO: Is this necessary if we instead have version as a search param in the main tagGetUrl function?
 export const tagGetRevisionLink = (tag: DbTag|TagBasicInfo, versionNumber: string, lens?: MultiDocumentContentDisplay|TagLens ): string => {
   return `/${tagUrlBase}/${tag.slug}?${lens ? `lens=${lens.slug}&` : "" }version=${versionNumber}`;
 }

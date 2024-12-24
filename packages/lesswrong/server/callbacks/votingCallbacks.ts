@@ -30,7 +30,6 @@ export async function onVoteCancel(newDocument: DbVoteableType, vote: DbVote, co
   void revokeUserAFKarmaForCancelledVote({newDocument, vote});
   
   
-  // TODO: Remove if we stop using contributorScores
   if (vote.collectionName === "Revisions") {
     const rev = (newDocument as DbRevision);
     if (rev.collectionName === "Tags" || rev.collectionName === "MultiDocuments") {
@@ -46,7 +45,6 @@ export async function onCastVoteAsync(voteDocTuple: VoteDocTuple, collection: Co
   void voteUpdatePostDenormalizedTags(voteDocTuple);
 
   const { vote, newDocument } = voteDocTuple;
-  // TODO: Remove if we stop using contributorScores
   if (vote.collectionName === "Revisions") {
     const rev = (newDocument as DbRevision);
     if (rev.collectionName === "Tags" || rev.collectionName === "MultiDocuments") {

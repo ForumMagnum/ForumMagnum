@@ -19,7 +19,7 @@ defineFeedResolver<Date>({
     tagDiscussionComment: Comment
     lensRevision: Revision
   `,
-  resolver: async ({limit=50, cutoff, offset, args, context}: {
+  resolver: async ({limit=25, cutoff, offset, args, context}: {
     limit?: number,
     cutoff?: Date,
     offset?: number,

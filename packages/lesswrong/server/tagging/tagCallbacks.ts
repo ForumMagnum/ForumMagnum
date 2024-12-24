@@ -1,6 +1,5 @@
 import { Tags } from '../../lib/collections/tags/collection';
 import { TagRels } from '../../lib/collections/tagRels/collection';
-import { Posts } from '../../lib/collections/posts/collection';
 import Users from '../../lib/collections/users/collection';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { updateDenormalizedContributorsList } from '../utils/contributorsUtil';
@@ -160,8 +159,11 @@ export async function recomputeContributorScoresFor(votedRevision: DbRevision, v
   if (vote.collectionName !== "Revisions") return;
   if (votedRevision.collectionName !== "Tags" && votedRevision.collectionName !== "MultiDocuments") return;
   
-  const tag = await Tags.findOne({_id: votedRevision.documentId});
-  const multiDocument = tag ? null : await MultiDocuments.findOne({_id: votedRevision.documentId});
+  const [tag, multiDocument] = await Promise.all([
+    Tags.findOne({_id: votedRevision.documentId}),
+    MultiDocuments.findOne({_id: votedRevision.documentId}),
+  ]);
+
   const document = tag || multiDocument;
   if (!document) return;
   await updateDenormalizedContributorsList({ document, collectionName, fieldName: votedRevision.collectionName === "Tags" ? "description" : "contents" });

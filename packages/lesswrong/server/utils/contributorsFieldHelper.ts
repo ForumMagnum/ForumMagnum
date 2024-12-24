@@ -6,10 +6,13 @@ import keyBy from 'lodash/keyBy';
 import orderBy from 'lodash/orderBy';
 import take from 'lodash/take';
 
-interface ContributorsFieldOptions {
+type ContributorsFieldOptions = {
   collectionName: 'Tags' | 'MultiDocuments';
-  fieldName: string;
-}
+  fieldName: 'description';
+} | {
+  collectionName: 'MultiDocuments';
+  fieldName: 'contents';
+};
 
 export function contributorsField(options: ContributorsFieldOptions) {
   const { collectionName, fieldName } = options;

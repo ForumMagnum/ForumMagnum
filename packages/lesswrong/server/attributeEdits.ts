@@ -12,12 +12,7 @@ import fs from 'node:fs';
 type EditAttributions = (string|null)[]
 type InsDelUnc = "ins"|"del"|"unchanged"
 
-export async function annotateAuthors(
-  documentId: string,
-  collectionName: string,
-  fieldName: string,
-  upToVersion?: string | null
-): Promise<string> {
+export async function annotateAuthors( documentId: string, collectionName: string, fieldName: string, upToVersion?: string | null): Promise<string> {
   const { finalHtml, attributions } = await computeAttributions(
     documentId,
     collectionName,
@@ -41,41 +36,44 @@ export async function computeAttributions(
   }).fetch();
   if (!revs.length) return { finalHtml: "", attributions: [] };
 
-  let filteredRevs = orderBy(revs, (r) => r.editedAt);
-
+  let filteredRevs = orderBy(revs, r=>r.editedAt);
+  
   // If upToVersion is provided, ignore revs after that
   if (upToVersion) {
-    filteredRevs = filter(filteredRevs, (r) => compareVersionNumbers(upToVersion, r.version) >= 0);
+    filteredRevs = filter(filteredRevs, r=>compareVersionNumbers(upToVersion, r.version)>=0);
   }
-
+  
   // Cluster commits by author. In any sequential run of commits by the same
   // author, remove all but the last one. This makes it so that deleting and
-  // reinserting something, making an edit and reverting it, etc., does not affect
-  // attributions.
-  filteredRevs = filter(filteredRevs, (r, i) => i === 0 || i === filteredRevs.length - 1 || filteredRevs[i + 1].userId !== r.userId);
-
+  // reinserting something, making an edit and reverting it, etc does not affect
+  // attributios.
+  filteredRevs = filter(filteredRevs, (r,i) => (
+    i===0 || i===filteredRevs.length-1 || filteredRevs[i+1].userId!==r.userId
+  ));
+  
   // Identify commits that are reverts (text exactly matches a prior rev) and
   // skip over everything in between the reverted-to rev and the revert (which
   // is likely deleting and then restoring stuff, which should not be attributed
   // to the person who did the restore).
-  let isReverted: boolean[] = _.times(filteredRevs.length, () => false);
-  for (let i = 0; i < filteredRevs.length; i++) {
-    for (let j = i - 1; j >= 0; j--) {
-      if (filteredRevs[i].html === filteredRevs[j].html) {
-        for (let k = j + 1; k <= i; k++) isReverted[k] = true;
+  let isReverted: boolean[] = _.times(filteredRevs.length, ()=>false);
+  for (let i=0; i<filteredRevs.length; i++) {
+    for (let j=i-1; j>=0; j--) {
+      if (filteredRevs[i].html===filteredRevs[j].html) {
+        for (let k=j+1; k<=i; k++)
+          isReverted[k] = true;
       }
     }
   }
-  filteredRevs = filter(filteredRevs, (r, i) => !isReverted[i]);
-
+  filteredRevs = filter(filteredRevs, (r,i) => !isReverted[i]);
+  
   const revsByDate = filteredRevs;
   const firstRev = revsByDate[0];
-  const finalRev = revsByDate[revsByDate.length - 1];
-  let attributions: EditAttributions = times(firstRev.html?.length || 0, () => firstRev.userId);
-
-  for (let i = 1; i < revsByDate.length; i++) {
+  const finalRev = revsByDate[revsByDate.length-1];
+  let attributions: EditAttributions = times(firstRev.html?.length||0, ()=>firstRev.userId);
+  
+  for (let i=1; i<revsByDate.length; i++) {
     const rev = revsByDate[i];
-    const prevHtml = revsByDate[i - 1].html ?? "";
+    const prevHtml = revsByDate[i-1].html ?? "";
     const newHtml = rev.html ?? "";
     attributions = attributeEdits(prevHtml, newHtml, rev.userId!, attributions);
   }

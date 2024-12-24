@@ -588,7 +588,7 @@ function useDisplayedContributors(contributorsInfo: DocumentContributorsInfo | n
     return { topContributors: contributors, smallContributors: [] };
   }
 
-  const totalAttributionChars = contributors.reduce( (acc: number, contributor: DocumentContributorWithStats) => acc + (contributor.currentAttributionCharCount ?? 0), 0);
+  const totalAttributionChars = contributors.reduce((acc: number, contributor: DocumentContributorWithStats) => acc + (contributor.currentAttributionCharCount ?? 0), 0);
 
   if (totalAttributionChars === 0) {
     return { topContributors: contributors, smallContributors: [] };
@@ -597,7 +597,7 @@ function useDisplayedContributors(contributorsInfo: DocumentContributorsInfo | n
   const sortedContributors = [...contributors].sort((a, b) => (b.currentAttributionCharCount ?? 0) - (a.currentAttributionCharCount ?? 0));
   const initialTopContributors = sortedContributors.filter(({ currentAttributionCharCount }) => ((currentAttributionCharCount ?? 0) / totalAttributionChars) > 0.1);
   const topContributors = initialTopContributors.length <= 3 
-    ? sortedContributors.filter( ({ currentAttributionCharCount }) => ((currentAttributionCharCount ?? 0) / totalAttributionChars) > 0.05)
+    ? sortedContributors.filter(({ currentAttributionCharCount }) => ((currentAttributionCharCount ?? 0) / totalAttributionChars) > 0.05)
     : initialTopContributors;
   const smallContributors = sortedContributors.filter(contributor => !topContributors.includes(contributor));
 
