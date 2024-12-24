@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { useLocation, useNavigate } from '../../lib/routeUtil';
+import { useLocation } from '../../lib/routeUtil';
 import { gql } from '@apollo/client';
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { capitalize } from '../../lib/vulcan-lib/utils';
