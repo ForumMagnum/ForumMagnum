@@ -301,3 +301,23 @@ createPaginatedResolver({
     return await context.repos.users.getSubscriptionFeedSuggestedUsers(currentUser._id, limit);
   }
 });
+
+addGraphQLSchema(`
+  type NetKarmaChangesForAuthorsOverPeriod {
+    userId: String,
+    netKarma: Int
+  }
+`)
+
+defineQuery({
+  name: "NetKarmaChangesForAuthorsOverPeriod",
+  argTypes: "(days: Int!, limit: Int!)",
+  resultType: "[NetKarmaChangesForAuthorsOverPeriod!]!",
+  fn: async (
+    _root: void,
+    {days, limit}: {days: number, limit: number},
+    context: ResolverContext,
+  ) => {
+    return await context.repos.votes.getNetKarmaChangesForAuthorsOverPeriod(days, limit);
+  }
+});

@@ -111,6 +111,14 @@ lw18ReviewPosts.forEach(
   })
 )
 
+addRoute(
+  {
+    name: 'leaderboard',
+    path: '/leaderboard',
+    componentName: 'Leaderboard',
+  }
+)
+
 // User-profile routes
 addRoute(
   {
