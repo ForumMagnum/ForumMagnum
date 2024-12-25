@@ -1,13 +1,9 @@
 import { Components, registerComponent } from '@/lib/vulcan-lib';
 import React from 'react';
-import { lightconeFundraiserPostId, lightconeFundraiserThermometerBgUrl } from '@/lib/publicSettings';
+import { lightconeFundraiserPostId, lightconeFundraiserThermometerBgUrl, lightconeFundraiserThermometerGoalAmount, lightconeFundraiserThermometerGoal2Amount } from '@/lib/publicSettings';
 import { Link } from '@/lib/reactRouterWrapper';
 import { useFundraiserProgress } from '@/lib/lightconeFundraiser';
 import classNames from 'classnames';
-import {
-  lightconeFundraiserThermometerGoalAmount,
-  lightconeFundraiserThermometerGoal2Amount
-} from '../../lib/publicSettings';
 
 // Second thermometer background image:
 const lightconeFundraiserThermometerBgUrl2 =
