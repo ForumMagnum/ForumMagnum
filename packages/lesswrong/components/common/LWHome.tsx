@@ -63,7 +63,7 @@ const LWHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
           <HeadTags structuredData={getStructuredData()}/>
           <UpdateLastVisitCookie />
           {lightconeFundraiserActive.get() && <SingleColumnSection>
-            <FundraisingThermometer goalAmount={lightconeFundraiserThermometerGoalAmount.get()} />
+            <FundraisingThermometer />
           </SingleColumnSection>}
           {reviewIsActive() && <>
             {getReviewPhase() === "RESULTS" && <SingleColumnSection>

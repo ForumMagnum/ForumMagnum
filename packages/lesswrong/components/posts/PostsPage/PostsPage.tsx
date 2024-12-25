@@ -810,7 +810,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
             dialogueResponses={debateResponses} 
             annualReviewMarketInfo={marketInfo}/>}
           {lightconeFundraiserActive.get() && (post._id === '5n2ZQcbc7r4R8mvqc') &&
-            <FundraisingThermometer goalAmount={lightconeFundraiserThermometerGoalAmount.get()} onPost />}
+            <FundraisingThermometer onPost />}
         </div>
       </div>
     </AnalyticsContext>
