@@ -338,7 +338,7 @@ export const getWrappedDataByYear = async (
     karmaChange: totalKarmaChange,
     combinedKarmaVals: combinedKarmaVals,
     mostReceivedReacts,
-    personality: "Insightful Online Lurker",
+    personality: personality.toString(),
   };
   return results;
 }

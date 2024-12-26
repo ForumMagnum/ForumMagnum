@@ -125,7 +125,7 @@ const WrappedSummarySection = ({classes}: {
     WrappedSection, UsersProfileImage, CoreTagIcon, WrappedShareButton,
   } = Components;
   return (
-    <WrappedSection pageSectionContext="summary">
+    <WrappedSection pageSectionContext="summary" noPadding>
       <div className={classNames(classes.root, classes[color])} ref={screenshotRef}>
         <div>
           <div className={classes.imageContainer}>

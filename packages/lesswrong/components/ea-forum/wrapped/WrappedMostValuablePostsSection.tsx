@@ -2,7 +2,7 @@ import React from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { useForumWrappedContext } from "./hooks";
 
-const styles = (_theme: ThemeType) => ({
+const styles = (theme: ThemeType) => ({
   textRow: {
     maxWidth: 500,
     textWrap: 'pretty',
@@ -45,6 +45,9 @@ const styles = (_theme: ThemeType) => ({
     textAlign: "left",
     marginBottom: 60,
   },
+  loadMore: {
+    color: theme.palette.text.alwaysWhite,
+  }
 });
 
 const WrappedMostValuablePostsSection = ({classes}: {
@@ -54,9 +57,10 @@ const WrappedMostValuablePostsSection = ({classes}: {
     year,
     mostValuablePosts,
     mostValuablePostsLoading,
+    mostValuablePostsLoadMoreProps,
   } = useForumWrappedContext();
   const {
-    WrappedSection, WrappedHeading, ForumIcon, WrappedPost, Loading,
+    WrappedSection, WrappedHeading, ForumIcon, WrappedPost, Loading, LoadMore,
   } = Components;
   return (
     <WrappedSection pageSectionContext="mostValuablePosts">
@@ -81,6 +85,7 @@ const WrappedMostValuablePostsSection = ({classes}: {
           {mostValuablePosts.map((post) => (
             <WrappedPost key={post._id} post={post} showMostValuableCheckbox />
           ))}
+          <LoadMore {...mostValuablePostsLoadMoreProps} className={classes.loadMore} />
         </div>
       </div>
     </WrappedSection>

@@ -17,8 +17,9 @@ const styles = (_theme: ThemeType) => ({
     }
   },
   textRow: {
-    maxWidth: 500,
+    maxWidth: 400,
     textWrap: 'pretty',
+    margin: '0 auto',
   },
   lightbulbIcon: {
     width: 120,

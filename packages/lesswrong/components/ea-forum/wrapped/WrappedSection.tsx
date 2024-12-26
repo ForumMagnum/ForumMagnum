@@ -18,10 +18,17 @@ const styles = (theme: ThemeType) => ({
     margin: "0 auto",
   },
   padding: {
-    padding: 40,
+    paddingTop: 40 + theme.spacing.mainLayoutPaddingTop,
+    paddingLeft: 40,
+    paddingRight: 40,
+    paddingBottom: 60,
     [theme.breakpoints.down("sm")]: {
       paddingLeft: 20,
       paddingRight: 20,
+    },
+    [theme.breakpoints.down("xs")]: {
+      paddingLeft: 12,
+      paddingRight: 12,
     },
   },
   center: {

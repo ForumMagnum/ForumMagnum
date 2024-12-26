@@ -14,7 +14,7 @@ import { gql, useQuery } from "@apollo/client";
 import { useRecommendations } from "@/components/recommendations/withRecommendations";
 import { getTopAuthor, getTotalReactsReceived } from "./wrappedHelpers";
 import { userCanStartConversations } from "@/lib/collections/conversations/collection";
-import { useMulti } from "@/lib/crud/withMulti";
+import { LoadMoreProps, useMulti } from "@/lib/crud/withMulti";
 
 // When adding a new year you'll need to run the server command to update the
 // analytics views:
@@ -289,6 +289,7 @@ type ForumWrappedContext = {
   recommendations: PostsListWithVotesAndSequence[],
   mostValuablePosts: PostsListWithVotes[],
   mostValuablePostsLoading: boolean,
+  mostValuablePostsLoadMoreProps: LoadMoreProps,
   thinkingVideoRef: RefObject<HTMLVideoElement>,
   personalityVideoRef: RefObject<HTMLVideoElement>,
 }
@@ -306,7 +307,7 @@ const useVotes = (year: WrappedYear, voteType: string) => {
     },
     collectionName: "Votes",
     fragmentName: "UserVotes",
-    limit: 10,
+    limit: 100,
     ssr: false,
   });
   return (results ?? []).map(({documentId}) => documentId);
@@ -352,6 +353,7 @@ export const ForumWrappedProvider = ({
   const {
     results: mostValuablePosts = [],
     loading: mostValuablePostsLoading,
+    loadMoreProps: mostValuablePostsLoadMoreProps,
   } = useMulti({
     terms: {
       view: "nominatablePostsByVote",
@@ -359,6 +361,8 @@ export const ForumWrappedProvider = ({
     },
     collectionName: "Posts",
     fragmentName: "PostsListWithVotes",
+    limit: 20,
+    itemsPerPage: 40,
   });
 
   const thinkingVideoRef = useRef<HTMLVideoElement>(null);
@@ -377,6 +381,7 @@ export const ForumWrappedProvider = ({
       recommendations: recommendations ?? [],
       mostValuablePosts,
       mostValuablePostsLoading,
+      mostValuablePostsLoadMoreProps,
       thinkingVideoRef,
       personalityVideoRef,
     }}>

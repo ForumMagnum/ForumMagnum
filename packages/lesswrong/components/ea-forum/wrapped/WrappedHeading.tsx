@@ -9,6 +9,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: 40,
     fontWeight: 700,
     lineHeight: "110%",
+    textWrap: 'pretty',
     letterSpacing: "-1.6px",
     wordBreak: "break-word",
     marginTop: 0,

@@ -25,7 +25,7 @@ const placeBackgroundReacts = (reacts?: WrappedReceivedReact[]) => {
     if (Component) {
       range(0, next.count).forEach((_) => prev.push({
         top: `${Math.random() * 90}%`, // only go to 90% to avoid overlapping the bottom nav
-        left: `${Math.random() * 94}%`, // only go to 94% to prevent causing a horizontal scroll
+        left: `${Math.random() * 96}%`, // only go to 96% to prevent causing a horizontal scroll
         transform: `rotate(${(Math.random() * 50) - 25}deg)`,
         Component,
       }));
