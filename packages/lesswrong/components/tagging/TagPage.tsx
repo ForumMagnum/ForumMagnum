@@ -4,7 +4,7 @@ import React, { FC, Fragment, useCallback, useEffect, useState } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from "../../lib/betas";
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
-import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import { tagGetHistoryUrl, tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { useMulti, UseMultiOptions } from '../../lib/crud/withMulti';
 import { truncate } from '../../lib/editor/ellipsize';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -33,6 +33,7 @@ import qs from "qs";
 import { useTagOrLens } from "../hooks/useTagOrLens";
 import { useTagEditingRestricted } from "./TagPageButtonRow";
 import { useMultiClickHandler } from "../hooks/useMultiClickHandler";
+import HistoryIcon from '@material-ui/icons/History';
 
 const sidePaddingStyle = (theme: ThemeType) => ({
   paddingLeft: 42,
@@ -549,9 +550,27 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     cursor: 'pointer',
     '&:hover': {
       opacity: 0.7,
-    },  
-  },
+      },  
+    },
+    revisionNotice: {
+      ...theme.typography.body2,
+      display: 'flex',
+      alignItems: 'center',
+      color: theme.palette.error.dark,
+      fontWeight: 550,
+      marginBottom: 16,
+    },
+    historyIcon: {
+      height: 18,
+      width: 18,
+      marginRight: 4,
+    },
 }));
+
+type ArbitalTagPageFragmentNames =
+  | "TagPageWithArbitalContentFragment"
+  | "TagPageRevisionWithArbitalContentFragment"
+  | "TagPageWithArbitalContentAndLensRevisionFragment";
 
 /**
  * If we're on the main tab (or on a tag without any lenses), we want to display the tag name.
@@ -570,13 +589,23 @@ function useDisplayedTagTitle(tag: TagPageFragment | TagPageWithRevisionFragment
 // TODO: maybe move this to the server, so that the user doesn't have to wait for the hooks to run to see the contributors
 function useDisplayedContributors(contributorsInfo: DocumentContributorsInfo | null) {
   const contributors: DocumentContributorWithStats[] = contributorsInfo?.contributors ?? [];
-  if (!contributors.some(({ contributionVolume }) => contributionVolume)) {
+  if (!contributors.some(({ currentAttributionCharCount }) => currentAttributionCharCount)) {
     return { topContributors: contributors, smallContributors: [] };
   }
-  const totalDiffVolume = contributors.reduce((acc: number, contributor: TagContributor) => acc + contributor.contributionVolume, 0);
-  const sortedContributors = [...contributors].sort((a, b) => b.contributionVolume - a.contributionVolume);
-  const topContributors = sortedContributors.filter(({ contributionVolume }) => contributionVolume / totalDiffVolume > 0.1);
-  const smallContributors = sortedContributors.filter(({ contributionVolume }) => contributionVolume / totalDiffVolume <= 0.1);
+
+  const totalAttributionChars = contributors.reduce((acc: number, contributor: DocumentContributorWithStats) => acc + (contributor.currentAttributionCharCount ?? 0), 0);
+
+  if (totalAttributionChars === 0) {
+    return { topContributors: contributors, smallContributors: [] };
+  }
+
+  const sortedContributors = [...contributors].sort((a, b) => (b.currentAttributionCharCount ?? 0) - (a.currentAttributionCharCount ?? 0));
+  const initialTopContributors = sortedContributors.filter(({ currentAttributionCharCount }) => ((currentAttributionCharCount ?? 0) / totalAttributionChars) > 0.1);
+  const topContributors = initialTopContributors.length <= 3 
+    ? sortedContributors.filter(({ currentAttributionCharCount }) => ((currentAttributionCharCount ?? 0) / totalAttributionChars) > 0.05)
+    : initialTopContributors;
+  const smallContributors = sortedContributors.filter(contributor => !topContributors.includes(contributor));
+
   return { topContributors, smallContributors };
 }
 
@@ -968,6 +997,44 @@ const ParentsAndChildrenSmallScreen: FC<{ arbitalLinkedPages?: ArbitalLinkedPage
   );
 };
 
+function getTagQueryOptions(
+  revision: string | null,
+  lensSlug: string | null,
+  contributorsLimit: number
+): {
+  tagFragmentName: ArbitalTagPageFragmentNames;
+  tagQueryOptions: Partial<UseMultiOptions<ArbitalTagPageFragmentNames, "Tags">>;
+} {
+  let tagFragmentName: ArbitalTagPageFragmentNames = "TagPageWithArbitalContentFragment";
+  let tagQueryOptions: Required<Pick<UseMultiOptions<ArbitalTagPageFragmentNames, "Tags">, "extraVariables" | "extraVariablesValues">> = {
+    extraVariables: {
+      contributorsLimit: 'Int',
+    },
+    extraVariablesValues: {
+      contributorsLimit,
+    },
+  };
+
+  if (revision && !lensSlug) {
+    tagFragmentName = "TagPageRevisionWithArbitalContentFragment";
+
+    tagQueryOptions.extraVariables.version = 'String';
+    tagQueryOptions.extraVariablesValues.version = revision;
+  }
+
+  if (revision && lensSlug) {
+    tagFragmentName = "TagPageWithArbitalContentAndLensRevisionFragment";
+    
+    tagQueryOptions.extraVariables.version = 'String';
+    tagQueryOptions.extraVariables.lensSlug = 'String';
+
+    tagQueryOptions.extraVariablesValues.version = revision;
+    tagQueryOptions.extraVariablesValues.lensSlug = lensSlug;
+  }
+
+  return { tagFragmentName, tagQueryOptions };
+}
+
 const TagPage = () => {
   const {
     PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, Typography,
@@ -981,6 +1048,7 @@ const TagPage = () => {
 
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
+  const { lens: lensSlug } = query;
   // const { onOpenEditor } = useContext(TagEditorContext);
   
   // Support URLs with ?version=1.2.3 or with ?revision=1.2.3 (we were previously inconsistent, ?version is now preferred)
@@ -1005,19 +1073,8 @@ const TagPage = () => {
   }, [formDirty]);
 
   const contributorsLimit = 16;
-  const tagQueryOptions: Partial<UseMultiOptions<"TagPageWithArbitalContentFragment" | "TagPageRevisionWithArbitalContentFragment", "Tags">> = {
-    extraVariables: {
-      ...(revision ? { version: 'String' } : {}),
-      contributorsLimit: 'Int',
-    },
-    extraVariablesValues: {
-      ...(revision ? { version: revision } : {}),
-      contributorsLimit,
-    },
-  };
 
-  const tagFragmentName = revision ? "TagPageRevisionWithArbitalContentFragment" : "TagPageWithArbitalContentFragment";
-
+  const { tagFragmentName, tagQueryOptions } = getTagQueryOptions(revision, lensSlug, contributorsLimit);
   const { tag, loadingTag, lens, loadingLens } = useTagOrLens(slug, tagFragmentName, tagQueryOptions);
 
   const [truncated, setTruncated] = useState(false)
@@ -1332,6 +1389,11 @@ const TagPage = () => {
             Next Tag ({nextTag.name})
         </Link></span>}
       </span>}
+      {revision && <Link to={tagGetUrl(tag, {lens: selectedLens?.slug})} className={classes.revisionNotice}>
+        <HistoryIcon className={classes.historyIcon} />
+        You are viewing version {revision} of this page.
+        Click here to view the latest version.
+      </Link>}
       {lenses.length > 1
         ?  (
           <Tabs

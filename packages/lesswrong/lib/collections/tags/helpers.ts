@@ -7,6 +7,7 @@ import Users from "../users/collection";
 import { isFriendlyUI } from "../../../themes/forumTheme";
 import type { RouterLocation } from '../../vulcan-lib/routes';
 import type { Request, Response } from 'express';
+import type { TagLens } from "@/lib/arbital/useTagLenses";
 
 export const tagMinimumKarmaPermissions = forumSelect({
   // Topic spampocalypse defense
@@ -28,6 +29,7 @@ export const tagMinimumKarmaPermissions = forumSelect({
 type GetUrlOptions = {
   edit?: boolean,
   flagId?: string
+  lens?: string
   tab?: string
   from?: string,
 }
@@ -71,8 +73,10 @@ export const tagGetCommentLink = ({tagSlug, commentId, tagCommentType = "DISCUSS
   return commentId ? `${base}${base.includes('?') ? "&" : "?"}commentId=${commentId}` : base
 }
 
-export const tagGetRevisionLink = (tag: DbTag|TagBasicInfo, versionNumber: string): string => {
-  return `/${tagUrlBase}/${tag.slug}?version=${versionNumber}`;
+// TODO: Is this necessary if we instead have version as a search param in the main tagGetUrl function?
+export const tagGetRevisionLink = (tag: DbTag|TagBasicInfo, versionNumber: string, lens?: MultiDocumentContentDisplay|TagLens): string => {
+  const lensParam = lens ? `lens=${lens.slug}&` : "";
+  return `/${tagUrlBase}/${tag.slug}?${lensParam}version=${versionNumber}`;
 }
 
 export const tagUserHasSufficientKarma = (user: UsersCurrent | DbUser | null, action: "new" | "edit"): boolean => {

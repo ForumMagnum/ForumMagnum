@@ -31,7 +31,7 @@ const TagRevisionItemShortMetadata = ({tag, lens, revision, classes}: {
   classes: ClassesType,
 }) => {
   const { FormatDate, UsersName, MetaInfo, LWTooltip, ChangeMetricsDisplay, SmallSideVote } = Components
-  const revUrl = tagGetRevisionLink(tag, revision.version);
+  const revUrl = tagGetRevisionLink(tag, revision.version, lens);
   const { openDialog } = useDialog();
   
   function showArbitalImportDetails() {
@@ -45,7 +45,7 @@ const TagRevisionItemShortMetadata = ({tag, lens, revision, classes}: {
   
   return <>
     {/* TODO: should we link to the lens via the lens title? */}
-    {lens && <div>Lens: {lens.tabTitle}</div>}
+    {lens && <div>Lens: {`${lens.tabTitle}${lens.tabSubtitle ? ` ${lens.tabSubtitle}` : ""}`}</div>}
     <span className={classes.username}>
       <UsersName documentId={revision.userId}/>
     </span>

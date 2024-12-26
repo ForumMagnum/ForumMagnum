@@ -670,34 +670,82 @@ const schema: SchemaType<"Tags"> = {
     graphQLtype: '[MultiDocument!]!',
     canRead: ['guests'],
     optional: true,
-    resolver: async (tag: DbTag, args: void, context: ResolverContext) => {
+    graphqlArguments: `lensSlug: String, version: String`,
+    resolver: async (tag: DbTag, { lensSlug, version }, context: ResolverContext) => {
       const { MultiDocuments, Revisions } = context;
-      const multiDocuments = await MultiDocuments.find({ parentDocumentId: tag._id, collectionName: 'Tags', fieldName: 'description' }, { sort: { index: 1 } }).fetch();
-      const revisions = await Revisions.find({ _id: { $in: multiDocuments.map(md => md.contents_latest) } }).fetch();
+      const multiDocuments = await MultiDocuments.find(
+        { parentDocumentId: tag._id, collectionName: 'Tags', fieldName: 'description' },
+        { sort: { index: 1 } }
+      ).fetch();
 
-      return multiDocuments.map(md => ({
+      let revisions;
+      if (version && lensSlug) {
+        // Find the MultiDocument with the matching slug or oldSlug
+        const versionedLens = multiDocuments.find(md => (md.slug === lensSlug) || (md.oldSlugs && md.oldSlugs.includes(lensSlug)));
+        
+        if (versionedLens) {
+          const versionedLensId = versionedLens._id;
+          const nonVersionedLensRevisionIds = multiDocuments
+            .filter(md => md._id !== versionedLensId)
+            .map(md => md.contents_latest);
+
+          const selector = {
+            $or: [
+              { documentId: versionedLensId, version },
+              { _id: { $in: nonVersionedLensRevisionIds } },
+            ],
+          };
+
+          revisions = await Revisions.find(selector).fetch();
+        }
+      }
+
+      if (!revisions) {
+        const revisionIds = multiDocuments.map(md => md.contents_latest);
+        revisions = await Revisions.find({ _id: { $in: revisionIds } }).fetch();
+      }
+
+      const revisionsById = new Map(revisions.map(rev => [rev.documentId || rev._id, rev]));
+      const unfilteredResults = multiDocuments.map(md => ({
         ...md,
-        contents: revisions.find(r => r._id === md.contents_latest),
+        contents: revisionsById.get(md._id),
       }));
+
+      return await accessFilterMultiple(context.currentUser, MultiDocuments, unfilteredResults, context);
     },
-    sqlResolver: ({ field }) => `(
-      SELECT ARRAY_AGG(
-        JSONB_SET(
-          TO_JSONB(md.*),
-          '{contents}'::TEXT[],
-          TO_JSONB(r.*),
-          true
-        )
-        ORDER BY md."index" ASC
-      ) AS contents
-      FROM "MultiDocuments" md
-      LEFT JOIN "Revisions" r
-      ON r._id = md.contents_latest
-      WHERE md."parentDocumentId" = ${field("_id")}
-      AND md."collectionName" = 'Tags'
-      AND md."fieldName" = 'description'
-      LIMIT 1
-    )`,
+    sqlResolver: ({ field, resolverArg }) => {
+      return `(
+        SELECT ARRAY_AGG(
+          JSONB_SET(
+            TO_JSONB(md.*),
+            '{contents}'::TEXT[],
+            TO_JSONB(r.*),
+            true
+          )
+          ORDER BY md."index" ASC
+        ) AS contents
+        FROM "MultiDocuments" md
+        LEFT JOIN "Revisions" r
+          ON r._id = CASE
+            WHEN (
+              md.slug = ${resolverArg("lensSlug")}::TEXT OR
+              ( md."oldSlugs" IS NOT NULL AND
+                ${resolverArg("lensSlug")}::TEXT = ANY (md."oldSlugs")
+              )
+            ) AND ${resolverArg("version")}::TEXT IS NOT NULL THEN (
+              SELECT r._id FROM "Revisions" r
+              WHERE r."documentId" = md._id 
+              AND r.version = ${resolverArg("version")}::TEXT 
+              LIMIT 1
+            )
+            ELSE md.contents_latest
+          END
+        WHERE md."parentDocumentId" = ${field("_id")}
+          AND md."collectionName" = 'Tags'
+          AND md."fieldName" = 'description'
+          LIMIT 1
+      )`;
+    },
   }),
   'lenses.$': {
     type: Object,

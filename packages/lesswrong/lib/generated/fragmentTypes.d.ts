@@ -2857,6 +2857,11 @@ interface AllTagsPageCacheFragment_description { // fragment on Revisions
   readonly wordCount: number,
 }
 
+interface TagPageWithArbitalContentAndLensRevisionFragment extends TagPageFragment { // fragment on Tags
+  readonly arbitalLinkedPages: ArbitalLinkedPagesFragment,
+  readonly lenses: Array<MultiDocumentWithContributorsRevision>,
+}
+
 interface AdvisorRequestsDefaultFragment { // fragment on AdvisorRequests
   readonly userId: string,
   readonly interestedInMetaculus: boolean,
@@ -3945,11 +3950,12 @@ interface MultiDocumentsDefaultFragment { // fragment on MultiDocuments
   readonly fieldName: string,
   readonly index: number,
   readonly tableOfContents: any /*{"definitions":[{}]}*/,
-  readonly contributors: any /*MultiDocumentContributorsList*/,
+  readonly contributors: any /*TagContributorsList*/,
   readonly contributionStats: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly htmlWithContributorAnnotations: string,
 }
 
-interface MultiDocumentContentDisplay { // fragment on MultiDocuments
+interface MultiDocumentMinimumInfo { // fragment on MultiDocuments
   readonly _id: string,
   readonly parentDocumentId: string,
   readonly collectionName: string,
@@ -3962,9 +3968,12 @@ interface MultiDocumentContentDisplay { // fragment on MultiDocuments
   readonly tabSubtitle: string | null,
   readonly preview: string | null,
   readonly index: number,
+  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
+}
+
+interface MultiDocumentContentDisplay extends MultiDocumentMinimumInfo { // fragment on MultiDocuments
   readonly tableOfContents: any /*{"definitions":[{}]}*/,
   readonly contents: RevisionEdit|null,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface MultiDocumentEdit extends MultiDocumentContentDisplay { // fragment on MultiDocuments
@@ -3978,6 +3987,16 @@ interface MultiDocumentParentDocument extends MultiDocumentEdit { // fragment on
 
 interface MultiDocumentWithContributors extends MultiDocumentEdit { // fragment on MultiDocuments
   readonly contributors: any,
+}
+
+interface MultiDocumentRevision extends MultiDocumentMinimumInfo { // fragment on MultiDocuments
+  readonly contents: RevisionEdit|null,
+  readonly tableOfContents: any /*{"definitions":[{}]}*/,
+}
+
+interface MultiDocumentWithContributorsRevision extends MultiDocumentRevision { // fragment on MultiDocuments
+  readonly contributors: any,
+  readonly arbitalLinkedPages: ArbitalLinkedPagesFragment,
 }
 
 interface ElectionCandidateBasicInfo { // fragment on ElectionCandidates
@@ -4565,6 +4584,7 @@ interface FragmentTypes {
   TagName: TagName
   ExplorePageTagFragment: ExplorePageTagFragment
   AllTagsPageCacheFragment: AllTagsPageCacheFragment
+  TagPageWithArbitalContentAndLensRevisionFragment: TagPageWithArbitalContentAndLensRevisionFragment
   AdvisorRequestsDefaultFragment: AdvisorRequestsDefaultFragment
   AdvisorRequestsMinimumInfo: AdvisorRequestsMinimumInfo
   UserJobAdsDefaultFragment: UserJobAdsDefaultFragment
@@ -4635,10 +4655,13 @@ interface FragmentTypes {
   UserRateLimitDisplay: UserRateLimitDisplay
   SideCommentCacheMinimumInfo: SideCommentCacheMinimumInfo
   MultiDocumentsDefaultFragment: MultiDocumentsDefaultFragment
+  MultiDocumentMinimumInfo: MultiDocumentMinimumInfo
   MultiDocumentContentDisplay: MultiDocumentContentDisplay
   MultiDocumentEdit: MultiDocumentEdit
   MultiDocumentParentDocument: MultiDocumentParentDocument
   MultiDocumentWithContributors: MultiDocumentWithContributors
+  MultiDocumentRevision: MultiDocumentRevision
+  MultiDocumentWithContributorsRevision: MultiDocumentWithContributorsRevision
   ElectionCandidateBasicInfo: ElectionCandidateBasicInfo
   ElectionCandidateSimple: ElectionCandidateSimple
   WithVoteElectionCandidate: WithVoteElectionCandidate
@@ -4689,7 +4712,7 @@ interface FragmentTypesByCollection {
   Users: "UsersDefaultFragment"|"SuggestAlignmentUser"|"UsersMinimumInfo"|"UsersProfile"|"UsersCurrent"|"UsersCurrentCommentRateLimit"|"UsersCurrentPostRateLimit"|"UserBookmarkedPosts"|"UserKarmaChanges"|"UsersBannedFromUsersModerationLog"|"SunshineUsersList"|"UserAltAccountsFragment"|"SharedUserBooleans"|"UsersMapEntry"|"UsersEdit"|"UsersAdmin"|"UsersWithReviewInfo"|"UsersProfileEdit"|"UsersCrosspostInfo"|"UsersOptedInToDialogueFacilitation"|"UserOnboardingAuthor"|"UsersSocialMediaInfo"
   Comments: "CommentsDefaultFragment"|"CommentsList"|"CommentsListWithTopLevelComment"|"ShortformComments"|"CommentWithRepliesFragment"|"CommentEdit"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"CommentsListWithParentMetadata"|"StickySubforumCommentFragment"|"WithVoteComment"|"CommentsListWithModerationMetadata"|"CommentsListWithModGPTAnalysis"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"SuggestAlignmentComment"
   UserTagRels: "UserTagRelsDefaultFragment"|"UserTagRelDetails"
-  Tags: "TagsDefaultFragment"|"TagBasicInfo"|"TagDetailsFragment"|"TagFragment"|"TagHistoryFragment"|"TagCreationHistoryFragment"|"TagRevisionFragment"|"TagPreviewFragment"|"TagSectionPreviewFragment"|"TagSubforumFragment"|"TagSubtagFragment"|"TagSubforumSidebarFragment"|"TagDetailedPreviewFragment"|"TagWithFlagsFragment"|"TagWithFlagsAndRevisionFragment"|"TagPageArbitalContentFragment"|"TagPageFragment"|"TagPageWithArbitalContentFragment"|"AllTagsPageFragment"|"TagPageWithRevisionFragment"|"TagPageRevisionWithArbitalContentFragment"|"TagFullContributorsList"|"TagEditFragment"|"TagRecentDiscussion"|"SunshineTagFragment"|"UserOnboardingTag"|"TagName"|"ExplorePageTagFragment"|"AllTagsPageCacheFragment"
+  Tags: "TagsDefaultFragment"|"TagBasicInfo"|"TagDetailsFragment"|"TagFragment"|"TagHistoryFragment"|"TagCreationHistoryFragment"|"TagRevisionFragment"|"TagPreviewFragment"|"TagSectionPreviewFragment"|"TagSubforumFragment"|"TagSubtagFragment"|"TagSubforumSidebarFragment"|"TagDetailedPreviewFragment"|"TagWithFlagsFragment"|"TagWithFlagsAndRevisionFragment"|"TagPageArbitalContentFragment"|"TagPageFragment"|"TagPageWithArbitalContentFragment"|"AllTagsPageFragment"|"TagPageWithRevisionFragment"|"TagPageRevisionWithArbitalContentFragment"|"TagFullContributorsList"|"TagEditFragment"|"TagRecentDiscussion"|"SunshineTagFragment"|"UserOnboardingTag"|"TagName"|"ExplorePageTagFragment"|"AllTagsPageCacheFragment"|"TagPageWithArbitalContentAndLensRevisionFragment"
   Conversations: "ConversationsDefaultFragment"|"ConversationsMinimumInfo"|"ConversationsList"|"ConversationsListWithReadStatus"
   CurationEmails: "CurationEmailsDefaultFragment"
   ElectionCandidates: "ElectionCandidatesDefaultFragment"|"ElectionCandidateBasicInfo"|"ElectionCandidateSimple"|"WithVoteElectionCandidate"
@@ -4746,7 +4769,7 @@ interface FragmentTypesByCollection {
   ModerationTemplates: "ModerationTemplatesDefaultFragment"|"ModerationTemplateFragment"
   CurationNotices: "CurationNoticesDefaultFragment"|"CurationNoticesFragment"
   UserRateLimits: "UserRateLimitsDefaultFragment"|"UserRateLimitDisplay"
-  MultiDocuments: "MultiDocumentsDefaultFragment"|"MultiDocumentContentDisplay"|"MultiDocumentEdit"|"MultiDocumentParentDocument"|"MultiDocumentWithContributors"
+  MultiDocuments: "MultiDocumentsDefaultFragment"|"MultiDocumentMinimumInfo"|"MultiDocumentContentDisplay"|"MultiDocumentEdit"|"MultiDocumentParentDocument"|"MultiDocumentWithContributors"|"MultiDocumentRevision"|"MultiDocumentWithContributorsRevision"
   ElicitQuestions: "ElicitQuestionsDefaultFragment"
   ElicitQuestionPredictions: "ElicitQuestionPredictionsDefaultFragment"
   DialogueChecks: "DialogueChecksDefaultFragment"|"DialogueCheckInfo"
@@ -4947,6 +4970,7 @@ interface CollectionNamesByFragmentName {
   TagName: "Tags"
   ExplorePageTagFragment: "Tags"
   AllTagsPageCacheFragment: "Tags"
+  TagPageWithArbitalContentAndLensRevisionFragment: "Tags"
   AdvisorRequestsDefaultFragment: "AdvisorRequests"
   AdvisorRequestsMinimumInfo: "AdvisorRequests"
   UserJobAdsDefaultFragment: "UserJobAds"
@@ -5017,10 +5041,13 @@ interface CollectionNamesByFragmentName {
   UserRateLimitDisplay: "UserRateLimits"
   SideCommentCacheMinimumInfo: "SideCommentCaches"
   MultiDocumentsDefaultFragment: "MultiDocuments"
+  MultiDocumentMinimumInfo: "MultiDocuments"
   MultiDocumentContentDisplay: "MultiDocuments"
   MultiDocumentEdit: "MultiDocuments"
   MultiDocumentParentDocument: "MultiDocuments"
   MultiDocumentWithContributors: "MultiDocuments"
+  MultiDocumentRevision: "MultiDocuments"
+  MultiDocumentWithContributorsRevision: "MultiDocuments"
   ElectionCandidateBasicInfo: "ElectionCandidates"
   ElectionCandidateSimple: "ElectionCandidates"
   WithVoteElectionCandidate: "ElectionCandidates"
