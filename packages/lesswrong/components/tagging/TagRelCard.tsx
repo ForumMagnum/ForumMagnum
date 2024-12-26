@@ -40,9 +40,17 @@ const styles = (theme: ThemeType): JssStyles => ({
       }),
   },
   removed: {
-    float: "right",
-    marginTop: 12,
-    marginRight: 16,
+    ...(isFriendlyUI
+      ? {
+        float: "right",
+        marginTop: 12,
+        marginRight: 16,
+      }
+      : {
+        position: "absolute",
+        top: 7,
+        right: 16,
+      }),
     color: theme.palette.grey[400]
   }
 });
