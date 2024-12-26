@@ -155,16 +155,17 @@ export function voteUpdatePostDenormalizedTags({newDocument}: {newDocument: Vote
   void updatePostDenormalizedTags(postId);
 }
 
-export async function recomputeContributorScoresFor(votedRevision: DbRevision, vote: DbVote, collectionName: CollectionNameString) {
+export async function recomputeContributorScoresFor(votedRevision: DbRevision, vote: DbVote) {
   if (vote.collectionName !== "Revisions") return;
   if (votedRevision.collectionName !== "Tags" && votedRevision.collectionName !== "MultiDocuments") return;
-  
-  const [tag, multiDocument] = await Promise.all([
-    Tags.findOne({_id: votedRevision.documentId}),
-    MultiDocuments.findOne({_id: votedRevision.documentId}),
-  ]);
 
-  const document = tag || multiDocument;
-  if (!document) return;
-  await updateDenormalizedContributorsList({ document, collectionName, fieldName: votedRevision.collectionName === "Tags" ? "description" : "contents" });
+  if (votedRevision.collectionName === "Tags") {
+    const tag = await Tags.findOne({_id: votedRevision.documentId});
+    if (!tag) return;
+    await updateDenormalizedContributorsList({ document: tag, collectionName: 'Tags', fieldName: 'description' });
+  } else if (votedRevision.collectionName === "MultiDocuments") {
+    const multiDocument = await MultiDocuments.findOne({_id: votedRevision.documentId});
+    if (!multiDocument) return;
+    await updateDenormalizedContributorsList({ document: multiDocument, collectionName: 'MultiDocuments', fieldName: 'contents' });
+  }
 }

@@ -33,7 +33,7 @@ export async function onVoteCancel(newDocument: DbVoteableType, vote: DbVote, co
   if (vote.collectionName === "Revisions") {
     const rev = (newDocument as DbRevision);
     if (rev.collectionName === "Tags" || rev.collectionName === "MultiDocuments") {
-      await recomputeContributorScoresFor(newDocument as DbRevision, vote, rev.collectionName);
+      await recomputeContributorScoresFor(newDocument as DbRevision, vote);
     }
   }
 }
@@ -48,7 +48,7 @@ export async function onCastVoteAsync(voteDocTuple: VoteDocTuple, collection: Co
   if (vote.collectionName === "Revisions") {
     const rev = (newDocument as DbRevision);
     if (rev.collectionName === "Tags" || rev.collectionName === "MultiDocuments") {
-      await recomputeContributorScoresFor(newDocument as DbRevision, vote, rev.collectionName);
+      await recomputeContributorScoresFor(newDocument as DbRevision, vote);
     }
   }
 
