@@ -213,11 +213,6 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   lensTab: {
     minWidth: 'unset',
     borderWidth: 1,
-    [theme.breakpoints.down('sm')]: {
-      // width: '33%',
-      // width: '100%',
-      // alignSelf: 'center',
-    },
   },
   lensTabRootOverride: {
     [theme.breakpoints.down('sm')]: {
@@ -267,13 +262,7 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
       width: 'fit-content',
       display: 'block',
       textAlign: 'left',
-      // marginBottom: 1,
-      // '&::before': {
-      //   content: '"("',
-      // },
-      // '&::after': {
-      //   content: '")"'
-      // }
+      marginBottom: 1,
     },
   },
   selectedLens: {
@@ -350,7 +339,6 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     [theme.breakpoints.down('md')]: {
       display: 'none',
     },
-    marginTop: -32,
     width: 300,
     '&:hover': {
       '& $rightColumnOverflowFade': {
@@ -358,12 +346,12 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
         pointerEvents: 'none',
       },
     },
+    paddingRight: 30,
   },
   rightColumnContent: {},
   rightColumnOverflowFade: {
     position: "relative",
     zIndex: 2,
-    marginTop: -120,
     height: 140,
     width: "100%",
     // background: `linear-gradient(0deg, 
@@ -404,14 +392,15 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     marginBottom: 4,
     color: theme.palette.grey[600],
     minWidth: 'fit-content',
-    whiteSpace: 'nowrap',
-    display: 'inline-block',
+    // whiteSpace: 'nowrap',
+    display: 'block',
     cursor: 'pointer',
     '&:hover': {
       '& $linkedTagsList': {
         display: 'block',
       },
     },
+    marginTop: -8,
   },
   linkedTagsTitle: {
     color: theme.palette.grey[600],
@@ -425,12 +414,8 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     position: 'absolute',
     top: '100%',
     left: 0,
-    background: theme.palette.background.paper,
-    boxShadow: theme.palette.boxShadow.default,
-    borderRadius: theme.borderRadius.default,
-    padding: '16px',
     zIndex: 1,
-    minWidth: 200,
+    width: '100%',
   },
   linkedTagsSection: {
     marginBottom: 20,
@@ -447,7 +432,9 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     display: 'block',
     fontSize: '1.0rem',
     whiteSpace: 'nowrap',
-
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    width: '100%',
     // marginBottom: 4,
     // color: theme.palette.primary.main,
   },
@@ -647,7 +634,6 @@ const LensTab = ({ key, value, label, lens, isSelected, ...tabProps }: {
   const classes = useStyles(styles);
   return (
     <div key={key} className={classes.lensTabContainer}>
-      {lens.tabTitle === 'Loose Intro' && <div className={classes.aboveLensTab}>Less Technical</div>}
       <Tab
         className={classNames(classes.lensTab, isSelected && classes.selectedLens, !isSelected && classes.nonSelectedLens)}
         key={key}
