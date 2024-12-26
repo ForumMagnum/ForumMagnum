@@ -1102,14 +1102,10 @@ function getTagQueryOptions(
   contributorsLimit: number
 ): {
   tagFragmentName: ArbitalTagPageFragmentNames;
-  tagQueryOptions: Partial<
-    UseMultiOptions< ArbitalTagPageFragmentNames, "Tags" >
-  >;
+  tagQueryOptions: Partial<UseMultiOptions<ArbitalTagPageFragmentNames, "Tags">>;
 } {
   let tagFragmentName: ArbitalTagPageFragmentNames = "TagPageWithArbitalContentFragment";
-  let tagQueryOptions: Partial<
-    UseMultiOptions< ArbitalTagPageFragmentNames, "Tags" >
-  > = {
+  let tagQueryOptions: Required<Pick<UseMultiOptions<ArbitalTagPageFragmentNames, "Tags">, "extraVariables" | "extraVariablesValues">> = {
     extraVariables: {
       contributorsLimit: 'Int',
     },
@@ -1120,32 +1116,19 @@ function getTagQueryOptions(
 
   if (revision && !lensSlug) {
     tagFragmentName = "TagPageRevisionWithArbitalContentFragment";
-    tagQueryOptions = {
-      extraVariables: {
-        version: 'String',
-        contributorsLimit: 'Int',
-      },
-      extraVariablesValues: {
-        version: revision,
-        contributorsLimit,
-      },
-    };
+
+    tagQueryOptions.extraVariables.version = 'String';
+    tagQueryOptions.extraVariablesValues.version = revision;
   }
 
   if (revision && lensSlug) {
     tagFragmentName = "TagPageWithArbitalContentAndLensRevisionFragment";
-    tagQueryOptions = {
-      extraVariables: {
-        version: 'String',
-        lensSlug: 'String',
-        contributorsLimit: 'Int',
-      },
-      extraVariablesValues: {
-        version: revision,
-        lensSlug,
-        contributorsLimit,
-      },
-    };
+    
+    tagQueryOptions.extraVariables.version = 'String';
+    tagQueryOptions.extraVariables.lensSlug = 'String';
+
+    tagQueryOptions.extraVariablesValues.version = revision;
+    tagQueryOptions.extraVariablesValues.lensSlug = lensSlug;
   }
 
   return { tagFragmentName, tagQueryOptions };
