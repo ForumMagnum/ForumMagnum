@@ -74,8 +74,9 @@ export const tagGetCommentLink = ({tagSlug, commentId, tagCommentType = "DISCUSS
 }
 
 // TODO: Is this necessary if we instead have version as a search param in the main tagGetUrl function?
-export const tagGetRevisionLink = (tag: DbTag|TagBasicInfo, versionNumber: string, lens?: MultiDocumentContentDisplay|TagLens ): string => {
-  return `/${tagUrlBase}/${tag.slug}?${lens ? `lens=${lens.slug}&` : "" }version=${versionNumber}`;
+export const tagGetRevisionLink = (tag: DbTag|TagBasicInfo, versionNumber: string, lens?: MultiDocumentContentDisplay|TagLens): string => {
+  const lensParam = lens ? `lens=${lens.slug}&` : "";
+  return `/${tagUrlBase}/${tag.slug}?${lensParam}version=${versionNumber}`;
 }
 
 export const tagUserHasSufficientKarma = (user: UsersCurrent | DbUser | null, action: "new" | "edit"): boolean => {
