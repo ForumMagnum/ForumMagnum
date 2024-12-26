@@ -7,7 +7,7 @@ import orderBy from 'lodash/orderBy';
 import take from 'lodash/take';
 
 type ContributorsFieldOptions = {
-  collectionName: 'Tags' | 'MultiDocuments';
+  collectionName: 'Tags';
   fieldName: 'description';
 } | {
   collectionName: 'MultiDocuments';
