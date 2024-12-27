@@ -77,11 +77,13 @@ const styles = (theme: ThemeType) => ({
   },
   statCount: {
     fontSize: 28,
+    lineHeight: 'normal',
     fontWeight: 700,
     letterSpacing: "-0.56px",
   },
   statName: {
     fontSize: 13,
+    lineHeight: '18px',
     fontWeight: 500,
   },
 });

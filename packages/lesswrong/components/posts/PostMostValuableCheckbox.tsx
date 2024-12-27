@@ -60,6 +60,10 @@ export const PostMostValuableCheckbox = ({post, classes}: {
         },
         data: {
           deleted: !userVote.deleted
+        },
+        optimisticResponse: {
+          ...userVote,
+          deleted: !userVote.deleted
         }
       })
     } else {

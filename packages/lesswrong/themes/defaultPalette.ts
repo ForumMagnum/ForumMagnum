@@ -584,7 +584,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     personalityGrey: "#585858",
     personalityRed: "#9E011A",
     personalityBlue: "#16508C",
-    personalityGreen: "#006336",
+    personalityGreen: "#006336",//"#0b7138",
     notification: "#e05200",
     emptyPath: "#494949",
     metaText: "#b3b3b3",

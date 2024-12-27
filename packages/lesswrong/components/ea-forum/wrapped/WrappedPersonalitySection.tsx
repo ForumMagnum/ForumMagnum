@@ -44,6 +44,9 @@ const styles = (theme: ThemeType) => ({
     padding: 40,
     width: "100%",
   },
+  personalityText: {
+    fontSize: 38,
+  },
   bottomMargin: {
     marginBottom: 2,
   },
@@ -94,30 +97,35 @@ const WrappedPersonalitySection = ({classes}: {
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
-    const video = videoRef.current;
+    const videoEl = videoRef.current;
     const container = screenshotRef.current;
-    if (canvas && ctx && video && container) {
+    if (canvas && ctx && videoEl && container) {
       const doFrame = () => {
         // Bad alpha blending causes a 1-pixel pseudo border around the canvas.
         // To get around this we scale up slightly and move the outer-most pixel
         // outside of the canvas. (Sorry)
-        ctx.drawImage(video, -1, -1, canvas.width + 2, canvas.height + 2);
+        ctx.drawImage(videoEl, -1, -1, canvas.width + 2, canvas.height + 2);
         requestAnimationFrame(doFrame);
       }
       const handler = () => {
-        const {videoWidth, videoHeight} = video;
+        const {videoWidth, videoHeight} = videoEl;
         const {clientWidth, clientHeight} = container;
         const scaleByWidth = clientWidth / videoWidth;
         const scaleByHeight = clientHeight / videoHeight;
-        const scaleFactor = Math.min(scaleByWidth, scaleByHeight);
+        let scaleFactor = Math.min(scaleByWidth, scaleByHeight);
+        // This animation moves up too far, so we need to scale it down
+        // and shift it down to make room for the text.
+        if (video.animation === 'convstarter') {
+          scaleFactor *= 0.65
+        }
         setSize({
           width: videoWidth * scaleFactor,
           height: videoHeight * scaleFactor,
         });
         requestAnimationFrame(doFrame);
       }
-      video.addEventListener("play", handler);
-      return () => video.removeEventListener("play", handler);
+      videoEl.addEventListener("play", handler);
+      return () => videoEl.removeEventListener("play", handler);
     }
   }, [videoRef]);
 
@@ -149,6 +157,7 @@ const WrappedPersonalitySection = ({classes}: {
             width: size.width,
             height: size.height,
             filter: `brightness(${video.brightness})`,
+            marginTop: video.animationMarginTop,
           }}
           className={classes.canvas}
         />
@@ -163,7 +172,7 @@ const WrappedPersonalitySection = ({classes}: {
               <div className={classes.bottomMargin}>
                 Your EA Forum personality is
               </div>
-              <WrappedHeading>
+              <WrappedHeading className={classes.personalityText}>
                 {personality}
               </WrappedHeading>
             </>

@@ -12,7 +12,7 @@ const styles = (theme: ThemeType) => ({
   root: {
     width: "100%",
     maxWidth: 500,
-    padding: 24,
+    padding: '12px 24px 14px',
     color: theme.palette.text.alwaysWhite,
     display: "flex",
     flexDirection: "column",
@@ -47,21 +47,23 @@ const styles = (theme: ThemeType) => ({
     justifyContent: "center",
   },
   image: {
-    height: 140,
+    height: 120,
   },
   heading: {
-    fontSize: 13,
+    fontSize: 12,
+    lineHeight: '15px',
     fontWeight: 500,
     marginBottom: 2,
   },
   personality: {
-    fontSize: 24,
-    lineHeight: '30px',
+    fontSize: 22,
+    lineHeight: '28px',
     fontWeight: 700,
     letterSpacing: "-0.48px",
   },
   stat: {
-    fontSize: 32,
+    fontSize: 22,
+    lineHeight: '22px',
     fontWeight: 700,
     letterSpacing: "-0.64px",
   },
@@ -76,7 +78,9 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center",
     gap: "12px",
     fontSize: 13,
-    fontWeight: 700,
+    lineHeight: '18px',
+    fontWeight: 600,
+    letterSpacing: '0.2px',
     textWrap: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",
@@ -92,19 +96,18 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center",
     justifyContent: "center",
     textTransform: "uppercase",
-    fontSize: 13,
-    fontWeight: 500,
+    fontSize: 11,
+    fontWeight: 400,
     lineHeight: "110%",
     letterSpacing: "0.39px",
-    "& svg": {
-      marginLeft: -12,
-      width: 32,
-    },
+  },
+  footerLightbulb: {
+    width: 22,
   },
   shareContainer: {
     display: "flex",
     justifyContent: "center",
-    marginBottom: 40,
+    marginBottom: 50,
   },
 });
 
@@ -116,9 +119,9 @@ const WrappedSummarySection = ({classes}: {
 }) => {
   const {
     year,
-    data: {totalSeconds, postCount, mostReadAuthors, mostReadTopics, personality},
+    data: {totalSeconds, postsReadCount, mostReadAuthors, mostReadTopics, personality},
   } = useForumWrappedContext();
-  const {color, frame, brightness} = getWrappedVideo(personality);
+  const {color, frameCropped, brightness} = getWrappedVideo(personality);
   const screenshotRef = useRef<HTMLDivElement>(null);
   const hoursSpent = (totalSeconds / 3600).toFixed(1)
   const {
@@ -130,7 +133,7 @@ const WrappedSummarySection = ({classes}: {
         <div>
           <div className={classes.imageContainer}>
             <img
-              src={frame}
+              src={frameCropped}
               className={classes.image}
               style={{filter: `brightness(${brightness})`}}
             />
@@ -145,14 +148,14 @@ const WrappedSummarySection = ({classes}: {
           </div>
           <div>
             <div className={classes.heading}>Posts read</div>
-            <div className={classes.stat}>{postCount}</div>
+            <div className={classes.stat}>{postsReadCount}</div>
           </div>
         </div>
         {mostReadAuthors.length > 0 &&
           <div>
             <div className={classes.heading}>Most-read authors</div>
             <div className={classes.list}>
-              {mostReadAuthors.map((author) => (
+              {mostReadAuthors.slice(0,3).map((author) => (
                 <div key={author.slug} className={classes.listItem}>
                   <UsersProfileImage size={20} user={author} />
                   <Link to={getUserProfileLink(author.slug, year)}>
@@ -182,7 +185,7 @@ const WrappedSummarySection = ({classes}: {
           </div>
         }
         <div className={classes.footer}>
-          <div>{lightbulbIcon}</div>
+          <div className={classes.footerLightbulb}>{lightbulbIcon}</div>
           <div>forum.effectivealtruism.org/wrapped</div>
         </div>
       </div>
