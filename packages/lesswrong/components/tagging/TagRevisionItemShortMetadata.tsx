@@ -45,7 +45,7 @@ const TagRevisionItemShortMetadata = ({tag, lens, revision, classes}: {
   
   return <>
     {/* TODO: should we link to the lens via the lens title? */}
-    {lens && <div>Lens: {`${lens.tabTitle}${lens.tabSubtitle ? ` ${lens.tabSubtitle}` : ""}`}</div>}
+    {lens && <div>Lens: {`${lens.tabTitle}${lens.tabSubtitle ? ` (${lens.tabSubtitle})` : ""}`}</div>}
     <span className={classes.username}>
       <UsersName documentId={revision.userId}/>
     </span>
@@ -64,7 +64,7 @@ const TagRevisionItemShortMetadata = ({tag, lens, revision, classes}: {
     {revision.legacyData?.arbitalPageId && <>
       <LWTooltip title="Imported from Arbital. Click to view original Markdown.">
         <span onClick={showArbitalImportDetails}>
-          <ArbitalLogo className={classes.arbitalLogo}/>
+          <ArbitalLogo className={classes.arbitalLogo} strokeWidth={0.7}/>
         </span>
       </LWTooltip>
     </>}

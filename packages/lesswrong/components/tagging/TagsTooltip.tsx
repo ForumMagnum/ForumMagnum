@@ -159,27 +159,31 @@ const TagsTooltip = ({
 }) => {
   const classes = useStyles(styles);
   const [everHovered, setEverHovered] = useState(false);
+  const [forceOpen, setForceOpen] = useState(false);
   const { tag, loading } = useTagsTooltipTag(
     tagsTooltipProps, hash,
     (noPrefetch && !everHovered)
   );
 
-  const { HoverOver, Loading, TagRelCard, TagPreview } = Components;
+  const { HoverOver, Loading, TagRelCard, TagPreview, LWClickAwayListener } = Components;
   return (
     <HoverOver
       title={
-        <PreviewWrapper tag={tag} loading={loading}>
-          {loading && <Loading className={classes.loading}/>}
-          {!loading && tagRel && <TagRelCard tagRel={tagRel}/>}
-          {!loading && !tagRel && tag && !isRedLink && <TagPreview
-            tag={tag}
-            hash={hash}
-            postCount={previewPostCount}
-            hideRelatedTags={hideRelatedTags}
-            hideDescription={hideDescription}
-          />}
-          {isRedLink && <RedLinkTooltip tag={tag} slug={tagsTooltipProps.tagSlug} />}
-        </PreviewWrapper>
+        <LWClickAwayListener onClickAway={() => setForceOpen(false)}>
+          <PreviewWrapper tag={tag} loading={loading}>
+            {loading && <Loading className={classes.loading}/>}
+            {!loading && tagRel && <TagRelCard tagRel={tagRel}/>}
+            {!loading && !tagRel && tag && !isRedLink && <TagPreview
+              tag={tag}
+              hash={hash}
+              postCount={previewPostCount}
+              hideRelatedTags={hideRelatedTags}
+              hideDescription={hideDescription}
+              setForceOpen={setForceOpen}
+            />}
+            {isRedLink && <RedLinkTooltip tag={tag} slug={tagsTooltipProps.tagSlug} />}
+          </PreviewWrapper>
+        </LWClickAwayListener>
       }
       clickable
       As={As}
@@ -195,6 +199,7 @@ const TagsTooltip = ({
       popperClassName={classNames(classes.tooltip, popperClassName)}
       titleClassName={classes.tooltipTitle}
       placement={placement}
+      forceOpen={forceOpen}
     >
       {children}
     </HoverOver>
