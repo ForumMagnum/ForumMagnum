@@ -127,7 +127,7 @@ const WrappedPersonalitySection = ({classes}: {
       videoEl.addEventListener("play", handler);
       return () => videoEl.removeEventListener("play", handler);
     }
-  }, [videoRef]);
+  }, [videoRef, video.animation]);
 
   useEffect(() => {
     const video = videoRef.current;

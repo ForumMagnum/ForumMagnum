@@ -13,12 +13,20 @@ const styles = (theme: ThemeType) => ({
     gridTemplateRows: "repeat(12, 6px)",
     gap: "4px",
     margin: "60px auto 0",
+    [theme.breakpoints.up("md")]: {
+      gridTemplateColumns: "repeat(31, 7px)",
+      gridTemplateRows: "repeat(12, 7px)",
+    },
   },
   calendarDot: {
     height: 6,
     width: 6,
     backgroundColor: theme.palette.wrapped.darkDot,
     borderRadius: "50%",
+    [theme.breakpoints.up("md")]: {
+      height: 7,
+      width: 7,
+    },
   },
   calendarDotActive: {
     backgroundColor: theme.palette.text.alwaysWhite,
