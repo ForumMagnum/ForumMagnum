@@ -136,6 +136,7 @@ const schema: SchemaType<"MultiDocuments"> = {
     canRead: ['guests'],
     canUpdate: ['members'],
     nullable: false,
+    hidden: true,
     onCreate: async ({ newDocument, context }) => {
       const { MultiDocuments } = context;
       const { parentDocumentId } = newDocument;
@@ -180,7 +181,7 @@ const schema: SchemaType<"MultiDocuments"> = {
     denormalized: true,
   },
 
-  ...summariesField('MultiDocuments', { group: formGroups.summaries}),
+  ...summariesField('MultiDocuments', { group: formGroups.summaries }),
 };
 
 export default schema;
