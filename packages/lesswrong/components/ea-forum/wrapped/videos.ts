@@ -63,22 +63,6 @@ const brightnesses: Record<WrappedColor, Partial<Record<WrappedAnimation, number
   transparent: {},
 };
 
-/**
- * On the Personality page, we need to position each animation independently
- * so that it appears a reasonable distance below the text.
- */
-const animationMarginTop = (animation: WrappedAnimation): number => {
-  if (animation === 'Karma-farmer' || animation === 'contrarian') {
-    return 250
-  }
-  if (animation === 'lurker' || animation === 'Visitor') {
-    return 120
-  }
-  if (animation === 'convstarter') {
-    return 230
-  }
-  return 0
-}
 
 const prefix = (file: string, type: "video" | "image") =>
   `https://res.cloudinary.com/cea/${type}/upload/v1734615259/wrapped-2024/${file}`;
@@ -104,7 +88,6 @@ type WrappedVideo = {
   /** The same image as above, but cropped to be smaller for the summary */
   frameCropped: string,
   brightness: number,
-  animationMarginTop: number,
 }
 
 export const getWrappedVideo = (personality: string): WrappedVideo => {
@@ -116,7 +99,6 @@ export const getWrappedVideo = (personality: string): WrappedVideo => {
       frame: prefix("Bulby-thinking-frame.jpg", "image"),
       frameCropped: prefix("Bulby-thinking-frame.jpg", "image"),
       brightness: 1,
-      animationMarginTop: 0,
     };
   }
   personality = personality.toLowerCase();
@@ -129,6 +111,5 @@ export const getWrappedVideo = (personality: string): WrappedVideo => {
     frame: prefix(`${animation}-${color}-frame.jpg`, "image"),
     frameCropped: prefix(`${animation}-${color}-frame-cropped.jpg`, "image"),
     brightness: brightnesses[color]?.[animation] ?? 1,
-    animationMarginTop: animationMarginTop(animation),
   };
 }

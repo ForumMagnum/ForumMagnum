@@ -15,6 +15,10 @@ const styles = (theme: ThemeType) => ({
     width: "100%",
     minHeight: "100%",
     overflowX: "hidden",
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    padding: '40px 0 90px',
   },
   transparent: {},
   grey: {
@@ -29,6 +33,11 @@ const styles = (theme: ThemeType) => ({
   green: {
     background: theme.palette.wrapped.personalityGreen,
   },
+  canvasContainer: {
+    flexGrow: 1,
+    display: 'flex',
+    alignItems: 'center',
+  },
   canvas: {
     maxWidth: "100%",
   },
@@ -38,10 +47,6 @@ const styles = (theme: ThemeType) => ({
     left: -10000,
   },
   content: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    padding: 40,
     width: "100%",
   },
   personalityText: {
@@ -110,14 +115,11 @@ const WrappedPersonalitySection = ({classes}: {
       const handler = () => {
         const {videoWidth, videoHeight} = videoEl;
         const {clientWidth, clientHeight} = container;
-        const scaleByWidth = clientWidth / videoWidth;
-        const scaleByHeight = clientHeight / videoHeight;
+        // Limit the animations to 400px wide or tall,
+        // to ensure they don't get unreasonably large
+        const scaleByWidth = Math.min(clientWidth, 400) / videoWidth;
+        const scaleByHeight = Math.min(clientHeight/2, 400) / videoHeight;
         let scaleFactor = Math.min(scaleByWidth, scaleByHeight);
-        // This animation moves up too far, so we need to scale it down
-        // and shift it down to make room for the text.
-        if (video.animation === 'convstarter') {
-          scaleFactor *= 0.65
-        }
         setSize({
           width: videoWidth * scaleFactor,
           height: videoHeight * scaleFactor,
@@ -149,18 +151,6 @@ const WrappedPersonalitySection = ({classes}: {
         ref={screenshotRef}
         className={classNames(classes.container, classes[video.color])}
       >
-        <canvas
-          ref={canvasRef}
-          width={videoRef.current?.videoWidth}
-          height={videoRef.current?.videoHeight}
-          style={{
-            width: size.width,
-            height: size.height,
-            filter: `brightness(${video.brightness})`,
-            marginTop: video.animationMarginTop,
-          }}
-          className={classes.canvas}
-        />
         <div className={classes.content}>
           {isThinking &&
             <WrappedHeading>
@@ -177,6 +167,19 @@ const WrappedPersonalitySection = ({classes}: {
               </WrappedHeading>
             </>
           }
+        </div>
+        <div className={classes.canvasContainer}>
+          <canvas
+            ref={canvasRef}
+            width={videoRef.current?.videoWidth}
+            height={videoRef.current?.videoHeight}
+            style={{
+              width: size.width,
+              height: size.height,
+              filter: `brightness(${video.brightness})`,
+            }}
+            className={classes.canvas}
+          />
         </div>
       </div>
       <WrappedShareButton
