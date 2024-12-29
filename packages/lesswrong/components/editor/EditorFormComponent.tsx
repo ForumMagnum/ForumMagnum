@@ -23,6 +23,7 @@ import { editableCollectionsFieldOptions } from '@/lib/editor/makeEditableOption
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE } from '@/lib/cookies/cookies';
+import { CKEditorPortalProvider } from './CKEditorPortalProvider';
 
 const autosaveInterval = 3000; //milliseconds
 const remoteAutosaveInterval = 1000 * 60 * 5; // 5 minutes in milliseconds
@@ -489,6 +490,7 @@ export const EditorFormComponent = ({
       getLocalStorageHandlers={getLocalStorageHandlers}
       onRestore={onRestoreLocalStorage}
     />}
+    <CKEditorPortalProvider>
     <Components.Editor
       ref={editorRef}
       _classes={classes}
@@ -515,6 +517,7 @@ export const EditorFormComponent = ({
       hasCommitMessages={hasCommitMessages ?? undefined}
       document={document}
     />
+    </CKEditorPortalProvider>
     {!hideControls && formVariant !== "grey" &&
       <Components.EditorTypeSelect value={contents} setValue={wrappedSetContents} isCollaborative={isCollabEditor}/>
     }

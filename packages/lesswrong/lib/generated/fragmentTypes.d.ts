@@ -3957,12 +3957,18 @@ interface TypingIndicatorInfo { // fragment on TypingIndicators
 }
 
 interface ElicitQuestionsDefaultFragment { // fragment on ElicitQuestions
+  readonly title: string,
+  readonly notes: string | null,
+  readonly resolution: string | null,
+  readonly resolvesBy: Date | null,
+}
+
+interface ElicitQuestionFragment { // fragment on ElicitQuestions
   readonly _id: string,
   readonly title: string,
   readonly notes: string | null,
   readonly resolution: string | null,
-  readonly resolvesBy: Date,
-  readonly createdAt: Date,
+  readonly resolvesBy: Date | null,
 }
 
 interface ElicitQuestionPredictionsDefaultFragment { // fragment on ElicitQuestionPredictions
@@ -4525,6 +4531,7 @@ interface FragmentTypes {
   GoogleServiceAccountSessionAdminInfo: GoogleServiceAccountSessionAdminInfo
   TypingIndicatorInfo: TypingIndicatorInfo
   ElicitQuestionsDefaultFragment: ElicitQuestionsDefaultFragment
+  ElicitQuestionFragment: ElicitQuestionFragment
   ElicitQuestionPredictionsDefaultFragment: ElicitQuestionPredictionsDefaultFragment
   DialogueChecksDefaultFragment: DialogueChecksDefaultFragment
   DialogueCheckInfo: DialogueCheckInfo
@@ -4621,7 +4628,7 @@ interface FragmentTypesByCollection {
   ModerationTemplates: "ModerationTemplatesDefaultFragment"|"ModerationTemplateFragment"
   CurationNotices: "CurationNoticesDefaultFragment"|"CurationNoticesFragment"
   UserRateLimits: "UserRateLimitsDefaultFragment"|"UserRateLimitDisplay"
-  ElicitQuestions: "ElicitQuestionsDefaultFragment"
+  ElicitQuestions: "ElicitQuestionsDefaultFragment"|"ElicitQuestionFragment"
   ElicitQuestionPredictions: "ElicitQuestionPredictionsDefaultFragment"
   DialogueChecks: "DialogueChecksDefaultFragment"|"DialogueCheckInfo"
   DialogueMatchPreferences: "DialogueMatchPreferencesDefaultFragment"|"DialogueMatchPreferenceInfo"
@@ -4892,6 +4899,7 @@ interface CollectionNamesByFragmentName {
   GoogleServiceAccountSessionAdminInfo: "GoogleServiceAccountSessions"
   TypingIndicatorInfo: "TypingIndicators"
   ElicitQuestionsDefaultFragment: "ElicitQuestions"
+  ElicitQuestionFragment: "ElicitQuestions"
   ElicitQuestionPredictionsDefaultFragment: "ElicitQuestionPredictions"
   DialogueChecksDefaultFragment: "DialogueChecks"
   DialogueCheckInfo: "DialogueChecks"
