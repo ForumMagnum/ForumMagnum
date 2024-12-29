@@ -25,7 +25,7 @@ import { cloudinaryConfig } from '../../lib/editor/cloudinaryConfig'
 import CKEditor from '../../lib/vendor/ckeditor5-react/ckeditor';
 import { useSyncCkEditorPlaceholder } from '../hooks/useSyncCkEditorPlaceholder';
 import { useDialog } from '../common/withDialog';
-import { CreateClaimDialogProps, claimsConfig } from './claims/elicitClaims';
+import { claimsConfig } from './claims/claimsConfig';
 import { CkEditorPortalContext } from './CKEditorPortalProvider';
 
 // Uncomment this line and the reference below to activate the CKEditor debugger

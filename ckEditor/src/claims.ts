@@ -1,11 +1,10 @@
 import { Command, Plugin } from '@ckeditor/ckeditor5-core';
-import type { Element } from '@ckeditor/ckeditor5-engine';
 import { ButtonView } from '@ckeditor/ckeditor5-ui';
 import insertClaimIcon from './ckeditor5-insert-claim-icon.svg';
-import type { ClaimsPluginConfiguration } from "../../packages/lesswrong/components/editor/claims/elicitClaims";
-import type { DowncastConversionApi } from '@ckeditor/ckeditor5-engine';
+import type { ClaimsPluginConfiguration } from "../../packages/lesswrong/components/editor/claims/claimsConfigType";
+import type { Element, DowncastConversionApi } from '@ckeditor/ckeditor5-engine';
 
-export default class ClaimsPlugin extends Plugin {
+export class ClaimsPlugin extends Plugin {
   init() {
     this.editor.commands.add('insertClaim', new InsertClaimCommand(this.editor));
     
@@ -37,7 +36,7 @@ export default class ClaimsPlugin extends Plugin {
   }
 
   private _defineConverters() {
-    const config: ClaimsPluginConfiguration = this.editor.config.get('claims');
+    const config = this.editor.config.get('claims') as ClaimsPluginConfiguration;
     const editor = this.editor;
     const conversion = editor.conversion;
 
@@ -58,7 +57,7 @@ export default class ClaimsPlugin extends Plugin {
         
         const reactWrapper = downcastWriter.createRawElement('div', {},
           (domElement) => {
-            const claimId = modelElement.getAttribute("claimId");
+            const claimId = String(modelElement.getAttribute("claimId"));
             config.renderClaimPreviewInto(domElement, claimId);
           }
         );
@@ -107,7 +106,7 @@ export class InsertClaimCommand extends Command {
     // Open the create-claim dialog, pre-populated with the selected text
     config.openNewClaimDialog({
       initialTitle: textContent,
-      onSubmit: (claim: ElicitQuestionFragment) => {
+      onSubmit: (claim: AnyBecauseHard) => {
         // Replace the selection with an embedded claim
         this.editor.model.change(writer => {
           writer.remove(range);
@@ -125,3 +124,5 @@ export class InsertClaimCommand extends Command {
     });
   }
 }
+
+export default ClaimsPlugin;

@@ -12,7 +12,7 @@ import type { Editor } from '@ckeditor/ckeditor5-core';
 import { useSyncCkEditorPlaceholder } from '../hooks/useSyncCkEditorPlaceholder';
 import { CkEditorPortalContext } from './CKEditorPortalProvider';
 import { useDialog } from '../common/withDialog';
-import { claimsConfig } from './claims/elicitClaims';
+import { claimsConfig } from './claims/claimsConfig';
 
 // Uncomment the import and the line below to activate the debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
