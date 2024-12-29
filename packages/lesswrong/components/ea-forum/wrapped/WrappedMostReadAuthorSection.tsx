@@ -43,7 +43,7 @@ const WrappedMostReadAuthorSection = ({classes}: {
   return (
     <WrappedSection pageSectionContext="mostReadAuthors">
       <WrappedHeading>
-        You read <em>{postsReadCount}</em> posts this year
+        You read <em>{postsReadCount}</em> post{postsReadCount === 1 ? '' : 's'} this year
       </WrappedHeading>
       {mostReadAuthors[0]?.displayName &&
         <div>

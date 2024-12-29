@@ -119,7 +119,7 @@ const WrappedSummarySection = ({classes}: {
 }) => {
   const {
     year,
-    data: {totalSeconds, postsReadCount, mostReadAuthors, mostReadTopics, personality},
+    data: {totalSeconds, postsReadCount, karmaChange, mostReadAuthors, mostReadTopics, personality},
   } = useForumWrappedContext();
   const {color, frameCropped, brightness} = getWrappedVideo(personality);
   const screenshotRef = useRef<HTMLDivElement>(null);
@@ -150,6 +150,12 @@ const WrappedSummarySection = ({classes}: {
             <div className={classes.heading}>Posts read</div>
             <div className={classes.stat}>{postsReadCount}</div>
           </div>
+          {karmaChange > 0 && (
+            <div>
+              <div className={classes.heading}>Karma</div>
+              <div className={classes.stat}>+{karmaChange}</div>
+            </div>
+          )}
         </div>
         {mostReadAuthors.length > 0 &&
           <div>

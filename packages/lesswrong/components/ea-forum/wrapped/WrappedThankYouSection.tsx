@@ -2,7 +2,6 @@ import React from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { useForumWrappedContext } from "./hooks";
 import { HeartReactionIcon } from "@/components/icons/reactions/HeartReactionIcon";
-import { lightbulbIcon } from "@/components/icons/lightbulbIcon";
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -21,10 +20,6 @@ const styles = (_theme: ThemeType) => ({
     textWrap: 'pretty',
     margin: '0 auto',
   },
-  lightbulbIcon: {
-    width: 120,
-    margin: '50px auto 0',
-  },
 });
 
 const WrappedThankYouSection = ({classes}: {
@@ -40,9 +35,6 @@ const WrappedThankYouSection = ({classes}: {
         </WrappedHeading>
         <div className={classes.textRow}>
           Thanks for joining us on the EA Forum and helping us think about how to improve the world.
-        </div>
-        <div className={classes.lightbulbIcon}>
-          {lightbulbIcon}
         </div>
       </div>
     </WrappedSection>

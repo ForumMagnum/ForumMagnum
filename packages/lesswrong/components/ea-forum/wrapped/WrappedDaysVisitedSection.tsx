@@ -82,7 +82,8 @@ const WrappedDaysVisitedSection = ({classes}: {
   return (
     <WrappedSection pageSectionContext="daysVisited">
       <WrappedHeading>
-        You visited the EA Forum on <em>{daysVisited.length}</em> days in {year}
+        You visited the EA Forum on <em>{daysVisited.length}</em>{' '}
+        day{daysVisited.length === 1 ? '' : 's'} in {year}
       </WrappedHeading>
       <div className={classes.calendar}>
         {range(0, 12).map((month: number) => (
