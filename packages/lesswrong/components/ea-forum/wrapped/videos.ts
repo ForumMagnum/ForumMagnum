@@ -74,9 +74,6 @@ type WrappedVideo = {
   color: WrappedColor,
   /**
    * This is be the cloudinary URL of the video file
-   * Before uploading cloudinary you should ensure that the video uses an sRGB
-   * color profile with:
-   *   ffmpeg -i input.mp4 -color_trc iec61966_2_1 output.mp4
    */
   src: string,
   /**

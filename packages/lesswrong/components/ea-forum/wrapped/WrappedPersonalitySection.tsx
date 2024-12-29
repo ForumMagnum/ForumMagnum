@@ -3,6 +3,7 @@ import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { WRAPPED_SHARE_BUTTON_WIDTH } from "./WrappedShareButton";
 import { useForumWrappedContext } from "./hooks";
 import { getWrappedVideo } from "./videos";
+import { createWrappedVideoCanvas } from "./wrappedGL";
 import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
@@ -101,35 +102,34 @@ const WrappedPersonalitySection = ({classes}: {
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const ctx = canvas?.getContext("2d");
     const videoEl = videoRef.current;
     const container = screenshotRef.current;
-    if (canvas && ctx && videoEl && container) {
-      const doFrame = () => {
-        // Bad alpha blending causes a 1-pixel pseudo border around the canvas.
-        // To get around this we scale up slightly and move the outer-most pixel
-        // outside of the canvas. (Sorry)
-        ctx.drawImage(videoEl, -1, -1, canvas.width + 2, canvas.height + 2);
-        requestAnimationFrame(doFrame);
-      }
+    if (canvas && videoEl && container) {
+      const renderFrame = createWrappedVideoCanvas(canvas, videoEl, video.brightness);
       const handler = () => {
         const {videoWidth, videoHeight} = videoEl;
         const {clientWidth, clientHeight} = container;
         // Limit the animations to 400px wide or tall,
         // to ensure they don't get unreasonably large
         const scaleByWidth = Math.min(clientWidth, 400) / videoWidth;
-        const scaleByHeight = Math.min(clientHeight/2, 400) / videoHeight;
-        let scaleFactor = Math.min(scaleByWidth, scaleByHeight);
+        const scaleByHeight = Math.min(clientHeight / 2, 400) / videoHeight;
+        const scaleFactor = Math.min(scaleByWidth, scaleByHeight);
         setSize({
           width: videoWidth * scaleFactor,
           height: videoHeight * scaleFactor,
         });
+        const doFrame = () => {
+          renderFrame();
+          if (!videoEl.ended) {
+            requestAnimationFrame(doFrame);
+          }
+        }
         requestAnimationFrame(doFrame);
       }
       videoEl.addEventListener("play", handler);
       return () => videoEl.removeEventListener("play", handler);
     }
-  }, [videoRef, video.animation]);
+  }, [videoRef, video.animation, video.brightness]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -176,7 +176,6 @@ const WrappedPersonalitySection = ({classes}: {
             style={{
               width: size.width,
               height: size.height,
-              filter: `brightness(${video.brightness})`,
             }}
             className={classes.canvas}
           />
