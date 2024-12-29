@@ -327,6 +327,7 @@ importComponent("EAForumWrappedPage", () => require("../../components/ea-forum/w
 importComponent("CKCommentEditor", () => require("../../components/editor/CKCommentEditor.tsx"));
 importComponent("CKPostEditor", () => require("../../components/editor/CKPostEditor.tsx"));
 importComponent("CollabEditorPermissionsNotices", () => require("../../components/editor/CollabEditorPermissionsNotices.tsx"));
+importComponent("CreateClaimDialog", () => require("../../components/editor/CreateClaimDialog.tsx"));
 importComponent("DraftJSEditor", () => require("../../components/editor/DraftJSEditor.tsx"));
 importComponent("EditCommentTitle", () => require("../../components/editor/EditCommentTitle.tsx"));
 importComponent("EditLinkpostUrl", () => require("../../components/editor/EditLinkpostUrl.tsx"));

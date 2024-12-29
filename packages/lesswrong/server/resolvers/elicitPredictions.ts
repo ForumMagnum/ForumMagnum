@@ -133,7 +133,7 @@ interface ElicitQuestionWithPredictions {
   title: string,
   notes: string | null,
   resolution: boolean,
-  resolvesBy: Date,
+  resolvesBy: Date|null,
   predictions: DbElicitQuestionPrediction[]
 }
 
