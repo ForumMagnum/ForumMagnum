@@ -338,6 +338,7 @@ const postEditorToolbarConfig = {
       'mediaEmbed',
       ...(isEAForum ? ['ctaButtonToolbarItem'] : ['collapsibleSectionButton']),
       'footnote',
+      ...(isLWorAF ? ['insertClaimButton'] : []),
     ],
     
     /* At some point the default icon for the block toolbar changed from a
