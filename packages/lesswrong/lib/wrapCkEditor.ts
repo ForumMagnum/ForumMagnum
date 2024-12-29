@@ -26,4 +26,4 @@ export const getCkPostEditor = (isCollaborative: boolean) => {
   }
 }
 
-export const ckEditorBundleVersion = "43.1.3";
+export const ckEditorBundleVersion = "43.1.4";

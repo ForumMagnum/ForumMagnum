@@ -3,6 +3,7 @@ import { ButtonView } from '@ckeditor/ckeditor5-ui';
 import insertClaimIcon from './ckeditor5-insert-claim-icon.svg';
 import type { ClaimsPluginConfiguration } from "../../packages/lesswrong/components/editor/claims/claimsConfigType";
 import type { Element, DowncastConversionApi } from '@ckeditor/ckeditor5-engine';
+import { toWidget } from "@ckeditor/ckeditor5-widget/src/utils";
 
 export class ClaimsPlugin extends Plugin {
   init() {
@@ -61,9 +62,7 @@ export class ClaimsPlugin extends Plugin {
             config.renderClaimPreviewInto(domElement, claimId);
           }
         );
-        return downcastWriter.createContainerElement('div', {}, [
-          reactWrapper
-        ]);
+        return toWidget(downcastWriter.createContainerElement('div', {}, [reactWrapper]), downcastWriter);
       }
     });
     conversion.for('dataDowncast').elementToStructure({
@@ -89,7 +88,6 @@ export class InsertClaimCommand extends Command {
 
     // Get the selected range, and convert it to text
     const selection = this.editor.model.document.selection;
-    if (selection.isCollapsed) return;
     const range = selection.getFirstRange();
 
     // Gather the text content from text nodes.
@@ -110,7 +108,6 @@ export class InsertClaimCommand extends Command {
         // Replace the selection with an embedded claim
         this.editor.model.change(writer => {
           writer.remove(range);
-          //writer.insertText(claim.title, range.start);
           
           const claimElement = writer.createElement("claim", {
             claimId: claim._id,
@@ -119,7 +116,6 @@ export class InsertClaimCommand extends Command {
         });
       },
       onCancel: () => {
-        console.log("Cancelled");
       },
     });
   }

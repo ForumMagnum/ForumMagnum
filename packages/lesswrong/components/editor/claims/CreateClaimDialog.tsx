@@ -63,11 +63,17 @@ const CreateClaimDialog = ({initialTitle, onSubmit, onCancel, onClose}: CreateCl
       <Typography variant="display1">Create Claim</Typography>
       
       <div className={classes.titleInput}>
-        <Input value={title} onChange={ev => setTitle(ev.currentTarget.value)}/>
+        <Input placeholder="Prediction or claim" value={title} onChange={ev => setTitle(ev.currentTarget.value)}/>
       </div>
       
       <div className={classes.buttons}>
-        <Button className={classes.button} onClick={submit}>Submit</Button>
+        <Button
+          disabled={!title.length}
+          className={classes.button}
+          onClick={submit}
+        >
+          Submit
+        </Button>
         <Button className={classes.button} onClick={onCloseAndCancel}>Cancel</Button>
       </div>
     </div>
