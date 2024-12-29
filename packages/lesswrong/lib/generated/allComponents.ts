@@ -345,6 +345,7 @@ importComponent(["PostVersionHistoryButton", "PostVersionHistory"], () => requir
 importComponent("PresenceList", () => require("../../components/editor/PresenceList.tsx"));
 importComponent("RateLimitWarning", () => require("../../components/editor/RateLimitWarning.tsx"));
 importComponent(["TagVersionHistoryButton", "TagVersionHistory"], () => require("../../components/editor/TagVersionHistory.tsx"));
+importComponent("CreateClaimDialog", () => require("../../components/editor/claims/CreateClaimDialog.tsx"));
 importComponent("EventsHome", () => require("../../components/events/EventsHome.tsx"));
 importComponent("EventCards", () => require("../../components/events/modules/EventCards.tsx"));
 importComponent("HighlightedEventCard", () => require("../../components/events/modules/HighlightedEventCard.tsx"));

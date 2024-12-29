@@ -847,9 +847,14 @@ CREATE TABLE "ElicitQuestions" (
   "title" TEXT NOT NULL,
   "notes" TEXT,
   "resolution" TEXT,
-  "resolvesBy" TIMESTAMPTZ NOT NULL,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
+  "resolvesBy" TIMESTAMPTZ,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
 );
+
+-- Index "idx_ElicitQuestions_schemaVersion"
+CREATE INDEX IF NOT EXISTS "idx_ElicitQuestions_schemaVersion" ON "ElicitQuestions" USING btree ("schemaVersion");
 
 -- Table "EmailTokens"
 CREATE TABLE "EmailTokens" (

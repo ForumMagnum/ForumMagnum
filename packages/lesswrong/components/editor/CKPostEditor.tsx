@@ -4,7 +4,7 @@ import { ckEditorBundleVersion, getCkPostEditor } from '../../lib/wrapCkEditor';
 import { getCKEditorDocumentId, generateTokenRequest} from '../../lib/ckEditorUtils'
 import { CollaborativeEditingAccessLevel, accessLevelCan } from '../../lib/collections/posts/collabEditingPermissions';
 import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib/publicSettings'
-import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting, forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
+import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting, forumTypeSetting, isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import { CollaborationMode } from './EditorTopBar';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { defaultEditorPlaceholder } from '../../lib/editor/make_editable';
@@ -24,6 +24,9 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { cloudinaryConfig } from '../../lib/editor/cloudinaryConfig'
 import CKEditor from '../../lib/vendor/ckeditor5-react/ckeditor';
 import { useSyncCkEditorPlaceholder } from '../hooks/useSyncCkEditorPlaceholder';
+import { useDialog } from '../common/withDialog';
+import { claimsConfig } from './claims/claimsConfig';
+import { CkEditorPortalContext } from './CKEditorPortalProvider';
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -335,6 +338,7 @@ const postEditorToolbarConfig = {
       'mediaEmbed',
       ...(isEAForum ? ['ctaButtonToolbarItem'] : ['collapsibleSectionButton']),
       'footnote',
+      ...(isLWorAF ? ['insertClaimButton'] : []),
     ],
     
     /* At some point the default icon for the block toolbar changed from a
@@ -363,7 +367,8 @@ const postEditorToolbarConfig = {
       // We don't have the collapsible sections plugin in the selected-text toolbar yet,
       // because the behavior of creating a collapsible section is non-obvious and we want to fix it first
       ...(isEAForum ? ['ctaButtonToolbarItem'] : []),
-      'footnote'
+      'footnote',
+      ...(isLWorAF ? ['insertClaimButton'] : []),
     ],
     shouldNotGroupWhenFull: true,
   },
@@ -407,9 +412,11 @@ const CKPostEditor = ({
 }) => {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
+  const { openDialog } = useDialog();
   const post = (document as PostsEdit);
   const isBlockOwnershipMode = isCollaborative && post.collabEditorDialogue;
   const { EditorTopBar, DialogueEditorGuidelines, DialogueEditorFeedback } = Components;
+  const portalContext = useContext(CkEditorPortalContext);
   
   const getInitialCollaborationMode = () => {
     if (!isCollaborative || !accessLevel) return "Editing";
@@ -543,6 +550,7 @@ const CKPostEditor = ({
     mention: mentionPluginConfiguration,
     dialogues: dialogueConfiguration,
     ...cloudinaryConfig,
+    claims: claimsConfig(portalContext, openDialog),
   };
 
   useSyncCkEditorPlaceholder(editorObject, actualPlaceholder);
