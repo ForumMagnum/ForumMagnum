@@ -59,7 +59,7 @@ export class ClaimsPlugin extends Plugin {
         const reactWrapper = downcastWriter.createRawElement('div', {},
           (domElement) => {
             const claimId = String(modelElement.getAttribute("claimId"));
-            config.renderClaimPreviewInto(domElement, claimId);
+            config?.renderClaimPreviewInto?.(domElement, claimId);
           }
         );
         return toWidget(downcastWriter.createContainerElement('div', {}, [reactWrapper]), downcastWriter);
