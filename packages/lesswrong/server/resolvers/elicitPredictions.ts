@@ -181,6 +181,7 @@ async function getLocalElicitQuestionWithPredictions(questionId: string): Promis
     ElicitQuestionPredictions.find({
       binaryQuestionId: questionId,
       isDeleted: false,
+      prediction: {$ne: null},
     }).fetch()
   ]);
   
