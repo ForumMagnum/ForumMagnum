@@ -64,8 +64,8 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
     <AnalyticsContext pageContext="eaYearWrapped" reviewYear={String(year)}>
       <main className={classes.root}>
         <HeadTags
-          title={`EA Forum Wrapped ${year}`}
-          image={makeCloudinaryImageUrl("2023_wrapped_wide", {
+          title={`${year} EA Forum Wrapped`}
+          image={makeCloudinaryImageUrl("wrapped-2024/2024_wrapped", {
             dpr: "auto",
             ar: "16:9",
             w: "1200",
