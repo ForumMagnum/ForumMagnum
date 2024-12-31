@@ -43,20 +43,19 @@ const WrappedShareButton = ({name, screenshotRef, className, classes}: {
         useCORS: true,
       });
       const dataUrl = canvasElement.toDataURL("image/png");
-      // TODO probably re-enable this
-      // if (isMobile() && !!navigator.canShare) {
-      //   const data = await fetch(dataUrl);
-      //   const blob = await data.blob();
-      //   const file = new File([blob], fileName, {
-      //     type: blob.type,
-      //     lastModified: new Date().getTime(),
-      //   });
-      //   const sharingOptions = {files: [file]};
-      //   if (navigator.canShare(sharingOptions)) {
-      //     await navigator.share(sharingOptions);
-      //     return;
-      //   }
-      // }
+      if (isMobile() && !!navigator.canShare) {
+        const data = await fetch(dataUrl);
+        const blob = await data.blob();
+        const file = new File([blob], fileName, {
+          type: blob.type,
+          lastModified: new Date().getTime(),
+        });
+        const sharingOptions = {files: [file]};
+        if (navigator.canShare(sharingOptions)) {
+          await navigator.share(sharingOptions);
+          return;
+        }
+      }
       const link = document.createElement("a");
       link.download = fileName;
       link.href = dataUrl;
