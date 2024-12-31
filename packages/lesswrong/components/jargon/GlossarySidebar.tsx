@@ -7,7 +7,7 @@ import classNames from 'classnames';
 import { sidenotesHiddenBreakpoint } from '../posts/PostsPage/PostsPage';
 import { useJargonCounts } from '@/components/hooks/useJargonCounts';
 import { jargonTermsToTextReplacements } from './JargonTooltip';
-import { useTracking } from '@/lib/analyticsEvents';
+import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
 import { useGlossaryPinnedState } from '../hooks/useUpdateGlossaryPinnedState';
 import { useHover } from '../common/withHover';
 
@@ -219,11 +219,6 @@ const GlossarySidebar = ({post, showAllTerms, setShowAllTerms, approvedTermsCoun
     return null;
   }
 
-  if (approvedTermsCount === 0 && unapprovedTermsCount === 0) {
-    return null;
-  }
-
-
   const tooltip = <div>{postGlossariesPinned ? 'Unpin to only highlight the first instance of each term.' : 'Pin to highlight every instance of a term.'}
     <div><em>(Opt/Alt + Shift + J)</em></div></div>;
 
@@ -309,29 +304,39 @@ const GlossarySidebar = ({post, showAllTerms, setShowAllTerms, approvedTermsCoun
     <LWTooltip title={<div>Pin to {displayAsPinned ? 'hide' : 'show'} a hacky AI generated glossary<br/> that the author doesn't endorse<div><em>(Opt/Alt + Shift + G)</em></div></div>} inlineBlock={false} placement='top-end' popperClassName={classes.titleRowTooltipPopper}>
       <div className={classes.titleRow} onClick={(e) => setShowAllTerms(e, !showAllTerms, 'unapprovedGlossaryClick')}  {...unapprovedHoverHandlers}>
         <ForumIcon icon="Dictionary" className={classNames(classes.pinIcon, classes.unapprovedPinIcon, displayAsPinned && classes.pinnedPinIcon)} /> 
-        {!displayAsPinned && <span className={classes.unapprovedTermsCount}>{unapprovedTermsCount}</span>}
         {displayAsPinned && <p className={classes.title}>Glossary (Auto)</p>}
       </div>
     </LWTooltip>
   )
 
+  const noTermsYet = approvedTermsCount === 0 && unapprovedTermsCount === 0 ? <div>
+    <SideItem options={{ format: 'block', offsetTop: -10, measuredElement: glossaryContainerRef }}>
+      <ForumIcon icon="Dictionary" className={classes.pinIcon}/>
+    </SideItem>
+  </div> : null;
+
   const titleRow = !onlyUnapprovedTerms ? approvedTitleRow : unapprovedTitleRow;
 
-  return <div className={classes.glossaryAnchor}><SideItem options={{ format: 'block', offsetTop: -10, measuredElement: glossaryContainerRef }}>
-    <div className={classNames(displayAsPinned && classes.outerContainer)}>
-      <div className={classNames(displayAsPinned && classes.innerContainer)}>
-        <div className={classNames(classes.displayedHeightGlossaryContainer, displayAsPinned && classes.pinnedGlossaryContainer)} ref={glossaryContainerRef}>
-          <div className={classNames(classes.glossaryContainer, currentUser && classes.glossaryContainerClickTarget)}>
-            {titleRow}  
-            {approvedGlossaryItems}
-            {!onlyUnapprovedTerms && showAllTermsButton}
-            {otherGlossaryItems}
+  return <AnalyticsContext pageElementContext='glossary'>
+    <div className={classes.glossaryAnchor}>
+      <SideItem options={{ format: 'block', offsetTop: -10, measuredElement: glossaryContainerRef }}>
+        <div className={classNames(displayAsPinned && classes.outerContainer)}>
+          <div className={classNames(displayAsPinned && classes.innerContainer)}>
+            <div className={classNames(classes.displayedHeightGlossaryContainer, displayAsPinned && classes.pinnedGlossaryContainer)} ref={glossaryContainerRef}>
+              <div className={classNames(classes.glossaryContainer, currentUser && classes.glossaryContainerClickTarget)}>
+                {titleRow}  
+                {}
+                {approvedGlossaryItems}
+                {!onlyUnapprovedTerms && showAllTermsButton}
+                {otherGlossaryItems}
+              </div>
+              <div className={classes.overflowFade} />
+            </div>
           </div>
-          <div className={classes.overflowFade} />
         </div>
-      </div>
+      </SideItem>
     </div>
-  </SideItem></div>
+  </AnalyticsContext>
 }
 
 const GlossarySidebarComponent = registerComponent('GlossarySidebar', GlossarySidebar, {styles});
