@@ -28,7 +28,7 @@ const schema: SchemaType<"ElicitQuestionPredictions"> = {
   }),
   prediction: {
     type: Number,
-    ...commonFields(false)
+    ...commonFields(true)
   },
   createdAt: {
     type: Date,

@@ -25,9 +25,10 @@ import { cloudinaryConfig } from '../../lib/editor/cloudinaryConfig'
 import CKEditor from '../../lib/vendor/ckeditor5-react/ckeditor';
 import { useSyncCkEditorPlaceholder } from '../hooks/useSyncCkEditorPlaceholder';
 import type { ConditionalVisibilityPluginConfiguration  } from './conditionalVisibilityBlock/conditionalVisibility';
-import { createPortal } from 'react-dom';
 import { CkEditorPortalContext } from './CKEditorPortalProvider';
 import type { CTAButtonPluginConfiguration } from './ctaButton/ctaButton';
+import { useDialog } from '../common/withDialog';
+import { claimsConfig } from './claims/claimsConfig';
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -340,6 +341,7 @@ const postEditorToolbarConfig = {
       ...(isEAForum ? ['ctaButtonToolbarItem'] : ['collapsibleSectionButton']),
       ...(isLWorAF ? ['conditionallyVisibleSectionButton'] : []),
       'footnote',
+      ...(isLWorAF ? ['insertClaimButton'] : []),
     ],
     
     /* At some point the default icon for the block toolbar changed from a
@@ -368,7 +370,8 @@ const postEditorToolbarConfig = {
       // We don't have the collapsible sections plugin in the selected-text toolbar yet,
       // because the behavior of creating a collapsible section is non-obvious and we want to fix it first
       ...(isEAForum ? ['ctaButtonToolbarItem'] : []),
-      'footnote'
+      'footnote',
+      ...(isLWorAF ? ['insertClaimButton'] : []),
     ],
     shouldNotGroupWhenFull: true,
   },
@@ -412,6 +415,7 @@ const CKPostEditor = ({
 }) => {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
+  const { openDialog } = useDialog();
   const post = (document as PostsEdit);
   const isBlockOwnershipMode = isCollaborative && post.collabEditorDialogue;
   const { EditorTopBar, DialogueEditorGuidelines, DialogueEditorFeedback } = Components;
@@ -572,6 +576,7 @@ const CKPostEditor = ({
     conditionalVisibility: conditionalVisibilityPluginConfiguration,
     ctaButton: ctaButtonPluginConfiguration,
     ...cloudinaryConfig,
+    claims: claimsConfig(portalContext, openDialog),
   };
 
   useSyncCkEditorPlaceholder(editorObject, actualPlaceholder);
