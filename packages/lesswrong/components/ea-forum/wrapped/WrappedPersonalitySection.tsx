@@ -105,29 +105,38 @@ const WrappedPersonalitySection = ({classes}: {
     const videoEl = videoRef.current;
     const container = screenshotRef.current;
     if (canvas && videoEl && container) {
-      const renderFrame = createWrappedVideoCanvas(canvas, videoEl, video.brightness);
-      const handler = () => {
-        const {videoWidth, videoHeight} = videoEl;
-        const {clientWidth, clientHeight} = container;
-        // Limit the animations to 400px wide or tall,
-        // to ensure they don't get unreasonably large
-        const scaleByWidth = Math.min(clientWidth, 400) / videoWidth;
-        const scaleByHeight = Math.min(clientHeight / 2, 400) / videoHeight;
-        const scaleFactor = Math.min(scaleByWidth, scaleByHeight);
-        setSize({
-          width: videoWidth * scaleFactor,
-          height: videoHeight * scaleFactor,
-        });
-        const doFrame = () => {
-          renderFrame();
-          if (!videoEl.ended) {
-            requestAnimationFrame(doFrame);
+      try {
+        const renderFrame = createWrappedVideoCanvas(
+          canvas,
+          videoEl,
+          video.brightness,
+        );
+        const handler = () => {
+          const {videoWidth, videoHeight} = videoEl;
+          const {clientWidth, clientHeight} = container;
+          // Limit the animations to 400px wide or tall,
+          // to ensure they don't get unreasonably large
+          const scaleByWidth = Math.min(clientWidth, 400) / videoWidth;
+          const scaleByHeight = Math.min(clientHeight / 2, 400) / videoHeight;
+          const scaleFactor = Math.min(scaleByWidth, scaleByHeight);
+          setSize({
+            width: videoWidth * scaleFactor,
+            height: videoHeight * scaleFactor,
+          });
+          const doFrame = () => {
+            renderFrame();
+            if (!videoEl.ended) {
+              requestAnimationFrame(doFrame);
+            }
           }
+          requestAnimationFrame(doFrame);
         }
-        requestAnimationFrame(doFrame);
+        videoEl.addEventListener("play", handler);
+        return () => videoEl.removeEventListener("play", handler);
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error("Error displaying wrapped video:", e);
       }
-      videoEl.addEventListener("play", handler);
-      return () => videoEl.removeEventListener("play", handler);
     }
   }, [videoRef, video.animation, video.brightness]);
 
