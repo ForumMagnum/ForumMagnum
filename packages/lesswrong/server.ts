@@ -75,6 +75,7 @@ import "./server/scripts/importEAGUserInterests";
 import "./server/scripts/importLocalgroups";
 import "./server/scripts/setUserTagFilters";
 import "./server/scripts/randomRecommendationSamples";
+import "./server/scripts/fundraiserMessaging";
 import './server/scripts/cleanUpDuplicatePostAutosaves';
 import "./server/scripts/generativeModels/generateTaggingPostSets";
 import "./server/scripts/generativeModels/testModGPTOnComments";

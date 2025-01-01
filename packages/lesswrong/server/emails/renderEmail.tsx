@@ -200,17 +200,11 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
     throw new Error("No source email address configured. Make sure \"defaultEmail\" is set in your settings.json.");
   }
   
-  const sitename = forumTitleSetting.get();
-  if (!sitename) {
-    throw new Error("No site name configured. Make sure \"title\" is set in your settings.json.");
-  }
-  const taggedSubject = `[${sitename}] ${subject}`;
-  
   return {
     user,
     to,
     from: fromAddress,
-    subject: isLWorAF ? taggedSubject : subject,
+    subject: subject,
     html: emailDoctype + inlinedHTML,
     text: plaintext,
   }
@@ -257,6 +251,7 @@ export const wrapAndSendEmail = async ({user, force = false, to, from, subject, 
     const email = await wrapAndRenderEmail({ user, to: destinationAddress, from, subject, body });
     const succeeded = await sendEmail(email);
     void logSentEmail(email, user, {succeeded});
+    console.log("succeeded", user?.displayName);
     return succeeded;
   } catch(e) {
     // eslint-disable-next-line no-console
@@ -283,24 +278,24 @@ function validateSheets(sheetsRegistry: typeof SheetsRegistry)
 const enableDevelopmentEmailsSetting = new DatabaseServerSetting<boolean>('enableDevelopmentEmails', false)
 async function sendEmail(renderedEmail: RenderedEmail): Promise<boolean>
 {
-  if (process.env.NODE_ENV === 'production' || enableDevelopmentEmailsSetting.get()) {
-    console.log("//////// Sending email..."); //eslint-disable-line
-    console.log("to: " + renderedEmail.to); //eslint-disable-line
-    console.log("subject: " + renderedEmail.subject); //eslint-disable-line
-    console.log("from: " + renderedEmail.from); //eslint-disable-line
+//   if (process.env.NODE_ENV === 'production' || enableDevelopmentEmailsSetting.get()) {
+//     console.log("//////// Sending email..."); //eslint-disable-line
+//     console.log("to: " + renderedEmail.to); //eslint-disable-line
+//     console.log("subject: " + renderedEmail.subject); //eslint-disable-line
+//     console.log("from: " + renderedEmail.from); //eslint-disable-line
     
     return sendEmailSmtp(renderedEmail);
-  } else {
-    console.log("//////// Pretending to send email (not production and enableDevelopmentEmails is false)"); //eslint-disable-line
-    console.log("to: " + renderedEmail.to); //eslint-disable-line
-    console.log("subject: " + renderedEmail.subject); //eslint-disable-line
-    console.log("from: " + renderedEmail.from); //eslint-disable-line
-    console.log("//////// HTML version"); //eslint-disable-line
-    console.log(renderedEmail.html); //eslint-disable-line
-    console.log("//////// Plain-text version"); //eslint-disable-line
-    console.log(renderedEmail.text); //eslint-disable-line
-    return false;
-  }
+  // } else {
+  //   console.log("//////// Pretending to send email (not production and enableDevelopmentEmails is false)"); //eslint-disable-line
+  //   console.log("to: " + renderedEmail.to); //eslint-disable-line
+  //   console.log("subject: " + renderedEmail.subject); //eslint-disable-line
+  //   console.log("from: " + renderedEmail.from); //eslint-disable-line
+  //   console.log("//////// HTML version"); //eslint-disable-line
+  //   console.log(renderedEmail.html); //eslint-disable-line
+  //   console.log("//////// Plain-text version"); //eslint-disable-line
+  //   console.log(renderedEmail.text); //eslint-disable-line
+  //   return false;
+  // }
 }
 
 export async function logSentEmail(renderedEmail: RenderedEmail, user: DbUser | null, additionalFields: any) {
@@ -338,8 +333,8 @@ export function reasonUserCantReceiveEmails(user: DbUser): string|null
     return "User is deactivated"
   if (!user.email)
     return "No email address";
-  if (!userEmailAddressIsVerified(user))
-    return "Address is not verified";
+  // if (!userEmailAddressIsVerified(user))
+  //   return "Address is not verified";
   if (user.unsubscribeFromAll)
     return "Setting 'Do not send me any emails' is checked";
   
