@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { useForumWrappedContext } from "./hooks";
 import { getWrappedVideo } from "./videos";
+import { Helmet } from "@/lib/utils/componentsWithChildren";
 import range from "lodash/range";
 import classNames from "classnames";
 
@@ -97,20 +98,26 @@ const WrappedApp = ({classes}: {
     return () => window.removeEventListener("keydown", handler);
   }, [goToPreviousSection, goToNextSection]);
 
+  const thinkingVideo = getWrappedVideo("thinking");
+  const personalityVideo = getWrappedVideo(personality);
+
   const {ForumIcon} = Components;
   return (
     <div className={classes.root}>
+      <Helmet>
+        <link rel="prefetch" href={personalityVideo.frame} />
+      </Helmet>
       <div className={classes.app}>
         <div className={classes.offscreenVideos}>
           {/* Preload videos offscreen so they'll be ready when we need them */}
           <video
-            src={getWrappedVideo("thinking").src}
+            src={thinkingVideo.src}
             ref={thinkingVideoRef}
             muted
             crossOrigin="anonymous"
           />
           <video
-            src={getWrappedVideo(personality).src}
+            src={personalityVideo.src}
             ref={personalityVideoRef}
             muted
             crossOrigin="anonymous"

@@ -77,13 +77,9 @@ type WrappedVideo = {
    */
   src: string,
   /**
-   * This is be the cloudinary URL of a static image of the last frame of the
-   * video. This can be generated with:
-   *   ffmpeg -sseof -3 -i input.mp4 -update 1 -q:v 1 output.jpg
+   * Static image with a transparent background for use on the summary page
    */
   frame: string,
-  /** The same image as above, but cropped to be smaller for the summary */
-  frameCropped: string,
   brightness: number,
 }
 
@@ -93,8 +89,7 @@ export const getWrappedVideo = (personality: string): WrappedVideo => {
       animation: "thinking",
       color: "transparent",
       src: prefix("Bulby-thinking-151515-short.mp4", "video"),
-      frame: prefix("Bulby-thinking-frame.jpg", "image"),
-      frameCropped: prefix("Bulby-thinking-frame.jpg", "image"),
+      frame: prefix("Bulbythinking-frame.png", "image"),
       brightness: 1,
     };
   }
@@ -105,8 +100,7 @@ export const getWrappedVideo = (personality: string): WrappedVideo => {
     animation,
     color,
     src: prefix(`${animation}-${color}.mp4`, "video"),
-    frame: prefix(`${animation}-${color}-frame.jpg`, "image"),
-    frameCropped: prefix(`${animation}-${color}-frame-cropped.jpg`, "image"),
+    frame: prefix(`${animation}-alpha.png`, "image"),
     brightness: brightnesses[color]?.[animation] ?? 1,
   };
 }

@@ -28,9 +28,10 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const WrappedShareButton = ({name, screenshotRef, className, classes}: {
+const WrappedShareButton = ({name, screenshotRef, onRendered, className, classes}: {
   name: string,
   screenshotRef: RefObject<HTMLElement>,
+  onRendered?: (canvas: HTMLCanvasElement) => void,
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -42,6 +43,7 @@ const WrappedShareButton = ({name, screenshotRef, className, classes}: {
         allowTaint: true,
         useCORS: true,
       });
+      onRendered?.(canvasElement);
       const dataUrl = canvasElement.toDataURL("image/png");
       if (isMobile() && !!navigator.canShare) {
         const data = await fetch(dataUrl);
@@ -61,7 +63,7 @@ const WrappedShareButton = ({name, screenshotRef, className, classes}: {
       link.href = dataUrl;
       link.click();
     }
-  }, [name, screenshotRef]);
+  }, [name, screenshotRef, onRendered]);
 
   const {ForumIcon} = Components;
   return (

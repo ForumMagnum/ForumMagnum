@@ -1,6 +1,7 @@
-import React, { useRef } from "react";
+import React, { useCallback, useRef } from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { Link } from "@/lib/reactRouterWrapper";
+import { useTheme } from "@/components/themes/useTheme";
 import { tagGetUrl } from "@/lib/collections/tags/helpers";
 import { lightbulbIcon } from "@/components/icons/lightbulbIcon";
 import { getUserProfileLink } from "./wrappedHelpers";
@@ -8,11 +9,15 @@ import { useForumWrappedContext } from "./hooks";
 import { getWrappedVideo } from "./videos";
 import classNames from "classnames";
 
+const TOP_PADDING = 12;
+const BOTTOM_PADDING = 14;
+const IMAGE_HEIGHT = 120;
+
 const styles = (theme: ThemeType) => ({
   root: {
     width: "100%",
     maxWidth: 500,
-    padding: '12px 24px 14px',
+    padding: `${TOP_PADDING}px 24px ${BOTTOM_PADDING}px`,
     color: theme.palette.text.alwaysWhite,
     display: "flex",
     flexDirection: "column",
@@ -26,16 +31,16 @@ const styles = (theme: ThemeType) => ({
   },
   transparent: {},
   grey: {
-    background: theme.palette.wrapped.personalityGrey,
+    background: theme.palette.wrapped.personality.grey,
   },
   red: {
-    background: theme.palette.wrapped.personalityRed,
+    background: theme.palette.wrapped.personality.red,
   },
   blue: {
-    background: theme.palette.wrapped.personalityBlue,
+    background: theme.palette.wrapped.personality.blue,
   },
   green: {
-    background: theme.palette.wrapped.personalityGreen,
+    background: theme.palette.wrapped.personality.green,
   },
   row: {
     display: "flex",
@@ -47,7 +52,7 @@ const styles = (theme: ThemeType) => ({
     justifyContent: "center",
   },
   image: {
-    height: 120,
+    height: IMAGE_HEIGHT,
   },
   heading: {
     fontSize: 12,
@@ -121,9 +126,31 @@ const WrappedSummarySection = ({classes}: {
     year,
     data: {totalSeconds, postsReadCount, karmaChange, mostReadAuthors, mostReadTopics, personality},
   } = useForumWrappedContext();
-  const {color, frameCropped, brightness} = getWrappedVideo(personality);
+  const {color, frame} = getWrappedVideo(personality);
   const screenshotRef = useRef<HTMLDivElement>(null);
+  const imageRef = useRef<HTMLImageElement>(null);
   const hoursSpent = (totalSeconds / 3600).toFixed(1)
+  const theme = useTheme();
+
+  // There's a horrible line of white background at the bottom of the image
+  // because of a bug in html2canvas - cover it up
+  const onRendered = useCallback((canvas: HTMLCanvasElement) => {
+    try {
+      const img = imageRef.current;
+      const ctx = canvas.getContext("2d");
+      if (img && ctx) {
+        const dpr = window.devicePixelRatio || 1;
+        const coverHeight = (BOTTOM_PADDING * dpr) - 1;
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.fillStyle = theme.palette.wrapped.personality[color];
+        ctx.fillRect(0, canvas.height - coverHeight, canvas.width, coverHeight * 2);
+      }
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error(e);
+    }
+  }, [color, theme]);
+
   const {
     WrappedSection, UsersProfileImage, CoreTagIcon, WrappedShareButton,
   } = Components;
@@ -133,9 +160,10 @@ const WrappedSummarySection = ({classes}: {
         <div>
           <div className={classes.imageContainer}>
             <img
-              src={frameCropped}
+              src={frame}
               className={classes.image}
-              style={{filter: `brightness(${brightness})`}}
+              crossOrigin="anonymous"
+              ref={imageRef}
             />
           </div>
           <div className={classes.heading}>EA Forum personality</div>
@@ -196,7 +224,11 @@ const WrappedSummarySection = ({classes}: {
         </div>
       </div>
       <div className={classes.shareContainer}>
-        <WrappedShareButton name="Summary" screenshotRef={screenshotRef} />
+        <WrappedShareButton
+          name="Summary"
+          screenshotRef={screenshotRef}
+          onRendered={onRendered}
+        />
       </div>
     </WrappedSection>
   );

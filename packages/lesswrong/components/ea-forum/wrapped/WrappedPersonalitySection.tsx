@@ -23,16 +23,16 @@ const styles = (theme: ThemeType) => ({
   },
   transparent: {},
   grey: {
-    background: theme.palette.wrapped.personalityGrey,
+    background: theme.palette.wrapped.personality.grey,
   },
   red: {
-    background: theme.palette.wrapped.personalityRed,
+    background: theme.palette.wrapped.personality.red,
   },
   blue: {
-    background: theme.palette.wrapped.personalityBlue,
+    background: theme.palette.wrapped.personality.blue,
   },
   green: {
-    background: theme.palette.wrapped.personalityGreen,
+    background: theme.palette.wrapped.personality.green,
   },
   canvasContainer: {
     flexGrow: 1,
