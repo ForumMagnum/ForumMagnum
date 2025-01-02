@@ -1,7 +1,6 @@
 import React, { MouseEvent, useCallback, useEffect, useRef, useState } from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { useTheme } from "@/components/themes/useTheme";
-import { useIsAboveBreakpoint } from "@/components/hooks/useScreenWidth";
 import { WRAPPED_SHARE_BUTTON_WIDTH } from "./WrappedShareButton";
 import { useForumWrappedContext } from "./hooks";
 import { getWrappedVideo } from "./videos";
@@ -94,7 +93,6 @@ const WrappedPersonalitySection = ({classes}: {
   const screenshotRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({width: 200, height: 200});
   const theme = useTheme();
-  const isDesktop = useIsAboveBreakpoint("md");
 
   const isThinking = video.animation === "thinking";
   const videoRef = isThinking ? thinkingVideoRef : personalityVideoRef;
@@ -112,8 +110,8 @@ const WrappedPersonalitySection = ({classes}: {
     if (videoElem && displayElem && container) {
       const {videoWidth, videoHeight} = videoElem;
       const {clientWidth, clientHeight} = container;
-      const maxSize = isDesktop ? 600 : 400;
-      const rootHeight = isDesktop ? clientHeight * 0.75 : clientHeight * 0.5;
+      const maxSize = 600;
+      const rootHeight = clientHeight * 0.75;
       const scaleByWidth = Math.min(clientWidth, maxSize) / videoWidth;
       const scaleByHeight = Math.min(rootHeight, maxSize) / videoHeight;
       const scaleFactor = Math.min(scaleByWidth, scaleByHeight);
@@ -122,7 +120,7 @@ const WrappedPersonalitySection = ({classes}: {
         height: videoHeight * scaleFactor,
       });
     }
-  }, [videoRef, isDesktop]);
+  }, [videoRef]);
 
   useEffect(() => {
     window.addEventListener("resize", resize);
