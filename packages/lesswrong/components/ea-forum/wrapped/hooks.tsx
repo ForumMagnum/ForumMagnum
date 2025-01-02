@@ -271,7 +271,6 @@ const allSections: WrappedSection[] = [
     component: Components.WrappedReceivedReactsSection,
     predicate: (data) => getTotalReactsReceived(data) > 5,
   },
-  {component: Components.WrappedThankYouSection},
   {component: Components.WrappedSummarySection},
   {component: Components.WrappedRecommendationsSection},
   {component: Components.WrappedMostValuablePostsSection},
