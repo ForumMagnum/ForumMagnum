@@ -11,6 +11,7 @@ import './permissions';
 // ## Voting
 import './voting/voteTypes';
 import './voting/votingSystems';
+import './voting/reactionsAndLikes';
 import './voting/namesAttachedReactions';
 
 //MomentJS configuration

@@ -15,6 +15,15 @@ registerFragment(`
     preview
     index
     legacyData
+
+    baseScore
+    extendedScore
+    score
+    afBaseScore
+    afExtendedScore
+    voteCount
+    currentUserVote
+    currentUserExtendedVote
   }
 `);
 
@@ -90,5 +99,11 @@ registerFragment(`
     arbitalLinkedPages {
       ...ArbitalLinkedPagesFragment
     }
+  }
+`);
+
+registerFragment(`
+  fragment WithVoteMultiDocument on MultiDocument {
+    ...MultiDocumentMinimumInfo
   }
 `);

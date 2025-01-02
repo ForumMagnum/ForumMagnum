@@ -18,16 +18,12 @@ import truncateTagDescription from "../../lib/utils/truncateTagDescription";
 import { getTagStructuredData } from "./TagPageRouter";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import DeferRender from "../common/DeferRender";
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
 import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from "./TagPageExports";
 import { useStyles, defineStyles } from "../hooks/useStyles";
 import { HEADER_HEIGHT } from "../common/Header";
 import { MAX_COLUMN_WIDTH } from "../posts/PostsPage/PostsPage";
 import { DocumentContributorsInfo, DocumentContributorWithStats, MAIN_TAB_ID, TagLens, useTagLenses } from "@/lib/arbital/useTagLenses";
 import { quickTakesTagsEnabledSetting } from "@/lib/publicSettings";
-import { TagContributor } from "./arbitalTypes";
-import { TagEditorContext, TagEditorProvider } from "./TagEditorContext";
 import { isClient } from "@/lib/executionEnvironment";
 import qs from "qs";
 import { useTagOrLens } from "../hooks/useTagOrLens";
@@ -176,29 +172,6 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   description: {
     lineHeight: "21px",
   },
-  lensTabsContainer: {
-    gap: '4px',
-    [theme.breakpoints.up('md')]: {
-      alignItems: 'flex-end',
-    },
-    [theme.breakpoints.down('sm')]: {
-      gap: '2px',
-      flexWrap: 'wrap-reverse',
-      display: 'flex',
-      flexDirection: 'row',
-    },
-  },
-  lensTabContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '4px',
-    [theme.breakpoints.down('sm')]: {
-      maxWidth: '40%',
-      // TODO: maybe have a conditional flex-grow for 2 vs. 3+ lens tabs
-      flexGrow: 1,
-      gap: '0px',
-    },
-  },
   aboveLensTab: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
@@ -209,91 +182,6 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]: {
       display: 'none',
     },
-  },
-  lensTab: {
-    minWidth: 'unset',
-    borderWidth: 1,
-  },
-  lensTabRootOverride: {
-    [theme.breakpoints.down('sm')]: {
-      minHeight: 'unset',
-      height: '100%',
-      paddingTop: 2,
-      paddingBottom: 2,
-    },
-    borderTopLeftRadius: theme.borderRadius.small * 2,
-    borderTopRightRadius: theme.borderRadius.small * 2,
-  },
-  tabLabelContainerOverride: {
-    paddingLeft: 16,
-    paddingRight: 16,
-    [theme.breakpoints.down('sm')]: {
-      paddingLeft: 8,
-      paddingRight: 8,
-      paddingTop: 0,
-      paddingBottom: 4,
-      width: '100%',
-    },
-  },
-  lensLabel: {
-    display: 'flex',
-    flexDirection: 'column',
-    minHeight: 48,
-    [theme.breakpoints.up('md')]: {
-    },
-    alignItems: 'start',
-    justifyContent: 'center',
-    [theme.breakpoints.down('sm')]: {
-      height: 'min-content',
-      gap: '4px',
-    },
-  },
-  lensTitle: {
-    ...theme.typography.subtitle,
-    textTransform: 'none',
-    marginBottom: 0,
-  },
-  lensSubtitle: {
-    ...theme.typography.subtitle,
-    textTransform: 'none',
-    fontSize: '1em',
-    fontWeight: 400,
-    [theme.breakpoints.down('sm')]: {
-      width: 'fit-content',
-      display: 'block',
-      textAlign: 'left',
-      marginBottom: 1,
-    },
-  },
-  selectedLens: {
-    [theme.breakpoints.down('sm')]: {
-      // border: theme.palette.border.grey400,
-    },
-    [theme.breakpoints.up('md')]: {
-      borderStyle: 'solid',
-      // These don't work with borderImageSource, maybe TODO
-      // borderTopLeftRadius: theme.borderRadius.small * 2,
-      // borderTopRightRadius: theme.borderRadius.small * 2,
-      borderWidth: '1px 1px 0 1px',
-      borderImageSource: `linear-gradient(to bottom, 
-        ${theme.palette.grey[400]} 0%, 
-        rgba(0,0,0,0) 100%
-      )`,
-      borderImageSlice: '1',
-      // Needed to maintain solid top border
-      borderTop: theme.palette.border.grey400
-    },
-  },
-  nonSelectedLens: {
-    background: theme.palette.panelBackground.tagLensTab,
-    // Needed to avoid annoying shifting of other tabs when one is selected
-    [theme.breakpoints.up('md')]: {
-      borderStyle: 'solid',
-      borderColor: theme.palette.background.transparent,
-    }
-  },
-  hideMuiTabIndicator: {
-    display: 'none',
   },
   contributorRow: {
     ...theme.typography.body1,
@@ -622,29 +510,6 @@ const PostsListHeading: FC<{
     </div>
   );
 }
-
-// We need to pass through all of the props that Tab accepts in order to maintain the functionality of Tab switching/etc
-const LensTab = ({ key, value, label, lens, isSelected, ...tabProps }: {
-  key: string,
-  value: string,
-  label: React.ReactNode,
-  lens: TagLens,
-  isSelected: boolean,
-} & Omit<React.ComponentProps<typeof Tab>, 'key' | 'value' | 'label'>) => {
-  const classes = useStyles(styles);
-  return (
-    <div key={key} className={classes.lensTabContainer}>
-      <Tab
-        className={classNames(classes.lensTab, isSelected && classes.selectedLens, !isSelected && classes.nonSelectedLens)}
-        key={key}
-        value={value}
-        label={label}
-        classes={{ root: classes.lensTabRootOverride, labelContainer: classes.tabLabelContainerOverride }}
-        {...tabProps}
-      ></Tab>
-    </div>
-  );
-};
 
 const EditLensForm = ({lens, setFormDirty}: {
   lens: TagLens,
@@ -1061,7 +926,7 @@ const TagPage = () => {
   const contributorsLimit = 16;
 
   const { tagFragmentName, tagQueryOptions } = getTagQueryOptions(revision, lensSlug, contributorsLimit);
-  const { tag, loadingTag, lens, loadingLens } = useTagOrLens(slug, tagFragmentName, tagQueryOptions);
+  const { tag, loadingTag, tagError, lens, loadingLens } = useTagOrLens(slug, tagFragmentName, tagQueryOptions);
 
   const [truncated, setTruncated] = useState(false)
   const [hoveredContributorId, setHoveredContributorId] = useState<string|null>(null);
@@ -1162,6 +1027,9 @@ const TagPage = () => {
 
   if (loadingTag && !tag)
     return <Loading/>
+  if (tagError) {
+    return <Loading/> //TODO
+  }
   if (!tag) {
     if (loadingLens && !lens) {
       return <Loading/>
@@ -1380,26 +1248,11 @@ const TagPage = () => {
         You are viewing version {revision} of this page.
         Click here to view the latest version.
       </Link>}
-      {lenses.length > 1
-        ?  (
-          <Tabs
-            value={selectedLens?._id}
-            onChange={(e, newLensId) => switchLens(newLensId)}
-            classes={{ flexContainer: classes.lensTabsContainer, indicator: classes.hideMuiTabIndicator }}
-          >
-            {lenses.map(lens => {
-              const label = <div key={lens._id} className={classes.lensLabel}>
-                <span className={classes.lensTitle}>{lens.tabTitle}</span>
-                {lens.tabSubtitle && <span className={classes.lensSubtitle}>{lens.tabSubtitle}</span>}
-              </div>;
-
-              const isSelected = selectedLens?._id === lens._id;
-
-              return <LensTab key={lens._id} value={lens._id} label={label} lens={lens} isSelected={isSelected} />;
-            })}
-          </Tabs>
-        )
-        : <></>}
+      {(lenses.length > 1) && <Components.LensTabBar
+        lenses={lenses}
+        selectedLens={selectedLens}
+        switchLens={switchLens}
+      />}
       <div className={classes.titleRow}>
         <Typography variant="display3" className={classes.title}>
           {tag.deleted ? "[Deleted] " : ""}{displayedTagTitle}

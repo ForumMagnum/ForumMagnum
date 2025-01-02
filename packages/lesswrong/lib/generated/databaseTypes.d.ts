@@ -719,6 +719,14 @@ interface DbMultiDocument extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   contents_latest: string | null
   pingbacks: any /*{"definitions":[{}]}*/
+  voteCount: number
+  baseScore: number
+  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  score: number
+  inactive: boolean
+  afBaseScore: number | null
+  afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  afVoteCount: number | null
 }
 
 type NotificationsCollection = CollectionBase<"Notifications">;
@@ -1470,6 +1478,14 @@ interface DbTag extends DbObject {
   subforumWelcomeText_latest: string | null
   moderationGuidelines: EditableFieldContents | null
   moderationGuidelines_latest: string | null
+  voteCount: number
+  baseScore: number
+  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  score: number
+  inactive: boolean
+  afBaseScore: number | null
+  afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  afVoteCount: number | null
 }
 
 type TweetsCollection = CollectionBase<"Tweets">;

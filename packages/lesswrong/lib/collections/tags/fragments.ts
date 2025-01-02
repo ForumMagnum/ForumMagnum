@@ -21,6 +21,15 @@ registerFragment(`
     noindex
     isArbitalImport
     isPlaceholderPage
+
+    baseScore
+    extendedScore
+    score
+    afBaseScore
+    afExtendedScore
+    voteCount
+    currentUserVote
+    currentUserExtendedVote
   }
 `);
 

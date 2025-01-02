@@ -17,23 +17,11 @@ export interface DocumentContributorsInfo {
   totalCount: number;
 }
 
-export interface TagLens {
-  _id: string;
-  collectionName: string;
-  fieldName: string;
-  index: number;
+export type TagLens = MultiDocumentMinimumInfo & {
   contents: TagFragment_description | TagRevisionFragment_description | RevisionDisplay | null;
   tableOfContents: ToCData | null;
   contributors: DocumentContributorsInfo | null;
-  parentDocumentId: string;
-  title: string;
   preview: string | null;
-  tabTitle: string;
-  tabSubtitle: string | null;
-  slug: string;
-  oldSlugs: string[];
-  userId: string;
-  legacyData: AnyBecauseHard;
   originalLensDocument: MultiDocumentContentDisplay | MultiDocumentWithContributors | null;
   arbitalLinkedPages: ArbitalLinkedPagesFragment | null;
 }
@@ -65,6 +53,15 @@ function getDefaultLens(tag: TagPageWithArbitalContentFragment | TagPageRevision
     legacyData: {},
     originalLensDocument: null,
     arbitalLinkedPages: 'arbitalLinkedPages' in tag ? tag.arbitalLinkedPages : null,
+
+    baseScore: tag.baseScore,
+    extendedScore: tag.extendedScore,
+    score: tag.score,
+    afBaseScore: tag.afBaseScore,
+    afExtendedScore: tag.afExtendedScore,
+    voteCount: tag.voteCount,
+    currentUserVote: tag.currentUserVote,
+    currentUserExtendedVote: tag.currentUserExtendedVote,
   }
 }
 

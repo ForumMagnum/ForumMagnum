@@ -60,7 +60,7 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
 
   let newDocument = {
     ...document,
-    ...(await recalculateDocumentScores(document, context)),
+    ...(await recalculateDocumentScores(document, collection.collectionName, context)),
   }
   
   // update document score & set item as active
@@ -190,7 +190,7 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
 
     await onVoteCancel(newDocument, vote, collection, user);
   }
-  const newScores = await recalculateDocumentScores(document, context);
+  const newScores = await recalculateDocumentScores(document, collection.collectionName, context);
   await collection.rawUpdateOne(
     {_id: document._id},
     {
@@ -284,7 +284,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
       }
     }
     
-    const votingSystem = await getVotingSystemForDocument(document, context);
+    const votingSystem = await getVotingSystemForDocument(document, collectionName, context);
     if (extendedVote && votingSystem.isAllowedExtendedVote) {
       const oldExtendedScore = document.extendedScore;
       const extendedVoteCheckResult = votingSystem.isAllowedExtendedVote(user, document, oldExtendedScore, extendedVote)
@@ -565,7 +565,7 @@ function voteHasAnyEffect(votingSystem: VotingSystem, vote: DbVote, af: boolean)
   }
 }
 
-export const recalculateDocumentScores = async (document: VoteableType, context: ResolverContext) => {
+export const recalculateDocumentScores = async (document: VoteableType, collectionName: VoteableCollectionName, context: ResolverContext) => {
   const votes = await Votes.find(
     {
       documentId: document._id,
@@ -586,7 +586,7 @@ export const recalculateDocumentScores = async (document: VoteableType, context:
   
   const afVotes = _.filter(votes, v=>userCanDo(usersThatVotedById[v.userId], "votes.alignment"));
 
-  const votingSystem = await getVotingSystemForDocument(document, context);
+  const votingSystem = await getVotingSystemForDocument(document, collectionName, context);
   const nonblankVoteCount = votes.filter(v => (!!v.voteType && v.voteType !== "neutral") || votingSystem.isNonblankExtendedVote(v)).length;
   
   const baseScore = sumBy(votes, v=>v.power)

@@ -2602,6 +2602,14 @@ interface TagBasicInfo { // fragment on Tags
   readonly noindex: boolean,
   readonly isArbitalImport: boolean|null,
   readonly isPlaceholderPage: boolean,
+  readonly baseScore: number,
+  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly score: number,
+  readonly afBaseScore: number,
+  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly voteCount: number,
+  readonly currentUserVote: string|null,
+  readonly currentUserExtendedVote: any,
 }
 
 interface TagDetailsFragment extends TagBasicInfo { // fragment on Tags
@@ -3969,6 +3977,14 @@ interface MultiDocumentMinimumInfo { // fragment on MultiDocuments
   readonly preview: string | null,
   readonly index: number,
   readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly baseScore: number,
+  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly score: number,
+  readonly afBaseScore: number,
+  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly voteCount: number,
+  readonly currentUserVote: string|null,
+  readonly currentUserExtendedVote: any,
 }
 
 interface MultiDocumentContentDisplay extends MultiDocumentMinimumInfo { // fragment on MultiDocuments
@@ -3997,6 +4013,9 @@ interface MultiDocumentRevision extends MultiDocumentMinimumInfo { // fragment o
 interface MultiDocumentWithContributorsRevision extends MultiDocumentRevision { // fragment on MultiDocuments
   readonly contributors: any,
   readonly arbitalLinkedPages: ArbitalLinkedPagesFragment,
+}
+
+interface WithVoteMultiDocument extends MultiDocumentMinimumInfo { // fragment on MultiDocuments
 }
 
 interface ElectionCandidateBasicInfo { // fragment on ElectionCandidates
@@ -4668,6 +4687,7 @@ interface FragmentTypes {
   MultiDocumentWithContributors: MultiDocumentWithContributors
   MultiDocumentRevision: MultiDocumentRevision
   MultiDocumentWithContributorsRevision: MultiDocumentWithContributorsRevision
+  WithVoteMultiDocument: WithVoteMultiDocument
   ElectionCandidateBasicInfo: ElectionCandidateBasicInfo
   ElectionCandidateSimple: ElectionCandidateSimple
   WithVoteElectionCandidate: WithVoteElectionCandidate
@@ -4776,7 +4796,7 @@ interface FragmentTypesByCollection {
   ModerationTemplates: "ModerationTemplatesDefaultFragment"|"ModerationTemplateFragment"
   CurationNotices: "CurationNoticesDefaultFragment"|"CurationNoticesFragment"
   UserRateLimits: "UserRateLimitsDefaultFragment"|"UserRateLimitDisplay"
-  MultiDocuments: "MultiDocumentsDefaultFragment"|"MultiDocumentMinimumInfo"|"MultiDocumentContentDisplay"|"MultiDocumentEdit"|"MultiDocumentParentDocument"|"MultiDocumentWithContributors"|"MultiDocumentRevision"|"MultiDocumentWithContributorsRevision"
+  MultiDocuments: "MultiDocumentsDefaultFragment"|"MultiDocumentMinimumInfo"|"MultiDocumentContentDisplay"|"MultiDocumentEdit"|"MultiDocumentParentDocument"|"MultiDocumentWithContributors"|"MultiDocumentRevision"|"MultiDocumentWithContributorsRevision"|"WithVoteMultiDocument"
   ElicitQuestions: "ElicitQuestionsDefaultFragment"|"ElicitQuestionFragment"
   ElicitQuestionPredictions: "ElicitQuestionPredictionsDefaultFragment"
   DialogueChecks: "DialogueChecksDefaultFragment"|"DialogueCheckInfo"
@@ -5055,6 +5075,7 @@ interface CollectionNamesByFragmentName {
   MultiDocumentWithContributors: "MultiDocuments"
   MultiDocumentRevision: "MultiDocuments"
   MultiDocumentWithContributorsRevision: "MultiDocuments"
+  WithVoteMultiDocument: "MultiDocuments"
   ElectionCandidateBasicInfo: "ElectionCandidates"
   ElectionCandidateSimple: "ElectionCandidates"
   WithVoteElectionCandidate: "ElectionCandidates"
