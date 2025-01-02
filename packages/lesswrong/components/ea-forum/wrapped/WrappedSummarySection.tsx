@@ -11,7 +11,10 @@ import classNames from "classnames";
 
 const TOP_PADDING = 12;
 const BOTTOM_PADDING = 14;
-const IMAGE_HEIGHT = 120;
+const DESKTOP_IMAGE_HEIGHT = 300;
+const MOBILE_IMAGE_HEIGHT = 120;
+const DESKTOP_GAP = "32px";
+const MOBILE_GAP = "20px";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -21,12 +24,15 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.text.alwaysWhite,
     display: "flex",
     flexDirection: "column",
-    gap: "20px",
+    gap: MOBILE_GAP,
     textAlign: "left",
     margin: "0 auto 20px",
-    [theme.breakpoints.up("lg")]: {
+    [theme.breakpoints.up("md")]: {
+      maxWidth: 800,
       marginTop: 40,
       marginBottom: 40,
+      padding: "32px 28px 22px",
+      gap: DESKTOP_GAP,
     },
   },
   transparent: {},
@@ -42,6 +48,26 @@ const styles = (theme: ThemeType) => ({
   green: {
     background: theme.palette.wrapped.personality.green,
   },
+  content: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-start",
+    gap: MOBILE_GAP,
+    [theme.breakpoints.up("md")]: {
+      gap: DESKTOP_GAP,
+      flexDirection: "row-reverse",
+      alignItems: "center",
+    },
+  },
+  info: {
+    display: "flex",
+    flexDirection: "column",
+    gap: MOBILE_GAP,
+    flexGrow: 1,
+    [theme.breakpoints.up("md")]: {
+      gap: DESKTOP_GAP,
+    },
+  },
   row: {
     display: "flex",
     flexDirection: "row",
@@ -50,27 +76,58 @@ const styles = (theme: ThemeType) => ({
   imageContainer: {
     display: "flex",
     justifyContent: "center",
+    width: "100%",
+    [theme.breakpoints.up("md")]: {
+      width: "unset",
+    },
   },
   image: {
-    height: IMAGE_HEIGHT,
+    height: MOBILE_IMAGE_HEIGHT,
+    [theme.breakpoints.up("md")]: {
+      height: DESKTOP_IMAGE_HEIGHT,
+    },
   },
   heading: {
     fontSize: 12,
-    lineHeight: '15px',
+    lineHeight: "15px",
     fontWeight: 500,
     marginBottom: 2,
+    [theme.breakpoints.up("md")]: {
+      fontSize: 13,
+      lineHeight: "16px",
+    },
   },
   personality: {
     fontSize: 22,
-    lineHeight: '28px',
+    lineHeight: "28px",
     fontWeight: 700,
     letterSpacing: "-0.48px",
+    [theme.breakpoints.up("md")]: {
+      fontSize: 32,
+      lineHeight: "38px",
+      letterSpacing: "-0.64px",
+    },
   },
   stat: {
     fontSize: 22,
-    lineHeight: '22px',
+    lineHeight: "22px",
     fontWeight: 700,
-    letterSpacing: "-0.64px",
+    letterSpacing: "-0.48px",
+    [theme.breakpoints.up("md")]: {
+      fontSize: 32,
+      lineHeight: "32px",
+      letterSpacing: "-0.64px",
+    },
+  },
+  lists: {
+    display: "flex",
+    flexDirection: "column",
+    gap: MOBILE_GAP,
+    [theme.breakpoints.up("md")]: {
+      gap: DESKTOP_GAP,
+      flexDirection: "row",
+      justifyContent: "space-between",
+    },
   },
   list: {
     display: "flex",
@@ -124,7 +181,14 @@ const WrappedSummarySection = ({classes}: {
 }) => {
   const {
     year,
-    data: {totalSeconds, postsReadCount, karmaChange, mostReadAuthors, mostReadTopics, personality},
+    data: {
+      totalSeconds,
+      postsReadCount,
+      karmaChange,
+      mostReadAuthors,
+      mostReadTopics,
+      personality,
+    },
   } = useForumWrappedContext();
   const {color, frame} = getWrappedVideo(personality);
   const screenshotRef = useRef<HTMLDivElement>(null);
@@ -155,9 +219,12 @@ const WrappedSummarySection = ({classes}: {
     WrappedSection, UsersProfileImage, CoreTagIcon, WrappedShareButton,
   } = Components;
   return (
-    <WrappedSection pageSectionContext="summary" noPadding>
-      <div className={classNames(classes.root, classes[color])} ref={screenshotRef}>
-        <div>
+    <WrappedSection pageSectionContext="summary" noPadding fullWidth>
+      <div
+        className={classNames(classes.root, classes[color])}
+        ref={screenshotRef}
+      >
+        <div className={classes.content}>
           <div className={classes.imageContainer}>
             <img
               src={frame}
@@ -166,58 +233,68 @@ const WrappedSummarySection = ({classes}: {
               ref={imageRef}
             />
           </div>
-          <div className={classes.heading}>EA Forum personality</div>
-          <div className={classes.personality}>{personality}</div>
-        </div>
-        <div className={classes.row}>
-          <div>
-            <div className={classes.heading}>Hours spent</div>
-            <div className={classes.stat}>{hoursSpent}</div>
-          </div>
-          <div>
-            <div className={classes.heading}>Posts read</div>
-            <div className={classes.stat}>{postsReadCount}</div>
-          </div>
-          {karmaChange > 0 && (
+          <div className={classes.info}>
             <div>
-              <div className={classes.heading}>Karma</div>
-              <div className={classes.stat}>+{karmaChange}</div>
+              <div className={classes.heading}>EA Forum personality</div>
+              <div className={classes.personality}>{personality}</div>
             </div>
-          )}
+            <div className={classes.row}>
+              <div>
+                <div className={classes.heading}>Hours spent</div>
+                <div className={classes.stat}>{hoursSpent}</div>
+              </div>
+              <div>
+                <div className={classes.heading}>Posts read</div>
+                <div className={classes.stat}>{postsReadCount}</div>
+              </div>
+              {karmaChange > 0 && (
+                <div>
+                  <div className={classes.heading}>Karma</div>
+                  <div className={classes.stat}>+{karmaChange}</div>
+                </div>
+              )}
+            </div>
+            {(mostReadAuthors.length > 0 || mostReadTopics.length > 0) &&
+              <div className={classes.lists}>
+                {mostReadAuthors.length > 0 &&
+                  <div>
+                    <div className={classes.heading}>Most-read authors</div>
+                    <div className={classes.list}>
+                      {mostReadAuthors.slice(0,3).map((author) => (
+                        <div key={author.slug} className={classes.listItem}>
+                          <UsersProfileImage size={20} user={author} />
+                          <Link to={getUserProfileLink(author.slug, year)}>
+                            {author.displayName}
+                          </Link>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                }
+                {mostReadTopics.length > 0 &&
+                  <div>
+                    <div className={classes.heading}>Most-read topics</div>
+                    <div className={classes.list}>
+                      {mostReadTopics.map((topic) => (
+                        <div key={topic.slug} className={classes.listItem}>
+                          <CoreTagIcon
+                            tag={topic}
+                            fallbackNode={
+                              <div className={classes.iconPlaceholder} />
+                            }
+                          />
+                          <Link to={tagGetUrl({slug: topic.slug})}>
+                            {topic.name}
+                          </Link>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
         </div>
-        {mostReadAuthors.length > 0 &&
-          <div>
-            <div className={classes.heading}>Most-read authors</div>
-            <div className={classes.list}>
-              {mostReadAuthors.slice(0,3).map((author) => (
-                <div key={author.slug} className={classes.listItem}>
-                  <UsersProfileImage size={20} user={author} />
-                  <Link to={getUserProfileLink(author.slug, year)}>
-                    {author.displayName}
-                  </Link>
-                </div>
-              ))}
-            </div>
-          </div>
-        }
-        {mostReadTopics.length > 0 &&
-          <div>
-            <div className={classes.heading}>Most-read topics</div>
-            <div className={classes.list}>
-              {mostReadTopics.map((topic) => (
-                <div key={topic.slug} className={classes.listItem}>
-                  <CoreTagIcon
-                    tag={topic}
-                    fallbackNode={<div className={classes.iconPlaceholder} />}
-                  />
-                  <Link to={tagGetUrl({slug: topic.slug})}>
-                    {topic.name}
-                  </Link>
-                </div>
-              ))}
-            </div>
-          </div>
-        }
         <div className={classes.footer}>
           <div className={classes.footerLightbulb}>{lightbulbIcon}</div>
           <div>forum.effectivealtruism.org/wrapped</div>

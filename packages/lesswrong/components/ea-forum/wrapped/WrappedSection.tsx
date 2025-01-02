@@ -12,10 +12,12 @@ const styles = (theme: ThemeType) => ({
     width: "100%",
   },
   container: {
-    width: 700,
     maxWidth: "100%",
     minHeight: "100%",
     margin: "0 auto",
+  },
+  maxWidth: {
+    width: 700,
   },
   padding: {
     paddingTop: 40 + theme.spacing.mainLayoutPaddingTop,
@@ -50,6 +52,7 @@ const styles = (theme: ThemeType) => ({
 const WrappedSection = ({
   pageSectionContext,
   align = "center",
+  fullWidth,
   fullHeight,
   noPadding,
   children,
@@ -58,6 +61,7 @@ const WrappedSection = ({
 }: {
   pageSectionContext: string,
   align?: "left" | "center",
+  fullWidth?: boolean,
   fullHeight?: boolean,
   noPadding?: boolean,
   children?: ReactNode,
@@ -74,7 +78,10 @@ const WrappedSection = ({
         align === "center" && classes.center,
         fullHeight && classes.fullHeight,
       )}>
-        <div className={classes.container}>
+        <div className={classNames(
+          classes.container,
+          !fullWidth && classes.maxWidth,
+        )}>
           {children}
         </div>
       </section>
