@@ -8,12 +8,17 @@ import { useCurrentUser } from '@/components/common/withUser';
 
 const styles = defineStyles("ReactionsAndLikesVote", (theme) => ({
   likeButton: {
+    cursor: "pointer",
   },
   icon: {
     width: 16,
     height: 16,
     opacity: 0.5,
     verticalAlign: "middle",
+    
+    "$likeButton:hover &": {
+      opacity: 1,
+    },
   },
   likeCount: {
     verticalAlign: "middle",
@@ -69,7 +74,7 @@ const ReactionsAndLikesVote  = ({document, hideKarma=false, collectionName, voti
   }>
     <div className={classes.likeButton} onClick={toggleLike}>
       <img className={classes.icon} src="/reactionImages/nounproject/noun-thumbs-up-1686284.svg"/>
-      <span className={classes.likeCount}>{likeCount}</span>
+      {likeCount>0 && <span className={classes.likeCount}>{likeCount}</span>}
     </div>
   </LWTooltip>
 }

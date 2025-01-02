@@ -8,7 +8,7 @@ import UsersRepo from "../../repos/UsersRepo";
 import { loadArbitalDatabase, WholeArbitalDatabase, PageSummariesRow, PagesRow, PageInfosRow, DomainsRow, LensesRow } from './arbitalSchema';
 import keyBy from 'lodash/keyBy';
 import groupBy from 'lodash/groupBy';
-import { createAdminContext, createMutator, slugify, updateMutator } from '@/server/vulcan-lib';
+import { createAdminContext, createMutator, getCollection, slugify, updateMutator } from '@/server/vulcan-lib';
 import Tags from '@/lib/collections/tags/collection';
 import ArbitalTagContentRels from '@/lib/collections/arbitalTagContentRels/collection';
 import { getUnusedSlugByCollectionName, slugIsUsed } from '@/lib/helpers';
@@ -27,6 +27,8 @@ import { Comments } from '@/lib/collections/comments';
 import uniq from 'lodash/uniq';
 import maxBy from 'lodash/maxBy';
 import { recomputePingbacks } from '@/server/pingbacks';
+import { performVoteServer } from '@/server/voteServer';
+import { Votes } from '@/lib/collections/votes';
 
 type ArbitalImportOptions = {
   /**
@@ -410,7 +412,7 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
     await importCoreTagAssignments(options.coreTagAssignmentsFile);
   }
 
-  //await importComments(database, conversionContext, resolverContext, options);
+  await importComments(database, conversionContext, resolverContext, options);
 }
 
 
@@ -698,6 +700,8 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
         ]);
       }
 
+      await convertLikesToVotes(conversionContext, pageInfo.likeableId, "Tags", wiki._id);
+
       const pageAlternatives = alternativesByPageId[pageId];
       if (pageAlternatives && Object.values(pageAlternatives).some(alternatives => alternatives.length > 0)) {
         await updateMutator({
@@ -834,6 +838,8 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
             conversionContext: conversionContext,
             resolverContext,
           });
+          
+          await convertLikesToVotes(conversionContext, pageInfosById[lens.pageId].likeableId, "MultiDocuments", lensObj._id);
 
         } else {
           lensObj = await MultiDocuments.findOne({ slug: lensSlug });
@@ -1019,12 +1025,14 @@ async function importComments(database: WholeArbitalDatabase, conversionContext:
       validate: false,
     })).data;
     lwCommentsById[commentId] = lwComment;
+
     await Comments.rawUpdateOne({_id: lwComment._id}, {
       $set: {
         createdAt: comment.createdAt,
         postedAt: comment.createdAt,
       }
     });
+    await convertLikesToVotes(conversionContext, comment.likeableId, "Comments", lwComment._id);
   }
   
 
@@ -1130,6 +1138,63 @@ async function backDateAndAddLegacyDataToRevision(_id: string, date: Date, legac
       legacyData,
     }}
   );
+}
+
+async function convertLikesToVotes(conversionContext: ArbitalConversionContext, arbitalLikeableId: number, collectionName: VoteableCollectionName, documentId: string) {
+  // TODO: Check that the execution-order of votes comes out right. There
+  // have been voting bugs in the past related to votes being cast
+  // simultaneously and hitting concurrency issues.
+
+  const applicableLikes = conversionContext.database.likes.filter(like => like.likeableId === arbitalLikeableId);
+  const sortedLikes = sortBy(applicableLikes, l=>l.updatedAt);
+  const collection = getCollection(collectionName);
+  let first = true;
+
+  for (const like of sortedLikes) {
+    if (like.value === -1) {
+      // Redlinks and change-requests can have downvotes, but we don't handle those.
+      continue;
+    }
+    if (like.value === 0) {
+      // A cancelled like
+      continue;
+    }
+    
+    const user = conversionContext.matchedUsers[like.userId];
+    if (!user) {
+      console.error(`Could not find user ${like.userId} for like on ${arbitalLikeableId}`);
+      continue;
+    }
+    
+    const { vote } = await performVoteServer({
+      collection,
+      user,
+      voteType: "smallUpvote",
+      extendedVote: (collectionName === "Comments" ? {
+        reacts: [{
+          react: "thumbs-up",
+          vote: first ? "created" : "seconded",
+        }]
+      } : null),
+      selfVote: false,
+      documentId,
+      skipRateLimits: true,
+      toggleIfAlreadyVoted: false,
+    });
+    if (vote) {
+      await Votes.rawUpdateOne(
+        { _id: vote._id },
+        {$set:{
+          createdAt: like.updatedAt,
+          legacyData: {
+            arbitalUpdatedAt: like.updatedAt,
+            arbitalLikeableId,
+          }
+        }},
+      );
+    }
+    first = false;
+  }
 }
 
 /**

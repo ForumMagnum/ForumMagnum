@@ -489,3 +489,9 @@ registerFragment(`
     }
   }
 `);
+
+registerFragment(`
+  fragment WithVoteTag on Tag {
+    ...TagBasicInfo
+  }
+`);

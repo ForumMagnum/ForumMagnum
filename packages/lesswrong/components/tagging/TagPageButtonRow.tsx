@@ -11,6 +11,7 @@ import { userHasNewTagSubscriptions } from '../../lib/betas';
 import classNames from 'classnames';
 import { useTagBySlug } from './useTag';
 import { tagGetHistoryUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import type { TagLens } from '@/lib/arbital/useTagLenses';
 
 const styles = (theme: ThemeType): JssStyles => ({
   buttonsRow: {
@@ -37,6 +38,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('sm')]: {
       display: "flex",
     },
+  },
+  likeButtonWrapper: {
+    marginRight: 20,
+    fontSize: 12,
   },
   buttonTooltip: {
     display: "flex",
@@ -95,8 +100,9 @@ export function useTagEditingRestricted(tag: TagPageWithRevisionFragment | TagPa
   return { canEdit, noEditNotAuthor, noEditKarmaTooLow };
 }
 
-const TagPageButtonRow = ({ tag, editing, setEditing, hideLabels = false, className, classes }: {
+const TagPageButtonRow = ({ tag, selectedLens, editing, setEditing, hideLabels = false, className, classes }: {
   tag: TagPageWithRevisionFragment | TagPageFragment,
+  selectedLens?: TagLens
   editing: boolean,
   setEditing: (editing: boolean) => void,
   hideLabels?: boolean,
@@ -105,7 +111,7 @@ const TagPageButtonRow = ({ tag, editing, setEditing, hideLabels = false, classN
 }) => {
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
-  const { LWTooltip, NotifyMeButton, TagDiscussionButton, ContentItemBody } = Components;
+  const { LWTooltip, NotifyMeButton, TagDiscussionButton, ContentItemBody, TagOrLensLikeButton } = Components;
   const { tag: beginnersGuideContentTag } = useTagBySlug("tag-cta-popup", "TagFragment")
 
   const numFlags = tag.tagFlagsIds?.length
@@ -153,6 +159,9 @@ const TagPageButtonRow = ({ tag, editing, setEditing, hideLabels = false, classN
   </>
 
   return <div className={classNames(classes.buttonsRow, className)}>
+    {selectedLens && <div className={classes.likeButtonWrapper}>
+      <TagOrLensLikeButton lens={selectedLens} />
+    </div>}
     {!editing && <LWTooltip
       className={classes.buttonTooltip}
       title={editTooltip}
