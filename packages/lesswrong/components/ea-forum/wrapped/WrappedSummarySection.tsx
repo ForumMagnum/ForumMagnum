@@ -18,6 +18,9 @@ const MOBILE_GAP = "20px";
 
 const styles = (theme: ThemeType) => ({
   root: {
+    paddingTop: 10,
+  },
+  container: {
     width: "100%",
     maxWidth: 500,
     padding: `${TOP_PADDING}px 24px ${BOTTOM_PADDING}px`,
@@ -223,9 +226,14 @@ const WrappedSummarySection = ({classes}: {
     WrappedSection, UsersProfileImage, CoreTagIcon, WrappedShareButton,
   } = Components;
   return (
-    <WrappedSection pageSectionContext="summary" noPadding fullWidth>
+    <WrappedSection
+      pageSectionContext="summary"
+      noPadding
+      fullWidth
+      className={classes.root}
+    >
       <div
-        className={classNames(classes.root, classes[color])}
+        className={classNames(classes.container, classes[color])}
         ref={screenshotRef}
       >
         <div className={classes.content}>
