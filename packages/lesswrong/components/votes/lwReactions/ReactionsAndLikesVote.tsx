@@ -72,7 +72,7 @@ const ReactionsAndLikesVote  = ({document, hideKarma=false, collectionName, voti
   return <LWTooltip title={
     usersWhoLiked.map(u => u.displayName).join(", ")
   }>
-    <div className={classes.likeButton} onClick={toggleLike}>
+    <div className={classes.likeButton} onClick={toggleLike} onMouseDown={(e) => e.stopPropagation()}>
       <img className={classes.icon} src="/reactionImages/nounproject/noun-thumbs-up-1686284.svg"/>
       {likeCount>0 && <span className={classes.likeCount}>{likeCount}</span>}
     </div>
