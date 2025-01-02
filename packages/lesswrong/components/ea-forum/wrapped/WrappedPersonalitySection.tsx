@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { MouseEvent, useCallback, useEffect, useRef, useState } from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { useTheme } from "@/components/themes/useTheme";
-import { WRAPPED_SHARE_BUTTON_WIDTH } from "./WrappedShareButton";
 import { useIsAboveBreakpoint } from "@/components/hooks/useScreenWidth";
+import { WRAPPED_SHARE_BUTTON_WIDTH } from "./WrappedShareButton";
 import { useForumWrappedContext } from "./hooks";
 import { getWrappedVideo } from "./videos";
 import classNames from "classnames";
@@ -35,13 +35,10 @@ const styles = (theme: ThemeType) => ({
   green: {
     background: theme.palette.wrapped.personality.green,
   },
-  canvasContainer: {
+  videoContainer: {
     flexGrow: 1,
     display: 'flex',
     alignItems: 'center',
-  },
-  canvas: {
-    maxWidth: "100%",
   },
   video: {
     position: "absolute",
@@ -93,27 +90,14 @@ const WrappedPersonalitySection = ({classes}: {
   } = useForumWrappedContext();
   const [video, setVideo] = useState(() => getWrappedVideo("thinking"));
   const [isFinished, setIsFinished] = useState(false);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const videoDisplayRef = useRef<HTMLVideoElement>(null);
   const screenshotRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({width: 200, height: 200});
-  const isDesktop = useIsAboveBreakpoint("md");
   const theme = useTheme();
+  const isDesktop = useIsAboveBreakpoint("md");
 
   const isThinking = video.animation === "thinking";
   const videoRef = isThinking ? thinkingVideoRef : personalityVideoRef;
-
-  useEffect(() => {
-    const elem = videoRef.current;
-    if (elem) {
-      const handler = () => {
-        if (isThinking) {
-          setVideo(getWrappedVideo(personality));
-        }
-      }
-      elem.addEventListener("ended", handler);
-      return () => elem.removeEventListener("ended", handler);
-    }
-  }, [videoRef, isThinking, personality]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -121,51 +105,48 @@ const WrappedPersonalitySection = ({classes}: {
     }, 8000);
   }, []);
 
-  useEffect(() => {
-    try {
-      const canvas = canvasRef.current;
-      const ctx = canvas?.getContext("2d");
-      const videoEl = videoRef.current;
-      const container = screenshotRef.current;
-      if (canvas && ctx && videoEl && container) {
-        const doFrame = () => {
-          // Bad alpha blending causes a 1-pixel pseudo border around the canvas.
-          // To get around this we scale up slightly and move the outer-most pixel
-          // outside of the canvas. (Sorry)
-          ctx.drawImage(videoEl, -1, -1, canvas.width + 2, canvas.height + 2);
-          requestAnimationFrame(doFrame);
-        }
-        const handler = () => {
-          const {videoWidth, videoHeight} = videoEl;
-          const {clientWidth, clientHeight} = container;
-          const maxSize = isDesktop ? 600 : 400;
-          const rootHeight = isDesktop ? clientHeight * 0.75 : clientHeight * 0.5;
-          const scaleByWidth = Math.min(clientWidth, maxSize) / videoWidth;
-          const scaleByHeight = Math.min(rootHeight, maxSize) / videoHeight;
-          const scaleFactor = Math.min(scaleByWidth, scaleByHeight);
-          setSize({
-            width: videoWidth * scaleFactor,
-            height: videoHeight * scaleFactor,
-          });
-          requestAnimationFrame(doFrame);
-        }
-        videoEl.addEventListener("play", handler);
-        return () => videoEl.removeEventListener("play", handler);
-      }
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.error("Error displaying wrapped video:", e);
+  const resize = useCallback(() => {
+    const videoElem = videoRef.current;
+    const displayElem = videoDisplayRef.current;
+    const container = screenshotRef.current;
+    if (videoElem && displayElem && container) {
+      const {videoWidth, videoHeight} = videoElem;
+      const {clientWidth, clientHeight} = container;
+      const maxSize = isDesktop ? 600 : 400;
+      const rootHeight = isDesktop ? clientHeight * 0.75 : clientHeight * 0.5;
+      const scaleByWidth = Math.min(clientWidth, maxSize) / videoWidth;
+      const scaleByHeight = Math.min(rootHeight, maxSize) / videoHeight;
+      const scaleFactor = Math.min(scaleByWidth, scaleByHeight);
+      setSize({
+        width: videoWidth * scaleFactor,
+        height: videoHeight * scaleFactor,
+      });
     }
-  }, [videoRef, video.animation, isDesktop]);
+  }, []);
 
   useEffect(() => {
-    const video = videoRef.current;
-    if (video) {
-      video.pause();
-      video.currentTime = 0;
-      void video.play();
+    window.addEventListener("resize", resize);
+    return () => window.removeEventListener("resize", resize);
+  }, [resize]);
+
+  useEffect(() => {
+    resize();
+
+    const displayElem = videoDisplayRef.current;
+    if (displayElem) {
+      const handler = () => {
+        if (isThinking) {
+          setVideo(getWrappedVideo(personality));
+        }
+      }
+      displayElem.addEventListener("ended", handler);
+      return () => displayElem.removeEventListener("ended", handler);
     }
-  }, [videoRef]);
+  }, [isThinking, personality, resize]);
+
+  const onContextMenu = useCallback((ev: MouseEvent<HTMLVideoElement>) => {
+    ev.preventDefault();
+  }, []);
 
   const personalityVideo = getWrappedVideo(personality);
 
@@ -213,9 +194,12 @@ const WrappedPersonalitySection = ({classes}: {
           }
           {!isThinking && personalityTitle}
         </div>
-        <div className={classes.canvasContainer}>
-          <canvas
-            ref={canvasRef}
+        <div className={classes.videoContainer}>
+          <video
+            ref={videoDisplayRef}
+            src={videoRef.current?.src}
+            loop={!isThinking}
+            onContextMenu={onContextMenu}
             width={videoRef.current?.videoWidth}
             height={videoRef.current?.videoHeight}
             style={{
@@ -223,7 +207,10 @@ const WrappedPersonalitySection = ({classes}: {
               height: size.height,
               filter: `brightness(${video.brightness})`,
             }}
-            className={classes.canvas}
+            muted
+            playsInline
+            autoPlay
+            crossOrigin="anonymous"
           />
         </div>
       </div>
