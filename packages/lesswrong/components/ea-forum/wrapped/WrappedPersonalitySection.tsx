@@ -1,5 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
+import { useTheme } from "@/components/themes/useTheme";
 import { WRAPPED_SHARE_BUTTON_WIDTH } from "./WrappedShareButton";
 import { useIsAboveBreakpoint } from "@/components/hooks/useScreenWidth";
 import { useForumWrappedContext } from "./hooks";
@@ -67,6 +68,20 @@ const styles = (theme: ThemeType) => ({
     opacity: 0,
     pointerEvents: "none",
   },
+  screenshotContainer: {
+    position: "absolute",
+    top: -10000,
+    left: -10000,
+    width: 500,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    padding: "40px 20px 90px",
+  },
+  screenshotImage: {
+    width: "100%",
+    marginTop: 8,
+  },
 });
 
 const WrappedPersonalitySection = ({classes}: {
@@ -83,6 +98,7 @@ const WrappedPersonalitySection = ({classes}: {
   const screenshotRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({width: 200, height: 200});
   const isDesktop = useIsAboveBreakpoint("md");
+  const theme = useTheme();
 
   const isThinking = video.animation === "thinking";
   const videoRef = isThinking ? thinkingVideoRef : personalityVideoRef;
@@ -151,33 +167,51 @@ const WrappedPersonalitySection = ({classes}: {
     }
   }, [videoRef]);
 
+  const personalityVideo = getWrappedVideo(personality);
+
+  // There's a horrible line of white background at the bottom of the image
+  // because of a bug in html2canvas - cover it up
+  const onRendered = useCallback((canvas: HTMLCanvasElement) => {
+    try {
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        const coverHeight = 4;
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.fillStyle = theme.palette.wrapped.personality[personalityVideo.color];
+        ctx.fillRect(0, canvas.height - coverHeight, canvas.width, coverHeight * 2);
+      }
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error(e);
+    }
+  }, [personalityVideo.color, theme]);
+
   const {WrappedSection, WrappedHeading, WrappedShareButton} = Components;
+  const personalityTitle = (
+    <>
+      <div className={classes.bottomMargin}>
+        Your EA Forum personality is
+      </div>
+      <WrappedHeading className={classes.personalityText}>
+        {personality}
+      </WrappedHeading>
+    </>
+  );
+
   return (
     <WrappedSection
       pageSectionContext="personality"
       className={classNames(classes.root, classes[video.color])}
       noPadding
     >
-      <div
-        ref={screenshotRef}
-        className={classNames(classes.container, classes[video.color])}
-      >
+      <div className={classNames(classes.container, classes[video.color])}>
         <div className={classes.content}>
           {isThinking &&
             <WrappedHeading>
               Your EA Forum personality is...
             </WrappedHeading>
           }
-          {!isThinking &&
-            <>
-              <div className={classes.bottomMargin}>
-                Your EA Forum personality is
-              </div>
-              <WrappedHeading className={classes.personalityText}>
-                {personality}
-              </WrappedHeading>
-            </>
-          }
+          {!isThinking && personalityTitle}
         </div>
         <div className={classes.canvasContainer}>
           <canvas
@@ -195,8 +229,20 @@ const WrappedPersonalitySection = ({classes}: {
       <WrappedShareButton
         name="Personality"
         screenshotRef={screenshotRef}
+        onRendered={onRendered}
         className={classNames(classes.share, !isFinished && classes.shareHidden)}
       />
+      <div
+        ref={screenshotRef}
+        className={classNames(classes.screenshotContainer, classes[video.color])}
+      >
+        {personalityTitle}
+        <img
+          src={personalityVideo.frame}
+          crossOrigin="anonymous"
+          className={classes.screenshotImage}
+        />
+      </div>
     </WrappedSection>
   );
 }

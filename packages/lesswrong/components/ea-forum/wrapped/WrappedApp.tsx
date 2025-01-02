@@ -105,7 +105,7 @@ const WrappedApp = ({classes}: {
   return (
     <div className={classes.root}>
       <Helmet>
-        <link rel="prefetch" href={personalityVideo.frame} />
+        <link rel="prefetch" href={personalityVideo.frame} crossOrigin="anonymous" />
       </Helmet>
       <div className={classes.app}>
         <div className={classes.offscreenVideos}>
