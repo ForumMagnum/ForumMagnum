@@ -23,6 +23,7 @@ const styles = (theme: ThemeType) => ({
 
 const postIds = [
   'ZhNaizQgYY9dXdQkM', // Intro to EA
+  'SkfMyerJ5bGK7scnW', // What I'm celebrating from EA and adjacent work in 2024
   's9dyyge6uLG5ScwEp', // It looks like there are some good funding opportunities in AI safety right now
   'sEsguXTiKBA6LzX55', // Takes on "Alignment faking in llms"
   'vHiDeQnCepvwnv8Fm', // AWF AMA
@@ -39,8 +40,8 @@ const postIds = [
   'pEtxF6fJr5M6H5fbC', // WAI
   '9fuJgLik6FNtgrDAD', // Arthropoda Foundation
   'hcpA7ufW6zZzeFaT4', // ORCG
-  'XmtyNTS8eaT2PMzx4', // NAO
   'HXqzmahbjJwwiX9Si', // ARMoR
+  'XmtyNTS8eaT2PMzx4', // NAO
   'rsRDu3u3wF6ctcQPn', // THL
   'CmAWaNXxJmmhLnuAi', // THL UK
   'kt2XH8htHGEsC3GSc', // Legal Impact for Chickens
