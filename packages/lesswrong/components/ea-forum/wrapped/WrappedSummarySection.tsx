@@ -11,8 +11,8 @@ import classNames from "classnames";
 
 const TOP_PADDING = 12;
 const BOTTOM_PADDING = 14;
-const DESKTOP_IMAGE_HEIGHT = 300;
-const MOBILE_IMAGE_HEIGHT = 120;
+const DESKTOP_IMAGE_SIZE = 300;
+const MOBILE_IMAGE_SIZE = 120;
 const DESKTOP_GAP = "32px";
 const MOBILE_GAP = "20px";
 
@@ -82,9 +82,13 @@ const styles = (theme: ThemeType) => ({
     },
   },
   image: {
-    height: MOBILE_IMAGE_HEIGHT,
+    width: "auto",
+    height: "auto",
+    maxWidth: MOBILE_IMAGE_SIZE,
+    maxHeight: MOBILE_IMAGE_SIZE,
     [theme.breakpoints.up("md")]: {
-      height: DESKTOP_IMAGE_HEIGHT,
+      maxWidth: DESKTOP_IMAGE_SIZE,
+      maxHeight: DESKTOP_IMAGE_SIZE,
     },
   },
   heading: {
