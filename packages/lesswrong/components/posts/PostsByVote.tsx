@@ -37,7 +37,13 @@ const PostsByVote = ({postIds, year, limit, showMostValuableCheckbox=false, hide
   return <ErrorBoundary>
     <div>
       {posts.map(post => {
-        return <PostsItem key={post._id} post={post} showMostValuableCheckbox={showMostValuableCheckbox} className={postItemClassName} />
+        return <PostsItem
+          key={post._id}
+          post={post}
+          showMostValuableCheckbox={showMostValuableCheckbox}
+          hideTag
+          className={postItemClassName}
+        />
       })}
       {showLoadMore && <LoadMore {...loadMoreProps} />}
     </div>

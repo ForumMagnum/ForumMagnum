@@ -748,8 +748,8 @@ class PostsRepo extends AbstractRepo<"Posts"> {
   }
 
   /**
-   * Get stats on how much the given user reads each core topic, relative to the average user. This is currently used
-   * for Wrapped.
+   * Get stats on how much the given user reads each core topic (excluding "Opportunities"),
+   * relative to the average user. This is currently used for Wrapped.
    */
   async getReadCoreTagStats({
     userId,
@@ -767,7 +767,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       WITH core_tags AS (
           SELECT _id
           FROM "Tags"
-          WHERE core IS TRUE AND deleted is not true
+          WHERE core IS TRUE AND deleted is not true AND _id != 'z8qFsGt5iXyZiLbjN'
       ),
       read_posts AS (
           SELECT
