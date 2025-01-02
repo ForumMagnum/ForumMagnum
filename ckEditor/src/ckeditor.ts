@@ -75,6 +75,7 @@ import { SanitizeTags } from './clean-styles-plugin'
 
 import { postEditorConfig, commentEditorConfig } from './editorConfigs';
 import {CloudinaryAdapterPlugin} from "./cloudinary"
+import ClaimsPlugin from './claims';
 
 export class CommentEditor extends BalloonBlockEditorBase {}
 export class PostEditor extends BalloonBlockEditorBase {}
@@ -133,6 +134,7 @@ const sharedPlugins = [
 	LLMAutocomplete,
 	CTAButton,
 	CollapsibleSections,
+	ClaimsPlugin,
 ];
 
 const postEditorPlugins = [
