@@ -5,27 +5,30 @@ import range from "lodash/range";
 import moment from "moment";
 import classNames from "classnames";
 
+const MOBILE_SIZE = 6;
+const DESKTOP_SIZE = 8;
+
 const styles = (theme: ThemeType) => ({
   calendar: {
     maxWidth: 600,
     display: "inline-grid",
-    gridTemplateColumns: "repeat(31, 6px)",
-    gridTemplateRows: "repeat(12, 6px)",
+    gridTemplateColumns: `repeat(31, ${MOBILE_SIZE}px)`,
+    gridTemplateRows: `repeat(12, ${MOBILE_SIZE}px)`,
     gap: "4px",
     margin: "60px auto 0",
     [theme.breakpoints.up("md")]: {
-      gridTemplateColumns: "repeat(31, 7px)",
-      gridTemplateRows: "repeat(12, 7px)",
+      gridTemplateColumns: `repeat(31, ${DESKTOP_SIZE}px)`,
+      gridTemplateRows: `repeat(12, ${DESKTOP_SIZE}px)`,
     },
   },
   calendarDot: {
-    height: 6,
-    width: 6,
+    height: MOBILE_SIZE,
+    width: MOBILE_SIZE,
     backgroundColor: theme.palette.wrapped.darkDot,
     borderRadius: "50%",
     [theme.breakpoints.up("md")]: {
-      height: 7,
-      width: 7,
+      height: DESKTOP_SIZE,
+      width: DESKTOP_SIZE,
     },
   },
   calendarDotActive: {
