@@ -44,21 +44,37 @@ const chooseColor = (personality: string): WrappedColor => {
 // The videos are encoded in the bt709 color space but the browser expects sRGB.
 // I don't want to talk about it.
 const brightnesses: Record<WrappedColor, Partial<Record<WrappedAnimation, number>>> = {
-  grey: {},
+  grey: {
+    lurker: 0.985,
+    "Karma-farmer": 0.985,
+    convstarter: 0.985,
+    contrarian: 0.985,
+    Visitor: 0.985,
+    "one-hit": 0.985,
+  },
   red: {
-    convstarter: 0.92,
     lurker: 0.92,
+    "Karma-farmer": 0.995,
+    convstarter: 0.92,
     contrarian: 1.068,
     Visitor: 1.068,
+    "one-hit": 0.985,
   },
   blue: {
-    convstarter: 0.97,
+    lurker: 0.94,
     "Karma-farmer": 0.99,
-    lurker: 0.95,
+    convstarter: 0.97,
+    contrarian: 0.995,
+    Visitor: 0.998,
+    "one-hit": 0.998,
   },
   green: {
     lurker: 0.98,
+    "Karma-farmer": 0.995,
+    convstarter: 0.995,
+    contrarian: 0.9955,
     Visitor: 1.01,
+    "one-hit": 0.999,
   },
   transparent: {},
 };
