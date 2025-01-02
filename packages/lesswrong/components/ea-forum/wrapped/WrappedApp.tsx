@@ -43,6 +43,7 @@ const styles = (theme: ThemeType) => ({
   navButton: {
     cursor: "pointer",
     padding: 6,
+    margin: 8,
     color: theme.palette.text.alwaysWhite,
     border: `1px solid ${theme.palette.text.alwaysWhite}`,
     borderRadius: "50%",
@@ -50,9 +51,14 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    transition: "all ease-in-out 0.2s",
     "& svg": {
       width: 16,
       height: 16,
+    },
+    "&:hover": {
+      backgroundColor: theme.palette.text.alwaysWhite,
+      color: theme.palette.text.alwaysBlack,
     },
   },
   navSection: {
