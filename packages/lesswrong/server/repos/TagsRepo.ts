@@ -150,6 +150,7 @@ class TagsRepo extends AbstractRepo<"Tags"> {
       JOIN "ArbitalTagContentRels" acr
       ON t._id = acr."parentDocumentId" AND acr.type = 'parent-is-tag-of-child'
       WHERE t.slug IN ('low-speed-explanation', 'high-speed-explanation')
+      GROUP BY t._id, t.slug
     `);
   }
 
