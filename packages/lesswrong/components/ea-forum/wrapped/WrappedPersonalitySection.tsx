@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { WRAPPED_SHARE_BUTTON_WIDTH } from "./WrappedShareButton";
+import { useIsAboveBreakpoint } from "@/components/hooks/useScreenWidth";
 import { useForumWrappedContext } from "./hooks";
 import { getWrappedVideo } from "./videos";
 import { createWrappedVideoCanvas } from "./wrappedGL";
@@ -81,6 +82,7 @@ const WrappedPersonalitySection = ({classes}: {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const screenshotRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({width: 200, height: 200});
+  const isDesktop = useIsAboveBreakpoint("md");
 
   const isThinking = video.animation === "thinking";
   const videoRef = isThinking ? thinkingVideoRef : personalityVideoRef;
@@ -114,10 +116,10 @@ const WrappedPersonalitySection = ({classes}: {
         const handler = () => {
           const {videoWidth, videoHeight} = videoEl;
           const {clientWidth, clientHeight} = container;
-          // Limit the animations to 400px wide or tall,
-          // to ensure they don't get unreasonably large
-          const scaleByWidth = Math.min(clientWidth, 400) / videoWidth;
-          const scaleByHeight = Math.min(clientHeight / 2, 400) / videoHeight;
+          const maxSize = isDesktop ? 600 : 400;
+          const rootHeight = isDesktop ? clientHeight * 0.75 : clientHeight * 0.5;
+          const scaleByWidth = Math.min(clientWidth, maxSize) / videoWidth;
+          const scaleByHeight = Math.min(rootHeight, maxSize) / videoHeight;
           const scaleFactor = Math.min(scaleByWidth, scaleByHeight);
           setSize({
             width: videoWidth * scaleFactor,
@@ -125,7 +127,7 @@ const WrappedPersonalitySection = ({classes}: {
           });
           const doFrame = () => {
             renderFrame();
-            if (!videoEl.ended) {
+            if (videoEl && !videoEl.ended) {
               requestAnimationFrame(doFrame);
             }
           }
@@ -138,7 +140,7 @@ const WrappedPersonalitySection = ({classes}: {
         console.error("Error displaying wrapped video:", e);
       }
     }
-  }, [videoRef, video.animation, video.brightness]);
+  }, [videoRef, video.animation, video.brightness, isDesktop]);
 
   useEffect(() => {
     const video = videoRef.current;
