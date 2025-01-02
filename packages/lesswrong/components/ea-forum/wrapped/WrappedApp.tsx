@@ -114,6 +114,7 @@ const WrappedApp = ({classes}: {
             src={thinkingVideo.src}
             ref={thinkingVideoRef}
             muted
+            playsInline
             crossOrigin="anonymous"
           />
           <video
@@ -121,6 +122,7 @@ const WrappedApp = ({classes}: {
             ref={personalityVideoRef}
             muted
             loop
+            playsInline
             crossOrigin="anonymous"
           />
         </div>
