@@ -4,7 +4,7 @@ import { Link } from "@/lib/reactRouterWrapper";
 import { useTheme } from "@/components/themes/useTheme";
 import { tagGetUrl } from "@/lib/collections/tags/helpers";
 import { lightbulbIcon } from "@/components/icons/lightbulbIcon";
-import { getUserProfileLink } from "./wrappedHelpers";
+import { formatPercentile, getUserProfileLink } from "./wrappedHelpers";
 import { useForumWrappedContext } from "./hooks";
 import { getWrappedVideo } from "./videos";
 import classNames from "classnames";
@@ -189,7 +189,7 @@ const WrappedSummarySection = ({classes}: {
   const {
     year,
     data: {
-      totalSeconds,
+      engagementPercentile,
       postsReadCount,
       karmaChange,
       mostReadAuthors,
@@ -200,7 +200,7 @@ const WrappedSummarySection = ({classes}: {
   const {color, frame} = getWrappedVideo(personality);
   const screenshotRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
-  const hoursSpent = (totalSeconds / 3600).toFixed(1)
+  const formattedPercentile = formatPercentile(engagementPercentile);
   const theme = useTheme();
 
   // There's a horrible line of white background at the bottom of the image
@@ -215,6 +215,7 @@ const WrappedSummarySection = ({classes}: {
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.fillStyle = theme.palette.wrapped.personality[color];
         ctx.fillRect(0, canvas.height - coverHeight, canvas.width, coverHeight * 2);
+        ctx.fillRect(canvas.width - 2, 0, 2, canvas.height);
       }
     } catch (e) {
       // eslint-disable-next-line no-console
@@ -252,8 +253,8 @@ const WrappedSummarySection = ({classes}: {
             </div>
             <div className={classes.row}>
               <div>
-                <div className={classes.heading}>Hours spent</div>
-                <div className={classes.stat}>{hoursSpent}</div>
+                <div className={classes.heading}>Top reader</div>
+                <div className={classes.stat}>{formattedPercentile}%</div>
               </div>
               <div>
                 <div className={classes.heading}>Posts read</div>
