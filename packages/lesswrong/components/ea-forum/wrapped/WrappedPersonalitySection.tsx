@@ -122,7 +122,7 @@ const WrappedPersonalitySection = ({classes}: {
         height: videoHeight * scaleFactor,
       });
     }
-  }, []);
+  }, [videoRef, isDesktop]);
 
   useEffect(() => {
     window.addEventListener("resize", resize);
