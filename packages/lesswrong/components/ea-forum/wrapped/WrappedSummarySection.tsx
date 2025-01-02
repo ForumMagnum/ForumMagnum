@@ -11,13 +11,16 @@ import classNames from "classnames";
 
 const TOP_PADDING = 12;
 const BOTTOM_PADDING = 14;
-const DESKTOP_IMAGE_HEIGHT = 300;
-const MOBILE_IMAGE_HEIGHT = 120;
+const DESKTOP_IMAGE_SIZE = 300;
+const MOBILE_IMAGE_SIZE = 120;
 const DESKTOP_GAP = "32px";
 const MOBILE_GAP = "20px";
 
 const styles = (theme: ThemeType) => ({
   root: {
+    paddingTop: 10,
+  },
+  container: {
     width: "100%",
     maxWidth: 500,
     padding: `${TOP_PADDING}px 24px ${BOTTOM_PADDING}px`,
@@ -82,9 +85,13 @@ const styles = (theme: ThemeType) => ({
     },
   },
   image: {
-    height: MOBILE_IMAGE_HEIGHT,
+    width: "auto",
+    height: "auto",
+    maxWidth: MOBILE_IMAGE_SIZE,
+    maxHeight: MOBILE_IMAGE_SIZE,
     [theme.breakpoints.up("md")]: {
-      height: DESKTOP_IMAGE_HEIGHT,
+      maxWidth: DESKTOP_IMAGE_SIZE,
+      maxHeight: DESKTOP_IMAGE_SIZE,
     },
   },
   heading: {
@@ -219,9 +226,14 @@ const WrappedSummarySection = ({classes}: {
     WrappedSection, UsersProfileImage, CoreTagIcon, WrappedShareButton,
   } = Components;
   return (
-    <WrappedSection pageSectionContext="summary" noPadding fullWidth>
+    <WrappedSection
+      pageSectionContext="summary"
+      noPadding
+      fullWidth
+      className={classes.root}
+    >
       <div
-        className={classNames(classes.root, classes[color])}
+        className={classNames(classes.container, classes[color])}
         ref={screenshotRef}
       >
         <div className={classes.content}>
