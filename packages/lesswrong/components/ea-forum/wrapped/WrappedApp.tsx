@@ -120,6 +120,7 @@ const WrappedApp = ({classes}: {
             src={personalityVideo.src}
             ref={personalityVideoRef}
             muted
+            loop
             crossOrigin="anonymous"
           />
         </div>

@@ -109,14 +109,18 @@ const WrappedPersonalitySection = ({classes}: {
       const handler = () => {
         if (isThinking) {
           setVideo(getWrappedVideo(personality));
-        } else {
-          setIsFinished(true);
         }
       }
       elem.addEventListener("ended", handler);
       return () => elem.removeEventListener("ended", handler);
     }
   }, [videoRef, isThinking, personality]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setIsFinished(true);
+    }, 8000);
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
