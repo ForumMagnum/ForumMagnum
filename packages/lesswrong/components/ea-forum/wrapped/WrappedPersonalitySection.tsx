@@ -5,7 +5,6 @@ import { WRAPPED_SHARE_BUTTON_WIDTH } from "./WrappedShareButton";
 import { useIsAboveBreakpoint } from "@/components/hooks/useScreenWidth";
 import { useForumWrappedContext } from "./hooks";
 import { getWrappedVideo } from "./videos";
-import { createWrappedVideoCanvas } from "./wrappedGL";
 import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
@@ -123,16 +122,19 @@ const WrappedPersonalitySection = ({classes}: {
   }, []);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    const videoEl = videoRef.current;
-    const container = screenshotRef.current;
-    if (canvas && videoEl && container) {
-      try {
-        const renderFrame = createWrappedVideoCanvas(
-          canvas,
-          videoEl,
-          video.brightness,
-        );
+    try {
+      const canvas = canvasRef.current;
+      const ctx = canvas?.getContext("2d");
+      const videoEl = videoRef.current;
+      const container = screenshotRef.current;
+      if (canvas && ctx && videoEl && container) {
+        const doFrame = () => {
+          // Bad alpha blending causes a 1-pixel pseudo border around the canvas.
+          // To get around this we scale up slightly and move the outer-most pixel
+          // outside of the canvas. (Sorry)
+          ctx.drawImage(videoEl, -1, -1, canvas.width + 2, canvas.height + 2);
+          requestAnimationFrame(doFrame);
+        }
         const handler = () => {
           const {videoWidth, videoHeight} = videoEl;
           const {clientWidth, clientHeight} = container;
@@ -145,22 +147,16 @@ const WrappedPersonalitySection = ({classes}: {
             width: videoWidth * scaleFactor,
             height: videoHeight * scaleFactor,
           });
-          const doFrame = () => {
-            renderFrame();
-            if (videoEl && !videoEl.ended) {
-              requestAnimationFrame(doFrame);
-            }
-          }
           requestAnimationFrame(doFrame);
         }
         videoEl.addEventListener("play", handler);
         return () => videoEl.removeEventListener("play", handler);
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.error("Error displaying wrapped video:", e);
       }
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error("Error displaying wrapped video:", e);
     }
-  }, [videoRef, video.animation, video.brightness, isDesktop]);
+  }, [videoRef, video.animation, isDesktop]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -225,6 +221,7 @@ const WrappedPersonalitySection = ({classes}: {
             style={{
               width: size.width,
               height: size.height,
+              filter: `brightness(${video.brightness})`,
             }}
             className={classes.canvas}
           />
