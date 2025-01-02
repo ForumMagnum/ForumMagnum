@@ -142,6 +142,17 @@ const WrappedPersonalitySection = ({classes}: {
     }
   }, [isThinking, personality, resize]);
 
+  // When we change the video source we have to explicitly tell the video to
+  // load otherwise it won't play (this is a known bug in mobile safari)
+  useEffect(() => {
+    const src = videoRef.current?.src;
+    const videoDisplayElement = videoDisplayRef.current;
+    if (src && videoDisplayElement) {
+      videoDisplayElement.load();
+      void videoDisplayElement.play();
+    }
+  }, [videoRef]);
+
   const onContextMenu = useCallback((ev: MouseEvent<HTMLVideoElement>) => {
     ev.preventDefault();
   }, []);
