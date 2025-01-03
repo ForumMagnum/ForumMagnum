@@ -139,6 +139,16 @@ export const taggingNamePluralSetting = {get: () => pluralize(taggingNameSetting
 export const taggingNamePluralCapitalSetting = {get: () => pluralize(startCase(taggingNameSetting.get()))}
 export const taggingNameIsSet = {get: () => taggingNameSetting.get() !== 'tag'}
 
+/** Value for tags in the url schema, if set. This allows the url for tags to
+ * be something other than the tag name, e.g. LessWrong is setting this to "w",
+ * for example www.lesswrong.com/w/tagname.
+ * Defaults to tag setting name.
+ */
+const usePluralTagName = !isLWorAF && taggingNameIsSet.get();
+export const taggingUrlSchemaSetting = new PublicInstanceSetting<string>('taggingUrlSchema', taggingNameSetting.get(), 'optional')
+export const taggingUrlSchemaIsSet = {get: () => taggingUrlSchemaSetting.get() !== taggingNameSetting.get()}
+export const tagUrlBaseSetting = {get: () => `${taggingUrlSchemaSetting.get() || (usePluralTagName ? taggingNamePluralSetting.get() : taggingNameSetting.get())}`}
+
 // NB: Now that neither LW nor the EAForum use this setting, it's a matter of
 // time before it falls out of date. Nevertheless, I expect any newly-created
 // forums to use this setting.

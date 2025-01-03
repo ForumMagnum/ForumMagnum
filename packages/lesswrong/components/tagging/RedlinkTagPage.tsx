@@ -4,6 +4,7 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useMulti } from '@/lib/crud/withMulti';
 import { Link, useNavigate } from '../../lib/reactRouterWrapper';
 import Button from '@material-ui/core/Button';
+import { tagUrlBaseSetting } from '@/lib/instanceSettings';
 
 const styles = defineStyles("RedlinkTagPage", theme => ({
   title: {
@@ -51,7 +52,7 @@ const RedlinkTagPage = ({tag, slug}: {
   const navigate = useNavigate();
   const title = capitalizeFirstLetter(inferRedLinkTitle(tag, slug??null) ?? "Unnamed");
 
-  const createPageUrl = `/tag/create?name=${encodeURIComponent(title)}&type=wiki`
+  const createPageUrl = `/${tagUrlBaseSetting.get()}/create?name=${encodeURIComponent(title)}&type=wiki`
   function createPage() {
     navigate(createPageUrl);
   }
