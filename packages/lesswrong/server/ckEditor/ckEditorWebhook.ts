@@ -199,6 +199,7 @@ async function notifyCkEditorCommentAdded({commenterUserId, commentHtml, postId,
     extraData: {
       senderUserID: commenterUserId,
       commentHtml: commentHtml,
+      linkSharingKey: post.linkSharingKey,
     },
   });
 }

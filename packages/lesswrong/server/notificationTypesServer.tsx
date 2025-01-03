@@ -707,9 +707,12 @@ export const NewCommentOnDraftNotification = serverRegisterNotificationType({
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const firstNotification = notifications[0];
+    if (!firstNotification.documentId) {
+      throw new Error("NewCommentOnDraftNotification documentId is missing");
+    }
     const post = await Posts.findOne({_id: firstNotification.documentId});
     const postTitle = post?.title;
-    const postLink = makeAbsolute(`/editPost?postId=${firstNotification.documentId}`);
+    const postLink = postGetEditUrl(firstNotification.documentId, true, firstNotification.extraData?.linkSharingKey);
     const { EmailUsernameByID } = Components;
     
     return <div>

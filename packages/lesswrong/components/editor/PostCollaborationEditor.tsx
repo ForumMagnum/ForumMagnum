@@ -81,6 +81,9 @@ const PostCollaborationEditor = ({ classes }: {
 
   // If the post has a link-sharing key which is not in the URL, redirect to add
   // the link-sharing key to the URL
+  // NOTE: this only works if you're the primary author, an admin, or have already been added to `linkSharingKeyUsedBy`
+  // by previously accessing the post using the link-sharing key, due to the linkSharingKey read permissions.
+  // If someone else knows the post ID, they shouldn't be able to view the post.
   if (post.linkSharingKey && !key) {
     return <PermanentRedirect url={getPostCollaborateUrl(post._id, false, post.linkSharingKey)} status={302}/>
   }
