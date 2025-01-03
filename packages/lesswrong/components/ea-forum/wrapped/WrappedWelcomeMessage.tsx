@@ -16,6 +16,7 @@ const styles = (theme: ThemeType) => ({
     letterSpacing: "-2.7px",
     textAlign: "left",
     marginTop: 0,
+    wordBreak: "break-word",
   },
   wrapped: {
     color: theme.palette.wrapped.highlightText,
