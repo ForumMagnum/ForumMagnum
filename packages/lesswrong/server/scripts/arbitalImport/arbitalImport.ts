@@ -1270,7 +1270,10 @@ async function importRevisions<N extends CollectionNameString>({
       validate: false,
     })).data;
     await backDateRevision(lwRevision._id, arbRevision.createdAt);
-    await afterCreateRevisionCallback.runCallbacksAsync([{ revisionID: lwRevision._id }]);
+    await afterCreateRevisionCallback.runCallbacksAsync([{
+      revisionID: lwRevision._id,
+      skipDenormalizedAttributions: true,
+    }]);
   }
   
   // Handle the last revision separately, as an edit-operation rather than a
