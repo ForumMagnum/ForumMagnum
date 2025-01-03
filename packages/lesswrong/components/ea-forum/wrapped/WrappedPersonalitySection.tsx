@@ -1,5 +1,6 @@
 import React, { MouseEvent, useCallback, useEffect, useRef, useState } from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
+import { captureException } from "@sentry/core";
 import { useTheme } from "@/components/themes/useTheme";
 import { WRAPPED_SHARE_BUTTON_WIDTH } from "./WrappedShareButton";
 import { useForumWrappedContext } from "./hooks";
@@ -35,9 +36,6 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.wrapped.personality.green,
   },
   videoContainer: {
-    flexGrow: 1,
-    display: 'flex',
-    alignItems: 'center',
     overflow: "hidden",
   },
   video: {
@@ -129,10 +127,17 @@ const WrappedPersonalitySection = ({classes}: {
   // load otherwise it won't play (this is a known bug in mobile safari)
   useEffect(() => {
     const videoDisplayElement = videoDisplayRef.current;
-    setTimeout(() => {
+    setTimeout(async () => {
       if (src && videoDisplayElement) {
-        videoDisplayElement.load();
-        void videoDisplayElement.play();
+        try {
+          videoDisplayElement.load();
+          await videoDisplayElement.play();
+        } catch (e) {
+          const err = new Error("Wrapped video error", {cause: e});
+          captureException(err);
+          // eslint-disable-next-line no-console
+          console.error(err);
+        }
       }
     }, 10);
   }, [src]);
@@ -194,13 +199,12 @@ const WrappedPersonalitySection = ({classes}: {
           <video
             ref={videoDisplayRef}
             src={src}
-            key={src ?? ""}
             loop={!isThinking}
             onContextMenu={onContextMenu}
             muted
             playsInline
             autoPlay
-            crossOrigin="anonymous"
+            preload="auto"
             className={classNames(
               classes.video,
               isThinking && classes.videoThinking,
