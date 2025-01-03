@@ -15,6 +15,7 @@ const styles = (theme: ThemeType) => ({
     maxWidth: "100%",
     minHeight: "100%",
     margin: "0 auto",
+    overflow: "hidden",
   },
   maxWidth: {
     width: 700,
