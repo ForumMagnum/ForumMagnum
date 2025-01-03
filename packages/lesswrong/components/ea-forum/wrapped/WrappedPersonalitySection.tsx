@@ -1,4 +1,11 @@
-import React, { MouseEvent, useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  MouseEvent,
+  SyntheticEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { captureException } from "@sentry/core";
 import { useTheme } from "@/components/themes/useTheme";
@@ -127,23 +134,32 @@ const WrappedPersonalitySection = ({classes}: {
   // load otherwise it won't play (this is a known bug in mobile safari)
   useEffect(() => {
     const videoDisplayElement = videoDisplayRef.current;
-    setTimeout(async () => {
-      if (src && videoDisplayElement) {
+    if (src && videoDisplayElement) {
+      void (async () => {
         try {
           videoDisplayElement.load();
           await videoDisplayElement.play();
         } catch (e) {
-          const err = new Error("Wrapped video error", {cause: e});
+          const err = new Error("Wrapped video play error", {cause: e});
           captureException(err);
           // eslint-disable-next-line no-console
           console.error(err);
         }
-      }
-    }, 10);
+      })();
+    }
   }, [src]);
 
   const onContextMenu = useCallback((ev: MouseEvent<HTMLVideoElement>) => {
     ev.preventDefault();
+  }, []);
+
+  const onError = useCallback((e: SyntheticEvent<HTMLVideoElement, Event>) => {
+    const err = new Error("Wrapped video callback error", {
+      cause: e as AnyBecauseHard,
+    });
+    captureException(err);
+    // eslint-disable-next-line no-console
+    console.error(err);
   }, []);
 
   const personalityVideo = getWrappedVideo(personality);
@@ -201,6 +217,7 @@ const WrappedPersonalitySection = ({classes}: {
             src={src}
             loop={!isThinking}
             onContextMenu={onContextMenu}
+            onError={onError}
             muted
             playsInline
             autoPlay
