@@ -38,6 +38,7 @@ const styles = (theme: ThemeType) => ({
     flexGrow: 1,
     display: 'flex',
     alignItems: 'center',
+    overflow: "hidden",
   },
   video: {
     maxWidth: "calc(min(100%, 400px))",
@@ -47,6 +48,9 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down("sm")]: {
       maxWidth: "calc(min(100%, 300px))",
     },
+  },
+  videoThinking: {
+    marginTop: -80,
   },
   content: {
     width: "100%",
@@ -119,16 +123,19 @@ const WrappedPersonalitySection = ({classes}: {
     }
   }, [isThinking, personality]);
 
+  const src = videoRef.current?.src;
+
   // When we change the video source we have to explicitly tell the video to
   // load otherwise it won't play (this is a known bug in mobile safari)
   useEffect(() => {
-    const src = videoRef.current?.src;
     const videoDisplayElement = videoDisplayRef.current;
-    if (src && videoDisplayElement) {
-      videoDisplayElement.load();
-      void videoDisplayElement.play();
-    }
-  }, [videoRef]);
+    setTimeout(() => {
+      if (src && videoDisplayElement) {
+        videoDisplayElement.load();
+        void videoDisplayElement.play();
+      }
+    }, 10);
+  }, [src]);
 
   const onContextMenu = useCallback((ev: MouseEvent<HTMLVideoElement>) => {
     ev.preventDefault();
@@ -180,19 +187,24 @@ const WrappedPersonalitySection = ({classes}: {
           }
           {!isThinking && personalityTitle}
         </div>
-        <div className={classes.videoContainer}>
+        <div
+          style={{filter: `brightness(${video.brightness})`}}
+          className={classes.videoContainer}
+        >
           <video
             ref={videoDisplayRef}
-            src={videoRef.current?.src}
-            key={videoRef.current?.src ?? ""}
+            src={src}
+            key={src ?? ""}
             loop={!isThinking}
             onContextMenu={onContextMenu}
-            style={{filter: `brightness(${video.brightness})`}}
             muted
             playsInline
             autoPlay
             crossOrigin="anonymous"
-            className={classes.video}
+            className={classNames(
+              classes.video,
+              isThinking && classes.videoThinking,
+            )}
           />
         </div>
       </div>
