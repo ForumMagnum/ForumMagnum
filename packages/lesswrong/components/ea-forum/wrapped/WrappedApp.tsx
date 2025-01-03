@@ -121,7 +121,6 @@ const WrappedApp = ({classes}: {
             src={personalityVideo.src}
             ref={personalityVideoRef}
             muted
-            loop
             playsInline
             crossOrigin="anonymous"
           />

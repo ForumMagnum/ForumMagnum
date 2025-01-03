@@ -15,7 +15,7 @@ const styles = (theme: ThemeType) => ({
     position: "relative",
     width: "100%",
     minHeight: "100%",
-    overflowX: "hidden",
+    overflow: "hidden",
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -40,9 +40,13 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'center',
   },
   video: {
-    position: "absolute",
-    top: -10000,
-    left: -10000,
+    maxWidth: "calc(min(100%, 400px))",
+    width: "auto",
+    height: "auto",
+    margin: "0 auto",
+    [theme.breakpoints.down("sm")]: {
+      maxWidth: "calc(min(100%, 300px))",
+    },
   },
   content: {
     width: "100%",
@@ -91,7 +95,6 @@ const WrappedPersonalitySection = ({classes}: {
   const [isFinished, setIsFinished] = useState(false);
   const videoDisplayRef = useRef<HTMLVideoElement>(null);
   const screenshotRef = useRef<HTMLDivElement>(null);
-  const [size, setSize] = useState({width: 200, height: 200});
   const theme = useTheme();
 
   const isThinking = video.animation === "thinking";
@@ -103,33 +106,7 @@ const WrappedPersonalitySection = ({classes}: {
     }, 8000);
   }, []);
 
-  const resize = useCallback(() => {
-    const videoElem = videoRef.current;
-    const displayElem = videoDisplayRef.current;
-    const container = screenshotRef.current;
-    if (videoElem && displayElem && container) {
-      const {videoWidth, videoHeight} = videoElem;
-      const {clientWidth, clientHeight} = container;
-      const maxSize = 600;
-      const rootHeight = clientHeight * 0.75;
-      const scaleByWidth = Math.min(clientWidth, maxSize) / videoWidth;
-      const scaleByHeight = Math.min(rootHeight, maxSize) / videoHeight;
-      const scaleFactor = Math.min(scaleByWidth, scaleByHeight);
-      setSize({
-        width: videoWidth * scaleFactor,
-        height: videoHeight * scaleFactor,
-      });
-    }
-  }, [videoRef]);
-
   useEffect(() => {
-    window.addEventListener("resize", resize);
-    return () => window.removeEventListener("resize", resize);
-  }, [resize]);
-
-  useEffect(() => {
-    resize();
-
     const displayElem = videoDisplayRef.current;
     if (displayElem) {
       const handler = () => {
@@ -140,7 +117,7 @@ const WrappedPersonalitySection = ({classes}: {
       displayElem.addEventListener("ended", handler);
       return () => displayElem.removeEventListener("ended", handler);
     }
-  }, [isThinking, personality, resize]);
+  }, [isThinking, personality]);
 
   // When we change the video source we have to explicitly tell the video to
   // load otherwise it won't play (this is a known bug in mobile safari)
@@ -207,19 +184,15 @@ const WrappedPersonalitySection = ({classes}: {
           <video
             ref={videoDisplayRef}
             src={videoRef.current?.src}
+            key={videoRef.current?.src ?? ""}
             loop={!isThinking}
             onContextMenu={onContextMenu}
-            width={videoRef.current?.videoWidth}
-            height={videoRef.current?.videoHeight}
-            style={{
-              width: size.width,
-              height: size.height,
-              filter: `brightness(${video.brightness})`,
-            }}
+            style={{filter: `brightness(${video.brightness})`}}
             muted
             playsInline
             autoPlay
             crossOrigin="anonymous"
+            className={classes.video}
           />
         </div>
       </div>
