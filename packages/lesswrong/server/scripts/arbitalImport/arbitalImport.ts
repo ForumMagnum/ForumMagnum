@@ -29,6 +29,7 @@ import maxBy from 'lodash/maxBy';
 import { recomputePingbacks } from '@/server/pingbacks';
 import { performVoteServer } from '@/server/voteServer';
 import { Votes } from '@/lib/collections/votes';
+import mapValues from 'lodash/mapValues';
 
 type ArbitalImportOptions = {
   /**
@@ -602,7 +603,7 @@ async function buildConversionContext(database: WholeArbitalDatabase, pagesToCon
 
 async function importWikiPages(database: WholeArbitalDatabase, conversionContext: ArbitalConversionContext, resolverContext: ResolverContext, options: ArbitalImportOptions): Promise<void> {
   const pagesById = groupBy(database.pages, p=>p.pageId);
-  const lensesByPageId = groupBy(database.lenses, l=>l.pageId);
+  const lensesByPageId = mapValues(groupBy(database.lenses, l=>l.pageId), lenses=>sortBy(lenses, l=>l.lensIndex));
   const lensIds = new Set(database.lenses.map(l=>l.lensId));
 
   const {
