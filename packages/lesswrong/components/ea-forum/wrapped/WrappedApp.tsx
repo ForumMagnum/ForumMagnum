@@ -115,14 +115,14 @@ const WrappedApp = ({classes}: {
             ref={thinkingVideoRef}
             muted
             playsInline
-            crossOrigin="anonymous"
+            preload="auto"
           />
           <video
             src={personalityVideo.src}
             ref={personalityVideoRef}
             muted
             playsInline
-            crossOrigin="anonymous"
+            preload="auto"
           />
         </div>
         <CurrentSection />
