@@ -276,7 +276,7 @@ const WrappedSummarySection = ({classes}: {
                       {mostReadAuthors.slice(0,3).map((author) => (
                         <div key={author.slug} className={classes.listItem}>
                           <UsersProfileImage size={20} user={author} />
-                          <Link to={getUserProfileLink(author.slug, year)}>
+                          <Link to={getUserProfileLink(author.slug, year)} target="_blank">
                             {author.displayName}
                           </Link>
                         </div>
@@ -296,7 +296,7 @@ const WrappedSummarySection = ({classes}: {
                               <div className={classes.iconPlaceholder} />
                             }
                           />
-                          <Link to={tagGetUrl({slug: topic.slug})}>
+                          <Link to={tagGetUrl({slug: topic.slug})} target="_blank">
                             {topic.name}
                           </Link>
                         </div>

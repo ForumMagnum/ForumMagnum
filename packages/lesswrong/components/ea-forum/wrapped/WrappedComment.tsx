@@ -1,6 +1,5 @@
 import React from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
-import { useCommentLink } from "@/components/comments/CommentsItem/useCommentLink";
 import { Link } from "@/lib/reactRouterWrapper";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { ExpandedDate } from "@/components/common/FormatDate";
@@ -13,6 +12,7 @@ import {
 } from "./hooks";
 import type { TagCommentType } from "@/lib/collections/comments/types";
 import moment from "moment";
+import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -83,16 +83,12 @@ const WrappedComment = ({comment, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {currentUser} = useForumWrappedContext();
-
-  const CommentLinkWrapper = useCommentLink({
-    comment: {
-      ...comment,
-      tagCommentType: "DISCUSSION" as TagCommentType,
-    },
-    post: {
-      _id: comment.postId,
-      slug: "postSlug" in comment ? comment.postSlug : "",
-    },
+  
+  const url = commentGetPageUrlFromIds({
+    postId: comment.postId,
+    postSlug: "postSlug" in comment ? comment.postSlug : "",
+    commentId: comment._id,
+    tagCommentType: "DISCUSSION" as TagCommentType,
   });
 
   const {LWTooltip, EAReactsSection, UserTooltip, ContentStyles} = Components;
@@ -116,9 +112,9 @@ const WrappedComment = ({comment, classes}: {
             placement="right"
             title={<ExpandedDate date={comment.postedAt} />}
           >
-            <CommentLinkWrapper>
+            <Link target="_blank" rel="nofollow" to={url}>
               {moment(new Date(comment.postedAt)).fromNow()}
-            </CommentLinkWrapper>
+            </Link>
           </LWTooltip>
         </div>
         <div className={classes.karma}>

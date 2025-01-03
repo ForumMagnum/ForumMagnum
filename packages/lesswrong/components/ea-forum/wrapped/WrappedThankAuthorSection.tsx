@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Components, registerComponent } from "@/lib/vulcan-lib";
 import { useTracking } from "@/lib/analyticsEvents";
 import { useInitiateConversation } from "@/components/hooks/useInitiateConversation";
@@ -60,6 +60,14 @@ const styles = (theme: ThemeType) => ({
       },
     },
   },
+  success: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    columnGap: '6px',
+    fontSize: '18px',
+    padding: '20px 0',
+  }
 });
 
 const WrappedThankAuthorSection = ({classes}: {
@@ -67,6 +75,7 @@ const WrappedThankAuthorSection = ({classes}: {
 }) => {
   const {year, data, currentUser} = useForumWrappedContext();
   const {captureEvent} = useTracking();
+  const [messageSent, setMessageSent] = useState(false);
 
   const {
     topAuthorByEngagementPercentile,
@@ -79,6 +88,7 @@ const WrappedThankAuthorSection = ({classes}: {
   }, [initiateConversation, topAuthorByEngagementPercentile]);
 
   const onSuccess = useCallback(() => {
+    setMessageSent(true)
     if (conversation && currentUser) {
       captureEvent("messageSent", {
         conversationId: conversation._id,
@@ -93,8 +103,21 @@ const WrappedThankAuthorSection = ({classes}: {
   const {displayName, slug} = topAuthorByEngagementPercentile;
 
   const {
-    WrappedSection, WrappedHeading, UsersProfileImage, MessagesNewForm, Loading,
+    WrappedSection, WrappedHeading, UsersProfileImage, MessagesNewForm, Loading, ForumIcon,
   } = Components;
+  
+  const messageNode = conversation ? (
+    <div className={classes.newMessageForm}>
+      <MessagesNewForm
+        conversationId={conversation._id}
+        successEvent={onSuccess}
+        submitLabel="Send"
+      />
+    </div>
+  ) : (
+    <Loading />
+  )
+  
   return (
     <WrappedSection pageSectionContext="thankAuthor">
       <WrappedHeading className={classes.heading}>
@@ -116,20 +139,9 @@ const WrappedThankAuthorSection = ({classes}: {
             </Link>
           </div>
         </div>
-        {conversation
-          ? (
-            <div className={classes.newMessageForm}>
-              <MessagesNewForm
-                conversationId={conversation._id}
-                successEvent={onSuccess}
-                submitLabel="Send"
-              />
-            </div>
-          )
-          : (
-            <Loading />
-          )
-        }
+        {messageSent ? (
+          <div className={classes.success}><ForumIcon icon="CheckCircle" />Sent</div>
+        ) : messageNode}
       </div>
     </WrappedSection>
   );
