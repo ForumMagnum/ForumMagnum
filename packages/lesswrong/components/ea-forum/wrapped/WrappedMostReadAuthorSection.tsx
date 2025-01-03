@@ -56,7 +56,7 @@ const WrappedMostReadAuthorSection = ({classes}: {
             <Components.UsersProfileImage size={40} user={author} />
             <div>
               <h3 className={classes.authorName}>
-                <Link to={getUserProfileLink(author.slug, year)}>
+                <Link to={getUserProfileLink(author.slug, year)} target="_blank">
                   {author.displayName}
                 </Link>
               </h3>

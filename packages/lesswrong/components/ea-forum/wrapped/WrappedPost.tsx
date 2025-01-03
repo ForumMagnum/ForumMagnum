@@ -85,7 +85,7 @@ const WrappedPost = ({post, showMostValuableCheckbox, classes}: {
 
   const titleNode = (
     <InteractionWrapper>
-      <Link to={postLink} className={classes.title}>{post.title}</Link>
+      <Link to={postLink} className={classes.title} target="_blank">{post.title}</Link>
     </InteractionWrapper>
   );
 

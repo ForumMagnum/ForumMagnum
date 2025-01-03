@@ -274,6 +274,7 @@ const allSections: WrappedSection[] = [
   {component: Components.WrappedSummarySection},
   {component: Components.WrappedRecommendationsSection},
   {component: Components.WrappedMostValuablePostsSection},
+  {component: Components.WrappedThankYouSection},
 ];
 
 type ForumWrappedContext = {
