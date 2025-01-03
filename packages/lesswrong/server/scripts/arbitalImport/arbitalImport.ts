@@ -660,6 +660,10 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
       });
       console.log(`Creating wiki page: ${title} (${slug}).  Lenses found: ${lenses.map(l=>l.lensName).join(", ")}`);
 
+      // If we're going to merge with an LW wiki page, fetch that page for reference
+      const lwWikiPageToConvertToLens = pagesToConvertToLenses.find(({arbitalPageId}) => arbitalPageId === pageId);
+      const lwWikiPage = lwWikiPageToConvertToLens ? await Tags.findOne({_id: lwWikiPageToConvertToLens.tagId}) : null;
+
       // Create wiki page with the oldest revision (we will create the rest of
       // revisions next; creating them in-order ensures some on-insert callbacks
       // work properly.)
@@ -686,6 +690,7 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
             },
             legacyData: {
               "arbitalPageId": pageId,
+              ...(lwWikiPage ? {mergedLWTagId: lwWikiPage._id} : {}),
             },
           },
           context: resolverContext,
@@ -877,10 +882,8 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
         });
       }
       
-      const lwWikiPageToConvertToLens = pagesToConvertToLenses.find(({arbitalPageId}) => arbitalPageId === pageId);
       if (lwWikiPageToConvertToLens) {
         console.log(`Converting LW wiki page ${lwWikiPageToConvertToLens.tagId} to a lens`);
-        const lwWikiPage = await Tags.findOne({_id: lwWikiPageToConvertToLens.tagId});
         if (!lwWikiPage) continue;
         const lwWikiPageCreator: DbUser = (await Users.findOne({_id: lwWikiPage.userId}))!;
         const lwWikiLensSlug = await getUnusedSlugByCollectionName("MultiDocuments", `lwwiki-${slugify(title)}`);
@@ -930,6 +933,18 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
           });
         }
         const latestRev = maxBy(lwWikiPageRevisions, r=>r.editedAt)!;
+        
+        // Move TagRels/comments/etc from the original LW wiki page, and any
+        // previous imports that merged with that page, onto the new merged
+        // page.
+        const oldMergedTagIds = (await Tags.find({
+          "legacyData.mergedLWTagId": lwWikiPage._id,
+          deleted: true,
+        }).fetch()).map(t=>t._id);
+        await moveReferencesToMergedPage({
+          oldTagIds: [lwWikiPage._id, ...oldMergedTagIds],
+          newTagId: wiki._id,
+        });
         
         // Set the active rev on the new lens
         await MultiDocuments.rawUpdateOne(
@@ -1328,6 +1343,30 @@ async function loadUserMatching(csvFilename: string): Promise<Record<string,DbUs
   }
   
   return result;
+}
+
+async function moveReferencesToMergedPage({oldTagIds, newTagId}: {
+  oldTagIds: string[]
+  newTagId: string
+}) {
+  async function redirectTagReferences<N extends CollectionNameString>(collectionName: N, fieldName: keyof ObjectsByCollectionName[N]) {
+    const collection = getCollection(collectionName);
+    await collection.rawUpdateMany(
+      {
+        [fieldName]: {$in: oldTagIds}
+      },
+      {$set: {
+        [fieldName]: newTagId,
+      }},
+    );
+  }
+
+  await redirectTagReferences("TagRels", "tagId");
+  await redirectTagReferences("Comments", "tagId");
+  await redirectTagReferences("UserTagRels", "tagId");
+  await redirectTagReferences("Subscriptions", "documentId");
+  
+  // TODO: Rewrite user tag filters?
 }
 
 
