@@ -844,7 +844,7 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
             resolverContext,
           });
           
-          await convertLikesToVotes(conversionContext, pageInfosById[lens.pageId].likeableId, "MultiDocuments", lensObj._id);
+          await convertLikesToVotes(conversionContext, pageInfosById[lens.lensId].likeableId, "MultiDocuments", lensObj._id);
 
         } else {
           lensObj = await MultiDocuments.findOne({ slug: lensSlug });
