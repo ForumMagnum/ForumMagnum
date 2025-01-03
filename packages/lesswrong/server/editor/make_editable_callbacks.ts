@@ -26,6 +26,7 @@ import { MakeEditableOptions, editableCollectionsFieldOptions } from '@/lib/edit
 // callbacks
 interface AfterCreateRevisionCallbackContext {
   revisionID: string
+  skipDenormalizedAttributions?: boolean
 }
 export const afterCreateRevisionCallback = new CallbackHook<[AfterCreateRevisionCallbackContext]>("revisions.afterRevisionCreated");
 
