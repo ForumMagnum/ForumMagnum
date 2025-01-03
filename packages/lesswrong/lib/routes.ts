@@ -1,4 +1,4 @@
-import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting, taggingNamePluralSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameCapitalSetting, isEAForum, taggingNameSetting, aboutPostIdSetting, isLW, taggingUrlSchemaSetting, isLWorAF, tagUrlBaseSetting } from './instanceSettings';
+import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting, taggingNamePluralSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameCapitalSetting, isEAForum, taggingNameSetting, aboutPostIdSetting, isLW, taggingUrlCustomBaseSetting, isLWorAF, tagUrlBaseSetting, usePluralTagNameSetting, taggingNameCapitalizedWithCorrectPlural } from './instanceSettings';
 import { blackBarTitle, legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, RouterLocation, Route } from './vulcan-lib/routes';
 import { REVIEW_YEAR } from './reviewUtils';
@@ -374,197 +374,145 @@ addRoute(
 );
 
 
-const usePluralTagName = !isLWorAF && taggingNameIsSet.get();
-const taggingNameCapitalized = usePluralTagName ? taggingNamePluralCapitalSetting.get() : taggingNameCapitalSetting.get();
+const taggingNameCapitalized = taggingNameCapitalizedWithCorrectPlural.get();
 
+addRoute(
+  {
+    name: 'tagsSingle',
+    path: `/${tagUrlBaseSetting.get()}/:slug`,
+    componentName: 'TagPageRouter',
+    titleComponentName: 'TagPageTitle',
+    subtitleComponentName: 'TagPageTitle',
+    previewComponentName: 'TagHoverPreview',
+    enableResourcePrefetch: tagRouteWillDefinitelyReturn200,
+    background: isLW ? "white" : "#fffeee",
+    getPingback: (parsedUrl) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+    redirect: (location) => {
+      if (!isLWorAF) {
+        return null;
+      }
+
+      const { params: { slug }, query } = location;
+      if ('startPath' in query && slug in GUIDE_PATH_PAGES_MAPPING) {
+        const firstPathPageId = GUIDE_PATH_PAGES_MAPPING[slug as keyof typeof GUIDE_PATH_PAGES_MAPPING][0];
+        return tagGetUrl({slug: firstPathPageId}, {pathId: slug});
+      }
+      return null;
+    },
+  },
+  {
+    name: 'tagDiscussion',
+    path: `/${tagUrlBaseSetting.get()}/:slug/discussion`,
+    componentName: 'TagDiscussionPage',
+    titleComponentName: 'TagPageTitle',
+    subtitleComponentName: 'TagPageTitle',
+    previewComponentName: 'TagHoverPreview',
+    background: isLW ? "white" : undefined,
+    noIndex: true,
+    getPingback: (parsedUrl) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+  },
+  {
+    name: 'tagHistory',
+    path: `/${tagUrlBaseSetting.get()}/:slug/history`,
+    componentName: 'TagHistoryPage',
+    titleComponentName: 'TagHistoryPageTitle',
+    subtitleComponentName: 'TagHistoryPageTitle',
+    enableResourcePrefetch: tagRouteWillDefinitelyReturn200,
+    noIndex: true,
+  },
+  {
+    name: 'tagEdit',
+    path: `/${tagUrlBaseSetting.get()}/:slug/edit`,
+    componentName: 'EditTagPage',
+    titleComponentName: 'TagPageTitle',
+    subtitleComponentName: 'TagPageTitle',
+  },
+  {
+    name: 'tagCreate',
+    path: `/${tagUrlBaseSetting.get()}/create`,
+    title: `New ${taggingNameCapitalSetting.get()}`,
+    componentName: 'NewTagPage',
+    subtitleComponentName: 'TagPageTitle',
+    background: "white"
+  },
+  {
+    name: 'randomTag',
+    path: `/${tagUrlBaseSetting.get()}/random`,
+    componentName: 'RandomTagPage',
+  },
+  {
+    name: 'tagActivity',
+    path: `/${tagUrlBaseSetting.get()}Activity`,
+    componentName: 'TagVoteActivity',
+    title: `${taggingNameCapitalized} Voting Activity`
+  },
+  {
+    name: 'tagFeed',
+    path: `/${tagUrlBaseSetting.get()}Feed`,
+    componentName: 'TagActivityFeed',
+    title: `${taggingNameCapitalized} Activity`
+  },
+  {
+    name: 'taggingDashboard',
+    path: `/${tagUrlBaseSetting.get()}/dashboard`,
+    componentName: "TaggingDashboard",
+    title: `${taggingNameCapitalized} Dashboard`,
+    ...taggingDashboardSubtitle
+  }
+)
+
+if (tagUrlBaseSetting.get() !== 'tag') {
   addRoute(
     {
-      name: 'tagsSingle',
-      path: `/${tagUrlBaseSetting.get()}/:slug`,
-      componentName: 'TagPageRouter',
-      titleComponentName: 'TagPageTitle',
-      subtitleComponentName: 'TagPageTitle',
-      previewComponentName: 'TagHoverPreview',
-      enableResourcePrefetch: tagRouteWillDefinitelyReturn200,
+      name: 'tagsSingleRedirect',
+      path: '/tag/:slug',
+      redirect: ({ params }) => `/${tagUrlBaseSetting.get()}/${params.slug}`,
       background: isLW ? "white" : "#fffeee",
       getPingback: (parsedUrl) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug),
-      redirect: (location) => {
-        if (!isLWorAF) {
-          return null;
-        }
-
-        const { params: { slug }, query } = location;
-        if ('startPath' in query && slug in GUIDE_PATH_PAGES_MAPPING) {
-          const firstPathPageId = GUIDE_PATH_PAGES_MAPPING[slug as keyof typeof GUIDE_PATH_PAGES_MAPPING][0];
-          return tagGetUrl({slug: firstPathPageId}, {pathId: slug});
-        }
-        return null;
-      },
     },
     {
-      name: 'tagDiscussion',
-      path: `/${tagUrlBaseSetting.get()}/:slug/discussion`,
-      componentName: 'TagDiscussionPage',
-      titleComponentName: 'TagPageTitle',
-      subtitleComponentName: 'TagPageTitle',
-      previewComponentName: 'TagHoverPreview',
-      background: isLW ? "white" : undefined,
-      noIndex: true,
-      getPingback: (parsedUrl) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+      name: 'tagDiscussionRedirect',
+      path: '/tag/:slug/discussion',
+      redirect: ({params}) => `/${tagUrlBaseSetting.get()}/${params.slug}/discussion`
     },
     {
-      name: 'tagHistory',
-      path: `/${tagUrlBaseSetting.get()}/:slug/history`,
-      componentName: 'TagHistoryPage',
-      titleComponentName: 'TagHistoryPageTitle',
-      subtitleComponentName: 'TagHistoryPageTitle',
-      enableResourcePrefetch: tagRouteWillDefinitelyReturn200,
-      noIndex: true,
+      name: 'tagHistoryRedirect',
+      path: '/tag/:slug/history',
+      redirect: ({params}) => `/${tagUrlBaseSetting.get()}/${params.slug}/history`
     },
     {
-      name: 'tagEdit',
-      path: `/${tagUrlBaseSetting.get()}/:slug/edit`,
-      componentName: 'EditTagPage',
-      titleComponentName: 'TagPageTitle',
-      subtitleComponentName: 'TagPageTitle',
+      name: 'tagEditRedirect',
+      path: '/tag/:slug/edit',
+      redirect: ({params}) => `/${tagUrlBaseSetting.get()}/${params.slug}/edit`
     },
     {
-      name: 'tagCreate',
-      path: `/${tagUrlBaseSetting.get()}/create`,
-      title: `New ${taggingNameCapitalSetting.get()}`,
-      componentName: 'NewTagPage',
-      subtitleComponentName: 'TagPageTitle',
-      background: "white"
+      name: 'tagCreateRedirect',
+      path: '/tag/create',
+      redirect: () => `/${tagUrlBaseSetting.get()}/create`
     },
     {
-      name: 'randomTag',
-      path: `/${tagUrlBaseSetting.get()}/random`,
-      componentName: 'RandomTagPage',
+      name: 'randomTagRedirect',
+      path: '/tags/random',
+      redirect: () => `/${tagUrlBaseSetting.get()}/random`
     },
     {
-      name: 'tagActivity',
-      path: `/${tagUrlBaseSetting.get()}Activity`,
-      componentName: 'TagVoteActivity',
-      title: `${taggingNameCapitalized} Voting Activity`
+      name: 'tagActivityRedirect',
+      path: '/tagActivity',
+      redirect: () => `/${tagUrlBaseSetting.get()}Activity`
     },
     {
-      name: 'tagFeed',
-      path: `/${tagUrlBaseSetting.get()}Feed`,
-      componentName: 'TagActivityFeed',
-      title: `${taggingNameCapitalized} Activity`
+      name: 'tagFeedRedirect',
+      path: '/tagFeed',
+      redirect: () => `/${tagUrlBaseSetting.get()}Feed`
     },
     {
-      name: 'taggingDashboard',
-      path: `/${tagUrlBaseSetting.get()}/dashboard`,
-      componentName: "TaggingDashboard",
-      title: `${taggingNameCapitalized} Dashboard`,
-      ...taggingDashboardSubtitle
-    }
-  )
-
-  if (tagUrlBaseSetting.get() !== 'tag') {
-    addRoute(
-      {
-        name: 'tagsSingleRedirect',
-        path: '/tag/:slug',
-        redirect: ({ params }) => `/${tagUrlBaseSetting.get()}/${params.slug}`,
-        background: isLW? "white" : "#fffeee",
-        getPingback: (parsedUrl) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug),
-      },
-      {
-        name: 'tagDiscussionRedirect',
-        path: '/tag/:slug/discussion',
-        redirect: ({params}) => `/${tagUrlBaseSetting.get()}/${params.slug}/discussion`
-      },
-      {
-        name: 'tagHistoryRedirect',
-        path: '/tag/:slug/history',
-        redirect: ({params}) => `/${tagUrlBaseSetting.get()}/${params.slug}/history`
-      },
-      {
-        name: 'tagEditRedirect',
-        path: '/tag/:slug/edit',
-        redirect: ({params}) => `/${tagUrlBaseSetting.get()}/${params.slug}/edit`
-      },
-      {
-        name: 'tagCreateRedirect',
-        path: '/tag/create',
-        redirect: () => `/${tagUrlBaseSetting.get()}/create`
-      },
-      {
-        name: 'randomTagRedirect',
-        path: '/tags/random',
-        redirect: () => `/${tagUrlBaseSetting.get()}/random`
-      },
-      {
-        name: 'tagActivityRedirect',
-        path: '/tagActivity',
-        redirect: () => `/${tagUrlBaseSetting.get()}Activity`
-      },
-      {
-        name: 'tagFeedRedirect',
-        path: '/tagFeed',
-        redirect: () => `/${tagUrlBaseSetting.get()}Feed`
-      },
-      {
-        name: 'taggingDashboardRedirect',
-        path: '/tags/dashboard',
-        redirect: () => `/${tagUrlBaseSetting.get()}/dashboard`
-      }
-    )
-  }
-
-// Temporary arbital routes
-if (isLWorAF) {
-  addRoute(
-    // {
-    //   name: 'tag.arbital.w.guideRedirect',
-    //   path: '/w/:slug',
-    //   componentName: 'TagPage',
-    //   titleComponentName: 'TagPageTitle',
-    //   subtitleComponentName: 'TagPageTitle',
-    //   previewComponentName: 'TagHoverPreview',
-    //   enableResourcePrefetch: tagRouteWillDefinitelyReturn200,
-    //   background: "white",
-    //   redirect: (location) => {
-    //     const { params: { slug }, query } = location;
-    //     if ('startPath' in query && slug in GUIDE_PATH_PAGES_MAPPING) {
-    //       const firstPathPageId = GUIDE_PATH_PAGES_MAPPING[slug as keyof typeof GUIDE_PATH_PAGES_MAPPING][0];
-    //       return `/w/${firstPathPageId}?pathId=${slug}`;
-    //     }
-    //     return null;
-    //   },
-    //   getPingback: (parsedUrl) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug),
-    // },
-    // {
-    //   name: 'tag.arbital.w',
-    //   path: '/w/:slug',
-    //   componentName: 'TagPage',
-    //   titleComponentName: 'TagPageTitle',
-    //   subtitleComponentName: 'TagPageTitle',
-    //   previewComponentName: 'TagHoverPreview',
-    //   enableResourcePrefetch: tagRouteWillDefinitelyReturn200,
-    //   background: "white",
-    //  getPingback: (parsedUrl) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug),
-    // },
-    // {
-    //   name: 'tag.arbital.p',
-    //   path: '/p/:slug',
-    //   componentName: 'TagPage',
-    //   titleComponentName: 'TagPageTitle',
-    //   subtitleComponentName: 'TagPageTitle',
-    //   previewComponentName: 'TagHoverPreview',
-    //   enableResourcePrefetch: tagRouteWillDefinitelyReturn200,
-    //   background: "white",
-    //   getPingback: (parsedUrl) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug),
-    // },
-    {
-      name: 'tag.arbital.p.redirect',
-      path: '/p/:slug',
-      redirect: ({params}) => `${tagUrlBaseSetting}/${params.slug}`
+      name: 'taggingDashboardRedirect',
+      path: '/tags/dashboard',
+      redirect: () => `/${tagUrlBaseSetting.get()}/dashboard`
     }
   )
 }
+
 
 // All tags page
 addRoute(
