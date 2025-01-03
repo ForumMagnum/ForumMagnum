@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "../routeUtil";
 import type { ToCData } from "../tableOfContents";
 import qs from "qs";
 import omit from "lodash/omit";
+import { useDialog } from "@/components/common/withDialog";
 
 export const MAIN_TAB_ID = 'main-tab';
 
@@ -50,6 +51,8 @@ function getDefaultLens(tag: TagPageWithArbitalContentFragment | TagPageRevision
     slug: 'main',
     oldSlugs: [],
     userId: tag.userId,
+    deleted: false,
+    createdAt: tag.createdAt,
     legacyData: {},
     originalLensDocument: null,
     arbitalLinkedPages: 'arbitalLinkedPages' in tag ? tag.arbitalLinkedPages : null,
@@ -83,6 +86,8 @@ export function getAvailableLenses(tag: TagPageWithArbitalContentFragment | TagP
 export function useTagLenses(tag: TagPageWithArbitalContentFragment | TagPageRevisionWithArbitalContentFragment | TagPageWithArbitalContentAndLensRevisionFragment | null): TagLensInfo {
   const { query, location } = useLocation();
   const navigate = useNavigate();
+  const { openDialog } = useDialog();
+
   const availableLenses = useMemo(() => getAvailableLenses(tag), [tag]);
 
   const querySelectedLens = useMemo(() =>
@@ -99,6 +104,12 @@ export function useTagLenses(tag: TagPageWithArbitalContentFragment | TagPageRev
   );
 
   const updateSelectedLens = useCallback((lensId: string) => {
+    if (lensId === 'new-lens') {
+      console.log('new-lens');
+      openDialog({
+        componentName: 'NewLensDialog',
+      });
+    }
     const selectedLensSlug = availableLenses.find(lens => lens._id === lensId)?.slug;
     if (selectedLensSlug) {
       const defaultLens = availableLenses.find(lens => lens._id === MAIN_TAB_ID);
@@ -110,7 +121,7 @@ export function useTagLenses(tag: TagPageWithArbitalContentFragment | TagPageRev
 
       navigate({ ...location, search: newSearch });
     }
-  }, [availableLenses, location, navigate, query]);
+  }, [availableLenses, location, navigate, openDialog, query]);
 
   useEffect(() => {
     if (query.lens && tag && !querySelectedLens) {

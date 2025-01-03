@@ -3961,6 +3961,7 @@ interface MultiDocumentsDefaultFragment { // fragment on MultiDocuments
   readonly contributors: any /*TagContributorsList*/,
   readonly contributionStats: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly htmlWithContributorAnnotations: string,
+  readonly deleted: boolean,
 }
 
 interface MultiDocumentMinimumInfo { // fragment on MultiDocuments
@@ -3976,6 +3977,8 @@ interface MultiDocumentMinimumInfo { // fragment on MultiDocuments
   readonly tabSubtitle: string | null,
   readonly preview: string | null,
   readonly index: number,
+  readonly deleted: boolean,
+  readonly createdAt: Date,
   readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly baseScore: number,
   readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,

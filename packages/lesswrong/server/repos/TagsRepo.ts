@@ -108,7 +108,11 @@ class TagsRepo extends AbstractRepo<"Tags"> {
         ARRAY_AGG(TO_JSONB(md.*)) OVER (PARTITION BY t._id) as summaries
       FROM matching_tags t
       LEFT JOIN "MultiDocuments" md
-      ON md."parentDocumentId" = t."_id" AND md."fieldName" = 'summary'
+      ON (
+        md."parentDocumentId" = t."_id"
+        AND md."fieldName" = 'summary'
+        AND md."deleted" IS FALSE
+      )
       -- TODO: figure out a more principled fix for the problem we can have multiple tags or lenses with the same slug/oldSlugs
       LIMIT 1
     `, [slug]);

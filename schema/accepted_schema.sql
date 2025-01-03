@@ -1281,6 +1281,7 @@ CREATE TABLE "MultiDocuments" (
   "index" DOUBLE PRECISION NOT NULL,
   "contributionStats" JSONB,
   "htmlWithContributorAnnotations" TEXT,
+  "deleted" BOOL NOT NULL DEFAULT FALSE,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB,

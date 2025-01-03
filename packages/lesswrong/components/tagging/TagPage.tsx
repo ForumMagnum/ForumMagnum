@@ -511,9 +511,10 @@ const PostsListHeading: FC<{
   );
 }
 
-const EditLensForm = ({lens, setFormDirty}: {
+const EditLensForm = ({lens, changeCallback, cancelCallback}: {
   lens: TagLens,
-  setFormDirty: (dirty: boolean) => void,
+  changeCallback: () => void,
+  cancelCallback: () => void,
 }) => {
   const { WrappedSmartForm } = Components;
   return <WrappedSmartForm
@@ -525,9 +526,8 @@ const EditLensForm = ({lens, setFormDirty}: {
     {...(lens.originalLensDocument ? { prefetchedDocument: lens.originalLensDocument } : {})}
     addFields={['summaries']}
     warnUnsavedChanges={true}
-    changeCallback={() => {
-      setFormDirty(true);
-    }}
+    changeCallback={changeCallback}
+    cancelCallback={cancelCallback}
   />
 }
 
@@ -1120,7 +1120,7 @@ const TagPage = () => {
   } else if (selectedLens) {
     editForm = (
       <span className={classNames(classes.unselectedEditForm, editing && classes.selectedEditForm)}>
-        <EditLensForm lens={selectedLens} setFormDirty={setFormDirty} />
+        <EditLensForm lens={selectedLens} changeCallback={() => setFormDirty(true)} cancelCallback={() => setEditing(false)} />
       </span>
     );
   }

@@ -715,6 +715,7 @@ interface DbMultiDocument extends DbObject {
   index: number
   contributionStats: any /*{"definitions":[{"blackbox":true}]}*/
   htmlWithContributorAnnotations: string | null
+  deleted: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   contents_latest: string | null

@@ -7,6 +7,8 @@ import classNames from "classnames";
 import { makeSortableListComponent } from "../form-components/sortableList";
 import { gql, useMutation } from "@apollo/client";
 import { SortableHandle as sortableHandle } from "react-sortable-hoc";
+import { useCurrentUser } from "../common/withUser";
+import { userCanDeleteMultiDocument } from "@/lib/collections/multiDocuments/schema";
 
 const styles = defineStyles("SummariesEditForm", (theme: ThemeType) => ({
   root: {
@@ -116,6 +118,9 @@ const styles = defineStyles("SummariesEditForm", (theme: ThemeType) => ({
     color: theme.palette.secondary.main
   },
   cancelButton: {},
+  deleteButton: {
+    color: theme.palette.error.main,
+  },
   hide: {
     display: 'none',
   },
@@ -165,11 +170,13 @@ const NO_SUMMARIES_TEXT = "There are no custom summaries written for this page, 
 const SUMMARIES_TEXT = "You can edit summaries by clicking on them, reorder them by dragging, or add a new one (up to 3).  By default you should avoid creating more than one summary unless the subject matter benefits substantially from multiple kinds of explanation.";
 const MAX_SUMMARIES_TEXT = "You can edit these summaries by clicking on them and reorder them by dragging.  Pages can have up to 3 summaries.";
 
-const SummarySubmitButtons = ({ submitForm, cancelCallback }: FormButtonProps) => {
+const SummarySubmitButtons = ({ submitForm, cancelCallback, updateCurrentValues, document: summary }: FormButtonProps) => {
   const { Loading } = Components;
   const classes = useStyles(styles);
+  const currentUser = useCurrentUser();
 
   const [loading, setLoading] = useState(false);
+  const userCanDeleteSummary = !summary.deleted && userCanDeleteMultiDocument(currentUser, summary);
 
   const wrappedSubmitForm = async (e: React.MouseEvent<HTMLButtonElement>) => {
     setLoading(true);
@@ -177,7 +184,15 @@ const SummarySubmitButtons = ({ submitForm, cancelCallback }: FormButtonProps) =
     setLoading(false);
   }
 
+  const wrappedDeleteSummary = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    setLoading(true);
+    await updateCurrentValues({ deleted: true });
+    await wrappedSubmitForm(e);
+    setLoading(false);
+  }
+
   return <div className={classes.submitButtons}>
+    {/* {!loading && userCanDeleteSummary && <Button onClick={wrappedDeleteSummary} className={classes.deleteButton}>Delete</Button>} */}
     {!loading && <Button onClick={cancelCallback} className={classes.cancelButton}>Cancel</Button>}
     {!loading && <Button onClick={wrappedSubmitForm} className={classes.submitButton}>Submit</Button>}
     {loading && <Loading />}

@@ -1044,6 +1044,7 @@ importComponent("ArbitalImportRevisionDetails", () => require("../../components/
 importComponent("LensRevisionItem", () => require("../../components/tagging/history/LensRevisionItem.tsx"));
 importComponent("TagHistoryPage", () => require("../../components/tagging/history/TagHistoryPage.tsx"));
 importComponent(["LensTabBar", "LensTab"], () => require("../../components/tagging/lenses/LensTab.tsx"));
+importComponent("NewLensDialog", () => require("../../components/tagging/lenses/NewLensDialog.tsx"));
 importComponent("SidebarMembersBox", () => require("../../components/tagging/subforums/SidebarMembersBox.tsx"));
 importComponent("SidebarSubtagsBox", () => require("../../components/tagging/subforums/SidebarSubtagsBox.tsx"));
 importComponent("SubforumLayout", () => require("../../components/tagging/subforums/SubforumLayout.tsx"));

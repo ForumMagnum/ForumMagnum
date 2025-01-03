@@ -2,9 +2,27 @@ import { slugIsUsed } from "@/lib/helpers";
 import { resolverOnlyField, accessFilterSingle, schemaDefaultValue } from "@/lib/utils/schemaUtils";
 import { getCollection } from "@/lib/vulcan-lib/getCollection";
 import { arbitalLinkedPagesField } from '../helpers/arbitalLinkedPagesField';
-import { addGraphQLSchema } from "@/lib/vulcan-lib";
 import { summariesField } from "../helpers/summariesField";
 import { formGroups } from "./formGroups";
+import { userOwns } from "@/lib/vulcan-users/permissions";
+import { userIsAdminOrMod } from "@/lib/vulcan-users";
+
+const MULTI_DOCUMENT_DELETION_WINDOW = 1000 * 60 * 60 * 24 * 7;
+
+export function userCanDeleteMultiDocument(user: DbUser | UsersCurrent | null, document: DbMultiDocument) {
+  if (document.deleted) {
+    return false;
+  }
+
+  if (userIsAdminOrMod(user)) {
+    return true;
+  }
+
+  const deletableUntil = new Date(document.createdAt).getTime() + MULTI_DOCUMENT_DELETION_WINDOW;
+  const withinDeletionWindow = deletableUntil > Date.now();
+
+  return userOwns(user, document) && withinDeletionWindow;
+}
 
 const schema: SchemaType<"MultiDocuments"> = {
   // In the case of tag lenses, this is the title displayed in the body of the tag page when the lens is selected.
@@ -13,6 +31,8 @@ const schema: SchemaType<"MultiDocuments"> = {
     type: String,
     canRead: ['guests'],
     canUpdate: ['members'],
+    canCreate: ['members'],
+    hidden: ({ formProps }) => !formProps?.newLensForm,
     optional: true,
     nullable: true,
     order: 5,
@@ -78,7 +98,7 @@ const schema: SchemaType<"MultiDocuments"> = {
     canUpdate: ['members'],
     canCreate: ['members'],
     nullable: false,
-    label: "Summary Title",
+    label: "Tab Title",
     order: 10,
   },
   tabSubtitle: {
@@ -182,6 +202,14 @@ const schema: SchemaType<"MultiDocuments"> = {
   },
 
   ...summariesField('MultiDocuments', { group: formGroups.summaries }),
+
+  deleted: {
+    type: Boolean,
+    canRead: ['guests'],
+    canUpdate: [userCanDeleteMultiDocument, 'sunshineRegiment', 'admins'],
+    optional: true,
+    ...schemaDefaultValue(false),
+  },
 };
 
 export default schema;
