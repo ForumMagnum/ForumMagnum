@@ -732,7 +732,7 @@ let currentPathId: string | null = null;
 
 function startPath() {
   if (currentPathId) {
-    window.location.href = `/w/${currentPathId}/?startPath`;
+    window.location.href = tagGetUrl({slug: currentPathId}) + `/?startPath`;
   }
 }
 

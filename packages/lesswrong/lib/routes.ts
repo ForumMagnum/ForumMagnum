@@ -13,7 +13,7 @@ import { hasPostRecommendations, hasSurveys } from './betas';
 import {isFriendlyUI} from '../themes/forumTheme'
 import { postRouteWillDefinitelyReturn200 } from './collections/posts/helpers';
 import { sequenceRouteWillDefinitelyReturn200 } from './collections/sequences/helpers';
-import { tagRouteWillDefinitelyReturn200 } from './collections/tags/helpers';
+import { tagGetUrl, tagRouteWillDefinitelyReturn200 } from './collections/tags/helpers';
 import { GUIDE_PATH_PAGES_MAPPING } from './arbital/paths';
 
 const knownTagNames = ['tag', 'topic', 'concept']
@@ -396,7 +396,7 @@ const taggingNameCapitalized = usePluralTagName ? taggingNamePluralCapitalSettin
         const { params: { slug }, query } = location;
         if ('startPath' in query && slug in GUIDE_PATH_PAGES_MAPPING) {
           const firstPathPageId = GUIDE_PATH_PAGES_MAPPING[slug as keyof typeof GUIDE_PATH_PAGES_MAPPING][0];
-          return `/w/${firstPathPageId}?pathId=${slug}`;
+          return tagGetUrl({slug: firstPathPageId}, {pathId: slug});
         }
         return null;
       },

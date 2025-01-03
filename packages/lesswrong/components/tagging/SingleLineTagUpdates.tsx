@@ -7,6 +7,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { ExpandedDate } from '../common/FormatDate';
 import moment from 'moment';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { tagUrlBaseSetting } from '@/lib/instanceSettings';
 
 export const POSTED_AT_WIDTH = 38
 
@@ -161,7 +162,7 @@ const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users
           <span>History</span>
         </Link>}
       
-      {revisionIds.length>0 && <Link to={`revisions/tag/${tag.slug}`} className={classes.subheading}>
+      {revisionIds.length>0 && <Link to={`revisions/${tagUrlBaseSetting.get()}/${tag.slug}`} className={classes.subheading}>
         Edits
       </Link>}
       {revisionIds.map(revId => <div className={classes.tagRevision} key={revId}>

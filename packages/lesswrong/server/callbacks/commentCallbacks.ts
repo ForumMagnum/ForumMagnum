@@ -20,6 +20,7 @@ import { captureEvent } from '../../lib/analyticsEvents';
 import { adminAccountSetting, recombeeEnabledSetting } from '../../lib/publicSettings';
 import { recombeeApi } from '../recombee/client';
 import { userShortformPostTitle } from '@/lib/collections/users/helpers';
+import { tagGetDiscussionUrl } from '@/lib/collections/tags/helpers';
 
 
 const MINIMUM_APPROVAL_KARMA = 5
@@ -302,7 +303,7 @@ async function commentsRejectSendPMAsync (comment: DbComment, currentUser: DbUse
     const tag = await Tags.findOne(comment.tagId)
     if (tag) {
       contentTitle = tag.name
-      rejectedContentLink = `<a href="https://lesswrong.com/tag/${tag.slug}/discussion?commentId=${comment._id}">comment on ${tag.name}</a>`
+      rejectedContentLink = `<a href=${tagGetDiscussionUrl({slug: tag.slug})}` + `commentId=${comment._id}">comment on ${tag.name}</a>`
     }
   } else if (comment.postId) {
     const post = await Posts.findOne(comment.postId)

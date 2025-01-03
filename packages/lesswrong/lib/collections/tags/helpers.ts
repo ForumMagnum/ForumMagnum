@@ -32,6 +32,7 @@ type GetUrlOptions = {
   lens?: string
   tab?: string
   from?: string,
+  pathId?: string
 }
 
 export const tagCreateUrl = `/${tagUrlBaseSetting.get()}/create`
