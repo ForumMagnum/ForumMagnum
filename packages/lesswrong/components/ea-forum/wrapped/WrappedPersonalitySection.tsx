@@ -187,8 +187,6 @@ const WrappedPersonalitySection = ({classes}: {
             key={videoRef.current?.src ?? ""}
             loop={!isThinking}
             onContextMenu={onContextMenu}
-            width={videoRef.current?.videoWidth}
-            height={videoRef.current?.videoHeight}
             style={{filter: `brightness(${video.brightness})`}}
             muted
             playsInline
