@@ -38,6 +38,7 @@ const styles = (theme: ThemeType) => ({
     flexGrow: 1,
     display: 'flex',
     alignItems: 'center',
+    overflow: "hidden",
   },
   video: {
     maxWidth: "calc(min(100%, 400px))",
@@ -47,6 +48,9 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down("sm")]: {
       maxWidth: "calc(min(100%, 300px))",
     },
+  },
+  videoThinking: {
+    marginTop: -80,
   },
   content: {
     width: "100%",
@@ -192,7 +196,10 @@ const WrappedPersonalitySection = ({classes}: {
             playsInline
             autoPlay
             crossOrigin="anonymous"
-            className={classes.video}
+            className={classNames(
+              classes.video,
+              isThinking && classes.videoThinking,
+            )}
           />
         </div>
       </div>
