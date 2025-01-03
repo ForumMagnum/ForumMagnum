@@ -207,6 +207,7 @@ const WrappedPersonalitySection = ({classes}: {
           <video
             ref={videoDisplayRef}
             src={videoRef.current?.src}
+            key={videoRef.current?.src ?? ""}
             loop={!isThinking}
             onContextMenu={onContextMenu}
             width={videoRef.current?.videoWidth}
