@@ -732,7 +732,7 @@ let currentPathId: string | null = null;
 
 function startPath() {
   if (currentPathId) {
-    window.location.href = `/w/${currentPathId}/?startPath`;
+    window.location.href = tagGetUrl({slug: currentPathId}) + `/?startPath`;
   }
 }
 
@@ -1231,7 +1231,7 @@ const TagPage = () => {
   const tagHeader = (
     <div className={classNames(classes.header,classes.centralColumn)}>
       {query.flagId && <span>
-        <Link to={`/tags/dashboard?focus=${query.flagId}`}>
+        <Link to={`/${taggingNamePluralSetting.get()}/dashboard?focus=${query.flagId}`}>
           <TagFlagItem 
             itemType={["allPages", "myPages"].includes(query.flagId) ? tagFlagItemType[query.flagId] : "tagFlagId"}
             documentId={query.flagId}

@@ -4,6 +4,8 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useMulti } from '@/lib/crud/withMulti';
 import { Link, useNavigate } from '../../lib/reactRouterWrapper';
 import Button from '@material-ui/core/Button';
+import { tagUrlBaseSetting } from '@/lib/instanceSettings';
+import { tagGetUrl } from '@/lib/collections/tags/helpers';
 
 const styles = defineStyles("RedlinkTagPage", theme => ({
   title: {
@@ -46,19 +48,26 @@ const RedlinkTagPage = ({tag, slug}: {
   slug?: string
 }) => {
   const classes = useStyles(styles);
-  const { SingleColumnSection, Typography, ContentStyles } = Components;
+  const { SingleColumnSection, Typography, ContentStyles, Error404 } = Components;
   const { results: pingbacks, loading: pingbacksLoading, error: pingbacksError } = useRedLinkPingbacks(tag?._id);
   const navigate = useNavigate();
   const title = capitalizeFirstLetter(inferRedLinkTitle(tag, slug??null) ?? "Unnamed");
 
-  const createPageUrl = `/tag/create?name=${encodeURIComponent(title)}&type=wiki`
+  const createPageUrl = `/${tagUrlBaseSetting.get()}/create?name=${encodeURIComponent(title)}&type=wiki`
   function createPage() {
     navigate(createPageUrl);
   }
 
+
+  const tagSlug = tag?.slug ?? slug;
+  // If the tag doesn't have a slug, and the slug is not provided, show a 404
+  if (!tagSlug) {
+    return <Error404 />
+  }
+
   return <SingleColumnSection>
     <Typography variant="display3">
-      <Link className={classes.title} to={`/w/${tag?.slug ?? slug}`}>{title}</Link>
+      <Link className={classes.title} to={tagGetUrl({slug: tagSlug})}>{title}</Link>
     </Typography>
 
     <ContentStyles contentType="tag">
@@ -69,7 +78,7 @@ const RedlinkTagPage = ({tag, slug}: {
         
         <ul className={classes.pingbacksList}>
           {pingbacks?.map(t => <li key={t._id}>
-            <Link to={`/w/${t.slug}`}>{t.name}</Link>
+            <Link to={tagGetUrl({slug: t.slug})}>{t.name}</Link>
           </li>)}
         </ul>
       </>}

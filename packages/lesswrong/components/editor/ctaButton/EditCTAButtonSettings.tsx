@@ -8,6 +8,7 @@ import { makeSortableListComponent } from '@/components/form-components/sortable
 import { useSingle } from '@/lib/crud/withSingle';
 import { useTagBySlug } from '@/components/tagging/useTag';
 import classNames from 'classnames';
+import { tagGetUrl } from '@/lib/collections/tags/helpers';
 
 const styles = defineStyles("EditCTAButtonSettings", (theme: ThemeType) => ({
   root: {
@@ -110,7 +111,7 @@ const EditReadingList = ({state, changeValue}: {
     setPages(newPages);
     
     if (newPages.length > 0) {
-      const firstPageLink = `/p/${newPages[0]}`;
+      const firstPageLink = tagGetUrl({slug: newPages[0]});
       const link = addArbitalPathToLink(firstPageLink, newPages);
       changeValue({...state, linkTo: link});
     } else {
