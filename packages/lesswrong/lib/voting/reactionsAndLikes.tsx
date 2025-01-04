@@ -96,7 +96,13 @@ registerVotingSystem<ReactionsAndLikesVote, ReactionsAndLikesScore>({
     };
   },
   
-  isAllowedExtendedVote: (user: UsersCurrent|DbUser, document: DbVoteableType, oldExtendedScore: ReactionsAndLikesScore, extendedVote: ReactionsAndLikesVote) => {
+  isAllowedExtendedVote: ({user, document, oldExtendedScore, extendedVote, skipRateLimits}: {
+    user: UsersCurrent|DbUser,
+    document: DbVoteableType,
+    oldExtendedScore: ReactionsAndLikesScore,
+    extendedVote: ReactionsAndLikesVote,
+    skipRateLimits?: boolean,
+  }) => {
     // TODO: Call isVoteWithReactsAllowed (from namesAttachedReactions) and make it work with both voting systems
     return {allowed: true}; // TODO
   },

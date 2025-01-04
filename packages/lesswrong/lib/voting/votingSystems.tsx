@@ -61,7 +61,7 @@ export interface VotingSystem<ExtendedVoteType=any, ExtendedScoreType=any> {
     currentUser: UsersCurrent
   }) => ExtendedScoreType
   computeExtendedScore: (votes: DbVote[], context: ResolverContext) => Promise<ExtendedScoreType>
-  isAllowedExtendedVote?: (user: UsersCurrent|DbUser, document: DbVoteableType, oldExtendedScore: ExtendedScoreType, extendedVote: ExtendedVoteType) => {allowed: true}|{allowed: false, reason: string},
+  isAllowedExtendedVote?: (args: {user: UsersCurrent|DbUser, document: DbVoteableType, oldExtendedScore: ExtendedScoreType, extendedVote: ExtendedVoteType, skipRateLimits?: boolean}) => {allowed: true}|{allowed: false, reason: string},
   isNonblankExtendedVote: (vote: DbVote) => boolean,
   getCommentHighlights?: (props: {
     comment: CommentsList
@@ -363,7 +363,7 @@ export async function getVotingSystemNameForDocument(document: VoteableType, col
     return "reactionsAndLikes";
   }
   if ((document as DbComment).tagId) {
-    return "twoAxis";
+    return "namesAttachedReactions";
   }
   if ((document as DbComment).postId) {
     const post = await context.loaders.Posts.load((document as DbComment).postId!);
