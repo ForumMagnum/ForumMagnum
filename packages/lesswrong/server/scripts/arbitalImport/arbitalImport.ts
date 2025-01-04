@@ -64,6 +64,11 @@ type ArbitalImportOptions = {
    * 
    */
   coreTagAssignmentsFile?: string
+  
+  /**
+   * Number of wiki pages to import in parallel. Use when latency to the DB is high.
+   */
+  parallelism?: number,
 }
 const defaultArbitalImportOptions: ArbitalImportOptions = {};
 
@@ -636,10 +641,10 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
   
   const alternativesByPageId = computePageAlternatives(database);
   
-  for (const pageId of pageIdsToImport) {
+  await executePromiseQueue(pageIdsToImport.map((pageId) => async () => {
     try {
       const pageInfo = pageInfosById[pageId];
-      if (pageInfo.isDeleted) continue;
+      if (pageInfo.isDeleted) return;
       const lenses = lensesByPageId[pageId] ?? [];
       const revisions = database.pages.filter(p => p.pageId === pageId)
         .sort(r => r.edit)
@@ -673,7 +678,7 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
         wiki = await Tags.findOne({ 'legacyData.arbitalPageId': pageId });
         if (!wiki) {
           console.log(`Wiki page not found: ${pageId}`);
-          continue;
+          return;
         }
       } else {
         wiki = (await createMutator({
@@ -885,7 +890,7 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
       
       if (lwWikiPageToConvertToLens) {
         console.log(`Converting LW wiki page ${lwWikiPageToConvertToLens.tagId} to a lens`);
-        if (!lwWikiPage) continue;
+        if (!lwWikiPage) return;
         const lwWikiPageCreator: DbUser = (await Users.findOne({_id: lwWikiPage.userId}))!;
         const lwWikiLensSlug = await getUnusedSlugByCollectionName("MultiDocuments", `lwwiki-${slugify(title)}`);
         const lwWikiLensIndex = lenses.length > 0
@@ -898,7 +903,7 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
           collectionName: "Tags",
         }).fetch();
         if (!lwWikiPageRevisions.length) {
-          continue;
+          return;
         }
 
         const lwWikiLens = (await createMutator({
@@ -958,7 +963,7 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
     } catch(e) {
       console.error(e);
     }
-  }
+  }), options.parallelism ?? 1);
 }
 
 async function importComments(database: WholeArbitalDatabase, conversionContext: ArbitalConversionContext, resolverContext: ResolverContext, options: ArbitalImportOptions): Promise<void> {
