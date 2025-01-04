@@ -1,4 +1,4 @@
-import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting, taggingNamePluralSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameCapitalSetting, isEAForum, taggingNameSetting, aboutPostIdSetting, isLW, taggingUrlCustomBaseSetting, isLWorAF, tagUrlBaseSetting, usePluralTagNameSetting, taggingNameCapitalizedWithCorrectPlural as taggingNameCapitalizedWithPluralilizationChoice } from './instanceSettings';
+import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting, taggingNamePluralSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameCapitalSetting, isEAForum, taggingNameSetting, aboutPostIdSetting, isLW, taggingUrlCustomBaseSetting, isLWorAF, tagUrlBaseSetting, taggingNameIsPluralized, taggingNameCapitalizedWithCorrectPlural as taggingNameCapitalizedWithPluralizationChoice } from './instanceSettings';
 import { blackBarTitle, legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, RouterLocation, Route } from './vulcan-lib/routes';
 import { REVIEW_YEAR } from './reviewUtils';
@@ -47,7 +47,7 @@ const hpmorSubtitle = { subtitleLink: "/hpmor", subtitle: "HPMoR" };
 const codexSubtitle = { subtitleLink: "/codex", subtitle: "SlateStarCodex" };
 const leastWrongSubtitle = { subtitleLink: "/leastwrong", subtitle: "The Best of LessWrong" };
 
-const taggingDashboardSubtitle = { subtitleLink: '/tags/dashboard', subtitle: `${taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Wiki-Tag'} Dashboard`}
+const taggingDashboardSubtitle = { subtitleLink: `/${taggingNamePluralSetting.get()}/dashboard`, subtitle: `${taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Wiki-Tag'} Dashboard`}
 
 const faqPostIdSetting = new PublicInstanceSetting<string>('faqPostId', '2rWKkWuPrgTMpLRbp', "warning") // Post ID for the /faq route
 const contactPostIdSetting = new PublicInstanceSetting<string>('contactPostId', "ehcYkvyz7dh9L7Wt8", "warning")
@@ -441,19 +441,19 @@ addRoute(
     name: 'tagActivity',
     path: `/${tagUrlBaseSetting.get()}Activity`,
     componentName: 'TagVoteActivity',
-    title: `${taggingNameCapitalizedWithPluralilizationChoice.get()} Voting Activity`
+    title: `${taggingNameCapitalizedWithPluralizationChoice.get()} Voting Activity`
   },
   {
     name: 'tagFeed',
     path: `/${tagUrlBaseSetting.get()}Feed`,
     componentName: 'TagActivityFeed',
-    title: `${taggingNameCapitalizedWithPluralilizationChoice.get()} Activity`
+    title: `${taggingNameCapitalizedWithPluralizationChoice.get()} Activity`
   },
   {
     name: 'taggingDashboard',
     path: `/${tagUrlBaseSetting.get()}/dashboard`,
     componentName: "TaggingDashboard",
-    title: `${taggingNameCapitalizedWithPluralilizationChoice.get()} Dashboard`,
+    title: `${taggingNameCapitalizedWithPluralizationChoice.get()} Dashboard`,
     ...taggingDashboardSubtitle
   }
 )
@@ -490,7 +490,7 @@ if (tagUrlBaseSetting.get() !== 'tag') {
     {
       name: 'randomTagRedirect',
       path: '/tags/random',
-      redirect: () => `/${tagUrlBaseSetting.get()}/random`
+      redirect: () => `/${taggingNamePluralSetting.get()}/random`
     },
     {
       name: 'tagActivityRedirect',
@@ -506,7 +506,12 @@ if (tagUrlBaseSetting.get() !== 'tag') {
       name: 'taggingDashboardRedirect',
       path: '/tags/dashboard',
       redirect: () => `/${tagUrlBaseSetting.get()}/dashboard`
-    }
+    },
+    {
+      name: 'tags.revisioncompare.redirect',
+      path: `/compare/tag/:slug`,
+      redirect: ({params}) => `/compare/${tagUrlBaseSetting.get()}/${params.slug}`
+    },
   )
 }
 
@@ -1519,7 +1524,7 @@ addRoute(
   },
   {
     name: 'tags.revisioncompare',
-    path: '/compare/tag/:slug',
+    path: `/compare/${tagUrlBaseSetting.get()}/:slug`,
     componentName: 'TagCompareRevisions',
     titleComponentName: 'PostsPageHeaderTitle',
   },

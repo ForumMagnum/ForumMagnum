@@ -116,7 +116,7 @@ const TagProgressBar = ({ classes }: {
             What's the Import?
             </Link>
           <SeparatorBullet />
-          <Link className={classes.allTagsBarColor} to="/tags/dashboard">
+          <Link className={classes.allTagsBarColor} to={`/${taggingNamePluralSetting.get()}/dashboard`}>
             Help Process Pages
           </Link>
         </PostsItem2MetaInfo>
