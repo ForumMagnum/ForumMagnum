@@ -3,8 +3,9 @@ import { addUniversalFields, getDefaultMutations, getDefaultResolvers } from "@/
 import { makeEditable } from "@/lib/editor/make_editable";
 import schema from "./schema";
 import { ensureIndex } from "@/lib/collectionIndexUtils";
-import { userIsAdmin } from "@/lib/vulcan-users/permissions";
+import { membersGroup, userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { getRootDocument } from "./helpers";
+import { makeVoteable } from "@/lib/make_voteable";
 
 export const MultiDocuments = createCollection({
   collectionName: 'MultiDocuments',
@@ -95,3 +96,14 @@ MultiDocuments.checkAccess = async (user: DbUser | null, multiDocument: DbMultiD
 
   return true;
 };
+
+membersGroup.can([
+  'multidocuments.smallDownvote',
+  'multidocuments.bigDownvote',
+  'multidocuments.smallUpvote',
+  'multidocuments.bigUpvote',
+]);
+
+makeVoteable(MultiDocuments, {
+  timeDecayScoresCronjob: false,
+});

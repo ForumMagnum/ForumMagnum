@@ -848,14 +848,15 @@ CREATE INDEX IF NOT EXISTS "idx_ElectionVotes_electionName" ON "ElectionVotes" U
 -- Table "ElicitQuestionPredictions"
 CREATE TABLE "ElicitQuestionPredictions" (
   _id VARCHAR(27) PRIMARY KEY,
-  "prediction" DOUBLE PRECISION NOT NULL,
+  "prediction" DOUBLE PRECISION,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "notes" TEXT,
   "creator" JSONB NOT NULL,
   "userId" VARCHAR(27),
   "sourceUrl" TEXT,
   "sourceId" TEXT,
-  "binaryQuestionId" VARCHAR(27) NOT NULL
+  "binaryQuestionId" VARCHAR(27) NOT NULL,
+  "isDeleted" BOOL NOT NULL DEFAULT FALSE
 );
 
 -- Table "ElicitQuestions"
@@ -864,9 +865,14 @@ CREATE TABLE "ElicitQuestions" (
   "title" TEXT NOT NULL,
   "notes" TEXT,
   "resolution" TEXT,
-  "resolvesBy" TIMESTAMPTZ NOT NULL,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
+  "resolvesBy" TIMESTAMPTZ,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
 );
+
+-- Index "idx_ElicitQuestions_schemaVersion"
+CREATE INDEX IF NOT EXISTS "idx_ElicitQuestions_schemaVersion" ON "ElicitQuestions" USING btree ("schemaVersion");
 
 -- Table "EmailTokens"
 CREATE TABLE "EmailTokens" (
@@ -1274,11 +1280,20 @@ CREATE TABLE "MultiDocuments" (
   "fieldName" TEXT NOT NULL,
   "index" DOUBLE PRECISION NOT NULL,
   "contributionStats" JSONB,
+  "htmlWithContributorAnnotations" TEXT,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB,
   "contents_latest" TEXT,
-  "pingbacks" JSONB
+  "pingbacks" JSONB,
+  "voteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "extendedScore" JSONB,
+  "score" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "inactive" BOOL NOT NULL DEFAULT FALSE,
+  "afBaseScore" DOUBLE PRECISION,
+  "afExtendedScore" JSONB,
+  "afVoteCount" DOUBLE PRECISION
 );
 
 -- Index "idx_MultiDocuments_schemaVersion"
@@ -2930,7 +2945,15 @@ CREATE TABLE "Tags" (
   "subforumWelcomeText" JSONB,
   "subforumWelcomeText_latest" TEXT,
   "moderationGuidelines" JSONB,
-  "moderationGuidelines_latest" TEXT
+  "moderationGuidelines_latest" TEXT,
+  "voteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "extendedScore" JSONB,
+  "score" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "inactive" BOOL NOT NULL DEFAULT FALSE,
+  "afBaseScore" DOUBLE PRECISION,
+  "afExtendedScore" JSONB,
+  "afVoteCount" DOUBLE PRECISION
 );
 
 -- Index "idx_Tags_schemaVersion"

@@ -26,6 +26,7 @@ import { MakeEditableOptions, editableCollectionsFieldOptions } from '@/lib/edit
 // callbacks
 interface AfterCreateRevisionCallbackContext {
   revisionID: string
+  skipDenormalizedAttributions?: boolean
 }
 export const afterCreateRevisionCallback = new CallbackHook<[AfterCreateRevisionCallbackContext]>("revisions.afterRevisionCreated");
 
@@ -201,7 +202,7 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
       const oldRevision = oldRevisionId
         ? await fetchFragmentSingle({
           collectionName: "Revisions",
-          fragmentName: "RevisionEdit",
+          fragmentName: "RevisionMetadata",
           selector: {_id: oldRevisionId},
           currentUser: null,
           skipFiltering: true,

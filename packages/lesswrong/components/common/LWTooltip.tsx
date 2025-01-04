@@ -5,7 +5,7 @@ import type { PopperPlacementType } from '@material-ui/core/Popper'
 import classNames from 'classnames';
 import { AnalyticsProps } from '../../lib/analyticsEvents';
 
-const styles = (_theme: ThemeType): JssStyles => ({
+const styles = (_theme: ThemeType) => ({
   root: {
     // inline-block makes sure that the popper placement works properly (without flickering). "block" would also work, but there may be situations where we want to wrap an object in a tooltip that shouldn't be a block element.
     display: "inline-block",
@@ -37,8 +37,8 @@ export type LWTooltipProps = {
   onShow?: () => void,
   onHide?: () => void,
   children?: ReactNode,
-  classes: ClassesType,
   forceOpen?: boolean,
+  classes: ClassesType<typeof styles>,
 }
 
 const LWTooltip = ({
@@ -59,8 +59,8 @@ const LWTooltip = ({
   onHide,
   children,
   className,
-  classes,
   forceOpen,
+  classes,
 }: LWTooltipProps) => {
   const { LWPopper } = Components
   const { hover, everHovered, anchorEl, eventHandlers } = useHover({

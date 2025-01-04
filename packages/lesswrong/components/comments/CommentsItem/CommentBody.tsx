@@ -98,7 +98,7 @@ const CommentBody = ({
     />
   </ContentStyles>
 
-  if (votingSystem.name === "namesAttachedReactions" && voteProps) {
+  if (votingSystem.hasInlineReacts && voteProps) {
     return <InlineReactSelectionWrapper commentBodyRef={commentBodyRef} voteProps={voteProps} styling="comment" >
       {contentBody}
     </InlineReactSelectionWrapper>

@@ -6,6 +6,9 @@
         "name": "Voteable",
         "possibleTypes": [
           {
+            "name": "Tag"
+          },
+          {
             "name": "ElectionCandidate"
           },
           {
@@ -19,6 +22,9 @@
           },
           {
             "name": "Post"
+          },
+          {
+            "name": "MultiDocument"
           }
         ]
       }

@@ -22,7 +22,7 @@ import ckeditor5Vite from '@ckeditor/vite-plugin-ckeditor5';
 process.on("SIGQUIT", () => process.exit(0));
 
 export type CommandLineOptions = {
-  action: "build"|"watch"|"command"
+  action: "build"|"watch"|"command"|"run"
   port: number|null
   production: boolean
   e2e: boolean
@@ -94,8 +94,10 @@ function parseCommandLine(argv: string[]): [CommandLineOptions,string[]] {
           result.action = "build";
           break;
         case "watch":
-        case "run":
           result.action = "watch"
+          break;
+        case "run":
+          result.action = "run"
           break;
         case "vite":
           result.vite = true;
@@ -517,6 +519,13 @@ async function main() {
   } else if (opts.action === "watch") {
     serverContext.watch();
     clientContext.watch();
+  } else if (opts.action === "run") {
+    await Promise.all([
+      serverContext.rebuild(),
+      clientContext.rebuild()
+    ]);
+    await esbuild.stop();
+    serverProcess.startOrRestart();
   } else {
     await Promise.all([
       serverContext.rebuild(),
@@ -557,6 +566,7 @@ async function createViteProxyServer(backend: RunningServer) {
         "@/server": "/packages/lesswrong/stubs/server",
         "@/client/importCkEditor": "/packages/lesswrong/viteClient/importCkEditorVite",
         "@/client": "/packages/lesswrong/client",
+        "@/viteClient": "/packages/lesswrong/viteClient",
         "@/allComponents": "/packages/lesswrong/lib/generated/allComponentsVite",
         "@": "/packages/lesswrong",
         

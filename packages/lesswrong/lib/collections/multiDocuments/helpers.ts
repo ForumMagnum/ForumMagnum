@@ -1,6 +1,6 @@
 import { getCollection } from "@/lib/vulcan-lib/getCollection";
 
-function isMultiDocument(document: ObjectsByCollectionName[CollectionNameString]): document is DbMultiDocument {
+export function isMultiDocument(document: ObjectsByCollectionName[CollectionNameString]): document is DbMultiDocument {
   return 'collectionName' in document && 'parentDocumentId' in document && 'tabTitle' in document;
 }
 

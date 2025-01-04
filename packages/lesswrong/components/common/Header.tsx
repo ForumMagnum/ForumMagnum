@@ -184,6 +184,10 @@ export const styles = (theme: ThemeType) => ({
     marginLeft: -theme.spacing.unit,
     marginRight: theme.spacing.unit,
   },
+  icon: {
+    width: 24,
+    height: 24,
+  },
   siteLogo: {
     marginLeft:  -7,
     marginRight: 6,
@@ -312,6 +316,7 @@ export const styles = (theme: ThemeType) => ({
     fontSize: '1.4rem',
     fontWeight: 600,
     marginLeft: theme.spacing.unit,
+    marginBottom: 1.5,
   },
 });
 
@@ -430,7 +435,7 @@ const Header = ({
                 aria-label="Menu"
                 onClick={()=>setNavigationOpen(true)}
               >
-                <ForumIcon icon="Menu" />
+                <ForumIcon icon="Menu" className={classes.icon} />
               </IconButton>
             </div>
             <div className={classes.hideMdUp}>
@@ -443,7 +448,7 @@ const Header = ({
                 aria-label="Menu"
                 onClick={()=>setNavigationOpen(true)}
               >
-                <TocIcon />
+                <TocIcon className={classes.icon} />
               </IconButton>
             </div>
           </>
@@ -456,7 +461,7 @@ const Header = ({
             aria-label="Menu"
             onClick={()=>setNavigationOpen(true)}
           >
-            <ForumIcon icon="Menu" />
+            <ForumIcon icon="Menu" className={classes.icon} />
           </IconButton>
       }
       {standaloneNavigationPresent && unFixed && <IconButton
@@ -468,7 +473,9 @@ const Header = ({
         aria-label="Menu"
         onClick={toggleStandaloneNavigation}
       >
-        {(isFriendlyUI && !sidebarHidden) ? <ForumIcon icon="CloseMenu" /> : <ForumIcon icon="Menu" />}
+        {(isFriendlyUI && !sidebarHidden)
+          ? <ForumIcon icon="CloseMenu" className={classes.icon} />
+          : <ForumIcon icon="Menu" className={classes.icon} />}
       </IconButton>}
     </React.Fragment>
   )

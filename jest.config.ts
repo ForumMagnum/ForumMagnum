@@ -194,6 +194,7 @@ export default {
     // Should match "paths" in tsconfig.json
     "@/allComponents": "<rootDir>/packages/lesswrong/lib/generated/allComponents",
     "@/client/(.*)": "<rootDir>/packages/lesswrong/stubs/client/$1",
+    "@/viteClient/(.*)": "<rootDir>/packages/lesswrong/stubs/viteClient/$1",
     "@/(.*)": "<rootDir>/packages/lesswrong/$1",
     // An incantation found at https://github.com/axios/axios/issues/5101
     '^axios$': require.resolve('axios'),
@@ -214,7 +215,7 @@ export default {
   // changes. If we've done *that* upgrade, this block might no longer be
   // necessary.
   transformIgnorePatterns: [
-    "/node_modules/(?!react-instantsearch)",
+    "/node_modules/(?!(react-instantsearch|@extractus|bellajs)/)"
   ],
 
   // An array of regexp pattern strings that are matched against all modules before the module loader will automatically return a mock for them

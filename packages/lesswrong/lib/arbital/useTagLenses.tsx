@@ -8,7 +8,8 @@ export const MAIN_TAB_ID = 'main-tab';
 
 export interface DocumentContributorWithStats {
   user: UsersMinimumInfo;
-  contributionVolume: number;
+  currentAttributionCharCount: number;
+  contributionScore: number;
 }
 
 export interface DocumentContributorsInfo {
@@ -16,23 +17,11 @@ export interface DocumentContributorsInfo {
   totalCount: number;
 }
 
-export interface TagLens {
-  _id: string;
-  collectionName: string;
-  fieldName: string;
-  index: number;
+export type TagLens = MultiDocumentMinimumInfo & {
   contents: TagFragment_description | TagRevisionFragment_description | RevisionDisplay | null;
   tableOfContents: ToCData | null;
   contributors: DocumentContributorsInfo | null;
-  parentDocumentId: string;
-  title: string;
   preview: string | null;
-  tabTitle: string;
-  tabSubtitle: string | null;
-  slug: string;
-  oldSlugs: string[];
-  userId: string;
-  legacyData: AnyBecauseHard;
   originalLensDocument: MultiDocumentContentDisplay | MultiDocumentWithContributors | null;
   arbitalLinkedPages: ArbitalLinkedPagesFragment | null;
 }
@@ -44,7 +33,7 @@ interface TagLensInfo {
   lenses: TagLens[];
 }
 
-function getDefaultLens(tag: TagPageWithArbitalContentFragment | TagPageRevisionWithArbitalContentFragment | TagHistoryFragment): TagLens {
+function getDefaultLens(tag: TagPageWithArbitalContentFragment | TagPageRevisionWithArbitalContentFragment | TagPageWithArbitalContentAndLensRevisionFragment | TagHistoryFragment): TagLens {
   return {
     _id: MAIN_TAB_ID,
     collectionName: 'Tags',
@@ -64,10 +53,19 @@ function getDefaultLens(tag: TagPageWithArbitalContentFragment | TagPageRevision
     legacyData: {},
     originalLensDocument: null,
     arbitalLinkedPages: 'arbitalLinkedPages' in tag ? tag.arbitalLinkedPages : null,
+
+    baseScore: tag.baseScore,
+    extendedScore: tag.extendedScore,
+    score: tag.score,
+    afBaseScore: tag.afBaseScore,
+    afExtendedScore: tag.afExtendedScore,
+    voteCount: tag.voteCount,
+    currentUserVote: tag.currentUserVote,
+    currentUserExtendedVote: tag.currentUserExtendedVote,
   }
 }
 
-export function getAvailableLenses(tag: TagPageWithArbitalContentFragment | TagPageRevisionWithArbitalContentFragment | TagHistoryFragment | null): TagLens[] {
+export function getAvailableLenses(tag: TagPageWithArbitalContentFragment | TagPageRevisionWithArbitalContentFragment | TagPageWithArbitalContentAndLensRevisionFragment | TagHistoryFragment | null): TagLens[] {
   if (!tag?.lenses) return [];
   return [
     getDefaultLens(tag),
@@ -82,7 +80,7 @@ export function getAvailableLenses(tag: TagPageWithArbitalContentFragment | TagP
   ];
 }
 
-export function useTagLenses(tag: TagPageWithArbitalContentFragment | TagPageRevisionWithArbitalContentFragment | null): TagLensInfo {
+export function useTagLenses(tag: TagPageWithArbitalContentFragment | TagPageRevisionWithArbitalContentFragment | TagPageWithArbitalContentAndLensRevisionFragment | null): TagLensInfo {
   const { query, location } = useLocation();
   const navigate = useNavigate();
   const availableLenses = useMemo(() => getAvailableLenses(tag), [tag]);
@@ -105,11 +103,10 @@ export function useTagLenses(tag: TagPageWithArbitalContentFragment | TagPageRev
     if (selectedLensSlug) {
       const defaultLens = availableLenses.find(lens => lens._id === MAIN_TAB_ID);
       const navigatingToDefaultLens = selectedLensSlug === defaultLens?.slug;
-      const queryWithoutLens = omit(query, "lens");
-      // TODO: strip out version/revision query params if we're switching to a lens, since keeping the same revision when switching lenses doesn't make sense
+      const queryWithoutLensAndVersion = omit(query, ["lens", "version"]);
       const newSearch = navigatingToDefaultLens
-       ? qs.stringify(queryWithoutLens)
-       : qs.stringify({ lens: selectedLensSlug, ...queryWithoutLens });
+       ? qs.stringify(queryWithoutLensAndVersion)
+       : qs.stringify({ lens: selectedLensSlug, ...queryWithoutLensAndVersion });
 
       navigate({ ...location, search: newSearch });
     }

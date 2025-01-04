@@ -23,9 +23,15 @@ const styles = (theme: ThemeType) => ({
 
 const postIds = [
   'ZhNaizQgYY9dXdQkM', // Intro to EA
+  's9dyyge6uLG5ScwEp', // It looks like there are some good funding opportunities in AI safety right now
+  'sEsguXTiKBA6LzX55', // Takes on "Alignment faking in llms"
+  'vHiDeQnCepvwnv8Fm', // AWF AMA
+  '5zzbzbYZcocoLnLif', // There is no EA sorting hat
+  '4P2qKX7wegdEgMMnb', // GWWC AMA
+  'hKfXxfkQ8XCT5ZBRX', // AGB AMA
+  '9pkjXwe2nFun32hR2', // mirror bacteria
   '3ZSG22tDuDLxTLY4n', // Allan AMA
-  'mEQTxDGp4MxMSZA74', // Still donation half
-  'k8NLM6QoEjMkEGEmG', // Donation election results
+  'mEQTxDGp4MxMSZA74', // Still donating half
   'SDJKMbvuLyppJNiGD', // RP
   'g2reCF86jukN9WMSJ', // AWF
   'ZYktdzJRMsp2JhwYg', // AMF
@@ -38,6 +44,7 @@ const postIds = [
   'rsRDu3u3wF6ctcQPn', // THL
   'CmAWaNXxJmmhLnuAi', // THL UK
   'kt2XH8htHGEsC3GSc', // Legal Impact for Chickens
+  'k8NLM6QoEjMkEGEmG', // Donation election results
 ]
 
 /**

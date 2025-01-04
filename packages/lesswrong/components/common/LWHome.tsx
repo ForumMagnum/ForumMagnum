@@ -8,6 +8,18 @@ import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../lib/cookies/cookies';
 import moment from 'moment';
 import { visitorGetsDynamicFrontpage } from '../../lib/betas';
 import { isLW, isAF } from '@/lib/instanceSettings';
+import { useCurrentUser } from './withUser';
+
+const styles = (theme: ThemeType): JssStyles => ({
+  frontpageReviewWidget: {
+    marginTop: 42,
+    marginBottom: 20,
+    [theme.breakpoints.down('xs')]: {
+      marginTop: 24,
+      marginBottom: 10
+    }
+  }
+})
 
 const getStructuredData = () => ({
   "@context": "http://schema.org",
@@ -37,28 +49,32 @@ const getStructuredData = () => ({
   }),
 })
 
-const LWHome = () => {
+const LWHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const { DismissibleSpotlightItem, RecentDiscussionFeed, AnalyticsInViewTracker, FrontpageReviewWidget,
     SingleColumnSection, FrontpageBestOfLWWidget, EAPopularCommentsSection, FundraisingThermometer,
     QuickTakesSection, LWHomePosts, HeadTags
   } = Components;
+
+  const currentUser = useCurrentUser();
 
   return (
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
           <HeadTags structuredData={getStructuredData()}/>
           <UpdateLastVisitCookie />
-
           {lightconeFundraiserActive.get() && <SingleColumnSection>
-            <FundraisingThermometer goalAmount={lightconeFundraiserThermometerGoalAmount.get()} />
+            <FundraisingThermometer />
           </SingleColumnSection>}
-          {reviewIsActive() && getReviewPhase() === "RESULTS" && <SingleColumnSection>
-            <FrontpageBestOfLWWidget reviewYear={REVIEW_YEAR}/>
-          </SingleColumnSection>}
-          {reviewIsActive() && getReviewPhase() !== "RESULTS" && showReviewOnFrontPageIfActive.get() && <SingleColumnSection>
-            <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
-          </SingleColumnSection>}
+          {reviewIsActive() && <>
+            {getReviewPhase() === "RESULTS" && <SingleColumnSection>
+              <FrontpageBestOfLWWidget reviewYear={REVIEW_YEAR} />
+            </SingleColumnSection>}
+            {getReviewPhase() !== "RESULTS" && <SingleColumnSection>
+              <FrontpageReviewWidget reviewYear={REVIEW_YEAR} className={classes.frontpageReviewWidget}/>
+            </SingleColumnSection>}
+          </>}
           {(!reviewIsActive() || !showReviewOnFrontPageIfActive.get()) && !lightconeFundraiserActive.get() && <SingleColumnSection>
+
             <DismissibleSpotlightItem current/>
           </SingleColumnSection>}
           <AnalyticsInViewTracker
@@ -94,7 +110,7 @@ const UpdateLastVisitCookie = () => {
   return <></>
 }
 
-const LWHomeComponent = registerComponent('LWHome', LWHome);
+const LWHomeComponent = registerComponent('LWHome', LWHome, {styles});
 
 declare global {
   interface ComponentTypes {

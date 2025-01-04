@@ -6,17 +6,6 @@ import { addGraphQLSchema } from "@/lib/vulcan-lib";
 import { summariesField } from "../helpers/summariesField";
 import { formGroups } from "./formGroups";
 
-addGraphQLSchema(`
-  type MultiDocumentContributor {
-    user: User
-    contributionVolume: Int
-  }
-  type MultiDocumentContributorsList {
-    contributors: [MultiDocumentContributor!]
-    totalCount: Int!
-  }
-`);
-
 const schema: SchemaType<"MultiDocuments"> = {
   // In the case of tag lenses, this is the title displayed in the body of the tag page when the lens is selected.
   // In the case of summaries, we don't have a title that needs to be in the "body"; we just use the tab title in the summary tab.
@@ -87,7 +76,9 @@ const schema: SchemaType<"MultiDocuments"> = {
     type: String,
     canRead: ['guests'],
     canUpdate: ['members'],
+    canCreate: ['members'],
     nullable: false,
+    label: "Summary Title",
     order: 10,
   },
   tabSubtitle: {
@@ -143,7 +134,23 @@ const schema: SchemaType<"MultiDocuments"> = {
   index: {
     type: Number,
     canRead: ['guests'],
+    canUpdate: ['members'],
     nullable: false,
+    hidden: true,
+    onCreate: async ({ newDocument, context }) => {
+      const { MultiDocuments } = context;
+      const { parentDocumentId } = newDocument;
+      
+      const otherSummaries = await MultiDocuments.find({
+        parentDocumentId,
+        fieldName: newDocument.fieldName
+      }, undefined, { index: 1 }).fetch();
+      const otherSummaryIndexes = otherSummaries.map(summary => summary.index);
+      const newIndex = (otherSummaryIndexes.length>0)
+        ? (Math.max(...otherSummaryIndexes) + 1)
+        : 0;
+      return newIndex;
+    }
   },
 
   tableOfContents: {
@@ -154,7 +161,8 @@ const schema: SchemaType<"MultiDocuments"> = {
 
   contributors: {
     canRead: ['guests'],
-    type: "MultiDocumentContributorsList",
+    // is in essence the same type for tag main pages and lenses
+    type: "TagContributorsList",
     optional: true,
   },
   
@@ -170,7 +178,15 @@ const schema: SchemaType<"MultiDocuments"> = {
 
   arbitalLinkedPages: arbitalLinkedPagesField({ collectionName: 'MultiDocuments' }),
 
-  ...summariesField('MultiDocuments', { group: formGroups.summaries}),
+  htmlWithContributorAnnotations: {
+    type: String,
+    canRead: ['guests'],
+    optional: true,
+    hidden: true,
+    denormalized: true,
+  },
+
+  ...summariesField('MultiDocuments', { group: formGroups.summaries }),
 };
 
 export default schema;

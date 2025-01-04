@@ -34,6 +34,7 @@ export function getReviewTitle(reviewYear: ReviewYear): string {
 export function getReviewShortTitle(reviewYear: ReviewYear): string {
   return `${reviewYear} Review`
 }
+export const reviewPostPath = "/posts/pudQtkre7f9GLmb2b/the-2023-lesswrong-review-the-basic-ask"
 
 const reviewPhases = new TupleSet(['UNSTARTED', 'NOMINATIONS', 'REVIEWS', 'VOTING', 'RESULTS', 'COMPLETE'] as const);
 export type ReviewPhase = UnionOf<typeof reviewPhases>;
@@ -48,16 +49,20 @@ export function getReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
   }
 }
 
-const TIMEZONE_OFFSET = 8 // Pacific Time
+const TIMEZONE_OFFSET = isDevelopment 
+  ? -24*4 // we start testing each phase a few days before it starts
+  : 8 // Pacific Time
 
-export const getReviewStart = (reviewYear: ReviewYear) => {
-  const startDateString = isDevelopment
-    ? `${reviewYear+1}-11-15` // we typically start testing the next year's review in November of the current year
-    : `${reviewYear+1}-12-03`;
-  return moment.utc(startDateString).add(TIMEZONE_OFFSET, 'hours');
-};
-export const getNominationPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+1}-12-14`).add(TIMEZONE_OFFSET, 'hours')
-export const getReviewPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-01-15`).add(TIMEZONE_OFFSET, 'hours')
+export function getReviewPeriodStart(reviewYear: ReviewYear = REVIEW_YEAR) {
+  return moment.utc(`${reviewYear}-01-01`).add(TIMEZONE_OFFSET, 'hours')
+}
+export function getReviewPeriodEnd(reviewYear: ReviewYear = REVIEW_YEAR) {
+  return moment.utc(`${reviewYear+1}-01-01`).add(TIMEZONE_OFFSET, 'hours')
+}
+
+export const getReviewStart = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+1}-12-02`).add(TIMEZONE_OFFSET, 'hours')
+export const getNominationPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+1}-12-16`).add(TIMEZONE_OFFSET, 'hours')
+export const getReviewPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-01-16`).add(TIMEZONE_OFFSET, 'hours')
 export const getVotingPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-02-01`).add(TIMEZONE_OFFSET, 'hours')
 export const getResultsPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-02-06`).add(TIMEZONE_OFFSET, 'hours')
 
@@ -65,7 +70,6 @@ function recomputeReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
   if (reviewYear && reviewYear !== REVIEW_YEAR) {
     return "COMPLETE"
   }
-
   const currentDate = moment.utc()
   const reviewStart = getReviewStart(REVIEW_YEAR)
   if (currentDate < reviewStart) return "UNSTARTED"
@@ -124,19 +128,17 @@ export function eligibleToNominate (currentUser: UsersCurrent|DbUser|null) {
 export function postEligibleForReview (post: PostsBase) {
   if (moment.utc(post.postedAt) > moment.utc(`${REVIEW_YEAR+1}-01-01`)) return false
   if (isLWorAF && moment.utc(post.postedAt) < moment.utc(`${REVIEW_YEAR}-01-01`)) return false
+  if (post.shortform) return false
   return true
 }
 
-export function postIsVoteable (post: PostsBase) {
+export function postPassedNomination (post: PostsBase) {
   return getReviewPhase() === "NOMINATIONS" || post.positiveReviewVoteCount >= REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD
-
 }
 
-
-export function canNominate (currentUser: UsersCurrent|null, post: PostsBase) {
+export function canNominate (currentUser: UsersCurrent|null, post: PostsListBase) {
   if (!eligibleToNominate(currentUser)) return false
-  if (post.userId === currentUser!._id) return false
-  if (!postIsVoteable(post)) return false
+  if (currentUser && (post.userId === currentUser._id || post.coauthors?.map(author => author?._id).includes(currentUser._id))) return false
   return (postEligibleForReview(post))
 }
 

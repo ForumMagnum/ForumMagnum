@@ -1,5 +1,7 @@
 import { addGraphQLSchema } from '@/lib/vulcan-lib/graphql';
 import { resolverOnlyField } from '../../utils/schemaUtils';
+import { getWithCustomLoader } from '@/lib/loaders';
+import range from 'lodash/range';
 
 interface ArbitalLinkedPagesFieldOptions {
   collectionName: string;
@@ -35,74 +37,48 @@ export function arbitalLinkedPagesField(options: ArbitalLinkedPagesFieldOptions)
         return null;
       }
 
-      const { Tags, ArbitalTagContentRels, MultiDocuments } = context;
+      const { Tags, ArbitalTagContentRels, MultiDocuments, repos } = context;
 
       const docId = doc._id;
 
-      // Step 1: Get faster and slower tag IDs
-      const fasterSlowerTags = await Tags.find(
-        { slug: { $in: ['low-speed-explanation', 'high-speed-explanation'] } },
-        { projection: { _id: 1, slug: 1 } }
-      ).fetch();
+      // Step 1: Get the faster and slower tags along with all the tags that have a speed.
+      // This is using a dumb hack with a custom loader to avoid running the query once for each document
+      // fetched that has this field in the fragment.
+      const fasterSlowerTags = await getWithCustomLoader(
+        context,
+        'fasterSlowerTags',
+        'fixed-id',
+        async (ids) => {
+          const tags = await repos.tags.getTagSpeeds();
+          return range(ids.length).map(() => tags);
+        }
+      )
 
-      const slowerTag = fasterSlowerTags.find((t) => t.slug === 'low-speed-explanation');
-      const fasterTag = fasterSlowerTags.find((t) => t.slug === 'high-speed-explanation');
-
-      const slowerTagId = slowerTag?._id;
-      const fasterTagId = fasterTag?._id;
-
-      // Step 2: Get page speeds
-      let pageSpeeds: DbArbitalTagContentRel[] = [];
-      if (slowerTagId || fasterTagId) {
-        pageSpeeds = await ArbitalTagContentRels.find(
-          {
-            type: 'parent-is-tag-of-child',
-            parentDocumentId: { $in: [slowerTagId, fasterTagId].filter((id) => id) },
-          },
-          { projection: { childDocumentId: 1, parentDocumentId: 1 } }
-        ).fetch();
-      }
-
+      // Step 2: Build a map of tag ids to speeds
       const tagSpeeds: Record<string, number> = {};
-      pageSpeeds.forEach((rel) => {
-        const speed = rel.parentDocumentId === slowerTagId ? -1 : 1;
-        tagSpeeds[rel.childDocumentId] = speed;
+
+      fasterSlowerTags.find((t) => t.slug === 'low-speed-explanation')?.tagIdsWithSpeed.forEach((id) => {
+        tagSpeeds[id] = -1;
+      });
+
+      fasterSlowerTags.find((t) => t.slug === 'high-speed-explanation')?.tagIdsWithSpeed.forEach((id) => {
+        tagSpeeds[id] = 1;
       });
 
       // Step 3: Get subject pairs where the doc is involved
-      const st1 = await ArbitalTagContentRels.find(
-        {
-          type: 'parent-taught-by-child',
-          isStrong: true,
-          childDocumentId: docId,
-        },
-        { projection: { parentDocumentId: 1, level: 1 } }
-      ).fetch();
-
-      const parentIds = st1.map((rel) => rel.parentDocumentId);
-
-      const st2 = await ArbitalTagContentRels.find(
-        {
-          type: 'parent-taught-by-child',
-          isStrong: true,
-          parentDocumentId: { $in: parentIds },
-          childDocumentId: { $ne: docId },
-        },
-        { projection: { parentDocumentId: 1, childDocumentId: 1, level: 1 } }
-      ).fetch();
+      const subjectSiblingRelationships = await repos.tags.getTagSubjectSiblingRelationships(docId);
 
       // Build pairs of tags sharing the same parentDocumentId
       const subjectPairs = [];
-      for (const rel1 of st1) {
-        for (const rel2 of st2) {
-          if (rel1.parentDocumentId === rel2.parentDocumentId) {
-            subjectPairs.push({
-              sourceTagId: rel1.childDocumentId,
-              alternativeTagId: rel2.childDocumentId,
-              level1: rel1.level,
-              level2: rel2.level,
-            });
-          }
+
+      for (const subjectWithRelationships of subjectSiblingRelationships) {
+        for (const relationship of subjectWithRelationships.relationships) {
+          subjectPairs.push({
+            sourceTagId: subjectWithRelationships.subjectTagId,
+            alternativeTagId: relationship.tagId,
+            level1: subjectWithRelationships.level,
+            level2: relationship.level,
+          });
         }
       }
 
@@ -187,19 +163,18 @@ export function arbitalLinkedPagesField(options: ArbitalLinkedPagesFieldOptions)
 
       // Helper function to fetch tags by IDs
       async function getDocumentsByIds(ids: string[]) {
-
         if (ids.length === 0) return [];
 
-        const tags = await Tags.find(
-          { _id: { $in: ids } },
-          { projection: { _id: 1, name: 1, slug: 1 } }
-        ).fetch();
-
-
-        const multiDocs = await MultiDocuments.find(
-          { _id: { $in: ids }, fieldName: 'description' },
-          { projection: { _id: 1, parentDocumentId: 1, title: 1, slug: 1 } }
-        ).fetch();
+        const [tags, multiDocs] = await Promise.all([
+          Tags.find(
+            { _id: { $in: ids } },
+            { projection: { _id: 1, name: 1, slug: 1 } }
+          ).fetch(),
+          MultiDocuments.find(
+            { _id: { $in: ids }, fieldName: 'description' },
+            { projection: { _id: 1, parentDocumentId: 1, title: 1, slug: 1 } }
+          ).fetch(),
+        ]);
 
         //make new objects with the name field instead of title
         const multiDocsWithName = multiDocs.map((doc) => ({
