@@ -3954,7 +3954,7 @@ interface MultiDocumentsDefaultFragment { // fragment on MultiDocuments
   readonly tabSubtitle: string | null,
   readonly userId: string,
   readonly parentDocumentId: string,
-  readonly collectionName: string,
+  readonly collectionName: "Tags" | "MultiDocuments",
   readonly fieldName: string,
   readonly index: number,
   readonly tableOfContents: any /*{"definitions":[{}]}*/,
@@ -3967,7 +3967,7 @@ interface MultiDocumentsDefaultFragment { // fragment on MultiDocuments
 interface MultiDocumentMinimumInfo { // fragment on MultiDocuments
   readonly _id: string,
   readonly parentDocumentId: string,
-  readonly collectionName: string,
+  readonly collectionName: "Tags" | "MultiDocuments",
   readonly fieldName: string,
   readonly userId: string,
   readonly slug: string,

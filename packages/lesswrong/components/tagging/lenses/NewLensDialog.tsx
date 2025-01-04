@@ -1,34 +1,92 @@
 import React from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
 
 const styles = defineStyles("NewLensDialog", (theme: ThemeType) => ({
   dialog: {
-    padding: 20,
-    minHeight: 400,
-    minWidth: 400,
-  }
+    padding: 10,
+    '& .vulcan-form': {
+      marginTop: 10,
+      padding: '0px 10px',
+      background: theme.palette.grey[100],
+      borderTopLeftRadius: theme.borderRadius.small,
+      borderTopRightRadius: theme.borderRadius.small,
+    },
+    '& .form-input': {
+      marginTop: 8,
+      marginBottom: 8,
+    },
+    '& .input-title, & .input-tabTitle, & .input-tabSubtitle': {
+      display: 'inline-block',
+      width: 120,
+      marginRight: 20,
+      '& .MuiTextField-textField': {
+        width: '100%',
+      },
+    },
+    '& .form-submit': {
+      paddingBottom: 8,
+      display: 'flex',
+      justifyContent: 'end',
+    },
+  },
+  dialogContent: {
+    padding: '0px 16px 16px',
+  },
+  dialogTitle: {
+    padding: '16px 16px 10px',
+  },
 }));
 
-export const NewLensDialog = ({ onClose }: {
+export const NewLensDialog = ({ tag, refetchTag, updateSelectedLens, onClose }: {
+  tag: TagPageWithRevisionFragment | TagPageFragment,
+  refetchTag: () => Promise<void>,
+  updateSelectedLens: (lensId: string) => void,
   onClose?: () => void,
 }) => {
   const { LWDialog, WrappedSmartForm } = Components;
   
   const classes = useStyles(styles);
+
+  const wrappedSuccessCallback = async (lens: MultiDocumentMinimumInfo) => {
+    await refetchTag();
+    updateSelectedLens(lens._id);
+    onClose?.();
+  };
+
+  const prefilledProps = {
+    parentDocumentId: tag._id,
+    collectionName: 'Tags',
+    fieldName: 'description',
+  };
   
   return <LWDialog open={true} onClose={onClose} dialogClasses={{ paper: classes.dialog }}>
-    <WrappedSmartForm
-      collectionName='MultiDocuments'
-      queryFragmentName='MultiDocumentMinimumInfo'
-      mutationFragmentName='MultiDocumentMinimumInfo'
-      successCallback={() => onClose?.()}
-      cancelCallback={() => onClose?.()}
-      formProps={{
-        newLensForm: true,
-      }}
-      removeFields={['contents']}
-    />
+    <DialogTitle className={classes.dialogTitle}>New Lens</DialogTitle>
+    <DialogContent className={classes.dialogContent}>
+      <DialogContentText>
+        Creating a new lens is appropriate when you want to present an alternative view on the content, such as a more or less technical explanation.
+        <p /><p />
+        The title of the lens is displayed at the top of the content, and the tab title and (optional) subtitle are displayed in the tab bar.
+        {/* <p /><p /> */}
+        {/* After creating a new lens, you will be redirected to the edit form where you can add content to it. */}
+      </DialogContentText>
+      <WrappedSmartForm
+        collectionName='MultiDocuments'
+        queryFragmentName='MultiDocumentMinimumInfo'
+        mutationFragmentName='MultiDocumentMinimumInfo'
+        successCallback={wrappedSuccessCallback}
+        cancelCallback={() => onClose?.()}
+        formProps={{
+          newLensForm: true,
+          editorHintText: 'New lens content goes here!'
+        }}
+        prefilledProps={prefilledProps}
+        // removeFields={['contents']}
+      />
+    </DialogContent>
   </LWDialog>;
 }
 

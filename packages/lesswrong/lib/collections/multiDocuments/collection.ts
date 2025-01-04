@@ -13,8 +13,29 @@ export const MultiDocuments = createCollection({
   schema,
   resolvers: getDefaultResolvers('MultiDocuments'),
   mutations: getDefaultMutations('MultiDocuments', {
-    newCheck: (user) => {
-      return userIsAdmin(user);
+    newCheck: async (user, multiDocument) => {
+      if (!multiDocument) {
+        return false;
+      }
+
+      if (userIsAdmin(user)) {
+        return true;
+      }
+
+      console.log('multiDocument', multiDocument);
+      const rootDocumentInfo = await getRootDocument(multiDocument);
+      if (!rootDocumentInfo) {
+        return false;
+      }
+
+      const { document: parentDocument, collection: parentDocumentCollection } = rootDocumentInfo;
+      const check = parentDocumentCollection.options.mutations?.create?.check;
+      if (!check) {
+        // eslint-disable-next-line no-console
+        console.error(`No check for create mutation on parent collection ${parentDocumentCollection.collectionName} when trying to create MultiDocument for parent with id ${parentDocument._id}`);
+        return false;
+      }
+      return check(user, parentDocument);
     },
     editCheck: async (user, multiDocument) => {
       if (!multiDocument) {
@@ -25,25 +46,18 @@ export const MultiDocuments = createCollection({
         return true;
       }
 
-      const parentCollectionName = multiDocument.collectionName;
-      let parentDocumentCollection = getCollection(parentCollectionName);
-      let parentDocument = await parentDocumentCollection.findOne({ _id: multiDocument.parentDocumentId });
-      if (!parentDocument) {
+      const rootDocumentInfo = await getRootDocument(multiDocument);
+      if (!rootDocumentInfo) {
         return false;
       }
 
-      // If the parent isn't a tag, it's a multi-document, and this is a summary whose parent is a lens.
-      // We need to recurse once to get the parent tag.
-      if (parentCollectionName !== 'Tags') {
-        parentDocumentCollection = getCollection('Tags');
-        parentDocument = await parentDocumentCollection.findOne({ _id: (parentDocument as DbMultiDocument).parentDocumentId });
-      }
+      const { document: parentDocument, collection: parentDocumentCollection } = rootDocumentInfo;
       
       const check = parentDocumentCollection.options.mutations?.update?.check;
       // editCheck should always exist for tags, but...
       if (!check) {
         // eslint-disable-next-line no-console
-        console.error(`No check for update mutation on parent collection ${parentCollectionName} when trying to edit MultiDocument ${multiDocument._id}`);
+        console.error(`No check for update mutation on parent collection ${parentDocumentCollection.collectionName} when trying to edit MultiDocument ${multiDocument._id}`);
         return false;
       }
       const canEditParentTag = await check(user, parentDocument);

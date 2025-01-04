@@ -11,6 +11,7 @@ import { userHasNewTagSubscriptions } from '../../lib/betas';
 import classNames from 'classnames';
 import { useTagBySlug } from './useTag';
 import { tagGetHistoryUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import { isLWorAF } from '@/lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   buttonsRow: {
@@ -52,6 +53,12 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: "none"
     }
   },
+  // newLensIcon: {
+  //   // Invert the icon color
+  //   '& svg': {
+  //     color: theme.palette.grey[700]
+  //   }
+  // },
   lockIcon: {
     display: "flex",
     alignItems: "center",
@@ -95,20 +102,34 @@ export function useTagEditingRestricted(tag: TagPageWithRevisionFragment | TagPa
   return { canEdit, noEditNotAuthor, noEditKarmaTooLow };
 }
 
-const TagPageButtonRow = ({ tag, editing, setEditing, hideLabels = false, className, classes }: {
+const TagPageButtonRow = ({ tag, editing, setEditing, hideLabels = false, className, refetchTag, updateSelectedLens, classes }: {
   tag: TagPageWithRevisionFragment | TagPageFragment,
   editing: boolean,
   setEditing: (editing: boolean) => void,
   hideLabels?: boolean,
   className?: string,
+  refetchTag?: () => Promise<void>,
+  updateSelectedLens?: (lensId: string) => void,
   classes: ClassesType
 }) => {
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
-  const { LWTooltip, NotifyMeButton, TagDiscussionButton, ContentItemBody } = Components;
+  const { LWTooltip, NotifyMeButton, TagDiscussionButton, ContentItemBody, ForumIcon } = Components;
   const { tag: beginnersGuideContentTag } = useTagBySlug("tag-cta-popup", "TagFragment")
 
   const numFlags = tag.tagFlagsIds?.length
+
+  function handleNewLensClick(e: React.MouseEvent<HTMLAnchorElement>) {
+    if (!refetchTag || !updateSelectedLens) return;
+    openDialog({
+      componentName: "NewLensDialog",
+      componentProps: {
+        tag,
+        refetchTag,
+        updateSelectedLens,
+      }
+    });
+  }
 
   function handleEditClick(e: React.MouseEvent<HTMLAnchorElement>) {
     if (currentUser) {
@@ -123,6 +144,8 @@ const TagPageButtonRow = ({ tag, editing, setEditing, hideLabels = false, classN
   }
 
   const { canEdit, noEditNotAuthor, noEditKarmaTooLow } = useTagEditingRestricted(tag, editing, currentUser);
+  
+  const showNewLensButton = !editing && canEdit && refetchTag && updateSelectedLens && isLWorAF;
 
   const editTooltipHasContent = noEditNotAuthor || noEditKarmaTooLow || numFlags || beginnersGuideContentTag
   const editTooltip = editTooltipHasContent && <>
@@ -153,18 +176,29 @@ const TagPageButtonRow = ({ tag, editing, setEditing, hideLabels = false, classN
   </>
 
   return <div className={classNames(classes.buttonsRow, className)}>
+    {/** Button to create a new lens */}
+    {showNewLensButton && <LWTooltip>
+      <a className={classNames(classes.button, classes.newLensIcon)} onClick={handleNewLensClick}>
+        <ForumIcon icon='NoteAdd' />
+        <span className={classes.buttonLabel}>
+          {!hideLabels && "New Lens"}
+        </span>
+      </a>
+    </LWTooltip>}
     {!editing && <LWTooltip
       className={classes.buttonTooltip}
       title={editTooltip}
     >
       {canEdit ? (<a className={classes.button} onClick={handleEditClick}>
-        <EditOutlinedIcon /><span className={classes.buttonLabel}>
+        <EditOutlinedIcon />
+        <span className={classes.buttonLabel}>
           {!hideLabels && "Edit"}
         </span>
-      </a>) : (
-        <a className={classes.lockIcon} onClick={() => {}}><LockIcon className={classes.lockIcon}/><span className={classes.buttonLabel}>
+      </a>) : (<a className={classes.lockIcon} onClick={() => {}}><LockIcon className={classes.lockIcon}/>
+        <span className={classes.buttonLabel}>
           {!hideLabels && "Edit"}
-        </span></a>)}
+        </span>
+      </a>)}
     </LWTooltip>}
     {<Link
       className={classes.button}
