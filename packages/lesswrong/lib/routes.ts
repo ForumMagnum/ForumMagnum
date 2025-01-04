@@ -1,4 +1,4 @@
-import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting, taggingNamePluralSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameCapitalSetting, isEAForum, taggingNameSetting, aboutPostIdSetting, isLW, taggingUrlCustomBaseSetting, isLWorAF, tagUrlBaseSetting, usePluralTagNameSetting, taggingNameCapitalizedWithCorrectPlural } from './instanceSettings';
+import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting, taggingNamePluralSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameCapitalSetting, isEAForum, taggingNameSetting, aboutPostIdSetting, isLW, taggingUrlCustomBaseSetting, isLWorAF, tagUrlBaseSetting, usePluralTagNameSetting, taggingNameCapitalizedWithCorrectPlural as taggingNameCapitalizedWithPluralilizationChoice } from './instanceSettings';
 import { blackBarTitle, legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, RouterLocation, Route } from './vulcan-lib/routes';
 import { REVIEW_YEAR } from './reviewUtils';
@@ -373,9 +373,6 @@ addRoute(
   }
 );
 
-
-const taggingNameCapitalized = taggingNameCapitalizedWithCorrectPlural.get();
-
 addRoute(
   {
     name: 'tagsSingle',
@@ -408,7 +405,7 @@ addRoute(
     subtitleComponentName: 'TagPageTitle',
     previewComponentName: 'TagHoverPreview',
     background: isLW ? "white" : undefined,
-    noIndex: true,
+    noIndex: isEAForum,
     getPingback: (parsedUrl) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug),
   },
   {
@@ -444,19 +441,19 @@ addRoute(
     name: 'tagActivity',
     path: `/${tagUrlBaseSetting.get()}Activity`,
     componentName: 'TagVoteActivity',
-    title: `${taggingNameCapitalized} Voting Activity`
+    title: `${taggingNameCapitalizedWithPluralilizationChoice.get()} Voting Activity`
   },
   {
     name: 'tagFeed',
     path: `/${tagUrlBaseSetting.get()}Feed`,
     componentName: 'TagActivityFeed',
-    title: `${taggingNameCapitalized} Activity`
+    title: `${taggingNameCapitalizedWithPluralilizationChoice.get()} Activity`
   },
   {
     name: 'taggingDashboard',
     path: `/${tagUrlBaseSetting.get()}/dashboard`,
     componentName: "TaggingDashboard",
-    title: `${taggingNameCapitalized} Dashboard`,
+    title: `${taggingNameCapitalizedWithPluralilizationChoice.get()} Dashboard`,
     ...taggingDashboardSubtitle
   }
 )
@@ -467,13 +464,13 @@ if (tagUrlBaseSetting.get() !== 'tag') {
       name: 'tagsSingleRedirect',
       path: '/tag/:slug',
       redirect: ({ params }) => `/${tagUrlBaseSetting.get()}/${params.slug}`,
-      background: isLW ? "white" : "#fffeee",
       getPingback: (parsedUrl) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug),
     },
     {
       name: 'tagDiscussionRedirect',
       path: '/tag/:slug/discussion',
-      redirect: ({params}) => `/${tagUrlBaseSetting.get()}/${params.slug}/discussion`
+      redirect: ({params}) => `/${tagUrlBaseSetting.get()}/${params.slug}/discussion`,
+      getPingback: (parsedUrl) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug),
     },
     {
       name: 'tagHistoryRedirect',
@@ -512,7 +509,6 @@ if (tagUrlBaseSetting.get() !== 'tag') {
     }
   )
 }
-
 
 // All tags page
 addRoute(

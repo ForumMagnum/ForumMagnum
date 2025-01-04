@@ -21,6 +21,7 @@ import type { ConditionalVisibilitySettings } from '@/components/editor/conditio
 import { escapeHtml } from './util';
 import orderBy from 'lodash/orderBy';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
+import { tagUrlBaseSetting } from '@/lib/instanceSettings';
 
 
 const anyUrlMatch = /\b((?:[a-z][\w-]+:(?:\/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))/i;
@@ -230,8 +231,8 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
     function pageIdToTitle(pageId: string, prefix: string): string {
       return getCasedText(titlesByPageId[pageId], prefix);
     }
-    function getNewPageUrl() {
-      return "/w/new"; //TODO
+    function getNewPageUrl(){
+      return `/${tagUrlBaseSetting.get()}/new`; //TODO
     }
     /*var getLinkHtml = function(editor: any, alias: string, options: {text?: string}) {
       var firstAliasChar = alias.substring(0, 1);

@@ -233,7 +233,7 @@ async function maybeCreateReviewMarket({newDocument, vote}: VoteDocTuple, collec
   if (post.postedAt.getFullYear() < (new Date()).getFullYear() - 1) return; // only make markets for posts that haven't had a chance to be reviewed
   if (post.manifoldReviewMarketId) return;
 
-  const annualReviewLink = tagGetUrl({slug: 'lesswrong-review'})
+  const annualReviewLink = tagGetUrl({slug: 'lesswrong-review'}, {}, true)
   const postLink = postGetPageUrl(post, true)
 
   const year = post.postedAt.getFullYear()
