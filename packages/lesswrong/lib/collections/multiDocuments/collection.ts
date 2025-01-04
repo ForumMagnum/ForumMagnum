@@ -22,7 +22,6 @@ export const MultiDocuments = createCollection({
         return true;
       }
 
-      console.log('multiDocument', multiDocument);
       const rootDocumentInfo = await getRootDocument(multiDocument);
       if (!rootDocumentInfo) {
         return false;
