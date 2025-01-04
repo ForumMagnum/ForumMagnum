@@ -129,6 +129,7 @@ const TagsTooltip = ({
   tagRel,
   hash,
   previewPostCount = 6,
+  hideDescription = false,
   hideRelatedTags,
   noPrefetch,
   PreviewWrapper = DefaultPreviewWrapper,
@@ -145,6 +146,7 @@ const TagsTooltip = ({
   hash?: string,
   previewPostCount?: number,
   hideRelatedTags?: boolean,
+  hideDescription?: boolean,
   noPrefetch?: boolean,
   PreviewWrapper?: TagsTooltipPreviewWrapper,
   As?: keyof JSX.IntrinsicElements,
@@ -174,6 +176,7 @@ const TagsTooltip = ({
             hash={hash}
             postCount={previewPostCount}
             hideRelatedTags={hideRelatedTags}
+            hideDescription={hideDescription}
           />}
           {isRedLink && <RedLinkTooltip tag={tag} slug={tagsTooltipProps.tagSlug} />}
         </PreviewWrapper>

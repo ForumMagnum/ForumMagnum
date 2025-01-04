@@ -29,7 +29,7 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
     paddingRight: 16,
   },
   nonTabPadding: {
-    paddingTop: 16,
+    // paddingTop: 16,
     paddingLeft: 16,
     paddingRight: 16,
     maxHeight: 400,
@@ -112,7 +112,7 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
     },
   },
   descriptionTop: {
-    marginTop: 16,
+    // marginTop: 16,
   },
 }));
 
@@ -121,6 +121,7 @@ const TagPreview = ({
   hash,
   showCount=true,
   hideRelatedTags,
+  hideDescription=false,
   postCount=6,
   autoApplied=false,
 }: {
@@ -128,6 +129,7 @@ const TagPreview = ({
   hash?: string,
   showCount?: boolean,
   hideRelatedTags?: boolean,
+  hideDescription?: boolean,
   postCount?: number,
   autoApplied?: boolean,
 }) => {
@@ -178,30 +180,24 @@ const TagPreview = ({
       : taggingNameCapitalSetting.get()
   );
 
-  const hasDescription = !!getTagDescriptionHtml(tag);
-
-  const arbitalImport = tag.isArbitalImport;
+  const hasDescription = !!getTagDescriptionHtml(tag) && !hideDescription;
 
   const { TagPreviewDescription, TagSmallPostLink, Loading } = Components;
   return (
     <div className={classNames(classes.root, {
       [classes.rootEAWidth]: isFriendlyUI && hasDescription,
     })}>
-      {arbitalImport && multipleSummaries && <div className={classes.tabsContainer}>
+      {multipleSummaries && <div className={classes.tabsContainer}>
        {summaryTabs}
       </div>}
-      <div className={classNames({
-        [classes.nonTabPadding]: arbitalImport,
-        [classes.nonArbitalPadding]: !arbitalImport
-      })}>
-        {arbitalImport && <Link className={classes.arbitalTitle} to={`/tag/${tag.slug}`}>{tag.name}</Link>}
-        <div className={classes.descriptionTop}>
+      <div className={classes.nonTabPadding}>
+        {hasDescription && <div className={classes.descriptionTop}>
           <TagPreviewDescription 
             tag={tag} 
             hash={hash} 
             {...(tag.summaries?.length ? { activeTab } : {})}
           />
-        </div>
+        </div>}
         {showRelatedTags &&
           <div className={classes.relatedTags}>
             {tag.parentTag &&
@@ -237,7 +233,7 @@ const TagPreview = ({
             }
           </div>
         }
-        {showPosts && !tag.wikiOnly && !arbitalImport &&
+        {showPosts && !tag.wikiOnly &&
           <>
             {results
               ? (
