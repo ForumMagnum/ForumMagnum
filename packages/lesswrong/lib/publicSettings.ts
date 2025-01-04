@@ -210,8 +210,9 @@ export const lightconeFundraiserUnsyncedAmount = new DatabasePublicSetting<numbe
 export const lightconeFundraiserPaymentLinkId = new DatabasePublicSetting<string>('lightconeFundraiser.paymentLinkId', '');
 export const lightconeFundraiserThermometerBgUrl = new DatabasePublicSetting<string>('lightconeFundraiser.thermometerBgUrl', '');
 export const lightconeFundraiserThermometerGoalAmount = new DatabasePublicSetting<number>('lightconeFundraiser.thermometerGoalAmount', 0);
+export const lightconeFundraiserThermometerGoal2Amount = new DatabasePublicSetting<number>('lightconeFundraiser.thermometerGoal2Amount', 2000000);
 export const lightconeFundraiserPostId = new DatabasePublicSetting<string>('lightconeFundraiser.postId', '');
 export const lightconeFundraiserActive = new DatabasePublicSetting<boolean>('lightconeFundraiser.active', false);
-export const postsListViewTypeSetting = new DatabasePublicSetting<string>('posts.viewType', 'list');
 
+export const postsListViewTypeSetting = new DatabasePublicSetting<string>('posts.viewType', 'list');
 export const quickTakesMaxAgeDaysSetting = new DatabasePublicSetting<number>('feed.quickTakesMaxAgeDays', 5);

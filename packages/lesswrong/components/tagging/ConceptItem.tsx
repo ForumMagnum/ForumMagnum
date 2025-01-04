@@ -14,33 +14,6 @@ const COLUMN_GAP = 8;
 const ARBITAL_GREEN_DARK = "#004d40"
 
 const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
-
-  details: {
-    flexGrow: 1,
-    minWidth: 0, // flexbox black magic
-  },
-  titleWrapper: {
-    display: "inline",
-  },
-
-  titleCardView: {
-    // When card view is active, *all* post items change font weight,
-    // even those that are not a card, so that all titles are consistent.
-    fontWeight: 700,
-  },
-  titleCard: {
-    display: "-webkit-box",
-    "-webkit-box-orient": "vertical",
-    "-webkit-line-clamp": 2,
-    [theme.breakpoints.down("xs")]: {
-      "-webkit-line-clamp": 3,
-    },
-  },
-  meta: {
-    display: "flex",
-    alignItems: "center",
-    whiteSpace: "nowrap",
-  },
   root: {
     maxWidth: ITEM_WIDTH,
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -62,7 +35,6 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
   },
   wikiItem: {},
   titleWikiItem: {},
-
   leftSideItems: {
     display: "flex",
     alignItems: "center",
@@ -71,13 +43,6 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     flexShrink: 1,
     flexBasis: 0,
     minWidth: 0,
-  },
-  baseScore: {
-    minWidth: 20,
-    fontSize: 13,
-    color: theme.palette.grey[700],
-    alignItems: "center",
-    justifyContent: "flex-start",
   },
   title: {
     fontWeight: 400,
@@ -121,29 +86,6 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
   postCountNumber: {
     marginTop: 0,
   },
-  rightSideItems: {
-    display: "flex",
-    flexGrow: 0,
-    flexShrink: 0,
-    flexBasis: "auto",
-    alignItems: "center",
-    gap: "4px",
-    color: theme.palette.grey[600],
-  },
-  wordCount: {
-    width: 40,
-    fontSize: 11,
-    color: theme.palette.grey[600],
-    display: "flex",
-    alignItems: "center",
-  },
-  icons: {
-    height: "0.8rem",
-    width: "0.8rem",
-    opacity: 0.5,
-    marginRight: 2,
-  },
-
   titleItemRoot: {
     marginBottom: 24,
   },
@@ -168,31 +110,8 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     opacity: 0,
     transition: "opacity 0.1s ease",
   },
-  collapse: {
-    marginRight: 7,
-    opacity: 0,
-    display: "flex",
-    verticalAlign: "middle",
-    // make the cursor change to pointer
-    cursor: "pointer",
-
-    "& span": {
-      fontFamily: "monospace",
-    },
-  },
-  collapseChevron: {
-    width: 10,
-    transition: "transform 0.2s",
-    transform: "rotate(90deg)",
-  },
-  collapseChevronOpen: {
-    transform: "rotate(180deg)",
-  },
-  collapseCharacter: {
-    transform: 'translateY(0.75px)',
-  },
   children: {
-    // TODO: come back to this and figure out a better way to handle it, maybe
+    // TODO: come back to this and figure out a better way to handle it, especially for multiple screen widths
     width: "min(950px, 100vw - 16px)",
   },
   childrenContainer: {
@@ -228,52 +147,6 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     fontWeight: 500,
     marginLeft: 8,
   },
-  showMoreChildrenInline: {
-    fontSize: 11,
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    fontVariant: "normal",
-    color: theme.palette.grey[600],
-    fontWeight: 400,
-    marginLeft: 8,
-    cursor: "pointer",
-    display: "inline",
-  },
-  collapseInvisible: {
-    opacity: 0,
-    pointerEvents: "none",
-  },
-  childrenCount: {
-    fontSize: 11,
-    color: theme.palette.grey[600],
-  },
-  clickToPin: {
-    fontSize: 11,
-    color: theme.palette.primary.main,
-    cursor: "pointer",
-    opacity: 0,
-    transition: "opacity 0.05s ease",
-    "&:hover": {
-      opacity: 1,
-    },
-  },
-  itemPinned: {
-    backgroundColor: theme.palette.grey[800],
-    "& $title": {
-      color: theme.palette.grey[100],
-    },
-    "& $rightSideItems": {
-      color: theme.palette.grey[300],
-    },
-    "& $icons": {
-      opacity: 0.7,
-    },
-    "& $clickToPin": {
-      color: theme.palette.grey[300],
-    },
-    "&:hover": {
-      backgroundColor: theme.palette.grey[900],
-    },
-  },
   tooltipHoverPostCount: {},
   arbitalIcon: {
     height: 10,
@@ -291,12 +164,10 @@ interface ConceptItemProps {
   wikitag: WikiTagNode;
   nestingLevel: number;
   index?: number;
-  onHover?: (wikitag: WikiTagNode | null) => void;
-  onClick?: (wikitag: WikiTagNode) => void;
-  pinnedWikiTag?: WikiTagNode | null;
+  // onHover?: (wikitag: WikiTagNode | null) => void;
+  // onClick?: (wikitag: WikiTagNode) => void;
   showArbitalIcon?: boolean;
 }
-  
 
 // Helper function to split items into columns
 function splitIntoColumns(items: WikiTagNode[], itemsPerColumn = 12): WikiTagNode[][] {
@@ -311,27 +182,15 @@ const ConceptItem = ({
   wikitag,
   nestingLevel,
   index,
-  onHover,
-  onClick,
-  pinnedWikiTag,
   showArbitalIcon
 }: ConceptItemProps) => {
   const classes = useStyles(styles);
-  const defaultCollapsed = index !== undefined && index >= 3 && index < 6;
-  const [collapsed, setCollapsed] = useState(defaultCollapsed);
+  const collapsed = index !== undefined && index >= 3 && index < 6;
   const [showingAllChildren, setShowingAllChildren] = useState(false);
 
-  const { ForumIcon, TagsTooltip, LWTooltip } = Components;
-
-  const toggleCollapse = () => {
-    setCollapsed(!collapsed);
-    if (collapsed) {
-      setShowingAllChildren(false);
-    }
-  };
+  const { TagsTooltip, LWTooltip } = Components;
 
   const hasChildren = wikitag.children && wikitag.children.length > 0;
-  const isPinned = pinnedWikiTag?._id === wikitag._id;
 
   const totalChildren = wikitag.children?.length || 0;
 
@@ -365,19 +224,13 @@ const ConceptItem = ({
   // Then split into columns
   const columns = splitIntoColumns(sortedChildren, ITEMS_PER_COLUMN);
 
-  const remainingItems = totalChildren - itemsToShowCount;
-
-  const isWikiItem = (wikitag.description?.html?.length ?? 0) > 2000;
-
   // Title item (for nestingLevel === 0)
   const titleItem = (
     <div className={classes.titleItem}>
-      {/* {collapseToggle} */}
       <div className={classes.leftSideItems}>
         <div className={classes.titleItemTitle}>
           <TagsTooltip
             tagSlug={wikitag.slug}
-            hash={wikitag.slug}
             noPrefetch
             previewPostCount={0}
             placement='right-start'
@@ -395,17 +248,13 @@ const ConceptItem = ({
   // Regular item (for nestingLevel > 0)
   const regularItem = (
     <div
-      className={classNames(classes.item, {
-        [classes.itemPinned]: isPinned,
-        [classes.wikiItem]: isWikiItem,
-      })}
+      className={classes.item}
     >
       <div className={classes.leftSideItems}>
         <div className={classes.karma}>{wikitag.baseScore || 0}</div>
-        <div className={classNames(classes.title, { [classes.titleWikiItem]: isWikiItem })}>
+        <div className={classes.title}>
           <TagsTooltip
             tagSlug={wikitag.slug}
-            hash={wikitag.slug}
             noPrefetch
             previewPostCount={0}
             placement='right-start'
@@ -420,7 +269,6 @@ const ConceptItem = ({
             <span className={classes.postCount}>
               <TagsTooltip
                 tagSlug={wikitag.slug}
-                hash={wikitag.slug}
                 noPrefetch
                 previewPostCount={8}
                 hideDescription
@@ -442,6 +290,8 @@ const ConceptItem = ({
   // Decide which item to render
   const itemToRender = nestingLevel === 0 ? titleItem : regularItem;
 
+  const displayedColumns = showingAllChildren ? columns.length : visibleColumns;
+
   return (
     <div
       className={classNames(classes.root, { [classes.titleItemRoot]: nestingLevel === 0 })}
@@ -453,7 +303,7 @@ const ConceptItem = ({
         <div className={classes.children}>
           <div className={classes.childrenContainer}>
             <div className={classNames(classes.childrenList, showingAllChildren && classes.childrenListWrapped)}>
-              {columns.slice(0, showingAllChildren ? columns.length : visibleColumns).map((columnItems, columnIndex) => (
+              {columns.slice(0, displayedColumns).map((columnItems, columnIndex) => (
                 <div key={columnIndex} className={classes.column}>
                   {columnItems.map((childPage, idx) => (
                     <ConceptItem
@@ -461,9 +311,8 @@ const ConceptItem = ({
                       wikitag={childPage}
                       nestingLevel={nestingLevel + 1}
                       index={idx}
-                      onHover={onHover}
-                      onClick={onClick}
-                      pinnedWikiTag={pinnedWikiTag}
+                      // onHover={onHover}
+                      // onClick={onClick}
                       showArbitalIcon={showArbitalIcon}
                     />
                   ))}
@@ -501,7 +350,3 @@ declare global {
     ConceptItem: typeof ConceptItemComponent
   }
 }
-function useRouter(): { location: any; } {
-  throw new Error('Function not implemented.');
-}
-

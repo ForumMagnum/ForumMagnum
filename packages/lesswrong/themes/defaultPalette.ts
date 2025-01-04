@@ -318,7 +318,6 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     primaryTranslucent: 'rgba(12,134,155,.7)',
     dashed500: `dashed 1px ${shades.grey[500]}`,
     mentionsBaloon: "#c4c4c4",
-    wrappedSummary: "2px solid rgba(255, 168, 50, 0.6)",
     eaButtonGreyOutline: "#BCC1C9",
   },
   background: {
@@ -573,17 +572,26 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   eventsHomeLoadMoreHover: '#085d6c',
 
   wrapped: {
-    background: '#072C47',
-    highlightText: '#FFC443',
+    background: '#151515',
+    darkBackground: "#000",
+    highlightText: '#F09554',
     secondaryText: '#008DAC',
     tertiaryText: "rgba(255, 255, 255, 0.50)",
     black: '#212121',
-    darkGrey: '#424242',
-    grey: '#757575',
     darkDot: "rgba(255, 255, 255, 0.40)",
     panelBackground: "rgba(255, 255, 255, 0.10)",
     panelBackgroundDark: "rgba(255, 255, 255, 0.05)",
-    postScoreArrow: '#BCBCBC',
+    postScore: '#BCBCBC',
+    notification: "#e05200",
+    emptyPath: "#494949",
+    metaText: "#b3b3b3",
+    personality: {
+      transparent: "transparent",
+      grey: "#585858",
+      red: "#9E011A",
+      blue: "#16508C",
+      green: "#006336",//"#0b7138",
+    },
   },
   givingSeason: {
     primary: "#8A0003",
@@ -594,6 +602,8 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     candidateBackground: "rgba(255, 255, 255, 0.2)",
     candidateShadow: "rgba(147, 0, 0, 0.25)",
     candidateOrder: "#C50000",
+    heart: "#862115",
+    mobileBannerOverlay: "linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.3) 25%, rgba(255, 255, 255, 0.3) 75%, rgba(255, 255, 255, 0) 100%)"
   },
   namesAttachedReactions: {
     selectedAnti: "rgb(255, 189, 189, .23)",

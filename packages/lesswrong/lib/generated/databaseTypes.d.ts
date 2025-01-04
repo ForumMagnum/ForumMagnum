@@ -413,7 +413,7 @@ type ElicitQuestionPredictionsCollection = CollectionBase<"ElicitQuestionPredict
 
 interface DbElicitQuestionPrediction extends DbObject {
   __collectionName?: "ElicitQuestionPredictions"
-  prediction: number
+  prediction: number | null
   createdAt: Date
   notes: string | null
   creator: {
@@ -426,6 +426,7 @@ interface DbElicitQuestionPrediction extends DbObject {
   sourceUrl: string | null
   sourceId: string | null
   binaryQuestionId: string
+  isDeleted: boolean
 }
 
 type ElicitQuestionsCollection = CollectionBase<"ElicitQuestions">;
@@ -435,8 +436,9 @@ interface DbElicitQuestion extends DbObject {
   title: string
   notes: string | null
   resolution: string | null
-  resolvesBy: Date
+  resolvesBy: Date | null
   createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
 type EmailTokensCollection = CollectionBase<"EmailTokens">;
@@ -712,10 +714,19 @@ interface DbMultiDocument extends DbObject {
   fieldName: string
   index: number
   contributionStats: any /*{"definitions":[{"blackbox":true}]}*/
+  htmlWithContributorAnnotations: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   contents_latest: string | null
   pingbacks: any /*{"definitions":[{}]}*/
+  voteCount: number
+  baseScore: number
+  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  score: number
+  inactive: boolean
+  afBaseScore: number | null
+  afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  afVoteCount: number | null
 }
 
 type NotificationsCollection = CollectionBase<"Notifications">;
@@ -1467,6 +1478,14 @@ interface DbTag extends DbObject {
   subforumWelcomeText_latest: string | null
   moderationGuidelines: EditableFieldContents | null
   moderationGuidelines_latest: string | null
+  voteCount: number
+  baseScore: number
+  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  score: number
+  inactive: boolean
+  afBaseScore: number | null
+  afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  afVoteCount: number | null
 }
 
 type TweetsCollection = CollectionBase<"Tweets">;

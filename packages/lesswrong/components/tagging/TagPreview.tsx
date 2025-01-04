@@ -29,7 +29,6 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
     paddingRight: 16,
   },
   nonTabPadding: {
-    // paddingTop: 16,
     paddingLeft: 16,
     paddingRight: 16,
     maxHeight: 400,
@@ -112,7 +111,7 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
     },
   },
   descriptionTop: {
-    // marginTop: 16,
+    ...(isFriendlyUI && { marginTop: 16 }),
   },
 }));
 
@@ -124,6 +123,7 @@ const TagPreview = ({
   hideDescription=false,
   postCount=6,
   autoApplied=false,
+  setForceOpen,
 }: {
   tag: (TagPreviewFragment | TagSectionPreviewFragment) & { summaries?: MultiDocumentEdit[] },
   hash?: string,
@@ -132,8 +132,18 @@ const TagPreview = ({
   hideDescription?: boolean,
   postCount?: number,
   autoApplied?: boolean,
+  setForceOpen?: (forceOpen: boolean) => void,
 }) => {
   const [activeTab, setActiveTab] = useState<number>(0);
+
+  // Because different tabs can have different heights due to varying content lengths,
+  // we need to keep the tooltip open when switching tabs, so that switching from a taller tab
+  // to a shorter tab with certain placements doesn't cause the tooltip to close automatically
+  // when the cursor is no longer hovering over the tab.
+  const updateActiveTab = (index: number) => {
+    setActiveTab(index);
+    setForceOpen?.(true);
+  };
 
   const showPosts = postCount > 0 && !!tag?._id && !isFriendlyUI;
   const {results} = useMulti({
@@ -162,7 +172,7 @@ const TagPreview = ({
       key={summary.tabTitle}
       className={classes.summaryTab}
       data-selected={activeTab === index}
-      onClick={() => setActiveTab(index)}
+      onClick={() => updateActiveTab(index)}
     >
       {summary.tabTitle}
     </div>

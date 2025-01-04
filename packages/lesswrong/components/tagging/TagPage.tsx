@@ -1,14 +1,14 @@
 import { useApolloClient } from "@apollo/client";
 import classNames from 'classnames';
-import React, { FC, Fragment, useCallback, useContext, useEffect, useState } from 'react';
+import React, { FC, Fragment, useCallback, useEffect, useState } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from "../../lib/betas";
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
-import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import { tagGetHistoryUrl, tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { useMulti, UseMultiOptions } from '../../lib/crud/withMulti';
 import { truncate } from '../../lib/editor/ellipsize';
 import { Link } from '../../lib/reactRouterWrapper';
-import { useLocation, useNavigate } from '../../lib/routeUtil';
+import { useLocation } from '../../lib/routeUtil';
 import { useGlobalKeydown, useOnSearchHotkey } from '../common/withGlobalKeydown';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
@@ -18,21 +18,18 @@ import truncateTagDescription from "../../lib/utils/truncateTagDescription";
 import { getTagStructuredData } from "./TagPageRouter";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import DeferRender from "../common/DeferRender";
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
 import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from "./TagPageExports";
 import { useStyles, defineStyles } from "../hooks/useStyles";
 import { HEADER_HEIGHT } from "../common/Header";
 import { MAX_COLUMN_WIDTH } from "../posts/PostsPage/PostsPage";
 import { DocumentContributorsInfo, DocumentContributorWithStats, MAIN_TAB_ID, TagLens, useTagLenses } from "@/lib/arbital/useTagLenses";
 import { quickTakesTagsEnabledSetting } from "@/lib/publicSettings";
-import { TagContributor } from "./arbitalTypes";
-import { TagEditorContext, TagEditorProvider } from "./TagEditorContext";
 import { isClient } from "@/lib/executionEnvironment";
 import qs from "qs";
 import { useTagOrLens } from "../hooks/useTagOrLens";
 import { useTagEditingRestricted } from "./TagPageButtonRow";
 import { useMultiClickHandler } from "../hooks/useMultiClickHandler";
+import HistoryIcon from '@material-ui/icons/History';
 
 const sidePaddingStyle = (theme: ThemeType) => ({
   paddingLeft: 42,
@@ -175,29 +172,6 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
   description: {
     lineHeight: "21px",
   },
-  lensTabsContainer: {
-    gap: '4px',
-    [theme.breakpoints.up('md')]: {
-      alignItems: 'flex-end',
-    },
-    [theme.breakpoints.down('sm')]: {
-      gap: '2px',
-      flexWrap: 'wrap-reverse',
-      display: 'flex',
-      flexDirection: 'row',
-    },
-  },
-  lensTabContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '4px',
-    [theme.breakpoints.down('sm')]: {
-      maxWidth: '40%',
-      // TODO: maybe have a conditional flex-grow for 2 vs. 3+ lens tabs
-      flexGrow: 1,
-      gap: '0px',
-    },
-  },
   aboveLensTab: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
@@ -208,102 +182,6 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]: {
       display: 'none',
     },
-  },
-  lensTab: {
-    minWidth: 'unset',
-    borderWidth: 1,
-    [theme.breakpoints.down('sm')]: {
-      // width: '33%',
-      // width: '100%',
-      // alignSelf: 'center',
-    },
-  },
-  lensTabRootOverride: {
-    [theme.breakpoints.down('sm')]: {
-      minHeight: 'unset',
-      height: '100%',
-      paddingTop: 2,
-      paddingBottom: 2,
-    },
-    borderTopLeftRadius: theme.borderRadius.small * 2,
-    borderTopRightRadius: theme.borderRadius.small * 2,
-  },
-  tabLabelContainerOverride: {
-    paddingLeft: 16,
-    paddingRight: 16,
-    [theme.breakpoints.down('sm')]: {
-      paddingLeft: 8,
-      paddingRight: 8,
-      paddingTop: 0,
-      paddingBottom: 4,
-      width: '100%',
-    },
-  },
-  lensLabel: {
-    display: 'flex',
-    flexDirection: 'column',
-    minHeight: 48,
-    [theme.breakpoints.up('md')]: {
-    },
-    alignItems: 'start',
-    justifyContent: 'center',
-    [theme.breakpoints.down('sm')]: {
-      height: 'min-content',
-      gap: '4px',
-    },
-  },
-  lensTitle: {
-    ...theme.typography.subtitle,
-    textTransform: 'none',
-    marginBottom: 0,
-  },
-  lensSubtitle: {
-    ...theme.typography.subtitle,
-    textTransform: 'none',
-    fontSize: '1em',
-    fontWeight: 400,
-    [theme.breakpoints.down('sm')]: {
-      width: 'fit-content',
-      display: 'block',
-      textAlign: 'left',
-      // marginBottom: 1,
-      // '&::before': {
-      //   content: '"("',
-      // },
-      // '&::after': {
-      //   content: '")"'
-      // }
-    },
-  },
-  selectedLens: {
-    [theme.breakpoints.down('sm')]: {
-      // border: theme.palette.border.grey400,
-    },
-    [theme.breakpoints.up('md')]: {
-      borderStyle: 'solid',
-      // These don't work with borderImageSource, maybe TODO
-      // borderTopLeftRadius: theme.borderRadius.small * 2,
-      // borderTopRightRadius: theme.borderRadius.small * 2,
-      borderWidth: '1px 1px 0 1px',
-      borderImageSource: `linear-gradient(to bottom, 
-        ${theme.palette.grey[400]} 0%, 
-        rgba(0,0,0,0) 100%
-      )`,
-      borderImageSlice: '1',
-      // Needed to maintain solid top border
-      borderTop: theme.palette.border.grey400
-    },
-  },
-  nonSelectedLens: {
-    background: theme.palette.panelBackground.tagLensTab,
-    // Needed to avoid annoying shifting of other tabs when one is selected
-    [theme.breakpoints.up('md')]: {
-      borderStyle: 'solid',
-      borderColor: theme.palette.background.transparent,
-    }
-  },
-  hideMuiTabIndicator: {
-    display: 'none',
   },
   contributorRow: {
     ...theme.typography.body1,
@@ -349,7 +227,6 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     [theme.breakpoints.down('md')]: {
       display: 'none',
     },
-    marginTop: -32,
     width: 300,
     '&:hover': {
       '& $rightColumnOverflowFade': {
@@ -357,12 +234,12 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
         pointerEvents: 'none',
       },
     },
+    paddingRight: 30,
   },
   rightColumnContent: {},
   rightColumnOverflowFade: {
     position: "relative",
     zIndex: 2,
-    marginTop: -120,
     height: 140,
     width: "100%",
     // background: `linear-gradient(0deg, 
@@ -403,14 +280,15 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     marginBottom: 4,
     color: theme.palette.grey[600],
     minWidth: 'fit-content',
-    whiteSpace: 'nowrap',
-    display: 'inline-block',
+    // whiteSpace: 'nowrap',
+    display: 'block',
     cursor: 'pointer',
     '&:hover': {
       '& $linkedTagsList': {
         display: 'block',
       },
     },
+    marginTop: -8,
   },
   linkedTagsTitle: {
     color: theme.palette.grey[600],
@@ -424,12 +302,8 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     position: 'absolute',
     top: '100%',
     left: 0,
-    background: theme.palette.background.paper,
-    boxShadow: theme.palette.boxShadow.default,
-    borderRadius: theme.borderRadius.default,
-    padding: '16px',
     zIndex: 1,
-    minWidth: 200,
+    width: '100%',
   },
   linkedTagsSection: {
     marginBottom: 20,
@@ -446,7 +320,9 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     display: 'block',
     fontSize: '1.0rem',
     whiteSpace: 'nowrap',
-
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    width: '100%',
     // marginBottom: 4,
     // color: theme.palette.primary.main,
   },
@@ -549,9 +425,27 @@ const styles = defineStyles("TagPage", (theme: ThemeType) => ({
     cursor: 'pointer',
     '&:hover': {
       opacity: 0.7,
-    },  
-  },
+      },  
+    },
+    revisionNotice: {
+      ...theme.typography.body2,
+      display: 'flex',
+      alignItems: 'center',
+      color: theme.palette.error.dark,
+      fontWeight: 550,
+      marginBottom: 16,
+    },
+    historyIcon: {
+      height: 18,
+      width: 18,
+      marginRight: 4,
+    },
 }));
+
+type ArbitalTagPageFragmentNames =
+  | "TagPageWithArbitalContentFragment"
+  | "TagPageRevisionWithArbitalContentFragment"
+  | "TagPageWithArbitalContentAndLensRevisionFragment";
 
 /**
  * If we're on the main tab (or on a tag without any lenses), we want to display the tag name.
@@ -570,13 +464,23 @@ function useDisplayedTagTitle(tag: TagPageFragment | TagPageWithRevisionFragment
 // TODO: maybe move this to the server, so that the user doesn't have to wait for the hooks to run to see the contributors
 function useDisplayedContributors(contributorsInfo: DocumentContributorsInfo | null) {
   const contributors: DocumentContributorWithStats[] = contributorsInfo?.contributors ?? [];
-  if (!contributors.some(({ contributionVolume }) => contributionVolume)) {
+  if (!contributors.some(({ currentAttributionCharCount }) => currentAttributionCharCount)) {
     return { topContributors: contributors, smallContributors: [] };
   }
-  const totalDiffVolume = contributors.reduce((acc: number, contributor: TagContributor) => acc + contributor.contributionVolume, 0);
-  const sortedContributors = [...contributors].sort((a, b) => b.contributionVolume - a.contributionVolume);
-  const topContributors = sortedContributors.filter(({ contributionVolume }) => contributionVolume / totalDiffVolume > 0.1);
-  const smallContributors = sortedContributors.filter(({ contributionVolume }) => contributionVolume / totalDiffVolume <= 0.1);
+
+  const totalAttributionChars = contributors.reduce((acc: number, contributor: DocumentContributorWithStats) => acc + (contributor.currentAttributionCharCount ?? 0), 0);
+
+  if (totalAttributionChars === 0) {
+    return { topContributors: contributors, smallContributors: [] };
+  }
+
+  const sortedContributors = [...contributors].sort((a, b) => (b.currentAttributionCharCount ?? 0) - (a.currentAttributionCharCount ?? 0));
+  const initialTopContributors = sortedContributors.filter(({ currentAttributionCharCount }) => ((currentAttributionCharCount ?? 0) / totalAttributionChars) > 0.1);
+  const topContributors = initialTopContributors.length <= 3 
+    ? sortedContributors.filter(({ currentAttributionCharCount }) => ((currentAttributionCharCount ?? 0) / totalAttributionChars) > 0.05)
+    : initialTopContributors;
+  const smallContributors = sortedContributors.filter(contributor => !topContributors.includes(contributor));
+
   return { topContributors, smallContributors };
 }
 
@@ -607,32 +511,9 @@ const PostsListHeading: FC<{
   );
 }
 
-// We need to pass through all of the props that Tab accepts in order to maintain the functionality of Tab switching/etc
-const LensTab = ({ key, value, label, lens, isSelected, ...tabProps }: {
-  key: string,
-  value: string,
-  label: React.ReactNode,
+const EditLensForm = ({lens, setFormDirty}: {
   lens: TagLens,
-  isSelected: boolean,
-} & Omit<React.ComponentProps<typeof Tab>, 'key' | 'value' | 'label'>) => {
-  const classes = useStyles(styles);
-  return (
-    <div key={key} className={classes.lensTabContainer}>
-      {lens.tabTitle === 'Loose Intro' && <div className={classes.aboveLensTab}>Less Technical</div>}
-      <Tab
-        className={classNames(classes.lensTab, isSelected && classes.selectedLens, !isSelected && classes.nonSelectedLens)}
-        key={key}
-        value={value}
-        label={label}
-        classes={{ root: classes.lensTabRootOverride, labelContainer: classes.tabLabelContainerOverride }}
-        {...tabProps}
-      ></Tab>
-    </div>
-  );
-};
-
-const EditLensForm = ({lens}: {
-  lens: TagLens,
+  setFormDirty: (dirty: boolean) => void,
 }) => {
   const { WrappedSmartForm } = Components;
   return <WrappedSmartForm
@@ -643,6 +524,10 @@ const EditLensForm = ({lens}: {
     mutationFragmentName="MultiDocumentEdit"
     {...(lens.originalLensDocument ? { prefetchedDocument: lens.originalLensDocument } : {})}
     addFields={['summaries']}
+    warnUnsavedChanges={true}
+    changeCallback={() => {
+      setFormDirty(true);
+    }}
   />
 }
 
@@ -666,7 +551,7 @@ function hasList(list: ArbitalLinkedPage[] | null): list is ArbitalLinkedPage[] 
   return !!(list && list?.length > 0);
 }
 
-const LinkedPageListSection = ({ title, linkedPages, children, limit=undefined }: {
+const LinkedPageListSection = ({ title, linkedPages, children, limit }: {
   title: string,
   linkedPages: ArbitalLinkedPage[] | null,
   children?: React.ReactNode,
@@ -785,235 +670,131 @@ function htmlNodeListToArray(nodes: NodeList): Node[] {
   return ret;
 }
 
-const bayesGuideScript = () => {
-  const pathDescriptions = {
-    basic_theoretical: {
-      content: `
-          <p>Your path will teach you the basic odds form of Bayes' rule at a reasonable pace. It will contain 3 pages:</p>
-          <ul>
-              <li>Frequency diagrams: A first look at Bayes</li>
-              <li>Waterfall diagrams and relative odds</li>
-              <li>Introduction to Bayes' rule: Odds form</li>
-          </ul>
-      `,
-      pathId: "62c",
-    },
-    quick: {
-      content: `
-          <p>No time to waste! Let's plunge directly into <a href="/w/693">a single-page abbreviated introduction to Bayes' rule</a>.</p>
-      `,
-      // pathId: "693",
-      pathId: null,
-    },
-    theoretical: {
-      content: `
-          <p>Your path will teach you the basic odds form of Bayes' rule at a reasonable pace and then delve into the deep mysteries of the Bayes' Rule! Your path will contain 8 pages:</p>
-          <ul>
-              <li>Frequency diagrams: A first look at Bayes</li>
-              <li>Waterfall diagrams and relative odds</li>
-              <li>Introduction to Bayes' rule: Odds form</li>
-              <li>Belief revision as probability elimination</li>
-              <li>Extraordinary claims require extraordinary evidence</li>
-              <li>Ordinary claims require ordinary evidence</li>
-              <li>Shift towards the hypothesis of least surprise</li>
-              <li>Bayesian view of scientific virtues</li>
-          </ul>
-      `,
-      pathId: "62f",
-    },
-    deep: {
-      content: `
-          <p>Your path will go over all forms of Bayes' Rule, along with developing deep appreciation for its scientific usefulness. Your path will contain 12 pages:</p>
-          <ul>
-              <li>Frequency diagrams: A first look at Bayes</li>
-              <li>Waterfall diagrams and relative odds</li>
-              <li>Introduction to Bayes' rule: Odds form</li>
-              <li>Bayes' rule: Proportional form</li>
-              <li>Extraordinary claims require extraordinary evidence</li>
-              <li>Ordinary claims require ordinary evidence</li>
-              <li>Bayes' rule: Log-odds form</li>
-              <li>Shift towards the hypothesis of least surprise</li>
-              <li>Bayes' rule: Vector form</li>
-              <li>Belief revision as probability elimination</li>
-              <li>Bayes' rule: Probability form</li>
-              <li>Bayesian view of scientific virtues</li>
-          </ul>
-      `,
-      pathId: "61b",
-    },
-  };
-
-
-  let currentPathId: string | null = null;
-
-  function startPath() {
-    if (currentPathId) {
-      window.location.href = `/w/${currentPathId}/?startPath`;
-    }
-  }
-
-  function handleRadioChange(radio: HTMLInputElement) {
-    const wants = radio.dataset.wants?.split(",") || [];
-    const notWants = radio.dataset.notWants?.split(",") || [];
-
-    let pathKey;
-    if (wants.includes("62d") && wants.includes("62f")) {
-      pathKey = "deep";
-    } else if (wants.includes("62d") && notWants.includes("62f")) {
-      pathKey = "quick";
-    } else if (wants.includes("62f") && notWants.includes("62d")) {
-      pathKey = "theoretical";
-    } else {
-      pathKey = "basic_theoretical";
-    }
-
-    const pathDescription = document.getElementById("pathDescription");
-    const content = pathDescription?.querySelector(".content");
-    const startButton = pathDescription?.querySelector(".start-reading") as HTMLElement;
-
-    if (content) {
-      content.innerHTML = pathDescriptions[pathKey as keyof typeof pathDescriptions].content;
-    }
-    currentPathId = pathDescriptions[pathKey as keyof typeof pathDescriptions].pathId;
-
-    if (pathDescription) {
-      pathDescription.style.display = "block";
-    }
-    if (startButton) {
-      if (currentPathId) {
-        startButton.style.display = "block";
-      } else {
-        startButton.style.display = "none";
-      }
-    }
-  }
-
-  let currentContainer: Element|null = null;
-
-  function initializeRadioHandlers() {
-    document.querySelectorAll('input[name="preference"]').forEach((radio: HTMLInputElement) => {
-      radio.addEventListener("change", function() {
-        handleRadioChange(this);
-      });
-    });
-
-    const checkedRadio = document.querySelector('input[name="preference"]:checked') as HTMLInputElement|null;
-    if (checkedRadio) {
-      handleRadioChange(checkedRadio);
-    }
-  }
-
-  if (isClient) {
-    const pathDescriptions = {
-      basic_theoretical: {
-        content: `
-            <p>Your path will teach you the basic odds form of Bayes' rule at a reasonable pace. It will contain 3 pages:</p>
-            <ul>
-                <li>Frequency diagrams: A first look at Bayes</li>
-                <li>Waterfall diagrams and relative odds</li>
-                <li>Introduction to Bayes' rule: Odds form</li>
-            </ul>
-        `,
-        pathId: "62c",
-      },
-      quick: {
-        content: `
-            <p>No time to waste! Let's plunge directly into <a href="/w/693">a single-page abbreviated introduction to Bayes' rule</a>.</p>
-        `,
-        // pathId: "693",
-      },
-      theoretical: {
-        content: `
-            <p>Your path will teach you the basic odds form of Bayes' rule at a reasonable pace and then delve into the deep mysteries of the Bayes' Rule! Your path will contain 8 pages:</p>
-            <ul>
-                <li>Frequency diagrams: A first look at Bayes</li>
-                <li>Waterfall diagrams and relative odds</li>
-                <li>Introduction to Bayes' rule: Odds form</li>
-                <li>Belief revision as probability elimination</li>
-                <li>Extraordinary claims require extraordinary evidence</li>
-                <li>Ordinary claims require ordinary evidence</li>
-                <li>Shift towards the hypothesis of least surprise</li>
-                <li>Bayesian view of scientific virtues</li>
-            </ul>
-        `,
-        pathId: "62f",
-      },
-      deep: {
-        content: `
-            <p>Your path will go over all forms of Bayes' Rule, along with developing deep appreciation for its scientific usefulness. Your path will contain 12 pages:</p>
-            <ul>
-                <li>Frequency diagrams: A first look at Bayes</li>
-                <li>Waterfall diagrams and relative odds</li>
-                <li>Introduction to Bayes' rule: Odds form</li>
-                <li>Bayes' rule: Proportional form</li>
-                <li>Extraordinary claims require extraordinary evidence</li>
-                <li>Ordinary claims require ordinary evidence</li>
-                <li>Bayes' rule: Log-odds form</li>
-                <li>Shift towards the hypothesis of least surprise</li>
-                <li>Bayes' rule: Vector form</li>
-                <li>Belief revision as probability elimination</li>
-                <li>Bayes' rule: Probability form</li>
-                <li>Bayesian view of scientific virtues</li>
-            </ul>
-        `,
-        pathId: "61b",
-      },
-    };
-  
-    // Watch for our content being added to or removed from the DOM
-    const observer = new MutationObserver((mutations) => {
-      for (const mutation of mutations) {
-        if (mutation.type !== 'childList') continue;
-        
-        // Check if our current container was removed
-        if (currentContainer && !currentContainer.isConnected) {
-          currentContainer = null;
-        }
-        
-        // Only look for new container if we don't have one
-        if (!currentContainer) {
-          for (const node of htmlNodeListToArray(mutation.addedNodes)) {
-            if (!(node instanceof Element)) continue;
-            
-            const container = node.matches('.question-container') 
-              ? node 
-              : node.querySelector('.question-container');
-              
-            if (container) {
-              currentContainer = container;
-              initializeRadioHandlers();
-              break;
-            }
-          }
-        }
-      }
-    });
-  
-    // Start observing from the document root
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true
-    });
-  
-    // Initial setup
-    initializeRadioHandlers();
-  
-    Object.assign(window, { startPath });
-    Object.assign(window, { handleRadioChange });
-  }
+const pathDescriptions = {
+  basic_theoretical: {
+    content: `
+        <p>Your path will teach you the basic odds form of Bayes' rule at a reasonable pace. It will contain 3 pages:</p>
+        <ul>
+            <li>Frequency diagrams: A first look at Bayes</li>
+            <li>Waterfall diagrams and relative odds</li>
+            <li>Introduction to Bayes' rule: Odds form</li>
+        </ul>
+    `,
+    pathId: "62c",
+  },
+  quick: {
+    content: `
+        <p>No time to waste! Let's plunge directly into <a href="/w/693">a single-page abbreviated introduction to Bayes' rule</a>.</p>
+    `,
+    // pathId: "693",
+    pathId: null,
+  },
+  theoretical: {
+    content: `
+        <p>Your path will teach you the basic odds form of Bayes' rule at a reasonable pace and then delve into the deep mysteries of the Bayes' Rule! Your path will contain 8 pages:</p>
+        <ul>
+            <li>Frequency diagrams: A first look at Bayes</li>
+            <li>Waterfall diagrams and relative odds</li>
+            <li>Introduction to Bayes' rule: Odds form</li>
+            <li>Belief revision as probability elimination</li>
+            <li>Extraordinary claims require extraordinary evidence</li>
+            <li>Ordinary claims require ordinary evidence</li>
+            <li>Shift towards the hypothesis of least surprise</li>
+            <li>Bayesian view of scientific virtues</li>
+        </ul>
+    `,
+    pathId: "62f",
+  },
+  deep: {
+    content: `
+        <p>Your path will go over all forms of Bayes' Rule, along with developing deep appreciation for its scientific usefulness. Your path will contain 12 pages:</p>
+        <ul>
+            <li>Frequency diagrams: A first look at Bayes</li>
+            <li>Waterfall diagrams and relative odds</li>
+            <li>Introduction to Bayes' rule: Odds form</li>
+            <li>Bayes' rule: Proportional form</li>
+            <li>Extraordinary claims require extraordinary evidence</li>
+            <li>Ordinary claims require ordinary evidence</li>
+            <li>Bayes' rule: Log-odds form</li>
+            <li>Shift towards the hypothesis of least surprise</li>
+            <li>Bayes' rule: Vector form</li>
+            <li>Belief revision as probability elimination</li>
+            <li>Bayes' rule: Probability form</li>
+            <li>Bayesian view of scientific virtues</li>
+        </ul>
+    `,
+    pathId: "61b",
+  },
 };
 
-function addBayesGuideScript() {
-  if (isClient) {
-    if (document.readyState === 'complete') {
-      bayesGuideScript();
+
+let currentPathId: string | null = null;
+
+function startPath() {
+  if (currentPathId) {
+    window.location.href = `/w/${currentPathId}/?startPath`;
+  }
+}
+
+function handleRadioChange(radio: HTMLInputElement) {
+  const wants = radio.dataset.wants?.split(",") || [];
+  const notWants = radio.dataset.notWants?.split(",") || [];
+
+  let pathKey;
+  if (wants.includes("62d") && wants.includes("62f")) {
+    pathKey = "deep";
+  } else if (wants.includes("62d") && notWants.includes("62f")) {
+    pathKey = "quick";
+  } else if (wants.includes("62f") && notWants.includes("62d")) {
+    pathKey = "theoretical";
+  } else {
+    pathKey = "basic_theoretical";
+  }
+
+  const pathDescription = document.getElementById("pathDescription");
+  const content = pathDescription?.querySelector(".content");
+  const startButton = pathDescription?.querySelector(".start-reading") as HTMLElement;
+
+  if (content) {
+    content.innerHTML = pathDescriptions[pathKey as keyof typeof pathDescriptions].content;
+  }
+  currentPathId = pathDescriptions[pathKey as keyof typeof pathDescriptions].pathId;
+
+  if (pathDescription) {
+    pathDescription.style.display = "block";
+  }
+  if (startButton) {
+    if (currentPathId) {
+      startButton.style.display = "block";
     } else {
-      document.addEventListener('DOMContentLoaded', bayesGuideScript);
+      startButton.style.display = "none";
     }
   }
 }
 
-addBayesGuideScript();
+function initializeRadioHandlers() {
+  const cleanupFunctions: (() => void)[] = [];
+  const radioElements = Array.from(document.querySelectorAll('input[name="preference"]'));
+  radioElements.forEach((radio: HTMLInputElement) => {
+    const listenerFunction = function() {
+      handleRadioChange(radio);
+    }
+    radio.addEventListener("change", listenerFunction);
+    cleanupFunctions.push(() => radio.removeEventListener("change", listenerFunction));
+  });
+
+  const checkedRadio = document.querySelector('input[name="preference"]:checked') as HTMLInputElement|null;
+  if (checkedRadio) {
+    handleRadioChange(checkedRadio);
+  }
+
+  return () => cleanupFunctions.forEach((cleanup) => cleanup());
+}
+
+if (isClient) {
+  Object.assign(window, { startPath });
+  Object.assign(window, { handleRadioChange });
+}
 
 const ContributorsList = ({ contributors, onHoverContributor, endWithComma }: { contributors: DocumentContributorWithStats[], onHoverContributor: (userId: string | null) => void, endWithComma: boolean }) => {
   const { UsersNameDisplay } = Components;
@@ -1067,6 +848,44 @@ const ParentsAndChildrenSmallScreen: FC<{ arbitalLinkedPages?: ArbitalLinkedPage
   );
 };
 
+function getTagQueryOptions(
+  revision: string | null,
+  lensSlug: string | null,
+  contributorsLimit: number
+): {
+  tagFragmentName: ArbitalTagPageFragmentNames;
+  tagQueryOptions: Partial<UseMultiOptions<ArbitalTagPageFragmentNames, "Tags">>;
+} {
+  let tagFragmentName: ArbitalTagPageFragmentNames = "TagPageWithArbitalContentFragment";
+  let tagQueryOptions: Required<Pick<UseMultiOptions<ArbitalTagPageFragmentNames, "Tags">, "extraVariables" | "extraVariablesValues">> = {
+    extraVariables: {
+      contributorsLimit: 'Int',
+    },
+    extraVariablesValues: {
+      contributorsLimit,
+    },
+  };
+
+  if (revision && !lensSlug) {
+    tagFragmentName = "TagPageRevisionWithArbitalContentFragment";
+
+    tagQueryOptions.extraVariables.version = 'String';
+    tagQueryOptions.extraVariablesValues.version = revision;
+  }
+
+  if (revision && lensSlug) {
+    tagFragmentName = "TagPageWithArbitalContentAndLensRevisionFragment";
+    
+    tagQueryOptions.extraVariables.version = 'String';
+    tagQueryOptions.extraVariables.lensSlug = 'String';
+
+    tagQueryOptions.extraVariablesValues.version = revision;
+    tagQueryOptions.extraVariablesValues.lensSlug = lensSlug;
+  }
+
+  return { tagFragmentName, tagQueryOptions };
+}
+
 const TagPage = () => {
   const {
     PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, Typography,
@@ -1080,30 +899,36 @@ const TagPage = () => {
 
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
+  const { lens: lensSlug } = query;
   // const { onOpenEditor } = useContext(TagEditorContext);
   
   // Support URLs with ?version=1.2.3 or with ?revision=1.2.3 (we were previously inconsistent, ?version is now preferred)
   const { version: queryVersion, revision: queryRevision } = query;
   const revision = queryVersion ?? queryRevision ?? null;
+  const [editing, _setEditing] = useState(!!query.edit);
+  const [formDirty, setFormDirty] = useState(false);
+
+  // Usually, we want to warn the user before closing the editor when they have unsaved changes
+  // There are some exceptions; in those cases, we can pass warnBeforeClosing=false
+  const setEditing = useCallback((editing: boolean, warnBeforeClosing = true) => {
+    _setEditing((previouslyEditing) => {
+      if (!editing && previouslyEditing && warnBeforeClosing && formDirty) {
+        const confirmed = confirm("Discard changes?");
+        if (!confirmed) {
+          return previouslyEditing;
+        }
+      }
+      setFormDirty(false);
+      return editing;
+    })
+  }, [formDirty]);
 
   const contributorsLimit = 16;
-  const tagQueryOptions: Partial<UseMultiOptions<"TagPageWithArbitalContentFragment" | "TagPageRevisionWithArbitalContentFragment", "Tags">> = {
-    extraVariables: {
-      ...(revision ? { version: 'String' } : {}),
-      contributorsLimit: 'Int',
-    },
-    extraVariablesValues: {
-      ...(revision ? { version: revision } : {}),
-      contributorsLimit,
-    },
-  };
 
-  const tagFragmentName = revision ? "TagPageRevisionWithArbitalContentFragment" : "TagPageWithArbitalContentFragment";
-
-  const { tag, loadingTag, lens, loadingLens } = useTagOrLens(slug, tagFragmentName, tagQueryOptions);
+  const { tagFragmentName, tagQueryOptions } = getTagQueryOptions(revision, lensSlug, contributorsLimit);
+  const { tag, loadingTag, tagError, lens, loadingLens } = useTagOrLens(slug, tagFragmentName, tagQueryOptions);
 
   const [truncated, setTruncated] = useState(false)
-  const [editing, setEditing] = useState(!!query.edit)
   const [hoveredContributorId, setHoveredContributorId] = useState<string|null>(null);
   const { captureEvent } =  useTracking()
   const client = useApolloClient()
@@ -1149,6 +974,13 @@ const TagPage = () => {
   const { selectedLensId, selectedLens, updateSelectedLens, lenses } = useTagLenses(tag);
   const displayedTagTitle = useDisplayedTagTitle(tag, lenses, selectedLens);
 
+  const switchLens = useCallback((lensId: string) => {
+    // We don't want to warn before closing the editor using this mechanism when switching lenses
+    // because we already do it inside of Form.tsx because of the route change
+    setEditing(false, false);
+    updateSelectedLens(lensId);
+  }, [setEditing, updateSelectedLens]);
+
   const tagPositionInList = otherTagsWithNavigation?.findIndex(tagInList => tag?._id === tagInList._id);
   // We have to handle updates to the listPosition explicitly, since we have to deal with three cases
   // 1. Initially the listPosition is -1 because we don't have a list at all yet
@@ -1192,9 +1024,12 @@ const TagPage = () => {
   }
 
   const { topContributors, smallContributors } = useDisplayedContributors(selectedLens?.contributors ?? null);
-  
+
   if (loadingTag && !tag)
     return <Loading/>
+  if (tagError) {
+    return <Loading/> //TODO
+  }
   if (!tag) {
     if (loadingLens && !lens) {
       return <Loading/>
@@ -1266,6 +1101,30 @@ const TagPage = () => {
     )
     : <></>;
 
+  let editForm;
+  if (selectedLens?._id === MAIN_TAB_ID) {
+    editForm = (
+      <span className={classNames(classes.unselectedEditForm, editing && classes.selectedEditForm)}>
+        <EditTagForm
+          tag={tag}
+          warnUnsavedChanges={true}
+          successCallback={async () => {
+            setEditing(false);
+            await client.resetStore();
+          }}
+          cancelCallback={() => setEditing(false)}
+          changeCallback={() => setFormDirty(true)}
+        />
+      </span>
+    );
+  } else if (selectedLens) {
+    editForm = (
+      <span className={classNames(classes.unselectedEditForm, editing && classes.selectedEditForm)}>
+        <EditLensForm lens={selectedLens} setFormDirty={setFormDirty} />
+      </span>
+    );
+  }
+
   const tagBodySection = (
     <div id="tagContent" className={classNames(classes.wikiSection,classes.centralColumn)}>
       <AnalyticsContext pageSectionContext="wikiSection">
@@ -1273,19 +1132,9 @@ const TagPage = () => {
           You are viewing revision {tag.description.version}, last edited by <UsersNameDisplay user={(tag.description as TagRevisionFragment_description).user}/>
         </div>}
         {/* <TagEditorProvider> */}
-          <span className={classNames(classes.unselectedEditForm, editing && selectedLens?._id === MAIN_TAB_ID && classes.selectedEditForm)}>
-            <EditTagForm
-              tag={tag}
-              successCallback={ async () => {
-                setEditing(false)
-                await client.resetStore()
-              }}
-              cancelCallback={() => setEditing(false)}
-            />
-          </span>
-          {lenses.filter(lens => lens._id !== MAIN_TAB_ID).map(lens => <span key={lens._id} className={classNames(classes.unselectedEditForm, editing && selectedLens?._id === lens._id && classes.selectedEditForm)}>
-            <EditLensForm key={lens._id} lens={lens} />
-          </span>)}
+        <DeferRender ssr={false}>
+          {editForm}
+        </DeferRender>
         {/* </TagEditorProvider> */}
         <div
           className={classNames(editing && classes.descriptionContainerEditing)}
@@ -1299,6 +1148,7 @@ const TagPage = () => {
               dangerouslySetInnerHTML={{__html: description||""}}
               description={`tag ${tag.name}`}
               className={classes.description}
+              onContentReady={initializeRadioHandlers}
             />
             <PathInfo tag={tag} lens={selectedLens ?? null} />
           </ContentStyles>
@@ -1393,26 +1243,16 @@ const TagPage = () => {
             Next Tag ({nextTag.name})
         </Link></span>}
       </span>}
-      {lenses.length > 1
-        ?  (
-          <Tabs
-            value={selectedLens?._id}
-            onChange={(e, newLensId) => updateSelectedLens(newLensId)}
-            classes={{ flexContainer: classes.lensTabsContainer, indicator: classes.hideMuiTabIndicator }}
-          >
-            {lenses.map(lens => {
-              const label = <div key={lens._id} className={classes.lensLabel}>
-                <span className={classes.lensTitle}>{lens.tabTitle}</span>
-                {lens.tabSubtitle && <span className={classes.lensSubtitle}>{lens.tabSubtitle}</span>}
-              </div>;
-
-              const isSelected = selectedLens?._id === lens._id;
-
-              return <LensTab key={lens._id} value={lens._id} label={label} lens={lens} isSelected={isSelected} />;
-            })}
-          </Tabs>
-        )
-        : <></>}
+      {revision && <Link to={tagGetUrl(tag, {lens: selectedLens?.slug})} className={classes.revisionNotice}>
+        <HistoryIcon className={classes.historyIcon} />
+        You are viewing version {revision} of this page.
+        Click here to view the latest version.
+      </Link>}
+      {(lenses.length > 1) && <Components.LensTabBar
+        lenses={lenses}
+        selectedLens={selectedLens}
+        switchLens={switchLens}
+      />}
       <div className={classes.titleRow}>
         <Typography variant="display3" className={classes.title}>
           {tag.deleted ? "[Deleted] " : ""}{displayedTagTitle}
@@ -1520,6 +1360,7 @@ const TagPage = () => {
       {/* {originalToc} */}
       <TagPageButtonRow
         tag={tag}
+        selectedLens={selectedLens}
         editing={editing}
         setEditing={setEditing}
         hideLabels={true}

@@ -1233,6 +1233,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly annualReviewMarketYear: number|null,
   readonly annualReviewMarketUrl: string|null,
   readonly group: PostsBase_group|null,
+  readonly rsvpCounts: any /*JSON*/,
   readonly podcastEpisodeId: string | null,
   readonly forceAllowType3Audio: boolean,
   readonly nominationCount2019: number,
@@ -2601,6 +2602,14 @@ interface TagBasicInfo { // fragment on Tags
   readonly noindex: boolean,
   readonly isArbitalImport: boolean|null,
   readonly isPlaceholderPage: boolean,
+  readonly baseScore: number,
+  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly score: number,
+  readonly afBaseScore: number,
+  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly voteCount: number,
+  readonly currentUserVote: string|null,
+  readonly currentUserExtendedVote: any,
 }
 
 interface TagDetailsFragment extends TagBasicInfo { // fragment on Tags
@@ -2853,8 +2862,15 @@ interface AllTagsPageCacheFragment { // fragment on Tags
 }
 
 interface AllTagsPageCacheFragment_description { // fragment on Revisions
-  readonly _id: string,
-  readonly html: string,
+  readonly wordCount: number,
+}
+
+interface TagPageWithArbitalContentAndLensRevisionFragment extends TagPageFragment { // fragment on Tags
+  readonly arbitalLinkedPages: ArbitalLinkedPagesFragment,
+  readonly lenses: Array<MultiDocumentWithContributorsRevision>,
+}
+
+interface WithVoteTag extends TagBasicInfo { // fragment on Tags
 }
 
 interface AdvisorRequestsDefaultFragment { // fragment on AdvisorRequests
@@ -3026,6 +3042,10 @@ interface SubscriptionState { // fragment on Subscriptions
   readonly type: "newComments" | "newUserComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newSequencePosts" | "newDebateComments" | "newDialogueMessages" | "newPublishedDialogueMessages" | "newActivityForFeed",
 }
 
+interface MembersOfGroupFragment { // fragment on Subscriptions
+  readonly user: UsersMinimumInfo,
+}
+
 interface PodcastsDefaultFragment { // fragment on Podcasts
   readonly title: string,
   readonly applePodcastLink: string | null,
@@ -3076,8 +3096,6 @@ interface UsersMinimumInfo { // fragment on Users
   readonly spamRiskScore: number,
   readonly tagRevisionCount: number,
   readonly reviewedByUserId: string,
-  readonly givingSeason2024DonatedFlair: boolean,
-  readonly givingSeason2024VotedFlair: boolean,
 }
 
 interface UsersProfile extends UsersMinimumInfo, SharedUserBooleans { // fragment on Users
@@ -3397,17 +3415,15 @@ interface SharedUserBooleans { // fragment on Users
   readonly usernameUnset: boolean,
 }
 
-interface UsersMapEntry extends UsersMinimumInfo { // fragment on Users
-  readonly createdAt: Date,
-  readonly isAdmin: boolean,
-  readonly groups: Array<string>,
-  readonly location: string,
-  readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly mapLocation: any /*{"definitions":[{"blackbox":true}]}*/,
+interface UsersMapEntry { // fragment on Users
+  readonly _id: string,
+  readonly displayName: string,
+  readonly username: string,
+  readonly fullName: string,
+  readonly slug: string,
+  readonly mapLocationLatLng: any,
   readonly mapLocationSet: boolean,
-  readonly mapMarkerText: string,
   readonly htmlMapMarkerText: string,
-  readonly mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface UsersEdit extends UsersCurrent { // fragment on Users
@@ -3945,11 +3961,12 @@ interface MultiDocumentsDefaultFragment { // fragment on MultiDocuments
   readonly fieldName: string,
   readonly index: number,
   readonly tableOfContents: any /*{"definitions":[{}]}*/,
-  readonly contributors: any /*MultiDocumentContributorsList*/,
+  readonly contributors: any /*TagContributorsList*/,
   readonly contributionStats: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly htmlWithContributorAnnotations: string,
 }
 
-interface MultiDocumentContentDisplay { // fragment on MultiDocuments
+interface MultiDocumentMinimumInfo { // fragment on MultiDocuments
   readonly _id: string,
   readonly parentDocumentId: string,
   readonly collectionName: string,
@@ -3962,9 +3979,20 @@ interface MultiDocumentContentDisplay { // fragment on MultiDocuments
   readonly tabSubtitle: string | null,
   readonly preview: string | null,
   readonly index: number,
+  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly baseScore: number,
+  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly score: number,
+  readonly afBaseScore: number,
+  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly voteCount: number,
+  readonly currentUserVote: string|null,
+  readonly currentUserExtendedVote: any,
+}
+
+interface MultiDocumentContentDisplay extends MultiDocumentMinimumInfo { // fragment on MultiDocuments
   readonly tableOfContents: any /*{"definitions":[{}]}*/,
   readonly contents: RevisionEdit|null,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface MultiDocumentEdit extends MultiDocumentContentDisplay { // fragment on MultiDocuments
@@ -3978,6 +4006,19 @@ interface MultiDocumentParentDocument extends MultiDocumentEdit { // fragment on
 
 interface MultiDocumentWithContributors extends MultiDocumentEdit { // fragment on MultiDocuments
   readonly contributors: any,
+}
+
+interface MultiDocumentRevision extends MultiDocumentMinimumInfo { // fragment on MultiDocuments
+  readonly contents: RevisionEdit|null,
+  readonly tableOfContents: any /*{"definitions":[{}]}*/,
+}
+
+interface MultiDocumentWithContributorsRevision extends MultiDocumentRevision { // fragment on MultiDocuments
+  readonly contributors: any,
+  readonly arbitalLinkedPages: ArbitalLinkedPagesFragment,
+}
+
+interface WithVoteMultiDocument extends MultiDocumentMinimumInfo { // fragment on MultiDocuments
 }
 
 interface ElectionCandidateBasicInfo { // fragment on ElectionCandidates
@@ -4059,17 +4100,23 @@ interface TypingIndicatorInfo { // fragment on TypingIndicators
 }
 
 interface ElicitQuestionsDefaultFragment { // fragment on ElicitQuestions
+  readonly title: string,
+  readonly notes: string | null,
+  readonly resolution: string | null,
+  readonly resolvesBy: Date | null,
+}
+
+interface ElicitQuestionFragment { // fragment on ElicitQuestions
   readonly _id: string,
   readonly title: string,
   readonly notes: string | null,
   readonly resolution: string | null,
-  readonly resolvesBy: Date,
-  readonly createdAt: Date,
+  readonly resolvesBy: Date | null,
 }
 
 interface ElicitQuestionPredictionsDefaultFragment { // fragment on ElicitQuestionPredictions
   readonly _id: string,
-  readonly prediction: number,
+  readonly prediction: number | null,
   readonly createdAt: Date,
   readonly notes: string | null,
   readonly creator: {
@@ -4082,6 +4129,7 @@ interface ElicitQuestionPredictionsDefaultFragment { // fragment on ElicitQuesti
   readonly sourceUrl: string | null,
   readonly sourceId: string | null,
   readonly binaryQuestionId: string,
+  readonly isDeleted: boolean,
 }
 
 interface DialogueChecksDefaultFragment { // fragment on DialogueChecks
@@ -4564,6 +4612,8 @@ interface FragmentTypes {
   TagName: TagName
   ExplorePageTagFragment: ExplorePageTagFragment
   AllTagsPageCacheFragment: AllTagsPageCacheFragment
+  TagPageWithArbitalContentAndLensRevisionFragment: TagPageWithArbitalContentAndLensRevisionFragment
+  WithVoteTag: WithVoteTag
   AdvisorRequestsDefaultFragment: AdvisorRequestsDefaultFragment
   AdvisorRequestsMinimumInfo: AdvisorRequestsMinimumInfo
   UserJobAdsDefaultFragment: UserJobAdsDefaultFragment
@@ -4581,6 +4631,7 @@ interface FragmentTypes {
   ForumEventsEdit: ForumEventsEdit
   SubscriptionsDefaultFragment: SubscriptionsDefaultFragment
   SubscriptionState: SubscriptionState
+  MembersOfGroupFragment: MembersOfGroupFragment
   PodcastsDefaultFragment: PodcastsDefaultFragment
   PodcastSelect: PodcastSelect
   PodcastEpisodesDefaultFragment: PodcastEpisodesDefaultFragment
@@ -4633,10 +4684,14 @@ interface FragmentTypes {
   UserRateLimitDisplay: UserRateLimitDisplay
   SideCommentCacheMinimumInfo: SideCommentCacheMinimumInfo
   MultiDocumentsDefaultFragment: MultiDocumentsDefaultFragment
+  MultiDocumentMinimumInfo: MultiDocumentMinimumInfo
   MultiDocumentContentDisplay: MultiDocumentContentDisplay
   MultiDocumentEdit: MultiDocumentEdit
   MultiDocumentParentDocument: MultiDocumentParentDocument
   MultiDocumentWithContributors: MultiDocumentWithContributors
+  MultiDocumentRevision: MultiDocumentRevision
+  MultiDocumentWithContributorsRevision: MultiDocumentWithContributorsRevision
+  WithVoteMultiDocument: WithVoteMultiDocument
   ElectionCandidateBasicInfo: ElectionCandidateBasicInfo
   ElectionCandidateSimple: ElectionCandidateSimple
   WithVoteElectionCandidate: WithVoteElectionCandidate
@@ -4646,6 +4701,7 @@ interface FragmentTypes {
   GoogleServiceAccountSessionAdminInfo: GoogleServiceAccountSessionAdminInfo
   TypingIndicatorInfo: TypingIndicatorInfo
   ElicitQuestionsDefaultFragment: ElicitQuestionsDefaultFragment
+  ElicitQuestionFragment: ElicitQuestionFragment
   ElicitQuestionPredictionsDefaultFragment: ElicitQuestionPredictionsDefaultFragment
   DialogueChecksDefaultFragment: DialogueChecksDefaultFragment
   DialogueCheckInfo: DialogueCheckInfo
@@ -4687,7 +4743,7 @@ interface FragmentTypesByCollection {
   Users: "UsersDefaultFragment"|"SuggestAlignmentUser"|"UsersMinimumInfo"|"UsersProfile"|"UsersCurrent"|"UsersCurrentCommentRateLimit"|"UsersCurrentPostRateLimit"|"UserBookmarkedPosts"|"UserKarmaChanges"|"UsersBannedFromUsersModerationLog"|"SunshineUsersList"|"UserAltAccountsFragment"|"SharedUserBooleans"|"UsersMapEntry"|"UsersEdit"|"UsersAdmin"|"UsersWithReviewInfo"|"UsersProfileEdit"|"UsersCrosspostInfo"|"UsersOptedInToDialogueFacilitation"|"UserOnboardingAuthor"|"UsersSocialMediaInfo"
   Comments: "CommentsDefaultFragment"|"CommentsList"|"CommentsListWithTopLevelComment"|"ShortformComments"|"CommentWithRepliesFragment"|"CommentEdit"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"CommentsListWithParentMetadata"|"StickySubforumCommentFragment"|"WithVoteComment"|"CommentsListWithModerationMetadata"|"CommentsListWithModGPTAnalysis"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"SuggestAlignmentComment"
   UserTagRels: "UserTagRelsDefaultFragment"|"UserTagRelDetails"
-  Tags: "TagsDefaultFragment"|"TagBasicInfo"|"TagDetailsFragment"|"TagFragment"|"TagHistoryFragment"|"TagCreationHistoryFragment"|"TagRevisionFragment"|"TagPreviewFragment"|"TagSectionPreviewFragment"|"TagSubforumFragment"|"TagSubtagFragment"|"TagSubforumSidebarFragment"|"TagDetailedPreviewFragment"|"TagWithFlagsFragment"|"TagWithFlagsAndRevisionFragment"|"TagPageArbitalContentFragment"|"TagPageFragment"|"TagPageWithArbitalContentFragment"|"AllTagsPageFragment"|"TagPageWithRevisionFragment"|"TagPageRevisionWithArbitalContentFragment"|"TagFullContributorsList"|"TagEditFragment"|"TagRecentDiscussion"|"SunshineTagFragment"|"UserOnboardingTag"|"TagName"|"ExplorePageTagFragment"|"AllTagsPageCacheFragment"
+  Tags: "TagsDefaultFragment"|"TagBasicInfo"|"TagDetailsFragment"|"TagFragment"|"TagHistoryFragment"|"TagCreationHistoryFragment"|"TagRevisionFragment"|"TagPreviewFragment"|"TagSectionPreviewFragment"|"TagSubforumFragment"|"TagSubtagFragment"|"TagSubforumSidebarFragment"|"TagDetailedPreviewFragment"|"TagWithFlagsFragment"|"TagWithFlagsAndRevisionFragment"|"TagPageArbitalContentFragment"|"TagPageFragment"|"TagPageWithArbitalContentFragment"|"AllTagsPageFragment"|"TagPageWithRevisionFragment"|"TagPageRevisionWithArbitalContentFragment"|"TagFullContributorsList"|"TagEditFragment"|"TagRecentDiscussion"|"SunshineTagFragment"|"UserOnboardingTag"|"TagName"|"ExplorePageTagFragment"|"AllTagsPageCacheFragment"|"TagPageWithArbitalContentAndLensRevisionFragment"|"WithVoteTag"
   Conversations: "ConversationsDefaultFragment"|"ConversationsMinimumInfo"|"ConversationsList"|"ConversationsListWithReadStatus"
   CurationEmails: "CurationEmailsDefaultFragment"
   ElectionCandidates: "ElectionCandidatesDefaultFragment"|"ElectionCandidateBasicInfo"|"ElectionCandidateSimple"|"WithVoteElectionCandidate"
@@ -4732,7 +4788,7 @@ interface FragmentTypesByCollection {
   UserMostValuablePosts: "UserMostValuablePostsDefaultFragment"|"UserMostValuablePostInfo"
   DigestPosts: "DigestPostsDefaultFragment"|"DigestPostsMinimumInfo"
   Digests: "DigestsDefaultFragment"|"DigestsMinimumInfo"
-  Subscriptions: "SubscriptionsDefaultFragment"|"SubscriptionState"
+  Subscriptions: "SubscriptionsDefaultFragment"|"SubscriptionState"|"MembersOfGroupFragment"
   Podcasts: "PodcastsDefaultFragment"|"PodcastSelect"
   PodcastEpisodes: "PodcastEpisodesDefaultFragment"|"PodcastEpisodeFull"
   PetrovDayLaunchs: "PetrovDayLaunchsDefaultFragment"|"PetrovDayLaunchInfo"
@@ -4744,8 +4800,8 @@ interface FragmentTypesByCollection {
   ModerationTemplates: "ModerationTemplatesDefaultFragment"|"ModerationTemplateFragment"
   CurationNotices: "CurationNoticesDefaultFragment"|"CurationNoticesFragment"
   UserRateLimits: "UserRateLimitsDefaultFragment"|"UserRateLimitDisplay"
-  MultiDocuments: "MultiDocumentsDefaultFragment"|"MultiDocumentContentDisplay"|"MultiDocumentEdit"|"MultiDocumentParentDocument"|"MultiDocumentWithContributors"
-  ElicitQuestions: "ElicitQuestionsDefaultFragment"
+  MultiDocuments: "MultiDocumentsDefaultFragment"|"MultiDocumentMinimumInfo"|"MultiDocumentContentDisplay"|"MultiDocumentEdit"|"MultiDocumentParentDocument"|"MultiDocumentWithContributors"|"MultiDocumentRevision"|"MultiDocumentWithContributorsRevision"|"WithVoteMultiDocument"
+  ElicitQuestions: "ElicitQuestionsDefaultFragment"|"ElicitQuestionFragment"
   ElicitQuestionPredictions: "ElicitQuestionPredictionsDefaultFragment"
   DialogueChecks: "DialogueChecksDefaultFragment"|"DialogueCheckInfo"
   DialogueMatchPreferences: "DialogueMatchPreferencesDefaultFragment"|"DialogueMatchPreferenceInfo"
@@ -4945,6 +5001,8 @@ interface CollectionNamesByFragmentName {
   TagName: "Tags"
   ExplorePageTagFragment: "Tags"
   AllTagsPageCacheFragment: "Tags"
+  TagPageWithArbitalContentAndLensRevisionFragment: "Tags"
+  WithVoteTag: "Tags"
   AdvisorRequestsDefaultFragment: "AdvisorRequests"
   AdvisorRequestsMinimumInfo: "AdvisorRequests"
   UserJobAdsDefaultFragment: "UserJobAds"
@@ -4962,6 +5020,7 @@ interface CollectionNamesByFragmentName {
   ForumEventsEdit: "ForumEvents"
   SubscriptionsDefaultFragment: "Subscriptions"
   SubscriptionState: "Subscriptions"
+  MembersOfGroupFragment: "Subscriptions"
   PodcastsDefaultFragment: "Podcasts"
   PodcastSelect: "Podcasts"
   PodcastEpisodesDefaultFragment: "PodcastEpisodes"
@@ -5014,10 +5073,14 @@ interface CollectionNamesByFragmentName {
   UserRateLimitDisplay: "UserRateLimits"
   SideCommentCacheMinimumInfo: "SideCommentCaches"
   MultiDocumentsDefaultFragment: "MultiDocuments"
+  MultiDocumentMinimumInfo: "MultiDocuments"
   MultiDocumentContentDisplay: "MultiDocuments"
   MultiDocumentEdit: "MultiDocuments"
   MultiDocumentParentDocument: "MultiDocuments"
   MultiDocumentWithContributors: "MultiDocuments"
+  MultiDocumentRevision: "MultiDocuments"
+  MultiDocumentWithContributorsRevision: "MultiDocuments"
+  WithVoteMultiDocument: "MultiDocuments"
   ElectionCandidateBasicInfo: "ElectionCandidates"
   ElectionCandidateSimple: "ElectionCandidates"
   WithVoteElectionCandidate: "ElectionCandidates"
@@ -5027,6 +5090,7 @@ interface CollectionNamesByFragmentName {
   GoogleServiceAccountSessionAdminInfo: "GoogleServiceAccountSessions"
   TypingIndicatorInfo: "TypingIndicators"
   ElicitQuestionsDefaultFragment: "ElicitQuestions"
+  ElicitQuestionFragment: "ElicitQuestions"
   ElicitQuestionPredictionsDefaultFragment: "ElicitQuestionPredictions"
   DialogueChecksDefaultFragment: "DialogueChecks"
   DialogueCheckInfo: "DialogueChecks"

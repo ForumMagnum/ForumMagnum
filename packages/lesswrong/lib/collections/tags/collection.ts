@@ -6,6 +6,7 @@ import { userIsAdmin } from '../../vulcan-users/permissions';
 import schema from './schema';
 import { tagUserHasSufficientKarma, userIsSubforumModerator } from './helpers';
 import { formGroups } from './formGroups';
+import { makeVoteable } from '@/lib/make_voteable';
 
 export const EA_FORUM_COMMUNITY_TOPIC_ID = 'ZCihBFp5P64JCvQY6';
 export const EA_FORUM_TRANSLATION_TOPIC_ID = 'f4d3KbWLszzsKqxej';
@@ -111,5 +112,9 @@ makeEditable({
     },
   }
 })
+
+makeVoteable(Tags, {
+  timeDecayScoresCronjob: false,
+});
 
 export default Tags;

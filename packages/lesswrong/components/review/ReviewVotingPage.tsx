@@ -7,7 +7,7 @@ import classNames from 'classnames';
 import * as _ from "underscore"
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 import seedrandom from '../../lib/seedrandom';
-import { getCostData, getReviewPhase, ReviewPhase, getReviewYearFromString } from '../../lib/reviewUtils';
+import { getCostData, getReviewPhase, REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD, ReviewPhase, ReviewYear } from '../../lib/reviewUtils';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { randomId } from '../../lib/random';
 import { useLocation } from '../../lib/routeUtil';
@@ -16,53 +16,28 @@ import filter from 'lodash/filter';
 import { fieldIn } from '../../lib/utils/typeGuardUtils';
 import { getVotePower } from '../../lib/voting/vote';
 import {tagStyle} from '@/components/tagging/FooterTag.tsx'
+import { SECTION_WIDTH } from '../common/SingleColumnSection';
 
-const isEAForum = forumTypeSetting.get() === 'EAForum'
-const isLW = forumTypeSetting.get() === 'LessWrong'
 const isAF = forumTypeSetting.get() === 'AlignmentForum'
 
 const styles = (theme: ThemeType) => ({
-  grid: {
-    display: 'grid',
-    gridTemplateColumns: `
-      minmax(10px, 0.5fr) minmax(100px, 740px) minmax(30px, 0.5fr) minmax(300px, 740px) minmax(30px, 0.5fr)
-    `,
-    gridTemplateAreas: `
-    "... leftColumn ... rightColumn ..."
-    `,
-    paddingBottom: 175,
-    alignItems: "start",
-    [theme.breakpoints.down('sm')]: {
-      display: "block"
-    }
+  root: {
+    display: "flex",
+    alignItems: "flex-start",
+    justifyContent: "center",
   },
-  leftColumn: {
-    gridArea: "leftColumn",
-    position: "sticky",
-    top: 72,
-    height: "90vh",
-    paddingLeft: 24,
-    paddingRight: 36,
-    [theme.breakpoints.down('sm')]: {
-      gridArea: "unset",
-      paddingLeft: 0,
-      paddingRight: 0,
-      overflow: "unset",
-      height: "unset",
-      position: "unset"
-    }
-  },
-  rightColumn: {
-    gridArea: "rightColumn",
-    [theme.breakpoints.down('sm')]: {
-      gridArea: "unset"
-    },
+  votingPageContainer: {
+    width: "100%",
+    maxWidth: SECTION_WIDTH,
+    backgroundColor: theme.palette.background.translucentBackground,
   },
   postsLoading: {
     opacity: .4,
   },
   postList: {
     boxShadow: `0 1px 5px 0px ${theme.palette.boxShadowColor(0.2)}`,
+    width: "100%",
+    maxWidth: SECTION_WIDTH,
     background: theme.palette.panelBackground.default,
     [theme.breakpoints.down('sm')]: {
       boxShadow: "unset"
@@ -70,18 +45,23 @@ const styles = (theme: ThemeType) => ({
   },
   statusFilter: {
     ...tagStyle(theme),
+    paddingRight: 10,
+    paddingLeft: 8,
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
     marginTop: 2,
     marginBottom: 2,
   },
   filterSelected: {
-    backgroundColor: theme.palette.grey[700],
+    backgroundColor: theme.palette.grey[400],
     color: theme.palette.background.pageActiveAreaBackground
   },
   separator: {
     color: theme.palette.grey[400],
     marginLeft: 5,
     marginRight: 5,
+  },
+  tagListContainer: {
+    padding: 16
   }
 });
 
@@ -103,27 +83,22 @@ export const generatePermutation = (count: number, user: UsersCurrent|null): Arr
   return result;
 }
 
-
-const ReviewVotingPage = ({classes}: {
-  classes: ClassesType<typeof styles>
+const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: {
+  classes: ClassesType<typeof styles>,
+  reviewYear: ReviewYear,
+  expandedPost: PostsReviewVotingList|null,
+  setExpandedPost: (post: PostsReviewVotingList|null) => void
 }) => {
   const {
-    ReviewVotingExpandedPost,
     ReviewVoteTableRow,
-    FrontpageReviewWidget,
-    SingleColumnSection,
-    ReviewPhaseInformation,
-    ReviewDashboardButtons,
     ReviewVotingPageMenu,
     PostsTagsList,
-    TabPicker,
-    LWTooltip,
+    LWTooltip
   } = Components
 
   const currentUser = useCurrentUser()
   const { captureEvent } = useTracking({eventType: "reviewVotingEvent"})
-  const { params, query } = useLocation()
-  const reviewYear = getReviewYearFromString(params.year)
+  const { query } = useLocation()
 
 
   let reviewPhase = getReviewPhase(reviewYear)
@@ -136,7 +111,7 @@ const ReviewVotingPage = ({classes}: {
       view: reviewPhase === "VOTING" ? "reviewFinalVoting" : "reviewVoting",
       before: `${reviewYear+1}-01-01`,
       reviewPhase: reviewPhase,
-      ...(isEAForum ? {} : {after: `${reviewYear}-01-01`}),
+      after: `${reviewYear}-01-01`,
       limit: 600,
     },
     collectionName: "Posts",
@@ -159,7 +134,6 @@ const ReviewVotingPage = ({classes}: {
   const [loading, setLoading] = useState(false)
   const [tagFilter, setTagFilter] = useState<string|null>(null)
   const [statusFilter, setStatusFilter] = useState<string|null>('read')
-  const [expandedPost, setExpandedPost] = useState<PostsReviewVotingList|null>(null)
   const [showKarmaVotes] = useState<any>(true)
   const [postsHaveBeenSorted, setPostsHaveBeenSorted] = useState(false)
 
@@ -261,19 +235,17 @@ const ReviewVotingPage = ({classes}: {
         const post2Read = !!post2.lastVisitedAt
         const post1NotKarmaVoted = post1KarmaVote === 0;
         const post2NotKarmaVoted = post2KarmaVote === 0;
+        const post1isCurrentUsers = post1.userId === currentUser?._id
+        const post2isCurrentUsers = post2.userId === currentUser?._id
+        const post1Has2PrelimVotes = post1.positiveReviewVoteCount >= REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD
+        const post2Has2PrelimVotes = post2.positiveReviewVoteCount >= REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD
 
         if (sortPosts === "needsReview") {
           // This prioritizes posts with no reviews, which you highly upvoted
           const post1NeedsReview = post1.reviewCount === 0 && post1.reviewVoteScoreHighKarma > 4
           const post2NeedsReview = post2.reviewCount === 0 && post2.reviewVoteScoreHighKarma > 4
-
-          const post1isCurrentUsers = post1.userId === currentUser?._id
-          const post2isCurrentUsers = post2.userId === currentUser?._id
-
           if (post1NeedsReview && !post2NeedsReview) return -1
           if (post2NeedsReview && !post1NeedsReview) return 1
-          if (post1isCurrentUsers && !post2isCurrentUsers) return -1
-          if (post2isCurrentUsers && !post1isCurrentUsers) return 1
           if (post1Score > post2Score) return -1
           if (post1Score < post2Score) return 1
         }
@@ -312,11 +284,7 @@ const ReviewVotingPage = ({classes}: {
           if (post2Read && !post1Read) return 1
         }
 
-        if (fieldIn(sortPosts, post1, post2) && post1[sortPosts] > post2[sortPosts]) return -1
-        if (fieldIn(sortPosts, post1, post2) && post1[sortPosts] < post2[sortPosts]) return 1
 
-        if (post1.reviewVoteScoreHighKarma > post2.reviewVoteScoreHighKarma ) return -1
-        if (post1.reviewVoteScoreHighKarma < post2.reviewVoteScoreHighKarma ) return 1
 
         if (sortPosts === "needsPreliminaryVote") {
           // This is intended to prioritize showing users posts which have reviews but that the current user hasn't yet voted on
@@ -325,15 +293,24 @@ const ReviewVotingPage = ({classes}: {
           if (reviewedNotVoted1 && !reviewedNotVoted2) return -1
           if (!reviewedNotVoted1 && reviewedNotVoted2) return 1
         }
+        if (fieldIn(sortPosts, post1, post2) && post1[sortPosts] > post2[sortPosts]) return -1
+        if (fieldIn(sortPosts, post1, post2) && post1[sortPosts] < post2[sortPosts]) return 1
+
+        // if (post1.reviewVoteScoreHighKarma > post2.reviewVoteScoreHighKarma ) return -1
+        // if (post1.reviewVoteScoreHighKarma < post2.reviewVoteScoreHighKarma ) return 1
 
         if (post1Score < post2Score) return 1
         if (post1Score > post2Score) return -1
+        if (post1Has2PrelimVotes && !post2Has2PrelimVotes) return -1
+        if (!post1Has2PrelimVotes && post2Has2PrelimVotes) return 1
         if (post1NotKarmaVoted && !post2NotKarmaVoted) return 1
         if (post2NotKarmaVoted && !post1NotKarmaVoted) return -1
         if (post1KarmaVote < post2KarmaVote) return 1;
         if (post1KarmaVote > post2KarmaVote) return -1;
         if (post1Read && !post2Read) return -1
         if (post2Read && !post1Read) return 1
+        if (post1isCurrentUsers && !post2isCurrentUsers) return -1
+        if (post2isCurrentUsers && !post1isCurrentUsers) return 1
         if (permuted1 < permuted2) return -1;
         if (permuted1 > permuted2) return 1;
         return 0
@@ -357,10 +334,6 @@ const ReviewVotingPage = ({classes}: {
     reSortPosts(sortPosts, sortReversed, tagFilter)
   }, [canInitialResort, reSortPosts, sortPosts, sortReversed, tagFilter, statusFilter])
 
-  if (!reviewYear) return <SingleColumnSection>
-  {params.year} is not a valid review year.
-  </SingleColumnSection>
-
   let voteTooltip = isAF ? "Showing votes from Alignment Forum members" : "Showing votes from all LessWrong users" as voteTooltipType
   switch (sortPosts) {
     case ("reviewVoteScoreHighKarma"):
@@ -371,77 +344,78 @@ const ReviewVotingPage = ({classes}: {
       break;
   }
 
-  if (!currentUser) {
-    return <SingleColumnSection>
-      You must be logged in to vote in the LessWrong Review.
-    </SingleColumnSection>
+  const handleSetExpandedPost = (post: PostsReviewVotingList) => {
+    if (expandedPost?._id === post._id) {
+      setExpandedPost(null)
+    } else {
+      setExpandedPost(post)
+    }
   }
 
   return (
     <AnalyticsContext pageContext="ReviewVotingPage">
-    <div>
-      <div className={classes.grid}>
-        <div className={classes.leftColumn}>
-          {!expandedPost && <>
-            <FrontpageReviewWidget showFrontpageItems={false} reviewYear={reviewYear}/>
-            <ReviewPhaseInformation reviewYear={reviewYear} reviewPhase={reviewPhase}/>
-            <ReviewDashboardButtons 
-              reviewYear={reviewYear} 
-              reviewPhase={reviewPhase}
-              showQuickReview={reviewPhase === "REVIEWS"}
-            />
-          </>}
-         <ReviewVotingExpandedPost key={expandedPost?._id} post={expandedPost} setExpandedPost={setExpandedPost}/> 
-        </div>
-        <div className={classes.rightColumn}>
-          <ReviewVotingPageMenu reviewPhase={reviewPhase} loading={loading} sortedPosts={sortedPosts} costTotal={costTotal} setSortPosts={setSortPosts} sortPosts={sortPosts} sortReversed={sortReversed} setSortReversed={setSortReversed} postsLoading={postsLoading} postsResults={postsResults} />
-
-
+    <div className={classes.root}>
+      <div className={classes.votingPageContainer}>
+        <div className={classes.tagListContainer}>
           <PostsTagsList
             posts={postsResults}
             currentFilter={tagFilter}
             handleFilter={(tagId) => handleTagFilter(tagId)}
             defaultMax={5}
-            beforeChildren={<>
+            afterChildren={<>
               <LWTooltip title="Only show the post you've read">
                 <div className={classNames(classes.statusFilter, {[classes.filterSelected]: statusFilter === 'read'})}
-                     onClick={() => handleStatusFilter('read')}>
-                  Read
-                </div>
+                    onClick={() => handleStatusFilter('read')}>
+                Read
+              </div>
               </LWTooltip>
-
-              <span className={classes.separator}>{' '}•{' '}</span>
             </>}
           />
-
-          <div className={classNames({[classes.postList]: reviewPhase !== "VOTING", [classes.postsLoading]: postsLoading || loading})}>
-            {postsHaveBeenSorted && sortedPosts?.map((post) => {
-              const currentVote = post.currentUserReviewVote !== null ? {
-                _id: post.currentUserReviewVote._id,
-                postId: post._id,
-                score: post.currentUserReviewVote.qualitativeScore,
-                type: "QUALITATIVE" as const
-              } : null
-              return <div key={post._id} onClick={()=>{
-                setExpandedPost(post)
-                captureEvent(undefined, {eventSubType: "voteTableRowClicked", postId: post._id})}}
-              >
-                <ReviewVoteTableRow
-                  post={post}
-                  costTotal={costTotal}
-                  showKarmaVotes={showKarmaVotes}
-                  dispatch={dispatchQualitativeVote}
-                  currentVote={currentVote}
-                  expandedPostId={expandedPost?._id}
-                  reviewPhase={reviewPhase}
-                  reviewYear={reviewYear}
-                  voteTooltip={voteTooltip}
-                />
-              </div>
+        </div>
+        <ReviewVotingPageMenu reviewPhase={reviewPhase} loading={loading} sortedPosts={sortedPosts} costTotal={costTotal} setSortPosts={setSortPosts} sortPosts={sortPosts} sortReversed={sortReversed} setSortReversed={setSortReversed} postsLoading={postsLoading} postsResults={postsResults} />
+        <div className={classNames({[classes.postList]: reviewPhase !== "VOTING", [classes.postsLoading]: postsLoading || loading})}>
+          {postsHaveBeenSorted && sortedPosts?.map((post) => {
+            const currentVote = post.currentUserReviewVote !== null ? {
+              _id: post.currentUserReviewVote._id,
+              postId: post._id,
+              score: post.currentUserReviewVote.qualitativeScore,
+              type: "QUALITATIVE" as const
+            } : null
+            return <div key={post._id} onClick={()=>{
+              captureEvent(undefined, {eventSubType: "voteTableRowClicked", postId: post._id})}}
+            >
+              <ReviewVoteTableRow
+                post={post}
+                costTotal={costTotal}
+                showKarmaVotes={showKarmaVotes}
+                dispatch={dispatchQualitativeVote}
+                currentVote={currentVote}
+                expandedPostId={expandedPost?._id}
+                handleSetExpandedPost={handleSetExpandedPost}
+                reviewPhase={reviewPhase}
+                reviewYear={reviewYear}
+                voteTooltip={voteTooltip}
+              />
+            </div>
             })}
           </div>
+          {(postsHaveBeenSorted && (sortedPosts?.length ?? 0) > 30) && <div className={classes.tagListContainer}>
+            <PostsTagsList
+              posts={postsResults}
+              currentFilter={tagFilter}
+              handleFilter={(tagId) => handleTagFilter(tagId)}
+              defaultMax={5}
+              afterChildren={<>
+                <LWTooltip title="Only show the post you've read">
+                  <div className={classNames(classes.statusFilter, {[classes.filterSelected]: statusFilter === 'read'})}
+                      onClick={() => handleStatusFilter('read')}>
+                  Read
+                </div>
+                </LWTooltip>
+              </>}
+            />
+          </div>}
         </div>
-      </div>
     </div>
     </AnalyticsContext>
   );

@@ -160,6 +160,10 @@ const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
     LessWrong: {
       header: {
         background: 'rgba(50,50,50,.75)',
+      },
+      background: {
+        translucentBackgroundHeavy: "rgba(0,0,0,.75)",
+        translucentBackground: "rgba(0,0,0,.5)",
       }
     },
     default: {
@@ -290,19 +294,6 @@ export const darkModeTheme: UserThemeSpecification = {
       sideCommentEditorBackground: shadePalette.grey[100],
       commentMarker: "#80792e",
       commentMarkerActive: "#cbc14f",
-    },
-    wrapped: {
-      background: '#072C47',
-      highlightText: '#FFC443',
-      secondaryText: '#008DAC',
-      tertiaryText: "rgba(255, 255, 255, 0.50)",
-      black: '#212121',
-      darkGrey: '#424242',
-      grey: '#757575',
-      darkDot: "rgba(255, 255, 255, 0.40)",
-      panelBackground: "rgba(255, 255, 255, 0.10)",
-      panelBackgroundDark: "rgba(255, 255, 255, 0.05)",
-      postScoreArrow: '#BCBCBC',
     },
     tab: {
       inactive: {

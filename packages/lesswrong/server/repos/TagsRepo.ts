@@ -141,6 +141,54 @@ class TagsRepo extends AbstractRepo<"Tags"> {
       GROUP BY t_child._id
     `);
   }
+
+  async getTagSpeeds() {
+    return this.getRawDb().any<{ _id: string, slug: string, tagIdsWithSpeed: string[] }>(`
+      -- TagsRepo.getTagSpeeds
+      SELECT t._id, t.slug, ARRAY_AGG(acr."childDocumentId") AS "tagIdsWithSpeed"
+      FROM "Tags" t
+      JOIN "ArbitalTagContentRels" acr
+      ON t._id = acr."parentDocumentId" AND acr.type = 'parent-is-tag-of-child'
+      WHERE t.slug IN ('low-speed-explanation', 'high-speed-explanation')
+      GROUP BY t._id, t.slug
+    `);
+  }
+
+  async getTagSubjectSiblingRelationships(tagId: string) {
+    return this.getRawDb().any<{
+      sourceTagId: string,
+      subjectTagId: string,
+      level: number,
+      relationships: { tagId: string, level: number }[]
+    }>(`
+      -- TagsRepo.getTagSubjectSiblingRelationships
+      SELECT
+        source_tag_subject_rels."parentDocumentId" AS "subjectTagId",
+        source_tag_subject_rels."level",
+        ARRAY_AGG(
+          JSONB_BUILD_OBJECT(
+            'tagId', target_tag_subject_rels."childDocumentId",
+            'level', target_tag_subject_rels."level"
+          )
+        ) AS "relationships"
+      FROM "Tags" source_tag
+      JOIN "ArbitalTagContentRels" source_tag_subject_rels
+      ON (
+        source_tag._id = source_tag_subject_rels."childDocumentId"
+        AND source_tag_subject_rels.type = 'parent-taught-by-child'
+        AND source_tag_subject_rels."isStrong" IS TRUE
+      )
+      JOIN "ArbitalTagContentRels" target_tag_subject_rels
+      ON (
+        target_tag_subject_rels."parentDocumentId" = source_tag_subject_rels."parentDocumentId"
+        AND target_tag_subject_rels.type = 'parent-taught-by-child'
+        AND target_tag_subject_rels."isStrong" IS TRUE
+      )
+      WHERE source_tag._id = $1
+      AND target_tag_subject_rels."childDocumentId" != $1
+      GROUP BY source_tag_subject_rels."parentDocumentId", source_tag_subject_rels."level"
+    `, [tagId]);
+  }
 }
 
 recordPerfMetrics(TagsRepo);

@@ -21,10 +21,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const AddTagButton = ({onTagSelected, tooltipPlacement = "bottom-start", isVotingContext, classes, children}: {
+const AddTagButton = ({onTagSelected, menuPlacement="bottom-start", isVotingContext, hasTooltip=true, classes, children}: {
   onTagSelected: (props: {tagId: string, tagName: string}) => void,
-  tooltipPlacement?: PopperPlacementType,
+  menuPlacement?: PopperPlacementType,
   isVotingContext?: boolean,
+  hasTooltip?: boolean,
   classes: ClassesType,
   children?: ReactNode,
 }) => {
@@ -54,7 +55,7 @@ const AddTagButton = ({onTagSelected, tooltipPlacement = "bottom-start", isVotin
         <LWPopper
           open={isOpen}
           anchorEl={anchorEl.current}
-          placement={tooltipPlacement}
+          placement={menuPlacement}
           allowOverflow
         >
           <LWClickAwayListener
@@ -74,7 +75,7 @@ const AddTagButton = ({onTagSelected, tooltipPlacement = "bottom-start", isVotin
         </LWPopper>
     </a>
   
-  if (isBookUI) {
+  if (isBookUI && hasTooltip) {
     return <LWTooltip title="Add a tag">
       {button}
     </LWTooltip>

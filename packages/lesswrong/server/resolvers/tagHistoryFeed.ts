@@ -6,6 +6,7 @@ import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { defineFeedResolver, mergeFeedQueries, fixedResultSubquery, viewBasedSubquery } from '../utils/feedUtil';
 import { MultiDocuments } from '@/lib/collections/multiDocuments/collection';
 import { defaultTagHistorySettings, TagHistorySettings } from '@/components/tagging/history/TagHistoryPage';
+import { MAIN_TAB_ID } from '@/lib/arbital/useTagLenses';
 
 defineFeedResolver<Date>({
   name: "TagHistoryFeed",
@@ -18,7 +19,7 @@ defineFeedResolver<Date>({
     tagDiscussionComment: Comment
     lensRevision: Revision
   `,
-  resolver: async ({limit=50, cutoff, offset, args, context}: {
+  resolver: async ({limit=25, cutoff, offset, args, context}: {
     limit?: number,
     cutoff?: Date,
     offset?: number,
@@ -42,7 +43,7 @@ defineFeedResolver<Date>({
     const lensIds = (historyOptions.lensId && historyOptions.lensId !== "all")
       ? [historyOptions.lensId]
       : lenses.map(lens => lens._id);
-    
+      
     const result = await mergeFeedQueries<SortKeyType>({
       limit, cutoff, offset,
       subqueries: [
@@ -61,7 +62,7 @@ defineFeedResolver<Date>({
           selector: {tagId},
         }) : null),
         // Tag revisions
-        (historyOptions.showEdits ? viewBasedSubquery({
+        (historyOptions.showEdits && (!historyOptions.lensId || historyOptions.lensId === "all" || historyOptions.lensId === MAIN_TAB_ID) ? viewBasedSubquery({
           type: "tagRevision",
           collection: Revisions,
           sortField: "editedAt",
