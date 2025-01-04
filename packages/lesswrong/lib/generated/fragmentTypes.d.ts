@@ -2870,6 +2870,9 @@ interface TagPageWithArbitalContentAndLensRevisionFragment extends TagPageFragme
   readonly lenses: Array<MultiDocumentWithContributorsRevision>,
 }
 
+interface WithVoteTag extends TagBasicInfo { // fragment on Tags
+}
+
 interface AdvisorRequestsDefaultFragment { // fragment on AdvisorRequests
   readonly userId: string,
   readonly interestedInMetaculus: boolean,
@@ -3955,7 +3958,7 @@ interface MultiDocumentsDefaultFragment { // fragment on MultiDocuments
   readonly userId: string,
   readonly parentDocumentId: string,
   readonly collectionName: "Tags" | "MultiDocuments",
-  readonly fieldName: string,
+  readonly fieldName: "description" | "summary",
   readonly index: number,
   readonly tableOfContents: any /*{"definitions":[{}]}*/,
   readonly contributors: any /*TagContributorsList*/,
@@ -3968,7 +3971,7 @@ interface MultiDocumentMinimumInfo { // fragment on MultiDocuments
   readonly _id: string,
   readonly parentDocumentId: string,
   readonly collectionName: "Tags" | "MultiDocuments",
-  readonly fieldName: string,
+  readonly fieldName: "description" | "summary",
   readonly userId: string,
   readonly slug: string,
   readonly oldSlugs: Array<string>,
@@ -4613,6 +4616,7 @@ interface FragmentTypes {
   ExplorePageTagFragment: ExplorePageTagFragment
   AllTagsPageCacheFragment: AllTagsPageCacheFragment
   TagPageWithArbitalContentAndLensRevisionFragment: TagPageWithArbitalContentAndLensRevisionFragment
+  WithVoteTag: WithVoteTag
   AdvisorRequestsDefaultFragment: AdvisorRequestsDefaultFragment
   AdvisorRequestsMinimumInfo: AdvisorRequestsMinimumInfo
   UserJobAdsDefaultFragment: UserJobAdsDefaultFragment
@@ -4742,7 +4746,7 @@ interface FragmentTypesByCollection {
   Users: "UsersDefaultFragment"|"SuggestAlignmentUser"|"UsersMinimumInfo"|"UsersProfile"|"UsersCurrent"|"UsersCurrentCommentRateLimit"|"UsersCurrentPostRateLimit"|"UserBookmarkedPosts"|"UserKarmaChanges"|"UsersBannedFromUsersModerationLog"|"SunshineUsersList"|"UserAltAccountsFragment"|"SharedUserBooleans"|"UsersMapEntry"|"UsersEdit"|"UsersAdmin"|"UsersWithReviewInfo"|"UsersProfileEdit"|"UsersCrosspostInfo"|"UsersOptedInToDialogueFacilitation"|"UserOnboardingAuthor"|"UsersSocialMediaInfo"
   Comments: "CommentsDefaultFragment"|"CommentsList"|"CommentsListWithTopLevelComment"|"ShortformComments"|"CommentWithRepliesFragment"|"CommentEdit"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"CommentsListWithParentMetadata"|"StickySubforumCommentFragment"|"WithVoteComment"|"CommentsListWithModerationMetadata"|"CommentsListWithModGPTAnalysis"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"SuggestAlignmentComment"
   UserTagRels: "UserTagRelsDefaultFragment"|"UserTagRelDetails"
-  Tags: "TagsDefaultFragment"|"TagBasicInfo"|"TagDetailsFragment"|"TagFragment"|"TagHistoryFragment"|"TagCreationHistoryFragment"|"TagRevisionFragment"|"TagPreviewFragment"|"TagSectionPreviewFragment"|"TagSubforumFragment"|"TagSubtagFragment"|"TagSubforumSidebarFragment"|"TagDetailedPreviewFragment"|"TagWithFlagsFragment"|"TagWithFlagsAndRevisionFragment"|"TagPageArbitalContentFragment"|"TagPageFragment"|"TagPageWithArbitalContentFragment"|"AllTagsPageFragment"|"TagPageWithRevisionFragment"|"TagPageRevisionWithArbitalContentFragment"|"TagFullContributorsList"|"TagEditFragment"|"TagRecentDiscussion"|"SunshineTagFragment"|"UserOnboardingTag"|"TagName"|"ExplorePageTagFragment"|"AllTagsPageCacheFragment"|"TagPageWithArbitalContentAndLensRevisionFragment"
+  Tags: "TagsDefaultFragment"|"TagBasicInfo"|"TagDetailsFragment"|"TagFragment"|"TagHistoryFragment"|"TagCreationHistoryFragment"|"TagRevisionFragment"|"TagPreviewFragment"|"TagSectionPreviewFragment"|"TagSubforumFragment"|"TagSubtagFragment"|"TagSubforumSidebarFragment"|"TagDetailedPreviewFragment"|"TagWithFlagsFragment"|"TagWithFlagsAndRevisionFragment"|"TagPageArbitalContentFragment"|"TagPageFragment"|"TagPageWithArbitalContentFragment"|"AllTagsPageFragment"|"TagPageWithRevisionFragment"|"TagPageRevisionWithArbitalContentFragment"|"TagFullContributorsList"|"TagEditFragment"|"TagRecentDiscussion"|"SunshineTagFragment"|"UserOnboardingTag"|"TagName"|"ExplorePageTagFragment"|"AllTagsPageCacheFragment"|"TagPageWithArbitalContentAndLensRevisionFragment"|"WithVoteTag"
   Conversations: "ConversationsDefaultFragment"|"ConversationsMinimumInfo"|"ConversationsList"|"ConversationsListWithReadStatus"
   CurationEmails: "CurationEmailsDefaultFragment"
   ElectionCandidates: "ElectionCandidatesDefaultFragment"|"ElectionCandidateBasicInfo"|"ElectionCandidateSimple"|"WithVoteElectionCandidate"
@@ -5001,6 +5005,7 @@ interface CollectionNamesByFragmentName {
   ExplorePageTagFragment: "Tags"
   AllTagsPageCacheFragment: "Tags"
   TagPageWithArbitalContentAndLensRevisionFragment: "Tags"
+  WithVoteTag: "Tags"
   AdvisorRequestsDefaultFragment: "AdvisorRequests"
   AdvisorRequestsMinimumInfo: "AdvisorRequests"
   UserJobAdsDefaultFragment: "UserJobAds"

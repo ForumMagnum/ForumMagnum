@@ -127,6 +127,7 @@ import './collections/tags/views';
 import './collections/tags/fragments';
 import './collections/tags/helpers';
 import './collections/tags/schema';
+import './collections/tags/permissions';
 
 import './collections/tweets/collection'
 

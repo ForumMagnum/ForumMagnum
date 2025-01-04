@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { TagLens } from '@/lib/arbital/useTagLenses';
+import { MAIN_TAB_ID, TagLens } from '@/lib/arbital/useTagLenses';
 import { getVotingSystemByName } from "@/lib/voting/votingSystems";
 import classNames from 'classnames';
 import Tab from '@material-ui/core/Tab';
@@ -143,7 +143,6 @@ const LensTabBar = ({lenses, selectedLens, switchLens}: {
       lens={lens}
       isSelected={selectedLens?._id === lens._id}
     />)}
-    <NewLensTab key='new-lens' value='new-lens' isSelected={false} />
   </Tabs>
 }
 
@@ -182,16 +181,13 @@ const LensTab = ({ lens, value, isSelected, ...tabProps }: {
   & Omit<React.ComponentProps<typeof Tab>, 'key' | 'value' | 'label'>
 ) => {
   const classes = useStyles(styles);
-  const lensVotingSystem = getVotingSystemByName("reactionsAndLikes");
   
   if (!lens) return null;
 
   const label = <div key={lens._id} className={classes.lensLabel}>
     <span className={classes.lensTitle}>{lens.tabTitle}</span>
     {lens.tabSubtitle && <span className={classes.lensSubtitle}>{lens.tabSubtitle}</span>}
-    <Components.ReactionsAndLikesVote
-      document={lens} collectionName="MultiDocuments" votingSystem={lensVotingSystem}
-    />
+    <TagOrLensLikeButton lens={lens} />
   </div>;
   
 
@@ -208,14 +204,33 @@ const LensTab = ({ lens, value, isSelected, ...tabProps }: {
   );
 };
 
+const TagOrLensLikeButton = ({lens}: {
+  lens: TagLens
+}) => {
+  const lensVotingSystem = getVotingSystemByName("reactionsAndLikes");
+  const isMainLens = (lens._id === MAIN_TAB_ID);
+
+  return <Components.ReactionsAndLikesVote
+    document={isMainLens ? {
+      ...lens,
+      //HACK: For the main lens we put a placeholder _id (see `getDefaultLens`). Put it back to make an object close-enough to a TagBasicInfo that it will work for voting.
+      _id: lens.parentDocumentId,
+    } : lens}
+    collectionName={isMainLens ? "Tags" : "MultiDocuments"}
+    votingSystem={lensVotingSystem}
+  />
+}
+
 
 const LensTabBarComponent = registerComponent('LensTabBar', LensTabBar);
 const LensTabComponent = registerComponent('LensTab', LensTab);
+const TagOrLensLikeButtonComponent = registerComponent('TagOrLensLikeButton', TagOrLensLikeButton);
 
 declare global {
   interface ComponentTypes {
     LensTabBar: typeof LensTabBarComponent
     LensTab: typeof LensTabComponent
+    TagOrLensLikeButton: typeof TagOrLensLikeButtonComponent
   }
 }
 

@@ -12,6 +12,7 @@ import classNames from 'classnames';
 import { useTagBySlug } from './useTag';
 import { tagGetHistoryUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { isLWorAF } from '@/lib/instanceSettings';
+import type { TagLens } from '@/lib/arbital/useTagLenses';
 
 const styles = (theme: ThemeType): JssStyles => ({
   buttonsRow: {
@@ -39,6 +40,10 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: "flex",
     },
   },
+  likeButtonWrapper: {
+    marginRight: 20,
+    fontSize: 12,
+  },
   buttonTooltip: {
     display: "flex",
     alignItems: "center",
@@ -53,12 +58,6 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: "none"
     }
   },
-  // newLensIcon: {
-  //   // Invert the icon color
-  //   '& svg': {
-  //     color: theme.palette.grey[700]
-  //   }
-  // },
   lockIcon: {
     display: "flex",
     alignItems: "center",
@@ -102,8 +101,9 @@ export function useTagEditingRestricted(tag: TagPageWithRevisionFragment | TagPa
   return { canEdit, noEditNotAuthor, noEditKarmaTooLow };
 }
 
-const TagPageButtonRow = ({ tag, editing, setEditing, hideLabels = false, className, refetchTag, updateSelectedLens, classes }: {
+const TagPageButtonRow = ({ tag, selectedLens, editing, setEditing, hideLabels = false, className, refetchTag, updateSelectedLens, classes }: {
   tag: TagPageWithRevisionFragment | TagPageFragment,
+  selectedLens?: TagLens
   editing: boolean,
   setEditing: (editing: boolean) => void,
   hideLabels?: boolean,
@@ -114,7 +114,7 @@ const TagPageButtonRow = ({ tag, editing, setEditing, hideLabels = false, classN
 }) => {
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
-  const { LWTooltip, NotifyMeButton, TagDiscussionButton, ContentItemBody, ForumIcon } = Components;
+  const { LWTooltip, NotifyMeButton, TagDiscussionButton, ContentItemBody, ForumIcon, TagOrLensLikeButton } = Components;
   const { tag: beginnersGuideContentTag } = useTagBySlug("tag-cta-popup", "TagFragment")
 
   const numFlags = tag.tagFlagsIds?.length
@@ -173,18 +173,16 @@ const TagPageButtonRow = ({ tag, editing, setEditing, hideLabels = false, classN
       dangerouslySetInnerHTML={{ __html: beginnersGuideContentTag?.description?.html || "" }}
       description={`tag ${tag?.name}`}
     />
-  </>
+  </>;
+
+  const newLensTooltip = (<div>
+    Click to create a new lens for this tag.
+  </div>);
 
   return <div className={classNames(classes.buttonsRow, className)}>
-    {/** Button to create a new lens */}
-    {showNewLensButton && <LWTooltip>
-      <a className={classNames(classes.button, classes.newLensIcon)} onClick={handleNewLensClick}>
-        <ForumIcon icon='NoteAdd' />
-        <span className={classes.buttonLabel}>
-          {!hideLabels && "New Lens"}
-        </span>
-      </a>
-    </LWTooltip>}
+    {selectedLens && <div className={classes.likeButtonWrapper}>
+      <TagOrLensLikeButton lens={selectedLens} />
+    </div>}
     {!editing && <LWTooltip
       className={classes.buttonTooltip}
       title={editTooltip}
@@ -199,6 +197,17 @@ const TagPageButtonRow = ({ tag, editing, setEditing, hideLabels = false, classN
           {!hideLabels && "Edit"}
         </span>
       </a>)}
+    </LWTooltip>}
+    {showNewLensButton && <LWTooltip
+      className={classes.buttonTooltip}
+      title={newLensTooltip}      
+    >
+      <a className={classNames(classes.button, classes.newLensIcon)} onClick={handleNewLensClick}>
+        <ForumIcon icon='NoteAdd' />
+        <span className={classes.buttonLabel}>
+          {!hideLabels && "New Lens"}
+        </span>
+      </a>
     </LWTooltip>}
     {<Link
       className={classes.button}

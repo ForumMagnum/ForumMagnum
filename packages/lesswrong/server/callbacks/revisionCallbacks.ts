@@ -33,10 +33,11 @@ afterCreateRevisionCallback.add(async ({revisionID}) => {
 // Update the denormalized htmlWithContributorAnnotations when a tag revision
 // is created or edited
 // Users upvote their own tag-revisions
-afterCreateRevisionCallback.add(async ({revisionID}) => {
+afterCreateRevisionCallback.add(async ({revisionID, skipDenormalizedAttributions}) => {
   const revision = await Revisions.findOne({_id: revisionID});
   if (!revision) return;
   if (revision.collectionName !== 'Tags' && revision.collectionName !== 'MultiDocuments') return;
+  if (skipDenormalizedAttributions) return;
 
   if (revision.collectionName === 'Tags') {
     const tag = await Tags.findOne({_id: revision.documentId});

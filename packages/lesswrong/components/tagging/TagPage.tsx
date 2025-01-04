@@ -1368,6 +1368,7 @@ const TagPage = () => {
       {/* {originalToc} */}
       <TagPageButtonRow
         tag={tag}
+        selectedLens={selectedLens}
         editing={editing}
         setEditing={setEditing}
         hideLabels={true}

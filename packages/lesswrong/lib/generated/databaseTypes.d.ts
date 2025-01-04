@@ -711,7 +711,7 @@ interface DbMultiDocument extends DbObject {
   userId: string
   parentDocumentId: string
   collectionName: "Tags" | "MultiDocuments"
-  fieldName: string
+  fieldName: "description" | "summary"
   index: number
   contributionStats: any /*{"definitions":[{"blackbox":true}]}*/
   htmlWithContributorAnnotations: string | null

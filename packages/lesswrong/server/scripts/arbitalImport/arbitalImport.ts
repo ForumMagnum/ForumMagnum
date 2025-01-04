@@ -8,7 +8,7 @@ import UsersRepo from "../../repos/UsersRepo";
 import { loadArbitalDatabase, WholeArbitalDatabase, PageSummariesRow, PagesRow, PageInfosRow, DomainsRow, LensesRow } from './arbitalSchema';
 import keyBy from 'lodash/keyBy';
 import groupBy from 'lodash/groupBy';
-import { createAdminContext, createMutator, slugify, updateMutator } from '@/server/vulcan-lib';
+import { createAdminContext, createMutator, getCollection, slugify, updateMutator } from '@/server/vulcan-lib';
 import Tags from '@/lib/collections/tags/collection';
 import ArbitalTagContentRels from '@/lib/collections/arbitalTagContentRels/collection';
 import { getUnusedSlugByCollectionName, slugIsUsed } from '@/lib/helpers';
@@ -27,6 +27,9 @@ import { Comments } from '@/lib/collections/comments';
 import uniq from 'lodash/uniq';
 import maxBy from 'lodash/maxBy';
 import { recomputePingbacks } from '@/server/pingbacks';
+import { performVoteServer } from '@/server/voteServer';
+import { Votes } from '@/lib/collections/votes';
+import mapValues from 'lodash/mapValues';
 
 type ArbitalImportOptions = {
   /**
@@ -61,6 +64,11 @@ type ArbitalImportOptions = {
    * 
    */
   coreTagAssignmentsFile?: string
+  
+  /**
+   * Number of wiki pages to import in parallel. Use when latency to the DB is high.
+   */
+  parallelism?: number,
 }
 const defaultArbitalImportOptions: ArbitalImportOptions = {};
 
@@ -410,7 +418,7 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
     await importCoreTagAssignments(options.coreTagAssignmentsFile);
   }
 
-  //await importComments(database, conversionContext, resolverContext, options);
+  await importComments(database, conversionContext, resolverContext, options);
 }
 
 
@@ -600,7 +608,7 @@ async function buildConversionContext(database: WholeArbitalDatabase, pagesToCon
 
 async function importWikiPages(database: WholeArbitalDatabase, conversionContext: ArbitalConversionContext, resolverContext: ResolverContext, options: ArbitalImportOptions): Promise<void> {
   const pagesById = groupBy(database.pages, p=>p.pageId);
-  const lensesByPageId = groupBy(database.lenses, l=>l.pageId);
+  const lensesByPageId = mapValues(groupBy(database.lenses, l=>l.pageId), lenses=>sortBy(lenses, l=>l.lensIndex));
   const lensIds = new Set(database.lenses.map(l=>l.lensId));
 
   const {
@@ -633,10 +641,10 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
   
   const alternativesByPageId = computePageAlternatives(database);
   
-  for (const pageId of pageIdsToImport) {
+  await executePromiseQueue(pageIdsToImport.map((pageId) => async () => {
     try {
       const pageInfo = pageInfosById[pageId];
-      if (pageInfo.isDeleted) continue;
+      if (pageInfo.isDeleted) return;
       const lenses = lensesByPageId[pageId] ?? [];
       const revisions = database.pages.filter(p => p.pageId === pageId)
         .sort(r => r.edit)
@@ -658,6 +666,10 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
       });
       console.log(`Creating wiki page: ${title} (${slug}).  Lenses found: ${lenses.map(l=>l.lensName).join(", ")}`);
 
+      // If we're going to merge with an LW wiki page, fetch that page for reference
+      const lwWikiPageToConvertToLens = pagesToConvertToLenses.find(({arbitalPageId}) => arbitalPageId === pageId);
+      const lwWikiPage = lwWikiPageToConvertToLens ? await Tags.findOne({_id: lwWikiPageToConvertToLens.tagId}) : null;
+
       // Create wiki page with the oldest revision (we will create the rest of
       // revisions next; creating them in-order ensures some on-insert callbacks
       // work properly.)
@@ -666,7 +678,7 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
         wiki = await Tags.findOne({ 'legacyData.arbitalPageId': pageId });
         if (!wiki) {
           console.log(`Wiki page not found: ${pageId}`);
-          continue;
+          return;
         }
       } else {
         wiki = (await createMutator({
@@ -684,6 +696,7 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
             },
             legacyData: {
               "arbitalPageId": pageId,
+              ...(lwWikiPage ? {mergedLWTagId: lwWikiPage._id} : {}),
             },
           },
           context: resolverContext,
@@ -697,6 +710,8 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
           backDateRevision(wiki.description_latest!, pageInfo.createdAt),
         ]);
       }
+
+      await convertLikesToVotes(conversionContext, pageInfo.likeableId, "Tags", wiki._id);
 
       const pageAlternatives = alternativesByPageId[pageId];
       if (pageAlternatives && Object.values(pageAlternatives).some(alternatives => alternatives.length > 0)) {
@@ -834,6 +849,8 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
             conversionContext: conversionContext,
             resolverContext,
           });
+          
+          await convertLikesToVotes(conversionContext, pageInfosById[lens.lensId].likeableId, "MultiDocuments", lensObj._id);
 
         } else {
           lensObj = await MultiDocuments.findOne({ slug: lensSlug });
@@ -871,11 +888,9 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
         });
       }
       
-      const lwWikiPageToConvertToLens = pagesToConvertToLenses.find(({arbitalPageId}) => arbitalPageId === pageId);
       if (lwWikiPageToConvertToLens) {
         console.log(`Converting LW wiki page ${lwWikiPageToConvertToLens.tagId} to a lens`);
-        const lwWikiPage = await Tags.findOne({_id: lwWikiPageToConvertToLens.tagId});
-        if (!lwWikiPage) continue;
+        if (!lwWikiPage) return;
         const lwWikiPageCreator: DbUser = (await Users.findOne({_id: lwWikiPage.userId}))!;
         const lwWikiLensSlug = await getUnusedSlugByCollectionName("MultiDocuments", `lwwiki-${slugify(title)}`);
         const lwWikiLensIndex = lenses.length > 0
@@ -888,7 +903,7 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
           collectionName: "Tags",
         }).fetch();
         if (!lwWikiPageRevisions.length) {
-          continue;
+          return;
         }
 
         const lwWikiLens = (await createMutator({
@@ -925,6 +940,18 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
         }
         const latestRev = maxBy(lwWikiPageRevisions, r=>r.editedAt)!;
         
+        // Move TagRels/comments/etc from the original LW wiki page, and any
+        // previous imports that merged with that page, onto the new merged
+        // page.
+        const oldMergedTagIds = (await Tags.find({
+          "legacyData.mergedLWTagId": lwWikiPage._id,
+          deleted: true,
+        }).fetch()).map(t=>t._id);
+        await moveReferencesToMergedPage({
+          oldTagIds: [lwWikiPage._id, ...oldMergedTagIds],
+          newTagId: wiki._id,
+        });
+        
         // Set the active rev on the new lens
         await MultiDocuments.rawUpdateOne(
           { _id: lwWikiLens._id },
@@ -936,7 +963,7 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
     } catch(e) {
       console.error(e);
     }
-  }
+  }), options.parallelism ?? 1);
 }
 
 async function importComments(database: WholeArbitalDatabase, conversionContext: ArbitalConversionContext, resolverContext: ResolverContext, options: ArbitalImportOptions): Promise<void> {
@@ -1019,12 +1046,14 @@ async function importComments(database: WholeArbitalDatabase, conversionContext:
       validate: false,
     })).data;
     lwCommentsById[commentId] = lwComment;
+
     await Comments.rawUpdateOne({_id: lwComment._id}, {
       $set: {
         createdAt: comment.createdAt,
         postedAt: comment.createdAt,
       }
     });
+    await convertLikesToVotes(conversionContext, comment.likeableId, "Comments", lwComment._id);
   }
   
 
@@ -1132,6 +1161,63 @@ async function backDateAndAddLegacyDataToRevision(_id: string, date: Date, legac
   );
 }
 
+async function convertLikesToVotes(conversionContext: ArbitalConversionContext, arbitalLikeableId: number, collectionName: VoteableCollectionName, documentId: string) {
+  // TODO: Check that the execution-order of votes comes out right. There
+  // have been voting bugs in the past related to votes being cast
+  // simultaneously and hitting concurrency issues.
+
+  const applicableLikes = conversionContext.database.likes.filter(like => like.likeableId === arbitalLikeableId);
+  const sortedLikes = sortBy(applicableLikes, l=>l.updatedAt);
+  const collection = getCollection(collectionName);
+  let first = true;
+
+  for (const like of sortedLikes) {
+    if (like.value === -1) {
+      // Redlinks and change-requests can have downvotes, but we don't handle those.
+      continue;
+    }
+    if (like.value === 0) {
+      // A cancelled like
+      continue;
+    }
+    
+    const user = conversionContext.matchedUsers[like.userId];
+    if (!user) {
+      console.error(`Could not find user ${like.userId} for like on ${arbitalLikeableId}`);
+      continue;
+    }
+    
+    const { vote } = await performVoteServer({
+      collection,
+      user,
+      voteType: "smallUpvote",
+      extendedVote: (collectionName === "Comments" ? {
+        reacts: [{
+          react: "thumbs-up",
+          vote: first ? "created" : "seconded",
+        }]
+      } : null),
+      selfVote: false,
+      documentId,
+      skipRateLimits: true,
+      toggleIfAlreadyVoted: false,
+    });
+    if (vote) {
+      await Votes.rawUpdateOne(
+        { _id: vote._id },
+        {$set:{
+          createdAt: like.updatedAt,
+          legacyData: {
+            arbitalUpdatedAt: like.updatedAt,
+            arbitalLikeableId,
+          }
+        }},
+      );
+    }
+    first = false;
+  }
+}
+
 /**
  * Given an object which has been imported with only its first revision, add the
  * other revisions.
@@ -1190,7 +1276,10 @@ async function importRevisions<N extends CollectionNameString>({
       validate: false,
     })).data;
     await backDateRevision(lwRevision._id, arbRevision.createdAt);
-    await afterCreateRevisionCallback.runCallbacksAsync([{ revisionID: lwRevision._id }]);
+    await afterCreateRevisionCallback.runCallbacksAsync([{
+      revisionID: lwRevision._id,
+      skipDenormalizedAttributions: true,
+    }]);
   }
   
   // Handle the last revision separately, as an edit-operation rather than a
@@ -1263,6 +1352,30 @@ async function loadUserMatching(csvFilename: string): Promise<Record<string,DbUs
   }
   
   return result;
+}
+
+async function moveReferencesToMergedPage({oldTagIds, newTagId}: {
+  oldTagIds: string[]
+  newTagId: string
+}) {
+  async function redirectTagReferences<N extends CollectionNameString>(collectionName: N, fieldName: keyof ObjectsByCollectionName[N]) {
+    const collection = getCollection(collectionName);
+    await collection.rawUpdateMany(
+      {
+        [fieldName]: {$in: oldTagIds}
+      },
+      {$set: {
+        [fieldName]: newTagId,
+      }},
+    );
+  }
+
+  await redirectTagReferences("TagRels", "tagId");
+  await redirectTagReferences("Comments", "tagId");
+  await redirectTagReferences("UserTagRels", "tagId");
+  await redirectTagReferences("Subscriptions", "documentId");
+  
+  // TODO: Rewrite user tag filters?
 }
 
 

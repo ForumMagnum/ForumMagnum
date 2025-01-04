@@ -70,8 +70,6 @@ export const NewLensDialog = ({ tag, refetchTag, updateSelectedLens, onClose }: 
         Creating a new lens is appropriate when you want to present an alternative view on the content, such as a more or less technical explanation.
         <p /><p />
         The title of the lens is displayed at the top of the content, and the tab title and (optional) subtitle are displayed in the tab bar.
-        {/* <p /><p /> */}
-        {/* After creating a new lens, you will be redirected to the edit form where you can add content to it. */}
       </DialogContentText>
       <WrappedSmartForm
         collectionName='MultiDocuments'
@@ -84,7 +82,6 @@ export const NewLensDialog = ({ tag, refetchTag, updateSelectedLens, onClose }: 
           editorHintText: 'New lens content goes here!'
         }}
         prefilledProps={prefilledProps}
-        // removeFields={['contents']}
       />
     </DialogContent>
   </LWDialog>;

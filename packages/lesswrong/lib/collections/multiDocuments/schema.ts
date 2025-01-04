@@ -178,9 +178,14 @@ const schema: SchemaType<"MultiDocuments"> = {
       const { MultiDocuments } = context;
       const { parentDocumentId } = newDocument;
       
-      const otherSummaries = await MultiDocuments.find({ parentDocumentId, fieldName: 'summary' }, undefined, { index: 1 }).fetch();
+      const otherSummaries = await MultiDocuments.find({
+        parentDocumentId,
+        fieldName: newDocument.fieldName
+      }, undefined, { index: 1 }).fetch();
       const otherSummaryIndexes = otherSummaries.map(summary => summary.index);
-      const newIndex = Math.max(...otherSummaryIndexes) + 1;
+      const newIndex = (otherSummaryIndexes.length>0)
+        ? (Math.max(...otherSummaryIndexes) + 1)
+        : 0;
       return newIndex;
     }
   },
