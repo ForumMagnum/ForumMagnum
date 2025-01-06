@@ -407,8 +407,7 @@ export const sanitize = function(s: string): string {
       'viewpoints.xyz',
       'calendly.com',
       'neuronpedia.org',
-      'lwartifacts.vercel.app',
-      'fatebook.io',
+      'lwartifacts.vercel.app'
     ],
     allowedClasses: {
       span: [ 'footnote-reference', 'footnote-label', 'footnote-back-link', "math-tex" ],
