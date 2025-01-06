@@ -9,7 +9,7 @@ const styles = (_theme: ThemeType) => ({
     position: "relative",
     width: "100%",
     maxWidth: 400,
-    padding: "0 10px", // Extra padding because the chart labels can overflow
+    padding: "0 24px", // Extra padding because the chart labels can overflow
     margin: "40px auto 0",
   },
 });

@@ -3,16 +3,25 @@ import type { StrategySpecification } from "../../lib/collections/users/recommen
 import { RecommendationResult } from "./RecommendationStrategy";
 
 /**
- * A recommendation strategy that returns the highest voted posts that the user
- * hasn't viewed. Note that, for performance reasons, the scores are not inflation
- * adjusted.
+ * Strategy for choosing recommended "posts you may have missed" for EA Forum
+ * wrapped
  */
-class BestOfStrategy extends FeatureStrategy {
+class WrappedStrategy extends FeatureStrategy {
+  constructor() {
+    super({
+      maxRecommendationCount: 5,
+    });
+  }
+
   async recommend(
     currentUser: DbUser|null,
     count: number,
     strategy: StrategySpecification,
   ): Promise<RecommendationResult> {
+    const year = strategy.year;
+    if (!year) {
+      throw new Error("Wrapped recommendation strategy requires a year");
+    }
     return super.recommend(
       currentUser,
       count,
@@ -23,8 +32,12 @@ class BestOfStrategy extends FeatureStrategy {
           {feature: "curated", weight: 0.05},
         ],
       },
+      {
+        publishedAfter: new Date(year, 0),
+        publishedBefore: new Date(year + 1, 0),
+      },
     );
   };
 }
 
-export default BestOfStrategy;
+export default WrappedStrategy;
