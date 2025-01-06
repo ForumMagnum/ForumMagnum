@@ -340,7 +340,7 @@ export const ForumWrappedProvider = ({
 
   const {recommendations} = useRecommendations({
     algorithm: {
-      strategy: {name: "bestOf", postId: ""},
+      strategy: {name: "wrapped", year, postId: ""},
       count: 5,
       disableFallbacks: true,
     },
