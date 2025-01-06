@@ -113,7 +113,6 @@ class TagsRepo extends AbstractRepo<"Tags"> {
       ON (
         md."parentDocumentId" = COALESCE(t.md_id, t._id)
         AND md."fieldName" = 'summary'
-        AND md."deleted" IS FALSE
       )
       -- TODO: figure out a more principled fix for the problem we can have multiple tags or lenses with the same slug/oldSlugs
       LIMIT 1
