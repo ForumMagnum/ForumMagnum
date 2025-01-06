@@ -136,6 +136,7 @@ class TagsRepo extends AbstractRepo<"Tags"> {
       LEFT JOIN core_tag_ids t_parent
       ON t_parent._id = acr."parentDocumentId"
       WHERE t_child.deleted IS FALSE
+      AND t_child."isPlaceholderPage" IS FALSE
       AND (
         acr IS NULL
         OR (
