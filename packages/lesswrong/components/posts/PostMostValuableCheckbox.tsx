@@ -8,7 +8,7 @@ import { useCurrentUser } from '../common/withUser';
 const styles = (theme: ThemeType) => ({
   root: {
     cursor: "pointer",
-    color: theme.palette.wrapped.background,
+    color: theme.palette.text.alwaysWhite,
     fontSize: 32,
     padding: 6,
     "&:hover": {
@@ -18,10 +18,11 @@ const styles = (theme: ThemeType) => ({
 });
 
 /**
- * This is used by the EA Forum Wrapped page, to let users indicate which posts they found particularly valuable.
+ * This is used by the EA Forum Wrapped page, to let users indicate which posts
+ * they found particularly valuable.
  */
 export const PostMostValuableCheckbox = ({post, classes}: {
-  post: PostsBase,
+  post: Pick<PostsBase, "_id">,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser()
@@ -58,6 +59,10 @@ export const PostMostValuableCheckbox = ({post, classes}: {
           _id: userVote._id
         },
         data: {
+          deleted: !userVote.deleted
+        },
+        optimisticResponse: {
+          ...userVote,
           deleted: !userVote.deleted
         }
       })

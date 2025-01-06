@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useHover } from '../../common/withHover';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { isServer } from '../../../lib/executionEnvironment';
+import { isMobile } from '@/lib/utils/isMobile';
 
 const styles = (theme: ThemeType): JssStyles => ({
 })
@@ -18,7 +19,7 @@ const SharePostSubmenu = ({post, closeMenu, classes}: {
   function shareClicked() {
     // navigator.canShare will be present on mobile devices with sharing-intents,
     // absent on desktop.
-    if (!!navigator.canShare) {
+    if (isMobile() && !!navigator.canShare) {
       const sharingOptions = {
         title: post.title,
         text: post.title,

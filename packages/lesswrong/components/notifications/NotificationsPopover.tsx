@@ -217,7 +217,7 @@ const NotificationsPopover = ({karmaChanges, markAllAsRead, closePopover, classe
                     </NotifPopoverLink>
                   </div>
                 }
-                {hasKarmaChangesToday &&
+                {!!hasKarmaChangesToday &&
                   <div>
                     <div className={classes.karmaSubsectionTitle}>Today</div>
                     <NotificationsPageKarmaChangeList
