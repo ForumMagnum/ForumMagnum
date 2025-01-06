@@ -192,22 +192,24 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
       var firstAliasChar = alias.substring(0, 1);
       var trimmedAlias = trimAlias(alias);
       
-      const pageId = pageAliasToPageId(trimmedAlias);
+      const linkedPageId = pageAliasToPageId(trimmedAlias);
       const linkText = (options.text && options.text.length>0)
         ? options.text
-        : (pageId ? pageIdToTitle(pageId, firstAliasChar) : getCasedText(trimmedAlias, firstAliasChar));
+        : (linkedPageId ? pageIdToTitle(linkedPageId, firstAliasChar) : getCasedText(trimmedAlias, firstAliasChar));
       if (!linkText) {
         console.error(`Could not get link text for page ${alias}`);
       }
       
-      if (pageId) {
-        const url = pageIdToUrl(pageId);
+      if (linkedPageId) {
+        const url = pageIdToUrl(linkedPageId);
         return `<a href="${url}">${linkText}</a>`;
       } else {
         const url = `/w/${slugify(linkText)}`;
+        const convertedTitle = getCasedText(trimmedAlias, firstAliasChar).replace(/_/g, ' ');
         conversionContext.outRedLinks.push({
           slug: slugify(linkText),
-          title: linkText,
+          title: convertedTitle,
+          referencedFromPage: pageId,
         });
         return `<a href="${url}">${linkText}</a>`;
       }
