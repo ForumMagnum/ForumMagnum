@@ -21,6 +21,9 @@ const styles = (theme: ThemeType) => ({
   wrapped: {
     color: theme.palette.wrapped.highlightText,
   },
+  children: {
+    marginBottom: 40,
+  },
 });
 
 /**
@@ -44,7 +47,11 @@ const WrappedWelcomeMessage = ({currentUser, year, children, classes}: {
           Hi {currentUser.displayName}, this is your {year} EA Forum{" "}
           <span className={classes.wrapped}>Wrapped</span>
         </h1>
-        {children}
+        {children &&
+          <div className={classes.children}>
+            {children}
+          </div>
+        }
       </div>
     </WrappedSection>
   );
