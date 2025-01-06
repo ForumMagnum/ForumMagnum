@@ -1,7 +1,7 @@
 import { 
   forumTypeSetting, PublicInstanceSetting, hasEventsSetting, taggingNamePluralSetting, taggingNameIsSet,
   taggingNamePluralCapitalSetting, taggingNameCapitalSetting, isEAForum, taggingNameSetting, aboutPostIdSetting,
-  isLW, isLWorAF, tagUrlBaseSetting, taggingNameCapitalizedWithPluralizationChoice } from './instanceSettings';
+  isLW, isLWorAF, tagUrlBaseSetting, taggingNameIsPluralized, taggingNameCapitalizedWithPluralizationChoice } from './instanceSettings';
 import { blackBarTitle, legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, RouterLocation, Route } from './vulcan-lib/routes';
 import { REVIEW_YEAR } from './reviewUtils';
@@ -515,6 +515,11 @@ if (tagUrlBaseSetting.get() !== 'tag') {
       path: `/compare/tag/:slug`,
       redirect: ({params}) => `/compare/${tagUrlBaseSetting.get()}/${params.slug}`
     },
+    {
+      name: 'tags.revisionselect.redirect',
+      path: `/revisions/tag/:slug`,
+      redirect: ({params}) => `/revisions/${tagUrlBaseSetting.get()}/${params.slug}`
+    }
   )
 }
 
@@ -1539,7 +1544,7 @@ addRoute(
   },
   {
     name: 'tag.revisionsselect',
-    path: '/revisions/tag/:slug',
+    path: `/revisions/${tagUrlBaseSetting.get()}/:slug`,
     componentName: 'TagPageRevisionSelect',
     titleComponentName: 'TagPageTitle',
   },
