@@ -85,7 +85,7 @@ type NotificationDisplaySequence = Pick<DbSequence, "_id" | "title">;
 export type NotificationDisplay =
   Pick<
     DbNotification,
-    "_id" | "type" | "link" | "viewed" | "message" | "createdAt"
+    "_id" | "type" | "link" | "viewed" | "message" | "createdAt" | "extraData"
   > & {
     post?: NotificationDisplayPost,
     comment?: NotificationDisplayComment,
@@ -659,10 +659,9 @@ export const NewMessageNotification = registerNotificationType({
 
 export const WrappedNotification = registerNotificationType({
   name: "wrapped",
-  userSettingField: "notificationPrivateMessage",
-  allowedChannels: ["onsite", "email", "both"],
-  async getMessage() {
-    return "Check out your EA Forum 2023 Wrapped"
+  userSettingField: null,
+  async getMessage({extraData}: GetMessageProps) {
+    return `Check out your ${extraData?.year ?? 2023} EA Forum Wrapped`;
   },
   getIcon() {
     return <GiftIcon style={flatIconStyles}/>
@@ -670,8 +669,8 @@ export const WrappedNotification = registerNotificationType({
   getLink() {
     return "/wrapped"
   },
-  Display: ({notification: {link}}) => <>
-    Check out your 2022 <Link to={link}>EA Forum Wrapped</Link>
+  Display: ({notification: {link, extraData}}) => <>
+    Check out your {extraData?.year ?? 2023} <Link to={link}>EA Forum Wrapped</Link>
   </>,
 });
 

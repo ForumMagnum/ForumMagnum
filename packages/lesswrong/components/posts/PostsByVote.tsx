@@ -3,6 +3,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 
 const PostsByVote = ({postIds, year, limit, showMostValuableCheckbox=false, hideEmptyStateText=false, postItemClassName}: {
+  classes: ClassesType,
   postIds: Array<string>,
   year: number | '≤2020',
   limit?: number,
@@ -36,7 +37,13 @@ const PostsByVote = ({postIds, year, limit, showMostValuableCheckbox=false, hide
   return <ErrorBoundary>
     <div>
       {posts.map(post => {
-        return <PostsItem key={post._id} post={post} showMostValuableCheckbox={showMostValuableCheckbox} className={postItemClassName} />
+        return <PostsItem
+          key={post._id}
+          post={post}
+          showMostValuableCheckbox={showMostValuableCheckbox}
+          hideTag
+          className={postItemClassName}
+        />
       })}
       {showLoadMore && <LoadMore {...loadMoreProps} />}
     </div>

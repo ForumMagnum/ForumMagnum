@@ -3,18 +3,16 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-
-import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { preferredHeadingCase } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    width: 270,
     overflowY: "auto",
     padding: 0,
   },
 
   empty: {
-    ...(isFriendlyUI ? theme.typography.body2 : {}),
+    ...theme.typography.body2,
     padding: 10
   },
 
@@ -26,7 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 16,
     textAlign: "center",
     width: "100%",
-    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+    fontFamily: theme.palette.fonts.sansSerifStack,
   },
 });
 

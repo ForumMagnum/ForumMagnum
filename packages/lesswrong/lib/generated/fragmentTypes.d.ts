@@ -415,6 +415,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly linkedinProfileURL: string,
   readonly facebookProfileURL: string,
   readonly twitterProfileURL: string,
+  readonly twitterProfileURLAdmin: string | null,
   readonly githubProfileURL: string,
   readonly profileTagIds: Array<string>,
   readonly organizerOfGroupIds: Array<string>,
@@ -1130,6 +1131,7 @@ interface PostsTopItemInfo extends PostsMinimumInfo, PostsAuthors { // fragment 
   readonly tags: Array<TagPreviewFragment>,
   readonly reviewWinner: ReviewWinnerTopPostsPage|null,
   readonly spotlight: SpotlightReviewWinner|null,
+  readonly reviews: Array<CommentsList>,
 }
 
 interface PostsTopItemInfo_contents { // fragment on Revisions
@@ -1230,6 +1232,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly annualReviewMarketYear: number|null,
   readonly annualReviewMarketUrl: string|null,
   readonly group: PostsBase_group|null,
+  readonly rsvpCounts: any /*JSON*/,
   readonly podcastEpisodeId: string | null,
   readonly forceAllowType3Audio: boolean,
   readonly nominationCount2019: number,
@@ -1357,6 +1360,10 @@ interface PostsList_contents { // fragment on Revisions
   readonly plaintextDescription: string,
   readonly wordCount: number,
   readonly version: string,
+}
+
+interface SunshineCurationPostsList extends PostsList { // fragment on Posts
+  readonly curationNotices: Array<CurationNoticesFragment>,
 }
 
 interface PostsListTag extends PostsList { // fragment on Posts
@@ -1728,6 +1735,26 @@ interface PostsForAutocomplete { // fragment on Posts
 
 interface PostsForAutocomplete_contents { // fragment on Revisions
   readonly markdown: string|null,
+}
+
+interface PostForReviewWinnerItem { // fragment on Posts
+  readonly _id: string,
+  readonly spotlight: PostForReviewWinnerItem_spotlight|null,
+  readonly reviewWinner: PostForReviewWinnerItem_reviewWinner|null,
+}
+
+interface PostForReviewWinnerItem_spotlight { // fragment on Spotlights
+  readonly _id: string,
+}
+
+interface PostForReviewWinnerItem_reviewWinner { // fragment on ReviewWinners
+  readonly _id: string,
+  readonly category: "rationality" | "modeling" | "optimization" | "ai strategy" | "ai safety" | "practical",
+}
+
+interface PostsTwitterAdmin extends PostsListWithVotes { // fragment on Posts
+  readonly user: UsersSocialMediaInfo|null,
+  readonly coauthors: Array<UsersSocialMediaInfo>,
 }
 
 interface CommentsList { // fragment on Comments
@@ -2945,6 +2972,10 @@ interface SubscriptionState { // fragment on Subscriptions
   readonly type: "newComments" | "newUserComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newSequencePosts" | "newDebateComments" | "newDialogueMessages" | "newPublishedDialogueMessages" | "newActivityForFeed",
 }
 
+interface MembersOfGroupFragment { // fragment on Subscriptions
+  readonly user: UsersMinimumInfo,
+}
+
 interface PodcastsDefaultFragment { // fragment on Podcasts
   readonly title: string,
   readonly applePodcastLink: string | null,
@@ -2995,8 +3026,6 @@ interface UsersMinimumInfo { // fragment on Users
   readonly spamRiskScore: number,
   readonly tagRevisionCount: number,
   readonly reviewedByUserId: string,
-  readonly givingSeason2024DonatedFlair: boolean,
-  readonly givingSeason2024VotedFlair: boolean,
 }
 
 interface UsersProfile extends UsersMinimumInfo, SharedUserBooleans { // fragment on Users
@@ -3316,17 +3345,15 @@ interface SharedUserBooleans { // fragment on Users
   readonly usernameUnset: boolean,
 }
 
-interface UsersMapEntry extends UsersMinimumInfo { // fragment on Users
-  readonly createdAt: Date,
-  readonly isAdmin: boolean,
-  readonly groups: Array<string>,
-  readonly location: string,
-  readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly mapLocation: any /*{"definitions":[{"blackbox":true}]}*/,
+interface UsersMapEntry { // fragment on Users
+  readonly _id: string,
+  readonly displayName: string,
+  readonly username: string,
+  readonly fullName: string,
+  readonly slug: string,
+  readonly mapLocationLatLng: any,
   readonly mapLocationSet: boolean,
-  readonly mapMarkerText: string,
   readonly htmlMapMarkerText: string,
-  readonly mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface UsersEdit extends UsersCurrent { // fragment on Users
@@ -3517,6 +3544,7 @@ interface UsersEdit extends UsersCurrent { // fragment on Users
   readonly hideFrontpageBook2020Ad: boolean,
   readonly deleted: boolean,
   readonly permanentDeletionRequestedAt: Date | null,
+  readonly twitterProfileURLAdmin: string | null,
 }
 
 interface UsersAdmin { // fragment on Users
@@ -3579,6 +3607,10 @@ interface UserOnboardingAuthor { // fragment on Users
   readonly karma: number,
   readonly jobTitle: string,
   readonly organization: string,
+}
+
+interface UsersSocialMediaInfo extends UsersProfile { // fragment on Users
+  readonly twitterProfileURLAdmin: string | null,
 }
 
 interface PetrovDayLaunchsDefaultFragment { // fragment on PetrovDayLaunchs
@@ -3731,6 +3763,7 @@ interface SpotlightDisplay_document { // fragment on Posts
   readonly title: string,
   readonly slug: string,
   readonly user: SpotlightDisplay_document_user|null,
+  readonly reviews: Array<CommentsList>,
 }
 
 interface SpotlightDisplay_document_user { // fragment on Users
@@ -3924,12 +3957,18 @@ interface TypingIndicatorInfo { // fragment on TypingIndicators
 }
 
 interface ElicitQuestionsDefaultFragment { // fragment on ElicitQuestions
+  readonly title: string,
+  readonly notes: string | null,
+  readonly resolution: string | null,
+  readonly resolvesBy: Date | null,
+}
+
+interface ElicitQuestionFragment { // fragment on ElicitQuestions
   readonly _id: string,
   readonly title: string,
   readonly notes: string | null,
   readonly resolution: string | null,
-  readonly resolvesBy: Date,
-  readonly createdAt: Date,
+  readonly resolvesBy: Date | null,
 }
 
 interface ElicitQuestionPredictionsDefaultFragment { // fragment on ElicitQuestionPredictions
@@ -3947,6 +3986,7 @@ interface ElicitQuestionPredictionsDefaultFragment { // fragment on ElicitQuesti
   readonly sourceUrl: string | null,
   readonly sourceId: string | null,
   readonly binaryQuestionId: string,
+  readonly isDeleted: boolean,
 }
 
 interface DialogueChecksDefaultFragment { // fragment on DialogueChecks
@@ -4285,6 +4325,7 @@ interface FragmentTypes {
   PostsAuthors: PostsAuthors
   PostsListBase: PostsListBase
   PostsList: PostsList
+  SunshineCurationPostsList: SunshineCurationPostsList
   PostsListTag: PostsListTag
   PostsListTagWithVotes: PostsListTagWithVotes
   PostsDetails: PostsDetails
@@ -4314,6 +4355,8 @@ interface FragmentTypes {
   PostsOriginalContents: PostsOriginalContents
   PostsHTML: PostsHTML
   PostsForAutocomplete: PostsForAutocomplete
+  PostForReviewWinnerItem: PostForReviewWinnerItem
+  PostsTwitterAdmin: PostsTwitterAdmin
   CommentsList: CommentsList
   CommentsListWithTopLevelComment: CommentsListWithTopLevelComment
   ShortformComments: ShortformComments
@@ -4427,6 +4470,7 @@ interface FragmentTypes {
   ForumEventsEdit: ForumEventsEdit
   SubscriptionsDefaultFragment: SubscriptionsDefaultFragment
   SubscriptionState: SubscriptionState
+  MembersOfGroupFragment: MembersOfGroupFragment
   PodcastsDefaultFragment: PodcastsDefaultFragment
   PodcastSelect: PodcastSelect
   PodcastEpisodesDefaultFragment: PodcastEpisodesDefaultFragment
@@ -4450,6 +4494,7 @@ interface FragmentTypes {
   UsersCrosspostInfo: UsersCrosspostInfo
   UsersOptedInToDialogueFacilitation: UsersOptedInToDialogueFacilitation
   UserOnboardingAuthor: UserOnboardingAuthor
+  UsersSocialMediaInfo: UsersSocialMediaInfo
   PetrovDayLaunchsDefaultFragment: PetrovDayLaunchsDefaultFragment
   PetrovDayLaunchInfo: PetrovDayLaunchInfo
   PetrovDayActionsDefaultFragment: PetrovDayActionsDefaultFragment
@@ -4486,6 +4531,7 @@ interface FragmentTypes {
   GoogleServiceAccountSessionAdminInfo: GoogleServiceAccountSessionAdminInfo
   TypingIndicatorInfo: TypingIndicatorInfo
   ElicitQuestionsDefaultFragment: ElicitQuestionsDefaultFragment
+  ElicitQuestionFragment: ElicitQuestionFragment
   ElicitQuestionPredictionsDefaultFragment: ElicitQuestionPredictionsDefaultFragment
   DialogueChecksDefaultFragment: DialogueChecksDefaultFragment
   DialogueCheckInfo: DialogueCheckInfo
@@ -4523,7 +4569,7 @@ interface FragmentTypesByCollection {
   Collections: "CollectionsDefaultFragment"|"CollectionContinueReadingFragment"|"CollectionsPageFragment"|"CollectionsEditFragment"|"CollectionsBestOfFragment"
   ClientIds: "ClientIdsDefaultFragment"|"ModeratorClientIDInfo"
   Localgroups: "LocalgroupsDefaultFragment"|"localGroupsBase"|"localGroupsHomeFragment"|"localGroupsEdit"|"localGroupsIsOnline"
-  Users: "UsersDefaultFragment"|"SuggestAlignmentUser"|"UsersMinimumInfo"|"UsersProfile"|"UsersCurrent"|"UsersCurrentCommentRateLimit"|"UsersCurrentPostRateLimit"|"UserBookmarkedPosts"|"UserKarmaChanges"|"UsersBannedFromUsersModerationLog"|"SunshineUsersList"|"UserAltAccountsFragment"|"SharedUserBooleans"|"UsersMapEntry"|"UsersEdit"|"UsersAdmin"|"UsersWithReviewInfo"|"UsersProfileEdit"|"UsersCrosspostInfo"|"UsersOptedInToDialogueFacilitation"|"UserOnboardingAuthor"
+  Users: "UsersDefaultFragment"|"SuggestAlignmentUser"|"UsersMinimumInfo"|"UsersProfile"|"UsersCurrent"|"UsersCurrentCommentRateLimit"|"UsersCurrentPostRateLimit"|"UserBookmarkedPosts"|"UserKarmaChanges"|"UsersBannedFromUsersModerationLog"|"SunshineUsersList"|"UserAltAccountsFragment"|"SharedUserBooleans"|"UsersMapEntry"|"UsersEdit"|"UsersAdmin"|"UsersWithReviewInfo"|"UsersProfileEdit"|"UsersCrosspostInfo"|"UsersOptedInToDialogueFacilitation"|"UserOnboardingAuthor"|"UsersSocialMediaInfo"
   Comments: "CommentsDefaultFragment"|"CommentsList"|"CommentsListWithTopLevelComment"|"ShortformComments"|"CommentWithRepliesFragment"|"CommentEdit"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"CommentsListWithParentMetadata"|"StickySubforumCommentFragment"|"WithVoteComment"|"CommentsListWithModerationMetadata"|"CommentsListWithModGPTAnalysis"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"SuggestAlignmentComment"
   UserTagRels: "UserTagRelsDefaultFragment"|"UserTagRelDetails"
   Tags: "TagsDefaultFragment"|"TagBasicInfo"|"TagDetailsFragment"|"TagFragment"|"TagHistoryFragment"|"TagCreationHistoryFragment"|"TagRevisionFragment"|"TagPreviewFragment"|"TagSectionPreviewFragment"|"TagSubforumFragment"|"TagSubtagFragment"|"TagSubforumSidebarFragment"|"TagDetailedPreviewFragment"|"TagWithFlagsFragment"|"TagWithFlagsAndRevisionFragment"|"TagPageFragment"|"AllTagsPageFragment"|"TagPageWithRevisionFragment"|"TagFullContributorsList"|"TagEditFragment"|"TagRecentDiscussion"|"SunshineTagFragment"|"UserOnboardingTag"|"TagName"
@@ -4542,7 +4588,7 @@ interface FragmentTypesByCollection {
   Revisions: "RevisionsDefaultFragment"|"RevisionDisplay"|"RevisionHTML"|"RevisionEdit"|"RevisionMetadata"|"RevisionMetadataWithChangeMetrics"|"RevisionHistoryEntry"|"RevisionTagFragment"|"RecentDiscussionRevisionTagFragment"|"WithVoteRevision"
   PostEmbeddings: "PostEmbeddingsDefaultFragment"
   PostRecommendations: "PostRecommendationsDefaultFragment"
-  Posts: "PostsDefaultFragment"|"PostsMinimumInfo"|"PostsTopItemInfo"|"PostsBase"|"PostsWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsReviewVotingList"|"PostsModerationGuidelines"|"PostsAuthors"|"PostsListBase"|"PostsList"|"PostsListTag"|"PostsListTagWithVotes"|"PostsDetails"|"PostsExpandedHighlight"|"PostsPlaintextDescription"|"PostsRevision"|"PostsRevisionEdit"|"PostsWithNavigationAndRevision"|"PostsWithNavigation"|"PostSequenceNavigation"|"PostsPage"|"PostsEdit"|"PostsEditQueryFragment"|"PostsEditMutationFragment"|"PostsRevisionsList"|"PostsRecentDiscussion"|"ShortformRecentDiscussion"|"UsersBannedFromPostsModerationLog"|"SunshinePostsList"|"WithVotePost"|"HighlightWithHash"|"PostWithDialogueMessage"|"PostSideComments"|"PostWithGeneratedSummary"|"PostsBestOfList"|"PostsRSSFeed"|"PostsOriginalContents"|"PostsHTML"|"PostsForAutocomplete"|"SuggestAlignmentPost"
+  Posts: "PostsDefaultFragment"|"PostsMinimumInfo"|"PostsTopItemInfo"|"PostsBase"|"PostsWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsReviewVotingList"|"PostsModerationGuidelines"|"PostsAuthors"|"PostsListBase"|"PostsList"|"SunshineCurationPostsList"|"PostsListTag"|"PostsListTagWithVotes"|"PostsDetails"|"PostsExpandedHighlight"|"PostsPlaintextDescription"|"PostsRevision"|"PostsRevisionEdit"|"PostsWithNavigationAndRevision"|"PostsWithNavigation"|"PostSequenceNavigation"|"PostsPage"|"PostsEdit"|"PostsEditQueryFragment"|"PostsEditMutationFragment"|"PostsRevisionsList"|"PostsRecentDiscussion"|"ShortformRecentDiscussion"|"UsersBannedFromPostsModerationLog"|"SunshinePostsList"|"WithVotePost"|"HighlightWithHash"|"PostWithDialogueMessage"|"PostSideComments"|"PostWithGeneratedSummary"|"PostsBestOfList"|"PostsRSSFeed"|"PostsOriginalContents"|"PostsHTML"|"PostsForAutocomplete"|"PostForReviewWinnerItem"|"PostsTwitterAdmin"|"SuggestAlignmentPost"
   RecommendationsCaches: "RecommendationsCachesDefaultFragment"
   ReviewWinners: "ReviewWinnersDefaultFragment"|"ReviewWinnerEditDisplay"|"ReviewWinnerTopPostsDisplay"|"ReviewWinnerAll"|"ReviewWinnerTopPostsPage"
   ReviewWinnerArts: "ReviewWinnerArtsDefaultFragment"|"ReviewWinnerArtImages"
@@ -4570,7 +4616,7 @@ interface FragmentTypesByCollection {
   UserMostValuablePosts: "UserMostValuablePostsDefaultFragment"|"UserMostValuablePostInfo"
   DigestPosts: "DigestPostsDefaultFragment"|"DigestPostsMinimumInfo"
   Digests: "DigestsDefaultFragment"|"DigestsMinimumInfo"
-  Subscriptions: "SubscriptionsDefaultFragment"|"SubscriptionState"
+  Subscriptions: "SubscriptionsDefaultFragment"|"SubscriptionState"|"MembersOfGroupFragment"
   Podcasts: "PodcastsDefaultFragment"|"PodcastSelect"
   PodcastEpisodes: "PodcastEpisodesDefaultFragment"|"PodcastEpisodeFull"
   PetrovDayLaunchs: "PetrovDayLaunchsDefaultFragment"|"PetrovDayLaunchInfo"
@@ -4582,7 +4628,7 @@ interface FragmentTypesByCollection {
   ModerationTemplates: "ModerationTemplatesDefaultFragment"|"ModerationTemplateFragment"
   CurationNotices: "CurationNoticesDefaultFragment"|"CurationNoticesFragment"
   UserRateLimits: "UserRateLimitsDefaultFragment"|"UserRateLimitDisplay"
-  ElicitQuestions: "ElicitQuestionsDefaultFragment"
+  ElicitQuestions: "ElicitQuestionsDefaultFragment"|"ElicitQuestionFragment"
   ElicitQuestionPredictions: "ElicitQuestionPredictionsDefaultFragment"
   DialogueChecks: "DialogueChecksDefaultFragment"|"DialogueCheckInfo"
   DialogueMatchPreferences: "DialogueMatchPreferencesDefaultFragment"|"DialogueMatchPreferenceInfo"
@@ -4647,6 +4693,7 @@ interface CollectionNamesByFragmentName {
   PostsAuthors: "Posts"
   PostsListBase: "Posts"
   PostsList: "Posts"
+  SunshineCurationPostsList: "Posts"
   PostsListTag: "Posts"
   PostsListTagWithVotes: "Posts"
   PostsDetails: "Posts"
@@ -4676,6 +4723,8 @@ interface CollectionNamesByFragmentName {
   PostsOriginalContents: "Posts"
   PostsHTML: "Posts"
   PostsForAutocomplete: "Posts"
+  PostForReviewWinnerItem: "Posts"
+  PostsTwitterAdmin: "Posts"
   CommentsList: "Comments"
   CommentsListWithTopLevelComment: "Comments"
   ShortformComments: "Comments"
@@ -4789,6 +4838,7 @@ interface CollectionNamesByFragmentName {
   ForumEventsEdit: "ForumEvents"
   SubscriptionsDefaultFragment: "Subscriptions"
   SubscriptionState: "Subscriptions"
+  MembersOfGroupFragment: "Subscriptions"
   PodcastsDefaultFragment: "Podcasts"
   PodcastSelect: "Podcasts"
   PodcastEpisodesDefaultFragment: "PodcastEpisodes"
@@ -4812,6 +4862,7 @@ interface CollectionNamesByFragmentName {
   UsersCrosspostInfo: "Users"
   UsersOptedInToDialogueFacilitation: "Users"
   UserOnboardingAuthor: "Users"
+  UsersSocialMediaInfo: "Users"
   PetrovDayLaunchsDefaultFragment: "PetrovDayLaunchs"
   PetrovDayLaunchInfo: "PetrovDayLaunchs"
   PetrovDayActionsDefaultFragment: "PetrovDayActions"
@@ -4848,6 +4899,7 @@ interface CollectionNamesByFragmentName {
   GoogleServiceAccountSessionAdminInfo: "GoogleServiceAccountSessions"
   TypingIndicatorInfo: "TypingIndicators"
   ElicitQuestionsDefaultFragment: "ElicitQuestions"
+  ElicitQuestionFragment: "ElicitQuestions"
   ElicitQuestionPredictionsDefaultFragment: "ElicitQuestionPredictions"
   DialogueChecksDefaultFragment: "DialogueChecks"
   DialogueCheckInfo: "DialogueChecks"

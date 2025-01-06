@@ -10,10 +10,10 @@ import { SidebarsContext } from './SidebarsWrapper';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
-import { PublicInstanceSetting, isEAForum } from '../../lib/instanceSettings';
+import { PublicInstanceSetting, isEAForum, isLW } from '../../lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
-import { hasProminentLogoSetting } from '../../lib/publicSettings';
+import { hasProminentLogoSetting, lightconeFundraiserUnsyncedAmount, lightconeFundraiserThermometerBgUrl, lightconeFundraiserThermometerGoalAmount, lightconeFundraiserActive, lightconeFundraiserPostId } from '../../lib/publicSettings';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentForumEvent } from '../hooks/useCurrentForumEvent';
 import { makeCloudinaryImageUrl } from './CloudinaryImage2';
@@ -22,6 +22,7 @@ import {
   GIVING_SEASON_MOBILE_WIDTH,
   useGivingSeasonEvents,
 } from '../forumEvents/useGivingSeasonEvents';
+import { useFundraiserStripeTotal, useLivePercentage } from '@/lib/lightconeFundraiser';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
@@ -155,6 +156,11 @@ export const styles = (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'center'
   },
+  titleFundraiserContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
   title: {
     flex: 1,
     position: "relative",
@@ -177,6 +183,10 @@ export const styles = (theme: ThemeType) => ({
   menuButton: {
     marginLeft: -theme.spacing.unit,
     marginRight: theme.spacing.unit,
+  },
+  icon: {
+    width: 24,
+    height: 24,
   },
   siteLogo: {
     marginLeft:  -7,
@@ -293,6 +303,20 @@ export const styles = (theme: ThemeType) => ({
   gsRightHeaderItems: {
     flex: 1,
     justifyContent: "flex-end",
+  },
+  lightconeFundraiserHeaderItem: {
+    color: theme.palette.review.winner,
+    fontFamily: theme.typography.headerStyle.fontFamily,
+    fontSize: '1.4rem',
+    marginLeft: theme.spacing.unit,
+  },
+  lightconeFundraiserHeaderItemSmall: {
+    color: theme.palette.review.winner,
+    fontFamily: theme.typography.headerStyle.fontFamily,
+    fontSize: '1.4rem',
+    fontWeight: 600,
+    marginLeft: theme.spacing.unit,
+    marginBottom: 1.5,
   },
 });
 
@@ -411,7 +435,7 @@ const Header = ({
                 aria-label="Menu"
                 onClick={()=>setNavigationOpen(true)}
               >
-                <ForumIcon icon="Menu" />
+                <ForumIcon icon="Menu" className={classes.icon} />
               </IconButton>
             </div>
             <div className={classes.hideMdUp}>
@@ -424,7 +448,7 @@ const Header = ({
                 aria-label="Menu"
                 onClick={()=>setNavigationOpen(true)}
               >
-                <TocIcon />
+                <TocIcon className={classes.icon} />
               </IconButton>
             </div>
           </>
@@ -437,7 +461,7 @@ const Header = ({
             aria-label="Menu"
             onClick={()=>setNavigationOpen(true)}
           >
-            <ForumIcon icon="Menu" />
+            <ForumIcon icon="Menu" className={classes.icon} />
           </IconButton>
       }
       {standaloneNavigationPresent && unFixed && <IconButton
@@ -449,7 +473,9 @@ const Header = ({
         aria-label="Menu"
         onClick={toggleStandaloneNavigation}
       >
-        {(isFriendlyUI && !sidebarHidden) ? <ForumIcon icon="CloseMenu" /> : <ForumIcon icon="Menu" />}
+        {(isFriendlyUI && !sidebarHidden)
+          ? <ForumIcon icon="CloseMenu" className={classes.icon} />
+          : <ForumIcon icon="Menu" className={classes.icon} />}
       </IconButton>}
     </React.Fragment>
   )
@@ -586,18 +612,22 @@ const Header = ({
               <Typography className={classes.title} variant="title">
                 <div className={classes.hideSmDown}>
                   <div className={classes.titleSubtitleContainer}>
-                    <Link to="/" className={classes.titleLink}>
-                      {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaWhite={useWhiteText}/></div>}
-                      {forumHeaderTitleSetting.get()}
-                    </Link>
+                    <div className={classes.titleFundraiserContainer}>
+                      <Link to="/" className={classes.titleLink}>
+                        {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaWhite={useWhiteText}/></div>}
+                        {forumHeaderTitleSetting.get()}
+                      </Link>
+                      {isLW && lightconeFundraiserActive.get() && <div className={classes.lightconeFundraiserHeaderItem}><Link to={`/posts/${lightconeFundraiserPostId.get()}`}> is fundraising!</Link></div>}
+                    </div>
                     <HeaderSubtitle />
                   </div>
                 </div>
-                <div className={classes.hideMdUp}>
+                <div className={classNames(classes.hideMdUp, classes.titleFundraiserContainer)}>
                   <Link to="/" className={classes.titleLink}>
                     {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaWhite={useWhiteText}/></div>}
                     {forumShortTitleSetting.get()}
                   </Link>
+                  {isLW && lightconeFundraiserActive.get() && <div className={classes.lightconeFundraiserHeaderItemSmall}><Link to={`/posts/${lightconeFundraiserPostId.get()}`}>$</Link></div>}
                 </div>
               </Typography>
               {!isEAForum &&<ActiveDialogues />}

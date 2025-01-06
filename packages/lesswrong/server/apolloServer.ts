@@ -1,7 +1,7 @@
 import { ApolloServer } from 'apollo-server-express';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 
-import { isDevelopment, getInstanceSettings, getServerPort, isProduction, isE2E } from '../lib/executionEnvironment';
+import { isDevelopment, isE2E } from '../lib/executionEnvironment';
 import { renderWithCache, getThemeOptionsFromReq } from './vulcan-lib/apollo-ssr/renderPage';
 
 import { pickerMiddleware, addStaticRoute } from './vulcan-lib/staticRoutes';
@@ -22,7 +22,6 @@ import { app } from './expressServer';
 import path from 'path'
 import { getPublicSettings, getPublicSettingsLoaded } from '../lib/settingsCache';
 import { embedAsGlobalVar } from './vulcan-lib/apollo-ssr/renderUtil';
-import { addStripeMiddleware } from './stripeMiddleware';
 import { addAuthMiddlewares, expressSessionSecretSetting } from './authenticationMiddlewares';
 import { addForumSpecificMiddleware } from './forumSpecificMiddleware';
 import { addSentryMiddlewares, logGraphqlQueryStarted, logGraphqlQueryFinished } from './logging';
@@ -57,12 +56,14 @@ import { randomId } from '../lib/random';
 import { addCacheControlMiddleware, responseIsCacheable } from './cacheControlMiddleware';
 import { SSRMetadata } from '../lib/utils/timeUtil';
 import type { RouterLocation } from '../lib/vulcan-lib/routes';
-import { getCookieFromReq } from './utils/httpUtil';
+import { getCookieFromReq, trySetResponseStatus } from './utils/httpUtil';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '@/lib/cookies/cookies';
 import { addAutocompleteEndpoint } from './autocompleteEndpoint';
 import { getSqlClientOrThrow } from './sql/sqlClient';
 import { addLlmChatEndpoint } from './resolvers/anthropicResolvers';
+import { getInstanceSettings } from '@/lib/getInstanceSettings';
 import { addGivingSeasonEndpoints } from './givingSeason/webhook';
+import { getCommandLineArguments } from './commandLine';
 
 /**
  * End-to-end tests automate interactions with the page. If we try to, for
@@ -82,25 +83,6 @@ const ssrInteractionDisable = isE2E
     </style>
   `
   : "";
-
-/**
- * Try to set the response status, but log an error if the headers have already been sent.
- */
-const trySetResponseStatus = ({ response, status }: { response: express.Response, status: number; }) => {
-  if (!response.headersSent) {
-    response.status(status);
-  } else if (response.statusCode !== status) {
-    const message = `Tried to set status to ${status} but headers have already been sent with status ${response.statusCode}. This may be due to enableResourcePrefetch wrongly being set to true.`;
-    if (isProduction) {
-      // eslint-disable-next-line no-console
-      console.error(message);
-    } else {
-      throw new Error(message);
-    }
-  }
-
-  return response;
-}
 
 /**
  * If allowed, write the prefetchPrefix to the response so the client can start downloading resources
@@ -179,6 +161,15 @@ export function startWebserver() {
   const config = { path: '/graphql' };
   const expressSessionSecret = expressSessionSecretSetting.get()
 
+  if (enableVite) {
+    // When vite is running the backend is proxied which means we have to
+    // enable CORS for API routes to work
+    app.use((_req, res, next) => {
+      res.set("Access-Control-Allow-Origin", "*");
+      next();
+    });
+  }
+
   app.use(universalCookiesMiddleware());
 
   // Required for passport-auth0, and for login redirects
@@ -219,7 +210,6 @@ export function startWebserver() {
 
   addGivingSeasonEndpoints(app);
 
-  addStripeMiddleware(addMiddleware);
   // Most middleware need to run after those added by addAuthMiddlewares, so that they can access the user that passport puts on the request.  Be careful if moving it!
   addAuthMiddlewares(addMiddleware);
   addAdminRoutesMiddleware(addMiddleware);
@@ -358,13 +348,13 @@ export function startWebserver() {
   if (testServerSetting.get()) {
     app.post('/api/quit', (_req, res) => {
       res.status(202).send('Quiting server');
-      process.kill(estrellaPid, 'SIGQUIT');
+      process.kill(buildProcessPid, 'SIGQUIT');
     })
   }
 
   addServerSentEventsEndpoint(app);
   addAutocompleteEndpoint(app);
-
+  
   app.get('/node_modules/*', (req, res) => {
     // Under some circumstances (I'm not sure exactly what the trigger is), the
     // Chrome JS debugger tries to load a bunch of /node_modules/... paths
@@ -394,7 +384,9 @@ export function startWebserver() {
     const publicSettingsHeader = embedAsGlobalVar("publicSettings", getPublicSettings())
 
     const bundleHash = getClientBundle().resource.hash;
-    const clientScript = `<script async src="/js/bundle.js?hash=${bundleHash}"></script>`
+    const clientScript = enableVite
+      ? ""
+      : `<script async src="/js/bundle.js?hash=${bundleHash}"></script>`
     const instanceSettingsHeader = embedAsGlobalVar("publicInstanceSettings", getInstanceSettings().public);
 
     // Check whether the requested route has enableResourcePrefetch. If it does,
@@ -509,11 +501,11 @@ export function startWebserver() {
   })
 
   // Start Server
-  const port = getServerPort();
+  const listenPort = getCommandLineArguments().listenPort;
   const env = process.env.NODE_ENV || 'production'
-  const server = app.listen({ port }, () => {
+  const server = app.listen({ port: listenPort }, () => {
     // eslint-disable-next-line no-console
-    return console.info(`Server running on http://localhost:${port} [${env}]`)
+    return console.info(`Server running on http://localhost:${listenPort} [${env}]`)
   })
   server.keepAliveTimeout = 120000;
   

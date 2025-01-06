@@ -294,6 +294,7 @@ describe('Voting', function() {
       const resultPost = omitBy(karmaChanges.posts[0], isNil);
       resultPost.should.deep.equal({
         _id: post._id,
+        postId: post._id,
         collectionName: "Posts",
         addedReacts: [],
         scoreChange: 1,
@@ -331,6 +332,7 @@ describe('Voting', function() {
       const resultPost = omitBy(karmaChanges.posts[0], isNil);
       resultPost.should.deep.equal({
         _id: post._id,
+        postId: post._id,
         collectionName: "Posts",
         addedReacts: [],
         scoreChange: 1,
@@ -391,6 +393,7 @@ describe('Voting', function() {
       const resultComment = omitBy(karmaChanges.comments[0], isNil);
       resultComment.should.deep.equal({
         _id: comment._id,
+        commentId: comment._id,
         collectionName: "Comments",
         addedReacts: [],
         scoreChange: 1,

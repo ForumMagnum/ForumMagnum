@@ -5,7 +5,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     fontSize: 14,
     clear: 'both',
-    overflow: 'auto',
     marginTop: 24,
     marginBottom: 10,
     display: 'flex',

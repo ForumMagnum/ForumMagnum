@@ -53,7 +53,7 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.primary.main,
     }
     : {
-      fontSize: "1.2rem",
+      "--icon-size": "1.2rem",
     },
   primaryIcon: {
     color: theme.palette.icon.dim55,
@@ -147,15 +147,12 @@ const postIcon = (post: PostsBase|PostsListBase) => {
 }
 
 const useTaggedEvent = (showEventTag: boolean, post: PostsBase|PostsListBase) => {
-  const {currentForumEvent, isEventPost, marginalFundingWeek} = useCurrentForumEvent();
+  const {currentForumEvent, isEventPost} = useCurrentForumEvent();
   if (!showEventTag) {
     return undefined;
   }
   if (currentForumEvent?.tag && isEventPost(post)) {
     return currentForumEvent;
-  }
-  if (marginalFundingWeek?.tag && isEventPost(post, marginalFundingWeek?.tag)) {
-    return marginalFundingWeek;
   }
   return undefined;
 }

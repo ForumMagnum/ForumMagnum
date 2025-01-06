@@ -6,6 +6,7 @@ import { getViewablePostsSelector } from "./helpers";
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collection";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { isAF } from "../../lib/instanceSettings";
+import {FilterPostsForReview} from '@/components/bookmarks/ReadHistoryTab'
 
 type DbPostWithContents = DbPost & {contents?: DbRevision | null};
 
@@ -41,6 +42,30 @@ export type PostAndCommentsResultRow = {
   postedAt: Date|null
   last_commented: Date|null
 };
+
+const constructFilters = (
+  {
+    startDate,
+    endDate,
+    minKarma,
+    showEvents,
+  }: FilterPostsForReview,
+): [string, Record<string, any>] => {
+  const params = {
+    ...(startDate && {startDate: startDate.toISOString()}),
+    ...(endDate && {endDate: endDate.toISOString()}),
+    ...(minKarma && {minKarma}),
+  }
+
+  const filters = [
+    startDate ? `AND p."postedAt" >= $(startDate)` : '',
+    endDate ? `AND p."postedAt" <= $(endDate)` : '',
+    minKarma ? `AND p."baseScore" >= $(minKarma)` : '',
+    showEvents === false ? 'AND p."isEvent" IS NOT TRUE' : '',
+  ].filter(Boolean).join(' ')
+
+  return [filters, params]
+}
 
 class PostsRepo extends AbstractRepo<"Posts"> {
   constructor() {
@@ -118,18 +143,54 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     `, [], "getMeanKarmaOverall");
     return result?.meanKarma ?? 0;
   }
+  
+  async getReadHistoryForUser(
+    userId: string,
+    limit: number,
+    filter: FilterPostsForReview | null,
+    sort: {
+      karma?: boolean
+    } | null, 
+  ): Promise<Array<DbPost & { lastUpdated: Date }>> {
+    const orderBy = sort?.karma ? 'p."baseScore" DESC' : 'rs."lastUpdated" DESC';
+    const [filters, params] = constructFilters(filter ?? {});
 
-  async getReadHistoryForUser(userId: string, limit: number): Promise<Array<DbPost & {lastUpdated: Date}>> {
     return await this.getRawDb().manyOrNone(`
       -- PostsRepo.getReadHistoryForUser
       SELECT p.*, rs."lastUpdated"
       FROM "Posts" p
       JOIN "ReadStatuses" rs ON rs."postId" = p."_id"
-      WHERE rs."userId" = '${userId}'
-      ORDER BY rs."lastUpdated" desc
-      LIMIT $1
-    `, [limit], "getReadHistoryForUser");
+      WHERE rs."userId" = $(userId)
+      ${filters}
+      ORDER BY ${orderBy}
+      LIMIT $(limit)
+    `, {userId, limit, ...params}, 'getReadHistoryForUser')
   }
+
+  async getPostsUserCommentedOn(
+    userId: string,
+    limit = 20,
+    filter: FilterPostsForReview | null,
+    sort: {
+      karma?: boolean
+    } | null,
+  ): Promise<DbPost[]> {
+    const orderBy = sort?.karma ? 'ORDER BY p."baseScore" DESC' : '';
+    const [filters, params] = constructFilters(filter ?? {});
+
+    return this.getRawDb().manyOrNone(`
+      -- PostsRepo.getPostsUserCommentedOn
+      SELECT DISTINCT p.*
+      FROM "Posts" p
+      INNER JOIN "Comments" c ON c."postId" = p._id
+      WHERE
+          c."userId" = $(userId)
+          ${filters}
+      ${orderBy}
+      LIMIT $(limit)
+    `, { userId, limit, ...params }, 'getPostsUserCommentedOn');
+  }
+
 
   async getEligiblePostsForDigest(digestId: string, startDate: Date, endDate?: Date): Promise<Array<PostAndDigestPost>> {
     const end = endDate ?? new Date()
@@ -687,8 +748,8 @@ class PostsRepo extends AbstractRepo<"Posts"> {
   }
 
   /**
-   * Get stats on how much the given user reads each core topic, relative to the average user. This is currently used
-   * for Wrapped.
+   * Get stats on how much the given user reads each core topic (excluding "Opportunities"),
+   * relative to the average user. This is currently used for Wrapped.
    */
   async getReadCoreTagStats({
     userId,
@@ -706,7 +767,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       WITH core_tags AS (
           SELECT _id
           FROM "Tags"
-          WHERE core IS TRUE AND deleted is not true
+          WHERE core IS TRUE AND deleted is not true AND _id != 'z8qFsGt5iXyZiLbjN'
       ),
       read_posts AS (
           SELECT
