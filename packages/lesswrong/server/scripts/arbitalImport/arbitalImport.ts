@@ -30,6 +30,7 @@ import { recomputePingbacks } from '@/server/pingbacks';
 import { performVoteServer } from '@/server/voteServer';
 import { Votes } from '@/lib/collections/votes';
 import mapValues from 'lodash/mapValues';
+import flatMap from 'lodash/flatMap';
 
 type ArbitalImportOptions = {
   /**
@@ -375,10 +376,12 @@ type PagesToConvertToLenses = Array<{
 type RedLinksSet = Array<{
   slug: string
   title: string
+  referencedFromPage: string
 }>;
 
 export type ArbitalConversionContext = {
   database: WholeArbitalDatabase,
+  options: ArbitalImportOptions,
   matchedUsers: Record<string,DbUser|null>
   defaultUser: DbUser,
   slugsByPageId: Record<string,string>
@@ -571,7 +574,7 @@ async function buildConversionContext(database: WholeArbitalDatabase, pagesToCon
       };
     }), 10
   );
-  
+   
   //fs.writeFileSync(slugsCachePath, JSON.stringify(slugsByPageId, null, 2));
   
   // Determine URLs for links to lensIds
@@ -590,6 +593,7 @@ async function buildConversionContext(database: WholeArbitalDatabase, pagesToCon
 
   return {
     database,
+    options,
     matchedUsers, defaultUser,
     slugsByPageId,
     summariesByPageId,
@@ -1072,14 +1076,20 @@ async function createRedLinkPlaceholders(redLinks: RedLinksSet, conversionContex
   
   // Group red-links by slug
   const redLinksBySlug = groupBy(redLinks, redLink=>redLink.slug);
-  for (const slug of Object.keys(redLinksBySlug)) {
+  await executePromiseQueue(Object.keys(redLinksBySlug).map((slug) => async () => {
+    // Check whether a redlink placeholder page already exists for this slug
+    const existingPlaceholderPage = await Tags.findOne({slug, deleted: false});
+    if (existingPlaceholderPage) {
+      return;
+    }
+
     // Check whether the red-links all agree on the title and warn if not
     const possibleTitles = redLinksBySlug[slug].map(r=>r.title);
     const selectedTitle = possibleTitles[0]; // TODO
     const capitalizedTitle = selectedTitle.substring(0,1).toUpperCase() + selectedTitle.substring(1);
     
     // Create the page
-    console.log(`Creating redlink placeholder page ${slug}: ${selectedTitle}`);
+    console.log(`Creating redlink placeholder page ${slug}: ${selectedTitle} (referenced from ${redLinksBySlug[slug].map(r=>r.referencedFromPage)})`);
     await createMutator({
       collection: Tags,
       document: {
@@ -1097,16 +1107,15 @@ async function createRedLinkPlaceholders(redLinks: RedLinksSet, conversionContex
       currentUser: conversionContext.defaultUser,
       validate: false,
     });
-  }
+  }), conversionContext.options.parallelism ??1);
 }
 
 Globals.deleteRedLinkPlaceholders = async (conversionContext: ArbitalConversionContext) => {
-  const redLinPlaceholderPagesToDelete = await Tags.find({
-    "legacyData.arbitalPageId": {$exists: true},
+  const redLinkPlaceholderPagesToDelete = await Tags.find({
     isPlaceholderPage: true,
     deleted: false,
   }).fetch();
-  for (const wikiPage of redLinPlaceholderPagesToDelete) {
+  for (const wikiPage of redLinkPlaceholderPagesToDelete) {
     await Tags.rawUpdateOne({
       _id: wikiPage._id,
     }, {
@@ -1118,6 +1127,40 @@ Globals.deleteRedLinkPlaceholders = async (conversionContext: ArbitalConversionC
   }
 }
 
+Globals.deleteExcessRedLinkPlaceholders = async () => {
+  const redLinkPlaceholderPages = await Tags.find({
+    isPlaceholderPage: true,
+    deleted: false,
+  }).fetch();
+  const redLinkPlaceholderPagesByUnnumberedSlug = groupBy(redLinkPlaceholderPages, t=>removeNumberFromSlug(t.slug));
+  const redLinkPlaceholderPagesToDelete = flatMap(redLinkPlaceholderPagesByUnnumberedSlug , group =>
+    group.length > 1
+      ? sortBy(group, g=>g.createdAt).slice(1)
+      : []
+  );
+  console.log(`Will delete ${redLinkPlaceholderPagesToDelete.length}/${redLinkPlaceholderPages.length} placeholder pages`);
+
+  for (const wikiPage of redLinkPlaceholderPagesToDelete) {
+    await Tags.rawUpdateOne({
+      _id: wikiPage._id,
+    }, {
+      "$set": {
+        slug: `deleted-import-${randomId()}`,
+        deleted: true,
+      },
+    });
+  }
+}
+
+function removeNumberFromSlug(slug: string): string {
+  const dashedGroups = slug.split('-');
+  if (dashedGroups.length <= 1) return slug;
+  if (/[1-9][0-9]*/.test(dashedGroups[dashedGroups.length-1])) {
+    return dashedGroups.slice(0, dashedGroups.length-1).join("-");
+  } else {
+    return slug;
+  }
+}
 
 
 async function backDateObj<N extends CollectionNameString>(collection: CollectionBase<N>, _id: string, date: Date) {
