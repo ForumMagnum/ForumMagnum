@@ -35,7 +35,7 @@ import { postsNewNotifications } from '../notificationCallbacks';
 import { getLatestContentsRevision } from '../../lib/collections/revisions/helpers';
 import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
 import { createNewJargonTerms } from '../resolvers/jargonResolvers/jargonTermMutations';
-import { userWillPassivelyGenerateJargonTerms } from '@/lib/betas';
+import { userCanPassivelyGenerateJargonTerms } from '@/lib/betas';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -694,12 +694,16 @@ getCollectionHooks("Posts").editSync.add(async function removeFrontpageDate(
 
 async function createNewJargonTermsCallback(post: DbPost, callbackProperties: CreateCallbackProperties<"Posts">) {
   const { context: { currentUser, loaders, JargonTerms } } = callbackProperties;
+  const oldPost = 'oldDocument' in callbackProperties ? callbackProperties.oldDocument as DbPost : null;
 
   if (!currentUser) return post;
   if (currentUser._id !== post.userId) return post;
   if (!post.contents_latest) return post;
+  if (post.draft && !post.generateDraftJargon) return post;
+  if (!post.draft && !currentUser.generateJargonForPublishedPosts) return post;
+  if (oldPost?.contents_latest === post.contents_latest) return post;
 
-  if (!userWillPassivelyGenerateJargonTerms(currentUser)) return post;
+  if (!userCanPassivelyGenerateJargonTerms(currentUser)) return post;
   // TODO: refactor this so that createNewJargonTerms handles the case where we might be creating duplicate terms
   const [existingJargon, newContents] = await Promise.all([
     JargonTerms.find({postId: post._id}).fetch(),

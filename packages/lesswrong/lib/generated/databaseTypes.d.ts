@@ -411,6 +411,7 @@ interface DbElicitQuestionPrediction extends DbObject {
   sourceUrl: string | null
   sourceId: string | null
   binaryQuestionId: string
+  isDeleted: boolean
 }
 
 type ElicitQuestionsCollection = CollectionBase<"ElicitQuestions">;
@@ -420,8 +421,9 @@ interface DbElicitQuestion extends DbObject {
   title: string
   notes: string | null
   resolution: string | null
-  resolvesBy: Date
+  resolvesBy: Date | null
   createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
 type EmailTokensCollection = CollectionBase<"EmailTokens">;
@@ -464,6 +466,7 @@ interface DbForumEvent extends DbObject {
   postId: string | null
   bannerImageId: string | null
   includesPoll: boolean
+  customComponent: string | null
   publicData: any /*{"definitions":[{"blackbox":true}]}*/
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -1018,6 +1021,7 @@ interface DbPost extends DbObject {
   reviewForAlignmentUserId: string | null
   agentFoundationsId: string | null
   swrCachingEnabled: boolean
+  generateDraftJargon: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   contents_latest: string | null
@@ -1580,6 +1584,8 @@ interface DbUser extends DbObject {
   petrovOptOut: boolean
   optedOutOfSurveys: boolean | null
   postGlossariesPinned: boolean
+  generateJargonForDrafts: boolean
+  generateJargonForPublishedPosts: boolean
   acceptedTos: boolean
   hideNavigationSidebar: boolean | null
   currentFrontpageFilter: string | null
@@ -1892,6 +1898,7 @@ interface DbUser extends DbObject {
   linkedinProfileURL: string | null
   facebookProfileURL: string | null
   twitterProfileURL: string | null
+  twitterProfileURLAdmin: string | null
   githubProfileURL: string | null
   profileTagIds: Array<string>
   organizerOfGroupIds: Array<string>
@@ -1916,6 +1923,8 @@ interface DbUser extends DbObject {
   hideSunshineSidebar: boolean
   inactiveSurveyEmailSentAt: Date | null
   userSurveyEmailSentAt: Date | null
+  givingSeason2024DonatedFlair: boolean
+  givingSeason2024VotedFlair: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   moderationGuidelines: EditableFieldContents | null

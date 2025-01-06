@@ -114,7 +114,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
   },
   linkIcon: {
-    fontSize: "1.2rem",
+    "--icon-size": "15.6px",
     verticalAlign: "top",
     color: theme.palette.icon.dim,
     margin: "0 4px",

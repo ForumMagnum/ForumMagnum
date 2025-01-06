@@ -2,8 +2,8 @@ import { blackBarTitle } from "../../lib/publicSettings";
 
 const sansSerifStack = [
   'GreekFallback', // Ensures that greek letters render consistently
-  'gill-sans-nova',
   'Calibri',
+  'gill-sans-nova',
   '"Gill Sans"',
   '"Gill Sans MT"',
   "Myriad Pro",
@@ -59,6 +59,9 @@ export const lessWrongTheme: SiteThemeSpecification = {
       color: "#327E09",
       visited: "#798754"
     },
+    fundraisingThermometer: {
+      shadow: '#222',
+    }
   }),
   make: (palette: ThemePalette) => ({
     zIndexes: {

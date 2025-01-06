@@ -6,6 +6,7 @@ import { useMutation, useQuery } from "@apollo/client";
 import classNames from "classnames";
 import gql from "graphql-tag";
 import {lightbulbIcon} from '../../icons/lightbulbIcon'
+import {useCurrentUser} from '../../common/withUser'
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -72,7 +73,7 @@ const newUserCompleteProfileMutation = gql`
 const links = {
   username: "https://jimpix.co.uk/words/random-username-generator.asp",
   termsOfUse: "/termsOfUse",
-  license: "https://creativecommons.org/licenses/by/2.0/",
+  license: "https://creativecommons.org/licenses/by/4.0/",
 } as const;
 
 const displayNameTakenQuery = gql`
@@ -91,6 +92,7 @@ export const EAOnboardingUserStage = ({classes, icon = lightbulbIcon}: {
   const [acceptedTos, setAcceptedTos] = useState(true);
   const [updateUser] = useMutation(newUserCompleteProfileMutation);
   const inputRef = useRef<HTMLInputElement>(null);
+  const currentUser = useCurrentUser()
 
   const onToggleAcceptedTos = useCallback((ev: React.MouseEvent) => {
     if ((ev.target as HTMLElement).tagName !== "A") {
@@ -135,8 +137,8 @@ export const EAOnboardingUserStage = ({classes, icon = lightbulbIcon}: {
   });
 
   useEffect(() => {
-    setNameTaken(!loading && !!data?.IsDisplayNameTaken);
-  }, [data, loading]);
+    setNameTaken(!loading && !!data?.IsDisplayNameTaken && name !== currentUser?.displayName);
+  }, [data, loading, currentUser, name]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -166,7 +168,7 @@ export const EAOnboardingUserStage = ({classes, icon = lightbulbIcon}: {
               terms of use
             </Link>, including my content being available under a{" "}
             <Link to={links.license} target="_blank" rel="noopener noreferrer">
-              CC -BY
+              Creative Commons Attribution 4.0
             </Link> license.
           </div>
         </div>

@@ -11,11 +11,15 @@ import { LWReviewWinnerSortOrder, getCurrentTopPostDisplaySettings } from './Top
 import { gql, useQuery } from '@apollo/client';
 import classNames from 'classnames';
 import range from 'lodash/range';
-import { CoordinateInfo, ReviewSectionInfo, ReviewWinnerSectionName, ReviewWinnerYear, ReviewYearGroupInfo, reviewWinnerSectionsInfo, reviewWinnerYearGroupsInfo } from '../../lib/publicSettings';
+import { CoordinateInfo, ReviewSectionInfo, ReviewWinnerSectionName, ReviewWinnerYear, ReviewYearGroupInfo, reviewWinnerSectionNamesSet, reviewWinnerSectionsInfo, reviewWinnerYearGroupsInfo, reviewWinnerYearSet } from '../../lib/publicSettings';
 import { useCurrentUser } from '../common/withUser';
+import qs from "qs";
+import { SECTION_WIDTH } from '../common/SingleColumnSection';
+import { filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
+import { getSpotlightUrl } from '@/lib/collections/spotlights/helpers';
 
 /** In theory, we can get back posts which don't have review winner info, but given we're explicitly querying for review winners... */
-type GetAllReviewWinnersQueryResult = (PostsTopItemInfo & { reviewWinner: Exclude<PostsTopItemInfo['reviewWinner'], null> })[]
+export type GetAllReviewWinnersQueryResult = (PostsTopItemInfo & { reviewWinner: Exclude<PostsTopItemInfo['reviewWinner'], null> })[]
 
 type ExpansionState = 'expanded' | 'collapsed' | 'default';
 type HiddenState = 'full' | 'hidden';
@@ -97,6 +101,8 @@ function gridPositionToClassesEntry(theme: ThemeType, gridPosition: number) {
   }] as const;
 };
 
+const IMAGE_GRID_HEADER_WIDTH = 40;
+
 const styles = (theme: ThemeType) => ({
   widerColumn: {
     marginLeft: "auto",
@@ -131,6 +137,8 @@ const styles = (theme: ThemeType) => ({
     position: "relative",
     display: "flex",
     transition: 'height 0.5s ease-in-out',
+    marginRight: "auto",
+    marginLeft: "auto",
     '&:hover $imageGridHeader': {
       background: theme.palette.leastwrong.imageGridHeader
     },
@@ -195,7 +203,7 @@ const styles = (theme: ThemeType) => ({
       background: theme.palette.leastwrong.imageGridHeaderHighlighted
     },
     [theme.breakpoints.up(800)]: {
-      width: 40,
+      width: IMAGE_GRID_HEADER_WIDTH,
       height: 'inherit',
     },
     [theme.breakpoints.down(800)]: {
@@ -210,6 +218,7 @@ const styles = (theme: ThemeType) => ({
     margin: 0,
     fontSize: 32,
     transition: 'opacity 0.5s ease-in 0.5s',
+    ...theme.typography.headerStyle
   },
   toggleIcon: {
     fontSize: 24,
@@ -429,6 +438,115 @@ const styles = (theme: ThemeType) => ({
     overflow: "hidden",
   },
   expandIcon: {},
+  '@global': {
+    '@property --top-posts-page-scrim-opacity': {
+      syntax: '"<percentage>"',
+      inherits: false,
+      initialValue: '36%',
+    }
+  },
+  postsByYearSectionCentered: {
+    marginTop: 60,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    '& h1': {
+      ...theme.typography.display3,
+      marginTop: 0,
+      ...theme.typography.headerStyle
+    }
+  },
+  categoryTitle: {
+    textTransform: 'capitalize',
+  },
+  year: {
+    ...theme.typography.display1,
+    ...theme.typography.headerStyle,
+    margin: 12,
+    color: theme.palette.grey[600],
+    [theme.breakpoints.down('sm')]: {
+      fontSize: '1.4rem',
+      marginLeft: 6,
+      marginRight: 6,
+    }
+  },
+  category: {
+    ...theme.typography.display1,
+    fontSize: '1.6rem',
+    margin: 12,
+    ...theme.typography.headerStyle,
+    fontVariantCaps: 'all-small-caps',
+    color: theme.palette.grey[600],
+    marginBottom: 24,
+    [theme.breakpoints.down('sm')]: {
+      fontSize: '1.4rem',
+      marginLeft: 6,
+      marginRight: 6,
+    }
+  },
+  postsByYearCategory: {
+    display: 'flex',
+    marginBottom: 12
+  },
+  yearCategorySectionTitle: {
+    ...theme.typography.display2,
+    ...theme.typography.headerStyle,
+    marginBottom: 12,
+
+  },
+  yearSelector: {
+    textWrap: 'balance',
+    marginBottom: '12px',
+    textAlign: "center",
+  },
+  categorySelector: {
+    textWrap: 'balance',
+    marginBottom: '12px',
+    textAlign: "center",
+  },
+  disabledCategory: {
+    opacity: .5,
+    cursor: 'default'
+  },
+  spotlightItem: {
+    marginBottom: 20,
+    display: 'flex',
+    alignItems: 'center',
+  },
+  spotlightRanking: {
+    marginRight: 16,
+    ...theme.typography.body2,
+    ...theme.typography.headerStyle,
+    color: theme.palette.grey[500],
+  },
+  spotlightIsNotRead: {
+    filter: 'saturate(0) opacity(0.8)',
+    '&:hover': {
+      filter: 'saturate(1) opacity(1)',
+    }
+  },
+  spotlightCheckmarkRow: {
+    marginTop: 8,
+    marginBottom: 52,
+    textWrap: 'balance',
+    textAlign: 'center',
+    maxWidth: SECTION_WIDTH
+  },
+  spotlightCheckmark: {
+    display: 'inline-block',
+    width: 14,
+    height: 14,
+    borderRadius: 3,
+    border: `solid 1px ${theme.palette.grey[400]}`,
+    backgroundColor: theme.palette.grey[100],
+    margin: 2
+  },
+  spotlightCheckmarkIsRead: {
+    backgroundColor: theme.palette.lwTertiary.main,
+    borderColor: theme.palette.grey[700],
+    backgroundOpacity: .2,
+    opacity: .7
+  }
 });
 
 function sortReviewWinners(reviewWinners: GetAllReviewWinnersQueryResult, sortOrder: LWReviewWinnerSortOrder) {
@@ -522,7 +640,7 @@ function getNewExpansionState(expansionState: Record<string, ExpansionState>, to
 }
 
 const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
-  const { SectionTitle, HeadTags, TopPostsDisplaySettings, ContentStyles } = Components;
+  const { SectionTitle, HeadTags, TopPostsDisplaySettings, ContentStyles, Loading } = Components;
 
   const location = useLocation();
   const { query } = location;
@@ -569,7 +687,7 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
 
   const { currentSortOrder } = getCurrentTopPostDisplaySettings(query);
 
-  const { data } = useQuery(gql`
+  const { data, loading } = useQuery(gql`
     query GetAllReviewWinners {
       GetAllReviewWinners {
         ...PostsTopItemInfo
@@ -646,10 +764,145 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
               {currentSortOrder === 'curated' ? sectionGrid : yearGrid}
             </div>
           </div>
+          {loading && <Loading/>}
+          <TopSpotlightsSection classes={classes} 
+            yearGroupsInfo={yearGroupsInfo} 
+            sectionsInfo={sectionsInfo} 
+            reviewWinnersWithPosts={reviewWinnersWithPosts} 
+          />
         </div>
       </AnalyticsContext>
     </>
   );
+}
+
+function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinnersWithPosts }: {
+  classes: ClassesType<typeof styles>,
+  yearGroupsInfo: Record<ReviewWinnerYear, ReviewYearGroupInfo>,
+  sectionsInfo: Record<ReviewWinnerSectionName, ReviewSectionInfo>,
+  reviewWinnersWithPosts: PostsTopItemInfo[]
+}) {
+  const { SpotlightItem, LWTooltip } = Components;
+
+  const location = useLocation();
+  const { query } = location;
+
+  const years = Object.keys(yearGroupsInfo || {}).sort((a, b) => parseInt(b) - parseInt(a)).map((year) => parseInt(year)) as ReviewWinnerYear[]
+  const categories = Object.keys(sectionsInfo || {}).sort((a, b) => b.localeCompare(a)) as ReviewWinnerSectionName[]
+
+  const [year, setYear] = useState<ReviewWinnerYear|"all">(query.year && reviewWinnerYearSet.has(parseInt(query.year)) ? parseInt(query.year) as ReviewWinnerYear : (query.year === 'all' ? 'all' : 2022))
+  const [category, setCategory] = useState<ReviewWinnerSectionName|'all'>(query.category && reviewWinnerSectionNamesSet.has(query.category) ? query.category as ReviewWinnerSectionName : 'all')
+
+  useEffect(() => {
+    if (query.year) {
+      const element = document.getElementById('year-category-section');
+      if (element) {          
+        window.scrollTo({
+          top: element.getBoundingClientRect().top + window.pageYOffset - 400
+        });
+      }
+    }
+  }, [query.year]);
+
+  let filteredReviewWinnersForSpotlights: PostsTopItemInfo[] = []
+
+  filteredReviewWinnersForSpotlights = reviewWinnersWithPosts.filter(post => post.reviewWinner?.reviewYear === year && post.reviewWinner?.category === category)
+
+
+  if (year === 'all' && category === 'all') {
+    filteredReviewWinnersForSpotlights = reviewWinnersWithPosts
+  } else if (year === 'all') {
+    filteredReviewWinnersForSpotlights = reviewWinnersWithPosts.filter(post => post.reviewWinner?.category === category)
+  } else if (category === 'all') {
+    filteredReviewWinnersForSpotlights = reviewWinnersWithPosts.filter(post => post.reviewWinner?.reviewYear === year)
+  } else {
+    filteredReviewWinnersForSpotlights = reviewWinnersWithPosts.filter(post => post.reviewWinner?.reviewYear === year && post.reviewWinner?.category === category)
+  }
+
+  const filteredSpotlights = filterWhereFieldsNotNull(filteredReviewWinnersForSpotlights, 'spotlight').map(post => ({
+    ...post.spotlight,
+    document: post,
+    ranking: post.reviewWinner?.reviewRanking
+  })).sort((a, b) => {
+    const reviewWinnerA = reviewWinnersWithPosts.find(post => post._id === a.document?._id)
+    const reviewWinnerB = reviewWinnersWithPosts.find(post => post._id === b.document?._id)
+    if (reviewWinnerA?.reviewWinner?.reviewRanking !== reviewWinnerB?.reviewWinner?.reviewRanking) {
+      return (reviewWinnerA?.reviewWinner?.reviewRanking ?? 0) - (reviewWinnerB?.reviewWinner?.reviewRanking ?? 0)
+    } else if (reviewWinnerA?.reviewWinner?.reviewYear !== reviewWinnerB?.reviewWinner?.reviewYear) {  
+      return (reviewWinnerA?.reviewWinner?.reviewYear ?? 0) - (reviewWinnerB?.reviewWinner?.reviewYear ?? 0)
+    } else if (reviewWinnerA?.reviewWinner?.category !== reviewWinnerB?.reviewWinner?.category) {
+      return (reviewWinnerA?.reviewWinner?.category ?? '').localeCompare(reviewWinnerB?.reviewWinner?.category ?? '')
+    } else {
+      return 0
+    }
+  })
+
+  const handleSetYear = (y: ReviewWinnerYear|'all') => {
+    const newSearch = qs.stringify({year: y, category});
+    history.replaceState(null, '', `${location.pathname}?${newSearch}`);
+    setYear(y);
+  }
+  
+  const handleSetCategory = (t: ReviewWinnerSectionName|'all') => {
+    const newSearch = qs.stringify({year, category: t});
+    history.replaceState(null, '', `${location.pathname}?${newSearch}`);
+    setCategory(t);
+  }
+
+  return <div className={classes.postsByYearSectionCentered} id="year-category-section">
+      <div className={classes.yearSelector}>
+        {years.map((y) => {
+          const postsCount = reviewWinnersWithPosts.filter(post => {
+            return post.reviewWinner?.reviewYear === y
+          }).length
+          return <LWTooltip key={y} title={`${postsCount} posts`} placement="top"><a onClick={() => handleSetYear(y)} className={classes.year} key={y} style={{color: y === year ? '#000' : '#888'}}>{y}</a></LWTooltip>
+        })}
+        <LWTooltip key="all" title={`${reviewWinnersWithPosts.length} posts`} inlineBlock={false}>
+          <a onClick={() => handleSetYear('all')} className={classes.year} style={{color: year === 'all' ? '#000' : '#888', fontVariant: 'all-small-caps'}}>
+            All
+          </a>
+        </LWTooltip>
+      </div>
+      <div className={classes.categorySelector}>
+        {categories.map((t) => {
+          const postsCount = year === 'all' ? reviewWinnersWithPosts.filter(post => post.reviewWinner?.category === t).length : reviewWinnersWithPosts.filter(post => post.reviewWinner?.reviewYear === year && post.reviewWinner?.category === t).length
+          return <LWTooltip key={t} title={`${postsCount} posts`} inlineBlock={false}>
+            <a onClick={() => handleSetCategory(t)} className={classNames(classes.category, !postsCount && classes.disabledCategory)} style={{color: t === category ? '#000' : '#888'}}>{sectionsInfo[t].title}</a>
+          </LWTooltip>
+        })}
+        <LWTooltip key="all" title={`${reviewWinnersWithPosts.filter(post => {
+          if (year === 'all') return true
+          return post.reviewWinner?.reviewYear === year
+        }).length} posts`} inlineBlock={false}>
+          <a onClick={() => handleSetCategory('all')} className={classes.category} style={{color: category === 'all' ? '#000' : '#888'}}>
+            All
+          </a>
+        </LWTooltip>
+      </div>
+      <div className={classes.spotlightCheckmarkRow}>
+        {filteredSpotlights.map((spotlight) => {
+          const post = reviewWinnersWithPosts.find(post => post._id === spotlight.document?._id)
+          const postYear = ((category !== 'all' && year !== 'all') || year === 'all') ? post?.reviewWinner?.reviewYear : ''
+          const postCategory = ((year !== 'all' && category !== 'all') || category === 'all') ? post?.reviewWinner?.category : ''
+          const postAuthor = post?.user?.displayName
+          const tooltip = <><div>{spotlight.document?.title}</div>
+          <div><em>by {postAuthor}</em></div>
+          {(postYear || postCategory) && <div><em>{postYear} <span style={{textTransform: 'capitalize'}}>{postCategory}</span></em></div>}</>
+
+          return <LWTooltip key={spotlight._id} title={tooltip}>
+            <Link key={spotlight._id} to={getSpotlightUrl(spotlight)} className={classNames(classes.spotlightCheckmark, spotlight.document?.isRead && classes.spotlightCheckmarkIsRead)}></Link>
+          </LWTooltip>
+        })}
+      </div>
+      <div style={{ maxWidth: SECTION_WIDTH, paddingBottom: 1000 }}>
+        {filteredSpotlights.map((spotlight) => <div key={spotlight._id} className={classNames(classes.spotlightItem, !spotlight.document?.isRead && classes.spotlightIsNotRead )}>
+          <LWTooltip title={`Ranked #${spotlight.ranking} in ${spotlight.document?.reviewWinner?.reviewYear}`}>
+            <div className={classes.spotlightRanking}>#{(spotlight.ranking ?? 0) + 1}</div>
+          </LWTooltip>
+          <SpotlightItem spotlight={spotlight} showSubtitle={false} />
+        </div>)}
+      </div>
+    </div>
 }
 
 function getPostsInGrid(args: GetPostsInGridArgs) {

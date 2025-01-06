@@ -15,7 +15,11 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]: {
       top: 8,
       right: 8
-    }
+    },
+    
+    // Ensure this is above the side-items column, which extends to the top of
+    // the page.
+    zIndex: 100,
   },
   vote: {
     display: 'flex',

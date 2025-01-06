@@ -71,7 +71,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.primary.main
   },
   marginRight: {
-    marginRight: 10,
     marginLeft: 10
   }
 })

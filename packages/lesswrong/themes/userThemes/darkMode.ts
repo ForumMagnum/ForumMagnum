@@ -160,9 +160,18 @@ const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
     LessWrong: {
       header: {
         background: 'rgba(50,50,50,.75)',
+      },
+      background: {
+        translucentBackgroundHeavy: "rgba(0,0,0,.75)",
+        translucentBackground: "rgba(0,0,0,.5)",
       }
     },
-    default: {},
+    default: {
+      background: {
+        translucentBackgroundHeavy: "rgba(0,0,0,.75)",
+        translucentBackground: "rgba(0,0,0,.5)",
+      }
+    },
   });
 
 const forumOverrides = (palette: ThemePalette): PartialDeep<ThemeType['overrides']> =>
@@ -212,11 +221,11 @@ export const darkModeTheme: UserThemeSpecification = {
         title: greyAlpha(0.75),
         author: greyAlpha(0.65)
       },
-      jargonTerm: shadePalette.grey['A200'],
+      jargonTerm: "#a8742a",
     },
     link: {
       primaryDim: '#3a7883',
-      visited: "#bb7c43",
+      visited: "#798754",
     },
     panelBackground: {
       translucent: "rgba(0,0,0,.87)",
@@ -284,19 +293,6 @@ export const darkModeTheme: UserThemeSpecification = {
       sideCommentEditorBackground: shadePalette.grey[100],
       commentMarker: "#80792e",
       commentMarkerActive: "#cbc14f",
-    },
-    wrapped: {
-      background: '#072C47',
-      highlightText: '#FFC443',
-      secondaryText: '#008DAC',
-      tertiaryText: "rgba(255, 255, 255, 0.50)",
-      black: '#212121',
-      darkGrey: '#424242',
-      grey: '#757575',
-      darkDot: "rgba(255, 255, 255, 0.40)",
-      panelBackground: "rgba(255, 255, 255, 0.10)",
-      panelBackgroundDark: "rgba(255, 255, 255, 0.05)",
-      postScoreArrow: '#BCBCBC',
     },
     tab: {
       inactive: {

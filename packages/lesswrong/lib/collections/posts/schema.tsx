@@ -42,6 +42,8 @@ import { stableSortTags } from '../tags/helpers';
 import { getLatestContentsRevision } from '../revisions/helpers';
 import { marketInfoLoader } from './annualReviewMarkets';
 import { getUnusedSlugByCollectionName } from '@/lib/helpers';
+import mapValues from 'lodash/mapValues';
+import groupBy from 'lodash/groupBy';
 
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
@@ -847,7 +849,7 @@ const schema: SchemaType<"Posts"> = {
     graphQLtype: '[JargonTerm!]!',
     optional: true,
     canRead: ['guests'],
-    control: "GlossaryEditForm",
+    control: "GlossaryEditFormWrapper",
     group: formGroups.glossary,
     hidden: ({currentUser}) => !userCanCreateAndEditJargonTerms(currentUser),
 
@@ -859,8 +861,7 @@ const schema: SchemaType<"Posts"> = {
         return [];
       }
 
-      const approvedClause = userCanViewUnapprovedJargonTerms(context.currentUser) ? {} : { approved: true };
-      const jargonTerms = await context.JargonTerms.find({ postId: post._id, deleted: false, ...approvedClause }, { sort: { term: 1 }}).fetch();
+      const jargonTerms = await context.JargonTerms.find({ postId: post._id }, { sort: { term: 1 }}).fetch();
 
       return await accessFilterMultiple(context.currentUser, context.JargonTerms, jargonTerms, context);
     },
@@ -868,11 +869,6 @@ const schema: SchemaType<"Posts"> = {
       SELECT ARRAY_AGG(ROW_TO_JSON(jt.*) ORDER BY jt."term" ASC)
       FROM "JargonTerms" jt
       WHERE jt."postId" = ${field('_id')}
-      AND CASE WHEN ${currentUserField('isAdmin')} IS NOT TRUE 
-        THEN jt."approved" IS TRUE 
-        ELSE TRUE 
-      END
-      AND jt."deleted" IS NOT TRUE
       LIMIT 1
     )`
   }),
@@ -1127,6 +1123,15 @@ const schema: SchemaType<"Posts"> = {
     hidden: true,
   },
   
+  rsvpCounts: resolverOnlyField({
+    type: "Object",
+    graphQLtype: "JSON!",
+    canRead: ['guests'],
+    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+      return mapValues(groupBy(post.rsvps, rsvp=>rsvp.response), v=>v.length);
+    }
+  }),
+  
   'rsvps.$': {
     type: rsvpType,
     canRead: ['guests'],
@@ -1241,6 +1246,35 @@ const schema: SchemaType<"Posts"> = {
         postId: field("_id"),
       },
       resolver: (reviewWinnersField) => reviewWinnersField("*"),
+    })
+  }),
+
+  spotlight: resolverOnlyField({
+    type: "Spotlight",
+    graphQLtype: "Spotlight",
+    canRead: ['guests'],
+    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+      const { currentUser, Spotlights } = context;
+      const spotlight = await getWithLoader(context, Spotlights,
+        "postSpotlight",
+        {
+          documentId: post._id,
+          draft: false,
+          deletedDraft: false
+        },
+        "documentId", post._id
+      );
+      return accessFilterSingle(currentUser, Spotlights, spotlight[0], context);
+    },
+    sqlResolver: ({field, join}) => join({
+      table: "Spotlights",
+      type: "left",
+      on: {
+        documentId: field("_id"),
+        draft: "false",
+        deletedDraft: "false"
+      },
+      resolver: (spotlightsField) => spotlightsField("*"),
     })
   }),
 
@@ -2166,7 +2200,7 @@ const schema: SchemaType<"Posts"> = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members'],
-    hidden: (props) => !props.eventForm,
+    hidden: (props) => !props.eventForm || isLWorAF,
     control: 'select',
     group: formGroups.event,
     optional: true,
@@ -3079,7 +3113,48 @@ const schema: SchemaType<"Posts"> = {
     label: "stale-while-revalidate caching enabled",
     group: formGroups.adminOptions,
     ...schemaDefaultValue(false),
-  }
+  },
+  generateDraftJargon: {
+    type: Boolean,
+    optional: true,
+    hidden: true,
+    canRead: ['members'],
+    canUpdate: [userOwns, "admins"],
+    ...schemaDefaultValue(false)
+  },
+
+  curationNotices: resolverOnlyField({
+    type: Array,
+    graphQLtype: '[CurationNotice]',
+    canRead: ['guests'],
+    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+      const { currentUser, CurationNotices } = context;
+      const curationNotices = await CurationNotices.find({
+        postId: post._id,
+        deleted: { $ne: true },
+      }).fetch();
+      return await accessFilterMultiple(currentUser, CurationNotices, curationNotices, context);
+    }
+  }),
+  'curationNotices.$': {
+    type: Object,
+    foreignKey: 'CurationNotices',
+  },
+  // reviews that appear on SpotlightItem
+  reviews: resolverOnlyField({
+    type: Array,
+    graphQLtype: "[Comment]",
+    canRead: ['guests'],
+    resolver: async (post: DbPost, args: {}, context: ResolverContext) => {
+      const { currentUser, Comments } = context;
+      const reviews = await context.Comments.find({postId: post._id, baseScore: {$gte: 10}, reviewingForReview: {$ne: null}}, {sort: {baseScore: -1}, limit: 2}).fetch();
+      return await accessFilterMultiple(currentUser, Comments, reviews, context);
+    }
+  }),
+  'reviews.$': {
+    type: Object,
+    foreignKey: 'Comments',
+  },
 };
 
 export default schema;

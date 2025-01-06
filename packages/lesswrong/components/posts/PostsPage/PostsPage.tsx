@@ -8,7 +8,7 @@ import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import {forumTitleSetting, isAF, isEAForum, isLWorAF} from '../../../lib/instanceSettings';
-import { cloudinaryCloudNameSetting, recombeeEnabledSetting, vertexEnabledSetting } from '../../../lib/publicSettings';
+import { cloudinaryCloudNameSetting, lightconeFundraiserActive, lightconeFundraiserThermometerGoalAmount, recombeeEnabledSetting, vertexEnabledSetting } from '../../../lib/publicSettings';
 import classNames from 'classnames';
 import { hasPostRecommendations, commentsTableOfContentsEnabled, hasDigests, hasSidenotes } from '../../../lib/betas';
 import { useDialog } from '../../common/withDialog';
@@ -42,6 +42,8 @@ import DeferRender from '@/components/common/DeferRender';
 import { SideItemVisibilityContextProvider } from '@/components/dropdowns/posts/SetSideItemVisibility';
 import { LW_POST_PAGE_PADDING } from './LWPostsPageHeader';
 import { useCommentLinkState } from '@/components/comments/CommentsItem/useCommentLink';
+import { useCurrentTime } from '@/lib/utils/timeUtil';
+import { reviewIsActive } from '@/lib/reviewUtils';
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
 export const MAX_COLUMN_WIDTH = 720
@@ -180,7 +182,7 @@ const getStructuredData = ({
     "@context": "http://schema.org",
     "@type": "DiscussionForumPosting",
     "url": postGetPageUrl(post, true),
-    "text": post.contents?.html,
+    "text": post.contents?.html ?? description,
     mainEntityOfPage: {
       "@type": "WebPage",
       "@id": postGetPageUrl(post, true),
@@ -400,6 +402,10 @@ export const styles = (theme: ThemeType) => ({
     fontSize: isFriendlyUI ? undefined : theme.typography.body2.fontSize,
     cursor: 'default'
   },
+  reviewVoting: {
+    marginTop: 60,
+    marginBottom: -20 // to account or voting UI padding
+  }
 })
 
 const getDebateResponseBlocks = (responses: CommentsList[], replies: CommentsList[]) => responses.map(debateResponse => ({
@@ -431,6 +437,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   const location = useSubscribedLocation();
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
+  const now = useCurrentTime();
   const { openDialog } = useDialog();
   const { recordPostView } = useRecordPostView(post);
   const [showDigestAd, setShowDigestAd] = useState(false)
@@ -587,7 +594,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     PostsPageQuestionContent, AFUnreviewedCommentCount, CommentsListSection, CommentsTableOfContents,
     StickyDigestAd, PostsPageSplashHeader, PostsAudioPlayerWrapper, AttributionInViewTracker,
     ForumEventPostPagePollSection, NotifyMeButton, LWTooltip, PostsPageDate,
-    PostFixedPositionToCHeading
+    PostFixedPositionToCHeading, SingleColumnSection, FundraisingThermometer, PostPageReviewButton
   } = Components
 
   useEffect(() => {
@@ -696,7 +703,22 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     ...postsCommentsThreadMultiOptions,
   });
 
-  const { loading, results, loadMore, loadingMore, totalCount } = useEagerResults ? eagerPostComments.queryResponse : lazyResults;
+  const { loading, results: rawResults, loadMore, loadingMore, totalCount } = useEagerResults ? eagerPostComments.queryResponse : lazyResults;
+
+  // If the user has just posted a comment, and they are sorting by magic, put it at the top of the list for them
+  const results = useMemo(() => {
+    if (!isEAForum || !rawResults || commentTerms.view !== "postCommentsMagic") return rawResults;
+
+    const recentUserComments = rawResults
+      .filter((c) => c.userId === currentUser?._id && now.getTime() - new Date(c.postedAt).getTime() < 60000)
+      .sort((a, b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime());
+
+    if (!recentUserComments.length) return rawResults;
+
+    return [...recentUserComments, ...rawResults.filter((c) => !recentUserComments.includes(c))];
+    // Ignore `now` to make this more stable
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [commentTerms.view, rawResults, currentUser?._id]);
 
   const commentCount = results?.length ?? 0;
   const commentTree = unflattenComments(results ?? []);
@@ -787,6 +809,8 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
             toggleEmbeddedPlayer={toggleEmbeddedPlayer}
             dialogueResponses={debateResponses} 
             annualReviewMarketInfo={marketInfo}/>}
+          {lightconeFundraiserActive.get() && (post._id === '5n2ZQcbc7r4R8mvqc') &&
+            <FundraisingThermometer onPost />}
         </div>
       </div>
     </AnalyticsContext>
@@ -901,6 +925,9 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     </div>
   const betweenPostAndCommentsSection =
     <div className={classNames(classes.centralColumn, classes.betweenPostAndComments)}>
+      {reviewIsActive() && <div className={classes.reviewVoting}>
+        <PostPageReviewButton post={post} />
+      </div>}
       <PostsPagePostFooter post={post} sequenceId={sequenceId} />
       <DeferRender ssr={false}>
         <ForumEventPostPagePollSection postId={post._id} />

@@ -34,9 +34,9 @@ const styles = (theme: ThemeType) => ({
   },
   allowTruncate: {
     display: isFriendlyUI ? "block" : "inline-flex",
-    // Truncate to 3 rows (webkit-line-clamp would be ideal here but it adds an ellipsis
+    // Truncate to 1 row (webkit-line-clamp would be ideal here but it adds an ellipsis
     // which can't be removed)
-    maxHeight: 104,
+    maxHeight: 33,
     overflow: "hidden",
   },
   overrideMargins: {
@@ -325,9 +325,9 @@ const FooterTagList = ({
 
   const {Loading, FooterTag, AddTagButton, CoreTagsChecklist, PostsAnnualReviewMarketTag} = Components;
 
-  const tooltipPlacement = useAltAddTagButton ? "bottom-end" : undefined;
+  const menuPlacement = useAltAddTagButton ? "bottom-end" : undefined;
 
-  const addTagButton = <AddTagButton onTagSelected={onTagSelected} isVotingContext tooltipPlacement={tooltipPlacement}>
+  const addTagButton = <AddTagButton onTagSelected={onTagSelected} isVotingContext menuPlacement={menuPlacement}>
     {useAltAddTagButton && <span className={classNames(classes.altAddTagButton, noBackground && classes.noBackground)}>+</span>}
   </AddTagButton>
 

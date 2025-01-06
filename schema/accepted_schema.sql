@@ -837,7 +837,8 @@ CREATE TABLE "ElicitQuestionPredictions" (
   "userId" VARCHAR(27),
   "sourceUrl" TEXT,
   "sourceId" TEXT,
-  "binaryQuestionId" VARCHAR(27) NOT NULL
+  "binaryQuestionId" VARCHAR(27) NOT NULL,
+  "isDeleted" BOOL NOT NULL DEFAULT FALSE
 );
 
 -- Table "ElicitQuestions"
@@ -846,9 +847,14 @@ CREATE TABLE "ElicitQuestions" (
   "title" TEXT NOT NULL,
   "notes" TEXT,
   "resolution" TEXT,
-  "resolvesBy" TIMESTAMPTZ NOT NULL,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
+  "resolvesBy" TIMESTAMPTZ,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
 );
+
+-- Index "idx_ElicitQuestions_schemaVersion"
+CREATE INDEX IF NOT EXISTS "idx_ElicitQuestions_schemaVersion" ON "ElicitQuestions" USING btree ("schemaVersion");
 
 -- Table "EmailTokens"
 CREATE TABLE "EmailTokens" (
@@ -898,6 +904,7 @@ CREATE TABLE "ForumEvents" (
   "postId" VARCHAR(27),
   "bannerImageId" TEXT,
   "includesPoll" BOOL NOT NULL DEFAULT FALSE,
+  "customComponent" TEXT,
   "publicData" JSONB,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -1641,6 +1648,7 @@ CREATE TABLE "Posts" (
   "reviewForAlignmentUserId" TEXT,
   "agentFoundationsId" TEXT,
   "swrCachingEnabled" BOOL NOT NULL DEFAULT FALSE,
+  "generateDraftJargon" BOOL NOT NULL DEFAULT FALSE,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB,
@@ -3140,6 +3148,8 @@ CREATE TABLE "Users" (
   "petrovOptOut" BOOL NOT NULL DEFAULT FALSE,
   "optedOutOfSurveys" BOOL,
   "postGlossariesPinned" BOOL NOT NULL DEFAULT FALSE,
+  "generateJargonForDrafts" BOOL NOT NULL DEFAULT FALSE,
+  "generateJargonForPublishedPosts" BOOL NOT NULL DEFAULT TRUE,
   "acceptedTos" BOOL NOT NULL DEFAULT FALSE,
   "hideNavigationSidebar" BOOL,
   "currentFrontpageFilter" TEXT,
@@ -3299,6 +3309,7 @@ CREATE TABLE "Users" (
   "linkedinProfileURL" TEXT,
   "facebookProfileURL" TEXT,
   "twitterProfileURL" TEXT,
+  "twitterProfileURLAdmin" TEXT,
   "githubProfileURL" TEXT,
   "profileTagIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
   "organizerOfGroupIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
@@ -3323,6 +3334,8 @@ CREATE TABLE "Users" (
   "hideSunshineSidebar" BOOL NOT NULL DEFAULT FALSE,
   "inactiveSurveyEmailSentAt" TIMESTAMPTZ,
   "userSurveyEmailSentAt" TIMESTAMPTZ,
+  "givingSeason2024DonatedFlair" BOOL NOT NULL DEFAULT FALSE,
+  "givingSeason2024VotedFlair" BOOL NOT NULL DEFAULT FALSE,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB,

@@ -230,7 +230,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       [6]: '#6C7BFF',
     },
 
-    jargonTerm: shades.grey[600],
+    jargonTerm: "#a8742a",
   },
   link: {
     unmarked: shades.greyAlpha(.87),
@@ -241,7 +241,6 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     tocLink: shades.grey[600],
     tocLinkHighlighted: shades.grey[1000],
     primaryDim: "#5caab7",
-    // Currently unused on LW due to Forum-gate
     visited: "#bb7c43",
   },
   linkHover: {
@@ -319,7 +318,6 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     primaryTranslucent: 'rgba(12,134,155,.7)',
     dashed500: `dashed 1px ${shades.grey[500]}`,
     mentionsBaloon: "#c4c4c4",
-    wrappedSummary: "2px solid rgba(255, 168, 50, 0.6)",
     eaButtonGreyOutline: "#BCC1C9",
   },
   background: {
@@ -328,6 +326,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     contrastInDarkMode: shades.grey[0],
     pageActiveAreaBackground: shades.grey[0],
     translucentBackground: "rgba(255,255,255,.5)",
+    translucentBackgroundHeavy: "rgba(255,255,255,.75)",
     loginBackdrop: "rgba(217,217,217,0.5)",
     diffInserted: "#d4ead4",
     diffDeleted: "#f0d3d3",
@@ -498,10 +497,6 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     onboardingBackground: "rgba(0, 0, 0, 0.4)",
     onboardingBackgroundHover: "rgba(0, 0, 0, 0.2)",
     onboardingBackgroundSelected: "rgba(0, 0, 0, 0.5)",
-    eventLightGreen: 'rgba(154, 176, 137, 0.30)',
-    eventDarkGreen: 'rgba(154, 176, 137, 0.60)',
-    eventLightBlue: 'rgba(65, 131, 161, 0.30)',
-    eventDarkBlue: 'rgba(65, 131, 161, 0.60)',
   },
   tab: {
     inactive: {
@@ -576,17 +571,38 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   eventsHomeLoadMoreHover: '#085d6c',
 
   wrapped: {
-    background: '#072C47',
-    highlightText: '#FFC443',
+    background: '#151515',
+    darkBackground: "#000",
+    highlightText: '#F09554',
     secondaryText: '#008DAC',
     tertiaryText: "rgba(255, 255, 255, 0.50)",
     black: '#212121',
-    darkGrey: '#424242',
-    grey: '#757575',
     darkDot: "rgba(255, 255, 255, 0.40)",
     panelBackground: "rgba(255, 255, 255, 0.10)",
     panelBackgroundDark: "rgba(255, 255, 255, 0.05)",
-    postScoreArrow: '#BCBCBC',
+    postScore: '#BCBCBC',
+    notification: "#e05200",
+    emptyPath: "#494949",
+    metaText: "#b3b3b3",
+    personality: {
+      transparent: "transparent",
+      grey: "#585858",
+      red: "#9E011A",
+      blue: "#16508C",
+      green: "#006336",//"#0b7138",
+    },
+  },
+  givingSeason: {
+    primary: "#8A0003",
+    electionFundBackground: "rgba(255, 255, 255, 0.15)",
+    electionFundBackgroundHeavy: "rgba(255, 255, 255, 0.3)",
+    portalPrimary: "#AE070A",
+    candidateBorder: "#C34F4F",
+    candidateBackground: "rgba(255, 255, 255, 0.2)",
+    candidateShadow: "rgba(147, 0, 0, 0.25)",
+    candidateOrder: "#C50000",
+    heart: "#862115",
+    mobileBannerOverlay: "linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.3) 25%, rgba(255, 255, 255, 0.3) 75%, rgba(255, 255, 255, 0) 100%)"
   },
   namesAttachedReactions: {
     selectedAnti: "rgb(255, 189, 189, .23)",
@@ -631,5 +647,8 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     color2: "#404040",
     color3: "#998080",
     color4: "#504040",
-  }
+  },
+  fundraisingThermometer: {
+    shadow: '#222',
+  },
 })

@@ -21,6 +21,7 @@ registerFragment(`
     term
     humansAndOrAIEdited
     approved
+    deleted
     altTerms
     contents {
       ...RevisionDisplay
