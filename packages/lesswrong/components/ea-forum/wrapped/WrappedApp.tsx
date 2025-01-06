@@ -68,7 +68,7 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.text.alwaysWhite,
     borderRadius: "50%",
   },
-  navSectionUnviewed: {
+  navSectionInactive: {
     opacity: 0.3,
   },
 });
@@ -136,7 +136,7 @@ const WrappedApp = ({classes}: {
             {range(1, totalSections).map((i) => (
               <div key={i} className={classNames(
                 classes.navSection,
-                i > currentSection && classes.navSectionUnviewed,
+                i !== currentSection && classes.navSectionInactive,
               )} />
             ))}
             <div className={classes.navButton} onClick={goToNextSection}>
