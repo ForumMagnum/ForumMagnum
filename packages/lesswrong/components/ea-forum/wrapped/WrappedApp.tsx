@@ -88,8 +88,12 @@ const WrappedApp = ({classes}: {
   } = useForumWrappedContext();
 
   useEffect(() => {
-    const handler = (ev: KeyboardEvent) => {
-      switch (ev.key) {
+    const handler = ({ target, key }: KeyboardEvent) => {
+      // Disable the arrow navigation when we're typing in a text box
+      if ((target as HTMLElement)?.getAttribute?.("contenteditable") === "true") {
+        return;
+      }
+      switch (key) {
         case "ArrowLeft":  goToPreviousSection(); break;
         case "ArrowRight": goToNextSection();     break;
       }
