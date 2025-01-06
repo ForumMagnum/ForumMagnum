@@ -3,6 +3,7 @@ import { useLocation } from "../../lib/routeUtil";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useOverrideLayoutOptions } from "../hooks/useLayoutOptions";
 import { useTagBySlug } from "./useTag";
+import { hasSubforums } from "@/lib/betas";
 
 /**
  * Build structured data for a tag to help with SEO.
@@ -32,6 +33,7 @@ export const getTagStructuredData = (tag: TagPageFragment | TagPageWithRevisionF
  * Wrapper component for routing to either the subforum page or the ordinary tag page.
  */
 const TagPageRouter = () => {
+  const {TagPage, TagSubforumPage2} = Components
   const { query, params: { slug } } = useLocation();
   const [overridenLayoutOptions, setOverridenLayoutOptions] = useOverrideLayoutOptions();
 
@@ -56,7 +58,12 @@ const TagPageRouter = () => {
     } : {
       contributorsLimit,
     },
+    skip: !hasSubforums,
   });
+  
+  if (!hasSubforums) {
+    return <TagPage/>;
+  }
 
   if (!tag || loadingTag) return null;
   
@@ -75,7 +82,6 @@ const TagPageRouter = () => {
     } : {});
   }
 
-  const {TagPage, TagSubforumPage2} = Components
   return tag.isSubforum ? <TagSubforumPage2/> : <TagPage/>
 }
 
