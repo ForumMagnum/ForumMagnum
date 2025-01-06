@@ -138,6 +138,29 @@ export const taggingNameCapitalSetting = {get: () => startCase(taggingNameSettin
 export const taggingNamePluralSetting = {get: () => pluralize(taggingNameSetting.get())}
 export const taggingNamePluralCapitalSetting = {get: () => pluralize(startCase(taggingNameSetting.get()))}
 export const taggingNameIsSet = {get: () => taggingNameSetting.get() !== 'tag'}
+export const taggingNameIsPluralized = {get: () => !isLWorAF && taggingNameIsSet.get()};
+export const taggingNameCapitalizedWithPluralizationChoice = { get: () => {
+  if (taggingNameIsPluralized.get()) {
+    return taggingNamePluralCapitalSetting.get();
+  }
+  return taggingNameCapitalSetting.get();
+}};
+
+/** Value for tags in the urls, e.g. /w/:slug, or /tag/:slug or /topics/:slug, if set. This allows the url for tags to
+ * be something other than the tag name, e.g. LessWrong is setting this to "w",
+ * Defaults to tag setting name (with or without pluralization).
+ */
+export const taggingUrlCustomBaseSetting = new PublicInstanceSetting<string|null>('taggingUrlCustomBase', null, 'optional')
+export const tagUrlBaseSetting = {get: () => {
+  const customBase = taggingUrlCustomBaseSetting.get();
+  if (customBase) {
+    return customBase;
+  }
+  if (taggingNameIsPluralized.get()) {
+    return taggingNamePluralSetting.get();
+  }
+  return taggingNameSetting.get();
+}}
 
 // NB: Now that neither LW nor the EAForum use this setting, it's a matter of
 // time before it falls out of date. Nevertheless, I expect any newly-created

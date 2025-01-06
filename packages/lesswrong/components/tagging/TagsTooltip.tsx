@@ -7,6 +7,7 @@ import classNames from "classnames";
 import { PopperPlacementType } from "@material-ui/core/Popper";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { inferRedLinkTitle, useRedLinkPingbacks } from "./RedlinkTagPage";
+import { tagGetUrl } from "@/lib/collections/tags/helpers";
 
 type PreviewableTag =
   TagPreviewFragment |
@@ -103,16 +104,15 @@ const RedLinkTooltip = ({ tag, slug }: {
     <Typography variant='title'>
       {title}
     </Typography>
-    {/* TODO: this is a hardcoded example; when we implement the backend for red links we should fix this */}
     <ContentStyles contentType='tag'>
       This red link was used on {pingbacks ? pingbacks.length : <Loading/>} page{pingbacks ? (pingbacks.length > 1 ? "s" : "") : "(s)"}:
       <ul>
         {pingbacks?.map(pingback => <li key={pingback._id}>
           <TagHoverPreview
-            targetLocation={{ params: { slug: 'nash_equilibrium' }, hash: '', query: {} } as AnyBecauseTodo}
-            href='/tag/nash_equilibrium' noPrefetch
+            targetLocation={{ params: { slug: pingback.slug }, hash: '', query: {} } as AnyBecauseTodo}
+            href={tagGetUrl({slug: pingback.slug})} noPrefetch
           >
-            <Link to={`/w/${pingback.slug}`}>
+            <Link to={tagGetUrl({slug: pingback.slug})}>
               {pingback.name}
             </Link>
           </TagHoverPreview>

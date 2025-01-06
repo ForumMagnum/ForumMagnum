@@ -1,6 +1,6 @@
 import qs from "qs";
 import { forumSelect } from "../../forumTypeUtils";
-import { siteUrlSetting, taggingNameIsSet, taggingNamePluralSetting } from "../../instanceSettings";
+import { siteUrlSetting, tagUrlBaseSetting } from "../../instanceSettings";
 import { combineUrls } from "../../vulcan-lib";
 import { TagCommentType } from "../comments/types";
 import Users from "../users/collection";
@@ -32,11 +32,11 @@ type GetUrlOptions = {
   lens?: string
   tab?: string
   from?: string,
+  pathId?: string
 }
 
-export const tagUrlBase = taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'
-export const tagCreateUrl = `/${tagUrlBase}/create`
-export const tagGradingSchemeUrl = `/${tagUrlBase}/tag-grading-scheme`
+export const tagCreateUrl = `/${tagUrlBaseSetting.get()}/create`
+export const tagGradingSchemeUrl = `/${tagUrlBaseSetting.get()}/tag-grading-scheme`
 
 export const tagGetUrl = (tag: {slug: string}, urlOptions?: GetUrlOptions, isAbsolute=false, hash?: string) => {
   const urlSearchParams = urlOptions
@@ -45,15 +45,15 @@ export const tagGetUrl = (tag: {slug: string}, urlOptions?: GetUrlOptions, isAbs
   const searchSuffix = search ? `?${search}` : ''
   const hashSuffix = hash ? `#${hash}` : ''
 
-  const url = `/${tagUrlBase}/${tag.slug}`
+  const url = `/${tagUrlBaseSetting.get()}/${tag.slug}`
   const urlWithSuffixes = `${url}${searchSuffix}${hashSuffix}`
   return isAbsolute ? combineUrls(siteUrlSetting.get(), urlWithSuffixes) : urlWithSuffixes
 }
 
-export const tagGetHistoryUrl = (tag: {slug: string}) => `/${tagUrlBase}/${tag.slug}/history`
+export const tagGetHistoryUrl = (tag: {slug: string}) => `/${tagUrlBaseSetting.get()}/${tag.slug}/history`
 
 export const tagGetDiscussionUrl = (tag: {slug: string}, isAbsolute=false) => {
-  const suffix = `/${tagUrlBase}/${tag.slug}/discussion`
+  const suffix = `/${tagUrlBaseSetting.get()}/${tag.slug}/discussion`
   return isAbsolute ? combineUrls(siteUrlSetting.get(), suffix) : suffix
 }
 
@@ -76,7 +76,7 @@ export const tagGetCommentLink = ({tagSlug, commentId, tagCommentType = "DISCUSS
 // TODO: Is this necessary if we instead have version as a search param in the main tagGetUrl function?
 export const tagGetRevisionLink = (tag: DbTag|TagBasicInfo, versionNumber: string, lens?: MultiDocumentContentDisplay|TagLens): string => {
   const lensParam = lens ? `lens=${lens.slug}&` : "";
-  return `/${tagUrlBase}/${tag.slug}?${lensParam}version=${versionNumber}`;
+  return `/${tagUrlBaseSetting.get()}/${tag.slug}?${lensParam}version=${versionNumber}`;
 }
 
 export const tagUserHasSufficientKarma = (user: UsersCurrent | DbUser | null, action: "new" | "edit"): boolean => {
