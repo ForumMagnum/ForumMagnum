@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [22.x]
+        node-version: [22.12]
         environment: [EAForum-Beta]
     steps:
     - uses: actions/checkout@v3
