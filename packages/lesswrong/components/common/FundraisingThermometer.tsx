@@ -247,7 +247,7 @@ const styles = (theme: ThemeType) => ({
     left: 0,
     width: '100vw',
     height: '100vh',
-    background: 'black',
+    background: theme.palette.text.alwaysBlack,
     zIndex: 9999,
     opacity: 0,
     visibility: 'hidden',
@@ -256,7 +256,7 @@ const styles = (theme: ThemeType) => ({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    color: 'white',
+    color: theme.palette.text.alwaysWhite,
     pointerEvents: 'none',
   },
   
