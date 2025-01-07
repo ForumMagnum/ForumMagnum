@@ -3973,7 +3973,7 @@ interface ElicitQuestionFragment { // fragment on ElicitQuestions
 
 interface ElicitQuestionPredictionsDefaultFragment { // fragment on ElicitQuestionPredictions
   readonly _id: string,
-  readonly prediction: number,
+  readonly prediction: number | null,
   readonly createdAt: Date,
   readonly notes: string | null,
   readonly creator: {

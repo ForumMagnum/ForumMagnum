@@ -830,7 +830,7 @@ CREATE INDEX IF NOT EXISTS "idx_ElectionVotes_electionName" ON "ElectionVotes" U
 -- Table "ElicitQuestionPredictions"
 CREATE TABLE "ElicitQuestionPredictions" (
   _id VARCHAR(27) PRIMARY KEY,
-  "prediction" DOUBLE PRECISION NOT NULL,
+  "prediction" DOUBLE PRECISION,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "notes" TEXT,
   "creator" JSONB NOT NULL,
