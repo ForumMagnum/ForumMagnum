@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useQuery, gql, NetworkStatus } from '@apollo/client';
 import { Components, fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -8,21 +8,14 @@ import { queryIsUpdating } from '../common/queryStatusUtils';
 
 
 const CONCEPT_ITEM_WIDTH = 300;
-const MAX_ITEMS_PER_COLUMN = 12;
-const COLUMN_GAP = 8;
+const MAX_ITEMS_PER_COLUMN = 10;
 
 const styles = defineStyles("WikiTagGroup", (theme: ThemeType) => ({
   root: {
     width: "100%",
   },
   titleItem: {
-    // marginBottom: 8,
   },
-  // childrenList: {
-  //   display: "flex",
-  //   flexDirection: "column",
-  //   width: "100%",
-  // },
   showMoreChildren: {
     fontSize: 12,
     fontWeight: 400,
@@ -58,6 +51,12 @@ const styles = defineStyles("WikiTagGroup", (theme: ThemeType) => ({
   },
   loadMore: {
     marginTop: 4,
+    fontSize: "1.1rem",
+  },
+  loadMoreLoading: {
+    marginTop: 12,
+    marginLeft: "unset !important",
+    textAlign: "left !important",
   },
 }));
 
@@ -65,19 +64,19 @@ const styles = defineStyles("WikiTagGroup", (theme: ThemeType) => ({
 const WikiTagGroup = ({
   parentTag,
   searchTagIds,
-  maxInitialShow = 3*MAX_ITEMS_PER_COLUMN,
+  initialLimit = 3 * MAX_ITEMS_PER_COLUMN,
   showArbitalIcons = false,
 }: {
-  parentTag: AllTagsPageCacheFragment | Omit<AllTagsPageCacheFragment, "_id">;
+  parentTag: AllTagsPageCacheFragment
   searchTagIds: string[] | null;
-  maxInitialShow?: number;
+  initialLimit?: number;
   showArbitalIcons?: boolean;
 }) => {
   const classes = useStyles(styles);
-  const [limit, setLimit] = useState(maxInitialShow);
+  const [limit, setLimit] = useState(initialLimit);
 
-  const parentTagId = '_id' in parentTag ? parentTag._id : null;
-  
+  const parentTagId = parentTag._id === 'uncategorized-root' ? null : parentTag._id;
+
   const { data, loading, fetchMore, networkStatus } = useQuery(gql`
     query GetTagsByParentId(
       $parentTagId: String,
@@ -103,7 +102,7 @@ const WikiTagGroup = ({
     // nextFetchPolicy: 'cache-only',
     variables: {
       parentTagId,
-      limit: maxInitialShow,
+      limit: initialLimit,
       searchTagIds,
     },
     notifyOnNetworkStatusChange: true,
@@ -125,7 +124,7 @@ const WikiTagGroup = ({
   const columns: AllTagsPageCacheFragment[][] = splitItemsIntoColumns(pages, MAX_ITEMS_PER_COLUMN);
 
   const loadMore = () => {
-      const newLimit = limit + maxInitialShow;
+      const newLimit = limit * 2;
       void fetchMore({
         variables: {
           parentTagId,
@@ -145,18 +144,13 @@ const WikiTagGroup = ({
 
   const { LoadMore, ConceptItem, Loading } = Components;
 
-  if (loading && networkStatus !== NetworkStatus.fetchMore) {
-    return <Loading />;
-  }
 
-  if (!pages) {
-    return null;
-  }
-
-  // If we're searching and this group has no matches, don't render
   if (searchTagIds && pages.length === 0) {
     return null;
   }
+
+
+  const showLoadingSpinner = loading && networkStatus !== NetworkStatus.fetchMore;
 
   return (
     <div className={classes.root}>
@@ -167,7 +161,8 @@ const WikiTagGroup = ({
           showArbitalIcon={showArbitalIcons}
         />
       </div>
-      <div className={classes.children}>
+      {showLoadingSpinner && <Loading />}
+      {pages.length > 0 && <div className={classes.children}>
         <div className={classes.childrenContainer}>
           <div className={classNames(classes.childrenList)}>
             {columns.map((columnItems, columnIndex) => (
@@ -185,7 +180,7 @@ const WikiTagGroup = ({
             ))}
           </div>
         </div>
-      </div>
+      </div>}
       {pages.length < totalCount && (
         <LoadMore
           loading={queryIsUpdating(networkStatus)}
@@ -193,6 +188,7 @@ const WikiTagGroup = ({
           count={pages.length}
           totalCount={totalCount}
           className={classes.loadMore}
+          loadingClassName={classes.loadMoreLoading}
         />
       )}
     </div>

@@ -240,7 +240,7 @@ class TagsRepo extends AbstractRepo<"Tags"> {
         AND acr."parentCollectionName" = 'Tags'
         AND acr."childCollectionName" = 'Tags'
       ${whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : ''}
-      ORDER BY t_child."baseScore" DESC
+      ORDER BY t_child."baseScore" DESC, t_child."name" ASC
       LIMIT $(limit)
     `;
 
