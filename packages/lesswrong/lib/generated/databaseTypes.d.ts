@@ -411,6 +411,7 @@ interface DbElicitQuestionPrediction extends DbObject {
   sourceUrl: string | null
   sourceId: string | null
   binaryQuestionId: string
+  isDeleted: boolean
 }
 
 type ElicitQuestionsCollection = CollectionBase<"ElicitQuestions">;
@@ -420,8 +421,9 @@ interface DbElicitQuestion extends DbObject {
   title: string
   notes: string | null
   resolution: string | null
-  resolvesBy: Date
+  resolvesBy: Date | null
   createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
 type EmailTokensCollection = CollectionBase<"EmailTokens">;
@@ -1896,6 +1898,7 @@ interface DbUser extends DbObject {
   linkedinProfileURL: string | null
   facebookProfileURL: string | null
   twitterProfileURL: string | null
+  twitterProfileURLAdmin: string | null
   githubProfileURL: string | null
   profileTagIds: Array<string>
   organizerOfGroupIds: Array<string>

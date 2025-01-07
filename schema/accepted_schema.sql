@@ -837,7 +837,8 @@ CREATE TABLE "ElicitQuestionPredictions" (
   "userId" VARCHAR(27),
   "sourceUrl" TEXT,
   "sourceId" TEXT,
-  "binaryQuestionId" VARCHAR(27) NOT NULL
+  "binaryQuestionId" VARCHAR(27) NOT NULL,
+  "isDeleted" BOOL NOT NULL DEFAULT FALSE
 );
 
 -- Table "ElicitQuestions"
@@ -846,9 +847,14 @@ CREATE TABLE "ElicitQuestions" (
   "title" TEXT NOT NULL,
   "notes" TEXT,
   "resolution" TEXT,
-  "resolvesBy" TIMESTAMPTZ NOT NULL,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
+  "resolvesBy" TIMESTAMPTZ,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
 );
+
+-- Index "idx_ElicitQuestions_schemaVersion"
+CREATE INDEX IF NOT EXISTS "idx_ElicitQuestions_schemaVersion" ON "ElicitQuestions" USING btree ("schemaVersion");
 
 -- Table "EmailTokens"
 CREATE TABLE "EmailTokens" (
@@ -3303,6 +3309,7 @@ CREATE TABLE "Users" (
   "linkedinProfileURL" TEXT,
   "facebookProfileURL" TEXT,
   "twitterProfileURL" TEXT,
+  "twitterProfileURLAdmin" TEXT,
   "githubProfileURL" TEXT,
   "profileTagIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
   "organizerOfGroupIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',

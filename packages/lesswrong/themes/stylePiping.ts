@@ -81,8 +81,11 @@ const neuronpediaPreviewStyles = (theme: ThemeType): JssStyles => ({
   "& div.neuronpedia-preview": {
     "& iframe": {
       width: "100%",
-      height: 440,
-      border: "none",
+      height: 360,
+      maxWidth: 639,
+      border: "1px solid",
+      borderColor: theme.palette.grey[300],
+      borderRadius: 6,
     },
   },
 });
@@ -165,6 +168,16 @@ const youtubePreviewStyles = (theme: ThemeType): JssStyles => ({
       height: '100%',
       top: 0,
       left: 0,
+      border: 'none'
+    }
+  }
+})
+
+const lwartifactsPreviewStyles = (theme: ThemeType): JssStyles => ({
+  '& figure.media div[data-oembed-url*="lwartifacts.vercel.app"]': {
+    '& iframe': {
+      width: '100%',
+      height: 525,
       border: 'none'
     }
   }
@@ -337,7 +350,7 @@ const collapsibleSectionStyles = (theme: ThemeType): JssStyles => ({
 
 // Calling requireCssVar results in the variable being defined in the stylesheet
 // (e.g. --palette-fonts-sansSerifStack). These are required for use in styles that
-// are within the ckeditor bundle (in public/lesswrong-editor/src/ckeditor5-cta-button/ctaform.css)
+// are within the ckeditor bundle (in ckEditor/src/ckeditor5-cta-button/ctaform.css)
 requireCssVar("palette", "fonts", "sansSerifStack")
 requireCssVar("palette", "panelBackground", "default")
 requireCssVar("palette", "error", "main")
@@ -533,6 +546,7 @@ export const postBodyStyles = (theme: ThemeType): JssStyles => {
     ...estimakerPreviewStyles(theme),
     ...viewpointsPreviewStyles(theme),
     ...youtubePreviewStyles(theme),
+    ...lwartifactsPreviewStyles(theme),
     ...footnoteStyles(theme),
     ...collapsibleSectionStyles(theme),
     ...ctaButtonStyles(theme),

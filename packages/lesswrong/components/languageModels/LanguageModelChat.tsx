@@ -401,10 +401,22 @@ const LLMInputTextbox = ({ onSubmit, classes }: {
         <CKEditor
           data={currentMessage}
           ref={ckEditorRef}
-          editor={getCkCommentEditor(forumTypeSetting.get())}
+          editor={getCkCommentEditor()} // Unsure if this should be kept. forumTypeSetting.get()
           isCollaborative={false}
           onChange={(_event, editor: Editor) => {
+            // debouncedValidateEditor(editor.model.document)
+            // If transitioning from empty to nonempty or nonempty to empty,
+            // bypass throttling. These cases don't have the performance
+            // implications that motivated having throttling in the first place,
+            // and this prevents a timing bug with form-clearing on submit.
             setCurrentMessage(editor.getData());
+  
+            // if (!editor.data.model.hasContent(editor.model.document.getRoot('main'))) {
+            //   throttledSetCkEditor.cancel();
+            //   setCurrentMessage(editor.getData());
+            // } else {
+            //   throttledSetCkEditor(() => editor.getData())
+            // }
           }}
           onReady={(editor) => {
             editorRef.current = editor;

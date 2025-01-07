@@ -140,11 +140,12 @@ export const NotificationsPageKarmaChange = ({
 
   const {NotificationsPageItem, PostsTooltip, LWTooltip} = Components;
   if (postKarmaChange) {
+    const postUrl = postGetPageUrl({_id: postKarmaChange.postId, slug: postKarmaChange.slug})
     karmaChange = postKarmaChange.scoreChange;
     reactions = getAddedReactions(postKarmaChange.eaAddedReacts);
     display = (
-      <PostsTooltip postId={postKarmaChange._id}>
-        <NotifPopoverLink to={postGetPageUrl(postKarmaChange)} className={classes.link}>
+      <PostsTooltip postId={postKarmaChange.postId}>
+        <NotifPopoverLink to={postUrl} className={classes.link}>
           {postKarmaChange.title}
         </NotifPopoverLink>
       </PostsTooltip>
@@ -158,13 +159,10 @@ export const NotificationsPageKarmaChange = ({
         <>
           <PostsTooltip
             postId={commentKarmaChange.postId}
-            commentId={commentKarmaChange._id}
+            commentId={commentKarmaChange.commentId}
           >
             <NotifPopoverLink
-              to={commentGetPageUrlFromIds({
-                ...commentKarmaChange,
-                commentId: commentKarmaChange._id,
-              })}
+              to={commentGetPageUrlFromIds(commentKarmaChange)}
               className={classes.link}
             >
               comment
@@ -185,10 +183,7 @@ export const NotificationsPageKarmaChange = ({
       display = (
         <>
           <NotifPopoverLink
-            to={commentGetPageUrlFromIds({
-              ...commentKarmaChange,
-              commentId: commentKarmaChange._id,
-            })}
+            to={commentGetPageUrlFromIds(commentKarmaChange)}
             className={classes.link}
           >
             comment

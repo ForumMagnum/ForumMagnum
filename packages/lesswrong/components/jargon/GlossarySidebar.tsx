@@ -309,7 +309,6 @@ const GlossarySidebar = ({post, showAllTerms, setShowAllTerms, approvedTermsCoun
     <LWTooltip title={<div>Pin to {displayAsPinned ? 'hide' : 'show'} a hacky AI generated glossary<br/> that the author doesn't endorse<div><em>(Opt/Alt + Shift + G)</em></div></div>} inlineBlock={false} placement='top-end' popperClassName={classes.titleRowTooltipPopper}>
       <div className={classes.titleRow} onClick={(e) => setShowAllTerms(e, !showAllTerms, 'unapprovedGlossaryClick')}  {...unapprovedHoverHandlers}>
         <ForumIcon icon="Dictionary" className={classNames(classes.pinIcon, classes.unapprovedPinIcon, displayAsPinned && classes.pinnedPinIcon)} /> 
-        {!displayAsPinned && <span className={classes.unapprovedTermsCount}>{unapprovedTermsCount}</span>}
         {displayAsPinned && <p className={classes.title}>Glossary (Auto)</p>}
       </div>
     </LWTooltip>

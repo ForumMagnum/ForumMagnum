@@ -4,7 +4,7 @@ import { useUpdate } from '../lib/crud/withUpdate';
 import classNames from 'classnames'
 import { useTheme } from './themes/useTheme';
 import { useLocation } from '../lib/routeUtil';
-import { AnalyticsContext, useTracking } from '../lib/analyticsEvents'
+import { AnalyticsContext } from '../lib/analyticsEvents'
 import { UserContext } from './common/withUser';
 import { TimezoneWrapper } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
@@ -112,7 +112,7 @@ const styles = (theme: ThemeType): JssStyles => ({
         minmax(0, min-content)
         minmax(0, 1fr)
         minmax(0, min-content)
-        minmax(0, ${isLW ? 7 : 1}fr)
+        minmax(0, ${isLWorAF ? 7 : 1}fr)
         minmax(0, min-content)
       `,
     },
@@ -400,9 +400,7 @@ const Layout = ({currentUser, children, classes}: {
   // <body> is outside the React tree entirely. An alternative way to do this would be to change
   // overflow properties so that `<body>` isn't scrollable but a `<div>` in here is.)
   const useWhiteBackground = currentRoute?.background === "white";
-  
-  const { captureEvent } = useTracking();
-  
+
   useEffect(() => {
     const isWhite = document.body.classList.contains(classes.whiteBackground);
     if (isWhite !== useWhiteBackground) {
@@ -428,9 +426,11 @@ const Layout = ({currentUser, children, classes}: {
     [autosaveEditorState, setAutosaveEditorState]
   );
 
+  const isWrapped = pathname.startsWith('/wrapped');
+
   let headerBackgroundColor: ColorString;
   // For the EAF Wrapped page, we change the header's background color to a dark blue.
-  if (pathname.startsWith('/wrapped')) {
+  if (isWrapped) {
     headerBackgroundColor = wrappedBackgroundColor;
   } else if (pathname.startsWith("/voting-portal")) {
     headerBackgroundColor = "transparent";
@@ -448,7 +448,6 @@ const Layout = ({currentUser, children, classes}: {
       AnalyticsClient,
       AnalyticsPageInitializer,
       NavigationEventSender,
-      PetrovGameWrapper,
       EAOnboardingFlow,
       BasicOnboardingFlow,
       CommentOnSelectionPageWrapper,
@@ -528,7 +527,7 @@ const Layout = ({currentUser, children, classes}: {
               <GlobalHotkeys/>
               {/* Only show intercom after they have accepted cookies */}
               <DeferRender ssr={false}>
-                <MaybeCookieBanner />
+                <MaybeCookieBanner isWrapped={isWrapped} />
               </DeferRender>
 
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
@@ -554,7 +553,7 @@ const Layout = ({currentUser, children, classes}: {
                 [classes.fullscreenBodyWrapper]: currentRoute?.fullscreen,
               }
               )}>
-                {isFriendlyUI && <AdminToggle />}
+                {isFriendlyUI && !isWrapped && <AdminToggle />}
                 {standaloneNavigation &&
                   <StickyWrapper
                     eaHomeLayout={friendlyHomeLayout}
@@ -596,8 +595,8 @@ const Layout = ({currentUser, children, classes}: {
                   <CloudinaryImage2
                     loading="lazy"
                     className={classes.backgroundImage}
-                    publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413"
-                    darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}
+                    publicId="ohabryka_Thomas_W._Schaller_abstract_aquarelle_painting_orbs_wi_08f5e970-d4a5-482f-83c2-a4cb1d388ade_jueaoj"
+                    darkPublicId={"DarkOrbs4_gi8ndc"}
                   />
                 </div>}
                 {!renderSunshineSidebar &&
@@ -646,12 +645,18 @@ const Layout = ({currentUser, children, classes}: {
   return render();
 }
 
-function MaybeCookieBanner() {
+function MaybeCookieBanner({isWrapped}: {isWrapped: boolean}) {
   const { IntercomWrapper, CookieBanner } = Components;
   const { explicitConsentGiven: cookieConsentGiven, explicitConsentRequired: cookieConsentRequired } = useCookiePreferences();
   const showCookieBanner = cookieConsentRequired === true && !cookieConsentGiven;
 
-  return showCookieBanner ? <CookieBanner /> : <IntercomWrapper/>;
+  if (showCookieBanner) {
+    return (
+      <CookieBanner />
+    );
+  }
+
+  return isWrapped ? null : <IntercomWrapper />
 }
 
 const LayoutComponent = registerComponent('Layout', Layout, {styles});

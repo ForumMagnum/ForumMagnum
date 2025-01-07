@@ -10,11 +10,13 @@ import React, {
   useState,
 } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
-import { Link } from "@/lib/reactRouterWrapper";
+import { Link, useNavigate } from "@/lib/reactRouterWrapper";
 import { useSingle } from "@/lib/crud/withSingle";
 import { useLoginPopoverContext } from "@/components/hooks/useLoginPopoverContext";
+import { useMessages } from "@/components/common/withMessages";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { isProduction } from "@/lib/executionEnvironment";
+import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
 import { useCurrentUser } from "@/components/common/withUser";
 import { useUpdateCurrentUser } from "@/components/hooks/useUpdateCurrentUser";
@@ -116,6 +118,7 @@ const styles = (theme: ThemeType) => ({
   },
   welcomeButtonDisabled: {
     opacity: 0.6,
+    cursor: "default",
     "&:hover": {
       opacity: 0.6,
     },
@@ -506,6 +509,12 @@ const styles = (theme: ThemeType) => ({
       display: "none",
     },
   },
+  commentFlash: {
+    color: theme.palette.text.normal,
+    "& a": {
+      color: theme.palette.primary.dark,
+    },
+  },
 });
 
 const WelcomeScreen = ({onNext, isTooYoung, classes}: {
@@ -513,6 +522,9 @@ const WelcomeScreen = ({onNext, isTooYoung, classes}: {
   isTooYoung: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
+  const votingOpen = false;
+  const disableVoting = isTooYoung || !votingOpen
+
   const {EAButton} = Components;
   return (
     <div className={classes.welcomeRoot}>
@@ -527,14 +539,14 @@ const WelcomeScreen = ({onNext, isTooYoung, classes}: {
         out more about the candidates <Link to={CANDIDATES_HREF}>here</Link>.
       </div>
       <EAButton
-        onClick={isTooYoung ? undefined : onNext}
+        onClick={disableVoting ? undefined : onNext}
         className={classNames(classes.welcomeButton, {
-          [classes.welcomeButtonDisabled]: isTooYoung,
+          [classes.welcomeButtonDisabled]: disableVoting,
         })}
       >
         {isTooYoung
           ? "Your account is too young to vote in the Donation Election"
-          : "Vote in the Election ->"
+          : votingOpen ? "Vote in the Election ->" : "Voting has closed"
         }
       </EAButton>
       <div>
@@ -707,11 +719,33 @@ const RankingScreen = ({items, setItems, classes}: {
   );
 }
 
-const CommentScreen = ({currentUser, commentsPost, classes}: {
+const CommentScreen = ({currentUser, commentsPost, onSubmitVote, classes}: {
   currentUser: UsersCurrent | null,
   commentsPost?: PostsMinimumInfo,
+  onSubmitVote: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
+  const {flash} = useMessages();
+  const navigate = useNavigate();
+  const onViewComment = useCallback((comment: CommentsList) => {
+    const commentLink = commentGetPageUrlFromIds({
+      commentId: comment._id,
+      postId: comment.postId,
+    });
+    onSubmitVote();
+    navigate(commentLink);
+  }, [onSubmitVote, navigate]);
+  const onSuccess = useCallback((comment: CommentsList) => {
+    const onClick = onViewComment.bind(null, comment);
+    flash({
+      type: "success",
+      messageString: (
+        <div className={classes.commentFlash}>
+          Comment created. <a onClick={onClick}>Submit vote and view comment</a>.
+        </div>
+      ),
+    });
+  }, [flash, onViewComment, classes.commentFlash]);
   const {UsersProfileImage, CommentsNewForm} = Components;
   return (
     <div className={classes.commentRoot}>
@@ -733,6 +767,7 @@ const CommentScreen = ({currentUser, commentsPost, classes}: {
           overrideHintText="Type here..."
           type="submit"
           post={commentsPost}
+          successCallback={onSuccess}
           className={classes.commentForm}
         />
       </div>
@@ -758,7 +793,7 @@ const ThankYouScreen = ({
   const updateCurrentUser = useUpdateCurrentUser();
   const {captureEvent} = useTracking();
   const [addFlair, setAddFlair] = useState(
-    currentUser.givingSeason2024VotedFlair ?? false,
+    false,
   );
   const [confetti, setConfetti] = useState(true);
   const {width, height} = useWindowSize();
@@ -1039,6 +1074,7 @@ const VotingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
             <CommentScreen
               currentUser={currentUser}
               commentsPost={commentsPost}
+              onSubmitVote={onSubmitVote}
               classes={classes}
             />
             <Footer

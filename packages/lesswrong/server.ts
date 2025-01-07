@@ -52,8 +52,6 @@ import './server/scripts/dropAndSeedJestPg';
 import './server/scripts/generateSQLSchema';
 import './server/scripts/reviewGetResultsPost';
 import './server/scripts/sendAnnualForumUserSurveyEmails';
-import './server/scripts/sendWrappedNotifications';
-import './server/scripts/triggerWrappedRefresh';
 import './server/scripts/removeRsvp';
 import './server/scripts/regenerateUnicodeSlugs';
 import './server/scripts/checkPostForSockpuppetVoting';
@@ -199,6 +197,8 @@ import './server/resolvers/forumEventResolvers';
 import './server/resolvers/anthropicResolvers';
 import './server/resolvers/llmConversationsResolvers';
 import './server/resolvers/jargonResolvers/jargonTermResolvers';
+import './server/resolvers/importUrlAsDraftPost';
+import './server/resolvers/lightcone2024FundraiserResolvers';
 
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';
@@ -221,6 +221,11 @@ import './server/codegen/generateTypes';
 import './server/styleGeneration';
 
 import './server/embeddings';
+
+// EA Forum wrapped
+import './server/wrapped/sendWrappedNotifications';
+import './server/wrapped/sampleWrappedPersonalities';
+import './server/wrapped/triggerWrappedRefresh';
 
 // Elasticsearch integration
 import './server/search/elastic/ElasticExporter';

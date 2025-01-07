@@ -1,5 +1,4 @@
 import { Posts } from "@/lib/collections/posts";
-import { Comments } from "@/lib/collections/comments";
 import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers } from "@/lib/vulcan-lib";
 import {
   defineFeedResolver,
@@ -7,9 +6,10 @@ import {
   viewBasedSubquery,
 } from "../utils/feedUtil";
 import ElectionVotes from "@/lib/collections/electionVotes/collection";
-import { ACTIVE_DONATION_ELECTION, DONATION_ELECTION_AGE_CUTOFF } from "@/lib/givingSeason";
+import { ACTIVE_DONATION_ELECTION } from "@/lib/givingSeason";
 import { instantRunoffAllPossibleResults, IRVote } from "@/lib/givingSeason/instantRunoff";
 import { memoizeWithExpiration } from "@/lib/utils/memoizeWithExpiration";
+import { Comments } from "@/lib/collections/comments";
 
 const getVoteCounts = async () => {
   const dbVotes = await ElectionVotes.find({ electionName: ACTIVE_DONATION_ELECTION }).fetch();
@@ -51,9 +51,11 @@ addGraphQLResolvers({
   Mutation: {
     GivingSeason2024Vote: async (
       _root: void,
-      {vote}: {vote: Record<string, number>},
-      {currentUser, repos}: ResolverContext,
+      _args: {vote: Record<string, number>},
+      _context: ResolverContext,
     ) => {
+      throw new Error("Voting has closed");
+      /*
       if (
         !currentUser ||
         currentUser.banned ||
@@ -79,6 +81,7 @@ addGraphQLResolvers({
         vote,
       );
       return true;
+       */
     },
   },
 });
@@ -88,8 +91,42 @@ addGraphQLQuery("GivingSeason2024VoteCounts: JSON!");
 addGraphQLQuery("GivingSeason2024MyVote: JSON!");
 addGraphQLMutation("GivingSeason2024Vote(vote: JSON!): Boolean");
 
-defineFeedResolver<Date>({
+defineFeedResolver<number>({
   name: "GivingSeasonTagFeed",
+  args: "tagId: String!",
+  cutoffTypeGraphQL: "Int",
+  resultTypesGraphQL: `
+    newPost: Post
+  `,
+  resolver: async ({limit = 3, cutoff, offset, args, context}: {
+    limit?: number,
+    cutoff?: number,
+    offset?: number,
+    args: {tagId: string},
+    context: ResolverContext
+  }) => {
+    const {tagId} = args;
+    return mergeFeedQueries<number>({
+      limit,
+      cutoff,
+      offset,
+      subqueries: [
+        viewBasedSubquery({
+          type: "newPost",
+          collection: Posts,
+          sortField: "baseScore",
+          context,
+          selector: {
+            [`tagRelevance.${tagId}`]: {$gte: 1},
+          },
+        }),
+      ],
+    });
+  }
+});
+
+defineFeedResolver<Date>({
+  name: "GivingSeasonTagFeedWithComments",
   args: "tagId: String!",
   cutoffTypeGraphQL: "Date",
   resultTypesGraphQL: `
