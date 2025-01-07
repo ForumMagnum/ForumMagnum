@@ -1,5 +1,6 @@
 import { Components, registerComponent } from '@/lib/vulcan-lib';
-import React from 'react';
+import React, { useState } from 'react';
+import ReactDOM from 'react-dom';
 import { lightconeFundraiserPostId, lightconeFundraiserThermometerBgUrl, lightconeFundraiserThermometerGoalAmount, lightconeFundraiserThermometerGoal2Amount } from '@/lib/publicSettings';
 import { Link } from '@/lib/reactRouterWrapper';
 import { useFundraiserProgress } from '@/lib/lightconeFundraiser';
@@ -177,6 +178,7 @@ const styles = (theme: ThemeType) => ({
     },
   },
   fundraiserHeaderDonateButton: {
+    textAlign: 'center',
     padding: '10px 20px',
     borderRadius: '5px',
     marginRight: '3px',
@@ -194,6 +196,12 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('xs')]: {
       color: theme.palette.text.alwaysWhite,
     },
+  },
+
+  fundraiserHeaderRemainingDays: {
+    fontSize: '0.8rem',
+    fontFamily: theme.typography.commentStyle.fontFamily,
+    color: theme.palette.text.alwaysWhite,
   },
 
   // Add new sliding background elements
@@ -232,6 +240,44 @@ const styles = (theme: ThemeType) => ({
       left: '-100%',
     }
   },
+
+  countdownOverlay: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    width: '100vw',
+    height: '100vh',
+    background: 'black',
+    zIndex: 9999,
+    opacity: 0,
+    visibility: 'hidden',
+    transition: 'opacity 1s ease-in-out, visibility 1s ease-in-out',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    color: 'white',
+    pointerEvents: 'none',
+  },
+  
+  countdownVisible: {
+    opacity: 1,
+    visibility: 'visible',
+  },
+
+  countdownText: {
+    fontFamily: theme.typography.headerStyle.fontFamily,
+    fontSize: '4rem',
+    textAlign: 'center',
+    '& > div:first-child': {
+      fontSize: '2.5rem',
+      marginBottom: '1rem',
+    },
+    '& > div:last-child': {
+      fontSize: '3rem',
+      color: theme.palette.error.main,
+    }
+  },
 });
 
 const FundraisingThermometer: React.FC<
@@ -267,76 +313,120 @@ const FundraisingThermometer: React.FC<
 
   const displayGoal = currentAmount < goal1 ? goal1 : goal2;
   const displayedStageNumber = currentAmount < goal1 ? 1 : 2;
-
+  // End at 23:59 AoE (UTC-12) on Jan 13th
+  const fundraiserEndDate = new Date('2025-01-10T11:59:00Z'); // This is 23:59 Jan 13th in UTC-12
+  const timeRemainingMs = fundraiserEndDate.getTime() - Date.now();
+  const remainingDays = Math.ceil(timeRemainingMs / (1000 * 60 * 60 * 24));
+  const remainingHours = Math.ceil(timeRemainingMs / (1000 * 60 * 60));
+  const timeRemainingText = remainingHours <= 72 
+    ? `${remainingHours} hours remaining`
+    : `${remainingDays} days remaining`;
   const { LWTooltip } = Components;
 
+  const [showCountdown, setShowCountdown] = useState(false);
+  let hoverTimer: ReturnType<typeof setTimeout>;
+
+  const handleMouseEnter = () => {
+    if (remainingHours <= 72) {
+      hoverTimer = setTimeout(() => {
+        setShowCountdown(true);
+      }, 2000);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    clearTimeout(hoverTimer);
+    setShowCountdown(false);
+  };
+
   return (
-    <div className={classNames(classes.root, onPost && classes.onPost)}>
-      <div className={classes.textContainer}>
-        {onPost ? (
-          <span
-            className={classNames(classes.header, {
-              [classes.hideHeaderOnMobile]: onPost
-            })}
-          >
-            Fundraiser Progress
-          </span>
-        ) : (
-          <LWTooltip title="12,000 words about why you should give us money" placement="top-start">
-            <Link
-              className={classNames(classes.header, classes.headerLinkIcon)}
-              to={`/posts/${lightconeFundraiserPostId.get()}`}
+    <>
+      <div className={classNames(classes.root, onPost && classes.onPost)}>
+        <div className={classes.textContainer}>
+          {onPost ? (
+            <span
+              className={classNames(classes.header, {
+                [classes.hideHeaderOnMobile]: onPost
+              })}
             >
-              Lightcone Infrastructure Fundraiser
+              Fundraiser Progress
+            </span>
+          ) : (
+            <LWTooltip title="12,000 words about why you should give us money" placement="top-start">
+              <Link
+                className={classNames(classes.header, classes.headerLinkIcon)}
+                to={`/posts/${lightconeFundraiserPostId.get()}`}
+              >
+                Lightcone Infrastructure Fundraiser
+              </Link>
+            </LWTooltip>
+          )}
+          <span>
+            <span className={classes.goalTextBold}>Goal {displayedStageNumber}:</span>
+            <span className={classes.raisedGoalNumber}>
+              ${Math.round(currentAmount).toLocaleString()}
+            </span>{" "}
+            of ${displayGoal.toLocaleString()}
+          </span>
+        </div>
+
+        <div
+          className={classes.thermometerContainer}
+          style={{
+            ['--stage1Overlay' as any]: stage1Width,
+            ['--stage2Overlay' as any]: stage2Width,
+          }}
+        >
+          {/* Add sliding background container */}
+          <div className={classNames(classes.backgroundSlider, isStage2 && classes.backgroundSliderAnimation)}>
+            <div 
+              className={classes.backgroundImage} 
+              style={{ backgroundImage: `url(${lightconeFundraiserThermometerBgUrl.get()})` }}
+            />
+            <div 
+              className={classes.backgroundImage} 
+              style={{ backgroundImage: `url(${lightconeFundraiserThermometerBgUrl2})` }}
+            />
+          </div>
+
+          {/* Fundraiser header with Donate button */}
+          <div className={classes.fundraiserHeader}>
+            <Link 
+              className={classes.fundraiserDonateText} 
+              to="https://lightconeinfrastructure.com/donate"
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+            >
+              <div className={classes.fundraiserHeaderDonateButton}>
+                Donate
+                <div className={classes.fundraiserHeaderRemainingDays}>{timeRemainingText}</div>
+              </div>
             </Link>
-          </LWTooltip>
-        )}
-        <span>
-          <span className={classes.goalTextBold}>Goal {displayedStageNumber}:</span>
-          <span className={classes.raisedGoalNumber}>
-            ${Math.round(currentAmount).toLocaleString()}
-          </span>{" "}
-          of ${displayGoal.toLocaleString()}
-        </span>
+          </div>
+
+          {/* Stage 1 blur overlay */}
+          {finalPct1 > 0 && (
+            <div className={classNames(classes.blurredOverlay, classes.blurredOverlayStage1)} />
+          )}
+
+          {/* Stage 2 blur overlay */}
+          {finalPct2 > 0 && (
+            <div className={classNames(classes.blurredOverlay, classes.blurredOverlayStage2)} />
+          )}
+        </div>
       </div>
 
-      <div
-        className={classes.thermometerContainer}
-        style={{
-          ['--stage1Overlay' as any]: stage1Width,
-          ['--stage2Overlay' as any]: stage2Width,
-        }}
-      >
-        {/* Add sliding background container */}
-        <div className={classNames(classes.backgroundSlider, isStage2 && classes.backgroundSliderAnimation)}>
-          <div 
-            className={classes.backgroundImage} 
-            style={{ backgroundImage: `url(${lightconeFundraiserThermometerBgUrl.get()})` }}
-          />
-          <div 
-            className={classes.backgroundImage} 
-            style={{ backgroundImage: `url(${lightconeFundraiserThermometerBgUrl2})` }}
-          />
-        </div>
-
-        {/* Fundraiser header with Donate button */}
-        <div className={classes.fundraiserHeader}>
-          <Link className={classes.fundraiserDonateText} to="https://lightconeinfrastructure.com/donate">
-            <div className={classes.fundraiserHeaderDonateButton}>Donate</div>
-          </Link>
-        </div>
-
-        {/* Stage 1 blur overlay */}
-        {finalPct1 > 0 && (
-          <div className={classNames(classes.blurredOverlay, classes.blurredOverlayStage1)} />
-        )}
-
-        {/* Stage 2 blur overlay */}
-        {finalPct2 > 0 && (
-          <div className={classNames(classes.blurredOverlay, classes.blurredOverlayStage2)} />
-        )}
-      </div>
-    </div>
+      {ReactDOM.createPortal(
+        <div className={classNames(classes.countdownOverlay, showCountdown && classes.countdownVisible)}>
+          <div className={classes.countdownText}>
+            <div>Dawn of</div>
+            <div>The Final Push</div>
+            <div>-{remainingHours} Hours Remain-</div>
+          </div>
+        </div>,
+        document.body
+      )}
+    </>
   );
 };
 
