@@ -7,7 +7,11 @@ import { WrappedYear, isWrappedYear } from "@/components/ea-forum/wrapped/hooks"
 
 export const getWrappedUsers = async (
   year: WrappedYear,
-): Promise<{_id: string, slug: string | null}[]> => {
+): Promise<{
+  _id: string,
+  slug: string | null,
+  unsubscribeFromAll: boolean | null,
+}[]> => {
   if (!isWrappedYear(year)) {
     throw new Error(`${year} is not a valid wrapped year`);
   }
@@ -26,14 +30,15 @@ export const getWrappedUsers = async (
     _id: {$in: userIds},
     banned: {$exists: false},
     deleted: {$ne: true},
-  }, {}, {slug: 1}).fetch();
+  }, {}, {slug: 1, unsubscribeFromAll: 1}).fetch();
 }
 
 const sendWrappedNotifications = async (year: WrappedYear) => {
   const users = await getWrappedUsers(year);
+  const emailUsers = users.filter(({unsubscribeFromAll}) => !unsubscribeFromAll);
 
   // eslint-disable-next-line no-console
-  console.log(`Sending Wrapped ${year} notifications to ${users.length} users`);
+  console.log(`Sending onsite Wrapped ${year} notifications to ${users.length} users`);
   void createNotifications({
     userIds: users.map(u => u._id),
     notificationType: 'wrapped',
@@ -41,7 +46,23 @@ const sendWrappedNotifications = async (year: WrappedYear) => {
     documentType: null,
     extraData: {year},
     fallbackNotificationTypeSettings: {
-      channel: "both",
+      channel: "onsite",
+      batchingFrequency: "realtime",
+      timeOfDayGMT: 12,
+      dayOfWeekGMT: "Monday",
+    },
+  });
+
+  // eslint-disable-next-line no-console
+  console.log(`Sending email Wrapped ${year} notifications to ${emailUsers.length} users`);
+  void createNotifications({
+    userIds: emailUsers.map(u => u._id),
+    notificationType: 'wrapped',
+    documentId: null,
+    documentType: null,
+    extraData: {year},
+    fallbackNotificationTypeSettings: {
+      channel: "email",
       batchingFrequency: "realtime",
       timeOfDayGMT: 12,
       dayOfWeekGMT: "Monday",
