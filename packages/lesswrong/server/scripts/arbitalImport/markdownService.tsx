@@ -702,7 +702,7 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
         }
         return conditionallyVisibleBlockToHTML(
           {type: "wantsRequisite", inverted: !!not, otherPage: pageId ?? ""},
-          markdown
+          runBlockGamut(markdown)
         );
       });
     });
