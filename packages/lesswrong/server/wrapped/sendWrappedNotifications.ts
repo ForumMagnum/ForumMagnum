@@ -40,6 +40,12 @@ const sendWrappedNotifications = async (year: WrappedYear) => {
     documentId: null,
     documentType: null,
     extraData: {year},
+    fallbackNotificationTypeSettings: {
+      channel: "both",
+      batchingFrequency: "realtime",
+      timeOfDayGMT: 12,
+      dayOfWeekGMT: "Monday",
+    },
   });
 }
 
