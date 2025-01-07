@@ -53,7 +53,7 @@ const styles = (theme: ThemeType) => ({
     padding: 16,
     paddingTop: 10,
     paddingBottom: 8,
-    paddingRight: 10,
+    paddingRight: 18,
     maxWidth: "calc(100% - 240px)",
     marginRight: "auto",
     [theme.breakpoints.down('xs')]: {
@@ -148,6 +148,11 @@ const styles = (theme: ThemeType) => ({
     textAlign: "center",
     ...commentBodyStyles(theme),
     fontSize: "1rem"
+  },
+  author: {
+    ...theme.typography.commentStyle,
+    fontSize: "1rem",
+    color: theme.palette.grey[500],
   }
 });
 
@@ -175,7 +180,7 @@ const ReviewVoteTableRow = ({ post, dispatch, costTotal, classes, expandedPostId
   const {
     PostsTitle, LWTooltip, PostsTooltip, MetaInfo, ReviewVotingButtons,
     PostsItemComments, PostsItem2MetaInfo, PostsItemReviewVote,
-    ReviewPostComments, PostInteractionStripe,
+    ReviewPostComments, PostInteractionStripe, UsersNameDisplay
   } = Components
 
   const currentUser = useCurrentUser()
@@ -237,6 +242,9 @@ const ReviewVoteTableRow = ({ post, dispatch, costTotal, classes, expandedPostId
           <PostsTooltip post={post} flip={false}>
             <PostsTitle post={post} showIcons={false} wrap curatedIconLeft={false} />
           </PostsTooltip>
+          <span className={classes.author}>
+            <UsersNameDisplay user={post.user}/>
+          </span>
         </div>
         {reviewPhase === "VOTING" && <div className={classes.reviews}>
           <ReviewPostComments
