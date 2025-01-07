@@ -38,7 +38,7 @@ const ReactOrAntireactVote = ({reactionName, quote, netReactionCount, currentUse
   quote: QuoteLocator|null,
   netReactionCount: number
   currentUserReaction: VoteOnReactionType|null
-  setCurrentUserReaction: (reactionName: string, reaction: VoteOnReactionType|null, quote: QuoteLocator|null)=>void
+  setCurrentUserReaction: (reactionName: string, reaction: VoteOnReactionType|null, quote: QuoteLocator|null) => void
   classes: ClassesType
 }) => {
   const onClick = (reaction: "reacted"|"disagreed") => {
@@ -78,7 +78,7 @@ const ReactOrAntireactVote = ({reactionName, quote, netReactionCount, currentUse
 
 const ReactionVoteArrow = ({orientation, onClick, color, classes}: {
   orientation: "left"|"right",
-  onClick: ()=>void,
+  onClick: () => void,
   color: "inherit"|"primary"|"error",
   classes: ClassesType,
 }) => {

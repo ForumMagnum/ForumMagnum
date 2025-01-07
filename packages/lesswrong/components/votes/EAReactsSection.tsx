@@ -16,8 +16,7 @@ import {
 import type { VotingProps } from "./votingProps";
 import Menu from "@material-ui/core/Menu";
 import classNames from "classnames";
-import { Posts } from "../../lib/collections/posts";
-import { Comments } from "../../lib/collections/comments";
+import {alwaysShowAnonymousReactsSetting} from '../../lib/publicSettings'
 
 const styles = (theme: ThemeType): JssStyles => ({
   button: {
@@ -113,7 +112,7 @@ const getCurrentReactions = (
 ) => {
   const result = [];
   for (const emojiOption of eaAnonymousEmojiPalette) {
-    result.push({
+    if(alwaysShowAnonymousReactsSetting.get() || extendedScore?.[emojiOption.name]) result.push({
       emojiOption,
       score: extendedScore?.[emojiOption.name] ?? 0,
       anonymous: true,
@@ -198,10 +197,10 @@ const EmojiTooltipContent: FC<{
 export type EAReactableDocument = CommentsList | PostsWithVotes;
 
 export const isEAReactableDocument = (
-  collection: AnyBecauseHard,
+  collectionName: VoteableCollectionName,
   _document: CommentVotingComponentProps["document"] | PostVotingComponentProps["document"],
 ): _document is EAReactableDocument => {
-  return collection === Posts || collection === Comments;
+  return collectionName === "Posts" || collectionName === "Comments";
 }
 
 type EAReactsSectionOptions = {

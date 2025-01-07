@@ -1,13 +1,12 @@
-import { addCallback, getCollection } from '../vulcan-lib';
+import { getCollection } from '../vulcan-lib';
 import { restrictViewableFieldsSingle, restrictViewableFieldsMultiple } from '../vulcan-users/permissions';
 import SimpleSchema from 'simpl-schema'
 import { loadByIds, getWithLoader } from "../loaders";
-import { isServer } from '../executionEnvironment';
+import { isAnyTest } from '../executionEnvironment';
 import { asyncFilter } from './asyncUtils';
 import type { GraphQLScalarType } from 'graphql';
 import DataLoader from 'dataloader';
 import * as _ from 'underscore';
-import { loggerConstructor } from './logging';
 import { DeferredForumSelect } from '../forumTypeUtils';
 
 export const generateIdResolverSingle = <CollectionName extends CollectionNameString>({
@@ -40,7 +39,7 @@ export const generateIdResolverSingle = <CollectionName extends CollectionNameSt
 
 const generateIdResolverMulti = <CollectionName extends CollectionNameString>({
   collectionName, fieldName,
-  getKey = ((a:any)=>a)
+  getKey = ((a: any)=>a)
 }: {
   collectionName: CollectionName,
   fieldName: string,
@@ -64,12 +63,12 @@ const generateIdResolverMulti = <CollectionName extends CollectionNameString>({
 // If the user can't access the document, returns null. If the user can access the
 // document, return a copy of the document in which any fields the user can't access
 // have been removed. If document is null, returns null.
-export const accessFilterSingle = async <N extends CollectionNameString>(
+export const accessFilterSingle = async <N extends CollectionNameString, DocType extends ObjectsByCollectionName[N]>(
   currentUser: DbUser|null,
   collection: CollectionBase<N>,
-  document: ObjectsByCollectionName[N]|null,
+  document: DocType|null,
   context: ResolverContext|null,
-): Promise<Partial<ObjectsByCollectionName[N]>|null> => {
+): Promise<Partial<DocType|null>> => {
   const { checkAccess } = collection
   if (!document) return null;
   if (checkAccess && !(await checkAccess(currentUser, document, context))) return null
@@ -82,18 +81,18 @@ export const accessFilterSingle = async <N extends CollectionNameString>(
 // list, and fields which the user can't access are removed from the documents inside
 // the list. If currentUser is null, applies permission checks for the logged-out
 // view.
-export const accessFilterMultiple = async <N extends CollectionNameString>(
+export const accessFilterMultiple = async <N extends CollectionNameString, DocType extends ObjectsByCollectionName[N]>(
   currentUser: DbUser|null,
   collection: CollectionBase<N>,
-  unfilteredDocs: Array<ObjectsByCollectionName[N]|null>,
+  unfilteredDocs: Array<DocType|null>,
   context: ResolverContext|null,
-): Promise<Partial<ObjectsByCollectionName[N]>[]> => {
+): Promise<Partial<DocType>[]> => {
   const { checkAccess } = collection
   
   // Filter out nulls (docs that were referenced but didn't exist)
   // Explicit cast because the type-system doesn't detect that this is removing
   // nulls.
-  const existingDocs = _.filter(unfilteredDocs, d=>!!d) as ObjectsByCollectionName[N][];
+  const existingDocs = _.filter(unfilteredDocs, d=>!!d) as DocType[];
   // Apply the collection's checkAccess function, if it has one, to filter out documents
   const filteredDocs = checkAccess
     ? await asyncFilter(existingDocs, async (d) => await checkAccess(currentUser, d, context))
@@ -107,17 +106,29 @@ export const accessFilterMultiple = async <N extends CollectionNameString>(
 /**
  * This field is stored in the database as a string, but resolved as the
  * referenced document
- * 
- * @param {Object=} params
- * @param {boolean} params.nullable
- * whether the resolver field is nullable, not the original database field
  */
-export const foreignKeyField = <CollectionName extends CollectionNameString>({idFieldName, resolverName, collectionName, type, nullable=true}: {
+export const foreignKeyField = <CollectionName extends CollectionNameString>({
+  idFieldName,
+  resolverName,
+  collectionName,
+  type,
+  nullable=true,
+  autoJoin=false,
+}: {
   idFieldName: string,
   resolverName: string,
   collectionName: CollectionName,
   type: string,
+  /** whether the resolver field is nullable, not the original database field */
   nullable?: boolean,
+  /**
+   * If set, auto-generated SQL queries will contain a join to fetch the object
+   * this refers to. This saves a query and a DB round trip, but means that if
+   * two objects contain the same foreign-key ID and fetch the same object, the
+   * SQL result set will contain two copies. This is typically a good trade on
+   * relations where every one is going to be unique, such as currentUserVote.
+   */
+  autoJoin?: boolean,
 }) => {
   if (!idFieldName || !resolverName || !collectionName || !type)
     throw new Error("Missing argument to foreignKeyField");
@@ -133,6 +144,20 @@ export const foreignKeyField = <CollectionName extends CollectionNameString>({id
         fieldName: idFieldName,
         nullable,
       }),
+      // Currently `sqlResolver`s are only used by the default resolvers which
+      // handle permissions checks automatically. If we ever expand this system
+      // to make SQL resolvers useable by arbitrary resolvers then we (probably)
+      // need to add some permission checks here somehow.
+      ...(autoJoin ? {
+        sqlResolver: ({field, join}: SqlResolverArgs<CollectionName>) => join<HasIdCollectionNames>({
+          table: collectionName,
+          type: nullable ? "left" : "inner",
+          on: {
+            _id: field(idFieldName as FieldName<CollectionName>),
+          },
+          resolver: (foreignField) => foreignField("*"),
+        })
+      } : {}),
       addOriginalField: true,
     },
   }
@@ -143,7 +168,7 @@ export function arrayOfForeignKeysField<CollectionName extends keyof Collections
   resolverName: string,
   collectionName: CollectionName,
   type: string,
-  getKey?: (key: any)=>string,
+  getKey?: (key: any) => string,
 }) {
   if (!idFieldName || !resolverName || !collectionName || !type)
     throw new Error("Missing argument to foreignKeyField");
@@ -185,6 +210,8 @@ export const simplSchemaToGraphQLtype = (type: any): string|null => {
 
 interface ResolverOnlyFieldArgs<N extends CollectionNameString> extends CollectionFieldSpecification<N> {
   resolver: (doc: ObjectsByCollectionName[N], args: any, context: ResolverContext) => any,
+  sqlResolver?: SqlResolver<N>,
+  sqlPostProcess?: SqlPostProcess<N>,
   graphQLtype?: string|GraphQLScalarType|null,
   graphqlArguments?: string|null,
 }
@@ -197,6 +224,8 @@ export const resolverOnlyField = <N extends CollectionNameString>({
   type,
   graphQLtype=null,
   resolver,
+  sqlResolver,
+  sqlPostProcess,
   graphqlArguments=null,
   ...rest
 }: ResolverOnlyFieldArgs<N>): CollectionFieldSpecification<N> => {
@@ -209,7 +238,9 @@ export const resolverOnlyField = <N extends CollectionNameString>({
     resolveAs: {
       type: resolverType,
       arguments: graphqlArguments,
-      resolver: resolver,
+      resolver,
+      sqlResolver,
+      sqlPostProcess,
     },
     ...rest
   }
@@ -276,6 +307,10 @@ SimpleSchema.extendOptions(['canAutoDenormalize'])
 // the collection and the denormalized option is false.
 SimpleSchema.extendOptions(['logChanges'])
 
+// For fields that are automatically updated counts of references (see
+// addCountOfReferenceCallbacks).
+SimpleSchema.extendOptions(['countOfReferences']);
+
 
 // Helper function to add all the correct callbacks and metadata for a field
 // which is denormalized, where its denormalized value is a function only of
@@ -312,93 +347,24 @@ export function denormalizedField<N extends CollectionNameString>({ needsUpdate,
 export function denormalizedCountOfReferences<
   SourceCollectionName extends CollectionNameString,
   TargetCollectionName extends CollectionNameString
->({ collectionName, fieldName, foreignCollectionName, foreignTypeName, foreignFieldName, filterFn }: {
+>({
+  collectionName,
+  fieldName,
+  foreignCollectionName,
+  foreignTypeName,
+  foreignFieldName,
+  filterFn,
+  resyncElastic,
+}: {
   collectionName: SourceCollectionName,
   fieldName: string & keyof ObjectsByCollectionName[SourceCollectionName],
   foreignCollectionName: TargetCollectionName,
   foreignTypeName: string,
   foreignFieldName: string & keyof ObjectsByCollectionName[TargetCollectionName],
-  filterFn?: (doc: ObjectsByCollectionName[TargetCollectionName])=>boolean,
+  filterFn?: (doc: ObjectsByCollectionName[TargetCollectionName]) => boolean,
+  resyncElastic?: boolean,
 }): CollectionFieldSpecification<SourceCollectionName> {
-  const denormalizedLogger = loggerConstructor(`callbacks-${collectionName.toLowerCase()}-denormalized-${fieldName}`)
-
-  const foreignCollectionCallbackPrefix = foreignTypeName.toLowerCase();
   const filter = filterFn || ((doc: ObjectsByCollectionName[TargetCollectionName]) => true);
-  
-  if (isServer)
-  {
-    // When inserting a new document which potentially needs to be counted, follow
-    // its reference and update with $inc.
-    const createCallback = async (newDoc: AnyBecauseTodo, {currentUser, collection, context}: AnyBecauseTodo) => {
-      denormalizedLogger(`about to test new ${foreignTypeName}`, newDoc)
-      if (newDoc[foreignFieldName] && filter(newDoc)) {
-        denormalizedLogger(`new ${foreignTypeName} should increment ${newDoc[foreignFieldName]}`)
-        const collection = getCollection(collectionName);
-        await collection.rawUpdateOne(newDoc[foreignFieldName], {
-          $inc: { [fieldName]: 1 }
-        });
-      }
-      
-      return newDoc;
-    }
-    addCallback(`${foreignCollectionCallbackPrefix}.create.after`, createCallback);
-    
-    // When updating a document, we may need to decrement a count, we may
-    // need to increment a count, we may need to do both with them cancelling
-    // out, or we may need to both but on different documents.
-    addCallback(`${foreignCollectionCallbackPrefix}.update.after`,
-      async (newDoc: AnyBecauseTodo, {oldDocument, currentUser, collection}: AnyBecauseTodo) => {
-        denormalizedLogger(`about to test updating ${foreignTypeName}`, newDoc, oldDocument)
-        const countingCollection = getCollection(collectionName);
-        if (filter(newDoc) && !filter(oldDocument)) {
-          // The old doc didn't count, but the new doc does. Increment on the new doc.
-          if (newDoc[foreignFieldName]) {
-            denormalizedLogger(`updated ${foreignTypeName} should increment ${newDoc[foreignFieldName]}`)
-            await countingCollection.rawUpdateOne(newDoc[foreignFieldName], {
-              $inc: { [fieldName]: 1 }
-            });
-          }
-        } else if (!filter(newDoc) && filter(oldDocument)) {
-          // The old doc counted, but the new doc doesn't. Decrement on the old doc.
-          if (oldDocument[foreignFieldName]) {
-            denormalizedLogger(`updated ${foreignTypeName} should decrement ${newDoc[foreignFieldName]}`)
-            await countingCollection.rawUpdateOne(oldDocument[foreignFieldName], {
-              $inc: { [fieldName]: -1 }
-            });
-          }
-        } else if (filter(newDoc) && oldDocument[foreignFieldName] !== newDoc[foreignFieldName]) {
-          denormalizedLogger(`${foreignFieldName} of ${foreignTypeName} has changed from ${oldDocument[foreignFieldName]} to ${newDoc[foreignFieldName]}`)
-          // The old and new doc both count, but the reference target has changed.
-          // Decrement on one doc and increment on the other.
-          if (oldDocument[foreignFieldName]) {
-            denormalizedLogger(`changing ${foreignFieldName} leads to decrement of ${oldDocument[foreignFieldName]}`)
-            await countingCollection.rawUpdateOne(oldDocument[foreignFieldName], {
-              $inc: { [fieldName]: -1 }
-            });
-          }
-          if (newDoc[foreignFieldName]) {
-            denormalizedLogger(`changing ${foreignFieldName} leads to increment of ${newDoc[foreignFieldName]}`)
-            await countingCollection.rawUpdateOne(newDoc[foreignFieldName], {
-              $inc: { [fieldName]: 1 }
-            });
-          }
-        }
-        return newDoc;
-      }
-    );
-    addCallback(`${foreignCollectionCallbackPrefix}.delete.async`,
-      async ({document, currentUser, collection}: AnyBecauseTodo) => {
-        denormalizedLogger(`about to test deleting ${foreignTypeName}`, document)
-        if (document[foreignFieldName] && filter(document)) {
-          denormalizedLogger(`deleting ${foreignTypeName} should decrement ${document[foreignFieldName]}`)
-          const countingCollection = getCollection(collectionName);
-          await countingCollection.rawUpdateOne(document[foreignFieldName], {
-            $inc: { [fieldName]: -1 }
-          });
-        }
-      }
-    );
-  }
   
   return {
     type: Number,
@@ -427,7 +393,14 @@ export function denormalizedCountOfReferences<
       
       const docsThatCount = _.filter(docsThatMayCount, d=>filter(d));
       return docsThatCount.length;
-    }
+    },
+    
+    countOfReferences: {
+      foreignCollectionName,
+      foreignFieldName,
+      filterFn,
+      resyncElastic: (resyncElastic && !isAnyTest) ?? false,
+    },
   }
 }
 
@@ -440,13 +413,15 @@ export function googleLocationToMongoLocation(gmaps: AnyBecauseTodo) {
 export function schemaDefaultValue<N extends CollectionNameString>(
   defaultValue: any,
 ): Partial<CollectionFieldSpecification<N>> {
+  const isForumSpecific = defaultValue instanceof DeferredForumSelect;
+
   // Used for both onCreate and onUpdate
   const fillIfMissing = ({ newDocument, fieldName }: {
     newDocument: ObjectsByCollectionName[N];
     fieldName: string;
   }) => {
     if (newDocument[fieldName as keyof ObjectsByCollectionName[N]] === undefined) {
-      return defaultValue instanceof DeferredForumSelect ? defaultValue.get() : defaultValue;
+      return isForumSpecific ? defaultValue.get() : defaultValue;
     } else {
       return undefined;
     }
@@ -465,7 +440,7 @@ export function schemaDefaultValue<N extends CollectionNameString>(
   };
 
   return {
-    defaultValue: defaultValue,
+    defaultValue: isForumSpecific ? defaultValue.getDefault() : defaultValue,
     onCreate: fillIfMissing,
     onUpdate: throwIfSetToNull,
     canAutofillDefault: true,

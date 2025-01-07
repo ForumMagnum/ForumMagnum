@@ -2,8 +2,7 @@ import React, { useState, useCallback, useMemo } from 'react';
 import { useUserLocation } from '../../../lib/collections/users/helpers';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { useCurrentUser } from '../../common/withUser';
-import { Helmet } from 'react-helmet'
-import ReactMapGL, { Marker } from 'react-map-gl';
+import BadlyTypedReactMapGL, { Marker as BadlyTypedMarker } from 'react-map-gl';
 import { defaultCenter } from '../../localGroups/CommunityMap';
 import { mapboxAPIKeySetting } from '../../../lib/publicSettings';
 import { ArrowSVG } from '../../localGroups/Icons';
@@ -12,6 +11,11 @@ import { useSingle } from '../../../lib/crud/withSingle';
 import { ACX_EVENTS_LAST_UPDATED, LocalEvent, localEvents } from './acxEvents';
 import classNames from 'classnames';
 import moment from 'moment';
+import { componentWithChildren, Helmet } from '../../../lib/utils/componentsWithChildren';
+import { useMapStyle } from '@/components/hooks/useMapStyle';
+
+const ReactMapGL = componentWithChildren(BadlyTypedReactMapGL);
+const Marker = componentWithChildren(BadlyTypedMarker);
 
 const styles = (theme: JssStyles) => ({
   root: {
@@ -45,9 +49,9 @@ const styles = (theme: JssStyles) => ({
   },
 })
 
-const LocalEventWrapperPopUp = ({localEvent, handleClose}:{
+const LocalEventWrapperPopUp = ({localEvent, handleClose}: {
   localEvent: LocalEvent,
-  handleClose: (eventId: string)=>void
+  handleClose: (eventId: string) => void
 }) => {
   const { StyledMapPopup, GroupLinks } = Components
   const { document, loading } = useSingle({
@@ -103,10 +107,10 @@ const LocalEventMapMarkerWrappers = ({localEvents, classes}: {
   const { LocalEventWrapperPopUp } = Components
   const [ openWindows, setOpenWindows ] = useState<string[]>([])
   const handleClick = useCallback(
-    (id) => { setOpenWindows([id]) }
+    (id: string) => { setOpenWindows([id]) }
     , []
   )
-  const handleClose = useCallback(id => { 
+  const handleClose = useCallback((id: string) => { 
       setOpenWindows(openWindows.filter(windowId => windowId !== id))
     }, [openWindows]
   )
@@ -167,7 +171,9 @@ export const HomepageCommunityMap = ({dontAskUserLocation = false, classes}: {
       </div>
     </>
   }, [LocalEventMapMarkerWrappers, HomepageMapFilter, classes.mapButtons])
-  
+
+  const mapStyle = useMapStyle();
+
   return <div className={classes.root}>
     <Helmet> 
       <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.1/mapbox-gl.css' rel='stylesheet' />
@@ -176,7 +182,7 @@ export const HomepageCommunityMap = ({dontAskUserLocation = false, classes}: {
       {...viewport}
       width="100%"
       height="100%"
-      mapStyle={"mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra"}
+      mapStyle={mapStyle}
       onViewportChange={viewport => setViewport(viewport)}
       mapboxApiAccessToken={mapboxAPIKeySetting.get() ?? undefined}
     >

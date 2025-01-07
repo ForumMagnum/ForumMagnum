@@ -2,9 +2,9 @@ import { addGraphQLResolvers, addGraphQLQuery } from '../../lib/vulcan-lib/graph
 import { isValidCollectionName } from '../../lib/vulcan-lib/getCollection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { editableCollections, editableCollectionsFields, } from '../../lib/editor/make_editable';
-import { getPrecedingRev } from '../editor/make_editable_callbacks';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { diffHtml } from './htmlDiff';
+import { getPrecedingRev } from '../editor/utils';
 
 addGraphQLResolvers({
   Query: {

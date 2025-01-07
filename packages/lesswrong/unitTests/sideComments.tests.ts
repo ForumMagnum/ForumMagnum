@@ -176,7 +176,6 @@ describe('matchSideComments', () => {
   it('annotates a quoted range', () => {
     chai.assert.deepEqual(
       matchSideComments({
-        postId: "postId",
         html: "<div><p>Lorem ipsum dolor sit amet adipiscing</p></div>",
         quoteShardSettings: testQuoteShardSettings,
         comments: [{

@@ -1,6 +1,9 @@
 import { userOwns } from '../../vulcan-users/permissions';
-import { schemaDefaultValue, resolverOnlyField } from '../../utils/schemaUtils';
+import { schemaDefaultValue, resolverOnlyField, accessFilterSingle } from '../../utils/schemaUtils';
 import GraphQLJSON from 'graphql-type-json';
+import { Comments } from '../comments';
+import TagRels from '../tagRels/collection';
+import { Posts } from '../posts';
 
 //
 // Votes. From the user's perspective, they have a vote-state for each voteable
@@ -72,6 +75,7 @@ const schema: SchemaType<"Votes"> = {
   // neutral if it doesn't.
   voteType: {
     type: String,
+    allowedValues: ['bigDownvote', 'bigUpvote', 'neutral', 'smallDownvote', 'smallUpvote'], 
     nullable: false,
     canRead: ['guests'],
   },
@@ -143,9 +147,10 @@ const schema: SchemaType<"Votes"> = {
     type: "TagRel",
     graphQLtype: 'TagRel',
     canRead: [docIsTagRel, 'admins'],
-    resolver: async (vote: DbVote, args: void, { TagRels }: ResolverContext): Promise<DbTagRel|null> => {
+    resolver: async (vote: DbVote, args: void, context: ResolverContext) => {
       if (vote.collectionName === "TagRels") {
-        return await TagRels.findOne({_id: vote.documentId});
+        const tagRel = await context.loaders.TagRels.load(vote.documentId);
+        return accessFilterSingle(context.currentUser, TagRels, tagRel, context);
       } else {
         return null;
       }
@@ -156,9 +161,10 @@ const schema: SchemaType<"Votes"> = {
     type: "Comment",
     graphQLtype: 'Comment',
     canRead: ['guests'],
-    resolver: async (vote: DbVote, args: void, context: ResolverContext): Promise<DbComment|null> => {
+    resolver: async (vote: DbVote, args: void, context: ResolverContext) => {
       if (vote.collectionName === "Comments") {
-        return await context.loaders.Comments.load(vote.documentId);
+        const comment = await context.loaders.Comments.load(vote.documentId);
+        return accessFilterSingle(context.currentUser, Comments, comment, context);
       } else {
         return null;
       }
@@ -169,9 +175,10 @@ const schema: SchemaType<"Votes"> = {
     type: "Post",
     graphQLtype: 'Post',
     canRead: ['guests'],
-    resolver: async (vote: DbVote, args: void, context: ResolverContext): Promise<DbPost|null> => {
+    resolver: async (vote: DbVote, args: void, context: ResolverContext) => {
       if (vote.collectionName === "Posts") {
-        return await context.loaders.Posts.load(vote.documentId);
+        const post = await context.loaders.Posts.load(vote.documentId);
+        return accessFilterSingle(context.currentUser, Posts, post, context);
       } else {
         return null;
       }

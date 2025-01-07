@@ -25,7 +25,7 @@ export function addServerSentEventsEndpoint(app: Express) {
     const parsedUrl = new URL(req.url, getSiteUrl())
     const apiVersionStr = parsedUrl.searchParams.get("version") ?? "1";
     const apiVersion = parseInt(apiVersionStr);
-    const currentUser = await getUserFromReq(req)
+    const currentUser = getUserFromReq(req)
 
     // Can't subscribe to notifications if logged out
     if (!currentUser) {
@@ -77,9 +77,29 @@ export function addServerSentEventsEndpoint(app: Express) {
   });
   
   setInterval(checkForNotifications, 1000);
-  setInterval(checkForTypingIndicators, 1000);
   if (!isEAForum) {
-    setInterval(checkForActiveDialoguePartners, 1000);
+    setInterval(checkForTypingIndicators, 1000);
+    // setInterval(checkForActiveDialoguePartners, 1000);
+  }
+}
+
+/*
+ * FIXME: This function can't be used in practice because it only works if the
+ * user is connected to the same server as this function is called on, but user
+ * server-sent event connections are sent by the load balancer to a randomly
+ * selected server.
+ */
+function sendSseMessageToUser(userId: string, message: ServerSentEventsMessage) {
+  const userConnections = openConnections[userId];
+  if (!userConnections) {
+    // TODO: do we want to log an error here?  Probably not, it'll be happening reasonably often for innocous reasons
+    // eslint-disable-next-line no-console
+    console.log(`No connections found for user id ${userId}`, message);
+    return;
+  }
+
+  for (let userConnection of userConnections) {
+    userConnection.res.write(`data: ${JSON.stringify(message)}\n\n`);
   }
 }
 
@@ -200,7 +220,7 @@ async function checkForTypingIndicators() {
   for (let userId of Object.keys(results)) {
     if (openConnections[userId]) {
       for (let connection of openConnections[userId]) {
-        const message : TypingIndicatorMessage = {
+        const message: TypingIndicatorMessage = {
           eventType: "typingIndicator", 
           typingIndicators: results[userId],
         }
@@ -229,7 +249,7 @@ async function checkForActiveDialoguePartners() {
 
   const userIds = Object.keys(openConnections);
 
-  const activeDialogues:ActiveDialogueServer[] = await new UsersRepo().getActiveDialogues(userIds);
+  const activeDialogues: ActiveDialogueServer[] = await new UsersRepo().getActiveDialogues(userIds);
 
   const allUsersDialoguesData: Record<string, ActiveDialogue[]> = {};
   for (let dialogue of activeDialogues) {

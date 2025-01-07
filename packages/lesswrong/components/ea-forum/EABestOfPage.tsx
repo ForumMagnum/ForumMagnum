@@ -105,11 +105,11 @@ const featuredCollectionsSequenceIds = [
   "gBjPorwZHRArNSQ5w", // Most important century implications
 ];
 const bestOfYearPostIds = [
-  "vwK3v3Mekf6Jjpeep", // Lets think about slowing down AI
-  "uH9akQzJkzpBD5Duw", // What you can do to help stop violence against women and girls
-  "zy6jGPeFKHaoxKEfT", // Capability approach to human welfare
-  "pbMfYGjBqrhmmmDSo", // Nuclear winter
-  "EEMpNRJK5qqCw6zqH", // Historical farmed animal welfare ballot initiatives
+  "XkLnbSsjK7TpNFgPn", // Truthseeking is the ground in which other principles grow
+  "da6iKGxco8hjwH4nv", // Detecting Genetically Engineered Viruses With Metagenomic Sequencing
+  "upR4t3gM4YxsKFBCG", // Can we help individual people cost-effectively? Our trial with three sick kids
+  "JuGhpwTJxbeGt5GhH", // Good Judgment with Numbers
+  "bT3WrFn6H4fpvLSk8", // Policy advocacy for eradicating screwworm looks remarkably cost-effective
 ];
 const introToCauseAreasSequenceIds = [
   "vtmN9g6C57XbqPrZS", // AI risk
@@ -124,19 +124,20 @@ const featuredVideoPostIds = [
   "whEmrvK9pzioeircr", // Will AI end everything?
   "LtaT28tevyLbDwidb", // An update to our thinking on climate change
 ];
-const featuredAudioPostIds = [
-  "coryFCkmcMKdJb7Pz", // Does economic growth meaningfully improve well-being?
-  "rXYW9GPsmwZYu3doX", // What happens on the average day?
-  "ffmbLCzJctLac3rDu", // StrongMinds should not be a top rated charity (yet)
-];
+// TODO: re-enable these when we fix the audio player
+// const featuredAudioPostIds = [
+//   "coryFCkmcMKdJb7Pz", // Does economic growth meaningfully improve well-being?
+//   "rXYW9GPsmwZYu3doX", // What happens on the average day?
+//   "ffmbLCzJctLac3rDu", // StrongMinds should not be a top rated charity (yet)
+// ];
 
-const allPostIds = [...bestOfYearPostIds, ...featuredVideoPostIds, ...featuredAudioPostIds];
+const allPostIds = [...bestOfYearPostIds, ...featuredVideoPostIds];
 
 const allSequenceIds = [...featuredCollectionsSequenceIds, ...introToCauseAreasSequenceIds];
 
 const allCollectionIds = [...featuredCollectionsCollectionIds];
 
-const digestLink = "https://effectivealtruism.us8.list-manage.com/subscribe?u=52b028e7f799cca137ef74763&id=7457c7ff3e";
+export const digestLink = "https://effectivealtruism.us8.list-manage.com/subscribe?u=52b028e7f799cca137ef74763&id=7457c7ff3e";
 
 const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
   const currentCuratedPostCount = useCurrentCuratedPostCount();
@@ -168,7 +169,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
     fragmentName: "PostsListWithVotes",
     terms: {
       view: "curated",
-      after: moment(currentTime).subtract(1, "month").startOf("day").toDate(),
+      curatedAfter: moment(currentTime).subtract(1, "month").startOf("day").toDate(),
     },
   });
 
@@ -180,12 +181,12 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
     return <Components.Loading />;
   }
 
-  const bestOfYearPosts = bestOfYearPostIds.map((id) => postsById[id]);
-  const featuredVideoPosts = featuredVideoPostIds.map((id) => postsById[id]);
-  const featuredAudioPosts = featuredAudioPostIds.map((id) => postsById[id]);
-  const featuredCollectionCollections = featuredCollectionsCollectionIds.map((id) => collectionsById[id]);
-  const featuredCollectionSequences = featuredCollectionsSequenceIds.map((id) => sequencesById[id]);
-  const introToCauseAreasSequences = introToCauseAreasSequenceIds.map((id) => sequencesById[id]);
+  const bestOfYearPosts = bestOfYearPostIds.map((id) => postsById[id]).filter(p => !!p);
+  const featuredVideoPosts = featuredVideoPostIds.map((id) => postsById[id]).filter(p => !!p);
+  // const featuredAudioPosts = featuredAudioPostIds.map((id) => postsById[id]).filter(p => !!p);
+  const featuredCollectionCollections = featuredCollectionsCollectionIds.map((id) => collectionsById[id]).filter(c => !!c);
+  const featuredCollectionSequences = featuredCollectionsSequenceIds.map((id) => sequencesById[id]).filter(s => !!s);
+  const introToCauseAreasSequences = introToCauseAreasSequenceIds.map((id) => sequencesById[id]).filter(s => !!s);
 
   const {
     HeadTags, EASequenceCard, EACollectionCard, EAPostsItem, PostsAudioCard,
@@ -267,7 +268,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
                   ))}
                 </div>
                 <div className={classes.viewMore}>
-                  <Link to="/allPosts?timeframe=monthly&hideCommunity=true&sortedBy=top">
+                  <Link to="/recommendations">
                     View more
                   </Link>
                 </div>
@@ -286,7 +287,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
                 </div>
               </div>
             </AnalyticsContext>
-            <AnalyticsContext pageSectionContext="featuredAudio">
+            {/* <AnalyticsContext pageSectionContext="featuredAudio">
               <div>
                 <h2 className={classes.heading}>Featured audio</h2>
                 <div className={classNames(classes.listSection, classes.listGap)}>
@@ -295,7 +296,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
                   ))}
                 </div>
               </div>
-            </AnalyticsContext>
+            </AnalyticsContext> */}
           </div>
         </div>
       </AnalyticsContext>

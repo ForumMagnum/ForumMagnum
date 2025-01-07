@@ -2,7 +2,8 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import React from 'react';
 import { createStyles } from '@material-ui/core/styles';
 import { getSearchClient } from '../../../lib/search/searchUtil';
-import { Configure, InstantSearch } from 'react-instantsearch-dom';
+import { Configure } from 'react-instantsearch-dom';
+import { InstantSearch } from "../../../lib/utils/componentsWithChildren";
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   map: {

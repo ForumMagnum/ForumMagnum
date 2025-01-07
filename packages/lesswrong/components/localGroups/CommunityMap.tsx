@@ -4,13 +4,20 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { createStyles } from '@material-ui/core/styles';
 import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { useLocation } from '../../lib/routeUtil';
-import ReactMapGL, { Marker } from 'react-map-gl';
-import { Helmet } from 'react-helmet'
+import BadlyTypedReactMapGL, { Marker as BadlyTypedMarker } from 'react-map-gl';
 import * as _ from 'underscore';
 import { mapboxAPIKeySetting } from '../../lib/publicSettings';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import PersonIcon from '@material-ui/icons/Person';
 import classNames from 'classnames';
+import { componentWithChildren, Helmet } from '../../lib/utils/componentsWithChildren';
+import {isFriendlyUI} from '../../themes/forumTheme'
+import { filterNonnull } from '../../lib/utils/typeGuardUtils';
+import { spreadMapMarkers } from '../../lib/utils/spreadMapMarkers';
+import { useMapStyle } from '../hooks/useMapStyle';
+
+const ReactMapGL = componentWithChildren(BadlyTypedReactMapGL);
+const Marker = componentWithChildren(BadlyTypedMarker);
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {
@@ -54,7 +61,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   mapButtons: {
     alignItems: "flex-end",
     position: "absolute",
-    top: 10,
+    top: isFriendlyUI ? 40 : 10,
     right: 10,
     display: "flex",
     flexDirection: "column",
@@ -75,7 +82,7 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
   groupTerms: LocalgroupsViewTerms,
   eventTerms?: PostsViewTerms,
   keywordSearch?: string,
-  initialOpenWindows: Array<any>,
+  initialOpenWindows: Array<string>,
   center?: {lat: number, lng: number},
   zoom: number,
   classes: ClassesType,
@@ -91,11 +98,11 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
 
   const [ openWindows, setOpenWindows ] = useState(initialOpenWindows)
   const handleClick = useCallback(
-    (id) => { setOpenWindows([id]) }
+    (id: string) => { setOpenWindows([id]) }
     , []
   )
   const handleClose = useCallback(
-    (id) => { setOpenWindows(_.without(openWindows, id))}
+    (id: string) => { setOpenWindows(_.without(openWindows, id))}
     , [openWindows]
   )
 
@@ -146,11 +153,11 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
     terms: {view: "usersMapLocations"},
     collectionName: "Users",
     fragmentName: "UsersMapEntry",
-    limit: 500,
+    limit: 5000,
     skip: !showUsers
   })
 
-  const isEAForum = forumTypeSetting.get() === 'EAForum';
+  const mapStyle = useMapStyle();
 
   const renderedMarkers = useMemo(() => {
     return <React.Fragment>
@@ -180,7 +187,7 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
         {...viewport}
         width="100%"
         height="100%"
-        mapStyle={isEAForum ? undefined : "mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra"}
+        mapStyle={mapStyle}
         onViewportChange={viewport => setViewport(viewport)}
         mapboxApiAccessToken={mapboxAPIKeySetting.get() || undefined}
       >
@@ -200,17 +207,30 @@ const personalMapMarkerStyles = (theme: ThemeType): JssStyles => ({
 })
 const PersonalMapLocationMarkers = ({users, handleClick, handleClose, openWindows, classes}: {
   users: Array<UsersMapEntry>,
-  handleClick: (userId: string)=>void,
-  handleClose: (userId: string)=>void,
+  handleClick: (userId: string) => void,
+  handleClose: (userId: string) => void,
   openWindows: any,
   classes: ClassesType,
 }) => {
   const { StyledMapPopup } = Components
+  
+  const mapLocations = filterNonnull(users.map(user => {
+    const location = user.mapLocationLatLng
+    if (!location) return null
+    
+    const {lat, lng} = location
+    if (typeof lat !== 'number' || typeof lng !== 'number') return null
+    
+    return {
+      lat, lng,
+      data: user,
+    }
+  }));
+  
+  const spreadMapLocations = spreadMapMarkers(mapLocations, u=>u.displayName);
+  
   return <React.Fragment>
-    {users.map(user => {
-      const location = user.mapLocation
-      if (!location?.geometry?.location?.lat || !location?.geometry?.location?.lng) return null
-      const { geometry: {location: {lat, lng}}} = location
+    {spreadMapLocations.map(({lat, lng, data: user}) => {
       const htmlBody = {__html: user.htmlMapMarkerText};
       return <React.Fragment key={user._id}>
         <Marker
@@ -243,8 +263,8 @@ const PersonalMapLocationMarkersTypes = registerComponent("PersonalMapLocationMa
 
 const LocalEventsMapMarkers = ({events, handleClick, handleClose, openWindows}: {
   events: Array<PostsList>,
-  handleClick: (eventId: string)=>void,
-  handleClose: (eventId: string)=>void,
+  handleClick: (eventId: string) => void,
+  handleClose: (eventId: string) => void,
   openWindows: any,
 }) => {
   return <>{events.map((event) => {
@@ -261,8 +281,8 @@ const LocalEventsMapMarkers = ({events, handleClick, handleClose, openWindows}: 
 
 const LocalGroupsMapMarkers = ({groups, handleClick, handleClose, openWindows}: {
   groups: Array<localGroupsHomeFragment>,
-  handleClick: (eventId: string)=>void,
-  handleClose: (eventId: string)=>void,
+  handleClick: (eventId: string) => void,
+  handleClose: (eventId: string) => void,
   openWindows: any,
 }) => {
   return <>{groups.map((group) => {

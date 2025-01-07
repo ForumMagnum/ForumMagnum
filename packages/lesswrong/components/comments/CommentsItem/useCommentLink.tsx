@@ -1,9 +1,11 @@
-import React, { FC, MouseEvent } from "react";
+import React, { FC, MouseEvent, PropsWithChildren, useContext } from "react";
 import { useTracking } from "../../../lib/analyticsEvents";
 import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
-import { useLocation } from "../../../lib/routeUtil";
+import { useSubscribedLocation } from "../../../lib/routeUtil";
 import { Link, useNavigate } from "../../../lib/reactRouterWrapper";
 import qs from "qs";
+import { commentPermalinkStyleSetting } from "@/lib/publicSettings";
+import { EnvironmentOverrideContext } from "@/lib/utils/timeUtil";
 
 export type UseCommentLinkProps = {
   comment: Pick<CommentsList, "_id" | "tagCommentType">,
@@ -20,10 +22,10 @@ export const useCommentLink = ({
   tag,
   scrollOnClick,
   scrollIntoView,
-  permalink = true,
+  permalink,
 }: UseCommentLinkProps) => {
   const navigate = useNavigate();
-  const {location, query} = useLocation();
+  const {location, query} = useSubscribedLocation();
   const {captureEvent} = useTracking();
 
   const url = commentGetPageUrlFromIds({
@@ -51,10 +53,13 @@ export const useCommentLink = ({
     }
 
     event.preventDefault();
-    navigate({
-      ...location,
+    const navigateArgs = {
       search: qs.stringify({...query, commentId: comment._id}),
       hash: null,
+    }
+    navigate({
+      ...location,
+      ...navigateArgs
     });
 
     if (scrollIntoView) {
@@ -62,7 +67,7 @@ export const useCommentLink = ({
     }
   }
 
-  const Wrapper: FC = scrollOnClick
+  const Wrapper: FC<PropsWithChildren<{}>> = scrollOnClick
     ? ({children}) => (
       <a rel="nofollow" href={url} onClick={handleLinkClick}>
         {children}
@@ -75,4 +80,22 @@ export const useCommentLink = ({
     );
 
   return Wrapper;
+}
+
+/**
+ * Retrieve the ids of the currently permalinked comment, and the comment that should be scrolled to.
+ * If using 'in-context' links then these will both generally be the `?commentId=id` comment.
+ * If using 'top' links then the permalinked comment will be the `?commentId=id` one and the scrollToCommentId
+ * will be taken from the `#id` part of the URL if present.
+ */
+export const useCommentLinkState = () => {
+  const { query, hash } = useSubscribedLocation();
+  const { matchSSR } = useContext(EnvironmentOverrideContext);
+
+  const queryId = query.commentId
+  const hashId = matchSSR ? '' : hash.slice(1)
+
+  const scrollToCommentId = commentPermalinkStyleSetting.get() === 'in-context' ? queryId ?? hashId : hashId
+
+  return { linkedCommentId: queryId, scrollToCommentId }
 }

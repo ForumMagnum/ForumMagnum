@@ -1,10 +1,29 @@
+import { getCkEditor } from "@/client/importCkEditor";
 
-export const getCkEditor = () => {
-  const ckEditor = bundleIsServer ? {} : require('../../../public/lesswrong-editor/build/ckeditor');
-  
-  const { EditorWatchdog, CommentEditor, PostEditor, PostEditorCollaboration } = ckEditor;
-  return { EditorWatchdog, CommentEditor, PostEditor, PostEditorCollaboration };
+let commentEditor: any = null;
+export const getCkCommentEditor = () => {
+  const { getCommentEditor } = getCkEditor();
+  if (!commentEditor) {
+    commentEditor = getCommentEditor();
+  }
+  return commentEditor;
 }
 
-export const ckEditorBundleVersion = "31.0.15";
+let postEditor: any = null;
+let postEditorCollaborative: any = null;
+export const getCkPostEditor = (isCollaborative: boolean) => {
+  const { getPostEditor, getPostEditorCollaboration } = getCkEditor();
+  if (isCollaborative) {
+    if (!postEditorCollaborative) {
+      postEditorCollaborative = getPostEditorCollaboration();
+    }
+    return postEditorCollaborative;
+  } else {
+    if (!postEditor) {
+      postEditor = getPostEditor();
+    }
+    return postEditor;
+  }
+}
 
+export const ckEditorBundleVersion = "43.1.5";

@@ -7,19 +7,35 @@ registerFragment(`
     documentType
     spotlightImageId
     spotlightDarkImageId
+    spotlightSplashImageUrl
     draft
+    deletedDraft
     position
     lastPromotedAt
     customTitle
     customSubtitle
+    subtitleUrl
     headerTitle
     headerTitleLeftColor
     headerTitleRightColor
     duration
     showAuthor
     imageFade
+    imageFadeColor
   }
 `)
+
+registerFragment(`
+  fragment SpotlightReviewWinner on Spotlight {
+    ...SpotlightMinimumInfo
+    description {
+      html
+    }
+    sequenceChapters {
+      ...ChaptersFragment
+    }
+  }
+`);
 
 registerFragment(`
   fragment SpotlightHeaderEventSubtitle on Spotlight {
@@ -42,6 +58,9 @@ registerFragment(`
         displayName
         slug
       }
+      reviews {
+        ...CommentsList
+      }
     }
     sequenceChapters {
       ...ChaptersFragment
@@ -51,6 +70,7 @@ registerFragment(`
     }
   }
 `);
+
 
 registerFragment(`
   fragment SpotlightEditQueryFragment on Spotlight {

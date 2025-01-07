@@ -5,19 +5,21 @@ import * as reactRouter from 'react-router';
 // eslint-disable-next-line no-restricted-imports
 import * as reactRouterDom from 'react-router-dom';
 import { HashLink, HashLinkProps } from "../components/common/HashLink";
-import { classifyHost, getUrlClass } from './routeUtil';
-import { NavigationContext, parseQuery } from './vulcan-core/appContext'
+import { classifyHost } from './routeUtil';
+import { parseQuery } from './vulcan-core/appContext'
 import qs from 'qs'
+import { getUrlClass } from '@/server/utils/getUrlClass';
 
-type LinkProps = {
+export type LinkProps = {
   to?: HashLinkProps['to']|null
+  doOnDown?: boolean
   onMouseDown?: HashLinkProps['onMouseDown']
   onClick?: HashLinkProps['onClick']
   rel?: string
   eventProps?: Record<string, string>
   className?: string
   style?: CSSProperties,
-  dangerouslySetInnerHTML?: {__html: string}
+  dangerouslySetInnerHTML?: {__html: TrustedHTML}
   target?: string
   smooth?: boolean,
   id?: string
@@ -29,7 +31,13 @@ const isLinkValid = (props: LinkProps): props is HashLinkProps => {
 };
 
 export const Link = ({eventProps, ...props}: LinkProps) => {
-  const { captureEvent } = useTracking({eventType: "linkClicked", eventProps: {to: props.to, ...(eventProps ?? {})}})
+  const { captureEvent } = useTracking({
+    eventType: "linkClicked",
+    eventProps: {
+      to: String(props.to),
+      ...(eventProps ?? {}),
+    },
+  });
   const handleClick = (e: AnyBecauseTodo) => {
     captureEvent(undefined, {buttonPressed: e.button})
     props.onMouseDown && props.onMouseDown(e)
@@ -82,4 +90,4 @@ function isOffsiteLink(url: string): boolean {
 }
 
 export const Redirect = reactRouter.Redirect;
-export { useNavigate, NavigateFunction } from './routeUtil';
+export { useNavigate } from './routeUtil';

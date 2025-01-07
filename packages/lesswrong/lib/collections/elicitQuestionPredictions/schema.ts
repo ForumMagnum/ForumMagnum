@@ -1,5 +1,5 @@
 import SimpleSchema from 'simpl-schema';
-import { foreignKeyField, resolverOnlyField } from '../../utils/schemaUtils';
+import { foreignKeyField, resolverOnlyField, schemaDefaultValue } from '../../utils/schemaUtils';
 
 const commonFields = (nullable: boolean) => ({
   hidden: true,
@@ -28,7 +28,7 @@ const schema: SchemaType<"ElicitQuestionPredictions"> = {
   }),
   prediction: {
     type: Number,
-    ...commonFields(false)
+    ...commonFields(true)
   },
   createdAt: {
     type: Date,
@@ -70,6 +70,11 @@ const schema: SchemaType<"ElicitQuestionPredictions"> = {
       nullable: false
     }),
     ...commonFields(false)
+  },
+  isDeleted: {
+    type: Boolean,
+    ...commonFields(false),
+    ...schemaDefaultValue(false),
   },
 };
 

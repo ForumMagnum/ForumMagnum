@@ -22,11 +22,13 @@ import { getParentPath } from '../../lib/vulcan-forms/path_utils';
 import { convertSchema, formProperties, getEditableFields, getInsertableFields } from '../../lib/vulcan-forms/schema_utils';
 import { getSimpleSchema } from '../../lib/utils/getSchema';
 import { isEmptyValue } from '../../lib/vulcan-forms/utils';
-import { getErrors, mergeWithComponents, runCallbacksList } from '../../lib/vulcan-lib';
+import { getErrors, mergeWithComponents } from '../../lib/vulcan-lib';
 import { removeProperty } from '../../lib/vulcan-lib/utils';
 import { callbackProps, SmartFormProps } from './propTypes';
 import { isFunction } from '../../lib/utils/typeGuardUtils';
 import { formatLabel, formatMessage } from '../../lib/vulcan-i18n/provider';
+import classNames from 'classnames';
+import { runCallbacksList } from './runCallbacksList';
 
 /** FormField in the process of being created */
 type FormFieldUnfinished<N extends CollectionNameString> = Partial<FormField<N>>
@@ -35,7 +37,10 @@ type FormFieldUnfinished<N extends CollectionNameString> = Partial<FormField<N>>
 const RESET_PROPS = [
   'collection', 'collectionName', 'typeName', 'document', 'schema', 'currentUser',
   'fields', 'removeFields',
-  'prefilledProps' // TODO: prefilledProps should be merged instead?
+  // `prefilledProps` is handled slightly differently - all the other props
+  // trigger a full reset of the form, but changed to `prefilledProps` are
+  // merged into the current document with `updateCurrentValues`.
+  'prefilledProps'
 ] as const;
 
 const compactParent = (object: AnyBecauseTodo, path: AnyBecauseTodo) => {
@@ -606,7 +611,18 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
         ) {
           continue;
         }
-        this.setState(getInitialStateFromProps(nextProps));
+        if (prop === "prefilledProps") {
+          const updates: Record<string, AnyBecauseTodo> = {};
+          const keys = new Set([...Object.keys(next), ...Object.keys(prev)]);
+          for (const key of keys) {
+            if (next[key] !== prev[key]) {
+              updates[key] = next[key];
+            }
+          }
+          void this.updateCurrentValues(updates);
+        } else {
+          this.setState(getInitialStateFromProps(nextProps));
+        }
         break;
       }
     }
@@ -924,8 +940,9 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
 
   */
   submitForm = async (event?: any, submitOptions?: any) => {
-
-    event && event.preventDefault();
+    if (event) {
+      event.preventDefault();
+    }
 
     // if form is disabled (there is already a submit handler running) don't do anything
     if (this.state.disabled) {
@@ -1005,7 +1022,11 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
 
     return (
       <form
-        className={'vulcan-form document-' + this.getFormType()}
+        className={classNames(
+          'vulcan-form',
+          `document-${this.getFormType()}`,
+          this.props?.formProps?.formClassName,
+        )}
         id={this.props.id}
         onSubmit={this.submitForm}
         ref={this.formRef}

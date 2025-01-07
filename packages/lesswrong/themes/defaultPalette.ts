@@ -204,13 +204,17 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     sequenceIsDraft: "rgba(100, 169, 105, 0.9)",
     sequenceTitlePlaceholder: shades.inverseGreyAlpha(0.5),
     primaryDarkOnDim: '#085d6c', // text that is meant to be shown on the primaryDim background color
-
+    reviewWinner: {
+      title: shades.greyAlpha(.75),
+      author: shades.greyAlpha(.65),
+    },
     eventMaybe: "#d59c00",
     
     reviewUpvote: "rgba(70,125,70, .87)",
     reviewDownvote: "rgba(125,70,70, .87)",
     reviewBallotIcon: 'rgb(47 108 152 / 50%)',
     
+
     aprilFools: {
       orange: "#e64a19",
       yellow: "#f57f17",
@@ -225,6 +229,8 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       [5]: '#a56eff',
       [6]: '#6C7BFF',
     },
+
+    jargonTerm: "#a8742a",
   },
   link: {
     unmarked: shades.greyAlpha(.87),
@@ -235,7 +241,6 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     tocLink: shades.grey[600],
     tocLinkHighlighted: shades.grey[1000],
     primaryDim: "#5caab7",
-    // Currently unused on LW due to Forum-gate
     visited: "#bb7c43",
   },
   linkHover: {
@@ -254,6 +259,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     dim4: shades.grey[500],
     dim5: shades.greyAlpha(.3),
     dim6: shades.greyAlpha(.2),
+    dim05: shades.greyAlpha(.08),
     dim55: shades.greyAlpha(.55),
     dim600: shades.grey[600],
     dim700: shades.grey[700],
@@ -271,6 +277,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     yellow: '#ffc500',
     recentDiscussionGreen: "#72B065",
     recentDiscussionGrey: "#757575",
+    headerKarma: "#ffad08",
     activeDotOrange: "#fdbd48",
 
     commentsBubble: {
@@ -292,6 +299,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     grey200: `1px solid ${shades.grey[200]}`,
     grey300: `1px solid ${shades.grey[300]}`,
     grey400: `1px solid ${shades.grey[400]}`,
+    grey800: `1px solid ${shades.grey[800]}`,
     maxIntensity: shades.greyBorder("1px", 1.0),
     tableHeadingDivider: shades.greyBorder("2px", 1.0),
     table: `1px double ${shades.grey[410]}`,
@@ -310,7 +318,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     primaryTranslucent: 'rgba(12,134,155,.7)',
     dashed500: `dashed 1px ${shades.grey[500]}`,
     mentionsBaloon: "#c4c4c4",
-    wrappedSummary: "2px solid rgba(255, 168, 50, 0.6)",
+    eaButtonGreyOutline: "#BCC1C9",
   },
   background: {
     default: shades.grey[60],
@@ -318,6 +326,8 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     contrastInDarkMode: shades.grey[0],
     pageActiveAreaBackground: shades.grey[0],
     translucentBackground: "rgba(255,255,255,.5)",
+    translucentBackgroundHeavy: "rgba(255,255,255,.75)",
+    loginBackdrop: "rgba(217,217,217,0.5)",
     diffInserted: "#d4ead4",
     diffDeleted: "#f0d3d3",
     usersListItem: shades.greyAlpha(.05),
@@ -330,6 +340,9 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     // https://stackoverflow.com/questions/70446857/safari-linear-gradient
     transparent: shades.inverseGreyAlpha(0),
     imageOverlay: 'rgba(0,0,0,0.4)',
+    digestAdBannerInput: shades.grey[0],
+    glossaryBackground: "rgba(190,120,80,.05)",
+    sidenoteBackground: "rgba(190,120,80,.05)",
   },
   panelBackground: {
     default: shades.grey[0],
@@ -368,6 +381,10 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     recentDiscussionThread: shades.grey[20],
     tooltipBackground: "rgba(75,75,75,.94)",
     tooltipBackground2: "#373737",
+    mapboxTooltip: "#fff",
+    modalBackground: "#fff",
+    loginInput: "#efefef",
+    loginInputHovered: "#e4e4e4",
     tenPercent: shades.greyAlpha(.1),
     sunshineReportedContent: "rgba(60,0,0,.08)",
     sunshineFlaggedUser: "rgba(150,0,0,.05)",
@@ -390,6 +407,10 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       rgba(255,255,255,0.25) 50%,
       rgba(0,0,0,0) 66%
     ) ${shades.grey[500]}`,
+    reviewGold: 'lch(68 34.48 85.39 / 76%)',
+    onboardingSection: "#f5f5f5",
+    onboardingPodcast: "#e7e7e7",
+    placeholderGradient: 'linear-gradient(90deg, #EEE 33%, #E6E6E6 50%, #EEE 66%)',
   },
   boxShadow: {
     default: `0 1px 5px ${shades.boxShadowColor(.025)}`,
@@ -412,7 +433,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     eaCard: `0 4px 8px ${shades.boxShadowColor(0.12)}`,
     searchResults: `0 0 20px ${shades.boxShadowColor(.2)}`,
     recentDiscussionMeetupsPoke: `5px 5px 5px ${shades.boxShadowColor(.2)}`,
-    graphTooltip: `0 0 10px ${shades.boxShadowColor(.75)}`,
+    graphTooltip: `0 4px 8px ${shades.boxShadowColor(0.12)}`,
     lwTagHoverOver: `0 1px 3px 0 ${shades.boxShadowColor(0.2)},0 1px 1px 0 ${shades.boxShadowColor(0.14)},0 2px 1px -1px ${shades.boxShadowColor(0.12)}`,
   },
   buttons: {
@@ -452,19 +473,47 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       selected: "#198cf0",
       selectedHover: "#0e7fe1",
     },
+    digestAdBannerNoThanks: {
+      background: shades.grey[700],
+      hoverBackground: shades.grey[800],
+    },
+  },
+  sideItemIndicator: {
+    sideComment: '#5f9b65',
+    inlineReaction: 'lch(68 34.48 85.39 / 76%)',
+    footnote: shades.greyAlpha(0.4),
   },
   tag: {
     text: shades.greyAlpha(.9),
     background: shades.grey[200],
     border: `solid 1px ${shades.grey[200]}`,
     coreTagText: shades.grey[600],
-    coreTagBackground: "transparent",
+    coreTagBackground: shades.grey[0],
     coreTagBorder: shades.greyBorder("1px", .15),
     hollowTagBackground: shades.grey[0],
     hollowTagBorder: shades.greyBorder("1px", .15),
     boxShadow: `1px 2px 5px ${shades.boxShadowColor(.2)}`,
     addTagButtonBackground: shades.grey[300],
+    onboardingBackground: "rgba(0, 0, 0, 0.4)",
+    onboardingBackgroundHover: "rgba(0, 0, 0, 0.2)",
+    onboardingBackgroundSelected: "rgba(0, 0, 0, 0.5)",
   },
+  tab: {
+    inactive: {
+      text: shades.grey[500],
+      hover: {
+        text: shades.grey[700]
+      }
+    },
+    active: {
+      background: "rgba(127, 175, 131, 1)",
+      text: shades.grey[0],
+      hover: {
+        background: "rgba(127, 175, 131, 0.7)",
+      }
+    },
+  },
+
   geosuggest: {
     dropdownText: "#000",
     dropdownBackground: "#fff",
@@ -477,6 +526,15 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     activeProgress: 'rgba(127, 175, 131, 0.5)',
     progressBar: 'rgba(127, 175, 131, 0.7)',
     adminButton: "rgba(200,150,100)",
+    winner: "rgba(179, 136, 79, 1)",
+  },
+  leastwrong: {
+    fadeOut: 'rgba(0,0,0,0.38)',
+    imageGridHeaderHighlighted: 'rgba(241, 209, 150, .75)',
+    imageGridHeader: 'rgba(241, 209, 150, .4)',
+    highlightedPost: 'rgba(0,0,0,0.27)',
+    imageGridBackground: '#f8f4ee',
+    postBodyScrim: 'rgba(0,0,0,var(--top-posts-page-scrim-opacity))'
   },
   header: {
     text: shades.greyAlpha(.87),
@@ -513,23 +571,38 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   eventsHomeLoadMoreHover: '#085d6c',
 
   wrapped: {
-    background: '#072C47',
-    highlightText: '#FFC443',
+    background: '#151515',
+    darkBackground: "#000",
+    highlightText: '#F09554',
     secondaryText: '#008DAC',
     tertiaryText: "rgba(255, 255, 255, 0.50)",
     black: '#212121',
-    darkGrey: '#424242',
-    grey: '#757575',
     darkDot: "rgba(255, 255, 255, 0.40)",
     panelBackground: "rgba(255, 255, 255, 0.10)",
     panelBackgroundDark: "rgba(255, 255, 255, 0.05)",
-    postScoreArrow: '#BCBCBC',
+    postScore: '#BCBCBC',
+    notification: "#e05200",
+    emptyPath: "#494949",
+    metaText: "#b3b3b3",
+    personality: {
+      transparent: "transparent",
+      grey: "#585858",
+      red: "#9E011A",
+      blue: "#16508C",
+      green: "#006336",//"#0b7138",
+    },
   },
-  dialogueMatching: {
-    checkedNotMatched: "#ADD8E6",
-    checkedMatched: "#00000038",
-    optIn: "#9a9a9a",
-    warning: "yellow",
+  givingSeason: {
+    primary: "#8A0003",
+    electionFundBackground: "rgba(255, 255, 255, 0.15)",
+    electionFundBackgroundHeavy: "rgba(255, 255, 255, 0.3)",
+    portalPrimary: "#AE070A",
+    candidateBorder: "#C34F4F",
+    candidateBackground: "rgba(255, 255, 255, 0.2)",
+    candidateShadow: "rgba(147, 0, 0, 0.25)",
+    candidateOrder: "#C50000",
+    heart: "#862115",
+    mobileBannerOverlay: "linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.3) 25%, rgba(255, 255, 255, 0.3) 75%, rgba(255, 255, 255, 0) 100%)"
   },
   namesAttachedReactions: {
     selectedAnti: "rgb(255, 189, 189, .23)",
@@ -563,5 +636,19 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   },
   warning: {
     main: "#ff9800",
+  },
+  petrov: {
+    launchButtonBorder: "#000",
+    red: "#ff0000",
+    darkRed: "#990000",
+    red2: "#cc0000",
+    darkRed2: "#770000",
+    color1: "#aa8080",
+    color2: "#404040",
+    color3: "#998080",
+    color4: "#504040",
+  },
+  fundraisingThermometer: {
+    shadow: '#222',
   },
 })

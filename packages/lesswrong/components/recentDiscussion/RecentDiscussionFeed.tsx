@@ -6,8 +6,10 @@ import { forumSelect } from '../../lib/forumTypeUtils';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import AddBoxIcon from '@material-ui/icons/AddBox'
 import { isLWorAF } from '../../lib/instanceSettings';
+import {showSubscribeReminderInFeed} from '../../lib/publicSettings'
+import { ObservableQuery } from '@apollo/client';
 
-const recentDisucssionFeedComponents = forumSelect({
+const recentDisucssionFeedComponents = () => forumSelect({
   LWAF: {
     ThreadComponent: Components.RecentDiscussionThread,
     ShortformComponent: Components.RecentDiscussionThread,
@@ -38,7 +40,7 @@ const RecentDiscussionFeed = ({
 }) => {
   const [expandAllThreads, setExpandAllThreads] = useState(false);
   const [showShortformFeed, setShowShortformFeed] = useState(false);
-  const refetchRef = useRef<null|(()=>void)>(null);
+  const refetchRef = useRef<null|ObservableQuery['refetch']>(null);
   const currentUser = useCurrentUser();
   const expandAll = currentUser?.noCollapseCommentsFrontpage || expandAllThreads
 
@@ -59,15 +61,13 @@ const RecentDiscussionFeed = ({
   const {
     SingleColumnSection,
     SectionTitle,
-    SectionButton,
-    ShortformSubmitForm,
     MixedTypeFeed,
     AnalyticsInViewTracker,
   } = Components;
 
   const refetch = useCallback(() => {
     if (refetchRef.current)
-      refetchRef.current();
+      void refetchRef.current();
   }, [refetchRef]);
 
   const {
@@ -77,22 +77,13 @@ const RecentDiscussionFeed = ({
     TagRevisionComponent,
     SubscribeReminderComponent,
     MeetupsPokeComponent,
-  } = recentDisucssionFeedComponents;
+  } = recentDisucssionFeedComponents();
 
-  const showShortformButton = isLWorAF && currentUser?.isReviewed && shortformButton && !currentUser.allCommentingDisabled
   return (
     <AnalyticsContext pageSectionContext="recentDiscussion">
       <AnalyticsInViewTracker eventProps={{inViewType: "recentDiscussion"}}>
         <SingleColumnSection>
-          <SectionTitle title={title} >
-            {showShortformButton && <div onClick={toggleShortformFeed}>
-              <SectionButton>
-                <AddBoxIcon />
-                New Shortform Post
-              </SectionButton>
-            </div>}
-          </SectionTitle>
-          {showShortformFeed && <ShortformSubmitForm successCallback={refetch}/>}
+          <SectionTitle title={title} />
           <MixedTypeFeed
             firstPageSize={10}
             pageSize={20}
@@ -155,14 +146,16 @@ const RecentDiscussionFeed = ({
                   />}
                 </div>,
               },
-              subscribeReminder: {
-                fragmentName: null,
-                render: () => <SubscribeReminderComponent />
-              },
               meetupsPoke: {
                 fragmentName: null,
                 render: () => <MeetupsPokeComponent />
               },
+              ...(showSubscribeReminderInFeed.get() ? {
+                subscribeReminder: {
+                  fragmentName: null,
+                  render: () => <SubscribeReminderComponent/>,
+                },
+              } : {}),
             }}
           />
         </SingleColumnSection>

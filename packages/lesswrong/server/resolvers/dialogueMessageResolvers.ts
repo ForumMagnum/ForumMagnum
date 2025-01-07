@@ -1,3 +1,4 @@
+import { fetchFragmentSingle } from "../fetchFragment";
 import { cheerioParse } from "../utils/htmlUtil";
 import { defineQuery } from "../utils/serverGraphqlUtil";
 
@@ -13,8 +14,14 @@ defineQuery({
   resultType: "[String!]",
   argTypes: "(dialogueId: String!, numMessages: Int!)",
   fn: async (_, { dialogueId, numMessages }: { dialogueId: string, numMessages: number }, context: ResolverContext): Promise<String[]> => {
-    const dialogue = await context.Posts.findOne({_id: dialogueId})
+    const dialogue = await fetchFragmentSingle({
+      collectionName: "Posts",
+      fragmentName: "PostsPage",
+      selector: {_id: dialogueId},
+      currentUser: context.currentUser,
+      context,
+    });
     if (!dialogue || !dialogue.collabEditorDialogue) return []
-    return await extractLatestDialogueMessages(dialogue?.contents.html, numMessages);
+    return await extractLatestDialogueMessages(dialogue?.contents?.html ?? "", numMessages);
   }
 })

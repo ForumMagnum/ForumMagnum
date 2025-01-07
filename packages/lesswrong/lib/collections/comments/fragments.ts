@@ -28,6 +28,7 @@ registerFragment(`
     userId
     deleted
     deletedPublic
+    deletedByUserId
     deletedReason
     hideAuthor
     authorIsUnreviewed
@@ -206,5 +207,41 @@ registerFragment(`
       ...PostsMinimumInfo
     }
     modGPTAnalysis
+  }
+`);
+
+registerFragment(`
+  fragment CommentsForAutocomplete on Comment {
+    _id
+    postId
+    baseScore
+    extendedScore
+    createdAt
+    user {
+      ...UsersMinimumInfo
+    }
+    contents {
+      markdown
+    }
+    post {
+      ...PostsForAutocomplete
+    }
+  }`)
+
+registerFragment(`
+  fragment CommentsForAutocompleteWithParents on Comment {
+    ...CommentsForAutocomplete
+    ${/* We dynamically construct a fragment that gets the parentComment and its parentComment, etc. for up to 10 levels */ ''}
+    ${((depth: number): string => {
+      const nested = (currentDepth: number): string => currentDepth === 0 ? '' : `
+        parentComment {
+          ...CommentsForAutocomplete${nested(currentDepth - 1)}
+        }
+      `;
+    
+      return `parentComment {
+        ...CommentsForAutocomplete${nested(depth - 1)}
+      }`.trim();
+    })(10)}
   }
 `);

@@ -1,12 +1,11 @@
-import React, { PureComponent } from 'react';
-import PropTypes from 'prop-types';
+import React, { useCallback, useState } from 'react';
 import { Components, registerComponent, mergeWithComponents } from '../../lib/vulcan-lib';
-import { slugify } from '../../lib/vulcan-lib/utils';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import * as _ from 'underscore';
-import { withLocation } from '../../lib/routeUtil';
+import { useLocation } from '../../lib/routeUtil';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import type { FormGroupLayoutProps } from '../form-components/FormGroupLayout';
 
 const headerStyles = (theme: ThemeType): JssStyles => ({
   formSectionHeading: {
@@ -18,6 +17,9 @@ const headerStyles = (theme: ThemeType): JssStyles => ({
     paddingBottom: theme.spacing.unit,
     paddingLeft: theme.spacing.unit*2,
   },
+  formSectionHeadingExpanded: {
+    borderBottom: theme.palette.border.grey300,
+  },
   formSectionHeadingTitle: {
     marginBottom: 5,
     fontSize: "1.25rem",
@@ -26,12 +28,14 @@ const headerStyles = (theme: ThemeType): JssStyles => ({
 });
 
 const FormGroupHeader = ({ toggle, collapsed, label, classes }: {
-  toggle: ()=>void
+  toggle: () => void
   collapsed: boolean
   label?: string
   classes: ClassesType
 }) => (
-  <div className={classes.formSectionHeading} onClick={toggle}>
+  <div className={classNames(classes.formSectionHeading, {
+    [classes.formSectionHeadingExpanded]: !collapsed
+  })} onClick={toggle}>
     <h3 className={classes.formSectionHeadingTitle}>{label}</h3>
     <span className="form-section-heading-toggle">
       {collapsed ? (
@@ -47,212 +51,126 @@ const FormGroupHeaderComponent = registerComponent('FormGroupHeader', FormGroupH
   styles: headerStyles
 });
 
-export const groupLayoutStyles = (theme: ThemeType): JssStyles => ({
-  formSection: {
-    fontFamily: theme.typography.fontFamily,
-    border: theme.palette.border.grey300,
-    marginBottom: theme.spacing.unit,
-    background: theme.palette.background.pageActiveAreaBackground,
-    ...(isFriendlyUI ? {borderRadius: 6} : {})
-  },
-  formSectionBody: {
-    paddingTop: theme.spacing.unit,
-    paddingBottom: theme.spacing.unit,
-    borderTop: theme.palette.border.grey300,
-  },
-  formSectionPadding: {
-    paddingRight: theme.spacing.unit*2,
-    paddingLeft: theme.spacing.unit*2,
-  },
-  formSectionCollapsed: {
-    display: "none",
-  },
-  flex: {
-    display: "flex",
-    alignItems: "center",
-    flexWrap: "wrap"
-  },
-  flexAlignTop: {
-    display: "flex",
-    alignItems: "baseline",
-    flexWrap: "wrap"
-  }
-});
+export interface FormControlProps {
+  disabled: boolean;
+  errors: any[];
+  throwError: any;
+  currentValues: any;
+  updateCurrentValues: any;
+  deletedValues: any[];
+  addToDeletedValues: any;
+  clearFieldErrors: any;
+  formType: "new" | "edit";
+  currentUser: UsersCurrent | null;
+  formProps: any;
+  formComponents: ComponentTypes;
+  setFooterContent: (footerContent: React.ReactNode) => void;
+}
 
-const FormGroupLayout = ({ children, label, heading, footer, collapsed, hasErrors, groupStyling, showHeading, paddingStyling, flexStyle, flexAlignTopStyle, toggle, classes }: {
-  children: React.ReactNode
-  label?: string
-  heading: React.ReactNode
-  footer: React.ReactNode
-  collapsed: boolean
-  hasErrors: boolean
-  groupStyling: any
-  showHeading?: boolean,
-  paddingStyling: any
-  flexStyle: any
-  flexAlignTopStyle: any
-  toggle: ()=>void
-  classes: ClassesType
-}) => {
-  return <div className={classNames(
-    { [classes.formSectionPadding]: paddingStyling,
-      [classes.formSection]: groupStyling},
-    `form-section-${slugify(label||"")}`)}
-  >
-    {heading}
-    <div
-      className={classNames(
-        {
-          [classes.formSectionCollapsed]: collapsed && !hasErrors,
-          [classes.formSectionBody]: groupStyling && showHeading,
-          [classes.flex]: flexStyle,
-          [classes.flexAlignTop]: flexAlignTopStyle,
-          [classes.formSectionPadding]: groupStyling,
-        }
-      )}
-    >
-      {children}
-    </div>
-    {footer}
-  </div>
-};
-
-const FormGroupLayoutComponent = registerComponent('FormGroupLayout', FormGroupLayout, {styles: groupLayoutStyles});
-
-interface FormGroupExternalProps extends FormGroupType<CollectionNameString> {
-  errors: any[]
-  throwError: any
-  currentValues: any
-  updateCurrentValues: any
-  deletedValues: any
-  addToDeletedValues: any
-  clearFieldErrors: any
-  formType: "new"|"edit"
-  currentUser: UsersCurrent|null
-  formComponents: ComponentTypes
-  formProps: any
-  disabled: boolean
+interface FormGroupProps extends FormGroupSafeType<CollectionNameString>, Omit<FormControlProps, 'setFooterContent'> {
   fields: FormField<any>[]
 }
-interface FormGroupProps extends FormGroupExternalProps, WithLocationProps {
-}
-interface FormGroupState {
-  collapsed: boolean
-  footerContent: React.ReactNode
-}
 
-class FormGroup extends PureComponent<FormGroupProps,FormGroupState> {
-  constructor(props: FormGroupProps) {
-    super(props);
-    this.toggle = this.toggle.bind(this);
-    this.renderHeading = this.renderHeading.bind(this);
-    this.setFooterContent = this.setFooterContent.bind(this);
+const FormGroup = ({
+  name,
+  fields,
+  formComponents,
+  layoutComponent,
+  label,
+  hideHeader,
+  layoutComponentProps,
+  startCollapsed,
+  helpText,
+  disabled,
+  errors,
+  throwError,
+  currentValues,
+  updateCurrentValues,
+  deletedValues,
+  addToDeletedValues,
+  clearFieldErrors,
+  formType,
+  currentUser,
+  formProps
+}: FormGroupProps) => {
+  const { query } = useLocation();
+  const highlightInFields = query.highlightField && fields.map(f => f.name).includes(query.highlightField);
+  const [collapsed, setCollapsed] = useState((startCollapsed && !highlightInFields) || false);
+  const [footerContent, setFooterContent] = useState<React.ReactNode>(null);
 
-    const { query } = this.props.location;
-    const highlightInFields = query.highlightField && props.fields.map(f => f.name).includes(query.highlightField)
-    const collapsed = (props.startCollapsed && !highlightInFields) || false
+  const toggle = useCallback(() => {
+    setCollapsed(!collapsed);
+  }, [collapsed]);
 
-    this.state = {
-      collapsed,
-      footerContent: null,
-    };
-  }
-
-  toggle() {
-    this.setState({
-      collapsed: !this.state.collapsed
-    });
-  }
-
-  setFooterContent(footerContent: React.ReactNode) {
-    this.setState({ footerContent });
-  }
-
-  renderHeading(FormComponents: ComponentTypes) {
-    const component = <FormComponents.FormGroupHeader
-      toggle={this.toggle}
-      label={this.props.label}
-      collapsed={this.state.collapsed}
-    />
-    if (this.props.helpText) {
-      return <Tooltip title={this.props.helpText}>
-        <span>
-        {component}
-        </span>
-      </Tooltip>
-    }
-    return component
-  }
-
-  // if at least one of the fields in the group has an error, the group as a whole has an error
-  hasErrors = () =>
-    _.some(this.props.fields, (field: FormField<any>) => {
-      return !!this.props.errors.filter((error: any) => error.path === field.path)
-        .length;
-    });
-
-  render() {
-    const { name, fields, formComponents, label, defaultStyle, hideHeader, flexStyle, flexAlignTopStyle, paddingStyle, formProps } = this.props;
-    const { collapsed } = this.state;
-    const FormComponents = mergeWithComponents(formComponents);
-    const groupStyling = !(name === 'default' || defaultStyle)
-    const showHeading = groupStyling && !hideHeader
-
-    return (
-      <FormComponents.FormGroupLayout
+  const renderHeading = useCallback((FormComponents: ComponentTypes) => {
+    const component = (
+      <FormComponents.FormGroupHeader
+        toggle={toggle}
         label={label}
-        toggle={this.toggle}
         collapsed={collapsed}
-        heading={showHeading ? this.renderHeading(FormComponents) : null}
-        showHeading={showHeading}
-        footer={this.state.footerContent}
-        groupStyling={groupStyling}
-        paddingStyling={paddingStyle}
-        hasErrors={this.hasErrors()}
-        flexStyle={flexStyle}
-        flexAlignTopStyle={flexAlignTopStyle}
-      >
-        {fields.map(field => (
-          <FormComponents.FormComponent
-            key={field.name}
-            disabled={this.props.disabled}
-            {...field}
-            errors={this.props.errors}
-            throwError={this.props.throwError}
-            currentValues={this.props.currentValues}
-            updateCurrentValues={this.props.updateCurrentValues}
-            deletedValues={this.props.deletedValues}
-            addToDeletedValues={this.props.addToDeletedValues}
-            clearFieldErrors={this.props.clearFieldErrors}
-            formType={this.props.formType}
-            currentUser={this.props.currentUser}
-            formProps={formProps}
-            formComponents={FormComponents}
-            setFooterContent={this.setFooterContent}
-          />
-        ))}
-      </FormComponents.FormGroupLayout>
+      />
     );
-  }
-}
+    if (helpText) {
+      return (
+        <Tooltip title={helpText}>
+          <span>{component}</span>
+        </Tooltip>
+      );
+    }
+    return component;
+  }, [label, helpText, collapsed, toggle]);
 
-(FormGroup as any).propTypes = {
-  name: PropTypes.string,
-  label: PropTypes.string,
-  order: PropTypes.number,
-  fields: PropTypes.array.isRequired,
-  errors: PropTypes.array.isRequired,
-  throwError: PropTypes.func.isRequired,
-  currentValues: PropTypes.object.isRequired,
-  updateCurrentValues: PropTypes.func.isRequired,
-  deletedValues: PropTypes.array.isRequired,
-  addToDeletedValues: PropTypes.func.isRequired,
-  clearFieldErrors: PropTypes.func.isRequired,
-  formType: PropTypes.string.isRequired,
-  currentUser: PropTypes.object,
+  const hasErrors = useCallback(() => {
+    return _.some(fields, (field: FormField<any>) => {
+      return !!errors.filter((error: any) => error.path === field.path).length;
+    });
+  }, [fields, errors]);
+
+  const FormComponents = mergeWithComponents(formComponents);
+  const groupStyling = !(name === 'default' || (layoutComponentProps?.groupStyling === false));
+  const showHeading = groupStyling && !hideHeader;
+
+  const LayoutComponent = layoutComponent ? Components[layoutComponent as ComponentWithProps<FormGroupLayoutProps>] : FormComponents.FormGroupLayout;
+
+  const formControlProps: FormControlProps = {
+    disabled,
+    errors,
+    throwError,
+    currentValues,
+    updateCurrentValues,
+    deletedValues,
+    addToDeletedValues,
+    clearFieldErrors,
+    formType,
+    currentUser,
+    formProps,
+    formComponents: FormComponents,
+    setFooterContent: setFooterContent
+  };
+
+  return (
+    <LayoutComponent
+      label={label}
+      collapsed={collapsed}
+      heading={showHeading ? renderHeading(FormComponents) : null}
+      footer={footerContent}
+      groupStyling={groupStyling}
+      hasErrors={hasErrors()}
+      {...layoutComponentProps}
+      formControlProps={formControlProps}
+    >
+      {fields.map(field => (
+        <FormComponents.FormComponent
+          key={field.name}
+          {...formControlProps}
+          {...field}
+        />
+      ))}
+    </LayoutComponent>
+  );
 };
 
-const FormGroupComponent = registerComponent<FormGroupExternalProps>('FormGroup', FormGroup, {hocs: [withLocation]});
+const FormGroupComponent = registerComponent<FormGroupProps>('FormGroup', FormGroup, {});
 
 const IconRight = ({ width = 24, height = 24 }) => (
   <svg
@@ -301,7 +219,6 @@ const IconDownComponent = registerComponent('IconDown', IconDown);
 declare global {
   interface ComponentTypes {
     FormGroupHeader: typeof FormGroupHeaderComponent
-    FormGroupLayout: typeof FormGroupLayoutComponent
     FormGroup: typeof FormGroupComponent
     IconRight: typeof IconRightComponent
     IconDown: typeof IconDownComponent

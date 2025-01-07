@@ -2,7 +2,7 @@ export function fieldIn<T extends {}>(field: string | number | symbol, ...object
   return objects.every(object => field in object);
 }
 
-type Literal<T> = string|number extends T ? never : T;
+type Literal<T> = string extends T ? number extends T ? never : never : T;
 type Tuple<T extends ReadonlyArray<string|number>> = Literal<T[number]> extends never ? never : T;
 
 /**
@@ -66,11 +66,11 @@ export type FieldsNotNull<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>> &
 }; 
 
 export function areFieldsNotNull<T, K extends keyof T>(item: T, ...fields: [K, ...K[]]): item is T & FieldsNotNull<T, K> {
-  return fields.some((field) => item[field] !== null && item[field] !== undefined);
+  return fields.every((field) => item[field] !== null && item[field] !== undefined);
 }
 
 function areFieldsNotNullCurry<T, K extends keyof T>(...fields: [K, ...K[]]): (item: T) => item is T & FieldsNotNull<T, K> {
-  return ((item) => fields.some((field) => item[field] !== null && item[field] !== undefined)) as (item: T) => item is T & FieldsNotNull<T, K>;
+  return ((item): item is T & FieldsNotNull<T, K> => fields.every((field) => item[field] !== null && item[field] !== undefined));
 }
 
 export function filterWhereFieldsNotNull<T, K extends keyof T>(arr: T[], ...fields: [K, ...K[]]): FieldsNotNull<T, K>[] {
@@ -79,3 +79,7 @@ export function filterWhereFieldsNotNull<T, K extends keyof T>(arr: T[], ...fiel
 
 export const isNotNullOrUndefined = <T>(value: T | null | undefined): value is T =>
   value !== null && value !== undefined
+
+export const objectKeys = <K extends string | number | symbol, V>(
+  obj: Partial<Record<K, V>>,
+): K[] => Object.keys(obj) as K[];

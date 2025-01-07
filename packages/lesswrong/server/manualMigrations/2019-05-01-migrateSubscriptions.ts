@@ -30,7 +30,7 @@ registerMigration({
           // to someone else's post/comment is migrated to the Subscriptions
           // table.
           if (oldSubscriptions?.Comments) {
-            const commentIDs = _.map(oldSubscriptions.Comments, (s:any)=>s.itemId);
+            const commentIDs = _.map(oldSubscriptions.Comments, (s: any)=>s.itemId);
             const comments = await Comments.find({_id: {$in: commentIDs}}).fetch();
             for (let comment of comments) {
               if (comment.userId !== user._id) {
@@ -46,7 +46,7 @@ registerMigration({
             }
           }
           if (oldSubscriptions?.Posts) {
-            const postIDs = _.map(oldSubscriptions.Posts, (s:any)=>s.itemId);
+            const postIDs = _.map(oldSubscriptions.Posts, (s: any)=>s.itemId);
             const posts = await Posts.find({_id: {$in: postIDs}}).fetch();
             for (let post of posts) {
               if (post.userId !== user._id) {

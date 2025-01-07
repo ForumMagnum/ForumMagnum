@@ -7,11 +7,13 @@ import moment from 'moment';
 import { isEAForum } from '../../lib/instanceSettings';
 import { THEME_COOKIE } from '../../lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import stringify from 'json-stringify-deterministic';
+import { isClient } from '@/lib/executionEnvironment';
 
 type ThemeContextObj = {
   theme: ThemeType,
   themeOptions: AbstractThemeOptions,
-  setThemeOptions: (options: AbstractThemeOptions)=>void
+  setThemeOptions: (options: AbstractThemeOptions) => void
 }
 export const ThemeContext = React.createContext<ThemeContextObj|null>(null);
 
@@ -48,7 +50,7 @@ export const useSetTheme = () => {
 }
 
 const makeStylesheetUrl = (themeOptions: AbstractThemeOptions) =>
-  `/allStyles?theme=${encodeURIComponent(JSON.stringify(themeOptions))}`;
+  `/allStyles?theme=${encodeURIComponent(stringify(themeOptions))}`;
 
 type OnFinish = (error?: string | Event) => void;
 
@@ -97,12 +99,12 @@ export const ThemeContextProvider = ({options, children}: {
   const concreteTheme = abstractThemeToConcrete(themeOptions, prefersDarkMode);
 
   useEffect(() => {
-    if (JSON.stringify(themeOptions) !== JSON.stringify(window.themeOptions)) {
+    if (stringify(themeOptions) !== stringify(window.themeOptions)) {
       window.themeOptions = themeOptions;
       if (isEAForum) {
         removeCookie(THEME_COOKIE, {path: "/"});
       } else {
-        setCookie(THEME_COOKIE, JSON.stringify(themeOptions), {
+        setCookie(THEME_COOKIE, stringify(themeOptions), {
           path: "/",
           expires: moment().add(2, 'years').toDate(),
         });
@@ -137,7 +139,7 @@ export const ThemeContextProvider = ({options, children}: {
     {theme, themeOptions, setThemeOptions}),
     [theme, themeOptions, setThemeOptions]
   );
-
+  
   return <ThemeContext.Provider value={themeContext}>
     <MuiThemeProvider theme={theme} sheetsManager={sheetsManager}>
       {children}

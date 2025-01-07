@@ -9,14 +9,19 @@ augmentFieldsDict(Users, {
     resolveAs: {
       arguments: 'startDate: Date, endDate: Date',
       type: 'KarmaChanges',
-      resolver: async (document, {startDate,endDate}, context: ResolverContext) => {
+      resolver: async (document, {startDate, endDate}, context: ResolverContext) => {
         const { currentUser } = context;
         if (!currentUser)
           return null;
         
-        // Grab new current user, because the current user gets set at the beginning of the request, which
-        // is out of date in this case, because we are depending on recent mutations being reflected on the current user
-        const newCurrentUser = await Users.findOne(currentUser._id)
+        
+        // If this isn't an SSR (ie, it might be a mutation), refetch the current
+        // user, because the current user gets set at the beginning of the request,
+        // which matters if we're refetching this because we just updated
+        // karmaChangeLastOpened.
+        const newCurrentUser = context.isSSR
+          ? currentUser
+          : await Users.findOne(currentUser._id)
         if (!newCurrentUser) throw Error(`Cant find user with ID: ${currentUser._id}`)
         
         const settings = newCurrentUser.karmaChangeNotifierSettings

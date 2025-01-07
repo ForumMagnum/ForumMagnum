@@ -1,12 +1,14 @@
 import { WatchQueryFetchPolicy, ApolloError, useQuery, NetworkStatus, gql, useApolloClient } from '@apollo/client';
 import qs from 'qs';
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import * as _ from 'underscore';
-import { extractFragmentInfo, getFragment, getCollection, pluralize, camelCaseify } from '../vulcan-lib';
+import { extractFragmentInfo, getFragment, pluralize, camelCaseify, collectionNameToTypeName } from '../vulcan-lib';
 import { useLocation } from '../routeUtil';
 import { invalidateQuery } from './cacheUpdates';
-import { isServer } from '../executionEnvironment';
 import { useNavigate } from '../reactRouterWrapper';
+import { apolloSSRFlag } from '../helpers';
+import { getMultiResolverName } from './utils';
+import type { PrimitiveGraphQLType } from './types';
 
 // Template of a GraphQL query for useMulti. A sample query might look
 // like:
@@ -36,21 +38,21 @@ const multiClientTemplate = ({ typeName, fragmentName, extraVariablesString }: {
   }
 }`;
 
-function getGraphQLQueryFromOptions({collectionName, collection, fragmentName, fragment, extraVariables}: {
+interface GetGraphQLMultiQueryFromOptionsArgs {
   collectionName: CollectionNameString,
-  collection: any,
+  typeName: string,
   fragmentName: FragmentName,
   fragment: any,
-  extraVariables: any,
-}) {
-  const typeName = collection.options.typeName;
+  extraVariables?: Record<string, PrimitiveGraphQLType>,
+}
+
+export function getGraphQLMultiQueryFromOptions({collectionName, typeName, fragmentName, fragment, extraVariables}: GetGraphQLMultiQueryFromOptionsArgs) {
   ({ fragmentName, fragment } = extractFragmentInfo({ fragmentName, fragment }, collectionName));
 
   let extraVariablesString = ''
   if (extraVariables) {
     extraVariablesString = Object.keys(extraVariables).map(k => `$${k}: ${extraVariables[k]}`).join(', ')
   }
-  
   // build graphql query from options
   return gql`
     ${multiClientTemplate({ typeName, fragmentName, extraVariablesString })}
@@ -62,12 +64,12 @@ export interface UseMultiOptions<
   FragmentTypeName extends keyof FragmentTypes,
   CollectionName extends CollectionNameString
 > {
-  terms: ViewTermsByCollectionName[CollectionName],
+  terms?: ViewTermsByCollectionName[CollectionName],
   extraVariablesValues?: any,
   pollInterval?: number,
   enableTotal?: boolean,
   enableCache?: boolean,
-  extraVariables?: any,
+  extraVariables?: Record<string, PrimitiveGraphQLType>,
   fetchPolicy?: WatchQueryFetchPolicy,
   nextFetchPolicy?: WatchQueryFetchPolicy,
   collectionName: CollectionNameString,
@@ -153,20 +155,21 @@ export function useMulti<
   const [ limit, setLimit ] = useState(defaultLimit);
   const [ lastTerms, setLastTerms ] = useState(_.clone(terms));
   
-  const collection = getCollection(collectionName);
+  const typeName = collectionNameToTypeName(collectionName);
   const fragment = getFragment(fragmentName);
   
-  const query = getGraphQLQueryFromOptions({ collectionName, collection, fragmentName, fragment, extraVariables });
-  const resolverName = collection.options.multiResolverName;
+  const query = getGraphQLMultiQueryFromOptions({ collectionName, typeName, fragmentName, fragment, extraVariables });
+  const resolverName = getMultiResolverName(typeName);
 
-  const graphQLVariables = {
+  const graphQLVariables = useMemo(() => ({
     input: {
       terms: { ...terms, limit: defaultLimit },
+      resolverArgs: extraVariablesValues,
       enableCache, enableTotal, createIfMissing
     },
-    ...(_.pick(extraVariablesValues, Object.keys(extraVariables || {})))
-  }
-  
+    ...extraVariablesValues
+  }), [terms, defaultLimit, enableCache, enableTotal, createIfMissing, extraVariablesValues]);
+
   let effectiveLimit = limit;
   if (!_.isEqual(terms, lastTerms)) {
     setLastTerms(terms);
@@ -184,18 +187,18 @@ export function useMulti<
     nextFetchPolicy: newNextFetchPolicy as WatchQueryFetchPolicy,
     // This is a workaround for a bug in apollo where setting `ssr: false` makes it not fetch
     // the query on the client (see https://github.com/apollographql/apollo-client/issues/5918)
-    ssr: ssr || !isServer,
+    ssr: apolloSSRFlag(ssr),
     skip,
     notifyOnNetworkStatusChange: true
   }
   const {data, error, loading, refetch, fetchMore, networkStatus} = useQuery(query, useQueryArgument);
 
   const client = useApolloClient();
-  const invalidateCache = () => invalidateQuery({
+  const invalidateCache = useCallback(() => invalidateQuery({
     client,
     query,
     variables: graphQLVariables,
-  });
+  }), [client, query, graphQLVariables]);
 
   if (error) {
     // This error was already caught by the apollo middleware, but the

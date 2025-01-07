@@ -2,7 +2,10 @@ import React from 'react'
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
-import { isFriendlyUI } from '../../../themes/forumTheme';
+import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+
+export const LW_POST_TITLE_FONT_SIZE = "3.75rem";
 
 export const postPageTitleStyles = (theme: ThemeType) => ({
   ...theme.typography.display3,
@@ -12,22 +15,33 @@ export const postPageTitleStyles = (theme: ThemeType) => ({
   marginLeft: 0,
   marginBottom: isFriendlyUI ? 12 : 0,
   color: theme.palette.text.primary,
+  textWrap: isBookUI ? "balance" : undefined,
   [theme.breakpoints.down('sm')]: isFriendlyUI
     ? {
       fontSize: '2.3rem',
       marginTop: 20,
     }
     : {
-      fontSize: '2.5rem',
+      fontSize: '3.5rem',
     },
   ...(isFriendlyUI
     ? {
       fontSize: '3rem',
     }
-    : {}),
+    : {
+      fontSize: LW_POST_TITLE_FONT_SIZE,
+      lineHeight: '1.1',
+  }),
+  [theme.breakpoints.down('xs')]: isFriendlyUI
+    ? {
+      fontSize: '2.3rem',
+    }
+    : {
+      fontSize: '2.5rem',
+    },
 })
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostsPageTitle", (theme: ThemeType) => ({
   root: {
     ...postPageTitleStyles(theme)
   },
@@ -57,13 +71,14 @@ const styles = (theme: ThemeType) => ({
     fontSize: "1em",
     transform: "translateY(5px)",
   },
-})
+}));
 
-const PostsPageTitle = ({classes, post}: {
-  post: PostsDetails,
-  classes: ClassesType<typeof styles>,
+const PostsPageTitle = ({post}: {
+  post: PostsDetails|PostsList,
 }) => {
-  const parentPost = post.sourcePostRelations?.filter(rel => !!rel.sourcePost)?.[0]?.sourcePost;
+  const classes = useStyles(styles);
+  const sourcePostRelations = ('sourcePostRelations' in post) ? post.sourcePostRelations : null;
+  const parentPost = sourcePostRelations?.filter(rel => !!rel.sourcePost)?.[0]?.sourcePost;
   const { Typography, ForumIcon, LWTooltip } = Components;
   const showLinkIcon = post.url && isFriendlyUI;
   const showDialogueIcon = post.collabEditorDialogue && isFriendlyUI;
@@ -107,7 +122,8 @@ const PostsPageTitle = ({classes, post}: {
   )
 }
 
-const PostsPageTitleComponent = registerComponent('PostsPageTitle', PostsPageTitle, {styles});
+const PostsPageTitleComponent = registerComponent('PostsPageTitle', PostsPageTitle);
+export default PostsPageTitleComponent;
 
 declare global {
   interface ComponentTypes {

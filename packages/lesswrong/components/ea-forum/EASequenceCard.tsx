@@ -15,9 +15,11 @@ const EASequenceCard = ({sequence, className}: {
   const slug = slugify(sequence?.title ?? "unknown-slug");
 
   const {eventHandlers} = useHover({
-    pageElementContext: "sequenceCard",
-    documentId: sequence._id,
-    documentSlug: slug,
+    eventProps: {
+      pageElementContext: "sequenceCard",
+      documentId: sequence._id,
+      documentSlug: slug,
+    },
   });
 
   const title = sequence.title;

@@ -38,7 +38,15 @@ Votes.addView("tagVotes", function () {
 })
 ensureIndex(Votes, {collectionName: 1, votedAt: 1})
 
-Votes.addView("userPostVotes", function ({voteType, collectionName, after/* , before */}, _, context?: ResolverContext) {
+Votes.addView("userPostVotes", function ({voteType, collectionName, after, before}, _, context?: ResolverContext) {
+  const votedAtFilter = []
+  if (after) {
+    votedAtFilter.push({votedAt: {$gte: moment(after).toDate()}})
+  }
+  if (before) {
+    votedAtFilter.push({votedAt: {$lt: moment(before).toDate()}})
+  }
+  
   return {
     selector: {
       collectionName: collectionName,
@@ -46,8 +54,7 @@ Votes.addView("userPostVotes", function ({voteType, collectionName, after/* , be
       voteType: voteType,
       cancelled: false,
       isUnvote: false,
-      // $and: [{votedAt: {$gte: moment(after).toDate()}}, {votedAt: {$lt: moment(before).toDate()}}],
-      ...(after ? {votedAt: {$gte: moment(after).toDate()}} : {}),
+      $and: votedAtFilter,
     },
     options: {
       sort: {
@@ -80,4 +87,3 @@ Votes.addView("userVotes", function ({collectionNames,}, _, context?: ResolverCo
     }
   }
 })
-ensureIndex(Votes, {collectionName: 1, userId: 1, cancelled: 1, isUnvote: 1, voteType: 1, extendedVoteType: 1, votedAt: 1})

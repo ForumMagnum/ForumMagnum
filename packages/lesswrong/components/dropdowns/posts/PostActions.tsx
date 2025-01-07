@@ -1,15 +1,15 @@
 import React from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import { userGetDisplayName } from '../../../lib/collections/users/helpers';
 import { useCurrentUser } from '../../common/withUser';
-import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { hasCuratedPostsSetting } from '../../../lib/instanceSettings';
-import { isDialogueParticipant } from '../../posts/PostsPage/PostsPage';
 
 // We use a context here vs. passing in a boolean prop because we'd need to pass
 // through ~4 layers of hierarchy
 export const AllowHidingFrontPagePostsContext = React.createContext<boolean>(false);
+
+// Same as above context provider but for whether a post is being served as a recommendation
+export const IsRecommendationContext = React.createContext<boolean>(false);
 
 const styles = (_theme: ThemeType): JssStyles => ({
   root: {
@@ -20,7 +20,7 @@ const styles = (_theme: ThemeType): JssStyles => ({
 
 const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
   post: PostsList|SunshinePostsList,
-  closeMenu: ()=>void,
+  closeMenu: () => void,
   includeBookmark?: boolean,
   classes: ClassesType,
 }) => {
@@ -29,20 +29,16 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
   const {
     MoveToDraftDropdownItem, BookmarkDropdownItem, SuggestCuratedDropdownItem,
     SuggestAlignmentPostDropdownItem, ReportPostDropdownItem, DeleteDraftDropdownItem,
-    HideFrontpagePostDropdownItem, SetSideCommentVisibility, NotifyMeDropdownItem,
+    HideFrontpagePostDropdownItem, SetSideItemVisibility, ResyncRssDropdownItem,
     MarkAsReadDropdownItem, SummarizeDropdownItem, MoveToFrontpageDropdownItem,
     MoveToAlignmentPostDropdownItem, ShortformDropdownItem, DropdownMenu,
     EditTagsDropdownItem, EditPostDropdownItem, DuplicateEventDropdownItem,
     PostAnalyticsDropdownItem, ExcludeFromRecommendationsDropdownItem,
-    ApproveNewUserDropdownItem, SharePostSubmenu, ResyncRssDropdownItem
+    ApproveNewUserDropdownItem, SharePostSubmenu, PostSubscriptionsDropdownItem,
+    DislikeRecommendationDropdownItem
   } = Components;
 
-
   if (!post) return null;
-  const postAuthor = post.user;
-
-  const userIsDialogueParticipant = currentUser && isDialogueParticipant(currentUser._id, post);
-  const showSubscribeToDialogueButton = post.collabEditorDialogue && !userIsDialogueParticipant;
 
   // WARNING: Clickable items in this menu must be full-width, and
   // ideally should use the <DropdownItem> component. In particular,
@@ -61,41 +57,11 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
       {isBookUI && <SharePostSubmenu post={post} closeMenu={closeMenu} />}
       <DuplicateEventDropdownItem post={post} />
       <PostAnalyticsDropdownItem post={post} />
-      <NotifyMeDropdownItem
-        document={post.group}
-        enabled={!!post.group}
-        subscribeMessage={`Subscribe to ${post.group?.name}`}
-        unsubscribeMessage={`Unsubscribe from ${post.group?.name}`}
-      />
-      <NotifyMeDropdownItem
-        document={post}
-        enabled={post.shortform && post.userId !== currentUser?._id}
-        subscribeMessage={`Subscribe to ${post.title}`}
-        unsubscribeMessage={`Unsubscribe from ${post.title}`}
-        subscriptionType={subscriptionTypes.newShortform}
-      />
-      <NotifyMeDropdownItem
-        document={postAuthor}
-        enabled={!!postAuthor && postAuthor._id !== currentUser?._id}
-        subscribeMessage={`Subscribe to posts by ${userGetDisplayName(postAuthor)}`}
-        unsubscribeMessage={`Unsubscribe from posts by ${userGetDisplayName(postAuthor)}`}
-      />
-      {showSubscribeToDialogueButton && <NotifyMeDropdownItem
-        document={post}
-        enabled={!!post.collabEditorDialogue}
-        subscribeMessage="Subscribe to dialogue"
-        unsubscribeMessage="Unsubscribe from dialogue"
-        subscriptionType={subscriptionTypes.newPublishedDialogueMessages}
-        tooltip="Notifies you when there is new activity in the dialogue"
-      />}
-      <NotifyMeDropdownItem
-        document={post}
-        subscribeMessage="Subscribe to comments"
-        unsubscribeMessage="Unsubscribe from comments"
-      />
+      <PostSubscriptionsDropdownItem post={post} />
       {includeBookmark && <BookmarkDropdownItem post={post} />}
-      <SetSideCommentVisibility />
+      <SetSideItemVisibility />
       <HideFrontpagePostDropdownItem post={post} />
+      <DislikeRecommendationDropdownItem post={post} />
       <ReportPostDropdownItem post={post}/>
       {currentUser && <EditTagsDropdownItem post={post} closeMenu={closeMenu} />}
       <SummarizeDropdownItem post={post} closeMenu={closeMenu} />

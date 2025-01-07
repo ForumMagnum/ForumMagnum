@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { createStyles } from '@material-ui/core/styles';
-import ReactMapGL, { Marker } from 'react-map-gl';
-import { Helmet } from 'react-helmet'
+import BadlyTypedReactMapGL, { Marker as BadlyTypedMarker } from 'react-map-gl';
 import { mapboxAPIKeySetting } from '../../../lib/publicSettings';
 import { connectHits } from 'react-instantsearch-dom';
 import PersonIcon from '@material-ui/icons/PersonPin';
-import { Hit } from 'react-instantsearch-core';
+import type { Hit } from 'react-instantsearch-core';
 import classNames from 'classnames';
-import { isFriendlyUI } from '../../../themes/forumTheme';
+import { componentWithChildren, Helmet } from '../../../lib/utils/componentsWithChildren';
+import { useMapStyle } from '@/components/hooks/useMapStyle';
+import { isFriendlyUI } from '@/themes/forumTheme';
 
-const styles = createStyles((theme: ThemeType): JssStyles => ({
+const ReactMapGL = componentWithChildren(BadlyTypedReactMapGL);
+const Marker = componentWithChildren(BadlyTypedMarker);
+
+const styles = (theme: ThemeType) => ({
   root: {
     width: "100%",
   },
@@ -25,7 +28,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     display: 'flex',
     columnGap: 10,
     alignItems: 'center',
-    color: theme.palette.text.alwaysBlack,
+    color: isFriendlyUI ? undefined : theme.palette.text.alwaysBlack,
   },
   profileImage: {
     'box-shadow': '3px 3px 1px ' + theme.palette.boxShadowColor(.25),
@@ -50,7 +53,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     "-webkit-box-orient": 'vertical',
     overflow: 'hidden',
   }
-}))
+});
 
 const defaultCenter = {lat: 18.586392, lng: -11.334020}
 
@@ -59,12 +62,20 @@ interface LatLng {
   lng: number;
 }
 
-const SearchResultsMap = ({center = defaultCenter, zoom = 2, hits, className, classes}: {
-  center: LatLng,
-  zoom: number,
+const SearchResultsMap = ({
+  center = defaultCenter,
+  zoom = 2,
+  from = "community_members_tab",
+  hits,
+  className,
+  classes,
+}: {
+  center?: LatLng,
+  zoom?: number,
+  from?: string,
   hits: Array<Hit<SearchUser>>,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [activeResultId, setActiveResultId] = useState('')
   
@@ -100,8 +111,9 @@ const SearchResultsMap = ({center = defaultCenter, zoom = 2, hits, className, cl
     setMarkerLocations(locations)
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hits])
-  
-  
+
+  const mapStyle = useMapStyle();
+
   const { StyledMapPopup } = Components
   
   return <div className={classNames(classes.root, className)}>
@@ -112,7 +124,7 @@ const SearchResultsMap = ({center = defaultCenter, zoom = 2, hits, className, cl
       {...viewport}
       width="100%"
       height="100%"
-      mapStyle={isFriendlyUI ? undefined : "mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra"}
+      mapStyle={mapStyle}
       onViewportChange={viewport => setViewport(viewport)}
       mapboxApiAccessToken={mapboxAPIKeySetting.get() || undefined}
     >
@@ -131,7 +143,7 @@ const SearchResultsMap = ({center = defaultCenter, zoom = 2, hits, className, cl
           {(activeResultId === hit._id) && <StyledMapPopup
             lat={markerLocations[hit._id].lat}
             lng={markerLocations[hit._id].lng}
-            link={`/users/${hit.slug}?from=community_members_tab`}
+            link={`/users/${hit.slug}?from=${from}`}
             title={<div className={classes.popupTitle}>
               {hit.profileImageId && <Components.CloudinaryImage2
                 height={50}
@@ -167,9 +179,11 @@ type SearchResultsMapProps = {
 }
 const ConnectedSearchResultsMap: React.ComponentClass<SearchResultsMapProps, any> = connectHits(SearchResultsMap)
 const SearchResultsMapComponent = registerComponent("SearchResultsMap", ConnectedSearchResultsMap, { styles });
+const RawSearchResultsMapComponent = registerComponent("RawSearchResultsMap", SearchResultsMap, { styles });
 
 declare global {
   interface ComponentTypes {
     SearchResultsMap: typeof SearchResultsMapComponent
+    RawSearchResultsMap: typeof RawSearchResultsMapComponent
   }
 }

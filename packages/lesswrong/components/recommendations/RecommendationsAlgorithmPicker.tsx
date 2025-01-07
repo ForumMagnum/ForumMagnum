@@ -75,7 +75,7 @@ const includeExtra = forumSelect(forumIncludeExtra)
 const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAdvanced=false, classes }: {
   settings: DefaultRecommendationsAlgorithm,
   configName: string,
-  onChange: (newSettings: DefaultRecommendationsAlgorithm)=>void,
+  onChange: (newSettings: DefaultRecommendationsAlgorithm) => void,
   showAdvanced?: boolean,
   classes: ClassesType
 }) => {

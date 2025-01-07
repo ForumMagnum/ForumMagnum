@@ -13,16 +13,18 @@ const VoteButton = ({
   orientation = "up",
   enabled,
   solidArrow,
+  largeArrow,
   VoteIconComponent,
 }: {
-  vote: (strength: "big"|"small"|"neutral")=>void,
+  vote: (strength: "big"|"small"|"neutral") => void,
   currentStrength: "big"|"small"|"neutral",
   
   upOrDown: "Upvote"|"Downvote",
   color: "error"|"primary"|"secondary",
   orientation: "up"|"down"|"left"|"right",
   enabled: boolean,
-  solidArrow?: boolean
+  solidArrow?: boolean,
+  largeArrow?: boolean,
   VoteIconComponent: React.ComponentType<VoteArrowIconProps>,
 }) => {
   const theme = useTheme();
@@ -81,7 +83,7 @@ const VoteButton = ({
   }
 
   const voteArrowProps = {
-    solidArrow, strongVoteDelay, orientation, enabled, color, voted,
+    solidArrow, largeArrow, strongVoteDelay, orientation, enabled, color, voted,
     bigVotingTransition, bigVoted,
     bigVoteCompleted, theme,
     eventHandlers: {handleMouseDown, handleMouseUp, handleClick, clearState},

@@ -40,7 +40,7 @@ const CommentBottomCaveats = ({comment, classes}: {
     }
     {commentIsHidden(comment) && !comment.rejected
       && <Components.MetaInfo className={classes.caveatText}>
-        [This comment will not be visible to other users until the moderation team checks it for spam or norm violations.]
+        [This comment will not be visible to other users until the moderation team has reviewed it.]
       </Components.MetaInfo>
     }
   </>

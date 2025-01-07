@@ -200,7 +200,9 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
     }
     ${getFragment("UsersMinimumInfo")}  
   `);
-  const sortedPredictions = sortBy(data?.ElicitBlockData?.predictions || [], ({prediction}) => prediction)
+  const allPredictions = data?.ElicitBlockData?.predictions || [];
+  const nonCancelledPredictions = allPredictions.filter((p: AnyBecauseTodo) => p.prediction !== null);
+  const sortedPredictions = sortBy(nonCancelledPredictions, ({prediction}) => prediction)
   const roughlyGroupedData = groupBy(sortedPredictions, ({prediction}) => Math.floor(prediction / 10) * 10)
   const finelyGroupedData = groupBy(sortedPredictions, ({prediction}) => Math.floor(prediction))
   const userHasPredicted = currentUser && some(

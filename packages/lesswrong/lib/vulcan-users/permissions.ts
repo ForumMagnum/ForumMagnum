@@ -117,11 +117,13 @@ export const userOwns = function (user: UsersMinimumInfo|DbUser|null, document: 
   } else {
     // case 2: document is a user, use _id or slug to check
     const documentUser = document as (DbUser|UsersMinimumInfo);
-    return documentUser.slug ? user.slug === documentUser.slug : user._id === documentUser._id;
+    const idsExistAndMatch = !!user._id && !!documentUser._id && user._id === documentUser._id;
+    const slugsExistAndMatch = !!user.slug && !!documentUser.slug && user.slug === documentUser.slug;
+    return idsExistAndMatch || slugsExistAndMatch;
   }
 };
 
-export const userOwnsAndOnLW = function (user:UsersMinimumInfo|DbUser|null, document: OwnableDocument): boolean {
+export const userOwnsAndOnLW = function (user: UsersMinimumInfo|DbUser|null, document: OwnableDocument): boolean {
   return isLW && userOwns(user, document)
 }
 
@@ -159,6 +161,23 @@ export const userCanComment = (user: PermissionableUser|DbUser|null): boolean =>
   if (hideUnreviewedAuthorCommentsSettings.get() && !user.reviewedByUserId) {
     return false;
   }
+  return true;
+}
+
+// Same as userCanComment, but without the unreviewed author check
+export const userCanQuickTake = (user: PermissionableUser|DbUser|null): boolean => {
+  if (!user) {
+    return false;
+  }
+
+  if (userIsAdminOrMod(user)) {
+    return true;
+  }
+
+  if (user.allCommentingDisabled) {
+    return false;
+  }
+
   return true;
 }
 
@@ -201,23 +220,34 @@ export const userCanReadField = <N extends CollectionNameString>(
   document: ObjectsByCollectionName[N],
 ): boolean => {
   const canRead = field.canRead;
+  const userGroups = userGetGroups(user);
   if (canRead) {
-    return userHasFieldPermissions(user, canRead, document);
+    return userHasFieldPermissions(user, userGroups, canRead, document);
   }
   return false;
 };
 
-const userHasFieldPermissions = <T extends DbObject>(user: UsersCurrent|DbUser|null, canRead: FieldPermissions, document: T): boolean => {
+const userHasFieldPermissions = <T extends DbObject>(
+  user: UsersCurrent|DbUser|null,
+  userGroups: string[],
+  canRead: FieldPermissions,
+  document: T
+): boolean => {
   if (typeof canRead === 'string') {
     // if canRead is just a string, we assume it's the name of a group and pass it to isMemberOf
-    return canRead === 'guests' || userIsMemberOf(user, canRead);
+    if (canRead === 'guests') return true;
+    for (let group of userGroups) {
+      if (group===canRead)
+        return true;
+    }
+    return false;
   } else if (typeof canRead === 'function') {
     // if canRead is a function, execute it with user and document passed. it must return a boolean
     return canRead(user, document);
   } else if (Array.isArray(canRead) && canRead.length > 0) {
     // if canRead is an array, we do a recursion on every item and return true if one of the items return true
     for (const group of canRead) {
-      if (userHasFieldPermissions(user, group, document)) {
+      if (userHasFieldPermissions(user, userGroups, group, document)) {
         return true;
       }
     }
@@ -254,27 +284,32 @@ export function restrictViewableFields<N extends CollectionNameString>(
   }
 };
 
-export const restrictViewableFieldsMultiple = function <N extends CollectionNameString>(
+export const restrictViewableFieldsMultiple = function <N extends CollectionNameString, DocType extends ObjectsByCollectionName[N]>(
   user: UsersCurrent|DbUser|null,
   collection: CollectionBase<N>,
-  docs: ObjectsByCollectionName[N][],
-): Partial<ObjectsByCollectionName[N]>[] {
+  docs: DocType[],
+): Partial<DocType>[] {
   if (!docs) return [];
   return docs.map(doc => restrictViewableFieldsSingle(user, collection, doc));
 };
 
-export const restrictViewableFieldsSingle = function <N extends CollectionNameString>(
+export const restrictViewableFieldsSingle = function <N extends CollectionNameString, DocType extends ObjectsByCollectionName[N]>(
   user: UsersCurrent|DbUser|null,
   collection: CollectionBase<N>,
-  doc: ObjectsByCollectionName[N] | undefined | null,
-): Partial<ObjectsByCollectionName[N]> {
+  doc: DocType | undefined | null,
+): Partial<DocType> {
   if (!doc) return {};
   const schema = getSchema(collection);
-  const restrictedDocument: Partial<ObjectsByCollectionName[N]> = {};
+  const restrictedDocument: Partial<DocType> = {};
+  const userGroups = userGetGroups(user);
+
   for (const fieldName in doc) {
     const fieldSchema = schema[fieldName];
-    if (fieldSchema && userCanReadField(user, fieldSchema, doc)) {
-      restrictedDocument[fieldName] = doc[fieldName];
+    if (fieldSchema) {
+      const canRead = fieldSchema.canRead;
+      if (canRead && userHasFieldPermissions(user, userGroups, canRead, doc)) {
+        restrictedDocument[fieldName] = doc[fieldName];
+      }
     }
   }
 

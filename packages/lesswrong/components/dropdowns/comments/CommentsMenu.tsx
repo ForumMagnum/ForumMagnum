@@ -26,7 +26,7 @@ const CommentsMenu = ({classes, className, comment, post, tag, showEdit, icon}: 
   comment: CommentsList,
   post?: PostsMinimumInfo,
   tag?: TagBasicInfo,
-  showEdit: ()=>void,
+  showEdit: () => void,
   icon?: any,
 }) => {
   const [anchorEl, setAnchorEl] = useState<any>(null);

@@ -12,6 +12,7 @@ import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { diffHtml } from '../resolvers/htmlDiff';
 import { sanitize } from '../../lib/vulcan-lib/utils';
 import { dataToHTML } from '../editor/conversionUtils';
+import { fetchFragmentSingle } from '../fetchFragment';
 
 const runRSSImport = async () => {
   const feeds = await RSSFeeds.find({status: {$ne: 'inactive'}}).fetch()
@@ -133,10 +134,13 @@ defineQuery({
       throw new Error("Not logged in");
     }
 
-    const post = await accessFilterSingle(currentUser, Posts,
-      await context.loaders.Posts.load(args.postId),
-      context
-    );
+    const post = await fetchFragmentSingle({
+      collectionName: "Posts",
+      fragmentName: "PostsOriginalContents",
+      currentUser: context.currentUser,
+      selector: {_id: args.postId},
+      context,
+    });
     if (!post) {
       throw new Error("Invalid postId");
     }
@@ -176,7 +180,7 @@ defineQuery({
     
     // Diff the contents between the RSS feed and the LW version
     const newHtml = sanitize(getRssPostContents(matchingPost));
-    const oldHtml = sanitize(await dataToHTML(post.contents?.originalContents.data, post.contents?.originalContents.type ?? "", true));
+    const oldHtml = sanitize(await dataToHTML(post.contents?.originalContents.data, post.contents?.originalContents.type ?? "", { sanitize: true }));
     const htmlDiff = diffHtml(oldHtml, newHtml, false);
 
     return {

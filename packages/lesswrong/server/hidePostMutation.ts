@@ -18,7 +18,7 @@ addGraphQLResolvers({
       // to leveraging inserts and removals in Mongo vs. writing the whole list
       const oldHiddenList = currentUser.hiddenPostsMetadata || [];
 
-      let newHiddenList:Array<{postId:string}>;
+      let newHiddenList: Array<{postId: string}>;
       if (isHidden) {
         const alreadyHidden = some(oldHiddenList, hiddenMetadata => hiddenMetadata.postId === postId)
         if (alreadyHidden) {

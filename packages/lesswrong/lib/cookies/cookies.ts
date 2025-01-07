@@ -58,15 +58,11 @@ export const HIDE_HANDBOOK_COOKIE = registerCookie({
   description: "Whether to hide the EA Handbook on the EA Forum home page",
 });
 
-export const HIDE_JOB_AD_COOKIE = registerCookie({name: 'hide_job_ad', type: "necessary", description: 'Controls whether job ads are hidden'});
-
 export const SHOW_PODCAST_PLAYER_COOKIE = registerCookie({
   name: "show_post_podcast_player",
   type: "necessary",
   description: "Whether to show the podcast player on a posts pages",
 });
-
-export const PODCAST_TOOLTIP_SEEN_COOKIE = registerCookie({name: 'podcast_tooltip_seen', type: "necessary", description: "Stores whether the user has seen the podcast 'new feature' tooltip"})
 
 export const HIDE_WELCOME_BOX_COOKIE = registerCookie({
   name: "hide_welcome_box",
@@ -90,6 +86,14 @@ registerCookie({
   matches: (name: string) => name.startsWith(HIDE_SPOTLIGHT_ITEM_PREFIX),
   type: "necessary",
   description: "Stores whether a spotlight item has been hidden (for a specific spotlight item id)",
+});
+
+export const HIDE_FORUM_EVENT_BANNER_PREFIX = "hide_forum_event_banner_";
+registerCookie({
+  name: `${HIDE_FORUM_EVENT_BANNER_PREFIX}[*]`,
+  matches: (name: string) => name.startsWith(HIDE_FORUM_EVENT_BANNER_PREFIX),
+  type: "necessary",
+  description: "Stores whether a forum event banner has been hidden",
 });
 
 export const SHOW_RECOMMENDATIONS_SECTION_COOKIE = registerCookie({
@@ -121,6 +125,86 @@ export const HIDE_2021_BOOK_BANNER_COOKIE = registerCookie({
   type: "necessary",
   description: "Don't show the 2021 book banner",
 });
+
+export const LAST_VISITED_FRONTPAGE_COOKIE = registerCookie({
+  name: "last_visited_frontpage",
+  type: "functional",
+  description: "Stores the date of the user's last visit to the frontpage",
+});
+
+export const RECOMBEE_SETTINGS_COOKIE = registerCookie({
+  name: "admin_recombee_settings",
+  type: "functional",
+  description: "Stores recombee settings for admins experimenting with latest posts"
+});
+
+export const NEW_POSTS_LIST_VIEW_TOGGLE_COOKIE = registerCookie({
+  name: "new_posts_list_view_toggle",
+  type: "necessary",
+  description: "Tracks whether or not to show the \"NEW\" flag on the posts list view toggle"
+});
+
+export const POSTS_LIST_VIEW_TYPE_COOKIE = registerCookie({
+  name: "posts_list_view_type",
+  type: "necessary",
+  description: "Whether to display post lists as list items or card items"
+});
+
+export const HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS = registerCookie({
+  name: "hide_subscribed_feed_suggested_users",
+  type: "necessary",
+  description: "Whether to hide the suggested users section on the subscribed tab feed"
+});
+
+export const HIDE_SURVEY_SCHEDULE_IDS = registerCookie({
+  name: "hide_survey_schedule_ids",
+  type: "necessary",
+  description: "Stores the ids of survey schedules that the user has hidden"
+});
+
+export const SELECTED_FRONTPAGE_TAB_COOKIE = registerCookie({
+  name: "selected_frontpage_tab",
+  type: "functional",
+  description: "Stores the selected tab for logged out users"
+});
+
+export const HIDE_EAG_BANNER_COOKIE = registerCookie({
+  name: "hide_eag_banner",
+  type: "necessary",
+  description: "Don't show any EAG(x) banners",
+});
+
+export const HIDE_EA_FORUM_SURVEY_BANNER_COOKIE = registerCookie({
+  name: "hide_ea_forum_survey_banner",
+  type: "necessary",
+  description: "Don't show the EA Forum survey banner",
+});
+
+export const NAV_MENU_FLAG_COOKIE_PREFIX = "nav_menu_flag_";
+registerCookie({
+  name: `${NAV_MENU_FLAG_COOKIE_PREFIX}[*]`,
+  matches: (name: string) => name.startsWith(NAV_MENU_FLAG_COOKIE_PREFIX),
+  type: "necessary",
+  description: "Whether or not to show particular flags in the main navigation menu",
+});
+
+export const SHOW_LLM_CHAT_COOKIE = registerCookie({
+  name: "llm_chat_conversation_open",
+  type: "functional",
+  description: "Whether the LLM chat conversation UI is open",
+});
+
+export const HIDE_LLM_CHAT_GUIDE_COOKIE = registerCookie({
+  name: "llm_chat_guide_open",
+  type: "functional",
+  description: "Whether the LLM chat guide is open",
+})
+
+export const LLM_CHAT_EXPANDED = registerCookie({
+  name: "llm_chat_expanded",
+  type: "functional",
+  description: "Whether the LLM chat has expanded size",
+})
 
 
 // Third party cookies
@@ -255,3 +339,11 @@ registerCookie({
                "The full list of known possible cookies are: __Secure-3PSIDCC, __Secure-1PSIDCC, SIDCC, __Secure-3PAPISID, SSID, " +
                "__Secure-1PAPISID, HSID, __Secure-3PSID, __Secure-1PSID, SID, SAPISID, APISID, NID, OTZ, 1P_JAR, AEC, DV, __Secure-ENID",
 });
+
+// Pinned glossary
+export const PINNED_GLOSSARY_COOKIE = registerCookie({
+  name: 'pinnedGlossary',
+  type: 'functional',
+  description: 'Whether the glossary is pinned',
+});
+

@@ -1,7 +1,6 @@
-import React, { useContext, useState, useCallback, useEffect } from 'react';
+import React, { useContext, useState, useCallback, useEffect, CSSProperties } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
-import NoSSR from 'react-no-ssr';
 import Headroom from '../../lib/react-headroom'
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
@@ -11,11 +10,19 @@ import { SidebarsContext } from './SidebarsWrapper';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
-import { PublicInstanceSetting, isEAForum } from '../../lib/instanceSettings';
+import { PublicInstanceSetting, isEAForum, isLW } from '../../lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
-import { hasProminentLogoSetting } from '../../lib/publicSettings';
+import { hasProminentLogoSetting, lightconeFundraiserUnsyncedAmount, lightconeFundraiserThermometerBgUrl, lightconeFundraiserThermometerGoalAmount, lightconeFundraiserActive, lightconeFundraiserPostId } from '../../lib/publicSettings';
 import { useLocation } from '../../lib/routeUtil';
+import { useCurrentForumEvent } from '../hooks/useCurrentForumEvent';
+import { makeCloudinaryImageUrl } from './CloudinaryImage2';
+import { hasForumEvents } from '@/lib/betas';
+import {
+  GIVING_SEASON_MOBILE_WIDTH,
+  useGivingSeasonEvents,
+} from '../forumEvents/useGivingSeasonEvents';
+import { useFundraiserStripeTotal, useLivePercentage } from '@/lib/lightconeFundraiser';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
@@ -23,6 +30,78 @@ export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSe
 export const HEADER_HEIGHT = isBookUI ? 64 : 66;
 /** Height of top header on mobile. On Friendly UI sites, this is the same as the HEADER_HEIGHT */
 export const MOBILE_HEADER_HEIGHT = isBookUI ? 56 : HEADER_HEIGHT;
+
+const textColorOverrideStyles = ({
+  theme,
+  color,
+  contrastColor,
+  loginButtonBackgroundColor,
+  loginButtonHoverBackgroundColor,
+  loginButtonColor,
+  signupButtonBackgroundColor,
+  signupButtonHoverBackgroundColor,
+  signupButtonColor,
+}: {
+  theme: ThemeType,
+  color: string,
+  contrastColor?: string,
+  loginButtonBackgroundColor?: string,
+  loginButtonHoverBackgroundColor?: string,
+  loginButtonColor?: string,
+  signupButtonBackgroundColor?: string,
+  signupButtonHoverBackgroundColor?: string,
+  signupButtonColor?: string,
+}) => ({
+  color,
+  boxShadow: 'none',
+  "& .Header-titleLink": {
+    color,
+  },
+  "& .HeaderSubtitle-subtitle": {
+    color,
+  },
+  "& .SearchBar-searchIcon": {
+    color,
+  },
+  "& .ais-SearchBox-input": {
+    color,
+  },
+  "& .ais-SearchBox-input::placeholder": {
+    color,
+  },
+  "& .KarmaChangeNotifier-starIcon": {
+    color,
+  },
+  "& .KarmaChangeNotifier-gainedPoints": {
+    color,
+  },
+  "& .NotificationsMenuButton-badge": {
+    color,
+  },
+  "& .NotificationsMenuButton-buttonClosed": {
+    color,
+  },
+  "& .MessagesMenuButton-buttonClosed": {
+    color,
+  },
+  "& .UsersMenu-arrowIcon": {
+    color,
+  },
+  "& .EAButton-variantContained": {
+    backgroundColor: signupButtonBackgroundColor ?? color,
+    color: signupButtonColor ?? contrastColor,
+    "&:hover": {
+      backgroundColor: signupButtonHoverBackgroundColor ?? `color-mix(in oklab, ${signupButtonBackgroundColor ?? color} 90%, ${signupButtonColor ?? contrastColor})`,
+    },
+  },
+  "& .EAButton-greyContained": {
+    backgroundColor: loginButtonBackgroundColor ?? `color-mix(in oklab, ${loginButtonColor ?? color} 15%, ${contrastColor})`,
+    color: loginButtonColor ?? color,
+    "&:hover": {
+      backgroundColor: loginButtonHoverBackgroundColor ?? `color-mix(in oklab, ${loginButtonColor ?? color} 10%, ${theme.palette.background.transparent}) !important`,
+    },
+  },
+});
 
 export const styles = (theme: ThemeType) => ({
   appBar: {
@@ -37,6 +116,8 @@ export const styles = (theme: ThemeType) => ({
     flexShrink: 0,
     flexDirection: "column",
     ...(isFriendlyUI ? {
+      maxWidth: "100vw",
+      overflow: "hidden",
       padding: '1px 20px',
       [theme.breakpoints.down('sm')]: {
         padding: '1px 11px',
@@ -46,57 +127,19 @@ export const styles = (theme: ThemeType) => ({
       },
     } : {}),
   },
-  // This class is applied when "backgroundColor" is passed in.
-  // Currently we assume that the background color is always dark,
-  // so all text in the header changes to "alwaysWhite".
-  // If that's not the case, you'll need to expand this code.
   appBarDarkBackground: {
-    color: theme.palette.text.alwaysWhite,
-    boxShadow: 'none',
-    "& .Header-titleLink": {
+    ...textColorOverrideStyles({
+      theme,
       color: theme.palette.text.alwaysWhite,
-    },
-    "& .HeaderSubtitle-subtitle": {
-      color: theme.palette.text.alwaysWhite,
-    },
-    "& .SearchBar-searchIcon": {
-      color: theme.palette.text.alwaysWhite,
-    },
-    "& .ais-SearchBox-input": {
-      color: theme.palette.text.alwaysWhite,
-    },
-    "& .ais-SearchBox-input::placeholder": {
-      color: theme.palette.text.alwaysWhite,
-    },
-    "& .KarmaChangeNotifier-starIcon": {
-      color: theme.palette.text.alwaysWhite,
-    },
-    "& .KarmaChangeNotifier-gainedPoints": {
-      color: theme.palette.text.alwaysWhite,
-    },
-    "& .NotificationsMenuButton-badge": {
-      color: theme.palette.text.alwaysWhite,
-    },
-    "& .NotificationsMenuButton-buttonClosed": {
-      color: theme.palette.text.alwaysWhite,
-    },
-    "& .UsersMenu-arrowIcon": {
-      color: theme.palette.text.alwaysWhite,
-    },
-    "& .EAButton-variantContained": {
-      backgroundColor: theme.palette.text.alwaysWhite,
-      color: theme.palette.text.alwaysBlack,
-      "&:hover": {
-        backgroundColor: `color-mix(in oklab, ${theme.palette.text.alwaysWhite} 90%, ${theme.palette.text.alwaysBlack})`,
-      },
-    },
-    "& .EAButton-greyContained": {
-      backgroundColor: `color-mix(in oklab, ${theme.palette.text.alwaysWhite} 15%, ${theme.palette.background.transparent})`,
-      color: theme.palette.text.alwaysWhite,
-      "&:hover": {
-        backgroundColor: `color-mix(in oklab, ${theme.palette.text.alwaysWhite} 10%, ${theme.palette.background.transparent}) !important`,
-      },
-    },
+      contrastColor: theme.palette.text.alwaysBlack,
+
+      // Custom button styles for giving season 2024
+      signupButtonBackgroundColor: theme.palette.givingSeason.electionFundBackground,
+      signupButtonColor: theme.palette.text.alwaysWhite,
+      loginButtonBackgroundColor: theme.palette.givingSeason.electionFundBackground,
+      loginButtonColor: theme.palette.text.alwaysWhite,
+      loginButtonHoverBackgroundColor: `color-mix(in oklab, ${theme.palette.givingSeason.electionFundBackground} 90%, ${theme.palette.text.alwaysWhite})`,
+    }),
   },
   root: {
     // This height (including the breakpoint at xs/600px) is set by Headroom, and this wrapper (which surrounds
@@ -113,13 +156,17 @@ export const styles = (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'center'
   },
+  titleFundraiserContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
   title: {
     flex: 1,
     position: "relative",
     top: 3,
     paddingRight: theme.spacing.unit,
     color: theme.palette.text.secondary,
-  //  maxWidth: 130,
   },
   titleLink: {
     color: theme.palette.header.text,
@@ -131,10 +178,15 @@ export const styles = (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'center',
     fontWeight: isFriendlyUI ? 400 : undefined,
+    height: isFriendlyUI ? undefined : '19px'
   },
   menuButton: {
     marginLeft: -theme.spacing.unit,
     marginRight: theme.spacing.unit,
+  },
+  icon: {
+    width: 24,
+    height: 24,
   },
   siteLogo: {
     marginLeft:  -7,
@@ -212,6 +264,60 @@ export const styles = (theme: ThemeType) => ({
       position: "fixed !important",
     },
   },
+
+  // Giving season 2024 styles
+  gsBackground: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    opacity: 0,
+    transition: "opacity 0.5s ease",
+    backgroundSize: "100% 400px",
+    backgroundRepeat: "no-repeat",
+    backgroundBlendMode: "darken",
+  },
+  gsBackgroundActive: {
+    opacity: 1,
+  },
+  gsAppBarText: {
+    ...textColorOverrideStyles({
+      theme,
+      color: theme.palette.givingSeason.primary,
+      contrastColor: theme.palette.text.alwaysWhite,
+    }),
+  },
+  gsBanner: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: 14,
+    fontWeight: 600,
+    lineHeight: "150%",
+    letterSpacing: "1.12px",
+    textAlign: "center",
+    flex: 1,
+    [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
+      display: "none",
+    },
+  },
+  gsRightHeaderItems: {
+    flex: 1,
+    justifyContent: "flex-end",
+  },
+  lightconeFundraiserHeaderItem: {
+    color: theme.palette.review.winner,
+    fontFamily: theme.typography.headerStyle.fontFamily,
+    fontSize: '1.4rem',
+    marginLeft: theme.spacing.unit,
+  },
+  lightconeFundraiserHeaderItemSmall: {
+    color: theme.palette.review.winner,
+    fontFamily: theme.typography.headerStyle.fontFamily,
+    fontSize: '1.4rem',
+    fontWeight: 600,
+    marginLeft: theme.spacing.unit,
+    marginBottom: 1.5,
+  },
 });
 
 const Header = ({
@@ -225,7 +331,7 @@ const Header = ({
 }: {
   standaloneNavigationPresent: boolean,
   sidebarHidden: boolean,
-  toggleStandaloneNavigation: ()=>void,
+  toggleStandaloneNavigation: () => void,
   stayAtTop?: boolean,
   searchResultsArea: React.RefObject<HTMLDivElement>,
   // CSS var corresponding to the background color you want to apply (see also appBarDarkBackground above)
@@ -240,8 +346,20 @@ const Header = ({
   const currentUser = useCurrentUser();
   const {toc} = useContext(SidebarsContext)!;
   const { captureEvent } = useTracking()
-  const { unreadNotifications, unreadPrivateMessages, notificationsOpened } = useUnreadNotifications();
-  const { pathname, hash } = useLocation();
+  const { notificationsOpened } = useUnreadNotifications();
+  const { currentRoute, pathname, hash } = useLocation();
+  const {currentForumEvent} = useCurrentForumEvent();
+  const isGivingSeason =
+    currentForumEvent?.customComponent === "GivingSeason2024Banner" &&
+    (currentRoute?.name === "home" || currentRoute?.name === "posts.single");
+  const {events, selectedEvent, currentEvent} = useGivingSeasonEvents();
+  const isVotingPortal = currentRoute?.name === "VotingPortal";
+
+  const {
+    SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
+    NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography, ForumIcon,
+    ActiveDialogues, SiteLogo, MessagesMenuButton,
+  } = Components;
 
   useEffect(() => {
     // When we move to a different page we will be positioned at the top of
@@ -251,6 +369,10 @@ const Header = ({
       setUnFixed(true);
     }
   }, [pathname, hash]);
+
+  const hasNotificationsPopover = isFriendlyUI;
+  const hasKarmaChangeNotifier = !isFriendlyUI && currentUser && !currentUser.usernameUnset;
+  const hasMessagesButton = isFriendlyUI && currentUser && !currentUser.usernameUnset;
 
   const setNavigationOpen = (open: boolean) => {
     setNavigationOpenState(open);
@@ -272,8 +394,17 @@ const Header = ({
     if (!currentUser) return;
     const { lastNotificationsCheck } = currentUser
 
-    captureEvent("notificationsIconToggle", {open: !notificationOpen, previousCheck: lastNotificationsCheck})
-    void handleSetNotificationDrawerOpen(!notificationOpen);
+    if (hasNotificationsPopover) {
+      captureEvent("notificationsIconToggle", {
+        previousCheck: lastNotificationsCheck,
+      });
+    } else {
+      captureEvent("notificationsIconToggle", {
+        open: !notificationOpen,
+        previousCheck: lastNotificationsCheck,
+      });
+      void handleSetNotificationDrawerOpen(!notificationOpen);
+    }
   }
 
   // We do two things when the search is open:
@@ -286,12 +417,12 @@ const Header = ({
     setSearchOpenState(isOpen);
   }, [captureEvent]);
 
-  const NavigationMenuButton = () => {
+  const navigationMenuButton = (
     // The navigation menu button either toggles a free floating sidebar, opens
     // a drawer with site navigation, or a drawer with table of contents. (This
     // is structured a little oddly because the hideSmDown/hideMdUp filters
     // cause a misalignment if they're in the wrong part of the tree.)
-    return <React.Fragment>
+    <React.Fragment>
       {toc?.sectionData?.sections
         ? <>
             <div className={classes.hideSmDown}>
@@ -304,7 +435,7 @@ const Header = ({
                 aria-label="Menu"
                 onClick={()=>setNavigationOpen(true)}
               >
-                <ForumIcon icon="Menu" />
+                <ForumIcon icon="Menu" className={classes.icon} />
               </IconButton>
             </div>
             <div className={classes.hideMdUp}>
@@ -317,7 +448,7 @@ const Header = ({
                 aria-label="Menu"
                 onClick={()=>setNavigationOpen(true)}
               >
-                <TocIcon />
+                <TocIcon className={classes.icon} />
               </IconButton>
             </div>
           </>
@@ -330,7 +461,7 @@ const Header = ({
             aria-label="Menu"
             onClick={()=>setNavigationOpen(true)}
           >
-            <ForumIcon icon="Menu" />
+            <ForumIcon icon="Menu" className={classes.icon} />
           </IconButton>
       }
       {standaloneNavigationPresent && unFixed && <IconButton
@@ -342,17 +473,13 @@ const Header = ({
         aria-label="Menu"
         onClick={toggleStandaloneNavigation}
       >
-        {(isFriendlyUI && !sidebarHidden) ? <ForumIcon icon="CloseMenu" /> : <ForumIcon icon="Menu" />}
+        {(isFriendlyUI && !sidebarHidden)
+          ? <ForumIcon icon="CloseMenu" className={classes.icon} />
+          : <ForumIcon icon="Menu" className={classes.icon} />}
       </IconButton>}
     </React.Fragment>
-  }
+  )
 
-  const {
-    SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
-    NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography, ForumIcon,
-    ActiveDialogues, SiteLogo,
-  } = Components;
-  
   const usersMenuClass = isFriendlyUI ? classes.hideXsDown : classes.hideMdDown
   const usersMenuNode = currentUser && <div className={searchOpen ? usersMenuClass : undefined}>
     <AnalyticsContext pageSectionContext="usersMenu">
@@ -361,27 +488,32 @@ const Header = ({
   </div>
 
   // the items on the right-hand side (search, notifications, user menu, login/sign up buttons)
-  const rightHeaderItemsNode = <div className={classes.rightHeaderItems}>
-    <NoSSR onSSR={<div className={classes.searchSSRStandin} />} >
-      <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
-    </NoSSR>
+  const rightHeaderItemsNode = <div className={classNames(
+    classes.rightHeaderItems,
+    isGivingSeason && classes.gsRightHeaderItems,
+  )}>
+    <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
     {!isFriendlyUI && usersMenuNode}
     {!currentUser && <UsersAccountMenu />}
-    {currentUser && !currentUser.usernameUnset && <KarmaChangeNotifier
+    {hasKarmaChangeNotifier && <KarmaChangeNotifier
       currentUser={currentUser}
       className={(isFriendlyUI && searchOpen) ? classes.hideXsDown : undefined}
     />}
     {currentUser && !currentUser.usernameUnset && <NotificationsMenuButton
-      unreadNotifications={unreadNotifications}
       toggle={handleNotificationToggle}
       open={notificationOpen}
       className={(isFriendlyUI && searchOpen) ? classes.hideXsDown : undefined}
     />}
+    {hasMessagesButton &&
+      <MessagesMenuButton
+        className={(isFriendlyUI && searchOpen) ? classes.hideXsDown : undefined}
+      />
+    }
     {isFriendlyUI && usersMenuNode}
   </div>
 
   // the left side nav menu
-  const HeaderNavigationDrawer = () => <NavigationDrawer
+  const headerNavigationDrawer = <NavigationDrawer
     open={navigationOpen}
     handleOpen={() => setNavigationOpen(true)}
     handleClose={() => setNavigationOpen(false)}
@@ -389,12 +521,46 @@ const Header = ({
   />
 
   // the right side notifications menu
-  const HeaderNotificationsMenu = () => currentUser && <NotificationsMenu
-    unreadPrivateMessages={unreadPrivateMessages}
-    open={notificationOpen}
-    hasOpened={notificationHasOpened}
-    setIsOpen={handleSetNotificationDrawerOpen}
-  />
+  const headerNotificationsMenu = currentUser && !hasNotificationsPopover
+    && (
+      <NotificationsMenu
+        open={notificationOpen}
+        hasOpened={notificationHasOpened}
+        setIsOpen={handleSetNotificationDrawerOpen}
+      />
+    );
+
+  const headerStyle: CSSProperties = {}
+  const bannerImageId = currentForumEvent?.bannerImageId
+  // If we're explicitly given a backgroundColor, that overrides any event header
+  if (backgroundColor) {
+    headerStyle.backgroundColor = backgroundColor
+  } else if (hasForumEvents && currentRoute?.name === "home") {
+    // On EAF, forum events with polls also update the home page header background
+    if (bannerImageId && currentForumEvent?.includesPoll) {
+      const darkColor = currentForumEvent.darkColor;
+      const background = `top / cover no-repeat url(${makeCloudinaryImageUrl(bannerImageId, {
+        c: "fill",
+        dpr: "auto",
+        q: "auto",
+        f: "auto",
+        g: "north",
+      })})${darkColor ? `, ${darkColor}` : ''}`;
+      headerStyle.background = background;
+    } else if (isGivingSeason) {
+      headerStyle.background = unFixed ? "transparent" : "#fff";
+    }
+  } else if (isGivingSeason) {
+    headerStyle.background = "#fff";
+  }
+
+  const useGivingSeasonText = isGivingSeason && (
+    (currentRoute?.name === "home" && selectedEvent.darkText) ||
+    (currentRoute?.name === "posts.single" && !!currentEvent?.darkText)
+  );
+
+  // Make all the text and icons white when we have some sort of color in the header background
+  const useWhiteText = Object.keys(headerStyle).length > 0 && !useGivingSeasonText;
 
   return (
     <AnalyticsContext pageSectionContext="header">
@@ -402,41 +568,82 @@ const Header = ({
         <Headroom
           disableInlineStyles
           downTolerance={10} upTolerance={10}
-          height={64}
+          height={HEADER_HEIGHT}
           className={classNames(classes.headroom, {
             [classes.headroomPinnedOpen]: searchOpen,
           })}
           onUnfix={() => setUnFixed(true)}
           onUnpin={() => setUnFixed(false)}
-          disable={stayAtTop}
+          disable={stayAtTop || isVotingPortal}
         >
-          <header className={classNames(classes.appBar, {[classes.appBarDarkBackground]: !!backgroundColor})} style={backgroundColor ? {backgroundColor} : {}}>
+          <header
+            className={classNames(
+              classes.appBar,
+              useWhiteText && classes.appBarDarkBackground,
+              useGivingSeasonText && classes.gsAppBarText,
+            )}
+            style={headerStyle}
+          >
+            {isGivingSeason && !unFixed && currentRoute?.name === "home" &&
+              <div>
+                {events.map(({name, background}) => (
+                  <div
+                    key={name}
+                    style={{backgroundImage: `url(${background})`}}
+                    className={classNames(
+                      classes.gsBackground,
+                      name === selectedEvent.name && classes.gsBackgroundActive,
+                    )}
+                  />
+                ))}
+              </div>
+            }
+            {isGivingSeason && currentEvent && currentRoute?.name === "posts.single" &&
+              <div
+                style={{backgroundImage: `url(${currentEvent.background})`}}
+                className={classNames(
+                  classes.gsBackground,
+                  classes.gsBackgroundActive,
+                )}
+              />
+            }
             <Toolbar disableGutters={isFriendlyUI}>
-              <NavigationMenuButton />
+              {navigationMenuButton}
               <Typography className={classes.title} variant="title">
                 <div className={classes.hideSmDown}>
                   <div className={classes.titleSubtitleContainer}>
-                    <Link to="/" className={classes.titleLink}>
-                      {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaWhite={!!backgroundColor}/></div>}
-                      {forumHeaderTitleSetting.get()}
-                    </Link>
+                    <div className={classes.titleFundraiserContainer}>
+                      <Link to="/" className={classes.titleLink}>
+                        {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaWhite={useWhiteText}/></div>}
+                        {forumHeaderTitleSetting.get()}
+                      </Link>
+                      {isLW && lightconeFundraiserActive.get() && <div className={classes.lightconeFundraiserHeaderItem}><Link to={`/posts/${lightconeFundraiserPostId.get()}`}> is fundraising!</Link></div>}
+                    </div>
                     <HeaderSubtitle />
                   </div>
                 </div>
-                <div className={classes.hideMdUp}>
+                <div className={classNames(classes.hideMdUp, classes.titleFundraiserContainer)}>
                   <Link to="/" className={classes.titleLink}>
-                    {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaWhite={!!backgroundColor}/></div>}
+                    {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaWhite={useWhiteText}/></div>}
                     {forumShortTitleSetting.get()}
                   </Link>
+                  {isLW && lightconeFundraiserActive.get() && <div className={classes.lightconeFundraiserHeaderItemSmall}><Link to={`/posts/${lightconeFundraiserPostId.get()}`}>$</Link></div>}
                 </div>
               </Typography>
               {!isEAForum &&<ActiveDialogues />}
+              {isGivingSeason && !searchOpen &&
+                <div className={classes.gsBanner}>
+                  <Link to="/posts/srZEX2r9upbwfnRKw/giving-season-2024-announcement">
+                    GIVING SEASON 2024
+                  </Link>
+                </div>
+              }
               {rightHeaderItemsNode}
             </Toolbar>
           </header>
-          <HeaderNavigationDrawer />
+          {headerNavigationDrawer}
         </Headroom>
-        <HeaderNotificationsMenu />
+        {headerNotificationsMenu}
       </div>
     </AnalyticsContext>
   )

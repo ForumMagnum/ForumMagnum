@@ -1,13 +1,33 @@
 import moment from '../../lib/moment-timezone';
 import * as _ from 'underscore';
+import { SettingsOption } from '../../lib/collections/posts/dropdownOptions';
 
-export type TimeframeType = "daily"|"weekly"|"monthly"|"yearly";
+export const timeframes = ["daily", "weekly", "monthly", "yearly"] as const;
+export const timeframeSettings = ["allTime", ...timeframes, "exponential"] as const;
+export type TimeframeType = typeof timeframes[number];
+export type TimeframeSettingType = typeof timeframeSettings[number];
+
+export const timeframeLabels: Record<TimeframeSettingType,SettingsOption> = {
+  allTime:     { label: 'All time' },
+  daily:       { label: 'Daily' },
+  weekly:      { label: 'Weekly' },
+  monthly:     { label: 'Monthly' },
+  yearly:      { label: 'Yearly' },
+  exponential: { label: "Exponential" },
+}
 
 export const timeframeToTimeBlock: Record<TimeframeType,moment.unitOfTime.DurationAs> = {
   daily: 'day',
   weekly: 'week',
   monthly: 'month',
   yearly: 'year',
+}
+
+export const loadMoreTimeframeMessages = {
+  'daily': 'Load More Days',
+  'weekly': 'Load More Weeks',
+  'monthly': 'Load More Months',
+  'yearly': 'Load More Years',
 }
 
 // Locally valid. Moment supports seconds, but that's not how these functions
@@ -93,4 +113,15 @@ export function getBeforeDefault ({timeBlock, timezone, after}: {
   if (!timeBlock) throw new Error("Missing argument in getBeforeDefault");
   const startNextTimeBlock = moment(after).tz(timezone).startOf(timeBlock).add(after ? 3 : 1, timeBlock)
   return startNextTimeBlock.format('YYYY-MM-DD')
+}
+
+export function timeframeToRange({startDate, timeBlock, timezone}: {
+  startDate: moment.Moment,
+  timeBlock: moment.unitOfTime.DurationAs,
+  timezone: string,
+}) {
+  return {
+    after: moment.tz(startDate, timezone).startOf(timeBlock),
+    before: moment.tz(startDate, timezone).endOf(timeBlock),
+  }
 }

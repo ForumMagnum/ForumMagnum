@@ -39,9 +39,11 @@ const getCardDetails = ({
 
 const EACollectionCard = ({collection}: {collection: CollectionsBestOfFragment}) => {
   const {eventHandlers} = useHover({
-    pageElementContext: "collectionCard",
-    documentId: collection._id,
-    documentSlug: collection.slug,
+    eventProps: {
+      pageElementContext: "collectionCard",
+      documentId: collection._id,
+      documentSlug: collection.slug,
+    },
   });
 
   const {title, author, imageId} = getCardDetails(collection);

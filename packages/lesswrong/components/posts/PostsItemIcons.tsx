@@ -1,13 +1,19 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { isRecombeeRecommendablePost, postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { curatedUrl } from '../recommendations/RecommendationsAndCurated';
 import { Link } from '../../lib/reactRouterWrapper';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { isAF } from '../../lib/instanceSettings';
+import { useTracking } from '@/lib/analyticsEvents';
+import { useSetIsHiddenMutation } from '../dropdowns/posts/useSetIsHidden';
+import { recombeeEnabledSetting } from '@/lib/publicSettings';
+import { recombeeApi } from '@/lib/recombee/client';
+import { useCurrentUser } from '../common/withUser';
+import { IsRecommendationContext } from '../dropdowns/posts/PostActions';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   iconSet: {
     marginLeft: isFriendlyUI ? 6 : theme.spacing.unit,
     marginRight: isFriendlyUI ? 2 : theme.spacing.unit,
@@ -23,14 +29,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     // note: the specificity seems necessary to successfully override the OmegaIcon styling.
     // not sure if this is best way to do this
     '&&': {
-      fontSize: "1.2rem",
+      "--icon-size": "15.6px",
+      fontSize: "15.6px",
       color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.icon.dim4,
       position: "relative",
       top: 3,
     },
   },
   curatedIcon: {
-    fontSize: "1.2rem",
+    "--icon-size": "15.6px",
     color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.icon.dim4,
     position: "relative",
     top: isFriendlyUI ? 2 : 3,
@@ -39,7 +46,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: isFriendlyUI ? theme.palette.icon.yellow : theme.palette.primary.main,
   },
   question: {
-    fontSize: "1.2rem",
+    "--icon-size": "15.6px",
     color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.icon.dim4,
     fontWeight: '600'
   },
@@ -50,14 +57,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   linkIcon: {
     position: "relative",
+    "--icon-size": "15.6px",
     ...(isFriendlyUI
       ? {
-        fontSize: "1.2rem",
         top: 1,
         color: theme.palette.grey[600],
       }
       : {
-        fontSize: "1.2rem",
         top: 3,
         color: theme.palette.icon.dim4,
       }),
@@ -65,9 +71,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   dialogueIcon: {
     strokeWidth: isFriendlyUI ? "2px" : undefined,
   },
+  recommendationIcon: {
+    color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.icon.dim4,
+    '&:hover': {
+      opacity: 0.5
+    }
+  }
 });
 
-export const CuratedIcon = ({hasColor, classes}:{
+export const CuratedIcon = ({hasColor, classes}: {
   hasColor?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -88,13 +100,49 @@ export const CuratedIcon = ({hasColor, classes}:{
 const CuratedIconComponent = registerComponent('CuratedIcon', CuratedIcon, {styles});
 
 
-const PostsItemIcons = ({post, classes, hideCuratedIcon, hidePersonalIcon}: {
+const RecommendedPostIcon = ({post, hover, classes}: {
   post: PostsBase,
+  hover?: boolean,
+  classes: ClassesType<typeof styles>,
+}) => {
+  const { LWTooltip, ForumIcon } = Components;
+
+  const { captureEvent } = useTracking() 
+  const { setIsHiddenMutation } = useSetIsHiddenMutation();
+  const currentUser = useCurrentUser();
+
+  const notInterestedClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!!currentUser && recombeeEnabledSetting.get() && isRecombeeRecommendablePost(post)) {
+      void recombeeApi.createRating(post._id, currentUser._id, "bigDownvote");
+    }
+
+    void setIsHiddenMutation({postId: post._id, isHidden: true})
+    captureEvent("recommendationNotInterestedClicked", {postId: post._id})
+  }
+
+  return <span className={classes.postIcon}>
+    <LWTooltip title="Hide this recommendation and show fewer like it" placement="right"> 
+      {hover 
+        ? <ForumIcon icon="NotInterested" onClick={notInterestedClick} className={classNames(classes.icon, classes.recommendationIcon)} />
+        : <ForumIcon icon="Sparkle" className={classNames(classes.icon, classes.recommendationIcon)} />
+      }
+    </LWTooltip>
+  </span>
+}
+
+
+const PostsItemIcons = ({post, hover, classes, hideCuratedIcon, hidePersonalIcon}: {
+  post: PostsBase,
+  hover?: boolean,
   hideCuratedIcon?: boolean,
   hidePersonalIcon?: boolean
   classes: ClassesType<typeof styles>,
 }) => {
   const { OmegaIcon, LWTooltip, CuratedIcon, ForumIcon } = Components;
+  const showRecommendationIcon = useContext(IsRecommendationContext)
 
   return <span className={classes.iconSet}>
     {post.curatedDate && !hideCuratedIcon && <CuratedIcon/>}
@@ -130,13 +178,14 @@ const PostsItemIcons = ({post, classes, hideCuratedIcon, hidePersonalIcon}: {
       </LWTooltip>
     </span>}
 
-    {!isAF && post.af &&
-      <span className={classes.postIcon}>
-        <LWTooltip title={<div>Crossposted from AlignmentForum.org<div><em>(Click to visit AF version)</em></div></div>} placement="right">
-            <a href={`https://alignmentforum.org${postGetPageUrl(post)}`}><OmegaIcon className={classNames(classes.icon, classes.alignmentIcon)}/></a>
-        </LWTooltip>
-      </span>
-    }
+    {!isAF && post.af && <span className={classes.postIcon}>
+      <LWTooltip title={<div>Crossposted from AlignmentForum.org<div><em>(Click to visit AF version)</em></div></div>} placement="right">
+          <a href={`https://alignmentforum.org${postGetPageUrl(post)}`}><OmegaIcon className={classNames(classes.icon, classes.alignmentIcon)}/></a>
+      </LWTooltip>
+    </span>}
+
+    {showRecommendationIcon && <RecommendedPostIcon post={post} hover={hover} classes={classes}/>}
+
   </span>
 }
 

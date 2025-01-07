@@ -3,12 +3,17 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useCommentLink, UseCommentLinkProps } from './useCommentLink';
 import classNames from 'classnames';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
+import { isLWorAF } from '../../../lib/instanceSettings';
+import DeferRender from '@/components/common/DeferRender';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    ...(isFriendlyUI && {
+    ...(isFriendlyUI ? {
       marginLeft: 2,
       marginRight: 7,
+    } : {
+      marginLeft: 2,
+      marginRight: 16,
     }),
 
     "& a:hover, & a:active": {
@@ -49,35 +54,44 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 type CommentsItemDateProps = UseCommentLinkProps & {
   comment: CommentsList,
+  preventDateFormatting?: boolean,
   classes: ClassesType
 };
 
-const CommentsItemDate = ({comment, classes, ...rest}: CommentsItemDateProps) => {
+const CommentsItemDate = ({comment, preventDateFormatting, classes, ...rest}: CommentsItemDateProps) => {
   const { FormatDate, ForumIcon } = Components
   
   const LinkWrapper = useCommentLink({comment, ...rest});
   
   let dateFormat: string | undefined;
-  if (comment.answer) {
+  if (preventDateFormatting) {
+    dateFormat = undefined;
+  } else if (comment.answer) {
     dateFormat = "MMM DD, YYYY";
   } else if (comment.debateResponse) {
     dateFormat = "h:mm a";
   } else {
     dateFormat = undefined;
   }
+
+  const linkContents = (<>
+    <FormatDate
+      date={comment.postedAt}
+      format={dateFormat}
+    />
+  </>);
   
   return (
-    <span className={classNames(classes.root, {
-      [classes.date]: !comment.answer,
-      [classes.answerDate]: comment.answer,
-    })}>
-      <LinkWrapper>
-        <FormatDate
-          date={comment.postedAt}
-          format={dateFormat}
-        />
-        {isBookUI && <ForumIcon icon="Link" className={classes.icon} />}
-      </LinkWrapper>
+    <span className={classNames(
+      classes.root,
+      !comment.answer && classes.date,
+      comment.answer && classes.answerDate,
+    )}>
+      <DeferRender ssr={!isLWorAF} fallback={linkContents}>
+        <LinkWrapper>
+          {linkContents}
+        </LinkWrapper>
+      </DeferRender>
     </span>
   );
 }

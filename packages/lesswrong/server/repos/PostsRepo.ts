@@ -5,6 +5,10 @@ import LRU from "lru-cache";
 import { getViewablePostsSelector } from "./helpers";
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collection";
 import { recordPerfMetrics } from "./perfMetricWrapper";
+import { isAF } from "../../lib/instanceSettings";
+import {FilterPostsForReview} from '@/components/bookmarks/ReadHistoryTab'
+
+type DbPostWithContents = DbPost & {contents?: DbRevision | null};
 
 type MeanPostKarma = {
   _id: number,
@@ -29,9 +33,78 @@ const commentEmojiReactorCache = new LRU<string, Promise<CommentEmojiReactors>>(
   updateAgeOnGet: false,
 });
 
+export type PostAndCommentsResultRow = {
+  postId: string
+  commentIds: string[]|null
+  fullCommentTreeIds: string[]|null
+  subscribedPosts: boolean|null
+  subscribedComments: boolean|null
+  postedAt: Date|null
+  last_commented: Date|null
+};
+
+const constructFilters = (
+  {
+    startDate,
+    endDate,
+    minKarma,
+    showEvents,
+  }: FilterPostsForReview,
+): [string, Record<string, any>] => {
+  const params = {
+    ...(startDate && {startDate: startDate.toISOString()}),
+    ...(endDate && {endDate: endDate.toISOString()}),
+    ...(minKarma && {minKarma}),
+  }
+
+  const filters = [
+    startDate ? `AND p."postedAt" >= $(startDate)` : '',
+    endDate ? `AND p."postedAt" <= $(endDate)` : '',
+    minKarma ? `AND p."baseScore" >= $(minKarma)` : '',
+    showEvents === false ? 'AND p."isEvent" IS NOT TRUE' : '',
+  ].filter(Boolean).join(' ')
+
+  return [filters, params]
+}
+
 class PostsRepo extends AbstractRepo<"Posts"> {
   constructor() {
     super(Posts);
+  }
+  
+  moveCoauthorshipToNewUser(oldUserId: string, newUserId: string): Promise<null> {
+    return this.none(`
+      -- PostsRepo.moveCoauthorshipToNewUser
+      UPDATE "Posts"
+      SET "coauthorStatuses" = array(
+        SELECT
+          CASE
+            WHEN (jsonb_elem->>'userId') = $1
+            THEN jsonb_set(jsonb_elem, '{userId}', to_jsonb($2::text), false)
+            ELSE jsonb_elem
+          END
+          FROM unnest("coauthorStatuses") AS t(jsonb_elem)
+      )
+      WHERE EXISTS (
+        SELECT 1 FROM unnest("coauthorStatuses") AS sub(jsonb_sub)
+        WHERE jsonb_sub->>'userId' = $1
+      );
+    `, [oldUserId, newUserId]);
+  }
+
+  async postRouteWillDefinitelyReturn200(id: string): Promise<boolean> {
+    const maybeRequireAF = isAF ? "AND af IS TRUE" : ""
+    const res = await this.getRawDb().oneOrNone<{exists: boolean}>(`
+      -- PostsRepo.postRouteWillDefinitelyReturn200
+      SELECT EXISTS(
+        SELECT 1
+        FROM "Posts"
+        WHERE "_id" = $1 AND ${getViewablePostsSelector()}
+        ${maybeRequireAF}
+      )
+    `, [id]);
+
+    return res?.exists ?? false;
   }
 
   async getEarliestPostTime(): Promise<Date> {
@@ -70,18 +143,54 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     `, [], "getMeanKarmaOverall");
     return result?.meanKarma ?? 0;
   }
+  
+  async getReadHistoryForUser(
+    userId: string,
+    limit: number,
+    filter: FilterPostsForReview | null,
+    sort: {
+      karma?: boolean
+    } | null, 
+  ): Promise<Array<DbPost & { lastUpdated: Date }>> {
+    const orderBy = sort?.karma ? 'p."baseScore" DESC' : 'rs."lastUpdated" DESC';
+    const [filters, params] = constructFilters(filter ?? {});
 
-  async getReadHistoryForUser(userId: string, limit: number): Promise<Array<DbPost & {lastUpdated: Date}>> {
     return await this.getRawDb().manyOrNone(`
       -- PostsRepo.getReadHistoryForUser
       SELECT p.*, rs."lastUpdated"
       FROM "Posts" p
       JOIN "ReadStatuses" rs ON rs."postId" = p."_id"
-      WHERE rs."userId" = '${userId}'
-      ORDER BY rs."lastUpdated" desc
-      LIMIT $1
-    `, [limit], "getReadHistoryForUser");
+      WHERE rs."userId" = $(userId)
+      ${filters}
+      ORDER BY ${orderBy}
+      LIMIT $(limit)
+    `, {userId, limit, ...params}, 'getReadHistoryForUser')
   }
+
+  async getPostsUserCommentedOn(
+    userId: string,
+    limit = 20,
+    filter: FilterPostsForReview | null,
+    sort: {
+      karma?: boolean
+    } | null,
+  ): Promise<DbPost[]> {
+    const orderBy = sort?.karma ? 'ORDER BY p."baseScore" DESC' : '';
+    const [filters, params] = constructFilters(filter ?? {});
+
+    return this.getRawDb().manyOrNone(`
+      -- PostsRepo.getPostsUserCommentedOn
+      SELECT DISTINCT p.*
+      FROM "Posts" p
+      INNER JOIN "Comments" c ON c."postId" = p._id
+      WHERE
+          c."userId" = $(userId)
+          ${filters}
+      ${orderBy}
+      LIMIT $(limit)
+    `, { userId, limit, ...params }, 'getPostsUserCommentedOn');
+  }
+
 
   async getEligiblePostsForDigest(digestId: string, startDate: Date, endDate?: Date): Promise<Array<PostAndDigestPost>> {
     const end = endDate ?? new Date()
@@ -97,10 +206,26 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         p."shortform" is not true AND
         p."isFuture" is not true AND
         p."authorIsUnreviewed" is not true AND
-        p."draft" is not true
+        p."draft" is not true AND
+        p."deletedDraft" is not true
       ORDER BY p."baseScore" desc
       LIMIT 200
     `, [digestId, startDate, end], "getEligiblePostsForDigest");
+  }
+  
+  async getPostsForOnsiteDigest(num: number): Promise<Array<DbPost>> {
+    return this.manyOrNone(`
+      -- PostsRepo.getPostsForOnsiteDigest
+      SELECT p.*
+      FROM "Posts" p
+      JOIN "DigestPosts" dp ON dp."postId" = p."_id" AND dp."onsiteDigestStatus" = 'yes'
+      JOIN "Digests" d ON d.num = $1 AND dp."digestId" = d._id
+      WHERE
+        p."draft" is not true AND
+        p."deletedDraft" is not true
+      ORDER BY p."curatedDate" DESC NULLS LAST, p."suggestForCuratedUserIds" DESC NULLS LAST, p."baseScore" desc
+      LIMIT 50
+    `, [num]);
   }
 
   async getPostEmojiReactors(postId: string): Promise<PostEmojiReactors> {
@@ -239,10 +364,11 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       -- PostsRepo.getPostIdsWithoutEmbeddings
       SELECT p."_id"
       FROM "Posts" p
+      LEFT JOIN "Revisions" r ON r."_id" = p."contents_latest"
       LEFT JOIN "PostEmbeddings" pe ON p."_id" = pe."postId"
       WHERE
         pe."embeddings" IS NULL AND
-        COALESCE((p."contents"->'wordCount')::INTEGER, 0) > 0
+        COALESCE((r."wordCount")::INTEGER, 0) > 0
     `);
     return results.map(({_id}) => _id);
   }
@@ -345,19 +471,37 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         COALESCE(p."isEvent", FALSE) AS "isEvent",
         COALESCE(p."rejected", FALSE) AS "rejected",
         COALESCE(p."authorIsUnreviewed", FALSE) AS "authorIsUnreviewed",
+        COALESCE(p."unlisted", FALSE) AS "unlisted",
         COALESCE(p."viewCount", 0) AS "viewCount",
         p."lastCommentedAt",
         COALESCE(p."draft", FALSE) AS "draft",
         COALESCE(p."af", FALSE) AS "af",
-        fm_post_tag_ids(p."_id") AS "tags",
-        author."slug" AS "authorSlug",
-        author."displayName" AS "authorDisplayName",
-        author."fullName" AS "authorFullName",
+        (SELECT JSONB_AGG(JSONB_BUILD_OBJECT(
+          '_id', t."_id",
+          'slug', t."slug",
+          'name', t."name"
+        )) FROM "Tags" t WHERE
+          t."_id" = ANY(fm_post_tag_ids(p."_id")) AND
+          t."deleted" IS NOT TRUE
+        ) AS "tags",
+        CASE
+          WHEN author."deleted" THEN NULL
+          ELSE author."slug"
+        END AS "authorSlug",
+        CASE
+          WHEN author."deleted" THEN NULL
+          ELSE author."displayName"
+        END AS "authorDisplayName",
+        CASE
+          WHEN author."deleted" THEN NULL
+          ELSE author."fullName"
+        END AS "authorFullName",
         rss."nickname" AS "feedName",
         p."feedLink",
-        p."contents"->>'html' AS "body",
+        revision."html" AS "body",
         NOW() AS "exportedAt"
       FROM "Posts" p
+      LEFT JOIN "Revisions" revision ON p."contents_latest" = revision."_id"
       LEFT JOIN "Users" author ON p."userId" = author."_id"
       LEFT JOIN "RSSFeeds" rss ON p."feedId" = rss."_id"
     `;
@@ -388,6 +532,20 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     return count;
   }
 
+  async getViewablePostsIdsWithTag(tagId: string): Promise<string[]> {
+    const results: {_id: string}[] = await this.getRawDb().any(`
+      SELECT "_id"
+      FROM "Posts"
+      WHERE
+        ("tagRelevance"->$1)::INT > 0
+        AND "baseScore" >= 5
+        AND "hideFromRecentDiscussions" IS NOT TRUE
+        AND "hideFromPopularComments" IS NOT TRUE
+        AND ${getViewablePostsSelector()}
+    `, [tagId]);
+    return results.map(({_id}) => _id);
+  }
+
   async getUsersReadPostsOfTargetUser(userId: string, targetUserId: string, limit = 20): Promise<DbPost[]> {
     return this.any(`
       -- PostsRepo.getUsersReadPostsOfTargetUser
@@ -404,12 +562,13 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     `, [userId, targetUserId, limit]);
   }
 
-  async getPostsWithElicitData(): Promise<DbPost[]> {
-    return await this.any(`
+  async getPostsWithElicitData(): Promise<DbPostWithContents[]> {
+    return await this.getRawDb().any(`
       -- PostsRepo.getPostsWithElicitData
-      SELECT *
-      FROM "Posts"
-      WHERE contents->>'html' LIKE '%elicit-binary-prediction%'
+      SELECT p.*, ROW_TO_JSON(r.*) "contents"
+      FROM "Posts" p
+      INNER JOIN "Revisions" r ON p."contents_latest" = r."_id"
+      WHERE r."html" LIKE '%elicit-binary-prediction%'
     `);
   }
 
@@ -552,10 +711,45 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       percentile: result?.percentile ?? 0,
     };
   }
+  
+  /**
+   * Checks the posts that the user had read in the past 6 months,
+   * and returns the number of posts per core tag that they have read.
+   */
+  async getUserReadsPerCoreTag(userId: string): Promise<{tagId: string; userReadCount: number;}[]> {
+    return await this.getRawDb().any(
+      `
+      -- PostsRepo.getUserReadsPerCoreTag
+      WITH core_tags AS (
+        SELECT _id
+        FROM "Tags"
+        WHERE core IS TRUE AND deleted is not true
+      )
+      
+      SELECT
+        tr."tagId",
+        count(*) AS "userReadCount"
+      FROM
+        "ReadStatuses" rs
+      INNER JOIN "TagRels" tr ON rs."postId" = tr."postId"
+      WHERE
+        rs."lastUpdated" >= NOW() - interval '6 months'
+        AND rs."userId" = $1
+        AND rs."isRead" IS TRUE
+        AND (
+          tr."tagId" = 'u3Xg8MjDe2e6BvKtv' -- special case to include "AI governance"
+          OR tr."tagId" IN (SELECT _id FROM core_tags)
+        )
+        AND tr."deleted" IS FALSE
+      GROUP BY tr."tagId"
+      `,
+      [userId]
+    )
+  }
 
   /**
-   * Get stats on how much the given user reads each core topic, relative to the average user. This is currently used
-   * for Wrapped.
+   * Get stats on how much the given user reads each core topic (excluding "Opportunities"),
+   * relative to the average user. This is currently used for Wrapped.
    */
   async getReadCoreTagStats({
     userId,
@@ -572,8 +766,8 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       -- PostsRepo.getReadCoreTagStats
       WITH core_tags AS (
           SELECT _id
-          FROM tags
-          WHERE core IS TRUE
+          FROM "Tags"
+          WHERE core IS TRUE AND deleted is not true AND _id != 'z8qFsGt5iXyZiLbjN'
       ),
       read_posts AS (
           SELECT
@@ -649,6 +843,177 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       userReadCount: read_count,
       readLikelihoodRatio: ratio
     }));
+  }
+
+  async getActivelyDiscussedPosts(limit: number) {
+    return await this.any(`
+      WITH post_ids AS (
+        SELECT "postId" AS _id,
+        COALESCE(SUM(c."baseScore") FILTER (WHERE c."baseScore" > 5), 0) AS total_karma_from_high_karma_comments
+        FROM "Comments" c
+              LEFT JOIN "Posts" p ON p._id = c."postId"
+        WHERE c."postedAt" > CURRENT_TIMESTAMP - INTERVAL '14 days'
+        AND p.shortform IS NOT TRUE
+        GROUP BY c."postId"
+        HAVING COUNT(*) FILTER (WHERE c."baseScore" > 10) > 0
+        ORDER BY COALESCE(SUM(c."baseScore") FILTER (WHERE c."baseScore" > 5), 0)
+      )
+      SELECT
+          p.*
+      FROM "Posts" p
+      JOIN post_ids pid USING (_id)
+      ORDER BY pid.total_karma_from_high_karma_comments DESC
+      LIMIT $1
+    `,
+    [limit]);
+  }
+
+  async getPostsFromPostSubscriptions(userId: string, limit: number) {
+    // 2024-04-26: This is used on a prototype subscriptions tab that's currently disabled, which might be dropped entirely and replaced with a better subscriptions tab
+    return await this.any(`
+      WITH user_subscriptions AS (
+        SELECT DISTINCT type, "documentId" AS "userId"
+        FROM "Subscriptions" s
+        WHERE state = 'subscribed'
+          AND s.deleted IS NOT TRUE
+          AND "collectionName" = 'Users'
+          AND "type" = 'newPosts'
+          AND "userId" = $1
+        )
+      SELECT *
+      FROM "Posts" p
+      JOIN user_subscriptions us USING ("userId")
+      WHERE p."postedAt" > CURRENT_TIMESTAMP - INTERVAL '90 days'
+        AND type = 'newPosts'
+        AND shortform IS NOT TRUE 
+        AND draft IS NOT TRUE
+      ORDER BY p."postedAt" DESC
+      LIMIT $2
+    `, 
+    [userId, limit]);
+  }
+  
+  async getPostsAndCommentsFromSubscriptions(userId: string, maxAgeDays: number): Promise<Array<PostAndCommentsResultRow >> {
+    return await this.getRawDb().manyOrNone<PostAndCommentsResultRow>(`
+      WITH RECURSIVE user_subscriptions AS (
+        SELECT DISTINCT type, "documentId" AS "userId"
+        FROM "Subscriptions" s
+        WHERE state = 'subscribed'
+          AND s.deleted IS NOT TRUE
+          AND "collectionName" = 'Users'
+          AND "type" = 'newActivityForFeed'
+          AND "userId" = $(userId)
+      ),
+      posts_by_subscribees AS (
+        SELECT
+          p._id AS "postId",
+          "postedAt",
+          TRUE as "subscribedPosts"
+        FROM "Posts" p
+        JOIN user_subscriptions us
+        USING ("userId")
+        WHERE p."postedAt" > CURRENT_TIMESTAMP - INTERVAL $(maxAgeDays)
+        ORDER BY p."postedAt" DESC
+      ),
+      comments_from_subscribees AS (
+        SELECT
+          "postId",
+          (ARRAY_AGG(c._id ORDER BY c."postedAt" DESC))[1:5] AS "commentIds",
+          MAX(c."postedAt") AS last_commented
+        FROM "Comments" c
+        JOIN user_subscriptions us
+        USING ("userId")
+        WHERE c."postedAt" > CURRENT_TIMESTAMP - INTERVAL $(maxAgeDays)
+          AND c."postId" IS NOT NULL
+          AND c.deleted IS NOT TRUE
+          AND c."authorIsUnreviewed" IS NOT TRUE
+          AND c.retracted IS NOT TRUE
+        GROUP BY "postId"
+      ),
+      posts_with_comments_from_subscribees AS (
+        SELECT
+          c."postId",
+          ARRAY_AGG(c._id) AS "commentIds",
+          MAX(c."postedAt") AS last_commented,
+          TRUE as "subscribedComments"
+        FROM "Comments" c
+        JOIN (SELECT UNNEST("commentIds") AS _id, "postId", last_commented FROM comments_from_subscribees) un
+        ON c._id = un._id AND c."postId" = un."postId" AND c."postedAt" > un.last_commented - INTERVAL '1 week'
+        GROUP BY c."postId"
+      ),
+      parent_comments AS (
+        SELECT
+          c._id,
+          c."postId",
+          c."parentCommentId",
+          c."postedAt"
+        FROM "Comments" c
+        WHERE c._id IN (SELECT UNNEST("commentIds") FROM posts_with_comments_from_subscribees)
+        UNION
+        SELECT
+          c._id,
+          c."postId",
+          c."parentCommentId",
+          c."postedAt"
+        FROM "Comments" c
+        JOIN parent_comments pc ON pc."parentCommentId" = c._id
+      ),
+      combined AS (
+        SELECT
+          *
+        FROM posts_by_subscribees
+        FULL JOIN posts_with_comments_from_subscribees USING ("postId")
+      )
+      SELECT combined.*, ARRAY_AGG(DISTINCT parent_comments._id) AS "fullCommentTreeIds"
+      FROM combined
+      JOIN "Posts" p ON combined."postId" = p._id
+      LEFT JOIN parent_comments ON parent_comments."postId" = combined."postId"
+      WHERE
+        p.draft IS NOT TRUE
+        AND p.status = 2
+        AND p.rejected IS NOT TRUE
+        AND p."authorIsUnreviewed" IS NOT TRUE
+        AND p."hiddenRelatedQuestion" IS NOT TRUE
+        AND p.unlisted IS NOT TRUE
+        AND p."isFuture" IS NOT TRUE
+        AND p."isEvent" IS NOT TRUE
+      GROUP BY combined."postId", combined."postedAt", last_commented, combined."subscribedPosts", combined."subscribedComments", combined."commentIds"
+      ORDER BY GREATEST(last_commented, combined."postedAt") DESC;    
+    `, {
+      userId,
+      maxAgeDays: `${maxAgeDays} days`,
+    });
+  }
+  
+  async ensurePostHasNonDraftContents(postId: string) {
+    await this.none(`
+      UPDATE "Revisions" AS r
+      SET
+        "draft" = FALSE,
+        "version" = CASE WHEN LEFT("version", 1) = '0' THEN '1.0.0' ELSE "version" END
+      FROM "Posts" AS p
+      WHERE
+        p._id = $(postId)
+        AND p."contents_latest" = r."_id"
+        AND p."draft" IS NOT TRUE
+        AND r."draft" IS TRUE
+    `, {
+      postId
+    });
+  }
+
+  async getPostsWithApprovedJargon(limit: number): Promise<Array<DbPost & { jargonTerms: DbJargonTerm[] }>> {
+    return this.getRawDb().any(`
+      SELECT DISTINCT p.*, JSONB_AGG(jt.*) AS "jargonTerms"
+      FROM "Posts" p
+      JOIN "JargonTerms" jt
+      ON p._id = jt."postId"
+      WHERE jt."approved" IS TRUE
+      AND ${getViewablePostsSelector('p')}
+      GROUP BY p._id
+      ORDER BY p."postedAt" DESC
+      LIMIT $1
+    `, [limit]);
   }
 }
 

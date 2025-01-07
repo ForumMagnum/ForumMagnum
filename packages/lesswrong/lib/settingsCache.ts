@@ -3,7 +3,7 @@
 // variables get initialized from database settings before the settings have been
 // loaded from the database.
 
-export const registeredSettings:Record<string, "server" | "public" | "instance"> = {}
+export const registeredSettings: Record<string, "server" | "public" | "instance"> = {}
 
 let serverSettingsCache: Record<string,any> = {}
 let serverSettingsLoaded = false;
@@ -26,3 +26,14 @@ export const setPublicSettings = (newCacheContents: Record<string,any>) => {
 }
 export const getPublicSettings = () => publicSettings;
 export const getPublicSettingsLoaded = () => publicSettingsLoaded;
+
+export function initializeSetting(settingName: string, settingType: 'server' | 'public' | 'instance') {
+  if (registeredSettings[settingName]) {
+    if (!enableVite) {
+      // If using Vite, allow this to rerun. Otherwise enforce that a setting
+      // is only initialized once.
+      throw Error(`Already initialized a setting with name ${settingName} before.`)
+    }
+  }
+  registeredSettings[settingName] = settingType
+}

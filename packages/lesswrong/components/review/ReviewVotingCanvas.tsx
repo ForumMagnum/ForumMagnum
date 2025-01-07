@@ -1,7 +1,6 @@
-import React, { FC, MouseEvent, ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import React, { FC, MouseEvent, useCallback, useEffect, useRef, useState } from "react";
 import classNames from "classnames";
 import { gql, useMutation, useQuery } from "@apollo/client";
-import NoSSR from "react-no-ssr";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { CloudinaryPropsType } from "../common/CloudinaryImage2";
@@ -9,8 +8,9 @@ import { useCurrentUser } from "../common/withUser";
 import { useLocation } from "../../lib/routeUtil";
 import { useMulti } from "../../lib/crud/withMulti";
 import { REVIEW_YEAR, eligibleToNominate } from "../../lib/reviewUtils";
-import { TARGET_REVIEW_NUM } from "./ReviewVotingProgressBar";
+import { TARGET_REVIEW_VOTING_NUM } from "./ReviewProgressVoting";
 import { useMessages } from "../common/withMessages";
+import DeferRender from "../common/DeferRender";
 
 export type GivingSeasonHeart = {
   userId: string,
@@ -363,11 +363,11 @@ const ReviewVotingCanvas = ({
     fragmentName: 'reviewVoteFragment',
     enableTotal: true,
     skip: !currentUser,
-    limit: TARGET_REVIEW_NUM
+    limit: TARGET_REVIEW_VOTING_NUM
   });
 
   const {flash} = useMessages();
-  const userHasVotedEnough = (totalCount || 0) >= TARGET_REVIEW_NUM;
+  const userHasVotedEnough = (totalCount || 0) >= TARGET_REVIEW_VOTING_NUM;
 
   const onClick = useCallback(async ({target, clientX, clientY}: MouseEvent) => {
     if (isValidTarget(target)) {
@@ -400,7 +400,7 @@ const ReviewVotingCanvas = ({
         })}
       >
           <div className={classes.gsHearts}>
-            <NoSSR>
+            <DeferRender ssr={false}>
               {hearts.map((heart) => (
                 <Heart
                   key={heart.userId}
@@ -419,7 +419,7 @@ const ReviewVotingCanvas = ({
                   disabled={!userHasVotedEnough}
                 />
               }
-            </NoSSR>
+            </DeferRender>
           </div>
       </div>
     </AnalyticsContext>

@@ -23,7 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const DeleteCommentDialog = ({comment, onClose, classes}: {
   comment: CommentsList,
-  onClose?: ()=>void,
+  onClose?: () => void,
   classes: ClassesType,
 }) => {
   const [deletedReason, setDeletedReason] = useState("");

@@ -76,6 +76,8 @@ interface KarmaChangeNotifierSettingsProps extends WithStylesProps {
 }
 
 class KarmaChangeNotifierSettings extends PureComponent<KarmaChangeNotifierSettingsProps,{}> {
+  declare context: AnyBecauseTodo
+
   modifyValue = (changes: Partial<KarmaChangeSettingsType>) => {
     const oldSettings = this.props.value || {}
     const settings = { ...oldSettings, ...changes };

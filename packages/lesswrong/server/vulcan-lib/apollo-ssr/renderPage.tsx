@@ -18,22 +18,25 @@ import Head from './components/Head';
 import { embedAsGlobalVar, healthCheckUserAgentSetting } from './renderUtil';
 import AppGenerator from './components/AppGenerator';
 import { captureException } from '@sentry/core';
-import { randomId } from '../../../lib/random';
-import { getPublicSettings, getPublicSettingsLoaded } from '../../../lib/settingsCache'
 import { ServerRequestStatusContextType } from '../../../lib/vulcan-core/appContext';
-import { getCookieFromReq, getPathFromReq } from '../../utils/httpUtil';
+import { getCookieFromReq, getPathFromReq, trySetResponseStatus } from '../../utils/httpUtil';
 import { getThemeOptions, AbstractThemeOptions } from '../../../themes/themeNames';
 import { renderJssSheetImports } from '../../utils/renderJssSheetImports';
 import { DatabaseServerSetting } from '../../databaseSettings';
 import type { Request, Response } from 'express';
-import type { TimeOverride } from '../../../lib/utils/timeUtil';
+import { DEFAULT_TIMEZONE } from '../../../lib/utils/timeUtil';
 import { getIpFromRequest } from '../../datadog/datadogMiddleware';
 import { addStartRenderTimeToPerfMetric, asyncLocalStorage, closePerfMetric, closeRequestPerfMetric, openPerfMetric, setAsyncStoreValue } from '../../perfMetrics';
-import { maxRenderQueueSize } from '../../../lib/publicSettings';
+import { maxRenderQueueSize, queuedRequestTimeoutSecondsSetting, commentPermalinkStyleSetting } from '../../../lib/publicSettings';
 import { performanceMetricLoggingEnabled } from '../../../lib/instanceSettings';
-import { getForwardedWhitelist } from '../../forwarded_whitelist';
+import { getClientIP } from '@/server/utils/getClientIP';
 import PriorityBucketQueue, { RequestData } from '../../../lib/requestPriorityQueue';
-import { onStartup, isAnyTest } from '../../../lib/executionEnvironment';
+import { isAnyTest, isProduction } from '../../../lib/executionEnvironment';
+import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../../lib/cookies/cookies';
+import { visitorGetsDynamicFrontpage } from '../../../lib/betas';
+import { responseIsCacheable } from '../../cacheControlMiddleware';
+import moment from 'moment';
+import { preloadScrollToCommentScript } from '@/lib/scrollUtils';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 
@@ -55,6 +58,8 @@ export type RenderResult = {
   allAbTestGroups: CompleteTestGroupAllocation
   themeOptions: AbstractThemeOptions,
   renderedAt: Date,
+  cacheFriendly: boolean,
+  timezone: string,
   timings: RenderTimings,
   aborted: false,
 } | {
@@ -66,7 +71,7 @@ interface RenderRequestParams {
   user: DbUser|null,
   startTime: Date,
   res: Response,
-  clientId: string,
+  clientId?: string,
   userAgent?: string,
 }
 
@@ -75,25 +80,15 @@ interface RenderPriorityQueueSlot extends RequestData {
   renderRequestParams: RenderRequestParams;
 }
 
-export const renderWithCache = async (req: Request, res: Response, user: DbUser|null) => {
+export const renderWithCache = async (req: Request, res: Response, user: DbUser|null, tabId: string | null) => {
   const startTime = new Date();
   
   const ip = getIpFromRequest(req)
   const userAgent = req.headers["user-agent"];
   
-  // Inject a tab ID into the page, by injecting a script fragment that puts
-  // it into a global variable. In previous versions of Vulcan this would've
-  // been handled by InjectData, but InjectData didn't surive the 1.12 version
-  // upgrade (it injects into the page template in a way that requires a
-  // response object, which the onPageLoad/sink API doesn't offer).
-  const tabId = randomId();
-  const tabIdHeader = `<script>var tabId = "${tabId}"</script>`;
   const url = getPathFromReq(req);
   
   const clientId = getCookieFromReq(req, "clientId");
-
-  if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
-  const publicSettingsHeader = `<script> var publicSettings = ${JSON.stringify(getPublicSettings())}</script>`
   
   const ssrEventParams = {
     url: url,
@@ -111,7 +106,12 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
   
   const userDescription = user?.username ?? `logged out ${ip} (${userAgent})`;
   
-  if ((!isHealthCheck && (user || isExcludedFromPageCache(url, abTestGroups))) || isSlackBot) {
+  const lastVisitedFrontpage = getCookieFromReq(req, LAST_VISITED_FRONTPAGE_COOKIE);
+  // For LW, skip the cache on users who have visited the frontpage before, including logged out. 
+  // Doing this so we can show dynamic latest posts list with varying HN decay parameters based on visit frequency (see useractivities/cron.ts).
+  const showDynamicFrontpage = !!lastVisitedFrontpage && visitorGetsDynamicFrontpage(user) && url === "/";
+  
+  if ((!isHealthCheck && (user || isExcludedFromPageCache(url))) || isSlackBot || showDynamicFrontpage) {
     // When logged in, don't use the page cache (logged-in pages have notifications and stuff)
     recordCacheBypass({path: getPathFromReq(req), userAgent: userAgent ?? ''});
     
@@ -121,7 +121,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
         op_name: "skipCache",
         client_path: req.originalUrl,
         //we compute ip via two different methods in the codebase, using this one to be consistent with other perf_metrics
-        ip: getForwardedWhitelist().getClientIP(req),
+        ip: getClientIP(req),
         user_agent: userAgent,
         user_id: user?._id
       }, startTime);
@@ -158,7 +158,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
     
     return {
       ...rendered,
-      headers: [...rendered.headers, tabIdHeader, publicSettingsHeader],
+      headers: [...rendered.headers],
     };
   } else {
     if (performanceMetricLoggingEnabled.get()) {
@@ -167,7 +167,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
         op_name: "unknown",
         client_path: req.originalUrl,
         //we compute ip via two different methods in the codebase, using this one to be consistent with other perf_metrics
-        ip: getForwardedWhitelist().getClientIP(req),
+        ip: getClientIP(req),
         user_agent: userAgent
       }, startTime);
 
@@ -217,7 +217,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
     
     return {
       ...rendered,
-      headers: [...rendered.headers, tabIdHeader, publicSettingsHeader],
+      headers: [...rendered.headers],
     };
   }
 };
@@ -233,7 +233,7 @@ const requestPriorityQueue = new PriorityBucketQueue<RenderPriorityQueueSlot>();
 function queueRenderRequest(params: RenderRequestParams): Promise<RenderResult> {
   return new Promise((resolve) => {
     requestPriorityQueue.enqueue({
-      ip: getForwardedWhitelist().getClientIP(params.req),
+      ip: getClientIP(params.req) ?? "unknown",
       userAgent: params.userAgent ?? 'sus-missing-user-agent',
       userId: params.user?._id,
       callback: async () => {
@@ -259,6 +259,15 @@ function maybeStartQueuedRequests() {
     let requestToStartRendering = requestPriorityQueue.dequeue();
     if (requestToStartRendering.request) {
       const { preOpPriority, request } = requestToStartRendering;
+      const { startTime, res } = request.renderRequestParams;
+      
+      const queuedRequestTimeoutSeconds = queuedRequestTimeoutSecondsSetting.get();
+      const maxRequestAge = moment().subtract(queuedRequestTimeoutSeconds, 'seconds').toDate();
+      if (maxRequestAge > startTime) {
+        trySetResponseStatus({ response: res, status: 429 });
+        res.end();
+        continue;
+      }
 
       // If the request that we're kicking off is coming from the queue, we want to track this in the perf metrics
       setAsyncStoreValue('requestPerfMetric', (incompletePerfMetric) => {
@@ -275,11 +284,11 @@ function maybeStartQueuedRequests() {
   }
 }
 
-onStartup(() => {
+export function initRenderQueueLogging() {
   if (!isAnyTest && performanceMetricLoggingEnabled.get()) {
     setInterval(logRenderQueueState, 5000)
   }
-})
+}
 
 function logRenderQueueState() {
   if (requestPriorityQueue.size() > 0) {
@@ -300,7 +309,7 @@ function logRenderQueueState() {
   }
 }
 
-function isExcludedFromPageCache(path: string, abTestGroups: CompleteTestGroupAllocation): boolean {
+function isExcludedFromPageCache(path: string): boolean {
   if (path.startsWith("/collaborateOnPost") || path.startsWith("/editPost")) return true;
   return false
 }
@@ -336,13 +345,17 @@ const buildSSRBody = (htmlContent: string, userAgent?: string) => {
   // first child of <body> which forces the browser to load the CSS before rendering.
   // See https://bugzilla.mozilla.org/show_bug.cgi?id=1404468
   const prefix = userAgent?.match(/.*firefox.*/i) ? "<script>0</script>" : "";
+  const suffix = commentPermalinkStyleSetting.get() === 'in-context' ? preloadScrollToCommentScript : '';
   // TODO: there should be a cleaner way to set this wrapper
   // id must always match the client side start.jsx file
-  return `${prefix}<div id="react-app">${htmlContent}</div>`;
+  return `${prefix}<div id="react-app">${htmlContent}</div>${suffix}`;
 }
 
 const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: RenderRequestParams): Promise<RenderResult> => {
-  const requestContext = await computeContextFromUser(user, req, res);
+  const cacheFriendly = responseIsCacheable(res);
+  const timezone = getCookieFromReq(req, "timezone") ?? DEFAULT_TIMEZONE;
+
+  const requestContext = await computeContextFromUser({user, req, res, isSSR: true});
   if (req.closed) {
     // eslint-disable-next-line no-console
     console.log(`Request for ${req.url} from ${user?._id ?? getIpFromRequest(req)} was closed before render started`);
@@ -375,17 +388,16 @@ const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: R
   // (side effects) by filling in any A/B test groups that turned out to be
   // used for the rendering. (Any A/B test group that was *not* relevant to
   // the render will be omitted, which is the point.)
-  let abTestGroups: RelevantTestGroupAllocation = {};
+  let abTestGroupsUsed: RelevantTestGroupAllocation = {};
   
   const now = new Date();
-  const timeOverride: TimeOverride = {currentTime: now};
   const App = <AppGenerator
     req={req}
     apolloClient={client}
     foreignApolloClient={foreignClient}
     serverRequestStatus={serverRequestStatus}
-    abTestGroupsUsed={abTestGroups}
-    timeOverride={timeOverride}
+    abTestGroupsUsed={abTestGroupsUsed}
+    ssrMetadata={{renderedAt: now.toISOString(), timezone, cacheFriendly}}
   />;
   
   const themeOptions = getThemeOptionsFromReq(req, user);
@@ -433,6 +445,19 @@ const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: R
   
   client.stop();
 
+  if (cacheFriendly && Object.keys(abTestGroupsUsed).length) {
+    const message = `A/B tests used during a render that may be cached externally: ${Object.keys(abTestGroupsUsed).join(", ")}. Defer the A/B test until after SSR or disable caching on this route (\`swrCaching\`)`;
+    const url = getPathFromReq(req);
+    // eslint-disable-next-line no-console
+    console.error(message, {url})
+    captureException(new Error(message), {
+      extra: { url }
+    });
+    if (!isProduction) {
+      return {aborted: true};
+    }
+  }
+
   return {
     ssrBody,
     headers: [head],
@@ -441,10 +466,12 @@ const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: R
     jssSheets,
     status: serverRequestStatus.status,
     redirectUrl: serverRequestStatus.redirectUrl,
-    relevantAbTestGroups: abTestGroups,
+    relevantAbTestGroups: abTestGroupsUsed,
     allAbTestGroups: getAllUserABTestGroups(user ? {user} : {clientId}),
     themeOptions,
     renderedAt: now,
+    cacheFriendly,
+    timezone,
     timings,
     aborted: false,
   };

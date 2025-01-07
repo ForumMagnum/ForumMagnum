@@ -4,26 +4,18 @@ import { withStyles } from '@material-ui/core/styles';
 import { shallowEqual, shallowEqualExcept, debugShouldComponentUpdate } from '../utils/componentUtils';
 import { isClient } from '../executionEnvironment';
 import * as _ from 'underscore';
+import { classNameProxy, withAddClasses } from '@/components/hooks/useStyles';
+import type { StyleOptions } from '@/server/styleGeneration';
 
-type ComparisonFn = (prev: any, next: any)=>boolean
+type ComparisonFn = (prev: any, next: any) => boolean
 type ComparePropsDict = { [propName: string]: "default"|"shallow"|"ignore"|"deep"|ComparisonFn }
 type AreEqualOption = ComparisonFn|ComparePropsDict|"auto"
 
 // Options passed to registerComponent
-interface ComponentOptions {
+type ComponentOptions = StyleOptions & {
   // JSS styles for this component. These will generate class names, which will
   // be passed as an extra prop named "classes".
   styles?: any
-  
-  // Whether to ignore the presence of colors that don't come from the theme in
-  // the component's stylesheet. Use for things that don't change color with
-  // dark mode.
-  allowNonThemeColors?: boolean,
-  
-  // Default is 0. If classes with overlapping attributes from two different
-  // components' styles wind up applied to the same node, the one with higher
-  // priority wins.
-  stylePriority?: number,
   
   // Array of higher-order components that this component should be wrapped
   // with.
@@ -78,7 +70,7 @@ const PreparedComponents: Record<string,any> = {};
 // storage for infos about components
 export const ComponentsTable: Record<string, ComponentsTableEntry> = {};
 
-export const DeferredComponentsTable: Record<string,()=>void> = {};
+export const DeferredComponentsTable: Record<string,() => void> = {};
 
 type EmailRenderContextType = {
   isEmailRender: boolean
@@ -86,22 +78,8 @@ type EmailRenderContextType = {
 
 export const EmailRenderContext = React.createContext<EmailRenderContextType|null>(null);
 
-const classNameProxy = (componentName: string) => {
-  return new Proxy({}, {
-    get: function(obj: any, prop: any) {
-      // Check that the prop is really a string. This isn't an error that comes
-      // up normally, but apparently React devtools will try to query for non-
-      // string properties sometimes when using the component debugger.
-      if (typeof prop === "string")
-        return `${componentName}-${prop}`;
-      else
-        return `${componentName}-invalid`;
-    }
-  });
-}
-
 const addClassnames = (componentName: string, styles: any) => {
-  const classesProxy = classNameProxy(componentName);
+  const classesProxy = classNameProxy(componentName+'-');
   return (WrappedComponent: any) => forwardRef((props, ref) => {
     const emailRenderContext = React.useContext(EmailRenderContext);
     if (emailRenderContext?.isEmailRender) {
@@ -112,10 +90,6 @@ const addClassnames = (componentName: string, styles: any) => {
     return <WrappedComponent ref={ref} {...props} classes={classesProxy}/>
   })
 }
-
-export const useStyles = (styles: (theme: ThemeType)=>JssStyles, componentName: keyof ComponentTypes) => {
-  return classNameProxy(componentName);
-};
 
 // Register a component. Takes a name, a raw component, and ComponentOptions
 // (see above). Components should be in their own file, imported with
@@ -131,8 +105,8 @@ export function registerComponent<PropType>(name: string, rawComponent: React.Co
 {
   const { styles=null, hocs=[] } = options || {};
   if (styles) {
-    if (isClient && window?.missingMainStylesheet) {
-      hocs.push(withStyles(styles, {name: name}));
+    if (isClient && (window?.missingMainStylesheet || enableVite)) {
+      hocs.push(withAddClasses(styles, name, options));
     } else {
       hocs.push(addClassnames(name, styles));
     }
@@ -141,7 +115,10 @@ export function registerComponent<PropType>(name: string, rawComponent: React.Co
   rawComponent.displayName = name;
   
   if (name in ComponentsTable && ComponentsTable[name].rawComponent !== rawComponent) {
-    throw new Error(`Two components with the same name: ${name}`);
+    // Don't warn about duplicate components if using HMR because vite can trigger this
+    if (!enableVite) {
+      throw new Error(`Two components with the same name: ${name}`);
+    }
   }
   
   // store the component in the table
@@ -151,6 +128,11 @@ export function registerComponent<PropType>(name: string, rawComponent: React.Co
     hocs,
     options,
   };
+  
+  if (enableVite) {
+    delete PreparedComponents[name as keyof ComponentTypes];
+    return Components[name as keyof ComponentTypes] as React.ComponentType<Omit<PropType,"classes">>;
+  }
   
   // The Omit is a hacky way of ensuring that hocs props are omitted from the
   // ones required to be passed in by parent components. It doesn't work for
@@ -164,7 +146,7 @@ export function registerComponent<PropType>(name: string, rawComponent: React.Co
 // lot of log-spam.
 const debugComponentImports = false;
 
-export function importComponent(componentName: keyof ComponentTypes|Array<keyof ComponentTypes>, importFn: ()=>void) {
+export function importComponent(componentName: keyof ComponentTypes|Array<keyof ComponentTypes>, importFn: () => void) {
   if (Array.isArray(componentName)) {
     for (let name of componentName) {
       DeferredComponentsTable[name] = importFn;
@@ -180,7 +162,7 @@ export function importAllComponents() {
   }
 }
 
-function prepareComponent(componentName: string): any
+export function prepareComponent(componentName: string): any
 {
   if (componentName in PreparedComponents) {
     return PreparedComponents[componentName];
@@ -264,6 +246,7 @@ const memoizeComponent = (areEqual: AreEqualOption, component: any, name: string
             }
             return false;
           }
+        // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
         } else switch(areEqual[key]) {
           case "ignore":
             break;

@@ -1,11 +1,11 @@
 import { Vulcan } from '../../lib/vulcan-lib';
-import { Posts } from '../../lib/collections/posts'
 import Users from '../../lib/collections/users/collection';
 import { urlIsBroken } from './utils'
 import htmlparser2 from 'htmlparser2';
 import { URL } from 'url';
 import fs from 'fs';
 import * as _ from 'underscore';
+import { fetchFragment } from '../fetchFragment';
 
 const whitelistedImageHosts = [
   "lesswrong.com",
@@ -64,7 +64,7 @@ function imageIsOffsite(imageUrl: string)
   return true;
 }
 
-const describePost = async (post:DbPost) =>
+const describePost = async (post: PostsPage) =>
 {
   const author = await Users.findOne({_id: post.userId});
   if(!author) throw Error(`Can't get author for post: ${post._id}`)
@@ -77,7 +77,7 @@ const describePost = async (post:DbPost) =>
 // (nothing broken), returns the empty string; otherwise the result (which is
 // meant to be handled by a person) includes the title/author/karma of the
 // post and a list of broken things within it.
-const checkPost = async (post:DbPost) => {
+const checkPost = async (post: PostsPage) => {
   const { html = "" } = post.contents || {}
   const images = getImagesInHtml(html);
   const links = getLinksInHtml(html);
@@ -119,7 +119,7 @@ const checkPost = async (post:DbPost) => {
 
 Vulcan.findBrokenLinks = async (
   startDate: Date, endDate: Date,
-  output: string|((message: string)=>void)
+  output: string|((message: string) => void)
 ) => {
   // TODO: Subdivide date range so we don't try to load all posts at once
   // TODO: Retry "broken" links to remove false positives from the list
@@ -145,8 +145,14 @@ Vulcan.findBrokenLinks = async (
       $lte: endDate
     }};
   }
-  const postsToCheck = await Posts.find(filter).fetch();
-  
+  const postsToCheck = await fetchFragment({
+    collectionName: "Posts",
+    fragmentName: "PostsPage",
+    selector: filter,
+    currentUser: null,
+    skipFiltering: true,
+  });
+
   write("Checking "+postsToCheck.length+" post for broken links and images.\n");
   for(let i=0; i<postsToCheck.length; i++)
   {

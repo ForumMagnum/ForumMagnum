@@ -13,11 +13,19 @@ import { INITIAL_REVIEW_THRESHOLD, getPositiveVoteThreshold, QUICK_REVIEW_SCORE_
 import { jsonArrayContainsSelector } from '../../utils/viewUtils';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/collection';
 import { filter, isEmpty, pick } from 'underscore';
+import { visitorGetsDynamicFrontpage } from '../../betas';
+import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
 
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
 
-const eventBuffer = isEAForum ? {startBuffer: '1 hour', endBuffer: null} : {startBuffer: '6 hours', endBuffer: '3 hours'}
+const eventBuffer = isEAForum
+  ? { startBuffer: 1, endBuffer: null }
+  : { startBuffer: 6, endBuffer: 3 };
+
+export const POST_SORTING_MODES = new TupleSet([
+  "magic", "top", "topAdjusted", "new", "old", "recentComments"
+] as const);
 
 type ReviewSortings = "fewestReviews"|"mostReviews"|"lastCommentedAt"
 
@@ -53,6 +61,7 @@ declare global {
     authorIsUnreviewed?: boolean|null,
     before?: Date|string|null,
     after?: Date|string|null,
+    curatedAfter?: Date|string|null,
     timeField?: keyof DbPost,
     postIds?: Array<string>,
     notPostIds?: Array<string>,
@@ -73,9 +82,11 @@ declare global {
     algoActivityFactor?: number
     algoActivityHalfLifeHours?: number
     algoActivityWeight?: number
+    requiredUnnominated?: boolean,
+    requiredFrontpage?: boolean,
     // END
   }
-  type PostSortingMode = "magic"|"top"|"topAdjusted"|"new"|"old"|"recentComments"
+  type PostSortingMode = UnionOf<typeof POST_SORTING_MODES>;
   type PostSortingModeWithRelevanceOption = PostSortingMode|"relevance"
 }
 
@@ -122,7 +133,7 @@ export const filters: Record<string,any> = {
   },
   // TODO(Review) is this indexed?
   "unnominated": {
-    positiveReviewVoteCount: 0
+    positiveReviewVoteCount: {$lt: REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD}
   },
   "unNonCoreTagged": {
     tagRelevance: {$exists: true},
@@ -143,6 +154,9 @@ export const filters: Record<string,any> = {
     tagRelevance: {$ne: {}}
   },
   "includeMetaAndPersonal": {},
+  "linkpost": {
+    url: {$exists: true},
+  }
 }
 
 /**
@@ -152,7 +166,8 @@ export const filters: Record<string,any> = {
  * sorting, do not try to supply your own.
  */
 export const sortings: Record<PostSortingMode,MongoSelector<DbPost>> = {
-  magic: { score: -1 },
+  // filteredScore is added as a synthetic field by filterSettingsToParams
+  magic: { filteredScore: -1 },
   top: { baseScore: -1 },
   topAdjusted: { karmaInflationAdjustedScore: -1 },
   new: { postedAt: -1 },
@@ -163,13 +178,15 @@ export const sortings: Record<PostSortingMode,MongoSelector<DbPost>> = {
 /**
  * @summary Base parameters that will be common to all other view unless specific properties are overwritten
  *
+ * When changing this, also update getViewablePostsSelector.
+ *
  * NB: Specifying "before" into posts views is a bit of a misnomer at present,
  * as it is *inclusive*. The parameters callback that handles it outputs
  * ~ $lt: before.endOf('day').
  */
 Posts.addDefaultView((terms: PostsViewTerms, _, context?: ResolverContext) => {
   const validFields: any = pick(terms, 'userId', 'groupId', 'af','question', 'authorIsUnreviewed');
-  // Also valid fields: before, after, timeField (select on postedAt), excludeEvents, and
+  // Also valid fields: before, after, curatedAfter, timeField (select on postedAt), excludeEvents, and
   // karmaThreshold (selects on baseScore).
 
   const postCommentedExcludeCommunity = {$or: [
@@ -231,6 +248,14 @@ Posts.addDefaultView((terms: PostsViewTerms, _, context?: ResolverContext) => {
       options: { ...params.options, ...filterParams.options },
       syntheticFields: { ...params.syntheticFields, ...filterParams.syntheticFields },
     };
+  } else {
+    // The "magic" sorting needs a `filteredScore` to use when ordering. This
+    // is normally filled in using the filter settings, but we need to just
+    // copy over the normal score when filter settings are not supplied.
+    params.syntheticFields = {
+      ...params.syntheticFields,
+      filteredScore: "$score",
+    };
   }
   if (terms.sortedBy) {
     if (terms.sortedBy === 'topAdjusted') {
@@ -252,7 +277,7 @@ Posts.addDefaultView((terms: PostsViewTerms, _, context?: ResolverContext) => {
     let postedAt: any = {};
 
     if (terms.after) {
-      postedAt.$gt = moment(terms.after).toDate();
+      postedAt.$gte = moment(terms.after).toDate();
     }
     if (terms.before) {
       postedAt.$lt = moment(terms.before).toDate();
@@ -263,6 +288,9 @@ Posts.addDefaultView((terms: PostsViewTerms, _, context?: ResolverContext) => {
     } else if (!isEmpty(postedAt) && terms.timeField) {
       params.selector[terms.timeField] = postedAt;
     }
+  }
+  if (terms.curatedAfter) {
+    params.selector.curatedDate = {$gte: moment(terms.curatedAfter).toDate()}
   }
   
   return params;
@@ -354,10 +382,10 @@ function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsView
     t => (t.filterMode!=="Hidden" && t.filterMode!=="Required" && t.filterMode!=="Default" && t.filterMode!==0)
   );
 
-  const useSlowerFrontpage = !!context?.currentUser && isEAForum
+  const useSlowerFrontpage = !!context && ((!!context.currentUser && isEAForum) || visitorGetsDynamicFrontpage(context.currentUser ?? null));
 
   const syntheticFields = {
-    score: {$divide:[
+    filteredScore: {$divide:[
       {$multiply: [
         {$add:[
           "$baseScore",
@@ -410,12 +438,18 @@ function filterModeToAdditiveKarmaModifier(mode: FilterMode): number {
 }
 
 function filterModeToMultiplicativeKarmaModifier(mode: FilterMode): number {
-  if (typeof mode === "number" && 0 < mode && mode < 1) {
+  // Example: "x10.0" is a multiplier of 10
+  const match = typeof mode === "string" && mode.match(/^x(\d+(?:\.\d+)?)$/);
+  if (match) {
+    return parseFloat(match[1]);
+  } else if (typeof mode === "number" && 0 < mode && mode < 1) {
     return mode;
-  } else switch(mode) {
-    default:
-    case "Default": return 1;
-    case "Reduced": return 0.5;
+  } else {
+    switch(mode) {
+      default:
+      case "Default": return 1;
+      case "Reduced": return 0.5;
+    }
   }
 }
 
@@ -575,12 +609,6 @@ Posts.addView("daily", (terms: PostsViewTerms) => ({
     sort: {baseScore: -1}
   }
 }));
-ensureIndex(Posts,
-  augmentForDefaultView({ postedAt:1, baseScore:1}),
-  {
-    name: "posts.postedAt_baseScore",
-  }
-);
 
 Posts.addView("tagRelevance", ({ sortedBy, tagId }: PostsViewTerms) => ({
   // note: this relies on the selector filtering done in the default view
@@ -774,11 +802,13 @@ Posts.addView("drafts", (terms: PostsViewTerms) => {
   
   switch (terms.sortDraftsBy) {
     case 'wordCountAscending': {
-      query.options.sort = {"contents.wordCount": 1, modifiedAt: -1, createdAt: -1}
+      // FIXME: This should have "contents.wordCount": 1, but that crashes
+      query.options.sort = {modifiedAt: -1, createdAt: -1}
       break
     }
     case 'wordCountDescending': {
-      query.options.sort = {"contents.wordCount": -1, modifiedAt: -1, createdAt: -1}
+      // FIXME: This should have "contents.wordCount": -1, but that crashes
+      query.options.sort = {modifiedAt: -1, createdAt: -1}
       break
     }
     case 'lastModified': {
@@ -1074,10 +1104,12 @@ ensureIndex(Posts,
 );
 
 Posts.addView("events", (terms: PostsViewTerms) => {
-  const timeSelector = {$or: [
-    {startTime: {$gt: moment().subtract(eventBuffer.startBuffer).toDate()}},
-    {endTime: {$gt: moment().subtract(eventBuffer.endBuffer).toDate()}}
-  ]}
+  const timeSelector = {
+    $or: [
+      { startTime: { $gt: moment().subtract(eventBuffer.startBuffer, 'hours').toDate() } },
+      { endTime: { $gt: moment().subtract(eventBuffer.endBuffer, 'hours').toDate() } },
+    ],
+  };
   const twoMonthsAgo = moment().subtract(60, 'days').toDate();
   // make sure that, by default, events are not global
   let globalEventSelector: {} = terms.globalEvent ? {globalEvent: true} : {};
@@ -1379,7 +1411,7 @@ Posts.addView("reviews2018", (terms: PostsViewTerms) => {
   }
 })
 
-const reviews2019Sortings : Record<ReviewSortings, MongoSort<DbPost>> = {
+const reviews2019Sortings: Record<ReviewSortings, MongoSort<DbPost>> = {
   "fewestReviews" : {reviewCount2019: 1},
   "mostReviews" : {reviewCount2019: -1},
   "lastCommentedAt" :  {lastCommentedAt: -1}
@@ -1426,9 +1458,13 @@ Posts.addView("stickied", (terms: PostsViewTerms, _, context?: ResolverContext) 
 
 // used to find a user's upvoted posts, so they can nominate them for the Review
 Posts.addView("nominatablePostsByVote", (terms: PostsViewTerms, _, context?: ResolverContext) => {
+  const nominationFilter = terms.requiredUnnominated ? {positiveReviewVoteCount: { $lt: REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD }} : {}
+  const frontpageFilter = terms.requiredFrontpage ? {frontpageDate: {$exists: true}} : {}
   return {
     selector: {
       userId: {$ne: context?.currentUser?._id,},
+      ...frontpageFilter,
+      ...nominationFilter,
       isEvent: false
     },
     options: {
@@ -1555,3 +1591,6 @@ void ensureCustomPgIndex(`
   ON "Posts" (GREATEST("postedAt", "mostRecentPublishedDialogueResponseDate") DESC)
   WHERE "collabEditorDialogue" IS TRUE;
 `);
+
+// Needed to speed up getPostsAndCommentsFromSubscriptions, which otherwise has a pretty slow nested loop when joining on Posts because of the "postedAt" filter
+ensureIndex(Posts, { userId: 1, postedAt: 1 }, { concurrently: true });

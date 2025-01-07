@@ -5,7 +5,8 @@ import { useCurrentUser } from '../common/withUser';
 import { userCanUseTags } from '../../lib/betas';
 import { useTracking } from "../../lib/analyticsEvents";
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
-import { preferredHeadingCase } from '../../themes/forumTheme';
+import { isBookUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { PopperPlacementType } from '@material-ui/core/Popper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   addTagButton: {
@@ -20,9 +21,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const AddTagButton = ({onTagSelected, isVotingContext, classes, children}: {
-  onTagSelected: (props: {tagId: string, tagName: string})=>void,
+const AddTagButton = ({onTagSelected, menuPlacement="bottom-start", isVotingContext, hasTooltip=true, classes, children}: {
+  onTagSelected: (props: {tagId: string, tagName: string}) => void,
+  menuPlacement?: PopperPlacementType,
   isVotingContext?: boolean,
+  hasTooltip?: boolean,
   classes: ClassesType,
   children?: ReactNode,
 }) => {
@@ -30,48 +33,53 @@ const AddTagButton = ({onTagSelected, isVotingContext, classes, children}: {
   const anchorEl = useRef<HTMLAnchorElement|null>(null);
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
-  const { LWPopper, AddTag, LWClickAwayListener } = Components
+  const { LWPopper, AddTag, LWClickAwayListener, LWTooltip } = Components
 
   if (!userCanUseTags(currentUser)) {
     return null;
   }
 
-  return <a
-    onClick={() => {
-      setIsOpen(true);
-      captureEvent("addTagClicked")
-    }}
-    className={classes.addTagButton}
-    ref={anchorEl}
-  >
-    {children
-      ? children
-      : <span className={classes.defaultButton}>
-        + {preferredHeadingCase(`Add ${taggingNameCapitalSetting.get()}`)}
-      </span>
-    }
-
-    <LWPopper
-      open={isOpen}
-      anchorEl={anchorEl.current}
-      placement="bottom-start"
-      allowOverflow
+  const button = <a onClick={() => {
+        setIsOpen(true);
+        captureEvent("addTagClicked")
+      }}
+      className={classes.addTagButton}
+      ref={anchorEl}
     >
-      <LWClickAwayListener
-        onClickAway={() => setIsOpen(false)}
-      >
-        <Paper>
-          <AddTag
-            onTagSelected={({tagId, tagName}: {tagId: string, tagName: string}) => {
-              setIsOpen(false);
-              onTagSelected({tagId, tagName});
-            }}
-            isVotingContext={isVotingContext}
-          />
-        </Paper>
-      </LWClickAwayListener>
-    </LWPopper>
-  </a>;
+      {children
+        ? children
+        : <span className={classes.defaultButton}>
+          + {preferredHeadingCase(`Add ${taggingNameCapitalSetting.get()}`)}
+        </span>
+      }
+        <LWPopper
+          open={isOpen}
+          anchorEl={anchorEl.current}
+          placement={menuPlacement}
+          allowOverflow
+        >
+          <LWClickAwayListener
+            onClickAway={() => setIsOpen(false)}
+          >
+            <Paper>
+              <AddTag
+                onTagSelected={({tagId, tagName}: {tagId: string, tagName: string}) => {
+                  setIsOpen(false);
+                  onTagSelected({tagId, tagName});
+                }}
+                isVotingContext={isVotingContext}
+              />
+            </Paper>
+          </LWClickAwayListener>
+        </LWPopper>
+    </a>
+  
+  if (isBookUI && hasTooltip) {
+    return <LWTooltip title="Add a tag">
+      {button}
+    </LWTooltip>
+  }
+  return button;
 }
 
 const AddTagButtonComponent = registerComponent("AddTagButton", AddTagButton, {styles});

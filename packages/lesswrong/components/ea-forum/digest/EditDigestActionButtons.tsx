@@ -17,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 
-const EditDigestActionButtons = ({digest, classes} : {
+const EditDigestActionButtons = ({digest, classes}: {
   digest: DigestsMinimumInfo,
   classes: ClassesType
 }) => {

@@ -1,13 +1,13 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { reCaptchaSiteKeySetting } from '../../lib/publicSettings';
-import { gql, useMutation, DocumentNode } from '@apollo/client';
-import { forumTypeSetting, isAF, isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
+import { gql, useMutation } from '@apollo/client';
+import { isAF, isEAForum } from '../../lib/instanceSettings';
 import { useMessages } from '../common/withMessages';
 import { getUserABTestKey, useClientId } from '../../lib/abTestImpl';
-import classnames from 'classnames'
 import { useLocation } from '../../lib/routeUtil';
 import type { GraphQLError } from 'graphql';
+import {isFriendlyUI} from '../../themes/forumTheme.ts'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -88,7 +88,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 type possibleActions = "login" | "signup" | "pwReset"
 
-const currentActionToButtonText : Record<possibleActions, string> = {
+const currentActionToButtonText: Record<possibleActions, string> = {
   login: "Log In",
   signup: "Sign Up",
   pwReset: "Request Password Reset"
@@ -97,11 +97,12 @@ const currentActionToButtonText : Record<possibleActions, string> = {
 type LoginFormProps = {
   startingState?: possibleActions,
   immediateRedirect?: boolean,
+  onClose?: () => void,
   classes: ClassesType
 }
 
 const LoginForm = (props: LoginFormProps) => {
-  if (isEAForum) {
+  if (isFriendlyUI) {
     return <LoginFormEA {...props} />
   }
   return <LoginFormDefault {...props} />
@@ -219,7 +220,6 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
       {hasOauthSection && <>
         <div className={classes.oAuthComment}>...or continue with</div>
         <div className={classes.oAuthBlock}>
-          <a className={classes.oAuthLink} href={`/auth/facebook?returnTo=${pathname}`}>FACEBOOK</a>
           <a className={classes.oAuthLink} href={`/auth/google?returnTo=${pathname}`}>GOOGLE</a>
           <a className={classes.oAuthLink} href={`/auth/github?returnTo=${pathname}`}>GITHUB</a>
         </div>
@@ -229,8 +229,23 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
   </Components.ContentStyles>;
 }
 
-const LoginFormEA = ({startingState, immediateRedirect, classes}: LoginFormProps) => {
+const LoginFormEA = ({
+  startingState = "login",
+  immediateRedirect,
+  onClose,
+}: LoginFormProps) => {
   const { pathname, query } = useLocation()
+  const [action, setAction] = useState<"login" | "signup" | null>(
+    startingState === "pwReset" ? "login" : "signup",
+  );
+
+  const wrappedSetAction = useCallback((action: "login" | "signup" | null) => {
+    setAction(action);
+    if (!action) {
+      onClose?.();
+    }
+  }, [onClose]);
+
   const returnUrl = `${pathname}?${new URLSearchParams(query).toString()}`;
   const returnTo = encodeURIComponent(returnUrl);
 
@@ -240,18 +255,16 @@ const LoginFormEA = ({startingState, immediateRedirect, classes}: LoginFormProps
   };
 
   if (immediateRedirect) {
-    window.location.href = urls[startingState ?? "login"];
+    window.location.href = urls[startingState];
     return <Components.Loading />;
   }
 
-  return <Components.ContentStyles contentType="commentExceptPointerEvents">
-    <div className={classnames(classes.oAuthBlock, 'ea-forum')}>
-      <a className={startingState === 'login' ? classes.primaryBtn : classes.oAuthLink}
-        href={urls.login}>Login</a>
-      <a className={startingState === 'signup' ? classes.primaryBtn : classes.oAuthLink}
-        href={urls.signup}>Sign Up</a>
-    </div>
-  </Components.ContentStyles>
+  return (
+    <Components.EALoginPopover
+      action={action}
+      setAction={wrappedSetAction}
+    />
+  );
 }
 
 const LoginFormComponent = registerComponent('LoginForm', LoginForm, { styles });

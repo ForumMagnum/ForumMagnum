@@ -26,9 +26,9 @@ registerMigration({
   }
 });
 
-function collectionsWithExactlyOneEditableField(): Array<{collectionName:CollectionNameString, fieldName:string}>
+function collectionsWithExactlyOneEditableField(): Array<{collectionName: CollectionNameString, fieldName: string}>
 {
-  let result: Array<{collectionName:CollectionNameString, fieldName:string}> = [];
+  let result: Array<{collectionName: CollectionNameString, fieldName: string}> = [];
   for (let collectionName of editableCollections) {
     if (editableCollectionsFields[collectionName]!.length === 1) {
       result.push({

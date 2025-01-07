@@ -1,5 +1,5 @@
 import { ensureIndex } from '../../collectionIndexUtils';
-import { isAF } from '../../instanceSettings';
+import { isAF, isLWorAF } from '../../instanceSettings';
 import Sequences from './collection';
 
 declare global {
@@ -10,6 +10,9 @@ declare global {
   }
 }
 
+/**
+ * When changing this, also update getViewableSequencesSelector.
+ */
 Sequences.addDefaultView((terms: SequencesViewTerms) => {
   const alignmentForum = isAF ? {af: true} : {}
   let params = {
@@ -103,17 +106,19 @@ Sequences.addView("curatedSequences", function (terms: SequencesViewTerms) {
 ensureIndex(Sequences, augmentForDefaultView({ curatedOrder:-1 }));
 
 Sequences.addView("communitySequences", function (terms: SequencesViewTerms) {
+  const gridImageFilter = isLWorAF ? {gridImageId: {$ne: null}} : undefined
+
   return {
     selector: {
       userId: terms.userId,
       curatedOrder: {$exists: false},
-      gridImageId: {$ne: null },
       isDeleted: false,
       draft: false,
       $or: [
         {canonicalCollectionSlug: ""},
         {canonicalCollectionSlug: {$exists: false}},
       ],
+      ...gridImageFilter,
     },
     options: {
       sort: {

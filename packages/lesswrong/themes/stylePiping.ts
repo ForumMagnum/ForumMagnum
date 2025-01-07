@@ -1,3 +1,4 @@
+import { requireCssVar } from "./cssVars";
 import { isFriendlyUI } from "./forumTheme";
 
 const hideSpoilers = (theme: ThemeType): JssStyles => ({
@@ -72,6 +73,19 @@ const manifoldPreviewStyles = (theme: ThemeType): JssStyles => ({
       width: "100%",
       height: 400,
       border: "none",
+    },
+  },
+});
+
+const neuronpediaPreviewStyles = (theme: ThemeType): JssStyles => ({
+  "& div.neuronpedia-preview": {
+    "& iframe": {
+      width: "100%",
+      height: 360,
+      maxWidth: 639,
+      border: "1px solid",
+      borderColor: theme.palette.grey[300],
+      borderRadius: 6,
     },
   },
 });
@@ -159,6 +173,16 @@ const youtubePreviewStyles = (theme: ThemeType): JssStyles => ({
   }
 })
 
+const lwartifactsPreviewStyles = (theme: ThemeType): JssStyles => ({
+  '& figure.media div[data-oembed-url*="lwartifacts.vercel.app"]': {
+    '& iframe': {
+      width: '100%',
+      height: 525,
+      border: 'none'
+    }
+  }
+})
+
 const tableStyles = (theme: ThemeType): JssStyles => ({
   borderCollapse: "collapse",
   borderSpacing: 0,
@@ -172,6 +196,9 @@ const tableStyles = (theme: ThemeType): JssStyles => ({
       fontFamily: theme.palette.fonts.sansSerifStack,
       fontSize: 14,
       lineHeight: "1.4em",
+    },
+    "& sup *": {
+      fontSize: 10,
     },
     "& ul, & ol": {
       paddingLeft: "1.5em",
@@ -216,7 +243,7 @@ const hrStyles = (theme: ThemeType): JssStyles => ({
   '&:after': {
     marginLeft: 12,
     color: theme.palette.icon.horizRuleDots,
-    fontSize: "1rem",
+    fontSize: 13,
     letterSpacing: "12px", /* increase space between dots */
     content: '"•••"',
   }
@@ -238,6 +265,137 @@ const footnoteStyles = (theme: ThemeType): JssStyles => ({
     padding: "0 0.3em",
     width: '95%',
   },
+});
+
+const collapsibleSectionStyles = (theme: ThemeType): JssStyles => ({
+  '& .detailsBlock': {
+    // This conflicts with a CkEditor style on `.ck .ck-editor__nested-editable`
+    // that tries to turn border off and on to indicate selection. Use
+    // !important to ensure it's visible.
+    border: isFriendlyUI ? undefined : theme.palette.border.normal+' !important',
+    borderRadius: 8,
+    marginTop: isFriendlyUI ? 0 : 8,
+    marginBottom: 8,
+  },
+  '& .detailsBlockTitle': {
+    padding: 8,
+    borderRadius: 0,
+
+    // give background !important to take precedence over CkEditor making it
+    // pure-white when the cursor is inside it, which would make the
+    // title-vs-contents distinction invisible
+    background: isFriendlyUI ? undefined : theme.palette.panelBackground.darken05+'!important',
+    
+    "&>p": {
+      display: "inline-block",
+    },
+  },
+  '& .detailsBlockTitle[open]': {
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+  },
+  '& summary.detailsBlockTitle': {
+    cursor: "pointer",
+  },
+  '& .detailsBlockContent': {
+    padding: isFriendlyUI ? "0 8px 8px 20px" : 8,
+  },
+  // Cancel out a global paragraph style that adds bottom margin to paragraphs
+  // in the editor for some reason, which would create a page/editor mismatch
+  // and mess up the bottom margin of detail block contents.
+  "& .detailsBlockContent > p:last-child, & .detailsBlockTitle > p:last-child": {
+    marginBottom: '0 !important',
+  },
+  
+  // Placeholder text in the editor for a collapsible section with no title.
+  // CkEditor represents this with a <br> placeholder as:
+  //     <p><br data-cke-filler="true"/></p>
+  "& .detailsBlockTitle p:has(> br[data-cke-filler=true]:only-child)::after": {
+    content: '"Collapsible Section Title"',
+    color: theme.palette.greyAlpha(0.3),
+    pointerEvents: "none",
+    position: "absolute",
+    top: 8,
+  },
+  
+  "& .detailsBlock.closed .detailsBlockContent": {
+    display: "none",
+  },
+  
+  // The 'div' part of this selector makes it specific to the editor (outside
+  // the editor it would be a <summary> tag)
+  '& div.detailsBlockTitle': {
+    position: "relative",
+    paddingLeft: isFriendlyUI ? 20 : 24,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: isFriendlyUI ? "20.8px" : undefined,
+    lineHeight: isFriendlyUI ? "1.25em" : undefined,
+    fontWeight: isFriendlyUI ? 600 : undefined,
+  },
+
+  // The 'div' part of this selector makes it specific to the editor (outside
+  // the editor it would be a <summary> tag)
+  '& div.detailsBlockTitle::before': {
+    content: '"▼"',
+    cursor: "pointer",
+    fontSize: isFriendlyUI ? 12 : 14,
+    paddingRight: 4,
+    position: "absolute",
+    left: isFriendlyUI ? 0 : 8,
+  },
+  '& .detailsBlock.closed div.detailsBlockTitle::before': {
+    content: '"▶"',
+  }
+});
+
+// Calling requireCssVar results in the variable being defined in the stylesheet
+// (e.g. --palette-fonts-sansSerifStack). These are required for use in styles that
+// are within the ckeditor bundle (in ckEditor/src/ckeditor5-cta-button/ctaform.css)
+requireCssVar("palette", "fonts", "sansSerifStack")
+requireCssVar("palette", "panelBackground", "default")
+requireCssVar("palette", "error", "main")
+requireCssVar("palette", "grey", 200)
+requireCssVar("palette", "grey", 300)
+requireCssVar("palette", "grey", 600)
+requireCssVar("palette", "grey", 1000)
+
+const ctaButtonStyles = (theme: ThemeType): JssStyles => ({
+  '& .ck-cta-button': {
+    display: 'block',
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    minWidth: 30,
+    width: 'fit-content',
+    cursor: 'pointer',
+    fontSize: 14,
+    fontWeight: 600,
+    lineHeight: '20px',
+    textTransform: 'none',
+    padding: '12px 16px',
+    borderRadius: theme.borderRadius.default,
+    boxShadow: 'none',
+    backgroundColor: theme.palette.buttons.alwaysPrimary,
+    color: theme.palette.text.alwaysWhite,
+    transition: 'background-color 0.3s ease',
+    '&:hover': {
+      opacity: 1,
+      backgroundColor: theme.palette.primary.dark,
+      color: theme.palette.text.alwaysWhite, // Override default <a> style
+    },
+    '&:visited, &.visited': {
+      color: theme.palette.text.alwaysWhite, // Override default <a> style
+    },
+    '&:visited:hover, &.visited:hover': {
+      color: theme.palette.text.alwaysWhite, // Override default <a> style
+    },
+    '&:disabled': {
+      backgroundColor: theme.palette.buttons.alwaysPrimary,
+      color: theme.palette.text.alwaysWhite,
+      opacity: .5,
+    }
+  },
+  '& .ck-cta-button-centered': {
+    margin: 'auto'
+  }
 });
 
 const baseBodyStyles = (theme: ThemeType): JssStyles => ({
@@ -320,15 +478,15 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
     paddingRight: '0.07em'
   },
   '& a, & a:hover, & a:active': {
-    color: theme.palette.primary.main,
+    color: theme.palette.link.color ?? theme.palette.primary.main,
     '& u': {
       textDecoration: "none"
     }
   },
-  '& a:visited': isFriendlyUI ? {
-    color: theme.palette.link.visited,
-  } : {},
-  '& a:visited:hover, & a:visited:active': isFriendlyUI ? {
+  '& a:visited, & a.visited': {
+    color: theme.palette.link.visited
+  },
+  '& a:visited:hover, & a.visited:hover, & a:visited:active, & a.visited:active': isFriendlyUI ? {
     color: theme.palette.link.visitedHover,
   } : {},
   '& table': {
@@ -336,8 +494,8 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
   },
   // CKEditor wraps tables in a figure element
   '& figure.table': {
-    width: 'fit-content !important',
-    height: 'fit-content !important',
+    width: 'fit-content',
+    height: 'fit-content',
   },
   // Many column tables should overflow instead of squishing
   //  - NB: As of Jan 2023, this does not work on firefox, so ff users will have
@@ -380,6 +538,7 @@ export const postBodyStyles = (theme: ThemeType): JssStyles => {
     ...spoilerStyles(theme),
     ...metaculusPreviewStyles(theme),
     ...manifoldPreviewStyles(theme),
+    ...neuronpediaPreviewStyles(theme),
     ...calendlyPreviewStyles(theme),
     ...strawpollPreviewStyles(theme),
     ...metaforecastPreviewStyles(theme),
@@ -387,7 +546,10 @@ export const postBodyStyles = (theme: ThemeType): JssStyles => {
     ...estimakerPreviewStyles(theme),
     ...viewpointsPreviewStyles(theme),
     ...youtubePreviewStyles(theme),
+    ...lwartifactsPreviewStyles(theme),
     ...footnoteStyles(theme),
+    ...collapsibleSectionStyles(theme),
+    ...ctaButtonStyles(theme),
     // Used for R:A-Z imports as well as markdown-it-footnotes
     '& .footnotes': {
       marginTop: 40,
@@ -442,6 +604,13 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: B
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
 
+    '& .footnotes': isFriendlyUI ? {} : {
+      marginTop: 0,
+      paddingTop: 8,
+      paddingLeft: 16,
+      marginBottom: 0
+    },
+
     '& blockquote': {
       ...theme.typography.commentBlockquote,
       ...theme.typography.body2,
@@ -483,8 +652,8 @@ export const emailBodyStyles = baseBodyStyles
 export const smallPostStyles = (theme: ThemeType) => {
   return {
     ...theme.typography.body2,
-    fontSize: isFriendlyUI ? "1.1rem" : "1.28rem",
-    lineHeight: "1.75rem",
+    fontSize: isFriendlyUI ? 14.3 : 16.64,
+    lineHeight: "22.75px",
     ...theme.typography.postStyle,
     '& blockquote': {
       ...theme.typography.body2,
@@ -496,8 +665,8 @@ export const smallPostStyles = (theme: ThemeType) => {
     '& li': {
       ...theme.typography.body2,
       ...theme.typography.postStyle,
-      fontSize: isFriendlyUI ? "1.1rem" : "1.28rem",
-      lineHeight: "1.8rem",
+      fontSize: isFriendlyUI ? 14.3 : 16.64,
+      lineHeight: "23.4px",
     }
   };
 }
@@ -627,7 +796,7 @@ export const ckEditorStyles = (theme: ThemeType): JssStyles => {
         },
         '& .ck-annotation__info-name, & .ck-annotation__info-time': {
           color: theme.palette.grey[600],
-          fontSize: "1rem"
+          fontSize: 13
         },
         '& .ck-annotation__user, & .ck-thread__user': {
           display: "none"

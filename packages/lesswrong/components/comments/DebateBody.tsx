@@ -1,10 +1,10 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import NoSSR from 'react-no-ssr';
 import groupBy from 'lodash/groupBy';
 import uniq from 'lodash/uniq'
 import moment from 'moment';
 import type { DebateResponseWithReplies } from './DebateResponseBlock';
+import DeferRender from '../common/DeferRender';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -20,7 +20,7 @@ export const DebateBody = ({ debateResponses, post, classes }: {
   const { DebateResponseBlock, DebateTypingIndicator } = Components;
   const orderedParticipantList = uniq(debateResponses.map(({ comment }) => comment.userId));
 
-  return (<NoSSR>
+  return (<DeferRender ssr={false}>
     <div className={classes.root}>
       {
         // First group all responses by day, for the client's timezone (which is why this is in a NoSSR block)
@@ -63,7 +63,7 @@ export const DebateBody = ({ debateResponses, post, classes }: {
     <div>
       <DebateTypingIndicator post={post} />
     </div>
-  </NoSSR>);
+  </DeferRender>);
 }
 
 const DebateBodyComponent = registerComponent('DebateBody', DebateBody, {styles});

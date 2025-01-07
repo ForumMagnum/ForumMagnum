@@ -1,12 +1,29 @@
-import React, {useState, useRef, useCallback } from 'react';
-import { useTracking } from "../../lib/analyticsEvents";
+import { useState, useRef, useCallback } from 'react';
+import { EventProps, useTracking } from "../../lib/analyticsEvents";
 import { isMobile } from '../../lib/utils/isMobile'
 
-function datesDifference(a:Date, b:Date): number {
+function datesDifference(a: Date, b: Date): number {
   return (a as any)-(b as any);
 }
 
-export const useHover = (eventProps?: Record<string,any>) => {
+type UseHoverProps = {
+  eventProps?: EventProps,
+  onEnter?: () => void,
+  onLeave?: () => void,
+}
+
+export type UseHoverEventHandlers = {
+  onMouseOver: (ev: React.MouseEvent) => void,
+  onMouseLeave: (ev: React.MouseEvent) => void,
+}
+
+export const useHover = ({eventProps, onEnter, onLeave}: UseHoverProps = {}): {
+  eventHandlers: UseHoverEventHandlers,
+  hover: boolean,
+  everHovered: boolean,
+  anchorEl: any,
+  forceUnHover: () => void,
+} => {
   const [hover, setHover] = useState(false)
   const [everHovered, setEverHovered] = useState(false)
   const [anchorEl, setAnchorEl] = useState<any>(null)
@@ -24,17 +41,31 @@ export const useHover = (eventProps?: Record<string,any>) => {
     clearTimeout(delayTimer.current)
   }, [captureEvent])
 
-  const handleMouseOver = useCallback((event) => {
-    setHover(true)
+  const handleMouseOver = useCallback((event: React.MouseEvent) => {
+    setHover((currentValue) => {
+      // Sometimes the event is retriggered by moving the mouse inside the
+      // hovered element, if the hovered element contains children which can
+      // take the mouse focus. We only want to trigger `onEnter` the first time
+      // the mouse enters.
+      if (!currentValue) {
+        onEnter?.();
+      }
+      return true;
+    });
     setEverHovered(true);
     setAnchorEl(event.currentTarget);
     mouseOverStart.current = new Date()
     clearTimeout(delayTimer.current)
     delayTimer.current = setTimeout(captureHoverEvent,500)
-  }, [captureHoverEvent])
+  }, [captureHoverEvent, onEnter])
 
   const handleMouseLeave = useCallback(() => {
-    setHover(false)
+    setHover((currentValue) => {
+      if (currentValue) {
+        onLeave?.();
+      }
+      return false;
+    });
     setAnchorEl(null)
     clearTimeout(delayTimer.current)
 
@@ -45,18 +76,23 @@ export const useHover = (eventProps?: Record<string,any>) => {
       }
       mouseOverStart.current = null
     }
-  },[captureEvent])
-  
+  },[captureEvent, onLeave])
+
   /**
    * Simulate un-hovering, making this effectively not-hovered until the mouse
    * moves away and reenters. Used to make hover-menus close.
    */
   const forceUnHover = useCallback(() => {
-    setHover(false)
+    setHover((currentValue) => {
+      if (currentValue) {
+        onLeave?.();
+      }
+      return false;
+    });
     setAnchorEl(null)
     clearTimeout(delayTimer.current)
-  }, []);
-  
+  }, [onLeave]);
+
   return {
     eventHandlers: {
       onMouseOver: handleMouseOver,

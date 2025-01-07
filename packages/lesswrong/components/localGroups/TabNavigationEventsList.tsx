@@ -2,7 +2,6 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { Link } from '../../lib/reactRouterWrapper';
 import { createStyles } from '@material-ui/core/styles'
 import moment from '../../lib/moment-timezone';
 import { useTimezone } from '../common/withTimezone';
@@ -99,7 +98,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 
 const TabNavigationEventsList = ({ terms, onClick, classes }: {
   terms: PostsViewTerms,
-  onClick: ()=>void,
+  onClick: () => void,
   classes: ClassesType,
 }) => {
   const { results } = useMulti({
@@ -134,11 +133,11 @@ const TabNavigationEventsList = ({ terms, onClick, classes }: {
 
 const TabNavigationEventSingleLine = ({event, onClick, classes}: {
   event: PostsList,
-  onClick: ()=>void,
+  onClick: () => void,
   classes: ClassesType,
 }) => {
   const { timezone } = useTimezone();
-  const { TabNavigationSubItem, MenuItemLink } = Components
+  const { TabNavigationSubItem, MenuItemLink, TimeTag } = Components
   
   const startTime = event.startTime && moment(event.startTime).tz(timezone)
 
@@ -157,11 +156,11 @@ const TabNavigationEventSingleLine = ({event, onClick, classes}: {
     rootClass={classes.eventWrapper}
   >
     <TabNavigationSubItem className={classes.event}>
-      {(displayTime && displayTime !== " ") && <span className={classNames(
+      {(event.startTime && displayTime && displayTime !== " ") && <TimeTag className={classNames(
         classes.displayTime, {[classes.yesterday]: displayTime === YESTERDAY_STRING})
-      }>
+      } dateTime={event.startTime}>
         {displayTime}
-      </span>}
+      </TimeTag>}
       <span className={classes.title}>{event.title}</span>
     </TabNavigationSubItem>
   </MenuItemLink>
@@ -169,16 +168,12 @@ const TabNavigationEventSingleLine = ({event, onClick, classes}: {
 
 const TabNavigationEventTwoLines = ({event, onClick, classes}: {
   event: PostsList,
-  onClick: ()=>void,
+  onClick: () => void,
   classes: ClassesType,
 }) => {
-  const { timezone } = useTimezone();
-  const { TabNavigationSubItem, MenuItemLink } = Components
+  const { TabNavigationSubItem, MenuItemLink, FormatDate } = Components
   
   const cityName = event.onlineEvent ? "Online" : getCityName(event)
-  const shortDate = event.startTime && moment(event.startTime)
-    .tz(timezone)
-    .format("ddd MMM D");
   
   return <MenuItemLink
     onClick={onClick}
@@ -189,7 +184,7 @@ const TabNavigationEventTwoLines = ({event, onClick, classes}: {
       <span className={classes.title}>{event.title}</span>
       <div/>
       <span className={classes.secondLine}>
-        <span className={classes.date}>{shortDate}</span>
+        {event.startTime && <FormatDate className={classes.date} date={event.startTime} format={"ddd MMM D"} />}
         {cityName && <>
           <span className={classes.dot}>{"•"}</span>
           <span className={classes.city}>{cityName}</span>

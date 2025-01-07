@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React, { FC, PropsWithChildren } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { SoftUpArrowIcon } from "../icons/softUpArrowIcon";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
@@ -96,7 +96,9 @@ const PostsPageRecommendationItem = ({
     PostActionsButton,
   } = Components;
 
-  const TitleWrapper: FC = ({children}) => (
+  // FIXME: Unstable component will lose state on rerender
+  // eslint-disable-next-line react/no-unstable-nested-components
+  const TitleWrapper: FC<PropsWithChildren<{}>> = ({children}) => (
     <PostsItemTooltipWrapper post={post} As="span">
       <Link to={postLink}>{children}</Link>
     </PostsItemTooltipWrapper>

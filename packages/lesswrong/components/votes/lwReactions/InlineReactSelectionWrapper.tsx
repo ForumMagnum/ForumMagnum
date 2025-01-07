@@ -12,11 +12,13 @@ const styles = (theme: ThemeType): JssStyles => ({
       backgroundColor: theme.palette.background.primaryTranslucentHeavy
     }
   },
+  popper: {
+    height: 0,
+  },
   button: {
     zIndex: 1000,
     position: "relative",
     left: 12,
-    backgroundColor: theme.palette.background.paper, 
   },
 });
 
@@ -82,11 +84,12 @@ export const InlineReactSelectionWrapper = ({commentBodyRef, voteProps, styling,
   }, [detectSelection, commentBodyRef]);
   
   const buttonOffsetLeft = (styling==="comment") ? 12 : 30;
-  const buttonOffsetTop = (styling==="comment") ? 0 : 6;
+  const buttonOffsetTop = (styling==="comment") ? -10 : 0;
 
   return (
     <div className={classes.root} ref={commentTextRef}>
       <LWPopper
+        className={classes.popper}
         open={!!anchorEl} anchorEl={anchorEl}
         placement="right"
         allowOverflow={true}
@@ -106,12 +109,11 @@ export const InlineReactSelectionWrapper = ({commentBodyRef, voteProps, styling,
 function getYOffsetFromDocument (selection: Selection, commentTextRef: React.RefObject<HTMLDivElement>) {
   const commentTextRect = commentTextRef.current?.getBoundingClientRect();
   if (!commentTextRect) return 0;
-  const documentCenter = commentTextRect?.top + (commentTextRect?.height / 2);
 
+  const documentCenter = commentTextRect?.top + (commentTextRect?.height / 2);
   const selectionRectTop = selection.getRangeAt(0).getBoundingClientRect().top;
-  const selectionRectBottom = selection.getRangeAt(0).getBoundingClientRect().bottom;
-  const selectionY = (selectionRectTop + selectionRectBottom) / 2;
-  return selectionY - documentCenter;
+  
+  return selectionRectTop - documentCenter;
 }
 
 /** Count instances of a smaller string 'needle' in a larger string 'haystack'. */

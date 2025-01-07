@@ -8,7 +8,7 @@ const TagsSearchAutoComplete = ({
   hidePostCount=false,
   facetFilters,
   isVotingContext,
-}:{
+}: {
   clickAction: (id: string, tag: SearchTag | null) => void,
   placeholder?: string,
   hidePostCount?: boolean,

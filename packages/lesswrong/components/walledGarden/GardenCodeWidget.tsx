@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
-import { GardenCodes } from "../../lib/collections/gardencodes/collection";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
@@ -43,7 +42,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-export const GardenCodeWidget = ({classes, type}:{classes:ClassesType, type: string}) => {
+export const GardenCodeWidget = ({classes, type}: {classes: ClassesType, type: string}) => {
 
   const { captureEvent } = useTracking()
   const currentUser =  useCurrentUser()
@@ -64,6 +63,8 @@ export const GardenCodeWidget = ({classes, type}:{classes:ClassesType, type: str
     }
   });
 
+  // FIXME: Unstable component will lose state on rerender
+  // eslint-disable-next-line react/no-unstable-nested-components
   const SubmitComponent = () => <div className={classNames("form-submit", classes.formSubmitRow)}>
       <Button onClick={()=>setOpen(false)}>
         Cancel
@@ -130,7 +131,7 @@ export const GardenCodeWidget = ({classes, type}:{classes:ClassesType, type: str
             queryFragment={getFragment("GardenCodeFragment")}
             formComponents={{
               FormSubmit: SubmitComponent,
-              FormGroupLayout: Components.DefaultStyleFormGroup
+              FormGroupLayout: Components.FormGroupNoStyling
             }}
             successCallback={(code: GardenCodeFragment) => setCurrentCode(code)}/>
       </div>

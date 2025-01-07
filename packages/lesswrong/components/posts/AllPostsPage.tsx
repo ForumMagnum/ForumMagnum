@@ -10,6 +10,7 @@ import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/dropdownOptions'
 
 import Tooltip from '@material-ui/core/Tooltip';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import DeferRender from '../common/DeferRender';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -31,14 +32,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-export const timeframes = {
-  allTime: 'All time',
-  daily: 'Daily',
-  weekly: 'Weekly',
-  monthly: 'Monthly',
-  yearly: 'Yearly',
-}
-
 const description = `All of ${siteNameWithArticleSetting.get()}'s posts, filtered and sorted however you want`;
 
 const formatSort = (sorting: PostSortingMode) => {
@@ -46,13 +39,13 @@ const formatSort = (sorting: PostSortingMode) => {
   return isFriendlyUI ? sort : `Sorted by ${sort}`;
 }
 
-const AllPostsPage = ({classes}: {classes: ClassesType}) => {
+const AllPostsPage = ({classes, defaultHideSettings}: {classes: ClassesType, defaultHideSettings?: boolean}) => {
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const {query} = useLocation();
   const {captureEvent} = useTracking();
 
-  const [showSettings, setShowSettings] = useState<boolean>(!!currentUser?.allPostsOpenSettings);
+  const [showSettings, setShowSettings] = useState<boolean>(defaultHideSettings ? false : !!currentUser?.allPostsOpenSettings);
 
   const toggleSettings = useCallback(() => {
     const newValue = !showSettings;
@@ -86,6 +79,7 @@ const AllPostsPage = ({classes}: {classes: ClassesType}) => {
       <HeadTags description={description} />
       <AnalyticsContext pageContext="allPostsPage">
         <SingleColumnSection>
+        <DeferRender ssr={false}>
           <Tooltip
             title={`${showSettings ? "Hide": "Show"} options for sorting and filtering`}
             placement="top-end"
@@ -122,6 +116,7 @@ const AllPostsPage = ({classes}: {classes: ClassesType}) => {
               showSettings,
             }}
           />
+        </DeferRender>
         </SingleColumnSection>
       </AnalyticsContext>
     </>
@@ -139,3 +134,4 @@ declare global {
     AllPostsPage: typeof AllPostsPageComponent
   }
 }
+

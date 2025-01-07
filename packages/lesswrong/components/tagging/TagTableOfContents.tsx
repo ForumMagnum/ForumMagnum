@@ -26,9 +26,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
 
 const TagTableOfContents = ({tag, expandAll, showContributors, onHoverContributor, displayOptions, classes}: {
   tag: TagPageFragment|AllTagsPageFragment
-  expandAll?: ()=>void,
+  expandAll?: () => void,
   showContributors: boolean,
-  onHoverContributor?: (contributorId: string)=>void,
+  onHoverContributor?: (contributorId: string) => void,
   displayOptions?: ToCDisplayOptions,
   classes: ClassesType,
 }) => {

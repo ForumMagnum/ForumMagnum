@@ -2,8 +2,9 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { tagStyle } from '../tagging/FooterTag';
+import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   tag: {
     display: 'inline-flex',
     alignItems: 'baseline',
@@ -29,10 +30,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const SingleTagItem = ({documentId, onDelete, classes}: {
+const SingleTagItem = ({documentId, onDelete, className, classes}: {
   documentId: string,
-  onDelete: (id:string)=>void,
-  classes: ClassesType
+  onDelete: (id: string) => void,
+  className?: string,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { document, loading } = useSingle({
     documentId,
@@ -45,7 +47,7 @@ const SingleTagItem = ({documentId, onDelete, classes}: {
   }
 
   if (document) {
-    return <div className={classes.tag}>
+    return <div className={classNames(classes.tag, className)}>
       {document.name}
       <button className={classes.removeTag} onClick={() => onDelete(document._id)}>
         <Components.ForumIcon icon="Close" />
@@ -56,7 +58,11 @@ const SingleTagItem = ({documentId, onDelete, classes}: {
   return null
 };
 
-const SingleTagItemComponent = registerComponent('SingleTagItem', SingleTagItem, {styles});
+const SingleTagItemComponent = registerComponent(
+  'SingleTagItem',
+  SingleTagItem,
+  {styles, stylePriority: -1},
+);
 
 declare global {
   interface ComponentTypes {

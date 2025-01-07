@@ -6,7 +6,10 @@ import type { ForumIconName } from "../common/ForumIcon";
 import { useDismissable } from "../hooks/useDismissable";
 import { HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE } from "../../lib/cookies/cookies";
 
-const styles = (theme: ThemeType): JssStyles => ({
+/**
+ * Styles are shared with `NewTagInfoBox`
+ */
+export const styles = (theme: ThemeType) => ({
   root: {
     width: 280,
     margin: "60px 20px 0 -60px",
@@ -68,18 +71,13 @@ const guides: HowToGuide[] = [
   },
   {
     icon: "ChatBubbleLeftRight",
-    label: "Guide to norms on the forum",
+    label: "Guide to norms on the Forum",
     url: "/posts/yND9aGJgobm5dEXqF/guide-to-norms-on-the-forum",
-  },
-  {
-    icon: "Document",
-    label: "How to import Google Docs",
-    url: "/posts/Y8gkABpa9R6ktkhYt/forum-user-manual#Two_different_editors__WYSIWYG_and_Markdown",
   },
 ];
 
 export const NewPostHowToGuides = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {dismissed, dismiss} = useDismissable(HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE);
   if (dismissed) {

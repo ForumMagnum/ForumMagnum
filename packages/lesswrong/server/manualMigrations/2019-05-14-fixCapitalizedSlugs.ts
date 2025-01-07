@@ -1,7 +1,8 @@
-import { Utils, slugify } from '../../lib/vulcan-lib/utils';
+import { slugify } from '../../lib/vulcan-lib/utils';
 import Users from '../../lib/collections/users/collection';
 import { registerMigration, migrateDocuments } from './migrationUtils';
 import * as _ from 'underscore';
+import { getUnusedSlugByCollectionName } from '@/lib/helpers';
 
 registerMigration({
   name: "fixCapitalizedSlugs",
@@ -15,12 +16,12 @@ registerMigration({
     },
     batchSize: 1000,
     migrate: async (users) => {
-      let updates = Promise.all(_.map(users, async (user) => ({
+      let updates = await Promise.all(_.map(users, async (user) => ({
         updateOne: {
           filter: { _id: user._id },
           update: {
             $set: {
-              slug: await Utils.getUnusedSlugByCollectionName('Users', slugify(user.slug || ""))
+              slug: await getUnusedSlugByCollectionName('Users', slugify(user.slug || ""))
             }
           }
         }

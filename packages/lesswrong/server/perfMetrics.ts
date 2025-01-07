@@ -5,7 +5,7 @@ import LRU from 'lru-cache';
 import { queuePerfMetric } from './analyticsWriter';
 import type { Request, Response, NextFunction } from 'express';
 import { performanceMetricLoggingEnabled, performanceMetricLoggingSqlSampleRate } from '../lib/instanceSettings';
-import { getForwardedWhitelist } from './forwarded_whitelist';
+import { getClientIP } from './utils/getClientIP';
 
 type IncompletePerfMetricProps = Pick<PerfMetric, 'op_type' | 'op_name' | 'parent_trace_id' | 'extra_data' | 'client_path' | 'gql_string' | 'sql_string' | 'ip' | 'user_agent' | 'user_id'>;
 
@@ -32,6 +32,19 @@ export function generateTraceId() {
   return v4();
 }
 
+export function getParentTraceId() {
+  const store = asyncLocalStorage.getStore();
+
+  let parentTraceIdField;
+  if (store) {
+    parentTraceIdField = { parent_trace_id: store.requestPerfMetric?.trace_id }
+  } else {
+    parentTraceIdField = {};
+  }
+
+  return parentTraceIdField;
+}
+
 export function openPerfMetric(props: IncompletePerfMetricProps, startedAtOverride?: Date): IncompletePerfMetric {
   return {
     ...props,
@@ -47,6 +60,24 @@ export function closePerfMetric(openPerfMetric: IncompletePerfMetric, endedAtOve
   };
 
   queuePerfMetric(perfMetric);
+}
+
+export function wrapWithPerfMetric<T extends () => AnyBecauseHard>(operation: T, perfMetricGenerator: () => IncompletePerfMetric): ReturnType<T> {
+  if (!performanceMetricLoggingEnabled.get()) {
+    return operation();
+  }
+
+  const openedPerfMetric = perfMetricGenerator();
+  const result = operation();
+  if (result instanceof Promise) {
+    return result.then((res) => {
+      closePerfMetric(openedPerfMetric);
+      return res;
+    }) as ReturnType<T>;
+  }
+
+  closePerfMetric(openedPerfMetric);
+  return result;
 }
 
 export function addStartRenderTimeToPerfMetric() {
@@ -70,7 +101,7 @@ const fiftyThreeBits = Math.pow(2, 53);
  * Modified form of https://github.com/bryc/code/blob/master/jshash/experimental/cyrb53.js
  * Returns a pseudorandom number between 0 and 1 by hashing the input
  */
-function cyrb53Rand(str: string, seed = 0) {
+export function cyrb53Rand(str: string, seed = 0) {
   let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
   for(let i = 0, ch; i < str.length; i++) {
       ch = str.charCodeAt(i);
@@ -161,7 +192,7 @@ export function perfMetricMiddleware(req: Request, res: Response, next: NextFunc
     op_type: 'request',
     op_name: req.originalUrl,
     client_path: req.headers['request-origin-path'] as string,
-    ip: getForwardedWhitelist().getClientIP(req),
+    ip: getClientIP(req),
     user_agent: req.headers["user-agent"],
     user_id: req.user?._id,
   });

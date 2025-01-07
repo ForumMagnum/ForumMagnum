@@ -4,12 +4,12 @@ import classNames from 'classnames';
 import React, { FC, ReactNode, useCallback, useState } from 'react';
 import Card from '@material-ui/core/Card';
 import { getNotificationTypeByName } from '../../lib/notificationTypes';
-import { getUrlClass } from '../../lib/routeUtil';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { parseRouteWithErrors } from '../linkPreview/HoverPreviewLink';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useNavigate } from '../../lib/reactRouterWrapper';
 import {checkUserRouteAccess} from '../../lib/vulcan-core/appContext'
+import { getUrlClass } from '@/server/utils/getUrlClass';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -172,7 +172,9 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
               {children}
             </PostsTooltip>
           )
-          : null;
+          : <>
+            {children}
+          </>
       case "message":
         return (
           <TooltipWrapper

@@ -38,10 +38,6 @@ declare module "mathjax-node-page" {
   export const mjpage: AnyBecauseTodo
 }
 
-declare module "pg-formatter" {
-  export const format: AnyBecauseTodo
-}
-
 declare module "react-jss/lib/jss" {
   export const Rule: AnyBecauseTodo
   export const Stylesheet: AnyBecauseTodo
@@ -76,4 +72,8 @@ declare module "html-lexer" {
 declare module "passport-auth0/lib/Profile" {
   const Profile: AnyBecauseTodo
   export default Profile;
+}
+
+declare module "@extractus/article-extractor" {
+  export const extract: AnyBecauseTodo
 }

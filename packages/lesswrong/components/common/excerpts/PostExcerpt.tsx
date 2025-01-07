@@ -11,10 +11,13 @@ const isSunshine = (post: PostsList | SunshinePostsList): post is SunshinePostsL
 
 const PostExcerpt = ({
   post,
+  useCustomHighlight=true,
   hash,
   ...commonExcerptProps
 }: CommonExcerptProps & {
   post: PostsList | SunshinePostsList,
+  /** Whether to prefer showing `customHighlight` (can be set by admins) vs a snippet of the post body */
+  useCustomHighlight?: boolean,
   hash?: string | null,
 }) => {
   // Get the post body, accounting for whether or not this is a crosspost
@@ -53,10 +56,12 @@ const PostExcerpt = ({
     console.error("Error loading excerpt body:", error);
   }
 
+  const customHighlight = post.customHighlight?.html;
+  const postDefaultHighlight: string | undefined = postContents?.htmlHighlight || (postContents as AnyBecauseHard)?.html;
+
   const contentHtml =
     postHighlight?.contents?.htmlHighlightStartingAtHash ||
-    post.customHighlight?.html ||
-    postContents?.htmlHighlight;
+    (useCustomHighlight && customHighlight ? customHighlight : postDefaultHighlight);
   if (!contentHtml) {
     return null;
   }

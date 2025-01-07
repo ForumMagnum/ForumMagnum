@@ -1,8 +1,10 @@
-import { initializeSetting } from './publicSettings'
-import { isServer, isDevelopment, isAnyTest, getInstanceSettings, getAbsoluteUrl } from './executionEnvironment';
+import { isServer, isDevelopment, isAnyTest, isE2E } from './executionEnvironment';
 import { pluralize } from './vulcan-lib/pluralize';
 import startCase from 'lodash/startCase' // AKA: capitalize, titleCase
 import { TupleSet, UnionOf } from './utils/typeGuardUtils';
+import {initializeSetting} from './settingsCache'
+import { getInstanceSettings } from './getInstanceSettings';
+import { getCommandLineArguments } from '@/server/commandLine';
 
 const getNestedProperty = function (obj: AnyBecauseTodo, desc: AnyBecauseTodo) {
   var arr = desc.split('.');
@@ -148,7 +150,14 @@ export const hasRejectedContentSectionSetting = new PublicInstanceSetting<boolea
 export const sentryUrlSetting = new PublicInstanceSetting<string|null>('sentry.url', null, "warning"); // DSN URL
 export const sentryEnvironmentSetting = new PublicInstanceSetting<string|null>('sentry.environment', null, "warning"); // Environment, i.e. "development"
 export const sentryReleaseSetting = new PublicInstanceSetting<string|null>('sentry.release', null, "warning") // Current release, i.e. hash of lattest commit
-export const siteUrlSetting = new PublicInstanceSetting<string>('siteUrl', getAbsoluteUrl(), "optional")
+const getDefaultAbsoluteUrl = (): string => {
+  if (defaultSiteAbsoluteUrl?.length>0) {
+    return defaultSiteAbsoluteUrl;
+  } else {
+    return `http://localhost:${getCommandLineArguments().localhostUrlPort}/`
+  }
+}
+export const siteUrlSetting = new PublicInstanceSetting<string>('siteUrl', getDefaultAbsoluteUrl(), "optional")
 
 // FM Crossposting
 export const fmCrosspostSiteNameSetting = new PublicInstanceSetting<string|null>("fmCrosspost.siteName", null, "optional");
@@ -186,7 +195,7 @@ export const tabLongTitleSetting = new PublicInstanceSetting<string | null>('for
 export const noIndexSetting = new PublicInstanceSetting<boolean>('noindex', false, "optional")
 
 /** Whether this forum verifies user emails */
-export const verifyEmailsSetting = new PublicInstanceSetting<boolean>("verifyEmails", true, "optional");
+export const verifyEmailsSetting = new PublicInstanceSetting<boolean>("verifyEmails", !isEAForum, "optional");
 
 export const hasCuratedPostsSetting = new PublicInstanceSetting<boolean>("hasCuratedPosts", false, "optional");
 
@@ -198,3 +207,92 @@ export const hasSideCommentsSetting = new PublicInstanceSetting<boolean>("commen
 export const hasCommentsTableOfContentSetting = new PublicInstanceSetting<boolean>("comments.tableOfContentsEnabled", isLWorAF, "optional");
 export const hasDialoguesSetting = new PublicInstanceSetting<boolean>("dialogues.enabled", true, "optional");
 export const hasPostInlineReactionsSetting = new PublicInstanceSetting<boolean>("posts.inlineReactionsEnabled", isLWorAF, "optional");
+
+const disableElastic = new PublicInstanceSetting<boolean>(
+  "disableElastic",
+  false,
+  "optional",
+);
+
+export const isElasticEnabled = !isAnyTest && !isE2E && !disableElastic.get();
+
+export const requireReviewToFrontpagePostsSetting = new PublicInstanceSetting<boolean>('posts.requireReviewToFrontpage', !isEAForum, "optional")
+export const eaFrontpageDateDefault = (
+  isEvent?: boolean,
+  submitToFrontpage?: boolean,
+  draft?: boolean,
+) => {
+  if (isEvent || !submitToFrontpage || draft) {
+    return null;
+  }
+  return new Date();
+}
+
+export const manifoldAPIKeySetting = new PublicInstanceSetting<string | null>('manifold.reviewBotKey', null, "optional")
+export const reviewUserBotSetting = new PublicInstanceSetting<string | null>('reviewBotId', null, "optional")
+
+/** Karma threshold upon which we automatically create a market for whether this post will be a winner in the review for its year */
+export const reviewMarketCreationMinimumKarmaSetting = new PublicInstanceSetting<number>('annualReviewMarket.marketCreationMinimumKarma', 100, "optional");
+/** Minimum market odds required to highlight this post (e.g. make its karma gold) as a potential review winner */
+export const highlightReviewWinnerThresholdSetting = new PublicInstanceSetting<number>('annualReviewMarket.highlightReviewWinnerThreshold', 0.25, "optional");
+
+export const myMidjourneyAPIKeySetting = new PublicInstanceSetting<string | null>('myMidjourney.apiKey', null, "optional");
+export const maxAllowedApiSkip = new PublicInstanceSetting<number | null>("maxAllowedApiSkip", 2000, "optional")
+
+export const recombeeDatabaseIdSetting = new PublicInstanceSetting<string | null>('recombee.databaseId', null, "optional");
+export const recombeePublicApiTokenSetting = new PublicInstanceSetting<string | null>('recombee.publicApiToken', null, "optional");
+export const recombeePrivateApiTokenSetting = new PublicInstanceSetting<string | null>('recombee.privateApiToken', null, "optional");
+
+export const isDatadogEnabled = isEAForum;
+
+export type PostFeedDetails = {
+  name: string,
+  label: string,
+  description?: string,
+  disabled?: boolean,
+  adminOnly?: boolean,
+  showLabsIcon?: boolean,
+  isInfiniteScroll?: boolean,
+  slug?: string,
+  showToLoggedOut?: boolean,
+}
+
+export const homepagePostFeedsSetting = new PublicInstanceSetting<PostFeedDetails[]>('homepagePosts.feeds', [
+    {
+      'name': 'forum-classic',
+      'label': 'Latest',
+      'description': 'The classic LessWrong frontpage algorithm that combines karma with time discounting, plus any tag-based weighting if applied.',
+    },
+    {
+      'name': 'forum-bookmarks',
+      'label': 'Bookmarks',
+      'description': 'A list of posts you saved because you wanted to have them findable later.',
+    },
+    {
+      'name': 'forum-continue-reading',
+      'label': 'Resume Reading',
+      'description': 'Further posts in post sequences that you started reading.',
+    },
+  ]
+  , 'optional')
+
+/**
+ * This is a filepath that is _relative_ to the location of the instance settings file itself.
+ * See full explanation in `google-vertex/client.ts`
+ */
+export const googleRecommendationsCredsPath = new PublicInstanceSetting<string | null>('google.recommendationsServiceCredsPath', null, "optional");
+
+export const recombeeCacheTtlMsSetting = new PublicInstanceSetting<number>('recombee.cacheTtlMs', 1000 * 60 * 60 * 24 * 30, "optional");
+
+export const isBotSiteSetting = new PublicInstanceSetting<boolean>('botSite.isBotSite', false, 'optional');
+
+export const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId', 'bJ2haLkcGeLtTWaD5', "warning") // Post ID for the /about route
+
+export const anthropicApiKey = new PublicInstanceSetting<string>('anthropic.claudeTestKey', "LessWrong", "optional")
+
+export const jargonBotClaudeKey = new PublicInstanceSetting<string>('anthropic.jargonBotClaudeKey', "", "optional")
+
+export const hyperbolicApiKey = new PublicInstanceSetting<string>('hyperbolic.apiKey', "", "optional")
+
+export const twitterBotEnabledSetting = new PublicInstanceSetting<boolean>("twitterBot.enabled", false, "optional");
+export const twitterBotKarmaThresholdSetting = new PublicInstanceSetting<number>("twitterBot.karmaThreshold", 40, "optional");

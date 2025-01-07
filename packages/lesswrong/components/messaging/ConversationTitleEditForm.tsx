@@ -1,6 +1,5 @@
 import React from 'react';
 import { Components, registerComponent, getFragment } from "../../lib/vulcan-lib";
-import Conversations from '../../lib/collections/conversations/collection';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { preferredHeadingCase } from '../../themes/forumTheme';
@@ -11,7 +10,7 @@ import { preferredHeadingCase } from '../../themes/forumTheme';
  * adding additional participants.
  */
 const ConversationTitleEditForm = ({onClose, documentId}: {
-  onClose?: ()=>void,
+  onClose?: () => void,
   documentId: string,
 }) =>{
   return <Components.LWDialog open onClose={onClose}>

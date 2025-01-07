@@ -1,15 +1,132 @@
 import { Tags } from '../lib/collections/tags/collection';
-import type { KarmaChangeSettingsType } from '../lib/collections/users/schema';
+import {
+  KarmaChangeSettingsType,
+  KarmaChangeUpdateFrequency,
+  karmaChangeNotifierDefaultSettings,
+} from '../lib/collections/users/schema';
 import moment from '../lib/moment-timezone';
 import { compile as compileHtmlToText } from 'html-to-text'
 import sumBy from 'lodash/sumBy';
 import VotesRepo from './repos/VotesRepo';
-import { KarmaChangesArgs } from '../lib/collections/users/karmaChangesGraphQL';
+import type {
+  KarmaChanges,
+  KarmaChangesArgs,
+  PostKarmaChange,
+  CommentKarmaChange,
+  TagRevisionKarmaChange,
+  AnyKarmaChange,
+  KarmaChangesSimple,
+} from '../lib/collections/users/karmaChangesGraphQL';
+import { isFriendlyUI } from '../themes/forumTheme';
 
 // Use html-to-text's compile() wrapper (baking in the default options) to make it faster when called repeatedly
 const htmlToTextDefault = compileHtmlToText();
 
 const COMMENT_DESCRIPTION_LENGTH = 500;
+
+const isPostKarmaChange = (change: AnyKarmaChange): change is PostKarmaChange =>
+  "title" in change && !!change.title;
+
+const isCommentKarmaChange = (change: AnyKarmaChange): change is CommentKarmaChange =>
+  "tagCommentType" in change && !!change.tagCommentType;
+
+/**
+ * Given an array of karma changes on an account's content,
+ * calculates the total karma change for that account,
+ * and splits the karma changes into buckets by content type.
+ *
+ * Takes an optional _id suffix to separately identify these changes.
+ */
+const categorizeKarmaChanges = (changes: AnyKarmaChange[], suffix?: string): KarmaChangesSimple & {totalChange: number} => {
+  const posts: PostKarmaChange[] = [];
+  const comments: CommentKarmaChange[] = [];
+  const tagRevisions: TagRevisionKarmaChange[] = [];
+  let totalChange = 0;
+
+  for (const change of changes) {
+    totalChange += change.scoreChange;
+    if (suffix) {
+      change._id += suffix
+    }
+    if (isPostKarmaChange(change)) {
+      posts.push(change);
+    } else if (isCommentKarmaChange(change)) {
+      comments.push({
+        ...change,
+        description: htmlToTextDefault(change.description ?? "")
+          .substring(0, COMMENT_DESCRIPTION_LENGTH),
+      });
+    } else { // This is a TagRevisionKarmaChange
+      tagRevisions.push(change);
+    }
+  }
+  
+  return {
+    totalChange, posts, comments, tagRevisions
+  }
+}
+
+const getEAKarmaChanges = async (
+  votesRepo: VotesRepo,
+  args: KarmaChangesArgs,
+  nextBatchDate: Date|null,
+  updateFrequency: KarmaChangeUpdateFrequency,
+): Promise<KarmaChanges> => {
+  const changes = await votesRepo.getEAKarmaChanges(args);
+  const newChanges = categorizeKarmaChanges(changes)
+  
+  // For users with realtime karma notifications,
+  // we also display the rest of the karma changes that they got
+  // in the past 24 hours underneath the ones they got since
+  // the last time they checked.
+  // This way they don't lose the changes after viewing them once.
+  let todaysKarmaChanges: KarmaChangesSimple|undefined
+  if (updateFrequency === 'realtime') {
+    const yesterday = moment().subtract(1, 'day').toDate()
+    if (args.startDate > yesterday) {
+      const todaysChanges = await votesRepo.getEAKarmaChanges({
+        ...args,
+        startDate: yesterday,
+        endDate: args.startDate,
+      })
+      todaysKarmaChanges = categorizeKarmaChanges(todaysChanges, '-today')
+    }
+  }
+
+  return {
+    totalChange: newChanges.totalChange,
+    startDate: args.startDate,
+    endDate: args.endDate,
+    nextBatchDate: nextBatchDate ?? undefined,
+    updateFrequency,
+    posts: newChanges.posts,
+    comments: newChanges.comments,
+    tagRevisions: newChanges.tagRevisions,
+    todaysKarmaChanges,
+  };
+}
+
+/**
+ * The the amount of time between two dates to at-most `maxDays` days.
+ * `endDate` is always unchanged, and if the number of days is greater than
+ * `maxDays` the `startDate` will be pulled closer.
+ */
+const limitDateRange = ({startDate, endDate, maxDays}: {
+  startDate: Date,
+  endDate: Date,
+  maxDays: number,
+}): {
+  startDate: Date,
+  endDate: Date,
+} => {
+  const start = startDate.getTime();
+  const end = endDate.getTime();
+  const maxDelta = maxDays * 24 * 60 * 60 * 1000;
+  return {
+    startDate: new Date(Math.max(start, end - maxDelta)),
+    endDate,
+  };
+};
 
 // Given a user and a date range, get a summary of karma changes that occurred
 // during that date range.
@@ -39,14 +156,15 @@ export const getKarmaChanges = async ({user, startDate, endDate, nextBatchDate=n
   nextBatchDate?: Date|null,
   af?: boolean,
   context?: ResolverContext,
-}) => {
+}): Promise<KarmaChanges> => {
   if (!user) throw new Error("Missing required argument: user");
   if (!startDate) throw new Error("Missing required argument: startDate");
   if (!endDate) throw new Error("Missing required argument: endDate");
   if (startDate > endDate)
     throw new Error("getKarmaChanges: endDate must be after startDate");
 
-  const showNegativeKarmaSetting = user.karmaChangeNotifierSettings?.showNegativeKarma
+  const {showNegativeKarma, updateFrequency} = user.karmaChangeNotifierSettings ??
+    karmaChangeNotifierDefaultSettings;
 
   const votesRepo = context?.repos.votes ?? new VotesRepo();
   const queryArgs: KarmaChangesArgs = {
@@ -54,10 +172,18 @@ export const getKarmaChanges = async ({user, startDate, endDate, nextBatchDate=n
     startDate,
     endDate,
     af,
-    showNegative: showNegativeKarmaSetting,
+    showNegative: showNegativeKarma,
   };
 
-  const { changedComments, changedPosts, changedTagRevisions } = await votesRepo.getKarmaChanges(queryArgs);
+  if (isFriendlyUI) {
+    const args = {
+      ...queryArgs,
+      ...limitDateRange({...queryArgs, maxDays: 40}),
+    };
+    return getEAKarmaChanges(votesRepo, args, nextBatchDate, updateFrequency);
+  }
+
+  const { changedComments, changedPosts, changedTagRevisions } = await votesRepo.getLWKarmaChanges(queryArgs);
 
   // Replace comment bodies with abbreviated plain-text versions (rather than
   // HTML).
@@ -96,15 +222,16 @@ export const getKarmaChanges = async ({user, startDate, endDate, nextBatchDate=n
   return {
     totalChange,
     startDate,
-    nextBatchDate,
     endDate,
+    nextBatchDate: nextBatchDate ?? undefined,
+    updateFrequency,
     posts: changedPosts,
     comments: changedComments,
     tagRevisions: changedTagRevisions,
   };
 }
 
-const mapTagIdsToMetadata = async (tagIds: Array<string>, context: ResolverContext|undefined): Promise<Record<string,{slug:string, name:string}>> => {
+const mapTagIdsToMetadata = async (tagIds: Array<string>, context: ResolverContext|undefined): Promise<Record<string,{slug: string, name: string}>> => {
   const mapping: Record<string,{slug: string, name: string}> = {};
   await Promise.all(tagIds.map(async (tagId: string) => {
     const tag = context
@@ -125,7 +252,7 @@ export function getKarmaChangeDateRange({settings, now, lastOpened=null, lastBat
   now: Date,
   lastOpened?: Date|null,
   lastBatchStart?: Date|null,
-}): null|{start:any, end:any}
+}): null|{start: any, end: any}
 {
   // Greatest date prior to lastOpened at which the time of day matches
   // settings.timeOfDay.

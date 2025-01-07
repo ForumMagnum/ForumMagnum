@@ -1,33 +1,29 @@
 import React, { useState } from 'react';
-import NoSSR from 'react-no-ssr';
-import moment from 'moment';
-import classNames from 'classnames';
-import sortBy from 'lodash/sortBy';
-import findIndex from 'lodash/findIndex';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
 import { useMulti } from '../../lib/crud/withMulti';
-import { useTimezone } from '../common/withTimezone';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useUserLocation } from '../../lib/collections/users/helpers';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { getCityName } from '../localGroups/TabNavigationEventsList';
-import { isPostWithForeignId } from '../hooks/useForeignCrosspost';
 import { userHasEAHomeRHS } from '../../lib/betas';
-import { spotifyLogoIcon } from '../icons/SpotifyLogoIcon';
-import { pocketCastsLogoIcon } from '../icons/PocketCastsLogoIcon';
-import { applePodcastsLogoIcon } from '../icons/ApplePodcastsLogoIcon';
 import { useRecentOpportunities } from '../hooks/useRecentOpportunities';
-import { podcastAddictLogoIcon } from '../icons/PodcastAddictLogoIcon';
+import { useEAVirtualPrograms } from '../hooks/useEAVirtualPrograms';
+import DeferRender from '../common/DeferRender';
+
+/**
+ * The max screen width where the Home RHS is visible
+ */
+export const HOME_RHS_MAX_SCREEN_WIDTH = 1370
 
 const styles = (theme: ThemeType) => ({
   root: {
     paddingRight: 50,
     marginTop: 10,
     marginLeft: 50,
-    '@media(max-width: 1370px)': {
+    [`@media(max-width: ${HOME_RHS_MAX_SCREEN_WIDTH}px)`]: {
       display: 'none'
     }
   },
@@ -46,7 +42,7 @@ const styles = (theme: ThemeType) => ({
       width: 34,
       backgroundColor: theme.palette.grey[250],
     },
-    '@media(max-width: 1370px)': {
+    [`@media(max-width: ${HOME_RHS_MAX_SCREEN_WIDTH}px)`]: {
       display: 'none'
     }
   },
@@ -63,8 +59,24 @@ const styles = (theme: ThemeType) => ({
     fontFamily: theme.typography.fontFamily,
     marginBottom: 32,
   },
-  podcastsSection: {
-    rowGap: '6px',
+  wrappedAd: {
+    backgroundColor: theme.palette.wrapped.background,
+    color: theme.palette.text.alwaysWhite,
+    padding: '12px 24px',
+    borderRadius: theme.borderRadius.default,
+    '&:hover': {
+      opacity: 1,
+      backgroundColor: theme.palette.wrapped.darkBackground,
+    }
+  },
+  wrappedAdHeading: {
+    fontWeight: 600,
+    fontSize: 16,
+    lineHeight: '22px',
+    margin: 0
+  },
+  wrappedAdHighlight: {
+    color: theme.palette.wrapped.highlightText,
   },
   digestAd: {
     maxWidth: 280,
@@ -73,17 +85,6 @@ const styles = (theme: ThemeType) => ({
   sectionTitle: {
     fontSize: 12,
     lineHeight: '16px'
-  },
-  resourceLink: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    columnGap: 6,
-    color: theme.palette.primary.main,
-    fontWeight: 600,
-  },
-  resourceIcon: {
-    height: 16,
-    width: 16,
   },
   postTitle: {
     fontWeight: 600,
@@ -104,43 +105,20 @@ const styles = (theme: ThemeType) => ({
   },
   eventLocation: {
   },
-  podcastApps: {
-    display: 'grid',
-    gridTemplateColumns: "117px 138px",
-    columnGap: 7,
-    rowGap: '3px',
-    marginLeft: -3,
-    marginBottom: 2,
-  },
-  podcastApp: {
-    display: 'flex',
-    columnGap: 8,
-    alignItems: 'flex-end',
-    padding: 6,
-    borderRadius: theme.borderRadius.default,
-    '&:hover': {
-      backgroundColor: theme.palette.grey[200],
-      opacity: 1
-    }
-  },
-  podcastAppIcon: {
-    color: theme.palette.primary.main,
-  },
-  listenOn: {
-    color: theme.palette.text.dim3,
-    fontSize: 9,
-    fontWeight: 700,
-    textTransform: 'uppercase',
-    marginBottom: 2
-  },
-  podcastAppName: {
-    fontSize: 12,
-    fontWeight: 600,
-  },
   tooltip: {
     textAlign: "center",
     backgroundColor: `${theme.palette.panelBackground.tooltipBackground2} !important`,
     maxWidth: 156,
+  },
+  courseLink: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    columnGap: 6,
+    fontWeight: 600,
+  },
+  courseIcon: {
+    height: 16,
+    width: 16,
   },
   feedbackLink: {
     color: theme.palette.grey[600],
@@ -151,13 +129,30 @@ const styles = (theme: ThemeType) => ({
 });
 
 
+const WrappedAd = ({classes}: {
+  classes: ClassesType<typeof styles>,
+}) => {
+  const currentUser = useCurrentUser()
+  if (!currentUser) return null
+
+  return <AnalyticsContext pageSubSectionContext="wrappedAd">
+    <div className={classes.section}>
+      <Link to="/wrapped" className={classes.wrappedAd}>
+        <h2 className={classes.wrappedAdHeading}>
+          Your 2024 EA Forum
+          <div className={classes.wrappedAdHighlight}>Wrapped</div>
+        </h2>
+      </Link>
+    </div>
+  </AnalyticsContext>
+}
+
 /**
  * This is a list of upcoming (nearby) events. It uses logic similar to EventsList.tsx.
  */
 const UpcomingEventsSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { timezone } = useTimezone()
   const currentUser = useCurrentUser()
   const {lat, lng, known} = useUserLocation(currentUser, true)
   const upcomingEventsTerms: PostsViewTerms = lat && lng && known ? {
@@ -176,7 +171,10 @@ const UpcomingEventsSection = ({classes}: {
     fetchPolicy: 'cache-and-network',
   })
 
-  const {LWTooltip, SectionTitle, PostsItemTooltipWrapper} = Components;
+  const {LWTooltip, SectionTitle, PostsItemTooltipWrapper, FormatDate} = Components;
+  
+  if (!upcomingEvents?.length) return null
+
   return <AnalyticsContext pageSubSectionContext="upcomingEvents">
     <div className={classes.section}>
       <LWTooltip
@@ -187,13 +185,12 @@ const UpcomingEventsSection = ({classes}: {
         <SectionTitle
           title="Upcoming events"
           href="/events"
-          className={classes.sectionTitle}
+          titleClassName={classes.sectionTitle}
           noTopMargin
           noBottomPadding
         />
       </LWTooltip>
       {upcomingEvents?.map(event => {
-        const shortDate = moment(event.startTime).tz(timezone).format("MMM D")
         return <div key={event._id}>
           <div className={classes.postTitle}>
             <PostsItemTooltipWrapper post={event} As="span">
@@ -204,7 +201,7 @@ const UpcomingEventsSection = ({classes}: {
           </div>
           <div className={classes.postMetadata}>
             <span className={classes.eventDate}>
-              {shortDate}
+              {event.startTime && <FormatDate date={event.startTime} format={"MMM D"} />}
             </span>
             <span className={classes.eventLocation}>
               {event.onlineEvent ? "Online" : getCityName(event)}
@@ -231,25 +228,7 @@ export const EAHomeRightHandSide = ({classes}: {
   const {results: opportunityPosts} = useRecentOpportunities({
     fragmentName: "PostsListWithVotesAndSequence",
   });
-
-  const {results: savedPosts} = useMulti({
-    collectionName: "Posts",
-    terms: {
-      view: "myBookmarkedPosts",
-      limit: 3,
-    },
-    fragmentName: "PostsList",
-    fetchPolicy: "cache-and-network",
-    skip: !currentUser?._id,
-  })
-  // HACK: The results are not properly sorted, so we sort them here.
-  // See also comments in BookmarksList.tsx and the myBookmarkedPosts view.
-  const sortedSavedPosts = sortBy(savedPosts,
-    post => -findIndex(
-      currentUser?.bookmarkedPostsMetadata || [],
-      (bookmark) => bookmark.postId === post._id
-    )
-  )
+  const vpDates = useEAVirtualPrograms()
   
   const handleToggleSidebar = () => {
     if (!currentUser) return
@@ -268,7 +247,7 @@ export const EAHomeRightHandSide = ({classes}: {
   if (!userHasEAHomeRHS(currentUser)) return null
   
   const {
-    SectionTitle, PostsItemTooltipWrapper, PostsItemDate, LWTooltip, ForumIcon, DigestAd
+    SectionTitle, PostsItemTooltipWrapper, PostsItemDate, LWTooltip, ForumIcon, SidebarDigestAd, FormatDate
   } = Components
   
   const sidebarToggleNode = <div className={classes.sidebarToggle} onClick={handleToggleSidebar}>
@@ -277,64 +256,28 @@ export const EAHomeRightHandSide = ({classes}: {
     </LWTooltip>
   </div>
   
-  if (isHidden) return sidebarToggleNode
+  if (isHidden) {
+    // We include an empty root here so that when the sidebar is hidden,
+    // the center column is slightly closer to the center of the screen.
+    return <AnalyticsContext pageSectionContext="homeRhs">
+      {sidebarToggleNode}
+      <div className={classes.root}></div>
+    </AnalyticsContext>
+  }
   
   // NoSSR sections that could affect the logged out user cache
-  let digestAdNode = <DigestAd className={classes.digestAd} />
+  let digestAdNode = <SidebarDigestAd className={classes.digestAd} />
   let upcomingEventsNode = <UpcomingEventsSection classes={classes} />
   if (!currentUser) {
-    digestAdNode = <NoSSR>{digestAdNode}</NoSSR>
-    upcomingEventsNode = <NoSSR>{upcomingEventsNode}</NoSSR>
+    digestAdNode = <DeferRender ssr={false}>{digestAdNode}</DeferRender>
+    upcomingEventsNode = <DeferRender ssr={false}>{upcomingEventsNode}</DeferRender>
   }
-
-  // data for podcasts section
-  const podcasts = [{
-    url: 'https://open.spotify.com/show/3NwXq1GGCveAbeH1Sk3yNq',
-    icon: spotifyLogoIcon,
-    name: 'Spotify'
-  }, {
-    url: 'https://podcasts.apple.com/us/podcast/1657526204',
-    icon: applePodcastsLogoIcon,
-    name: 'Apple Podcasts'
-  }, {
-    url: 'https://pca.st/zlt4n89d',
-    icon: pocketCastsLogoIcon,
-    name: 'Pocket Casts'
-  }, {
-    url: 'https://podcastaddict.com/podcast/ea-forum-podcast-curated-popular/4160487',
-    icon: podcastAddictLogoIcon,
-    name: 'Podcast Addict'
-  }]
-  const podcastPost = '/posts/K5Snxo5EhgmwJJjR2/announcing-ea-forum-podcast-audio-narrations-of-ea-forum'
 
   return <AnalyticsContext pageSectionContext="homeRhs">
     {!!currentUser && sidebarToggleNode}
     <div className={classes.root}>
+      <WrappedAd classes={classes} />
       {digestAdNode}
-      
-      <AnalyticsContext pageSubSectionContext="resources">
-        <div className={classes.section}>
-          <SectionTitle title="Resources" className={classes.sectionTitle} noTopMargin noBottomPadding />
-          <div>
-            <Link to="/handbook" className={classes.resourceLink}>
-              <ForumIcon icon="BookOpen" className={classes.resourceIcon} />
-              The EA Handbook
-            </Link>
-          </div>
-          <div>
-            <Link to="https://www.effectivealtruism.org/virtual-programs/introductory-program" className={classes.resourceLink}>
-              <ForumIcon icon="ComputerDesktop" className={classes.resourceIcon} />
-              The Introductory EA Program
-            </Link>
-          </div>
-          <div>
-            <Link to="/groups" className={classes.resourceLink}>
-              <ForumIcon icon="UsersOutline" className={classes.resourceIcon} />
-              Discover EA groups
-            </Link>
-          </div>
-        </div>
-      </AnalyticsContext>
       
       {!!opportunityPosts?.length && <AnalyticsContext pageSubSectionContext="opportunities">
         <div className={classes.section}>
@@ -346,7 +289,7 @@ export const EAHomeRightHandSide = ({classes}: {
             <SectionTitle
               title="Opportunities"
               href="/topics/opportunities-to-take-action?sortedBy=magic"
-              className={classes.sectionTitle}
+              titleClassName={classes.sectionTitle}
               noTopMargin
               noBottomPadding
             />
@@ -360,7 +303,7 @@ export const EAHomeRightHandSide = ({classes}: {
               </PostsItemTooltipWrapper>
             </div>
             <div className={classes.postMetadata}>
-              Posted <PostsItemDate post={post} includeAgo />
+              Posted <PostsItemDate post={post} includeAgo useCuratedDate={false} />
             </div>
           </div>)}
         </div>
@@ -368,55 +311,33 @@ export const EAHomeRightHandSide = ({classes}: {
       
       {upcomingEventsNode}
       
-      {!!sortedSavedPosts?.length && <AnalyticsContext pageSubSectionContext="savedPosts">
+      <AnalyticsContext pageSubSectionContext="courses">
         <div className={classes.section}>
-          <SectionTitle
-            title="Saved posts"
-            href="/saved"
-            className={classes.sectionTitle}
-            noTopMargin
-            noBottomPadding
-          />
-          {sortedSavedPosts.map(post => {
-            let postAuthor = '[anonymous]'
-            if (post.user && !post.hideAuthor) {
-              postAuthor = post.user.displayName
-            }
-            const readTime = isPostWithForeignId(post) ? '' : `, ${post.readTimeMinutes} min`
-            return <div key={post._id}>
-              <div className={classes.postTitle}>
-                <PostsItemTooltipWrapper post={post} As="span">
-                  <Link to={postGetPageUrl(post)} className={classes.postTitleLink}>
-                    {post.title}
-                  </Link>
-                </PostsItemTooltipWrapper>
-              </div>
-              <div className={classes.postMetadata}>
-                {postAuthor}{readTime}
-              </div>
+          <LWTooltip
+            title="View more courses"
+            placement="top-start"
+            popperClassName={classes.tooltip}
+          >
+            <SectionTitle
+              title="Online courses"
+              href="https://www.effectivealtruism.org/virtual-programs?utm_source=ea_forum&utm_medium=rhs&utm_campaign=home_page"
+              titleClassName={classes.sectionTitle}
+              noTopMargin
+              noBottomPadding
+            />
+          </LWTooltip>
+          <div>
+            <Link
+              to="https://www.effectivealtruism.org/virtual-programs/introductory-program?utm_source=ea_forum&utm_medium=rhs&utm_campaign=home_page"
+              className={classes.courseLink}
+            >
+              <ForumIcon icon="ComputerDesktop" className={classes.courseIcon} />
+              The Introductory EA Program
+            </Link>
+            <div className={classes.postMetadata}>
+              Apply by <FormatDate date={vpDates.deadline.toISOString()} format={"MMM D"} tooltip={false} />,
+              starting <FormatDate date={vpDates.start.toISOString()} format={"MMM D"} tooltip={false} />
             </div>
-          })}
-        </div>
-      </AnalyticsContext>}
-      
-      <AnalyticsContext pageSubSectionContext="podcasts">
-        <div className={classNames(classes.section, classes.podcastsSection)}>
-          <SectionTitle
-            title="Listen to posts anywhere"
-            href={podcastPost}
-            className={classes.sectionTitle}
-            noTopMargin
-            noBottomPadding
-          />
-          <div className={classes.podcastApps}>
-            {podcasts.map(podcast => <Link key={podcast.name} to={podcast.url} target="_blank" rel="noopener noreferrer" className={classes.podcastApp}>
-                <div className={classes.podcastAppIcon}>{podcast.icon}</div>
-                <div>
-                  <div className={classes.listenOn}>Listen on</div>
-                  <div className={classes.podcastAppName}>{podcast.name}</div>
-                </div>
-              </Link>
-            )}
           </div>
         </div>
       </AnalyticsContext>

@@ -1,8 +1,8 @@
-import { testTable } from "../../lib/sql/tests/testHelpers";
-import BulkWriter from "../../lib/sql/BulkWriter";
-import InsertQuery from "../../lib/sql/InsertQuery";
-import UpdateQuery from "../../lib/sql/UpdateQuery";
-import DeleteQuery from "../../lib/sql/DeleteQuery";
+import { testTable } from "@/server/sql/tests/testHelpers";
+import BulkWriter from "@/server/sql/BulkWriter";
+import InsertQuery from "@/server/sql/InsertQuery";
+import UpdateQuery from "@/server/sql/UpdateQuery";
+import DeleteQuery from "@/server/sql/DeleteQuery";
 
 describe("BulkWriter", () => {
   it("insertOne creates an InsertQuery", () => {
@@ -15,6 +15,20 @@ describe("BulkWriter", () => {
   it("updateOne creates an UpdateQuery", () => {
     const queries = new BulkWriter(testTable, [
       {updateOne: {filter: {}, update: {}}},
+    ]).getQueries();
+    expect(queries).toHaveLength(1);
+    expect(queries[0] instanceof UpdateQuery).toBe(true);
+  });
+  it("updateOne creates an InsertQuery when upsert is true (and $set is defined)", () => {
+    const queries = new BulkWriter(testTable, [
+      {updateOne: {filter: {}, update: {$set: {b: 'hello'}}, upsert: true}},
+    ]).getQueries();
+    expect(queries).toHaveLength(1);
+    expect(queries[0] instanceof InsertQuery).toBe(true);
+  });
+  it("updateOne creates an UpdateQuery when upsert is true and $set is not defined", () => {
+    const queries = new BulkWriter(testTable, [
+      {updateOne: {filter: {}, update: {}, upsert: true}},
     ]).getQueries();
     expect(queries).toHaveLength(1);
     expect(queries[0] instanceof UpdateQuery).toBe(true);

@@ -25,7 +25,7 @@ export async function getWithLoader<N extends CollectionNameString>(
   baseQuery: any={},
   groupByField: string & keyof ObjectsByCollectionName[N],
   id: string,
-  projection: any=undefined,
+  options: MongoFindOptions<ObjectsByCollectionName[N]> | undefined = undefined,
 ): Promise<ObjectsByCollectionName[N][]> {
   if (!context.extraLoaders) {
     context.extraLoaders = {};
@@ -36,7 +36,7 @@ export async function getWithLoader<N extends CollectionNameString>(
         ...baseQuery,
         [groupByField]: {$in: docIDs}
       };
-      const queryResults: ObjectsByCollectionName[N][] = await Utils.Connectors.find(collection, query, projection);
+      const queryResults: ObjectsByCollectionName[N][] = await collection.find(query, options).fetch();
       const sortedResults = _.groupBy(queryResults, r=>r[groupByField]);
       return docIDs.map(id => sortedResults[id] || []);
     }, {
@@ -47,7 +47,12 @@ export async function getWithLoader<N extends CollectionNameString>(
   return await context.extraLoaders[loaderName].load(id);
 }
 
-export async function getWithCustomLoader<T, ID>(context: ResolverContext, loaderName: string, id: ID, idsToResults: (ids: Array<ID>)=>Promise<T[]>): Promise<T> {
+/**
+ * WARNING!  The function you pass in to the loader _must_ return records in the order that corresponds to the list of ids that gets passed in.
+ * By default, queries like `{ _id: { $in: ids } }` _do not_ return results in the same order as the ids passed in; you will likely need to manually reorder records you fetch like this.
+ * If you don't do this, you'll be returning field info with objects it doesn't belong to. 
+ */
+export async function getWithCustomLoader<T, ID>(context: ResolverContext, loaderName: string, id: ID, idsToResults: (ids: Array<ID>) => Promise<T[]>): Promise<T> {
   if (!context.extraLoaders[loaderName]) {
     context.extraLoaders[loaderName] = new DataLoader(idsToResults, { cache: true });
   }

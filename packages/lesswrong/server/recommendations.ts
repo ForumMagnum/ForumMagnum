@@ -13,12 +13,12 @@ import {
   recommendationsAlgorithmHasStrategy,
 } from '../lib/collections/users/recommendationSettings';
 import { isEAForum } from '../lib/instanceSettings';
-import SelectQuery from "../lib/sql/SelectQuery";
+import SelectQuery from "./sql/SelectQuery";
 import { getPositiveVoteThreshold } from '../lib/reviewUtils';
 import { getDefaultViewSelector } from '../lib/utils/viewUtils';
 import { EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID } from '../lib/collections/tags/collection';
 import RecommendationService from './recommendations/RecommendationService';
-import PgCollection from '../lib/sql/PgCollection';
+import PgCollection from './sql/PgCollection';
 
 const MINIMUM_BASE_SCORE = 50
 
@@ -224,7 +224,7 @@ const topPosts = async ({count, currentUser, algorithm, scoreFn}: {
   count: number,
   currentUser: DbUser|null,
   algorithm: DefaultRecommendationsAlgorithm,
-  scoreFn: (post: DbPost)=>number,
+  scoreFn: (post: DbPost) => number,
 }) => {
   const recommendablePostsMetadata  = await allRecommendablePosts({currentUser, algorithm});
 
@@ -258,7 +258,7 @@ const samplePosts = async ({count, currentUser, algorithm, sampleWeightFn}: {
   count: number,
   currentUser: DbUser|null,
   algorithm: DefaultRecommendationsAlgorithm,
-  sampleWeightFn: (post: DbPost)=>number,
+  sampleWeightFn: (post: DbPost) => number,
 }) => {
   const recommendablePostsMetadata  = await allRecommendablePosts({currentUser, algorithm});
 

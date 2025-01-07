@@ -153,19 +153,20 @@ const styles = (theme: ThemeType) => ({
 
 export type voteTooltipType = 'Showing votes by 1000+ Karma LessWrong users'|'Showing all votes'|'Showing votes from Alignment Forum members'
 
-const hasUnreadComments = (visitedDate : Date|null, lastCommentedAt : Date | null) => {
+const hasUnreadComments = (visitedDate: Date|null, lastCommentedAt: Date | null) => {
   if (!lastCommentedAt) return false
   if (!visitedDate) return true
   return visitedDate < lastCommentedAt
 }
 
-const ReviewVoteTableRow = ({ post, dispatch, costTotal, classes, expandedPostId, currentVote, showKarmaVotes, reviewPhase, reviewYear, voteTooltip }: {
+const ReviewVoteTableRow = ({ post, dispatch, costTotal, classes, expandedPostId, handleSetExpandedPost, currentVote, showKarmaVotes, reviewPhase, reviewYear, voteTooltip }: {
   post: PostsReviewVotingList,
   costTotal?: number,
   dispatch: React.Dispatch<SyntheticQualitativeVote>,
   showKarmaVotes: boolean,
-  classes:ClassesType,
+  classes: ClassesType,
   expandedPostId?: string|null,
+  handleSetExpandedPost: (post: PostsReviewVotingList) => void,
   currentVote: SyntheticQualitativeVote|null,
   reviewPhase: ReviewPhase,
   reviewYear: ReviewYear,
@@ -174,7 +175,7 @@ const ReviewVoteTableRow = ({ post, dispatch, costTotal, classes, expandedPostId
   const {
     PostsTitle, LWTooltip, PostsTooltip, MetaInfo, ReviewVotingButtons,
     PostsItemComments, PostsItem2MetaInfo, PostsItemReviewVote,
-    ReviewPostComments, KarmaVoteStripe,
+    ReviewPostComments, PostInteractionStripe,
   } = Components
 
   const currentUser = useCurrentUser()
@@ -182,7 +183,7 @@ const ReviewVoteTableRow = ({ post, dispatch, costTotal, classes, expandedPostId
   const [markedVisitedAt, setMarkedVisitedAt] = useState<Date|null>(null);
   const { recordPostView } = useRecordPostView(post);
   const markAsRead = () => {
-    recordPostView({post, extraEventProperties: {type: "markAsRead"}})
+    void recordPostView({post, extraEventProperties: {type: "markAsRead"}})
     setMarkedVisitedAt(new Date()) 
   }
 
@@ -201,6 +202,8 @@ const ReviewVoteTableRow = ({ post, dispatch, costTotal, classes, expandedPostId
       break;
     case 'Showing votes from Alignment Forum members':
       displayedVotes = afVotes;
+      break;
+    case 'Showing all votes':
       break;
   }
 
@@ -228,9 +231,9 @@ const ReviewVoteTableRow = ({ post, dispatch, costTotal, classes, expandedPostId
   // TODO: debug reviewCount = null
   return <AnalyticsContext pageElementContext="voteTableRow">
     <div className={classNames(classes.root, {[classes.expanded]: expanded, [classes.votingPhase]: reviewPhase === "VOTING" })} onClick={markAsRead}>
-      {showKarmaVotes && <KarmaVoteStripe post={post}/>}
+      {showKarmaVotes && <PostInteractionStripe post={post}/>}
       <div className={classNames(classes.postVote, {[classes.postVoteVotingPhase]: reviewPhase === "VOTING"})}>
-        <div className={classNames(classes.post, {[classes.postVotingPhase]: reviewPhase === "VOTING"})}>
+        <div className={classNames(classes.post, {[classes.postVotingPhase]: reviewPhase === "VOTING"})} onClick={() => handleSetExpandedPost(post)}>
           <PostsTooltip post={post} flip={false}>
             <PostsTitle post={post} showIcons={false} wrap curatedIconLeft={false} />
           </PostsTooltip>
@@ -249,7 +252,7 @@ const ReviewVoteTableRow = ({ post, dispatch, costTotal, classes, expandedPostId
             post={post}
           />
         </div>}
-        <div className={classes.commentsCount}>
+        <div className={classes.commentsCount} onClick={() => handleSetExpandedPost(post)}>
           <PostsItemComments
             small={false}
             commentCount={postGetCommentCount(post)}
@@ -293,7 +296,7 @@ const ReviewVoteTableRow = ({ post, dispatch, costTotal, classes, expandedPostId
           </LWTooltip>}
         </div>}
         {(reviewPhase === "NOMINATIONS" || reviewPhase === "VOTING") && eligibleToNominate(currentUser) && <div className={classNames(classes.votes, {[classes.votesVotingPhase]: reviewPhase === "VOTING"})}>
-          {!currentUserIsAuthor && <ReviewVotingButtons post={post} dispatch={dispatch} costTotal={costTotal} currentUserVote={currentVote} />}
+          {!currentUserIsAuthor && <div onClick={(e) => e.stopPropagation()}><ReviewVotingButtons post={post} dispatch={dispatch} costTotal={costTotal} currentUserVote={currentVote} /></div>}
           {currentUserIsAuthor && <MetaInfo className={classes.cantVote}>You can't vote on your own posts</MetaInfo>}
         </div>}
       </div>

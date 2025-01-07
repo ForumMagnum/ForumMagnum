@@ -4,12 +4,15 @@ import { siteUrlSetting, taggingNameIsSet, taggingNamePluralSetting } from "../.
 import { combineUrls } from "../../vulcan-lib";
 import { TagCommentType } from "../comments/types";
 import Users from "../users/collection";
+import { isFriendlyUI } from "../../../themes/forumTheme";
+import type { RouterLocation } from '../../vulcan-lib/routes';
+import type { Request, Response } from 'express';
 
 export const tagMinimumKarmaPermissions = forumSelect({
   // Topic spampocalypse defense
   EAForum: {
-    new: 10,
-    edit: 10,
+    new: 1,
+    edit: 1,
   },
   LessWrong: {
     new: 1,
@@ -26,6 +29,7 @@ type GetUrlOptions = {
   edit?: boolean,
   flagId?: string
   tab?: string
+  from?: string,
 }
 
 export const tagUrlBase = taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'
@@ -92,4 +96,40 @@ export const userCanModerateSubforum = (user: UsersCurrent | DbUser | null, tag:
 export const userIsSubforumModerator = (user: DbUser|UsersCurrent|null, tag: DbTag): boolean => {
   if (!user || !tag) return false;
   return tag.subforumModeratorIds?.includes(user._id);
+}
+
+/**
+ * Sort tags in order of: core-ness, score, name (alphabetical). If we don't have the scores, sort only by core-ness.
+ */
+export function stableSortTags<
+  T extends {name: string; core: boolean},
+  TR extends {baseScore: number} | null | undefined
+>(tagInfo: Array<{ tag: T; tagRel: TR }>): Array<{ tag: T; tagRel: TR }> {
+  return [...tagInfo].sort((a, b) => {
+    const tagA = a.tag;
+    const tagB = b.tag;
+    const tagRelA = a.tagRel;
+    const tagRelB = b.tagRel;
+
+    if (tagA.core !== tagB.core) {
+      // Core tags come first with isFriendlyUI, last otherwise
+      return (tagA.core ? -1 : 1) * (isFriendlyUI ? 1 : -1);
+    }
+
+    if (tagRelA && tagRelB) {
+      if (tagRelA.baseScore !== tagRelB.baseScore) {
+        return (tagRelB.baseScore || 0) - (tagRelA.baseScore || 0);
+      }
+
+      return tagA.name.localeCompare(tagB.name);
+    }
+
+    return 0;
+  });
+}
+
+export const tagRouteWillDefinitelyReturn200 = async (req: Request, res: Response, parsedRoute: RouterLocation, context: ResolverContext) => {
+  const tagSlug = parsedRoute.params.slug;
+  if (!tagSlug) return false;
+  return await context.repos.tags.tagRouteWillDefinitelyReturn200(tagSlug);
 }

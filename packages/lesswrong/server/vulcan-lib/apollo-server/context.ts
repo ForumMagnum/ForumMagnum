@@ -23,8 +23,8 @@ import { getAllRepos, UsersRepo } from '../../repos';
 import UserActivities from '../../../lib/collections/useractivities/collection';
 import { getCookieFromReq } from '../../utils/httpUtil';
 import { isEAForum } from '../../../lib/instanceSettings';
-import { userChangedCallback } from '../../../lib/vulcan-lib/callbacks';
 import { asyncLocalStorage } from '../../perfMetrics';
+import { visitorGetsDynamicFrontpage } from '../../../lib/betas';
 
 // From https://github.com/apollographql/meteor-integration/blob/master/src/server.js
 export const getUser = async (loginToken: string): Promise<DbUser|null> => {
@@ -62,11 +62,6 @@ const setupAuthToken = async (user: DbUser|null): Promise<{
   currentUser: DbUser|null,
 }> => {
   if (user) {
-    // identify user to any server-side analytics providers
-    await userChangedCallback.runCallbacks({
-      iterator: user,
-      properties: [],
-    });
     return {
       userId: user._id,
       currentUser: user,
@@ -106,10 +101,15 @@ export function requestIsFromGreaterWrong(req?: Request): boolean {
   return userAgent.startsWith("Dexador");
 }
 
-export const computeContextFromUser = async (user: DbUser|null, req?: Request, res?: Response): Promise<ResolverContext> => {
+export const computeContextFromUser = async ({user, req, res, isSSR}: {
+  user: DbUser|null,
+  req?: Request,
+  res?: Response,
+  isSSR: boolean
+}): Promise<ResolverContext> => {
   let visitorActivity: DbUserActivity|null = null;
   const clientId = req ? getCookieFromReq(req, "clientId") : null;
-  if ((user || clientId) && isEAForum) {
+  if ((user || clientId) && (isEAForum || visitorGetsDynamicFrontpage(user))) {
     visitorActivity = user ?
       await UserActivities.findOne({visitorId: user._id, type: 'userId'}) :
       await UserActivities.findOne({visitorId: clientId, type: 'clientId'});
@@ -122,6 +122,7 @@ export const computeContextFromUser = async (user: DbUser|null, req?: Request, r
     res,
     headers: (req as any)?.headers,
     locale: (req as any)?.headers ? getHeaderLocale((req as any).headers, null) : "en-US",
+    isSSR,
     isGreaterWrong: requestIsFromGreaterWrong(req),
     repos: getAllRepos(),
     clientId,
@@ -157,13 +158,17 @@ export function configureSentryScope(context: ResolverContext) {
   }
 }
 
-export const getUserFromReq = async (req: AnyBecauseTodo): Promise<DbUser|null> => {
+export const getUserFromReq = (req: AnyBecauseTodo): DbUser|null => {
   return req.user
   // return getUser(getAuthToken(req));
 }
 
-export async function getContextFromReqAndRes(req: Request, res: Response): Promise<ResolverContext> {
-  const user = await getUserFromReq(req);
-  const context = await computeContextFromUser(user, req, res);
+export async function getContextFromReqAndRes({req, res, isSSR}: {
+  req: Request,
+  res: Response,
+  isSSR: boolean
+}): Promise<ResolverContext> {
+  const user = getUserFromReq(req);
+  const context = await computeContextFromUser({user, req, res, isSSR});
   return context;
 }

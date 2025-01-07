@@ -1,75 +1,85 @@
 import React, { MouseEvent, useState, useCallback, useRef, useEffect } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
-import { styles as editorStyles, getInitialEditorContents } from "../editor/Editor";
-import { styles as buttonStyles } from "../form-components/FormSubmit";
-import { styles as submitButtonStyles } from "../posts/PostSubmit";
 import { useQuickTakesTags } from "./useQuickTakesTags";
-import { useCreate } from "../../lib/crud/withCreate";
-import type { Editor as EditorType }  from "../editor/Editor";
-import type {
+import {
+  COMMENTS_NEW_FORM_PADDING,
   CommentCancelCallback,
   CommentSuccessCallback,
 } from "../comments/CommentsNewForm";
-import Button from "@material-ui/core/Button";
 import classNames from "classnames";
+import { isFriendlyUI } from "../../themes/forumTheme";
+import { useDialog } from "../common/withDialog";
+import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
+
+const COLLAPSED_HEIGHT = 40;
 
 const styles = (theme: ThemeType) => ({
-  ...editorStyles(theme),
-  ...buttonStyles(theme),
   root: {
     background: theme.palette.panelBackground.default,
-    borderRadius: theme.borderRadius.default,
+    borderRadius: theme.borderRadius.quickTakesEntry,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    padding: 12,
     border: `1px solid ${theme.palette.grey[200]}`,
   },
   commentEditor: {
-    padding: "1px 10px",
-    background: theme.palette.grey[100],
-    borderTopLeftRadius: theme.borderRadius.default,
-    borderTopRightRadius: theme.borderRadius.default,
-    "& .ck-placeholder::before": {
-      color: theme.palette.grey[600],
-      fontFamily: theme.palette.fonts.sansSerifStack,
-      fontSize: 14,
-      fontWeight: 500,
+    "& .ck-placeholder": {
+      marginTop: isFriendlyUI ? "-3px !important" : undefined,
+      "&::before": {
+        color: isFriendlyUI ? theme.palette.grey[600] : undefined,
+        fontFamily: theme.palette.fonts.sansSerifStack,
+        fontSize: 14,
+        fontWeight: 500,
+      },
     },
   },
-  commentEditorBottomButtom: {
-    borderRadius: theme.borderRadius.default,
-  },
   collapsed: {
-    height: 40,
+    height: COLLAPSED_HEIGHT + (2 * COMMENTS_NEW_FORM_PADDING),
     overflow: "hidden",
-    borderBottomLeftRadius: theme.borderRadius.default,
-    borderBottomRightRadius: theme.borderRadius.default,
   },
-  editorButtonContainer: {
-    background: theme.palette.grey[100],
-    borderBottomLeftRadius: theme.borderRadius.default,
-    borderBottomRightRadius: theme.borderRadius.default,
-    textAlign: "right",
-    padding: "0 8px 8px 0",
+  commentForm: {
+    '& .form-input': {
+      margin: 0,
+      minHeight: 30,
+    },
+    '& .ck.ck-editor__editable_inline': {
+      border: "none !important",
+    },
+    '& .EditorTypeSelect-select': {
+      display: 'none',
+    },
   },
-  bottomButtonContainer: {
-    textAlign: "right",
-    marginTop: 8,
+  commentFormCollapsed: {
+    '& .form-input': {
+      height: COLLAPSED_HEIGHT,
+      overflow: 'hidden',
+      borderRadius: theme.borderRadius.quickTakesEntry,
+    },
+    '& .EditorFormComponent-commentEditorHeight': {
+      minHeight: 'unset'
+    },
+    '& .EditorFormComponent-commentEditorHeight .ck.ck-content': {
+      minHeight: 'unset'
+    },
+    '& .LocalStorageCheck-root': {
+      display: 'none',
+    },
+    '& .ck .ck-placeholder': {
+      position: 'unset'
+    },
+    '& .CommentsNewForm-submitQuickTakes': {
+      display: 'none'
+    }
   },
-  tagContainer: {
-    display: "flex",
-    flexWrap: "wrap",
-    rowGap: "4px",
-    alignItems: "center",
-    marginTop: 16,
+  userNotApprovedMessage: {
+    background: 'none',
+    border: 'none',
+    padding: '10px 10px 0 10px',
+    fontSize: 14,
+    color: theme.palette.grey[600],
+    fontStyle: 'italic',
   },
-  tagLabel: {
-    fontWeight: 600,
-    fontSize: 13,
-    marginRight: 8,
-  },
-  ...submitButtonStyles(theme),
 });
 
+// TODO: decide on copy for LW
 const placeholder = "Share exploratory, draft-stage, rough thoughts...";
 
 const QuickTakesEntry = ({
@@ -78,9 +88,6 @@ const QuickTakesEntry = ({
   defaultFocus = false,
   submitButtonAtBottom = false,
   className,
-  editorClassName,
-  tagsClassName,
-  buttonClassName,
   successCallback,
   cancelCallback,
   classes,
@@ -90,111 +97,51 @@ const QuickTakesEntry = ({
   defaultFocus?: boolean,
   submitButtonAtBottom?: boolean,
   className?: string,
-  editorClassName?: string,
-  tagsClassName?: string,
-  buttonClassName?: string,
   successCallback?: CommentSuccessCallback,
   cancelCallback?: CommentCancelCallback,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
-  const editorType = "ckEditorMarkup";
-  const editorRef = useRef<EditorType>(null);
-  const formRef = useRef<HTMLFormElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
+  const { openDialog } = useDialog();
+  const {onSignup} = useLoginPopoverContext();
   const [expanded, setExpanded] = useState(defaultExpanded);
-  const [loadingSubmit, setLoadingSubmit] = useState(false);
-  const [contents, setContents] = useState(() => getInitialEditorContents(
-    undefined,
-    null,
-    "contents",
-    currentUser,
-  ));
   const {
-    loading: loadingTags,
     frontpage,
     selectedTagIds,
-    tags,
-    frontpageTagId,
-    onTagSelected,
-    onTagRemoved,
   } = useQuickTakesTags();
-  const {create} = useCreate({
-    collectionName: "Comments",
-    fragmentName: "ShortformComments",
-  });
 
-  const onChange = useCallback(({contents}: AnyBecauseTodo) => {
-    setContents(contents);
-  }, []);
-
-  const lastSubmittedAt = useRef(0);
-
-  const onSubmit = useCallback(async (ev?: MouseEvent) => {
+  const onCancel = useCallback(async (ev?: MouseEvent) => {
     ev?.preventDefault();
+    setExpanded(false);
+    void cancelCallback?.();
+  }, [cancelCallback]);
 
-    // Prevent accidental double submits
-    if (Date.now() - lastSubmittedAt.current < 1000) {
-      return;
-    }
-    lastSubmittedAt.current = Date.now();
-
-    setLoadingSubmit(true);
-    try {
-      const contents = await editorRef.current?.submitData();
-      const response = await create({
-        data: {
-          shortform: true,
-          shortformFrontpage: frontpage,
-          relevantTagIds: selectedTagIds,
-          // There's some magic that makes this work even though it is missing
-          // some fields that are marked as required. It hard to work out exactly
-          // what's going on without getting lost in the seas of `any`.
-          // @ts-ignore
-          contents,
-        },
-      });
-      const comment = response.data?.createComment.data;
-      void successCallback?.(comment, {form: formRef.current});
-      editorRef.current?.clear(currentUser);
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.error(e);
-      void cancelCallback?.(e);
-    }
-    setLoadingSubmit(false);
-  }, [
-    create,
-    frontpage,
-    selectedTagIds,
-    successCallback,
-    cancelCallback,
-    currentUser,
-  ]);
-
-  const onFocus = useCallback(() => setExpanded(true), []);
-
-  useEffect(() => {
-    const form = formRef.current;
-    if (form) {
-      const handler = (event: KeyboardEvent) => {
-        if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
-          event.preventDefault();
-          event.stopPropagation();
-          void onSubmit();
-        }
+  const onFocus = useCallback(() => {
+    if (currentUser) {
+      setExpanded(true);
+    } else {
+      if (isFriendlyUI) {
+        onSignup();
+      } else {
+        openDialog({
+          componentName: "LoginPopup",
+          componentProps: {}
+        });
+        setExpanded(true);
       }
-      form.addEventListener("keydown", handler, {capture: true});
-      return () => form.removeEventListener("keydown", handler);
     }
-  }, [formRef, onSubmit]);
+  }, [currentUser, openDialog, onSignup]);
 
   useEffect(() => {
-    if (defaultFocus) {
-      // Only focus once we've finished rendering
-      setTimeout(() => {
-        editorRef.current?.focus();
-      }, 10);
-    }
-  }, [defaultFocus, editorRef]);
+    setTimeout(() => {
+      if (defaultFocus && ref.current) {
+        const editor = ref.current.querySelector("[contenteditable=\"true\"]");
+        (editor as HTMLDivElement | null)?.focus?.();
+      }
+    }, 0);
+    // This should only ever run on the first render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // TODO: The editor is currently pretty messed up if the user has enabled
   // the markdown editor in their user settings, unless we're positioning the
@@ -205,82 +152,36 @@ const QuickTakesEntry = ({
     return null;
   }
 
-  const {Editor, Loading, TagsChecklist} = Components;
-  const submitButton = (
-    <div className={classNames(buttonClassName, {
-      [classes.editorButtonContainer]: !submitButtonAtBottom,
-      [classes.bottomButtonContainer]: submitButtonAtBottom,
-    })}>
-      <Button
-        type="submit"
-        disabled={loadingSubmit}
-        className={classNames(classes.formButton, classes.submitButton)}
-        variant="contained"
-        color="primary"
-        onClick={onSubmit}
-      >
-        {loadingSubmit
-          ? <Loading />
-          : "Publish"
-        }
-      </Button>
-    </div>
-  );
-  return (
-    <form
-      ref={formRef}
-      className={classNames(classes.root, className)}
+  // is true when user is logged out or has not been reviewed yet, i.e. has made no contributions yet
+  const showNewUserMessage = !currentUser?.reviewedByUserId && !isFriendlyUI;
+
+  const {CommentsNewForm} = Components;
+  return <div className={classNames(classes.root, className)} ref={ref}>
+    {/* TODO: Write a better message for new users */}
+    {expanded && showNewUserMessage && <div className={classes.userNotApprovedMessage}>Quick Takes is an excellent place for your first contribution!</div>}
+    <div
+      className={classNames(classes.commentEditor, {[classes.collapsed]: !expanded})}
+      onFocus={onFocus}
     >
-      <div className={classNames(classes.commentEditor, editorClassName, {
-        [classes.commentEditorBottomButtom]: submitButtonAtBottom,
-        [classes.collapsed]: !expanded,
-      })}>
-        <Editor
-          ref={editorRef}
-          currentUser={currentUser}
-          formType="new"
-          collectionName="Comments"
-          fieldName="contents"
-          initialEditorType={editorType}
-          isCollaborative={false}
-          quickTakesStyles
-          commentEditor
-          value={contents}
-          onChange={onChange}
-          onFocus={onFocus}
-          placeholder={placeholder}
-          _classes={classes}
-        />
-      </div>
-      {expanded &&
-        <>
-          {!submitButtonAtBottom && submitButton}
-          {loadingTags
-            ? <Loading />
-            : (
-              <div className={classNames(classes.tagContainer, tagsClassName)}>
-                <span className={classes.tagLabel}>Set topic</span>
-                <TagsChecklist
-                  tags={tags}
-                  displaySelected="highlight"
-                  selectedTagIds={[
-                    ...(frontpage ? [frontpageTagId] : []),
-                    ...selectedTagIds,
-                  ]}
-                  onTagSelected={onTagSelected}
-                  onTagRemoved={onTagRemoved}
-                  tooltips={false}
-                  truncate
-                  smallText
-                />
-              </div>
-            )
-          }
-          {submitButtonAtBottom && submitButton}
-        </>
-      }
-    </form>
-  );
+      <CommentsNewForm
+        key={currentUser?._id ?? "logged-out"}
+        type='reply'
+        prefilledProps={{
+          shortform: true,
+          shortformFrontpage: frontpage,
+          relevantTagIds: selectedTagIds,
+        }}
+        enableGuidelines={false}
+        className={classNames(classes.commentForm, {
+          [classes.commentFormCollapsed]: !expanded,
+        })}
+        cancelCallback={onCancel}
+        successCallback={successCallback}
+        overrideHintText={placeholder}
+        quickTakesSubmitButtonAtBottom={submitButtonAtBottom}
+      />
+    </div>
+  </div>
 }
 
 const QuickTakesEntryComponent = registerComponent(

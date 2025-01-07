@@ -32,7 +32,7 @@ const PostsTopSequencesNav = ({post, classes}: {
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
 
-  const handleKey = useCallback((ev) => {
+  const handleKey = useCallback((ev: KeyboardEvent) => {
     // Only if Shift and no other modifiers
     if (ev.shiftKey && !ev.ctrlKey && !ev.altKey && !ev.metaKey) {
       // Check the targe of the event; we don't want to navigate if you're

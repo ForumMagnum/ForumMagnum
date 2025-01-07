@@ -1,6 +1,5 @@
 import React, { useRef, useEffect, RefObject } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
-import { sortTags } from "./FooterTagList";
 import { recalculateTruncation } from "../../lib/truncateUtils";
 import classNames from "classnames";
 
@@ -49,7 +48,7 @@ const TruncatedTagsList = ({post, expandContainer, className, classes}: {
 }) => {
   const ref = useRef<HTMLDivElement>(null);
 
-  const tags = post.tags ? sortTags(post.tags, (t) => t) : null;
+  const tags = post.tags;
 
   useEffect(() => {
     if (!tags?.length) {

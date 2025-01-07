@@ -68,10 +68,11 @@ export default {
   globals: {
     bundleIsServer: true,
     bundleIsTest: true,
+    bundleIsE2E: false,
     bundleIsProduction: false,
     bundleIsMigrations: false,
+    enableVite: false,
     defaultSiteAbsoluteUrl: "",
-    serverPort: 3000,
   },
 
   // The maximum amount of workers used to run your tests. Can be specified as % or a number. E.g. maxWorkers: 10% will use 10% of your CPU amount + 1 as the maximum worker number. maxWorkers: 2 will use a maximum of 2 workers.
@@ -91,9 +92,6 @@ export default {
   //   "tsx",
   //   "node"
   // ],
-
-  // A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
-  // moduleNameMapper: {},
 
   // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
   // modulePathIgnorePatterns: [],
@@ -192,11 +190,33 @@ export default {
     ],
   },
 
-  // An array of regexp pattern strings that are matched against all source file paths, matched files will skip transformation
-  // transformIgnorePatterns: [
-  //   "/node_modules/",
-  //   "\\.pnp\\.[^\\/]+$"
-  // ],
+  moduleNameMapper: {
+    // Should match "paths" in tsconfig.json
+    "@/allComponents": "<rootDir>/packages/lesswrong/lib/generated/allComponents",
+    "@/client/(.*)": "<rootDir>/packages/lesswrong/stubs/client/$1",
+    "@/viteClient/(.*)": "<rootDir>/packages/lesswrong/stubs/viteClient/$1",
+    "@/(.*)": "<rootDir>/packages/lesswrong/$1",
+    // An incantation found at https://github.com/axios/axios/issues/5101
+    '^axios$': require.resolve('axios'),
+  },
+
+  // react-instantsearch contains a file (connectors.js) that requires
+  // compilation, which is technically not kosher for things that live in
+  // node_modules. By default, jest will not compile it and try to use it
+  // as-is, causing unit tests with an import path leading to that file to
+  // fail (even if it's an indirect import and nothing from the library is
+  // actually exercised by the test). To fix this, we override jest's default
+  // transformIgnorePatterns, telling it that it can skip transforming things
+  // inside node_modules... except for react-instantsearch.
+  //
+  // This issue appears in react-instantsearch starting in 6.9.0. We upgrade
+  // from 6.8.2 to 6.40.4 for React 18 compatibility. There's also a
+  // react-instantsearch 7.x, which might fix this issue, but it has major API
+  // changes. If we've done *that* upgrade, this block might no longer be
+  // necessary.
+  transformIgnorePatterns: [
+    "/node_modules/(?!(react-instantsearch|@extractus|bellajs)/)"
+  ],
 
   // An array of regexp pattern strings that are matched against all modules before the module loader will automatically return a mock for them
   // unmockedModulePathPatterns: undefined,

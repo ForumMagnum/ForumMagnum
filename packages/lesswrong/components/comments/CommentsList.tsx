@@ -7,16 +7,35 @@ import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
 import type { CommentTreeNode } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
+import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   button: {
     color: theme.palette.lwTertiary.main
+  },
+  commentsListLoadingSpacer: {
+    minHeight: '100vh',
+  },
+  expandOptions: {
+    fontSize: 14,
+    clear: 'both',
+    marginTop: 24,
+    marginBottom: 10,
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    color: theme.palette.grey[600]
+  },
+  settingsLabel: {
+    [theme.breakpoints.down('xs')]: {
+      display: "none",
+    },
   },
 })
 
 export const POST_COMMENT_COUNT_TRUNCATE_THRESHOLD = 70
 
-const CommentsListFn = ({treeOptions, comments, totalComments=0, startThreadTruncated, parentAnswerId, defaultNestingLevel=1, parentCommentId, classes}: {
+const CommentsListFn = ({treeOptions, comments, totalComments=0, startThreadTruncated, parentAnswerId, defaultNestingLevel=1, parentCommentId, loading, classes}: {
   treeOptions: CommentTreeOptions,
   comments: Array<CommentTreeNode<CommentsList>>,
   totalComments?: number,
@@ -24,20 +43,21 @@ const CommentsListFn = ({treeOptions, comments, totalComments=0, startThreadTrun
   parentAnswerId?: string,
   defaultNestingLevel?: number,
   parentCommentId?: string,
-  classes: ClassesType,
+  loading?: boolean,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const [expandAllThreads,setExpandAllThreads] = useState(false);
   
   useOnSearchHotkey(() => setExpandAllThreads(true));
 
-  const { CommentsNode, SettingsButton, CommentsListMeta, LoginPopupButton, LWTooltip } = Components
+  const { CommentsNode, SettingsButton, LoginPopupButton, LWTooltip } = Components
   
   const renderExpandOptions = () => {
     if  (totalComments > POST_COMMENT_COUNT_TRUNCATE_THRESHOLD) {
       const expandTooltip = `Posts with more than ${POST_COMMENT_COUNT_TRUNCATE_THRESHOLD} comments automatically truncate replies with less than ${TRUNCATION_KARMA_THRESHOLD} karma. Click or press ⌘F to expand all.`
 
-      return <CommentsListMeta>
+      return <div className={classes.expandOptions}>
         <span>
           Some comments are truncated due to high volume. <LWTooltip title={expandTooltip}>
             <a className={!expandAllThreads ? classes.button : undefined} onClick={()=>setExpandAllThreads(true)}>(⌘F to expand all)</a>
@@ -46,14 +66,22 @@ const CommentsListFn = ({treeOptions, comments, totalComments=0, startThreadTrun
         {currentUser 
           ? <LWTooltip title="Go to your settings page to update your Comment Truncation Options">
               <Link to="/account">
-                <SettingsButton label="Change default truncation settings" />
+                <SettingsButton label={
+                  <span className={classes.settingsLabel}>
+                    Change default truncation settings
+                  </span>
+                }/>
               </Link>
             </LWTooltip>
           : <LoginPopupButton title={"Login to change default truncation settings"}>
-              <SettingsButton label="Change truncation settings" />
+              <SettingsButton label={
+                <span className={classes.settingsLabel}>
+                  Change truncation settings
+                </span>
+              }/>
             </LoginPopupButton>
         }
-      </CommentsListMeta>
+      </div>
     }
   }
 
@@ -64,7 +92,9 @@ const CommentsListFn = ({treeOptions, comments, totalComments=0, startThreadTrun
   }
   return <Components.ErrorBoundary>
     {renderExpandOptions()}
-    <div>
+    {/* commentsListLoadingSpacer makes the comments list keep a minimum height while reloading a different comment
+        sorting view, so that the scroll position doesn't move. */}
+    <div className={classNames({[classes.commentsListLoadingSpacer]: loading})}>
       {comments.map(comment =>
         <CommentsNode
           treeOptions={treeOptions}

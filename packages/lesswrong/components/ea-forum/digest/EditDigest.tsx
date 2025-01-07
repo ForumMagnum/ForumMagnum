@@ -39,7 +39,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     flex: '1 1 0'
   },
   copyDigest: {
-    alignSelf: 'center',
   },
   copyDigestIcon: {
     color: theme.palette.primary.main,
@@ -139,7 +138,7 @@ type DigestPlannerPostData = {
   digestPost: DigestPost
   rating: number
 }
-export type PostWithRating = PostsListWithVotes & {rating:number}
+export type PostWithRating = PostsListWithVotes & {rating: number}
 export type DigestPost = {
   _id: string,
   emailDigestStatus: InDigestStatusOption,
@@ -153,7 +152,7 @@ type TagUsage = {
 }
 
 
-const EditDigest = ({classes}:{classes: ClassesType}) => {
+const EditDigest = ({classes}: {classes: ClassesType}) => {
   const {params} = useLocation()
   const {flash} = useMessages()
   const currentUser = useCurrentUser()

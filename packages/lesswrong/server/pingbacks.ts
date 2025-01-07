@@ -1,8 +1,9 @@
 import { cheerioParse } from './utils/htmlUtil';
 import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
 import { getSiteUrl } from '../lib/vulcan-lib/utils';
-import { classifyHost, getUrlClass } from '../lib/routeUtil';
+import { classifyHost } from '../lib/routeUtil';
 import * as _ from 'underscore';
+import { getUrlClass } from './utils/getUrlClass';
 
 // Given an HTML document, extract the links from it and convert them to a set
 // of pingbacks, formatted as a dictionary from collection name -> array of
@@ -10,7 +11,7 @@ import * as _ from 'underscore';
 //   html: The document to extract links from
 //   exclusions: An array of documents (as
 //     {collectionName,documentId}) to exclude. Used for excluding self-links.
-export const htmlToPingbacks = async (html: string, exclusions?: Array<{collectionName:string, documentId:string}>|null): Promise<Partial<Record<CollectionNameString, Array<string>>>> => {
+export const htmlToPingbacks = async (html: string, exclusions?: Array<{collectionName: string, documentId: string}>|null): Promise<Partial<Record<CollectionNameString, Array<string>>>> => {
   const URLClass = getUrlClass()
   const links = extractLinks(html);
   

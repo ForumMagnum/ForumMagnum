@@ -3,12 +3,13 @@ import React, { ReactNode, useRef } from 'react';
 import { createStyles } from '@material-ui/core/styles';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { getSearchClient } from '../../../lib/search/searchUtil';
-import { Configure, connectSearchBox, connectStateResults, Hits, InstantSearch, Pagination } from 'react-instantsearch-dom';
+import { Configure, connectSearchBox, connectStateResults, Hits, Pagination } from 'react-instantsearch-dom';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import { distance } from './LocalGroups';
 import { useTracking } from '../../../lib/analyticsEvents';
 import type { BasicDoc, SearchBoxProvided, StateResultsProvided } from 'react-instantsearch-core';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { InstantSearch } from '../../../lib/utils/componentsWithChildren';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   filters: {
@@ -196,6 +197,8 @@ const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locatio
 
   const { NewConversationButton, SearchResultsMap, ContentStyles, ForumIcon } = Components
   
+  // FIXME: Unstable component will lose state on rerender
+  // eslint-disable-next-line react/no-unstable-nested-components
   const SearchBox: React.FunctionComponent<SearchBoxProvided> = ({currentRefinement, refine}) => {
     return <div className={classes.keywordSearch}>
       <OutlinedInput
@@ -219,6 +222,8 @@ const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locatio
   }
   const CustomSearchBox = connectSearchBox(SearchBox)
   
+  // FIXME: Unstable component will lose state on rerender
+  // eslint-disable-next-line react/no-unstable-nested-components
   const StateResults: React.FunctionComponent<StateResultsProvided<BasicDoc>> = ({ searchResults }) => {
     return (!searchResults || !searchResults.nbHits) ? <div className={classes.noResults}>
       <div className={classes.noResultsText}>No public profiles matching your search</div>
@@ -226,6 +231,8 @@ const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locatio
   }
   const CustomStateResults = connectStateResults(StateResults)
   
+  // FIXME: Unstable component will lose state on rerender
+  // eslint-disable-next-line react/no-unstable-nested-components
   const CommunityMember = ({hit}: {
     hit: SearchUser,
   }) => {

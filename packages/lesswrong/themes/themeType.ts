@@ -3,10 +3,11 @@ import type { Color as MuiColorShades } from '@material-ui/core';
 import type { PartialDeep, Merge } from 'type-fest'
 import type { ForumTypeString } from '../lib/instanceSettings';
 import type { UnionOf } from '../lib/utils/typeGuardUtils';
-import { userThemeNames, userThemeSettings, muiThemeNames } from './themeNames';
+import type { ZIndexMap } from './zIndexes';
+import { userThemeNames, userThemeSettings, muiThemeNames, ThemeOptions } from './themeNames';
 
 declare global {
-  type BreakpointName = "xs"|"sm"|"md"|"lg"|"xl"|"tiny"
+  type BreakpointName = "xs"|"sm"|"md"|"lg"|"xl"
   type ColorString = string;
 
   /**
@@ -106,7 +107,21 @@ declare global {
     },
     warning: {
       main: ColorString,
-    }
+    },
+    petrov: {
+      launchButtonBorder: ColorString,
+      red: ColorString,
+      darkRed: ColorString,
+      red2: ColorString,
+      darkRed2: ColorString,
+      color1: ColorString,
+      color2: ColorString,
+      color3: ColorString,
+      color4: ColorString,
+    },
+    fundraisingThermometer: {
+      shadow: ColorString,
+    },
     text: {
       primary: ColorString,
       secondary: ColorString
@@ -154,6 +169,10 @@ declare global {
       primaryDarkOnDim: ColorString,
       contentHeader?: ColorString,
     
+      reviewWinner: {
+        title: ColorString,
+        author: ColorString,
+      }
       reviewUpvote: ColorString,
       reviewDownvote: ColorString,
       reviewBallotIcon: ColorString,
@@ -164,7 +183,7 @@ declare global {
         yellow: ColorString,
         green: ColorString,
       },
-
+      
       debateComment: {
         [1]: ColorString,
         [2]: ColorString,
@@ -173,6 +192,8 @@ declare global {
         [5]: ColorString,
         [6]: ColorString,
       },
+
+      jargonTerm: ColorString,
     },
     linkHover: {
       dim: ColorString,
@@ -186,6 +207,7 @@ declare global {
       tocLink: ColorString,
       tocLinkHighlighted: ColorString,
       primaryDim: ColorString,
+      color?: ColorString,
       visited: ColorString
       visitedHover?: ColorString,
     },
@@ -202,6 +224,7 @@ declare global {
       dim4: ColorString,
       dim5: ColorString,
       dim6: ColorString,
+      dim05: ColorString,
       dim600: ColorString,
       dim700: ColorString,
       dim55: ColorString,
@@ -219,8 +242,9 @@ declare global {
       yellow: ColorString,
       recentDiscussionGreen: ColorString,
       recentDiscussionGrey: ColorString,
+      headerKarma: ColorString,
       activeDotOrange: ColorString,
-
+      
       commentsBubble: {
         commentCount: ColorString,
         noUnread: ColorString,
@@ -240,6 +264,7 @@ declare global {
       grey200: string,
       grey300: string,
       grey400: string,
+      grey800: string,
       maxIntensity: string,
       tableHeadingDivider: string,
       table: string,
@@ -258,7 +283,7 @@ declare global {
       primaryTranslucent: string,
       dashed500: string,
       mentionsBaloon: string,
-      wrappedSummary: string,
+      eaButtonGreyOutline: string,
     },
     panelBackground: {
       default: ColorString,
@@ -297,6 +322,10 @@ declare global {
       recentDiscussionThread: ColorString,
       tooltipBackground: ColorString,
       tooltipBackground2: ColorString,
+      mapboxTooltip: ColorString,
+      modalBackground: ColorString,
+      loginInput: ColorString,
+      loginInputHovered: ColorString,
       tenPercent: ColorString,
       sunshineReportedContent: ColorString,
       sunshineFlaggedUser: ColorString,
@@ -314,6 +343,10 @@ declare global {
       strawpoll: ColorString,
       userProfileImageHover: ColorString,
       userProfileImageLoading: string,
+      reviewGold: ColorString
+      onboardingSection: ColorString,
+      onboardingPodcast: ColorString,
+      placeholderGradient: ColorString,
     },
     boxShadow: {
       default: string,
@@ -374,6 +407,15 @@ declare global {
         selected: ColorString,
         selectedHover: ColorString,
       },
+      digestAdBannerNoThanks: {
+        background: ColorString,
+        hoverBackground: ColorString,
+      },
+    },
+    sideItemIndicator: {
+      sideComment: ColorString,
+      inlineReaction: ColorString,
+      footnote: ColorString,
     },
     tag: {
       text: ColorString,
@@ -389,7 +431,25 @@ declare global {
       hollowTagBorder: string,
       boxShadow: string,
       addTagButtonBackground: ColorString,
+      onboardingBackground: ColorString,
+      onboardingBackgroundHover: ColorString,
+      onboardingBackgroundSelected: ColorString,
     },
+    tab: {
+      inactive: {
+        text: ColorString,
+        hover: {
+          text: ColorString,
+        }
+      },
+      active: {
+        text: ColorString,
+        background: ColorString
+        hover: {
+          background: ColorString,
+        }
+      },
+    }
     geosuggest: {
       dropdownBackground: ColorString,
       dropdownText: ColorString,
@@ -402,13 +462,24 @@ declare global {
       activeProgress: ColorString,
       progressBar: ColorString,
       adminButton: ColorString,
+      winner: ColorString,
     },
+    leastwrong: {
+      fadeOut: ColorString,
+      imageGridHeaderHighlighted: ColorString,
+      imageGridHeader: ColorString,
+      highlightedPost: ColorString,
+      imageGridBackground: ColorString,
+      postBodyScrim: ColorString,
+    }
     background: {
       default: ColorString
       paper: ColorString,
       contrastInDarkMode: ColorString,
       pageActiveAreaBackground: ColorString,
       translucentBackground: ColorString,
+      translucentBackgroundHeavy: ColorString,
+      loginBackdrop: ColorString,
       diffInserted: ColorString,
       diffDeleted: ColorString,
       usersListItem: ColorString,
@@ -419,6 +490,9 @@ declare global {
       warningTranslucent: ColorString,
       transparent: ColorString,
       imageOverlay: ColorString,
+      digestAdBannerInput: ColorString,
+      glossaryBackground: ColorString,
+      sidenoteBackground: ColorString,
     },
     header: {
       text: ColorString,
@@ -467,22 +541,37 @@ declare global {
 
     wrapped: {
       background: ColorString,
+      darkBackground: ColorString,
       highlightText: ColorString,
       secondaryText: ColorString,
       tertiaryText: ColorString,
       black: ColorString,
-      darkGrey: ColorString,
-      grey: ColorString,
       darkDot: ColorString,
       panelBackground: ColorString,
       panelBackgroundDark: ColorString,
-      postScoreArrow: ColorString,
+      postScore: ColorString,
+      notification: ColorString,
+      emptyPath: ColorString,
+      metaText: ColorString,
+      personality: {
+        transparent: ColorString,
+        grey: ColorString,
+        red: ColorString,
+        blue: ColorString,
+        green: ColorString,
+      },
     },
-    dialogueMatching: {
-      checkedNotMatched: ColorString,
-      checkedMatched: ColorString,
-      optIn: ColorString,
-      warning: ColorString,
+    givingSeason: {
+      primary: ColorString,
+      electionFundBackground: ColorString,
+      electionFundBackgroundHeavy: ColorString,
+      portalPrimary: ColorString,
+      candidateBorder: ColorString,
+      candidateBackground: ColorString,
+      candidateShadow: ColorString,
+      candidateOrder: ColorString,
+      heart: ColorString,
+      mobileBannerOverlay: ColorString
     },
     namesAttachedReactions: {
       selectedAnti: ColorString,
@@ -492,13 +581,14 @@ declare global {
   
   type ThemeType = {
     forumType: ForumTypeString,
+    themeOptions: ThemeOptions,
 
     baseFontSize: number,
     
     breakpoints: {
       /** Down is *inclusive* - down(sm) will go up to the md breakpoint */
-      down:  (breakpoint: BreakpointName|number)=>string,
-      up: (breakpoint: BreakpointName|number)=>string,
+      down:  (breakpoint: BreakpointName|number) => string,
+      up: (breakpoint: BreakpointName|number) => string,
       values: Record<BreakpointName,number>,
     },
     spacing: {
@@ -509,11 +599,12 @@ declare global {
     borderRadius: {
       default: number,
       small: number,
+      quickTakesEntry: number,
     },
     palette: ThemePalette,
     typography: {
       fontFamily: string,
-      fontDownloads: string[],
+      fontDownloads?: string[],
       cloudinaryFont: {
         stack: string,
         url: string,
@@ -521,7 +612,6 @@ declare global {
 
       postStyle: JssStyles,
       commentStyle: JssStyles,
-      commentStyles: JssStyles,
       commentBlockquote: JssStyles,
       commentHeader: JssStyles,
       errorStyle: JssStyles,
@@ -545,20 +635,17 @@ declare global {
       codeblock: JssStyles,
       contentNotice: JssStyles,
       uiSecondary: JssStyles,
-      smallFont: JssStyles,
       smallText: JssStyles,
       tinyText: JssStyles,
       caption: JssStyles,
       blockquote: JssStyles,
-      uiStyle: JssStyles,
       italic: JssStyles,
       smallCaps: JssStyles,
     },
-    zIndexes: any,
+    zIndexes: ZIndexMap,
     overrides: any,
     postImageStyles: JssStyles,
     voting: {strongVoteDelay: number},
-    secondary: any,
     
     // Used by material-UI. Not used by us directly (for our styles use
     // `theme.palette.boxShadow` which defines shadows semantically rather than
@@ -567,20 +654,22 @@ declare global {
     
     rawCSS: string[],
   };
+
+  type NativeThemeType = Omit<ThemeType,"palette"|"forumType"|"themeOptions"|"breakpoints"> & { breakpoints: Omit<ThemeType["breakpoints"], "up"|"down"> };
   
   type BaseThemeSpecification = {
     shadePalette: ThemeShadePalette,
     componentPalette: (shadePalette: ThemeShadePalette) => ThemeComponentPalette,
-    make: (palette: ThemePalette) => PartialDeep<Omit<ThemeType,"palette">>
+    make: (palette: ThemePalette) => NativeThemeType
   };
   type SiteThemeSpecification = {
     shadePalette?: PartialDeep<ThemeShadePalette>,
     componentPalette?: (shadePalette: ThemeShadePalette) => PartialDeep<ThemeComponentPalette>,
-    make?: (palette: ThemePalette) => PartialDeep<Omit<ThemeType,"palette">>
+    make?: (palette: ThemePalette) => PartialDeep<NativeThemeType>
   };
   type UserThemeSpecification = {
     shadePalette?: PartialDeep<ThemeShadePalette>,
     componentPalette?: (shadePalette: ThemeShadePalette) => PartialDeep<ThemeComponentPalette>,
-    make?: (palette: ThemePalette) => PartialDeep<Omit<ThemeType,"palette">>
+    make?: (palette: ThemePalette) => PartialDeep<NativeThemeType>
   };
 }

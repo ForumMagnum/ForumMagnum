@@ -11,7 +11,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SunshineNewTagsList = ({ classes }:{classes:ClassesType}) => {
+const SunshineNewTagsList = ({ classes }: {classes: ClassesType}) => {
   const { results, totalCount, loadMoreProps } = useMulti({
     terms: {view:"unreviewedTags", limit: 30 },
     collectionName: "Tags",

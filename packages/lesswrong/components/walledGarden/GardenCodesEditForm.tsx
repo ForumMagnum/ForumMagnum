@@ -1,5 +1,4 @@
 import React from 'react';
-import { GardenCodes } from '../../lib/collections/gardencodes/collection';
 import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
 import { gardenForm } from './GardenCodeWidget';
 
@@ -9,8 +8,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-export const GardenCodesEditForm = ({classes, gardenCodeId, cancelCallback, successCallback}:{
-  classes:ClassesType,
+export const GardenCodesEditForm = ({classes, gardenCodeId, cancelCallback, successCallback}: {
+  classes: ClassesType,
   gardenCodeId: string,
   successCallback?: any,
   cancelCallback?: any,

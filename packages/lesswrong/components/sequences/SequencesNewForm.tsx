@@ -58,7 +58,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
       paddingBottom: 50,
       overflow: "hidden",
   
-      "& .form-input": {
+      "& .form-input, & .FormGroupLayout-formSection": {
         maxWidth: 640,
         position: "relative !important",
         left: 45,
@@ -67,6 +67,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
         [theme.breakpoints.down('sm')]: {
           left: 0,
           padding: "0 10px",
+        },
+        "& .form-input": {
+          left: 0
         }
       },
       "& .form-input.input-title, &.input-bannerImageId": {
@@ -122,12 +125,20 @@ export const styles = (theme: ThemeType): JssStyles => ({
         top: 15,
         [theme.breakpoints.down('sm')]: {
           left: 15,
-          top: 40,
+          top: 50,
         },
-        [legacyBreakpoints.maxTiny]: {
-          left: 12,
-          top: 15,
-        }
+      },
+      "& .image-remove-button": {
+        [theme.breakpoints.down('sm')]: {
+          position: "absolute !important",
+          left: 6,
+          top: 102,
+          background: theme.palette.buttons.imageUpload.background,
+          "&:hover": {
+            background: theme.palette.buttons.imageUpload.hoverBackground,
+          },
+          color: theme.palette.text.invertedBackgroundText,
+        },
       },
     
       position: "absolute",

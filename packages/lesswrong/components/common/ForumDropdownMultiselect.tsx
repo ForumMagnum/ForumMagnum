@@ -8,7 +8,7 @@ import classNames from 'classnames';
 import { SettingsOption } from '../../lib/collections/posts/dropdownOptions';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
@@ -49,10 +49,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   dropdownIcon: {
     verticalAlign: "middle",
     position: "relative",
-    ...(isFriendlyUI && { width: 16, height: 16, marginLeft: 4, padding: 1}),
-  },
-  padding: {
-    width: 10,
+    ...(isFriendlyUI && { width: 10, fontSize: "18px!important", height: 12, marginLeft: 4, padding: 1}),
   },
   selectedIcon: {
     verticalAlign: "middle",
@@ -66,6 +63,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   menu: {
     marginTop: 28,
     ...(isFriendlyUI && {
+      "& .MuiPopover-paper": {
+        backgroundColor: theme.palette.dropdown.background,
+        border: `1px solid ${theme.palette.dropdown.border}`,
+      },
       "& a:hover": {
         opacity: "inherit",
       },
@@ -96,23 +97,48 @@ const styles = (theme: ThemeType): JssStyles => ({
       outline: "none",
     },
   },
+  iconLabel: {
+    width: "16px !important",
+  },
+  optionIcon: {
+    color: theme.palette.grey[600],
+    marginRight: 12,
+    width: "16px !important",
+  },
 });
 
-const ForumDropdownMultiselect = ({values, options, queryParam, onSelect, classes, className}:{
+const ForumDropdownMultiselect = ({
+  values,
+  options,
+  queryParam,
+  onSelect,
+  paddingSize = 10,
+  useIconLabel,
+  disabled,
+  classes,
+  className,
+}: {
   values: string[],
   options: Record<string, SettingsOption>,
   queryParam?: string,
   onSelect?: (value: string) => void,
-  classes: ClassesType,
+  paddingSize?: number,
+  useIconLabel?: boolean,
+  disabled?: boolean,
+  classes: ClassesType<typeof styles>,
   className?: string,
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
-  const label = values.reduce((prev, next) => {
-    const nextLabel = options[next].shortLabel || options[next].label
-    if (!prev) return nextLabel
-    return `${prev}, ${nextLabel}`
-  }, '')
-  const { MenuItem, ForumIcon } = Components;
+
+  const {MenuItem, ForumIcon} = Components;
+
+  const label = useIconLabel
+    ? <ForumIcon icon={options[values[0]].icon!} className={classes.iconLabel} />
+    : values.reduce((prev, next) => {
+      const nextLabel = options[next].shortLabel || options[next].label
+      if (!prev) return nextLabel
+      return `${prev}, ${nextLabel}`
+    }, '');
 
   const dropdownIcon = isFriendlyUI ? <ForumIcon icon="ThickChevronDown" className={classes.dropdownIcon} /> : <ArrowDropDownIcon className={classes.dropdownIcon}/>
   return (
@@ -122,12 +148,14 @@ const ForumDropdownMultiselect = ({values, options, queryParam, onSelect, classe
         onClick={(e) => {
           setAnchorEl(e.currentTarget)
         }}
+        disabled={disabled}
         className={classNames(classes.button, { [classes.openButton]: Boolean(anchorEl) })}
       >
         {label} {dropdownIcon}
       </Button>
       <Menu open={Boolean(anchorEl)} anchorEl={anchorEl} onClose={() => setAnchorEl(null)} className={classNames(classes.menu, {[classes.menuNoQueryParam]: !queryParam})}>
         {Object.keys(options).map((option) => {
+          const {icon, label} = options[option];
           const menuItem = <MenuItem
             key={option}
             value={option}
@@ -137,15 +165,16 @@ const ForumDropdownMultiselect = ({values, options, queryParam, onSelect, classe
             }}
             className={classes.menuItem}
           >
-            {options[option].label}
+            {icon && <ForumIcon icon={icon} className={classes.optionIcon} />}
+            {label}
             {values.includes(option) && isFriendlyUI && (
               <>
-                <div className={classes.padding}></div>
+                <div style={{width: paddingSize}} />
                 <ForumIcon icon="Check" className={classes.selectedIcon} />
               </>
             )}
           </MenuItem>
-          
+
           if (queryParam) {
             return <QueryLink key={option} query={{ [queryParam]: option }} merge>
               {menuItem}

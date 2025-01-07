@@ -8,14 +8,14 @@ import { CommentTreeNode } from '../../lib/utils/unflatten';
 const PostsPageQuestionContent = ({post, answersTree, refetch}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   answersTree: CommentTreeNode<CommentsList>[],
-  refetch: ()=>void,
+  refetch: () => void,
 }) => {
   const currentUser = useCurrentUser();
   const { AnswersList, NewAnswerCommentQuestionForm, CantCommentExplanation, RelatedQuestionsList } = Components
   const author = post.user;
   return (
     <div>
-      {(!currentUser || userIsAllowedToComment(currentUser, post, author, false)) && !post.draft && <NewAnswerCommentQuestionForm post={post} refetch={refetch} />}
+      {(!currentUser || userIsAllowedToComment(currentUser, post, author, false)) && !post.draft && <NewAnswerCommentQuestionForm post={post} />}
       {currentUser && !userIsAllowedToComment(currentUser, post, author, false) &&
         <CantCommentExplanation post={post}/>
       }

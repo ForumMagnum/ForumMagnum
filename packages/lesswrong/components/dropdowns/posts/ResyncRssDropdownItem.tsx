@@ -37,7 +37,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const ResyncRssDropdownItem = ({post, closeMenu, classes}: {
   post: PostsList|SunshinePostsList,
-  closeMenu: ()=>void,
+  closeMenu: () => void,
   classes: ClassesType,
 }) => {
   const { openDialog } = useDialog();
@@ -67,7 +67,7 @@ const ResyncRssDropdownItem = ({post, closeMenu, classes}: {
 }
 
 const ResyncRssDialog = ({onClose, post, classes}: {
-  onClose: ()=>void,
+  onClose: () => void,
   post: PostsList|SunshinePostsList,
   classes: ClassesType,
 }) => {
@@ -110,13 +110,15 @@ const ResyncRssDialog = ({onClose, post, classes}: {
           _id: post._id,
         },
         data: {
+          // Contents is a resolver only field, but there is handling for it
+          // in `createMutator`/`updateMutator`
           contents: {
             originalContents: {
               type: "html",
               data: data.RssPostChanges.newHtml,
             }
-          } as AnyBecauseHard,
-        },
+          },
+        } as AnyBecauseHard,
       });
 
       onClose();

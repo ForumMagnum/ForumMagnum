@@ -1,9 +1,9 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import Info from '@material-ui/icons/Info';
-import { forumTitleSetting, siteNameWithArticleSetting } from '../../../lib/instanceSettings';
+import { siteNameWithArticleSetting } from '../../../lib/instanceSettings';
 import { useCurrentUser } from '../../common/withUser';
-import { canNominate, postEligibleForReview, postIsVoteable, reviewIsActive, REVIEW_YEAR } from '../../../lib/reviewUtils';
+import { reviewIsActive } from '../../../lib/reviewUtils';
 import { forumSelect } from "../../../lib/forumTypeUtils";
 import { Link } from '../../../lib/reactRouterWrapper';
 import { isFriendlyUI } from '../../../themes/forumTheme';
@@ -11,6 +11,8 @@ import { isFriendlyUI } from '../../../themes/forumTheme';
 const shortformDraftMessage = isFriendlyUI
   ? "This is a special post that holds your quick takes. Because it's marked as a draft, your quick takes will not be displayed. To un-draft it, pick Edit from the menu above, then click Publish."
   : "This is a special post that holds your short-form writing. Because it's marked as a draft, your short-form posts will not be displayed. To un-draft it, pick Edit from the menu above, then click Publish.";
+
+export const BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD = 800;
 
 const styles = (theme: ThemeType): JssStyles => ({
   reviewInfo: {
@@ -45,19 +47,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.icon.dim2,
   },
   reviewVoting: {
-    textAlign: "center",
     padding: theme.spacing.unit*2,
     paddingBottom: theme.spacing.unit*6
-  },
-  reviewButton: {
-    border: `solid 1px ${theme.palette.primary.main}`,
-    paddingLeft: theme.spacing.unit*2,
-    paddingRight: theme.spacing.unit*2,
-    paddingTop: theme.spacing.unit,
-    paddingBottom: theme.spacing.unit,
-    marginTop: theme.spacing.unit,
-    display: "inline-block",
-    borderRadius: 3
   }
 });
 
@@ -69,36 +60,27 @@ const forumNewUserProcessingTime = forumSelect({
 })
 
 const PostBodyPrefix = ({post, query, classes}: {
-  post: PostsWithNavigation|PostsWithNavigationAndRevision,
+  post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList,
   query?: any,
   classes: ClassesType,
 }) => {
-  const { AlignmentCrosspostMessage, AlignmentPendingApprovalMessage, LinkPostMessage, PostsRevisionMessage, LWTooltip, ReviewVotingWidget, ReviewPostButton, ContentItemBody, ContentStyles } = Components;
+  const { AlignmentPendingApprovalMessage, LinkPostMessage, PostsRevisionMessage, LWTooltip, ContentItemBody, ContentStyles, PostPageReviewButton } = Components;
   const currentUser = useCurrentUser();
 
   return <>
-    {reviewIsActive() && postEligibleForReview(post) && postIsVoteable(post) && <div className={classes.reviewVoting}>
-      {canNominate(currentUser, post) && <ReviewVotingWidget post={post}/>}
-      <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={`Write up your thoughts on what was good about a post, how it could be improved, and how you think stands the tests of time as part of the broader ${forumTitleSetting.get()} conversation`} placement="bottom">
-        <div className={classes.reviewButton}>Review</div>
-      </LWTooltip>}/>
+    {reviewIsActive() && <div className={classes.reviewVoting}>
+      <PostPageReviewButton post={post} />
     </div>}
 
-    <AlignmentCrosspostMessage post={post} />
     <AlignmentPendingApprovalMessage post={post} />
 
     {post.shortform && post.draft && <div className={classes.contentNotice}>
       {shortformDraftMessage}
     </div>}
     {post.shortform && !post.draft && <div className={classes.contentNotice}>
-      {isFriendlyUI
-        ? <>
-          This is a special post for quick takes by <Components.UsersNameDisplay user={post.user}/>. Only they can create top-level comments. Comments here also appear on the <Link to="/quicktakes">Quick Takes page</Link> and <Link to="/allPosts">All Posts page</Link>.
-        </>
-        : <>
-          This is a special post for short-form writing by <Components.UsersNameDisplay user={post.user}/>. Only they can create top-level comments. Comments here also appear on the <Link to="/shortform">Shortform Page</Link> and <Link to="/allPosts">All Posts page</Link>.
-        </>
-      }
+      <>
+        This is a special post for quick takes by <Components.UsersNameDisplay user={post.user}/>. Only they can create top-level comments. Comments here also appear on the <Link to="/quicktakes">Quick Takes page</Link> and <Link to="/allPosts">All Posts page</Link>.
+      </>
     </div>}
 
     {post.rejected && <div className={classes.rejectionNotice}>
@@ -121,7 +103,7 @@ const PostBodyPrefix = ({post, query, classes}: {
         <Info className={classes.infoIcon}/>
       </LWTooltip>
     </div>}
-    <LinkPostMessage post={post} negativeTopMargin />
+    {(isFriendlyUI || ((post.contents?.wordCount ?? 0) < BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD)) && <LinkPostMessage post={post} negativeTopMargin={isFriendlyUI} />}
     {query?.revision && post.contents && <PostsRevisionMessage post={post} />}
   </>;
 }

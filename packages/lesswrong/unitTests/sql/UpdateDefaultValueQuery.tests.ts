@@ -1,5 +1,5 @@
-import { DbTestObject, testTable, runTestCases } from "../../lib/sql/tests/testHelpers";
-import UpdateDefaultValueQuery from "../../lib/sql/UpdateDefaultValueQuery";
+import { DbTestObject, testTable, runTestCases } from "@/server/sql/tests/testHelpers";
+import UpdateDefaultValueQuery from "@/server/sql/UpdateDefaultValueQuery";
 
 describe("UpdateDefaultValueQuery", () => {
   runTestCases([

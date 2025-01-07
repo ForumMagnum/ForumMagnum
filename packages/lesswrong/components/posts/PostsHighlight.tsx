@@ -104,7 +104,7 @@ const HighlightBody = ({
       graceWords={20}
       rawWordCount={wordCount ?? 0}
       expanded={expanded}
-      getTruncatedSuffix={({wordsLeft}: {wordsLeft:number}) =>
+      getTruncatedSuffix={({wordsLeft}: {wordsLeft: number}) =>
         <div className={classes.highlightContinue}>
           <TruncatedSuffix
             post={post}

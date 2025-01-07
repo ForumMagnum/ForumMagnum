@@ -17,7 +17,7 @@ export const AnalyticsClient = () => {
   // because this type of request is voluminous enough and different enough
   // from other requests that we want its error handling to be different, and
   // potentially want it to be a special case at the load balancer.
-  const flushEvents = useCallback(async (events) => {
+  const flushEvents = useCallback(async (events: AnyBecauseTodo[]) => {
     await fetch("/analyticsEvent", {
       method: "POST",
       body: JSON.stringify({
@@ -35,6 +35,7 @@ export const AnalyticsClient = () => {
     AnalyticsUtil.clientWriteEvents = flushEvents;
     AnalyticsUtil.clientContextVars.userId = currentUserId;
     AnalyticsUtil.clientContextVars.clientId = clientId;
+    AnalyticsUtil.clientContextVars.tabId = window.tabId;
     if (!isLWorAF) {
       AnalyticsUtil.clientContextVars.abTestGroupsUsed = abTestGroupsUsed;
     }

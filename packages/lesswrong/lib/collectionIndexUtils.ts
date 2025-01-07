@@ -1,118 +1,38 @@
-import * as _ from 'underscore';
-import { isServer, isAnyTest, isMigrations } from './executionEnvironment';
-import { disableEnsureIndexSetting } from './instanceSettings';
-import { getSqlClientOrThrow } from './sql/sqlClient';
-import { sleep } from "./utils/asyncUtils";
-
-
 export const expectedIndexes: Partial<Record<CollectionNameString, Array<MongoIndexSpecification<any>>>> = {};
-
-export const expectedCustomPgIndexes: string[] = [];
-
-// Returns true if the specified index has a name, and the collection has an
-// existing index with the same name but different columns or options.
-async function conflictingIndexExists<N extends CollectionNameString>(
-  collection: CollectionBase<N>,
-  index: any,
-  options: any,
-) {
-  if (!options.name)
-    return false;
-  
-  let existingIndexes;
-  try {
-    existingIndexes = await collection.rawCollection().indexes();
-  } catch(e) {
-    // If the database is uninitialized (eg, running unit tests starting with a
-    // blank DB), this will fail. But the collection will be created by the
-    // ensureIndex operation.
-    return false;
-  }
-  
-  for (let existingIndex of existingIndexes) {
-    if (existingIndex.name === options.name) {
-      if (!_.isEqual(existingIndex.key, index)
-         || !_.isEqual(existingIndex.partialFilterExpression, options.partialFilterExpression))
-      {
-        //eslint-disable-next-line no-console
-        console.log(`Expected index: ${JSON.stringify({index, partialFilterExpression: options.partialFilterExpression})}`);
-        //eslint-disable-next-line no-console
-        console.log(`Found in DB: ${JSON.stringify({index: existingIndex.key, partialFilterExpression: existingIndex.partialFilterExpression})}`);
-        
-        return true;
-      }
-    }
-  }
-  
-  return false;
-}
 
 export function ensureIndex<N extends CollectionNameString>(
   collection: CollectionBase<N>,
   index: any,
   options: any={},
 ): void {
-  if (!expectedIndexes[collection.collectionName])
+  if (!expectedIndexes[collection.collectionName]) {
     expectedIndexes[collection.collectionName] = [];
+  }
   expectedIndexes[collection.collectionName]!.push({
     ...options,
     key: index,
   });
-  void ensureIndexAsync(collection, index, options);
 }
 
-const canEnsureIndexes = () =>
-  isServer && !isAnyTest && !isMigrations && !disableEnsureIndexSetting.get();
-
-
-export async function ensureIndexAsync<N extends CollectionNameString>(
-  collection: CollectionBase<N>,
-  index: any,
-  options: any={},
-) {
-  if (!canEnsureIndexes())
-    return;
-
-  await createOrDeferIndex(async () => {
-    if (!collection.isConnected())
-      return;
-    try {
-      if (options.name && await conflictingIndexExists(collection, index, options)) {
-        //eslint-disable-next-line no-console
-        console.log(`Differing index exists with the same name: ${options.name}. Dropping.`);
-        
-        collection.rawCollection().dropIndex(options.name);
-      }
-      const mergedOptions = {background: true, ...options};
-      collection._ensureIndex(index, mergedOptions);
-    } catch(e) {
-      //eslint-disable-next-line no-console
-      console.error(`Error in ${collection.collectionName}.ensureIndex: ${e}`);
-    }
-  });
+type CustomPgIndexOptions = {
+  dependencies?: SchemaDependency[],
 }
 
-interface EnsureCustomPgIndexOptions {
-  overrideCanEnsureIndexes?: boolean;
-  runImmediately?: boolean;
-  client?: SqlClient;
+export type CustomPgIndex = {
+  source: string,
+  options?: CustomPgIndexOptions,
 }
 
-export const ensureCustomPgIndex = async (sql: string, options: EnsureCustomPgIndexOptions = {}) => {
-  if (expectedCustomPgIndexes.includes(sql)) {
+export const expectedCustomPgIndexes: CustomPgIndex[] = [];
+
+export const ensureCustomPgIndex = (
+  source: string,
+  options?: CustomPgIndexOptions,
+) => {
+  if (expectedCustomPgIndexes.find((idx) => idx.source === source)) {
     return;
   }
-  expectedCustomPgIndexes.push(sql);
-
-  let { runImmediately = false, overrideCanEnsureIndexes = false, client } = options;
-
-  if (!canEnsureIndexes() && !overrideCanEnsureIndexes)
-    return;
-
-  await createOrDeferIndex(async () => {
-    client ??= getSqlClientOrThrow();
-    await client.any(sql);
-  }, runImmediately);
+  expectedCustomPgIndexes.push({source, options});
 }
 
 // Given an index partial definition for a collection's default view,
@@ -149,39 +69,4 @@ export function combineIndexWithDefaultViewIndex<T extends DbObject>({viewFields
       combinedIndex[keyWithType] = suffix[keyWithType];
   }
   return combinedIndex;
-}
-
-
-let deferredIndexes: Array<()=>Promise<void>> = [];
-let deferredIndexesTimer: NodeJS.Timeout|null = null;
-
-/**
- * If running a normal server, defer index creation until 25s after
- * startup. This speeds up testing in the common case, where indexes haven't
- * meaningfully changed (but sending a bunch of no-op ensureIndex commands
- * to the database is still expensive).
- * In unit tests, build indexes immediately, because (a) indexes probably
- * don't exist yet, and (b) building indexes in the middle of a later test
- * risks making that test time out.
- */
-const createOrDeferIndex = async (buildIndex: () => Promise<void>, runImmediately = false) => {
-  if (isAnyTest || runImmediately) {
-    await buildIndex();
-  } else {
-    deferredIndexes.push(buildIndex);
-    if (deferredIndexesTimer===null) {
-      deferredIndexesTimer = setTimeout(createDeferredIndexes, 25000);
-    }
-  }
-}
-
-async function createDeferredIndexes() {
-  deferredIndexesTimer = null;
-  const deferredIndexesCopy = deferredIndexes;
-  deferredIndexes = [];
-  
-  for (let createIndex of deferredIndexesCopy) {
-    await createIndex();
-    await sleep(500);
-  }
 }

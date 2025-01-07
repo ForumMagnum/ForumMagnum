@@ -19,10 +19,10 @@ import createLinkifyPlugin from './draftjs-plugins/linkifyPlugin'
 import ImageButton from './draftjs-plugins/image/ImageButton';
 import { Map } from 'immutable';
 import { createBlockStyleButton, ItalicButton, BoldButton, UnderlineButton, BlockquoteButton } from 'draft-js-buttons';
-import NoSSR from 'react-no-ssr';
 import { isClient } from '../../lib/executionEnvironment';
 import { styleMap } from "./draftJsEditorStyleMap";
 import * as _ from 'underscore';
+import DeferRender from '../common/DeferRender.js';
 
 function customBlockStyleFn(contentBlock: AnyBecauseTodo) {
   const type = contentBlock.getType();
@@ -163,7 +163,7 @@ class DraftJSEditor extends Component<DraftJSEditorProps,{}> {
 
     return (
       <div>
-        <NoSSR>
+        <DeferRender ssr={false}>
         <div className={this.props.className} onClick={this.focus}>
           <Editor
             editorState={editorState}
@@ -179,7 +179,7 @@ class DraftJSEditor extends Component<DraftJSEditorProps,{}> {
         </div>
         <InlineToolbar />
         <AlignmentTool />
-        </NoSSR>
+        </DeferRender>
       </div>
     )
   }

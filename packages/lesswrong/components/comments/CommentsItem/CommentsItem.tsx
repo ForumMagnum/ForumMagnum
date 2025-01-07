@@ -1,8 +1,5 @@
 import React, { useRef, useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { userIsAllowedToComment } from '../../../lib/collections/users/helpers';
-import { Comments } from '../../../lib/collections/comments/collection';
-import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 import withErrorBoundary from '../../common/withErrorBoundary';
 import { useCurrentUser } from '../../common/withUser';
@@ -12,10 +9,8 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../commentTree';
 import { commentAllowTitle as commentAllowTitle, commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR, reviewIsActive, eligibleToNominate } from '../../../lib/reviewUtils';
-import { useCurrentTime } from '../../../lib/utils/timeUtil';
 import startCase from 'lodash/startCase';
 import FlagIcon from '@material-ui/icons/Flag';
-import { hideUnreviewedAuthorCommentsSettings } from '../../../lib/publicSettings';
 import { metaNoticeStyles } from './CommentsItemMeta';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 import { useVote } from '../../votes/withVote';
@@ -101,7 +96,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       padding: 1.5,
     }
     : {
-      fontSize: 12
+      "--icon-size": "12px",
     },
   title: {
     ...theme.typography.display2,
@@ -188,9 +183,9 @@ export const CommentsItem = ({
   collapsed?: boolean,
   isParentComment?: boolean,
   parentCommentId?: string,
-  scrollIntoView?: ()=>void,
-  toggleCollapse?: ()=>void,
-  setSingleLine?: (singleLine: boolean)=>void,
+  scrollIntoView?: () => void,
+  toggleCollapse?: () => void,
+  setSingleLine?: (singleLine: boolean) => void,
   truncated: boolean,
   showPinnedOnProfile?: boolean,
   parentAnswerId?: string,
@@ -280,7 +275,7 @@ export const CommentsItem = ({
       ? "comments-node-even" : "comments-node-odd"
 
     return (
-      <div className={classNames(classes.replyForm, levelClass, {[classes.replyFormMinimalist]: isMinimalist})}>
+      <div className={classNames(classes.replyForm, levelClass, isMinimalist && classes.replyFormMinimalist)}>
         <Components.CommentsNewForm
           post={treeOptions.post}
           parentComment={comment}
@@ -319,16 +314,14 @@ export const CommentsItem = ({
 
   return (
     <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
-    <HoveredReactionContextProvider>
+    <HoveredReactionContextProvider voteProps={voteProps}>
       <div className={classNames(
         classes.root,
         className,
         "recent-comments-node",
-        {
-          [classes.deleted]: comment.deleted && !comment.deletedPublic,
-          [classes.sideComment]: treeOptions.isSideComment,
-          [classes.subforumTop]: comment.tagCommentType === "SUBFORUM" && !comment.topLevelCommentId,
-        },
+        comment.deleted && !comment.deletedPublic && classes.deleted,
+        treeOptions.isSideComment && classes.sideComment,
+        comment.tagCommentType === "SUBFORUM" && !comment.topLevelCommentId && classes.subforumTop,
       )}>
         { comment.parentCommentId && showParentState && (
           <div className={classes.firstParentComment}>

@@ -1,14 +1,13 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import React from 'react';
-import Chapters from '../../lib/collections/chapters/collection';
 import { styles } from './CollectionsEditForm';
 import classNames from 'classnames';
 
 //TODO: Manage chapter removal to remove the reference from all parent-sequences
 
 const ChaptersNewForm = ({successCallback, cancelCallback, prefilledProps, classes}: {
-  successCallback?: ()=>void,
-  cancelCallback?: ()=>void,
+  successCallback?: () => void,
+  cancelCallback?: () => void,
   prefilledProps?: Record<string,any>,
   classes: ClassesType,
 }) => {

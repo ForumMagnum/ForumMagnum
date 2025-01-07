@@ -5,6 +5,7 @@ import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
 import { ImageType, useImageUpload } from '../hooks/useImageUpload';
+import { formPreviewSizeByImageType } from './ImageUpload';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -32,17 +33,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: theme.palette.grey[25], // fallback to plain background if no image is given
     backgroundSize: 'cover',
     backgroundPosition: 'center',
-    aspectRatio: 1.91, // TODO support other image types
     display: 'flex',
   },
 });
 
-const formPreviewSizeByImageType: AnyBecauseTodo = {
-  socialPreviewImageId: {
-    width: 306,
-    height: 160
-  },
-}
 
 const ImageUpload2 = ({name, value, updateValue, clearField, label, croppingAspectRatio, placeholderUrl, classes}: {
   name: string,
@@ -73,9 +67,13 @@ const ImageUpload2 = ({name, value, updateValue, clearField, label, croppingAspe
   }
 
   const [imageId, setImageId] = useState(value)
-
-  const formPreviewSize = formPreviewSizeByImageType[name]
+  
+  const formPreviewSize = formPreviewSizeByImageType[name as keyof typeof formPreviewSizeByImageType]
   if (!formPreviewSize) throw new Error("Unsupported image upload type")
+    
+  const imageStyle: React.CSSProperties = {
+    aspectRatio: formPreviewSize.width === 'auto' ? '1.91' : `${formPreviewSize.width} / ${formPreviewSize.height}`
+  }
 
   const imageUrl = imageId ? makeCloudinaryImageUrl(imageId, {
     c: "fill",
@@ -84,13 +82,17 @@ const ImageUpload2 = ({name, value, updateValue, clearField, label, croppingAspe
     f: "auto",
     g: "auto:faces"
   }) : placeholderUrl
+  
+  if (imageUrl) {
+    imageStyle.backgroundImage = `url(${imageUrl})`
+  }
 
   return (
     <div className={classes.root}>
       <ImageUploadScript />
       <div
         className={classes.imageBackground}
-        style={imageUrl ? { backgroundImage: `url(${imageUrl})` } : {}}
+        style={imageStyle}
       >
         <div className={classes.buttonRow}>
           <Button

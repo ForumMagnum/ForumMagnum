@@ -37,7 +37,7 @@ addGraphQLSchema(`
   }
 `)
 
-const isSharable = (document: any) : document is SharableDocument => {
+const isSharable = (document: any): document is SharableDocument => {
   return "coauthorStatuses" in document || "shareWithUsers" in document || "sharingSettings" in document
 }
 
@@ -190,8 +190,7 @@ const schema: SchemaType<"Revisions"> = {
     type: Number,
     canRead: ['guests'],
     optional: true,
-    nullable: true, //not really used, EA Forum has missing values
-    // resolveAs defined in resolvers.js //does not actually exist
+    nullable: false,
   },
   htmlHighlight: {
     type: String, 
@@ -213,9 +212,27 @@ const schema: SchemaType<"Revisions"> = {
     canRead: ['guests']
     // resolveAs defined in resolvers.js
   },
+  hasFootnotes: {
+    type: Boolean,
+    canRead: ['guests']
+    // resolveAs defined in revisionResolvers.ts
+  },
+
   changeMetrics: {
     type: Object,
     nullable: false,
+    blackbox: true,
+    canRead: ['guests']
+  },
+  /**
+   * For revisions imported from a google doc, this contains some metadata about the doc,
+   * see `GoogleDocMetadata` in packages/lesswrong/server/resolvers/postResolvers.ts for the
+   * fields that are included.
+   */
+  googleDocMetadata: {
+    type: Object,
+    nullable: true,
+    optional: true,
     blackbox: true,
     canRead: ['guests']
   },

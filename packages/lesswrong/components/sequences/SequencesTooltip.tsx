@@ -27,6 +27,7 @@ export const SequencesTooltip = ({
         />
       }
       tooltip={false}
+      inlineBlock={false}
       flip={!allowOverflow}
       placement={placement}
       clickable

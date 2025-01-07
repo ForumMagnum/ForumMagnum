@@ -1,15 +1,16 @@
-import { onStartup, getWebsocketPort } from '../lib/executionEnvironment';
 import type { MessageEvent, OpenEvent, CloseEvent } from 'ws';
+import { getCommandLineArguments } from '@/server/commandLine';
 
 // In development, make a websocket connection (on a different port) to get
 // notified when the server has restarted with a new version.
 
-const websocketPort = getWebsocketPort();
 let connectedWebsocket: any = null;
 let buildTimestamp: string|null = null;
 
 function connectWebsocket() {
   if (connectedWebsocket) return;
+  
+  const websocketPort = getCommandLineArguments().localhostUrlPort + 1;
   connectedWebsocket = new WebSocket(`ws://localhost:${websocketPort}`);
 
   connectedWebsocket.addEventListener("message", (event: MessageEvent) => {
@@ -59,8 +60,8 @@ function disconnectWebsocket() {
   }
 }
 
-if (!bundleIsProduction) {
-  onStartup(() => {
+export function initAutoRefresh() {
+  if (!bundleIsProduction && !enableVite) {
     setTimeout(() => {
       connectWebsocket();
       
@@ -84,5 +85,5 @@ if (!bundleIsProduction) {
         connectWebsocket();
       }
     });
-  });
+  }
 }

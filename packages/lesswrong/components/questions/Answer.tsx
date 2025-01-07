@@ -4,15 +4,15 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import classNames from 'classnames';
-import { Comments } from "../../lib/collections/comments";
 import { metaNoticeStyles } from '../comments/CommentsItem/CommentsItemMeta';
-import { useCommentLink } from '../comments/CommentsItem/useCommentLink';
+import { useCommentLink, useCommentLinkState } from '../comments/CommentsItem/useCommentLink';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { CommentTreeNode } from '../../lib/utils/unflatten';
 import type { ContentItemBody } from '../common/ContentItemBody';
 import { useVote } from '../votes/withVote';
 import { getVotingSystemByName } from '../../lib/voting/votingSystems';
 import type { CommentTreeOptions } from '../comments/commentTree';
+import { commentPermalinkStyleSetting } from '@/lib/publicSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -79,6 +79,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     margin: "0 4px",
     position: "relative",
   },
+  linkIconHighlighted: {
+    strokeWidth: "0.7px",
+    stroke: "currentColor",
+    color: theme.palette.primary.main
+  },
   menu: {
     opacity:.5,
     cursor: "pointer",
@@ -138,6 +143,7 @@ const Answer = ({ comment, post, childComments, classes }: {
   const votingSystemName = comment.votingSystem || "default";
   const votingSystem = getVotingSystemByName(votingSystemName);
   const voteProps = useVote(comment, "Comments", votingSystem);
+  const { scrollToCommentId } = useCommentLinkState();
   
   const setShowEditTrue = useCallback(() => {
     setShowEdit(true)
@@ -172,6 +178,9 @@ const Answer = ({ comment, post, childComments, classes }: {
     switchAlternatingHighlights: true,
   }), [post]);
 
+  // Note: This could be decoupled from `commentPermalinkStyleSetting` without any side effects
+  const highlightLinkIcon = commentPermalinkStyleSetting.get() === 'in-context' && scrollToCommentId === comment._id
+
   return (
     <div className={classNames(classes.root, {[classes.promoted]: comment.promoted})}>
       { comment.deleted ?
@@ -181,7 +190,7 @@ const Answer = ({ comment, post, childComments, classes }: {
           </Typography>
           {isFriendlyUI &&
             <CommentLinkWrapper>
-              <ForumIcon icon="Link" className={classes.linkIcon} />
+              <ForumIcon icon="Link" className={classNames(classes.linkIcon, {[classes.linkIconHighlighted]: highlightLinkIcon})} />
             </CommentLinkWrapper>
           }
           <CommentsMenu
@@ -195,7 +204,7 @@ const Answer = ({ comment, post, childComments, classes }: {
         :
         <div>
           <AnalyticsContext pageElementContext="answerItem">
-          <HoveredReactionContextProvider>
+          <HoveredReactionContextProvider voteProps={voteProps}>
             <div className={classes.answer} id={comment._id}>
               <div className={classes.answerHeader}>
                 {comment.user && <Typography variant="body1" className={classes.author}>
@@ -205,11 +214,11 @@ const Answer = ({ comment, post, childComments, classes }: {
                   <CommentsItemDate comment={comment} post={post}/>
                 </Typography>
                 <span className={classes.vote}>
-                  <SmallSideVote document={comment} collection={Comments}/>
+                  <SmallSideVote document={comment} collectionName="Comments"/>
                 </span>
                 {isFriendlyUI &&
                   <CommentLinkWrapper>
-                    <ForumIcon icon="Link" className={classes.linkIcon} />
+                    <ForumIcon icon="Link" className={classNames(classes.linkIcon, {[classes.linkIconHighlighted]: highlightLinkIcon})} />
                   </CommentLinkWrapper>
                 }
                 <CommentsMenu

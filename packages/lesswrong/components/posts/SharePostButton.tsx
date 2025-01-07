@@ -4,6 +4,7 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { useTracking } from '../../lib/analyticsEvents';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { isMobile } from '@/lib/utils/isMobile';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -35,7 +36,7 @@ const SharePostButton = ({
     captureEvent('sharePostButtonClicked')
     // navigator.canShare will be present on mobile devices with sharing-intents,
     // absent on desktop.
-    if (!!navigator.canShare) {
+    if (isMobile() && !!navigator.canShare) {
       const sharingOptions = {
         title: post.title,
         text: post.title,

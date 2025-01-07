@@ -18,26 +18,24 @@ const styles = (theme: ThemeType): JssStyles => ({
 const AlignmentForumHome = ({classes}: {
   classes: ClassesType
 }) => {
-  const { SingleColumnSection, SectionTitle, FrontpageReviewWidget, PostsList2, SectionButton, RecentDiscussionThreadsList, CuratedSequences } = Components
+  const { SingleColumnSection, SectionTitle, FrontpageReviewWidget, PostsList2, SectionButton, RecentDiscussionThreadsList, EAPopularCommentsSection, RotatingReviewWinnerSpotlight } = Components
   const currentUser = useCurrentUser();
 
-  let recentPostsTerms = {view: 'new', limit: 10, forum: true, af: true}
+  let recentPostsTerms = {view: 'new', limit: 10, forum: true, af: true} as const;
 
   return (
     <div className="alignment-forum-home">
       <SingleColumnSection>
-        <SectionTitle title="Recommended Sequences"/>
-        <div className={classes.frontpageSequencesGridList}>
-          <CuratedSequences />
-        </div>
+        <RotatingReviewWinnerSpotlight />
       </SingleColumnSection>
+
       {reviewIsActive() && <SingleColumnSection>
         <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
       </SingleColumnSection>}
       <SingleColumnSection>
         <SectionTitle title="AI Alignment Posts">
           { currentUser && userCanDo(currentUser, "posts.alignment.new") && 
-            <Link to={{pathname:"/newPost", search: `?af=true`}}>
+            <Link to={"/newPost?af=true"}>
               <SectionButton>
                 <AddIcon />
                 New Post
@@ -47,6 +45,7 @@ const AlignmentForumHome = ({classes}: {
         </SectionTitle>
         <PostsList2 terms={recentPostsTerms} />
       </SingleColumnSection>
+      <EAPopularCommentsSection />
       <SingleColumnSection>
         <RecentDiscussionThreadsList
           terms={{view: 'afRecentDiscussionThreadsList', limit:6}}

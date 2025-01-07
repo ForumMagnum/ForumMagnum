@@ -1,8 +1,9 @@
 import { ApolloError, gql } from '@apollo/client';
 import { useApolloClient, useMutation } from '@apollo/client/react/hooks';
-import { extractFragmentInfo, getCollection } from '../vulcan-lib';
+import { extractFragmentInfo, collectionNameToTypeName } from '../vulcan-lib';
 import { updateCacheAfterCreate } from './cacheUpdates';
 import { loggerConstructor } from '../utils/logging';
+import { useCallback, useMemo } from 'react';
 
 /**
  * Create mutation query used on the client. Eg:
@@ -53,11 +54,12 @@ export const useCreate = <CollectionName extends CollectionNameString>({
   called: boolean,
   data?: ObjectsByCollectionName[CollectionName],
 } => {
-  const collection = getCollection(collectionName);
-  const logger = loggerConstructor(`mutations-${collectionName.toLowerCase()}`)
+  const logger = useMemo(() => {
+    return loggerConstructor(`mutations-${collectionName.toLowerCase()}`);
+  }, [collectionName]);
   const { fragmentName, fragment } = extractFragmentInfo({fragmentName: fragmentNameArg, fragment: fragmentArg}, collectionName);
 
-  const typeName = collection!.options.typeName;
+  const typeName = collectionNameToTypeName(collectionName);
   
   const query = gql`
     ${createClientTemplate({ typeName, fragmentName })}
@@ -69,12 +71,14 @@ export const useCreate = <CollectionName extends CollectionNameString>({
   const [mutate, {loading, error, called, data}] = useMutation(query, {
     ignoreResults: ignoreResults
   });
-  const wrappedCreate = ({data}: {data: NullablePartial<ObjectsByCollectionName[CollectionName]>}) => {
+  const wrappedCreate = useCallback(({data}: {
+    data: NullablePartial<ObjectsByCollectionName[CollectionName]>,
+  }) => {
     logger('useCreate, wrappedCreate()')
     return mutate({
       variables: { data },
       update: updateCacheAfterCreate(typeName, client)
     })
-  }
+  }, [logger, mutate, typeName, client]);
   return {create: wrappedCreate, loading, error, called, data};
 }

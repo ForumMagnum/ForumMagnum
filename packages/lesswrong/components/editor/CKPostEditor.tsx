@@ -1,11 +1,10 @@
 import React, { useRef, useState, useEffect, useContext } from 'react'
 import { registerComponent, Components } from '../../lib/vulcan-lib/components';
-import CKEditor from '../editor/ReactCKEditor';
-import { getCkEditor, ckEditorBundleVersion } from '../../lib/wrapCkEditor';
+import { ckEditorBundleVersion, getCkPostEditor } from '../../lib/wrapCkEditor';
 import { getCKEditorDocumentId, generateTokenRequest} from '../../lib/ckEditorUtils'
-import { CollaborativeEditingAccessLevel, accessLevelCan, SharingSettings } from '../../lib/collections/posts/collabEditingPermissions';
+import { CollaborativeEditingAccessLevel, accessLevelCan } from '../../lib/collections/posts/collabEditingPermissions';
 import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib/publicSettings'
-import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting } from '../../lib/instanceSettings';
+import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting, forumTypeSetting, isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import { CollaborationMode } from './EditorTopBar';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { defaultEditorPlaceholder } from '../../lib/editor/make_editable';
@@ -22,6 +21,12 @@ import type { Node, RootElement, Writer, Element as CKElement, Selection, Docume
 import { EditorContext } from '../posts/PostsEditForm';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useMulti } from '../../lib/crud/withMulti';
+import { cloudinaryConfig } from '../../lib/editor/cloudinaryConfig'
+import CKEditor from '../../lib/vendor/ckeditor5-react/ckeditor';
+import { useSyncCkEditorPlaceholder } from '../hooks/useSyncCkEditorPlaceholder';
+import { useDialog } from '../common/withDialog';
+import { claimsConfig } from './claims/claimsConfig';
+import { CkEditorPortalContext } from './CKEditorPortalProvider';
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -201,7 +206,7 @@ function createDialoguePostFixer(editor: Editor, sortedCoauthors: UsersMinimumIn
       return true;
     }
 
-    const lastChild = children.at(-1);
+    const lastChild = children.slice(-1)?.[0];
     const inputWrapper = inputWrappers[0];
 
     // We check that the input wrapper is the last child of the root
@@ -321,6 +326,54 @@ export type ConnectedUserInfo = {
   name: string
 }
 
+const readOnlyPermissionsLock = Symbol("ckEditorReadOnlyPermissions");
+
+const postEditorToolbarConfig = {
+  blockToolbar: {
+    items: [
+      'imageUpload',
+      'insertTable',
+      'horizontalLine',
+      'mathDisplay',
+      'mediaEmbed',
+      ...(isEAForum ? ['ctaButtonToolbarItem'] : ['collapsibleSectionButton']),
+      'footnote',
+      ...(isLWorAF ? ['insertClaimButton'] : []),
+    ],
+    
+    /* At some point the default icon for the block toolbar changed from a
+     * pilcrow to a drag handle. Change it back. */
+    icon: 'pilcrow'
+  },
+  toolbar: {
+    items: [
+      'restyledCommentButton',
+      '|',
+      'heading',
+      '|',
+      'bold',
+      'italic',
+      'strikethrough',
+      '|',
+      'link',
+      '|',
+      'blockQuote',
+      'bulletedList',
+      'numberedList',
+      'codeBlock',
+      '|',
+      'trackChanges',
+      'math',
+      // We don't have the collapsible sections plugin in the selected-text toolbar yet,
+      // because the behavior of creating a collapsible section is non-obvious and we want to fix it first
+      ...(isEAForum ? ['ctaButtonToolbarItem'] : []),
+      'footnote',
+      ...(isLWorAF ? ['insertClaimButton'] : []),
+    ],
+    shouldNotGroupWhenFull: true,
+  },
+};
+
 const CKPostEditor = ({
   data,
   collectionName,
@@ -331,7 +384,7 @@ const CKPostEditor = ({
   documentId,
   userId,
   formType,
-  onInit,
+  onReady,
   isCollaborative,
   accessLevel,
   placeholder,
@@ -347,7 +400,7 @@ const CKPostEditor = ({
   documentId?: string,
   userId?: string,
   formType?: "new"|"edit",
-  onInit?: any,
+  onReady: (editor: Editor) => void,
   // Whether this is the contents field of a collaboratively-edited post
   isCollaborative?: boolean,
   // If this is the contents field of a collaboratively-edited post, the access level the
@@ -359,11 +412,12 @@ const CKPostEditor = ({
 }) => {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
+  const { openDialog } = useDialog();
   const post = (document as PostsEdit);
   const isBlockOwnershipMode = isCollaborative && post.collabEditorDialogue;
-  
   const { EditorTopBar, DialogueEditorGuidelines, DialogueEditorFeedback } = Components;
-  const { PostEditor, PostEditorCollaboration } = getCkEditor();
+  const portalContext = useContext(CkEditorPortalContext);
+  
   const getInitialCollaborationMode = () => {
     if (!isCollaborative || !accessLevel) return "Editing";
     if (accessLevelCan(accessLevel, "edit"))
@@ -387,7 +441,7 @@ const CKPostEditor = ({
     setLayoutReady(true)
   }, [])
 
-  const editorRef = useRef<CKEditor>(null)
+  const editorRef = useRef<CKEditor<any>>(null)
   const sidebarRef = useRef<HTMLDivElement>(null)
   const hiddenPresenceListRef = useRef<HTMLDivElement>(null)
 
@@ -402,7 +456,7 @@ const CKPostEditor = ({
   `);
 
   const dialogueParticipantNotificationCallback = async () => {
-  const editorContents =  editorRef?.current?.editor.getData()
+    const editorContents =  editorRef?.current?.editor?.getData()
 
     await sendNewDialogueMessageNotification({
       variables: {
@@ -429,21 +483,23 @@ const CKPostEditor = ({
   const hasEverDialoguedBefore = !!anyDialogue && anyDialogue.length > 1;
 
   const [_, setEditor] = useContext(EditorContext);
-  
+
+  const [editorObject, setEditorObject] = useState<Editor | null>(null);
+
   const applyCollabModeToCkEditor = (editor: Editor, mode: CollaborationMode) => {
     const trackChanges = editor.commands.get('trackChanges')!;
     switch(mode) {
       case "Viewing":
-        editor.isReadOnly = true;
+        editor.enableReadOnlyMode(readOnlyPermissionsLock);
         trackChanges.value = false;
         break;
       case "Commenting":
-        editor.isReadOnly = false;
+        editor.disableReadOnlyMode(readOnlyPermissionsLock);
         trackChanges.value = true;
         break;
       case "Editing":
       case "Editing (override)":
-        editor.isReadOnly = false;
+        editor.disableReadOnlyMode(readOnlyPermissionsLock);
         trackChanges.value = false;
         break;
     }
@@ -456,6 +512,48 @@ const CKPostEditor = ({
     setCollaborationMode(mode);
     collaborationModeRef.current = mode;
   }
+
+  const actualPlaceholder = placeholder ?? defaultEditorPlaceholder;
+
+  // This is AnyBecauseHard because it contains plugin-specific configs that are
+  // added to the EditorConfig type via augmentations, but we don't get those
+  // augmentations because we're only importing those in the CkEditor bundle.
+  const editorConfig: AnyBecauseHard = {
+    ...postEditorToolbarConfig,
+    autosave: {
+      save (editor: any) {
+        return onSave && onSave(editor.getData())
+      }
+    },
+    cloudServices: ckEditorCloudConfigured ? {
+      tokenUrl: generateTokenRequest(collectionName, fieldName, documentId, userId, formType, key),
+      uploadUrl: ckEditorUploadUrlOverrideSetting.get() || ckEditorUploadUrlSetting.get(),
+      webSocketUrl: webSocketUrl,
+      documentId: getCKEditorDocumentId(documentId, userId, formType),
+      bundleVersion: ckEditorBundleVersion,
+    } : undefined,
+    collaboration: ckEditorCloudConfigured ? {
+      channelId: getCKEditorDocumentId(documentId, userId, formType),
+    } : undefined,
+    comments: {
+      editorConfig: {
+      },
+    },
+    sidebar: {
+      container: sidebarRef.current
+    },
+    presenceList: {
+      container: hiddenPresenceListRef.current
+    },
+    initialData: initData,
+    placeholder: actualPlaceholder,
+    mention: mentionPluginConfiguration,
+    dialogues: dialogueConfiguration,
+    ...cloudinaryConfig,
+    claims: claimsConfig(portalContext, openDialog),
+  };
+
+  useSyncCkEditorPlaceholder(editorObject, actualPlaceholder);
 
   return <div>
     {isBlockOwnershipMode && <>
@@ -492,9 +590,12 @@ const CKPostEditor = ({
       ref={editorRef}
       onChange={onChange}
       onFocus={onFocus}
-      editor={isCollaborative ? PostEditorCollaboration : PostEditor}
+      editor={getCkPostEditor(!!isCollaborative)}
       data={data}
-      onInit={(editor: Editor) => {
+      isCollaborative={!!isCollaborative}
+      onReady={(editor: Editor) => {
+        setEditorObject(editor);
+
         if (isCollaborative) {
           // Uncomment this line and the import above to activate the CKEditor debugger
           // CKEditorInspector.attach(editor)
@@ -506,9 +607,9 @@ const CKPostEditor = ({
           
           applyCollabModeToCkEditor(editor, collaborationMode);
           
-          editor.keystrokes.set('CTRL+ALT+M', 'addCommentThread')
+          editor.keystrokes.set('CTRL+ALT+M', 'addCommentThread');
 
-          editorRef.current?.domContainer?.current?.addEventListener('keydown', (event: KeyboardEvent) => {
+          (editorRef.current as AnyBecauseHard)?.domContainer?.current?.addEventListener('keydown', (event: KeyboardEvent) => {
             handleSubmitWithoutNewline(editor, currentUser, event);
           }, { capture: true });
           
@@ -609,43 +710,9 @@ const CKPostEditor = ({
           });
         }
 
-        if (onInit) onInit(editor)
+        onReady(editor)
       }}
-      config={{
-        ...(post.collabEditorDialogue ? {blockToolbar: [
-          'imageUpload',
-          'insertTable',
-          'horizontalLine',
-          'mathDisplay',
-          'mediaEmbed',
-          'footnote',
-        ]} : {}),
-        autosave: {
-          save (editor: any) {
-            return onSave && onSave(editor.getData())
-          }
-        },
-        cloudServices: ckEditorCloudConfigured ? {
-          tokenUrl: generateTokenRequest(collectionName, fieldName, documentId, userId, formType, key),
-          uploadUrl: ckEditorUploadUrlOverrideSetting.get() || ckEditorUploadUrlSetting.get(),
-          webSocketUrl: webSocketUrl,
-          documentId: getCKEditorDocumentId(documentId, userId, formType),
-          bundleVersion: ckEditorBundleVersion,
-        } : undefined,
-        collaboration: ckEditorCloudConfigured ? {
-          channelId: getCKEditorDocumentId(documentId, userId, formType)
-        } : undefined,
-        sidebar: {
-          container: sidebarRef.current
-        },
-        presenceList: {
-          container: hiddenPresenceListRef.current
-        },
-        initialData: initData,
-        placeholder: placeholder ?? defaultEditorPlaceholder,
-        mention: mentionPluginConfiguration,
-        dialogues: dialogueConfiguration
-      }}
+      config={editorConfig}
     />}
     {post.collabEditorDialogue && !isFriendlyUI ? <DialogueEditorFeedback post={post} /> : null}
   </div>

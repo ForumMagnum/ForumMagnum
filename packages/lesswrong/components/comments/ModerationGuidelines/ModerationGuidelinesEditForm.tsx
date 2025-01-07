@@ -23,10 +23,12 @@ const styles = (theme: ThemeType): JssStyles => ({
 const ModerationGuidelinesEditForm = ({ commentType = "post", documentId, onClose, classes }: {
   commentType?: "post" | "subforum",
   documentId: string,
-  onClose?: ()=>void,
+  onClose?: () => void,
   classes: ClassesType,
 }) => {
   const isPost = commentType === "post"
+  // FIXME: Unstable component will lose state on rerender
+  // eslint-disable-next-line react/no-unstable-nested-components
   const SubmitComponent = ({submitLabel = "Submit"}) => {
     return <div className="form-submit">
       <Button
@@ -58,7 +60,7 @@ const ModerationGuidelinesEditForm = ({ commentType = "post", documentId, onClos
           successCallback={onClose}
           formComponents={{
             FormSubmit: SubmitComponent,
-            FormGroupLayout: Components.DefaultStyleFormGroup
+            FormGroupLayout: Components.FormGroupNoStyling
           }}
           extraVariables={isPost ? {
             version: 'String'

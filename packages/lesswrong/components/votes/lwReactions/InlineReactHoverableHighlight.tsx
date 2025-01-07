@@ -1,75 +1,146 @@
 import React, { useContext } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import type { NamesAttachedReactionsList, QuoteLocator } from '../../../lib/voting/namesAttachedReactions';
-import type { VotingProps } from '../votingProps';
+import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import { QuoteLocator, NamesAttachedReactionsList, getNormalizedReactionsListFromVoteProps } from '@/lib/voting/namesAttachedReactions';
 import classNames from 'classnames';
-import { HoveredReactionListContext } from './HoveredReactionContextProvider';
+import { HoveredReactionListContext, InlineReactVoteContext, SetHoveredReactionContext } from './HoveredReactionContextProvider';
 import sumBy from 'lodash/sumBy';
+import { useHover, UseHoverEventHandlers } from '@/components/common/withHover';
+import type { VotingProps } from '../votingProps';
+import { useCurrentUser } from '@/components/common/withUser';
+import { defaultInlineReactsMode, SideItemVisibilityContext } from '@/components/dropdowns/posts/SetSideItemVisibility';
 
-const styles = (theme: ThemeType): JssStyles => ({
-  highlight: {
-    "&:hover": {
-      backgroundColor: theme.palette.grey[200],
+const styles = (theme: ThemeType) => ({
+  reactionTypeHovered: {
+    backgroundColor: theme.palette.greyAlpha(0.1),
+  },
+
+  sidebarInlineReactIcons: {
+    display: "none",
+    opacity: 0.5,
+    marginLeft: 4,
+    paddingLeft: 4,
+    paddingRight: 4,
+    
+    [theme.breakpoints.up('sm')]: {
+      display: "inline-block",
     },
+  },
+  inlineReactSidebarLine: {
+    background: theme.palette.sideItemIndicator.inlineReaction,
   },
   
-  reactionTypeHovered: {
-    backgroundColor: theme.palette.background.primaryTranslucentHeavy,
-  },
-
-  // Comment or post hovered
-  "@global": {
-    [
-      ".CommentsItem-body:hover .InlineReactHoverableHighlight-highlight"
-      +", .Answer-answer:hover .InlineReactHoverableHighlight-highlight"
-      +", .PostsPage-postContent:hover .InlineReactHoverableHighlight-highlight"
-    ]: {
-      textDecorationLine: 'underline',
-      textDecorationStyle: 'dashed',
-      textDecorationColor: theme.palette.text.dim4,
-      textUnderlineOffset: '3px'
-    },
-  }
+  // Keeping this empty class around is necessary for the following @global style to work properly
+  highlight: {},
 })
 
-const InlineReactHoverableHighlight = ({quote,reactions, voteProps, children, classes}: {
+const InlineReactHoverableHighlight = ({quote, reactions, isSplitContinuation=false, children, classes}: {
   quote: QuoteLocator,
   reactions: NamesAttachedReactionsList,
-  voteProps: VotingProps<VoteableTypeClient>,
+  isSplitContinuation?: boolean
   children: React.ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
-  const { InlineReactHoverInfo, LWTooltip } = Components;
+  const { InlineReactHoverInfo, SideItem, LWTooltip } = Components;
+
   const hoveredReactions = useContext(HoveredReactionListContext);
+  const voteProps = useContext(InlineReactVoteContext);
+
   const isHovered = hoveredReactions
     && Object.keys(reactions).some(reaction =>
-      hoveredReactions.find(r=>r===reaction)
+      hoveredReactions.find(r=>r.reactionName===reaction && (r.quote === quote || r.quote === null))
     );
+
+  const setHoveredReaction = useContext(SetHoveredReactionContext);
+
+  function updateHoveredReactions(isHovered: boolean) {
+    for (const [reactionName, documentReactionInfo] of Object.entries(reactions)) {
+      if (documentReactionInfo) {
+        for (const { quotes } of documentReactionInfo) {
+          const [reactQuote] = quotes ?? [];
+          if (quote === reactQuote) {
+            setHoveredReaction?.({ isHovered, quote: reactQuote, reactionName });
+          }
+        }
+      }
+    }
+  }
+
+  const { eventHandlers } = useHover({
+    onEnter: () => updateHoveredReactions(true),
+    onLeave: () => updateHoveredReactions(false)
+  });
   
   // (reactions is already filtered by quote, we don't have to filter it again for this)
   const anyPositive = atLeastOneQuoteReactHasPositiveScore(reactions);
+
+  const visibilityMode = useContext(SideItemVisibilityContext)?.inlineReactsMode ?? defaultInlineReactsMode;
+  let sideItemIsVisible = false
+  switch(visibilityMode) {
+    case "hidden":      sideItemIsVisible = false; break;
+    case "netPositive": sideItemIsVisible = anyPositive; break;
+    case "all":         sideItemIsVisible = true; break;
+  }
   
+  // We underline any given inline react if either:
+  // 1) the quote itself is hovered over, or
+  // 2) if the post/comment is hovered over, and the react has net-positive agreement across all users
   const shouldUnderline = isHovered || anyPositive;
 
-  return <LWTooltip
-    title={<InlineReactHoverInfo
-      quote={quote}
-      reactions={reactions}
-      voteProps={voteProps}
-    />}
-    placement="top-start"
-    tooltip={false}
-    flip={false}
-    inlineBlock={false}
-    clickable={true}
-  >
+  if (!voteProps) {
+    return null;
+  }
+
+  return (
     <span className={classNames({
       [classes.highlight]: shouldUnderline,
       [classes.reactionTypeHovered]: isHovered
     })}>
+      {!isSplitContinuation && sideItemIsVisible && <SideItem options={{format: "icon"}}>
+        <SidebarInlineReact
+          hoverEventHandlers={eventHandlers}
+          quote={quote} reactions={reactions} voteProps={voteProps} classes={classes}
+        />
+      </SideItem>}
       {children}
     </span>
-  </LWTooltip>
+  );
+}
+
+const SidebarInlineReact = ({quote,reactions, voteProps, hoverEventHandlers, classes}: {
+  quote: QuoteLocator,
+  reactions: NamesAttachedReactionsList,
+  voteProps: VotingProps<VoteableTypeClient>,
+  hoverEventHandlers: UseHoverEventHandlers,
+  classes: ClassesType<typeof styles>,
+}) => {
+  const { SideItemLine, LWTooltip, InlineReactHoverInfo } = Components;
+  const currentUser = useCurrentUser();
+  const normalizedReactions = getNormalizedReactionsListFromVoteProps(voteProps)?.reacts ?? {};
+  const reactionsUsed = Object.keys(normalizedReactions).filter(react =>
+    normalizedReactions[react]?.some(r=>r.quotes?.includes(quote))
+  );
+  
+  return <>
+    <SideItemLine colorClass={classes.inlineReactSidebarLine}/>
+    <span {...hoverEventHandlers} className={classes.sidebarInlineReactIcons}>
+      {reactionsUsed.map(r => <span key={r}>
+        <LWTooltip
+          title={<InlineReactHoverInfo
+            quote={quote}
+            reactions={reactions}
+            voteProps={voteProps}
+          />}
+          placement="bottom-start"
+          tooltip={false}
+          flip={true}
+          inlineBlock={false}
+          clickable={true}
+        >
+          <Components.ReactionIcon react={r}/>
+        </LWTooltip>
+      </span>)}
+    </span>
+  </>
 }
 
 function atLeastOneQuoteReactHasPositiveScore(reactions: NamesAttachedReactionsList): boolean {

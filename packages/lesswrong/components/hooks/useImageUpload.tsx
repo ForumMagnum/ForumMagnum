@@ -1,11 +1,11 @@
 import React, { useCallback } from "react";
-import Helmet from "react-helmet";
 import { requireCssVar } from "../../themes/cssVars";
 import {
   cloudinaryCloudNameSetting,
   DatabasePublicSetting,
 } from "../../lib/publicSettings";
 import { useTheme } from "../themes/useTheme";
+import { Helmet } from "../../lib/utils/componentsWithChildren";
 
 const cloudinaryUploadPresetGridImageSetting = new DatabasePublicSetting<string>(
   "cloudinary.uploadPresetGridImage",
@@ -31,6 +31,10 @@ const cloudinaryUploadPresetSpotlightSetting = new DatabasePublicSetting<string 
   "cloudinary.uploadPresetSpotlight",
   "yjgxmsio",
 );
+const cloudinaryUploadPresetDigestSetting = new DatabasePublicSetting<string | null>(
+  "cloudinary.uploadPresetDigest",
+  null,
+);
 
 type CloudinaryImageUploadError = {
   statusText: string,
@@ -42,7 +46,7 @@ type CloundinaryImageUploadResult = {
     public_id?: string,
   },
 } | {
-  event:string,
+  event: string,
   info: Record<string, unknown>,
 };
 
@@ -154,10 +158,10 @@ const cloudinaryArgsByImageType = {
     uploadPreset: cloudinaryUploadPresetProfileSetting.get(),
   },
   socialPreviewImageId: {
-    minImageHeight: 400,
-    minImageWidth: 700,
+    minImageHeight: 270,
+    minImageWidth: 500,
     croppingAspectRatio: 1.91,
-    croppingDefaultSelectionRatio: 1,
+    croppingDefaultSelectionRatio: 1.91,
     uploadPreset: cloudinaryUploadPresetSocialPreviewSetting.get(),
   },
   eventImageId: {
@@ -178,6 +182,12 @@ const cloudinaryArgsByImageType = {
     minImageWidth: 345,
     cropping: false,
     uploadPreset: cloudinaryUploadPresetSpotlightSetting.get()
+  },
+  onsiteDigestImageId: {
+    minImageHeight: 300,
+    minImageWidth: 200,
+    cropping: false,
+    uploadPreset: cloudinaryUploadPresetDigestSetting.get()
   },
 } as const;
 
@@ -256,6 +266,7 @@ export const useImageUpload = ({
           },
         },
       },
+      maxFileSize: 5_000_000, // 5 MB
       ...cloudinaryArgs,
       uploadPreset,
       croppingAspectRatio,

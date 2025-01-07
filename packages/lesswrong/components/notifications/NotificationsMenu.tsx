@@ -1,5 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
+import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
 import Badge from '@material-ui/core/Badge';
 import Tab from '@material-ui/core/Tab';
@@ -14,7 +15,7 @@ import classNames from 'classnames';
 import * as _ from 'underscore';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "inline-block",
     verticalAlign: "top",
@@ -39,16 +40,21 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   icon: {
     color: theme.palette.icon.slightlyDim,
+    "$tabLabel:hover &": {
+      color: theme.palette.greyAlpha(1.0),
+    },
   },
-  hideButton: {
+  cancel: {
     position: "absolute",
     top: 0,
     right: 5,
-  },
-  cancel: {
-    color: theme.palette.icon.dim5,
     margin: "10px",
     cursor: "pointer",
+
+    color: theme.palette.icon.dim5,
+    "&:hover": {
+      color: theme.palette.icon.normal,
+    },
   },
   tabBar: {
     background: theme.palette.panelBackground.notificationMenuTabBar,
@@ -64,21 +70,20 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const NotificationsMenu = ({ unreadPrivateMessages, open, setIsOpen, hasOpened, classes }: {
-  unreadPrivateMessages: number,
+const NotificationsMenu = ({open, setIsOpen, hasOpened, classes}: {
   open: boolean,
   setIsOpen: (isOpen: boolean) => void,
   hasOpened: boolean,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
+  const {unreadPrivateMessages} = useUnreadNotifications();
   const [tab,setTab] = useState(0);
 
-  const [lastNotificationsCheck] = useState(currentUser?.lastNotificationsCheck ?? "");
   if (!currentUser) {
     return null;
   }
-  const notificationCategoryTabs: Array<{ name: string, icon: ()=>React.ReactNode, terms: NotificationsViewTerms }> = [
+  const notificationCategoryTabs: Array<{ name: string, icon: () => React.ReactNode, terms: NotificationsViewTerms }> = [
     {
       name: "All Notifications",
       icon: () => (<Components.ForumIcon icon="Bell" className={classes.icon}/>),
@@ -155,7 +160,7 @@ const NotificationsMenu = ({ unreadPrivateMessages, open, setIsOpen, hasOpened, 
                 */}
               <Tab className={classes.hiddenTab} />
             </Tabs>
-            <ClearIcon className={classNames(classes.hideButton, classes.cancel)} onClick={() => setIsOpen(false)} />
+            <ClearIcon className={classes.cancel} onClick={() => setIsOpen(false)} />
             <Components.NotificationsList terms={{...notificationTerms, userId: currentUser._id}} currentUser={currentUser}/>
           </div>}
         </SwipeableDrawer>}

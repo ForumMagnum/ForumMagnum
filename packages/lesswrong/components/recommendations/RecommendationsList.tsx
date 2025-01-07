@@ -31,7 +31,7 @@ const RecommendationsList = ({
   classes: ClassesType,
 }) => {
   const {PostsLoading, Typography} = Components;
-  const {recommendationsLoading, recommendations} = useRecommendations(algorithm);
+  const {recommendationsLoading, recommendations} = useRecommendations({ algorithm });
 
   if (recommendationsLoading || !recommendations)
     return loadingFallback ?? <PostsLoading/>;

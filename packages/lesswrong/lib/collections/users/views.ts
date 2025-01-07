@@ -1,10 +1,11 @@
 import Users from "../users/collection";
-import { ensureIndex } from '../../collectionIndexUtils';
+import { ensureCustomPgIndex, ensureIndex } from '../../collectionIndexUtils';
 import { spamRiskScoreThreshold } from "../../../components/common/RecaptchaWarning";
 import pick from 'lodash/pick';
 import isNumber from 'lodash/isNumber';
 import mapValues from 'lodash/mapValues';
 import { viewFieldNullOrMissing } from "../../vulcan-lib";
+import { isEAForum } from "../../instanceSettings";
 
 declare global {
   interface UsersViewTerms extends ViewTermsBase {
@@ -54,8 +55,6 @@ ensureIndex(Users, {"services.resume.loginTokens": 1});
 // Case-insensitive email index
 ensureIndex(Users, {email: 1}, {sparse: 1, collation: { locale: 'en', strength: 2 }})
 ensureIndex(Users, {'emails.address': 1}, {sparse: 1, unique: true, collation: { locale: 'en', strength: 2 }}) //TODO: Deprecate or change to use email
-
-ensureIndex(Users, {email: 1})
 
 const termsToMongoSort = (terms: UsersViewTerms) => {
   if (!terms.sort)
@@ -147,7 +146,7 @@ Users.addView("sunshineNewUsers", function (terms: UsersViewTerms) {
 })
 ensureIndex(Users, {needsReview: 1, signUpReCaptchaRating: 1, createdAt: -1})
 
-Users.addView("recentlyActive", function (terms:UsersViewTerms) {
+Users.addView("recentlyActive", function (terms: UsersViewTerms) {
   return {
     selector: {
       $or: [
@@ -284,3 +283,42 @@ Users.addView("usersWithOptedInToDialogueFacilitation", function (terms: UsersVi
 })
 
 ensureIndex(Users, { optedInToDialogueFacilitation: 1, karma: -1 });
+
+// These partial indexes are set up to allow for a very efficient index-only scan when deciding which userIds need to be emailed for post curation.
+// Used by `CurationEmailsRepo.getUserIdsToEmail`.
+// The EA Forum version of the index is missing the fm_has_verified_email conditional to match the behavior of `reasonUserCantReceiveEmails`.
+void ensureCustomPgIndex(`
+  CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_Users_subscribed_to_curated_verified"
+  ON "Users" USING btree (
+    "emailSubscribedToCurated",
+    "unsubscribeFromAll",
+    "deleted",
+    "email",
+    fm_has_verified_email(emails),
+    "_id"
+  )
+  WHERE "emailSubscribedToCurated" IS TRUE
+    AND "unsubscribeFromAll" IS NOT TRUE
+    AND "deleted" IS NOT TRUE
+    AND "email" IS NOT NULL
+    AND fm_has_verified_email(emails);
+`, {
+  dependencies: [
+    {type: "function", name: "fm_has_verified_email"}
+  ],
+});
+
+void ensureCustomPgIndex(`
+  CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_Users_subscribed_to_curated"
+  ON "Users" USING btree (
+    "emailSubscribedToCurated",
+    "unsubscribeFromAll",
+    "deleted",
+    "email",
+    "_id"
+  )
+  WHERE "emailSubscribedToCurated" IS TRUE
+    AND "unsubscribeFromAll" IS NOT TRUE
+    AND "deleted" IS NOT TRUE
+    AND "email" IS NOT NULL;
+`);

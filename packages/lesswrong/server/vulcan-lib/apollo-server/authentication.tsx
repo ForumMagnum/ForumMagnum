@@ -1,12 +1,12 @@
 import React from 'react'
-import { createMutator, updateMutator } from "../mutators";
+import { createMutator } from "../mutators";
 import passport from 'passport'
 import bcrypt from 'bcrypt'
 import { createHash, randomBytes } from "crypto";
 import GraphQLLocalStrategy from "./graphQLLocalStrategy";
 import sha1 from 'crypto-js/sha1';
 import { addGraphQLMutation, addGraphQLSchema, addGraphQLResolvers, } from "../../../lib/vulcan-lib";
-import { getForwardedWhitelist } from "../../forwarded_whitelist";
+import { getClientIP } from '@/server/utils/getClientIP';
 import { LWEvents } from "../../../lib/collections/lwevents";
 import Users from "../../../lib/vulcan-users";
 import { hashLoginToken, userIsBanned } from "../../loginTokens";
@@ -79,7 +79,7 @@ const passwordAuthStrategy = new GraphQLLocalStrategy(async function getUserPass
 passport.use(passwordAuthStrategy)
 
 
-function validatePassword(password:string): {validPassword: true} | {validPassword: false, reason: string} {
+function validatePassword(password: string): {validPassword: true} | {validPassword: false, reason: string} {
   if (password.length < 6) return { validPassword: false, reason: "Your password needs to be at least 6 characters long"}
   return { validPassword: true }
 }
@@ -202,7 +202,7 @@ const ResetPasswordToken = new EmailTokenType({
 const authenticationResolvers = {
   Mutation: {
     async login(root: void, { username, password }: {username: string, password: string}, { req, res }: ResolverContext) {
-      let token:string | null = null
+      let token: string | null = null
 
       await promisifiedAuthenticate(req, res, 'graphql-local', { username, password }, (err, user, info) => {
         return new Promise((resolve, reject) => {
@@ -247,7 +247,7 @@ const authenticationResolvers = {
       }
 
       const reCaptchaResponse = await getCaptchaRating(reCaptchaToken)
-      let recaptchaScore : number | undefined = undefined
+      let recaptchaScore: number | undefined = undefined
       if (reCaptchaResponse) {
         const reCaptchaData = JSON.parse(reCaptchaResponse)
         if (reCaptchaData.success && reCaptchaData.action === "login/signup") {
@@ -311,13 +311,6 @@ const authenticationResolvers = {
       else
         return `Failed to send password reset email. The account might not have a valid email address configured.`;
     },
-    async verifyEmail(root: void, { userId }: {userId: string}, context: ResolverContext) {
-      if (!userId) throw Error("User ID is required for validating your email")
-      const user = await Users.findOne({_id: userId})
-      if (!user) throw Error("Can't find user with given ID")
-      await sendVerificationEmail(user)
-      return `Successfully sent verification email to ${user.displayName}`
-    }
   } 
 };
 
@@ -326,7 +319,6 @@ addGraphQLMutation('login(username: String, password: String): LoginReturnData')
 addGraphQLMutation('signup(username: String, email: String, password: String, subscribeToCurated: Boolean, reCaptchaToken: String, abTestKey: String): LoginReturnData');
 addGraphQLMutation('logout: LoginReturnData');
 addGraphQLMutation('resetPassword(email: String): String');
-addGraphQLMutation('verifyEmail(userId: String): String');
 
 async function insertHashedLoginToken(userId: string, hashedToken: string) {
   const tokenWithMetadata = {
@@ -349,7 +341,7 @@ function registerLoginEvent(user: DbUser, req: AnyBecauseTodo) {
     userId: user._id,
     properties: {
       type: 'passport-login',
-      ip: getForwardedWhitelist().getClientIP(req),
+      ip: getClientIP(req),
       userAgent: req.headers['user-agent'],
       referrer: req.headers['referer']
     }
@@ -360,23 +352,6 @@ function registerLoginEvent(user: DbUser, req: AnyBecauseTodo) {
     currentUser: user,
     validate: false,
   })
-  
-  const clientId = getCookieFromReq(req, "clientId");
-  if (clientId) {
-    void recordAssociationBetweenUserAndClientID(clientId, user);
-  }
-}
-
-async function recordAssociationBetweenUserAndClientID(clientId: string, user: DbUser) {
-  const clientIdEntry = await ClientIds.findOne({clientId});
-  if (clientIdEntry) {
-    const userId = user._id;
-    if (!clientIdEntry.userIds?.includes(userId)) {
-      await ClientIds.rawUpdateOne({clientId}, {$set: {
-        userIds: [...(clientIdEntry.userIds??[]), userId],
-      }});
-    }
-  }
 }
 
 const reCaptchaSecretSetting = new DatabaseServerSetting<string | null>('reCaptcha.secret', null) // ReCaptcha Secret

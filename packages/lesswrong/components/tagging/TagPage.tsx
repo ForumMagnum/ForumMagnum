@@ -20,6 +20,8 @@ import truncateTagDescription from "../../lib/utils/truncateTagDescription";
 import { getTagStructuredData } from "./TagPageRouter";
 import { HEADER_HEIGHT } from "../common/Header";
 import { isFriendlyUI } from "../../themes/forumTheme";
+import DeferRender from "../common/DeferRender";
+import {quickTakesTagsEnabledSetting} from '../../lib/publicSettings'
 
 export const tagPageHeaderStyles = (theme: ThemeType) => ({
   postListMeta: {
@@ -36,6 +38,15 @@ export const tagPageHeaderStyles = (theme: ThemeType) => ({
     marginRight: 8,
   },
 });
+
+const sidePaddingStyle = (theme: ThemeType) => ({
+  paddingLeft: 42,
+  paddingRight: 42,
+  [theme.breakpoints.down('xs')]: {
+    paddingLeft: '8px',
+    paddingRight: '8px',
+  },
+})
 
 // Also used in TagCompareRevisions, TagDiscussionPage
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -72,8 +83,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   header: {
     paddingTop: 19,
     paddingBottom: 5,
-    paddingLeft: 42,
-    paddingRight: 42,
+    ...sidePaddingStyle(theme),
     background: theme.palette.panelBackground.default,
     borderTopLeftRadius: theme.borderRadius.default,
     borderTopRightRadius: theme.borderRadius.default,
@@ -115,8 +125,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   wikiSection: {
     paddingTop: 5,
-    paddingLeft: 42,
-    paddingRight: 42,
+    ...sidePaddingStyle(theme),
     paddingBottom: 12,
     marginBottom: 24,
     background: theme.palette.panelBackground.default,
@@ -124,8 +133,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     borderBottomRightRadius: theme.borderRadius.default,
   },
   subHeading: {
-    paddingLeft: 42,
-    paddingRight: 42,
+    ...sidePaddingStyle(theme),
     marginTop: -2,
     background: theme.palette.panelBackground.default,
     ...theme.typography.body2,
@@ -178,6 +186,15 @@ export const tagPostTerms = (tag: Pick<TagBasicInfo, "_id" | "name"> | null, que
   })
 }
 
+export const RelevanceLabel = () => (
+  <Components.LWTooltip
+    title='"Relevance" represents how related the tag is to the post it is tagging. You can vote on relevance below, or by hovering over tags on post pages.'
+    placement="bottom-end"
+  >
+    Relevance
+  </Components.LWTooltip>
+);
+
 const PostsListHeading: FC<{
   tag: TagPageFragment|TagPageWithRevisionFragment,
   query: Record<string, string>,
@@ -190,7 +207,9 @@ const PostsListHeading: FC<{
         <SectionTitle title={`Posts tagged ${tag.name}`} />
         <div className={classes.postListMeta}>
           <PostsListSortDropdown value={query.sortedBy || "relevance"} />
-          <div className={classes.relevance}>Relevance</div>
+          <div className={classes.relevance}>
+            <RelevanceLabel />
+          </div>
         </div>
       </>
     );
@@ -210,7 +229,7 @@ const TagPage = ({classes}: {
     PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, Typography,
     PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection,
     TagPageButtonRow, ToCColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
-    TagTableOfContents, TagVersionHistoryButton, ContentStyles,
+    TagTableOfContents, TagVersionHistoryButton, ContentStyles, CommentsListCondensed,
   } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
@@ -446,17 +465,36 @@ const TagPage = ({classes}: {
             tag={tag}
           />}
           {tag.sequence && <TagIntroSequence tag={tag} />}
-          {!tag.wikiOnly && <AnalyticsContext pageSectionContext="tagsSection">
-            <PostsListHeading tag={tag} query={query} classes={classes} />
-            <PostsList2
-              terms={terms}
-              enableTotal
-              tagId={tag._id}
-              itemsPerPage={200}
-            >
-              <AddPostsToTag tag={tag} />
-            </PostsList2>
-          </AnalyticsContext>}
+          {!tag.wikiOnly && <>
+            <AnalyticsContext pageSectionContext="tagsSection">
+              <PostsList2
+                header={<PostsListHeading tag={tag} query={query} classes={classes} />}
+                terms={terms}
+                enableTotal
+                tagId={tag._id}
+                itemsPerPage={200}
+                showNoResults={false}
+              >
+                <AddPostsToTag tag={tag} />
+              </PostsList2>
+            </AnalyticsContext>
+            {quickTakesTagsEnabledSetting.get() && <DeferRender ssr={false}>
+              <AnalyticsContext pageSectionContext="quickTakesSection">
+                <CommentsListCondensed
+                  label="Quick takes"
+                  terms={{
+                    view: "tagSubforumComments" as const,
+                    tagId: tag._id,
+                    sortBy: 'new',
+                  }}
+                  initialLimit={8}
+                  itemsPerPage={20}
+                  showTotal
+                  hideTag
+                />
+              </AnalyticsContext>
+            </DeferRender>}
+          </>}
         </div>
       </ToCColumn>
     </div>

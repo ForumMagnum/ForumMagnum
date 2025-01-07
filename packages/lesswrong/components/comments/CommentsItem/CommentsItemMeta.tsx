@@ -4,13 +4,13 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { isEAForum } from "../../../lib/instanceSettings";
 import { userIsPostCoauthor } from "../../../lib/collections/posts/helpers";
-import { useCommentLink } from "./useCommentLink";
-import { Comments } from "../../../lib/collections/comments";
+import { useCommentLink, useCommentLinkState } from "./useCommentLink";
 import { userIsAdmin } from "../../../lib/vulcan-users";
 import { useCurrentUser } from "../../common/withUser";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from "../commentTree";
 import { isBookUI, isFriendlyUI } from "../../../themes/forumTheme";
+import { commentPermalinkStyleSetting } from "@/lib/publicSettings";
 
 export const metaNoticeStyles = (theme: ThemeType) => ({
     color: theme.palette.lwTertiary.main,
@@ -52,8 +52,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     opacity: 0.8,
     fontSize: "0.8rem",
     lineHeight: "1rem",
-    paddingBottom: 4,
-    display: "inline-block",
+    paddingBottom: isFriendlyUI ? 4 : 2,
+    display: isFriendlyUI ? "inline-block" : "flex",
     verticalAlign: "middle",
     transform: isFriendlyUI ? "translateY(3px)" : undefined,
 
@@ -67,6 +67,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   collapseChevronOpen: {
     transform: "rotate(90deg)",
+  },
+  collapseCharacter: {
+    transform: 'translateY(0.75px)',
   },
   username: {
     marginRight: isFriendlyUI ? 0 : 6,
@@ -111,12 +114,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
   },
   linkIcon: {
-    fontSize: "1.2rem",
+    "--icon-size": "15.6px",
     verticalAlign: "top",
     color: theme.palette.icon.dim,
     margin: "0 4px",
     position: "relative",
     top: 1,
+  },
+  linkIconHighlighted: {
+    strokeWidth: "0.7px",
+    stroke: "currentColor",
+    color: theme.palette.primary.main
   },
   menu: isFriendlyUI
     ? {
@@ -141,6 +149,7 @@ export const CommentsItemMeta = ({
   collapsed,
   toggleCollapse,
   setShowEdit,
+  rightSectionElements,
   classes,
 }: {
   treeOptions: CommentTreeOptions,
@@ -156,9 +165,11 @@ export const CommentsItemMeta = ({
   collapsed?: boolean,
   toggleCollapse?: () => void,
   setShowEdit: () => void,
-  classes: ClassesType,
+  rightSectionElements?: React.ReactNode,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
+  const { scrollToCommentId } = useCommentLinkState();
 
   const {
     postPage, showCollapseButtons, post, tag, singleLineCollapse, isSideComment,
@@ -222,10 +233,14 @@ export const CommentsItemMeta = ({
     ForumIcon, CommentsMenu, UserCommentMarkers
   } = Components;
 
+  // Note: This could be decoupled from `commentPermalinkStyleSetting` without any side effects
+  const highlightLinkIcon = commentPermalinkStyleSetting.get() === 'in-context' && scrollToCommentId === comment._id
+
   return (
-    <div className={classNames(classes.root, {
-      [classes.sideCommentMeta]: isSideComment,
-    })}>
+    <div className={classNames(
+      classes.root,
+      isSideComment && classes.sideCommentMeta,
+    )}>
       {!parentCommentId && !comment.parentCommentId && isParentComment &&
         <div>○</div>
       }
@@ -250,10 +265,9 @@ export const CommentsItemMeta = ({
         <a className={classes.collapse} onClick={toggleCollapse}>
           {isFriendlyUI
             ? <ForumIcon icon="ThickChevronRight" className={classNames(
-                classes.collapseChevron,
-                {[classes.collapseChevronOpen]: !collapsed},
+                classes.collapseChevron, !collapsed && classes.collapseChevronOpen
               )} />
-            : <>[<span>{collapsed ? "+" : "-"}</span>]</>
+            : <>[<span className={classes.collapseCharacter}>{collapsed ? "+" : "-"}</span>]</>
           }
         </a>
       }
@@ -279,7 +293,7 @@ export const CommentsItemMeta = ({
       }
       {!comment.debateResponse && !comment.rejected && <SmallSideVote
         document={comment}
-        collection={Comments}
+        collectionName="Comments"
         hideKarma={post?.hideCommentKarma}
       />}
 
@@ -321,9 +335,10 @@ export const CommentsItemMeta = ({
       </span>}
 
       <span className={classes.rightSection}>
+        {rightSectionElements}
         {isFriendlyUI &&
           <CommentLinkWrapper>
-            <ForumIcon icon="Link" className={classes.linkIcon} />
+            <ForumIcon icon="Link" className={classNames(classes.linkIcon, {[classes.linkIconHighlighted]: highlightLinkIcon})} />
           </CommentLinkWrapper>
         }
         {!isParentComment && !hideActionsMenu &&

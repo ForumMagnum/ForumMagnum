@@ -1,9 +1,8 @@
 import React, { useRef, useEffect } from 'react';
 import { fragmentTextForQuery, registerComponent, Components } from '../../lib/vulcan-lib';
-import { useQuery, gql } from '@apollo/client';
+import { useQuery, gql, ObservableQuery } from '@apollo/client';
 import { useOnPageScroll } from './withOnPageScroll';
 import { isClient } from '../../lib/executionEnvironment';
-import * as _ from 'underscore';
 import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
 
 const loadMoreDistance = 500;
@@ -25,7 +24,7 @@ const getQuery = ({resolverName, resolverArgs, fragmentArgs, sortKeyType, render
   sortKeyType: string,
   renderers: any,
 }) => {
-  const fragmentsUsed = _.filter(Object.keys(renderers).map(r => renderers[r].fragmentName), f=>f);
+  const fragmentsUsed = Object.keys(renderers).map(r => renderers[r].fragmentName).filter(f=>f);
   const queryArgsList=["$limit: Int", `$cutoff: ${sortKeyType}`, "$offset: Int",
     ...(resolverArgs ? Object.keys(resolverArgs).map(k => `$${k}: ${resolverArgs[k]}`) : []),
     ...(fragmentArgs ? Object.keys(fragmentArgs).map(k => `$${k}: ${fragmentArgs[k]}`) : []),
@@ -104,10 +103,36 @@ const MixedTypeFeed = (args: {
   // Ref that will be populated with a function that makes this feed refetch
   // (refetching everything, shrinking it to one page, and potentially scrolling
   // up by a bunch.)
-  refetchRef?: {current: null|(()=>void)},
+  refetchRef?: {current: null|ObservableQuery['refetch']},
+
+  // By default, MixedTypeFeed preserves the order of elements that persist across refetches.  If you don't want that, pass in true.
+  reorderOnRefetch?: boolean,
+
+  // Hide the loading spinner
+  hideLoading?: boolean,
+
+  // Disable automatically loading more - only show the initially fetched documents
+  disableLoadMore?: boolean,
+
+  className?: string,
 }) => {
-  const { resolverName, resolverArgs=null, resolverArgsValues=null, fragmentArgs=null, fragmentArgsValues=null, sortKeyType, renderers, firstPageSize=20, pageSize=20, refetchRef } = args;
-  
+  const {
+    resolverName,
+    resolverArgs=null,
+    resolverArgsValues=null,
+    fragmentArgs=null,
+    fragmentArgsValues=null,
+    sortKeyType,
+    renderers,
+    firstPageSize=20,
+    pageSize=20,
+    refetchRef,
+    reorderOnRefetch=false,
+    hideLoading,
+    disableLoadMore,
+    className,
+  } = args;
+
   // Reference to a bottom-marker used for checking scroll position.
   const bottomRef = useRef<HTMLDivElement|null>(null);
   
@@ -170,13 +195,14 @@ const MixedTypeFeed = (args: {
             // Deduplicate by removing repeated results from the newly fetched page. Ideally we
             // would use cursor-based pagination to avoid this
             const prevKeys = new Set(prev[resolverName].results.map(keyFunc));
-            const deduplicatedResults = fetchMoreResult[resolverName].results.filter((result: any) => !prevKeys.has(keyFunc(result)));
-
+            const newResults = fetchMoreResult[resolverName].results;
+            const deduplicatedResults = newResults.filter((result: any) => !prevKeys.has(keyFunc(result)));
+            
             return {
               [resolverName]: {
                 __typename: fetchMoreResult[resolverName].__typename,
                 cutoff: fetchMoreResult[resolverName].cutoff,
-                endOffset: data[resolverName].endOffset,
+                endOffset: fetchMoreResult[resolverName].endOffset,
                 results: [...prev[resolverName].results, ...deduplicatedResults],
               }
             };
@@ -186,7 +212,6 @@ const MixedTypeFeed = (args: {
     }
   }
 
-  
   // Load-more triggers. Check (1) after render, and (2) when the page is scrolled.
   // We *don't* check inside handleLoadFinished, because that's before the results
   // have been attached to the DOM, so we can''t test whether they reach the bottom.
@@ -194,17 +219,18 @@ const MixedTypeFeed = (args: {
   useOnPageScroll(maybeStartLoadingMore);
   
   const results = (data && data[resolverName]?.results) || [];
-  const orderedResults = useOrderPreservingArray(results, keyFunc);
-  return <div>
+  const orderPolicy = reorderOnRefetch ? 'no-reorder' : undefined;
+  const orderedResults = useOrderPreservingArray(results, keyFunc, orderPolicy);
+  return <div className={className}>
     {orderedResults.map((result) =>
       <div key={keyFunc(result)}>
         <RenderFeedItem renderers={renderers} item={result}/>
       </div>
     )}
-    
-    <div ref={bottomRef}/>
+
+    {!disableLoadMore && <div ref={bottomRef}/>}
     {error && <div>{error.toString()}</div>}
-    {!reachedEnd && <Loading/>}
+    {!hideLoading && !reachedEnd && <Loading/>}
   </div>
 }
 
@@ -237,4 +263,3 @@ declare global {
     MixedTypeFeed: typeof MixedTypeInfiniteComponent,
   }
 }
-

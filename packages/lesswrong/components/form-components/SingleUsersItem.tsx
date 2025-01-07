@@ -18,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const SingleUsersItem = ({userId, removeItem, classes }: {
   userId: string,
-  removeItem: (id: string)=>void,
+  removeItem: (id: string) => void,
   classes: ClassesType
 }) => {
   const { document, loading } = useSingle({

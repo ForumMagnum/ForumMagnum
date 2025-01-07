@@ -36,6 +36,9 @@ import difference from 'lodash/difference';
 import { updatePostDenormalizedTags } from '../tagging/helpers';
 import union from 'lodash/fp/union';
 import { updateMutator } from '../vulcan-lib';
+import { captureException } from '@sentry/core';
+import GraphQLJSON from 'graphql-type-json';
+import { getToCforTag } from '../tableOfContents';
 
 type SubforumFeedSort = {
   posts: SubquerySortField<DbPost, keyof DbPost>,
@@ -67,7 +70,7 @@ const subforumFeedSortings: Record<SubforumSorting, SubforumFeedSort> = {
   },
 }
 
-const createSubforumFeedResolver = <SortKeyType>(sorting: SubforumFeedSort) => async ({
+const createSubforumFeedResolver = <SortKeyType extends number | Date>(sorting: SubforumFeedSort) => async ({
   limit = 20, cutoff, offset, args: {tagId, af}, context,
 }: {
   limit?: number,
@@ -389,7 +392,9 @@ addGraphQLResolvers({
           removed: rev.changeMetrics.removed,
         };
       });
-    }
+    },
+
+    ActiveTagCount: () => Tags.find({deleted: {$ne: true}}).count(),
   }
 });
 
@@ -397,6 +402,7 @@ addGraphQLMutation('mergeTags(sourceTagId: String!, targetTagId: String!, transf
 addGraphQLQuery('TagUpdatesInTimeBlock(before: Date!, after: Date!): [TagUpdates!]');
 addGraphQLQuery('TagUpdatesByUser(userId: String!, limit: Int!, skip: Int!): [TagUpdates!]');
 addGraphQLQuery('RandomTag: Tag!');
+addGraphQLQuery('ActiveTagCount: Int!');
 
 type ContributorWithStats = {
   user: Partial<DbUser>,
@@ -446,6 +452,20 @@ augmentFieldsDict(Tags, {
         }
       }
     }
+  },
+  tableOfContents: {
+    resolveAs: {
+      arguments: 'version: String',
+      type: GraphQLJSON,
+      resolver: async (document: DbTag, args: {version: string}, context: ResolverContext) => {
+        try {
+          return await getToCforTag({document, version: args.version||null, context});
+        } catch(e) {
+          captureException(e);
+          return null;
+        }
+      }
+    },
   },
 });
 
@@ -535,30 +555,3 @@ export async function updateDenormalizedContributorsList(tag: DbTag): Promise<Co
   
   return contributionStats;
 }
-
-defineQuery({
-  name: "UserTopTags",
-  resultType: "[TagWithCommentCount!]",
-  argTypes: "(userId: String!)",
-  schema: `
-    type TagWithCommentCount {
-      tag: Tag
-      commentCount: Int!
-    }`,
-  fn: async (root: void, {userId}: {userId: string}, context: ResolverContext) => {
-    const tagsRepo = new TagsRepo();
-    const topTags = await tagsRepo.getUserTopTags(userId);
-
-    const topTagsFiltered = []
-    for (const tagWithCommentCount of topTags) {
-      const filteredTag = await accessFilterSingle(context.currentUser, context.Tags, tagWithCommentCount.tag, context)
-      if (filteredTag) {
-        topTagsFiltered.push({
-          tag: filteredTag,
-          commentCount: tagWithCommentCount.commentCount
-        })
-      }
-    }
-    return topTagsFiltered
-  },
-});

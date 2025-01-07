@@ -1,6 +1,6 @@
 import later from 'later';
 import * as _ from 'underscore';
-import { isAnyTest, onStartup } from '../../../lib/executionEnvironment';
+import { isAnyTest } from '../../../lib/executionEnvironment';
 import { CronHistories } from '../../../lib/collections/cronHistories';
 
 // A package for running jobs synchronized across multiple processes
@@ -18,11 +18,6 @@ export const SyncedCron: any = {
 
     //Default to using localTime
     utc: false,
-
-    //TTL in seconds for history records in collection to expire
-    //NOTE: Unset to remove expiry but ensure you remove the index from
-    //mongo by hand
-    collectionTTL: 172800
   },
   config: function(opts: any) {
     this.options = _.extend({}, this.options, opts);
@@ -69,7 +64,7 @@ function createLogger(prefix: string) {
 
 var log: any;
 
-onStartup(function() {
+export function initSyncedCron() {
   if (isAnyTest) return;
   var options = SyncedCron.options;
 
@@ -91,15 +86,7 @@ onStartup(function() {
 
   // collection holding the job history records
   SyncedCron._collection = CronHistories;
-
-  if (options.collectionTTL) {
-    if (options.collectionTTL > minTTL)
-      SyncedCron._collection._ensureIndex({startedAt: 1 },
-        { expireAfterSeconds: options.collectionTTL } );
-    else
-      log.warn('Not going to use a TTL that is shorter than:' + minTTL);
-  }
-});
+}
 
 var scheduleEntry = function(entry: any) {
   var schedule = entry.schedule(later.parse);
@@ -118,8 +105,8 @@ var scheduleEntry = function(entry: any) {
 // });
 SyncedCron.add = async function(entry: {
   name: string,
-  schedule: (parser: any)=>any,
-  job: ()=>void,
+  schedule: (parser: any) => any,
+  job: () => void,
   persist?: boolean,
 }) {
 

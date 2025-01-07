@@ -1,18 +1,17 @@
 import { DatabaseMetadata } from '../lib/collections/databaseMetadata/collection';
 import { isDevelopment } from '../lib/executionEnvironment';
-import { initializeSetting } from '../lib/publicSettings'
-import { getPublicSettings, getServerSettingsCache, getServerSettingsLoaded, registeredSettings } from '../lib/settingsCache';
+import {
+    getPublicSettings,
+    getServerSettingsCache,
+    getServerSettingsLoaded,
+    initializeSetting,
+    registeredSettings,
+} from '../lib/settingsCache'
 import groupBy from 'lodash/groupBy';
 import get from 'lodash/get'
 import { ensureIndex } from '../lib/collectionIndexUtils';
 
 const runValidateSettings = false
-
-ensureIndex(DatabaseMetadata, {
-  name: 1
-}, {
-  unique: true
-})
 
 if (isDevelopment && runValidateSettings) {
   // On development we validate the settings files, but wait 30 seconds to make sure that everything has really been loaded
@@ -53,7 +52,7 @@ export class DatabaseServerSetting<SettingValueType> {
   }
 }
 
-function validateSettings(registeredSettings:Record<string, "server" | "public" | "instance">, publicSettings:Record<string, any>, serverSettings:Record<string, any>) {
+function validateSettings(registeredSettings: Record<string, "server" | "public" | "instance">, publicSettings: Record<string, any>, serverSettings: Record<string, any>) {
   Object.entries(registeredSettings).forEach(([key, value]) => {
     if (value === "server" && typeof get(serverSettings, key) === "undefined") {
       // eslint-disable-next-line no-console
@@ -92,3 +91,10 @@ function validateSettings(registeredSettings:Record<string, "server" | "public" 
   // eslint-disable-next-line no-console
   console.log(groupBy(Object.keys(registeredSettings), key => registeredSettings[key]))
 }
+
+export const openAIApiKey = new DatabaseServerSetting<string|null>('languageModels.openai.apiKey', null);
+export const openAIOrganizationId = new DatabaseServerSetting<string|null>('languageModels.openai.organizationId', null);
+
+export const vertexDocumentServiceParentPathSetting = new DatabaseServerSetting<string | null>('googleVertex.documentServiceParentPath', null);
+export const vertexUserEventServiceParentPathSetting = new DatabaseServerSetting<string | null>('googleVertex.userEventServiceParentPath', null);
+export const vertexRecommendationServingConfigPathSetting = new DatabaseServerSetting<string | null>('googleVertex.recommendationServingConfigPath', null);

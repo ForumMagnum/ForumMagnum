@@ -50,7 +50,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const ReviewVotingExpandedPost = ({classes, post, setExpandedPost, showReviewButton=true}:{
+const ReviewVotingExpandedPost = ({classes, post, setExpandedPost, showReviewButton=true}: {
   classes: ClassesType, 
   post?: PostsReviewVotingList|null,
   showReviewButton?: boolean,

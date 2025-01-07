@@ -1,24 +1,27 @@
 import { isFriendlyUI, preferredHeadingCase } from "../../../themes/forumTheme";
 import { isEAForum, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from "../../instanceSettings";
 
-export const formGroups: Partial<Record<string, FormGroupType<"Posts">>> = {
+export const formGroups: Record<string, FormGroupType<"Posts">> = {
   default: {
     name: "default",
     order: 0,
-    paddingStyle: true,
+    layoutComponentProps: {
+      paddingStyling: true,
+    }
   },
   category: {
     name: "category",
     order: -20,
-    paddingStyle: true,
-    defaultStyle: true,
+    layoutComponent: "FormGroupPostTopBar",
   },
   title: {
     name: "title",
     order: -10,
-    paddingStyle: true,
-    defaultStyle: true,
-    flexAlignTopStyle: true,
+    layoutComponentProps: {
+      groupStyling: false,
+      paddingStyling: true,
+      flexAlignTopStyling: true
+    }
   },
   coauthors: {
     order: 21,
@@ -53,22 +56,26 @@ export const formGroups: Partial<Record<string, FormGroupType<"Posts">>> = {
   moderationGroup: {
     order: 60,
     name: "moderation",
-    label: preferredHeadingCase("Moderation Guidelines"),
-    helpText: "We prefill these moderation guidelines based on your user settings. But you can adjust them for each post.",
+    label: preferredHeadingCase(isFriendlyUI ? "Moderation" : "Moderation Guidelines"),
+    helpText: isFriendlyUI ? undefined : "We prefill these moderation guidelines based on your user settings. But you can adjust them for each post.",
     startCollapsed: true,
   },
   options: {
     order:10,
     name: "options",
-    defaultStyle: true,
-    paddingStyle: true,
-    flexStyle: true
+    layoutComponentProps: {
+      groupStyling: false,
+      paddingStyling: true,
+      flexStyling: true,
+    }
   },
   content: { //TODO – should this be 'contents'? is it needed?
     order:20,
     name: "Content",
-    defaultStyle: true,
-    paddingStyle: true,
+    layoutComponentProps: {
+      groupStyling: false,
+      paddingStyling: true,
+    }
   },
   canonicalSequence: {
     order:30,
@@ -95,9 +102,16 @@ export const formGroups: Partial<Record<string, FormGroupType<"Posts">>> = {
     startCollapsed: true
   },
   tags: {
-    order: isEAForum ? 20 : 60,
+    order: isEAForum ? 20 : 70,
     name: "tags",
     label: isEAForum ? `Set ${taggingNamePluralSetting.get()}` : `Apply ${taggingNamePluralCapitalSetting.get()}`,
     startCollapsed: false
+  },
+  glossary: {
+    order: 65,
+    name: "glossary",
+    label: "Glossary",
+    startCollapsed: false,
+    hideHeader: true,
   }
 };

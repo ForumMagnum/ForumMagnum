@@ -6,7 +6,7 @@ import { useMessages } from '../../common/withMessages';
 import classNames from 'classnames'
 import Divider from '@material-ui/core/Divider';
 import EmailIcon from '@material-ui/icons/Email';
-import { CloseableComponents, OpenDialogContextType, useDialog } from '../../common/withDialog'
+import { CloseableComponent, OpenDialogContextType, useDialog } from '../../common/withDialog'
 import { useCurrentUser } from '../../common/withUser';
 import moment from 'moment';
 import { captureEvent } from '../../../lib/analyticsEvents';
@@ -64,7 +64,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const createFallBackDialogHandler = (
   openDialog: OpenDialogContextType['openDialog'],
-  dialogName: CloseableComponents,
+  dialogName: CloseableComponent,
   currentUser: UsersCurrent | null
 ) => {
   return () => openDialog({
@@ -72,7 +72,7 @@ const createFallBackDialogHandler = (
   });
 }
 
-const HomepageMapFilter = ({classes}:{classes:ClassesType}) => {
+const HomepageMapFilter = ({classes}: {classes: ClassesType}) => {
   const { openDialog } = useDialog()
   const currentUser = useCurrentUser()
   const { flash } = useMessages()

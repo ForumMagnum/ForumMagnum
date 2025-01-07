@@ -1,9 +1,8 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import moment from '../../lib/moment-timezone';
+import moment from 'moment-timezone';
 import { timeframeToTimeBlock, TimeframeType } from './timeframeUtils'
-import { useTimezone } from '../common/withTimezone';
 import { QueryLink } from '../../lib/reactRouterWrapper';
 import type { ContentTypeString } from './PostsPage/ContentType';
 import filter from 'lodash/filter';
@@ -26,7 +25,6 @@ const styles = (theme: ThemeType): JssStyles => ({
         fontWeight: 600,
         fontSize: 18,
         color: theme.palette.grey[1000],
-        marginBottom: -12,
         marginTop: 25,
       }
       : {
@@ -59,12 +57,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   posts: {
     boxShadow: theme.palette.boxShadow.default,
+    marginBottom: isFriendlyUI ? 8 : 0,
   },
+  subtitle: isFriendlyUI ? {
+    marginTop: 12,
+  } : {},
   frontpageSubtitle: {
     marginBottom: 6
   },
   otherSubtitle: {
-    marginTop: isFriendlyUI ? -4 : 6,
+    marginTop: isFriendlyUI ? 0 : 6,
     marginBottom: 6
   },
   divider: {/* Exists only to get overriden by the eaTheme */}
@@ -72,7 +74,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 interface PostTypeOptions {
   name: ContentTypeString
-  postIsType: (post: PostsBase)=>boolean
+  postIsType: (post: PostsBase) => boolean
   label: string
 }
 
@@ -81,45 +83,15 @@ const postTypes: PostTypeOptions[] = [
   {name: 'personal', postIsType: (post: PostsBase) => !post.frontpageDate, label: 'Personal Blogposts'}
 ]
 
-const isToday = (date: moment.Moment) => date.isSameOrAfter(moment(0, "HH"));
-
-const getTitle = (
-  startDate: moment.Moment,
-  timeframe: TimeframeType,
-  size: 'xsDown' | 'smUp' | null,
-) => {
-  if (timeframe === 'yearly') {
-    return startDate.format('YYYY');
-  }
-  if (timeframe === 'monthly') {
-    return startDate.format('MMMM YYYY');
-  }
-
-  if (isFriendlyUI) {
-    const result = size === 'smUp'
-      ? startDate.format('ddd, D MMM YYYY')
-      : startDate.format('dddd, D MMMM YYYY');
-    if (timeframe === 'weekly') {
-      return `Week of ${result}`;
-    }
-    return isToday(startDate) ? result.replace(/.*,/, "Today,") : result;
-  }
-
-  const result = size === 'smUp'
-    ? startDate.format('ddd, MMM Do YYYY')
-    : startDate.format('dddd, MMMM Do YYYY');
-  if (timeframe === 'weekly') {
-    return `Week Of ${result}`;
-  }
-  return result;
-}
-
 export type PostsTimeBlockShortformOption = "all" | "none" | "frontpage";
 
 const PostsTimeBlock = ({
   terms,
   timeBlockLoadComplete,
-  startDate,
+  dateForTitle,
+  getTitle,
+  before,
+  after,
   hideIfEmpty,
   timeframe,
   shortform = "all",
@@ -127,8 +99,11 @@ const PostsTimeBlock = ({
   includeTags=true,
 }: {
   terms: PostsViewTerms,
-  timeBlockLoadComplete: ()=>void,
-  startDate: moment.Moment,
+  timeBlockLoadComplete: () => void,
+  dateForTitle: moment.Moment,
+  getTitle: (size: 'xsDown'|'smUp'|null) => string,
+  before: moment.Moment,
+  after: moment.Moment,
   hideIfEmpty: boolean,
   timeframe: TimeframeType,
   shortform?: PostsTimeBlockShortformOption,
@@ -137,14 +112,18 @@ const PostsTimeBlock = ({
 }) => {
   const [noShortform, setNoShortform] = useState(false);
   const [noTags, setNoTags] = useState(false);
-  const { timezone } = useTimezone();
 
   const [tagFilter, setTagFilter] = useState<string|null>(null)
   const {query} = useLocation()
   const displayPostsTagsList = query.limit
+  const timeBlock = timeframeToTimeBlock[timeframe];
 
   const { results: posts, totalCount, loading, loadMoreProps } = useMulti({
-    terms,
+    terms: {
+      ...terms,
+      before: before.toDate(),
+      after: after.toDate(),
+    },
     collectionName: "Posts",
     fragmentName: 'PostsListWithVotes',
     enableTotal: true,
@@ -179,9 +158,8 @@ const PostsTimeBlock = ({
 
   const {
     PostsItem, LoadMore, ShortformTimeBlock, TagEditsTimeBlock, ContentType,
-    Divider, Typography, PostsTagsList,
+    Divider, Typography, PostsTagsList, PostsLoading,
   } = Components;
-  const timeBlock = timeframeToTimeBlock[timeframe];
 
   const noPosts = !loading && (!filteredPosts || (filteredPosts.length === 0));
   // The most recent timeBlock is hidden if there are no posts or shortforms
@@ -195,24 +173,24 @@ const PostsTimeBlock = ({
     ...type,
     filteredPosts: filteredPosts?.filter(type.postIsType) || []
   }));
-
+  
   return (
     <div className={classes.root}>
       <QueryLink merge rel="nofollow" query={{
-        after: moment.tz(startDate, timezone).startOf(timeBlock).format("YYYY-MM-DD"), 
-        before: moment.tz(startDate, timezone).endOf(timeBlock).add(1, 'd').format("YYYY-MM-DD"),
+        after: after.format("YYYY-MM-DD"), 
+        before: moment(before).add(1, 'd').format("YYYY-MM-DD"),
         limit: 100
       }}>
         <Typography variant="headline" className={classes.timeBlockTitle}>
           {['yearly', 'monthly'].includes(timeframe) && <div>
-            {getTitle(startDate, timeframe, null)}
+            {getTitle(null)}
           </div>}
           {['weekly', 'daily'].includes(timeframe) && <div>
             <div className={classes.smallScreenTitle}>
-              {getTitle(startDate, timeframe, 'xsDown')}
+              {getTitle('xsDown')}
             </div>
             <div className={classes.largeScreenTitle}>
-              {getTitle(startDate, timeframe, 'smUp')}
+              {getTitle('smUp')}
             </div>
           </div>}
         </Typography>
@@ -221,27 +199,36 @@ const PostsTimeBlock = ({
       <div className={classes.dayContent}>
         { noPosts && <div className={classes.noPosts}>
           No posts for {
-          timeframe === 'daily' ?
-            startDate.format('MMMM Do YYYY') :
-            // Should be pretty rare. Basically people running off the end of
-            // the Forum history on yearly
-            `this ${timeBlock}`
+          timeframe === 'daily'
+            ? dateForTitle.format('MMMM Do YYYY')
+              // Should be pretty rare. Basically people running off the end of
+              // the Forum history on yearly
+            : `this ${timeBlock}`
           }
         </div> }
         {displayPostsTagsList && <PostsTagsList posts={posts ?? null} currentFilter={tagFilter} handleFilter={handleTagFilter} expandedMinCount={0}/>}
         {postGroups.map(({name, filteredPosts, label}) => {
-          if (filteredPosts?.length > 0) return <div key={name}>
-            <div
-              className={name === 'frontpage' ? classes.frontpageSubtitle : classes.otherSubtitle}
-            >
-              <ContentType type={name} label={label} />
+          if (filteredPosts?.length > 0 || (loading && isFriendlyUI)) {
+            return <div key={name}>
+              <div
+                className={name === 'frontpage' ? classes.frontpageSubtitle : classes.otherSubtitle}
+              >
+                <ContentType type={name} label={label} className={classes.subtitle} />
+              </div>
+              <div className={classes.posts}>
+                {!filteredPosts?.length && isFriendlyUI && <PostsLoading placeholderCount={10} />}
+                {filteredPosts.map((post, i) =>
+                  <PostsItem
+                    key={post._id}
+                    post={post}
+                    index={i} dense
+                    showBottomBorder={i < filteredPosts!.length -1}
+                    useCuratedDate={false}
+                  />
+                )}
+              </div>
             </div>
-            <div className={classes.posts}>
-              {filteredPosts.map((post, i) =>
-                <PostsItem key={post._id} post={post} index={i} dense showBottomBorder={i < filteredPosts!.length -1}/>
-              )}
-            </div>
-          </div>
+          }
         })}
 
         {(filteredPosts && filteredPosts.length < totalCount!) && <div className={classes.loadMore}>
@@ -252,19 +239,17 @@ const PostsTimeBlock = ({
 
         {shortform !== "none" && <ShortformTimeBlock
           reportEmpty={reportEmptyShortform}
+          before={before.toString()}
+          after={after.toString()}
           terms={{
             view: "topShortform",
-            // NB: The comments before differs from posts in that before is not
-            // inclusive
-            before: moment.tz(startDate, timezone).endOf(timeBlock).toString(),
-            after: moment.tz(startDate, timezone).startOf(timeBlock).toString(),
             shortformFrontpage: shortform === "frontpage" ? true : undefined,
           }}
         />}
 
         {timeframe==="daily" && includeTags && <TagEditsTimeBlock
-          before={moment.tz(startDate, timezone).endOf(timeBlock).toString()}
-          after={moment.tz(startDate, timezone).startOf(timeBlock).toString()}
+          before={before.toString()}
+          after={after.toString()}
           reportEmpty={reportEmptyTags}
         />}
       </div>

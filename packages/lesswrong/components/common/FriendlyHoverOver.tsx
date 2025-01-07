@@ -7,7 +7,7 @@ import classNames from "classnames";
 export const FRIENDLY_THIN_HOVER_OVER_WIDTH = 270;
 export const FRIENDLY_HOVER_OVER_WIDTH = 340;
 
-const styles = (theme: ThemeType) => ({
+export const styles = (theme: ThemeType) => ({
   root: {
     background: theme.palette.grey[0],
     borderRadius: theme.borderRadius.default,
@@ -30,6 +30,8 @@ export type FriendlyHoverOverProps = {
   analyticsProps?: AnalyticsProps,
   className?: string,
   popperClassName?: string,
+  onShow?: () => void,
+  onHide?: () => void,
   children: ReactNode,
   classes: ClassesType,
 }
@@ -49,6 +51,8 @@ const FriendlyHoverOver = ({
   analyticsProps,
   className,
   popperClassName,
+  onShow,
+  onHide,
   children,
   classes,
 }: FriendlyHoverOverProps) => {
@@ -65,6 +69,8 @@ const FriendlyHoverOver = ({
       clickable={clickable}
       flip={flip}
       analyticsProps={analyticsProps}
+      onShow={onShow}
+      onHide={onHide}
       className={className}
     >
       {children}

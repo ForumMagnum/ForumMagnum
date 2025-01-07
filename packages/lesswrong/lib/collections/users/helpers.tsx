@@ -1,21 +1,23 @@
-import bowser from 'bowser';
-import { isClient, isServer } from '../../executionEnvironment';
-import { forumTypeSetting, isEAForum, isLW, lowKarmaUserVotingCutoffDateSetting, lowKarmaUserVotingCutoffKarmaSetting } from "../../instanceSettings";
-import { getSiteUrl } from '../../vulcan-lib/utils';
+import { isServer } from '../../executionEnvironment';
+import {forumTypeSetting, isEAForum, verifyEmailsSetting} from '../../instanceSettings'
+import { combineUrls, getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissions';
 import React, { useEffect, useState } from 'react';
 import * as _ from 'underscore';
 import { getBrowserLocalStorage } from '../../../components/editor/localStorageHandlers';
-import { Components } from '../../vulcan-lib';
+import { Components } from '../../vulcan-lib/components';
 import type { PermissionResult } from '../../make_voteable';
 import { DatabasePublicSetting } from '../../publicSettings';
-import moment from 'moment';
-import { MODERATOR_ACTION_TYPES } from '../moderatorActions/schema';
+import { hasAuthorModeration } from '../../betas';
 
 const newUserIconKarmaThresholdSetting = new DatabasePublicSetting<number|null>('newUserIconKarmaThreshold', null)
 
+export const ACCOUNT_DELETION_COOLING_OFF_DAYS = 14;
+
+export type UserDisplayNameInfo = { username: string | null, fullName?: string | null, displayName: string | null };
+
 // Get a user's display name (not unique, can take special characters and spaces)
-export const userGetDisplayName = (user: { username: string | null, fullName?: string | null, displayName: string | null } | null): string => {
+export const userGetDisplayName = (user: UserDisplayNameInfo | null): string => {
   if (!user) {
     return "";
   } else {
@@ -45,6 +47,10 @@ export const userOwnsAndInGroup = (group: PermissionGroups) => {
  * Count a user as "new" if they have low karma or joined less than a week ago
  */
 export const isNewUser = (user: UsersMinimumInfo): boolean => {
+  const oneYearInMs = 365*24*60*60*1000;
+  const oneWeekInMs = 7*24*60*60*1000;
+  const userCreatedAt = new Date(user.createdAt);
+
   const karmaThreshold = newUserIconKarmaThresholdSetting.get()
   const userKarma = user.karma;
   const userBelowKarmaThreshold = karmaThreshold && userKarma < karmaThreshold;
@@ -53,16 +59,16 @@ export const isNewUser = (user: UsersMinimumInfo): boolean => {
   // 1. the user is below the karma threshold, or
   // 2. the user was created less than a week ago
   if (isEAForum) {
-    return userBelowKarmaThreshold || moment(user.createdAt).isAfter(moment().subtract(1, "week"));
+    return userBelowKarmaThreshold || userCreatedAt.getTime() > new Date().getTime() - oneWeekInMs;
   }
 
   // Elsewhere, only return true for a year after creation if the user remains below the karma threshold
   if (userBelowKarmaThreshold) {
-    return moment(user.createdAt).isAfter(moment().subtract(1, "year"));
+    return userCreatedAt.getTime() > new Date().getTime() - oneYearInMs;
   }
   
   // But continue to return true for a week even if they pass the karma threshold
-  return moment(user.createdAt).isAfter(moment().subtract(1, "week"));
+  return userCreatedAt.getTime() > new Date().getTime() - oneWeekInMs;
 }
 
 export interface SharableDocument {
@@ -106,14 +112,26 @@ export const userCanEditUsersBannedUserIds = (currentUser: DbUser|null, targetUs
   )
 }
 
-const postHasModerationGuidelines = (post: PostsBase | DbPost) => {
+const postHasModerationGuidelines = (
+  post: PostsBase | PostsModerationGuidelines | DbPost,
+): boolean => {
+  if (!hasAuthorModeration) {
+    return false;
+  }
   // Because of a bug in Vulcan that doesn't adequately deal with nested fields
   // in document validation, we check for originalContents instead of html here,
   // which causes some problems with empty strings, but should overall be fine
-  return ('moderationGuidelines' in post && post.moderationGuidelines?.originalContents) || post.moderationStyle
+  return !!(
+    ("moderationGuidelines_latest" in post && post.moderationGuidelines_latest) ||
+    ("moderationGuidelines" in post && post.moderationGuidelines?.originalContents) ||
+    post.moderationStyle
+  );
 }
 
-export const userCanModeratePost = (user: UsersProfile|DbUser|null, post?: PostsBase|DbPost|null): boolean => {
+export const userCanModeratePost = (
+  user: UsersProfile|DbUser|null,
+  post?: PostsBase|PostsModerationGuidelines|DbPost|null,
+): boolean => {
   if (userCanDo(user,"posts.moderate.all")) {
     return true
   }
@@ -278,10 +296,11 @@ export const userBlockedCommentingReason = (user: UsersCurrent|DbUser|null, post
 
 // Return true if the user's account has at least one verified email address.
 export const userEmailAddressIsVerified = (user: UsersCurrent|DbUser|null): boolean => {
-  // EA Forum does not do its own email verification
-  if (forumTypeSetting.get() === 'EAForum') {
+  // Some forums don't do their own email verification
+  if (!verifyEmailsSetting.get()) {
     return true
   }
+
   if (!user || !user.emails)
     return false;
   for (let email of user.emails) {
@@ -320,7 +339,7 @@ export function getDatadogUser (user: UsersCurrent | UsersEdit | DbUser): Datado
 }
 
 // Replaces Users.getProfileUrl from the vulcan-users package.
-export const userGetProfileUrl = (user: DbUser|UsersMinimumInfo|SearchUser|null, isAbsolute=false): string => {
+export const userGetProfileUrl = (user: DbUser|UsersMinimumInfo|SearchUser|UsersMapEntry|null, isAbsolute=false): string => {
   if (!user) return "";
   
   if (user.slug) {
@@ -337,23 +356,18 @@ export const userGetProfileUrlFromSlug = (userSlug: string, isAbsolute=false): s
   return `${prefix}/users/${userSlug}`;
 }
 
+export const userGetAnalyticsUrl = (user: {slug: string}, isAbsolute=false): string => {
+  if (!user) return "";
 
-
-const clientRequiresMarkdown = (): boolean => {
-  if (isClient &&
-      window &&
-      window.navigator &&
-      window.navigator.userAgent) {
-
-      return (bowser.mobile || bowser.tablet)
+  if (user.slug) {
+    return `${userGetProfileUrlFromSlug(user.slug, isAbsolute)}/stats`;
+  } else {
+    return "";
   }
-  return false
 }
 
+
 export const userUseMarkdownPostEditor = (user: UsersCurrent|null): boolean => {
-  if (clientRequiresMarkdown()) {
-    return true
-  }
   if (!user) {
     return false;
   }
@@ -448,7 +462,8 @@ export const useUserLocation = (currentUser: UsersCurrent|DbUser|null, dontAsk?:
       const ls = getBrowserLocalStorage()
       if (!currentUser && ls) {
         try {
-          const lsLocation = JSON.parse(ls.getItem('userlocation'))
+          const storedUserLocation = ls.getItem('userlocation')
+          const lsLocation = storedUserLocation ? JSON.parse(storedUserLocation) : null
           if (lsLocation) {
             return {...lsLocation, loading: false}
           }
@@ -521,12 +536,16 @@ export const isMod = (user: UsersProfile|DbUser): boolean => {
   return (user.isAdmin || user.groups?.includes('sunshineRegiment')) ?? false
 }
 
-// TODO: I (JP) think this should be configurable in the function parameters
-/** Warning! Only returns *auth0*-provided auth0 Ids. If a user has an ID that
- * we get from auth0 but is ultimately from google this function will throw. */
+/**
+ * @returns "auth0" | "google-oauth2" | "facebook" | null
+ */
+export const getAuth0Provider = (user: DbUser): string | null => {
+  return user.services?.auth0?.provider;
+}
+
 export const getAuth0Id = (user: DbUser) => {
   const auth0 = user.services?.auth0;
-  if (auth0 && auth0.provider === "auth0") {
+  if (auth0) {
     const id = auth0.id ?? auth0.user_id;
     if (id) {
       return id;
@@ -577,3 +596,31 @@ export async function appendToSunshineNotes({moderatedUserId, adminName, text, c
 export const voteButtonsDisabledForUser = (user: UsersMinimumInfo|DbUser|null): PermissionResult => {
   return { fail: false };
 };
+
+export const SOCIAL_MEDIA_PROFILE_FIELDS = {
+  linkedinProfileURL: 'linkedin.com/in/',
+  facebookProfileURL: 'facebook.com/',
+  twitterProfileURL: 'twitter.com/',
+  githubProfileURL: 'github.com/'
+}
+export type SocialMediaProfileField = keyof typeof SOCIAL_MEDIA_PROFILE_FIELDS;
+
+export const profileFieldToSocialMediaHref = (
+  field: SocialMediaProfileField,
+  userUrl: string,
+) => `https://${combineUrls(SOCIAL_MEDIA_PROFILE_FIELDS[field], userUrl)}`;
+
+export const socialMediaSiteNameToHref = (
+  siteName: SocialMediaSiteName | "website",
+  userUrl: string,
+) => siteName === "website"
+  ? `https://${userUrl}`
+  : profileFieldToSocialMediaHref(`${siteName}ProfileURL`, userUrl);
+
+export const userShortformPostTitle = (user: Pick<DbUser, "displayName">) => {
+  const shortformName = isEAForum ? "Quick takes" : "Shortform";
+
+  // Emoji's aren't allowed in post titles, see `assertPostTitleHasNoEmojis`
+  const displayNameWithoutEmojis = user.displayName?.replace(/\p{Extended_Pictographic}/gu, '');
+  return `${displayNameWithoutEmojis}'s ${shortformName}`;
+}

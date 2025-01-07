@@ -1,11 +1,9 @@
 import { schemaDefaultValue, arrayOfForeignKeysField, denormalizedCountOfReferences, foreignKeyField, resolverOnlyField, accessFilterMultiple } from '../../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema';
-import { Utils, slugify } from '../../vulcan-lib/utils';
+import { slugify } from '../../vulcan-lib/utils';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 import { getWithLoader } from '../../loaders';
-import GraphQLJSON from 'graphql-type-json';
 import moment from 'moment';
-import { captureException } from '@sentry/core';
 import { isEAForum, taggingNamePluralSetting, taggingNameSetting } from '../../instanceSettings';
 import { SORT_ORDER_OPTIONS, SettingsOption } from '../posts/dropdownOptions';
 import { formGroups } from './formGroups';
@@ -15,6 +13,7 @@ import { getDefaultViewSelector } from '../../utils/viewUtils';
 import { permissionGroups } from '../../permissions';
 import type { TagCommentType } from '../comments/types';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
+import { getUnusedSlugByCollectionName, slugIsUsed } from '@/lib/helpers';
 
 addGraphQLSchema(`
   type TagContributor {
@@ -71,16 +70,16 @@ const schema: SchemaType<"Tags"> = {
     group: formGroups.advancedOptions,
     onInsert: async (tag) => {
       const basicSlug = slugify(tag.name);
-      return await Utils.getUnusedSlugByCollectionName('Tags', basicSlug, true);
+      return await getUnusedSlugByCollectionName('Tags', basicSlug, true);
     },
     onUpdate: async ({data, oldDocument}) => {
       if (data.slug && data.slug !== oldDocument.slug) {
-        const slugIsUsed = await Utils.slugIsUsed("Tags", data.slug)
-        if (slugIsUsed) {
+        const isUsed = await slugIsUsed("Tags", data.slug)
+        if (isUsed) {
           throw Error(`Specified slug is already used: ${data.slug}`)
         }
       } else if (data.name && data.name !== oldDocument.name) {
-        return await Utils.getUnusedSlugByCollectionName("Tags", slugify(data.name), true, oldDocument._id)
+        return await getUnusedSlugByCollectionName("Tags", slugify(data.name), true, oldDocument._id)
       }
     }
   },
@@ -329,7 +328,7 @@ const schema: SchemaType<"Tags"> = {
     control: "ImageUpload",
     tooltip: "Minimum 200x600 px",
     group: formGroups.advancedOptions,
-    hidden: isEAForum,
+    hidden: !isEAForum,
   },
   // Cloudinary image id for the square image which shows up in the all topics page, this will usually be a cropped version of the banner image
   squareImageId: {
@@ -342,7 +341,7 @@ const schema: SchemaType<"Tags"> = {
     control: "ImageUpload",
     tooltip: "Minimum 200x200 px",
     group: formGroups.advancedOptions,
-    hidden: isEAForum,
+    hidden: !isEAForum,
   },
 
   tagFlagsIds: {
@@ -418,23 +417,23 @@ const schema: SchemaType<"Tags"> = {
       );
       if (!readStatus.length) return false;
       return readStatus[0].isRead;
-    }
+    },
+    sqlResolver: ({field, currentUserField, join}) => join({
+      table: "ReadStatuses",
+      type: "left",
+      on: {
+        tagId: field("_id"),
+        userId: currentUserField("_id"),
+      },
+      resolver: (readStatusField) => `COALESCE(${readStatusField("isRead")}, FALSE)`,
+    }),
   }),
 
-  tableOfContents: resolverOnlyField({
+  tableOfContents: {
     type: Object,
     canRead: ['guests'],
-    graphQLtype: GraphQLJSON,
-    graphqlArguments: 'version: String',
-    resolver: async (document: DbTag, args: {version: string}, context: ResolverContext) => {
-      try {
-        return await Utils.getToCforTag({document, version: args.version||null, context});
-      } catch(e) {
-        captureException(e);
-        return null;
-      }
-    }
-  }),
+    optional: true,
+  },
   
   htmlWithContributorAnnotations: {
     type: String,

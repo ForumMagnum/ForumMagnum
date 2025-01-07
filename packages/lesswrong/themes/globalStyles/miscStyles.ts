@@ -1,5 +1,6 @@
+import { isFriendlyUI } from "../forumTheme";
 
-export default (theme: ThemeType): string => `
+export default (): string => `
 /*
  * TODO: These classes are used by 248 posts in the database that were authored
  * while LW2 was using ory-editor, which we have since migrated away from.
@@ -129,17 +130,12 @@ html {
    * necessary to ensure it works on modal dialogs
    * (also tried adding it to Layout.jsx's JSS, and to the styles file in the ckeditor folder)
    */
+  --ck-z-panel: 10000000002 !important;
+  /**
+   * --ck-z-modal was renamed to --ck-z-panel in https://github.com/ckeditor/ckeditor5/pull/15285
+   * it's here for backwards compatibility only
+   */
   --ck-z-modal: 10000000002 !important;
-}
-
-.ck-mentions-balloon {
-  --ck-color-list-background: ${theme.palette.panelBackground.default};
-  --ck-color-panel-background: ${theme.palette.panelBackground.default};
-  --ck-color-panel-border: ${theme.palette.border.mentionsBaloon};
-  --ck-color-text: ${theme.palette.text.maxIntensity};
-  --ck-color-list-button-hover-background: ${theme.palette.buttons.mentions.hover};
-  --ck-color-list-button-on-background: ${theme.palette.buttons.mentions.selected};
-  --ck-color-list-button-on-background-focus: ${theme.palette.buttons.mentions.selectedHover};
 }
 
 /* ************************************************************************ */
@@ -181,9 +177,9 @@ select.form-control{
   right: 5px;
   color: #ddd;
   font-size: 80%;
-  &.danger{
-    color: #EF1642;
-  }
+}
+.form-control-limit.danger{
+  color: #EF1642;
 }
 
 /* //////////////////////////////////////////////////////////////////////// */
@@ -254,4 +250,5 @@ div#mocha {
   width: 20px;
   z-index: 10000000;
 }
+
 `

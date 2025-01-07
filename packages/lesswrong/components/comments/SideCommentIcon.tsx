@@ -1,37 +1,28 @@
 import React, { useRef, useState, useEffect, useContext } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useHover } from "../common/withHover";
-import { useSingle } from '../../lib/crud/withSingle';
 import { useTheme } from '../themes/useTheme';
-import { SidebarsContext } from '../common/SidebarsWrapper';
+import type { ClickAwayEvent } from '../../lib/vendor/react-click-away-listener';
 import CommentIcon from '@material-ui/icons/ModeComment';
-import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import classNames from 'classnames';
 import Badge from '@material-ui/core/Badge';
 import some from 'lodash/some';
+import { useSingleWithPreload } from '@/lib/crud/useSingleWithPreload';
+import { useIsMobile } from '../hooks/useScreenWidth';
+import { useDialog } from '../common/withDialog';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   sideCommentIconWrapper: {
-    float: "right",
-    position: 'relative',
-    width: 0,
-    background: theme.palette.panelBackground.darken03,
-    borderRadius: 8,
     color: theme.palette.icon.dim6,
-    
-    [theme.breakpoints.down('xs')]: {
-      display: "none",
-    },
+    paddingLeft: 8,
     
     "@media print": {
       display: "none",
     },
   },
   sideCommentIcon: {
-    position: 'absolute',
     cursor: "pointer",
     paddingTop: 4,
-    marginLeft: 25,
     whiteSpace: "nowrap",
     "& svg": {
       height: 17,
@@ -43,7 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   clickToPinMessage: {
     position: "absolute",
     display: "inline-block",
-    top: -2, left: 28,
+    top: -2, left: 36,
     fontSize: 13,
     color: theme.palette.text.dim45,
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -73,6 +64,24 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 12,
     color: theme.palette.text.dim45,
   },
+  desktopIcon: {
+    display: "none",
+    [theme.breakpoints.up('sm')]: {
+      display: "block",
+    },
+  },
+  lineColor: {
+    background: theme.palette.sideItemIndicator.sideComment,
+  },
+});
+
+const dialogStyles = () => ({
+  dialogPaper: {
+    marginTop: 48,
+    marginBottom: 48,
+    marginLeft: 18,
+    marginRight: 18,
+  },
 });
 
 const BadgeWrapper = ({commentCount, classes, children}: {
@@ -92,12 +101,64 @@ const BadgeWrapper = ({commentCount, classes, children}: {
 
 const SideCommentIcon = ({commentIds, post, classes}: {
   commentIds: string[]
-  post: PostsDetails
-  classes: ClassesType
+  post: PostsList
+  classes: ClassesType<typeof styles>
 }) => {
-  const {LWPopper, SideCommentHover} = Components;
+  const isMobile = useIsMobile();
+  if (isMobile) {
+    return <SideCommentIconMobile commentIds={commentIds} post={post} classes={classes} />;
+  } else {
+    return <SideCommentIconDesktop commentIds={commentIds} post={post} classes={classes} />;
+  }
+}
+
+const SideCommentDialog = ({ commentIds, post, onClose, classes }: {
+  commentIds: string[]
+  post: PostsList,
+  onClose: () => void,
+  classes: ClassesType<typeof dialogStyles>
+}) => {
+  const { SideCommentHover, LWDialog } = Components;
+
+  return <LWDialog open onClose={onClose} dialogClasses={{ paper: classes.dialogPaper }}>
+    <SideCommentHover commentIds={commentIds} post={post} closeDialog={onClose} />
+  </LWDialog>;
+}
+
+const SideCommentIconMobile = ({commentIds, post, classes}: {
+  commentIds: string[]
+  post: PostsList
+  classes: ClassesType<typeof styles>
+}) => {
+  const {SideItem, SideItemLine} = Components;
+
+  const { openDialog } = useDialog();
+
+  const openModal = () => {
+    openDialog({
+      componentName: 'SideCommentDialog',
+      componentProps: { commentIds, post }
+    });
+  };
+    
+  return <SideItem options={{
+    format: "icon"
+  }}>
+    <div className={classes.sideCommentIconWrapper} onClick={openModal}>
+      <span className={classes.sideCommentIcon}>
+        <SideItemLine colorClass={classes.lineColor}/>
+      </span>
+    </div>
+  </SideItem>
+}
+
+const SideCommentIconDesktop = ({commentIds, post, classes}: {
+  commentIds: string[]
+  post: PostsList
+  classes: ClassesType<typeof styles>
+}) => {
+  const {LWPopper, LWClickAwayListener, SideCommentHover, SideItem} = Components;
   const {eventHandlers, hover, anchorEl} = useHover();
-  const {sideCommentsActive, setSideCommentsActive} = useContext(SidebarsContext)!;
   
   // Three-state pinning: open, closed, or auto ("auto" means visible
   // if the mouse is over the icon.) This is so that if you click on the
@@ -117,9 +178,11 @@ const SideCommentIcon = ({commentIds, post, classes}: {
     if (pinned==="closed")
       setPinned("auto");
   }
-  const onClickAway = (ev: AnyBecauseTodo) => {
-    // FIXME: ev.path is somehow browser specific
-    const isClickOnIcon = some(ev.composedPath(), e=>e.hasClass(classes.sideCommentIcon));
+  const onClickAway = (ev: ClickAwayEvent) => {
+    const isClickOnIcon = some(
+      ev.composedPath(),
+      (element: Element) => element.classList?.contains(classes.sideCommentIcon)
+    );
     if (!isClickOnIcon) {
       setPinned("auto");
     }
@@ -127,22 +190,24 @@ const SideCommentIcon = ({commentIds, post, classes}: {
   
   const isOpen = (pinned==="open" || (pinned==="auto" && hover));
   
-  return <div className={classes.sideCommentIconWrapper}
-    onMouseLeave={onMouseLeave}
-  >
-    <span {...eventHandlers}
-      onClick={onClick}
-      className={classes.sideCommentIcon}
-    >
-      <BadgeWrapper commentCount={commentIds.length} classes={classes}>
-        <CommentIcon className={classNames({[classes.pinned]: (pinned==="open")})} />
-      </BadgeWrapper>
-      {isOpen && <span className={classes.clickToPinMessage}>
-        Click to {pinned==="open" ? "close" : "pin"}
-      </span>}
-      {isOpen && <span className={classes.extendHoverTarget}/>}
-    </span>
-    {isOpen && <ClickAwayListener onClickAway={onClickAway}>
+  return <SideItem options={{
+    format: "icon"
+  }}>
+    <div className={classes.sideCommentIconWrapper} onMouseLeave={onMouseLeave}>
+      <span {...eventHandlers}
+        onClick={onClick}
+        className={classes.sideCommentIcon}
+      >
+        <span className={classes.desktopIcon}>
+          <BadgeWrapper commentCount={commentIds.length} classes={classes}>
+            <CommentIcon className={classNames({[classes.pinned]: (pinned==="open")})} />
+          </BadgeWrapper>
+          {isOpen && <span className={classes.clickToPinMessage}>
+            Click to {pinned==="open" ? "close" : "pin"}
+          </span>}
+          {isOpen && <span className={classes.extendHoverTarget}/>}
+        </span>
+      </span>
       <LWPopper
         open={isOpen} anchorEl={anchorEl}
         className={classes.popper}
@@ -150,16 +215,19 @@ const SideCommentIcon = ({commentIds, post, classes}: {
         allowOverflow={true}
         placement={"bottom-start"}
       >
-        <SideCommentHover post={post} commentIds={commentIds}/>
+        <LWClickAwayListener onClickAway={onClickAway}>
+          <SideCommentHover post={post} commentIds={commentIds}/>
+        </LWClickAwayListener>
       </LWPopper>
-    </ClickAwayListener>}
-  </div>
+    </div>
+  </SideItem>
 }
 
-const SideCommentHover = ({commentIds, post, classes}: {
+const SideCommentHover = ({commentIds, post, closeDialog, classes}: {
   commentIds: string[],
-  post: PostsDetails
-  classes: ClassesType,
+  post: PostsList,
+  closeDialog?: () => void,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { SideCommentSingle } = Components;
   
@@ -174,26 +242,40 @@ const SideCommentHover = ({commentIds, post, classes}: {
         commentId={commentId}
         post={post}
         dontTruncateRoot={dontTruncateRoot}
+        closeDialog={closeDialog}
       />
     )}
   </div>
 }
 
-const SideCommentSingle = ({commentId, post, dontTruncateRoot=false, classes}: {
+const SideCommentSingle = ({commentId, post, dontTruncateRoot=false, closeDialog, classes}: {
   commentId: string,
-  post: PostsDetails,
-  classes: ClassesType,
+  post: PostsList,
   dontTruncateRoot?: boolean,
+  closeDialog?: () => void,
+  classes: ClassesType<typeof styles>,
 }) => {
   const theme = useTheme();
   const hoverColor = theme.palette.blockquoteHighlight.commentHovered;
   
-  const { CommentWithReplies, Loading } = Components;
-  const { document: comment, data, loading, error } = useSingle({
-    documentId: commentId,
-    collectionName: "Comments",
+  const { CommentWithReplies } = Components;
+  
+  const { bestResult: comment, fetchedResult: { document: loadedComment } } = useSingleWithPreload({
+    collectionName: 'Comments',
     fragmentName: 'CommentWithRepliesFragment',
+    preloadFragmentName: 'CommentsList',
+    documentId: commentId,
   });
+
+  const optimisticComment: CommentWithRepliesFragment | null = comment
+    ? {
+      ...comment,
+      post: post,
+      tag: null,
+      latestChildren: loadedComment?.latestChildren ?? [],
+    }
+    : null;
+
   const [hoveredBlockquoteId,setHoveredBlockquoteId] = useState<string|null>(null);
   const rootDivRef = useRef<HTMLDivElement|null>(null);
   
@@ -228,8 +310,7 @@ const SideCommentSingle = ({commentId, post, dontTruncateRoot=false, classes}: {
   //   eslint-disable-next-line react-hooks/exhaustive-deps
   }, [commentId, hoveredBlockquoteId, rootDivRef.current]);
   
-  if (loading) return <Loading/>
-  if (!comment) return null;
+  if (!optimisticComment) return null;
   
   return <div ref={rootDivRef}>
     {hoverColor && <style>
@@ -239,15 +320,16 @@ const SideCommentSingle = ({commentId, post, dontTruncateRoot=false, classes}: {
       }`}
     </style>}
     <CommentWithReplies
-      comment={comment} post={post}
+      comment={optimisticComment} post={post}
       commentNodeProps={{
         treeOptions: {
           showPostTitle: false,
-          showCollapseButtons: true,
+          showCollapseButtons: false,
           replaceReplyButtonsWith: (comment) =>
-            <a href={"#"+comment._id} className={classes.seeInContext}>See in context</a>,
+            <a href={"#"+comment._id} className={classes.seeInContext} onClick={closeDialog}>See in context</a>,
           hideActionsMenu: true,
           isSideComment: true,
+
         },
         ...(dontTruncateRoot ? {forceUnTruncated: true} : {}),
       }}
@@ -256,12 +338,14 @@ const SideCommentSingle = ({commentId, post, dontTruncateRoot=false, classes}: {
 }
 
 const SideCommentIconComponent = registerComponent('SideCommentIcon', SideCommentIcon, {styles});
+const SideCommentDialogComponent = registerComponent('SideCommentDialog', SideCommentDialog, { styles: dialogStyles });
 const SideCommentHoverComponent = registerComponent('SideCommentHover', SideCommentHover, {styles});
 const SideCommentSingleComponent = registerComponent('SideCommentSingle', SideCommentSingle, {styles});
 
 declare global {
   interface ComponentTypes {
     SideCommentIcon: typeof SideCommentIconComponent
+    SideCommentDialog: typeof SideCommentDialogComponent
     SideCommentHover: typeof SideCommentHoverComponent
     SideCommentSingle: typeof SideCommentSingleComponent
   }

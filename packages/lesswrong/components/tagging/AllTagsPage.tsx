@@ -53,7 +53,7 @@ const AllTagsPage = ({classes}: {
 }) => {
   const { openDialog } = useDialog()
   const currentUser = useCurrentUser()
-  const { tag } = useTagBySlug("portal", "AllTagsPageFragment");
+  const { tag, loading } = useTagBySlug("portal", "AllTagsPageFragment");
   const [ editing, setEditing ] = useState(false)
 
   const { AllTagsAlphabetical, SectionButton, SectionTitle, ContentItemBody, ContentStyles, ToCColumn, TagTableOfContents, Loading } = Components;
@@ -119,7 +119,8 @@ const AllTagsPage = ({classes}: {
               </SectionTitle>}
             >
               <ContentStyles contentType="comment" className={classes.portal}>
-                {!tag && <Loading/>}
+                {loading && <Loading/>}
+                {!loading && !tag && <div>Create tag named "portal" to initialize tag page</div>}
                 {userCanEditTagPortal(currentUser) && <a onClick={() => setEditing(true)} className={classes.edit}>
                   Edit
                 </a>}

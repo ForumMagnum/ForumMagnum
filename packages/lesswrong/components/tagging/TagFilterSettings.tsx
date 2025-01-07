@@ -20,16 +20,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       ? {
         marginTop: 8,
       } : {
+        gap: "4px",
         marginBottom: 4,
       }),
-  },
-  showPersonalBlogposts: {
-    ...tagStyle(theme),
-    display: "inline-block",
-    marginBottom: 4,
-    marginRight: 4,
-    border: theme.palette.border.slightlyIntense,
-    backgroundColor: theme.palette.tag.hollowTagBackground,
   },
   addButton: {
     backgroundColor: theme.palette.panelBackground.default,
@@ -50,7 +43,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...filteringStyles(theme),
   },
   personalAndPlus: {
-
+    ...(isFriendlyUI ? {} : {
+      gap: "4px",
+      display: "flex",
+      alignItems: "center"
+    }),
   }
 });
 
@@ -65,12 +62,14 @@ const TagFilterSettings = ({
   setPersonalBlogFilter,
   setTagFilter,
   removeTagFilter,
+  flexWrapEndGrow = true,
   classes
 }: {
   filterSettings: FilterSettings,
   setPersonalBlogFilter: (filterMode: FilterMode) => void,
   setTagFilter: (args: {tagId: string, tagName?: string, filterMode: FilterMode}) => void,
   removeTagFilter: (tagId: string) => void,
+  flexWrapEndGrow?: boolean,
   classes: ClassesType,
 }) => {
   const { AddTagButton, FilterMode, LWTooltip } = Components
@@ -115,7 +114,7 @@ const TagFilterSettings = ({
       />
 
       {<LWTooltip title={`Add ${taggingNameCapitalSetting.get()} Filter`}>
-          <AddTagButton onTagSelected={({tagId,tagName}: {tagId: string, tagName: string}) => {
+          <AddTagButton hasTooltip={false} onTagSelected={({tagId,tagName}: {tagId: string, tagName: string}) => {
             if (!filterSettings.tags.some(t=>t.tagId===tagId)) {
               const defaultFilterMode = userHasNewTagSubscriptions(currentUser) ? 25 : "Default"
               setTagFilter({tagId, tagName, filterMode: defaultFilterMode})
@@ -125,7 +124,7 @@ const TagFilterSettings = ({
           </AddTagButton>
       </LWTooltip>}
     </div>
-    <div className={classes.flexWrapEndGrow} />
+    {flexWrapEndGrow && <div className={classes.flexWrapEndGrow} />}
   </span>
 }
 

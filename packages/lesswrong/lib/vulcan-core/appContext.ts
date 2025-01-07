@@ -72,7 +72,7 @@ export function parseQuery(location: SegmentedUrl): Record<string, string> {
 export function parseRoute({location, followRedirects=true, onError=null}: {
   location: SegmentedUrl,
   followRedirects?: boolean,
-  onError?: null|((err: string)=>void),
+  onError?: null|((err: string) => void),
 }): RouterLocation {
   const currentRoute = getRouteMatchingPathname(location.pathname)
   

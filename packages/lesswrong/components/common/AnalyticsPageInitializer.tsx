@@ -1,13 +1,16 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
-import { useTracking } from "../../lib/analyticsEvents";
+import { flushClientEvents, useTracking } from "../../lib/analyticsEvents";
 import { isClient } from '../../lib/executionEnvironment';
 import { useEventListener } from '../hooks/useEventListener';
 
 function useBeforeUnloadTracking() {
   const { captureEvent } = useTracking()
   const trackBeforeUnload = useCallback(
-    () => captureEvent("beforeUnloadFired"),
+    () => {
+      captureEvent("beforeUnloadFired")
+      flushClientEvents()
+    },
     [captureEvent]
   );
 

@@ -12,13 +12,13 @@
             "name": "TagRel"
           },
           {
-            "name": "Post"
-          },
-          {
             "name": "Revision"
           },
           {
             "name": "Comment"
+          },
+          {
+            "name": "Post"
           }
         ]
       }

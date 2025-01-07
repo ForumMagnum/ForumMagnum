@@ -207,7 +207,7 @@ const RecommendationsAndCurated = ({
         >
           {!isEAForum && currentUser && (
             <LWTooltip title="Customize your recommendations">
-              <SettingsButton showIcon={false} onClick={toggleSettings} label="Customize" />
+              <SettingsButton showIcon={false} onClick={toggleSettings} label="Customize" textShadow />
             </LWTooltip>
           )}
           {isEAForum && expanded && (

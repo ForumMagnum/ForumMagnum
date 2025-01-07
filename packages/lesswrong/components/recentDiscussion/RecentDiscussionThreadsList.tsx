@@ -10,7 +10,7 @@ const RecentDiscussionThreadsList = ({
   terms, commentsLimit, maxAgeHours, af,
   title="Recent Discussion", shortformButton=true
 }: {
-  terms: PostsViewTerms,
+  terms: Omit<PostsViewTerms, 'af'>,
   commentsLimit?: number,
   maxAgeHours?: number,
   af?: boolean,
@@ -69,11 +69,10 @@ const RecentDiscussionThreadsList = ({
         {currentUser?.isReviewed && shortformButton && !currentUser.allCommentingDisabled && <div onClick={toggleShortformFeed}>
           <SectionButton>
             <AddBoxIcon />
-            {isFriendlyUI ? "New quick take" : "New Shortform Post"}
+            {"New quick take"}
           </SectionButton>
         </div>}
       </SectionTitle>
-      {showShortformFeed && <ShortformSubmitForm successCallback={refetch}/>}
       <div>
         {results && <div>
           {results.map((post, i) =>

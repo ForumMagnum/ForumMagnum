@@ -6,7 +6,7 @@ import { userCanDo } from '../../vulcan-users/permissions';
 import { userGetDisplayName } from "../users/helpers";
 import { tagGetCommentLink } from '../tags/helpers';
 import { TagCommentType } from './types';
-import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
+import { commentPermalinkStyleSetting, hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
 import { forumSelect } from '../../forumTypeUtils';
 
 // Get a comment author's name
@@ -48,7 +48,8 @@ export function commentGetPageUrlFromIds({postId, postSlug, tagSlug, tagCommentT
   tagSlug?: string,
   tagCommentType?: TagCommentType,
   commentId: string,
-  permalink?: boolean, isAbsolute?: boolean,
+  permalink?: boolean,
+  isAbsolute?: boolean,
 }): string {
   const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
 
@@ -81,13 +82,16 @@ export const commentDefaultToAlignment = (currentUser: UsersCurrent|null, post: 
   }
 }
 
-export const commentGetDefaultView = (post: PostsDetails|DbPost|null, currentUser: UsersCurrent|null): CommentsViewName => {
+export const commentGetDefaultView = (post: PostsDetails|PostsList|DbPost|null, currentUser: UsersCurrent|null): CommentsViewName => {
   const fallback = forumSelect({
     AlignmentForum: "afPostCommentsTop",
     EAForum: "postCommentsMagic",
     default: "postCommentsTop",
   });
-  return (post?.commentSortOrder as CommentsViewName) || (currentUser?.commentSorting as CommentsViewName) || fallback
+  const postSortOrder = (post && 'commentSortOrder' in post) ? post.commentSortOrder : null;
+  return (postSortOrder as CommentsViewName)
+    || (currentUser?.commentSorting as CommentsViewName)
+    || fallback;
 }
 
 export const commentGetKarma = (comment: CommentsList|DbComment): number => {

@@ -1,12 +1,15 @@
 import Comments from "../../lib/collections/comments/collection";
 import AbstractRepo from "./AbstractRepo";
-import SelectQuery from "../../lib/sql/SelectQuery";
+import SelectQuery from "@/server/sql/SelectQuery";
 import keyBy from 'lodash/keyBy';
 import groupBy from 'lodash/groupBy';
 import orderBy from 'lodash/orderBy';
 import { filterWhereFieldsNotNull } from "../../lib/utils/typeGuardUtils";
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collection";
 import { recordPerfMetrics } from "./perfMetricWrapper";
+import { forumSelect } from "../../lib/forumTypeUtils";
+import { isAF } from "../../lib/instanceSettings";
+import { getViewablePostsSelector } from "./helpers";
 
 type ExtendedCommentWithReactions = DbComment & {
   yourVote?: string,
@@ -88,7 +91,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     `, [limit]);
   }
 
-  async getPopularPollComments (limit: number, pollCommentId:string): Promise<(ExtendedCommentWithReactions)[]> {
+  async getPopularPollComments (limit: number, pollCommentId: string): Promise<(ExtendedCommentWithReactions)[]> {
     return await this.getRawDb().manyOrNone(`
       -- CommentsRepo.getPopularPollComments
       SELECT c.*
@@ -97,48 +100,6 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       ORDER BY c."baseScore" DESC
       LIMIT $1
     `, [limit, pollCommentId]);
-  }
-
-  async getPopularPollCommentsWithUserVotes (userId:string, limit: number, pollCommentId:string): Promise<(ExtendedCommentWithReactions)[]> {
-    return await this.getRawDb().manyOrNone(`
-    -- CommentsRepo.getPopularPollCommentsWithUserVotes
-    SELECT c.*, v."extendedVoteType"->'reacts'->0->>'react' AS "yourVote"
-    FROM public."Comments" AS c
-    INNER JOIN public."Votes" AS v ON c._id = v."documentId"
-    WHERE
-      c."parentCommentId" = $3
-      AND v."userId" = $1
-      AND v."extendedVoteType"->'reacts'->0->>'vote' = 'created'
-      AND v.cancelled IS NOT TRUE
-      AND v."isUnvote" IS NOT TRUE
-    ORDER BY c."baseScore" DESC
-    LIMIT $2
-    `, [userId, limit, pollCommentId]);
-  }
-
-  async getPopularPollCommentsWithTwoUserVotes (userId:string, targetUserId:string, limit: number, pollCommentId:string): Promise<(ExtendedCommentWithReactions)[]> {
-    return await this.getRawDb().manyOrNone(`
-    -- CommentsRepo.getPopularPollCommentsWithTwoUserVotes
-    SELECT c.*, 
-        v1."extendedVoteType"->'reacts'->0->>'react' AS "yourVote", 
-        v2."extendedVoteType"->'reacts'->0->>'react' AS "theirVote"
-    FROM public."Comments" AS c
-    LEFT JOIN public."Votes" AS v1 ON c._id = v1."documentId"
-    LEFT JOIN public."Votes" AS v2 ON c._id = v2."documentId"
-    WHERE
-      c."parentCommentId" = $4
-      AND v1."userId" = $1
-      AND v1."extendedVoteType"->'reacts'->0->>'vote' = 'created'
-      AND v1.cancelled IS NOT TRUE
-      AND v1."isUnvote" IS NOT TRUE
-      AND v2."userId" = $2
-      AND v2."extendedVoteType"->'reacts'->0->>'vote' = 'created'
-      AND v2.cancelled IS NOT TRUE
-      AND v2."isUnvote" IS NOT TRUE
-      AND v1."extendedVoteType"->'reacts'->0->>'react' != v2."extendedVoteType"->'reacts'->0->>'react'
-    ORDER BY c."baseScore" DESC
-    LIMIT $3
-    `, [userId, targetUserId, limit, pollCommentId]);
   }
 
   async getPopularComments({
@@ -157,6 +118,18 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     // over selecting brand new comments - defaults to 2 hours
     recencyBias?: number,
   }): Promise<DbComment[]> {
+    const excludedTagId = forumSelect({
+      EAForum: EA_FORUM_COMMUNITY_TOPIC_ID,
+      default: null
+    });
+
+    const excludeTagId = !!excludedTagId;
+    const excludedTagIdParam = excludeTagId ? { excludedTagId } : {};
+    const excludedTagIdCondition = excludeTagId ? 'AND COALESCE((p."tagRelevance"->$(excludedTagId))::INTEGER, 0) < 1' : '';
+
+    const lookbackPeriod = isAF ? '1 month' : '1 week';
+    const afCommentsFilter = isAF ? 'AND "af" IS TRUE' : '';
+
     return this.any(`
       -- CommentsRepo.getPopularComments
       SELECT c.*
@@ -164,31 +137,35 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
         SELECT DISTINCT ON ("postId") "_id"
         FROM "Comments"
         WHERE
-          CURRENT_TIMESTAMP - "postedAt" < '1 week'::INTERVAL AND
+          CURRENT_TIMESTAMP - "postedAt" < $(lookbackPeriod)::INTERVAL AND
           "shortform" IS NOT TRUE AND
-          "baseScore" >= $1 AND
+          "baseScore" >= $(minScore) AND
           "retracted" IS NOT TRUE AND
           "deleted" IS NOT TRUE AND
           "deletedPublic" IS NOT TRUE AND
           "needsReview" IS NOT TRUE
+          ${afCommentsFilter}
         ORDER BY "postId", "baseScore" DESC
       ) q
       JOIN "Comments" c ON c."_id" = q."_id"
       JOIN "Posts" p ON c."postId" = p."_id"
       WHERE
-        p."hideFromPopularComments" IS NOT TRUE AND
-        COALESCE((p."tagRelevance"->$6)::INTEGER, 0) < 1
-      ORDER BY c."baseScore" * EXP((EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - c."postedAt") + $5) / -$4) DESC
-      OFFSET $2
-      LIMIT $3
-    `, [
+        p."hideFromPopularComments" IS NOT TRUE
+        AND p."frontpageDate" IS NOT NULL
+        AND ${getViewablePostsSelector('p')}
+        ${excludedTagIdCondition}
+      ORDER BY c."baseScore" * EXP((EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - c."postedAt") + $(recencyBias)) / -$(recencyFactor)) DESC
+      OFFSET $(offset)
+      LIMIT $(limit)
+    `, {
       minScore,
       offset,
       limit,
       recencyFactor,
       recencyBias,
-      EA_FORUM_COMMUNITY_TOPIC_ID,
-    ]);
+      lookbackPeriod,
+      ...excludedTagIdParam,
+    });
   }
 
   private getSearchDocumentQuery(): string {
@@ -209,9 +186,18 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
         c."postedAt",
         EXTRACT(EPOCH FROM c."postedAt") * 1000 AS "publicDateMs",
         COALESCE(c."af", FALSE) AS "af",
-        author."slug" AS "authorSlug",
-        author."displayName" AS "authorDisplayName",
-        author."username" AS "authorUserName",
+        CASE
+          WHEN author."deleted" THEN NULL
+          ELSE author."slug"
+        END AS "authorSlug",
+        CASE
+          WHEN author."deleted" THEN NULL
+          ELSE author."displayName"
+        END AS "authorDisplayName",
+        CASE
+          WHEN author."deleted" THEN NULL
+          ELSE author."username"
+        END AS "authorUserName",
         c."postId",
         post."title" AS "postTitle",
         post."slug" AS "postSlug",
@@ -279,23 +265,6 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       ORDER BY
         window_start_key;
     `, [postIds, startDate, endDate]);
-  }
-
-  async getUsersRecommendedCommentsOfTargetUser(userId: string, targetUserId: string, limit = 20): Promise<DbComment[]> {
-    return this.any(`
-      -- CommentsRepo.getUsersRecommendedCommentsOfTargetUser
-      SELECT c.*
-      FROM "ReadStatuses" AS rs
-      INNER JOIN "Posts" AS p ON rs."postId" = p._id
-      INNER JOIN "Comments" AS c ON c."postId" = p._id
-      WHERE
-          rs."userId" = $1
-          AND c."userId" = $2
-          AND rs."isRead" IS TRUE
-          AND c."baseScore" > 7
-      ORDER BY rs."lastUpdated" DESC
-      LIMIT $3
-    `, [userId, targetUserId, limit]);
   }
 
   async getCommentsWithElicitData(): Promise<DbComment[]> {
@@ -374,6 +343,46 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       totalCount: result?.total_count ? parseInt(result.total_count) : 0,
       percentile: result?.percentile ?? 0,
     };
+  }
+
+  /**
+   * Count the number of discussions started for EA Forum Wrapped
+   * We count a "discussion" as a comment with at least 5 descendants or a post
+   * with at least 5 comments
+   */
+  async getEAWrappedDiscussionsStarted(
+    userId: string,
+    start: Date,
+    end: Date,
+  ): Promise<number> {
+    const result = await this.getRawDb().oneOrNone(`
+      -- CommentsRepo.getEAWrappedDiscussionsStarted
+      SELECT SUM("count")::INTEGER AS "discussionCount"
+      FROM (
+        SELECT COUNT(c.*) AS "count"
+        FROM "Comments" c
+        INNER JOIN "Posts" p ON
+          c."postId" = p."_id"
+        WHERE
+          c."userId" = $1
+          AND c."createdAt" > $2
+          AND c."createdAt" < $3
+          AND c."descendentCount" >= 5
+          AND c."deleted" IS NOT TRUE
+          AND c."deletedPublic" IS NOT TRUE
+          AND ${getViewablePostsSelector("p")}
+        UNION
+        SELECT COUNT(p.*) AS "count"
+        FROM "Posts" p
+        WHERE
+          p."userId" = $1
+          AND p."postedAt" > $2
+          AND p."postedAt" < $3
+          AND p."commentCount" >= 5
+          AND ${getViewablePostsSelector("p")}
+      ) q
+    `, [userId, start, end]);
+    return result?.discussionCount ?? 0;
   }
 }
 

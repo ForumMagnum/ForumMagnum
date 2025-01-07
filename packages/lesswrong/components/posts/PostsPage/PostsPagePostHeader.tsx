@@ -1,21 +1,16 @@
-import React, { FC, MouseEvent, useEffect, useMemo } from 'react';
+import React, { FC, MouseEvent, useMemo } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { postGetAnswerCountStr, postGetCommentCount, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
+import { getResponseCounts, postGetAnswerCountStr, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
-import { extractVersionsFromSemver } from '../../../lib/editor/utils'
-import { getUrlClass } from '../../../lib/routeUtil';
+import { extractVersionsFromSemver } from '../../../lib/editor/utils';
 import classNames from 'classnames';
 import { isServer } from '../../../lib/executionEnvironment';
-import moment from 'moment';
-import { isLWorAF } from '../../../lib/instanceSettings';
-import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
-import { PODCAST_TOOLTIP_SEEN_COOKIE } from '../../../lib/cookies/cookies';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
+import { captureException } from '@sentry/core';
+import type { AnnualReviewMarketInfo } from '../../../lib/collections/posts/annualReviewMarkets';
+import { getUrlClass } from '@/server/utils/getUrlClass';
 
 const SECONDARY_SPACING = 20;
-const PODCAST_ICON_SIZE = isFriendlyUI ? 22 : 24;
-// some padding around the icon to make it look like a stateful toggle button
-const PODCAST_ICON_PADDING = isFriendlyUI ? 4 : 2
 
 const styles = (theme: ThemeType): JssStyles => ({
   header: {
@@ -83,30 +78,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: isFriendlyUI ? undefined : theme.typography.body2.fontSize,
     "@media print": { display: "none" },
   },
-  wordCount: {
-    fontWeight: isFriendlyUI ? 450 : undefined,
-    fontSize: isFriendlyUI ? undefined : theme.typography.body2.fontSize,
-    cursor: 'default',
-    "@media print": { display: "none" },
-  },
-  togglePodcastContainer: {
-    alignSelf: 'center',
-    color: isFriendlyUI ? undefined : theme.palette.primary.main,
-    height: isFriendlyUI ? undefined : PODCAST_ICON_SIZE,
-  },
-  audioIcon: {
-    width: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2),
-    height: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2),
-    transform: isFriendlyUI ? `translateY(${5-PODCAST_ICON_PADDING}px)` : `translateY(-${PODCAST_ICON_PADDING}px)`,
-    padding: PODCAST_ICON_PADDING
-  },
-  audioNewFeaturePulse: {
-    top: PODCAST_ICON_PADDING * 1.5,
-  },
-  audioIconOn: {
-    background: theme.palette.grey[200],
-    borderRadius: theme.borderRadius.small
-  },
   actions: {
     color: isFriendlyUI ? undefined : theme.palette.grey[500],
     "&:hover": {
@@ -150,8 +121,20 @@ const styles = (theme: ThemeType): JssStyles => ({
       opacity: 0.5,
     },
   },
-  nonhumanAudio: {
-    color: theme.palette.grey[500],
+  headerFooter: { 
+    display: 'flex',
+    justifyContent: 'space-between',
+    [theme.breakpoints.down('sm')]: {
+      flexDirection: 'column',
+    },
+    marginTop: 8,
+    marginBottom: 16,
+  },
+  tagSection: {
+    flex: 1,
+    display: "flex",
+    flexDirection: isFriendlyUI ? "column" : "row",
+    height: "100%",
   }
 });
 
@@ -162,7 +145,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 // Opera Mini.)
 const URLClass = getUrlClass()
 
-function getProtocol(url: string): string {
+export function getProtocol(url: string): string {
   if (isServer)
     return new URLClass(url).protocol;
 
@@ -172,7 +155,7 @@ function getProtocol(url: string): string {
   return parser.protocol;
 }
 
-function getHostname(url: string): string {
+export function getHostname(url: string): string {
   if (isServer)
     return new URLClass(url).hostname;
 
@@ -182,27 +165,30 @@ function getHostname(url: string): string {
   return parser.hostname;
 }
 
-const countAnswersAndDescendents = (answers: CommentsList[]) => {
-  const sum = answers.reduce((prev: number, curr: CommentsList) => prev + curr.descendentCount, 0);
-  return sum + answers.length;
+/**
+ * Intended to be used when you have a url-like string that might be missing the protocol (http(s)://) prefix
+ * Trying to parse those with `new URL()`/`new URLClass()` blows up, so this tries to correctly handle them
+ * We default to logging an error to sentry and returning nothing if even that fails, but not confident we shouldn't just continue to throw in a visible way
+ */
+export function parseUnsafeUrl(url: string) {
+  const urlWithProtocol = url.slice(0, 4) === 'http'
+    ? url
+    : `https://${url}`;
+
+  try {
+    const parsedUrl = new URLClass(urlWithProtocol);
+    const protocol = getProtocol(urlWithProtocol);
+    const hostname = getHostname(urlWithProtocol);
+  
+    return { protocol, hostname, parsedUrl };
+  } catch (err) {
+    captureException(`Tried to parse url ${url} as ${urlWithProtocol} and failed`);
+  }
+
+  return {};
 }
 
-const getResponseCounts = (
-  post: PostsWithNavigation|PostsWithNavigationAndRevision,
-  answers: CommentsList[],
-) => {
-  // answers may include some which are deleted:true, deletedPublic:true (in which
-  // case various fields are unpopulated and a deleted-item placeholder is shown
-  // in the UI). These deleted answers are *not* included in post.commentCount.
-  const nonDeletedAnswers = answers.filter(answer=>!answer.deleted);
-
-  return {
-    answerCount: nonDeletedAnswers.length,
-    commentCount: postGetCommentCount(post) - countAnswersAndDescendents(nonDeletedAnswers),
-  };
-};
-
-const CommentsLink: FC<{
+export const CommentsLink: FC<{
   anchor: string,
   children: React.ReactNode,
   className?: string,
@@ -227,79 +213,40 @@ const CommentsLink: FC<{
 
 /// PostsPagePostHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
-const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEmbeddedPlayer, toggleEmbeddedPlayer, hideMenu, hideTags, classes}: {
-  post: PostsWithNavigation|PostsWithNavigationAndRevision,
+const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEmbeddedPlayer, toggleEmbeddedPlayer, hideMenu, hideTags, annualReviewMarketInfo, classes}: {
+  post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   answers?: CommentsList[],
   dialogueResponses?: CommentsList[],
   showEmbeddedPlayer?: boolean,
   toggleEmbeddedPlayer?: () => void,
   hideMenu?: boolean,
   hideTags?: boolean,
+  annualReviewMarketInfo?: AnnualReviewMarketInfo,
   classes: ClassesType,
 }) => {
-  const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon,
+  const { PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon,
     PostActionsButton, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
-    PostsPageEventData, FooterTagList, AddToCalendarButton, BookmarkButton,
-    NewFeaturePulse, ForumIcon, GroupLinks, SharePostButton} = Components;
-  const [cookies, setCookie] = useCookiesWithConsent([PODCAST_TOOLTIP_SEEN_COOKIE]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const cachedTooltipSeen = useMemo(() => cookies[PODCAST_TOOLTIP_SEEN_COOKIE], []);
+    PostsPageEventData, FooterTagList, AddToCalendarButton, BookmarkButton, 
+    ForumIcon, GroupLinks, SharePostButton, AudioToggle, ReadTime } = Components;
 
-  useEffect(() => {
-    if(!cachedTooltipSeen) {
-      setCookie(PODCAST_TOOLTIP_SEEN_COOKIE, true, {
-        expires: moment().add(2, 'years').toDate(),
-      });
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  const feedLinkDescription = post.feed?.url && getHostname(post.feed.url)
-  const feedLink = post.feed?.url && `${getProtocol(post.feed.url)}//${getHostname(post.feed.url)}`;
-  const { major } = extractVersionsFromSemver(post.version)
-  const hasMajorRevision = major > 1
-
+  const hasMajorRevision = ('version' in post) && extractVersionsFromSemver(post.version).major > 1
+  const rssFeedSource = ('feed' in post) ? post.feed : null;
+  let feedLinkDomain;
+  let feedLink;
+  if (rssFeedSource?.url) {
+    let feedLinkProtocol;
+    ({ hostname: feedLinkDomain, protocol: feedLinkProtocol } = parseUnsafeUrl(rssFeedSource.url));
+    feedLink = `${feedLinkProtocol}//${feedLinkDomain}`;
+  }
   const crosspostNode = post.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere &&
     <CrosspostHeaderIcon post={post} />
-
-  const wordCount = useMemo(() => {
-    if (!post.debate || dialogueResponses.length === 0) {
-      return post.contents?.wordCount || 0;
-    }
-
-    return dialogueResponses.reduce((wordCount, response) => {
-      wordCount += response.contents?.wordCount ?? 0;
-      return wordCount;
-    }, 0);
-  }, [post, dialogueResponses]);
-
-  /**
-   * It doesn't make a ton of sense to fetch all the debate response comments in the resolver field, since we:
-   * 1. already have them here
-   * 2. need them to compute the word count in the debate case as well
-   */
-  const readTime = useMemo(() => {
-    if (!post.debate || dialogueResponses.length === 0) {
-      return post.readTimeMinutes ?? 1;
-    }
-
-    return Math.max(1, Math.round(wordCount / 250));
-  }, [post, dialogueResponses, wordCount]);
 
   const {
     answerCount,
     commentCount,
-  } = useMemo(() => getResponseCounts(post, answers), [post, answers]);
+  } = useMemo(() => getResponseCounts({ post, answers }), [post, answers]);
 
   const minimalSecondaryInfo = post.isEvent || (isFriendlyUI && post.shortform);
-
-  const readingTimeNode = minimalSecondaryInfo
-    ? null
-    : (
-      <LWTooltip title={`${wordCount} words`}>
-        <span className={classes.wordCount}>{readTime} min read</span>
-      </LWTooltip>
-    );
 
   const answersNode = !post.question || minimalSecondaryInfo
     ? null
@@ -308,23 +255,6 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
         {postGetAnswerCountStr(answerCount)}
       </CommentsLink>
     );
-
-  const nonhumanAudio = post.podcastEpisodeId === null && isLWorAF
-
-  const audioIcon = <LWTooltip title={'Listen to this post'} className={classNames(classes.togglePodcastContainer, {[classes.nonhumanAudio]: nonhumanAudio})}>
-    <a href="#" onClick={toggleEmbeddedPlayer}>
-      <ForumIcon icon="VolumeUp" className={classNames(classes.audioIcon, {[classes.audioIconOn]: showEmbeddedPlayer})} />
-    </a>
-  </LWTooltip>
-  const audioNode = toggleEmbeddedPlayer && (
-    (cachedTooltipSeen || isLWorAF)
-      ? audioIcon
-      : (
-        <NewFeaturePulse className={classes.audioNewFeaturePulse}>
-          {audioIcon}
-        </NewFeaturePulse>
-      )
-  )
 
   const addToCalendarNode = post.startTime && <div className={classes.secondaryInfoLink}>
     <AddToCalendarButton post={post} label="Add to calendar" hideTooltip />
@@ -337,31 +267,16 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
       </AnalyticsContext>
     </span>
 
-  let secondaryInfoNode;
-  if (isBookUI) {
-    // this is the info section under the post title, to the right of the author names
-    secondaryInfoNode = <div className={classes.secondaryInfo}>
+  // EA Forum splits the info into two sections, plus has the info in a different order
+  const secondaryInfoNode = <div className={classes.secondaryInfo}>
       <div className={classes.secondaryInfoLeft}>
-        {crosspostNode}
-        {readingTimeNode}
-        {!minimalSecondaryInfo && <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />}
-        {post.isEvent && <GroupLinks document={post} noMargin />}
-        {answersNode}
-        <CommentsLink anchor="#comments" className={classes.secondaryInfoLink}>
-          {postGetCommentCountStr(post, commentCount)}
-        </CommentsLink>
-        {audioNode}
-        {addToCalendarNode}
-        {tripleDotMenuNode}
-      </div>
-    </div>
-  } else {
-    // EA Forum splits the info into two sections, plus has the info in a different order
-    secondaryInfoNode = <div className={classes.secondaryInfo}>
-      <div className={classes.secondaryInfoLeft}>
-        {!minimalSecondaryInfo && <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />}
-        {readingTimeNode}
-        {audioNode}
+        {!minimalSecondaryInfo &&
+          <>
+            <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />
+            <ReadTime post={post} dialogueResponses={dialogueResponses} />
+          </>
+        }
+        <AudioToggle post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />
         {post.isEvent && <GroupLinks document={post} noMargin />}
         {answersNode}
         {!post.shortform &&
@@ -380,7 +295,6 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
         {tripleDotMenuNode}
       </div>
     </div>
-  }
 
   // TODO: If we are not the primary author of this post, but it was shared with
   // us as a draft, display a notice and a link to the collaborative editor.
@@ -388,7 +302,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   return <>
     {post.group && <PostsGroupDetails post={post} documentId={post.group._id} />}
     <AnalyticsContext pageSectionContext="topSequenceNavigation">
-      <PostsTopSequencesNav post={post} />
+      {('sequence' in post) && <PostsTopSequencesNav post={post} />}
     </AnalyticsContext>
     <div className={classNames(classes.header, {[classes.eventHeader]: post.isEvent})}>
       <div className={classes.headerLeft}>
@@ -398,9 +312,9 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
             <div className={classes.authors}>
               <PostsAuthors post={post} pageSectionContext="post_header" />
             </div>
-            {post.feed && post.feed.user &&
-              <LWTooltip title={`Crossposted from ${feedLinkDescription}`} className={classes.feedName}>
-                <a href={feedLink}>{post.feed.nickname}</a>
+            {rssFeedSource && rssFeedSource.user &&
+              <LWTooltip title={`Crossposted from ${feedLinkDomain}`} className={classes.feedName}>
+                <a href={feedLink}>{rssFeedSource.nickname}</a>
               </LWTooltip>
             }
           </div>
@@ -411,9 +325,14 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
         <PostsVote post={post} />
       </div>}
     </div>
-    {!post.shortform && !post.isEvent && !hideTags && <AnalyticsContext pageSectionContext="tagHeader">
-      <FooterTagList post={post} hideScore allowTruncate />
-    </AnalyticsContext>}
+    <div className={classes.headerFooter}>
+      <div className={classes.tagSection}>
+        {!post.shortform && !post.isEvent && !hideTags && 
+        <AnalyticsContext pageSectionContext="tagHeader">
+          <FooterTagList post={post} hideScore allowTruncate overrideMargins={true} annualReviewMarketInfo={annualReviewMarketInfo} />
+        </AnalyticsContext>}
+      </div>
+    </div>
     {post.isEvent && <PostsPageEventData post={post}/>}
   </>
 }

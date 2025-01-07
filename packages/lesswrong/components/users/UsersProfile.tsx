@@ -1,12 +1,12 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { userCanEditUser, userGetDisplayName, userGetProfileUrl, userGetProfileUrlFromSlug } from "../../lib/collections/users/helpers";
 import { userGetEditUrl } from '../../lib/vulcan-users/helpers';
-import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
+import { DEFAULT_LOW_KARMA_THRESHOLD, POST_SORTING_MODES } from '../../lib/collections/posts/views'
 import StarIcon from '@material-ui/icons/Star'
 import DescriptionIcon from '@material-ui/icons/Description'
 import MessageIcon from '@material-ui/icons/Message'
@@ -24,6 +24,10 @@ import { useMessages } from '../common/withMessages';
 import CopyIcon from '@material-ui/icons/FileCopy'
 import { getUserStructuredData } from './UsersSingle';
 import { preferredHeadingCase } from '../../themes/forumTheme';
+import { COMMENT_SORTING_MODES } from '@/lib/collections/comments/views';
+import { useDialog } from '../common/withDialog';
+import pick from 'lodash/pick';
+import { postListSettingUrlParameterNames } from '../posts/PostsListSettings';
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -42,9 +46,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   usernameTitle: {
-    fontSize: "3rem",
+    fontSize: "3.2rem",
     ...theme.typography.display3,
-    ...theme.typography.postStyle,
+    ...theme.typography.headerStyle,
     marginTop: 0,
   },
   deletedUserName: {
@@ -55,7 +59,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     flexWrap: "wrap",
     color: theme.palette.lwTertiary.main,
     marginTop: 8,
-    ...separatorBulletStyles(theme)
+    [theme.breakpoints.up('sm')]: {
+      ...separatorBulletStyles(theme),
+    },
+    [theme.breakpoints.down('sm')]: {
+      ...separatorBulletStyles(theme, 0.375),
+    },
   },
   meta: {
     ...sectionFooterLeftStyles,
@@ -88,7 +97,20 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   copyIcon: {
     fontSize: 14
-  }
+  },
+  subscribeButton: {
+    display: "flex",
+  },
+  commentSorting: {
+    marginRight: 30,
+    [theme.breakpoints.down('xs')]: {
+      marginRight: 0,
+    },
+  },
+  dialogueButton: {
+    display: 'flex',
+    alignItems: 'center',
+  },
 })
 
 export const getUserFromResults = <T extends UsersMinimumInfo>(results: Array<T>|null|undefined): T|null => {
@@ -116,6 +138,8 @@ const UsersProfileFn = ({terms, slug, classes}: {
   
   const { query } = useLocation()
 
+  const { openDialog } = useDialog();
+
   const displaySequenceSection = (canEdit: boolean, user: UsersProfile) => {
     if (isAF) {
         return !!((canEdit && user.afSequenceDraftCount) || user.afSequenceCount) || !!(!canEdit && user.afSequenceCount)
@@ -123,6 +147,14 @@ const UsersProfileFn = ({terms, slug, classes}: {
         return !!((canEdit && user.sequenceDraftCount) || user.sequenceCount) || !!(!canEdit && user.sequenceCount)
     }
   }
+
+  const [restoreScrollPos, setRestoreScrollPos] = useState(-1);
+  useEffect(() => {
+    if (restoreScrollPos === -1) return;
+
+    window.scrollTo({top: restoreScrollPos})
+    setRestoreScrollPos(-1);
+  }, [restoreScrollPos])
 
   const renderMeta = () => {
     if (!user) return null
@@ -184,9 +216,9 @@ const UsersProfileFn = ({terms, slug, classes}: {
 
   const render = () => {
     const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, LocalGroupsList,
-      PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup,
+      PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, DialogGroup,
       SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
-      Typography, ContentStyles, ReportUserButton, LWTooltip } = Components
+      Typography, ContentStyles, ReportUserButton, LWTooltip, UserNotifyDropdown, CommentsSortBySelector, NewDialogueDialog } = Components
 
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
@@ -220,17 +252,30 @@ const UsersProfileFn = ({terms, slug, classes}: {
 
     const unlistedTerms: PostsViewTerms = {view: "unlisted", userId: user._id, limit: 20}
     const afSubmissionTerms: PostsViewTerms = {view: "userAFSubmissions", userId: user._id, limit: 4}
-    const terms: PostsViewTerms = {view: "userPosts", ...query, userId: user._id, authorIsUnreviewed: null};
+    const postTerms: PostsViewTerms = {
+      view: "userPosts",
+      ...pick(query, postListSettingUrlParameterNames),
+      userId: user._id,
+      authorIsUnreviewed: null
+    };
     const sequenceTerms: SequencesViewTerms = {view: "userProfile", userId: user._id, limit:9}
     const sequenceAllTerms: SequencesViewTerms = {view: "userProfileAll", userId: user._id, limit:9}
 
     // maintain backward compatibility with bookmarks
-    const currentSorting = (query.sortedBy || query.view ||  "new") as PostSortingMode
+    const postQueryMode = (query.sortedBy || query.view ||  "new")
+    const currentPostSortingMode = POST_SORTING_MODES.has(postQueryMode) ? postQueryMode : "new"
+    postTerms.sortedBy = currentPostSortingMode
+    
     const currentFilter = query.filter ||  "all"
+    
+    const commentQueryName = "commentsSortBy"
+    const commentQueryMode = query[commentQueryName]
+    const currentCommentSortBy = COMMENT_SORTING_MODES.has(commentQueryMode) ? commentQueryMode : undefined
+
     const ownPage = currentUser?._id === user._id
     const currentShowLowKarma = (parseInt(query.karmaThreshold) !== DEFAULT_LOW_KARMA_THRESHOLD)
     const currentIncludeEvents = (query.includeEvents === 'true')
-    terms.excludeEvents = !currentIncludeEvents && currentFilter !== 'events'
+    postTerms.excludeEvents = !currentIncludeEvents && currentFilter !== 'events'
     
 
     const username = userGetDisplayName(user)
@@ -282,12 +327,23 @@ const UsersProfileFn = ({terms, slug, classes}: {
                 {preferredHeadingCase("Manage Subscriptions")}
               </Link>}
               { showMessageButton && <NewConversationButton user={user} currentUser={currentUser}>
-                <a data-cy="message">Message</a>
-              </NewConversationButton>}
-              { <NotifyMeButton
-                document={user}
-                subscribeMessage="Subscribe to posts"
-                unsubscribeMessage="Unsubscribe from posts"
+                <a>Message</a>
+              </NewConversationButton> }
+              { showMessageButton && (
+                <div
+                  className={classes.subscribeButton}
+                  onClick={() => openDialog({ 
+                    componentName: "NewDialogueDialog", 
+                    componentProps: { initialParticipantIds: [user._id] } 
+                  })}
+                >
+                  <a>Dialogue</a>
+                </div>
+              )}
+              { <UserNotifyDropdown 
+                user={user} 
+                popperPlacement="bottom-end"
+                className={classes.subscribeButton} 
               /> }
               {userCanEditUser(currentUser, user) && <Link to={userGetEditUrl(user)}>
                 {preferredHeadingCase("Account Settings")}
@@ -337,19 +393,19 @@ const UsersProfileFn = ({terms, slug, classes}: {
           <SingleColumnSection>
             <div className={classes.postsTitle} onClick={() => setShowSettings(!showSettings)}>
               <SectionTitle title={"Posts"}>
-                <SettingsButton label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`}/>
+                <SettingsButton label={`Sorted by ${ SORT_ORDER_OPTIONS[currentPostSortingMode].label }`}/>
               </SectionTitle>
             </div>
             {showSettings && <PostsListSettings
               hidden={false}
-              currentSorting={currentSorting}
+              currentSorting={currentPostSortingMode}
               currentFilter={currentFilter}
               currentShowLowKarma={currentShowLowKarma}
               currentIncludeEvents={currentIncludeEvents}
             />}
             <AnalyticsContext listContext={"userPagePosts"}>
               {user.shortformFeedId && <Components.ProfileShortform user={user}/>}
-              <PostsList2 terms={terms} hideAuthor />
+              <PostsList2 terms={postTerms} hideAuthor />
             </AnalyticsContext>
           </SingleColumnSection>
           {/* Groups Section */
@@ -379,11 +435,13 @@ const UsersProfileFn = ({terms, slug, classes}: {
               <Components.RecentComments terms={{view: 'afSubmissions', authorIsUnreviewed: null, limit: 5, userId: user._id}} />
             </SingleColumnSection>}
             <SingleColumnSection>
-              <Link to={`${userGetProfileUrl(user)}/replies`}>
-                <SectionTitle title={"Comments"} />
-              </Link>
+              <SectionTitle title={<Link to={`${userGetProfileUrl(user)}/replies`}>Comments</Link>} rootClassName={classes.commentSorting}>
+                <AnalyticsContext pageElementContext='userProfileCommentSort'>
+                  Sorted by <CommentsSortBySelector setRestoreScrollPos={setRestoreScrollPos} />
+                </AnalyticsContext>
+              </SectionTitle>
               <Components.RecentComments
-                terms={{view: 'profileRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}}
+                terms={{view: 'profileComments', sortBy: currentCommentSortBy, authorIsUnreviewed: null, limit: 10, userId: user._id}}
                 showPinnedOnProfile
               />
             </SingleColumnSection>

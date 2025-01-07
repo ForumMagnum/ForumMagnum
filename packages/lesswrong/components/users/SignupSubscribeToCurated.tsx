@@ -34,7 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const SignupSubscribeToCurated = ({ defaultValue, onChange, classes }: {
   defaultValue: boolean,
-  onChange: (checked: boolean)=>void,
+  onChange: (checked: boolean) => void,
   classes: ClassesType,
 }) => {
   const [checked, setChecked] = useState(defaultValue);

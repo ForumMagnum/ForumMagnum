@@ -71,12 +71,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.primary.main
   },
   marginRight: {
-    marginRight: 10,
     marginLeft: 10
   }
 })
 
-const PostsItemReviewVote = ({classes, post, marginRight=true}: {classes:ClassesType, post:PostsListBase, marginRight?: boolean}) => {
+const PostsItemReviewVote = ({classes, post, marginRight=true}: {classes: ClassesType, post: PostsListBase, marginRight?: boolean}) => {
   const { ReviewVotingWidget, LWPopper, LWTooltip, ReviewPostButton } = Components
   const [anchorEl, setAnchorEl] = useState<any>(null)
   const [newVote, setNewVote] = useState<VoteIndex|null>(null)

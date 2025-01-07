@@ -10,7 +10,7 @@ const INITIAL_LIMIT = 5
 
 const styles = (_: ThemeType): JssStyles => ({
   subtitle: {
-    marginTop: isFriendlyUI ? -4 : 6,
+    marginTop: isFriendlyUI ? 20 : 6,
     marginBottom: 6
   },
 });
@@ -18,7 +18,7 @@ const styles = (_: ThemeType): JssStyles => ({
 const TagEditsTimeBlock = ({before, after, reportEmpty, classes}: {
   before: string,
   after: string,
-  reportEmpty: ()=>void,
+  reportEmpty: () => void,
   classes: ClassesType
 }) => {
   const { ContentType, SingleLineTagUpdates, LoadMore } = Components;

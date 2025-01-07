@@ -11,9 +11,13 @@ declare global {
     slug?: string
     tagFlagId?: string
     parentTagId?: string
+    tagIds?: string[]
   }
 }
 
+/**
+ * Default view. When changing this, also update getViewableTagsSelector.
+ */
 Tags.addDefaultView((terms: TagsViewTerms, _, context?: ResolverContext) => {
   const currentUser = context?.currentUser ?? null;
 
@@ -25,6 +29,12 @@ Tags.addDefaultView((terms: TagsViewTerms, _, context?: ResolverContext) => {
   };
 });
 ensureIndex(Tags, {deleted:1, adminOnly:1});
+
+Tags.addView("tagsByTagIds", (terms: TagsViewTerms) => {
+  return {
+    selector: {_id: {$in: terms.tagIds}}
+  };
+});
 
 Tags.addView('allTagsAlphabetical', (terms: TagsViewTerms) => {
   return {
@@ -136,8 +146,6 @@ Tags.addView('coreAndSubforumTags', (terms: TagsViewTerms) => {
     },
   }
 });
-ensureIndex(Tags, {deleted: 1, core:1, name: 1});
-
 
 Tags.addView('newTags', (terms: TagsViewTerms) => {
   return {
@@ -153,7 +161,8 @@ ensureIndex(Tags, {deleted: 1, createdAt: 1});
 Tags.addView('unreviewedTags', (terms: TagsViewTerms) => {
   return {
     selector: {
-      needsReview: true
+      needsReview: true,
+      deleted: false
     },
     options: {
       sort: {

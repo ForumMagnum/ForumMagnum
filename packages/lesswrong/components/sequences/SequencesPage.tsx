@@ -2,7 +2,6 @@ import React, { useState, useCallback, useRef } from 'react';
 import { Components, registerComponent, } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
-import NoSSR from 'react-no-ssr';
 import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { sectionFooterLeftStyles } from '../users/UsersProfile'
@@ -11,6 +10,9 @@ import { DatabasePublicSetting, nofollowKarmaThreshold } from '../../lib/publicS
 import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from '../common/Header';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
+import { allowSubscribeToSequencePosts } from '../../lib/betas';
+import { Link } from '../../lib/reactRouterWrapper';
+import DeferRender from '../common/DeferRender';
 
 export const sequencesImageScrim = (theme: ThemeType) => ({
   position: 'absolute',
@@ -21,11 +23,38 @@ export const sequencesImageScrim = (theme: ThemeType) => ({
   background: theme.palette.panelBackground.sequenceImageGradient,
 })
 
-const defaultSequenceBannerIdSetting = new DatabasePublicSetting<string|null>("defaultSequenceBannerId", null)
+export const defaultSequenceBannerIdSetting = new DatabasePublicSetting<string|null>("defaultSequenceBannerId", null)
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     paddingTop: isFriendlyUI ? (270 + HEADER_HEIGHT) : 380,
+  },
+  deletedText: {
+    paddingTop: 20,
+    [theme.breakpoints.down('xs')]: {
+      paddingTop: 30
+    },
+  },
+  link: {
+    color: theme.palette.primary.main
+  },
+  topSection: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    columnGap: 16,
+    [theme.breakpoints.down('xs')]: {
+      display: 'block'
+    },
+  },
+  titleCol: {
+    flexGrow: 1
+  },
+  notifyCol: {
+    flex: 'none',
+    paddingTop: 3,
+    [theme.breakpoints.down('xs')]: {
+      paddingTop: 0
+    },
   },
   titleWrapper: {
     paddingLeft: theme.spacing.unit/2
@@ -38,7 +67,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   description: {
     marginTop: theme.spacing.unit * 2,
     marginLeft: theme.spacing.unit/2,
-    marginBottom: theme.spacing.unit * 2,
+    marginBottom: isFriendlyUI ? 40 : theme.spacing.unit * 2,
   },
   banner: {
     position: "absolute",
@@ -86,6 +115,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       textAlign: 'left'
     }
   },
+  edit: {
+    marginTop: 12,
+  },
   imageScrim: {
     ...sequencesImageScrim(theme)
   }
@@ -115,10 +147,16 @@ const SequencesPage = ({ documentId, classes }: {
 
   const { SequencesEditForm, HeadTags, CloudinaryImage, SingleColumnSection, SectionSubtitle,
     ChaptersList, ChaptersNewForm, FormatDate, Loading, SectionFooter, UsersName,
-    ContentItemBody, Typography, SectionButton, ContentStyles,
+    ContentItemBody, Typography, SectionButton, ContentStyles, NotifyMeButton
   } = Components
   
-  if (document?.isDeleted) return <h3>This sequence has been deleted</h3>
+  if (document?.isDeleted) {
+    return <SingleColumnSection>
+      <Typography variant="body2" className={classes.deletedText}>
+        This sequence has been deleted. <Link to="/library" className={classes.link}>Click here to view all sequences.</Link>
+      </Typography>
+    </SingleColumnSection>
+  }
   if (loading) return <Loading />
   
   if (!document) {
@@ -150,63 +188,88 @@ const SequencesPage = ({ documentId, classes }: {
     g: "auto:faces",
   }) : undefined;
     
-  return <div className={classes.root}>
-    <HeadTags
-      canonicalUrl={sequenceGetPageUrl(document, true)}
-      title={document.title}
-      description={plaintextDescription || undefined}
-      image={socialImageUrl}
-      noIndex={document.noindex}
-    />
-    {bannerId && <div className={classes.banner}>
-      <div className={classes.bannerWrapper}>
-        <NoSSR>
+  return <AnalyticsContext pageContext="sequencesPage">
+    <div className={classes.root}>
+      <HeadTags
+        canonicalUrl={sequenceGetPageUrl(document, true)}
+        title={document.title}
+        description={plaintextDescription || undefined}
+        image={socialImageUrl}
+        noIndex={document.noindex}
+      />
+      {bannerId && <div className={classes.banner}>
+        <div className={classes.bannerWrapper}>
+          <DeferRender ssr={false}>
+            <div>
+              <CloudinaryImage
+                publicId={bannerId}
+                width="auto"
+                height="380"
+              />
+              <div className={classes.imageScrim}/>
+            </div>
+          </DeferRender>
+        </div>
+      </div>}
+      <SingleColumnSection>
+        <div className={classes.content}>
+          <section className={classes.topSection}>
+            <div className={classes.titleCol}>
+              <div className={classes.titleWrapper}>
+                <Typography variant='display2' className={classes.title}>
+                  {document.draft && <span>[Draft] </span>}{document.title}
+                </Typography>
+              </div>
+              <SectionFooter>
+                <div className={classes.meta}>
+                  <span className={classes.metaItem}><FormatDate date={document.createdAt} format="MMM DD, YYYY"/></span>
+                  {document.user && <span className={classes.metaItem}> by <UsersName user={document.user} /></span>}
+                </div>
+                {!allowSubscribeToSequencePosts && canEdit && <span className={classes.leftAction}>
+                  <SectionSubtitle>
+                    <a onClick={showEdit}>edit</a>
+                  </SectionSubtitle>
+                </span>}
+              </SectionFooter>
+            </div>
+            {allowSubscribeToSequencePosts && <div className={classes.notifyCol}>
+              <AnalyticsContext pageElementContext="notifyMeButton">
+                <NotifyMeButton
+                  document={document}
+                  tooltip="Get notified when a new post is added to this sequence"
+                  subscribeMessage="Get notified"
+                  unsubscribeMessage="Notifications set"
+                  showIcon
+                  asButton={isFriendlyUI}
+                  hideFlashes
+                />
+              </AnalyticsContext>
+              {canEdit && <SectionFooter className={classes.edit}>
+                <SectionSubtitle>
+                  <a onClick={showEdit}>Edit sequence</a>
+                </SectionSubtitle>
+              </SectionFooter>}
+            </div>}
+          </section>
+          
+          {html && <ContentStyles contentType="post" className={classes.description}>
+            <ContentItemBody dangerouslySetInnerHTML={{__html: html}} description={`sequence ${document._id}`} nofollow={(document.user?.karma || 0) < nofollowKarmaThreshold.get()}/>
+          </ContentStyles>}
           <div>
-            <CloudinaryImage
-              publicId={bannerId}
-              width="auto"
-              height="380"
-              imgProps={{quality: '100'}}
-            />
-            <div className={classes.imageScrim}/>
+            <AnalyticsContext listContext={"sequencePage"} sequenceId={document._id} capturePostItemOnMount>
+              <ChaptersList sequenceId={document._id} canEdit={canEditChapter} nextSuggestedNumberRef={nextSuggestedNumberRef} />
+            </AnalyticsContext>
+            {canCreateChapter && <SectionFooter>
+              <SectionButton>
+                <a onClick={() => setShowNewChapterForm(true)}>Add Chapter</a>
+              </SectionButton>
+            </SectionFooter>}
+            {showNewChapterForm && <ChaptersNewForm prefilledProps={{sequenceId: document._id, number: nextSuggestedNumberRef.current}}/>}
           </div>
-        </NoSSR>
-      </div>
-    </div>}
-    <SingleColumnSection>
-      <div className={classes.content}>
-        <div className={classes.titleWrapper}>
-          <Typography variant='display2' className={classes.title}>
-            {document.draft && <span>[Draft] </span>}{document.title}
-          </Typography>
         </div>
-        <SectionFooter>
-          <div className={classes.meta}>
-            <span className={classes.metaItem}><FormatDate date={document.createdAt} format="MMM DD, YYYY"/></span>
-            {document.user && <span className={classes.metaItem}> by <UsersName user={document.user} /></span>}
-          </div>
-          {canEdit && <span className={classes.leftAction}><SectionSubtitle>
-            <a onClick={showEdit}>edit</a>
-          </SectionSubtitle></span>}
-        </SectionFooter>
-        
-        <ContentStyles contentType="post" className={classes.description}>
-          {html && <ContentItemBody dangerouslySetInnerHTML={{__html: html}} description={`sequence ${document._id}`} nofollow={(document.user?.karma || 0) < nofollowKarmaThreshold.get()}/>}
-        </ContentStyles>
-        <div>
-          <AnalyticsContext listContext={"sequencePage"} sequenceId={document._id} capturePostItemOnMount>
-            <ChaptersList sequenceId={document._id} canEdit={canEditChapter} nextSuggestedNumberRef={nextSuggestedNumberRef} />
-          </AnalyticsContext>
-          {canCreateChapter && <SectionFooter>
-            <SectionButton>
-              <a onClick={() => setShowNewChapterForm(true)}>Add Chapter</a>
-            </SectionButton>
-          </SectionFooter>}
-          {showNewChapterForm && <ChaptersNewForm prefilledProps={{sequenceId: document._id, number: nextSuggestedNumberRef.current}}/>}
-        </div>
-      </div>
-    </SingleColumnSection>
-  </div>
+      </SingleColumnSection>
+    </div>
+  </AnalyticsContext>
 }
 
 const SequencesPageComponent = registerComponent('SequencesPage', SequencesPage, {styles});

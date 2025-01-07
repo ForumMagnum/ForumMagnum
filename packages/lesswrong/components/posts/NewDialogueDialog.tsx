@@ -45,15 +45,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const NewDialogueDialog = ({onClose, classes}: {
-  onClose: ()=>void,
+const NewDialogueDialog = ({initialParticipantIds, onClose, classes}: {
+  initialParticipantIds?: string[],
+  onClose: () => void,
   classes: ClassesType,
 }) => {
   const { UserMultiselect, LWDialog, Loading, EAButton } = Components;
   const [title, setTitle] = useState("");
   const {flash} = useMessages();
-  const [participants, setParticipants] = useState<string[]>([]);
-  const {create: createPost, loading, error} = useCreate({ collectionName: "Posts", fragmentName: "PostsEdit" });
+  const [participants, setParticipants] = useState<string[]>(initialParticipantIds ?? []);
+  const {create: createPost, loading} = useCreate({ collectionName: "Posts", fragmentName: "PostsEdit" });
   const navigate = useNavigate();
 
   async function createDialogue() {
@@ -73,12 +74,16 @@ const NewDialogueDialog = ({onClose, classes}: {
           anyoneWithLinkCan: "none",
           explicitlySharedUsersCan: "edit",
         },
-        contents: {
-          originalContents: {
-            type: "ckEditorMarkup",
-            data: ""
-          }
-        } as AnyBecauseHard
+        // Contents is a resolver only field, but there is handling for it
+        // in `createMutator`/`updateMutator`
+        ...({
+          contents: {
+            originalContents: {
+              type: "ckEditorMarkup",
+              data: ""
+            }
+          },
+        }) as AnyBecauseHard,
       },
     });
     if (createResult?.data?.createPost?.data) {

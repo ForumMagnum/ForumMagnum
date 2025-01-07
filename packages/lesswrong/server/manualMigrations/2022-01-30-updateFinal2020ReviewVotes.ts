@@ -76,16 +76,16 @@ registerMigration({
     console.log("Updating high karma...")
     for (let postId in postsHighKarmaUsers) {
       await Posts.rawUpdateOne({_id:postId}, {$set: { 
-        finalReviewVotesHighKarma: postsHighKarmaUsers[postId].sort((a:number,b:number) => b - a),
-        finalReviewVoteScoreHighKarma: postsHighKarmaUsers[postId].reduce((x:number, y:number) => x + y, 0),
+        finalReviewVotesHighKarma: postsHighKarmaUsers[postId].sort((a: number,b: number) => b - a),
+        finalReviewVoteScoreHighKarma: postsHighKarmaUsers[postId].reduce((x: number, y: number) => x + y, 0),
       }})
     }
     // eslint-disable-next-line no-console
     console.log("Updating AF...")
     for (let postId in postsAFUsers) {
       await Posts.rawUpdateOne({_id:postId}, {$set: { 
-        finalReviewVotesAF: postsAFUsers[postId].sort((a:number,b:number) => b - a),
-        finalReviewVoteScoreAF: postsAFUsers[postId].reduce((x:number, y:number) => x + y, 0),
+        finalReviewVotesAF: postsAFUsers[postId].sort((a: number,b: number) => b - a),
+        finalReviewVoteScoreAF: postsAFUsers[postId].reduce((x: number, y: number) => x + y, 0),
        }})
     }
 

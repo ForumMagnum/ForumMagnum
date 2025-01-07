@@ -1,4 +1,4 @@
-import type { ComponentType } from "react";
+import type { FC } from "react";
 import { TickReactionIcon } from "../../components/icons/reactions/TickReactionIcon";
 import { CrossReactionIcon } from "../../components/icons/reactions/CrossReactionIcon";
 import { HeartReactionIcon } from "../../components/icons/reactions/HeartReactionIcon";
@@ -7,9 +7,10 @@ import { LightbulbReactionIcon } from "../../components/icons/reactions/Lightbul
 import { DeltaReactionIcon } from "../../components/icons/reactions/DeltaReactionIcon";
 
 export type EmojiOption = {
-  Component: ComponentType,
+  Component: FC,
   name: string,
   label: string,
+  isNegative?: boolean,
 }
 
 export const eaAnonymousEmojiPalette: EmojiOption[] = [
@@ -22,6 +23,7 @@ export const eaAnonymousEmojiPalette: EmojiOption[] = [
     Component: CrossReactionIcon,
     name: "disagree",
     label: "Disagree",
+    isNegative: true,
   },
 ];
 
@@ -47,6 +49,21 @@ export const eaEmojiPalette: EmojiOption[] = [
     label: "Changed my mind",
   },
 ];
+
+export const getEAAnonymousEmojiByName = (targetName: string) =>
+  eaAnonymousEmojiPalette.find(({name}) => name === targetName)
+
+export const getEAPublicEmojiByName = (targetName: string) =>
+  eaEmojiPalette.find(({name}) => name === targetName)
+
+export const getEAEmojisForKarmaChanges = (showNegative: boolean) => ({
+  publicEmojis: eaEmojiPalette
+    .filter(({isNegative}) => showNegative || !isNegative)
+    .map(({name}) => name),
+  privateEmojis: eaAnonymousEmojiPalette
+    .filter(({isNegative}) => showNegative || !isNegative)
+    .map(({name}) => name),
+});
 
 export const eaEmojiNames = [
   ...eaAnonymousEmojiPalette,

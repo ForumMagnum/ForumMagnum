@@ -90,7 +90,7 @@ const SubmitComponent = withStyles(styles, {name: "GroupFormLinkSubmit"})(({subm
 })
 
 const GroupFormDialog =  ({ onClose, classes, documentId, isOnline }: {
-  onClose: ()=>void,
+  onClose: () => void,
   classes: ClassesType,
   documentId?: string,
   isOnline?: boolean

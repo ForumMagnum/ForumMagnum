@@ -1,6 +1,7 @@
 import * as _ from 'underscore';
 // eslint-disable-next-line no-restricted-imports
 import {matchPath} from 'react-router'
+import type { Request, Response } from 'express';
 
 export type PingbackDocument = {
   collectionName: CollectionNameString,
@@ -21,22 +22,29 @@ export type RouterLocation = {
 };
 
 export type Route = {
-  // Name of the route. Must be unique, but has no effect, except maybe
-  // appearing in debug logging occasionally.
+  /**
+   * Name of the route. Must be unique. In theory, should have no effect; in
+   * practice, some components are comparing route names to expected values,
+   * which we should refactor to make them not do anymore.
+   */
   name: string,
   
-  // URL pattern for this route. Syntax comes from the path-to-regexp library
-  // (via indirect dependency via react-router).
+  /**
+   * URL pattern for this route. Syntax comes from the path-to-regexp library
+   * (via indirect dependency via react-router).
+   */
   path: string,
   
   componentName?: keyof ComponentTypes,
+
   title?: string,
   titleComponentName?: keyof ComponentTypes,
   subtitle?: string,
+  headerSubtitle?: string,
   subtitleLink?: string,
   subtitleComponentName?: keyof ComponentTypes,
   description?: string,
-  redirect?: (location: RouterLocation)=>string,
+  redirect?: (location: RouterLocation) => string,
   getPingback?: (parsedUrl: RouterLocation) => Promise<PingbackDocument|null> | PingbackDocument|null,
   previewComponentName?: keyof ComponentTypes,
   _id?: string|null,
@@ -50,20 +58,26 @@ export type Route = {
   staticHeader?: boolean // if true, the page header is not sticky to the top of the screen
   fullscreen?: boolean // if true, the page contents are put into a flexbox with the header such that the page contents take up the full height of the screen without scrolling
   unspacedGrid?: boolean // for routes with standalone navigation, setting this to true allows the page body to be full-width (the default is to have empty columns providing padding)
+
+  hasLeftNavigationColumn?: boolean
+  navigationFooterBar?: boolean,
   
-  // enablePrefetch: Start loading stylesheet and JS bundle before the page is
+  // enableResourcePrefetch: Start loading stylesheet and JS bundle before the page is
   // rendered. This requires sending headers before rendering, which means
   // that the page can't return an HTTP error status or an HTTP redirect. In
   // exchange, loading time is significantly improved for users who don't have
   // the stylesheet and JS bundle already in their cache.
   //
-  // This should only be set for routes which are guaranteed to be valid, ie,
-  // they don't have a post-ID or anything variable in them.
-  //
-  // Currently used for / and for /allPosts which is where this matters most.
-  // Not used for post-pages because we don't know whether a post page is going
-  // to be a 404 until we render it.
-  enableResourcePrefetch?: boolean
+  // This should only return true for routes which are *guaranteed* to return a 200 status code.
+  // I.e. it is better to give false negatives (not prefetching on a route that actually returns
+  // a 200) than false positives.
+  enableResourcePrefetch?: boolean | ((req: Request, res: Response, parsedRoute: RouterLocation, context: ResolverContext) => Promise<boolean>),
+  /**
+   * Under what circumstances stale-while-revalidate caching should be enabled on this route.
+   * If enabled, page loads where this is allowed will have a "Cache-control: max-age=1, s-max-age=1, stale-while-revalidate=86400"
+   * header applied, which allows CDNs to cache them for up to 1 day
+   */
+  swrCaching?: "logged-out"
   isAdmin?: boolean
 };
 
@@ -102,22 +116,6 @@ export const addRoute = (...routes: Route[]): void => {
     };
   }
 };
-
-export const overrideRoute = (...routes: Route[]): void => {
-  // remove the old route if it exists, then call addRoute
-  for (let route of routes) {
-    const {name, path} = route;
-    delete Routes[name];
-
-    // @ts-ignore The @types/underscore signature for _.findWhere is narrower than the real function; this works fine
-    const routeWithSamePath = _.findWhere(Routes, { path });
-
-    if (routeWithSamePath) {
-      delete Routes[routeWithSamePath.name];
-    }
-  }
-  addRoute(...routes);
-}
 
 export const getRouteMatchingPathname = (pathname: string): Route | undefined  => {
   return Object.values(Routes).reverse().find((route) => matchPath(pathname, {

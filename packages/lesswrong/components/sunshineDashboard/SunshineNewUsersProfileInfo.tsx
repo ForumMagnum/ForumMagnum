@@ -3,8 +3,8 @@ import React, { useState } from 'react';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useCurrentUser } from '../common/withUser';
 import { userCanDo } from '../../lib/vulcan-users';
-import NoSSR from 'react-no-ssr';
 import { preferredHeadingCase } from '../../themes/forumTheme';
+import DeferRender from '../common/DeferRender';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SunshineNewUsersProfileInfo = ({userId, classes}:{userId:string, classes: ClassesType}) => {
+const SunshineNewUsersProfileInfo = ({userId, classes}: {userId: string, classes: ClassesType}) => {
   const [expanded, setExpanded] = useState(false);
   const currentUser = useCurrentUser()
 
@@ -38,9 +38,9 @@ const SunshineNewUsersProfileInfo = ({userId, classes}:{userId:string, classes: 
   }
   
   return <div className={classes.root}>
-    <NoSSR>
+    <DeferRender ssr={false}>
       <SunshineNewUsersInfo user={user} currentUser={currentUser} refetch={refetch}/>
-    </NoSSR>
+    </DeferRender>
   </div>
 }
 

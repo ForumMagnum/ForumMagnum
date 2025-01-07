@@ -47,7 +47,7 @@ registerFragment(`
     }
     profileTagIds
     profileTags {
-      ...TagBasicInfo
+      ...TagPreviewFragment
     }
     organizerOfGroupIds
     organizerOfGroups {
@@ -116,6 +116,7 @@ registerFragment(`
     expandedFrontpageSections
     hidePostsRecommendations
     currentFrontpageFilter
+    frontpageSelectedTab
     frontpageFilterSettings
     hideFrontpageFilterSettingsDesktop
     allPostsTimeframe
@@ -199,8 +200,8 @@ registerFragment(`
     notificationSubforumUnread
     subforumPreferredLayout
     
-    experiencedIn
-    interestedIn
+    hideJobAdUntil
+    criticismTipsDismissed
     
     allowDatadogSessionReplay
     hideFrontpageBook2020Ad
@@ -217,9 +218,11 @@ registerFragment(`
     showRecommendedPartners
     hideActiveDialogueUsers
 
-    wrapped2023Viewed
-
     hideSunshineSidebar
+    optedOutOfSurveys
+    postGlossariesPinned
+    generateJargonForDrafts
+    generateJargonForPublishedPosts
   }
 `);
 
@@ -264,24 +267,31 @@ registerFragment(`
       posts {
         _id
         scoreChange
+        postId
         title
         slug
         addedReacts {
           reactionType
           userId
         }
+        eaAddedReacts
       }
       comments {
         _id
         scoreChange
+        commentId
         description
         postId
+        postTitle
+        postSlug
         tagSlug
+        tagName
         tagCommentType
         addedReacts {
           reactionType
           userId
         }
+        eaAddedReacts
       }
       tagRevisions {
         _id
@@ -292,6 +302,50 @@ registerFragment(`
         addedReacts {
           reactionType
           userId
+        }
+        eaAddedReacts
+      }
+      todaysKarmaChanges {
+        posts {
+          _id
+          scoreChange
+          postId
+          title
+          slug
+          addedReacts {
+            reactionType
+            userId
+          }
+          eaAddedReacts
+        }
+        comments {
+          _id
+          scoreChange
+          commentId
+          description
+          postId
+          postTitle
+          postSlug
+          tagSlug
+          tagName
+          tagCommentType
+          addedReacts {
+            reactionType
+            userId
+          }
+          eaAddedReacts
+        }
+        tagRevisions {
+          _id
+          scoreChange
+          tagId
+          tagSlug
+          tagName
+          addedReacts {
+            reactionType
+            userId
+          }
+          eaAddedReacts
         }
       }
     }
@@ -382,26 +436,25 @@ registerFragment(`
   }
 `)
 
+// Fragment used for the map markers on /community. This is a much-larger-than-
+// usual number of users, so keep this fragment minimal.
 registerFragment(`
   fragment UsersMapEntry on User {
-    ...UsersMinimumInfo
-    createdAt
-    isAdmin
-    groups
-    location
-    googleLocation
-    mapLocation
+    _id
+    displayName
+    username
+    fullName
+    slug
+    mapLocationLatLng { lat lng }
     mapLocationSet
-    mapMarkerText
     htmlMapMarkerText
-    mongoLocation
   }
 `);
 
 
 registerFragment(`
   fragment UsersEdit on User {
-    ...UsersProfile
+    ...UsersCurrent
     biography {
       ...RevisionEdit
     }
@@ -461,6 +514,7 @@ registerFragment(`
     mapLocation
     
     # Privacy settings
+    hideFromPeopleDirectory
     allowDatadogSessionReplay
 
     # Admin & Review
@@ -481,7 +535,9 @@ registerFragment(`
     notificationRepliesToMyComments
     notificationRepliesToSubscribedComments
     notificationSubscribedUserPost
+    notificationSubscribedUserComment
     notificationSubscribedTagPost
+    notificationSubscribedSequencePost
     notificationPostsInGroups
     notificationPrivateMessage
     notificationSharedWithMe
@@ -502,6 +558,9 @@ registerFragment(`
     hideFrontpageBook2020Ad
 
     deleted
+    permanentDeletionRequestedAt
+
+    twitterProfileURLAdmin
   }
 `)
 
@@ -532,6 +591,7 @@ registerFragment(`
   fragment UsersProfileEdit on User {
     _id
     slug
+    displayName
     jobTitle
     organization
     careerStage
@@ -573,5 +633,23 @@ registerFragment(`
   fragment UsersOptedInToDialogueFacilitation on User {
     _id
     displayName
+  }
+`);
+
+registerFragment(`
+  fragment UserOnboardingAuthor on User {
+    _id
+    displayName
+    profileImageId
+    karma
+    jobTitle
+    organization
+  }
+`);
+
+registerFragment(`
+  fragment UsersSocialMediaInfo on User {
+    ...UsersProfile
+    twitterProfileURLAdmin
   }
 `);

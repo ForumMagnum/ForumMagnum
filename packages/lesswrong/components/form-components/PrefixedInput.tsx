@@ -1,30 +1,25 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import Input from '@material-ui/core/Input';
 import InputAdornment from '@material-ui/core/InputAdornment';
-import { SocialMediaSiteName } from '../icons/SocialMediaIcon';
-import type { SocialMediaProfileField } from '../../lib/collections/users/schema';
+import type { SocialMediaProfileField } from '../../lib/collections/users/helpers';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
-    width: '100%',
-    maxWidth: 350,
-    '& input': {
-      paddingBottom: 6
-    }
+    marginBottom: -10,
   },
   icon: {
     height: 20,
-    fill: theme.palette.icon.normal,
+    fill: theme.palette.grey[1000],
     marginRight: 6
   },
   inputAdornment: {
-    marginRight: 0
+    marginRight: 0,
+    whiteSpace: "nowrap",
   },
   adornmentText: {
     color: theme.palette.grey[600]
   },
-})
+});
 
 export const iconNameByUserFieldName: Record<SocialMediaProfileField|"website", SocialMediaSiteName> = {
   "linkedinProfileURL": "linkedin",
@@ -38,36 +33,41 @@ export const iconNameByUserFieldName: Record<SocialMediaProfileField|"website", 
  * This is similar to a normal text input,
  * except it also displays an inputPrefix to the left of the cursor.
  */
-const PrefixedInput = ({ path, inputPrefix, updateCurrentValues, value, classes }: {
-  path: string;
-  inputPrefix?: string;
-  updateCurrentValues<T extends {}>(values: T) : void;
-  value: string;
-  classes: ClassesType;
+const PrefixedInput = ({
+  label,
+  heading,
+  inputPrefix,
+  path,
+  classes,
+  ...props
+}: FormComponentProps<string> & {
+  inputPrefix?: string,
+  heading?: string,
+  classes: ClassesType<typeof styles>,
 }) => {
+  const {SocialMediaIcon, FormComponentFriendlyTextInput} = Components;
+
   const icon = (path in iconNameByUserFieldName) ? (
-    <Components.SocialMediaIcon
+    <SocialMediaIcon
       className={classes.icon}
       name={iconNameByUserFieldName[path as SocialMediaProfileField|"website"]}
     />
   ) : null
 
-  return <Input
-    onChange={e => {
-      updateCurrentValues({
-        [path]: e.target.value
-      })
-    }}
-    startAdornment={
-      <InputAdornment position="start" className={classes.inputAdornment}>
-        {icon}
-        <span className={classes.adornmentText}>{inputPrefix}</span>
-      </InputAdornment>
-    }
-    value={value}
-    className={classes.root}
-  />
-
+  return (
+    <FormComponentFriendlyTextInput
+      {...props}
+      startAdornment={
+        <InputAdornment position="start" className={classes.inputAdornment}>
+          {icon}
+          <span className={classes.adornmentText}>{inputPrefix}</span>
+        </InputAdornment>
+      }
+      path={path}
+      label={heading}
+      className={classes.root}
+    />
+  );
 }
 
 const PrefixedInputComponent = registerComponent("PrefixedInput", PrefixedInput, { styles });

@@ -144,6 +144,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   preview: {
     width: 400
+  },
+  deemphasize: {
+    opacity: 0.5
   }
 })
 
@@ -161,7 +164,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   
   if (!comment) return null
   
-  const { enableHoverPreview=true, hideSingleLineMeta, post, singleLinePostTitle, hideParentCommentToggle } = treeOptions;
+  const { enableHoverPreview=true, hideSingleLineMeta, post, singleLinePostTitle, hideParentCommentToggle, deemphasizeCommentsExcludingUserIds } = treeOptions;
 
   const contentToRender = comment.title || comment.contents?.plaintextMainText;
   const { ShowParentComment, CommentUserName, CommentShortformIcon, PostsItemComments, ContentStyles, LWPopper, CommentsNode, CoreTagIcon } = Components
@@ -171,15 +174,19 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   const actuallyDisplayTagIcon = !!(displayTagIcon && comment.tag && coreTagIconMap[comment.tag.slug])
   
   const effectiveNestingLevel = nestingLevel + (treeOptions.switchAlternatingHighlights ? 1 : 0);
+  
+  const deempphasizeComment = !!deemphasizeCommentsExcludingUserIds && !deemphasizeCommentsExcludingUserIds.has(comment.userId)
 
   return (
     <div className={classes.root} {...eventHandlers}>
       <ContentStyles
         contentType={comment.answer ? "post" : "comment"}
-        className={classNames(classes.commentInfo, {
-          [classes.isAnswer]: comment.answer, 
-          [classes.odd]:((effectiveNestingLevel%2) !== 0),
-        })}
+        className={classNames(
+          classes.commentInfo,
+          comment.answer && classes.isAnswer,
+          ((effectiveNestingLevel%2) !== 0) && classes.odd,
+          deempphasizeComment && classes.deemphasize
+        )}
       >
         {post && <div className={classes.shortformIcon}><CommentShortformIcon comment={comment} post={post} simple={true} /></div>}
         {actuallyDisplayTagIcon && <div className={classes.tagIcon}>

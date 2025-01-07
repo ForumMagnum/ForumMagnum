@@ -1,6 +1,7 @@
-import { Utils, getCollection } from './vulcan-lib';
+import { getCollection } from '@/lib/vulcan-lib';
 import moment from 'moment';
-import { randomId } from './random';
+import { randomId } from '@/lib/random';
+import { isServer } from '@/lib/executionEnvironment';
 
 // Get relative link to conversation (used only in session)
 export const conversationGetLink = (conversation: HasIdType): string => {
@@ -41,7 +42,7 @@ export function constantTimeCompare({ correctValue, unknownValue }: { correctVal
 // If useOldSlugs is true, then the slugs that renamed documents used to have
 // count as used. If a documentId is provided, that document doesn't count as
 // a collision.
-Utils.getUnusedSlug = async function <N extends CollectionNameWithSlug>(
+export const getUnusedSlug = async function <N extends CollectionNameWithSlug>(
   collection: CollectionBase<N>,
   slug: string,
   useOldSlugs = false,
@@ -92,15 +93,15 @@ const getDocumentsBySlug = async <
 }
 
 // LESSWRONG version of getting unused slug by collection name. Modified to also include "oldSlugs" array
-Utils.getUnusedSlugByCollectionName = async function (collectionName: CollectionNameWithSlug, slug: string, useOldSlugs = false, documentId?: string): Promise<string> {
+export const getUnusedSlugByCollectionName = async function (collectionName: CollectionNameWithSlug, slug: string, useOldSlugs = false, documentId?: string): Promise<string> {
   const collection = getCollection(collectionName);
   if (!collection.hasSlug()) {
     throw new Error(`Collection ${collection.collectionName} doesn't have a slug`);
   }
-  return await Utils.getUnusedSlug(collection, slug, useOldSlugs, documentId)
+  return await getUnusedSlug(collection, slug, useOldSlugs, documentId)
 };
 
-Utils.slugIsUsed = async (collectionName: CollectionNameWithSlug, slug: string): Promise<boolean> => {
+export const slugIsUsed = async (collectionName: CollectionNameWithSlug, slug: string): Promise<boolean> => {
   const collection = getCollection(collectionName)
   const existingUserWithSlug = await collection.findOne({$or: [
     {slug: slug}, {oldSlugs: slug}
@@ -191,3 +192,9 @@ export const setAtPath = <T extends {}, V extends AnyBecauseHard>(
   }
   return value;
 }
+
+/**
+ * This is a workaround for a bug in apollo where setting `ssr: false` makes it not fetch
+ * the query on the client (see https://github.com/apollographql/apollo-client/issues/5918)
+ */
+export const apolloSSRFlag = (ssr?: boolean) => ssr || !isServer;

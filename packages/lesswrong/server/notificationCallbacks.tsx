@@ -12,22 +12,21 @@ import './emailComponents/EmailWrapper';
 import './emailComponents/NewPostEmail';
 import './emailComponents/PostNominatedEmail';
 import './emailComponents/PrivateMessagesEmail';
+import './emailComponents/EmailCuratedAuthors';
 import { EventDebouncer } from './debouncer';
 import * as _ from 'underscore';
 import { Components } from '../lib/vulcan-lib/components';
 import { updateMutator } from './vulcan-lib/mutators';
 import { getCollectionHooks } from './mutationCallbacks';
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
-import { CallbackHook } from '../lib/vulcan-lib/callbacks';
 
 import React from 'react';
 import TagRels from '../lib/collections/tagRels/collection';
 import { RSVPType } from '../lib/collections/posts/schema';
 import { isEAForum, isLWorAF } from '../lib/instanceSettings';
-import { getSubscribedUsers, createNotifications, getUsersWhereLocationIsInNotificationRadius, createNotification } from './notificationCallbacksHelpers'
+import { getSubscribedUsers, createNotifications, getUsersWhereLocationIsInNotificationRadius } from './notificationCallbacksHelpers'
 import moment from 'moment';
 import difference from 'lodash/difference';
-import uniq from 'lodash/uniq';
 import Messages from '../lib/collections/messages/collection';
 import Tags from '../lib/collections/tags/collection';
 import { subforumGetSubscribedUsers } from '../lib/collections/tags/helpers';
@@ -37,12 +36,8 @@ import { commentIsHidden } from '../lib/collections/comments/helpers';
 import { getDialogueResponseIds } from './posts/utils';
 import { DialogueMessageInfo } from '../components/posts/PostsPreviewTooltip/PostsPreviewTooltip';
 import { filterNonnull } from '../lib/utils/typeGuardUtils';
-
-// Callback for a post being published. This is distinct from being created in
-// that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
-// moderator approval because they're a user's first post (but does fire when
-// they're approved).
-export const postPublishedCallback = new CallbackHook<[DbPost]>("post.published");
+import { findUsersToEmail, hydrateCurationEmailsQueue, sendCurationEmail } from './curationEmails/cron';
+import { useCurationEmailsCron } from '../lib/betas';
 
 const removeNotification = async (notificationId: string) => {
   await updateMutator({
@@ -52,26 +47,6 @@ const removeNotification = async (notificationId: string) => {
     validate: false
   })
 }
-
-const sendPostByEmail = async ({users, postId, reason, subject}: {
-  users: Array<DbUser>,
-  postId: string,
-  reason: string,
-  
-  // Subject line to use in the email. If omitted, uses the post title.
-  subject?: string,
-}) => {
-  let post = await Posts.findOne(postId);
-  if (!post) throw Error(`Can't find post to send by email: ${postId}`)
-  for(let user of users) {
-    await wrapAndSendEmail({
-      user,
-      subject: subject ?? post.title,
-      body: <Components.NewPostEmail documentId={post._id} reason={reason}/>
-    });
-  }
-}
-
 
 // Add notification callback when a post is approved
 getCollectionHooks("Posts").editAsync.add(function PostsEditRunPostApprovedAsyncCallbacks(post, oldPost) {
@@ -84,8 +59,7 @@ function postIsPublic (post: DbPost) {
   return !post.draft && post.status === postStatuses.STATUS_APPROVED
 }
 
-// Export for testing
-/** create notifications for a new post being published */
+/** Create notifications for a new post being published */
 export async function postsNewNotifications (post: DbPost) {
   if (postIsPublic(post)) {
     // track the users who we've notified, so that we only do so once per user, even if they qualify for more than one notification -
@@ -136,8 +110,6 @@ export async function postsNewNotifications (post: DbPost) {
     await createNotifications({userIds: userIdsToNotify, notificationType: 'newPost', documentType: 'post', documentId: post._id});
   }
 }
-
-postPublishedCallback.add(postsNewNotifications);
 
 function eventHasRelevantChangeForNotification(oldPost: DbPost, newPost: DbPost) {
   const oldLocation = oldPost.googleLocation?.geometry?.location;
@@ -312,9 +284,10 @@ export async function notifyDialogueParticipantsNewMessage(newMessageAuthorId: s
 
 getCollectionHooks("Posts").editAsync.add(async function newPublishedDialogueMessageNotification (newPost: DbPost, oldPost: DbPost) {
   if (newPost.collabEditorDialogue) {
-    
-    const oldIds = getDialogueResponseIds(oldPost)
-    const newIds = getDialogueResponseIds(newPost);
+    const [oldIds, newIds] = await Promise.all([
+      getDialogueResponseIds(oldPost),
+      getDialogueResponseIds(newPost),
+    ]);
     const uniqueNewIds = _.difference(newIds, oldIds);
     
     if (uniqueNewIds.length > 0) {
@@ -355,29 +328,6 @@ getCollectionHooks("Posts").editAsync.add(async function RemoveRedraftNotificati
   }
 });
 
-async function findUsersToEmail(filter: MongoSelector<DbUser>) {
-  let usersMatchingFilter = await Users.find(filter).fetch();
-  if (isEAForum) {
-    return usersMatchingFilter
-  }
-
-  let usersToEmail = usersMatchingFilter.filter(u => {
-    if (u.email && u.emails && u.emails.length) {
-      let primaryAddress = u.email;
-
-      for(let i=0; i<u.emails.length; i++)
-      {
-        if(u.emails[i] && u.emails[i].address === primaryAddress && u.emails[i].verified)
-          return true;
-      }
-      return false;
-    } else {
-      return false;
-    }
-  });
-  return usersToEmail
-}
-
 const curationEmailDelay = new EventDebouncer({
   name: "curationEmail",
   defaultTiming: {
@@ -397,7 +347,7 @@ const curationEmailDelay = new EventDebouncer({
 
       //eslint-disable-next-line no-console
       console.log(`Found ${usersToEmail.length} users to email`);
-      await sendPostByEmail({
+      await sendCurationEmail({
         users: usersToEmail,
         postId,
         reason: "you have the \"Email me new posts in Curated\" option enabled"
@@ -409,24 +359,46 @@ const curationEmailDelay = new EventDebouncer({
   }
 });
 
-getCollectionHooks("Posts").editAsync.add(async function PostsCurateNotification (post: DbPost, oldPost: DbPost) {
-  if(post.curatedDate && !oldPost.curatedDate && isLWorAF) {
+getCollectionHooks("Posts").editAsync.add(async function EAFCuratedAuthorsNotification(post: DbPost, oldPost: DbPost) {
+  // On the EA Forum, when a post is curated, we send an email notifying all the post's authors
+  if (post.curatedDate && !oldPost.curatedDate && isEAForum) {
+    const coauthorIds = getConfirmedCoauthorIds(post)
+    const authorIds = [post.userId, ...coauthorIds]
+    const authors = await Users.find({
+      _id: {$in: authorIds}
+    }).fetch()
+    
+    void Promise.all(authors.map(author => wrapAndSendEmail({
+        user: author,
+        subject: "We’ve curated your post",
+        body: <Components.EmailCuratedAuthors user={author} post={post} />
+      })
+    ))
+  }
+})
+
+getCollectionHooks("Posts").editAsync.add(async function LWAFPostsCurateNotification (post: DbPost, oldPost: DbPost) {
+  if (post.curatedDate && !oldPost.curatedDate && isLWorAF) {
     // Email admins immediately, everyone else after a 20-minute delay, so that
     // we get a chance to catch formatting issues with the email. (Admins get
     // emailed twice.)
     const adminsToEmail = await findUsersToEmail({'emailSubscribedToCurated': true, isAdmin: true});
 
-    await sendPostByEmail({
+    await sendCurationEmail({
       users: adminsToEmail,
       postId: post._id,
       reason: "you have the \"Email me new posts in Curated\" option enabled",
       subject: `[Admin preview] ${post.title}`,
     });
     
-    await curationEmailDelay.recordEvent({
-      key: post._id,
-      af: false
-    });
+    if (!useCurationEmailsCron) {
+      await curationEmailDelay.recordEvent({
+        key: post._id,
+        af: false
+      });  
+    } else {
+      await hydrateCurationEmailsQueue(post._id);
+    }
   }
 });
 
@@ -652,6 +624,21 @@ const sendNewCommentNotifications = async (comment: DbComment) => {
       documentId: comment._id,
     });
   }
+
+  // 5. Notify users who are subscribed to comments by the comment author
+  const commentAuthorSubscribers = await getSubscribedUsers({
+    documentId: comment.userId,
+    collectionName: "Users",
+    type: subscriptionTypes.newUserComments
+  })
+  const commentAuthorSubscriberIds = commentAuthorSubscribers.map(({ _id }) => _id)
+  const commentAuthorSubscriberIdsToNotify = _.difference(commentAuthorSubscriberIds, notifiedUsers)
+  await createNotifications({
+    userIds: commentAuthorSubscriberIdsToNotify, 
+    notificationType: 'newUserComment', 
+    documentType: 'comment', 
+    documentId: comment._id
+  });
 }
 
 // add new comment notification callback on comment submit

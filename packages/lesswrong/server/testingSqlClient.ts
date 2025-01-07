@@ -1,111 +1,17 @@
 import { Application, json, Request, Response } from "express";
-import PgCollection from "../lib/sql/PgCollection";
-import CreateIndexQuery from "../lib/sql/CreateIndexQuery";
-import CreateTableQuery from "../lib/sql/CreateTableQuery";
-import { Collections } from "./vulcan-lib";
-import { ensureCustomPgIndex, ensureIndex, expectedIndexes } from "../lib/collectionIndexUtils";
-import { ensurePostgresViewsExist } from "./postgresView";
-import { closeSqlClient, getSqlClient, replaceDbNameInPgConnectionString, setSqlClient } from "../lib/sql/sqlClient";
+import { closeSqlClient, getSqlClient, replaceDbNameInPgConnectionString, setSqlClient } from "@/server/sql/sqlClient";
 import { createSqlConnection } from "./sqlConnection";
-import { inspect } from "util";
 import { testServerSetting } from "../lib/instanceSettings";
-import { installExtensions, updateFunctions } from "./migrations/meta/utils";
-import Posts from "../lib/collections/posts/collection";
-import Comments from "../lib/collections/comments/collection";
-import Conversations from "../lib/collections/conversations/collection";
-import Messages from "../lib/collections/messages/collection";
-import LocalGroups from "../lib/collections/localgroups/collection";
-import Users from "../lib/collections/users/collection";
+import { readFile } from "fs/promises";
+import { sleep } from "@/lib/utils/asyncUtils";
 
-import seedPosts from "../../../cypress/fixtures/posts";
-import seedComments from "../../../cypress/fixtures/comments";
-import seedConversations from "../../../cypress/fixtures/conversations";
-import seedMessages from "../../../cypress/fixtures/messages";
-import seedLocalGroups from "../../../cypress/fixtures/localgroups";
-import seedUsers from "../../../cypress/fixtures/users";
-import { DatabaseMetadata } from "../lib/collections/databaseMetadata/collection";
-import DebouncerEvents from "../lib/collections/debouncerEvents/collection";
-import PageCache from "../lib/collections/pagecache/collection";
-import ReadStatuses from "../lib/collections/readStatus/collection";
-
-export const preparePgTables = () => {
-  for (let collection of Collections) {
-    if (collection instanceof PgCollection) {
-      if (!collection.getTable()) {
-        collection.buildPostgresTable();
-      }
-    }
+const loadDbSchema = async (client: SqlClient) => {
+  try {
+    const schema = await readFile("./schema/accepted_schema.sql");
+    await client.multi(schema.toString());
+  } catch (e) {
+    throw new Error("Failed to load db schema", {cause: e});
   }
-}
-
-/**
- * These are custom indexes we created during the nullability PR for various ON CONFLICT queries.
- * We need to run them here but with options to ensure they actually get run, because the calls to create them in the codebase don't get run during test setup.
- * We need a better way to handle `ensureCustomPgIndex` properly for indexes required by tests.
- */
-const ensureMigratedIndexes = async (client: SqlClient) => {
-  const options = { overrideCanEnsureIndexes: true, runImmediately: true, client };
-  // eslint-disable-next-line no-console
-  console.log('Creating custom indexes');
-  await ensureCustomPgIndex(`
-    CREATE UNIQUE INDEX IF NOT EXISTS "idx_DatabaseMetadata_name"
-    ON public."DatabaseMetadata" USING btree
-    (name);
-  `, options);
-  await ensureCustomPgIndex(`
-    CREATE UNIQUE INDEX IF NOT EXISTS "idx_DebouncerEvents_dispatched_af_key_name_filtered"
-    ON public."DebouncerEvents" USING btree
-    (dispatched, af, key, name)
-    WHERE (dispatched IS FALSE);
-  `, options);
-  await ensureCustomPgIndex(`
-    CREATE UNIQUE INDEX IF NOT EXISTS "idx_PageCache_path_abTestGroups_bundleHash"
-    ON public."PageCache" USING btree
-    (path, "abTestGroups", "bundleHash");
-  `, options);
-  await ensureCustomPgIndex(`
-    CREATE UNIQUE INDEX IF NOT EXISTS "idx_ReadStatuses_userId_postId_tagId"
-    ON public."ReadStatuses" USING btree
-    (COALESCE("userId", ''), COALESCE("postId", ''::character varying), COALESCE("tagId", ''::character varying));
-  `, options);
-}
-
-const buildTables = async (client: SqlClient) => {
-  await installExtensions(client);
-
-  preparePgTables();
-
-  for (let collection of Collections) {
-    if (collection instanceof PgCollection) {
-      const {collectionName} = collection;
-      const table = collection.getTable();
-      const createTableQuery = new CreateTableQuery(table);
-      const {sql, args} = createTableQuery.compile();
-      try {
-        await client.any(sql, args);
-      } catch (e) {
-        throw new Error(`Create table query failed: ${e.message}: ${sql}: ${inspect(args, {depth: null})}`);
-      }
-
-      const rawIndexes = expectedIndexes[collectionName as CollectionNameString] ?? [];
-      for (const rawIndex of rawIndexes) {
-        const {key, ...options} = rawIndex;
-        const fields: MongoIndexKeyObj<any> = typeof key === "string" ? {[key]: 1} : key;
-        const index = table.getIndex(Object.keys(fields), options) ?? table.addIndex(fields, options);
-        const createIndexQuery = new CreateIndexQuery(table, index, true);
-        const {sql, args} = createIndexQuery.compile();
-        try {
-          await client.any(sql, args);
-        } catch (e) {
-          throw new Error(`Create index query failed: ${e.message}: ${sql}: ${inspect(args, {depth: null})}`);
-        }
-      }
-    }
-  }
-
-  await ensureMigratedIndexes(client);
-  await updateFunctions(client);
-  await ensurePostgresViewsExist(client);
 }
 
 const makeDbName = (id?: string) => {
@@ -152,7 +58,7 @@ export const createTestingSqlClient = async (
   await sql.none(`CREATE DATABASE ${dbName}`);
   const testUrl = replaceDbNameInPgConnectionString(PG_URL, dbName);
   sql = await createSqlConnection(testUrl, true);
-  await buildTables(sql);
+  await loadDbSchema(sql);
   if (setAsGlobalClient) {
     setSqlClient(sql);
   }
@@ -172,7 +78,21 @@ export const createTestingSqlClientFromTemplate = async (template: string): Prom
   }
   const dbName = makeDbName();
   let sql = await createTemporaryConnection();
-  await sql.any('CREATE DATABASE "$1:value" TEMPLATE $2', [dbName, template]);
+  
+  let retry = false;
+  let retryCount = 0;
+  do {
+    try {
+      retry = false;
+      await sql.any('CREATE DATABASE "$1:value" TEMPLATE $2', [dbName, template]);
+    } catch(e) {
+      if (retryCount++ < 3 && /source database .* is being accessed by other users/.test(e.message)) {
+        await sleep(1000);
+        retry = true;
+      }
+    }
+  } while (retry);
+
   const testUrl = replaceDbNameInPgConnectionString(PG_URL, dbName);
   sql = await createSqlConnection(testUrl, true);
   setSqlClient(sql);
@@ -232,59 +152,27 @@ export const killAllConnections = async (id?: string) => {
   }
 }
 
-const seedData = async <T extends {}>(collection: CollectionBase<any>, data: T[]) => {
-  // eslint-disable-next-line no-console
-  console.log(`Importing Cypress seed data for ${collection.options.collectionName}`);
-  await collection.rawInsert(data);
-}
-
 type DropAndCreatePgArgs = {
-  seed?: boolean,
   templateId?: string,
   dropExisting?: boolean,
 }
 
-export const dropAndCreatePg = async ({seed, templateId, dropExisting}: DropAndCreatePgArgs) => {
+export const dropAndCreatePg = async ({templateId, dropExisting}: DropAndCreatePgArgs) => {
   const oldClient = getSqlClient();
   setSqlClient(await createSqlConnection());
   await oldClient?.$pool.end();
   // eslint-disable-next-line no-console
   console.log("Creating PG database");
   await createTestingSqlClient(templateId, dropExisting);
-  if (seed) {
-    // eslint-disable-next-line no-console
-    console.log("Seeding PG database");
-    await Promise.all([
-      seedData(Posts, seedPosts),
-      seedData(Comments, seedComments),
-      seedData(Conversations, seedConversations),
-      seedData(Messages, seedMessages),
-      seedData(LocalGroups, seedLocalGroups),
-      seedData(Users, seedUsers),
-    ]);
-  }
 }
 
-// In development mode, we need a clean way to reseed the test database for Cypress.
-// We definitely don't ever want this in prod though.
-export const addCypressRoutes = (app: Application) => {
+// In development mode, we need a clean way to recreate the integration test
+// database. We definitely don't ever want this in prod though.
+// TODO: There should be a much cleaner way to do this now we have a complete
+// schema and dockerized postgres.
+export const addTestingRoutes = (app: Application) => {
   // TODO: better check for dev mode
   if (testServerSetting.get()) {
-    const cypressRoute = "/api/recreateCypressPgDb";
-    app.use(cypressRoute, json({ limit: "1mb" }));
-    app.post(cypressRoute, async (req: Request, res: Response) => {
-      try {
-        const { templateId } = req.body;
-        if (!templateId || typeof templateId !== "string") {
-          throw new Error("No templateId provided");
-        }
-        const {dbName} = await createTestingSqlClientFromTemplate(templateId)
-        res.status(200).send({status: "ok", dbName});
-      } catch (e) {
-        res.status(500).send({status: "error", message: e.message});
-      }
-    });
-
     const integrationRoute = "/api/dropAndCreatePg";
     app.use(integrationRoute, json({ limit: "1mb" }));
     app.post(integrationRoute, async (req: Request, res: Response) => {
@@ -296,7 +184,6 @@ export const addCypressRoutes = (app: Application) => {
         await dropAndCreatePg({
           templateId,
           dropExisting: true,
-          seed: false,
         });
         res.status(200).send({status: "ok"});
       } catch (e) {

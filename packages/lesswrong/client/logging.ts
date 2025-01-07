@@ -6,7 +6,6 @@ import { sentryUrlSetting, sentryReleaseSetting, sentryEnvironmentSetting } from
 import { getUserEmail } from "../lib/collections/users/helpers";
 import { devicePrefersDarkMode } from "../components/themes/usePrefersDarkMode";
 import { configureDatadogRum } from './datadogRum';
-import { userChangedCallback } from '../lib/vulcan-lib/callbacks';
 
 const sentryUrl = sentryUrlSetting.get()
 const sentryEnvironment = sentryEnvironmentSetting.get()
@@ -38,15 +37,14 @@ if (sentryUrl && sentryEnvironment && sentryRelease) {
 
 
 // Initializing sentry on the client browser
-
-userChangedCallback.add(function identifyUserToSentry(user: UsersCurrent | null) {
+function identifyUserToSentry(user: UsersCurrent | null) {
   // Set user in sentry scope, or clear user if they have logged out
   Sentry.configureScope((scope) => {
     scope.setUser(user ? {id: user._id, email: getUserEmail(user), username: user.username} : null);
   });
-});
+}
 
-userChangedCallback.add(function addUserIdToGoogleAnalytics(user: UsersCurrent | null) {
+function addUserIdToGoogleAnalytics(user: UsersCurrent | null) {
   const dataLayer = (window as any).dataLayer
   if (!dataLayer) {
     // eslint-disable-next-line no-console
@@ -54,9 +52,14 @@ userChangedCallback.add(function addUserIdToGoogleAnalytics(user: UsersCurrent |
   } else {
     dataLayer.push({userId: user ? user._id : null})
   }
-});
+}
 
-userChangedCallback.add(configureDatadogRum);
+
+export function onUserChanged(user: UsersCurrent) {
+  identifyUserToSentry(user);
+  addUserIdToGoogleAnalytics(user);
+  configureDatadogRum(user);
+}
 
 window.addEventListener('load', ev => {
   const urlParams = new URLSearchParams(document.location?.search)
@@ -67,17 +70,14 @@ window.addEventListener('load', ev => {
     utmSource: urlParams.get('utm_source'),
     utmMedium: urlParams.get('utm_medium'),
     utmCampaign: urlParams.get('utm_campaign'),
+    utmContent: urlParams.get('utm_content'),
+    utmTerm: urlParams.get('utm_term'),
     browserProps: browserProperties(),
     prefersDarkMode: devicePrefersDarkMode(),
     performance: {
       memory: (window as any).performance?.memory?.usedJSHeapSize,
       timeOrigin: window.performance?.timeOrigin,
-      timing: window.performance?.timing,
+      timing: window.performance?.timing?.toJSON?.(),
     },
   });
 });
-
-
-// Put the tabId, which was injected into the page as a global variable, into
-// the analytics context vars. See apollo-ssr/renderPage.js
-AnalyticsUtil.clientContextVars.tabId = (window as any).tabId

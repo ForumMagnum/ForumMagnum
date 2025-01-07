@@ -116,9 +116,18 @@ getCollectionHooks("Books").editAsync.add(async function UpdateCollectionLinks (
     firstPageLink: "/" + results.collectionSlug + "/" + results.posts[0].slug
   }})
 
-  await updateCollectionSequences(results.sequences, results.collectionSlug)
-  await updateCollectionPosts(results.posts, results.collectionSlug)
+
+  // The following two functions calls cause every sequence and post included in this collection 
+  // to have their canonicalCollectionSlug, next post, previous, etc. updated. This makes 
+  // sense when the collection is works of a single author like R:A-Z or Codex, but caused 
+  // a lot of issues when making the Best Of collection that clobbered correct Sequence 
+  // association info and messed up navigation.
+  //
+  // Commenting out for now but leaving in case we ever want to make a canonical collection 
+  // for something like R:A-Z or Codex again.
+  // await updateCollectionSequences(results.sequences, results.collectionSlug)
+  // await updateCollectionPosts(results.posts, results.collectionSlug)
 
   //eslint-disable-next-line no-console
-  console.log(`...finished Updating Collection Links for ${collectionId}`)
+  // console.log(`...finished Updating Collection Links for ${collectionId}`)
 });

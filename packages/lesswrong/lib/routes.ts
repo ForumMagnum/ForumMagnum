@@ -1,19 +1,22 @@
-import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting, taggingNamePluralSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameCapitalSetting, isEAForum, taggingNameSetting } from './instanceSettings';
-import { legacyRouteAcronymSetting } from './publicSettings';
+import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting, taggingNamePluralSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameCapitalSetting, isEAForum, taggingNameSetting, aboutPostIdSetting, isLW } from './instanceSettings';
+import { blackBarTitle, legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, RouterLocation, Route } from './vulcan-lib/routes';
-import { onStartup } from './executionEnvironment';
 import { REVIEW_YEAR } from './reviewUtils';
 import { forumSelect } from './forumTypeUtils';
 import pickBy from 'lodash/pickBy';
 import qs from 'qs';
-import {getPostPingbackById, getPostPingbackByLegacyId, getPostPingbackBySlug, getUserPingbackBySlug} from './pingback'
+import { getPostPingbackById, getPostPingbackByLegacyId, getPostPingbackBySlug, getUserPingbackBySlug } from './pingback';
 import { eaSequencesHomeDescription } from '../components/ea-forum/EASequencesHome';
 import { pluralize } from './vulcan-lib';
 import { forumSpecificRoutes } from './forumSpecificRoutes';
-import { hasPostRecommendations } from './betas';
+import { hasPostRecommendations, hasSurveys } from './betas';
+import {isFriendlyUI} from '../themes/forumTheme'
+import { postRouteWillDefinitelyReturn200 } from './collections/posts/helpers';
+import { sequenceRouteWillDefinitelyReturn200 } from './collections/sequences/helpers';
+import { tagRouteWillDefinitelyReturn200 } from './collections/tags/helpers';
 
 const knownTagNames = ['tag', 'topic', 'concept']
-const useShortAllTagsPath = isEAForum;
+const useShortAllTagsPath = isFriendlyUI;
 
 /**
  * Get the path for the all tags page
@@ -34,18 +37,17 @@ export const getAllTagsRedirectPaths: () => string[] = () => {
 }
 
 export const communityPath = isEAForum ? '/groups' : '/community';
-const communitySubtitle = { subtitleLink: communityPath, subtitle: isEAForum ? 'Groups & people' : 'Community' };
+const communitySubtitle = { subtitleLink: communityPath, subtitle: isEAForum ? 'Groups' : 'Community' };
 
 const rationalitySubtitle = { subtitleLink: "/rationality", subtitle: "Rationality: A-Z" };
 const highlightsSubtitle = { subtitleLink: "/highlights", subtitle: "Sequence Highlights" };
 
 const hpmorSubtitle = { subtitleLink: "/hpmor", subtitle: "HPMoR" };
 const codexSubtitle = { subtitleLink: "/codex", subtitle: "SlateStarCodex" };
-const bestoflwSubtitle = { subtitleLink: "/bestoflesswrong", subtitle: "Best of LessWrong" };
+const leastWrongSubtitle = { subtitleLink: "/leastwrong", subtitle: "The Best of LessWrong" };
 
 const taggingDashboardSubtitle = { subtitleLink: '/tags/dashboard', subtitle: `${taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Wiki-Tag'} Dashboard`}
 
-const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId', 'bJ2haLkcGeLtTWaD5', "warning") // Post ID for the /about route
 const faqPostIdSetting = new PublicInstanceSetting<string>('faqPostId', '2rWKkWuPrgTMpLRbp', "warning") // Post ID for the /faq route
 const contactPostIdSetting = new PublicInstanceSetting<string>('contactPostId', "ehcYkvyz7dh9L7Wt8", "warning")
 const introPostIdSetting = new PublicInstanceSetting<string | null>('introPostId', null, "optional")
@@ -239,16 +241,27 @@ addRoute(
     name:'reviewVotingByYear',
     path: '/reviewVoting/:year',
     title: "Review Voting",
-    componentName: "ReviewVotingPage",
-    subtitleComponentName: "ReviewHeaderTitle"
+    componentName: "AnnualReviewPage"
   },
 
   {
     name: 'reviewQuickPage',
     path: '/reviewQuickPage',
-    componentName: 'ReviewQuickPage',
+    redirect: () => `/quickReview/${REVIEW_YEAR}`
+  },
+
+  {
+    name: 'quickReview',
+    path: '/quickReview/:year',
+    componentName: 'AnnualReviewPage',
     title: "Review Quick Page",
     subtitle: "Quick Review Page"
+  },
+
+  {
+    name: 'quickReviewRedirect',
+    path: '/quickReview',
+    redirect: () => `/quickReview/${REVIEW_YEAR}`
   },
 
   {
@@ -271,20 +284,19 @@ addRoute(
     componentName: 'SequencesSingle',
     titleComponentName: 'SequencesPageTitle',
     subtitleComponentName: 'SequencesPageTitle',
-    previewComponentName: 'SequencePreview'
+    previewComponentName: 'SequencePreview',
+    enableResourcePrefetch: sequenceRouteWillDefinitelyReturn200,
   },
   {
     name: 'sequencesEdit',
     path: '/sequencesEdit/:_id',
     componentName: 'SequencesEditForm',
-    background: "white"
   },
   {
     name: 'sequencesNew',
     path: '/sequencesNew',
     componentName: 'SequencesNewForm',
     title: "New Sequence",
-    background: "white"
   },
   {
     name: 'sequencesPost',
@@ -308,7 +320,9 @@ addRoute(
   {
     name: 'collections',
     path: '/collections/:_id',
-    componentName: 'CollectionsSingle'
+    componentName: 'CollectionsSingle',
+    hasLeftNavigationColumn: isLW,
+    navigationFooterBar: true,
   },
   {
     name: 'highlights',
@@ -343,9 +357,19 @@ addRoute(
   {
     name: 'votesByYear',
     path: '/votesByYear/:year',
-    componentName: 'UserSuggestNominations',
-    title: "Your Past Votes"
+    redirect: ({params}) => `/nominatePosts/${params.year}`
   },
+  {
+    name: 'nominatePosts',
+    path: '/nominatePosts',
+    redirect: () => `/nominatePosts/${REVIEW_YEAR}`
+  },
+  {
+    name: 'nominatePostsByYear',
+    path: '/nominatePosts/:year',
+    title: "Nominate Posts",
+    componentName: "AnnualReviewPage"
+  }
 );
 
 if (taggingNameIsSet.get()) {
@@ -357,6 +381,7 @@ if (taggingNameIsSet.get()) {
       titleComponentName: 'TagPageTitle',
       subtitleComponentName: 'TagPageTitle',
       previewComponentName: 'TagHoverPreview',
+      enableResourcePrefetch: tagRouteWillDefinitelyReturn200,
     },
     {
       name: 'tagsSingleRedirectCustomName',
@@ -384,6 +409,7 @@ if (taggingNameIsSet.get()) {
       componentName: 'TagHistoryPage',
       titleComponentName: 'TagHistoryPageTitle',
       subtitleComponentName: 'TagHistoryPageTitle',
+      enableResourcePrefetch: tagRouteWillDefinitelyReturn200,
       noIndex: true,
     },
     {
@@ -470,6 +496,7 @@ if (taggingNameIsSet.get()) {
       titleComponentName: 'TagPageTitle',
       subtitleComponentName: 'TagPageTitle',
       previewComponentName: 'TagHoverPreview',
+      enableResourcePrefetch: tagRouteWillDefinitelyReturn200,
     },
     {
       name: 'tagDiscussion',
@@ -538,6 +565,8 @@ addRoute(
     componentName: isEAForum ? 'EAAllTagsPage' : 'AllTagsPage',
     title: isEAForum ? `${taggingNamePluralCapitalSetting.get()} — Main Page` : "Concepts Portal",
     description: isEAForum ? `Browse the core ${taggingNamePluralSetting.get()} discussed on the EA Forum and an organised wiki of key ${taggingNameSetting.get()} pages` : undefined,
+    hasLeftNavigationColumn: false,
+    navigationFooterBar: true,
   },
   // And all the redirects to it
   ...getAllTagsRedirectPaths().map((path, idx) => ({
@@ -548,7 +577,7 @@ addRoute(
 );
 
 
-onStartup(() => {
+export function initLegacyRoutes() {
   const legacyRouteAcronym = legacyRouteAcronymSetting.get()
   addRoute(
     // Legacy (old-LW, also old-EAF) routes
@@ -569,7 +598,7 @@ onStartup(() => {
       // TODO: Pingback comment
     }
   );
-});
+}
 
 const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
   EAForum: [
@@ -579,7 +608,9 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'EAHome',
       description: "Research, discussion, and updates on the world's most pressing problems. Including global health and development, animal welfare, AI safety, and biosecurity.",
       enableResourcePrefetch: true,
-      sunshineSidebar: true
+      sunshineSidebar: true,
+      hasLeftNavigationColumn: true,
+      navigationFooterBar: true,
     },
     {
       name:'about',
@@ -588,6 +619,12 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       _id: aboutPostIdSetting.get(),
       getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, aboutPostIdSetting.get()),
       background: postBackground
+    },
+    {
+      name:'notifications',
+      path:'/notifications',
+      componentName: 'NotificationsPage',
+      title: "Notifications",
     },
     {
       name: 'handbook',
@@ -599,6 +636,11 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       name: 'termsOfUse',
       path: '/termsOfUse',
       componentName: 'EATermsOfUsePage',
+    },
+    {
+      name: 'privacyPolicy',
+      path: '/privacyPolicy',
+      redirect: () => 'https://ev.org/ops/about/privacy-policy',
     },
     {
       name: 'intro',
@@ -623,6 +665,11 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       redirect: () => '/best-of',
     },
     {
+      name: 'digest',
+      path: '/digests/:num',
+      componentName: 'EADigestPage',
+    },
+    {
       name: 'contact',
       path:'/contact',
       componentName: 'PostsSingleRoute',
@@ -645,7 +692,9 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       path: '/library',
       title: 'Library',
       description: eaSequencesHomeDescription,
-      componentName: 'EASequencesHome'
+      componentName: 'EASequencesHome',
+      hasLeftNavigationColumn: true,
+      navigationFooterBar: true,
     },
     {
       name: 'EventsHome',
@@ -666,10 +715,10 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       redirect: () => communityPath
     },
     {
-      name: 'Groups & people',
+      name: 'GroupsHome',
       path: communityPath,
       componentName: 'Community',
-      title: 'Groups & people',
+      title: 'Groups',
       description: "Discover local and online EA groups, or browse the members of the forum to find people to connect with.",
       ...communitySubtitle
     },
@@ -705,6 +754,12 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       name: "userAnalytics",
       path:'/users/:slug/stats',
       componentName: "AuthorAnalyticsPage",
+      background: "white",
+    },
+    {
+      name: "myAnalytics",
+      path:'/my-stats',
+      componentName: "MyAnalyticsPage",
     },
     {
       name: 'EAGApplicationData',
@@ -734,6 +789,8 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       subtitleComponentName: 'TagPageTitle',
       previewComponentName: 'TagHoverPreview',
       unspacedGrid: true,
+      hasLeftNavigationColumn: true,
+      navigationFooterBar: true,
     },
     {
       name: 'EAForumWrapped',
@@ -741,6 +798,20 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'EAForumWrappedPage',
       title: 'EA Forum Wrapped',
       noFooter: true,
+    },
+    {
+      name: 'Instagram landing page',
+      path: '/instagram',
+      componentName: 'InstagramLandingPage',
+      title: 'Instagram Links',
+      noFooter: true,
+    },
+    {
+      name: 'Twitter tools',
+      path: '/admin/twitter',
+      componentName: 'TwitterAdmin',
+      title: 'Twitter tools',
+      isAdmin: true,
     },
     {
       name: 'Digests',
@@ -783,6 +854,45 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'BookmarksPage',
       title: 'Saved & read',
     },
+    {
+      name: 'adminForumEvents',
+      path: '/adminForumEvents',
+      componentName: 'AdminForumEventsPage',
+      title: 'Manage forum events',
+    },
+    {
+      name: 'editForumEvent',
+      path: '/editForumEvent/:documentId',
+      componentName: 'EditForumEventPage',
+      title: 'Edit forum event',
+    },
+    {
+      name: 'peopleDirectory',
+      path: '/people-directory',
+      componentName: 'PeopleDirectoryPage',
+      title: 'People directory',
+    },
+    {
+      name: 'VotingPortal',
+      path: '/voting-portal',
+      componentName: 'VotingPortalPage',
+      title: 'Vote in the Donation Election',
+      noFooter: true,
+    },
+    {
+      name: 'ElectionCandidates',
+      path: '/admin/election-candidates',
+      componentName: 'AdminElectionCandidates',
+      title: 'Election Candidates',
+      isAdmin: true,
+    },
+    {
+      name: 'EditElectionCandidate',
+      path: '/admin/election-candidates/:id',
+      componentName: 'EditElectionCandidate',
+      title: 'Edit Election Candidate',
+      isAdmin: true,
+    },
   ],
   LessWrong: [
     {
@@ -790,7 +900,10 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       path: '/',
       componentName: 'LWHome',
       enableResourcePrefetch: true,
-      sunshineSidebar: true
+      sunshineSidebar: true, 
+      ...(blackBarTitle.get() ? { subtitleLink: "/tag/death", headerSubtitle: blackBarTitle.get()! } : {}),
+      hasLeftNavigationColumn: true,
+      navigationFooterBar: true,
     },
     {
       name: 'dialogues',
@@ -799,10 +912,10 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       title: "All Dialogues",
     },
     {
-      name:'users.dialogueMatching',
-      path:'/dialogueMatching',
-      componentName: 'DialogueMatchingPage',
-      title: "Dialogue Matching",
+      name:'llmAutocompleteSettings',
+      path:'/autocompleteSettings',
+      componentName: 'AutocompleteModelSettings',
+      title: "LLM Autocomplete Model Settings",
     },
     {
       name: 'about',
@@ -844,9 +957,29 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'bestoflesswrong',
       path: '/bestoflesswrong',
-      componentName: 'BestOfLessWrong',
-      title: "Best of LessWrong",
-      ...bestoflwSubtitle,
+      componentName: 'TopPostsPage',
+      title: "The Best of LessWrong",
+      background: "#f8f4ee",
+      ...leastWrongSubtitle,
+    },
+    {
+      name: 'bestoflesswrongByYear',
+      path: '/bestoflesswrong/:year/:topic',
+      componentName: 'TopPostsPage',
+      title: "The Best of LessWrong",
+      background: "#f8f4ee",
+      ...leastWrongSubtitle,
+    },
+    {
+      name: 'leastwrong',
+      path: '/leastwrong',
+      redirect: () => `/bestoflesswrong`,
+    },
+    { 
+      name: 'books',
+      path: '/books',
+      componentName: 'Books',
+      title: "Books",
     },
     {
       name: 'HPMOR',
@@ -902,11 +1035,6 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       ...codexSubtitle,
       getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
       background: postBackground
-    },
-    {
-      name: 'bookLanding',
-      path: '/books',
-      redirect: () => `/books/2018`,
     },
     {
       name: 'book2018Landing',
@@ -992,13 +1120,15 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       name: 'library',
       path: '/library',
       componentName: 'LibraryPage',
-      title: "The Library"
+      title: "The Library",
+      hasLeftNavigationColumn: true,
+      navigationFooterBar: true,
     },
     {
       name: 'Sequences',
       path: '/sequences',
       componentName: 'CoreSequences',
-      title: "Rationality: A-Z"
+      title: "Rationality: A-Z",
     },
     {
       name: 'Rationality',
@@ -1039,7 +1169,17 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       path:'/',
       componentName: 'AlignmentForumHome',
       enableResourcePrefetch: true,
-      sunshineSidebar: true //TODO: remove this in production?
+      sunshineSidebar: true,
+      hasLeftNavigationColumn: true,
+      navigationFooterBar: true,
+    },
+    {
+      name: 'bestoflesswrong',
+      path: '/bestoflesswrong',
+      componentName: 'TopPostsPage',
+      title: "The Best of LessWrong",
+      background: "#f8f4ee",
+      ...leastWrongSubtitle,
     },
     {
       name:'about',
@@ -1121,14 +1261,16 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       path: '/library',
       componentName: 'AFLibraryPage',
       enableResourcePrefetch: true,
-      title: "The Library"
+      title: "The Library",
+      hasLeftNavigationColumn: true,
+      navigationFooterBar: true,
     },
     {
       name: 'Sequences',
       path: '/sequences',
       enableResourcePrefetch: true,
       componentName: 'CoreSequences',
-      title: "Rationality: A-Z"
+      title: "Rationality: A-Z",
     },
     {
       name: 'Rationality',
@@ -1159,7 +1301,9 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       path:'/',
       componentName: 'LWHome',
       enableResourcePrefetch: true,
-      sunshineSidebar: true //TODO: remove this in production?
+      sunshineSidebar: true,
+      hasLeftNavigationColumn: true,
+      navigationFooterBar: true,
     },
     {
       name:'about',
@@ -1184,10 +1328,16 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       background: postBackground
     },
     {
-      name: 'bookmarks',
-      path: '/bookmarks',
+      name: 'savedAndRead',
+      path: '/saved',
       componentName: 'BookmarksPage',
-      title: 'Bookmarks',
+      title: 'Saved & read',
+    },
+    {
+      name:'notifications',
+      path:'/notifications',
+      componentName: 'NotificationsPage',
+      title: "Notifications",
     },
   ],
 })
@@ -1218,7 +1368,6 @@ addRoute(...forumSelect<Route[]>({
       fullscreen: true,
     },
   ],
-  
   default: [
     {
       name: 'inbox',
@@ -1252,6 +1401,12 @@ addRoute(...forumSelect<Route[]>({
 }))
 
 addRoute({
+  name: 'userInitiateConversation',
+  path: '/message/:slug',
+  componentName: 'MessageUser',
+})
+
+addRoute({
   name: 'AllComments',
   path: '/allComments',
   componentName: 'AllComments',
@@ -1259,31 +1414,21 @@ addRoute({
   title: "All Comments"
 });
 
-// Routes where just the EA Forum has an override
-addRoute(...forumSelect<Route[]>({
-  EAForum: [
-    {
-      name: 'Shortform',
-      path: '/quicktakes',
-      componentName: 'ShortformPage',
-      title: "Quick takes",
-      description: "Quickly written or informal writing on Effective Altruism.",
-    },
-    {
-      name: 'ShortformRedirect',
-      path: '/shortform',
-      redirect: () => "/quicktakes",
-    },
-  ],
-  default: [
-    {
-      name: 'Shortform',
-      path: '/shortform',
-      componentName: 'ShortformPage',
-      title: "Shortform"
-    },
-  ],
-}));
+addRoute(
+  {
+    name: 'Shortform',
+    path: '/quicktakes',
+    componentName: 'ShortformPage',
+    title: "Quick Takes",
+    hasLeftNavigationColumn: true,
+    navigationFooterBar: true,
+  },
+  {
+    name: 'ShortformRedirect',
+    path: '/shortform',
+    redirect: () => "/quicktakes",
+  },
+);
 
 if (hasEventsSetting.get()) {
   addRoute(
@@ -1304,6 +1449,7 @@ if (hasEventsSetting.get()) {
       path: forumTypeSetting.get() === 'EAForum' ? '/community-old' : communityPath,
       componentName: 'CommunityHome',
       title: 'Community',
+      navigationFooterBar: true,
       ...communitySubtitle
     },
     {
@@ -1344,7 +1490,8 @@ if (hasEventsSetting.get()) {
       subtitle: forumTypeSetting.get() === 'EAForum' ? 'Events' : 'Community',
       subtitleLink: forumTypeSetting.get() === 'EAForum' ? '/events' : communityPath,
       getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
-      background: postBackground
+      background: postBackground,
+      noFooter: hasPostRecommendations,
     },
     {
       name: 'groups.post',
@@ -1354,6 +1501,7 @@ if (hasEventsSetting.get()) {
       background: postBackground,
       ...communitySubtitle,
       getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
+      noFooter: hasPostRecommendations,
     },
   );
 }
@@ -1386,6 +1534,8 @@ addRoute(
     getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
     background: postBackground,
     noFooter: hasPostRecommendations,
+    enableResourcePrefetch: postRouteWillDefinitelyReturn200,
+    swrCaching: "logged-out"
   },
   {
     name:'posts.slug.single',
@@ -1447,6 +1597,12 @@ addRoute(
     title: `${taggingNameCapitalSetting.get()} merging tool`
   },
   {
+    name: 'googleServiceAccount',
+    path: '/admin/googleServiceAccount',
+    componentName: 'AdminGoogleServiceAccount',
+    title: `Google Doc import service account`
+  },
+  {
     name: 'recentlyActiveUsers',
     path: '/admin/recentlyActiveUsers',
     componentName: 'RecentlyActiveUsers',
@@ -1475,6 +1631,12 @@ addRoute(
     path: '/admin/random-user',
     componentName: 'RandomUserPage',
     title: "Random User",
+  },
+  {
+    name: 'onboarding',
+    path: '/admin/onboarding',
+    componentName: 'AdminViewOnboarding',
+    title: "Onboarding (for testing purposes)",
   },
   {
     name: 'moderation',
@@ -1509,6 +1671,15 @@ addRoute(
     componentName: 'SpotlightsPage',
     title: 'Spotlights Page'
   },
+  {
+    name: 'llmConversationsViewer',
+    path: '/admin/llmConversations',
+    componentName: 'LlmConversationsViewingPage',
+    title: 'LLM Conversations Viewer',
+    subtitle: 'LLM Conversations',
+    noFooter: true,
+    noIndex: true,
+  }
 );
 
 addRoute(
@@ -1519,7 +1690,18 @@ addRoute(
     titleComponentName: 'PostsPageHeaderTitle',
     previewComponentName: "PostCommentLinkPreviewGreaterWrong",
     noIndex: true,
+    noFooter: hasPostRecommendations,
     // TODO: Handle pingbacks leading to comments.
+  }
+);
+
+addRoute(
+  {
+    name: 'admin.curation',
+    path:'/admin/curation',
+    componentName: "CurationPage",
+    title: "Curation Dashboard",
+    noIndex: true,
   }
 );
 
@@ -1530,12 +1712,16 @@ addRoute(
     componentName: 'AllPostsPage',
     enableResourcePrefetch: true,
     title: "All Posts",
+    hasLeftNavigationColumn: true,
+    navigationFooterBar: true,
   },
   {
     name: 'questions',
     path: '/questions',
     componentName: 'QuestionsPage',
     title: "All Questions",
+    hasLeftNavigationColumn: true,
+    navigationFooterBar: true,
   },
   {
     name: 'recommendations',
@@ -1578,7 +1764,7 @@ addRoute(
   {
     name: 'reviews',
     path:'/reviews/:year',
-    componentName: 'ReviewsPage',
+    componentName: 'AnnualReviewPage',
     title: "Reviews",
   },
   {
@@ -1594,5 +1780,53 @@ addRoute(
     isAdmin: true,
   }
 );
+
+//jargon routes
+if (isLW) {
+  addRoute({
+    title: "Glossary Editor",
+    name: 'glossaryEditor',
+    path: '/glossaryEditor',
+    componentName: 'GlossaryEditorPage',
+  }, {
+    title: "Posts with approved jargon",
+    name: 'postsWithApprovedJargon',
+    path: '/postsWithApprovedJargon',
+    componentName: 'PostsWithApprovedJargonPage',
+  });
+}
+
+if (hasSurveys) {
+  addRoute(
+    {
+      name: "surveys",
+      path: "/admin/surveys",
+      componentName: "SurveyAdminPage",
+      title: "Surveys",
+      isAdmin: true,
+    },
+    {
+      name: "editSurvey",
+      path: "/survey/:id/edit",
+      componentName: "SurveyEditPage",
+      title: "Edit survey",
+      isAdmin: true,
+    },
+    {
+      name: "newSurveySchedule",
+      path: "/surveySchedule",
+      componentName: "SurveyScheduleEditPage",
+      title: "New survey schedule",
+      isAdmin: true,
+    },
+    {
+      name: "editSurveySchedule",
+      path: "/surveySchedule/:id",
+      componentName: "SurveyScheduleEditPage",
+      title: "Edit survey schedule",
+      isAdmin: true,
+    },
+  );
+}
 
 forumSpecificRoutes();

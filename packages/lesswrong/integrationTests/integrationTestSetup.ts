@@ -1,22 +1,34 @@
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import { runStartupFunctions } from '../lib/executionEnvironment';
 import { setServerSettingsCache, setPublicSettings } from '../lib/settingsCache';
-import { waitUntilCallbacksFinished } from '../lib/vulcan-lib/callbacks';
 import process from 'process';
-import { initGraphQL } from '../server/vulcan-lib/apollo-server/initGraphQL';
-import { createVoteableUnionType } from '../server/votingGraphQL';
-import { setSqlClient, closeSqlClient, getSqlClientOrThrow } from '../lib/sql/sqlClient';
+import { setSqlClient, closeSqlClient, getSqlClientOrThrow } from '../server/sql/sqlClient';
 import {
-  preparePgTables,
   createTestingSqlClientFromTemplate,
   dropTestingDatabases,
 } from '../server/testingSqlClient';
+import { Collections } from '../lib/vulcan-lib';
+import PgCollection from '../server/sql/PgCollection';
+import { waitUntilCallbacksFinished } from './utils';
+import "@/lib"
+import { runServerOnStartupFunctions } from '@/server/serverMain';
 
 // Work around an incompatibility between Jest and iconv-lite (which is used
 // by mathjax).
 require('iconv-lite').encodingExists('UTF-8')
 require('encoding/node_modules/iconv-lite').encodingExists('UTF-8')
+
+const preparePgTables = () => {
+  for (let collection of Collections) {
+    if (collection instanceof PgCollection) {
+      if (!collection.getTable()) {
+        collection.buildPostgresTable();
+      }
+    } else {
+      throw new Error(`Invalid collection type: ${collection.constructor.name}`);
+    }
+  }
+}
 
 let pgConnected = false;
 const ensurePgConnection = async () => {
@@ -49,14 +61,10 @@ async function oneTimeSetup() {
 
   await ensurePgConnection();
 
-  await runStartupFunctions();
-
-  // define executableSchema
-  createVoteableUnionType();
-  initGraphQL();
+  await runServerOnStartupFunctions();
 }
 
-jest.setTimeout(20000);
+jest.setTimeout(50000);
 
 beforeAll(async () => {
   chai.should();

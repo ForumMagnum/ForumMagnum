@@ -1,11 +1,11 @@
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import React, { useEffect, useRef, useState } from 'react';
 import { useCurrentUser } from '../../common/withUser';
-import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
+import { SOCIAL_MEDIA_PROFILE_FIELDS, userGetProfileUrl } from '../../../lib/collections/users/helpers';
 import { useLocation } from '../../../lib/routeUtil';
 import ArrowBack from '@material-ui/icons/ArrowBack'
 import pick from 'lodash/pick';
-import { CAREER_STAGES, SOCIAL_MEDIA_PROFILE_FIELDS } from '../../../lib/collections/users/schema';
+import { CAREER_STAGES } from '../../../lib/collections/users/schema';
 import Input from '@material-ui/core/Input';
 import { useGoogleMaps } from '../../form-components/LocationFormComponent';
 import { pickBestReverseGeocodingResult } from '../../../lib/geocoding';
@@ -400,6 +400,8 @@ const EAGApplicationImportForm = ({currentUser, classes}: {
           }
         })
         return
+      default:
+        break
     }
     
     setFormValues(currentValues => {
@@ -421,7 +423,7 @@ const EAGApplicationImportForm = ({currentUser, classes}: {
     })
   }
   
-  const handleUpdateValue = <T extends {}>(val: T) => {
+  const handleUpdateValue = async <T extends {}>(val: T) => {
     setFormValues(currentValues => {
       return {
         ...currentValues,
@@ -577,7 +579,7 @@ const EAGApplicationImportForm = ({currentUser, classes}: {
           placeholder="Select all that apply"
           separator={'\r\n'}
           setValue={(value) => {
-            handleUpdateValue({
+            void handleUpdateValue({
               careerStage: value
             });
           }}
@@ -706,6 +708,7 @@ const EAGApplicationImportForm = ({currentUser, classes}: {
       
       <div className={classes.formRow}>
         <label className={classes.label}>LinkedIn profile</label>
+        {/* @ts-ignore: We're skipping some props here, but it should be safe */}
         <PrefixedInput
           value={formValues.linkedinProfileURL ?? ''}
           inputPrefix={SOCIAL_MEDIA_PROFILE_FIELDS.linkedinProfileURL}

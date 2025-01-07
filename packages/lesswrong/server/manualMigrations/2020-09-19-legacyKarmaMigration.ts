@@ -126,7 +126,7 @@ registerMigration({
   }
 })
 
-const doesVoteIncreaseKarma = ({userId, collectionName, cancelled}:DbVote, authorId: string) => {
+const doesVoteIncreaseKarma = ({userId, collectionName, cancelled}: DbVote, authorId: string) => {
   if (cancelled) return false
   if (userId === authorId) return false
   if (!['Posts', 'Comments'].includes(collectionName)) return false

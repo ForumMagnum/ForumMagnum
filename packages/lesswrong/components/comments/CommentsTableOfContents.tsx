@@ -1,25 +1,33 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { CommentTreeNode } from '../../lib/utils/unflatten';
-import { getCurrentSectionMark, getLandmarkY, ScrollHighlightLandmark, useScrollHighlight } from '../hooks/useScrollHighlight';
+import { useScrollHighlight } from '../hooks/useScrollHighlight';
 import { useLocation } from '../../lib/routeUtil';
 import isEmpty from 'lodash/isEmpty';
 import qs from 'qs'
-import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { commentsTableOfContentsEnabled } from '../../lib/betas';
 import { useNavigate } from '../../lib/reactRouterWrapper';
-import { useCurrentTime } from '../../lib/utils/timeUtil';
 import classNames from 'classnames';
+import { forumTypeSetting } from '@/lib/instanceSettings';
+import { commentIdToLandmark, getCurrentSectionMark, getLandmarkY } from '@/lib/scrollUtils';
+
+const COMMENTS_TITLE_CLASS_NAME = 'CommentsTableOfContentsTitle';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     color: theme.palette.text.dim,
+    //Override bottom border of title row for FixedToC but not in other uses of TableOfContentsRow
+    '& .TableOfContentsRow-title': {
+      borderBottom: "none",
+    },
   },
   comment: {
     display: "inline-flex",
   },
   commentKarma: {
     width: 20,
+    textAlign: "right",
+    marginRight: 4,
   },
   commentAuthor: {
   },
@@ -39,14 +47,31 @@ const styles = (theme: ThemeType): JssStyles => ({
     transform: "rotate(-90deg)",
   },
   postTitle: {
-    minHeight: 24,
-    paddingTop: 4,
+    minHeight: 76,
+    paddingTop: 16,
+    ...theme.typography.body2,
+    ...theme.typography.postStyle,
+    ...theme.typography.smallCaps,
+    cursor: "pointer",
+    fontSize: "1.3rem",
+    paddingBottom: 16,
+    display: 'flex',
+    alignItems: 'center',
+  },
+  tocPostedAt: {
+    color: theme.palette.link.tocLink
   },
   highlightUnread: {
     paddingLeft: 4,
     marginLeft: -7,
     borderLeft: `solid 3px ${theme.palette.secondary.main}`
   },
+  '@global': {
+    // Hard-coding this class name as a workaround for one of the JSS plugins being incapable of parsing a self-reference ($titleContainer) while inside @global
+    [`body:has(.headroom--pinned) .${COMMENTS_TITLE_CLASS_NAME}, body:has(.headroom--unfixed) .${COMMENTS_TITLE_CLASS_NAME}`]: {
+      opacity: 0,
+    }
+  }
 })
 
 const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate, classes}: {
@@ -56,7 +81,6 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
   highlightDate: Date|undefined,
   classes: ClassesType,
 }) => {
-  const { TableOfContentsRow } = Components;
   const flattenedComments = flattenCommentTree([
     ...(answersTree ?? []),
     ...(commentTree ?? [])
@@ -64,27 +88,46 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
   const { landmarkName: highlightedLandmarkName } = useScrollHighlight(
     flattenedComments.map(comment => commentIdToLandmark(comment._id))
   );
+
+  const [pageHeaderCoversTitle, setPageHeaderCoversTitle] = useState(false);
+  const titleRef = useRef<HTMLAnchorElement|null>(null);
+  const hideTitleContainer = pageHeaderCoversTitle;
+
+  useEffect(() => {
+    const target = titleRef.current;
+    if (target) {
+      // To prevent the comment ToC title from being hidden when scrolling up
+      // This relies on the complementary `top: -1px` styling in `MultiToCLayout` on the parent sticky element
+      const observer = new IntersectionObserver(([e]) => {
+        setPageHeaderCoversTitle(e.intersectionRatio < 1);
+      }, { threshold: [1] });
+  
+      observer.observe(target);
+      return () => observer.unobserve(target);
+    }
+  }, []);
+
+  if (flattenedComments.length === 0) {
+    return null;
+  }
   
   if (!commentsTableOfContentsEnabled) {
     return null;
   }
-  
+
   return <div className={classes.root}>
-    <TableOfContentsRow key="postTitle"
-      href="#"
+    <a id="comments-table-of-contents" href="#" className={classNames(
+      classes.postTitle,
+      {[COMMENTS_TITLE_CLASS_NAME]: hideTitleContainer}
+    )}
       onClick={ev => {
-        window.scrollTo({
-          top: 0,
-          behavior: "smooth"
-        });
+        ev.preventDefault();
+        window.scrollTo({ top: 0, behavior: "smooth" });
       }}
-      highlighted={highlightedLandmarkName==="above"}
-      title
+      ref={titleRef}
     >
-      <span className={classes.postTitle}>
-        {post.title?.trim()}
-      </span>
-    </TableOfContentsRow>
+      {post.title?.trim()}
+    </a>
 
     {answersTree && answersTree.map(answer => <>
       <ToCCommentBlock
@@ -106,15 +149,6 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
   </div>
 }
 
-export function commentIdToLandmark(commentId: string): ScrollHighlightLandmark {
-  return {
-    landmarkName: commentId,
-    elementId: commentId,
-    position: "topOfElement",
-    offset: 25, //approximate distance from top-border of a comment to the center of the metadata line
-  }
-}
-
 const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highlightDate, classes}: {
   commentTree: CommentTreeNode<CommentsList>,
   indentLevel: number,
@@ -127,6 +161,10 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highli
   const location = useLocation();
   const { query } = location;
   const comment = commentTree.item;
+  
+  const score = forumTypeSetting.get() === "AlignmentForum"
+    ? comment.afBaseScore
+    : comment.baseScore;
   
   return <div>
     <TableOfContentsRow
@@ -142,7 +180,7 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highli
           // that otherwise cause us to wind up just above the comment such that the ToC
           // highlights the wrong one.
           const y = commentTop + window.scrollY - getCurrentSectionMark() + 1;
-          window.scrollTo({ top: y });
+          window.scrollTo({ top: y, behavior: "smooth" });
         }
 
         delete query.commentId;
@@ -157,9 +195,12 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highli
       <span className={classNames(classes.comment, {
         [classes.highlightUnread]: highlightDate && new Date(comment.postedAt) > new Date(highlightDate),
       })}>
-        <span className={classes.commentKarma}>{comment.baseScore}</span>
+        <span className={classes.commentKarma}>{score}</span>
         <span className={classes.commentAuthor}>
-          <UsersNameDisplay user={comment.user} simple/>
+          {comment.deleted
+            ? <span>[comment deleted]</span>
+            : <UsersNameDisplay user={comment.user} simple/>
+          }
         </span>
       </span>
     </TableOfContentsRow>

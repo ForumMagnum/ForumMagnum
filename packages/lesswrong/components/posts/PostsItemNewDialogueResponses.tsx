@@ -2,7 +2,7 @@ import { gql, useQuery } from "@apollo/client";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import React from "react";
 
-const PostsItemNewDialogueResponses = ({postId, unreadCount} : {postId: string, unreadCount: number}) => {
+const PostsItemNewDialogueResponses = ({postId, unreadCount}: {postId: string, unreadCount: number}) => {
   
   const { ContentItemBody, Loading, NoContent }= Components
 

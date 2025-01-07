@@ -1,4 +1,4 @@
-import { isServer, getServerPort } from './executionEnvironment';
+import { isServer } from './executionEnvironment';
 import qs from 'qs';
 import React, { useCallback, useContext } from 'react';
 import { LocationContext, ServerRequestStatusContext, SubscribeLocationContext, ServerRequestStatusContextType, NavigationContext } from './vulcan-core/appContext';
@@ -6,6 +6,9 @@ import type { RouterLocation } from './vulcan-lib/routes';
 import * as _ from 'underscore';
 import { ForumOptions, forumSelect } from './forumTypeUtils';
 import type { LocationDescriptor } from 'history';
+import {siteUrlSetting} from './instanceSettings'
+import { getUrlClass } from '@/server/utils/getUrlClass';
+import { getCommandLineArguments } from '@/server/commandLine';
 
 // React Hook which returns the page location (parsed URL and route).
 // Return value contains:
@@ -58,8 +61,13 @@ export type NavigateFunction = ReturnType<typeof useNavigate>
  */
 export const useNavigate = () => {
   const { history } = useContext(NavigationContext)!;
-  return useCallback((locationDescriptor: LocationDescriptor, options?: {replace?: boolean}) => {
-    if (options?.replace) {
+  return useCallback((locationDescriptor: LocationDescriptor, options?: {replace?: boolean, openInNewTab?: boolean}) => {
+    if (options?.openInNewTab) {
+      const href = typeof locationDescriptor === 'string' ?
+        locationDescriptor :
+        history.createHref(locationDescriptor);
+      window.open(href, '_blank')?.focus();
+    } else if (options?.replace) {
       history.replace(locationDescriptor);
     } else {
       history.push(locationDescriptor);
@@ -80,14 +88,6 @@ export const withLocation = (WrappedComponent: any) => {
       }
     </LocationContext.Consumer>
   );
-}
-
-export const getUrlClass = (): typeof URL => {
-  if (isServer) {
-    return require('url').URL
-  } else {
-    return URL
-  }
 }
 
 // Given a URL which might or might not have query parameters, return a URL in
@@ -120,13 +120,14 @@ const LwAfDomainWhitelist: DomainList = {
     "lessestwrong.com",
     "alignmentforum.org",
     "alignment-forum.com",
-    `localhost:${getServerPort()}`,
+    `localhost:${getCommandLineArguments().localhostUrlPort}`,
   ],
   mirrorDomains: [
     "greaterwrong.com",
   ],
 }
 
+const URLClass = getUrlClass()
 const forumDomainWhitelist: ForumOptions<DomainList> = {
   LessWrong: LwAfDomainWhitelist,
   AlignmentForum: LwAfDomainWhitelist,
@@ -134,13 +135,14 @@ const forumDomainWhitelist: ForumOptions<DomainList> = {
     onsiteDomains: [
       'forum.effectivealtruism.org',
       'forum-staging.effectivealtruism.org',
-      `localhost:${getServerPort()}`,
+      `localhost:${getCommandLineArguments().localhostUrlPort}`,
     ],
     mirrorDomains: ['ea.greaterwrong.com'],
   },
   default: {
     onsiteDomains: [
-      `localhost:${getServerPort()}`,
+      new URLClass(siteUrlSetting.get()).host,
+      `localhost:${getCommandLineArguments().localhostUrlPort}`,
     ],
     mirrorDomains: [],
   }

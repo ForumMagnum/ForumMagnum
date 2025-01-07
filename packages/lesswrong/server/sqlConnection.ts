@@ -1,13 +1,16 @@
 import pgp, { IDatabase, IEventContext } from "pg-promise";
 import type { IClient, IResult } from "pg-promise/typescript/pg-subset";
-import Query from "../lib/sql/Query";
-import { isAnyTest } from "../lib/executionEnvironment";
+import Query from "@/server/sql/Query";
+import { isAnyTest, isDevelopment } from "../lib/executionEnvironment";
 import { PublicInstanceSetting } from "../lib/instanceSettings";
 import omit from "lodash/omit";
-import { logAllQueries } from "../lib/sql/sqlClient";
+import { logAllQueries } from "@/server/sql/sqlClient";
 import { recordSqlQueryPerfMetric } from "./perfMetrics";
 
-const SLOW_QUERY_REPORT_CUTOFF_MS = 2000;
+// Setting this to -1 disables slow query logging
+const SLOW_QUERY_REPORT_CUTOFF_MS = parseInt(process.env.SLOW_QUERY_REPORT_CUTOFF_MS ?? '') >= -1
+  ? parseInt(process.env.SLOW_QUERY_REPORT_CUTOFF_MS ?? '')
+  : isDevelopment ? 3000 : 2000;
 
 const pgConnIdleTimeoutMsSetting = new PublicInstanceSetting<number>('pg.idleTimeoutMs', 10000, 'optional')
 
@@ -150,11 +153,11 @@ const logIfSlow = async <T>(
   originalQuery: string,
   quiet?: boolean,
 ) => {
-  const getDescription = (): string => {
+  const getDescription = (truncateLength?: number): string => {
     const describeString = typeof describe === "string" ? describe : describe();
     // Truncate this at a pretty high limit, just to avoid logging things like
     // entire rendered pages
-    return describeString.slice(0, 5000);
+    return describeString.slice(0, truncateLength ?? 5000)
   }
 
   const queryID = ++queriesExecuted;
@@ -173,9 +176,11 @@ const logIfSlow = async <T>(
   if (logAllQueries) {
     // eslint-disable-next-line no-console
     console.log(`Finished query #${queryID} (${milliseconds} ms) (${JSON.stringify(result).length}b)`);
-  } else if (milliseconds > SLOW_QUERY_REPORT_CUTOFF_MS && !quiet && !isAnyTest) {
-    // eslint-disable-next-line no-console
-    console.trace(`Slow Postgres query detected (${milliseconds} ms): ${getDescription()}`);
+  } else if (SLOW_QUERY_REPORT_CUTOFF_MS >= 0 && milliseconds > SLOW_QUERY_REPORT_CUTOFF_MS && !quiet && !isAnyTest) {
+    const description = isDevelopment ? getDescription(50) : getDescription(5000);
+    const message = `Slow Postgres query detected (${milliseconds} ms): ${description}`;
+        // eslint-disable-next-line no-console
+    isDevelopment ? console.error(message) : console.trace(message);
   }
 
   return result;

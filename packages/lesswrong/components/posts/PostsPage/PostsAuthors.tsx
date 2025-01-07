@@ -10,7 +10,7 @@ export const AUTHOR_MARKER_STYLES = {
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    fontFamily: theme.typography.uiSecondary.fontFamily,
+    fontFamily: isFriendlyUI ? theme.typography.uiSecondary.fontFamily : undefined,
     textAlign: 'left',
     display: 'inline',
   },
@@ -23,7 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const PostsAuthors = ({classes, post, pageSectionContext}: {
   classes: ClassesType,
-  post: PostsDetails,
+  post: PostsList,
   pageSectionContext?: string,
 }) => {
   const { UsersName, UserCommentMarkers, PostsCoauthor, Typography } = Components

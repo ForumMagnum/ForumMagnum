@@ -1,9 +1,10 @@
 import { registerComponent } from '../../lib/vulcan-lib';
-import React, {ReactNode, useState} from 'react';
+import React, {MutableRefObject, ReactNode, useState} from 'react';
 import type { PopperPlacementType } from '@material-ui/core/Popper'
 import classNames from 'classnames';
 import { usePopper } from 'react-popper';
 import { createPortal } from 'react-dom';
+import type { State } from '@popperjs/core/lib/types';
 
 const styles = (theme: ThemeType): JssStyles => ({
   popper: {
@@ -43,17 +44,20 @@ const LWPopper = ({
   className,
   tooltip=false,
   allowOverflow,
+  overflowPadding,
   flip,
   open,
   anchorEl,
   placement,
   clickable = true,
   hideOnTouchScreens,
+  updateRef
 }: {
   classes: ClassesType,
   children: ReactNode,
   tooltip?: boolean,
   allowOverflow?: boolean,
+  overflowPadding?: number,
   flip?: boolean,
   open: boolean,
   placement?: PopperPlacementType,
@@ -61,6 +65,7 @@ const LWPopper = ({
   className?: string,
   clickable?: boolean,
   hideOnTouchScreens?: boolean,
+  updateRef?: MutableRefObject<(() => Promise<Partial<State>>) | null | undefined>
 }) => {
   const [popperElement, setPopperElement] = useState<HTMLElement | null>(null);
 
@@ -71,14 +76,15 @@ const LWPopper = ({
     }
   ] : [];
 
-  const preventOverflowModifier = allowOverflow ? [
+  const preventOverflowModifier = [
     {
       name: 'preventOverflow',
-      enabled: false,
+      enabled: !allowOverflow,
+      options: {padding: overflowPadding},
     }
-  ] : [];
+  ];
 
-  const { styles, attributes } = usePopper(anchorEl, popperElement, {
+  const { styles, attributes, update } = usePopper(anchorEl, popperElement, {
     placement,
     modifiers: [
       {
@@ -92,6 +98,10 @@ const LWPopper = ({
     ],
   });
 
+  if (updateRef && update) {
+    updateRef.current = update
+  }
+
   if (!open)
     return null;
   
@@ -101,10 +111,10 @@ const LWPopper = ({
     return null;
   }
   
-  return (
-    // We use createPortal here to avoid having to deal with overflow problems and styling from the current child
-    // context, by placing the Popper element directly into the document root
-    // Rest of usage from https://popper.js.org/react-popper/v2/
+  // We use createPortal here to avoid having to deal with overflow problems and styling from the current child
+  // context, by placing the Popper element directly into the document root
+  // Rest of usage from https://popper.js.org/react-popper/v2/
+  return <>{
     createPortal(
       <div
         ref={setPopperElement}
@@ -122,7 +132,7 @@ const LWPopper = ({
       </div>,
       document.body
     )
-  )
+  }</>
 };
 
 const LWPopperComponent = registerComponent('LWPopper', LWPopper, {styles});

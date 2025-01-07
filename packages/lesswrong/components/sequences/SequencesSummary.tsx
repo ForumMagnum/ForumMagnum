@@ -93,7 +93,7 @@ const SequencePosts = ({sequence, chapters, maxPosts, totalPosts, classes}: {
     const chapter = chapters[i];
     const posts = chapter.posts.slice(0, maxPosts - postsRendered);
     nodes.push(
-      <div>
+      <div key={chapter._id}>
         {chapter.title && <ChapterTitle title={chapter.title}/>}
         {posts.map(post => (
           <SequencesSmallPostLink

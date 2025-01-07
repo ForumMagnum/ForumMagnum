@@ -109,7 +109,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 0,
     marginBottom: 8,
     display: "block",
-    fontSize: "1.75rem",
+    fontSize: "2rem",
     ...(isFriendlyUI ? {
       fontSize: 22,
       fontWeight: 600,
@@ -232,7 +232,7 @@ const RecentDiscussionThread = ({
               </div>}
             </div>
             <div className={classNames(classes.threadMeta, {[classes.smallerMeta]: smallerFonts})} onClick={showHighlight}>
-              <PostsItemMeta post={post}/>
+              <PostsItemMeta post={post} hideTags={!isFriendlyUI}/>
             </div>
           </div>
           <div className={highlightClasses}>

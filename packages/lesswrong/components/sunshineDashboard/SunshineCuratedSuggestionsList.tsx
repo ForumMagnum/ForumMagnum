@@ -4,6 +4,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import { isEAForum } from '../../lib/instanceSettings';
+import { Link } from '@/lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   loadMorePadding: {
@@ -32,10 +33,11 @@ const shouldShow = (belowFold: boolean, curatedDate: Date, currentUser: UsersCur
   }
 }
 
-const SunshineCuratedSuggestionsList = ({ terms, belowFold, classes }:{
+const SunshineCuratedSuggestionsList = ({ terms, belowFold, classes, setCurationPost }: {
   terms: PostsViewTerms,
   belowFold?: boolean,
   classes: ClassesType,
+  setCurationPost?: (post: PostsList) => void,
 }) => {
   const currentUser = useCurrentUser();
 
@@ -46,7 +48,7 @@ const SunshineCuratedSuggestionsList = ({ terms, belowFold, classes }:{
       ...terms, audioOnly
     },
     collectionName: "Posts",
-    fragmentName: 'PostsList',
+    fragmentName: 'SunshineCurationPostsList',
     enableTotal: true,
     itemsPerPage: 60
   });
@@ -69,7 +71,7 @@ const SunshineCuratedSuggestionsList = ({ terms, belowFold, classes }:{
   return (
     <div className={classes.root}>
       <SunshineListTitle>
-        Suggestions for Curated
+        <Link to={`/admin/curation`}>Suggestions for Curated</Link>
         <MetaInfo>
           <FormatDate date={curatedDate}/>
         </MetaInfo>
@@ -83,7 +85,7 @@ const SunshineCuratedSuggestionsList = ({ terms, belowFold, classes }:{
       </SunshineListTitle>
       {results?.map(post =>
         <div key={post._id} >
-          <SunshineCuratedSuggestionsItem post={post} />
+          <SunshineCuratedSuggestionsItem post={post} setCurationPost={setCurationPost}/>
         </div>
       )}
       {showLoadMore && <div className={classes.loadMorePadding}>

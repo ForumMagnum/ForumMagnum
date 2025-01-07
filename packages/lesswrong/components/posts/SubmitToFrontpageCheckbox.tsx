@@ -91,6 +91,8 @@ export interface SubmitToFrontpageCheckboxProps extends WithStylesProps {
 }
 
 class SubmitToFrontpageCheckbox extends Component<SubmitToFrontpageCheckboxProps> {
+  declare context: AnyBecauseTodo
+
   handleClick = () => {
     const { fieldName = "submitToFrontpage" } = this.props
     const { updateCurrentValues } = this.context

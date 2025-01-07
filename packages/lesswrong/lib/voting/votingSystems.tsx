@@ -10,14 +10,14 @@ import keyBy from 'lodash/keyBy';
 import pickBy from 'lodash/pickBy';
 import fromPairs from 'lodash/fromPairs';
 import { VotingProps } from '../../components/votes/votingProps';
-import type { ContentItemBody, ContentReplacedSubstringComponent } from '../../components/common/ContentItemBody';
+import type { ContentItemBody, ContentReplacedSubstringComponentInfo } from '../../components/common/ContentItemBody';
 
 type VotingPropsDocument = CommentsList|PostsWithVotes|RevisionMetadataWithChangeMetrics
 
 export type CommentVotingComponentProps<T extends VotingPropsDocument = VotingPropsDocument> = {
   document: T,
   hideKarma?: boolean,
-  collection: any,
+  collectionName: VoteableCollectionName,
   votingSystem: VotingSystem,
   commentBodyRef?: React.RefObject<ContentItemBody>|null,
   voteProps?: VotingProps<VoteableTypeClient>,
@@ -51,25 +51,25 @@ export interface VotingSystem<ExtendedVoteType=any, ExtendedScoreType=any> {
     oldExtendedScore: ExtendedScoreType,
     extendedVote: ExtendedVoteType,
     currentUser: UsersCurrent
-  })=>ExtendedScoreType,
+  }) => ExtendedScoreType,
   cancelVoteClient: (props: {
     voteType: string|null,
     document: VoteableTypeClient,
     oldExtendedScore: ExtendedScoreType,
     cancelledExtendedVote: ExtendedVoteType,
     currentUser: UsersCurrent
-  })=>ExtendedScoreType
-  computeExtendedScore: (votes: DbVote[], context: ResolverContext)=>Promise<ExtendedScoreType>
+  }) => ExtendedScoreType
+  computeExtendedScore: (votes: DbVote[], context: ResolverContext) => Promise<ExtendedScoreType>
   isAllowedExtendedVote?: (user: UsersCurrent|DbUser, document: DbVoteableType, oldExtendedScore: ExtendedScoreType, extendedVote: ExtendedVoteType) => {allowed: true}|{allowed: false, reason: string},
   isNonblankExtendedVote: (vote: DbVote) => boolean,
   getCommentHighlights?: (props: {
     comment: CommentsList
     voteProps: VotingProps<VoteableTypeClient>
-  }) => Record<string, ContentReplacedSubstringComponent>
+  }) => ContentReplacedSubstringComponentInfo[]
   getPostHighlights?: (props: {
     post: PostsBase
     voteProps: VotingProps<VoteableTypeClient>
-  }) => Record<string, ContentReplacedSubstringComponent>
+  }) => ContentReplacedSubstringComponentInfo[]
 }
 
 const votingSystems: Partial<Record<string,VotingSystem>> = {};
@@ -229,11 +229,11 @@ registerVotingSystem({
   },
 });
 
-export type EmojiReaction = {
+export type EmojiReactionType = {
   name: string,
   icon: string,
 }
-export const emojiReactions: EmojiReaction[] = [
+export const emojiReactions: EmojiReactionType[] = [
   {name: "raised-hands", icon: "🙌"},
   {name: "enthusiasm", icon: "🎉"},
   {name: "empathy", icon: "❤️"},

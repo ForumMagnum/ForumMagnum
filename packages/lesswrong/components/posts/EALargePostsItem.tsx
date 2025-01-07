@@ -117,9 +117,11 @@ const EALargePostsItem = ({
   const {onClick} = useClickableCell({href: postLink});
 
   const {eventHandlers} = useHover({
-    pageElementContext: "postListItem",
-    documentId: post._id,
-    documentSlug: post.slug,
+    eventProps: {
+      pageElementContext: "postListItem",
+      documentId: post._id,
+      documentSlug: post.slug,
+    },
   });
 
   const {postContents, loading, error} = usePostContents({
@@ -140,7 +142,7 @@ const EALargePostsItem = ({
   const description = postContents?.plaintextDescription ??
     post?.contents?.plaintextDescription;
 
-  const {TruncatedAuthorsList, ForumIcon, PostsItemTooltipWrapper, Loading} = Components;
+  const {TruncatedAuthorsList, ForumIcon, PostsItemTooltipWrapper, Loading, TimeTag} = Components;
   return (
     <AnalyticsContext documentSlug={post.slug}>
       <div
@@ -172,8 +174,10 @@ const EALargePostsItem = ({
               </InteractionWrapper>
             </div>
             &nbsp;·&nbsp;
-            {timeFromNow}
-            {ago}
+            <TimeTag dateTime={post.postedAt}>
+              {timeFromNow}
+              {ago}
+            </TimeTag>
             &nbsp;·&nbsp;
             {post.readTimeMinutes}m read
             <div>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { CSSProperties } from 'react';
 import { registerComponent } from "../../../lib/vulcan-lib";
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -12,10 +12,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const TableOfContentsDivider = ({classes}: {
+const TableOfContentsDivider = ({ scaleStyling, classes }: {
+  scaleStyling?: CSSProperties
   classes: ClassesType,
 }) => {
-  return <div className={classes.divider}/>
+  return <div className={classes.divider} style={scaleStyling}/>
 }
 
 const TableOfContentsDividerComponent = registerComponent('TableOfContentsDivider', TableOfContentsDivider, {styles});

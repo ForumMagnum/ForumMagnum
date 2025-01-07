@@ -1,4 +1,4 @@
-import React, { FC, ReactElement, MouseEvent } from "react";
+import React, { FC, ReactElement, MouseEvent, PropsWithChildren } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { ForumIconName } from "../common/ForumIcon";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
@@ -35,12 +35,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   title: {
     flexGrow: 1,
-    overflow: "hidden",
+    overflowX: "clip",
     textOverflow: "ellipsis",
   },
   afterIcon: {
-    fontSize: 20,
-    marginLeft: 4,
+    fontSize: '16px !important',
+    marginLeft: 8,
+    color: theme.palette.grey[600],
   },
   sideMessage: {
     position: "absolute",
@@ -69,20 +70,21 @@ export type DropdownItemProps = DropdownItemAction & {
   sideMessage?: string,
   icon?: ForumIconName | (() => ReactElement),
   iconClassName?: string,
-  afterIcon?: ForumIconName,
+  menuItemClassName?: string,
+  afterIcon?: ForumIconName | (() => ReactElement),
   tooltip?: string,
   disabled?: boolean,
   loading?: boolean,
   rawLink?: boolean,
 }
 
-const DummyWrapper: FC<{className?: string}> = ({className, children}) =>
+const DummyWrapper: FC<PropsWithChildren<{className?: string}>> = ({className, children}) =>
   <div className={className}>{children}</div>;
 
-const RawLink: FC<{
+const RawLink: FC<PropsWithChildren<{
   to: string,
   className?: string,
-}> = ({to, className, children}) => (
+}>> = ({to, className, children}) => (
   <a href={to} className={className}>
     {children}
   </a>
@@ -95,6 +97,7 @@ const DropdownItem = ({
   to,
   icon,
   iconClassName,
+  menuItemClassName,
   afterIcon,
   tooltip,
   disabled,
@@ -111,30 +114,31 @@ const DropdownItem = ({
         <MenuItem
           onClick={onClick}
           disabled={disabled}
-          className={classNames(classes.main, {[classes.noIcon]: !icon})}
+          className={classNames(classes.main, menuItemClassName, {[classes.noIcon]: !icon})}
         >
           {loading &&
             <ListItemIcon>
               <Loading />
             </ListItemIcon>
           }
-          {icon && !loading &&
-            <ListItemIcon>
+          {!loading && <>
+            {icon && <ListItemIcon>
               {typeof icon === "string"
                 ? <ForumIcon icon={icon} className={iconClassName} />
                 : icon()
               }
-            </ListItemIcon>
-          }
-          <span className={classes.title}>{title}</span>
-          {afterIcon &&
-            <ForumIcon icon={afterIcon} className={classes.afterIcon} />
-          }
-          {sideMessage &&
-            <div className={classes.sideMessage}>
-              {sideMessage}
-            </div>
-          }
+            </ListItemIcon>}
+            <span className={classes.title}>{title}</span>
+            {typeof afterIcon === "string"
+              ? <ForumIcon icon={afterIcon} className={classes.afterIcon} />
+              : afterIcon?.()
+            }
+            {sideMessage &&
+              <div className={classes.sideMessage}>
+                {sideMessage}
+              </div>
+            }
+          </>}
         </MenuItem>
       </TooltipWrapper>
     </LinkWrapper>

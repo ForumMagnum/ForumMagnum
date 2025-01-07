@@ -13,10 +13,9 @@ import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import { moderationEmail } from '../../lib/publicSettings';
 import { getPostCollaborateUrl } from '../../lib/collections/posts/helpers';
 import { ckEditorName } from './Editor';
-import { isEAForum } from '../../lib/instanceSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   linkSharingPreview: {
     fontFamily: theme.typography.fontFamily,
   },
@@ -42,6 +41,23 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   buttonIcon: {
     cursor: "pointer"
+  },
+  friendlyButton: {
+      color: theme.palette.grey[900],
+      backgroundColor: "transparent",
+      padding: "2px 12px",
+      '&:hover': {
+        backgroundColor: theme.palette.grey[200],
+      },
+      '&:disabled': {
+        color: theme.palette.grey[900],
+        backgroundColor: "transparent",
+        opacity: 0.5
+      },
+  },
+  buttonInternalIcon: {
+    width: "20px",
+    marginRight: 6
   },
   disabledIcon: {
     opacity: .35,
@@ -88,7 +104,7 @@ const PostSharingSettings = ({document, formType, value, classes}: {
   value: SharingSettings,
   path: string,
   label: string,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }, context: any) => {
   const {updateCurrentValues, submitForm} = context;
   const {openDialog, closeDialog} = useDialog();
@@ -149,23 +165,23 @@ const PostSharingSettings = ({document, formType, value, classes}: {
         },
         initialShareWithUsers: document.shareWithUsers || [],
       },
-      noClickawayCancel: true,
     });
   }, [openDialog, closeDialog, formType, document, updateCurrentValues, initialSharingSettings, flash, submitForm]);
 
-  const {LWTooltip} = Components;
-  if (!userCanUseSharing(currentUser)) {
-    return (
-      <LWTooltip title={noSharePermissionTooltip}>
-        <PostSharingIcon className={classes.disabledIcon}/>
-      </LWTooltip>
-    )
-  };
-  return (
-    <LWTooltip title={shareTooltip}>
-      <PostSharingIcon className={classes.buttonIcon} onClick={onClickShare}/>
+  const {LWTooltip, EAButton} = Components;
+
+  const canUseSharing = userCanUseSharing(currentUser)
+
+  return <LWTooltip title={canUseSharing ? undefined : noSharePermissionTooltip}>
+      <EAButton
+        className={classes.friendlyButton}
+        onClick={userCanUseSharing(currentUser) ? onClickShare : undefined}
+        disabled={!canUseSharing}
+      >
+        <PostSharingIcon className={classes.buttonInternalIcon} />
+        Share {document.draft ? " this draft" : ""}
+      </EAButton>
     </LWTooltip>
-  );
 }
 
 (PostSharingSettings as any).contextTypes = {
@@ -182,8 +198,8 @@ const PostSharingSettingsDialog = ({post, linkSharingKey, initialSharingSettings
   linkSharingKey?: string,
   initialSharingSettings: SharingSettings,
   initialShareWithUsers: string[],
-  onClose: ()=>void,
-  onConfirm: (newSharingSettings: SharingSettings, newSharedUsers: string[], isChanged: boolean)=>void
+  onClose: () => void,
+  onConfirm: (newSharingSettings: SharingSettings, newSharedUsers: string[], isChanged: boolean) => void
   classes: ClassesType
 }) => {
   const { EditableUsersList, LWDialog, LWTooltip, MenuItem } = Components;
