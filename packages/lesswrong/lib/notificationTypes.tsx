@@ -899,7 +899,12 @@ export const NewCommentOnDraftNotification = registerNotificationType({
     documentId: string|null,
     extraData: any
   }): string => {
-    return `/editPost?postId=${documentId}`;
+    if (!documentId) {
+      throw new Error("NewCommentOnDraftNotification documentId is missing");
+    }
+    const { linkSharingKey } = extraData;
+    const url = postGetEditUrl(documentId, false, linkSharingKey);
+    return url;
   },
   Display: ({Post}) => <>New comments on your draft <Post /></>,
 });
