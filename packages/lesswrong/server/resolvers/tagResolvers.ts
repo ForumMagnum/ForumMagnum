@@ -546,3 +546,47 @@ defineQuery({
     return ALL_TAGS_PAGE_CACHE.tags;
   },
 });
+
+addGraphQLSchema(`
+  type TagWithTotalCount {
+    tags: [Tag!]!
+    totalCount: Int!
+  }
+`);
+
+defineQuery({
+  name: "TagsByParentId",
+  resultType: "TagWithTotalCount!",
+  argTypes: "(parentTagId: String, limit: Int, offset: Int, searchTagIds: [String])",
+  fn: async (
+    _root: void,
+    args: {
+      parentTagId: string | null;
+      limit?: number;
+      offset?: number;
+      searchTagIds?: string[];
+    },
+    context: ResolverContext
+  ) => {
+    const { parentTagId, limit = 20, offset = 0, searchTagIds } = args;
+
+    const { tags, totalCount } = await context.repos.tags.getTagsByParentTagId(
+      parentTagId,
+      limit,
+      offset,
+      searchTagIds
+    );
+
+    return { tags, totalCount };
+  },
+});
+
+defineQuery({
+  name: "TagsBySlugs",
+  resultType: "[Tag!]!",
+  argTypes: "(slugs: [String!]!)",
+  fn: async (_root: void, { slugs }: { slugs: string[] }, context: ResolverContext) => {
+    const limit = 50;
+    return context.repos.tags.getTagsBySlugs(slugs, limit);
+  },
+});

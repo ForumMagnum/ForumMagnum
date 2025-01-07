@@ -136,6 +136,7 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
     display: "flex",
     gap: "32px",
     flexGrow: 1,
+    flexDirection: "column",
     width: "100%",
   },
   wikiTagNestedList: {
@@ -198,12 +199,6 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
   },
 }))
 
-// Helper function to generate baseScore
-function generateBaseScore(description_length: number, postCount: number): number {
-  const baseComponent = Math.sqrt((description_length / 100)); // + (postCount / 2));
-  const random = Math.pow(Math.abs(Math.sin((description_length * 0.1) + (postCount * 0.3))), 2) * 8;
-  return Math.round(baseComponent + random);
-}
 
 // Create the artificial "Uncategorized" tags
 const uncategorizedRootTag = {
@@ -218,6 +213,7 @@ const uncategorizedRootTag = {
     // html: '',
   },
   postCount: 0,
+  baseScore: 0,
   coreTagId: null,
   parentTagId: null,
   isArbitalImport: false,
@@ -225,81 +221,13 @@ const uncategorizedRootTag = {
 
 // TODO: we really need to figure out a better way to handle this than slugs, especially with the merged rationality page
 const prioritySlugs = [
-  'rationality-1', 'ai', 'world-modeling', 
+  'rationality', 'rationality-1', 'ai', 'world-modeling', 
   'world-optimization', 'practical', 'community', 'site-meta'
 ] as const;
 
-// Define the buildTree function here
-function buildTree(
-  items: (AllTagsPageCacheFragment & { parentTagId: string | null })[],
-  _id: string | null = null, 
-  depth = 0, 
-  seen: Set<string> = new Set()
-): WikiTagNode[] {
-  if (depth > 5) {
-    // eslint-disable-next-line no-console
-    console.warn('Maximum depth exceeded in buildTree');
-    return [];
-  }
-
-  const filteredItems = items.filter(item => item.parentTagId === _id);
-  
-  // Add baseScore to all items first
-  const itemsWithScore = filteredItems.map(item => ({
-    ...item,
-    baseScore: generateBaseScore((item.description?.wordCount ?? 0) * 6, item.postCount)
-  }));
-
-  // Sort items by baseScore before processing
-  const sortedItems = itemsWithScore.sort((a, b) => b.baseScore - a.baseScore);
-
-  return sortedItems.flatMap(item => {
-    if (seen.has(item._id)) {
-      // eslint-disable-next-line no-console
-      console.warn(`Circular reference detected for item ${item.name} (${item._id})`);
-      return [];
-    }
-
-    seen.add(item._id);
-
-    const children = buildTree(items, item._id, depth + 1, new Set(seen)).sort((a, b) => b.baseScore - a.baseScore);
-
-    return [{ ...item, children }];
-  });
-}
-
-// Function to filter the tree based on tag IDs, but skip first level filtering
-function filterTreeByTagIds(
-  tree: WikiTagNode[], 
-  tagIds: string[], 
-  depth = 0
-): WikiTagNode[] {
-  return tree
-    .map(node => {
-      // At depth 0 (first level), don't filter out any nodes
-      const hasHit = depth === 0 ? true : tagIds.includes(node._id);
-      
-      let children: WikiTagNode[] = [];
-      if (node.children) {
-        // Always pass depth + 1 to children
-        children = filterTreeByTagIds(node.children, tagIds, depth + 1);
-      }
-      
-      if (hasHit || children.length > 0) {
-        return { ...node, children };
-      }
-      return null;
-    })
-    .filter(node => node !== null) as WikiTagNode[];
-}
-
-function isMatchingCoreTag(tag: AllTagsPageCacheFragment, slug: string): boolean {
-  return tag.core && (slug === tag.slug || tag.oldSlugs?.includes(slug));
-}
-
-const allTagsQuery = gql`
-  query AllTagsQuery {
-    AllTags {
+const tagsBySlugsQuery = gql`
+  query TagsBySlugs($slugs: [String!]!) {
+    TagsBySlugs(slugs: $slugs) {
       ...AllTagsPageCacheFragment
     }
   }
@@ -341,98 +269,68 @@ const ArbitalRedirectNotice = ({ classes, onDismiss }: {
 
 const AllWikiTagsPage = () => {
   const classes = useStyles(styles);
-  const { openDialog } = useDialog();
-  const currentUser = useCurrentUser();
 
-  const { SectionButton, WikiTagNestedList, LWTooltip } = Components;
+  const { WikiTagGroup, Loading, SectionButton, LWTooltip } = Components;
 
   const { query } = useLocation();
   const isArbitalRedirect = query.ref === 'arbital';
 
-  const { data } = useQuery(allTagsQuery, { ssr: true });
-  const tags: AllTagsPageCacheFragment[] = data?.AllTags ?? [];
+  const currentUser = useCurrentUser();
+  const { openDialog } = useDialog();
 
-  // State variable for the current search query
+  const { data: priorityTagsRaw } = useQuery(tagsBySlugsQuery, {
+    variables: { slugs: prioritySlugs },
+    ssr: true,
+  });
+
+
+  // Only filter and process priority tags once the data is loaded
+  const priorityTags = useMemo(() => {
+    if (!priorityTagsRaw?.TagsBySlugs) return [];
+    const tags = filterNonnull(priorityTagsRaw.TagsBySlugs);
+    if (!tags.length) return [];
+    
+    return [...tags].sort((a: AllTagsPageCacheFragment, b: AllTagsPageCacheFragment) => {
+      const indexA = prioritySlugs.indexOf(a.slug as typeof prioritySlugs[number]);
+      const indexB = prioritySlugs.indexOf(b.slug as typeof prioritySlugs[number]);
+      return indexA - indexB;
+    });
+  }, [priorityTagsRaw]);
+
   const [currentQuery, setCurrentQuery] = useState('');
   const [showArbitalRedirectNotice, setShowArbitalRedirectNotice] = useState(isArbitalRedirect);
 
   // Function to handle search state changes
-  const handleSearchStateChange = (searchState: any): void => {
-    setCurrentQuery(searchState.query);
+  const handleSearchStateChange = (searchState: any) => {
+    setCurrentQuery(searchState.query || '');
   };
 
-  const priorityTagIds = filterNonnull(
-    prioritySlugs.map(slug => tags.find(tag => isMatchingCoreTag(tag, slug)))
-  ).map(tag => tag._id);
-
-  const adjustedItems = tags.map(tag => {
-    if (priorityTagIds.includes(tag._id as typeof priorityTagIds[number])) {
-      return {
-        ...tag,
-        parentTagId: null,
-      };
-    }
-
-    return {
-      ...tag,
-      parentTagId: tag.coreTagId ? tag.coreTagId : 'uncategorized-root',
-    };
-  });
-
-  // Add the artificial "Uncategorized" tags to the items list
-  const itemsWithUncategorized = useMemo(() => [
-    ...adjustedItems,
-    uncategorizedRootTag,
-  ], [adjustedItems]);
-
-  // Move the tree-building and sorting logic here
-  const sortedTree = useMemo(() => {
-    const tree = buildTree(itemsWithUncategorized, null, 0);
-
-    return tree.sort((a, b) => {
-      const indexA = prioritySlugs.indexOf(a.slug as typeof prioritySlugs[number]);
-      const indexB = prioritySlugs.indexOf(b.slug as typeof prioritySlugs[number]);
-
-      // If both items are in the priority list, sort by priority
-      if (indexA !== -1 && indexB !== -1) {
-        return indexA - indexB;
-      }
-      // If only one item is in priority list, it goes first
-      if (indexA !== -1) return -1;
-      if (indexB !== -1) return 1;
-      // Ensure "Uncategorized" is placed at the end
-      if (a.slug === 'uncategorized-root') return 1;
-      if (b.slug === 'uncategorized-root') return -1;
-      // For all other items, sort by baseScore
-      return b.baseScore - a.baseScore;
-    });
-  }, [itemsWithUncategorized]);
-
-  // Component to access search results
-  const CustomStateResults = connectStateResults(({ searchResults }) => {
+  const CustomStateResults = connectStateResults(({ searchResults, isSearchStalled }) => {
     const hits = (searchResults && searchResults.hits) || [];
     const tagIds = hits.map(hit => hit.objectID);
 
-    // First filter by priority slugs at the root level
-    const priorityFilteredTree = sortedTree.filter(wikitag => 
-      priorityTagIds.includes(wikitag._id as typeof priorityTagIds[number]) || wikitag.slug === 'uncategorized-root'
-    );
+    if (!priorityTags) return null;
 
-    // Then apply search filtering if there's a query
-    const filteredTags = currentQuery 
-      ? filterTreeByTagIds(priorityFilteredTree, tagIds, 0)
-      : priorityFilteredTree;
+    if (isSearchStalled) {
+      return <Loading />;
+    }
 
     return (
-      <div className={classes.wikiTagNestedList}>
-        <WikiTagNestedList
-          pages={filteredTags}
-          showArbitalIcons={isArbitalRedirect}
+      <div className={classes.mainContent}>
+        {priorityTags.map((tag: AllTagsPageCacheFragment) => (
+          tag && <WikiTagGroup
+            key={tag._id}
+            parentTag={tag}
+            searchTagIds={currentQuery ? tagIds : null}
+          />
+        ))}
+        <WikiTagGroup
+          parentTag={uncategorizedRootTag}
+          searchTagIds={currentQuery ? tagIds : null}
         />
       </div>
     );
   });
-
 
   return (
     <AnalyticsContext pageContext="allWikiTagsPage">
@@ -491,8 +389,6 @@ const AllWikiTagsPage = () => {
                 <CustomStateResults />
               </InstantSearch>
             </div>
-          </div>
-          <div className={classes.mainContent}>
           </div>
         </div>
       </div>

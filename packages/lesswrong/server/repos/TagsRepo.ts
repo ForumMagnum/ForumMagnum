@@ -189,8 +189,90 @@ class TagsRepo extends AbstractRepo<"Tags"> {
       GROUP BY source_tag_subject_rels."parentDocumentId", source_tag_subject_rels."level"
     `, [tagId]);
   }
+
+  /**
+   * Fetch tags by parent tag using ArbitalTagContentRels, with optional limit, offset, and searchTagIds
+   */
+  async getTagsByParentTagId(
+    parentTagId: string | null,
+    limit: number,
+    offset: number,
+    searchTagIds?: string[]
+  ): Promise<{ tags: DbTag[]; totalCount: number }> {
+    const whereClauses: string[] = [];
+    const queryParams: Record<string, any> = {
+      limit,
+      offset
+    };
+
+    // Base condition: only select non-deleted tags
+    whereClauses.push(`t_child."deleted" IS FALSE`);
+
+    if (parentTagId !== null) {
+      // Fetch tags that are children of the specified parent tag
+      queryParams.parentTagId = parentTagId;
+      whereClauses.push(
+        `acr."parentDocumentId" = $(parentTagId)`,
+        `acr."type" = 'parent-is-tag-of-child'`,
+        `acr."parentCollectionName" = 'Tags'`,
+        `acr."childCollectionName" = 'Tags'`
+      );
+    } else {
+      // Fetch tags that do NOT have a parent tag
+      whereClauses.push(
+        `acr."parentDocumentId" IS NULL`,
+        `acr."type" IS NULL`
+      );
+    }
+
+    if (searchTagIds && searchTagIds.length > 0) {
+      queryParams.searchTagIds = searchTagIds;
+      whereClauses.push(`t_child."_id" = ANY($(searchTagIds))`);
+    }
+
+    const query = `
+      -- TagsRepo.getTagsByParentTagId
+      SELECT
+        t_child.*,
+        COUNT(*) OVER() AS "totalCount"
+      FROM "Tags" t_child
+      LEFT JOIN "ArbitalTagContentRels" acr
+        ON t_child."_id" = acr."childDocumentId"
+        AND acr."type" = 'parent-is-tag-of-child'
+        AND acr."parentCollectionName" = 'Tags'
+        AND acr."childCollectionName" = 'Tags'
+      ${whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : ''}
+      ORDER BY t_child."baseScore" DESC
+      LIMIT $(limit)
+      OFFSET $(offset)
+    `;
+
+    const tags = await this.getRawDb().any(query, queryParams);
+
+    const totalCount = tags.length > 0 ? parseInt(tags[0].totalCount, 10) : 0;
+
+    // Remove the totalCount from individual tag objects
+    tags.forEach(tag => delete tag.totalCount);
+
+    return { tags, totalCount };
+  }
+
+  /**
+   * Fetch tags by slugs
+   */
+  async getTagsBySlugs(slugs: string[], limit: number): Promise<DbTag[]> {
+    return this.getRawDb().any(`
+      -- TagsRepo.getTagsBySlug
+      SELECT * FROM "Tags" 
+      WHERE ("slug" = ANY($1) OR "oldSlugs" && $1)
+        AND "deleted" IS FALSE
+      ORDER BY "baseScore" DESC
+      LIMIT $2
+    `, [slugs, limit]);
+  }
 }
 
 recordPerfMetrics(TagsRepo);
 
 export default TagsRepo;
+

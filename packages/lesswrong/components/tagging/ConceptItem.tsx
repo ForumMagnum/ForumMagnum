@@ -2,20 +2,17 @@ import React, { useState } from 'react';
 import classNames from 'classnames';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { WikiTagNode } from './types';
 import { ArbitalLogo } from '../icons/ArbitalLogo';
 import { Link } from '@/lib/reactRouterWrapper';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
-import { useWindowSize } from "@/components/hooks/useScreenWidth";
 
-const ITEM_WIDTH = 300;
-const COLUMN_GAP = 8;
+const CONCEPT_ITEM_WIDTH = 300;
 
 const ARBITAL_GREEN_DARK = "#004d40"
 
 const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
   root: {
-    maxWidth: ITEM_WIDTH,
+    maxWidth: CONCEPT_ITEM_WIDTH,
     fontFamily: theme.palette.fonts.sansSerifStack,
     display: "flex",
     flexDirection: "column",
@@ -24,8 +21,8 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
   item: {
     cursor: "pointer",
     minHeight: 16,
-    width: ITEM_WIDTH,
-    maxWidth: ITEM_WIDTH,
+    width: CONCEPT_ITEM_WIDTH,
+    maxWidth: CONCEPT_ITEM_WIDTH,
     borderRadius: theme.borderRadius.default,
     padding: "2px 0px",
     paddingLeft: '2px',
@@ -87,7 +84,7 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     marginTop: 0,
   },
   titleItemRoot: {
-    marginBottom: 24,
+    // marginBottom: 24,
   },
   titleItem: {
     backgroundColor: "unset",
@@ -123,7 +120,7 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     display: "flex",
     gap: "8px",
     rowGap: "24px",
-    maxWidth: (ITEM_WIDTH * 4) + 36,
+    maxWidth: (CONCEPT_ITEM_WIDTH * 4) + 36,
   },
   childrenListWrapped: {
     flexWrap: "wrap",
@@ -131,7 +128,7 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
   column: {
     display: "flex",
     flexDirection: "column",
-    width: ITEM_WIDTH,
+    width: CONCEPT_ITEM_WIDTH,
     flex: "0 0 auto",
   },
   showMoreChildren: {
@@ -161,21 +158,12 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
 }));
 
 interface ConceptItemProps {
-  wikitag: WikiTagNode;
+  wikitag: AllTagsPageCacheFragment | Omit<AllTagsPageCacheFragment, "_id">;
   nestingLevel: number;
   index?: number;
   // onHover?: (wikitag: WikiTagNode | null) => void;
   // onClick?: (wikitag: WikiTagNode) => void;
   showArbitalIcon?: boolean;
-}
-
-// Helper function to split items into columns
-function splitIntoColumns(items: WikiTagNode[], itemsPerColumn = 12): WikiTagNode[][] {
-  const columns: WikiTagNode[][] = [];
-  for (let i = 0; i < items.length; i += itemsPerColumn) {
-    columns.push(items.slice(i, i + itemsPerColumn));
-  }
-  return columns;
 }
 
 const ConceptItem = ({
@@ -185,44 +173,8 @@ const ConceptItem = ({
   showArbitalIcon
 }: ConceptItemProps) => {
   const classes = useStyles(styles);
-  const collapsed = index !== undefined && index >= 3 && index < 6;
-  const [showingAllChildren, setShowingAllChildren] = useState(false);
 
   const { TagsTooltip, LWTooltip } = Components;
-
-  const hasChildren = wikitag.children && wikitag.children.length > 0;
-
-  const totalChildren = wikitag.children?.length || 0;
-
-  // Constants
-  const ITEMS_PER_COLUMN = 8;
-  const MAX_INITIAL_COLUMNS = 3; // Adjust as needed
-  const MAX_INITIAL_ITEMS = ITEMS_PER_COLUMN * MAX_INITIAL_COLUMNS; // Calculate based on columns
-
-  // Calculate the number of items to show
-  const showingAllItems = showingAllChildren || totalChildren <= MAX_INITIAL_ITEMS;
-
-  // First calculate visible columns and itemsToShowCount
-  const windowSize = useWindowSize();
-  const calculateVisibleColumns = () => {
-    const availableWidth = windowSize.width - 32;
-    const columnsWithGaps = Math.floor(availableWidth / (ITEM_WIDTH + COLUMN_GAP));
-    // Ensure at least 1 column is shown
-    return Math.max(1, Math.min(columnsWithGaps, MAX_INITIAL_COLUMNS));
-  };
-  const visibleColumns = calculateVisibleColumns();
-  
-  const itemsToShowCount = showingAllItems
-    ? totalChildren
-    : visibleColumns * ITEMS_PER_COLUMN;
-
-  // Then use itemsToShowCount to sort and slice the children
-  const sortedChildren = wikitag.children
-    .sort((a, b) => (b.baseScore || 0) - (a.baseScore || 0))
-    .slice(0, itemsToShowCount);
-
-  // Then split into columns
-  const columns = splitIntoColumns(sortedChildren, ITEMS_PER_COLUMN);
 
   // Title item (for nestingLevel === 0)
   const titleItem = (
@@ -251,7 +203,8 @@ const ConceptItem = ({
       className={classes.item}
     >
       <div className={classes.leftSideItems}>
-        <div className={classes.karma}>{wikitag.baseScore || 0}</div>
+        {/* TODO: this is a temporary score, we should use the actual baseScore from the database */}
+        <div className={classes.karma}>{wikitag.baseScore}</div>
         <div className={classes.title}>
           <TagsTooltip
             tagSlug={wikitag.slug}
@@ -287,56 +240,9 @@ const ConceptItem = ({
     </div>
   );
 
-  // Decide which item to render
-  const itemToRender = nestingLevel === 0 ? titleItem : regularItem;
-
-  const displayedColumns = showingAllChildren ? columns.length : visibleColumns;
-
   return (
-    <div
-      className={classNames(classes.root, { [classes.titleItemRoot]: nestingLevel === 0 })}
-    >
-      {itemToRender}
-
-      {/* Render Children */}
-      {!collapsed && hasChildren && (
-        <div className={classes.children}>
-          <div className={classes.childrenContainer}>
-            <div className={classNames(classes.childrenList, showingAllChildren && classes.childrenListWrapped)}>
-              {columns.slice(0, displayedColumns).map((columnItems, columnIndex) => (
-                <div key={columnIndex} className={classes.column}>
-                  {columnItems.map((childPage, idx) => (
-                    <ConceptItem
-                      key={childPage._id}
-                      wikitag={childPage}
-                      nestingLevel={nestingLevel + 1}
-                      index={idx}
-                      // onHover={onHover}
-                      // onClick={onClick}
-                      showArbitalIcon={showArbitalIcon}
-                    />
-                  ))}
-                </div>
-              ))}
-            </div>
-            {/* Update the show more button text */}
-            {hasChildren && totalChildren > itemsToShowCount && (
-              <div
-                className={classes.showMoreChildren}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowingAllChildren(!showingAllChildren);
-                }}
-              >
-                {!showingAllChildren
-                  ? `Show ${totalChildren - itemsToShowCount} more`
-                  : 'Show less'
-                }
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+    <div className={classNames(classes.root, { [classes.titleItemRoot]: nestingLevel === 0 })}>
+      {nestingLevel === 0 ? titleItem : regularItem}
     </div>
   );
 };

@@ -470,6 +470,7 @@ registerFragment(`
     slug
     oldSlugs
     postCount
+    baseScore
     description {
       wordCount
     }

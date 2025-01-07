@@ -1038,6 +1038,7 @@ importComponent("TagsDetailsItem", () => require("../../components/tagging/TagsD
 importComponent("TagsListItem", () => require("../../components/tagging/TagsListItem.tsx"));
 importComponent("TagsTooltip", () => require("../../components/tagging/TagsTooltip.tsx"));
 importComponent("TruncatedTagsList", () => require("../../components/tagging/TruncatedTagsList.tsx"));
+importComponent("WikiTagGroup", () => require("../../components/tagging/WikiTagGroup.tsx"));
 importComponent("WikiTagNestedList", () => require("../../components/tagging/WikiTagNestedList.tsx"));
 importComponent("WriteNewButton", () => require("../../components/tagging/WriteNewButton.tsx"));
 importComponent("ArbitalImportRevisionDetails", () => require("../../components/tagging/history/ArbitalImportRevisionDetails.tsx"));
