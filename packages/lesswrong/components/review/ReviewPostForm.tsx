@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { REVIEW_YEAR } from '../../lib/reviewUtils';
+import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   guidelines: {
@@ -38,9 +39,39 @@ const ReviewPostForm = ({classes, post, onClose}: {
   post: PostsBase,
   onClose: () => void,
 }) => {
-  const { PopupCommentEditor } = Components;
+  const { PopupCommentEditor, SingleLineComment } = Components;
+  const currentUser = useCurrentUser();
   const [ showPrompt, setShowPrompt ] = useState(true)
-  
+  const [commentContent, setCommentContent] = useState<AnyBecauseHard>({
+    _id: 'new',
+    postId: post._id,
+    contents: {
+      html: '',
+      _id: 'new',
+      plaintextMainText: '',
+      wordCount: 0,
+    },
+    user: currentUser,
+    postedAt: new Date(),
+    baseScore: 0,
+    deleted: false,
+    tagId: "fake",
+    tag: null,
+    relevantTagIds: [],
+    af: false,
+  });
+
+  const handleFormChange = (formState: any) => {
+    console.log('Form changed:', formState);
+    setCommentContent((prevContent: any) => { console.log('prevContent', prevContent); return {
+      ...prevContent,
+      contents: {
+        ...prevContent.contents,
+        plaintextMainText: formState.data.content,
+      },
+    }});
+  };
+
   return <PopupCommentEditor
     title={<>
       Reviewing "<Link to={postGetPageUrl(post)}>{post.title}</Link>"
@@ -59,6 +90,15 @@ const ReviewPostForm = ({classes, post, onClose}: {
         <a className={classes.hidePrompt} onClick={() => setShowPrompt(false)}>(click to hide)</a>
       </div>}
       {!showPrompt && <div onClick={() => setShowPrompt(true)}>Reviews should ideally answer... <a onClick={() => setShowPrompt(false)}>(read more)</a></div>}
+      <SingleLineComment
+        comment={commentContent as AnyBecauseHard}
+        treeOptions={{
+          forceSingleLine: true,
+          hideSingleLineMeta: true,
+          // Add other options as needed
+        }}
+        nestingLevel={0}
+      />
     </div>}
     onClose={onClose}
     commentFormProps={{
@@ -66,8 +106,9 @@ const ReviewPostForm = ({classes, post, onClose}: {
       removeFields: ['af'],
       prefilledProps: {
         reviewingForReview: REVIEW_YEAR.toString()
-      },
+      }
     }}
+    changeCallback={handleFormChange}
   />
 }
 

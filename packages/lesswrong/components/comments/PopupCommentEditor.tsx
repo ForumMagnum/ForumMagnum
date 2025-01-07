@@ -62,12 +62,13 @@ const styles = (theme: ThemeType): JssStyles => ({
  *   specifying what post the comment is on, and prefilling props.
  * onClose: Called when the window is closed.
  */
-const PopupCommentEditor = ({title, guidelines, commentFormProps, onClose, classes}: {
+const PopupCommentEditor = ({title, guidelines, commentFormProps, onClose, classes, changeCallback  }: {
   title: React.ReactNode,
   guidelines?: React.ReactNode,
   commentFormProps: Partial<CommentsNewFormProps>,
   onClose: () => void,
-  classes: ClassesType
+  classes: ClassesType,
+  changeCallback?: (formState: { data: any }) => void,
 }) => {
   const { CommentsNewForm } = Components;
 
@@ -85,6 +86,7 @@ const PopupCommentEditor = ({title, guidelines, commentFormProps, onClose, class
         padding={false}
         successCallback={onClose}
         type="comment"
+        changeCallback={changeCallback}
         formProps={{
           maxHeight: true
         }}

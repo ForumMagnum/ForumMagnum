@@ -47,7 +47,7 @@ export const callbackProps = {
 };
 
 type SmartFormCallbacks = {
-  changeCallback?: any
+  changeCallback?: (newValues: any) => void
   submitCallback?: any
   successCallback?: any
   removeSuccessCallback?: any

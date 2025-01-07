@@ -636,6 +636,12 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
     const { mode = 'overwrite' } = options;
     const { autoSubmit, changeCallback } = this.props;
 
+    console.log('changeCallback', changeCallback);
+    if (this.props.changeCallback) {
+      console.log('changeCallback', this.props.changeCallback);
+      this.props.changeCallback(newValues);
+    }
+
     // keep the previous ones and extend (with possible replacement) with new ones
     return new Promise<void>((resolve, reject) => {
       this.setState(prevState => {
@@ -1019,7 +1025,8 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
 
   render() {
     const FormComponents = mergeWithComponents(this.props.formComponents);
-
+    const { changeCallback } = this.props;
+    console.log('changeCallbackrender', changeCallback);
     return (
       <form
         className={classNames(

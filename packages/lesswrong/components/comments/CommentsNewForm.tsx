@@ -275,6 +275,7 @@ export type CommentsNewFormProps = {
   cancelLabel?: string,
   className?: string,
   classes: ClassesType<typeof styles>,
+  changeCallback?: (formState: { data: any }) => void,
 }
 
 const CommentsNewForm = ({
@@ -298,6 +299,7 @@ const CommentsNewForm = ({
   cancelLabel,
   className,
   classes,
+  changeCallback,
 }: CommentsNewFormProps) => {
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking({eventProps: { postId: post?._id, tagId: tag?._id, tagCommentType}});
@@ -521,6 +523,7 @@ const CommentsNewForm = ({
                 ...formProps,
                 ...answerFormProps,
               }}
+              changeCallback={changeCallback}
               cancelLabel={cancelLabel}
               submitLabel={getSubmitLabel(isQuickTake, isAnswer)}
             />
