@@ -161,7 +161,6 @@ importComponent("MaintenanceBanner", () => require("../../components/common/Main
 importComponent(["MenuItem", "MenuItemLink"], () => require("../../components/common/Menus.tsx"));
 importComponent("MetaInfo", () => require("../../components/common/MetaInfo.tsx"));
 importComponent("MixedTypeFeed", () => require("../../components/common/MixedTypeFeed.tsx"));
-importComponent("NewFeaturePulse", () => require("../../components/common/NewFeaturePulse.tsx"));
 importComponent("NewFeatureTooltip", () => require("../../components/common/NewFeatureTooltip.tsx"));
 importComponent("NoContent", () => require("../../components/common/NoContent.tsx"));
 importComponent("PermanentRedirect", () => require("../../components/common/PermanentRedirect.tsx"));
