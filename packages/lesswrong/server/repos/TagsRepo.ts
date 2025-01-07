@@ -78,7 +78,8 @@ class TagsRepo extends AbstractRepo<"Tags"> {
         SELECT
           t.*,
           t.slug,
-          t.description
+          t.description,
+          NULL as md_id
         FROM "Tags" t
         WHERE t.deleted IS FALSE
         AND (t."slug" = $1 OR t."oldSlugs" @> ARRAY[$1])
@@ -89,7 +90,8 @@ class TagsRepo extends AbstractRepo<"Tags"> {
         SELECT
           t.*,
           md.slug AS "slug",
-          TO_JSONB(r.*) AS "description"
+          TO_JSONB(r.*) AS "description",
+          md._id as md_id
         FROM "MultiDocuments" md
         JOIN "Tags" t
         ON t."_id" = md."parentDocumentId"
@@ -108,7 +110,10 @@ class TagsRepo extends AbstractRepo<"Tags"> {
         ARRAY_AGG(TO_JSONB(md.*)) OVER (PARTITION BY t._id) as summaries
       FROM matching_tags t
       LEFT JOIN "MultiDocuments" md
-      ON md."parentDocumentId" = t."_id" AND md."fieldName" = 'summary'
+      ON (
+        md."parentDocumentId" = COALESCE(t.md_id, t._id)
+        AND md."fieldName" = 'summary'
+      )
       -- TODO: figure out a more principled fix for the problem we can have multiple tags or lenses with the same slug/oldSlugs
       LIMIT 1
     `, [slug]);
@@ -131,6 +136,7 @@ class TagsRepo extends AbstractRepo<"Tags"> {
       LEFT JOIN core_tag_ids t_parent
       ON t_parent._id = acr."parentDocumentId"
       WHERE t_child.deleted IS FALSE
+      AND t_child."isPlaceholderPage" IS FALSE
       AND (
         acr IS NULL
         OR (

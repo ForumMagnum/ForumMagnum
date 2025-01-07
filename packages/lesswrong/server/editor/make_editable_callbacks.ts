@@ -202,7 +202,7 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
       const oldRevision = oldRevisionId
         ? await fetchFragmentSingle({
           collectionName: "Revisions",
-          fragmentName: "RevisionEdit",
+          fragmentName: "RevisionMetadata",
           selector: {_id: oldRevisionId},
           currentUser: null,
           skipFiltering: true,

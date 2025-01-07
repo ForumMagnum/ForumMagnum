@@ -93,10 +93,16 @@ registerVotingSystem<NamesAttachedReactionsVote, NamesAttachedReactionsScore>({
     };
   },
 
-  isAllowedExtendedVote: (user: UsersCurrent|DbUser, document: DbVoteableType, oldExtendedScore: NamesAttachedReactionsScore, extendedVote: NamesAttachedReactionsVote) => {
+  isAllowedExtendedVote: ({ user, document, oldExtendedScore, extendedVote, skipRateLimits }: {
+    user: UsersCurrent|DbUser,
+    document: DbVoteableType,
+    oldExtendedScore: NamesAttachedReactionsScore,
+    extendedVote: NamesAttachedReactionsVote,
+    skipRateLimits?: boolean,
+  }) => {
     // Are there any reacts in this vote?
     if (extendedVote?.reacts && extendedVote.reacts.length>0) {
-      return isVoteWithReactsAllowed(user, document, oldExtendedScore, extendedVote);
+      return isVoteWithReactsAllowed({user, document, oldExtendedScore, extendedVote, skipRateLimits});
     }
 
     return {allowed: true};
@@ -164,7 +170,13 @@ export function getDocumentHighlights(voteProps: VotingProps<VoteableTypeClient>
   return result;
 }
 
-export function isVoteWithReactsAllowed(user: UsersCurrent|DbUser, document: DbVoteableType, oldExtendedScore: NamesAttachedReactionsScore, extendedVote: NamesAttachedReactionsVote): {allowed: true}|{allowed: false, reason: string} {
+export function isVoteWithReactsAllowed({user, document, oldExtendedScore, extendedVote, skipRateLimits}: {
+  user: UsersCurrent|DbUser,
+  document: DbVoteableType,
+  oldExtendedScore: NamesAttachedReactionsScore,
+  extendedVote: NamesAttachedReactionsVote,
+  skipRateLimits?: boolean,
+}): {allowed: true}|{allowed: false, reason: string} {
   if (!extendedVote.reacts) {
     return {allowed: true};
   }
@@ -180,7 +192,7 @@ export function isVoteWithReactsAllowed(user: UsersCurrent|DbUser, document: DbV
 
   // If the user is disagreeing with a react, they need at least
   // downvoteExistingReactKarmaThreshold karma
-  if (userKarma < downvoteExistingReactKarmaThreshold.get()
+  if (!skipRateLimits && userKarma < downvoteExistingReactKarmaThreshold.get()
     && some(extendedVote.reacts, r=>r.vote==="disagreed"))
   {
     return {allowed: false, reason: `You need at least ${downvoteExistingReactKarmaThreshold.get()} karma to antireact`};
@@ -188,14 +200,14 @@ export function isVoteWithReactsAllowed(user: UsersCurrent|DbUser, document: DbV
 
   // If the user is using any react at all, they need at least
   // existingReactKarmaThreshold karma for it to be a valid vote.
-  if (userKarma<addNameToExistingReactKarmaThreshold.get()) {
+  if (!skipRateLimits && userKarma<addNameToExistingReactKarmaThreshold.get()) {
     return {allowed: false, reason: `You need at least ${addNameToExistingReactKarmaThreshold.get()} karma to use reacts`};
   }
   
   // If the user is using a react which no one else has used on this comment
   // before, they need at least newReactKarmaThreshold karma for it to be a
   // valid vote.
-  if (userKarma<addNewReactKarmaThreshold.get()) {
+  if (!skipRateLimits && userKarma<addNewReactKarmaThreshold.get()) {
     for (let reaction of extendedVote.reacts) {
       if (!(reaction.react in oldExtendedScore.reacts)) {
         return {allowed: false, reason: `You need at least ${addNewReactKarmaThreshold.get()} karma to be the first to use a new react on a given comment`};

@@ -123,7 +123,7 @@ export async function getContributorsList(options: GetContributorsListOptions): 
 
   if (version) {
     return await buildContributorsList({ document, collectionName, fieldName, version });
-  } else if (document.contributionStats && Object.values(document.contributionStats).some(stats => stats?.contributionScore)) {
+  } else if (document.contributionStats && Object.values(document.contributionStats)) {
     return document.contributionStats;
   } else {
     return await updateDenormalizedContributorsList({ document, collectionName, fieldName });
