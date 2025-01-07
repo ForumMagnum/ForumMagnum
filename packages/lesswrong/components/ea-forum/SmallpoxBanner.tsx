@@ -12,7 +12,7 @@ const featuredPost = '/posts/jk7A3NMdbxp65kcJJ/500-million-but-not-a-single-one-
 const mobileImage = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/w_${SECTION_WIDTH},h_${bannerHeight}/${mobileImageId}`
 const desktopImage = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/w_${SECTION_WIDTH},h_${bannerHeight}/${desktopImageId}`
 
-const styles = (_theme: ThemeType): JssStyles => ({
+const styles = (_theme: ThemeType) => ({
   link: {
     '&:hover': {
       opacity: 'unset'

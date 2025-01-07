@@ -2,7 +2,7 @@ import React, { ReactNode } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   localGroups: {
     boxShadow: theme.palette.boxShadow.default,
   }

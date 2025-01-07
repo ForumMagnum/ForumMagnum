@@ -8,7 +8,7 @@ import { useQuery, gql } from '@apollo/client';
 import Select from '@material-ui/core/Select';
 import Input from '@material-ui/core/Input';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   selectUser: {
     margin: 16,
   },

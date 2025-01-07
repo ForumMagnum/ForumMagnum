@@ -7,7 +7,7 @@ import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   formButton: {
     fontFamily: theme.typography.fontFamily,
     marginLeft: "5px",

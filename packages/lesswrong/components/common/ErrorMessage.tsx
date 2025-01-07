@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   errorText: {
     color: theme.palette.error.main,
     textAlign: "center",

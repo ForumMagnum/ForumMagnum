@@ -6,7 +6,7 @@ import isEqual from 'lodash/isEqual';
 import { useMessages } from "../common/withMessages";
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: theme.spacing.unit
   },

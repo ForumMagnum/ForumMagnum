@@ -9,7 +9,7 @@ import { userHasNewTagSubscriptions } from '../../lib/betas';
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginLeft: "auto",
     ...theme.typography.commentStyle,

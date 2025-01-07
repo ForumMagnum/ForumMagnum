@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   emailPreview: {
     marginBottom: 40
   },
@@ -31,11 +31,11 @@ export const EmailPreview = ({email, sentDate, classes}: {
 
   return <div className={classes.emailPreview}>
     <p>{""+sentDate}</p>
-    <div className={classes.emailHeader}>
+    <div>
       <span className={classes.headerName}>Subject: </span>
       <span className={classes.headerContent}>{email.subject}</span>
     </div>
-    <div className={classes.emailHeader}>
+    <div>
       <span className={classes.headerName}>To: </span>
       <span className={classes.headerContent}>{email.to}</span>
     </div>

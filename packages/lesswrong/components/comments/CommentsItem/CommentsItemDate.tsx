@@ -6,7 +6,7 @@ import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { isLWorAF } from '../../../lib/instanceSettings';
 import DeferRender from '@/components/common/DeferRender';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...(isFriendlyUI ? {
       marginLeft: 2,

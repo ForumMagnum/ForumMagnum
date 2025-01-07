@@ -7,7 +7,7 @@ import {
 import { useCrosspostContext } from "./PostsPageCrosspostWrapper";
 import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",

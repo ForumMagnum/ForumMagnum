@@ -5,7 +5,7 @@ import { CAREER_STAGES } from "../../../lib/collections/users/schema";
 import { SOCIAL_MEDIA_PROFILE_FIELDS, SocialMediaProfileField } from "../../../lib/collections/users/helpers";
 import { communityPath } from "../../../lib/routes";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   iconsRow: {
     display: "flex",
     flexWrap: "wrap",

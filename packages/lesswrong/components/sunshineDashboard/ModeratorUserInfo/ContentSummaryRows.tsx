@@ -5,7 +5,7 @@ import * as _ from 'underscore'
 import MessageIcon from '@material-ui/icons/Message'
 import DescriptionIcon from '@material-ui/icons/Description'
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   contentSummaryRow: {
     display: "flex",
     flexWrap: "wrap",

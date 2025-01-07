@@ -4,7 +4,7 @@ import { usePostsUserAndCoauthors } from "./usePostsUserAndCoauthors";
 import { recalculateTruncation } from "../../lib/truncateUtils";
 import classNames from "classnames";
 
-const styles = (_: ThemeType): JssStyles => ({
+const styles = (_: ThemeType) => ({
   root: {
     position: "relative",
     overflow: "hidden",

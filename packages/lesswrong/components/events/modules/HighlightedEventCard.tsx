@@ -12,7 +12,7 @@ export const getDefaultEventImg = (width: number, blur?: boolean) => {
   return `https://res.cloudinary.com/cea/image/upload/w_${width}${blur ? ',e_blur:500' : ''}/Banner/yeldubyolqpl3vqqy0m6.jpg`
 }
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     position: 'relative',
     display: 'flex',

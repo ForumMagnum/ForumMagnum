@@ -4,7 +4,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { useOnMountTracking } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: theme.spacing.unit*4,
     marginTop: theme.spacing.unit*2

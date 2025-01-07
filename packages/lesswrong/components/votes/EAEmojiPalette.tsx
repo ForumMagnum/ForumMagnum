@@ -6,7 +6,7 @@ import {
   EmojiOption,
 } from "../../lib/voting/eaEmojiPalette";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: 6,
   },

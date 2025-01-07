@@ -11,8 +11,7 @@ import { TagCommentType } from '../../lib/collections/comments/types';
 import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 
-
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: theme.spacing.unit*4,
     position: "relative",
@@ -113,7 +112,6 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
           <ContentItemBody
             dangerouslySetInnerHTML={{__html: maybeTruncatedDescriptionHtml||""}}
             description={`tag ${tag.name}`}
-            className={classes.description}
           />
         </ContentStyles>
       </div>

@@ -6,7 +6,7 @@ import { tagGetUrl } from '../../../lib/collections/tags/helpers';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   title: {
     fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },

@@ -5,7 +5,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 
 const commentModerationWarningCommentIdSetting = new DatabasePublicSetting<string>('commentModerationWarningCommentId', '')
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     borderBottom: theme.palette.border.commentBorder,
     padding: 12,
@@ -30,7 +30,7 @@ export const NewCommentModerationWarning = ({classes}: {
   const { html = "" } = document?.contents || {}
 
   return <div className={classes.root}>
-    <ContentStyles contentType="comment" className={classes.modNote}>
+    <ContentStyles contentType="comment">
       {loading && <Loading/>}
       {html &&  <ContentItemBody dangerouslySetInnerHTML={{__html: html }} />}
       {!html && !loading && <div><em>A moderator will need to review your account before your comments will appear publicly.</em></div>}

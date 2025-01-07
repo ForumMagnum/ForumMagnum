@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 
-const styles = (_theme: ThemeType): JssStyles => ({
+const styles = (_theme: ThemeType) => ({
   root: {
     position: 'relative',
   },

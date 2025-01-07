@@ -6,7 +6,7 @@ import moment from 'moment';
 import type { DebateResponseWithReplies } from './DebateResponseBlock';
 import DeferRender from '../common/DeferRender';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
 
   },

@@ -9,7 +9,7 @@ import { PostsTimeBlockShortformOption } from './PostsTimeBlock';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { useOnPropsChanged } from '../hooks/useOnPropsChanged';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   loading: {
     opacity: .4,
   },

@@ -10,7 +10,7 @@ import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
 import { useQuery, gql } from '@apollo/client';
 import DeferRender from '../common/DeferRender';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   title: {
     ...theme.typography.display3,
     ...theme.typography.postStyle,

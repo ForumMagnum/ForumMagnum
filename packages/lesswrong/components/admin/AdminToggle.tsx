@@ -5,7 +5,7 @@ import { userIsMemberOf } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 import { useAdminToggle } from './useAdminToggle';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   toggle: {
     position: 'fixed',
     left: 20,

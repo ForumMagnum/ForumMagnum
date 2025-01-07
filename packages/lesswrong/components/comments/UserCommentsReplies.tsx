@@ -4,7 +4,7 @@ import { useLocation } from '../../lib/routeUtil';
 import { useMulti } from '../../lib/crud/withMulti';
 import { getUserFromResults } from '../users/UsersProfile';
 
-const styles = (theme: ThemeType): JssStyles =>  ({
+const styles = (theme: ThemeType) =>  ({
   root: {
     [theme.breakpoints.up('sm')]: {
       marginRight: theme.spacing.unit*4,

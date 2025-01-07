@@ -9,7 +9,7 @@ import { componentWithChildren } from '../../lib/utils/componentsWithChildren';
 
 const Marker = componentWithChildren(BadlyTypedMarker);
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   icon: {
     width: 15, 
     height: 15,

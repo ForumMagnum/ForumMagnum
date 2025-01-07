@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (_theme: ThemeType) => ({
   root: {
     marginTop: 16,
     fontStyle: "italic",
@@ -29,7 +29,7 @@ export const UserReviewStatus = ({classes, user}: {
   const firstClientId = user.associatedClientIds?.[0];
   return <div className={classes.root}>
     {(user.reviewedByUserId && user.reviewedAt)
-      ? <div className={classes.reviewedAt}>Reviewed <FormatDate date={user.reviewedAt}/> ago by <UsersNameWrapper documentId={user.reviewedByUserId}/> ({approvalStatus})</div>
+      ? <div>Reviewed <FormatDate date={user.reviewedAt}/> ago by <UsersNameWrapper documentId={user.reviewedByUserId}/> ({approvalStatus})</div>
       : null 
     }
     {user.banned

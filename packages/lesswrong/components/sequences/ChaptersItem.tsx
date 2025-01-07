@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   description: {
     marginLeft: 10,
     marginBottom: 24,

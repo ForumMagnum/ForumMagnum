@@ -4,7 +4,7 @@ import React from 'react';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { Link } from '../../lib/reactRouterWrapper';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   loadMore: {
     fontSize: "1rem",
     textAlign: "right",

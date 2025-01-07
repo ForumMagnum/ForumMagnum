@@ -6,7 +6,7 @@ import { useCurrentUser } from '../common/withUser';
 import CropSquareIcon from '@material-ui/icons/CropSquare';
 import range from 'lodash/range';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",

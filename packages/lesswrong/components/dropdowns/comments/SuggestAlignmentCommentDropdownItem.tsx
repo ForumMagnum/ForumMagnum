@@ -7,7 +7,7 @@ import { useCurrentUser } from '../../common/withUser';
 import ExposurePlus1 from '@material-ui/icons/ExposurePlus1';
 import Undo from '@material-ui/icons/Undo';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   iconRoot: {
     position: "relative",
     width:24,

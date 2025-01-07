@@ -7,7 +7,7 @@ import { isLWorAF } from '../../lib/instanceSettings';
 import InputLabel from '@material-ui/core/InputLabel';
 import { forumHeaderTitleSetting } from '../common/Header';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   checkboxLabel: {
     ...theme.typography.body2,
     marginBottom: 10,
@@ -44,12 +44,12 @@ const SignupSubscribeToCurated = ({ defaultValue, onChange, classes }: {
   const emailType = isLWorAF ? 
     'Curated posts' : `the ${forumHeaderTitleSetting.get()} weekly digest email`;
 
-  return <div className={classes.root}>
+  return <div>
     <InputLabel className={classes.checkboxLabel}>
       <Checkbox
         checked={checked}
         className={classes.checkbox}
-        onChange={(ev, newChecked) => {
+        onChange={(_ev, newChecked) => {
           setChecked(newChecked)
           onChange(newChecked)
         }}

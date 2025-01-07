@@ -7,7 +7,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import * as _ from 'underscore';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     position: "relative",
     zIndex: theme.zIndexes.frontpageSplashImage,

@@ -6,7 +6,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     flexGrow: 1,
     flexShrink: 1,

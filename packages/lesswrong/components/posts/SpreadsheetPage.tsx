@@ -32,7 +32,7 @@ const headerStyle = (theme: ThemeType) => ({
   zIndex: 1,
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: -150, // adjusting for footer
     position: "relative",

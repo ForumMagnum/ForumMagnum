@@ -28,7 +28,7 @@ const TagCompareRevisions = ({classes}: {
     </Link>
     
     <RevisionComparisonNotice before={versionBefore} after={versionAfter}/>
-    <div className={classes.description}>
+    <div>
       <CompareRevisions
         collectionName="Tags" fieldName="description"
         documentId={tag._id}

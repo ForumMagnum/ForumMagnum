@@ -8,7 +8,7 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
 import type { PopperPlacementType } from '@material-ui/core/Popper'
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   color: {
     color: theme.palette.primary.main,
   },

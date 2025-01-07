@@ -9,7 +9,7 @@ import { isFriendlyUI } from '../../../themes/forumTheme';
 
 const smallIconSize = 23
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   selected: {
     '& $icon': {
       opacity: 1,

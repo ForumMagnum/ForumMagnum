@@ -7,7 +7,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { ReviewOverviewTooltip } from './FrontpageReviewWidget';
 import { useCurrentUser } from '../common/withUser';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,

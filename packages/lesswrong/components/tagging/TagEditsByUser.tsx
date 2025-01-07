@@ -4,7 +4,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
   },
   subtitle: {

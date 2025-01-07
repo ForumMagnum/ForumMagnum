@@ -7,7 +7,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   title: {
     ...theme.typography.display3,
     ...theme.typography.commentStyle,

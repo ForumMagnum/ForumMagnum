@@ -8,7 +8,7 @@ import { isEAForum, taggingNameCapitalSetting, taggingNamePluralCapitalSetting, 
 import { useRefreshDbSettings } from '../hooks/useRefreshDbSettings';
 
 // Also used in ModerationLog
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   adminHomeOrModerationLogPage: {
     fontFamily: theme.typography.fontFamily,
   

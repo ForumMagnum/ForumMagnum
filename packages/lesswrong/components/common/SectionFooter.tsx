@@ -21,7 +21,7 @@ export const separatorBulletStyles = (theme: ThemeType, spacingMultiplier = 1) =
   }
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     justifyContent: "flex-end",

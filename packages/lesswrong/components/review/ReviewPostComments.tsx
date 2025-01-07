@@ -5,7 +5,7 @@ import { unflattenComments } from '../../lib/utils/unflatten';
 import { singleLineStyles } from '../comments/SingleLineComment';
 import { CONDENSED_MARGIN_BOTTOM } from '../comments/CommentFrame';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   title: {
     fontSize: "1rem",
     ...theme.typography.commentStyle,

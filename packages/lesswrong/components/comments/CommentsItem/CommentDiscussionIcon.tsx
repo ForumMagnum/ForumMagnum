@@ -3,7 +3,7 @@ import React from 'react';
 import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   icon: {
     color: theme.palette.grey[500],
     width: 20,

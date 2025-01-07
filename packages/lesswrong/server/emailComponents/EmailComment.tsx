@@ -12,7 +12,7 @@ import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
 import startCase from 'lodash/startCase';
 import { isFriendlyUI } from '@/themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   headingLink: {
     color: theme.palette.text.maxIntensity,
     textDecoration: "none",
@@ -110,9 +110,8 @@ const EmailCommentsOnTagHeader = ({tagId, isSubforum, classes}: {tagId: string, 
   return <HeadingLink {...props} classes={classes}/>
 }
 
-const EmailComment = ({commentId, classes}: {
+const EmailComment = ({commentId}: {
   commentId: string,
-  classes: ClassesType<typeof styles>,
 }) => {
   const { EmailUsername, EmailFormatDate, EmailContentItemBody } = Components;
   const { document: comment, loading, error } = useSingle({
@@ -129,7 +128,7 @@ const EmailComment = ({commentId, classes}: {
   }
   
   return <div>
-    <div className={classes.comment}>
+    <div>
       <a href={commentGetPageUrl(comment, true)}>
         <EmailFormatDate date={comment.postedAt}/>
       </a>
@@ -144,7 +143,7 @@ const EmailComment = ({commentId, classes}: {
   </div>;
 }
 
-const EmailCommentComponent = registerComponent("EmailComment", EmailComment, {styles});
+const EmailCommentComponent = registerComponent("EmailComment", EmailComment);
 
 declare global {
   interface ComponentTypes {

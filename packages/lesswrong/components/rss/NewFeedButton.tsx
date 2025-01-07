@@ -4,7 +4,7 @@ import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib
 import { useCurrentUser } from '../common/withUser';
 import { useMulti } from '../../lib/crud/withMulti';
 
-const styles = (theme: JssStyles) => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: 16
   },

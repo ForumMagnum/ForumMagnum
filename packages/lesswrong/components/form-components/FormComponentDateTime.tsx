@@ -8,7 +8,7 @@ import FormControl from '@material-ui/core/FormControl';
 import type { Moment } from 'moment';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   input: {
     borderBottom: `solid 1px ${theme.palette.grey[550]}`,
     padding: '6px 0 7px 0',

@@ -6,7 +6,7 @@ import { isEAForum, taggingNamePluralCapitalSetting } from '../../lib/instanceSe
 import { useMulti } from '../../lib/crud/withMulti';
 import classNames from 'classnames';
 
-const styles = (_theme: ThemeType): JssStyles => ({
+const styles = (_theme: ThemeType) => ({
   root: {
   },
   header: {

@@ -4,7 +4,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import type { CoreReadingCollection } from '../sequences/LWCoreReading';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     width:"100%",
     background: theme.palette.panelBackground.default,
@@ -82,7 +82,7 @@ const BigCollectionsCard = ({ collection, url, classes }: {
         <Components.CloudinaryImage publicId={collection.imageId} width={326} height={280} />
       </div>}
       <div className={classes.content} style={cardContentStyle}>
-        <Typography variant="title" className={classes.title}>
+        <Typography variant="title">
           <Link to={url}>{collection.title}</Link>
         </Typography>
         <Typography variant="subheading" className={classes.author}>

@@ -14,7 +14,7 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { HIDE_MAP_COOKIE } from '../../../lib/cookies/cookies';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   section: {
     display: "flex",
     alignItems: "center",

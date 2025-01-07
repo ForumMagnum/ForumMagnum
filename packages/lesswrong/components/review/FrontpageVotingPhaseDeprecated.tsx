@@ -6,7 +6,7 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { getReviewAlgorithm } from "./FrontpageReviewWidget";
 import type { DefaultRecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   timeRemaining: {
     marginTop: 6,
     marginBottom: 4

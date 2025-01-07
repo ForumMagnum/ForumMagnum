@@ -4,7 +4,7 @@ import { useLocation } from '../../lib/routeUtil';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { CommentTreeNode } from '../../lib/utils/unflatten';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     width: 650 + (theme.spacing.unit*4),
     [theme.breakpoints.down('md')]: {

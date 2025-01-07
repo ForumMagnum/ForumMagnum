@@ -4,7 +4,7 @@ import classNames from 'classnames';
 
 export const SCROLL_INDICATOR_SIZE = 13;
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   scrollIndicatorWrapper: {
     display: "block",
     position: "relative",

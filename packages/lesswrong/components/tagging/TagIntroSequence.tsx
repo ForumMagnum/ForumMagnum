@@ -5,7 +5,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib'
 
 const PREVIEW_N = 3
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: 16,
   },

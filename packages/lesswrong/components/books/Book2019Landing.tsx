@@ -6,7 +6,7 @@ import { captureEvent } from "../../lib/analyticsEvents";
 
 const lw = () => {return (<span style={{fontVariant: "small-caps"}}>LessWrong</span>)}
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   bookAnimationContainer: {
     width: '960px',
     marginLeft: 'auto',
@@ -274,7 +274,7 @@ const Book2019Landing = ({classes}: {
           <HiddenQuote classes={classes} />
         </Book2019Animation>
       </div>
-      <div className={classNames(classes.textSettings, classes.wrapper)}>
+      <div className={classes.wrapper}>
         <div className={classes.title}>
           <div className={classes.bookTitle}>
             The Engines of Cognition

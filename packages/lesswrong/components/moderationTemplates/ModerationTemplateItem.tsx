@@ -3,7 +3,7 @@ import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib
 import classNames from 'classnames';
 import { useLocation } from '../../lib/routeUtil';
 import DeferRender from '../common/DeferRender';
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     border: theme.palette.border.commentBorder,
     ...theme.typography.body2,

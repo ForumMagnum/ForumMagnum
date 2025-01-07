@@ -10,7 +10,7 @@ import type { OverallVoteButtonProps } from './OverallVoteButton';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   overallSection: {
     display: 'inline-block',
     height: 24,

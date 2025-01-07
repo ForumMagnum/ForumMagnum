@@ -5,7 +5,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames'
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   title: {
     display: 'inline-block',
     fontSize: 22,

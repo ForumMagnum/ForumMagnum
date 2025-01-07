@@ -7,7 +7,7 @@ import type { HashLinkProps } from "../common/HashLink";
 import classNames from "classnames";
 import { isFriendlyUI } from "../../themes/forumTheme";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...(isFriendlyUI && {
       "&:hover": {

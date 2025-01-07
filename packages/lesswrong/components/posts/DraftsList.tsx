@@ -10,7 +10,7 @@ import {Link} from "../../lib/reactRouterWrapper";
 import DescriptionIcon from "@material-ui/icons/Description";
 import ListIcon from '@material-ui/icons/List';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (_theme: ThemeType) => ({
   draftsHeaderRow: {
     display: 'flex'
   },
@@ -93,7 +93,7 @@ const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, h
             </Components.SectionButton>
           </Link>
         </div>}
-        <div className={classes.settingsButton} onClick={() => setShowSettings(!showSettings)}>
+        <div onClick={() => setShowSettings(!showSettings)}>
           <Components.SettingsButton label={`Sorted by ${ sortings[currentSorting]}`}/>
         </div>
       </div>

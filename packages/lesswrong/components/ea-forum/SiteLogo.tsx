@@ -9,7 +9,7 @@ import { getLogoUrl } from '../../lib/vulcan-lib/utils';
 import { forumTitleSetting, isEAForum } from '../../lib/instanceSettings';
 import { lightbulbIcon } from '../icons/lightbulbIcon';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     height: isEAForum ? 34 : 48,
     [theme.breakpoints.down('sm')]: {

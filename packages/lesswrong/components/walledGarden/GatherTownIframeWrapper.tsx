@@ -5,7 +5,7 @@ import { registerComponent} from '../../lib/vulcan-lib';
 
 export const gatherTownURL = `https://gather.town/app/${gatherTownRoomId.get()}/${gatherTownRoomName.get()}`
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   iframePositioning: {
     width: "100%",
     height: "100%",

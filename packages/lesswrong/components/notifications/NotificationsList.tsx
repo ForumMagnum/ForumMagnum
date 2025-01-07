@@ -5,7 +5,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     overflowY: "auto",
     padding: 0,

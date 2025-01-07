@@ -7,7 +7,7 @@ import {petrovPostIdSetting} from "./PetrovDayButton";
 // see this post:
 // https://www.lesswrong.com/posts/vvzfFcbmKgEsDBRHh/honoring-petrov-day-on-lesswrong-in-2019
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     position: "fixed",
     top: 0,

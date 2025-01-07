@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { sectionTitleStyle } from '../common/SectionTitle';
 
-const styles = (theme: ThemeType): JssStyles =>  ({
+const styles = (theme: ThemeType) =>  ({
   root: {
     [theme.breakpoints.up('sm')]: {
       marginRight: theme.spacing.unit*4,

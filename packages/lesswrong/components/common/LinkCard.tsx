@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     cursor: "pointer",
     position: "relative",

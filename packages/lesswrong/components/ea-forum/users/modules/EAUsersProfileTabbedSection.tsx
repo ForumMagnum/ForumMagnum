@@ -18,7 +18,7 @@ export const eaUsersProfileSectionStyles = (theme: ThemeType) => ({
   }
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   section: {
     ...eaUsersProfileSectionStyles(theme)
   },

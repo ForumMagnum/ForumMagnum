@@ -7,7 +7,7 @@ import classNames from 'classnames';
 
 // const stripePublicKeySetting = new DatabasePublicSetting<null|string>('stripe.publicKey', null)
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
     
@@ -78,7 +78,7 @@ const ProductDisplay = ({ handleClickAmazon, text="Amazon", classes }: {
 };
 const Message = ({ message, classes }: {message: string, classes: ClassesType<typeof styles>}) => (
   <section>
-    <p className={classes.messageParagraph}>{message}</p>
+    <p>{message}</p>
   </section>
 );
 export default function BookCheckout({classes, ignoreMessages = false, text, link}: {classes: ClassesType<typeof styles>, ignoreMessages?: boolean, text?: string, link: string}) {

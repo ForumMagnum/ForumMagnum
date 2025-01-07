@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { useSingle } from '../../../lib/crud/withSingle';
 import { QueryLink, useNavigate } from '../../../lib/reactRouterWrapper';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   version: {
     marginRight: 5
   }

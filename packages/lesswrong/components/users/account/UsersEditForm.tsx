@@ -12,7 +12,7 @@ import { configureDatadogRum } from '@/client/datadogRum';
 import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
 import { useNavigate } from '@/lib/reactRouterWrapper';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...(isFriendlyUI && {
       "& .form-submit": {

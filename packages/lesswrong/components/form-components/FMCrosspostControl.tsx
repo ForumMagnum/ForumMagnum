@@ -13,9 +13,8 @@ import LoginIcon from "@material-ui/icons/LockOpen"
 import UnlinkIcon from "@material-ui/icons/RemoveCircle";
 import { gql, useMutation } from "@apollo/client";
 import { useOnFocusTab } from "../hooks/useOnFocusTab";
-import { generateTokenRoute } from "@/lib/fmCrosspost/routes";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "column",
@@ -186,7 +185,6 @@ const FMCrosspostControl = ({updateCurrentValues, classes, value, path, currentU
         label={`Crosspost to ${fmCrosspostSiteNameSetting.get()}`}
         control={
           <Checkbox
-            className={classes.size}
             checked={isCrosspost}
             onChange={(_, checked) => {
               updateCurrentValues({

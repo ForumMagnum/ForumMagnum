@@ -3,7 +3,7 @@ import { Components, registerComponent} from '../../lib/vulcan-lib';
 import { unflattenComments } from '../../lib/utils/unflatten';
 import { CommentTreeOptions } from '../comments/commentTree';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   title: {
     fontSize: 10,
     ...theme.typography.commentStyle,

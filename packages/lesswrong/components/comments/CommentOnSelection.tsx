@@ -6,7 +6,7 @@ import { useOnNavigate } from '../hooks/useOnNavigate';
 import { useTracking, AnalyticsContext } from "../../lib/analyticsEvents";
 import { hasSideComments } from '../../lib/betas';
 
-const selectedTextToolbarStyles = (theme: ThemeType): JssStyles => ({
+const selectedTextToolbarStyles = (theme: ThemeType) => ({
   toolbarWrapper: {
     position: "absolute",
   },

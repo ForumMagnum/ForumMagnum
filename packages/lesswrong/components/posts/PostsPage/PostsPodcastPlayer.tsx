@@ -5,7 +5,7 @@ import { spotifyPodcastIcon } from '../../icons/SpotifyPodcastIcon';
 import { useEventListener } from '../../hooks/useEventListener';
 import { useTracking } from '../../../lib/analyticsEvents';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   embeddedPlayer: {
     marginBottom: '2px',
     opacity: theme.palette.embeddedPlayer.opacity,

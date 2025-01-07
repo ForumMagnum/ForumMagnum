@@ -3,7 +3,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import Chip from '@material-ui/core/Chip';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   chip: {
     marginLeft: 4,
     marginRight: 4,

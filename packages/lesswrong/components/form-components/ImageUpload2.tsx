@@ -7,7 +7,7 @@ import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
 import { ImageType, useImageUpload } from '../hooks/useImageUpload';
 import { formPreviewSizeByImageType } from './ImageUpload';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     "& img": {
       display: "block",

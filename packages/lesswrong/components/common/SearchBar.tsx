@@ -18,7 +18,7 @@ import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 
 const VirtualMenu = connectMenu(() => null);
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: 'flex',
     alignItems: 'center',

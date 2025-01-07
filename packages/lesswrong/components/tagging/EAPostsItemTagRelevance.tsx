@@ -8,7 +8,7 @@ import { useVote } from "../votes/withVote";
 import { useMessages } from "../common/withMessages";
 import classNames from "classnames";
 
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",

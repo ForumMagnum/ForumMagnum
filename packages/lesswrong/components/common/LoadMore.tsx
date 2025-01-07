@@ -8,7 +8,7 @@ import { useIsFirstRender } from "../hooks/useFirstRender";
 
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,

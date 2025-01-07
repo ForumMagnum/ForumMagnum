@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useQuery, gql } from '@apollo/client';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   differences: {
     "& ins": {
       background: theme.palette.background.diffInserted,

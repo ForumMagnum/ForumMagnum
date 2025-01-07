@@ -7,7 +7,7 @@ import makeUrls from './makeUrls';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     position: 'relative',
     textAlign: 'left'

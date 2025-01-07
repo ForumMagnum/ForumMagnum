@@ -15,12 +15,11 @@ import markdownItSub from "markdown-it-sub";
 import markdownItSup from "markdown-it-sup";
 import { randomId } from "../../lib/random";
 import { ckEditorName } from "../editor/Editor";
-import classNames from "classnames";
 import Input from "@material-ui/core/Input";
 
 const DESCRIPTION_HEIGHT = 56; // 3 lines
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "grid",
     gridTemplateColumns: "minmax(201px, 1fr) minmax(170px, 269px)",
@@ -254,7 +253,6 @@ const SocialPreviewUpload = ({
   value,
   document,
   updateCurrentValues,
-  clearField,
   croppingAspectRatio,
   classes,
 }: {
@@ -311,8 +309,6 @@ const SocialPreviewUpload = ({
     [name, updateCurrentValues, value]
   );
 
-  const hasTitle = document.title && document.title.length > 0;
-
   return (
     <div className={classes.root}>
       <div className={classes.preview}>
@@ -326,7 +322,7 @@ const SocialPreviewUpload = ({
           // socialPreviewImageUrl falls back to the first image in the post on save
           placeholderUrl={fallbackImageUrl || siteImageSetting.get()}
         />
-        <div className={classNames(classes.title, { [classes.placeholder]: !hasTitle })}>
+        <div className={classes.title}>
           {document.title || "Title"}
         </div>
         <SocialPreviewTextEdit value={description ?? ""} updateValue={updateText} classes={classes} />

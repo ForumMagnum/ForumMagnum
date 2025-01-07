@@ -14,7 +14,7 @@ const shouldShowEndUserModerationToNonMods = forumSelect({
   default: true,
 })
 
-const styles = (theme: JssStyles) => ({
+const styles = (theme: ThemeType) => ({
   root: {
     fontFamily: theme.typography.fontFamily,
   },

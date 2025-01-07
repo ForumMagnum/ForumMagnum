@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useMulti } from '../../../lib/crud/withMulti';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     position: "relative",
   },

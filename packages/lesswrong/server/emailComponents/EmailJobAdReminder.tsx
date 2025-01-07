@@ -2,7 +2,7 @@ import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib";
 import { JOB_AD_DATA } from "../../components/ea-forum/TargetedJobAd";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     fontFamily: theme.typography.fontFamily,
     fontSize: 16,

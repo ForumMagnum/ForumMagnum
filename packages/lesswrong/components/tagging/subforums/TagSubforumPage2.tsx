@@ -17,7 +17,7 @@ import { useSubscribeUserToTag } from '../../../lib/filterSettings';
 import { defaultPostsLayout, isPostsLayout } from '../../../lib/collections/posts/dropdownOptions';
 import { getTagStructuredData } from '../TagPageRouter';
 
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   tabRow: {
     display: 'flex',
     alignItems: 'center',

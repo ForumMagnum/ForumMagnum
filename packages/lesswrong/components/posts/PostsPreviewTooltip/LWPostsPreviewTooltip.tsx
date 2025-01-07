@@ -43,7 +43,7 @@ const highlightStyles = (theme: ThemeType) => ({
   ...highlightSimplifiedStyles
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     width: POST_PREVIEW_WIDTH,
     position: "relative",

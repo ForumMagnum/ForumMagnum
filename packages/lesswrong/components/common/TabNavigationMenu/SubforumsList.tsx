@@ -5,7 +5,7 @@ import { useMulti } from "../../../lib/crud/withMulti";
 import { tagGetSubforumUrl, tagGetUrl } from "../../../lib/collections/tags/helpers";
 import { isEAForum } from "../../../lib/instanceSettings";
 
-const styles = ((theme: ThemeType): JssStyles => ({
+const styles = ((theme: ThemeType) => ({
   menuItem: {
     paddingTop: 0,
     paddingBottom: 0,

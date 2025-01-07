@@ -8,7 +8,7 @@ import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import { VotingProps } from './votingProps';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
   },
   hoverBallot: {

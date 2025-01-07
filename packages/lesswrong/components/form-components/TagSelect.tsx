@@ -4,7 +4,7 @@ import withUser from '../common/withUser';
 import { useSingle } from '../../lib/crud/withSingle';
 import Chip from '@material-ui/core/Chip/Chip';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: 'flex',
   },

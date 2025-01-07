@@ -19,7 +19,7 @@ import { preferredHeadingCase } from '../../themes/forumTheme';
 
 const LEFT_COLUMN_WIDTH = 160
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     width: CENTRAL_COLUMN_WIDTH + LEFT_COLUMN_WIDTH + 64, //should import post
     display: "flex",

@@ -2,7 +2,7 @@ import React, {useCallback} from 'react';
 import { makeSortableListComponent } from './sortableList';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center"

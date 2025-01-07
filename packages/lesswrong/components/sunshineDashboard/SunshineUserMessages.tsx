@@ -7,7 +7,7 @@ import EmailIcon from '@material-ui/icons/Email';
 import { Link } from '../../lib/reactRouterWrapper';
 import isEqual from 'lodash/isEqual';
 
-const styles = (_theme: JssStyles) => ({
+const styles = (_theme: ThemeType) => ({
   row: {
     display: "flex",
     alignItems: "center"

@@ -7,14 +7,14 @@ import { canNominate, getCostData, getReviewPhase, REVIEW_YEAR, VoteIndex } from
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-export const voteTextStyling = (theme: ThemeType): JssStyles => ({
+export const voteTextStyling = (theme: ThemeType) => ({
   ...theme.typography.smallText,
   ...theme.typography.commentStyle,
   textAlign: "center",
   width: 40,
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   buttonWrapper: {
     cursor: "pointer",
     ...voteTextStyling(theme)
@@ -92,7 +92,17 @@ const PostsItemReviewVote = ({classes, post, marginRight=true}: {classes: Classe
 
     <LWTooltip title={`${nominationsPhase ? "Nominate this post by casting a nomination vote" : "Update your vote"}`} placement="right">
       <div className={classNames(classes.buttonWrapper, {[classes.marginRight]:marginRight})} onClick={(e) => setAnchorEl(e.target)}>
-        {(voteIndex !== 0) ? <span className={classNames(classes.button, [classes[voteIndex]])}>{displayVote}</span> : <span className={classes.voteButton}>Vote</span>}
+        {(voteIndex !== 0)
+          ? (
+            <span className={classNames(
+              classes.button,
+              [(classes as AnyBecauseTodo)[voteIndex]],
+            )}>
+              {displayVote}
+            </span>
+          )
+          : <span className={classes.voteButton}>Vote</span>
+        }
       </div>
     </LWTooltip>
 

@@ -4,7 +4,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { useMulti } from '../../lib/crud/withMulti';
 import { conversationGetTitle } from '../../lib/collections/conversations/helpers';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: theme.spacing.unit,
     maxWidth: 700,

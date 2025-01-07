@@ -1,6 +1,5 @@
 import classNames from 'classnames';
 import React, { ReactNode } from 'react';
-import { useLocation } from '../../lib/routeUtil';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 
@@ -10,7 +9,7 @@ const PADDING = 20
 
 const transitionTime = '.7s'
 
-const revealedContent = (theme: ThemeType) => ({
+const revealedContent = (_theme: ThemeType) => ({
   '& $one': {
     left: 5,
     top: -20,
@@ -38,7 +37,7 @@ const revealedContent = (theme: ThemeType) => ({
   },
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   parent: {
     position: "relative",
     left: -93,
@@ -161,10 +160,8 @@ const Book2020Animation = ({ classes, children }: {
   classes: ClassesType<typeof styles>,
   children: ReactNode,
 }) => {
-  const { query } = useLocation();
-  const success = !!query.success
   return (
-    <div className={classNames(classes.root, {[classes.success]: success})}>
+    <div className={classes.root}>
       <div className={classes.parent}>
         <img className={classNames(classes.book, classes.one)} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1692320746/coordination-constraint_i8ievm.jpg" />
         <img className={classNames(classes.book, classes.two)} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1692320745/alignment-agency-cover_ddrtzy.jpg" />

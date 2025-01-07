@@ -4,7 +4,7 @@ import { usePostsList } from '../../posts/usePostsList';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   title: {
     ...theme.typography.display1,
     ...theme.typography.postStyle,
@@ -34,7 +34,7 @@ export const RejectedPostsList = ({classes}: {
 
   const { SingleColumnSection, SectionFooter, LoadMore, PostsHighlight, RejectedReasonDisplay, FormatDate, MetaInfo, Row } = Components
 
-  return <SingleColumnSection className={classes.root}>
+  return <SingleColumnSection>
     {itemProps?.map(({post}) => <div key={post._id} className={classes.rejectedPost}>
       <Row justifyContent="space-between">
         <MetaInfo><FormatDate date={post.postedAt}/></MetaInfo>

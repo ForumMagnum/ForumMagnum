@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import type { ToCAnswer } from '../../../lib/tableOfContents';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginLeft: -theme.spacing.unit,
     display: "flex"

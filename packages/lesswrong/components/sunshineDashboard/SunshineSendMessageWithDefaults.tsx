@@ -13,7 +13,7 @@ const MODERATION_TEMPLATES_URL = "/admin/moderationTemplates"
 
 export const getTitle = (s: string|null) => s ? s.split("\\")[0] : ""
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",

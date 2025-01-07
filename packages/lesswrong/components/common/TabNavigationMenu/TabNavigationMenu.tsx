@@ -12,7 +12,7 @@ import { isFriendlyUI } from '../../../themes/forumTheme';
 
 export const TAB_NAVIGATION_MENU_WIDTH = 250
 
-const styles = (theme: ThemeType): JssStyles => {
+const styles = (theme: ThemeType) => {
   return {
     root: {
       display: "flex",

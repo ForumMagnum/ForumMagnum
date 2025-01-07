@@ -4,7 +4,7 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
 import { hasCuratedPostsSetting } from '../../lib/instanceSettings';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   curated: {
     position: "absolute",
     right: 0,

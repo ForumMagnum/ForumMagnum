@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useDialog } from '../../common/withDialog';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   questionMark: {
     alignSelf: 'center',
     color: theme.palette.grey[600]

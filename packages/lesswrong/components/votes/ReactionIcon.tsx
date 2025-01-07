@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import { defaultFilter, getNamesAttachedReactionsByName} from '../../lib/voting/reactions';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   reactionSvg: {
     verticalAlign: "middle",
     marginTop: 1

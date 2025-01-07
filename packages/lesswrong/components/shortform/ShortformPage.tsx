@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   column: {
     maxWidth:680,
     margin:"auto"

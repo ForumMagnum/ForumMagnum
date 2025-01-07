@@ -4,7 +4,7 @@ import Button from '@material-ui/core/Button';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   dismissButton: {
   },
 });

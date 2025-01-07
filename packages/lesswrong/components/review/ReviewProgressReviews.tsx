@@ -6,9 +6,8 @@ import { useCurrentUser } from '../common/withUser';
 import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import CheckBoxTwoToneIcon from '@material-ui/icons/CheckBoxTwoTone';
 import range from 'lodash/range';
-import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -71,7 +70,7 @@ export const ReviewProgressReviews = ({classes, reviewYear}: {
     </div>} placement="top">
     <div className={classes.root}>
       {reviewsResults.map(review => {
-        return <CheckBoxTwoToneIcon className={classNames(classes.filledIcon, {[classes.highlightedIcon]: review.baseScore >= 10})} key={review._id}/>
+        return <CheckBoxTwoToneIcon className={classes.filledIcon} key={review._id}/>
       })}
       {range(0, uncheckedBoxes).map(a => <CheckBoxOutlineBlankIcon className={classes.icon} key={`${currentUser?._id}`}/>) }
     </div>

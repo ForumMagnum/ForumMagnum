@@ -4,7 +4,7 @@ import Card from "@material-ui/core/Card";
 import { useTagBySlug } from '../tagging/useTag';
 import Button  from '@material-ui/core/Button'
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   dialog: {
     zIndex: theme.zIndexes.afNonMemberPopup
   },
@@ -52,9 +52,6 @@ const AFNonMemberSuccessPopup = ({_id, postId, onClose, classes}: {
       open={open}
       onClose={handleClose}
       className={classes.dialog}
-      dialogClasses={{
-        paper: classes.paper
-      }}
     >
       <Card className={classes.popupCard}>
         <ContentStyles contentType="comment">

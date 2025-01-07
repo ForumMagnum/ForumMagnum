@@ -4,7 +4,7 @@ import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
 import classNames from 'classnames';
 import type { ToCData } from '../../../lib/tableOfContents';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   paperWithoutToC: {
     width: 280,
     overflowY: "auto"

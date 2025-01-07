@@ -4,7 +4,7 @@ import React from 'react';
 import DragIcon from '@material-ui/icons/DragHandle';
 import RemoveIcon from '@material-ui/icons/Close';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   box: {
     display: "block",
     marginLeft: 30,

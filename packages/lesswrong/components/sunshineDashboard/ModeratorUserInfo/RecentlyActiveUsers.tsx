@@ -12,7 +12,7 @@ import { autoCommentRateLimits, autoPostRateLimits } from '../../../lib/rateLimi
 import { getActiveRateLimitNames } from '../../../lib/rateLimits/utils';
 import { useLocation } from '../../../lib/routeUtil';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...commentBodyStyles(theme),
     width: '90%',

@@ -11,7 +11,7 @@ import { isLW } from "../../lib/instanceSettings";
 
 const firstCommentAcknowledgeMessageCommentIdSetting = new DatabasePublicSetting<string>('firstCommentAcknowledgeMessageCommentId', '')
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   moderationGuidelines: {
     ...theme.typography.body2,
     padding: 30,

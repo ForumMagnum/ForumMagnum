@@ -11,7 +11,7 @@ import { useTracking } from "../../lib/analyticsEvents";
 import debounce from "lodash/debounce";
 import { PopperPlacementType } from '@material-ui/core/Popper/Popper';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   moreReactions: {
     paddingLeft: 12,
     paddingRight: 12,

@@ -8,7 +8,7 @@ import { defaultSequenceBannerIdSetting } from './SequencesPage';
 import { isLWorAF } from '../../lib/instanceSettings';
 import DeferRender from '../common/DeferRender';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.postStyle,
 

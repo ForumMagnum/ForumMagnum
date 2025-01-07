@@ -4,7 +4,7 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   base: {
     ...postBodyStyles(theme)
   },

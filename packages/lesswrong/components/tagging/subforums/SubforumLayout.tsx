@@ -24,7 +24,7 @@ const gridTemplateColumns = `
   1fr
 `
 
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   titleWrapper: {
     overflow: 'hidden',
     [theme.breakpoints.down('md')]: {

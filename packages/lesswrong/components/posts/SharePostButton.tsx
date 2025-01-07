@@ -6,7 +6,7 @@ import { useTracking } from '../../lib/analyticsEvents';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { isMobile } from '@/lib/utils/isMobile';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "inline-block",
   },

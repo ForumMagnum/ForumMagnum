@@ -8,7 +8,7 @@ import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { isBookUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { PopperPlacementType } from '@material-ui/core/Popper';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   addTagButton: {
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],

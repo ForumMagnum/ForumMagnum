@@ -13,7 +13,7 @@ import { communityPath } from '../../../lib/routes';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   noResults: {
     ...theme.typography.commentStyle,
     gridColumn: '1 / 4',

@@ -4,7 +4,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser'
 import type { DefaultRecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   hideOnMobile: {
     [theme.breakpoints.down('xs')]: {
       display: "none"

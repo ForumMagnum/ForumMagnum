@@ -12,7 +12,7 @@ import { getUrlClass } from '@/server/utils/getUrlClass';
 
 const SECONDARY_SPACING = 20;
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   header: {
     position: 'relative',
     display:"flex",

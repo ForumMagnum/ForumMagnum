@@ -7,7 +7,7 @@ import { isLW } from '../../lib/instanceSettings';
 import { useNavigate } from '../../lib/reactRouterWrapper';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     "& a.read-more-button": {
       fontSize: ".85em",

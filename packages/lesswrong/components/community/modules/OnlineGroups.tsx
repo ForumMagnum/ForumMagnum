@@ -8,7 +8,7 @@ import { requireCssVar } from '../../../themes/cssVars';
 
 import { isFriendlyUI, preferredHeadingCase } from '../../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   noResults: {
     ...theme.typography.commentStyle,
     textAlign: 'center',
@@ -184,7 +184,7 @@ const OnlineGroups = ({keywordSearch, includeInactive, toggleIncludeInactive, cl
 
   return (
     <div className={classes.onlineGroups}>
-      <div className={classes.onlineGroupsList}>
+      <div>
         {onlineGroups?.map(group => {
           const rowStyle = group.bannerImageId ? {
             backgroundImage: `linear-gradient(to right, transparent, ${defaultBackground} 200px), url(https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_crop,g_custom/c_fill,h_115,w_200,q_auto,f_auto/${group.bannerImageId})`

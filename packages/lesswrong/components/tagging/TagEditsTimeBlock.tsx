@@ -8,7 +8,7 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 
 const INITIAL_LIMIT = 5
 
-const styles = (_: ThemeType): JssStyles => ({
+const styles = (_: ThemeType) => ({
   subtitle: {
     marginTop: isFriendlyUI ? 20 : 6,
     marginBottom: 6

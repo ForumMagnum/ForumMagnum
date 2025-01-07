@@ -12,7 +12,7 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 const IMAGE_WIDTH = 292;
 const IMAGE_HEIGHT = 96;
 
-export const styles = (theme: ThemeType): JssStyles=> ({
+export const styles = (theme: ThemeType)=> ({
   root: {
     position: "relative",
     borderRadius: isFriendlyUI ? theme.borderRadius.small : undefined,
@@ -166,7 +166,6 @@ const PostsItemIntroSequence = ({
           [classes.background]: !translucentBackground,
           [classes.translucentBackground]: translucentBackground,
           [classes.bottomBorder]: showBottomBorder,
-          [classes.isRead]: isRead,
         })}
       >
         <PostsItemTooltipWrapper

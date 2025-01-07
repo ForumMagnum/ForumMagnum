@@ -7,7 +7,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { SettingsOption } from '../../lib/collections/posts/dropdownOptions';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   selectionList: {
     marginRight: theme.spacing.unit*2,
     [theme.breakpoints.down('xs')]: {

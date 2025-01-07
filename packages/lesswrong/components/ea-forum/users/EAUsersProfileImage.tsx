@@ -8,7 +8,7 @@ import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 
 const SIZE = 96;
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: 14,
     position: "relative",

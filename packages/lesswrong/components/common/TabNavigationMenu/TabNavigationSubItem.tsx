@@ -8,7 +8,7 @@ import { isFriendlyUI } from '../../../themes/forumTheme';
 const iconPadding = (theme: ThemeType) =>
   isFriendlyUI ? theme.spacing.unit / 2 : iconWidth + (theme.spacing.unit * 2);
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     display: "block",

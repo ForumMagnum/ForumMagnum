@@ -2,7 +2,7 @@ import React, { ReactNode } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { descriptionStyles } from './SpotlightItem';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     [theme.breakpoints.up('md')]: {
       '& .form-section-default > div': {

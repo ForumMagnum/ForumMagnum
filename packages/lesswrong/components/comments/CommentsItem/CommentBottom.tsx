@@ -12,7 +12,7 @@ import type { ContentItemBody } from '../../common/ContentItemBody';
 import { userIsAllowedToComment } from '../../../lib/collections/users/helpers';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   bottom: {
     paddingBottom: isFriendlyUI ? 12 : 5,
     paddingTop: isFriendlyUI ? 4 : undefined,

@@ -15,7 +15,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { useCreate } from '../../lib/crud/withCreate';
 import { userIsDefaultSubscribed } from '../../lib/subscriptionUtil';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",

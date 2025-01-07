@@ -6,7 +6,7 @@ import classNames from 'classnames';
 const HANDLE_SIZE = 9; // Should be an odd number
 const ARROW_SIZE = 8;
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   container: {
     display: 'inline-block',
     position: 'relative',

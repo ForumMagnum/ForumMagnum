@@ -5,7 +5,7 @@ import Button from '@material-ui/core/Button';
 import Radio from '@material-ui/core/Radio';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   revisionRow: {
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],

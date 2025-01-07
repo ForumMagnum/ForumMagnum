@@ -5,7 +5,7 @@ import { useCurrentUser } from '../common/withUser';
 import DialogContent from '@material-ui/core/DialogContent';
 import { useNavigate } from '../../lib/reactRouterWrapper';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   localGroupForm: {
     "& div": {
       fontFamily: theme.typography.fontFamily,

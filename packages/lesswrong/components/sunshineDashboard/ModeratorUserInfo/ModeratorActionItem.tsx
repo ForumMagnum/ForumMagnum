@@ -10,7 +10,7 @@ import ClearIcon from '@material-ui/icons/Clear'
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",

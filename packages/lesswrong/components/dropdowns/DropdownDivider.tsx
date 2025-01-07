@@ -4,7 +4,7 @@ import Divider from "@material-ui/core/Divider";
 import classNames from "classnames";
 import { isFriendlyUI } from "../../themes/forumTheme";
 
-const styles = (_theme: ThemeType): JssStyles => ({
+const styles = (_theme: ThemeType) => ({
   root: {
     margin: isFriendlyUI ? `6px 0` : undefined,
   },

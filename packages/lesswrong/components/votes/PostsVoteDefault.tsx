@@ -9,7 +9,7 @@ import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers'
 import { VotingSystem } from '../../lib/voting/votingSystems';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   voteBlock: {
     width: 50,
   },

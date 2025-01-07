@@ -49,7 +49,7 @@ const sidePaddingStyle = (theme: ThemeType) => ({
 })
 
 // Also used in TagCompareRevisions, TagDiscussionPage
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   rootGivenImage: {
     marginTop: 185,
     [theme.breakpoints.down('sm')]: {
@@ -453,7 +453,6 @@ const TagPage = ({classes}: {
                 <ContentItemBody
                   dangerouslySetInnerHTML={{__html: description||""}}
                   description={`tag ${tag.name}`}
-                  className={classes.description}
                 />
               </ContentStyles>
             </div>}

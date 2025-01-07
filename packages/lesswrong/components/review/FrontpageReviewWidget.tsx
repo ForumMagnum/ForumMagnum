@@ -26,7 +26,7 @@ const commonActionButtonStyle = (theme: ThemeType) => ({
   }
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   sectionTitle: {
     alignItems: 'flex-end',
     marginBottom: 12,

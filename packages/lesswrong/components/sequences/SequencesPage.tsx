@@ -25,7 +25,7 @@ export const sequencesImageScrim = (theme: ThemeType) => ({
 
 export const defaultSequenceBannerIdSetting = new DatabasePublicSetting<string|null>("defaultSequenceBannerId", null)
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     paddingTop: isFriendlyUI ? (270 + HEADER_HEIGHT) : 380,
   },

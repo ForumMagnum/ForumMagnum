@@ -3,7 +3,7 @@ import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { getBookAnchor } from '../../lib/collections/books/helpers';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   description: {
     marginTop: theme.spacing.unit,
     marginBottom: 20,

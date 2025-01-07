@@ -7,7 +7,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useCurrentUser } from '../../common/withUser';
 import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
     width: "100%",
@@ -217,7 +217,7 @@ const OptIntoPetrovButton = ({classes }: {
               <div className={classes.button}>
                 {renderButtonAsPressed ? 
                   <LWTooltip title={<div><div>You have pressed the button.</div><div>You cannot un-press it.</div></div>} placement="right">
-                    <img className={classes.buttonPressed} src={"../petrovButtonPressedDark.png"}/> 
+                    <img src={"../petrovButtonPressedDark.png"}/> 
                   </LWTooltip>
                   :
                   <LWTooltip title="Are you sure?" placement="right">

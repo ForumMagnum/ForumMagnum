@@ -7,7 +7,7 @@ import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { isLWorAF } from '../../lib/instanceSettings';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     zIndex: theme.zIndexes.sunshineSidebar,
     position: "relative",

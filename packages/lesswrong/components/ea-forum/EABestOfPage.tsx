@@ -12,7 +12,7 @@ import classNames from "classnames";
 const MAX_WIDTH = 1500;
 const MD_WIDTH = 1000;
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "row",

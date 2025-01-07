@@ -2,7 +2,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import React from 'react';
 import { QueryLink } from '../../../lib/reactRouterWrapper';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.contentNotice,
     ...theme.typography.postStyle

@@ -30,7 +30,7 @@ const SequencesGridWrapper = ({
   });
   
   if (results && results.length) {
-    return (<div className={classNames(className, classes.gridWrapper)}>
+    return (<div className={className}>
       <Components.SequencesGrid sequences={results} showAuthor={showAuthor} />
       {showLoadMore && <Components.LoadMore {...loadMoreProps} />}
     </div>);

@@ -10,7 +10,7 @@ import Card from '@material-ui/core/Card'
 import EditIcon from '@material-ui/icons/Edit'
 import { Link } from '../../lib/reactRouterWrapper';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   dialogContent: {
     width: 400,
     backgroundColor: theme.palette.panelBackground.default,

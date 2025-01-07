@@ -4,7 +4,7 @@ import DescriptionIcon from '@material-ui/icons/Description'
 import MessageIcon from '@material-ui/icons/Message'
 import classNames from "classnames";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   icon: {
     height: 13,
     color: theme.palette.grey[500],

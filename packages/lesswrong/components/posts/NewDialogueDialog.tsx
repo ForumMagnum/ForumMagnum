@@ -8,7 +8,7 @@ import Input from '@material-ui/core/Input';
 import { useNavigate } from '../../lib/reactRouterWrapper';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   dialog: {
     padding: 24,
     paddingBottom: isFriendlyUI ? undefined : 12,
@@ -103,7 +103,6 @@ const NewDialogueDialog = ({initialParticipantIds, onClose, classes}: {
     onClose={onClose}
     fullWidth
     maxWidth={"sm"}
-    dialogClasses={{paper: classes.dialogPaper}}
   >
     <div className={classes.dialog}>
       <h2 className={classes.header}>{preferredHeadingCase("Start Dialogue")}</h2>

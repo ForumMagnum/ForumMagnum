@@ -6,7 +6,7 @@ import { TupleSet, UnionOf } from '../../lib/utils/typeGuardUtils';
 import { useMulti } from '../../lib/crud/withMulti';
 import sortBy from 'lodash/sortBy';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: 16,
     paddingTop: 0,

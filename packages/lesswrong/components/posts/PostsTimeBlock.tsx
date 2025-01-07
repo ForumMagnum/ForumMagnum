@@ -9,7 +9,7 @@ import filter from 'lodash/filter';
 import { useLocation } from '../../lib/routeUtil';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: theme.spacing.unit*4
   },
@@ -196,7 +196,7 @@ const PostsTimeBlock = ({
         </Typography>
       </QueryLink>
 
-      <div className={classes.dayContent}>
+      <div>
         { noPosts && <div className={classes.noPosts}>
           No posts for {
           timeframe === 'daily'

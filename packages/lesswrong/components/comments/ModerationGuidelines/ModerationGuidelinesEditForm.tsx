@@ -5,7 +5,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   formButton: {
     paddingBottom: "2px",
     fontSize: "16px",

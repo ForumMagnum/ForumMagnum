@@ -6,7 +6,7 @@ import { getSearchClient, isSearchEnabled } from '../../lib/search/searchUtil';
 import { connectAutoComplete } from 'react-instantsearch/connectors';
 import Autosuggest, { OnSuggestionSelected } from 'react-autosuggest';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   autoComplete: {
     '& input': {
       ...theme.typography.body2,

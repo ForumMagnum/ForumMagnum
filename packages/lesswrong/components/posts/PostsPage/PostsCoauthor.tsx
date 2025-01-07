@@ -4,7 +4,7 @@ import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { postCoauthorIsPending } from '../../../lib/collections/posts/helpers';
 import { AUTHOR_MARKER_STYLES } from './PostsAuthors';
 
-const styles = (_: ThemeType): JssStyles => ({
+const styles = (_: ThemeType) => ({
   markers: AUTHOR_MARKER_STYLES,
 });
 

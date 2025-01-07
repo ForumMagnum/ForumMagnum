@@ -2,7 +2,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useSingle } from '../../../lib/crud/withSingle';
 import React from 'react';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     opacity: 0.5,
   },

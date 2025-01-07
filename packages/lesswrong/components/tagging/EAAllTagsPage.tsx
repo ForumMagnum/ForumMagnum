@@ -11,7 +11,7 @@ import { useDialog } from '../common/withDialog';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   coreTagsTitle: {
     [theme.breakpoints.down('sm')]: {
       marginTop: 20

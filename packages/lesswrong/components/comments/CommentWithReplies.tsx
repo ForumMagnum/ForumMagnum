@@ -5,7 +5,7 @@ import type { CommentTreeOptions } from './commentTree';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { CommentsNodeProps } from './CommentsNode';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   showChildren: {
     padding: 4,
     paddingLeft: 12,

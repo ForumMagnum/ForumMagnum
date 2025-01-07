@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "block",
     margin: 0,

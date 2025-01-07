@@ -11,7 +11,7 @@ import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/t
 import { getAllTagsPath } from '../../lib/routes';
 import type { SearchState } from 'react-instantsearch-core';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     "& .ais-SearchBox": {
       padding: 8,

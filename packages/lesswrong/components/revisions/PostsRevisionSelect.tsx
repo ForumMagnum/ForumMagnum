@@ -6,7 +6,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useNavigate } from '../../lib/reactRouterWrapper';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   revisionList: {
   },
 });

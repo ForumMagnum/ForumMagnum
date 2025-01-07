@@ -5,7 +5,7 @@ import { useCurrentUser } from './withUser';
 import AddBoxIcon from '@material-ui/icons/AddBox'
 import { isEAForum } from '../../lib/instanceSettings';
 
-const styles = (_: ThemeType): JssStyles => ({
+const styles = (_: ThemeType) => ({
   subheader: {
     fontSize: 14,
   },

@@ -29,7 +29,7 @@ const titleWrapper = isLWorAF ? {
   alignItems: "center"
 };
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   titleWrapper,
   title: {
     ...sectionTitleStyle(theme),

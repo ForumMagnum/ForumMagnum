@@ -6,7 +6,7 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo } from '../../lib/vulcan-users';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   conversationSection: {
     maxWidth: 550,
   },

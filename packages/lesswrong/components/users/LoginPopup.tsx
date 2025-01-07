@@ -2,7 +2,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import {isFriendlyUI} from '../../themes/forumTheme'
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   dialog: {
     zIndex: theme.zIndexes.loginDialog
   },

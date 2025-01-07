@@ -5,7 +5,7 @@ import {useCurrentUser} from '../common/withUser'
 import {gql, NetworkStatus, useQuery} from '@apollo/client'
 import moment from 'moment'
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   loadMore: {
     marginTop: 10
   },

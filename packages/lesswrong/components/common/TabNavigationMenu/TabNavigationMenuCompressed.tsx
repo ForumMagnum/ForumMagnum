@@ -6,7 +6,7 @@ import Divider from '@material-ui/core/Divider';
 import menuTabs from './menuTabs'
 import { forumSelect } from '../../../lib/forumTypeUtils';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "column",

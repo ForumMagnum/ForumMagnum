@@ -1,7 +1,7 @@
 import React, { CSSProperties } from 'react';
 import { registerComponent } from "../../../lib/vulcan-lib";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   divider: {
     width: 80,
     marginBottom:theme.spacing.unit,

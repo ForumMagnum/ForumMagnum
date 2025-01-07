@@ -14,7 +14,7 @@ const shortformDraftMessage = isFriendlyUI
 
 export const BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD = 800;
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   reviewInfo: {
     textAlign: "center",
     marginBottom: 32

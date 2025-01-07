@@ -14,7 +14,7 @@ import classNames from 'classnames';
 import { getAllTagsPath } from '../../../lib/routes';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     textAlign: 'left',
     display: 'inline-block',

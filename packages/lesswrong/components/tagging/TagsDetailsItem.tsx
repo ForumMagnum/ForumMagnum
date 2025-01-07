@@ -8,7 +8,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { useLocation } from '../../lib/routeUtil';
 import classNames from 'classnames'
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     background: theme.palette.panelBackground.default,
     ...theme.typography.commentStyle,

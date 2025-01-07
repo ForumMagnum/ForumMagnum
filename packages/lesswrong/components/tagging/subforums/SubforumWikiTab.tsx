@@ -15,7 +15,7 @@ import { tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../../
 import { useCurrentUser } from '../../common/withUser';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   centralColumn: {
     marginLeft: "auto",
     marginRight: "auto",

@@ -1,7 +1,7 @@
 import { registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     height: 150,
   }

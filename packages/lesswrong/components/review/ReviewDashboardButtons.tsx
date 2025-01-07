@@ -5,7 +5,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { userIsAdmin } from '../../lib/vulcan-users';
 import { useCurrentUser } from '../common/withUser';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   actionButton: {
     border: `solid 1px ${theme.palette.grey[400]}`,
     paddingTop: 8,
@@ -44,7 +44,7 @@ export const ReviewDashboardButtons = ({classes, reviewYear, reviewPhase, showAd
   const { Row, SectionFooter, LWTooltip } = Components 
   const currentUser = useCurrentUser()
 
-  return <div className={classes.root}>
+  return <div>
     <Row justifyContent="space-between">
       <SectionFooter>
         {userIsAdmin(currentUser) && <LWTooltip title={`Look at metrics related to the Review`}>

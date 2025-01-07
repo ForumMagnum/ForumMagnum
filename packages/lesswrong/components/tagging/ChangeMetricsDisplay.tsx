@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import type { ChangeMetrics } from '../../lib/collections/revisions/collection';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     fontFamily: theme.typography.fontFamily,
   },

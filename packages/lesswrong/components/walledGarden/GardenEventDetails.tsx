@@ -5,7 +5,7 @@ import { useMessages } from "../common/withMessages";
 import { makeLinkAbsolute } from "./GardenCodesItem";
 
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: 30,
     background: theme.palette.panelBackground.default,

@@ -5,7 +5,7 @@ import sortBy from 'lodash/sortBy';
 import classNames from 'classnames';
 import filter from 'lodash/filter';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexWrap: "wrap",

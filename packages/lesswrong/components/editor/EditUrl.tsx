@@ -6,7 +6,7 @@ import Input from '@material-ui/core/Input';
 import LinkIcon from '@material-ui/icons/Link'
 import LinkOffIcon from '@material-ui/icons/LinkOff';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginRight: theme.spacing.unit
   },

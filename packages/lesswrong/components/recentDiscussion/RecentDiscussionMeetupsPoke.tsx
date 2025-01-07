@@ -10,7 +10,7 @@ import Input from '@material-ui/core/Input';
 import Geosuggest from 'react-geosuggest';
 import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: theme.spacing.unit*4,
     position: "relative",

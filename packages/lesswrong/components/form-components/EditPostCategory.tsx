@@ -4,7 +4,7 @@ import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import { isPostCategory } from "../../lib/collections/posts/helpers";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   tabs: {
     width: "100%",
     "& .MuiTab-root": {

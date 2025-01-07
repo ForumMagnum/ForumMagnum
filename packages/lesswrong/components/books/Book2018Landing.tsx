@@ -7,7 +7,7 @@ import {captureEvent, useTracking} from "../../lib/analyticsEvents";
 const contentMaxWidth = "1050px"
 const lw = () => {return (<span style={{fontVariant: "small-caps"}}>LessWrong</span>)}
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
 
   textSettings: {
     fontFamily: `warnock-pro,Palatino,"Palatino Linotype","Palatino LT STD","Book Antiqua",Georgia,serif`

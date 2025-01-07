@@ -5,7 +5,7 @@ import _filter from 'lodash/filter';
 import { postGetCommentCountStr, postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { hasRejectedContentSectionSetting } from '../../lib/instanceSettings';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   row: {
     display: "flex",
     justifyContent: "space-between",

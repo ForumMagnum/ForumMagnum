@@ -10,7 +10,7 @@ import LinearProgress from "@material-ui/core/LinearProgress";
 import { CommentTreeOptions } from "../comments/commentTree";
 import debounce from "lodash/debounce";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
   },

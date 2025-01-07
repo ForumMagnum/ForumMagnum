@@ -5,7 +5,7 @@ import { useCurrentUser } from '../common/withUser';
 import { gql, useLazyQuery } from '@apollo/client';
 import Button from '@material-ui/core/Button';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginTop: -theme.spacing.mainLayoutPaddingTop,
     padding: "24px 36px 60px",

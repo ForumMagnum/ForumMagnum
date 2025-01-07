@@ -5,7 +5,7 @@ import Input from '@material-ui/core/Input';
 import { sequencesImageScrim } from '../sequences/SequencesPage'
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginTop: 65,
     backgroundColor: theme.palette.panelBackground.darken25,

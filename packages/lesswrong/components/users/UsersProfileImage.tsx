@@ -5,7 +5,7 @@ import rng from "../../lib/seedrandom";
 
 export type ProfileImageFallback = "initials";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     borderRadius: "50%",
   },

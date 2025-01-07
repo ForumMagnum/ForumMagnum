@@ -28,7 +28,7 @@ function readableReadingTime (seconds?: number) {
   return secondsPart
 }
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     fontFamily: theme.palette.fonts.sansSerifStack,
     [theme.breakpoints.down("sm")]: {

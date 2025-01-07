@@ -18,7 +18,7 @@ import { useCurrentUser } from '../common/withUser';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useRecentDiscussionThread } from './useRecentDiscussionThread';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: isFriendlyUI ? theme.spacing.unit*2 : theme.spacing.unit*4,
     position: "relative",

@@ -1,7 +1,7 @@
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React from 'react';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     borderTop: theme.palette.border.normal,
     padding: 12,

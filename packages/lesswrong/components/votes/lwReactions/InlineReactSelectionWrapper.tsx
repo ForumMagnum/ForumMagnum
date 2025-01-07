@@ -6,7 +6,7 @@ import type { VotingProps } from '../votingProps';
 export const hideSelectorClassName = "hidden-selector";
 const hiddenSelector = `& .${hideSelectorClassName}`;
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     [hiddenSelector]: {
       backgroundColor: theme.palette.background.primaryTranslucentHeavy

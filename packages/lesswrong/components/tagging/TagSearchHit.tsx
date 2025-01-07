@@ -6,7 +6,7 @@ import { useCurrentUser } from '../common/withUser';
 import { shouldHideTagForVoting } from '../../lib/collections/tags/permissions';
 import { usePostsPageContext } from '../posts/PostsPage/PostsPageContext';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "block",
     padding: 8,

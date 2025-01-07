@@ -9,7 +9,7 @@ import type { DigestPost, PostWithRating } from './EditDigest';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { isPostWithForeignId } from '../../hooks/useForeignCrosspost';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   row: {
     borderTop: theme.palette.border.faint,
   },

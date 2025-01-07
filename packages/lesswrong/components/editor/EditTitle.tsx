@@ -9,7 +9,7 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import { isE2E } from '../../lib/executionEnvironment';
 import { LW_POST_TITLE_FONT_SIZE } from '../posts/PostsPage/PostsPageTitle';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.display3,
     ...theme.typography.headerStyle,

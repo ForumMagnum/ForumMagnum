@@ -2,7 +2,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React from 'react';
 import { useMulti } from "../../lib/crud/withMulti";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     fontWeight: 400,
     marginTop: 32,

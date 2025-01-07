@@ -5,7 +5,7 @@ import moment from 'moment';
 import { useMulti } from '../../lib/crud/withMulti';
 import { commentsNodeRootMarginBottom, maxSmallish, maxTiny } from '../../themes/globalStyles/globalStyles';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   empty: {
     color: theme.palette.grey[600],
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -93,7 +93,7 @@ const VoteHistoryTab = ({classes}: {classes: ClassesType<typeof styles>}) => {
     {yesterdaysContent.map((vote) => getContentItemNode(vote))}
     {!!olderContent.length && <SectionTitle title="Older"/>}
     {olderContent.map((vote) => getContentItemNode(vote))}
-    <div className={classes.loadMore}>
+    <div>
       <LoadMore
         {...loadMoreProps}
         loadingClassName={classes.loadMoreSpinner}

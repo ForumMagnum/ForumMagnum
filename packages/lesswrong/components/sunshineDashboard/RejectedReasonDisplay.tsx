@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import Card from '@material-ui/core/Card';
 import { htmlToText } from 'html-to-text';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: 4
   },

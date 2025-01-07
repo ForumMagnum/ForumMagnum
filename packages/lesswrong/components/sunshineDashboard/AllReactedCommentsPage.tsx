@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {Components, registerComponent} from '../../lib/vulcan-lib';
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
   }
 });

@@ -4,7 +4,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { tagStyle } from './FooterTag';
 import { taggingNameSetting } from '../../lib/instanceSettings';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: 8,
     display: "flex",

@@ -4,7 +4,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: isFriendlyUI ? {
     fontFamily: theme.palette.fonts.sansSerifStack,
     wordBreak: 'break-word',

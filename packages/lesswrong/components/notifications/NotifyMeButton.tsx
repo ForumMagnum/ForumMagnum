@@ -10,7 +10,7 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 // component still talks about 'subscriptions', but we're moving to calling them
 // 'notifications enabled'
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",

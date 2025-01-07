@@ -4,7 +4,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import classNames from 'classnames';
 import UpArrowIcon from '@material-ui/icons/KeyboardArrowUp';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   reactOrAntireact: {
     width: 55
   },

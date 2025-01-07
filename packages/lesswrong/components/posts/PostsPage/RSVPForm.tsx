@@ -18,7 +18,7 @@ export const responseToText: Record<RsvpResponse,string> = {
   no: "Can't Go"
 }
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   emailMessage: isFriendlyUI
     ? {
       fontFamily: theme.palette.fonts.sansSerifStack,

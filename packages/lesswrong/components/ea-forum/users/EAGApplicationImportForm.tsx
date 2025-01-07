@@ -17,7 +17,7 @@ import { useMessages } from '../../common/withMessages';
 import { AnalyticsContext, useTracking } from '../../../lib/analyticsEvents';
 import { useSingle } from '../../../lib/crud/withSingle';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     maxWidth: 1000,
     margin: '0 auto',

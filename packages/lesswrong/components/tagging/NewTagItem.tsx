@@ -7,8 +7,7 @@ import { truncate } from '../../lib/editor/ellipsize';
 import { useTracking } from "../../lib/analyticsEvents";
 import { preferredHeadingCase } from '../../themes/forumTheme';
 
-
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     background: theme.palette.panelBackground.default,
     border: theme.palette.border.commentBorder,
@@ -75,7 +74,6 @@ const NewTagItem = ({tag, classes}: {
         <ContentItemBody
           dangerouslySetInnerHTML={{__html: description||""}}
           description={`tag ${tag.name}`}
-          className={classes.description}
         />
       </ContentStyles>
     </div>

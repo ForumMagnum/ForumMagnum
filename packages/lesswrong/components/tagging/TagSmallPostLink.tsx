@@ -5,7 +5,7 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     ...theme.typography.body2,

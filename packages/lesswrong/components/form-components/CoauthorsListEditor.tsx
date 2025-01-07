@@ -6,7 +6,7 @@ import find from 'lodash/find';
 import InputLabel from '@material-ui/core/InputLabel';
 import {isEAForum} from '../../lib/instanceSettings';
 
-const coauthorsListEditorStyles = (theme: ThemeType): JssStyles => ({
+const coauthorsListEditorStyles = (theme: ThemeType) => ({
   root: {
     display: 'flex',
     marginLeft: 8,

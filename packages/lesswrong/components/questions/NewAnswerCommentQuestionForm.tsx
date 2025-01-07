@@ -8,7 +8,7 @@ import { afNonMemberDisplayInitialPopup } from "../../lib/alignment-forum/displa
 import { useCurrentUser } from "../common/withUser";
 import { useDialog } from "../common/withDialog";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     borderTop: theme.palette.border.intense,
     maxWidth:650 + (theme.spacing.unit*4),
@@ -114,7 +114,7 @@ const NewAnswerCommentQuestionForm = ({post, classes}: {
             }
         </div>
       </div>
-      <div className={classes.responseForm}>
+      <div>
         <CommentsNewForm
           post={post}
           type="comment"

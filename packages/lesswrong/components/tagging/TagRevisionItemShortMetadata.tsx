@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagGetRevisionLink } from '../../lib/collections/tags/helpers';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   username: {
     ...theme.typography.commentStyle,
     fontWeight: 600,

@@ -15,7 +15,7 @@ import { useNavigate } from '../../lib/reactRouterWrapper';
 
 const toggleEventsOffset = "330px"
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginTop: "50px",
     display: "flex",

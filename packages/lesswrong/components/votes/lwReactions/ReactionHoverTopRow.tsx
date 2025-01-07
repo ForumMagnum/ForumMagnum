@@ -7,7 +7,7 @@ import { useNamesAttachedReactionsVoting } from './NamesAttachedReactionsVoteOnC
 import filter from 'lodash/filter';
 import sumBy from 'lodash/sumBy';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   hoverBallotEntry: {
     fontFamily: theme.typography.commentStyle.fontFamily,
     cursor: "pointer",

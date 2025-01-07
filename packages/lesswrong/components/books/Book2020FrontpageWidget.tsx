@@ -5,7 +5,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: 50,
     marginLeft: 'auto',

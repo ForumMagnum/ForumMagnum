@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   checkboxRow: {
     display: 'flex',
     justifyContent: 'space-around',

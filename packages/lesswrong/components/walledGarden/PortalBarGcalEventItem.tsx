@@ -43,7 +43,7 @@ export const eventFormat = (startTime: AnyBecauseTodo) => {
   return moment(new Date(startTime)).format("ddd h:mma, MMM D")
 }
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...eventRoot(theme)
   },

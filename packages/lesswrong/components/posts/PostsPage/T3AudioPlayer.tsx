@@ -6,7 +6,7 @@ import { useEventListener } from '../../hooks/useEventListener';
 import { isEAForum } from '@/lib/instanceSettings';
 import { useExternalScript } from '@/components/hooks/useExternalScript';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   embeddedPlayer: {
     marginBottom: "30px"
   },

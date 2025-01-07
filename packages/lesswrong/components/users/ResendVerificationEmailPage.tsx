@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { userEmailAddressIsVerified } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     textAlign: "center",
   },

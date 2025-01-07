@@ -16,7 +16,7 @@ import { formatFacetFilters } from '../search/SearchAutoComplete';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { Hits, InstantSearch } from '../../lib/utils/componentsWithChildren';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     '& input': {

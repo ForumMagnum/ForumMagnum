@@ -5,7 +5,7 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import classnames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     position: "relative"
   },

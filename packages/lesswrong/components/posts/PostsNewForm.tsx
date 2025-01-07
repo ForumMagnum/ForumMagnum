@@ -20,7 +20,7 @@ import DeferRender from '../common/DeferRender';
 import { userCanCreateAndEditJargonTerms } from '@/lib/betas';
 
 // Also used by PostsEditForm
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   postForm: {
     maxWidth: 715,
     margin: "0 auto",

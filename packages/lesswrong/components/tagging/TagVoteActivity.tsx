@@ -6,7 +6,7 @@ import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   voteRow: {
     ...theme.typography.body2,
     ...theme.typography.smallText,
@@ -118,7 +118,7 @@ const TagVoteActivity = ({classes, showHeaders = true, showNewTags = true, limit
       {showHeaders && <h2>{taggingNameCapitalSetting.get()} Voting</h2>}
       <table>
         <tbody>
-          <tr className={classes.headerRow}>
+          <tr>
             <td className={classes.headerCell}> User </td>
             <td className={classes.headerCell}> Post Title </td>
             <td className={classes.headerCell}> {taggingNameCapitalSetting.get()} </td>

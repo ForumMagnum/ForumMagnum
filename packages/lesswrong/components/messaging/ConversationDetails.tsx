@@ -4,7 +4,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useDialog } from '../common/withDialog';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginTop: theme.spacing.unit*2,
     marginBottom: theme.spacing.unit*2,

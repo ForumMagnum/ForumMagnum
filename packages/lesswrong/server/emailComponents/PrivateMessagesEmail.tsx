@@ -8,7 +8,7 @@ import './EmailFormatDate';
 import './EmailContentItemBody';
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   message: {
   },
 });

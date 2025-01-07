@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import { editorTypeToDisplay, EditorTypeString, EditorContents, EditorChangeEvent } from './Editor';
 import { useConvertDocument } from './useConvertDocument';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   lastEditedWarning: {
     color: theme.palette.error.main,
   },

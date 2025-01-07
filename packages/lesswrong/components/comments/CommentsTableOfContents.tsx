@@ -13,7 +13,7 @@ import { commentIdToLandmark, getCurrentSectionMark, getLandmarkY } from '@/lib/
 
 const COMMENTS_TITLE_CLASS_NAME = 'CommentsTableOfContentsTitle';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     color: theme.palette.text.dim,
     //Override bottom border of title row for FixedToC but not in other uses of TableOfContentsRow

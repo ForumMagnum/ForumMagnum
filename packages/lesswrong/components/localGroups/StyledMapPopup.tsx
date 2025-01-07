@@ -8,7 +8,7 @@ import { componentWithChildren } from '../../lib/utils/componentsWithChildren';
 const Popup = componentWithChildren(BadlyTypedPopup);
 
 // Shared with LocalEventMarker
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     width: 250,

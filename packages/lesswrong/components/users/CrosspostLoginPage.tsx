@@ -8,7 +8,7 @@ import { hasProminentLogoSetting } from "../../lib/publicSettings";
 import { isE2E } from "@/lib/executionEnvironment";
 import { useLocation } from "@/lib/routeUtil";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "column",

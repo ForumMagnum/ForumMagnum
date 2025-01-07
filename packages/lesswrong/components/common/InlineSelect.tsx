@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import Menu from "@material-ui/core/Menu";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "inline",
   },

@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
 import { gardenForm } from './GardenCodeWidget';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...gardenForm(theme)
   }

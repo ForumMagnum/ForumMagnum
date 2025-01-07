@@ -13,7 +13,7 @@ import { useUpdate } from '../../lib/crud/withUpdate';
 import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
 import { useGoogleMaps } from '../form-components/LocationFormComponent';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   link: {
     color: theme.palette.primary.main,
     "& + &": {

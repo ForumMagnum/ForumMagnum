@@ -9,7 +9,7 @@ const widgetStyling = {
 
 const gatherTownRightSideBarWidth = 300
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: 16,
     marginBottom: 0,

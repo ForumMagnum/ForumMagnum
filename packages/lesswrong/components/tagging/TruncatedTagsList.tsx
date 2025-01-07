@@ -3,7 +3,7 @@ import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { recalculateTruncation } from "../../lib/truncateUtils";
 import classNames from "classnames";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     position: "relative",
     overflow: "hidden",

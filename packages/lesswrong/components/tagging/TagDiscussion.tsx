@@ -6,7 +6,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { tagGetDiscussionUrl } from '../../lib/collections/tags/helpers';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     width: 400,
     maxHeight: 600,

@@ -13,7 +13,7 @@ import { usePublishedPosts } from '../hooks/usePublishedPosts';
 
 export const CONTENT_LIMIT = 20
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     backgroundColor: theme.palette.grey[0],
     boxShadow: theme.palette.boxShadow.eventCard,

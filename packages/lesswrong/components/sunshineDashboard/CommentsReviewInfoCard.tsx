@@ -8,7 +8,7 @@ import LinkIcon from '@material-ui/icons/Link';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { COMMENT_MODERATOR_ACTION_TYPES } from '../../lib/collections/commentModeratorActions/schema';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     backgroundColor: theme.palette.grey[0],
     boxShadow: theme.palette.boxShadow.eventCard,

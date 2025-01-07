@@ -4,7 +4,7 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import { isFriendlyUI } from '@/themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...(isFriendlyUI ? {...theme.typography.smallText} : {}),
     "& img": {

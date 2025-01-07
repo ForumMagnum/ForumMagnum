@@ -6,7 +6,7 @@ import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useMessages } from '../common/withMessages';
 import Button from '@material-ui/core/Button'
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   dialog: {
     zIndex: theme.zIndexes.afNonMemberPopup
   },
@@ -48,9 +48,6 @@ const AFNonMemberInitialPopup = ({onClose, classes}: {
       open={open}
       onClose={handleClose}
       className={classes.dialog}
-      dialogClasses={{
-        paper: classes.paper
-      }}
     >
       <Card className={classes.popupCard}>
         <ContentStyles contentType="comment">

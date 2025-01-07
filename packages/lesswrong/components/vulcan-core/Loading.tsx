@@ -2,7 +2,7 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   spinner: {
     height: 10,
     maxWidth: 100,

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   divider: {
     display: 'flex',
     alignItems: 'center',

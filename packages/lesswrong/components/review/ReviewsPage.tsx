@@ -5,7 +5,7 @@ import { getReviewYearFromString, reviewYears, ReviewYear, REVIEW_YEAR } from '.
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   yearLinks: {
     display: 'flex',
     flexWrap: 'wrap',

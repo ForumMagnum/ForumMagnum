@@ -5,7 +5,7 @@ import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import type { ToCDisplayOptions } from '../posts/TableOfContents/TableOfContentsList';
 import { tagGetDiscussionUrl, tagGetSubforumUrl } from '../../lib/collections/tags/helpers';
 
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   tableOfContentsWrapper: {
     position: "relative",
     top: 12,

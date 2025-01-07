@@ -14,7 +14,7 @@ import { getVotingSystemByName } from '../../lib/voting/votingSystems';
 import type { CommentTreeOptions } from '../comments/commentTree';
 import { commentPermalinkStyleSetting } from '@/lib/publicSettings';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: theme.spacing.unit*4,
     paddingTop: theme.spacing.unit*2.5,
@@ -162,14 +162,14 @@ const Answer = ({ comment, post, childComments, classes }: {
   const CommentLinkWrapper = useCommentLink({comment, post});
 
   const {
-    SmallSideVote, AnswerCommentsList, CommentsMenu, ForumIcon,
-    CommentsItemDate, UsersName, CommentBottomCaveats, Typography,
-    HoveredReactionContextProvider, CommentBody, CommentBottom, CommentsNewForm
+    SmallSideVote, AnswerCommentsList, CommentsMenu, ForumIcon, CommentBody,
+    CommentsItemDate, UsersName, Typography, CommentBottom, CommentsNewForm,
+    HoveredReactionContextProvider,
   } = Components;
 
   const menuIcon = isFriendlyUI
     ? undefined
-    : <MoreHorizIcon className={classes.menuIcon} />;
+    : <MoreHorizIcon />;
 
   const treeOptions: CommentTreeOptions = useMemo(() => ({
     postPage: true,
@@ -262,7 +262,7 @@ const Answer = ({ comment, post, childComments, classes }: {
           </AnalyticsContext>
           <div>
             {replyFormIsOpen &&
-              <div className={classes.editor}>
+              <div>
                 <CommentsNewForm
                   post={post}
                   parentComment={comment}

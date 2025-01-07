@@ -11,7 +11,7 @@ import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 
 const SECTION_WIDTH = 960
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: theme.spacing.unit*4,
     maxWidth: SECTION_WIDTH,

@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import SwapVert from '@material-ui/icons/SwapVert';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   icon: {
     cursor: "pointer",
     color: theme.palette.grey[600],

@@ -6,7 +6,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import moment from '../../../lib/moment-timezone';
 
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   icon: {
     verticalAlign: 'text-top',
     fontSize: 'inherit',

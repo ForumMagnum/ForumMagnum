@@ -7,7 +7,7 @@ import { useHover } from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary'
 import FlagIcon from '@material-ui/icons/Flag'
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   negativeKarma: {
      color: theme.palette.text.negativeKarmaRed,
   },

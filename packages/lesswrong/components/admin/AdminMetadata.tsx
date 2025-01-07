@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useQuery, gql } from '@apollo/client';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   indexesTable: {
     border: theme.palette.border.maxIntensity,
     padding: 5,

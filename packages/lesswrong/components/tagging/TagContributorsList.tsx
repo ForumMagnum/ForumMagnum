@@ -5,7 +5,7 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import { preferredHeadingCase } from '../../themes/forumTheme';
 
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     fontSize: "1.16rem",
     fontFamily: theme.typography.fontFamily,

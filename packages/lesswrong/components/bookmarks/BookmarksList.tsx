@@ -8,7 +8,7 @@ import findIndex from 'lodash/findIndex';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { isEAForum } from '../../lib/instanceSettings';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   empty: {
     color: theme.palette.grey[600],
     fontFamily: theme.palette.fonts.sansSerifStack,

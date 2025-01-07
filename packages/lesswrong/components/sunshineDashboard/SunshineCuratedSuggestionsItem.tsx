@@ -11,7 +11,7 @@ import * as _ from 'underscore';
 import classNames from 'classnames';
 import { isFriendlyUI } from '@/themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   audioIcon: {
     width: 14,
     height: 14,

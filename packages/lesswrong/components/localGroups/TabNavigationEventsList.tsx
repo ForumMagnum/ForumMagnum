@@ -14,7 +14,7 @@ const TODAY_STRING = "[Today]"
 const TOMORROW_STRING = "[Tomorrow]"
 const HIGHLIGHT_LENGTH = 600
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   eventWrapper: {
     paddingTop: 0,
     paddingBottom: 0,
@@ -159,7 +159,7 @@ const TabNavigationEventSingleLine = ({event, onClick, classes}: {
       } dateTime={event.startTime}>
         {displayTime}
       </TimeTag>}
-      <span className={classes.title}>{event.title}</span>
+      <span>{event.title}</span>
     </TabNavigationSubItem>
   </MenuItemLink>
 }
@@ -179,9 +179,9 @@ const TabNavigationEventTwoLines = ({event, onClick, classes}: {
     rootClass={classNames(classes.eventWrapper, classes.twoLine)}
   >
     <TabNavigationSubItem className={classNames(classes.event, classes.twoLineEvent)}>
-      <span className={classes.title}>{event.title}</span>
+      <span>{event.title}</span>
       <div/>
-      <span className={classes.secondLine}>
+      <span>
         {event.startTime && <FormatDate className={classes.date} date={event.startTime} format={"ddd MMM D"} />}
         {cityName && <>
           <span className={classes.dot}>{"•"}</span>

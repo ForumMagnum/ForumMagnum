@@ -9,7 +9,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   diffExplanation: {
     fontStyle: "italic",
     marginBottom: 24,

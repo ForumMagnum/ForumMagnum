@@ -6,7 +6,7 @@ import { Snippet } from 'react-instantsearch-dom';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     maxWidth: 600,
     paddingTop: 2,

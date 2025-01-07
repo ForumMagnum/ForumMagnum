@@ -2,7 +2,7 @@ import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     fontFamily: theme.typography.fontFamily,
     fontSize: 15,

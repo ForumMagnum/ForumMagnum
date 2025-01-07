@@ -5,7 +5,7 @@ import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers'
 import { VotingProps } from './votingProps';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
   },
   agreementSection: {
@@ -30,7 +30,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
+const AgreementVoteAxis = ({ hideKarma=false, voteProps, classes }: {
   document: VoteableTypeClient,
   hideKarma?: boolean,
   voteProps: VotingProps<VoteableTypeClient>,
@@ -98,7 +98,7 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
         <TooltipIfEnabled title={karmaTooltipTitle} placement={tooltipPlacement}>
           {hideKarma
             ? <span>{' '}</span>
-            : <span className={classes.voteScore}>
+            : <span>
                 {karma}
               </span>
           }

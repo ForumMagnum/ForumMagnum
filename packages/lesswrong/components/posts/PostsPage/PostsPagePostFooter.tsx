@@ -11,7 +11,7 @@ import classNames from 'classnames';
 
 
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   footerSection: {
     display: 'flex',
     columnGap: 20,

@@ -9,7 +9,7 @@ import { useCurrentUser } from "../../common/withUser";
 import type { TagsTooltipPreviewWrapper } from "../TagsTooltip";
 import { stableSortTags } from "../../../lib/collections/tags/helpers";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: "1em 1.5em",
     borderRadius: theme.borderRadius.default,

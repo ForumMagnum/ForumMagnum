@@ -8,7 +8,7 @@ import { getNotificationTypeByUserSetting } from '../../lib/notificationTypes';
 import type { PickedTime } from '../common/BatchTimePicker';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: 8,
   },

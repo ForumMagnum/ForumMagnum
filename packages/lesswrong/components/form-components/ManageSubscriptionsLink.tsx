@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import Button from '@material-ui/core/Button';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   button: {
     marginBottom: theme.spacing.unit,
     marginLeft: theme.spacing.unit

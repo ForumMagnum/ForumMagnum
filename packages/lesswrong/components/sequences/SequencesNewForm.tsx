@@ -7,7 +7,7 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import { useNavigate } from '../../lib/reactRouterWrapper';
 
 // Also used by SequencesEditForm
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   sequencesForm: {
     position: "absolute",
     top: 0,

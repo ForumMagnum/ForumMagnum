@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { Pagination } from 'react-instantsearch-dom';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     fontFamily: theme.typography.fontFamily,
     ...theme.typography.smallCaps,

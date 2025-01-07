@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import type { CoreReadingCollection } from '../sequences/LWCoreReading';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     width: "100%",
     maxWidth: 347,

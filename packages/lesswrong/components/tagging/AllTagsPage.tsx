@@ -12,7 +12,7 @@ import { taggingNameCapitalSetting, taggingNameIsSet, taggingNamePluralCapitalSe
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
   },
   topSection: {

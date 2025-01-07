@@ -57,7 +57,7 @@ export const SlackIcon = (props: any) => <SvgIcon viewBox="70 70 130 130" {...pr
   </g>
 </SvgIcon>
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: 'inline-block'
   },

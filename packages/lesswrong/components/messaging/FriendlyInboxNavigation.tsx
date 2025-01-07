@@ -2,7 +2,7 @@ import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { UseMultiResult } from "../../lib/crud/withMulti";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   noConversationsMessage: {
     padding: 16,
   }

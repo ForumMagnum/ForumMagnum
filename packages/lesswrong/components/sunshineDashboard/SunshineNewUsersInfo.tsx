@@ -8,7 +8,7 @@ import { CONTENT_LIMIT, DEFAULT_BIO_WORDCOUNT, MAX_BIO_WORDCOUNT } from './Users
 import { truncate } from '../../lib/editor/ellipsize';
 import { usePublishedPosts } from '../hooks/usePublishedPosts';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     backgroundColor: theme.palette.grey[50]
   },

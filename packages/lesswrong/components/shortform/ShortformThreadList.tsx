@@ -5,7 +5,7 @@ import { useCurrentUser } from '../common/withUser';
 import { userCanQuickTake } from '../../lib/vulcan-users/permissions';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   shortformItem: {
     marginTop: theme.spacing.unit * (isFriendlyUI ? 2 : 4),
   }

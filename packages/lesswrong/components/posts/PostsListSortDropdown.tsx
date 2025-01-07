@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { TAG_POSTS_SORT_ORDER_OPTIONS } from '../../lib/collections/tags/schema';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {}
 })
 

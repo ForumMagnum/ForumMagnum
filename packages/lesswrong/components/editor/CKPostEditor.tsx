@@ -31,7 +31,7 @@ import { CkEditorPortalContext } from './CKEditorPortalProvider';
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   sidebar: {
     position: 'absolute',
     right: -350,

@@ -9,7 +9,7 @@ import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   subtitle: {
     fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },

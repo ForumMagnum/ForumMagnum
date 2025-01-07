@@ -12,7 +12,7 @@ import { useCommentLinkState } from './CommentsItem/useCommentLink';
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   parentScroll: {
     position: "absolute",
     top:0,

@@ -8,7 +8,7 @@ import { useTracking } from '../../../lib/analyticsEvents';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
 import { useEAVirtualPrograms } from '@/components/hooks/useEAVirtualPrograms';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   eventCard: {
     position: 'relative',
     width: 373,

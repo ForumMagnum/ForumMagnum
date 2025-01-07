@@ -18,7 +18,7 @@ import Menu from "@material-ui/core/Menu";
 import classNames from "classnames";
 import {alwaysShowAnonymousReactsSetting} from '../../lib/publicSettings'
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   button: {
     display: "flex",
     alignItems: "center",

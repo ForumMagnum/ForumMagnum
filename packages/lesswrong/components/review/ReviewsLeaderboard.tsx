@@ -5,7 +5,7 @@ import sortBy from 'lodash/sortBy';
 import Card from '@material-ui/core/Card';
 import { ReviewYear } from '../../lib/reviewUtils';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     color: theme.palette.grey[600],

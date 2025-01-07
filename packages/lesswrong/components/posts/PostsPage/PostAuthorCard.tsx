@@ -6,7 +6,7 @@ import { truncate } from '../../../lib/editor/ellipsize';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     backgroundColor: theme.palette.grey[100],
     padding: '15px 30px 20px',

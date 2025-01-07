@@ -7,7 +7,7 @@ import {
   userGetProfileUrl,
 } from '../../lib/collections/users/helpers';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   userName: {
     whiteSpace: "nowrap",
     color: theme.palette.text.secondary,

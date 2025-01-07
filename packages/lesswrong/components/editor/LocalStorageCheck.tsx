@@ -5,7 +5,7 @@ import { useCurrentUser } from '../common/withUser';
 import { htmlToTextDefault } from '@/lib/htmlToText';
 import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: 'flex',
     justifyContent: 'space-between',

@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   dialogContent: {
     padding: 30,
     minHeight: 400

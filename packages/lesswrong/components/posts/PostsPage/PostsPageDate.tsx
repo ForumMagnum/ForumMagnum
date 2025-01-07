@@ -5,7 +5,7 @@ import moment from 'moment';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   date: {
     color: theme.palette.text.dim3,
     fontSize: isFriendlyUI ? undefined : theme.typography.body2.fontSize,

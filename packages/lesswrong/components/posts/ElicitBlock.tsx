@@ -51,7 +51,7 @@ const elicitQuery = gql`
 const rootHeight = 50
 const rootPaddingTop = 12
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     position: 'relative',
     paddingTop: rootPaddingTop,

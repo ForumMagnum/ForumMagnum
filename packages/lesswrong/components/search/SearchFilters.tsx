@@ -15,7 +15,7 @@ import {
 import { communityPath } from '../../lib/routes';
 import IconButton from '@material-ui/core/IconButton';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   filtersColumn: {
     flex: 'none',
     width: 250,

@@ -3,7 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     position:"relative",
     borderTop: theme.palette.border.faint,

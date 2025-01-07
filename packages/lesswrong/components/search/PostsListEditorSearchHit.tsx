@@ -5,7 +5,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import type { Hit } from 'react-instantsearch-core';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: theme.spacing.unit,
     borderBottom: "solid 1px",

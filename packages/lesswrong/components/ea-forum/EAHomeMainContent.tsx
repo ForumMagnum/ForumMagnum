@@ -10,7 +10,7 @@ import { PostsListViewProvider } from '../hooks/usePostsListView'
 
 const FRONTPAGE_TAB_NAME = 'Frontpage'
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   spotlightMargin: {
     marginBottom: 24,
   },

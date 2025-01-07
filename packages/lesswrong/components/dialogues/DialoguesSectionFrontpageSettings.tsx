@@ -14,7 +14,7 @@ const USER_SETTING_NAMES = {
   showRecommendedPartners: 'showRecommendedPartners'
 }
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "block",
     marginTop: isFriendlyUI ? 10 : undefined,

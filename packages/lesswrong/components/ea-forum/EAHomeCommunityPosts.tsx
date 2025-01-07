@@ -10,7 +10,7 @@ import { useFilterSettings } from '../../lib/filterSettings';
 import { frontpageDaysAgoCutoffSetting } from '../../lib/scoring';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   readMoreLinkMobile: {
     display: 'none',
     fontSize: 14,

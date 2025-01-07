@@ -11,7 +11,7 @@ import ClearIcon from '@material-ui/icons/Clear';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { useMulti } from '../../lib/crud/withMulti';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   tagInfo: {
     marginTop: 0,
     marginBottom: 0

@@ -4,7 +4,7 @@ import {getAfterDefault, getBeforeDefault} from './timeframeUtils'
 import { useTimezone } from '../common/withTimezone';
 import { forumAllPostsNumDaysSetting } from '../../lib/publicSettings';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   daily: {
     padding: theme.spacing.unit
   }

@@ -5,7 +5,7 @@ import { SidebarsContext } from '../../common/SidebarsWrapper';
 import type { ToCData } from '../../../lib/tableOfContents';
 import type { ToCDisplayOptions } from './TableOfContentsList';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
 });
 
 const TableOfContents = ({sectionData, title, heading, onClickSection, displayOptions, fixedPositionToc = false, hover}: {

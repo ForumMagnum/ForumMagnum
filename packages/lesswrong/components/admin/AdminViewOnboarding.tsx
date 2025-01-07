@@ -4,7 +4,7 @@ import { useCurrentUser } from '../common/withUser';
 import { isEAForum } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   link: {
     fontSize: 16,
     color: theme.palette.primary.main,

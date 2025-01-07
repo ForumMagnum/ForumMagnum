@@ -18,7 +18,7 @@ const suggestionToGoogleMapsLocation = (suggestion: Suggest) => {
   return suggestion ? suggestion.gmaps : null
 }
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   ...sharedStyles(theme),
 });
 
@@ -80,7 +80,6 @@ const SetPersonalMapLocationDialog = ({ onClose, classes }: {
         </div>
         {!isEAForum && <TextField
             label={`Description (Make sure to mention whether you want to organize events)}`}
-            className={classes.modalTextField}
             value={mapText || ""}
             onChange={e => setMapText(e.target.value)}
             fullWidth

@@ -17,7 +17,7 @@ import { useMapStyle } from '@/components/hooks/useMapStyle';
 const ReactMapGL = componentWithChildren(BadlyTypedReactMapGL);
 const Marker = componentWithChildren(BadlyTypedMarker);
 
-const styles = (theme: JssStyles) => ({
+const styles = (theme: ThemeType) => ({
   root: {
     width: "100%",
     height: 440,
@@ -83,7 +83,7 @@ const LocalEventWrapperPopUp = ({localEvent, handleClose}: {
 const LocalEventWrapperPopUpComponent = registerComponent("LocalEventWrapperPopUp", LocalEventWrapperPopUp);
 
 
-const localEventMapMarkerWrappersStyles = (theme: ThemeType): JssStyles => ({
+const localEventMapMarkerWrappersStyles = (theme: ThemeType) => ({
   icon: {
     height: 20,
     width: 20,

@@ -9,7 +9,7 @@ import { useOnServerSentEvent } from "../hooks/useUnreadNotifications";
 import stringify from "json-stringify-deterministic";
 import {isFriendlyUI} from '../../themes/forumTheme.ts'
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   conversationTitle: {
     ...theme.typography.commentStyle,
     marginTop: 8,

@@ -9,7 +9,7 @@ import { getUserEmail, userGetProfileUrl } from "../../lib/collections/users/hel
 import Input from '@material-ui/core/Input';
 import { Link } from '../../lib/reactRouterWrapper';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   row: {
     display: "flex"
   },
@@ -47,7 +47,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 export const AdminPaymentsPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { SingleColumnSection, SectionTitle, Loading, LoadMore, LWTooltip,
+  const { SingleColumnSection, SectionTitle, Loading, LoadMore,
     UserTooltip, ErrorAccessDenied, ForumIcon } = Components
 
   const { results, loading, loadMoreProps } = useMulti({
@@ -76,7 +76,7 @@ export const AdminPaymentsPage = ({classes}: {
   const currentUser = useCurrentUser()
   if (!currentUser?.isAdmin) return <ErrorAccessDenied />
 
-  return <div className={classes.root}>
+  return <div>
     <SingleColumnSection>
       <SectionTitle title="Payment Admin"/>
       <div>

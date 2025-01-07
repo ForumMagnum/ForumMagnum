@@ -4,7 +4,7 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginRight: 8,
     whiteSpace: "nowrap"

@@ -6,7 +6,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import classNames from 'classnames';
 import CloudOff from "@material-ui/icons/CloudOff";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   user: {
     ...theme.typography.body2,
     marginRight: 8,

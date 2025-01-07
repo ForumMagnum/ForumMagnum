@@ -12,7 +12,7 @@ import { isFriendlyUI } from '@/themes/forumTheme';
 const PADDING = 36
 const COLLECTION_WIDTH = SECTION_WIDTH + (PADDING * 2)
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: 32,
     position: "relative",

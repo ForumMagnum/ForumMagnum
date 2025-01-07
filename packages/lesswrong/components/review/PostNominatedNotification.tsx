@@ -6,7 +6,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { POST_PREVIEW_WIDTH } from '../posts/PostsPreviewTooltip/helpers';
 import { notificationLoadingStyles } from '../posts/PostsPreviewTooltip/PostsPreviewLoading';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: theme.spacing.unit*1.5,
     width: POST_PREVIEW_WIDTH,

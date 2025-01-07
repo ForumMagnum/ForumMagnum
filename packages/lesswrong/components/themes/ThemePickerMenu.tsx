@@ -10,7 +10,7 @@ import Paper from '@material-ui/core/Paper';
 import Info from '@material-ui/icons/Info';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (_theme: ThemeType): JssStyles => ({
+const styles = (_theme: ThemeType) => ({
   check: {
     width: 20,
     marginRight: 8,

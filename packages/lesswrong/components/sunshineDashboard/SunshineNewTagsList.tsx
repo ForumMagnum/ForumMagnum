@@ -5,7 +5,7 @@ import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     backgroundColor: theme.palette.panelBackground.sunshineNewTags,
   }

@@ -4,7 +4,7 @@ import { useHover } from '../common/withHover';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   tag: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,

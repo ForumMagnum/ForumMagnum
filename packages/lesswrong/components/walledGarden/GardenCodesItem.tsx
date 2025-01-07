@@ -24,7 +24,7 @@ const iconStyling = {
   }
 }
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...eventRoot(theme),
     width: 420,

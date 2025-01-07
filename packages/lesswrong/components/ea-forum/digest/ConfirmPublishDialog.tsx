@@ -4,7 +4,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: '10px 20px 20px 10px'
   },

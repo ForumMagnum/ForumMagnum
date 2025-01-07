@@ -2,7 +2,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     backgroundColor: theme.palette.panelBackground.sunshineNewComments,
   }

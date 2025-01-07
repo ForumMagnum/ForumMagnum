@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 
-const styles = (_: ThemeType): JssStyles => ({
+const styles = (_: ThemeType) => ({
   shortformGroup: {
     marginTop: isFriendlyUI ? 20 : 12,
   },

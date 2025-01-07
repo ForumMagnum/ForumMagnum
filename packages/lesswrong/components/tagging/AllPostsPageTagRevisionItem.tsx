@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     background: theme.palette.panelBackground.commentNodeEven,
     border: theme.palette.border.commentBorder,

@@ -6,7 +6,7 @@ import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     width: 1120,
     marginLeft: 'auto',

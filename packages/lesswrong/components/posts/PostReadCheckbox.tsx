@@ -7,7 +7,7 @@ import { useNamedMutation } from '../../lib/crud/withMutation';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     cursor: "pointer",
   },

@@ -14,7 +14,7 @@ import classNames from "classnames";
 
 const ANIMATION_DURATION = 300;
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   popper: {
     zIndex: theme.zIndexes.loginDialog,
     borderRadius: theme.borderRadius.default,

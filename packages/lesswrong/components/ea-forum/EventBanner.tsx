@@ -11,7 +11,7 @@ const eventBannerLinkSetting = new DatabasePublicSetting<string | null>('eventBa
 const bannerHeight = 250
 const container = cloudinaryCloudNameSetting.get()
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   link: {
     '&:hover': {
       opacity: 'unset'

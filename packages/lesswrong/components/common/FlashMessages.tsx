@@ -6,7 +6,7 @@ import Snackbar from '@material-ui/core/Snackbar';
 import Button from '@material-ui/core/Button';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     '& .MuiSnackbarContent-message': {
       color: theme.palette.text.maxIntensity,

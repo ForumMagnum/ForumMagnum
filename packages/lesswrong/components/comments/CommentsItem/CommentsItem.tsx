@@ -23,7 +23,7 @@ export const dimHighlightClassName = "dim-highlighted-substring";
 export const faintHighlightClassName = "dashed-highlighted-substring";
 
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     paddingLeft: theme.spacing.unit*1.5,
     paddingRight: theme.spacing.unit*1.5,

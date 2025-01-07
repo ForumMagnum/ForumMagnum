@@ -9,7 +9,7 @@ import { useLocation } from '../../lib/routeUtil';
 import { getUserEmail } from "../../lib/collections/users/helpers";
 
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     justifyContent: "space-around"

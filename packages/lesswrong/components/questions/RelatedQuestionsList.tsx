@@ -3,7 +3,7 @@ import React from 'react';
 import withErrorBoundary from '../common/withErrorBoundary';
 import * as _ from 'underscore';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     width: 650 + (theme.spacing.unit*4),
     marginBottom: 100,

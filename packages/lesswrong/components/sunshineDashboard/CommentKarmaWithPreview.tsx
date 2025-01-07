@@ -5,7 +5,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginRight: 8,
     whiteSpace: "nowrap"

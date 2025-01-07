@@ -6,7 +6,7 @@ import { useHover } from "../common/withHover";
 import { useMulti } from "../../lib/crud/withMulti";
 import { tagGetDiscussionUrl } from "../../lib/collections/tags/helpers";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   discussionButton: {
     ...theme.typography.commentStyle,
     ...theme.typography.body2,

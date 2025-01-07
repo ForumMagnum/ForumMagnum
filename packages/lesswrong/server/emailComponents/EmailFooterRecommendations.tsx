@@ -8,7 +8,7 @@ import './EmailPostDate';
 import { useRecommendations } from '../../components/recommendations/withRecommendations';
 import { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   recommendedPostsHeader: {
     fontSize: '1rem'
   }

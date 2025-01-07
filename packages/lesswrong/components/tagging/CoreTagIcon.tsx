@@ -44,7 +44,7 @@ export const coreTagIconMap = forumSelect<Record<string, FC<{className?: string}
   default: {}
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   // prevent LotusOutlineIcon from having a fill
   noFill: {
     fill: 'none !important'

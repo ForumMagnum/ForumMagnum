@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     position: "relative",
     width: "1em",

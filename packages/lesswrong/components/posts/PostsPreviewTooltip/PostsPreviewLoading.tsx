@@ -2,13 +2,13 @@ import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { POST_PREVIEW_WIDTH } from './helpers';
 
-export const notificationLoadingStyles = (theme: ThemeType): JssStyles => ({
+export const notificationLoadingStyles = (theme: ThemeType) => ({
   width: POST_PREVIEW_WIDTH,
   paddingTop: theme.spacing.unit,
   paddingBottom: theme.spacing.unit,
 });
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   loading: {
     ...notificationLoadingStyles(theme),
     background: theme.palette.grey[0],

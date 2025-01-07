@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import type { PopperPlacementType } from '@material-ui/core/Popper'
 import { usePostsUserAndCoauthors } from './usePostsUserAndCoauthors';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   lengthLimited: {
     maxWidth: 310,
     textOverflow: "ellipsis",

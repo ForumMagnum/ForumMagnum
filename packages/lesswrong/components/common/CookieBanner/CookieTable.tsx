@@ -2,7 +2,7 @@ import React from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { CookieSignature, CookieType, CookiesTable } from "../../../lib/cookies/utils";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {},
   heading: {
     padding: 0,

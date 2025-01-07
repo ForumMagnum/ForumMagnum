@@ -2,7 +2,7 @@ import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib";
 import countBy from "lodash/countBy";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   path: {
     strokeWidth: '2px',
     strokeLinejoin: 'round',

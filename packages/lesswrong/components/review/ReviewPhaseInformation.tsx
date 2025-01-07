@@ -6,7 +6,7 @@ import { commentBodyStyles } from '../../themes/stylePiping';
 import Card from '@material-ui/core/Card';
 import { useLocation } from '@/lib/routeUtil';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: 16,
     paddingTop: 6,

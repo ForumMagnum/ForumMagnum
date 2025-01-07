@@ -12,7 +12,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import DeferRender from '../common/DeferRender';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   title: {
     cursor: "pointer",
     "& .SectionTitle-title": isFriendlyUI

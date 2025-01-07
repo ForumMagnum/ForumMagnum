@@ -9,7 +9,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames'
 import * as _ from 'underscore';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   ...postsItemLikeStyles(theme),
   wrap: {
     flexWrap: "wrap",

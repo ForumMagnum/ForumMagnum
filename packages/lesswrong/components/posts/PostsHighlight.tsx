@@ -11,7 +11,7 @@ import classNames from 'classnames';
 
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   highlightContinue: {
     marginTop:theme.spacing.unit*2,
     fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,

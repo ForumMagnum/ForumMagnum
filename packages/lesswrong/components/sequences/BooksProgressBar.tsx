@@ -15,7 +15,7 @@ export const postProgressBoxStyles = (theme: ThemeType) => ({
   marginTop: 2,
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: 16
   },
@@ -92,7 +92,7 @@ const BooksProgressBar = ({ book, classes }: {
         ))
       }
     </div>
-    <div className={classNames(classes.sequence, classes.progressText)}>
+    <div className={classes.progressText}>
       <LWTooltip title={postsReadTooltip}>{postsReadText}</LWTooltip>
       <LoginToTrack className={classes.loginText}>
         log in to track progress

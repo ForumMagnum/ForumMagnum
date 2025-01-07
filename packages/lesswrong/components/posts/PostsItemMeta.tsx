@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { isAF } from '../../lib/instanceSettings';
 import { AnalyticsContext } from '../../lib/analyticsEvents'
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   read: {
     opacity: ".8"
   },

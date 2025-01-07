@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import EmailIcon from '@material-ui/icons/Email';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     color: theme.palette.grey[600],

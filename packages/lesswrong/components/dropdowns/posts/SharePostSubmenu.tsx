@@ -5,7 +5,7 @@ import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { isServer } from '../../../lib/executionEnvironment';
 import { isMobile } from '@/lib/utils/isMobile';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
 })
 
 const SharePostSubmenu = ({post, closeMenu, classes}: {

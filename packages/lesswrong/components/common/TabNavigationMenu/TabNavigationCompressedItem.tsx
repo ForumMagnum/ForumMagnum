@@ -6,7 +6,7 @@ import { MenuTabRegular } from './menuTabs';
 
 const compressedIconSize = 23
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   icon: {
     display: "block",
     opacity: .6,

@@ -2,7 +2,7 @@ import { registerComponent, } from '../../../lib/vulcan-lib';
 import React, { useEffect } from 'react';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: 'inline-block',
     ...theme.typography.commentStyle,

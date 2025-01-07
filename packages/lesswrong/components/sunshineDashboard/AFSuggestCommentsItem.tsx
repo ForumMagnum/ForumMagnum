@@ -13,7 +13,7 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import { defaultAFModeratorPMsTagSlug, afSubmissionHeader, afSubmissionHeaderText } from "./AFSuggestPostsItem";
 
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   afSubmissionHeader: {
     ...afSubmissionHeader(theme)
   },

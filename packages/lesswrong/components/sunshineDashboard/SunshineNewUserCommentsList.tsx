@@ -3,7 +3,7 @@ import React from 'react';
 import _filter from 'lodash/filter';
 import { isLWorAF } from '../../lib/instanceSettings';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginTop: theme.spacing.unit,
     display: "flex",

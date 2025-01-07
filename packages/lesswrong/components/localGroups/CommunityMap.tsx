@@ -17,7 +17,7 @@ import { useMapStyle } from '../hooks/useMapStyle';
 const ReactMapGL = componentWithChildren(BadlyTypedReactMapGL);
 const Marker = componentWithChildren(BadlyTypedMarker);
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     width: "100%",
     height: 440,
@@ -74,7 +74,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 // Make these variables have file-scope references to avoid rerending the scripts or map
 export const defaultCenter = {lat: 39.5, lng: -43.636047}
-const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindows = [], center = defaultCenter, zoom = 2, classes, className = '', showGroupsByDefault, showUsersByDefault, showHideMap = false, hideLegend, petrovButton }: {
+const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindows = [], center = defaultCenter, zoom = 2, classes, className = '', showGroupsByDefault, showUsersByDefault, showHideMap = false, hideLegend }: {
   groupTerms: LocalgroupsViewTerms,
   eventTerms?: PostsViewTerms,
   keywordSearch?: string,
@@ -193,7 +193,7 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
   </div>
 }
 
-const personalMapMarkerStyles = (theme: ThemeType): JssStyles => ({
+const personalMapMarkerStyles = (theme: ThemeType) => ({
   icon: {
     height: 20,
     width: 20,
@@ -206,7 +206,7 @@ const PersonalMapLocationMarkers = ({users, handleClick, handleClose, openWindow
   handleClick: (userId: string) => void,
   handleClose: (userId: string) => void,
   openWindows: any,
-  classes: ClassesType<typeof styles>,
+  classes: ClassesType<typeof personalMapMarkerStyles>,
 }) => {
   const { StyledMapPopup } = Components
   

@@ -8,7 +8,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import ClearIcon from '@material-ui/icons/Clear'
 import { useUpdate } from '../../lib/crud/withUpdate';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   rateLimitForm: {
     [theme.breakpoints.up('md')]: {
       border: theme.palette.border.normal,
@@ -170,7 +170,7 @@ export const UserRateLimitItem = ({userId, classes}: {
     return <Loading />;
   }
 
-  return <div className={classes.root}>
+  return <div>
     {/** Doesn't have both a comment and post rate limit */}
     {existingRateLimits.length < 2 && <div>
       Set Rate Limit: <Select

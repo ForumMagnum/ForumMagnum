@@ -6,7 +6,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { useVote } from '../votes/withVote';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   relevance: {
     marginTop: isFriendlyUI ? undefined : 2,
     marginLeft: 16,

@@ -17,7 +17,7 @@ import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   metadata: {
     display: 'flex',
     ...theme.typography.postStyle,
@@ -218,7 +218,7 @@ const PostsPageEventData = ({classes, post}: {
         </div>
         {contactInfo && <div className={classes.iconRow}>
           <div className={classes.iconWrapper}><MailIcon className={classes.icon} /></div>
-          <div className={classes.eventContact}>{contactInfo}</div>
+          <div>{contactInfo}</div>
         </div>}
         
         { eventType && (eventType in eventTypeIcons) && eventTypeNode(eventTypeIcons[eventType as keyof EventTypeIcons], eventType) }

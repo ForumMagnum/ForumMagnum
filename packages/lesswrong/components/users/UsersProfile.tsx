@@ -37,7 +37,7 @@ export const sectionFooterLeftStyles = {
   }
 }
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   profilePage: {
     marginLeft: "auto",
     [theme.breakpoints.down('sm')]: {

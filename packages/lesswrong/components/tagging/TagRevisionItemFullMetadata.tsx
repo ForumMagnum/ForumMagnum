@@ -4,7 +4,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: isFriendlyUI ? 12 : undefined,
   },

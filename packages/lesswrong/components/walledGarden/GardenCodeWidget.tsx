@@ -20,7 +20,7 @@ export const gardenForm = (theme: ThemeType) => ({
   }
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   button: {
     marginTop: 8,
     marginBottom: 8,
@@ -96,7 +96,6 @@ export const GardenCodeWidget = ({classes, type}: {classes: ClassesType<typeof s
       ? <div>
             Here is your code! It is valid from <strong>{moment(new Date(currentCode.startTime)).format("dddd, MMMM Do, h:mma")}</strong> until <strong>{moment(new Date(currentCode.endTime)).format("h:mma")}</strong>.
             <TextField
-              className={classes.inviteCode}
               // label={"Your code!"}
               onClick={autoselectCode}
               onSelect={autoselectCode}

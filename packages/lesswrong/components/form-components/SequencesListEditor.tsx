@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { makeSortableListComponent } from './sortableList';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
   },
   item: {

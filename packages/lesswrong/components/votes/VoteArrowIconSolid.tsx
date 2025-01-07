@@ -8,7 +8,7 @@ import { registerComponent } from '@/lib/vulcan-lib';
 import { isEAForum } from '../../lib/instanceSettings';
 import type { BaseVoteArrowIconProps } from './VoteArrowIcon';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     color: theme.palette.grey[400],
     fontSize: 'inherit',

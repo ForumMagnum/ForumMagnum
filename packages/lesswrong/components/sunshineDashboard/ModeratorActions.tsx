@@ -21,7 +21,7 @@ import { hideUnreviewedAuthorCommentsSettings } from '../../lib/publicSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useDialog } from '../common/withDialog';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   row: {
     display: "flex",
     alignItems: "center",

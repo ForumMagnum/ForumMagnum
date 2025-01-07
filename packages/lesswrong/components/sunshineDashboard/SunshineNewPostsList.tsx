@@ -4,7 +4,7 @@ import React from 'react';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     backgroundColor: theme.palette.panelBackground.sunshineNewPosts,
   },

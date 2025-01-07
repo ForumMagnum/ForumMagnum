@@ -1,7 +1,7 @@
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React from 'react';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginLeft: theme.spacing.unit,
     color: theme.palette.text.dim4,

@@ -10,7 +10,7 @@ import type { BasicDoc, SearchBoxProvided, StateResultsProvided } from 'react-in
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { InstantSearch } from '../../../lib/utils/componentsWithChildren';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   filters: {
     display: 'flex',
     flexWrap: 'wrap',

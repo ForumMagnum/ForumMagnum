@@ -1,7 +1,7 @@
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import React, { useState } from "react";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   paper: {
     overflow: "visible",
   },

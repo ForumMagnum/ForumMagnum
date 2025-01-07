@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import LibraryAddIcon from '@material-ui/icons/LibraryAdd';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   newSequence: {
     color: theme.palette.primary.light
   }

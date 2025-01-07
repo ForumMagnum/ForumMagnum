@@ -15,7 +15,7 @@ import { DatabasePublicSetting } from '../../lib/publicSettings';
 export const gardenOpenToPublic = new DatabasePublicSetting<boolean>('gardenOpenToPublic', false)
 export const gatherTownUserTrackingIsBroken = new DatabasePublicSetting<boolean>('gatherTownUserTrackingIsBroken', false)
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginTop: 20,
     ...theme.typography.body2,

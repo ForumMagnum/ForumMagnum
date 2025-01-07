@@ -7,7 +7,7 @@ import {gql, useMutation} from '@apollo/client';
 import throttle from 'lodash/throttle';
 import { isDialogueParticipant } from '../posts/PostsPage/PostsPage';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle
   },

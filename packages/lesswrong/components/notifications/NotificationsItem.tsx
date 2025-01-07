@@ -11,7 +11,7 @@ import { useNavigate } from '../../lib/reactRouterWrapper';
 import {checkUserRouteAccess} from '../../lib/vulcan-core/appContext'
 import { getUrlClass } from '@/server/utils/getUrlClass';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     "&:hover": {
       backgroundColor: `${theme.palette.panelBackground.darken02} !important`,

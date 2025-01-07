@@ -4,7 +4,7 @@ import type { NamesAttachedReactionsList, QuoteLocator } from '../../../lib/voti
 import type { VotingProps } from '../votingProps';
 import Card from '@material-ui/core/Card';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
 })
 
 /**

@@ -12,7 +12,7 @@ import { useABTest } from '../../../lib/abTestImpl';
 import { welcomeBoxABTest } from '../../../lib/abTests';
 import { useCurrentUser } from '../../common/withUser';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   wrapper: {
     [theme.breakpoints.down('md')]: {
       display: 'none'

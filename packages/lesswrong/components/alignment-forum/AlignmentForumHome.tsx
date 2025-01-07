@@ -7,7 +7,7 @@ import { legacyBreakpoints } from '../../lib/utils/theme';
 import AddIcon from '@material-ui/icons/Add';
 import { reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   frontpageSequencesGridList: {
     [legacyBreakpoints.maxSmall]: {
       marginTop: 40,

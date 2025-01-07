@@ -23,7 +23,7 @@ import classNames from 'classnames';
 
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   section: {
     maxWidth: 1200,
     padding: 20,

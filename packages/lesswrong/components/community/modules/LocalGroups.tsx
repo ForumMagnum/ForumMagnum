@@ -7,7 +7,7 @@ import Button from '@material-ui/core/Button';
 import { requireCssVar } from '../../../themes/cssVars';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   noResults: {
     ...theme.typography.commentStyle,
     textAlign: 'center',

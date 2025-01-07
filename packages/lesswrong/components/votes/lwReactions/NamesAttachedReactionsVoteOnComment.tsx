@@ -25,7 +25,7 @@ import { SetHoveredReactionContext } from './HoveredReactionContextProvider';
 import { filterNonnull } from '../../../lib/utils/typeGuardUtils';
 import { isMobile } from '../../../lib/utils/isMobile';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",

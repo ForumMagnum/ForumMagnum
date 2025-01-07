@@ -4,7 +4,7 @@ import { getSearchClient } from '../../../lib/search/searchUtil';
 import { Configure } from 'react-instantsearch-dom';
 import { InstantSearch } from "../../../lib/utils/componentsWithChildren";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   map: {
     height: '100vh',
     marginTop: -theme.spacing.mainLayoutPaddingTop,

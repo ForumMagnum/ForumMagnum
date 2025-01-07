@@ -9,7 +9,7 @@ import { VotingProps } from '../../votes/votingProps';
 import type { ContentItemBody, ContentReplacedSubstringComponentInfo } from '../../common/ContentItemBody';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   commentStyling: {
     maxWidth: "100%",
     overflowX: "hidden",

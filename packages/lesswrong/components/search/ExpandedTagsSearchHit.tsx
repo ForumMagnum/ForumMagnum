@@ -7,7 +7,7 @@ import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { requireCssVar } from '../../themes/cssVars';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     maxWidth: 700,
     paddingTop: 2,

@@ -6,7 +6,7 @@ import {
 } from "../../lib/instanceSettings";
 import { Link } from "../../lib/reactRouterWrapper";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   link: {
     color: theme.palette.primary.main,
   },

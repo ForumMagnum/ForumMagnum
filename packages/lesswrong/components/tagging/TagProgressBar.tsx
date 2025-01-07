@@ -27,7 +27,7 @@ export const secondaryInfo = (theme: ThemeType) => ({
   marginTop: 8
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...progressBarRoot(theme)
   },

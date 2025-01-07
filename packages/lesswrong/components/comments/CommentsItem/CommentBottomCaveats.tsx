@@ -4,7 +4,7 @@ import { useCurrentTime } from '../../../lib/utils/timeUtil';
 import { commentIsHidden } from '../../../lib/collections/comments/helpers';
 import moment from 'moment';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   caveatText: {
     flexGrow: 1,
   },

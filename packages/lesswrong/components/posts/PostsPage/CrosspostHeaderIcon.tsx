@@ -9,7 +9,7 @@ import { compassIcon } from "../../icons/compassIcon";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
 import { isFriendlyUI } from "../../../themes/forumTheme";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "inline-block",
   },

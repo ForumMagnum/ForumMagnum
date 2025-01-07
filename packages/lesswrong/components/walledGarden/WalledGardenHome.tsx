@@ -4,7 +4,7 @@ import { moderationEmail } from '../../lib/publicSettings';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   users: {
     background: theme.palette.panelBackground.default,
     padding: 20,

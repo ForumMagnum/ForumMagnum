@@ -7,7 +7,7 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import Radio from '@material-ui/core/Radio';
 import PropTypes from 'prop-types';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   radio: {
     paddingLeft: 12,
     paddingTop: 8,

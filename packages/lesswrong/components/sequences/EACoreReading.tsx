@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import type { CoreReadingCollection } from './LWCoreReading';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   razLargeVersion: {
     [theme.breakpoints.down('xs')]: {
       display: "none",

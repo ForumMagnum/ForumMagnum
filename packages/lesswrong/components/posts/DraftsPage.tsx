@@ -5,7 +5,7 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import {useCurrentUser} from "../common/withUser"
 import {useLocation} from "../../lib/routeUtil";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   checkbox: {
     padding: "1px 12px 0 0"
   },

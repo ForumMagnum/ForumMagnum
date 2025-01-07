@@ -9,7 +9,7 @@ import withErrorBoundary from "../common/withErrorBoundary";
 import moment from "moment";
 import { useTracking } from "../../lib/analyticsEvents";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     maxWidth: SECTION_WIDTH,
     display: "flex",

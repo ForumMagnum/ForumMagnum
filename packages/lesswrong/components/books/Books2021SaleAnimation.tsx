@@ -6,7 +6,7 @@ import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_2021_BOOK_BANNER_COOKIE, HIDE_FEATURED_RESOURCE_COOKIE } from '../../lib/cookies/cookies';
 import { Link } from '../../lib/reactRouterWrapper';
 
-const collapsedStyles = (theme: ThemeType): JssStyles => ({
+const collapsedStyles = (theme: ThemeType) => ({
   '& .book-container': {
     left: 'calc(var(--book-animation-left-offset, -100px) + var(--collapsed-position) - 90px)',
   },
@@ -21,7 +21,7 @@ const collapsedStyles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   buyButton: {
     display: 'flex',
     alignItems: 'center'

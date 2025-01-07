@@ -9,7 +9,7 @@ import classNames from 'classnames';
 import chunk from 'lodash/chunk';
 import { VotingProps } from './votingProps';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
   },
   agreementSection: {
@@ -240,7 +240,7 @@ const ReactBallotVoteOnComment = ({document, hideKarma=false, collectionName, vo
         </div>)}
         
         <div className={classes.hoverBallotRow}>
-          <span className={classes.overallLabel}>Overall</span>
+          <span>Overall</span>
           <OverallVoteAxis
             document={document}
             hideKarma={hideKarma}

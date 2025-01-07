@@ -5,7 +5,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import { sortings } from '../posts/DraftsList';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   item: {
     listStyle: "none",
     position: "relative",

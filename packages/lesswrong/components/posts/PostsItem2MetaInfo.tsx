@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   metaInfo: {
     color: theme.palette.text.dim3,
     fontSize: isFriendlyUI ? "13px" : "1.1rem",
@@ -13,7 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const PostsItem2MetaInfo = ({children, className, classes, read}: {
+const PostsItem2MetaInfo = ({children, className, classes}: {
   children?: React.ReactNode,
   className?: string,
   classes: ClassesType<typeof styles>,
@@ -21,7 +21,7 @@ const PostsItem2MetaInfo = ({children, className, classes, read}: {
 }) => {
   return <Components.Typography
     component='span'
-    className={classNames(classes.metaInfo, {[classes.read]: read}, className)}
+    className={classNames(classes.metaInfo, className)}
     variant='body2'>
       {children}
   </Components.Typography>

@@ -6,7 +6,7 @@ import sortBy from 'lodash/sortBy';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   grid: {
     display: 'grid',
     gridTemplateColumns: `

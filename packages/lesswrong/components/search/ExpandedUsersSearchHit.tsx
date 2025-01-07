@@ -7,7 +7,7 @@ import { Snippet } from 'react-instantsearch-dom';
 import LocationIcon from '@material-ui/icons/LocationOn'
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     maxWidth: 600,
     paddingTop: 2,

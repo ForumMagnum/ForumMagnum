@@ -5,7 +5,7 @@ import { userCanDo } from '../../lib/vulcan-users';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   form: {
     padding: 16,
     background: theme.palette.background.pageActiveAreaBackground,

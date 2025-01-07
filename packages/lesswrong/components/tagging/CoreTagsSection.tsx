@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: 16,
   },

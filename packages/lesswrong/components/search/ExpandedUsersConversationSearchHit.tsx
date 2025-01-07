@@ -6,7 +6,7 @@ import LocationIcon from '@material-ui/icons/LocationOn'
 import classNames from 'classnames';
 import {isFriendlyUI} from '../../themes/forumTheme.ts'
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     maxWidth: 600,
     paddingTop: 2,

@@ -13,8 +13,7 @@ import { frontpageGuidelines, defaultGuidelines } from './ForumModerationGuideli
 import { userCanModerateSubforum } from '../../../lib/collections/tags/helpers';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 
-
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: theme.spacing.unit*2,
     position:"relative"
@@ -70,9 +69,10 @@ const getPostModerationGuidelines = (
   classes: ClassesType<typeof styles>,
 ) => {
   const moderationStyle = post.moderationStyle || (post.user?.moderationStyle || "")
+  const moderationStyleClass = (classes as AnyBecauseTodo)[moderationStyle];
 
   const { html = "" } = post.moderationGuidelines || {}
-  const userGuidelines = `${post.user ? `<p><em>${post.user.displayName + "'s commenting guidelines"}</em></p><p class="${classes[moderationStyle]}">${moderationStyleLookup[moderationStyle] || ""}</p>` : ""}
+  const userGuidelines = `${post.user ? `<p><em>${post.user.displayName + "'s commenting guidelines"}</em></p><p class="${moderationStyleClass}">${moderationStyleLookup[moderationStyle] || ""}</p>` : ""}
   ${html || ""}`
 
   const combinedGuidelines = `

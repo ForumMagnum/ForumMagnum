@@ -47,7 +47,7 @@ const STICKY_SECTION_TOP_MARGIN = 20;
  */
 const allowedIncompletePaths: string[] = ["termsOfUse"];
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   main: {
     paddingTop: theme.spacing.mainLayoutPaddingTop,
     paddingBottom: 15,
@@ -543,7 +543,7 @@ const Layout = ({currentUser, children, classes}: {
               {/* enable during ACX Everywhere */}
               {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>}
 
-              <div className={classNames(classes.standaloneNavFlex, {
+              <div className={classNames({
                 [classes.spacedGridActivated]: shouldUseGridLayout && !unspacedGridLayout,
                 [classes.unspacedGridActivated]: shouldUseGridLayout && unspacedGridLayout,
                 [classes.eaHomeLayout]: friendlyHomeLayout && !renderSunshineSidebar,
@@ -614,7 +614,7 @@ const Layout = ({currentUser, children, classes}: {
                     <SunshineSidebar/>
                   </DeferRender>
                 </div>}
-                {renderLanguageModelChatLauncher && <div className={classes.languageModelChatLauncher}>
+                {renderLanguageModelChatLauncher && <div>
                   <DeferRender ssr={false}>
                     <LanguageModelLauncherButton/>
                   </DeferRender>

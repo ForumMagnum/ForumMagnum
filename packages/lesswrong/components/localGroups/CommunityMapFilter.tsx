@@ -26,7 +26,7 @@ import {isFriendlyUI} from '../../themes/forumTheme'
 
 const availableFilters = groupTypes.map(t => t.shortName);
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     width: 120,
     padding: "10px 10px 5px 10px",

@@ -5,7 +5,7 @@ import { taggingNameSetting } from '../../lib/instanceSettings';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: 8,
     display: "flex",

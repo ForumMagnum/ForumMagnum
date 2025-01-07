@@ -4,7 +4,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import type { ToCSection } from '../../lib/tableOfContents';
 import { commentBodyStyles } from '../../themes/stylePiping';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...commentBodyStyles(theme),
     color: theme.palette.grey[600]

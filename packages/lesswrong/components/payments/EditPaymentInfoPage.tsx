@@ -5,7 +5,7 @@ import { useMessages } from '../common/withMessages';
 import { useCurrentUser } from '../common/withUser';
 import { useNavigate } from '../../lib/reactRouterWrapper';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     maxWidth: 600,
     margin: "auto"

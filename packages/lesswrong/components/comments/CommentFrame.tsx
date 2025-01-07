@@ -8,7 +8,7 @@ export const HIGHLIGHT_DURATION = 3
 
 export const CONDENSED_MARGIN_BOTTOM = 4
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   node: {
     border: theme.palette.border.commentBorder,
     borderRadius: isFriendlyUI ? theme.borderRadius.small : undefined,

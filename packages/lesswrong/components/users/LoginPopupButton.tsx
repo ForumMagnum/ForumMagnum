@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     color: theme.palette.primary.main,

@@ -20,7 +20,7 @@ import { isEAForum } from '../../lib/instanceSettings';
 import { eaAnonymousEmojiPalette, eaEmojiPalette } from '../../lib/voting/eaEmojiPalette';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: 'flex',
     alignItems: 'center',

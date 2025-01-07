@@ -8,7 +8,7 @@ import sumBy from 'lodash/sumBy';
 import type { VotingProps } from '../votingProps';
 import { ContentItemBody } from '../../common/ContentItemBody';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     fontFamily: theme.typography.commentStyle.fontFamily,
   },

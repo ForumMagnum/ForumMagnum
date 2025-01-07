@@ -7,7 +7,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { useSingle } from '../../lib/crud/withSingle';
 import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   postTitle: {
     ...postPageTitleStyles(theme),
     display: "block",
@@ -83,7 +83,7 @@ const ReviewVotingExpandedPost = ({classes, post, setExpandedPost, showReviewBut
       </div>
     </div>}/>}
 
-    <div className={classes.comments}>
+    <div>
       <PingbacksList postId={newPost._id} limit={3}/>
       {(getReviewPhase() !== "VOTING") && <ReviewPostComments
         title="Review"

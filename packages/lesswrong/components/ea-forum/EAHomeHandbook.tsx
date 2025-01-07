@@ -12,7 +12,7 @@ import { HIDE_HANDBOOK_COOKIE } from '../../lib/cookies/cookies';
 
 const bannerHeight = 250
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   bannerContainer: {
     position: 'absolute',
     top: 130, // desktop header height + layout margin + negative margin

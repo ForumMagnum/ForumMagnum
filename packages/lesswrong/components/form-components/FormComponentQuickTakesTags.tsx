@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useQuickTakesTags } from "../quickTakes/useQuickTakesTags";
 
-const styles = (_theme: ThemeType): JssStyles => ({
+const styles = (_theme: ThemeType) => ({
   tagContainer: {
     display: "flex",
     flexWrap: "wrap",
