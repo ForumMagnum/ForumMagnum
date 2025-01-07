@@ -96,7 +96,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 
 const AddPostsToTag = ({classes, tag}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   tag: TagPreviewFragment
 }) => {
   const [isAwaiting, setIsAwaiting] = useState(false);

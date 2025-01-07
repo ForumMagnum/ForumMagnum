@@ -55,7 +55,7 @@ export const PostsTagsList = (
     defaultMax = 6,
     afterChildren,
   }: {
-    classes: ClassesType,
+    classes: ClassesType<typeof styles>,
     posts: PostsList[] | null,
     currentFilter: string | null, // the current tag being filtered on the post list
     handleFilter: (filter: string) => void, // function to update which tag is being filtered

@@ -26,7 +26,7 @@ const MuiTextField = ({ value, updateCurrentValues, path, children, select, defa
   variant?: "standard" | "outlined" | "filled";
   type?: string;
   InputLabelProps?: Partial<TextFieldProps['InputLabelProps']>;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
   const onChange: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement> = (event) => {
     void updateCurrentValues({

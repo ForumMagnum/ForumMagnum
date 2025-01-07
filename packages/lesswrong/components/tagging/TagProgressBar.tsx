@@ -74,7 +74,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const TagProgressBar = ({ classes }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
 
   const { LWTooltip, PostsItem2MetaInfo, SeparatorBullet } = Components;

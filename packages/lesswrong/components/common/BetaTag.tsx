@@ -12,7 +12,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const BetaTag = ({classes}: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   return <span className={classes.root}>[Beta]</span>
 }

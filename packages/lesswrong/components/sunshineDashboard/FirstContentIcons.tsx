@@ -18,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 export const FirstContentIcons = ({user, classes}: {
   user: SunshineUsersList,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const showPostIcon = user.postCount > 0 && !user.reviewedByUserId
   const showCommentIcon = user.commentCount > 0 && !user.reviewedByUserId

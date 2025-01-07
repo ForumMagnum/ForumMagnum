@@ -20,7 +20,7 @@ const styles = (_theme: ThemeType): JssStyles => ({
 });
 
 interface EAEmojisVoteOnCommentProps extends CommentVotingComponentProps {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }
 
 const EAEmojisVoteOnComment = ({

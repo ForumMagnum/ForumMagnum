@@ -62,7 +62,7 @@ const TabNavigationMenu = ({
   onClickSection?: (e?: React.BaseSyntheticEvent) => void,
   transparentBackground?: boolean,
   noTopMargin?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()

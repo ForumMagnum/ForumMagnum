@@ -28,7 +28,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 
-export const ReviewsPage = ({classes, reviewYear}: {classes: ClassesType, reviewYear?: ReviewYear}) => {
+export const ReviewsPage = ({classes, reviewYear}: {classes: ClassesType<typeof styles>, reviewYear?: ReviewYear}) => {
   const { SingleColumnSection, ReviewsList } = Components
 
   const { params } = useLocation()

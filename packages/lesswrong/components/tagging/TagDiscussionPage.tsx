@@ -21,7 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const TagDiscussionPage = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { params } = useLocation();
   const { slug } = params;

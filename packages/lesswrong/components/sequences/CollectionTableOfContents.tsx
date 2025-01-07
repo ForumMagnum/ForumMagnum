@@ -24,7 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const CollectionTableOfContents = ({classes, collection}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   collection: CollectionsPageFragment
 }) => {
   const { TableOfContents } = Components 

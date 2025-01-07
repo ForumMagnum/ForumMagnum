@@ -44,7 +44,7 @@ const Typography = ({children, variant, component, className, onClick, gutterBot
   className?: string,
   onClick?: any,
   gutterBottom?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   id?: string,
 }) => {
   const Component: any = component || variantToDefaultComponent[variant] || "span";

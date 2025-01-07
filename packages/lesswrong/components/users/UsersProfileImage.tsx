@@ -61,7 +61,7 @@ const InitialFallback: FC<{
   displayName: string,
   size: number,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }> = memo(({displayName, size, className, classes}) => {
   displayName ??= "";
   const initials = displayName
@@ -114,7 +114,7 @@ const UsersProfileImage = ({user, size, fallback="initials", className, classes}
   size: number,
   fallback?: ProfileImageFallback,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   if (!user?.displayName) {
     return (

@@ -184,7 +184,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   questionId: String
 }) => {
   const currentUser = useCurrentUser();

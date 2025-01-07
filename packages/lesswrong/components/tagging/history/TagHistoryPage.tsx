@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const TagHistoryPage = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { params, query } = useLocation();
   const { slug } = params;

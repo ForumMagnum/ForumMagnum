@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const SearchSingleUser = ({value, path, label, classes, updateCurrentValues}: FormComponentProps<string> & {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return (
     <div className={classes.root}>

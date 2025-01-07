@@ -14,7 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const TableOfContentsDivider = ({ scaleStyling, classes }: {
   scaleStyling?: CSSProperties
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return <div className={classes.divider} style={scaleStyling}/>
 }

@@ -42,7 +42,7 @@ const ShortformTimeBlock  = ({reportEmpty, before, after, terms, classes}: {
   before: string
   after: string
   terms: CommentsViewTerms,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {LoadMore, ContentType} = Components;
 

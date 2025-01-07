@@ -19,7 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SingleUsersItem = ({userId, removeItem, classes }: {
   userId: string,
   removeItem: (id: string) => void,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { document, loading } = useSingle({
     documentId: userId,

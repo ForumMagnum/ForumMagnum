@@ -45,7 +45,7 @@ const EditTitle = ({document, value, path, updateCurrentValues, classes}: {
   path: string,
   placeholder: string,
   updateCurrentValues: Function,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { flash } = useMessages()
   const [lastSavedTitle, setLastSavedTitle] = useState<string|undefined>(document.title)

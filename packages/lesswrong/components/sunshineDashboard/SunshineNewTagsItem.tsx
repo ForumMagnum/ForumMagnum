@@ -33,7 +33,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const SunshineNewTagsItem = ({tag, classes}: {
   tag: SunshineTagFragment,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser();
   const {eventHandlers, hover, anchorEl} = useHover();

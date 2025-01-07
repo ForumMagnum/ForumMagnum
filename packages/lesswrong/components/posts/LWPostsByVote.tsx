@@ -11,7 +11,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const LWPostsByVote = ({classes, postIds, year, limit, showMostValuableCheckbox=false, hideEmptyStateText=false, postItemClassName}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   postIds: Array<string>,
   year: number | '≤2020',
   limit?: number,

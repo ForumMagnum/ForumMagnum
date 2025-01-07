@@ -8,7 +8,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const RevisionComparisonNotice = ({before, after, classes}: {
   before: string,
   after: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return <p className={classes.root}>You are comparing revision {before} to revision {after}.</p>
 }

@@ -23,7 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const CommentDiscussionIcon = ({comment, small = false, classes}: {
   comment: CommentsList,
   small?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { LWTooltip } = Components
   if (comment.tagCommentType !== "SUBFORUM" || comment.topLevelCommentId) return null

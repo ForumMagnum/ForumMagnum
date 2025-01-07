@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const FrontpageGcalEventItem = ({classes, gcalEvent}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   gcalEvent: any,
 }) => {
   return <div className={classes.root}>

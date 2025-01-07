@@ -78,7 +78,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 */
 const MessageItem = ({message, classes}: {
   message: messageListFragment,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const { html = "" } = message?.contents || {}

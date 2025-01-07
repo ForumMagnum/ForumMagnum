@@ -51,7 +51,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SequencesListEditorItem = ({documentId, removeItem, classes}: {
   documentId: string;
   removeItem: (itemId: string) => void;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
   const { document, loading } = useSingle({
     documentId,

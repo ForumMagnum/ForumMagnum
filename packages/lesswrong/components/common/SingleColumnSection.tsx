@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const SingleColumnSection = ({classes, className, children}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   className?: string,
   children?: React.ReactNode,
 }) => {

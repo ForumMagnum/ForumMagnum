@@ -77,7 +77,7 @@ const OverallVoteAxis = ({
   document: VoteableTypeClient,
   hideKarma?: boolean,
   voteProps: VotingProps<VoteableTypeClient>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   showBox?: boolean,
   verticalArrows?: boolean,
   largeArrows?: boolean,

@@ -40,7 +40,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SunshineSidebar = ({classes}: {classes: ClassesType}) => {
+const SunshineSidebar = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const [showSidebar, setShowSidebar] = useState(false)
   const [showUnderbelly, setShowUnderbelly] = useState(false)
   const currentUser = useCurrentUser();

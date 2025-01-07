@@ -24,7 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const DeleteCommentDialog = ({comment, onClose, classes}: {
   comment: CommentsList,
   onClose?: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [deletedReason, setDeletedReason] = useState("");
   const {moderateCommentMutation} = useModerateComment({fragmentName: "CommentsList"});

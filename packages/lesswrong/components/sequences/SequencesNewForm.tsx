@@ -153,7 +153,7 @@ const SequencesNewForm = ({ redirect, cancelCallback, removeSuccessCallback, cla
   redirect: any,
   cancelCallback: any,
   removeSuccessCallback: any,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();

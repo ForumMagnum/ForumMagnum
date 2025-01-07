@@ -23,7 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const RejectedReasonDisplay = ({classes, reason}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   reason: string|null
 }) => {
   const { LWTooltip, ContentStyles, ContentItemBody, MetaInfo } = Components

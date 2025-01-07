@@ -81,7 +81,7 @@ const ExpandedUsersConversationSearchHit = ({
   onSelect: (userId: Hit<any>) => void;
   isModInbox?: boolean;
   className?: string;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
   const { FormatDate, UsersProfileImage, ForumIcon } = Components;
   const user = hit as SearchUser;

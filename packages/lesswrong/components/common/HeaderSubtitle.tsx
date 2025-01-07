@@ -16,7 +16,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const HeaderSubtitle = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { currentRoute } = useSubscribedLocation();
   if (!currentRoute) {

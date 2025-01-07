@@ -31,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const VoteHistoryTab = ({classes}: {classes: ClassesType}) => {
+const VoteHistoryTab = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const defaultLimit = 10;
   const pageSize = 30;
 

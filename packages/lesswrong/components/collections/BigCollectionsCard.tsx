@@ -71,7 +71,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const BigCollectionsCard = ({ collection, url, classes }: {
   collection: CoreReadingCollection,
   url: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { LinkCard, UsersName, Typography } = Components;
   const cardContentStyle = {borderTopColor: collection.color}

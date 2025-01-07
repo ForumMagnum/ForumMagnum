@@ -8,7 +8,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const AllReactedCommentsPage = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const defaultLimit = 50;
   const pageSize = 50

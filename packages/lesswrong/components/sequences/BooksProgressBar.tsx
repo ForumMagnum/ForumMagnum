@@ -59,7 +59,7 @@ const WORDS_PER_PAGE = 500;
 
 const BooksProgressBar = ({ book, classes }: {
   book: BookPageFragment,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { LWTooltip, PostsTooltip, LoginToTrack } = Components;
 

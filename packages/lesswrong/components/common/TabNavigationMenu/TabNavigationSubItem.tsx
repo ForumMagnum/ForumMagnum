@@ -33,7 +33,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const TabNavigationSubItem = ({children, classes, className}: {
   children?: React.ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   className?: string,
 }) => {
   return <div className={classNames(classes.root, className)}>

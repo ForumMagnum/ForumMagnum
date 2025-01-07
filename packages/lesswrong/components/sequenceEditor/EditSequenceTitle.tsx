@@ -61,7 +61,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const EditSequenceTitle = ({classes, inputProperties, value, path, placeholder}: {
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
   inputProperties: any;
   value: string;
   path: string;

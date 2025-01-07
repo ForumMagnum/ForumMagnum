@@ -16,7 +16,7 @@ const UserSelect = ({ value, setValue, label, classes }: {
   value: string | null,
   setValue: (newValue: string | null, result: SearchUser | null) => void,
   label: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return (
     <div className={classes.root}>

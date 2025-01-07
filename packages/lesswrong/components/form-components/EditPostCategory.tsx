@@ -33,7 +33,7 @@ const EditPostCategory = ({
   path: string;
   placeholder: string;
   updateCurrentValues: Function;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
   const { postCategory, url } = document;
   const lastUrlRef = useRef(url);

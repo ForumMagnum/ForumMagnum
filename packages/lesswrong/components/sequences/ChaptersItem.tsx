@@ -27,7 +27,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const ChaptersItem = ({ chapter, canEdit, classes }: {
   chapter: ChaptersFragment,
   canEdit: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [edit,setEdit] = useState(false);
 

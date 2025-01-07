@@ -30,7 +30,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const FrontpageVotingPhase = ({settings, classes}: {
   settings: DefaultRecommendationsAlgorithm,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const { SectionSubtitle, SectionFooter, RecommendationsList, HoverPreviewLink, LWTooltip } = Components

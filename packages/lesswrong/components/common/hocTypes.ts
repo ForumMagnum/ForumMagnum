@@ -13,13 +13,15 @@ type JssStylesCallback<ClassKey extends string = string> = (
   theme: ThemeType,
 ) => JssStyles<ClassKey>;
 
+type AnyStyles = JssStylesCallback<string>;
+
 type ClassesType<
-  Styles extends JssStylesCallback<ClassKey> = JssStylesCallback<string>,
+  Styles extends JssStylesCallback<ClassKey>,
   ClassKey extends string = string
 > = Readonly<Record<keyof ReturnType<Styles>, string>>;
 
 interface WithStylesProps {
-  classes: ClassesType,
+  classes: ClassesType<AnyStyles>,
 }
 
 type WithMessagesMessage = string|{id?: string, properties?: any, messageString?: string|ReactElement, type?: string, action?: any};

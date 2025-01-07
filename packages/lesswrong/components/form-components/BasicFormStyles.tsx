@@ -19,7 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const BasicFormStyles = ({classes, children}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   children: React.ReactNode
 }) => {
   return <div className={classes.root}>

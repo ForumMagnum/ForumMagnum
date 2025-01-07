@@ -27,7 +27,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const RateLimitWarning = ({lastRateLimitExpiry, rateLimitMessage, classes}: {
   lastRateLimitExpiry: Date,
   rateLimitMessage?: string,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { ContentStyles, ContentItemBody } = Components
 

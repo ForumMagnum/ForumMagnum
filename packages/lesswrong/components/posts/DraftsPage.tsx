@@ -21,7 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const DraftsPage = ({classes}: {
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
   const {SingleColumnSection, DraftsList } = Components
   

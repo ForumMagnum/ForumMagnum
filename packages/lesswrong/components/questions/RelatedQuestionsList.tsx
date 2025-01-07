@@ -30,7 +30,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const RelatedQuestionsList = ({ post, classes }: {
   post: PostsDetails,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { PostsItem, SectionTitle } = Components
   

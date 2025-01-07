@@ -43,7 +43,7 @@ const AnswerCommentsList = ({post, parentAnswer, commentTree, treeOptions, class
   commentTree: CommentTreeNode<CommentsList>[],
   treeOptions: CommentTreeOptions,
   parentAnswer: CommentsList,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const totalCount = parentAnswer.descendentCount;
   const now = useCurrentTime();

@@ -17,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const EditPaymentInfoPage = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { SectionTitle, Error404, ContentStyles } = Components
   const currentUser = useCurrentUser()

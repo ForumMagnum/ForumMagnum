@@ -84,7 +84,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 export const EditDigestHeader = ({digest, classes}: {
   digest: DigestsMinimumInfo,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   // clicking on the start or end date lets you edit it
   const [isEditingStartDate, setIsEditingStartDate] = useState(false);

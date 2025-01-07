@@ -40,7 +40,7 @@ const TagDiscussionButton = ({tag, text = "Discussion", hideLabelOnMobile = fals
   tag: TagFragment | TagBasicInfo | TagCreationHistoryFragment,
   text?: string,
   hideLabelOnMobile?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   
   const { TagDiscussion, PopperCard } = Components

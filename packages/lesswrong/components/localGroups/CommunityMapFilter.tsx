@@ -220,7 +220,7 @@ const CommunityMapFilter = ({
   showEvents: boolean,
   toggleIndividuals: any,
   showIndividuals: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const location = useLocation();
   const currentUser = useCurrentUser();

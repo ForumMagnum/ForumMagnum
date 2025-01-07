@@ -29,7 +29,7 @@ const NotificationTypeSettings = ({ path, value, label, classes }: {
   path: keyof DbUser;
   value: PickedTime;
   label: string;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }, context: any) => {
   const { BatchTimePicker, Typography, MenuItem } = Components;
   const currentValue = { ...defaultNotificationTypeSettings, ...value };

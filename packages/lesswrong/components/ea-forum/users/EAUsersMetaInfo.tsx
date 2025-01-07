@@ -59,7 +59,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const EAUsersMetaInfo = ({user, classes}: {
   user: UsersProfile,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const userKarma = user.karma;
   const userHasSocialMedia = Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).some(

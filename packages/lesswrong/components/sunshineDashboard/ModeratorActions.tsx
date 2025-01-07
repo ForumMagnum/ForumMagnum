@@ -83,7 +83,7 @@ export function getNewSnoozeUntilContentCount(user: UserContentCountPartial, con
 
 export const ModeratorActions = ({classes, user, currentUser, refetch, comments, posts}: {
   user: SunshineUsersList,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   currentUser: UsersCurrent,
   refetch: () => void,
   comments: Array<CommentsListWithParentMetadata>|undefined,

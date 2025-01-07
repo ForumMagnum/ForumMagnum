@@ -37,7 +37,7 @@ const TagRevisionItem = ({
   documentId: string,
   showDiscussionLink?: boolean,
   noContainer?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { CompareRevisions, TagRevisionItemFullMetadata, TagRevisionItemShortMetadata, TagDiscussionButton, ContentStyles } = Components
   const [expanded, setExpanded] = useState(false);

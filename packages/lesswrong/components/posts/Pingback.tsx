@@ -14,7 +14,7 @@ const styles = (_theme: ThemeType): JssStyles => ({
 });
 
 const Pingback = ({classes, post}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   post: PostsList,
 }) => {
   const {PostsTooltip, PostsItem2MetaInfo, KarmaDisplay, PostsTitle} = Components;

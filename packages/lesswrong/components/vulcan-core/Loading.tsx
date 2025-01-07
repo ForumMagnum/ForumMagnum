@@ -51,7 +51,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const Loading = ({classes, className, white}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   className?: string,
   white?: boolean
 }) => {

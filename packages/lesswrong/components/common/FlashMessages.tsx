@@ -57,7 +57,7 @@ export const MessageContextProvider = ({children}: {
 }
 
 const FlashMessages = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const getProperties = (message: WithMessagesMessage) => {
     if (typeof message === 'string') {

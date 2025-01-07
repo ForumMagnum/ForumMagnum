@@ -40,7 +40,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const PingbacksList = ({classes, postId, limit=5}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   postId: string,
   limit?: number
 }) => {

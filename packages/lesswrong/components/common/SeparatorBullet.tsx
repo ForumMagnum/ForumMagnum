@@ -9,7 +9,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 const SeparatorBullet = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return <span className={classes.root}>{" "}•{" "}</span>;
 }

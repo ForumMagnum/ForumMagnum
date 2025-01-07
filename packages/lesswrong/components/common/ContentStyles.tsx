@@ -100,7 +100,7 @@ const ContentStyles = ({contentType, className, style, children, classes}: {
   className?: string,
   style?: CSSProperties,
   children: React.ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return <div style={style} className={classNames(
     className, classes.base, "content",

@@ -22,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const PostsLayoutDropdown = ({classes, value=defaultPostsLayout, queryParam="layout"}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   value?: PostsLayout
   queryParam?: string,
 }) => {

@@ -18,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
  * so that we don't have to keep making new users to test it.
  */
 const AdminViewOnboarding = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   

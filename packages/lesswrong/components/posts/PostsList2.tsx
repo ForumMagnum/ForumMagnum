@@ -32,7 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-type PostsList2Props = PostsListConfig & {classes: ClassesType};
+type PostsList2Props = PostsListConfig & {classes: ClassesType<typeof styles>};
 
 /** A list of posts, defined by a query that returns them. */
 const PostsList2 = ({classes, ...props}: PostsList2Props) => {

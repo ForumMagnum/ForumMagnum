@@ -12,7 +12,7 @@ const PostsListSortDropdown = ({value, options=defaultOptions, sortingParam="sor
   value: string
   options?: string[],
   sortingParam?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { ForumDropdown } = Components;
 

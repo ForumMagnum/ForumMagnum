@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const TagRevisionItemShortMetadata = ({tag, revision, classes}: {
   tag: TagBasicInfo,
   revision: RevisionMetadataWithChangeMetrics,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { FormatDate, UsersName, MetaInfo, LWTooltip, ChangeMetricsDisplay, SmallSideVote } = Components
   const revUrl = tagGetRevisionLink(tag, revision.version);

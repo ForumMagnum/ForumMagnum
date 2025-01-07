@@ -34,7 +34,7 @@ const PostsGroupDetails = ({ documentId, post, inRecentDiscussion, classes }: {
   documentId: string,
   post: PostsBase,
   inRecentDiscussion?: Boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { document } = useSingle({
     documentId,

@@ -57,7 +57,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const CoreTagCard = ({tag, classes}: {
   tag: TagDetailsFragment
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { CloudinaryImage2, SubscribeButton } = Components;
 

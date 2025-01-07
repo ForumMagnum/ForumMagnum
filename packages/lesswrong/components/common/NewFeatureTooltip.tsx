@@ -107,7 +107,7 @@ const NewFeatureTooltip = ({classes, children, title = 'New feature!', placement
   children?: ReactNode,
   title?: string,
   placement?: 'top'|'right'|'left'|'bottom',
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { hover, everHovered, anchorEl, eventHandlers } = useHover({
     eventProps: {

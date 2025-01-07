@@ -33,7 +33,7 @@ const DateRangeModal = ({
   startDate: Date | null;
   endDate: Date;
   updateDisplayDates: (startDate: Date | null, endDate: Date) => void;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
   const { LWDialog, DatePicker, EAButton } = Components;
 

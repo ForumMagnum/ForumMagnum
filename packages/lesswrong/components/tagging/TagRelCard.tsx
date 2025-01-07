@@ -47,7 +47,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const TagRelCard = ({tagRel, classes}: {
   tagRel: TagRelMinimumFragment,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const voteProps = useVote(tagRel, "TagRels");

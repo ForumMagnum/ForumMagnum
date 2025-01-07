@@ -19,7 +19,7 @@ const TagEditsTimeBlock = ({before, after, reportEmpty, classes}: {
   before: string,
   after: string,
   reportEmpty: () => void,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { ContentType, SingleLineTagUpdates, LoadMore } = Components;
   const { data, loading } = useQuery(gql`

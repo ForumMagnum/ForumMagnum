@@ -169,7 +169,7 @@ const prefillFromTemplate = (template: PostsEdit) => {
   )
 }
 
-export const getPostEditorGuide = (classes: ClassesType) => {
+export const getPostEditorGuide = (classes: ClassesType<typeof styles>) => {
   const {LWTooltip, NewPostHowToGuides} = Components;
   if (isLWorAF) {
     return (
@@ -238,7 +238,7 @@ function usePrefetchForAutosaveRedirect() {
 }
 
 const PostsNewForm = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {
     PostSubmit, WrappedSmartForm, LoginForm, SubmitToFrontpageCheckbox,

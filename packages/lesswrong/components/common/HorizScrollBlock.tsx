@@ -76,7 +76,7 @@ const HorizScrollBlock = ({children, className, contentsClassName, classes}: {
   children: ReactNode
   className?: string,
   contentsClassName?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const scrollableContentsRef = useRef<HTMLDivElement>(null);
   const [isScrolledAllTheWayLeft, setIsScrolledAllTheWayLeft] = useState(true);

@@ -45,7 +45,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SectionFooter = ({ children, className, classes }: {
   children: React.ReactNode,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return (
     <Components.Typography variant="body2" className={classNames(classes.root, className)}>

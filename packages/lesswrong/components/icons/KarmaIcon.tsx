@@ -28,7 +28,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 // this is currently unused, but will hopefully be used someday after we reflect on it a bit more.
 const KarmaIcon = ({classes, className}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   className?: string,
 }) => {
   return <span className={classNames(classes.root, className)}>

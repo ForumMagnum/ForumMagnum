@@ -220,7 +220,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const BookAnimation = ({ classes, children, successContent }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   children: ReactNode,
   successContent?: any
 }) => {

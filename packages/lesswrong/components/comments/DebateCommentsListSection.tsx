@@ -63,7 +63,7 @@ const DebateCommentsListSection = ({post, totalComments, comments, newForm=true,
   comments: CommentsList[],
   newForm: boolean,
   newFormProps?: Partial<CommentsNewFormProps>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const commentTree = unflattenComments(comments);

@@ -23,7 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const NewUserGuidelinesDialog = ({classes, onClose, post, user}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   onClose: () => void,
   post: PostsMinimumInfo,
   user: UsersCurrent

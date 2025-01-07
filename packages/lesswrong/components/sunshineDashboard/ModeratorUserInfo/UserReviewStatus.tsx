@@ -17,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const UserReviewStatus = ({classes, user}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   user: SunshineUsersList
 }) => {
   const { FormatDate, UsersNameWrapper, AltAccountInfo } = Components

@@ -10,7 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const FormErrors = ({ errors, classes }: {
   errors: any[]
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => (
   <div className={classNames(classes.root, "form-errors")}>
     {!!errors.length && (

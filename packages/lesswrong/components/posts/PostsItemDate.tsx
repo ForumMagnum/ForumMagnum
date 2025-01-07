@@ -64,7 +64,7 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfN
   includeAgo?: boolean,
   useCuratedDate?: boolean,
   emphasizeIfNew?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
 
   if (noStyles) {

@@ -83,7 +83,7 @@ const PLACEHOLDER_TITLE = "LLM Chat: New Conversation"
 
 const PopupLanguageModelChat = ({onClose, classes}: {
   onClose: () => void,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { LanguageModelChat, LWTooltip, ForumIcon } = Components;
 

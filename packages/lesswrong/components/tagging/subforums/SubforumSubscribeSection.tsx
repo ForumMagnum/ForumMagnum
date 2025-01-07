@@ -36,7 +36,7 @@ const SubforumSubscribeSection = ({
   joinCallback?: () => void,
   leaveCallback?: () => void,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();

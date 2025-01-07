@@ -67,13 +67,13 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 interface EmojiReactionVoteOnCommentProps extends CommentVotingComponentProps {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }
 
 const EmojiReaction = ({reaction, voteProps, classes}: {
   reaction: EmojiReactionType,
   voteProps: VotingProps<VoteableTypeClient>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const count = voteProps.document?.extendedScore?.[reaction.name] || 0
   if (!count) return null
@@ -87,7 +87,7 @@ const EmojiReaction = ({reaction, voteProps, classes}: {
 const BallotEmojiReaction = ({reaction, voteProps, classes}: {
   reaction: EmojiReactionType,
   voteProps: VotingProps<VoteableTypeClient>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const isSelected = !!voteProps.document?.currentUserExtendedVote?.[reaction.name]
   const { openDialog } = useDialog()
@@ -117,7 +117,7 @@ const BallotEmojiReaction = ({reaction, voteProps, classes}: {
 
 const EmojiReactionsAxis = ({voteProps, classes}: {
   voteProps: VotingProps<VoteableTypeClient>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { hover, anchorEl, eventHandlers } = useHover()
   

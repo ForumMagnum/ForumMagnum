@@ -34,7 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const SpotlightEditorStyles = ({classes, children}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   children: ReactNode,
 }) => {
   return <div className={classes.root}>

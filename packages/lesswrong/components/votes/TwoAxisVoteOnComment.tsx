@@ -10,7 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 interface TwoAxisVoteOnCommentProps extends CommentVotingComponentProps {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }
 
 const TwoAxisVoteOnComment = ({document, hideKarma=false, collectionName, votingSystem, classes}: TwoAxisVoteOnCommentProps) => {

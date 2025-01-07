@@ -26,7 +26,7 @@ const SortableList = makeSortableListComponent({
 });
 
 const PostsListEditor = ({value, path, updateCurrentValues, classes}: FormComponentProps<string[]> & {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return <div className={classes.editor}>
     <SortableList

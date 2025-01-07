@@ -24,7 +24,7 @@ export interface CommentWithRepliesProps {
   commentNodeProps?: Partial<CommentsNodeProps>;
   startExpanded?: boolean;
   className?: string;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }
 
 const CommentWithReplies = ({

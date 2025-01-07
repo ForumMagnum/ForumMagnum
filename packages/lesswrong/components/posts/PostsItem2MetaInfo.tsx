@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const PostsItem2MetaInfo = ({children, className, classes, read}: {
   children?: React.ReactNode,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   read?: boolean,
 }) => {
   return <Components.Typography

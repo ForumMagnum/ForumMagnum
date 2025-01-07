@@ -61,7 +61,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SidebarMembersBox = ({tag, className, classes}: {
   tag: TagSubforumFragment,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { results: members, loading } = useMulti({
     terms: {view: 'tagCommunityMembers', profileTagId: tag?._id, limit: 100},

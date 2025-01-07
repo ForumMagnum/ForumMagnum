@@ -20,7 +20,7 @@ const EmailInactiveUserSurvey = ({
   classes,
 }: {
   user: DbUser;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
   const surveyLink = 'https://docs.google.com/forms/d/e/1FAIpQLSevnR0viER-xSUbcL0AsQpQ8Zn7X5iuvUgMcs3XEqk55SngLw/viewform'
 

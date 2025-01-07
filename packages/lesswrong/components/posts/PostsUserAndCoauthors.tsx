@@ -51,7 +51,7 @@ const PostsUserAndCoauthors = ({
 }: {
   post: PostsList | SunshinePostsList,
   abbreviateIfLong?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   simple?: boolean,
   tooltipPlacement?: PopperPlacementType,
   newPromotedComments?: boolean,

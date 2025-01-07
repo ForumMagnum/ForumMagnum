@@ -11,7 +11,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const LoginPopupButton = ({classes, children, title, className}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   children: React.ReactNode,
   title?: string,
   className?: string

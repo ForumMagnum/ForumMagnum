@@ -17,7 +17,7 @@ const styles = (theme: JssStyles) => ({
 // Button used to add a new feed to a user profile
 //
 const NewFeedButton = ({classes, user, closeModal}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   user: UsersProfile,
   closeModal?: any
 }) => {

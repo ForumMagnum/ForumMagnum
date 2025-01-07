@@ -121,7 +121,7 @@ export const getUserFromResults = <T extends UsersMinimumInfo>(results: Array<T>
 const UsersProfileFn = ({terms, slug, classes}: {
   terms: UsersViewTerms,
   slug: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [showSettings, setShowSettings] = useState(false);
 

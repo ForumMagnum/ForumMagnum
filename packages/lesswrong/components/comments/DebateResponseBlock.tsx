@@ -30,7 +30,7 @@ export const DebateResponseBlock = ({ responses, post, orderedParticipantList, d
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
   orderedParticipantList: string[],
   daySeparator?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { DebateResponse } = Components;
 

@@ -10,7 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const FieldErrors = ({ errors, classes }: {
   errors: any[]
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => (
   <ul className={classNames(classes.root, "form-input-errors")}>
     {errors.map((error, index) => (

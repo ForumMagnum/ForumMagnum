@@ -79,7 +79,7 @@ export const getAddToCalendarLink = (gcalEvent: AnyBecauseTodo) => {
 }
 
 const PortalBarGcalEventItem = ({classes, gcalEvent}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   gcalEvent: any,
 }) => {
   return <div className={classes.root}>

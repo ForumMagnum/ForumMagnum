@@ -9,7 +9,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const SunshineListCount = ({ count, classes }: {
   count: number|undefined,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { MetaInfo } = Components
   if (count && count > 10) {

@@ -59,7 +59,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const RejectContentDialog = ({classes, rejectContent}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   rejectContent: (reason: string) => void,
 }) => {
   const { LWTooltip, ContentItemBody, ContentStyles, LoadMore } = Components;

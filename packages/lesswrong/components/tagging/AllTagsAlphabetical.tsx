@@ -26,7 +26,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const AllTagsAlphabetical = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { results, loading } = useMulti({
     terms: {

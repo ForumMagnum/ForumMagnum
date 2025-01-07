@@ -32,7 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 // Editor that _only_ gives people access to the ckEditor, without any other post options
 const PostCollaborationEditor = ({ classes }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { SingleColumnSection, Loading, ContentStyles, ErrorAccessDenied, PermanentRedirect, ForeignCrosspostEditForm, PostVersionHistoryButton } = Components
   const currentUser = useCurrentUser();

@@ -13,7 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const AlignmentPendingApprovalMessage = ({post, classes}: {
   post: PostsBase,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser()
   if (!currentUser) return null

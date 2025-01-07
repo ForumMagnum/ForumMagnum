@@ -71,7 +71,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const NewAnswerCommentQuestionForm = ({post, classes}: {
   post: PostsDetails,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [selection, setSelection] = useState("answer");
   const [formFocus, setFormFocus] = useState(false);

@@ -6,7 +6,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const TagDiscussionSection = ({classes, tag}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   tag: TagBasicInfo
 }) => {
   const {CommentsListSection } = Components;

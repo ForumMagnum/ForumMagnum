@@ -13,7 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const ManageSubscriptionsLink = ({document, removeItem, classes }: {
   document?: any,
   removeItem?: any,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return <Link to="/manageSubscriptions">
     <Button color="secondary" variant="outlined"

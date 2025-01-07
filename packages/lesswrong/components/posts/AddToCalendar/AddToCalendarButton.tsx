@@ -58,7 +58,7 @@ const AddToCalendarButton = ({post, label, hideTooltip, hideIcon, iconClassName,
   hideTooltip?: boolean,
   hideIcon?: boolean,
   iconClassName?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { captureEvent } = useTracking()
   const [open, setOpen] = useState(false)

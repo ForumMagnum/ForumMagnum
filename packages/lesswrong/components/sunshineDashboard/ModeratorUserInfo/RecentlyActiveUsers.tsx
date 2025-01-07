@@ -114,7 +114,7 @@ type SortingType = "lastNotificationsCheck"|"last20Karma"|"downvoters"|"karma"|"
 
 
 const RecentlyActiveUsers = ({ classes }: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { UsersReviewInfoCard, LoadMore, LWTooltip, UsersName, FormatDate, MetaInfo, UserAutoRateLimitsDisplay, SectionFooterCheckbox, Row } = Components;
 

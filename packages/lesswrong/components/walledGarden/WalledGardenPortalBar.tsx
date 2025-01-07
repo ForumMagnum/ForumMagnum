@@ -70,7 +70,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 
-export const WalledGardenPortalBar = ({iframeRef, classes}: {iframeRef: React.RefObject<HTMLIFrameElement|null>, classes: ClassesType}) => {
+export const WalledGardenPortalBar = ({iframeRef, classes}: {iframeRef: React.RefObject<HTMLIFrameElement|null>, classes: ClassesType<typeof styles>}) => {
   const { GardenCodeWidget, GardenCodesList, PomodoroWidget, Typography, ContentStyles } = Components
 
   const currentUser =  useCurrentUser()

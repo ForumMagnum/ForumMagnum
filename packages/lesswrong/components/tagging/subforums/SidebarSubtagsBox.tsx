@@ -36,7 +36,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SidebarSubtagsBox = ({ tag, className, classes }: {
   tag: TagPageFragment | TagPageWithRevisionFragment,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { ContentStyles, FooterTag, AddTagButton, Loading } = Components;
 

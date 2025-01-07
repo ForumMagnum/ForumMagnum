@@ -22,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const PostReadCheckbox = ({classes, post, width=12}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   post: PostsBase,
   width?: number
 }) => {

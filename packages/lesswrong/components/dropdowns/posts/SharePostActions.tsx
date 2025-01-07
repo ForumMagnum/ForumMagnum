@@ -18,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SharePostActions = ({post, onClick, classes}: {
   post: PostsBase,
   onClick?: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { DropdownMenu, DropdownItem, DropdownDivider, SocialMediaIcon } = Components;
   const { captureEvent } = useTracking()

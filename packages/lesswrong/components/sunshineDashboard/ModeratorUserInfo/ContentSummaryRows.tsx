@@ -43,7 +43,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const ContentSummaryRows = ({classes, comments, posts, user, loading}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   comments: CommentsListWithParentMetadata[],
   posts: SunshinePostsList[],
   user: SunshineUsersList,

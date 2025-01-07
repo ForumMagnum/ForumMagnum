@@ -7,7 +7,7 @@ const styles = (theme: ThemeType): JssStyles => ({})
 
 const PostsItemNewCommentsList = ({ terms, post, treeOptions }: {
   terms: CommentsViewTerms,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   post: PostsList,
   treeOptions: CommentTreeOptions,
 }) => {

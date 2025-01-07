@@ -89,7 +89,7 @@ export const formatStat = (value?: number): string => {
 
 const EAUserTooltipContent = ({user, classes}: {
   user: UsersMinimumInfo,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {
     displayName,

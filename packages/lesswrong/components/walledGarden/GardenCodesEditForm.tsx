@@ -9,7 +9,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 export const GardenCodesEditForm = ({classes, gardenCodeId, cancelCallback, successCallback}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   gardenCodeId: string,
   successCallback?: any,
   cancelCallback?: any,

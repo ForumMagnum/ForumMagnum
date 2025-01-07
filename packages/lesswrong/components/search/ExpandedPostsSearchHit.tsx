@@ -58,7 +58,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const ExpandedPostsSearchHit = ({hit, classes}: {
   hit: Hit<any>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const navigate = useNavigate();
   const { FormatDate, UserNameDeleted } = Components

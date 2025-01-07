@@ -21,7 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const CantCommentExplanation = ({post, classes}: {
   post: PostsDetails,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const author = post.user;

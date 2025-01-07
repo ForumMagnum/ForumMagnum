@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const SunshineNewUsersList = ({ classes, terms, currentUser }: {
   terms: UsersViewTerms,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   currentUser: UsersCurrent,
 }) => {
   const { results, totalCount, loadMoreProps, refetch } = useMulti({

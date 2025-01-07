@@ -61,7 +61,7 @@ const UsersNameDisplay = ({
   /** An additional class to apply to the text */
   className?: string,
 
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {eventHandlers, hover} = useHover({
     eventProps: {

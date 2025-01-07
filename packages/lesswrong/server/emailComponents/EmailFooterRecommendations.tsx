@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const EmailFooterRecommendations = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const algorithm: RecommendationsAlgorithm = {
     method: "sample",

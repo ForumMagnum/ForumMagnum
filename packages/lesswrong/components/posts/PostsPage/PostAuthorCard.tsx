@@ -69,7 +69,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const PostAuthorCard = ({author, currentUser, classes}: {
   author: PostsAuthors_user,
   currentUser: UsersCurrent|null,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { Typography, ContentStyles, NewConversationButton, NotifyMeButton, CloudinaryImage2 } = Components
   

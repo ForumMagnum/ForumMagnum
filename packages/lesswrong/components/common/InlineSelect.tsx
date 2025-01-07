@@ -25,7 +25,7 @@ function InlineSelect({
   options: Option[];
   selected: Option;
   handleSelect: (opt: Option) => void;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) {
   const [anchorEl, setAnchorEl] = useState<any>(null);
   const { MenuItem } = Components;

@@ -41,7 +41,7 @@ const LinkCard = ({children, to, tooltip, className, classes, onClick, clickable
   to: string,
   tooltip?: any,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   onClick?: any,
   clickable?: boolean
 }) => {

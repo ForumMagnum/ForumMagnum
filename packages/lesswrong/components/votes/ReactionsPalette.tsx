@@ -148,7 +148,7 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote, cl
   getCurrentUserReactionVote: (name: EmojiReactName, quote: QuoteLocator|null) => VoteOnReactionType|null,
   toggleReaction: (reactionName: string, quote: QuoteLocator|null) => void,
   quote: QuoteLocator|null,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { ReactionIcon, LWTooltip, Row, ReactionDescription, MetaInfo } = Components;
   const currentUser = useCurrentUser();

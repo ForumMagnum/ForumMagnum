@@ -87,7 +87,7 @@ const CollectionsCard = ({ collection, url, mergeTitle=false, classes }: {
   collection: CoreReadingCollection,
   url: string,
   mergeTitle?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { LinkCard, CloudinaryImage, UsersName, Typography } = Components;
   const cardContentStyle = {borderTopColor: collection.color}

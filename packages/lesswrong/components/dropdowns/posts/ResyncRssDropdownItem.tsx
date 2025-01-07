@@ -38,7 +38,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const ResyncRssDropdownItem = ({post, closeMenu, classes}: {
   post: PostsList|SunshinePostsList,
   closeMenu: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { openDialog } = useDialog();
   const { DropdownItem } = Components;
@@ -69,7 +69,7 @@ const ResyncRssDropdownItem = ({post, closeMenu, classes}: {
 const ResyncRssDialog = ({onClose, post, classes}: {
   onClose: () => void,
   post: PostsList|SunshinePostsList,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { Button, ContentStyles, ContentItemBody, LWDialog, Loading } = Components;
   const client = useApolloClient();

@@ -110,7 +110,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
   onSetIsActive: (active: boolean) => void,
   searchResultsArea: any,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser()
   const [inputOpen,setInputOpen] = useState(false);

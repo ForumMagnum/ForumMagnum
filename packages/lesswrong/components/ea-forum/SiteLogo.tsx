@@ -26,7 +26,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const SiteLogo = ({eaWhite, classes}: {
   eaWhite?: boolean,
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
   // Use this icon when we want a pure white version of the EAF logo
   if (isEAForum && eaWhite) {

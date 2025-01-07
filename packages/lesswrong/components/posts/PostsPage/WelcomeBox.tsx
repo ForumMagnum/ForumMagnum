@@ -74,7 +74,7 @@ const welcomeBoxes: ForumOptions<{title: string, contents: HashLinkProps[]} | nu
 };
 
 const WelcomeBox = ({ classes }: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser();
   const welcomeBoxABTestGroup = useABTest(welcomeBoxABTest);

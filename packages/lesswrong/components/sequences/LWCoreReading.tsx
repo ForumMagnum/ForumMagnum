@@ -99,7 +99,7 @@ const coreReadingCollections: Array<CoreReadingCollection> =
 
 const LWCoreReading = ({classes}: {
   minimal?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { SingleColumnSection, CollectionsItem } = Components
 

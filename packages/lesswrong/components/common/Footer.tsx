@@ -8,7 +8,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const Footer = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return (
     <div className={classes.root} />

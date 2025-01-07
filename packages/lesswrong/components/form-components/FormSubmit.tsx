@@ -52,7 +52,7 @@ const FormSubmit = ({
   document,
   collectionName,
   classes,
-}: FormButtonProps & {classes: ClassesType},
+}: FormButtonProps & {classes: ClassesType<typeof styles>},
 {
   updateCurrentValues,
   addToDeletedValues

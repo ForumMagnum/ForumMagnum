@@ -66,7 +66,7 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
   comments: Array<CommentsList>,
   expandAllThreads?: boolean
   tagCommentType?: TagCommentType,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { CommentsNode, ContentItemBody, ContentStyles } = Components;
 

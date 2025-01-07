@@ -32,7 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   post: SunshineCurationPostsList,
   setCurationPost?: (post: SunshineCurationPostsList) => void,
 }) => {

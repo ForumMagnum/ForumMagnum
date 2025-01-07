@@ -64,7 +64,7 @@ const PostsItemComments = ({ commentCount, small, onClick, unreadComments, newPr
   onClick?: () => void,
   unreadComments: boolean,
   newPromotedComments: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   let unreadCommentsClass =  classes.noUnreadComments
   if (unreadComments) { unreadCommentsClass = classes.unreadComments }

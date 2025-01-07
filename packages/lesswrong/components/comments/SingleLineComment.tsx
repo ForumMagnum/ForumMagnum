@@ -158,7 +158,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   hideKarma?: boolean,
   showDescendentCount?: boolean,
   displayTagIcon?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {anchorEl, hover, eventHandlers} = useHover();
   

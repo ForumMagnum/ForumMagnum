@@ -10,7 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const ResendVerificationEmailPage = ({classes}: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser();
   if (!currentUser) {

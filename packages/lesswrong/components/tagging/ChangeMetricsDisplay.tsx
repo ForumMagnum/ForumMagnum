@@ -19,7 +19,7 @@ const ChangeMetricsDisplay = ({changeMetrics, showCharacters, className, classes
   changeMetrics: ChangeMetrics,
   showCharacters?: boolean,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {added, removed} = changeMetrics;
   const characters = showCharacters ? " characters" : "";

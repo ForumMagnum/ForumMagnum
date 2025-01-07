@@ -98,7 +98,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const PostsPageEventData = ({classes, post}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   post: PostsList,
 }) => {
   const now = moment(useCurrentTime())

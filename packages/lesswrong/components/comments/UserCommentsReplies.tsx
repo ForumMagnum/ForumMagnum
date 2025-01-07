@@ -12,7 +12,7 @@ const styles = (theme: ThemeType): JssStyles =>  ({
   }
 })
 
-const UserCommentsReplies = ({ classes }: { classes: ClassesType }) => {
+const UserCommentsReplies = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { SingleColumnSection, SectionTitle, Loading } = Components
 
   const { params } = useLocation();

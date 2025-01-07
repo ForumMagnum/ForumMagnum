@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles =>  ({
 })
 
 const RecentComments = ({classes, terms, truncated=false, showPinnedOnProfile=false, noResultsMessage="No Comments Found"}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   terms: CommentsViewTerms,
   truncated?: boolean,
   showPinnedOnProfile?: boolean,

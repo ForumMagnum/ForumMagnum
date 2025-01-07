@@ -39,7 +39,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const AFSuggestPostsItem = ({post, classes}: {
   post: SuggestAlignmentPost,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser();
   const { hover, anchorEl, eventHandlers } = useHover();

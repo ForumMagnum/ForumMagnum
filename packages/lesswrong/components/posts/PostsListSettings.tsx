@@ -156,7 +156,7 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
   timeframes?: readonly TimeframeSettingType[],
   sortings?: { [key: string]: SettingsOption; },
   showTimeframe?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { MetaInfo, SettingsColumn } = Components
   const currentUser = useCurrentUser();

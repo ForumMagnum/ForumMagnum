@@ -75,7 +75,7 @@ export interface CommentsNodeProps {
   noAutoScroll?: boolean,
   displayTagIcon?: boolean,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }
 /**
  * CommentsNode: A node in a comment tree, passes through to CommentsItems to handle rendering a specific comment,

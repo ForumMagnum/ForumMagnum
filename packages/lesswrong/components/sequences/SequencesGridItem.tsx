@@ -126,7 +126,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle }: {
   sequence: SequencesPageFragment,
   showAuthor?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   bookItemStyle?: boolean
 }) => {
   const { LinkCard, SequencesSummary } = Components;

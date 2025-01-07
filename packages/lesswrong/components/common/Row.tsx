@@ -9,7 +9,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const Row = ({classes, justifyContent="space-between", alignItems="center", children}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   alignItems?: "flex-start" | "flex-end" | "center" | "baseline" | "stretch",
   justifyContent?: "flex-start" | "flex-end" | "center" | "space-between" | "space-around" | "space-evenly" | "stretch",
   children: React.ReactNode

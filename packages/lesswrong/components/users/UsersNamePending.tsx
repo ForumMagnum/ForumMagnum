@@ -22,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const UsersNamePending = ({ user, classes }: {
   user: UsersMinimumInfo,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { LWTooltip } = Components;
   const name = userGetDisplayName(user)

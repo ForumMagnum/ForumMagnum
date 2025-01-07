@@ -92,7 +92,7 @@ const TagPreview = ({
   hideRelatedTags?: boolean,
   postCount?: number,
   autoApplied?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const showPosts = postCount > 0 && !!tag?._id && !isFriendlyUI;
   const {results} = useMulti({

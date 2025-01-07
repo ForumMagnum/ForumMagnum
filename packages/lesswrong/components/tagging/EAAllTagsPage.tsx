@@ -52,7 +52,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 
 const EAAllTagsPage = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { openDialog } = useDialog()
   const currentUser = useCurrentUser()

@@ -17,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const AFUnreviewedCommentCount = ({ post, classes }: {
   post: PostsBase,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   
   //this gets number of comments submitted by non-members or suggested by members that haven't been processed yet

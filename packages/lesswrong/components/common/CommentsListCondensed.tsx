@@ -23,7 +23,7 @@ const CommentsListCondensed = ({label, terms, initialLimit, itemsPerPage, showTo
   showTotal?: boolean,
   hideTag?: boolean,
   shortformButton?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const [showShortformFeed, setShowShortformFeed] = useState(false);

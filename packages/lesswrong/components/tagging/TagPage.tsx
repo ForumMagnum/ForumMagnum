@@ -198,7 +198,7 @@ export const RelevanceLabel = () => (
 const PostsListHeading: FC<{
   tag: TagPageFragment|TagPageWithRevisionFragment,
   query: Record<string, string>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }> = ({tag, query, classes}) => {
   const {SectionTitle, PostsListSortDropdown} = Components;
   if (isFriendlyUI) {
@@ -223,7 +223,7 @@ const PostsListHeading: FC<{
 }
 
 const TagPage = ({classes}: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const {
     PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, Typography,

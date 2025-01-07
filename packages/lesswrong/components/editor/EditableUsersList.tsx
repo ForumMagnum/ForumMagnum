@@ -30,7 +30,7 @@ export function EditableUsersList({value, setValue, label, classes}: {
   value: string[],
   setValue: (newValue: string[]) => void,
   label: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) {
   const {ErrorBoundary, UsersSearchAutoComplete} = Components;
   

@@ -73,7 +73,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const TaggingDashboard = ({classes}: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { SectionTitle, TagsDetailsItem, SectionButton, TagFlagItem, NewTagsList, LoadMore, TagActivityFeed, TagVoteActivity, SingleColumnSection } = Components
   const { query } = useLocation();

@@ -24,7 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const ImageUploadDefaultsDialog = ({ onSelect, onClose, classes, type }: {
   onSelect: (newImageId: string) => void,
   onClose?: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   type?: 'Event' | 'Profile'
 }) => {
 

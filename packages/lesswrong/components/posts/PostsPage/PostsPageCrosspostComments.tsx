@@ -18,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const PostsPageCrosspostComments = ({classes}: {classes: ClassesType}) => {
+const PostsPageCrosspostComments = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const context = useCrosspostContext();
   if (!context?.foreignPost) {
     return null;

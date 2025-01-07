@@ -116,7 +116,7 @@ export interface CommentWithModeratorActions {
 
 export const CommentsReviewInfoCard = ({ commentModeratorAction, classes }: {
   commentModeratorAction: CommentWithModeratorActions,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { CommentWithReplies, LWTooltip, Loading } = Components;
   const { comment, actions } = commentModeratorAction;

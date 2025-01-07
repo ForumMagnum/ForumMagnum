@@ -12,7 +12,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 // This is deprecated, but we're keeping it around for now until we're sure we're not using it
 const AlignmentCrosspostMessage = ({post, classes}: {
   post: PostsBase,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   if (post.af && !isAF) {
     return (

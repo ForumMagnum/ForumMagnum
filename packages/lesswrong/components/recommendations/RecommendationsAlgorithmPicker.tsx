@@ -77,7 +77,7 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
   configName: string,
   onChange: (newSettings: DefaultRecommendationsAlgorithm) => void,
   showAdvanced?: boolean,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { SectionFooterCheckbox } = Components
   const currentUser = useCurrentUser();

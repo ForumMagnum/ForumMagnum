@@ -44,7 +44,7 @@ const TruncatedTagsList = ({post, expandContainer, className, classes}: {
   post: PostsList | SunshinePostsList | PostsBestOfList,
   expandContainer: RefObject<HTMLDivElement>,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const ref = useRef<HTMLDivElement>(null);
 

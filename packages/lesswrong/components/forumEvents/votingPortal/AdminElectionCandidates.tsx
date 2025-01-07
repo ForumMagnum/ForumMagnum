@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 const AdminElectionCandidates = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const {results, loading} = useElectionCandidates("name", {

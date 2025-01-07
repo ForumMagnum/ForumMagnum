@@ -222,7 +222,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   hideMenu?: boolean,
   hideTags?: boolean,
   annualReviewMarketInfo?: AnnualReviewMarketInfo,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon,
     PostActionsButton, PostsVote, PostsGroupDetails, PostsTopSequencesNav,

@@ -37,7 +37,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const AnswerTocRow = ({classes, answer}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   answer: ToCAnswer,
 }) => {
   const { LWTooltip, FormatDate } = Components

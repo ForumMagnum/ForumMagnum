@@ -157,7 +157,7 @@ export const ToCColumn = ({
   rightColumnChildren?: React.ReactNode,
   notHideable?: boolean,
   children: React.ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {captureEvent} = useTracking();
   const {sideCommentsActive} = useContext(SidebarsContext)!;

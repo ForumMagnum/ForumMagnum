@@ -12,7 +12,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const LWHelpIcon = ({classes}: {classes: ClassesType}) => {
+const LWHelpIcon = ({classes}: {classes: ClassesType<typeof styles>}) => {
   return <span><HelpOutlineIcon className={classes.icon}/></span>
 }
 

@@ -54,7 +54,7 @@ const CommentBody = ({
   postPage?: boolean,
   voteProps?: VotingProps<VoteableTypeClient>
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const { ContentItemBody, CommentDeletedMetadata, ContentStyles, InlineReactSelectionWrapper } = Components

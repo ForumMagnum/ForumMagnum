@@ -33,7 +33,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SuggestAlignmentCommentDropdownItem = ({ comment, post, classes }: {
   comment: CommentsList,
   post?: PostsDetails,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const { mutate: updateComment } = useUpdate({

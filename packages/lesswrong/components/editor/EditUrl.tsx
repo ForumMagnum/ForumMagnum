@@ -58,7 +58,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText, placeholder, tooltip, updateCurrentValues, setFooterContent, inputProperties }: {
   value: string,
   path: keyof DbPost,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   document: Partial<DbPost>,
   defaultValue?: string,
   label?: string,

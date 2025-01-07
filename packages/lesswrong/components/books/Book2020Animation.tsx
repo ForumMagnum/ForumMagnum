@@ -158,7 +158,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const Book2020Animation = ({ classes, children }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   children: ReactNode,
 }) => {
   const { query } = useLocation();

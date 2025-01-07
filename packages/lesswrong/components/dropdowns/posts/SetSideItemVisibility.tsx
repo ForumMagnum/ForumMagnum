@@ -64,7 +64,7 @@ export type SideItemVisibilityContextType = {
 export const SideItemVisibilityContext = createContext<SideItemVisibilityContextType|null>(null);
 
 const SetSideItemVisibility = ({classes}: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const sideItemVisibility = useContext(SideItemVisibilityContext);
   const { LWTooltip, MenuItem } = Components;

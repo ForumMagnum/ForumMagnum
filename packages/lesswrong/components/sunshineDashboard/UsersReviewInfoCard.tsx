@@ -195,7 +195,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   user: SunshineUsersList,
   currentUser: UsersCurrent,
   refetch: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {
     MetaInfo, UserReviewMetadata, LWTooltip, UserReviewStatus,

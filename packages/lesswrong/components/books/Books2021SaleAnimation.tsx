@@ -297,7 +297,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const Books2021SaleAnimation = ({ classes, successContent }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   successContent?: any
 }) => {
   const [cookies, setCookie] = useCookiesWithConsent([HIDE_2021_BOOK_BANNER_COOKIE])

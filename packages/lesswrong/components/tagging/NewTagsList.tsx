@@ -29,7 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const NewTagsList = ({classes, showHeaders = true}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   showHeaders?: boolean
 }) => {
   const { LoadMore, TagsListItem, FormatDate, MetaInfo, UsersNameDisplay } = Components

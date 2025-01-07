@@ -21,7 +21,7 @@ const styles = (_theme: ThemeType): JssStyles => ({
 })
 
 const CommentsMenu = ({classes, className, comment, post, tag, showEdit, icon}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   className?: string,
   comment: CommentsList,
   post?: PostsMinimumInfo,

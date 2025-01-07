@@ -18,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const SectionButton = ({children, classes, className, onClick}: {
   children?: React.ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   className?: string,
   onClick?: (event: React.MouseEvent) => void,
 }) => {

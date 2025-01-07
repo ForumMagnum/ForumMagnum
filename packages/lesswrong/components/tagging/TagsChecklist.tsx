@@ -106,7 +106,7 @@ const TagsChecklist = ({
     existingTagIds: Array<string>
   ) => void;
   onTagRemoved?: (tag: { tagId: string; tagName: string; parentTagId?: string }, existingTagIds: Array<string>) => void;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
   selectedTagIds?: Array<string | undefined>;
   tags: Pick<TagFragment, "_id" | "name" | "shortName">[];
   displaySelected?: "highlight" | "hide";

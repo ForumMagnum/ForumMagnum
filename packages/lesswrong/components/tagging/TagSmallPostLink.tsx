@@ -58,7 +58,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const TagSmallPostLink = ({classes, post, hideMeta, hideAuthor, wrap, widerSpacing, disableHoverPreview}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   post: PostsList,
   hideMeta?: boolean,
   hideAuthor?: boolean,

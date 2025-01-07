@@ -40,7 +40,7 @@ const connectCrossposterMutation = gql`
 `;
 
 const CrosspostLoginPage = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [connectCrossposter, loading] = useMutation(connectCrossposterMutation, {errorPolicy: "all"});
   const [error, setError] = useState<string | null>(null);

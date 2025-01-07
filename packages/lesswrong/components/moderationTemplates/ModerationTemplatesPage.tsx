@@ -29,7 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 //a page for creating and viewing moderation templates
 export const ModerationTemplatesPage = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { WrappedSmartForm, SingleColumnSection, SectionTitle, ModerationTemplateItem, BasicFormStyles, Loading, Row, ToCColumn, TableOfContents } = Components
   

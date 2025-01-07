@@ -24,7 +24,7 @@ const styles = (theme: ThemeType) => ({
 const DeleteElectionCandidateDialog = ({candidateId, onClose, classes}: {
   candidateId: string,
   onClose: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {flash} = useMessages();
   const navigate = useNavigate();

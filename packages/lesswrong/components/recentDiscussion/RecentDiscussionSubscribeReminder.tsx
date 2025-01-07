@@ -118,7 +118,7 @@ const styles = (theme: ThemeType): JssStyles => ({
  * See EAHomeRightHandSide.tsx for the other component.
  */
 const RecentDiscussionSubscribeReminder = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();

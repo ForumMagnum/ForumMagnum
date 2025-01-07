@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const TagRelNotificationItem = ({classes, tagRelId}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   tagRelId: string
 }) => {
   const { Loading } = Components

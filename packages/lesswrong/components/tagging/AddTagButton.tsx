@@ -26,7 +26,7 @@ const AddTagButton = ({onTagSelected, menuPlacement="bottom-start", isVotingCont
   menuPlacement?: PopperPlacementType,
   isVotingContext?: boolean,
   hasTooltip?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   children?: ReactNode,
 }) => {
   const [isOpen, setIsOpen] = useState(false);

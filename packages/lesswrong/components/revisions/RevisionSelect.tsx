@@ -50,7 +50,7 @@ const RevisionSelect = ({ revisions, getRevisionUrl, onPairSelected, loadMorePro
   getRevisionUrl: (rev: RevisionMetadata) => string,
   onPairSelected: ({before, after}: {before: RevisionMetadata, after: RevisionMetadata}) => void,
   loadMoreProps: any,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   count?: number,
   totalCount?: number
 }) => {

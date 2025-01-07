@@ -10,7 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const NewModeratorActionDialog = ({classes, onClose, userId}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   onClose: () => void,
   userId: String
 }) => {

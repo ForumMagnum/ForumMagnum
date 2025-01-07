@@ -59,7 +59,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const PostsItemWrapper = ({documentId, classes, addItem, removeItem, disabled = false, simpleAuthor = false, draggable = true}: {
   documentId: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   addItem?: any,
   removeItem?: any,
   disabled?: boolean,

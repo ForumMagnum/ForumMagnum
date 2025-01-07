@@ -46,7 +46,7 @@ const CollectionsEditForm = ({documentId, successCallback, cancelCallback, class
   documentId: string,
   successCallback: any,
   cancelCallback: any,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return (
     <div className={classNames(classes.newOrEditForm,classes.editForm)}>

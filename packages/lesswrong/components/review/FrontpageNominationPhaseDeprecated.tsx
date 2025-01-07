@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const FrontpageNominationPhase = ({classes, settings}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   settings: DefaultRecommendationsAlgorithm,
 }) => {
   const { SectionSubtitle, RecommendationsList, SectionFooter, HoverPreviewLink, LWTooltip } = Components

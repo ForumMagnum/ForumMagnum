@@ -61,7 +61,7 @@ const DraftsListSettings = ({
   currentIncludeArchived: boolean,
   currentIncludeShared: boolean,
   sortings?: any,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { MetaInfo, SettingsColumn } = Components
   const currentUser = useCurrentUser();

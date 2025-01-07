@@ -89,7 +89,7 @@ const getRestorableState = (currentUser: UsersCurrent|null, getLocalStorageHandl
 const LocalStorageCheck = ({getLocalStorageHandlers, onRestore, classes}: {
   getLocalStorageHandlers: (editorType?: string) => any,
   onRestore: (newState: EditorContents) => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [localStorageChecked, setLocalStorageChecked] = useState(false);
   const [restorableState, setRestorableState] = useState<RestorableState|null>(null);

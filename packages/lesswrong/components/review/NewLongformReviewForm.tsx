@@ -18,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const NewLongformReviewForm = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { PostsNewForm, SingleColumnSection, Row } = Components
 

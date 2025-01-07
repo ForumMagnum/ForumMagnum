@@ -18,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const ConversationDetails = ({conversation, hideOptions = false, classes}: {
   conversation: ConversationsList,
   hideOptions?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { openDialog } = useDialog();
   const { Loading, MetaInfo, UsersName } = Components

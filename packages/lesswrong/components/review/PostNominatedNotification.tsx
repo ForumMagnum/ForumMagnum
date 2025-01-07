@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const PostNominatedNotification = ({classes, postId}: {classes: ClassesType, postId: string}) => {
+const PostNominatedNotification = ({classes, postId}: {classes: ClassesType<typeof styles>, postId: string}) => {
 
   const { Loading, PostsTitle, ReviewPostButton, LWTooltip, ContentStyles } = Components
 

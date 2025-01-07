@@ -34,7 +34,7 @@ const CompareRevisions = ({
   documentId: string,
   versionBefore: string|null,
   versionAfter: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   trim?: boolean
 }) => {
   const [expanded, setExpanded] = useState(false);

@@ -125,7 +125,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const SequencesPage = ({ documentId, classes }: {
   documentId: string,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const [edit,setEdit] = useState(false);
   const [showNewChapterForm,setShowNewChapterForm] = useState(false);

@@ -149,7 +149,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   onChangeMode: (mode: FilterMode) => void,
   onRemove?: () => void,
   description?: React.ReactNode
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { LWTooltip, PopperCard, TagPreview, ContentStyles } = Components
   const { hover, anchorEl, eventHandlers } = useHover({

@@ -14,7 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const ForeignCrosspostEditForm = ({post, classes}: {
   post: PostsPage,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {SingleColumnSection, PostsPagePostHeader, Typography} = Components;
 

@@ -72,7 +72,7 @@ const VoteArrowIconHollow = ({
   strongVoteDelay,
   classes,
 }: VoteArrowIconProps & {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { mainColor, lightColor } = useVoteColors(color);
 

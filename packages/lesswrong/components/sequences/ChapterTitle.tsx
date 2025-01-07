@@ -12,7 +12,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const ChapterTitle = ({classes, title, large}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   title: string,
   large?: boolean
 }) => {

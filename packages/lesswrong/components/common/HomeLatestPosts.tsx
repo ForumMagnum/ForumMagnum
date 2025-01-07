@@ -102,7 +102,7 @@ const applyConstantFilters = (filterSettings: FilterSettings): FilterSettings =>
   };
 }
 
-const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
+const HomeLatestPosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const location = useLocation();
   const updateCurrentUser = useUpdateCurrentUser();
   const currentUser = useCurrentUser();

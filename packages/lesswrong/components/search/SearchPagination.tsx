@@ -54,7 +54,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 const SearchPagination = ({classes, pagesPadding=0, showFirst=false}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   pagesPadding?: number,
   showFirst?: boolean,
 }) => {

@@ -31,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const LatestReview = ({classes}: { classes: ClassesType }) => {
+const LatestReview = ({classes}: { classes: ClassesType<typeof styles> }) => {
   const { results: commentResults } = useMulti({
     terms:{ view: "reviews", reviewYear: REVIEW_YEAR, sortBy: "new"},
     collectionName: "Comments",

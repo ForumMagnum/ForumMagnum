@@ -50,7 +50,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SunshineNewPostsItem = ({post, refetch, classes}: {
   post: SunshinePostsList,
   refetch: () => void,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser();
   const {eventHandlers, hover, anchorEl} = useHover();

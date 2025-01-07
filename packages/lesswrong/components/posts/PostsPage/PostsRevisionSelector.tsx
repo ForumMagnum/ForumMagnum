@@ -22,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const PostsRevisionSelector = ({ post, format, classes }: {
   post: PostsBase,
   format: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement|null>(null);
   

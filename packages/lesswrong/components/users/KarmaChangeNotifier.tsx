@@ -103,7 +103,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 // zero, respectively.
 const ColoredNumber = ({n, classes}: {
   n: number,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   if (n>0) {
     return <span className={classes.gainedPoints}>{`+${n}`}</span>
@@ -116,7 +116,7 @@ const ColoredNumber = ({n, classes}: {
 
 const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
   karmaChanges: any,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   handleClose: (ev: React.MouseEvent) => any,
 }) => {
   const { posts, comments, tagRevisions, updateFrequency } = karmaChanges
@@ -201,7 +201,7 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
 const KarmaChangeNotifier = ({currentUser, className, classes}: {
   currentUser: UsersCurrent, //component can only be used if logged in
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const updateCurrentUser = useUpdateCurrentUser();
   const [cleared,setCleared] = useState(false);
@@ -300,7 +300,7 @@ const KarmaChangeNotifier = ({currentUser, className, classes}: {
 
 const NewReactions = ({reactionChanges, classes}: {
   reactionChanges: ReactionChange[],
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { ReactionIcon, LWTooltip } = Components;
 

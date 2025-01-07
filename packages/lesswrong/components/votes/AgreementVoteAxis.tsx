@@ -34,7 +34,7 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
   document: VoteableTypeClient,
   hideKarma?: boolean,
   voteProps: VotingProps<VoteableTypeClient>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { AxisVoteButton, LWTooltip } = Components;
   const voteCount = voteProps.document?.extendedScore?.agreementVoteCount || 0;

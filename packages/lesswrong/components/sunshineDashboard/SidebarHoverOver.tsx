@@ -18,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const SidebarHoverOver = ({children, classes, hover, anchorEl, width=500}: {
   children: React.ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   hover: boolean,
   anchorEl: HTMLElement|null,
   width?: number,

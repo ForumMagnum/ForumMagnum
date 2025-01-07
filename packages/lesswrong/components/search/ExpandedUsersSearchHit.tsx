@@ -65,7 +65,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const ExpandedUsersSearchHit = ({hit, classes}: {
   hit: Hit<any>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {FormatDate, UsersProfileImage, ForumIcon} = Components;
   const user = hit as SearchUser;

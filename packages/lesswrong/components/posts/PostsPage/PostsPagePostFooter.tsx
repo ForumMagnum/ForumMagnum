@@ -79,7 +79,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const PostsPagePostFooter = ({post, sequenceId, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   sequenceId: string|null,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const votingSystemName = post.votingSystem || "default";

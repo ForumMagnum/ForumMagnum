@@ -67,7 +67,7 @@ const truncateGuidelines = (guidelines: string) => {
 
 const getPostModerationGuidelines = (
   post: PostsModerationGuidelines,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 ) => {
   const moderationStyle = post.moderationStyle || (post.user?.moderationStyle || "")
 
@@ -99,7 +99,7 @@ const getSubforumModerationGuidelines = (tag: TagFragment) => {
 }
 
 const ModerationGuidelinesBox = ({classes, commentType = "post", documentId}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   commentType?: "post" | "subforum",
   documentId: string,
 }) => {

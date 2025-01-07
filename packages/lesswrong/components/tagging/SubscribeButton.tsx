@@ -98,7 +98,7 @@ const SubscribeButton = ({
   isSubscribedOverride?: boolean,
   subscribeUserToTagOverride?: (tag: TagBasicInfo, filterMode: FilterMode) => void,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   // useSubscribeUserToTag ultimately uses a useState to store the filter settings internally,
   // this means that updates here do not affect the isSubscribed of other places this hook is used.

@@ -47,7 +47,7 @@ const DialoguesSectionFrontpageSettings = ({hidden, currentShowDialogues, curren
   hidden: boolean,
   currentShowDialogues: boolean,
   currentShowMyDialogues: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { MetaInfo } = Components
   const currentUser = useCurrentUser();

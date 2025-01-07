@@ -21,7 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const PostsPageDate = ({ post, hasMajorRevision, classes }: {
   post: PostsBase,
   hasMajorRevision: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const now = moment(useCurrentTime())
   const { FormatDate, PostsRevisionSelector, LWTooltip } = Components;

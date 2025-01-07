@@ -25,7 +25,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const SunshineListItem = ({children, classes, hover=false}: {
   children: React.ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   hover?: boolean,
 }) => {
   return <div className={classNames(classes.root, {[classes.hover]:hover})}>

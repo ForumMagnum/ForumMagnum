@@ -110,7 +110,7 @@ const VoteArrowIconSolid = ({
   largeArrow = false,
   classes,
 }: BaseVoteArrowIconProps & {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
 
   const { mainColor, lightColor } = useVoteColors(color);

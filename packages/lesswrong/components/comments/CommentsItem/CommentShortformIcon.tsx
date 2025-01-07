@@ -29,7 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const CommentShortformIcon = ({comment, post, classes, simple}: {
   comment: CommentsList,
   post: PostsMinimumInfo,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   simple?: boolean,
 }) => {
 

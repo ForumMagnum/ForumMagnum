@@ -75,7 +75,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 
-const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
+const WalledGardenPortal = ({ classes }: { classes: ClassesType<typeof styles> }) => {
 
   const { SingleColumnSection, LoginPopupButton, AnalyticsTracker, WalledGardenMessage, GatherTownIframeWrapper, WalledGardenPortalBar, GardenEventDetails, ContentItemBody, ContentStyles } = Components
   

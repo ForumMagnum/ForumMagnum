@@ -11,7 +11,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const WalledGardenMessage = ({children, classes}: {
   children: React.ReactNode,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { SingleColumnSection, ContentStyles } = Components
   return <SingleColumnSection className={classes.messageStyling}>

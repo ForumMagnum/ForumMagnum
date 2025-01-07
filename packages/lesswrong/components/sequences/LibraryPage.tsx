@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const LibraryPage = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { SingleColumnSection, SectionTitle, Divider, SequencesNewButton, LWCoreReading, SequencesGridWrapper, Typography } = Components
 

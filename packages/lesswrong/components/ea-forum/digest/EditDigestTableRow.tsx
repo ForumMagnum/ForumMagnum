@@ -167,7 +167,7 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
   visibleTagIds: string[],
   setTagFilter: (tagId: string) => void,
   votesVisible: boolean,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const {flash} = useMessages()
   

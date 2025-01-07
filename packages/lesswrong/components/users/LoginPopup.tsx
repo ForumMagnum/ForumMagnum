@@ -19,7 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 // dialog.
 const LoginPopup = ({onClose, classes}: {
   onClose?: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {LWDialog, LoginForm} = Components;
 

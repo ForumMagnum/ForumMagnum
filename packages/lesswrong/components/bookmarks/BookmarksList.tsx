@@ -23,7 +23,7 @@ const BookmarksList = ({showMessageIfEmpty=false, limit=20, hideLoadMore=false, 
   showMessageIfEmpty?: boolean,
   limit?: number,
   hideLoadMore?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const { PostsLoading, PostsItem, LoadMore } = Components

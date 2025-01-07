@@ -36,7 +36,7 @@ const shouldShow = (belowFold: boolean, curatedDate: Date, currentUser: UsersCur
 const SunshineCuratedSuggestionsList = ({ terms, belowFold, classes, setCurationPost }: {
   terms: PostsViewTerms,
   belowFold?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   setCurationPost?: (post: PostsList) => void,
 }) => {
   const currentUser = useCurrentUser();

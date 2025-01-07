@@ -35,7 +35,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const PostKarmaWithPreview = ({ post, classes, displayTitle, reviewedAt }: {
   post: SunshinePostsList,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   displayTitle: boolean,
   reviewedAt: Date
 }) => {

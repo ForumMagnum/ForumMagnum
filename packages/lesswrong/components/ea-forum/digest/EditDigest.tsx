@@ -152,7 +152,7 @@ type TagUsage = {
 }
 
 
-const EditDigest = ({classes}: {classes: ClassesType}) => {
+const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const {params} = useLocation()
   const {flash} = useMessages()
   const currentUser = useCurrentUser()

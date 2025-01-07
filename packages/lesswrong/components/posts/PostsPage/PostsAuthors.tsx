@@ -22,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const PostsAuthors = ({classes, post, pageSectionContext}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   post: PostsList,
   pageSectionContext?: string,
 }) => {

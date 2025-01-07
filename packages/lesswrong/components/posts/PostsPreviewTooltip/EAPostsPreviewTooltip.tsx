@@ -51,7 +51,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 type EAPostsPreviewTooltipProps = PostsPreviewTooltipProps & {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }
 
 const EAPostsPreviewTooltip = ({

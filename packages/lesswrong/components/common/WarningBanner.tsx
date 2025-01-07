@@ -27,7 +27,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const WarningBanner = ({message, classes}: {
   message: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   
   return <div className={classes.root}>

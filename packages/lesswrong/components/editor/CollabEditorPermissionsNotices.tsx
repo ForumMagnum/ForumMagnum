@@ -13,7 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const CollabEditorPermissionsNotices = ({post, classes}: {
   post: PostsPage,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const canEditAsAdmin = userCanDo(currentUser, 'posts.edit.all');

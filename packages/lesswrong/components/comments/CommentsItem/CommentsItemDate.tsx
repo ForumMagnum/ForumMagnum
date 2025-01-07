@@ -55,7 +55,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 type CommentsItemDateProps = UseCommentLinkProps & {
   comment: CommentsList,
   preventDateFormatting?: boolean,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 };
 
 const CommentsItemDate = ({comment, preventDateFormatting, classes, ...rest}: CommentsItemDateProps) => {

@@ -37,7 +37,7 @@ const TagSearchHit = ({hit, onClick, hidePostCount=false, isVotingContext, class
   onClick?: (ev: any) => void,
   hidePostCount?: boolean,
   isVotingContext?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { PopperCard, TagPreview, Loading } = Components;
   const { document: tag } = useSingle({

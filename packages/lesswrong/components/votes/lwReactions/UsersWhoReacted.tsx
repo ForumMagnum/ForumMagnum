@@ -27,7 +27,7 @@ const UsersWhoReacted = ({reactions, wrap=false, showTooltip=true, classes}: {
   reactions: UserReactInfo[],
   wrap?: boolean,
   showTooltip?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { LWTooltip } = Components;
 

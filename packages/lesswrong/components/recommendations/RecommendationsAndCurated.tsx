@@ -120,7 +120,7 @@ const RecommendationsAndCurated = ({
   classes,
 }: {
   configName: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {expanded, toggleExpanded} = useExpandedFrontpageSection({
     section: "recommendations",

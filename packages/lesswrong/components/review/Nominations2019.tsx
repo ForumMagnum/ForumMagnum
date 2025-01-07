@@ -19,7 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const Nominations2019 = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [sortByMost, setSortBy] = useState(false);
 

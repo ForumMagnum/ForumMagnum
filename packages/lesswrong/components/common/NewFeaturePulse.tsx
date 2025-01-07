@@ -25,7 +25,7 @@ const NewFeaturePulse = ({
   height=50,
 }: {
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   children: React.ReactNode,
   dx?: number;
   dy?: number;

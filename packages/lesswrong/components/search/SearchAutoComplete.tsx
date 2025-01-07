@@ -49,7 +49,7 @@ const SearchAutoComplete = ({
   renderSuggestion: any,
   hitsPerPage?: number,
   indexName: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   renderInputComponent?: any,
   facetFilters?: Record<string, boolean>,
 }) => {

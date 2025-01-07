@@ -17,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles =>  ({
 
 
 const ModeratorComments = ({classes, terms={view: "moderatorComments"}, truncated=true, noResultsMessage="No Comments Found"}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   terms: CommentsViewTerms,
   truncated?: boolean,
   noResultsMessage?: string,

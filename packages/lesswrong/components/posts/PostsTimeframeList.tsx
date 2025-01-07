@@ -34,7 +34,7 @@ const PostsTimeframeList = ({ after, before, timeframe, numTimeBlocks, postListP
   reverse?: boolean,
   shortform: PostsTimeBlockShortformOption,
   includeTags: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { timezone } = useTimezone();
   const [dim,setDim] = useState(dimWhenLoading);

@@ -37,7 +37,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const SunshineNewUserPostsList = ({posts, user, classes}: {
   posts?: SunshinePostsList[],
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   user: SunshineUsersList
 }) => {
   const { MetaInfo, FormatDate, PostsTitle, SmallSideVote, PostActionsButton, ContentStyles, LinkPostMessage, RejectContentButton, RejectedReasonDisplay } = Components

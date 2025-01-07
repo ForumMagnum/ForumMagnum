@@ -20,7 +20,7 @@ const TagSelect = ({value, path, classes, label, updateCurrentValues}: {
   value: string,
   path: string,
   document: any,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   label?: string,
   updateCurrentValues<T extends {}>(values: T): void,
 }) => {

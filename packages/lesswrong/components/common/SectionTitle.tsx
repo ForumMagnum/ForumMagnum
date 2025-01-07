@@ -80,7 +80,7 @@ const SectionTitle = ({
   titleClassName,
   rootClassName,
   classes,
-}: SectionTitleProps & {classes: ClassesType}) => {
+}: SectionTitleProps & {classes: ClassesType<typeof styles>}) => {
   return (
     <div className={classNames(classes.root, rootClassName, {[classes.noTopMargin]: noTopMargin, [classes.noBottomPadding]: noBottomPadding} )}>
       <Components.Typography

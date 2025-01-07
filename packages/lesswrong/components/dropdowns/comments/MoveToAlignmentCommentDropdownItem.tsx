@@ -34,7 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const MoveToAlignmentCommentDropdownItem = ({comment, post, classes}: {
   comment: CommentsList,
   post?: PostsBase,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const client = useApolloClient();

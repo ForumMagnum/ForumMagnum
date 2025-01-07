@@ -14,7 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const NewCommentModerationWarning = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { ContentStyles, ContentItemBody, Loading } = Components
   

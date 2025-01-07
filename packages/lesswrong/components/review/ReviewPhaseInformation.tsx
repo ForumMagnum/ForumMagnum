@@ -36,7 +36,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const ReviewPhaseInformation = ({classes, reviewYear, reviewPhase}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   reviewYear: ReviewYear,
   reviewPhase: ReviewPhase
 }) => {

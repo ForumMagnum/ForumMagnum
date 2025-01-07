@@ -104,7 +104,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const GatherTown = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { results, loading } = useMulti({
     terms: {

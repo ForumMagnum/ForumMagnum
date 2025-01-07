@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 export const UserReviewMetadata = ({classes, user}: {
   user: SunshineUsersList
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { MetaInfo, FormatDate } = Components
   return <div className={classes.root}>

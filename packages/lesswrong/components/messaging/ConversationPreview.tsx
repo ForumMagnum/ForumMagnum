@@ -22,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const ConversationPreview = ({conversationId, currentUser, classes, showTitle=true, count=10}: {
   conversationId: string,
   currentUser: UsersCurrent,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   showTitle?: boolean,
   count?: number
 }) => {

@@ -31,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const BooksItem = ({ book, canEdit, classes }: {
   book: BookPageFragment,
   canEdit: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [edit,setEdit] = useState(false);
 

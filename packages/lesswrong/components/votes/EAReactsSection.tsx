@@ -138,7 +138,7 @@ const getCurrentReactions = (
 const AnonymousEmojiTooltipContent: FC<{
   emojiOption: EmojiOption,
   count: number,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }> = ({emojiOption, count, classes}) => {
   return (
     <div>
@@ -166,7 +166,7 @@ const EmojiTooltipContent: FC<{
   emojiOption: EmojiOption,
   isSelected: boolean,
   reactors?: Record<string, string[]>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }> = ({currentUser, emojiOption, isSelected, reactors, classes}) => {
   let displayNames = reactors?.[emojiOption.name] ?? [];
   if (currentUser) {
@@ -223,7 +223,7 @@ type EAReactsSectionOptions = {
 
 const EAReactsSection: FC<{
   large?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 } & EAReactsSectionOptions> = ({document, voteProps, large, viewOnly, classes}) => {
   const currentUser = useCurrentUser();
   const {openDialog} = useDialog();

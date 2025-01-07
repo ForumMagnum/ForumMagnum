@@ -35,7 +35,7 @@ const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, h
   userId?: string,
   showAllDraftsLink?: boolean,
   hideHeaderRow?: boolean,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser();
   const { PostsItem, Loading } = Components

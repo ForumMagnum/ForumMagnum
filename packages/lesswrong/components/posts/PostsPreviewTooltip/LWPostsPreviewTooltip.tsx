@@ -131,7 +131,7 @@ const getPostCategory = (post: PostsBase) => {
 }
 
 type LWPostsPreviewTooltipProps = PostsPreviewTooltipProps & {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }
 
 const LWPostsPreviewTooltip = ({

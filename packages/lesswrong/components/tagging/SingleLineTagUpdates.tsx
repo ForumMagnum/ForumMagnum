@@ -108,7 +108,7 @@ const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users
   commentIds?: string[],
   users?: UsersMinimumInfo[],
   changeMetrics: ChangeMetrics,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   lastRevisedAt?: Date
 }) => {
   const [expanded,setExpanded] = useState(false);

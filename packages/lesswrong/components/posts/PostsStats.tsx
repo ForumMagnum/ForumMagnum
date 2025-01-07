@@ -12,7 +12,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const PostsStats = ({post, classes}: {
   post: PostsDetails,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
 
   return (

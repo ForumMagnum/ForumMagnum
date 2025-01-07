@@ -90,7 +90,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const readableDate = (date: Date) => date.toISOString().replace('T', ' ').slice(0, 16);
 
-const TwitterAdmin = ({ classes }: { classes: ClassesType }) => {
+const TwitterAdmin = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const [copyCount, setCopyCount] = useState(10);
   const currentUser = useCurrentUser();
   const {

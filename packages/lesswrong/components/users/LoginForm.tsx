@@ -98,7 +98,7 @@ type LoginFormProps = {
   startingState?: possibleActions,
   immediateRedirect?: boolean,
   onClose?: () => void,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }
 
 const LoginForm = (props: LoginFormProps) => {

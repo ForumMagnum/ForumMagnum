@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const AFLibraryPage = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { SingleColumnSection, SectionTitle, Divider, SequencesNewButton, SequencesGridWrapper, Typography } = Components
 

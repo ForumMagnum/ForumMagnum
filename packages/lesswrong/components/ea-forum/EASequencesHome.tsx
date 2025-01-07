@@ -13,7 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 export const eaSequencesHomeDescription = "Featured readings and collections of posts on specific topics.";
 
 const EASequencesHome = ({classes}: {
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
   const { SingleColumnSection, SectionTitle, SequencesNewButton, Typography, EACoreReading, ContentStyles } = Components
   

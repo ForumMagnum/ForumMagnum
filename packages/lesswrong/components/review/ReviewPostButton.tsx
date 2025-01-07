@@ -21,7 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const ReviewPostButton = ({classes, post, reviewMessage="Review", year}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   post: PostsBase,
   reviewMessage?: any,
   year: string

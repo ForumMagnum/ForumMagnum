@@ -23,7 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const ReportUserButton = ({user, classes}: {
   user: UsersProfile,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();

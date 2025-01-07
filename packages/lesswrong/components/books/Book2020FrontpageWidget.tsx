@@ -101,7 +101,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const Book2020FrontpageWidget = ({ classes }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { BookCheckout, Book2020Animation, ContentStyles, Row } = Components
   const currentUser = useCurrentUser();

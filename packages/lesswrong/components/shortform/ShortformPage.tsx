@@ -10,7 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const ShortformPage = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { SingleColumnSection, ShortformThreadList, SectionTitle } = Components
 

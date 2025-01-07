@@ -24,7 +24,7 @@ const FormComponentQuickTakesTags = ({
   updateCurrentValues,
   classes,
 }: FormComponentProps<AnyBecauseTodo> & {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {
     loading,

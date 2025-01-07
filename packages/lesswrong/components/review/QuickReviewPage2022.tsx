@@ -88,7 +88,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const QuickReviewPage2022 = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const reviewYear = REVIEW_YEAR
   const [expandedPost, setExpandedPost] = useState<PostsReviewVotingList|null>(null)

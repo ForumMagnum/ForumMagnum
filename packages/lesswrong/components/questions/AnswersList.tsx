@@ -33,7 +33,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const AnswersList = ({post, answersTree, classes}: {
   post: PostsList,
   answersTree: CommentTreeNode<CommentsList>[],
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const location = useLocation();
   const { query } = location;

@@ -34,7 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const ReviewPostForm = ({classes, post, onClose}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   post: PostsBase,
   onClose: () => void,
 }) => {

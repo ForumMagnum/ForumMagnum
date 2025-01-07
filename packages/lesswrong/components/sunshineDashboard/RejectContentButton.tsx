@@ -27,7 +27,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 export const RejectContentButton = ({contentWrapper, classes}: {
   contentWrapper: RejectContentParams,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   
   const { eventHandlers, anchorEl } = useHover();

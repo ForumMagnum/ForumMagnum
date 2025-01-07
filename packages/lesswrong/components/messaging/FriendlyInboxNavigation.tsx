@@ -21,7 +21,7 @@ const FriendlyInboxNavigation = ({
   title?: JSX.Element | String;
   selectedConversationId: string | undefined;
   setSelectedConversationId: React.Dispatch<React.SetStateAction<string | undefined>>;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
   const { results: conversations, loading, loadMoreProps } = conversationsResult;
 

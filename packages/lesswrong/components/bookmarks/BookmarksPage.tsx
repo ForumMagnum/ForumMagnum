@@ -36,7 +36,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const BookmarksPage = ({ classes }: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const navigate = useNavigate();
   const { location } = useLocation()

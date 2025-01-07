@@ -146,7 +146,7 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
   sequence: SequencesPageWithChaptersFragment,
   showAuthor?: boolean,
   showChapters?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { UsersName, ContentStyles, SequencesSmallPostLink, ContentItemTruncated, LWTooltip, ChapterTitle } = Components
 

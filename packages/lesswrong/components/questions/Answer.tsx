@@ -135,7 +135,7 @@ const Answer = ({ comment, post, childComments, classes }: {
   comment: CommentsList,
   post: PostsList,
   childComments: CommentTreeNode<CommentsList>[],
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [showEdit,setShowEdit] = useState(false);
   const [replyFormIsOpen, setReplyFormIsOpen] = useState(false);

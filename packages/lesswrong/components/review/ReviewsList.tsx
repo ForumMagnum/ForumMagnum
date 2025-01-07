@@ -19,7 +19,7 @@ const sortOptions = new TupleSet(["top", "new"] as const);
 export type ReviewSortOption = UnionOf<typeof sortOptions>;
 
 export const ReviewsList = ({classes, title, defaultSort, reviewYear}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   title: React.ReactNode | string,
   defaultSort: ReviewSortOption,
   reviewYear?: ReviewYear

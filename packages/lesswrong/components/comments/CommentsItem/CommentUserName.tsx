@@ -67,7 +67,7 @@ const CommentUserName = ({
   className,
 }: {
   comment: CommentsList,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   simple?: boolean,
   className?: string
 }) => {

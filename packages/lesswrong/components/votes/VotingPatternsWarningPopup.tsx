@@ -11,7 +11,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const VotingPatternsWarningPopup = ({onClose, classes}: {
   onClose?: () => void,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { LWDialog } = Components;
   

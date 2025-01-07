@@ -47,7 +47,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const PresenceList = ({connectedUsers, alwaysShownUserIds, classes}: {
   connectedUsers: ConnectedUserInfo[],
   alwaysShownUserIds?: string[],
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const connectedUsersById = keyBy(connectedUsers, u=>u._id);
   const disconnectedUserIds: string[] = alwaysShownUserIds
@@ -76,7 +76,7 @@ const PresenceListUser = ({userId, isLoggedOutUser, connected, classes}: {
   userId: string,
   isLoggedOutUser: boolean,
   connected: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { document: user, loading } = useSingle({
     collectionName: "Users",

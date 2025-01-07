@@ -29,7 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const PostsListEditorSearchHit = ({hit, classes}: {
   hit: Hit<AnyBecauseTodo>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const post = hit as SearchPost;
   const {PostsTooltip, PostsTitle, MetaInfo, FormatDate} = Components;

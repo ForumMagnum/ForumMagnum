@@ -17,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const RecommendationsPageCuratedList = ({classes}: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { PostsList2, SingleColumnSection, SectionTitle, SunshineCuratedSuggestionsList } = Components;
 

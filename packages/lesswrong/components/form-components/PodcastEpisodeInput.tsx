@@ -19,7 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const PodcastEpisodeInput = ({ value, path, document, classes, label, updateCurrentValues }: FormComponentProps<string> & {
   document: PostsBase,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { Loading, MenuItem } = Components;
 

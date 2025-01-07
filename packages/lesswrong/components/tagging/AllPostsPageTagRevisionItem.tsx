@@ -21,7 +21,7 @@ const AllPostsPageTagRevisionItem = ({tag, revisionId, documentId, classes}: {
   tag: TagBasicInfo,
   revisionId: string,
   documentId: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {Loading, CompareRevisions, TagRevisionItemShortMetadata, ContentStyles} = Components;
   const {document: revision, loading} = useSingle({

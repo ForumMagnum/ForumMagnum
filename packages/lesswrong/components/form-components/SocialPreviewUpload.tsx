@@ -210,7 +210,7 @@ const SocialPreviewTextEdit = ({
 }: {
   value: string;
   updateValue: (value: string) => void;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
   // This handling here is a workaround for a bug in the Input component, you can ignore it
   // and just assume `value` is the source of truth here
@@ -265,7 +265,7 @@ const SocialPreviewUpload = ({
   label: string;
   clearField: Function;
   croppingAspectRatio: number;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
   const { ImageUpload2 } = Components;
 

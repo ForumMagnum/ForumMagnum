@@ -56,7 +56,7 @@ const frontpageTab = {_id: '0', name: FRONTPAGE_TAB_NAME}
  */
 const EAHomeMainContent = ({FrontpageNode, classes}: {
   FrontpageNode: ComponentType,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const [activeTab, setActiveTab] = useState<TopicsBarTab>(frontpageTab)
   

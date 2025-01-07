@@ -82,7 +82,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const AdminToggle = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser()
   const {loading, toggleOn, toggleOff} = useAdminToggle()

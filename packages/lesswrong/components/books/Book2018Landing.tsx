@@ -302,7 +302,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const Hidden = ({classes}: {classes: ClassesType}) => {
+const Hidden = ({classes}: {classes: ClassesType<typeof styles>}) => {
   return (
     <div className={classes.mainQuoteContainer}>
       <div className={classes.mainQuote}>
@@ -317,7 +317,7 @@ const Hidden = ({classes}: {classes: ClassesType}) => {
 
 
 const Interlude = ({classes, imageURL, coverImageUrl, spreadImageUrl, bigQuote, bigQuoteAuthor, accentColor, bodyText}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   imageURL: string,
   coverImageUrl: string,
   spreadImageUrl: string,
@@ -357,7 +357,7 @@ const Interlude = ({classes, imageURL, coverImageUrl, spreadImageUrl, bigQuote, 
 }
 
 const Book2018Landing = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {BookAnimation, BookCheckout, HeadTags} = Components;
 

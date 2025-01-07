@@ -27,7 +27,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const ReviewPostComments = ({ terms, classes, title, post, singleLine, placeholderCount, hideReviewVoteButtons, singleLineCollapse }: {
   terms: CommentsViewTerms,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   title?: string,
   post: PostsList,
   singleLine?: boolean,

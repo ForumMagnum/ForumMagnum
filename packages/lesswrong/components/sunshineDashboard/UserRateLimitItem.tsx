@@ -122,7 +122,7 @@ const getRateLimitDescription = (rateLimit: UserRateLimitDisplay) => {
 
 export const UserRateLimitItem = ({userId, classes}: {
   userId: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { WrappedSmartForm, MenuItem, Loading, MetaInfo, LWTooltip } = Components;
   const [createNewRateLimit, setCreateNewRateLimit] = useState(false);

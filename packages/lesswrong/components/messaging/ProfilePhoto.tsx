@@ -70,7 +70,7 @@ const ProfilePhoto = ({user, noLink=false, from, className, classes}: {
   noLink?: boolean,
   from?: string,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   // placeholder icon, in case nothing else is available
   let imgNode = <AccountCircleIcon

@@ -97,7 +97,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 export const CollectionsItem = ({classes, showCloseIcon, collection}: {
   collection: CoreReadingCollection,
   showCloseIcon?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {
     Typography, LinkCard, ContentStyles, ContentItemBody, PostsTooltip

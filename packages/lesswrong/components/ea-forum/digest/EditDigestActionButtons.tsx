@@ -19,7 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const EditDigestActionButtons = ({digest, classes}: {
   digest: DigestsMinimumInfo,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { openDialog } = useDialog()
   const isPublished = !!digest.publishedDate

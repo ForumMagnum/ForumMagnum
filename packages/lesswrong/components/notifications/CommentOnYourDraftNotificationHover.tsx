@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const CommentOnYourDraftNotificationHover = ({notification, classes}: {
   notification: NotificationsList,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { UsersName, Loading } = Components;
   const postId = notification.documentId;

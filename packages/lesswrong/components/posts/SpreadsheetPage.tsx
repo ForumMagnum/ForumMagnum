@@ -372,7 +372,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const SpreadsheetPage = ({classes}: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { query: { tab: selectedTab = "Intro" }, hash: selectedCell } = useLocation()
   const { LWTooltip, HoverPreviewLink, Loading, HeadTags, ContentStyles } = Components

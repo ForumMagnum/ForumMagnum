@@ -51,7 +51,7 @@ const SortableList = makeSortableListComponent({
 const CoauthorsListEditor = ({ value, path, document, classes, label, updateCurrentValues }: FormComponentProps<CoauthorListItem> & {
   value: CoauthorListItem[],
   document: Partial<DbPost>,
-  classes: ClassesType,
+  classes: ClassesType<typeof coauthorsListEditorStyles>,
 }) => {
   const [initialValue] = useState(value);
   const hasPermission = !!document.hasCoauthorPermission;

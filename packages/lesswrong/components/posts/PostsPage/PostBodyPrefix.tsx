@@ -62,7 +62,7 @@ const forumNewUserProcessingTime = forumSelect({
 const PostBodyPrefix = ({post, query, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList,
   query?: any,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { AlignmentPendingApprovalMessage, LinkPostMessage, PostsRevisionMessage, LWTooltip, ContentItemBody, ContentStyles, PostPageReviewButton } = Components;
   const currentUser = useCurrentUser();

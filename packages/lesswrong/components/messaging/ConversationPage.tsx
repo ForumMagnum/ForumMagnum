@@ -35,7 +35,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const ConversationPage = ({ conversationId, currentUser, classes }: {
   conversationId: string,
   currentUser: UsersCurrent,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { document: conversation, loading } = useSingle({
     documentId: conversationId,

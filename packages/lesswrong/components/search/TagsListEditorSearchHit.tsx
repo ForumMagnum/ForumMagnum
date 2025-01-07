@@ -10,7 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const TagsListEditorSearchHit = ({hit, classes}: {
   hit: Hit<any>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const tag = (hit as SearchTag);
 

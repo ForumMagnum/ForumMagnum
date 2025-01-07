@@ -141,7 +141,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const PetrovDayButton = ({classes, refetch, alreadyLaunched }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   refetch?: any,
   alreadyLaunched?: boolean,
 }) => {

@@ -27,7 +27,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const SunshineNewUserCommentsList = ({comments, user, classes}: {
   comments?: Array<CommentsListWithParentMetadata>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   user: SunshineUsersList
 }) => {
   const { CommentsNode, RejectContentButton, RejectedReasonDisplay } = Components

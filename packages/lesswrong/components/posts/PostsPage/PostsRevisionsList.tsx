@@ -11,7 +11,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const PostsRevisionsList = ({post, classes}: {
   post: PostsBase,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const navigate = useNavigate();
   const { document, loading } = useSingle({

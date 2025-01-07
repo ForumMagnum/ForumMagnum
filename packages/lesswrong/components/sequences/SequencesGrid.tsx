@@ -33,7 +33,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
 const SequencesGrid = ({sequences, showAuthor, classes, bookItemStyle }: {
   sequences: Array<SequencesPageFragment>,
   showAuthor?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   bookItemStyle?: boolean
 }) =>
   <div className={classes.grid}>

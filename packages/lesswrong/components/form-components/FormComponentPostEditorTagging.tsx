@@ -45,7 +45,7 @@ const splitBy = (
  * two, which is moderately unfortunate.
  */
 const FormComponentPostEditorTagging = ({value, path, document, formType, updateCurrentValues, placeholder, classes}: FormComponentProps<any> & {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const showCoreAndTypesTopicSections = isEAForum;
 

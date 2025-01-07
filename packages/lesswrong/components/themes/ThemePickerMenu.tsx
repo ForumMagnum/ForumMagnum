@@ -30,7 +30,7 @@ const styles = (_theme: ThemeType): JssStyles => ({
 
 const ThemePickerMenu = ({children, classes}: {
   children: React.ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentThemeOptions = useThemeOptions();
   const setTheme = useSetTheme();

@@ -20,7 +20,7 @@ const ReactionIcon = ({react, inverted=false, size=18, classes}: {
   react: string,
   inverted?: boolean,
   size?: number,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const reactionType = getNamesAttachedReactionsByName(react);
   const opacity = reactionType.filter?.opacity ?? defaultFilter.opacity;

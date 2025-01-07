@@ -64,7 +64,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const CollectionsPage = ({ documentId, classes }: {
   documentId: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const [edit, setEdit] = useState(false);

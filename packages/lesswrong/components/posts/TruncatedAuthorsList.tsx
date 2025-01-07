@@ -46,7 +46,7 @@ const TruncatedAuthorsList = ({post, expandContainer, className, classes}: {
   post: PostsList | SunshinePostsList | PostsBestOfList,
   expandContainer: RefObject<HTMLDivElement>,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {isAnon, authors, topCommentAuthor} = usePostsUserAndCoauthors(post);
   const ref = useRef<HTMLDivElement>(null);

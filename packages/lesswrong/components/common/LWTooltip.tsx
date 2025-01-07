@@ -37,7 +37,7 @@ export type LWTooltipProps = {
   onShow?: () => void,
   onHide?: () => void,
   children?: ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   forceOpen?: boolean,
 }
 

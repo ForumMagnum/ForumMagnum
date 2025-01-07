@@ -40,7 +40,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const CommentKarmaWithPreview = ({ comment, classes, displayTitle, reviewedAt }: {
   comment: CommentsListWithParentMetadata,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   displayTitle: boolean,
   reviewedAt: Date
 }) => {

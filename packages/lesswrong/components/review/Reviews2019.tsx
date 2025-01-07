@@ -23,7 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const Reviews2019 = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const [expandUnread, setExpandUnread] = useState(!!(currentUser ? !currentUser.noExpandUnreadCommentsReview : true));

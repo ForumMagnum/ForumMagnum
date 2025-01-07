@@ -12,7 +12,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const ShortformThreadList = ({ classes }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const {results, loadMoreProps, refetch} = useMulti({

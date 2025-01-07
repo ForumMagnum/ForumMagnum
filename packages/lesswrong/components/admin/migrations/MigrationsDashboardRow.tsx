@@ -27,7 +27,7 @@ const styles = (theme: ThemeType): JssStyles => rowStyles;
 
 const MigrationsDashboardRow = ({migration: {name, dateWritten, runs, lastRun}, classes}: {
   migration: any,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const [expanded, setExpanded] = React.useState(false);
   

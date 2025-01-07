@@ -10,7 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 export const GardenCodesList = ({classes, limit, personal=false}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   limit?: number,
   personal?: boolean
 }) => {

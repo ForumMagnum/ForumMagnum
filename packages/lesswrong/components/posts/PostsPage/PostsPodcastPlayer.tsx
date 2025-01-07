@@ -24,7 +24,7 @@ const PostsPodcastPlayer = ({ podcastEpisode, postId, hideIconList = false, clas
   podcastEpisode: PostsDetails_podcastEpisode,
   postId: string,
   hideIconList?: boolean,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const mouseOverDiv = useRef(false);
   const divRef = useRef<HTMLDivElement | null>(null);

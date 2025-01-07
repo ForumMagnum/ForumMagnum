@@ -19,7 +19,7 @@ const styles = (_theme: ThemeType) => ({
 
 const NewShortformDialog = ({onClose, classes}: {
   onClose: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [open, setOpen] = useState(true);
   const navigate = useNavigate();

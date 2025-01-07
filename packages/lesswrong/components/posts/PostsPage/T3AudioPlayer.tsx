@@ -19,7 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
    custom styling on prod so this may look different locally */
 export const T3AudioPlayer = ({classes, showEmbeddedPlayer, postId}: {
   showEmbeddedPlayer: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   postId: string
 }) => {
   const mouseOverDiv = useRef(false);

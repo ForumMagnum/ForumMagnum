@@ -77,7 +77,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const AprilFools2022 = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { SingleColumnSection, SectionTitle, UsersNameDisplay, SectionFooter } = Components
 

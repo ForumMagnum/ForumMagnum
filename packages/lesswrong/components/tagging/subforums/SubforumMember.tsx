@@ -136,7 +136,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SubforumMember = ({user, isOrganizer, classes}: {
   user: UsersProfile,
   isOrganizer?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const bioRef = useRef<HTMLDivElement>(null)
   

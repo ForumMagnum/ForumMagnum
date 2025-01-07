@@ -336,7 +336,7 @@ const StickyWrapper: FC<{
   headerVisible: boolean,
   headerAtTop: boolean,
   children: ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }> = ({eaHomeLayout, headerVisible, headerAtTop, children, classes}) =>
   eaHomeLayout
     ? (
@@ -353,7 +353,7 @@ const StickyWrapper: FC<{
 const Layout = ({currentUser, children, classes}: {
   currentUser: UsersCurrent|null,
   children?: React.ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
   const [disableNoKibitz, setDisableNoKibitz] = useState(false); 

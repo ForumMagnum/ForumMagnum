@@ -212,7 +212,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const Book2019Animation = ({ classes, children, successContent }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   children: ReactNode,
   successContent?: any
 }) => {

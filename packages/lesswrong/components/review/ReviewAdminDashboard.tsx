@@ -35,7 +35,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const ReviewAdminDashboard = ({classes}: {classes: ClassesType}) => {
+const ReviewAdminDashboard = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const { FormatDate, PostsItemMetaInfo, Loading, Error404, Typography, UsersNameDisplay } = Components
   const currentUser = useCurrentUser()
   const { params: {year} } = useLocation()

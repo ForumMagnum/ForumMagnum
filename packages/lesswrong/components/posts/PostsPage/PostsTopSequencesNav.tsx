@@ -26,7 +26,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const PostsTopSequencesNav = ({post, classes}: {
   post: PostSequenceNavigation,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {SequencesTooltip, SequencesNavigationLink} = Components;
   const navigate = useNavigate();

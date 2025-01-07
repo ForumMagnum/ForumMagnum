@@ -65,7 +65,7 @@ const ProductDisplay = ({ handleClickAmazon, text="Amazon", classes }: {
   handleClickAmazon: (event: any) => void,
   // handleClickStripe: (event: any)=>void,
   text?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return <>
     <button className={classNames(classes.checkoutButton, classes.buyUsButton)} id="checkout-button-amazon-us" role="link" onClick={handleClickAmazon}>
@@ -76,12 +76,12 @@ const ProductDisplay = ({ handleClickAmazon, text="Amazon", classes }: {
     </button> */}
   </>
 };
-const Message = ({ message, classes }: {message: string, classes: ClassesType}) => (
+const Message = ({ message, classes }: {message: string, classes: ClassesType<typeof styles>}) => (
   <section>
     <p className={classes.messageParagraph}>{message}</p>
   </section>
 );
-export default function BookCheckout({classes, ignoreMessages = false, text, link}: {classes: ClassesType, ignoreMessages?: boolean, text?: string, link: string}) {
+export default function BookCheckout({classes, ignoreMessages = false, text, link}: {classes: ClassesType<typeof styles>, ignoreMessages?: boolean, text?: string, link: string}) {
   const [message, setMessage] = useState("");
   const { captureEvent } = useTracking()
   

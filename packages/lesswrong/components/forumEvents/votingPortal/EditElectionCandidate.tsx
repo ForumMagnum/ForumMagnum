@@ -38,7 +38,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 const EditElectionCandidate = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {flash} = useMessages();
   const navigate = useNavigate();

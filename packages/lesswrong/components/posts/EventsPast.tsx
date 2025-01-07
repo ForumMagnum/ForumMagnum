@@ -10,7 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 const EventsPast = ({ classes }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { timezone } = useTimezone();
   const { SingleColumnSection, SectionTitle, PostsTimeframeList } = Components

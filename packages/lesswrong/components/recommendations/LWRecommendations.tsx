@@ -99,7 +99,7 @@ const LWRecommendations = ({
   classes,
 }: {
   configName: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
 
   const currentUser = useCurrentUser();

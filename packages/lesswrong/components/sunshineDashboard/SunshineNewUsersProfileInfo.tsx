@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SunshineNewUsersProfileInfo = ({userId, classes}: {userId: string, classes: ClassesType}) => {
+const SunshineNewUsersProfileInfo = ({userId, classes}: {userId: string, classes: ClassesType<typeof styles>}) => {
   const [expanded, setExpanded] = useState(false);
   const currentUser = useCurrentUser()
 

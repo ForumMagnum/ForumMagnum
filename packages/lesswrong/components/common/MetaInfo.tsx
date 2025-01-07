@@ -19,7 +19,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
 
 const MetaInfo = ({children, classes, button, className}: {
   children: React.ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   button?: boolean,
   className?: string
   title?: string,

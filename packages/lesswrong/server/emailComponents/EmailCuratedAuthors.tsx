@@ -23,7 +23,7 @@ const EmailCuratedAuthors = ({
 }: {
   user: DbUser;
   post: DbPost;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
 
   return (

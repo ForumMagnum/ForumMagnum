@@ -39,7 +39,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const AddTag = ({onTagSelected, isVotingContext, classes}: {
   onTagSelected: (props: {tagId: string, tagName: string}) => void,
   isVotingContext?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {TagSearchHit, DropdownDivider} = Components
   const currentUser = useCurrentUser()

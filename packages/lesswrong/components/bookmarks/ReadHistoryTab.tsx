@@ -60,7 +60,7 @@ const useUserReadHistory = ({currentUser, limit, filter, sort}: {
 }
 
 const ReadHistoryTab = ({classes, groupByDate = true, filter, sort}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   groupByDate?: boolean,
   filter?: FilterPostsForReview,
   sort?: {

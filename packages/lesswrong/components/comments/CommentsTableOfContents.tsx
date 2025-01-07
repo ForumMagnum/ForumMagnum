@@ -79,7 +79,7 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
   answersTree?: CommentTreeNode<CommentsList>[],
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
   highlightDate: Date|undefined,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const flattenedComments = flattenCommentTree([
     ...(answersTree ?? []),
@@ -154,7 +154,7 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highli
   indentLevel: number,
   highlightedCommentId: string|null,
   highlightDate: Date|undefined,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { UsersNameDisplay, TableOfContentsRow } = Components;
   const navigate = useNavigate();

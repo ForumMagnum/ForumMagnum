@@ -95,7 +95,7 @@ const columns: Column[] = [
 
 
 const ModGPTDashboard = ({classes}: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser()
   

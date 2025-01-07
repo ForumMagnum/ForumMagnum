@@ -113,7 +113,7 @@ const CommentsListSection = ({
   newFormProps?: Partial<CommentsNewFormProps>,
   highlightDate: Date|undefined,
   setHighlightDate: (newValue: Date|undefined) => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const commentTree = unflattenComments(comments);

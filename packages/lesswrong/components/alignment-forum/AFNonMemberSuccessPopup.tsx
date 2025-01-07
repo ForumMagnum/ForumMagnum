@@ -32,7 +32,7 @@ const AFNonMemberSuccessPopup = ({_id, postId, onClose, classes}: {
   _id: string,
   postId?: string,
   onClose?: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [open, setOpen] = useState(true)
   const { ContentItemBody, LWDialog, ContentStyles } = Components

@@ -70,7 +70,7 @@ const TagFilterSettings = ({
   setTagFilter: (args: {tagId: string, tagName?: string, filterMode: FilterMode}) => void,
   removeTagFilter: (tagId: string) => void,
   flexWrapEndGrow?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { AddTagButton, FilterMode, LWTooltip } = Components
   const currentUser = useCurrentUser()

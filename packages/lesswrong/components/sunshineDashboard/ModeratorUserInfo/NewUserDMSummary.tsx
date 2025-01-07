@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const NewUserDMSummary = ({classes, user}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   user: SunshineUsersList,
 }) => {
   const { LWTooltip } = Components;

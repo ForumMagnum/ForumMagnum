@@ -11,7 +11,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SharePostSubmenu = ({post, closeMenu, classes}: {
   post: PostsListBase,
   closeMenu?: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { SharePostActions, DropdownItem, LWTooltip } = Components;
   const { hover, eventHandlers } = useHover();

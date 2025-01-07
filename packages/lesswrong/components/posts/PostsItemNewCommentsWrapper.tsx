@@ -8,7 +8,7 @@ const isDialogPost = (post: PostsList): post is PostsList & { debate: true } => 
 
 const PostsItemNewCommentsWrapper = ({ terms, classes, post, treeOptions }: {
   terms: CommentsViewTerms,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   post: PostsList,
   treeOptions: CommentTreeOptions,
 }) => {

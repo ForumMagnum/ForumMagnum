@@ -21,7 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const ModerationTemplateItem = ({classes, template}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   template: ModerationTemplateFragment
 }) => {
   const { ContentItemBody, MetaInfo, WrappedSmartForm, BasicFormStyles, Row } = Components

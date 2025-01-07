@@ -34,7 +34,7 @@ const PostsItemMeta = ({post, read, hideTags, classes}: {
   post: PostsList,
   read?: boolean,
   hideTags?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const baseScore = isAF ? post.afBaseScore : post.baseScore
   const showAfScore = (!isAF && post.af);

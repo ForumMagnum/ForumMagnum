@@ -43,7 +43,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
  */
 const EAPostsItemTagRelevance = ({tagRel, classes}: {
   tagRel: WithVoteTagRel,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {openDialog} = useDialog();
   const {flash} = useMessages();

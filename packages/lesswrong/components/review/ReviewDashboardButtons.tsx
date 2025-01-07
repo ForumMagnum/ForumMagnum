@@ -35,7 +35,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const ReviewDashboardButtons = ({classes, reviewYear, reviewPhase, showAdvancedDashboard, showQuickReview}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   reviewYear: ReviewYear,
   reviewPhase: ReviewPhase,
   showAdvancedDashboard?: boolean,

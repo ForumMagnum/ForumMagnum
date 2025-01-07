@@ -106,7 +106,7 @@ const getCurrentView = (query: Record<string, string>): DashboardTabs => {
 
 
 const ModerationDashboard = ({ classes }: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { UsersReviewInfoCard, LoadMore, Loading, FirstContentIcons } = Components;
 

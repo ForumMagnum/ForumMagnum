@@ -82,7 +82,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const ShortformListItem = ({comment, hideTag, classes}: {
   comment: ShortformComments,
   hideTag?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { captureEvent } = useTracking();
 

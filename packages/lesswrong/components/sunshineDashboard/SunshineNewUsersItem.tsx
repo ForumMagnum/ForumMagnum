@@ -28,7 +28,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 const SunshineNewUsersItem = ({ user, classes, refetch, currentUser }: {
   user: SunshineUsersList,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   refetch: () => void,
   currentUser: UsersCurrent,
 }) => {

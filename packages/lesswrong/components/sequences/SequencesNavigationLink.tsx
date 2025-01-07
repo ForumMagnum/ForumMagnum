@@ -30,7 +30,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
 const SequencesNavigationLink = ({ post, direction, classes }: {
   post: PostSequenceNavigation_nextPost|PostSequenceNavigation_prevPost|null,
   direction: "left"|"right",
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const updateContinueReading = useUpdateContinueReading(post?._id, post?.sequence?._id);
   

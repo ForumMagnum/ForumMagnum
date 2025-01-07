@@ -72,7 +72,7 @@ const createFallBackDialogHandler = (
   });
 }
 
-const HomepageMapFilter = ({classes}: {classes: ClassesType}) => {
+const HomepageMapFilter = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const { openDialog } = useDialog()
   const currentUser = useCurrentUser()
   const { flash } = useMessages()

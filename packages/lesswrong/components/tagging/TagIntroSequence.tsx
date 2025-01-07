@@ -13,7 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const TagIntroSequence = ({tag, classes}: {
   tag: TagPageFragment,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { SectionTitle, Loading, PostsItemIntroSequence, LoadMore } = Components
   const { results: seqChapters, loading } = useMulti({

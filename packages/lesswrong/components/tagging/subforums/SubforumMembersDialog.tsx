@@ -31,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const SubforumMembersDialog = ({classes, onClose, tag}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   onClose: () => void,
   tag: TagSubforumFragment,
 }) => {

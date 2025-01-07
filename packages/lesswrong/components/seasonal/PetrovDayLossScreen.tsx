@@ -33,7 +33,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const PetrovDayLossScreen = ({classes}: {
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
   return (
     <div className={classes.root}>

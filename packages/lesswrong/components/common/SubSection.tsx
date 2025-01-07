@@ -10,7 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const SubSection = ({children, classes, className}: {
   children?: React.ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   className?: string,
 }) => {
   return <div className={classNames(classes.root, className)}>

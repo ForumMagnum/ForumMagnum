@@ -56,7 +56,7 @@ const NavigationDrawer = ({open, handleOpen, handleClose, toc, classes}: {
   handleOpen: () => void,
   handleClose: () => void,
   toc: ToCData|null,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { TabNavigationMenu, TabNavigationMenuCompressed } = Components
   const showToc = toc && toc.sections

@@ -68,7 +68,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 type TabNavigationFooterItemProps = {
   tab: MenuTabRegular,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }
 
 const TabNavigationFooterItem = ({tab, classes}: TabNavigationFooterItemProps) => {

@@ -25,7 +25,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const SortButton = ({classes, className, onClick, showIcon=true, label=""}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   className?: string,
   onClick?: any,
   label?: JSX.Element|string,

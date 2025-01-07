@@ -408,7 +408,7 @@ const CKPostEditor = ({
   accessLevel?: CollaborativeEditingAccessLevel,
   placeholder?: string,
   document?: any,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();

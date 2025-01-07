@@ -55,7 +55,7 @@ const CoreTagIcon = ({tag, fallbackNode, className, classes}: {
   tag: {slug: string},
   fallbackNode?: ReactNode,
   className?: string,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const Icon = coreTagIconMap[tag.slug]
   if (!Icon) {

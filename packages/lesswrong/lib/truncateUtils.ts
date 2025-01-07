@@ -12,6 +12,8 @@ const getMaxExpandableWidth = (container: HTMLElement): number => {
   return width;
 }
 
+type TruncationClasses = "more" | "scratch" | "placeholder" | "item";
+
 /**
  * Here be dragons
  *
@@ -31,7 +33,7 @@ const getMaxExpandableWidth = (container: HTMLElement): number => {
 export const recalculateTruncation = (
   ref: RefObject<HTMLDivElement>,
   expandContainer: RefObject<HTMLDivElement>,
-  classes: ClassesType,
+  classes: ClassesType<JssStylesCallback<TruncationClasses>>,
   reformatPlaceholder: (
     moreCount: number,
     totalItems: number,

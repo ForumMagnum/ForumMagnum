@@ -44,7 +44,7 @@ const ShowParentComment = ({ comment, active, onClick, classes }: {
   comment: CommentsList,
   active?: boolean,
   onClick?: any,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
 
   if (!comment) return null;

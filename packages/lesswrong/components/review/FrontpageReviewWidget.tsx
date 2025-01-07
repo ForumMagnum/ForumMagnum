@@ -212,7 +212,7 @@ export function ReviewOverviewTooltip() {
   </div>
 }
 
-const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, className}: {classes: ClassesType, showFrontpageItems?: boolean, reviewYear: ReviewYear, className?: string}) => {
+const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, className}: {classes: ClassesType<typeof styles>, showFrontpageItems?: boolean, reviewYear: ReviewYear, className?: string}) => {
   const { SectionTitle, SettingsButton, LWTooltip, PostsList2, ReviewProgressReviews, ReviewProgressVoting, ReviewProgressNominations, FrontpageBestOfLWWidget } = Components
   const currentUser = useCurrentUser();
 

@@ -102,7 +102,7 @@ const localEventMapMarkerWrappersStyles = (theme: ThemeType): JssStyles => ({
 })
 const LocalEventMapMarkerWrappers = ({localEvents, classes}: {
   localEvents: Array<LocalEvent>,
-  classes: ClassesType,
+  classes: ClassesType<typeof localEventMapMarkerWrappersStyles>,
 }) => {
   const { LocalEventWrapperPopUp } = Components
   const [ openWindows, setOpenWindows ] = useState<string[]>([])
@@ -148,7 +148,7 @@ const LocalEventMapMarkerWrappersComponent = registerComponent("LocalEventMapMar
 
 export const HomepageCommunityMap = ({dontAskUserLocation = false, classes}: {
   dontAskUserLocation?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { LocalEventMapMarkerWrappers, HomepageMapFilter } = Components
 

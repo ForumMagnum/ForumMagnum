@@ -57,7 +57,7 @@ const NotifyMeButton = ({
   asMenuItem?: boolean,
   unsubscribeMessage?: string,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   showIcon?: boolean,
   hideLabel?: boolean,
   hideLabelOnMobile?: boolean

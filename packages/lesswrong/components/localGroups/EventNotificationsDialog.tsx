@@ -97,7 +97,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const MAX_NOTIFICATION_RADIUS_STEPSIZE = 5
 const EventNotificationsDialog = ({ onClose, classes }: {
   onClose: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const { Loading, Typography, LWDialog } = Components

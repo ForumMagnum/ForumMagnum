@@ -51,7 +51,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const TagVoteActivityRow = ({vote, classes}: {
   vote: TagVotingActivity,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { FormatDate, OverallVoteButton, FooterTag, UsersName, TagSmallPostLink } = Components;
   const voteProps = useVote(vote.tagRel!, "TagRels")
@@ -97,7 +97,7 @@ const TagVoteActivityRow = ({vote, classes}: {
 }
 
 const TagVoteActivity = ({classes, showHeaders = true, showNewTags = true, limit = 200, itemsPerPage = 200}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   showHeaders?: boolean,
   showNewTags?: boolean,
   limit?: number,

@@ -12,7 +12,7 @@ const styles = (_theme: ThemeType): JssStyles => ({
 
 const DropdownDivider = ({className, classes}: {
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return (
     <Divider className={classNames(className, classes.root)} />

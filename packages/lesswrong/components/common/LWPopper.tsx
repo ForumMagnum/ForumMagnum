@@ -53,7 +53,7 @@ const LWPopper = ({
   hideOnTouchScreens,
   updateRef
 }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   children: ReactNode,
   tooltip?: boolean,
   allowOverflow?: boolean,

@@ -83,7 +83,7 @@ const WriteNewButton = ({
   isSubscribed: boolean,
   setNewShortformOpen: (open: boolean) => void,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { captureEvent } = useTracking()
   const currentUser = useCurrentUser();

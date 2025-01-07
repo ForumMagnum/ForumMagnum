@@ -60,7 +60,7 @@ export const downvoterTooltip = (user: SunshineUsersList) => {
 
 export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta=false, classes}: {
   user: SunshineUsersList,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   showKarmaMeta?: boolean
 }) => {
   const { MetaInfo, LWTooltip } = Components

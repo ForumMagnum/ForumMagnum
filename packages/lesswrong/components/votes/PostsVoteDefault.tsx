@@ -80,7 +80,7 @@ const PostsVoteDefault = ({
   useHorizontalLayout?: boolean,
   votingSystem?: VotingSystem<PostsWithVotes>,
   isFooter?: boolean,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const voteProps = useVote(post, "Posts", votingSystem);
   const {OverallVoteButton, Typography} = Components;

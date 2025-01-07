@@ -17,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const DropdownMenu = ({children, className, classes}: {
   children: ReactNode,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return (
     <div className={classNames(classes.root, className)}>

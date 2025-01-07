@@ -51,7 +51,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const ModeratorActionItem = ({classes, user, moderatorAction, comments, posts }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   user: SunshineUsersList,
   moderatorAction: ModeratorActionDisplay,
   comments: Array<CommentsListWithParentMetadata>|undefined,

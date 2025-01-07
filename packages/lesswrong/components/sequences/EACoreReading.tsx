@@ -51,7 +51,7 @@ const coreReadingCollections: Array<CoreReadingCollection> =
 
 const EACoreReading = ({minimal=false, classes}: {
   minimal?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => (
   <Components.CollectionsCardContainer>
     <div className={classes.razLargeVersion}>

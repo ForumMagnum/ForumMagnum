@@ -21,7 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const SequenceDraftsList = ({limit, title="My Drafts", userId, classes, addDraft, dialogPostIds}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   limit: number,
   title?: string,
   userId?: string,

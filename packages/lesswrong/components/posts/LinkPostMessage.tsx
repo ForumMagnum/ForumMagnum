@@ -31,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const LinkPostMessage = ({post, classes, negativeTopMargin}: {
   post: PostsBase,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   negativeTopMargin?: boolean
 }) => {
   if (!post.url)

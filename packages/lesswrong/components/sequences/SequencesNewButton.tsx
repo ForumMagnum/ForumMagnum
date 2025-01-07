@@ -10,7 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const SequencesNewButton = ({ classes }: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { SectionButton } = Components
   return  <Link to={"/sequencesnew"}> 

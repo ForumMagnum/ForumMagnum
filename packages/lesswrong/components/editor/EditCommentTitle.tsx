@@ -31,7 +31,7 @@ const EditCommentTitle = ({document, value, path, placeholder, updateCurrentValu
   path: string,
   placeholder: string,
   updateCurrentValues: Function,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   return <Input
     className={classNames(classes.root)}

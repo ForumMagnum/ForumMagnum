@@ -19,7 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const EmailWrapper = ({unsubscribeAllLink, children, classes}: {
   unsubscribeAllLink: string | null,
   children: React.ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const accountLink = `${getSiteUrl()}account`
   const siteNameWithArticle = siteNameWithArticleSetting.get()

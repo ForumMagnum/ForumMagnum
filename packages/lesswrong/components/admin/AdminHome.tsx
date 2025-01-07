@@ -36,7 +36,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const AdminHome = ({ classes }: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const {SingleColumnSection, AdminMetadata, Loading} = Components;
   const currentUser = useCurrentUser();

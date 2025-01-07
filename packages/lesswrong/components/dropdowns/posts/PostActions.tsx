@@ -22,7 +22,7 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
   post: PostsList|SunshinePostsList,
   closeMenu: () => void,
   includeBookmark?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
 

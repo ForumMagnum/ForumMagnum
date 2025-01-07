@@ -86,7 +86,7 @@ const LoadMore = ({
   // hideLoading: Reserve space for the load spinner as normal, but don't show it
   hideLoading?: boolean,
   hidden?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   sectionFooterStyles?: boolean,
   afterPostsListMarginTop?: boolean,
   message?: string,

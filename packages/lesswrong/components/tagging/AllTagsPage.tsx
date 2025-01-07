@@ -49,7 +49,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 
 const AllTagsPage = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { openDialog } = useDialog()
   const currentUser = useCurrentUser()

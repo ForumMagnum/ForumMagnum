@@ -26,7 +26,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 export const EmailPreview = ({email, sentDate, classes}: {
   email: any,
   sentDate?: Date,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
 
   return <div className={classes.emailPreview}>

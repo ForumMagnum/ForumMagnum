@@ -39,7 +39,7 @@ const EditLinkpostUrl = ({
 }: {
   value: string;
   path: keyof DbPost;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
   document: Partial<DbPost>;
   defaultValue?: string;
   placeholder?: string;

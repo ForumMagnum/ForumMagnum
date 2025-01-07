@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const CommentBottomCaveats = ({comment, classes}: {
   comment: CommentsList,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const now = useCurrentTime();
   const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > now;

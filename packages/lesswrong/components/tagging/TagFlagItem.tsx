@@ -40,7 +40,7 @@ const TagFlagItem = ({documentId, itemType = "tagFlagId", showNumber = true, sty
   itemType?: ItemTypeName,
   showNumber?: boolean,
   style?: "white"|"grey"|"black",
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { LWPopper, ContentItemBody, ContentStyles } = Components;
   const {eventHandlers, hover, anchorEl } = useHover();

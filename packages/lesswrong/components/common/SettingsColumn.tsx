@@ -54,7 +54,7 @@ interface Props {
   title: string;
   options: Partial<Record<string, SettingsOption>>;
   currentOption: string;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
   setSetting: (type: string, newSetting: any) => void;
   nofollow?: boolean;
 }

@@ -25,7 +25,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const INITIAL_LIMIT = 8;
 
 const CoreTagsSection = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { results } = useMulti({
     terms: {

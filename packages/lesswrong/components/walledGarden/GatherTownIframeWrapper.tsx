@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const GatherTownIframeWrapper = ({iframeRef, classes}: {
   iframeRef: React.RefObject<HTMLIFrameElement>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   useEffect(() => {
     iframeRef?.current?.focus && iframeRef.current.focus()

@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const UsersSearchInput = ({ inputProps, classes }: {
   inputProps: InputBaseComponentProps;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
   return <Input
     inputProps={inputProps}

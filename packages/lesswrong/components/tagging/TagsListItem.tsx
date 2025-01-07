@@ -32,7 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const TagsListItem = ({tag, classes, postCount=3}: {
   tag: TagPreviewFragment,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   postCount?: number,
 }) => {
   const { PopperCard, TagPreview } = Components;

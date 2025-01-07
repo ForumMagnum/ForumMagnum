@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const CollectionsCardContainer = ({ classes, children }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   children: ReactNode,
 }) => {
   return <div className={classes.root}>

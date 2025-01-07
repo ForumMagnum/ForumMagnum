@@ -22,7 +22,7 @@ const SortableList = makeSortableListComponent({
 });
 
 const SequencesListEditor = ({value, path, updateCurrentValues, classes}: FormComponentProps<string[]> & {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return <div className={classes.root}>
     <SortableList

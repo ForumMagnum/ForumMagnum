@@ -37,7 +37,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const NewTagItem = ({tag, classes}: {
   tag: TagCreationHistoryFragment,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const tagUrl = tagGetUrl(tag);
   const {UsersName, FormatDate, PostsList2, ContentItemBody, TagDiscussionButton, ContentStyles} = Components;

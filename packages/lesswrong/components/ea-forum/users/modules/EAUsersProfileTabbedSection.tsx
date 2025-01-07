@@ -101,7 +101,7 @@ export type UserProfileTabType = {
 const EAUsersProfileTabbedSection = ({tabs, id, classes}: {
   tabs: Array<UserProfileTabType>,
   id?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [activeTab, setActiveTab] = useState(tabs.length ? tabs[0] : null)
   

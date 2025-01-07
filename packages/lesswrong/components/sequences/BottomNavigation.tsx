@@ -69,7 +69,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const BottomNavigation = ({post, classes}: {
   post: PostSequenceNavigation,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { nextPost, prevPost, sequence } = post;
   const currentUser = useCurrentUser();

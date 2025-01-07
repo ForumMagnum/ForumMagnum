@@ -9,7 +9,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const AFSuggestUsersList = ({ classes }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { results, loadMoreProps } = useMulti({
     terms: {view:"alignmentSuggestedUsers", limit: 100},

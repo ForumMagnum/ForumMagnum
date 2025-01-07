@@ -18,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const PostsPreviewLoading = ({classes}: {classes: ClassesType}) => {
+const PostsPreviewLoading = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const {Loading} = Components;
   return (
     <div className={classes.loading}>

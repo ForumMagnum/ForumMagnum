@@ -21,7 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 export const ModeratorMessageCount = ({classes, userId}: {
   userId: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { LWTooltip } = Components
   const { loading, totalCount } = useMulti({

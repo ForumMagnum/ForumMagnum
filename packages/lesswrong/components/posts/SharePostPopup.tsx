@@ -182,7 +182,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-type ShareButtonProps = { label: string; icon: JSX.Element; clickAction?: () => void; classes: ClassesType };
+type ShareButtonProps = { label: string; icon: JSX.Element; clickAction?: () => void; classes: ClassesType<typeof styles> };
 
 const ShareButton = ({ label, icon, clickAction, classes }: ShareButtonProps) => {
   return (
@@ -202,7 +202,7 @@ const SharePostPopup = ({
 }: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision;
   onClose: () => void;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
   const anchorEl = useRef<HTMLDivElement | null>(null);
   const { captureEvent } = useTracking();

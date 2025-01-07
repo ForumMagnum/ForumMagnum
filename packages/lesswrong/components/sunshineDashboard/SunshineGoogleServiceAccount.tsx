@@ -23,7 +23,7 @@ const getExpiryMessage = (estimatedExpiry: Date) => {
 }
 
 const SunshineGoogleServiceAccount = ({ classes }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
 

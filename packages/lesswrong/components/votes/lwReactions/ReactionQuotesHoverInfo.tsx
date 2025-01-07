@@ -66,7 +66,7 @@ const ReactionQuotesHoverInfo = ({react, quote, voteProps, commentBodyRef, class
   quote: QuoteLocator,
   voteProps: VotingProps<VoteableTypeClient>,
   commentBodyRef?: React.RefObject<ContentItemBody>|null,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { ReactOrAntireactVote, UsersWhoReacted } = Components;
   const normalizedReactions = getNormalizedReactionsListFromVoteProps(voteProps);

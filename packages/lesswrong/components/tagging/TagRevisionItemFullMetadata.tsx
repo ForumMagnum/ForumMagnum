@@ -53,7 +53,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const TagRevisionItemFullMetadata = ({tag, revision, classes}: {
   tag: TagBasicInfo,
   revision: RevisionMetadataWithChangeMetrics,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {FormatDate, UsersName, ChangeMetricsDisplay, SmallSideVote} = Components;
   const tagUrl = tagGetUrl(tag);

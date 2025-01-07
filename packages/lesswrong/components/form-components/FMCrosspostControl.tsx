@@ -53,7 +53,7 @@ const styles = (theme: ThemeType): JssStyles => ({
  */
 const FMCrosspostAccount = ({fmCrosspostUserId, classes}: {
   fmCrosspostUserId: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const apolloClient = useForeignApolloClient();
   const {document, loading} = useSingle({
@@ -88,7 +88,7 @@ const FMCrosspostAuth = ({fmCrosspostUserId, loading, onClickLogin, onClickUnlin
   loading: boolean,
   onClickLogin: () => void,
   onClickUnlink: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {Loading} = Components;
 
@@ -132,7 +132,7 @@ const unlinkCrossposterMutation = gql`
  */
 const FMCrosspostControl = ({updateCurrentValues, classes, value, path, currentUser}: {
   updateCurrentValues: Function,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   value: {isCrosspost: boolean, hostedHere?: boolean, foreignPostId?: string},
   path: string,
   currentUser: UsersCurrent,

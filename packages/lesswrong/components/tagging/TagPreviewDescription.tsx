@@ -46,7 +46,7 @@ const getTagParagraphTruncationCount = (tag: TagPreviewFragment | TagSectionPrev
 const TagPreviewDescription = ({tag, hash, classes}: {
   tag: TagPreviewFragment | TagSectionPreviewFragment,
   hash?: string,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const navigate = useNavigate();
 

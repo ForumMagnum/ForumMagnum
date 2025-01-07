@@ -10,7 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const SunshineReportedContentList = ({ classes, currentUser }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   currentUser: UsersCurrent,
 }) => {
   const { SunshineListTitle, SunshineReportedItem, SunshineListCount, LoadMore } = Components

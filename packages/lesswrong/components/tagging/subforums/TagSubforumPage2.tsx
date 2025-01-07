@@ -110,7 +110,7 @@ type SubforumTab = typeof subforumTabs[number]
 const defaultTab: SubforumTab = "posts"
 
 const TagSubforumPage2 = ({classes}: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const {
     Loading,

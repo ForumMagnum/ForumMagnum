@@ -34,7 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 type TabNavigationCompressedItemProps = {
   tab: MenuTabRegular,
   onClick?: (event: React.MouseEvent<HTMLAnchorElement>) => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }
 
 const TabNavigationCompressedItem = ({tab, onClick, classes}: TabNavigationCompressedItemProps) => {

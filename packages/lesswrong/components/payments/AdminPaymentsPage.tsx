@@ -45,7 +45,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const AdminPaymentsPage = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { SingleColumnSection, SectionTitle, Loading, LoadMore, LWTooltip,
     UserTooltip, ErrorAccessDenied, ForumIcon } = Components

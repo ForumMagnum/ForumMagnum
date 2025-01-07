@@ -24,7 +24,7 @@ const ModerationGuidelinesEditForm = ({ commentType = "post", documentId, onClos
   commentType?: "post" | "subforum",
   documentId: string,
   onClose?: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const isPost = commentType === "post"
   // FIXME: Unstable component will lose state on rerender

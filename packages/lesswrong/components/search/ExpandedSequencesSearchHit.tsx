@@ -70,7 +70,7 @@ const greyBackground = requireCssVar("palette", "grey", 0);
 
 const ExpandedSequencesSearchHit = ({hit, classes}: {
   hit: Hit<any>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const navigate = useNavigate();
   const { FormatDate, UserNameDeleted } = Components

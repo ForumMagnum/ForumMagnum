@@ -7,7 +7,7 @@ import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 
 const TagCompareRevisions = ({classes}: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { params, query } = useLocation();
   const { slug } = params;

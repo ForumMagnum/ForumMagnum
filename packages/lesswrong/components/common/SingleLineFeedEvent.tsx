@@ -36,7 +36,7 @@ const SingleLineFeedEvent = ({expands=false, setExpanded, children, classes}: {
   expands?: boolean,
   setExpanded?: (expanded: boolean) => void,
   children: React.ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return <div className={classes.root}>
     {expands && <span className={classes.expandButton} onClick={ev => (setExpanded && setExpanded(true))} >{"+"}</span>}

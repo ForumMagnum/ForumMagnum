@@ -18,7 +18,7 @@ const InlineReactHoverInfo = ({quote, reactions, voteProps, classes}: {
   quote: QuoteLocator,
   reactions: NamesAttachedReactionsList,
   voteProps: VotingProps<VoteableTypeClient>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { ReactionHoverTopRow, ReactionQuotesHoverInfo } = Components;
   const reactionNames = Object.keys(reactions);

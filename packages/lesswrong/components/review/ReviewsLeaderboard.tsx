@@ -39,7 +39,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const ReviewsLeaderboard = ({classes, reviews, reviewYear}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   reviews?: CommentsListWithParentMetadata[],
   reviewYear?: ReviewYear
 }) => {

@@ -89,7 +89,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const PostsAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
+const PostsAnalyticsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { query } = useLocation();
 
   const {document: post, error} = useSingle({

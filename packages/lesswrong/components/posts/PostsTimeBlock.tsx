@@ -107,7 +107,7 @@ const PostsTimeBlock = ({
   hideIfEmpty: boolean,
   timeframe: TimeframeType,
   shortform?: PostsTimeBlockShortformOption,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   includeTags?: boolean,
 }) => {
   const [noShortform, setNoShortform] = useState(false);

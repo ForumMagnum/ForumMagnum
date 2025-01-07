@@ -42,7 +42,7 @@ const BookmarkButton = ({
   withText?: boolean,
   placement?: TooltipProps["placement"],
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {icon, labelText, hoverText, toggleBookmark} = useBookmarkPost(post);
   const Component = withText ? "a" : "span";

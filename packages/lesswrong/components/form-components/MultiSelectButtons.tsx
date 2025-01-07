@@ -40,7 +40,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const MultiSelectButtons = ({ value, label, options, path, classes }: FormComponentProps<string> & {
   options: Array<{ value: string; label?: string }>;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }, context: any) => {
   const handleClick = (option: string) => {    
     if (value && value.includes(option)) {

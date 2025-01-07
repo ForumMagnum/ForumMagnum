@@ -10,7 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 
 const AFSuggestPostsList = ({ classes }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { results, loadMoreProps } = useMulti({
     terms: {view:"alignmentSuggestedPosts"},

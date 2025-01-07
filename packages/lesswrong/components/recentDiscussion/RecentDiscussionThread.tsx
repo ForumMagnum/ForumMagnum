@@ -169,7 +169,7 @@ const RecentDiscussionThread = ({
   isSubforumIntroPost?: boolean,
   commentTreeOptions?: CommentTreeOptions,
   dismissCallback?: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const {

@@ -20,7 +20,7 @@ const EmailAnnualForumUserSurvey = ({
   classes,
 }: {
   user: DbUser;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
   const surveyLink = 'https://forms.cea.community/forum-survey-2024?utm_source=ea_forum&utm_medium=email&utm_campaign=survey_reminder'
 

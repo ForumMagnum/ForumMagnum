@@ -22,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const EAHomeCommunityPosts = ({classes}: {classes: ClassesType}) => {
+const EAHomeCommunityPosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const {expanded, toggleExpanded} = useExpandedFrontpageSection({
     section: "community",
     onExpandEvent: "communityPostsSectionExpanded",

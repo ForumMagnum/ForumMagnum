@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const CommentDeletedMetadata = ({documentId, classes}: {
   documentId: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { document } = useSingle({
     documentId,

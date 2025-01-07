@@ -225,7 +225,7 @@ const EAGApplicationImportFormWrapper = () => {
 
 const EAGApplicationImportForm = ({currentUser, classes}: {
   currentUser: UsersEdit,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const navigate = useNavigate();
   const { pathname } = useLocation()

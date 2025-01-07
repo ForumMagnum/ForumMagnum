@@ -24,7 +24,7 @@ const EmailJobAdReminder = ({
   classes,
 }: {
   jobName: string;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
   const jobData = JOB_AD_DATA[jobName];
   const link = jobData.bitlyLink;

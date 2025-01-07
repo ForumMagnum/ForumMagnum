@@ -1,6 +1,5 @@
 import { Components, registerComponent, } from '../../../lib/vulcan-lib';
 import React, { MouseEventHandler } from 'react';
-import { createStyles } from '@material-ui/core/styles';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
@@ -9,7 +8,7 @@ import { requireCssVar } from '../../../themes/cssVars';
 
 import { isFriendlyUI, preferredHeadingCase } from '../../../themes/forumTheme';
 
-const styles = createStyles((theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType): JssStyles => ({
   noResults: {
     ...theme.typography.commentStyle,
     textAlign: 'center',
@@ -139,7 +138,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     textAlign: 'center',
     padding: 20
   },
-}))
+});
 
 const defaultBackground = requireCssVar("palette", "panelBackground", "default");
 const dimBackground = requireCssVar("palette", "background", "primaryDim");
@@ -148,7 +147,7 @@ const OnlineGroups = ({keywordSearch, includeInactive, toggleIncludeInactive, cl
   keywordSearch: string,
   includeInactive: boolean,
   toggleIncludeInactive: MouseEventHandler,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { CloudinaryImage2 } = Components
   

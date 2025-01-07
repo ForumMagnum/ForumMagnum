@@ -65,7 +65,7 @@ export const recommendationsAlgorithm: RecommendationsAlgorithm = {
 }
 
 export const FrontpageBestOfLWWidget = ({classes, reviewYear}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   reviewYear: ReviewYear
 }) => {
   const { SectionTitle, RecommendationsList, SingleColumnSection, PostsItem } = Components

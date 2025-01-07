@@ -34,7 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const ReviewProgressReviews = ({classes, reviewYear}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   reviewYear: ReviewYear
 }) => {
   const TARGET_NUM = 3

@@ -29,7 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 // dialog.
 const AFNonMemberInitialPopup = ({onClose, classes}: {
   onClose?: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const updateCurrentUser = useUpdateCurrentUser();
   const { flash } = useMessages();

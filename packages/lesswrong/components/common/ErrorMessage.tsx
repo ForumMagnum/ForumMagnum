@@ -10,7 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const ErrorMessage = ({message, classes}: {
   message: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return <Components.Typography
     className={classes.errorText}

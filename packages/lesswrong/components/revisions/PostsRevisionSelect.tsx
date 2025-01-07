@@ -12,7 +12,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const PostsRevisionSelect = ({ classes }: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { SingleColumnSection, RevisionSelect, Loading } = Components;
   const { params } = useLocation();

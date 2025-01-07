@@ -89,7 +89,7 @@ const TagPageButtonRow = ({ tag, editing, setEditing, className, classes }: {
   editing: boolean,
   setEditing: (editing: boolean) => void,
   className?: string,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();

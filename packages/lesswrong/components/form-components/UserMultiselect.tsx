@@ -29,7 +29,7 @@ const UserMultiselect = ({value, setValue, label, classes}: {
   value: string[],
   setValue: (newValue: string[]) => void
   label: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return (
     <div className={classes.root}>

@@ -169,7 +169,7 @@ const CommentFrame = ({
   
   children: React.ReactNode,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { condensed, postPage, switchAlternatingHighlights } = treeOptions;
   const effectiveNestingLevel = nestingLevel + (switchAlternatingHighlights ? 1 : 0);
@@ -203,7 +203,7 @@ const CommentFrame = ({
   </div>
 }
 
-const nestingLevelToClass = (nestingLevel: number, classes: ClassesType): string => {
+const nestingLevelToClass = (nestingLevel: number, classes: ClassesType<typeof styles>): string => {
   return classNames(
     (nestingLevel === 1)   && classes.commentsNodeRoot,
     (nestingLevel === 1)   && "comments-node-root" ,

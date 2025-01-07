@@ -9,7 +9,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const ProfileShortform = ({classes, user}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   user: UsersProfile
 }) => {
 

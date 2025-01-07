@@ -46,7 +46,7 @@ const ImageUpload2 = ({name, value, updateValue, clearField, label, croppingAspe
   label: string,
   croppingAspectRatio?: number,
   placeholderUrl?: string,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const {uploadImage, ImageUploadScript} = useImageUpload({
     imageType: name as ImageType,

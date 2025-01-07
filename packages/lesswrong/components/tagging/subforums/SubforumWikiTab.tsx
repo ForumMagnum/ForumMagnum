@@ -42,7 +42,7 @@ const SubforumWikiTab = ({tag, revision, truncated, setTruncated, classes}: {
   revision?: string,
   truncated: boolean,
   setTruncated: (truncated: boolean) => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {
     PostsListSortDropdown,

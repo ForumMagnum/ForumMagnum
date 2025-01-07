@@ -23,7 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const ConfirmPublishDialog = ({ digest, onClose, classes }: {
   digest: DigestsMinimumInfo,
   onClose?: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { mutate: updateDigest } = useUpdate({
     collectionName: 'Digests',

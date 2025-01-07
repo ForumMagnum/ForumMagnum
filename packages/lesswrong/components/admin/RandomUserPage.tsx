@@ -24,7 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const RandomUserPage = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const [newTabKeyHeld, setNewTabKeyHeld] = useState(false);

@@ -12,7 +12,7 @@ const PostsCoauthor = ({ post, coauthor, pageSectionContext, classes }: {
   post: PostsList,
   coauthor: UsersMinimumInfo,
   pageSectionContext?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const isPending = postCoauthorIsPending(post, coauthor._id);

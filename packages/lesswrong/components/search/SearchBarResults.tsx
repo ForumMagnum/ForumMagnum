@@ -71,7 +71,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SearchBarResults = ({closeSearch, currentQuery, classes}: {
   closeSearch: () => void,
   currentQuery: string,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { PostsSearchHit, SequencesSearchHit, UsersSearchHit, TagsSearchHit, CommentsSearchHit } = Components
 

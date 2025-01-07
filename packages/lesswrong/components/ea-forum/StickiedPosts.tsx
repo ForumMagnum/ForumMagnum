@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const StickiedPosts = ({
   classes,
 }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { SingleColumnSection, PostsList2, TargetedJobAdSection } = Components
 

@@ -54,7 +54,7 @@ const CommentPermalink = ({
   documentId: string,
   post?: PostsDetails,
   silentLoading?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const hasInContextComments = commentPermalinkStyleSetting.get() === 'in-context'
 

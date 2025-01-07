@@ -38,7 +38,7 @@ const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBo
   voteProps: VotingProps<VoteableTypeClient>,
   commentBodyRef?: React.RefObject<ContentItemBody>|null,
   replyButton: React.ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { CommentBottomCaveats } = Components
   const currentUser = useCurrentUser();

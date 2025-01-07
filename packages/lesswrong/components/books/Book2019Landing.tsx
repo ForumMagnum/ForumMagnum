@@ -245,7 +245,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const HiddenQuote = ({classes}: {classes: ClassesType}) => {
+const HiddenQuote = ({classes}: {classes: ClassesType<typeof styles>}) => {
   return (
     <div className={classes.mainQuoteContainer}>
       <div className={classes.mainQuote}>
@@ -259,7 +259,7 @@ const HiddenQuote = ({classes}: {classes: ClassesType}) => {
 }
 
 const Book2019Landing = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {Book2019Animation, HeadTags, LWTooltip, ContentStyles} = Components;
 

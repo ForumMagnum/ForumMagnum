@@ -21,7 +21,7 @@ interface TimeBlockRange {
 
 const PostsTimeframeListExponential = ({postListParameters, classes}: {
   postListParameters: PostsViewTerms,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { PostsTimeBlock, Typography } = Components;
   const now = useCurrentTime();

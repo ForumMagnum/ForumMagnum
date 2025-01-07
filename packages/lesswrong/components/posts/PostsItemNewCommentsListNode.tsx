@@ -19,7 +19,7 @@ const PostsItemNewCommentsListNode = ({ commentsList, loadingState, title, rever
   reverseOrder?: boolean
   post: PostsList,
   treeOptions: CommentTreeOptions,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { Loading, CommentsList } = Components
 

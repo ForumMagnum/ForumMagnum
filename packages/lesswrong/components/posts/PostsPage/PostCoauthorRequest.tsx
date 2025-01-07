@@ -47,7 +47,7 @@ const isRequestedCoauthor = (
 const PostCoauthorRequest = ({post, currentUser, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList,
   currentUser: UsersCurrent|null,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [error, setError] = useState<string|undefined>();
   const [loading, setLoading] = useState(false);

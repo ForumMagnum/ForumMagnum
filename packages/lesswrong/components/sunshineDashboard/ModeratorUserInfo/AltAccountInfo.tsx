@@ -23,7 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const AltAccountInfo = ({classes, user}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   user: SunshineUsersList
 }) => {
   const [showAlternateAccounts, setShowAlternateAccounts] = useState<boolean>(false)

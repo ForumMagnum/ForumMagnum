@@ -10,7 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const PostsNoResults = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) =>
   <Components.Typography variant="body2" className={classes.root}>
     No posts to display.

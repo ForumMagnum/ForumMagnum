@@ -24,7 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const AFSuggestCommentsItem = ({comment, classes}: {
   comment: SuggestAlignmentComment,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser();
   const { mutate: updateComment } = useUpdate({

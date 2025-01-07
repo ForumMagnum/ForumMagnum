@@ -22,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const RejectedPostsList = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {
     children,

@@ -47,7 +47,7 @@ const ConversationContents = ({
   conversation: ConversationsList;
   currentUser: UsersCurrent;
   scrollRef?: React.RefObject<HTMLDivElement>;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
   // Count messages sent, and use it to set a distinct value for `key` on `MessagesNewForm`
   // that increments with each message. This is a way of clearing the form, which works

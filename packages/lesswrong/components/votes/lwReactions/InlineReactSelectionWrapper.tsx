@@ -27,7 +27,7 @@ export const InlineReactSelectionWrapper = ({commentBodyRef, voteProps, styling,
   voteProps: VotingProps<VoteableTypeClient>
   styling: "comment"|"post",
   children: React.ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const commentTextRef = useRef<HTMLDivElement|null>(null);
   const popupRef = useRef<HTMLDivElement|null>(null);

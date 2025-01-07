@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const BotSiteBanner = ({ classes }: { classes: ClassesType }) => {
+const BotSiteBanner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { SingleColumnSection } = Components;
 
   return (

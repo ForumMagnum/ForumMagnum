@@ -1,13 +1,11 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import { createStyles } from '@material-ui/core/styles';
 import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { useLocation } from '../../lib/routeUtil';
 import BadlyTypedReactMapGL, { Marker as BadlyTypedMarker } from 'react-map-gl';
 import * as _ from 'underscore';
 import { mapboxAPIKeySetting } from '../../lib/publicSettings';
-import { forumTypeSetting } from '../../lib/instanceSettings';
 import PersonIcon from '@material-ui/icons/Person';
 import classNames from 'classnames';
 import { componentWithChildren, Helmet } from '../../lib/utils/componentsWithChildren';
@@ -19,7 +17,7 @@ import { useMapStyle } from '../hooks/useMapStyle';
 const ReactMapGL = componentWithChildren(BadlyTypedReactMapGL);
 const Marker = componentWithChildren(BadlyTypedMarker);
 
-const styles = createStyles((theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     width: "100%",
     height: 440,
@@ -72,9 +70,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   filters: {
     width: 100
   }
-}));
-
-
+});
 
 // Make these variables have file-scope references to avoid rerending the scripts or map
 export const defaultCenter = {lat: 39.5, lng: -43.636047}
@@ -85,7 +81,7 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
   initialOpenWindows: Array<string>,
   center?: {lat: number, lng: number},
   zoom: number,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   className?: string,
   showUsersByDefault?: boolean,
   showGroupsByDefault?: boolean,
@@ -210,7 +206,7 @@ const PersonalMapLocationMarkers = ({users, handleClick, handleClose, openWindow
   handleClick: (userId: string) => void,
   handleClose: (userId: string) => void,
   openWindows: any,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { StyledMapPopup } = Components
   

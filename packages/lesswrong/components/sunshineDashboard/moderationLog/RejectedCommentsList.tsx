@@ -27,7 +27,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const RejectedCommentsList = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [expanded,setExpanded] = useState(false);
   const {

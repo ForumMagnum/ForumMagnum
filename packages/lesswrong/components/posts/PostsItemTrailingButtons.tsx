@@ -69,7 +69,7 @@ type PostsItemTrailingButtonsProps = Pick<
   "resumeReading" |
   "onDismiss" |
   "onArchive"
-> & {classes: ClassesType};
+> & {classes: ClassesType<typeof styles>};
 
 const PostsItemTrailingButtons = ({
   post,

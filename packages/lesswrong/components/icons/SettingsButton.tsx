@@ -42,7 +42,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const SettingsButton = ({classes, className, onClick, showIcon=true, label="", useArrow, textShadow = false, labelClassName}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   className?: string,
   onClick?: any,
   label?: React.ReactNode,

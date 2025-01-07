@@ -26,7 +26,7 @@ const SharePostButton = ({
 }: {
   post: PostsBase,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const anchorEl = useRef<HTMLDivElement | null>(null)
   const [isOpen, setIsOpen] = useState<boolean>(false)

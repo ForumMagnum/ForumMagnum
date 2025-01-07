@@ -52,7 +52,7 @@ const NavigationStandalone = ({
   sidebarHidden: boolean,
   unspacedGridLayout?: boolean,
   noTopMargin?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { TabNavigationMenu } = Components
   const { location } = useLocation();

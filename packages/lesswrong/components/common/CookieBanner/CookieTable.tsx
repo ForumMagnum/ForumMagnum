@@ -59,7 +59,7 @@ const CookieTable = ({
   type: CookieType;
   thirdPartyName?: string;
   className?: string;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
   const { Typography } = Components;
 

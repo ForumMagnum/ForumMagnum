@@ -144,7 +144,7 @@ const PostsItemIntroSequence = ({
   defaultToShowUnreadComments?: boolean,
   dense?: boolean,
   hideAuthor?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   curatedIconLeft?: boolean,
   translucentBackground?: boolean,
   withImage?: boolean,
