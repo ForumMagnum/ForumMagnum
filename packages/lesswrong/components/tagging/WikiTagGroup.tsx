@@ -1,9 +1,10 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { useQuery, gql } from '@apollo/client';
+import { useQuery, gql, NetworkStatus } from '@apollo/client';
 import { Components, fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useWindowSize } from '../hooks/useScreenWidth';
 import classNames from 'classnames';
+import { queryIsUpdating } from '../common/queryStatusUtils';
 
 
 const CONCEPT_ITEM_WIDTH = 300;
@@ -60,27 +61,6 @@ const styles = defineStyles("WikiTagGroup", (theme: ThemeType) => ({
   },
 }));
 
-const GET_TAGS_BY_PARENT_ID = gql`
-  query GetTagsByParentId(
-    $parentTagId: String,
-    $limit: Int,
-    $offset: Int,
-    $searchTagIds: [String]
-  ) {
-    TagsByParentId(
-      parentTagId: $parentTagId,
-      limit: $limit,
-      offset: $offset,
-      searchTagIds: $searchTagIds
-    ) {
-      tags {
-        ...AllTagsPageCacheFragment
-      }
-      totalCount
-    }
-  }
-  ${fragmentTextForQuery('AllTagsPageCacheFragment')}
-`;
 
 const WikiTagGroup = ({
   parentTag,
@@ -98,28 +78,39 @@ const WikiTagGroup = ({
 
   const parentTagId = '_id' in parentTag ? parentTag._id : null;
   
-  const { data, loading } = useQuery(GET_TAGS_BY_PARENT_ID, {
+  const { data, loading, fetchMore, networkStatus } = useQuery(gql`
+    query GetTagsByParentId(
+      $parentTagId: String,
+      $limit: Int,
+      $searchTagIds: [String]
+    ) {
+      TagsByParentId(
+        parentTagId: $parentTagId,
+        limit: $limit,
+        searchTagIds: $searchTagIds
+      ) {
+        tags {
+          ...AllTagsPageCacheFragment
+        }
+        totalCount
+      }
+    }
+    ${fragmentTextForQuery('AllTagsPageCacheFragment')}
+  `, {
+    ssr: true,
+    fetchPolicy: 'cache-and-network',
+    nextFetchPolicy: 'cache-only',
+    // nextFetchPolicy: 'cache-only',
     variables: {
       parentTagId,
-      limit,
-      offset: 0,
+      limit: maxInitialShow,
       searchTagIds,
     },
-    fetchPolicy: 'cache-and-network',
+    notifyOnNetworkStatusChange: true,
   });
 
-  const pages = useMemo(() => data?.TagsByParentId?.tags ?? [], [data]);
-  const totalCount = useMemo(() => data?.TagsByParentId?.totalCount ?? 0, [data]);
-
-  // Calculate the number of visible columns based on window size
-  const windowSize = useWindowSize();
-  const calculateVisibleColumns = () => {
-    const availableWidth = windowSize.width - 32;
-    const columnsWithGaps = Math.floor(availableWidth / (CONCEPT_ITEM_WIDTH + COLUMN_GAP));
-    // Ensure at least 1 column is shown
-    return Math.max(1, columnsWithGaps);
-  };
-  const visibleColumns = calculateVisibleColumns();
+  const pages = data?.TagsByParentId?.tags ?? [];
+  const totalCount = data?.TagsByParentId?.totalCount ?? 0;
 
   // Helper function to split items into columns with a maximum number of items per column
   function splitItemsIntoColumns<T>(items: T[], itemsPerColumn: number): T[][] {
@@ -133,22 +124,37 @@ const WikiTagGroup = ({
   // Split pages into columns with MAX_ITEMS_PER_COLUMN items each
   const columns: AllTagsPageCacheFragment[][] = splitItemsIntoColumns(pages, MAX_ITEMS_PER_COLUMN);
 
-  const loadMore = useCallback(() => {
-    setLimit((currentLimit) => currentLimit + maxInitialShow);
-  }, [maxInitialShow]);
+  const loadMore = () => {
+      const newLimit = limit + maxInitialShow;
+      void fetchMore({
+        variables: {
+          parentTagId,
+          limit: newLimit,
+          searchTagIds,
+        },
+        updateQuery: (prev, { fetchMoreResult }) => {
+          if (!fetchMoreResult) return prev;
+          return fetchMoreResult
+        }
+      })
+      setLimit(newLimit);
+    };
+  //   [maxInitialShow, limit, fetchMore, parentTagId, searchTagIds]
+  // );
 
-  // If we're searching and this group has no matches, don't render
-  if (searchTagIds && pages.length === 0) {
-    return null;
-  }
 
   const { LoadMore, ConceptItem, Loading } = Components;
 
-  if (loading) {
+  if (loading && networkStatus !== NetworkStatus.fetchMore) {
     return <Loading />;
   }
 
-  if (!loading && !pages) {
+  if (!pages) {
+    return null;
+  }
+
+  // If we're searching and this group has no matches, don't render
+  if (searchTagIds && pages.length === 0) {
     return null;
   }
 
@@ -161,7 +167,6 @@ const WikiTagGroup = ({
           showArbitalIcon={showArbitalIcons}
         />
       </div>
-
       <div className={classes.children}>
         <div className={classes.childrenContainer}>
           <div className={classNames(classes.childrenList)}>
@@ -181,10 +186,9 @@ const WikiTagGroup = ({
           </div>
         </div>
       </div>
-
       {pages.length < totalCount && (
         <LoadMore
-          loading={loading}
+          loading={queryIsUpdating(networkStatus)}
           loadMore={loadMore}
           count={pages.length}
           totalCount={totalCount}

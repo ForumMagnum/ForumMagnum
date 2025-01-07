@@ -472,6 +472,7 @@ registerFragment(`
     postCount
     baseScore
     description {
+      _id
       wordCount
     }
     isArbitalImport

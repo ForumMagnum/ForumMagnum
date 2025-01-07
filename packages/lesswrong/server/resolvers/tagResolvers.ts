@@ -557,23 +557,21 @@ addGraphQLSchema(`
 defineQuery({
   name: "TagsByParentId",
   resultType: "TagWithTotalCount!",
-  argTypes: "(parentTagId: String, limit: Int, offset: Int, searchTagIds: [String])",
+  argTypes: "(parentTagId: String, limit: Int, searchTagIds: [String])",
   fn: async (
     _root: void,
     args: {
       parentTagId: string | null;
       limit?: number;
-      offset?: number;
       searchTagIds?: string[];
     },
     context: ResolverContext
   ) => {
-    const { parentTagId, limit = 20, offset = 0, searchTagIds } = args;
+    const { parentTagId, limit = 20, searchTagIds } = args;
 
     const { tags, totalCount } = await context.repos.tags.getTagsByParentTagId(
       parentTagId,
       limit,
-      offset,
       searchTagIds
     );
 

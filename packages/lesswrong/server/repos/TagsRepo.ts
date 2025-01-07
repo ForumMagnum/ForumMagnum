@@ -196,13 +196,11 @@ class TagsRepo extends AbstractRepo<"Tags"> {
   async getTagsByParentTagId(
     parentTagId: string | null,
     limit: number,
-    offset: number,
     searchTagIds?: string[]
   ): Promise<{ tags: DbTag[]; totalCount: number }> {
     const whereClauses: string[] = [];
     const queryParams: Record<string, any> = {
       limit,
-      offset
     };
 
     // Base condition: only select non-deleted tags
@@ -244,7 +242,6 @@ class TagsRepo extends AbstractRepo<"Tags"> {
       ${whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : ''}
       ORDER BY t_child."baseScore" DESC
       LIMIT $(limit)
-      OFFSET $(offset)
     `;
 
     const tags = await this.getRawDb().any(query, queryParams);
