@@ -398,7 +398,7 @@ type ElicitQuestionPredictionsCollection = CollectionBase<"ElicitQuestionPredict
 
 interface DbElicitQuestionPrediction extends DbObject {
   __collectionName?: "ElicitQuestionPredictions"
-  prediction: number
+  prediction: number | null
   createdAt: Date
   notes: string | null
   creator: {
