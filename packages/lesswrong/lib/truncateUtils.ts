@@ -1,4 +1,5 @@
 import type { RefObject } from "react";
+import type { JssStylesCallback } from "./jssStyles";
 
 const TRUNCATION_PADDING = 10;
 

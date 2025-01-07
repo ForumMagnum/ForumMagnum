@@ -4,14 +4,12 @@ import { ReviewPhase, reviewPostPath, ReviewYear } from '../../lib/reviewUtils';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import Card from '@material-ui/core/Card';
-import { useLocation } from '@/lib/routeUtil';
 
 const styles = (theme: ThemeType) => ({
   root: {
     padding: 16,
     paddingTop: 6,
     paddingBottom: 6,
-    marginBottom: 24,
     ...commentBodyStyles(theme),
     background: theme.palette.panelBackground.default,
     boxShadow: theme.palette.boxShadow.default,

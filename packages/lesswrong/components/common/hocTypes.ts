@@ -1,17 +1,9 @@
 import type { FetchResult } from '@apollo/client';
 import { RouterLocation } from '../../lib/vulcan-lib';
 import { ReactElement } from 'react';
+import type { JssStylesCallback } from '@/lib/jssStyles';
 
 declare global {
-
-// This `any` should actually be `CSSProperties` from either MUI or JSS but this
-// currently causes an avalanche of type errors, I think due to the fact that
-// we're stuck on a precambrian version of MUI. Upgrading would probably fix this.
-type JssStyles<ClassKey extends string = string> = Record<ClassKey, AnyBecauseHard>;
-
-type JssStylesCallback<ClassKey extends string = string> = (
-  theme: ThemeType,
-) => JssStyles<ClassKey>;
 
 type AnyStyles = JssStylesCallback<string>;
 
