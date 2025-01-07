@@ -1049,7 +1049,7 @@ const TagPage = () => {
   }
 
   // If the slug in our URL is not the same as the slug on the tag, redirect to the canonical slug page
-  if (tag.oldSlugs?.filter(slug => slug !== tag.slug)?.includes(slug) && !tag.isArbitalImport) {
+  if (tag.oldSlugs?.filter(slug => slug !== tag.slug)?.includes(slug)) {
     return <PermanentRedirect url={tagGetUrl(tag)} />
   }
   if (editing && !tagUserHasSufficientKarma(currentUser, "edit")) {
