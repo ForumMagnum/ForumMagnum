@@ -666,7 +666,7 @@ const MetaculusPreviewComponent = registerComponent('MetaculusPreview', Metaculu
   styles: metaculusStyles
 })
 
-const fatebookStyles = (theme: ThemeType): JssStyles => ({
+const fatebookStyles = (theme: ThemeType) => ({
   iframeStyling: {
     width: 560,
     height: 200,
@@ -680,9 +680,9 @@ const fatebookStyles = (theme: ThemeType): JssStyles => ({
 })
 
 const FatebookPreview = ({classes, href, id, children}: {
-  classes: ClassesType;
-  href: string;
-  id?: string;
+  classes: ClassesType<typeof fatebookStyles>,
+  href: string,
+  id?: string,
   children: ReactNode,
 }) => {
   const { AnalyticsTracker, LWPopper } = Components;
@@ -724,7 +724,7 @@ const manifoldStyles = (theme: ThemeType) => ({
     width: 560,
     height: 405,
     border: "none",
-    maxWidth: "100vw"
+    maxWidth: "100vw",
   },
   ...linkStyle(theme),
 });
