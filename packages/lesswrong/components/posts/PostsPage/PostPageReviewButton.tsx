@@ -7,6 +7,8 @@ import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 
 const styles = defineStyles("PostPageReviewButton", (theme: ThemeType) => ({
   reviewVoting: {
+    padding: theme.spacing.unit*2,
+    paddingBottom: theme.spacing.unit*6,
     display: "flex",
     flexDirection: "column",
     justifyContent: "center",
