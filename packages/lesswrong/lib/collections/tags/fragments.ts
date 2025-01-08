@@ -463,7 +463,7 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment AllTagsPageCacheFragment on Tag {
+  fragment ConceptItemFragment on Tag {
     _id
     core
     name

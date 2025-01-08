@@ -67,7 +67,7 @@ const WikiTagGroup = ({
   initialLimit = 3 * MAX_ITEMS_PER_COLUMN,
   showArbitalIcons = false,
 }: {
-  parentTag: AllTagsPageCacheFragment
+  parentTag: ConceptItemFragment
   searchTagIds: string[] | null;
   initialLimit?: number;
   showArbitalIcons?: boolean;
@@ -89,12 +89,12 @@ const WikiTagGroup = ({
         searchTagIds: $searchTagIds
       ) {
         tags {
-          ...AllTagsPageCacheFragment
+          ...ConceptItemFragment
         }
         totalCount
       }
     }
-    ${fragmentTextForQuery('AllTagsPageCacheFragment')}
+    ${fragmentTextForQuery('ConceptItemFragment')}
   `, {
     ssr: true,
     fetchPolicy: 'cache-and-network',
@@ -121,7 +121,7 @@ const WikiTagGroup = ({
   }
 
   // Split pages into columns with MAX_ITEMS_PER_COLUMN items each
-  const columns: AllTagsPageCacheFragment[][] = splitItemsIntoColumns(pages, MAX_ITEMS_PER_COLUMN);
+  const columns: ConceptItemFragment[][] = splitItemsIntoColumns(pages, MAX_ITEMS_PER_COLUMN);
 
   const loadMore = () => {
       const newLimit = limit * 2;
@@ -150,7 +150,7 @@ const WikiTagGroup = ({
   }
 
 
-  const showLoadingSpinner = loading && networkStatus !== NetworkStatus.fetchMore;
+  const showLoadingSpinner = loading && (pages.length === 0) && (networkStatus !== NetworkStatus.fetchMore);
 
   return (
     <div className={classes.root}>
@@ -183,7 +183,7 @@ const WikiTagGroup = ({
       </div>}
       {pages.length < totalCount && (
         <LoadMore
-          loading={queryIsUpdating(networkStatus)}
+          loading={networkStatus===3}
           loadMore={loadMore}
           count={pages.length}
           totalCount={totalCount}

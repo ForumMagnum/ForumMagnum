@@ -158,11 +158,9 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
 }));
 
 interface ConceptItemProps {
-  wikitag: AllTagsPageCacheFragment | Omit<AllTagsPageCacheFragment, "_id">;
+  wikitag: ConceptItemFragment;
   nestingLevel: number;
   index?: number;
-  // onHover?: (wikitag: WikiTagNode | null) => void;
-  // onClick?: (wikitag: WikiTagNode) => void;
   showArbitalIcon?: boolean;
 }
 

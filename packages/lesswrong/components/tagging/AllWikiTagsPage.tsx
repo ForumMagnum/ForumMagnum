@@ -207,9 +207,8 @@ const uncategorizedRootTag = {
   slug: 'uncategorized-root',
   oldSlugs: [],
   description: {
+    _id: 'uncategorized-root',
     wordCount: 0,
-    // _id: 'uncategorized-root',
-    // html: '',
   },
   postCount: 0,
   baseScore: 0,
@@ -227,10 +226,10 @@ const prioritySlugs = [
 const tagsBySlugsQuery = gql`
   query TagsBySlugs($slugs: [String!]!) {
     TagsBySlugs(slugs: $slugs) {
-      ...AllTagsPageCacheFragment
+      ...ConceptItemFragment
     }
   }
-  ${fragmentTextForQuery('AllTagsPageCacheFragment')}
+  ${fragmentTextForQuery('ConceptItemFragment')}
 `;
 
 const ArbitalRedirectNotice = ({ classes, onDismiss }: {
@@ -289,7 +288,7 @@ const AllWikiTagsPage = () => {
     const tags = filterNonnull(priorityTagsRaw.TagsBySlugs);
     if (!tags.length) return [];
     
-    return [...tags].sort((a: AllTagsPageCacheFragment, b: AllTagsPageCacheFragment) => {
+    return [...tags].sort((a: ConceptItemFragment, b: ConceptItemFragment) => {
       const indexA = prioritySlugs.indexOf(a.slug as typeof prioritySlugs[number]);
       const indexB = prioritySlugs.indexOf(b.slug as typeof prioritySlugs[number]);
       return indexA - indexB;
@@ -316,7 +315,7 @@ const AllWikiTagsPage = () => {
 
     return (
       <div className={classes.mainContent}>
-        {priorityTags.map((tag: AllTagsPageCacheFragment) => (
+        {priorityTags.map((tag: ConceptItemFragment) => (
           tag && <WikiTagGroup
             key={tag._id}
             parentTag={tag}
