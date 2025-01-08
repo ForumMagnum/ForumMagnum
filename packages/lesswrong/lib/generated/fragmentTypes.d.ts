@@ -2860,6 +2860,7 @@ interface ConceptItemFragment { // fragment on Tags
   readonly description: ConceptItemFragment_description|null,
   readonly isArbitalImport: boolean|null,
   readonly coreTagId: string|null,
+  readonly maxScore: number|null,
 }
 
 interface ConceptItemFragment_description { // fragment on Revisions

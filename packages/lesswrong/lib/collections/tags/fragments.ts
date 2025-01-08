@@ -477,6 +477,7 @@ registerFragment(`
     }
     isArbitalImport
     coreTagId
+    maxScore
   }
 `);
 

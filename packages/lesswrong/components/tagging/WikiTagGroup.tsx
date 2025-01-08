@@ -2,9 +2,7 @@ import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useQuery, gql, NetworkStatus } from '@apollo/client';
 import { Components, fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { useWindowSize } from '../hooks/useScreenWidth';
 import classNames from 'classnames';
-import { queryIsUpdating } from '../common/queryStatusUtils';
 
 
 const CONCEPT_ITEM_WIDTH = 300;
@@ -157,7 +155,7 @@ const WikiTagGroup = ({
       <div className={classes.titleItem}>
         <ConceptItem
           wikitag={parentTag}
-          nestingLevel={0}
+          isTitleItem
           showArbitalIcon={showArbitalIcons}
         />
       </div>
@@ -171,8 +169,6 @@ const WikiTagGroup = ({
                   <ConceptItem
                     key={childPage._id}
                     wikitag={childPage}
-                    nestingLevel={1}
-                    index={idx}
                     showArbitalIcon={showArbitalIcons}
                   />
                 ))}

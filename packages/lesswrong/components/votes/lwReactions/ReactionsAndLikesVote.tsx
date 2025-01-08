@@ -5,6 +5,7 @@ import { useVote } from '../withVote';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import type { LikesList } from '@/lib/voting/reactionsAndLikes';
 import { useCurrentUser } from '@/components/common/withUser';
+import { isAdmin } from '@/lib/vulcan-users';
 
 const styles = defineStyles("ReactionsAndLikesVote", (theme) => ({
   likeButton: {
@@ -45,6 +46,7 @@ const ReactionsAndLikesVote  = ({document, hideKarma=false, collectionName, voti
   const voteProps = useVote(document, collectionName, votingSystem);
   const usersWhoLiked: LikesList = voteProps.document?.extendedScore?.usersWhoLiked ?? [];
   const likeCount = usersWhoLiked.length;
+  const baseScore = voteProps.document?.baseScore ?? 0;
   const currentUserLikesIt = voteProps.document.currentUserVote === "smallUpvote" || voteProps.document.currentUserVote === "bigUpvote";
   
   const toggleLike = async (ev: React.MouseEvent) => {
@@ -69,9 +71,11 @@ const ReactionsAndLikesVote  = ({document, hideKarma=false, collectionName, voti
     }
   }
 
-  return <LWTooltip title={
-    usersWhoLiked.map(u => u.displayName).join(", ")
-  }>
+  const voteScoreTooltip = `${usersWhoLiked.map(u => u.displayName).join(", ")}
+  ${isAdmin(currentUser) ? `\n(admin visible only) baseScore: ${baseScore}` : ""}
+`
+
+  return <LWTooltip title={voteScoreTooltip}>
     <div className={classes.likeButton} onClick={toggleLike} onMouseDown={(e) => e.stopPropagation()}>
       <img className={classes.icon} src="/reactionImages/nounproject/noun-thumbs-up-1686284.svg"/>
       {likeCount>0 && <span className={classes.likeCount}>{likeCount}</span>}

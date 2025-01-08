@@ -789,6 +789,31 @@ const schema: SchemaType<"Tags"> = {
       return rel?.parentDocumentId;
     },
   }),
+
+  maxScore: resolverOnlyField({
+    type: Number,
+    canRead: ['guests'],
+    resolver: async (tag, args, context) => {
+      const { MultiDocuments } = context;
+
+      // Get the tag's own baseScore
+      const tagScore = tag.baseScore || 0;
+
+      // Get multidocuments' baseScores
+      const multiDocuments = await MultiDocuments.find(
+        { parentDocumentId: tag._id, collectionName: 'Tags' },
+        { projection: { baseScore: 1 } }
+      ).fetch();
+
+      const multiDocScores = multiDocuments.map(md => md.baseScore || 0);
+
+      // Combine scores and find the maximum
+      const allScores = [tagScore, ...multiDocScores];
+      const maxScore = Math.max(...allScores);
+
+      return maxScore;
+    },
+  }),
 }
 
 export default schema;

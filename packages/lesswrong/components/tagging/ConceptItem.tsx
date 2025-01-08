@@ -62,7 +62,7 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     display: "-webkit-box",
     overflow: "ellipsis",
   },
-  karma: {
+  maxScore: {
     fontSize: 12,
     color: theme.palette.grey[700],
     width: 20,
@@ -159,22 +159,23 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
 
 interface ConceptItemProps {
   wikitag: ConceptItemFragment;
-  nestingLevel: number;
-  index?: number;
+  isTitleItem?: boolean;
   showArbitalIcon?: boolean;
 }
 
 const ConceptItem = ({
   wikitag,
-  nestingLevel,
-  index,
+  isTitleItem,
   showArbitalIcon
 }: ConceptItemProps) => {
   const classes = useStyles(styles);
 
   const { TagsTooltip, LWTooltip } = Components;
 
-  // Title item (for nestingLevel === 0)
+  const usersWhoLiked: LikesList = voteProps.document?.extendedScore?.usersWhoLiked ?? [];
+  const likeCount = usersWhoLiked.length;
+  const baseScore = voteProps.document?.baseScore ?? 0;
+
   const titleItem = (
     <div className={classes.titleItem}>
       <div className={classes.leftSideItems}>
@@ -195,14 +196,12 @@ const ConceptItem = ({
     </div>
   );
 
-  // Regular item (for nestingLevel > 0)
   const regularItem = (
     <div
       className={classes.item}
     >
       <div className={classes.leftSideItems}>
-        {/* TODO: this is a temporary score, we should use the actual baseScore from the database */}
-        <div className={classes.karma}>{wikitag.baseScore}</div>
+        <div className={classes.maxScore}>{wikitag.maxScore || 0}</div>
         <div className={classes.title}>
           <TagsTooltip
             tagSlug={wikitag.slug}
@@ -239,8 +238,8 @@ const ConceptItem = ({
   );
 
   return (
-    <div className={classNames(classes.root, { [classes.titleItemRoot]: nestingLevel === 0 })}>
-      {nestingLevel === 0 ? titleItem : regularItem}
+    <div className={classNames(classes.root, { [classes.titleItemRoot]: isTitleItem })}>
+      {isTitleItem ? titleItem : regularItem}
     </div>
   );
 };
