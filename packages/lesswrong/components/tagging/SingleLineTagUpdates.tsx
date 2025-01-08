@@ -110,7 +110,7 @@ const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users
   commentIds?: string[],
   users?: UsersMinimumInfo[],
   changeMetrics: ChangeMetrics,
-  documentDeletions: DocumentDeletion[],
+  documentDeletions?: DocumentDeletion[],
   classes: ClassesType,
   lastRevisedAt?: Date
 }) => {
