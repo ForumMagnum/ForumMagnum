@@ -210,7 +210,10 @@ class TagsRepo extends AbstractRepo<"Tags"> {
     };
 
     // Base condition: only select non-deleted tags
-    whereClauses.push(`t_child."deleted" IS FALSE`);
+    whereClauses.push(
+      `t_child."deleted" IS FALSE`,
+      `t_child."isPlaceholderPage" IS FALSE`,
+    );
 
     if (parentTagId !== null) {
       // Fetch tags that are children of the specified parent tag
@@ -225,7 +228,7 @@ class TagsRepo extends AbstractRepo<"Tags"> {
       // Fetch tags that do NOT have a parent tag
       whereClauses.push(
         `acr."parentDocumentId" IS NULL`,
-        `acr."type" IS NULL`
+        `acr."type" IS NULL`,
       );
     }
 
