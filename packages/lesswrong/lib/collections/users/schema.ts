@@ -3177,29 +3177,7 @@ const schema: SchemaType<"Users"> = {
     canUpdate: ['admins'],
   },
 
-  // Giving season 2024
-  givingSeason2024DonatedFlair: {
-    type: Boolean,
-    optional: true,
-    canRead: ['guests'],
-    canUpdate: ['admins'],
-    canCreate: ['admins'],
-    group: formGroups.adminOptions,
-    label: '"I Donated" flair for giving season 2024',
-    hidden: !isEAForum,
-    ...schemaDefaultValue(false),
-  },
-  givingSeason2024VotedFlair: {
-    type: Boolean,
-    optional: true,
-    canRead: ['guests'],
-    canUpdate: [userOwns, 'admins'],
-    canCreate: ['members'],
-    group: formGroups.siteCustomizations,
-    label: '"I Voted" flair for 2024 giving season',
-    hidden: !isEAForum,
-    ...schemaDefaultValue(false),
-  },
+  // TODO flag this spreadsheet in the PR: https://docs.google.com/spreadsheets/d/1yUyyURwFzYnXCqRHPwA-dTOUEgHDje8M4RD3l9v9A2Q/edit?gid=0#gid=0
 };
 
 export default schema;

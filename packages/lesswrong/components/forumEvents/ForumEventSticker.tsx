@@ -8,7 +8,7 @@ import { InteractionWrapper } from "../common/useClickableCell";
 
 const styles = (theme: ThemeType) => ({
   sticker: {
-    color: theme.palette.givingSeason.heart,
+    color: "#862115",
     position: "absolute",
     transformOrigin: "center",
     "& svg": {
