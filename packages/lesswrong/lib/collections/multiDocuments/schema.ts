@@ -11,10 +11,6 @@ import { slugify } from "@/lib/vulcan-lib/utils";
 const MULTI_DOCUMENT_DELETION_WINDOW = 1000 * 60 * 60 * 24 * 7;
 
 export function userCanDeleteMultiDocument(user: DbUser | UsersCurrent | null, document: DbMultiDocument) {
-  if (document.deleted) {
-    return false;
-  }
-
   if (userIsAdminOrMod(user)) {
     return true;
   }
@@ -33,7 +29,7 @@ const schema: SchemaType<"MultiDocuments"> = {
     canRead: ['guests'],
     canUpdate: ['members'],
     canCreate: ['members'],
-    hidden: ({ formProps }) => !formProps?.newLensForm,
+    hidden: ({ formProps, document }) => !formProps?.lensForm && document?.fieldName !== 'description',
     optional: true,
     nullable: true,
     order: 5,
@@ -110,7 +106,7 @@ const schema: SchemaType<"MultiDocuments"> = {
     canRead: ['guests'],
     canUpdate: ['members'],
     canCreate: ['members'],
-    hidden: ({ formProps }) => !formProps?.newLensForm,
+    hidden: ({ formProps, document }) => !formProps?.lensForm && document?.fieldName !== 'description',
     optional: true,
     nullable: true,
     order: 20,
@@ -231,6 +227,7 @@ const schema: SchemaType<"MultiDocuments"> = {
     canRead: ['guests'],
     canUpdate: [userCanDeleteMultiDocument, 'sunshineRegiment', 'admins'],
     optional: true,
+    logChanges: true,
     ...schemaDefaultValue(false),
   },
 };

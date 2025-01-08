@@ -102,7 +102,7 @@ export function useTagEditingRestricted(tag: TagPageWithRevisionFragment | TagPa
 }
 
 const TagPageButtonRow = ({ tag, selectedLens, editing, setEditing, hideLabels = false, className, refetchTag, updateSelectedLens, classes }: {
-  tag: TagPageWithRevisionFragment | TagPageFragment,
+  tag: TagPageWithRevisionFragment | TagPageFragment | TagPageWithArbitalContentFragment,
   selectedLens?: TagLens
   editing: boolean,
   setEditing: (editing: boolean) => void,
@@ -145,7 +145,12 @@ const TagPageButtonRow = ({ tag, selectedLens, editing, setEditing, hideLabels =
 
   const { canEdit, noEditNotAuthor, noEditKarmaTooLow } = useTagEditingRestricted(tag, editing, currentUser);
   
-  const showNewLensButton = !editing && canEdit && refetchTag && updateSelectedLens && isLWorAF;
+  const undeletedLensCount = 'lenses' in tag ? tag.lenses.filter(lens => !lens.deleted).length : 0;
+  const showNewLensButton = !editing
+    && canEdit
+    && !!(refetchTag && updateSelectedLens)
+    && (undeletedLensCount < 5)
+    && isLWorAF;
 
   const editTooltipHasContent = noEditNotAuthor || noEditKarmaTooLow || numFlags || beginnersGuideContentTag
   const editTooltip = editTooltipHasContent && <>

@@ -116,6 +116,9 @@ const styles = defineStyles("LensTab", (theme: ThemeType) => ({
       marginBottom: 1,
     },
   },
+  deletedLens: {
+    textDecoration: 'line-through',
+  },
   newLensIcon: {
     alignSelf: 'center',
   },
@@ -146,32 +149,6 @@ const LensTabBar = ({lenses, selectedLens, switchLens}: {
   </Tabs>
 }
 
-const NewLensTab = ({ value, isSelected, ...tabProps }: {
-  value: string,
-  isSelected: boolean,
-}
-  & Omit<React.ComponentProps<typeof Tab>, 'key' | 'value' | 'label'>
-) => {
-  const { ForumIcon } = Components;
-  const classes = useStyles(styles);
-
-  const label = <div className={classes.lensLabel}>
-    <ForumIcon icon='Plus' className={classes.newLensIcon} />
-  </div>;
-
-  return (
-    <div className={classes.lensTabContainer}>
-      <Tab
-        className={classNames(classes.lensTab, isSelected && classes.selectedLens, !isSelected && classes.nonSelectedLens)}
-        value={value}
-        label={label}
-        classes={{ root: classes.lensTabRootOverride, labelContainer: classes.tabLabelContainerOverride }}
-        {...tabProps}
-      ></Tab>
-    </div>
-  );
-}
-
 // We need to pass through all of the props that Tab accepts in order to maintain the functionality of Tab switching/etc
 const LensTab = ({ lens, value, isSelected, ...tabProps }: {
   lens: TagLens,
@@ -185,8 +162,8 @@ const LensTab = ({ lens, value, isSelected, ...tabProps }: {
   if (!lens) return null;
 
   const label = <div key={lens._id} className={classes.lensLabel}>
-    <span className={classes.lensTitle}>{lens.tabTitle}</span>
-    {lens.tabSubtitle && <span className={classes.lensSubtitle}>{lens.tabSubtitle}</span>}
+    <span className={classNames(classes.lensTitle, lens.deleted && classes.deletedLens)}>{lens.tabTitle}</span>
+    {lens.tabSubtitle && <span className={classNames(classes.lensSubtitle, lens.deleted && classes.deletedLens)}>{lens.tabSubtitle}</span>}
     <TagOrLensLikeButton lens={lens} />
   </div>;
   

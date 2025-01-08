@@ -3,8 +3,8 @@ import { addUniversalFields, getDefaultMutations, getDefaultResolvers } from "@/
 import { makeEditable } from "@/lib/editor/make_editable";
 import schema from "./schema";
 import { ensureIndex } from "@/lib/collectionIndexUtils";
-import { membersGroup, userIsAdmin } from "@/lib/vulcan-users/permissions";
-import { getRootDocument } from "./helpers";
+import { membersGroup, userIsAdmin, userOwns } from "@/lib/vulcan-users/permissions";
+import { canMutateParentDocument, getRootDocument } from "./helpers";
 import { makeVoteable } from "@/lib/make_voteable";
 
 export const MultiDocuments = createCollection({
@@ -13,58 +13,21 @@ export const MultiDocuments = createCollection({
   schema,
   resolvers: getDefaultResolvers('MultiDocuments'),
   mutations: getDefaultMutations('MultiDocuments', {
-    newCheck: async (user, multiDocument) => {
-      if (!multiDocument) {
+    newCheck: (user, multiDocument) => canMutateParentDocument(user, multiDocument, 'create'),
+    editCheck: async (user, multiDocument: DbMultiDocument) => {
+      const canEditParent = await canMutateParentDocument(user, multiDocument, 'update');
+      if (!canEditParent) {
         return false;
       }
 
-      if (userIsAdmin(user)) {
-        return true;
+      // If the multi-document is deleted, we also need to check if the user owns it
+      if (multiDocument.deleted) {
+        return userIsAdmin(user) || userOwns(user, multiDocument);
       }
 
-      const rootDocumentInfo = await getRootDocument(multiDocument);
-      if (!rootDocumentInfo) {
-        return false;
-      }
-
-      const { document: parentDocument, collection: parentDocumentCollection } = rootDocumentInfo;
-      const check = parentDocumentCollection.options.mutations?.create?.check;
-      if (!check) {
-        // eslint-disable-next-line no-console
-        console.error(`No check for create mutation on parent collection ${parentDocumentCollection.collectionName} when trying to create MultiDocument for parent with id ${parentDocument._id}`);
-        return false;
-      }
-      return check(user, parentDocument);
+      return true;
     },
-    editCheck: async (user, multiDocument) => {
-      if (!multiDocument) {
-        return false;
-      }
-
-      if (userIsAdmin(user)) {
-        return true;
-      }
-
-      const rootDocumentInfo = await getRootDocument(multiDocument);
-      if (!rootDocumentInfo) {
-        return false;
-      }
-
-      const { document: parentDocument, collection: parentDocumentCollection } = rootDocumentInfo;
-      
-      const check = parentDocumentCollection.options.mutations?.update?.check;
-      // editCheck should always exist for tags, but...
-      if (!check) {
-        // eslint-disable-next-line no-console
-        console.error(`No check for update mutation on parent collection ${parentDocumentCollection.collectionName} when trying to edit MultiDocument ${multiDocument._id}`);
-        return false;
-      }
-      const canEditParentTag = await check(user, parentDocument);
-      return canEditParentTag;
-    },
-    removeCheck: () => {
-      return false;
-    },
+    removeCheck: () => false,
   }),
 });
 
@@ -96,6 +59,10 @@ makeEditable({
 });
 
 MultiDocuments.checkAccess = async (user: DbUser | null, multiDocument: DbMultiDocument, context: ResolverContext | null) => {
+  if (userIsAdmin(user)) {
+    return true;
+  }
+
   const rootDocumentInfo = await getRootDocument(multiDocument);
   if (!rootDocumentInfo) {
     return false;
@@ -104,7 +71,14 @@ MultiDocuments.checkAccess = async (user: DbUser | null, multiDocument: DbMultiD
   const { document, collection } = rootDocumentInfo;
 
   if ('checkAccess' in collection && collection.checkAccess) {
-    return collection.checkAccess(user, document, context);
+    const canAccessParent = await collection.checkAccess(user, document, context);
+    if (!canAccessParent) {
+      return false;
+    }
+  }
+
+  if (multiDocument.deleted) {
+    return userOwns(user, multiDocument);
   }
 
   return true;

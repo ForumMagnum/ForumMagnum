@@ -78,7 +78,7 @@ export const NewLensDialog = ({ tag, refetchTag, updateSelectedLens, onClose }: 
         successCallback={wrappedSuccessCallback}
         cancelCallback={() => onClose?.()}
         formProps={{
-          newLensForm: true,
+          lensForm: true,
           editorHintText: 'New lens content goes here!'
         }}
         prefilledProps={prefilledProps}

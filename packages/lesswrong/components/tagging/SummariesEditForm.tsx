@@ -95,6 +95,9 @@ const styles = defineStyles("SummariesEditForm", (theme: ThemeType) => ({
       display: 'inline',
     },
   },
+  deletedSummary: {
+    textDecoration: 'line-through',
+  },
   summaryTooltipWrapperElement: {
     maxWidth: '100%',
   },
@@ -198,14 +201,16 @@ const SummaryEditorRow = ({ summary, refetch }: {
   const [edit, setEdit] = useState(false);
   const [mountKey, setMountKey] = useState(0);
 
-  const summaryContent = <ContentItemBody className={classes.summaryContent} dangerouslySetInnerHTML={{ __html: summary.contents?.html ?? '' }} />;
-  const tooltipContent = <ContentItemBody dangerouslySetInnerHTML={{ __html: summary.contents?.html ?? '' }} />;
+  const summaryContent = <ContentItemBody className={classNames(classes.summaryContent, summary.deleted && classes.deletedSummary)} dangerouslySetInnerHTML={{ __html: summary.contents?.html ?? '' }} />;
+  const tooltipContent = summary.deleted
+    ? <span>This summary is deleted and will not be displayed to users.  You can undelete it by editing it and unchecking the "Deleted" checkbox.</span>
+    : <ContentItemBody dangerouslySetInnerHTML={{ __html: summary.contents?.html ?? '' }} />;
 
   return (<span className={classNames(classes.summaryEditorRow, edit && classes.editing)}>
     <div className={classNames(edit && classes.hide)} onClick={() => setEdit(true)}>
       <LWTooltip title={tooltipContent} placement="right" className={classes.summaryTooltipWrapperElement}>
-        <div className={classes.summaryTitle}>
-          {`${summary.title}`}
+        <div className={classNames(classes.summaryTitle, summary.deleted && classes.deletedSummary)}>
+          {summary.tabTitle}
           <ForumIcon icon="Edit" className={classes.editIcon} />
         </div>
         <ContentStyles contentType='comment' className={classes.summaryContentStylesWrapper}>{summaryContent}</ContentStyles>
@@ -233,23 +238,39 @@ const SummaryEditorRow = ({ summary, refetch }: {
   </span>);
 }
 
-const NewSummaryEditor = ({ setNewSummaryEditorOpen }: {
+const NewSummaryEditor = ({ parentDocument, refetchSummaries, setNewSummaryEditorOpen }: {
+  parentDocument: TagPageWithArbitalContentFragment | MultiDocumentContentDisplay,
+  refetchSummaries: () => Promise<void>,
   setNewSummaryEditorOpen: (open: boolean) => void,
 }) => {
   const { WrappedSmartForm } = Components;
   const classes = useStyles(styles);
+
+  const collectionName: DbMultiDocument['collectionName'] = 'title' in parentDocument ? 'MultiDocuments' : 'Tags';
+
+  const wrappedSuccessCallback = async () => {
+    await refetchSummaries();
+    setNewSummaryEditorOpen(false);
+  };
+
+  const prefilledProps = {
+    parentDocumentId: parentDocument._id,
+    collectionName,
+    fieldName: 'summary',
+  };
 
   return <div className={classes.summaryRowFormStyles}>
     <WrappedSmartForm
       collectionName="MultiDocuments"
       mutationFragment={getFragment('MultiDocumentContentDisplay')}
       queryFragment={getFragment('MultiDocumentContentDisplay')}
-      successCallback={() => setNewSummaryEditorOpen(false)}
+      successCallback={wrappedSuccessCallback}
       cancelCallback={() => setNewSummaryEditorOpen(false)}
       formComponents={{ FormSubmit: SummarySubmitButtons }}
       formProps={{
         editorHintText: "Write a custom summary to be displayed when users hover over links to this page.",
       }}
+      prefilledProps={prefilledProps}
     />
   </div>
 }
@@ -337,7 +358,7 @@ const SummariesEditForm = ({ document }: {
     }
   });
 
-  const parentDocumentCollectionName = 'title' in document ? 'MultiDocument' : 'Tags';
+  const parentDocumentCollectionName = 'title' in document ? 'MultiDocuments' : 'Tags';
 
   const displayedSummaries = reorderedSummaries
     ? reorderedSummaries.map((summaryId) => summariesById[summaryId])
@@ -345,7 +366,7 @@ const SummariesEditForm = ({ document }: {
 
   return <span className={classes.root}>
     {topRow}
-    {newSummaryEditorOpen && <NewSummaryEditor setNewSummaryEditorOpen={setNewSummaryEditorOpen} />}
+    {newSummaryEditorOpen && <NewSummaryEditor parentDocument={document} refetchSummaries={refetch} setNewSummaryEditorOpen={setNewSummaryEditorOpen} />}
     <SortableSummaryRowList
       value={displayedSummaries.map((summary) => summary._id)}
       setValue={(newValue: string[]) => {

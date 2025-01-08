@@ -993,6 +993,7 @@ importComponent("SurveyScheduleEditPage", () => require("../../components/survey
 importComponent("AddPostsToTag", () => require("../../components/tagging/AddPostsToTag.tsx"));
 importComponent("AddTagButton", () => require("../../components/tagging/AddTagButton.tsx"));
 importComponent("AddTagOrWikiPage", () => require("../../components/tagging/AddTagOrWikiPage.tsx"));
+importComponent("AllPostsPageTagDocDeletionItem", () => require("../../components/tagging/AllPostsPageTagDocDeletionItem.tsx"));
 importComponent("AllPostsPageTagRevisionItem", () => require("../../components/tagging/AllPostsPageTagRevisionItem.tsx"));
 importComponent("AllTagsAlphabetical", () => require("../../components/tagging/AllTagsAlphabetical.tsx"));
 importComponent("AllTagsPage", () => require("../../components/tagging/AllTagsPage.tsx"));

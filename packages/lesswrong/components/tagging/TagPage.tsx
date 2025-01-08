@@ -511,14 +511,17 @@ const PostsListHeading: FC<{
   );
 }
 
-const EditLensForm = ({lens, changeCallback, cancelCallback}: {
+const EditLensForm = ({lens, successCallback, changeCallback, cancelCallback}: {
   lens: TagLens,
+  successCallback: () => Promise<void>,
   changeCallback: () => void,
   cancelCallback: () => void,
 }) => {
   const { WrappedSmartForm } = Components;
+  const [mountKey, setMountKey] = useState(0);
+
   return <WrappedSmartForm
-    key={lens._id}
+    key={lens._id + mountKey}
     collectionName="MultiDocuments"
     documentId={lens._id}
     queryFragmentName="MultiDocumentEdit"
@@ -526,6 +529,7 @@ const EditLensForm = ({lens, changeCallback, cancelCallback}: {
     {...(lens.originalLensDocument ? { prefetchedDocument: lens.originalLensDocument } : {})}
     addFields={['summaries']}
     warnUnsavedChanges={true}
+    successCallback={() => successCallback().then(() => setMountKey(mountKey + 1))}
     changeCallback={changeCallback}
     cancelCallback={cancelCallback}
   />
@@ -1109,7 +1113,7 @@ const TagPage = () => {
           tag={tag}
           warnUnsavedChanges={true}
           successCallback={async () => {
-            setEditing(false);
+            setEditing(false, false);
             await client.resetStore();
           }}
           cancelCallback={() => setEditing(false)}
@@ -1120,7 +1124,15 @@ const TagPage = () => {
   } else if (selectedLens) {
     editForm = (
       <span className={classNames(classes.unselectedEditForm, editing && classes.selectedEditForm)}>
-        <EditLensForm lens={selectedLens} changeCallback={() => setFormDirty(true)} cancelCallback={() => setEditing(false)} />
+        <EditLensForm
+          lens={selectedLens}
+          successCallback={async () => {
+            setEditing(false, false);
+            await refetchTag();
+          }}
+          changeCallback={() => setFormDirty(true)}
+          cancelCallback={() => setEditing(false)}
+        />
       </span>
     );
   }
@@ -1255,7 +1267,7 @@ const TagPage = () => {
       />}
       <div className={classes.titleRow}>
         <Typography variant="display3" className={classes.title}>
-          {tag.deleted ? "[Deleted] " : ""}{displayedTagTitle}
+          {selectedLens?.deleted ? "[Deleted] " : ""}{displayedTagTitle}
         </Typography>
         <TagPageButtonRow
           tag={tag}

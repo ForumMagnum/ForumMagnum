@@ -171,6 +171,7 @@ type CreateSummariesForPageArgs = {
   pageId: string;
   importedRecordMaps: ImportedRecordMaps;
   pageCreator: DbUser | null;
+  liveRevision: PagesRow;
   resolverContext: ResolverContext;
   conversionContext: ArbitalConversionContext;
 } & ({
@@ -179,7 +180,7 @@ type CreateSummariesForPageArgs = {
   lensMultiDocumentId: string;
 })
 
-async function createSummariesForPage({ pageId, importedRecordMaps, pageCreator, conversionContext, resolverContext, ...parentIdArg }: CreateSummariesForPageArgs) {
+async function createSummariesForPage({ pageId, importedRecordMaps, pageCreator, conversionContext, liveRevision, resolverContext, ...parentIdArg }: CreateSummariesForPageArgs) {
   const { summariesByPageId } = importedRecordMaps;
   const topLevelPageSummaries = summariesByPageId[pageId] ?? [];
   topLevelPageSummaries.sort((a, b) => summaryNameToSortOrder(a.name) - summaryNameToSortOrder(b.name));
@@ -230,7 +231,12 @@ async function createSummariesForPage({ pageId, importedRecordMaps, pageCreator,
       currentUser: pageCreator,
       validate: false,
     })).data;
-    // TODO: Import summaries history and back-date objects
+
+    await Promise.all([
+      backDateObj(MultiDocuments, summaryObj._id, liveRevision.createdAt),
+      backDateRevision(summaryObj.contents_latest!, liveRevision.createdAt),
+    ]);
+    // TODO: Import summaries history?
   }
 }
 
@@ -737,6 +743,7 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
         importedRecordMaps,
         conversionContext,
         pageCreator,
+        liveRevision,
         resolverContext,
         tagId: wiki._id,
       });
@@ -883,6 +890,7 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
           importedRecordMaps,
           conversionContext,
           pageCreator,
+          liveRevision: lensLiveRevision,
           resolverContext,
           lensMultiDocumentId: lensObj._id,
         });
@@ -901,7 +909,7 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
           documentId: lwWikiPage._id,
           fieldName: "description",
           collectionName: "Tags",
-        }).fetch();
+        }, { sort: { editedAt: 1} }).fetch();
         if (!lwWikiPageRevisions.length) {
           return;
         }
@@ -927,6 +935,15 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
           currentUser: lwWikiPageCreator,
           validate: false,
         })).data;
+
+        // Backdate the lens and the automatically-created revision to the
+        // timestamp of the earliest revision on the LW wiki page, minus one second (to avoid potential ordering issues with the copied-over revisions)
+        const earliestRevisionTimestamp = new Date(lwWikiPageRevisions[0].createdAt.getTime() - 1000);
+
+        await Promise.all([
+          backDateObj(MultiDocuments, lwWikiLens._id, earliestRevisionTimestamp),
+          backDateRevision(lwWikiLens.contents_latest!, earliestRevisionTimestamp),
+        ]);
 
         // Clone revisions on the LW wiki page as revisions on the lens
         for (const lwWikiPageRevision of lwWikiPageRevisions) {
