@@ -501,19 +501,28 @@ async function renameCollidingWikiPages(existingPagesToMove: Array<{
   lwWikiPageSlug: string
   newSlug: string
 }>): Promise<void> {
+  // Rename existing wiki pages to slugs starting with lwwiki-old-, and mark them as deleted
   await executePromiseQueue(
     existingPagesToMove.map(({lwWikiPageSlug, newSlug}) => {
       return async () => {
         return Tags.rawUpdateOne(
           {slug: lwWikiPageSlug},
           {$set: {
-            slug: newSlug
+            slug: newSlug,
+            deleted: true,
           }}
         );
       }
     }),
     10
   );
+  
+  // Ensure any previously-moved pages are marked as deleted
+  await runSqlQuery(`
+    UPDATE "Tags"
+    SET deleted=true
+    WHERE slug LIKE "lwwiki-old-%"
+  `);
 }
 
 async function buildConversionContext(database: WholeArbitalDatabase, pagesToConvertToLenses: PagesToConvertToLenses, options: ArbitalImportOptions): Promise<ArbitalConversionContext> {
