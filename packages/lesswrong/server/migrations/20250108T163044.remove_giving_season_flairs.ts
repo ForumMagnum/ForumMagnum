@@ -1,5 +1,6 @@
 import Users from "@/lib/collections/users/collection"
 import { addRemovedField, dropRemovedField } from "./meta/utils"
+import { BoolType } from "../sql/Type"
 
 export const up = async ({db}: MigrationContext) => {
   await dropRemovedField(db, Users, "givingSeason2024DonatedFlair")
