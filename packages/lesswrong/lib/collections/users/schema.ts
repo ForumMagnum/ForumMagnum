@@ -3176,8 +3176,6 @@ const schema: SchemaType<"Users"> = {
     canRead: ['admins'],
     canUpdate: ['admins'],
   },
-
-  // TODO flag this spreadsheet in the PR: https://docs.google.com/spreadsheets/d/1yUyyURwFzYnXCqRHPwA-dTOUEgHDje8M4RD3l9v9A2Q/edit?gid=0#gid=0
 };
 
 export default schema;
