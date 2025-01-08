@@ -31,6 +31,7 @@ import { performVoteServer } from '@/server/voteServer';
 import { Votes } from '@/lib/collections/votes';
 import mapValues from 'lodash/mapValues';
 import flatMap from 'lodash/flatMap';
+import { updatePostDenormalizedTags } from '@/server/tagging/helpers';
 
 type ArbitalImportOptions = {
   /**
@@ -521,7 +522,7 @@ async function renameCollidingWikiPages(existingPagesToMove: Array<{
   await runSqlQuery(`
     UPDATE "Tags"
     SET deleted=true
-    WHERE slug LIKE "lwwiki-old-%"
+    WHERE slug LIKE 'lwwiki-old-%'
   `);
 }
 
@@ -960,6 +961,7 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
           "legacyData.mergedLWTagId": lwWikiPage._id,
           deleted: true,
         }).fetch()).map(t=>t._id);
+        await moveFieldsOnMergedPage({lwWikiPage, mergedPage: wiki});
         await moveReferencesToMergedPage({
           oldTagIds: [lwWikiPage._id, ...oldMergedTagIds],
           newTagId: wiki._id,
@@ -1406,6 +1408,33 @@ async function loadUserMatching(csvFilename: string): Promise<Record<string,DbUs
   return result;
 }
 
+async function moveFieldsOnMergedPage({lwWikiPage, mergedPage}: {
+  lwWikiPage: DbTag
+  mergedPage: DbTag
+}) {
+  const fieldsToCopy: Array<keyof DbTag> = [
+    // Contentful fields
+    "core", "suggestedAsFilter", "defaultOrder", "descriptionTruncationCount", "adminOnly",
+    "canEditUserIds", "needsReview", "reviewedByUserId", "wikiGrade", "postsDefaultSortOrder",
+    "canVoteOnRels", "autoTagModel", "autoTagPrompt", "noindex",
+
+    // Denormalized fields
+    "postCount", "lastCommentedAt", "lastSubforumCommentAt"
+
+    // EA Forum-only fields
+    // isSubforum, subforumModeratorIds, subforumIntroPostId, 
+
+    // Dead fields
+    // charsAdded, charsRemoved, introSequenceId
+  ];
+  
+  await Tags.rawUpdateOne(
+    {_id: mergedPage._id},
+    {$set: Object.fromEntries(fieldsToCopy.map(fieldName => [fieldName, lwWikiPage[fieldName]]))
+    }
+  );
+}
+
 async function moveReferencesToMergedPage({oldTagIds, newTagId}: {
   oldTagIds: string[]
   newTagId: string
@@ -1428,8 +1457,19 @@ async function moveReferencesToMergedPage({oldTagIds, newTagId}: {
   await redirectTagReferences("Subscriptions", "documentId");
   
   // TODO: Rewrite user tag filters?
-}
+  
+  // Rewrite tagRelevance on posts that reference any redirect tags
+  const postIdsToRecomputeTagRelevance = (await runSqlQuery(`
+    SELECT _id
+    FROM "Posts"
+    WHERE "tagRelevance" ?| $1
+  `, [oldTagIds])).map(row => row._id);
+  console.log(`Rewriting tagRelevance on ${postIdsToRecomputeTagRelevance} posts`);
 
+  await executePromiseQueue(postIdsToRecomputeTagRelevance.map((postId) => async () => {
+    await updatePostDenormalizedTags(postId)
+  }), 5);
+}
 
 /**
  * Load accounts from the Arbital DB, match them by email address to LW
