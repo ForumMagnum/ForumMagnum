@@ -96,8 +96,9 @@ const ForumEventCommentForm = ({
   comment,
   forumEventId,
   post,
-  refetch,
-  onClose,
+  cancelCallback,
+  successCallback,
+  setEmoji,
   anchorEl,
   title,
   subtitle,
@@ -110,25 +111,25 @@ const ForumEventCommentForm = ({
   forumEventId: string;
   anchorEl: HTMLElement | null;
   post: PostsMinimumInfo;
-  onClose: () => void;
-  refetch: () => Promise<void>;
+  cancelCallback: () => Promise<void> | void;
+  successCallback: () => Promise<void> | void;
+  setEmoji: (emoji: string) => void;
   title: ((post: PostsMinimumInfo, comment: ShortformComments | null) => React.ReactNode) | React.ReactNode;
   subtitle: ((post: PostsMinimumInfo, comment: ShortformComments | null) => React.ReactNode) | React.ReactNode;
   successMessage?: string;
   className?: string;
   classes: ClassesType<typeof styles>;
 }) => {
-  const { CommentsNewForm, LWPopper, ForumIcon, CommentsEditForm, CommentBody } = Components;
+  const { CommentsNewForm, LWPopper, ForumIcon, CommentsEditForm, CommentBody, ForumEventEmojiBar } = Components;
 
   const [editFormOpen, setEditFormOpen] = useState(false);
   const { flash } = useMessages();
   const updatePopperRef = useRef<(() => Promise<Partial<State>>) | undefined>(undefined);
 
   const onSubmit = useCallback(async () => {
+    await successCallback();
     flash(successMessage)
-    await refetch();
-    onClose();
-  }, [flash, onClose, refetch, successMessage])
+  }, [successCallback, flash, successMessage])
 
   useEffect(() => {
     const updatePopperPos = () => {
@@ -156,7 +157,9 @@ const ForumEventCommentForm = ({
     <LWPopper open={open} anchorEl={anchorEl} placement="bottom" allowOverflow={false} updateRef={updatePopperRef} className={className}>
       <div className={classes.popperContent}>
         <div className={classes.triangle}></div>
-        <ForumIcon icon="Close" className={classes.closeIcon} onClick={onClose} />
+        <ForumIcon icon="Close" className={classes.closeIcon} onClick={cancelCallback} />
+        {/* TODO make hovering work */}
+        <ForumEventEmojiBar onSelect={setEmoji} onHover={setEmoji} />
         <div className={classes.header}>
           <div className={classes.title}>{typeof title === 'function' ? title(post, comment) : title}</div>
           {typeof subtitle === 'function' ? subtitle(post, comment) : subtitle}
@@ -166,12 +169,11 @@ const ForumEventCommentForm = ({
             type="reply"
             post={post}
             enableGuidelines={false}
-            cancelCallback={() => onClose()}
+            cancelCallback={() => cancelCallback()}
             successCallback={onSubmit}
             prefilledProps={{
               forumEventId,
             }}
-            cancelLabel={"Skip"}
             className={classes.commentForm}
           />
         )}
@@ -188,8 +190,9 @@ const ForumEventCommentForm = ({
             comment={comment}
             cancelCallback={() => setEditFormOpen(false)}
             successCallback={async () => {
-              await refetch();
               setEditFormOpen(false);
+              // TODO test on poll version
+              await successCallback();
             }}
             className={classes.commentForm}
           />

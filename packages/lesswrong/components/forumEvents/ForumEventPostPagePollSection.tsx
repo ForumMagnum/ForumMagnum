@@ -74,11 +74,11 @@ export const ForumEventPostPagePollSection = ({postId, classes}: {
     collectionName: "Posts",
     fragmentName: "PostsDetails",
     documentId: params._id,
-    skip: !hasForumEvents || !params._id || !currentForumEvent?.tagId || !currentForumEvent?.includesPoll,
+    skip: !hasForumEvents || !params._id || !currentForumEvent?.tagId || currentForumEvent.eventFormat !== "POLL",
   });
 
   // Only show this section for forum events that have a poll
-  if (!currentForumEvent || !post || !currentForumEvent.includesPoll) {
+  if (!currentForumEvent || !post || currentForumEvent.eventFormat !== "POLL") {
     return null;
   }
 

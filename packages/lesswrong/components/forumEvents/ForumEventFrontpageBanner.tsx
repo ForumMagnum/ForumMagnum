@@ -83,6 +83,11 @@ const styles = (theme: ThemeType) => ({
     // breakpoint in `forumEventBannerGradientBackground` to match
     maxWidth: 480,
     padding: 30,
+    position: "relative",
+    pointerEvents: "none",
+    "& > *": {
+      pointerEvents: "auto",
+    },
     [theme.breakpoints.down("xs")]: {
       padding: 20,
       marginTop: 8,
@@ -148,6 +153,7 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 500,
     marginBottom: 6,
     fontSize: "1.1rem",
+    width: "fit-content"
   },
   title: {
     fontSize: 34,
@@ -155,6 +161,10 @@ const styles = (theme: ThemeType) => ({
   },
   description: {
     ...forumEventBannerDescriptionStyles(theme),
+    width: "fit-content"
+  },
+  descriptionContentStyles: {
+    width: "fit-content"
   },
   titleWithPoll: {
     fontSize: 32,
@@ -331,6 +341,58 @@ const ForumEventFrontpageBannerWithPoll = ({classes}: {
   );
 }
 
+/**
+ * Forum event banner that allows users to place "stickers". These are icons that
+ * persist and are visible to all users once placed. They can also have a comment
+ * attached, which will appear on the post set on the event with `postId`.
+ */
+const ForumEventFrontpageBannerWithStickers = ({classes}: {
+  classes: ClassesType<typeof styles>,
+}) => {
+  const {currentForumEvent} = useCurrentForumEvent();
+  
+  if (!currentForumEvent) {
+    return null;
+  }
+
+  const {title, bannerImageId, frontpageDescription, frontpageDescriptionMobile, darkColor, contrastColor} = currentForumEvent;
+  const date = formatDate(currentForumEvent);
+  
+  const {
+    CloudinaryImage2, ForumEventPoll, ContentStyles, ContentItemBody, ForumEventStickers
+  } = Components;
+  
+  // Define colors with CSS variables to be accessed in the styles
+  const style = {
+    "--forum-event-background": darkColor,
+    "--forum-event-contrast": contrastColor,
+  } as CSSProperties;
+
+  // TODO squash "temp commit"
+
+  return (
+    <AnalyticsContext pageSectionContext="forumEventFrontpageBannerWithStickers">
+      <div className={classes.root} style={style}>
+        <ForumEventStickers />
+        {/* TODO more specific styles */}
+        <div className={classes.contentBasic}>
+          <div className={classes.date}>{date}</div>
+          <div className={classes.title}>{title}</div>
+          {frontpageDescription?.html && (
+            <ContentStyles contentType="comment" className={classes.descriptionContentStyles}>
+              <ContentItemBody
+                dangerouslySetInnerHTML={{ __html: frontpageDescription.html }}
+                className={classes.description}
+              />
+            </ContentStyles>
+          )}
+        </div>
+        {bannerImageId && <CloudinaryImage2 publicId={bannerImageId} className={classes.image} />}
+      </div>
+    </AnalyticsContext>
+  );
+}
+
 export const ForumEventFrontpageBanner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
@@ -339,7 +401,7 @@ export const ForumEventFrontpageBanner = ({classes}: {
     return null;
   }
 
-  const {customComponent, includesPoll} = currentForumEvent;
+  const {customComponent, eventFormat} = currentForumEvent;
   if (customComponent) {
     const CustomComponent = Components[customComponent as keyof ComponentTypes] as FC;
     if (CustomComponent) {
@@ -353,10 +415,15 @@ export const ForumEventFrontpageBanner = ({classes}: {
       );
     }
   }
-  if (includesPoll) {
-    return <ForumEventFrontpageBannerWithPoll classes={classes} />
+
+  switch (eventFormat) {
+    case "POLL":
+      return <ForumEventFrontpageBannerWithPoll classes={classes} />;
+    case "STICKERS":
+      return <ForumEventFrontpageBannerWithStickers classes={classes} />;
+    default:
+      return <ForumEventFrontpageBannerBasic classes={classes} />;
   }
-  return <ForumEventFrontpageBannerBasic classes={classes} />
 }
 
 const ForumEventFrontpageBannerComponent = registerComponent(

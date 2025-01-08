@@ -17,6 +17,8 @@ const styles = (theme: ThemeType) => ({
     width: "100%",
     height: "100%",
     position: "absolute",
+    top: 0,
+    left: 0
   },
   placeHeartButton: {
     position: "absolute",
@@ -30,9 +32,9 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const addForumEventStickerQuery = gql`
-  mutation AddForumEventSticker($forumEventId: String!, $x: Float!, $y: Float!, $theta: Float!) {
-    AddForumEventSticker(forumEventId: $forumEventId, x: $x, y: $y, theta: $theta)
+const upsertForumEventStickerQuery = gql`
+  mutation UpsertForumEventSticker($forumEventId: String!, $x: Float!, $y: Float!, $theta: Float!, $emoji: String) {
+    UpsertForumEventSticker(forumEventId: $forumEventId, x: $x, y: $y, theta: $theta, emoji: $emoji)
   }
 `;
 const removeForumEventStickerQuery = gql`
@@ -47,6 +49,7 @@ type ForumEventStickerData = Record<
     x: number;
     y: number;
     theta: number;
+    emoji?: string;
   }
 >;
 
@@ -54,6 +57,7 @@ type ForumEventStickerDisplay = {
   x: number;
   y: number;
   theta: number;
+  emoji: string;
   user: UsersMinimumInfo;
   comment: ShortformComments | null;
 };
@@ -83,6 +87,7 @@ function stickerDataToArray({
         x: sticker.x,
         y: sticker.y,
         theta: sticker.theta,
+        emoji: sticker.emoji,
         user,
         comment,
       };
@@ -96,9 +101,8 @@ function stickerDataToArray({
 }
 
 const ForumEventStickers: FC<{
-  interactive: boolean;
   classes: ClassesType<typeof styles>;
-}> = ({ interactive, classes }) => {
+}> = ({ classes }) => {
   const { ForumEventCommentForm, ForumEventSticker } = Components;
 
   const { currentForumEvent, refetch } = useCurrentForumEvent();
@@ -149,6 +153,11 @@ const ForumEventStickers: FC<{
     [comments, currentUser, stickerData, displayUsersRef.current]
   );
 
+  const [draftSticker, setDraftSticker] = useState<ForumEventStickerData[keyof ForumEventStickerData] | null>(null);
+
+  // Note: For some reason typescript can't figure this type out on its own
+  const displaySticker = (draftSticker ?? currentUserSticker) as (typeof draftSticker | typeof currentUserSticker);
+
   const [commentFormOpen, setCommentFormOpen] = useState(false);
   const [hoverPos, setHoverPos] = useState<{ x: number; y: number } | null>(
     null
@@ -180,46 +189,77 @@ const ForumEventStickers: FC<{
     [containerRef]
   );
 
-  const [addSticker] = useMutation(addForumEventStickerQuery);
+  const [upsertSticker] = useMutation(upsertForumEventStickerQuery);
   const [removeSticker] = useMutation(removeForumEventStickerQuery);
 
   const allowPlacingSticker = !currentUserSticker && (isDesktop || mobilePlacingSticker);
 
-  const saveStickerPos = useCallback(
+  const refetchAll = useCallback(async () => {
+    void refetch?.();
+    void refetchComments?.();
+  }, [refetch, refetchComments]);
+
+  const saveDraftSticker = useCallback(
     async (event: React.MouseEvent) => {
       if (!currentForumEvent || !allowPlacingSticker) return;
 
-      if (currentUser) {
-        const coords = normalizeCoords(event.clientX, event.clientY);
-
-        if (!coords || currentUserSticker) return;
-
-        if (currentForumEvent.post) {
-          setCommentFormOpen(true);
-        }
-
-        await addSticker({
-          variables: {
-            ...coords,
-            theta: hoverTheta,
-            forumEventId: currentForumEvent._id,
-          },
-        });
-        setMobilePlacingSticker(false);
-        refetch?.();
-      } else {
+      if (!currentUser) {
         onSignup();
+        return;
       }
+
+      const coords = normalizeCoords(event.clientX, event.clientY);
+
+      if (!coords || currentUserSticker) return;
+
+      if (currentForumEvent.post) {
+        setCommentFormOpen(true);
+      }
+
+      setDraftSticker({
+        ...coords,
+        theta: hoverTheta,
+      });
+
+      setMobilePlacingSticker(false);
     },
-    [currentForumEvent, allowPlacingSticker, currentUser, normalizeCoords, currentUserSticker, addSticker, hoverTheta, refetch, onSignup]
+    [currentForumEvent, allowPlacingSticker, currentUser, normalizeCoords, currentUserSticker, hoverTheta, onSignup]
   );
+
+  const commitDraftSticker = useCallback(async () => {
+    if (!currentForumEvent || !draftSticker?.emoji) return;
+
+    await upsertSticker({
+      variables: {
+        ...draftSticker,
+        forumEventId: currentForumEvent._id,
+      },
+    });
+    void refetchAll();
+    setDraftSticker(null);
+    setCommentFormOpen(false);
+  }, [currentForumEvent, draftSticker, upsertSticker, refetchAll]);
 
   const clearSticker = useCallback(async () => {
     if (!currentForumEvent) return;
 
-    await removeSticker({ variables: { forumEventId: currentForumEvent!._id } });
-    refetch?.();
-  }, [currentForumEvent, refetch, removeSticker])
+    if (draftSticker) {
+      setDraftSticker(null);
+    } else {
+      await removeSticker({ variables: { forumEventId: currentForumEvent!._id } });
+      void refetch?.();
+    }
+
+  }, [currentForumEvent, draftSticker, refetch, removeSticker])
+
+  const onCloseCommentForm = useCallback(async () => {
+    setCommentFormOpen(false);
+    setDraftSticker(null);
+  }, [])
+
+  const setEmoji = useCallback((emoji: string) => {
+    setDraftSticker((prev) => prev ? { ...prev, emoji } : null);
+  }, [])
 
   const handleMouseMove = useCallback(
     (event: React.MouseEvent) => {
@@ -248,37 +288,38 @@ const ForumEventStickers: FC<{
       <div
         className={classes.stickersContainer}
         ref={containerRef}
-        {...(interactive && {
-          onMouseMove: handleMouseMove,
-          onMouseLeave: handleMouseLeave,
-          onClick: saveStickerPos,
-        })}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        // TODO I believe this is only required for mobile, check
+        onClick={async (event) => {
+          console.log("Calling saveStickerPos from stickersContainer")
+          return saveDraftSticker(event)
+        }}
       >
         {allowPlacingSticker && hoverPos && (
+          // TODO work out why this is still showing behind other stickers
           <ForumEventSticker
             x={hoverPos.x}
             y={hoverPos.y}
             theta={hoverTheta}
-            icon="Heart"
-            saveStickerPos={saveStickerPos}
+            saveDraftSticker={saveDraftSticker}
           />
         )}
-        {currentUserSticker && (
+        {displaySticker && (
           <ForumEventSticker
-            {...currentUserSticker}
+            {...displaySticker}
             tooltipDisabled={commentFormOpen}
-            icon="Heart"
             ref={setUserVoteRef}
             onClear={clearSticker}
           />
         )}
         {otherStickers.map((heart, index) => (
-          <ForumEventSticker key={index} {...heart} icon="Heart" />
+          <ForumEventSticker key={index} {...heart} />
         ))}
         {!isDesktop && !currentUserSticker && (
           <InteractionWrapper>
             <div className={classes.placeHeartButton} onClick={() => setMobilePlacingSticker(!mobilePlacingSticker)}>
-              {!!interactive && (mobilePlacingSticker ? "Tap the banner to add a heart, or tap here to cancel" : "+ Add heart")}
+              {(mobilePlacingSticker ? "Tap the banner to add a heart, or tap here to cancel" : "+ Add heart")}
             </div>
           </InteractionWrapper>
         )}
@@ -286,12 +327,14 @@ const ForumEventStickers: FC<{
       {currentForumEvent.post && (
         <ForumEventCommentForm
           open={commentFormOpen}
-          comment={currentUserSticker?.comment || null}
+          comment={(displaySticker && "comment" in displaySticker) ? (displaySticker.comment || null) : null}
           forumEventId={currentForumEvent._id}
-          onClose={() => setCommentFormOpen(false)}
-          refetch={refetchComments}
+          cancelCallback={onCloseCommentForm}
+          successCallback={commitDraftSticker}
+          setEmoji={setEmoji}
           anchorEl={userVoteRef}
           post={currentForumEvent.post}
+          // TODO update, allow editable field
           title="Where did you donate this year?"
           subtitle={(post, comment) => (
             <>

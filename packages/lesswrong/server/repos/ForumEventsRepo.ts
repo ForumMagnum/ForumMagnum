@@ -36,7 +36,7 @@ class ForumEventsRepo extends AbstractRepo<"ForumEvents"> {
   }
 
   // TODO Add format + version to the data, so it can be distinguished from votes
-  async addSticker(_id: string, userId: string, voteData: Json) {
+  async upsertSticker(_id: string, userId: string, voteData: Json) {
     return this.none(`
       -- ForumEventsRepo.addVote
       UPDATE "ForumEvents"

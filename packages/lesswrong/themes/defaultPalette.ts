@@ -592,6 +592,9 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       green: "#006336",//"#0b7138",
     },
   },
+  forumEvent: {
+    draftSticker: "#9BC4CC",
+  },
   namesAttachedReactions: {
     selectedAnti: "rgb(255, 189, 189, .23)",
   },

@@ -55,7 +55,7 @@ export const ForumEventPostPageBanner = ({classes}: {
   // For now, events that have polls have a special post page UI, so hide this banner
   const hideBanner =
     !currentForumEvent ||
-    !!currentForumEvent.includesPoll ||
+    currentForumEvent.eventFormat !== "BASIC" ||
     !!currentForumEvent.customComponent;
 
   const {document: post} = useSingle({

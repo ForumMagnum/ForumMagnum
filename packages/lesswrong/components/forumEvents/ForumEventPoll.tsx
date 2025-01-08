@@ -798,7 +798,7 @@ export const ForumEventPoll = ({
                       comment={currentUserComment}
                       successMessage="Success! Open the results to view everyone's votes and comments."
                       forumEventId={event._id}
-                      onClose={() => setCommentFormOpen(false)}
+                      cancelCallback={() => setCommentFormOpen(false)}
                       refetch={refetchComments}
                       anchorEl={userVoteRef.current}
                       post={event.post}

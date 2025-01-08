@@ -618,6 +618,7 @@ interface ForumEventsDefaultFragment { // fragment on ForumEvents
   readonly postId: string | null,
   readonly bannerImageId: string | null,
   readonly includesPoll: boolean,
+  readonly eventFormat: "BASIC" | "POLL" | "STICKERS",
   readonly customComponent: string | null,
   readonly publicData: any /*{"definitions":[{"blackbox":true}]}*/,
 }
@@ -2915,7 +2916,7 @@ interface ForumEventsMinimumInfo { // fragment on ForumEvents
   readonly tagId: string,
   readonly postId: string | null,
   readonly bannerImageId: string | null,
-  readonly includesPoll: boolean,
+  readonly eventFormat: "BASIC" | "POLL" | "STICKERS",
   readonly customComponent: string | null,
 }
 

@@ -47,25 +47,31 @@ addGraphQLResolvers({
       })
       return true
     },
-    AddForumEventSticker: async (
+    UpsertForumEventSticker: async (
       _root: void,
-      {forumEventId, x, y, theta}: {
+      {forumEventId, x, y, theta, emoji}: {
         forumEventId: string,
         x: number,
         y: number,
         theta: number,
+        emoji?: string
       },
       {currentUser, repos}: ResolverContext,
     ) => {
       if (!currentUser) {
         throw new Error("Permission denied");
       }
+      // TODO add some kind of limit
+      // if (emoji?.length ?? 0 > 2) {
+      //   throw new Error("Stickers cannot be longer than the maximum size of an emoji")
+      // }
 
-      await repos.forumEvents.addSticker(forumEventId, currentUser._id, {x, y, theta})
+      // TODO support one person adding multiple stickers
+      await repos.forumEvents.upsertSticker(forumEventId, currentUser._id, {x, y, theta, emoji: emoji ?? null})
       captureEvent("addForumEventSticker", {
         forumEventId,
         userId: currentUser._id,
-        x, y, theta
+        x, y, theta, emoji
       })
       return true
     },
@@ -90,5 +96,5 @@ addGraphQLResolvers({
 
 addGraphQLMutation('AddForumEventVote(forumEventId: String!, x: Float!, delta: Float, postIds: [String]): Boolean')
 addGraphQLMutation('RemoveForumEventVote(forumEventId: String!): Boolean')
-addGraphQLMutation('AddForumEventSticker(forumEventId: String!, x: Float!, y: Float!, theta: Float!): Boolean')
+addGraphQLMutation('UpsertForumEventSticker(forumEventId: String!, x: Float!, y: Float!, theta: Float!, emoji: String): Boolean')
 addGraphQLMutation('RemoveForumEventSticker(forumEventId: String!): Boolean')

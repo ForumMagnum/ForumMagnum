@@ -1,4 +1,9 @@
+import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
 import { foreignKeyField, resolverOnlyField, schemaDefaultValue } from "../../utils/schemaUtils";
+
+const EVENT_FORMATS = ["BASIC", "POLL", "STICKERS"] as const;
+const EVENT_FORMATS_SET = new TupleSet(EVENT_FORMATS)
+export type ForumEventFormat = UnionOf<typeof EVENT_FORMATS_SET>
 
 const defaultProps = (nullable = false): CollectionFieldSpecification<"ForumEvents"> => ({
   optional: nullable,
@@ -78,12 +83,23 @@ const schema: SchemaType<"ForumEvents"> = {
     type: String,
     control: "ImageUpload",
   },
+  /** @deprecated Set `eventFormat` to "POLL" instead */
   includesPoll: {
     ...defaultProps(),
     ...schemaDefaultValue(false),
+    hidden: true,
     optional: true,
     type: Boolean,
     control: "FormComponentCheckbox",
+  },
+  eventFormat: {
+    ...defaultProps(),
+    ...schemaDefaultValue("BASIC"),
+    allowedValues: Array.from(EVENT_FORMATS),
+    control: "select",
+    optional: true,
+    type: String,
+    options: () => EVENT_FORMATS.map(ef => ({value: ef, label: ef}))
   },
   customComponent: {
     ...defaultProps(true),

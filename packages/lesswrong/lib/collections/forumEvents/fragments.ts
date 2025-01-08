@@ -12,7 +12,7 @@ registerFragment(`
     tagId
     postId
     bannerImageId
-    includesPoll
+    eventFormat
     customComponent
   }
 `);

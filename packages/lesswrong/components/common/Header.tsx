@@ -476,19 +476,17 @@ const Header = ({
   // If we're explicitly given a backgroundColor, that overrides any event header
   if (backgroundColor) {
     headerStyle.backgroundColor = backgroundColor
-  } else if (hasForumEvents && currentRoute?.name === "home") {
-    // On EAF, forum events with polls also update the home page header background
-    if (bannerImageId && currentForumEvent?.includesPoll) {
-      const darkColor = currentForumEvent.darkColor;
-      const background = `top / cover no-repeat url(${makeCloudinaryImageUrl(bannerImageId, {
-        c: "fill",
-        dpr: "auto",
-        q: "auto",
-        f: "auto",
-        g: "north",
-      })})${darkColor ? `, ${darkColor}` : ''}`;
-      headerStyle.background = background;
-    }
+  } else if (hasForumEvents && currentRoute?.name === "home" && bannerImageId && currentForumEvent?.eventFormat !== "BASIC") {
+    // On EAF, forum events with polls or stickers also update the home page header background
+    const darkColor = currentForumEvent.darkColor;
+    const background = `top / cover no-repeat url(${makeCloudinaryImageUrl(bannerImageId, {
+      c: "fill",
+      dpr: "auto",
+      q: "auto",
+      f: "auto",
+      g: "north",
+    })})${darkColor ? `, ${darkColor}` : ''}`;
+    headerStyle.background = background;
   }
 
   // Make all the text and icons white when we have some sort of color in the header background

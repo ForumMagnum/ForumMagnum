@@ -562,6 +562,9 @@ declare global {
         green: ColorString,
       },
     },
+    forumEvent: {
+      draftSticker: ColorString,
+    },
     namesAttachedReactions: {
       selectedAnti: ColorString,
     },
