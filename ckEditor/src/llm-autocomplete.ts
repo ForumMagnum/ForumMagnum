@@ -163,10 +163,14 @@ async function handleStream(stream: ReadableStream, onMessage: (message: any) =>
     const reader = stream.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
+    let loopIsGoing = true
 
-    while (true) {
+    while (loopIsGoing) {
         const { done, value } = await reader.read();
-        if (done) break;
+        if (done) {
+          loopIsGoing = false;
+          break;
+        };
 
         buffer += decoder.decode(value, { stream: true });
         
