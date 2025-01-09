@@ -866,33 +866,3 @@ export const wikiGradeDefinitions: Partial<Record<number,string>> = {
   4: "B-Class",
   5: "A-Class"
 }
-
-
-  //   type: Array,
-  //   resolveAs: {
-  //     fieldName: 'usersWhoLiked',
-  //     type: '[UserLikingTag!]!',
-  //     resolver: async (tag, args, context): Promise<LikesList> => {
-  //       const { MultiDocuments } = context;
-
-  //       const multiDocuments = await getWithLoader(
-  //         context,
-  //         MultiDocuments,
-  //         'multiDocuments',
-  //         { collectionName: 'Tags', fieldName: 'description' },
-  //         'parentDocumentId',
-  //         tag._id,
-  //         {projection: {baseScore: 1, extendedScore: 1}}
-  //       );
-
-  //       const tagUsersWhoLiked: LikesList = tag.extendedScore?.usersWhoLiked || [];
-  //       const multiDocUsersWhoLiked: LikesList = multiDocuments.flatMap(md => md.extendedScore?.usersWhoLiked || []);
-  //       const usersWhoLiked: LikesList = uniqBy(tagUsersWhoLiked.concat(multiDocUsersWhoLiked), '_id');
-  //       return usersWhoLiked;
-  //     },
-  //     // addOriginalField: true,
-  //   },
-  //   canRead: ['guests'],
-  //   optional: true,
-  //   nullable: true,
-  // },
