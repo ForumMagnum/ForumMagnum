@@ -53,7 +53,7 @@ const ReactionsAndLikesVote  = ({document, hideKarma=false, collectionName, voti
     ev.stopPropagation();
 
     if (!currentUser) {
-      return; //TODO
+      return; //TODO show login modal
     } else if (currentUserLikesIt) {
       await voteProps.vote({
         document: voteProps.document,
@@ -64,7 +64,7 @@ const ReactionsAndLikesVote  = ({document, hideKarma=false, collectionName, voti
     } else {
       await voteProps.vote({
         document: voteProps.document,
-        voteType: "smallUpvote",
+        voteType: "bigUpvote",
         extendedVote: document?.currentUserExtendedVote,
         currentUser
       });
