@@ -2,13 +2,14 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import {parseRoute, parsePath, checkUserRouteAccess} from '../../lib/vulcan-core/appContext'
-import { classifyHost, useLocation, getUrlClass } from '../../lib/routeUtil';
+import { classifyHost, useLocation } from '../../lib/routeUtil';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { isServer } from '../../lib/executionEnvironment';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { isMobile } from '../../lib/utils/isMobile'
 import { locationHashIsFootnote } from '../posts/PostsPage/CollapsedFootnotes';
 import {useCurrentUser} from '../common/withUser'
+import { getUrlClass } from '@/server/utils/getUrlClass';
 
 export const parseRouteWithErrors = (onsiteUrl: string, contentSourceDescription?: string) => {
   return parseRoute({
@@ -118,6 +119,12 @@ const HoverPreviewLink = ({ href, contentSourceDescription, id, rel, noPrefetch,
         return <Components.ManifoldPreview href={href} id={id}>
           {children}
         </Components.ManifoldPreview>
+      }
+
+      if (linkTargetAbsolute.host === "fatebook.io" || linkTargetAbsolute.host === "www.fatebook.io") {
+        return <Components.FatebookPreview href={href} id={id}>
+          {children}
+        </Components.FatebookPreview>
       }
       if (linkTargetAbsolute.host === "neuronpedia.org" || linkTargetAbsolute.host === "www.neuronpedia.org") {
         return <Components.NeuronpediaPreview href={href} id={id}>

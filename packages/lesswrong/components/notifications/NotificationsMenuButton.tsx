@@ -252,7 +252,7 @@ const FriendlyNotificationsMenuButton = ({
                 clickable
               >
                 <NotificationsPopover
-                  karmaChanges={showKarmaStar ? karmaChanges?.karmaChanges : undefined}
+                  karmaChanges={karmaChanges?.karmaChanges}
                   markAllAsRead={markAllAsRead}
                   closePopover={closePopover}
                 />

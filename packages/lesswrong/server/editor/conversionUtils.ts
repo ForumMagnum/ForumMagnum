@@ -468,7 +468,7 @@ export async function dataToWordCount(data: AnyBecauseTodo, type: string) {
 
 /**
  * Convert the footnotes we get in google doc html to a format ckeditor can understand. This is mirroring the logic
- * in the footnotes plugin (see e.g. public/lesswrong-editor/src/ckeditor5-footnote/src/footnoteEditing/googleDocsFootnotesNormalizer.js)
+ * in the footnotes plugin (see e.g. ckEditor/src/ckeditor5-footnote/src/footnoteEditing/googleDocsFootnotesNormalizer.js)
  */
 function googleDocConvertFootnotes(html: string): string {
   const $ = cheerio.load(html);

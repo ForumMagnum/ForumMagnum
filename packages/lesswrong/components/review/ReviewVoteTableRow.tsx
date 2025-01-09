@@ -15,14 +15,14 @@ const styles = (theme: ThemeType) => ({
     borderBottom: theme.palette.border.slightlyFaint,
     position: "relative",
     background: theme.palette.panelBackground.default,
-    '&:hover': {
-      '& $expand': {
-        display: "block"
-      }
-    },
     [theme.breakpoints.down('xs')]: {
       marginBottom: 2,
       boxShadow: theme.palette.boxShadow.default,
+    },
+    '&:hover': {
+      '& $expandPostButton': {
+        opacity: .5
+      }
     }
   },
   votingPhase: {
@@ -40,7 +40,7 @@ const styles = (theme: ThemeType) => ({
   },
   postVote: {
     display: "flex",
-    justifyContent: "flex-end",
+    justifyContent: "flex-start",
     alignItems: "center",
     [theme.breakpoints.down('xs')]: {
       flexWrap: "wrap",
@@ -50,10 +50,10 @@ const styles = (theme: ThemeType) => ({
     flexWrap: "wrap",
   },
   post: {
-    padding: 16,
-    paddingTop: 10,
+    paddingLeft: 16,
     paddingBottom: 8,
-    paddingRight: 10,
+    paddingTop: 10,
+    paddingRight: 18,
     maxWidth: "calc(100% - 240px)",
     marginRight: "auto",
     [theme.breakpoints.down('xs')]: {
@@ -68,18 +68,6 @@ const styles = (theme: ThemeType) => ({
     width: "100%",
     position: "relative",
     left: -6
-  },
-  expand: {
-    display:"none",
-    position: "absolute",
-    bottom: 2,
-    fontSize: 10,
-    ...theme.typography.commentStyle,
-    color: theme.palette.grey[400],
-    paddingBottom: 35
-  },
-  expanded: {
-    backgroundColor: theme.palette.grey[140],
   },
   highlight: {
     padding: 16,
@@ -148,6 +136,53 @@ const styles = (theme: ThemeType) => ({
     textAlign: "center",
     ...commentBodyStyles(theme),
     fontSize: "1rem"
+  },
+  author: {
+    ...theme.typography.commentStyle,
+    fontSize: "1rem",
+    color: theme.palette.grey[500],
+  },
+  postIndex: {
+    width: 30,
+    textAlign: "center",
+    paddingLeft: 6,
+    ...theme.typography.body2,
+    color: theme.palette.grey[500],
+    fontSize: 12,
+    flexShrink: 0,
+    position: "absolute",
+    left: -35,
+    cursor: "pointer",
+    [theme.breakpoints.down('sm')]: {
+      display: "none",
+    },
+  },
+  top50: {
+    color: theme.palette.grey[900],
+  },
+  expandPostButtonContainer: {
+    position: "absolute",
+    left: -50,
+    top: 0,
+    height: "100%",
+    width: 30,
+    display: "flex",
+    cursor: "pointer",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: theme.zIndexes.reviewExpandButton,
+    [theme.breakpoints.down('sm')]: {
+      display: "none",
+    },
+  },
+  expandPostButton: {
+    fontSize: 20,
+    height: "100%",
+    width: "100%",
+    opacity: 0,
+  },
+  expanded: {
+    opacity: 1,
   }
 });
 
@@ -159,13 +194,15 @@ const hasUnreadComments = (visitedDate: Date|null, lastCommentedAt: Date | null)
   return visitedDate < lastCommentedAt
 }
 
-const ReviewVoteTableRow = ({ post, dispatch, costTotal, classes, expandedPostId, currentVote, showKarmaVotes, reviewPhase, reviewYear, voteTooltip }: {
+const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expandedPostId, handleSetExpandedPost, currentVote, showKarmaVotes, reviewPhase, reviewYear, voteTooltip }: {
   post: PostsReviewVotingList,
+  index: number,
   costTotal?: number,
   dispatch: React.Dispatch<SyntheticQualitativeVote>,
   showKarmaVotes: boolean,
   classes: ClassesType,
   expandedPostId?: string|null,
+  handleSetExpandedPost: (post: PostsReviewVotingList) => void,
   currentVote: SyntheticQualitativeVote|null,
   reviewPhase: ReviewPhase,
   reviewYear: ReviewYear,
@@ -174,7 +211,7 @@ const ReviewVoteTableRow = ({ post, dispatch, costTotal, classes, expandedPostId
   const {
     PostsTitle, LWTooltip, PostsTooltip, MetaInfo, ReviewVotingButtons,
     PostsItemComments, PostsItem2MetaInfo, PostsItemReviewVote,
-    ReviewPostComments, PostInteractionStripe,
+    ReviewPostComments, PostInteractionStripe, UsersNameDisplay, ForumIcon
   } = Components
 
   const currentUser = useCurrentUser()
@@ -232,10 +269,22 @@ const ReviewVoteTableRow = ({ post, dispatch, costTotal, classes, expandedPostId
     <div className={classNames(classes.root, {[classes.expanded]: expanded, [classes.votingPhase]: reviewPhase === "VOTING" })} onClick={markAsRead}>
       {showKarmaVotes && <PostInteractionStripe post={post}/>}
       <div className={classNames(classes.postVote, {[classes.postVoteVotingPhase]: reviewPhase === "VOTING"})}>
+        <div className={classes.expandPostButtonContainer} onClick={() => handleSetExpandedPost(post)}>
+          <ForumIcon
+            icon={expanded ? "ChevronRight" : "ChevronLeft"}
+            className={classNames(classes.expandPostButton, { [classes.expanded]: expanded })}
+          />
+        </div>
+        <div className={classNames(classes.postIndex, {[classes.top50]: index < 50})} onClick={() => handleSetExpandedPost(post)}>
+          {index + 1}
+        </div>
         <div className={classNames(classes.post, {[classes.postVotingPhase]: reviewPhase === "VOTING"})}>
           <PostsTooltip post={post} flip={false}>
             <PostsTitle post={post} showIcons={false} wrap curatedIconLeft={false} />
           </PostsTooltip>
+          <span className={classes.author}>
+            <UsersNameDisplay user={post.user}/>
+          </span>
         </div>
         {reviewPhase === "VOTING" && <div className={classes.reviews}>
           <ReviewPostComments
@@ -251,7 +300,7 @@ const ReviewVoteTableRow = ({ post, dispatch, costTotal, classes, expandedPostId
             post={post}
           />
         </div>}
-        <div className={classes.commentsCount}>
+        <div className={classes.commentsCount} onClick={() => handleSetExpandedPost(post)}>
           <PostsItemComments
             small={false}
             commentCount={postGetCommentCount(post)}
@@ -273,7 +322,7 @@ const ReviewVoteTableRow = ({ post, dispatch, costTotal, classes, expandedPostId
           </LWTooltip>
         </PostsItem2MetaInfo>}
         {(reviewPhase === "REVIEWS" || reviewPhase === "COMPLETE") && <div className={classes.votes}>
-          <LWTooltip title={voteTooltip}>
+          <LWTooltip title={voteTooltip} placement="top-end">
             <div className={classes.voteResults}>
               { displayedVotes.map((v, i)=>
                 <span className={classes.reviewVote} key={`${post._id}${i}H`}>
@@ -295,7 +344,7 @@ const ReviewVoteTableRow = ({ post, dispatch, costTotal, classes, expandedPostId
           </LWTooltip>}
         </div>}
         {(reviewPhase === "NOMINATIONS" || reviewPhase === "VOTING") && eligibleToNominate(currentUser) && <div className={classNames(classes.votes, {[classes.votesVotingPhase]: reviewPhase === "VOTING"})}>
-          {!currentUserIsAuthor && <ReviewVotingButtons post={post} dispatch={dispatch} costTotal={costTotal} currentUserVote={currentVote} />}
+          {!currentUserIsAuthor && <div onClick={(e) => e.stopPropagation()}><ReviewVotingButtons post={post} dispatch={dispatch} costTotal={costTotal} currentUserVote={currentVote} /></div>}
           {currentUserIsAuthor && <MetaInfo className={classes.cantVote}>You can't vote on your own posts</MetaInfo>}
         </div>}
       </div>

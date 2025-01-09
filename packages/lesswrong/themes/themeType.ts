@@ -118,7 +118,10 @@ declare global {
       color2: ColorString,
       color3: ColorString,
       color4: ColorString,
-    }
+    },
+    fundraisingThermometer: {
+      shadow: ColorString,
+    },
     text: {
       primary: ColorString,
       secondary: ColorString
@@ -280,7 +283,6 @@ declare global {
       primaryTranslucent: string,
       dashed500: string,
       mentionsBaloon: string,
-      wrappedSummary: string,
       eaButtonGreyOutline: string,
     },
     panelBackground: {
@@ -539,26 +541,25 @@ declare global {
 
     wrapped: {
       background: ColorString,
+      darkBackground: ColorString,
       highlightText: ColorString,
       secondaryText: ColorString,
       tertiaryText: ColorString,
       black: ColorString,
-      darkGrey: ColorString,
-      grey: ColorString,
       darkDot: ColorString,
       panelBackground: ColorString,
       panelBackgroundDark: ColorString,
-      postScoreArrow: ColorString,
-    },
-    givingSeason: {
-      primary: ColorString,
-      electionFundBackground: ColorString,
-      electionFundBackgroundHeavy: ColorString,
-      portalPrimary: ColorString,
-      candidateBorder: ColorString,
-      candidateBackground: ColorString,
-      candidateShadow: ColorString,
-      candidateOrder: ColorString,
+      postScore: ColorString,
+      notification: ColorString,
+      emptyPath: ColorString,
+      metaText: ColorString,
+      personality: {
+        transparent: ColorString,
+        grey: ColorString,
+        red: ColorString,
+        blue: ColorString,
+        green: ColorString,
+      },
     },
     namesAttachedReactions: {
       selectedAnti: ColorString,

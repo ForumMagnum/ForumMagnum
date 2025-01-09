@@ -59,6 +59,9 @@ export const lessWrongTheme: SiteThemeSpecification = {
       color: "#327E09",
       visited: "#798754"
     },
+    fundraisingThermometer: {
+      shadow: '#222',
+    }
   }),
   make: (palette: ThemePalette) => ({
     zIndexes: {
