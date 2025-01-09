@@ -178,7 +178,6 @@ importComponent("SettingsColumn", () => require("../../components/common/Setting
 importComponent("SidebarsWrapper", () => require("../../components/common/SidebarsWrapper.tsx"));
 importComponent("SingleColumnSection", () => require("../../components/common/SingleColumnSection.tsx"));
 importComponent("SingleLineFeedEvent", () => require("../../components/common/SingleLineFeedEvent.tsx"));
-importComponent("Sparkline", () => require("../../components/common/Sparkline.tsx"));
 importComponent("SubSection", () => require("../../components/common/SubSection.tsx"));
 importComponent("SubscribeDialog", () => require("../../components/common/SubscribeDialog.tsx"));
 importComponent("SubscribeWidget", () => require("../../components/common/SubscribeWidget.tsx"));
