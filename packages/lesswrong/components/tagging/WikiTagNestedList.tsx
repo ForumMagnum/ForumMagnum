@@ -29,8 +29,6 @@ interface WikiTagNestedListProps {
   nestingLevel?: number;
   maxInitialShow?: number;
   totalChildrenCount?: number;
-  // onHover?: (wikitag: WikiTagNode | null) => void;
-  // onClick?: (wikitag: WikiTagNode) => void;
   showArbitalIcons?: boolean;
 }
 

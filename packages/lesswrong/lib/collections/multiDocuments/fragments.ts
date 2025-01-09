@@ -14,6 +14,8 @@ registerFragment(`
     tabSubtitle
     preview
     index
+    deleted
+    createdAt
     legacyData
 
     baseScore

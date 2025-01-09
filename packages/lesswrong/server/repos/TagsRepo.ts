@@ -107,12 +107,15 @@ class TagsRepo extends AbstractRepo<"Tags"> {
       )
       SELECT DISTINCT ON (t._id)
         t.*,
+        -- This is to ensure that Apollo doesn't accidentally clobber a lens if we return an _id that belongs to a tag it already has cached
+        COALESCE(t.md_id, t._id) AS _id,
         ARRAY_AGG(TO_JSONB(md.*)) OVER (PARTITION BY t._id) as summaries
       FROM matching_tags t
       LEFT JOIN "MultiDocuments" md
       ON (
-        md."parentDocumentId" = COALESCE(t.md_id, t._id)
+        md."parentDocumentId" = t."_id"
         AND md."fieldName" = 'summary'
+        AND md."deleted" IS FALSE
       )
       -- TODO: figure out a more principled fix for the problem we can have multiple tags or lenses with the same slug/oldSlugs
       LIMIT 1
@@ -194,6 +197,77 @@ class TagsRepo extends AbstractRepo<"Tags"> {
       AND target_tag_subject_rels."childDocumentId" != $1
       GROUP BY source_tag_subject_rels."parentDocumentId", source_tag_subject_rels."level"
     `, [tagId]);
+  }
+
+  /**
+   * Fetch tags by parent tag using ArbitalTagContentRels, with optional limit, offset, and searchTagIds
+   */
+  async getTagsByParentTagId(
+    parentTagId: string | null,
+    limit: number,
+    searchTagIds?: string[]
+  ): Promise<{ tags: DbTag[]; totalCount: number }> {
+    const whereClauses: string[] = [];
+    const queryParams: Record<string, SqlQueryArg> = {
+      limit,
+    };
+
+    // Base condition: only select non-deleted tags
+    whereClauses.push(
+      `t_child."deleted" IS FALSE`,
+      `t_child."isPlaceholderPage" IS FALSE`,
+    );
+
+    if (parentTagId !== null) {
+      // Fetch tags that are children of the specified parent tag
+      queryParams.parentTagId = parentTagId;
+      whereClauses.push(
+        `acr."parentDocumentId" = $(parentTagId)`,
+        `acr."type" = 'parent-is-tag-of-child'`,
+        `acr."parentCollectionName" = 'Tags'`,
+        `acr."childCollectionName" = 'Tags'`
+      );
+    } else {
+      // Fetch tags that do NOT have a parent tag
+      whereClauses.push(
+        `acr."parentDocumentId" IS NULL`,
+        `acr."type" IS NULL`,
+      );
+    }
+
+    if (searchTagIds && searchTagIds.length > 0) {
+      queryParams.searchTagIds = searchTagIds;
+      whereClauses.push(`t_child."_id" = ANY($(searchTagIds))`);
+    }
+
+    const whereClause = whereClauses.length > 0
+      ? `WHERE ${whereClauses.join(' AND ')}`
+      : '';
+
+    const query = `
+      -- TagsRepo.getTagsByParentTagId
+      SELECT
+        t_child.*,
+        COUNT(*) OVER() AS "totalCount"
+      FROM "Tags" t_child
+      LEFT JOIN "ArbitalTagContentRels" acr
+        ON t_child."_id" = acr."childDocumentId"
+        AND acr."type" = 'parent-is-tag-of-child'
+        AND acr."parentCollectionName" = 'Tags'
+        AND acr."childCollectionName" = 'Tags'
+      ${whereClause}
+      ORDER BY t_child."baseScore" DESC, t_child."name" ASC
+      LIMIT $(limit)
+    `;
+
+    const tags = await this.getRawDb().any(query, queryParams);
+
+    const totalCount = tags.length > 0 ? parseInt(tags[0].totalCount, 10) : 0;
+
+    // Remove the totalCount from individual tag objects
+    tags.forEach(tag => delete tag.totalCount);
+
+    return { tags, totalCount };
   }
 }
 

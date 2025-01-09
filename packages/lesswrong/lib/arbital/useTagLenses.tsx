@@ -50,6 +50,8 @@ function getDefaultLens(tag: TagPageWithArbitalContentFragment | TagPageRevision
     slug: 'main',
     oldSlugs: [],
     userId: tag.userId,
+    deleted: false,
+    createdAt: tag.createdAt,
     legacyData: {},
     originalLensDocument: null,
     arbitalLinkedPages: 'arbitalLinkedPages' in tag ? tag.arbitalLinkedPages : null,
@@ -83,6 +85,7 @@ export function getAvailableLenses(tag: TagPageWithArbitalContentFragment | TagP
 export function useTagLenses(tag: TagPageWithArbitalContentFragment | TagPageRevisionWithArbitalContentFragment | TagPageWithArbitalContentAndLensRevisionFragment | null): TagLensInfo {
   const { query, location } = useLocation();
   const navigate = useNavigate();
+
   const availableLenses = useMemo(() => getAvailableLenses(tag), [tag]);
 
   const querySelectedLens = useMemo(() =>

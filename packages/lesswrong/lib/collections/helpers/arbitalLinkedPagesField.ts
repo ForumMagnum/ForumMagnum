@@ -186,7 +186,7 @@ export function arbitalLinkedPagesField(options: ArbitalLinkedPagesFieldOptions)
         return [...tags, ...multiDocsWithName];
       }
 
-      // Combine multiple relationship queries into one parallel operation
+      // Get requirement, subject, parent, and child relationships
       const [combinedParentRels, childRels] = await Promise.all([
         ArbitalTagContentRels.find(
           {

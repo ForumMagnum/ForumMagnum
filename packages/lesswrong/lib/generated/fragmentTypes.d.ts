@@ -2849,19 +2849,21 @@ interface ExplorePageTagFragment extends TagFragment { // fragment on Tags
   readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
-interface AllTagsPageCacheFragment { // fragment on Tags
+interface ConceptItemFragment { // fragment on Tags
   readonly _id: string,
   readonly core: boolean,
   readonly name: string,
   readonly slug: string,
   readonly oldSlugs: Array<string>,
   readonly postCount: number,
-  readonly description: AllTagsPageCacheFragment_description|null,
+  readonly baseScore: number,
+  readonly description: ConceptItemFragment_description|null,
   readonly isArbitalImport: boolean|null,
   readonly coreTagId: string|null,
 }
 
-interface AllTagsPageCacheFragment_description { // fragment on Revisions
+interface ConceptItemFragment_description { // fragment on Revisions
+  readonly _id: string,
   readonly wordCount: number,
 }
 
@@ -3957,20 +3959,21 @@ interface MultiDocumentsDefaultFragment { // fragment on MultiDocuments
   readonly tabSubtitle: string | null,
   readonly userId: string,
   readonly parentDocumentId: string,
-  readonly collectionName: string,
-  readonly fieldName: string,
+  readonly collectionName: "Tags" | "MultiDocuments",
+  readonly fieldName: "description" | "summary",
   readonly index: number,
   readonly tableOfContents: any /*{"definitions":[{}]}*/,
   readonly contributors: any /*TagContributorsList*/,
   readonly contributionStats: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly htmlWithContributorAnnotations: string,
+  readonly deleted: boolean,
 }
 
 interface MultiDocumentMinimumInfo { // fragment on MultiDocuments
   readonly _id: string,
   readonly parentDocumentId: string,
-  readonly collectionName: string,
-  readonly fieldName: string,
+  readonly collectionName: "Tags" | "MultiDocuments",
+  readonly fieldName: "description" | "summary",
   readonly userId: string,
   readonly slug: string,
   readonly oldSlugs: Array<string>,
@@ -3979,6 +3982,8 @@ interface MultiDocumentMinimumInfo { // fragment on MultiDocuments
   readonly tabSubtitle: string | null,
   readonly preview: string | null,
   readonly index: number,
+  readonly deleted: boolean,
+  readonly createdAt: Date,
   readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly baseScore: number,
   readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
@@ -4611,7 +4616,7 @@ interface FragmentTypes {
   UserOnboardingTag: UserOnboardingTag
   TagName: TagName
   ExplorePageTagFragment: ExplorePageTagFragment
-  AllTagsPageCacheFragment: AllTagsPageCacheFragment
+  ConceptItemFragment: ConceptItemFragment
   TagPageWithArbitalContentAndLensRevisionFragment: TagPageWithArbitalContentAndLensRevisionFragment
   WithVoteTag: WithVoteTag
   AdvisorRequestsDefaultFragment: AdvisorRequestsDefaultFragment
@@ -4743,7 +4748,7 @@ interface FragmentTypesByCollection {
   Users: "UsersDefaultFragment"|"SuggestAlignmentUser"|"UsersMinimumInfo"|"UsersProfile"|"UsersCurrent"|"UsersCurrentCommentRateLimit"|"UsersCurrentPostRateLimit"|"UserBookmarkedPosts"|"UserKarmaChanges"|"UsersBannedFromUsersModerationLog"|"SunshineUsersList"|"UserAltAccountsFragment"|"SharedUserBooleans"|"UsersMapEntry"|"UsersEdit"|"UsersAdmin"|"UsersWithReviewInfo"|"UsersProfileEdit"|"UsersCrosspostInfo"|"UsersOptedInToDialogueFacilitation"|"UserOnboardingAuthor"|"UsersSocialMediaInfo"
   Comments: "CommentsDefaultFragment"|"CommentsList"|"CommentsListWithTopLevelComment"|"ShortformComments"|"CommentWithRepliesFragment"|"CommentEdit"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"CommentsListWithParentMetadata"|"StickySubforumCommentFragment"|"WithVoteComment"|"CommentsListWithModerationMetadata"|"CommentsListWithModGPTAnalysis"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"SuggestAlignmentComment"
   UserTagRels: "UserTagRelsDefaultFragment"|"UserTagRelDetails"
-  Tags: "TagsDefaultFragment"|"TagBasicInfo"|"TagDetailsFragment"|"TagFragment"|"TagHistoryFragment"|"TagCreationHistoryFragment"|"TagRevisionFragment"|"TagPreviewFragment"|"TagSectionPreviewFragment"|"TagSubforumFragment"|"TagSubtagFragment"|"TagSubforumSidebarFragment"|"TagDetailedPreviewFragment"|"TagWithFlagsFragment"|"TagWithFlagsAndRevisionFragment"|"TagPageArbitalContentFragment"|"TagPageFragment"|"TagPageWithArbitalContentFragment"|"AllTagsPageFragment"|"TagPageWithRevisionFragment"|"TagPageRevisionWithArbitalContentFragment"|"TagFullContributorsList"|"TagEditFragment"|"TagRecentDiscussion"|"SunshineTagFragment"|"UserOnboardingTag"|"TagName"|"ExplorePageTagFragment"|"AllTagsPageCacheFragment"|"TagPageWithArbitalContentAndLensRevisionFragment"|"WithVoteTag"
+  Tags: "TagsDefaultFragment"|"TagBasicInfo"|"TagDetailsFragment"|"TagFragment"|"TagHistoryFragment"|"TagCreationHistoryFragment"|"TagRevisionFragment"|"TagPreviewFragment"|"TagSectionPreviewFragment"|"TagSubforumFragment"|"TagSubtagFragment"|"TagSubforumSidebarFragment"|"TagDetailedPreviewFragment"|"TagWithFlagsFragment"|"TagWithFlagsAndRevisionFragment"|"TagPageArbitalContentFragment"|"TagPageFragment"|"TagPageWithArbitalContentFragment"|"AllTagsPageFragment"|"TagPageWithRevisionFragment"|"TagPageRevisionWithArbitalContentFragment"|"TagFullContributorsList"|"TagEditFragment"|"TagRecentDiscussion"|"SunshineTagFragment"|"UserOnboardingTag"|"TagName"|"ExplorePageTagFragment"|"ConceptItemFragment"|"TagPageWithArbitalContentAndLensRevisionFragment"|"WithVoteTag"
   Conversations: "ConversationsDefaultFragment"|"ConversationsMinimumInfo"|"ConversationsList"|"ConversationsListWithReadStatus"
   CurationEmails: "CurationEmailsDefaultFragment"
   ElectionCandidates: "ElectionCandidatesDefaultFragment"|"ElectionCandidateBasicInfo"|"ElectionCandidateSimple"|"WithVoteElectionCandidate"
@@ -5000,7 +5005,7 @@ interface CollectionNamesByFragmentName {
   UserOnboardingTag: "Tags"
   TagName: "Tags"
   ExplorePageTagFragment: "Tags"
-  AllTagsPageCacheFragment: "Tags"
+  ConceptItemFragment: "Tags"
   TagPageWithArbitalContentAndLensRevisionFragment: "Tags"
   WithVoteTag: "Tags"
   AdvisorRequestsDefaultFragment: "AdvisorRequests"

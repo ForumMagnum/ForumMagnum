@@ -1,10 +1,25 @@
-import { slugIsUsed } from "@/lib/helpers";
-import { resolverOnlyField, accessFilterSingle, schemaDefaultValue } from "@/lib/utils/schemaUtils";
+import { getUnusedSlugByCollectionName, slugIsUsed } from "@/lib/helpers";
+import { resolverOnlyField, accessFilterSingle, schemaDefaultValue, foreignKeyField } from "@/lib/utils/schemaUtils";
 import { getCollection } from "@/lib/vulcan-lib/getCollection";
 import { arbitalLinkedPagesField } from '../helpers/arbitalLinkedPagesField';
-import { addGraphQLSchema } from "@/lib/vulcan-lib";
 import { summariesField } from "../helpers/summariesField";
 import { formGroups } from "./formGroups";
+import { userOwns } from "@/lib/vulcan-users/permissions";
+import { userIsAdminOrMod } from "@/lib/vulcan-users";
+import { slugify } from "@/lib/vulcan-lib/utils";
+
+const MULTI_DOCUMENT_DELETION_WINDOW = 1000 * 60 * 60 * 24 * 7;
+
+export function userCanDeleteMultiDocument(user: DbUser | UsersCurrent | null, document: DbMultiDocument) {
+  if (userIsAdminOrMod(user)) {
+    return true;
+  }
+
+  const deletableUntil = new Date(document.createdAt).getTime() + MULTI_DOCUMENT_DELETION_WINDOW;
+  const withinDeletionWindow = deletableUntil > Date.now();
+
+  return userOwns(user, document) && withinDeletionWindow;
+}
 
 const schema: SchemaType<"MultiDocuments"> = {
   // In the case of tag lenses, this is the title displayed in the body of the tag page when the lens is selected.
@@ -13,6 +28,8 @@ const schema: SchemaType<"MultiDocuments"> = {
     type: String,
     canRead: ['guests'],
     canUpdate: ['members'],
+    canCreate: ['members'],
+    hidden: ({ formProps, document }) => !formProps?.lensForm && document?.fieldName !== 'description',
     optional: true,
     nullable: true,
     order: 5,
@@ -22,6 +39,11 @@ const schema: SchemaType<"MultiDocuments"> = {
     optional: true,
     nullable: false,
     canRead: ['guests'],
+    // TODO: come back to this and make sure the logic is correct, especially w.r.t. deletion, cross-collection slugs, and multiple lenses having the same title.
+    onCreate: async ({ newDocument }) => {
+      const basicSlug = slugify(newDocument.title ?? newDocument.tabTitle);
+      return await getUnusedSlugByCollectionName('MultiDocuments', basicSlug, true);
+    },
     onUpdate: async ({data, oldDocument, context}) => {
       if (data.slug && data.slug !== oldDocument.slug) {
         let parentCollectionName = oldDocument.collectionName;
@@ -78,25 +100,38 @@ const schema: SchemaType<"MultiDocuments"> = {
     canUpdate: ['members'],
     canCreate: ['members'],
     nullable: false,
-    label: "Summary Title",
     order: 10,
   },
   tabSubtitle: {
     type: String,
     canRead: ['guests'],
     canUpdate: ['members'],
+    canCreate: ['members'],
+    hidden: ({ formProps, document }) => !formProps?.lensForm && document?.fieldName !== 'description',
     optional: true,
     nullable: true,
     order: 20,
   },
   userId: {
-    type: String,
+    ...foreignKeyField({
+      idFieldName: "userId",
+      resolverName: "user",
+      collectionName: "Users",
+      type: "User",
+      nullable: true,
+    }),
     canRead: ['guests'],
+    canCreate: ['members'],
+    hidden: true,
     nullable: false,
+    optional: true,
+    onCreate: ({currentUser}) => currentUser!._id,
   },
   parentDocumentId: {
     type: String,
     canRead: ['guests'],
+    canCreate: ['members'],
+    hidden: true,
     nullable: false,
   },
   parentTag: resolverOnlyField({
@@ -122,13 +157,18 @@ const schema: SchemaType<"MultiDocuments"> = {
   collectionName: {
     type: String,
     canRead: ['guests'],
-    typescriptType: "CollectionNameString",
+    canCreate: ['members'],
+    allowedValues: ['Tags', 'MultiDocuments'],
+    hidden: true,
     nullable: false,
   },
   // e.g. content, description, summary.  Whatever it is that we have "multiple" of for a single parent document.
   fieldName: {
     type: String,
     canRead: ['guests'],
+    canCreate: ['members'],
+    allowedValues: ['description', 'summary'],
+    hidden: true,
     nullable: false,
   },
   index: {
@@ -136,6 +176,7 @@ const schema: SchemaType<"MultiDocuments"> = {
     canRead: ['guests'],
     canUpdate: ['members'],
     nullable: false,
+    optional: true,
     hidden: true,
     onCreate: async ({ newDocument, context }) => {
       const { MultiDocuments } = context;
@@ -157,6 +198,7 @@ const schema: SchemaType<"MultiDocuments"> = {
     // Implemented in multiDocumentResolvers.ts
     type: Object,
     canRead: ['guests'],
+    optional: true,
   },
 
   contributors: {
@@ -187,6 +229,15 @@ const schema: SchemaType<"MultiDocuments"> = {
   },
 
   ...summariesField('MultiDocuments', { group: formGroups.summaries }),
+
+  deleted: {
+    type: Boolean,
+    canRead: ['guests'],
+    canUpdate: [userCanDeleteMultiDocument, 'sunshineRegiment', 'admins'],
+    optional: true,
+    logChanges: true,
+    ...schemaDefaultValue(false),
+  },
 };
 
 export default schema;
