@@ -19,18 +19,6 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.icon.sprout,
     fontSize: 16,
   },
-  donationIcon: {
-    position: "relative",
-    bottom: -1,
-    color: theme.palette.givingSeason.primary,
-    fontSize: 16,
-  },
-  votedIcon: {
-    position: "relative",
-    bottom: -3,
-    color: theme.palette.givingSeason.primary,
-    fontSize: 16,
-  },
 });
 
 const UserCommentMarkers = ({

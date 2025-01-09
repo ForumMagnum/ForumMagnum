@@ -3,6 +3,7 @@ import { Components, registerComponent } from "@/lib/vulcan-lib";
 import html2canvas from "html2canvas";
 import classNames from "classnames";
 import { isMobile } from "@/lib/utils/isMobile";
+import { captureException } from "@sentry/core";
 
 export const WRAPPED_SHARE_BUTTON_WIDTH = 100;
 
@@ -46,16 +47,22 @@ const WrappedShareButton = ({name, screenshotRef, onRendered, className, classes
       onRendered?.(canvasElement);
       const dataUrl = canvasElement.toDataURL("image/png");
       if (isMobile() && !!navigator.canShare) {
-        const data = await fetch(dataUrl);
-        const blob = await data.blob();
-        const file = new File([blob], fileName, {
-          type: blob.type,
-          lastModified: new Date().getTime(),
-        });
-        const sharingOptions = {files: [file]};
-        if (navigator.canShare(sharingOptions)) {
-          await navigator.share(sharingOptions);
-          return;
+        try {
+          const data = await fetch(dataUrl);
+          const blob = await data.blob();
+          const file = new File([blob], fileName, {
+            type: blob.type,
+            lastModified: new Date().getTime(),
+          });
+          const sharingOptions = {files: [file]};
+          if (navigator.canShare(sharingOptions)) {
+            await navigator.share(sharingOptions);
+            return;
+          }
+        } catch (e) {
+          captureException(e, {tags: {wrappedName: name}});
+          // eslint-disable-next-line no-console
+          console.error("Error sharing wrapped:", e);
         }
       }
       const link = document.createElement("a");

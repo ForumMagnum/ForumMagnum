@@ -134,7 +134,7 @@ const WrappedThankAuthorSection = ({classes}: {
             <UsersProfileImage size={24} user={topAuthorByEngagementPercentile} />
           </div>
           <div className={classes.authorName}>
-            <Link to={getUserProfileLink(slug, year)}>
+            <Link to={getUserProfileLink(slug, year)} target="_blank">
               {displayName}
             </Link>
           </div>

@@ -31,6 +31,7 @@ import { isFriendlyUI } from '../themes/forumTheme';
 import Sequences from './collections/sequences/collection';
 import { sequenceGetPageUrl } from './collections/sequences/helpers';
 import { tagGetUrl } from './collections/tags/helpers';
+import isEqual from 'lodash/isEqual';
 
 // We need enough fields here to render the user tooltip
 type NotificationDisplayUser = Pick<
@@ -156,8 +157,19 @@ const registerNotificationType = ({allowedChannels = ["none", "onsite", "email",
 
   const name = notificationTypeClass.name;
   notificationTypes[name] = notificationTypeClass;
-  if (notificationTypeClass.userSettingField)
-    notificationTypesByUserSetting[notificationTypeClass.userSettingField] = notificationTypeClass;
+
+  const {userSettingField} = notificationTypeClass;
+  if (userSettingField) {
+    // Due to a technical limitation notifications using the same user setting
+    // must also use the same channels
+    const currentValue = notificationTypesByUserSetting[userSettingField];
+    if (currentValue && !isEqual(currentValue.allowedChannels, notificationTypeClass.allowedChannels)) {
+      // eslint-disable-next-line no-console
+      console.error(`Error: Conflicting channels for notifications using "${userSettingField}"`);
+    }
+    notificationTypesByUserSetting[userSettingField] = notificationTypeClass;
+  }
+
   return notificationTypeClass;
 }
 
@@ -689,7 +701,6 @@ export const EmailVerificationRequiredNotification = registerNotificationType({
 export const PostSharedWithUserNotification = registerNotificationType({
   name: "postSharedWithUser",
   userSettingField: "notificationSharedWithMe",
-  allowedChannels: ["onsite", "email", "both"],
   async getMessage({documentType, documentId}: GetMessageProps) {
     let document = await getDocument(documentType, documentId) as DbPost;
     const name = await postGetAuthorName(document);
@@ -889,7 +900,12 @@ export const NewCommentOnDraftNotification = registerNotificationType({
     documentId: string|null,
     extraData: any
   }): string => {
-    return `/editPost?postId=${documentId}`;
+    if (!documentId) {
+      throw new Error("NewCommentOnDraftNotification documentId is missing");
+    }
+    const { linkSharingKey } = extraData;
+    const url = postGetEditUrl(documentId, false, linkSharingKey);
+    return url;
   },
   Display: ({Post}) => <>New comments on your draft <Post /></>,
 });

@@ -85,20 +85,34 @@ export default class MathEditing extends Plugin {
 					} );
 				}
 			} )
-			// CKEditor 4 way (e.g. <span class="math-tex">\( \sqrt{\frac{a}{b}} \)</span>)
+			// If we see a <span class="math-tex">...</span>, either we have unprocessed post content which looks like:
+			//     <span class="math-tex">\( \sqrt{\frac{a}{b}} \)</span>
+			// or we have processed post content (eg because we're copy-pasting) which instead looks like:
+			//     <span class="math-tex">
+			//       <span class="mjpage">
+			//         <span class="mjx-chtml">
+			//           <span class="mjx-math" aria-label="\sqrt{\frac{a}{b}}">...</span>
+			//         </spn>
+			//       </span>
+			//     </span>
+			// In the latter case, we don't handle it (ie, we return undefined) so that this falls through to the
+			// handler for mjx-chtml, below.
 			.elementToElement( {
 				view: {
 					name: 'span',
 					classes: [ 'math-tex' ]
 				},
 				model: (viewElement, { writer }: UpcastConversionApi) => {
-					const rawEquation = (viewElement.getChild(0) as AnyBecauseTodo).data.trim();
-					const { display, equation } = extractDelimiters( rawEquation );
-					const type = mathConfig.forceOutputType ? mathConfig.outputType : 'span';
-					if ( display ) {
-						return writer.createElement( 'mathtex-display', { equation, type, display  } );
-					} else {
-						return writer.createElement( 'mathtex', { equation, type, display } );
+					const childElement = (viewElement.getChild(0) as AnyBecauseTodo)
+					if (childElement?.data) {
+						const rawEquation = childElement?.data?.trim() ?? "";
+						const { display, equation } = extractDelimiters( rawEquation );
+						const type = mathConfig.forceOutputType ? mathConfig.outputType : 'span';
+						if ( display ) {
+							return writer.createElement( 'mathtex-display', { equation, type, display  } );
+						} else {
+							return writer.createElement( 'mathtex', { equation, type, display } );
+						}
 					}
 				}
 			} )
