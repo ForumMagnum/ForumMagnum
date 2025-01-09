@@ -5,6 +5,7 @@ import sortBy from 'lodash/sortBy';
 import Card from '@material-ui/core/Card';
 import { ReviewYear } from '../../lib/reviewUtils';
 import { useCurrentUser } from '../common/withUser';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -37,6 +38,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   row: {
     marginTop: 4
+  },
+  currentUser: {
+    fontWeight: 600,
+    color: theme.palette.grey[900]
   }
 });
 
@@ -89,7 +94,9 @@ export const ReviewsLeaderboard = ({classes, reviews, reviewYear}: {
     }
     return <div className={classes.row} key={reviewUser.user?._id} >
       <Row justifyContent="flex-start">
-        <div className={classes.username}>
+        <div className={classNames(classes.username, {
+          [classes.currentUser]: reviewUser.user?._id === currentUser?._id
+        })}>
           <UsersNameDisplay user={reviewUser.user}/>
         </div>
         <div className={classes.karma}>
