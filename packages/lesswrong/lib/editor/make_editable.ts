@@ -23,7 +23,7 @@ export const RevisionStorageType = new SimpleSchema({
 })
 
 export const defaultEditorPlaceholder = isFriendlyUI ?
-`Highlight text to format it. Type # to reference a post, @ to mention someone.` :  
+`Highlight text to format it. Type @ to mention a user, post, or topic.` :
   
 `Text goes here! See lesswrong.com/editor for info about everything the editor can do.
 

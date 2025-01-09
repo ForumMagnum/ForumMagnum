@@ -443,8 +443,6 @@ interface UsersDefaultFragment { // fragment on Users
   readonly hideSunshineSidebar: boolean,
   readonly inactiveSurveyEmailSentAt: Date | null,
   readonly userSurveyEmailSentAt: Date | null,
-  readonly givingSeason2024DonatedFlair: boolean,
-  readonly givingSeason2024VotedFlair: boolean,
 }
 
 interface CommentsDefaultFragment { // fragment on Comments
@@ -3345,17 +3343,15 @@ interface SharedUserBooleans { // fragment on Users
   readonly usernameUnset: boolean,
 }
 
-interface UsersMapEntry extends UsersMinimumInfo { // fragment on Users
-  readonly createdAt: Date,
-  readonly isAdmin: boolean,
-  readonly groups: Array<string>,
-  readonly location: string,
-  readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly mapLocation: any /*{"definitions":[{"blackbox":true}]}*/,
+interface UsersMapEntry { // fragment on Users
+  readonly _id: string,
+  readonly displayName: string,
+  readonly username: string,
+  readonly fullName: string,
+  readonly slug: string,
+  readonly mapLocationLatLng: any,
   readonly mapLocationSet: boolean,
-  readonly mapMarkerText: string,
   readonly htmlMapMarkerText: string,
-  readonly mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface UsersEdit extends UsersCurrent { // fragment on Users
@@ -3959,17 +3955,23 @@ interface TypingIndicatorInfo { // fragment on TypingIndicators
 }
 
 interface ElicitQuestionsDefaultFragment { // fragment on ElicitQuestions
+  readonly title: string,
+  readonly notes: string | null,
+  readonly resolution: string | null,
+  readonly resolvesBy: Date | null,
+}
+
+interface ElicitQuestionFragment { // fragment on ElicitQuestions
   readonly _id: string,
   readonly title: string,
   readonly notes: string | null,
   readonly resolution: string | null,
-  readonly resolvesBy: Date,
-  readonly createdAt: Date,
+  readonly resolvesBy: Date | null,
 }
 
 interface ElicitQuestionPredictionsDefaultFragment { // fragment on ElicitQuestionPredictions
   readonly _id: string,
-  readonly prediction: number,
+  readonly prediction: number | null,
   readonly createdAt: Date,
   readonly notes: string | null,
   readonly creator: {
@@ -4527,6 +4529,7 @@ interface FragmentTypes {
   GoogleServiceAccountSessionAdminInfo: GoogleServiceAccountSessionAdminInfo
   TypingIndicatorInfo: TypingIndicatorInfo
   ElicitQuestionsDefaultFragment: ElicitQuestionsDefaultFragment
+  ElicitQuestionFragment: ElicitQuestionFragment
   ElicitQuestionPredictionsDefaultFragment: ElicitQuestionPredictionsDefaultFragment
   DialogueChecksDefaultFragment: DialogueChecksDefaultFragment
   DialogueCheckInfo: DialogueCheckInfo
@@ -4623,7 +4626,7 @@ interface FragmentTypesByCollection {
   ModerationTemplates: "ModerationTemplatesDefaultFragment"|"ModerationTemplateFragment"
   CurationNotices: "CurationNoticesDefaultFragment"|"CurationNoticesFragment"
   UserRateLimits: "UserRateLimitsDefaultFragment"|"UserRateLimitDisplay"
-  ElicitQuestions: "ElicitQuestionsDefaultFragment"
+  ElicitQuestions: "ElicitQuestionsDefaultFragment"|"ElicitQuestionFragment"
   ElicitQuestionPredictions: "ElicitQuestionPredictionsDefaultFragment"
   DialogueChecks: "DialogueChecksDefaultFragment"|"DialogueCheckInfo"
   DialogueMatchPreferences: "DialogueMatchPreferencesDefaultFragment"|"DialogueMatchPreferenceInfo"
@@ -4894,6 +4897,7 @@ interface CollectionNamesByFragmentName {
   GoogleServiceAccountSessionAdminInfo: "GoogleServiceAccountSessions"
   TypingIndicatorInfo: "TypingIndicators"
   ElicitQuestionsDefaultFragment: "ElicitQuestions"
+  ElicitQuestionFragment: "ElicitQuestions"
   ElicitQuestionPredictionsDefaultFragment: "ElicitQuestionPredictions"
   DialogueChecksDefaultFragment: "DialogueChecks"
   DialogueCheckInfo: "DialogueChecks"

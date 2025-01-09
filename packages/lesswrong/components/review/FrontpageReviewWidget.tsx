@@ -105,12 +105,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: theme.palette.primary.main,
     border: `solid 1px ${theme.palette.primary.main}`,
     color: theme.palette.text.invertedBackgroundText,
-    ...commonActionButtonStyle(theme),
+    ...commonActionButtonStyle(theme),  
+    textAlign: 'center',
   },
   actionButton: {
     border: `solid 1px ${theme.palette.grey[400]}`,
     color: theme.palette.grey[600],
     ...commonActionButtonStyle(theme),
+    textAlign: 'center',
   },
   adminButton: {
     border: `solid 1px ${theme.palette.review.adminButton}`,
@@ -326,7 +328,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, cl
     </LWTooltip>
     <LWTooltip title="A detailed view of all nominated posts">
       <Link to={"/reviewVoting"} className={classes.actionButton}>
-        Advanced Dashboard
+        Advanced Review
       </Link>
     </LWTooltip>
     <LWTooltip title="Find a top unreviewed post, and review it">

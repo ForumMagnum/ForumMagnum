@@ -45,7 +45,7 @@ const SettingsButton = ({classes, className, onClick, showIcon=true, label="", u
   classes: ClassesType,
   className?: string,
   onClick?: any,
-  label?: string,
+  label?: React.ReactNode,
   showIcon?: boolean,
   useArrow?: 'up' | 'down'
   textShadow?: boolean,

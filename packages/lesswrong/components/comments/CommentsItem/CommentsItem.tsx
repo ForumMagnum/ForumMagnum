@@ -96,7 +96,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       padding: 1.5,
     }
     : {
-      fontSize: 12
+      "--icon-size": "12px",
     },
   title: {
     ...theme.typography.display2,

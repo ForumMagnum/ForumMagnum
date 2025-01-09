@@ -75,6 +75,7 @@ import { SanitizeTags } from './clean-styles-plugin'
 
 import { postEditorConfig, commentEditorConfig } from './editorConfigs';
 import {CloudinaryAdapterPlugin} from "./cloudinary"
+import ClaimsPlugin from './claims';
 
 export class CommentEditor extends BalloonBlockEditorBase {}
 export class PostEditor extends BalloonBlockEditorBase {}
@@ -130,7 +131,10 @@ const sharedPlugins = [
 	UrlValidator,
 	RemoveRedirect,
 	CloudinaryAdapterPlugin,
-	LLMAutocomplete
+	LLMAutocomplete,
+	CTAButton,
+	CollapsibleSections,
+	ClaimsPlugin,
 ];
 
 const postEditorPlugins = [
@@ -155,31 +159,25 @@ const collaborativeEditorPlugins = [
 	DialogueCommentBox
 ];
 
-type ForumTypeString = "LessWrong"|"AlignmentForum"|"EAForum";
-const siteSpecificPlugins: Partial<Record<ForumTypeString,AnyBecauseTodo[]>> = {
-  EAForum: [CTAButton],
-  LessWrong: [CollapsibleSections],
-};
 
-export function getPostEditor(forumType: ForumTypeString) {
+export function getPostEditor() {
   class PostEditor extends BalloonBlockEditorBase {}
-  PostEditor.builtinPlugins = [ ...postEditorPlugins, ...(forumType in siteSpecificPlugins ? siteSpecificPlugins[forumType] : [])];
+  PostEditor.builtinPlugins = [ ...postEditorPlugins];
   PostEditor.defaultConfig = { ...postEditorConfig };
   return PostEditor;
 }
 
-// NOTE: Site-specific plugins might not match between client and server. If making a site-specific plugin that needs
-// to be included in the uploaded cloud bundle, then revisit this and get forumType plumbed into that.
-export function getPostEditorCollaboration(forumType: ForumTypeString) {
+// NOTE: do not attempt to forum-gate plugins being added to the bundle; it will break things
+export function getPostEditorCollaboration() {
   class PostEditorCollaboration extends BalloonBlockEditorBase {}
-  PostEditorCollaboration.builtinPlugins = [ ...collaborativeEditorPlugins, ...(forumType in siteSpecificPlugins ? siteSpecificPlugins[forumType] : [])];
+  PostEditorCollaboration.builtinPlugins = [ ...collaborativeEditorPlugins];
   PostEditorCollaboration.defaultConfig = { ...postEditorConfig };
   return PostEditorCollaboration;
 }
 
-export function getCommentEditor(forumType: ForumTypeString) {
+export function getCommentEditor() {
   class CommentEditor extends BalloonBlockEditorBase {}
-  CommentEditor.builtinPlugins = [ ...sharedPlugins, ...(forumType in siteSpecificPlugins ? siteSpecificPlugins[forumType] : [])];
+  CommentEditor.builtinPlugins = [ ...sharedPlugins];
   CommentEditor.defaultConfig = { ...commentEditorConfig };
   return CommentEditor;
 }

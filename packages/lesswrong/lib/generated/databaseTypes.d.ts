@@ -398,7 +398,7 @@ type ElicitQuestionPredictionsCollection = CollectionBase<"ElicitQuestionPredict
 
 interface DbElicitQuestionPrediction extends DbObject {
   __collectionName?: "ElicitQuestionPredictions"
-  prediction: number
+  prediction: number | null
   createdAt: Date
   notes: string | null
   creator: {
@@ -421,8 +421,9 @@ interface DbElicitQuestion extends DbObject {
   title: string
   notes: string | null
   resolution: string | null
-  resolvesBy: Date
+  resolvesBy: Date | null
   createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
 type EmailTokensCollection = CollectionBase<"EmailTokens">;
@@ -1922,8 +1923,6 @@ interface DbUser extends DbObject {
   hideSunshineSidebar: boolean
   inactiveSurveyEmailSentAt: Date | null
   userSurveyEmailSentAt: Date | null
-  givingSeason2024DonatedFlair: boolean
-  givingSeason2024VotedFlair: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   moderationGuidelines: EditableFieldContents | null

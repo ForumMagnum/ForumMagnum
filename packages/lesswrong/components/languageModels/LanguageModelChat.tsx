@@ -238,7 +238,7 @@ const LLMInputTextbox = ({onSubmit, classes}: {
       <CKEditor
         data={currentMessage}
         ref={ckEditorRef}
-        editor={getCkCommentEditor(forumTypeSetting.get())}
+        editor={getCkCommentEditor()}
         isCollaborative={false}
         onChange={(_event, editor: Editor) => {
           // debouncedValidateEditor(editor.model.document)
