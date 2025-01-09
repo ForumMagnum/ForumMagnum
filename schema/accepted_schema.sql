@@ -1274,7 +1274,7 @@ CREATE TABLE "MultiDocuments" (
   "preview" TEXT,
   "tabTitle" TEXT NOT NULL,
   "tabSubtitle" TEXT,
-  "userId" TEXT NOT NULL,
+  "userId" VARCHAR(27) NOT NULL,
   "parentDocumentId" TEXT NOT NULL,
   "collectionName" TEXT NOT NULL,
   "fieldName" TEXT NOT NULL,

@@ -1,5 +1,5 @@
 import { getUnusedSlugByCollectionName, slugIsUsed } from "@/lib/helpers";
-import { resolverOnlyField, accessFilterSingle, schemaDefaultValue } from "@/lib/utils/schemaUtils";
+import { resolverOnlyField, accessFilterSingle, schemaDefaultValue, foreignKeyField } from "@/lib/utils/schemaUtils";
 import { getCollection } from "@/lib/vulcan-lib/getCollection";
 import { arbitalLinkedPagesField } from '../helpers/arbitalLinkedPagesField';
 import { summariesField } from "../helpers/summariesField";
@@ -112,12 +112,19 @@ const schema: SchemaType<"MultiDocuments"> = {
     order: 20,
   },
   userId: {
-    type: String,
+    ...foreignKeyField({
+      idFieldName: "userId",
+      resolverName: "user",
+      collectionName: "Users",
+      type: "User",
+      nullable: true,
+    }),
     canRead: ['guests'],
     canCreate: ['members'],
     hidden: true,
     nullable: false,
     optional: true,
+    onCreate: ({currentUser}) => currentUser!._id,
   },
   parentDocumentId: {
     type: String,
