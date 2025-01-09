@@ -10,6 +10,7 @@ declare global {
     userId?: string
     wikiGrade?: string
     slug?: string
+    slugs?: string[]
     tagFlagId?: string
     parentTagId?: string
     tagId?: string
@@ -96,6 +97,17 @@ Tags.addView('tagBySlug', (terms: TagsViewTerms) => {
     selector: {
       $or: [{slug: terms.slug}, {oldSlugs: terms.slug}],
       adminOnly: viewFieldAllowAny,
+      wikiOnly: viewFieldAllowAny,
+      deleted: false,
+    },
+  };
+});
+ensureIndex(Tags, {deleted: 1, slug:1, oldSlugs: 1});
+
+Tags.addView('tagsBySlugs', (terms: TagsViewTerms) => {
+  return {
+    selector: {
+      $or: [{slug: {$in: terms.slugs}}, {oldSlugs: {$in: terms.slugs}}],
       wikiOnly: viewFieldAllowAny,
       deleted: false,
     },

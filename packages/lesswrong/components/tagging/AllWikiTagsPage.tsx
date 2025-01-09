@@ -14,8 +14,8 @@ import { Configure, SearchBox, connectStateResults } from 'react-instantsearch-d
 import { getSearchIndexName, getSearchClient } from '../../lib/search/searchUtil';
 import { useSingle } from '@/lib/crud/withSingle';
 import { ArbitalLogo } from '../icons/ArbitalLogo';
-import { gql, useQuery } from '@apollo/client';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
+import { useMulti } from '@/lib/crud/withMulti';
 
 const ARBITAL_GREEN_DARK = "#004d40"
 
@@ -223,15 +223,6 @@ const prioritySlugs = [
   'world-optimization', 'practical', 'community', 'site-meta'
 ] as const;
 
-const tagsBySlugsQuery = gql`
-  query TagsBySlugs($slugs: [String!]!) {
-    TagsBySlugs(slugs: $slugs) {
-      ...ConceptItemFragment
-    }
-  }
-  ${fragmentTextForQuery('ConceptItemFragment')}
-`;
-
 const ArbitalRedirectNotice = ({ classes, onDismiss }: {
   classes: ClassesType,
   onDismiss: () => void,
@@ -276,16 +267,20 @@ const AllWikiTagsPage = () => {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
 
-  const { data: priorityTagsRaw } = useQuery(tagsBySlugsQuery, {
-    variables: { slugs: prioritySlugs },
+  const { results: priorityTagsRaw } = useMulti({
+    collectionName: "Tags",
+    fragmentName: "ConceptItemFragment",
+    terms: { 
+      view: "tagsBySlugs",
+      slugs: prioritySlugs as unknown as string[] 
+    },
+    fetchPolicy: 'cache-and-network',
     ssr: true,
   });
 
-
-  // Only filter and process priority tags once the data is loaded
   const priorityTags = useMemo(() => {
-    if (!priorityTagsRaw?.TagsBySlugs) return [];
-    const tags = filterNonnull(priorityTagsRaw.TagsBySlugs);
+    if (!priorityTagsRaw) return [];
+    const tags = filterNonnull(priorityTagsRaw);
     if (!tags.length) return [];
     
     return [...tags].sort((a: ConceptItemFragment, b: ConceptItemFragment) => {

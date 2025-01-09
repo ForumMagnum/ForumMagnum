@@ -262,23 +262,8 @@ class TagsRepo extends AbstractRepo<"Tags"> {
 
     return { tags, totalCount };
   }
-
-  /**
-   * Fetch tags by slugs
-   */
-  async getTagsBySlugs(slugs: string[], limit: number): Promise<DbTag[]> {
-    return this.getRawDb().any(`
-      -- TagsRepo.getTagsBySlug
-      SELECT * FROM "Tags" 
-      WHERE ("slug" = ANY($1) OR "oldSlugs" && $1)
-        AND "deleted" IS FALSE
-      ORDER BY "baseScore" DESC
-      LIMIT $2
-    `, [slugs, limit]);
-  }
 }
 
 recordPerfMetrics(TagsRepo);
 
 export default TagsRepo;
-

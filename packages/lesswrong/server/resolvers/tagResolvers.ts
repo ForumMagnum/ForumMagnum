@@ -578,13 +578,3 @@ defineQuery({
     return { tags, totalCount };
   },
 });
-
-defineQuery({
-  name: "TagsBySlugs",
-  resultType: "[Tag!]!",
-  argTypes: "(slugs: [String!]!)",
-  fn: async (_root: void, { slugs }: { slugs: string[] }, context: ResolverContext) => {
-    const limit = 50;
-    return context.repos.tags.getTagsBySlugs(slugs, limit);
-  },
-});
