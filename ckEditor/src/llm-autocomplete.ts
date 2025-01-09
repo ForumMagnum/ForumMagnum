@@ -163,14 +163,11 @@ async function handleStream(stream: ReadableStream, onMessage: (message: any) =>
     const reader = stream.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
-    let loopIsGoing = true
 
-    while (loopIsGoing) {
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
         const { done, value } = await reader.read();
-        if (done) {
-          loopIsGoing = false;
-          break;
-        };
+        if (done) break;
 
         buffer += decoder.decode(value, { stream: true });
         
