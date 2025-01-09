@@ -1,10 +1,11 @@
 import Users from "@/lib/collections/users/collection";
-import { addField, dropField } from "./meta/utils";
+import { addRemovedField, dropRemovedField } from "./meta/utils";
+import { BoolType } from "../sql/Type";
 
 export const up = async ({db}: MigrationContext) => {
-  await addField(db, Users, "givingSeason2024VotedFlair");
+  await addRemovedField(db, Users, "givingSeason2024VotedFlair", new BoolType());
 }
 
 export const down = async ({db}: MigrationContext) => {
-  await dropField(db, Users, "givingSeason2024VotedFlair");
+  await dropRemovedField(db, Users, "givingSeason2024VotedFlair");
 }
