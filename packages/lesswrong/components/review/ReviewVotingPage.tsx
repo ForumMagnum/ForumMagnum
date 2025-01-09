@@ -19,6 +19,8 @@ import {tagStyle} from '@/components/tagging/FooterTag.tsx'
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { Link } from '@/lib/reactRouterWrapper';
 import { sortingInfo } from './ReviewVotingPageMenu';
+import { useCommentBox } from '../hooks/useCommentBox';
+import { useDialog } from '../common/withDialog';
 
 const isAF = forumTypeSetting.get() === 'AlignmentForum'
 
@@ -111,7 +113,8 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
   const currentUser = useCurrentUser()
   const { captureEvent } = useTracking({eventType: "reviewVotingEvent"})
   const { query } = useLocation()
-
+  const { openCommentBox } = useCommentBox();
+  const { openDialog } = useDialog();
 
   let reviewPhase = getReviewPhase(reviewYear)
   if (query.phase) {
@@ -360,6 +363,13 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
     if (expandedPost?._id === post._id) {
       setExpandedPost(null)
     } else {
+      // this component requires a currentUser so we don't need to do a login check
+      openCommentBox({
+        componentName: "ReviewPostForm",
+        componentProps: {
+          post: post
+        }
+      });
       setExpandedPost(post)
     }
   }
