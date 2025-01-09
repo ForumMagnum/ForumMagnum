@@ -272,7 +272,7 @@ const AllWikiTagsPage = () => {
     fragmentName: "ConceptItemFragment",
     terms: { 
       view: "tagsBySlugs",
-      slugs: prioritySlugs as unknown as string[] 
+      slugs: [...prioritySlugs]
     },
     fetchPolicy: 'cache-and-network',
     ssr: true,

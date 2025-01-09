@@ -111,7 +111,7 @@ const WikiTagGroup = ({
   const columns: ConceptItemFragment[][] = splitItemsIntoColumns(pages, MAX_ITEMS_PER_COLUMN);
 
   const loadMore = () => {
-    const newLimit = limit * 2;
+    const newLimit = Math.min(limit * 2, limit + 200);
     void fetchMore({
       variables: {
         parentTagId,

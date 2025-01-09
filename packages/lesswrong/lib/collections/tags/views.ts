@@ -113,7 +113,6 @@ Tags.addView('tagsBySlugs', (terms: TagsViewTerms) => {
     },
   };
 });
-ensureIndex(Tags, {deleted: 1, slug:1, oldSlugs: 1});
 
 Tags.addView('coreTags', (terms: TagsViewTerms) => {
   return {
