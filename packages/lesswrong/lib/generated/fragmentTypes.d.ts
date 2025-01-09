@@ -2861,6 +2861,7 @@ interface ConceptItemFragment { // fragment on Tags
   readonly isArbitalImport: boolean|null,
   readonly coreTagId: string|null,
   readonly maxScore: number|null,
+  readonly usersWhoLiked: any,
 }
 
 interface ConceptItemFragment_description { // fragment on Revisions

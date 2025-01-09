@@ -16,6 +16,8 @@ import { preferredHeadingCase } from '../../../themes/forumTheme';
 import { getUnusedSlugByCollectionName, slugIsUsed } from '@/lib/helpers';
 import { arbitalLinkedPagesField } from '../helpers/arbitalLinkedPagesField';
 import { summariesField } from '../helpers/summariesField';
+import uniqBy from 'lodash/uniqBy';
+import { LikesList } from '@/lib/voting/reactionsAndLikes';
 
 addGraphQLSchema(`
   type TagContributor {
@@ -28,6 +30,10 @@ addGraphQLSchema(`
   type TagContributorsList {
     contributors: [TagContributor!]
     totalCount: Int!
+  }
+  type UserLikingTag {
+    _id: String!
+    displayName: String!
   }
 `);
 
@@ -800,20 +806,54 @@ const schema: SchemaType<"Tags"> = {
       const tagScore = tag.baseScore || 0;
 
       // Get multidocuments' baseScores
-      const multiDocuments = await MultiDocuments.find(
-        { parentDocumentId: tag._id, collectionName: 'Tags' },
-        { projection: { baseScore: 1 } }
-      ).fetch();
+      const multiDocuments = await getWithLoader(
+        context,
+        MultiDocuments,
+        'multiDocuments',
+        { collectionName: 'Tags', fieldName: 'description' },
+        'parentDocumentId',
+        tag._id,
+        {projection: {baseScore: 1, extendedScore: 1}}
+      )
 
       const multiDocScores = multiDocuments.map(md => md.baseScore || 0);
-
-      // Combine scores and find the maximum
       const allScores = [tagScore, ...multiDocScores];
       const maxScore = Math.max(...allScores);
 
       return maxScore;
     },
   }),
+
+  usersWhoLiked: resolverOnlyField({
+    type: Array,
+    graphQLtype: '[UserLikingTag!]!',
+    canRead: ['guests'],
+    resolver: async (tag, args, context): Promise<LikesList> => {
+      const { MultiDocuments } = context;
+
+      const multiDocuments = await getWithLoader(
+        context,
+        MultiDocuments,
+        'multiDocuments',
+        { collectionName: 'Tags', fieldName: 'description' },
+        'parentDocumentId',
+        tag._id,
+        {projection: {baseScore: 1, extendedScore: 1}}
+      );
+
+      const tagUsersWhoLiked: LikesList = tag.extendedScore?.usersWhoLiked || [];
+      const multiDocUsersWhoLiked: LikesList = multiDocuments.flatMap(md => md.extendedScore?.usersWhoLiked || []);
+      const usersWhoLiked: LikesList = uniqBy(tagUsersWhoLiked.concat(multiDocUsersWhoLiked), '_id');
+      return usersWhoLiked;
+    },
+  }),
+  'usersWhoLiked.$': {
+    type: new SimpleSchema({
+      _id: { type: String },
+      displayName: { type: String },
+    }),
+    optional: true,
+  },
 }
 
 export default schema;
@@ -826,3 +866,33 @@ export const wikiGradeDefinitions: Partial<Record<number,string>> = {
   4: "B-Class",
   5: "A-Class"
 }
+
+
+  //   type: Array,
+  //   resolveAs: {
+  //     fieldName: 'usersWhoLiked',
+  //     type: '[UserLikingTag!]!',
+  //     resolver: async (tag, args, context): Promise<LikesList> => {
+  //       const { MultiDocuments } = context;
+
+  //       const multiDocuments = await getWithLoader(
+  //         context,
+  //         MultiDocuments,
+  //         'multiDocuments',
+  //         { collectionName: 'Tags', fieldName: 'description' },
+  //         'parentDocumentId',
+  //         tag._id,
+  //         {projection: {baseScore: 1, extendedScore: 1}}
+  //       );
+
+  //       const tagUsersWhoLiked: LikesList = tag.extendedScore?.usersWhoLiked || [];
+  //       const multiDocUsersWhoLiked: LikesList = multiDocuments.flatMap(md => md.extendedScore?.usersWhoLiked || []);
+  //       const usersWhoLiked: LikesList = uniqBy(tagUsersWhoLiked.concat(multiDocUsersWhoLiked), '_id');
+  //       return usersWhoLiked;
+  //     },
+  //     // addOriginalField: true,
+  //   },
+  //   canRead: ['guests'],
+  //   optional: true,
+  //   nullable: true,
+  // },

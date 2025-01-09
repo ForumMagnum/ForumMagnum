@@ -206,6 +206,7 @@ const uncategorizedRootTag = {
   postCount: 0,
   baseScore: 0,
   maxScore: 0,
+  usersWhoLiked: [],
   coreTagId: null,
   parentTagId: null,
   isArbitalImport: false,

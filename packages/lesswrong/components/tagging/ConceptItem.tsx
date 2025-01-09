@@ -145,6 +145,12 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     marginLeft: 8,
   },
   tooltipHoverPostCount: {},
+  tooltipHoverTitle: {
+    marginLeft: 16
+  },
+  tooltipHoverScore: {
+    marginRight: 8
+  },
   arbitalIcon: {
     height: 10,
     width: 10,
@@ -172,9 +178,8 @@ const ConceptItem = ({
 
   const { TagsTooltip, LWTooltip } = Components;
 
-  const usersWhoLiked: LikesList = voteProps.document?.extendedScore?.usersWhoLiked ?? [];
-  const likeCount = usersWhoLiked.length;
-  const baseScore = voteProps.document?.baseScore ?? 0;
+  const usersWhoLiked = wikitag.usersWhoLiked ?? [];
+  const maxScore = wikitag.maxScore ?? 0;
 
   const titleItem = (
     <div className={classes.titleItem}>
@@ -196,18 +201,32 @@ const ConceptItem = ({
     </div>
   );
 
+  const usersWhoLikedTooltip = <div>
+    <div><i>Users who like this wikitag</i></div>
+    <div>{usersWhoLiked.slice(0, 10).map((user: { displayName: string }) => user.displayName).join(', ')}
+    {usersWhoLiked.length > 10 && <span> and {usersWhoLiked.length - 10} more</span>}</div>
+  </div>
+
   const regularItem = (
     <div
       className={classes.item}
     >
       <div className={classes.leftSideItems}>
-        <div className={classes.maxScore}>{wikitag.maxScore || 0}</div>
+        <LWTooltip
+          title={usersWhoLikedTooltip}
+          disabled={usersWhoLiked.length === 0}
+          placement='bottom-end'
+          popperClassName={classes.tooltipHoverScore}
+        >
+          <div className={classes.maxScore}>{maxScore}</div>
+        </LWTooltip>
         <div className={classes.title}>
           <TagsTooltip
             tagSlug={wikitag.slug}
             noPrefetch
-            previewPostCount={0}
-            placement='right-start'
+            previewPostCount={wikitag.description?.wordCount && wikitag.description?.wordCount > 0 ? 0 : 8}
+            placement='bottom-start'
+            popperClassName={classes.tooltipHoverTitle}
           >
             <span className={classNames(classes.titleText, { [classes.arbitalGreenColor]: wikitag.isArbitalImport && showArbitalIcon })}>
               <Link to={tagGetUrl({slug: wikitag.slug})}>
