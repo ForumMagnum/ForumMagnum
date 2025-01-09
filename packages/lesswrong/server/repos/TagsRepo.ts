@@ -237,6 +237,10 @@ class TagsRepo extends AbstractRepo<"Tags"> {
       whereClauses.push(`t_child."_id" = ANY($(searchTagIds))`);
     }
 
+    const whereClause = whereClauses.length > 0
+      ? `WHERE ${whereClauses.join(' AND ')}`
+      : '';
+
     const query = `
       -- TagsRepo.getTagsByParentTagId
       SELECT
@@ -248,7 +252,7 @@ class TagsRepo extends AbstractRepo<"Tags"> {
         AND acr."type" = 'parent-is-tag-of-child'
         AND acr."parentCollectionName" = 'Tags'
         AND acr."childCollectionName" = 'Tags'
-      ${whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : ''}
+      ${whereClause}
       ORDER BY t_child."baseScore" DESC, t_child."name" ASC
       LIMIT $(limit)
     `;
