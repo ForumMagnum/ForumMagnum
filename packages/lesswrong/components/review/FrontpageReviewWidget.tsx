@@ -325,12 +325,12 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, cl
     {currentUser && currentUser.karma >= 1000 && <span className={classes.reviewProgressBar}>
       <ReviewProgressReviews reviewYear={reviewYear}/>
     </span>}
-    <LWTooltip title="A detailed view of all nominated posts">
+    <LWTooltip title="A detailed view of all nominated posts (sorted by Nomination Vote results)">
       <Link to={"/reviewVoting"} className={classes.actionButton}>
         Advanced Review
       </Link>
     </LWTooltip>
-    <LWTooltip title="Write a detailed review exploring many nominated posts">
+    <LWTooltip title="Write a detailed review, exploring nominated posts more comprehensively.">
       <Link to={`/newPost?tagId=${longformReviewTagId}`} className={classNames(classes.actionButton, classes.actionButtonSecondaryCTA)}>
         Longform Review
       </Link>
