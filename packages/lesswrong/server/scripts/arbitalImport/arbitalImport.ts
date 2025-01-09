@@ -74,6 +74,13 @@ type ArbitalImportOptions = {
 }
 const defaultArbitalImportOptions: ArbitalImportOptions = {};
 
+const excludedArbitalPageIds = [
+  // Rationality
+  // This is a stub on the Arbital side, and an important core tag whose tag ID
+  // appears all over the place on the LW side
+  '9l',
+];
+
 async function connectAndLoadArbitalDatabase(mysqlConnectionString: string): Promise<WholeArbitalDatabase> {
   let connection: mysql.Connection | null = null;
 
@@ -440,7 +447,9 @@ async function findCollidingWikiPages(database: WholeArbitalDatabase): Promise<{
   const pagesToConvertToLenses: PagesToConvertToLenses = [];
 
   const pagesById = groupBy(database.pages, p=>p.pageId);
-  const wikiPageIds = database.pageInfos.filter(pi => pi.type === "wiki").map(pi=>pi.pageId);
+  const wikiPageIds = database.pageInfos
+    .filter(pi => pi.type === "wiki" && !excludedArbitalPageIds.includes(pi.pageId))
+    .map(pi=>pi.pageId);
 
   // Find wiki pages that were previously moved out of the way by a previous
   // Arbital import, which should be converted to lenses again
@@ -648,7 +657,7 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
         if (pagesById[p]) return p;
         throw new Error(`Page title not found: ${p}`)
       })
-    : Object.keys(liveRevisionsByPageId).filter(pageId => !lensIds.has(pageId))
+    : Object.keys(liveRevisionsByPageId).filter(pageId => !lensIds.has(pageId) && !excludedArbitalPageIds.includes(pageId))
   console.log(`Importing ${pageIdsToImport.length} pages`)
 
   console.log("Importing pages with ids:", pageIdsToImport);
