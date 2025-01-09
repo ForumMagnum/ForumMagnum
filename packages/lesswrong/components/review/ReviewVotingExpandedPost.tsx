@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   postTitle: {
     ...postPageTitleStyles(theme),
     display: "block",
-    marginBottom: 12
+    marginBottom: 36
   },
   writeAReview: {
     paddingTop: 12,
