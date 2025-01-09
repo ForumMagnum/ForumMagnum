@@ -70,6 +70,9 @@ const TagDiscussionButton = ({tag, text = "Discussion", hideLabel = false, hideL
   const hideLabelOnMobileClass = hideLabelOnMobile ? classes.hideOnMobile : undefined;
 
   const discussionCountClass = hideLabel ? classes.discussionCountWithoutLabel : classes.discussionCount;
+
+  // We want to avoid a flickering popper appearing and disappearing if the user hovers over the button when we already know there aren't any comments.
+  const showDiscussionPopper = hover && (loading || (totalCount ?? 0) > 0);
   
   return <Link
     className={classes.discussionButton}
@@ -79,7 +82,7 @@ const TagDiscussionButton = ({tag, text = "Discussion", hideLabel = false, hideL
     <CommentOutlinedIcon className={classes.discussionButtonIcon} />
     <span className={classNames(hideLabelClass, hideLabelOnMobileClass)}>{text}</span>
     {!loading && <span className={discussionCountClass}>&nbsp;{`(${totalCount || 0})`}</span>}
-    <PopperCard open={hover} anchorEl={anchorEl} placement="bottom-start" >
+    <PopperCard open={showDiscussionPopper} anchorEl={anchorEl} placement="bottom-start" >
       <TagDiscussion tag={tag}/>
     </PopperCard>
   </Link>

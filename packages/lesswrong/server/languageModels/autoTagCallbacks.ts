@@ -305,7 +305,10 @@ export async function getTagBotUserId(context: ResolverContext): Promise<string|
 }
 
 export async function getAutoAppliedTags(): Promise<DbTag[]> {
-  return await Tags.find({ autoTagPrompt: {$exists: true, $ne: ""} }).fetch();
+  return await Tags.find({
+    autoTagPrompt: {$exists: true, $ne: ""},
+    deleted: false,
+  }).fetch();
 }
 
 async function autoReview(post: DbPost, context: ResolverContext): Promise<void> {

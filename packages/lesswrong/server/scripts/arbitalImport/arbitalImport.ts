@@ -31,6 +31,7 @@ import { performVoteServer } from '@/server/voteServer';
 import { Votes } from '@/lib/collections/votes';
 import mapValues from 'lodash/mapValues';
 import flatMap from 'lodash/flatMap';
+import { updatePostDenormalizedTags } from '@/server/tagging/helpers';
 
 type ArbitalImportOptions = {
   /**
@@ -172,6 +173,7 @@ type CreateSummariesForPageArgs = {
   pageId: string;
   importedRecordMaps: ImportedRecordMaps;
   pageCreator: DbUser | null;
+  liveRevision: PagesRow;
   resolverContext: ResolverContext;
   conversionContext: ArbitalConversionContext;
 } & ({
@@ -180,7 +182,7 @@ type CreateSummariesForPageArgs = {
   lensMultiDocumentId: string;
 })
 
-async function createSummariesForPage({ pageId, importedRecordMaps, pageCreator, conversionContext, resolverContext, ...parentIdArg }: CreateSummariesForPageArgs) {
+async function createSummariesForPage({ pageId, importedRecordMaps, pageCreator, conversionContext, liveRevision, resolverContext, ...parentIdArg }: CreateSummariesForPageArgs) {
   const { summariesByPageId } = importedRecordMaps;
   const topLevelPageSummaries = summariesByPageId[pageId] ?? [];
   topLevelPageSummaries.sort((a, b) => summaryNameToSortOrder(a.name) - summaryNameToSortOrder(b.name));
@@ -231,7 +233,12 @@ async function createSummariesForPage({ pageId, importedRecordMaps, pageCreator,
       currentUser: pageCreator,
       validate: false,
     })).data;
-    // TODO: Import summaries history and back-date objects
+
+    await Promise.all([
+      backDateObj(MultiDocuments, summaryObj._id, liveRevision.createdAt),
+      backDateRevision(summaryObj.contents_latest!, liveRevision.createdAt),
+    ]);
+    // TODO: Import summaries history?
   }
 }
 
@@ -501,19 +508,28 @@ async function renameCollidingWikiPages(existingPagesToMove: Array<{
   lwWikiPageSlug: string
   newSlug: string
 }>): Promise<void> {
+  // Rename existing wiki pages to slugs starting with lwwiki-old-, and mark them as deleted
   await executePromiseQueue(
     existingPagesToMove.map(({lwWikiPageSlug, newSlug}) => {
       return async () => {
         return Tags.rawUpdateOne(
           {slug: lwWikiPageSlug},
           {$set: {
-            slug: newSlug
+            slug: newSlug,
+            deleted: true,
           }}
         );
       }
     }),
     10
   );
+  
+  // Ensure any previously-moved pages are marked as deleted
+  await runSqlQuery(`
+    UPDATE "Tags"
+    SET deleted=true
+    WHERE slug LIKE 'lwwiki-old-%'
+  `);
 }
 
 async function buildConversionContext(database: WholeArbitalDatabase, pagesToConvertToLenses: PagesToConvertToLenses, options: ArbitalImportOptions): Promise<ArbitalConversionContext> {
@@ -741,6 +757,7 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
         importedRecordMaps,
         conversionContext,
         pageCreator,
+        liveRevision,
         resolverContext,
         tagId: wiki._id,
       });
@@ -887,6 +904,7 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
           importedRecordMaps,
           conversionContext,
           pageCreator,
+          liveRevision: lensLiveRevision,
           resolverContext,
           lensMultiDocumentId: lensObj._id,
         });
@@ -905,7 +923,7 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
           documentId: lwWikiPage._id,
           fieldName: "description",
           collectionName: "Tags",
-        }).fetch();
+        }, { sort: { editedAt: 1} }).fetch();
         if (!lwWikiPageRevisions.length) {
           return;
         }
@@ -932,6 +950,15 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
           validate: false,
         })).data;
 
+        // Backdate the lens and the automatically-created revision to the
+        // timestamp of the earliest revision on the LW wiki page, minus one second (to avoid potential ordering issues with the copied-over revisions)
+        const earliestRevisionTimestamp = new Date(lwWikiPageRevisions[0].createdAt.getTime() - 1000);
+
+        await Promise.all([
+          backDateObj(MultiDocuments, lwWikiLens._id, earliestRevisionTimestamp),
+          backDateRevision(lwWikiLens.contents_latest!, earliestRevisionTimestamp),
+        ]);
+
         // Clone revisions on the LW wiki page as revisions on the lens
         for (const lwWikiPageRevision of lwWikiPageRevisions) {
           const { _id, ...fieldsToCopy } = lwWikiPageRevision;
@@ -951,6 +978,7 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
           "legacyData.mergedLWTagId": lwWikiPage._id,
           deleted: true,
         }).fetch()).map(t=>t._id);
+        await moveFieldsOnMergedPage({lwWikiPage, mergedPage: wiki});
         await moveReferencesToMergedPage({
           oldTagIds: [lwWikiPage._id, ...oldMergedTagIds],
           newTagId: wiki._id,
@@ -1397,6 +1425,33 @@ async function loadUserMatching(csvFilename: string): Promise<Record<string,DbUs
   return result;
 }
 
+async function moveFieldsOnMergedPage({lwWikiPage, mergedPage}: {
+  lwWikiPage: DbTag
+  mergedPage: DbTag
+}) {
+  const fieldsToCopy: Array<keyof DbTag> = [
+    // Contentful fields
+    "core", "suggestedAsFilter", "defaultOrder", "descriptionTruncationCount", "adminOnly",
+    "canEditUserIds", "needsReview", "reviewedByUserId", "wikiGrade", "postsDefaultSortOrder",
+    "canVoteOnRels", "autoTagModel", "autoTagPrompt", "noindex",
+
+    // Denormalized fields
+    "postCount", "lastCommentedAt", "lastSubforumCommentAt"
+
+    // EA Forum-only fields
+    // isSubforum, subforumModeratorIds, subforumIntroPostId, 
+
+    // Dead fields
+    // charsAdded, charsRemoved, introSequenceId
+  ];
+  
+  await Tags.rawUpdateOne(
+    {_id: mergedPage._id},
+    {$set: Object.fromEntries(fieldsToCopy.map(fieldName => [fieldName, lwWikiPage[fieldName]]))
+    }
+  );
+}
+
 async function moveReferencesToMergedPage({oldTagIds, newTagId}: {
   oldTagIds: string[]
   newTagId: string
@@ -1419,8 +1474,19 @@ async function moveReferencesToMergedPage({oldTagIds, newTagId}: {
   await redirectTagReferences("Subscriptions", "documentId");
   
   // TODO: Rewrite user tag filters?
-}
+  
+  // Rewrite tagRelevance on posts that reference any redirect tags
+  const postIdsToRecomputeTagRelevance = (await runSqlQuery(`
+    SELECT _id
+    FROM "Posts"
+    WHERE "tagRelevance" ?| $1
+  `, [oldTagIds])).map(row => row._id);
+  console.log(`Rewriting tagRelevance on ${postIdsToRecomputeTagRelevance} posts`);
 
+  await executePromiseQueue(postIdsToRecomputeTagRelevance.map((postId) => async () => {
+    await updatePostDenormalizedTags(postId)
+  }), 5);
+}
 
 /**
  * Load accounts from the Arbital DB, match them by email address to LW

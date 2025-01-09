@@ -116,11 +116,17 @@ const styles = defineStyles("LensTab", (theme: ThemeType) => ({
       marginBottom: 1,
     },
   },
+  deletedLens: {
+    textDecoration: 'line-through',
+  },
+  newLensIcon: {
+    alignSelf: 'center',
+  },
 }));
 
 const LensTabBar = ({lenses, selectedLens, switchLens}: {
-  lenses: TagLens[]
-  selectedLens: TagLens|undefined
+  lenses: TagLens[],
+  selectedLens: TagLens|undefined,
   switchLens: (lensId: string) => void,
 }) => {
   const classes = useStyles(styles);
@@ -156,8 +162,8 @@ const LensTab = ({ lens, value, isSelected, ...tabProps }: {
   if (!lens) return null;
 
   const label = <div key={lens._id} className={classes.lensLabel}>
-    <span className={classes.lensTitle}>{lens.tabTitle}</span>
-    {lens.tabSubtitle && <span className={classes.lensSubtitle}>{lens.tabSubtitle}</span>}
+    <span className={classNames(classes.lensTitle, lens.deleted && classes.deletedLens)}>{lens.tabTitle}</span>
+    {lens.tabSubtitle && <span className={classNames(classes.lensSubtitle, lens.deleted && classes.deletedLens)}>{lens.tabSubtitle}</span>}
     <TagOrLensLikeButton lens={lens} />
   </div>;
   

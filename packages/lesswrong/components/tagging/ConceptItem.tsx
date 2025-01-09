@@ -84,7 +84,6 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     marginTop: 0,
   },
   titleItemRoot: {
-    // marginBottom: 24,
   },
   titleItem: {
     backgroundColor: "unset",

@@ -511,13 +511,17 @@ const PostsListHeading: FC<{
   );
 }
 
-const EditLensForm = ({lens, setFormDirty}: {
+const EditLensForm = ({lens, successCallback, changeCallback, cancelCallback}: {
   lens: TagLens,
-  setFormDirty: (dirty: boolean) => void,
+  successCallback: () => Promise<void>,
+  changeCallback: () => void,
+  cancelCallback: () => void,
 }) => {
   const { WrappedSmartForm } = Components;
+  const [mountKey, setMountKey] = useState(0);
+
   return <WrappedSmartForm
-    key={lens._id}
+    key={lens._id + mountKey}
     collectionName="MultiDocuments"
     documentId={lens._id}
     queryFragmentName="MultiDocumentEdit"
@@ -525,9 +529,9 @@ const EditLensForm = ({lens, setFormDirty}: {
     {...(lens.originalLensDocument ? { prefetchedDocument: lens.originalLensDocument } : {})}
     addFields={['summaries']}
     warnUnsavedChanges={true}
-    changeCallback={() => {
-      setFormDirty(true);
-    }}
+    successCallback={() => successCallback().then(() => setMountKey(mountKey + 1))}
+    changeCallback={changeCallback}
+    cancelCallback={cancelCallback}
   />
 }
 
@@ -926,7 +930,7 @@ const TagPage = () => {
   const contributorsLimit = 16;
 
   const { tagFragmentName, tagQueryOptions } = getTagQueryOptions(revision, lensSlug, contributorsLimit);
-  const { tag, loadingTag, tagError, lens, loadingLens } = useTagOrLens(slug, tagFragmentName, tagQueryOptions);
+  const { tag, loadingTag, tagError, refetchTag, lens, loadingLens } = useTagOrLens(slug, tagFragmentName, tagQueryOptions);
 
   const [truncated, setTruncated] = useState(false)
   const [hoveredContributorId, setHoveredContributorId] = useState<string|null>(null);
@@ -1109,7 +1113,7 @@ const TagPage = () => {
           tag={tag}
           warnUnsavedChanges={true}
           successCallback={async () => {
-            setEditing(false);
+            setEditing(false, false);
             await client.resetStore();
           }}
           cancelCallback={() => setEditing(false)}
@@ -1120,7 +1124,15 @@ const TagPage = () => {
   } else if (selectedLens) {
     editForm = (
       <span className={classNames(classes.unselectedEditForm, editing && classes.selectedEditForm)}>
-        <EditLensForm lens={selectedLens} setFormDirty={setFormDirty} />
+        <EditLensForm
+          lens={selectedLens}
+          successCallback={async () => {
+            setEditing(false, false);
+            await refetchTag();
+          }}
+          changeCallback={() => setFormDirty(true)}
+          cancelCallback={() => setEditing(false)}
+        />
       </span>
     );
   }
@@ -1255,9 +1267,17 @@ const TagPage = () => {
       />}
       <div className={classes.titleRow}>
         <Typography variant="display3" className={classes.title}>
-          {tag.deleted ? "[Deleted] " : ""}{displayedTagTitle}
+          {selectedLens?.deleted ? "[Deleted] " : ""}{displayedTagTitle}
         </Typography>
-        <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} hideLabels={true} className={classNames(classes.editMenu, classes.mobileButtonRow)} />
+        <TagPageButtonRow
+          tag={tag}
+          editing={editing}
+          setEditing={setEditing}
+          hideLabels={true}
+          className={classNames(classes.editMenu, classes.mobileButtonRow)}
+          refetchTag={refetchTag}
+          updateSelectedLens={updateSelectedLens}
+        />
         {!tag.wikiOnly && !editing && userHasNewTagSubscriptions(currentUser) &&
           <SubscribeButton
             tag={tag}
@@ -1365,6 +1385,8 @@ const TagPage = () => {
         setEditing={setEditing}
         hideLabels={true}
         className={classNames(classes.editMenu, classes.nonMobileButtonRow)}
+        refetchTag={refetchTag}
+        updateSelectedLens={updateSelectedLens}
       />
       {isFriendlyUI ? originalToc : multiColumnToc}
     </div>

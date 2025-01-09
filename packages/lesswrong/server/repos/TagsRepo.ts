@@ -107,12 +107,15 @@ class TagsRepo extends AbstractRepo<"Tags"> {
       )
       SELECT DISTINCT ON (t._id)
         t.*,
+        -- This is to ensure that Apollo doesn't accidentally clobber a lens if we return an _id that belongs to a tag it already has cached
+        COALESCE(t.md_id, t._id) AS _id,
         ARRAY_AGG(TO_JSONB(md.*)) OVER (PARTITION BY t._id) as summaries
       FROM matching_tags t
       LEFT JOIN "MultiDocuments" md
       ON (
-        md."parentDocumentId" = COALESCE(t.md_id, t._id)
+        md."parentDocumentId" = t."_id"
         AND md."fieldName" = 'summary'
+        AND md."deleted" IS FALSE
       )
       -- TODO: figure out a more principled fix for the problem we can have multiple tags or lenses with the same slug/oldSlugs
       LIMIT 1
@@ -205,7 +208,7 @@ class TagsRepo extends AbstractRepo<"Tags"> {
     searchTagIds?: string[]
   ): Promise<{ tags: DbTag[]; totalCount: number }> {
     const whereClauses: string[] = [];
-    const queryParams: Record<string, any> = {
+    const queryParams: Record<string, SqlQueryArg> = {
       limit,
     };
 
@@ -237,6 +240,10 @@ class TagsRepo extends AbstractRepo<"Tags"> {
       whereClauses.push(`t_child."_id" = ANY($(searchTagIds))`);
     }
 
+    const whereClause = whereClauses.length > 0
+      ? `WHERE ${whereClauses.join(' AND ')}`
+      : '';
+
     const query = `
       -- TagsRepo.getTagsByParentTagId
       SELECT
@@ -259,7 +266,7 @@ class TagsRepo extends AbstractRepo<"Tags"> {
           AND md."collectionName" = 'Tags'
           AND md."fieldName" = 'description'
       ) md ON TRUE
-      ${whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : ''}
+      ${whereClause}
       ORDER BY "maxScore" DESC, t_child."name" ASC
       LIMIT $(limit)
     `;
@@ -276,23 +283,8 @@ class TagsRepo extends AbstractRepo<"Tags"> {
 
     return { tags, totalCount };
   }
-
-  /**
-   * Fetch tags by slugs
-   */
-  async getTagsBySlugs(slugs: string[], limit: number): Promise<DbTag[]> {
-    return this.getRawDb().any(`
-      -- TagsRepo.getTagsBySlug
-      SELECT * FROM "Tags" 
-      WHERE ("slug" = ANY($1) OR "oldSlugs" && $1)
-        AND "deleted" IS FALSE
-      ORDER BY "baseScore" DESC
-      LIMIT $2
-    `, [slugs, limit]);
-  }
 }
 
 recordPerfMetrics(TagsRepo);
 
 export default TagsRepo;
-
