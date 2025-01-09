@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React from 'react';
 
@@ -12,11 +13,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SunshineListTitle = ({children, classes}: {
+const SunshineListTitle = ({children, className, classes}: {
   children: React.ReactNode,
+  className?: string,
   classes: ClassesType,
 }) => {
-  return <Components.Typography variant="body2" className={classes.root}>
+  return <Components.Typography variant="body2" className={classNames(classes.root, className)}>
     { children }
   </Components.Typography>
 };
