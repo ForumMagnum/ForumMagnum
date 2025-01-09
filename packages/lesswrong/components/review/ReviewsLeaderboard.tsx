@@ -79,7 +79,7 @@ export const ReviewsLeaderboard = ({classes, reviews, reviewYear}: {
       user: user,
       totalKarma: userTuple[1].reduce((value, review) => value + review.baseScore - getSelfUpvotePower(user), 0),
       reviews: sortBy(userTuple[1], obj => -obj.baseScore)
-    })}).filter(userRow => userRow !== null)
+    })}).filter((userRow): userRow is ReviewLeaderboardRow => userRow !== null)
 
   const NUM_DEFAULT_REVIEWS = 10
 
