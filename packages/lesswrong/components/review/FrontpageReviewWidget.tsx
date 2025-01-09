@@ -328,7 +328,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, cl
     </LWTooltip>
     <LWTooltip title="A detailed view of all nominated posts">
       <Link to={"/reviewVoting"} className={classes.actionButton}>
-        Advanced Dashboard
+        Advanced Review
       </Link>
     </LWTooltip>
     <LWTooltip title="Find a top unreviewed post, and review it">

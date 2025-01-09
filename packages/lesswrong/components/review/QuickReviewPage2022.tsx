@@ -139,7 +139,6 @@ export const QuickReviewPage2022 = ({classes}: {
         />
       </div>}
       {expandedPost && <ReviewVotingExpandedPost
-        showReviewButton={false}
         post={expandedPost}
         setExpandedPost={setExpandedPost}
       />}

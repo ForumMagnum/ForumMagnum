@@ -29,6 +29,9 @@ const styles = (theme: ThemeType) => ({
   extraIcon: {
     width: 22,
     color: theme.palette.primary.light,
+  },
+  highlightedIcon: {
+    color: theme.palette.primary.main,
   }
 });
 

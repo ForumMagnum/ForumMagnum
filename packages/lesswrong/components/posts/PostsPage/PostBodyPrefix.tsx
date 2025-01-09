@@ -46,10 +46,6 @@ const styles = (theme: ThemeType) => ({
     verticalAlign: "top",
     color: theme.palette.icon.dim2,
   },
-  reviewVoting: {
-    padding: theme.spacing.unit*2,
-    paddingBottom: theme.spacing.unit*6
-  }
 });
 
 const forumNewUserProcessingTime = forumSelect({
@@ -68,9 +64,7 @@ const PostBodyPrefix = ({post, query, classes}: {
   const currentUser = useCurrentUser();
 
   return <>
-    {reviewIsActive() && <div className={classes.reviewVoting}>
-      <PostPageReviewButton post={post} />
-    </div>}
+    {reviewIsActive() && <PostPageReviewButton post={post}/>}
 
     <AlignmentPendingApprovalMessage post={post} />
 

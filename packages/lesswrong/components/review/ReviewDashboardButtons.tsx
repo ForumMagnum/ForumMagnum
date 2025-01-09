@@ -64,7 +64,7 @@ export const ReviewDashboardButtons = ({classes, reviewYear, reviewPhase, showAd
         </LWTooltip>
         {showAdvancedDashboard && <LWTooltip title="Look at reviews, update your votes, and see more detailed info from the Nomination Vote results">
           <Link to={`/reviewVoting/${reviewYear}`}>
-            Advanced Dashboard
+            Advanced Review
           </Link>
         </LWTooltip>}
         {showQuickReview && <LWTooltip title="A simplified review UI">
