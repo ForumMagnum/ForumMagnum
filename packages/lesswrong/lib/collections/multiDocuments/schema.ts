@@ -39,6 +39,7 @@ const schema: SchemaType<"MultiDocuments"> = {
     optional: true,
     nullable: false,
     canRead: ['guests'],
+    // TODO: come back to this and make sure the logic is correct, especially w.r.t. deletion, cross-collection slugs, and multiple lenses having the same title.
     onCreate: async ({ newDocument }) => {
       const basicSlug = slugify(newDocument.title ?? newDocument.tabTitle);
       return await getUnusedSlugByCollectionName('MultiDocuments', basicSlug, true);

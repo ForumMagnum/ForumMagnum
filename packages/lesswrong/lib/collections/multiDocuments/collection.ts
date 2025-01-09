@@ -58,7 +58,7 @@ makeEditable({
   },
 });
 
-MultiDocuments.checkAccess = async (user: DbUser | null, multiDocument: DbMultiDocument, context: ResolverContext | null) => {
+MultiDocuments.checkAccess = async (user: DbUser | null, multiDocument: DbMultiDocument, context: ResolverContext | null, outReasonDenied) => {
   if (userIsAdmin(user)) {
     return true;
   }
@@ -71,7 +71,7 @@ MultiDocuments.checkAccess = async (user: DbUser | null, multiDocument: DbMultiD
   const { document, collection } = rootDocumentInfo;
 
   if ('checkAccess' in collection && collection.checkAccess) {
-    const canAccessParent = await collection.checkAccess(user, document, context);
+    const canAccessParent = await collection.checkAccess(user, document, context, outReasonDenied);
     if (!canAccessParent) {
       return false;
     }
