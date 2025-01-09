@@ -17,6 +17,7 @@ import { fieldIn } from '../../lib/utils/typeGuardUtils';
 import { getVotePower } from '../../lib/voting/vote';
 import {tagStyle} from '@/components/tagging/FooterTag.tsx'
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
+import { Link } from '@/lib/reactRouterWrapper';
 
 const isAF = forumTypeSetting.get() === 'AlignmentForum'
 
@@ -62,6 +63,13 @@ const styles = (theme: ThemeType) => ({
   },
   tagListContainer: {
     padding: 16
+  },
+  votingPageHeader: {
+    paddingTop: 24,
+    paddingLeft: 16,
+    paddingRight: 16,
+    paddingBottom: 8,
+    ...theme.typography.body2
   }
 });
 
@@ -171,7 +179,7 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
       defaultSort = "needsPreliminaryVote";
       break;
     case 'REVIEWS':
-      defaultSort = "needsReview"
+      defaultSort = "reviewVoteScoreHighKarma"
       break;
     case 'VOTING':
       defaultSort = "needsFinalVote";
@@ -356,6 +364,11 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
     <AnalyticsContext pageContext="ReviewVotingPage">
     <div className={classes.root}>
       <div className={classes.votingPageContainer}>
+      <div className={classes.votingPageHeader}>
+        <p>This page shows all posts that passed the nomination round. Use it to help prioritize your reviewing and update your votes.</p>
+        <p>If this page is intimidating, just go to the <Link to={`/quickReview/${reviewYear}`}>Quick Review</Link> page.</p>
+        <p>Current Sorting: {sortPosts}</p>
+      </div>
         <div className={classes.tagListContainer}>
           <PostsTagsList
             posts={postsResults}
@@ -374,7 +387,7 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
         </div>
         <ReviewVotingPageMenu reviewPhase={reviewPhase} loading={loading} sortedPosts={sortedPosts} costTotal={costTotal} setSortPosts={setSortPosts} sortPosts={sortPosts} sortReversed={sortReversed} setSortReversed={setSortReversed} postsLoading={postsLoading} postsResults={postsResults} />
         <div className={classNames({[classes.postList]: reviewPhase !== "VOTING", [classes.postsLoading]: postsLoading || loading})}>
-          {postsHaveBeenSorted && sortedPosts?.map((post) => {
+          {postsHaveBeenSorted && sortedPosts?.map((post, index) => {
             const currentVote = post.currentUserReviewVote !== null ? {
               _id: post.currentUserReviewVote._id,
               postId: post._id,
@@ -386,6 +399,7 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
             >
               <ReviewVoteTableRow
                 post={post}
+                index={index}
                 costTotal={costTotal}
                 showKarmaVotes={showKarmaVotes}
                 dispatch={dispatchQualitativeVote}

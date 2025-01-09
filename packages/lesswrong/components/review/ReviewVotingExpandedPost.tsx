@@ -6,8 +6,13 @@ import { postPageTitleStyles } from '../posts/PostsPage/PostsPageTitle';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useSingle } from '../../lib/crud/withSingle';
 import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
+import { CENTRAL_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
 
 const styles = (theme: ThemeType): JssStyles => ({
+  root: {
+    maxWidth: CENTRAL_COLUMN_WIDTH,
+    margin: "0 auto",
+  },
   postTitle: {
     ...postPageTitleStyles(theme),
     display: "block",
@@ -47,16 +52,19 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   backIcon: {
     marginRight: 12
+  },
+  reviewVoting: {
+    padding: theme.spacing.unit*2,
+    paddingBottom: theme.spacing.unit*6
   }
 })
 
-const ReviewVotingExpandedPost = ({classes, post, setExpandedPost, showReviewButton=true}: {
+const ReviewVotingExpandedPost = ({classes, post, setExpandedPost}: {
   classes: ClassesType, 
   post?: PostsReviewVotingList|null,
-  showReviewButton?: boolean,
   setExpandedPost: (post: PostsReviewVotingList|null) => void
 }) => {
-  const { ReviewPostButton, ReviewPostComments, PostsHighlight, PingbacksList, Loading} = Components
+  const { PostPageReviewButton, ReviewPostComments, PostsHighlight, PingbacksList, Loading} = Components
 
   const {document: postWithContents, loading} = useSingle({
     documentId: post?._id,
@@ -69,19 +77,18 @@ const ReviewVotingExpandedPost = ({classes, post, setExpandedPost, showReviewBut
 
   if (!newPost) return null
 
-  return <div>
+  return <div className={classes.root}>
     <div className={classes.backButton} onClick={() => setExpandedPost(null)}>
       <KeyboardBackspaceIcon className={classes.backIcon}/> Back
     </div>
-    <Link to={postGetPageUrl(newPost)}  className={classes.postTitle}>{newPost.title}</Link>
-    {postWithContents && <PostsHighlight post={postWithContents} maxLengthWords={90} forceSeeMore />}
+    <Link to={postGetPageUrl(newPost)}  className={classes.postTitle}>
+      {newPost.title}
+    </Link>
+    <div className={classes.reviewVoting}>  
+      <PostPageReviewButton post={newPost} />
+    </div>
+    {postWithContents && <PostsHighlight post={postWithContents} maxLengthWords={200} forceSeeMore />}
     {loading && <Loading/>}
-    {showReviewButton && <ReviewPostButton post={newPost} year={REVIEW_YEAR+""} reviewMessage={<div>
-      <div className={classes.writeAReview}>
-        <div className={classes.reviewPrompt}>Write a review for "{newPost.title}"</div>
-        <div className={classes.fakeTextfield}>Any thoughts about this post you want to share with other voters?</div>
-      </div>
-    </div>}/>}
 
     <div className={classes.comments}>
       <PingbacksList postId={newPost._id} limit={3}/>

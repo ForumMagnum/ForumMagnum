@@ -180,9 +180,15 @@ export const ReviewVotingPageMenu = ({classes, reviewPhase, loading, sortedPosts
                     <span><span className={classes.sortBy}>Sort by</span> Magic (Prioritize reviewed)</span>
                   </LWTooltip>
                 </MenuItem>}
-                <MenuItem value={'lastCommentedAt'}>
-                  <span className={classes.sortBy}>Sort by</span> {preferredHeadingCase("Last Commented")}
-                </MenuItem>
+                {reviewPhase === "REVIEWS" && 
+                  <MenuItem value={'needsReview'}>
+                    <LWTooltip title={<div><p>Prioritizes posts you voted on or wrote, which haven't had a review written, and which have at least 4 points.</p>
+                      <p><em>(i.e. emphasizees posts that you'd likely want to prioritize reviewing, so that they make it to the final voting)</em></p>
+                    </div>}>
+                      <span><span className={classes.sortBy}>Sort by</span> Magic (Needs Review)</span>
+                    </LWTooltip>
+                  </MenuItem>
+                }
                 {reviewPhase === "REVIEWS" && <MenuItem value={'reviewVoteScoreHighKarma'}>
                   <span className={classes.sortBy}>Sort by</span> Vote Total (1000+ Karma Users)
                 </MenuItem>}
@@ -211,15 +217,9 @@ export const ReviewVotingPageMenu = ({classes, reviewPhase, loading, sortedPosts
                     </LWTooltip>
                   </MenuItem>
                 }
-                {reviewPhase === "REVIEWS" && 
-                  <MenuItem value={'needsReview'}>
-                    <LWTooltip title={<div><p>Prioritizes posts you voted on or wrote, which haven't had a review written, and which have at least 4 points.</p>
-                      <p><em>(i.e. emphasizees posts that you'd likely want to prioritize reviewing, so that they make it to the final voting)</em></p>
-                    </div>}>
-                      <span><span className={classes.sortBy}>Sort by</span> Magic (Needs Review)</span>
-                    </LWTooltip>
-                  </MenuItem>
-                }
+                <MenuItem value={'lastCommentedAt'}>
+                  <span className={classes.sortBy}>Sort by</span> {preferredHeadingCase("Last Commented")}
+                </MenuItem>
                 {reviewPhase === "VOTING" && 
                   <MenuItem value={'needsFinalVote'}>
                     <LWTooltip title={<div>Prioritizes posts you haven't voted on yet</div>}>
