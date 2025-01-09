@@ -124,6 +124,8 @@ import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
 import MuiArrowDownRightIcon from '@material-ui/icons/SubdirectoryArrowRight';
 import MuiDragIndicatorIcon from '@material-ui/icons/DragIndicator';
 import MuiNoteAddIcon from '@material-ui/icons/NoteAdd';
+import ThumbsUpIcon from '@material-ui/icons/ThumbUp';
+import ThumbUpOutlineIcon from '@material-ui/icons/ThumbUpOutlined';
 
 /**
  * ForumIcon can be used with custom SVG elements but you MUST pass through
@@ -297,7 +299,9 @@ export type ForumIconName =
   "Dictionary" |
   "ArrowDownRight" |
   "DragIndicator" |
-  "NoteAdd";
+  "NoteAdd" |
+  "ThumbUp" |
+  "ThumbUpOutline";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   LWAF: {
@@ -428,6 +432,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ArrowDownRight: MuiArrowDownRightIcon,
     DragIndicator: MuiDragIndicatorIcon,
     NoteAdd: MuiNoteAddIcon,
+    ThumbUp: ThumbsUpIcon,
+    ThumbUpOutline: ThumbUpOutlineIcon,
   },
   default: {
     VolumeUp: SpeakerWaveIcon,
@@ -557,6 +563,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ArrowDownRight: ArrowDownRightIcon,
     DragIndicator: MuiDragIndicatorIcon,
     NoteAdd: MuiNoteAddIcon,
+    ThumbUp: ThumbsUpIcon,
+    ThumbUpOutline: ThumbUpOutlineIcon,
   },
 };
 

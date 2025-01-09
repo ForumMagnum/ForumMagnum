@@ -6,41 +6,76 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import type { LikesList } from '@/lib/voting/reactionsAndLikes';
 import { useCurrentUser } from '@/components/common/withUser';
 import { isAdmin } from '@/lib/vulcan-users';
+import classNames from 'classnames';
 
 const styles = defineStyles("ReactionsAndLikesVote", (theme) => ({
-  likeButton: {
+  unselectedLikeButton: {
     cursor: "pointer",
+    marginRight: 4,
+    display: "flex",
+    alignItems: "center",
+    color: theme.palette.grey[900],
+  },
+  selectedLikeButton: {
+    cursor: "pointer",
+    marginRight: 4,
+    display: "flex",
+    alignItems: "center",
+    color: theme.palette.grey[600],
   },
   icon: {
-    width: 16,
-    height: 16,
-    opacity: 0.5,
+    width: 14,
+    height: 14,
     verticalAlign: "middle",
+    marginRight: 2,
     
     "$likeButton:hover &": {
-      opacity: 1,
+      opacity: 0.7,
     },
   },
   likeCount: {
     verticalAlign: "middle",
+    paddingBottom: 2,
+  },
+  likeCountButtonRow: {
+    ...theme.typography.commentStyle,
+    ...theme.typography.body2,
+    color: theme.palette.grey[700],
+    verticalAlign: "middle",
+    paddingBottom: 2,
+    marginLeft: 2,
   },
 }));
 
-const ReactionsAndLikesVoteOnComment  = ({document, hideKarma=false, collectionName, votingSystem}: {
+const ReactionsAndLikesVoteOnComment  = ({document, hideKarma=false, collectionName, votingSystem, isSelected=false}: {
   document: VotingPropsDocument,
   hideKarma?: boolean,
   collectionName: VoteableCollectionName,
   votingSystem: VotingSystem,
+  isSelected?: boolean,
 }) => {
   return <ReactionsAndLikesVote
     document={document} hideKarma={hideKarma}
     collectionName={collectionName} votingSystem={votingSystem}
+    isSelected={isSelected}
   />
 }
 
-const ReactionsAndLikesVote  = ({document, hideKarma=false, collectionName, votingSystem}: CommentVotingComponentProps) => {
+const ReactionsAndLikesVote  = ({
+  document,
+  hideKarma=false,
+  collectionName,
+  votingSystem,
+  isSelected=false,
+  stylingVariant="default",
+  className,
+}: CommentVotingComponentProps & {
+  isSelected?: boolean,
+  stylingVariant?: "default" | "buttonRow",
+  className?: string,
+}) => {
   const classes = useStyles(styles);
-  const { LWTooltip } = Components;
+  const { LWTooltip, ForumIcon } = Components;
   const currentUser = useCurrentUser();
 
   const voteProps = useVote(document, collectionName, votingSystem);
@@ -71,16 +106,25 @@ const ReactionsAndLikesVote  = ({document, hideKarma=false, collectionName, voti
     }
   }
 
-  const voteScoreTooltip = `${usersWhoLiked.map(u => u.displayName).join(", ")}
-  ${isAdmin(currentUser) ? `\n(admin visible only) baseScore: ${baseScore}` : ""}
-`
+  const voteScoreTooltip = <div>
+    {<div><strong>Click to {currentUserLikesIt ? "unlike" : "like"}</strong></div>}
+    {usersWhoLiked.length > 0 && <div>Liked by: {usersWhoLiked.map(u => u.displayName).join(", ")}</div>}
+    {isAdmin(currentUser) && <div>(admin visible only) baseScore: {baseScore}</div>}
+  </div>
+  
+  const likeCountElement = stylingVariant === "buttonRow"
+    ? <span className={classes.likeCountButtonRow}>{`(${likeCount})`}</span>
+    : <span className={classes.likeCount}>{likeCount}</span>;
+  
 
-  return <LWTooltip title={voteScoreTooltip}>
-    <div className={classes.likeButton} onClick={toggleLike} onMouseDown={(e) => e.stopPropagation()}>
-      <img className={classes.icon} src="/reactionImages/nounproject/noun-thumbs-up-1686284.svg"/>
-      {likeCount>0 && <span className={classes.likeCount}>{likeCount}</span>}
-    </div>
-  </LWTooltip>
+  return <div className={className}>
+    <LWTooltip title={voteScoreTooltip}>
+    <div className={classNames({[classes.unselectedLikeButton]: !isSelected, [classes.selectedLikeButton]: isSelected})} onClick={toggleLike} onMouseDown={(e) => e.stopPropagation()}>
+      <ForumIcon icon={currentUserLikesIt ? "ThumbUp" : "ThumbUpOutline"} className={classes.icon} />
+        {likeCount>0 && likeCountElement}
+      </div>
+    </LWTooltip>
+  </div>
 }
 
 const ReactionsAndLikesCommentBottom = ({

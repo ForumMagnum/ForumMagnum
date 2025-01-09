@@ -201,7 +201,7 @@ const ConceptItem = ({
   );
 
   const usersWhoLikedTooltip = <div>
-    <div><i>Users who like this wikitag</i></div>
+    <div>Users who like this wikitag:</div>
     <div>{usersWhoLiked.slice(0, 10).map((user: { displayName: string }) => user.displayName).join(', ')}
     {usersWhoLiked.length > 10 && <span> and {usersWhoLiked.length - 10} more</span>}</div>
   </div>

@@ -92,7 +92,7 @@ const styles = defineStyles("LensTab", (theme: ThemeType) => ({
     minHeight: 48,
     [theme.breakpoints.up('md')]: {
     },
-    alignItems: 'start',
+    alignItems: 'center',
     justifyContent: 'center',
     [theme.breakpoints.down('sm')]: {
       height: 'min-content',
@@ -115,6 +115,9 @@ const styles = defineStyles("LensTab", (theme: ThemeType) => ({
       textAlign: 'left',
       marginBottom: 1,
     },
+  },
+  likeButton: {
+    marginTop: 2,
   },
   deletedLens: {
     textDecoration: 'line-through',
@@ -164,7 +167,7 @@ const LensTab = ({ lens, value, isSelected, ...tabProps }: {
   const label = <div key={lens._id} className={classes.lensLabel}>
     <span className={classNames(classes.lensTitle, lens.deleted && classes.deletedLens)}>{lens.tabTitle}</span>
     {lens.tabSubtitle && <span className={classNames(classes.lensSubtitle, lens.deleted && classes.deletedLens)}>{lens.tabSubtitle}</span>}
-    <TagOrLensLikeButton lens={lens} />
+    <TagOrLensLikeButton lens={lens} isSelected={isSelected} className={classes.likeButton}/>
   </div>;
   
 
@@ -181,8 +184,11 @@ const LensTab = ({ lens, value, isSelected, ...tabProps }: {
   );
 };
 
-const TagOrLensLikeButton = ({lens}: {
-  lens: TagLens
+const TagOrLensLikeButton = ({lens, isSelected, stylingVariant, className}: {
+  lens: TagLens,
+  isSelected: boolean,
+  stylingVariant?: "default" | "buttonRow",
+  className?: string,
 }) => {
   const lensVotingSystem = getVotingSystemByName("reactionsAndLikes");
   const isMainLens = (lens._id === MAIN_TAB_ID);
@@ -195,6 +201,9 @@ const TagOrLensLikeButton = ({lens}: {
     } : lens}
     collectionName={isMainLens ? "Tags" : "MultiDocuments"}
     votingSystem={lensVotingSystem}
+    isSelected={isSelected}
+    stylingVariant={stylingVariant}
+    className={className}
   />
 }
 
