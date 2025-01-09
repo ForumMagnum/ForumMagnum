@@ -88,7 +88,7 @@ export const ReviewsLeaderboard = ({classes, reviews, reviewYear}: {
 
   const totalKarma = reviews?.reduce((v, r) => v + r.baseScore, 0)
 
-  const reviewLeaderboardRow = (reviewUser: ReviewLeaderboardRow|null) => {
+  const reviewLeaderboardRow = (reviewUser: ReviewLeaderboardRow) => {
     if (!reviewUser) {
       return null
     }
@@ -113,7 +113,8 @@ export const ReviewsLeaderboard = ({classes, reviews, reviewYear}: {
     </div>
   }
 
-  const currentUserRow = sortedUserRows.find(userRow => userRow.user?._id === currentUser?._id)
+  const currentUserInfo = sortedUserRows.find(userRow => userRow.user?._id === currentUser?._id)
+  const currentUserRow = currentUserInfo && truncated && !truncatedRows.find(row => row.user?._id === currentUser?._id) && reviewLeaderboardRow(currentUserInfo)
 
   return <div className={classes.root}>
     <Row>
@@ -124,12 +125,10 @@ export const ReviewsLeaderboard = ({classes, reviews, reviewYear}: {
       </div>}
     </Row>
     {truncatedRows.map(reviewUser => {
-      return reviewLeaderboardRow(reviewUser)
+      return reviewUser && reviewLeaderboardRow(reviewUser)
     })}
     {sortedUserRows.length > NUM_DEFAULT_REVIEWS && <a className={classes.showAll} onClick={() => setTruncated(!truncated)}>{truncated ? <>Show All Reviewers ({NUM_DEFAULT_REVIEWS}/{sortedUserRows.length})</> : "Show Fewer"}</a>}
-    {currentUserRow && truncated && !truncatedRows.find(row => row.user?._id === currentUser?._id) && sortedUserRows.length >= NUM_DEFAULT_REVIEWS && 
-      reviewLeaderboardRow(currentUserRow)
-    }
+    {currentUserRow}
   </div>
 }
 
