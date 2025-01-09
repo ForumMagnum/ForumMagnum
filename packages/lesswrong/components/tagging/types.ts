@@ -12,7 +12,7 @@ export interface WikiTagMockup {
   isArbitalImport?: boolean;
 }
 
-export interface WikiTagNode extends AllTagsPageCacheFragment {
+export interface WikiTagNode extends ConceptItemFragment {
   parentTagId: string | null;
   baseScore: number;
   children: WikiTagNode[];

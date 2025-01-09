@@ -19,7 +19,7 @@ import { sequenceRouteWillDefinitelyReturn200 } from './collections/sequences/he
 import { tagGetUrl, tagRouteWillDefinitelyReturn200 } from './collections/tags/helpers';
 import { GUIDE_PATH_PAGES_MAPPING } from './arbital/paths';
 
-const knownTagNames = ['tag', 'topic', 'concept']
+const knownTagNames = ['tag', 'topic', 'concept', 'wikitag']
 const useShortAllTagsPath = isFriendlyUI;
 
 /**

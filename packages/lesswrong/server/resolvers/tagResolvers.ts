@@ -715,3 +715,35 @@ defineQuery({
     return ALL_TAGS_PAGE_CACHE.tags;
   },
 });
+
+addGraphQLSchema(`
+  type TagWithTotalCount {
+    tags: [Tag!]!
+    totalCount: Int!
+  }
+`);
+
+defineQuery({
+  name: "TagsByParentId",
+  resultType: "TagWithTotalCount!",
+  argTypes: "(parentTagId: String, limit: Int, searchTagIds: [String])",
+  fn: async (
+    _root: void,
+    args: {
+      parentTagId: string | null;
+      limit?: number;
+      searchTagIds?: string[];
+    },
+    context: ResolverContext
+  ) => {
+    const { parentTagId, limit = 20, searchTagIds } = args;
+
+    const { tags, totalCount } = await context.repos.tags.getTagsByParentTagId(
+      parentTagId,
+      limit,
+      searchTagIds
+    );
+
+    return { tags, totalCount };
+  },
+});

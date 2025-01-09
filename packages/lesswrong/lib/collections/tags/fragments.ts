@@ -463,14 +463,16 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment AllTagsPageCacheFragment on Tag {
+  fragment ConceptItemFragment on Tag {
     _id
     core
     name
     slug
     oldSlugs
     postCount
+    baseScore
     description {
+      _id
       wordCount
     }
     isArbitalImport
