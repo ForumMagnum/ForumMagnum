@@ -205,7 +205,7 @@ class TagsRepo extends AbstractRepo<"Tags"> {
     searchTagIds?: string[]
   ): Promise<{ tags: DbTag[]; totalCount: number }> {
     const whereClauses: string[] = [];
-    const queryParams: Record<string, any> = {
+    const queryParams: Record<string, SqlQueryArg> = {
       limit,
     };
 

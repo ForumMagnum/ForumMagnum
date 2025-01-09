@@ -16,16 +16,6 @@ const styles = defineStyles("WikiTagGroup", (theme: ThemeType) => ({
   },
   titleItem: {
   },
-  showMoreChildren: {
-    fontSize: 12,
-    fontWeight: 400,
-    // TODO: put this into a theme
-    color: "#426c46",
-    marginBottom: 8,
-    marginTop: 2,
-    marginLeft: 16,
-    width: "100%",
-  },
   column: {
     display: "flex",
     flexDirection: "column",
@@ -60,6 +50,13 @@ const styles = defineStyles("WikiTagGroup", (theme: ThemeType) => ({
   },
 }));
 
+function splitItemsIntoColumns<T>(items: T[], itemsPerColumn: number): T[][] {
+  const columns: T[][] = [];
+  for (let i = 0; i < items.length; i += itemsPerColumn) {
+    columns.push(items.slice(i, i + itemsPerColumn));
+  }
+  return columns;
+}
 
 const WikiTagGroup = ({
   parentTag,
@@ -99,7 +96,6 @@ const WikiTagGroup = ({
     ssr: true,
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: 'cache-only',
-    // nextFetchPolicy: 'cache-only',
     variables: {
       parentTagId,
       limit: initialLimit,
@@ -111,35 +107,24 @@ const WikiTagGroup = ({
   const pages = data?.TagsByParentId?.tags ?? [];
   const totalCount = data?.TagsByParentId?.totalCount ?? 0;
 
-  // Helper function to split items into columns with a maximum number of items per column
-  function splitItemsIntoColumns<T>(items: T[], itemsPerColumn: number): T[][] {
-    const columns: T[][] = [];
-    for (let i = 0; i < items.length; i += itemsPerColumn) {
-      columns.push(items.slice(i, i + itemsPerColumn));
-    }
-    return columns;
-  }
-
   // Split pages into columns with MAX_ITEMS_PER_COLUMN items each
   const columns: ConceptItemFragment[][] = splitItemsIntoColumns(pages, MAX_ITEMS_PER_COLUMN);
 
   const loadMore = () => {
-      const newLimit = limit * 2;
-      void fetchMore({
-        variables: {
-          parentTagId,
-          limit: newLimit,
-          searchTagIds,
-        },
-        updateQuery: (prev, { fetchMoreResult }) => {
-          if (!fetchMoreResult) return prev;
-          return fetchMoreResult
-        }
-      })
-      setLimit(newLimit);
-    };
-  //   [maxInitialShow, limit, fetchMore, parentTagId, searchTagIds]
-  // );
+    const newLimit = limit * 2;
+    void fetchMore({
+      variables: {
+        parentTagId,
+        limit: newLimit,
+        searchTagIds,
+      },
+      updateQuery: (prev, { fetchMoreResult }) => {
+        if (!fetchMoreResult) return prev;
+        return fetchMoreResult
+      }
+    })
+    setLimit(newLimit);
+  };
 
 
   const { LoadMore, ConceptItem, Loading } = Components;
@@ -183,7 +168,7 @@ const WikiTagGroup = ({
       </div>}
       {pages.length < totalCount && (
         <LoadMore
-          loading={networkStatus===3}
+          loading={networkStatus === NetworkStatus.fetchMore}
           loadMore={loadMore}
           count={pages.length}
           totalCount={totalCount}

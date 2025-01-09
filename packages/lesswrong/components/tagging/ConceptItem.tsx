@@ -84,7 +84,6 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     marginTop: 0,
   },
   titleItemRoot: {
-    // marginBottom: 24,
   },
   titleItem: {
     backgroundColor: "unset",
@@ -201,7 +200,6 @@ const ConceptItem = ({
       className={classes.item}
     >
       <div className={classes.leftSideItems}>
-        {/* TODO: this is a temporary score, we should use the actual baseScore from the database */}
         <div className={classes.karma}>{wikitag.baseScore}</div>
         <div className={classes.title}>
           <TagsTooltip
