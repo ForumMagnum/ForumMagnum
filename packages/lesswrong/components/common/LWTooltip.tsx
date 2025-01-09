@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useState, useEffect } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useHover } from './withHover';
 import type { PopperPlacementType } from '@material-ui/core/Popper'
@@ -63,6 +63,7 @@ const LWTooltip = ({
   forceOpen,
 }: LWTooltipProps) => {
   const { LWPopper } = Components
+  const [delayedClickable, setDelayedClickable] = useState(false);
   const { hover, everHovered, anchorEl, eventHandlers } = useHover({
     eventProps: {
       pageElementContext: "tooltipHovered", // Can be overwritten by analyticsProps
@@ -71,8 +72,23 @@ const LWTooltip = ({
       ...otherEventProps,
     },
     onEnter: onShow,
-    onLeave: onHide,
+    onLeave: () => {
+      onHide?.();
+      setDelayedClickable(false);
+    },
   });
+
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout | null = null;
+    if (hover && clickable) {
+      timeoutId = setTimeout(() => {
+        setDelayedClickable(true);
+      }, 200);
+    }
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [hover, clickable]);
 
   if (!title) return <>{children}</>
 
@@ -89,7 +105,7 @@ const LWTooltip = ({
       anchorEl={anchorEl}
       tooltip={tooltip}
       allowOverflow={!flip}
-      clickable={clickable}
+      clickable={delayedClickable}
       hideOnTouchScreens={hideOnTouchScreens}
       className={popperClassName}
     >
