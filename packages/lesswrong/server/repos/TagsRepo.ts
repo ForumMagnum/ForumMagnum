@@ -107,12 +107,15 @@ class TagsRepo extends AbstractRepo<"Tags"> {
       )
       SELECT DISTINCT ON (t._id)
         t.*,
+        -- This is to ensure that Apollo doesn't accidentally clobber a lens if we return an _id that belongs to a tag it already has cached
+        COALESCE(t.md_id, t._id) AS _id,
         ARRAY_AGG(TO_JSONB(md.*)) OVER (PARTITION BY t._id) as summaries
       FROM matching_tags t
       LEFT JOIN "MultiDocuments" md
       ON (
-        md."parentDocumentId" = COALESCE(t.md_id, t._id)
+        md."parentDocumentId" = t."_id"
         AND md."fieldName" = 'summary'
+        AND md."deleted" IS FALSE
       )
       -- TODO: figure out a more principled fix for the problem we can have multiple tags or lenses with the same slug/oldSlugs
       LIMIT 1

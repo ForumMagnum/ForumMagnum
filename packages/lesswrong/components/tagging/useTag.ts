@@ -10,9 +10,10 @@ export const useTagBySlug = <FragmentTypeName extends keyof FragmentTypes>(
 ): {
   tag: FragmentTypes[FragmentTypeName]|null,
   loading: boolean,
-  error: any
+  error: any,
+  refetch: () => Promise<void>,
 } => {
-  const { results, loading, error } = useMulti<FragmentTypeName, "Tags">({
+  const { results, loading, error, refetch } = useMulti<FragmentTypeName, "Tags">({
     terms: {
       view: "tagBySlug",
       slug: slug
@@ -28,11 +29,13 @@ export const useTagBySlug = <FragmentTypeName extends keyof FragmentTypes>(
       tag: results[0] as FragmentTypes[FragmentTypeName]|null,
       loading: false,
       error: null,
+      refetch,
     };
   } else {
     return {
       tag: null,
-      loading, error
+      loading, error,
+      refetch,
     };
   }
 }

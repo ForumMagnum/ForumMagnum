@@ -201,12 +201,12 @@ export async function mergeFeedQueries<SortKeyType extends number | Date>({limit
 // of results that have numeric indexes instead, and merge them. Eg, Recent
 // Discussion contains posts sorted by date, but with some things mixed in
 // with their position defined as "index 5".
-function mergeSortedAndNumericallyPositionedResults(sortedResults: Array<Sortable<Date>>, numericallyPositionedResults: Array<Sortable<number>>, offset: number) {
+function mergeSortedAndNumericallyPositionedResults<D extends Sortable<Date>, N extends Sortable<number>>(sortedResults: Array<D>, numericallyPositionedResults: Array<N>, offset: number) {
   // Take the numerically positioned results. Sort them by index, discard ones
   // from below the offset, and resolve collisions.
   const sortedNumericallyPositionedResults = _.sortBy(numericallyPositionedResults, r=>r.sortKey);
   
-  let mergedResults: Sortable<number | Date>[] = [...sortedResults];
+  let mergedResults: (D|N)[] = [...sortedResults];
   for (let i=0; i<sortedNumericallyPositionedResults.length; i++) {
     const insertedResult = sortedNumericallyPositionedResults[i];
     const insertionPosition = insertedResult.sortKey-offset;

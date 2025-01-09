@@ -38,6 +38,19 @@ const TagEditsTimeBlock = ({before, after, reportEmpty, classes}: {
         users {
           ...UsersMinimumInfo
         }
+        documentDeletions {
+          userId
+          documentId
+          netChange
+          type
+          docFields {
+            _id
+            slug
+            tabTitle
+            tabSubtitle
+          }
+          createdAt
+        }
       }
     }
     ${fragmentTextForQuery(['TagHistoryFragment', 'UsersMinimumInfo'])}
@@ -82,6 +95,7 @@ const TagEditsTimeBlock = ({before, after, reportEmpty, classes}: {
       users={tagUpdates.users}
       commentCount={tagUpdates.commentCount}
       changeMetrics={{added: tagUpdates.added, removed: tagUpdates.removed}}
+      documentDeletions={tagUpdates.documentDeletions}
     />)}
     {!expanded && tagUpdatesInTimeBlock.length >= INITIAL_LIMIT && <LoadMore
       loadMore={() => setExpanded(true)}
