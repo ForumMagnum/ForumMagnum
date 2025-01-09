@@ -42,6 +42,7 @@ const ReviewPostForm = ({classes, post, onClose}: {
   const [ showPrompt, setShowPrompt ] = useState(true)
   
   return <PopupCommentEditor
+    key={post._id} // Force recreation when post changes
     title={<>
       Reviewing "<Link to={postGetPageUrl(post)}>{post.title}</Link>"
     </>}

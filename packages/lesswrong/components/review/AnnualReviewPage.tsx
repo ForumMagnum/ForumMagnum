@@ -54,7 +54,7 @@ const styles = (theme: ThemeType) => ({
     maxWidth: SECTION_WIDTH,
   },
   rightColumnExpandedPost: {
-    opacity: .175
+    opacity: .25
   },
   rightColumn: {
     width: "100%",

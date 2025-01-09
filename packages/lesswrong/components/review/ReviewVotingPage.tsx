@@ -113,7 +113,7 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
   const currentUser = useCurrentUser()
   const { captureEvent } = useTracking({eventType: "reviewVotingEvent"})
   const { query } = useLocation()
-  const { openCommentBox } = useCommentBox();
+  const { openCommentBox, close } = useCommentBox();
   const { openDialog } = useDialog();
 
   let reviewPhase = getReviewPhase(reviewYear)
@@ -363,6 +363,8 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
     if (expandedPost?._id === post._id) {
       setExpandedPost(null)
     } else {
+      // Close any existing comment box before opening a new one
+      close();
       // this component requires a currentUser so we don't need to do a login check
       openCommentBox({
         componentName: "ReviewPostForm",
