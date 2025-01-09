@@ -248,11 +248,7 @@ class TagsRepo extends AbstractRepo<"Tags"> {
       -- TagsRepo.getTagsByParentTagId
       SELECT
         t_child.*,
-        COUNT(*) OVER() AS "totalCount",
-        GREATEST(
-          t_child."baseScore",
-          COALESCE(md."maxBaseScore", 0)
-        ) AS "maxScore"
+        COUNT(*) OVER() AS "totalCount"
       FROM "Tags" t_child
       LEFT JOIN "ArbitalTagContentRels" acr
         ON t_child."_id" = acr."childDocumentId"
@@ -265,21 +261,23 @@ class TagsRepo extends AbstractRepo<"Tags"> {
         WHERE md."parentDocumentId" = t_child."_id"
           AND md."collectionName" = 'Tags'
           AND md."fieldName" = 'description'
+          AND md."deleted" IS FALSE
       ) md ON TRUE
       ${whereClause}
-      ORDER BY "maxScore" DESC, t_child."name" ASC
+      ORDER BY
+        GREATEST(
+          t_child."baseScore",
+          COALESCE(md."maxBaseScore", 0)
+        ) DESC,
+        t_child."name" ASC
       LIMIT $(limit)
     `;
 
     const tags = await this.getRawDb().any(query, queryParams);
-
     const totalCount = tags.length > 0 ? parseInt(tags[0].totalCount, 10) : 0;
 
     // Remove the totalCount from individual tag objects
-    tags.forEach(tag => {
-      delete tag.totalCount;
-      delete tag.maxScore;
-    });
+    tags.forEach(tag => {delete tag.totalCount});
 
     return { tags, totalCount };
   }

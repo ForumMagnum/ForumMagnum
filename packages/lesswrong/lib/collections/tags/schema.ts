@@ -42,6 +42,24 @@ export const TAG_POSTS_SORT_ORDER_OPTIONS: Record<string, SettingsOption>  = {
   ...SORT_ORDER_OPTIONS,
 }
 
+// Define the helper function at an appropriate place in your file
+async function getTagMultiDocuments(
+  context: ResolverContext,
+  tagId: string,
+  projection = { baseScore: 1, extendedScore: 1 }
+) {
+  const { MultiDocuments } = context;
+  return await getWithLoader(
+    context,
+    MultiDocuments,
+    'multiDocumentsForTag',
+    { collectionName: 'Tags', fieldName: 'description' },
+    'parentDocumentId',
+    tagId,
+    { projection }
+  );
+}
+
 const schema: SchemaType<"Tags"> = {
   name: {
     type: String,
@@ -800,23 +818,13 @@ const schema: SchemaType<"Tags"> = {
     type: Number,
     canRead: ['guests'],
     resolver: async (tag, args, context) => {
-      const { MultiDocuments } = context;
-
       // Get the tag's own baseScore
-      const tagScore = tag.baseScore || 0;
+      const tagScore = tag.baseScore ?? 0;
 
-      // Get multidocuments' baseScores
-      const multiDocuments = await getWithLoader(
-        context,
-        MultiDocuments,
-        'multiDocuments',
-        { collectionName: 'Tags', fieldName: 'description' },
-        'parentDocumentId',
-        tag._id,
-        {projection: {baseScore: 1, extendedScore: 1}}
-      )
+      // Use the helper function to get multidocuments' baseScores
+      const multiDocuments = await getTagMultiDocuments(context, tag._id);
 
-      const multiDocScores = multiDocuments.map(md => md.baseScore || 0);
+      const multiDocScores = multiDocuments.map(md => md.baseScore ?? 0);
       const allScores = [tagScore, ...multiDocScores];
       const maxScore = Math.max(...allScores);
 
@@ -829,21 +837,17 @@ const schema: SchemaType<"Tags"> = {
     graphQLtype: '[UserLikingTag!]!',
     canRead: ['guests'],
     resolver: async (tag, args, context): Promise<LikesList> => {
-      const { MultiDocuments } = context;
-
-      const multiDocuments = await getWithLoader(
-        context,
-        MultiDocuments,
-        'multiDocuments',
-        { collectionName: 'Tags', fieldName: 'description' },
-        'parentDocumentId',
-        tag._id,
-        {projection: {baseScore: 1, extendedScore: 1}}
-      );
+      // Use the helper function to get multidocuments
+      const multiDocuments = await getTagMultiDocuments(context, tag._id);
 
       const tagUsersWhoLiked: LikesList = tag.extendedScore?.usersWhoLiked || [];
-      const multiDocUsersWhoLiked: LikesList = multiDocuments.flatMap(md => md.extendedScore?.usersWhoLiked || []);
-      const usersWhoLiked: LikesList = uniqBy(tagUsersWhoLiked.concat(multiDocUsersWhoLiked), '_id');
+      const multiDocUsersWhoLiked: LikesList = multiDocuments.flatMap(
+        md => md.extendedScore?.usersWhoLiked || []
+      );
+      const usersWhoLiked: LikesList = uniqBy(
+        tagUsersWhoLiked.concat(multiDocUsersWhoLiked),
+        '_id'
+      );
       return usersWhoLiked;
     },
   }),

@@ -5,7 +5,7 @@ import { useVote } from '../withVote';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import type { LikesList } from '@/lib/voting/reactionsAndLikes';
 import { useCurrentUser } from '@/components/common/withUser';
-import { isAdmin } from '@/lib/vulcan-users';
+import { userIsAdmin } from '@/lib/vulcan-users';
 import classNames from 'classnames';
 
 const styles = defineStyles("ReactionsAndLikesVote", (theme) => ({
@@ -109,7 +109,7 @@ const ReactionsAndLikesVote  = ({
   const voteScoreTooltip = <div>
     {<div><strong>Click to {currentUserLikesIt ? "unlike" : "like"}</strong></div>}
     {usersWhoLiked.length > 0 && <div>Liked by: {usersWhoLiked.map(u => u.displayName).join(", ")}</div>}
-    {isAdmin(currentUser) && <div>(admin visible only) baseScore: {baseScore}</div>}
+    {userIsAdmin(currentUser) && <div>(admin visible only) baseScore: {baseScore}</div>}
   </div>
   
   const likeCountElement = stylingVariant === "buttonRow"
