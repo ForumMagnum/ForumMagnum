@@ -103,7 +103,8 @@ export const ReviewsLeaderboard = ({classes, reviews, reviewYear}: {
           {reviewUser.totalKarma}
         </div>
         <div className={classes.reviews}>{reviewUser.reviews.map(review => {
-          return <LWTooltip placement="bottom-start" title={<div className={classes.card}><CommentsNode treeOptions={{showPostTitle: true}} comment={review}/></div>} tooltip={false} key={review._id}>
+          return <LWTooltip placement="bottom-start" title={<div className={classes.card}>
+            <CommentsNode treeOptions={{showPostTitle: true}} comment={review}/></div>} tooltip={false} key={review._id}>
             <a href={`/reviews/${reviewYear ?? "all"}#${review._id}`} onClick={() => setTruncated(true)}>
               <MetaInfo>{review.baseScore - getSelfUpvotePower(review.user)}</MetaInfo>
             </a>
