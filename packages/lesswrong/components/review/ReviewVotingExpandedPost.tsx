@@ -55,7 +55,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   reviewVoting: {
     padding: theme.spacing.unit*2,
-    paddingBottom: theme.spacing.unit*6
+    paddingBottom: theme.spacing.unit*2,
+    position: "relative",
+    right: theme.spacing.unit*4
   }
 })
 

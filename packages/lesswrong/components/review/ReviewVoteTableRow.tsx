@@ -270,12 +270,10 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
       {showKarmaVotes && <PostInteractionStripe post={post}/>}
       <div className={classNames(classes.postVote, {[classes.postVoteVotingPhase]: reviewPhase === "VOTING"})}>
         <div className={classes.expandPostButtonContainer} onClick={() => handleSetExpandedPost(post)}>
-          <LWTooltip title={expanded ? "Collapse post" : "Expand post"} placement="left">
-            <ForumIcon
-              icon={expanded ? "ChevronRight" : "ChevronLeft"}
-              className={classNames(classes.expandPostButton, { [classes.expanded]: expanded })}
-            />
-          </LWTooltip>
+          <ForumIcon
+            icon={expanded ? "ChevronRight" : "ChevronLeft"}
+            className={classNames(classes.expandPostButton, { [classes.expanded]: expanded })}
+          />
         </div>
         <div className={classNames(classes.postIndex, {[classes.top50]: index < 50})} onClick={() => handleSetExpandedPost(post)}>
           {index + 1}

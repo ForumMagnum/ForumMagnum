@@ -18,6 +18,7 @@ import { getVotePower } from '../../lib/voting/vote';
 import {tagStyle} from '@/components/tagging/FooterTag.tsx'
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { Link } from '@/lib/reactRouterWrapper';
+import { sortingInfo } from './ReviewVotingPageMenu';
 
 const isAF = forumTypeSetting.get() === 'AlignmentForum'
 
@@ -69,7 +70,10 @@ const styles = (theme: ThemeType) => ({
     paddingLeft: 16,
     paddingRight: 16,
     paddingBottom: 8,
-    ...theme.typography.body2
+    ...theme.typography.body2,
+    '& a': {
+      color: theme.palette.primary.main,
+    }
   }
 });
 
@@ -141,7 +145,7 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
   const [sortedPosts, setSortedPosts] = useState(postsResults)
   const [loading, setLoading] = useState(false)
   const [tagFilter, setTagFilter] = useState<string|null>(null)
-  const [statusFilter, setStatusFilter] = useState<string|null>('read')
+  const [statusFilter, setStatusFilter] = useState<string|null>(null)
   const [showKarmaVotes] = useState<any>(true)
   const [postsHaveBeenSorted, setPostsHaveBeenSorted] = useState(false)
 
@@ -365,9 +369,9 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
     <div className={classes.root}>
       <div className={classes.votingPageContainer}>
       <div className={classes.votingPageHeader}>
-        <p>This page shows all posts that passed the nomination round. Use it to help prioritize your reviewing and update your votes.</p>
+        {/* <p>This page shows all posts that passed the nomination round. <br/>Use it to help prioritize your reviewing and update your votes.</p> */}
+        <p>Currently sorted by: <b>{sortingInfo[sortPosts].title}</b><em>.<br/>{sortingInfo[sortPosts].description}</em></p> 
         <p>If this page is intimidating, just go to the <Link to={`/quickReview/${reviewYear}`}>Quick Review</Link> page.</p>
-        <p>Current Sorting: {sortPosts}</p>
       </div>
         <div className={classes.tagListContainer}>
           <PostsTagsList
