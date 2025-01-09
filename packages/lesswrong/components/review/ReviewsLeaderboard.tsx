@@ -88,6 +88,7 @@ export const ReviewsLeaderboard = ({classes, reviews, reviewYear}: {
 
   const totalKarma = reviews?.reduce((v, r) => v + r.baseScore, 0)
 
+  // TODO: move this to a separate component (it's slightly annoying to factor it out which is why we haven't done it yet)
   const reviewLeaderboardRow = (reviewUser: ReviewLeaderboardRow) => {
     if (!reviewUser) {
       return null
