@@ -5,6 +5,9 @@ import { lightconeFundraiserPostId, lightconeFundraiserThermometerBgUrl, lightco
 import { Link } from '@/lib/reactRouterWrapper';
 import { useFundraiserProgress } from '@/lib/lightconeFundraiser';
 import classNames from 'classnames';
+import { useCurrentTime } from '@/lib/utils/timeUtil';
+import DeferRender from './DeferRender';
+import { isClient } from '@/lib/executionEnvironment';
 
 // Second thermometer background image:
 const lightconeFundraiserThermometerBgUrl2 =
@@ -315,7 +318,8 @@ const FundraisingThermometer: React.FC<
   const displayedStageNumber = currentAmount < goal1 ? 1 : 2;
   // End at 23:59 AoE (UTC-12) on Jan 13th
   const fundraiserEndDate = new Date('2025-01-14T11:59:00Z'); // This is 23:59 Jan 13th in UTC-12
-  const timeRemainingMs = fundraiserEndDate.getTime() - Date.now();
+  const currentTime = useCurrentTime();
+  const timeRemainingMs = fundraiserEndDate.getTime() - currentTime.getTime();
   const remainingDays = Math.ceil(timeRemainingMs / (1000 * 60 * 60 * 24));
   const remainingHours = Math.ceil(timeRemainingMs / (1000 * 60 * 60));
   const timeRemainingText = remainingHours <= 72 
@@ -416,16 +420,18 @@ const FundraisingThermometer: React.FC<
         </div>
       </div>
 
-      {ReactDOM.createPortal(
-        <div className={classNames(classes.countdownOverlay, showCountdown && classes.countdownVisible)}>
-          <div className={classes.countdownText}>
-            <div>Dawn of</div>
-            <div>The Final Push</div>
-            <div>-{remainingHours} Hours Remain-</div>
-          </div>
-        </div>,
-        document.body
-      )}
+      <DeferRender ssr={false}>
+        {isClient && ReactDOM.createPortal(
+          <div className={classNames(classes.countdownOverlay, showCountdown && classes.countdownVisible)}>
+            <div className={classes.countdownText}>
+              <div>Dawn of</div>
+              <div>The Final Push</div>
+              <div>-{remainingHours} Hours Remain-</div>
+            </div>
+          </div>,
+          document.body
+        )}
+      </DeferRender>
     </>
   );
 };
