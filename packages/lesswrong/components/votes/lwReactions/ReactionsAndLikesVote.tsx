@@ -14,7 +14,7 @@ const styles = defineStyles("ReactionsAndLikesVote", (theme) => ({
     marginRight: 4,
     display: "flex",
     alignItems: "center",
-    color: theme.palette.grey[900],
+    color: theme.palette.grey[800],
   },
   selectedLikeButton: {
     cursor: "pointer",
@@ -24,8 +24,8 @@ const styles = defineStyles("ReactionsAndLikesVote", (theme) => ({
     color: theme.palette.grey[600],
   },
   icon: {
-    width: 14,
-    height: 14,
+    width: 16,
+    height: 16,
     verticalAlign: "middle",
     marginRight: 2,
     
@@ -34,6 +34,7 @@ const styles = defineStyles("ReactionsAndLikesVote", (theme) => ({
     },
   },
   likeCount: {
+    fontSize: "0.9rem",
     verticalAlign: "middle",
     paddingBottom: 2,
   },

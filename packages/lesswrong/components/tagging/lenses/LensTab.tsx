@@ -38,6 +38,11 @@ const styles = defineStyles("LensTab", (theme: ThemeType) => ({
     minWidth: 'unset',
     borderWidth: 1,
   },
+  lensTitleContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
   lensTabRootOverride: {
     [theme.breakpoints.down('sm')]: {
       minHeight: 'unset',
@@ -88,7 +93,7 @@ const styles = defineStyles("LensTab", (theme: ThemeType) => ({
   },
   lensLabel: {
     display: 'flex',
-    flexDirection: 'column',
+    flexDirection: 'row',
     minHeight: 48,
     [theme.breakpoints.up('md')]: {
     },
@@ -96,7 +101,7 @@ const styles = defineStyles("LensTab", (theme: ThemeType) => ({
     justifyContent: 'center',
     [theme.breakpoints.down('sm')]: {
       height: 'min-content',
-      gap: '4px',
+      // gap: '4px',
     },
   },
   lensTitle: {
@@ -109,6 +114,7 @@ const styles = defineStyles("LensTab", (theme: ThemeType) => ({
     textTransform: 'none',
     fontSize: '1em',
     fontWeight: 400,
+    marginTop: -2,
     [theme.breakpoints.down('sm')]: {
       width: 'fit-content',
       display: 'block',
@@ -117,7 +123,8 @@ const styles = defineStyles("LensTab", (theme: ThemeType) => ({
     },
   },
   likeButton: {
-    marginTop: 2,
+    marginTop: 4,
+    marginLeft: 8,
   },
   deletedLens: {
     textDecoration: 'line-through',
@@ -135,6 +142,13 @@ const LensTabBar = ({lenses, selectedLens, switchLens}: {
   const classes = useStyles(styles);
   if (!(lenses.length > 1)) return null;
 
+  // Sort lenses: main tab first, then by baseScore descending
+  const sortedLenses = [...lenses].sort((a, b) => {
+    if (a._id === MAIN_TAB_ID) return -1;
+    if (b._id === MAIN_TAB_ID) return 1;
+    return (b.baseScore ?? 0) - (a.baseScore ?? 0);
+  });
+
   return <Tabs
     value={selectedLens?._id}
     onChange={(e, newLensId) => switchLens(newLensId)}
@@ -143,7 +157,7 @@ const LensTabBar = ({lenses, selectedLens, switchLens}: {
       indicator: classes.hideMuiTabIndicator
     }}
   >
-    {lenses.map(lens => <LensTab
+    {sortedLenses.map(lens => <LensTab
       key={lens._id}
       value={lens._id}
       lens={lens}
@@ -165,8 +179,10 @@ const LensTab = ({ lens, value, isSelected, ...tabProps }: {
   if (!lens) return null;
 
   const label = <div key={lens._id} className={classes.lensLabel}>
-    <span className={classNames(classes.lensTitle, lens.deleted && classes.deletedLens)}>{lens.tabTitle}</span>
-    {lens.tabSubtitle && <span className={classNames(classes.lensSubtitle, lens.deleted && classes.deletedLens)}>{lens.tabSubtitle}</span>}
+    <div className={classes.lensTitleContainer}>
+      <span className={classNames(classes.lensTitle, lens.deleted && classes.deletedLens)}>{lens.tabTitle}</span>
+      {lens.tabSubtitle && <span className={classNames(classes.lensSubtitle, lens.deleted && classes.deletedLens)}>{lens.tabSubtitle}</span>}
+    </div>
     <TagOrLensLikeButton lens={lens} isSelected={isSelected} className={classes.likeButton}/>
   </div>;
   
