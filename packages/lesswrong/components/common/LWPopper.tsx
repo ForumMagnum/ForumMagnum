@@ -131,15 +131,20 @@ const LWPopper = ({
   });
 
   if (updateRef && update) {
-    updateRef.current = update;
+    updateRef.current = update
   }
 
   if (!open) return null;
 
+  // In some cases, interacting with something inside a popper will cause a rerender that detaches the anchorEl
+  // This happened in hovers on in-line reacts, and the button to create a new react ended up on the top-left corner of the page
   if (anchorEl && !anchorEl.isConnected) {
     return null;
   }
 
+  // We use createPortal here to avoid having to deal with overflow problems and styling from the current child
+  // context, by placing the Popper element directly into the document root
+  // Rest of usage from https://popper.js.org/react-popper/v2/
   return (
     <>
       {createPortal(
