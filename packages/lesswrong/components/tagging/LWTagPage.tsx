@@ -30,6 +30,7 @@ import { useTagOrLens } from "../hooks/useTagOrLens";
 import { useTagEditingRestricted } from "./TagPageButtonRow";
 import { useMultiClickHandler } from "../hooks/useMultiClickHandler";
 import HistoryIcon from '@material-ui/icons/History';
+import { FieldsNotNull, filterWhereFieldsNotNull } from "@/lib/utils/typeGuardUtils";
 
 const sidePaddingStyle = (theme: ThemeType) => ({
   paddingLeft: 42,
@@ -463,7 +464,7 @@ function useDisplayedTagTitle(tag: TagPageFragment | TagPageWithRevisionFragment
 
 // TODO: maybe move this to the server, so that the user doesn't have to wait for the hooks to run to see the contributors
 function useDisplayedContributors(contributorsInfo: DocumentContributorsInfo | null) {
-  const contributors: DocumentContributorWithStats[] = contributorsInfo?.contributors ?? [];
+  const contributors = filterWhereFieldsNotNull(contributorsInfo?.contributors ?? [], 'user');
   if (!contributors.some(({ currentAttributionCharCount }) => currentAttributionCharCount)) {
     return { topContributors: contributors, smallContributors: [] };
   }
@@ -800,7 +801,7 @@ if (isClient) {
   Object.assign(window, { handleRadioChange });
 }
 
-const ContributorsList = ({ contributors, onHoverContributor, endWithComma }: { contributors: DocumentContributorWithStats[], onHoverContributor: (userId: string | null) => void, endWithComma: boolean }) => {
+const ContributorsList = ({ contributors, onHoverContributor, endWithComma }: { contributors: FieldsNotNull<DocumentContributorWithStats, 'user'>[], onHoverContributor: (userId: string | null) => void, endWithComma: boolean }) => {
   const { UsersNameDisplay } = Components;
   const classes = useStyles(styles);
 
@@ -1222,9 +1223,9 @@ const LWTagPage = () => {
   );
 
   const tocContributors = <div className={classes.tocContributors}>
-    {topContributors.map(({ user }: { user?: UsersMinimumInfo }, idx: number) => (
-      <span className={classes.tocContributor} key={user?._id} onMouseOver={() => onHoverContributor(user?._id ?? null)} onMouseOut={() => onHoverContributor(null)}>
-        <UsersNameDisplay key={user?._id} user={user} className={classes.contributorName} />
+    {topContributors.map(({ user }: { user: UsersMinimumInfo }, idx: number) => (
+      <span className={classes.tocContributor} key={user._id} onMouseOver={() => onHoverContributor(user._id)} onMouseOut={() => onHoverContributor(null)}>
+        <UsersNameDisplay key={user._id} user={user} className={classes.contributorName} />
       </span>
     ))}
   </div>;

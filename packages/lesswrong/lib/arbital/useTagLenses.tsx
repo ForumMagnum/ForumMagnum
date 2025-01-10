@@ -7,7 +7,7 @@ import omit from "lodash/omit";
 export const MAIN_TAB_ID = 'main-tab';
 
 export interface DocumentContributorWithStats {
-  user: UsersMinimumInfo;
+  user: UsersMinimumInfo | null;
   currentAttributionCharCount: number;
   contributionScore: number;
 }
