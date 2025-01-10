@@ -29,7 +29,7 @@ const styles = defineStyles("ReactionsAndLikesVote", (theme) => ({
     verticalAlign: "middle",
     marginRight: 2,
     
-    "$likeButton:hover &": {
+    "$unselectedLikeButton:hover, $selectedLikeButton:hover &": {
       opacity: 0.7,
     },
   },
