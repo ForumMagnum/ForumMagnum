@@ -62,7 +62,6 @@ import { addAutocompleteEndpoint } from './autocompleteEndpoint';
 import { getSqlClientOrThrow } from './sql/sqlClient';
 import { addLlmChatEndpoint } from './resolvers/anthropicResolvers';
 import { getInstanceSettings } from '@/lib/getInstanceSettings';
-import { addGivingSeasonEndpoints } from './givingSeason/webhook';
 import { addFeedbackEndpoint } from './feedbackEndpoint';
 import { getCommandLineArguments } from './commandLine';
 
@@ -208,8 +207,6 @@ export function startWebserver() {
     // which is never actually used.
     ElasticController.addRoutes(app);
   }
-
-  addGivingSeasonEndpoints(app);
 
   // Most middleware need to run after those added by addAuthMiddlewares, so that they can access the user that passport puts on the request.  Be careful if moving it!
   addAuthMiddlewares(addMiddleware);

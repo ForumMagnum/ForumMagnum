@@ -6,7 +6,7 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 import InputLabel from '@material-ui/core/InputLabel';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   submitToFrontpageWrapper: {
     [theme.breakpoints.down('sm')]: {
       width: "100%",

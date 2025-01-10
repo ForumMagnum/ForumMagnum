@@ -120,6 +120,12 @@ const HoverPreviewLink = ({ href, contentSourceDescription, id, rel, noPrefetch,
           {children}
         </Components.ManifoldPreview>
       }
+
+      if (linkTargetAbsolute.host === "fatebook.io" || linkTargetAbsolute.host === "www.fatebook.io") {
+        return <Components.FatebookPreview href={href} id={id}>
+          {children}
+        </Components.FatebookPreview>
+      }
       if (linkTargetAbsolute.host === "neuronpedia.org" || linkTargetAbsolute.host === "www.neuronpedia.org") {
         return <Components.NeuronpediaPreview href={href} id={id}>
           {children}

@@ -52,7 +52,7 @@ const styles = (theme: ThemeType) => ({
 const ExternalLink: FC<PropsWithChildren<{href: string}>> = ({href, children}) =>
   <a href={href} target="_blank" rel="noreferrer">{children}</a>
 
-const EATermsOfUsePage = ({classes}: {classes: ClassesType}) => {
+const EATermsOfUsePage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const {Typography} = Components;
   return (
     <div className={classes.root}>

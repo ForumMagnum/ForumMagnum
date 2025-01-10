@@ -5,7 +5,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import { sortings } from '../posts/DraftsList';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   item: {
     listStyle: "none",
     position: "relative",
@@ -21,7 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const SequenceDraftsList = ({limit, title="My Drafts", userId, classes, addDraft, dialogPostIds}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   limit: number,
   title?: string,
   userId?: string,

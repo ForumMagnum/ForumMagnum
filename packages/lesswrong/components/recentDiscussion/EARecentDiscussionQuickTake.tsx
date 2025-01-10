@@ -85,7 +85,7 @@ const EARecentDiscussionQuickTake = ({
   comments?: CommentsListWithTopLevelComment[],
   refetch: () => void,
   expandAllThreads?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {
     isSkippable,

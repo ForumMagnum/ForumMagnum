@@ -4,7 +4,7 @@ import classNames from 'classnames';
 
 export const SCROLL_INDICATOR_SIZE = 13;
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   scrollIndicatorWrapper: {
     display: "block",
     position: "relative",
@@ -76,7 +76,7 @@ const HorizScrollBlock = ({children, className, contentsClassName, classes}: {
   children: ReactNode
   className?: string,
   contentsClassName?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const scrollableContentsRef = useRef<HTMLDivElement>(null);
   const [isScrolledAllTheWayLeft, setIsScrolledAllTheWayLeft] = useState(true);

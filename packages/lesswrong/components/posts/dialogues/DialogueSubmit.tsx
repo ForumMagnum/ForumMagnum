@@ -9,7 +9,7 @@ import { useCreate } from '../../../lib/crud/withCreate';
 import { EditorContext } from '../PostsEditForm';
 import { useNavigate } from '../../../lib/reactRouterWrapper';
 
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   formButton: {
     fontFamily: theme.typography.commentStyle.fontFamily,
     fontSize: isFriendlyUI ? 14 : 16,
@@ -91,7 +91,7 @@ const DialogueSubmit = ({
   return (
     <Row justifyContent="flex-end">
       <Button type="submit"
-        className={classNames(classes.formButton, classes.secondaryButton, classes.draft)}
+        className={classNames(classes.formButton, classes.secondaryButton)}
         onClick={() => updateCurrentValues({draft: true})}
       >
         {saveDraftLabel}

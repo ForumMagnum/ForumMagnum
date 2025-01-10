@@ -4,7 +4,7 @@ import classNames from 'classnames';
 
 export const SECTION_WIDTH = 765
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: theme.spacing.unit*4,
     maxWidth: SECTION_WIDTH,
@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const SingleColumnSection = ({classes, className, children}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   className?: string,
   children?: React.ReactNode,
 }) => {

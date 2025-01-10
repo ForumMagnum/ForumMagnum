@@ -9,7 +9,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const Error404 = ({classes}: {classes: ClassesType}) => {
+const Error404 = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const { SingleColumnSection } = Components;
   const serverRequestStatus = useServerRequestStatus()
   if (serverRequestStatus) serverRequestStatus.status = 404

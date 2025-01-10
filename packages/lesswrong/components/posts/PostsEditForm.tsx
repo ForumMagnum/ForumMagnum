@@ -15,12 +15,11 @@ import { userIsPodcaster } from '../../lib/vulcan-users/permissions';
 import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/PostsPage';
 import { isEAForum } from '../../lib/instanceSettings';
 import type { Editor } from '@ckeditor/ckeditor5-core';
-import { Link, useNavigate } from '../../lib/reactRouterWrapper';
+import { useNavigate } from '../../lib/reactRouterWrapper';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import DeferRender from '../common/DeferRender';
 import { useSingleWithPreload } from '@/lib/crud/useSingleWithPreload';
 import { userCanCreateAndEditJargonTerms } from '@/lib/betas';
-import Input from '@material-ui/core/Input';
 
 const editor: Editor | null = null
 export type EditorContextType = [Editor | null, (e: Editor) => void];
@@ -36,9 +35,9 @@ function getDraftLabel(post: PostsPage | null) {
 const PostsEditForm = ({ documentId, version, classes, showTableOfContents, fields }: {
   documentId: string,
   version?: string | null,
-  classes: ClassesType,
   showTableOfContents?: boolean,
   fields?: string[]
+  classes: ClassesType<typeof styles>,
 }) => {
   const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags, ForeignCrosspostEditForm, DialogueSubmit, RateLimitWarning, DynamicTableOfContents, ThinkLink, LWPostsPageHeaderTopRight } = Components
   

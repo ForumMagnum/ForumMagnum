@@ -27,17 +27,15 @@ const styles = (theme: ThemeType) => ({
   noExpandedPost: {
     justifyContent: "center",
   },
-  expandedPost: {
-    width: "100%",
-    maxWidth: SECTION_WIDTH,
-  },
   leftColumn: {
     position: "sticky",
+    width: "0%",
+    // transition: "width 0.2s ease-in-out",
     top: 72,
     height: "90vh",
     paddingLeft: 24,
     paddingRight: 36,
-    overflow: "hidden",
+    overflow: "scroll",
     msOverflowStyle: "none",
     scrollbarWidth: "none",
     "&::-webkit-scrollbar": {
@@ -50,6 +48,13 @@ const styles = (theme: ThemeType) => ({
       height: "unset",
       position: "unset"
     }
+  },
+  expandedPost: {
+    width: "100%",
+    maxWidth: SECTION_WIDTH,
+  },
+  rightColumnExpandedPost: {
+    opacity: .25
   },
   rightColumn: {
     width: "100%",
@@ -181,7 +186,7 @@ export const AnnualReviewPage = ({classes}: {
       <div className={classNames(classes.leftColumn, expandedPost && classes.expandedPost)}>
         {expandedPost && <ReviewVotingExpandedPost key={expandedPost?._id} post={expandedPost} setExpandedPost={setExpandedPost}/>}
       </div>
-      <div className={classes.rightColumn}>
+      <div className={classNames(classes.rightColumn, expandedPost && classes.rightColumnExpandedPost)}>
         <FrontpageReviewWidget showFrontpageItems={false} reviewYear={reviewYear}/>
         <ReviewPhaseInformation reviewYear={reviewYear} reviewPhase={reviewPhase}/>
         <Tabs
@@ -190,24 +195,24 @@ export const AnnualReviewPage = ({classes}: {
             fullWidth
             className={classes.tabs}
           >
+            {reviewPhase === 'REVIEWS' && <Tab
+              label="Quick Review"
+              value="quickReview"
+              className={classes.tab}
+            />}
             {reviewPhase === 'NOMINATIONS' && <Tab
               label="Find Posts to Nominate"
               value="nominatePosts"
               className={classes.tab}
             />}
             <Tab
-              label={reviewPhase === 'NOMINATIONS' ? "Vote on Nominated Posts" : "Advanced Voting"}
+              label={reviewPhase === 'NOMINATIONS' ? "Vote on Nominated Posts" : "Advanced Review"}
               value="reviewVoting"
               className={classes.tab}
             />
             {reviewPhase !== 'NOMINATIONS' && <Tab
-              label="Reviews"
+              label="Review Leaderboard"
               value="reviews"
-              className={classes.tab}
-            />}
-            {reviewPhase === 'REVIEWS' && <Tab
-              label="Quick Review"
-              value="quickReview"
               className={classes.tab}
             />}
         </Tabs>

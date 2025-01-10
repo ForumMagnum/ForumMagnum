@@ -10,7 +10,7 @@ import LinearProgress from "@material-ui/core/LinearProgress";
 import { CommentTreeOptions } from "../comments/commentTree";
 import debounce from "lodash/debounce";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
   },
@@ -349,7 +349,7 @@ const debouncedSaveSelection = debounce((selectedItems: Record<string, boolean>,
   localStorage.setItem("selectedTrainingComments", JSON.stringify(selectedComments));
 }, 200);
 
-const AutocompleteModelSettings = ({ classes }: { classes: ClassesType }) => {
+const AutocompleteModelSettings = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { SingleColumnSection, Loading, PostsItem, LoadMore, CommentsNode } = Components;
   const currentUser = useCurrentUser();
   const [selectedItems, setSelectedItems] = useState<Record<string, boolean>>(() => {

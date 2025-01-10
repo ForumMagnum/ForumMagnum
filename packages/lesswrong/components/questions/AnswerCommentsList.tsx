@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import type { CommentTreeOptions } from '../comments/commentTree';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   commentsList: {
     marginLeft: -4,
     marginRight: -12,
@@ -43,7 +43,7 @@ const AnswerCommentsList = ({post, parentAnswer, commentTree, treeOptions, class
   commentTree: CommentTreeNode<CommentsList>[],
   treeOptions: CommentTreeOptions,
   parentAnswer: CommentsList,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const totalCount = parentAnswer.descendentCount;
   const now = useCurrentTime();

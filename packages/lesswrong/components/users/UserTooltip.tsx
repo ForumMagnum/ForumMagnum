@@ -28,7 +28,7 @@ const UserTooltip = ({user, placement, inlineBlock, hideFollowButton, children, 
   // LW specific
   hideFollowButton?: boolean,
   children: ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {HoverOver, EAUserTooltipContent, LWUserTooltipContent} = Components;
   const content = isFriendlyUI 

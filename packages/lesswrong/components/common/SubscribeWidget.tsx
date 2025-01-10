@@ -4,7 +4,7 @@ import { withTracking } from "../../lib/analyticsEvents";
 import { isEAForum } from '../../lib/instanceSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     "&:hover": {
       opacity: isFriendlyUI ? 1 : undefined,

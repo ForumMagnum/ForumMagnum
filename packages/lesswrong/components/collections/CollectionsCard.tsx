@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import type { CoreReadingCollection } from '../sequences/LWCoreReading';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     width: "100%",
     maxWidth: 347,
@@ -87,7 +87,7 @@ const CollectionsCard = ({ collection, url, mergeTitle=false, classes }: {
   collection: CoreReadingCollection,
   url: string,
   mergeTitle?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { LinkCard, CloudinaryImage, UsersName, Typography } = Components;
   const cardContentStyle = {borderTopColor: collection.color}

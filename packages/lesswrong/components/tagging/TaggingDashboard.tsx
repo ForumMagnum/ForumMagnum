@@ -11,7 +11,7 @@ import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 
 const SECTION_WIDTH = 960
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: theme.spacing.unit*4,
     maxWidth: SECTION_WIDTH,
@@ -73,7 +73,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const TaggingDashboard = ({classes}: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { SectionTitle, TagsDetailsItem, SectionButton, TagFlagItem, NewTagsList, LoadMore, TagActivityFeed, TagVoteActivity, SingleColumnSection } = Components
   const { query } = useLocation();

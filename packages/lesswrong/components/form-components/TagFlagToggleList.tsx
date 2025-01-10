@@ -5,7 +5,7 @@ import * as _ from 'underscore';
 import { useMulti } from '../../lib/crud/withMulti';
 import DeferRender from '../common/DeferRender';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   
 });
 

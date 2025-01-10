@@ -666,6 +666,59 @@ const MetaculusPreviewComponent = registerComponent('MetaculusPreview', Metaculu
   styles: metaculusStyles
 })
 
+const fatebookStyles = (theme: ThemeType) => ({
+  iframeStyling: {
+    width: 560,
+    height: 200,
+    border: "none",
+    maxWidth: "100vw",
+    backgroundColor: theme.palette.panelBackground.default,
+    borderRadius: 3,
+    boxShadow: theme.palette.boxShadow.eaCard,
+  },
+  link: linkStyle(theme),
+})
+
+const FatebookPreview = ({classes, href, id, children}: {
+  classes: ClassesType<typeof fatebookStyles>,
+  href: string,
+  id?: string,
+  children: ReactNode,
+}) => {
+  const { AnalyticsTracker, LWPopper } = Components;
+  const { anchorEl, hover, eventHandlers } = useHover();
+
+  const isEmbed = /^https?:\/\/fatebook\.io\/embed\/q\/[\w-]+$/.test(href);
+
+  const [, questionSlug] = href.match(/^https?:\/\/fatebook\.io\/q\/(.+)$/) || [];
+
+  if (!isEmbed && !questionSlug) {
+    return (
+      <a href={href}>
+        {children}
+      </a>
+    );
+  }
+
+  const url = isEmbed ? href : `https://fatebook.io/embed/q/${questionSlug}?requireSignIn=false&compact=true`;
+
+  return (
+    <AnalyticsTracker eventType="link" eventProps={{ to: href }}>
+      <span {...eventHandlers}>
+        <a className={classes.link} href={href} id={id}>
+          {children}
+        </a>
+
+        <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
+          <iframe className={classes.iframeStyling} src={url} />
+        </LWPopper>
+      </span>
+    </AnalyticsTracker>
+  );
+};
+
+const FatebookPreviewComponent = registerComponent('FatebookPreview', FatebookPreview, { styles: fatebookStyles })
+
 const manifoldStyles = (theme: ThemeType) => ({
   iframeStyling: {
     width: 560,
@@ -677,7 +730,7 @@ const manifoldStyles = (theme: ThemeType) => ({
 });
 
 const ManifoldPreview = ({classes, href, id, children}: {
-  classes: ClassesType;
+  classes: ClassesType<typeof manifoldStyles>;
   href: string;
   id?: string;
   children: ReactNode,
@@ -731,7 +784,7 @@ const neuronpediaStyles = (theme: ThemeType) => ({
 });
 
 const NeuronpediaPreview = ({classes, href, id, children}: {
-  classes: ClassesType;
+  classes: ClassesType<typeof neuronpediaStyles>;
   href: string;
   id?: string;
   children: ReactNode,
@@ -784,7 +837,7 @@ const metaforecastStyles = (theme: ThemeType) => ({
 });
 
 const MetaforecastPreview = ({classes, href, id, children}: {
-  classes: ClassesType;
+  classes: ClassesType<typeof metaforecastStyles>;
   href: string;
   id?: string;
   children: ReactNode,
@@ -1045,6 +1098,7 @@ declare global {
     PostLinkPreviewWithPost: typeof PostLinkPreviewWithPostComponent,
     CommentLinkPreviewWithComment: typeof CommentLinkPreviewWithCommentComponent,
     MozillaHubPreview: typeof MozillaHubPreviewComponent,
+    FatebookPreview: typeof FatebookPreviewComponent,
     MetaculusPreview: typeof MetaculusPreviewComponent,
     ManifoldPreview: typeof ManifoldPreviewComponent,
     NeuronpediaPreview: typeof NeuronpediaPreviewComponent,

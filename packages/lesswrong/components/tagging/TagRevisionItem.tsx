@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import withErrorBoundary from '../common/withErrorBoundary'
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   container: {
     background: theme.palette.panelBackground.default,
     border: theme.palette.border.commentBorder,
@@ -37,7 +37,7 @@ const TagRevisionItem = ({
   documentId: string,
   showDiscussionLink?: boolean,
   noContainer?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { CompareRevisions, TagRevisionItemFullMetadata, TagRevisionItemShortMetadata, TagDiscussionButton, ContentStyles } = Components
   const [expanded, setExpanded] = useState(false);

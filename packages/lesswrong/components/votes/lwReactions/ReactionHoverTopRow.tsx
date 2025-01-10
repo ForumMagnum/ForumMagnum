@@ -7,7 +7,7 @@ import { useNamesAttachedReactionsVoting } from './NamesAttachedReactionsVoteOnC
 import filter from 'lodash/filter';
 import sumBy from 'lodash/sumBy';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   hoverBallotEntry: {
     fontFamily: theme.typography.commentStyle.fontFamily,
     cursor: "pointer",
@@ -48,7 +48,7 @@ const ReactionHoverTopRow = ({reactionName, userReactions, showNonInlineVoteButt
   userReactions: UserReactInfo[],
   showNonInlineVoteButtons: boolean,
   voteProps: VotingProps<VoteableTypeClient>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { ReactionDescription, ReactionIcon } = Components;
   const nonInlineReactions = filter(userReactions, r => !(r.quotes?.length));

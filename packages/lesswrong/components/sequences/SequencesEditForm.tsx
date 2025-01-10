@@ -7,7 +7,7 @@ const SequencesEditForm = ({ documentId, successCallback, cancelCallback, remove
   successCallback?: () => void,
   cancelCallback?: () => void,
   removeSuccessCallback?: any,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return (
     <div className={classes.sequencesForm}>

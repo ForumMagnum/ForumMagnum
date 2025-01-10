@@ -5,7 +5,7 @@ import { useLocation } from '@/lib/routeUtil';
 import { sequence } from 'fp-ts/lib/Traversable';
 import { getThinkSequencePostUrl } from '../thinkPage/ThinkLink';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   description: {
     marginLeft: 10,
     marginBottom: 24,
@@ -30,7 +30,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const ChaptersItem = ({ chapter, canEdit, classes }: {
   chapter: ChaptersFragment,
   canEdit: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [edit,setEdit] = useState(false);
 

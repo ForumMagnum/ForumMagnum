@@ -9,7 +9,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames'
 import * as _ from 'underscore';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   ...postsItemLikeStyles(theme),
   wrap: {
     flexWrap: "wrap",
@@ -40,7 +40,7 @@ const ConversationItem = ({conversation, updateConversation, currentUser, classe
   conversation: ConversationsList,
   updateConversation: any,
   currentUser: UsersCurrent,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   expanded?: boolean
 }) => {
   const { PostsItem2MetaInfo, UsersName, FormatDate, ConversationPreview } = Components

@@ -6,7 +6,7 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { getReviewAlgorithm } from "./FrontpageReviewWidget";
 import type { DefaultRecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   timeRemaining: {
     marginTop: 6,
     marginBottom: 4
@@ -30,7 +30,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const FrontpageVotingPhase = ({settings, classes}: {
   settings: DefaultRecommendationsAlgorithm,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const { SectionSubtitle, SectionFooter, RecommendationsList, HoverPreviewLink, LWTooltip } = Components

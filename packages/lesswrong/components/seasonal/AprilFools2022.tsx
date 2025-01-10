@@ -10,7 +10,7 @@ export const enableGoodHeartProject = new DatabasePublicSetting<boolean>('enable
 
 export const goodHeartStartDate = new Date("04/01/2022")
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   row: {
     display: "flex",
     flexWrap: "wrap",
@@ -77,7 +77,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const AprilFools2022 = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { SingleColumnSection, SectionTitle, UsersNameDisplay, SectionFooter } = Components
 

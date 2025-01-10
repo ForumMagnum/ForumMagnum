@@ -5,12 +5,10 @@ import { useDialog } from '../common/withDialog';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useTracking } from "../../lib/analyticsEvents";
-import { taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings';
 import Paper from '@material-ui/core/Paper';
 import { Link } from '../../lib/reactRouterWrapper';
-import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -83,7 +81,7 @@ const WriteNewButton = ({
   isSubscribed: boolean,
   setNewShortformOpen: (open: boolean) => void,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { captureEvent } = useTracking()
   const currentUser = useCurrentUser();
@@ -114,7 +112,7 @@ const WriteNewButton = ({
       >
         <div className={classNames(classes.buttonSection, classes.buttonLabelContainer)} ref={anchorEl}>
           <ForumIcon icon="Plus" className={classes.icon} />
-          <span className={classes.subscribeText}>Write new</span>
+          <span>Write new</span>
         </div>
       </Button>
       <LWPopper open={!!anchorEl.current && open} anchorEl={anchorEl.current} placement="bottom-start">
@@ -125,7 +123,7 @@ const WriteNewButton = ({
             </Link>
             <MenuItem
               className={classes.menuItem}
-              onClick={(e) => {
+              onClick={(_e) => {
                 captureEvent('writeNewShortformClicked', {writeNewMenuItem: "newShortform"})
                 setNewShortformOpen(true);
                 setOpen(false);
