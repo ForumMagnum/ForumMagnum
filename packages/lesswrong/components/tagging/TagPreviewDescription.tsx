@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { truncate } from '../../lib/editor/ellipsize';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { getHashLinkOnClick } from '../common/HashLink';
-import { isLW } from '../../lib/instanceSettings';
+import { isLW, isLWorAF } from '../../lib/instanceSettings';
 import { useNavigate } from '../../lib/reactRouterWrapper';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
@@ -40,7 +40,7 @@ const getTagParagraphTruncationCount = (tag: TagPreviewFragment | TagSectionPrev
   if (!tag.description || 'htmlHighlight' in tag.description) return 1;
 
   // Show two paragraphs for links to tag section headers
-  return 8;
+  return isLWorAF ? 8 : 2;
 }
 
 const TagPreviewDescription = ({tag, hash, classes, activeTab}: {
@@ -100,22 +100,22 @@ const TagPreviewDescription = ({tag, hash, classes, activeTab}: {
 
   if (html) {
     return <div
-    onClick={(ev: React.MouseEvent) => {
-      if ((ev.target as any)?.className==="read-more-button") {
-        ev.preventDefault();
-        navigate(tagUrl);
-        hashLinkOnClick(ev as React.MouseEvent<HTMLAnchorElement>);
-      }
-    }}
-  >
-    <ContentStyles contentType="comment">
-      <ContentItemBody
-        className={classes.root}
-        dangerouslySetInnerHTML={{__html: html}}
-        description={`tag ${tag.name}`}
-      />
-    </ContentStyles>
-  </div>
+      onClick={(ev: React.MouseEvent) => {
+        if ((ev.target as any)?.className==="read-more-button") {
+          ev.preventDefault();
+          navigate(tagUrl);
+          hashLinkOnClick(ev as React.MouseEvent<HTMLAnchorElement>);
+        }
+      }}
+    >
+      <ContentStyles contentType="comment">
+        <ContentItemBody
+          className={classes.root}
+          dangerouslySetInnerHTML={{__html: html}}
+          description={`tag ${tag.name}`}
+        />
+      </ContentStyles>
+    </div>
   }
 
   // TODO: This hacky code path that we never hit is Times New Roman

@@ -4,7 +4,7 @@ import { useLocation } from '../../lib/routeUtil'
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { useTagBySlug } from './useTag';
 import { useApolloClient } from "@apollo/client";
-import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
+import { isLWorAF, taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { useNavigate } from '../../lib/reactRouterWrapper';
 
 export const EditTagForm = ({tag, successCallback, cancelCallback, changeCallback, warnUnsavedChanges}: {
@@ -22,7 +22,7 @@ export const EditTagForm = ({tag, successCallback, cancelCallback, changeCallbac
     mutationFragment={getFragment('TagWithFlagsFragment')}
     successCallback={successCallback}
     cancelCallback={cancelCallback}
-    addFields={['summaries']}
+    addFields={isLWorAF ? ['summaries'] : []}
     warnUnsavedChanges={warnUnsavedChanges}
     changeCallback={changeCallback}
   />

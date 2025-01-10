@@ -17,7 +17,6 @@ Revisions.addView('revisionsByUser', (terms: RevisionsViewTerms) => {
   return {
     selector: {
       userId: terms.userId,
-      // collectionName: 'Tags'
       // TODO: this might cause problems if we're not showing edits to summaries
       // Because we have a limit, if a user has a lot of edits to summaries, we could just show an empty list
       $or: [

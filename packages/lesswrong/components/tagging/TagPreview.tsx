@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
-import { tagPostTerms } from './TagPageExports';
+import { tagPostTerms } from './TagPageUtils';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { getTagDescriptionHtml } from '../common/excerpts/TagExcerpt';
 import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';

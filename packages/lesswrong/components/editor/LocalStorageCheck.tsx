@@ -1,10 +1,9 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { SerializedEditorContents, deserializeEditorContents, EditorContents, nonAdminEditors, adminEditors } from './Editor';
 import { useCurrentUser } from '../common/withUser';
 import { htmlToTextDefault } from '@/lib/htmlToText';
 import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
-import { TagEditorContext } from '../tagging/TagEditorContext';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -95,9 +94,6 @@ const LocalStorageCheck = ({getLocalStorageHandlers, onRestore, classes}: {
   const [localStorageChecked, setLocalStorageChecked] = useState(false);
   const [restorableState, setRestorableState] = useState<RestorableState|null>(null);
   const currentUser = useCurrentUser();
-
-  // const { onOpenEditor, setOnOpenEditor } = useContext(TagEditorContext);
-  // const restoreElementRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
     if (!localStorageChecked) {
@@ -105,18 +101,6 @@ const LocalStorageCheck = ({getLocalStorageHandlers, onRestore, classes}: {
       setRestorableState(getRestorableState(currentUser, getLocalStorageHandlers));
     }
   }, [localStorageChecked, getLocalStorageHandlers, currentUser]);
-
-  // useEffect(() => {
-  //   setOnOpenEditor((_) => () => {
-  //     if (restoreElementRef.current) {
-  //       // Scroll down by the restore element's height
-  //       window.scrollTo({
-  //         top: restoreElementRef.current.offsetTop + restoreElementRef.current.offsetHeight,
-  //         behavior: 'smooth',
-  //       });
-  //     }
-  //   });
-  // }, [restorableState, restoreElementRef.current]);
   
   if (!restorableState)
     return null;

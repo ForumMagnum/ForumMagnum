@@ -7,7 +7,6 @@ import orderBy from 'lodash/orderBy';
 import times from 'lodash/times';
 import filter from 'lodash/filter';
 import * as _ from 'underscore';
-import fs from 'node:fs';
 
 type EditAttributions = (string|null)[]
 type InsDelUnc = "ins"|"del"|"unchanged"

@@ -146,11 +146,12 @@ export const taggingNameCapitalizedWithPluralizationChoice = { get: () => {
   return taggingNameCapitalSetting.get();
 }};
 
-/** Value for tags in the urls, e.g. /w/:slug, or /tag/:slug or /topics/:slug, if set. This allows the url for tags to
- * be something other than the tag name, e.g. LessWrong is setting this to "w",
- * Defaults to tag setting name (with or without pluralization).
+/** 
+ * If set, this defines the "path part" previously occupied by "tag" in tag-related urls.
+ * This allows the url for tags to be something other than the tag name, e.g. LessWrong is setting this to "w".
+ * External consumers should use `tagUrlBaseSetting`, which defaults to taggingNameSetting (with or without pluralization).
  */
-export const taggingUrlCustomBaseSetting = new PublicInstanceSetting<string|null>('taggingUrlCustomBase', null, 'optional')
+const taggingUrlCustomBaseSetting = new PublicInstanceSetting<string|null>('taggingUrlCustomBase', null, 'optional')
 export const tagUrlBaseSetting = {get: () => {
   const customBase = taggingUrlCustomBaseSetting.get();
   if (customBase) {

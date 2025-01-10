@@ -303,7 +303,7 @@ async function commentsRejectSendPMAsync (comment: DbComment, currentUser: DbUse
     const tag = await Tags.findOne(comment.tagId)
     if (tag) {
       contentTitle = tag.name
-      rejectedContentLink = `<a href=${tagGetDiscussionUrl({slug: tag.slug}, true)}` + `commentId=${comment._id}">comment on ${tag.name}</a>`
+      rejectedContentLink = `<a href=${tagGetDiscussionUrl({slug: tag.slug}, true)}` + `?commentId=${comment._id}">comment on ${tag.name}</a>`
     }
   } else if (comment.postId) {
     const post = await Posts.findOne(comment.postId)

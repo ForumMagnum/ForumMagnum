@@ -18,7 +18,7 @@ import truncateTagDescription from "../../lib/utils/truncateTagDescription";
 import { getTagStructuredData } from "./TagPageRouter";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import DeferRender from "../common/DeferRender";
-import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from "./TagPageExports";
+import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from "./TagPageUtils";
 import { useStyles, defineStyles } from "../hooks/useStyles";
 import { HEADER_HEIGHT } from "../common/Header";
 import { MAX_COLUMN_WIDTH } from "../posts/PostsPage/PostsPage";

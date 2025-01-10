@@ -385,7 +385,7 @@ addRoute(
     subtitleComponentName: 'TagPageTitle',
     previewComponentName: 'TagHoverPreview',
     enableResourcePrefetch: tagRouteWillDefinitelyReturn200,
-    background: isLW ? "white" : "#fffeee",
+    background: isLWorAF ? "white" : undefined,
     getPingback: (parsedUrl) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug),
     redirect: (location) => {
       if (!isLWorAF) {
@@ -407,7 +407,7 @@ addRoute(
     titleComponentName: 'TagPageTitle',
     subtitleComponentName: 'TagPageTitle',
     previewComponentName: 'TagHoverPreview',
-    background: isLW ? "white" : undefined,
+    background: isLWorAF ? "white" : undefined,
     noIndex: isEAForum,
     getPingback: (parsedUrl) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug),
   },
@@ -543,15 +543,15 @@ addRoute(
   }))
 );
 
-addRoute(
-  {
+if (isLWorAF) {
+  addRoute({
     name: 'arbitalExplore',
     title: 'Arbital',
     path: '/arbital',
     componentName: 'ArbitalExplorePage',
     navigationFooterBar: true,
-  }
-)
+  });
+}
 
 
 export function initLegacyRoutes() {

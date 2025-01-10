@@ -1,7 +1,7 @@
 import { ApolloServer } from 'apollo-server-express';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 
-import { isDevelopment, isProduction, isE2E } from '../lib/executionEnvironment';
+import { isDevelopment, isE2E } from '../lib/executionEnvironment';
 import { renderWithCache, getThemeOptionsFromReq } from './vulcan-lib/apollo-ssr/renderPage';
 
 import { pickerMiddleware, addStaticRoute } from './vulcan-lib/staticRoutes';

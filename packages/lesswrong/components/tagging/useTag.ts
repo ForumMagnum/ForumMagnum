@@ -1,7 +1,7 @@
 import { useMulti, UseMultiOptions } from '../../lib/crud/withMulti';
 import { gql, useQuery } from '@apollo/client';
 import { fragmentTextForQuery } from '@/lib/vulcan-lib';
-import { isLW } from '@/lib/instanceSettings';
+import { hasWikiLenses } from '@/lib/betas';
 
 export const useTagBySlug = <FragmentTypeName extends keyof FragmentTypes>(
   slug: string,
@@ -72,12 +72,11 @@ export const useTagPreview = (
         }
       }
     }
-    ${fragmentTextForQuery(fragmentName)}
-    ${fragmentTextForQuery('MultiDocumentEdit')}
+    ${fragmentTextForQuery([fragmentName, 'MultiDocumentEdit'])}
   `;
 
   const { data, loading: queryLoading, error: queryError } = useQuery(query, {
-    skip: queryOptions?.skip || !isLW,
+    skip: queryOptions?.skip || !hasWikiLenses,
     variables: { ...hashVariables.extraVariablesValues, slug }
   })
 
@@ -91,10 +90,10 @@ export const useTagPreview = (
     limit: 1,
     ...hashVariables,
     ...queryOptions,
-    skip: queryOptions?.skip || isLW,
+    skip: queryOptions?.skip || hasWikiLenses,
   });
 
-  if (isLW) {
+  if (hasWikiLenses) {
     if (data?.TagPreview?.tag) {
       const tag: TagPreviewFragment & { summaries: MultiDocumentEdit[] } = { ...data.TagPreview.tag, summaries: data.TagPreview.summaries };
 
