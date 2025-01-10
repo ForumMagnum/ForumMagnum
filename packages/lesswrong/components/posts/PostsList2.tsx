@@ -67,7 +67,9 @@ const PostsList2 = ({classes, ...props}: PostsList2Props) => {
         placeholderCount={placeholderCount || limit}
         showFinalBottomBorder={showFinalBottomBorder}
         viewType={viewType}
-      />
+      >
+        {children}
+      </PostsLoading>
     );
   }
 
@@ -88,19 +90,19 @@ const PostsList2 = ({classes, ...props}: PostsList2Props) => {
         }
         {orderedResults && !orderedResults.length && <PostsNoResults/>}
 
-      <AnalyticsContext viewType={viewType}>
-        <div className={classNames(
-          boxShadow && classes.postsBoxShadow,
-          showPlacement && classes.postsGrid,
-        )}>
-          {itemProps?.map((props) => <React.Fragment key={props.post._id}>
-            {showPlacement && props.index !== undefined && <div className={classes.placement}>
-              #{props.index + 1}
-            </div>}
-            <PostsItem  {...props} />
-          </React.Fragment>)}
-        </div>
-      </AnalyticsContext>
+        <AnalyticsContext viewType={viewType}>
+          <div className={classNames(
+            boxShadow && classes.postsBoxShadow,
+            showPlacement && classes.postsGrid,
+          )}>
+            {itemProps?.map((props) => <React.Fragment key={props.post._id}>
+              {showPlacement && props.index !== undefined && <div className={classes.placement}>
+                #{props.index + 1}
+              </div>}
+              <PostsItem  {...props} />
+            </React.Fragment>)}
+          </div>
+        </AnalyticsContext>
 
         {showLoadMore && <SectionFooter>
           <LoadMore
