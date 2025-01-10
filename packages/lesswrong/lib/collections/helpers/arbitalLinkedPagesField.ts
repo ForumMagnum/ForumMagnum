@@ -8,15 +8,20 @@ interface ArbitalLinkedPagesFieldOptions {
 }
 
 addGraphQLSchema(`
+  type ArbitalLinkedPage {
+    _id: String!
+    name: String!
+    slug: String!
+  }
   type ArbitalLinkedPages {
-    faster: [Tag]
-    slower: [Tag]
-    moreTechnical: [Tag]
-    lessTechnical: [Tag]
-    requirements: [Tag]
-    teaches: [Tag]
-    parents: [Tag]
-    children: [Tag]
+    faster: [ArbitalLinkedPage]
+    slower: [ArbitalLinkedPage]
+    moreTechnical: [ArbitalLinkedPage]
+    lessTechnical: [ArbitalLinkedPage]
+    requirements: [ArbitalLinkedPage]
+    teaches: [ArbitalLinkedPage]
+    parents: [ArbitalLinkedPage]
+    children: [ArbitalLinkedPage]
   }
 `);
 
@@ -168,11 +173,13 @@ export function arbitalLinkedPagesField(options: ArbitalLinkedPagesFieldOptions)
         const [tags, multiDocs] = await Promise.all([
           Tags.find(
             { _id: { $in: ids } },
-            { projection: { _id: 1, name: 1, slug: 1 } }
+            undefined,
+            { _id: 1, name: 1, slug: 1 }
           ).fetch(),
           MultiDocuments.find(
             { _id: { $in: ids }, fieldName: 'description' },
-            { projection: { _id: 1, parentDocumentId: 1, title: 1, slug: 1 } }
+            undefined,
+            { _id: 1, parentDocumentId: 1, title: 1, slug: 1 }
           ).fetch(),
         ]);
 
