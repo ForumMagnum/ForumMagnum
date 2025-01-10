@@ -816,12 +816,9 @@ const schema: SchemaType<"Tags"> = {
     type: Number,
     canRead: ['guests'],
     resolver: async (tag, args, context) => {
-      // Get the tag's own baseScore
-      const tagScore = tag.baseScore ?? 0;
-
-      // Use the helper function to get multidocuments' baseScores
       const multiDocuments = await getTagMultiDocuments(context, tag._id);
 
+      const tagScore = tag.baseScore ?? 0;
       const multiDocScores = multiDocuments.map(md => md.baseScore ?? 0);
       const allScores = [tagScore, ...multiDocScores];
       const maxScore = Math.max(...allScores);
@@ -837,10 +834,8 @@ const schema: SchemaType<"Tags"> = {
     resolver: async (tag, args, context): Promise<LikesList> => {
       const multiDocuments = await getTagMultiDocuments(context, tag._id);
 
-      const tagUsersWhoLiked: LikesList = tag.extendedScore?.usersWhoLiked || [];
-      const multiDocUsersWhoLiked: LikesList = multiDocuments.flatMap(
-        md => md.extendedScore?.usersWhoLiked ?? []
-      );
+      const tagUsersWhoLiked: LikesList = tag.extendedScore?.usersWhoLiked ?? [];
+      const multiDocUsersWhoLiked: LikesList = multiDocuments.flatMap(md => md.extendedScore?.usersWhoLiked ?? []);
       const usersWhoLiked: LikesList = uniqBy(
         tagUsersWhoLiked.concat(multiDocUsersWhoLiked),
         '_id'
