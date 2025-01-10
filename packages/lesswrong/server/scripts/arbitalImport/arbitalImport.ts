@@ -1270,7 +1270,7 @@ async function convertLikesToVotes(conversionContext: ArbitalConversionContext, 
     const { vote } = await performVoteServer({
       collection,
       user,
-      voteType: "smallUpvote",
+      voteType: "bigUpvote",
       extendedVote: (collectionName === "Comments" ? {
         reacts: [{
           react: "thumbs-up",

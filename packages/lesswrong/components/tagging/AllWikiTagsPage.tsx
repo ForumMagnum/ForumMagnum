@@ -138,13 +138,6 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
     flexDirection: "column",
     width: "100%",
   },
-  wikiTagNestedList: {
-    flexShrink: 0,
-    width: "100%",
-    marginLeft: 0,
-    maxWidth: 600,
-    alignSelf: "flex-start",
-  },
   arbitalRedirectNotice: {
     display: 'flex',
     flexDirection: 'row',
@@ -212,6 +205,8 @@ const uncategorizedRootTag = {
   },
   postCount: 0,
   baseScore: 0,
+  maxScore: 0,
+  usersWhoLiked: [],
   coreTagId: null,
   parentTagId: null,
   isArbitalImport: false,
@@ -315,11 +310,13 @@ const AllWikiTagsPage = () => {
             key={tag._id}
             parentTag={tag}
             searchTagIds={currentQuery ? tagIds : null}
+            showArbitalIcons={isArbitalRedirect}
           />
         ))}
         <WikiTagGroup
           parentTag={uncategorizedRootTag}
           searchTagIds={currentQuery ? tagIds : null}
+          showArbitalIcons={isArbitalRedirect}
         />
       </div>
     );

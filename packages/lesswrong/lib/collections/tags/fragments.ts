@@ -477,6 +477,11 @@ registerFragment(`
     }
     isArbitalImport
     coreTagId
+    maxScore
+    usersWhoLiked {
+      _id
+      displayName
+    }
   }
 `);
 

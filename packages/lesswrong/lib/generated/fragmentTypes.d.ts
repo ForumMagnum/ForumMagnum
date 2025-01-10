@@ -443,6 +443,8 @@ interface UsersDefaultFragment { // fragment on Users
   readonly hideSunshineSidebar: boolean,
   readonly inactiveSurveyEmailSentAt: Date | null,
   readonly userSurveyEmailSentAt: Date | null,
+  readonly givingSeason2024DonatedFlair: boolean,
+  readonly givingSeason2024VotedFlair: boolean,
 }
 
 interface CommentsDefaultFragment { // fragment on Comments
@@ -2858,6 +2860,8 @@ interface ConceptItemFragment { // fragment on Tags
   readonly description: ConceptItemFragment_description|null,
   readonly isArbitalImport: boolean|null,
   readonly coreTagId: string|null,
+  readonly maxScore: number|null,
+  readonly usersWhoLiked: any,
 }
 
 interface ConceptItemFragment_description { // fragment on Revisions

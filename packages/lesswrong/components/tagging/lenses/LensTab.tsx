@@ -15,9 +15,9 @@ const styles = defineStyles("LensTab", (theme: ThemeType) => ({
     },
     [theme.breakpoints.down('sm')]: {
       gap: '2px',
-      flexWrap: 'wrap-reverse',
       display: 'flex',
       flexDirection: 'row',
+      flexWrap: 'wrap-reverse',
     },
   },
   hideMuiTabIndicator: {
@@ -35,8 +35,13 @@ const styles = defineStyles("LensTab", (theme: ThemeType) => ({
     },
   },
   lensTab: {
-    minWidth: 'unset',
+    minWidth: 'max-content',
     borderWidth: 1,
+  },
+  lensTitleContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'start',
   },
   lensTabRootOverride: {
     [theme.breakpoints.down('sm')]: {
@@ -49,26 +54,25 @@ const styles = defineStyles("LensTab", (theme: ThemeType) => ({
     borderTopRightRadius: theme.borderRadius.small * 2,
   },
   tabLabelContainerOverride: {
-    paddingLeft: 16,
-    paddingRight: 16,
+    paddingLeft: 12,
+    paddingRight: 12,
+    paddingTop: 3,
+    paddingBottom: 0,
+    marginBottom: -1,
     [theme.breakpoints.down('sm')]: {
-      paddingLeft: 8,
-      paddingRight: 8,
+      paddingLeft: 6,
+      paddingRight: 6,
       paddingTop: 0,
-      paddingBottom: 4,
+      marginTop: -2,
       width: '100%',
     },
   },
   selectedLens: {
-    [theme.breakpoints.down('sm')]: {
-      // border: theme.palette.border.grey400,
-    },
     [theme.breakpoints.up('md')]: {
       borderStyle: 'solid',
       // These don't work with borderImageSource, maybe TODO
       // borderTopLeftRadius: theme.borderRadius.small * 2,
       // borderTopRightRadius: theme.borderRadius.small * 2,
-      borderWidth: '1px 1px 0 1px',
       borderImageSource: `linear-gradient(to bottom, 
         ${theme.palette.grey[400]} 0%, 
         rgba(0,0,0,0) 100%
@@ -88,33 +92,43 @@ const styles = defineStyles("LensTab", (theme: ThemeType) => ({
   },
   lensLabel: {
     display: 'flex',
-    flexDirection: 'column',
+    flexDirection: 'row',
     minHeight: 48,
-    [theme.breakpoints.up('md')]: {
-    },
-    alignItems: 'start',
+    alignItems: 'center',
     justifyContent: 'center',
     [theme.breakpoints.down('sm')]: {
       height: 'min-content',
-      gap: '4px',
+    },
+  },
+  lensLabelWithoutSubtitle: {
+    [theme.breakpoints.up('md')]: {
+      paddingBottom: 3,
     },
   },
   lensTitle: {
     ...theme.typography.subtitle,
     textTransform: 'none',
+    textAlign: 'left',
+    lineHeight: '1.2em',
     marginBottom: 0,
   },
   lensSubtitle: {
     ...theme.typography.subtitle,
     textTransform: 'none',
+    textAlign: 'left',
     fontSize: '1em',
     fontWeight: 400,
+    lineHeight: '1.2em',
     [theme.breakpoints.down('sm')]: {
       width: 'fit-content',
       display: 'block',
       textAlign: 'left',
       marginBottom: 1,
     },
+  },
+  likeButton: {
+    marginTop: 4,
+    marginLeft: 8,
   },
   deletedLens: {
     textDecoration: 'line-through',
@@ -132,6 +146,13 @@ const LensTabBar = ({lenses, selectedLens, switchLens}: {
   const classes = useStyles(styles);
   if (!(lenses.length > 1)) return null;
 
+  // Sort lenses: main tab first, then by baseScore descending
+  const sortedLenses = [...lenses].sort((a, b) => {
+    if (a._id === MAIN_TAB_ID) return -1;
+    if (b._id === MAIN_TAB_ID) return 1;
+    return (b.baseScore ?? 0) - (a.baseScore ?? 0);
+  });
+
   return <Tabs
     value={selectedLens?._id}
     onChange={(e, newLensId) => switchLens(newLensId)}
@@ -140,7 +161,7 @@ const LensTabBar = ({lenses, selectedLens, switchLens}: {
       indicator: classes.hideMuiTabIndicator
     }}
   >
-    {lenses.map(lens => <LensTab
+    {sortedLenses.map(lens => <LensTab
       key={lens._id}
       value={lens._id}
       lens={lens}
@@ -161,10 +182,12 @@ const LensTab = ({ lens, value, isSelected, ...tabProps }: {
   
   if (!lens) return null;
 
-  const label = <div key={lens._id} className={classes.lensLabel}>
-    <span className={classNames(classes.lensTitle, lens.deleted && classes.deletedLens)}>{lens.tabTitle}</span>
-    {lens.tabSubtitle && <span className={classNames(classes.lensSubtitle, lens.deleted && classes.deletedLens)}>{lens.tabSubtitle}</span>}
-    <TagOrLensLikeButton lens={lens} />
+  const label = <div key={lens._id} className={classNames(classes.lensLabel, !lens.tabSubtitle && classes.lensLabelWithoutSubtitle)}>
+    <div className={classes.lensTitleContainer}>
+      <span className={classNames(classes.lensTitle, lens.deleted && classes.deletedLens)}>{lens.tabTitle}</span>
+      {lens.tabSubtitle && <span className={classNames(classes.lensSubtitle, lens.deleted && classes.deletedLens)}>{lens.tabSubtitle}</span>}
+    </div>
+    <TagOrLensLikeButton lens={lens} isSelected={isSelected} className={classes.likeButton}/>
   </div>;
   
 
@@ -181,8 +204,11 @@ const LensTab = ({ lens, value, isSelected, ...tabProps }: {
   );
 };
 
-const TagOrLensLikeButton = ({lens}: {
-  lens: TagLens
+const TagOrLensLikeButton = ({lens, isSelected, stylingVariant, className}: {
+  lens: TagLens,
+  isSelected: boolean,
+  stylingVariant?: "default" | "buttonRow",
+  className?: string,
 }) => {
   const lensVotingSystem = getVotingSystemByName("reactionsAndLikes");
   const isMainLens = (lens._id === MAIN_TAB_ID);
@@ -195,6 +221,9 @@ const TagOrLensLikeButton = ({lens}: {
     } : lens}
     collectionName={isMainLens ? "Tags" : "MultiDocuments"}
     votingSystem={lensVotingSystem}
+    isSelected={isSelected}
+    stylingVariant={stylingVariant}
+    className={className}
   />
 }
 

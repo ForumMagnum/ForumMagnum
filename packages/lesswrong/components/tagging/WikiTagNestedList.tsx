@@ -53,7 +53,8 @@ const WikiTagNestedList = ({
         <ConceptItem 
           key={page._id} 
           wikitag={page} 
-          nestingLevel={nestingLevel}
+          // TODO: this will be broken but who knows if we're even keeping this component
+          isTitleItem={nestingLevel === 0}
           showArbitalIcon={showArbitalIcons}
         />
       ))}

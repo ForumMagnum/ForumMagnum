@@ -16,6 +16,8 @@ import { preferredHeadingCase } from '../../../themes/forumTheme';
 import { getUnusedSlugByCollectionName, slugIsUsed } from '@/lib/helpers';
 import { arbitalLinkedPagesField } from '../helpers/arbitalLinkedPagesField';
 import { summariesField } from '../helpers/summariesField';
+import uniqBy from 'lodash/uniqBy';
+import { LikesList } from '@/lib/voting/reactionsAndLikes';
 
 addGraphQLSchema(`
   type TagContributor {
@@ -29,11 +31,31 @@ addGraphQLSchema(`
     contributors: [TagContributor!]
     totalCount: Int!
   }
+  type UserLikingTag {
+    _id: String!
+    displayName: String!
+  }
 `);
 
 export const TAG_POSTS_SORT_ORDER_OPTIONS: Record<string, SettingsOption>  = {
   relevance: { label: preferredHeadingCase('Most Relevant') },
   ...SORT_ORDER_OPTIONS,
+}
+
+// Define the helper function at an appropriate place in your file
+async function getTagMultiDocuments(
+  context: ResolverContext,
+  tagId: string,
+) {
+  const { MultiDocuments } = context;
+  return await getWithLoader(
+    context,
+    MultiDocuments,
+    'multiDocumentsForTag',
+    { collectionName: 'Tags', fieldName: 'description' },
+    'parentDocumentId',
+    tagId,
+  );
 }
 
 const schema: SchemaType<"Tags"> = {
@@ -789,6 +811,45 @@ const schema: SchemaType<"Tags"> = {
       return rel?.parentDocumentId;
     },
   }),
+
+  maxScore: resolverOnlyField({
+    type: Number,
+    canRead: ['guests'],
+    resolver: async (tag, args, context) => {
+      const multiDocuments = await getTagMultiDocuments(context, tag._id);
+
+      const tagScore = tag.baseScore ?? 0;
+      const multiDocScores = multiDocuments.map(md => md.baseScore ?? 0);
+      const allScores = [tagScore, ...multiDocScores];
+      const maxScore = Math.max(...allScores);
+
+      return maxScore;
+    },
+  }),
+
+  usersWhoLiked: resolverOnlyField({
+    type: Array,
+    graphQLtype: '[UserLikingTag!]!',
+    canRead: ['guests'],
+    resolver: async (tag, args, context): Promise<LikesList> => {
+      const multiDocuments = await getTagMultiDocuments(context, tag._id);
+
+      const tagUsersWhoLiked: LikesList = tag.extendedScore?.usersWhoLiked ?? [];
+      const multiDocUsersWhoLiked: LikesList = multiDocuments.flatMap(md => md.extendedScore?.usersWhoLiked ?? []);
+      const usersWhoLiked: LikesList = uniqBy(
+        tagUsersWhoLiked.concat(multiDocUsersWhoLiked),
+        '_id'
+      );
+      return usersWhoLiked;
+    },
+  }),
+  'usersWhoLiked.$': {
+    type: new SimpleSchema({
+      _id: { type: String },
+      displayName: { type: String },
+    }),
+    optional: true,
+  },
 }
 
 export default schema;

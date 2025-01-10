@@ -62,7 +62,7 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     display: "-webkit-box",
     overflow: "ellipsis",
   },
-  karma: {
+  maxScore: {
     fontSize: 12,
     color: theme.palette.grey[700],
     width: 20,
@@ -144,6 +144,12 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     marginLeft: 8,
   },
   tooltipHoverPostCount: {},
+  tooltipHoverTitle: {
+    marginLeft: 16
+  },
+  tooltipHoverScore: {
+    marginRight: 8
+  },
   arbitalIcon: {
     height: 10,
     width: 10,
@@ -158,22 +164,22 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
 
 interface ConceptItemProps {
   wikitag: ConceptItemFragment;
-  nestingLevel: number;
-  index?: number;
+  isTitleItem?: boolean;
   showArbitalIcon?: boolean;
 }
 
 const ConceptItem = ({
   wikitag,
-  nestingLevel,
-  index,
+  isTitleItem,
   showArbitalIcon
 }: ConceptItemProps) => {
   const classes = useStyles(styles);
 
   const { TagsTooltip, LWTooltip } = Components;
 
-  // Title item (for nestingLevel === 0)
+  const usersWhoLiked = wikitag.usersWhoLiked ?? [];
+  const maxScore = wikitag.maxScore ?? 0;
+
   const titleItem = (
     <div className={classes.titleItem}>
       <div className={classes.leftSideItems}>
@@ -194,19 +200,32 @@ const ConceptItem = ({
     </div>
   );
 
-  // Regular item (for nestingLevel > 0)
+  const usersWhoLikedTooltip = <div>
+    <div>Users who like this wikitag:</div>
+    <div>{usersWhoLiked.slice(0, 10).map((user: { displayName: string }) => user.displayName).join(', ')}
+    {usersWhoLiked.length > 10 && <span> and {usersWhoLiked.length - 10} more</span>}</div>
+  </div>
+
   const regularItem = (
     <div
       className={classes.item}
     >
       <div className={classes.leftSideItems}>
-        <div className={classes.karma}>{wikitag.baseScore}</div>
+        <LWTooltip
+          title={usersWhoLikedTooltip}
+          disabled={usersWhoLiked.length === 0}
+          placement='bottom-end'
+          popperClassName={classes.tooltipHoverScore}
+        >
+          <div className={classes.maxScore}>{maxScore}</div>
+        </LWTooltip>
         <div className={classes.title}>
           <TagsTooltip
             tagSlug={wikitag.slug}
             noPrefetch
-            previewPostCount={0}
-            placement='right-start'
+            previewPostCount={wikitag.description?.wordCount && wikitag.description?.wordCount > 0 ? 0 : 6}
+            placement='bottom-start'
+            popperClassName={classes.tooltipHoverTitle}
           >
             <span className={classNames(classes.titleText, { [classes.arbitalGreenColor]: wikitag.isArbitalImport && showArbitalIcon })}>
               <Link to={tagGetUrl({slug: wikitag.slug})}>
@@ -237,8 +256,8 @@ const ConceptItem = ({
   );
 
   return (
-    <div className={classNames(classes.root, { [classes.titleItemRoot]: nestingLevel === 0 })}>
-      {nestingLevel === 0 ? titleItem : regularItem}
+    <div className={classNames(classes.root, { [classes.titleItemRoot]: isTitleItem })}>
+      {isTitleItem ? titleItem : regularItem}
     </div>
   );
 };

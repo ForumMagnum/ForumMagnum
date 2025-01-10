@@ -191,9 +191,6 @@ const TagPageButtonRow = ({ tag, selectedLens, editing, setEditing, hideLabels =
   </div>);
 
   return <div className={classNames(classes.buttonsRow, className)}>
-    {selectedLens && <div className={classes.likeButtonWrapper}>
-      <TagOrLensLikeButton lens={selectedLens} />
-    </div>}
     {!editing && <LWTooltip
       className={classes.buttonTooltip}
       title={editTooltip}
@@ -241,6 +238,9 @@ const TagPageButtonRow = ({ tag, selectedLens, editing, setEditing, hideLabels =
       />
     </LWTooltip>}
     {<div className={classes.button}><TagDiscussionButton tag={tag} hideLabel={hideLabels} hideLabelOnMobile /></div>}
+    {selectedLens && <div className={classes.likeButtonWrapper}>
+      <TagOrLensLikeButton lens={selectedLens} isSelected={true} stylingVariant="buttonRow" />
+    </div>}
     {!userHasNewTagSubscriptions(currentUser) && !hideLabels && <LWTooltip
       className={classes.helpImprove}
       title={editTooltip}
