@@ -65,6 +65,15 @@ const LWTooltip = ({
   const { LWPopper } = Components
   const [delayedClickable, setDelayedClickable] = useState(false);
 
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const clearDelayTimeout = useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+  }, []);
+
   const { hover, everHovered, anchorEl, eventHandlers } = useHover({
     eventProps: {
       pageElementContext: "tooltipHovered", // Can be overwritten by analyticsProps
@@ -75,6 +84,7 @@ const LWTooltip = ({
     onEnter: onShow,
     onLeave: () => {
       onHide?.();
+      clearDelayTimeout();
       setDelayedClickable(false);
     },
   });
@@ -82,16 +92,6 @@ const LWTooltip = ({
   // For the clickable case, we want to delay the opening of the tooltip by 200ms
   // so that users aren't interrupted when moving their mouse rapidly over
   // clickable elements
-
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  const clearDelayTimeout = useCallback(() => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
-  }, []);
-
   useEffect(() => {
     if (hover && clickable) {
       clearDelayTimeout();
