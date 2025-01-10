@@ -429,7 +429,7 @@ const LWHomePosts = ({ children, classes }: {
 
   
   // While hiding desktop settings is stateful over time, on mobile the filter settings always start out hidden
-  const { filterSettings, setPersonalBlogFilter, setTagFilter, removeTagFilter } = useFilterSettings();
+  const { filterSettings, filterSettingsWithSuggested, setPersonalBlogFilter, setTagFilter, removeTagFilter } = useFilterSettings();
   const { desktopSettingsVisible, toggleDesktopSettingsVisible } = useDefaultSettingsVisibility(currentUser, 'desktop', selectedTab);
   const { mobileSettingsVisible, toggleMobileSettingsVisible } = useDefaultSettingsVisibility(currentUser, 'mobile', selectedTab);
   
@@ -538,7 +538,7 @@ const LWHomePosts = ({ children, classes }: {
     <AnalyticsContext pageSectionContext="tagFilterSettings">
       <div className={settingsVisibileClassName}>
         <TagFilterSettings
-          filterSettings={filterSettings} 
+          filterSettings={filterSettingsWithSuggested} 
           setPersonalBlogFilter={setPersonalBlogFilter} 
           setTagFilter={setTagFilter} 
           removeTagFilter={removeTagFilter} 

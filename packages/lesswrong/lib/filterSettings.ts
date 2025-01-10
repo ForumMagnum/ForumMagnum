@@ -94,9 +94,7 @@ export const useFilterSettings = () => {
     limit: 100,
   })
   
-  if (suggestedTags) {
-    filterSettings = addSuggestedTagsToSettings(filterSettings, suggestedTags)
-  }
+  const filterSettingsWithSuggested = suggestedTags ? addSuggestedTagsToSettings(filterSettings, suggestedTags) : filterSettings;
   
   /** Set the whole mess */
   const setFilterSettings = useCallback((newSettings: FilterSettings) => {
@@ -156,6 +154,7 @@ export const useFilterSettings = () => {
   
   return {
     filterSettings,
+    filterSettingsWithSuggested,
     loadingSuggestedTags,
     errorLoadingSuggestedTags,
     setFilterSettings,
