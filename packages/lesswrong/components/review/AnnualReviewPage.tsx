@@ -53,6 +53,9 @@ const styles = (theme: ThemeType) => ({
     width: "100%",
     maxWidth: SECTION_WIDTH,
   },
+  rightColumnExpandedPost: {
+    opacity: .25
+  },
   rightColumn: {
     width: "100%",
     maxWidth: SECTION_WIDTH,
@@ -183,7 +186,7 @@ export const AnnualReviewPage = ({classes}: {
       <div className={classNames(classes.leftColumn, expandedPost && classes.expandedPost)}>
         {expandedPost && <ReviewVotingExpandedPost key={expandedPost?._id} post={expandedPost} setExpandedPost={setExpandedPost}/>}
       </div>
-      <div className={classes.rightColumn}>
+      <div className={classNames(classes.rightColumn, expandedPost && classes.rightColumnExpandedPost)}>
         <FrontpageReviewWidget showFrontpageItems={false} reviewYear={reviewYear}/>
         <ReviewPhaseInformation reviewYear={reviewYear} reviewPhase={reviewPhase}/>
         <Tabs
