@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: 'flex',
     justifyContent: 'space-between',
@@ -27,7 +27,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const WarningBanner = ({message, classes}: {
   message: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   
   return <div className={classes.root}>

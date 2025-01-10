@@ -51,7 +51,7 @@ const PostsPageRecommendationsList = ({
   bias?: number,
   features?: WeightedFeature[],
   forceLoggedOutView?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const post = usePostsPageContext()?.fullPost;
   if (!post) {

@@ -5,7 +5,7 @@ import sortBy from 'lodash/sortBy';
 import classNames from 'classnames';
 import filter from 'lodash/filter';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexWrap: "wrap",
@@ -55,7 +55,7 @@ export const PostsTagsList = (
     defaultMax = 6,
     afterChildren,
   }: {
-    classes: ClassesType,
+    classes: ClassesType<typeof styles>,
     posts: PostsList[] | null,
     currentFilter: string | null, // the current tag being filtered on the post list
     handleFilter: (filter: string) => void, // function to update which tag is being filtered

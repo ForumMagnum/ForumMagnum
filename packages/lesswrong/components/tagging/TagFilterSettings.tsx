@@ -9,7 +9,7 @@ import { userHasNewTagSubscriptions } from '../../lib/betas';
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginLeft: "auto",
     ...theme.typography.commentStyle,
@@ -70,7 +70,7 @@ const TagFilterSettings = ({
   setTagFilter: (args: {tagId: string, tagName?: string, filterMode: FilterMode}) => void,
   removeTagFilter: (tagId: string) => void,
   flexWrapEndGrow?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { AddTagButton, FilterMode, LWTooltip } = Components
   const currentUser = useCurrentUser()

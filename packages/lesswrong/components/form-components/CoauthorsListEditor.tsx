@@ -6,7 +6,7 @@ import find from 'lodash/find';
 import InputLabel from '@material-ui/core/InputLabel';
 import {isEAForum} from '../../lib/instanceSettings';
 
-const coauthorsListEditorStyles = (theme: ThemeType): JssStyles => ({
+const coauthorsListEditorStyles = (theme: ThemeType) => ({
   root: {
     display: 'flex',
     marginLeft: 8,
@@ -51,7 +51,7 @@ const SortableList = makeSortableListComponent({
 const CoauthorsListEditor = ({ value, path, document, classes, label, updateCurrentValues }: FormComponentProps<CoauthorListItem> & {
   value: CoauthorListItem[],
   document: Partial<DbPost>,
-  classes: ClassesType,
+  classes: ClassesType<typeof coauthorsListEditorStyles>,
 }) => {
   const [initialValue] = useState(value);
   const hasPermission = !!document.hasCoauthorPermission;

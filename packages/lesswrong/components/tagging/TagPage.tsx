@@ -49,7 +49,7 @@ const sidePaddingStyle = (theme: ThemeType) => ({
 })
 
 // Also used in TagCompareRevisions, TagDiscussionPage
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   rootGivenImage: {
     marginTop: 185,
     [theme.breakpoints.down('sm')]: {
@@ -198,7 +198,7 @@ export const RelevanceLabel = () => (
 const PostsListHeading: FC<{
   tag: TagPageFragment|TagPageWithRevisionFragment,
   query: Record<string, string>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }> = ({tag, query, classes}) => {
   const {SectionTitle, PostsListSortDropdown} = Components;
   if (isFriendlyUI) {
@@ -223,7 +223,7 @@ const PostsListHeading: FC<{
 }
 
 const TagPage = ({classes}: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const {
     PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, Typography,
@@ -453,7 +453,6 @@ const TagPage = ({classes}: {
                 <ContentItemBody
                   dangerouslySetInnerHTML={{__html: description||""}}
                   description={`tag ${tag.name}`}
-                  className={classes.description}
                 />
               </ContentStyles>
             </div>}

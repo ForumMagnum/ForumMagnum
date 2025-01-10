@@ -13,7 +13,7 @@ import { usePublishedPosts } from '../hooks/usePublishedPosts';
 
 export const CONTENT_LIMIT = 20
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     backgroundColor: theme.palette.grey[0],
     boxShadow: theme.palette.boxShadow.eventCard,
@@ -195,7 +195,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   user: SunshineUsersList,
   currentUser: UsersCurrent,
   refetch: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {
     MetaInfo, UserReviewMetadata, LWTooltip, UserReviewStatus,

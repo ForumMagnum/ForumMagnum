@@ -14,7 +14,6 @@ const EARecentDiscussionTagRevision = ({
   collapsed?: boolean,
   headingStyle: "full"|"abridged",
   documentId: string,
-  classes: ClassesType,
 }) => {
   const {EARecentDiscussionItem, TagRevisionItem} = Components;
   return (

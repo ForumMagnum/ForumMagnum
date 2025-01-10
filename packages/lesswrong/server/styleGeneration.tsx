@@ -6,9 +6,7 @@ import { importAllComponents, ComponentsTable } from '../lib/vulcan-lib/componen
 import { withStyles } from '@material-ui/core/styles';
 import { wrapWithMuiTheme } from './material-ui/themeProvider';
 import { addStaticRoute } from './vulcan-lib/staticRoutes';
-import filter from 'lodash/filter'
 import sortBy from 'lodash/sortBy';
-import crypto from 'crypto'; //nodejs core library
 import draftjsStyles from '../themes/globalStyles/draftjsStyles';
 import miscStyles from '../themes/globalStyles/miscStyles';
 import { isValidSerializedThemeOptions, ThemeOptions, getForumType } from '../themes/themeNames';
@@ -18,10 +16,10 @@ import { usedMuiStyles } from './usedMuiStyles';
 import { minify } from 'csso';
 import { requestedCssVarsToString } from '../themes/cssVars';
 import stringify from 'json-stringify-deterministic';
-import { zlib } from 'mz';
 import { brotliCompressResource, CompressedCacheResource } from './utils/bundleUtils';
 import { topLevelStyleDefinitions } from '@/components/hooks/useStyles';
 import keyBy from 'lodash/keyBy';
+import type { JssStyles } from '@/lib/jssStyles';
 
 export type ClassNameProxy<T extends string = string> = Record<T,string>
 export type StyleDefinition<T extends string = string> = {

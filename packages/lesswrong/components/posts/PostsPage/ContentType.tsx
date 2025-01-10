@@ -14,7 +14,7 @@ import classNames from 'classnames';
 import { getAllTagsPath } from '../../../lib/routes';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     textAlign: 'left',
     display: 'inline-block',
@@ -303,7 +303,7 @@ export const contentTypes: ForumOptions<ContentTypeRecord> = {
   }
 }
 
-const ContentTypeWrapper: FC<PropsWithChildren<{classes: ClassesType, className?: string}>> = ({
+const ContentTypeWrapper: FC<PropsWithChildren<{classes: ClassesType<typeof styles>, className?: string}>> = ({
   classes,
   className,
   children,
@@ -319,7 +319,7 @@ const ContentTypeWrapper: FC<PropsWithChildren<{classes: ClassesType, className?
     </Components.Typography>;
 
 const ContentType = ({classes, className, type, label}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   className?: string,
   type: ContentTypeString,
   label?: string

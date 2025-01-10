@@ -6,7 +6,7 @@ import isEqual from 'lodash/isEqual';
 import { useMessages } from "../common/withMessages";
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: theme.spacing.unit
   },
@@ -27,7 +27,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 //TODO: Manage chapter removal to remove the reference from all parent-sequences
 
 const ChaptersEditForm = ({classes, documentId, postIds, successCallback, cancelCallback}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   documentId: string,
   postIds: string[],
   successCallback: any,

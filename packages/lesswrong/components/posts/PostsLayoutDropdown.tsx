@@ -5,7 +5,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   optionIcon: {
     verticalAlign: "middle",
     position: "relative",
@@ -22,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const PostsLayoutDropdown = ({classes, value=defaultPostsLayout, queryParam="layout"}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   value?: PostsLayout
   queryParam?: string,
 }) => {

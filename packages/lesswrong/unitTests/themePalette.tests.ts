@@ -3,6 +3,7 @@ import { getForumTheme } from '../themes/forumTheme';
 import * as _ from 'underscore';
 import { themePaletteTestExcludedComponents } from '../server/register-mui-styles';
 import { topLevelStyleDefinitions } from '@/components/hooks/useStyles';
+import type { JssStyles } from '@/lib/jssStyles';
 
 // This component imports a lot of JSX files for plugins and our current build
 // setup for tests can't parse them correctly for some reason. For now we can

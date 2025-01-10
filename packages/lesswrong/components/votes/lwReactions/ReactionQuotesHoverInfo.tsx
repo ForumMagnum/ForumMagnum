@@ -8,7 +8,7 @@ import sumBy from 'lodash/sumBy';
 import type { VotingProps } from '../votingProps';
 import { ContentItemBody } from '../../common/ContentItemBody';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     fontFamily: theme.typography.commentStyle.fontFamily,
   },
@@ -66,7 +66,7 @@ const ReactionQuotesHoverInfo = ({react, quote, voteProps, commentBodyRef, class
   quote: QuoteLocator,
   voteProps: VotingProps<VoteableTypeClient>,
   commentBodyRef?: React.RefObject<ContentItemBody>|null,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { ReactOrAntireactVote, UsersWhoReacted } = Components;
   const normalizedReactions = getNormalizedReactionsListFromVoteProps(voteProps);

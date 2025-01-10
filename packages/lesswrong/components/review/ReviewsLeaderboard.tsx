@@ -7,7 +7,7 @@ import { ReviewYear } from '../../lib/reviewUtils';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     color: theme.palette.grey[600],
@@ -52,7 +52,7 @@ type ReviewLeaderboardRow = {
 }
 
 export const ReviewsLeaderboard = ({classes, reviews, reviewYear}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   reviews?: CommentsListWithParentMetadata[],
   reviewYear?: ReviewYear
 }) => {

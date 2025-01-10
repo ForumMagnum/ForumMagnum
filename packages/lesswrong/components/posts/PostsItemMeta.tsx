@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { isAF } from '../../lib/instanceSettings';
 import { AnalyticsContext } from '../../lib/analyticsEvents'
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   read: {
     opacity: ".8"
   },
@@ -34,7 +34,7 @@ const PostsItemMeta = ({post, read, hideTags, classes}: {
   post: PostsList,
   read?: boolean,
   hideTags?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const baseScore = isAF ? post.afBaseScore : post.baseScore
   const showAfScore = (!isAF && post.af);

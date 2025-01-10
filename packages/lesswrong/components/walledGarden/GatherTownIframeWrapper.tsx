@@ -5,7 +5,7 @@ import { registerComponent} from '../../lib/vulcan-lib';
 
 export const gatherTownURL = `https://gather.town/app/${gatherTownRoomId.get()}/${gatherTownRoomName.get()}`
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   iframePositioning: {
     width: "100%",
     height: "100%",
@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const GatherTownIframeWrapper = ({iframeRef, classes}: {
   iframeRef: React.RefObject<HTMLIFrameElement>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   useEffect(() => {
     iframeRef?.current?.focus && iframeRef.current.focus()

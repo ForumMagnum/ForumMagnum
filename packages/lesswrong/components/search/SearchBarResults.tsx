@@ -7,7 +7,7 @@ import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from '../common/Header';
 import { SearchHitComponentProps } from './types';
 import { Index } from '../../lib/utils/componentsWithChildren';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     color: theme.palette.text.normal,
     transition: "opacity .1s ease-in-out",
@@ -71,7 +71,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SearchBarResults = ({closeSearch, currentQuery, classes}: {
   closeSearch: () => void,
   currentQuery: string,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { PostsSearchHit, SequencesSearchHit, UsersSearchHit, TagsSearchHit, CommentsSearchHit } = Components
 

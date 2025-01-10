@@ -6,7 +6,7 @@ import { isEAForum, taggingNamePluralCapitalSetting } from '../../lib/instanceSe
 import { useMulti } from '../../lib/crud/withMulti';
 import classNames from 'classnames';
 
-const styles = (_theme: ThemeType): JssStyles => ({
+const styles = (_theme: ThemeType) => ({
   root: {
   },
   header: {
@@ -45,7 +45,7 @@ const splitBy = (
  * two, which is moderately unfortunate.
  */
 const FormComponentPostEditorTagging = ({value, path, document, formType, updateCurrentValues, placeholder, classes}: FormComponentProps<any> & {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const showCoreAndTypesTopicSections = isEAForum;
 

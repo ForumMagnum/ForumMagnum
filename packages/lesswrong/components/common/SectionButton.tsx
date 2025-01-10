@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import classNames from 'classnames'
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     cursor: "pointer",
     color: theme.palette.lwTertiary.main,
@@ -18,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const SectionButton = ({children, classes, className, onClick}: {
   children?: React.ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   className?: string,
   onClick?: (event: React.MouseEvent) => void,
 }) => {
