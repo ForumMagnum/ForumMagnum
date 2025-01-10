@@ -14,7 +14,6 @@ import { commentBodyStyles, pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, blackBarTitle, googleTagManagerIdSetting } from '../lib/publicSettings';
 import { isAF, isEAForum, isLW, isLWorAF } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
-
 import { userCanDo } from '../lib/vulcan-users/permissions';
 import { Helmet } from '../lib/utils/componentsWithChildren';
 import { DisableNoKibitzContext } from './users/UsersNameDisplay';
