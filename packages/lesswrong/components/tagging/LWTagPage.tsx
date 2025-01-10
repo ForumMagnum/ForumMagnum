@@ -1271,6 +1271,7 @@ const LWTagPage = () => {
         </Typography>
         <TagPageButtonRow
           tag={tag}
+          selectedLens={selectedLens}
           editing={editing}
           setEditing={setEditing}
           hideLabels={true}

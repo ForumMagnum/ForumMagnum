@@ -443,6 +443,8 @@ interface UsersDefaultFragment { // fragment on Users
   readonly hideSunshineSidebar: boolean,
   readonly inactiveSurveyEmailSentAt: Date | null,
   readonly userSurveyEmailSentAt: Date | null,
+  readonly givingSeason2024DonatedFlair: boolean,
+  readonly givingSeason2024VotedFlair: boolean,
 }
 
 interface CommentsDefaultFragment { // fragment on Comments
