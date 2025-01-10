@@ -3,7 +3,7 @@ import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib
 import classNames from 'classnames';
 import { useLocation } from '../../lib/routeUtil';
 import DeferRender from '../common/DeferRender';
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     border: theme.palette.border.commentBorder,
     ...theme.typography.body2,
@@ -21,7 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const ModerationTemplateItem = ({classes, template}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   template: ModerationTemplateFragment
 }) => {
   const { ContentItemBody, MetaInfo, WrappedSmartForm, BasicFormStyles, Row } = Components

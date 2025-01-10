@@ -5,9 +5,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { userCanDo } from '../../lib/vulcan-users';
 import { useCurrentUser } from '../common/withUser';
 
-export const SpotlightHistory = ({classes}: {
-  classes: ClassesType,
-}) => {
+export const SpotlightHistory = () => {
   const { SingleColumnSection, SectionTitle, SpotlightItem, LoadMore } = Components
 
   const currentUser = useCurrentUser()

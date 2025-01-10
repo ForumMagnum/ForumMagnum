@@ -109,7 +109,7 @@ const EALargePostsItem = ({
   isNarrow?: boolean,
   noImagePlaceholder?: boolean,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const authorExpandContainer = useRef(null);
 

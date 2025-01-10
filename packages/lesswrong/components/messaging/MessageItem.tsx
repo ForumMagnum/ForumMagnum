@@ -6,7 +6,7 @@ import { useCurrentUser } from '../common/withUser';
 import { PROFILE_IMG_DIAMETER, PROFILE_IMG_DIAMETER_MOBILE } from './ProfilePhoto';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom:theme.spacing.unit*1.5,
   },
@@ -78,7 +78,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 */
 const MessageItem = ({message, classes}: {
   message: messageListFragment,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const { html = "" } = message?.contents || {}

@@ -4,10 +4,9 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 
-const TagFlagEditAndNewForm = ({ tagFlagId, onClose, classes }: {
+const TagFlagEditAndNewForm = ({ tagFlagId, onClose }: {
   tagFlagId?: string,
   onClose?: () => void,
-  classes: ClassesType,
 }) => {
   const { LWDialog } = Components;
   return (

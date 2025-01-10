@@ -3,7 +3,7 @@ import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { recalculateTruncation } from "../../lib/truncateUtils";
 import classNames from "classnames";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     position: "relative",
     overflow: "hidden",
@@ -44,7 +44,7 @@ const TruncatedTagsList = ({post, expandContainer, className, classes}: {
   post: PostsList | SunshinePostsList | PostsBestOfList,
   expandContainer: RefObject<HTMLDivElement>,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const ref = useRef<HTMLDivElement>(null);
 

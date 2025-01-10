@@ -10,7 +10,7 @@ import { LLM_CHAT_EXPANDED, SHOW_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     background: theme.palette.panelBackground.default,
     width: 500,
@@ -83,7 +83,7 @@ const PLACEHOLDER_TITLE = "LLM Chat: New Conversation"
 
 const PopupLanguageModelChat = ({onClose, classes}: {
   onClose: () => void,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { LanguageModelChat, LWTooltip, ForumIcon } = Components;
 

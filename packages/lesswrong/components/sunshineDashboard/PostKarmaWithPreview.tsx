@@ -4,7 +4,7 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginRight: 8,
     whiteSpace: "nowrap"
@@ -35,7 +35,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const PostKarmaWithPreview = ({ post, classes, displayTitle, reviewedAt }: {
   post: SunshinePostsList,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   displayTitle: boolean,
   reviewedAt: Date
 }) => {

@@ -17,7 +17,7 @@ const styles = (theme: ThemeType) => ({
 const LockThreadDialog = ({commentId, onClose, classes}: {
   commentId: string,
   onClose: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const farFuture: Date = moment().add(1000,'years').toDate();
   const [until,setUntil] = useState<Date>(farFuture);

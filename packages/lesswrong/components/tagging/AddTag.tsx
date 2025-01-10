@@ -11,7 +11,7 @@ import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/t
 import { getAllTagsPath } from '../../lib/routes';
 import type { SearchState } from 'react-instantsearch-core';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     "& .ais-SearchBox": {
       padding: 8,
@@ -39,7 +39,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const AddTag = ({onTagSelected, isVotingContext, classes}: {
   onTagSelected: (props: {tagId: string, tagName: string}) => void,
   isVotingContext?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {TagSearchHit, DropdownDivider} = Components
   const currentUser = useCurrentUser()

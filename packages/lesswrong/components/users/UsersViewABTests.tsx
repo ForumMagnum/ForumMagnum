@@ -30,7 +30,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 const UsersViewABTests = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { SingleColumnSection, SectionTitle, MenuItem } = Components;
   const currentUser = useCurrentUser();

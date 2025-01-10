@@ -100,7 +100,7 @@ const styles = (theme: ThemeType) => ({
 const QuickTakesCollapsedListItem = ({quickTake, setExpanded, classes}: {
   quickTake: ShortformComments,
   setExpanded: (expanded: boolean) => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {eventHandlers, hover, anchorEl} = useHover({
     eventProps: {

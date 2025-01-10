@@ -6,7 +6,7 @@ import { userCanDo } from '../../lib/vulcan-users';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import DeferRender from '../common/DeferRender';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     backgroundColor: theme.palette.grey[50],
     padding: 12,
@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SunshineNewUsersProfileInfo = ({userId, classes}: {userId: string, classes: ClassesType}) => {
+const SunshineNewUsersProfileInfo = ({userId, classes}: {userId: string, classes: ClassesType<typeof styles>}) => {
   const [expanded, setExpanded] = useState(false);
   const currentUser = useCurrentUser()
 

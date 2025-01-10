@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import type { CommentWithModeratorActions } from './CommentsReviewInfoCard';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
 
   }
@@ -10,7 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 export const CommentsReviewTab = ({commentsWithActions, classes}: {
   commentsWithActions: CommentWithModeratorActions[],
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { CommentsReviewInfoCard } = Components;
 

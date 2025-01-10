@@ -7,7 +7,7 @@ import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 
 const TagCompareRevisions = ({classes}: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { params, query } = useLocation();
   const { slug } = params;
@@ -28,7 +28,7 @@ const TagCompareRevisions = ({classes}: {
     </Link>
     
     <RevisionComparisonNotice before={versionBefore} after={versionAfter}/>
-    <div className={classes.description}>
+    <div>
       <CompareRevisions
         collectionName="Tags" fieldName="description"
         documentId={tag._id}

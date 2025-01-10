@@ -4,7 +4,7 @@ import { NotificationChannelOption } from '../../lib/collections/users/schema';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 
-const styles = (theme: ThemeType): JssStyles => ({})
+const styles = (theme: ThemeType) => ({})
 
 const SubforumNotifications = (props: FormComponentProps<boolean>) => {
   const currentUser = useCurrentUser();

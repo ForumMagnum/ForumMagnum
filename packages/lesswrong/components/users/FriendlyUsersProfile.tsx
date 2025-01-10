@@ -177,22 +177,6 @@ const styles = (theme: ThemeType) => ({
       marginRight: 6,
     },
   },
-  donationIcon: {
-    position: "relative",
-    bottom: 1,
-    color: theme.palette.givingSeason.primary,
-    fontSize: 24,
-    marginLeft: 8,
-    transform: "translateY(-2px)",
-  },
-  votedIcon: {
-    position: "relative",
-    bottom: 1,
-    color: theme.palette.givingSeason.primary,
-    fontSize: 24,
-    marginLeft: 8,
-    transform: "translateY(1px)",
-  },
 });
 
 const FriendlyUsersProfile = ({terms, slug, classes}: {

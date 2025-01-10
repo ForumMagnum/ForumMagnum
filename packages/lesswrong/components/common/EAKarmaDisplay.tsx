@@ -19,7 +19,7 @@ const styles = (theme: ThemeType) => ({
 const EAKarmaDisplay = ({post, className, classes}: {
   post: PostsList,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {KarmaDisplay} = Components;
   return (

@@ -7,7 +7,7 @@ import {
 import { useCrosspostContext } from "./PostsPageCrosspostWrapper";
 import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -18,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const PostsPageCrosspostComments = ({classes}: {classes: ClassesType}) => {
+const PostsPageCrosspostComments = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const context = useCrosspostContext();
   if (!context?.foreignPost) {
     return null;

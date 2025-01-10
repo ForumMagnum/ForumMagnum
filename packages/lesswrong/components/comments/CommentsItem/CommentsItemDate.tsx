@@ -6,7 +6,7 @@ import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { isLWorAF } from '../../../lib/instanceSettings';
 import DeferRender from '@/components/common/DeferRender';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...(isFriendlyUI ? {
       marginLeft: 2,
@@ -55,7 +55,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 type CommentsItemDateProps = UseCommentLinkProps & {
   comment: CommentsList,
   preventDateFormatting?: boolean,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 };
 
 const CommentsItemDate = ({comment, preventDateFormatting, classes, ...rest}: CommentsItemDateProps) => {

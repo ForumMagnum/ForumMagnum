@@ -8,7 +8,7 @@ import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { isBookUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { PopperPlacementType } from '@material-ui/core/Popper';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   addTagButton: {
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
@@ -26,7 +26,7 @@ const AddTagButton = ({onTagSelected, menuPlacement="bottom-start", isVotingCont
   menuPlacement?: PopperPlacementType,
   isVotingContext?: boolean,
   hasTooltip?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   children?: ReactNode,
 }) => {
   const [isOpen, setIsOpen] = useState(false);

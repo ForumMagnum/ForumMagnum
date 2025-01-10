@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import { isEAForum } from '../../lib/instanceSettings';
 import { Link } from '@/lib/reactRouterWrapper';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   loadMorePadding: {
     paddingLeft: 16,
   },
@@ -36,7 +36,7 @@ const shouldShow = (belowFold: boolean, curatedDate: Date, currentUser: UsersCur
 const SunshineCuratedSuggestionsList = ({ terms, belowFold, classes, setCurationPost }: {
   terms: PostsViewTerms,
   belowFold?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   setCurationPost?: (post: PostsList) => void,
 }) => {
   const currentUser = useCurrentUser();
@@ -69,7 +69,7 @@ const SunshineCuratedSuggestionsList = ({ terms, belowFold, classes, setCuration
     LoadMore, LWTooltip, ForumIcon } = Components
 
   return (
-    <div className={classes.root}>
+    <div>
       <SunshineListTitle>
         <Link to={`/admin/curation`}>Suggestions for Curated</Link>
         <MetaInfo>

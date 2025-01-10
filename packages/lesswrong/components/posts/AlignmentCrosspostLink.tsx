@@ -4,7 +4,6 @@ import { isAF } from '../../lib/instanceSettings';
 
 const AlignmentCrosspostLink = ({post}: {
   post: PostsBase,
-  classes: ClassesType,
 }) => {
   const { LWTooltip } = Components
   if (post.af && !isAF) {

@@ -11,7 +11,7 @@ import { useMessages } from "../common/withMessages";
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { digestLink } from "./EABestOfPage";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
@@ -283,7 +283,7 @@ const EADigestPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
       <HeadTags title={`EA Forum Digest #${digestNum}`} />
       <AnalyticsContext pageContext="DigestPage">
         <div className={classes.root} style={style}>
-          <div className={classes.content}>
+          <div>
             <section className={classes.topSection}>
               <div>
                 <h1 className={classes.pageTitle}>

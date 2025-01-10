@@ -8,7 +8,7 @@ import { getNotificationTypeByUserSetting } from '../../lib/notificationTypes';
 import type { PickedTime } from '../common/BatchTimePicker';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: 8,
   },
@@ -29,7 +29,7 @@ const NotificationTypeSettings = ({ path, value, label, classes }: {
   path: keyof DbUser;
   value: PickedTime;
   label: string;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }, context: any) => {
   const { BatchTimePicker, Typography, MenuItem } = Components;
   const currentValue = { ...defaultNotificationTypeSettings, ...value };

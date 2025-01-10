@@ -2,7 +2,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import {isFriendlyUI} from '../../themes/forumTheme'
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   dialog: {
     zIndex: theme.zIndexes.loginDialog
   },
@@ -19,7 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 // dialog.
 const LoginPopup = ({onClose, classes}: {
   onClose?: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {LWDialog, LoginForm} = Components;
 

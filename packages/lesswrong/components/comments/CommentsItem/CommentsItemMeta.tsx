@@ -19,7 +19,7 @@ export const metaNoticeStyles = (theme: ThemeType) => ({
     ...theme.typography.italic,
 });
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     "& > div": {
       marginRight: 5,

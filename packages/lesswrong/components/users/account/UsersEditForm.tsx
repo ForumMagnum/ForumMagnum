@@ -12,7 +12,7 @@ import { configureDatadogRum } from '@/client/datadogRum';
 import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
 import { useNavigate } from '@/lib/reactRouterWrapper';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...(isFriendlyUI && {
       "& .form-submit": {
@@ -36,7 +36,7 @@ const passwordResetMutation = gql`
 
 const UsersEditForm = ({terms, classes}: {
   terms: {slug: string},
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
