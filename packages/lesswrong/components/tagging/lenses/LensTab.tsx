@@ -10,12 +10,12 @@ import Tabs from '@material-ui/core/Tabs';
 const styles = defineStyles("LensTab", (theme: ThemeType) => ({
   lensTabsContainer: {
     gap: '4px',
+    flexWrap: 'wrap-reverse',
     [theme.breakpoints.up('md')]: {
       alignItems: 'flex-end',
     },
     [theme.breakpoints.down('sm')]: {
       gap: '2px',
-      flexWrap: 'wrap-reverse',
       display: 'flex',
       flexDirection: 'row',
     },
@@ -41,7 +41,7 @@ const styles = defineStyles("LensTab", (theme: ThemeType) => ({
   lensTitleContainer: {
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center',
+    alignItems: 'start',
   },
   lensTabRootOverride: {
     [theme.breakpoints.down('sm')]: {
@@ -107,14 +107,18 @@ const styles = defineStyles("LensTab", (theme: ThemeType) => ({
   lensTitle: {
     ...theme.typography.subtitle,
     textTransform: 'none',
+    textAlign: 'left',
+    lineHeight: '1.2em',
     marginBottom: 0,
   },
   lensSubtitle: {
     ...theme.typography.subtitle,
     textTransform: 'none',
+    textAlign: 'left',
     fontSize: '1em',
     fontWeight: 400,
-    marginTop: -2,
+    lineHeight: '1.2em',
+    // marginTop: -2,
     [theme.breakpoints.down('sm')]: {
       width: 'fit-content',
       display: 'block',
