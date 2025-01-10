@@ -123,7 +123,7 @@ import FullscreenIcon from '@material-ui/icons/Fullscreen';
 import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
 import MuiArrowDownRightIcon from '@material-ui/icons/SubdirectoryArrowRight';
 import MuiDragIndicatorIcon from '@material-ui/icons/DragIndicator';
-import MuiNoteAddIcon from '@material-ui/icons/NoteAdd';
+import MuiNoteAddOutlinedIcon from '@material-ui/icons/NoteAddOutlined';
 import ThumbsUpIcon from '@material-ui/icons/ThumbUp';
 import ThumbUpOutlineIcon from '@material-ui/icons/ThumbUpOutlined';
 
@@ -431,7 +431,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Dictionary: DictionaryIcon,
     ArrowDownRight: MuiArrowDownRightIcon,
     DragIndicator: MuiDragIndicatorIcon,
-    NoteAdd: MuiNoteAddIcon,
+    NoteAdd: MuiNoteAddOutlinedIcon,
     ThumbUp: ThumbsUpIcon,
     ThumbUpOutline: ThumbUpOutlineIcon,
   },
@@ -562,7 +562,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Dictionary: DictionaryIcon,
     ArrowDownRight: ArrowDownRightIcon,
     DragIndicator: MuiDragIndicatorIcon,
-    NoteAdd: MuiNoteAddIcon,
+    NoteAdd: MuiNoteAddOutlinedIcon,
     ThumbUp: ThumbsUpIcon,
     ThumbUpOutline: ThumbUpOutlineIcon,
   },
