@@ -10,7 +10,6 @@ import Tabs from '@material-ui/core/Tabs';
 const styles = defineStyles("LensTab", (theme: ThemeType) => ({
   lensTabsContainer: {
     gap: '4px',
-    flexWrap: 'wrap-reverse',
     [theme.breakpoints.up('md')]: {
       alignItems: 'flex-end',
     },
@@ -18,6 +17,7 @@ const styles = defineStyles("LensTab", (theme: ThemeType) => ({
       gap: '2px',
       display: 'flex',
       flexDirection: 'row',
+      flexWrap: 'wrap-reverse',
     },
   },
   hideMuiTabIndicator: {
@@ -35,7 +35,7 @@ const styles = defineStyles("LensTab", (theme: ThemeType) => ({
     },
   },
   lensTab: {
-    minWidth: 'unset',
+    minWidth: 'max-content',
     borderWidth: 1,
   },
   lensTitleContainer: {
@@ -54,26 +54,25 @@ const styles = defineStyles("LensTab", (theme: ThemeType) => ({
     borderTopRightRadius: theme.borderRadius.small * 2,
   },
   tabLabelContainerOverride: {
-    paddingLeft: 16,
-    paddingRight: 16,
+    paddingLeft: 12,
+    paddingRight: 12,
+    paddingTop: 3,
+    paddingBottom: 0,
+    marginBottom: -1,
     [theme.breakpoints.down('sm')]: {
-      paddingLeft: 8,
-      paddingRight: 8,
+      paddingLeft: 6,
+      paddingRight: 6,
       paddingTop: 0,
-      paddingBottom: 4,
+      marginTop: -2,
       width: '100%',
     },
   },
   selectedLens: {
-    [theme.breakpoints.down('sm')]: {
-      // border: theme.palette.border.grey400,
-    },
     [theme.breakpoints.up('md')]: {
       borderStyle: 'solid',
       // These don't work with borderImageSource, maybe TODO
       // borderTopLeftRadius: theme.borderRadius.small * 2,
       // borderTopRightRadius: theme.borderRadius.small * 2,
-      borderWidth: '1px 1px 0 1px',
       borderImageSource: `linear-gradient(to bottom, 
         ${theme.palette.grey[400]} 0%, 
         rgba(0,0,0,0) 100%
@@ -95,13 +94,15 @@ const styles = defineStyles("LensTab", (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'row',
     minHeight: 48,
-    [theme.breakpoints.up('md')]: {
-    },
     alignItems: 'center',
     justifyContent: 'center',
     [theme.breakpoints.down('sm')]: {
       height: 'min-content',
-      // gap: '4px',
+    },
+  },
+  lensLabelWithoutSubtitle: {
+    [theme.breakpoints.up('md')]: {
+      paddingBottom: 3,
     },
   },
   lensTitle: {
@@ -118,7 +119,6 @@ const styles = defineStyles("LensTab", (theme: ThemeType) => ({
     fontSize: '1em',
     fontWeight: 400,
     lineHeight: '1.2em',
-    // marginTop: -2,
     [theme.breakpoints.down('sm')]: {
       width: 'fit-content',
       display: 'block',
@@ -182,7 +182,7 @@ const LensTab = ({ lens, value, isSelected, ...tabProps }: {
   
   if (!lens) return null;
 
-  const label = <div key={lens._id} className={classes.lensLabel}>
+  const label = <div key={lens._id} className={classNames(classes.lensLabel, !lens.tabSubtitle && classes.lensLabelWithoutSubtitle)}>
     <div className={classes.lensTitleContainer}>
       <span className={classNames(classes.lensTitle, lens.deleted && classes.deletedLens)}>{lens.tabTitle}</span>
       {lens.tabSubtitle && <span className={classNames(classes.lensSubtitle, lens.deleted && classes.deletedLens)}>{lens.tabSubtitle}</span>}
