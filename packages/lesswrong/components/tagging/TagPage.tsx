@@ -1271,7 +1271,6 @@ const TagPage = () => {
         </Typography>
         <TagPageButtonRow
           tag={tag}
-          selectedLens={selectedLens}
           editing={editing}
           setEditing={setEditing}
           hideLabels={true}
