@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagGetRevisionLink } from '../../lib/collections/tags/helpers';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   username: {
     ...theme.typography.commentStyle,
     fontWeight: 600,
@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const TagRevisionItemShortMetadata = ({tag, revision, classes}: {
   tag: TagBasicInfo,
   revision: RevisionMetadataWithChangeMetrics,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { FormatDate, UsersName, MetaInfo, LWTooltip, ChangeMetricsDisplay, SmallSideVote } = Components
   const revUrl = tagGetRevisionLink(tag, revision.version);

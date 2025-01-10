@@ -9,7 +9,7 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import { isE2E } from '../../lib/executionEnvironment';
 import { LW_POST_TITLE_FONT_SIZE } from '../posts/PostsPage/PostsPageTitle';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.display3,
     ...theme.typography.headerStyle,
@@ -45,7 +45,7 @@ const EditTitle = ({document, value, path, updateCurrentValues, classes}: {
   path: string,
   placeholder: string,
   updateCurrentValues: Function,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { flash } = useMessages()
   const [lastSavedTitle, setLastSavedTitle] = useState<string|undefined>(document.title)

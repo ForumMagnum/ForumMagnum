@@ -7,7 +7,7 @@ import { Snippet } from 'react-instantsearch-dom';
 import { SearchHitComponentProps } from './types';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: 8,
     paddingLeft: 10,

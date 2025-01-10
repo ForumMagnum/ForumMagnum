@@ -8,7 +8,7 @@ import { hasProminentLogoSetting } from "../../lib/publicSettings";
 import { isE2E } from "@/lib/executionEnvironment";
 import { useLocation } from "@/lib/routeUtil";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "column",
@@ -40,7 +40,7 @@ const connectCrossposterMutation = gql`
 `;
 
 const CrosspostLoginPage = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [connectCrossposter, loading] = useMutation(connectCrossposterMutation, {errorPolicy: "all"});
   const [error, setError] = useState<string | null>(null);

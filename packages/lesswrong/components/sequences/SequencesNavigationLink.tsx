@@ -10,7 +10,7 @@ import classnames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 
 // Shared with SequencesNavigationLinkDisabled
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   root: {
     padding: 0,
     margin: 12,
@@ -30,7 +30,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
 const SequencesNavigationLink = ({ post, direction, classes }: {
   post: PostSequenceNavigation_nextPost|PostSequenceNavigation_prevPost|null,
   direction: "left"|"right",
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const updateContinueReading = useUpdateContinueReading(post?._id, post?.sequence?._id);
   

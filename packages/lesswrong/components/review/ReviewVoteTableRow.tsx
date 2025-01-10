@@ -200,7 +200,7 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
   costTotal?: number,
   dispatch: React.Dispatch<SyntheticQualitativeVote>,
   showKarmaVotes: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   expandedPostId?: string|null,
   handleSetExpandedPost: (post: PostsReviewVotingList, openReviewBox?: boolean) => void,
   currentVote: SyntheticQualitativeVote|null,

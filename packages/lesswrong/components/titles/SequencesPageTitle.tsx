@@ -10,7 +10,7 @@ import { Helmet } from '../../lib/utils/componentsWithChildren';
 const SequencesPageTitle = ({isSubtitle, siteName, classes}: {
   isSubtitle: boolean,
   siteName: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { params: {_id} } = useLocation();
   

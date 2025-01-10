@@ -6,7 +6,7 @@ import moment from 'moment';
 import type { DebateResponseWithReplies } from './DebateResponseBlock';
 import DeferRender from '../common/DeferRender';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
 
   },
@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 export const DebateBody = ({ debateResponses, post, classes }: {
   debateResponses: DebateResponseWithReplies[],
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { DebateResponseBlock, DebateTypingIndicator } = Components;
   const orderedParticipantList = uniq(debateResponses.map(({ comment }) => comment.userId));

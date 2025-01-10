@@ -4,7 +4,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { REVIEW_YEAR } from '../../lib/reviewUtils';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   guidelines: {
     cursor: "default",
     marginTop: theme.spacing.unit,
@@ -34,7 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const ReviewPostForm = ({classes, post, onClose}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   post: PostsBase,
   onClose: () => void,
 }) => {

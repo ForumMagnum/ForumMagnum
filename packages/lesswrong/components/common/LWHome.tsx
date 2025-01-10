@@ -10,7 +10,7 @@ import { visitorGetsDynamicFrontpage } from '../../lib/betas';
 import { isLW, isAF } from '@/lib/instanceSettings';
 import { useCurrentUser } from './withUser';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   frontpageReviewWidget: {
     marginTop: 42,
     marginBottom: 20,

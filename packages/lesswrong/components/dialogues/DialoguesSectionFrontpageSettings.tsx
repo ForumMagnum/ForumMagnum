@@ -14,7 +14,7 @@ const USER_SETTING_NAMES = {
   showRecommendedPartners: 'showRecommendedPartners'
 }
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "block",
     marginTop: isFriendlyUI ? 10 : undefined,
@@ -47,7 +47,7 @@ const DialoguesSectionFrontpageSettings = ({hidden, currentShowDialogues, curren
   hidden: boolean,
   currentShowDialogues: boolean,
   currentShowMyDialogues: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { MetaInfo } = Components
   const currentUser = useCurrentUser();

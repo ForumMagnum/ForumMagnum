@@ -10,7 +10,7 @@ import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     paddingTop: 8,
     paddingLeft: 16,
@@ -92,7 +92,7 @@ const TagPreview = ({
   hideRelatedTags?: boolean,
   postCount?: number,
   autoApplied?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const showPosts = postCount > 0 && !!tag?._id && !isFriendlyUI;
   const {results} = useMulti({

@@ -5,7 +5,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginTop: 40,
     marginBottom: 40,
@@ -146,7 +146,7 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
   sequence: SequencesPageWithChaptersFragment,
   showAuthor?: boolean,
   showChapters?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { UsersName, ContentStyles, SequencesSmallPostLink, ContentItemTruncated, LWTooltip, ChapterTitle } = Components
 

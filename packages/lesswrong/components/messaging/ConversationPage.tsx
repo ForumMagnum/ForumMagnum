@@ -6,7 +6,7 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo } from '../../lib/vulcan-users';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   conversationSection: {
     maxWidth: 550,
   },
@@ -35,7 +35,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const ConversationPage = ({ conversationId, currentUser, classes }: {
   conversationId: string,
   currentUser: UsersCurrent,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { document: conversation, loading } = useSingle({
     documentId: conversationId,

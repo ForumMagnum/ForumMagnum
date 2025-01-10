@@ -5,7 +5,7 @@ import { useCurrentUser } from '../common/withUser';
 import { htmlToTextDefault } from '@/lib/htmlToText';
 import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: 'flex',
     justifyContent: 'space-between',
@@ -89,7 +89,7 @@ const getRestorableState = (currentUser: UsersCurrent|null, getLocalStorageHandl
 const LocalStorageCheck = ({getLocalStorageHandlers, onRestore, classes}: {
   getLocalStorageHandlers: (editorType?: string) => any,
   onRestore: (newState: EditorContents) => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [localStorageChecked, setLocalStorageChecked] = useState(false);
   const [restorableState, setRestorableState] = useState<RestorableState|null>(null);

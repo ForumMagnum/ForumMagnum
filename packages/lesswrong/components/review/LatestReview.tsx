@@ -6,7 +6,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     flexGrow: 1,
     flexShrink: 1,
@@ -31,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const LatestReview = ({classes}: { classes: ClassesType }) => {
+const LatestReview = ({classes}: { classes: ClassesType<typeof styles> }) => {
   const { results: commentResults } = useMulti({
     terms:{ view: "reviews", reviewYear: REVIEW_YEAR, sortBy: "new"},
     collectionName: "Comments",

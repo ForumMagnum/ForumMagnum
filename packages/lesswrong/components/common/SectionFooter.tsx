@@ -21,7 +21,7 @@ export const separatorBulletStyles = (theme: ThemeType, spacingMultiplier = 1) =
   }
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     justifyContent: "flex-end",
@@ -45,7 +45,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SectionFooter = ({ children, className, classes }: {
   children: React.ReactNode,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return (
     <Components.Typography variant="body2" className={classNames(classes.root, className)}>

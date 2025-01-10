@@ -8,7 +8,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
 import { CENTRAL_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     maxWidth: CENTRAL_COLUMN_WIDTH,
     margin: "0 auto",
@@ -63,7 +63,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const ReviewVotingExpandedPost = ({classes, post, setExpandedPost}: {
-  classes: ClassesType, 
+  classes: ClassesType<typeof styles>,
   post?: PostsReviewVotingList|null,
   setExpandedPost: (post: PostsReviewVotingList|null) => void
 }) => {
@@ -90,7 +90,7 @@ const ReviewVotingExpandedPost = ({classes, post, setExpandedPost}: {
     {postWithContents && <PostsHighlight post={postWithContents} maxLengthWords={200} forceSeeMore />}
     {loading && <Loading/>}
 
-    <div className={classes.comments}>
+    <div>
       <PingbacksList postId={newPost._id} limit={3}/>
       {(getReviewPhase() !== "VOTING") && <ReviewPostComments
         title="Review"

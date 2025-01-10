@@ -10,7 +10,7 @@ import { useFilterSettings } from '../../lib/filterSettings';
 import { frontpageDaysAgoCutoffSetting } from '../../lib/scoring';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   readMoreLinkMobile: {
     display: 'none',
     fontSize: 14,
@@ -22,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const EAHomeCommunityPosts = ({classes}: {classes: ClassesType}) => {
+const EAHomeCommunityPosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const {expanded, toggleExpanded} = useExpandedFrontpageSection({
     section: "community",
     onExpandEvent: "communityPostsSectionExpanded",

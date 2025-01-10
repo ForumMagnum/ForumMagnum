@@ -39,7 +39,7 @@ const EARecentDiscussionTagCommented = ({
   refetch?: () => void,
   expandAllThreads?: boolean
   tagCommentType?: TagCommentType,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   if (!comments.length) {
     return null;

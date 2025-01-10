@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent} from '../../lib/vulcan-lib';
 import type { Hit } from 'react-instantsearch-core';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     cursor: "pointer"
   }
@@ -10,7 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const TagsListEditorSearchHit = ({hit, classes}: {
   hit: Hit<any>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const tag = (hit as SearchTag);
 

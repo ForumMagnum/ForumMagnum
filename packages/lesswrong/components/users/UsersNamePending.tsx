@@ -7,7 +7,7 @@ import {
   userGetProfileUrl,
 } from '../../lib/collections/users/helpers';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   userName: {
     whiteSpace: "nowrap",
     color: theme.palette.text.secondary,
@@ -22,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const UsersNamePending = ({ user, classes }: {
   user: UsersMinimumInfo,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { LWTooltip } = Components;
   const name = userGetDisplayName(user)

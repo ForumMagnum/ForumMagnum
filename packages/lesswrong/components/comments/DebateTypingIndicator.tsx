@@ -7,7 +7,7 @@ import {gql, useMutation} from '@apollo/client';
 import throttle from 'lodash/throttle';
 import { isDialogueParticipant } from '../posts/PostsPage/PostsPage';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle
   },
@@ -17,7 +17,7 @@ const INCIDATOR_UPDATE_PERIOD = 15000
 const INDICATOR_DISPLAY_PERIOD = 20000;
 
 export const DebateTypingIndicator = ({classes, post}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
 }) => {
 

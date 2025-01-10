@@ -6,7 +6,7 @@ import classnames from 'classnames';
 import * as _ from 'underscore';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   button: {
     // TODO: Pick typography for this button. (This is just the typography that
     // Material UI v0 happened to use.)
@@ -40,7 +40,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const MultiSelectButtons = ({ value, label, options, path, classes }: FormComponentProps<string> & {
   options: Array<{ value: string; label?: string }>;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }, context: any) => {
   const handleClick = (option: string) => {    
     if (value && value.includes(option)) {

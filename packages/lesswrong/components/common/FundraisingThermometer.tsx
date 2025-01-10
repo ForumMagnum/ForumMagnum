@@ -284,7 +284,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 const FundraisingThermometer: React.FC<
-  FundraisingThermometerProps & { classes: ClassesType }
+  FundraisingThermometerProps & { classes: ClassesType<typeof styles> }
 > = ({ classes, onPost = false }) => {
   // First & second goal amounts
   const goal1 = lightconeFundraiserThermometerGoalAmount.get();

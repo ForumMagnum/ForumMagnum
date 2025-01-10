@@ -16,7 +16,7 @@ import { useCreate } from '../../lib/crud/withCreate';
 import { MANUAL_FLAG_ALERT } from '../../lib/collections/moderatorActions/schema';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   icon: {
     width: 14,
     marginRight: 4
@@ -50,7 +50,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SunshineNewPostsItem = ({post, refetch, classes}: {
   post: SunshinePostsList,
   refetch: () => void,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser();
   const {eventHandlers, hover, anchorEl} = useHover();

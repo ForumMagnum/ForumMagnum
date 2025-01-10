@@ -1,5 +1,3 @@
-import { isFriendlyUI } from "../forumTheme";
-
 export default (): string => `
 /*
  * TODO: These classes are used by 248 posts in the database that were authored

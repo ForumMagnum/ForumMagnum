@@ -6,7 +6,7 @@ import type { TooltipProps } from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   container: {
     cursor: "pointer",
     color: theme.palette.icon.dim3,
@@ -42,7 +42,7 @@ const BookmarkButton = ({
   withText?: boolean,
   placement?: TooltipProps["placement"],
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {icon, labelText, hoverText, toggleBookmark} = useBookmarkPost(post);
   const Component = withText ? "a" : "span";
@@ -56,7 +56,7 @@ const BookmarkButton = ({
       })}>
         <ForumIcon
           icon={icon}
-          className={classNames(classes.icon, className)}
+          className={className}
         /> {withText && labelText}
       </Component>
     </LWTooltip>
