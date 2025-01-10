@@ -39,6 +39,7 @@ export async function fetchWebsiteHtmlContent(url: string, context: ResolverCont
 
     const response = await fetch(url);
     if (!response.ok) {
+      // eslint-disable-next-line no-console
       console.log("Failed to fetch HTML from URL: ", url, response.status);
       throw new Error(`Failed to fetch HTML from URL: ${url}, status: ${response.status}`);
     }

@@ -176,6 +176,7 @@ export async function sendMessagesToLlm<T extends SendLLMMessagesArgs>(args: T):
     const responseContent = firstContentBlock.input;
     const validatedTerm = zodParser.safeParse(responseContent);
     if (!validatedTerm.success) {
+      // eslint-disable-next-line no-console
       console.log('Failed to parse tool use response from Anthropic with primary schema, trying backup...', { responseContent });
       // lol
       return await sendMessagesToLlm({
