@@ -18,7 +18,7 @@ import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 
 const VirtualMenu = connectMenu(() => null);
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: 'flex',
     alignItems: 'center',
@@ -70,7 +70,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     "&.open .ais-SearchBox-input": {
       display:"inline-block",
     },
-    "&.open .SearchBar-searchIcon": {
+    "&.open .SearchBar-searchIconButton": {
       position: 'fixed',
     },
   },
@@ -78,9 +78,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     minWidth: 34,
   } : {},
   searchIcon: {
+    "--icon-size": "24px",
+  },
+  searchIconButton: {
     color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.header.text,
   },
-  searchIconSmall: isFriendlyUI ? {
+  searchIconButtonSmall: isFriendlyUI ? {
     padding: 6,
     marginTop: 6,
   } : {},
@@ -107,7 +110,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
   onSetIsActive: (active: boolean) => void,
   searchResultsArea: any,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser()
   const [inputOpen,setInputOpen] = useState(false);
@@ -185,8 +188,8 @@ const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
         )}>
           {isAF && <VirtualMenu attribute="af" defaultRefinement="true" />}
           <div onClick={handleSearchTap}>
-            <IconButton className={classNames(classes.searchIcon, {[classes.searchIconSmall]: !currentUser})}>
-              <ForumIcon icon="Search" />
+            <IconButton className={classNames(classes.searchIconButton, {[classes.searchIconButtonSmall]: !currentUser})}>
+              <ForumIcon icon="Search" className={classes.searchIcon} />
             </IconButton>
             {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
               * null is the only option that actually suppresses the extra X button.

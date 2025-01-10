@@ -9,7 +9,7 @@ const ChaptersNewForm = ({successCallback, cancelCallback, prefilledProps, class
   successCallback?: () => void,
   cancelCallback?: () => void,
   prefilledProps?: Record<string,any>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return (
     <div className={classNames(classes.newOrEditForm,classes.newForm)}>

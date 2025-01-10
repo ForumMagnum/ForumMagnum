@@ -26,7 +26,7 @@ const IntercomFeedbackButton = ({
   title?: string,
   eventName: string,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const {captureEvent} = useTracking();

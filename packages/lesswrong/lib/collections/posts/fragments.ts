@@ -51,6 +51,9 @@ registerFragment(`
     spotlight {
       ...SpotlightReviewWinner
     }
+    reviews {
+      ...CommentsList
+    }
   }
 `);
 
@@ -164,6 +167,7 @@ registerFragment(`
       name
       organizerIds
     }
+    rsvpCounts
 
     podcastEpisodeId
     forceAllowType3Audio
@@ -318,6 +322,15 @@ registerFragment(`
     fmCrosspost
   }
 `);
+
+registerFragment(`
+  fragment SunshineCurationPostsList on Post {
+    ...PostsList
+    curationNotices {
+      ...CurationNoticesFragment
+    }
+  }
+`)
 
 registerFragment(`
   fragment PostsListTag on Post {
@@ -830,6 +843,31 @@ registerFragment(`
     }
     contents {
       markdown
+    }
+  }
+`)
+
+registerFragment(`
+  fragment PostForReviewWinnerItem on Post {
+    _id
+    spotlight {
+      _id
+    }
+    reviewWinner {
+      _id
+      category
+    }
+  }
+`)
+
+registerFragment(`
+  fragment PostsTwitterAdmin on Post {
+    ...PostsListWithVotes
+    user {
+      ...UsersSocialMediaInfo
+    }
+    coauthors {
+      ...UsersSocialMediaInfo
     }
   }
 `)

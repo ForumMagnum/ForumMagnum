@@ -24,7 +24,7 @@ const gridTemplateColumns = `
   1fr
 `
 
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   titleWrapper: {
     overflow: 'hidden',
     [theme.breakpoints.down('md')]: {
@@ -122,7 +122,7 @@ export const SubforumLayout = ({titleComponent, bannerImageId, headerComponent, 
   bannerImageId: string,
   headerComponent: React.ReactNode,
   children: React.ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   sidebarComponents?: React.ReactNode[],
 }) => {
   const nonEmptySidebarComponents = sidebarComponents.filter(x => x) // filter out nulls to avoid extra spacing

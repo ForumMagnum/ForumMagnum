@@ -5,7 +5,7 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import { preferredHeadingCase } from '../../themes/forumTheme';
 
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     fontSize: "1.16rem",
     fontFamily: theme.typography.fontFamily,
@@ -41,7 +41,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const TagContributorsList = ({tag, onHoverUser, classes}: {
   tag: TagPageFragment|TagPageWithRevisionFragment,
   onHoverUser?: (userId: string|null) => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { UsersNameDisplay, Loading, LWTooltip } = Components;
   const [expandLoadMore,setExpandLoadMore] = useState(false);

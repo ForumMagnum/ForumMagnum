@@ -43,7 +43,7 @@ const styles = (theme: ThemeType) => ({
 
 const PostsVideoCard = ({post, classes}: {
   post: PostsBestOfList,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const authorExpandContainer = useRef(null);
   const {eventHandlers} = useHover({

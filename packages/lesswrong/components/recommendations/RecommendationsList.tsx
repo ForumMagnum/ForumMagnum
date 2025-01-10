@@ -28,7 +28,7 @@ const RecommendationsList = ({
   ListItem?: RecommendationsListItem,
   loadingFallback?: JSX.Element,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {PostsLoading, Typography} = Components;
   const {recommendationsLoading, recommendations} = useRecommendations({ algorithm });

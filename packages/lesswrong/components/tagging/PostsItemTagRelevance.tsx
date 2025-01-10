@@ -8,7 +8,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { forumSelect } from '@/lib/forumTypeUtils';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     width: 30,
     position: "absolute",
@@ -48,7 +48,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const PostsItemTagRelevance = ({tagRel, classes}: {
   tagRel: WithVoteTagRel,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { OverallVoteButton, PostsItem2MetaInfo } = Components;
   const voteProps = useVote(tagRel, "TagRels");

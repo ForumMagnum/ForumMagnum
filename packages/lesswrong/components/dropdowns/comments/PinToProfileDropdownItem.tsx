@@ -13,7 +13,7 @@ const styles = (_: ThemeType) => ({
 const PinToProfileDropdownItem = ({comment, post, classes}: {
   comment: CommentsList,
   post?: PostsMinimumInfo,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser()
   const { mutate: updateComment } = useUpdate({

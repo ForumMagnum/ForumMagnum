@@ -6,7 +6,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { userIsAdmin } from '../../lib/vulcan-users';
 import { hasGoogleDocImportSetting } from '../../lib/publicSettings';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: 12,
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -23,7 +23,7 @@ const getExpiryMessage = (estimatedExpiry: Date) => {
 }
 
 const SunshineGoogleServiceAccount = ({ classes }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
 

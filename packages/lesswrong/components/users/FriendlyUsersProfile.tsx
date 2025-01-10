@@ -177,14 +177,7 @@ const styles = (theme: ThemeType) => ({
       marginRight: 6,
     },
   },
-  donationIcon: {
-    position: "relative",
-    bottom: 1,
-    color: theme.palette.givingSeason.primary,
-    fontSize: 24,
-    marginLeft: 8
-  },
-})
+});
 
 const FriendlyUsersProfile = ({terms, slug, classes}: {
   terms: UsersViewTerms,
@@ -489,14 +482,6 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
           <EAUsersProfileImage user={user} />
           <Typography variant="headline" className={classNames(classes.username, {[classes.deletedUsername]: user.deleted})}>
             <DisplayNameWithMarkers name={displayName} />{user.deleted && <span className={classes.accountDeletedText}>(account deleted)</span>}
-           {user.givingSeason2024DonatedFlair &&
-              <LWTooltip
-                placement="bottom-start"
-                title="Donated to the Donation Election fund"
-              >
-                <ForumIcon icon="GivingHand" className={classes.donationIcon} />
-              </LWTooltip>
-            }
           </Typography>
           {(user.jobTitle || user.organization) && <ContentStyles contentType="comment" className={classes.roleAndOrg}>
             {user.jobTitle} {user.organization ? `@ ${user.organization}` : ''}

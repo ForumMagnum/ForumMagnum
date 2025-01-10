@@ -12,7 +12,7 @@ import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 
 const COLLAPSED_SECTION_HEIGHT = 70
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     columnGap: 14,
@@ -136,7 +136,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SubforumMember = ({user, isOrganizer, classes}: {
   user: UsersProfile,
   isOrganizer?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const bioRef = useRef<HTMLDivElement>(null)
   
@@ -183,7 +183,7 @@ const SubforumMember = ({user, isOrganizer, classes}: {
   </>
   
   return <div className={classes.root}>
-    <div className={classes.profilePhotoCol}>
+    <div>
       <ProfilePhoto user={user} from="subforum_members" />
     </div>
     <div>

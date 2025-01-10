@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useMulti } from '../../../lib/crud/withMulti';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     position: "relative",
   },
@@ -61,7 +61,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SidebarMembersBox = ({tag, className, classes}: {
   tag: TagSubforumFragment,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { results: members, loading } = useMulti({
     terms: {view: 'tagCommunityMembers', profileTagId: tag?._id, limit: 100},

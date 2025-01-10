@@ -4,8 +4,9 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { useTracking } from '../../lib/analyticsEvents';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { isMobile } from '@/lib/utils/isMobile';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "inline-block",
   },
@@ -25,7 +26,7 @@ const SharePostButton = ({
 }: {
   post: PostsBase,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const anchorEl = useRef<HTMLDivElement | null>(null)
   const [isOpen, setIsOpen] = useState<boolean>(false)
@@ -35,7 +36,7 @@ const SharePostButton = ({
     captureEvent('sharePostButtonClicked')
     // navigator.canShare will be present on mobile devices with sharing-intents,
     // absent on desktop.
-    if (!!navigator.canShare) {
+    if (isMobile() && !!navigator.canShare) {
       const sharingOptions = {
         title: post.title,
         text: post.title,

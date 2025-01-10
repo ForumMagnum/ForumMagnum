@@ -17,7 +17,7 @@
 // When writing styles for UI components, use colors that come from the palette,
 // rather than writing the color directly, eg like this:
 //
-//   const styles = (theme: ThemeType): JssStyles => ({
+//   const styles = (theme: ThemeType) => ({
 //     normalText: {
 //       color: theme.palette.text.normal,
 //     },
@@ -29,7 +29,7 @@
 //
 // Not like this:
 //
-//   const styles = (theme: ThemeType): JssStyles => ({
+//   const styles = (theme: ThemeType) => ({
 //     normalText: {
 //       color: "rgba(0,0,0,.87)", // Bad: Will be black-on-black in dark mode
 //     },
@@ -318,7 +318,6 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     primaryTranslucent: 'rgba(12,134,155,.7)',
     dashed500: `dashed 1px ${shades.grey[500]}`,
     mentionsBaloon: "#c4c4c4",
-    wrappedSummary: "2px solid rgba(255, 168, 50, 0.6)",
     eaButtonGreyOutline: "#BCC1C9",
   },
   background: {
@@ -327,6 +326,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     contrastInDarkMode: shades.grey[0],
     pageActiveAreaBackground: shades.grey[0],
     translucentBackground: "rgba(255,255,255,.5)",
+    translucentBackgroundHeavy: "rgba(255,255,255,.75)",
     loginBackdrop: "rgba(217,217,217,0.5)",
     diffInserted: "#d4ead4",
     diffDeleted: "#f0d3d3",
@@ -571,21 +571,26 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   eventsHomeLoadMoreHover: '#085d6c',
 
   wrapped: {
-    background: '#072C47',
-    highlightText: '#FFC443',
+    background: '#151515',
+    darkBackground: "#000",
+    highlightText: '#F09554',
     secondaryText: '#008DAC',
     tertiaryText: "rgba(255, 255, 255, 0.50)",
     black: '#212121',
-    darkGrey: '#424242',
-    grey: '#757575',
     darkDot: "rgba(255, 255, 255, 0.40)",
     panelBackground: "rgba(255, 255, 255, 0.10)",
     panelBackgroundDark: "rgba(255, 255, 255, 0.05)",
-    postScoreArrow: '#BCBCBC',
-  },
-  givingSeason: {
-    primary: "#862115",
-    electionFundBackground: "rgba(255, 255, 255, 0.15)",
+    postScore: '#BCBCBC',
+    notification: "#e05200",
+    emptyPath: "#494949",
+    metaText: "#b3b3b3",
+    personality: {
+      transparent: "transparent",
+      grey: "#585858",
+      red: "#9E011A",
+      blue: "#16508C",
+      green: "#006336",//"#0b7138",
+    },
   },
   namesAttachedReactions: {
     selectedAnti: "rgb(255, 189, 189, .23)",
@@ -630,5 +635,8 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     color2: "#404040",
     color3: "#998080",
     color4: "#504040",
-  }
+  },
+  fundraisingThermometer: {
+    shadow: '#222',
+  },
 })

@@ -4,7 +4,7 @@ import { useNamedMutation } from '../../lib/crud/withMutation';
 import { useLocation } from '../../lib/routeUtil';
 import Button from '@material-ui/core/Button';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle
   },
@@ -32,7 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const PasswordResetPage = ({classes}: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { mutate: emailTokenMutation } = useNamedMutation({name: "useEmailToken", graphqlArgs: {token: "String", args: "JSON"}})
   const [useTokenResult, setUseTokenResult] = useState<any>(null)

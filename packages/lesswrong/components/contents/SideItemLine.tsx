@@ -21,7 +21,7 @@ const styles = (theme: ThemeType) => ({
 
 const SideItemLine = ({colorClass, classes}: {
   colorClass: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return <span className={classes.sidebarInlineReactMobile}>
     <div className={classNames(classes.sidebarInlineReactMobileLine, colorClass)} />

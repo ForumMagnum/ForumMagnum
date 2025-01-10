@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import { HIGHLIGHT_DURATION } from '../../comments/CommentFrame';
 import { withLocation } from '../../../lib/routeUtil';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   formComponentClear: {
     "& span": {
       position: "relative",

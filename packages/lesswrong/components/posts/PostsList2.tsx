@@ -10,7 +10,7 @@ const Error = ({error}: any) => <div>
   <FormattedMessage id={error.id} values={{value: error.value}}/>{error.message}
 </div>;
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   itemIsLoading: {
     opacity: .4,
   },
@@ -32,7 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-type PostsList2Props = PostsListConfig & {classes: ClassesType};
+type PostsList2Props = PostsListConfig & {classes: ClassesType<typeof styles>};
 
 /** A list of posts, defined by a query that returns them. */
 const PostsList2 = ({classes, ...props}: PostsList2Props) => {
@@ -56,6 +56,7 @@ const PostsList2 = ({classes, ...props}: PostsList2Props) => {
     showFinalBottomBorder,
     viewType,
     showPlacement,
+    header,
   } = usePostsList(props);
 
   const { LoadMore, PostsNoResults, SectionFooter, PostsItem, PostsLoading } = Components;
@@ -75,15 +76,17 @@ const PostsList2 = ({classes, ...props}: PostsList2Props) => {
   }
 
   return (
-    <div className={classNames({[classes.itemIsLoading]: loading && dimWhenLoading})}>
-      {error && <Error error={decodeIntlError(error)} />}
-      {loading && showLoading && (topLoading || dimWhenLoading) &&
-        <PostsLoading
-          placeholderCount={placeholderCount || limit}
-          viewType={viewType}
-        />
-      }
-      {orderedResults && !orderedResults.length && <PostsNoResults />}
+    <>
+      {header}
+      <div className={classNames({[classes.itemIsLoading]: loading && dimWhenLoading})}>
+        {error && <Error error={decodeIntlError(error)}/>}
+        {loading && showLoading && (topLoading || dimWhenLoading) &&
+          <PostsLoading
+            placeholderCount={placeholderCount || limit}
+            viewType={viewType}
+          />
+        }
+        {orderedResults && !orderedResults.length && <PostsNoResults/>}
 
       <AnalyticsContext viewType={viewType}>
         <div className={classNames(
@@ -99,21 +102,22 @@ const PostsList2 = ({classes, ...props}: PostsList2Props) => {
         </div>
       </AnalyticsContext>
 
-      {showLoadMore && <SectionFooter>
-        <LoadMore
-          {...loadMoreProps}
-          loading={loading}
-          loadMore={loadMore}
-          hideLoading={dimWhenLoading || !showLoading}
-          // It's important to use hidden here rather than not rendering the component,
-          // because LoadMore has an "isFirstRender" check that prevents it from showing loading dots
-          // on the first render. Not rendering resets this
-          hidden={!maybeMorePosts && !loading}
-          sectionFooterStyles
-        />
-        { children }
-      </SectionFooter>}
-    </div>
+        {showLoadMore && <SectionFooter>
+          <LoadMore
+            {...loadMoreProps}
+            loading={loading}
+            loadMore={loadMore}
+            hideLoading={dimWhenLoading || !showLoading}
+            // It's important to use hidden here rather than not rendering the component,
+            // because LoadMore has an "isFirstRender" check that prevents it from showing loading dots
+            // on the first render. Not rendering resets this
+            hidden={!maybeMorePosts && !loading}
+            sectionFooterStyles
+          />
+          {children}
+        </SectionFooter>}
+      </div>
+    </>
   )
 }
 

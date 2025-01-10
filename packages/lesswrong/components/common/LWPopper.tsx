@@ -8,7 +8,7 @@ import type { State } from '@popperjs/core/lib/types';
 
 const SECOND_TOOLTIP_SELECTOR = '#lw-popper-tooltip';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   popper: {
     position: "absolute",
     zIndex: theme.zIndexes.lwPopper
@@ -57,7 +57,7 @@ const LWPopper = ({
   hideOnTouchScreens,
   updateRef
 }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   children: ReactNode,
   tooltip?: boolean,
   allowOverflow?: boolean,

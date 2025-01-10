@@ -9,7 +9,7 @@ import './EmailPostDate';
 import './EmailFooterRecommendations';
 import { isFriendlyUI } from '@/themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   heading: {
     textAlign: "center",
     color: theme.palette.primary.main,

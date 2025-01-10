@@ -17,7 +17,21 @@ import { timeframeLabels, timeframeSettings as defaultTimeframes } from './timef
 import type { TimeframeSettingType } from './timeframeUtils';
 import pick from 'lodash/pick';
 
-type Filters = 'all'|'questions'|'meta'|'frontpage'|'curated'|'events';
+type Filters = 'all'|'questions'|'meta'|'frontpage'|'curated'|'events'|'linkpost';
+
+const eventsFilter = {
+  label: "Events",
+  tooltip: "Events from around the world."
+}
+const questionsFilter = {
+  label: "Questions",
+  tooltip: "Open questions and answers, ranging from newbie-questions to important unsolved scientific problems."
+}
+
+const linkpostsFilter = {
+  label: "Linkposts",
+  tooltip: "Repost or links to content from elsewhere on the web"
+}
 
 const FILTERS_ALL: ForumOptions<Partial<Record<Filters, SettingsOption>>> = {
   "AlignmentForum": {
@@ -25,10 +39,7 @@ const FILTERS_ALL: ForumOptions<Partial<Record<Filters, SettingsOption>>> = {
       label: "All Posts",
       tooltip: "Includes all posts"
     },
-    questions: {
-      label: "Questions",
-      tooltip: "Open questions and answers, ranging from newbie-questions to important unsolved scientific problems."
-    }
+    questions: questionsFilter
   },
   "LessWrong": {
     all: {
@@ -43,14 +54,9 @@ const FILTERS_ALL: ForumOptions<Partial<Record<Filters, SettingsOption>>> = {
       label: "Curated",
       tooltip: "Posts chosen by the moderation team to be well written and important (approximately 3 per week)"
     },
-    questions: {
-      label: "Questions",
-      tooltip: "Open questions and answers, ranging from newbie-questions to important unsolved scientific problems."
-    },
-    events: {
-      label: "Events",
-      tooltip: "Events from around the world."
-    }
+    questions: questionsFilter,
+    events: eventsFilter,
+    linkpost: linkpostsFilter,
   },
   "EAForum": {
     all: {
@@ -69,10 +75,8 @@ const FILTERS_ALL: ForumOptions<Partial<Record<Filters, SettingsOption>>> = {
       label: "Questions",
       tooltip: "Open questions and answers, ranging from newcomer questions to important unsolved scientific problems."
     },
-    events: {
-      label: "Events",
-      tooltip: "Events from around the world."
-    },
+    events: eventsFilter,
+    linkpost: linkpostsFilter,
   },
   "default": {
     all: {
@@ -87,16 +91,14 @@ const FILTERS_ALL: ForumOptions<Partial<Record<Filters, SettingsOption>>> = {
       label: "Questions",
       tooltip: "Open questions and answers, ranging from newcomer questions to important unsolved scientific problems."
     },
-    events: {
-      label: "Events",
-      tooltip: "Events from around the world."
-    },
+    events: eventsFilter,
+    linkpost: linkpostsFilter,
   }
 }
 
 const FILTERS = forumSelect(FILTERS_ALL)
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "flex-start",
@@ -140,6 +142,8 @@ const USER_SETTING_NAMES = {
   hideCommunity: 'allPostsHideCommunity'
 }
 
+export const postListSettingUrlParameterNames = Object.keys(USER_SETTING_NAMES);
+
 const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, currentSorting, currentFilter, currentShowLowKarma, currentIncludeEvents, currentHideCommunity = false, timeframes=defaultTimeframes, sortings=SORT_ORDER_OPTIONS, showTimeframe, classes}: {
   persistentSettings?: any,
   hidden: boolean,
@@ -152,7 +156,7 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
   timeframes?: readonly TimeframeSettingType[],
   sortings?: { [key: string]: SettingsOption; },
   showTimeframe?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { MetaInfo, SettingsColumn } = Components
   const currentUser = useCurrentUser();
@@ -204,9 +208,9 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
               merge
               rel="nofollow"
             >
-              <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentShowLowKarma} />
+              <Checkbox classes={{root: classes.checkbox}} checked={currentShowLowKarma} />
 
-              <MetaInfo className={classes.checkboxLabel}>
+              <MetaInfo>
                 {preferredHeadingCase("Show Low Karma")}
               </MetaInfo>
             </QueryLink>
@@ -220,9 +224,9 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
               merge
               rel="nofollow"
             >
-              <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentIncludeEvents}/>
+              <Checkbox classes={{root: classes.checkbox}} checked={currentIncludeEvents}/>
 
-              <MetaInfo className={classes.checkboxLabel}>
+              <MetaInfo>
                 {preferredHeadingCase("Show Events")}
               </MetaInfo>
             </QueryLink>
@@ -236,8 +240,8 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
               merge
               rel="nofollow"
             >
-              <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={!currentHideCommunity}/>
-              <MetaInfo className={classes.checkboxLabel}>
+              <Checkbox classes={{root: classes.checkbox}} checked={!currentHideCommunity}/>
+              <MetaInfo>
                 Show community
               </MetaInfo>
             </QueryLink>

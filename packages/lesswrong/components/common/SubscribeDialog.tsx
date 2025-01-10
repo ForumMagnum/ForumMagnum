@@ -25,7 +25,7 @@ import { preferredHeadingCase } from '../../themes/forumTheme';
 import { forumSelect } from '../../lib/forumTypeUtils';
 
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   thresholdSelector: {
     display: "flex",
     flexDirection: "row",

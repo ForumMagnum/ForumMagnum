@@ -1,3 +1,4 @@
+import type { JssStyles } from "@/lib/jssStyles";
 import { isFriendlyUI } from "../forumTheme";
 
 export const maxSmallish = "@media screen and (max-width: 715px)";
@@ -5,7 +6,7 @@ export const maxTiny = "@media screen and (max-width: 400px)";
 
 export const commentsNodeRootMarginBottom = 17
 
-const clearStyle = (theme: ThemeType): JssStyles => ({
+const clearStyle = (theme: ThemeType) => ({
   html: {
     fontSize: theme.baseFontSize,
     boxSizing: "border-box",
@@ -47,7 +48,7 @@ const clearStyle = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const globalStyle = (theme: ThemeType): JssStyles => ({
+const globalStyle = (theme: ThemeType) => ({
   ".message.error": {
     color: theme.palette.text.error2,
   },
@@ -90,6 +91,16 @@ const globalStyle = (theme: ThemeType): JssStyles => ({
     borderRadius: 5
   },
   
+  ".ck-mentions-balloon": {
+    "--ck-color-list-background": theme.palette.panelBackground.default,
+    "--ck-color-panel-background": theme.palette.panelBackground.default,
+    "--ck-color-panel-border": theme.palette.border.mentionsBaloon,
+    "--ck-color-text": theme.palette.text.maxIntensity,
+    "--ck-color-list-button-hover-background": theme.palette.buttons.mentions.hover,
+    "--ck-color-list-button-on-background": theme.palette.buttons.mentions.selected,
+    "--ck-color-list-button-on-background-focus": theme.palette.buttons.mentions.selectedHover,
+  },
+
   // Starting in v38, CkEditor puts a "powered by CkEditor" badge in the corner
   // when focused. This is removed by putting a `licenseKey` in the ckeditor
   // config; we do have one of those (since we're using cloud editing), it's
@@ -101,9 +112,22 @@ const globalStyle = (theme: ThemeType): JssStyles => ({
   ".ck-powered-by, .ck-powered-by-balloon": {
     display: "none !important",
   },
+  
+  // Mapbox
+  ...(isFriendlyUI ? {
+    ".mapboxgl-popup-content": {
+      background: `${theme.palette.panelBackground.mapboxTooltip} !important`
+    },
+    ".mapboxgl-popup-tip": {
+      borderTopColor: `${theme.palette.panelBackground.mapboxTooltip} !important`
+    },
+    ".mapboxgl-popup-close-button": {
+      color: `${theme.palette.text.normal} !important`,
+    },
+  }: {}),
 });
 
-const commentsStyle = (theme: ThemeType): JssStyles => ({
+const commentsStyle = (theme: ThemeType) => ({
   ".comments-node-even": {
     backgroundColor: theme.palette.panelBackground.commentNodeEven,
   },
@@ -224,7 +248,7 @@ const makeDialogueCommentStyles = (
   return result;
 }
 
-const dialogueStyle = (theme: ThemeType): JssStyles => ({
+const dialogueStyle = (theme: ThemeType) => ({
   '.dialogue-message-input-wrapper': {
     display: 'flex',
     flexDirection: 'column',
@@ -354,7 +378,7 @@ const dialogueStyle = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const audioPlayerStyles = (theme: ThemeType): JssStyles => ({
+const audioPlayerStyles = (theme: ThemeType) => ({
   // When the floating audio player is visible, move this ad above it
   'body.t3a-sticky-player-visible .StickyDigestAd-root': {
     bottom: 78
@@ -411,7 +435,7 @@ const audioPlayerStyles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-export const globalStyles = (theme: ThemeType): JssStyles => ({
+export const globalStyles = (theme: ThemeType) => ({
   ...clearStyle(theme),
   ...globalStyle(theme),
   ...commentsStyle(theme),

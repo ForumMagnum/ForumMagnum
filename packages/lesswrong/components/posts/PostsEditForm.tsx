@@ -33,7 +33,7 @@ function getDraftLabel(post: PostsPage | null) {
 const PostsEditForm = ({ documentId, version, classes }: {
   documentId: string,
   version?: string | null,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags, ForeignCrosspostEditForm, DialogueSubmit, RateLimitWarning, DynamicTableOfContents } = Components
 

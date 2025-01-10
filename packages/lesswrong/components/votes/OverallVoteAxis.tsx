@@ -10,7 +10,7 @@ import type { OverallVoteButtonProps } from './OverallVoteButton';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   overallSection: {
     display: 'inline-block',
     height: 24,
@@ -52,6 +52,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   tooltip: {
     transform: "translateY(-10px)",
   },
+  lwTooltip: {
+    transform: "translateY(-3px)",
+  },
   verticalArrows: {
     "& .LWTooltip-root": {
     },
@@ -74,7 +77,7 @@ const OverallVoteAxis = ({
   document: VoteableTypeClient,
   hideKarma?: boolean,
   voteProps: VotingProps<VoteableTypeClient>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   showBox?: boolean,
   verticalArrows?: boolean,
   largeArrows?: boolean,
@@ -178,7 +181,7 @@ const OverallVoteAxis = ({
         <LWTooltip
           title="LessWrong Karma"
           placement={tooltipPlacement}
-          className={classes.tooltip}
+          className={classes.lwTooltip}
         >
           <span className={classes.secondaryScore}>
             <span className={classes.secondarySymbol}>LW</span>

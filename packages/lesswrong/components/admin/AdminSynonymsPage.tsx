@@ -33,7 +33,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const AdminSynonymsEditor: FC<{classes: ClassesType}> = ({classes}) => {
+const AdminSynonymsEditor: FC<{classes: ClassesType<typeof styles>}> = ({classes}) => {
   const [synonyms, setSynonyms] = useState<string[]>([]);
   const {data, loading, error} = useQuery(searchSynonymsQuery);
   const [updateSearchSynonyms, updateLoading] = useMutation(
@@ -104,7 +104,7 @@ const AdminSynonymsEditor: FC<{classes: ClassesType}> = ({classes}) => {
 }
 
 const AdminSynonymsPage = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   return currentUser?.isAdmin

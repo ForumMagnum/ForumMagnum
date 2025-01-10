@@ -4,6 +4,7 @@ import type { PartialDeep, Merge } from 'type-fest'
 import type { ForumTypeString } from '../lib/instanceSettings';
 import type { UnionOf } from '../lib/utils/typeGuardUtils';
 import type { ZIndexMap } from './zIndexes';
+import type { JssStyles } from '@/lib/jssStyles';
 import { userThemeNames, userThemeSettings, muiThemeNames, ThemeOptions } from './themeNames';
 
 declare global {
@@ -118,7 +119,10 @@ declare global {
       color2: ColorString,
       color3: ColorString,
       color4: ColorString,
-    }
+    },
+    fundraisingThermometer: {
+      shadow: ColorString,
+    },
     text: {
       primary: ColorString,
       secondary: ColorString
@@ -280,7 +284,6 @@ declare global {
       primaryTranslucent: string,
       dashed500: string,
       mentionsBaloon: string,
-      wrappedSummary: string,
       eaButtonGreyOutline: string,
     },
     panelBackground: {
@@ -476,6 +479,7 @@ declare global {
       contrastInDarkMode: ColorString,
       pageActiveAreaBackground: ColorString,
       translucentBackground: ColorString,
+      translucentBackgroundHeavy: ColorString,
       loginBackdrop: ColorString,
       diffInserted: ColorString,
       diffDeleted: ColorString,
@@ -538,20 +542,25 @@ declare global {
 
     wrapped: {
       background: ColorString,
+      darkBackground: ColorString,
       highlightText: ColorString,
       secondaryText: ColorString,
       tertiaryText: ColorString,
       black: ColorString,
-      darkGrey: ColorString,
-      grey: ColorString,
       darkDot: ColorString,
       panelBackground: ColorString,
       panelBackgroundDark: ColorString,
-      postScoreArrow: ColorString,
-    },
-    givingSeason: {
-      primary: ColorString,
-      electionFundBackground: ColorString,
+      postScore: ColorString,
+      notification: ColorString,
+      emptyPath: ColorString,
+      metaText: ColorString,
+      personality: {
+        transparent: ColorString,
+        grey: ColorString,
+        red: ColorString,
+        blue: ColorString,
+        green: ColorString,
+      },
     },
     namesAttachedReactions: {
       selectedAnti: ColorString,

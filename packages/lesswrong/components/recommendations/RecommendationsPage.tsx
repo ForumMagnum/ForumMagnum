@@ -3,9 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { isLW } from '../../lib/instanceSettings';
 
-const RecommendationsPage = ({classes}: {
-  classes: ClassesType
-}) => {
+const RecommendationsPage = () => {
   const { ConfigurableRecommendationsList, RecommendationsPageCuratedList, SpotlightHistory  } = Components;
 
   return (

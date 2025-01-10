@@ -35,7 +35,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 interface EAEmojisVoteOnPostProps extends PostVotingComponentProps {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }
 
 const EAEmojisVoteOnPost = ({

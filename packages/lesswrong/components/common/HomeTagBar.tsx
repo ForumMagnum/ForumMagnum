@@ -163,6 +163,15 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
+const eventTabProperties = (event?: ForumEventsDisplay): CSSProperties => {
+  return event
+    ? {
+      "--tag-bar-event-background": event.lightColor,
+      "--tag-bar-event-foreground": event.darkColor,
+    } as CSSProperties
+    : {};
+}
+
 export type TopicsBarTab = {
   _id: string,
   name: string,
@@ -348,16 +357,13 @@ const HomeTagBar = (
                       <button
                         onClick={() => handleTabClick(tab)}
                         className={classNames(classes.tab, {
-                          [classes.activeTab]: isActive && !isEventTab,
+                          [classes.activeTab]: isActive && !(isEventTab),
                           [classes.eventTab]: isEventTab,
                           [classes.activeEventTab]: isActive && isEventTab,
                         })}
                         style={
                           isEventTab
-                            ? {
-                              "--tag-bar-event-background": currentForumEvent.lightColor,
-                              "--tag-bar-event-foreground": currentForumEvent.darkColor,
-                            } as CSSProperties
+                            ? eventTabProperties(currentForumEvent)
                             : undefined
                         }
                       >

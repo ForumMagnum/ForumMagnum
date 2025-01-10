@@ -148,7 +148,7 @@ const TriggerButton: FC<{
   uploadImage: () => void,
   label?: string,
   horizontal?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }> = ({imageType, imageId, uploadImage, label, horizontal, classes}) => {
   let mainClass = classes.button;
   let showIcon = true;
@@ -176,7 +176,7 @@ const RemoveButton: FC<{
   imageType: ImageType,
   imageId?: string,
   removeImage: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }> = ({imageType, imageId, removeImage, classes}) => {
   if (!imageId) {
     return null;

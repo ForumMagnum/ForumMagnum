@@ -21,6 +21,7 @@ import { getTagStructuredData } from "./TagPageRouter";
 import { HEADER_HEIGHT } from "../common/Header";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import DeferRender from "../common/DeferRender";
+import {quickTakesTagsEnabledSetting} from '../../lib/publicSettings'
 
 export const tagPageHeaderStyles = (theme: ThemeType) => ({
   postListMeta: {
@@ -38,8 +39,17 @@ export const tagPageHeaderStyles = (theme: ThemeType) => ({
   },
 });
 
+const sidePaddingStyle = (theme: ThemeType) => ({
+  paddingLeft: 42,
+  paddingRight: 42,
+  [theme.breakpoints.down('xs')]: {
+    paddingLeft: '8px',
+    paddingRight: '8px',
+  },
+})
+
 // Also used in TagCompareRevisions, TagDiscussionPage
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   rootGivenImage: {
     marginTop: 185,
     [theme.breakpoints.down('sm')]: {
@@ -73,8 +83,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   header: {
     paddingTop: 19,
     paddingBottom: 5,
-    paddingLeft: 42,
-    paddingRight: 42,
+    ...sidePaddingStyle(theme),
     background: theme.palette.panelBackground.default,
     borderTopLeftRadius: theme.borderRadius.default,
     borderTopRightRadius: theme.borderRadius.default,
@@ -116,8 +125,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   wikiSection: {
     paddingTop: 5,
-    paddingLeft: 42,
-    paddingRight: 42,
+    ...sidePaddingStyle(theme),
     paddingBottom: 12,
     marginBottom: 24,
     background: theme.palette.panelBackground.default,
@@ -125,8 +133,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     borderBottomRightRadius: theme.borderRadius.default,
   },
   subHeading: {
-    paddingLeft: 42,
-    paddingRight: 42,
+    ...sidePaddingStyle(theme),
     marginTop: -2,
     background: theme.palette.panelBackground.default,
     ...theme.typography.body2,
@@ -191,7 +198,7 @@ export const RelevanceLabel = () => (
 const PostsListHeading: FC<{
   tag: TagPageFragment|TagPageWithRevisionFragment,
   query: Record<string, string>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }> = ({tag, query, classes}) => {
   const {SectionTitle, PostsListSortDropdown} = Components;
   if (isFriendlyUI) {
@@ -216,7 +223,7 @@ const PostsListHeading: FC<{
 }
 
 const TagPage = ({classes}: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const {
     PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, Typography,
@@ -446,7 +453,6 @@ const TagPage = ({classes}: {
                 <ContentItemBody
                   dangerouslySetInnerHTML={{__html: description||""}}
                   description={`tag ${tag.name}`}
-                  className={classes.description}
                 />
               </ContentStyles>
             </div>}
@@ -460,17 +466,18 @@ const TagPage = ({classes}: {
           {tag.sequence && <TagIntroSequence tag={tag} />}
           {!tag.wikiOnly && <>
             <AnalyticsContext pageSectionContext="tagsSection">
-              <PostsListHeading tag={tag} query={query} classes={classes} />
               <PostsList2
+                header={<PostsListHeading tag={tag} query={query} classes={classes} />}
                 terms={terms}
                 enableTotal
                 tagId={tag._id}
                 itemsPerPage={200}
+                showNoResults={true}
               >
                 <AddPostsToTag tag={tag} />
               </PostsList2>
             </AnalyticsContext>
-            <DeferRender ssr={false}>
+            {quickTakesTagsEnabledSetting.get() && <DeferRender ssr={false}>
               <AnalyticsContext pageSectionContext="quickTakesSection">
                 <CommentsListCondensed
                   label="Quick takes"
@@ -485,7 +492,7 @@ const TagPage = ({classes}: {
                   hideTag
                 />
               </AnalyticsContext>
-            </DeferRender>
+            </DeferRender>}
           </>}
         </div>
       </ToCColumn>

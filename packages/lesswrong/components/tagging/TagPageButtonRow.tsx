@@ -12,7 +12,7 @@ import classNames from 'classnames';
 import { useTagBySlug } from './useTag';
 import { tagGetHistoryUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   buttonsRow: {
     ...theme.typography.body2,
     marginTop: 2,
@@ -89,7 +89,7 @@ const TagPageButtonRow = ({ tag, editing, setEditing, className, classes }: {
   editing: boolean,
   setEditing: (editing: boolean) => void,
   className?: string,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
@@ -137,7 +137,6 @@ const TagPageButtonRow = ({ tag, editing, setEditing, className, classes }: {
       <br />
     </>}
     <ContentItemBody
-      className={classes.beginnersGuide}
       dangerouslySetInnerHTML={{ __html: beginnersGuideContentTag?.description?.html || "" }}
       description={`tag ${tag?.name}`}
     />

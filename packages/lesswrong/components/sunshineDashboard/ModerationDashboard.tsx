@@ -9,7 +9,7 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   page: {
     width: '90%',
     maxWidth: 1800,
@@ -106,7 +106,7 @@ const getCurrentView = (query: Record<string, string>): DashboardTabs => {
 
 
 const ModerationDashboard = ({ classes }: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { UsersReviewInfoCard, LoadMore, Loading, FirstContentIcons } = Components;
 

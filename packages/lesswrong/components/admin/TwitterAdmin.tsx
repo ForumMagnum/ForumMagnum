@@ -8,7 +8,7 @@ import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import { userGetProfileUrl } from '@/lib/collections/users/helpers';
 import { useMessages } from '../common/withMessages';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     maxWidth: 1200,
     margin: '10px auto',
@@ -90,7 +90,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const readableDate = (date: Date) => date.toISOString().replace('T', ' ').slice(0, 16);
 
-const TwitterAdmin = ({ classes }: { classes: ClassesType }) => {
+const TwitterAdmin = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const [copyCount, setCopyCount] = useState(10);
   const currentUser = useCurrentUser();
   const {
@@ -101,15 +101,16 @@ const TwitterAdmin = ({ classes }: { classes: ClassesType }) => {
     TruncatedAuthorsList,
     ForumIcon,
     LWTooltip,
+    LoadMore
   } = Components;
 
   const { flash } = useMessages();
 
-  const { results, loading, error } = usePaginatedResolver({
+  const { results, loading, error, loadMoreProps } = usePaginatedResolver({
     resolverName: 'CrossedKarmaThreshold',
-    fragmentName: 'PostsListWithVotes',
-    limit: 100,
-    itemsPerPage: 200,
+    fragmentName: 'PostsTwitterAdmin',
+    limit: 20,
+    itemsPerPage: 20,
   });
 
   const authorExpandContainer = useRef(null);
@@ -117,10 +118,10 @@ const TwitterAdmin = ({ classes }: { classes: ClassesType }) => {
   if (!userIsAdmin(currentUser)) {
     return <Error404 />;
   }
-  if (loading || !results) return <Loading />;
-  if (error) return <div>Error loading posts</div>;
+  if (loading && !results) return <Loading />;
+  if (error || !results) return null;
 
-  const getAuthorsLinks = (post: PostsListWithVotes) => {
+  const getAuthorsLinks = (post: PostsTwitterAdmin) => {
     if (post.user) {
       const author = post.user;
       const authorUrl = userGetProfileUrl(author);
@@ -130,19 +131,44 @@ const TwitterAdmin = ({ classes }: { classes: ClassesType }) => {
     return 'Unknown';
   };
 
-  const copyPostsToClipboard = async (posts: PostsListWithVotes[]) => {
+  const copyPostsToClipboard = async (posts: PostsTwitterAdmin[]) => {
     const currentTime = readableDate(new Date());
     let tsvContent = '';
 
     for (const post of posts) {
-      const postUrl = `${window.location.origin}${postGetPageUrl(post)}`;
+      const postUrl = `${postGetPageUrl(post, true)}`;
       const titleCell = `=HYPERLINK("${postUrl}", "${post.title.replace(/"/g, '""')}")`;
       const authorsLink = getAuthorsLinks(post);
       const postedAt = readableDate(new Date(post.postedAt));
       const karma = post.baseScore;
       const commentCount = post.commentCount;
 
-      const row = `${titleCell}\t${authorsLink}\t${postedAt}\t${currentTime}\t${karma}\t${commentCount}\n`;
+      const authors = ([post.user, ...(post.coauthors || [])]
+        .filter(author => author) as UsersSocialMediaInfo[])
+        .map((author) => {
+          const userSetTwitterHandle = author.twitterProfileURL
+          const adminSetTwitterHandle = author.twitterProfileURLAdmin
+
+          const anyHandleSet = (userSetTwitterHandle || adminSetTwitterHandle)
+          const unambiguousHandle =
+            anyHandleSet &&
+            (!userSetTwitterHandle || !adminSetTwitterHandle || userSetTwitterHandle === adminSetTwitterHandle);
+
+          const twitterHandleStr = unambiguousHandle
+            ? ` (@${userSetTwitterHandle || adminSetTwitterHandle})`
+            : anyHandleSet
+            ? ` (ADMIN: @${adminSetTwitterHandle}, USER: @${userSetTwitterHandle})`
+            : "";
+
+          return `${author!.displayName}${twitterHandleStr}`
+        })
+        .join(', ');
+
+      // Note: These quotes are currently stripped when pasting into Google sheets
+      const standardTweet1 = `"${post.title}" by ${authors}`;
+      const standardTweet2 = `Full post: ${postUrl}`;
+
+      const row = `${titleCell}\t${authorsLink}\t${postedAt}\t${currentTime}\t${karma}\t${commentCount}\t${standardTweet1}\t${standardTweet2}\n`;
       tsvContent += row;
     }
 
@@ -156,7 +182,7 @@ const TwitterAdmin = ({ classes }: { classes: ClassesType }) => {
     }
   };
 
-  const handleCopyRow = async (post: PostsListWithVotes) => {
+  const handleCopyRow = async (post: PostsTwitterAdmin) => {
     await copyPostsToClipboard([post]);
   };
 
@@ -219,7 +245,8 @@ const TwitterAdmin = ({ classes }: { classes: ClassesType }) => {
               </td>
               <td>
                 <TruncatedAuthorsList
-                  post={post}
+                  // TODO make it work with the real type
+                  post={post as PostsListWithVotes}
                   expandContainer={authorExpandContainer}
                 />
               </td>
@@ -241,6 +268,7 @@ const TwitterAdmin = ({ classes }: { classes: ClassesType }) => {
           ))}
         </tbody>
       </table>
+      <LoadMore {...loadMoreProps} />
     </div>
   );
 };

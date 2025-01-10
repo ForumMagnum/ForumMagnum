@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { HEADER_HEIGHT } from "../common/Header";
 import { useCurrentUser } from "../common/withUser";
@@ -58,6 +58,12 @@ const styles = (theme: ThemeType) => ({
     fontSize: 13,
     fontWeight: 500,
     color: theme.palette.grey[600],
+  },
+  karmaSubsectionTitle: {
+    fontSize: 12,
+    fontWeight: 600,
+    color: theme.palette.grey[600],
+    marginBottom: 6,
   },
   link: {
     fontWeight: 600,
@@ -124,6 +130,24 @@ const NotificationsPopover = ({karmaChanges, markAllAsRead, closePopover, classe
     }
   }, [notificationsLoading, markAllAsRead]);
 
+  const hasNewKarmaChanges = useMemo(() => cachedKarmaChanges &&
+    (
+      cachedKarmaChanges.posts?.length ||
+      cachedKarmaChanges.comments?.length ||
+      cachedKarmaChanges.tagRevisions?.length
+    ), [cachedKarmaChanges]
+  )
+  // For realtime karma notifications, show a section under the new karma notifications
+  // called "Today", which includes all karma notifications from the past 24 hours
+  const todaysKarmaChanges = cachedKarmaChanges?.todaysKarmaChanges
+  const hasKarmaChangesToday = useMemo(() => todaysKarmaChanges &&
+    (
+      todaysKarmaChanges.posts?.length ||
+      todaysKarmaChanges.comments?.length ||
+      todaysKarmaChanges.tagRevisions?.length
+    ), [todaysKarmaChanges]
+  )
+
   if (!currentUser) {
     return null;
   }
@@ -132,14 +156,15 @@ const NotificationsPopover = ({karmaChanges, markAllAsRead, closePopover, classe
     karmaChangeNotifierSettings: {updateFrequency},
     subscribedToDigest,
   } = currentUser;
-
-  const showNotifications = !!(notifs.current.length > 0 || cachedKarmaChanges);
+    
+  const showNotifications = !!(notifs.current.length > 0 || hasNewKarmaChanges || hasKarmaChangesToday);
 
   const {
     SectionTitle, NotificationsPageKarmaChangeList, NoNotificationsPlaceholder,
     LoadMore, NotificationsPopoverNotification, ForumIcon, LWClickAwayListener,
     PopperCard, DropdownMenu, DropdownItem, Loading,
   } = Components;
+
   return (
     <AnalyticsContext pageSectionContext="notificationsPopover">
       <NotificationsPopoverContext.Provider value={{ closeNotifications }}>
@@ -176,12 +201,12 @@ const NotificationsPopover = ({karmaChanges, markAllAsRead, closePopover, classe
                   title="Karma & reacts"
                   titleClassName={classes.sectionTitle}
                 />
-                {cachedKarmaChanges &&
+                {!!hasNewKarmaChanges &&
                   <NotificationsPageKarmaChangeList
                     karmaChanges={cachedKarmaChanges}
                   />
                 }
-                {!cachedKarmaChanges &&
+                {!hasNewKarmaChanges && !hasKarmaChangesToday &&
                   <div className={classes.noKarma}>
                     No new karma or reacts{getKarmaFrequency(updateFrequency)}.{" "}
                     <NotifPopoverLink
@@ -190,6 +215,15 @@ const NotificationsPopover = ({karmaChanges, markAllAsRead, closePopover, classe
                     >
                       Change settings
                     </NotifPopoverLink>
+                  </div>
+                }
+                {!!hasKarmaChangesToday &&
+                  <div>
+                    <div className={classes.karmaSubsectionTitle}>Today</div>
+                    <NotificationsPageKarmaChangeList
+                      karmaChanges={todaysKarmaChanges}
+                      truncateAt={3}
+                    />
                   </div>
                 }
                 <SectionTitle

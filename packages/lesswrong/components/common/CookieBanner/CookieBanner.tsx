@@ -70,7 +70,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const CookieBanner = ({ classes }: { classes: ClassesType }) => {
+const CookieBanner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { openDialog } = useDialog();
   const { updateCookiePreferences } = useCookiePreferences();
   
