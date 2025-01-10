@@ -37,6 +37,8 @@ import { visitorGetsDynamicFrontpage } from '../../../lib/betas';
 import { responseIsCacheable } from '../../cacheControlMiddleware';
 import moment from 'moment';
 import { preloadScrollToCommentScript } from '@/lib/scrollUtils';
+import { ApolloProvider } from '@apollo/client';
+import { SeedCacheWithCurrentUser } from '@/lib/crud/withCurrentUser';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 
@@ -411,6 +413,10 @@ const renderRequest = async ({req, user, startTime, res, clientId, userAgent, us
   let htmlContent = '';
   try {
     if (userAlreadyHasJSBundle) {
+      await renderToStringWithData(<ApolloProvider client={client}>
+        <SeedCacheWithCurrentUser/>
+      </ApolloProvider>);
+
       htmlContent = renderToString(WrappedApp);
     } else {
       htmlContent = await renderToStringWithData(WrappedApp);
