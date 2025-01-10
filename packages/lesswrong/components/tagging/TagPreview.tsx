@@ -13,7 +13,11 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
   root: {
-    ...(!isFriendlyUI && {
+    ...(isFriendlyUI ? {
+      paddingTop: 8,
+      paddingLeft: 16,
+      paddingRight: 16,
+    } : {
       width: 500,
       paddingBottom: 6,
     }),
@@ -24,15 +28,13 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
   rootEAWidth: {
     width: FRIENDLY_HOVER_OVER_WIDTH,
   },
-  nonArbitalPadding: {
-    paddingLeft: 16,
-    paddingRight: 16,
-  },
   nonTabPadding: {
-    paddingLeft: 16,
-    paddingRight: 16,
-    maxHeight: 400,
-    overflowY: 'auto',
+    ...(!isFriendlyUI && {
+      paddingLeft: 16,
+      paddingRight: 16,
+      maxHeight: 400,
+      overflowY: 'auto',
+    }),
   },
   relatedTagWrapper: {
     ...theme.typography.body2,
@@ -83,11 +85,6 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
   footerMarginTop: {
     marginTop: 16,
   },
-  arbitalTitle: {
-    fontSize: "1.5rem",
-    marginBottom: 16,
-    color: theme.palette.link.color,
-  },
   tabsContainer: {
     display: "flex",
     flexDirection: "row",
@@ -134,6 +131,8 @@ const TagPreview = ({
   autoApplied?: boolean,
   setForceOpen?: (forceOpen: boolean) => void,
 }) => {
+  const classes = useStyles(styles);
+
   const [activeTab, setActiveTab] = useState<number>(0);
 
   // Because different tabs can have different heights due to varying content lengths,
@@ -153,11 +152,6 @@ const TagPreview = ({
     fragmentName: "PostsList",
     limit: postCount,
   });
-
-  const classes = useStyles(styles);
-
-  const summaries = tag?.summaries;
-  const multipleSummaries = summaries && summaries.length > 1;
 
   // In theory the type system doesn't allow this, but I'm too scared to
   // remove it
@@ -197,7 +191,7 @@ const TagPreview = ({
     <div className={classNames(classes.root, {
       [classes.rootEAWidth]: isFriendlyUI && hasDescription,
     })}>
-      {multipleSummaries && <div className={classes.tabsContainer}>
+      {summaryTabs.length > 1 && <div className={classes.tabsContainer}>
        {summaryTabs}
       </div>}
       <div className={classes.nonTabPadding}>
