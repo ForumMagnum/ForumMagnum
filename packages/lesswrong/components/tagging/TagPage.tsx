@@ -473,7 +473,7 @@ const TagPage = ({classes}: {
                 enableTotal
                 tagId={tag._id}
                 itemsPerPage={200}
-                showNoResults={false}
+                showNoResults={true}
               >
                 <AddPostsToTag tag={tag} />
               </PostsList2>

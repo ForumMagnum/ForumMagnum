@@ -317,11 +317,11 @@ const PostsNewForm = ({classes}: {
     postCategory
   }
 
-  if (query?.subforumTagId) {
+  if (query?.subforumTagId || query?.tagId) {
     prefilledProps = {
       ...prefilledProps,
-      subforumTagId: query.subforumTagId,
-      tagRelevance: {[query.subforumTagId]: 1},
+      subforumTagId: query.subforumTagId || query.tagId,
+      tagRelevance: {[query.subforumTagId || query.tagId]: 1},
     }
   }
 
