@@ -18,10 +18,6 @@ import { useLocation } from '../../lib/routeUtil';
 import { useCurrentForumEvent } from '../hooks/useCurrentForumEvent';
 import { makeCloudinaryImageUrl } from './CloudinaryImage2';
 import { hasForumEvents } from '@/lib/betas';
-import {
-  GIVING_SEASON_MOBILE_WIDTH,
-  useGivingSeasonEvents,
-} from '../forumEvents/useGivingSeasonEvents';
 import { useFundraiserStripeTotal, useLivePercentage } from '@/lib/lightconeFundraiser';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
@@ -132,13 +128,6 @@ export const styles = (theme: ThemeType) => ({
       theme,
       color: theme.palette.text.alwaysWhite,
       contrastColor: theme.palette.text.alwaysBlack,
-
-      // Custom button styles for giving season 2024
-      signupButtonBackgroundColor: theme.palette.givingSeason.electionFundBackground,
-      signupButtonColor: theme.palette.text.alwaysWhite,
-      loginButtonBackgroundColor: theme.palette.givingSeason.electionFundBackground,
-      loginButtonColor: theme.palette.text.alwaysWhite,
-      loginButtonHoverBackgroundColor: `color-mix(in oklab, ${theme.palette.givingSeason.electionFundBackground} 90%, ${theme.palette.text.alwaysWhite})`,
     }),
   },
   root: {
@@ -264,46 +253,6 @@ export const styles = (theme: ThemeType) => ({
       position: "fixed !important",
     },
   },
-
-  // Giving season 2024 styles
-  gsBackground: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100%",
-    opacity: 0,
-    transition: "opacity 0.5s ease",
-    backgroundSize: "100% 400px",
-    backgroundRepeat: "no-repeat",
-    backgroundBlendMode: "darken",
-  },
-  gsBackgroundActive: {
-    opacity: 1,
-  },
-  gsAppBarText: {
-    ...textColorOverrideStyles({
-      theme,
-      color: theme.palette.givingSeason.primary,
-      contrastColor: theme.palette.text.alwaysWhite,
-    }),
-  },
-  gsBanner: {
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: 14,
-    fontWeight: 600,
-    lineHeight: "150%",
-    letterSpacing: "1.12px",
-    textAlign: "center",
-    flex: 1,
-    [theme.breakpoints.down(GIVING_SEASON_MOBILE_WIDTH)]: {
-      display: "none",
-    },
-  },
-  gsRightHeaderItems: {
-    flex: 1,
-    justifyContent: "flex-end",
-  },
   lightconeFundraiserHeaderItem: {
     color: theme.palette.review.winner,
     fontFamily: theme.typography.headerStyle.fontFamily,
@@ -349,11 +298,6 @@ const Header = ({
   const { notificationsOpened } = useUnreadNotifications();
   const { currentRoute, pathname, hash } = useLocation();
   const {currentForumEvent} = useCurrentForumEvent();
-  const isGivingSeason =
-    currentForumEvent?.customComponent === "GivingSeason2024Banner" &&
-    (currentRoute?.name === "home" || currentRoute?.name === "posts.single");
-  const {events, selectedEvent, currentEvent} = useGivingSeasonEvents();
-  const isVotingPortal = currentRoute?.name === "VotingPortal";
 
   const {
     SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
@@ -488,10 +432,7 @@ const Header = ({
   </div>
 
   // the items on the right-hand side (search, notifications, user menu, login/sign up buttons)
-  const rightHeaderItemsNode = <div className={classNames(
-    classes.rightHeaderItems,
-    isGivingSeason && classes.gsRightHeaderItems,
-  )}>
+  const rightHeaderItemsNode = <div className={classNames(classes.rightHeaderItems)}>
     <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
     {!isFriendlyUI && usersMenuNode}
     {!currentUser && <UsersAccountMenu />}
@@ -547,20 +488,11 @@ const Header = ({
         g: "north",
       })})${darkColor ? `, ${darkColor}` : ''}`;
       headerStyle.background = background;
-    } else if (isGivingSeason) {
-      headerStyle.background = unFixed ? "transparent" : "#fff";
     }
-  } else if (isGivingSeason) {
-    headerStyle.background = "#fff";
   }
 
-  const useGivingSeasonText = isGivingSeason && (
-    (currentRoute?.name === "home" && selectedEvent.darkText) ||
-    (currentRoute?.name === "posts.single" && !!currentEvent?.darkText)
-  );
-
   // Make all the text and icons white when we have some sort of color in the header background
-  const useWhiteText = Object.keys(headerStyle).length > 0 && !useGivingSeasonText;
+  const useWhiteText = Object.keys(headerStyle).length > 0;
 
   return (
     <AnalyticsContext pageSectionContext="header">
@@ -574,39 +506,15 @@ const Header = ({
           })}
           onUnfix={() => setUnFixed(true)}
           onUnpin={() => setUnFixed(false)}
-          disable={stayAtTop || isVotingPortal}
+          disable={stayAtTop}
         >
           <header
             className={classNames(
               classes.appBar,
-              useWhiteText && classes.appBarDarkBackground,
-              useGivingSeasonText && classes.gsAppBarText,
+              useWhiteText && classes.appBarDarkBackground
             )}
             style={headerStyle}
           >
-            {isGivingSeason && !unFixed && currentRoute?.name === "home" &&
-              <div>
-                {events.map(({name, background}) => (
-                  <div
-                    key={name}
-                    style={{backgroundImage: `url(${background})`}}
-                    className={classNames(
-                      classes.gsBackground,
-                      name === selectedEvent.name && classes.gsBackgroundActive,
-                    )}
-                  />
-                ))}
-              </div>
-            }
-            {isGivingSeason && currentEvent && currentRoute?.name === "posts.single" &&
-              <div
-                style={{backgroundImage: `url(${currentEvent.background})`}}
-                className={classNames(
-                  classes.gsBackground,
-                  classes.gsBackgroundActive,
-                )}
-              />
-            }
             <Toolbar disableGutters={isFriendlyUI}>
               {navigationMenuButton}
               <Typography className={classes.title} variant="title">
@@ -631,13 +539,6 @@ const Header = ({
                 </div>
               </Typography>
               {!isEAForum &&<ActiveDialogues />}
-              {isGivingSeason && !searchOpen &&
-                <div className={classes.gsBanner}>
-                  <Link to="/posts/srZEX2r9upbwfnRKw/giving-season-2024-announcement">
-                    GIVING SEASON 2024
-                  </Link>
-                </div>
-              }
               {rightHeaderItemsNode}
             </Toolbar>
           </header>

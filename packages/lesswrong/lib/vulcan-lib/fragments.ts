@@ -139,8 +139,11 @@ export const getSqlFragment = (fragmentName: FragmentName): SqlFragment => {
   return sqlFragment;
 }
 
-// Get gql fragment text
-export const getFragmentText = (fragmentName: FragmentName): string => {
+/**
+ * WARNING: This doesn't include the subfragments, so it's not a full fragment definition.
+ * Don't use this for anything that requires the subfragments
+ */
+const getFragmentText = (fragmentName: FragmentName): string => {
   if (!Fragments[fragmentName]) {
     throw new Error(`Fragment "${fragmentName}" not registered.`);
   }
@@ -163,7 +166,7 @@ export const getAllFragmentNames = (): Array<FragmentName> => {
 const addFragmentDependencies = (fragments: Array<FragmentName>): Array<FragmentName> => {
   const result = [...fragments];
   for (let i=0; i<result.length; i++) {
-    const dependencies = Fragments[result[i]]?.subFragments;
+    const dependencies = Fragments[result[i]].subFragments;
     if (dependencies) {
       _.forEach(dependencies, (subfragment: FragmentName) => {
         if (!_.find(result, (s: FragmentName)=>s===subfragment))

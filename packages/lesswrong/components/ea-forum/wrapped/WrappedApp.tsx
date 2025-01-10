@@ -38,7 +38,7 @@ const styles = (theme: ThemeType) => ({
     maxWidth: "100%",
     display: "flex",
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "space-between",
     gap: "6px",
   },
   navButton: {
@@ -63,12 +63,12 @@ const styles = (theme: ThemeType) => ({
     },
   },
   navSection: {
-    flexGrow: 1,
-    height: 4,
+    width: 8,
+    height: 8,
     background: theme.palette.text.alwaysWhite,
-    borderRadius: 2,
+    borderRadius: "50%",
   },
-  navSectionUnviewed: {
+  navSectionInactive: {
     opacity: 0.3,
   },
 });
@@ -88,8 +88,12 @@ const WrappedApp = ({classes}: {
   } = useForumWrappedContext();
 
   useEffect(() => {
-    const handler = (ev: KeyboardEvent) => {
-      switch (ev.key) {
+    const handler = ({ target, key }: KeyboardEvent) => {
+      // Disable the arrow navigation when we're typing in a text box
+      if ((target as HTMLElement)?.getAttribute?.("contenteditable") === "true") {
+        return;
+      }
+      switch (key) {
         case "ArrowLeft":  goToPreviousSection(); break;
         case "ArrowRight": goToNextSection();     break;
       }
@@ -136,7 +140,7 @@ const WrappedApp = ({classes}: {
             {range(1, totalSections).map((i) => (
               <div key={i} className={classNames(
                 classes.navSection,
-                i > currentSection && classes.navSectionUnviewed,
+                i !== currentSection && classes.navSectionInactive,
               )} />
             ))}
             <div className={classes.navButton} onClick={goToNextSection}>

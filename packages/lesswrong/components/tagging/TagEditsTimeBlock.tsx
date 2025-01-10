@@ -22,6 +22,7 @@ const TagEditsTimeBlock = ({before, after, reportEmpty, classes}: {
   classes: ClassesType
 }) => {
   const { ContentType, SingleLineTagUpdates, LoadMore } = Components;
+  // TODO: see if we can use a fragment other than TagHistoryFragment to avoid fetching the ToC or other expensive stuff
   const { data, loading } = useQuery(gql`
     query getTagUpdates($before: Date!, $after: Date!) {
       TagUpdatesInTimeBlock(before: $before, after: $after) {

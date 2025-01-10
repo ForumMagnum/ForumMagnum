@@ -11,6 +11,7 @@ import pickBy from 'lodash/pickBy';
 import fromPairs from 'lodash/fromPairs';
 import { VotingProps } from '../../components/votes/votingProps';
 import type { ContentItemBody, ContentReplacedSubstringComponentInfo } from '../../components/common/ContentItemBody';
+import { isEAForum } from '../instanceSettings';
 
 export type VotingPropsDocument = CommentsList|PostsWithVotes|RevisionMetadataWithChangeMetrics|MultiDocumentMinimumInfo
 
@@ -363,7 +364,7 @@ export async function getVotingSystemNameForDocument(document: VoteableType, col
     return "reactionsAndLikes";
   }
   if ((document as DbComment).tagId) {
-    return "namesAttachedReactions";
+    return isEAForum ? "eaEmojis" : "namesAttachedReactions";
   }
   if ((document as DbComment).postId) {
     const post = await context.loaders.Posts.load((document as DbComment).postId!);

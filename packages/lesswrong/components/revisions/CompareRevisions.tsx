@@ -78,9 +78,7 @@ const CompareRevisions = ({
         graceWords={20}
         expanded={expanded}
         getTruncatedSuffix={({wordsLeft}: {wordsLeft: number}) =>
-          <div className={classes.expand} onClick={() =>
-            setExpanded(true)}
-          >
+          <div className={classes.expand} onClick={() => setExpanded(true)}>
             Read More ({wordsLeft} more words)
           </div>
         }

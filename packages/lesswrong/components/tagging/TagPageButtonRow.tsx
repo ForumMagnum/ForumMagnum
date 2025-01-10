@@ -13,13 +13,19 @@ import { useTagBySlug } from './useTag';
 import { tagGetHistoryUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { isLWorAF } from '@/lib/instanceSettings';
 import type { TagLens } from '@/lib/arbital/useTagLenses';
+import { isFriendlyUI } from '@/themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   buttonsRow: {
     ...theme.typography.body2,
+    marginTop: isFriendlyUI ? 2 : undefined,
+    marginBottom: isFriendlyUI ? 16 : undefined,
     color: theme.palette.grey[700],
     display: "flex",
     flexWrap: "wrap",
+    [theme.breakpoints.down('xs')]: {
+      marginTop: isFriendlyUI ? 8 : undefined,
+    },
     '& svg': {
       height: 20,
       width: 20,

@@ -6,6 +6,7 @@ import { useHover } from "../common/withHover";
 import { useMulti } from "../../lib/crud/withMulti";
 import { tagGetDiscussionUrl } from "../../lib/collections/tags/helpers";
 import classNames from "classnames";
+import { isFriendlyUI } from "@/themes/forumTheme";
 
 const styles = (theme: ThemeType): JssStyles => ({
   discussionButton: {
@@ -26,7 +27,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   discussionCount: {
     [theme.breakpoints.down('sm')]: {
       alignSelf: "flex-start", //appears too low when there's no label
-      marginTop: -2,
+      marginTop: isFriendlyUI ? undefined : -2,
     }
   },
   discussionCountWithoutLabel: {

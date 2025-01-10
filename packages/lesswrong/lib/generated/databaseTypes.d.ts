@@ -1980,8 +1980,6 @@ interface DbUser extends DbObject {
   hideSunshineSidebar: boolean
   inactiveSurveyEmailSentAt: Date | null
   userSurveyEmailSentAt: Date | null
-  givingSeason2024DonatedFlair: boolean
-  givingSeason2024VotedFlair: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   moderationGuidelines: EditableFieldContents | null

@@ -385,7 +385,7 @@ addRoute(
     subtitleComponentName: 'TagPageTitle',
     previewComponentName: 'TagHoverPreview',
     enableResourcePrefetch: tagRouteWillDefinitelyReturn200,
-    background: isLW ? "white" : "#fffeee",
+    background: isLWorAF ? "white" : undefined,
     getPingback: (parsedUrl) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug),
     redirect: (location) => {
       if (!isLWorAF) {
@@ -407,7 +407,7 @@ addRoute(
     titleComponentName: 'TagPageTitle',
     subtitleComponentName: 'TagPageTitle',
     previewComponentName: 'TagHoverPreview',
-    background: isLW ? "white" : undefined,
+    background: isLWorAF ? "white" : undefined,
     noIndex: isEAForum,
     getPingback: (parsedUrl) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug),
   },
@@ -543,15 +543,15 @@ addRoute(
   }))
 );
 
-addRoute(
-  {
+if (isLWorAF) {
+  addRoute({
     name: 'arbitalExplore',
     title: 'Arbital',
     path: '/arbital',
     componentName: 'ArbitalExplorePage',
     navigationFooterBar: true,
-  }
-)
+  });
+}
 
 
 export function initLegacyRoutes() {
@@ -848,27 +848,6 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       path: '/people-directory',
       componentName: 'PeopleDirectoryPage',
       title: 'People directory',
-    },
-    {
-      name: 'VotingPortal',
-      path: '/voting-portal',
-      componentName: 'VotingPortalPage',
-      title: 'Vote in the Donation Election',
-      noFooter: true,
-    },
-    {
-      name: 'ElectionCandidates',
-      path: '/admin/election-candidates',
-      componentName: 'AdminElectionCandidates',
-      title: 'Election Candidates',
-      isAdmin: true,
-    },
-    {
-      name: 'EditElectionCandidate',
-      path: '/admin/election-candidates/:id',
-      componentName: 'EditElectionCandidate',
-      title: 'Edit Election Candidate',
-      isAdmin: true,
     },
   ],
   LessWrong: [

@@ -36,6 +36,7 @@ import GraphQLJSON from 'graphql-type-json';
 import { getToCforTag } from '../tableOfContents';
 import { contributorsField } from '../utils/contributorsFieldHelper';
 import { loadByIds } from '@/lib/loaders';
+import { hasWikiLenses } from '@/lib/betas';
 
 type SubforumFeedSort = {
   posts: SubquerySortField<DbPost, keyof DbPost>,
@@ -324,7 +325,7 @@ function getParentTagId(documentId: string, lensesByTagId: Record<string, Partia
 }
 
 async function getDocumentDeletionsInTimeBlock({before, after, lensesByTagId, summariesByTagId, context}: GetDocumentDeletionsInTimeBlockArgs) {
-  if (!isLWorAF) {
+  if (!hasWikiLenses) {
     return {};
   }
 
@@ -689,42 +690,14 @@ augmentFieldsDict(TagRels, {
   },
 });
 
-interface AllTagsPageCache {
-  tags: DbTag[];
-  lastUpdatedAt: Date;
-}
-
-const ALL_TAGS_PAGE_CACHE: AllTagsPageCache = {
-  tags: [],
-  lastUpdatedAt: new Date(0),
-};
-
-async function updateAllTagsPageCache(context: ResolverContext) {
-  const tags = await context.repos.tags.getAllTagsForCache();
-  ALL_TAGS_PAGE_CACHE.tags = tags;
-  ALL_TAGS_PAGE_CACHE.lastUpdatedAt = new Date();
-}
-
-defineQuery({
-  name: "AllTags",
-  resultType: "[Tag!]!",
-  fn: async (root, args, context) => {
-    if (moment(ALL_TAGS_PAGE_CACHE.lastUpdatedAt).isBefore(moment(new Date()).subtract(1, 'hour'))) {
-      await updateAllTagsPageCache(context);
-    }
-    return ALL_TAGS_PAGE_CACHE.tags;
-  },
-});
-
-addGraphQLSchema(`
-  type TagWithTotalCount {
-    tags: [Tag!]!
-    totalCount: Int!
-  }
-`);
-
 defineQuery({
   name: "TagsByParentId",
+  schema: `
+    type TagWithTotalCount {
+      tags: [Tag!]!
+      totalCount: Int!
+    }
+  `,
   resultType: "TagWithTotalCount!",
   argTypes: "(parentTagId: String, limit: Int, searchTagIds: [String])",
   fn: async (

@@ -76,10 +76,8 @@ const styles = defineStyles("TagsTooltip", theme => ({
     paddingTop: 8,
     paddingLeft: 16,
     paddingRight: 16,
-    ...(!isFriendlyUI && {
-      width: 500,
-      paddingBottom: 6,
-    }),
+    width: 500,
+    paddingBottom: 6,
     [theme.breakpoints.down('xs')]: {
       width: "100%",
     }

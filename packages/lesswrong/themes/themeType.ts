@@ -562,18 +562,6 @@ declare global {
         green: ColorString,
       },
     },
-    givingSeason: {
-      primary: ColorString,
-      electionFundBackground: ColorString,
-      electionFundBackgroundHeavy: ColorString,
-      portalPrimary: ColorString,
-      candidateBorder: ColorString,
-      candidateBackground: ColorString,
-      candidateShadow: ColorString,
-      candidateOrder: ColorString,
-      heart: ColorString,
-      mobileBannerOverlay: ColorString
-    },
     namesAttachedReactions: {
       selectedAnti: ColorString,
     },

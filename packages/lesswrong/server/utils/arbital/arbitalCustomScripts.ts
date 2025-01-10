@@ -52,8 +52,6 @@ async function applyArbitalPathReplacements(html: string) {
 }
 
 export function applyCustomArbitalScripts(html: string) {
-  // console.log('applyCustomArbitalScripts', html.slice(0, 100));
-
   if (!isLWorAF) {
     return html;
   }

@@ -1,7 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import type { WikiTagNode } from './types';
 
 const styles = defineStyles("WikiTagNestedList", (theme: ThemeType) => ({
   root: {
@@ -23,6 +22,12 @@ const styles = defineStyles("WikiTagNestedList", (theme: ThemeType) => ({
     width: "100%",
   },
 }));
+
+interface WikiTagNode extends ConceptItemFragment {
+  parentTagId: string | null;
+  baseScore: number;
+  children: WikiTagNode[];
+}
 
 interface WikiTagNestedListProps {
   pages: WikiTagNode[];
