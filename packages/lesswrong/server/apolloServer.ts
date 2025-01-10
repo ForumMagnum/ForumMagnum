@@ -56,8 +56,8 @@ import { randomId } from '../lib/random';
 import { addCacheControlMiddleware, responseIsCacheable } from './cacheControlMiddleware';
 import { SSRMetadata } from '../lib/utils/timeUtil';
 import type { RouterLocation } from '../lib/vulcan-lib/routes';
-import { getCookieFromReq, trySetResponseStatus } from './utils/httpUtil';
-import { LAST_VISITED_FRONTPAGE_COOKIE } from '@/lib/cookies/cookies';
+import { getCookieFromReq, setCookieOnResponse, trySetResponseStatus } from './utils/httpUtil';
+import { LAST_SEEN_BUNDLE_HASH_COOKIE, LAST_VISITED_FRONTPAGE_COOKIE } from '@/lib/cookies/cookies';
 import { addAutocompleteEndpoint } from './autocompleteEndpoint';
 import { getSqlClientOrThrow } from './sql/sqlClient';
 import { addLlmChatEndpoint } from './resolvers/anthropicResolvers';
@@ -409,6 +409,15 @@ export function startWebserver() {
     const tabId = responseIsCacheable(response) ? null : randomId();
     
     const isReturningVisitor = !!getCookieFromReq(request, LAST_VISITED_FRONTPAGE_COOKIE);
+    const lastSeenBundleCookie = getCookieFromReq(request, LAST_SEEN_BUNDLE_HASH_COOKIE);
+    const alreadyHasJSBundle = lastSeenBundleCookie === bundleHash;
+    setCookieOnResponse({
+      req: request, res: response,
+      cookieName: LAST_SEEN_BUNDLE_HASH_COOKIE,
+      cookieValue: bundleHash,
+      maxAge: 60*60*24*7,
+    });
+    console.log(`alreadyHasJSBundle = ${alreadyHasJSBundle}`); //DEBUG
 
     // The part of the header which can be sent before the page is rendered.
     // This includes an open tag for <html> and <head> but not the matching
@@ -438,8 +447,8 @@ export function startWebserver() {
     const prefetchResourcesPromise = maybePrefetchResources({ request, response, parsedRoute, prefetchPrefix });
 
     const renderResultPromise = performanceMetricLoggingEnabled.get()
-      ? asyncLocalStorage.run({}, () => renderWithCache(request, response, user, tabId))
-      : renderWithCache(request, response, user, tabId);
+      ? asyncLocalStorage.run({}, () => renderWithCache(request, response, user, tabId, alreadyHasJSBundle))
+      : renderWithCache(request, response, user, tabId, alreadyHasJSBundle);
 
     const [prefetchingResources, renderResult] = await Promise.all([prefetchResourcesPromise, renderResultPromise]);
 

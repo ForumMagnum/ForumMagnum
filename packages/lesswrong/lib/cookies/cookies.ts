@@ -132,6 +132,12 @@ export const LAST_VISITED_FRONTPAGE_COOKIE = registerCookie({
   description: "Stores the date of the user's last visit to the frontpage",
 });
 
+export const LAST_SEEN_BUNDLE_HASH_COOKIE = registerCookie({
+  name: "last_seen_bundle_hash",
+  type: "necessary",
+  description: "Stores the software version number of the last version of the page that loaded",
+});
+
 export const RECOMBEE_SETTINGS_COOKIE = registerCookie({
   name: "admin_recombee_settings",
   type: "functional",

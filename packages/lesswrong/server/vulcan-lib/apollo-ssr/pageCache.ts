@@ -63,11 +63,11 @@ const jsonSerializableEstimateSize = (obj: any) => {
 const cachedABtestsIndex: Record<string,Array<RelevantTestGroupAllocation>> = {};
 let keysToCheckForExpiredEntries: Array<string> = [];
 
-export const cacheKeyFromReq = (req: Request): string => {
+export const cacheKeyFromReq = (req: Request, userAlreadyHasJSBundle: boolean): string => {
   const timezoneCookie = getCookieFromReq(req, "timezone");
   const themeCookie = getCookieFromReq(req, "theme");
   const themeOptions = themeCookie && isValidSerializedThemeOptions(themeCookie) ? themeCookie : stringify(getDefaultThemeOptions());
-  const path = getPathFromReq(req);
+  const path = getPathFromReq(req) + userAlreadyHasJSBundle ? '&userAlreadyHasJSBundle=true' : '';
   
   if (timezoneCookie)
     return `${path}&theme=${themeOptions}&timezone=${timezoneCookie}`;
@@ -98,9 +98,15 @@ function filterLoggedOutActiveAbTestGroups(abTestGroups: CompleteTestGroupAlloca
 // Serve a page from cache, or render it if necessary. Takes a set of A/B test
 // groups for this request, which covers *all* A/B tests (including ones that
 // may not be relevant to the request).
-export const cachedPageRender = async (req: Request, abTestGroups: CompleteTestGroupAllocation, userAgent: string|undefined, renderFn: (req: Request) => Promise<RenderResult>) => {
+export const cachedPageRender = async ({ req, abTestGroups, userAgent, renderFn, userAlreadyHasJSBundle }: {
+  req: Request,
+  abTestGroups: CompleteTestGroupAllocation,
+  userAgent: string|undefined,
+  renderFn: (req: Request) => Promise<RenderResult>
+  userAlreadyHasJSBundle: boolean
+}) => {
   const path = getPathFromReq(req);
-  const cacheKey = cacheKeyFromReq(req);
+  const cacheKey = cacheKeyFromReq(req, userAlreadyHasJSBundle);
   const cacheAffectingAbTestGroups = filterLoggedOutActiveAbTestGroups(abTestGroups);
   const cached = await cacheLookup(cacheKey, cacheAffectingAbTestGroups);
   
