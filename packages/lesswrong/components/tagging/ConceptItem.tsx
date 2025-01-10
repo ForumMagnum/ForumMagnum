@@ -223,7 +223,7 @@ const ConceptItem = ({
           <TagsTooltip
             tagSlug={wikitag.slug}
             noPrefetch
-            previewPostCount={wikitag.description?.wordCount && wikitag.description?.wordCount > 0 ? 0 : 8}
+            previewPostCount={wikitag.description?.wordCount && wikitag.description?.wordCount > 0 ? 0 : 6}
             placement='bottom-start'
             popperClassName={classes.tooltipHoverTitle}
           >

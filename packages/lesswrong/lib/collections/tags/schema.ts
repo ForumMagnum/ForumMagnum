@@ -46,7 +46,6 @@ export const TAG_POSTS_SORT_ORDER_OPTIONS: Record<string, SettingsOption>  = {
 async function getTagMultiDocuments(
   context: ResolverContext,
   tagId: string,
-  projection = { baseScore: 1, extendedScore: 1 }
 ) {
   const { MultiDocuments } = context;
   return await getWithLoader(
@@ -56,7 +55,6 @@ async function getTagMultiDocuments(
     { collectionName: 'Tags', fieldName: 'description' },
     'parentDocumentId',
     tagId,
-    { projection }
   );
 }
 
@@ -837,12 +835,11 @@ const schema: SchemaType<"Tags"> = {
     graphQLtype: '[UserLikingTag!]!',
     canRead: ['guests'],
     resolver: async (tag, args, context): Promise<LikesList> => {
-      // Use the helper function to get multidocuments
       const multiDocuments = await getTagMultiDocuments(context, tag._id);
 
       const tagUsersWhoLiked: LikesList = tag.extendedScore?.usersWhoLiked || [];
       const multiDocUsersWhoLiked: LikesList = multiDocuments.flatMap(
-        md => md.extendedScore?.usersWhoLiked || []
+        md => md.extendedScore?.usersWhoLiked ?? []
       );
       const usersWhoLiked: LikesList = uniqBy(
         tagUsersWhoLiked.concat(multiDocUsersWhoLiked),
