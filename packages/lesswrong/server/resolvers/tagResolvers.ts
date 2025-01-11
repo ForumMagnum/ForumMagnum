@@ -711,11 +711,22 @@ defineQuery({
   ) => {
     const { coreTagId, limit = 20, searchTagIds } = args;
 
-    const { tags, totalCount } = await context.repos.tags.getTagsByCoreTagId(
+    const { tags: unsortedTags, totalCount } = await context.repos.tags.getTagsByCoreTagId(
       coreTagId,
       limit,
       searchTagIds
     );
+    
+    const tags = searchTagIds?.length
+      ? (() => {
+          const searchTagIdOrder = new Map(searchTagIds.map((id, index) => [id, index]));
+          return [...unsortedTags].sort((a, b) => {
+            const indexA = searchTagIdOrder.get(a._id) ?? Infinity;
+            const indexB = searchTagIdOrder.get(b._id) ?? Infinity;
+            return indexA - indexB;
+          });
+        })()
+      : unsortedTags;
 
     return { tags, totalCount };
   },
