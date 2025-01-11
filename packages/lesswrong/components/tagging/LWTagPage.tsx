@@ -30,6 +30,7 @@ import { useTagOrLens } from "../hooks/useTagOrLens";
 import { useTagEditingRestricted } from "./TagPageButtonRow";
 import { useMultiClickHandler } from "../hooks/useMultiClickHandler";
 import HistoryIcon from '@material-ui/icons/History';
+import { FieldsNotNull, filterWhereFieldsNotNull } from "@/lib/utils/typeGuardUtils";
 
 const sidePaddingStyle = (theme: ThemeType) => ({
   paddingLeft: 42,
@@ -463,7 +464,7 @@ function useDisplayedTagTitle(tag: TagPageFragment | TagPageWithRevisionFragment
 
 // TODO: maybe move this to the server, so that the user doesn't have to wait for the hooks to run to see the contributors
 function useDisplayedContributors(contributorsInfo: DocumentContributorsInfo | null) {
-  const contributors: DocumentContributorWithStats[] = contributorsInfo?.contributors ?? [];
+  const contributors = filterWhereFieldsNotNull(contributorsInfo?.contributors ?? [], 'user');
   if (!contributors.some(({ currentAttributionCharCount }) => currentAttributionCharCount)) {
     return { topContributors: contributors, smallContributors: [] };
   }
@@ -800,7 +801,7 @@ if (isClient) {
   Object.assign(window, { handleRadioChange });
 }
 
-const ContributorsList = ({ contributors, onHoverContributor, endWithComma }: { contributors: DocumentContributorWithStats[], onHoverContributor: (userId: string | null) => void, endWithComma: boolean }) => {
+const ContributorsList = ({ contributors, onHoverContributor, endWithComma }: { contributors: FieldsNotNull<DocumentContributorWithStats, 'user'>[], onHoverContributor: (userId: string | null) => void, endWithComma: boolean }) => {
   const { UsersNameDisplay } = Components;
   const classes = useStyles(styles);
 
@@ -1157,7 +1158,7 @@ const LWTagPage = () => {
         >
           <ContentStyles contentType="tag">
             <ContentItemBody
-              dangerouslySetInnerHTML={{__html: description||""}}
+              dangerouslySetInnerHTML={{__html: description||"<em>This page is a stub.</em>"}}
               description={`tag ${tag.name}`}
               className={classes.description}
               onContentReady={initializeRadioHandlers}
@@ -1212,19 +1213,10 @@ const LWTagPage = () => {
     </div>
   );
 
-  const tagToc = (
-    <TagTableOfContents
-      tag={tag}
-      expandAll={expandAll}
-      showContributors={true}
-      onHoverContributor={onHoverContributor}
-    />
-  );
-
   const tocContributors = <div className={classes.tocContributors}>
-    {topContributors.map(({ user }: { user?: UsersMinimumInfo }, idx: number) => (
-      <span className={classes.tocContributor} key={user?._id} onMouseOver={() => onHoverContributor(user?._id ?? null)} onMouseOut={() => onHoverContributor(null)}>
-        <UsersNameDisplay key={user?._id} user={user} className={classes.contributorName} />
+    {topContributors.map(({ user }: { user: UsersMinimumInfo }, idx: number) => (
+      <span className={classes.tocContributor} key={user._id} onMouseOver={() => onHoverContributor(user._id)} onMouseOut={() => onHoverContributor(null)}>
+        <UsersNameDisplay key={user._id} user={user} className={classes.contributorName} />
       </span>
     ))}
   </div>;
@@ -1288,7 +1280,7 @@ const LWTagPage = () => {
           />
         }
       </div>
-      {tag.contributors && <div className={classes.contributorRow}>
+      {(topContributors.length > 0 || smallContributors.length > 0) && <div className={classes.contributorRow}>
         <div className={classes.contributorNameWrapper}>
           <span>Written by </span>
           <ContributorsList 
@@ -1305,24 +1297,13 @@ const LWTagPage = () => {
           </LWTooltip>
           }
         </div>
-        <div className={classes.lastUpdated}>
+        {selectedLens?.contents?.editedAt && <div className={classes.lastUpdated}>
           {'last updated '}
           {selectedLens?.contents?.editedAt && <FormatDate date={selectedLens.contents.editedAt} format="Do MMM YYYY" tooltip={false} />}
-        </div>
+        </div>}
       </div>}
       <ArbitalRelationshipsSmallScreen arbitalLinkedPages={selectedLens?.arbitalLinkedPages ?? undefined} />
     </div>
-  );
-
-  const originalToc = (
-    <ToCColumn
-      tableOfContents={tagToc}
-      header={tagHeader}
-    >
-      {parentAndSubTags}
-      {tagBodySection}
-      {tagPostsAndCommentsSection}
-    </ToCColumn>
   );
 
   const rightColumn = (<div className={classes.rightColumn}>
@@ -1388,7 +1369,7 @@ const LWTagPage = () => {
         refetchTag={refetchTag}
         updateSelectedLens={updateSelectedLens}
       />
-      {isFriendlyUI ? originalToc : multiColumnToc}
+      {multiColumnToc}
     </div>
   </AnalyticsContext>
 }
