@@ -6,7 +6,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { tagGetDiscussionUrl } from '../../lib/collections/tags/helpers';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     width: 400,
     maxHeight: 600,
@@ -26,7 +26,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const TagDiscussion = ({classes, tag}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   tag: TagFragment | TagBasicInfo | TagCreationHistoryFragment
 }) => {
   const { CommentsList, Loading } = Components;

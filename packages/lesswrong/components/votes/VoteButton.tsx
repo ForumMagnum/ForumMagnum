@@ -4,7 +4,7 @@ import { isMobile } from '../../lib/utils/isMobile'
 import { useTheme } from '../themes/useTheme';
 import type { VoteArrowIconProps } from './VoteArrowIcon';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
 })
 
 const VoteButton = ({

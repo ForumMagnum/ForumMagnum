@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Card from '@material-ui/core/Card';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useHover } from '../common/withHover';
@@ -12,7 +12,6 @@ import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
 import { useHasSideItemsSidebar } from '../contents/SideItems';
 import { useDialog } from '../common/withDialog';
 import { isRegularClick } from "@/components/posts/TableOfContents/TableOfContentsList";
-import { useTheme } from '../themes/useTheme';
 import { isMobile } from '@/lib/utils/isMobile';
 
 const footnotePreviewStyles = (theme: ThemeType) => ({
@@ -135,7 +134,6 @@ const FootnotePreview = ({classes, href, id, rel, children}: {
   const { ContentStyles, SideItem, SideItemLine, LWPopper } = Components
   const { openDialog } = useDialog();
   const [disableHover, setDisableHover] = useState(false);
-  const theme = useTheme();
   const { eventHandlers: anchorEventHandlers, hover: anchorHovered, anchorEl } = useHover({
     eventProps: {
       pageElementContext: "linkPreview",
@@ -275,7 +273,7 @@ function extractFootnoteHTML(href: string): string|null {
 const SidenoteDisplay = ({footnoteHref, footnoteHTML, classes}: {
   footnoteHref: string,
   footnoteHTML: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof footnotePreviewStyles>,
 }) => {
   const { ContentItemBody, ContentStyles } = Components;
   const footnoteIndex = getFootnoteIndex(footnoteHref, footnoteHTML);

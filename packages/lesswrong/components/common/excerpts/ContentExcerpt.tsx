@@ -105,7 +105,7 @@ const ContentExcerpt = ({
   moreLink: string,
   contentType: ContentStyleType,
   alwaysExpandInPlace?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [expanded, setExpanded] = useState(false);
 

@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import {useMessages} from "../common/withMessages";
 import { useUpdate } from '../../lib/crud/withUpdate';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.display3,
     ...theme.typography.headerStyle,
@@ -31,7 +31,7 @@ const EditCommentTitle = ({document, value, path, placeholder, updateCurrentValu
   path: string,
   placeholder: string,
   updateCurrentValues: Function,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   return <Input
     className={classNames(classes.root)}

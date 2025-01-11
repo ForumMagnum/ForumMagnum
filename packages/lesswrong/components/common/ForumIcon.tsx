@@ -1,4 +1,4 @@
-import React, { memo, ComponentType, MouseEventHandler, CSSProperties } from "react";
+import React, { ComponentType, MouseEventHandler, CSSProperties } from "react";
 import { registerComponent } from "../../lib/vulcan-lib";
 import { forumSelect, ForumOptions } from "../../lib/forumTypeUtils";
 import classNames from "classnames";

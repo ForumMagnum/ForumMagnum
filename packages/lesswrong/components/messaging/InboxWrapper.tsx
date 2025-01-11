@@ -9,7 +9,6 @@ export type InboxComponentProps = {
   currentUser: UsersCurrent;
   title?: JSX.Element | String;
   isModInbox?: boolean;
-  classes: ClassesType;
 };
 
 const InboxWrapper = () => {

@@ -5,7 +5,7 @@ import { useCurrentUser } from '../../common/withUser';
 import { useQuery, gql } from '@apollo/client';
 import { rowStyles } from './MigrationsDashboardRow';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   ...rowStyles,
   row: {
     display: 'flex',
@@ -30,7 +30,7 @@ const migrationsQuery = gql`
 `;
 
 const MigrationsDashboard = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const { SingleColumnSection, Loading, SectionTitle } = Components;

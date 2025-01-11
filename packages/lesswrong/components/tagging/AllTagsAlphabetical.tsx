@@ -9,7 +9,7 @@ import { useCurrentUser } from '../common/withUser';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     margin: "auto",
     maxWidth: 1000
@@ -26,7 +26,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const AllTagsAlphabetical = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { results, loading } = useMulti({
     terms: {

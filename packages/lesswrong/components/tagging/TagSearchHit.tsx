@@ -6,7 +6,7 @@ import { useCurrentUser } from '../common/withUser';
 import { shouldHideTagForVoting } from '../../lib/collections/tags/permissions';
 import { usePostsPageContext } from '../posts/PostsPage/PostsPageContext';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "block",
     padding: 8,
@@ -37,7 +37,7 @@ const TagSearchHit = ({hit, onClick, hidePostCount=false, isVotingContext, class
   onClick?: (ev: any) => void,
   hidePostCount?: boolean,
   isVotingContext?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { PopperCard, TagPreview, Loading } = Components;
   const { document: tag } = useSingle({

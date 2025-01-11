@@ -12,7 +12,7 @@ import { isFriendlyUI } from '../../../themes/forumTheme';
 
 export const TAB_NAVIGATION_MENU_WIDTH = 250
 
-const styles = (theme: ThemeType): JssStyles => {
+const styles = (theme: ThemeType) => {
   return {
     root: {
       display: "flex",
@@ -62,7 +62,7 @@ const TabNavigationMenu = ({
   onClickSection?: (e?: React.BaseSyntheticEvent) => void,
   transparentBackground?: boolean,
   noTopMargin?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()

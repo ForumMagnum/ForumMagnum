@@ -6,7 +6,7 @@ import { MenuTabRegular } from './menuTabs';
 
 const compressedIconSize = 23
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   icon: {
     display: "block",
     opacity: .6,
@@ -34,7 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 type TabNavigationCompressedItemProps = {
   tab: MenuTabRegular,
   onClick?: (event: React.MouseEvent<HTMLAnchorElement>) => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }
 
 const TabNavigationCompressedItem = ({tab, onClick, classes}: TabNavigationCompressedItemProps) => {

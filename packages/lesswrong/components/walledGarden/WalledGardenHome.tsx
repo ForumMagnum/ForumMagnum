@@ -4,7 +4,7 @@ import { moderationEmail } from '../../lib/publicSettings';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   users: {
     background: theme.palette.panelBackground.default,
     padding: 20,
@@ -34,7 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const WalledGardenHome = ({classes}: {classes: ClassesType}) => {
+const WalledGardenHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const { SingleColumnSection, Error404, Typography, ContentStyles } = Components
   const currentUser = useCurrentUser()
   const { results: users, totalCount } = useMulti({

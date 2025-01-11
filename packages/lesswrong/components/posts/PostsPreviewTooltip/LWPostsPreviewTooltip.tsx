@@ -43,7 +43,7 @@ const highlightStyles = (theme: ThemeType) => ({
   ...highlightSimplifiedStyles
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     width: POST_PREVIEW_WIDTH,
     position: "relative",
@@ -131,7 +131,7 @@ const getPostCategory = (post: PostsBase) => {
 }
 
 type LWPostsPreviewTooltipProps = PostsPreviewTooltipProps & {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }
 
 const LWPostsPreviewTooltip = ({

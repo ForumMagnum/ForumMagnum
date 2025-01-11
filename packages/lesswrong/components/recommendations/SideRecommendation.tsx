@@ -49,7 +49,7 @@ const styles = (theme: ThemeType) => ({
 
 const SideRecommendation = ({post, classes}: {
   post: PostsListWithVotesAndSequence,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const href = postGetPageUrl(post);
   const {onClick: onClickCell} = useClickableCell({href});

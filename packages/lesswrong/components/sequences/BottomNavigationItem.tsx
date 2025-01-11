@@ -6,7 +6,7 @@ import { postGetCommentCount, postGetPageUrl } from '../../lib/collections/posts
 import { useUpdateContinueReading } from './useUpdateContinueReading';
 import { Link } from '../../lib/reactRouterWrapper';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     paddingTop: 28,
     
@@ -64,7 +64,7 @@ const BottomNavigationItem = ({direction, post, sequence, classes}: {
   direction: "Previous"|"Next",
   post: PostSequenceNavigation_nextPost|PostSequenceNavigation_prevPost,
   sequence: HasIdType|null,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const updateContinueReading = useUpdateContinueReading(post._id, sequence?._id);
   const { LoginToTrack } = Components

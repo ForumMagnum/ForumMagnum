@@ -13,7 +13,7 @@ import { commentIdToLandmark, getCurrentSectionMark, getLandmarkY } from '@/lib/
 
 const COMMENTS_TITLE_CLASS_NAME = 'CommentsTableOfContentsTitle';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     color: theme.palette.text.dim,
     //Override bottom border of title row for FixedToC but not in other uses of TableOfContentsRow
@@ -79,7 +79,7 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
   answersTree?: CommentTreeNode<CommentsList>[],
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
   highlightDate: Date|undefined,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const flattenedComments = flattenCommentTree([
     ...(answersTree ?? []),
@@ -154,7 +154,7 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highli
   indentLevel: number,
   highlightedCommentId: string|null,
   highlightDate: Date|undefined,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { UsersNameDisplay, TableOfContentsRow } = Components;
   const navigate = useNavigate();

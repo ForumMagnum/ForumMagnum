@@ -5,7 +5,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     width: 960,
     marginBottom: 50,
@@ -116,7 +116,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const Book2019FrontpageWidget = ({ classes }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { BookCheckout, Book2019Animation, ContentStyles } = Components
   const currentUser = useCurrentUser();

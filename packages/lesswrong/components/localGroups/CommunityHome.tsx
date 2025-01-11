@@ -3,7 +3,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useUserLocation } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
-import { createStyles } from '@material-ui/core/styles';
 import { useLocation } from '../../lib/routeUtil';
 import { useDialog } from '../common/withDialog'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
@@ -14,7 +13,7 @@ import { useUpdate } from '../../lib/crud/withUpdate';
 import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
 import { useGoogleMaps } from '../form-components/LocationFormComponent';
 
-const styles = createStyles((theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   link: {
     color: theme.palette.primary.main,
     "& + &": {
@@ -27,7 +26,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   enableLocationPermissions: {
     margin: 12,
   },
-}))
+});
 
 interface ExternalProps {
 }
@@ -38,7 +37,7 @@ interface CommunityHomeState {
 }
 
 const CommunityHome = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();

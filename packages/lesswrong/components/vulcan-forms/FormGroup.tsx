@@ -7,7 +7,7 @@ import { useLocation } from '../../lib/routeUtil';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import type { FormGroupLayoutProps } from '../form-components/FormGroupLayout';
 
-const headerStyles = (theme: ThemeType): JssStyles => ({
+const headerStyles = (theme: ThemeType) => ({
   formSectionHeading: {
     cursor: "pointer",
     display:"flex",
@@ -31,7 +31,7 @@ const FormGroupHeader = ({ toggle, collapsed, label, classes }: {
   toggle: () => void
   collapsed: boolean
   label?: string
-  classes: ClassesType
+  classes: ClassesType<typeof headerStyles>
 }) => (
   <div className={classNames(classes.formSectionHeading, {
     [classes.formSectionHeadingExpanded]: !collapsed

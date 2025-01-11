@@ -11,7 +11,7 @@ type NotifyMeToggleDropdownItemInternalProps = {
   enabled?: boolean,
   subscriptionType: SubscriptionType,
   useCheckboxIcon?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }
 
 type NotifyMeToggleDropdownItemProps = {
