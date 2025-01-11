@@ -691,7 +691,7 @@ augmentFieldsDict(TagRels, {
 });
 
 defineQuery({
-  name: "TagsByParentId",
+  name: "TagsByCoreTagId",
   schema: `
     type TagWithTotalCount {
       tags: [Tag!]!
@@ -699,20 +699,20 @@ defineQuery({
     }
   `,
   resultType: "TagWithTotalCount!",
-  argTypes: "(parentTagId: String, limit: Int, searchTagIds: [String])",
+  argTypes: "(coreTagId: String, limit: Int, searchTagIds: [String])",
   fn: async (
     _root: void,
     args: {
-      parentTagId: string | null;
+      coreTagId: string | null;
       limit?: number;
       searchTagIds?: string[];
     },
     context: ResolverContext
   ) => {
-    const { parentTagId, limit = 20, searchTagIds } = args;
+    const { coreTagId, limit = 20, searchTagIds } = args;
 
-    const { tags, totalCount } = await context.repos.tags.getTagsByParentTagId(
-      parentTagId,
+    const { tags, totalCount } = await context.repos.tags.getTagsByCoreTagId(
+      coreTagId,
       limit,
       searchTagIds
     );

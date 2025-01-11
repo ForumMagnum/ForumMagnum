@@ -308,13 +308,13 @@ const AllWikiTagsPage = () => {
         {priorityTags.map((tag: ConceptItemFragment) => (
           tag && <WikiTagGroup
             key={tag._id}
-            parentTag={tag}
+            coreTag={tag}
             searchTagIds={currentQuery ? tagIds : null}
             showArbitalIcons={isArbitalRedirect}
           />
         ))}
         <WikiTagGroup
-          parentTag={uncategorizedRootTag}
+          coreTag={uncategorizedRootTag}
           searchTagIds={currentQuery ? tagIds : null}
           showArbitalIcons={isArbitalRedirect}
         />

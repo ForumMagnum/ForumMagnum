@@ -1470,6 +1470,7 @@ interface DbTag extends DbObject {
   autoTagPrompt: string | null
   noindex: boolean
   isPlaceholderPage: boolean
+  coreTagId: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   description: EditableFieldContents | null
@@ -1980,8 +1981,6 @@ interface DbUser extends DbObject {
   hideSunshineSidebar: boolean
   inactiveSurveyEmailSentAt: Date | null
   userSurveyEmailSentAt: Date | null
-  givingSeason2024DonatedFlair: boolean
-  givingSeason2024VotedFlair: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   moderationGuidelines: EditableFieldContents | null

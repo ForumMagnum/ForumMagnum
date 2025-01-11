@@ -2937,6 +2937,7 @@ CREATE TABLE "Tags" (
   "autoTagPrompt" TEXT,
   "noindex" BOOL NOT NULL DEFAULT FALSE,
   "isPlaceholderPage" BOOL NOT NULL DEFAULT FALSE,
+  "coreTagId" TEXT,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB,
@@ -3017,9 +3018,6 @@ CREATE INDEX IF NOT EXISTS "idx_Tags_name" ON "Tags" USING btree ("name");
 
 -- Index "idx_Tags_name_legacyData__arbitalPageId"
 CREATE INDEX IF NOT EXISTS "idx_Tags_name_legacyData__arbitalPageId" ON "Tags" USING gin ("name", ("legacyData" -> 'arbitalPageId'));
-
--- Index "idx_Tags_pingbacks__Tags_baseScore"
-CREATE INDEX IF NOT EXISTS "idx_Tags_pingbacks__Tags_baseScore" ON "Tags" USING gin (("pingbacks" -> 'Tags'), "baseScore");
 
 -- Index "idx_Tags_parentTagId"
 CREATE INDEX IF NOT EXISTS "idx_Tags_parentTagId" ON "Tags" USING btree ("parentTagId");
@@ -3412,8 +3410,6 @@ CREATE TABLE "Users" (
   "hideSunshineSidebar" BOOL NOT NULL DEFAULT FALSE,
   "inactiveSurveyEmailSentAt" TIMESTAMPTZ,
   "userSurveyEmailSentAt" TIMESTAMPTZ,
-  "givingSeason2024DonatedFlair" BOOL NOT NULL DEFAULT FALSE,
-  "givingSeason2024VotedFlair" BOOL NOT NULL DEFAULT FALSE,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB,
@@ -3718,6 +3714,9 @@ WITH
   (fastupdate = TRUE)
 WHERE
   name = 'login';
+
+-- CustomIndex "idx_tags_pingbacks"
+CREATE INDEX IF NOT EXISTS idx_tags_pingbacks ON "Tags" USING gin (pingbacks);
 
 -- Function "fm_has_verified_email"
 CREATE OR
