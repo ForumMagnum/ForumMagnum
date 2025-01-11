@@ -378,12 +378,19 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
         scoring: {type: "bool"},
       },
       {
+        field: "baseScore",
+        order: "desc",
+        weight: 0.5,
+        scoring: {type: "numeric", pivot: 20},
+      },
+      {
         field: "postCount",
         order: "desc",
         weight: 0.25,
         scoring: {type: "numeric", pivot: 10},
       },
     ],
+    karmaField: "baseScore",
     tiebreaker: "postCount",
     filters: [
       {term: {deleted: false}},
