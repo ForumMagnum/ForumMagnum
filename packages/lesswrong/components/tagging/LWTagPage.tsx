@@ -1158,7 +1158,7 @@ const LWTagPage = () => {
         >
           <ContentStyles contentType="tag">
             <ContentItemBody
-              dangerouslySetInnerHTML={{__html: description||""}}
+              dangerouslySetInnerHTML={{__html: description||"<em>This page is a stub.</em>"}}
               description={`tag ${tag.name}`}
               className={classes.description}
               onContentReady={initializeRadioHandlers}
@@ -1211,15 +1211,6 @@ const LWTagPage = () => {
         </DeferRender>}
       </>}
     </div>
-  );
-
-  const tagToc = (
-    <TagTableOfContents
-      tag={tag}
-      expandAll={expandAll}
-      showContributors={true}
-      onHoverContributor={onHoverContributor}
-    />
   );
 
   const tocContributors = <div className={classes.tocContributors}>
@@ -1289,7 +1280,7 @@ const LWTagPage = () => {
           />
         }
       </div>
-      {tag.contributors && <div className={classes.contributorRow}>
+      {(topContributors.length > 0 || smallContributors.length > 0) && <div className={classes.contributorRow}>
         <div className={classes.contributorNameWrapper}>
           <span>Written by </span>
           <ContributorsList 
@@ -1306,24 +1297,13 @@ const LWTagPage = () => {
           </LWTooltip>
           }
         </div>
-        <div className={classes.lastUpdated}>
+        {selectedLens?.contents?.editedAt && <div className={classes.lastUpdated}>
           {'last updated '}
           {selectedLens?.contents?.editedAt && <FormatDate date={selectedLens.contents.editedAt} format="Do MMM YYYY" tooltip={false} />}
-        </div>
+        </div>}
       </div>}
       <ArbitalRelationshipsSmallScreen arbitalLinkedPages={selectedLens?.arbitalLinkedPages ?? undefined} />
     </div>
-  );
-
-  const originalToc = (
-    <ToCColumn
-      tableOfContents={tagToc}
-      header={tagHeader}
-    >
-      {parentAndSubTags}
-      {tagBodySection}
-      {tagPostsAndCommentsSection}
-    </ToCColumn>
   );
 
   const rightColumn = (<div className={classes.rightColumn}>
@@ -1389,7 +1369,7 @@ const LWTagPage = () => {
         refetchTag={refetchTag}
         updateSelectedLens={updateSelectedLens}
       />
-      {isFriendlyUI ? originalToc : multiColumnToc}
+      {multiColumnToc}
     </div>
   </AnalyticsContext>
 }

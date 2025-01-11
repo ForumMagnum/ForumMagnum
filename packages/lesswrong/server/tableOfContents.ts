@@ -145,7 +145,7 @@ export const getToCforTag = async ({document, version, context}: {
     context,
   });
 
-  if (!html) return null;
+  if (!html) return { html, sections: [] };
 
   html = await applyCustomArbitalScripts(html);
   
@@ -172,7 +172,7 @@ export const getToCforMultiDocument = async ({document, version, context}: {
     context,
   });
 
-  if (!html) return null;
+  if (!html) return { html, sections: [] };
 
   html = await applyCustomArbitalScripts(html);
   
