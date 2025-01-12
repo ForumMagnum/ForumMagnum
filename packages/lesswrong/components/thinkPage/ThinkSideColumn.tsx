@@ -43,15 +43,13 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('md')]: {
       display: 'none',
     },
-    '&:hover': {
-      '.historyContainer': {
-        opacity: 1,
-      },
+    '&:hover $historyContainer': {
+      opacity: 1,
     },
   },
   historyContainer: {
     opacity: 0,
-    transition: 'opacity 0.3s ease-in-out',
+    transition: 'opacity 0.15s ease-in-out',
   },
   icon: {
     cursor: 'pointer',

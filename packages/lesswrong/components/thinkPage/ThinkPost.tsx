@@ -27,14 +27,21 @@ const styles = (theme: ThemeType) => ({
   postBody: {
     maxWidth: CENTRAL_COLUMN_WIDTH,
     ...postFormSectionStyles(theme),
+    position: 'absolute',
+    top: 0,
+    left: 0,
   },
   topRight: {
     position: 'absolute',
     top: 70,
     right: 8,
   },
+  postContainer: {
+    position: 'relative',
+  },
   hide: {
-    display: 'none'
+    opacity: 0,
+    pointerEvents: 'none',
   },
   editButton: {
     ...theme.typography.body2,
@@ -45,6 +52,9 @@ const styles = (theme: ThemeType) => ({
     }
   },
   formContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
     maxWidth: 715,
     width: '100%',
     ...postFormSectionStyles(theme),
@@ -123,26 +133,28 @@ export const ThinkPost = ({classes, post, sequence}: {
               }
             />
           )}
-          {post && <InlineReactSelectionWrapper
-              commentBodyRef={contentRef}
-              voteProps={voteProps}
-              styling="post"
-            >
-              {glossarySidebar}
-              <div className={classNames(isEditing && classes.hide, classes.postBody)}>
-                <ContentStyles contentType={"post"}>
-                  <ContentItemBody
-                    dangerouslySetInnerHTML={{ __html: htmlWithAnchors }}
-                    ref={contentRef}
-                    replacedSubstrings={replacedSubstrings}
-                  />
-                </ContentStyles>
-              </div>
-              <div className={classNames(classes.formContainer, !isEditing && classes.hide)}>
-                <PostsEditForm documentId={postId} showTableOfContents={false} fields={['contents']} />
-              </div>
-            </InlineReactSelectionWrapper>
+          <div className={classes.postContainer}>
+            {post && <InlineReactSelectionWrapper
+                commentBodyRef={contentRef}
+                voteProps={voteProps}
+                styling="post"
+              >
+                {glossarySidebar}
+                <div className={classNames(isEditing && classes.hide, classes.postBody)}>
+                  <ContentStyles contentType={"post"}>
+                    <ContentItemBody
+                      dangerouslySetInnerHTML={{ __html: htmlWithAnchors }}
+                      ref={contentRef}
+                      replacedSubstrings={replacedSubstrings}
+                    />
+                  </ContentStyles>
+                </div>
+                <div className={classNames(classes.formContainer, !isEditing && classes.hide)}>
+                  <PostsEditForm documentId={postId} showTableOfContents={false} fields={['contents']} />
+                </div>
+              </InlineReactSelectionWrapper>
           }
+          </div>
         </ThinkWrapper>
     </SideItemVisibilityContextProvider>
     </SideItemsContainer>
