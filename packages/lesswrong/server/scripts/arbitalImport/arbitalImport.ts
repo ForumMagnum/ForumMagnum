@@ -189,8 +189,8 @@ type CreateSummariesForPageArgs = {
   lensMultiDocumentId: string;
 })
 
-function isDefaultSummary(summary: PageSummariesRow, pageText: string): boolean {
-  if (!summary.text.trim()) return false;
+function isDefaultSummaryOrEmpty(summary: PageSummariesRow, pageText: string): boolean {
+  if (!summary.text.trim()) return true;
   
   return pageText.startsWith(summary.text);
 }
@@ -200,7 +200,7 @@ async function createSummariesForPage({ pageId, importedRecordMaps, pageCreator,
   const allPageSummaries = summariesByPageId[pageId] ?? [];
   
   const nonDefaultSummaries = allPageSummaries.filter(summary => 
-    !isDefaultSummary(summary, liveRevision.text)
+    !isDefaultSummaryOrEmpty(summary, liveRevision.text)
   );
 
   if (allPageSummaries.length !== nonDefaultSummaries.length) {
