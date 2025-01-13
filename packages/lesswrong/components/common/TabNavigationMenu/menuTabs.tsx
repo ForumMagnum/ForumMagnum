@@ -374,9 +374,8 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       subItem: true,
     }, {
       id: 'copyright',
-      title: preferredHeadingCase('Copyright and license info'),
+      title: preferredHeadingCase('Copyright'),
       link: '/posts/KK6AE8HzPkR2KnqSg/new-forum-license-creative-commons',
-      tooltip: 'Newer user content is available under a Creative Commons license; other terms may apply to older and third-party content.',
       subItem: true,
     }, {
       id: 'divider2',
