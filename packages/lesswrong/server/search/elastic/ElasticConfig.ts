@@ -366,7 +366,7 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
   },
   Tags: {
     fields: [
-      "name^3",
+      "name^30",
       "description",
     ],
     snippet: "description",

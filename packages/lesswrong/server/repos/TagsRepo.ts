@@ -187,6 +187,7 @@ class TagsRepo extends AbstractRepo<"Tags"> {
     whereClauses.push(
       `t."deleted" IS FALSE`,
       `t."isPlaceholderPage" IS FALSE`,
+      `t."core" IS NOT TRUE`,
     );
 
     if (coreTagId !== null) {
