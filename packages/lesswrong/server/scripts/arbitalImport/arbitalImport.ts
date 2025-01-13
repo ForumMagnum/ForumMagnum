@@ -189,12 +189,27 @@ type CreateSummariesForPageArgs = {
   lensMultiDocumentId: string;
 })
 
+function isDefaultSummary(summary: PageSummariesRow, pageText: string): boolean {
+  if (!summary.text.trim()) return false;
+  
+  return pageText.startsWith(summary.text);
+}
+
 async function createSummariesForPage({ pageId, importedRecordMaps, pageCreator, conversionContext, liveRevision, resolverContext, ...parentIdArg }: CreateSummariesForPageArgs) {
   const { summariesByPageId } = importedRecordMaps;
-  const topLevelPageSummaries = summariesByPageId[pageId] ?? [];
-  topLevelPageSummaries.sort((a, b) => summaryNameToSortOrder(a.name) - summaryNameToSortOrder(b.name));
+  const allPageSummaries = summariesByPageId[pageId] ?? [];
+  
+  const nonDefaultSummaries = allPageSummaries.filter(summary => 
+    !isDefaultSummary(summary, liveRevision.text)
+  );
 
-  for (const [idx, summary] of Object.entries(topLevelPageSummaries)) {
+  if (allPageSummaries.length !== nonDefaultSummaries.length) {
+    console.log(`Skipping ${allPageSummaries.length - nonDefaultSummaries.length} default summaries for page ${pageId}`);
+  }
+  
+  nonDefaultSummaries.sort((a, b) => summaryNameToSortOrder(a.name) - summaryNameToSortOrder(b.name));
+
+  for (const [idx, summary] of Object.entries(nonDefaultSummaries)) {
     const summaryHtml = await arbitalMarkdownToCkEditorMarkup({
       markdown: summary.text,
       pageId,
