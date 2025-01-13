@@ -11,6 +11,8 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.forumEvent.draftSticker,
     position: "absolute",
     transformOrigin: "center",
+    padding: 4,
+    userSelect: "none",
     fontSize: 20,
     [theme.breakpoints.down("xs")]: {
       fontSize: 16,
@@ -52,7 +54,8 @@ const styles = (theme: ThemeType) => ({
     left: "1.7px",
   },
   commentPopper: {
-    margin: "0 8px",
+    // Negative margin so the mouse doesn't leave the hover area when moving from the icon to the comment
+    margin: "-2px 8px",
   },
 });
 

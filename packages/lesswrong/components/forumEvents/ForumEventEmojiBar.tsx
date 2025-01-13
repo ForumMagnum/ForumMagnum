@@ -17,23 +17,13 @@ const pickerStyles = `
   }
 `
 
-const DEFAULT_EMOJIS = ['🦟', '🐓', '🤖', '🦠', '💡', '📜']
+const DEFAULT_EMOJIS = ['☀️', '🛠️', '💪', '🦟', '🐓', '🤖', '🦠', '💡', '📜']
 
 const styles = defineStyles("ForumEventEmojiBar", (theme: ThemeType) => ({
-  scaffoldRoot: {
-    display: "flex",
-    flexDirection: "column" as const,
-    alignItems: "flex-start",
-    width: "350px", // Just scaffolding; remove/adjust as needed
-    background: theme.palette.background.pageActiveAreaBackground,
-    margin: "auto",
-    padding: 12
-  },
   root: {
     display: "flex",
     fontSize: "24px",
     flex: 1,
-    justifyContent: "space-between",
     alignItems: "center",
     gap: "8px"
   },
@@ -45,7 +35,7 @@ const styles = defineStyles("ForumEventEmojiBar", (theme: ThemeType) => ({
     cursor: "pointer",
     userSelect: "none",
     border: '2px solid',
-    borderColor: theme.palette.grey[400],
+    borderColor: theme.palette.primary.light,
     borderRadius: theme.borderRadius.default,
     width: 40,
     height: 40,
@@ -94,7 +84,7 @@ interface ForumEventEmojiBarProps {
  * - Clicking toggles an <emoji-picker> overlay.
  * - Renders a row of default emojis for quick selection.
  */
-const ForumEventEmojiBar: FC<ForumEventEmojiBarProps> = ({ onSelect, selected }) => {
+const ForumEventEmojiBar: FC<ForumEventEmojiBarProps> = ({ onSelect, selected, onHover, hovered }) => {
   const classes = useStyles(styles)
 
   const [openPicker, setOpenPicker] = useState(false)
@@ -133,7 +123,7 @@ const ForumEventEmojiBar: FC<ForumEventEmojiBarProps> = ({ onSelect, selected })
   }
 
   /**
-   * Inject custom CSS into the <emoji-picker> shadow root (similar to the previous version).
+   * Inject custom CSS into the <emoji-picker> shadow root.
    */
   const handlePickerRef = (elem: HTMLElement | null) => {
     if (elem) {
@@ -162,28 +152,26 @@ const ForumEventEmojiBar: FC<ForumEventEmojiBarProps> = ({ onSelect, selected })
   )
 
   return (
-    <div className={classes.scaffoldRoot}>
-      <div className={classes.root}>
-        <div className={classes.selectedEmojiContainer} onClick={() => setOpenPicker((prev) => !prev)}>
-          {showSelectedOrPlaceholder}
-        </div>
+    <div className={classes.root}>
+      <div className={classes.selectedEmojiContainer} onClick={() => setOpenPicker((prev) => !prev)}>
+        {showSelectedOrPlaceholder}
+      </div>
 
-        {openPicker && (
-          <div ref={pickerRef} className={classes.pickerWrapper}>
-            <div className={classes.pickerContainer}>
-              {/* @ts-ignore */}
-              <emoji-picker ref={handlePickerRef} />
-            </div>
+      {openPicker && (
+        <div ref={pickerRef} className={classes.pickerWrapper}>
+          <div className={classes.pickerContainer}>
+            {/* @ts-ignore */}
+            <emoji-picker ref={handlePickerRef} />
           </div>
-        )}
-
-        <div className={classes.defaultEmojisBar}>
-          {DEFAULT_EMOJIS.map((emoji) => (
-            <span key={emoji} className={classes.defaultEmojiItem} onClick={() => handleEmojiClick(emoji)}>
-              {emoji}
-            </span>
-          ))}
         </div>
+      )}
+
+      <div className={classes.defaultEmojisBar}>
+        {DEFAULT_EMOJIS.map((emoji) => (
+          <span key={emoji} className={classes.defaultEmojiItem} onClick={() => handleEmojiClick(emoji)}>
+            {emoji}
+          </span>
+        ))}
       </div>
     </div>
   );

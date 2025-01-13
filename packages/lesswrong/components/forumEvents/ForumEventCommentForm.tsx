@@ -7,7 +7,7 @@ const WIDTH = 350;
 
 const styles = (theme: ThemeType) => ({
   popperContent: {
-    margin: 12,
+    margin: "8px 12px",
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 13,
     fontWeight: 500,

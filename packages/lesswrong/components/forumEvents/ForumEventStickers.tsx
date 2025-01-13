@@ -12,13 +12,18 @@ import { InteractionWrapper } from "../common/useClickableCell";
 import { useIsAboveBreakpoint } from "../hooks/useScreenWidth";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 
-const styles = (theme: ThemeType) => ({
+const styles = (_theme: ThemeType) => ({
   stickersContainer: {
     width: "100%",
     height: "100%",
     position: "absolute",
     top: 0,
     left: 0
+  },
+  hoverContainer: {
+    width: "100%",
+    height: "100%",
+    position: "relative",
   },
   placeHeartButton: {
     position: "absolute",
@@ -192,7 +197,7 @@ const ForumEventStickers: FC<{
   const [upsertSticker] = useMutation(upsertForumEventStickerQuery);
   const [removeSticker] = useMutation(removeForumEventStickerQuery);
 
-  const allowPlacingSticker = !currentUserSticker && (isDesktop || mobilePlacingSticker);
+  const allowPlacingSticker = !currentUserSticker && !draftSticker && (isDesktop || mobilePlacingSticker);
 
   const refetchAll = useCallback(async () => {
     void refetch?.();
@@ -285,26 +290,22 @@ const ForumEventStickers: FC<{
 
   return (
     <AnalyticsContext pageElementContext="forumEventStickers">
-      <div
-        className={classes.stickersContainer}
-        ref={containerRef}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        // TODO I believe this is only required for mobile, check
-        onClick={async (event) => {
-          console.log("Calling saveStickerPos from stickersContainer")
-          return saveDraftSticker(event)
-        }}
-      >
-        {allowPlacingSticker && hoverPos && (
-          // TODO work out why this is still showing behind other stickers
-          <ForumEventSticker
-            x={hoverPos.x}
-            y={hoverPos.y}
-            theta={hoverTheta}
-            saveDraftSticker={saveDraftSticker}
-          />
-        )}
+      <div className={classes.stickersContainer}>
+        <div
+          className={classes.hoverContainer}
+          ref={containerRef}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+          // TODO I believe this is only required for mobile, check
+          onClick={async (event) => {
+            console.log("Calling saveStickerPos from stickersContainer");
+            return saveDraftSticker(event);
+          }}
+        >
+          {allowPlacingSticker && hoverPos && (
+            <ForumEventSticker x={hoverPos.x} y={hoverPos.y} theta={hoverTheta} saveDraftSticker={saveDraftSticker} />
+          )}
+        </div>
         {displaySticker && (
           <ForumEventSticker
             {...displaySticker}
@@ -319,7 +320,7 @@ const ForumEventStickers: FC<{
         {!isDesktop && !currentUserSticker && (
           <InteractionWrapper>
             <div className={classes.placeHeartButton} onClick={() => setMobilePlacingSticker(!mobilePlacingSticker)}>
-              {(mobilePlacingSticker ? "Tap the banner to add a heart, or tap here to cancel" : "+ Add heart")}
+              {mobilePlacingSticker ? "Tap the banner to add a heart, or tap here to cancel" : "+ Add heart"}
             </div>
           </InteractionWrapper>
         )}
@@ -327,7 +328,7 @@ const ForumEventStickers: FC<{
       {currentForumEvent.post && (
         <ForumEventCommentForm
           open={commentFormOpen}
-          comment={(displaySticker && "comment" in displaySticker) ? (displaySticker.comment || null) : null}
+          comment={displaySticker && "comment" in displaySticker ? displaySticker.comment || null : null}
           forumEventId={currentForumEvent._id}
           cancelCallback={onCloseCommentForm}
           successCallback={commitDraftSticker}
