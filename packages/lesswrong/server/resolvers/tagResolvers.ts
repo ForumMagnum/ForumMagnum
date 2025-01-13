@@ -690,6 +690,11 @@ augmentFieldsDict(TagRels, {
   },
 });
 
+function sortTagsByIdOrder(tags: DbTag[], orderIds: string[]): DbTag[] {
+  const tagsByIdMap = keyBy(tags, '_id');
+  return filterNonnull(orderIds.map(id => tagsByIdMap[id]));
+}
+
 defineQuery({
   name: "TagsByCoreTagId",
   schema: `
@@ -700,15 +705,7 @@ defineQuery({
   `,
   resultType: "TagWithTotalCount!",
   argTypes: "(coreTagId: String, limit: Int, searchTagIds: [String])",
-  fn: async (
-    _root: void,
-    args: {
-      coreTagId: string | null;
-      limit?: number;
-      searchTagIds?: string[];
-    },
-    context: ResolverContext
-  ) => {
+  fn: async (_root: void, args: { coreTagId: string | null; limit?: number; searchTagIds?: string[] }, context: ResolverContext) => {
     const { coreTagId, limit = 20, searchTagIds } = args;
 
     const { tags: unsortedTags, totalCount } = await context.repos.tags.getTagsByCoreTagId(
@@ -718,14 +715,7 @@ defineQuery({
     );
     
     const tags = searchTagIds?.length
-      ? (() => {
-          const searchTagIdOrder = new Map(searchTagIds.map((id, index) => [id, index]));
-          return [...unsortedTags].sort((a, b) => {
-            const indexA = searchTagIdOrder.get(a._id) ?? Infinity;
-            const indexB = searchTagIdOrder.get(b._id) ?? Infinity;
-            return indexA - indexB;
-          });
-        })()
+      ? sortTagsByIdOrder(unsortedTags, searchTagIds)
       : unsortedTags;
 
     return { tags, totalCount };

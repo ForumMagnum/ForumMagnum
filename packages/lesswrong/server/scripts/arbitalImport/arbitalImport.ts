@@ -2131,18 +2131,18 @@ async function importCoreTagAssignments(coreTagAssignmentsFile: string) {
   console.log(`Found ${filteredTagAssignments.length} valid tag assignments with a single core tag.`);
 
   // Update each tag's coreTagId field
-  for (const ta of filteredTagAssignments) {
+  await executePromiseQueue(filteredTagAssignments.map(ta => async () => {
     const tag = await Tags.findOne({ slug: ta.slug });
     if (!tag) {
       console.warn(`Tag with slug "${ta.slug}" not found. Skipping.`);
-      continue;
+      return;
     }
 
     const coreTagName = ta.coreTagNames[0];
     const coreTagId = coreTagIdsByName[coreTagName];
     if (!coreTagId) {
       console.warn(`Core tag "${coreTagName}" not found. Skipping.`);
-      continue;
+      return;
     }
 
     // Update the tag's coreTagId field
@@ -2152,7 +2152,7 @@ async function importCoreTagAssignments(coreTagAssignmentsFile: string) {
     );
 
     console.log(`Assigned coreTagId "${coreTagId}" to tag "${tag.name}" (${tag.slug}).`);
-  }
+  }), 10);
 
   console.log(`Assigned core tags to ${filteredTagAssignments.length} tags.`);
 }
