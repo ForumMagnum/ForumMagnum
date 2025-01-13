@@ -43,7 +43,8 @@ const TagHoverPreview = ({
   const hashId = hash.slice(1);
 
   const {tag, loading} = useTagPreview(slug, hashId, {skip: noPrefetch});
-  const { showPostCount: showPostCountQuery, useTagName: useTagNameQuery, lens: lensQuery } = targetLocation.query
+  const { showPostCount: showPostCountQuery, useTagName: useTagNameQuery, } = targetLocation.query
+  const lensQuery = targetLocation.query.lens ?? targetLocation.query.l;
   const showPostCount = showPostCountQuery === "true" // query parameters are strings
   const tagName = useTagNameQuery === "true" ? tag?.name : undefined // query parameters are strings
   const previewSlug = lensQuery ?? slug;

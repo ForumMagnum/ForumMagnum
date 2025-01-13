@@ -904,7 +904,7 @@ const LWTagPage = () => {
 
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
-  const { lens: lensSlug } = query;
+  const lensSlug = query.lens ?? query.l;
   // const { onOpenEditor } = useContext(TagEditorContext);
   
   // Support URLs with ?version=1.2.3 or with ?revision=1.2.3 (we were previously inconsistent, ?version is now preferred)

@@ -34,6 +34,7 @@ class TagsRepo extends AbstractRepo<"Tags"> {
         EXTRACT(EPOCH FROM t."createdAt") * 1000 AS "publicDateMs",
         COALESCE(t."defaultOrder", 0) AS "defaultOrder",
         COALESCE(t."suggestedAsFilter", FALSE) AS "suggestedAsFilter",
+        COALESCE(t."baseScore", 0) AS "baseScore",
         COALESCE(t."postCount", 0) AS "postCount",
         COALESCE(t."wikiOnly", FALSE) AS "wikiOnly",
         COALESCE(t."adminOnly", FALSE) AS "adminOnly",
