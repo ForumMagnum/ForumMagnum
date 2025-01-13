@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [22.12]
         environment: [EAForum-Production-2, EAForum-Api]
     steps:
     - uses: actions/checkout@v3
