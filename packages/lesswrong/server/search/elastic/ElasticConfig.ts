@@ -390,7 +390,6 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
         scoring: {type: "numeric", pivot: 10},
       },
     ],
-    karmaField: "baseScore",
     tiebreaker: "postCount",
     filters: [
       {term: {deleted: false}},
