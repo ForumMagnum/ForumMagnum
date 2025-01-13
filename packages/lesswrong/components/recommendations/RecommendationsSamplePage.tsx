@@ -77,7 +77,7 @@ const featureInputToFeatures = (
 }
 
 const RecommendationsSamplePage = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const now = useCurrentTime();

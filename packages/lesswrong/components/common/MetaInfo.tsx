@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import classNames from 'classnames'
 
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   root: {
     display: "inline",
     color: theme.palette.grey[600],
@@ -19,7 +19,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
 
 const MetaInfo = ({children, classes, button, className}: {
   children: React.ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   button?: boolean,
   className?: string
   title?: string,

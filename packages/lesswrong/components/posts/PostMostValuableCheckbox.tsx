@@ -23,7 +23,7 @@ const styles = (theme: ThemeType) => ({
  */
 export const PostMostValuableCheckbox = ({post, classes}: {
   post: Pick<PostsBase, "_id">,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser()
   const { results, loading } = useMulti({

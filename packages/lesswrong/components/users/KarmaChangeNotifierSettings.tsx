@@ -14,7 +14,7 @@ import type { KarmaChangeSettingsType } from '../../lib/collections/users/schema
 import * as _ from 'underscore';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     paddingLeft: 8,
     paddingRight: 8,

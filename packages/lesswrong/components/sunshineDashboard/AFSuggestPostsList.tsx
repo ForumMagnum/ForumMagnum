@@ -2,7 +2,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   icon: {
     marginRight: 4
   }
@@ -10,7 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 
 const AFSuggestPostsList = ({ classes }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { results, loadMoreProps } = useMulti({
     terms: {view:"alignmentSuggestedPosts"},

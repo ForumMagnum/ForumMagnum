@@ -5,7 +5,7 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import classnames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     position: "relative"
   },
@@ -69,7 +69,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const BottomNavigation = ({post, classes}: {
   post: PostSequenceNavigation,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { nextPost, prevPost, sequence } = post;
   const currentUser = useCurrentUser();

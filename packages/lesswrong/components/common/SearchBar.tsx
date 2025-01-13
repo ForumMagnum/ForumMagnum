@@ -18,7 +18,7 @@ import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 
 const VirtualMenu = connectMenu(() => null);
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: 'flex',
     alignItems: 'center',
@@ -110,7 +110,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
   onSetIsActive: (active: boolean) => void,
   searchResultsArea: any,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser()
   const [inputOpen,setInputOpen] = useState(false);

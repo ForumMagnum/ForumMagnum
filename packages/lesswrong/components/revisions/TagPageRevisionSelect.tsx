@@ -6,11 +6,11 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { tagGetRevisionLink, tagGetUrl, tagUrlBase } from '../../lib/collections/tags/helpers';
 import { Link, useNavigate } from '../../lib/reactRouterWrapper';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
 });
 
 const TagPageRevisionSelect = ({ classes }: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { params, query } = useLocation();
   const { slug } = params;

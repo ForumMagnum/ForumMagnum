@@ -182,7 +182,7 @@ const FriendlyInbox = ({
   conversationId,
   isModInbox = false,
   classes,
-}: Omit<InboxComponentProps, "classes"> & {
+}: InboxComponentProps & {
   conversationId?: string;
   classes: ClassesType<typeof styles>;
 }) => {

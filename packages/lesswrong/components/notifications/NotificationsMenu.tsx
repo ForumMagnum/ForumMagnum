@@ -74,7 +74,7 @@ const NotificationsMenu = ({open, setIsOpen, hasOpened, classes}: {
   open: boolean,
   setIsOpen: (isOpen: boolean) => void,
   hasOpened: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const {unreadPrivateMessages} = useUnreadNotifications();

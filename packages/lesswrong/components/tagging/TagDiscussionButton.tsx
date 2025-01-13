@@ -6,7 +6,7 @@ import { useHover } from "../common/withHover";
 import { useMulti } from "../../lib/crud/withMulti";
 import { tagGetDiscussionUrl } from "../../lib/collections/tags/helpers";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   discussionButton: {
     ...theme.typography.commentStyle,
     ...theme.typography.body2,
@@ -40,7 +40,7 @@ const TagDiscussionButton = ({tag, text = "Discussion", hideLabelOnMobile = fals
   tag: TagFragment | TagBasicInfo | TagCreationHistoryFragment,
   text?: string,
   hideLabelOnMobile?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   
   const { TagDiscussion, PopperCard } = Components

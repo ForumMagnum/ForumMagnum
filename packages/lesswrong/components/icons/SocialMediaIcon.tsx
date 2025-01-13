@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
 })
 
 declare global {
@@ -19,7 +19,7 @@ const socialMediaIconPaths: Record<SocialMediaSiteName,React.ReactNode> = {
 const SocialMediaIcon = ({name, className, classes}: {
   name: SocialMediaSiteName,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return <svg focusable="false" aria-hidden="true" viewBox="0 0 24 24" className={className}>
     {socialMediaIconPaths[name]}

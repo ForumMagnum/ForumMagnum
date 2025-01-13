@@ -14,7 +14,7 @@ const EditorTypeSelect = ({value, setValue, isCollaborative, classes}: {
   value: EditorContents,
   setValue: (change: EditorChangeEvent) => void,
   isCollaborative?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const { Loading, MenuItem } = Components;

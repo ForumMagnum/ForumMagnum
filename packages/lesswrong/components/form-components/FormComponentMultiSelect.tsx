@@ -187,7 +187,7 @@ const FormComponentMultiSelect = ({
   separator?: string,
   options: Array<MultiselectOption>,
   variant?: "default" | "grey",
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   return <Components.MultiSelect
     label={label}
