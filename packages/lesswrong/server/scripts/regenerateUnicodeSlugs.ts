@@ -1,6 +1,7 @@
-import { getUnusedSlugByCollectionName } from "@/lib/helpers";
+import { getUnusedSlugByCollectionName } from "../utils/slugUtil";
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
-import { Globals, slugify } from "../vulcan-lib";
+import { Globals } from "../vulcan-lib";
+import { slugify } from "@/lib/utils/slugify";
 
 Globals.regenerateUnicodeSlugs = async () => {
   const db = getSqlClientOrThrow();

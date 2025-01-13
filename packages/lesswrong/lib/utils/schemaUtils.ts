@@ -1,4 +1,4 @@
-import { getCollection } from '../vulcan-lib';
+import { getCollection } from '../vulcan-lib/getCollection';
 import { restrictViewableFieldsSingle, restrictViewableFieldsMultiple } from '../vulcan-users/permissions';
 import SimpleSchema from 'simpl-schema'
 import { loadByIds, getWithLoader } from "../loaders";
@@ -8,6 +8,8 @@ import type { GraphQLScalarType } from 'graphql';
 import DataLoader from 'dataloader';
 import * as _ from 'underscore';
 import { DeferredForumSelect } from '../forumTypeUtils';
+import { addSlugCallbacks, getUnusedSlugByCollectionName } from '@/server/utils/slugUtil';
+import { slugify } from './slugify';
 
 export const generateIdResolverSingle = <CollectionName extends CollectionNameString>({
   collectionName, fieldName, nullable
@@ -445,5 +447,83 @@ export function schemaDefaultValue<N extends CollectionNameString>(
     onUpdate: throwIfSetToNull,
     canAutofillDefault: true,
     nullable: false
+  };
+}
+
+export function addSlugFields<N extends CollectionNameWithSlug>({collection, collectionsToAvoidCollisionsWith, getTitle, onCollision="newDocumentGetsSuffix", includesOldSlugs, slugOptions, oldSlugsOptions}: {
+  /**
+   * The collection to add slug fields to.
+   */
+  collection: CollectionBase<N>,
+
+  /**
+   * If set, check for collisions not just within the same collision, but also
+   * within a provided list of other collections.
+   */
+  collectionsToAvoidCollisionsWith?: CollectionNameWithSlug[],
+
+  /**
+   * Returns the title that will be used to generate slugs. (This does not have
+   * to already be slugified.)
+   */
+  getTitle: (obj: ObjectsByCollectionName[N]) => string,
+  
+  /**
+   * How to handle it when a newly created document's slug, or the new slug in
+   * a document whose slug is being edited, collides with the slug on an
+   * existing document.
+   *   newDocumentGetsSuffix: Add a suffix to the slug of the new document
+   *   rejectNewDocument: Block the creation/edit of the new document that
+   *     had a colliding slug
+   */
+  onCollision?: "newDocumentGetsSuffix"|"rejectNewDocument",
+
+  /**
+   * If true, adds a field `oldSlugs` and automatically adds to it when slugs
+   * change.
+   */
+  includesOldSlugs: boolean,
+
+  /**
+   * Additional options, such as editing permissions or form group, to add to
+   * the slug field.
+   */
+  slugOptions?: Partial<CollectionFieldSpecification<N>>,
+
+  /**
+   * Additional options, such as editing permissions or form group, to add to
+   * the oldSlugs field.
+   */
+  oldSlugsOptions?: Partial<CollectionFieldSpecification<N>>,
+}): Partial<Record<"slug"|"oldSlugs"|"oldSlugs.$", CollectionFieldSpecification<N>>> {
+  const collectionName = collection.collectionName;
+  addSlugCallbacks({
+    collection,
+    collectionsToAvoidCollisionsWith: collectionsToAvoidCollisionsWith ?? [collectionName],
+    getTitle, onCollision, includesOldSlugs
+  });
+
+  return {
+    slug: {
+      type: String,
+      optional: true,
+      nullable: false,
+      canRead: ['guests'],
+      ...slugOptions,
+    },
+    ...(includesOldSlugs ? {
+      oldSlugs: {
+        type: Array,
+        optional: true,
+        canRead: ['guests'],
+        ...schemaDefaultValue([]),
+        ...oldSlugsOptions,
+      },
+      'oldSlugs.$': {
+        type: String,
+        optional: true,
+        canRead: ['guests'],
+      },
+    } : {}),
   };
 }

@@ -1,4 +1,4 @@
-import schema from './schema';
+import schema, { createDisplayName } from './schema';
 import { createCollection, addGraphQLQuery, addGraphQLResolvers } from '../../vulcan-lib';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import { addUniversalFields, getDefaultMutations, getDefaultResolvers } from '../../collectionUtils';
@@ -6,6 +6,7 @@ import { makeEditable } from '../../editor/make_editable';
 import { formGroups } from './formGroups';
 import { isEAForum } from '../../instanceSettings';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { addSlugFields } from '@/lib/utils/schemaUtils';
 
 export const Users = createCollection({
   collectionName: 'Users',
@@ -57,6 +58,12 @@ addGraphQLResolvers({
 addGraphQLQuery('currentUser: User');
 
 addUniversalFields({collection: Users});
+
+addSlugFields({
+  collection: Users,
+  getTitle: (u) => u.displayName ?? createDisplayName(u),
+  includesOldSlugs: false,
+});
 
 makeEditable({
   collection: Users,

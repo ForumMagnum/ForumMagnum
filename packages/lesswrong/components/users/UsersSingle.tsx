@@ -1,9 +1,9 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { slugify } from '../../lib/vulcan-lib/utils';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { userGetProfileUrl, userGetProfileUrlFromSlug } from "../../lib/collections/users/helpers";
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { slugify } from '@/lib/utils/slugify';
 
 /**
  * Build structured data for a user to help with SEO.

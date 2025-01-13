@@ -8,10 +8,9 @@ import UsersRepo from "../../repos/UsersRepo";
 import { loadArbitalDatabase, WholeArbitalDatabase, PageSummariesRow, PagesRow, PageInfosRow, DomainsRow, LensesRow } from './arbitalSchema';
 import keyBy from 'lodash/keyBy';
 import groupBy from 'lodash/groupBy';
-import { createAdminContext, createMutator, getCollection, slugify, updateMutator } from '@/server/vulcan-lib';
+import { createAdminContext, createMutator, getCollection, updateMutator } from '@/server/vulcan-lib';
 import Tags from '@/lib/collections/tags/collection';
 import ArbitalTagContentRels from '@/lib/collections/arbitalTagContentRels/collection';
-import { getUnusedSlugByCollectionName, slugIsUsed } from '@/lib/helpers';
 import { randomId } from '@/lib/random';
 import { MultiDocuments } from '@/lib/collections/multiDocuments/collection';
 import { executePromiseQueue, asyncMapSequential } from '@/lib/utils/asyncUtils';
@@ -32,6 +31,8 @@ import { Votes } from '@/lib/collections/votes';
 import mapValues from 'lodash/mapValues';
 import flatMap from 'lodash/flatMap';
 import { updatePostDenormalizedTags } from '@/server/tagging/helpers';
+import { getUnusedSlugByCollectionName } from '@/server/utils/slugUtil';
+import { slugify } from '@/lib/utils/slugify';
 
 type ArbitalImportOptions = {
   /**

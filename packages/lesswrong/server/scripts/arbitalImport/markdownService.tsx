@@ -15,13 +15,13 @@ import { getPageUrl } from './urlService';
 //import {anyUrlMatch} from './util.ts';
 import React from 'react';
 import ReactDOM from 'react-dom/server';
-import { slugify } from '@/lib/vulcan-lib';
 import { convertImagesInHTML } from '../convertImagesToCloudinary';
 import type { ConditionalVisibilitySettings } from '@/components/editor/conditionalVisibilityBlock/conditionalVisibility';
 import { escapeHtml } from './util';
 import orderBy from 'lodash/orderBy';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import { tagUrlBaseSetting } from '@/lib/instanceSettings';
+import { slugify } from '@/lib/utils/slugify';
 
 
 const anyUrlMatch = /\b((?:[a-z][\w-]+:(?:\/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))/i;
