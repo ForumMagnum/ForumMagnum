@@ -450,15 +450,13 @@ const FundraisingThermometer: React.FC<
           <div className={classes.fundraiserHeader}>
             <Link
               className={classes.fundraiserDonateText}
-              to={fundraiserEnded ? '#' : 'https://lightconeinfrastructure.com/donate'}
+              to={'https://lightconeinfrastructure.com/donate'}
               onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}
             >
               <div className={classes.fundraiserHeaderDonateButton}>
                 {fundraiserEnded ? 'Fundraiser over' : 'Donate'}
-                {!fundraiserEnded && (
-                  <div className={classes.fundraiserHeaderRemainingDays}>{timeRemainingText}</div>
-                )}
+                <div className={classes.fundraiserHeaderRemainingDays}>{fundraiserEnded ? '(You can still donate though)' : timeRemainingText}</div>
               </div>
             </Link>
           </div>
