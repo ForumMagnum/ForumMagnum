@@ -122,7 +122,7 @@ const TagPreview = ({
   autoApplied=false,
   setForceOpen,
 }: {
-  tag: (TagPreviewFragment | TagSectionPreviewFragment) & { summaries?: MultiDocumentEdit[] },
+  tag: (TagPreviewFragment | TagSectionPreviewFragment) & { summaries?: MultiDocumentContentDisplay[] },
   hash?: string,
   showCount?: boolean,
   hideRelatedTags?: boolean,

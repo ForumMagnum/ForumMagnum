@@ -44,7 +44,7 @@ const getTagParagraphTruncationCount = (tag: TagPreviewFragment | TagSectionPrev
 }
 
 const TagPreviewDescription = ({tag, hash, classes, activeTab}: {
-  tag: (TagPreviewFragment | TagSectionPreviewFragment) & { summaries?: MultiDocumentEdit[] },
+  tag: (TagPreviewFragment | TagSectionPreviewFragment) & { summaries?: MultiDocumentContentDisplay[] },
   hash?: string,
   classes: ClassesType
   activeTab?: number,
