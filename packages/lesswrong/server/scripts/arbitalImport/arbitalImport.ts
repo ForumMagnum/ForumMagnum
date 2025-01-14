@@ -191,12 +191,27 @@ type CreateSummariesForPageArgs = {
   lensMultiDocumentId: string;
 })
 
+function isDefaultSummaryOrEmpty(summary: PageSummariesRow, pageText: string): boolean {
+  if (!summary.text.trim()) return true;
+  
+  return pageText.startsWith(summary.text);
+}
+
 async function createSummariesForPage({ pageId, importedRecordMaps, pageCreator, conversionContext, liveRevision, resolverContext, ...parentIdArg }: CreateSummariesForPageArgs) {
   const { summariesByPageId } = importedRecordMaps;
-  const topLevelPageSummaries = summariesByPageId[pageId] ?? [];
-  topLevelPageSummaries.sort((a, b) => summaryNameToSortOrder(a.name) - summaryNameToSortOrder(b.name));
+  const allPageSummaries = summariesByPageId[pageId] ?? [];
+  
+  const nonDefaultSummaries = allPageSummaries.filter(summary => 
+    !isDefaultSummaryOrEmpty(summary, liveRevision.text)
+  );
 
-  for (const [idx, summary] of Object.entries(topLevelPageSummaries)) {
+  if (allPageSummaries.length !== nonDefaultSummaries.length) {
+    console.log(`Skipping ${allPageSummaries.length - nonDefaultSummaries.length} default summaries for page ${pageId}`);
+  }
+  
+  nonDefaultSummaries.sort((a, b) => summaryNameToSortOrder(a.name) - summaryNameToSortOrder(b.name));
+
+  for (const [idx, summary] of Object.entries(nonDefaultSummaries)) {
     const summaryHtml = await arbitalMarkdownToCkEditorMarkup({
       markdown: summary.text,
       pageId,
@@ -2120,8 +2135,12 @@ function loadCoreTagAssignmentsCsv(filename: string) {
 }
 
 async function importCoreTagAssignments(coreTagAssignmentsFile: string) {
-  await ArbitalTagContentRels.rawRemove({ 'legacyData.coreTagAssignment': true });
+  await Tags.rawUpdateMany(
+    { coreTagId: { $exists: true } },
+    { $unset: { coreTagId: "" } }
+  );
 
+  // Fetch all core tags and map their names to their IDs
   const coreTags = await Tags.find({ core: true }).fetch();
   const coreTagNames = new Set(coreTags.map(ct => ct.name));
   const coreTagIdsByName = Object.fromEntries(coreTags.map(ct => [ct.name, ct._id]));
@@ -2133,31 +2152,45 @@ async function importCoreTagAssignments(coreTagAssignmentsFile: string) {
       coreTagNames: row['Core Tag'].split(', '),
     };
   });
-  
-  const tagAssignmentIds = await Tags.find({ slug: {$in: tagAssignments.map(ta => ta.slug) }}).fetch();
-  const tagAssignmentIdsBySlug = Object.fromEntries(tagAssignmentIds.map(ta => [ta.slug, ta._id]));
 
-  const filteredTagAssignments = tagAssignments.filter(ta => ta.coreTagNames.every(tag => coreTagNames.has(tag)));
+  const filteredTagAssignments = tagAssignments.filter(ta => {
+    const allCoreTagsExist = ta.coreTagNames.every(tag => coreTagNames.has(tag));
+    const hasSingleCoreTag = ta.coreTagNames.length === 1;
+    if (!hasSingleCoreTag) {
+      console.warn(
+        `Tag "${ta.slug}" has multiple core tags assigned (${ta.coreTagNames.join(', ')}). Only one core tag is supported per tag. Skipping this tag.`
+      );
+    }
+    return allCoreTagsExist && hasSingleCoreTag;
+  });
 
-  const tagAssignmentInserts: MongoBulkInsert<DbArbitalTagContentRel>[] = filteredTagAssignments.flatMap(ta => ta.coreTagNames.map(tag => ({
-    document: {
-      _id: randomId(),
-      parentDocumentId: coreTagIdsByName[tag],
-      childDocumentId: tagAssignmentIdsBySlug[ta.slug],
-      parentCollectionName: 'Tags',
-      childCollectionName: 'Tags',
-      type: 'parent-is-tag-of-child',
-      level: 0,
-      isStrong: true,
-      createdAt: new Date(),
-      legacyData: { coreTagAssignment: true },
-      schemaVersion: 1,
-    },
-  })));
+  console.log(`Found ${filteredTagAssignments.length} valid tag assignments with a single core tag.`);
 
-  console.log(`Inserting ${tagAssignmentInserts.length} tag assignments`);
+  // Update each tag's coreTagId field
+  await executePromiseQueue(filteredTagAssignments.map(ta => async () => {
+    const tag = await Tags.findOne({ slug: ta.slug });
+    if (!tag) {
+      console.warn(`Tag with slug "${ta.slug}" not found. Skipping.`);
+      return;
+    }
 
-  await ArbitalTagContentRels.rawCollection().bulkWrite(tagAssignmentInserts.map(insert => ({ insertOne: insert })));
+    const coreTagName = ta.coreTagNames[0];
+    const coreTagId = coreTagIdsByName[coreTagName];
+    if (!coreTagId) {
+      console.warn(`Core tag "${coreTagName}" not found. Skipping.`);
+      return;
+    }
+
+    // Update the tag's coreTagId field
+    await Tags.rawUpdateOne(
+      { _id: tag._id },
+      { $set: { coreTagId } }
+    );
+
+    console.log(`Assigned coreTagId "${coreTagId}" to tag "${tag.name}" (${tag.slug}).`);
+  }), 10);
+
+  console.log(`Assigned core tags to ${filteredTagAssignments.length} tags.`);
 }
 
 Globals.importCoreTagAssignments = importCoreTagAssignments;

@@ -57,12 +57,12 @@ function splitItemsIntoColumns<T>(items: T[], itemsPerColumn: number): T[][] {
 }
 
 const WikiTagGroup = ({
-  parentTag,
+  coreTag,
   searchTagIds,
   initialLimit = 3 * MAX_ITEMS_PER_COLUMN,
   showArbitalIcons = false,
 }: {
-  parentTag: ConceptItemFragment
+  coreTag: ConceptItemFragment
   searchTagIds: string[] | null;
   initialLimit?: number;
   showArbitalIcons?: boolean;
@@ -70,16 +70,16 @@ const WikiTagGroup = ({
   const classes = useStyles(styles);
   const [limit, setLimit] = useState(initialLimit);
 
-  const parentTagId = parentTag._id === 'uncategorized-root' ? null : parentTag._id;
+  const coreTagId = coreTag._id === 'uncategorized-root' ? null : coreTag._id;
 
   const { data, loading, fetchMore, networkStatus } = useQuery(gql`
-    query GetTagsByParentId(
-      $parentTagId: String,
+    query GetTagsByCoreTagId(
+      $coreTagId: String,
       $limit: Int,
       $searchTagIds: [String]
     ) {
-      TagsByParentId(
-        parentTagId: $parentTagId,
+      TagsByCoreTagId(
+        coreTagId: $coreTagId,
         limit: $limit,
         searchTagIds: $searchTagIds
       ) {
@@ -95,15 +95,15 @@ const WikiTagGroup = ({
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: 'cache-only',
     variables: {
-      parentTagId,
+      coreTagId,
       limit: initialLimit,
       searchTagIds,
     },
     notifyOnNetworkStatusChange: true,
   });
 
-  const pages = data?.TagsByParentId?.tags ?? [];
-  const totalCount = data?.TagsByParentId?.totalCount ?? 0;
+  const pages = data?.TagsByCoreTagId?.tags ?? [];
+  const totalCount = data?.TagsByCoreTagId?.totalCount ?? 0;
 
   // Split pages into columns with MAX_ITEMS_PER_COLUMN items each
   const columns: ConceptItemFragment[][] = splitItemsIntoColumns(pages, MAX_ITEMS_PER_COLUMN);
@@ -112,7 +112,7 @@ const WikiTagGroup = ({
     const newLimit = Math.min(limit * 2, limit + 300);
     void fetchMore({
       variables: {
-        parentTagId,
+        coreTagId,
         limit: newLimit,
         searchTagIds,
       },
@@ -139,7 +139,7 @@ const WikiTagGroup = ({
     <div className={classes.root}>
       <div className={classes.titleItem}>
         <ConceptItem
-          wikitag={parentTag}
+          wikitag={coreTag}
           isTitleItem
           showArbitalIcon={showArbitalIcons}
         />
