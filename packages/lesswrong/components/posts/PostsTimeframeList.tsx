@@ -9,7 +9,7 @@ import { PostsTimeBlockShortformOption } from './PostsTimeBlock';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { useOnPropsChanged } from '../hooks/useOnPropsChanged';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   loading: {
     opacity: .4,
   },
@@ -34,7 +34,7 @@ const PostsTimeframeList = ({ after, before, timeframe, numTimeBlocks, postListP
   reverse?: boolean,
   shortform: PostsTimeBlockShortformOption,
   includeTags: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { timezone } = useTimezone();
   const [dim,setDim] = useState(dimWhenLoading);

@@ -100,7 +100,7 @@ const styles = (theme: ThemeType) => ({
 const PostVersionHistoryButton = ({post, postId, classes}: {
   post: PostsBase,
   postId: string,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { openDialog } = useDialog();
   const { captureEvent } = useTracking()

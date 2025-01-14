@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { registerComponent } from '../../lib/vulcan-lib';
 import Input from '@material-ui/core/Input';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   // input: {
   //   // This needs to be here because of Bootstrap. I am sorry :(
   //   // padding: "6px 0 7px !important",

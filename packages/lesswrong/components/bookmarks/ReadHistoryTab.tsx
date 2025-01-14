@@ -5,7 +5,7 @@ import {useCurrentUser} from '../common/withUser'
 import {gql, NetworkStatus, useQuery} from '@apollo/client'
 import moment from 'moment'
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   loadMore: {
     marginTop: 10
   },
@@ -60,7 +60,7 @@ const useUserReadHistory = ({currentUser, limit, filter, sort}: {
 }
 
 const ReadHistoryTab = ({classes, groupByDate = true, filter, sort}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   groupByDate?: boolean,
   filter?: FilterPostsForReview,
   sort?: {

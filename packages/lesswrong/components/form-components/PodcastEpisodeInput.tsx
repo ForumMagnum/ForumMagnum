@@ -7,7 +7,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import debounce from 'lodash/debounce';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   podcastEpisodeName: {
     fontSize: "15px",
     width: 350,
@@ -19,7 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const PodcastEpisodeInput = ({ value, path, document, classes, label, updateCurrentValues }: FormComponentProps<string> & {
   document: PostsBase,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { Loading, MenuItem } = Components;
 

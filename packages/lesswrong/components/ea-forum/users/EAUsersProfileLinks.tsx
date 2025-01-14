@@ -39,7 +39,7 @@ const styles = (theme: ThemeType) => ({
 
 const EAUsersProfileLinks = ({user, classes}: {
   user: UsersProfile,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const {flash} = useMessages();

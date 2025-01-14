@@ -60,7 +60,7 @@ const styles = (theme: ThemeType) => ({
 const PostSideRecommendations = ({post, className, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {captureEvent} = useTracking();
   const currentUser = useCurrentUser();

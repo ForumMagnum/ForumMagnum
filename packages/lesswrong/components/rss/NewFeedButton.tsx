@@ -4,7 +4,7 @@ import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib
 import { useCurrentUser } from '../common/withUser';
 import { useMulti } from '../../lib/crud/withMulti';
 
-const styles = (theme: JssStyles) => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: 16
   },
@@ -17,7 +17,7 @@ const styles = (theme: JssStyles) => ({
 // Button used to add a new feed to a user profile
 //
 const NewFeedButton = ({classes, user, closeModal}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   user: UsersProfile,
   closeModal?: any
 }) => {

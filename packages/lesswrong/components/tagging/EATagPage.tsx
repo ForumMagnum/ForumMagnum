@@ -33,7 +33,6 @@ const sidePaddingStyle = (theme: ThemeType) => ({
   },
 })
 
-// Also used in TagCompareRevisions, TagDiscussionPage
 const styles = (theme: ThemeType) => ({
   rootGivenImage: {
     marginTop: 185,

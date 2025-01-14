@@ -12,7 +12,7 @@ import type { DocumentDeletion } from './AllPostsPageTagDocDeletionItem';
 
 export const POSTED_AT_WIDTH = 38
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...(isFriendlyUI
       ? {
@@ -101,6 +101,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       maxWidth: 160
     },
   },
+  tagRevision: {},
 });
 
 const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users, changeMetrics, documentDeletions = [], lastRevisedAt, classes}: {
@@ -111,14 +112,14 @@ const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users
   users?: UsersMinimumInfo[],
   changeMetrics: ChangeMetrics,
   documentDeletions?: DocumentDeletion[],
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   lastRevisedAt?: Date
 }) => {
   const [expanded,setExpanded] = useState(false);
   const { ChangeMetricsDisplay, PostsItemComments, AllPostsPageTagRevisionItem, CommentById, LWTooltip, PostsItem2MetaInfo, UsersName, AllPostsPageTagDocDeletionItem } = Components;
   
   return <div className={classes.root} >
-    <div className={classes.metadata} onClick={ev => setExpanded(!expanded)}>
+    <div className={classes.metadata} onClick={_ev => setExpanded(!expanded)}>
 
       <div className={classes.title} >
         <Link to={tagGetUrl(tag)}>{tag.name}</Link>
@@ -167,7 +168,7 @@ const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users
       {revisionIds.length>0 && <Link to={`revisions/${tagUrlBaseSetting.get()}/${tag.slug}`} className={classes.subheading}>
         Edits
       </Link>}
-      {revisionIds.map(revId => <div className={classes.tagRevision} key={revId}>
+      {revisionIds.map(revId => <div key={revId}>
         <AllPostsPageTagRevisionItem
           tag={tag}
           documentId={tag._id}

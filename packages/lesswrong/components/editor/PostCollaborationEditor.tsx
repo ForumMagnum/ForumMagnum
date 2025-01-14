@@ -10,7 +10,7 @@ import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
 import { useQuery, gql } from '@apollo/client';
 import DeferRender from '../common/DeferRender';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   title: {
     ...theme.typography.display3,
     ...theme.typography.postStyle,
@@ -32,7 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 // Editor that _only_ gives people access to the ckEditor, without any other post options
 const PostCollaborationEditor = ({ classes }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { SingleColumnSection, Loading, ContentStyles, ErrorAccessDenied, PermanentRedirect, ForeignCrosspostEditForm, PostVersionHistoryButton } = Components
   const currentUser = useCurrentUser();

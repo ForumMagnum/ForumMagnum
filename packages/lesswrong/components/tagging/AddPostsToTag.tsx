@@ -16,7 +16,7 @@ import { formatFacetFilters } from '../search/SearchAutoComplete';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { Hits, InstantSearch } from '../../lib/utils/componentsWithChildren';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     '& input': {
@@ -96,7 +96,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 
 const AddPostsToTag = ({classes, tag}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   tag: TagPreviewFragment
 }) => {
   const [isAwaiting, setIsAwaiting] = useState(false);

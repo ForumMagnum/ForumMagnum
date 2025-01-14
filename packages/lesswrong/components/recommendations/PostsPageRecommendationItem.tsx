@@ -81,7 +81,7 @@ const PostsPageRecommendationItem = ({
   translucentBackground?: boolean,
   disableAnalytics?: boolean,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const postLink = postGetPageUrl(post, false, post.canonicalSequence?._id);
   const {onClick: onClickCell} = useClickableCell({href: postLink});

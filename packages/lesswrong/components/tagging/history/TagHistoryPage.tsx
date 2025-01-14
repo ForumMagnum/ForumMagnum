@@ -12,7 +12,7 @@ import Select from '@material-ui/core/Select';
 import { hasWikiLenses } from '@/lib/betas';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
 
-const tagPageStyles = defineStyles("TagHistoryPage", (theme: ThemeType): JssStyles => ({
+const tagPageStyles = defineStyles("TagHistoryPage", (theme: ThemeType) => ({
   title: {
     fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },

@@ -15,7 +15,7 @@ import { isLWorAF } from '@/lib/instanceSettings';
 import type { TagLens } from '@/lib/arbital/useTagLenses';
 import { isFriendlyUI } from '@/themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   buttonsRow: {
     ...theme.typography.body2,
     marginTop: isFriendlyUI ? 2 : undefined,
@@ -89,6 +89,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[700],
     ...theme.typography.italic,
   },
+  newLensIcon: {},
 });
 
 /**
@@ -116,7 +117,7 @@ const TagPageButtonRow = ({ tag, selectedLens, editing, setEditing, hideLabels =
   className?: string,
   refetchTag?: () => Promise<void>,
   updateSelectedLens?: (lensId: string) => void,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
@@ -180,7 +181,6 @@ const TagPageButtonRow = ({ tag, selectedLens, editing, setEditing, hideLabels =
       <br />
     </>}
     <ContentItemBody
-      className={classes.beginnersGuide}
       dangerouslySetInnerHTML={{ __html: beginnersGuideContentTag?.description?.html || "" }}
       description={`tag ${tag?.name}`}
     />

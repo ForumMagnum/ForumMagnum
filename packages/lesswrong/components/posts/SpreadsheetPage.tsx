@@ -33,7 +33,7 @@ const headerStyle = (theme: ThemeType) => ({
   zIndex: 1,
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: -150, // adjusting for footer
     position: "relative",
@@ -373,7 +373,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const SpreadsheetPage = ({classes}: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { query: { tab: selectedTab = "Intro" }, hash: selectedCell } = useLocation()
   const { LWTooltip, HoverPreviewLink, Loading, HeadTags, ContentStyles } = Components

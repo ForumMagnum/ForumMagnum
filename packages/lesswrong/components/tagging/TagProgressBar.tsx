@@ -28,7 +28,7 @@ export const secondaryInfo = (theme: ThemeType) => ({
   marginTop: 8
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...progressBarRoot(theme)
   },
@@ -75,7 +75,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const TagProgressBar = ({ classes }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
 
   const { LWTooltip, PostsItem2MetaInfo, SeparatorBullet } = Components;

@@ -5,7 +5,7 @@ import { isEAForum } from '../../lib/instanceSettings';
 import AlarmIcon from '@material-ui/icons/Alarm';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   lwBanner: {
     padding: 12,
     backgroundColor: theme.palette.background.warningTranslucent,
@@ -27,7 +27,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const RateLimitWarning = ({lastRateLimitExpiry, rateLimitMessage, classes}: {
   lastRateLimitExpiry: Date,
   rateLimitMessage?: string,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { ContentStyles, ContentItemBody } = Components
 

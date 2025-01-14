@@ -5,7 +5,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { getUserFromResults } from '../users/UsersProfile';
 import { slugify } from '@/lib/utils/slugify';
 
-const styles = (theme: ThemeType): JssStyles =>  ({
+const styles = (theme: ThemeType) =>  ({
   root: {
     [theme.breakpoints.up('sm')]: {
       marginRight: theme.spacing.unit*4,
@@ -13,7 +13,7 @@ const styles = (theme: ThemeType): JssStyles =>  ({
   }
 })
 
-const UserCommentsReplies = ({ classes }: { classes: ClassesType }) => {
+const UserCommentsReplies = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { SingleColumnSection, SectionTitle, Loading } = Components
 
   const { params } = useLocation();

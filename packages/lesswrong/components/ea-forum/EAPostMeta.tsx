@@ -50,7 +50,7 @@ const EAPostMeta = ({post, useEventStyles, useCuratedDate=true, className, class
   useEventStyles?: boolean,
   useCuratedDate?: boolean,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const authorExpandContainer = useRef(null);
 

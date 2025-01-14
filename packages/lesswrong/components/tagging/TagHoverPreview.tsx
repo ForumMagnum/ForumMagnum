@@ -1,13 +1,12 @@
 import React from 'react';
 import { Components, registerComponent, RouterLocation } from '../../lib/vulcan-lib';
-import { useHover } from '../common/withHover';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useTagPreview } from './useTag';
 import { linkStyle } from '../linkPreview/PostLinkPreview';
 import { removeUrlParameters } from '../../lib/routeUtil';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   ...linkStyle(theme),
   count: {
     color: theme.palette.secondary.main, // grey[500],
@@ -51,10 +50,10 @@ const TagHoverPreview = ({
   // Remove showPostCount and useTagName query parameters from the link, if present
   const linkTarget = normalizeTagLink(href);
 
+  const isRead = tag?.isRead;
   const isRedLink = (!tag && !noPrefetch && !loading) || tag?.isPlaceholderPage;
 
   const {TagsTooltip} = Components;
-  const isRead = tag?.isRead;
   return (
     <TagsTooltip
       tagSlug={previewSlug}
@@ -67,7 +66,7 @@ const TagHoverPreview = ({
       <Link
         className={classNames(
           !showPostCount && classes.link,
-          isRead && classes.visited,
+          isRead && "visited",
           isRedLink && classes.redLink,
         )}
         to={linkTarget}

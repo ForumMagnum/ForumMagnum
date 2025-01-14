@@ -7,9 +7,10 @@ import type { RecommendationsAlgorithm } from '../../lib/collections/users/recom
 import classNames from 'classnames';
 import { forumTitleSetting } from '../../lib/instanceSettings';
 import moment from 'moment';
-import { eligibleToNominate, getReviewPhase, getReviewTitle, ReviewYear, REVIEW_NAME_IN_SITU, REVIEW_YEAR, getResultsPhaseEnd, getNominationPhaseEnd, getReviewPhaseEnd, getReviewStart, reviewPostPath } from '../../lib/reviewUtils';
+import { eligibleToNominate, getReviewPhase, getReviewTitle, ReviewYear, REVIEW_YEAR, getResultsPhaseEnd, getNominationPhaseEnd, getReviewPhaseEnd, getReviewStart, reviewPostPath, longformReviewTagId } from '../../lib/reviewUtils';
 import { allPostsParams } from './NominationsPage';
 import qs from 'qs';
+
 const commonActionButtonStyle = (theme: ThemeType) => ({
   paddingTop: 7,
   paddingBottom: 7,
@@ -26,7 +27,7 @@ const commonActionButtonStyle = (theme: ThemeType) => ({
   }
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   sectionTitle: {
     alignItems: 'flex-end',
     marginBottom: 12,
@@ -113,6 +114,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[600],
     ...commonActionButtonStyle(theme),
     textAlign: 'center',
+  },
+  actionButtonSecondaryCTA: {
+    backgroundColor: theme.palette.background.pageActiveAreaBackground,
   },
   adminButton: {
     border: `solid 1px ${theme.palette.review.adminButton}`,
@@ -212,8 +216,8 @@ export function ReviewOverviewTooltip() {
   </div>
 }
 
-const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, className}: {classes: ClassesType, showFrontpageItems?: boolean, reviewYear: ReviewYear, className?: string}) => {
-  const { SectionTitle, SettingsButton, LWTooltip, PostsList2, ReviewProgressReviews, ReviewProgressVoting, ReviewProgressNominations, FrontpageBestOfLWWidget } = Components
+const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, className}: {classes: ClassesType<typeof styles>, showFrontpageItems?: boolean, reviewYear: ReviewYear, className?: string}) => {
+  const { SectionTitle, SettingsButton, LWTooltip, PostsList2, ReviewProgressReviews, ReviewProgressVoting, ReviewProgressNominations } = Components
   const currentUser = useCurrentUser();
 
   const nominationStartDate = getReviewStart(reviewYear)
@@ -321,14 +325,14 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, cl
     {currentUser && currentUser.karma >= 1000 && <span className={classes.reviewProgressBar}>
       <ReviewProgressReviews reviewYear={reviewYear}/>
     </span>}
-    <LWTooltip title="A list of all reviews, with the top review-commenters ranked by total karma">
-      <Link to={"/reviews"} className={classes.actionButton}>
-        Review Leaderboard
-      </Link>
-    </LWTooltip>
-    <LWTooltip title="A detailed view of all nominated posts">
+    <LWTooltip title="A detailed view of all nominated posts (sorted by Nomination Vote results)">
       <Link to={"/reviewVoting"} className={classes.actionButton}>
         Advanced Review
+      </Link>
+    </LWTooltip>
+    <LWTooltip title="Write a detailed review, exploring nominated posts more comprehensively.">
+      <Link to={`/newPost?tagId=${longformReviewTagId}`} className={classNames(classes.actionButton, classes.actionButtonSecondaryCTA)}>
+        Longform Review
       </Link>
     </LWTooltip>
     <LWTooltip title="Find a top unreviewed post, and review it">
