@@ -136,7 +136,7 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
 /* If summaries are present, we must check for the tag name in the first summary, otherwise we use the tag name 
 /* from the main description.
 */
-const tagShowTitle = (tag: (TagPreviewFragment | TagSectionPreviewFragment) & { summaries?: MultiDocumentEdit[] }) => {
+const tagShowTitle = (tag: (TagPreviewFragment | TagSectionPreviewFragment) & { summaries?: MultiDocumentContentDisplay[] }) => {
   if (isFriendlyUI) {
     return false;
   }
