@@ -1,11 +1,10 @@
 import React from "react";
-import { Components, registerComponent, combineUrls } from "../../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import {
   fmCrosspostSiteNameSetting,
   fmCrosspostBaseUrlSetting,
 } from "../../../lib/instanceSettings";
-import { useCrosspostContext } from "./PostsPageCrosspostWrapper";
-import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
+import { usePostsPageContext } from "./PostsPageContext";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -18,21 +17,25 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PostsPageCrosspostComments = ({classes}: {classes: ClassesType<typeof styles>}) => {
-  const context = useCrosspostContext();
-  if (!context?.foreignPost) {
+const PostsPageCrosspostComments = ({classes}: {
+  classes: ClassesType<typeof styles>,
+}) => {
+  const postsPage = usePostsPageContext();
+  const post = postsPage?.fullPost ?? postsPage?.postPreload;
+  if (!post?.fmCrosspost) {
     return null;
   }
-  const {hostedHere, foreignPost} = context;
+  const {hostedHere, foreignPostId} = post.fmCrosspost;
 
   const relation = hostedHere ? "to" : "from";
-  const commentCount = foreignPost.commentCount ?? 0;
+  // TODO: We need to fetch the comment count and foreign URL from the other site
+  const commentCount = 0; // foreignPost.commentCount ?? 0;
   const noComments = commentCount === 0;
 
   const commentsText = noComments
     ? "Click to view."
     : `Click to view ${commentCount} comment${commentCount === 1 ? "" : "s"}.`;
-  const link = combineUrls(fmCrosspostBaseUrlSetting.get() ?? "", `${postGetPageUrl(foreignPost)}${noComments ? "" : "#comments"}`);
+  const link = `${fmCrosspostBaseUrlSetting.get()}posts/${foreignPostId}${noComments ? "" : "#comments"}`;
 
   const {Typography} = Components;
   return (

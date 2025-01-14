@@ -8,7 +8,6 @@ import withErrorBoundary from "../common/withErrorBoundary";
 import classNames from "classnames";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
 import { cloudinaryCloudNameSetting } from "../../lib/publicSettings";
-import { usePostContents } from "../hooks/useForeignCrosspost";
 import { usePostsListView } from "../hooks/usePostsListView";
 
 const KARMA_WIDTH = 50;
@@ -307,12 +306,6 @@ const EAPostsItem = ({
   // even those that are not a card, so that all titles are consistent.
   const {view} = usePostsListView()
 
-  const {postContents} = usePostContents({
-    post,
-    fragmentName: "PostsList",
-    skip: !cardView,
-  });
-
   const {
     PostsTitle, ForumIcon, PostActionsButton, EAKarmaDisplay, EAPostMeta,
     PostsItemTagRelevance, PostsItemTooltipWrapper, PostsVote,
@@ -403,7 +396,6 @@ const EAPostsItem = ({
 
   const body =
     post.customHighlight?.plaintextDescription ||
-    postContents?.plaintextDescription ||
     post.contents?.plaintextDescription ||
     "";
   const hasBody = body.trim().length > 0;
