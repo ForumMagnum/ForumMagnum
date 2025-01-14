@@ -32,6 +32,8 @@ import { Votes } from '@/lib/collections/votes';
 import mapValues from 'lodash/mapValues';
 import flatMap from 'lodash/flatMap';
 import { updatePostDenormalizedTags } from '@/server/tagging/helpers';
+import ElasticExporter from '@/server/search/elastic/ElasticExporter';
+import { SearchIndexCollectionName } from '@/lib/search/searchUtil';
 
 type ArbitalImportOptions = {
   /**
@@ -654,6 +656,7 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
   const pagesById = groupBy(database.pages, p=>p.pageId);
   const lensesByPageId = mapValues(groupBy(database.lenses, l=>l.pageId), lenses=>sortBy(lenses, l=>l.lensIndex));
   const lensIds = new Set(database.lenses.map(l=>l.lensId));
+  const tagIdsToReindex: string[] = [];
 
   const {
     pageInfosByPageId: pageInfosById, slugsByPageId, summariesByPageId, titlesByPageId,
@@ -755,6 +758,7 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
         ]);
       }
 
+      tagIdsToReindex.push(wiki._id);
       await convertLikesToVotes(conversionContext, pageInfo.likeableId, "Tags", wiki._id);
 
       const pageAlternatives = alternativesByPageId[pageId];
@@ -942,6 +946,7 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
         const lwWikiLensIndex = lenses.length > 0
           ? maxBy(lenses, l => l.lensIndex)!.lensIndex + 1
           : 0;
+        tagIdsToReindex.push(lwWikiPageToConvertToLens.tagId);
 
         const lwWikiPageRevisions = await Revisions.find({
           documentId: lwWikiPage._id,
@@ -1020,6 +1025,9 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
       console.error(e);
     }
   }), options.parallelism ?? 1);
+  
+  // Update Algolia index for updated tags
+  await updateElasticSearchForIds("Tags", tagIdsToReindex);
 }
 
 async function importComments(database: WholeArbitalDatabase, conversionContext: ArbitalConversionContext, resolverContext: ResolverContext, options: ArbitalImportOptions): Promise<void> {
@@ -1109,18 +1117,31 @@ async function importComments(database: WholeArbitalDatabase, conversionContext:
         postedAt: comment.createdAt,
       }
     });
+    
     await convertLikesToVotes(conversionContext, comment.likeableId, "Comments", lwComment._id);
   }
   
-
-  // Insert the comments
-
+  // Print summary stats
   console.log(`Import found ${commentIdsToImport.length} normal comments and ${irregularComments.length} irregular comments`);
   const irregularCommentsByReason = groupBy(irregularComments, c=>c.reason)
   console.log(Object.keys(irregularCommentsByReason)
     .map((reason) => `${irregularCommentsByReason[reason].length}: ${reason}`)
     .join("\n")
   );
+  
+  // Update Algolia index for imported comments
+  // The createMutator will have already created index entries via callbacks,
+  // but after creating them we backdated them, so the dates in the index are
+  // wrong.
+  await updateElasticSearchForIds("Comments", Object.keys(lwCommentsById));
+}
+
+async function updateElasticSearchForIds(collectionName: SearchIndexCollectionName, documentIds: string[]): Promise<void> {
+  const elasticExporter = new ElasticExporter();
+  const uniqueIds = uniq(documentIds);
+  await executePromiseQueue(uniqueIds.map(documentId => () => {
+    return elasticExporter.updateDocument(collectionName, documentId);
+  }), 10);
 }
 
 async function createRedLinkPlaceholders(redLinks: RedLinksSet, conversionContext: ArbitalConversionContext) {
