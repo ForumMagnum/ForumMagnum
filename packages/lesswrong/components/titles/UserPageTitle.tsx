@@ -11,7 +11,7 @@ import { Helmet } from '../../lib/utils/componentsWithChildren';
 const UserPageTitle = ({isSubtitle, siteName, classes}: {
   isSubtitle: boolean,
   siteName: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { params: {slug} } = useLocation();
   const { results, loading } = useMulti({

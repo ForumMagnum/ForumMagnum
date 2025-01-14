@@ -4,7 +4,7 @@ import { CommentVotingComponentProps } from "../../lib/voting/votingSystems";
 import { useVote } from "./withVote";
 import { isEAReactableDocument } from "./EAReactsSection";
 
-const styles = (_theme: ThemeType): JssStyles => ({
+const styles = (_theme: ThemeType) => ({
   overallAxis: {
     marginRight: 1,
     "&.OverallVoteAxis-overallSection": {
@@ -20,7 +20,7 @@ const styles = (_theme: ThemeType): JssStyles => ({
 });
 
 interface EAEmojisVoteOnCommentProps extends CommentVotingComponentProps {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }
 
 const EAEmojisVoteOnComment = ({

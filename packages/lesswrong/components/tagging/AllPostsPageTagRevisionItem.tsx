@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     background: theme.palette.panelBackground.commentNodeEven,
     border: theme.palette.border.commentBorder,
@@ -21,7 +21,7 @@ const AllPostsPageTagRevisionItem = ({tag, revisionId, documentId, classes}: {
   tag: TagBasicInfo,
   revisionId: string,
   documentId: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {Loading, CompareRevisions, TagRevisionItemShortMetadata, ContentStyles} = Components;
   const {document: revision, loading} = useSingle({

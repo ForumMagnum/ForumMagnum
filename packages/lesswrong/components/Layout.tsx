@@ -35,7 +35,6 @@ import { LoginPopoverContextProvider } from './hooks/useLoginPopoverContext';
 import DeferRender from './common/DeferRender';
 import { userHasLlmChat } from '@/lib/betas';
 import { AutosaveEditorStateContext } from './editor/EditorFormComponent';
-import { GivingSeasonEventsProvider } from './forumEvents/useGivingSeasonEvents';
 
 const STICKY_SECTION_TOP_MARGIN = 20;
 
@@ -47,7 +46,7 @@ const STICKY_SECTION_TOP_MARGIN = 20;
  */
 const allowedIncompletePaths: string[] = ["termsOfUse"];
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   main: {
     paddingTop: theme.spacing.mainLayoutPaddingTop,
     paddingBottom: 15,
@@ -336,7 +335,7 @@ const StickyWrapper: FC<{
   headerVisible: boolean,
   headerAtTop: boolean,
   children: ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }> = ({eaHomeLayout, headerVisible, headerAtTop, children, classes}) =>
   eaHomeLayout
     ? (
@@ -353,7 +352,7 @@ const StickyWrapper: FC<{
 const Layout = ({currentUser, children, classes}: {
   currentUser: UsersCurrent|null,
   children?: React.ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
   const [disableNoKibitz, setDisableNoKibitz] = useState(false); 
@@ -502,7 +501,6 @@ const Layout = ({currentUser, children, classes}: {
       <DisableNoKibitzContext.Provider value={noKibitzContext}>
       <CommentOnSelectionPageWrapper>
       <CurrentForumEventProvider>
-      <GivingSeasonEventsProvider>
         <div className={classNames(
           "wrapper",
           {'alignment-forum': isAF, [classes.fullscreen]: currentRoute?.fullscreen, [classes.wrapper]: isLWorAF}
@@ -543,7 +541,7 @@ const Layout = ({currentUser, children, classes}: {
               {/* enable during ACX Everywhere */}
               {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>}
 
-              <div className={classNames(classes.standaloneNavFlex, {
+              <div className={classNames({
                 [classes.spacedGridActivated]: shouldUseGridLayout && !unspacedGridLayout,
                 [classes.unspacedGridActivated]: shouldUseGridLayout && unspacedGridLayout,
                 [classes.eaHomeLayout]: friendlyHomeLayout && !renderSunshineSidebar,
@@ -614,7 +612,7 @@ const Layout = ({currentUser, children, classes}: {
                     <SunshineSidebar/>
                   </DeferRender>
                 </div>}
-                {renderLanguageModelChatLauncher && <div className={classes.languageModelChatLauncher}>
+                {renderLanguageModelChatLauncher && <div>
                   <DeferRender ssr={false}>
                     <LanguageModelLauncherButton/>
                   </DeferRender>
@@ -623,7 +621,6 @@ const Layout = ({currentUser, children, classes}: {
             </CommentBoxManager>
           </DialogManager>
         </div>
-      </GivingSeasonEventsProvider>
       </CurrentForumEventProvider>
       </CommentOnSelectionPageWrapper>
       </DisableNoKibitzContext.Provider>

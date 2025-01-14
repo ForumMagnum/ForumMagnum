@@ -19,7 +19,7 @@ import { preferredHeadingCase } from '../../themes/forumTheme';
 
 const LEFT_COLUMN_WIDTH = 160
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     width: CENTRAL_COLUMN_WIDTH + LEFT_COLUMN_WIDTH + 64, //should import post
     display: "flex",
@@ -61,7 +61,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const TagVersionHistoryButton = ({tagId, classes}: {
   tagId: string,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { openDialog } = useDialog();
   const { captureEvent } = useTracking()
@@ -84,7 +84,7 @@ const TagVersionHistoryButton = ({tagId, classes}: {
 const TagVersionHistory = ({tagId, onClose, classes}: {
   tagId: string,
   onClose: () => void,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { LWDialog, Loading, ContentItemBody, FormatDate, LoadMore, ChangeMetricsDisplay } = Components;
   const currentUser = useCurrentUser();

@@ -28,7 +28,7 @@ function readableReadingTime (seconds?: number) {
   return secondsPart
 }
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     fontFamily: theme.palette.fonts.sansSerifStack,
     [theme.breakpoints.down("sm")]: {
@@ -89,7 +89,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const PostsAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
+const PostsAnalyticsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { query } = useLocation();
 
   const {document: post, error} = useSingle({

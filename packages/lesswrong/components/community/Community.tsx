@@ -1,6 +1,5 @@
 import { Components, registerComponent, } from '../../lib/vulcan-lib';
 import React, { useState, useEffect, useRef } from 'react';
-import { createStyles } from '@material-ui/core/styles';
 import { useUserLocation } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdate } from '../../lib/crud/withUpdate';
@@ -23,7 +22,7 @@ import Chip from '@material-ui/core/Chip';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
 
-const styles = createStyles((theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   section: {
     maxWidth: 1200,
     margin: 'auto',
@@ -193,11 +192,10 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   addGroup: {
     marginTop: 40
   },
-}))
-
+});
 
 const Community = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();

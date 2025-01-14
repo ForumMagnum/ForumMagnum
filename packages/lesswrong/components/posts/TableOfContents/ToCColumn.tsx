@@ -14,7 +14,7 @@ export const MAX_CONTENT_WIDTH = 720;
 const TOC_OFFSET_TOP = 92
 const TOC_OFFSET_BOTTOM = 64
 
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   root: {
     position: "relative",
     [theme.breakpoints.down('sm')]: {
@@ -157,7 +157,7 @@ export const ToCColumn = ({
   rightColumnChildren?: React.ReactNode,
   notHideable?: boolean,
   children: React.ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {captureEvent} = useTracking();
   const {sideCommentsActive} = useContext(SidebarsContext)!;

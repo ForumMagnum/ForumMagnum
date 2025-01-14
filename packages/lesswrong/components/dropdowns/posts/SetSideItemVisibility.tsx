@@ -8,7 +8,7 @@ import Check from '@material-ui/icons/Check';
 import classNames from 'classnames';
 import { hasSideComments } from '../../../lib/betas';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   check: {
     width: 20,
     marginRight: 8,
@@ -64,7 +64,7 @@ export type SideItemVisibilityContextType = {
 export const SideItemVisibilityContext = createContext<SideItemVisibilityContextType|null>(null);
 
 const SetSideItemVisibility = ({classes}: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const sideItemVisibility = useContext(SideItemVisibilityContext);
   const { LWTooltip, MenuItem } = Components;
@@ -123,7 +123,7 @@ const SetSideItemVisibility = ({classes}: {
         <ListItemIcon>
           <ChatBubbleOutline/>
         </ListItemIcon>
-        <span className={classes.sideItemLabel}>
+        <span>
           Side-comments
         </span>
         <span className={classNames(classes.showOnlyIfMobile, classes.currentSelectionPreview)}>
@@ -144,7 +144,7 @@ const SetSideItemVisibility = ({classes}: {
         <ListItemIcon>
           <ChatBubbleOutline/>
         </ListItemIcon>
-        <span className={classes.sideItemLabel}>
+        <span>
           Inline Reactions
         </span>
         <span className={classes.currentSelectionPreview}>

@@ -6,7 +6,7 @@ import Input from '@material-ui/core/Input';
 import LinkIcon from '@material-ui/icons/Link'
 import LinkOffIcon from '@material-ui/icons/LinkOff';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginRight: theme.spacing.unit
   },
@@ -58,7 +58,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText, placeholder, tooltip, updateCurrentValues, setFooterContent, inputProperties }: {
   value: string,
   path: keyof DbPost,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   document: Partial<DbPost>,
   defaultValue?: string,
   label?: string,

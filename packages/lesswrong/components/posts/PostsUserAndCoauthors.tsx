@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import type { PopperPlacementType } from '@material-ui/core/Popper'
 import { usePostsUserAndCoauthors } from './usePostsUserAndCoauthors';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   lengthLimited: {
     maxWidth: 310,
     textOverflow: "ellipsis",
@@ -51,7 +51,7 @@ const PostsUserAndCoauthors = ({
 }: {
   post: PostsList | SunshinePostsList,
   abbreviateIfLong?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   simple?: boolean,
   tooltipPlacement?: PopperPlacementType,
   newPromotedComments?: boolean,

@@ -95,7 +95,7 @@ const applicationDeadline = moment.utc('2024-11-30', 'YYYY-MM-DD')
  * We are considering displaying a small banner when an EAG(x) application deadline is near,
  * visible only to users who we think are in a relevant location for that conference.
  */
-const EAGBanner = ({classes}: {classes: ClassesType}) => {
+const EAGBanner = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const [cookies, setCookie] = useCookiesWithConsent([HIDE_EAG_BANNER_COOKIE]);
   const {captureEvent} = useTracking();
   const currentUser = useCurrentUser();
@@ -168,7 +168,7 @@ const EAGBanner = ({classes}: {classes: ClassesType}) => {
                   <ForumIcon icon="QuestionMarkCircle" className={classes.infoIcon} />
                 </LWTooltip>
               </div>
-              <div className={classes.bottomRow}>
+              <div>
                 <HoverPreviewLink href={eagPostLink}>
                   <span className={classes.bold}>{eagName}</span>
                 </HoverPreviewLink>{" "}

@@ -12,7 +12,7 @@ import classNames from "classnames";
 const MAX_WIDTH = 1500;
 const MD_WIDTH = 1000;
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "row",
@@ -139,7 +139,7 @@ const allCollectionIds = [...featuredCollectionsCollectionIds];
 
 export const digestLink = "https://effectivealtruism.us8.list-manage.com/subscribe?u=52b028e7f799cca137ef74763&id=7457c7ff3e";
 
-const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
+const EABestOfPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const currentCuratedPostCount = useCurrentCuratedPostCount();
 
   const { results: posts, loading } = useMulti({

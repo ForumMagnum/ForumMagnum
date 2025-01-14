@@ -5,7 +5,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib'
 
 const PREVIEW_N = 3
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: 16,
   },
@@ -13,7 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const TagIntroSequence = ({tag, classes}: {
   tag: TagPageFragment,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { SectionTitle, Loading, PostsItemIntroSequence, LoadMore } = Components
   const { results: seqChapters, loading } = useMulti({

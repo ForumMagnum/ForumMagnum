@@ -6,7 +6,7 @@ import type { VotingProps } from '../votingProps';
 export const hideSelectorClassName = "hidden-selector";
 const hiddenSelector = `& .${hideSelectorClassName}`;
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     [hiddenSelector]: {
       backgroundColor: theme.palette.background.primaryTranslucentHeavy
@@ -27,7 +27,7 @@ export const InlineReactSelectionWrapper = ({commentBodyRef, voteProps, styling,
   voteProps: VotingProps<VoteableTypeClient>
   styling: "comment"|"post",
   children: React.ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const commentTextRef = useRef<HTMLDivElement|null>(null);
   const popupRef = useRef<HTMLDivElement|null>(null);

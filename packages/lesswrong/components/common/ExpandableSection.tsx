@@ -61,7 +61,7 @@ const ExpandableSection = ({
   children,
   classes,
   ...sectionTitleProps
-}: ExpandableSectionProps & {classes: ClassesType}) => {
+}: ExpandableSectionProps & {classes: ClassesType<typeof styles>}) => {
   const {SingleColumnSection, SectionTitle, LWTooltip, ForumIcon} = Components;
   return (
     <AnalyticsContext pageSectionContext={pageSectionContext}>

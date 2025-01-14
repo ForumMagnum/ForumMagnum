@@ -71,7 +71,7 @@ const CollapsedFootnotes = ({
   footnotesHtml: string,
   attributes?: Record<string, unknown>,
   previewCount?: number,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {hash} = useLocation();
   const [collapsed, setCollapsed] = useState(!locationHashIsFootnote(hash ?? ""));

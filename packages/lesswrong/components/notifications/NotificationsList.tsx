@@ -5,7 +5,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     overflowY: "auto",
     padding: 0,
@@ -31,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const NotificationsList = ({ terms, currentUser, classes }: {
   terms: NotificationsViewTerms,
   currentUser: UsersCurrent,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { results, loading, loadMore } = useMulti({
     terms,

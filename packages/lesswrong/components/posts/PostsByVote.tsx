@@ -3,7 +3,6 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 
 const PostsByVote = ({postIds, year, limit, showMostValuableCheckbox=false, hideEmptyStateText=false, postItemClassName}: {
-  classes: ClassesType,
   postIds: Array<string>,
   year: number | '≤2020',
   limit?: number,
