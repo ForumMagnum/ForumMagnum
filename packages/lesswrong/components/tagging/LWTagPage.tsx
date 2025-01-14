@@ -172,6 +172,7 @@ const styles = defineStyles("LWTagPage", (theme: ThemeType) => ({
   },
   description: {
     lineHeight: "21px",
+    // These styles are for the hard-coded Bayes' Rule Guide multiple choice question and path description elements
     '& .question-container': {
       maxWidth: 800,
       margin: '20px auto',
