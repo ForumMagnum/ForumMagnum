@@ -6,6 +6,7 @@ import { ensureIndex } from "@/lib/collectionIndexUtils";
 import { membersGroup, userIsAdmin, userOwns } from "@/lib/vulcan-users/permissions";
 import { canMutateParentDocument, getRootDocument } from "./helpers";
 import { makeVoteable } from "@/lib/make_voteable";
+import { addSlugFields } from "@/lib/utils/schemaUtils";
 
 export const MultiDocuments = createCollection({
   collectionName: 'MultiDocuments',
@@ -32,6 +33,13 @@ export const MultiDocuments = createCollection({
 });
 
 addUniversalFields({ collection: MultiDocuments, legacyDataOptions: { canRead: ['guests'] } });
+addSlugFields({
+  collection: MultiDocuments,
+  collectionsToAvoidCollisionsWith: ["Tags", "MultiDocuments"],
+  getTitle: (md) => md.title ?? md.tabTitle,
+  onCollision: "rejectNewDocument",
+  includesOldSlugs: true,
+});
 
 ensureIndex(MultiDocuments, { parentDocumentId: 1, collectionName: 1 });
 ensureIndex(MultiDocuments, { slug: 1 });
