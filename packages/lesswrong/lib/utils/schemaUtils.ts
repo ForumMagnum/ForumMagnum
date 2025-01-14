@@ -475,8 +475,11 @@ export function addSlugFields<N extends CollectionNameWithSlug>({collection, col
    *   newDocumentGetsSuffix: Add a suffix to the slug of the new document
    *   rejectNewDocument: Block the creation/edit of the new document that
    *     had a colliding slug
+   *   rejectIfExplicit: If the colliding slug was inferred from a change to
+   *     the title, deconflict it with a suffix. If the slug was edited
+   *     directly, however, reject the edit.
    */
-  onCollision?: "newDocumentGetsSuffix"|"rejectNewDocument",
+  onCollision?: "newDocumentGetsSuffix"|"rejectNewDocument"|"rejectIfExplicit",
 
   /**
    * If true, adds a field `oldSlugs` and automatically adds to it when slugs

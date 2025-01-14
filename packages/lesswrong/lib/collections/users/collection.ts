@@ -63,6 +63,7 @@ addSlugFields({
   collection: Users,
   getTitle: (u) => u.displayName ?? createDisplayName(u),
   includesOldSlugs: true,
+  onCollision: "rejectIfExplicit",
   slugOptions: {
     canUpdate: ['admins'],
     order: 40,

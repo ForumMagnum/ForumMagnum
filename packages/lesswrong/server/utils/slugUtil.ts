@@ -105,7 +105,7 @@ export function addSlugCallbacks<N extends CollectionNameWithSlug>({collection, 
   collection: CollectionBase<N>
   collectionsToAvoidCollisionsWith: CollectionNameWithSlug[],
   getTitle: (obj: ObjectsByCollectionName[N]) => string,
-  onCollision: "newDocumentGetsSuffix"|"rejectNewDocument",
+  onCollision: "newDocumentGetsSuffix"|"rejectNewDocument"|"rejectIfExplicit",
   includesOldSlugs: boolean
 }) {
   const collectionName = collection.collectionName;
@@ -122,6 +122,7 @@ export function addSlugCallbacks<N extends CollectionNameWithSlug>({collection, 
 
     if (deconflictedTitleSlug !== titleSlug) {
       switch (onCollision) {
+        case "rejectIfExplicit":
         case "newDocumentGetsSuffix":
           return {
             ...doc,
@@ -144,9 +145,11 @@ export function addSlugCallbacks<N extends CollectionNameWithSlug>({collection, 
     const oldTitle = getTitle(oldDocument);
     const newTitle = getTitle(newDocument);
     let changedSlug: string|null = null;
+    let changeWasExplicit = false;
     
     if (data.slug && data.slug !== oldDocument.slug) {
       changedSlug = data.slug;
+      changeWasExplicit = true;
     } else if (newTitle && newTitle !== oldTitle && oldDocument.slug === slugify(oldTitle)) {
       changedSlug = slugify(newTitle);
     }
@@ -154,6 +157,7 @@ export function addSlugCallbacks<N extends CollectionNameWithSlug>({collection, 
     if (!changedSlug) {
       return doc;
     }
+
     const deconflictedSlug = await getUnusedSlug({
       collectionsToCheck: collectionsToAvoidCollisionsWith,
       slug: changedSlug,
@@ -176,6 +180,11 @@ export function addSlugCallbacks<N extends CollectionNameWithSlug>({collection, 
       };
     }
     switch (onCollision) {
+      case "rejectIfExplicit":
+        if (changeWasExplicit) {
+          throw new Error(`Slug ${changedSlug} is already taken`);
+        }
+        // FALLTHROUGH
       case "newDocumentGetsSuffix":
         return {
           ...newDocument,
