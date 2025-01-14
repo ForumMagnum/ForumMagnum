@@ -24,12 +24,12 @@ const getUnusedSlug = async function ({collectionsToCheck, slug, useOldSlugs=fal
   //eslint-disable-next-line no-constant-condition
   while(true) {
     // Test if slug is already in use
-    if (!slugIsUsed({
+    if (!(await slugIsUsed({
       collectionsToCheck,
       slug: slug+suffix,
       useOldSlugs,
       excludedId: documentId,
-    })) {
+    }))) {
       return slug+suffix;
     }
 
@@ -51,7 +51,7 @@ const getUnusedSlug = async function ({collectionsToCheck, slug, useOldSlugs=fal
 export const getDocumentsBySlug = async <
   N extends CollectionNameWithSlug,
 >({slug, suffix, useOldSlugs, collection}: {
-  slug: CollectionNameWithSlug,
+  slug: string,
   suffix: string,
   useOldSlugs: boolean,
   collection: CollectionBase<N>

@@ -62,7 +62,12 @@ addUniversalFields({collection: Users});
 addSlugFields({
   collection: Users,
   getTitle: (u) => u.displayName ?? createDisplayName(u),
-  includesOldSlugs: false,
+  includesOldSlugs: true,
+  slugOptions: {
+    canUpdate: ['admins'],
+    order: 40,
+    group: formGroups.adminOptions,
+  },
 });
 
 makeEditable({
