@@ -5,7 +5,7 @@ import { styles } from './LWPostsItem';
 
 const PostsListPlaceholder = ({count, classes}: {
   count: number,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   let placeholders: Array<JSX.Element> = [];
   for(let i=0; i<count; i++) {
@@ -16,7 +16,7 @@ const PostsListPlaceholder = ({count, classes}: {
       )}>
         <div className={classes.postsItem}>
           <span className={classes.title}>
-            <span className={classes.titlePlaceholder}>{" "}</span>
+            <span>{" "}</span>
           </span>
         </div>
       </div>

@@ -8,7 +8,7 @@ import { registerComponent } from '@/lib/vulcan-lib';
 import { isEAForum } from '../../lib/instanceSettings';
 import type { VoteArrowIconProps } from './VoteArrowIcon';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     color: theme.palette.grey[400],
     fontSize: 'inherit',
@@ -72,7 +72,7 @@ const VoteArrowIconHollow = ({
   strongVoteDelay,
   classes,
 }: VoteArrowIconProps & {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { mainColor, lightColor } = useVoteColors(color);
 
@@ -103,7 +103,7 @@ const VoteArrowIconHollow = ({
             className={classNames(
               classes.bigArrow,
               bigVoteCompleted && classes.bigArrowCompleted,
-              classes[state]
+              (classes as AnyBecauseTodo)[state]
             )}
             viewBox="6 6 12 12"
         />)}

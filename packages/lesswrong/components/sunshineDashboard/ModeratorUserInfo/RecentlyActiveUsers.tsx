@@ -12,7 +12,7 @@ import { autoCommentRateLimits, autoPostRateLimits } from '../../../lib/rateLimi
 import { getActiveRateLimitNames } from '../../../lib/rateLimits/utils';
 import { useLocation } from '../../../lib/routeUtil';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...commentBodyStyles(theme),
     width: '90%',
@@ -114,7 +114,7 @@ type SortingType = "lastNotificationsCheck"|"last20Karma"|"downvoters"|"karma"|"
 
 
 const RecentlyActiveUsers = ({ classes }: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { UsersReviewInfoCard, LoadMore, LWTooltip, UsersName, FormatDate, MetaInfo, UserAutoRateLimitsDisplay, SectionFooterCheckbox, Row } = Components;
 

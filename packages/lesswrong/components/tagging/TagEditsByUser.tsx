@@ -4,7 +4,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
   },
   subtitle: {
@@ -22,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const TagEditsByUser = ({userId, limit, classes}: {
   userId: string,
   limit: number,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
 
   const { loadingInitial, loadMoreProps, results } = useMulti({

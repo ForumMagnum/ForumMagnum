@@ -4,7 +4,7 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useCurrentUser } from "../common/withUser";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.contentNotice,
     ...theme.typography.postStyle
@@ -13,7 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const AlignmentPendingApprovalMessage = ({post, classes}: {
   post: PostsBase,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser()
   if (!currentUser) return null

@@ -16,7 +16,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PopularCommentsList = ({classes}: {classes: ClassesType}) => {
+const PopularCommentsList = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const {loadMoreProps, results} = usePaginatedResolver({
     fragmentName: "CommentsListWithParentMetadata",
     resolverName: "PopularComments",

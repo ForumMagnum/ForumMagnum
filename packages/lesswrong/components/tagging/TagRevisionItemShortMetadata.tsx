@@ -28,7 +28,7 @@ const TagRevisionItemShortMetadata = ({tag, lens, revision, classes}: {
   tag: TagBasicInfo,
   lens?: MultiDocumentContentDisplay | TagLens,
   revision: RevisionHistoryEntry,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { FormatDate, UsersName, MetaInfo, LWTooltip, ChangeMetricsDisplay, SmallSideVote } = Components
   const revUrl = tagGetRevisionLink(tag, revision.version, lens);

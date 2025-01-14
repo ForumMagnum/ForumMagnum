@@ -5,7 +5,7 @@ import Input from '@material-ui/core/Input';
 import { sequencesImageScrim } from '../sequences/SequencesPage'
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginTop: 65,
     backgroundColor: theme.palette.panelBackground.darken25,
@@ -61,7 +61,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const EditSequenceTitle = ({classes, inputProperties, value, path, placeholder}: {
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
   inputProperties: any;
   value: string;
   path: string;

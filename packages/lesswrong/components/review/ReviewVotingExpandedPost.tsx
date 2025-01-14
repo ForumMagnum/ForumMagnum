@@ -8,7 +8,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
 import { CENTRAL_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     maxWidth: CENTRAL_COLUMN_WIDTH,
     margin: "0 auto",
@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   postTitle: {
     ...postPageTitleStyles(theme),
     display: "block",
-    marginBottom: 12
+    marginBottom: 36
   },
   writeAReview: {
     paddingTop: 12,
@@ -51,7 +51,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   backIcon: {
-    marginRight: 12
+    marginLeft: 12,
+    transform: "rotate(180deg)",
   },
   reviewVoting: {
     padding: theme.spacing.unit*2,
@@ -62,7 +63,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const ReviewVotingExpandedPost = ({classes, post, setExpandedPost}: {
-  classes: ClassesType, 
+  classes: ClassesType<typeof styles>,
   post?: PostsReviewVotingList|null,
   setExpandedPost: (post: PostsReviewVotingList|null) => void
 }) => {
@@ -81,18 +82,15 @@ const ReviewVotingExpandedPost = ({classes, post, setExpandedPost}: {
 
   return <div className={classes.root}>
     <div className={classes.backButton} onClick={() => setExpandedPost(null)}>
-      <KeyboardBackspaceIcon className={classes.backIcon}/> Back
+      Back <KeyboardBackspaceIcon className={classes.backIcon}/> 
     </div>
     <Link to={postGetPageUrl(newPost)}  className={classes.postTitle}>
       {newPost.title}
     </Link>
-    <div className={classes.reviewVoting}>  
-      <PostPageReviewButton post={newPost} />
-    </div>
     {postWithContents && <PostsHighlight post={postWithContents} maxLengthWords={200} forceSeeMore />}
     {loading && <Loading/>}
 
-    <div className={classes.comments}>
+    <div>
       <PingbacksList postId={newPost._id} limit={3}/>
       {(getReviewPhase() !== "VOTING") && <ReviewPostComments
         title="Review"

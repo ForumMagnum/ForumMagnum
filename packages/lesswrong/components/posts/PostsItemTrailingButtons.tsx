@@ -26,7 +26,7 @@ export const DismissButton: FC<DismissButtonProps> = ({
   )
   : null;
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   actions: {
     opacity: 0,
     display: "flex",
@@ -69,7 +69,7 @@ type PostsItemTrailingButtonsProps = Pick<
   "resumeReading" |
   "onDismiss" |
   "onArchive"
-> & {classes: ClassesType};
+> & {classes: ClassesType<typeof styles>};
 
 const PostsItemTrailingButtons = ({
   post,

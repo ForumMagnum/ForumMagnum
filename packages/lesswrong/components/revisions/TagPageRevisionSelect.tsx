@@ -7,11 +7,11 @@ import { tagGetRevisionLink, tagGetUrl } from '../../lib/collections/tags/helper
 import { tagUrlBaseSetting } from '../../lib/instanceSettings';
 import { Link, useNavigate } from '../../lib/reactRouterWrapper';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
 });
 
 const TagPageRevisionSelect = ({ classes }: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { params, query } = useLocation();
   const { slug } = params;

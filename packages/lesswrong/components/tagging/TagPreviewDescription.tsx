@@ -7,7 +7,7 @@ import { isLW, isLWorAF } from '../../lib/instanceSettings';
 import { useNavigate } from '../../lib/reactRouterWrapper';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     "& a.read-more-button": {
       fontSize: ".85em",
@@ -46,8 +46,8 @@ const getTagParagraphTruncationCount = (tag: TagPreviewFragment | TagSectionPrev
 const TagPreviewDescription = ({tag, hash, classes, activeTab}: {
   tag: (TagPreviewFragment | TagSectionPreviewFragment) & { summaries?: MultiDocumentContentDisplay[] },
   hash?: string,
-  classes: ClassesType
   activeTab?: number,
+  classes: ClassesType<typeof styles>
 }) => {
   const navigate = useNavigate();
 

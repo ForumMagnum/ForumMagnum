@@ -8,7 +8,7 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 
 const INITIAL_LIMIT = 5
 
-const styles = (_: ThemeType): JssStyles => ({
+const styles = (_: ThemeType) => ({
   subtitle: {
     marginTop: isFriendlyUI ? 20 : 6,
     marginBottom: 6
@@ -19,7 +19,7 @@ const TagEditsTimeBlock = ({before, after, reportEmpty, classes}: {
   before: string,
   after: string,
   reportEmpty: () => void,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { ContentType, SingleLineTagUpdates, LoadMore } = Components;
   // TODO: see if we can use a fragment other than TagHistoryFragment to avoid fetching the ToC or other expensive stuff

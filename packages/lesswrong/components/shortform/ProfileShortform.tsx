@@ -2,14 +2,14 @@ import React from 'react';
 import { useSingle } from '../../lib/crud/withSingle';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
 
   }
 });
 
 export const ProfileShortform = ({classes, user}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   user: UsersProfile
 }) => {
 

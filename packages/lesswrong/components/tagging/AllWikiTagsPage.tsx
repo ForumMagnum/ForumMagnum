@@ -189,6 +189,7 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
       outline: 'none',
     },
   },
+  arbitalRedirectNoticeContent: {},
 }))
 
 
@@ -218,10 +219,10 @@ const prioritySlugs = [
   'world-optimization', 'practical', 'community', 'site-meta'
 ] as const;
 
-const ArbitalRedirectNotice = ({ classes, onDismiss }: {
-  classes: ClassesType,
+const ArbitalRedirectNotice = ({ onDismiss }: {
   onDismiss: () => void,
 }) => {
+  const classes = useStyles(styles);
   const { Loading } = Components
 
   // TODO: put in database setting?
@@ -372,7 +373,6 @@ const AllWikiTagsPage = () => {
                 </div>
                 {isArbitalRedirect && showArbitalRedirectNotice && (
                   <ArbitalRedirectNotice
-                    classes={classes}
                     onDismiss={() => setShowArbitalRedirectNotice(false)}
                   />
                 )}

@@ -8,7 +8,7 @@ import { tagGetCommentLink } from '../../lib/collections/tags/helpers';
 import TagIcon from '@material-ui/icons/LocalOffer';
 import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     maxWidth: 600,
     paddingTop: 2,
@@ -67,7 +67,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const ExpandedCommentsSearchHit = ({hit, classes}: {
   hit: Hit<any>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const navigate = useNavigate();
   const { FormatDate, UserNameDeleted } = Components

@@ -8,7 +8,7 @@ import { tagGetDiscussionUrl } from "../../lib/collections/tags/helpers";
 import classNames from "classnames";
 import { isFriendlyUI } from "@/themes/forumTheme";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   discussionButton: {
     ...theme.typography.commentStyle,
     ...theme.typography.body2,
@@ -51,7 +51,7 @@ const TagDiscussionButton = ({tag, text = "Discussion", hideLabel = false, hideL
   text?: string,
   hideLabel?: boolean,
   hideLabelOnMobile?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   
   const { TagDiscussion, PopperCard } = Components
