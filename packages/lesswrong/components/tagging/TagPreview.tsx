@@ -11,6 +11,7 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { getTagDescriptionHtmlHighlight } from './TagPreviewDescription';
+import startCase from 'lodash/startCase';
 
 const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
   root: {
@@ -131,7 +132,7 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
 }));
 
 /*
-/* If the text displayed on hover preview does containt the tag name in the first 100 characters, we use this flag to display a title.
+/* If the text displayed on hover preview doesn't contain the tag name in the first 100 characters, we use this flag to display a title.
 /* If summaries are present, we must check for the tag name in the first summary, otherwise we use the tag name 
 /* from the main description.
 */
@@ -215,7 +216,7 @@ const TagPreview = ({
       data-selected={activeTab === index}
       onClick={() => updateActiveTab(index)}
     >
-      {summary.tabTitle[0].toUpperCase() + summary.tabTitle.slice(1)}
+      {startCase(summary.tabTitle)}
     </div>
   )) ?? [];
 
