@@ -172,10 +172,10 @@ class TagsRepo extends AbstractRepo<"Tags"> {
   }
 
   /**
-   * Fetch tags by parent tag using ArbitalTagContentRels, with optional limit, offset, and searchTagIds
+   * Fetch tags by core tag, with optional limit and searchTagIds
    */
-  async getTagsByParentTagId(
-    parentTagId: string | null,
+  async getTagsByCoreTagId(
+    coreTagId: string | null,
     limit: number,
     searchTagIds?: string[]
   ): Promise<{ tags: DbTag[]; totalCount: number }> {
@@ -184,32 +184,22 @@ class TagsRepo extends AbstractRepo<"Tags"> {
       limit,
     };
 
-    // Base condition: only select non-deleted tags
     whereClauses.push(
-      `t_child."deleted" IS FALSE`,
-      `t_child."isPlaceholderPage" IS FALSE`,
+      `t."deleted" IS FALSE`,
+      `t."isPlaceholderPage" IS FALSE`,
+      `t."core" IS NOT TRUE`,
     );
 
-    if (parentTagId !== null) {
-      // Fetch tags that are children of the specified parent tag
-      queryParams.parentTagId = parentTagId;
-      whereClauses.push(
-        `acr."parentDocumentId" = $(parentTagId)`,
-        `acr."type" = 'parent-is-tag-of-child'`,
-        `acr."parentCollectionName" = 'Tags'`,
-        `acr."childCollectionName" = 'Tags'`
-      );
+    if (coreTagId !== null) {
+      queryParams.coreTagId = coreTagId;
+      whereClauses.push(`t."coreTagId" = $(coreTagId)`);
     } else {
-      // Fetch tags that do NOT have a parent tag
-      whereClauses.push(
-        `acr."parentDocumentId" IS NULL`,
-        `acr."type" IS NULL`,
-      );
+      whereClauses.push(`t."coreTagId" IS NULL`);
     }
 
     if (searchTagIds && searchTagIds.length > 0) {
       queryParams.searchTagIds = searchTagIds;
-      whereClauses.push(`t_child."_id" = ANY($(searchTagIds))`);
+      whereClauses.push(`t."_id" = ANY($(searchTagIds))`);
     }
 
     const whereClause = whereClauses.length > 0
@@ -217,20 +207,15 @@ class TagsRepo extends AbstractRepo<"Tags"> {
       : '';
 
     const query = `
-      -- TagsRepo.getTagsByParentTagId
+      -- TagsRepo.getTagsByCoreTagId
       SELECT
-        t_child.*,
+        t.*,
         COUNT(*) OVER() AS "totalCount"
-      FROM "Tags" t_child
-      LEFT JOIN "ArbitalTagContentRels" acr
-        ON t_child."_id" = acr."childDocumentId"
-        AND acr."type" = 'parent-is-tag-of-child'
-        AND acr."parentCollectionName" = 'Tags'
-        AND acr."childCollectionName" = 'Tags'
+      FROM "Tags" t
       LEFT JOIN LATERAL (
         SELECT MAX(md."baseScore") AS "maxBaseScore"
         FROM "MultiDocuments" md
-        WHERE md."parentDocumentId" = t_child."_id"
+        WHERE md."parentDocumentId" = t."_id"
           AND md."collectionName" = 'Tags'
           AND md."fieldName" = 'description'
           AND md."deleted" IS FALSE
@@ -238,10 +223,10 @@ class TagsRepo extends AbstractRepo<"Tags"> {
       ${whereClause}
       ORDER BY
         GREATEST(
-          t_child."baseScore",
+          t."baseScore",
           COALESCE(md."maxBaseScore", 0)
         ) DESC,
-        t_child."name" ASC
+        t."name" ASC
       LIMIT $(limit)
     `;
 

@@ -366,7 +366,7 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
   },
   Tags: {
     fields: [
-      "name^3",
+      "name^30",
       "description",
     ],
     snippet: "description",
@@ -390,7 +390,6 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
         scoring: {type: "numeric", pivot: 10},
       },
     ],
-    karmaField: "baseScore",
     tiebreaker: "postCount",
     filters: [
       {term: {deleted: false}},

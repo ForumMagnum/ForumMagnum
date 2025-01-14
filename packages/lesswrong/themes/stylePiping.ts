@@ -379,7 +379,7 @@ const ctaButtonStyles = (theme: ThemeType): JssStyles => ({
     lineHeight: '20px',
     textTransform: 'none',
     padding: '12px 16px',
-    borderRadius: theme.borderRadius.default,
+    borderRadius: isFriendlyUI ? theme.borderRadius.default : theme.borderRadius.small,
     boxShadow: 'none',
     backgroundColor: theme.palette.buttons.alwaysPrimary,
     color: theme.palette.text.alwaysWhite,
