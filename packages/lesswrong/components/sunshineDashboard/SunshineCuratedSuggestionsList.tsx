@@ -7,6 +7,9 @@ import { isEAForum } from '../../lib/instanceSettings';
 import { Link } from '@/lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType) => ({
+  root: {
+    padding: 16,
+  },
   loadMorePadding: {
     paddingLeft: 16,
   },
