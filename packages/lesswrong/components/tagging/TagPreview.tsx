@@ -30,11 +30,11 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
   rootEAWidth: {
     width: FRIENDLY_HOVER_OVER_WIDTH,
   },
-  nonTabPadding: {
+  mainContent: {
     ...(!isFriendlyUI && {
       paddingLeft: 16,
       paddingRight: 16,
-      maxHeight: 400,
+      maxHeight: 600,
       overflowY: 'auto',
     }),
   },
@@ -45,7 +45,7 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
     fontWeight: 600,
     paddingLeft: 16,
     paddingRight: 16,
-    paddingTop: 8,
+    paddingTop: 12,
   },
   extraTitleMargin: {
     marginBottom: 8,
@@ -128,7 +128,7 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
       borderLeft: 'none',
     },
   },
-  descriptionTop: {
+  description: {
     ...(isFriendlyUI && { marginTop: 16 }),
   },
 }));
@@ -139,9 +139,14 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
 /* from the main description.
 */
 const tagShowTitle = (tag: (TagPreviewFragment | TagSectionPreviewFragment) & { summaries?: MultiDocumentEdit[] }) => {
+  if (isFriendlyUI) {
+    return false;
+  }
+
   const firstSummaryText = tag.summaries?.[0]?.contents?.html
   const highlightText = truncate(getTagDescriptionHtmlHighlight(tag), getTagParagraphTruncationCount(tag), "paragraphs");
   const openingText: string | undefined = firstSummaryText ?? highlightText;
+
   if (!openingText) {
     return true;
   }
@@ -244,8 +249,8 @@ const TagPreview = ({
       {hasMultipleSummaries && <div className={classes.tabsContainer}>
        {summaryTabs}
       </div>}
-      <div className={classes.nonTabPadding}>
-        {hasDescription && <div className={classes.descriptionTop}>
+      <div className={classes.mainContent}>
+        {hasDescription && <div className={classes.description}>
           <TagPreviewDescription 
             tag={tag} 
             hash={hash} 
