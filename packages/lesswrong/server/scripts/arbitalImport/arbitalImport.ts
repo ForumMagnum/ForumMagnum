@@ -1053,9 +1053,9 @@ async function importComments(database: WholeArbitalDatabase, conversionContext:
   const pageInfosById = keyBy(database.pageInfos, pi=>pi.pageId);
   let irregularComments: {reason: string, commentId: string}[] = [];
 
-  let importedCommentCount = 0;
   const commentIdsToImport: string[] = [];
   let lwCommentsById: Record<string, DbComment> = {};
+  const commentIdsToReindexInElastic: string[] = [];
   
   // Sort comments by creation date so that we only insert a comment after
   // inserting its parent
@@ -1127,6 +1127,7 @@ async function importComments(database: WholeArbitalDatabase, conversionContext:
       validate: false,
     })).data;
     lwCommentsById[commentId] = lwComment;
+    commentIdsToReindexInElastic.push(lwComment._id);
 
     await Comments.rawUpdateOne({_id: lwComment._id}, {
       $set: {
@@ -1150,7 +1151,7 @@ async function importComments(database: WholeArbitalDatabase, conversionContext:
   // The createMutator will have already created index entries via callbacks,
   // but after creating them we backdated them, so the dates in the index are
   // wrong.
-  await updateElasticSearchForIds("Comments", Object.keys(lwCommentsById));
+  await updateElasticSearchForIds("Comments", commentIdsToReindexInElastic));
 }
 
 async function updateElasticSearchForIds(collectionName: SearchIndexCollectionName, documentIds: string[]): Promise<void> {
