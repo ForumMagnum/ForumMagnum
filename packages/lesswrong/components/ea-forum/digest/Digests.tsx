@@ -6,7 +6,7 @@ import { useCurrentUser } from '../../common/withUser';
 import { userIsAdmin } from '../../../lib/vulcan-users/permissions';
 import { getDigestInfo } from '../../../lib/collections/digests/helpers';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     maxWidth: 1200,
     margin: '10px auto'
@@ -26,7 +26,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const Digests = ({classes}: {classes: ClassesType}) => {
+const Digests = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const currentUser = useCurrentUser()
   const { results } = useMulti({
     terms: {

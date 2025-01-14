@@ -23,6 +23,9 @@ const styles = (theme: ThemeType) => ({
 
 const postIds = [
   'ZhNaizQgYY9dXdQkM', // Intro to EA
+  'kMz9C5ExGEfqqbr3c', // Cage-free Wins in Africa in 2024
+  'KbREamTda2sZhKtTz', // Will a food carbon tax lead to more animals being slaughtered? A quantitative model
+  'mMYSLTedzLpqwp2Fk', // The EA Opportunity Board is back
   'SkfMyerJ5bGK7scnW', // What I'm celebrating from EA and adjacent work in 2024
   's9dyyge6uLG5ScwEp', // It looks like there are some good funding opportunities in AI safety right now
   'sEsguXTiKBA6LzX55', // Takes on "Alignment faking in llms"

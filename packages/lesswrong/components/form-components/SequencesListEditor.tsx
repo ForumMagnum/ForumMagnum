@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { makeSortableListComponent } from './sortableList';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
   },
   item: {
@@ -22,7 +22,7 @@ const SortableList = makeSortableListComponent({
 });
 
 const SequencesListEditor = ({value, path, updateCurrentValues, classes}: FormComponentProps<string[]> & {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return <div className={classes.root}>
     <SortableList

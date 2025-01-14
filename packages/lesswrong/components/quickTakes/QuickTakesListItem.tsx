@@ -26,7 +26,7 @@ const styles = (_theme: ThemeType) => ({
 
 const QuickTakesListItem = ({quickTake, classes}: {
   quickTake: ShortformComments,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {captureEvent} = useTracking();
   const [expanded, setExpanded] = useState(false);

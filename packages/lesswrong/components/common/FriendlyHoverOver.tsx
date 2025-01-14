@@ -33,7 +33,7 @@ export type FriendlyHoverOverProps = {
   onShow?: () => void,
   onHide?: () => void,
   children: ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }
 
 /**

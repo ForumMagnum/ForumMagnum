@@ -7,7 +7,7 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import Radio from '@material-ui/core/Radio';
 import PropTypes from 'prop-types';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   radio: {
     paddingLeft: 12,
     paddingTop: 8,
@@ -18,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const FormComponentRadioGroup = ({ path, value, form, options, name, label, classes }: FormComponentProps<string> & {
   form: any;
   options: any[];
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }, context: FormComponentContext<string>) => {
   const selectOptions = options || (form && form.options)
   return <FormControl>

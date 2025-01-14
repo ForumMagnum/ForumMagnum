@@ -24,7 +24,7 @@ const iconStyling = {
   }
 }
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...eventRoot(theme),
     width: 420,
@@ -80,7 +80,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 export const makeLinkAbsolute = (link: string) => {return link.startsWith('http://') || link.startsWith('https://') ? link : `https://${link}`}
 
 export const GardenCodesItem = ({classes, gardenCode}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   gardenCode: GardenCodeFragment
 }) => {
   const { GardenCodesEditForm, LWTooltip, ContentItemBody } = Components

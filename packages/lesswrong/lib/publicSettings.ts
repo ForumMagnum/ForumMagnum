@@ -211,6 +211,7 @@ export const lightconeFundraiserPaymentLinkId = new DatabasePublicSetting<string
 export const lightconeFundraiserThermometerBgUrl = new DatabasePublicSetting<string>('lightconeFundraiser.thermometerBgUrl', '');
 export const lightconeFundraiserThermometerGoalAmount = new DatabasePublicSetting<number>('lightconeFundraiser.thermometerGoalAmount', 0);
 export const lightconeFundraiserThermometerGoal2Amount = new DatabasePublicSetting<number>('lightconeFundraiser.thermometerGoal2Amount', 2000000);
+export const lightconeFundraiserThermometerGoal3Amount = new DatabasePublicSetting<number>('lightconeFundraiser.thermometerGoal3Amount', 3000000);
 export const lightconeFundraiserPostId = new DatabasePublicSetting<string>('lightconeFundraiser.postId', '');
 export const lightconeFundraiserActive = new DatabasePublicSetting<boolean>('lightconeFundraiser.active', false);
 

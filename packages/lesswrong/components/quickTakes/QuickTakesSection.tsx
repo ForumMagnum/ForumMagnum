@@ -43,7 +43,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 const QuickTakesSection = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {
     ExpandableSection, LWTooltip, QuickTakesEntry, QuickTakesList,

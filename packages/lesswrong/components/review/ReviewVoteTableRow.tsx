@@ -200,9 +200,9 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
   costTotal?: number,
   dispatch: React.Dispatch<SyntheticQualitativeVote>,
   showKarmaVotes: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   expandedPostId?: string|null,
-  handleSetExpandedPost: (post: PostsReviewVotingList) => void,
+  handleSetExpandedPost: (post: PostsReviewVotingList, openReviewBox?: boolean) => void,
   currentVote: SyntheticQualitativeVote|null,
   reviewPhase: ReviewPhase,
   reviewYear: ReviewYear,
@@ -275,7 +275,7 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
             className={classNames(classes.expandPostButton, { [classes.expanded]: expanded })}
           />
         </div>
-        <div className={classNames(classes.postIndex, {[classes.top50]: index < 50})} onClick={() => handleSetExpandedPost(post)}>
+        <div className={classNames(classes.postIndex, {[classes.top50]: index < 50})} onClick={() => handleSetExpandedPost(post, true)}>
           {index + 1}
         </div>
         <div className={classNames(classes.post, {[classes.postVotingPhase]: reviewPhase === "VOTING"})}>

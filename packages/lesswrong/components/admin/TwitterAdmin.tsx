@@ -8,7 +8,7 @@ import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import { userGetProfileUrl } from '@/lib/collections/users/helpers';
 import { useMessages } from '../common/withMessages';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     maxWidth: 1200,
     margin: '10px auto',
@@ -90,7 +90,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const readableDate = (date: Date) => date.toISOString().replace('T', ' ').slice(0, 16);
 
-const TwitterAdmin = ({ classes }: { classes: ClassesType }) => {
+const TwitterAdmin = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const [copyCount, setCopyCount] = useState(10);
   const currentUser = useCurrentUser();
   const {

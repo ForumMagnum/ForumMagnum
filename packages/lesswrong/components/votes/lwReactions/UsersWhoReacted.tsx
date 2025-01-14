@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import type { UserReactInfo } from '../../../lib/voting/namesAttachedReactions';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   usersWhoReactedRoot: {
     maxWidth: 205,
     display: "inline-block",
@@ -27,7 +27,7 @@ const UsersWhoReacted = ({reactions, wrap=false, showTooltip=true, classes}: {
   reactions: UserReactInfo[],
   wrap?: boolean,
   showTooltip?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { LWTooltip } = Components;
 

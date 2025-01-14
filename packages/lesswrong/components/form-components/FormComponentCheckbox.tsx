@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import Checkbox from '@material-ui/core/Checkbox';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginRight:theme.spacing.unit*3,
     marginTop: 5,
@@ -21,7 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const FormComponentCheckbox = ({ classes, label, disabled=false, path, value }: FormComponentProps<boolean> & {
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }, context: FormComponentContext<boolean>) => {
   return <div className={classes.root}>
     <Checkbox

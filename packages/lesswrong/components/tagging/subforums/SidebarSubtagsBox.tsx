@@ -9,7 +9,7 @@ import { useCurrentUser } from "../../common/withUser";
 import type { TagsTooltipPreviewWrapper } from "../TagsTooltip";
 import { stableSortTags } from "../../../lib/collections/tags/helpers";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: "1em 1.5em",
     borderRadius: theme.borderRadius.default,
@@ -36,7 +36,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SidebarSubtagsBox = ({ tag, className, classes }: {
   tag: TagPageFragment | TagPageWithRevisionFragment,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { ContentStyles, FooterTag, AddTagButton, Loading } = Components;
 

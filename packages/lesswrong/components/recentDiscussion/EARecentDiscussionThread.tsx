@@ -100,7 +100,7 @@ const EARecentDiscussionThread = ({
   comments?: CommentsList[],
   refetch: () => void,
   expandAllThreads?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {
     isSkippable,

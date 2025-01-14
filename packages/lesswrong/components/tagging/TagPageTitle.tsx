@@ -10,7 +10,7 @@ import { Helmet } from '../../lib/utils/componentsWithChildren';
 
 const TagPageTitle = ({isSubtitle, classes, siteName}: {
   isSubtitle: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   siteName: string
 }) => {
   const { params } = useLocation();

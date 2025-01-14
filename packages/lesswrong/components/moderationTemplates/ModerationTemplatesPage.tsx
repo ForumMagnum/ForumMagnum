@@ -6,7 +6,7 @@ import {useMulti} from "../../lib/crud/withMulti";
 import { ALLOWABLE_COLLECTIONS, TemplateType } from '../../lib/collections/moderationTemplates/schema';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   form: {
     border: theme.palette.border.commentBorder,
     padding: 12,
@@ -29,7 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 //a page for creating and viewing moderation templates
 export const ModerationTemplatesPage = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { WrappedSmartForm, SingleColumnSection, SectionTitle, ModerationTemplateItem, BasicFormStyles, Loading, Row, ToCColumn, TableOfContents } = Components
   

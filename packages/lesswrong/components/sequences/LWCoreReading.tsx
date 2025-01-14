@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexWrap: "wrap",
@@ -99,7 +99,7 @@ const coreReadingCollections: Array<CoreReadingCollection> =
 
 const LWCoreReading = ({classes}: {
   minimal?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { SingleColumnSection, CollectionsItem } = Components
 

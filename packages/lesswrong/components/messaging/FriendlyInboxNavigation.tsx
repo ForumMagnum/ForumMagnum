@@ -2,7 +2,7 @@ import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { UseMultiResult } from "../../lib/crud/withMulti";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   noConversationsMessage: {
     padding: 16,
   }
@@ -21,7 +21,7 @@ const FriendlyInboxNavigation = ({
   title?: JSX.Element | String;
   selectedConversationId: string | undefined;
   setSelectedConversationId: React.Dispatch<React.SetStateAction<string | undefined>>;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
   const { results: conversations, loading, loadMoreProps } = conversationsResult;
 

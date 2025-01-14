@@ -12,7 +12,7 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 
 export const archiveRecommendationsName = isEAForum ? 'Forum Favorites' : 'Archive Recommendations'
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     justifyContent: "space-between",
@@ -77,7 +77,7 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
   configName: string,
   onChange: (newSettings: DefaultRecommendationsAlgorithm) => void,
   showAdvanced?: boolean,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { SectionFooterCheckbox } = Components
   const currentUser = useCurrentUser();

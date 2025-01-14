@@ -3,7 +3,7 @@ import { useLocation } from '../../lib/routeUtil';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from './withUser';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   loginRequired: {
     border: theme.palette.border.faint,
     borderRadius: "4px",
@@ -29,7 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const WrappedStrawPoll = ({ id, src, classes }: {
   id: string|null
   src: string
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser();
   const { location } = useLocation();

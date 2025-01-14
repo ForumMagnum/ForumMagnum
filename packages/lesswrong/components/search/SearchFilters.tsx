@@ -15,7 +15,7 @@ import {
 import { communityPath } from '../../lib/routes';
 import IconButton from '@material-ui/core/IconButton';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   filtersColumn: {
     flex: 'none',
     width: 250,
@@ -105,7 +105,7 @@ const TagsRefinementList = ({ tagsFilter, setTagsFilter }:
 const CustomTagsRefinementList = connectRefinementList(TagsRefinementList) as React.ComponentClass<RefinementListExposed & TagsRefinementProps>
 
 const SearchFilters = ({classes, tab, tagsFilter, handleUpdateTagsFilter, onSortingChange, sorting, dateRangeValues, setModalOpen}: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
   tab: SearchIndexCollectionName
   tagsFilter: Array<string>
   handleUpdateTagsFilter: (tags: Array<string>) => void
