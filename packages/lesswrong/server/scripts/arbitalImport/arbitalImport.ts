@@ -127,6 +127,22 @@ Globals.deleteImportedArbitalWikiPages = async () => {
       },
     });
   }
+  
+  const multiDocumentsToDelete = await MultiDocuments.find({
+    "legacyData.arbitalPageId": {$exists: true},
+    deleted: false,
+  }).fetch();
+  for (const lensOrSummary of multiDocumentsToDelete) {
+    await MultiDocuments.rawUpdateOne({
+      _id: lensOrSummary._id,
+    }, {
+      "$set": {
+        slug: `deleted-import-${randomId()}`,
+        oldSlugs: [],
+        deleted: true,
+      },
+    });
+  }
 }
 
 Globals.deleteImportedArbitalUsers = async () => {
