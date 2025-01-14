@@ -13,6 +13,7 @@ import LoginIcon from "@material-ui/icons/LockOpen"
 import UnlinkIcon from "@material-ui/icons/RemoveCircle";
 import { gql, useMutation } from "@apollo/client";
 import { useOnFocusTab } from "../hooks/useOnFocusTab";
+import { generateTokenRoute } from "@/lib/fmCrosspost/routes";
 
 const styles = (theme: ThemeType) => ({
   root: {
