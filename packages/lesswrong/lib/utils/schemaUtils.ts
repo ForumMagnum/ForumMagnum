@@ -495,7 +495,7 @@ export function addSlugFields<N extends CollectionNameWithSlug>({collection, col
    * the oldSlugs field.
    */
   oldSlugsOptions?: Partial<CollectionFieldSpecification<N>>,
-}): Partial<Record<"slug"|"oldSlugs"|"oldSlugs.$", CollectionFieldSpecification<N>>> {
+}) {
   const collectionName = collection.collectionName;
   addSlugCallbacks({
     collection,
@@ -503,7 +503,7 @@ export function addSlugFields<N extends CollectionNameWithSlug>({collection, col
     getTitle, onCollision, includesOldSlugs
   });
 
-  return {
+  addFieldsDict(collection, {
     slug: {
       type: String,
       optional: true,
@@ -525,5 +525,5 @@ export function addSlugFields<N extends CollectionNameWithSlug>({collection, col
         canRead: ['guests'],
       },
     } : {}),
-  };
+  });
 }

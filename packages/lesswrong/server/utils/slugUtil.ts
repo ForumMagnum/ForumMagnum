@@ -164,10 +164,15 @@ export function addSlugCallbacks<N extends CollectionNameWithSlug>({collection, 
       return {
         ...newDocument,
         slug: deconflictedSlug,
-        // The type signature above didn't capture the fact that
-        // includesOldSlugs implies that the docuent has an oldSlugs field, so
-        // @ts-ignore
-        oldSlugs: [...newDocument.oldSlugs, oldDocument.slug],
+        ...(includesOldSlugs && {
+          oldSlugs: [
+            // The type signature above didn't capture the fact that
+            // includesOldSlugs implies that the document has an oldSlugs field, so
+            // @ts-ignore
+            ...(newDocument.oldSlugs ?? []).filter(s => s!==deconflictedSlug),
+            oldDocument.slug
+          ],
+        })
       };
     }
     switch (onCollision) {
@@ -175,8 +180,13 @@ export function addSlugCallbacks<N extends CollectionNameWithSlug>({collection, 
         return {
           ...newDocument,
           slug: deconflictedSlug,
-          //@ts-ignore
-          oldSlugs: [...newDocument.oldSlugs, oldDocument.slug],
+          ...(includesOldSlugs && {
+            oldSlugs: [
+              //@ts-ignore
+              ...(newDocument.oldSlugs ?? []).filter(s => s!==deconflictedSlug),
+              oldDocument.slug
+            ],
+          }),
         };
       case "rejectNewDocument":
         throw new Error(`Slug ${changedSlug} is already taken`);
