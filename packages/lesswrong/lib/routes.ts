@@ -556,23 +556,14 @@ if (isLWorAF) {
 if (isLWorAF && tagUrlBaseSetting.get() !== 'p') {
   addRoute(
     {
-      name: 'pToWRedirect',
-      path: '/p',
-      redirect: (location) => {
-        const queryString = Object.entries(location.query)
-          .map(([key, value]) => `${key}=${value}`)
-          .join('&');
-        return `/w${queryString ? '?' + queryString : ''}${location.hash}`;
-      },
-    },
-    {
       name: 'slashPtoBaseRedirect',
       path: '/p/:slug',
       redirect: (location) => {
-        const queryString = Object.entries(location.query)
+        const { params: { slug }, query } = location;
+        const queryString = Object.entries(query)
           .map(([key, value]) => `${key}=${value}`)
           .join('&');
-        return `/${tagUrlBaseSetting.get()}/${location.params.slug}${queryString ? '?' + queryString : ''}${location.hash}`;
+        return `/${tagUrlBaseSetting.get()}/${slug}${queryString ? '?' + queryString : ''}`;
       },
     }
   );
