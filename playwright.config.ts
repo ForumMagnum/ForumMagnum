@@ -109,6 +109,14 @@ const getProjects = () => {
   return projects;
 }
 
+const getTimeout = () => {
+  // Crossposting tests are more complex and take longer
+  const base = process.env.CROSSPOST_TEST ? 60_000 : 30_000;
+  // Increase timeout in CI as Github runners are very underpowered
+  const multiplier = process.env.CI ? 2 : 1;
+  return base * multiplier;
+}
+
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
@@ -124,8 +132,8 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [['html', { open: 'never' }], ['line']],
-  /* Increase timeout in CI as Github runners are very underpowered */
-  timeout: process.env.CI ? 60_000 : 30_000,
+  /* Set global test timeout */
+  timeout: getTimeout(),
   /*
    * Global timeout for the entire test run. Note that we run each project in
    * a separate matrix on Github, so this timeout ends up being per project.
