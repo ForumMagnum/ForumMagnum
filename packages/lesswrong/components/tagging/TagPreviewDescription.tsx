@@ -36,7 +36,7 @@ export const getTagDescriptionHtmlHighlight = (tag: TagPreviewFragment | TagSect
   }
 }
 
-export const getTagParagraphTruncationCount = (tag: TagPreviewFragment | TagSectionPreviewFragment) => {
+const getTagParagraphTruncationCount = (tag: TagPreviewFragment | TagSectionPreviewFragment) => {
   if (!tag.description || 'htmlHighlight' in tag.description) return 1;
 
   // Show two paragraphs for links to tag section headers

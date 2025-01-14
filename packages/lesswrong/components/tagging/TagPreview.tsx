@@ -10,8 +10,7 @@ import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { truncate } from '../../lib/editor/ellipsize';
-import { getTagParagraphTruncationCount, getTagDescriptionHtmlHighlight } from './TagPreviewDescription';
+import { getTagDescriptionHtmlHighlight } from './TagPreviewDescription';
 
 const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
   root: {
@@ -142,7 +141,7 @@ const tagShowTitle = (tag: (TagPreviewFragment | TagSectionPreviewFragment) & { 
   }
 
   const firstSummaryText = tag.summaries?.[0]?.contents?.html
-  const highlightText = truncate(getTagDescriptionHtmlHighlight(tag), getTagParagraphTruncationCount(tag), "paragraphs");
+  const highlightText = getTagDescriptionHtmlHighlight(tag);
   const openingText: string | undefined = firstSummaryText ?? highlightText;
 
   if (!openingText) {
