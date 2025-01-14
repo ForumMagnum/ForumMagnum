@@ -296,7 +296,7 @@ export const getWrappedDataByYear = async (
   // add the post title and slug to the top comment
   const topComment: (DbComment & {postTitle?: string, postSlug?: string})|null = userComments.shift() ?? null;
   if (topComment) {
-    const topCommentPost = await Posts.findOne({_id: topComment.postId}, {projection: {title: 1, slug: 1}})
+    const topCommentPost = await Posts.findOne({_id: topComment.postId}, {}, {title: 1, slug: 1})
     if (topCommentPost) {
       topComment.postTitle = topCommentPost.title
       topComment.postSlug = topCommentPost.slug

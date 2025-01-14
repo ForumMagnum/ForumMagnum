@@ -271,7 +271,7 @@ export const forcePendingEvents = async (
   let eventToHandle = null;
   let countHandled = 0;
   // Default time condition is nothing
-  let timeCondition: MongoFindOneOptions<DbDebouncerEvents> = {}
+  let timeCondition: MongoSelector<DbDebouncerEvents> = {}
   if (upToDate) {
     const upToDateTime = new Date(upToDate);
     timeCondition = {

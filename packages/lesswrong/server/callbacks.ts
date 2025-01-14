@@ -11,7 +11,7 @@ import { postStatuses } from '../lib/collections/posts/constants';
 import { Comments } from '../lib/collections/comments'
 import { VoteableCollections } from '../lib/make_voteable';
 
-import { getCollection, createMutator, updateMutator, deleteMutator, runQuery, getCollectionsByName } from './vulcan-lib';
+import { getCollection, createMutator, updateMutator, deleteMutator, runQuery } from './vulcan-lib';
 import { postReportPurgeAsSpam, commentReportPurgeAsSpam } from './akismet';
 import { capitalize } from '../lib/vulcan-lib/utils';
 import { getCollectionHooks } from './mutationCallbacks';
@@ -299,7 +299,7 @@ async function deleteUserTagsAndRevisions(user: DbUser, deletingUser: DbUser) {
     if (!revision.collectionName) {
       continue;
     }
-    const collection = getCollectionsByName()[revision.collectionName];
+    const collection = getCollection(revision.collectionName);
     const document = await collection.findOne({_id: revision.documentId})
     if (document && revision.fieldName) {
       await syncDocumentWithLatestRevision(

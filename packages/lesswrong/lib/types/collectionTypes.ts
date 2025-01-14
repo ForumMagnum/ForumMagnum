@@ -64,11 +64,7 @@ interface CollectionBase<N extends CollectionNameString = CollectionNameString> 
     options?: MongoFindOptions<ObjectsByCollectionName[N]>,
     projection?: MongoProjection<ObjectsByCollectionName[N]>,
   ) => FindResult<ObjectsByCollectionName[N]>;
-  findOne: (
-    selector?: string|MongoSelector<ObjectsByCollectionName[N]>,
-    options?: MongoFindOneOptions<ObjectsByCollectionName[N]>,
-    projection?: MongoProjection<ObjectsByCollectionName[N]>,
-  ) => Promise<ObjectsByCollectionName[N]|null>;
+  findOne: FindOneFn<N>;
   findOneArbitrary: () => Promise<ObjectsByCollectionName[N]|null>
   
   /**
@@ -171,7 +167,21 @@ type MongoFindOptions<T extends DbObject> = Partial<{
   collation: CollationDocument,
   comment?: string,
 }>;
-type MongoFindOneOptions<T extends DbObject> = any; //TODO
+
+type FindOneFn<N extends CollectionNameString> = (
+  selector: string|MongoSelector<ObjectsByCollectionName[N]>,
+  options?: MongoFindOneOptions<ObjectsByCollectionName[N]>,
+  projection?: MongoProjection<ObjectsByCollectionName[N]>,
+) => Promise<ObjectsByCollectionName[N]|null>;
+
+type MongoFindOneOptions<T extends DbObject> = Partial<{
+  sort: MongoSort<T>
+
+  // Projection is a third argument to findOne, not something that goes in the
+  // options array
+  projection: never
+}>;
+
 type MongoUpdateOptions<T extends DbObject> = any; //TODO
 type MongoRemoveOptions<T extends DbObject> = any; //TODO
 type MongoInsertOptions<T extends DbObject> = any; //TODO
@@ -182,6 +192,7 @@ export type MongoSort<T extends DbObject> = Partial<Record<keyof T,number|null>>
 type FieldOrDottedPath<T> = keyof T | `${keyof T&string}.${string}`
 type MongoIndexKeyObj<T> = Partial<Record<FieldOrDottedPath<T>,1|-1|"2dsphere">>;
 type MongoIndexFieldOrKey<T> = MongoIndexKeyObj<T> | string;
+
 type MongoEnsureIndexOptions<T> = {
   partialFilterExpression?: Record<string, any>,
   unique?: boolean,

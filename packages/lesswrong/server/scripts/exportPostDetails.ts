@@ -77,7 +77,7 @@ Vulcan.exportPostDetails = wrapVulcanAsyncScript(
     const rows: Array<any> = []
     for (let post of await documents.fetch()) {
       // SD: this makes things horribly slow, but no idea how to do a more efficient join query in Mongo
-      const user = await Users.findOne(post.userId, { fields: { displayName: 1, email: 1 }})
+      const user = await Users.findOne(post.userId, {}, { displayName: 1, email: 1 })
       if (!user) throw Error(`Can't find user for post: ${post._id}`)
       let tags = [] as Array<string>
       if (post.tagRelevance) {

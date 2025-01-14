@@ -174,13 +174,15 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
       description: `Mutation for upserting a ${typeName} document`,
       name: mutationName,
 
-      async mutation(root: void, { selector, data }: AnyBecauseTodo, context: ResolverContext) {
-        const collection = context[collectionName];
+      async mutation(root: void, { selector, data }: {
+        selector: MongoSelector<T>
+        data: AnyBecauseTodo
+      }, context: ResolverContext) {
+        const collection = context[collectionName] as CollectionBase<N>;
 
         // check if document exists already
-        const existingDocument = await collection.findOne(convertDocumentIdToIdInSelector(selector), {
-          fields: { _id: 1 },
-        });
+        const convertedSelector: MongoSelector<T> = convertDocumentIdToIdInSelector(selector);
+        const existingDocument = await collection.findOne(convertedSelector, {}, { _id: 1 });
 
         if (existingDocument) {
           return await collection.options.mutations.update.mutation(
