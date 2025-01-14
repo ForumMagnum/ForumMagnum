@@ -33,6 +33,8 @@ import flatMap from 'lodash/flatMap';
 import { updatePostDenormalizedTags } from '@/server/tagging/helpers';
 import { getUnusedSlugByCollectionName } from '@/server/utils/slugUtil';
 import { slugify } from '@/lib/utils/slugify';
+import ElasticExporter from '@/server/search/elastic/ElasticExporter';
+import { SearchIndexCollectionName } from '@/lib/search/searchUtil';
 
 type ArbitalImportOptions = {
   /**
@@ -190,12 +192,27 @@ type CreateSummariesForPageArgs = {
   lensMultiDocumentId: string;
 })
 
+function isDefaultSummaryOrEmpty(summary: PageSummariesRow, pageText: string): boolean {
+  if (!summary.text.trim()) return true;
+  
+  return pageText.startsWith(summary.text);
+}
+
 async function createSummariesForPage({ pageId, importedRecordMaps, pageCreator, conversionContext, liveRevision, resolverContext, ...parentIdArg }: CreateSummariesForPageArgs) {
   const { summariesByPageId } = importedRecordMaps;
-  const topLevelPageSummaries = summariesByPageId[pageId] ?? [];
-  topLevelPageSummaries.sort((a, b) => summaryNameToSortOrder(a.name) - summaryNameToSortOrder(b.name));
+  const allPageSummaries = summariesByPageId[pageId] ?? [];
+  
+  const nonDefaultSummaries = allPageSummaries.filter(summary => 
+    !isDefaultSummaryOrEmpty(summary, liveRevision.text)
+  );
 
-  for (const [idx, summary] of Object.entries(topLevelPageSummaries)) {
+  if (allPageSummaries.length !== nonDefaultSummaries.length) {
+    console.log(`Skipping ${allPageSummaries.length - nonDefaultSummaries.length} default summaries for page ${pageId}`);
+  }
+  
+  nonDefaultSummaries.sort((a, b) => summaryNameToSortOrder(a.name) - summaryNameToSortOrder(b.name));
+
+  for (const [idx, summary] of Object.entries(nonDefaultSummaries)) {
     const summaryHtml = await arbitalMarkdownToCkEditorMarkup({
       markdown: summary.text,
       pageId,
@@ -640,6 +657,7 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
   const pagesById = groupBy(database.pages, p=>p.pageId);
   const lensesByPageId = mapValues(groupBy(database.lenses, l=>l.pageId), lenses=>sortBy(lenses, l=>l.lensIndex));
   const lensIds = new Set(database.lenses.map(l=>l.lensId));
+  const tagIdsToReindex: string[] = [];
 
   const {
     pageInfosByPageId: pageInfosById, slugsByPageId, summariesByPageId, titlesByPageId,
@@ -741,6 +759,7 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
         ]);
       }
 
+      tagIdsToReindex.push(wiki._id);
       await convertLikesToVotes(conversionContext, pageInfo.likeableId, "Tags", wiki._id);
 
       const pageAlternatives = alternativesByPageId[pageId];
@@ -928,6 +947,7 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
         const lwWikiLensIndex = lenses.length > 0
           ? maxBy(lenses, l => l.lensIndex)!.lensIndex + 1
           : 0;
+        tagIdsToReindex.push(lwWikiPageToConvertToLens.tagId);
 
         const lwWikiPageRevisions = await Revisions.find({
           documentId: lwWikiPage._id,
@@ -1006,6 +1026,9 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
       console.error(e);
     }
   }), options.parallelism ?? 1);
+  
+  // Update Algolia index for updated tags
+  await updateElasticSearchForIds("Tags", tagIdsToReindex);
 }
 
 async function importComments(database: WholeArbitalDatabase, conversionContext: ArbitalConversionContext, resolverContext: ResolverContext, options: ArbitalImportOptions): Promise<void> {
@@ -1095,18 +1118,31 @@ async function importComments(database: WholeArbitalDatabase, conversionContext:
         postedAt: comment.createdAt,
       }
     });
+    
     await convertLikesToVotes(conversionContext, comment.likeableId, "Comments", lwComment._id);
   }
   
-
-  // Insert the comments
-
+  // Print summary stats
   console.log(`Import found ${commentIdsToImport.length} normal comments and ${irregularComments.length} irregular comments`);
   const irregularCommentsByReason = groupBy(irregularComments, c=>c.reason)
   console.log(Object.keys(irregularCommentsByReason)
     .map((reason) => `${irregularCommentsByReason[reason].length}: ${reason}`)
     .join("\n")
   );
+  
+  // Update Algolia index for imported comments
+  // The createMutator will have already created index entries via callbacks,
+  // but after creating them we backdated them, so the dates in the index are
+  // wrong.
+  await updateElasticSearchForIds("Comments", Object.keys(lwCommentsById));
+}
+
+async function updateElasticSearchForIds(collectionName: SearchIndexCollectionName, documentIds: string[]): Promise<void> {
+  const elasticExporter = new ElasticExporter();
+  const uniqueIds = uniq(documentIds);
+  await executePromiseQueue(uniqueIds.map(documentId => () => {
+    return elasticExporter.updateDocument(collectionName, documentId);
+  }), 10);
 }
 
 async function createRedLinkPlaceholders(redLinks: RedLinksSet, conversionContext: ArbitalConversionContext) {
@@ -2100,8 +2136,12 @@ function loadCoreTagAssignmentsCsv(filename: string) {
 }
 
 async function importCoreTagAssignments(coreTagAssignmentsFile: string) {
-  await ArbitalTagContentRels.rawRemove({ 'legacyData.coreTagAssignment': true });
+  await Tags.rawUpdateMany(
+    { coreTagId: { $exists: true } },
+    { $unset: { coreTagId: "" } }
+  );
 
+  // Fetch all core tags and map their names to their IDs
   const coreTags = await Tags.find({ core: true }).fetch();
   const coreTagNames = new Set(coreTags.map(ct => ct.name));
   const coreTagIdsByName = Object.fromEntries(coreTags.map(ct => [ct.name, ct._id]));
@@ -2113,31 +2153,45 @@ async function importCoreTagAssignments(coreTagAssignmentsFile: string) {
       coreTagNames: row['Core Tag'].split(', '),
     };
   });
-  
-  const tagAssignmentIds = await Tags.find({ slug: {$in: tagAssignments.map(ta => ta.slug) }}).fetch();
-  const tagAssignmentIdsBySlug = Object.fromEntries(tagAssignmentIds.map(ta => [ta.slug, ta._id]));
 
-  const filteredTagAssignments = tagAssignments.filter(ta => ta.coreTagNames.every(tag => coreTagNames.has(tag)));
+  const filteredTagAssignments = tagAssignments.filter(ta => {
+    const allCoreTagsExist = ta.coreTagNames.every(tag => coreTagNames.has(tag));
+    const hasSingleCoreTag = ta.coreTagNames.length === 1;
+    if (!hasSingleCoreTag) {
+      console.warn(
+        `Tag "${ta.slug}" has multiple core tags assigned (${ta.coreTagNames.join(', ')}). Only one core tag is supported per tag. Skipping this tag.`
+      );
+    }
+    return allCoreTagsExist && hasSingleCoreTag;
+  });
 
-  const tagAssignmentInserts: MongoBulkInsert<DbArbitalTagContentRel>[] = filteredTagAssignments.flatMap(ta => ta.coreTagNames.map(tag => ({
-    document: {
-      _id: randomId(),
-      parentDocumentId: coreTagIdsByName[tag],
-      childDocumentId: tagAssignmentIdsBySlug[ta.slug],
-      parentCollectionName: 'Tags',
-      childCollectionName: 'Tags',
-      type: 'parent-is-tag-of-child',
-      level: 0,
-      isStrong: true,
-      createdAt: new Date(),
-      legacyData: { coreTagAssignment: true },
-      schemaVersion: 1,
-    },
-  })));
+  console.log(`Found ${filteredTagAssignments.length} valid tag assignments with a single core tag.`);
 
-  console.log(`Inserting ${tagAssignmentInserts.length} tag assignments`);
+  // Update each tag's coreTagId field
+  await executePromiseQueue(filteredTagAssignments.map(ta => async () => {
+    const tag = await Tags.findOne({ slug: ta.slug });
+    if (!tag) {
+      console.warn(`Tag with slug "${ta.slug}" not found. Skipping.`);
+      return;
+    }
 
-  await ArbitalTagContentRels.rawCollection().bulkWrite(tagAssignmentInserts.map(insert => ({ insertOne: insert })));
+    const coreTagName = ta.coreTagNames[0];
+    const coreTagId = coreTagIdsByName[coreTagName];
+    if (!coreTagId) {
+      console.warn(`Core tag "${coreTagName}" not found. Skipping.`);
+      return;
+    }
+
+    // Update the tag's coreTagId field
+    await Tags.rawUpdateOne(
+      { _id: tag._id },
+      { $set: { coreTagId } }
+    );
+
+    console.log(`Assigned coreTagId "${coreTagId}" to tag "${tag.name}" (${tag.slug}).`);
+  }), 10);
+
+  console.log(`Assigned core tags to ${filteredTagAssignments.length} tags.`);
 }
 
 Globals.importCoreTagAssignments = importCoreTagAssignments;

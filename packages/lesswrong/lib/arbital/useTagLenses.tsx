@@ -84,14 +84,15 @@ export function getAvailableLenses(tag: TagPageWithArbitalContentFragment | TagP
 
 export function useTagLenses(tag: TagPageWithArbitalContentFragment | TagPageRevisionWithArbitalContentFragment | TagPageWithArbitalContentAndLensRevisionFragment | null): TagLensInfo {
   const { query, location } = useLocation();
+  const queryLens = query.lens ?? query.l;
   const navigate = useNavigate();
 
   const availableLenses = useMemo(() => getAvailableLenses(tag), [tag]);
 
   const querySelectedLens = useMemo(() =>
     // TODO: maybe we also want to check the oldSlugs?
-    availableLenses.find(lens => lens.slug === query.lens || lens.oldSlugs.includes(query.lens) || lens.legacyData?.arbitalPageId === query.lens),
-    [availableLenses, query.lens]
+    availableLenses.find(lens => lens.slug === queryLens || lens.oldSlugs.includes(queryLens) || lens.legacyData?.arbitalPageId === queryLens),
+    [availableLenses, queryLens]
   );
 
   const selectedLensId = querySelectedLens?._id ?? MAIN_TAB_ID;
@@ -106,7 +107,7 @@ export function useTagLenses(tag: TagPageWithArbitalContentFragment | TagPageRev
     if (selectedLensSlug) {
       const defaultLens = availableLenses.find(lens => lens._id === MAIN_TAB_ID);
       const navigatingToDefaultLens = selectedLensSlug === defaultLens?.slug;
-      const queryWithoutLensAndVersion = omit(query, ["lens", "version"]);
+      const queryWithoutLensAndVersion = omit(query, ["l", "lens", "version"]);
       const newSearch = navigatingToDefaultLens
        ? qs.stringify(queryWithoutLensAndVersion)
        : qs.stringify({ lens: selectedLensSlug, ...queryWithoutLensAndVersion });

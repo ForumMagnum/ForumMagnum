@@ -30,6 +30,13 @@ class ElasticExporter {
   constructor(
     private client = new ElasticClient(),
   ) {}
+  
+  async printClientInfo() {
+    const client = this.client.getClient();
+    const info = await client.info();
+    // eslint-disable-next-line no-console
+    console.log(info);
+  }
 
   async configureIndexes() {
     for (const collectionName of searchIndexedCollectionNames) {
@@ -478,6 +485,10 @@ class ElasticExporter {
     await client.indices.open({index});
   }
 }
+
+Globals.ElasticExporter = ElasticExporter;
+
+Globals.printElasticClientInfo = () => new ElasticExporter().printClientInfo();
 
 Globals.elasticConfigureIndex = (collectionName: SearchIndexCollectionName) =>
   new ElasticExporter().configureIndex(collectionName);

@@ -172,6 +172,32 @@ const styles = defineStyles("LWTagPage", (theme: ThemeType) => ({
   },
   description: {
     lineHeight: "21px",
+    // These styles are for the hard-coded Bayes' Rule Guide multiple choice question and path description elements
+    '& .question-container': {
+      maxWidth: 800,
+      margin: '20px auto',
+    },
+    '& .options': {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '12px',
+    },
+    '& .option': {
+      display: 'flex',
+      alignItems: 'flex-start',
+      gap: '8px',
+      cursor: 'pointer',
+      padding: 2,
+      '& input': {
+        marginTop: 3,
+      },
+    },
+    '& .path-description': {
+      backgroundColor: theme.palette.grey[140],
+      padding: 20,
+      marginTop: 20,
+      borderRadius: theme.borderRadius.small * 1.5,
+    },
   },
   aboveLensTab: {
     ...theme.typography.body2,
@@ -904,7 +930,7 @@ const LWTagPage = () => {
 
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
-  const { lens: lensSlug } = query;
+  const lensSlug = query.lens ?? query.l;
   // const { onOpenEditor } = useContext(TagEditorContext);
   
   // Support URLs with ?version=1.2.3 or with ?revision=1.2.3 (we were previously inconsistent, ?version is now preferred)
