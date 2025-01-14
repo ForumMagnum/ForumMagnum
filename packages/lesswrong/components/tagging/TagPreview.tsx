@@ -40,8 +40,15 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
   },
   title: {
     ...theme.typography.commentStyle,
-    fontSize: "1.1rem",
+    fontSize: "1.2rem",
     color: theme.palette.grey[900],
+    fontWeight: 600,
+    paddingLeft: 16,
+    paddingRight: 16,
+    paddingTop: 8,
+  },
+  extraTitleMargin: {
+    marginBottom: 8,
   },
   relatedTagWrapper: {
     ...theme.typography.body2,
@@ -69,7 +76,14 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
   autoApplied: {
     flexGrow: 1,
   },
-  posts: {
+  postsWithoutDescription: {
+    // marginTop: 4,
+    paddingTop: 8,
+    // borderTop: theme.palette.border.extraFaint,
+    marginBottom: 8,
+    overflow: "hidden",
+  },
+  postsWithDescription: {
     marginTop: 10,
     paddingTop: 8,
     borderTop: theme.palette.border.extraFaint,
@@ -120,7 +134,7 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
 }));
 
 /*
-/* If the text displayed on hover preview does containt the tag name, we use this flag to display a title.
+/* If the text displayed on hover preview does containt the tag name in the first 100 characters, we use this flag to display a title.
 /* If summaries are present, we must check for the tag name in the first summary, otherwise we use the tag name 
 /* from the main description.
 */
@@ -129,13 +143,18 @@ const tagShowTitle = (tag: (TagPreviewFragment | TagSectionPreviewFragment) & { 
   const highlightText = truncate(getTagDescriptionHtmlHighlight(tag), getTagParagraphTruncationCount(tag), "paragraphs");
   const openingText: string | undefined = firstSummaryText ?? highlightText;
   if (!openingText) {
-    return false;
+    return true;
+  }
+
+  if (tag.name.length > 100) {
+    return true;
   }
 
   // Remove non-word characters and ignore case
   const openingTextLower = openingText.toLowerCase().replace(/[^\w\s]/g, '');
   const tagNameLower = tag.name.toLowerCase().replace(/[^\w\s]/g, '');
-  return !openingTextLower.includes(tagNameLower);
+
+  return !openingTextLower.slice(0, 100).includes(tagNameLower);
 }
 
 const TagPreview = ({
@@ -171,6 +190,7 @@ const TagPreview = ({
   };
 
   const showPosts = postCount > 0 && !!tag?._id && !isFriendlyUI;
+
   const {results} = useMulti({
     skip: !showPosts,
     terms: tagPostTerms(tag, {}),
@@ -194,7 +214,7 @@ const TagPreview = ({
       data-selected={activeTab === index}
       onClick={() => updateActiveTab(index)}
     >
-      {summary.tabTitle}
+      {summary.tabTitle[0].toUpperCase() + summary.tabTitle.slice(1)}
     </div>
   )) ?? [];
 
@@ -211,14 +231,17 @@ const TagPreview = ({
   );
 
   const hasDescription = !!getTagDescriptionHtml(tag) && !hideDescription;
+  const hasMultipleSummaries = summaryTabs.length > 1;
 
   const { TagPreviewDescription, TagSmallPostLink, Loading } = Components;
   return (
     <div className={classNames(classes.root, {
       [classes.rootEAWidth]: isFriendlyUI && hasDescription,
     })}>
-      {tagShowTitle(tag) && <div className={classes.title}>{tag.name}</div>}
-      {summaryTabs.length > 1 && <div className={classes.tabsContainer}>
+      {tagShowTitle(tag) && <div className={classNames(classes.title, { [classes.extraTitleMargin]: hasMultipleSummaries })}>
+        {tag.name}
+      </div>}
+      {hasMultipleSummaries && <div className={classes.tabsContainer}>
        {summaryTabs}
       </div>}
       <div className={classes.nonTabPadding}>
@@ -268,7 +291,7 @@ const TagPreview = ({
           <>
             {results
               ? (
-                <div className={classes.posts}>
+                <div className={hasDescription ? classes.postsWithDescription : classes.postsWithoutDescription}>
                   {results.map((post) => post &&
                     <TagSmallPostLink
                       key={post._id}
