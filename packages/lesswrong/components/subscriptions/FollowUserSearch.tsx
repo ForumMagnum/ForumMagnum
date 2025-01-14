@@ -11,7 +11,7 @@ import classNames from 'classnames';
 import { useMulti } from '@/lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     "& .ais-SearchBox": {
       padding: 8,

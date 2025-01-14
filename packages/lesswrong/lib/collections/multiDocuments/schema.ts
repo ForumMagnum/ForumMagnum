@@ -1,12 +1,9 @@
-import { getUnusedSlugByCollectionName, slugIsUsed } from "@/lib/helpers";
 import { resolverOnlyField, accessFilterSingle, schemaDefaultValue, foreignKeyField } from "@/lib/utils/schemaUtils";
-import { getCollection } from "@/lib/vulcan-lib/getCollection";
 import { arbitalLinkedPagesField } from '../helpers/arbitalLinkedPagesField';
 import { summariesField } from "../helpers/summariesField";
 import { formGroups } from "./formGroups";
 import { userOwns } from "@/lib/vulcan-users/permissions";
 import { userIsAdminOrMod } from "@/lib/vulcan-users";
-import { slugify } from "@/lib/vulcan-lib/utils";
 
 const MULTI_DOCUMENT_DELETION_WINDOW = 1000 * 60 * 60 * 24 * 7;
 
@@ -33,60 +30,6 @@ const schema: SchemaType<"MultiDocuments"> = {
     optional: true,
     nullable: true,
     order: 5,
-  },
-  slug: {
-    type: String,
-    optional: true,
-    nullable: false,
-    canRead: ['guests'],
-    // TODO: come back to this and make sure the logic is correct, especially w.r.t. deletion, cross-collection slugs, and multiple lenses having the same title.
-    onCreate: async ({ newDocument }) => {
-      const basicSlug = slugify(newDocument.title ?? newDocument.tabTitle);
-      return await getUnusedSlugByCollectionName('MultiDocuments', basicSlug, true);
-    },
-    onUpdate: async ({data, oldDocument, context}) => {
-      if (data.slug && data.slug !== oldDocument.slug) {
-        let parentCollectionName = oldDocument.collectionName;
-        // In the case of summaries for lenses, we need to recurse once to get the collection name of the parent document.
-        if (parentCollectionName === "MultiDocuments") {
-          const parentDocument = await context.loaders.MultiDocuments.load(oldDocument.parentDocumentId);
-          parentCollectionName = parentDocument.collectionName;
-        }
-
-        // We need to check that the parent collection is a collection that has slugs.
-        const parentCollection = getCollection(parentCollectionName);
-
-        const checkParentCollectionForSlugPromise = parentCollection.hasSlug()
-          ? slugIsUsed(parentCollectionName as CollectionNameWithSlug, data.slug)
-          : Promise.resolve(false);
-
-        const [usedByMultiDocument, usedByTag] = await Promise.all([
-          checkParentCollectionForSlugPromise,
-          slugIsUsed("Tags", data.slug),
-        ])
-
-        if (usedByMultiDocument || usedByTag) {
-          throw Error(`Specified slug is already used: ${data.slug}`)
-        }
-      }
-    }
-  },
-  oldSlugs: {
-    type: Array,
-    optional: true,
-    canRead: ['guests'],
-    ...schemaDefaultValue([]),
-    // override onUpdate from schemaDefaultValue to preserve oldSlugs
-    onUpdate: ({data, oldDocument}) => {
-      if (data.slug && data.slug !== oldDocument.slug)  {
-        return [...oldDocument.oldSlugs, oldDocument.slug]
-      } 
-    },
-  },
-  'oldSlugs.$': {
-    type: String,
-    optional: true,
-    canRead: ['guests'],
   },
   preview: {
     type: String,

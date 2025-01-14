@@ -5,7 +5,7 @@ import classNames from 'classnames';
 
 const TRUNCATION_MAX_HEIGHT = 600;
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   maxHeight: {
     maxHeight: TRUNCATION_MAX_HEIGHT,
     overflow: "hidden"
@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 // ContentItemTruncated: Wrapper around ContentItemBody with options for
 // limiting length and height in various ways.
 const ContentItemTruncated = ({classes, maxLengthWords, graceWords=20, expanded=false, rawWordCount, getTruncatedSuffix, nonTruncatedSuffix, dangerouslySetInnerHTML, className, description, nofollow}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   maxLengthWords: number,
   graceWords?: number,
   expanded?: boolean,

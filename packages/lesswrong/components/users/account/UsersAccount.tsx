@@ -28,7 +28,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const UsersAccount = ({ classes }: { classes: ClassesType }) => {
+const UsersAccount = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { params } = useLocation();
   const currentUser = useCurrentUser();
 

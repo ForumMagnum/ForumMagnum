@@ -98,7 +98,7 @@ const EASequenceOrCollectionCard = ({
   href: string,
   eventHandlers: UseHoverEventHandlers,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {onClick} = useClickableCell({href});
   const readProgress = `${readCount}/${postCount}`;

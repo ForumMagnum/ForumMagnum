@@ -9,7 +9,7 @@ import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     fontWeight: 400,
     margin: "10px auto 5px auto",
@@ -63,7 +63,7 @@ const DebateCommentsListSection = ({post, totalComments, comments, newForm=true,
   comments: CommentsList[],
   newForm: boolean,
   newFormProps?: Partial<CommentsNewFormProps>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const commentTree = unflattenComments(comments);

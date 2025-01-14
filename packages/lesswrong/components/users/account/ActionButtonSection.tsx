@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   blurb: {
     fontSize: 14,
     lineHeight: '20px',

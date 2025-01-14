@@ -6,7 +6,7 @@ import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   voteRow: {
     ...theme.typography.body2,
     ...theme.typography.smallText,
@@ -51,7 +51,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const TagVoteActivityRow = ({vote, classes}: {
   vote: TagVotingActivity,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { FormatDate, OverallVoteButton, FooterTag, UsersName, TagSmallPostLink } = Components;
   const voteProps = useVote(vote.tagRel!, "TagRels")
@@ -97,7 +97,7 @@ const TagVoteActivityRow = ({vote, classes}: {
 }
 
 const TagVoteActivity = ({classes, showHeaders = true, showNewTags = true, limit = 200, itemsPerPage = 200}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   showHeaders?: boolean,
   showNewTags?: boolean,
   limit?: number,
@@ -118,7 +118,7 @@ const TagVoteActivity = ({classes, showHeaders = true, showNewTags = true, limit
       {showHeaders && <h2>{taggingNameCapitalSetting.get()} Voting</h2>}
       <table>
         <tbody>
-          <tr className={classes.headerRow}>
+          <tr>
             <td className={classes.headerCell}> User </td>
             <td className={classes.headerCell}> Post Title </td>
             <td className={classes.headerCell}> {taggingNameCapitalSetting.get()} </td>

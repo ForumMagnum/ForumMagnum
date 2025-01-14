@@ -5,7 +5,7 @@ import { DatabasePublicSetting } from "../../lib/publicSettings";
 
 const placeholderSetting = new DatabasePublicSetting<string>("linkpostUrlPlaceholder", "http://example.com/blog/2017/reality-has-a-surprising-amount-of-detail")
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     width: "100%",
     padding: 12,
@@ -39,7 +39,7 @@ const EditLinkpostUrl = ({
 }: {
   value: string;
   path: keyof DbPost;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
   document: Partial<DbPost>;
   defaultValue?: string;
   placeholder?: string;

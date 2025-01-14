@@ -514,8 +514,8 @@ function useDisplayedContributors(contributorsInfo: DocumentContributorsInfo | n
 const PostsListHeading: FC<{
   tag: TagPageFragment|TagPageWithRevisionFragment,
   query: Record<string, string>,
-  classes: ClassesType,
-}> = ({tag, query, classes}) => {
+}> = ({tag, query}) => {
+  const classes = useStyles(styles);
   const {SectionTitle, PostsListSortDropdown} = Components;
   if (isFriendlyUI) {
     return (
@@ -1209,7 +1209,7 @@ const LWTagPage = () => {
       {!tag.wikiOnly && <>
         <AnalyticsContext pageSectionContext="tagsSection">
           <PostsList2
-            header={<PostsListHeading tag={tag} query={query} classes={classes} />}
+            header={<PostsListHeading tag={tag} query={query} />}
             terms={terms}
             enableTotal
             tagId={tag._id}

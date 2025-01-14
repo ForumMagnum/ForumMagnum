@@ -3,7 +3,7 @@ import { Comments } from '../../lib/collections/comments'
 import { Posts } from '../../lib/collections/posts'
 import { postStatuses } from '../../lib/collections/posts/constants'
 import { Vulcan, createMutator } from '../vulcan-lib';
-import { sanitize, slugify } from '../../lib/vulcan-lib/utils';
+import { sanitize } from '../../lib/vulcan-lib/utils';
 import moment from 'moment';
 import { markdownToHtml } from '../editor/conversionUtils';
 import pgp from 'pg-promise';
@@ -13,6 +13,7 @@ import pick from 'lodash/pick';
 import { htmlToText } from 'html-to-text';
 import * as _ from 'underscore';
 import { randomId } from '../../lib/random';
+import { slugify } from '@/lib/utils/slugify';
 
 const postgresImportDetails = {
   host: 'localhost',

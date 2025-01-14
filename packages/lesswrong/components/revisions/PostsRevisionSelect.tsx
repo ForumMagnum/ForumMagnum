@@ -6,13 +6,13 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useNavigate } from '../../lib/reactRouterWrapper';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   revisionList: {
   },
 });
 
 const PostsRevisionSelect = ({ classes }: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { SingleColumnSection, RevisionSelect, Loading } = Components;
   const { params } = useLocation();

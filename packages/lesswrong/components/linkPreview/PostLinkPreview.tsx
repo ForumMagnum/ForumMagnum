@@ -740,7 +740,7 @@ const manifoldStyles = (theme: ThemeType) => ({
 });
 
 const ManifoldPreview = ({classes, href, id, children}: {
-  classes: ClassesType;
+  classes: ClassesType<typeof manifoldStyles>;
   href: string;
   id?: string;
   children: ReactNode,
@@ -794,7 +794,7 @@ const neuronpediaStyles = (theme: ThemeType) => ({
 });
 
 const NeuronpediaPreview = ({classes, href, id, children}: {
-  classes: ClassesType;
+  classes: ClassesType<typeof neuronpediaStyles>;
   href: string;
   id?: string;
   children: ReactNode,
@@ -847,7 +847,7 @@ const metaforecastStyles = (theme: ThemeType) => ({
 });
 
 const MetaforecastPreview = ({classes, href, id, children}: {
-  classes: ClassesType;
+  classes: ClassesType<typeof metaforecastStyles>;
   href: string;
   id?: string;
   children: ReactNode,

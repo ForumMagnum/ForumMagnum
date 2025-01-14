@@ -34,7 +34,7 @@ const styles = (theme: ThemeType) => ({
 
 const PostsAcceptTos = ({currentUser, classes}: {
   currentUser: UsersCurrent,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [loading, setLoading] = useState(false);
   const [accepted, setAccepted] = useState(currentUser.acceptedTos);

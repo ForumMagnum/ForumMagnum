@@ -18,7 +18,7 @@ export const responseToText: Record<RsvpResponse,string> = {
   no: "Can't Go"
 }
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   emailMessage: isFriendlyUI
     ? {
       fontFamily: theme.palette.fonts.sansSerifStack,
@@ -32,7 +32,7 @@ const RSVPForm = ({ post, onClose, initialResponse = "yes", classes }: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
   initialResponse: string,
   onClose?: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [registerRSVP] = useMutation(gql`
     mutation RegisterRSVP($postId: String, $name: String, $email: String, $private: Boolean, $response: String) {

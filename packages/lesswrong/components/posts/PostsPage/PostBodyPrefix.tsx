@@ -14,7 +14,7 @@ const shortformDraftMessage = isFriendlyUI
 
 export const BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD = 800;
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   reviewInfo: {
     textAlign: "center",
     marginBottom: 32
@@ -58,7 +58,7 @@ const forumNewUserProcessingTime = forumSelect({
 const PostBodyPrefix = ({post, query, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList,
   query?: any,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { AlignmentPendingApprovalMessage, LinkPostMessage, PostsRevisionMessage, LWTooltip, ContentItemBody, ContentStyles, PostPageReviewButton } = Components;
   const currentUser = useCurrentUser();

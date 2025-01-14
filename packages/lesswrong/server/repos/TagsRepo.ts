@@ -72,15 +72,13 @@ class TagsRepo extends AbstractRepo<"Tags"> {
   }
 
   async getTagWithSummaries(slug: string) {
-    return this.getRawDb().oneOrNone<DbTag & { summaries: DbMultiDocument[] }>(`
+    return this.getRawDb().oneOrNone<DbTag & { lens: DbMultiDocument | null, summaries: DbMultiDocument[] }>(`
       -- TagsRepo.getTagWithSummaries
       WITH matching_tags AS (
         -- Get tags that directly match the slug
         SELECT
           t.*,
-          t.slug,
-          t.description,
-          NULL as md_id
+          NULL AS lens
         FROM "Tags" t
         WHERE t.deleted IS FALSE
         AND (t."slug" = $1 OR t."oldSlugs" @> ARRAY[$1])
@@ -90,14 +88,10 @@ class TagsRepo extends AbstractRepo<"Tags"> {
         -- Get tags that have a lens matching the slug
         SELECT
           t.*,
-          md.slug AS "slug",
-          TO_JSONB(r.*) AS "description",
-          md._id as md_id
+          TO_JSONB(md.*) AS lens
         FROM "MultiDocuments" md
         JOIN "Tags" t
         ON t."_id" = md."parentDocumentId"
-        LEFT JOIN "Revisions" r
-        ON r."_id" = md."contents_latest"
         WHERE t.deleted IS FALSE
         AND (
           md."slug" = $1
@@ -108,8 +102,6 @@ class TagsRepo extends AbstractRepo<"Tags"> {
       )
       SELECT DISTINCT ON (t._id)
         t.*,
-        -- This is to ensure that Apollo doesn't accidentally clobber a lens if we return an _id that belongs to a tag it already has cached
-        COALESCE(t.md_id, t._id) AS _id,
         ARRAY_AGG(TO_JSONB(md.*)) OVER (PARTITION BY t._id) as summaries
       FROM matching_tags t
       LEFT JOIN "MultiDocuments" md

@@ -260,7 +260,7 @@ interface EditorProps {
   maxHeight?: boolean|null,
   hasCommitMessages?: boolean,
   document?: any,
-  _classes: ClassesType,
+  _classes: ClassesType<typeof styles>,
 }
 
 interface EditorComponentState {

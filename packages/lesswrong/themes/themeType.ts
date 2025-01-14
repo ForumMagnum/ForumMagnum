@@ -4,6 +4,7 @@ import type { PartialDeep, Merge } from 'type-fest'
 import type { ForumTypeString } from '../lib/instanceSettings';
 import type { UnionOf } from '../lib/utils/typeGuardUtils';
 import type { ZIndexMap } from './zIndexes';
+import type { JssStyles } from '@/lib/jssStyles';
 import { userThemeNames, userThemeSettings, muiThemeNames, ThemeOptions } from './themeNames';
 
 declare global {

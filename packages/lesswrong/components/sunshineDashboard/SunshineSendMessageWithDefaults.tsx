@@ -13,7 +13,7 @@ const MODERATION_TEMPLATES_URL = "/admin/moderationTemplates"
 
 export const getTitle = (s: string|null) => s ? s.split("\\")[0] : ""
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -49,7 +49,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SunshineSendMessageWithDefaults = ({ user, embedConversation, classes }: {
   user: SunshineUsersList|UsersMinimumInfo|null,
   embedConversation?: (conversationId: string, templateQueries: TemplateQueryStrings) => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { ContentItemBody, LWTooltip, NewConversationButton, MenuItem } = Components
 

@@ -628,6 +628,7 @@ defineQuery({
   schema: `
     type TagPreviewWithSummaries {
       tag: Tag!
+      lens: MultiDocument
       summaries: [MultiDocument!]!
     }
   `,
@@ -640,10 +641,11 @@ defineQuery({
 
     if (!tagWithSummaries) return null;
 
-    const { summaries, ...tag } = tagWithSummaries;
+    const { summaries, lens, ...tag } = tagWithSummaries;
 
-    const [filteredTag, filteredSummaries] = await Promise.all([
+    const [filteredTag, filteredLens, filteredSummaries] = await Promise.all([
       accessFilterSingle(currentUser, Tags, tag, context),
+      accessFilterSingle(currentUser, MultiDocuments, lens, context),
       accessFilterMultiple(currentUser, MultiDocuments, summaries, context)
     ]);
 
@@ -651,6 +653,7 @@ defineQuery({
 
     return {
       tag: filteredTag,
+      lens: filteredLens,
       summaries: filteredSummaries,
     };
   },

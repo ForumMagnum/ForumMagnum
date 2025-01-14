@@ -17,7 +17,7 @@
 // When writing styles for UI components, use colors that come from the palette,
 // rather than writing the color directly, eg like this:
 //
-//   const styles = (theme: ThemeType): JssStyles => ({
+//   const styles = (theme: ThemeType) => ({
 //     normalText: {
 //       color: theme.palette.text.normal,
 //     },
@@ -29,7 +29,7 @@
 //
 // Not like this:
 //
-//   const styles = (theme: ThemeType): JssStyles => ({
+//   const styles = (theme: ThemeType) => ({
 //     normalText: {
 //       color: "rgba(0,0,0,.87)", // Bad: Will be black-on-black in dark mode
 //     },

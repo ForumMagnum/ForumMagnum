@@ -6,7 +6,7 @@ import {
   EmojiOption,
 } from "../../lib/voting/eaEmojiPalette";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: 6,
   },
@@ -51,7 +51,7 @@ const PaletteSection: FC<{
   title: string,
   options: EmojiOption[],
   onSelectEmoji: (emojiOption: EmojiOption) => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }> = ({title, options, onSelectEmoji, classes}) => {
   const {SectionTitle} = Components;
   return (
@@ -81,7 +81,7 @@ const PaletteSection: FC<{
 
 const EAEmojiPalette = ({onSelectEmoji, classes}: {
   onSelectEmoji: (emojiOption: EmojiOption) => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return (
     <div className={classes.root}>

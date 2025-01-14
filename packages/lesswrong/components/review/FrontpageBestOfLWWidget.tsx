@@ -7,7 +7,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import * as _ from 'underscore';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     position: "relative",
     zIndex: theme.zIndexes.frontpageSplashImage,
@@ -65,7 +65,7 @@ export const recommendationsAlgorithm: RecommendationsAlgorithm = {
 }
 
 export const FrontpageBestOfLWWidget = ({classes, reviewYear}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   reviewYear: ReviewYear
 }) => {
   const { SectionTitle, RecommendationsList, SingleColumnSection, PostsItem } = Components

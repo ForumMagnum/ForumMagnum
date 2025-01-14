@@ -11,7 +11,7 @@ import classNames from 'classnames';
 
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   highlightContinue: {
     marginTop:theme.spacing.unit*2,
     fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
@@ -88,7 +88,7 @@ const HighlightBody = ({
   expandedLoading: boolean,
   expandedDocument?: PostsExpandedHighlight,
   smallerFonts?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { htmlHighlight = "", wordCount = 0 } = post.contents || {};
 
@@ -128,7 +128,7 @@ const ForeignPostsHighlightBody = ({post, maxLengthWords, forceSeeMore=false, sm
   forceSeeMore?: boolean,
   smallerFonts?: boolean,
   loading: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const apolloClient = useForeignApolloClient();
@@ -159,7 +159,7 @@ const ForeignPostsHighlight = ({post, maxLengthWords, forceSeeMore=false, smalle
   maxLengthWords: number,
   forceSeeMore?: boolean,
   smallerFonts?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {loading, error, combinedPost} = useForeignCrosspost(post, foreignFetchProps);
   post = combinedPost ?? post;
@@ -176,7 +176,7 @@ const LocalPostsHighlight = ({post, maxLengthWords, forceSeeMore=false, smallerF
   maxLengthWords: number,
   forceSeeMore?: boolean,
   smallerFonts?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const {document: expandedDocument, loading: expandedLoading} = useSingle({
@@ -203,7 +203,7 @@ const PostsHighlight = ({post, ...rest}: {
   maxLengthWords: number,
   forceSeeMore?: boolean,
   smallerFonts?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => isPostWithForeignId(post)
   ? <ForeignPostsHighlight post={post} {...rest} />
   : <LocalPostsHighlight post={post} {...rest} />;

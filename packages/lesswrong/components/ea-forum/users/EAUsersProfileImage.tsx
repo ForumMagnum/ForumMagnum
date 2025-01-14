@@ -8,7 +8,7 @@ import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 
 const SIZE = 96;
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: 14,
     position: "relative",
@@ -35,7 +35,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const EAUsersProfileImage = ({user, classes}: {
   user: UsersProfile,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
