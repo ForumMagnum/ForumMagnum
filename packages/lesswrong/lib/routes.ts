@@ -560,11 +560,9 @@ if (isLWorAF && tagUrlBaseSetting.get() !== 'p') {
       path: '/p/:slug',
       redirect: (location) => {
         const { params: { slug }, query } = location;
-        const queryString = Object.entries(query)
-          .map(([key, value]) => `${key}=${value}`)
-          .join('&');
+        const queryString = qs.stringify(query);
         return `/${tagUrlBaseSetting.get()}/${slug}${queryString ? '?' + queryString : ''}`;
-      },
+      }
     }
   );
 }
