@@ -68,18 +68,35 @@ const styles = defineStyles("LensTab", (theme: ThemeType) => ({
     },
   },
   selectedLens: {
+    position: 'relative',
+    borderTopLeftRadius: theme.borderRadius.small * 2,
+    borderTopRightRadius: theme.borderRadius.small * 2,
+    overflow: 'hidden',
     [theme.breakpoints.up('md')]: {
+      // This entire block is to get us a rounded border with a gradient fade to the bottom, while keeping the lens the same height as the non-selected ones
       borderStyle: 'solid',
-      // These don't work with borderImageSource, maybe TODO
-      // borderTopLeftRadius: theme.borderRadius.small * 2,
-      // borderTopRightRadius: theme.borderRadius.small * 2,
-      borderImageSource: `linear-gradient(to bottom, 
-        ${theme.palette.grey[400]} 0%, 
-        rgba(0,0,0,0) 100%
-      )`,
-      borderImageSlice: '1',
-      // Needed to maintain solid top border
-      borderTop: theme.palette.border.grey400
+      borderColor: 'transparent',
+      '&::before': {
+        content: '""',
+        position: 'absolute',
+        top: 0,
+        bottom: 0,
+        left: 0,
+        right: 0,
+        pointerEvents: 'none',
+        border: `1px solid ${theme.palette.grey[400]}`,
+        borderTopLeftRadius: theme.borderRadius.small * 2,
+        borderTopRightRadius: theme.borderRadius.small * 2,
+        borderBottom: 'none',
+        maskImage: `linear-gradient(to bottom,
+          ${theme.palette.greyAlpha(1)} 0%,
+          ${theme.palette.greyAlpha(0)} 100%
+        )`,
+        WebkitMaskImage: `linear-gradient(to bottom, 
+          ${theme.palette.greyAlpha(1)} 0%,
+          ${theme.palette.greyAlpha(0)} 100%
+        )`,
+      },
     },
   },
   nonSelectedLens: {
