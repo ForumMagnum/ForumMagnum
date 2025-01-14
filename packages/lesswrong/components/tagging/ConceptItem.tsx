@@ -223,7 +223,8 @@ const ConceptItem = ({
           <TagsTooltip
             tagSlug={wikitag.slug}
             noPrefetch
-            previewPostCount={wikitag.description?.wordCount && wikitag.description?.wordCount > 0 ? 0 : 6}
+            // We have some empty descriptions that have wordcounts of 1.
+            previewPostCount={wikitag.description?.wordCount && wikitag.description?.wordCount > 2 ? 0 : 6}
             placement='bottom-start'
             popperClassName={classes.tooltipHoverTitle}
           >

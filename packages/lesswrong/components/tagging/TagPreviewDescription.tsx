@@ -26,7 +26,7 @@ const CoreTagCustomDescriptions: Record<string, string> = {
   'Community': 'The <strong>Community</strong> tag is for LessWrong/Rationality community events, analysis of community health, norms and directions of the community, and posts about understanding communities in general.' 
 };
 
-const getTagDescriptionHtmlHighlight = (tag: TagPreviewFragment | TagSectionPreviewFragment) => {
+export const getTagDescriptionHtmlHighlight = (tag: TagPreviewFragment | TagSectionPreviewFragment) => {
   if (!tag.description) {
     return undefined;
   } else if ('htmlHighlight' in tag.description) {
