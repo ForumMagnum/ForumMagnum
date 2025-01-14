@@ -10,6 +10,8 @@ import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { truncate } from '../../lib/editor/ellipsize';
+import { getTagParagraphTruncationCount, getTagDescriptionHtmlHighlight } from './TagPreviewDescription';
 
 const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
   root: {
@@ -35,6 +37,11 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
       maxHeight: 400,
       overflowY: 'auto',
     }),
+  },
+  title: {
+    ...theme.typography.commentStyle,
+    fontSize: "1.1rem",
+    color: theme.palette.grey[900],
   },
   relatedTagWrapper: {
     ...theme.typography.body2,
@@ -111,6 +118,25 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
     ...(isFriendlyUI && { marginTop: 16 }),
   },
 }));
+
+/*
+/* If the text displayed on hover preview does containt the tag name, we use this flag to display a title.
+/* If summaries are present, we must check for the tag name in the first summary, otherwise we use the tag name 
+/* from the main description.
+*/
+const tagShowTitle = (tag: (TagPreviewFragment | TagSectionPreviewFragment) & { summaries?: MultiDocumentEdit[] }) => {
+  const firstSummaryText = tag.summaries?.[0]?.contents?.html
+  const highlightText = truncate(getTagDescriptionHtmlHighlight(tag), getTagParagraphTruncationCount(tag), "paragraphs");
+  const openingText: string | undefined = firstSummaryText ?? highlightText;
+  if (!openingText) {
+    return false;
+  }
+
+  // Remove non-word characters and ignore case
+  const openingTextLower = openingText.toLowerCase().replace(/[^\w\s]/g, '');
+  const tagNameLower = tag.name.toLowerCase().replace(/[^\w\s]/g, '');
+  return !openingTextLower.includes(tagNameLower);
+}
 
 const TagPreview = ({
   tag,
@@ -191,6 +217,7 @@ const TagPreview = ({
     <div className={classNames(classes.root, {
       [classes.rootEAWidth]: isFriendlyUI && hasDescription,
     })}>
+      {tagShowTitle(tag) && <div className={classes.title}>{tag.name}</div>}
       {summaryTabs.length > 1 && <div className={classes.tabsContainer}>
        {summaryTabs}
       </div>}
