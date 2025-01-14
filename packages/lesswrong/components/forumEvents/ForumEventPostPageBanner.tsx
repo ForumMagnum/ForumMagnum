@@ -80,14 +80,9 @@ export const ForumEventPostPageBanner = ({classes}: {
 
   const {postPageDescription, bannerImageId, darkColor} = currentForumEvent;
 
-  // Define background color with a CSS variable to be accessed in the styles
-  const style = {
-    "--forum-event-background": darkColor,
-  } as CSSProperties;
-
   const {ContentStyles, ContentItemBody, CloudinaryImage2} = Components;
   return (
-    <div className={classes.root} style={style}>
+    <div className={classes.root}>
       {postPageDescription?.html &&
         <ContentStyles contentType="comment" className={classes.descriptionWrapper}>
           <ContentItemBody

@@ -126,9 +126,11 @@ export const styles = (theme: ThemeType) => ({
   appBarDarkBackground: {
     ...textColorOverrideStyles({
       theme,
-      color: theme.palette.text.alwaysWhite,
-      contrastColor: theme.palette.text.alwaysBlack,
+      color: "var(--header-text-color)",
+      contrastColor: "var(--header-contrast-color)",
     }),
+    "--header-text-color": theme.palette.text.alwaysWhite,
+    "--header-contrast-color": theme.palette.text.alwaysBlack,
   },
   root: {
     // This height (including the breakpoint at xs/600px) is set by Headroom, and this wrapper (which surrounds
@@ -477,7 +479,7 @@ const Header = ({
   if (backgroundColor) {
     headerStyle.backgroundColor = backgroundColor
   } else if (hasForumEvents && currentRoute?.name === "home" && bannerImageId && currentForumEvent?.eventFormat !== "BASIC") {
-    // On EAF, forum events with polls or stickers also update the home page header background
+    // On EAF, forum events with polls or stickers also update the home page header background and text
     const darkColor = currentForumEvent.darkColor;
     const background = `top / cover no-repeat url(${makeCloudinaryImageUrl(bannerImageId, {
       c: "fill",
@@ -487,10 +489,12 @@ const Header = ({
       g: "north",
     })})${darkColor ? `, ${darkColor}` : ''}`;
     headerStyle.background = background;
+    (headerStyle as any)["--header-text-color"] = currentForumEvent.bannerTextColor ?? undefined;
+    (headerStyle as any)["--header-contrast-color"] = currentForumEvent.darkColor ?? undefined;
   }
 
   // Make all the text and icons white when we have some sort of color in the header background
-  const useWhiteText = Object.keys(headerStyle).length > 0;
+  const useContrastText = Object.keys(headerStyle).length > 0;
 
   return (
     <AnalyticsContext pageSectionContext="header">
@@ -509,7 +513,7 @@ const Header = ({
           <header
             className={classNames(
               classes.appBar,
-              useWhiteText && classes.appBarDarkBackground
+              useContrastText && classes.appBarDarkBackground
             )}
             style={headerStyle}
           >
@@ -520,7 +524,7 @@ const Header = ({
                   <div className={classes.titleSubtitleContainer}>
                     <div className={classes.titleFundraiserContainer}>
                       <Link to="/" className={classes.titleLink}>
-                        {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaWhite={useWhiteText}/></div>}
+                        {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaWhite={useContrastText}/></div>}
                         {forumHeaderTitleSetting.get()}
                       </Link>
                     </div>
@@ -529,7 +533,7 @@ const Header = ({
                 </div>
                 <div className={classNames(classes.hideMdUp, classes.titleFundraiserContainer)}>
                   <Link to="/" className={classes.titleLink}>
-                    {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaWhite={useWhiteText}/></div>}
+                    {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaWhite={useContrastText}/></div>}
                     {forumShortTitleSetting.get()}
                   </Link>
                 </div>

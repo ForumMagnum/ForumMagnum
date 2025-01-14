@@ -8,6 +8,7 @@ registerFragment(`
     endDate
     darkColor
     lightColor
+    bannerTextColor
     contrastColor
     tagId
     postId

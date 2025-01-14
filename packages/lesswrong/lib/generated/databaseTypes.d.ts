@@ -461,6 +461,7 @@ interface DbForumEvent extends DbObject {
   endDate: Date
   darkColor: string
   lightColor: string
+  bannerTextColor: string
   contrastColor: string | null
   tagId: string
   postId: string | null

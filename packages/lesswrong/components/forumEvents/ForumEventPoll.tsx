@@ -27,7 +27,7 @@ const GAP = "calc(0.6% + 4px)" // Accounts for 2px outline
 const styles = (theme: ThemeType) => ({
   root: {
     textAlign: 'center',
-    color: theme.palette.text.alwaysWhite,
+    color: "var(--forum-event-banner-text)",
     fontFamily: theme.palette.fonts.sansSerifStack,
     padding: "0px 30px 15px 30px",
     margin: "0 auto",
@@ -799,6 +799,7 @@ export const ForumEventPoll = ({
                       successMessage="Success! Open the results to view everyone's votes and comments."
                       forumEventId={event._id}
                       cancelCallback={() => setCommentFormOpen(false)}
+                      // TODO restore in component, or use successCallback here instead
                       refetch={refetchComments}
                       anchorEl={userVoteRef.current}
                       post={event.post}

@@ -21,11 +21,11 @@ export const forumEventBannerGradientBackground = (theme: ThemeType) => ({
 });
 
 export const forumEventBannerDescriptionStyles = (theme: ThemeType) => ({
-  color: theme.palette.text.alwaysWhite,
+  color: "var(--forum-event-banner-text)",
   "& a": {
     textDecoration: "underline",
     textUnderlineOffset: '2px',
-    color: `${theme.palette.text.alwaysWhite} !important`,
+    color: "var(--forum-event-banner-text) !important",
     "&::after": {
       display: "inline-block",
       textDecoration: "none",
@@ -38,7 +38,7 @@ const BANNER_HEIGHT = 180;
 const styles = (theme: ThemeType) => ({
   root: {
     fontFamily: theme.palette.fonts.sansSerifStack,
-    color: theme.palette.text.alwaysWhite,
+    color: "var(--forum-event-banner-text)",
     position: "relative",
     width: "100%",
     overflow: "hidden",
@@ -69,7 +69,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: 14,
     fontWeight: 500,
     lineHeight: 'normal',
-    color: theme.palette.text.alwaysWhite,
+    color: "var(--forum-event-banner-text)",
     padding: 0,
     '&:hover': {
       opacity: 0.7
@@ -208,7 +208,7 @@ const styles = (theme: ThemeType) => ({
     right: 12,
     width: 20,
     height: 20,
-    color: theme.palette.text.alwaysWhite,
+    color: "var(--forum-event-banner-text)",
   },
 });
 
@@ -240,19 +240,14 @@ const ForumEventFrontpageBannerBasic = ({classes}: {
     return null;
   }
 
-  const {title, frontpageDescription, bannerImageId, darkColor} = currentForumEvent;
+  const {title, frontpageDescription, bannerImageId} = currentForumEvent;
   const date = formatDate(currentForumEvent);
   
   const {ContentStyles, ContentItemBody, CloudinaryImage2, ForumIcon} = Components;
 
-  // Define background color with a CSS variable to be accessed in the styles
-  const style = {
-    "--forum-event-background": darkColor,
-  } as CSSProperties;
-
   return (
     <AnalyticsContext pageSectionContext="forumEventFrontpageBannerBasic">
-      <div className={classNames(classes.root, classes.rootWithGradient)} style={style}>
+      <div className={classNames(classes.root, classes.rootWithGradient)}>
         <div className={classes.contentBasic}>
           <div className={classes.date}>{date}</div>
           <div className={classes.title}>{title}</div>
