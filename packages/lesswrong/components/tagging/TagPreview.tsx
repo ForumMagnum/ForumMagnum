@@ -77,9 +77,7 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
     flexGrow: 1,
   },
   postsWithoutDescription: {
-    // marginTop: 4,
     paddingTop: 8,
-    // borderTop: theme.palette.border.extraFaint,
     marginBottom: 8,
     overflow: "hidden",
   },
@@ -195,7 +193,6 @@ const TagPreview = ({
   };
 
   const showPosts = postCount > 0 && !!tag?._id && !isFriendlyUI;
-
   const {results} = useMulti({
     skip: !showPosts,
     terms: tagPostTerms(tag, {}),
