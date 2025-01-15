@@ -2,6 +2,9 @@ import AbstractRepo from "./AbstractRepo";
 import Tags from "../../lib/collections/tags/collection";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { getViewableTagsSelector } from "./helpers";
+import { MultiDocuments } from "@/lib/collections/multiDocuments/collection";
+import sortBy from "lodash/sortBy";
+import { getLatestContentsRevision } from "@/lib/collections/revisions/helpers";
 
 class TagsRepo extends AbstractRepo<"Tags"> {
   constructor() {
@@ -48,22 +51,53 @@ class TagsRepo extends AbstractRepo<"Tags"> {
     `;
   }
 
-  getSearchDocumentById(id: string): Promise<SearchTag> {
-    return this.getRawDb().one(`
+  async getSearchDocumentById(id: string): Promise<SearchTag> {
+    const result = await this.getRawDb().one(`
       -- TagsRepo.getSearchDocumentById
       ${this.getSearchDocumentQuery()}
       WHERE t."_id" = $1
     `, [id]);
+    
+    return this.addLensesToDescription(result);
   }
 
-  getSearchDocuments(limit: number, offset: number): Promise<SearchTag[]> {
-    return this.getRawDb().any(`
+  async getSearchDocuments(limit: number, offset: number): Promise<SearchTag[]> {
+    const results = await this.getRawDb().any(`
       -- TagsRepo.getSearchDocuments
       ${this.getSearchDocumentQuery()}
       ORDER BY t."createdAt" DESC
       LIMIT $1
       OFFSET $2
     `, [limit, offset]);
+    
+    return Promise.all(results.map(result => this.addLensesToDescription(result)));
+  }
+  
+  private async addLensesToDescription(searchResult: SearchTag): Promise<SearchTag> {
+    const lenses = await MultiDocuments.find({
+      parentDocumentId: searchResult._id,
+      fieldName: "description",
+      deleted: false,
+    }).fetch();
+    const sortedLenses = sortBy(lenses, l=>l.index);
+    
+    const lensDescriptions: string[] = [
+      searchResult.description,
+      ...await Promise.all(sortedLenses.map(lens => this.lensToSearchDocumentHtml(lens)))
+    ]
+    const descriptionWithLenses = '<div>' + lensDescriptions.join("\n\n") + '</div>';
+    return {
+      ...searchResult,
+      description: descriptionWithLenses
+    };
+  }
+  
+  private async lensToSearchDocumentHtml(lens: DbMultiDocument): Promise<string> {
+    const contentsRevId = lens.contents_latest
+    if (!contentsRevId) return "";
+    const contentsRev = await getLatestContentsRevision(lens);
+    if (!contentsRev) return "";
+    return `<h2>${lens.tabTitle}${lens.tabSubtitle ? (": "+lens.tabSubtitle) : ""}</h2>${contentsRev.html}`;
   }
 
   async countSearchDocuments(): Promise<number> {
