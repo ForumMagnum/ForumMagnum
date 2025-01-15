@@ -169,7 +169,15 @@ type MongoFindOptions<T extends DbObject> = Partial<{
   sort: MongoSort<T>,
   limit: number,
   skip: number,
-  //projection: MongoProjection<T>,
+  
+  // FIXME This option is actually ignored (the correct place for a projection
+  // is in the third argument of `find`). However removing it from the type
+  // annotation here exposes a bunch of places that thought they were doing a
+  // projection but weren't, which then need a bunch of related type-annotation
+  // changes to account for that, and need to be checked to make sure they
+  // aren't actually relying on a field that they projected away.
+  projection: MongoProjection<T>,
+
   collation: CollationDocument,
   comment?: string,
 }>;
