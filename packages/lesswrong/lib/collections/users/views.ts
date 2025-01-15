@@ -284,6 +284,19 @@ Users.addView("usersWithOptedInToDialogueFacilitation", function (terms: UsersVi
 
 ensureIndex(Users, { optedInToDialogueFacilitation: 1, karma: -1 });
 
+Users.addView("usersTopKarma", function (terms: UsersViewTerms) {
+  return {
+    selector: {
+      deleted: {$ne: true},
+    },
+    options: {
+      sort: { 
+        karma: -1 
+      },
+    },
+  }
+});
+
 // These partial indexes are set up to allow for a very efficient index-only scan when deciding which userIds need to be emailed for post curation.
 // Used by `CurationEmailsRepo.getUserIdsToEmail`.
 // The EA Forum version of the index is missing the fm_has_verified_email conditional to match the behavior of `reasonUserCantReceiveEmails`.

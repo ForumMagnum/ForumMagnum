@@ -296,3 +296,5 @@ export const hyperbolicApiKey = new PublicInstanceSetting<string>('hyperbolic.ap
 
 export const twitterBotEnabledSetting = new PublicInstanceSetting<boolean>("twitterBot.enabled", false, "optional");
 export const twitterBotKarmaThresholdSetting = new PublicInstanceSetting<number>("twitterBot.karmaThreshold", 40, "optional");
+
+export const airtableApiKeySetting = new PublicInstanceSetting<string | null>('airtable.apiKey', null, "optional");

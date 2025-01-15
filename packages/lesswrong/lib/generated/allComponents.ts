@@ -1073,6 +1073,7 @@ importComponent("FriendlyUsersProfile", () => require("../../components/users/Fr
 importComponent("KarmaChangeNotifier", () => require("../../components/users/KarmaChangeNotifier.tsx"));
 importComponent("KarmaChangeNotifierSettings", () => require("../../components/users/KarmaChangeNotifierSettings.tsx"));
 importComponent("LWUserTooltipContent", () => require("../../components/users/LWUserTooltipContent.tsx"));
+importComponent("Leaderboard", () => require("../../components/users/Leaderboard.tsx"));
 importComponent("LoginForm", () => require("../../components/users/LoginForm.tsx"));
 importComponent("LoginPage", () => require("../../components/users/LoginPage.tsx"));
 importComponent("LoginPopup", () => require("../../components/users/LoginPopup.tsx"));
