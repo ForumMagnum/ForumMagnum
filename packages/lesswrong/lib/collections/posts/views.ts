@@ -67,7 +67,6 @@ declare global {
     notPostIds?: Array<string>,
     reviewYear?: number,
     reviewPhase?: ReviewPhase,
-    excludeContents?: boolean,
     includeArchived?: boolean,
     includeDraftEvents?: boolean,
     includeShared?: boolean,
@@ -1496,9 +1495,6 @@ Posts.addView("reviewVoting", (terms: PostsViewTerms) => {
       sort: {
         lastCommentedAt: -1
       },
-      ...(terms.excludeContents ?
-        {projection: {contents: 0}} :
-        {})
     }
   }
 })
@@ -1537,9 +1533,6 @@ Posts.addView("reviewFinalVoting", (terms: PostsViewTerms) => {
       sort: {
         lastCommentedAt: -1
       },
-      ...(terms.excludeContents ?
-        {projection: {contents: 0}} :
-        {})
     }
   }
 })
