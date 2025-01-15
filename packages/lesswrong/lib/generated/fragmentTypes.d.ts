@@ -63,7 +63,6 @@ interface UsersDefaultFragment { // fragment on Users
   readonly displayName: string,
   readonly previousDisplayName: string,
   readonly email: string,
-  readonly slug: string,
   readonly noindex: boolean,
   readonly groups: Array<string>,
   readonly lwWikiImport: boolean,
@@ -386,7 +385,6 @@ interface UsersDefaultFragment { // fragment on Users
   readonly petrovLaunchCodeDate: Date,
   readonly defaultToCKEditor: boolean,
   readonly signUpReCaptchaRating: number,
-  readonly oldSlugs: Array<string>,
   readonly noExpandUnreadCommentsReview: boolean,
   readonly postCount: number,
   readonly maxPostCount: number,
@@ -521,8 +519,6 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly name: string,
   readonly shortName: string | null,
   readonly subtitle: string | null,
-  readonly slug: string,
-  readonly oldSlugs: Array<string>,
   readonly core: boolean,
   readonly isPostType: boolean,
   readonly suggestedAsFilter: boolean,
@@ -752,7 +748,6 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly url: string,
   readonly postCategory: "post" | "linkpost" | "question",
   readonly title: string,
-  readonly slug: string,
   readonly viewCount: number,
   readonly lastCommentedAt: Date,
   readonly clickCount: number,
@@ -2221,7 +2216,6 @@ interface TagFlagEditFragment extends TagFlagFragment { // fragment on TagFlags
 interface TagFlagsDefaultFragment { // fragment on TagFlags
   readonly name: string,
   readonly deleted: boolean,
-  readonly slug: string,
   readonly order: number | null,
 }
 
@@ -2259,7 +2253,6 @@ interface GardenCodesDefaultFragment { // fragment on GardenCodes
   readonly code: string,
   readonly title: string,
   readonly userId: string,
-  readonly slug: string,
   readonly startTime: Date,
   readonly endTime: Date,
   readonly fbLink: string,
@@ -3953,8 +3946,6 @@ interface SideCommentCacheMinimumInfo { // fragment on SideCommentCaches
 
 interface MultiDocumentsDefaultFragment { // fragment on MultiDocuments
   readonly title: string | null,
-  readonly slug: string,
-  readonly oldSlugs: Array<string>,
   readonly preview: string | null,
   readonly tabTitle: string,
   readonly tabSubtitle: string | null,

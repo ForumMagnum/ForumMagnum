@@ -500,7 +500,6 @@ interface DbGardenCode extends DbObject {
   code: string
   title: string
   userId: string
-  slug: string
   startTime: Date | null
   endTime: Date
   fbLink: string | null
@@ -510,6 +509,7 @@ interface DbGardenCode extends DbObject {
   afOnly: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  slug: string
   contents: EditableFieldContents | null
   contents_latest: string | null
   pingbacks: any /*{"definitions":[{}]}*/
@@ -703,8 +703,6 @@ type MultiDocumentsCollection = CollectionBase<"MultiDocuments">;
 interface DbMultiDocument extends DbObject {
   __collectionName?: "MultiDocuments"
   title: string | null
-  slug: string
-  oldSlugs: Array<string>
   preview: string | null
   tabTitle: string
   tabSubtitle: string | null
@@ -718,6 +716,8 @@ interface DbMultiDocument extends DbObject {
   deleted: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  slug: string
+  oldSlugs: Array<string>
   contents_latest: string | null
   pingbacks: any /*{"definitions":[{}]}*/
   voteCount: number
@@ -903,7 +903,6 @@ interface DbPost extends DbObject {
   url: string | null
   postCategory: "post" | "linkpost" | "question"
   title: string
-  slug: string
   viewCount: number
   lastCommentedAt: Date | null
   clickCount: number
@@ -1071,6 +1070,7 @@ interface DbPost extends DbObject {
   generateDraftJargon: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  slug: string
   contents_latest: string | null
   pingbacks: any /*{"definitions":[{}]}*/
   moderationGuidelines_latest: string | null
@@ -1394,10 +1394,10 @@ interface DbTagFlag extends DbObject {
   __collectionName?: "TagFlags"
   name: string
   deleted: boolean
-  slug: string
   order: number | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  slug: string
   contents: EditableFieldContents | null
   contents_latest: string | null
 }
@@ -1430,8 +1430,6 @@ interface DbTag extends DbObject {
   name: string
   shortName: string | null
   subtitle: string | null
-  slug: string
-  oldSlugs: Array<string> | null
   core: boolean
   isPostType: boolean
   suggestedAsFilter: boolean
@@ -1473,6 +1471,8 @@ interface DbTag extends DbObject {
   coreTagId: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  slug: string
+  oldSlugs: Array<string>
   description: EditableFieldContents | null
   description_latest: string | null
   pingbacks: any /*{"definitions":[{}]}*/
@@ -1605,7 +1605,6 @@ interface DbUser extends DbObject {
   displayName: string | null
   previousDisplayName: string | null
   email: string | null
-  slug: string | null
   noindex: boolean
   groups: Array<string> | null
   lwWikiImport: boolean | null
@@ -1929,7 +1928,6 @@ interface DbUser extends DbObject {
   petrovLaunchCodeDate: Date | null
   defaultToCKEditor: boolean | null
   signUpReCaptchaRating: number | null
-  oldSlugs: Array<string> | null
   noExpandUnreadCommentsReview: boolean
   postCount: number
   maxPostCount: number
@@ -1983,6 +1981,8 @@ interface DbUser extends DbObject {
   userSurveyEmailSentAt: Date | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  slug: string
+  oldSlugs: Array<string>
   moderationGuidelines: EditableFieldContents | null
   moderationGuidelines_latest: string | null
   howOthersCanHelpMe: EditableFieldContents | null
