@@ -148,12 +148,19 @@ addGraphQLResolvers({
     MarkAllNotificationsAsRead: async (
       _root: void,
       _args: {},
-      {currentUser, repos}: ResolverContext,
+      {currentUser}: ResolverContext,
     ) => {
       if (!currentUser) {
         throw new Error("Unauthorized");
       }
-      await repos.notifications.markAllAsRead(currentUser._id);
+      await Notifications.rawUpdateMany({
+        userId: currentUser._id,
+        type: { $ne: 'newMessage' },
+      }, {
+        $set: {
+          viewed: true,
+        },
+      });
       return true;
     },
   },
