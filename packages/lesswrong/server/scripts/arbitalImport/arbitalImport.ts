@@ -112,12 +112,12 @@ Globals.importArbitalDb = async (mysqlConnectionString: string, options?: Partia
   await doArbitalImport(wholeDatabase, resolverContext, optionsWithDefaults);
 }
 
-Globals.deleteImportedArbitalWikiPages = async () => {
+Globals.deleteImportedArbitalWikiPages = async (options?: ArbitalImportOptions) => {
   const wikiPagesToDelete = await Tags.find({
     "legacyData.arbitalPageId": {$exists: true},
     deleted: false,
   }).fetch();
-  for (const wikiPage of wikiPagesToDelete) {
+  await executePromiseQueue(wikiPagesToDelete.map(wikiPage => async () => {
     await Tags.rawUpdateOne({
       _id: wikiPage._id,
     }, {
@@ -126,13 +126,13 @@ Globals.deleteImportedArbitalWikiPages = async () => {
         deleted: true,
       },
     });
-  }
+  }), options?.parallelism ?? 10);
   
   const multiDocumentsToDelete = await MultiDocuments.find({
-    "legacyData.arbitalPageId": {$exists: true},
+    //"legacyData.arbitalPageId": {$exists: true},
     deleted: false,
   }).fetch();
-  for (const lensOrSummary of multiDocumentsToDelete) {
+  await executePromiseQueue(multiDocumentsToDelete.map(lensOrSummary => async () => {
     await MultiDocuments.rawUpdateOne({
       _id: lensOrSummary._id,
     }, {
@@ -142,7 +142,7 @@ Globals.deleteImportedArbitalWikiPages = async () => {
         deleted: true,
       },
     });
-  }
+  }), options?.parallelism ?? 10);
 }
 
 Globals.deleteImportedArbitalUsers = async () => {
@@ -172,8 +172,8 @@ Globals.importArbitalPagePairs = async (mysqlConnectionString: string, options?:
 
 Globals.replaceAllImportedArbitalData = async (mysqlConnectionString: string, options?: ArbitalImportOptions) => {
   console.log(`Removing previously-imported wiki pages`);
-  await Globals.deleteImportedArbitalWikiPages();
-  await Globals.deleteRedLinkPlaceholders();
+  await Globals.deleteImportedArbitalWikiPages(options);
+  await Globals.deleteRedLinkPlaceholders(options);
   console.log(`Importing Arbital content`);
   await Globals.importArbitalDb(mysqlConnectionString, options);
 }
@@ -1151,7 +1151,7 @@ async function importComments(database: WholeArbitalDatabase, conversionContext:
   // The createMutator will have already created index entries via callbacks,
   // but after creating them we backdated them, so the dates in the index are
   // wrong.
-  await updateElasticSearchForIds("Comments", commentIdsToReindexInElastic));
+  await updateElasticSearchForIds("Comments", commentIdsToReindexInElastic);
 }
 
 async function updateElasticSearchForIds(collectionName: SearchIndexCollectionName, documentIds: string[]): Promise<void> {
@@ -1201,12 +1201,12 @@ async function createRedLinkPlaceholders(redLinks: RedLinksSet, conversionContex
   }), conversionContext.options.parallelism ??1);
 }
 
-Globals.deleteRedLinkPlaceholders = async (conversionContext: ArbitalConversionContext) => {
+Globals.deleteRedLinkPlaceholders = async (options: ArbitalImportOptions) => {
   const redLinkPlaceholderPagesToDelete = await Tags.find({
     isPlaceholderPage: true,
     deleted: false,
   }).fetch();
-  for (const wikiPage of redLinkPlaceholderPagesToDelete) {
+  await executePromiseQueue(redLinkPlaceholderPagesToDelete.map(wikiPage => async () => {
     await Tags.rawUpdateOne({
       _id: wikiPage._id,
     }, {
@@ -1215,7 +1215,7 @@ Globals.deleteRedLinkPlaceholders = async (conversionContext: ArbitalConversionC
         deleted: true,
       },
     });
-  }
+  }), options.parallelism ?? 5);
 }
 
 Globals.deleteExcessRedLinkPlaceholders = async () => {
