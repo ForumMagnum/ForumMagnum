@@ -1539,14 +1539,14 @@ async function moveReferencesToMergedPage({oldTagIds, newTagId}: {
   // TODO: Rewrite user tag filters?
   
   // Rewrite tagRelevance on posts that reference any redirect tags
-  const postIdsToRecomputeTagRelevance = (await runSqlQuery(`
+  const postIdsToRecomputeTagRelevance: {_id: string}[] = (await runSqlQuery(`
     SELECT _id
     FROM "Posts"
     WHERE "tagRelevance" ?| $1
   `, [oldTagIds])).map(row => row._id);
   console.log(`Rewriting tagRelevance on ${postIdsToRecomputeTagRelevance} posts`);
 
-  await executePromiseQueue(postIdsToRecomputeTagRelevance.map((postId) => async () => {
+  await executePromiseQueue(postIdsToRecomputeTagRelevance.map(({_id: postId}) => async () => {
     await updatePostDenormalizedTags(postId)
   }), 5);
 }
