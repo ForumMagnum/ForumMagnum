@@ -143,7 +143,7 @@ export const makeVoteable = <N extends VoteableCollectionName>(
         foreignCollectionName: "Votes",
         foreignTypeName: "vote",
         foreignFieldName: "documentId",
-        filterFn: (vote: DbVote) => !vote.cancelled && vote.collectionName===collection.collectionName
+        filterFn: (vote: DbVote) => !vote.cancelled && vote.voteType !== 'neutral' && vote.collectionName === collection.collectionName
       }),
       canRead: ['guests'],
     },
