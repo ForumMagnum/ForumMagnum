@@ -127,6 +127,15 @@ const TagPageButtonRow = ({ tag, selectedLens, editing, setEditing, hideLabels =
   const numFlags = tag.tagFlagsIds?.length
 
   function handleNewLensClick(e: React.MouseEvent<HTMLAnchorElement>) {
+    if (!currentUser) {
+      openDialog({
+        componentName: "LoginPopup",
+        componentProps: {},
+      });
+      e.preventDefault();
+      return;
+    }
+
     if (!refetchTag || !updateSelectedLens) return;
     openDialog({
       componentName: "NewLensDialog",

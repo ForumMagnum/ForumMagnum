@@ -15,7 +15,7 @@ const styles = defineStyles("WikiTagNestedList", (theme: ThemeType) => ({
     fontSize: 12,
     fontWeight: 400,
     // TODO: put this into a theme
-    color: "#426c46",
+    color: theme.palette.text.alwaysLightGrey,
     marginBottom: 8,
     marginTop: 2,
     marginLeft: 16,

@@ -7,6 +7,7 @@ import type { LikesList } from '@/lib/voting/reactionsAndLikes';
 import { useCurrentUser } from '@/components/common/withUser';
 import { userIsAdmin } from '@/lib/vulcan-users';
 import classNames from 'classnames';
+import { useDialog } from '@/components/common/withDialog';
 
 const styles = defineStyles("ReactionsAndLikesVote", (theme) => ({
   unselectedLikeButton: {
@@ -78,6 +79,7 @@ const ReactionsAndLikesVote  = ({
   const classes = useStyles(styles);
   const { LWTooltip, ForumIcon } = Components;
   const currentUser = useCurrentUser();
+  const { openDialog } = useDialog();
 
   const voteProps = useVote(document, collectionName, votingSystem);
   const usersWhoLiked: LikesList = voteProps.document?.extendedScore?.usersWhoLiked ?? [];
@@ -89,7 +91,10 @@ const ReactionsAndLikesVote  = ({
     ev.stopPropagation();
 
     if (!currentUser) {
-      return; //TODO show login modal
+      openDialog({
+        componentName: "LoginPopup",
+        componentProps: {},
+      });
     } else if (currentUserLikesIt) {
       await voteProps.vote({
         document: voteProps.document,

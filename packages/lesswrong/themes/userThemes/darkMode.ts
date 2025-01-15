@@ -300,6 +300,9 @@ export const darkModeTheme: UserThemeSpecification = {
         text: shadePalette.grey[600]
       },
     },
+    arbital: {
+      arbitalGreen: '#02796b',
+    },
   }, forumComponentPalette(shadePalette)),
   make: (palette: ThemePalette): PartialDeep<NativeThemeType> => ({
     postImageStyles: {
