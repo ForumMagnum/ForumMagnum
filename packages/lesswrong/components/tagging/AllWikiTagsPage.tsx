@@ -17,8 +17,6 @@ import { ArbitalLogo } from '../icons/ArbitalLogo';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 import { useMulti } from '@/lib/crud/withMulti';
 
-const ARBITAL_GREEN_DARK = "#004d40"
-
 const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
   root: {
     maxWidth: 900,
@@ -115,7 +113,7 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
       verticalAlign: "bottom",
       borderStyle: "none",
       boxShadow: "none",
-      backgroundColor: "white",
+      backgroundColor: theme.palette.panelBackground.default,
       fontSize: '1.4rem',
       "-webkit-appearance": "none",
       cursor: "text",
@@ -145,15 +143,14 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
     gap: '16px',
     padding: "16px",
     borderRadius: 12,
-    backgroundColor: ARBITAL_GREEN_DARK,
+    backgroundColor: theme.palette.arbital.arbitalGreen,
     marginBottom: 24,
     // fontFamily: theme.palette.fonts.sansSerifStack,
     // make <a> children have the following styles
     ...theme.typography.commentStyle,
-    color: "white",
+    color: theme.palette.text.alwaysWhite,
     "& a": {
-      color: "white",
-      //dotted underline
+      color: theme.palette.text.alwaysWhite,
       textDecoration: "underline",
       textDecorationStyle: "dotted",
     },
@@ -181,9 +178,9 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
     border: 'none',
     fontSize: '2rem',
     cursor: 'pointer',
-    color: 'white',
+    color: theme.palette.text.alwaysWhite,
     '&:hover': {
-      color: theme.palette.grey[300],
+      color: theme.palette.text.alwaysLightGrey,
     },
     '&:focus': {
       outline: 'none',
