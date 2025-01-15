@@ -24,7 +24,7 @@ export const up = async ({db}: MigrationContext) => {
     });
   }
   
-  db.none(`
+  await db.none(`
     ALTER TABLE "Users"
     ALTER COLUMN "slug" DROP NOT NULL
   `);
