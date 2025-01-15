@@ -69,7 +69,8 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     opacity: 0.9,
   },
   postCountNumber: {
-    marginTop: -1,
+    position: "relative",
+    top: -1,
   },
   titleItemRoot: {
   },
