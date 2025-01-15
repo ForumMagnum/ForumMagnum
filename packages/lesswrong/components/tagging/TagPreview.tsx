@@ -116,8 +116,8 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
     color: theme.palette.greyAlpha(1),
     cursor: 'pointer !important',
     '&[data-selected="true"]': {
-      backgroundColor: 'white',
-      borderBottom: "1px solid white",
+      backgroundColor: theme.palette.panelBackground.default,
+      borderBottom: `1px solid ${theme.palette.panelBackground.default}`,
       marginBottom: -1,
       borderLeft: `1px solid ${theme.palette.greyAlpha(0.1)}`,
       borderRight: `1px solid ${theme.palette.greyAlpha(0.1)}`,

@@ -18,7 +18,7 @@ import { postRouteWillDefinitelyReturn200 } from './collections/posts/helpers';
 import { sequenceRouteWillDefinitelyReturn200 } from './collections/sequences/helpers';
 import { tagGetUrl, tagRouteWillDefinitelyReturn200 } from './collections/tags/helpers';
 import { GUIDE_PATH_PAGES_MAPPING } from './arbital/paths';
-
+import isEmpty from 'lodash/isEmpty';
 const knownTagNames = ['tag', 'topic', 'concept', 'wikitag']
 const useShortAllTagsPath = isFriendlyUI;
 
@@ -553,6 +553,19 @@ if (isLWorAF) {
   });
 }
 
+if (isLWorAF && tagUrlBaseSetting.get() !== 'p') {
+  addRoute(
+    {
+      name: 'slashPtoBaseRedirect',
+      path: '/p/:slug',
+      redirect: (location) => {
+        const { params: { slug }, query } = location;
+        const queryString = !isEmpty(query) ? `?${qs.stringify(query)}` : '';
+        return `/${tagUrlBaseSetting.get()}/${slug}${queryString}`;
+      }
+    }
+  );
+}
 
 export function initLegacyRoutes() {
   const legacyRouteAcronym = legacyRouteAcronymSetting.get()
