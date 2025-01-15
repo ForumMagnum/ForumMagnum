@@ -1151,7 +1151,7 @@ async function importComments(database: WholeArbitalDatabase, conversionContext:
   // The createMutator will have already created index entries via callbacks,
   // but after creating them we backdated them, so the dates in the index are
   // wrong.
-  await updateElasticSearchForIds("Comments", commentIdsToReindexInElastic));
+  await updateElasticSearchForIds("Comments", commentIdsToReindexInElastic);
 }
 
 async function updateElasticSearchForIds(collectionName: SearchIndexCollectionName, documentIds: string[]): Promise<void> {
