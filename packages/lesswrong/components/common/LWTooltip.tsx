@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useState, useEffect, useRef, useCallback } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useHover } from './withHover';
 import type { PopperPlacementType } from '@material-ui/core/Popper'
@@ -63,6 +63,17 @@ const LWTooltip = ({
   forceOpen,
 }: LWTooltipProps) => {
   const { LWPopper } = Components
+  const [delayedClickable, setDelayedClickable] = useState(false);
+
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const clearDelayTimeout = useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+  }, []);
+
   const { hover, everHovered, anchorEl, eventHandlers } = useHover({
     eventProps: {
       pageElementContext: "tooltipHovered", // Can be overwritten by analyticsProps
@@ -71,8 +82,30 @@ const LWTooltip = ({
       ...otherEventProps,
     },
     onEnter: onShow,
-    onLeave: onHide,
+    onLeave: () => {
+      onHide?.();
+      clearDelayTimeout();
+      setDelayedClickable(false);
+    },
   });
+
+  // For the clickable case, we want to delay the opening of the tooltip by 200ms
+  // so that users aren't interrupted when moving their mouse rapidly over
+  // clickable elements
+  useEffect(() => {
+    if (hover && clickable) {
+      clearDelayTimeout();
+      timeoutRef.current = setTimeout(() => {
+        setDelayedClickable(true);
+        timeoutRef.current = null;
+      }, 200);
+    } else {
+      clearDelayTimeout();
+      setDelayedClickable(false);
+    }
+    
+    return clearDelayTimeout;
+  }, [hover, clickable, clearDelayTimeout]);
 
   if (!title) return <>{children}</>
 
@@ -89,7 +122,7 @@ const LWTooltip = ({
       anchorEl={anchorEl}
       tooltip={tooltip}
       allowOverflow={!flip}
-      clickable={clickable}
+      clickable={delayedClickable}
       hideOnTouchScreens={hideOnTouchScreens}
       className={popperClassName}
     >
