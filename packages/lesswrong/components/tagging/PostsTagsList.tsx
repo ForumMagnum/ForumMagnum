@@ -5,7 +5,7 @@ import sortBy from 'lodash/sortBy';
 import classNames from 'classnames';
 import filter from 'lodash/filter';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexWrap: "wrap",
@@ -18,8 +18,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
     marginTop: 2,
     marginBottom: 2,
-    // paddingLeft: 10,
-    // paddingRight: 8
+    marginRight: 2,
+    paddingLeft: 10,
+    paddingRight: 8
   },
   count: {
     ...theme.typography.body2,
@@ -28,7 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[500]
   },
   selected: {
-    backgroundColor: theme.palette.grey[700],
+    backgroundColor: theme.palette.grey[400],
     color: theme.palette.background.pageActiveAreaBackground
   },
   button: {
@@ -52,16 +53,16 @@ export const PostsTagsList = (
     handleFilter, 
     expandedMinCount = 3, 
     defaultMax = 6,
-    beforeChildren,
+    afterChildren,
   }: {
-    classes: ClassesType,
+    classes: ClassesType<typeof styles>,
     posts: PostsList[] | null,
     currentFilter: string | null, // the current tag being filtered on the post list
     handleFilter: (filter: string) => void, // function to update which tag is being filtered
     expandedMinCount?: number // when showing more tags, this is the number
     // of posts each tag needs to have to be included
     defaultMax?: number // default number of tags to show
-    beforeChildren?: React.ReactNode,
+    afterChildren?: React.ReactNode,
   }) => {
   const { LWTooltip } = Components
 
@@ -91,8 +92,8 @@ export const PostsTagsList = (
   if (!posts?.length) return null
 
   return <div className={classes.root}>
-    {beforeChildren}
     {slicedTags.map(tag => tagButton(tag))}
+    {afterChildren}
     {(max === defaultMax) && <LWTooltip title={`Show ${expandedNumberOfTags - defaultMax} more tags`}><a className={classes.button} onClick={() => setMax(expandedNumberOfTags)}>More</a></LWTooltip>}
     {(max !== defaultMax) && <a  className={classes.button} onClick={() => setMax(defaultMax)}>Fewer</a>}
   </div>;

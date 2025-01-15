@@ -7,17 +7,32 @@ import orderBy from 'lodash/orderBy';
 import times from 'lodash/times';
 import filter from 'lodash/filter';
 import * as _ from 'underscore';
-import fs from 'node:fs';
 
 type EditAttributions = (string|null)[]
 type InsDelUnc = "ins"|"del"|"unchanged"
 
-export async function annotateAuthors(documentId: string, collectionName: string, fieldName: string, upToVersion?: string|null): Promise<string> {
+export async function annotateAuthors( documentId: string, collectionName: string, fieldName: string, upToVersion?: string | null): Promise<string> {
+  const { finalHtml, attributions } = await computeAttributions(
+    documentId,
+    collectionName,
+    fieldName,
+    upToVersion
+  );
+
+  return attributionsToSpans(finalHtml, attributions);
+}
+
+export async function computeAttributions(
+  documentId: string,
+  collectionName: string,
+  fieldName: string,
+  upToVersion?: string | null
+): Promise<{ finalHtml: string; attributions: EditAttributions }> {
   const revs = await Revisions.find({
     documentId, collectionName, fieldName
   }).fetch();
-  if (!revs.length) return "";
-  
+  if (!revs.length) return { finalHtml: "", attributions: [] };
+
   let filteredRevs = orderBy(revs, r=>r.editedAt);
   
   // If upToVersion is provided, ignore revs after that
@@ -59,8 +74,8 @@ export async function annotateAuthors(documentId: string, collectionName: string
     const newHtml = rev.html ?? "";
     attributions = attributeEdits(prevHtml, newHtml, rev.userId!, attributions);
   }
-  
-  return attributionsToSpans(finalRev.html!, attributions);
+
+  return { finalHtml: finalRev.html || "", attributions };
 }
 
 function annotateInsDel(root: cheerio.Root): InsDelUnc[] {

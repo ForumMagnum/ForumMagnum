@@ -6,7 +6,7 @@ import {
 } from "../../lib/instanceSettings";
 import { Link } from "../../lib/reactRouterWrapper";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   link: {
     color: theme.palette.primary.main,
   },
@@ -14,7 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const ForeignCrosspostEditForm = ({post, classes}: {
   post: PostsPage,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {SingleColumnSection, PostsPagePostHeader, Typography} = Components;
 

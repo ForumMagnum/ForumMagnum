@@ -3,14 +3,15 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useLocation } from '../../lib/routeUtil';
 import { useTagBySlug } from '../tagging/useTag';
 import { useMulti } from '../../lib/crud/withMulti';
-import { tagGetRevisionLink, tagGetUrl, tagUrlBase } from '../../lib/collections/tags/helpers';
+import { tagGetRevisionLink, tagGetUrl } from '../../lib/collections/tags/helpers';
+import { tagUrlBaseSetting } from '../../lib/instanceSettings';
 import { Link, useNavigate } from '../../lib/reactRouterWrapper';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
 });
 
 const TagPageRevisionSelect = ({ classes }: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { params, query } = useLocation();
   const { slug } = params;
@@ -36,7 +37,7 @@ const TagPageRevisionSelect = ({ classes }: {
   
   const compareRevs = useCallback(({before,after}: {before: RevisionMetadata, after: RevisionMetadata}) => {
     if (!tag) return;
-    navigate(`/compare/${tagUrlBase}/${tag.slug}?before=${before.version}&after=${after.version}`);
+    navigate(`/compare/${tagUrlBaseSetting.get()}/${tag.slug}?before=${before.version}&after=${after.version}`);
   }, [navigate, tag]);
 
   if (!tag) return null

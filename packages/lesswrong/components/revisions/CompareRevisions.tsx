@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useQuery, gql } from '@apollo/client';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   differences: {
     "& ins": {
       background: theme.palette.background.diffInserted,
@@ -34,7 +34,7 @@ const CompareRevisions = ({
   documentId: string,
   versionBefore: string|null,
   versionAfter: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   trim?: boolean
 }) => {
   const [expanded, setExpanded] = useState(false);
@@ -77,7 +77,11 @@ const CompareRevisions = ({
         rawWordCount={wordCount}
         graceWords={20}
         expanded={expanded}
-        getTruncatedSuffix={({wordsLeft}: {wordsLeft: number}) => <div className={classes.expand} onClick={() => setExpanded(true)}> Read More ({wordsLeft} more words)</div>}
+        getTruncatedSuffix={({wordsLeft}: {wordsLeft: number}) =>
+          <div className={classes.expand} onClick={() => setExpanded(true)}>
+            Read More ({wordsLeft} more words)
+          </div>
+        }
         dangerouslySetInnerHTML={{__html: diffResultHtml}}
         description={`tag ${documentId}`}
       />

@@ -15,11 +15,13 @@ import { getPageUrl } from './urlService';
 //import {anyUrlMatch} from './util.ts';
 import React from 'react';
 import ReactDOM from 'react-dom/server';
-import { slugify } from '@/lib/vulcan-lib';
 import { convertImagesInHTML } from '../convertImagesToCloudinary';
 import type { ConditionalVisibilitySettings } from '@/components/editor/conditionalVisibilityBlock/conditionalVisibility';
 import { escapeHtml } from './util';
 import orderBy from 'lodash/orderBy';
+import { tagGetUrl } from '@/lib/collections/tags/helpers';
+import { tagUrlBaseSetting } from '@/lib/instanceSettings';
+import { slugify } from '@/lib/utils/slugify';
 
 
 const anyUrlMatch = /\b((?:[a-z][\w-]+:(?:\/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))/i;
@@ -134,6 +136,12 @@ function parseMultipleChoiceBlock(...args: string[]) {
   return { result, requisites };
 }
 
+const visualizationHtmlMap: Record<string, string> = {
+  "log-length-demo": '<figure class="media"><div data-oembed-url="https://lwartifacts.vercel.app/artifacts/logarithm-growing-calculator"><div data-lwartifacts-id="lwartifacts.vercel.app/artifacts/logarithm-growing-calculator" class="lwartifacts-preview"><iframe style="height: 500px; width: 100%; border: none;" src="https://lwartifacts.vercel.app/artifacts/logarithm-growing-calculator"></div></iframe></div></div></figure>',
+  "log-length-animation": '<figure class="media"><div data-oembed-url="https://lwartifacts.vercel.app/artifacts/logarithm-growing"><div data-lwartifacts-id="lwartifacts.vercel.app/artifacts/logarithm-growing" class="lwartifacts-preview"><iframe style="height: 500px; width: 100%; border: none;" src="https://lwartifacts.vercel.app/artifacts/logarithm-growing"></div></iframe></div></div></figure>',
+  "log-graph-demo": '<figure class="media"><div data-oembed-url="https://lwartifacts.vercel.app/artifacts/logarithm-lattice"><div data-lwartifacts-id="lwartifacts.vercel.app/artifacts/logarithm-lattice" class="lwartifacts-preview"><iframe style="height: 500px; width: 100%; border: none;" src="https://lwartifacts.vercel.app/artifacts/logarithm-lattice"></div></iframe></div></div></figure>'
+}
+
 // markdownService provides a constructor you can use to create a markdown converter,
 // either for converting markdown to text or editing.
 //app.service('markdownService', function($compile, $timeout, pageService, userService, urlService, stateService) {
@@ -186,22 +194,24 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
       var firstAliasChar = alias.substring(0, 1);
       var trimmedAlias = trimAlias(alias);
       
-      const pageId = pageAliasToPageId(trimmedAlias);
+      const linkedPageId = pageAliasToPageId(trimmedAlias);
       const linkText = (options.text && options.text.length>0)
         ? options.text
-        : (pageId ? pageIdToTitle(pageId, firstAliasChar) : getCasedText(trimmedAlias, firstAliasChar));
+        : (linkedPageId ? pageIdToTitle(linkedPageId, firstAliasChar) : getCasedText(trimmedAlias, firstAliasChar));
       if (!linkText) {
         console.error(`Could not get link text for page ${alias}`);
       }
       
-      if (pageId) {
-        const url = pageIdToUrl(pageId);
+      if (linkedPageId) {
+        const url = pageIdToUrl(linkedPageId);
         return `<a href="${url}">${linkText}</a>`;
       } else {
         const url = `/w/${slugify(linkText)}`;
+        const convertedTitle = getCasedText(trimmedAlias, firstAliasChar).replace(/_/g, ' ');
         conversionContext.outRedLinks.push({
           slug: slugify(linkText),
-          title: linkText,
+          title: convertedTitle,
+          referencedFromPage: pageId,
         });
         return `<a href="${url}">${linkText}</a>`;
       }
@@ -223,8 +233,8 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
     function pageIdToTitle(pageId: string, prefix: string): string {
       return getCasedText(titlesByPageId[pageId], prefix);
     }
-    function getNewPageUrl() {
-      return "/tag/new"; //TODO
+    function getNewPageUrl(){
+      return `/${tagUrlBaseSetting.get()}/new`; //TODO
     }
     /*var getLinkHtml = function(editor: any, alias: string, options: {text?: string}) {
       var firstAliasChar = alias.substring(0, 1);
@@ -545,9 +555,11 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
     // Process [visualization(log-graph-demo):] block.
     var vizBlockRegexp = new RegExp('^\\[visualization\\(([^)]+)\\):\\] *(?=\Z|\n\Z|\n\n)', 'gm');
     converter.hooks.chain('preBlockGamut', function(text: string, runBlockGamut: (s:string)=>string) {
-      // TODO
       return text.replace(vizBlockRegexp, function(whole, name) {
-        return '<div class=\'react-demo\' data-demo-name="' + name + '">\n\n</div>';
+        const replacementHtml = visualizationHtmlMap[name];
+        if (replacementHtml) return replacementHtml;
+        console.error(`Visualization ${name} doesn't exist`);
+        return whole;
       });
     });
 
@@ -690,7 +702,7 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
         }
         return conditionallyVisibleBlockToHTML(
           {type: "wantsRequisite", inverted: !!not, otherPage: pageId ?? ""},
-          markdown
+          runBlockGamut(markdown)
         );
       });
     });
@@ -1032,7 +1044,7 @@ function pathToCtaButton(path: PathType, conversionContext: ArbitalConversionCon
   //const url = `/p/${slugs[0]}?path=${slugs.join(",")}`;*/
   
   // Version where URL uses Arbital path ID, which hackily maps to a hardcoded list of pages
-  const url = `/p/${slugs[0]}?pathId=${pathId}`;
+  const url = tagGetUrl({slug: slugs[0]}, {pathId});
   
   return `<a class="ck-cta-button" href="${url}">Start Reading</a>`;
 }

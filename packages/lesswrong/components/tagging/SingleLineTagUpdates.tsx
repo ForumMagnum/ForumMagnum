@@ -7,10 +7,12 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { ExpandedDate } from '../common/FormatDate';
 import moment from 'moment';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { tagUrlBaseSetting } from '@/lib/instanceSettings';
+import type { DocumentDeletion } from './AllPostsPageTagDocDeletionItem';
 
 export const POSTED_AT_WIDTH = 38
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...(isFriendlyUI
       ? {
@@ -99,23 +101,25 @@ const styles = (theme: ThemeType): JssStyles => ({
       maxWidth: 160
     },
   },
+  tagRevision: {},
 });
 
-const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users, changeMetrics, lastRevisedAt, classes}: {
+const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users, changeMetrics, documentDeletions = [], lastRevisedAt, classes}: {
   tag: TagHistoryFragment,
   revisionIds: string[],
   commentCount?: number,
   commentIds?: string[],
   users?: UsersMinimumInfo[],
   changeMetrics: ChangeMetrics,
-  classes: ClassesType,
+  documentDeletions?: DocumentDeletion[],
+  classes: ClassesType<typeof styles>,
   lastRevisedAt?: Date
 }) => {
   const [expanded,setExpanded] = useState(false);
-  const { ChangeMetricsDisplay, PostsItemComments, AllPostsPageTagRevisionItem, CommentById, LWTooltip, PostsItem2MetaInfo, UsersName } = Components;
+  const { ChangeMetricsDisplay, PostsItemComments, AllPostsPageTagRevisionItem, CommentById, LWTooltip, PostsItem2MetaInfo, UsersName, AllPostsPageTagDocDeletionItem } = Components;
   
   return <div className={classes.root} >
-    <div className={classes.metadata} onClick={ev => setExpanded(!expanded)}>
+    <div className={classes.metadata} onClick={_ev => setExpanded(!expanded)}>
 
       <div className={classes.title} >
         <Link to={tagGetUrl(tag)}>{tag.name}</Link>
@@ -161,14 +165,24 @@ const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users
           <span>History</span>
         </Link>}
       
-      {revisionIds.length>0 && <Link to={`revisions/tag/${tag.slug}`} className={classes.subheading}>
+      {revisionIds.length>0 && <Link to={`revisions/${tagUrlBaseSetting.get()}/${tag.slug}`} className={classes.subheading}>
         Edits
       </Link>}
-      {revisionIds.map(revId => <div className={classes.tagRevision} key={revId}>
+      {revisionIds.map(revId => <div key={revId}>
         <AllPostsPageTagRevisionItem
           tag={tag}
           documentId={tag._id}
           revisionId={revId}
+        />
+      </div>)}
+
+      {documentDeletions.length > 0 && <div className={classes.subheading}>
+        Deletions/Restorations
+      </div>}
+      {documentDeletions.length > 0 && documentDeletions.map(documentDeletion => <div className={classes.tagRevision} key={documentDeletion.documentId}>
+        <AllPostsPageTagDocDeletionItem
+          tag={tag}
+          documentDeletion={documentDeletion}
         />
       </div>)}
       

@@ -1,7 +1,9 @@
 import { useMulti, UseMultiOptions } from '../../lib/crud/withMulti';
 import { gql, useQuery } from '@apollo/client';
 import { fragmentTextForQuery } from '@/lib/vulcan-lib';
-import { isLW } from '@/lib/instanceSettings';
+import { hasWikiLenses } from '@/lib/betas';
+import intersection from 'lodash/intersection';
+import pick from 'lodash/pick';
 
 export const useTagBySlug = <FragmentTypeName extends keyof FragmentTypes>(
   slug: string,
@@ -10,9 +12,10 @@ export const useTagBySlug = <FragmentTypeName extends keyof FragmentTypes>(
 ): {
   tag: FragmentTypes[FragmentTypeName]|null,
   loading: boolean,
-  error: any
+  error: any,
+  refetch: () => Promise<void>,
 } => {
-  const { results, loading, error } = useMulti<FragmentTypeName, "Tags">({
+  const { results, loading, error, refetch } = useMulti<FragmentTypeName, "Tags">({
     terms: {
       view: "tagBySlug",
       slug: slug
@@ -28,23 +31,27 @@ export const useTagBySlug = <FragmentTypeName extends keyof FragmentTypes>(
       tag: results[0] as FragmentTypes[FragmentTypeName]|null,
       loading: false,
       error: null,
+      refetch,
     };
   } else {
     return {
       tag: null,
-      loading, error
+      loading, error,
+      refetch,
     };
   }
 }
 
 type TagPreviewFragmentName = 'TagPreviewFragment' | 'TagSectionPreviewFragment';
 
+type CommonTagLensFields = Pick<TagPreviewFragment, keyof MultiDocumentContentDisplay & keyof TagPreviewFragment>;
+
 export const useTagPreview = (
   slug: string,
   hash?: string,
   queryOptions?: Partial<Omit<UseMultiOptions<TagPreviewFragmentName, "Tags">, 'extraVariables' | 'extraVariablesValues'>>,
 ): {
-  tag: (FragmentTypes[TagPreviewFragmentName] & { summaries?: MultiDocumentEdit[] }) | null,
+  tag: (FragmentTypes[TagPreviewFragmentName] & { summaries?: MultiDocumentContentDisplay[] }) | null,
   loading: boolean,
   error: any
 } => {
@@ -64,17 +71,19 @@ export const useTagPreview = (
         tag {
           ...${fragmentName}
         }
+        lens {
+          ...MultiDocumentContentDisplay
+        }
         summaries {
-          ...MultiDocumentEdit
+          ...MultiDocumentContentDisplay
         }
       }
     }
-    ${fragmentTextForQuery(fragmentName)}
-    ${fragmentTextForQuery('MultiDocumentEdit')}
+    ${fragmentTextForQuery([fragmentName, 'MultiDocumentContentDisplay'])}
   `;
 
   const { data, loading: queryLoading, error: queryError } = useQuery(query, {
-    skip: queryOptions?.skip || !isLW,
+    skip: queryOptions?.skip || !hasWikiLenses,
     variables: { ...hashVariables.extraVariablesValues, slug }
   })
 
@@ -88,15 +97,34 @@ export const useTagPreview = (
     limit: 1,
     ...hashVariables,
     ...queryOptions,
-    skip: queryOptions?.skip || isLW,
+    skip: queryOptions?.skip || hasWikiLenses,
   });
 
-  if (isLW) {
+  if (hasWikiLenses) {
     if (data?.TagPreview?.tag) {
-      const tag: TagPreviewFragment & { summaries: MultiDocumentEdit[] } = { ...data.TagPreview.tag, summaries: data.TagPreview.summaries };
+      const originalTag: TagPreviewFragment = data.TagPreview.tag;
+      const lens: MultiDocumentContentDisplay | null = data.TagPreview.lens;
+      const summaries: MultiDocumentContentDisplay[] = data.TagPreview.summaries;
+
+      let preview: TagPreviewFragment & { summaries: MultiDocumentContentDisplay[] };
+
+      if (lens) {
+        const tagKeys = Object.keys(originalTag);
+        const lensKeys = Object.keys(lens);
+        const overlappingKeys = intersection(tagKeys, lensKeys) as (keyof CommonTagLensFields)[];
+        const overlappingFields: CommonTagLensFields = pick(lens, overlappingKeys);
+        preview = {
+          ...originalTag,
+          ...overlappingFields,
+          description: lens.contents,
+          summaries,
+        };
+      } else {
+        preview = { ...originalTag, summaries };
+      }
 
       return {
-        tag,
+        tag: preview,
         loading: false,
         error: null,
       }

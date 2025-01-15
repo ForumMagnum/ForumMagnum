@@ -1,7 +1,7 @@
 import { ApolloServer } from 'apollo-server-express';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 
-import { isDevelopment, isProduction, isE2E } from '../lib/executionEnvironment';
+import { isDevelopment, isE2E } from '../lib/executionEnvironment';
 import { renderWithCache, getThemeOptionsFromReq } from './vulcan-lib/apollo-ssr/renderPage';
 
 import { pickerMiddleware, addStaticRoute } from './vulcan-lib/staticRoutes';
@@ -62,7 +62,6 @@ import { addAutocompleteEndpoint } from './autocompleteEndpoint';
 import { getSqlClientOrThrow } from './sql/sqlClient';
 import { addLlmChatEndpoint } from './resolvers/anthropicResolvers';
 import { getInstanceSettings } from '@/lib/getInstanceSettings';
-import { addGivingSeasonEndpoints } from './givingSeason/webhook';
 import { getCommandLineArguments } from './commandLine';
 import { makeAbsolute } from '@/lib/vulcan-lib/utils';
 
@@ -162,6 +161,15 @@ export function startWebserver() {
   const config = { path: '/graphql' };
   const expressSessionSecret = expressSessionSecretSetting.get()
 
+  if (enableVite) {
+    // When vite is running the backend is proxied which means we have to
+    // enable CORS for API routes to work
+    app.use((_req, res, next) => {
+      res.set("Access-Control-Allow-Origin", "*");
+      next();
+    });
+  }
+
   app.use(universalCookiesMiddleware());
 
   // Required for passport-auth0, and for login redirects
@@ -199,8 +207,6 @@ export function startWebserver() {
     // which is never actually used.
     ElasticController.addRoutes(app);
   }
-
-  addGivingSeasonEndpoints(app);
 
   // Most middleware need to run after those added by addAuthMiddlewares, so that they can access the user that passport puts on the request.  Be careful if moving it!
   addAuthMiddlewares(addMiddleware);

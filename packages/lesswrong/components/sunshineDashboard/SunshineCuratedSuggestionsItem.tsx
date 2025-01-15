@@ -9,8 +9,9 @@ import { useHover } from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary'
 import * as _ from 'underscore';
 import classNames from 'classnames';
+import { isFriendlyUI } from '@/themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   audioIcon: {
     width: 14,
     height: 14,
@@ -18,20 +19,20 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     top: 2
   },
-  postTitle: {
+  postTitle: isFriendlyUI ? {} : {
     ...theme.typography.body2,
     ...theme.typography.postStyle,
     fontSize: "1rem",
     fontWeight: 500,
   },
-  titleWithCurationNotice: {
+  titleWithCurationNotice: isFriendlyUI ? {} : {
     color: 'green',
     fontWeight: 600,
   },
 });
 
 const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   post: SunshineCurationPostsList,
   setCurationPost?: (post: SunshineCurationPostsList) => void,
 }) => {

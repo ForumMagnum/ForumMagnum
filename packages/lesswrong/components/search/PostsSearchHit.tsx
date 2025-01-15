@@ -7,7 +7,7 @@ import type { Hit } from 'react-instantsearch-core';
 import DescriptionIcon from '@material-ui/icons/Description';
 import { SearchHitComponentProps } from './types';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: 8,
     paddingLeft: 10,

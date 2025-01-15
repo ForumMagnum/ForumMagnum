@@ -50,7 +50,7 @@ const useCurrentEvent = (): CurrentEvent | null => {
   };
 }
 
-const HeaderEventSubtitle = ({classes}: {classes: ClassesType}) => {
+const HeaderEventSubtitle = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const currentEvent = useCurrentEvent();
   return currentEvent
     ? (

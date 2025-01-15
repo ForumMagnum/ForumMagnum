@@ -52,8 +52,6 @@ import './server/scripts/dropAndSeedJestPg';
 import './server/scripts/generateSQLSchema';
 import './server/scripts/reviewGetResultsPost';
 import './server/scripts/sendAnnualForumUserSurveyEmails';
-import './server/scripts/sendWrappedNotifications';
-import './server/scripts/triggerWrappedRefresh';
 import './server/scripts/removeRsvp';
 import './server/scripts/regenerateUnicodeSlugs';
 import './server/scripts/checkPostForSockpuppetVoting';
@@ -200,6 +198,7 @@ import './server/resolvers/anthropicResolvers';
 import './server/resolvers/llmConversationsResolvers';
 import './server/resolvers/jargonResolvers/jargonTermResolvers';
 import './server/resolvers/multiDocumentResolvers';
+import './server/resolvers/importUrlAsDraftPost';
 import './server/resolvers/lightcone2024FundraiserResolvers';
 
 import './server/intercomSetup';
@@ -224,6 +223,11 @@ import './server/styleGeneration';
 
 import './server/embeddings';
 
+// EA Forum wrapped
+import './server/wrapped/sendWrappedNotifications';
+import './server/wrapped/sampleWrappedPersonalities';
+import './server/wrapped/triggerWrappedRefresh';
+
 // Elasticsearch integration
 import './server/search/elastic/ElasticExporter';
 import './server/search/elastic/elasticCallbacks';
@@ -236,5 +240,3 @@ import './server/conversationUnreadMessages';
 import './server/userLoginTokens';
 
 import './server/migrations/meta/utils';
-
-import './server/givingSeason/resolvers'

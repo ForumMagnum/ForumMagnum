@@ -9,7 +9,7 @@ import { useLocation } from '../../lib/routeUtil';
 import type { GraphQLError } from 'graphql';
 import {isFriendlyUI} from '../../themes/forumTheme.ts'
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     wordBreak: "normal",
     padding: 16,
@@ -98,7 +98,7 @@ type LoginFormProps = {
   startingState?: possibleActions,
   immediateRedirect?: boolean,
   onClose?: () => void,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }
 
 const LoginForm = (props: LoginFormProps) => {

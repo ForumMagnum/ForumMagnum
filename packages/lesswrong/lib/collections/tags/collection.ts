@@ -6,6 +6,8 @@ import { userIsAdmin } from '../../vulcan-users/permissions';
 import schema from './schema';
 import { tagUserHasSufficientKarma, userIsSubforumModerator } from './helpers';
 import { formGroups } from './formGroups';
+import { makeVoteable } from '@/lib/make_voteable';
+import { addSlugFields } from '@/lib/utils/schemaUtils';
 
 export const EA_FORUM_COMMUNITY_TOPIC_ID = 'ZCihBFp5P64JCvQY6';
 export const EA_FORUM_TRANSLATION_TOPIC_ID = 'f4d3KbWLszzsKqxej';
@@ -59,6 +61,17 @@ addUniversalFields({collection: Tags, legacyDataOptions: {
   canCreate: ['admins'],
   canUpdate: ['admins'],
 }});
+addSlugFields({
+  collection: Tags,
+  collectionsToAvoidCollisionsWith: ["Tags", "MultiDocuments"],
+  getTitle: (t) => t.name,
+  slugOptions: {
+    canCreate: ['admins', 'sunshineRegiment'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    group: formGroups.advancedOptions,
+  },
+  includesOldSlugs: true,
+});
 
 makeEditable({
   collection: Tags,
@@ -111,5 +124,9 @@ makeEditable({
     },
   }
 })
+
+makeVoteable(Tags, {
+  timeDecayScoresCronjob: false,
+});
 
 export default Tags;

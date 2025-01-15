@@ -2,9 +2,6 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
-// Import the shared types
-import { WikiTagNode } from './types'; // Adjust the import path as needed
-
 const styles = defineStyles("WikiTagNestedList", (theme: ThemeType) => ({
   root: {
     width: "100%",
@@ -17,7 +14,8 @@ const styles = defineStyles("WikiTagNestedList", (theme: ThemeType) => ({
   showMoreChildren: {
     fontSize: 12,
     fontWeight: 400,
-    color: "#426c46",
+    // TODO: put this into a theme
+    color: theme.palette.text.alwaysLightGrey,
     marginBottom: 8,
     marginTop: 2,
     marginLeft: 16,
@@ -25,14 +23,17 @@ const styles = defineStyles("WikiTagNestedList", (theme: ThemeType) => ({
   },
 }));
 
+interface WikiTagNode extends ConceptItemFragment {
+  parentTagId: string | null;
+  baseScore: number;
+  children: WikiTagNode[];
+}
+
 interface WikiTagNestedListProps {
   pages: WikiTagNode[];
   nestingLevel?: number;
   maxInitialShow?: number;
   totalChildrenCount?: number;
-  onHover?: (wikitag: WikiTagNode | null) => void;
-  onClick?: (wikitag: WikiTagNode) => void;
-  pinnedWikiTag?: WikiTagNode | null;
   showArbitalIcons?: boolean;
 }
 
@@ -41,15 +42,10 @@ const WikiTagNestedList = ({
   nestingLevel = 0,
   maxInitialShow = 40,
   totalChildrenCount,
-  onHover,
-  onClick,
-  pinnedWikiTag,
   showArbitalIcons = false,
 }: WikiTagNestedListProps) => {
   const { ConceptItem } = Components;
   const classes = useStyles(styles);
-
-  console.log("in wikitagnestedlist", showArbitalIcons)
 
   return (
     <div className={classes.childrenList}>
@@ -57,10 +53,8 @@ const WikiTagNestedList = ({
         <ConceptItem 
           key={page._id} 
           wikitag={page} 
-          nestingLevel={nestingLevel} 
-          onHover={onHover}
-          onClick={onClick}
-          pinnedWikiTag={pinnedWikiTag}
+          // TODO: this will be broken but who knows if we're even keeping this component
+          isTitleItem={nestingLevel === 0}
           showArbitalIcon={showArbitalIcons}
         />
       ))}

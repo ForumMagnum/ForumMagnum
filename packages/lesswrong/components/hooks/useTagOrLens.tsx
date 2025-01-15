@@ -9,11 +9,12 @@ export function useTagOrLens<TagFragmentTypeName extends FragmentTypesByCollecti
   tag: FragmentTypes[TagFragmentTypeName]|null,
   loadingTag: boolean,
   tagError: any,
+  refetchTag: () => Promise<void>,
   lens: MultiDocumentParentDocument|null,
   loadingLens: boolean,
   lensError: any
 } {
-  const { tag, loading: loadingTag, error: tagError } = useTagBySlug(slug, tagFragmentName, tagQueryOptions);
+  const { tag, loading: loadingTag, error: tagError, refetch: refetchTag } = useTagBySlug(slug, tagFragmentName, tagQueryOptions);
 
   const { results: lensWithParentTag, loading: loadingLens, error: lensError } = useMulti({
     collectionName: 'MultiDocuments',
@@ -31,6 +32,7 @@ export function useTagOrLens<TagFragmentTypeName extends FragmentTypesByCollecti
     tag,
     loadingTag,
     tagError,
+    refetchTag,
     lens: lensWithParentTag?.[0] ?? null,
     loadingLens,
     lensError,

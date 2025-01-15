@@ -9,7 +9,7 @@ import { VotingProps } from '../../votes/votingProps';
 import type { ContentItemBody, ContentReplacedSubstringComponentInfo } from '../../common/ContentItemBody';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   commentStyling: {
     maxWidth: "100%",
     overflowX: "hidden",
@@ -54,7 +54,7 @@ const CommentBody = ({
   postPage?: boolean,
   voteProps?: VotingProps<VoteableTypeClient>
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const { ContentItemBody, CommentDeletedMetadata, ContentStyles, InlineReactSelectionWrapper } = Components
@@ -98,7 +98,7 @@ const CommentBody = ({
     />
   </ContentStyles>
 
-  if (votingSystem.name === "namesAttachedReactions" && voteProps) {
+  if (votingSystem.hasInlineReacts && voteProps) {
     return <InlineReactSelectionWrapper commentBodyRef={commentBodyRef} voteProps={voteProps} styling="comment" >
       {contentBody}
     </InlineReactSelectionWrapper>

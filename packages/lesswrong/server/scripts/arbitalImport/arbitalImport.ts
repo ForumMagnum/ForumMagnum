@@ -8,10 +8,9 @@ import UsersRepo from "../../repos/UsersRepo";
 import { loadArbitalDatabase, WholeArbitalDatabase, PageSummariesRow, PagesRow, PageInfosRow, DomainsRow, LensesRow } from './arbitalSchema';
 import keyBy from 'lodash/keyBy';
 import groupBy from 'lodash/groupBy';
-import { createAdminContext, createMutator, slugify, updateMutator } from '@/server/vulcan-lib';
+import { createAdminContext, createMutator, getCollection, updateMutator } from '@/server/vulcan-lib';
 import Tags from '@/lib/collections/tags/collection';
 import ArbitalTagContentRels from '@/lib/collections/arbitalTagContentRels/collection';
-import { getUnusedSlugByCollectionName, slugIsUsed } from '@/lib/helpers';
 import { randomId } from '@/lib/random';
 import { MultiDocuments } from '@/lib/collections/multiDocuments/collection';
 import { executePromiseQueue, asyncMapSequential } from '@/lib/utils/asyncUtils';
@@ -27,6 +26,15 @@ import { Comments } from '@/lib/collections/comments';
 import uniq from 'lodash/uniq';
 import maxBy from 'lodash/maxBy';
 import { recomputePingbacks } from '@/server/pingbacks';
+import { performVoteServer } from '@/server/voteServer';
+import { Votes } from '@/lib/collections/votes';
+import mapValues from 'lodash/mapValues';
+import flatMap from 'lodash/flatMap';
+import { updatePostDenormalizedTags } from '@/server/tagging/helpers';
+import { getUnusedSlugByCollectionName } from '@/server/utils/slugUtil';
+import { slugify } from '@/lib/utils/slugify';
+import ElasticExporter from '@/server/search/elastic/ElasticExporter';
+import { SearchIndexCollectionName } from '@/lib/search/searchUtil';
 
 type ArbitalImportOptions = {
   /**
@@ -56,8 +64,25 @@ type ArbitalImportOptions = {
   userMatchingFile?: string
   
   skipImportingPages?: boolean
+
+  /**
+   * 
+   */
+  coreTagAssignmentsFile?: string
+  
+  /**
+   * Number of wiki pages to import in parallel. Use when latency to the DB is high.
+   */
+  parallelism?: number,
 }
 const defaultArbitalImportOptions: ArbitalImportOptions = {};
+
+const excludedArbitalPageIds = [
+  // Rationality
+  // This is a stub on the Arbital side, and an important core tag whose tag ID
+  // appears all over the place on the LW side
+  '9l',
+];
 
 async function connectAndLoadArbitalDatabase(mysqlConnectionString: string): Promise<WholeArbitalDatabase> {
   let connection: mysql.Connection | null = null;
@@ -102,6 +127,22 @@ Globals.deleteImportedArbitalWikiPages = async () => {
       },
     });
   }
+  
+  const multiDocumentsToDelete = await MultiDocuments.find({
+    "legacyData.arbitalPageId": {$exists: true},
+    deleted: false,
+  }).fetch();
+  for (const lensOrSummary of multiDocumentsToDelete) {
+    await MultiDocuments.rawUpdateOne({
+      _id: lensOrSummary._id,
+    }, {
+      "$set": {
+        slug: `deleted-import-${randomId()}`,
+        oldSlugs: [],
+        deleted: true,
+      },
+    });
+  }
 }
 
 Globals.deleteImportedArbitalUsers = async () => {
@@ -138,9 +179,9 @@ Globals.replaceAllImportedArbitalData = async (mysqlConnectionString: string, op
 }
 
 function summaryNameToSortOrder(name: string): number {
-  if (name === 'Brief') return 0;
-  if (name === 'Summary') return 1;
-  if (name === 'Technical') return 2;
+  if (name.toLowerCase() === 'brief') return 0;
+  if (name.toLowerCase() === 'summary') return 1;
+  if (name.toLowerCase() === 'technical') return 2;
   return 3;
 }
 
@@ -158,6 +199,7 @@ type CreateSummariesForPageArgs = {
   pageId: string;
   importedRecordMaps: ImportedRecordMaps;
   pageCreator: DbUser | null;
+  liveRevision: PagesRow;
   resolverContext: ResolverContext;
   conversionContext: ArbitalConversionContext;
 } & ({
@@ -166,12 +208,27 @@ type CreateSummariesForPageArgs = {
   lensMultiDocumentId: string;
 })
 
-async function createSummariesForPage({ pageId, importedRecordMaps, pageCreator, conversionContext, resolverContext, ...parentIdArg }: CreateSummariesForPageArgs) {
-  const { summariesByPageId } = importedRecordMaps;
-  const topLevelPageSummaries = summariesByPageId[pageId] ?? [];
-  topLevelPageSummaries.sort((a, b) => summaryNameToSortOrder(a.name) - summaryNameToSortOrder(b.name));
+function isDefaultSummaryOrEmpty(summary: PageSummariesRow, pageText: string): boolean {
+  if (!summary.text.trim()) return true;
+  
+  return pageText.startsWith(summary.text);
+}
 
-  for (const [idx, summary] of Object.entries(topLevelPageSummaries)) {
+async function createSummariesForPage({ pageId, importedRecordMaps, pageCreator, conversionContext, liveRevision, resolverContext, ...parentIdArg }: CreateSummariesForPageArgs) {
+  const { summariesByPageId } = importedRecordMaps;
+  const allPageSummaries = summariesByPageId[pageId] ?? [];
+  
+  const nonDefaultSummaries = allPageSummaries.filter(summary => 
+    !isDefaultSummaryOrEmpty(summary, liveRevision.text)
+  );
+
+  if (allPageSummaries.length !== nonDefaultSummaries.length) {
+    console.log(`Skipping ${allPageSummaries.length - nonDefaultSummaries.length} default summaries for page ${pageId}`);
+  }
+  
+  nonDefaultSummaries.sort((a, b) => summaryNameToSortOrder(a.name) - summaryNameToSortOrder(b.name));
+
+  for (const [idx, summary] of Object.entries(nonDefaultSummaries)) {
     const summaryHtml = await arbitalMarkdownToCkEditorMarkup({
       markdown: summary.text,
       pageId,
@@ -209,6 +266,7 @@ async function createSummariesForPage({ pageId, importedRecordMaps, pageCreator,
           }
         },
         legacyData: {
+          arbitalSummaryName: summary.name,
           arbitalPageId: summary.pageId,
         },
       } as AnyBecauseHard,
@@ -216,7 +274,12 @@ async function createSummariesForPage({ pageId, importedRecordMaps, pageCreator,
       currentUser: pageCreator,
       validate: false,
     })).data;
-    // TODO: Import summaries history and back-date objects
+
+    await Promise.all([
+      backDateObj(MultiDocuments, summaryObj._id, liveRevision.createdAt),
+      backDateRevision(summaryObj.contents_latest!, liveRevision.createdAt),
+    ]);
+    // TODO: Import summaries history?
   }
 }
 
@@ -361,10 +424,12 @@ type PagesToConvertToLenses = Array<{
 type RedLinksSet = Array<{
   slug: string
   title: string
+  referencedFromPage: string
 }>;
 
 export type ArbitalConversionContext = {
   database: WholeArbitalDatabase,
+  options: ArbitalImportOptions,
   matchedUsers: Record<string,DbUser|null>
   defaultUser: DbUser,
   slugsByPageId: Record<string,string>
@@ -400,7 +465,11 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
   // This needs to be rerun whenever the page import is run
   await importPagePairs(database, resolverContext, options);
 
-  //await importComments(database, conversionContext, resolverContext, options);
+  if (options.coreTagAssignmentsFile) {
+    await importCoreTagAssignments(options.coreTagAssignmentsFile);
+  }
+
+  await importComments(database, conversionContext, resolverContext, options);
 }
 
 
@@ -418,7 +487,9 @@ async function findCollidingWikiPages(database: WholeArbitalDatabase): Promise<{
   const pagesToConvertToLenses: PagesToConvertToLenses = [];
 
   const pagesById = groupBy(database.pages, p=>p.pageId);
-  const wikiPageIds = database.pageInfos.filter(pi => pi.type === "wiki").map(pi=>pi.pageId);
+  const wikiPageIds = database.pageInfos
+    .filter(pi => pi.type === "wiki" && !excludedArbitalPageIds.includes(pi.pageId))
+    .map(pi=>pi.pageId);
 
   // Find wiki pages that were previously moved out of the way by a previous
   // Arbital import, which should be converted to lenses again
@@ -480,19 +551,28 @@ async function renameCollidingWikiPages(existingPagesToMove: Array<{
   lwWikiPageSlug: string
   newSlug: string
 }>): Promise<void> {
+  // Rename existing wiki pages to slugs starting with lwwiki-old-, and mark them as deleted
   await executePromiseQueue(
     existingPagesToMove.map(({lwWikiPageSlug, newSlug}) => {
       return async () => {
         return Tags.rawUpdateOne(
           {slug: lwWikiPageSlug},
           {$set: {
-            slug: newSlug
+            slug: newSlug,
+            deleted: true,
           }}
         );
       }
     }),
     10
   );
+  
+  // Ensure any previously-moved pages are marked as deleted
+  await runSqlQuery(`
+    UPDATE "Tags"
+    SET deleted=true
+    WHERE slug LIKE 'lwwiki-old-%'
+  `);
 }
 
 async function buildConversionContext(database: WholeArbitalDatabase, pagesToConvertToLenses: PagesToConvertToLenses, options: ArbitalImportOptions): Promise<ArbitalConversionContext> {
@@ -553,7 +633,7 @@ async function buildConversionContext(database: WholeArbitalDatabase, pagesToCon
       };
     }), 10
   );
-  
+   
   //fs.writeFileSync(slugsCachePath, JSON.stringify(slugsByPageId, null, 2));
   
   // Determine URLs for links to lensIds
@@ -572,6 +652,7 @@ async function buildConversionContext(database: WholeArbitalDatabase, pagesToCon
 
   return {
     database,
+    options,
     matchedUsers, defaultUser,
     slugsByPageId,
     summariesByPageId,
@@ -590,8 +671,9 @@ async function buildConversionContext(database: WholeArbitalDatabase, pagesToCon
 
 async function importWikiPages(database: WholeArbitalDatabase, conversionContext: ArbitalConversionContext, resolverContext: ResolverContext, options: ArbitalImportOptions): Promise<void> {
   const pagesById = groupBy(database.pages, p=>p.pageId);
-  const lensesByPageId = groupBy(database.lenses, l=>l.pageId);
+  const lensesByPageId = mapValues(groupBy(database.lenses, l=>l.pageId), lenses=>sortBy(lenses, l=>l.lensIndex));
   const lensIds = new Set(database.lenses.map(l=>l.lensId));
+  const tagIdsToReindex: string[] = [];
 
   const {
     pageInfosByPageId: pageInfosById, slugsByPageId, summariesByPageId, titlesByPageId,
@@ -616,17 +698,17 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
         if (pagesById[p]) return p;
         throw new Error(`Page title not found: ${p}`)
       })
-    : Object.keys(liveRevisionsByPageId).filter(pageId => !lensIds.has(pageId))
+    : Object.keys(liveRevisionsByPageId).filter(pageId => !lensIds.has(pageId) && !excludedArbitalPageIds.includes(pageId))
   console.log(`Importing ${pageIdsToImport.length} pages`)
 
   console.log("Importing pages with ids:", pageIdsToImport);
   
   const alternativesByPageId = computePageAlternatives(database);
   
-  for (const pageId of pageIdsToImport) {
+  await executePromiseQueue(pageIdsToImport.map((pageId) => async () => {
     try {
       const pageInfo = pageInfosById[pageId];
-      if (pageInfo.isDeleted) continue;
+      if (pageInfo.isDeleted) return;
       const lenses = lensesByPageId[pageId] ?? [];
       const revisions = database.pages.filter(p => p.pageId === pageId)
         .sort(r => r.edit)
@@ -648,6 +730,10 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
       });
       console.log(`Creating wiki page: ${title} (${slug}).  Lenses found: ${lenses.map(l=>l.lensName).join(", ")}`);
 
+      // If we're going to merge with an LW wiki page, fetch that page for reference
+      const lwWikiPageToConvertToLens = pagesToConvertToLenses.find(({arbitalPageId}) => arbitalPageId === pageId);
+      const lwWikiPage = lwWikiPageToConvertToLens ? await Tags.findOne({_id: lwWikiPageToConvertToLens.tagId}) : null;
+
       // Create wiki page with the oldest revision (we will create the rest of
       // revisions next; creating them in-order ensures some on-insert callbacks
       // work properly.)
@@ -656,7 +742,7 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
         wiki = await Tags.findOne({ 'legacyData.arbitalPageId': pageId });
         if (!wiki) {
           console.log(`Wiki page not found: ${pageId}`);
-          continue;
+          return;
         }
       } else {
         wiki = (await createMutator({
@@ -674,6 +760,7 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
             },
             legacyData: {
               "arbitalPageId": pageId,
+              ...(lwWikiPage ? {mergedLWTagId: lwWikiPage._id} : {}),
             },
           },
           context: resolverContext,
@@ -687,6 +774,9 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
           backDateRevision(wiki.description_latest!, pageInfo.createdAt),
         ]);
       }
+
+      tagIdsToReindex.push(wiki._id);
+      await convertLikesToVotes(conversionContext, pageInfo.likeableId, "Tags", wiki._id);
 
       const pageAlternatives = alternativesByPageId[pageId];
       if (pageAlternatives && Object.values(pageAlternatives).some(alternatives => alternatives.length > 0)) {
@@ -712,6 +802,7 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
         importedRecordMaps,
         conversionContext,
         pageCreator,
+        liveRevision,
         resolverContext,
         tagId: wiki._id,
       });
@@ -758,12 +849,12 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
         }
 
         const lensAliasRedirects = database.aliasRedirects.filter(ar => ar.newAlias === lensPageInfo.alias);
-        const lensSlug = lensPageInfo.alias;
+        const lensSlug = slugsByPageId[lens.lensId];
         // TODO: add lensId(?) to oldSlugs.  (Not sure if it's lensId or pageId)
         const lensRevisions = database.pages.filter(p => p.pageId === lens.lensId);
         const lensFirstRevision = lensRevisions[0];
         const lensLiveRevision = liveRevisionsByPageId[lens.lensId];
-        const oldLensSlugs = [...lensAliasRedirects.map(ar => ar.oldAlias), lens.lensId];
+        const oldLensSlugs = [lensPageInfo.alias, ...lensAliasRedirects.map(ar => ar.oldAlias), lens.lensId];
         const lensTitle = lensLiveRevision.title;
         const lensFirstRevisionCkEditorMarkup = await arbitalMarkdownToCkEditorMarkup({
           markdown: lensFirstRevision.text,
@@ -824,6 +915,8 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
             conversionContext: conversionContext,
             resolverContext,
           });
+          
+          await convertLikesToVotes(conversionContext, pageInfosById[lens.lensId].likeableId, "MultiDocuments", lensObj._id);
 
         } else {
           lensObj = await MultiDocuments.findOne({ slug: lensSlug });
@@ -852,33 +945,33 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
         }*/
 
         await createSummariesForPage({
-          pageId,
+          pageId: lens.lensId,
           importedRecordMaps,
           conversionContext,
           pageCreator,
+          liveRevision: lensLiveRevision,
           resolverContext,
           lensMultiDocumentId: lensObj._id,
         });
       }
       
-      const lwWikiPageToConvertToLens = pagesToConvertToLenses.find(({arbitalPageId}) => arbitalPageId === pageId);
       if (lwWikiPageToConvertToLens) {
         console.log(`Converting LW wiki page ${lwWikiPageToConvertToLens.tagId} to a lens`);
-        const lwWikiPage = await Tags.findOne({_id: lwWikiPageToConvertToLens.tagId});
-        if (!lwWikiPage) continue;
+        if (!lwWikiPage) return;
         const lwWikiPageCreator: DbUser = (await Users.findOne({_id: lwWikiPage.userId}))!;
         const lwWikiLensSlug = await getUnusedSlugByCollectionName("MultiDocuments", `lwwiki-${slugify(title)}`);
         const lwWikiLensIndex = lenses.length > 0
           ? maxBy(lenses, l => l.lensIndex)!.lensIndex + 1
           : 0;
+        tagIdsToReindex.push(lwWikiPageToConvertToLens.tagId);
 
         const lwWikiPageRevisions = await Revisions.find({
           documentId: lwWikiPage._id,
           fieldName: "description",
           collectionName: "Tags",
-        }).fetch();
+        }, { sort: { editedAt: 1} }).fetch();
         if (!lwWikiPageRevisions.length) {
-          continue;
+          return;
         }
 
         const lwWikiLens = (await createMutator({
@@ -903,6 +996,15 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
           validate: false,
         })).data;
 
+        // Backdate the lens and the automatically-created revision to the
+        // timestamp of the earliest revision on the LW wiki page, minus one second (to avoid potential ordering issues with the copied-over revisions)
+        const earliestRevisionTimestamp = new Date(lwWikiPageRevisions[0].createdAt.getTime() - 1000);
+
+        await Promise.all([
+          backDateObj(MultiDocuments, lwWikiLens._id, earliestRevisionTimestamp),
+          backDateRevision(lwWikiLens.contents_latest!, earliestRevisionTimestamp),
+        ]);
+
         // Clone revisions on the LW wiki page as revisions on the lens
         for (const lwWikiPageRevision of lwWikiPageRevisions) {
           const { _id, ...fieldsToCopy } = lwWikiPageRevision;
@@ -915,6 +1017,19 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
         }
         const latestRev = maxBy(lwWikiPageRevisions, r=>r.editedAt)!;
         
+        // Move TagRels/comments/etc from the original LW wiki page, and any
+        // previous imports that merged with that page, onto the new merged
+        // page.
+        const oldMergedTagIds = (await Tags.find({
+          "legacyData.mergedLWTagId": lwWikiPage._id,
+          deleted: true,
+        }).fetch()).map(t=>t._id);
+        await moveFieldsOnMergedPage({lwWikiPage, mergedPage: wiki});
+        await moveReferencesToMergedPage({
+          oldTagIds: [lwWikiPage._id, ...oldMergedTagIds],
+          newTagId: wiki._id,
+        });
+        
         // Set the active rev on the new lens
         await MultiDocuments.rawUpdateOne(
           { _id: lwWikiLens._id },
@@ -926,17 +1041,21 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
     } catch(e) {
       console.error(e);
     }
-  }
+  }), options.parallelism ?? 1);
+  
+  // Update Algolia index for updated tags
+  await updateElasticSearchForIds("Tags", tagIdsToReindex);
 }
 
 async function importComments(database: WholeArbitalDatabase, conversionContext: ArbitalConversionContext, resolverContext: ResolverContext, options: ArbitalImportOptions): Promise<void> {
+  const lensesByLensId = keyBy(database.lenses, l=>l.lensId);
   const commentPageInfos = database.pageInfos.filter(pi => pi.type === "comment");
   const pageInfosById = keyBy(database.pageInfos, pi=>pi.pageId);
   let irregularComments: {reason: string, commentId: string}[] = [];
 
-  let importedCommentCount = 0;
   const commentIdsToImport: string[] = [];
   let lwCommentsById: Record<string, DbComment> = {};
+  const commentIdsToReindexInElastic: string[] = [];
   
   // Sort comments by creation date so that we only insert a comment after
   // inserting its parent
@@ -962,11 +1081,17 @@ async function importComments(database: WholeArbitalDatabase, conversionContext:
       irregularComments.push({reason: "Has a parent that doesn't exist", commentId});
       continue;
     }
-    const wikiPageParentId = parentIds.find(parentId => pageInfosById[parentId]?.type === "wiki")
+    let wikiPageParentId = parentIds.find(parentId => pageInfosById[parentId]?.type === "wiki")
     const parentCommentId = parentIds.find(parentId => pageInfosById[parentId]?.type === "comment")
     if (!wikiPageParentId) {
       irregularComments.push({reason: "Not a reply to a wiki page", commentId});
       continue;
+    }
+
+    if (lensesByLensId[wikiPageParentId]) {
+      // If the parent is a lens, then the comment is a reply to a lens.
+      // We don't plan on supporting replies to lenses, so instead reassign to the top-level page
+      wikiPageParentId = lensesByLensId[wikiPageParentId].pageId;
     }
     
     commentIdsToImport.push(commentId);
@@ -1002,23 +1127,39 @@ async function importComments(database: WholeArbitalDatabase, conversionContext:
       validate: false,
     })).data;
     lwCommentsById[commentId] = lwComment;
+    commentIdsToReindexInElastic.push(lwComment._id);
+
     await Comments.rawUpdateOne({_id: lwComment._id}, {
       $set: {
         createdAt: comment.createdAt,
         postedAt: comment.createdAt,
       }
     });
+    
+    await convertLikesToVotes(conversionContext, comment.likeableId, "Comments", lwComment._id);
   }
   
-
-  // Insert the comments
-
+  // Print summary stats
   console.log(`Import found ${commentIdsToImport.length} normal comments and ${irregularComments.length} irregular comments`);
   const irregularCommentsByReason = groupBy(irregularComments, c=>c.reason)
   console.log(Object.keys(irregularCommentsByReason)
     .map((reason) => `${irregularCommentsByReason[reason].length}: ${reason}`)
     .join("\n")
   );
+  
+  // Update Algolia index for imported comments
+  // The createMutator will have already created index entries via callbacks,
+  // but after creating them we backdated them, so the dates in the index are
+  // wrong.
+  await updateElasticSearchForIds("Comments", commentIdsToReindexInElastic);
+}
+
+async function updateElasticSearchForIds(collectionName: SearchIndexCollectionName, documentIds: string[]): Promise<void> {
+  const elasticExporter = new ElasticExporter();
+  const uniqueIds = uniq(documentIds);
+  await executePromiseQueue(uniqueIds.map(documentId => () => {
+    return elasticExporter.updateDocument(collectionName, documentId);
+  }), 10);
 }
 
 async function createRedLinkPlaceholders(redLinks: RedLinksSet, conversionContext: ArbitalConversionContext) {
@@ -1026,14 +1167,20 @@ async function createRedLinkPlaceholders(redLinks: RedLinksSet, conversionContex
   
   // Group red-links by slug
   const redLinksBySlug = groupBy(redLinks, redLink=>redLink.slug);
-  for (const slug of Object.keys(redLinksBySlug)) {
+  await executePromiseQueue(Object.keys(redLinksBySlug).map((slug) => async () => {
+    // Check whether a redlink placeholder page already exists for this slug
+    const existingPlaceholderPage = await Tags.findOne({slug, deleted: false});
+    if (existingPlaceholderPage) {
+      return;
+    }
+
     // Check whether the red-links all agree on the title and warn if not
     const possibleTitles = redLinksBySlug[slug].map(r=>r.title);
     const selectedTitle = possibleTitles[0]; // TODO
     const capitalizedTitle = selectedTitle.substring(0,1).toUpperCase() + selectedTitle.substring(1);
     
     // Create the page
-    console.log(`Creating redlink placeholder page ${slug}: ${selectedTitle}`);
+    console.log(`Creating redlink placeholder page ${slug}: ${selectedTitle} (referenced from ${redLinksBySlug[slug].map(r=>r.referencedFromPage)})`);
     await createMutator({
       collection: Tags,
       document: {
@@ -1051,16 +1198,15 @@ async function createRedLinkPlaceholders(redLinks: RedLinksSet, conversionContex
       currentUser: conversionContext.defaultUser,
       validate: false,
     });
-  }
+  }), conversionContext.options.parallelism ??1);
 }
 
 Globals.deleteRedLinkPlaceholders = async (conversionContext: ArbitalConversionContext) => {
-  const redLinPlaceholderPagesToDelete = await Tags.find({
-    "legacyData.arbitalPageId": {$exists: true},
+  const redLinkPlaceholderPagesToDelete = await Tags.find({
     isPlaceholderPage: true,
     deleted: false,
   }).fetch();
-  for (const wikiPage of redLinPlaceholderPagesToDelete) {
+  for (const wikiPage of redLinkPlaceholderPagesToDelete) {
     await Tags.rawUpdateOne({
       _id: wikiPage._id,
     }, {
@@ -1072,6 +1218,40 @@ Globals.deleteRedLinkPlaceholders = async (conversionContext: ArbitalConversionC
   }
 }
 
+Globals.deleteExcessRedLinkPlaceholders = async () => {
+  const redLinkPlaceholderPages = await Tags.find({
+    isPlaceholderPage: true,
+    deleted: false,
+  }).fetch();
+  const redLinkPlaceholderPagesByUnnumberedSlug = groupBy(redLinkPlaceholderPages, t=>removeNumberFromSlug(t.slug));
+  const redLinkPlaceholderPagesToDelete = flatMap(redLinkPlaceholderPagesByUnnumberedSlug , group =>
+    group.length > 1
+      ? sortBy(group, g=>g.createdAt).slice(1)
+      : []
+  );
+  console.log(`Will delete ${redLinkPlaceholderPagesToDelete.length}/${redLinkPlaceholderPages.length} placeholder pages`);
+
+  for (const wikiPage of redLinkPlaceholderPagesToDelete) {
+    await Tags.rawUpdateOne({
+      _id: wikiPage._id,
+    }, {
+      "$set": {
+        slug: `deleted-import-${randomId()}`,
+        deleted: true,
+      },
+    });
+  }
+}
+
+function removeNumberFromSlug(slug: string): string {
+  const dashedGroups = slug.split('-');
+  if (dashedGroups.length <= 1) return slug;
+  if (/[1-9][0-9]*/.test(dashedGroups[dashedGroups.length-1])) {
+    return dashedGroups.slice(0, dashedGroups.length-1).join("-");
+  } else {
+    return slug;
+  }
+}
 
 
 async function backDateObj<N extends CollectionNameString>(collection: CollectionBase<N>, _id: string, date: Date) {
@@ -1113,6 +1293,63 @@ async function backDateAndAddLegacyDataToRevision(_id: string, date: Date, legac
       legacyData,
     }}
   );
+}
+
+async function convertLikesToVotes(conversionContext: ArbitalConversionContext, arbitalLikeableId: number, collectionName: VoteableCollectionName, documentId: string) {
+  // TODO: Check that the execution-order of votes comes out right. There
+  // have been voting bugs in the past related to votes being cast
+  // simultaneously and hitting concurrency issues.
+
+  const applicableLikes = conversionContext.database.likes.filter(like => like.likeableId === arbitalLikeableId);
+  const sortedLikes = sortBy(applicableLikes, l=>l.updatedAt);
+  const collection = getCollection(collectionName);
+  let first = true;
+
+  for (const like of sortedLikes) {
+    if (like.value === -1) {
+      // Redlinks and change-requests can have downvotes, but we don't handle those.
+      continue;
+    }
+    if (like.value === 0) {
+      // A cancelled like
+      continue;
+    }
+    
+    const user = conversionContext.matchedUsers[like.userId];
+    if (!user) {
+      console.error(`Could not find user ${like.userId} for like on ${arbitalLikeableId}`);
+      continue;
+    }
+    
+    const { vote } = await performVoteServer({
+      collection,
+      user,
+      voteType: "bigUpvote",
+      extendedVote: (collectionName === "Comments" ? {
+        reacts: [{
+          react: "thumbs-up",
+          vote: first ? "created" : "seconded",
+        }]
+      } : null),
+      selfVote: false,
+      documentId,
+      skipRateLimits: true,
+      toggleIfAlreadyVoted: false,
+    });
+    if (vote) {
+      await Votes.rawUpdateOne(
+        { _id: vote._id },
+        {$set:{
+          createdAt: like.updatedAt,
+          legacyData: {
+            arbitalUpdatedAt: like.updatedAt,
+            arbitalLikeableId,
+          }
+        }},
+      );
+    }
+    first = false;
+  }
 }
 
 /**
@@ -1173,7 +1410,10 @@ async function importRevisions<N extends CollectionNameString>({
       validate: false,
     })).data;
     await backDateRevision(lwRevision._id, arbRevision.createdAt);
-    await afterCreateRevisionCallback.runCallbacksAsync([{ revisionID: lwRevision._id }]);
+    await afterCreateRevisionCallback.runCallbacksAsync([{
+      revisionID: lwRevision._id,
+      skipDenormalizedAttributions: true,
+    }]);
   }
   
   // Handle the last revision separately, as an edit-operation rather than a
@@ -1248,6 +1488,68 @@ async function loadUserMatching(csvFilename: string): Promise<Record<string,DbUs
   return result;
 }
 
+async function moveFieldsOnMergedPage({lwWikiPage, mergedPage}: {
+  lwWikiPage: DbTag
+  mergedPage: DbTag
+}) {
+  const fieldsToCopy: Array<keyof DbTag> = [
+    // Contentful fields
+    "core", "suggestedAsFilter", "defaultOrder", "descriptionTruncationCount", "adminOnly",
+    "canEditUserIds", "needsReview", "reviewedByUserId", "wikiGrade", "postsDefaultSortOrder",
+    "canVoteOnRels", "autoTagModel", "autoTagPrompt", "noindex",
+
+    // Denormalized fields
+    "postCount", "lastCommentedAt", "lastSubforumCommentAt"
+
+    // EA Forum-only fields
+    // isSubforum, subforumModeratorIds, subforumIntroPostId, 
+
+    // Dead fields
+    // charsAdded, charsRemoved, introSequenceId
+  ];
+  
+  await Tags.rawUpdateOne(
+    {_id: mergedPage._id},
+    {$set: Object.fromEntries(fieldsToCopy.map(fieldName => [fieldName, lwWikiPage[fieldName]]))
+    }
+  );
+}
+
+async function moveReferencesToMergedPage({oldTagIds, newTagId}: {
+  oldTagIds: string[]
+  newTagId: string
+}) {
+  async function redirectTagReferences<N extends CollectionNameString>(collectionName: N, fieldName: keyof ObjectsByCollectionName[N]) {
+    const collection = getCollection(collectionName);
+    await collection.rawUpdateMany(
+      {
+        [fieldName]: {$in: oldTagIds}
+      },
+      {$set: {
+        [fieldName]: newTagId,
+      }},
+    );
+  }
+
+  await redirectTagReferences("TagRels", "tagId");
+  await redirectTagReferences("Comments", "tagId");
+  await redirectTagReferences("UserTagRels", "tagId");
+  await redirectTagReferences("Subscriptions", "documentId");
+  
+  // TODO: Rewrite user tag filters?
+  
+  // Rewrite tagRelevance on posts that reference any redirect tags
+  const postIdsToRecomputeTagRelevance = (await runSqlQuery(`
+    SELECT _id
+    FROM "Posts"
+    WHERE "tagRelevance" ?| $1
+  `, [oldTagIds])).map(row => row._id);
+  console.log(`Rewriting tagRelevance on ${postIdsToRecomputeTagRelevance} posts`);
+
+  await executePromiseQueue(postIdsToRecomputeTagRelevance.map((postId) => async () => {
+    await updatePostDenormalizedTags(postId)
+  }), 5);
+}
 
 /**
  * Load accounts from the Arbital DB, match them by email address to LW
@@ -1829,8 +2131,13 @@ Globals.checkDefaultPageSummaries = async (mysqlConnectionString: string) => {
   await checkDefaultPageSummaries(arbitalDb);
 }
 
-function loadCoreTagAssignmentsCsv() {
-  const csvStr = fs.readFileSync('/Users/robert/Downloads/core_tag_assignments.csv', 'utf-8');
+interface TagAssignment {
+  slug: string;
+  coreTagNames: string[];
+}
+
+function loadCoreTagAssignmentsCsv(filename: string) {
+  const csvStr = fs.readFileSync(filename, 'utf-8');
   const parsedCsv = Papa.parse(csvStr, {
     delimiter: ',',
     header: true,
@@ -1845,48 +2152,63 @@ function loadCoreTagAssignmentsCsv() {
   return parsedCsv;
 }
 
-interface TagAssignment {
-  slug: string;
-  coreTagNames: string[];
-}
+async function importCoreTagAssignments(coreTagAssignmentsFile: string) {
+  await Tags.rawUpdateMany(
+    { coreTagId: { $exists: true } },
+    { $unset: { coreTagId: "" } }
+  );
 
-Globals.loadCoreTagAssignmentsCsv = async () => {
-  await ArbitalTagContentRels.rawRemove({ 'legacyData.coreTagAssignment': true });
-
+  // Fetch all core tags and map their names to their IDs
   const coreTags = await Tags.find({ core: true }).fetch();
   const coreTagNames = new Set(coreTags.map(ct => ct.name));
   const coreTagIdsByName = Object.fromEntries(coreTags.map(ct => [ct.name, ct._id]));
 
-  const { data } = loadCoreTagAssignmentsCsv();
+  const { data } = loadCoreTagAssignmentsCsv(coreTagAssignmentsFile);
   const tagAssignments: TagAssignment[] = data.map((row: AnyBecauseIsInput) => {
     return {
       slug: row.slug,
       coreTagNames: row['Core Tag'].split(', '),
     };
   });
-  
-  const tagAssignmentIds = await Tags.find({ slug: {$in: tagAssignments.map(ta => ta.slug) }}).fetch();
-  const tagAssignmentIdsBySlug = Object.fromEntries(tagAssignmentIds.map(ta => [ta.slug, ta._id]));
 
-  const filteredTagAssignments = tagAssignments.filter(ta => ta.coreTagNames.every(tag => coreTagNames.has(tag)));
+  const filteredTagAssignments = tagAssignments.filter(ta => {
+    const allCoreTagsExist = ta.coreTagNames.every(tag => coreTagNames.has(tag));
+    const hasSingleCoreTag = ta.coreTagNames.length === 1;
+    if (!hasSingleCoreTag) {
+      console.warn(
+        `Tag "${ta.slug}" has multiple core tags assigned (${ta.coreTagNames.join(', ')}). Only one core tag is supported per tag. Skipping this tag.`
+      );
+    }
+    return allCoreTagsExist && hasSingleCoreTag;
+  });
 
-  const tagAssignmentInserts: MongoBulkInsert<DbArbitalTagContentRel>[] = filteredTagAssignments.flatMap(ta => ta.coreTagNames.map(tag => ({
-    document: {
-      _id: randomId(),
-      parentDocumentId: coreTagIdsByName[tag],
-      childDocumentId: tagAssignmentIdsBySlug[ta.slug],
-      parentCollectionName: 'Tags',
-      childCollectionName: 'Tags',
-      type: 'parent-is-tag-of-child',
-      level: 0,
-      isStrong: true,
-      createdAt: new Date(),
-      legacyData: { coreTagAssignment: true },
-      schemaVersion: 1,
-    },
-  })));
+  console.log(`Found ${filteredTagAssignments.length} valid tag assignments with a single core tag.`);
 
-  console.log(`Inserting ${tagAssignmentInserts.length} tag assignments`);
+  // Update each tag's coreTagId field
+  await executePromiseQueue(filteredTagAssignments.map(ta => async () => {
+    const tag = await Tags.findOne({ slug: ta.slug });
+    if (!tag) {
+      console.warn(`Tag with slug "${ta.slug}" not found. Skipping.`);
+      return;
+    }
 
-  await ArbitalTagContentRels.rawCollection().bulkWrite(tagAssignmentInserts.map(insert => ({ insertOne: insert })));
+    const coreTagName = ta.coreTagNames[0];
+    const coreTagId = coreTagIdsByName[coreTagName];
+    if (!coreTagId) {
+      console.warn(`Core tag "${coreTagName}" not found. Skipping.`);
+      return;
+    }
+
+    // Update the tag's coreTagId field
+    await Tags.rawUpdateOne(
+      { _id: tag._id },
+      { $set: { coreTagId } }
+    );
+
+    console.log(`Assigned coreTagId "${coreTagId}" to tag "${tag.name}" (${tag.slug}).`);
+  }), 10);
+
+  console.log(`Assigned core tags to ${filteredTagAssignments.length} tags.`);
 }
+
+Globals.importCoreTagAssignments = importCoreTagAssignments;

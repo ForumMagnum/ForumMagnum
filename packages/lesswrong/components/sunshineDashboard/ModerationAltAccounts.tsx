@@ -8,7 +8,7 @@ import { useQuery, gql } from '@apollo/client';
 import Select from '@material-ui/core/Select';
 import Input from '@material-ui/core/Input';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   selectUser: {
     margin: 16,
   },
@@ -48,7 +48,7 @@ const accountIdentifierTypes = [
 ];
 
 const ModerationAltAccounts = ({classes}: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { SingleColumnSection, SectionTitle, MenuItem, ContentStyles } = Components;
   const currentUser = useCurrentUser();
@@ -124,7 +124,7 @@ const ModerationAltAccounts = ({classes}: {
 
 const AltAccountsNodeUserBySlug = ({slug, classes}: {
   slug: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {results,loading} = useMulti({
     collectionName: "Users",
@@ -153,7 +153,7 @@ const AltAccountsNodeUserBySlug = ({slug, classes}: {
 
 const AltAccountsNodeUserByID = ({userId, classes}: {
   userId: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {document: user, loading} = useSingle({
     documentId: userId,
@@ -169,7 +169,7 @@ const AltAccountsNodeUserByID = ({userId, classes}: {
 
 const AltAccountsNodeUser = ({user, classes}: {
   user: UserAltAccountsFragment,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [expandedClientIDs, setExpandedClientIDs] = useState(false);
   const [expandedIPs, setExpandedIPs] = useState(false);
@@ -211,7 +211,7 @@ const AltAccountsNodeUser = ({user, classes}: {
 
 const AltAccountsNodeClientID = ({clientId, classes}: {
   clientId: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { Loading, FormatDate } = Components;
   const [expanded,setExpanded] = useState(false);
@@ -255,7 +255,7 @@ const AltAccountsNodeClientID = ({clientId, classes}: {
 
 const AltAccountsNodeIPAddress = ({ipAddress, classes}: {
   ipAddress: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { Loading } = Components;
   const [expanded,setExpanded] = useState(false);
@@ -304,7 +304,7 @@ const AltAccountsNodeIPAddress = ({ipAddress, classes}: {
 
 const CensoredUserName = ({user, classes}: {
   user: UserAltAccountsFragment,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { UsersNameDisplay } = Components;
   const [revealName,setRevealName] = useState(false);

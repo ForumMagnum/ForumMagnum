@@ -57,7 +57,7 @@ export type PostSubmitProps = FormButtonProps & {
   saveDraftLabel?: string,
   feedbackLabel?: string,
   document: PostsPage,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }
 
 const PostSubmit = ({

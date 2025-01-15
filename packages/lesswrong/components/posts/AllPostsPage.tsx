@@ -12,7 +12,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import DeferRender from '../common/DeferRender';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   title: {
     cursor: "pointer",
     "& .SectionTitle-title": isFriendlyUI
@@ -39,13 +39,13 @@ const formatSort = (sorting: PostSortingMode) => {
   return isFriendlyUI ? sort : `Sorted by ${sort}`;
 }
 
-const AllPostsPage = ({classes}: {classes: ClassesType}) => {
+const AllPostsPage = ({classes, defaultHideSettings}: {classes: ClassesType<typeof styles>, defaultHideSettings?: boolean}) => {
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const {query} = useLocation();
   const {captureEvent} = useTracking();
 
-  const [showSettings, setShowSettings] = useState<boolean>(!!currentUser?.allPostsOpenSettings);
+  const [showSettings, setShowSettings] = useState<boolean>(defaultHideSettings ? false : !!currentUser?.allPostsOpenSettings);
 
   const toggleSettings = useCallback(() => {
     const newValue = !showSettings;

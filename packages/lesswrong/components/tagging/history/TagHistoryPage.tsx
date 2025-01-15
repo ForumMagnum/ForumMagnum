@@ -10,8 +10,9 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import Checkbox from '@material-ui/core/Checkbox';
 import Select from '@material-ui/core/Select';
 import { hasWikiLenses } from '@/lib/betas';
+import { tagGetUrl } from '@/lib/collections/tags/helpers';
 
-const tagPageStyles = defineStyles("TagHistoryPage", (theme: ThemeType): JssStyles => ({
+const tagPageStyles = defineStyles("TagHistoryPage", (theme: ThemeType) => ({
   title: {
     fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
@@ -69,7 +70,7 @@ const TagHistoryPage = () => {
   }
   
   return <SingleColumnSection>
-    <SectionTitle title={tag.name}>
+    <SectionTitle title={tag.name} href={tagGetUrl(tag)}>
       <div onClick={ev => setSettingsExpanded(expanded => !expanded)}>
         <Components.SettingsButton label="Settings" />
       </div>
@@ -85,7 +86,7 @@ const TagHistoryPage = () => {
     <div className={classes.feed}>
     <RevealHiddenBlocksContext.Provider value={true}>
     <MixedTypeFeed
-      pageSize={50}
+      pageSize={25}
       resolverName="TagHistoryFeed"
       resolverArgs={{
         tagId: "String!",
@@ -220,7 +221,7 @@ const TagHistoryFeedSettings = ({expanded, settings, setSettings, lenses}: {
       >
         <MenuItem value="all">All lenses</MenuItem>
         {lenses.map(lens =>
-          <MenuItem key={lens._id} value={lens._id}>{lens.tabTitle}</MenuItem>
+          <MenuItem key={lens._id} value={lens._id}>{`${lens.tabTitle}${lens.tabSubtitle ? `: ${lens.tabSubtitle}` : ""}`}</MenuItem>
         )}
       </Select>
     </div>}

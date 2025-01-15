@@ -120,6 +120,12 @@ const HoverPreviewLink = ({ href, contentSourceDescription, id, rel, noPrefetch,
           {children}
         </Components.ManifoldPreview>
       }
+
+      if (linkTargetAbsolute.host === "fatebook.io" || linkTargetAbsolute.host === "www.fatebook.io") {
+        return <Components.FatebookPreview href={href} id={id}>
+          {children}
+        </Components.FatebookPreview>
+      }
       if (linkTargetAbsolute.host === "neuronpedia.org" || linkTargetAbsolute.host === "www.neuronpedia.org") {
         return <Components.NeuronpediaPreview href={href} id={id}>
           {children}
@@ -134,11 +140,6 @@ const HoverPreviewLink = ({ href, contentSourceDescription, id, rel, noPrefetch,
         return <Components.OWIDPreview href={href} id={id}>
           {children}
         </Components.OWIDPreview>
-      }
-      if (linkTargetAbsolute.host === "arbital.com" || linkTargetAbsolute.host === "www.arbital.com") {
-        return <Components.ArbitalPreview href={href} id={id}>
-          {children}
-        </Components.ArbitalPreview>
       }
       if (linkTargetAbsolute.host === "estimaker.app" || linkTargetAbsolute.host === "www.estimaker.app") {
         return <Components.EstimakerPreview href={href} id={id}>

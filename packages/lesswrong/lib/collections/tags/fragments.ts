@@ -21,6 +21,15 @@ registerFragment(`
     noindex
     isArbitalImport
     isPlaceholderPage
+
+    baseScore
+    extendedScore
+    score
+    afBaseScore
+    afExtendedScore
+    voteCount
+    currentUserVote
+    currentUserExtendedVote
   }
 `);
 
@@ -294,7 +303,7 @@ registerFragment(`
           ...UsersMinimumInfo
         }
         contributionScore
-        contributionVolume
+        currentAttributionCharCount
         numCommits
         voteCount
       }
@@ -336,7 +345,7 @@ registerFragment(`
           ...UsersMinimumInfo
         }
         contributionScore
-        contributionVolume
+        currentAttributionCharCount
         numCommits
         voteCount
       }
@@ -361,7 +370,7 @@ registerFragment(`
           ...UsersMinimumInfo
         }
         contributionScore
-        contributionVolume
+        currentAttributionCharCount
         numCommits
         voteCount
       }
@@ -444,7 +453,7 @@ registerFragment(`
           ...UsersMinimumInfo
         }
         contributionScore
-        contributionVolume
+        currentAttributionCharCount
         numCommits
         voteCount
       }
@@ -454,18 +463,42 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment AllTagsPageCacheFragment on Tag {
+  fragment ConceptItemFragment on Tag {
     _id
     core
     name
     slug
     oldSlugs
     postCount
+    baseScore
     description {
       _id
-      html
+      wordCount
     }
     isArbitalImport
     coreTagId
+    maxScore
+    usersWhoLiked {
+      _id
+      displayName
+    }
+  }
+`);
+
+registerFragment(`
+  fragment TagPageWithArbitalContentAndLensRevisionFragment on Tag {
+    ...TagPageFragment
+    arbitalLinkedPages {
+      ...ArbitalLinkedPagesFragment
+    }
+    lenses(lensSlug: $lensSlug, version: $version) {
+      ...MultiDocumentWithContributorsRevision
+    }
+  }
+`);
+
+registerFragment(`
+  fragment WithVoteTag on Tag {
+    ...TagBasicInfo
   }
 `);

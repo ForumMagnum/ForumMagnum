@@ -6,7 +6,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { useVote } from '../votes/withVote';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   relevance: {
     marginTop: isFriendlyUI ? undefined : 2,
     marginLeft: 16,
@@ -27,27 +27,37 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[1000],
   },
   removeButton: {
-    float: "right",
     ...(isFriendlyUI
       ? {
+        float: "right",
         marginTop: 10,
         marginLeft: 10,
       }
       : {
-        marginTop: 12,
+        position: "absolute",
+        top: 7,
+        right: 0,
       }),
   },
   removed: {
-    float: "right",
-    marginTop: 12,
-    marginRight: 16,
+    ...(isFriendlyUI
+      ? {
+        float: "right",
+        marginTop: 12,
+        marginRight: 16,
+      }
+      : {
+        position: "absolute",
+        top: 7,
+        right: 16,
+      }),
     color: theme.palette.grey[400]
   }
 });
 
 const TagRelCard = ({tagRel, classes}: {
   tagRel: TagRelMinimumFragment,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const voteProps = useVote(tagRel, "TagRels");

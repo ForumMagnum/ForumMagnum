@@ -1,5 +1,5 @@
 import { Tags } from './collection';
-import { ensureIndex } from '../../collectionIndexUtils';
+import { ensureCustomPgIndex, ensureIndex } from '../../collectionIndexUtils';
 import { viewFieldAllowAny } from '../../vulcan-lib';
 import { userIsAdminOrMod } from '../../vulcan-users';
 import { jsonArrayContainsSelector } from '@/lib/utils/viewUtils';
@@ -10,6 +10,7 @@ declare global {
     userId?: string
     wikiGrade?: string
     slug?: string
+    slugs?: string[]
     tagFlagId?: string
     parentTagId?: string
     tagId?: string
@@ -97,11 +98,22 @@ Tags.addView('tagBySlug', (terms: TagsViewTerms) => {
       $or: [{slug: terms.slug}, {oldSlugs: terms.slug}],
       adminOnly: viewFieldAllowAny,
       wikiOnly: viewFieldAllowAny,
+      // TODO: remove this after cleaning up db from Arbital imports leaving many deleted tags with the same slug
       deleted: false,
     },
   };
 });
 ensureIndex(Tags, {deleted: 1, slug:1, oldSlugs: 1});
+
+Tags.addView('tagsBySlugs', (terms: TagsViewTerms) => {
+  return {
+    selector: {
+      $or: [{slug: {$in: terms.slugs}}, {oldSlugs: {$in: terms.slugs}}],
+      wikiOnly: viewFieldAllowAny,
+      deleted: false,
+    },
+  };
+});
 
 Tags.addView('coreTags', (terms: TagsViewTerms) => {
   return {
@@ -253,6 +265,7 @@ Tags.addView('allArbitalTags', (terms: TagsViewTerms) => {
   }
 });
 
+// TODO: switch this to a custom index, maybe a GIN index?
 ensureIndex(Tags, {name: 1, "legacyData.arbitalPageId": 1});
 
 Tags.addView("pingbackWikiPages", (terms: TagsViewTerms) => {
@@ -263,7 +276,7 @@ Tags.addView("pingbackWikiPages", (terms: TagsViewTerms) => {
     },
   }
 });
-ensureIndex(Tags, {"pingbacks.Tags": 1, baseScore: 1 }),
+void ensureCustomPgIndex(`CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_tags_pingbacks ON "Tags" USING gin(pingbacks);`);
 
 // Used in subTags resolver
 ensureIndex(Tags, {parentTagId: 1});

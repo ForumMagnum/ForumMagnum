@@ -1,13 +1,12 @@
 import React from 'react';
 import { Components, registerComponent, RouterLocation } from '../../lib/vulcan-lib';
-import { useHover } from '../common/withHover';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useTagPreview } from './useTag';
 import { linkStyle } from '../linkPreview/PostLinkPreview';
 import { removeUrlParameters } from '../../lib/routeUtil';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   ...linkStyle(theme),
   count: {
     color: theme.palette.secondary.main, // grey[500],
@@ -43,20 +42,21 @@ const TagHoverPreview = ({
   const hashId = hash.slice(1);
 
   const {tag, loading} = useTagPreview(slug, hashId, {skip: noPrefetch});
-  const { showPostCount: showPostCountQuery, useTagName: useTagNameQuery } = targetLocation.query
+  const { showPostCount: showPostCountQuery, useTagName: useTagNameQuery, } = targetLocation.query
+  const lensQuery = targetLocation.query.lens ?? targetLocation.query.l;
   const showPostCount = showPostCountQuery === "true" // query parameters are strings
   const tagName = useTagNameQuery === "true" ? tag?.name : undefined // query parameters are strings
-
+  const previewSlug = lensQuery ?? slug;
   // Remove showPostCount and useTagName query parameters from the link, if present
   const linkTarget = normalizeTagLink(href);
 
+  const isRead = tag?.isRead;
   const isRedLink = (!tag && !noPrefetch && !loading) || tag?.isPlaceholderPage;
 
   const {TagsTooltip} = Components;
-  const isRead = tag?.isRead;
   return (
     <TagsTooltip
-      tagSlug={slug}
+      tagSlug={previewSlug}
       hash={hashId}
       As="span"
       previewPostCount={postCount}
@@ -66,7 +66,7 @@ const TagHoverPreview = ({
       <Link
         className={classNames(
           !showPostCount && classes.link,
-          isRead && classes.visited,
+          isRead && "visited",
           isRedLink && classes.redLink,
         )}
         to={linkTarget}

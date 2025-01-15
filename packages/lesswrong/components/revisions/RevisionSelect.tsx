@@ -5,7 +5,7 @@ import Button from '@material-ui/core/Button';
 import Radio from '@material-ui/core/Radio';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   revisionRow: {
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
@@ -50,7 +50,7 @@ const RevisionSelect = ({ revisions, getRevisionUrl, onPairSelected, loadMorePro
   getRevisionUrl: (rev: RevisionMetadata) => string,
   onPairSelected: ({before, after}: {before: RevisionMetadata, after: RevisionMetadata}) => void,
   loadMoreProps: any,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   count?: number,
   totalCount?: number
 }) => {

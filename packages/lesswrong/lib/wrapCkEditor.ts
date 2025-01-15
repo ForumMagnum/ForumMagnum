@@ -1,30 +1,29 @@
 import { getCkEditor } from "@/client/importCkEditor";
-import type { ForumTypeString } from "./instanceSettings";
 
 let commentEditor: any = null;
-export const getCkCommentEditor = (forumType: ForumTypeString) => {
-  const { getCommentEditor } = getCkEditor(forumType);
+export const getCkCommentEditor = () => {
+  const { getCommentEditor } = getCkEditor();
   if (!commentEditor) {
-    commentEditor = getCommentEditor(forumType);
+    commentEditor = getCommentEditor();
   }
   return commentEditor;
 }
 
 let postEditor: any = null;
 let postEditorCollaborative: any = null;
-export const getCkPostEditor = (isCollaborative: boolean, forumType: ForumTypeString) => {
-  const { getPostEditor, getPostEditorCollaboration } = getCkEditor(forumType);
+export const getCkPostEditor = (isCollaborative: boolean) => {
+  const { getPostEditor, getPostEditorCollaboration } = getCkEditor();
   if (isCollaborative) {
     if (!postEditorCollaborative) {
-      postEditorCollaborative = getPostEditorCollaboration(forumType);
+      postEditorCollaborative = getPostEditorCollaboration();
     }
     return postEditorCollaborative;
   } else {
     if (!postEditor) {
-      postEditor = getPostEditor(forumType);
+      postEditor = getPostEditor();
     }
     return postEditor;
   }
 }
 
-export const ckEditorBundleVersion = "43.1.0";
+export const ckEditorBundleVersion = "43.1.5";

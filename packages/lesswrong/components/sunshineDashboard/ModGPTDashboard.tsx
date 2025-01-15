@@ -8,7 +8,7 @@ import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import sanitizeHtml from 'sanitize-html';
 import { htmlToText } from 'html-to-text';
 
-const styles = (theme: JssStyles) => ({
+const styles = (theme: ThemeType) => ({
   root: {
     maxWidth: 1200,
     fontFamily: theme.typography.fontFamily,
@@ -95,7 +95,7 @@ const columns: Column[] = [
 
 
 const ModGPTDashboard = ({classes}: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser()
   

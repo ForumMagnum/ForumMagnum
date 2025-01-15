@@ -28,10 +28,10 @@ const TagRevisionItemShortMetadata = ({tag, lens, revision, classes}: {
   tag: TagBasicInfo,
   lens?: MultiDocumentContentDisplay | TagLens,
   revision: RevisionHistoryEntry,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { FormatDate, UsersName, MetaInfo, LWTooltip, ChangeMetricsDisplay, SmallSideVote } = Components
-  const revUrl = tagGetRevisionLink(tag, revision.version);
+  const revUrl = tagGetRevisionLink(tag, revision.version, lens);
   const { openDialog } = useDialog();
   
   function showArbitalImportDetails() {
@@ -45,7 +45,7 @@ const TagRevisionItemShortMetadata = ({tag, lens, revision, classes}: {
   
   return <>
     {/* TODO: should we link to the lens via the lens title? */}
-    {lens && <div>Lens: {lens.tabTitle}</div>}
+    {lens && <div>Lens: {`${lens.tabTitle}${lens.tabSubtitle ? ` (${lens.tabSubtitle})` : ""}`}</div>}
     <span className={classes.username}>
       <UsersName documentId={revision.userId}/>
     </span>
@@ -64,7 +64,7 @@ const TagRevisionItemShortMetadata = ({tag, lens, revision, classes}: {
     {revision.legacyData?.arbitalPageId && <>
       <LWTooltip title="Imported from Arbital. Click to view original Markdown.">
         <span onClick={showArbitalImportDetails}>
-          <ArbitalLogo className={classes.arbitalLogo}/>
+          <ArbitalLogo className={classes.arbitalLogo} strokeWidth={0.7}/>
         </span>
       </LWTooltip>
     </>}

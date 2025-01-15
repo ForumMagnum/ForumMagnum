@@ -7,6 +7,7 @@ import classNames from "classnames";
 import { PopperPlacementType } from "@material-ui/core/Popper";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { inferRedLinkTitle, useRedLinkPingbacks } from "./RedlinkTagPage";
+import { tagGetUrl } from "@/lib/collections/tags/helpers";
 
 type PreviewableTag =
   TagPreviewFragment |
@@ -57,7 +58,7 @@ const styles = defineStyles("TagsTooltip", theme => ({
   tooltip: isFriendlyUI
     ? {}
     : {
-      padding: "4px 0 0 0",
+      padding: 0,
       background: theme.palette.panelBackground.default,
       boxShadow: theme.palette.boxShadow.lwTagHoverOver,
     },
@@ -75,10 +76,8 @@ const styles = defineStyles("TagsTooltip", theme => ({
     paddingTop: 8,
     paddingLeft: 16,
     paddingRight: 16,
-    ...(!isFriendlyUI && {
-      width: 500,
-      paddingBottom: 6,
-    }),
+    width: 500,
+    paddingBottom: 6,
     [theme.breakpoints.down('xs')]: {
       width: "100%",
     }
@@ -103,16 +102,15 @@ const RedLinkTooltip = ({ tag, slug }: {
     <Typography variant='title'>
       {title}
     </Typography>
-    {/* TODO: this is a hardcoded example; when we implement the backend for red links we should fix this */}
     <ContentStyles contentType='tag'>
       This red link was used on {pingbacks ? pingbacks.length : <Loading/>} page{pingbacks ? (pingbacks.length > 1 ? "s" : "") : "(s)"}:
       <ul>
         {pingbacks?.map(pingback => <li key={pingback._id}>
           <TagHoverPreview
-            targetLocation={{ params: { slug: 'nash_equilibrium' }, hash: '', query: {} } as AnyBecauseTodo}
-            href='/tag/nash_equilibrium' noPrefetch
+            targetLocation={{ params: { slug: pingback.slug }, hash: '', query: {} } as AnyBecauseTodo}
+            href={tagGetUrl({slug: pingback.slug})} noPrefetch
           >
-            <Link to={`/w/${pingback.slug}`}>
+            <Link to={tagGetUrl({slug: pingback.slug})}>
               {pingback.name}
             </Link>
           </TagHoverPreview>
@@ -159,27 +157,31 @@ const TagsTooltip = ({
 }) => {
   const classes = useStyles(styles);
   const [everHovered, setEverHovered] = useState(false);
+  const [forceOpen, setForceOpen] = useState(false);
   const { tag, loading } = useTagsTooltipTag(
     tagsTooltipProps, hash,
     (noPrefetch && !everHovered)
   );
 
-  const { HoverOver, Loading, TagRelCard, TagPreview } = Components;
+  const { HoverOver, Loading, TagRelCard, TagPreview, LWClickAwayListener } = Components;
   return (
     <HoverOver
       title={
-        <PreviewWrapper tag={tag} loading={loading}>
-          {loading && <Loading className={classes.loading}/>}
-          {!loading && tagRel && <TagRelCard tagRel={tagRel}/>}
-          {!loading && !tagRel && tag && !isRedLink && <TagPreview
-            tag={tag}
-            hash={hash}
-            postCount={previewPostCount}
-            hideRelatedTags={hideRelatedTags}
-            hideDescription={hideDescription}
-          />}
-          {isRedLink && <RedLinkTooltip tag={tag} slug={tagsTooltipProps.tagSlug} />}
-        </PreviewWrapper>
+        <LWClickAwayListener onClickAway={() => setForceOpen(false)}>
+          <PreviewWrapper tag={tag} loading={loading}>
+            {loading && <Loading className={classes.loading}/>}
+            {!loading && tagRel && <TagRelCard tagRel={tagRel}/>}
+            {!loading && !tagRel && tag && !isRedLink && <TagPreview
+              tag={tag}
+              hash={hash}
+              postCount={previewPostCount}
+              hideRelatedTags={hideRelatedTags}
+              hideDescription={hideDescription}
+              setForceOpen={setForceOpen}
+            />}
+            {isRedLink && <RedLinkTooltip tag={tag} slug={tagsTooltipProps.tagSlug} />}
+          </PreviewWrapper>
+        </LWClickAwayListener>
       }
       clickable
       As={As}
@@ -195,6 +197,7 @@ const TagsTooltip = ({
       popperClassName={classNames(classes.tooltip, popperClassName)}
       titleClassName={classes.tooltipTitle}
       placement={placement}
+      forceOpen={forceOpen}
     >
       {children}
     </HoverOver>

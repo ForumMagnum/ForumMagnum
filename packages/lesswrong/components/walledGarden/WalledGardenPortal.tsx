@@ -15,7 +15,7 @@ import { useNavigate } from '../../lib/reactRouterWrapper';
 
 const toggleEventsOffset = "330px"
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginTop: "50px",
     display: "flex",
@@ -75,7 +75,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 
-const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
+const WalledGardenPortal = ({ classes }: { classes: ClassesType<typeof styles> }) => {
 
   const { SingleColumnSection, LoginPopupButton, AnalyticsTracker, WalledGardenMessage, GatherTownIframeWrapper, WalledGardenPortalBar, GardenEventDetails, ContentItemBody, ContentStyles } = Components
   

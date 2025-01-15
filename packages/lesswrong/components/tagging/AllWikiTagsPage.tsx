@@ -12,13 +12,10 @@ import SearchIcon from '@material-ui/icons/Search';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { Configure, SearchBox, connectStateResults } from 'react-instantsearch-dom';
 import { getSearchIndexName, getSearchClient } from '../../lib/search/searchUtil';
-import { WikiTagNode } from './types';
 import { useSingle } from '@/lib/crud/withSingle';
 import { ArbitalLogo } from '../icons/ArbitalLogo';
-import { gql, useQuery } from '@apollo/client';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
-
-const ARBITAL_GREEN_DARK = "#004d40"
+import { useMulti } from '@/lib/crud/withMulti';
 
 const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
   root: {
@@ -33,13 +30,6 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
     display: "flex",
     flexDirection: "column",
     gap: "32px",
-  },
-  mainRow: {
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: "32px",
-    width: "100%",
   },
   titleSection: {
     display: 'flex',
@@ -123,7 +113,7 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
       verticalAlign: "bottom",
       borderStyle: "none",
       boxShadow: "none",
-      backgroundColor: "white",
+      backgroundColor: theme.palette.panelBackground.default,
       fontSize: '1.4rem',
       "-webkit-appearance": "none",
       cursor: "text",
@@ -143,56 +133,8 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
     display: "flex",
     gap: "32px",
     flexGrow: 1,
+    flexDirection: "column",
     width: "100%",
-  },
-  wikiTagNestedList: {
-    flexShrink: 0,
-    width: "100%",
-    marginLeft: 0,
-    maxWidth: 600,
-    alignSelf: "flex-start",
-  },
-  wikitagName: {
-    fontSize: "1.5rem",
-    fontWeight: 700,
-    marginBottom: 16,
-  },
-  viewer: {
-    flexShrink: 0,
-    width: '100%',
-    maxWidth: 600,
-    padding: "24px 42px",
-    backgroundColor: "white",
-    display: 'flex',
-    flexDirection: 'column',
-    position: 'sticky',
-    top: 80,
-    height: '100vh',
-    overflowY: 'auto',
-  },
-  viewerContent: {
-    flexGrow: 1,
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  wikitagDescription: {
-    fontSize: "1rem",
-    fontWeight: 400,
-    flexGrow: 1,
-    overflowY: 'auto',
-  },
-  wikitagHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  pinMessage: {
-    color: theme.palette.grey[700],
-    fontSize: '1.2rem',
-    fontStyle: 'italic',
-    whiteSpace: 'nowrap',
-    flexShrink: 0,
   },
   arbitalRedirectNotice: {
     display: 'flex',
@@ -201,15 +143,14 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
     gap: '16px',
     padding: "16px",
     borderRadius: 12,
-    backgroundColor: ARBITAL_GREEN_DARK,
+    backgroundColor: theme.palette.arbital.arbitalGreen,
     marginBottom: 24,
     // fontFamily: theme.palette.fonts.sansSerifStack,
     // make <a> children have the following styles
     ...theme.typography.commentStyle,
-    color: "white",
+    color: theme.palette.text.alwaysWhite,
     "& a": {
-      color: "white",
-      //dotted underline
+      color: theme.palette.text.alwaysWhite,
       textDecoration: "underline",
       textDecorationStyle: "dotted",
     },
@@ -237,22 +178,16 @@ const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
     border: 'none',
     fontSize: '2rem',
     cursor: 'pointer',
-    color: 'white',
+    color: theme.palette.text.alwaysWhite,
     '&:hover': {
-      color: theme.palette.grey[300],
+      color: theme.palette.text.alwaysLightGrey,
     },
     '&:focus': {
       outline: 'none',
     },
   },
+  arbitalRedirectNoticeContent: {},
 }))
-
-// Helper function to generate baseScore
-function generateBaseScore(description_length: number, postCount: number): number {
-  const baseComponent = Math.sqrt((description_length / 100)); // + (postCount / 2));
-  const random = Math.pow(Math.abs(Math.sin((description_length * 0.1) + (postCount * 0.3))), 2) * 8;
-  return Math.round(baseComponent + random);
-}
 
 
 // Create the artificial "Uncategorized" tags
@@ -264,112 +199,28 @@ const uncategorizedRootTag = {
   oldSlugs: [],
   description: {
     _id: 'uncategorized-root',
-    html: '',
+    wordCount: 0,
   },
   postCount: 0,
+  baseScore: 0,
+  maxScore: 0,
+  usersWhoLiked: [],
   coreTagId: null,
   parentTagId: null,
   isArbitalImport: false,
 };
 
-const uncategorizedChildTag = {
-  _id: 'uncategorized-child',
-  name: 'Uncategorized',
-  slug: 'uncategorized',
-  oldSlugs: [],
-  description: {
-    _id: 'uncategorized-child',
-    html: '',
-  },
-  postCount: 0,
-  coreTagId: 'uncategorized-root',
-  parentTagId: 'uncategorized-root',
-  isArbitalImport: false,
-};
-
+// TODO: we really need to figure out a better way to handle this than slugs, especially with the merged rationality page
 const prioritySlugs = [
-  'rationality-1', 'ai', 'world-modeling', 
+  'rationality', 'rationality-1', 'ai', 'world-modeling', 
   'world-optimization', 'practical', 'community', 'site-meta'
 ] as const;
 
-// Define the buildTree function here
-function buildTree(
-  items: (AllTagsPageCacheFragment & { parentTagId: string | null })[],
-  _id: string | null = null, 
-  depth = 0, 
-  seen: Set<string> = new Set()
-): WikiTagNode[] {
-  if (depth > 5) {
-    // eslint-disable-next-line no-console
-    console.warn('Maximum depth exceeded in buildTree');
-    return [];
-  }
-
-  const filteredItems = items.filter(item => item.parentTagId === _id);
-  
-  // Add baseScore to all items first
-  const itemsWithScore = filteredItems.map(item => ({
-    ...item,
-    baseScore: generateBaseScore(item.description?.html?.length ?? 0, item.postCount)
-  }));
-
-  // Sort items by baseScore before processing
-  const sortedItems = itemsWithScore.sort((a, b) => b.baseScore - a.baseScore);
-
-  return sortedItems.flatMap(item => {
-    if (seen.has(item._id)) {
-      // eslint-disable-next-line no-console
-      console.warn(`Circular reference detected for item ${item.name} (${item._id})`);
-      return [];
-    }
-
-    seen.add(item._id);
-
-    const children = buildTree(items, item._id, depth + 1, new Set(seen)).sort((a, b) => b.baseScore - a.baseScore);
-
-    return [{ ...item, children }];
-  });
-}
-
-// Function to filter the tree based on tag IDs, but skip first level filtering
-function filterTreeByTagIds(
-  tree: WikiTagNode[], 
-  tagIds: string[], 
-  depth = 0
-): WikiTagNode[] {
-  return tree
-    .map(node => {
-      // At depth 0 (first level), don't filter out any nodes
-      const hasHit = depth === 0 ? true : tagIds.includes(node._id);
-      
-      let children: WikiTagNode[] = [];
-      if (node.children) {
-        // Always pass depth + 1 to children
-        children = filterTreeByTagIds(node.children, tagIds, depth + 1);
-      }
-      
-      if (hasHit || children.length > 0) {
-        return { ...node, children };
-      }
-      return null;
-    })
-    .filter(node => node !== null) as WikiTagNode[];
-}
-
-const allTagsQuery = gql`
-  query AllTagsQuery {
-    AllTags {
-      ...AllTagsPageCacheFragment
-    }
-  }
-  ${fragmentTextForQuery('AllTagsPageCacheFragment')}
-`;
-
-const ArbitalRedirectNotice = ({ classes, onDismiss }: {
-  classes: ClassesType,
+const ArbitalRedirectNotice = ({ onDismiss }: {
   onDismiss: () => void,
 }) => {
-  const { ContentStyles, ContentItemBody, Loading } = Components
+  const classes = useStyles(styles);
+  const { Loading } = Components
 
   // TODO: put in database setting?
   const documentId = "nDavoyZ2EobkpZNAs"
@@ -400,128 +251,74 @@ const ArbitalRedirectNotice = ({ classes, onDismiss }: {
 
 const AllWikiTagsPage = () => {
   const classes = useStyles(styles);
-  const { openDialog } = useDialog();
-  const currentUser = useCurrentUser();
 
-  const { SectionButton, WikiTagNestedList } = Components;
-  const [selectedWikiTag, setSelectedWikiTag] = useState<WikiTagNode | null>(null);
-  const [pinnedWikiTag, setPinnedWikiTag] = useState<WikiTagNode | null>(null);
+  const { WikiTagGroup, Loading, SectionButton, LWTooltip } = Components;
 
   const { query } = useLocation();
-
-  const { data } = useQuery(allTagsQuery, { ssr: true });
-
-  const tags: AllTagsPageCacheFragment[] = data?.AllTags ?? [];
-
   const isArbitalRedirect = query.ref === 'arbital';
 
-  const { LWTooltip } = Components;
+  const currentUser = useCurrentUser();
+  const { openDialog } = useDialog();
 
-  // State variable for the current search query
-  const [currentQuery, setCurrentQuery] = useState('');
-
-  // Function to handle search state changes
-  const handleSearchStateChange = (searchState: any): void => {
-    setCurrentQuery(searchState.query);
-  };
-
-  const handleHover = (wikitag: WikiTagNode | null) => {
-    if (!pinnedWikiTag && wikitag && ((wikitag.description?.html?.length ?? 0) > 0 || wikitag.postCount > 0)) {
-      setSelectedWikiTag(wikitag);
-    }
-  };
-
-  const handleClick = (wikitag: WikiTagNode) => {
-    if (pinnedWikiTag && pinnedWikiTag._id === wikitag._id) {
-      setPinnedWikiTag(null);
-      setSelectedWikiTag(null);
-    } else if ((wikitag.description?.html?.length ?? 0) > 0 || wikitag.postCount > 0) {
-      setPinnedWikiTag(wikitag);
-      setSelectedWikiTag(wikitag);
-    }
-  };
-
-  const handleBackgroundClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      setPinnedWikiTag(null);
-      setSelectedWikiTag(null);
-    }
-  };
-
-  const priorityTagIds = filterNonnull(prioritySlugs.map(slug => tags.find(tag => slug === (tag.slug || tag.oldSlugs?.includes(slug)) && tag.core))).map(tag => tag._id);
-
-  const adjustedItems = tags.map(tag => {
-    if (priorityTagIds.includes(tag._id as typeof priorityTagIds[number])) {
-      return {
-        ...tag,
-        parentTagId: null,
-      };
-    }
-
-    return {
-      ...tag,
-      parentTagId: tag.coreTagId ? tag.coreTagId : 'uncategorized-root',
-    };
+  const { results: priorityTagsRaw } = useMulti({
+    collectionName: "Tags",
+    fragmentName: "ConceptItemFragment",
+    terms: { 
+      view: "tagsBySlugs",
+      slugs: [...prioritySlugs]
+    },
+    fetchPolicy: 'cache-and-network',
+    ssr: true,
   });
 
-  // Add the artificial "Uncategorized" tags to the items list
-  const itemsWithUncategorized = useMemo(() => [
-    ...adjustedItems,
-    uncategorizedRootTag,
-  ], [adjustedItems]);
-
-  // Move the tree-building and sorting logic here
-  const sortedTree = useMemo(() => {
-    const tree = buildTree(itemsWithUncategorized, null, 0);
-
-    return tree.sort((a, b) => {
+  const priorityTags = useMemo(() => {
+    if (!priorityTagsRaw) return [];
+    const tags = filterNonnull(priorityTagsRaw);
+    if (!tags.length) return [];
+    
+    return [...tags].sort((a: ConceptItemFragment, b: ConceptItemFragment) => {
       const indexA = prioritySlugs.indexOf(a.slug as typeof prioritySlugs[number]);
       const indexB = prioritySlugs.indexOf(b.slug as typeof prioritySlugs[number]);
-
-      // If both items are in the priority list, sort by priority
-      if (indexA !== -1 && indexB !== -1) {
-        return indexA - indexB;
-      }
-      // If only one item is in priority list, it goes first
-      if (indexA !== -1) return -1;
-      if (indexB !== -1) return 1;
-      // Ensure "Uncategorized" is placed at the end
-      if (a.slug === 'uncategorized-root') return 1;
-      if (b.slug === 'uncategorized-root') return -1;
-      // For all other items, sort by baseScore
-      return b.baseScore - a.baseScore;
+      return indexA - indexB;
     });
-  }, [itemsWithUncategorized]);
+  }, [priorityTagsRaw]);
 
-  // Component to access search results
-  const CustomStateResults = connectStateResults(({ searchResults }) => {
+  const [currentQuery, setCurrentQuery] = useState('');
+  const [showArbitalRedirectNotice, setShowArbitalRedirectNotice] = useState(isArbitalRedirect);
+
+  // Function to handle search state changes
+  const handleSearchStateChange = (searchState: any) => {
+    setCurrentQuery(searchState.query || '');
+  };
+
+  const CustomStateResults = connectStateResults(({ searchResults, isSearchStalled }) => {
     const hits = (searchResults && searchResults.hits) || [];
     const tagIds = hits.map(hit => hit.objectID);
 
-    // First filter by priority slugs at the root level
-    const priorityFilteredTree = sortedTree.filter(wikitag => 
-      priorityTagIds.includes(wikitag._id as typeof priorityTagIds[number]) || wikitag.slug === 'uncategorized-root'
-    );
+    if (!priorityTags) return null;
 
-    // Then apply search filtering if there's a query
-    const filteredTags = currentQuery 
-      ? filterTreeByTagIds(priorityFilteredTree, tagIds, 0)
-      : priorityFilteredTree;
+    if (isSearchStalled) {
+      return <Loading />;
+    }
 
     return (
-      <div className={classes.wikiTagNestedList}>
-        <WikiTagNestedList
-          pages={filteredTags}
-          onHover={handleHover}
-          onClick={handleClick}
+      <div className={classes.mainContent}>
+        {priorityTags.map((tag: ConceptItemFragment) => (
+          tag && <WikiTagGroup
+            key={tag._id}
+            coreTag={tag}
+            searchTagIds={currentQuery ? tagIds : null}
+            showArbitalIcons={isArbitalRedirect}
+          />
+        ))}
+        <WikiTagGroup
+          coreTag={uncategorizedRootTag}
+          searchTagIds={currentQuery ? tagIds : null}
           showArbitalIcons={isArbitalRedirect}
         />
       </div>
     );
   });
-
-  // Add state to control visibility of the notice
-  const [showArbitalRedirectNotice, setShowArbitalRedirectNotice] = useState(isArbitalRedirect);
 
   return (
     <AnalyticsContext pageContext="allWikiTagsPage">
@@ -552,7 +349,7 @@ const AllWikiTagsPage = () => {
             </a>}
           </SectionButton>
         </div>
-        <div className={classes.root} onClick={handleBackgroundClick}>
+        <div className={classes.root}>
           <div className={classes.topSection}>
             <div className={classes.titleSection}>
               <div className={classes.titleClass}>Concepts</div>
@@ -573,15 +370,12 @@ const AllWikiTagsPage = () => {
                 </div>
                 {isArbitalRedirect && showArbitalRedirectNotice && (
                   <ArbitalRedirectNotice
-                    classes={classes}
                     onDismiss={() => setShowArbitalRedirectNotice(false)}
                   />
                 )}
                 <CustomStateResults />
               </InstantSearch>
             </div>
-          </div>
-          <div className={classes.mainContent}>
           </div>
         </div>
       </div>

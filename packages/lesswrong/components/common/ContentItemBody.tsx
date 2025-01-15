@@ -58,6 +58,12 @@ interface ExternalProps {
    * reactions.
    */
   replacedSubstrings?: ContentReplacedSubstringComponentInfo[]
+
+  /**
+   * A callback function that is called when all of the content substitutions
+   * have been applied.
+   */
+  onContentReady?: (content: HTMLDivElement) => void;
 }
 
 export type ContentReplacementMode = 'first' | 'all';
@@ -131,7 +137,8 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
     const element = this.bodyRef.current;
     if (element) {
       this.applyLocalModificationsTo(element);
-      this.setState({updatedElements: true})
+      this.setState({updatedElements: true});
+      this.props.onContentReady?.(element);
     }
   }
 

@@ -12,7 +12,7 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 
 export const SINGLE_LINE_PADDING_TOP = 5
 
-export const singleLineStyles = (theme: ThemeType): JssStyles => ({
+export const singleLineStyles = (theme: ThemeType) => ({
   display: "flex",
   borderRadius: 3,
   backgroundColor: theme.palette.panelBackground.singleLineComment,
@@ -28,7 +28,7 @@ export const singleLineStyles = (theme: ThemeType): JssStyles => ({
   fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     position: "relative",
     cursor: "pointer",
@@ -158,7 +158,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   hideKarma?: boolean,
   showDescendentCount?: boolean,
   displayTagIcon?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {anchorEl, hover, eventHandlers} = useHover();
   

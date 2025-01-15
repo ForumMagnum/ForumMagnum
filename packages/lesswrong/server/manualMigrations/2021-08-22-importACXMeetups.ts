@@ -5,7 +5,7 @@ import { Posts } from '../../lib/collections/posts';
 import { mapsAPIKeySetting } from '../../components/form-components/LocationFormComponent';
 import { getLocalTime } from '../mapsUtils';
 import {userFindOneByEmail} from "../commonQueries";
-import { getUnusedSlugByCollectionName } from '@/lib/helpers';
+import { getUnusedSlugByCollectionName } from '../utils/slugUtil';
 
 const what3WordsAPIKey = "FM5HBWEL"
 

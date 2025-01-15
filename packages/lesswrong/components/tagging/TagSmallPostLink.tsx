@@ -5,7 +5,7 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     ...theme.typography.body2,
@@ -58,7 +58,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const TagSmallPostLink = ({classes, post, hideMeta, hideAuthor, wrap, widerSpacing, disableHoverPreview}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   post: PostsList,
   hideMeta?: boolean,
   hideAuthor?: boolean,

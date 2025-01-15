@@ -1,5 +1,4 @@
-import bowser from 'bowser';
-import { isClient, isServer } from '../../executionEnvironment';
+import { isServer } from '../../executionEnvironment';
 import {forumTypeSetting, isEAForum, verifyEmailsSetting} from '../../instanceSettings'
 import { combineUrls, getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissions';
@@ -340,7 +339,7 @@ export function getDatadogUser (user: UsersCurrent | UsersEdit | DbUser): Datado
 }
 
 // Replaces Users.getProfileUrl from the vulcan-users package.
-export const userGetProfileUrl = (user: DbUser|UsersMinimumInfo|SearchUser|null, isAbsolute=false): string => {
+export const userGetProfileUrl = (user: DbUser|UsersMinimumInfo|SearchUser|UsersMapEntry|null, isAbsolute=false): string => {
   if (!user) return "";
   
   if (user.slug) {
@@ -368,22 +367,7 @@ export const userGetAnalyticsUrl = (user: {slug: string}, isAbsolute=false): str
 }
 
 
-
-const clientRequiresMarkdown = (): boolean => {
-  if (isClient &&
-      window &&
-      window.navigator &&
-      window.navigator.userAgent) {
-
-      return (bowser.mobile || bowser.tablet)
-  }
-  return false
-}
-
 export const userUseMarkdownPostEditor = (user: UsersCurrent|null): boolean => {
-  if (clientRequiresMarkdown()) {
-    return true
-  }
   if (!user) {
     return false;
   }

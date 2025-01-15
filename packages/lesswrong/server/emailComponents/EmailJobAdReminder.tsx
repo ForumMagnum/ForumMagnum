@@ -2,7 +2,7 @@ import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib";
 import { JOB_AD_DATA } from "../../components/ea-forum/TargetedJobAd";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     fontFamily: theme.typography.fontFamily,
     fontSize: 16,
@@ -24,7 +24,7 @@ const EmailJobAdReminder = ({
   classes,
 }: {
   jobName: string;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
   const jobData = JOB_AD_DATA[jobName];
   const link = jobData.bitlyLink;

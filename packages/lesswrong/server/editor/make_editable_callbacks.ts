@@ -26,6 +26,7 @@ import { MakeEditableOptions, editableCollectionsFieldOptions } from '@/lib/edit
 // callbacks
 interface AfterCreateRevisionCallbackContext {
   revisionID: string
+  skipDenormalizedAttributions?: boolean
 }
 export const afterCreateRevisionCallback = new CallbackHook<[AfterCreateRevisionCallbackContext]>("revisions.afterRevisionCreated");
 
@@ -46,19 +47,17 @@ function versionIsDraft(semver: string, collectionName: CollectionNameString) {
 
 ensureIndex(Revisions, {documentId: 1, version: 1, fieldName: 1, editedAt: 1})
 
-export async function buildRevision({ originalContents, currentUser, dataWithDiscardedSuggestions, isAdminContext }: {
+export async function buildRevision({ originalContents, currentUser, dataWithDiscardedSuggestions }: {
   originalContents: DbRevision["originalContents"],
   currentUser: DbUser,
   dataWithDiscardedSuggestions?: string,
-  isAdminContext?: boolean
 }) {
 
   if (!originalContents) throw new Error ("Can't build revision without originalContents")
 
   const { data, type } = originalContents;
   const readerVisibleData = dataWithDiscardedSuggestions ?? data
-  const sanitize = !currentUser.isAdmin && !isAdminContext
-  const html = await dataToHTML(readerVisibleData, type, { sanitize })
+  const html = await dataToHTML(readerVisibleData, type, { sanitize: !currentUser.isAdmin })
   const wordCount = await dataToWordCount(readerVisibleData, type)
 
   return {
@@ -120,7 +119,6 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
       const revision = await buildRevision({
         originalContents,
         currentUser,
-        isAdminContext: context.currentUser?.isAdmin,
       });
       const { html, wordCount } = revision;
       const version = getInitialVersion(doc)
@@ -201,7 +199,7 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
       const oldRevision = oldRevisionId
         ? await fetchFragmentSingle({
           collectionName: "Revisions",
-          fragmentName: "RevisionEdit",
+          fragmentName: "RevisionMetadata",
           selector: {_id: oldRevisionId},
           currentUser: null,
           skipFiltering: true,

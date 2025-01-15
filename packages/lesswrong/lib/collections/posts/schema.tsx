@@ -1,4 +1,4 @@
-import { slugify, getDomain, getOutgoingUrl } from '../../vulcan-lib/utils';
+import { getDomain, getOutgoingUrl } from '../../vulcan-lib/utils';
 import moment from 'moment';
 import { schemaDefaultValue, arrayOfForeignKeysField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle } from '../../utils/schemaUtils'
 import { PostRelations } from "../postRelations/collection"
@@ -26,7 +26,7 @@ import { forumSelect } from '../../forumTypeUtils';
 import * as _ from 'underscore';
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 import { documentIsNotDeleted, userOverNKarmaOrApproved, userOwns } from '../../vulcan-users/permissions';
-import { userCanCommentLock, userCanModeratePost } from '../users/helpers';
+import { userCanCommentLock, userCanModeratePost, userIsSharedOn } from '../users/helpers';
 import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost, getPrevPostIdFromPrevSequence, getNextPostIdFromNextSequence } from '../sequences/helpers';
 import { userOverNKarmaFunc } from "../../vulcan-users";
 import { allOf } from '../../utils/functionUtils';
@@ -41,7 +41,8 @@ import { getPostReviewWinnerInfo } from '../reviewWinners/cache';
 import { stableSortTags } from '../tags/helpers';
 import { getLatestContentsRevision } from '../revisions/helpers';
 import { marketInfoLoader } from './annualReviewMarkets';
-import { getUnusedSlugByCollectionName } from '@/lib/helpers';
+import mapValues from 'lodash/mapValues';
+import groupBy from 'lodash/groupBy';
 
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
@@ -247,21 +248,6 @@ const schema: SchemaType<"Posts"> = {
     placeholder: "Title",
     control: 'EditTitle',
     group: formGroups.title,
-  },
-  // Slug
-  slug: {
-    type: String,
-    optional: true,
-    nullable: false,
-    canRead: ['guests'],
-    onInsert: async (post) => {
-      return await getUnusedSlugByCollectionName("Posts", slugify(post.title))
-    },
-    onEdit: async (modifier, post) => {
-      if (modifier.$set.title) {
-        return await getUnusedSlugByCollectionName("Posts", slugify(modifier.$set.title), false, post._id)
-      }
-    }
   },
   // Count of how many times the post's page was viewed
   viewCount: {
@@ -1120,6 +1106,15 @@ const schema: SchemaType<"Posts"> = {
     // TODO: how to remove people without db access?
     hidden: true,
   },
+  
+  rsvpCounts: resolverOnlyField({
+    type: "Object",
+    graphQLtype: "JSON!",
+    canRead: ['guests'],
+    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+      return mapValues(groupBy(post.rsvps, rsvp=>rsvp.response), v=>v.length);
+    }
+  }),
   
   'rsvps.$': {
     type: rsvpType,
@@ -2189,7 +2184,7 @@ const schema: SchemaType<"Posts"> = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members'],
-    hidden: (props) => !props.eventForm,
+    hidden: (props) => !props.eventForm || isLWorAF,
     control: 'select',
     group: formGroups.event,
     optional: true,
@@ -2531,7 +2526,7 @@ const schema: SchemaType<"Posts"> = {
   // of a post. Only populated if some form of link sharing is (or has been) enabled.
   linkSharingKey: {
     type: String,
-    canRead: [userOwns, 'admins'],
+    canRead: [userIsSharedOn, userOwns, 'admins'],
     canUpdate: ['admins'],
     optional: true,
     nullable: true,

@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import {Components, registerComponent} from '../../lib/vulcan-lib';
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
   }
 });
 
 export const AllReactedCommentsPage = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const defaultLimit = 50;
   const pageSize = 50

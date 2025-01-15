@@ -18,9 +18,10 @@ import { Link, useNavigate } from '../../lib/reactRouterWrapper';
 import { QuestionIcon } from '../icons/questionIcon';
 import DeferRender from '../common/DeferRender';
 import { userCanCreateAndEditJargonTerms } from '@/lib/betas';
+import { tagGetUrl } from '@/lib/collections/tags/helpers';
 
 // Also used by PostsEditForm
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   postForm: {
     maxWidth: 715,
     margin: "0 auto",
@@ -169,7 +170,7 @@ const prefillFromTemplate = (template: PostsEdit) => {
   )
 }
 
-export const getPostEditorGuide = (classes: ClassesType) => {
+export const getPostEditorGuide = (classes: ClassesType<typeof styles>) => {
   const {LWTooltip, NewPostHowToGuides} = Components;
   if (isLWorAF) {
     return (
@@ -178,7 +179,7 @@ export const getPostEditorGuide = (classes: ClassesType) => {
           <div className={classes.editorGuide}>
             <QuestionIcon className={classes.editorGuideIcon} />
             <div className={classes.editorGuideLink}>
-              <Link to="/tag/guide-to-the-lesswrong-editor">Editor Guide / FAQ</Link>
+              <Link to={tagGetUrl({slug: "guide-to-the-lesswrong-editor"})}>Editor Guide / FAQ</Link>
             </div>
           </div>
         </LWTooltip>
@@ -238,7 +239,7 @@ function usePrefetchForAutosaveRedirect() {
 }
 
 const PostsNewForm = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {
     PostSubmit, WrappedSmartForm, LoginForm, SubmitToFrontpageCheckbox,
@@ -317,11 +318,11 @@ const PostsNewForm = ({classes}: {
     postCategory
   }
 
-  if (query?.subforumTagId) {
+  if (query?.subforumTagId || query?.tagId) {
     prefilledProps = {
       ...prefilledProps,
-      subforumTagId: query.subforumTagId,
-      tagRelevance: {[query.subforumTagId]: 1},
+      subforumTagId: query.subforumTagId || query.tagId,
+      tagRelevance: {[query.subforumTagId || query.tagId]: 1},
     }
   }
 

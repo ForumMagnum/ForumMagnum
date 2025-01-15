@@ -6,7 +6,7 @@ import { styles } from '../common/HeaderSubtitle';
 import { Link } from '../../lib/reactRouterWrapper';
 
 export const ReviewHeaderTitle = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { params } = useLocation()
   const reviewYear = getReviewYearFromString(params.year)

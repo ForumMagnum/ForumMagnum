@@ -8,7 +8,7 @@ import Paper from '@material-ui/core/Paper';
 import { useTracking } from '../../../lib/analyticsEvents';
 import { isFriendlyUI, preferredHeadingCase } from '../../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (_theme: ThemeType) => ({
   icon: {
     height: 20,
     fill: "currentColor",
@@ -18,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SharePostActions = ({post, onClick, classes}: {
   post: PostsBase,
   onClick?: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { DropdownMenu, DropdownItem, DropdownDivider, SocialMediaIcon } = Components;
   const { captureEvent } = useTracking()
@@ -57,7 +57,7 @@ const SharePostActions = ({post, onClick, classes}: {
   }
 
   return <Paper onClick={onClick}>
-    <DropdownMenu className={classes.root}>
+    <DropdownMenu>
       <DropdownItem
         title={preferredHeadingCase("Copy Link")}
         icon="Link"

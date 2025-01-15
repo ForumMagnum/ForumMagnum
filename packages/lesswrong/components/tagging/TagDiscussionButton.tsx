@@ -6,8 +6,9 @@ import { useHover } from "../common/withHover";
 import { useMulti } from "../../lib/crud/withMulti";
 import { tagGetDiscussionUrl } from "../../lib/collections/tags/helpers";
 import classNames from "classnames";
+import { isFriendlyUI } from "@/themes/forumTheme";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   discussionButton: {
     ...theme.typography.commentStyle,
     ...theme.typography.body2,
@@ -26,7 +27,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   discussionCount: {
     [theme.breakpoints.down('sm')]: {
       alignSelf: "flex-start", //appears too low when there's no label
-      marginTop: -2,
+      marginTop: isFriendlyUI ? undefined : -2,
     }
   },
   discussionCountWithoutLabel: {
@@ -50,7 +51,7 @@ const TagDiscussionButton = ({tag, text = "Discussion", hideLabel = false, hideL
   text?: string,
   hideLabel?: boolean,
   hideLabelOnMobile?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   
   const { TagDiscussion, PopperCard } = Components
@@ -70,6 +71,9 @@ const TagDiscussionButton = ({tag, text = "Discussion", hideLabel = false, hideL
   const hideLabelOnMobileClass = hideLabelOnMobile ? classes.hideOnMobile : undefined;
 
   const discussionCountClass = hideLabel ? classes.discussionCountWithoutLabel : classes.discussionCount;
+
+  // We want to avoid a flickering popper appearing and disappearing if the user hovers over the button when we already know there aren't any comments.
+  const showDiscussionPopper = hover && (loading || (totalCount ?? 0) > 0);
   
   return <Link
     className={classes.discussionButton}
@@ -79,7 +83,7 @@ const TagDiscussionButton = ({tag, text = "Discussion", hideLabel = false, hideL
     <CommentOutlinedIcon className={classes.discussionButtonIcon} />
     <span className={classNames(hideLabelClass, hideLabelOnMobileClass)}>{text}</span>
     {!loading && <span className={discussionCountClass}>&nbsp;{`(${totalCount || 0})`}</span>}
-    <PopperCard open={hover} anchorEl={anchorEl} placement="bottom-start" >
+    <PopperCard open={showDiscussionPopper} anchorEl={anchorEl} placement="bottom-start" >
       <TagDiscussion tag={tag}/>
     </PopperCard>
   </Link>

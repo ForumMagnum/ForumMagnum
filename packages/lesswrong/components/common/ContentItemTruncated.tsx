@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { truncateWithGrace } from '../../lib/editor/ellipsize';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const TRUNCATION_MAX_HEIGHT = 600;
+
+const styles = (theme: ThemeType) => ({
   maxHeight: {
-    maxHeight: 600,
+    maxHeight: TRUNCATION_MAX_HEIGHT,
     overflow: "hidden"
   }
 })
@@ -13,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 // ContentItemTruncated: Wrapper around ContentItemBody with options for
 // limiting length and height in various ways.
 const ContentItemTruncated = ({classes, maxLengthWords, graceWords=20, expanded=false, rawWordCount, getTruncatedSuffix, nonTruncatedSuffix, dangerouslySetInnerHTML, className, description, nofollow}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   maxLengthWords: number,
   graceWords?: number,
   expanded?: boolean,
@@ -30,6 +32,8 @@ const ContentItemTruncated = ({classes, maxLengthWords, graceWords=20, expanded=
   nofollow?: boolean
 }) => {
   const {ContentItemBody} = Components;
+  const contentsRef = useRef<HTMLDivElement>(null);
+  const [hasHeightLimit, setHasHeightLimit] = useState(false);
   
   const html = dangerouslySetInnerHTML.__html;
   const {truncatedHtml, wasTruncated, wordsLeft} =
@@ -39,15 +43,33 @@ const ContentItemTruncated = ({classes, maxLengthWords, graceWords=20, expanded=
       wordsLeft: 0,
     } : truncateWithGrace(html, maxLengthWords, graceWords, rawWordCount);
   
+  useEffect(() => {
+    if (contentsRef.current) {
+      const measuredHeight = contentsRef.current.offsetHeight;
+      if (measuredHeight > TRUNCATION_MAX_HEIGHT) {
+        setHasHeightLimit(true);
+      }
+    }
+  }, [truncatedHtml]);
+
+  const showSuffix = (wasTruncated || hasHeightLimit);
+
   return <>
-    <ContentItemBody
-      dangerouslySetInnerHTML={{__html: truncatedHtml}}
-      className={classNames(className, !expanded && classes.maxHeight)}
-      description={description}
-      nofollow={nofollow}
-    />
-    {wasTruncated && getTruncatedSuffix && getTruncatedSuffix({wordsLeft})}
-    {!wasTruncated && nonTruncatedSuffix}
+    <div
+      ref={contentsRef}
+      className={classNames(
+        !expanded && hasHeightLimit && classes.maxHeight
+      )}
+    >
+      <ContentItemBody
+        dangerouslySetInnerHTML={{__html: truncatedHtml}}
+        className={className}
+        description={description}
+        nofollow={nofollow}
+      />
+    </div>
+    {showSuffix && getTruncatedSuffix && getTruncatedSuffix({wordsLeft})}
+    {!showSuffix && nonTruncatedSuffix}
   </>
 }
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components, getFragment, slugify } from '../../lib/vulcan-lib';
+import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { isEAForum, taggingNameCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
@@ -7,6 +7,7 @@ import { useNavigate } from '../../lib/reactRouterWrapper';
 import { useLocation } from '@/lib/routeUtil';
 import { useSingle } from '@/lib/crud/withSingle';
 import { useUpdate } from '@/lib/crud/withUpdate';
+import { slugify } from '@/lib/utils/slugify';
 
 export const styles = (_theme: ThemeType) => ({
   root: {

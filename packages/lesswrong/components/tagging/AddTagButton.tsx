@@ -8,7 +8,7 @@ import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { isBookUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { PopperPlacementType } from '@material-ui/core/Popper';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   addTagButton: {
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
@@ -21,11 +21,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const AddTagButton = ({onTagSelected, tooltipPlacement = "bottom-start", isVotingContext, classes, children}: {
+const AddTagButton = ({onTagSelected, menuPlacement="bottom-start", isVotingContext, hasTooltip=true, classes, children}: {
   onTagSelected: (props: {tagId: string, tagName: string}) => void,
-  tooltipPlacement?: PopperPlacementType,
+  menuPlacement?: PopperPlacementType,
   isVotingContext?: boolean,
-  classes: ClassesType,
+  hasTooltip?: boolean,
+  classes: ClassesType<typeof styles>,
   children?: ReactNode,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -54,7 +55,7 @@ const AddTagButton = ({onTagSelected, tooltipPlacement = "bottom-start", isVotin
         <LWPopper
           open={isOpen}
           anchorEl={anchorEl.current}
-          placement={tooltipPlacement}
+          placement={menuPlacement}
           allowOverflow
         >
           <LWClickAwayListener
@@ -74,7 +75,7 @@ const AddTagButton = ({onTagSelected, tooltipPlacement = "bottom-start", isVotin
         </LWPopper>
     </a>
   
-  if (isBookUI) {
+  if (isBookUI && hasTooltip) {
     return <LWTooltip title="Add a tag">
       {button}
     </LWTooltip>

@@ -7,7 +7,7 @@ import { sequenceGetPageUrl } from '../../../lib/collections/sequences/helpers';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { useCurrentUser } from '../../common/withUser';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginLeft:-20,
     display: "flex",
@@ -26,7 +26,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const PostsTopSequencesNav = ({post, classes}: {
   post: PostSequenceNavigation,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {SequencesTooltip, SequencesNavigationLink} = Components;
   const navigate = useNavigate();

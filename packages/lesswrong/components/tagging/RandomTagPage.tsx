@@ -1,6 +1,7 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useQuery, gql } from '@apollo/client';
+import { tagGetUrl } from '@/lib/collections/tags/helpers';
 
 const RandomTagPage = () => {
   const {PermanentRedirect, Loading, SingleColumnSection} = Components;
@@ -13,7 +14,7 @@ const RandomTagPage = () => {
   });
   const tag = data?.RandomTag;
   return <SingleColumnSection>
-    {tag && <PermanentRedirect status={302} url={`/tag/${tag.slug}`}/>}
+    {tag && <PermanentRedirect status={302} url={tagGetUrl({slug: tag.slug})}/>}
     {loading && <Loading/>}
   </SingleColumnSection>
 }

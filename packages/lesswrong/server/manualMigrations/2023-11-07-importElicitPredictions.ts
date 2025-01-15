@@ -8,7 +8,7 @@ import { cheerioParse } from '../utils/htmlUtil';
 import { createAdminContext, createMutator } from '../vulcan-lib';
 import { registerMigration } from './migrationUtils';
 
-const apiQuestionToDBQuestion = (question: any, id: string): Omit<DbElicitQuestion, 'schemaVersion'> => ({
+const apiQuestionToDBQuestion = (question: any, id: string): Omit<DbElicitQuestion, 'schemaVersion'|'legacyData'> => ({
   _id: id,
   title: question.title,
   notes: question.notes,
@@ -32,6 +32,7 @@ const apiPredictionToDBQuestion = (prediction: ElicitPredictionData, questionId:
   sourceUrl: prediction.sourceUrl,
   sourceId: prediction.sourceId,
   binaryQuestionId: questionId,
+  isDeleted: false,
 })
 
 registerMigration({

@@ -2,13 +2,24 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useTagBySlug } from './useTag';
 import { useLocation } from '../../lib/routeUtil';
-import { styles } from './TagPageExports';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { isFriendlyUI } from '@/themes/forumTheme';
 
-const TagCompareRevisions = ({classes}: {
-  classes: ClassesType
-}) => {
+const styles = defineStyles('TagCompareRevisions', (theme) => ({
+  title: {
+    ...theme.typography[isFriendlyUI ? "display2" : "display3"],
+    ...theme.typography[isFriendlyUI ? "headerStyle" : "commentStyle"],
+    marginTop: 0,
+    fontWeight: isFriendlyUI ? 700 : 600,
+    ...theme.typography.smallCaps,
+  },
+  description: {},
+}));
+
+const TagCompareRevisions = () => {
+  const classes = useStyles(styles);
   const { params, query } = useLocation();
   const { slug } = params;
   const versionBefore = query.before;
@@ -28,7 +39,7 @@ const TagCompareRevisions = ({classes}: {
     </Link>
     
     <RevisionComparisonNotice before={versionBefore} after={versionAfter}/>
-    <div className={classes.description}>
+    <div>
       <CompareRevisions
         collectionName="Tags" fieldName="description"
         documentId={tag._id}
@@ -39,7 +50,7 @@ const TagCompareRevisions = ({classes}: {
   </SingleColumnSection>
 }
 
-const TagCompareRevisionsComponent = registerComponent("TagCompareRevisions", TagCompareRevisions, {styles});
+const TagCompareRevisionsComponent = registerComponent("TagCompareRevisions", TagCompareRevisions);
 
 
 declare global {

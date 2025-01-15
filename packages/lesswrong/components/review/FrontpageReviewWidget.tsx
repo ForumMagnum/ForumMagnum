@@ -6,9 +6,10 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import classNames from 'classnames';
 import { forumTitleSetting } from '../../lib/instanceSettings';
-import { annualReviewAnnouncementPostPathSetting } from '../../lib/publicSettings';
 import moment from 'moment';
-import { eligibleToNominate, getReviewPhase, getReviewTitle, ReviewYear, REVIEW_NAME_IN_SITU, REVIEW_YEAR, getResultsPhaseEnd, getNominationPhaseEnd, getReviewPhaseEnd, getReviewStart } from '../../lib/reviewUtils';
+import { eligibleToNominate, getReviewPhase, getReviewTitle, ReviewYear, REVIEW_YEAR, getResultsPhaseEnd, getNominationPhaseEnd, getReviewPhaseEnd, getReviewStart, reviewPostPath, longformReviewTagId } from '../../lib/reviewUtils';
+import { allPostsParams } from './NominationsPage';
+import qs from 'qs';
 
 const commonActionButtonStyle = (theme: ThemeType) => ({
   paddingTop: 7,
@@ -26,7 +27,27 @@ const commonActionButtonStyle = (theme: ThemeType) => ({
   }
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
+  sectionTitle: {
+    alignItems: 'flex-end',
+    marginBottom: 12,
+  },
+  reviewtitle: {
+    fontSize: "1.5rem",
+    fontVariant: "small-caps",
+    fontFamily: theme.typography.postStyle.fontFamily,
+    fontVariantNumeric: "normal",
+    color: theme.palette.grey[600],
+    marginBottom: 0,
+  },
+  reviewSectionTitle: {
+  marginBottom: -2
+  },
+  reviewPhaseTitle: {
+    fontSize: "3rem",
+    marginTop: -4,
+    marginBottom: 0
+  },
   learnMore: {
     color: theme.palette.lwTertiary.main
   },
@@ -85,12 +106,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: theme.palette.primary.main,
     border: `solid 1px ${theme.palette.primary.main}`,
     color: theme.palette.text.invertedBackgroundText,
-    ...commonActionButtonStyle(theme),
+    ...commonActionButtonStyle(theme),  
+    textAlign: 'center',
   },
   actionButton: {
     border: `solid 1px ${theme.palette.grey[400]}`,
     color: theme.palette.grey[600],
     ...commonActionButtonStyle(theme),
+    textAlign: 'center',
+  },
+  actionButtonSecondaryCTA: {
+    backgroundColor: theme.palette.background.pageActiveAreaBackground,
   },
   adminButton: {
     border: `solid 1px ${theme.palette.review.adminButton}`,
@@ -190,8 +216,8 @@ export function ReviewOverviewTooltip() {
   </div>
 }
 
-const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {classes: ClassesType, showFrontpageItems?: boolean, reviewYear: ReviewYear}) => {
-  const { SectionTitle, SettingsButton, LWTooltip, PostsList2, UserReviewsProgressBar, ReviewVotingProgressBar, FrontpageBestOfLWWidget } = Components
+const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, className}: {classes: ClassesType<typeof styles>, showFrontpageItems?: boolean, reviewYear: ReviewYear, className?: string}) => {
+  const { SectionTitle, SettingsButton, LWTooltip, PostsList2, ReviewProgressReviews, ReviewProgressVoting, ReviewProgressNominations } = Components
   const currentUser = useCurrentUser();
 
   const nominationStartDate = getReviewStart(reviewYear)
@@ -233,7 +259,6 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
       {activeRange === "REVIEWS" && <div><em>{voteEndDate.fromNow()} remaining</em></div>}
     </>
 
-  const reviewPostPath = '/posts/pudQtkre7f9GLmb2b/the-2023-lesswrong-review-reflecting-on-ourselves'
   if (!reviewPostPath) {
     // eslint-disable-next-line no-console
     console.error("No review announcement post path set")
@@ -252,7 +277,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
     </div>
     <div className={classes.reviewBlock}>     
       <LWTooltip placement="bottom-start" title={reviewTooltip} className={classNames(classes.progress, {[classes.activeProgress]: activeRange === "REVIEWS"})}>
-        <div className={classNames(classes.blockText, classes.blockLabel)}>Reviews</div>
+        <div className={classNames(classes.blockText, classes.blockLabel)}>Discussion</div>
         <div className={classNames(classes.blockText, classes.hideOnMobile)}>{reviewEndDate.format('MMM Do')}</div>
         {activeRange === "REVIEWS" && <div className={classes.coloredProgress} style={{width: `${dateFraction(currentDate, nominationEndDate, reviewEndDate)}%`}}/>}
       </LWTooltip>   
@@ -266,15 +291,18 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
     </div>
   </div>
 
+
+  const nominatePostsLink = `/nominatePosts/${reviewYear}?${qs.stringify(allPostsParams(reviewYear))}`
   const nominationPhaseButtons = <div className={classes.actionButtonRow}>
-    {/* Ray said this wasn't needed any more (and had styling issue), but leaving here so people know this component, <LatestReview> exists and could be used in the future. */}
-    {/* {showFrontpageItems && !isLastDay(nominationEndDate) && <LatestReview/>} */}
+    {currentUser && currentUser.karma >= 1000 && <span className={classes.reviewProgressBar}>
+      <ReviewProgressNominations reviewYear={REVIEW_YEAR}/>
+    </span>}
     {showFrontpageItems && isLastDay(nominationEndDate) && <span className={classNames(classes.nominationTimeRemaining, classes.timeRemaining)}>
       <div>{nominationEndDate.fromNow()} remaining to cast nomination votes</div>
       <div>(posts need two votes to proceed)</div>
     </span>}
     <LWTooltip className={classes.buttonWrapper} title={`Look over your favorite posts from ${reviewYear}, and nominate the ones that stand the tests of time.`}>
-      <Link to={`/nominatePosts/${reviewYear}`} className={classes.actionButton}>
+      <Link to={nominatePostsLink} className={classes.actionButton}>
         Nominate Posts
       </Link>
     </LWTooltip>
@@ -295,20 +323,20 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
 
   const reviewPhaseButtons = <div className={classes.actionButtonRow}>
     {currentUser && currentUser.karma >= 1000 && <span className={classes.reviewProgressBar}>
-      <UserReviewsProgressBar reviewYear={reviewYear}/>
+      <ReviewProgressReviews reviewYear={reviewYear}/>
     </span>}
-    <LWTooltip title="A list of all reviews, with the top review-commenters ranked by total karma">
-      <Link to={"/reviews"} className={classes.actionButton}>
-        Review Leaderboard
+    <LWTooltip title="A detailed view of all nominated posts (sorted by Nomination Vote results)">
+      <Link to={"/reviewVoting"} className={classes.actionButton}>
+        Advanced Review
       </Link>
     </LWTooltip>
-    <LWTooltip title="A detailed view of all nominated posts">
-      <Link to={"/reviewVoting"} className={classes.actionButton}>
-        Advanced Dashboard
+    <LWTooltip title="Write a detailed review, exploring nominated posts more comprehensively.">
+      <Link to={`/newPost?tagId=${longformReviewTagId}`} className={classNames(classes.actionButton, classes.actionButtonSecondaryCTA)}>
+        Longform Review
       </Link>
     </LWTooltip>
     <LWTooltip title="Find a top unreviewed post, and review it">
-      <Link to={"/reviewQuickPage"} className={classes.actionButtonCTA}>
+      <Link to={`/quickReview/${reviewYear}`} className={classes.actionButtonCTA}>
         Quick Review
       </Link>
     </LWTooltip>
@@ -320,7 +348,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
 
   const votingPhaseButtons = <div className={classes.actionButtonRow}>
     {currentUser && currentUser.karma >= 1000 && <span className={classes.reviewProgressBar}>
-      <ReviewVotingProgressBar reviewYear={REVIEW_YEAR}/>
+      <ReviewProgressVoting reviewYear={REVIEW_YEAR}/>
     </span>}
     <LWTooltip title="A list of all reviews, with the top review-commenters ranked by total karma">
       <Link to={"/reviews"} className={classes.actionButton}>
@@ -356,19 +384,24 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
 
   return (
     <AnalyticsContext pageSectionContext="frontpageReviewWidget">
-      <div>
-        <SectionTitle 
+      <div className={className}>
+        <SectionTitle rootClassName={classes.sectionTitle} titleClassName={classes.reviewSectionTitle}
           title={<LWTooltip title={<ReviewOverviewTooltip/>} placement="bottom-start">
             <Link to={"/reviewVoting"}>
-              {getReviewTitle(reviewYear)}
+              <h3 className={classes.reviewtitle}>{getReviewTitle(reviewYear)}</h3>
+              <h1 className={classes.reviewPhaseTitle}>
+                {activeRange === "NOMINATIONS" && "Nomination Voting"}
+                {activeRange === "REVIEWS" && "Discussion Phase"}
+                {activeRange === "VOTING" && "Final Voting"}
+              </h1>
             </Link>
           </LWTooltip>}
         >
-          <LWTooltip title={<ReviewOverviewTooltip/>} className={classes.hideOnMobile}>
+          {showFrontpageItems && <LWTooltip title={<ReviewOverviewTooltip/>} className={classes.hideOnMobile}>
             <Link to={reviewPostPath || ""}>
-              <SettingsButton showIcon={false} label={`How does the ${REVIEW_NAME_IN_SITU} work?`}/>
+              <SettingsButton showIcon={false} label={`What is this?`}/>
             </Link>
-          </LWTooltip>
+          </LWTooltip>}
         </SectionTitle>
 
         {reviewTimeline}

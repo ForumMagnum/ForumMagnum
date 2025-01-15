@@ -8,7 +8,7 @@ import FormControl from '@material-ui/core/FormControl';
 import type { Moment } from 'moment';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   input: {
     borderBottom: `solid 1px ${theme.palette.grey[550]}`,
     padding: '6px 0 7px 0',
@@ -253,7 +253,7 @@ const DatePicker = ({label, name, value, below, onChange, classes}: {
   below?: boolean,
   onChange: (newValue: Date) => void,
   onClose?: (newValue: Date) => void,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   // since tz abbrev can depend on the date (i.e. EST vs EDT),
   // we try to use the selected date to determine the tz (and default to now)

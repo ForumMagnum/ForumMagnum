@@ -3,17 +3,23 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
-import { tagPostTerms } from './TagPageExports';
+import { tagPostTerms } from './TagPageUtils';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { getTagDescriptionHtml } from '../common/excerpts/TagExcerpt';
 import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { getTagDescriptionHtmlHighlight } from './TagPreviewDescription';
+import startCase from 'lodash/startCase';
 
 const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
   root: {
-    ...(!isFriendlyUI && {
+    ...(isFriendlyUI ? {
+      paddingTop: 8,
+      paddingLeft: 16,
+      paddingRight: 16,
+    } : {
       width: 500,
       paddingBottom: 6,
     }),
@@ -24,16 +30,25 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
   rootEAWidth: {
     width: FRIENDLY_HOVER_OVER_WIDTH,
   },
-  nonArbitalPadding: {
-    paddingLeft: 16,
-    paddingRight: 16,
+  mainContent: {
+    ...(!isFriendlyUI && {
+      paddingLeft: 16,
+      paddingRight: 16,
+      maxHeight: 600,
+      overflowY: 'auto',
+    }),
   },
-  nonTabPadding: {
-    // paddingTop: 16,
+  title: {
+    ...theme.typography.commentStyle,
+    fontSize: "1.2rem",
+    color: theme.palette.grey[900],
+    fontWeight: 600,
     paddingLeft: 16,
     paddingRight: 16,
-    maxHeight: 400,
-    overflowY: 'auto',
+    paddingTop: 12,
+  },
+  extraTitleMargin: {
+    marginBottom: 8,
   },
   relatedTagWrapper: {
     ...theme.typography.body2,
@@ -61,7 +76,12 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
   autoApplied: {
     flexGrow: 1,
   },
-  posts: {
+  postsWithoutDescription: {
+    paddingTop: 8,
+    marginBottom: 8,
+    overflow: "hidden",
+  },
+  postsWithDescription: {
     marginTop: 10,
     paddingTop: 8,
     borderTop: theme.palette.border.extraFaint,
@@ -84,11 +104,6 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
   footerMarginTop: {
     marginTop: 16,
   },
-  arbitalTitle: {
-    fontSize: "1.5rem",
-    marginBottom: 16,
-    color: theme.palette.link.color,
-  },
   tabsContainer: {
     display: "flex",
     flexDirection: "row",
@@ -101,8 +116,8 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
     color: theme.palette.greyAlpha(1),
     cursor: 'pointer !important',
     '&[data-selected="true"]': {
-      backgroundColor: 'white',
-      borderBottom: "1px solid white",
+      backgroundColor: theme.palette.panelBackground.default,
+      borderBottom: `1px solid ${theme.palette.panelBackground.default}`,
       marginBottom: -1,
       borderLeft: `1px solid ${theme.palette.greyAlpha(0.1)}`,
       borderRight: `1px solid ${theme.palette.greyAlpha(0.1)}`,
@@ -111,10 +126,39 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
       borderLeft: 'none',
     },
   },
-  descriptionTop: {
-    // marginTop: 16,
+  description: {
+    ...(isFriendlyUI && { marginTop: 16 }),
   },
 }));
+
+/*
+/* If the text displayed on hover preview doesn't contain the tag name in the first 100 characters, we use this flag to display a title.
+/* If summaries are present, we must check for the tag name in the first summary, otherwise we use the tag name 
+/* from the main description.
+*/
+const tagShowTitle = (tag: (TagPreviewFragment | TagSectionPreviewFragment) & { summaries?: MultiDocumentContentDisplay[] }) => {
+  if (isFriendlyUI) {
+    return false;
+  }
+
+  const firstSummaryText = tag.summaries?.[0]?.contents?.html
+  const highlightText = getTagDescriptionHtmlHighlight(tag);
+  const openingText: string | undefined = firstSummaryText ?? highlightText;
+
+  if (!openingText) {
+    return true;
+  }
+
+  if (tag.name.length > 100) {
+    return true;
+  }
+
+  // Remove non-word characters and ignore case
+  const openingTextLower = openingText.toLowerCase().replace(/[^\w\s]/g, '');
+  const tagNameLower = tag.name.toLowerCase().replace(/[^\w\s]/g, '');
+
+  return !openingTextLower.slice(0, 100).includes(tagNameLower);
+}
 
 const TagPreview = ({
   tag,
@@ -124,16 +168,29 @@ const TagPreview = ({
   hideDescription=false,
   postCount=6,
   autoApplied=false,
+  setForceOpen,
 }: {
-  tag: (TagPreviewFragment | TagSectionPreviewFragment) & { summaries?: MultiDocumentEdit[] },
+  tag: (TagPreviewFragment | TagSectionPreviewFragment) & { summaries?: MultiDocumentContentDisplay[] },
   hash?: string,
   showCount?: boolean,
   hideRelatedTags?: boolean,
   hideDescription?: boolean,
   postCount?: number,
   autoApplied?: boolean,
+  setForceOpen?: (forceOpen: boolean) => void,
 }) => {
+  const classes = useStyles(styles);
+
   const [activeTab, setActiveTab] = useState<number>(0);
+
+  // Because different tabs can have different heights due to varying content lengths,
+  // we need to keep the tooltip open when switching tabs, so that switching from a taller tab
+  // to a shorter tab with certain placements doesn't cause the tooltip to close automatically
+  // when the cursor is no longer hovering over the tab.
+  const updateActiveTab = (index: number) => {
+    setActiveTab(index);
+    setForceOpen?.(true);
+  };
 
   const showPosts = postCount > 0 && !!tag?._id && !isFriendlyUI;
   const {results} = useMulti({
@@ -143,11 +200,6 @@ const TagPreview = ({
     fragmentName: "PostsList",
     limit: postCount,
   });
-
-  const classes = useStyles(styles);
-
-  const summaries = tag?.summaries;
-  const multipleSummaries = summaries && summaries.length > 1;
 
   // In theory the type system doesn't allow this, but I'm too scared to
   // remove it
@@ -162,9 +214,9 @@ const TagPreview = ({
       key={summary.tabTitle}
       className={classes.summaryTab}
       data-selected={activeTab === index}
-      onClick={() => setActiveTab(index)}
+      onClick={() => updateActiveTab(index)}
     >
-      {summary.tabTitle}
+      {startCase(summary.tabTitle)}
     </div>
   )) ?? [];
 
@@ -181,17 +233,21 @@ const TagPreview = ({
   );
 
   const hasDescription = !!getTagDescriptionHtml(tag) && !hideDescription;
+  const hasMultipleSummaries = summaryTabs.length > 1;
 
   const { TagPreviewDescription, TagSmallPostLink, Loading } = Components;
   return (
     <div className={classNames(classes.root, {
       [classes.rootEAWidth]: isFriendlyUI && hasDescription,
     })}>
-      {multipleSummaries && <div className={classes.tabsContainer}>
+      {tagShowTitle(tag) && <div className={classNames(classes.title, { [classes.extraTitleMargin]: hasMultipleSummaries })}>
+        {tag.name}
+      </div>}
+      {hasMultipleSummaries && <div className={classes.tabsContainer}>
        {summaryTabs}
       </div>}
-      <div className={classes.nonTabPadding}>
-        {hasDescription && <div className={classes.descriptionTop}>
+      <div className={classes.mainContent}>
+        {hasDescription && <div className={classes.description}>
           <TagPreviewDescription 
             tag={tag} 
             hash={hash} 
@@ -237,7 +293,7 @@ const TagPreview = ({
           <>
             {results
               ? (
-                <div className={classes.posts}>
+                <div className={hasDescription ? classes.postsWithDescription : classes.postsWithoutDescription}>
                   {results.map((post) => post &&
                     <TagSmallPostLink
                       key={post._id}

@@ -7,6 +7,7 @@ import { useTagBySlug } from './useTag';
 import { Link } from '@/lib/reactRouterWrapper';
 import { TagLens } from '@/lib/arbital/useTagLenses';
 import { useTagOrLens } from '../hooks/useTagOrLens';
+import { tagGetUrl } from '@/lib/collections/tags/helpers';
 
 
 const styles = defineStyles("PathInfo", (theme) => ({
@@ -112,7 +113,7 @@ const PathInfo = ({tag, lens}: {
       */}
     {pathInfo.previousPageId && <Link
       className={classes.pathNavigationBackButton}
-      to={`/w/${pathInfo.previousPageId}?pathId=${pathInfo.pathId}`}
+      to={tagGetUrl({slug: pathInfo.previousPageId}, {pathId: pathInfo.pathId})}
     >
       <ForumIcon icon="ArrowLeft" className={classes.pathNavigationBackButtonIcon} />
       Back
@@ -124,7 +125,7 @@ const PathInfo = ({tag, lens}: {
     </span>
     {pathInfo.nextPageId && <Link
       className={classes.pathNavigationNextButton}
-      to={`/w/${pathInfo.nextPageId}?pathId=${pathInfo.pathId}`}
+      to={tagGetUrl({slug: pathInfo.nextPageId}, {pathId: pathInfo.pathId})}
     >
       Continue
       <ForumIcon icon="ArrowRight" className={classes.pathNavigationNextButtonIcon} />
