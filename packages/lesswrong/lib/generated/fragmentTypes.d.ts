@@ -456,11 +456,11 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly forumEventMetadata: {
     eventFormat: "BASIC" | "POLL" | "STICKERS",
     sticker: {
+      _id: string,
       x: number,
       y: number,
       theta: number,
       emoji: string,
-      commentId: string,
     },
   },
   readonly tagCommentType: "SUBFORUM" | "DISCUSSION",
@@ -630,6 +630,7 @@ interface ForumEventsDefaultFragment { // fragment on ForumEvents
   readonly bannerImageId: string | null,
   readonly includesPoll: boolean,
   readonly eventFormat: "BASIC" | "POLL" | "STICKERS",
+  readonly maxStickersPerUser: number,
   readonly customComponent: string | null,
   readonly publicData: any /*{"definitions":[{"blackbox":true}]}*/,
 }
@@ -2930,6 +2931,7 @@ interface ForumEventsMinimumInfo { // fragment on ForumEvents
   readonly bannerImageId: string | null,
   readonly eventFormat: "BASIC" | "POLL" | "STICKERS",
   readonly customComponent: string | null,
+  readonly maxStickersPerUser: number,
 }
 
 interface ForumEventsDisplay extends ForumEventsMinimumInfo { // fragment on ForumEvents

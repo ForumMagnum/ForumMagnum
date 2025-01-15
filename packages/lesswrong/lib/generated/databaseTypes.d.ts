@@ -146,11 +146,11 @@ interface DbComment extends DbObject {
   forumEventMetadata: {
     eventFormat: "BASIC" | "POLL" | "STICKERS",
     sticker: {
+      _id: string,
       x: number,
       y: number,
       theta: number,
       emoji: string,
-      commentId: string,
     },
   } | null
   tagCommentType: "SUBFORUM" | "DISCUSSION"
@@ -478,6 +478,7 @@ interface DbForumEvent extends DbObject {
   bannerImageId: string | null
   includesPoll: boolean
   eventFormat: "BASIC" | "POLL" | "STICKERS"
+  maxStickersPerUser: number
   customComponent: string | null
   publicData: any /*{"definitions":[{"blackbox":true}]}*/
   createdAt: Date

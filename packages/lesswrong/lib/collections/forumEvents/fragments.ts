@@ -15,6 +15,8 @@ registerFragment(`
     bannerImageId
     eventFormat
     customComponent
+
+    maxStickersPerUser
   }
 `);
 

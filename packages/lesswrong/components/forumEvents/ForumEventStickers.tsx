@@ -11,7 +11,9 @@ import { Link } from "@/lib/reactRouterWrapper";
 import { InteractionWrapper } from "../common/useClickableCell";
 import { useIsAboveBreakpoint } from "../hooks/useScreenWidth";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
-import type { ForumEventSticker, ForumEventStickerData } from "@/lib/collections/forumEvents/types";
+import type { ForumEventStickerInput, NewForumEventStickerData } from "@/lib/collections/forumEvents/types";
+import { randomId } from "@/lib/random";
+import keyBy from "lodash/keyBy";
 
 const styles = (_theme: ThemeType) => ({
   stickersContainer: {
@@ -38,63 +40,11 @@ const styles = (_theme: ThemeType) => ({
   }
 });
 
-const upsertForumEventStickerQuery = gql`
-  mutation UpsertForumEventSticker($forumEventId: String!, $x: Float!, $y: Float!, $theta: Float!, $emoji: String) {
-    UpsertForumEventSticker(forumEventId: $forumEventId, x: $x, y: $y, theta: $theta, emoji: $emoji)
-  }
-`;
 const removeForumEventStickerQuery = gql`
-  mutation RemoveForumEventSticker($forumEventId: String!) {
-    RemoveForumEventSticker(forumEventId: $forumEventId)
+  mutation RemoveForumEventSticker($forumEventId: String!, $stickerId: String!) {
+    RemoveForumEventSticker(forumEventId: $forumEventId, stickerId: $stickerId)
   }
 `;
-
-type ForumEventStickerDisplay = {
-  x: number;
-  y: number;
-  theta: number;
-  emoji: string;
-  user: UsersMinimumInfo;
-  comment: ShortformComments | null;
-};
-
-function stickerDataToArray({
-  data,
-  users,
-  comments,
-  currentUser
-}: {
-  data: ForumEventStickerData | null;
-  users: UsersMinimumInfo[] | undefined;
-  comments: ShortformComments[] | undefined;
-  currentUser: UsersCurrent | null;
-}): { currentUserSticker: ForumEventStickerDisplay | null, otherStickers: ForumEventStickerDisplay[] } {
-  if (!users || !data) {
-    return { currentUserSticker: null, otherStickers: [] };
-  }
-
-  const allStickers = users
-    .map((user) => {
-      const sticker = data[user._id];
-      if (!sticker) return undefined;
-
-      const comment = comments?.find(comment => comment.userId === user._id) || null;
-      return {
-        x: sticker.x,
-        y: sticker.y,
-        theta: sticker.theta,
-        emoji: sticker.emoji,
-        user,
-        comment,
-      };
-    })
-    .filter((sticker) => !!sticker) as ForumEventStickerDisplay[];
-
-  const currentUserSticker = allStickers.find(heart => currentUser && heart.user._id === currentUser._id) || null;
-  const otherStickers = allStickers.filter(heart => !currentUser || heart.user._id !== currentUser._id);
-
-  return { currentUserSticker, otherStickers };
-}
 
 const ForumEventStickers: FC<{
   classes: ClassesType<typeof styles>;
@@ -108,51 +58,42 @@ const ForumEventStickers: FC<{
   const isDesktop = useIsAboveBreakpoint("sm");
   const [mobilePlacingSticker, setMobilePlacingSticker] = useState(false)
 
-  const stickerData: ForumEventStickerData | null = currentForumEvent?.publicData || null;
+  const stickerData = (currentForumEvent?.publicData as NewForumEventStickerData | undefined)?.data;
+  const stickers = Array.isArray(stickerData) ? stickerData : [];
+
+  console.log({stickers})
+
+  const uniqueUserIds = Array.from(new Set(stickers.map(sticker => sticker.userId).filter(id => id)));
+  const uniqueCommentIds = Array.from(new Set(stickers.map(sticker => sticker.commentId).filter(id => id)));
 
   const { results: users } = useMulti({
     terms: {
       view: 'usersByUserIds',
-      userIds: stickerData
-        ? Object.keys(stickerData)
-        : [],
+      userIds: uniqueUserIds,
       limit: 1000,
     },
     collectionName: "Users",
     fragmentName: 'UsersMinimumInfo',
     enableTotal: false,
-    skip: !stickerData,
+    skip: !stickers,
   });
   const { results: comments, refetch: refetchComments } = useMulti({
     terms: {
-      view: 'forumEventComments',
-      forumEventId: currentForumEvent?._id,
-      limit: 1000,
+      commentIds: uniqueCommentIds,
+      // TODO revert
+      limit: 10,
     },
     collectionName: "Comments",
     fragmentName: 'ShortformComments',
     enableTotal: false,
     // Don't run on the first pass, to speed up SSR
-    skip: !currentForumEvent?._id || !users,
+    skip: !uniqueCommentIds || !uniqueCommentIds.length || !users,
   });
 
-  // Maintain a ref that keeps the previous value of `users` when it is currently undefined, to avoid the stickers flickering
-  const displayUsersRef = useRef<UsersMinimumInfo[] | undefined>(users);
+  const usersById = keyBy(users, "_id")
+  const commentsById = keyBy(comments, "_id")
 
-  if (users && displayUsersRef.current !== users) {
-    displayUsersRef.current = users;
-  }
-
-  const { currentUserSticker, otherStickers } = useMemo(
-    () => stickerDataToArray({ data: stickerData, users: displayUsersRef.current, comments, currentUser }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [comments, currentUser, stickerData, displayUsersRef.current]
-  );
-
-  const [draftSticker, setDraftSticker] = useState<Partial<ForumEventSticker> | null>(null);
-
-  // Note: For some reason typescript can't figure this type out on its own
-  const displaySticker = (draftSticker ?? currentUserSticker) as (typeof draftSticker | typeof currentUserSticker);
+  const [draftSticker, setDraftSticker] = useState<{_id: string, x: number, y: number, theta: number, emoji?: string} | null>(null);
 
   const [commentFormOpen, setCommentFormOpen] = useState(false);
   const [hoverPos, setHoverPos] = useState<{ x: number; y: number } | null>(
@@ -185,19 +126,21 @@ const ForumEventStickers: FC<{
     [containerRef]
   );
 
-  const [upsertSticker] = useMutation(upsertForumEventStickerQuery);
   const [removeSticker] = useMutation(removeForumEventStickerQuery);
 
-  const allowPlacingSticker = !currentUserSticker && !draftSticker && (isDesktop || mobilePlacingSticker);
+  const currentUserStickerCount = stickers.filter(s => s.userId === currentUser?._id).length
+  const allowAddingSticker = currentUserStickerCount < (currentForumEvent?.maxStickersPerUser ?? 0)
+  const isPlacingSticker = allowAddingSticker && !draftSticker && (isDesktop || mobilePlacingSticker);
 
   const refetchAll = useCallback(async () => {
     void refetch?.();
     void refetchComments?.();
   }, [refetch, refetchComments]);
 
+  // TODO Fix "Where did you donate?"
   const saveDraftSticker = useCallback(
     async (event: React.MouseEvent) => {
-      if (!currentForumEvent || !allowPlacingSticker) return;
+      if (!currentForumEvent || !allowAddingSticker) return;
 
       if (!currentUser) {
         onSignup();
@@ -206,20 +149,21 @@ const ForumEventStickers: FC<{
 
       const coords = normalizeCoords(event.clientX, event.clientY);
 
-      if (!coords || currentUserSticker) return;
+      if (!coords) return;
 
       if (currentForumEvent.post) {
         setCommentFormOpen(true);
       }
 
       setDraftSticker({
+        _id: randomId(),
         ...coords,
         theta: hoverTheta,
       });
 
       setMobilePlacingSticker(false);
     },
-    [currentForumEvent, allowPlacingSticker, currentUser, normalizeCoords, currentUserSticker, hoverTheta, onSignup]
+    [currentForumEvent, allowAddingSticker, currentUser, normalizeCoords, hoverTheta, onSignup]
   );
 
   const onSuccess = useCallback(async () => {
@@ -230,17 +174,17 @@ const ForumEventStickers: FC<{
     setCommentFormOpen(false);
   }, [currentForumEvent, draftSticker, refetchAll]);
 
-  const clearSticker = useCallback(async () => {
+  const clearSticker = useCallback(async (stickerId: string | null) => {
     if (!currentForumEvent) return;
 
-    if (draftSticker) {
+    if (!stickerId) {
       setDraftSticker(null);
     } else {
-      await removeSticker({ variables: { forumEventId: currentForumEvent!._id } });
+      await removeSticker({ variables: { forumEventId: currentForumEvent!._id, stickerId } });
       void refetch?.();
     }
 
-  }, [currentForumEvent, draftSticker, refetch, removeSticker])
+  }, [currentForumEvent, refetch, removeSticker])
 
   const onCloseCommentForm = useCallback(async () => {
     setCommentFormOpen(false);
@@ -253,7 +197,7 @@ const ForumEventStickers: FC<{
 
   const handleMouseMove = useCallback(
     (event: React.MouseEvent) => {
-      if (!allowPlacingSticker) return;
+      if (!isPlacingSticker) return;
 
       const coords = normalizeCoords(event.clientX, event.clientY);
       if (coords) {
@@ -262,19 +206,19 @@ const ForumEventStickers: FC<{
         setHoverPos(null);
       }
     },
-    [normalizeCoords, allowPlacingSticker]
+    [isPlacingSticker, normalizeCoords]
   );
 
   const handleMouseLeave = useCallback(() => {
-    if (!allowPlacingSticker) return;
+    if (!isPlacingSticker) return;
 
     setHoverPos(null);
-  }, [allowPlacingSticker]);
+  }, [isPlacingSticker]);
 
   const prefilledProps: Partial<DbComment> = {
     forumEventMetadata: {
       eventFormat: "STICKERS",
-      sticker: draftSticker as ForumEventSticker // Validated on the server
+      sticker: draftSticker as ForumEventStickerInput // Validated on the server
     },
   };
 
@@ -294,22 +238,28 @@ const ForumEventStickers: FC<{
             return saveDraftSticker(event);
           }}
         >
-          {allowPlacingSticker && hoverPos && (
+          {isPlacingSticker && hoverPos && (
             <ForumEventSticker x={hoverPos.x} y={hoverPos.y} theta={hoverTheta} saveDraftSticker={saveDraftSticker} />
           )}
         </div>
-        {displaySticker && (
+        {draftSticker && (
           <ForumEventSticker
-            {...displaySticker}
+            {...draftSticker}
             tooltipDisabled={commentFormOpen}
             ref={setUserVoteRef}
-            onClear={clearSticker}
+            onClear={() => clearSticker(null)}
           />
         )}
-        {otherStickers.map((heart, index) => (
-          <ForumEventSticker key={index} {...heart} />
+        {stickers.map((sticker, index) => (
+          <ForumEventSticker
+            key={index}
+            {...sticker}
+            onClear={sticker.userId === currentUser?._id ? () => clearSticker(sticker._id) : undefined}
+            user={usersById[sticker.userId]}
+            comment={(sticker.commentId && commentsById[sticker.commentId]) || undefined}
+          />
         ))}
-        {!isDesktop && !currentUserSticker && (
+        {!isDesktop && allowAddingSticker && (
           <InteractionWrapper>
             <div className={classes.placeHeartButton} onClick={() => setMobilePlacingSticker(!mobilePlacingSticker)}>
               {mobilePlacingSticker ? "Tap the banner to add a heart, or tap here to cancel" : "+ Add heart"}
@@ -320,7 +270,7 @@ const ForumEventStickers: FC<{
       {currentForumEvent.post && (
         <ForumEventCommentForm
           open={commentFormOpen}
-          comment={displaySticker && "comment" in displaySticker ? displaySticker.comment || null : null}
+          comment={null}
           forumEvent={currentForumEvent}
           cancelCallback={onCloseCommentForm}
           successCallback={onSuccess}

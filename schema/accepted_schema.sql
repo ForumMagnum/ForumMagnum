@@ -907,6 +907,7 @@ CREATE TABLE "ForumEvents" (
   "bannerImageId" TEXT,
   "includesPoll" BOOL NOT NULL DEFAULT FALSE,
   "eventFormat" TEXT NOT NULL DEFAULT 'BASIC',
+  "maxStickersPerUser" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "customComponent" TEXT,
   "publicData" JSONB,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,

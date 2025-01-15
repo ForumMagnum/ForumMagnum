@@ -5,29 +5,28 @@ export const EVENT_FORMATS = ["BASIC", "POLL", "STICKERS"] as const;
 export const EVENT_FORMATS_SET = new TupleSet(EVENT_FORMATS)
 export type ForumEventFormat = UnionOf<typeof EVENT_FORMATS_SET>
 
-export type ForumEventSticker = {
+export type ForumEventStickerInput = {
+  _id: string;
   x: number;
   y: number;
   theta: number;
   emoji: string;
-  commentId: string;
 }
 
-export type ForumEventStickerData = Record<
-  string,
-  ForumEventSticker
->;
+export type ForumEventSticker = ForumEventStickerInput & {
+  commentId: string;
+  userId: string;
+}
 
-// TODO
 export type NewForumEventStickerData = {
-  format: "STICKERS_1.0",
-  data: Record<string, ForumEventSticker[]>
+  format: "STICKERS_1.0", // TODO maybe set this in the db
+  data: ForumEventSticker[]
 }
 
 // Should match ForumEventCommentMetadataSchema
 export type ForumEventCommentMetadata = {
   eventFormat: ForumEventFormat
-  sticker?: Partial<ForumEventSticker>
+  sticker?: Partial<ForumEventStickerInput>
 }
 
 // Should match ForumEventCommentMetadata
@@ -39,6 +38,10 @@ export const ForumEventCommentMetadataSchema = new SimpleSchema({
   },
   sticker: {
     type: new SimpleSchema({
+      _id: {
+        type: String,
+        optional: true,
+      },
       x: {
         type: Number,
         optional: true,
@@ -54,11 +57,7 @@ export const ForumEventCommentMetadataSchema = new SimpleSchema({
       emoji: {
         type: String,
         optional: true,
-      },
-      commentId: {
-        type: String,
-        optional: true,
-      },
+      }
     }),
     optional: true,
   },

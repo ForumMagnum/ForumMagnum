@@ -47,44 +47,35 @@ addGraphQLResolvers({
       })
       return true
     },
-    UpsertForumEventSticker: async (
-      _root: void,
-      {forumEventId, x, y, theta, emoji}: {
-        forumEventId: string,
-        x: number,
-        y: number,
-        theta: number,
-        emoji?: string
-      },
-      {currentUser, repos}: ResolverContext,
-    ) => {
-      if (!currentUser) {
-        throw new Error("Permission denied");
-      }
-      // TODO add some kind of limit
-      // if (emoji?.length ?? 0 > 2) {
-      //   throw new Error("Stickers cannot be longer than the maximum size of an emoji")
-      // }
-
-      // TODO support one person adding multiple stickers
-      await repos.forumEvents.upsertSticker(forumEventId, currentUser._id, {x, y, theta, emoji: emoji ?? null})
-      captureEvent("addForumEventSticker", {
-        forumEventId,
-        userId: currentUser._id,
-        x, y, theta, emoji
-      })
-      return true
-    },
+    // TODO Add back in for the case where we allow stickers without comments
+    // UpsertForumEventSticker: async (
+    //   _root: void,
+    //   {forumEventId, x, y, theta, emoji}: {
+    //     forumEventId: string} & ForumEventSticker,
+    //   {currentUser, repos}: ResolverContext,
+    // ) => {
+    //   if (!currentUser) {
+    //     throw new Error("Permission denied");
+    //   }
+    //
+    //   await repos.forumEvents.upsertSticker(forumEventId, currentUser._id, {x, y, theta, emoji: emoji})
+    //   captureEvent("addForumEventSticker", {
+    //     forumEventId,
+    //     userId: currentUser._id,
+    //     x, y, theta, emoji
+    //   })
+    //   return true
+    // },
     RemoveForumEventSticker: async (
       _root: void,
-      {forumEventId}: {forumEventId: string},
+      {forumEventId, stickerId}: {forumEventId: string, stickerId: string},
       {currentUser, repos}: ResolverContext,
     ) => {
       if (!currentUser) {
         throw new Error("Permission denied");
       }
 
-      await repos.forumEvents.removeSticker(forumEventId, currentUser._id)
+      await repos.forumEvents.removeSticker({ forumEventId, stickerId, userId: currentUser._id })
       captureEvent("removeForumEventSticker", {
         forumEventId,
         userId: currentUser._id
@@ -97,4 +88,4 @@ addGraphQLResolvers({
 addGraphQLMutation('AddForumEventVote(forumEventId: String!, x: Float!, delta: Float, postIds: [String]): Boolean')
 addGraphQLMutation('RemoveForumEventVote(forumEventId: String!): Boolean')
 addGraphQLMutation('UpsertForumEventSticker(forumEventId: String!, x: Float!, y: Float!, theta: Float!, emoji: String): Boolean')
-addGraphQLMutation('RemoveForumEventSticker(forumEventId: String!): Boolean')
+addGraphQLMutation('RemoveForumEventSticker(forumEventId: String!, stickerId: String!): Boolean')

@@ -1,6 +1,7 @@
 import ForumEvents from "@/lib/collections/forumEvents/collection";
 import AbstractRepo from "./AbstractRepo";
 import { recordPerfMetrics } from "./perfMetricWrapper";
+import { ForumEventSticker } from "@/lib/collections/forumEvents/types";
 
 class ForumEventsRepo extends AbstractRepo<"ForumEvents"> {
   constructor() {
@@ -36,22 +37,54 @@ class ForumEventsRepo extends AbstractRepo<"ForumEvents"> {
   }
 
   // TODO Add format + version to the data, so it can be distinguished from votes
-  async upsertSticker(_id: string, userId: string, voteData: Json) {
-    return this.none(`
-      -- ForumEventsRepo.addVote
-      UPDATE "ForumEvents"
-      SET "publicData" = COALESCE("publicData", '{}'::jsonb) || $2
+  async addSticker({ forumEventId, stickerData }: { forumEventId: string; stickerData: ForumEventSticker; }) {
+    // Check if the sticker already exists
+    const existingStickers = (await this.getRawDb().oneOrNone<{ stickers: ForumEventSticker[] | null }>(
+      `
+      SELECT "publicData"->'data' AS stickers
+      FROM "ForumEvents"
       WHERE "_id" = $1
-    `, [_id, {[userId]: voteData}])
+      `,
+      [forumEventId]
+    ))?.stickers ?? [];
+
+    const stickerExists = existingStickers.some((sticker) => sticker._id === stickerData._id);
+
+    if (stickerExists) {
+      throw new Error(`Sticker with _id ${stickerData._id} already exists.`);
+    }
+
+    return this.none(
+      `
+      -- ForumEventsRepo.addSticker
+      UPDATE "ForumEvents"
+      SET "publicData" = fm_add_to_set(
+        "publicData",
+        ARRAY['data'],
+        $1::jsonb
+      )
+      WHERE "_id" = $2
+      `,
+      [JSON.stringify(stickerData), forumEventId]
+    );
   }
 
-  async removeSticker(_id: string, userId: string) {
-    return this.none(`
-      -- ForumEventsRepo.removeVote
+  async removeSticker({ forumEventId, stickerId, userId }: { forumEventId: string; stickerId: string; userId: string }) {
+    return this.none(
+      `
+      -- ForumEventsRepo.removeSticker
       UPDATE "ForumEvents"
-      SET "publicData" = "publicData" - $1
-      WHERE "_id" = $2
-    `, [userId, _id])
+      SET "publicData" = jsonb_set(
+        "publicData",
+        '{data}',
+        (SELECT jsonb_agg(elem) 
+         FROM jsonb_array_elements("publicData"->'data') elem 
+         WHERE NOT (elem->>'userId' = $2 AND elem->>'_id' = $1))
+      )
+      WHERE "_id" = $3
+      `,
+      [stickerId, userId, forumEventId]
+    );
   }
 }
 

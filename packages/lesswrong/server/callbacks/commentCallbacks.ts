@@ -599,15 +599,24 @@ async function forumEventSideEffects({ comment, forumEventMetadata }: { comment:
       throw new Error("Comment must have forumEventId")
     }
 
-    if (!sticker) {
+    const {_id, x, y, theta, emoji} = sticker ?? {};
+
+    if (!sticker || !_id || !x || !y || !theta) {
       throw new Error("Must include sticker")
     }
 
-    if (!sticker.emoji) {
+    if (!emoji) {
       throw new Error("No emoji selected")
     }
 
-    await new ForumEventsRepo().upsertSticker(comment.forumEventId, comment.userId, {...sticker, commentId: comment._id})
+    const forumEventId = comment.forumEventId;
+    const stickerData = {_id, x, y, theta, emoji, commentId: comment._id, userId: comment.userId};
+
+    await new ForumEventsRepo().addSticker({ forumEventId, stickerData });
+    captureEvent("addForumEventSticker", {
+      forumEventId,
+      stickerData,
+    });
   }
 }
 

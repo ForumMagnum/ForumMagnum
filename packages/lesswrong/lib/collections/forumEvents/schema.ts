@@ -1,6 +1,15 @@
 import { foreignKeyField, resolverOnlyField, schemaDefaultValue } from "../../utils/schemaUtils";
 import { EVENT_FORMATS } from "./types";
 
+const formGroups: Partial<Record<string, FormGroupType<"ForumEvents">>> = {
+  stickerEventOptions: {
+    name: "stickerEventOptions",
+    order: 10,
+    label: '"STICKER" Event Options',
+    startCollapsed: true,
+  },
+}
+
 const defaultProps = (nullable = false): CollectionFieldSpecification<"ForumEvents"> => ({
   optional: nullable,
   nullable,
@@ -117,6 +126,13 @@ const schema: SchemaType<"ForumEvents"> = {
     optional: true,
     type: String,
     options: () => EVENT_FORMATS.map(ef => ({value: ef, label: ef}))
+  },
+  maxStickersPerUser: {
+    ...defaultProps(),
+    ...schemaDefaultValue(1),
+    type: Number,
+    optional: true,
+    group: formGroups.stickerEventOptions
   },
   customComponent: {
     ...defaultProps(true),
