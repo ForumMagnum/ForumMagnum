@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     cursor: "pointer",
     position: "relative",
@@ -41,7 +41,7 @@ const LinkCard = ({children, to, tooltip, className, classes, onClick, clickable
   to: string,
   tooltip?: any,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   onClick?: any,
   clickable?: boolean
 }) => {

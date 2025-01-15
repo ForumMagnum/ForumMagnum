@@ -51,7 +51,7 @@ const elicitQuery = gql`
 const rootHeight = 50
 const rootPaddingTop = 12
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     position: 'relative',
     paddingTop: rootPaddingTop,
@@ -184,7 +184,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   questionId: String
 }) => {
   const currentUser = useCurrentUser();

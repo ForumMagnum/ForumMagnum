@@ -3,7 +3,7 @@ import { registerComponent } from '../../../lib/vulcan-lib';
 import { commentBodyStyles } from '../../../themes/stylePiping';
 import { isFriendlyUI, preferredHeadingCase } from '../../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     backgroundColor: theme.palette.grey[60],
     ...(isFriendlyUI

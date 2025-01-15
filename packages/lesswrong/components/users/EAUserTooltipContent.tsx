@@ -4,7 +4,7 @@ import { htmlToTextDefault } from "../../lib/htmlToText";
 import { FRIENDLY_THIN_HOVER_OVER_WIDTH } from "../common/FriendlyHoverOver";
 import moment from "moment";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "column",
@@ -89,7 +89,7 @@ export const formatStat = (value?: number): string => {
 
 const EAUserTooltipContent = ({user, classes}: {
   user: UsersMinimumInfo,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {
     displayName,

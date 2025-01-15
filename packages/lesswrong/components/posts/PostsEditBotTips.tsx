@@ -98,7 +98,7 @@ const PostsEditBotTips = ({handleDismiss, postId, className, classes}: {
   handleDismiss: () => void,
   postId?: string,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {captureEvent} = useTracking()
   

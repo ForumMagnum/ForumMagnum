@@ -81,7 +81,7 @@ export const geoSuggestStyles = (theme: ThemeType) => ({
   }
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...geoSuggestStyles(theme),
     ...theme.typography.commentStyle

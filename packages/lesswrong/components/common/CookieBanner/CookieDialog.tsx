@@ -95,7 +95,7 @@ const CookieCategory = ({
   setAllowedCookies: (cookies: CookieType[]) => void;
   alwaysEnabled?: boolean;
   className?: string;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
   const { Typography, ForumIcon, CookieTable } = Components;
   const [open, setOpen] = useState(false);
@@ -135,7 +135,7 @@ const CookieCategory = ({
       <div className={classes.category}>
         <div className={classes.categoryLabel} onClick={() => setOpen(!open)}>
           <ForumIcon icon={open ? "ThickChevronDown" : "ThickChevronRight"} />
-          <Typography variant="body2" className={classes.categoryTitle}>
+          <Typography variant="body2">
             {title}
           </Typography>
         </div>
@@ -163,7 +163,7 @@ const CookieCategory = ({
   );
 };
 
-const CookieDialog = ({ onClose, classes }: { onClose?: () => void; classes: ClassesType }) => {
+const CookieDialog = ({ onClose, classes }: { onClose?: () => void; classes: ClassesType<typeof styles> }) => {
   const { LWDialog, Typography } = Components;
 
   const { cookiePreferences, updateCookiePreferences } = useCookiePreferences();

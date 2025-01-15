@@ -4,7 +4,7 @@ import type { NamesAttachedReactionsList, QuoteLocator } from '../../../lib/voti
 import type { VotingProps } from '../votingProps';
 import Card from '@material-ui/core/Card';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
 })
 
 /**
@@ -18,7 +18,7 @@ const InlineReactHoverInfo = ({quote, reactions, voteProps, classes}: {
   quote: QuoteLocator,
   reactions: NamesAttachedReactionsList,
   voteProps: VotingProps<VoteableTypeClient>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { ReactionHoverTopRow, ReactionQuotesHoverInfo } = Components;
   const reactionNames = Object.keys(reactions);

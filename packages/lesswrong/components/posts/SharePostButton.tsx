@@ -6,7 +6,7 @@ import { useTracking } from '../../lib/analyticsEvents';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { isMobile } from '@/lib/utils/isMobile';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "inline-block",
   },
@@ -26,7 +26,7 @@ const SharePostButton = ({
 }: {
   post: PostsBase,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const anchorEl = useRef<HTMLDivElement | null>(null)
   const [isOpen, setIsOpen] = useState<boolean>(false)

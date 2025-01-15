@@ -200,7 +200,7 @@ const PostSharingSettingsDialog = ({post, linkSharingKey, initialSharingSettings
   initialShareWithUsers: string[],
   onClose: () => void,
   onConfirm: (newSharingSettings: SharingSettings, newSharedUsers: string[], isChanged: boolean) => void
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const { EditableUsersList, LWDialog, LWTooltip, MenuItem } = Components;
   const [sharingSettings, setSharingSettingsState] = useState({...initialSharingSettings});

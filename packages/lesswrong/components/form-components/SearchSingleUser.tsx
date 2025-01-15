@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex"
   },
@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const SearchSingleUser = ({value, path, label, classes, updateCurrentValues}: FormComponentProps<string> & {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   return (
     <div className={classes.root}>

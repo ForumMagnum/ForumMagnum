@@ -3,7 +3,7 @@ import React, { ReactNode } from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { registerComponent } from '../../lib/vulcan-lib';
 
-const collapsedStyles = (theme: ThemeType): JssStyles => ({
+const collapsedStyles = (theme: ThemeType) => ({
   [theme.breakpoints.up('lg')]: {
     '& .book-container': {
       left: 'calc(var(--book-animation-left-offset, -100px) + var(--collapsed-position))',
@@ -25,7 +25,7 @@ const collapsedStyles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   success: {
     '& .parent-container': {
       ...collapsedStyles(theme)
@@ -220,7 +220,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const BookAnimation = ({ classes, children, successContent }: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   children: ReactNode,
   successContent?: any
 }) => {

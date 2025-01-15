@@ -3,7 +3,7 @@ import moment from 'moment';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { getAddToCalendarLink } from './PortalBarGcalEventItem'
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
     fontSize: '1rem',
@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const FrontpageGcalEventItem = ({classes, gcalEvent}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   gcalEvent: any,
 }) => {
   return <div className={classes.root}>

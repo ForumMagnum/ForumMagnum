@@ -1,4 +1,3 @@
-import { ACTIVE_DONATION_ELECTION } from "@/lib/givingSeason";
 import { foreignKeyField, schemaDefaultValue } from "../../utils/schemaUtils";
 
 const schema: SchemaType<"ElectionCandidates"> = {
@@ -13,7 +12,7 @@ const schema: SchemaType<"ElectionCandidates"> = {
     control: "select",
     options: () => [
       {
-        value: ACTIVE_DONATION_ELECTION,
+        value: "givingSeason24",
         label: "EA Giving Season 2024",
       },
     ],

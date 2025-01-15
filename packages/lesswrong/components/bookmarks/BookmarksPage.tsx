@@ -11,7 +11,7 @@ import { useNavigate } from '../../lib/reactRouterWrapper';
 
 type TabType = 'bookmarks' | 'readhistory' | 'votehistory';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   headline: {
     color: theme.palette.grey[1000],
     fontSize: isFriendlyUI ? 28 : undefined,
@@ -36,7 +36,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const BookmarksPage = ({ classes }: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const navigate = useNavigate();
   const { location } = useLocation()

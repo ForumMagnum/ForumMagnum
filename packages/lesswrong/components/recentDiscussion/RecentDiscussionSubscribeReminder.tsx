@@ -20,7 +20,7 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 // mailchimp link to sign up for the EA Forum's digest
 export const eaForumDigestSubscribeURL = "https://effectivealtruism.us8.list-manage.com/subscribe/post?u=52b028e7f799cca137ef74763&amp;id=7457c7ff3e&amp;f_id=0086c5e1f0"
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: theme.spacing.unit*4,
     position: "relative",
@@ -118,7 +118,7 @@ const styles = (theme: ThemeType): JssStyles => ({
  * See EAHomeRightHandSide.tsx for the other component.
  */
 const RecentDiscussionSubscribeReminder = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();

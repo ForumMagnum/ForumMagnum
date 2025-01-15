@@ -86,7 +86,7 @@ const dialogStyles = () => ({
 
 const BadgeWrapper = ({commentCount, classes, children}: {
   commentCount: number,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   children: React.ReactNode
 }) => {
   if (commentCount>1) {
