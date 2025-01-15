@@ -59,12 +59,8 @@ interface CollectionBase<N extends CollectionNameString = CollectionNameString> 
     updateOne: any,
     updateMany: any
   }
-  find: (
-    selector?: MongoSelector<ObjectsByCollectionName[N]>,
-    options?: MongoFindOptions<ObjectsByCollectionName[N]>,
-    projection?: MongoProjection<ObjectsByCollectionName[N]>,
-  ) => FindResult<ObjectsByCollectionName[N]>;
-  findOne: FindOneFn<N>;
+  find: FindFn<ObjectsByCollectionName[N]>;
+  findOne: FindOneFn<ObjectsByCollectionName[N]>;
   findOneArbitrary: () => Promise<ObjectsByCollectionName[N]|null>
   
   /**
@@ -156,23 +152,37 @@ interface MergedViewQueryAndOptions<T extends DbObject> {
 }
 
 export type MongoSelector<T extends DbObject> = any; //TODO
-type MongoProjection<T extends DbObject> = Partial<Record<keyof T, 0 | 1 | boolean>> | Record<string, any>;
+type MongoExpression<T extends DbObject> = `$${keyof T & string}` | { [k in `$${string}`]: any }
+type MongoProjection<T extends DbObject> = { [K in keyof T]?: 0 | 1 | boolean } | Record<string, MongoExpression<T>>;
 type MongoModifier<T extends DbObject> = {$inc?: any, $min?: any, $max?: any, $mul?: any, $rename?: any, $set?: any, $setOnInsert?: any, $unset?: any, $addToSet?: any, $pop?: any, $pull?: any, $push?: any, $pullAll?: any, $bit?: any}; //TODO
+
+type FindFn<T extends DbObject> = <Projection extends MongoProjection<T> | undefined = undefined>(
+  selector?: string | MongoSelector<T>,
+  options?: MongoFindOptions<T>,
+  projection?: Projection
+) => FindResult<Projection extends undefined
+  ? T
+  : Pick<T, keyof T & keyof Projection>
+>;
 
 type MongoFindOptions<T extends DbObject> = Partial<{
   sort: MongoSort<T>,
   limit: number,
   skip: number,
-  projection: MongoProjection<T>,
+  //projection: MongoProjection<T>,
   collation: CollationDocument,
   comment?: string,
 }>;
 
-type FindOneFn<N extends CollectionNameString> = (
-  selector: string|MongoSelector<ObjectsByCollectionName[N]>,
-  options?: MongoFindOneOptions<ObjectsByCollectionName[N]>,
-  projection?: MongoProjection<ObjectsByCollectionName[N]>,
-) => Promise<ObjectsByCollectionName[N]|null>;
+type FindOneFn<T extends DbObject> = <Projection extends MongoProjection<T> | undefined = undefined>(
+  selector?: string | MongoSelector<T>,
+  options?: MongoFindOneOptions<T>,
+  projection?: Projection
+) => Promise<
+  Projection extends undefined
+    ? T | null
+    : Pick<T, keyof T & keyof Projection> | null
+>;
 
 type MongoFindOneOptions<T extends DbObject> = Partial<{
   sort: MongoSort<T>

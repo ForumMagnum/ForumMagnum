@@ -65,7 +65,7 @@ class PgCollection<
     return !!getSqlClient();
   }
 
-  isVoteable(): this is PgCollection<VoteableCollectionName> {
+  isVoteable(): this is CollectionBase<VoteableCollectionName> & PgCollection<VoteableCollectionName> {
     return this.voteable;
   }
 
@@ -138,11 +138,7 @@ class PgCollection<
     return this.executeQuery(query, data, "write");
   }
 
-  find(
-    selector?: MongoSelector<ObjectsByCollectionName[N]>,
-    options?: MongoFindOptions<ObjectsByCollectionName[N]>,
-    projection?: MongoProjection<ObjectsByCollectionName[N]>,
-  ): FindResult<ObjectsByCollectionName[N]> {
+  find: FindFn<ObjectsByCollectionName[N]> = (selector, options, projection) => {
     return {
       fetch: async () => {
         const select = new SelectQuery<ObjectsByCollectionName[N]>(this.getTable(), selector, { ...options, projection });
@@ -157,11 +153,7 @@ class PgCollection<
     };
   }
 
-  async findOne(
-    selector?: string | MongoSelector<ObjectsByCollectionName[N]>,
-    options?: MongoFindOneOptions<ObjectsByCollectionName[N]>,
-    projection?: MongoProjection<ObjectsByCollectionName[N]>,
-  ): Promise<ObjectsByCollectionName[N]|null> {
+  findOne: FindOneFn<ObjectsByCollectionName[N]> = async (selector, options, projection) => {
     const select = new SelectQuery<ObjectsByCollectionName[N]>(this.getTable(), selector, {limit: 1, ...options, projection});
     const result = await this.executeReadQuery(select, {selector, options, projection});
     return result ? result[0] : null;

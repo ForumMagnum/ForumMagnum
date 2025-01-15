@@ -30,7 +30,7 @@ export const getWrappedUsers = async (
     _id: {$in: userIds},
     banned: {$exists: false},
     deleted: {$ne: true},
-  }, {}, {slug: 1, unsubscribeFromAll: 1}).fetch();
+  }, {}, {_id: 1, slug: 1, unsubscribeFromAll: 1}).fetch();
 }
 
 const sendWrappedNotifications = async (year: WrappedYear) => {

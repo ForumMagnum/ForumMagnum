@@ -43,10 +43,11 @@ export const userFindLast = async function<N extends CollectionNameWithCreatedAt
   filter?: MongoSelector<ObjectsByCollectionName[N]>,
 ): Promise<ObjectsByCollectionName[N]|null> {
   const sortOption = { createdAt: -1 } as MongoSort<ObjectsByCollectionName[N]>
-  return await collection.findOne(
+  const result = await collection.findOne(
     { ...filter, userId: user._id },
     { sort: sortOption },
   );
+  return result;
 };
 
 export const userTimeSinceLast = async function<N extends CollectionNameWithCreatedAt>(

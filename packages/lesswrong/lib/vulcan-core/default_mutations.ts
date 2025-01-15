@@ -182,7 +182,8 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
 
         // check if document exists already
         const convertedSelector: MongoSelector<T> = convertDocumentIdToIdInSelector(selector);
-        const existingDocument = await collection.findOne(convertedSelector, {}, { _id: 1 });
+        const projection = {_id: 1} as MongoProjection<T>;
+        const existingDocument = await collection.findOne(convertedSelector, {}, projection);
 
         if (existingDocument) {
           return await collection.options.mutations.update.mutation(

@@ -39,7 +39,8 @@ class DeleteQuery<T extends DbObject> extends Query<T> {
 
     if (sqlOptions?.limit) {
       this.nameSubqueries = false;
-      const subquery = new SelectQuery(table, selector, {projection: {_id: 1}, limit: sqlOptions.limit});
+      const projection = {_id: 1} as MongoProjection<T>;
+      const subquery = new SelectQuery(table, selector, {projection, limit: sqlOptions.limit});
       this.atoms = this.atoms.concat(["_id IN", subquery]);
     } else {
       this.appendSelector(selector);
