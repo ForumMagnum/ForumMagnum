@@ -8,8 +8,6 @@ import { tagGetUrl } from '@/lib/collections/tags/helpers';
 
 const CONCEPT_ITEM_WIDTH = 300;
 
-const ARBITAL_GREEN_DARK = "#004d40"
-
 const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
   root: {
     maxWidth: CONCEPT_ITEM_WIDTH,
@@ -28,24 +26,14 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     paddingLeft: '2px',
     display: "flex",
     alignItems: "center",
-    justifyContent: "space-between",
+    overflow: "hidden",
   },
   wikiItem: {},
   titleWikiItem: {},
-  leftSideItems: {
-    display: "flex",
-    alignItems: "center",
-    overflow: "hidden",
-    flexGrow: 1,
-    flexShrink: 1,
-    flexBasis: 0,
-    minWidth: 0,
-  },
   title: {
     fontWeight: 400,
     flexGrow: 1,
     flexShrink: 1,
-    flexBasis: 0,
     fontSize: 13,
     fontFamily: theme.palette.fonts.sansSerifStack,
     minWidth: 0,
@@ -54,6 +42,7 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     display: "flex",
     alignItems: "baseline",
     lineHeight: "1.4",
+    overflow: "hidden",
   },
   titleText: {
     wordBreak: "break-word",
@@ -76,12 +65,11 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     alignItems: "center",
     gap: "2px",
     whiteSpace: "nowrap",
-    marginTop: 0,
     marginLeft: 6,
     opacity: 0.9,
   },
   postCountNumber: {
-    marginTop: 0,
+    marginTop: -1,
   },
   titleItemRoot: {
   },
@@ -90,7 +78,6 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     width: '100%',
     display: "flex",
     alignItems: "center",
-    justifyContent: "flex-start",
   },
   titleItemTitle: {
     fontWeight: 600,
@@ -99,16 +86,7 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
     fontVariant: "small-caps",
     whiteSpace: "nowrap",
     marginRight: 12,
-  },
-  titlePostCount: {
-    fontSize: 12,
-    color: theme.palette.grey[700],
-    opacity: 0,
-    transition: "opacity 0.1s ease",
-  },
-  children: {
-    // TODO: come back to this and figure out a better way to handle it, especially for multiple screen widths
-    width: "min(950px, 100vw - 16px)",
+    flexGrow: 1,
   },
   childrenContainer: {
     width: "100%",
@@ -153,12 +131,13 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
   arbitalIcon: {
     height: 10,
     width: 10,
-    color: ARBITAL_GREEN_DARK,
     marginLeft: 4,
+    color: theme.palette.arbital.arbitalGreen,
     position: "relative",
+    top: 1
   },
   arbitalGreenColor: {
-    color: ARBITAL_GREEN_DARK,
+    color: theme.palette.arbital.arbitalGreen,
   },
 }));
 
@@ -182,76 +161,90 @@ const ConceptItem = ({
 
   const titleItem = (
     <div className={classes.titleItem}>
-      <div className={classes.leftSideItems}>
-        <div className={classes.titleItemTitle}>
-          <TagsTooltip
-            tagSlug={wikitag.slug}
-            noPrefetch
-            previewPostCount={0}
-            placement='right-start'
-          >
-            <Link to={tagGetUrl({slug: wikitag.slug})}>
-              {wikitag.name}
-            </Link>
-          </TagsTooltip>
-        </div>
-        <div className={classes.titlePostCount}>{wikitag.postCount} posts</div>
+      <div className={classes.titleItemTitle}>
+        <TagsTooltip
+          tagSlug={wikitag.slug}
+          noPrefetch
+          previewPostCount={0}
+          placement='right-start'
+        >
+          <Link to={tagGetUrl({ slug: wikitag.slug })}>
+            {wikitag.name}
+          </Link>
+        </TagsTooltip>
       </div>
     </div>
   );
 
-  const usersWhoLikedTooltip = <div>
-    <div>Users who like this wikitag:</div>
-    <div>{usersWhoLiked.slice(0, 10).map((user: { displayName: string }) => user.displayName).join(', ')}
-    {usersWhoLiked.length > 10 && <span> and {usersWhoLiked.length - 10} more</span>}</div>
-  </div>
+  const usersWhoLikedTooltip = (
+    <div>
+      <div>Users who like this wikitag:</div>
+      <div>
+        {usersWhoLiked.slice(0, 10).map((user: { displayName: string }) => user.displayName).join(', ')}
+        {usersWhoLiked.length > 10 && (
+          <span> and {usersWhoLiked.length - 10} more</span>
+        )}
+      </div>
+    </div>
+  );
 
   const regularItem = (
-    <div
-      className={classes.item}
-    >
-      <div className={classes.leftSideItems}>
-        <LWTooltip
-          title={usersWhoLikedTooltip}
-          disabled={usersWhoLiked.length === 0}
-          placement='bottom-end'
-          popperClassName={classes.tooltipHoverScore}
+    <div className={classes.item}>
+      <LWTooltip
+        title={usersWhoLikedTooltip}
+        disabled={usersWhoLiked.length === 0}
+        placement='bottom-end'
+        popperClassName={classes.tooltipHoverScore}
+      >
+        <div className={classes.maxScore}>{maxScore}</div>
+      </LWTooltip>
+      <div className={classes.title}>
+        <TagsTooltip
+          tagSlug={wikitag.slug}
+          noPrefetch
+          previewPostCount={
+            wikitag.description?.wordCount && wikitag.description.wordCount > 2
+              ? 0
+              : 6
+          }
+          placement='bottom-start'
+          popperClassName={classes.tooltipHoverTitle}
         >
-          <div className={classes.maxScore}>{maxScore}</div>
-        </LWTooltip>
-        <div className={classes.title}>
-          <TagsTooltip
-            tagSlug={wikitag.slug}
-            noPrefetch
-            // We have some empty descriptions that have wordcounts of 1.
-            previewPostCount={wikitag.description?.wordCount && wikitag.description?.wordCount > 2 ? 0 : 6}
-            placement='bottom-start'
-            popperClassName={classes.tooltipHoverTitle}
+          <span
+            className={classNames(classes.titleText, {
+              [classes.arbitalGreenColor]:
+                wikitag.isArbitalImport && showArbitalIcon,
+            })}
           >
-            <span className={classNames(classes.titleText, { [classes.arbitalGreenColor]: wikitag.isArbitalImport && showArbitalIcon })}>
-              <Link to={tagGetUrl({slug: wikitag.slug})}>
-                {wikitag.name}
-              </Link>
-            </span>
-          </TagsTooltip>
-          {wikitag.postCount > 0 && (
-            <span className={classes.postCount}>
-              <TagsTooltip
-                tagSlug={wikitag.slug}
-                noPrefetch
-                previewPostCount={8}
-                hideDescription
-                placement='bottom-start'
-                popperClassName={classes.tooltipHoverPostCount}
-              >
-                (<span className={classes.postCountNumber}>{wikitag.postCount}</span>)
-              </TagsTooltip>
-            </span>
-          )}
-          {showArbitalIcon && wikitag.isArbitalImport && <LWTooltip title="This content was imported in part or entirely from Arbital.com" placement="right-start">
+            <Link to={tagGetUrl({ slug: wikitag.slug })}>
+              {wikitag.name}
+            </Link>
+          </span>
+        </TagsTooltip>
+        {showArbitalIcon && wikitag.isArbitalImport && (
+          <LWTooltip
+            title='This content was imported in part or entirely from Arbital.com'
+            placement='right-start'
+          >
             <ArbitalLogo className={classes.arbitalIcon} strokeWidth={0.7} />
-          </LWTooltip>}
-        </div>
+          </LWTooltip>
+        )}
+        {wikitag.postCount > 0 && (
+          <span className={classes.postCount}>
+            <TagsTooltip
+              tagSlug={wikitag.slug}
+              noPrefetch
+              previewPostCount={8}
+              hideDescription
+              placement='bottom-start'
+              className={classes.postCountNumber}
+              popperClassName={classes.tooltipHoverPostCount}
+              inlineBlock={false}
+            >
+              ({wikitag.postCount})
+            </TagsTooltip>
+          </span>
+        )}
       </div>
     </div>
   );
