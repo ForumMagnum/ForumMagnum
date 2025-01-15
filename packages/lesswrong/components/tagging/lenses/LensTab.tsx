@@ -28,6 +28,9 @@ const styles = defineStyles("LensTab", (theme: ThemeType) => ({
     flexDirection: 'column',
     gap: '4px',
     [theme.breakpoints.down('sm')]: {
+      // This prevents the content of the tab from overflowing the tab container on mobile in some edge cases
+      // It needs to be `fit-content` rather than `min-content` because `min-content` doesn't work on Mobile Safari, for some reason
+      minWidth: 'fit-content',
       maxWidth: '40%',
       // TODO: maybe have a conditional flex-grow for 2 vs. 3+ lens tabs
       flexGrow: 1,
