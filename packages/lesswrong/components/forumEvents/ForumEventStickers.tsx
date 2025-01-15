@@ -11,6 +11,7 @@ import { Link } from "@/lib/reactRouterWrapper";
 import { InteractionWrapper } from "../common/useClickableCell";
 import { useIsAboveBreakpoint } from "../hooks/useScreenWidth";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
+import type { ForumEventSticker, ForumEventStickerData } from "@/lib/collections/forumEvents/types";
 
 const styles = (_theme: ThemeType) => ({
   stickersContainer: {
@@ -47,16 +48,6 @@ const removeForumEventStickerQuery = gql`
     RemoveForumEventSticker(forumEventId: $forumEventId)
   }
 `;
-
-type ForumEventStickerData = Record<
-  string,
-  {
-    x: number;
-    y: number;
-    theta: number;
-    emoji?: string;
-  }
->;
 
 type ForumEventStickerDisplay = {
   x: number;
@@ -158,7 +149,7 @@ const ForumEventStickers: FC<{
     [comments, currentUser, stickerData, displayUsersRef.current]
   );
 
-  const [draftSticker, setDraftSticker] = useState<ForumEventStickerData[keyof ForumEventStickerData] | null>(null);
+  const [draftSticker, setDraftSticker] = useState<Partial<ForumEventSticker> | null>(null);
 
   // Note: For some reason typescript can't figure this type out on its own
   const displaySticker = (draftSticker ?? currentUserSticker) as (typeof draftSticker | typeof currentUserSticker);
@@ -231,19 +222,13 @@ const ForumEventStickers: FC<{
     [currentForumEvent, allowPlacingSticker, currentUser, normalizeCoords, currentUserSticker, hoverTheta, onSignup]
   );
 
-  const commitDraftSticker = useCallback(async () => {
+  const onSuccess = useCallback(async () => {
     if (!currentForumEvent || !draftSticker?.emoji) return;
 
-    await upsertSticker({
-      variables: {
-        ...draftSticker,
-        forumEventId: currentForumEvent._id,
-      },
-    });
     void refetchAll();
     setDraftSticker(null);
     setCommentFormOpen(false);
-  }, [currentForumEvent, draftSticker, upsertSticker, refetchAll]);
+  }, [currentForumEvent, draftSticker, refetchAll]);
 
   const clearSticker = useCallback(async () => {
     if (!currentForumEvent) return;
@@ -285,6 +270,13 @@ const ForumEventStickers: FC<{
 
     setHoverPos(null);
   }, [allowPlacingSticker]);
+
+  const prefilledProps: Partial<DbComment> = {
+    forumEventMetadata: {
+      eventFormat: "STICKERS",
+      sticker: draftSticker as ForumEventSticker // Validated on the server
+    },
+  };
 
   if (!currentForumEvent) return null;
 
@@ -329,12 +321,14 @@ const ForumEventStickers: FC<{
         <ForumEventCommentForm
           open={commentFormOpen}
           comment={displaySticker && "comment" in displaySticker ? displaySticker.comment || null : null}
-          forumEventId={currentForumEvent._id}
+          forumEvent={currentForumEvent}
           cancelCallback={onCloseCommentForm}
-          successCallback={commitDraftSticker}
+          successCallback={onSuccess}
+          emoji={draftSticker?.emoji}
           setEmoji={setEmoji}
           anchorEl={userVoteRef}
           post={currentForumEvent.post}
+          prefilledProps={prefilledProps}
           // TODO update, allow editable field
           title="Where did you donate this year?"
           subtitle={(post, comment) => (

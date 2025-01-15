@@ -143,6 +143,16 @@ interface DbComment extends DbObject {
   postId: string | null
   tagId: string | null
   forumEventId: string | null
+  forumEventMetadata: {
+    eventFormat: "BASIC" | "POLL" | "STICKERS",
+    sticker: {
+      x: number,
+      y: number,
+      theta: number,
+      emoji: string,
+      commentId: string,
+    },
+  } | null
   tagCommentType: "SUBFORUM" | "DISCUSSION"
   subforumStickyPriority: number | null
   userId: string

@@ -212,6 +212,7 @@ CREATE TABLE "Comments" (
   "postId" VARCHAR(27),
   "tagId" VARCHAR(27),
   "forumEventId" VARCHAR(27),
+  "forumEventMetadata" JSONB,
   "tagCommentType" TEXT NOT NULL DEFAULT 'DISCUSSION',
   "subforumStickyPriority" DOUBLE PRECISION,
   "userId" VARCHAR(27) NOT NULL,

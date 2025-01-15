@@ -20,6 +20,10 @@ import { captureEvent } from '../../lib/analyticsEvents';
 import { adminAccountSetting, recombeeEnabledSetting } from '../../lib/publicSettings';
 import { recombeeApi } from '../recombee/client';
 import { userShortformPostTitle } from '@/lib/collections/users/helpers';
+import { randomId } from '@/lib/random';
+import isEqual from 'lodash/isEqual';
+import type { ForumEventCommentMetadata } from '@/lib/collections/forumEvents/types';
+import { ForumEventsRepo } from '../repos';
 
 
 const MINIMUM_APPROVAL_KARMA = 5
@@ -586,17 +590,40 @@ getCollectionHooks("Comments").updateAsync.add(async function updatedCommentMayb
   await triggerReviewIfNeeded(currentUser._id)
 });
 
-getCollectionHooks("Comments").updateAsync.add(async function updateUserNotesOnCommentRejection ({ document, oldDocument, currentUser, context }: UpdateCallbackProperties<"Comments">) {
-  if (!oldDocument.rejected && document.rejected) {
-    void createMutator({
-      collection: context.ModeratorActions,
-      context,
-      currentUser,
-      document: {
-        userId: document.userId,
-        type: REJECTED_COMMENT,
-        endedAt: new Date()
-      }
-    });
+// TODO docstring
+async function forumEventSideEffects({ comment, forumEventMetadata }: { comment: DbComment; forumEventMetadata: ForumEventCommentMetadata; }) {
+  if (forumEventMetadata.eventFormat === "STICKERS") {
+    const sticker = forumEventMetadata.sticker
+
+    if (!comment.forumEventId) {
+      throw new Error("Comment must have forumEventId")
+    }
+
+    if (!sticker) {
+      throw new Error("Must include sticker")
+    }
+
+    if (!sticker.emoji) {
+      throw new Error("No emoji selected")
+    }
+
+    await new ForumEventsRepo().upsertSticker(comment.forumEventId, comment.userId, {...sticker, commentId: comment._id})
   }
+}
+
+getCollectionHooks("Comments").newSync.add(async (comment: DbComment, _, context: ResolverContext) => {
+  if (comment.forumEventMetadata) {
+    // Side effects may need to reference the comment, so set the _id now
+    comment._id = comment._id || randomId();
+    await forumEventSideEffects({ comment, forumEventMetadata: comment.forumEventMetadata });
+  }
+  return comment;
+});
+
+getCollectionHooks("Comments").editSync.add(async (modifier, comment: DbComment) => {
+  const newMetadata = modifier.$set?.forumEventMetadata;
+  if (newMetadata && !isEqual(comment.forumEventMetadata, newMetadata)) {
+    await forumEventSideEffects({ comment, forumEventMetadata: newMetadata });
+  }
+  return modifier
 });

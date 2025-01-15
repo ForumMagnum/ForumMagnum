@@ -17,39 +17,34 @@ const pickerStyles = `
   }
 `
 
-const DEFAULT_EMOJIS = ['☀️', '🛠️', '💪', '🦟', '🐓', '🤖', '🦠', '💡', '📜']
-
 const styles = defineStyles("ForumEventEmojiBar", (theme: ThemeType) => ({
   root: {
     display: "flex",
     fontSize: "24px",
-    flex: 1,
     alignItems: "center",
-    gap: "8px"
   },
   selectedEmojiContainer: {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 8,
     cursor: "pointer",
     userSelect: "none",
-    border: '2px solid',
-    borderColor: theme.palette.primary.light,
+    border: `1px solid ${theme.palette.grey[400]}`,
     borderRadius: theme.borderRadius.default,
     width: 40,
     height: 40,
   },
   selectedEmoji: {
     fontSize: "26px",
-    padding: 4
+    marginTop: 3
   },
   addEmojiIcon: {
-    color: theme.palette.grey[600]
+    color: theme.palette.grey[500],
+    marginLeft: 2
   },
   defaultEmojisBar: {
     display: "flex",
-    flexDirection: "row" as const,
+    flexDirection: "row",
     gap: "4px",
     marginBottom: 8,
   },
@@ -57,13 +52,12 @@ const styles = defineStyles("ForumEventEmojiBar", (theme: ThemeType) => ({
     cursor: "pointer",
   },
   pickerWrapper: {
-    position: "relative" as const,
+    position: "relative",
   },
   pickerContainer: {
-    position: "absolute" as const,
+    position: "absolute",
     zIndex: 1000,
-    top: 8,
-    left: 0,
+    left: 4,
     background: "#fff",
     border: "1px solid #ccc",
     borderRadius: theme.borderRadius.default,
@@ -78,15 +72,17 @@ interface ForumEventEmojiBarProps {
   onHover?: (value: string) => void
 }
 
+// TODO rewrite desc
 /**
  * ForumEventEmojiBar
  * - Shows the currently selected emoji or a placeholder icon.
  * - Clicking toggles an <emoji-picker> overlay.
  * - Renders a row of default emojis for quick selection.
  */
-const ForumEventEmojiBar: FC<ForumEventEmojiBarProps> = ({ onSelect, selected, onHover, hovered }) => {
+const ForumEventEmojiBar: FC<ForumEventEmojiBarProps> = ({ onSelect }) => {
   const classes = useStyles(styles)
 
+  const [emoji, setEmoji] = useState<string | null>(null)
   const [openPicker, setOpenPicker] = useState(false)
   const pickerRef = useRef<HTMLDivElement>(null)
 
@@ -109,16 +105,15 @@ const ForumEventEmojiBar: FC<ForumEventEmojiBarProps> = ({ onSelect, selected, o
   }, [])
 
   const handleEmojiClick = (emoji: string) => {
+    setEmoji(emoji)
     onSelect(emoji)
     setOpenPicker(false)
   }
 
   const handleEmojiPickerSelect = (event: any) => {
     const { emoji } = event.detail
-    // The new version of emoji-picker-element uses .unicode
     if (emoji?.unicode) {
-      onSelect(emoji.unicode)
-      setOpenPicker(false)
+      handleEmojiClick(emoji.unicode)
     }
   }
 
@@ -127,7 +122,6 @@ const ForumEventEmojiBar: FC<ForumEventEmojiBarProps> = ({ onSelect, selected, o
    */
   const handlePickerRef = (elem: HTMLElement | null) => {
     if (elem) {
-      // Inject custom styles
       const styleId = 'forum-emoji-picker-styles'
       const alreadyHasStyle = elem.shadowRoot?.getElementById(styleId)
 
@@ -138,15 +132,14 @@ const ForumEventEmojiBar: FC<ForumEventEmojiBarProps> = ({ onSelect, selected, o
         elem.shadowRoot?.appendChild(styleEl)
       }
 
-      // Add event listener
       elem.addEventListener('emoji-click', handleEmojiPickerSelect as EventListener)
     }
   }
 
   const { ForumIcon } = Components
 
-  const showSelectedOrPlaceholder = selected ? (
-    <span className={classes.selectedEmoji}>{selected}</span>
+  const showSelectedOrPlaceholder = emoji ? (
+    <span className={classes.selectedEmoji}>{emoji}</span>
   ) : (
     <ForumIcon icon="AddEmoji" className={classes.addEmojiIcon} />
   )
@@ -156,7 +149,6 @@ const ForumEventEmojiBar: FC<ForumEventEmojiBarProps> = ({ onSelect, selected, o
       <div className={classes.selectedEmojiContainer} onClick={() => setOpenPicker((prev) => !prev)}>
         {showSelectedOrPlaceholder}
       </div>
-
       {openPicker && (
         <div ref={pickerRef} className={classes.pickerWrapper}>
           <div className={classes.pickerContainer}>
@@ -165,14 +157,6 @@ const ForumEventEmojiBar: FC<ForumEventEmojiBarProps> = ({ onSelect, selected, o
           </div>
         </div>
       )}
-
-      <div className={classes.defaultEmojisBar}>
-        {DEFAULT_EMOJIS.map((emoji) => (
-          <span key={emoji} className={classes.defaultEmojiItem} onClick={() => handleEmojiClick(emoji)}>
-            {emoji}
-          </span>
-        ))}
-      </div>
     </div>
   );
 }

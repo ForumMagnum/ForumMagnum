@@ -797,7 +797,7 @@ export const ForumEventPoll = ({
                       open={commentFormOpen}
                       comment={currentUserComment}
                       successMessage="Success! Open the results to view everyone's votes and comments."
-                      forumEventId={event._id}
+                      forumEvent={event}
                       cancelCallback={() => setCommentFormOpen(false)}
                       // TODO restore in component, or use successCallback here instead
                       refetch={refetchComments}

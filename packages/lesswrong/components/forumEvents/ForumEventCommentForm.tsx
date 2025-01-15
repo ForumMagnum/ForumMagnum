@@ -32,6 +32,9 @@ const styles = (theme: ThemeType) => ({
     width: "20px",
     height: "20px"
   },
+  commentFormWrapper: {
+    flex: 1
+  },
   commentForm: {
     padding: 0,
     '& .EditorFormComponent-root': {
@@ -67,6 +70,11 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 700,
     marginBottom: 12
   },
+  formSection: {
+    display: "flex",
+    alignItems: "start",
+    gap: "8px"
+  },
   triangle: {
     position: 'absolute',
     top: -5,
@@ -94,33 +102,39 @@ const styles = (theme: ThemeType) => ({
 const ForumEventCommentForm = ({
   open,
   comment,
-  forumEventId,
+  forumEvent,
   post,
   cancelCallback,
   successCallback,
+  emoji,
   setEmoji,
   anchorEl,
   title,
   subtitle,
   successMessage="Comment posted",
+  prefilledProps: extraPrefilledProps,
   className,
   classes,
 }: {
   open: boolean;
   comment: ShortformComments | null;
-  forumEventId: string;
+  forumEvent: Pick<DbForumEvent, "_id" | "eventFormat">
   anchorEl: HTMLElement | null;
   post: PostsMinimumInfo;
   cancelCallback: () => Promise<void> | void;
   successCallback: () => Promise<void> | void;
-  setEmoji: (emoji: string) => void;
+  emoji?: string;
+  setEmoji?: (emoji: string) => void;
   title: ((post: PostsMinimumInfo, comment: ShortformComments | null) => React.ReactNode) | React.ReactNode;
   subtitle: ((post: PostsMinimumInfo, comment: ShortformComments | null) => React.ReactNode) | React.ReactNode;
   successMessage?: string;
+  prefilledProps?: Partial<DbComment>;
   className?: string;
   classes: ClassesType<typeof styles>;
 }) => {
   const { CommentsNewForm, LWPopper, ForumIcon, CommentsEditForm, CommentBody, ForumEventEmojiBar } = Components;
+
+  const hasEmoji = !!setEmoji;
 
   const [editFormOpen, setEditFormOpen] = useState(false);
   const { flash } = useMessages();
@@ -149,54 +163,68 @@ const ForumEventCommentForm = ({
     };
   }, []);
 
+  const prefilledProps: Partial<DbComment> = {
+    forumEventId: forumEvent._id,
+    ...extraPrefilledProps
+  };
+
   if (!open || !anchorEl?.isConnected) {
     return null;
   }
 
   return (
-    <LWPopper open={open} anchorEl={anchorEl} placement="bottom" allowOverflow={false} updateRef={updatePopperRef} className={className}>
+    <LWPopper
+      open={open}
+      anchorEl={anchorEl}
+      placement="bottom"
+      allowOverflow={false}
+      updateRef={updatePopperRef}
+      className={className}
+    >
       <div className={classes.popperContent}>
         <div className={classes.triangle}></div>
         <ForumIcon icon="Close" className={classes.closeIcon} onClick={cancelCallback} />
-        {/* TODO make hovering work */}
-        <ForumEventEmojiBar onSelect={setEmoji} onHover={setEmoji} />
         <div className={classes.header}>
-          <div className={classes.title}>{typeof title === 'function' ? title(post, comment) : title}</div>
-          {typeof subtitle === 'function' ? subtitle(post, comment) : subtitle}
+          <div className={classes.title}>{typeof title === "function" ? title(post, comment) : title}</div>
+          {typeof subtitle === "function" ? subtitle(post, comment) : subtitle}
         </div>
-        {!comment && !editFormOpen && (
-          <CommentsNewForm
-            type="reply"
-            post={post}
-            enableGuidelines={false}
-            cancelCallback={() => cancelCallback()}
-            successCallback={onSubmit}
-            prefilledProps={{
-              forumEventId,
-            }}
-            className={classes.commentForm}
-          />
-        )}
-        {comment && !editFormOpen && (
-          <>
-            <CommentBody comment={comment} />
-            <div className={classes.editButton} onClick={() => setEditFormOpen(true)}>
-              Edit comment
-            </div>
-          </>
-        )}
-        {comment && editFormOpen && (
-          <CommentsEditForm
-            comment={comment}
-            cancelCallback={() => setEditFormOpen(false)}
-            successCallback={async () => {
-              setEditFormOpen(false);
-              // TODO test on poll version
-              await successCallback();
-            }}
-            className={classes.commentForm}
-          />
-        )}
+        <div className={classes.formSection}>
+          {hasEmoji && <ForumEventEmojiBar onSelect={setEmoji} />}
+          <div className={classes.commentFormWrapper}>
+            {!comment && !editFormOpen && (
+              <CommentsNewForm
+                type="reply"
+                post={post}
+                enableGuidelines={false}
+                cancelCallback={() => cancelCallback()}
+                successCallback={onSubmit}
+                prefilledProps={prefilledProps}
+                className={classes.commentForm}
+              />
+            )}
+            {comment && !editFormOpen && (
+              <>
+                <CommentBody comment={comment} />
+                <div className={classes.editButton} onClick={() => setEditFormOpen(true)}>
+                  Edit comment
+                </div>
+              </>
+            )}
+            {comment && editFormOpen && (
+              <CommentsEditForm
+                comment={comment}
+                cancelCallback={() => setEditFormOpen(false)}
+                successCallback={async () => {
+                  setEditFormOpen(false);
+                  // TODO test on poll version
+                  await successCallback();
+                }}
+                prefilledProps={prefilledProps}
+                className={classes.commentForm}
+              />
+            )}
+          </div>
+        </div>
       </div>
     </LWPopper>
   );

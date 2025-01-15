@@ -1,9 +1,5 @@
-import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
 import { foreignKeyField, resolverOnlyField, schemaDefaultValue } from "../../utils/schemaUtils";
-
-const EVENT_FORMATS = ["BASIC", "POLL", "STICKERS"] as const;
-const EVENT_FORMATS_SET = new TupleSet(EVENT_FORMATS)
-export type ForumEventFormat = UnionOf<typeof EVENT_FORMATS_SET>
+import { EVENT_FORMATS } from "./types";
 
 const defaultProps = (nullable = false): CollectionFieldSpecification<"ForumEvents"> => ({
   optional: nullable,
