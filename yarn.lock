@@ -16235,10 +16235,10 @@ react-bootstrap@1.0.0-beta.14:
     uncontrollable "^7.0.0"
     warning "^4.0.3"
 
-react-confetti@^6.1.0:
-  version "6.1.0"
-  resolved "https://registry.yarnpkg.com/react-confetti/-/react-confetti-6.1.0.tgz#03dc4340d955acd10b174dbf301f374a06e29ce6"
-  integrity sha512-7Ypx4vz0+g8ECVxr88W9zhcQpbeujJAVqL14ZnXJ3I23mOI9/oBVTQ3dkJhUmB0D6XOtCZEM6N0Gm9PMngkORw==
+react-confetti@^6.2.2:
+  version "6.2.2"
+  resolved "https://registry.yarnpkg.com/react-confetti/-/react-confetti-6.2.2.tgz#b72888889b10b6707a91adca919dd35c653f4bb2"
+  integrity sha512-K+kTyOPgX+ZujMZ+Rmb7pZdHBvg+DzinG/w4Eh52WOB8/pfO38efnnrtEZNJmjTvLxc16RBYO+tPM68Fg8viBA==
   dependencies:
     tween-functions "^1.2.0"
 

@@ -179,7 +179,7 @@ const FriendlyNotificationsMenuButton = ({
     void refetch();
   }, [refetch, currentUser?.karmaChangeLastOpened]);
 
-  const markAllAsRead = useCallback(() => {
+  const onOpenNotificationsPopover = useCallback(() => {
     const now = new Date();
     void updateCurrentUser({
       karmaChangeLastOpened: now,
@@ -253,7 +253,7 @@ const FriendlyNotificationsMenuButton = ({
               >
                 <NotificationsPopover
                   karmaChanges={karmaChanges?.karmaChanges}
-                  markAllAsRead={markAllAsRead}
+                  onOpenNotificationsPopover={onOpenNotificationsPopover}
                   closePopover={closePopover}
                 />
               </LWPopper>
