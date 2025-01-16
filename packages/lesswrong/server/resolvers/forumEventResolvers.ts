@@ -47,25 +47,6 @@ addGraphQLResolvers({
       })
       return true
     },
-    // TODO Add back in for the case where we allow stickers without comments
-    // UpsertForumEventSticker: async (
-    //   _root: void,
-    //   {forumEventId, x, y, theta, emoji}: {
-    //     forumEventId: string} & ForumEventSticker,
-    //   {currentUser, repos}: ResolverContext,
-    // ) => {
-    //   if (!currentUser) {
-    //     throw new Error("Permission denied");
-    //   }
-    //
-    //   await repos.forumEvents.upsertSticker(forumEventId, currentUser._id, {x, y, theta, emoji: emoji})
-    //   captureEvent("addForumEventSticker", {
-    //     forumEventId,
-    //     userId: currentUser._id,
-    //     x, y, theta, emoji
-    //   })
-    //   return true
-    // },
     RemoveForumEventSticker: async (
       _root: void,
       {forumEventId, stickerId}: {forumEventId: string, stickerId: string},
