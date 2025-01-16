@@ -987,6 +987,23 @@ interface SurveySchedulesDefaultFragment { // fragment on SurveySchedules
   readonly clientIds: Array<string>,
 }
 
+interface MultiDocumentsDefaultFragment { // fragment on MultiDocuments
+  readonly title: string | null,
+  readonly preview: string | null,
+  readonly tabTitle: string,
+  readonly tabSubtitle: string | null,
+  readonly userId: string,
+  readonly parentDocumentId: string,
+  readonly collectionName: "Tags" | "MultiDocuments",
+  readonly fieldName: "description" | "summary",
+  readonly index: number,
+  readonly tableOfContents: any /*{"definitions":[{}]}*/,
+  readonly contributors: any /*TagContributorsList*/,
+  readonly contributionStats: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly htmlWithContributorAnnotations: string,
+  readonly deleted: boolean,
+}
+
 interface TypingIndicatorsDefaultFragment { // fragment on TypingIndicators
   readonly userId: string,
   readonly documentId: string,
@@ -3944,23 +3961,6 @@ interface SideCommentCacheMinimumInfo { // fragment on SideCommentCaches
   readonly createdAt: Date,
 }
 
-interface MultiDocumentsDefaultFragment { // fragment on MultiDocuments
-  readonly title: string | null,
-  readonly preview: string | null,
-  readonly tabTitle: string,
-  readonly tabSubtitle: string | null,
-  readonly userId: string,
-  readonly parentDocumentId: string,
-  readonly collectionName: "Tags" | "MultiDocuments",
-  readonly fieldName: "description" | "summary",
-  readonly index: number,
-  readonly tableOfContents: any /*{"definitions":[{}]}*/,
-  readonly contributors: any /*TagContributorsList*/,
-  readonly contributionStats: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly htmlWithContributorAnnotations: string,
-  readonly deleted: boolean,
-}
-
 interface MultiDocumentMinimumInfo { // fragment on MultiDocuments
   readonly _id: string,
   readonly parentDocumentId: string,
@@ -4453,6 +4453,7 @@ interface FragmentTypes {
   SplashArtCoordinatesDefaultFragment: SplashArtCoordinatesDefaultFragment
   SurveysDefaultFragment: SurveysDefaultFragment
   SurveySchedulesDefaultFragment: SurveySchedulesDefaultFragment
+  MultiDocumentsDefaultFragment: MultiDocumentsDefaultFragment
   TypingIndicatorsDefaultFragment: TypingIndicatorsDefaultFragment
   CronHistoriesDefaultFragment: CronHistoriesDefaultFragment
   VotesDefaultFragment: VotesDefaultFragment
@@ -4680,7 +4681,6 @@ interface FragmentTypes {
   UserRateLimitsDefaultFragment: UserRateLimitsDefaultFragment
   UserRateLimitDisplay: UserRateLimitDisplay
   SideCommentCacheMinimumInfo: SideCommentCacheMinimumInfo
-  MultiDocumentsDefaultFragment: MultiDocumentsDefaultFragment
   MultiDocumentMinimumInfo: MultiDocumentMinimumInfo
   MultiDocumentContentDisplay: MultiDocumentContentDisplay
   MultiDocumentEdit: MultiDocumentEdit
@@ -4763,6 +4763,7 @@ interface FragmentTypesByCollection {
   SplashArtCoordinates: "SplashArtCoordinatesDefaultFragment"|"SplashArtCoordinates"
   Surveys: "SurveysDefaultFragment"|"SurveyMinimumInfo"
   SurveySchedules: "SurveySchedulesDefaultFragment"|"SurveyScheduleMinimumInfo"|"SurveyScheduleEdit"
+  MultiDocuments: "MultiDocumentsDefaultFragment"|"MultiDocumentMinimumInfo"|"MultiDocumentContentDisplay"|"MultiDocumentEdit"|"MultiDocumentParentDocument"|"MultiDocumentWithContributors"|"MultiDocumentRevision"|"MultiDocumentWithContributorsRevision"|"WithVoteMultiDocument"
   TypingIndicators: "TypingIndicatorsDefaultFragment"|"TypingIndicatorInfo"
   CronHistories: "CronHistoriesDefaultFragment"
   Votes: "VotesDefaultFragment"|"TagRelVotes"|"TagVotingActivity"|"UserVotes"|"UserVotesWithDocument"
@@ -4797,7 +4798,6 @@ interface FragmentTypesByCollection {
   ModerationTemplates: "ModerationTemplatesDefaultFragment"|"ModerationTemplateFragment"
   CurationNotices: "CurationNoticesDefaultFragment"|"CurationNoticesFragment"
   UserRateLimits: "UserRateLimitsDefaultFragment"|"UserRateLimitDisplay"
-  MultiDocuments: "MultiDocumentsDefaultFragment"|"MultiDocumentMinimumInfo"|"MultiDocumentContentDisplay"|"MultiDocumentEdit"|"MultiDocumentParentDocument"|"MultiDocumentWithContributors"|"MultiDocumentRevision"|"MultiDocumentWithContributorsRevision"|"WithVoteMultiDocument"
   ElicitQuestions: "ElicitQuestionsDefaultFragment"|"ElicitQuestionFragment"
   ElicitQuestionPredictions: "ElicitQuestionPredictionsDefaultFragment"
   DialogueChecks: "DialogueChecksDefaultFragment"|"DialogueCheckInfo"
@@ -4842,6 +4842,7 @@ interface CollectionNamesByFragmentName {
   SplashArtCoordinatesDefaultFragment: "SplashArtCoordinates"
   SurveysDefaultFragment: "Surveys"
   SurveySchedulesDefaultFragment: "SurveySchedules"
+  MultiDocumentsDefaultFragment: "MultiDocuments"
   TypingIndicatorsDefaultFragment: "TypingIndicators"
   CronHistoriesDefaultFragment: "CronHistories"
   VotesDefaultFragment: "Votes"
@@ -5069,7 +5070,6 @@ interface CollectionNamesByFragmentName {
   UserRateLimitsDefaultFragment: "UserRateLimits"
   UserRateLimitDisplay: "UserRateLimits"
   SideCommentCacheMinimumInfo: "SideCommentCaches"
-  MultiDocumentsDefaultFragment: "MultiDocuments"
   MultiDocumentMinimumInfo: "MultiDocuments"
   MultiDocumentContentDisplay: "MultiDocuments"
   MultiDocumentEdit: "MultiDocuments"
