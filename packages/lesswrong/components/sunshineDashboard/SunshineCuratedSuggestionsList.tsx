@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import { Link } from '@/lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType) => ({
@@ -95,22 +95,22 @@ const SunshineCuratedSuggestionsList = ({ terms, belowFold, classes, setCuration
   });
   const curatedDate = curatedResults ? new Date(curatedResults[0]?.curatedDate) : new Date();
 
-
   if (!shouldShow(!!belowFold, curatedDate, currentUser)) {
     return null
   }
 
-  const daysSinceCurated = Math.floor(
-    (new Date().getTime() - curatedDate.getTime()) / (24 * 60 * 60 * 1000)
-  );
-
   let statusClass = '';
-  if (daysSinceCurated >= 6) {
-    statusClass = classes.urgent;
-  } else if (daysSinceCurated >= 4) {
-    statusClass = classes.alert;
-  } else if (daysSinceCurated >= 3) {
-    statusClass = classes.warning;
+  if (isLWorAF) {
+    const daysSinceCurated = Math.floor(
+      (new Date().getTime() - curatedDate.getTime()) / (24 * 60 * 60 * 1000)
+    );
+    if (daysSinceCurated >= 6) {
+      statusClass = classes.urgent;
+    } else if (daysSinceCurated >= 4) {
+      statusClass = classes.alert;
+    } else if (daysSinceCurated >= 3) {
+      statusClass = classes.warning;
+    }
   }
 
   const { SunshineListTitle, SunshineCuratedSuggestionsItem, MetaInfo, FormatDate,
