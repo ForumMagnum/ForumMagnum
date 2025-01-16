@@ -12,6 +12,8 @@ import { dataToHTML } from './editor/conversionUtils';
 import { EditorContents } from '@/components/editor/Editor';
 import { Globals } from "@/lib/vulcan-lib/config";
 import { editableCollectionsFieldOptions } from '@/lib/editor/makeEditableOptions';
+import { getLatestContentsRevision } from '@/lib/collections/revisions/helpers';
+import { getLatestRev } from './editor/utils';
 
 type PingbacksIndex = Partial<Record<CollectionNameString, string[]>>
 
@@ -89,8 +91,11 @@ export async function recomputePingbacks<N extends CollectionNameWithPingbacks>(
     callback: async (batch) => {
       await Promise.all(batch.map(async (doc: ObjectsByCollectionName[N]) => {
         for (const editableField of editableCollectionsFields[collectionName]) {
-          if (!editableCollectionsFieldOptions[collectionName][editableField].pingbacks) continue;
-          const fieldContents = doc[editableField as keyof T] as AnyBecauseHard;
+          const editableFieldOptions = editableCollectionsFieldOptions[collectionName][editableField];
+          if (!editableFieldOptions.pingbacks) continue;
+          const fieldContents = editableFieldOptions.normalized
+            ? await getLatestRev(doc._id, editableField)
+            : doc[editableField as keyof T] as AnyBecauseHard;
           const html = fieldContents?.html ?? "";
           const pingbacks = await htmlToPingbacks(html, [{
             collectionName, documentId: doc._id
