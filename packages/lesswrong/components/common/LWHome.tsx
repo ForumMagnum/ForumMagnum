@@ -11,7 +11,7 @@ import { isLW, isAF } from '@/lib/instanceSettings';
 import { useCurrentUser } from './withUser';
 
 const getStructuredData = () => ({
-  "@context": "http://schLema.org",
+  "@context": "http://schema.org",
   "@type": "WebSite",
   "url": `${getSiteUrl()}`,
   "potentialAction": {
