@@ -9,6 +9,7 @@ import { eligibleToNominate, getCostData, ReviewPhase, ReviewYear } from '../../
 import { voteTextStyling } from './PostsItemReviewVote';
 import { useRecordPostView } from '../hooks/useRecordPostView';
 import { commentBodyStyles } from '../../themes/stylePiping';
+import { usePostsItem } from '../posts/usePostsItem';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -183,6 +184,13 @@ const styles = (theme: ThemeType) => ({
   },
   expanded: {
     opacity: 1,
+  },
+  commentsCountVotingPhase: {
+    marginLeft: 16,
+    marginRight: "auto"
+  },
+  newCommentsSection: {
+    marginLeft: 16
   }
 });
 
@@ -211,7 +219,8 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
   const {
     PostsTitle, LWTooltip, PostsTooltip, MetaInfo, ReviewVotingButtons,
     PostsItemComments, PostsItem2MetaInfo, PostsItemReviewVote,
-    ReviewPostComments, PostInteractionStripe, UsersNameDisplay, ForumIcon
+    ReviewPostComments, PostInteractionStripe, UsersNameDisplay, ForumIcon,
+    PostsItemNewCommentsWrapper
   } = Components
 
   const currentUser = useCurrentUser()
@@ -222,6 +231,8 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
     void recordPostView({post, extraEventProperties: {type: "markAsRead"}})
     setMarkedVisitedAt(new Date()) 
   }
+
+  const { commentTerms } = usePostsItem({post})
 
   const expanded = expandedPostId === post._id
 
@@ -264,6 +275,13 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
   const visitedDate = markedVisitedAt ?? post.lastVisitedAt
   const unreadComments = hasUnreadComments(visitedDate, post.lastCommentedAt)
 
+  const [commentsVisible, setCommentsVisible] = useState(false);
+
+  const toggleComments = () => {
+    setCommentsVisible(!commentsVisible);
+  };
+  
+
   // TODO: debug reviewCount = null
   return <AnalyticsContext pageElementContext="voteTableRow">
     <div className={classNames(classes.root, {[classes.expanded]: expanded, [classes.votingPhase]: reviewPhase === "VOTING" })} onClick={markAsRead}>
@@ -300,12 +318,13 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
             post={post}
           />
         </div>}
-        <div className={classes.commentsCount} onClick={() => handleSetExpandedPost(post)}>
+        <div className={classNames(classes.commentsCount, {[classes.commentsCountVotingPhase]: reviewPhase === "VOTING"})}>
           <PostsItemComments
             small={false}
             commentCount={postGetCommentCount(post)}
             unreadComments={unreadComments}
             newPromotedComments={false}
+            onClick={toggleComments}
           />
         </div>
         {reviewPhase === "NOMINATIONS" && <PostsItem2MetaInfo className={classes.count}>
@@ -348,6 +367,16 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
           {currentUserIsAuthor && <MetaInfo className={classes.cantVote}>You can't vote on your own posts</MetaInfo>}
         </div>}
       </div>
+      {commentsVisible && <div className={classes.newCommentsSection} onClick={toggleComments}>
+        <PostsItemNewCommentsWrapper
+          terms={commentTerms}
+          post={post}
+          treeOptions={{
+            highlightDate: post.lastVisitedAt ?? undefined,
+            condensed: true,
+          }}
+        />
+      </div>}
     </div>
   </AnalyticsContext>
 }
