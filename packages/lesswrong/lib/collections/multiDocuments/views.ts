@@ -2,6 +2,7 @@ import { ensureCustomPgIndex, ensureIndex } from "@/lib/collectionIndexUtils";
 import { jsonArrayContainsSelector } from "@/lib/utils/viewUtils";
 import { MultiDocuments } from "./collection";
 import { userIsAdminOrMod } from '@/lib/vulcan-users';
+import { viewFieldAllowAny } from "@/lib/vulcan-lib";
 
 declare global {
   interface MultiDocumentsViewTerms extends ViewTermsBase {
@@ -44,6 +45,7 @@ MultiDocuments.addView("summariesByParentId", function (terms: MultiDocumentsVie
     selector: {
       fieldName: 'summary',
       parentDocumentId: terms.parentDocumentId,
+      deleted: viewFieldAllowAny,
     },
     options: {
       sort: {
