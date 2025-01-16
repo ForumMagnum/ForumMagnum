@@ -9,7 +9,6 @@ import { cheerioParse } from '../utils/htmlUtil';
 import { DialogueMessageInfo } from '../../components/posts/PostsPreviewTooltip/PostsPreviewTooltip';
 import { handleDialogueHtml } from '../editor/conversionUtils';
 import { createPaginatedResolver } from './paginatedResolver';
-import { addGraphQLMutation, addGraphQLResolvers } from '@/lib/vulcan-lib';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
 defineQuery({
@@ -143,27 +142,25 @@ createPaginatedResolver({
   },
 });
 
-addGraphQLResolvers({
-  Mutation: {
-    MarkAllNotificationsAsRead: async (
-      _root: void,
-      _args: {},
-      {currentUser}: ResolverContext,
-    ) => {
-      if (!currentUser) {
-        throw new Error("Unauthorized");
-      }
-      await Notifications.rawUpdateMany({
-        userId: currentUser._id,
-        type: { $ne: 'newMessage' },
-      }, {
-        $set: {
-          viewed: true,
-        },
-      });
-      return true;
-    },
+defineMutation({
+  name: "MarkAllNotificationsAsRead",
+  resultType: "Boolean",
+  fn: async (
+    _root: void,
+    _args: {},
+    {currentUser}: ResolverContext,
+  ) => {
+    if (!currentUser) {
+      throw new Error("Unauthorized");
+    }
+    await Notifications.rawUpdateMany({
+      userId: currentUser._id,
+      type: { $ne: 'newMessage' },
+    }, {
+      $set: {
+        viewed: true,
+      },
+    });
+    return true;
   },
 });
-
-addGraphQLMutation("MarkAllNotificationsAsRead: Boolean");
