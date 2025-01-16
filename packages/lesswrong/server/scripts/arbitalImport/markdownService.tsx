@@ -16,12 +16,13 @@ import { getPageUrl } from './urlService';
 import React from 'react';
 import ReactDOM from 'react-dom/server';
 import { convertImagesInHTML } from '../convertImagesToCloudinary';
-import type { ConditionalVisibilitySettings } from '@/components/editor/conditionalVisibilityBlock/conditionalVisibility';
+import { ConditionalVisibilitySettings, isConditionallyVisibleBlockVisibleByDefault } from '@/components/editor/conditionalVisibilityBlock/conditionalVisibility';
 import { escapeHtml } from './util';
 import orderBy from 'lodash/orderBy';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import { tagUrlBaseSetting } from '@/lib/instanceSettings';
 import { slugify } from '@/lib/utils/slugify';
+import classNames from 'classnames';
 
 
 const anyUrlMatch = /\b((?:[a-z][\w-]+:(?:\/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))/i;
@@ -634,10 +635,10 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
         }
         return prefix + span + markdown + '</span>';*/
         if (!pageId) {
-          console.warn(`Page ${pageId} referenced in knows-requisite block was not found`);
+          console.warn(`Page ${alias} referenced in knows-requisite block was not found`);
         }
         return conditionallyVisibleBlockToHTML(
-          {type: "knowsRequisite", inverted: !!not, otherPage: pageId ?? ""},
+          {type: "knowsRequisite", inline: true, inverted: !!not, otherPage: pageId ?? ""},
           markdown
         );
       });
@@ -669,7 +670,7 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
           console.warn(`Page ${pageId} referenced in knows-requisite block was not found`);
         }
         return conditionallyVisibleBlockToHTML(
-          {type: "wantsRequisite", inverted: !!not, otherPage: pageId ?? ""},
+          {type: "wantsRequisite", inline: true, inverted: !!not, otherPage: pageId ?? ""},
           markdown
         );
       });
@@ -701,7 +702,7 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
           console.warn(`Page ${pageId} referenced in knows-requisite block was not found`);
         }
         return conditionallyVisibleBlockToHTML(
-          {type: "wantsRequisite", inverted: !!not, otherPage: pageId ?? ""},
+          {type: "wantsRequisite", inline: true, inverted: !!not, otherPage: pageId ?? ""},
           runBlockGamut(markdown)
         );
       });
@@ -723,7 +724,7 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
           console.warn(`Page ${pageId} referenced in knows-requisite block was not found`);
         }
         return conditionallyVisibleBlockToHTML(
-          { type: "ifPathBeforeOrAfter", inverted: !!not, order: beforeOrAfter, otherPage: pageId ?? "" },
+          { type: "ifPathBeforeOrAfter", inline: true, inverted: !!not, order: beforeOrAfter, otherPage: pageId ?? "" },
           markdown
         )
       });
@@ -740,7 +741,7 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
         return prefix;*/
         markdownPage.todos.push(text);
         return conditionallyVisibleBlockToHTML(
-          { type: "todo" },
+          { type: "todo", inline: true },
           text
         );
       });
@@ -757,7 +758,7 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
         return prefix;*/
         markdownPage.todos.push(text);
         return conditionallyVisibleBlockToHTML(
-          { type: "fixme" },
+          { type: "fixme", inline: true },
           text
         );
       });
@@ -774,7 +775,7 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
         return prefix;*/
         markdownPage.todos.push(text);
         return conditionallyVisibleBlockToHTML(
-          { type: "comment" },
+          { type: "comment", inline: true },
           text
         );
       });
@@ -1015,7 +1016,12 @@ function latexSourceToCkEditorEmbeddedLatexTag(latex: string, inline: boolean): 
 function conditionallyVisibleBlockToHTML(settings: ConditionalVisibilitySettings, contentsHtml: string) {
   const settingsJsonStr = JSON.stringify(settings);
   const visibilityAttrEscaped = escapeHtml(settingsJsonStr)
-  return `<div class="conditionallyVisibleBlock" data-visibility="${visibilityAttrEscaped}">${contentsHtml}</div>`
+  const isDefaultVisible = isConditionallyVisibleBlockVisibleByDefault(settings);
+  const classes = classNames("conditionallyVisibleBlock", {
+    "defaultVisible": isDefaultVisible,
+    "defaultHidden": !isDefaultVisible,
+  })
+  return `<div class="${classes}" data-visibility="${visibilityAttrEscaped}">${contentsHtml}</div>`
 }
 
 type PathType = {
