@@ -18,7 +18,7 @@ export type ForumEventSticker = ForumEventStickerInput & {
   userId: string;
 }
 
-export type NewForumEventStickerData = {
+export type ForumEventStickerData = {
   format: "STICKERS_1.0", // TODO maybe set this in the db
   data: ForumEventSticker[]
 }

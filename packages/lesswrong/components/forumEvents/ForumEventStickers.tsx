@@ -11,7 +11,7 @@ import { Link } from "@/lib/reactRouterWrapper";
 import { InteractionWrapper } from "../common/useClickableCell";
 import { useIsAboveBreakpoint } from "../hooks/useScreenWidth";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
-import type { ForumEventStickerInput, NewForumEventStickerData } from "@/lib/collections/forumEvents/types";
+import type { ForumEventStickerInput, ForumEventStickerData } from "@/lib/collections/forumEvents/types";
 import { randomId } from "@/lib/random";
 import keyBy from "lodash/keyBy";
 
@@ -70,7 +70,7 @@ const ForumEventStickers: FC<{
   const isDesktop = useIsAboveBreakpoint("sm");
   const [mobilePlacingSticker, setMobilePlacingSticker] = useState(false)
 
-  const stickerData = (currentForumEvent?.publicData as NewForumEventStickerData | undefined)?.data;
+  const stickerData = (currentForumEvent?.publicData as ForumEventStickerData | undefined)?.data;
   const stickers = Array.isArray(stickerData) ? stickerData : [];
 
   const uniqueUserIds = Array.from(new Set(stickers.map(sticker => sticker.userId).filter(id => id)));
@@ -146,7 +146,6 @@ const ForumEventStickers: FC<{
     void refetchComments?.();
   }, [refetch, refetchComments]);
 
-  // TODO Fix "Where did you donate?"
   const saveDraftSticker = useCallback(
     async (event: React.MouseEvent) => {
       if (!currentForumEvent || !isPlacingSticker) return;

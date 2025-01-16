@@ -81,28 +81,4 @@ makeEditable({
   },
 });
 
-// TODO
-// makeEditable({
-//   collection: ForumEvents,
-//   options: {
-//     fieldName: "commentPrompt",
-//     label: "Comment modal prompt",
-//     commentEditor: true,
-//     commentStyles: true,
-//     hideControls: true,
-//     normalized: true,
-//     getLocalStorageId: (forumEvent) => {
-//       return {
-//         id: `forumEvent:commentPrompt:${forumEvent?._id ?? "create"}`,
-//         verify: true,
-//       };
-//     },
-//     permissions: {
-//       canRead: ["guests"],
-//       canUpdate: ["admins"],
-//       canCreate: ["admins"],
-//     },
-//   },
-// });
-
 export default ForumEvents;
