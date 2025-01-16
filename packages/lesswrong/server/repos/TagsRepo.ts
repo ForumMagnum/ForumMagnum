@@ -43,6 +43,7 @@ class TagsRepo extends AbstractRepo<"Tags"> {
         COALESCE(t."adminOnly", FALSE) AS "adminOnly",
         COALESCE(t."deleted", FALSE) AS "deleted",
         COALESCE(t."isSubforum", FALSE) AS "isSubforum",
+        t."isPlaceholderPage" AS "isPlaceholderPage",
         t."bannerImageId",
         t."parentTagId",
         t."description"->>'html' AS "description",
