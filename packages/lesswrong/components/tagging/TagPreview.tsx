@@ -12,6 +12,7 @@ import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { getTagDescriptionHtmlHighlight } from './TagPreviewDescription';
 import startCase from 'lodash/startCase';
+import { htmlToTextDefault } from '@/lib/htmlToText';
 
 const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
   root: {
@@ -154,10 +155,10 @@ const tagShowTitle = (tag: (TagPreviewFragment | TagSectionPreviewFragment) & { 
   }
 
   // Remove non-word characters and ignore case
-  const openingTextLower = openingText.toLowerCase().replace(/[^\w\s]/g, '');
+  const openingTextLower = htmlToTextDefault(openingText).toLowerCase().replace(/[^\w\s]/g, '').slice(0, 100);
   const tagNameLower = tag.name.toLowerCase().replace(/[^\w\s]/g, '');
 
-  return !openingTextLower.slice(0, 100).includes(tagNameLower);
+  return !openingTextLower.includes(tagNameLower);
 }
 
 const TagPreview = ({

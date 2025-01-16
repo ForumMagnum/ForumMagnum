@@ -112,7 +112,8 @@ class TagsRepo extends AbstractRepo<"Tags"> {
         -- Get tags that directly match the slug
         SELECT
           t.*,
-          NULL AS lens
+          NULL AS lens,
+          NULL AS md_id
         FROM "Tags" t
         WHERE t.deleted IS FALSE
         AND (t."slug" = $1 OR t."oldSlugs" @> ARRAY[$1])
@@ -122,7 +123,8 @@ class TagsRepo extends AbstractRepo<"Tags"> {
         -- Get tags that have a lens matching the slug
         SELECT
           t.*,
-          TO_JSONB(md.*) AS lens
+          TO_JSONB(md.*) AS lens,
+          md._id AS md_id
         FROM "MultiDocuments" md
         JOIN "Tags" t
         ON t."_id" = md."parentDocumentId"
@@ -140,11 +142,11 @@ class TagsRepo extends AbstractRepo<"Tags"> {
       FROM matching_tags t
       LEFT JOIN "MultiDocuments" md
       ON (
-        md."parentDocumentId" = t."_id"
+        md."parentDocumentId" = COALESCE(t.md_id, t._id)
         AND md."fieldName" = 'summary'
         AND md."deleted" IS FALSE
       )
-      -- TODO: figure out a more principled fix for the problem we can have multiple tags or lenses with the same slug/oldSlugs
+      -- In theory we shouldn't have more than one tag or lens with the same slug/oldSlugs, but if we did and didn't limit, the .oneOrNone would throw an error
       LIMIT 1
     `, [slug]);
   }

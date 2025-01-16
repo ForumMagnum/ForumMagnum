@@ -247,7 +247,6 @@ async function createSummariesForPage({ pageId, importedRecordMaps, pageCreator,
       collectionName = "MultiDocuments";
     }
 
-    // TODO: add slugs when those fields are implemented for MultiDocuments
     const summaryObj = (await createMutator({
       collection: MultiDocuments,
       document: {
@@ -850,7 +849,6 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
 
         const lensAliasRedirects = database.aliasRedirects.filter(ar => ar.newAlias === lensPageInfo.alias);
         const lensSlug = slugsByPageId[lens.lensId];
-        // TODO: add lensId(?) to oldSlugs.  (Not sure if it's lensId or pageId)
         const lensRevisions = database.pages.filter(p => p.pageId === lens.lensId);
         const lensFirstRevision = lensRevisions[0];
         const lensLiveRevision = liveRevisionsByPageId[lens.lensId];

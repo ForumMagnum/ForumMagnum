@@ -208,7 +208,7 @@ const TagHistoryFeedSettings = ({expanded, settings, setSettings, lenses}: {
       />
       <span className={classes.label}>Show comments</span>
     </div>
-    {hasWikiLenses && <div>
+    {hasWikiLenses && lenses.length > 1 && <div>
       Lens
       <Select
         value={settings.lensId}
