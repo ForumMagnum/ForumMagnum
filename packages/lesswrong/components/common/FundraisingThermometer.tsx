@@ -326,6 +326,7 @@ const FundraisingThermometer: React.FC<
   const goal1 = lightconeFundraiserThermometerGoalAmount.get();
   const goal2 = lightconeFundraiserThermometerGoal2Amount.get();
   const goal3 = lightconeFundraiserThermometerGoal3Amount.get();
+
   // Use the main fundraiser progress hook for the overall amount
   const [percentage, currentAmount] = useFundraiserProgress(goal3);
 
