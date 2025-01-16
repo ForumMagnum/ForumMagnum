@@ -189,7 +189,7 @@ const ForumEventStickers: FC<{
       setDraftSticker(null);
     } else {
       await removeSticker({ variables: { forumEventId: currentForumEvent!._id, stickerId } });
-      void refetch?.();
+      await refetch?.();
     }
 
   }, [currentForumEvent, refetch, removeSticker])

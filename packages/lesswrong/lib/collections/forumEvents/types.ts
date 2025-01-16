@@ -18,8 +18,11 @@ export type ForumEventSticker = ForumEventStickerInput & {
   userId: string;
 }
 
+/** Bump this version when the format of `publicData` changes, so we can interpret the results of past events */
+export const FORUM_EVENT_STICKER_VERSION = "STICKERS_1.0";
+
 export type ForumEventStickerData = {
-  format: "STICKERS_1.0", // TODO maybe set this in the db
+  format: typeof FORUM_EVENT_STICKER_VERSION,
   data: ForumEventSticker[]
 }
 

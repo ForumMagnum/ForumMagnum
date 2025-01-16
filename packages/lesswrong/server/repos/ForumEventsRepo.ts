@@ -1,7 +1,7 @@
 import ForumEvents from "@/lib/collections/forumEvents/collection";
 import AbstractRepo from "./AbstractRepo";
 import { recordPerfMetrics } from "./perfMetricWrapper";
-import { ForumEventSticker } from "@/lib/collections/forumEvents/types";
+import { FORUM_EVENT_STICKER_VERSION, ForumEventSticker } from "@/lib/collections/forumEvents/types";
 
 class ForumEventsRepo extends AbstractRepo<"ForumEvents"> {
   constructor() {
@@ -36,8 +36,35 @@ class ForumEventsRepo extends AbstractRepo<"ForumEvents"> {
     `, [userId, _id])
   }
 
-  // TODO Add format + version to the data, so it can be distinguished from votes
+  /**
+   * Asserts "publicData" is tagged with the format expected. If no format is set (if the data is uninitialised),
+   * sets it to the expexcted format.
+   */
+  async ensureFormatMatches({ forumEventId, format }: { forumEventId: string; format: string; }) {
+    const result = await this.getRawDb().oneOrNone<{ currentFormat: string | null }>(`
+      -- ForumEventsRepo.ensureFormatMatches
+      UPDATE "ForumEvents"
+      SET "publicData" = jsonb_set(
+        COALESCE("publicData", '{}'::jsonb),
+        '{format}',
+        to_jsonb($2::text)
+      )
+      WHERE "_id" = $1
+      AND (
+        "publicData"->>'format' IS NULL
+        OR "publicData"->>'format' = $2
+      )
+      RETURNING "publicData"->>'format' AS "currentFormat"
+    `, [forumEventId, format]);
+
+    if (result?.currentFormat !== format) {
+      throw new Error(`Format mismatch: expected ${format}, found ${result?.currentFormat}`);
+    }
+  }
+
   async addSticker({ forumEventId, stickerData }: { forumEventId: string; stickerData: ForumEventSticker; }) {
+    await this.ensureFormatMatches({forumEventId, format: FORUM_EVENT_STICKER_VERSION});
+
     // Check if the sticker already exists
     const existingStickers = (await this.getRawDb().oneOrNone<{ stickers: ForumEventSticker[] | null }>(
       `
@@ -70,6 +97,8 @@ class ForumEventsRepo extends AbstractRepo<"ForumEvents"> {
   }
 
   async removeSticker({ forumEventId, stickerId, userId }: { forumEventId: string; stickerId: string; userId: string }) {
+    await this.ensureFormatMatches({forumEventId, format: FORUM_EVENT_STICKER_VERSION});
+
     return this.none(
       `
       -- ForumEventsRepo.removeSticker
