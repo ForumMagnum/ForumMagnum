@@ -29,7 +29,7 @@ const styles = (theme: ThemeType) => ({
     width: "100%",
     height: "100%",
     // Translucent gradient so the text is readable over the stickers on mobile
-    background: "linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.3) 25%, rgba(255, 255, 255, 0.3) 75%, rgba(255, 255, 255, 0) 100%)",
+    background: theme.palette.forumEvent.stickerMobileOverlay,
     [theme.breakpoints.up("sm")]: {
       display: "none"
     },

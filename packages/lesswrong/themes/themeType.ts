@@ -564,6 +564,7 @@ declare global {
     },
     forumEvent: {
       draftSticker: ColorString,
+      stickerMobileOverlay: ColorString,
     },
     namesAttachedReactions: {
       selectedAnti: ColorString,

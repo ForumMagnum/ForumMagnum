@@ -590,7 +590,9 @@ getCollectionHooks("Comments").updateAsync.add(async function updatedCommentMayb
   await triggerReviewIfNeeded(currentUser._id)
 });
 
-// TODO docstring
+/**
+ * Run side effects based on the `forumEventMetadata` that is submitted.
+ */
 async function forumEventSideEffects({ comment, forumEventMetadata }: { comment: DbComment; forumEventMetadata: ForumEventCommentMetadata; }) {
   if (forumEventMetadata.eventFormat === "STICKERS") {
     const sticker = forumEventMetadata.sticker
