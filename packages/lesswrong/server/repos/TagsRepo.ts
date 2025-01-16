@@ -146,7 +146,7 @@ class TagsRepo extends AbstractRepo<"Tags"> {
         AND md."fieldName" = 'summary'
         AND md."deleted" IS FALSE
       )
-      -- TODO: figure out a more principled fix for the problem we can have multiple tags or lenses with the same slug/oldSlugs
+      -- In theory we shouldn't have more than one tag or lens with the same slug/oldSlugs, but if we did and didn't limit, the .oneOrNone would throw an error
       LIMIT 1
     `, [slug]);
   }
