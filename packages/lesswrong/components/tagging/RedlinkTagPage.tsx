@@ -68,7 +68,7 @@ export const useRedLinkPingbacks = (documentId: string|undefined, excludedDocume
       _id: t._id,
       slug: t.slug,
       // possibly not the best fallback but it should mostly do
-      name: t.title ?? t.tabTitle
+      name: t.title ?? `${t.tabTitle}${t.tabSubtitle ? `: ${t.tabSubtitle}` : ''}`
     })),
   ]
 

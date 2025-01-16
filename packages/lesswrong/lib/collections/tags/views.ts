@@ -3,6 +3,7 @@ import { ensureCustomPgIndex, ensureIndex } from '../../collectionIndexUtils';
 import { viewFieldAllowAny } from '../../vulcan-lib';
 import { userIsAdminOrMod } from '../../vulcan-users';
 import { jsonArrayContainsSelector } from '@/lib/utils/viewUtils';
+import { hasWikiLenses } from '@/lib/betas';
 
 declare global {
   interface TagsViewTerms extends ViewTermsBase {
@@ -270,10 +271,19 @@ Tags.addView('allArbitalTags', (terms: TagsViewTerms) => {
 // TODO: switch this to a custom index, maybe a GIN index?
 ensureIndex(Tags, {name: 1, "legacyData.arbitalPageId": 1});
 
+const pingbackSelector = (terms: TagsViewTerms) => hasWikiLenses
+  ? jsonArrayContainsSelector("pingbacks.Tags", terms.tagId)
+  : {
+    $or: [
+      jsonArrayContainsSelector("pingbacks.Tags", terms.tagId),
+      jsonArrayContainsSelector("pingbacks.MultiDocuments", terms.tagId),
+    ]
+  }
+
 Tags.addView("pingbackWikiPages", (terms: TagsViewTerms) => {
   return {
     selector: {
-      ...jsonArrayContainsSelector("pingbacks.Tags", terms.tagId),
+      ...pingbackSelector(terms),
       wikiOnly: viewFieldAllowAny,
     },
   }
