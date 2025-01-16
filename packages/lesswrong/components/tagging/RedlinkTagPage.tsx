@@ -66,25 +66,10 @@ export const useRedLinkPingbacks = (documentId: string|undefined, excludedDocume
     ...(lensPingbacks.results ?? []).map(t => ({
       _id: t._id,
       slug: t.slug,
-      name: `${t.title}${t.tabTitle ? `: ${t.tabTitle}` : ""}${t.tabSubtitle ? ` – ${t.tabSubtitle}` : ""}`,
+      // possibly not the best fallback but it should mostly do
+      name: t.title ?? t.tabTitle
     })),
   ]
-
-  const tagResults = (tagPingbacks.results ?? []).map(t => ({
-    _id: t._id,
-    slug: t.slug,
-    name: t.name,
-  }));
-
-  const lensResults = (lensPingbacks.results ?? []).map(t => ({
-    _id: t._id,
-    slug: t.slug,
-    name: `${t.title}${t.tabTitle ? `: ${t.tabTitle}` : ""}${t.tabSubtitle ? ` – ${t.tabSubtitle}` : ""}`,
-  }));
-    
-  console.log("in useRedLinkPingbacks", {tagId: documentId, tagResults, lensResults},
-  );
-  
 
   return { 
     results,
