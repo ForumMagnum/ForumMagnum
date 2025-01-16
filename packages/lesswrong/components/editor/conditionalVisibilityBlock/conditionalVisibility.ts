@@ -13,13 +13,16 @@ export type ConditionalVisibilityMode =
   | "wantsRequisite"
   | "ifPathBeforeOrAfter"
 export type ConditionalVisibilitySettings =
-  | { type: "unset" }
-  | { type: "todo" }
-  | { type: "fixme" }
-  | { type: "comment" }
-  | { type: "knowsRequisite", inverted: boolean, otherPage: string }
-  | { type: "wantsRequisite", inverted: boolean, otherPage: string }
-  | { type: "ifPathBeforeOrAfter", inverted: boolean, order: "before"|"after", otherPage: string }
+  { inline?: boolean } & (
+    | { type: "unset" }
+    | { type: "todo" }
+    | { type: "fixme" }
+    | { type: "comment" }
+    | { type: "knowsRequisite", inverted: boolean, otherPage: string }
+    | { type: "wantsRequisite", inverted: boolean, otherPage: string }
+    | { type: "ifPathBeforeOrAfter", inverted: boolean, order: "before"|"after", otherPage: string }
+  );
+
 export const conditionalVisibilityModes: Record<ConditionalVisibilityMode, {
   settings: ConditionalVisibilitySettings,
   label: string
@@ -65,3 +68,18 @@ export type ConditionalVisibilityPluginConfiguration = {
     setDocumentState: (newSettings: ConditionalVisibilitySettings) => void
   ) => void,
 }
+
+export function isConditionallyVisibleBlockVisibleByDefault(options: ConditionalVisibilitySettings) {
+  switch (options.type) {
+    case "unset":
+    case "todo":
+    case "fixme":
+    case "comment":
+      return false;
+    case "knowsRequisite":
+    case "wantsRequisite":
+    case "ifPathBeforeOrAfter":
+      return !!options.inverted;
+  }
+}
+
