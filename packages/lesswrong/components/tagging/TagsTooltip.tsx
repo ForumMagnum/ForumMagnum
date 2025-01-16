@@ -161,7 +161,7 @@ const RedLinkTooltip = ({ tag, slug }: {
     // Display message when there are no pingbacks
     pingbacksSection = (
       <div>
-        A placeholder (red link) was created for this concept.
+        This is a red link.
       </div>
     );
   }
@@ -174,7 +174,7 @@ const RedLinkTooltip = ({ tag, slug }: {
       <ContentStyles contentType='tag'>
         {pingbacksSection}
         <div className={classes.redLinkTooltipTitle}>
-          A red link is a placeholder for a wikitag page that an authors thinks should exist.
+          A red link is a placeholder for a wikitag page that an author thinks should exist.
         </div>
       </ContentStyles>
     </div>
