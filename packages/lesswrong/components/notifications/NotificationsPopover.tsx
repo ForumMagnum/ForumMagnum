@@ -105,6 +105,7 @@ const NotificationsPopover = ({
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
+  const [markingAsRead, setMarkingAsRead] = useState(false);
   const [limit, setLimit] = useState(defaultLimit);
   const {
     data,
@@ -135,10 +136,17 @@ const NotificationsPopover = ({
   `);
 
   const markAllAsRead = useCallback(async () => {
-    closeNotifications();
-    await markAllAsReadMutation();
-    await refetch();
-  }, [closeNotifications, markAllAsReadMutation, refetch]);
+    try {
+      setMarkingAsRead(true);
+      await markAllAsReadMutation();
+      await refetch();
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error(e);
+    } finally {
+      setMarkingAsRead(false);
+    }
+  }, [markAllAsReadMutation, refetch]);
 
   const notifs: NotificationDisplay[] = data?.NotificationDisplays?.results ?? [];
 
@@ -202,6 +210,8 @@ const NotificationsPopover = ({
                   <DropdownItem
                     title="Mark all as read"
                     onClick={markAllAsRead}
+                    loading={markingAsRead}
+                    disabled={markingAsRead}
                   />
                   <DropdownItem
                     title="Notification settings"
