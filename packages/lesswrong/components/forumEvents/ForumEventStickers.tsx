@@ -15,7 +15,7 @@ import type { ForumEventStickerInput, NewForumEventStickerData } from "@/lib/col
 import { randomId } from "@/lib/random";
 import keyBy from "lodash/keyBy";
 
-const styles = (_theme: ThemeType) => ({
+const styles = (theme: ThemeType) => ({
   stickersContainer: {
     width: "100%",
     height: "100%",
@@ -23,17 +23,29 @@ const styles = (_theme: ThemeType) => ({
     top: 0,
     left: 0
   },
+  mobileOverlay: {
+    pointerEvents: "none",
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+    // Translucent gradient so the text is readable over the stickers on mobile
+    background: "linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.3) 25%, rgba(255, 255, 255, 0.3) 75%, rgba(255, 255, 255, 0) 100%)",
+    [theme.breakpoints.up("sm")]: {
+      display: "none"
+    },
+  },
   hoverContainer: {
     width: "100%",
     height: "100%",
     position: "relative",
   },
-  placeHeartButton: {
+  placeStickerButton: {
     position: "absolute",
     cursor: "pointer",
-    fontWeight: 600,
+    fontWeight: 500,
+    fontSize: 14,
     bottom: 12,
-    left: 24,
+    left: 20,
     "&:hover": {
       opacity: 0.8,
     },
@@ -61,8 +73,6 @@ const ForumEventStickers: FC<{
   const stickerData = (currentForumEvent?.publicData as NewForumEventStickerData | undefined)?.data;
   const stickers = Array.isArray(stickerData) ? stickerData : [];
 
-  console.log({stickers})
-
   const uniqueUserIds = Array.from(new Set(stickers.map(sticker => sticker.userId).filter(id => id)));
   const uniqueCommentIds = Array.from(new Set(stickers.map(sticker => sticker.commentId).filter(id => id)));
 
@@ -80,8 +90,7 @@ const ForumEventStickers: FC<{
   const { results: comments, refetch: refetchComments } = useMulti({
     terms: {
       commentIds: uniqueCommentIds,
-      // TODO revert
-      limit: 10,
+      limit: 1000,
     },
     collectionName: "Comments",
     fragmentName: 'ShortformComments',
@@ -140,7 +149,7 @@ const ForumEventStickers: FC<{
   // TODO Fix "Where did you donate?"
   const saveDraftSticker = useCallback(
     async (event: React.MouseEvent) => {
-      if (!currentForumEvent || !allowAddingSticker) return;
+      if (!currentForumEvent || !isPlacingSticker) return;
 
       if (!currentUser) {
         onSignup();
@@ -163,7 +172,7 @@ const ForumEventStickers: FC<{
 
       setMobilePlacingSticker(false);
     },
-    [currentForumEvent, allowAddingSticker, currentUser, normalizeCoords, hoverTheta, onSignup]
+    [currentForumEvent, isPlacingSticker, currentUser, normalizeCoords, hoverTheta, onSignup]
   );
 
   const onSuccess = useCallback(async () => {
@@ -259,13 +268,6 @@ const ForumEventStickers: FC<{
             comment={(sticker.commentId && commentsById[sticker.commentId]) || undefined}
           />
         ))}
-        {!isDesktop && allowAddingSticker && (
-          <InteractionWrapper>
-            <div className={classes.placeHeartButton} onClick={() => setMobilePlacingSticker(!mobilePlacingSticker)}>
-              {mobilePlacingSticker ? "Tap the banner to add a heart, or tap here to cancel" : "+ Add heart"}
-            </div>
-          </InteractionWrapper>
-        )}
       </div>
       {currentForumEvent.post && (
         <ForumEventCommentForm
@@ -280,7 +282,7 @@ const ForumEventStickers: FC<{
           post={currentForumEvent.post}
           prefilledProps={prefilledProps}
           // TODO update, allow editable field
-          title="Where did you donate this year?"
+          title={currentForumEvent.commentPrompt ?? "Add your comment"}
           subtitle={(post, comment) => (
             <>
               <div>
@@ -301,6 +303,14 @@ const ForumEventStickers: FC<{
             </>
           )}
         />
+      )}
+      <div className={classes.mobileOverlay} />
+      {!isDesktop && allowAddingSticker && (
+        <InteractionWrapper>
+          <div className={classes.placeStickerButton} onClick={() => setMobilePlacingSticker(!mobilePlacingSticker)}>
+            {mobilePlacingSticker ? "Place your sticker, or tap here to cancel" : "+ Add sticker"}
+          </div>
+        </InteractionWrapper>
       )}
     </AnalyticsContext>
   );

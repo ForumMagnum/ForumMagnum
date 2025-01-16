@@ -480,6 +480,7 @@ interface DbForumEvent extends DbObject {
   eventFormat: "BASIC" | "POLL" | "STICKERS"
   maxStickersPerUser: number
   customComponent: string | null
+  commentPrompt: string | null
   publicData: any /*{"definitions":[{"blackbox":true}]}*/
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/

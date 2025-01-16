@@ -83,8 +83,8 @@ const styles = (theme: ThemeType) => ({
     cursor: "pointer",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: theme.palette.text.alwaysWhite,
-    color: theme.palette.text.alwaysBlack,
+    backgroundColor: "var(--forum-event-foreground)",
+    color: "var(--forum-event-background)",
     borderRadius: "50%",
     fontWeight: "bold",
     width: "calc(100% + 4px)",
@@ -109,7 +109,7 @@ const styles = (theme: ThemeType) => ({
     position: "relative",
     width: "100%",
     height: 2,
-    backgroundColor: theme.palette.text.alwaysWhite,
+    backgroundColor: "var(--forum-event-foreground)",
     marginBottom: "16px",
     transition: "transform 0.5s ease-in-out",
   },
@@ -137,7 +137,7 @@ const styles = (theme: ThemeType) => ({
       bottom: 0,
       left: "50%",
       width: 2,
-      backgroundColor: theme.palette.text.alwaysWhite,
+      backgroundColor: "var(--forum-event-foreground)",
       opacity: 0.3,
       transform: "translateX(-50%)",
     },
@@ -152,7 +152,7 @@ const styles = (theme: ThemeType) => ({
     '&::before': {
       height: "125%",
       top: "-5%",
-      backgroundColor: theme.palette.text.alwaysWhite,
+      backgroundColor: "var(--forum-event-foreground)",
       opacity: 1,
     },
     '&$tickDragging': {
@@ -160,7 +160,7 @@ const styles = (theme: ThemeType) => ({
     },
   },
   sliderArrow: {
-    stroke: theme.palette.text.alwaysWhite,
+    stroke: "var(--forum-event-foreground)",
     position: "absolute",
     top: -11,
   },
@@ -184,12 +184,12 @@ const styles = (theme: ThemeType) => ({
     lineHeight: '140%',
   },
   userImage: {
-    outline: `2px solid ${theme.palette.text.alwaysWhite}`,
+    outline: `2px solid var(--forum-event-foreground)`,
   },
   placeholderUserIcon: {
     // add a black background to the placeholder user circle icon
     background: `radial-gradient(${theme.palette.text.alwaysBlack} 50%, transparent 50%)`,
-    color: theme.palette.text.alwaysWhite,
+    color: "var(--forum-event-foreground)",
     fontSize: 44,
     borderRadius: '50%',
     marginLeft: -5,
@@ -200,14 +200,14 @@ const styles = (theme: ThemeType) => ({
     position: 'absolute',
     top: -5,
     right: -5,
-    backgroundColor: `color-mix(in oklab, ${theme.palette.text.alwaysBlack} 65%, ${theme.palette.text.alwaysWhite} 35%)`,
+    backgroundColor: `color-mix(in oklab, ${theme.palette.text.alwaysBlack} 10%, color-mix(in oklab, var(--forum-event-background) 65%, var(--forum-event-foreground) 35%))`,
     padding: 2,
     borderRadius: '50%',
     cursor: 'pointer',
     width: 15,
     height: 15,
     "&:hover": {
-      backgroundColor: theme.palette.text.alwaysBlack,
+      backgroundColor: `color-mix(in oklab, ${theme.palette.text.alwaysBlack} 10%, var(--forum-event-background) 90%)`,
     },
   },
   clearVote: {
@@ -253,7 +253,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: 14,
     fontWeight: 500,
     lineHeight: 'normal',
-    color: theme.palette.text.alwaysWhite,
+    color: "var(--forum-event-banner-text)",
     textDecoration: 'underline',
     textUnderlineOffset: '3px',
     padding: 0,
@@ -799,8 +799,7 @@ export const ForumEventPoll = ({
                       successMessage="Success! Open the results to view everyone's votes and comments."
                       forumEvent={event}
                       cancelCallback={() => setCommentFormOpen(false)}
-                      // TODO restore in component, or use successCallback here instead
-                      refetch={refetchComments}
+                      successCallback={refetchComments}
                       anchorEl={userVoteRef.current}
                       post={event.post}
                       title="What made you vote this way?"

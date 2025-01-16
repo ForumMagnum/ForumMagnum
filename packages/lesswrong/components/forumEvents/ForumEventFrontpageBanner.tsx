@@ -1,4 +1,4 @@
-import React, { CSSProperties, FC } from "react";
+import React, { FC } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
 import moment from "moment";
@@ -20,7 +20,7 @@ export const forumEventBannerGradientBackground = (theme: ThemeType) => ({
   `,
 });
 
-export const forumEventBannerDescriptionStyles = (theme: ThemeType) => ({
+export const forumEventBannerDescriptionStyles = () => ({
   color: "var(--forum-event-banner-text)",
   "& a": {
     textDecoration: "underline",
@@ -42,6 +42,10 @@ const styles = (theme: ThemeType) => ({
     position: "relative",
     width: "100%",
     overflow: "hidden",
+    "& a": {
+      textDecoration: "underline",
+      textUnderlineOffset: '2px',
+    },
   },
   rootWithGradient: {
     height: BANNER_HEIGHT,
@@ -93,15 +97,14 @@ const styles = (theme: ThemeType) => ({
       marginTop: 8,
     },
   },
-  contentWithPoll: {
-    maxWidth: 1000,
-    padding: '0 30px 58px',
-    margin: '0 auto ',
-    [`@media(max-width: ${POLL_MAX_WIDTH}px)`]: {
-      display: 'none'
+  contentWithStickers: {
+    margin: "24px 0 28px 0",
+    [theme.breakpoints.down("xs")]: {
+      textWrap: 'pretty',
+      margin: "28px 0 40px 0",
     },
   },
-  contentWithPollMobile: {
+  contentWithPoll: {
     display: 'none',
     maxWidth: 500,
     textWrap: 'pretty',
@@ -145,10 +148,6 @@ const styles = (theme: ThemeType) => ({
       textUnderlineOffset: '2px',
     }
   },
-  contentWithPollBody: {
-    flex: 'none',
-    width: 250,
-  },
   date: {
     fontWeight: 500,
     marginBottom: 6,
@@ -159,22 +158,25 @@ const styles = (theme: ThemeType) => ({
     fontSize: 34,
     fontWeight: 700,
   },
+  titleWithStickers: {
+    fontSize: 34,
+    fontWeight: 700,
+    lineHeight: 'normal',
+    [theme.breakpoints.down("xs")]: {
+      fontSize: 28,
+    }
+  },
+  titleWithPoll: {
+    fontSize: 28,
+    fontWeight: 700,
+    lineHeight: 'normal',
+  },
   description: {
     ...forumEventBannerDescriptionStyles(theme),
     width: "fit-content"
   },
   descriptionContentStyles: {
     width: "fit-content"
-  },
-  titleWithPoll: {
-    fontSize: 32,
-    fontWeight: 700,
-    lineHeight: 'normal',
-  },
-  titleWithPollMobile: {
-    fontSize: 28,
-    fontWeight: 700,
-    lineHeight: 'normal',
   },
   dateWithPoll: {
     fontSize: 14,
@@ -183,11 +185,7 @@ const styles = (theme: ThemeType) => ({
     marginTop: 6,
   },
   descriptionWithPoll: {
-    marginTop: 20,
-    "& a": {
-      textDecoration: "underline",
-      textUnderlineOffset: '2px',
-    }
+    marginTop: 20
   },
   image: {
     position: "absolute",
@@ -210,6 +208,16 @@ const styles = (theme: ThemeType) => ({
     height: 20,
     color: "var(--forum-event-banner-text)",
   },
+  hideAboveXs: {
+    [theme.breakpoints.up("sm")]: {
+      display: "none",
+    },
+  },
+  hideBelowXs: {
+    [theme.breakpoints.down("xs")]: {
+      display: "none",
+    },
+  }
 });
 
 const formatDate = ({startDate, endDate}: ForumEventsDisplay) => {
@@ -220,6 +228,36 @@ const formatDate = ({startDate, endDate}: ForumEventsDisplay) => {
     start.month() === end.month() ? "D" : "MMMM D",
   );
   return `${startFormatted} - ${endFormatted}`;
+}
+
+const Description = ({forumEvent, classes}: {
+  forumEvent: ForumEventsDisplay,
+  classes: ClassesType<typeof styles>,
+}) => {
+  const { ContentStyles, ContentItemBody } = Components;
+
+  const { frontpageDescription, frontpageDescriptionMobile } = forumEvent;
+
+  return (
+    <>
+      {frontpageDescription?.html && (
+        <ContentStyles contentType="comment" className={classNames(classes.descriptionContentStyles, classes.hideBelowXs)}>
+          <ContentItemBody
+            dangerouslySetInnerHTML={{ __html: frontpageDescription.html }}
+            className={classes.description}
+          />
+        </ContentStyles>
+      )}
+      {frontpageDescriptionMobile?.html && (
+        <ContentStyles contentType="comment" className={classNames(classes.descriptionContentStyles, classes.hideAboveXs)}>
+          <ContentItemBody
+            dangerouslySetInnerHTML={{ __html: frontpageDescriptionMobile.html }}
+            className={classes.description}
+          />
+        </ContentStyles>
+      )}
+    </>
+  );
 }
 
 /**
@@ -240,10 +278,10 @@ const ForumEventFrontpageBannerBasic = ({classes}: {
     return null;
   }
 
-  const {title, frontpageDescription, bannerImageId} = currentForumEvent;
+  const {title, bannerImageId} = currentForumEvent;
   const date = formatDate(currentForumEvent);
   
-  const {ContentStyles, ContentItemBody, CloudinaryImage2, ForumIcon} = Components;
+  const {CloudinaryImage2, ForumIcon} = Components;
 
   return (
     <AnalyticsContext pageSectionContext="forumEventFrontpageBannerBasic">
@@ -251,14 +289,7 @@ const ForumEventFrontpageBannerBasic = ({classes}: {
         <div className={classes.contentBasic}>
           <div className={classes.date}>{date}</div>
           <div className={classes.title}>{title}</div>
-          {frontpageDescription?.html &&
-            <ContentStyles contentType="comment">
-              <ContentItemBody
-                dangerouslySetInnerHTML={{__html: frontpageDescription.html}}
-                className={classes.description}
-              />
-            </ContentStyles>
-          }
+          <Description forumEvent={currentForumEvent} classes={classes} />
         </div>
         {bannerImageId &&
           <CloudinaryImage2
@@ -293,26 +324,20 @@ const ForumEventFrontpageBannerWithPoll = ({classes}: {
     return null;
   }
 
-  const {title, bannerImageId, frontpageDescription, frontpageDescriptionMobile, darkColor, contrastColor} = currentForumEvent;
+  const {title, bannerImageId, frontpageDescription, frontpageDescriptionMobile} = currentForumEvent;
   const date = formatDate(currentForumEvent);
   const mobileDescription = frontpageDescriptionMobile?.html ?? frontpageDescription?.html
-  
+
   const {
     CloudinaryImage2, ForumEventPoll, ContentStyles, ContentItemBody
   } = Components;
-  
-  // Define colors with CSS variables to be accessed in the styles
-  const style = {
-    "--forum-event-background": darkColor,
-    "--forum-event-contrast": contrastColor,
-  } as CSSProperties;
-  
+
   return (
     <AnalyticsContext pageSectionContext="forumEventFrontpageBannerWithPoll">
-      <div className={classes.root} style={style}>
+      <div className={classes.root}>
         <ForumEventPoll />
-        <div className={classes.contentWithPollMobile}>
-          <div className={classes.titleWithPollMobile}>{title}</div>
+        <div className={classes.contentWithPoll}>
+          <div className={classes.titleWithPoll}>{title}</div>
           <div className={classes.dateWithPoll}>{date}</div>
           <div className={classes.descriptionWithPoll}>
               {mobileDescription &&
@@ -350,37 +375,19 @@ const ForumEventFrontpageBannerWithStickers = ({classes}: {
     return null;
   }
 
-  const {title, bannerImageId, frontpageDescription, frontpageDescriptionMobile, darkColor, contrastColor} = currentForumEvent;
-  const date = formatDate(currentForumEvent);
+  const {title, bannerImageId} = currentForumEvent;
   
-  const {
-    CloudinaryImage2, ForumEventPoll, ContentStyles, ContentItemBody, ForumEventStickers
-  } = Components;
-  
-  // Define colors with CSS variables to be accessed in the styles
-  const style = {
-    "--forum-event-background": darkColor,
-    "--forum-event-contrast": contrastColor,
-  } as CSSProperties;
+  const { CloudinaryImage2, ForumEventStickers } = Components;
 
   // TODO squash "temp commit"
 
   return (
     <AnalyticsContext pageSectionContext="forumEventFrontpageBannerWithStickers">
-      <div className={classes.root} style={style}>
+      <div className={classes.root}>
         <ForumEventStickers />
-        {/* TODO more specific styles */}
-        <div className={classes.contentBasic}>
-          <div className={classes.date}>{date}</div>
-          <div className={classes.title}>{title}</div>
-          {frontpageDescription?.html && (
-            <ContentStyles contentType="comment" className={classes.descriptionContentStyles}>
-              <ContentItemBody
-                dangerouslySetInnerHTML={{ __html: frontpageDescription.html }}
-                className={classes.description}
-              />
-            </ContentStyles>
-          )}
+        <div className={classNames(classes.contentBasic, classes.contentWithStickers)}>
+          <div className={classes.titleWithStickers}>{title}</div>
+          <Description forumEvent={currentForumEvent} classes={classes} />
         </div>
         {bannerImageId && <CloudinaryImage2 publicId={bannerImageId} className={classes.image} />}
       </div>

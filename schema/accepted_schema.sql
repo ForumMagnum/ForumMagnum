@@ -909,6 +909,7 @@ CREATE TABLE "ForumEvents" (
   "eventFormat" TEXT NOT NULL DEFAULT 'BASIC',
   "maxStickersPerUser" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "customComponent" TEXT,
+  "commentPrompt" TEXT,
   "publicData" JSONB,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,

@@ -632,6 +632,7 @@ interface ForumEventsDefaultFragment { // fragment on ForumEvents
   readonly eventFormat: "BASIC" | "POLL" | "STICKERS",
   readonly maxStickersPerUser: number,
   readonly customComponent: string | null,
+  readonly commentPrompt: string | null,
   readonly publicData: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
@@ -2931,6 +2932,7 @@ interface ForumEventsMinimumInfo { // fragment on ForumEvents
   readonly bannerImageId: string | null,
   readonly eventFormat: "BASIC" | "POLL" | "STICKERS",
   readonly customComponent: string | null,
+  readonly commentPrompt: string | null,
   readonly maxStickersPerUser: number,
 }
 

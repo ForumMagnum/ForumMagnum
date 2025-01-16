@@ -15,6 +15,7 @@ registerFragment(`
     bannerImageId
     eventFormat
     customComponent
+    commentPrompt
 
     maxStickersPerUser
   }

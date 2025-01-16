@@ -138,6 +138,12 @@ const schema: SchemaType<"ForumEvents"> = {
     ...defaultProps(true),
     type: String,
   },
+  commentPrompt: {
+    ...defaultProps(true),
+    type: String,
+    optional: true,
+    tooltip: "For events with comments, the title in the comment box"
+  },
   /**
   Used to store public event data, like public poll votes.
   For the AI Welfare Debate Week, it was structured like:
