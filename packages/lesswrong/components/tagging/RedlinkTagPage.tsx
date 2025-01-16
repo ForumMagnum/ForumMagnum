@@ -28,6 +28,7 @@ interface RedLinkPingback {
 
 export const useRedLinkPingbacks = (documentId: string|undefined, excludedDocumentIds?: string[]): {
   results: RedLinkPingback[]
+  totalCount: number
   loading: boolean
   error: ApolloError|undefined
 } => {
@@ -73,6 +74,7 @@ export const useRedLinkPingbacks = (documentId: string|undefined, excludedDocume
 
   return { 
     results,
+    totalCount: (tagPingbacks.totalCount ?? 0) + (lensPingbacks.totalCount ?? 0),
     loading: tagPingbacks.loading || lensPingbacks.loading,
     error: tagPingbacks.error ?? lensPingbacks.error
   }

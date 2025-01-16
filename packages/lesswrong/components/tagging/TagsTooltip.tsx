@@ -110,20 +110,21 @@ const RedLinksPingbacks = ({tag}: {tag: TagBasicInfo}) => {
 
   const { selectedLens } = useTagPageContext() ?? {};
   const excludedPingbackTagIds = selectedLens?._id ? [selectedLens._id] : undefined;
-  const { results: pingbacks, loading } = useRedLinkPingbacks(tag?._id, excludedPingbackTagIds);
+  const { results: pingbacks, loading, totalCount } = useRedLinkPingbacks(tag?._id, excludedPingbackTagIds);
 
   if (loading) {
     return <Loading />;
   } 
 
   if (pingbacks && pingbacks.length === 0) {
+    // note that this gets combined with the message in the main component below
     return <div>The linked page does not exist, it is a red link.</div>;
   }
 
   return <div>
-    This red link was used on {pingbacks.length} other {pingbacks.length === 1 ? 'page' : 'pages'}:
+    This red link was used on {totalCount} other {totalCount === 1 ? 'page' : 'pages'}:
       <ul>
-        {pingbacks.map(pingback => (
+        {pingbacks.slice(0, 5).map(pingback => (
           <li key={pingback._id}>
             <TagHoverPreview
               targetLocation={{ params: { slug: pingback.slug }, hash: '', query: {} } as AnyBecauseTodo}
@@ -137,6 +138,7 @@ const RedLinksPingbacks = ({tag}: {tag: TagBasicInfo}) => {
         </li>
         ))}
       </ul>
+      {pingbacks.length > 5 && <div>And {pingbacks.length - 5} more...</div>}
   </div>
 }
 
