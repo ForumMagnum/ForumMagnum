@@ -31,6 +31,7 @@ import { useTagEditingRestricted } from "./TagPageButtonRow";
 import { useMultiClickHandler } from "../hooks/useMultiClickHandler";
 import HistoryIcon from '@material-ui/icons/History';
 import { FieldsNotNull, filterWhereFieldsNotNull } from "@/lib/utils/typeGuardUtils";
+import { TagPageContext } from "./TagPageContext";
 
 const sidePaddingStyle = (theme: ThemeType) => ({
   paddingLeft: 42,
@@ -1368,35 +1369,42 @@ const LWTagPage = () => {
     sortedBy={query.sortedBy || "relevance"}
     limit={terms.limit}
   >
-    <HeadTags
-      description={headTagDescription}
-      structuredData={getTagStructuredData(tag)}
-      noIndex={tag.noindex}
-    />
-    {hoveredContributorId && <style>
-      {`.by_${hoveredContributorId} {background: rgba(95, 155, 101, 0.35);}`}
-    </style>}
-    {tag.bannerImageId && <div className={classes.imageContainer}>
-      <CloudinaryImage2
-        publicId={tag.bannerImageId}
-        height={300}
-        fullWidthHeader
+    <TagPageContext.Provider value={{
+      tag: tag,
+      selectedLens: selectedLens ?? null,
+      editing,
+      setEditing
+    }}>
+      <HeadTags
+        description={headTagDescription}
+        structuredData={getTagStructuredData(tag)}
+        noIndex={tag.noindex}
       />
-    </div>}
-    <div className={tag.bannerImageId ? classes.rootGivenImage : ''}>
-      {/* {originalToc} */}
-      <TagPageButtonRow
-        tag={tag}
-        selectedLens={selectedLens}
-        editing={editing}
-        setEditing={setEditing}
-        hideLabels={true}
-        className={classNames(classes.editMenu, classes.nonMobileButtonRow)}
-        refetchTag={refetchTag}
-        updateSelectedLens={updateSelectedLens}
-      />
-      {multiColumnToc}
-    </div>
+      {hoveredContributorId && <style>
+        {`.by_${hoveredContributorId} {background: rgba(95, 155, 101, 0.35);}`}
+      </style>}
+      {tag.bannerImageId && <div className={classes.imageContainer}>
+        <CloudinaryImage2
+          publicId={tag.bannerImageId}
+          height={300}
+          fullWidthHeader
+        />
+      </div>}
+      <div className={tag.bannerImageId ? classes.rootGivenImage : ''}>
+        {/* {originalToc} */}
+        <TagPageButtonRow
+          tag={tag}
+          selectedLens={selectedLens}
+          editing={editing}
+          setEditing={setEditing}
+          hideLabels={true}
+          className={classNames(classes.editMenu, classes.nonMobileButtonRow)}
+          refetchTag={refetchTag}
+          updateSelectedLens={updateSelectedLens}
+        />
+        {multiColumnToc}
+      </div>
+    </TagPageContext.Provider>
   </AnalyticsContext>
 }
 

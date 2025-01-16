@@ -19,11 +19,12 @@ const styles = defineStyles("RedlinkTagPage", theme => ({
   },
 }));
 
-export const useRedLinkPingbacks = (tagId: string|undefined) => {
+export const useRedLinkPingbacks = (tagId: string|undefined, excludedTagIds?: string[]) => {
   return useMulti({
     terms: {
       view: "pingbackWikiPages",
       tagId: tagId,
+      excludedTagIds,
     },
     collectionName: "Tags",
     fragmentName: "TagBasicInfo",

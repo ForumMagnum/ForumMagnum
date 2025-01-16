@@ -8,6 +8,57 @@ import { PopperPlacementType } from "@material-ui/core/Popper";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { inferRedLinkTitle, useRedLinkPingbacks } from "./RedlinkTagPage";
 import { tagGetUrl } from "@/lib/collections/tags/helpers";
+import { useTagPageContext } from "./TagPageContext";
+import { commentBodyStyles } from "@/themes/stylePiping";
+
+
+const styles = defineStyles("TagsTooltip", theme => ({
+  tooltip: isFriendlyUI
+    ? {}
+    : {
+      padding: 0,
+      background: theme.palette.panelBackground.default,
+      boxShadow: theme.palette.boxShadow.lwTagHoverOver,
+    },
+  tooltipTitle: isFriendlyUI
+    ? {}
+    : {
+      maxWidth: "unset",
+    },
+  loading: {
+    paddingLeft: 16,
+    paddingRight: 32,
+    paddingBottom: 24,
+  },
+  noTagOrPlaceholderMessage: {
+    paddingTop: 0,
+    paddingLeft: 16,
+    paddingRight: 16,
+    paddingBottom: 8,
+    '& .ContentStyles-base.ContentStyles-tagBody': {
+      marginBottom: '0 !important',
+    }
+  },
+  redLinkTooltip: {
+    paddingTop: 8,
+    paddingLeft: 16,
+    paddingRight: 16,
+    width: 500,
+    paddingBottom: 6,
+    [theme.breakpoints.down('xs')]: {
+      width: "100%",
+    },
+    '& .ContentStyles-base.ContentStyles-tagBody': {
+      marginBottom: '0 !important',
+    }
+  },
+  redLinkTooltipTitle: {
+    marginTop: 8,
+    fontSize: '13px',
+    marginBottom: 4,
+    color: theme.palette.text.secondary,
+  },
+}));
 
 type PreviewableTag =
   TagPreviewFragment |
@@ -54,40 +105,6 @@ const DefaultPreviewWrapper: TagsTooltipPreviewWrapper = ({children}) => (
   <>{children}</>
 );
 
-const styles = defineStyles("TagsTooltip", theme => ({
-  tooltip: isFriendlyUI
-    ? {}
-    : {
-      padding: 0,
-      background: theme.palette.panelBackground.default,
-      boxShadow: theme.palette.boxShadow.lwTagHoverOver,
-    },
-  tooltipTitle: isFriendlyUI
-    ? {}
-    : {
-      maxWidth: "unset",
-    },
-  loading: {
-    paddingLeft: 16,
-    paddingRight: 32,
-    paddingBottom: 24,
-  },
-  redLinkTooltip: {
-    paddingTop: 8,
-    paddingLeft: 16,
-    paddingRight: 16,
-    width: 500,
-    paddingBottom: 6,
-    [theme.breakpoints.down('xs')]: {
-      width: "100%",
-    }
-  },
-  redLinkTooltipTitle: {
-    fontSize: '13px',
-    marginBottom: 4,
-    color: theme.palette.text.secondary,
-  },
-}));
 
 const RedLinkTooltip = ({ tag, slug }: {
   tag: TagBasicInfo | null
@@ -95,33 +112,74 @@ const RedLinkTooltip = ({ tag, slug }: {
 }) => {
   const classes = useStyles(styles);
   const { Typography, ContentStyles, TagHoverPreview, Loading } = Components;
-  const { results: pingbacks, loading: loadingPingbacks } = useRedLinkPingbacks(tag?._id);
-  const title = inferRedLinkTitle(tag, slug??null);
+  const { tag: currentlyViewingTag } = useTagPageContext() ?? {};
+  const excludedPingbackTagIds = currentlyViewingTag?._id ? [currentlyViewingTag._id] : undefined;
+  const { results: pingbacks, loading: loadingPingbacks } = useRedLinkPingbacks(tag?._id, excludedPingbackTagIds);
+  const title = inferRedLinkTitle(tag, slug ?? null);
 
-  return <div className={classes.redLinkTooltip}>
-    <Typography variant='title'>
-      {title}
-    </Typography>
-    <ContentStyles contentType='tag'>
-      This red link was used on {pingbacks ? pingbacks.length : <Loading/>} page{pingbacks ? (pingbacks.length > 1 ? "s" : "") : "(s)"}:
-      <ul>
-        {pingbacks?.map(pingback => <li key={pingback._id}>
-          <TagHoverPreview
-            targetLocation={{ params: { slug: pingback.slug }, hash: '', query: {} } as AnyBecauseTodo}
-            href={tagGetUrl({slug: pingback.slug})} noPrefetch
-          >
-            <Link to={tagGetUrl({slug: pingback.slug})}>
-              {pingback.name}
-            </Link>
-          </TagHoverPreview>
-        </li>)}
-      </ul>
-    </ContentStyles>
-    <ContentStyles contentType='tag' className={classes.redLinkTooltipTitle}>
-      A red link highlights author's intention to point at a concept that doesn't have a satisfactory explanation written (by their standards).
-    </ContentStyles>
-  </div>
-}
+  if (!tag) {
+    return (
+      <div className={classes.noTagOrPlaceholderMessage}>
+        <ContentStyles contentType='tag'>
+          No page or placeholder found for this link.
+        </ContentStyles>
+      </div>
+    );
+  }
+
+  let pingbacksSection;
+
+  if (loadingPingbacks) {
+    // Display loading indicator while pingbacks are loading
+    pingbacksSection = <Loading />;
+  } else if (pingbacks && pingbacks.length > 0) {
+    // Handle singular and plural forms for pingbacks count
+    const pingbackCount = pingbacks.length;
+    const pageWord = pingbackCount === 1 ? 'page' : 'pages';
+
+    pingbacksSection = (
+      <div>
+        This red link was used on {pingbackCount} other {pageWord}:
+        <ul>
+          {pingbacks.map(pingback => (
+            <li key={pingback._id}>
+              <TagHoverPreview
+                targetLocation={{ params: { slug: pingback.slug }, hash: '', query: {} } as AnyBecauseTodo}
+                href={tagGetUrl({ slug: pingback.slug })}
+                noPrefetch
+              >
+                <Link to={tagGetUrl({ slug: pingback.slug })}>
+                  {pingback.name}
+                </Link>
+              </TagHoverPreview>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  } else {
+    // Display message when there are no pingbacks
+    pingbacksSection = (
+      <div>
+        A placeholder (red link) was created for this concept.
+      </div>
+    );
+  }
+
+  return (
+    <div className={classes.redLinkTooltip}>
+      <Typography variant='title'>
+        {title}
+      </Typography>
+      <ContentStyles contentType='tag'>
+        {pingbacksSection}
+        <div className={classes.redLinkTooltipTitle}>
+          A red link is a placeholder for a wikitag page that an authors thinks should exist.
+        </div>
+      </ContentStyles>
+    </div>
+  );
+};
 
 const TagsTooltip = ({
   tagRel,

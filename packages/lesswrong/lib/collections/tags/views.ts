@@ -15,6 +15,7 @@ declare global {
     parentTagId?: string
     tagId?: string
     tagIds?: string[]
+    excludedTagIds?: string[]
   }
 }
 
@@ -27,8 +28,9 @@ Tags.addDefaultView((terms: TagsViewTerms, _, context?: ResolverContext) => {
   return {
     selector: {
       wikiOnly: false,
+      ...(terms.excludedTagIds ? { _id: {$nin: terms.excludedTagIds} } : {}),
       ...(!userIsAdminOrMod(currentUser) ? { deleted: false, adminOnly: false } : {}),
-    },
+    }
   };
 });
 ensureIndex(Tags, {deleted:1, adminOnly:1});
