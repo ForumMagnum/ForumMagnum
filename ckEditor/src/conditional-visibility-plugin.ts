@@ -2,10 +2,11 @@ import { Command, Plugin } from '@ckeditor/ckeditor5-core';
 import { type DowncastConversionApi, type Element, type Writer } from '@ckeditor/ckeditor5-engine';
 import { ButtonView } from '@ckeditor/ckeditor5-ui';
 import { Widget } from '@ckeditor/ckeditor5-widget';
-import type { ConditionalVisibilityPluginConfiguration, ConditionalVisibilitySettings } from '../../packages/lesswrong/components/editor/conditionalVisibilityBlock/conditionalVisibility';
+import { ConditionalVisibilityPluginConfiguration, ConditionalVisibilitySettings, isConditionallyVisibleBlockVisibleByDefault } from '../../packages/lesswrong/components/editor/conditionalVisibilityBlock/conditionalVisibility';
 
 // TODO Pick an icon that isn't reusing the collapsible-section icon
 import conditionallyVisibleSectionIcon from './ckeditor5-conditionally-visible-section-icon.svg';
+import classNames from 'classnames';
 
 /**
  * CkEditor5 plugin that makes a conditionally visible section. This is
@@ -114,9 +115,21 @@ export default class ConditionalVisibility extends Plugin {
       },
       view: (modelElement: Element, conversionApi: DowncastConversionApi) => {
         const { writer } = conversionApi;
+        const visibilityOptionsStr = modelElement.getAttribute("visibility");
+        let visibilityOptions: ConditionalVisibilitySettings = {type: "unset"};
+        try {
+          if (visibilityOptionsStr === 'string')
+            visibilityOptions = JSON.parse(visibilityOptionsStr);
+        } catch(e) {
+          console.error("Could not parse conditional-visibility block settings");
+        }
+        const isDefaultVisible = isConditionallyVisibleBlockVisibleByDefault(visibilityOptions);
         return writer.createContainerElement('div', {
-          class: 'conditionallyVisibleBlock',
-          "data-visibility": modelElement.getAttribute("visibility"),
+          class: classNames('conditionallyVisibleBlock', {
+            "defaultVisible": isDefaultVisible,
+            "defaultHidden": !isDefaultVisible,
+          }),
+          "data-visibility": visibilityOptionsStr,
         }, [
           writer.createSlot()
         ]);
