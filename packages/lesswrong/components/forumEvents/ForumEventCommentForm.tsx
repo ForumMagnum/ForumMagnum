@@ -106,7 +106,6 @@ const ForumEventCommentForm = ({
   post,
   cancelCallback,
   successCallback,
-  emoji,
   setEmoji,
   anchorEl,
   title,
@@ -123,7 +122,6 @@ const ForumEventCommentForm = ({
   post: PostsMinimumInfo;
   cancelCallback: () => Promise<void> | void;
   successCallback: () => Promise<void> | void;
-  emoji?: string;
   setEmoji?: (emoji: string) => void;
   title: ((post: PostsMinimumInfo, comment: ShortformComments | null) => React.ReactNode) | React.ReactNode;
   subtitle: ((post: PostsMinimumInfo, comment: ShortformComments | null) => React.ReactNode) | React.ReactNode;
@@ -132,7 +130,7 @@ const ForumEventCommentForm = ({
   className?: string;
   classes: ClassesType<typeof styles>;
 }) => {
-  const { CommentsNewForm, LWPopper, ForumIcon, CommentsEditForm, CommentBody, ForumEventEmojiBar } = Components;
+  const { CommentsNewForm, LWPopper, ForumIcon, CommentsEditForm, CommentBody, ForumEventEmojiPicker } = Components;
 
   const hasEmoji = !!setEmoji;
 
@@ -189,7 +187,7 @@ const ForumEventCommentForm = ({
           {typeof subtitle === "function" ? subtitle(post, comment) : subtitle}
         </div>
         <div className={classes.formSection}>
-          {hasEmoji && <ForumEventEmojiBar onSelect={setEmoji} />}
+          {hasEmoji && <ForumEventEmojiPicker onSelect={setEmoji} />}
           <div className={classes.commentFormWrapper}>
             {!comment && !editFormOpen && (
               <CommentsNewForm
@@ -216,7 +214,6 @@ const ForumEventCommentForm = ({
                 cancelCallback={() => setEditFormOpen(false)}
                 successCallback={async () => {
                   setEditFormOpen(false);
-                  // TODO test on poll version
                   await successCallback();
                 }}
                 prefilledProps={prefilledProps}

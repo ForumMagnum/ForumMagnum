@@ -172,7 +172,7 @@ const styles = (theme: ThemeType) => ({
     lineHeight: 'normal',
   },
   description: {
-    ...forumEventBannerDescriptionStyles(theme),
+    ...forumEventBannerDescriptionStyles(),
     width: "fit-content"
   },
   descriptionContentStyles: {

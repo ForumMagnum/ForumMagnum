@@ -17,7 +17,7 @@ const pickerStyles = `
   }
 `
 
-const styles = defineStyles("ForumEventEmojiBar", (theme: ThemeType) => ({
+const styles = defineStyles("ForumEventEmojiPicker", (theme: ThemeType) => ({
   root: {
     display: "flex",
     fontSize: "24px",
@@ -42,15 +42,6 @@ const styles = defineStyles("ForumEventEmojiBar", (theme: ThemeType) => ({
     color: theme.palette.grey[500],
     marginLeft: 2
   },
-  defaultEmojisBar: {
-    display: "flex",
-    flexDirection: "row",
-    gap: "4px",
-    marginBottom: 8,
-  },
-  defaultEmojiItem: {
-    cursor: "pointer",
-  },
   pickerWrapper: {
     position: "relative",
   },
@@ -65,84 +56,70 @@ const styles = defineStyles("ForumEventEmojiBar", (theme: ThemeType) => ({
   },
 }));
 
-interface ForumEventEmojiBarProps {
-  selected?: string
-  onSelect: (value: string) => void
-  hovered?: string
-  onHover?: (value: string) => void
-}
+const ForumEventEmojiPicker: FC<{ onSelect: (value: string) => void }> = ({ onSelect }) => {
+  const classes = useStyles(styles);
 
-// TODO rewrite desc
-/**
- * ForumEventEmojiBar
- * - Shows the currently selected emoji or a placeholder icon.
- * - Clicking toggles an <emoji-picker> overlay.
- * - Renders a row of default emojis for quick selection.
- */
-const ForumEventEmojiBar: FC<ForumEventEmojiBarProps> = ({ onSelect }) => {
-  const classes = useStyles(styles)
-
-  const [emoji, setEmoji] = useState<string | null>(null)
-  const [openPicker, setOpenPicker] = useState(false)
-  const pickerRef = useRef<HTMLDivElement>(null)
+  const [emoji, setEmoji] = useState<string | null>(null);
+  const [openPicker, setOpenPicker] = useState(false);
+  const pickerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Lazy-load the Web Component (it causes an error if imported on the server)
-    import('emoji-picker-element').catch(err => {
+    import("emoji-picker-element").catch((err) => {
       // eslint-disable-next-line no-console
-      console.error('Failed to load emoji-picker-element:', err)
-    })
+      console.error("Failed to load emoji-picker-element:", err);
+    });
 
     function handleClickOutside(event: MouseEvent) {
       if (pickerRef.current && !pickerRef.current.contains(event.target as Node)) {
-        setOpenPicker(false)
+        setOpenPicker(false);
       }
     }
-    window.addEventListener('mousedown', handleClickOutside)
+    window.addEventListener("mousedown", handleClickOutside);
     return () => {
-      window.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [])
+      window.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleEmojiClick = (emoji: string) => {
-    setEmoji(emoji)
-    onSelect(emoji)
-    setOpenPicker(false)
-  }
+    setEmoji(emoji);
+    onSelect(emoji);
+    setOpenPicker(false);
+  };
 
   const handleEmojiPickerSelect = (event: any) => {
-    const { emoji } = event.detail
+    const { emoji } = event.detail;
     if (emoji?.unicode) {
-      handleEmojiClick(emoji.unicode)
+      handleEmojiClick(emoji.unicode);
     }
-  }
+  };
 
   /**
    * Inject custom CSS into the <emoji-picker> shadow root.
    */
   const handlePickerRef = (elem: HTMLElement | null) => {
     if (elem) {
-      const styleId = 'forum-emoji-picker-styles'
-      const alreadyHasStyle = elem.shadowRoot?.getElementById(styleId)
+      const styleId = "forum-emoji-picker-styles";
+      const alreadyHasStyle = elem.shadowRoot?.getElementById(styleId);
 
       if (!alreadyHasStyle) {
-        const styleEl = document.createElement('style')
-        styleEl.id = styleId
-        styleEl.textContent = pickerStyles
-        elem.shadowRoot?.appendChild(styleEl)
+        const styleEl = document.createElement("style");
+        styleEl.id = styleId;
+        styleEl.textContent = pickerStyles;
+        elem.shadowRoot?.appendChild(styleEl);
       }
 
-      elem.addEventListener('emoji-click', handleEmojiPickerSelect as EventListener)
+      elem.addEventListener("emoji-click", handleEmojiPickerSelect as EventListener);
     }
-  }
+  };
 
-  const { ForumIcon } = Components
+  const { ForumIcon } = Components;
 
   const showSelectedOrPlaceholder = emoji ? (
     <span className={classes.selectedEmoji}>{emoji}</span>
   ) : (
     <ForumIcon icon="AddEmoji" className={classes.addEmojiIcon} />
-  )
+  );
 
   return (
     <div className={classes.root}>
@@ -159,14 +136,14 @@ const ForumEventEmojiBar: FC<ForumEventEmojiBarProps> = ({ onSelect }) => {
       )}
     </div>
   );
-}
+};
 
-const ForumEventEmojiBarComponent = registerComponent('ForumEventEmojiBar', ForumEventEmojiBar)
+const ForumEventEmojiPickerComponent = registerComponent('ForumEventEmojiPicker', ForumEventEmojiPicker)
 
 declare global {
   interface ComponentTypes {
-    ForumEventEmojiBar: typeof ForumEventEmojiBarComponent
+    ForumEventEmojiPicker: typeof ForumEventEmojiPickerComponent
   }
 }
 
-export default ForumEventEmojiBarComponent
+export default ForumEventEmojiPickerComponent

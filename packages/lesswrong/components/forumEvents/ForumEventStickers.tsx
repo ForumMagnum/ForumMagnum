@@ -241,11 +241,7 @@ const ForumEventStickers: FC<{
           ref={containerRef}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
-          // TODO I believe this is only required for mobile, check
-          onClick={async (event) => {
-            console.log("Calling saveStickerPos from stickersContainer");
-            return saveDraftSticker(event);
-          }}
+          onClick={saveDraftSticker} // Required for mobile, where the hover icon doesn't show
         >
           {isPlacingSticker && hoverPos && (
             <ForumEventSticker x={hoverPos.x} y={hoverPos.y} theta={hoverTheta} saveDraftSticker={saveDraftSticker} />
@@ -276,12 +272,10 @@ const ForumEventStickers: FC<{
           forumEvent={currentForumEvent}
           cancelCallback={onCloseCommentForm}
           successCallback={onSuccess}
-          emoji={draftSticker?.emoji}
           setEmoji={setEmoji}
           anchorEl={userVoteRef}
           post={currentForumEvent.post}
           prefilledProps={prefilledProps}
-          // TODO update, allow editable field
           title={currentForumEvent.commentPrompt ?? "Add your comment"}
           subtitle={(post, comment) => (
             <>

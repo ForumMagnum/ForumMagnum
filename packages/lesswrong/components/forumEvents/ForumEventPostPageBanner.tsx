@@ -35,7 +35,7 @@ const styles = (theme: ThemeType) => ({
     margin: 0,
   },
   description: {
-    ...forumEventBannerDescriptionStyles(theme),
+    ...forumEventBannerDescriptionStyles(),
   },
   image: {
     position: "absolute",
