@@ -379,8 +379,6 @@ const ForumEventFrontpageBannerWithStickers = ({classes}: {
   
   const { CloudinaryImage2, ForumEventStickers } = Components;
 
-  // TODO squash "temp commit"
-
   return (
     <AnalyticsContext pageSectionContext="forumEventFrontpageBannerWithStickers">
       <div className={classes.root}>
