@@ -63,7 +63,8 @@ const styles = (theme: ThemeType) => ({
     }
   },
   postVotingPhase: {
-    width: "100%"
+    width: "100%",
+    maxWidth: "calc(100% - 50px)",
   },
   reviews: {
     width: "100%",
@@ -87,11 +88,16 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center",
     [theme.breakpoints.down('xs')]: {
       padding: 7,
-      width: "100%"
+      width: "100%",
+      textAlign: "center",
     }
   },
   votesVotingPhase: {
     backgroundColor: "unset",
+    marginLeft: "auto",
+    [theme.breakpoints.down('xs')]: {
+      width: "unset",
+    }
   },
   yourVote: {
     marginLeft: 6,
@@ -184,10 +190,6 @@ const styles = (theme: ThemeType) => ({
   },
   expanded: {
     opacity: 1,
-  },
-  commentsCountVotingPhase: {
-    marginLeft: 16,
-    marginRight: "auto"
   },
   newCommentsSection: {
     marginLeft: 16
@@ -304,6 +306,15 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
             <UsersNameDisplay user={post.user}/>
           </span>
         </div>
+        <div className={classNames(classes.commentsCount, {[classes.commentsCountVotingPhase]: reviewPhase === "VOTING"})}>
+          <PostsItemComments
+            small={false}
+            commentCount={postGetCommentCount(post)}
+            unreadComments={unreadComments}
+            newPromotedComments={false}
+            onClick={toggleComments}
+          />
+        </div>
         {reviewPhase === "VOTING" && <div className={classes.reviews}>
           <ReviewPostComments
             singleLine
@@ -318,15 +329,6 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
             post={post}
           />
         </div>}
-        <div className={classNames(classes.commentsCount, {[classes.commentsCountVotingPhase]: reviewPhase === "VOTING"})}>
-          <PostsItemComments
-            small={false}
-            commentCount={postGetCommentCount(post)}
-            unreadComments={unreadComments}
-            newPromotedComments={false}
-            onClick={toggleComments}
-          />
-        </div>
         {reviewPhase === "NOMINATIONS" && <PostsItem2MetaInfo className={classes.count}>
           <LWTooltip title={<div>
             <div>This post has {positiveVoteCountTooltip}.</div>
@@ -363,7 +365,9 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
           </LWTooltip>}
         </div>}
         {(reviewPhase === "NOMINATIONS" || reviewPhase === "VOTING") && eligibleToNominate(currentUser) && <div className={classNames(classes.votes, {[classes.votesVotingPhase]: reviewPhase === "VOTING"})}>
-          {!currentUserIsAuthor && <div onClick={(e) => e.stopPropagation()}><ReviewVotingButtons post={post} dispatch={dispatch} costTotal={costTotal} currentUserVote={currentVote} /></div>}
+          {!currentUserIsAuthor && <div onClick={(e) => e.stopPropagation()}>
+            <ReviewVotingButtons post={post} dispatch={dispatch} costTotal={costTotal} currentUserVote={currentVote} />
+          </div>}
           {currentUserIsAuthor && <MetaInfo className={classes.cantVote}>You can't vote on your own posts</MetaInfo>}
         </div>}
       </div>
