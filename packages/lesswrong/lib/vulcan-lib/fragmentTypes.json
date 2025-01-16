@@ -18,13 +18,13 @@
             "name": "Revision"
           },
           {
+            "name": "MultiDocument"
+          },
+          {
             "name": "Comment"
           },
           {
             "name": "Post"
-          },
-          {
-            "name": "MultiDocument"
           }
         ]
       }

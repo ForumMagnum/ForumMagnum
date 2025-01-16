@@ -105,6 +105,41 @@ const DefaultPreviewWrapper: TagsTooltipPreviewWrapper = ({children}) => (
   <>{children}</>
 );
 
+const RedLinksPingbacks = ({tag}: {tag: TagBasicInfo}) => {
+  const { Loading, TagHoverPreview } = Components;
+
+  const { selectedLens } = useTagPageContext() ?? {};
+  const excludedPingbackTagIds = selectedLens?._id ? [selectedLens._id] : undefined;
+  const { results: pingbacks, loading } = useRedLinkPingbacks(tag?._id, excludedPingbackTagIds);
+
+  if (loading) {
+    return <Loading />;
+  } 
+
+  if (pingbacks && pingbacks.length === 0) {
+    return <div>The linked page does not exist, it is a red link.</div>;
+  }
+
+  return <div>
+    This red link was used on {pingbacks.length} other {pingbacks.length === 1 ? 'page' : 'pages'}:
+      <ul>
+        {pingbacks.map(pingback => (
+          <li key={pingback._id}>
+            <TagHoverPreview
+              targetLocation={{ params: { slug: pingback.slug }, hash: '', query: {} } as AnyBecauseTodo}
+              href={tagGetUrl({ slug: pingback.slug })}
+              noPrefetch
+            >
+              <Link to={tagGetUrl({ slug: pingback.slug })}>
+                {pingback.name}
+              </Link>
+            </TagHoverPreview>
+        </li>
+        ))}
+      </ul>
+  </div>
+}
+
 
 const RedLinkTooltip = ({ tag, slug }: {
   tag: TagBasicInfo | null
@@ -112,9 +147,6 @@ const RedLinkTooltip = ({ tag, slug }: {
 }) => {
   const classes = useStyles(styles);
   const { Typography, ContentStyles, TagHoverPreview, Loading } = Components;
-  const { tag: currentlyViewingTag } = useTagPageContext() ?? {};
-  const excludedPingbackTagIds = currentlyViewingTag?._id ? [currentlyViewingTag._id] : undefined;
-  const { results: pingbacks, loading: loadingPingbacks } = useRedLinkPingbacks(tag?._id, excludedPingbackTagIds);
   const title = inferRedLinkTitle(tag, slug ?? null);
 
   if (!tag) {
@@ -126,45 +158,7 @@ const RedLinkTooltip = ({ tag, slug }: {
       </div>
     );
   }
-
-  let pingbacksSection;
-
-  if (loadingPingbacks) {
-    // Display loading indicator while pingbacks are loading
-    pingbacksSection = <Loading />;
-  } else if (pingbacks && pingbacks.length > 0) {
-    // Handle singular and plural forms for pingbacks count
-    const pingbackCount = pingbacks.length;
-    const pageWord = pingbackCount === 1 ? 'page' : 'pages';
-
-    pingbacksSection = (
-      <div>
-        This red link was used on {pingbackCount} other {pageWord}:
-        <ul>
-          {pingbacks.map(pingback => (
-            <li key={pingback._id}>
-              <TagHoverPreview
-                targetLocation={{ params: { slug: pingback.slug }, hash: '', query: {} } as AnyBecauseTodo}
-                href={tagGetUrl({ slug: pingback.slug })}
-                noPrefetch
-              >
-                <Link to={tagGetUrl({ slug: pingback.slug })}>
-                  {pingback.name}
-                </Link>
-              </TagHoverPreview>
-            </li>
-          ))}
-        </ul>
-      </div>
-    );
-  } else {
-    // Display message when there are no pingbacks
-    pingbacksSection = (
-      <div>
-        This is a red link.
-      </div>
-    );
-  }
+  
 
   return (
     <div className={classes.redLinkTooltip}>
@@ -172,7 +166,7 @@ const RedLinkTooltip = ({ tag, slug }: {
         {title}
       </Typography>
       <ContentStyles contentType='tag'>
-        {pingbacksSection}
+        <RedLinksPingbacks tag={tag} />
         <div className={classes.redLinkTooltipTitle}>
           A red link is a placeholder for a wikitag page that an author thinks should exist.
         </div>

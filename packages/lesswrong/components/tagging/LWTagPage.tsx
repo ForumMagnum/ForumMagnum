@@ -1369,12 +1369,7 @@ const LWTagPage = () => {
     sortedBy={query.sortedBy || "relevance"}
     limit={terms.limit}
   >
-    <TagPageContext.Provider value={{
-      tag: tag,
-      selectedLens: selectedLens ?? null,
-      editing,
-      setEditing
-    }}>
+    <TagPageContext.Provider value={{selectedLens: selectedLens ?? null}}>
       <HeadTags
         description={headTagDescription}
         structuredData={getTagStructuredData(tag)}

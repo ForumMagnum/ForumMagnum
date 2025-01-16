@@ -1,3 +1,6 @@
+import { ensureCustomPgIndex } from "@/lib/collectionIndexUtils";
+import { viewFieldAllowAny } from "@/lib/vulcan-lib/collections";
+import { jsonArrayContainsSelector } from "@/lib/utils/viewUtils";
 import { MultiDocuments } from "./collection";
 
 declare global {
@@ -11,10 +14,17 @@ declare global {
     parentDocumentId: string
   }
 
-  type MultiDocumentsViewTerms = Omit<ViewTermsBase, 'view'> & (LensBySlugViewTerms | SummariesByParentIdViewTerms | {
+  interface PingbackLensesViewTerms {
+    view: 'pingbackLensPages',
+    documentId?: string,
+    excludedDocumentIds?: string[]
+  }
+
+  type MultiDocumentsViewTerms = Omit<ViewTermsBase, 'view'> & (LensBySlugViewTerms | SummariesByParentIdViewTerms | PingbackLensesViewTerms | {
     view?: undefined,
     slug?: undefined,
-    parentDocumentId?: undefined
+    parentDocumentId?: undefined,
+    tagId?: undefined
   });
 }
 
@@ -45,3 +55,14 @@ MultiDocuments.addView("summariesByParentId", function (terms: SummariesByParent
     },
   };
 });
+
+
+MultiDocuments.addView("pingbackLensPages", (terms: PingbackLensesViewTerms) => {
+  return {
+    selector: {
+      ...jsonArrayContainsSelector("pingbacks.Tags", terms.documentId),
+      // _id: { $nin: terms.excludedDocumentIds ?? [] },
+    },
+  }
+});
+void ensureCustomPgIndex(`CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_multi_documents_pingbacks ON "MultiDocuments" USING gin(pingbacks);`);

@@ -6,6 +6,7 @@ import { Link, useNavigate } from '../../lib/reactRouterWrapper';
 import Button from '@material-ui/core/Button';
 import { tagUrlBaseSetting } from '@/lib/instanceSettings';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
+import { ApolloError } from '@apollo/client';
 
 const styles = defineStyles("RedlinkTagPage", theme => ({
   title: {
@@ -19,19 +20,77 @@ const styles = defineStyles("RedlinkTagPage", theme => ({
   },
 }));
 
-export const useRedLinkPingbacks = (tagId: string|undefined, excludedTagIds?: string[]) => {
-  return useMulti({
+interface RedLinkPingback {
+  _id: string
+  slug: string
+  name: string
+}
+
+export const useRedLinkPingbacks = (documentId: string|undefined, excludedDocumentIds?: string[]): {
+  results: RedLinkPingback[]
+  loading: boolean
+  error: ApolloError|undefined
+} => {
+  const tagPingbacks = useMulti({
     terms: {
       view: "pingbackWikiPages",
-      tagId: tagId,
-      excludedTagIds,
+      tagId: documentId,
+      excludedTagIds: excludedDocumentIds,
     },
     collectionName: "Tags",
     fragmentName: "TagBasicInfo",
     limit: 10,
     enableTotal: true,
-    skip: !tagId,
+    skip: !documentId,
   });
+
+  const lensPingbacks = useMulti({
+    terms: {
+      view: "pingbackLensPages",
+      documentId: documentId,
+      excludedDocumentIds: excludedDocumentIds,
+    },
+    collectionName: "MultiDocuments",
+    fragmentName: "MultiDocumentMinimumInfo",
+    limit: 10,
+    enableTotal: true,
+    skip: !documentId,
+  });
+
+  const results: RedLinkPingback[] = [
+    ...(tagPingbacks.results ?? []).map(t => ({
+      _id: t._id,
+      slug: t.slug,
+      name: t.name,
+    })),
+    ...(lensPingbacks.results ?? []).map(t => ({
+      _id: t._id,
+      slug: t.slug,
+      name: `${t.title}${t.tabTitle ? `: ${t.tabTitle}` : ""}${t.tabSubtitle ? ` – ${t.tabSubtitle}` : ""}`,
+    })),
+  ]
+
+  const tagResults = (tagPingbacks.results ?? []).map(t => ({
+    _id: t._id,
+    slug: t.slug,
+    name: t.name,
+  }));
+
+  const lensResults = (lensPingbacks.results ?? []).map(t => ({
+    _id: t._id,
+    slug: t.slug,
+    name: `${t.title}${t.tabTitle ? `: ${t.tabTitle}` : ""}${t.tabSubtitle ? ` – ${t.tabSubtitle}` : ""}`,
+  }));
+    
+  console.log("in useRedLinkPingbacks", {tagId: documentId, tagResults, lensResults},
+  );
+  
+
+  return { 
+    results,
+    loading: tagPingbacks.loading || lensPingbacks.loading,
+    error: tagPingbacks.error ?? lensPingbacks.error
+  }
 }
 
 function capitalizeFirstLetter(s: string): string {
