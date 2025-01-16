@@ -25,8 +25,6 @@ MultiDocuments.addDefaultView(function (terms: MultiDocumentsViewTerms, _, conte
   };
 });
 
-ensureIndex(MultiDocuments, { deleted: 1 });
-
 MultiDocuments.addView("lensBySlug", function (terms: MultiDocumentsViewTerms) {
   return {
     selector: {

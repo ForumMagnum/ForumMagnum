@@ -26,6 +26,15 @@ interface RedLinkPingback {
   name: string
 }
 
+function getDisplayedLensName(lens: MultiDocumentMinimumInfo) {
+  if (lens.title) {
+    return lens.title;
+  }
+
+  const subtitleString = lens.tabSubtitle ? `: ${lens.tabSubtitle}` : '';
+  return `${lens.tabTitle}${subtitleString}`;
+}
+
 export const useRedLinkPingbacks = (documentId: string|undefined, excludedDocumentIds?: string[]): {
   results: RedLinkPingback[]
   totalCount: number
@@ -64,11 +73,10 @@ export const useRedLinkPingbacks = (documentId: string|undefined, excludedDocume
       slug: t.slug,
       name: t.name,
     })),
-    ...(lensPingbacks.results ?? []).map(t => ({
-      _id: t._id,
-      slug: t.slug,
-      // possibly not the best fallback but it should mostly do
-      name: t.title ?? `${t.tabTitle}${t.tabSubtitle ? `: ${t.tabSubtitle}` : ''}`
+    ...(lensPingbacks.results ?? []).map(l => ({
+      _id: l._id,
+      slug: l.slug,
+      name: getDisplayedLensName(l)
     })),
   ]
 

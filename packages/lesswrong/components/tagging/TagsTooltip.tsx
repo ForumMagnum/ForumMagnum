@@ -9,8 +9,6 @@ import { defineStyles, useStyles } from "../hooks/useStyles";
 import { inferRedLinkTitle, useRedLinkPingbacks } from "./RedlinkTagPage";
 import { tagGetUrl } from "@/lib/collections/tags/helpers";
 import { useTagPageContext } from "./TagPageContext";
-import { commentBodyStyles } from "@/themes/stylePiping";
-
 
 const styles = defineStyles("TagsTooltip", theme => ({
   tooltip: isFriendlyUI
@@ -160,7 +158,6 @@ const RedLinkTooltip = ({ tag, slug }: {
       </div>
     );
   }
-  
 
   return (
     <div className={classes.redLinkTooltip}>
