@@ -489,7 +489,6 @@ function useDisplayedTagTitle(tag: TagPageFragment | TagPageWithRevisionFragment
   return selectedLens.title;
 }
 
-// TODO: maybe move this to the server, so that the user doesn't have to wait for the hooks to run to see the contributors
 function useDisplayedContributors(contributorsInfo: DocumentContributorsInfo | null) {
   const contributors = filterWhereFieldsNotNull(contributorsInfo?.contributors ?? [], 'user');
   if (!contributors.some(({ currentAttributionCharCount }) => currentAttributionCharCount)) {

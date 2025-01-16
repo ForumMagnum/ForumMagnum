@@ -90,7 +90,6 @@ export function useTagLenses(tag: TagPageWithArbitalContentFragment | TagPageRev
   const availableLenses = useMemo(() => getAvailableLenses(tag), [tag]);
 
   const querySelectedLens = useMemo(() =>
-    // TODO: maybe we also want to check the oldSlugs?
     availableLenses.find(lens => lens.slug === queryLens || lens.oldSlugs.includes(queryLens) || lens.legacyData?.arbitalPageId === queryLens),
     [availableLenses, queryLens]
   );
