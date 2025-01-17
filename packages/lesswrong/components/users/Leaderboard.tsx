@@ -77,7 +77,7 @@ const styles = defineStyles("Leaderboard", (theme: ThemeType) => ({
       textAlign: "left",
       height: 44,
       boxSizing: 'border-box',
-      borderBottom: `2px solid ${theme.palette.grey[300]}`,
+      borderBottom: `1px solid ${theme.palette.grey[300]}`,
     },
     "& td": {
       ...theme.typography.body2,
