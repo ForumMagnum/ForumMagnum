@@ -620,7 +620,6 @@ const ArbitalLinkedPagesRightSidebar = ({ tag, selectedLens, arbitalLinkedPages 
 
   const teachesFiltered = teaches?.filter((linkedPage: ArbitalLinkedPage) => linkedPage.slug !== selectedLens?.slug && linkedPage.slug !== tag.slug);
   const childrenDefaultLimitToShow = 4;
-  console.log({arbitalLinkedPages})
 
   return <ContentStyles contentType="tag">
     <div className={classes.linkedTagsHeader}>
