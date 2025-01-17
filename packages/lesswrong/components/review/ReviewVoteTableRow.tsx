@@ -306,7 +306,7 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
             <UsersNameDisplay user={post.user}/>
           </span>
         </div>
-        <div className={classNames(classes.commentsCount, {[classes.commentsCountVotingPhase]: reviewPhase === "VOTING"})}>
+        <div className={classes.commentsCount}>
           <PostsItemComments
             small={false}
             commentCount={postGetCommentCount(post)}
