@@ -52,7 +52,6 @@ export const ForumEventPostPageBanner = ({classes}: {
   const {params} = useLocation();
   const {currentForumEvent} = useCurrentForumEvent();
 
-  // For now, events that have polls have a special post page UI, so hide this banner
   const hideBanner =
     !currentForumEvent ||
     currentForumEvent.eventFormat !== "BASIC" ||

@@ -590,6 +590,21 @@ getCollectionHooks("Comments").updateAsync.add(async function updatedCommentMayb
   await triggerReviewIfNeeded(currentUser._id)
 });
 
+getCollectionHooks("Comments").updateAsync.add(async function updateUserNotesOnCommentRejection ({ document, oldDocument, currentUser, context }: UpdateCallbackProperties<"Comments">) {
+  if (!oldDocument.rejected && document.rejected) {
+    void createMutator({
+      collection: context.ModeratorActions,
+      context,
+      currentUser,
+      document: {
+        userId: document.userId,
+        type: REJECTED_COMMENT,
+        endedAt: new Date()
+      }
+    })
+  }
+});
+
 /**
  * Run side effects based on the `forumEventMetadata` that is submitted.
  */

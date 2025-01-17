@@ -2230,6 +2230,7 @@ CREATE INDEX IF NOT EXISTS "idx_posts_positiveReviewVoteCount" ON "Posts" USING 
   "authorIsUnreviewed",
   "groupId",
   "positiveReviewVoteCount",
+  "tagRelevance",
   "createdAt",
   "_id",
   "meta",

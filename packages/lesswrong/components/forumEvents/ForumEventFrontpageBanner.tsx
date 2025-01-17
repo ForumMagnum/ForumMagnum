@@ -22,6 +22,7 @@ export const forumEventBannerGradientBackground = (theme: ThemeType) => ({
 
 export const forumEventBannerDescriptionStyles = () => ({
   color: "var(--forum-event-banner-text)",
+  textWrap: "pretty",
   "& a": {
     textDecoration: "underline",
     textUnderlineOffset: '2px',
@@ -88,17 +89,26 @@ const styles = (theme: ThemeType) => ({
     maxWidth: 480,
     padding: 30,
     position: "relative",
-    pointerEvents: "none",
-    "& > *": {
-      pointerEvents: "auto",
-    },
     [theme.breakpoints.down("xs")]: {
       padding: 20,
       marginTop: 8,
     },
   },
   contentWithStickers: {
+    pointerEvents: "none",
+    "& .ContentStyles-commentBody *": {
+      pointerEvents: "none !important",
+    },
+    maxWidth: 400,
     margin: "24px 0 28px 0",
+    [theme.breakpoints.up("sm")]: {
+      "& > *": {
+        pointerEvents: "auto !important",
+      },
+      "& .ContentStyles-commentBody *": {
+        pointerEvents: "auto !important",
+      },
+    },
     [theme.breakpoints.down("xs")]: {
       textWrap: 'pretty',
       margin: "28px 0 40px 0",

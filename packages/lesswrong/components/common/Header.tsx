@@ -493,7 +493,7 @@ const Header = ({
     (headerStyle as any)["--header-contrast-color"] = currentForumEvent.darkColor ?? undefined;
   }
 
-  // Make all the text and icons white when we have some sort of color in the header background
+  // Make all the text and icons the same color as the text on the current forum event banner
   const useContrastText = Object.keys(headerStyle).length > 0;
 
   return (
@@ -524,7 +524,7 @@ const Header = ({
                   <div className={classes.titleSubtitleContainer}>
                     <div className={classes.titleFundraiserContainer}>
                       <Link to="/" className={classes.titleLink}>
-                        {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaWhite={useContrastText}/></div>}
+                        {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaContrast={useContrastText}/></div>}
                         {forumHeaderTitleSetting.get()}
                       </Link>
                     </div>
@@ -533,7 +533,7 @@ const Header = ({
                 </div>
                 <div className={classNames(classes.hideMdUp, classes.titleFundraiserContainer)}>
                   <Link to="/" className={classes.titleLink}>
-                    {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaWhite={useContrastText}/></div>}
+                    {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaContrast={useContrastText}/></div>}
                     {forumShortTitleSetting.get()}
                   </Link>
                 </div>

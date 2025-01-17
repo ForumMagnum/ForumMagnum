@@ -142,7 +142,7 @@ const schema: SchemaType<"ForumEvents"> = {
     ...defaultProps(true),
     type: String,
     optional: true,
-    tooltip: "For events with comments, the title in the comment box"
+    tooltip: 'For events with comments, the title in the comment box (defaults to "Add your comment")'
   },
   /**
   Used to store public event data, like public poll votes.

@@ -120,7 +120,7 @@ const ForumEventSticker = React.forwardRef<
             isPinned={isPinned}
             newRepliesCount={newRepliesCount}
             setNewRepliesCount={setNewRepliesCount}
-            placement="bottom"
+            placement={y < 0.85 ? "bottom" : "top"}
             className={classes.commentPopper}
           />
         )}
