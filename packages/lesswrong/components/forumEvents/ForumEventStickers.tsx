@@ -14,6 +14,8 @@ import { AnalyticsContext } from "@/lib/analyticsEvents";
 import type { ForumEventStickerInput, ForumEventStickerData } from "@/lib/collections/forumEvents/types";
 import { randomId } from "@/lib/random";
 import keyBy from "lodash/keyBy";
+import { useModerateComment } from "../dropdowns/comments/withModerateComment";
+import { useMessages } from "../common/withMessages";
 
 const styles = (theme: ThemeType) => ({
   stickersContainer: {
@@ -66,6 +68,7 @@ const ForumEventStickers: FC<{
   const { currentForumEvent, refetch } = useCurrentForumEvent();
   const { onSignup } = useLoginPopoverContext();
   const currentUser = useCurrentUser();
+  const { flash } = useMessages();
 
   const isDesktop = useIsAboveBreakpoint("sm");
   const [mobilePlacingSticker, setMobilePlacingSticker] = useState(false)
@@ -136,6 +139,7 @@ const ForumEventStickers: FC<{
   );
 
   const [removeSticker] = useMutation(removeForumEventStickerQuery);
+  const {moderateCommentMutation} = useModerateComment({fragmentName: "CommentsList"});
 
   const currentUserStickerCount = stickers.filter(s => s.userId === currentUser?._id).length
   const allowAddingSticker = currentUserStickerCount < (currentForumEvent?.maxStickersPerUser ?? 0)
@@ -182,17 +186,26 @@ const ForumEventStickers: FC<{
     setCommentFormOpen(false);
   }, [currentForumEvent, draftSticker, refetchAll]);
 
-  const clearSticker = useCallback(async (stickerId: string | null) => {
+  const clearSticker = useCallback(async (sticker: typeof stickers[number] | null) => {
     if (!currentForumEvent) return;
 
-    if (!stickerId) {
+    if (!sticker) {
       setDraftSticker(null);
     } else {
-      await removeSticker({ variables: { forumEventId: currentForumEvent!._id, stickerId } });
+      await removeSticker({ variables: { forumEventId: currentForumEvent!._id, stickerId: sticker._id } });
+      await moderateCommentMutation({
+        commentId: sticker.commentId,
+        deleted: true,
+        deletedPublic: true,
+        deletedReason: "",
+      });
+      await navigator.clipboard.writeText(commentGetPageUrlFromIds({ postId: currentForumEvent.postId, commentId: sticker.commentId, isAbsolute: true }));
+      flash("Sticker and comment deleted. The comment link has been copied to your clipboard in case you want to un–delete it.");
+
       await refetch?.();
     }
 
-  }, [currentForumEvent, refetch, removeSticker])
+  }, [currentForumEvent, flash, moderateCommentMutation, refetch, removeSticker])
 
   const onCloseCommentForm = useCallback(async () => {
     setCommentFormOpen(false);
@@ -258,7 +271,7 @@ const ForumEventStickers: FC<{
           <ForumEventSticker
             key={index}
             {...sticker}
-            onClear={sticker.userId === currentUser?._id ? () => clearSticker(sticker._id) : undefined}
+            onClear={sticker.userId === currentUser?._id ? () => clearSticker(sticker) : undefined}
             user={usersById[sticker.userId]}
             comment={(sticker.commentId && commentsById[sticker.commentId]) || undefined}
           />
