@@ -112,12 +112,12 @@ Globals.importArbitalDb = async (mysqlConnectionString: string, options?: Partia
   await doArbitalImport(wholeDatabase, resolverContext, optionsWithDefaults);
 }
 
-Globals.deleteImportedArbitalWikiPages = async () => {
+Globals.deleteImportedArbitalWikiPages = async (options?: ArbitalImportOptions) => {
   const wikiPagesToDelete = await Tags.find({
     "legacyData.arbitalPageId": {$exists: true},
     deleted: false,
   }).fetch();
-  for (const wikiPage of wikiPagesToDelete) {
+  await executePromiseQueue(wikiPagesToDelete.map(wikiPage => async () => {
     await Tags.rawUpdateOne({
       _id: wikiPage._id,
     }, {
@@ -126,13 +126,13 @@ Globals.deleteImportedArbitalWikiPages = async () => {
         deleted: true,
       },
     });
-  }
+  }), options?.parallelism ?? 10);
   
   const multiDocumentsToDelete = await MultiDocuments.find({
-    "legacyData.arbitalPageId": {$exists: true},
+    //"legacyData.arbitalPageId": {$exists: true},
     deleted: false,
   }).fetch();
-  for (const lensOrSummary of multiDocumentsToDelete) {
+  await executePromiseQueue(multiDocumentsToDelete.map(lensOrSummary => async () => {
     await MultiDocuments.rawUpdateOne({
       _id: lensOrSummary._id,
     }, {
@@ -142,7 +142,7 @@ Globals.deleteImportedArbitalWikiPages = async () => {
         deleted: true,
       },
     });
-  }
+  }), options?.parallelism ?? 10);
 }
 
 Globals.deleteImportedArbitalUsers = async () => {
@@ -172,8 +172,8 @@ Globals.importArbitalPagePairs = async (mysqlConnectionString: string, options?:
 
 Globals.replaceAllImportedArbitalData = async (mysqlConnectionString: string, options?: ArbitalImportOptions) => {
   console.log(`Removing previously-imported wiki pages`);
-  await Globals.deleteImportedArbitalWikiPages();
-  await Globals.deleteRedLinkPlaceholders();
+  await Globals.deleteImportedArbitalWikiPages(options);
+  await Globals.deleteRedLinkPlaceholders(options);
   console.log(`Importing Arbital content`);
   await Globals.importArbitalDb(mysqlConnectionString, options);
 }
@@ -247,7 +247,6 @@ async function createSummariesForPage({ pageId, importedRecordMaps, pageCreator,
       collectionName = "MultiDocuments";
     }
 
-    // TODO: add slugs when those fields are implemented for MultiDocuments
     const summaryObj = (await createMutator({
       collection: MultiDocuments,
       document: {
@@ -850,7 +849,6 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
 
         const lensAliasRedirects = database.aliasRedirects.filter(ar => ar.newAlias === lensPageInfo.alias);
         const lensSlug = slugsByPageId[lens.lensId];
-        // TODO: add lensId(?) to oldSlugs.  (Not sure if it's lensId or pageId)
         const lensRevisions = database.pages.filter(p => p.pageId === lens.lensId);
         const lensFirstRevision = lensRevisions[0];
         const lensLiveRevision = liveRevisionsByPageId[lens.lensId];
@@ -1201,12 +1199,12 @@ async function createRedLinkPlaceholders(redLinks: RedLinksSet, conversionContex
   }), conversionContext.options.parallelism ??1);
 }
 
-Globals.deleteRedLinkPlaceholders = async (conversionContext: ArbitalConversionContext) => {
+Globals.deleteRedLinkPlaceholders = async (options: ArbitalImportOptions) => {
   const redLinkPlaceholderPagesToDelete = await Tags.find({
     isPlaceholderPage: true,
     deleted: false,
   }).fetch();
-  for (const wikiPage of redLinkPlaceholderPagesToDelete) {
+  await executePromiseQueue(redLinkPlaceholderPagesToDelete.map(wikiPage => async () => {
     await Tags.rawUpdateOne({
       _id: wikiPage._id,
     }, {
@@ -1215,7 +1213,7 @@ Globals.deleteRedLinkPlaceholders = async (conversionContext: ArbitalConversionC
         deleted: true,
       },
     });
-  }
+  }), options.parallelism ?? 5);
 }
 
 Globals.deleteExcessRedLinkPlaceholders = async () => {
@@ -1539,7 +1537,7 @@ async function moveReferencesToMergedPage({oldTagIds, newTagId}: {
   // TODO: Rewrite user tag filters?
   
   // Rewrite tagRelevance on posts that reference any redirect tags
-  const postIdsToRecomputeTagRelevance = (await runSqlQuery(`
+  const postIdsToRecomputeTagRelevance: string[] = (await runSqlQuery(`
     SELECT _id
     FROM "Posts"
     WHERE "tagRelevance" ?| $1

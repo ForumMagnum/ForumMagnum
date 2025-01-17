@@ -529,7 +529,7 @@ addRoute(
   {
     name: 'tagsAll',
     path: getAllTagsPath(),
-    componentName: isEAForum ? 'EAAllTagsPage' : 'AllWikiTagsPage',
+    componentName: isEAForum ? 'EAAllTagsPage' : 'AllTagsPage',
     title: isEAForum ? `${taggingNamePluralCapitalSetting.get()} — Main Page` : "Concepts Portal",
     description: isEAForum ? `Browse the core ${taggingNamePluralSetting.get()} discussed on the EA Forum and an organised wiki of key ${taggingNameSetting.get()} pages` : undefined,
     hasLeftNavigationColumn: false,

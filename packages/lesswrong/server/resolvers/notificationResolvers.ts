@@ -141,3 +141,26 @@ createPaginatedResolver({
     });
   },
 });
+
+defineMutation({
+  name: "MarkAllNotificationsAsRead",
+  resultType: "Boolean",
+  fn: async (
+    _root: void,
+    _args: {},
+    {currentUser}: ResolverContext,
+  ) => {
+    if (!currentUser) {
+      throw new Error("Unauthorized");
+    }
+    await Notifications.rawUpdateMany({
+      userId: currentUser._id,
+      type: { $ne: 'newMessage' },
+    }, {
+      $set: {
+        viewed: true,
+      },
+    });
+    return true;
+  },
+});

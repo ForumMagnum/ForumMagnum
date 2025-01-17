@@ -393,6 +393,7 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
     tiebreaker: "postCount",
     filters: [
       {term: {deleted: false}},
+      {term: {isPlaceholderPage: false}},
       {term: {adminOnly: false}},
     ],
     mappings: {

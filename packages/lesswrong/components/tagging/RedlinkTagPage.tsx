@@ -6,6 +6,7 @@ import { Link, useNavigate } from '../../lib/reactRouterWrapper';
 import Button from '@material-ui/core/Button';
 import { tagUrlBaseSetting } from '@/lib/instanceSettings';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
+import { ApolloError } from '@apollo/client';
 
 const styles = defineStyles("RedlinkTagPage", theme => ({
   title: {
@@ -19,18 +20,72 @@ const styles = defineStyles("RedlinkTagPage", theme => ({
   },
 }));
 
-export const useRedLinkPingbacks = (tagId: string|undefined) => {
-  return useMulti({
+interface RedLinkPingback {
+  _id: string
+  slug: string
+  name: string
+}
+
+function getDisplayedLensName(lens: MultiDocumentMinimumInfo) {
+  if (lens.title) {
+    return lens.title;
+  }
+
+  const subtitleString = lens.tabSubtitle ? `: ${lens.tabSubtitle}` : '';
+  return `${lens.tabTitle}${subtitleString}`;
+}
+
+export const useRedLinkPingbacks = (documentId: string|undefined, excludedDocumentIds?: string[]): {
+  results: RedLinkPingback[]
+  totalCount: number
+  loading: boolean
+  error: ApolloError|undefined
+} => {
+  const tagPingbacks = useMulti({
     terms: {
       view: "pingbackWikiPages",
-      tagId: tagId,
+      tagId: documentId,
+      excludedTagIds: excludedDocumentIds,
     },
     collectionName: "Tags",
     fragmentName: "TagBasicInfo",
     limit: 10,
     enableTotal: true,
-    skip: !tagId,
+    skip: !documentId,
   });
+
+  const lensPingbacks = useMulti({
+    terms: {
+      view: "pingbackLensPages",
+      documentId: documentId,
+      excludedDocumentIds: excludedDocumentIds,
+    },
+    collectionName: "MultiDocuments",
+    fragmentName: "MultiDocumentMinimumInfo",
+    limit: 10,
+    enableTotal: true,
+    skip: !documentId,
+  });
+
+  const results: RedLinkPingback[] = [
+    ...(tagPingbacks.results ?? []).map(t => ({
+      _id: t._id,
+      slug: t.slug,
+      name: t.name,
+    })),
+    ...(lensPingbacks.results ?? []).map(l => ({
+      _id: l._id,
+      slug: l.slug,
+      name: getDisplayedLensName(l)
+    })),
+  ]
+
+  return { 
+    results,
+    totalCount: (tagPingbacks.totalCount ?? 0) + (lensPingbacks.totalCount ?? 0),
+    loading: tagPingbacks.loading || lensPingbacks.loading,
+    error: tagPingbacks.error ?? lensPingbacks.error
+  }
 }
 
 function capitalizeFirstLetter(s: string): string {

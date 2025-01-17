@@ -31,6 +31,8 @@ import { useTagEditingRestricted } from "./TagPageButtonRow";
 import { useMultiClickHandler } from "../hooks/useMultiClickHandler";
 import HistoryIcon from '@material-ui/icons/History';
 import { FieldsNotNull, filterWhereFieldsNotNull } from "@/lib/utils/typeGuardUtils";
+import isEmpty from "lodash/isEmpty";
+import { TagPageContext } from "./TagPageContext";
 
 const sidePaddingStyle = (theme: ThemeType) => ({
   paddingLeft: 42,
@@ -488,7 +490,6 @@ function useDisplayedTagTitle(tag: TagPageFragment | TagPageWithRevisionFragment
   return selectedLens.title;
 }
 
-// TODO: maybe move this to the server, so that the user doesn't have to wait for the hooks to run to see the contributors
 function useDisplayedContributors(contributorsInfo: DocumentContributorsInfo | null) {
   const contributors = filterWhereFieldsNotNull(contributorsInfo?.contributors ?? [], 'user');
   if (!contributors.some(({ currentAttributionCharCount }) => currentAttributionCharCount)) {
@@ -1081,7 +1082,9 @@ const LWTagPage = () => {
 
   // If the slug in our URL is not the same as the slug on the tag, redirect to the canonical slug page
   if (tag.oldSlugs?.filter(slug => slug !== tag.slug)?.includes(slug)) {
-    return <PermanentRedirect url={tagGetUrl(tag)} />
+    const baseTagUrl = tagGetUrl(tag);
+    const queryString = !isEmpty(query) ? `?${qs.stringify(query)}` : '';
+    return <PermanentRedirect url={`${baseTagUrl}${queryString}`} />
   }
   if (editing && !tagUserHasSufficientKarma(currentUser, "edit")) {
     throw new Error(`Sorry, you cannot edit ${taggingNamePluralSetting.get()} without ${tagMinimumKarmaPermissions.edit} or more karma.`)
@@ -1368,35 +1371,37 @@ const LWTagPage = () => {
     sortedBy={query.sortedBy || "relevance"}
     limit={terms.limit}
   >
-    <HeadTags
-      description={headTagDescription}
-      structuredData={getTagStructuredData(tag)}
-      noIndex={tag.noindex}
-    />
-    {hoveredContributorId && <style>
-      {`.by_${hoveredContributorId} {background: rgba(95, 155, 101, 0.35);}`}
-    </style>}
-    {tag.bannerImageId && <div className={classes.imageContainer}>
-      <CloudinaryImage2
-        publicId={tag.bannerImageId}
-        height={300}
-        fullWidthHeader
+    <TagPageContext.Provider value={{selectedLens: selectedLens ?? null}}>
+      <HeadTags
+        description={headTagDescription}
+        structuredData={getTagStructuredData(tag)}
+        noIndex={tag.noindex}
       />
-    </div>}
-    <div className={tag.bannerImageId ? classes.rootGivenImage : ''}>
-      {/* {originalToc} */}
-      <TagPageButtonRow
-        tag={tag}
-        selectedLens={selectedLens}
-        editing={editing}
-        setEditing={setEditing}
-        hideLabels={true}
-        className={classNames(classes.editMenu, classes.nonMobileButtonRow)}
-        refetchTag={refetchTag}
-        updateSelectedLens={updateSelectedLens}
-      />
-      {multiColumnToc}
-    </div>
+      {hoveredContributorId && <style>
+        {`.by_${hoveredContributorId} {background: rgba(95, 155, 101, 0.35);}`}
+      </style>}
+      {tag.bannerImageId && <div className={classes.imageContainer}>
+        <CloudinaryImage2
+          publicId={tag.bannerImageId}
+          height={300}
+          fullWidthHeader
+        />
+      </div>}
+      <div className={tag.bannerImageId ? classes.rootGivenImage : ''}>
+        {/* {originalToc} */}
+        <TagPageButtonRow
+          tag={tag}
+          selectedLens={selectedLens}
+          editing={editing}
+          setEditing={setEditing}
+          hideLabels={true}
+          className={classNames(classes.editMenu, classes.nonMobileButtonRow)}
+          refetchTag={refetchTag}
+          updateSelectedLens={updateSelectedLens}
+        />
+        {multiColumnToc}
+      </div>
+    </TagPageContext.Provider>
   </AnalyticsContext>
 }
 
