@@ -95,12 +95,11 @@ const styles = (theme: ThemeType) => ({
     },
   },
   contentWithStickers: {
+    // Pass pointer events through on mobile, not on desktop
     pointerEvents: "none",
     "& .ContentStyles-commentBody *": {
       pointerEvents: "none !important",
     },
-    maxWidth: 400,
-    margin: "24px 0 28px 0",
     [theme.breakpoints.up("sm")]: {
       "& > *": {
         pointerEvents: "auto !important",
@@ -109,8 +108,13 @@ const styles = (theme: ThemeType) => ({
         pointerEvents: "auto !important",
       },
     },
+
+    maxWidth: 400,
+    margin: "24px 0 28px 36px",
+    [theme.breakpoints.down("sm")]: {
+      margin: "24px 0 28px 22px",
+    },
     [theme.breakpoints.down("xs")]: {
-      textWrap: 'pretty',
       margin: "28px 0 40px 0",
     },
   },

@@ -902,7 +902,7 @@ CREATE TABLE "ForumEvents" (
   "lightColor" TEXT NOT NULL DEFAULT '#ffffff',
   "bannerTextColor" TEXT NOT NULL DEFAULT '#ffffff',
   "contrastColor" TEXT,
-  "tagId" VARCHAR(27) NOT NULL,
+  "tagId" VARCHAR(27),
   "postId" VARCHAR(27),
   "bannerImageId" TEXT,
   "includesPoll" BOOL NOT NULL DEFAULT FALSE,

@@ -473,7 +473,7 @@ interface DbForumEvent extends DbObject {
   lightColor: string
   bannerTextColor: string
   contrastColor: string | null
-  tagId: string
+  tagId: string | null
   postId: string | null
   bannerImageId: string | null
   includesPoll: boolean

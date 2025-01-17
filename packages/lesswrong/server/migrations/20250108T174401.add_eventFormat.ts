@@ -8,6 +8,7 @@ export const up = async ({db}: MigrationContext) => {
   await addField(db, ForumEvents, "bannerTextColor")
   await addField(db, ForumEvents, "commentPrompt")
   await addField(db, Comments, "forumEventMetadata")
+  await db.none(`ALTER TABLE "ForumEvents" ALTER COLUMN "tagId" DROP NOT NULL`)
   await db.none(`UPDATE "ForumEvents" SET "eventFormat" = 'POLL' WHERE "includesPoll" IS TRUE`)
 }
 

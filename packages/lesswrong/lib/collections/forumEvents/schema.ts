@@ -88,6 +88,8 @@ const schema: SchemaType<"ForumEvents"> = {
       type: "Tag",
       nullable: true,
     }),
+    nullable: true,
+    optional: true,
     control: "TagSelect",
     label: "Choose tag",
   },

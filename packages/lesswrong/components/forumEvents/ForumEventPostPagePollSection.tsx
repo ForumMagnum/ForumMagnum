@@ -83,7 +83,7 @@ export const ForumEventPostPagePollSection = ({postId, classes}: {
   }
 
   // Only show this section for posts tagged with the event tag
-  const relevance = post?.tagRelevance?.[currentForumEvent.tagId] ?? 0;
+  const relevance = currentForumEvent.tagId ? (post?.tagRelevance?.[currentForumEvent.tagId] ?? 0) : 0;
   if (relevance < 1) {
     return null;
   }
