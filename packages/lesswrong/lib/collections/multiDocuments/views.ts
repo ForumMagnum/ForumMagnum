@@ -1,25 +1,31 @@
+import { ensureCustomPgIndex, ensureIndex } from "@/lib/collectionIndexUtils";
+import { jsonArrayContainsSelector } from "@/lib/utils/viewUtils";
 import { MultiDocuments } from "./collection";
+import { userIsAdminOrMod } from '@/lib/vulcan-users';
+import { viewFieldAllowAny } from "@/lib/vulcan-lib";
 
 declare global {
-  interface LensBySlugViewTerms {
-    view: 'lensBySlug',
-    slug: string
+  interface MultiDocumentsViewTerms extends ViewTermsBase {
+    view?: MultiDocumentsViewName
+    slug?: string,
+    documentId?: string,
+    parentDocumentId?: string,
+    excludedDocumentIds?: string[]
   }
-
-  interface SummariesByParentIdViewTerms {
-    view: 'summariesByParentId',
-    parentDocumentId: string
-  }
-
-  type MultiDocumentsViewTerms = Omit<ViewTermsBase, 'view'> & (LensBySlugViewTerms | SummariesByParentIdViewTerms | {
-    view?: undefined,
-    slug?: undefined,
-    parentDocumentId?: undefined
-  });
 }
 
-// TODO: replace this with a proper query that joins on tags to make sure we're not returning a lens for a deleted tag
-MultiDocuments.addView("lensBySlug", function (terms: LensBySlugViewTerms) {
+MultiDocuments.addDefaultView(function (terms: MultiDocumentsViewTerms, _, context?: ResolverContext) {
+  const currentUser = context?.currentUser ?? null;
+
+  return {
+    selector: {
+      ...(terms.excludedDocumentIds ? { _id: { $nin: terms.excludedDocumentIds } } : {}),
+      ...(!userIsAdminOrMod(currentUser) ? { deleted: false } : {}),
+    },
+  };
+});
+
+MultiDocuments.addView("lensBySlug", function (terms: MultiDocumentsViewTerms) {
   return {
     selector: {
       $or: [
@@ -32,11 +38,12 @@ MultiDocuments.addView("lensBySlug", function (terms: LensBySlugViewTerms) {
   };
 });
 
-MultiDocuments.addView("summariesByParentId", function (terms: SummariesByParentIdViewTerms) {
+MultiDocuments.addView("summariesByParentId", function (terms: MultiDocumentsViewTerms) {
   return {
     selector: {
       fieldName: 'summary',
       parentDocumentId: terms.parentDocumentId,
+      deleted: viewFieldAllowAny,
     },
     options: {
       sort: {
@@ -45,3 +52,16 @@ MultiDocuments.addView("summariesByParentId", function (terms: SummariesByParent
     },
   };
 });
+
+MultiDocuments.addView("pingbackLensPages", (terms: MultiDocumentsViewTerms) => {
+  return {
+    selector: {
+      $or: [
+        jsonArrayContainsSelector("pingbacks.Tags", terms.documentId),
+        jsonArrayContainsSelector("pingbacks.MultiDocuments", terms.documentId),
+      ],
+      fieldName: 'description',
+    },
+  }
+});
+void ensureCustomPgIndex(`CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_multi_documents_pingbacks ON "MultiDocuments" USING gin(pingbacks);`);

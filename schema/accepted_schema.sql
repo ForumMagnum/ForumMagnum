@@ -3765,6 +3765,9 @@ WHERE
   "deleted" IS NOT TRUE AND
   "email" IS NOT NULL;
 
+-- CustomIndex "idx_multi_documents_pingbacks"
+CREATE INDEX IF NOT EXISTS idx_multi_documents_pingbacks ON "MultiDocuments" USING gin (pingbacks);
+
 -- Function "fm_build_nested_jsonb"
 CREATE OR
 REPLACE FUNCTION fm_build_nested_jsonb (target_path TEXT[], terminal_element JSONB) RETURNS JSONB LANGUAGE sql IMMUTABLE AS 'SELECT JSONB_BUILD_OBJECT(
