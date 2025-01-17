@@ -433,6 +433,7 @@ importComponent("AdminForumEventsPage", () => require("../../components/forumEve
 importComponent("EditForumEventPage", () => require("../../components/forumEvents/EditForumEventPage.tsx"));
 importComponent("ForumEventBanner", () => require("../../components/forumEvents/ForumEventBanner.tsx"));
 importComponent("ForumEventCommentForm", () => require("../../components/forumEvents/ForumEventCommentForm.tsx"));
+importComponent("ForumEventEmojiPicker", () => require("../../components/forumEvents/ForumEventEmojiPicker.tsx"));
 importComponent("ForumEventForm", () => require("../../components/forumEvents/ForumEventForm.tsx"));
 importComponent("ForumEventFrontpageBanner", () => require("../../components/forumEvents/ForumEventFrontpageBanner.tsx"));
 importComponent("ForumEventPoll", () => require("../../components/forumEvents/ForumEventPoll.tsx"));

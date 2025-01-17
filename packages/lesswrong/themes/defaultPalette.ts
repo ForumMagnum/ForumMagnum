@@ -594,6 +594,10 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       green: "#006336",//"#0b7138",
     },
   },
+  forumEvent: {
+    draftSticker: "#9BC4CC",
+    stickerMobileOverlay: "linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.3) 25%, rgba(255, 255, 255, 0.3) 75%, rgba(255, 255, 255, 0) 100%)"
+  },
   namesAttachedReactions: {
     selectedAnti: "rgb(255, 189, 189, .23)",
   },

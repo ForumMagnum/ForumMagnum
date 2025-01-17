@@ -109,6 +109,10 @@ type CollectionFieldResolveAs<N extends CollectionNameString> = {
 interface CollectionFieldSpecification<N extends CollectionNameString> extends CollectionFieldPermissions {
   type?: any,
   description?: string,
+  /**
+   * Whether this field must be included in create and update
+   * mutations (separate from whether it is allowed to be null)
+   */
   optional?: boolean,
   defaultValue?: any,
   graphQLType?: string,
@@ -124,6 +128,9 @@ interface CollectionFieldSpecification<N extends CollectionNameString> extends C
   getValue?: (doc: ObjectsByCollectionName[N], context: ResolverContext) => any,
   foreignKey?: any,
   logChanges?: boolean,
+  /**
+   * Whether this field can be null (enforced at the database level)
+   */
   nullable?: boolean,
   
   min?: number,
