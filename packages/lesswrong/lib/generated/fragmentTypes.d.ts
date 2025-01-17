@@ -2885,6 +2885,11 @@ interface ConceptItemFragment { // fragment on Tags
   readonly coreTagId: string | null,
   readonly maxScore: number|null,
   readonly usersWhoLiked: any,
+  readonly currentUserVote: string|null,
+  readonly currentUserExtendedVote: any,
+  readonly score: number,
+  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly voteCount: number,
 }
 
 interface ConceptItemFragment_description { // fragment on Revisions

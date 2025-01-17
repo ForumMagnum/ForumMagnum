@@ -13,7 +13,7 @@ import { VotingProps } from '../../components/votes/votingProps';
 import type { ContentItemBody, ContentReplacedSubstringComponentInfo } from '../../components/common/ContentItemBody';
 import { isEAForum } from '../instanceSettings';
 
-export type VotingPropsDocument = CommentsList|PostsWithVotes|RevisionMetadataWithChangeMetrics|MultiDocumentMinimumInfo
+export type VotingPropsDocument = CommentsList|PostsWithVotes|RevisionMetadataWithChangeMetrics|MultiDocumentMinimumInfo|TagBasicInfo|ConceptItemFragment
 
 export type CommentVotingComponentProps<T extends VotingPropsDocument = VotingPropsDocument> = {
   document: T,

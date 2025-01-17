@@ -482,6 +482,11 @@ registerFragment(`
       _id
       displayName
     }
+    currentUserVote
+    currentUserExtendedVote
+    score
+    extendedScore
+    voteCount
   }
 `);
 

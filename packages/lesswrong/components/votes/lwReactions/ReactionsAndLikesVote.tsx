@@ -34,6 +34,12 @@ const styles = defineStyles("ReactionsAndLikesVote", (theme) => ({
       opacity: 0.7,
     },
   },
+  iconConceptItem: {
+    width: 12,
+    height: 12,
+    position: "relative",
+    top: 1,
+  },
   likeCount: {
     fontSize: "0.9rem",
     verticalAlign: "middle",
@@ -65,15 +71,16 @@ const ReactionsAndLikesVoteOnComment  = ({document, hideKarma=false, collectionN
 
 const ReactionsAndLikesVote  = ({
   document,
-  hideKarma=false,
+  hideCount=false,
   collectionName,
   votingSystem,
   isSelected=false,
   stylingVariant="default",
   className,
 }: CommentVotingComponentProps & {
+  hideCount?: boolean,
   isSelected?: boolean,
-  stylingVariant?: "default" | "buttonRow",
+  stylingVariant?: "default" | "buttonRow" | "conceptItem",
   className?: string,
 }) => {
   const classes = useStyles(styles);
@@ -126,8 +133,8 @@ const ReactionsAndLikesVote  = ({
   return <div className={className}>
     <LWTooltip title={voteScoreTooltip}>
     <div className={classNames({[classes.unselectedLikeButton]: !isSelected, [classes.selectedLikeButton]: isSelected})} onClick={toggleLike} onMouseDown={(e) => e.stopPropagation()}>
-      <ForumIcon icon={currentUserLikesIt ? "ThumbUp" : "ThumbUpOutline"} className={classes.icon} />
-        {likeCount>0 && likeCountElement}
+      <ForumIcon icon={currentUserLikesIt ? "ThumbUp" : "ThumbUpOutline"} className={classNames({[classes.icon]: stylingVariant !== "conceptItem", [classes.iconConceptItem]: stylingVariant === "conceptItem"})} />
+        {!hideCount && likeCount>0 && likeCountElement}
       </div>
     </LWTooltip>
   </div>

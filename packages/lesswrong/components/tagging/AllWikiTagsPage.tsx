@@ -208,6 +208,11 @@ const uncategorizedRootTag = {
   coreTagId: null,
   parentTagId: null,
   isArbitalImport: false,
+  currentUserVote: null,
+  currentUserExtendedVote: null,
+  score: 0,
+  extendedScore: 0,
+  voteCount: 0,
 };
 
 // TODO: we really need to figure out a better way to handle this than slugs, especially with the merged rationality page

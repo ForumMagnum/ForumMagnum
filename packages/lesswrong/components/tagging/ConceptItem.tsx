@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { ArbitalLogo } from '../icons/ArbitalLogo';
 import { Link } from '@/lib/reactRouterWrapper';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
+import { userIsAdmin } from '@/lib/vulcan-users';
+import { useCurrentUser } from '../common/withUser';
+import { getVotingSystemByName } from '@/lib/voting/votingSystems';
 
 const CONCEPT_ITEM_WIDTH = 300;
 
@@ -140,6 +143,9 @@ const styles = defineStyles("ConceptItem", (theme: ThemeType) => ({
   arbitalGreenColor: {
     color: theme.palette.arbital.arbitalGreen,
   },
+  likeButton: {
+    marginLeft: 4,
+  },
 }));
 
 interface ConceptItemProps {
@@ -155,10 +161,13 @@ const ConceptItem = ({
 }: ConceptItemProps) => {
   const classes = useStyles(styles);
 
-  const { TagsTooltip, LWTooltip } = Components;
+  const currentUser = useCurrentUser();
+  const { TagsTooltip, LWTooltip, ReactionsAndLikesVote } = Components;
 
   const usersWhoLiked = wikitag.usersWhoLiked ?? [];
   const maxScore = wikitag.maxScore ?? 0;
+
+  const votingSystem = getVotingSystemByName("reactionsAndLikes");
 
   const titleItem = (
     <div className={classes.titleItem}>
@@ -245,6 +254,17 @@ const ConceptItem = ({
               ({wikitag.postCount})
             </TagsTooltip>
           </span>
+        )}
+        {userIsAdmin(currentUser) && (
+           <ReactionsAndLikesVote
+           document={wikitag}
+           collectionName={"Tags"}
+           votingSystem={votingSystem}
+           isSelected={true}
+           hideCount={true}
+           stylingVariant={"conceptItem"}
+           className={classes.likeButton}
+         />
         )}
       </div>
     </div>
