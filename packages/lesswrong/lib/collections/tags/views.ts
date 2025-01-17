@@ -235,11 +235,15 @@ Tags.addView('tagsByTagFlag', (terms: TagsViewTerms) => {
     selector: terms.tagFlagId ?
     {
       tagFlagsIds: terms.tagFlagId,
-      wikiOnly: viewFieldAllowAny
+      wikiOnly: viewFieldAllowAny,
+      isPlaceholderPage: false,
+      deleted: false, 
     } :
     {
       tagFlagsIds: {$exists: true, $gt: []},
-      wikiOnly: viewFieldAllowAny
+      wikiOnly: viewFieldAllowAny,
+      isPlaceholderPage: false,
+      deleted: false,
     },
     options: {sort: {createdAt: -1}}
   }

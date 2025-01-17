@@ -1032,6 +1032,7 @@ const LWTagPage = () => {
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tagPositionInList])
   const nextTag = otherTagsWithNavigation && (nextTagPosition !== null && nextTagPosition >= 0) && otherTagsWithNavigation[nextTagPosition]
+  console.log({otherTagsWithNavigationLength: otherTagsWithNavigation?.length, nextTagPosition})
   
   const expandAll = useCallback(() => {
     setTruncated(false)

@@ -7,6 +7,7 @@ import { EditTagForm } from './EditTagPage';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useLocation } from '../../lib/routeUtil';
 import classNames from 'classnames'
+import { getVotingSystemByName } from '@/lib/voting/votingSystems';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -14,11 +15,11 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.commentStyle,
     display: "flex",
     flexWrap: "wrap",
-    justifyContent: "space-between",
+    // justifyContent: "space-between",
     borderBottom: theme.palette.border.faint,
   },
   description: {
-    maxWidth: 580,
+    width: 580,
     paddingRight: 20,
     paddingTop: 12,
     paddingBottom: 10,
@@ -47,7 +48,7 @@ const styles = (theme: ThemeType) => ({
     display: "block"
   },
   posts: {
-    width: 410,
+    // width: 410,
     padding: 20,
     paddingBottom: 10,
     [theme.breakpoints.down('sm')]: {
@@ -59,11 +60,11 @@ const styles = (theme: ThemeType) => ({
     width: 380
   },
   collapsedPosts: {
-    width: 630,
+    // width: 630,
     padding: 8
   },
   collapsedFlags: {
-    width: 630,
+    // width: 630,
     padding: 8
   },
   tagName: {
@@ -72,6 +73,19 @@ const styles = (theme: ThemeType) => ({
     overflow: "hidden",
     fontSize: "1.2rem",
     whiteSpace: "nowrap"
+  },
+  likeButton: {
+    width: 20,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    marginLeft: 10,
+  },
+  voteElements: {
+    padding: 10,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
   }
 });
 
@@ -82,7 +96,7 @@ const TagsDetailsItem = ({tag, classes, showFlags = false, flagId, collapse = fa
   flagId?: string,
   collapse?: boolean
 }) => {
-  const { LinkCard, TagPreviewDescription, TagSmallPostLink, Loading, TagFlagItem } = Components;
+  const { LinkCard, TagPreviewDescription, TagSmallPostLink, Loading, TagFlagItem, TagsTooltip, LWTooltip, TagOrLensLikeButton, ReactionsAndLikesVote } = Components;
   const currentUser = useCurrentUser();
   const [ editing, setEditing ] = useState(false)
   const { query } = useLocation();
@@ -95,10 +109,23 @@ const TagsDetailsItem = ({tag, classes, showFlags = false, flagId, collapse = fa
     },
     collectionName: "TagRels",
     fragmentName: "TagRelFragment",
-    limit: 3,
+    limit: 20,
   });
 
+  const votingSystem = getVotingSystemByName("reactionsAndLikes");
+
   return <div className={classes.root}>
+    <div className={classes.voteElements}>
+    {tag.baseScore}
+    <ReactionsAndLikesVote
+        document={tag}
+        collectionName="Tags"
+        votingSystem={votingSystem}
+        isSelected={true}
+        stylingVariant="default"
+        className={classes.likeButton}
+      />
+    </div>
     <div className={classNames(classes.description, {[classes.collapsedDescription]: collapse})}>
       {editing ? 
         <EditTagForm 
@@ -106,32 +133,40 @@ const TagsDetailsItem = ({tag, classes, showFlags = false, flagId, collapse = fa
           successCallback={()=>setEditing(false)} 
           cancelCallback={()=>setEditing(false)}
         />
-        :
-        <LinkCard 
-          to={tagGetUrl(tag, {flagId, edit: !!currentUser})} 
-        >
-          {collapse ? <div className={classes.tagName}>
+        : <div>
+        <TagsTooltip tagSlug={tag.slug} noPrefetch previewPostCount={0} placement='bottom-start' >
+        <Link to={tagGetUrl(tag, {flagId, edit: !!currentUser})} >
+          <div className={classes.tagName}>
             <strong>{tag.name}</strong>
-          </div> : <TagPreviewDescription tag={tag} />}
-        </LinkCard>
+            </div>
+          </Link>
+        </TagsTooltip>
+        <TagPreviewDescription tag={tag} />
+        </div>
       }
-      {currentUser && !collapse && 
+      {/* {currentUser && !collapse && 
         <div>
           <a onClick={() => setEditing(true)} className={classes.edit}>
             Edit
           </a>
         </div>
-      }
+      } */}
     </div>
     {!showFlags && <div className={classNames(classes.posts, {[classes.collapsedPosts]: collapse})}>
       <div>
-        <Link to={tagGetUrl(tag)} className={classes.postCount}>
-          {tag.postCount} posts tagged <em>{tag.name}</em>
-        </Link>
-        {!tagRels && loading && <Loading/>}
+        <LWTooltip 
+        title={<div>
+            {tagRels?.map(tagRel=><div key={tagRel._id}>[{tagRel.post?.baseScore}] {tagRel.post?.title}</div>)}
+          </div>}
+        >
+          <Link to={tagGetUrl(tag)} className={classes.postCount}>
+            {tag.postCount} posts tagged <em>{tag.name}</em>
+          </Link>
+        </LWTooltip>
+        {/* {!tagRels && loading && <Loading/>}
         {tagRels && tagRels.map(tagRel=>
           (tagRel.post && <TagSmallPostLink key={tagRel._id} post={tagRel.post} hideMeta wrap/>)
-        )}
+        )} */}
       </div>
     </div>}
     {showFlags && <div className={classNames(classes.posts, classes.flags, {[classes.collapsedFlags]: collapse})}>

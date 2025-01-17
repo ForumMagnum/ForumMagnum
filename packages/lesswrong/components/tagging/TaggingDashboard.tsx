@@ -91,7 +91,7 @@ const TaggingDashboard = ({classes}: {
     terms: fieldIn(query.focus, multiTerms) ? multiTerms[query.focus] : {view: "tagsByTagFlag", tagFlagId: query.focus},
     collectionName: "Tags",
     fragmentName: "TagWithFlagsFragment",
-    limit: 10,
+    limit: 50,
     itemsPerPage: 50,
   });
 
@@ -164,7 +164,7 @@ const TaggingDashboard = ({classes}: {
         {!loading && tagsFiltered?.map(tag => <TagsDetailsItem
               key={tag._id}
               tag={tag}
-              showFlags
+              // showFlags
               flagId={query.focus}
               collapse={collapsed}
             />)}
@@ -173,7 +173,7 @@ const TaggingDashboard = ({classes}: {
         </div>
       </div>
     </div>
-    <SingleColumnSection>
+    {/* <SingleColumnSection>
       <div id="Newest_tags" className={classes.sectionPositioning}>
         <SectionTitle title={`Newest ${taggingNamePluralCapitalSetting.get()}`}/>
         <NewTagsList showHeaders={false}/>
@@ -185,7 +185,7 @@ const TaggingDashboard = ({classes}: {
       <div id="Tag_activity_feed" className={classes.sectionPositioning}>
         <TagActivityFeed pageSize={20}/>
       </div>
-    </SingleColumnSection>
+    </SingleColumnSection> */}
   </div>
 }
 
