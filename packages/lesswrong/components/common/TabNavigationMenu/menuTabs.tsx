@@ -199,6 +199,11 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       link: '/posts/YMo5PuXnZDwRjhHhE/the-story-of-i-have-been-a-good-bing',
       subItem: true
     }, {
+      id: 'leaderboard',
+      title: 'Leaderboard',
+      link: '/leaderboard',
+      subItem: true
+    }, {
       id: 'about',
       title: 'About',
       link: '/about',
